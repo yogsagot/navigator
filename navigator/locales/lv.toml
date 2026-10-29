@@ -581,7 +581,7 @@ flag = "LV"
 "Give this answer for every file that is already there" = "Dot šo atbildi katram failam, kas jau pastāv"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "Pā~r~rakstīt"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:418, navigator/widgets/manager/manager/manager.py:849 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:418, navigator/widgets/manager/manager/manager.py:853 ...
 "A~p~pend" = "Pievie~n~ot"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~P~ārdēvēt"
@@ -741,9 +741,9 @@ flag = "LV"
 "Show" = "Rādīt"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "~I~zmērs"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4675
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4692
 "~A~ttributes" = "~A~tribūti"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4675
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4692
 "~O~wner" = "Īpašni~e~ks"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~C~eļš"
@@ -751,7 +751,7 @@ flag = "LV"
 "~B~rief" = "Ī~s~s"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:47
 "~F~ull" = "Pi~l~ns"
-# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2025
+# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2029
 "Compare directories" = "Salīdzināt direktorijas"
 # navigator/widgets/manager/compare_dialog/compare_dialog.nml:37
 "Compare ~s~ize" = "Salīdzināt ~i~zmēru"
@@ -819,7 +819,7 @@ flag = "LV"
 "~A~ll drives" = "Vi~s~i diski"
 # navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:88
 "Ad~v~anced..." = "~N~osacījumi..."
-# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1217, navigator/widgets/manager/manager/manager.py:1143 ...
+# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1221, navigator/widgets/manager/manager/manager.py:1147 ...
 "No files found" = "Faili nav atrasti"
 # navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:13
 "Make List File" = "Izveidot saraksta failu"
@@ -871,7 +871,7 @@ flag = "LV"
 "Put back the names the last multi-rename changed" = "Atjaunot nosaukumus, ko mainīja pēdējā grupveida pārdēvēšana"
 # navigator/widgets/manager/manager/manager.nml:213, navigator/widgets/manager/panel/panel.py:1804
 "E~x~tract to..." = "Izvilkt uz..."
-# navigator/widgets/manager/manager/manager.nml:217, navigator/widgets/manager/manager/manager.py:1077
+# navigator/widgets/manager/manager/manager.nml:217, navigator/widgets/manager/manager/manager.py:1081
 "Test archive" = "Pārbaudīt arhīvu"
 # navigator/widgets/manager/manager/manager.nml:218
 "Read the archive through and check it for errors" = "Izlasīt arhīvu un pārbaudīt, vai tajā nav kļūdu"
@@ -923,7 +923,7 @@ flag = "LV"
 "Change direc~t~ory" = "Mainīt direktorij~u~"
 # navigator/widgets/manager/manager/manager.nml:301
 "Choose a directory from a tree" = "Izvēlēties direktoriju no koka"
-# navigator/widgets/manager/manager/manager.nml:305, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2133 ...
+# navigator/widgets/manager/manager/manager.nml:305, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2137 ...
 "Quick s~e~arch" = "Ā~t~rā meklēšana"
 # navigator/widgets/manager/manager/manager.nml:309, navigator/widgets/shell/volumes_window/volumes_window.nml:143, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.nml:71 ...
 "~R~e-read" = "~P~ārlasīt"
@@ -943,21 +943,21 @@ flag = "LV"
 "History of directories..." = "Direktoriju vēsture..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "Paneļa iestatījumi"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2730
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2734
 "Sort by" = "Kārtot pēc"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:35, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:36
 "Re~v~erse order" = "Apgriezta se~c~ība"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "Secība ir apgriezta: lielākie, jaunākie, Z vispirms..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4675 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4692 ...
 "~E~xtension" = "~P~aplašinājums"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "Atribūti"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
 "O~w~ner" = "Īpa~š~nieks"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4696
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4713
 "Ty~p~e" = "~T~ips"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4675 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4692 ...
 "~U~nsorted" = "~N~ekārtots"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:52, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:62
 "Display" = "Rādīt"
@@ -991,7 +991,7 @@ flag = "LV"
 "~E~xcept mask" = "~I~zņemot masku"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:48
 "Select what the mask does not match" = "Atlasīt to, kas neatbilst maskai"
-# navigator/widgets/manager/sync_window/sync_window.nml:36, navigator/widgets/manager/manager/manager.py:2054, navigator/widgets/manager/sync_window/sync_window.py:152
+# navigator/widgets/manager/sync_window/sync_window.nml:36, navigator/widgets/manager/manager/manager.py:2058, navigator/widgets/manager/sync_window/sync_window.py:152
 "Synchronize" = "Sinhronizēt"
 # navigator/widgets/manager/sync_window/sync_window.nml:76, navigator/widgets/manager/sync_window/sync_window.nml:158
 "Show ~i~dentical" = "Rādīt ~v~ienādos"
@@ -1147,25 +1147,27 @@ flag = "LV"
 "Custom ~f~ormat" = "Pielāgotais ~f~ormāts"
 # navigator/widgets/setup/country_page/country_page.nml:88
 "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's" = "strftime direktīvas: %d diena, %m mēnesis, %y vai %Y gads,\n%b vai %B mēneša nosaukums, %a vai %A nedēļas dienas"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:19
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:20
 "Items to display" = "Rādāmie elementi"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "~D~irectory Title" = "~D~ir. nosaukums"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "~T~otals" = "~K~opsumma"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
+"File under the ~c~ursor" = "~F~ails zem kursora"
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~S~ize" = "~S~ējuma izmērs"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~F~ree space" = "Sējuma ~b~rīvā vieta"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Volume ~L~abel" = "Sējuma ~e~tiķete"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Total ~m~emory" = "Kopējā ~a~tmiņa"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "M~e~mory for user" = "Atmiņa ~l~ietotājam"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "Memory for ~N~avigator" = "~N~avigator atmiņa"
-# navigator/widgets/setup/drive_info_page/drive_info_page.nml:28
+# navigator/widgets/setup/drive_info_page/drive_info_page.nml:29
 "~I~nformation file" = "~I~nformācijas fails"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:25
 "Editor options" = "Redaktors"
@@ -1721,7 +1723,7 @@ flag = "LV"
 "~V~olumes" = "Sē~j~umi"
 # navigator/widgets/shell/main_menu/main_menu.nml:261
 "Disks and partitions: mount, unmount and eject them" = "Diski un nodalījumi: montēt, atmontēt un izgrūst"
-# navigator/widgets/shell/main_menu/main_menu.nml:267, navigator/widgets/manager/manager/manager.py:2244
+# navigator/widgets/shell/main_menu/main_menu.nml:267, navigator/widgets/manager/manager/manager.py:2248
 "~T~rash" = "~A~tkritne"
 # navigator/widgets/shell/main_menu/main_menu.nml:270
 "~E~mpty Trash" = "~I~ztukšot atkritni"
@@ -1923,7 +1925,7 @@ flag = "LV"
 "Main board" = "Mātesplate"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:38
 "Disk drives" = "Diski"
-# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53
+# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:322
 "Memory" = "Atmiņa"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "Cits"
@@ -2129,9 +2131,9 @@ flag = "LV"
 "[{token}] is not a placeholder" = "[{token}] nav vietturis"
 # navigator/lib/file_ops/multirename.py:233
 "Not a regular expression: {reason}" = "Nav regulāra izteiksme: {reason}"
-# navigator/lib/file_ops/multirename.py:408, navigator/widgets/manager/manager/manager.py:1568
+# navigator/lib/file_ops/multirename.py:408, navigator/widgets/manager/manager/manager.py:1572
 "a file of that name is already there" = "fails ar šādu vārdu jau ir"
-# navigator/lib/file_ops/multirename.py:444, navigator/lib/file_ops/multirename.py:419, navigator/widgets/manager/manager/manager.py:1570 ...
+# navigator/lib/file_ops/multirename.py:444, navigator/lib/file_ops/multirename.py:419, navigator/widgets/manager/manager/manager.py:1574 ...
 "Could not rename {old}\nto {new}: {reason}" = "Neizdevās pārdēvēt {old}\npar {new}: {reason}"
 # navigator/lib/file_ops/multirename.py:239
 "Cannot replace with {text}: {reason}" = "Nevar aizstāt ar {text}: {reason}"
@@ -2177,25 +2179,69 @@ flag = "LV"
 "plain" = "teksts"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "auto"
-# navigator/lib/system/diskinfo.py:167, navigator/widgets/manager/panel/panel.py:2296
+# navigator/lib/system/diskinfo.py:210
+"File" = "Fails"
+# navigator/lib/system/diskinfo.py:201
+"Socket" = "Ligzda"
+# navigator/lib/system/diskinfo.py:203
+"Character device" = "Rakstzīmju ierīce"
+# navigator/lib/system/diskinfo.py:205
+"Block device" = "Bloku ierīce"
+# navigator/lib/system/diskinfo.py:207
+"FIFO" = "FIFO"
+# navigator/lib/system/diskinfo.py:209
+"Executable file" = "Izpildāms fails"
+# navigator/lib/system/diskinfo.py:196
+"Broken symbolic link" = "Bojāta simboliskā saite"
+# navigator/lib/system/diskinfo.py:197
+"Symbolic link to a directory" = "Simboliskā saite uz direktoriju"
+# navigator/lib/system/diskinfo.py:197
+"Symbolic link to a file" = "Simboliskā saite uz failu"
+# navigator/lib/system/diskinfo.py:224, navigator/lib/appearance/palette.py
+"Current file" = "Pašreizējais fails"
+# navigator/lib/system/diskinfo.py:229
+"Size: ~not counted~" = "Izmērs: ~nav saskaitīts~"
+# navigator/lib/system/diskinfo.py:231
+"Size: ~{n:,}~ byte" = ["Izmērs: ~{n:,}~ baits", "Izmērs: ~{n:,}~ baiti", "Izmērs: ~{n:,}~ baitu"]
+# navigator/lib/system/diskinfo.py:281, navigator/widgets/manager/panel/panel.py:2296
 "~{n:,}~ byte" = ["~{n:,}~ baits", "~{n:,}~ baiti", "~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:160
+# navigator/lib/system/diskinfo.py:225
+"Name: ~{name}~" = "Nosaukums: ~{name}~"
+# navigator/lib/system/diskinfo.py:226
+"Type: ~{kind}~" = "Tips: ~{kind}~"
+# navigator/lib/system/diskinfo.py:274
 "Current directory:" = "Pašreizējā direktorija:"
-# navigator/lib/system/diskinfo.py:173
+# navigator/lib/system/diskinfo.py:295
 "~{n:,}~ total byte on ~{mount}~" = ["Kopā: ~{n:,}~ baits uz ~{mount}~", "Kopā: ~{n:,}~ baiti uz ~{mount}~", "Kopā: ~{n:,}~ baitu uz ~{mount}~"]
-# navigator/lib/system/diskinfo.py:176
+# navigator/lib/system/diskinfo.py:298
 "~{n:,}~ free byte on ~{mount}~" = ["Brīvs: ~{n:,}~ baits uz ~{mount}~", "Brīvs: ~{n:,}~ baiti uz ~{mount}~", "Brīvs: ~{n:,}~ baitu uz ~{mount}~"]
-# navigator/lib/system/diskinfo.py:190
+# navigator/lib/system/diskinfo.py:313
 "~{n:,}~ byte memory for user" = ["Pieejams lietotājam: ~{n:,}~ baits", "Pieejams lietotājam: ~{n:,}~ baiti", "Pieejams lietotājam: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:193
+# navigator/lib/system/diskinfo.py:316
 "~{n:,}~ byte memory for Navigator" = ["Navigator izmanto: ~{n:,}~ baits", "Navigator izmanto: ~{n:,}~ baiti", "Navigator izmanto: ~{n:,}~ baitu"]
-# navigator/lib/system/diskinfo.py:164, navigator/widgets/manager/panel/panel.py:2292
+# navigator/lib/system/diskinfo.py:233
+"Modified: ~{when}~" = "Mainīts: ~{when}~"
+# navigator/lib/system/diskinfo.py:235
+"Accessed: ~{when}~" = "Lietots: ~{when}~"
+# navigator/lib/system/diskinfo.py:237
+"Changed: ~{when}~" = "Statuss mainīts: ~{when}~"
+# navigator/lib/system/diskinfo.py:240
+"Attributes: ~{attributes}~" = "Atribūti: ~{attributes}~"
+# navigator/lib/system/diskinfo.py:243
+"Owner: ~{owner}~" = "Īpašnieks: ~{owner}~"
+# navigator/lib/system/diskinfo.py:245
+"Links: ~{links}~, inode ~{inode}~" = "Saites: ~{links}~, inode ~{inode}~"
+# navigator/lib/system/diskinfo.py:247
+"Link to: ~{target}~" = "Saite uz: ~{target}~"
+# navigator/lib/system/diskinfo.py:278, navigator/widgets/manager/panel/panel.py:2292
 "No files in this directory" = "Šajā direktorijā nav failu"
-# navigator/lib/system/diskinfo.py:168
+# navigator/lib/system/diskinfo.py:282
 "~{n:,}~ file with {total}" = ["~{n:,}~ fails, {total}", "~{n:,}~ faili, {total}", "~{n:,}~ failu, {total}"]
-# navigator/lib/system/diskinfo.py:188, navigator/widgets/manager/info_panel/info_panel.py:132
+# navigator/lib/system/diskinfo.py:320, navigator/widgets/manager/commands.py:219
+"Drive" = "Disks"
+# navigator/lib/system/diskinfo.py:311, navigator/widgets/manager/info_panel/info_panel.py:165
 "~{n:,}~K bytes total memory" = "~{n:,}~K baitu kopējā atmiņa"
-# navigator/lib/system/diskinfo.py:180
+# navigator/lib/system/diskinfo.py:302
 "Volume label on ~{mount}: {label}~" = "Sējuma nosaukums ~{mount}: {label}~"
 # navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "Darbības pabeigšanai nepietiek atmiņas."
@@ -2245,23 +2291,23 @@ flag = "LV"
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Iestatījumi > Failu pārvaldnieks > Iestatīšana (DN dlgFMSetup)"
 # navigator/settings.py:680
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Iestatījumi > Failu pārvaldnieks > Jauna pārvaldnieka noklusējumi (DN dlgFMDefaults)"
-# navigator/settings.py:733
+# navigator/settings.py:734
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Iestatījumi > Failu pārvaldnieks > Informācijas panelis (DN dlgDriveInfoSetup)"
-# navigator/settings.py:767
+# navigator/settings.py:769
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Iestatījumi > Failu pārvaldnieks > Kolonnu noklusējumi (DN dlgColumnsDefaults)"
-# navigator/settings.py:812
+# navigator/settings.py:814
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Iestatījumi > Failu pārvaldnieks > Izcelšanas grupas (DN dlgHighlightGroups)"
-# navigator/settings.py:827
+# navigator/settings.py:829
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Iestatījumi > Konfigurācija > Ekrānsaudzētāji (DN TSaversDialog)"
-# navigator/settings.py:859
+# navigator/settings.py:861
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Iestatījumi > Konfigurācija > Valsts formāti (DN dlgCountrySetup)"
-# navigator/settings.py:883
+# navigator/settings.py:885
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:898
+# navigator/settings.py:900
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:925
+# navigator/settings.py:927
 "File > Checksums > Calculate (not DN's)" = "Fails > Kontrolsummas > Aprēķināt (nav DN)"
-# navigator/settings.py:941
+# navigator/settings.py:943
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Nepareiza {name} parole. Mēģiniet vēlreiz:"
@@ -2315,19 +2361,19 @@ flag = "LV"
 "~A~ccept" = "~P~ieņemt"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Servera {host} autentiskumu nevar pārbaudīt.\n{type} atslēgas nospiedums ir\n{fingerprint}"
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4850
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4867
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Jauns G~V~fs/KIO savienojums (MTP, WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "Pievienot"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "Rediģēt"
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4835
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4852
 "~N~ew SSH link (SFTP)..." = "~J~auns SSH savienojums (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4835
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4852
 "New ~F~TP link..." = "Jauns ~F~TP savienojums..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4836
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4853
 "New S~M~B link (Windows share)..." = "Jauns S~M~B savienojums (Windows koplietojums)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4836
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4853
 "New S~3~ link (Amazon S3)..." = "Jauns S~3~ savienojums (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "Jauna saite"
@@ -2477,9 +2523,9 @@ flag = "LV"
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:128, navigator/widgets/editor/edit_window/edit_window.py:130
 "Edit - {path}" = "Rediģēt - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:414, navigator/widgets/manager/manager/manager.py:847, navigator/widgets/manager/manager/manager.py:1848 ...
+# navigator/widgets/editor/edit_window/edit_window.py:414, navigator/widgets/manager/manager/manager.py:851, navigator/widgets/manager/manager/manager.py:1852 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Fails {name}\njau eksistē.\nPārrakstīt to?"
-# navigator/widgets/editor/edit_window/edit_window.py:768, navigator/widgets/manager/manager/manager.py:2910
+# navigator/widgets/editor/edit_window/edit_window.py:768, navigator/widgets/manager/manager/manager.py:2914
 "Confirmation" = "Apstiprinājums"
 # navigator/widgets/editor/edit_window/edit_window.py:769
 "Print {n} line?" = ["Drukāt {n} rindu?", "Drukāt {n} rindas?", "Drukāt {n} rindu?"]
@@ -2489,7 +2535,7 @@ flag = "LV"
 "Confirm file save" = "Apstiprināt saglabāšanu"
 # navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:263, navigator/widgets/viewer/file_window/file_window.py:496
 "Search string not found" = "Meklētā virkne nav atrasta"
-# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:143 ...
+# navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:176 ...
 "Information" = "Informācija"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
@@ -2631,7 +2677,7 @@ flag = "LV"
 "{path}: root access is not available" = "{path}: root piekļuve nav pieejama"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "direktorija"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2049, navigator/widgets/manager/manager/manager.py:2049
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2053, navigator/widgets/manager/manager/manager.py:2053
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
@@ -2841,8 +2887,6 @@ flag = "LV"
 "Re-read" = "Pārlas."
 # navigator/widgets/manager/commands.py:187
 "Go to directory" = "Pāriet uz direktoriju"
-# navigator/widgets/manager/commands.py:219
-"Drive" = "Disks"
 # navigator/widgets/manager/commands.py:271
 "Calc" = "Kalk."
 # navigator/widgets/manager/commands.py:537
@@ -2861,231 +2905,231 @@ flag = "LV"
 "{n} difference found" = ["Atrasta {n} atšķirība", "Atrastas {n} atšķirības", "Atrastas {n} atšķirības"]
 # navigator/widgets/manager/compare_progress/compare_progress.py:30
 "No differences found" = "Atšķirību nav"
-# navigator/widgets/manager/info_panel/info_panel.py:133
+# navigator/widgets/manager/info_panel/info_panel.py:166
 "{count} byte of memory in all" = ["Kopā {count} baits atmiņas", "Kopā {count} baiti atmiņas", "Kopā {count} baitu atmiņas"]
-# navigator/widgets/manager/info_panel/info_panel.py:116
+# navigator/widgets/manager/info_panel/info_panel.py:149
 "Connection" = "Savienojums"
-# navigator/widgets/manager/manager/manager.py:727
+# navigator/widgets/manager/manager/manager.py:731
 "Calculating checksums" = "Aprēķina kontrolsummas"
-# navigator/widgets/manager/manager/manager.py:1755
+# navigator/widgets/manager/manager/manager.py:1759
 "Do you wish to empty the Trash?\n{n} item will be erased for good." = ["Vai iztukšot atkritni?\n{n} vienums tiks dzēsts neatgriezeniski.", "Vai iztukšot atkritni?\n{n} vienumi tiks dzēsti neatgriezeniski.", "Vai iztukšot atkritni?\n{n} vienumu tiks dzēsts neatgriezeniski."]
-# navigator/widgets/manager/manager/manager.py:2435
-"Only in a file panel, not beside it" = "Tikai failu panelī, nevis blakus tam"
-# navigator/widgets/manager/manager/manager.py:2436
-"No files are tagged, and the cursor is on none" = "Nav atzīmētu failu, un kursors nav uz faila"
-# navigator/widgets/manager/manager/manager.py:2437, navigator/widgets/shell/shell/shell.py:1085
-"The command line holds text: the key edits it" = "Komandrindā ir teksts: taustiņš to rediģē"
-# navigator/widgets/manager/manager/manager.py:2438
-"This drive cannot be written to" = "Šajā diskā nevar rakstīt"
 # navigator/widgets/manager/manager/manager.py:2439
+"Only in a file panel, not beside it" = "Tikai failu panelī, nevis blakus tam"
+# navigator/widgets/manager/manager/manager.py:2440
+"No files are tagged, and the cursor is on none" = "Nav atzīmētu failu, un kursors nav uz faila"
+# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1085
+"The command line holds text: the key edits it" = "Komandrindā ir teksts: taustiņš to rediģē"
+# navigator/widgets/manager/manager/manager.py:2442
+"This drive cannot be written to" = "Šajā diskā nevar rakstīt"
+# navigator/widgets/manager/manager/manager.py:2443
 "Not in a Find listing" = "Ne meklēšanas sarakstā"
-# navigator/widgets/manager/manager/manager.py:3104
+# navigator/widgets/manager/manager/manager.py:3108
 "To {path}" = "Uz {path}"
-# navigator/widgets/manager/manager/manager.py:4675
+# navigator/widgets/manager/manager/manager.py:4692
 "T~y~pe" = "~T~ips"
-# navigator/widgets/manager/manager/manager.py:4811
+# navigator/widgets/manager/manager/manager.py:4828
 "~L~ink" = "~S~avienojumi"
-# navigator/widgets/manager/manager/manager.py:4854
+# navigator/widgets/manager/manager/manager.py:4871
 "Needs the desktop's gio or KDE's kioclient command" = "Vajag darbvirsmas gio vai KDE kioclient komandu"
-# navigator/widgets/manager/manager/manager.py:1189
+# navigator/widgets/manager/manager/manager.py:1193
 "Panelize" = "Izvade panelī"
-# navigator/widgets/manager/manager/manager.py:1777
+# navigator/widgets/manager/manager/manager.py:1781
 "Rename" = "Pārdēvēšana"
-# navigator/widgets/manager/manager/manager.py:2131
-"~G~o to directory" = "Pāriet ~u~z direktoriju"
 # navigator/widgets/manager/manager/manager.py:2135
+"~G~o to directory" = "Pāriet ~u~z direktoriju"
+# navigator/widgets/manager/manager/manager.py:2139
 "~C~lose tree" = "~A~izvērt koku"
-# navigator/widgets/manager/manager/manager.py:2263
+# navigator/widgets/manager/manager/manager.py:2267
 "Bookmarks" = "Grāmatzīmes"
-# navigator/widgets/manager/manager/manager.py:2433
+# navigator/widgets/manager/manager/manager.py:2437
 "The connection to this panel's drive is closed" = "Savienojums ar šī paneļa disku ir slēgts"
-# navigator/widgets/manager/manager/manager.py:2453
+# navigator/widgets/manager/manager/manager.py:2457
 "Not in Miller columns (Alt-F12)" = "Ne Millera kolonnās (Alt-F12)"
-# navigator/widgets/manager/manager/manager.py:2455, navigator/widgets/manager/manager/manager.py:2554
+# navigator/widgets/manager/manager/manager.py:2459, navigator/widgets/manager/manager/manager.py:2558
 "Only on the local disk" = "Tikai lokālajā diskā"
-# navigator/widgets/manager/manager/manager.py:2908
+# navigator/widgets/manager/manager/manager.py:2912
 "Print {n} file?" = ["Drukāt {n} failu?", "Drukāt {n} failus?", "Drukāt {n} failu?"]
-# navigator/widgets/manager/manager/manager.py:3093
+# navigator/widgets/manager/manager/manager.py:3097
 "~C~opy here" = "~K~opēt šeit"
-# navigator/widgets/manager/manager/manager.py:3094
+# navigator/widgets/manager/manager/manager.py:3098
 "~M~ove here" = "~P~ārvietot šeit"
-# navigator/widgets/manager/manager/manager.py:3095
+# navigator/widgets/manager/manager/manager.py:3099
 "~S~ymlink here" = "~S~imbolsaite šeit"
-# navigator/widgets/manager/manager/manager.py:3096
+# navigator/widgets/manager/manager/manager.py:3100
 "~R~elative symlink here" = "~R~elatīva simbolsaite šeit"
-# navigator/widgets/manager/manager/manager.py:3861
+# navigator/widgets/manager/manager/manager.py:3865
 "~I~nternal editor" = "~I~ekšējais redaktors"
-# navigator/widgets/manager/manager/manager.py:3938, navigator/widgets/manager/manager/manager.py:3972
+# navigator/widgets/manager/manager/manager.py:3942, navigator/widgets/manager/manager/manager.py:3976
 "Is a directory" = "Tā ir direktorija"
-# navigator/widgets/manager/manager/manager.py:4346
+# navigator/widgets/manager/manager/manager.py:4350
 "Drag to resize the panels" = "Velciet, lai mainītu paneļu izmēru"
-# navigator/widgets/manager/manager/manager.py:4352
+# navigator/widgets/manager/manager/manager.py:4356
 "Double-click to split them evenly" = "Dubultklikšķis sadala tos vienādi"
-# navigator/widgets/manager/manager/manager.py:4775
+# navigator/widgets/manager/manager/manager.py:4792
 "~R~emove this folder" = "~N~oņemt šo mapi"
-# navigator/widgets/manager/manager/manager.py:4775
+# navigator/widgets/manager/manager/manager.py:4792
 "~A~dd this folder" = "~P~ievienot šo mapi"
-# navigator/widgets/manager/manager/manager.py:451
+# navigator/widgets/manager/manager/manager.py:455
 "Encoding {name}" = "Kodē {name}"
-# navigator/widgets/manager/manager/manager.py:504
+# navigator/widgets/manager/manager/manager.py:508
 "Decoding {name}" = "Dekodē {name}"
-# navigator/widgets/manager/manager/manager.py:859, navigator/widgets/manager/manager/manager.py:1074
+# navigator/widgets/manager/manager/manager.py:863, navigator/widgets/manager/manager/manager.py:1078
 "and {n} more" = ["un vēl {n}", "un vēl {n}", "un vēl {n}"]
-# navigator/widgets/manager/manager/manager.py:860
+# navigator/widgets/manager/manager/manager.py:864
 "{n} file could not be read:" = ["{n} failu nevarēja nolasīt:", "{n} failus nevarēja nolasīt:", "{n} failus nevarēja nolasīt:"]
-# navigator/widgets/manager/manager/manager.py:1053
+# navigator/widgets/manager/manager/manager.py:1057
 "Testing {name}" = "Pārbauda {name}"
-# navigator/widgets/manager/manager/manager.py:1330
+# navigator/widgets/manager/manager/manager.py:1334
 "Store this directory\nas bookmark {slot}?" = "Saglabāt šo direktoriju\nkā grāmatzīmi {slot}?"
-# navigator/widgets/manager/manager/manager.py:2051
+# navigator/widgets/manager/manager/manager.py:2055
 "Copy {n} file?" = ["Kopēt {n} failu?", "Kopēt {n} failus?", "Kopēt {n} failus?"]
-# navigator/widgets/manager/manager/manager.py:2053
+# navigator/widgets/manager/manager/manager.py:2057
 "Delete {n} file?" = ["Dzēst {n} failu?", "Dzēst {n} failus?", "Dzēst {n} failus?"]
-# navigator/widgets/manager/manager/manager.py:2248
+# navigator/widgets/manager/manager/manager.py:2252
 "A place inside an archive cannot be bookmarked" = "Vietu arhīva iekšienē nevar pievienot grāmatzīmēm"
-# navigator/widgets/manager/manager/manager.py:2445, navigator/widgets/manager/manager/manager.py:2568, navigator/widgets/manager/manager/manager.py:2593
+# navigator/widgets/manager/manager/manager.py:2449, navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2597
 "The cursor is not on a file" = "Kursors nav uz faila"
-# navigator/widgets/manager/manager/manager.py:2447, navigator/widgets/shell/shell/shell.py:1069
+# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1069
 "Neither GIO nor KIO is installed" = "Nav instalēts ne GIO, ne KIO"
-# navigator/widgets/manager/manager/manager.py:2448
+# navigator/widgets/manager/manager/manager.py:2452
 "No graphical desktop to open it on" = "Nav grafiskās darbvirsmas, kur to atvērt"
-# navigator/widgets/manager/manager/manager.py:2473
+# navigator/widgets/manager/manager/manager.py:2477
 "Only inside an archive" = "Tikai arhīva iekšpusē"
-# navigator/widgets/manager/manager/manager.py:2478
+# navigator/widgets/manager/manager/manager.py:2482
 "No archive is tagged or at the cursor" = "Nav atzīmēta arhīva, un kursors nav uz arhīva"
-# navigator/widgets/manager/manager/manager.py:2483
+# navigator/widgets/manager/manager/manager.py:2487
 "Neither panel's directory can be written to" = "Nevienā paneļa direktorijā nevar rakstīt"
-# navigator/widgets/manager/manager/manager.py:2504
+# navigator/widgets/manager/manager/manager.py:2508
 "File Manager Setup's BS upper dir is off" = "Failu pārvaldnieka iestatījumos BS augšējā direktorija ir izslēgta"
-# navigator/widgets/manager/manager/manager.py:2515
+# navigator/widgets/manager/manager/manager.py:2519
 "The file clipboard is empty" = "Failu starpliktuve ir tukša"
-# navigator/widgets/manager/manager/manager.py:2528
+# navigator/widgets/manager/manager/manager.py:2532
 "File Manager Setup's Del erases is off" = "Failu pārvaldnieka iestatījumos Del dzēš ir izslēgts"
-# navigator/widgets/manager/manager/manager.py:2533, navigator/widgets/manager/manager/manager.py:2576, navigator/widgets/shell/shell/shell.py:1052
+# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1052
 "The cursor is on no file" = "Kursors nav uz neviena faila"
-# navigator/widgets/manager/manager/manager.py:2545
+# navigator/widgets/manager/manager/manager.py:2549
 "Not inside an archive" = "Ne arhīva iekšpusē"
-# navigator/widgets/manager/manager/manager.py:2560
-"No multi-rename to undo" = "Nav grupveida pārdēvēšanas, ko atsaukt"
 # navigator/widgets/manager/manager/manager.py:2564
+"No multi-rename to undo" = "Nav grupveida pārdēvēšanas, ko atsaukt"
+# navigator/widgets/manager/manager/manager.py:2568
 "Only in the Trash" = "Tikai atkritnē"
-# navigator/widgets/manager/manager/manager.py:2575
+# navigator/widgets/manager/manager/manager.py:2579
 "Only in a Find listing" = "Tikai meklēšanas sarakstā"
-# navigator/widgets/manager/manager/manager.py:2580
+# navigator/widgets/manager/manager/manager.py:2584
 "Tag one file, or put the cursor on one" = "Atzīmējiet vienu failu vai novietojiet kursoru uz tā"
-# navigator/widgets/manager/manager/manager.py:2589
+# navigator/widgets/manager/manager/manager.py:2593
 "No checksum file is tagged or at the cursor" = "Nav atzīmēta kontrolsummu faila, un kursors nav uz tāda"
-# navigator/widgets/manager/manager/manager.py:2599
+# navigator/widgets/manager/manager/manager.py:2603
 "Tag two files, or put the cursor on a file with a namesake in the other panel" = "Atzīmējiet divus failus vai novietojiet kursoru uz faila, kam otrā panelī ir vārdabrālis"
-# navigator/widgets/manager/manager/manager.py:2602
+# navigator/widgets/manager/manager/manager.py:2606
 "The other panel is hidden" = "Otrs panelis ir paslēpts"
-# navigator/widgets/manager/manager/manager.py:2609
+# navigator/widgets/manager/manager/manager.py:2613
 "No name is cut to scroll" = "Neviens nosaukums nav apgriezts, ko ritināt"
-# navigator/widgets/manager/manager/manager.py:3068
+# navigator/widgets/manager/manager/manager.py:3072
 "Do you wish to move {n} file to the Trash?" = ["Vai pārvietot {n} failu uz atkritni?", "Vai pārvietot {n} failus uz atkritni?", "Vai pārvietot {n} failu uz atkritni?"]
-# navigator/widgets/manager/manager/manager.py:3073
+# navigator/widgets/manager/manager/manager.py:3077
 "Do you wish to delete {n} file?" = ["Vai dzēst {n} failu?", "Vai dzēst {n} failus?", "Vai dzēst {n} failu?"]
-# navigator/widgets/manager/manager/manager.py:3940, navigator/widgets/manager/manager/manager.py:3974
+# navigator/widgets/manager/manager/manager.py:3944, navigator/widgets/manager/manager/manager.py:3978
 "No such directory" = "Šādas direktorijas nav"
-# navigator/widgets/manager/manager/manager.py:3988
+# navigator/widgets/manager/manager/manager.py:3992
 "$EDITOR edits a file on another drive only once it is there" = "$EDITOR labo failu citā diskā tikai tad, kad tas tur jau ir"
-# navigator/widgets/manager/manager/manager.py:4720
+# navigator/widgets/manager/manager/manager.py:4737
 "Erasing the file" = "Dzēš failu"
-# navigator/widgets/manager/manager/manager.py:4721
+# navigator/widgets/manager/manager/manager.py:4738
 "Erasing the directory" = "Dzēš direktoriju"
-# navigator/widgets/manager/manager/manager.py:4722
+# navigator/widgets/manager/manager/manager.py:4739
 "Moving to the Trash" = "Pārvieto uz atkritni"
-# navigator/widgets/manager/manager/manager.py:4723
+# navigator/widgets/manager/manager/manager.py:4740
 "Changing attributes of" = "Maina atribūtus:"
-# navigator/widgets/manager/manager/manager.py:4769
+# navigator/widgets/manager/manager/manager.py:4786
 "Mounted now, not a bookmark" = "Pašlaik piemontēts, nav grāmatzīme"
-# navigator/widgets/manager/manager/manager.py:4771
+# navigator/widgets/manager/manager/manager.py:4788
 "Not there now" = "Pašlaik nav pieejams"
-# navigator/widgets/manager/manager/manager.py:4827
+# navigator/widgets/manager/manager/manager.py:4844
 "Connected" = "Pieslēgts"
-# navigator/widgets/manager/manager/manager.py:4827
+# navigator/widgets/manager/manager/manager.py:4844
 "Not connected" = "Nav pieslēgts"
-# navigator/widgets/manager/manager/manager.py:658
+# navigator/widgets/manager/manager/manager.py:662
 "The input file is too small to UU-Encode." = "Ievades fails ir par mazu UU kodēšanai."
-# navigator/widgets/manager/manager/manager.py:770
+# navigator/widgets/manager/manager/manager.py:774
 "{n} checksum file already exists.\nOK to overwrite it?" = ["{n} kontrolsummu fails jau eksistē.\nPārrakstīt to?", "{n} kontrolsummu faili jau eksistē.\nPārrakstīt tos?", "{n} kontrolsummu failu jau eksistē.\nPārrakstīt tos?"]
-# navigator/widgets/manager/manager/manager.py:811
+# navigator/widgets/manager/manager/manager.py:815
 "Verifying checksums" = "Pārbauda kontrolsummas"
-# navigator/widgets/manager/manager/manager.py:1070
+# navigator/widgets/manager/manager/manager.py:1074
 "No errors found in {name}" = "Arhīvā {name} kļūdu nav"
-# navigator/widgets/manager/manager/manager.py:1075
+# navigator/widgets/manager/manager/manager.py:1079
 "{n} error found in {name}:" = ["{n} kļūda arhīvā {name}:", "{n} kļūdas arhīvā {name}:", "{n} kļūdu arhīvā {name}:"]
-# navigator/widgets/manager/manager/manager.py:2048
+# navigator/widgets/manager/manager/manager.py:2052
 "Copy {copies} and delete {deletes}?" = "Kopēt {copies} un dzēst {deletes}?"
-# navigator/widgets/manager/manager/manager.py:2460
+# navigator/widgets/manager/manager/manager.py:2464
 "This drive cannot hold links" = "Šajā diskā nevar būt saites"
-# navigator/widgets/manager/manager/manager.py:2906
+# navigator/widgets/manager/manager/manager.py:2910
 "Print file {name}?" = "Drukāt failu {name}?"
-# navigator/widgets/manager/manager/manager.py:3863
+# navigator/widgets/manager/manager/manager.py:3867
 "Choose editor" = "Izvēlieties redaktoru"
-# navigator/widgets/manager/manager/manager.py:4859
+# navigator/widgets/manager/manager/manager.py:4876
 "~E~dit links..." = "~R~ediģēt saites..."
-# navigator/widgets/manager/manager/manager.py:1202
+# navigator/widgets/manager/manager/manager.py:1206
 "Stop the command?" = "Apturēt komandu?"
-# navigator/widgets/manager/manager/manager.py:1217
+# navigator/widgets/manager/manager/manager.py:1221
 "No files found\n{reason}" = "Faili nav atrasti\n{reason}"
-# navigator/widgets/manager/manager/manager.py:1226
+# navigator/widgets/manager/manager/manager.py:1230
 "Panel: {command}" = "Panelis: {command}"
-# navigator/widgets/manager/manager/manager.py:1255
+# navigator/widgets/manager/manager/manager.py:1259
 "Find: {mask}" = "Meklēt: {mask}"
-# navigator/widgets/manager/manager/manager.py:1416
+# navigator/widgets/manager/manager/manager.py:1420
 "Branch: {path}" = "Zars: {path}"
-# navigator/widgets/manager/manager/manager.py:1456
+# navigator/widgets/manager/manager/manager.py:1460
 "Cancel search?" = "Atcelt meklēšanu?"
-# navigator/widgets/manager/manager/manager.py:1934, navigator/widgets/manager/manager/manager.py:1940
+# navigator/widgets/manager/manager/manager.py:1938, navigator/widgets/manager/manager/manager.py:1944
 "Cannot open {path}: {reason}" = "Nevar atvērt {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2266
+# navigator/widgets/manager/manager/manager.py:2270
 "Label" = "Nosaukums"
-# navigator/widgets/manager/manager/manager.py:3066
+# navigator/widgets/manager/manager/manager.py:3070
 "Do you wish to move {name} to the Trash?" = "Vai pārvietot {name} uz atkritni?"
-# navigator/widgets/manager/manager/manager.py:3071
+# navigator/widgets/manager/manager/manager.py:3075
 "Do you wish to delete {name}?" = "Vai dzēst {name}?"
-# navigator/widgets/manager/manager/manager.py:3592
+# navigator/widgets/manager/manager/manager.py:3596
 "Reading file attributes" = "Lasa failu atribūtus"
-# navigator/widgets/manager/manager/manager.py:2001, navigator/widgets/viewer/diff_window/diff_window.py:140
+# navigator/widgets/manager/manager/manager.py:2005, navigator/widgets/viewer/diff_window/diff_window.py:140
 "Comparing files" = "Salīdzina failus"
-# navigator/widgets/manager/manager/manager.py:1175
+# navigator/widgets/manager/manager/manager.py:1179
 "A command's output can be panelized on this machine's disk only" = "Komandas izvadi panelī var rādīt tikai šī datora diskā"
-# navigator/widgets/manager/manager/manager.py:1299
+# navigator/widgets/manager/manager/manager.py:1303
 "Set the interface option\n\"Track directories\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"Sekot direktorijām\""
-# navigator/widgets/manager/manager/manager.py:1753, navigator/widgets/manager/manager/manager.py:1757, navigator/widgets/shell/commands.py:277
+# navigator/widgets/manager/manager/manager.py:1757, navigator/widgets/manager/manager/manager.py:1761, navigator/widgets/shell/commands.py:277
 "Empty Trash" = "Iztukšot atkritni"
-# navigator/widgets/manager/manager/manager.py:1753
+# navigator/widgets/manager/manager/manager.py:1757
 "The Trash is empty" = "Atkritne ir tukša"
-# navigator/widgets/manager/manager/manager.py:2025
+# navigator/widgets/manager/manager/manager.py:2029
 "Both panels show the same directory." = "Abi paneļi rāda vienu un to pašu direktoriju."
-# navigator/widgets/manager/manager/manager.py:2813, navigator/widgets/manager/manager/manager.py:2847
+# navigator/widgets/manager/manager/manager.py:2817, navigator/widgets/manager/manager/manager.py:2851
 "Cannot make directory {name}: {error}" = "Nevar izveidot direktoriju {name}: {error}"
-# navigator/widgets/manager/manager/manager.py:3299, navigator/widgets/manager/manager/manager.py:3523
+# navigator/widgets/manager/manager/manager.py:3303, navigator/widgets/manager/manager/manager.py:3527
 "Would you like to create directory {path}?" = "Vai izveidot direktoriju {path}?"
-# navigator/widgets/manager/manager/manager.py:3304
+# navigator/widgets/manager/manager/manager.py:3308
 "There is not enough room to copy file {name}. Copy other files?" = "Nepietiek vietas faila {name} kopēšanai. Kopēt citus failus?"
-# navigator/widgets/manager/manager/manager.py:3953, navigator/widgets/manager/manager/manager.py:3996, navigator/widgets/manager/manager/manager.py:4035 ...
+# navigator/widgets/manager/manager/manager.py:3957, navigator/widgets/manager/manager/manager.py:4000, navigator/widgets/manager/manager/manager.py:4039 ...
 "Cannot edit file" = "Nevar rediģēt failu"
-# navigator/widgets/manager/manager/manager.py:2862, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
+# navigator/widgets/manager/manager/manager.py:2866, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
 "Cannot make directory" = "Nevar izveidot direktoriju"
-# navigator/widgets/manager/manager/manager.py:3800, navigator/widgets/manager/manager/manager.py:3738, navigator/widgets/manager/manager/manager.py:3753 ...
+# navigator/widgets/manager/manager/manager.py:3804, navigator/widgets/manager/manager/manager.py:3742, navigator/widgets/manager/manager/manager.py:3757 ...
 "Cannot view file" = "Nevar skatīt failu"
-# navigator/widgets/manager/manager/manager.py:4845
+# navigator/widgets/manager/manager/manager.py:4862
 "Install {extra}" = "Instalējiet {extra}"
-# navigator/widgets/manager/manager/manager.py:1279
+# navigator/widgets/manager/manager/manager.py:1283
 "Directory {place} is not there" = "Direktorijas {place} nav"
-# navigator/widgets/manager/manager/manager.py:1541
+# navigator/widgets/manager/manager/manager.py:1545
 "a name cannot hold a /" = "nosaukumā nevar būt /"
-# navigator/widgets/manager/manager/manager.py:3258
+# navigator/widgets/manager/manager/manager.py:3262
 "Abort operation?" = "Pārtraukt darbību?"
-# navigator/widgets/manager/manager/manager.py:1139, navigator/widgets/manager/manager/manager.py:1124
+# navigator/widgets/manager/manager/manager.py:1143, navigator/widgets/manager/manager/manager.py:1128
 "Cannot read {path}: {reason}" = "Nevar nolasīt {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:1207
+# navigator/widgets/manager/manager/manager.py:1211
 "Cannot run {command}: {reason}" = "Nevar palaist {command}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2935
+# navigator/widgets/manager/manager/manager.py:2939
 "Cannot print {name}: {reason}" = "Nevar drukāt {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:3754, navigator/widgets/manager/manager/manager.py:3732, navigator/widgets/manager/manager/manager.py:3768
+# navigator/widgets/manager/manager/manager.py:3758, navigator/widgets/manager/manager/manager.py:3736, navigator/widgets/manager/manager/manager.py:3772
 "{name}: not a dBase file" = "{name}: nav dBase fails"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} atlasīts fails", "{n} atlasīti faili", "{n} atlasītu failu"]
@@ -3830,8 +3874,6 @@ flag = "LV"
 # navigator/lib/appearance/palette.py
 "Frame" = "Rāmis"
 # navigator/lib/appearance/palette.py
-"Current file" = "Pašreizējais fails"
-# navigator/lib/appearance/palette.py
 "Selected numbers" = "Atlasīto skaitļi"
 # navigator/lib/appearance/palette.py
 "Totals text" = "Kopsummu teksts"
@@ -4249,6 +4291,8 @@ flag = "LV"
 "The directory's name" = "Direktorijas nosaukums"
 # navigator/settings.py
 "How many files it holds, and their bytes" = "Cik failu tajā ir un to baiti"
+# navigator/settings.py
+"The file under the cursor: its type, size, times, attributes and owner" = "Fails zem kursora: tā tips, izmērs, laiki, atribūti un īpašnieks"
 # navigator/settings.py
 "The file system's size" = "Failu sistēmas izmērs"
 # navigator/settings.py

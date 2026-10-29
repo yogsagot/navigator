@@ -727,18 +727,20 @@ class DriveInfoData(Section):
 
     DN's eleven boxes less its *EMS* and *XMS Information*, which only meant
     something on DOS; the memory three are read for POSIX (``InfoPanel``).
+    *File under the cursor* is Navigator's, not DN's.
     """
 
     name = "drive_info"
     title = "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)"
 
     OPTIONS: ClassVar[tuple[str, ...]] = (
-        "directory_title", "totals", "volume_size", "volume_free", "volume_label",
+        "directory_title", "totals", "current_file", "volume_size", "volume_free", "volume_label",
         "total_memory", "user_memory", "navigator_memory", "information_file",
     )
 
     directory_title: bool = Setting(True, doc="The directory's name")
     totals: bool = Setting(True, doc="How many files it holds, and their bytes")
+    current_file: bool = Setting(True, doc="The file under the cursor: its type, size, times, attributes and owner")
     volume_size: bool = Setting(True, doc="The file system's size")
     volume_free: bool = Setting(True, doc="Its free space")
     volume_label: bool = Setting(True, doc="Its label, or its device and type")

@@ -3,9 +3,13 @@
 The lines are :func:`navigator.lib.system.diskinfo.lines`; the disk and the machine are
 read on a thread (:func:`navigator.lib.system.diskinfo.gather`) whenever the directory
 it describes changes or is re-read (``cmRereadInfo``), and what was read last
-stays up meanwhile.  A line is centred, as ``Wrt`` centred it, but for the
-information file's, which start at the left; ``~`` runs are drawn in the
-``highlight`` part, and the file's rule across the frame's colour.
+stays up meanwhile.  The entry under the active panel's cursor is followed
+apart (:meth:`InfoPanel.show_file`), its stat read on the same thread, so
+moving the cursor never reads the disk's facts again.  A line is centred, as
+``Wrt`` centred it, but for the information file's, which start at the left
+(the current file's are a table, padded to one width to centre as a block);
+``~`` runs are drawn in the ``highlight`` part, and the rules across the
+frame's colour.
 """
 
 from __future__ import annotations
@@ -44,6 +48,10 @@ class InfoPanel(Widget):
     entries: Any = reactive(())
     #: What the last read found (:class:`navigator.lib.system.diskinfo.DiskFacts`).
     facts: Any = reactive(None)
+    #: The entry under the active panel's cursor, and what its stat found
+    #: (:class:`navigator.lib.system.diskinfo.FileFacts`, None until read).
+    entry: Any = reactive(None)
+    file_facts: Any = reactive(None)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -51,6 +59,7 @@ class InfoPanel(Widget):
         #: Columns left clear at each end of the top frame, as a panel's.
         self.title_margin = 0
         self._wanted: Path | None = None
+        self._wanted_file: Any = None
 
     #: For a place on another drive: what its drive says of itself
     #: (``Drive.describe``), shown in place of the disk's and the memory's.
@@ -78,6 +87,29 @@ class InfoPanel(Widget):
         self._wanted = directory
         _READER.run(self, diskinfo.gather, directory,
                     done=lambda outcome, d=directory: self._read(d, outcome))
+
+    def show_file(self, entry: Any, location: Any) -> None:
+        """Describe *entry*, the file under the cursor, found at *location*
+        (a :class:`~navigator.lib.drives.Location`, or None for no entry):
+        its stat is read on a thread for a local one, its type guessed from
+        its name for any."""
+        if entry is self.entry and location == self._wanted_file:
+            return
+        self.entry, self.file_facts = entry, None
+        self._wanted_file = location
+        if entry is None or entry.name == "..":
+            return
+        path = Path(location.local) if location is not None and location.is_local else None
+
+        def answered(outcome: Outcome) -> None:
+            if self._wanted_file != location or self.entry is not entry:
+                return
+            try:
+                self.file_facts = outcome.result()
+            except OSError:
+                self.file_facts = diskinfo.FileFacts()
+
+        _READER.run(self, diskinfo.stat_file, path, entry.name, done=answered)
 
     def _show_elsewhere(self, location: Any, entries: Any) -> None:
         from navigator.lib.drives import drive_of
@@ -111,8 +143,11 @@ class InfoPanel(Widget):
     def lines(self) -> list[tuple[str, bool]]:
         if self.directory is None:
             return []
-        out = diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info)
+        out = diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info,
+                             self.entry, self.file_facts)
         if self.described:
+            if out:
+                out.append(("", True))
             out.append(("\0" + tr("Connection"), False))
             out += [(f"{tr(what)}: ~{value}~", False) for what, value in self.described]
         return out
@@ -132,7 +167,7 @@ class InfoPanel(Widget):
                 text == tr("~{n:,}~K bytes total memory").format(n=facts.memory_total >> 10):
             return tr_n("{count} byte of memory in all", "{count} bytes of memory in all",
                         facts.memory_total, count=f"{facts.memory_total:,}")
-        plain = text.replace("~", "")
+        plain = text.replace("~", "").rstrip()
         return plain if len(plain) > self.width - 2 else super().tooltip_at(x, y)
 
     def render(self, surface: Surface) -> None:
@@ -147,11 +182,16 @@ class InfoPanel(Widget):
         for row, (text, centred) in enumerate(self.lines()[: self.height - 2]):
             y = row + 1
             if text.startswith("\0"):
-                name = f" {text[1:]} "
+                name = f" {text[1:]} " if text[1:] else ""
                 line = glyphs_module.charset("single", self.glyphs)[HORIZONTAL] * inner
                 start = max(0, (inner - len(name)) // 2)
                 line = (line[:start] + name + line[start + len(name):])[:inner]
                 surface.draw_text(1, y, line, self.style, inner)
+                # Joined to the frame at both ends, ``├``/``┤`` (``╟``/``╢``
+                # on a double one), as a panel's info divider is.
+                left_tee, right_tee = self.box_joins()[:2]
+                surface.set_cell(0, y, left_tee, self.style)
+                surface.set_cell(self.width - 1, y, right_tee, self.style)
                 continue
             plain = text.replace("~", "")
             x = 1 + max(0, (inner - len(plain)) // 2) if centred else 1

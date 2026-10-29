@@ -308,6 +308,7 @@ class Manager(Window):
         effect(self, Manager._panel_follows_tree)
         effect(self, Manager._quick_view_follows_panel)
         effect(self, Manager._info_follows_panel)
+        effect(self, Manager._info_follows_cursor)
 
     def _keep_panel_state(self) -> None:
         """Hidden files, the footer, the view mode and the order, kept for the
@@ -4585,6 +4586,7 @@ class Manager(Window):
             self._quick_view_follows_panel()
         if view is self.info:
             self._info_follows_panel()
+            self._info_follows_cursor()
         self.panels.invalidate()
 
     def _focus_replacement(self) -> None:
@@ -4602,6 +4604,18 @@ class Manager(Window):
         with untracked():
             if found is None:
                 self.info.show(location, entries)
+
+    def _info_follows_cursor(self) -> None:
+        """The information panel's *Current file* is whatever the active
+        panel's cursor is on -- apart from :meth:`_info_follows_panel`, so a
+        move does not read the disk's facts again."""
+        if self.replacement is not self.info:
+            return
+        panel = self.active_panel
+        entry = panel.selected
+        location = None if entry is None else panel.entry_location(entry)
+        with untracked():
+            self.info.show_file(entry, location)
 
     def _quick_view_follows_panel(self) -> None:
         """The quick view shows whatever the active panel's cursor is on: ``SendLocated``."""

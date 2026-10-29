@@ -4,7 +4,8 @@ from navml.widgets.dialog.label import Label
 #: Options > File Manager > Information panel: DOS Navigator's ``dlgDriveInfoSetup``.
 #:
 #: Its boxes in its order, less *EMS* and *XMS Information*, which only
-#: meant something on DOS; *Conventional Memory* is the machine's.  Help is
+#: meant something on DOS; *Conventional Memory* is the machine's.  *File
+#: under the cursor* is Navigator's own.  Help is
 #: left out, having nothing to show yet.
 DriveInfoPage:
     #: The caption on its tab, which *Settings* gives it.
@@ -24,5 +25,5 @@ DriveInfoPage:
         x: 2
         y: 2
         width: max(0, parent.width - 4)
-        height: 9
-        items: ["~D~irectory Title", "~T~otals", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]
+        height: 10
+        items: ["~D~irectory Title", "~T~otals", "File under the ~c~ursor", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]

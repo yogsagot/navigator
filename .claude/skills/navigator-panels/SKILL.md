@@ -447,6 +447,14 @@ the last answer up meanwhile. `diskinfo.lines` lays them out as `TDiskInfo.Draw`
 totals come from the listing (entries counted as `CountDirLen` counted them, bytes the files'). DN's EMS/XMS lines
 are left out; its memory three are read for POSIX.
 
+**A departure**: a *Current file* section (rule, then `Label: ~value~` lines, left-aligned) follows the directory
+block, behind the `current_file` box (*File under the cursor*). DN's `TDiskInfo` described the directory alone.
+`Manager._info_follows_cursor` is a separate effect on the active panel's `selected` and calls `InfoPanel.show_file`,
+so a cursor move never re-runs `gather`. Name, type, size, mtime, attributes (+ octal), owner and link target come
+from the `DirEntry`. `diskinfo.stat_file` on the same thread adds the MIME guess (stdlib `mimetypes`, whose table is
+read on first use, hence the thread) and, for a local entry only, the `lstat`'s atime, ctime, links and inode.
+Nothing for `..`.
+
 ## Comparing directories (Panel menu)
 
 Panel > Compare directories (DN's `cmCompareDir`), its *Window, recursive* Synchronize window and File > Compare
