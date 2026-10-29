@@ -32,6 +32,11 @@ class Clock(Widget):
     """``HH:MM`` in 24-hour time, or ``hh:MMam`` in 12 (*Country support*),
     with the colon shown while ``blink`` is set."""
 
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``): with
+    #: the colon blinked away, hours and minutes are two numbers, which a
+    #: right-to-left line puts in the other order every other second.
+    mirrors = False
+
     def text(self) -> str:
         """What the clock shows this second."""
         return country.time_text(now().timestamp(), separator=":" if self.blink else " ")

@@ -742,6 +742,11 @@ def main(argv: list[str] | None = None) -> int:
              "helps on a terminal that names no other colours",
     )
     parser.add_argument(
+        "--direction", choices=("auto", "ltr", "rtl"), default="auto",
+        help="which way the screen reads: mirrored for a right-to-left "
+             "language's catalogue, or as said (default: auto)",
+    )
+    parser.add_argument(
         "--dim-modal", action=argparse.BooleanOptionalAction, default=None,
         help="paint what lies behind a dialog faint while the dialog is open "
              "(default: the settings file's, else on; experimental)",
@@ -856,6 +861,7 @@ def main(argv: list[str] | None = None) -> int:
     app = Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
                     given=bool(args.left), theme=theme, on_error=args.on_error)
     app.marks = appearance.marks if args.marks is None else args.marks
+    app.direction = args.direction
     app.run()
     return 0
 

@@ -64,12 +64,15 @@ classifiers = [
 # (`navigator.lib.system.dirwatch`, *Auto refresh panels*); markdown-it-py and
 # docutils read Markdown and reStructuredText for F3's *Markup view*, pypdf a
 # PDF's text there, and boto3
-# is the S3 drive.  All are pure Python.  Everything else is stdlib.  Test
+# is the S3 drive; python-bidi (held at the last pure-Python release, see
+# requirements.txt) and arabic-reshaper lay out right-to-left text
+# (`navkit.bidi`).  All are pure Python.  Everything else is stdlib.  Test
 # tooling lives in requirements-dev.txt and in the `dev` extra below, which
 # mirrors it.
 dependencies = [
     "pyte>=0.8.2", "pygments>=2.21", "watchdog>=6",
     "markdown-it-py>=3.0", "docutils>=0.18", "boto3>=1.34", "pypdf>=4",
+    "python-bidi>=0.4.2,<0.5", "arabic-reshaper>=3.0",
 ]
 
 # Navigator's own two languages, made Pygments' own once installed

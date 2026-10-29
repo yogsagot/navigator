@@ -5,6 +5,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 
 # The editor
 
+- **Hebrew and Arabic** in a line are painted in reading order (`navkit.bidi.order_cells`); the cursor, block and
+  match stay in the line's own columns, mapped by `_visual_column`/`_logical_column`; Left/Right on such a line move
+  by painted cell (`_step_visually`) and Ctrl+Left/Right by painted word start (`_word_visually`), and a marked block is what is painted between its ends
+  (`_block_runs`), a column block's columns painted columns (`_rect_spans`) -- every block command must use those,
+  never `columns.span` or `document.text(*self.block)` directly; departures. `navkit-bidi` skill.
 - **F4 is DN's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had.
   `navigator/lib/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`); `FileEditor` is `TFileEditor`
   and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame.

@@ -129,3 +129,4 @@ its heading is added here.
   - Per-model fingerprints, not `PRAGMA user_version` -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
   - Diff against the live table, not the old fingerprint -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
   - The downgrade rule: defaults everywhere, columns never inferred away -- [`navkit-database/why-this-design.md`](../.claude/skills/navkit-database/reference/why-this-design.md)
+- Right-to-left backlog -- [`navkit-bidi/backlog.md`](../.claude/skills/navkit-bidi/reference/backlog.md)

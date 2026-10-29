@@ -43,11 +43,12 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Seven run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+- Nine run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`),
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`), `markdown-it-py`
   and `docutils`, which read Markdown and reStructuredText for F3's View > *Markup view* (HTML is the stdlib's
-  `html.parser`), `pypdf`, which reads a PDF's text for the same view, and `boto3`, the S3 drive —
+  `html.parser`), `pypdf`, which reads a PDF's text for the same view, `boto3`, the S3 drive, and `python-bidi` (held
+  below 0.5, the last pure-Python release) with `arabic-reshaper`, which lay out Hebrew and Arabic (`navkit/bidi.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - FFmpeg's `ffprobe`, when installed, gives Ctrl+L's *Current file* an audio or video file's duration, streams and
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out
@@ -62,7 +63,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn (Shift+Up/Down a line; idle, PgUp/PgDn and Home/End) scroll
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`
   gives the terminal's own scheme back the sixteen colour names, `--colors {auto,mono,8,16,256,truecolor}` overrides the detected colour depth, `--glyphs {auto,ascii,unicode,nerd}` overrides what the
-  terminal's font is assumed to draw, `--marks {dos,brackets,boxes}` picks how check boxes and radio buttons look, `--no-dim-modal` stops what is behind a dialog being painted faint
+  terminal's font is assumed to draw, `--marks {dos,brackets,boxes}` picks how check boxes and radio buttons look, `--no-dim-modal` stops what is behind a dialog being painted faint,
+  `--direction {auto,ltr,rtl}` mirrors the screen (auto: a right-to-left language's catalogue says so)
 - Histories and bookmarks (and later positions) live in one SQLite database,
   `$XDG_STATE_HOME/navigator/navigator.db` (else `~/.local/state/navigator/navigator.db`); `--database PATH` uses
   another file for the session. Tables are declared as model documents in `.nml` (`navkit-database` skill)
@@ -175,6 +177,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **A sheet cannot be parsed before the widgets it styles are imported** (`load_scheme()` imports `Panel` first).
 - **User-visible text goes through `tr()`/`tr_n()`** with a literal English key and whole-sentence placeholders;
   markup captions are wrapped by the generator (`i18n` skill).
+- **Text is painted with `draw_text`/`draw_runs`, never cell by cell**, and a caption with a highlighted letter in one
+  `draw_runs` call: otherwise Hebrew and Arabic come out reversed and a mirrored screen reverses it (`navkit-bidi`).
 - **Assets go through `importlib.resources`**, and a new asset directory needs a `[tool.setuptools.package-data]` entry.
 
 ## Working conventions
@@ -182,9 +186,10 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - Keep `navkit` free of any dependency on `navml` or the application; keep `navml` free of any dependency on the file
   manager. The dependency direction is strictly one-way.
 - Prefer recreating original DOS Navigator behaviour over inventing modern alternatives when the two conflict --
-  fidelity is the point of the project. A departure is recorded where it is made, with its reason. The **one standing
-  exception** is the Nerd Font icon gutter in `Panel`; don't re-litigate it, and don't read it as licence for the next
-  modern flourish. The `dn-porting` skill has the method.
+  fidelity is the point of the project. A departure is recorded where it is made, with its reason. The **two standing
+  exceptions** are the Nerd Font icon gutter in `Panel` and the mirrored screen of a right-to-left language
+  (`navkit-bidi`), both asked for; don't re-litigate them, and don't read them as licence for the next modern
+  flourish. The `dn-porting` skill has the method.
 - **Where notes go**: a feature's rules go in its skill's `SKILL.md`; longer rationale goes in that skill's
   `reference/`, with its heading added to the index in `navml/DESIGN.md` or `navkit/DESIGN.md`. A new subsystem gets a
   new skill. Keep this file to what every task needs.
@@ -222,6 +227,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-compare` | Compare directories (tagging, the recursive Synchronize window), File > Compare files side by side |
 | `navigator-elevation` | *As root*: sudo/pkexec, the root helper and `RootDrive`, wiring an operation to offer it |
 | `i18n` | `tr`/`tr_n`, TOML catalogues, generated live captions and yielding bindings, `--language`, `tools/i18n.py` |
+| `navkit-bidi` | Hebrew/Arabic layout (`navkit/bidi.py`), `draw_runs`, the mirrored screen, `Widget.mirrors`, `--direction`, kitty/VTE handling |
 | `release-packaging` | PyPI, version, `.deb`/`.rpm`, repositories, GPG, release workflow |
 | `dn-porting` | finding DN's source, naming after it, recording departures |
 

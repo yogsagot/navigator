@@ -24,3 +24,13 @@ docutils>=0.18
 # ... and a PDF's text (tests/test_viewer_pdf.py).  Pure Python; only an
 # AES-encrypted PDF would want `cryptography', and without it shows its source.
 pypdf>=4
+# Right-to-left text (`navkit.bidi`): python-bidi's Unicode Bidi Algorithm puts
+# Hebrew and Arabic in visual order, and arabic-reshaper gives each Arabic
+# letter the form its neighbours call for, since few terminals do either well
+# and VTE does it to a whole screen row.  python-bidi is held below 0.5, the
+# last pure-Python release: 0.5 and later are a Rust extension whose API
+# returns only the reordered string, while Navigator needs each character's
+# place (its style, the caret), and a compiled wheel would end the one
+# architecture-independent Linux package.  It brings `six`.
+python-bidi>=0.4.2,<0.5
+arabic-reshaper>=3.0

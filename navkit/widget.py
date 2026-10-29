@@ -132,6 +132,14 @@ class Widget:
     #: the command line's completions -- says False, since what it would dim
     #: is the line being typed on.
     dims_behind = True
+    #: Whether this widget is mirrored with a right-to-left screen.  Most are:
+    #: the layout reads right to left and the text in it is laid out to match
+    #: (``Surface.rtl``).  A widget showing content that has a direction of
+    #: its own -- a program's output, a file in the viewer or the editor, a
+    #: shell command -- says False, and keeps it left to right inside a frame
+    #: that is mirrored with everything else.  Its descendants keep its
+    #: direction.
+    mirrors = True
     #: Whether this widget casts Turbo Vision's drop shadow (``sfShadow``):
     #: two columns down its right and one row along its bottom, offset one row
     #: and two columns, painted over whatever is already there in the
@@ -610,7 +618,13 @@ class Widget:
         """
         if not self.visible:
             return
-        own = surface.view(self.x, self.y, self.width, self.height)
+        # Kept left to right inside a mirrored screen: painted as it would be
+        # anywhere else, then reversed in place, so that the screen's mirror
+        # puts it back the way it was painted.
+        unmirrored = surface.rtl and not self.mirrors
+        own = surface.view(
+            self.x, self.y, self.width, self.height, False if unmirrored else None
+        )
         if self.modal and (app := self.application) is not None:
             app._painting_modal(self)
         if self.shadow:
@@ -619,6 +633,28 @@ class Widget:
         for child in self.children:
             child.render_tree(own)
         self._guarded(self.render_after, own)
+        if unmirrored:
+            own.mirror()
+
+    def arrows_mirrored(self) -> bool:
+        """Whether Left and Right trade places for this widget on a mirrored
+        screen.  They do for anything laid out in a row -- menus, columns,
+        buttons -- whose next item is to the left there; a widget editing text
+        that reads left to right says False."""
+        return True
+
+    def unmirrored(self) -> Widget | None:
+        """The outermost of this widget and its ancestors that keeps its
+        content left to right on a right-to-left screen (:attr:`mirrors`), or
+        None.  Only that one is reversed in place; what is inside it is
+        already painted left to right."""
+        found = None
+        node: Widget | None = self
+        while node is not None:
+            if not node.mirrors:
+                found = node
+            node = node.parent
+        return found
 
     def _guarded(self, paint: Callable[[Surface], None], surface: Surface) -> None:
         """Run *paint*; a failure is the application's to report, once.

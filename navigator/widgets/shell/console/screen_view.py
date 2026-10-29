@@ -34,6 +34,10 @@ class ScreenView(ContextMenuHost, Widget):
     :meth:`write_child`.
     """
 
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``):
+    #: a program's screen, whose direction is the terminal's own.
+    mirrors = False
+
     #: Bumped whenever the child writes, so the reactive layer knows the cells
     #: moved.  The screen behind it is not observable -- it is a great deal of
     #: mutable state that changes together -- so one counter stands for it.

@@ -92,6 +92,15 @@ KEYBOARD_OFF = "\x1b[?1004l\x1b[<u"
 KEYPAD_ON = "\x1b="
 KEYPAD_OFF = "\x1b>"
 CLEAR_SCREEN = "\x1b[H\x1b[2J"
+# ECMA-48's Bi-Directional Support Mode: reset is explicit (cells stay where
+# they are written), set is implicit (the terminal reorders a line as it sees
+# fit), which is VTE's default and tears apart a screen of windows.  Navigator
+# lays right-to-left text out itself (navkit.bidi), so it asks for explicit
+# while it owns the screen.  VTE keeps the mode per line, from when the line
+# is made, so it goes out before the screen is cleared.  A terminal without
+# bidi ignores it.
+BIDI_EXPLICIT = "\x1b[8l"
+BIDI_IMPLICIT = "\x1b[8h"
 # OSC 4 rewrites one of the sixteen colour registers, OSC 104 with no argument
 # puts all of them back.  This is the terminal's answer to what a DOS palette
 # did to the VGA DAC, and the only way to reach a terminal that names nothing
@@ -966,6 +975,8 @@ class Terminal:
     def _enter_modes(self) -> None:
         if self.info.alt_screen:
             self.write(ALT_SCREEN_ON)
+        if self.info.mouse:  # an interactive terminal, the one test there is
+            self.write(BIDI_EXPLICIT)
         self.write(AUTOWRAP_OFF + HIDE_CURSOR + CLEAR_SCREEN)
         if self.mouse:
             self.write(MOUSE_ON)
@@ -1000,6 +1011,8 @@ class Terminal:
         self.write(AUTOWRAP_ON + CURSOR_SHAPE_RESET + SHOW_CURSOR + "\x1b[0m")
         if self.info.alt_screen:
             self.write(ALT_SCREEN_OFF)
+        if self.info.mouse:
+            self.write(BIDI_IMPLICIT)
         self.flush()
 
     def set_clipboard(self, text: str, *, primary: bool = False) -> None:

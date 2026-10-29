@@ -1,0 +1,252 @@
+[meta]
+name = "עברית"
+flag = "IL"
+direction = "rtl"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:71
+"~Y~es" = "~כ~ן"
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+"O~K~" = "~א~ישור"
+# navml/widgets/dialog/dialog/dialog.nml:80
+"~N~o" = "~ל~א"
+# navml/widgets/dialog/dialog/dialog.nml:88
+"~C~ancel" = "~ב~יטול"
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+"~H~elp" = "~ע~זרה"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:20
+"Open file" = "פתח קובץ"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:25, navml/widgets/dialog/file_dialog/file_dialog.py:84
+"~N~ame" = "ש~ם~"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:43
+"~F~iles" = "~ק~בצים"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:60
+"~D~irectories" = "~ת~יקיות"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:19
+"Cancel" = "ביטול"
+# navml/widgets/window_manager/window_manager.nml:18
+"Windows Manager" = "מנהל חלונות"
+# navml/widgets/window_manager/window_manager.nml:22
+"~W~indows" = "~ח~לונות"
+# navml/widgets/window_manager/window_manager.nml:49
+"C~l~ose" = "~ס~גור"
+# navml/commands.py:30, navml/widgets/window/window.py:274
+"Close" = "סגור"
+# navml/commands.py:36, navml/widgets/window/window.py:276
+"Zoom" = "הגדל"
+# navml/commands.py:76
+"List" = "רשימה"
+# navml/commands.py:86
+"Tile" = "פרוש"
+# navml/commands.py:95
+"Cascade" = "מדרג"
+# navml/commands.py:105
+"Close all" = "סגור הכל"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "אין חלון פתוח"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "אין חלון שניתן לסדר"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "אין חלון שניתן לסגור"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "לא ניתן להגדיל חלון זה"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "לא ניתן לסגור חלון זה"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "אין חלון שמספרו {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "שחור"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "כחול"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "ירוק"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "טורקיז"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "אדום"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "סגול"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "חום"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "אפור בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "אפור כהה"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "כחול בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "ירוק בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "טורקיז בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "אדום בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "סגול בהיר"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "צהוב"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "לבן"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " טקסט "
+# navml/widgets/dialog/commands.py:25
+"OK" = "אישור"
+# navml/widgets/dialog/commands.py:39
+"Next tab" = "הכרטיסייה הבאה"
+# navml/widgets/dialog/commands.py:45
+"Previous tab" = "הכרטיסייה הקודמת"
+# navml/widgets/dialog/commands.py:58
+"Search" = "חיפוש"
+# navml/widgets/dialog/commands.py:76
+"Cut" = "גזור"
+# navml/widgets/dialog/commands.py:82
+"Copy" = "העתק"
+# navml/widgets/dialog/commands.py:88
+"Paste" = "הדבק"
+# navml/widgets/dialog/commands.py:94
+"Clear" = "נקה"
+# navml/widgets/dialog/commands.py:104
+"Select all" = "בחר הכל"
+# navml/widgets/dialog/commands.py:117
+"Previous month" = "החודש הקודם"
+# navml/widgets/dialog/commands.py:123
+"Next month" = "החודש הבא"
+# navml/widgets/dialog/commands.py:129
+"Previous year" = "השנה הקודמת"
+# navml/widgets/dialog/commands.py:135
+"Next year" = "השנה הבאה"
+# navml/widgets/dialog/commands.py:141
+"Choose month" = "בחר חודש"
+# navml/widgets/dialog/commands.py:147
+"Choose year" = "בחר שנה"
+# navml/widgets/dialog/commands.py:153
+"Go to current date" = "עבור לתאריך הנוכחי"
+# navml/widgets/dialog/date_button/date_button.py:86
+"January" = "ינואר"
+# navml/widgets/dialog/date_button/date_button.py:86
+"February" = "פברואר"
+# navml/widgets/dialog/date_button/date_button.py:86
+"March" = "מרץ"
+# navml/widgets/dialog/date_button/date_button.py:86
+"April" = "אפריל"
+# navml/widgets/dialog/date_button/date_button.py:86
+"May" = "מאי"
+# navml/widgets/dialog/date_button/date_button.py:86
+"June" = "יוני"
+# navml/widgets/dialog/date_button/date_button.py:87
+"July" = "יולי"
+# navml/widgets/dialog/date_button/date_button.py:87
+"August" = "אוגוסט"
+# navml/widgets/dialog/date_button/date_button.py:87
+"September" = "ספטמבר"
+# navml/widgets/dialog/date_button/date_button.py:87
+"October" = "אוקטובר"
+# navml/widgets/dialog/date_button/date_button.py:87
+"November" = "נובמבר"
+# navml/widgets/dialog/date_button/date_button.py:88
+"December" = "דצמבר"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Mo" = "ב׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Tu" = "ג׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"We" = "ד׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Th" = "ה׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Fr" = "ו׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Sa" = "ש׳"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Su" = "א׳"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Monday" = "יום שני"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Tuesday" = "יום שלישי"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Wednesday" = "יום רביעי"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Thursday" = "יום חמישי"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Friday" = "יום שישי"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Saturday" = "שבת"
+# navml/widgets/dialog/date_button/date_button.py:100
+"Sunday" = "יום ראשון"
+# navml/widgets/dialog/date_button/date_button.py:355
+"The month before" = "החודש הקודם"
+# navml/widgets/dialog/date_button/date_button.py:357
+"The month after" = "החודש הבא"
+# navml/widgets/dialog/date_button/date_button.py:359
+"A click chooses the month" = "לחיצה בוחרת את החודש"
+# navml/widgets/dialog/date_button/date_button.py:361
+"A click chooses the year" = "לחיצה בוחרת את השנה"
+# navml/widgets/dialog/date_button/date_button.py:372
+"Today" = "היום"
+# navml/widgets/dialog/date_button/date_button.py:368
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, שבוע {week}"
+# navml/widgets/dialog/date_button/date_button.py:374
+"{n} day from today" = ["בעוד יום אחד", "בעוד יומיים", "בעוד {n} ימים"]
+# navml/widgets/dialog/date_button/date_button.py:376
+"{n} day ago" = ["לפני יום אחד", "לפני יומיים", "לפני {n} ימים"]
+# navml/widgets/dialog/dialog/dialog.py:312
+"Enter accepts, Escape dismisses." = "Enter מאשר, Escape סוגר."
+# navml/widgets/dialog/file_dialog/file_dialog.py:200
+"Invalid file name." = "שם קובץ לא חוקי."
+# navml/widgets/dialog/file_dialog/file_dialog.py:191
+"Invalid drive or directory." = "כונן או תיקייה לא חוקיים."
+# navml/widgets/dialog/file_dialog/file_dialog.py:226
+"Error" = "שגיאה"
+# navml/widgets/dialog/file_list/file_list.py:200
+"Directory" = "תיקייה"
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
+" Search: " = " חיפוש: "
+# navml/widgets/dialog/history/history.py:109
+"Choose from the list ({key})" = "בחר מהרשימה ({key})"
+# navml/widgets/dialog/history/history.py:111
+"Earlier entries ({key})" = "רשומות קודמות ({key})"
+# navml/widgets/dialog/input_line/input_line.py:345
+"The line cannot be changed now" = "לא ניתן לשנות את השורה כעת"
+# navml/widgets/dialog/input_line/input_line.py:396
+"Cu~t~" = "~ג~זור"
+# navml/widgets/dialog/input_line/input_line.py:397
+"~C~opy" = "~ה~עתק"
+# navml/widgets/dialog/input_line/input_line.py:398
+"~P~aste" = "ה~ד~בק"
+# navml/widgets/dialog/input_line/input_line.py:399
+"C~l~ear" = "~נ~קה"
+# navml/widgets/dialog/input_line/input_line.py:401
+"Select ~a~ll" = "~ב~חר הכל"
+# navml/widgets/dialog/input_line/input_line.py:347
+"Nothing is selected" = "לא נבחר דבר"
+# navml/widgets/dialog/input_line/input_line.py:350, navml/widgets/dialog/input_line/input_line.py:353
+"The line is empty" = "השורה ריקה"
+# navml/widgets/dialog/input_line/input_line.py:354
+"All of it is selected" = "הכל כבר נבחר"
+# navml/widgets/dialog/tab_view/tab_view.py:152
+"Tabs" = "כרטיסיות"
+# navml/widgets/dialog/tab_view/tab_view.py:417
+"Earlier tabs" = "כרטיסיות קודמות"
+# navml/widgets/dialog/tab_view/tab_view.py:417
+"Later tabs" = "כרטיסיות הבאות"
+# navml/widgets/dialog/tree_view/tree_view.py:531
+"Next" = "הבא"
+# navml/widgets/menu/commands.py:14
+"Menu" = "תפריט"
+# navml/widgets/progress_bar/progress_bar.py:61
+"{done} of {total} done ({percent}%), {rest} to go" = "הושלמו {done} מתוך {total} ({percent}%), נותרו {rest}"
+# navml/widgets/window/window.py:295
+"A double click zooms, a drag moves" = "לחיצה כפולה מגדילה, גרירה מזיזה"
+# navml/widgets/window/window.py:297
+"A drag moves" = "גרירה מזיזה"
+# navml/widgets/window/window.py:326
+"Move" = "הזז"
+# navml/widgets/window/window.py:326
+"Size" = "גודל"
+# navml/widgets/window/window.py:326
+"Keep" = "השאר"
+# navml/widgets/window/window.py:326
+"Undo" = "בטל"
+# navml/widgets/window/window.py:276
+"Restore" = "שחזר"
+# navml/widgets/window/window.py:278
+"Drag to resize" = "גרור לשינוי גודל"

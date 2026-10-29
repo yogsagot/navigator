@@ -26,11 +26,13 @@ import functools
 import re
 import threading
 import time
+import unicodedata
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 from typing import Any, Awaitable, Callable
 
 from navkit import commands
+from navkit.bidi import order_cells, text_rtl
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.i18n import tr
@@ -225,6 +227,57 @@ def capitalize(text: str) -> str:
     return _WORD.sub(lambda m: m[0][:1].upper() + m[0][1:].lower(), text)
 
 
+def _painted_spans(text: str, tab: int, start: int | None, end: int | None) -> list[tuple[int, int]] | None:
+    """The stretches of *text* painted between a block's ends on this line, or
+    None when the line reads as written (and the block is the stretch it is).
+
+    *start* is the block's start on this, its first line (None if it began
+    above), *end* its end on its last (None if it goes on below).  An end is a
+    caret, on the cell of the character at its index -- past the text when
+    it is past the line's end.  Between two on one line the cells from one up
+    to the other are the block's; from a start alone, towards the end the line
+    reads to (left in a right-to-left line), the start's own cell included;
+    up to an end alone, from where the line begins, its cell left out.
+    """
+    row = columns.cells(text, tab)
+    order = order_cells([char for char, _ in row])
+    if order is None:
+        return None
+    cells = [row[at][1] for at, shown in order if shown != ""]
+    bases = sorted(set(cells))
+    reach = {base: (bases[k + 1] if k + 1 < len(bases) else len(text)) for k, base in enumerate(bases)}
+    count = len(cells)
+
+    def cell_of(index: int) -> int:
+        if index >= len(text):
+            return count
+        return next((x for x, base in enumerate(cells) if base <= index < reach[base]), count)
+
+    rtl = text_rtl(text)
+    if start is not None and end is not None:
+        low, high = sorted((cell_of(start), cell_of(end)))
+        chosen = range(low, high)
+    elif start is not None:
+        at = cell_of(start)
+        if start >= len(text):
+            chosen = range(0)
+        else:
+            chosen = range(0, at + 1) if rtl else range(at, count)
+    elif end is not None:
+        at = cell_of(end)
+        chosen = range(at + 1, count) if rtl else range(0, at)
+    else:
+        chosen = range(count)
+    picked = sorted({i for x in chosen for i in range(cells[x], reach[cells[x]])})
+    spans: list[tuple[int, int]] = []
+    for i in picked:
+        if spans and spans[-1][1] == i:
+            spans[-1] = (spans[-1][0], i + 1)
+        else:
+            spans.append((i, i + 1))
+    return spans
+
+
 def _marking(
     handler: Callable[[Any, Any], Awaitable[bool]],
 ) -> Callable[[Any, Any], Awaitable[bool]]:
@@ -323,6 +376,10 @@ WORDSTAR = {
 
 class FileEditor(ContextMenuHost, Widget):
     """The inside of an editor window: a text, its cursor, and the keys that edit it."""
+
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``):
+    #: the file's own text, edited left to right.
+    mirrors = False
 
     #: ``CFileEditor``'s ten colours, by what they paint.  Its comments,
     #: symbols, strings and numbers -- and comments on the current line --
@@ -545,6 +602,15 @@ class FileEditor(ContextMenuHost, Widget):
     #: DN's *Persistent blocks* kept it, and follows the edits made around it
     #: (:meth:`_follow_edit`).
     block: tuple[Pos, Pos] | None = reactive(None)
+    #: :attr:`block` while it is the one the cursor marked (Shift+movement, a
+    #: drag, ^K B and ^K K), the very tuple: its ends are then read as painted
+    #: cells and it holds what lies between them on screen, which on a line
+    #: Hebrew or Arabic reorders is not one stretch of the text
+    #: (:meth:`_block_runs`).  A block a command puts in -- ^K C's copy, ^K R's
+    #: read -- is the stretch it is.  A departure: DN knew no reordered line.
+    _painted_block: tuple[Pos, Pos] | None = None
+    #: :meth:`_block_runs`'s last answer and what it was for.
+    _runs_cache: tuple[Any, list[tuple[Pos, Pos]]] | None = None
 
     #: The marked column block, or None: two opposite corners as screen
     #: cells ``(line, col)``, the one marking started from first.  Columns,
@@ -799,10 +865,90 @@ class FileEditor(ContextMenuHost, Widget):
 
     # -- movements ---------------------------------------------------------------
 
+    def _step_visually(self, step: int) -> bool:
+        """Left (*step* -1) or Right (+1) by where the columns are painted, on a
+        line Hebrew or Arabic reorders; False on any other line, which the
+        column-by-column movement below serves as it always has.
+
+        A departure: DN knew no right-to-left text.  The cursor goes to the
+        neighbouring painted cell, so it runs with the arrow through Hebrew
+        and Latin alike.  Off the left end it stays; off the right end of the
+        text it goes past it, as on any line, and from there on to the next
+        line the way Right always has.
+        """
+        if not 0 <= self.line < len(self.document):
+            return False
+        row, order, visual = self._painted_here()
+        if order is None:
+            return False
+        here = row[order[visual][0]][1] if visual < len(order) else None
+        target = visual + step
+        while 0 <= target < len(order) and (order[target][1] == "" or row[order[target][0]][1] == here):
+            target += step  # the rest of a tab or a wide character: the same place
+        if target < 0:
+            return True
+        if target < len(order):
+            at = order[target][0]
+            self._go_column(self.line, columns.column_of(self._text(), row[at][1], self.tab_size))
+            return True
+        if target == len(order) or self._free:
+            self._go_column(self.line, len(row) + target - len(order))
+            return True
+        return False
+
+    def _painted_here(self) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int]:
+        """The cursor's line as cells, their painted order (None when the line
+        reads as written), and the painted cell the cursor is on -- past the
+        text, as many cells past it as the cursor's column is."""
+        row = columns.cells(self._text(), self.tab_size)
+        order = order_cells([char for char, _ in row])
+        if order is None:
+            return row, None, self.col
+        if self.col < len(row):
+            # A column inside a tab or a wide character is that character's.
+            index = row[self.col][1]
+            visual = next(x for x, (at, shown) in enumerate(order) if row[at][1] == index and shown != "")
+        else:
+            visual = len(order) + self.col - len(row)
+        return row, order, visual
+
+    def _word_visually(self, step: int) -> bool:
+        """Ctrl+Left (*step* -1) or Ctrl+Right (+1) by where words are painted, on
+        a line Hebrew or Arabic reorders; False on any other line.
+
+        Every word's start -- its first letter in the text, the right-hand end
+        of a Hebrew word -- is a stop, and so is the end of the line; the cursor
+        goes to the nearest stop that way on screen.  With none left that way
+        it goes on to the line before or after as DN's ``WordLeft`` and
+        ``WordRight`` do.  A departure, as Left and Right are (_step_visually).
+        """
+        if not 0 <= self.line < len(self.document):
+            return False
+        row, order, visual = self._painted_here()
+        if order is None:
+            return False
+        text = self._text()
+        stops: dict[int, int] = {}  # painted cell: index in the text
+        for x, (at, shown) in enumerate(order):
+            index = row[at][1]
+            if shown and text[index] not in BREAK_CHARS and (index == 0 or text[index - 1] in BREAK_CHARS):
+                stops.setdefault(x, index)
+        stops[len(order)] = len(text)
+        ahead = [x for x in stops if (x - visual) * step > 0]
+        if ahead:
+            self._go(Pos(self.line, stops[min(ahead, key=lambda x: abs(x - visual))]))
+        elif step < 0:
+            self._go(self._word_left(Pos(self.line, 0)))
+        else:
+            self._go(self._word_right(Pos(self.line, len(text))))
+        return True
+
     @_marking
     async def on_move_left(self, event: MoveLeft) -> bool:
         """One column left; over a tab or a wide character, to its start."""
         self._moved()
+        if self._step_visually(-1):
+            return True
         index, past = self._index()
         text = self._text()
         if self.col == 0 and self.line > 0 and not self._free:
@@ -818,6 +964,8 @@ class FileEditor(ContextMenuHost, Widget):
     @_marking
     async def on_move_right(self, event: MoveRight) -> bool:
         self._moved()
+        if self._step_visually(1):
+            return True
         index, past = self._index()
         text = self._text()
         if self._free and (past or index >= len(text)):
@@ -958,13 +1106,15 @@ class FileEditor(ContextMenuHost, Widget):
     @_marking
     async def on_word_left(self, event: WordLeft) -> bool:
         self._moved()
-        self._go(self._word_left(self._pos()))
+        if not self._word_visually(-1):
+            self._go(self._word_left(self._pos()))
         return True
 
     @_marking
     async def on_word_right(self, event: WordRight) -> bool:
         self._moved()
-        self._go(self._word_right(self._pos()))
+        if not self._word_visually(1):
+            self._go(self._word_right(self._pos()))
         return True
 
     # -- the block ---------------------------------------------------------------
@@ -985,7 +1135,9 @@ class FileEditor(ContextMenuHost, Widget):
         corner takes the column Up/Down aim for, so Shift+Down across a short
         line keeps the rectangle's width rather than losing it there."""
         if self.vertical_blocks:
-            return (self.line, self.col if self._goal is None else self._goal)
+            if self._goal is not None:
+                return (self.line, self._goal)
+            return (self.line, self._visual_column(self.line, self.col))
         return self._mark_pos()
 
     def _block_ends(self) -> tuple[Any, Any] | None:
@@ -1014,6 +1166,7 @@ class FileEditor(ContextMenuHost, Widget):
             self.column_block = (anchor, here) if anchor[1] != here[1] else None
         else:
             self.block = (min(anchor, here), max(anchor, here)) if anchor != here else None
+            self._painted_block = self.block
 
     def _extend_block(self, before: Any) -> None:
         ends = self._block_ends()
@@ -1040,9 +1193,12 @@ class FileEditor(ContextMenuHost, Widget):
         self._half_mark = None
         block = self.block
         if block is not None:
+            painted = block is self._painted_block
             first = shifted(block[0], kind, start, end)
             last = shifted(block[1], kind, start, end, stay=True)
             self.block = (first, last) if first < last else None
+            if painted:
+                self._painted_block = self.block
         corners = self.column_block
         if corners is not None and end.line != start.line:
             def moved(cell: tuple[int, int]) -> tuple[int, int]:
@@ -1051,17 +1207,117 @@ class FileEditor(ContextMenuHost, Widget):
                 return shifted(Pos(line, 0), kind, start, end).line, col
             self.column_block = (moved(corners[0]), moved(corners[1]))
 
+    def _rect_spans(self, number: int, left: int, right: int) -> tuple[list[tuple[int, int]], int]:
+        """What of line *number* is painted in columns *left* to *right* (end
+        exclusive): the stretches of its text, in order, and how many columns
+        of it there are.
+
+        A column block's columns are where things are painted, so on a line
+        Hebrew or Arabic reorders they hold characters scattered in the text.
+        Elsewhere the one stretch :func:`columns.span` gives, as ever.
+        """
+        text = self.document.lines[number] if number < len(self.document) else ""
+        tab = self.tab_size
+        row = columns.cells(text, tab)
+        order = order_cells([char for char, _ in row])
+        if order is None:
+            i, j = columns.span(text, left, right, tab)
+            return [(i, j)], columns.column_of(text, j, tab) - columns.column_of(text, i, tab)
+        bases = sorted({row[at][1] for at, shown in order if shown})
+        reach = {base: (bases[k + 1] if k + 1 < len(bases) else len(text)) for k, base in enumerate(bases)}
+        inside = range(max(0, left), min(right, len(order)))
+        picked = sorted({
+            i for x in inside if order[x][1]
+            for i in range(row[order[x][0]][1], reach[row[order[x][0]][1]])
+        })
+        spans: list[tuple[int, int]] = []
+        for i in picked:
+            if spans and spans[-1][1] == i:
+                spans[-1] = (spans[-1][0], i + 1)
+            else:
+                spans.append((i, i + 1))
+        return spans, len(inside)
+
+    def _line_spans(self, number: int) -> list[tuple[int, int]] | None:
+        """The stretches of line *number* the block holds, as string indices,
+        whatever its kind; None for a line outside it."""
+        if self.column_block is not None:
+            top, left, bottom, right = self.rectangle
+            return self._rect_spans(number, left, right)[0] if top <= number <= bottom else None
+        if self.block is None:
+            return None
+        start, end = self.block
+        if not start.line <= number <= end.line:
+            return None
+        length = len(self.document.lines[number])
+        spans = [
+            (a.index if a.line == number else 0, b.index if b.line == number else length)
+            for a, b in self._block_runs() if a.line <= number <= b.line
+        ]
+        return [(i, j) for i, j in spans if i < j] or [(0, 0)]
+
+    def _painted_column(self, pos: Pos) -> int:
+        """Where the character at *pos* is painted: a column block's corners are."""
+        return self._visual_column(pos.line, self._column(pos))
+
     def _column_pieces(self) -> list[str]:
         """Each line's part of the column block, padded out to its width."""
         top, left, bottom, right = self.rectangle
         pieces = []
         for number in range(top, bottom + 1):
             text = self.document.lines[number] if number < len(self.document) else ""
-            i, j = columns.span(text, left, right, self.tab_size)
-            piece = text[i:j]
-            shown = columns.column_of(text, j, self.tab_size) - columns.column_of(text, i, self.tab_size)
+            spans, shown = self._rect_spans(number, left, right)
+            piece = "".join(text[i:j] for i, j in spans)
             pieces.append(piece + " " * max(0, (right - left) - shown))
         return pieces
+
+    def _block_runs(self) -> list[tuple[Pos, Pos]]:
+        """The stream block as the stretches of the text it holds, in order.
+
+        One, the block itself, unless the cursor marked it (:attr:`_painted_block`)
+        across a line Hebrew or Arabic reorders.  Then that line holds what is
+        painted between the ends: between the two on the block's one line; on
+        its first line, from the start's cell to the end the line reads towards
+        (the left of a right-to-left one), on its last, from where the line
+        begins to the end's cell; the lines between whole, line breaks with them.
+        """
+        block = self.block
+        if block is None:
+            return []
+        if block is not self._painted_block:
+            return [block]
+        key = (block, self.revision, self.tab_size)
+        if self._runs_cache is not None and self._runs_cache[0] == key:
+            return self._runs_cache[1]
+        start, end = block
+        lines = self.document.lines
+        runs: list[tuple[Pos, Pos]] = []
+        for number in range(start.line, end.line + 1):
+            text = lines[number]
+            first = start.index if number == start.line else 0
+            last = end.index if number == end.line else len(text)
+            spans = _painted_spans(
+                text, self.tab_size,
+                start.index if number == start.line else None,
+                end.index if number == end.line else None,
+            )
+            if spans is None:
+                spans = [(first, last)] if first < last else []
+            runs.extend((Pos(number, i), Pos(number, j)) for i, j in spans)
+            if number < end.line:
+                runs.append((Pos(number, len(text)), Pos(number + 1, 0)))
+        merged: list[tuple[Pos, Pos]] = []
+        for run in runs:
+            if merged and merged[-1][1] == run[0]:
+                merged[-1] = (merged[-1][0], run[1])
+            else:
+                merged.append(run)
+        self._runs_cache = (key, merged)
+        return merged
+
+    def _block_raw(self) -> str:
+        """The stream block's text, in the file's own line breaks."""
+        return "".join(self.document.text(a, b) for a, b in self._block_runs())
 
     @property
     def block_text(self) -> str:
@@ -1073,22 +1329,25 @@ class FileEditor(ContextMenuHost, Widget):
             return "\n".join(piece.rstrip(" ") for piece in self._column_pieces())
         if self.block is None:
             return ""
-        return BREAK.sub("\n", self.document.text(*self.block))
+        return BREAK.sub("\n", self._block_raw())
 
     def _take_block(self) -> None:
         """Delete the block inside an open group; the cursor to where it began."""
         if self.column_block is not None:
             top, left, bottom, right = self.rectangle
+            corner = self._logical_column(top, left)
             for number in range(top, min(bottom, len(self.document) - 1) + 1):
-                i, j = columns.span(self.document.lines[number], left, right, self.tab_size)
-                self.buffer.delete(Pos(number, i), Pos(number, j))
+                for i, j in reversed(self._rect_spans(number, left, right)[0]):
+                    self.buffer.delete(Pos(number, i), Pos(number, j))
             self.column_block = None
-            self._go_column(top, left)
+            self._go_column(top, corner)
             return
-        block = self.block
-        if block is not None:
-            self.buffer.delete(*block)
-            self._go(block[0])
+        runs = self._block_runs()
+        if runs:
+            for a, b in reversed(runs):
+                self.buffer.delete(a, b)
+            self.block = None
+            self._go(runs[0][0])
 
     def _delete_block(self) -> None:
         if not self.has_block:
@@ -1131,6 +1390,7 @@ class FileEditor(ContextMenuHost, Widget):
             self.column_block = (start, end) if fits else None
         else:
             self.block = (start, end) if start < end else None
+            self._painted_block = self.block
 
     def _mark_end(self, *, first: bool) -> None:
         """^K B (*first*) or ^K K: one end of the block at the cursor.
@@ -1205,10 +1465,11 @@ class FileEditor(ContextMenuHost, Widget):
             _, left, _, right = self.rectangle
             width = right - left
             self._put_rectangle(pieces, line, col)
-            self.column_block = ((line, col), (line + len(pieces) - 1, col + width))
+            painted = self._visual_column(line, col)
+            self.column_block = ((line, painted), (line + len(pieces) - 1, painted + width))
             self._go_column(line, col)
         else:
-            text = self.document.text(*self.block)
+            text = self._block_raw()
             at = self._pad()
             end = self.buffer.insert(at, text)
             self.block = (at, end)
@@ -1225,28 +1486,33 @@ class FileEditor(ContextMenuHost, Widget):
         line, col = self.line, self.col
         if self.column_block is not None:
             top, left, bottom, right = self.rectangle
-            if top <= line <= bottom and left <= col < right:
+            painted = self._visual_column(line, col)
+            if top <= line <= bottom and left <= painted < right:
                 return True
             pieces = self._column_pieces()
             self._moved()
             self._begin()
             self._take_block()
-            if top <= line <= bottom and col >= right:
-                col -= right - left
+            if top <= line <= bottom and painted >= right:
+                col = self._logical_column(line, painted - (right - left))
             self._put_rectangle(pieces, line, col)
-            self.column_block = ((line, col), (line + len(pieces) - 1, col + right - left))
+            painted = self._visual_column(line, col)
+            self.column_block = ((line, painted), (line + len(pieces) - 1, painted + right - left))
             self._go_column(line, col)
             self._end()
             return True
-        start, end = self.block
-        if start < self._mark_pos() < end:
+        here = self._mark_pos()
+        if any(a < here < b for a, b in self._block_runs()):
             return True
         self._moved()
         self._begin()
         at = self._pad()
-        start, end = self.block  # padding the cursor's line may have moved it
-        text = self.buffer.delete(start, end)
-        at = shifted(at, "delete", start, end)
+        # The runs again: padding the cursor's line may have moved them.
+        pieces = []
+        for a, b in reversed(self._block_runs()):
+            pieces.append(self.buffer.delete(a, b))
+            at = shifted(at, "delete", a, b)
+        text = "".join(reversed(pieces))
         stop = self.buffer.insert(at, text)
         self.block = (at, stop)
         self._go(at)
@@ -1275,6 +1541,10 @@ class FileEditor(ContextMenuHost, Widget):
         self._begin()
         for number in self._block_lines():
             text = self.document.lines[number]
+            index = self._painted_insert(number, left, blanks) if self.column_block is not None else None
+            if index is not None:
+                self.buffer.insert(Pos(number, index), blanks)
+                continue
             index, past = columns.index_at(text, left, self.tab_size)
             if not past and index < len(text):
                 self.buffer.insert(Pos(number, index), blanks)
@@ -1284,11 +1554,60 @@ class FileEditor(ContextMenuHost, Widget):
         self._end()
         return True
 
+    def _painted_insert(self, number: int, left: int, blanks: str) -> int | None:
+        """Where in line *number* *blanks* go so that they are painted at column
+        *left*, what was painted there pushed along to the right; None on a
+        line that reads as written (the column is the text's, as ever) or past
+        its painted end.
+
+        A column block's left edge is a painted column.  On a line Hebrew or
+        Arabic reorders the character painted there may be read either way,
+        so the blanks are tried before it and after it in the text, the line
+        laid out each time, and the place that paints them at *left* wins; if
+        neither does, before a left-to-right character, after a right-to-left
+        one, which is where they would go between letters of its own kind.
+        """
+        text = self.document.lines[number]
+        tab = self.tab_size
+        row = columns.cells(text, tab)
+        order = order_cells([char for char, _ in row])
+        if order is None or left >= len(order):
+            return None
+        at = left
+        while at > 0 and order[at][1] == "":
+            at -= 1  # the second half of a wide character: its owner
+        start = row[order[at][0]][1]
+        stop = start + 1
+        while stop < len(text) and unicodedata.combining(text[stop]):
+            stop += 1
+        for index in (start, stop):
+            new = text[:index] + blanks + text[index:]
+            cells = columns.cells(new, tab)
+            laid = order_cells([char for char, _ in cells])
+            if laid is None:
+                continue
+            put = [cells[column][1] for column, _ in laid[left:left + len(blanks)]]
+            if put and all(index <= i < index + len(blanks) for i in put):
+                return index
+        return stop if text_rtl(text[start]) else start
+
     def _blank_at(self, number: int, left: int) -> bool:
         """Whether line *number* has a blank at column *left* that an unindent can take."""
         text = self.document.lines[number]
         index, past = columns.index_at(text, left, self.tab_size)
         return not past and index < len(text) and text[index] in " \t"
+
+    def _text_column(self, number: int, painted: int) -> int:
+        """The text's column of what line *number* paints at column *painted*:
+        a column block's left edge, for an unindent."""
+        text = self.document.lines[number]
+        row = columns.cells(text, self.tab_size)
+        order = order_cells([char for char, _ in row])
+        if order is None:
+            return painted
+        if painted >= len(order):
+            return painted + len(row) - len(order)
+        return order[painted][0]
 
     async def on_unindent_block(self, event: UnindentBlock) -> bool:
         """^K U: one blank out of each line of the block where one stands there; a
@@ -1305,7 +1624,14 @@ class FileEditor(ContextMenuHost, Widget):
         else:
             lines = self._block_lines()
             left = self.rectangle[1] if self.column_block is not None else 0
-        if not any(self._blank_at(number, left) for number in lines):
+        # A column block's left edge is a painted column (_rect_spans): the
+        # blank taken is the one painted there, wherever the text has it.
+        painted = self.column_block is not None and not alone
+
+        def column(number: int) -> int:
+            return self._text_column(number, left) if painted else left
+
+        if not any(self._blank_at(number, column(number)) for number in lines):
             # Nothing indented: no edit, and the typing run before goes on.
             return True
         self._moved()
@@ -1315,7 +1641,7 @@ class FileEditor(ContextMenuHost, Widget):
             taken = 0
             for _ in range(self.tab_size if event.stop else 1):
                 text = self.document.lines[number]
-                index, past = columns.index_at(text, left, self.tab_size)
+                index, past = columns.index_at(text, column(number), self.tab_size)
                 if past or index >= len(text) or text[index] not in " \t":
                     break
                 width = columns.advance(text[index], columns.column_of(text, index, self.tab_size),
@@ -1337,14 +1663,14 @@ class FileEditor(ContextMenuHost, Widget):
             top, left, bottom, right = self.rectangle
             corners = self.column_block
             for number in self._block_lines():
-                text = self.document.lines[number]
-                i, j = columns.span(text, left, right, self.tab_size)
-                new = change(text[i:j])
-                if new != text[i:j]:
-                    self.buffer.delete(Pos(number, i), Pos(number, j))
-                    self.buffer.insert(Pos(number, i), new)
+                for i, j in reversed(self._rect_spans(number, left, right)[0]):
+                    text = self.document.lines[number]
+                    new = change(text[i:j])
+                    if new != text[i:j]:
+                        self.buffer.delete(Pos(number, i), Pos(number, j))
+                        self.buffer.insert(Pos(number, i), new)
             self.column_block = corners
-        else:
+        elif self.block is not self._painted_block:
             start, end = self.block
             old = self.document.text(start, end)
             new = change(old)
@@ -1352,6 +1678,29 @@ class FileEditor(ContextMenuHost, Widget):
                 self.buffer.delete(start, end)
                 end = self.buffer.insert(start, new)
                 self.block = (start, end)
+        else:
+            # What is lit, each stretch on its own; the block marked as it was
+            # when the text keeps its length, else the stretch it now spans.
+            block, runs = self.block, self._block_runs()
+            last: Pos | None = None
+            kept = True
+            for start, end in reversed(runs):
+                old = self.document.text(start, end)
+                new = change(old)
+                if new != old:
+                    kept = kept and len(new) == len(old)
+                    self.buffer.delete(start, end)
+                    stop = self.buffer.insert(start, new)
+                    if last is None:
+                        last = stop
+                    elif last.line == start.line:
+                        last = Pos(last.line, last.index + len(new) - len(old))
+                elif last is None:
+                    last = end
+            if kept:
+                self.block = self._painted_block = block
+            elif runs and last is not None and last > runs[0][0]:
+                self.block = (runs[0][0], last)
         self._end()
 
     async def on_sort_block(self, event: SortBlock) -> bool:
@@ -1380,12 +1729,12 @@ class FileEditor(ContextMenuHost, Widget):
             return True
         tab = self.tab_size
 
-        def key(text: str) -> str:
-            i, j = columns.span(text, left, right, tab)
-            return text[i:j]
-
+        keys = {
+            number: "".join(lines[number][i:j] for i, j in self._rect_spans(number, left, right)[0])
+            for number in range(top, bottom + 1)
+        }
         old = lines[top:bottom + 1]
-        new = sorted(old, key=key)
+        new = [lines[number] for number in sorted(range(top, bottom + 1), key=keys.__getitem__)]
         if new == old:
             return True
         endings = self.document.endings[top:bottom]
@@ -1416,8 +1765,8 @@ class FileEditor(ContextMenuHost, Widget):
         lines = self.document.lines
         pieces = []
         for number in range(top, min(bottom, len(lines) - 1) + 1):
-            i, j = columns.span(lines[number], left, right, self.tab_size)
-            pieces.append(lines[number][i:j])
+            spans = self._rect_spans(number, left, right)[0]
+            pieces.append("".join(lines[number][i:j] for i, j in spans))
         if app is not None:
             app.copy_to_clipboard(block_sum(pieces))
         return True
@@ -1702,12 +2051,11 @@ class FileEditor(ContextMenuHost, Widget):
             lines = []
             for number in range(top, bottom + 1):
                 text = self.document.lines[number] if number < len(self.document) else ""
-                i, j = columns.span(text, left, right, self.tab_size)
-                lines.append(text[i:j])
+                lines.append("".join(text[i:j] for i, j in self._rect_spans(number, left, right)[0]))
             return lines
         if self.block is None:
             return []
-        return BREAK.split(self.document.text(*self.block))
+        return BREAK.split(self._block_raw())
 
     def read_block(self, text: str) -> None:
         """^K R's text at the cursor: DN's ``BlockRead``, which turned column blocks
@@ -1810,8 +2158,8 @@ class FileEditor(ContextMenuHost, Widget):
         lines = self.document.lines
         if self.block is not None:
             start, end = self.block
-            first = (start.line, columns.column_of(lines[start.line], start.index, tab))
-            last = (end.line, columns.column_of(lines[end.line], end.index, tab))
+            first = (start.line, self._painted_column(start))
+            last = (end.line, self._painted_column(end))
             self.block = None
             self.column_block = (first, last) if first[1] != last[1] else None
         elif self.column_block is not None:
@@ -1819,6 +2167,7 @@ class FileEditor(ContextMenuHost, Widget):
             bottom = min(bottom, len(lines) - 1)
 
             def place(line: int, col: int) -> Pos:
+                col = self._logical_column(line, col)
                 return Pos(line, min(columns.index_at(lines[line], col, tab)[0], len(lines[line])))
 
             start, end = place(min(top, bottom), left), place(bottom, right)
@@ -1873,9 +2222,10 @@ class FileEditor(ContextMenuHost, Widget):
         rectangle = self.rectangle
         if rectangle is not None:
             top, left, bottom, right = rectangle
-            return top <= self.line <= bottom and left <= self.col <= right
-        start, end = self.block
-        return start <= self._mark_pos() <= end
+            painted = self._visual_column(self.line, self.col)
+            return top <= self.line <= bottom and left <= painted <= right
+        here = self._mark_pos()
+        return any(start <= here <= end for start, end in self._block_runs())
 
     def _takes_block(self) -> bool:
         """Whether an edit at the cursor replaces the block instead.
@@ -2451,12 +2801,19 @@ class FileEditor(ContextMenuHost, Widget):
         the block, as a left click does; one inside keeps both, so Cut and
         Copy act on what was clicked."""
         line = min(self.top + max(y, 0), len(self.document) - 1)
-        span = self._block_columns(line)
-        if span is not None and span[0] <= self.left + x < span[1]:
-            return
+        col = self._logical_column(line, self.left + max(0, x))
+        picked = self._block_picked(line)
+        if picked is not None:
+            row = columns.cells(self.document.lines[line], self.tab_size)
+            if col < len(row) and row[col][1] in picked[0]:
+                return
+        else:
+            span = self._block_columns(line)
+            if span is not None and span[0] <= col < span[1]:
+                return
         self._moved()
         self._unmark()
-        self._move_to(line, self.left + max(0, x))
+        self._move_to(line, col)
 
     # -- keys the table cannot name ------------------------------------------------
 
@@ -2535,7 +2892,8 @@ class FileEditor(ContextMenuHost, Widget):
         y = min(max(event.y, 0), max(0, self.height - 1))
         self._extending = extending
         try:
-            self._move_to(self.top + y, self.left + max(0, event.x))
+            number = self.top + y
+            self._move_to(number, self._logical_column(number, self.left + max(0, event.x)))
         finally:
             self._extending = False
 
@@ -2587,7 +2945,7 @@ class FileEditor(ContextMenuHost, Widget):
         """Mark from *start* to *stop*, as the kind of block in force."""
         if self.vertical_blocks:
             self.block_hidden = False
-            self.column_block = ((start.line, self._column(start)), (stop.line, self._column(stop)))
+            self.column_block = ((start.line, self._painted_column(start)), (stop.line, self._painted_column(stop)))
         else:
             self._set_block(start, stop)
 
@@ -2698,25 +3056,29 @@ class FileEditor(ContextMenuHost, Widget):
         return text[start:stop]
 
     def _search_bounds(self, number: int) -> tuple[int, int] | None:
-        """The part of line *number* the block covers, as indices -- *Selected text*."""
-        text = self.document.lines[number]
-        if self.column_block is not None:
-            top, left, bottom, right = self.rectangle
-            if not top <= number <= bottom:
-                return None
-            return columns.span(text, left, right, self.tab_size)
-        if self.block is None:
+        """The part of line *number* the block covers, as indices -- *Selected text*:
+        from its first stretch's start to its last's end; :meth:`find` passes
+        over a match that is not wholly inside one stretch."""
+        spans = self._line_spans(number)
+        if spans is None:
             return None
-        start, end = self.block
-        if not start.line <= number <= end.line:
-            return None
-        return (start.index if number == start.line else 0,
-                end.index if number == end.line else len(text))
+        return spans[0][0], spans[-1][1]
 
     def find(self, at: Pos, data: SearchData, *, backward: bool) -> tuple[Pos, Pos] | None:
         """The next match of *data* from *at*: the whole text, or the block's part of it."""
-        bounds = self._search_bounds if data.selected else None
-        return search.find(self.document.lines, at, data, backward=backward, bounds=bounds)
+        if not data.selected:
+            return search.find(self.document.lines, at, data, backward=backward)
+        while True:
+            found = search.find(self.document.lines, at, data, backward=backward, bounds=self._search_bounds)
+            if found is None:
+                return None
+            start, end = found
+            spans = self._line_spans(start.line) or []
+            if any(i <= start.index and end.index <= j for i, j in spans):
+                return found
+            # Between two stretches of a block painted across a reordered line:
+            # not in it.  On from the next place.
+            at = Pos(start.line, start.index + 1) if not backward else Pos(end.line, end.index - 1)
 
     def show_found(self, found: tuple[Pos, Pos], *, backward: bool) -> None:
         """The cursor after the match -- before it, searching backward -- and the match
@@ -2904,10 +3266,59 @@ class FileEditor(ContextMenuHost, Widget):
     # -- painting ------------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
-        x, y = self.col - self.left, self.line - self.top
+        x, y = self._visual_column(self.line, self.col) - self.left, self.line - self.top
         if 0 <= x < self.width and 0 <= y < self.height:
             return x, y
         return None
+
+    def _row_order(self, number: int) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None]:
+        """Line *number*'s cells as far as the screen shows, and their reading
+        order when Hebrew or Arabic in them changes it (``order_cells``).
+
+        The cursor, the block and a click are all columns of the line as
+        written; the order is what maps them to where a column is painted.
+        """
+        lines = self.document.lines
+        if not 0 <= number < len(lines):
+            return [], None
+        row = columns.cells(lines[number], self.tab_size, limit=self.left + self.width)
+        return row, order_cells([char for char, _ in row])
+
+    def _visual_column(self, number: int, column: int) -> int:
+        """Where the text's *column* on line *number* is painted, before scrolling."""
+        row, order = self._row_order(number)
+        if order is None or column >= len(row):
+            return column - (len(row) - len(order)) if order is not None else column
+        return next((x for x, (at, _) in enumerate(order) if at == column), column)
+
+    def _logical_column(self, number: int, x: int) -> int:
+        """The text's column painted at *x* (before scrolling) on line *number*."""
+        row, order = self._row_order(number)
+        if order is None:
+            return x
+        if x >= len(order):
+            return x + len(row) - len(order)
+        return order[x][0]
+
+    def _block_picked(self, number: int) -> tuple[frozenset[int], bool] | None:
+        """For a block the cursor marked (:attr:`_painted_block`): the indices
+        of line *number* it holds and whether it holds the line's break; None
+        for any other block, or none."""
+        if self.block is None or self.block_hidden or self.column_block is not None:
+            return None
+        if self.block is not self._painted_block:
+            return None
+        length = len(self.document.lines[number])
+        picked: set[int] = set()
+        broken = False
+        for a, b in self._block_runs():
+            if b.line < number or a.line > number:
+                continue
+            i = a.index if a.line == number else 0
+            j = b.index if b.line == number else length
+            picked.update(range(i, j))
+            broken = broken or b.line > number
+        return frozenset(picked), broken
 
     def _block_columns(self, number: int) -> tuple[int, int] | None:
         """The columns line *number* has in the block, end exclusive, or None.
@@ -2956,13 +3367,31 @@ class FileEditor(ContextMenuHost, Widget):
                 style = self.part_style("current_line")
                 selected = self.part_style("current_line_selected")
                 surface.fill(0, y, width, 1, " ", style)
-            span = self._block_columns(number) or self._found_columns(number)
-            if span is not None:
-                start, stop = max(span[0], left), min(span[1], left + width)
-                if start < stop:
-                    surface.fill(start - left, y, stop - start, 1, " ", selected)
             text = lines[number]
             row = columns.cells(text, self.tab_size, limit=left + width)
+            # Hebrew or Arabic in the line: its cells in reading order, each
+            # keeping the column it has in the text (navkit.bidi.order_cells),
+            # which is what the block, a match and the tokens are told by.
+            order = order_cells([char for char, _ in row])
+            origin = range(len(row)) if order is None else [at for at, _ in order]
+            # A block the cursor marked, on such a line: the characters lit
+            # are its runs' (_block_runs), and the line break past the text.
+            picked = self._block_picked(number) if order is not None else None
+            span = None if picked is not None else self._block_columns(number)
+            # A column block's columns are painted columns; a match's, the text's.
+            painted = span is not None and self.column_block is not None
+            span = span or self._found_columns(number)
+            if order is not None:
+                row = [(shown, row[at][1]) for at, shown in order]
+            if picked is not None and picked[1] and left <= len(row) < left + width:
+                surface.fill(len(row) - left, y, 1, 1, " ", selected)
+            if span is not None:
+                # Past the text the columns are as they are; in it, each cell is lit
+                # by its own column, below.
+                beyond = len(row) if order is not None and not painted else 0
+                start, stop = max(span[0], left, beyond), min(span[1], left + width)
+                if start < stop:
+                    surface.fill(start - left, y, stop - start, 1, " ", selected)
             spans = tokens[number] if tokens is not None and number < len(tokens) else ()
             at = 0
             if hidden:
@@ -2977,10 +3406,15 @@ class FileEditor(ContextMenuHost, Widget):
                 if column >= len(row):
                     break
                 char, index = row[column]
-                if span is not None and span[0] <= column < span[1]:
+                if picked is not None and index in picked[0]:
+                    cell = selected
+                elif span is not None and span[0] <= (column if painted else origin[column]) < span[1]:
                     cell = selected
                 else:
                     cell = style
+                    if order is not None:
+                        # Reordered, the indices no longer only grow along the row.
+                        at = 0
                     # The cells' indices only grow along a row: one pointer will do.
                     while at < len(spans) and spans[at][1] <= index:
                         at += 1

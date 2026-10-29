@@ -34,6 +34,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from navkit.bidi import caret_column, has_rtl, index_at, text_rtl
 from navkit.commands import Command
 from navkit.events import (
     ContextMenuEvent,
@@ -96,6 +97,9 @@ class InputLine(Control):
 
     #: A left button is down and dragging out a selection.
     _dragging = False
+    #: Whether the value was last painted on a mirrored surface, which is
+    #: what the caret's and a click's columns are counted against.
+    _painted_rtl = False
 
     def mounted(self) -> None:
         super().mounted()
@@ -126,7 +130,20 @@ class InputLine(Control):
 
     def _index_at(self, x: int) -> int:
         """The index in ``value`` a click at column *x* lands on."""
-        return min(max(self.first + x - self.text_origin, 0), len(self.value))
+        shown = self._shown()
+        if not self._painted_rtl and not has_rtl(shown):
+            return min(max(self.first + x - self.text_origin, 0), len(self.value))
+        return self.first + index_at(shown, x - self.text_origin, self._painted_rtl)
+
+    def _shown(self) -> str:
+        """What of the value fits, from ``first`` on: what is painted."""
+        value = "*" * len(self.value) if self.password else self.value
+        return value[self.first : self.first + self.room]
+
+    def arrows_mirrored(self) -> bool:
+        """Left and Right trade places on a mirrored screen only while the
+        text reads right to left: in a path they move as they always do."""
+        return text_rtl(self.value, True)
 
     @property
     def selected_text(self) -> str:
@@ -430,8 +447,16 @@ class InputLine(Control):
         return own or (self.value if cut else "")
 
     def cursor_position(self) -> tuple[int, int] | None:
-        """Where the terminal's own cursor belongs, in this widget."""
-        return self.text_origin + self.cursor - self.first, 0
+        """Where the terminal's own cursor belongs, in this widget: beside the
+        character it is before, wherever right-to-left ordering painted that."""
+        return self.caret_column(), 0
+
+    def caret_column(self) -> int:
+        """The column the caret is painted in (:func:`navkit.bidi.caret_column`)."""
+        shown = self._shown()
+        if not self._painted_rtl and not has_rtl(shown):
+            return self.text_origin + self.cursor - self.first
+        return self.text_origin + caret_column(shown, self.cursor - self.first, self._painted_rtl)
 
     # -- painting ------------------------------------------------------------
 
@@ -443,19 +468,26 @@ class InputLine(Control):
         room = self.room
         if room < 1:
             return
-        value = "*" * len(self.value) if self.password else self.value
-        shown = value[self.first : self.first + room]
-        surface.draw_text(1, 0, shown, style, room)
-
-        start, stop = self.selection
-        if start != stop:
-            run = value[max(start, self.first) : min(stop, self.first + room)]
-            if run:
-                surface.draw_text(
-                    1 + max(0, start - self.first), 0, run,
-                    self.part_style("selection"), room,
-                )
+        self.paint_value(surface, self.text_origin, room)
         self._render_arrows(surface, room)
+
+    def paint_value(self, surface: Surface, x: int, room: int) -> None:
+        """What of the value fits, at *x*, the selection in its own colour.
+
+        One :meth:`~navkit.screen.Surface.draw_runs` call, so right-to-left
+        text in it is ordered as a whole and the selection follows the
+        characters it holds wherever they land.
+        """
+        self._painted_rtl = surface.rtl
+        shown = self._shown()
+        start, stop = self.selection
+        low = min(max(start - self.first, 0), len(shown))
+        high = min(max(stop - self.first, 0), len(shown))
+        style = self.style
+        surface.draw_runs(x, 0, (
+            (shown[:low], style), (shown[low:high], self.part_style("selection")),
+            (shown[high:], style),
+        ), room)
 
     def _render_arrows(self, surface: Surface, room: int) -> None:
         """``◄`` and ``►`` where the value runs off either edge."""

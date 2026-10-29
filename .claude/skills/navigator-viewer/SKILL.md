@@ -5,6 +5,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 
 # The file viewer
 
+- **Hebrew and Arabic** in a text row are painted in reading order (`navkit.bidi.order_cells`), every cell keeping its
+  offset for the hit and the tokens; a combining mark joins its letter's cell. `navkit-bidi` skill.
 - **F3 is DN's internal viewer** (`FVIEWER.PAS`). `navigator/lib/viewer/__init__.py` is the model: `ViewSource` uses `pread` into
   cached chunks, **never `mmap`**, so a truncated log cannot `SIGBUS` Navigator. `FileViewer` inside `FileWindow` is
   `TFileViewer` inside `TFileWindow`; it opens zoomed on the desktop with the scroll bar on the frame and `TViewInfo` over

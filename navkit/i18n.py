@@ -16,6 +16,7 @@ by entry::
     [meta]
     name = "Latviešu"
     flag = "LV"
+    direction = "ltr"   # or "rtl": the screen is mirrored (see is_rtl)
 
     [strings]
     "Make directory" = "Izveidot direktoriju"
@@ -72,6 +73,8 @@ _SOURCES: list[Path | Any] = []
 _CACHE: dict[str, dict[str, Any]] = {}
 #: The same, keyed and valued without hotkey marks -- see :func:`tr_plain`.
 _PLAIN: dict[str, dict[str, str]] = {}
+#: Whether each language reads right to left, as its ``[meta]`` says.
+_RTL: dict[str, bool] = {}
 
 
 def register_package(package: str) -> None:
@@ -89,6 +92,7 @@ def _register(source: Any) -> None:
         _SOURCES.append(source)
     _CACHE.clear()
     _PLAIN.clear()
+    _RTL.clear()
 
 
 def _files(code: str) -> Iterable[Any]:
@@ -166,6 +170,26 @@ def flags() -> dict[str, str]:
                 region = _read(entry).get("meta", {}).get("flag")
                 if isinstance(region, str) and flag_emoji(region):
                     found[entry.name.removesuffix(".toml")] = region.upper()
+    return found
+
+
+def is_rtl(code: str | None = None) -> bool:
+    """Whether *code* (the current language when None) reads right to left.
+
+    Its catalogue says so, ``direction = "rtl"`` in ``[meta]``, the last
+    registered place that says anything winning.  Read on every frame, so
+    remembered per language until a place is registered.
+    """
+    code = _code() if code is None else code
+    found = _RTL.get(code)
+    if found is None:
+        found = False
+        if code != SOURCE:
+            for candidate in _files(code):
+                direction = _read(candidate).get("meta", {}).get("direction")
+                if direction in ("rtl", "ltr"):
+                    found = direction == "rtl"
+        _RTL[code] = found
     return found
 
 
@@ -269,6 +293,26 @@ def _slavic(n: int) -> int:
     return 2
 
 
+def _hebrew(n: int) -> int:
+    # one, two, other: "קובץ אחד", "שני קבצים", "5 קבצים".
+    if n == 1:
+        return 0
+    if n == 2:
+        return 1
+    return 2
+
+
+def _arabic(n: int) -> int:
+    # zero, one, two, few (..03-..10), many (..11-..99), other.
+    if n in (0, 1, 2):
+        return n
+    if 3 <= n % 100 <= 10:
+        return 3
+    if 11 <= n % 100 <= 99:
+        return 4
+    return 5
+
+
 def _single(n: int) -> int:
     return 0
 
@@ -281,6 +325,8 @@ PLURAL_RULES: dict[str, Callable[[int], int]] = {
     "ru": _slavic,
     "uk": _slavic,
     "be": _slavic,
+    "he": _hebrew,
+    "ar": _arabic,
     "ja": _single,
     "zh": _single,
     "ko": _single,

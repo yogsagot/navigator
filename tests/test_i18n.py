@@ -137,6 +137,15 @@ def test_russian_rule():
     assert [plural_form("ru", n) for n in (1, 2, 5, 11, 21, 22, 25)] == [0, 1, 2, 2, 0, 1, 2]
 
 
+def test_hebrew_rule():
+    assert [plural_form("he", n) for n in (1, 2, 3, 10, 22)] == [0, 1, 2, 2, 2]
+
+
+def test_arabic_rule():
+    numbers = (0, 1, 2, 3, 10, 11, 99, 100, 102, 103, 111, 1000)
+    assert [plural_form("ar", n) for n in numbers] == [0, 1, 2, 3, 3, 4, 4, 5, 5, 3, 4, 5]
+
+
 def test_a_caption_is_found_without_its_hotkey(latvian):
     LOCALE.code = "lv"
     assert tr_plain("Name") == "Vārds"

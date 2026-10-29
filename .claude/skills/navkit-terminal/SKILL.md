@@ -9,7 +9,8 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
   and restores it in `Application`'s `finally`. `InputParser` is fed incrementally and keeps undecodable tails. **A lone
   `ESC` is ambiguous**: the parser reports `pending_escape` and the application resolves it with `ESCAPE_TIMEOUT`.
 - `TerminalInfo` (`capabilities.py`) is what the terminal supports (`colors`, `alt_screen`, `mouse`, `bracketed_paste`,
-  `title`, `keypad`, `hyperlinks`, `glyphs`, `palette`). Detection is conservative -- sixteen colours unless `COLORTERM`
+  `title`, `keypad`, `hyperlinks`, `glyphs`, `palette`, `bidi` -- `NAVKIT_BIDI`, the `navkit-bidi` skill; `Terminal`
+  sends `CSI 8 l` so VTE reorders nothing while Navigator owns the screen). Detection is conservative -- sixteen colours unless `COLORTERM`
   says otherwise; `NAVKIT_COLORS` (`truecolor`, `256`, `16`, `8`, `mono`, a number) overrides and outranks `NO_COLOR`.
   Colour/palette/glyph decisions are the `colours-themes-glyphs` skill.
 - **Lending the terminal out.** `Terminal.suspend()`/`resume()` drop and restore the screen modes (alternate screen,

@@ -26,6 +26,7 @@ from typing import Any
 
 from navkit.events import MouseClickEvent
 from navkit.reactive import bind, computed
+from navkit.style import Style
 from navkit.text import caption_runs, escape_caption  # noqa: F401 -- escape_caption re-exported
 from navkit.widget import Widget
 
@@ -54,6 +55,16 @@ def parse_shortcut(text: str) -> tuple[str, int, str]:
             letter = run[:1].lower()
         out.append(run)
     return "".join(out), start, letter
+
+
+def shortcut_runs(caption: str, start: int, style: Style, hotkey: Style) -> list[tuple[str, Style]]:
+    """*caption*, as :func:`parse_shortcut` returned it, as runs for
+    :meth:`~navkit.screen.Surface.draw_runs`: its marked letter at *start* in
+    *hotkey*, the rest in *style*.  One call paints it, so the letter is
+    highlighted wherever right-to-left ordering puts it."""
+    if not 0 <= start < len(caption):
+        return [(caption, style)]
+    return [(caption[:start], style), (caption[start], hotkey), (caption[start + 1:], style)]
 
 
 class Control(Widget):

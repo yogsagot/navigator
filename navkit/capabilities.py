@@ -200,6 +200,25 @@ def _nerd_font(env: Mapping[str, str]) -> bool:
     return any(env.get(marker) for marker in _NERD_MARKERS)
 
 
+#: How right-to-left text reaches the terminal, per :attr:`TerminalInfo.bidi`.
+BIDI_APP = "app"
+BIDI_WORDS = "words"
+BIDI_TIERS = (BIDI_APP, BIDI_WORDS)
+
+
+def _bidi(env: Mapping[str, str]) -> str:
+    """What the terminal does to right-to-left text that it must be paid back for.
+
+    kitty shapes each run of cells -- a word, near enough -- in the direction
+    of its script, which reverses a Hebrew or Arabic word that arrives in
+    visual order; everything else known either reorders nothing (ghostty,
+    xterm) or can be told not to (VTE's ``CSI 8 l``).
+    """
+    if env.get("TERM") == "xterm-kitty" or env.get("KITTY_WINDOW_ID"):
+        return BIDI_WORDS
+    return BIDI_APP
+
+
 def _utf8(env: Mapping[str, str]) -> bool:
     """Whether the locale says this terminal is reading UTF-8.
 
@@ -267,6 +286,13 @@ class TerminalInfo:
     #: at the Unicode tier.  Off on the Linux console, whose fonts have none
     #: and which is otherwise UTF-8 like any terminal.
     braille: bool = True
+    #: How right-to-left text is written out.  Navigator lays it out itself
+    #: (:mod:`navkit.bidi`) and asks the terminal to reorder nothing (VTE's
+    #: ``CSI 8 l``, ignored elsewhere): ``"app"``.  ``"words"`` is kitty,
+    #: which reverses each right-to-left word as it shapes it whatever it is
+    #: told, so the cells of such a word are sent reversed for it to put
+    #: back (:func:`navkit.screen.for_words`).
+    bidi: str = BIDI_APP
 
     @property
     def truecolor(self) -> bool:
@@ -333,6 +359,10 @@ class TerminalInfo:
         kitty keyboard protocol, which is otherwise pushed on any interactive
         terminal.
 
+        ``NAVKIT_BIDI`` (``app`` or ``words``) says how right-to-left text is
+        written out (:attr:`bidi`), which is otherwise ``words`` in kitty and
+        ``app`` everywhere else.
+
         ``NAVKIT_HYPERLINKS`` (``on`` or ``off``) says whether to write OSC 8
         hyperlinks, which are otherwise written on any interactive terminal
         but the Linux console.  ``NAVKIT_CLIPBOARD`` does the same for OSC 52.
@@ -388,6 +418,10 @@ class TerminalInfo:
 
         braille = env.get("TERM", "") != "linux"
 
+        bidi = env.get("NAVKIT_BIDI", "").strip().lower()
+        if bidi not in BIDI_TIERS:
+            bidi = _bidi(env)
+
         choice = env.get("NAVKIT_PALETTE", "").strip().lower()
         if choice in ("dos", "vga"):
             palette = VGA_PALETTE
@@ -399,6 +433,7 @@ class TerminalInfo:
             palette=palette,
             glyphs=glyphs,
             braille=braille,
+            bidi=bidi,
             alt_screen=not plain,
             mouse=not plain,
             bracketed_paste=not plain,

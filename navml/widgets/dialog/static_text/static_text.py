@@ -30,21 +30,17 @@ def draw_caption(
     """Paint *text* with its ``~A~`` runs in *shortcut_style*.
 
     Returns the cells used, as :meth:`Surface.draw_text` does, so a caller
-    laying out a row of these can keep counting.  One call per run because a
-    style is per cell and a marked run is a different one; the widths come
-    back from ``draw_text`` so a wide character inside the caption cannot put
-    the next run in the wrong column.  Every marked run is highlighted, as
-    Turbo Vision's ``MoveCStr`` highlighted them; the first is the shortcut.
+    laying out a row of these can keep counting.  One :meth:`Surface.draw_runs`
+    call for the whole caption, so right-to-left text in it is ordered as one
+    string and a marked letter keeps its colour wherever it lands.  Every
+    marked run is highlighted, as Turbo Vision's ``MoveCStr`` highlighted
+    them; the first is the shortcut.
     """
-    limit = surface.width - x if max_width is None else max_width
-    used = 0
-    for run, marked in caption_runs(text):
-        if used >= limit:
-            break
-        used += surface.draw_text(
-            x + used, y, run, shortcut_style if marked else style, limit - used
-        )
-    return used
+    return surface.draw_runs(
+        x, y,
+        [(run, shortcut_style if marked else style) for run, marked in caption_runs(text)],
+        max_width,
+    )
 
 
 #: What :attr:`StaticText.links` treats as an address: a scheme and

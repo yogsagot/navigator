@@ -2,7 +2,8 @@
 
 The same rules the viewer paints by (``viewer.decode_cells``), over a string
 instead of bytes: a tab runs to the next stop, a wide character takes two
-columns, a combining mark takes none and is not drawn, and a control
+columns, a combining mark takes none and is drawn on the letter before it
+(:func:`cells`; the viewer's rows do the same), and a control
 character or a byte that was not UTF-8 is its CP437 glyph.
 
 **The cursor lives in columns, not in string indices**, as it did in DN, where
@@ -94,7 +95,9 @@ def cells(line: str, tab: int = TAB, limit: int | None = None) -> list[tuple[str
     """One ``(glyph, index)`` per column, as ``viewer.Line.cells`` has.
 
     The second column of a wide character is ``("", index)``, and a tab is
-    as many blanks as it covers.  Stops once *limit* columns are known.
+    as many blanks as it covers.  A combining mark has no column; it is
+    painted with the letter it is on, in that letter's cell -- niqqud, harakat,
+    an accent.  Stops once *limit* columns are known.
     """
     out: list[tuple[str, int]] = []
     for index, char in enumerate(line):
@@ -105,6 +108,8 @@ def cells(line: str, tab: int = TAB, limit: int | None = None) -> list[tuple[str
             continue
         shown, cols = glyph(char)
         if cols == 0:
+            if out and out[-1][0] not in ("", " "):
+                out[-1] = (out[-1][0] + char, out[-1][1])
             continue
         out.append((shown, index))
         if cols == 2:

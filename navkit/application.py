@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import dataclasses
 import functools
 import inspect
 import math
@@ -51,17 +52,21 @@ from navkit.events import (
 )
 from navkit.glyphs import DEFAULT_MARKS
 from navkit.reactive import SCHEDULER, flush_effects, reactive
-from navkit.screen import ScreenBuffer, Surface, render_diff
+from navkit.capabilities import BIDI_WORDS
+from navkit.screen import ScreenBuffer, Surface, for_words, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.tooltip import ShowTooltip, Tooltip
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
-from navkit import clipboard, commands
+from navkit import clipboard, commands, i18n
 from navkit.widget import Widget, _call, check_handlers
 
 #: How long to wait before deciding a lone ``ESC`` really was the escape key
 #: and not the start of a sequence the terminal is still sending.
 ESCAPE_TIMEOUT = 0.05
+
+#: Left and Right on a mirrored screen: each is the other (``Application._unmirror``).
+_ARROW_MIRROR = {"left": "right", "right": "left"}
 
 #: How long after a press a second one at the same cell is a double-click.
 #: What GTK and Qt both default to.  Unlike :data:`ESCAPE_TIMEOUT` the
@@ -374,6 +379,15 @@ class Application:
         #: Whether what lies beneath the top modal is painted dimmed.  Off by
         #: default and experimental -- see :meth:`_painting_modal`.
         self.dim_modal = dim_modal
+        #: Which way the screen reads: ``"auto"`` follows the language (a
+        #: catalogue whose ``[meta]`` says ``direction = "rtl"``,
+        #: :func:`navkit.i18n.is_rtl`), ``"rtl"`` and ``"ltr"`` say so outright.
+        #: A right-to-left screen is the whole frame mirrored on its way out
+        #: (:attr:`rtl`).
+        self.direction = "auto"
+        #: The direction the last frame was painted in, so a change of language
+        #: repaints everything rather than reusing a modal's underlay.
+        self._rtl_painted = False
         #: Each style painted behind a modal, and its dimmed twin.  Kept from
         #: frame to frame so that an unchanged cell holds the *same* style
         #: object as last time, which is what lets :func:`render_diff` rule a
@@ -1158,6 +1172,12 @@ class Application:
             if overdue > 0:
                 await asyncio.sleep(overdue)
 
+        rtl = self.rtl
+        if rtl != self._rtl_painted:
+            self._rtl_painted = rtl
+            self._below_dirty = True
+            self._underlay = None
+        self._back.rtl = rtl
         modal = self.modal
         underlay = self._underlay
         if (
@@ -1191,7 +1211,10 @@ class Application:
                     self._composing = False
         self._below_dirty = False
 
-        output = render_diff(self._front, self._back, self.terminal.info)
+        shown = self._back.mirrored() if rtl else self._back
+        if self.terminal.info.bidi == BIDI_WORDS:
+            shown = for_words(shown)
+        output = render_diff(self._front, shown, self.terminal.info)
         cursor = self._cursor()
         if cursor != self._cursor_shown:
             # Emitted after the diff, always: painting moves the terminal's
@@ -1209,7 +1232,7 @@ class Application:
 
         if self._front is None:
             self._front = ScreenBuffer(self._back.width, self._back.height)
-        self._front.copy_from(self._back)
+        self._front.copy_from(shown)
         self._dirty = False
         self._last_frame = self._loop.time() if self._loop is not None else 0.0
 
@@ -1310,7 +1333,60 @@ class Application:
         x, y = offset_x + widget.x + x, offset_y + widget.y + y
         if not (0 <= x < self._back.width and 0 <= y < self._back.height):
             return None
+        if self._back.rtl:
+            x = self._mirror_x(x, widget)
         return x, y, widget.style_property("caret", "default")
+
+    @property
+    def rtl(self) -> bool:
+        """Whether the screen is mirrored, reading right to left (:attr:`direction`)."""
+        if self.direction == "auto":
+            return i18n.is_rtl()
+        return self.direction == "rtl"
+
+    def _mirror_x(self, x: int, widget: Widget | None) -> int:
+        """Screen column *x* of the frame as painted, where a mirrored screen
+        shows it -- or, since mirroring is its own inverse, the other way.
+
+        Inside a widget that keeps left to right (:attr:`Widget.mirrors`) the
+        column is reversed within that widget first, as its cells were.
+        """
+        keeper = widget.unmirrored() if widget is not None else None
+        if keeper is not None:
+            left = keeper.offset()[0] + keeper.x
+            x = 2 * left + keeper.width - 1 - x
+        return self._back.width - 1 - x
+
+    def _unmirror(self, event: Event) -> Event:
+        """*event*, a mouse report in screen columns, in the frame's own.
+
+        Left and Right trade places too, for whatever holds the keyboard on a
+        mirrored screen (:meth:`Widget.arrows_mirrored`): the next menu, the
+        next column, the next cell is to the left there.
+
+        Done as the event comes off the queue -- once, so the double-click
+        and context menu derived from it are already in the frame's columns.
+        """
+        if isinstance(event, KeyEvent) and self._back.rtl and event.key in _ARROW_MIRROR:
+            scope = self.modal or self._root
+            path = scope._focus_path() if scope is not None else []
+            head = path[0] if path else scope  # nothing focused: keys go to the root
+            if head is not None and head.unmirrored() is None and head.arrows_mirrored():
+                return dataclasses.replace(event, key=_ARROW_MIRROR[event.key])
+            return event
+        if not (isinstance(event, MouseClickEvent) and self._back.rtl):
+            return event
+        x = self._back.width - 1 - event.x
+        scope = self.modal or self._root
+        target = None
+        if scope is not None:
+            dx, dy = scope.offset() if scope is not self._root else (0, 0)
+            target = scope.widget_at(x - dx, event.y - dy)
+        keeper = target.unmirrored() if target is not None else None
+        if keeper is not None:
+            left = keeper.offset()[0] + keeper.x
+            x = 2 * left + keeper.width - 1 - x
+        return dataclasses.replace(event, x=x)
 
     def _resize(self, width: int, height: int) -> None:
         self._clicks.reset()  # the layout moved out from under the pointer
@@ -1328,8 +1404,9 @@ class Application:
         await self._paint()
         while self._running:
             event = await self._events.get()
-            self.handling_since, self.handling = time.monotonic(), describe_event(event)
             batch = [id(event)]
+            event = self._unmirror(event)
+            self.handling_since, self.handling = time.monotonic(), describe_event(event)
             await self._handle(event)
             # Drain whatever else arrived in the meantime: a paste or a mouse
             # drag should cost one frame, not one frame per event.  A handler
@@ -1339,7 +1416,7 @@ class Application:
             while self._running and not self._events.empty():
                 event = self._events.get_nowait()
                 batch.append(id(event))
-                await self._handle(event)
+                await self._handle(self._unmirror(event))
             if self._running:
                 self._flush_effects()
             if self._running and self._dirty:

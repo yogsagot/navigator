@@ -37,7 +37,7 @@ from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.component import take_declared
-from navml.widgets.dialog.control.control import parse_shortcut
+from navml.widgets.dialog.control.control import parse_shortcut, shortcut_runs
 from navml.widgets.menu.menu_item.menu_item import MenuNode
 from navml.widgets.menu.sub_menu.sub_menu import MenuContainer, SubMenu
 
@@ -155,12 +155,8 @@ class MenuBar(MenuContainer, Widget):
             states = {"selected": index == self.current, "disabled": entry.disabled}
             style = self.part_style("item", **states)
             caption, mark, _ = parse_shortcut(entry.text)
-            surface.draw_text(start, 0, f" {caption} ", style)
-            if 0 <= mark < len(caption):
-                surface.draw_text(
-                    start + 1 + mark, 0, caption[mark],
-                    self.part_style("hotkey", **states),
-                )
+            surface.draw_runs(start, 0, [(" ", style), *shortcut_runs(
+                caption, mark, style, self.part_style("hotkey", **states)), (" ", style)])
 
     # -- opening and closing ----------------------------------------------------------
 

@@ -16,12 +16,13 @@ file-per-language shape and drops the numbered ids. gettext was rejected on purp
   `register_package()`/`register_directory()` (later wins, entry by entry), `languages()` (`{code: [meta] name}`),
   `flags()` (`{code: [meta] flag}`, two letters, English `GB`) and `flag_emoji(region)`; Options > Interface puts
   the flag before each language's name at the Nerd glyph tier only (a departure, beside the icon gutter),
-  `PLURAL_RULES` (en, lv, ru/uk/be, ja/zh/ko; anything else counts like English).
+  `PLURAL_RULES` (en, lv, ru/uk/be, he, ar, ja/zh/ko; anything else counts like English).
 - **Catalogues**: `navml/locales/<code>.toml` (the library's captions) and `navigator/locales/<code>.toml` (the
   application's), plus the user's `locales/` beside `navigator.ini`, read last. `[strings]` is read; `[unused]` is
   where `extract` parks translations nothing shows any more. An empty value means untranslated (English shows).
   A plural entry is a list of forms in the language's rule order (lv: one, other, zero -- `1 fails`, `2 faili`,
-  `10 failu`).
+  `10 failu`; he: one, two, other; ar: zero, one, two, few, many, other, CLDR's). `[meta] direction = "rtl"` (he,
+  ar) mirrors the screen (`i18n.is_rtl`, the `navkit-bidi` skill).
 - **`navigator/lib/config/language.py`**: `install(config_dir)` registers the three places; `resolve(code)` takes a code, its
   bare language (`lv_LV` to `lv`), or English; empty means the environment (`$LC_ALL`, `$LC_MESSAGES`, `$LANG`).
   Precedence: `--language`, `[interface] language`, environment, English. `main()` applies it before the app starts.

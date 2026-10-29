@@ -58,6 +58,10 @@ BACKSPACE_RUN = 0.6
 class CommandLine(InputLine):
     """A prompt and one line of input, above the key bar."""
 
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``):
+    #: a shell command and the prompt before it read left to right.
+    mirrors = False
+
     #: Not a dialog control: keys reach it without the focus.
     accepts_focus = False
 
@@ -218,7 +222,7 @@ class CommandLine(InputLine):
     # -- painting ------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
-        return self.prompt_width + self.cursor - self.first, 0
+        return self.caret_column(), 0
 
     def render(self, surface: Surface) -> None:
         if self.width < 1 or self.height < 1:
@@ -231,18 +235,9 @@ class CommandLine(InputLine):
                     surface.set_cell(x, 0, char, _over(cell, style))
         else:
             surface.draw_text(0, 0, self.shown_prompt, self.part_style("prompt"))
-        start, room = self.prompt_width, self.room
-        if room < 1:
+        if self.room < 1:
             return
-        surface.draw_text(start, 0, self.value[self.first : self.first + room], style, room)
-        low, high = self.selection
-        if low != high:
-            run = self.value[max(low, self.first) : min(high, self.first + room)]
-            if run:
-                surface.draw_text(
-                    start + max(0, low - self.first), 0, run,
-                    self.part_style("selection"), room,
-                )
+        self.paint_value(surface, self.prompt_width, self.room)
 
 
 def _over(cell: Style, line: Style) -> Style:

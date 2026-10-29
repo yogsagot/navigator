@@ -65,6 +65,10 @@ class DiffView(Widget):
     """Two texts' aligned rows (a :class:`~navigator.lib.file_ops.filediff.TextDiff`),
     and the keys that scroll them."""
 
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``):
+    #: two files' text side by side, as they are written.
+    mirrors = False
+
     #: The paths over the columns, a line by what it is (``added``,
     #: ``removed``, ``changed``), the ``-``/``+`` marks (``current`` in the
     #: difference last gone to), a filler row, and the ``│`` between.

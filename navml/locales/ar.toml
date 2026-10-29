@@ -1,0 +1,252 @@
+[meta]
+name = "العربية"
+flag = "SA"
+direction = "rtl"
+
+[strings]
+# navml/widgets/dialog/dialog/dialog.nml:71
+"~Y~es" = "~ن~عم"
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+"O~K~" = "م~و~افق"
+# navml/widgets/dialog/dialog/dialog.nml:80
+"~N~o" = "~ل~ا"
+# navml/widgets/dialog/dialog/dialog.nml:88
+"~C~ancel" = "~إ~لغاء"
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+"~H~elp" = "م~س~اعدة"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:20
+"Open file" = "فتح ملف"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:25, navml/widgets/dialog/file_dialog/file_dialog.py:84
+"~N~ame" = "~ا~سم"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:43
+"~F~iles" = "~م~لفات"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:60
+"~D~irectories" = "م~ج~لدات"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:19
+"Cancel" = "إلغاء"
+# navml/widgets/window_manager/window_manager.nml:18
+"Windows Manager" = "مدير النوافذ"
+# navml/widgets/window_manager/window_manager.nml:22
+"~W~indows" = "~ن~وافذ"
+# navml/widgets/window_manager/window_manager.nml:49
+"C~l~ose" = "إ~غ~لاق"
+# navml/commands.py:30, navml/widgets/window/window.py:274
+"Close" = "إغلاق"
+# navml/commands.py:36, navml/widgets/window/window.py:276
+"Zoom" = "تكبير"
+# navml/commands.py:76
+"List" = "قائمة"
+# navml/commands.py:86
+"Tile" = "تجانب"
+# navml/commands.py:95
+"Cascade" = "تتالي"
+# navml/commands.py:105
+"Close all" = "إغلاق الكل"
+# navml/widgets/desktop/desktop.py:375
+"No window is open" = "لا توجد نافذة مفتوحة"
+# navml/widgets/desktop/desktop.py:366
+"No window can be arranged" = "لا توجد نافذة يمكن ترتيبها"
+# navml/widgets/desktop/desktop.py:368
+"No window can be closed" = "لا توجد نافذة يمكن إغلاقها"
+# navml/widgets/desktop/desktop.py:377
+"This window cannot be zoomed" = "لا يمكن تكبير هذه النافذة"
+# navml/widgets/desktop/desktop.py:379
+"This window cannot be closed" = "لا يمكن إغلاق هذه النافذة"
+# navml/widgets/desktop/desktop.py:372
+"No window is numbered {number}" = "لا توجد نافذة برقم {number}"
+# navml/widgets/dialog/color_selector/color_selector.py:44
+"Black" = "أسود"
+# navml/widgets/dialog/color_selector/color_selector.py:45
+"Blue" = "أزرق"
+# navml/widgets/dialog/color_selector/color_selector.py:46
+"Green" = "أخضر"
+# navml/widgets/dialog/color_selector/color_selector.py:47
+"Cyan" = "سماوي"
+# navml/widgets/dialog/color_selector/color_selector.py:48
+"Red" = "أحمر"
+# navml/widgets/dialog/color_selector/color_selector.py:49
+"Magenta" = "أرجواني"
+# navml/widgets/dialog/color_selector/color_selector.py:50
+"Brown" = "بني"
+# navml/widgets/dialog/color_selector/color_selector.py:51
+"Light grey" = "رمادي فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:52
+"Dark grey" = "رمادي داكن"
+# navml/widgets/dialog/color_selector/color_selector.py:53
+"Light blue" = "أزرق فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:54
+"Light green" = "أخضر فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:55
+"Light cyan" = "سماوي فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:56
+"Light red" = "أحمر فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:57
+"Light magenta" = "أرجواني فاتح"
+# navml/widgets/dialog/color_selector/color_selector.py:58
+"Yellow" = "أصفر"
+# navml/widgets/dialog/color_selector/color_selector.py:59
+"White" = "أبيض"
+# navml/widgets/dialog/color_selector/color_selector.py:166
+" Text " = " نص "
+# navml/widgets/dialog/commands.py:25
+"OK" = "موافق"
+# navml/widgets/dialog/commands.py:39
+"Next tab" = "اللسان التالي"
+# navml/widgets/dialog/commands.py:45
+"Previous tab" = "اللسان السابق"
+# navml/widgets/dialog/commands.py:58
+"Search" = "بحث"
+# navml/widgets/dialog/commands.py:76
+"Cut" = "قص"
+# navml/widgets/dialog/commands.py:82
+"Copy" = "نسخ"
+# navml/widgets/dialog/commands.py:88
+"Paste" = "لصق"
+# navml/widgets/dialog/commands.py:94
+"Clear" = "مسح"
+# navml/widgets/dialog/commands.py:104
+"Select all" = "تحديد الكل"
+# navml/widgets/dialog/commands.py:117
+"Previous month" = "الشهر السابق"
+# navml/widgets/dialog/commands.py:123
+"Next month" = "الشهر التالي"
+# navml/widgets/dialog/commands.py:129
+"Previous year" = "السنة السابقة"
+# navml/widgets/dialog/commands.py:135
+"Next year" = "السنة التالية"
+# navml/widgets/dialog/commands.py:141
+"Choose month" = "اختيار الشهر"
+# navml/widgets/dialog/commands.py:147
+"Choose year" = "اختيار السنة"
+# navml/widgets/dialog/commands.py:153
+"Go to current date" = "الانتقال إلى اليوم"
+# navml/widgets/dialog/date_button/date_button.py:86
+"January" = "يناير"
+# navml/widgets/dialog/date_button/date_button.py:86
+"February" = "فبراير"
+# navml/widgets/dialog/date_button/date_button.py:86
+"March" = "مارس"
+# navml/widgets/dialog/date_button/date_button.py:86
+"April" = "أبريل"
+# navml/widgets/dialog/date_button/date_button.py:86
+"May" = "مايو"
+# navml/widgets/dialog/date_button/date_button.py:86
+"June" = "يونيو"
+# navml/widgets/dialog/date_button/date_button.py:87
+"July" = "يوليو"
+# navml/widgets/dialog/date_button/date_button.py:87
+"August" = "أغسطس"
+# navml/widgets/dialog/date_button/date_button.py:87
+"September" = "سبتمبر"
+# navml/widgets/dialog/date_button/date_button.py:87
+"October" = "أكتوبر"
+# navml/widgets/dialog/date_button/date_button.py:87
+"November" = "نوفمبر"
+# navml/widgets/dialog/date_button/date_button.py:88
+"December" = "ديسمبر"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Mo" = "ن"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Tu" = "ث"
+# navml/widgets/dialog/date_button/date_button.py:94
+"We" = "ر"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Th" = "خ"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Fr" = "ج"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Sa" = "س"
+# navml/widgets/dialog/date_button/date_button.py:94
+"Su" = "ح"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Monday" = "الاثنين"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Tuesday" = "الثلاثاء"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Wednesday" = "الأربعاء"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Thursday" = "الخميس"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Friday" = "الجمعة"
+# navml/widgets/dialog/date_button/date_button.py:99
+"Saturday" = "السبت"
+# navml/widgets/dialog/date_button/date_button.py:100
+"Sunday" = "الأحد"
+# navml/widgets/dialog/date_button/date_button.py:355
+"The month before" = "الشهر السابق"
+# navml/widgets/dialog/date_button/date_button.py:357
+"The month after" = "الشهر التالي"
+# navml/widgets/dialog/date_button/date_button.py:359
+"A click chooses the month" = "النقر يختار الشهر"
+# navml/widgets/dialog/date_button/date_button.py:361
+"A click chooses the year" = "النقر يختار السنة"
+# navml/widgets/dialog/date_button/date_button.py:372
+"Today" = "اليوم"
+# navml/widgets/dialog/date_button/date_button.py:368
+"{weekday}, {date}, week {week}" = "{weekday}، {date}، الأسبوع {week}"
+# navml/widgets/dialog/date_button/date_button.py:374
+"{n} day from today" = ["بعد {n} يوم", "بعد يوم واحد", "بعد يومين", "بعد {n} أيام", "بعد {n} يوما", "بعد {n} يوم"]
+# navml/widgets/dialog/date_button/date_button.py:376
+"{n} day ago" = ["قبل {n} يوم", "قبل يوم واحد", "قبل يومين", "قبل {n} أيام", "قبل {n} يوما", "قبل {n} يوم"]
+# navml/widgets/dialog/dialog/dialog.py:312
+"Enter accepts, Escape dismisses." = "Enter للقبول، Escape للإلغاء."
+# navml/widgets/dialog/file_dialog/file_dialog.py:200
+"Invalid file name." = "اسم ملف غير صالح."
+# navml/widgets/dialog/file_dialog/file_dialog.py:191
+"Invalid drive or directory." = "قرص أو مجلد غير صالح."
+# navml/widgets/dialog/file_dialog/file_dialog.py:226
+"Error" = "خطأ"
+# navml/widgets/dialog/file_list/file_list.py:200
+"Directory" = "مجلد"
+# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:527 ...
+" Search: " = " بحث: "
+# navml/widgets/dialog/history/history.py:109
+"Choose from the list ({key})" = "اختيار من القائمة ({key})"
+# navml/widgets/dialog/history/history.py:111
+"Earlier entries ({key})" = "إدخالات سابقة ({key})"
+# navml/widgets/dialog/input_line/input_line.py:345
+"The line cannot be changed now" = "لا يمكن تغيير السطر الآن"
+# navml/widgets/dialog/input_line/input_line.py:396
+"Cu~t~" = "~ق~ص"
+# navml/widgets/dialog/input_line/input_line.py:397
+"~C~opy" = "ن~س~خ"
+# navml/widgets/dialog/input_line/input_line.py:398
+"~P~aste" = "ل~ص~ق"
+# navml/widgets/dialog/input_line/input_line.py:399
+"C~l~ear" = "~م~سح"
+# navml/widgets/dialog/input_line/input_line.py:401
+"Select ~a~ll" = "~ت~حديد الكل"
+# navml/widgets/dialog/input_line/input_line.py:347
+"Nothing is selected" = "لا شيء محدد"
+# navml/widgets/dialog/input_line/input_line.py:350, navml/widgets/dialog/input_line/input_line.py:353
+"The line is empty" = "السطر فارغ"
+# navml/widgets/dialog/input_line/input_line.py:354
+"All of it is selected" = "كل شيء محدد بالفعل"
+# navml/widgets/dialog/tab_view/tab_view.py:152
+"Tabs" = "الألسنة"
+# navml/widgets/dialog/tab_view/tab_view.py:417
+"Earlier tabs" = "الألسنة السابقة"
+# navml/widgets/dialog/tab_view/tab_view.py:417
+"Later tabs" = "الألسنة التالية"
+# navml/widgets/dialog/tree_view/tree_view.py:531
+"Next" = "التالي"
+# navml/widgets/menu/commands.py:14
+"Menu" = "القائمة"
+# navml/widgets/progress_bar/progress_bar.py:61
+"{done} of {total} done ({percent}%), {rest} to go" = "تم {done} من {total} ({percent}%)، يتبقى {rest}"
+# navml/widgets/window/window.py:295
+"A double click zooms, a drag moves" = "النقر المزدوج يكبر، السحب ينقل"
+# navml/widgets/window/window.py:297
+"A drag moves" = "السحب ينقل"
+# navml/widgets/window/window.py:326
+"Move" = "نقل"
+# navml/widgets/window/window.py:326
+"Size" = "حجم"
+# navml/widgets/window/window.py:326
+"Keep" = "إبقاء"
+# navml/widgets/window/window.py:326
+"Undo" = "تراجع"
+# navml/widgets/window/window.py:276
+"Restore" = "استعادة"
+# navml/widgets/window/window.py:278
+"Drag to resize" = "اسحب لتغيير الحجم"

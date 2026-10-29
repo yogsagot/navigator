@@ -26,6 +26,7 @@ import threading
 from pathlib import Path
 from typing import Any
 
+from navkit.bidi import order_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr, tr_n
@@ -165,6 +166,10 @@ def _lay_out(name: str, data: bytes | None, size: int, codec: str, width: int, u
 
 class FileViewer(ContextMenuHost, Widget):
     """The inside of a viewer window: a file's rows, and the keys that move them."""
+
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``):
+    #: the file's own text, laid out left to right line by line.
+    mirrors = False
 
     #: A search hit, drawn in *Selected text* [118]; a syntax token
     #: (:mod:`navigator.lib.highlight`), by its classes.
@@ -1044,6 +1049,11 @@ class FileViewer(ContextMenuHost, Widget):
         tier = 0 if self.glyphs >= GLYPHS_UNICODE else 1
         for y, row in enumerate(rows):
             cells = row.cells
+            # Hebrew or Arabic in the row: its cells in reading order, each
+            # still carrying its offset (navkit.bidi.order_cells).
+            order = order_cells([char for char, _ in cells])
+            if order is not None:
+                cells = [(shown, cells[column][1]) for column, shown in order]
             token = 0
             data = b""
             if hidden:
@@ -1060,6 +1070,9 @@ class FileViewer(ContextMenuHost, Widget):
                 else:
                     look = style
                     if spans:
+                        if order is not None:
+                            # Reordered, the offsets no longer only grow along the row.
+                            token = max(0, bisect.bisect_right(starts, at) - 1)
                         # The cells' offsets only grow along a row: one pointer will do.
                         while token < len(spans) and spans[token][1] <= at:
                             token += 1
@@ -1098,8 +1111,12 @@ class FileViewer(ContextMenuHost, Widget):
             if index >= len(layout.rows):
                 break
             cells = layout.rows[index].cells
+            order = order_cells([cell[0] for cell in cells])
+            columns = range(len(cells)) if order is None else [column for column, _ in order]
+            if order is not None:
+                cells = [(shown, *cells[column][1:]) for column, shown in order]
             for x, (char, classes, link) in enumerate(cells[:width]):
-                if (index, x) in marks:
+                if (index, columns[x]) in marks:
                     look = selected
                 else:
                     look = looks.get((classes, link))

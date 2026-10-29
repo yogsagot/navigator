@@ -733,9 +733,12 @@ def decode_cells(data: bytes, base: int, cells: list[tuple[str, int]], *,
                 char, cols = FILTERED, 1
             elif cols == 0:
                 if _is_combining(char):
-                    # No column of its own, and navkit paints one
-                    # character per cell: the accent is dropped rather than
-                    # given a column it never had.
+                    # No column of its own: a mark joins the cell of the
+                    # letter it is on (niqqud, harakat, an accent), which
+                    # navkit paints as one; a format character -- a mark of
+                    # direction, a joiner -- shows nothing at all.
+                    if cells and cells[-1][0] not in ("", " ") and unicodedata.category(char) != "Cf":
+                        cells[-1] = (cells[-1][0] + char, cells[-1][1])
                     i += length
                     continue
                 char, cols = FILTERED, 1

@@ -16,10 +16,13 @@ can scribble on its neighbours.
 from __future__ import annotations
 
 import unicodedata
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING
 
 from navkit import glyphs
+from bidi.mirror import MIRRORED
+
+from navkit.bidi import layout
 from navkit.style import DEFAULT_STYLE, RESET_SGR, Style
 
 if TYPE_CHECKING:
@@ -39,6 +42,21 @@ type Cell = tuple[str, Style]
 #: deliberately innocent of those.
 SINGLE_BOX = glyphs.SINGLE_BOX
 DOUBLE_BOX = glyphs.DOUBLE_BOX
+
+#: What a right-to-left screen draws in place of each character when it is
+#: mirrored: corners and junctions, half blocks, pointers and arrows, brackets.
+#: An involution, which is what :meth:`Surface.draw_runs` relies on -- text it
+#: writes on a right-to-left surface is swapped through this beforehand, so
+#: that the mirror puts it back, while a frame drawn cell by cell is mirrored.
+_FLIP_PAIRS = (
+    "┌┐", "└┘", "├┤", "╔╗", "╚╝", "╠╣", "╒╕", "╘╛", "╓╖", "╙╜", "╞╡", "╟╢",
+    "╭╮", "╰╯", "▌▐", "▖▗", "▘▝", "◄►", "◀▶", "◂▸", "◁▷", "←→", "⇐⇒", "↖↗",
+    "↙↘", "⟨⟩", "()", "[]", "{}", "<>", "«»", "‹›", "/\\", "▏▕",
+)
+FLIP: dict[str, str] = {}
+for _a, _b in _FLIP_PAIRS:
+    FLIP[_a], FLIP[_b] = _b, _a
+del _a, _b
 
 
 def char_width(char: str) -> int:
@@ -61,7 +79,9 @@ def char_width(char: str) -> int:
         # saying so: this runs for every character of every frame, and the
         # unicodedata lookups below are far from free.
         return 1
-    if unicodedata.combining(char):
+    if unicodedata.combining(char) or unicodedata.category(char) in ("Mn", "Me", "Cf"):
+        # Marks draw on the cell before them; format characters -- marks of
+        # direction, joiners, the soft hyphen -- draw nothing at all.
         return 0
     # The Private Use Area reports "A" here and so measures one cell, which is
     # what a Nerd Font *Mono* build patches its icons to.  The plain build
@@ -85,6 +105,17 @@ def is_flag(cell: str) -> bool:
     and leave the other half drawn as a letter.
     """
     return len(cell) >= 2 and _regional(cell[0]) and _regional(cell[1])
+
+
+def _fitting(text: str, limit: int) -> int:
+    """How much of *text*, from the start, fits in *limit* cells."""
+    used = 0
+    for index, char in enumerate(text):
+        width = char_width(char)
+        if used + width > limit:
+            return index
+        used += width
+    return len(text)
 
 
 def _blit_bounds(
@@ -127,6 +158,11 @@ class Surface:
     #: The area available, starting at ``0, 0``.
     width: int
     height: int
+    #: Whether what is painted here is shown mirrored, the whole screen
+    #: flipped left for right as a right-to-left language reads it.  Text is
+    #: laid out with that in mind (see :meth:`draw_runs`); everything else is
+    #: painted as it would be left to right and mirrored with the screen.
+    rtl: bool
 
     def get(self, x: int, y: int) -> Cell:
         """Return the cell at *x*, *y*, or a blank cell if out of bounds."""
@@ -148,14 +184,17 @@ class Surface:
         """Fill a rectangle with *char*."""
         raise NotImplementedError
 
-    def view(self, x: int, y: int, width: int, height: int) -> Surface:
+    def view(
+        self, x: int, y: int, width: int, height: int, rtl: bool | None = None
+    ) -> Surface:
         """A surface onto the *width* x *height* area at *x*, *y*.
 
         Painting through it is offset by *x*, *y* and clipped to the
         rectangle, so what the caller sees is a surface of its own.  Views
-        nest: taking a view of a view intersects the two clips.
+        nest: taking a view of a view intersects the two clips.  *rtl*
+        overrides the direction a view inherits (see :attr:`rtl`).
         """
-        return _View(self, x, y, width, height)
+        return _View(self, x, y, width, height, rtl)
 
     def blit(
         self,
@@ -206,23 +245,93 @@ class Surface:
         max_width: int | None = None,
     ) -> int:
         """Paint *text* starting at *x*, *y*; return the cells consumed."""
+        if text.isascii() and not self.rtl:
+            # Nearly every string a frame paints: nothing to order, no marks,
+            # no wide characters.  Worth its own path for that reason alone.
+            limit = self.width - x if max_width is None else min(max_width, self.width - x)
+            used = 0
+            for char in text:
+                if used >= limit:
+                    break
+                if " " <= char < "\x7f":
+                    self.set_cell(x + used, y, char, style)
+                    used += 1
+            return used
+        return self.draw_runs(x, y, ((text, style),), max_width)
+
+    def draw_runs(
+        self,
+        x: int,
+        y: int,
+        runs: Iterable[tuple[str, Style]],
+        max_width: int | None = None,
+    ) -> int:
+        """Paint *runs*, one piece of text in several styles; return the cells used.
+
+        One call rather than one per run, because the pieces are one string
+        to whoever reads it: Hebrew or Arabic in it is ordered as a whole
+        (:func:`navkit.bidi.layout`), a highlighted letter keeps its style
+        wherever its word puts it, and an Arabic letter joins its neighbour
+        across the change of colour.  What does not fit in *max_width* is cut
+        off the logical end -- the end a reader reaches last.
+
+        On a right-to-left surface the cells are written in reverse, each
+        glyph swapped through :data:`FLIP`, so the screen's mirror shows them
+        the right way round and the text ends up against the right-hand edge
+        of where it was put, which is where right-to-left text starts.
+        """
         limit = self.width - x if max_width is None else min(max_width, self.width - x)
+        if limit <= 0:
+            return 0
+        parts: list[str] = []
+        styles: list[Style] = []
+        for piece, piece_style in runs:
+            parts.append(piece)
+            styles.extend([piece_style] * len(piece))
+        text = "".join(parts)
+        cells = layout(text, self.rtl)
+        widths = [char_width(cell) for _, cell in cells]
+        if sum(widths) > limit:
+            text = text[: _fitting(text, limit)]
+            cells = layout(text, self.rtl)
+            widths = [char_width(cell) for _, cell in cells]
         used = 0
-        index = 0
-        while index < len(text):
-            char = text[index]
-            index += 1
-            if _regional(char) and index < len(text) and _regional(text[index]):
-                char += text[index]
-                index += 1
-            width = char_width(char)
+        if self.rtl:
+            total = sum(widths)
+            for (index, cell), width in zip(cells, widths):
+                if width == 0:
+                    continue
+                used += width
+                char = FLIP.get(cell[0], cell[0]) + cell[1:] if cell[0] in FLIP else cell
+                self.set_cell(x + total - used, y, char, styles[index])
+            return used
+        for (index, cell), width in zip(cells, widths):
             if width == 0:
                 continue
-            if used + width > limit:
-                break
-            self.set_cell(x + used, y, char, style)
+            self.set_cell(x + used, y, cell, styles[index])
             used += width
         return used
+
+    def mirror(self) -> None:
+        """Reverse every row of this surface in place, glyphs through :data:`FLIP`.
+
+        A double-width character stays whole, its owner first.  What a whole
+        right-to-left screen goes through on its way out, and what a widget
+        that keeps left to right inside it (``Widget.mirrors``) goes through
+        first, so the two cancel there.
+        """
+        for y in range(self.height):
+            units: list[tuple[str, Style]] = []
+            x = 0
+            while x < self.width:
+                char, style = self.get(x, y)
+                if char == "":
+                    char = " "  # a trailing half whose owner is out of reach
+                units.append((FLIP.get(char, char), style))
+                x += max(1, char_width(char))
+            x = 0
+            for char, style in reversed(units):
+                x += self.set_cell(x, y, char, style) or 1
 
     def draw_box(
         self,
@@ -270,10 +379,13 @@ class _View(Surface):
     screen to composite afterwards.
     """
 
-    __slots__ = ("_target", "_x", "_y", "width", "height")
+    __slots__ = ("_target", "_x", "_y", "width", "height", "rtl")
 
-    def __init__(self, target: Surface, x: int, y: int, width: int, height: int):
+    def __init__(
+        self, target: Surface, x: int, y: int, width: int, height: int, rtl: bool | None = None
+    ):
         self._target = target
+        self.rtl = target.rtl if rtl is None else rtl
         self._x = x
         self._y = y
         # The declared size, not what survives clipping against the target: a
@@ -346,11 +458,12 @@ class _View(Surface):
 class ScreenBuffer(Surface):
     """A grid of cells: the surface a whole frame is composed in."""
 
-    __slots__ = ("width", "height", "_rows")
+    __slots__ = ("width", "height", "_rows", "rtl")
 
     def __init__(self, width: int, height: int, style: Style = DEFAULT_STYLE):
         self.width = max(0, width)
         self.height = max(0, height)
+        self.rtl = False
         self._rows: list[list[Cell]] = []
         self.clear(style)
 
@@ -457,11 +570,120 @@ class ScreenBuffer(Surface):
                     entry = seen[id(style)] = (style, transform(style))
                 row[x] = (char, entry[1])
 
+    def mirrored(self) -> ScreenBuffer:
+        """A copy of this buffer reversed left for right (:meth:`Surface.mirror`).
+
+        Done on the rows directly: it runs over the whole screen every frame
+        of a right-to-left session.
+        """
+        out = ScreenBuffer(0, 0)
+        out.width, out.height, out.rtl = self.width, self.height, self.rtl
+        flip = FLIP
+        rows = []
+        for row in self._rows:
+            new = row[::-1]
+            x = 0
+            while x < len(new):
+                char, style = new[x]
+                if char == "":
+                    # The trailing half of a wide character now comes before
+                    # its owner: swap them back.
+                    if x + 1 < len(new):
+                        new[x], new[x + 1] = new[x + 1], ("", style)
+                        x += 1
+                    else:
+                        new[x] = (" ", style)
+                elif char in flip:
+                    new[x] = (flip[char], style)
+                x += 1
+            rows.append(new)
+        out._rows = rows
+        return out
+
     def copy_from(self, other: ScreenBuffer) -> None:
         """Make this buffer an independent copy of *other*."""
         self.width = other.width
         self.height = other.height
+        self.rtl = other.rtl
         self._rows = [row.copy() for row in other._rows]
+
+
+def for_words(buffer: ScreenBuffer) -> ScreenBuffer:
+    """*buffer* as kitty must be sent it (``TerminalInfo.bidi`` ``"words"``).
+
+    kitty draws some glyphs reversed, whatever order they arrive in, while
+    each cell keeps its own colours.  A run of cells -- unbroken by a space, a
+    box-drawing or block character, or a change of weight or slant; a change
+    of colour does not break one -- that starts with an Arabic letter is
+    drawn reversed to its end, brackets mirrored, Latin and digits after the
+    Arabic included.  Hebrew is reversed a stretch of Hebrew letters at a
+    time, whatever is around it.  Navigator has already put every glyph where
+    it belongs (:mod:`navkit.bidi`), so those glyphs are sent reversed,
+    each cell's style left where it is, for kitty to put back.  Found by
+    writing runs to kitty and reading back what it drew; nothing documents it.
+    """
+    out = ScreenBuffer(0, 0)
+    out.width, out.height, out.rtl = buffer.width, buffer.height, buffer.rtl
+    rows = []
+    for row in buffer._rows:
+        if not any(char >= "\u0590" for char, _ in row):
+            rows.append(row)  # nothing right-to-left: the row as it is
+            continue
+        new = list(row)
+        start = 0
+        while start < len(new):
+            if _breaks_run(new[start][0]):
+                start += 1
+                continue
+            face = _face(new[start][1])
+            end = start
+            while end < len(new) and not _breaks_run(new[end][0]) and _face(new[end][1]) == face:
+                end += 1
+            if _starts_arabic(new[start:end]):
+                _reverse_glyphs(new, start, end)
+            else:
+                at = start
+                while at < end:
+                    if _hebrew(new[at][0]):
+                        stop = at
+                        while stop < end and _hebrew(new[stop][0]):
+                            stop += 1
+                        _reverse_glyphs(new, at, stop)
+                        at = stop
+                    else:
+                        at += 1
+            start = end
+        rows.append(new)
+    out._rows = rows
+    return out
+
+
+def _reverse_glyphs(row: list[Cell], start: int, end: int) -> None:
+    """Reverse the glyphs of *row* from *start* to *end*, mirrored, keeping its styles."""
+    glyphs = [MIRRORED.get(c[:1], c[:1]) + c[1:] for c, _ in reversed(row[start:end])]
+    row[start:end] = [(g, st) for g, (_, st) in zip(glyphs, row[start:end])]
+
+
+def _hebrew(char: str) -> bool:
+    return "\u0590" <= char[:1] <= "\u05ff" or "\ufb1d" <= char[:1] <= "\ufb4f"
+
+
+def _breaks_run(char: str) -> bool:
+    return char in ("", " ") or "\u2500" <= char[:1] <= "\u259f"
+
+
+def _face(style: Style) -> tuple[bool, bool]:
+    return style.bold, style.italic
+
+
+def _starts_arabic(cells: list[Cell]) -> bool:
+    for char, _ in cells:
+        kind = unicodedata.bidirectional(char[:1])
+        if kind == "AL":
+            return True
+        if kind in ("L", "R"):
+            return False
+    return False
 
 
 def render_diff(

@@ -52,7 +52,7 @@ from navkit.screen import Surface
 from navkit.tooltip import lines
 from navkit.widget import Widget
 
-from navml.widgets.dialog.control.control import parse_shortcut
+from navml.widgets.dialog.control.control import parse_shortcut, shortcut_runs
 from navml.widgets.menu.menu_item.menu_item import MenuItem, MenuNode
 from navml.widgets.menu.menu_line.menu_line import MenuLine
 from navml.widgets.menu.sub_menu.sub_menu import SubMenu
@@ -270,13 +270,13 @@ class MenuBox(Widget):
             if self.checked(entry):
                 surface.draw_text(2, y, check, row)
             caption, start, _ = parse_shortcut(entry.text)
-            surface.draw_text(3, y, caption, row, max(0, width - 6))
-            if 0 <= start < len(caption):
-                surface.draw_text(3 + start, y, caption[start],
-                                  self.part_style("hotkey", **states))
+            surface.draw_runs(3, y, shortcut_runs(
+                caption, start, row, self.part_style("hotkey", **states)), max(0, width - 6))
             key = key_caption(entry, self.application, self.behind)
             if isinstance(entry, SubMenu):
-                surface.draw_text(width - 4, y, arrow, row)
+                # A cell, not text: it points the way the box opens, so it
+                # is mirrored with the screen when that is right-to-left.
+                surface.set_cell(width - 4, y, arrow, row)
                 if key:
                     surface.draw_text(width - 5 - len(key), y, key, row)
             elif key:
