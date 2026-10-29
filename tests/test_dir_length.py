@@ -171,7 +171,7 @@ def test_alt_g_on_up_counts_the_directory_listed(place):
     assert seen["sizes"][".."] == 3036 and seen["sizes"]["big"] == "DIR"
 
 
-def test_alt_g_on_a_file_with_nothing_tagged_does_nothing_and_a_re_read_forgets(place):
+def test_alt_g_on_a_file_with_nothing_tagged_does_nothing_and_a_re_read_keeps_the_count(place):
     app = navigator(place)
     seen = {}
     run_app(app, [to("file.txt"), KeyEvent("g", alt=True), lambda a: None,
@@ -181,7 +181,53 @@ def test_alt_g_on_a_file_with_nothing_tagged_does_nothing_and_a_re_read_forgets(
                   KeyEvent("r", ctrl=True), lambda a: None,
                   lambda a: seen.update(reread=sizes(a.manager.left)["big"])])
     assert seen["file"]["big"] == "DIR" and seen["file"]["small"] == "DIR"
-    assert seen["counted"] == 3024 and seen["reread"] == "DIR"
+    assert seen["counted"] == 3024 and seen["reread"] == 3024
+
+
+def test_a_change_of_directory_forgets_the_counts(place):
+    app = navigator(place)
+    seen = {}
+
+    def leave_and_return(a):
+        a.manager.left.enter()
+
+    run_app(app, [to("big"), KeyEvent("g", alt=True), lambda a: None, lambda a: None,
+                  leave_and_return, lambda a: None, to(".."), leave_and_return, lambda a: None,
+                  lambda a: seen.update(back=sizes(a.manager.left)["big"])])
+    assert seen["back"] == "DIR"
+
+
+def test_sorting_by_size_keeps_the_counts_and_orders_by_them(place):
+    app = navigator(place)
+    seen = {}
+
+    def tag(a):
+        a.manager.left.marked = frozenset({"big", "small"})
+
+    def names(a):
+        return [e.name for e in a.manager.left.items if e.is_dir]
+
+    run_app(app, [to("small"), tag, KeyEvent("g", alt=True), lambda a: None, lambda a: None,
+                  lambda a: a.manager.left.sort_by("size"), lambda a: None,
+                  lambda a: seen.update(sorted=names(a), kept=sizes(a.manager.left),
+                                        cursor=a.manager.left.selected.name)])
+    assert seen["kept"]["big"] == 3024 and seen["kept"]["small"] == 7
+    assert seen["sorted"] == ["..", "big", "small"] and seen["cursor"] == "small"
+
+
+def test_counting_while_sorted_by_size_orders_by_the_counts(place):
+    (place / "aaa").mkdir()
+    app = navigator(place)
+    seen = {}
+
+    def tag(a):
+        a.manager.left.marked = frozenset({"big", "small"})
+
+    run_app(app, [lambda a: a.manager.left.sort_by("size"), lambda a: None,
+                  to("small"), tag, KeyEvent("g", alt=True), lambda a: None, lambda a: None,
+                  lambda a: seen.update(sorted=[e.name for e in a.manager.left.items if e.is_dir],
+                                        cursor=a.manager.left.selected.name)])
+    assert seen["sorted"] == ["..", "big", "small", "aaa"] and seen["cursor"] == "small"
 
 
 def test_a_counted_directory_shows_its_size_where_dir_was():

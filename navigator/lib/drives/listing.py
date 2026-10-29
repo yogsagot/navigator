@@ -37,8 +37,9 @@ class DirEntry:
 
     A directory's ``size`` is 0 until Alt+G counts it (``counted``, DN's
     ``Attr or $80``): the bytes beneath it, shown in the size column in
-    place of ``DIR``.  A re-read makes new entries, and the count goes with
-    the old ones, as it did in DN.
+    place of ``DIR``.  A re-read makes new entries; the panel carries the
+    counts over to them (``Panel._keep_counts``), and only a change of
+    directory forgets them -- a departure, DN's went with the old entries.
 
     ``mode`` is the link's *target*'s, except for a link pointing nowhere,
     where there is no target to describe and it is the link's own.

@@ -423,7 +423,12 @@ bound to `box_width` -- the table's natural width plus the frame, at least 50 (o
 box grows, re-centred, as the counts gain digits, capped at `parent.width` (the screen, once overlaid); a row too long
 for that loses its label, never its end.
 The entry gets `size` and `counted` (DN's `Attr or $80`), its size column shows the size where `DIR` was, the tagged
-total includes it, and a re-read forgets it (new entries), as DN's did. `panel_defaults.directory_length` (count every
+total includes it, and *Size* sorts by it. **A re-read keeps the counts** (a departure, asked for: DN's went with the
+old entries, so sorting by size -- itself a re-read -- lost them): `Panel._apply` hands a re-read of the directory
+listed to `_keep_counts`, which copies each counted directory's bytes onto the new entry by `key` and re-orders when
+the order is by size. A change of directory forgets them. Alt+G's answer goes through `Panel.set_lengths`, which,
+sorting by size, re-orders the listing at once with the cursor on its entry (on its screen row); otherwise bumps
+`sizes_token`. `panel_defaults.directory_length` (count every
 directory at each read, `fmiDirLen`) is not written yet.
 
 ## Information panel (Ctrl+L)

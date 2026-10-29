@@ -408,12 +408,7 @@ class Manager(Window):
             app, count, job, lambda: CountProgress(several=len(targets) > 1),
             refresh, delay=SLOW_PROGRESS_DELAY,
         )
-        for entry, size in counted:
-            entry.size, entry.counted = size, True
-        if counted and counted[0][0] in panel.items:
-            # The same entries, changed, while the panel still lists them:
-            # an equal list would be no change, so the sizes say they moved.
-            panel.sizes_token += 1
+        panel.set_lengths(counted)
 
     # -- UU Encode and UU Decode (navigator.lib.file_ops.uucode) ---------------------------------
 

@@ -864,6 +864,9 @@ class Panel(ContextMenuHost, ListViewer):
                free: tuple[int, str] | None = None) -> None:
         """Show what a read of ``request.path`` found."""
         path = request.path
+        where = request.where if request.where is not None else path
+        if where == self._listed and error is None:
+            entries = self._keep_counts(entries)
         self._pending = None
         self._scan_job = None
         self.scanning = False
@@ -873,7 +876,6 @@ class Panel(ContextMenuHost, ListViewer):
         # Peeked, not read: the rescan must not depend on the tags, or every
         # Insert would re-read the directory.
         marked = peek(self, Panel.marked)
-        where = request.where if request.where is not None else path
         if path.is_local and error is None:
             self.local_anchor = path
         if (path.is_local and error is not None and where != self._listed
@@ -907,6 +909,55 @@ class Panel(ContextMenuHost, ListViewer):
             (index for index, item in enumerate(entries) if item.name == target), 0
         )
         self.scroll = 0
+
+    def _keep_counts(self, entries: list[DirEntry]) -> list[DirEntry]:
+        """*entries*, a re-read of the directory listed, with the bytes Alt+G
+        counted for its directories carried over from the last listing, and in
+        the panel's order again when that is by size.
+
+        A departure: DN's re-read made new entries and the counts went with
+        the old ones, so sorting by size (itself a re-read) lost them and
+        could never order by them.  Only a change of directory forgets them.
+        """
+        counts = {entry.key: entry.size for entry in peek(self, Panel.items)
+                  if entry.is_dir and entry.counted}
+        carried = False
+        for entry in entries:
+            if entry.is_dir and not entry.counted and entry.key in counts:
+                entry.size, entry.counted = counts[entry.key], True
+                carried = True
+        return self._ordered(entries) if carried and peek(self, Panel.sort_mode) == "size" else entries
+
+    def _ordered(self, entries: list[DirEntry]) -> list[DirEntry]:
+        """*entries* in the panel's order as it stands (:func:`order_entries`)."""
+        with untracked():
+            return order_entries(entries, self.sort_mode, reverse=self.sort_reverse,
+                                 executables_first=self.shows("executables_first"),
+                                 archives_first=self.shows("archives_first"))
+
+    def set_lengths(self, entries: Iterable[tuple[DirEntry, int]]) -> None:
+        """Alt+G's answer: each listed directory's bytes into its size, and,
+        sorting by size, the listing ordered by them with the cursor kept on
+        its entry."""
+        changed = False
+        for entry, size in entries:
+            entry.size, entry.counted = size, True
+            changed = changed or entry in self.items
+        if not changed:
+            return
+        if self.sort_mode != "size":
+            # The same entries, changed, while the panel still lists them:
+            # an equal list would be no change, so the sizes say they moved.
+            self.sizes_token += 1
+            return
+        current = self.selected
+        items = self._ordered(list(self.items))
+        self.items = items
+        if current is not None:
+            row = self.cursor - self.scroll
+            self.cursor = items.index(current)
+            self.scroll = max(0, min(self.cursor - row, max(0, len(items) - self.rows)))
+        self.sizes_token += 1
 
     @staticmethod
     def _remember_directory(path: Path) -> None:
