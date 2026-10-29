@@ -233,8 +233,9 @@ colon and cuts a value to its box.
 cursor moves, DN's `FocusItem`/`SetValue`); *Append* (`NAME=value` in `EditLineDialog`, history `new_variable`,
 put where the cursor is), *Rename* (the value goes with it), *Delete* (`dlEnvDelConfirm`). OK: `environ.changes`
 before/after, `environ.apply` to Navigator's own environment -- what the external viewer/editor, the user menu and a
-shell started anew take -- and `Subshell.set_environment` tells the running shell in one silent line (`export`/`unset`,
-fish's `set -gx`/`set -e`), only a shell with the hook (`can_complete`); another keeps its copy until it restarts.
+shell started anew take -- and `Subshell.set_environment` tells the running shell in one silent line (`export`/`unset`;
+the hooked shell is bash or zsh even when `$SHELL` is fish, so never fish's syntax), only a shell with the hook
+(`can_complete`); another keeps its copy until it restarts.
 Names keep their case (DN upper-cased them).
 
 ## Commands history (Alt+F8)

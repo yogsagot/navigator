@@ -24,11 +24,10 @@ def test_changes_and_apply():
     assert valid_name("PATH") and not valid_name("") and not valid_name("A=B")
 
 
-@pytest.mark.parametrize("shell, line", [
-    ("/bin/bash", " export GREETING='hi there'; unset GONE"),
-    ("/usr/bin/fish", " set -gx GREETING 'hi there'; set -e GONE"),
-])
-def test_the_running_shell_is_told_unseen(shell, line, monkeypatch):
+@pytest.mark.parametrize("shell", ["/bin/bash", "/usr/bin/fish"])
+def test_the_running_shell_is_told_unseen(shell, monkeypatch):
+    # A fish $SHELL's command line runs bash, which is the shell told.
+    line = " export GREETING='hi there'; unset GONE"
     subshell = Subshell(ConsoleScreen(80, 24), shell=shell)
     monkeypatch.setattr(Subshell, "is_running", property(lambda self: True))
     subshell.can_complete = True
