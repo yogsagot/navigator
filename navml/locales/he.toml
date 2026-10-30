@@ -22,7 +22,7 @@ direction = "rtl"
 "~F~iles" = "~ק~בצים"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:60
 "~D~irectories" = "~ת~יקיות"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:19
+# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
 "Cancel" = "ביטול"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "מנהל חלונות"
@@ -30,6 +30,570 @@ direction = "rtl"
 "~W~indows" = "~ח~לונות"
 # navml/widgets/window_manager/window_manager.nml:49
 "C~l~ose" = "~ס~גור"
+# navml/calendars.py:75
+"January" = "ינואר"
+# navml/calendars.py:75
+"February" = "פברואר"
+# navml/calendars.py:75
+"March" = "מרץ"
+# navml/calendars.py:75
+"April" = "אפריל"
+# navml/calendars.py:75
+"May" = "מאי"
+# navml/calendars.py:75
+"June" = "יוני"
+# navml/calendars.py:76
+"July" = "יולי"
+# navml/calendars.py:76
+"August" = "אוגוסט"
+# navml/calendars.py:76
+"September" = "ספטמבר"
+# navml/calendars.py:76
+"October" = "אוקטובר"
+# navml/calendars.py:76
+"November" = "נובמבר"
+# navml/calendars.py:77
+"December" = "דצמבר"
+# navml/calendars.py:274
+"~G~regorian" = "~ג~רגוריאני"
+# navml/calendars.py:300
+"~J~ulian" = "~י~וליאני"
+# navml/calendars.py:343
+"~H~ebrew" = "~ע~ברי"
+# navml/calendars.py:438
+"~I~slamic (tabular)" = "~מ~וסלמי (טבלאי)"
+# navml/calendars.py:527
+"Islamic (~U~mm al-Qura)" = "מוסלמי (או~ם~ אל-קורא)"
+# navml/calendars.py:544
+"Islamic (Di~y~anet, Turkey)" = "מוסלמי (~ד~יאנת, טורקיה)"
+# navml/calendars.py:559
+"Islamic (~M~ABIMS, Indonesia)" = "מוסלמי (מבימס, אינדונ~ז~יה)"
+# navml/calendars.py:574
+"Islamic (MABIMS, Malay~s~ia)" = "מוסלמי (MABIM~S~, מלזיה)"
+# navml/calendars.py:591
+"~P~ersian" = "~פ~רסי"
+# navml/calendars.py:640
+"In~d~ian national (Saka)" = "~ה~ודי לאומי (שקה)"
+# navml/calendars.py:687
+"~C~optic" = "~ק~ופטי"
+# navml/calendars.py:732
+"~E~thiopian" = "~א~תיופי"
+# navml/calendars.py:767
+"Chi~n~ese" = "~ס~יני"
+# navml/calendars.py:865
+"Spring Festival" = "חג האביב"
+# navml/calendars.py:881
+"~K~orean" = "קו~ר~יאני"
+# navml/calendars.py:884
+"Seollal" = "סאולאל"
+# navml/calendars.py:898
+"~V~ietnamese" = "~ו~יאטנאמי"
+# navml/calendars.py:906
+"Tết" = "טט"
+# navml/calendars.py:930
+"J~a~panese" = "יפ~נ~י"
+# navml/calendars.py:968
+"~T~hai solar" = "~ת~איילנדי"
+# navml/calendars.py:986
+"~R~OC (Minguo)" = "~ט~איוואני (מינגו)"
+# navml/calendars.py:1009
+"~B~engali (Bangladesh)" = "~ב~נגלי (בנגלדש)"
+# navml/calendars.py:1064
+"Nepa~l~i (Bikram Sambat)" = "נפא~ל~י (ביקרם סמבת)"
+# navml/calendars.py:1124
+"Badíʿ (Baháʼí)" = "בדיע (בהאי)"
+# navml/calendars.py:1201
+"Burmese (Myanmar)" = "בורמזי (מיאנמר)"
+# navml/calendars.py:1336
+"Tibetan (Phugpa)" = "טיבטי (פוגפה)"
+# navml/calendars.py:1484
+"A~f~ghan Solar Hijri" = "~ש~מסי אפגני"
+# navml/calendars.py:1516
+"Khmer, Thai, La~o~ lunar" = "יר~ח~י חמרי, תאי, לאי"
+# navml/calendars.py:404
+"Nisan" = "ניסן"
+# navml/calendars.py:404
+"Iyyar" = "אייר"
+# navml/calendars.py:404
+"Sivan" = "סיוון"
+# navml/calendars.py:404
+"Tammuz" = "תמוז"
+# navml/calendars.py:404
+"Av" = "אב"
+# navml/calendars.py:404
+"Elul" = "אלול"
+# navml/calendars.py:405
+"Tishri" = "תשרי"
+# navml/calendars.py:405
+"Heshvan" = "חשוון"
+# navml/calendars.py:405
+"Kislev" = "כסלו"
+# navml/calendars.py:405
+"Tevet" = "טבת"
+# navml/calendars.py:405
+"Shevat" = "שבט"
+# navml/calendars.py:406
+"Adar II" = "אדר ב׳"
+# navml/calendars.py:460
+"Muharram" = "מוחרם"
+# navml/calendars.py:460
+"Safar" = "צפר"
+# navml/calendars.py:460
+"Rabi' I" = "רביע א׳"
+# navml/calendars.py:460
+"Rabi' II" = "רביע ב׳"
+# navml/calendars.py:460
+"Jumada I" = "ג׳ומאדא א׳"
+# navml/calendars.py:460
+"Jumada II" = "ג׳ומאדא ב׳"
+# navml/calendars.py:461
+"Rajab" = "רג׳ב"
+# navml/calendars.py:461
+"Sha'ban" = "שעבאן"
+# navml/calendars.py:461
+"Ramadan" = "רמדאן"
+# navml/calendars.py:461
+"Shawwal" = "שוואל"
+# navml/calendars.py:461
+"Dhu'l-Qa'da" = "ד׳ו אל-קעדה"
+# navml/calendars.py:461
+"Dhu'l-Hijja" = "ד׳ו אלחיג׳ה"
+# navml/calendars.py:627
+"Farvardin" = "פרבדין"
+# navml/calendars.py:627
+"Ordibehesht" = "אורדיבהשת"
+# navml/calendars.py:627
+"Khordad" = "ח׳ורדאד"
+# navml/calendars.py:627
+"Tir" = "תיר"
+# navml/calendars.py:627
+"Mordad" = "מורדאד"
+# navml/calendars.py:627
+"Shahrivar" = "שהריוור"
+# navml/calendars.py:628
+"Mehr" = "מהר"
+# navml/calendars.py:628
+"Aban" = "אבאן"
+# navml/calendars.py:628
+"Azar" = "אד׳ר"
+# navml/calendars.py:628
+"Dey" = "דיי"
+# navml/calendars.py:628
+"Bahman" = "בהמן"
+# navml/calendars.py:628
+"Esfand" = "אספנד"
+# navml/calendars.py:672
+"Chaitra" = "צ׳איטרה"
+# navml/calendars.py:672
+"Vaishakha" = "ואישאקה"
+# navml/calendars.py:672
+"Jyeshtha" = "ג׳יישטה"
+# navml/calendars.py:672
+"Ashadha" = "אשאדהה"
+# navml/calendars.py:672
+"Shravana" = "שרוואנה"
+# navml/calendars.py:672
+"Bhadra" = "בהאדרה"
+# navml/calendars.py:673
+"Ashvin" = "אשווין"
+# navml/calendars.py:673
+"Kartika" = "קרטיקה"
+# navml/calendars.py:673
+"Agrahayana" = "אגרהאיאנה"
+# navml/calendars.py:673
+"Pausha" = "פאושה"
+# navml/calendars.py:673
+"Magha" = "מאגהה"
+# navml/calendars.py:673
+"Phalguna" = "פאלגונה"
+# navml/calendars.py:717
+"Thout" = "תות"
+# navml/calendars.py:717
+"Paopi" = "באבה"
+# navml/calendars.py:717
+"Hathor" = "הטור"
+# navml/calendars.py:717
+"Koiak" = "כיהק"
+# navml/calendars.py:717
+"Tobi" = "טובה"
+# navml/calendars.py:717
+"Meshir" = "אמשיר"
+# navml/calendars.py:717
+"Paremhat" = "ברמהאת"
+# navml/calendars.py:718
+"Parmouti" = "ברמודה"
+# navml/calendars.py:718
+"Pashons" = "בשנס"
+# navml/calendars.py:718
+"Paoni" = "באונה"
+# navml/calendars.py:718
+"Epip" = "אביב"
+# navml/calendars.py:718
+"Mesori" = "מסרה"
+# navml/calendars.py:718
+"Nasie" = "נסי"
+# navml/calendars.py:742
+"Meskerem" = "מסכרם"
+# navml/calendars.py:742
+"Tikimt" = "טקמת"
+# navml/calendars.py:742
+"Hidar" = "הדר"
+# navml/calendars.py:742
+"Tahsas" = "תחשש"
+# navml/calendars.py:742
+"Ter" = "טר"
+# navml/calendars.py:742
+"Yekatit" = "יכתית"
+# navml/calendars.py:742
+"Megabit" = "מגבית"
+# navml/calendars.py:743
+"Miyazya" = "מיאזיה"
+# navml/calendars.py:743
+"Ginbot" = "גנבות"
+# navml/calendars.py:743
+"Sene" = "סנה"
+# navml/calendars.py:743
+"Hamle" = "המלה"
+# navml/calendars.py:743
+"Nehase" = "נהסה"
+# navml/calendars.py:743
+"Pagume" = "פאגומה"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 1" = "חודש 1"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 2" = "חודש 2"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 3" = "חודש 3"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 4" = "חודש 4"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 5" = "חודש 5"
+# navml/calendars.py:822, navml/calendars.py:1446
+"Month 6" = "חודש 6"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 7" = "חודש 7"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 8" = "חודש 8"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 9" = "חודש 9"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 10" = "חודש 10"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 11" = "חודש 11"
+# navml/calendars.py:823, navml/calendars.py:1447
+"Month 12" = "חודש 12"
+# navml/calendars.py:848
+"Jiǎ" = "ג׳יה"
+# navml/calendars.py:848
+"Yǐ" = "יי"
+# navml/calendars.py:848
+"Bǐng" = "בינג"
+# navml/calendars.py:848
+"Dīng" = "דינג"
+# navml/calendars.py:848
+"Wù" = "וו"
+# navml/calendars.py:848
+"Jǐ" = "ג׳י"
+# navml/calendars.py:848
+"Gēng" = "גנג"
+# navml/calendars.py:848
+"Xīn" = "שין"
+# navml/calendars.py:849
+"Rén" = "ז׳ן"
+# navml/calendars.py:849
+"Guǐ" = "גווי"
+# navml/calendars.py:850
+"Zǐ" = "דזה"
+# navml/calendars.py:850
+"Chǒu" = "צ׳ואו"
+# navml/calendars.py:850
+"Yín" = "יין"
+# navml/calendars.py:850
+"Mǎo" = "מאו"
+# navml/calendars.py:850
+"Chén" = "צ׳ן"
+# navml/calendars.py:850
+"Sì" = "סה"
+# navml/calendars.py:850
+"Wǔ" = "וו"
+# navml/calendars.py:850
+"Wèi" = "ויי"
+# navml/calendars.py:851
+"Shēn" = "שן"
+# navml/calendars.py:851
+"Yǒu" = "יואו"
+# navml/calendars.py:851
+"Xū" = "שו"
+# navml/calendars.py:851
+"Hài" = "האי"
+# navml/calendars.py:861
+"Rat" = "חולדה"
+# navml/calendars.py:861
+"Ox" = "שור"
+# navml/calendars.py:861
+"Tiger" = "נמר"
+# navml/calendars.py:861
+"Rabbit" = "ארנב"
+# navml/calendars.py:861
+"Dragon" = "דרקון"
+# navml/calendars.py:861
+"Snake" = "נחש"
+# navml/calendars.py:861
+"Horse" = "סוס"
+# navml/calendars.py:862
+"Goat" = "עז"
+# navml/calendars.py:862
+"Monkey" = "קוף"
+# navml/calendars.py:862
+"Rooster" = "תרנגול"
+# navml/calendars.py:862
+"Dog" = "כלב"
+# navml/calendars.py:862
+"Pig" = "חזיר"
+# navml/calendars.py:902
+"Buffalo" = "תאו"
+# navml/calendars.py:902
+"Cat" = "חתול"
+# navml/calendars.py:940
+"Meiji" = "מייג׳י"
+# navml/calendars.py:940
+"Taishō" = "טאישו"
+# navml/calendars.py:940
+"Shōwa" = "שוואה"
+# navml/calendars.py:940
+"Heisei" = "הייסיי"
+# navml/calendars.py:940
+"Reiwa" = "ריווה"
+# navml/calendars.py:1042
+"Boishakh" = "בויישאח"
+# navml/calendars.py:1042
+"Joishtho" = "ג׳ויישטו"
+# navml/calendars.py:1042
+"Asharh" = "אשאר"
+# navml/calendars.py:1042
+"Shrabon" = "שראבון"
+# navml/calendars.py:1042
+"Bhadro" = "בהאדרו"
+# navml/calendars.py:1042
+"Ashwin" = "אשווין"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Kartik" = "קרטיק"
+# navml/calendars.py:1043
+"Ogrohayon" = "אוגרוהאיון"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Poush" = "פוש"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Magh" = "מאג"
+# navml/calendars.py:1043, navml/calendars.py:1101
+"Falgun" = "פלגון"
+# navml/calendars.py:1043
+"Choitro" = "צ׳ויטרו"
+# navml/calendars.py:1100
+"Baisakh" = "בייסאח"
+# navml/calendars.py:1100
+"Jestha" = "ג׳סטה"
+# navml/calendars.py:1100
+"Asar" = "אסאר"
+# navml/calendars.py:1100
+"Shrawan" = "שראוואן"
+# navml/calendars.py:1100
+"Bhadau" = "בהאדאו"
+# navml/calendars.py:1100
+"Asoj" = "אסוג׳"
+# navml/calendars.py:1101
+"Mangsir" = "מנגסיר"
+# navml/calendars.py:1101
+"Chait" = "צ׳ייט"
+# navml/calendars.py:1106
+"Computed: Nepal's almanac may differ by a day" = "מחושב: לוח השנה של נפאל עשוי להיות שונה ביום"
+# navml/calendars.py:1169
+"Bahá" = "בהאא"
+# navml/calendars.py:1169
+"Jalál" = "ג׳לאל"
+# navml/calendars.py:1169
+"Jamál" = "ג׳מאל"
+# navml/calendars.py:1169
+"ʿAẓamat" = "עט׳מת"
+# navml/calendars.py:1169
+"Núr" = "נור"
+# navml/calendars.py:1169
+"Raḥmat" = "רחמת"
+# navml/calendars.py:1169
+"Kalimát" = "כלמאת"
+# navml/calendars.py:1170
+"Kamál" = "כמאל"
+# navml/calendars.py:1170
+"Asmáʼ" = "אסמאא"
+# navml/calendars.py:1170
+"ʿIzzat" = "עזת"
+# navml/calendars.py:1170
+"Mashíyyat" = "משיית"
+# navml/calendars.py:1170
+"ʿIlm" = "עלם"
+# navml/calendars.py:1170
+"Qudrat" = "קדרת"
+# navml/calendars.py:1170
+"Qawl" = "קול"
+# navml/calendars.py:1171
+"Masáʼil" = "מסאאל"
+# navml/calendars.py:1171
+"Sharaf" = "שרף"
+# navml/calendars.py:1171
+"Sulṭán" = "סלטאן"
+# navml/calendars.py:1171
+"Mulk" = "מלך"
+# navml/calendars.py:1171
+"Ayyám-i-Há" = "איאם-אי-הא"
+# navml/calendars.py:1171
+"ʿAláʼ" = "עלאא"
+# navml/calendars.py:1295
+"Tagu" = "טגו"
+# navml/calendars.py:1295
+"Kason" = "קאסון"
+# navml/calendars.py:1295
+"Nayon" = "נאיון"
+# navml/calendars.py:1295
+"First Waso" = "ואסו ראשון"
+# navml/calendars.py:1295
+"Waso" = "ואסו"
+# navml/calendars.py:1295
+"Wagaung" = "וגאונג"
+# navml/calendars.py:1296
+"Tawthalin" = "טוטלין"
+# navml/calendars.py:1296
+"Thadingyut" = "טדינג׳ות"
+# navml/calendars.py:1296
+"Tazaungmon" = "טזאונגמון"
+# navml/calendars.py:1296
+"Nadaw" = "נאדאו"
+# navml/calendars.py:1296
+"Pyatho" = "פיאתו"
+# navml/calendars.py:1297
+"Tabodwe" = "טבודווה"
+# navml/calendars.py:1297
+"Tabaung" = "טבאונג"
+# navml/calendars.py:1300
+"Second Waso" = "ואסו שני"
+# navml/calendars.py:1456
+"Wood" = "עץ"
+# navml/calendars.py:1456
+"Fire" = "אש"
+# navml/calendars.py:1456
+"Earth" = "אדמה"
+# navml/calendars.py:1456
+"Iron" = "ברזל"
+# navml/calendars.py:1456
+"Water" = "מים"
+# navml/calendars.py:1488
+"Hamal" = "חמל"
+# navml/calendars.py:1488
+"Sawr" = "ת׳ור"
+# navml/calendars.py:1488
+"Jawza" = "ג׳וזא"
+# navml/calendars.py:1488
+"Saratan" = "סרטאן"
+# navml/calendars.py:1488
+"Asad" = "אסד"
+# navml/calendars.py:1488
+"Sonbola" = "סנבלה"
+# navml/calendars.py:1489
+"Mizan" = "מיזאן"
+# navml/calendars.py:1489
+"Aqrab" = "עקרב"
+# navml/calendars.py:1489
+"Qaws" = "קוס"
+# navml/calendars.py:1489
+"Jadi" = "ג׳די"
+# navml/calendars.py:1489
+"Dalw" = "דלו"
+# navml/calendars.py:1489
+"Hut" = "חות"
+# navml/calendars.py:1657
+"Pisakh" = "פיסאך"
+# navml/calendars.py:1657
+"Jesth" = "ג׳סת"
+# navml/calendars.py:1657
+"Asadh" = "אסאד"
+# navml/calendars.py:1658
+"Pathamasadh" = "פתמאסאד"
+# navml/calendars.py:1658
+"Tutiyasadh" = "תותיאסאד"
+# navml/calendars.py:1658
+"Srap" = "סראפ"
+# navml/calendars.py:1659
+"Phatrabot" = "פטרבות"
+# navml/calendars.py:1659
+"Assoch" = "אסוץ׳"
+# navml/calendars.py:1659
+"Kadeuk" = "כדאוק"
+# navml/calendars.py:1660
+"Migasir" = "מיגאסיר"
+# navml/calendars.py:1660
+"Boss" = "בוס"
+# navml/calendars.py:1660
+"Meak" = "מיאק"
+# navml/calendars.py:1660
+"Phalkun" = "פלקון"
+# navml/calendars.py:1661
+"Cheit" = "צ׳ייט"
+# navml/calendars.py:261
+"{day} {month} {year}" = "{day} ב{month} {year}"
+# navml/calendars.py:324
+"Easter (Orthodox)" = "פסחא (אורתודוקסי)"
+# navml/calendars.py:326
+"Easter (Western)" = "פסחא (מערבי)"
+# navml/calendars.py:406
+"Adar I" = "אדר א׳"
+# navml/calendars.py:406
+"Adar" = "אדר"
+# navml/calendars.py:511
+"Computed: the published calendar may differ by a day" = "מחושב: לוח השנה המפורסם עשוי להיות שונה ביום"
+# navml/calendars.py:853
+"{stem}-{branch}, year of the {animal}" = "{stem}-{branch}, שנת ה{animal}"
+# navml/calendars.py:954, navml/calendars.py:975, navml/calendars.py:995
+"{label} ({year})" = "{label} ({year})"
+# navml/calendars.py:1176
+"Naw-Rúz" = "נורוז"
+# navml/calendars.py:1178
+"Computed: not yet published by the Baháʼí World Centre" = "מחושב: טרם פורסם על ידי המרכז הבהאי העולמי"
+# navml/calendars.py:1309, navml/calendars.py:1674
+"Full moon" = "ירח מלא"
+# navml/calendars.py:1461
+"Losar" = "לוסאר"
+# navml/calendars.py:1464
+"Doubled day" = "יום כפול"
+# navml/calendars.py:950
+"{era} {year}" = "{era} {year}"
+# navml/calendars.py:972
+"{year} BE" = "{year} בודהיסטי"
+# navml/calendars.py:992
+"{year} before ROC" = "{year} לפני מינגו"
+# navml/calendars.py:1311, navml/calendars.py:1691
+"New moon" = "מולד"
+# navml/calendars.py:1468
+"{element} {animal} year" = "שנת {animal} {element}"
+# navml/calendars.py:1677
+"Asalha Puja" = "אסאלהה פוג׳ה"
+# navml/calendars.py:830, navml/calendars.py:1449
+"Leap {number}" = "מעובר {number}"
+# navml/calendars.py:991
+"ROC {year}" = "מינגו {year}"
+# navml/calendars.py:1467
+"Day {number} is skipped" = "היום ה-{number} מושמט"
+# navml/calendars.py:1679
+"Magha Puja" = "מאגהה פוג׳ה"
+# navml/calendars.py:1315
+"Myanmar New Year's Day, {year} ME" = "ראש השנה של מיאנמר, {year} ME"
+# navml/calendars.py:1681
+"Vesak" = "וסאק"
+# navml/calendars.py:1683
+"Magha Puja (Cambodia)" = "מאגהה פוג׳ה (קמבודיה)"
+# navml/calendars.py:1685
+"Magha Puja (Thailand, Laos)" = "מאגהה פוג׳ה (תאילנד, לאוס)"
+# navml/calendars.py:1687
+"Vesak (Cambodia)" = "וסאק (קמבודיה)"
+# navml/calendars.py:1689
+"Vesak (Thailand, Laos)" = "וסאק (תאילנד, לאוס)"
 # navml/commands.py:30, navml/widgets/window/window.py:275
 "Close" = "סגור"
 # navml/commands.py:36, navml/widgets/window/window.py:277
@@ -88,105 +652,89 @@ direction = "rtl"
 "White" = "לבן"
 # navml/widgets/dialog/color_selector/color_selector.py:166
 " Text " = " טקסט "
-# navml/widgets/dialog/commands.py:25
+# navml/widgets/dialog/commands.py:27
 "OK" = "אישור"
-# navml/widgets/dialog/commands.py:39
+# navml/widgets/dialog/commands.py:41
 "Next tab" = "הכרטיסייה הבאה"
-# navml/widgets/dialog/commands.py:45
+# navml/widgets/dialog/commands.py:47
 "Previous tab" = "הכרטיסייה הקודמת"
-# navml/widgets/dialog/commands.py:58
+# navml/widgets/dialog/commands.py:60
 "Search" = "חיפוש"
-# navml/widgets/dialog/commands.py:76
+# navml/widgets/dialog/commands.py:78
 "Cut" = "גזור"
-# navml/widgets/dialog/commands.py:82
+# navml/widgets/dialog/commands.py:84
 "Copy" = "העתק"
-# navml/widgets/dialog/commands.py:88
+# navml/widgets/dialog/commands.py:90
 "Paste" = "הדבק"
-# navml/widgets/dialog/commands.py:94
+# navml/widgets/dialog/commands.py:96
 "Clear" = "נקה"
-# navml/widgets/dialog/commands.py:104
+# navml/widgets/dialog/commands.py:106
 "Select all" = "בחר הכל"
-# navml/widgets/dialog/commands.py:117
+# navml/widgets/dialog/commands.py:119
 "Previous month" = "החודש הקודם"
-# navml/widgets/dialog/commands.py:123
+# navml/widgets/dialog/commands.py:125, navml/widgets/dialog/date_button/date_button.py:422
 "Next month" = "החודש הבא"
-# navml/widgets/dialog/commands.py:129
+# navml/widgets/dialog/commands.py:131
 "Previous year" = "השנה הקודמת"
-# navml/widgets/dialog/commands.py:135
+# navml/widgets/dialog/commands.py:137
 "Next year" = "השנה הבאה"
-# navml/widgets/dialog/commands.py:141
+# navml/widgets/dialog/commands.py:143
 "Choose month" = "בחר חודש"
-# navml/widgets/dialog/commands.py:147
+# navml/widgets/dialog/commands.py:149
 "Choose year" = "בחר שנה"
-# navml/widgets/dialog/commands.py:153
+# navml/widgets/dialog/commands.py:155
 "Go to current date" = "עבור לתאריך הנוכחי"
-# navml/widgets/dialog/date_button/date_button.py:86
-"January" = "ינואר"
-# navml/widgets/dialog/date_button/date_button.py:86
-"February" = "פברואר"
-# navml/widgets/dialog/date_button/date_button.py:86
-"March" = "מרץ"
-# navml/widgets/dialog/date_button/date_button.py:86
-"April" = "אפריל"
-# navml/widgets/dialog/date_button/date_button.py:86
-"May" = "מאי"
-# navml/widgets/dialog/date_button/date_button.py:86
-"June" = "יוני"
-# navml/widgets/dialog/date_button/date_button.py:87
-"July" = "יולי"
-# navml/widgets/dialog/date_button/date_button.py:87
-"August" = "אוגוסט"
-# navml/widgets/dialog/date_button/date_button.py:87
-"September" = "ספטמבר"
-# navml/widgets/dialog/date_button/date_button.py:87
-"October" = "אוקטובר"
-# navml/widgets/dialog/date_button/date_button.py:87
-"November" = "נובמבר"
-# navml/widgets/dialog/date_button/date_button.py:88
-"December" = "דצמבר"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/commands.py:164
+"Calendar system" = "סוג לוח שנה"
+# navml/widgets/dialog/commands.py:176
+"Calendar view" = "תצוגת לוח שנה"
+# navml/widgets/dialog/commands.py:186
+"Swap calendars" = "החלפת לוחות"
+# navml/widgets/dialog/date_button/date_button.py:105
 "Mo" = "ב׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "Tu" = "ג׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "We" = "ד׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "Th" = "ה׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "Fr" = "ו׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "Sa" = "ש׳"
-# navml/widgets/dialog/date_button/date_button.py:94
+# navml/widgets/dialog/date_button/date_button.py:105
 "Su" = "א׳"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Monday" = "יום שני"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Tuesday" = "יום שלישי"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Wednesday" = "יום רביעי"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Thursday" = "יום חמישי"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Friday" = "יום שישי"
-# navml/widgets/dialog/date_button/date_button.py:99
+# navml/widgets/dialog/date_button/date_button.py:110
 "Saturday" = "שבת"
-# navml/widgets/dialog/date_button/date_button.py:100
+# navml/widgets/dialog/date_button/date_button.py:111
 "Sunday" = "יום ראשון"
-# navml/widgets/dialog/date_button/date_button.py:355
+# navml/widgets/dialog/date_button/date_button.py:422
+"Prev month" = "חודש קודם"
+# navml/widgets/dialog/date_button/date_button.py:441
 "The month before" = "החודש הקודם"
-# navml/widgets/dialog/date_button/date_button.py:357
+# navml/widgets/dialog/date_button/date_button.py:443
 "The month after" = "החודש הבא"
-# navml/widgets/dialog/date_button/date_button.py:359
+# navml/widgets/dialog/date_button/date_button.py:445
 "A click chooses the month" = "לחיצה בוחרת את החודש"
-# navml/widgets/dialog/date_button/date_button.py:361
+# navml/widgets/dialog/date_button/date_button.py:447
 "A click chooses the year" = "לחיצה בוחרת את השנה"
-# navml/widgets/dialog/date_button/date_button.py:372
+# navml/widgets/dialog/date_button/date_button.py:463
 "Today" = "היום"
-# navml/widgets/dialog/date_button/date_button.py:368
+# navml/widgets/dialog/date_button/date_button.py:454
 "{weekday}, {date}, week {week}" = "{weekday}, {date}, שבוע {week}"
-# navml/widgets/dialog/date_button/date_button.py:374
+# navml/widgets/dialog/date_button/date_button.py:465
 "{n} day from today" = ["בעוד יום אחד", "בעוד יומיים", "בעוד {n} ימים"]
-# navml/widgets/dialog/date_button/date_button.py:376
+# navml/widgets/dialog/date_button/date_button.py:467
 "{n} day ago" = ["לפני יום אחד", "לפני יומיים", "לפני {n} ימים"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter מאשר, Escape סוגר."
@@ -198,11 +746,11 @@ direction = "rtl"
 "Error" = "שגיאה"
 # navml/widgets/dialog/file_list/file_list.py:200
 "Directory" = "תיקייה"
-# navml/widgets/dialog/history/history.py:265, navml/widgets/dialog/history/history.py:271, navml/widgets/dialog/tree_view/tree_view.py:529 ...
+# navml/widgets/dialog/history/history.py:266, navml/widgets/dialog/history/history.py:272, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " חיפוש: "
-# navml/widgets/dialog/history/history.py:109
+# navml/widgets/dialog/history/history.py:110
 "Choose from the list ({key})" = "בחר מהרשימה ({key})"
-# navml/widgets/dialog/history/history.py:111
+# navml/widgets/dialog/history/history.py:112
 "Earlier entries ({key})" = "רשומות קודמות ({key})"
 # navml/widgets/dialog/input_line/input_line.py:410
 "The line cannot be changed now" = "לא ניתן לשנות את השורה כעת"
@@ -222,11 +770,11 @@ direction = "rtl"
 "The line is empty" = "השורה ריקה"
 # navml/widgets/dialog/input_line/input_line.py:419
 "All of it is selected" = "הכל כבר נבחר"
-# navml/widgets/dialog/tab_view/tab_view.py:152
+# navml/widgets/dialog/tab_view/tab_view.py:153
 "Tabs" = "כרטיסיות"
-# navml/widgets/dialog/tab_view/tab_view.py:417
+# navml/widgets/dialog/tab_view/tab_view.py:418
 "Earlier tabs" = "כרטיסיות קודמות"
-# navml/widgets/dialog/tab_view/tab_view.py:417
+# navml/widgets/dialog/tab_view/tab_view.py:418
 "Later tabs" = "כרטיסיות הבאות"
 # navml/widgets/dialog/tree_view/tree_view.py:533
 "Next" = "הבא"

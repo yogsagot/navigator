@@ -1,6 +1,6 @@
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
-from navml.widgets.dialog.commands import ChooseMonth, ChooseYear, GoToToday, NextMonth, NextYear, PreviousMonth, PreviousYear
+from navml.widgets.dialog.commands import ChooseMonth, ChooseYear, GoToToday, NextMonth, NextYear, PreviousMonth, PreviousYear, SwapCalendars
 from navml.widgets.dialog.date_button import CalendarView
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
@@ -19,8 +19,30 @@ from navml.widgets.window import Window
 #: day under the cursor is spelled in *Country support*'s date format, as a
 #: date line's drop-down spells it in the line's (bound in ``__init__``).
 #: Esc closes it.
+#:
+#: **The month can be in another calendar** (``navml.calendars``: Julian,
+#: Hebrew, Islamic, Persian, Indian national, Ethiopian, Coptic), paged and
+#: picked in its own months and years, the Gregorian day still spelled under
+#: them -- not TVDEMO's, whose month was Gregorian only; asked for with the
+#: Hebrew, Arabic, Chinese and Japanese catalogues.  Which one is *Calendar
+#: system*'s choice on the menu, else *Country support*'s (``[country]
+#: calendar``, the language's own by default).  *View* says what of it is shown
+#: beside the Gregorian (``[country] calendar_view`` by default): its month
+#: alone, the day spelled in it under the Gregorian month, its month with the
+#: Gregorian day spelled under, or the two months side by side, the calendar
+#: on the left and the Gregorian on the right, one day under both cursors.  ``C`` swaps the month between
+#: the calendar and the Gregorian (not beside each other, where both show).  Its month alone, or the two,
+#: spell nothing under them: the grids already say the day.
 CalendarWindow(Window):
     title: "Calendar"
+    #: The calendar the menu chose, a key of ``navml.calendars.SYSTEMS``;
+    #: empty, *Country support*'s.
+    property chosen: ""
+    #: What of it is shown, a ``CountryData.VIEWS`` key; empty, *Country
+    #: support*'s.
+    property display: ""
+    #: *Selected calendar only* swapped by ``C`` to the Gregorian alone.
+    property swapped: False
     zoomable: False
     resizable: False
 
@@ -30,6 +52,8 @@ CalendarWindow(Window):
         escape: CloseWindow
         t: GoToToday
         shift+t: GoToToday
+        c: SwapCalendars
+        shift+c: SwapCalendars
 
     CalendarView:
         id: month
@@ -38,6 +62,17 @@ CalendarWindow(Window):
         width: 22
         height: 9
         can_focus: True
+
+    #: The Gregorian month beside the calendar system's, in *View*'s *Both
+    #: months*; on the same day as ``month``, which the window keeps.
+    CalendarView:
+        id: other
+        x: 27
+        y: 1
+        width: 22
+        height: 9
+        can_focus: True
+        visible: False
 
     Button:
         id: today_button
@@ -87,6 +122,20 @@ CalendarWindow(Window):
             text: 'Go to current ~d~ate'
             command: GoToToday
             key: 'T'
+        MenuItem:
+            text: 'S~w~ap calendars'
+            command: SwapCalendars
+            key: 'C'
+        MenuLine:
+        #: Filled from ``navml.calendars.SYSTEMS`` in ``__init__``, so a
+        #: calendar added there is offered here.
+        SubMenu:
+            id: system_menu
+            text: 'Calendar ~s~ystem'
+        #: Filled in ``__init__`` too, from ``VIEWS``.
+        SubMenu:
+            id: view_menu
+            text: 'Calendar ~v~iew'
         MenuLine:
         MenuItem:
             text: '~C~lose'

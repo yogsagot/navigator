@@ -10,6 +10,8 @@ clipboard's four, which an input line and the editor both answer.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from navkit.commands import Command
 
 
@@ -153,6 +155,37 @@ class GoToToday(Command):
     title = "Go to current date"
 
 
+@dataclass(frozen=True, slots=True)
+class SetCalendarSystem(Command):
+    """The calendar the month is shown in, by its key in
+    ``navml.calendars.SYSTEMS``.  Not TVDEMO's, whose calendar was Gregorian
+    only; answered by whatever holds the view (Navigator's *Calendar* window)."""
+
+    title = "Calendar system"
+
+    calendar: str = "gregorian"
+
+
+@dataclass(frozen=True, slots=True)
+class SetCalendarView(Command):
+    """What the *Calendar* window shows of its calendar system, beside the
+    Gregorian: ``only`` its month, ``gregorian_grid`` the Gregorian month with
+    the day spelled in it, ``selected_grid`` its month with the Gregorian day
+    spelled, ``both`` the two months side by side.  Not TVDEMO's either."""
+
+    title = "Calendar view"
+
+    view: str = "selected_grid"
+
+
+@dataclass(frozen=True, slots=True)
+class SwapCalendars(Command):
+    """The month in the Gregorian instead of the calendar system, or back --
+    the *Calendar* window's ``C``.  Not TVDEMO's either."""
+
+    title = "Swap calendars"
+
+
 __all__ = [
     "Cancel",
     "ChooseMonth",
@@ -173,5 +206,8 @@ __all__ = [
     "SelectAll",
     "SelectNext",
     "SelectPrevious",
+    "SetCalendarSystem",
+    "SetCalendarView",
+    "SwapCalendars",
 ]
 

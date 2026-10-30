@@ -13,7 +13,7 @@ import datetime
 import time
 from functools import lru_cache
 
-from navkit.i18n import tr
+from navkit.i18n import LOCALE, tr
 from navkit.screen import char_width
 
 from navml.widgets.dialog.masked_line import mask_for, spans
@@ -55,9 +55,43 @@ def typed_time_format(section: CountryData | None = None) -> str:
     return "%I:%M:%S%p" if twelve_hours(section) else "%H:%M:%S"
 
 
+#: The day of the week each ``first_day`` is, as ``calendar`` counts.
+WEEKDAYS = {"monday": 0, "sunday": 6, "saturday": 5}
+
+#: What ``calendar = auto`` is in a language whose own calendar it is, by
+#: language and region first (Taiwan's Chinese is the ROC's), then language;
+#: any other language's is the Gregorian.
+LANGUAGE_CALENDARS = {
+    "he": "hebrew", "ar": "ummalqura", "zh": "chinese", "zh_TW": "roc", "ko": "korean", "vi": "vietnamese",
+    "ja": "japanese", "th": "thai",
+    "fa": "persian", "bn": "bengali", "ne": "nepali", "am": "ethiopian", "tr": "diyanet", "id": "mabims_id",
+    "ms": "mabims_my", "my": "burmese", "bo": "tibetan", "dz": "tibetan", "km": "chhankitek", "lo": "chhankitek",
+    "ps": "afghan", "prs": "afghan", "fa_AF": "afghan",
+}
+
+
 def first_weekday(section: CountryData | None = None) -> int:
-    """The first column of a calendar, as ``calendar`` counts: 0 Monday, 6 Sunday."""
-    return 6 if (section or SETTINGS.country).first_day == "sunday" else 0
+    """The first column of a calendar, as ``calendar`` counts: 0 Monday,
+    5 Saturday, 6 Sunday."""
+    return WEEKDAYS.get((section or SETTINGS.country).first_day, 0)
+
+
+def calendar_system(section: CountryData | None = None) -> str:
+    """The calendar Utilities > Calendar shows its month in, a key of
+    ``navml.calendars.SYSTEMS``: the chosen one, or for ``auto`` the
+    language's -- read each call, so a bound value follows a change of
+    language."""
+    chosen = (section or SETTINGS.country).calendar
+    if chosen != "auto":
+        return chosen
+    code = LOCALE.code.replace("-", "_")
+    return LANGUAGE_CALENDARS.get(code) or LANGUAGE_CALENDARS.get(code.split("_")[0], "gregorian")
+
+
+def calendar_view(section: CountryData | None = None) -> str:
+    """What Utilities > Calendar shows of its calendar beside the Gregorian,
+    one of ``CountryData.VIEWS``."""
+    return (section or SETTINGS.country).calendar_view
 
 
 def twelve_hours(section: CountryData | None = None) -> bool:
@@ -141,5 +175,5 @@ def _stamp_width(format: str, twelve: bool) -> int:
     return widest
 
 
-__all__ = ["PRESETS", "date_format", "date_text", "first_weekday", "format_date", "format_time", "stamp", "stamp_in", "stamp_width", "time_text", "twelve_hours",
+__all__ = ["PRESETS", "date_format", "date_text", "calendar_system", "calendar_view", "first_weekday", "format_date", "format_time", "stamp", "stamp_in", "stamp_width", "time_text", "twelve_hours",
            "typed_date_format", "typed_time_format"]

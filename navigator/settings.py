@@ -872,7 +872,16 @@ class CountryData(Section):
 
     DATES: ClassVar[tuple[str, ...]] = ("european", "us", "iso", "custom")
     TIMES: ClassVar[tuple[str, ...]] = ("24h", "12h")
-    WEEKS: ClassVar[tuple[str, ...]] = ("monday", "sunday")
+    WEEKS: ClassVar[tuple[str, ...]] = ("monday", "sunday", "saturday")
+    #: What Utilities > Calendar shows of its calendar beside the Gregorian
+    #: (``navml``'s ``SetCalendarView``).
+    VIEWS: ClassVar[tuple[str, ...]] = ("only", "gregorian_grid", "selected_grid", "both")
+    #: ``auto``, then ``navml.calendars.SYSTEMS``' keys.
+    CALENDARS: ClassVar[tuple[str, ...]] = (
+        "auto", "gregorian", "julian", "hebrew", "islamic", "ummalqura", "diyanet", "mabims_id", "mabims_my",
+        "chinese", "korean", "vietnamese", "japanese", "thai", "roc", "burmese", "chhankitek", "tibetan",
+        "persian", "afghan", "indian", "bengali", "nepali", "badi", "ethiopian", "coptic",
+    )
 
     #: DN's default order (Day-Month-Year), with a four-digit year.
     date_format: str = Setting(
@@ -885,6 +894,24 @@ class CountryData(Section):
     time_format: str = Setting("24h", choices=TIMES, doc="A file's time and the clock: 24 or 12 hours")
     #: Not DN's, which had no calendar: ISO's Monday, as navml's calendar began.
     first_day: str = Setting("monday", choices=WEEKS, doc="The day a calendar's week starts on")
+    #: Not DN's either: the calendar Utilities > Calendar shows its month in
+    #: (``navml.calendars``); ``auto`` is the language's.
+    calendar: str = Setting(
+        "auto", choices=CALENDARS,
+        doc="Utilities > Calendar's calendar system: auto (the language's own, else Gregorian), gregorian, "
+            "julian, hebrew, islamic (tabular), ummalqura, diyanet, mabims_id, mabims_my, chinese, korean, "
+            "vietnamese, japanese, thai, roc, burmese, chhankitek, tibetan, persian, afghan, indian, bengali, "
+            "nepali, badi, ethiopian or coptic",
+    )
+    #: And how: its month alone, the Gregorian month with the day spelled in
+    #: it, its month with the Gregorian day spelled under (as it began), or
+    #: the two months side by side.
+    calendar_view: str = Setting(
+        "selected_grid", choices=VIEWS,
+        doc="What Utilities > Calendar shows beside the Gregorian: only (the calendar system alone), "
+            "gregorian_grid (the Gregorian month, the day spelled in the calendar system), selected_grid "
+            "(the calendar system's month, the Gregorian day spelled), or both (the two months side by side)",
+    )
 
 
 class TetrisData(Section):

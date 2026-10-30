@@ -50,157 +50,157 @@ direction = "rtl"
 "Edit new file" = "עריכת קובץ חדש"
 # navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:18, navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:22, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:243 ...
 "~F~ile name" = "שם ~ק~ובץ"
-# navigator/widgets/editor/edit_window/edit_window.nml:135
-"~E~ditor" = "~ע~ורך"
 # navigator/widgets/editor/edit_window/edit_window.nml:136
+"~E~ditor" = "~ע~ורך"
+# navigator/widgets/editor/edit_window/edit_window.nml:137
 "Editing, the file, search, paragraphs and blocks" = "עריכה, הקובץ, חיפוש, פסקאות ובלוקים"
-# navigator/widgets/editor/edit_window/edit_window.nml:143, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.nml:144, navigator/widgets/editor/file_editor/file_editor.py:2863
 "~U~ndo" = "ב~ט~ל"
-# navigator/widgets/editor/edit_window/edit_window.nml:147, navigator/widgets/editor/file_editor/file_editor.py:2864
+# navigator/widgets/editor/edit_window/edit_window.nml:148, navigator/widgets/editor/file_editor/file_editor.py:2864
 "R~e~do" = "ח~ז~ור"
-# navigator/widgets/editor/edit_window/edit_window.nml:164
-"C~o~py to..." = "העתק ~ל~קובץ..."
 # navigator/widgets/editor/edit_window/edit_window.nml:165
+"C~o~py to..." = "העתק ~ל~קובץ..."
+# navigator/widgets/editor/edit_window/edit_window.nml:166
 "Write the block to a file" = "כתוב את הבלוק לקובץ"
-# navigator/widgets/editor/edit_window/edit_window.nml:168
-"P~a~ste from..." = "הדבק ~מ~קובץ..."
 # navigator/widgets/editor/edit_window/edit_window.nml:169
+"P~a~ste from..." = "הדבק ~מ~קובץ..."
+# navigator/widgets/editor/edit_window/edit_window.nml:170
 "Insert a file's text at the cursor" = "הכנס את טקסט הקובץ במיקום הסמן"
-# navigator/widgets/editor/edit_window/edit_window.nml:174
+# navigator/widgets/editor/edit_window/edit_window.nml:175
 "Delete the selection without copying it to the clipboard" = "מחק את הבחירה בלי להעתיק ללוח"
-# navigator/widgets/editor/edit_window/edit_window.nml:179, navigator/widgets/editor/file_editor/file_editor.py:2870
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:2870
 "~D~elete line" = "מחק ~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:184, navigator/widgets/editor/file_editor/file_editor.py:2871
+# navigator/widgets/editor/edit_window/edit_window.nml:185, navigator/widgets/editor/file_editor/file_editor.py:2871
 "Delete ~w~ord left" = "מחק מ~י~לה משמאל"
-# navigator/widgets/editor/edit_window/edit_window.nml:188
+# navigator/widgets/editor/edit_window/edit_window.nml:189
 "Insert l~i~ne" = "הוסף ש~ו~רה"
-# navigator/widgets/editor/edit_window/edit_window.nml:194, navigator/widgets/shell/main_menu/main_menu.nml:102
+# navigator/widgets/editor/edit_window/edit_window.nml:195, navigator/widgets/shell/main_menu/main_menu.nml:102
 "~F~ile" = "~ק~ובץ"
-# navigator/widgets/editor/edit_window/edit_window.nml:196
+# navigator/widgets/editor/edit_window/edit_window.nml:197
 "~O~pen..." = "~פ~תח..."
-# navigator/widgets/editor/edit_window/edit_window.nml:200, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~ש~מור"
-# navigator/widgets/editor/edit_window/edit_window.nml:204
+# navigator/widgets/editor/edit_window/edit_window.nml:205
 "Save ~a~s..." = "שמור ~ב~שם..."
-# navigator/widgets/editor/edit_window/edit_window.nml:208
+# navigator/widgets/editor/edit_window/edit_window.nml:209
 "Save a~l~l..." = "שמור ~כ~ל..."
-# navigator/widgets/editor/edit_window/edit_window.nml:213, navigator/widgets/shell/main_menu/main_menu.nml:191
+# navigator/widgets/editor/edit_window/edit_window.nml:214, navigator/widgets/shell/main_menu/main_menu.nml:191
 "~P~rint" = "~ה~דפס"
-# navigator/widgets/editor/edit_window/edit_window.nml:217
+# navigator/widgets/editor/edit_window/edit_window.nml:218
 "Print ~b~lock" = "הדפס בל~ו~ק"
-# navigator/widgets/editor/edit_window/edit_window.nml:222, navigator/widgets/shell/main_menu/main_menu.nml:249
+# navigator/widgets/editor/edit_window/edit_window.nml:223, navigator/widgets/shell/main_menu/main_menu.nml:249
 "E~x~it" = "יצי~א~ה"
-# navigator/widgets/editor/edit_window/edit_window.nml:227, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ח~יפוש"
-# navigator/widgets/editor/edit_window/edit_window.nml:229, navigator/widgets/shell/main_menu/main_menu.nml:151, navigator/widgets/editor/file_editor/file_editor.py:2874
+# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:151, navigator/widgets/editor/file_editor/file_editor.py:2874
 "~F~ind..." = "~ח~פש..."
-# navigator/widgets/editor/edit_window/edit_window.nml:233, navigator/widgets/editor/file_editor/file_editor.py:2875
+# navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2875
 "~R~eplace..." = "~ה~חלף..."
-# navigator/widgets/editor/edit_window/edit_window.nml:237
+# navigator/widgets/editor/edit_window/edit_window.nml:238
 "~S~earch again" = "חפש ~ש~וב"
-# navigator/widgets/editor/edit_window/edit_window.nml:241
+# navigator/widgets/editor/edit_window/edit_window.nml:242
 "Re~v~ersed search" = "חיפוש ~ל~אחור"
-# navigator/widgets/editor/edit_window/edit_window.nml:245
+# navigator/widgets/editor/edit_window/edit_window.nml:246
 "~G~o to line number..." = "~ע~בור לשורה מספר..."
-# navigator/widgets/editor/edit_window/edit_window.nml:250
-"~M~atching bracket" = "סוגר ~ת~ואם"
 # navigator/widgets/editor/edit_window/edit_window.nml:251
+"~M~atching bracket" = "סוגר ~ת~ואם"
+# navigator/widgets/editor/edit_window/edit_window.nml:252
 "Jump to the bracket that pairs with the one at the cursor" = "קפוץ לסוגר המתאים לזה שליד הסמן"
-# navigator/widgets/editor/edit_window/edit_window.nml:256
+# navigator/widgets/editor/edit_window/edit_window.nml:257
 "Pa~r~agraph" = "~פ~סקה"
-# navigator/widgets/editor/edit_window/edit_window.nml:258
-"~J~ustify" = "יישור ~ד~ו-צדדי"
 # navigator/widgets/editor/edit_window/edit_window.nml:259
+"~J~ustify" = "יישור ~ד~ו-צדדי"
+# navigator/widgets/editor/edit_window/edit_window.nml:260
 "Justify the block's paragraph to both margins" = "ישר את פסקת הבלוק לשני השוליים"
-# navigator/widgets/editor/edit_window/edit_window.nml:263
+# navigator/widgets/editor/edit_window/edit_window.nml:264
 "~R~ight" = "~י~מין"
-# navigator/widgets/editor/edit_window/edit_window.nml:267
+# navigator/widgets/editor/edit_window/edit_window.nml:268
 "~L~eft" = "~ש~מאל"
-# navigator/widgets/editor/edit_window/edit_window.nml:271
+# navigator/widgets/editor/edit_window/edit_window.nml:272
 "~C~enter" = "~מ~רכז"
-# navigator/widgets/editor/edit_window/edit_window.nml:276
+# navigator/widgets/editor/edit_window/edit_window.nml:277
 "~M~argins..." = "ש~ו~ליים..."
-# navigator/widgets/editor/edit_window/edit_window.nml:280, navigator/widgets/editor/edit_window/edit_window.nml:365, navigator/widgets/editor/edit_window/edit_window.nml:380 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:281, navigator/widgets/editor/edit_window/edit_window.nml:366, navigator/widgets/editor/edit_window/edit_window.nml:381 ...
 "~B~lock" = "~ב~לוק"
-# navigator/widgets/editor/edit_window/edit_window.nml:282
+# navigator/widgets/editor/edit_window/edit_window.nml:283
 "~M~ove" = "ה~ע~בר"
-# navigator/widgets/editor/edit_window/edit_window.nml:290
+# navigator/widgets/editor/edit_window/edit_window.nml:291
 "~I~ndent" = "ה~ז~ח"
-# navigator/widgets/editor/edit_window/edit_window.nml:294
+# navigator/widgets/editor/edit_window/edit_window.nml:295
 "~U~nindent" = "~ב~טל הזחה"
-# navigator/widgets/editor/edit_window/edit_window.nml:299
-"~H~ide/show block" = "הס~ת~ר/הצג בלוק"
 # navigator/widgets/editor/edit_window/edit_window.nml:300
+"~H~ide/show block" = "הס~ת~ר/הצג בלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:301
 "Hide the marked block, or show it again" = "הסתר את הבלוק המסומן, או הצג אותו שוב"
-# navigator/widgets/editor/edit_window/edit_window.nml:305
+# navigator/widgets/editor/edit_window/edit_window.nml:306
 "U~p~percase" = "~א~ותיות גדולות"
-# navigator/widgets/editor/edit_window/edit_window.nml:309, navigator/widgets/editor/edit_window/edit_window.nml:370
+# navigator/widgets/editor/edit_window/edit_window.nml:310, navigator/widgets/editor/edit_window/edit_window.nml:371
 "~L~owercase" = "א~ו~תיות קטנות"
-# navigator/widgets/editor/edit_window/edit_window.nml:313
+# navigator/widgets/editor/edit_window/edit_window.nml:314
 "Capi~t~alize" = "~ר~אשית גדולה"
-# navigator/widgets/editor/edit_window/edit_window.nml:318
-"~S~ort" = "~מ~יין"
 # navigator/widgets/editor/edit_window/edit_window.nml:319
+"~S~ort" = "~מ~יין"
+# navigator/widgets/editor/edit_window/edit_window.nml:320
 "Sort the lines by the column block" = "מיין את השורות לפי בלוק העמודה"
-# navigator/widgets/editor/edit_window/edit_window.nml:324
-"C~a~lculate sum" = "~ח~שב סכום"
 # navigator/widgets/editor/edit_window/edit_window.nml:325
+"C~a~lculate sum" = "~ח~שב סכום"
+# navigator/widgets/editor/edit_window/edit_window.nml:326
 "Add up the column block's numbers; the sum goes to the clipboard" = "חבר את מספרי בלוק העמודה; הסכום עובר ללוח"
-# navigator/widgets/editor/edit_window/edit_window.nml:330
+# navigator/widgets/editor/edit_window/edit_window.nml:331
 "~M~isc" = "שונו~ת~"
-# navigator/widgets/editor/edit_window/edit_window.nml:332
+# navigator/widgets/editor/edit_window/edit_window.nml:333
 "Insert ~d~ate" = "הוסף ~ת~אריך"
-# navigator/widgets/editor/edit_window/edit_window.nml:336
+# navigator/widgets/editor/edit_window/edit_window.nml:337
 "Insert ~t~ime" = "הוסף ~ש~עה"
-# navigator/widgets/editor/edit_window/edit_window.nml:340
+# navigator/widgets/editor/edit_window/edit_window.nml:341
 "Du~p~licate line" = "שכ~פ~ל שורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:344, navigator/widgets/shell/main_menu/main_menu.nml:290
+# navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:290
 "Character ta~b~le" = "~ט~בלת תווים"
-# navigator/widgets/editor/edit_window/edit_window.nml:348
-"Line Dra~w~ing" = "~צ~יור קווים"
 # navigator/widgets/editor/edit_window/edit_window.nml:349
+"Line Dra~w~ing" = "~צ~יור קווים"
+# navigator/widgets/editor/edit_window/edit_window.nml:350
 "Draw lines with the arrow keys: off, single, double" = "צייר קווים עם מקשי החצים: כבוי, יחיד, כפול"
-# navigator/widgets/editor/edit_window/edit_window.nml:355
+# navigator/widgets/editor/edit_window/edit_window.nml:356
 "~U~ppercase" = "~א~ותיות גדולות"
-# navigator/widgets/editor/edit_window/edit_window.nml:357, navigator/widgets/editor/edit_window/edit_window.nml:372, navigator/widgets/editor/edit_window/edit_window.nml:387
+# navigator/widgets/editor/edit_window/edit_window.nml:358, navigator/widgets/editor/edit_window/edit_window.nml:373, navigator/widgets/editor/edit_window/edit_window.nml:388
 "~W~ord" = "~מ~ילה"
-# navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:376, navigator/widgets/editor/edit_window/edit_window.nml:391
+# navigator/widgets/editor/edit_window/edit_window.nml:362, navigator/widgets/editor/edit_window/edit_window.nml:377, navigator/widgets/editor/edit_window/edit_window.nml:392
 "~L~ine" = "~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:385, navigator/widgets/editor/file_editor/file_editor.py:2883
+# navigator/widgets/editor/edit_window/edit_window.nml:386, navigator/widgets/editor/file_editor/file_editor.py:2883
 "~C~apitalize" = "~ר~אשית גדולה"
-# navigator/widgets/editor/edit_window/edit_window.nml:400
+# navigator/widgets/editor/edit_window/edit_window.nml:401
 "Optio~n~s" = "~א~פשרויות"
-# navigator/widgets/editor/edit_window/edit_window.nml:402
-"~B~ackspace indents" = "~ה~זחה ב-Backspace"
 # navigator/widgets/editor/edit_window/edit_window.nml:403
+"~B~ackspace indents" = "~ה~זחה ב-Backspace"
+# navigator/widgets/editor/edit_window/edit_window.nml:404
 "Backspace at a line's start goes back to an indent above" = "Backspace בתחילת שורה חוזר להזחה שמעל"
-# navigator/widgets/editor/edit_window/edit_window.nml:406
+# navigator/widgets/editor/edit_window/edit_window.nml:407
 "AutoB~r~ackets" = "~ס~וגריים אוטומטיים"
-# navigator/widgets/editor/edit_window/edit_window.nml:409
+# navigator/widgets/editor/edit_window/edit_window.nml:410
 "Auto~i~ndent" = "הזחה ~א~וטומטית"
-# navigator/widgets/editor/edit_window/edit_window.nml:412
+# navigator/widgets/editor/edit_window/edit_window.nml:413
 "~A~uto wrap" = "~ג~לישת שורות אוטומטית"
-# navigator/widgets/editor/edit_window/edit_window.nml:415, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:416, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~J~ustify on wrap" = "ייש~ו~ר בגלישה"
-# navigator/widgets/editor/edit_window/edit_window.nml:416
+# navigator/widgets/editor/edit_window/edit_window.nml:417
 "Widen a wrapped line to the margin" = "הרחב שורה שנגלשה עד השוליים"
-# navigator/widgets/editor/edit_window/edit_window.nml:419, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:420, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "~V~ertical blocks" = "בלוקים אנ~כ~יים"
-# navigator/widgets/editor/edit_window/edit_window.nml:420
+# navigator/widgets/editor/edit_window/edit_window.nml:421
 "Mark column blocks instead of line ones" = "סמן בלוקי עמודות במקום בלוקי שורות"
-# navigator/widgets/editor/edit_window/edit_window.nml:423, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
+# navigator/widgets/editor/edit_window/edit_window.nml:424, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:34
 "Opti~m~al fill" = "מ~י~לוי מיטבי"
-# navigator/widgets/editor/edit_window/edit_window.nml:424
+# navigator/widgets/editor/edit_window/edit_window.nml:425
 "Write blanks as tabs where they reach a tab stop" = "כתוב רווחים כטאבים היכן שהם מגיעים לעצירת טאב"
-# navigator/widgets/editor/edit_window/edit_window.nml:427
+# navigator/widgets/editor/edit_window/edit_window.nml:428
 "Current ~l~ine highlight" = "הדגשת ~ש~ורה נוכחית"
-# navigator/widgets/editor/edit_window/edit_window.nml:430
+# navigator/widgets/editor/edit_window/edit_window.nml:431
 "Current ~c~olumn highlight" = "הדגשת ~ע~מודה נוכחית"
-# navigator/widgets/editor/edit_window/edit_window.nml:433
+# navigator/widgets/editor/edit_window/edit_window.nml:434
 "Syntax ~h~ighlight" = "הדגשת ~ת~חביר"
-# navigator/widgets/editor/edit_window/edit_window.nml:437
+# navigator/widgets/editor/edit_window/edit_window.nml:438
 "Show hi~d~den characters" = "הצג תווים ~נ~סתרים"
-# navigator/widgets/editor/edit_window/edit_window.nml:445
+# navigator/widgets/editor/edit_window/edit_window.nml:446
 "File t~y~pe" = "~ס~וג קובץ"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "החלפה"
@@ -368,7 +368,7 @@ direction = "rtl"
 "~G~roup" = "קב~ו~צה"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
 "~D~ate" = "~ת~אריך"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "~ש~עה"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:187
 "ACL" = "ACL"
@@ -440,7 +440,7 @@ direction = "rtl"
 "~R~ecurse" = "~ר~קורסיבי"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "לא"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:78 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:78, navigator/widgets/file_ops/count_progress/count_progress.py:81 ...
 "Files" = "קבצים"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "תיקיות"
@@ -702,7 +702,7 @@ direction = "rtl"
 "Pre~v~iew" = "~ת~צוגה מקדימה"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "הצג את הצורה הבאה"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:141, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
 "~C~lose" = "~ס~גור"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "עשרת השיאים של Pentix"
@@ -992,43 +992,43 @@ direction = "rtl"
 "~E~xcept mask" = "~ח~וץ מהמסכה"
 # navigator/widgets/manager/select_dialog/select_dialog.nml:48
 "Select what the mask does not match" = "בחר את מה שהמסכה אינה תואמת"
-# navigator/widgets/manager/sync_window/sync_window.nml:36, navigator/widgets/manager/manager/manager.py:2058, navigator/widgets/manager/sync_window/sync_window.py:152
+# navigator/widgets/manager/sync_window/sync_window.nml:37, navigator/widgets/manager/manager/manager.py:2058, navigator/widgets/manager/sync_window/sync_window.py:152
 "Synchronize" = "סנכרון"
-# navigator/widgets/manager/sync_window/sync_window.nml:76, navigator/widgets/manager/sync_window/sync_window.nml:158
-"Show ~i~dentical" = "הצג ~ז~הים"
 # navigator/widgets/manager/sync_window/sync_window.nml:77, navigator/widgets/manager/sync_window/sync_window.nml:159
+"Show ~i~dentical" = "הצג ~ז~הים"
+# navigator/widgets/manager/sync_window/sync_window.nml:78, navigator/widgets/manager/sync_window/sync_window.nml:160
 "List the files that are the same on both sides too" = "הצג גם את הקבצים הזהים בשני הצדדים"
-# navigator/widgets/manager/sync_window/sync_window.nml:86, navigator/widgets/manager/sync_window/sync_window.nml:162, navigator/widgets/manager/sync_window/sync_window.py:316
+# navigator/widgets/manager/sync_window/sync_window.nml:87, navigator/widgets/manager/sync_window/sync_window.nml:163, navigator/widgets/manager/sync_window/sync_window.py:316
 "~T~ree view" = "~ת~צוגת עץ"
-# navigator/widgets/manager/sync_window/sync_window.nml:87, navigator/widgets/manager/sync_window/sync_window.nml:163
+# navigator/widgets/manager/sync_window/sync_window.nml:88, navigator/widgets/manager/sync_window/sync_window.nml:164
 "Show the rows under their directories, as a tree" = "הצג את השורות תחת התיקיות שלהן, כעץ"
-# navigator/widgets/manager/sync_window/sync_window.nml:98, navigator/widgets/manager/sync_window/sync_window.nml:116, navigator/widgets/manager/sync_window/sync_window.nml:120 ...
+# navigator/widgets/manager/sync_window/sync_window.nml:99, navigator/widgets/manager/sync_window/sync_window.nml:117, navigator/widgets/manager/sync_window/sync_window.nml:121 ...
 "~S~ynchronize" = "~ס~נכרן"
-# navigator/widgets/manager/sync_window/sync_window.nml:117
+# navigator/widgets/manager/sync_window/sync_window.nml:118
 "Choose what happens to each file, then synchronize" = "בחר מה יקרה לכל קובץ, ואז סנכרן"
-# navigator/widgets/manager/sync_window/sync_window.nml:123, navigator/widgets/manager/sync_window/sync_window.py:308
+# navigator/widgets/manager/sync_window/sync_window.nml:124, navigator/widgets/manager/sync_window/sync_window.py:308
 "~C~ompare files" = "השווה ~ק~בצים"
-# navigator/widgets/manager/sync_window/sync_window.nml:127, navigator/widgets/manager/sync_window/sync_window.py:310
+# navigator/widgets/manager/sync_window/sync_window.nml:128, navigator/widgets/manager/sync_window/sync_window.py:310
 "Copy ~r~ight" = "העתק ~י~מינה"
-# navigator/widgets/manager/sync_window/sync_window.nml:130, navigator/widgets/manager/sync_window/sync_window.py:311
+# navigator/widgets/manager/sync_window/sync_window.nml:131, navigator/widgets/manager/sync_window/sync_window.py:311
 "Copy ~l~eft" = "העתק ~ש~מאלה"
-# navigator/widgets/manager/sync_window/sync_window.nml:136, navigator/widgets/manager/sync_window/sync_window.py:313
+# navigator/widgets/manager/sync_window/sync_window.nml:137, navigator/widgets/manager/sync_window/sync_window.py:313
 "S~k~ip" = "~ד~לג"
-# navigator/widgets/manager/sync_window/sync_window.nml:139, navigator/widgets/manager/sync_window/sync_window.py:314
+# navigator/widgets/manager/sync_window/sync_window.nml:140, navigator/widgets/manager/sync_window/sync_window.py:314
 "D~e~fault action" = "פ~ע~ולת ברירת מחדל"
-# navigator/widgets/manager/sync_window/sync_window.nml:140
+# navigator/widgets/manager/sync_window/sync_window.nml:141
 "Give the row back the action the comparison chose" = "החזר לשורה את הפעולה שההשוואה בחרה"
-# navigator/widgets/manager/sync_window/sync_window.nml:144
+# navigator/widgets/manager/sync_window/sync_window.nml:145
 "~A~ll right" = "~ה~כל ימינה"
-# navigator/widgets/manager/sync_window/sync_window.nml:147
+# navigator/widgets/manager/sync_window/sync_window.nml:148
 "All le~f~t" = "הכל שמא~ל~ה"
-# navigator/widgets/manager/sync_window/sync_window.nml:150
-"All defa~u~lt" = "הכל ל~ב~רירת מחדל"
 # navigator/widgets/manager/sync_window/sync_window.nml:151
+"All defa~u~lt" = "הכל ל~ב~רירת מחדל"
+# navigator/widgets/manager/sync_window/sync_window.nml:152
 "Give every row back the action the comparison chose" = "החזר לכל שורה את הפעולה שההשוואה בחרה"
-# navigator/widgets/manager/sync_window/sync_window.nml:155
+# navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "השווה מ~ח~דש"
-# navigator/widgets/manager/sync_window/sync_window.nml:167, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
 "Cl~o~se" = "סג~ו~ר"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "צבעים"
@@ -1062,7 +1062,7 @@ direction = "rtl"
 "Date" = "תאריך"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "~ח~פש קבצים"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2707, navigator/widgets/manager/sync_list/sync_list.py:459
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2708, navigator/widgets/manager/sync_list/sync_list.py:459
 "Path" = "נתיב"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "~א~רכיונים"
@@ -1124,29 +1124,35 @@ direction = "rtl"
 "Delete ~b~ookmark" = "מחיקת ~ס~ימנייה"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Close command ~w~indow" = "סגירת ~ח~לון פקודה"
-# navigator/widgets/setup/country_page/country_page.nml:27
+# navigator/widgets/setup/country_page/country_page.nml:28
 "~D~ate format" = "תבנית ~ת~אריך"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~E~uropean  DD-MM-YYYY" = "~א~ירופי    DD-MM-YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~U~S        MM/DD/YYYY" = "אמ~ר~יקאי   MM/DD/YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~I~SO       YYYY-MM-DD" = "~I~SO       YYYY-MM-DD"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~C~ustom" = "~מ~ותאם"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~1~2 hour" = "~1~2 שעות"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~2~4 hour" = "~2~4 שעות"
-# navigator/widgets/setup/country_page/country_page.nml:62
+# navigator/widgets/setup/country_page/country_page.nml:63
 "~W~eek starts" = "ש~ב~וע מתחיל"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~M~onday" = "~י~ום שני"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~S~unday" = "יו~ם~ ראשון"
-# navigator/widgets/setup/country_page/country_page.nml:79
+# navigator/widgets/setup/country_page/country_page.nml:72
+"S~a~turday" = "יום ~ה~שבת"
+# navigator/widgets/setup/country_page/country_page.nml:82
+"Ca~l~endar system" = "סוג ~ל~וח שנה"
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+"Calendar ~v~iew" = "ת~צ~וגת לוח שנה"
+# navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "תבנית מ~ו~תאמת"
-# navigator/widgets/setup/country_page/country_page.nml:91
+# navigator/widgets/setup/country_page/country_page.nml:115
 "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's" = "הנחיות strftime: %d יום, %m חודש, %y או %Y שנה,\n%b או %B שם החודש, %a או %A היום בשבוע"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:20
 "Items to display" = "פריטים להצגה"
@@ -1200,7 +1206,7 @@ direction = "rtl"
 "Viewer options" = "אפשרויות מציג"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "מצב ~ה~קס"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:142, navigator/widgets/viewer/file_viewer/file_viewer.py:931
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:143, navigator/widgets/viewer/file_viewer/file_viewer.py:931
 "~W~rap lines" = "~ג~לישת שורות"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "סרג~ל~ אפשרויות"
@@ -1534,26 +1540,30 @@ direction = "rtl"
 "The value in scientific notation" = "הערך בכתיב מדעי"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:132
 "E~v~aluate" = "~ח~שב"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "לוח שנה"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:44, navigator/widgets/shell/calendar_window/calendar_window.nml:87, navigator/widgets/shell/calendar_window/calendar_window.py:115
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Go to current ~d~ate" = "עבור ל~ת~אריך הנוכחי"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:57
+# navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "~ל~וח שנה"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:58
+# navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "מעבר בין חודשים ושנים"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:61, navigator/widgets/shell/calendar_window/calendar_window.py:107
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
 "~P~revious month" = "חודש ~ק~ודם"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:65, navigator/widgets/shell/calendar_window/calendar_window.py:108
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
 "~N~ext month" = "חודש ~ה~בא"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:69, navigator/widgets/shell/calendar_window/calendar_window.py:109
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "P~r~evious year" = "שנה ק~ו~דמת"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:73, navigator/widgets/shell/calendar_window/calendar_window.py:110
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "Ne~x~t year" = "שנה ~ב~אה"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:78, navigator/widgets/shell/calendar_window/calendar_window.py:112
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Choose ~m~onth..." = "בחר ~ח~ודש..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:82, navigator/widgets/shell/calendar_window/calendar_window.py:113
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
 "Choose ~y~ear..." = "בחר ~ש~נה..."
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+"S~w~ap calendars" = "החל~פ~ת לוחות"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+"Calendar ~s~ystem" = "סוג ~ל~וח שנה"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "היסטוריית פקודות"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:25
@@ -1636,7 +1646,7 @@ direction = "rtl"
 "Show or hide the trash can that files are dropped on to delete them" = "הצג או הסתר את פח האשפה שמשליכים עליו קבצים כדי למחוק אותם"
 # navigator/widgets/shell/main_menu/main_menu.nml:103
 "View, edit, copy, move, archive and delete files" = "הצג, ערוך, העתק, העבר, ארכב ומחק קבצים"
-# navigator/widgets/shell/main_menu/main_menu.nml:106, navigator/widgets/viewer/db_window/db_window.nml:51, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:106, navigator/widgets/viewer/db_window/db_window.nml:52, navigator/widgets/viewer/file_window/file_window.nml:124 ...
 "~V~iew" = "הצ~ג~ה"
 # navigator/widgets/shell/main_menu/main_menu.nml:108
 "~A~s is" = "~כ~מו שהוא"
@@ -1930,7 +1940,7 @@ direction = "rtl"
 "Main board" = "לוח אם"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:38
 "Disk drives" = "כונני דיסק"
-# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:334
+# navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:335
 "Memory" = "זיכרון"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:68
 "Other" = "אחר"
@@ -1978,79 +1988,79 @@ direction = "rtl"
 "~A~ll fields" = "~כ~ל השדות"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~ק~דימה"
-# navigator/widgets/viewer/db_window/db_window.nml:52
+# navigator/widgets/viewer/db_window/db_window.nml:53
 "Fields, memos, editing and search" = "שדות, תזכירים, עריכה וחיפוש"
-# navigator/widgets/viewer/db_window/db_window.nml:55, navigator/widgets/viewer/db_window/db_viewer.py:182
+# navigator/widgets/viewer/db_window/db_window.nml:56, navigator/widgets/viewer/db_window/db_viewer.py:182
 "~F~ields..." = "~ש~דות..."
-# navigator/widgets/viewer/db_window/db_window.nml:56
+# navigator/widgets/viewer/db_window/db_window.nml:57
 "The file's structure: its fields and their types" = "מבנה הקובץ: השדות שלו וסוגיהם"
-# navigator/widgets/viewer/db_window/db_window.nml:59, navigator/widgets/viewer/db_window/db_viewer.py:183
+# navigator/widgets/viewer/db_window/db_window.nml:60, navigator/widgets/viewer/db_window/db_viewer.py:183
 "~M~emo view" = "תצוגת ~ת~זכיר"
-# navigator/widgets/viewer/db_window/db_window.nml:60
+# navigator/widgets/viewer/db_window/db_window.nml:61
 "The memo text of the cell at the cursor" = "טקסט התזכיר של התא שבסמן"
-# navigator/widgets/viewer/db_window/db_window.nml:63, navigator/widgets/viewer/db_window/db_viewer.py:184
+# navigator/widgets/viewer/db_window/db_window.nml:64, navigator/widgets/viewer/db_window/db_viewer.py:184
 "~E~dit field..." = "~ע~רוך שדה..."
-# navigator/widgets/viewer/db_window/db_window.nml:67, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:68, navigator/widgets/viewer/file_window/file_window.nml:183, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
 "~S~earch..." = "~ח~יפוש..."
-# navigator/widgets/viewer/db_window/db_window.nml:70, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/db_window/db_viewer.py:187 ...
+# navigator/widgets/viewer/db_window/db_window.nml:71, navigator/widgets/viewer/file_window/file_window.nml:186, navigator/widgets/viewer/db_window/db_viewer.py:187 ...
 "Search a~g~ain" = "חפש ש~ו~ב"
-# navigator/widgets/viewer/diff_window/diff_window.nml:70
-"~C~ompare" = "~ה~שוואה"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
+"~C~ompare" = "~ה~שוואה"
+# navigator/widgets/viewer/diff_window/diff_window.nml:72
 "Step through the differences" = "מעבר בין ההבדלים"
-# navigator/widgets/viewer/diff_window/diff_window.nml:74, navigator/widgets/viewer/diff_window/diff_window.py:104
+# navigator/widgets/viewer/diff_window/diff_window.nml:75, navigator/widgets/viewer/diff_window/diff_window.py:104
 "~N~ext difference" = "ההבדל ה~ב~א"
-# navigator/widgets/viewer/diff_window/diff_window.nml:77, navigator/widgets/viewer/diff_window/diff_window.py:105
+# navigator/widgets/viewer/diff_window/diff_window.nml:78, navigator/widgets/viewer/diff_window/diff_window.py:105
 "~P~revious difference" = "ההבדל ה~ק~ודם"
-# navigator/widgets/viewer/diff_window/diff_window.nml:81, navigator/widgets/viewer/diff_window/diff_window.py:107
+# navigator/widgets/viewer/diff_window/diff_window.nml:82, navigator/widgets/viewer/diff_window/diff_window.py:107
 "~C~ompare again" = "השווה ~ש~וב"
-# navigator/widgets/viewer/file_window/file_window.nml:124
+# navigator/widgets/viewer/file_window/file_window.nml:125
 "Text, hex or dump, wrapping, filters, search and encoding" = "טקסט, הקס או Dump, גלישה, מסננים, חיפוש וקידוד"
-# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:926
+# navigator/widgets/viewer/file_window/file_window.nml:130, navigator/widgets/viewer/file_viewer/file_viewer.py:926
 "He~x~/Text/Dump" = "הקס/טקסט/~D~ump"
-# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:927
+# navigator/widgets/viewer/file_window/file_window.nml:133, navigator/widgets/viewer/file_viewer/file_viewer.py:927
 "~T~ext" = "~ט~קסט"
-# navigator/widgets/viewer/file_window/file_window.nml:135, navigator/widgets/viewer/file_viewer/file_viewer.py:928
+# navigator/widgets/viewer/file_window/file_window.nml:136, navigator/widgets/viewer/file_viewer/file_viewer.py:928
 "~H~ex" = "~ה~קס"
-# navigator/widgets/viewer/file_window/file_window.nml:138, navigator/widgets/viewer/file_viewer/file_viewer.py:929
+# navigator/widgets/viewer/file_window/file_window.nml:139, navigator/widgets/viewer/file_viewer/file_viewer.py:929
 "~D~ump" = "~ד~אמפ"
-# navigator/widgets/viewer/file_window/file_window.nml:147, navigator/widgets/viewer/file_viewer/file_viewer.py:932, navigator/widgets/viewer/quick_viewer/quick_viewer.py:106
+# navigator/widgets/viewer/file_window/file_window.nml:148, navigator/widgets/viewer/file_viewer/file_viewer.py:932, navigator/widgets/viewer/quick_viewer/quick_viewer.py:106
 "~M~arkup view" = "תצוגה מ~ע~ובדת"
-# navigator/widgets/viewer/file_window/file_window.nml:148
+# navigator/widgets/viewer/file_window/file_window.nml:149
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "הצג קובץ Markdown, reST, HTML או PDF מעובד, או את המקור שלו"
-# navigator/widgets/viewer/file_window/file_window.nml:152
+# navigator/widgets/viewer/file_window/file_window.nml:153
 "S~y~ntax highlight" = "הדגשת ~ת~חביר"
-# navigator/widgets/viewer/file_window/file_window.nml:157
+# navigator/widgets/viewer/file_window/file_window.nml:158
 "Sh~o~w hidden characters" = "הצג תווים ~נ~סתרים"
-# navigator/widgets/viewer/file_window/file_window.nml:162
+# navigator/widgets/viewer/file_window/file_window.nml:163
 "~F~ile type" = "סוג קוב~ץ~"
-# navigator/widgets/viewer/file_window/file_window.nml:166, navigator/widgets/viewer/file_viewer/file_viewer.py:933
+# navigator/widgets/viewer/file_window/file_window.nml:167, navigator/widgets/viewer/file_viewer/file_viewer.py:933
 "Fi~l~ter" = "~מ~סנן"
-# navigator/widgets/viewer/file_window/file_window.nml:167
+# navigator/widgets/viewer/file_window/file_window.nml:168
 "Hide characters: none, all but ASCII, or the control characters" = "הסתר תווים: אף אחד, כל מה שאינו ASCII, או תווי הבקרה"
-# navigator/widgets/viewer/file_window/file_window.nml:170
+# navigator/widgets/viewer/file_window/file_window.nml:171
 "~N~o filter" = "~ל~לא מסנן"
-# navigator/widgets/viewer/file_window/file_window.nml:173
-"~A~SCII filter" = "מסנן ~A~SCII"
 # navigator/widgets/viewer/file_window/file_window.nml:174
+"~A~SCII filter" = "מסנן ~A~SCII"
+# navigator/widgets/viewer/file_window/file_window.nml:175
 "Hide control characters and everything beyond ASCII" = "הסתר תווי בקרה וכל מה שמעבר ל-ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:177
-"~P~rintable filter" = "מסנ~ן~ תווים הדפסים"
 # navigator/widgets/viewer/file_window/file_window.nml:178
+"~P~rintable filter" = "מסנ~ן~ תווים הדפסים"
+# navigator/widgets/viewer/file_window/file_window.nml:179
 "Hide control characters" = "הסתר תווי בקרה"
-# navigator/widgets/viewer/file_window/file_window.nml:188
+# navigator/widgets/viewer/file_window/file_window.nml:189
 "Re~v~erse search" = "ח~י~פוש לאחור"
-# navigator/widgets/viewer/file_window/file_window.nml:191, navigator/widgets/viewer/file_viewer/file_viewer.py:937
+# navigator/widgets/viewer/file_window/file_window.nml:192, navigator/widgets/viewer/file_viewer/file_viewer.py:937
 "Go to add~r~ess..." = "מעבר ל~כ~תובת..."
-# navigator/widgets/viewer/file_window/file_window.nml:192
+# navigator/widgets/viewer/file_window/file_window.nml:193
 "Jump to an offset in the file" = "קפוץ להיסט בקובץ"
-# navigator/widgets/viewer/file_window/file_window.nml:198
+# navigator/widgets/viewer/file_window/file_window.nml:199
 "Store" = "שמירה"
-# navigator/widgets/viewer/file_window/file_window.nml:201
+# navigator/widgets/viewer/file_window/file_window.nml:202
 "Sav~e~ as..." = "שמור ~ב~שם..."
-# navigator/widgets/viewer/file_window/file_window.nml:205, navigator/widgets/viewer/file_viewer/file_viewer.py:939
+# navigator/widgets/viewer/file_window/file_window.nml:206, navigator/widgets/viewer/file_viewer/file_viewer.py:939
 "Encod~i~ng..." = "~ק~ידוד..."
-# navigator/widgets/viewer/file_window/file_window.nml:206
+# navigator/widgets/viewer/file_window/file_window.nml:207
 "The code page the file is read in" = "קוד העמוד שבו הקובץ נקרא"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "מעבר לכתובת"
@@ -2060,7 +2070,7 @@ direction = "rtl"
 "Search Progress" = "התקדמות חיפוש"
 # navigator/__main__.py:536
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "לא ניתן היה לקרוא את הלוח של שולחן העבודה, ולכן Navigator הדביק את ההעתקה האחרונה שלו. התקן xclip או xsel (X11), או wl-clipboard (Wayland), כדי לשתף את הלוח עם תוכניות אחרות."
-# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1033
+# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1037
 "A program in the console has the keys" = "תוכנית במסוף מקבלת את המקשים"
 # navigator/__main__.py:441
 "The console is over the windows: Alt-X is the program's" = "המסוף מעל החלונות: Alt-X שייך לתוכנית"
@@ -2080,7 +2090,7 @@ direction = "rtl"
 "∙ Clock" = "∙ שעון"
 # navigator/lib/appearance/savers.py:37
 "∙ Blackness" = "∙ חושך"
-# navigator/lib/config/country.py:113
+# navigator/lib/config/country.py:147
 "Last used {time}" = "שימוש אחרון {time}"
 # navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:69
 "Reading file" = "קורא קובץ"
@@ -2090,11 +2100,11 @@ direction = "rtl"
 "Its output becomes the active panel's listing" = "הפלט שלו הופך לרשימה של הפאנל הפעיל"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "רץ בחלון משלו"
-# navigator/lib/drives/listing.py:107, navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:108, navigator/lib/drives/listing.py:214
 "UP--DIR" = "למעלה"
-# navigator/lib/drives/listing.py:107, navigator/widgets/manager/sync_list/sync_list.py:314
+# navigator/lib/drives/listing.py:108, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "תיקייה"
-# navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:214
 "SUB-DIR" = "תת-תיק"
 # navigator/lib/file_ops/fileattr.py:410
 "There is no user {name}" = "אין משתמש {name}"
@@ -2184,69 +2194,69 @@ direction = "rtl"
 "plain" = "רגיל"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "אוטומטי"
-# navigator/lib/system/diskinfo.py:216
+# navigator/lib/system/diskinfo.py:217
 "File" = "קובץ"
-# navigator/lib/system/diskinfo.py:207
+# navigator/lib/system/diskinfo.py:208
 "Socket" = "שקע"
-# navigator/lib/system/diskinfo.py:209
+# navigator/lib/system/diskinfo.py:210
 "Character device" = "התקן תווים"
-# navigator/lib/system/diskinfo.py:211
+# navigator/lib/system/diskinfo.py:212
 "Block device" = "התקן בלוקים"
-# navigator/lib/system/diskinfo.py:213
+# navigator/lib/system/diskinfo.py:214
 "FIFO" = "FIFO"
-# navigator/lib/system/diskinfo.py:215
+# navigator/lib/system/diskinfo.py:216
 "Executable file" = "קובץ הרצה"
-# navigator/lib/system/diskinfo.py:202
+# navigator/lib/system/diskinfo.py:203
 "Broken symbolic link" = "קישור סמלי שבור"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:204
 "Symbolic link to a directory" = "קישור סמלי לתיקייה"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:204
 "Symbolic link to a file" = "קישור סמלי לקובץ"
-# navigator/lib/system/diskinfo.py:230, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:231, navigator/lib/appearance/palette.py
 "Current file" = "הקובץ הנוכחי"
-# navigator/lib/system/diskinfo.py:235
+# navigator/lib/system/diskinfo.py:236
 "Size: ~not counted~" = "גודל: ~לא נספר~"
-# navigator/lib/system/diskinfo.py:237
+# navigator/lib/system/diskinfo.py:238
 "Size: ~{n:,}~ byte" = ["גודל: ~{n:,}~ בית", "גודל: ~{n:,}~ בתים", "גודל: ~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:292, navigator/widgets/manager/panel/panel.py:2297
+# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2297
 "~{n:,}~ byte" = ["~{n:,}~ בית", "~{n:,}~ בתים", "~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:231
-"Name: ~{name}~" = "שם: ~{name}~"
 # navigator/lib/system/diskinfo.py:232
+"Name: ~{name}~" = "שם: ~{name}~"
+# navigator/lib/system/diskinfo.py:233
 "Type: ~{kind}~" = "סוג: ~{kind}~"
-# navigator/lib/system/diskinfo.py:285
+# navigator/lib/system/diskinfo.py:286
 "Current directory:" = "התיקייה הנוכחית:"
-# navigator/lib/system/diskinfo.py:307
+# navigator/lib/system/diskinfo.py:308
 "~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ בית בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~"]
-# navigator/lib/system/diskinfo.py:310
+# navigator/lib/system/diskinfo.py:311
 "~{n:,}~ free byte on ~{mount}~" = ["~{n:,}~ בית פנוי ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~"]
-# navigator/lib/system/diskinfo.py:325
+# navigator/lib/system/diskinfo.py:326
 "~{n:,}~ byte memory for user" = ["~{n:,}~ בית זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש"]
-# navigator/lib/system/diskinfo.py:328
+# navigator/lib/system/diskinfo.py:329
 "~{n:,}~ byte memory for Navigator" = ["~{n:,}~ בית זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator"]
-# navigator/lib/system/diskinfo.py:239
+# navigator/lib/system/diskinfo.py:240
 "Modified: ~{when}~" = "שונה: ~{when}~"
-# navigator/lib/system/diskinfo.py:241
+# navigator/lib/system/diskinfo.py:242
 "Accessed: ~{when}~" = "גישה: ~{when}~"
-# navigator/lib/system/diskinfo.py:243
+# navigator/lib/system/diskinfo.py:244
 "Changed: ~{when}~" = "שינוי מצב: ~{when}~"
-# navigator/lib/system/diskinfo.py:246
+# navigator/lib/system/diskinfo.py:247
 "Attributes: ~{attributes}~" = "מאפיינים: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:249
+# navigator/lib/system/diskinfo.py:250
 "Owner: ~{owner}~" = "בעלים: ~{owner}~"
-# navigator/lib/system/diskinfo.py:251
+# navigator/lib/system/diskinfo.py:252
 "Links: ~{links}~, inode ~{inode}~" = "קישורים: ~{links}~, inode ~{inode}~"
-# navigator/lib/system/diskinfo.py:253
+# navigator/lib/system/diskinfo.py:254
 "Link to: ~{target}~" = "קישור אל: ~{target}~"
-# navigator/lib/system/diskinfo.py:289, navigator/widgets/manager/panel/panel.py:2293
+# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2293
 "No files in this directory" = "אין קבצים בתיקייה זו"
-# navigator/lib/system/diskinfo.py:293
+# navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ קובץ, {total}", "~{n:,}~ קבצים, {total}", "~{n:,}~ קבצים, {total}"]
-# navigator/lib/system/diskinfo.py:332, navigator/widgets/manager/commands.py:219
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:219
 "Drive" = "כונן"
-# navigator/lib/system/diskinfo.py:323, navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "סך הזיכרון: ~{n:,}~K בתים"
-# navigator/lib/system/diskinfo.py:314
+# navigator/lib/system/diskinfo.py:315
 "Volume label on ~{mount}: {label}~" = "תווית אמצעי ב-~{mount}: {label}~"
 # navigator/lib/system/mediainfo.py:313
 "mono" = "מונו"
@@ -2264,27 +2274,27 @@ direction = "rtl"
 "{n} kbit/s" = "{n} קילוביט/ש׳"
 # navigator/lib/system/memory.py:75
 "Not enough memory to complete operation." = "אין די זיכרון להשלמת הפעולה."
-# navigator/lib/system/sysinfo.py:146
-"Machine type" = "סוג מחשב"
 # navigator/lib/system/sysinfo.py:147
-"CPU" = "מעבד"
+"Machine type" = "סוג מחשב"
 # navigator/lib/system/sysinfo.py:148
+"CPU" = "מעבד"
+# navigator/lib/system/sysinfo.py:149
 "CPUs" = "מעבדים"
-# navigator/lib/system/sysinfo.py:149, navigator/widgets/file_ops/count_progress/count_progress.py:82
+# navigator/lib/system/sysinfo.py:150, navigator/widgets/file_ops/count_progress/count_progress.py:85
 "Total" = "סה״כ"
-# navigator/lib/system/sysinfo.py:150
-"Available" = "זמין"
 # navigator/lib/system/sysinfo.py:151
-"Swap" = "החלפה"
+"Available" = "זמין"
 # navigator/lib/system/sysinfo.py:152
-"OS" = "מערכת הפעלה"
+"Swap" = "החלפה"
 # navigator/lib/system/sysinfo.py:153
-"Kernel" = "ליבה"
+"OS" = "מערכת הפעלה"
 # navigator/lib/system/sysinfo.py:154
-"Host" = "מארח"
+"Kernel" = "ליבה"
 # navigator/lib/system/sysinfo.py:155
+"Host" = "מארח"
+# navigator/lib/system/sysinfo.py:156
 "Up" = "פועל"
-# navigator/lib/system/sysinfo.py:163
+# navigator/lib/system/sysinfo.py:164
 "None" = "אין"
 # navigator/lib/utilities/about.py:116
 "Version {version}" = "גרסה {version}"
@@ -2320,13 +2330,13 @@ direction = "rtl"
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "אפשרויות > תצורה > שומרי מסך (TSaversDialog של DN)"
 # navigator/settings.py:871
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
-# navigator/settings.py:895
+# navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:910
-"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
 # navigator/settings.py:937
+"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
+# navigator/settings.py:964
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:953
+# navigator/settings.py:980
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -2558,7 +2568,7 @@ direction = "rtl"
 "Information" = "מידע"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1720
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1725
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
@@ -2730,23 +2740,23 @@ direction = "rtl"
 "Changes will be lost. Are you sure?" = "השינויים יאבדו. האם אתה בטוח?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done} מתוך קובץ אחד, {percent}%", "{done} מתוך {n} קבצים, {percent}%", "{done} מתוך {n} קבצים, {percent}%"]
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:47
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:49
 "no checksums in it" = "אין בו סיכומי ביקורת"
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:28
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:29
 "The {n} file is OK." = ["הקובץ תקין.", "שני הקבצים תקינים.", "כל {n} הקבצים תקינים."]
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:42
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:43
 "FAILED" = "נכשל"
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:42
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:43
 "MISSING" = "חסר"
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:42
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:43
 "UNREADABLE" = "לא קריא"
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:36
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:37
 "{n} line is not a checksum." = ["שורה אחת אינה סיכום ביקורת.", "שתי שורות אינן סיכומי ביקורת.", "{n} שורות אינן סיכומי ביקורת."]
-# navigator/widgets/file_ops/checksum_report/checksum_report.py:30
-"OK: {n}" = "תקינים: {n}"
 # navigator/widgets/file_ops/checksum_report/checksum_report.py:31
-"Failed: {n}" = "נכשלו: {n}"
+"OK: {n}" = "תקינים: {n}"
 # navigator/widgets/file_ops/checksum_report/checksum_report.py:32
+"Failed: {n}" = "נכשלו: {n}"
+# navigator/widgets/file_ops/checksum_report/checksum_report.py:33
 "Missing: {missing}    Unreadable: {unreadable}" = "חסרים: {missing}    לא קריאים: {unreadable}"
 # navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:196, navigator/widgets/shell/commands.py:109 ...
 "Tree" = "עץ"
@@ -2762,21 +2772,21 @@ direction = "rtl"
 "~R~ename or move file ~{name}~ to" = "~ש~נה שם או העבר את הקובץ ~{name}~ אל"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:52
 "~R~ename or move Directory ~{name}~ to" = "~ש~נה שם או העבר את התיקייה ~{name}~ אל"
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:47, navigator/widgets/viewer/search_progress/search_progress.py:27
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:50, navigator/widgets/viewer/search_progress/search_progress.py:27
 "~S~top" = "~ע~צור"
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:65
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:68
 "{n:,} byte ({size}, {percent}%)" = ["{n:,} בית ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)"]
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:64
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:67
 "{n:,} byte ({percent}%)" = ["{n:,} בית ({percent}%)", "{n:,} בתים ({percent}%)", "{n:,} בתים ({percent}%)"]
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:75
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:78
 "Speed {speed}/s, {time} left" = "מהירות {speed}/ש׳, נותרו {time}"
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:74
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:77
 "Speed {speed}/s" = "מהירות {speed}/ש׳"
-# navigator/widgets/file_ops/count_progress/count_progress.py:77
+# navigator/widgets/file_ops/count_progress/count_progress.py:80
 "Bytes" = "בתים"
-# navigator/widgets/file_ops/count_progress/count_progress.py:79, navigator/lib/appearance/palette.py
+# navigator/widgets/file_ops/count_progress/count_progress.py:82, navigator/lib/appearance/palette.py
 "Directories" = "תיקיות"
-# navigator/widgets/file_ops/count_progress/count_progress.py:82
+# navigator/widgets/file_ops/count_progress/count_progress.py:85
 "This directory" = "תיקייה זו"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.py:55
 "these ~{n} file~?" = ["את ~הקובץ האחד~?", "את ~שני הקבצים~?", "את ~{n} הקבצים~?"]
@@ -2882,7 +2892,7 @@ direction = "rtl"
 "~Name:~ {name}" = "~שם:~ {name}"
 # navigator/widgets/game/game_window/info.py:97
 "~Score:~ {score}" = "~ניקוד:~ {score}"
-# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2700, navigator/widgets/shell/volume_list/volume_list.py:131 ...
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2701, navigator/widgets/shell/volume_list/volume_list.py:131 ...
 "Name" = "שם"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Start" = "התחלה"
@@ -2898,13 +2908,13 @@ direction = "rtl"
 "~R~atio" = "~י~חס דחיסה"
 # navigator/widgets/manager/commands.py:29
 "View" = "הצג"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1759, navigator/widgets/shell/shell/shell.py:1812 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1764, navigator/widgets/shell/shell/shell.py:1817 ...
 "Open with" = "פתח עם"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "שנה שם"
 # navigator/widgets/manager/commands.py:85
 "SymLnk" = "קישור"
-# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2704
+# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2705
 "Attr" = "מאפיין"
 # navigator/widgets/manager/commands.py:101
 "MkDir" = "תיקייה"
@@ -2944,7 +2954,7 @@ direction = "rtl"
 "Only in a file panel, not beside it" = "רק בלוח קבצים, לא לצדו"
 # navigator/widgets/manager/manager/manager.py:2440
 "No files are tagged, and the cursor is on none" = "אין קבצים מתויגים, והסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1085
+# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1089
 "The command line holds text: the key edits it" = "בשורת הפקודה יש טקסט: המקש עורך אותו"
 # navigator/widgets/manager/manager/manager.py:2442
 "This drive cannot be written to" = "לא ניתן לכתוב לכונן זה"
@@ -3016,7 +3026,7 @@ direction = "rtl"
 "A place inside an archive cannot be bookmarked" = "לא ניתן ליצור סימנייה למקום בתוך ארכיון"
 # navigator/widgets/manager/manager/manager.py:2449, navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2597
 "The cursor is not on a file" = "הסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1069
+# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1073
 "Neither GIO nor KIO is installed" = "לא GIO ולא KIO מותקנים"
 # navigator/widgets/manager/manager/manager.py:2452
 "No graphical desktop to open it on" = "אין שולחן עבודה גרפי לפתוח בו"
@@ -3032,7 +3042,7 @@ direction = "rtl"
 "The file clipboard is empty" = "לוח הגזירים של הקבצים ריק"
 # navigator/widgets/manager/manager/manager.py:2532
 "File Manager Setup's Del erases is off" = "האפשרות «DEL מוחק קבצים» בהגדרות מנהל הקבצים כבויה"
-# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1052
+# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1056
 "The cursor is on no file" = "הסמן אינו על אף קובץ"
 # navigator/widgets/manager/manager/manager.py:2549
 "Not inside an archive" = "לא בתוך ארכיון"
@@ -3226,11 +3236,11 @@ direction = "rtl"
 "From {path}" = "מתוך {path}"
 # navigator/widgets/manager/panel/panel.py:2451, navigator/widgets/manager/panel/panel.py:2388
 "an unknown place" = "מקום לא ידוע"
-# navigator/widgets/manager/panel/panel.py:2671
+# navigator/widgets/manager/panel/panel.py:2672
 "Reading directory..." = "קורא תיקייה..."
-# navigator/widgets/manager/panel/panel.py:2702, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2703, navigator/lib/drives/base.py
 "Packed" = "דחוס"
-# navigator/widgets/manager/panel/panel.py:2703
+# navigator/widgets/manager/panel/panel.py:2704
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1428
 "Only files matching {mask} are shown" = "מוצגים רק קבצים התואמים ל-{mask}"
@@ -3324,7 +3334,9 @@ direction = "rtl"
 "DOS Navigator palette entry {slot}" = "רשומת ערכת הצבעים {slot} של DOS Navigator"
 # navigator/widgets/setup/colors_dialog/colors_dialog.py:56
 "Not in DOS Navigator: it starts as palette entry {slot}" = "לא ב-DOS Navigator: מתחיל כרשומת ערכת הצבעים {slot}"
-# navigator/widgets/setup/country_page/country_page.py:34
+# navigator/widgets/setup/country_page/country_page.py:23
+"Language's own" = "של השפה"
+# navigator/widgets/setup/country_page/country_page.py:50
 "Example: {stamp}" = "דוגמה: {stamp}"
 # navigator/widgets/setup/highlight_page/highlight_page.py:30
 "The files a row takes this group's colour for: patterns separated by ;, such as *.png;*.jpg, whatever their case" = "הקבצים ששורתם מקבלת את צבע הקבוצה הזו: תבניות מופרדות ב-;, כגון *.png;*.jpg, ללא תלות ברישיות"
@@ -3376,7 +3388,7 @@ direction = "rtl"
 "Cannot bind that:\n{error}" = "לא ניתן להקצות זאת:\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} מוקצה ל-{command}.\nלהקצות מחדש?"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:364
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:368
 "Cannot make {path}: {error}" = "לא ניתן ליצור את {path}: {error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} הוא המקש הכללי של {command}, שנבדק\nראשון. להקצות אותו כאן בכל זאת?"
@@ -3388,6 +3400,18 @@ direction = "rtl"
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "תו: {char} עשרוני: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:42
 "Overflow" = "גלישה"
+# navigator/widgets/shell/calendar_window/calendar_window.py:43
+"~S~elected calendar only" = "~ר~ק הלוח הנבחר"
+# navigator/widgets/shell/calendar_window/calendar_window.py:44
+"~G~regorian month, selected date" = "חודש ~ג~רגוריאני ותאריך נבחר"
+# navigator/widgets/shell/calendar_window/calendar_window.py:45
+"Selected ~m~onth, Gregorian date" = "חודש ~נ~בחר ותאריך גרגוריאני"
+# navigator/widgets/shell/calendar_window/calendar_window.py:46
+"~B~oth months side by side" = "~ש~ני החודשים זה לצד זה"
+# navigator/widgets/shell/calendar_window/calendar_window.py:227
+"The calendar system is the Gregorian" = "לוח השנה הנבחר הוא הגרגוריאני"
+# navigator/widgets/shell/calendar_window/calendar_window.py:229
+"Both months are shown" = "שני החודשים מוצגים"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}, {date}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -3484,99 +3508,99 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["נסגרת אחרי דקה אחת ללא פעילות", "נסגרת אחרי שתי דקות ללא פעילות", "נסגרת אחרי {n} דקות ללא פעילות"]
 # navigator/widgets/shell/root_mark.py:52
 "{menu} closes it now" = "{menu} סוגר אותה מיד"
-# navigator/widgets/shell/shell/shell.py:1034
+# navigator/widgets/shell/shell/shell.py:1038
 "Interface Setup hides the command line" = "הגדרות הממשק מסתירות את שורת הפקודה"
-# navigator/widgets/shell/shell/shell.py:1035
+# navigator/widgets/shell/shell/shell.py:1039
 "No file panels are open" = "אין חלוניות קבצים פתוחות"
-# navigator/widgets/shell/shell/shell.py:2627, navigator/widgets/shell/shell/shell.py:2620
+# navigator/widgets/shell/shell/shell.py:2632, navigator/widgets/shell/shell/shell.py:2625
 "Disconnect" = "נתק"
-# navigator/widgets/shell/shell/shell.py:1059
+# navigator/widgets/shell/shell/shell.py:1063
 "No connection is open" = "אין חיבור פתוח"
-# navigator/widgets/shell/shell/shell.py:1100
+# navigator/widgets/shell/shell/shell.py:1104
 "A command is still running" = "פקודה עדיין רצה"
-# navigator/widgets/shell/shell/shell.py:1758
+# navigator/widgets/shell/shell/shell.py:1763
 "~C~ommand..." = "~פ~קודה..."
-# navigator/widgets/shell/shell/shell.py:1896
+# navigator/widgets/shell/shell/shell.py:1901
 "Choose action" = "בחר פעולה"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "File View History" = "היסטוריית הצגת קבצים"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "File Edit History" = "היסטוריית עריכת קבצים"
-# navigator/widgets/shell/shell/shell.py:1050
+# navigator/widgets/shell/shell/shell.py:1054
 "The editor has the keys" = "המקשים אצל העורך"
-# navigator/widgets/shell/shell/shell.py:1061
+# navigator/widgets/shell/shell/shell.py:1065
 "No root access is open" = "אין גישת root פתוחה"
-# navigator/widgets/shell/shell/shell.py:1075
+# navigator/widgets/shell/shell/shell.py:1079
 "Only in a file panel or the console" = "רק בחלונית קבצים או במסוף"
-# navigator/widgets/shell/shell/shell.py:1083
+# navigator/widgets/shell/shell/shell.py:1087
 "File Manager Setup's Space toggles is off" = "\"רווח מסמן\" כבוי בהגדרות מנהל הקבצים"
-# navigator/widgets/shell/shell/shell.py:1095
-"The command line is empty" = "שורת הפקודה ריקה"
 # navigator/widgets/shell/shell/shell.py:1099
+"The command line is empty" = "שורת הפקודה ריקה"
+# navigator/widgets/shell/shell/shell.py:1103
 "File Manager Setup's Use arrows is off" = "\"השתמש בחצים\" כבוי בהגדרות מנהל הקבצים"
-# navigator/widgets/shell/shell/shell.py:1810
+# navigator/widgets/shell/shell/shell.py:1815
 "~C~ommand (!.! is the file; else it goes at the end)" = "~פ~קודה (!.! הוא הקובץ; אחרת הוא נוסף בסוף)"
-# navigator/widgets/shell/shell/shell.py:2470, navigator/widgets/shell/shell/shell.py:2656
+# navigator/widgets/shell/shell/shell.py:2475, navigator/widgets/shell/shell/shell.py:2661
 "{protocol} link" = "קישור {protocol}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2922
 "Track viewing history" = "מעקב היסטוריית הצגה"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2922
 "Track editing history" = "מעקב היסטוריית עריכה"
-# navigator/widgets/shell/shell/shell.py:1106
+# navigator/widgets/shell/shell/shell.py:1110
 "The shell cannot complete" = "המעטפת אינה יכולה להשלים"
-# navigator/widgets/shell/shell/shell.py:1536
+# navigator/widgets/shell/shell/shell.py:1541
 "User menu (global)" = "תפריט משתמש (כללי)"
-# navigator/widgets/shell/shell/shell.py:1536
+# navigator/widgets/shell/shell/shell.py:1541
 "Local menu" = "תפריט מקומי"
-# navigator/widgets/shell/shell/shell.py:1538
+# navigator/widgets/shell/shell/shell.py:1543
 "User menu (local)" = "תפריט משתמש (מקומי)"
-# navigator/widgets/shell/shell/shell.py:1538
+# navigator/widgets/shell/shell/shell.py:1543
 "Global menu" = "תפריט כללי"
-# navigator/widgets/shell/shell/shell.py:2618
+# navigator/widgets/shell/shell/shell.py:2623
 "Close the {protocol} connection to {host}?" = "לסגור את חיבור {protocol} אל {host}?"
-# navigator/widgets/shell/shell/shell.py:366
+# navigator/widgets/shell/shell/shell.py:370
 "Store Color Palette" = "שמור ערכת צבעים"
-# navigator/widgets/shell/shell/shell.py:424
+# navigator/widgets/shell/shell/shell.py:428
 "Load Color Palette" = "טען ערכת צבעים"
-# navigator/widgets/shell/shell/shell.py:271
+# navigator/widgets/shell/shell/shell.py:275
 "No desktop has been saved" = "לא נשמר שולחן עבודה"
-# navigator/widgets/shell/shell/shell.py:293
+# navigator/widgets/shell/shell/shell.py:297
 "Cannot read the theme: {error}" = "לא ניתן לקרוא את ערכת הנושא: {error}"
-# navigator/widgets/shell/shell/shell.py:312
+# navigator/widgets/shell/shell/shell.py:316
 "Cannot save the palette: {error}" = "לא ניתן לשמור את ערכת הצבעים: {error}"
-# navigator/widgets/shell/shell/shell.py:439
+# navigator/widgets/shell/shell/shell.py:443
 "Not a palette:\n{error}" = "אינה ערכת צבעים:\n{error}"
-# navigator/widgets/shell/shell/shell.py:547
+# navigator/widgets/shell/shell/shell.py:551
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "החצים מזיזים את האזור\nShift-חצים משנים את גודל האזור\n\nלאחר הבחירה הקש Enter כדי להעתיק\nאת תמונת האזור ללוח"
-# navigator/widgets/shell/shell/shell.py:2096
+# navigator/widgets/shell/shell/shell.py:2101
 "No file manager is open to panelize into" = "אין מנהל קבצים פתוח להצגת התוצאות בחלונית"
-# navigator/widgets/shell/shell/shell.py:2517
+# navigator/widgets/shell/shell/shell.py:2522
 "Wrong passphrase for {key}. Try again:" = "ביטוי סיסמה שגוי עבור {key}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2518
+# navigator/widgets/shell/shell/shell.py:2523
 "Passphrase for {key}:" = "ביטוי סיסמה עבור {key}:"
-# navigator/widgets/shell/shell/shell.py:2504
-"Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2505
-"Secret key for {who}:" = "מפתח סודי עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2508
-"Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
 # navigator/widgets/shell/shell/shell.py:2509
+"Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
+# navigator/widgets/shell/shell/shell.py:2510
+"Secret key for {who}:" = "מפתח סודי עבור {who}:"
+# navigator/widgets/shell/shell/shell.py:2513
+"Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
+# navigator/widgets/shell/shell/shell.py:2514
 "{protocol} password for {who}:" = "סיסמת {protocol} עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2657
+# navigator/widgets/shell/shell/shell.py:2662
 "Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
-# navigator/widgets/shell/shell/shell.py:2920
+# navigator/widgets/shell/shell/shell.py:2925
 "Set the interface option\n\"{option}\" ON first" = "תחילה הפעל את אפשרות הממשק\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1471
+# navigator/widgets/shell/shell/shell.py:1476
 "Cannot edit {path}: {error}" = "לא ניתן לערוך את {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1498
+# navigator/widgets/shell/shell/shell.py:1503
 "File {name} not found" = "הקובץ {name} לא נמצא"
-# navigator/widgets/shell/shell/shell.py:1649
+# navigator/widgets/shell/shell/shell.py:1654
 "Cannot write the menu's script: {error}" = "לא ניתן לכתוב את סקריפט התפריט: {error}"
-# navigator/widgets/shell/shell/shell.py:2487
+# navigator/widgets/shell/shell/shell.py:2492
 "Connecting to {host} over {protocol}" = "מתחבר אל {host} באמצעות {protocol}"
-# navigator/widgets/shell/shell/shell.py:2728
+# navigator/widgets/shell/shell/shell.py:2733
 "Cannot save the key bindings: {error}" = "לא ניתן לשמור את הקצאת המקשים: {error}"
-# navigator/widgets/shell/shell/shell.py:2884
+# navigator/widgets/shell/shell/shell.py:2889
 "Cannot save the settings: {error}" = "לא ניתן לשמור את ההגדרות: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "קוד יציאה {status}"
@@ -4426,6 +4450,10 @@ direction = "rtl"
 "A file's time and the clock: 24 or 12 hours" = "שעת קובץ והשעון: 24 או 12 שעות"
 # navigator/settings.py
 "The day a calendar's week starts on" = "היום שבו מתחיל השבוע בלוח השנה"
+# navigator/settings.py
+"Utilities > Calendar's calendar system: auto (the language's own, else Gregorian), gregorian, julian, hebrew, islamic (tabular), ummalqura, diyanet, mabims_id, mabims_my, chinese, korean, vietnamese, japanese, thai, roc, burmese, chhankitek, tibetan, persian, afghan, indian, bengali, nepali, badi, ethiopian or coptic" = "לוח השנה של שירותים > לוח שנה: auto (של השפה, אחרת גרגוריאני), gregorian, julian, hebrew, islamic, ummalqura, diyanet, mabims_id, mabims_my, chinese, korean, vietnamese, japanese, thai, roc, burmese, chhankitek, tibetan, persian, afghan, indian, bengali, nepali, badi, ethiopian או coptic"
+# navigator/settings.py
+"What Utilities > Calendar shows beside the Gregorian: only (the calendar system alone), gregorian_grid (the Gregorian month, the day spelled in the calendar system), selected_grid (the calendar system's month, the Gregorian day spelled), or both (the two months side by side)" = "מה Utilities > Calendar מציג לצד הלוח הגרגוריאני: only (הלוח הנבחר בלבד), gregorian_grid (החודש הגרגוריאני, והיום בלוח הנבחר), selected_grid (חודש הלוח הנבחר, והיום הגרגוריאני), או both (שני החודשים זה לצד זה)"
 # navigator/settings.py
 "The level a game starts at, 1 to 10" = "השלב שבו מתחיל משחק, 1 עד 10"
 # navigator/settings.py

@@ -367,7 +367,7 @@ flag = "CN"
 "~G~roup" = "组(~G~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
 "~D~ate" = "日期(~D~)"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "时间(~T~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:187
 "ACL" = "ACL"
@@ -701,7 +701,7 @@ flag = "CN"
 "Pre~v~iew" = "预览(~V~)"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "显示下一个方块"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:141, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
 "~C~lose" = "关闭(~C~)"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix 前十名"
@@ -1061,7 +1061,7 @@ flag = "CN"
 "Date" = "日期"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "查找(~F~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2707, navigator/widgets/manager/sync_list/sync_list.py:459
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2708, navigator/widgets/manager/sync_list/sync_list.py:459
 "Path" = "路径"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "压缩包(~A~)"
@@ -1123,29 +1123,35 @@ flag = "CN"
 "Delete ~b~ookmark" = "删除书签(~B~)"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Close command ~w~indow" = "关闭命令窗口(~W~)"
-# navigator/widgets/setup/country_page/country_page.nml:27
+# navigator/widgets/setup/country_page/country_page.nml:28
 "~D~ate format" = "日期格式(~D~)"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~E~uropean  DD-MM-YYYY" = "欧洲(~E~)  DD-MM-YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~U~S        MM/DD/YYYY" = "美国(~U~)  MM/DD/YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~I~SO       YYYY-MM-DD" = "ISO(~I~)   YYYY-MM-DD"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~C~ustom" = "自定义(~C~)"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~1~2 hour" = "12 小时制(~1~)"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~2~4 hour" = "24 小时制(~2~)"
-# navigator/widgets/setup/country_page/country_page.nml:62
+# navigator/widgets/setup/country_page/country_page.nml:63
 "~W~eek starts" = "每周起始(~W~)"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~M~onday" = "星期一(~M~)"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~S~unday" = "星期日(~S~)"
-# navigator/widgets/setup/country_page/country_page.nml:79
+# navigator/widgets/setup/country_page/country_page.nml:72
+"S~a~turday" = "星期六(~A~)"
+# navigator/widgets/setup/country_page/country_page.nml:82
+"Ca~l~endar system" = "历法(~L~)"
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+"Calendar ~v~iew" = "历法显示(~V~)"
+# navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "自定义格式(~F~)"
-# navigator/widgets/setup/country_page/country_page.nml:91
+# navigator/widgets/setup/country_page/country_page.nml:115
 "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's" = "strftime 指令：%d 日，%m 月，%y 或 %Y 年，\n%b 或 %B 月份名，%a 或 %A 星期名"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:20
 "Items to display" = "显示项目"
@@ -1533,26 +1539,30 @@ flag = "CN"
 "The value in scientific notation" = "科学计数法数值"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:132
 "E~v~aluate" = "计算(~V~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "日历"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:44, navigator/widgets/shell/calendar_window/calendar_window.nml:87, navigator/widgets/shell/calendar_window/calendar_window.py:115
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Go to current ~d~ate" = "转到今天(~D~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:57
+# navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "日历(~C~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:58
+# navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "在月份和年份间移动"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:61, navigator/widgets/shell/calendar_window/calendar_window.py:107
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
 "~P~revious month" = "上个月(~P~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:65, navigator/widgets/shell/calendar_window/calendar_window.py:108
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
 "~N~ext month" = "下个月(~N~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:69, navigator/widgets/shell/calendar_window/calendar_window.py:109
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "P~r~evious year" = "上一年(~R~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:73, navigator/widgets/shell/calendar_window/calendar_window.py:110
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "Ne~x~t year" = "下一年(~X~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:78, navigator/widgets/shell/calendar_window/calendar_window.py:112
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Choose ~m~onth..." = "选择月份(~M~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:82, navigator/widgets/shell/calendar_window/calendar_window.py:113
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
 "Choose ~y~ear..." = "选择年份(~Y~)..."
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+"S~w~ap calendars" = "切换历法(~W~)"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+"Calendar ~s~ystem" = "历法(~S~)"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "命令历史"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:25
@@ -2059,7 +2069,7 @@ flag = "CN"
 "Search Progress" = "搜索进度"
 # navigator/__main__.py:536
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "无法读取桌面剪贴板，因此 Navigator 粘贴了自己最近复制的内容。安装 xclip 或 xsel (X11)，或 wl-clipboard (Wayland)，即可与其他程序共享剪贴板。"
-# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1034
+# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1037
 "A program in the console has the keys" = "控制台中的程序正在接收按键"
 # navigator/__main__.py:441
 "The console is over the windows: Alt-X is the program's" = "控制台位于窗口之上：Alt-X 归该程序所有"
@@ -2079,7 +2089,7 @@ flag = "CN"
 "∙ Clock" = "∙ 时钟"
 # navigator/lib/appearance/savers.py:37
 "∙ Blackness" = "∙ 黑屏"
-# navigator/lib/config/country.py:113
+# navigator/lib/config/country.py:147
 "Last used {time}" = "上次使用 {time}"
 # navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:69
 "Reading file" = "正在读取文件"
@@ -2089,11 +2099,11 @@ flag = "CN"
 "Its output becomes the active panel's listing" = "其输出成为活动面板的列表"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "在独立窗口中运行"
-# navigator/lib/drives/listing.py:107, navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:108, navigator/lib/drives/listing.py:214
 "UP--DIR" = "上级目录"
-# navigator/lib/drives/listing.py:107, navigator/widgets/manager/sync_list/sync_list.py:314
+# navigator/lib/drives/listing.py:108, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "目录"
-# navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:214
 "SUB-DIR" = "子目录"
 # navigator/lib/file_ops/fileattr.py:410
 "There is no user {name}" = "没有用户 {name}"
@@ -2319,13 +2329,13 @@ flag = "CN"
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "选项 > 配置 > 屏幕保护（DN 的 TSaversDialog）"
 # navigator/settings.py:871
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "选项 > 配置 > 国家/地区（DN 的 dlgCountrySetup）"
-# navigator/settings.py:895
+# navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > 游戏 > 设置（DN 的 dlgGameSetup）"
-# navigator/settings.py:910
-"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "文件 > UU 编码 / UU 解码（DN 的 dlgUUEncode、dlgUUDecode）"
 # navigator/settings.py:937
+"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "文件 > UU 编码 / UU 解码（DN 的 dlgUUEncode、dlgUUDecode）"
+# navigator/settings.py:964
 "File > Checksums > Calculate (not DN's)" = "文件 > 校验和 > 计算（非 DN 原有）"
-# navigator/settings.py:953
+# navigator/settings.py:980
 "Options > Configuration > Communications (DN's cmSetupModem)" = "选项 > 配置 > 通信（DN 的 cmSetupModem）"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} 的密码错误。请重试:"
@@ -2557,7 +2567,7 @@ flag = "CN"
 "Information" = "信息"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["已替换 {n} 处"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1721
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1725
 "Cannot open {path}: {error}" = "无法打开 {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "文件 {name} 已修改。是否保存？"
@@ -2881,7 +2891,7 @@ flag = "CN"
 "~Name:~ {name}" = "~名称:~ {name}"
 # navigator/widgets/game/game_window/info.py:97
 "~Score:~ {score}" = "~得分:~ {score}"
-# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2700, navigator/widgets/shell/volume_list/volume_list.py:131 ...
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2701, navigator/widgets/shell/volume_list/volume_list.py:131 ...
 "Name" = "名称"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Start" = "开始"
@@ -2897,13 +2907,13 @@ flag = "CN"
 "~R~atio" = "压缩率(~R~)"
 # navigator/widgets/manager/commands.py:29
 "View" = "查看"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1760, navigator/widgets/shell/shell/shell.py:1813 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1764, navigator/widgets/shell/shell/shell.py:1817 ...
 "Open with" = "打开方式"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "重命名"
 # navigator/widgets/manager/commands.py:85
 "SymLnk" = "符号链接"
-# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2704
+# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2705
 "Attr" = "属性"
 # navigator/widgets/manager/commands.py:101
 "MkDir" = "建目录"
@@ -2943,7 +2953,7 @@ flag = "CN"
 "Only in a file panel, not beside it" = "仅限文件面板内，不能在其旁边"
 # navigator/widgets/manager/manager/manager.py:2440
 "No files are tagged, and the cursor is on none" = "没有已标记的文件，光标也不在文件上"
-# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1086
+# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1089
 "The command line holds text: the key edits it" = "命令行中有文本: 此键用于编辑它"
 # navigator/widgets/manager/manager/manager.py:2442
 "This drive cannot be written to" = "此驱动器不可写"
@@ -3015,7 +3025,7 @@ flag = "CN"
 "A place inside an archive cannot be bookmarked" = "压缩包内的位置不能加入书签"
 # navigator/widgets/manager/manager/manager.py:2449, navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2597
 "The cursor is not on a file" = "光标不在文件上"
-# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1070
+# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1073
 "Neither GIO nor KIO is installed" = "GIO 和 KIO 均未安装"
 # navigator/widgets/manager/manager/manager.py:2452
 "No graphical desktop to open it on" = "没有可用于打开它的图形桌面"
@@ -3031,7 +3041,7 @@ flag = "CN"
 "The file clipboard is empty" = "文件剪贴板为空"
 # navigator/widgets/manager/manager/manager.py:2532
 "File Manager Setup's Del erases is off" = "文件管理器设置中的“Del 删除”已关闭"
-# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1053
+# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1056
 "The cursor is on no file" = "光标不在任何文件上"
 # navigator/widgets/manager/manager/manager.py:2549
 "Not inside an archive" = "不在压缩包内"
@@ -3225,11 +3235,11 @@ flag = "CN"
 "From {path}" = "来自 {path}"
 # navigator/widgets/manager/panel/panel.py:2451, navigator/widgets/manager/panel/panel.py:2388
 "an unknown place" = "未知位置"
-# navigator/widgets/manager/panel/panel.py:2671
+# navigator/widgets/manager/panel/panel.py:2672
 "Reading directory..." = "正在读取目录..."
-# navigator/widgets/manager/panel/panel.py:2702, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2703, navigator/lib/drives/base.py
 "Packed" = "压缩后"
-# navigator/widgets/manager/panel/panel.py:2703
+# navigator/widgets/manager/panel/panel.py:2704
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1428
 "Only files matching {mask} are shown" = "仅显示匹配 {mask} 的文件"
@@ -3323,7 +3333,9 @@ flag = "CN"
 "DOS Navigator palette entry {slot}" = "DOS Navigator 调色板条目 {slot}"
 # navigator/widgets/setup/colors_dialog/colors_dialog.py:56
 "Not in DOS Navigator: it starts as palette entry {slot}" = "DOS Navigator 中没有此项: 初始为调色板条目 {slot}"
-# navigator/widgets/setup/country_page/country_page.py:34
+# navigator/widgets/setup/country_page/country_page.py:23
+"Language's own" = "随语言"
+# navigator/widgets/setup/country_page/country_page.py:50
 "Example: {stamp}" = "示例: {stamp}"
 # navigator/widgets/setup/highlight_page/highlight_page.py:30
 "The files a row takes this group's colour for: patterns separated by ;, such as *.png;*.jpg, whatever their case" = "使用此组颜色的文件: 以 ; 分隔的模式，如 *.png;*.jpg，不区分大小写"
@@ -3375,7 +3387,7 @@ flag = "CN"
 "Cannot bind that:\n{error}" = "无法绑定：\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} 已绑定到 {command}。\n重新分配？"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:365
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:368
 "Cannot make {path}: {error}" = "无法创建 {path}：{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} 是 {command} 的全局按键，会被\n优先处理。仍要在此绑定？"
@@ -3387,6 +3399,18 @@ flag = "CN"
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "字符: {char} 十进制: {decimal:3d} 十六进制: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:42
 "Overflow" = "溢出"
+# navigator/widgets/shell/calendar_window/calendar_window.py:43
+"~S~elected calendar only" = "仅所选历法(~S~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:44
+"~G~regorian month, selected date" = "公历月份，所选历法日期(~G~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:45
+"Selected ~m~onth, Gregorian date" = "所选历法月份，公历日期(~M~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:46
+"~B~oth months side by side" = "两个月份并排(~B~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:227
+"The calendar system is the Gregorian" = "所选历法为公历"
+# navigator/widgets/shell/calendar_window/calendar_window.py:229
+"Both months are shown" = "两个月份均已显示"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{date} {weekday}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -3483,99 +3507,99 @@ flag = "CN"
 "It closes after {n} idle minute" = ["空闲 {n} 分钟后关闭"]
 # navigator/widgets/shell/root_mark.py:52
 "{menu} closes it now" = "{menu} 可立即关闭"
-# navigator/widgets/shell/shell/shell.py:1035
+# navigator/widgets/shell/shell/shell.py:1038
 "Interface Setup hides the command line" = "界面设置隐藏了命令行"
-# navigator/widgets/shell/shell/shell.py:1036
+# navigator/widgets/shell/shell/shell.py:1039
 "No file panels are open" = "没有打开的文件面板"
-# navigator/widgets/shell/shell/shell.py:2628, navigator/widgets/shell/shell/shell.py:2621
+# navigator/widgets/shell/shell/shell.py:2632, navigator/widgets/shell/shell/shell.py:2625
 "Disconnect" = "断开"
-# navigator/widgets/shell/shell/shell.py:1060
+# navigator/widgets/shell/shell/shell.py:1063
 "No connection is open" = "没有打开的连接"
-# navigator/widgets/shell/shell/shell.py:1101
+# navigator/widgets/shell/shell/shell.py:1104
 "A command is still running" = "命令仍在运行"
-# navigator/widgets/shell/shell/shell.py:1759
+# navigator/widgets/shell/shell/shell.py:1763
 "~C~ommand..." = "命令(~C~)..."
-# navigator/widgets/shell/shell/shell.py:1897
+# navigator/widgets/shell/shell/shell.py:1901
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:2928
+# navigator/widgets/shell/shell/shell.py:2932
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:2928
+# navigator/widgets/shell/shell/shell.py:2932
 "File Edit History" = "文件编辑历史"
-# navigator/widgets/shell/shell/shell.py:1051
+# navigator/widgets/shell/shell/shell.py:1054
 "The editor has the keys" = "按键由编辑器处理"
-# navigator/widgets/shell/shell/shell.py:1062
+# navigator/widgets/shell/shell/shell.py:1065
 "No root access is open" = "未开启 root 权限"
-# navigator/widgets/shell/shell/shell.py:1076
+# navigator/widgets/shell/shell/shell.py:1079
 "Only in a file panel or the console" = "仅在文件面板或控制台中可用"
-# navigator/widgets/shell/shell/shell.py:1084
+# navigator/widgets/shell/shell/shell.py:1087
 "File Manager Setup's Space toggles is off" = "文件管理器设置的“空格切换”已关闭"
-# navigator/widgets/shell/shell/shell.py:1096
+# navigator/widgets/shell/shell/shell.py:1099
 "The command line is empty" = "命令行为空"
-# navigator/widgets/shell/shell/shell.py:1100
+# navigator/widgets/shell/shell/shell.py:1103
 "File Manager Setup's Use arrows is off" = "文件管理器设置的“使用方向键”已关闭"
-# navigator/widgets/shell/shell/shell.py:1811
+# navigator/widgets/shell/shell/shell.py:1815
 "~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
-# navigator/widgets/shell/shell/shell.py:2471, navigator/widgets/shell/shell/shell.py:2657
+# navigator/widgets/shell/shell/shell.py:2475, navigator/widgets/shell/shell/shell.py:2661
 "{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:2918
+# navigator/widgets/shell/shell/shell.py:2922
 "Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:2918
+# navigator/widgets/shell/shell/shell.py:2922
 "Track editing history" = "记录编辑历史"
-# navigator/widgets/shell/shell/shell.py:1107
+# navigator/widgets/shell/shell/shell.py:1110
 "The shell cannot complete" = "shell 无法补全"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1541
 "User menu (global)" = "用户菜单（全局）"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1541
 "Local menu" = "本地菜单"
-# navigator/widgets/shell/shell/shell.py:1539
+# navigator/widgets/shell/shell/shell.py:1543
 "User menu (local)" = "用户菜单（本地）"
-# navigator/widgets/shell/shell/shell.py:1539
+# navigator/widgets/shell/shell/shell.py:1543
 "Global menu" = "全局菜单"
-# navigator/widgets/shell/shell/shell.py:2619
+# navigator/widgets/shell/shell/shell.py:2623
 "Close the {protocol} connection to {host}?" = "关闭到 {host} 的 {protocol} 连接？"
-# navigator/widgets/shell/shell/shell.py:367
+# navigator/widgets/shell/shell/shell.py:370
 "Store Color Palette" = "存储调色板"
-# navigator/widgets/shell/shell/shell.py:425
+# navigator/widgets/shell/shell/shell.py:428
 "Load Color Palette" = "加载调色板"
-# navigator/widgets/shell/shell/shell.py:272
+# navigator/widgets/shell/shell/shell.py:275
 "No desktop has been saved" = "尚未保存桌面"
-# navigator/widgets/shell/shell/shell.py:294
+# navigator/widgets/shell/shell/shell.py:297
 "Cannot read the theme: {error}" = "无法读取主题：{error}"
-# navigator/widgets/shell/shell/shell.py:313
+# navigator/widgets/shell/shell/shell.py:316
 "Cannot save the palette: {error}" = "无法保存调色板：{error}"
-# navigator/widgets/shell/shell/shell.py:440
+# navigator/widgets/shell/shell/shell.py:443
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
-# navigator/widgets/shell/shell/shell.py:548
+# navigator/widgets/shell/shell/shell.py:551
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:2097
+# navigator/widgets/shell/shell/shell.py:2101
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
-# navigator/widgets/shell/shell/shell.py:2518
+# navigator/widgets/shell/shell/shell.py:2522
 "Wrong passphrase for {key}. Try again:" = "{key} 的口令错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2519
+# navigator/widgets/shell/shell/shell.py:2523
 "Passphrase for {key}:" = "{key} 的口令："
-# navigator/widgets/shell/shell/shell.py:2505
-"Wrong secret key for {who}. Try again:" = "{who} 的私密密钥错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2506
-"Secret key for {who}:" = "{who} 的私密密钥："
 # navigator/widgets/shell/shell/shell.py:2509
-"Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
+"Wrong secret key for {who}. Try again:" = "{who} 的私密密钥错误。请重试："
 # navigator/widgets/shell/shell/shell.py:2510
+"Secret key for {who}:" = "{who} 的私密密钥："
+# navigator/widgets/shell/shell/shell.py:2513
+"Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
+# navigator/widgets/shell/shell/shell.py:2514
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
-# navigator/widgets/shell/shell/shell.py:2658
+# navigator/widgets/shell/shell/shell.py:2662
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:2921
+# navigator/widgets/shell/shell/shell.py:2925
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
-# navigator/widgets/shell/shell/shell.py:1472
+# navigator/widgets/shell/shell/shell.py:1476
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
-# navigator/widgets/shell/shell/shell.py:1499
+# navigator/widgets/shell/shell/shell.py:1503
 "File {name} not found" = "找不到文件 {name}"
-# navigator/widgets/shell/shell/shell.py:1650
+# navigator/widgets/shell/shell/shell.py:1654
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
-# navigator/widgets/shell/shell/shell.py:2488
+# navigator/widgets/shell/shell/shell.py:2492
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:2729
+# navigator/widgets/shell/shell/shell.py:2733
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:2885
+# navigator/widgets/shell/shell/shell.py:2889
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"
@@ -4425,6 +4449,10 @@ flag = "CN"
 "A file's time and the clock: 24 or 12 hours" = "文件时间和时钟：24 或 12 小时制"
 # navigator/settings.py
 "The day a calendar's week starts on" = "日历中一周的起始日"
+# navigator/settings.py
+"Utilities > Calendar's calendar system: auto (the language's own, else Gregorian), gregorian, julian, hebrew, islamic (tabular), ummalqura, diyanet, mabims_id, mabims_my, chinese, korean, vietnamese, japanese, thai, roc, burmese, chhankitek, tibetan, persian, afghan, indian, bengali, nepali, badi, ethiopian or coptic" = "实用工具 > 日历的历法：auto（随语言，否则为公历）、gregorian、julian、hebrew、islamic、ummalqura、diyanet、mabims_id、mabims_my、chinese、korean、vietnamese、japanese、thai、roc、burmese、chhankitek、tibetan、persian、afghan、indian、bengali、nepali、badi、ethiopian 或 coptic"
+# navigator/settings.py
+"What Utilities > Calendar shows beside the Gregorian: only (the calendar system alone), gregorian_grid (the Gregorian month, the day spelled in the calendar system), selected_grid (the calendar system's month, the Gregorian day spelled), or both (the two months side by side)" = "Utilities > Calendar 在公历之外显示的内容：only（仅所选历法）、gregorian_grid（公历月份，所选历法的日期）、selected_grid（所选历法的月份，公历日期）或 both（两个月份并排）"
 # navigator/settings.py
 "The level a game starts at, 1 to 10" = "游戏的起始级别，1 到 10"
 # navigator/settings.py

@@ -1384,20 +1384,10 @@ class Shell(DockLayout):
         to the top right corner, its top edge on the screen's second row, just
         under the clock; a click on the clock while it is open closes it."""
         from navigator.widgets.shell.calendar_window import CalendarWindow
-        from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
 
         if self.console_visible:
             self.toggle_console()
         desktop = self.desktop
-        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
-        if event.under_clock:
-            # Screen row 1 in the desktop's rows: 0 under a docked menu bar,
-            # 1 when the desktop has the top row too.
-            top = desktop.offset()[1] + desktop.y
-            x, y = desktop.width - width, max(0, 1 - top)
-        else:
-            x, y = (desktop.width - width) // 2, (desktop.height - height) // 2
-        x, y = max(0, x), max(0, min(y, desktop.height - height))
         for window in desktop.windows():
             if isinstance(window, CalendarWindow):
                 if event.under_clock:
@@ -1406,6 +1396,17 @@ class Shell(DockLayout):
                     desktop.activate(window)
                 return True
         window = desktop.open(CalendarWindow())
+        # As wide as the months its *View* shows.
+        width, height = window.size()
+        width, height = min(width, desktop.width), min(height, desktop.height)
+        if event.under_clock:
+            # Screen row 1 in the desktop's rows: 0 under a docked menu bar,
+            # 1 when the desktop has the top row too.
+            top = desktop.offset()[1] + desktop.y
+            x, y = desktop.width - width, max(0, 1 - top)
+        else:
+            x, y = (desktop.width - width) // 2, (desktop.height - height) // 2
+        x, y = max(0, x), max(0, min(y, desktop.height - height))
         window.locate(x, y, width, height)
         window.take_keyboard()
         return True

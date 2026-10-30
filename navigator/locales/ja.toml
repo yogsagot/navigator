@@ -367,7 +367,7 @@ flag = "JP"
 "~G~roup" = "グループ(~G~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
 "~D~ate" = "日付(~D~)"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:44 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "時刻(~T~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:187
 "ACL" = "ACL"
@@ -701,7 +701,7 @@ flag = "JP"
 "Pre~v~iew" = "プレビュー(~V~)"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "次の図形を表示します"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:141, navigator/widgets/shell/main_menu/main_menu.nml:549 ...
 "~C~lose" = "閉じる(~C~)"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix トップ 10"
@@ -1061,7 +1061,7 @@ flag = "JP"
 "Date" = "日付"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "検索(~F~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2707, navigator/widgets/manager/sync_list/sync_list.py:459
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2708, navigator/widgets/manager/sync_list/sync_list.py:459
 "Path" = "パス"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "書庫(~A~)"
@@ -1123,29 +1123,35 @@ flag = "JP"
 "Delete ~b~ookmark" = "ブックマーク削除(~B~)"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Close command ~w~indow" = "コマンドウィンドウを閉じる(~W~)"
-# navigator/widgets/setup/country_page/country_page.nml:27
+# navigator/widgets/setup/country_page/country_page.nml:28
 "~D~ate format" = "日付の書式(~D~)"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~E~uropean  DD-MM-YYYY" = "欧州(~E~)  DD-MM-YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~U~S        MM/DD/YYYY" = "米国(~U~)  MM/DD/YYYY"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~I~SO       YYYY-MM-DD" = "~I~SO       YYYY-MM-DD"
-# navigator/widgets/setup/country_page/country_page.nml:36
+# navigator/widgets/setup/country_page/country_page.nml:37
 "~C~ustom" = "カスタム(~C~)"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~1~2 hour" = "~1~2時間制"
-# navigator/widgets/setup/country_page/country_page.nml:53
+# navigator/widgets/setup/country_page/country_page.nml:54
 "~2~4 hour" = "~2~4時間制"
-# navigator/widgets/setup/country_page/country_page.nml:62
+# navigator/widgets/setup/country_page/country_page.nml:63
 "~W~eek starts" = "週の始まり(~W~)"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~M~onday" = "月曜日(~M~)"
-# navigator/widgets/setup/country_page/country_page.nml:71
+# navigator/widgets/setup/country_page/country_page.nml:72
 "~S~unday" = "日曜日(~S~)"
-# navigator/widgets/setup/country_page/country_page.nml:79
+# navigator/widgets/setup/country_page/country_page.nml:72
+"S~a~turday" = "土曜日(~A~)"
+# navigator/widgets/setup/country_page/country_page.nml:82
+"Ca~l~endar system" = "暦法(~L~)"
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+"Calendar ~v~iew" = "暦の表示(~V~)"
+# navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "カスタム書式(~F~)"
-# navigator/widgets/setup/country_page/country_page.nml:91
+# navigator/widgets/setup/country_page/country_page.nml:115
 "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's" = "strftime の指定子: %d 日、%m 月、%y または %Y 年、\n%b または %B 月名、%a または %A 曜日名"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:20
 "Items to display" = "表示する項目"
@@ -1533,26 +1539,30 @@ flag = "JP"
 "The value in scientific notation" = "指数表記の値"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:132
 "E~v~aluate" = "計算(~V~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:23, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "カレンダー"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:44, navigator/widgets/shell/calendar_window/calendar_window.nml:87, navigator/widgets/shell/calendar_window/calendar_window.py:115
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Go to current ~d~ate" = "今日へ移動(~D~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:57
+# navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "カレンダー(~C~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:58
+# navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "月と年の間を移動"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:61, navigator/widgets/shell/calendar_window/calendar_window.py:107
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
 "~P~revious month" = "前の月(~P~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:65, navigator/widgets/shell/calendar_window/calendar_window.py:108
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
 "~N~ext month" = "次の月(~N~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:69, navigator/widgets/shell/calendar_window/calendar_window.py:109
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "P~r~evious year" = "前の年(~R~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:73, navigator/widgets/shell/calendar_window/calendar_window.py:110
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "Ne~x~t year" = "次の年(~X~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:78, navigator/widgets/shell/calendar_window/calendar_window.py:112
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Choose ~m~onth..." = "月を選択(~M~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:82, navigator/widgets/shell/calendar_window/calendar_window.py:113
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
 "Choose ~y~ear..." = "年を選択(~Y~)..."
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+"S~w~ap calendars" = "暦を切り替え(~W~)"
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+"Calendar ~s~ystem" = "暦法(~S~)"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "コマンド履歴"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:25
@@ -2059,7 +2069,7 @@ flag = "JP"
 "Search Progress" = "検索の進行状況"
 # navigator/__main__.py:536
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "デスクトップのクリップボードを読めなかったため、Navigator 自身が最後にコピーした内容を貼り付けました。他のプログラムとクリップボードを共有するには xclip か xsel (X11)、または wl-clipboard (Wayland) をインストールしてください。"
-# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1034
+# navigator/__main__.py:439, navigator/widgets/shell/shell/shell.py:1037
 "A program in the console has the keys" = "コンソールのプログラムがキー入力を受けています"
 # navigator/__main__.py:441
 "The console is over the windows: Alt-X is the program's" = "コンソールがウィンドウの上にあります: Alt-X はプログラムに渡ります"
@@ -2079,7 +2089,7 @@ flag = "JP"
 "∙ Clock" = "∙ 時計"
 # navigator/lib/appearance/savers.py:37
 "∙ Blackness" = "∙ 暗闇"
-# navigator/lib/config/country.py:113
+# navigator/lib/config/country.py:147
 "Last used {time}" = "最終使用 {time}"
 # navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:69
 "Reading file" = "ファイル読み込み中"
@@ -2089,11 +2099,11 @@ flag = "JP"
 "Its output becomes the active panel's listing" = "出力がアクティブパネルの一覧になります"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "専用のウィンドウで実行します"
-# navigator/lib/drives/listing.py:107, navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:108, navigator/lib/drives/listing.py:214
 "UP--DIR" = "UP--DIR"
-# navigator/lib/drives/listing.py:107, navigator/widgets/manager/sync_list/sync_list.py:314
+# navigator/lib/drives/listing.py:108, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "DIR"
-# navigator/lib/drives/listing.py:213
+# navigator/lib/drives/listing.py:214
 "SUB-DIR" = "SUB-DIR"
 # navigator/lib/file_ops/fileattr.py:410
 "There is no user {name}" = "ユーザー {name} は存在しません"
@@ -2319,13 +2329,13 @@ flag = "JP"
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "設定 > 構成 > スクリーンセーバー (DN の TSaversDialog)"
 # navigator/settings.py:871
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "設定 > 構成 > 地域設定 (DN の dlgCountrySetup)"
-# navigator/settings.py:895
+# navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > ゲーム > 設定 (DN の dlgGameSetup)"
-# navigator/settings.py:910
-"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ファイル > UU エンコード / UU デコード (DN の dlgUUEncode、dlgUUDecode)"
 # navigator/settings.py:937
+"File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ファイル > UU エンコード / UU デコード (DN の dlgUUEncode、dlgUUDecode)"
+# navigator/settings.py:964
 "File > Checksums > Calculate (not DN's)" = "ファイル > チェックサム > 計算 (DN にはない機能)"
-# navigator/settings.py:953
+# navigator/settings.py:980
 "Options > Configuration > Communications (DN's cmSetupModem)" = "設定 > 構成 > 通信 (DN の cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} のパスワードが違います。再入力:"
@@ -2557,7 +2567,7 @@ flag = "JP"
 "Information" = "情報"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["{n} 件置換しました"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1721
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1725
 "Cannot open {path}: {error}" = "{path} を開けません: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "ファイル {name} は変更されています。保存しますか?"
@@ -2881,7 +2891,7 @@ flag = "JP"
 "~Name:~ {name}" = "~名前:~ {name}"
 # navigator/widgets/game/game_window/info.py:97
 "~Score:~ {score}" = "~スコア:~ {score}"
-# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2700, navigator/widgets/shell/volume_list/volume_list.py:131 ...
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2701, navigator/widgets/shell/volume_list/volume_list.py:131 ...
 "Name" = "名前"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Start" = "開始"
@@ -2897,13 +2907,13 @@ flag = "JP"
 "~R~atio" = "圧縮率(~R~)"
 # navigator/widgets/manager/commands.py:29
 "View" = "表示"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1760, navigator/widgets/shell/shell/shell.py:1813 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1764, navigator/widgets/shell/shell/shell.py:1817 ...
 "Open with" = "アプリで開く"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "改名"
 # navigator/widgets/manager/commands.py:85
 "SymLnk" = "リンク"
-# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2704
+# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2705
 "Attr" = "属性"
 # navigator/widgets/manager/commands.py:101
 "MkDir" = "作成"
@@ -2943,7 +2953,7 @@ flag = "JP"
 "Only in a file panel, not beside it" = "ファイルパネル内でのみ (その横では不可)"
 # navigator/widgets/manager/manager/manager.py:2440
 "No files are tagged, and the cursor is on none" = "マークされたファイルがなく、カーソルもファイル上にありません"
-# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1086
+# navigator/widgets/manager/manager/manager.py:2441, navigator/widgets/shell/shell/shell.py:1089
 "The command line holds text: the key edits it" = "コマンドラインに入力中: このキーはそれを編集します"
 # navigator/widgets/manager/manager/manager.py:2442
 "This drive cannot be written to" = "このドライブには書き込めません"
@@ -3015,7 +3025,7 @@ flag = "JP"
 "A place inside an archive cannot be bookmarked" = "アーカイブ内の場所はブックマークできません"
 # navigator/widgets/manager/manager/manager.py:2449, navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2597
 "The cursor is not on a file" = "カーソルがファイル上にありません"
-# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1070
+# navigator/widgets/manager/manager/manager.py:2451, navigator/widgets/shell/shell/shell.py:1073
 "Neither GIO nor KIO is installed" = "GIO も KIO もインストールされていません"
 # navigator/widgets/manager/manager/manager.py:2452
 "No graphical desktop to open it on" = "開くためのグラフィカルデスクトップがありません"
@@ -3031,7 +3041,7 @@ flag = "JP"
 "The file clipboard is empty" = "ファイルクリップボードは空です"
 # navigator/widgets/manager/manager/manager.py:2532
 "File Manager Setup's Del erases is off" = "ファイルマネージャ設定の「Del で削除」がオフです"
-# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1053
+# navigator/widgets/manager/manager/manager.py:2537, navigator/widgets/manager/manager/manager.py:2580, navigator/widgets/shell/shell/shell.py:1056
 "The cursor is on no file" = "カーソルがファイル上にありません"
 # navigator/widgets/manager/manager/manager.py:2549
 "Not inside an archive" = "アーカイブ内ではありません"
@@ -3225,11 +3235,11 @@ flag = "JP"
 "From {path}" = "元の場所 {path}"
 # navigator/widgets/manager/panel/panel.py:2451, navigator/widgets/manager/panel/panel.py:2388
 "an unknown place" = "不明な場所"
-# navigator/widgets/manager/panel/panel.py:2671
+# navigator/widgets/manager/panel/panel.py:2672
 "Reading directory..." = "ディレクトリを読み込み中..."
-# navigator/widgets/manager/panel/panel.py:2702, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2703, navigator/lib/drives/base.py
 "Packed" = "圧縮"
-# navigator/widgets/manager/panel/panel.py:2703
+# navigator/widgets/manager/panel/panel.py:2704
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1428
 "Only files matching {mask} are shown" = "{mask} に一致するファイルのみ表示中"
@@ -3323,7 +3333,9 @@ flag = "JP"
 "DOS Navigator palette entry {slot}" = "DOS Navigator のパレット項目 {slot}"
 # navigator/widgets/setup/colors_dialog/colors_dialog.py:56
 "Not in DOS Navigator: it starts as palette entry {slot}" = "DOS Navigator にはない項目: 初期値はパレット項目 {slot}"
-# navigator/widgets/setup/country_page/country_page.py:34
+# navigator/widgets/setup/country_page/country_page.py:23
+"Language's own" = "言語に従う"
+# navigator/widgets/setup/country_page/country_page.py:50
 "Example: {stamp}" = "例: {stamp}"
 # navigator/widgets/setup/highlight_page/highlight_page.py:30
 "The files a row takes this group's colour for: patterns separated by ;, such as *.png;*.jpg, whatever their case" = "このグループの色で表示する行のファイル: ; 区切りのパターン (例: *.png;*.jpg)、大文字小文字は区別しない"
@@ -3375,7 +3387,7 @@ flag = "JP"
 "Cannot bind that:\n{error}" = "割り当てできません:\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} は {command} に割り当て済みです。\n割り当て直しますか?"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:365
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:368
 "Cannot make {path}: {error}" = "{path} を作成できません: {error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} は {command} のグローバルキーで、\n先に参照されます。それでもここに割り当てますか?"
@@ -3387,6 +3399,18 @@ flag = "JP"
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "文字: {char} 10進: {decimal:3d} 16進: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:42
 "Overflow" = "オーバーフロー"
+# navigator/widgets/shell/calendar_window/calendar_window.py:43
+"~S~elected calendar only" = "選択した暦のみ(~S~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:44
+"~G~regorian month, selected date" = "西暦の月と選択した暦の日付(~G~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:45
+"Selected ~m~onth, Gregorian date" = "選択した暦の月と西暦の日付(~M~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:46
+"~B~oth months side by side" = "両方の月を並べる(~B~)"
+# navigator/widgets/shell/calendar_window/calendar_window.py:227
+"The calendar system is the Gregorian" = "選択した暦は西暦です"
+# navigator/widgets/shell/calendar_window/calendar_window.py:229
+"Both months are shown" = "両方の月を表示中です"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{date} ({weekday})"
 # navigator/widgets/shell/clock/clock.py:51
@@ -3483,99 +3507,99 @@ flag = "JP"
 "It closes after {n} idle minute" = ["{n} 分間使われないと閉じます"]
 # navigator/widgets/shell/root_mark.py:52
 "{menu} closes it now" = "{menu} で今すぐ閉じます"
-# navigator/widgets/shell/shell/shell.py:1035
+# navigator/widgets/shell/shell/shell.py:1038
 "Interface Setup hides the command line" = "インターフェース設定でコマンドラインが非表示です"
-# navigator/widgets/shell/shell/shell.py:1036
+# navigator/widgets/shell/shell/shell.py:1039
 "No file panels are open" = "ファイルパネルが開いていません"
-# navigator/widgets/shell/shell/shell.py:2628, navigator/widgets/shell/shell/shell.py:2621
+# navigator/widgets/shell/shell/shell.py:2632, navigator/widgets/shell/shell/shell.py:2625
 "Disconnect" = "切断"
-# navigator/widgets/shell/shell/shell.py:1060
+# navigator/widgets/shell/shell/shell.py:1063
 "No connection is open" = "開いている接続はありません"
-# navigator/widgets/shell/shell/shell.py:1101
+# navigator/widgets/shell/shell/shell.py:1104
 "A command is still running" = "コマンドはまだ実行中です"
-# navigator/widgets/shell/shell/shell.py:1759
+# navigator/widgets/shell/shell/shell.py:1763
 "~C~ommand..." = "コマンド(~C~)..."
-# navigator/widgets/shell/shell/shell.py:1897
+# navigator/widgets/shell/shell/shell.py:1901
 "Choose action" = "動作の選択"
-# navigator/widgets/shell/shell/shell.py:2928
+# navigator/widgets/shell/shell/shell.py:2932
 "File View History" = "ファイル表示履歴"
-# navigator/widgets/shell/shell/shell.py:2928
+# navigator/widgets/shell/shell/shell.py:2932
 "File Edit History" = "ファイル編集履歴"
-# navigator/widgets/shell/shell/shell.py:1051
+# navigator/widgets/shell/shell/shell.py:1054
 "The editor has the keys" = "キーはエディタが使用中です"
-# navigator/widgets/shell/shell/shell.py:1062
+# navigator/widgets/shell/shell/shell.py:1065
 "No root access is open" = "開いている root アクセスはありません"
-# navigator/widgets/shell/shell/shell.py:1076
+# navigator/widgets/shell/shell/shell.py:1079
 "Only in a file panel or the console" = "ファイルパネルかコンソールでのみ"
-# navigator/widgets/shell/shell/shell.py:1084
+# navigator/widgets/shell/shell/shell.py:1087
 "File Manager Setup's Space toggles is off" = "ファイル管理設定の「Space でマーク」がオフです"
-# navigator/widgets/shell/shell/shell.py:1096
+# navigator/widgets/shell/shell/shell.py:1099
 "The command line is empty" = "コマンドラインが空です"
-# navigator/widgets/shell/shell/shell.py:1100
+# navigator/widgets/shell/shell/shell.py:1103
 "File Manager Setup's Use arrows is off" = "ファイル管理設定の「矢印キーを使う」がオフです"
-# navigator/widgets/shell/shell/shell.py:1811
+# navigator/widgets/shell/shell/shell.py:1815
 "~C~ommand (!.! is the file; else it goes at the end)" = "コマンド(~C~) (!.! がファイル。なければ末尾に付加)"
-# navigator/widgets/shell/shell/shell.py:2471, navigator/widgets/shell/shell/shell.py:2657
+# navigator/widgets/shell/shell/shell.py:2475, navigator/widgets/shell/shell/shell.py:2661
 "{protocol} link" = "{protocol} リンク"
-# navigator/widgets/shell/shell/shell.py:2918
+# navigator/widgets/shell/shell/shell.py:2922
 "Track viewing history" = "表示履歴を記録"
-# navigator/widgets/shell/shell/shell.py:2918
+# navigator/widgets/shell/shell/shell.py:2922
 "Track editing history" = "編集履歴を記録"
-# navigator/widgets/shell/shell/shell.py:1107
+# navigator/widgets/shell/shell/shell.py:1110
 "The shell cannot complete" = "シェルが補完できません"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1541
 "User menu (global)" = "ユーザーメニュー (グローバル)"
-# navigator/widgets/shell/shell/shell.py:1537
+# navigator/widgets/shell/shell/shell.py:1541
 "Local menu" = "ローカルメニュー"
-# navigator/widgets/shell/shell/shell.py:1539
+# navigator/widgets/shell/shell/shell.py:1543
 "User menu (local)" = "ユーザーメニュー (ローカル)"
-# navigator/widgets/shell/shell/shell.py:1539
+# navigator/widgets/shell/shell/shell.py:1543
 "Global menu" = "グローバルメニュー"
-# navigator/widgets/shell/shell/shell.py:2619
+# navigator/widgets/shell/shell/shell.py:2623
 "Close the {protocol} connection to {host}?" = "{host} への {protocol} 接続を閉じますか?"
-# navigator/widgets/shell/shell/shell.py:367
+# navigator/widgets/shell/shell/shell.py:370
 "Store Color Palette" = "カラーパレットの保存"
-# navigator/widgets/shell/shell/shell.py:425
+# navigator/widgets/shell/shell/shell.py:428
 "Load Color Palette" = "カラーパレットの読み込み"
-# navigator/widgets/shell/shell/shell.py:272
+# navigator/widgets/shell/shell/shell.py:275
 "No desktop has been saved" = "保存されたデスクトップはありません"
-# navigator/widgets/shell/shell/shell.py:294
+# navigator/widgets/shell/shell/shell.py:297
 "Cannot read the theme: {error}" = "テーマを読めません: {error}"
-# navigator/widgets/shell/shell/shell.py:313
+# navigator/widgets/shell/shell/shell.py:316
 "Cannot save the palette: {error}" = "パレットを保存できません: {error}"
-# navigator/widgets/shell/shell/shell.py:440
+# navigator/widgets/shell/shell/shell.py:443
 "Not a palette:\n{error}" = "パレットではありません:\n{error}"
-# navigator/widgets/shell/shell/shell.py:548
+# navigator/widgets/shell/shell/shell.py:551
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "矢印キーで範囲を移動\nShift+矢印キーで範囲のサイズを変更\n\n選択後 Enter で範囲の内容を\nクリップボードに入れます"
-# navigator/widgets/shell/shell/shell.py:2097
+# navigator/widgets/shell/shell/shell.py:2101
 "No file manager is open to panelize into" = "パネル化先のファイル管理が開いていません"
-# navigator/widgets/shell/shell/shell.py:2518
+# navigator/widgets/shell/shell/shell.py:2522
 "Wrong passphrase for {key}. Try again:" = "{key} のパスフレーズが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2519
+# navigator/widgets/shell/shell/shell.py:2523
 "Passphrase for {key}:" = "{key} のパスフレーズ:"
-# navigator/widgets/shell/shell/shell.py:2505
-"Wrong secret key for {who}. Try again:" = "{who} のシークレットキーが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2506
-"Secret key for {who}:" = "{who} のシークレットキー:"
 # navigator/widgets/shell/shell/shell.py:2509
-"Wrong {protocol} password for {who}. Try again:" = "{who} の {protocol} パスワードが違います。再入力:"
+"Wrong secret key for {who}. Try again:" = "{who} のシークレットキーが違います。再入力:"
 # navigator/widgets/shell/shell/shell.py:2510
+"Secret key for {who}:" = "{who} のシークレットキー:"
+# navigator/widgets/shell/shell/shell.py:2513
+"Wrong {protocol} password for {who}. Try again:" = "{who} の {protocol} パスワードが違います。再入力:"
+# navigator/widgets/shell/shell/shell.py:2514
 "{protocol} password for {who}:" = "{who} の {protocol} パスワード:"
-# navigator/widgets/shell/shell/shell.py:2658
+# navigator/widgets/shell/shell/shell.py:2662
 "Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
-# navigator/widgets/shell/shell/shell.py:2921
+# navigator/widgets/shell/shell/shell.py:2925
 "Set the interface option\n\"{option}\" ON first" = "先にインターフェースのオプション\n\"{option}\" をオンにしてください"
-# navigator/widgets/shell/shell/shell.py:1472
+# navigator/widgets/shell/shell/shell.py:1476
 "Cannot edit {path}: {error}" = "{path} を編集できません: {error}"
-# navigator/widgets/shell/shell/shell.py:1499
+# navigator/widgets/shell/shell/shell.py:1503
 "File {name} not found" = "ファイル {name} が見つかりません"
-# navigator/widgets/shell/shell/shell.py:1650
+# navigator/widgets/shell/shell/shell.py:1654
 "Cannot write the menu's script: {error}" = "メニューのスクリプトを書き込めません: {error}"
-# navigator/widgets/shell/shell/shell.py:2488
+# navigator/widgets/shell/shell/shell.py:2492
 "Connecting to {host} over {protocol}" = "{protocol} で {host} に接続中"
-# navigator/widgets/shell/shell/shell.py:2729
+# navigator/widgets/shell/shell/shell.py:2733
 "Cannot save the key bindings: {error}" = "キー割り当てを保存できません: {error}"
-# navigator/widgets/shell/shell/shell.py:2885
+# navigator/widgets/shell/shell/shell.py:2889
 "Cannot save the settings: {error}" = "設定を保存できません: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "終了ステータス {status}"
@@ -4425,6 +4449,10 @@ flag = "JP"
 "A file's time and the clock: 24 or 12 hours" = "ファイルの時刻と時計: 24 時間制か 12 時間制"
 # navigator/settings.py
 "The day a calendar's week starts on" = "カレンダーの週の開始曜日"
+# navigator/settings.py
+"Utilities > Calendar's calendar system: auto (the language's own, else Gregorian), gregorian, julian, hebrew, islamic (tabular), ummalqura, diyanet, mabims_id, mabims_my, chinese, korean, vietnamese, japanese, thai, roc, burmese, chhankitek, tibetan, persian, afghan, indian, bengali, nepali, badi, ethiopian or coptic" = "ユーティリティ > カレンダーの暦法: auto(言語の暦、なければグレゴリオ暦)、gregorian、julian、hebrew、islamic、ummalqura、diyanet、mabims_id、mabims_my、chinese、korean、vietnamese、japanese、thai、roc、burmese、chhankitek、tibetan、persian、afghan、indian、bengali、nepali、badi、ethiopian、coptic"
+# navigator/settings.py
+"What Utilities > Calendar shows beside the Gregorian: only (the calendar system alone), gregorian_grid (the Gregorian month, the day spelled in the calendar system), selected_grid (the calendar system's month, the Gregorian day spelled), or both (the two months side by side)" = "Utilities > Calendar が西暦と併せて表示するもの: only(選択した暦のみ)、gregorian_grid(西暦の月と選択した暦の日付)、selected_grid(選択した暦の月と西暦の日付)、both(両方の月を並べる)"
 # navigator/settings.py
 "The level a game starts at, 1 to 10" = "ゲーム開始時のレベル (1〜10)"
 # navigator/settings.py

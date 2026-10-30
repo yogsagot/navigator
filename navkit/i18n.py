@@ -243,15 +243,19 @@ def tr_plain(text: str) -> str:
     """*text*'s translation looked up and returned without hotkey marks.
 
     What finds a menu entry by its caption: an anchor is written in English
-    with no tildes (``"Make directory"``) while the key carries them.
+    with no tildes (``"Make directory"``) while the key carries them.  Where
+    a catalogue has both -- ``"~F~ile"`` the menu's and ``"File"`` another's
+    -- the hotkeyed one is the menu's, so it wins: Japanese writes the first
+    ``ファイル(~F~)`` and the second ``ファイル``, and only the first is the
+    caption an anchor looks for.
     """
     code = _code()
     plain = _PLAIN.get(code)
     if plain is None:
+        entries = [(key, value) for key, value in catalogue(code).items() if isinstance(value, str)]
         plain = {
             key.replace("~", ""): value.replace("~", "")
-            for key, value in catalogue(code).items()
-            if isinstance(value, str)
+            for key, value in sorted(entries, key=lambda entry: "~" in entry[0])
         }
         _PLAIN[code] = plain
     bare = text.replace("~", "")

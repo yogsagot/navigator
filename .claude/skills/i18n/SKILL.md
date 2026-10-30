@@ -67,7 +67,10 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   are fine only where the rest are two.
 - **Not translated**: `Command.title` stays English in the class (the key bar calls `tr` at render), key specs, ini
   keys and comments, history ids, paths, encoding names, stderr/log text, programmer exceptions, `strerror`.
-- **Never compare a shown caption with an English literal**; menu anchors already go through `tr_plain`.
+- **Never compare a shown caption with an English literal**; menu anchors already go through `tr_plain`. Where a
+  catalogue has both `"~F~ile"` and a plain `"File"`, `tr_plain("File")` is the hotkeyed one's (the menu's):
+  Japanese and Chinese translate them `ファイル(~F~)` and `ファイル`, and a window menu's `after: 'File'`
+  raised `LookupError` while the plain one won.
 
 ## Adding a language
 

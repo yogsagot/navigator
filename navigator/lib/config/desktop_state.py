@@ -17,7 +17,8 @@ What a window keeps:
   -- cursor, scroll -- is the file's own history's, which opening restores.
   SmartPad comes back as SmartPad.
 - a **tree window** the directory it was on.
-- the **calculator** its expression, and the **calendar** that it was open (on today again).
+- the **calculator** its expression, and the **calendar** that it was open (on today again), the calendar
+  system and the view its menu chose.
 
 And whether the trash can shows, and where (``TTrashCan``).
 
@@ -134,7 +135,7 @@ def _window(window: Any) -> dict[str, Any] | None:
     elif isinstance(window, CalculatorWindow):
         kept.update(kind="calculator", expression=window.line.value)
     elif isinstance(window, CalendarWindow):
-        kept.update(kind="calendar")
+        kept.update(kind="calendar", calendar=window.chosen, view=window.display)
     elif isinstance(window, VolumesWindow):
         kept.update(kind="volumes", all=bool(window.show_all), free=bool(window.show_free))
     else:
@@ -303,7 +304,12 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
     if kind == "calendar":
         from navigator.widgets.shell.calendar_window import CalendarWindow
 
-        return desktop.open(CalendarWindow())
+        window = desktop.open(CalendarWindow())
+        chosen = kept.get("calendar")
+        window.chosen = chosen if isinstance(chosen, str) else ""
+        view = kept.get("view")
+        window.display = view if isinstance(view, str) else ""
+        return window
     if kind == "volumes":
         from navigator.widgets.shell.volumes_window import VolumesWindow
 
@@ -354,9 +360,8 @@ async def restore(desktop: Any, data: dict[str, Any], *,
             if kept.get("kind") == "calendar":
                 # It cannot be resized: its own size, whatever an older
                 # Navigator saved, so a row added since is not cut off.
-                from navigator.widgets.shell.calendar_window.calendar_window import HEIGHT, WIDTH
-
-                window.locate(window.x, window.y, min(WIDTH, desktop.width), min(HEIGHT, desktop.height))
+                width, height = window.size()
+                window.locate(window.x, window.y, min(width, desktop.width), min(height, desktop.height))
         made.append(window)
         if index == front:
             in_front = window

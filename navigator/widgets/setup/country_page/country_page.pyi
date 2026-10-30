@@ -4,6 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -14,8 +15,10 @@ from typing import Any
 from navkit.i18n import tr
 from navkit.reactive import bind
 from navkit.widget import Widget
+from navml.calendars import SYSTEMS, plain
 from navigator.lib.config import country
 from navigator.settings import SETTINGS, CountryData
+from navigator.widgets.shell.calendar_window.calendar_window import view_captions
 
 
 class CountryPage(_Component):
@@ -26,6 +29,8 @@ class CountryPage(_Component):
     time_format: RadioButtons
     week_caption: Label
     first_day: RadioButtons
+    calendar: ChoiceField
+    calendar_view: ChoiceField
     custom_date: Field
     custom_hint: StaticText
     example: StaticText

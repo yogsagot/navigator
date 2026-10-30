@@ -32,7 +32,15 @@ calendar only looked and this one chooses.
 * **The day under the cursor is spelled under the weeks** in the line's
   ``date_format``, so the calendar says what choosing will write -- a row
   the drop-down has and a view given no format (the *Calendar* window)
-  does not.
+  does not.  A ``compact`` view paints only the weeks the month has and
+  puts that row right under them.
+* **Another calendar** (:mod:`navml.calendars`): ``system`` puts the grid
+  in it -- its months, their lengths, its month and year lists, PgUp and PgDn
+  turning its months and Ctrl+PgUp and Ctrl+PgDn its years.  The Gregorian is
+  the default, and the drop-down's stays it, since it writes a ``strftime``
+  line.  ``day`` is a ``date`` whatever the calendar, so the row under the
+  weeks spells it Gregorian by its ``date_format`` in any -- or, given a
+  ``label``, in that calendar (``19 Heshvan 5787``), whichever the grid's.
 * **Weeks start on Monday**, ISO's order, where TVDEMO's started on Sunday;
   ``first_weekday`` says otherwise for one view, and
   ``CalendarView.default_first_weekday`` for every view made after -- an
@@ -56,6 +64,8 @@ from navkit.screen import Surface
 from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
+from navml.calendars import GREGORIAN, CalendarSystem, gregorian_month_names
+from navml.calendars import system as calendar_system
 from navml.component import take_declared
 from navml.widgets.dialog.commands import (
     ChooseMonth,
@@ -80,14 +90,14 @@ SECTIONS = ("days", "month", "year")
 #: How many years either side of the one shown the year list offers.
 YEARS_AROUND = 100
 
+#: The fewest weeks a :attr:`CalendarView.compact` view paints, so a month of
+#: a week or two (the Ethiopian Pagume) does not fold the view up.
+LEAST_WEEKS = 4
+
 
 def month_names() -> list[str]:
     """The twelve months, January first, in the current language."""
-    return [
-        tr("January"), tr("February"), tr("March"), tr("April"), tr("May"), tr("June"),
-        tr("July"), tr("August"), tr("September"), tr("October"), tr("November"),
-        tr("December"),
-    ]
+    return gregorian_month_names()
 
 
 def weekday_names() -> list[str]:
@@ -157,6 +167,14 @@ class CalendarView(Widget):
     #: How the day under the cursor is spelled on the row under the weeks,
     #: in ``strftime``'s directives; empty, there is no such row.
     date_format: str = reactive("")
+    #: The calendar the grid is in, by its key in ``navml.calendars.SYSTEMS``.
+    system: str = reactive("gregorian")
+    #: The calendar the row under the weeks spells the day in, by its key;
+    #: empty or the Gregorian, by :attr:`date_format`.
+    label: str = reactive("")
+    #: Only the weeks the month has (:meth:`rows`), the spelled row right
+    #: under them, where a view otherwise keeps six whatever the month.
+    compact: bool = reactive(False)
 
     #: What pages and picks, wherever the keys are: commands, so the *Calendar*
     #: window's menu shows them and Key bindings rebinds them.  The arrows,
@@ -182,16 +200,42 @@ class CalendarView(Widget):
 
     # -- the model -----------------------------------------------------------
 
+    @property
+    def calendar(self) -> CalendarSystem:
+        """The calendar the grid is in -- the Gregorian on a day the chosen
+        one does not know (the Chinese before 1901 and after 2099), so the
+        month is still shown and paging back into its years returns to it."""
+        calendar = calendar_system(self.system)
+        return calendar if calendar.holds(self.day) else GREGORIAN
+
+    def labelled(self) -> CalendarSystem | None:
+        """The calendar the row under the weeks spells the day in, if not the
+        Gregorian -- which it is again on a day that calendar does not know."""
+        calendar = calendar_system(self.label) if self.label else GREGORIAN
+        return calendar if calendar is not GREGORIAN and calendar.holds(self.day) else None
+
+    def spelled(self) -> str:
+        """The row under the weeks: the day in :attr:`label`'s calendar, else
+        by :attr:`date_format`; empty, no row."""
+        calendar = self.labelled()
+        if calendar is not None:
+            return calendar.spell(self.day)
+        return self.day.strftime(self.date_format) if self.date_format else ""
+
     def weeks(self) -> list[list[datetime.date | None]]:
         """The month shown, as six weeks of seven, None outside it."""
-        cal = _calendar.Calendar(self.first_weekday)
-        weeks = [
-            [day if day.month == self.day.month else None for day in week]
-            for week in cal.monthdatescalendar(self.day.year, self.day.month)
-        ]
-        while len(weeks) < 6:
-            weeks.append([None] * 7)
-        return weeks
+        days = self.calendar.month_days(self.day)
+        lead = (days[0].weekday() - self.first_weekday) % 7
+        cells: list[datetime.date | None] = [None] * lead + list(days)
+        cells += [None] * (42 - len(cells))
+        return [cells[row * 7:row * 7 + 7] for row in range(6)]
+
+    def rows(self) -> int:
+        """How many weeks are painted: six, or for a :attr:`compact` view the
+        month's own, at least :data:`LEAST_WEEKS`."""
+        if not self.compact:
+            return 6
+        return max(LEAST_WEEKS, sum(1 for week in self.weeks() if any(week)))
 
     def move(self, days: int) -> None:
         try:
@@ -200,25 +244,46 @@ class CalendarView(Widget):
             pass
 
     def turn(self, months: int) -> None:
-        if 1 <= self.day.year + (self.day.month - 1 + months) // 12 <= 9999:
-            self.day = add_months(self.day, months)
+        """*months* on in the grid's calendar; nothing past the years a date holds."""
+        try:
+            self.day = self.calendar.add_months(self.day, months)
+        except ValueError:
+            pass
+
+    def turn_years(self, years: int) -> None:
+        """*years* on in the grid's calendar -- not twelve months in one with
+        thirteen in a year."""
+        try:
+            self.day = self.calendar.add_years(self.day, years)
+        except ValueError:
+            pass
+
+    def go_to_month(self, month: int) -> None:
+        """Month *month* of the year shown, on the same day or its last one."""
+        calendar = self.calendar
+        year, _, number = calendar.from_date(self.day)
+        try:
+            self.day = calendar.to_date(year, month, min(number, calendar.days_in_month(year, month)))
+        except ValueError:
+            pass
 
     def set_month(self, month: int) -> None:
         """A month picked from the list: shown, and the keys back on the days."""
-        self.turn(month - self.day.month)
+        self.go_to_month(month)
         self.section = "days"
 
     def set_year(self, year: int) -> None:
         """A year picked from the list: shown, and the keys back on the days."""
-        self.turn(12 * (year - self.day.year))
+        self.turn_years(year - self.calendar.from_date(self.day)[0])
         self.section = "days"
 
     # -- the top row ---------------------------------------------------------
 
     def title_spans(self) -> tuple[tuple[int, str], tuple[int, str]]:
         """Where the month's name and the year are painted, and what they say."""
-        month, year = month_names()[self.day.month - 1], str(self.day.year)
         inner = self.width - 2 * self.inset
+        # Between the arrows, with a blank inside each.
+        month, year = self.calendar.title(self.day, inner - 6)
         start = self.inset + max(0, (inner - display_width(month) - 1 - display_width(year)) // 2)
         return (start, month), (start + display_width(month) + 1, year)
 
@@ -228,16 +293,19 @@ class CalendarView(Widget):
         if app is None:
             return None
         self.section = section
+        calendar = self.calendar
+        shown, month, _ = calendar.from_date(self.day)
         if section == "month":
-            items = month_names()
-            current = self.day.month - 1
+            items = calendar.month_names(shown)
+            current = month - 1
             chosen = lambda text: self.set_month(items.index(text) + 1)  # noqa: E731
         else:
-            first = max(1, self.day.year - YEARS_AROUND)
-            last = min(9999, self.day.year + YEARS_AROUND)
-            items = [str(year) for year in range(first, last + 1)]
-            current = self.day.year - first
-            chosen = lambda text: self.set_year(int(text))  # noqa: E731
+            lowest, highest = calendar.years()
+            first = max(lowest, shown - YEARS_AROUND)
+            last = min(highest, shown + YEARS_AROUND)
+            items = [calendar.year_label(year) for year in range(first, last + 1)]
+            current = max(0, shown - first)
+            chosen = lambda text: self.set_year(first + items.index(text))  # noqa: E731
         window = HistoryList(_Choice(chosen))
         window.items = items
         window.cursor = current
@@ -284,11 +352,17 @@ class CalendarView(Widget):
             elif event.matches("home", "end"):
                 # The year's first or last month; on the year, its first or
                 # last day.
-                last = event.matches("end")
+                calendar = self.calendar
+                year = calendar.from_date(day)[0]
+                month = calendar.months_in_year(year) if event.matches("end") else 1
                 if section == "month":
-                    self.turn((12 if last else 1) - day.month)
+                    self.go_to_month(month)
                 else:
-                    self.day = datetime.date(day.year, 12, 31) if last else datetime.date(day.year, 1, 1)
+                    number = calendar.days_in_month(year, month) if event.matches("end") else 1
+                    try:
+                        self.day = calendar.to_date(year, month, number)
+                    except ValueError:
+                        pass
             else:
                 # Passed on, as the days pass on what they do not use: Esc
                 # closes the *Calendar* window from the month or the year too.
@@ -304,9 +378,9 @@ class CalendarView(Widget):
         elif event.matches("down"):
             self.move(7)
         elif event.matches("home"):
-            self.day = day.replace(day=1)
+            self.day = self.calendar.month_days(day)[0]
         elif event.matches("end"):
-            self.day = day.replace(day=_calendar.monthrange(day.year, day.month)[1])
+            self.day = self.calendar.month_days(day)[-1]
         else:
             return False
         return True
@@ -320,11 +394,11 @@ class CalendarView(Widget):
         return True
 
     async def on_previous_year(self, command: PreviousYear) -> bool:
-        self.turn(-12)
+        self.turn_years(-1)
         return True
 
     async def on_next_year(self, command: NextYear) -> bool:
-        self.turn(12)
+        self.turn_years(1)
         return True
 
     async def on_choose_month(self, command: ChooseMonth) -> bool:
@@ -339,6 +413,17 @@ class CalendarView(Widget):
         self.day = datetime.date.today()
         self.section = "days"
         return True
+
+    def key_hints(self) -> list[tuple[str, str]]:
+        """PgUp and PgDn, which turn the month -- for the key bar, which shows
+        a table's function keys alone; spelled as they are bound now."""
+        app = self.application
+        hints = []
+        for command, caption in ((PreviousMonth, tr("Prev month")), (NextMonth, tr("Next month"))):
+            key = commands.key_for(app, command, self) if app is not None else None
+            if key:
+                hints.append((commands.key_label(key), caption))
+        return hints
 
     def tooltip_at(self, x: int, y: int) -> str:
         """A day spelled out whole -- its weekday, its ISO week, how far from
@@ -368,6 +453,11 @@ class CalendarView(Widget):
         spelled = day.strftime(self.date_format) if self.date_format else day.isoformat()
         lines = [tr("{weekday}, {date}, week {week}").format(
             weekday=weekday_full_names()[day.weekday()], date=spelled, week=day.isocalendar()[1])]
+        labelled = self.labelled()
+        for calendar in dict.fromkeys((self.calendar, labelled or self.calendar)):
+            note = calendar.note(day)
+            if note:
+                lines.append(note)
         away = (day - datetime.date.today()).days
         if away == 0:
             lines.append(tr("Today"))
@@ -447,6 +537,12 @@ class CalendarView(Widget):
         for column, name in enumerate(names):
             surface.draw_text(inset + 1 + 3 * column, inset + 1, name, weekday)
         today = datetime.date.today()
+        calendar = self.calendar
+        year, month, _ = calendar.from_date(day)
+        first = calendar.to_fixed(year, month, 1)
+        # Its place in the month, or the number a calendar that skips and doubles them (the
+        # Tibetan) writes it with.
+        labels = calendar.day_label if type(calendar).day_label is not CalendarSystem.day_label else None
         for row, week in enumerate(self.weeks()):
             for column, cell in enumerate(week):
                 if cell is None:
@@ -454,12 +550,13 @@ class CalendarView(Widget):
                 style = self.part_style(
                     "day", selected=cell == day and self.section == "days", today=cell == today
                 )
-                surface.draw_text(inset + 3 * column, inset + 2 + row, f"{cell.day:>3}", style)
-        if self.date_format:
-            spelled = day.strftime(self.date_format)
+                number = labels(cell) if labels else cell.toordinal() - first + 1
+                surface.draw_text(inset + 3 * column, inset + 2 + row, f"{number:>3}", style)
+        spelled = self.spelled()
+        if spelled:
             inner = self.width - 2 * inset
             x = inset + max(0, (inner - display_width(spelled)) // 2)
-            surface.draw_text(x, inset + 2 + 6, fit_cells(spelled, inner), self.part_style("title"))
+            surface.draw_text(x, inset + 2 + self.rows(), fit_cells(spelled, inner), self.part_style("title"))
 
 
 class Calendar(CalendarView, DropDown):

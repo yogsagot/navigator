@@ -151,6 +151,17 @@ def test_a_caption_is_found_without_its_hotkey(latvian):
     assert tr_plain("Name") == "Vārds"
 
 
+def test_a_menu_s_hotkeyed_caption_wins_over_the_same_words_plain(tmp_path):
+    # Japanese writes the menu's "~F~ile" with its hotkey after it and a plain
+    # "File" without; a menu anchor "File" looks for the first.  Either order.
+    for keys in (('"~F~ile" = "ファイル(~F~)"', '"File" = "ファイル"'),
+                 ('"File" = "ファイル"', '"~F~ile" = "ファイル(~F~)"')):
+        (tmp_path / "ja.toml").write_text("[strings]\n" + "\n".join(keys) + "\n", encoding="utf-8")
+        register_directory(tmp_path)
+        LOCALE.code = "ja"
+        assert tr_plain("File") == "ファイル(F)"
+
+
 # -- following the language --------------------------------------------------
 
 

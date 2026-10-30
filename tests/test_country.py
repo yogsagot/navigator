@@ -130,7 +130,10 @@ def test_the_page_seeds_from_its_section_and_answers_for_it():
     assert page.first_day.value == 0
     page.first_day.value = 1
     assert page.accept() == {
-        "date_format": "custom", "custom_date": "%d/%m/%y", "time_format": "24h", "first_day": "sunday"}
+        "date_format": "custom", "custom_date": "%d/%m/%y", "time_format": "24h", "first_day": "sunday",
+        "calendar": "auto", "calendar_view": "selected_grid"}
+    page.calendar_view.value = page.calendar_view.choices[3]
+    assert page.accept()["calendar_view"] == "both"
 
 
 def test_the_page_s_example_follows_the_choices_before_ok():
@@ -201,3 +204,30 @@ def test_a_dropped_calendar_starts_its_week_where_country_support_says(tmp_path,
     assert calendar.first_weekday == 6
     # October 2026 begins on a Thursday: the fifth column when Sunday is first.
     assert calendar.weeks()[0].index(datetime(2026, 10, 1).date()) == 4
+
+
+def test_a_week_can_start_on_saturday():
+    section = CountryData()
+    section.first_day = "saturday"
+    assert country.first_weekday(section) == 5
+
+
+def test_the_calendar_system_is_the_chosen_one_or_the_language_s():
+    from navkit import i18n
+
+    section = CountryData()
+    assert section.calendar == "auto" and country.calendar_system(section) == "gregorian"
+    i18n.LOCALE.code = "ar"
+    assert country.calendar_system(section) == "ummalqura"
+    section.calendar = "julian"
+    assert country.calendar_system(section) == "julian"
+
+
+def test_the_page_offers_the_calendar_system_by_name():
+    section = CountryData()
+    section.calendar = "hebrew"
+    page = CountryPage(section=section)
+    assert page.calendar.value == "Hebrew"
+    assert page.calendar.choices[:3] == ["Language's own", "Gregorian", "Julian"]
+    page.calendar.value = "Indian national (Saka)"
+    assert page.accept()["calendar"] == "indian"

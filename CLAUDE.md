@@ -95,6 +95,22 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   `UNICODE`, the newest any supported Python has, and nerd-fonts' glyph names for `NERD_FONTS`) after raising either
   pin: `./venv/bin/python tools/unicode_tables.py` (downloads both); `--check` exits 1 when they are stale or a
   Python's `unicodedata` is newer than `UNICODE`, offline (a test runs it)
+- Regenerate the Chinese calendar's months (`navml/chinese_data.py`, lunar years 1901-2099) from the Hong Kong
+  Observatory's conversion tables: `./venv/bin/python tools/chinese_calendar.py [--cache DIR]` (downloads 200
+  files); `--check` exits 1 when the module is inconsistent, offline (a test runs it). Saudi Arabia's Umm al-Qura
+  months (`navml/ummalqura_data.py`, 1356-1500 AH) the same way from R. H. van Gent's tabulation:
+  `./venv/bin/python tools/umm_al_qura.py`, `--check` likewise. The Korean and Vietnamese months
+  (`navml/korean_data.py`, `navml/vietnamese_data.py`) are computed by `./venv/bin/python tools/lunisolar.py`, which
+  first checks its method against the HKO table and writes nothing if it disagrees; `--check` likewise. Nepal's
+  Bikram Sambat (`navml/nepali_data.py`) by `./venv/bin/python tools/bikram_sambat.py`: the years three packages'
+  tables agree on (fetched from PyPI as data), then computed by the rule it verifies against them; `--check`
+  likewise. The Badíʿ calendar's Naw-Rúz days (`navml/badi_data.py`) by `./venv/bin/python tools/badi.py`: the
+  World Centre's 172-221 BE as transcribed in it, the later ones by the equinox and sunset at Ṭihrán, checked
+  against those; `--check` likewise. Turkey's Diyanet and the MABIMS Hijri calendars (`navml/diyanet_data.py`,
+  `navml/mabims_id_data.py`, `navml/mabims_my_data.py`) by `./venv/bin/python tools/hijri_criteria.py [--only NAME]`
+  (slow: a whole-Earth crescent scan a month): van Gent's published months, then computed by each crescent rule,
+  verified against those first, with `tools/moon.py`'s Moon (`python tools/moon.py` self-tests it); `--check`
+  likewise
 - Regenerate the colour schemes from a DOS Navigator distribution:
   `./venv/bin/python tools/palconv.py path/to/DN/COLORS --out navigator/styles/themes`; `--dump ONE.PAL` prints one
   palette's decoded slots instead. The fourteen modern themes (ember, paper, nord, solarized-light, gruvbox, gruvbox-light,

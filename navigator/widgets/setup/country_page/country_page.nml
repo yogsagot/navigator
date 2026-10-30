@@ -1,3 +1,4 @@
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -67,22 +68,45 @@ CountryPage:
         x: 40
         y: 5
         width: 20
-        height: 2
-        items: ["~M~onday", "~S~unday"]
+        height: 3
+        items: ["~M~onday", "~S~unday", "S~a~turday"]
+
+    #: Not DN's either: the calendar Utilities > Calendar shows its month
+    #: in, ``[country] calendar``.
+    ChoiceField:
+        id: calendar
+        x: 3
+        y: 8
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "Ca~l~endar system"
+        #: As *Custom format*'s, under it: the longest of the two in any catalogue
+        #: (Latvian's *Kalendāra sistēma*, 17 cells) and a blank.
+        label_width: 18
+
+    #: And what of it beside the Gregorian, ``[country] calendar_view``.
+    ChoiceField:
+        id: calendar_view
+        x: 3
+        y: 9
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "Calendar ~v~iew"
+        label_width: 18
 
     Field:
         id: custom_date
         x: 3
-        y: 7
+        y: 10
         width: max(0, parent.width - 6)
         height: 1
         label_text: "Custom ~f~ormat"
-        label_width: 16
+        label_width: 18
 
     StaticText:
         id: custom_hint
         x: 3
-        y: 8
+        y: 11
         width: max(0, parent.width - 6)
         #: Three rows, wrapped: two at the page's full width, a third when
         #: Settings' tabs down the left narrow it.
@@ -93,6 +117,6 @@ CountryPage:
     StaticText:
         id: example
         x: 3
-        y: 11
+        y: 14
         width: max(0, parent.width - 6)
         height: 1
