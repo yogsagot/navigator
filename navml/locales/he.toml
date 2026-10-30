@@ -672,7 +672,7 @@ direction = "rtl"
 "Select all" = "בחר הכל"
 # navml/widgets/dialog/commands.py:119
 "Previous month" = "החודש הקודם"
-# navml/widgets/dialog/commands.py:125, navml/widgets/dialog/date_button/date_button.py:422
+# navml/widgets/dialog/commands.py:125
 "Next month" = "החודש הבא"
 # navml/widgets/dialog/commands.py:131
 "Previous year" = "השנה הקודמת"
@@ -690,51 +690,55 @@ direction = "rtl"
 "Calendar view" = "תצוגת לוח שנה"
 # navml/widgets/dialog/commands.py:186
 "Swap calendars" = "החלפת לוחות"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "ב׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Tu" = "ג׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "We" = "ד׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Th" = "ה׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Fr" = "ו׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Sa" = "ש׳"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Su" = "א׳"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Monday" = "יום שני"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Tuesday" = "יום שלישי"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Wednesday" = "יום רביעי"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Thursday" = "יום חמישי"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Friday" = "יום שישי"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Saturday" = "שבת"
 # navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "יום שני"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "יום שלישי"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "יום רביעי"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "יום חמישי"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "יום שישי"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "שבת"
+# navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "יום ראשון"
-# navml/widgets/dialog/date_button/date_button.py:422
-"Prev month" = "חודש קודם"
-# navml/widgets/dialog/date_button/date_button.py:441
-"The month before" = "החודש הקודם"
-# navml/widgets/dialog/date_button/date_button.py:443
-"The month after" = "החודש הבא"
-# navml/widgets/dialog/date_button/date_button.py:445
-"A click chooses the month" = "לחיצה בוחרת את החודש"
-# navml/widgets/dialog/date_button/date_button.py:447
-"A click chooses the year" = "לחיצה בוחרת את השנה"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:428
+"Month" = "חודש"
+# navml/widgets/dialog/date_button/date_button.py:428
+"Year" = "שנה"
+# navml/widgets/dialog/date_button/date_button.py:429
+"Choose" = "בחירה"
+# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
 "Today" = "היום"
-# navml/widgets/dialog/date_button/date_button.py:454
-"{weekday}, {date}, week {week}" = "{weekday}, {date}, שבוע {week}"
+# navml/widgets/dialog/date_button/date_button.py:463
+"The month before" = "החודש הקודם"
 # navml/widgets/dialog/date_button/date_button.py:465
-"{n} day from today" = ["בעוד יום אחד", "בעוד יומיים", "בעוד {n} ימים"]
+"The month after" = "החודש הבא"
 # navml/widgets/dialog/date_button/date_button.py:467
+"A click chooses the month" = "לחיצה בוחרת את החודש"
+# navml/widgets/dialog/date_button/date_button.py:469
+"A click chooses the year" = "לחיצה בוחרת את השנה"
+# navml/widgets/dialog/date_button/date_button.py:476
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, שבוע {week}"
+# navml/widgets/dialog/date_button/date_button.py:487
+"{n} day from today" = ["בעוד יום אחד", "בעוד יומיים", "בעוד {n} ימים"]
+# navml/widgets/dialog/date_button/date_button.py:489
 "{n} day ago" = ["לפני יום אחד", "לפני יומיים", "לפני {n} ימים"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter מאשר, Escape סוגר."

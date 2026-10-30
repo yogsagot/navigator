@@ -1148,7 +1148,7 @@ direction = "rtl"
 "S~a~turday" = "ال~س~بت"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "نظام الت~ق~ويم"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "~ط~ريقة عرض التقويم"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "~ص~يغة مخصصة"
@@ -1542,27 +1542,27 @@ direction = "rtl"
 "E~v~aluate" = "~ح~ساب"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "التقويم"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "إلى تاريخ ال~ي~وم"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "ال~ت~قويم"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "التنقل بين الشهور والسنوات"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "الشهر ال~س~ابق"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "الشهر ال~ت~الي"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "السنة ال~م~اضية"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "السنة ال~ق~ادمة"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "اختيار ال~ش~هر..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "اختيار ال~ع~ام..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "ت~ب~ديل التقويمين"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "~ن~ظام التقويم"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "سجل الأوامر"
@@ -3412,6 +3412,8 @@ direction = "rtl"
 "The calendar system is the Gregorian" = "التقويم المختار هو الميلادي"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "الشهران معروضان"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "ميلادي"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}، {date}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4129,8 +4131,6 @@ direction = "rtl"
 # navigator/lib/system/mediainfo.py
 "Album" = "الألبوم"
 # navigator/lib/system/mediainfo.py
-"Year" = "السنة"
-# navigator/lib/system/mediainfo.py
 "Track" = "المقطع"
 # navigator/lib/system/mediainfo.py
 "Genre" = "النوع"
@@ -4497,3 +4497,4 @@ direction = "rtl"
 "~Start~" = "~بدء~"
 "~End~" = "~نهاية~"
 "~Score~" = "~حصيلة~"
+"Year" = "السنة"

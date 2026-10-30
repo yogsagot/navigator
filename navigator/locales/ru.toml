@@ -1147,7 +1147,7 @@ flag = "RU"
 "S~a~turday" = "Су~б~боты"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "~Т~ип календаря"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "Ви~д~ календаря"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "Сво~й~ формат"
@@ -1541,27 +1541,27 @@ flag = "RU"
 "E~v~aluate" = "Вы~ч~ислить"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "Календарь"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "~Т~екущая дата"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "~К~алендарь"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "Переход между месяцами и годами"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "~П~редыдущий месяц"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "~С~ледующий месяц"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "Пр~е~дыдущий год"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "С~л~едующий год"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "Выбрать ~м~есяц..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "Выбрать ~г~од..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "П~о~менять календари"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "Тип ~к~алендаря"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "История команд"
@@ -3411,6 +3411,8 @@ flag = "RU"
 "The calendar system is the Gregorian" = "Выбран григорианский календарь"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "Показаны оба месяца"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "Григор."
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}, {date}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4128,8 +4130,6 @@ flag = "RU"
 # navigator/lib/system/mediainfo.py
 "Album" = "Альбом"
 # navigator/lib/system/mediainfo.py
-"Year" = "Год"
-# navigator/lib/system/mediainfo.py
 "Track" = "Трек"
 # navigator/lib/system/mediainfo.py
 "Genre" = "Жанр"
@@ -4528,3 +4528,4 @@ flag = "RU"
 "O~w~ner      Group      Others     Special" = "В~л~аделец   Группа     Прочие     Особые"
 "~Name                           Start  End       Score~" = "~Имя                            Старт  Финиш     Очки~"
 "Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"
+"Year" = "Год"

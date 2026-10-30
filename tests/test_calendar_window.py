@@ -598,8 +598,9 @@ def test_c_swaps_the_month_between_the_calendar_and_the_gregorian_and_the_key_ba
                   KeyEvent("c", "C", shift=True), lambda a: None, lambda a: None, look("back"),
                   view("only"), lambda a: None, KeyEvent("c", "c"), lambda a: None, lambda a: None, look("only"),
                   view("both"), lambda a: None, KeyEvent("c", "c"), lambda a: None, lambda a: None, look("both")])
-    # PgUp and PgDn lead the bar, C after them.
-    assert seen["bar"][:3] == [("PgUp", "Prev month"), ("PgDn", "Next month"), ("C", "Gregorian")]
+    # PgUp and PgDn, Ctrl with them, M and Y, each pair one hint, and T lead the bar; C after them.
+    assert seen["bar"][:5] == [("PgUp/Dn", "Month"), ("^PgUp/Dn", "Year"), ("M/Y", "Choose"),
+                               ("T", "Today"), ("C", "Gregorian")]
     # Nothing to swap with the Gregorian chosen: no hint, greyed.
     assert seen["gregorian"][3:] == ([], False)
     assert seen["hebrew"] == ("selected_grid", "hebrew", "23-03-2027", [("C", "Gregorian")], True)
@@ -609,3 +610,32 @@ def test_c_swaps_the_month_between_the_calendar_and_the_gregorian_and_the_key_ba
     assert seen["only"] == ("only", "gregorian", "", [("C", "Hebrew")], True)
     # Side by side there is nothing to swap.
     assert seen["both"][:2] == ("both", "hebrew") and seen["both"][3:] == ([], False)
+
+
+def _languages() -> list[str]:
+    from navkit.i18n import languages, register_package
+
+    register_package("navml.locales")
+    register_package("navigator.locales")
+    return ["en", *sorted(code for code in languages() if code != "en")]
+
+
+@pytest.mark.parametrize("code", _languages())
+def test_the_calendar_s_key_bar_keeps_f1_and_f10_in_every_language(app, code):
+    from navkit import i18n
+    from navkit.bidi import display_width
+    from navigator.widgets.shell.keybar.keybar import _label, _title
+
+    seen = {}
+
+    def look(a):
+        row = a.shell.keybar._row()
+        seen["keys"] = [key for key, _ in row]
+        # Every item at its tightest: a blank before it, its key, a blank, its caption.
+        seen["width"] = sum(1 + display_width(_label(key, item)) + 1 + display_width(_title(item)) for key, item in row)
+
+    run_app(app, [open_calendar, Until(lambda a: calendar(a) is not None),
+                  lambda a: setattr(i18n.LOCALE, "code", code), lambda a: setattr(calendar(a), "chosen", "hebrew"),
+                  lambda a: None, look])
+    assert {"PgUp/Dn", "^PgUp/Dn", "M/Y", "T", "C", "f1", "f10"} <= set(seen["keys"])
+    assert seen["width"] <= 80, f"{code}: the calendar's key bar needs {seen['width']} columns"

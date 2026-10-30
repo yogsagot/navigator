@@ -671,7 +671,7 @@ flag = "LV"
 "Select all" = "Atlasīt visu"
 # navml/widgets/dialog/commands.py:119
 "Previous month" = "Iepriekšējais mēnesis"
-# navml/widgets/dialog/commands.py:125, navml/widgets/dialog/date_button/date_button.py:422
+# navml/widgets/dialog/commands.py:125
 "Next month" = "Nākamais mēnesis"
 # navml/widgets/dialog/commands.py:131
 "Previous year" = "Iepriekšējais gads"
@@ -689,51 +689,55 @@ flag = "LV"
 "Calendar view" = "Kalendāra rādījums"
 # navml/widgets/dialog/commands.py:186
 "Swap calendars" = "Samainīt kalendārus"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "Pr"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Tu" = "Ot"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "We" = "Tr"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Th" = "Ce"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Fr" = "Pk"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Sa" = "Se"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Su" = "Sv"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Monday" = "Pirmdiena"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Tuesday" = "Otrdiena"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Wednesday" = "Trešdiena"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Thursday" = "Ceturtdiena"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Friday" = "Piektdiena"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Saturday" = "Sestdiena"
 # navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "Pirmdiena"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "Otrdiena"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "Trešdiena"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "Ceturtdiena"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "Piektdiena"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "Sestdiena"
+# navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "Svētdiena"
-# navml/widgets/dialog/date_button/date_button.py:422
-"Prev month" = "Iepr. mēnesis"
-# navml/widgets/dialog/date_button/date_button.py:441
-"The month before" = "Iepriekšējais mēnesis"
-# navml/widgets/dialog/date_button/date_button.py:443
-"The month after" = "Nākamais mēnesis"
-# navml/widgets/dialog/date_button/date_button.py:445
-"A click chooses the month" = "Klikšķis izvēlas mēnesi"
-# navml/widgets/dialog/date_button/date_button.py:447
-"A click chooses the year" = "Klikšķis izvēlas gadu"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:428
+"Month" = "Mēn."
+# navml/widgets/dialog/date_button/date_button.py:428
+"Year" = "Gads"
+# navml/widgets/dialog/date_button/date_button.py:429
+"Choose" = "Izvēle"
+# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
 "Today" = "Šodien"
-# navml/widgets/dialog/date_button/date_button.py:454
-"{weekday}, {date}, week {week}" = "{weekday}, {date}, {week}. nedēļa"
+# navml/widgets/dialog/date_button/date_button.py:463
+"The month before" = "Iepriekšējais mēnesis"
 # navml/widgets/dialog/date_button/date_button.py:465
-"{n} day from today" = ["pēc {n} dienas", "pēc {n} dienām", "pēc {n} dienām"]
+"The month after" = "Nākamais mēnesis"
 # navml/widgets/dialog/date_button/date_button.py:467
+"A click chooses the month" = "Klikšķis izvēlas mēnesi"
+# navml/widgets/dialog/date_button/date_button.py:469
+"A click chooses the year" = "Klikšķis izvēlas gadu"
+# navml/widgets/dialog/date_button/date_button.py:476
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, {week}. nedēļa"
+# navml/widgets/dialog/date_button/date_button.py:487
+"{n} day from today" = ["pēc {n} dienas", "pēc {n} dienām", "pēc {n} dienām"]
+# navml/widgets/dialog/date_button/date_button.py:489
 "{n} day ago" = ["pirms {n} dienas", "pirms {n} dienām", "pirms {n} dienām"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."

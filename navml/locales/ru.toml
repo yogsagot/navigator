@@ -671,7 +671,7 @@ flag = "RU"
 "Select all" = "Выделить всё"
 # navml/widgets/dialog/commands.py:119
 "Previous month" = "Предыдущий месяц"
-# navml/widgets/dialog/commands.py:125, navml/widgets/dialog/date_button/date_button.py:422
+# navml/widgets/dialog/commands.py:125
 "Next month" = "Следующий месяц"
 # navml/widgets/dialog/commands.py:131
 "Previous year" = "Предыдущий год"
@@ -689,51 +689,55 @@ flag = "RU"
 "Calendar view" = "Вид календаря"
 # navml/widgets/dialog/commands.py:186
 "Swap calendars" = "Поменять календари"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "Пн"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Tu" = "Вт"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "We" = "Ср"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Th" = "Чт"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Fr" = "Пт"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Sa" = "Сб"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Su" = "Вс"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Monday" = "Понедельник"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Tuesday" = "Вторник"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Wednesday" = "Среда"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Thursday" = "Четверг"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Friday" = "Пятница"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Saturday" = "Суббота"
 # navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "Понедельник"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "Вторник"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "Среда"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "Четверг"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "Пятница"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "Суббота"
+# navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "Воскресенье"
-# navml/widgets/dialog/date_button/date_button.py:422
-"Prev month" = "Пред. месяц"
-# navml/widgets/dialog/date_button/date_button.py:441
-"The month before" = "Предыдущий месяц"
-# navml/widgets/dialog/date_button/date_button.py:443
-"The month after" = "Следующий месяц"
-# navml/widgets/dialog/date_button/date_button.py:445
-"A click chooses the month" = "Щелчок выбирает месяц"
-# navml/widgets/dialog/date_button/date_button.py:447
-"A click chooses the year" = "Щелчок выбирает год"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:428
+"Month" = "Месяц"
+# navml/widgets/dialog/date_button/date_button.py:428
+"Year" = "Год"
+# navml/widgets/dialog/date_button/date_button.py:429
+"Choose" = "Выбор"
+# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
 "Today" = "Сегодня"
-# navml/widgets/dialog/date_button/date_button.py:454
-"{weekday}, {date}, week {week}" = "{weekday}, {date}, неделя {week}"
+# navml/widgets/dialog/date_button/date_button.py:463
+"The month before" = "Предыдущий месяц"
 # navml/widgets/dialog/date_button/date_button.py:465
-"{n} day from today" = ["через {n} день", "через {n} дня", "через {n} дней"]
+"The month after" = "Следующий месяц"
 # navml/widgets/dialog/date_button/date_button.py:467
+"A click chooses the month" = "Щелчок выбирает месяц"
+# navml/widgets/dialog/date_button/date_button.py:469
+"A click chooses the year" = "Щелчок выбирает год"
+# navml/widgets/dialog/date_button/date_button.py:476
+"{weekday}, {date}, week {week}" = "{weekday}, {date}, неделя {week}"
+# navml/widgets/dialog/date_button/date_button.py:487
+"{n} day from today" = ["через {n} день", "через {n} дня", "через {n} дней"]
+# navml/widgets/dialog/date_button/date_button.py:489
 "{n} day ago" = ["{n} день назад", "{n} дня назад", "{n} дней назад"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."

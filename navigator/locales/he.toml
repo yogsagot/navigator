@@ -1148,7 +1148,7 @@ direction = "rtl"
 "S~a~turday" = "יום ~ה~שבת"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "סוג ~ל~וח שנה"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "ת~צ~וגת לוח שנה"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "תבנית מ~ו~תאמת"
@@ -1542,27 +1542,27 @@ direction = "rtl"
 "E~v~aluate" = "~ח~שב"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "לוח שנה"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "עבור ל~ת~אריך הנוכחי"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "~ל~וח שנה"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "מעבר בין חודשים ושנים"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "חודש ~ק~ודם"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "חודש ~ה~בא"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "שנה ק~ו~דמת"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "שנה ~ב~אה"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "בחר ~ח~ודש..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "בחר ~ש~נה..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "החל~פ~ת לוחות"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "סוג ~ל~וח שנה"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "היסטוריית פקודות"
@@ -3412,6 +3412,8 @@ direction = "rtl"
 "The calendar system is the Gregorian" = "לוח השנה הנבחר הוא הגרגוריאני"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "שני החודשים מוצגים"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "גרגוריאני"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}, {date}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4129,8 +4131,6 @@ direction = "rtl"
 # navigator/lib/system/mediainfo.py
 "Album" = "אלבום"
 # navigator/lib/system/mediainfo.py
-"Year" = "שנה"
-# navigator/lib/system/mediainfo.py
 "Track" = "רצועה"
 # navigator/lib/system/mediainfo.py
 "Genre" = "סוגה"
@@ -4497,3 +4497,4 @@ direction = "rtl"
 "~Start~" = "~התחלה~"
 "~End~" = "~סיום~"
 "~Score~" = "~ניקוד~"
+"Year" = "שנה"

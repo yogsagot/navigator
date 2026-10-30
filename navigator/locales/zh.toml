@@ -1147,7 +1147,7 @@ flag = "CN"
 "S~a~turday" = "星期六(~A~)"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "历法(~L~)"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "历法显示(~V~)"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "自定义格式(~F~)"
@@ -1541,27 +1541,27 @@ flag = "CN"
 "E~v~aluate" = "计算(~V~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "日历"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "转到今天(~D~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "日历(~C~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "在月份和年份间移动"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "上个月(~P~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "下个月(~N~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "上一年(~R~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "下一年(~X~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "选择月份(~M~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "选择年份(~Y~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "切换历法(~W~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "历法(~S~)"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "命令历史"
@@ -3411,6 +3411,8 @@ flag = "CN"
 "The calendar system is the Gregorian" = "所选历法为公历"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "两个月份均已显示"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "公历"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{date} {weekday}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4128,8 +4130,6 @@ flag = "CN"
 # navigator/lib/system/mediainfo.py
 "Album" = "专辑"
 # navigator/lib/system/mediainfo.py
-"Year" = "年份"
-# navigator/lib/system/mediainfo.py
 "Track" = "音轨"
 # navigator/lib/system/mediainfo.py
 "Genre" = "流派"
@@ -4489,3 +4489,7 @@ flag = "CN"
 "Seconds to wait for a server to answer when connecting" = "连接时等待服务器响应的秒数"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
+
+# No longer shown anywhere; kept so nothing written is lost.
+[unused]
+"Year" = "年份"

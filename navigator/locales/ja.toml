@@ -1147,7 +1147,7 @@ flag = "JP"
 "S~a~turday" = "土曜日(~A~)"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "暦法(~L~)"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "暦の表示(~V~)"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "カスタム書式(~F~)"
@@ -1541,27 +1541,27 @@ flag = "JP"
 "E~v~aluate" = "計算(~V~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "カレンダー"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "今日へ移動(~D~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "カレンダー(~C~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "月と年の間を移動"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "前の月(~P~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "次の月(~N~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "前の年(~R~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "次の年(~X~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "月を選択(~M~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "年を選択(~Y~)..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "暦を切り替え(~W~)"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "暦法(~S~)"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "コマンド履歴"
@@ -3411,6 +3411,8 @@ flag = "JP"
 "The calendar system is the Gregorian" = "選択した暦は西暦です"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "両方の月を表示中です"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "グレゴリオ暦"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{date} ({weekday})"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4128,8 +4130,6 @@ flag = "JP"
 # navigator/lib/system/mediainfo.py
 "Album" = "アルバム"
 # navigator/lib/system/mediainfo.py
-"Year" = "年"
-# navigator/lib/system/mediainfo.py
 "Track" = "トラック"
 # navigator/lib/system/mediainfo.py
 "Genre" = "ジャンル"
@@ -4489,3 +4489,7 @@ flag = "JP"
 "Seconds to wait for a server to answer when connecting" = "接続時にサーバーの応答を待つ秒数"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
+
+# No longer shown anywhere; kept so nothing written is lost.
+[unused]
+"Year" = "年"

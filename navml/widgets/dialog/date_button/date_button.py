@@ -52,6 +52,7 @@ from __future__ import annotations
 
 import calendar as _calendar
 import datetime
+import os
 from typing import Any
 
 from navkit import commands
@@ -415,14 +416,35 @@ class CalendarView(Widget):
         return True
 
     def key_hints(self) -> list[tuple[str, str]]:
-        """PgUp and PgDn, which turn the month -- for the key bar, which shows
-        a table's function keys alone; spelled as they are bound now."""
+        """PgUp and PgDn, which turn the month, Ctrl+PgUp and Ctrl+PgDn the
+        year, M and Y, which drop their lists, and T, today -- for the key bar, which
+        shows a table's function keys alone; spelled as they are bound now,
+        each pair as one hint (``^PgUp/Dn``, ``M/Y``) so the bar still
+        has room for the rest."""
         app = self.application
+        if app is None:
+            return []
         hints = []
-        for command, caption in ((PreviousMonth, tr("Prev month")), (NextMonth, tr("Next month"))):
-            key = commands.key_for(app, command, self) if app is not None else None
-            if key:
-                hints.append((commands.key_label(key), caption))
+        for back, on, caption in ((PreviousMonth, NextMonth, tr("Month")), (PreviousYear, NextYear, tr("Year")),
+                                  (ChooseMonth, ChooseYear, tr("Choose")), (GoToToday, None, tr("Today"))):
+            keys = [commands.key_label(key) for key in (commands.key_for(app, back, self),
+                                                         commands.key_for(app, on, self) if on else None) if key]
+            if len(keys) == 2:
+                # The modifiers both keys share said once, and the start of the
+                # name they share: ``Ctrl-PgUp/Dn``.
+                first, second = keys
+                shared = first.rpartition("-")[0]
+                if shared and second.startswith(shared + "-"):
+                    second = second[len(shared) + 1:]
+                name = first.rpartition("-")[2]
+                common = len(os.path.commonprefix([name, second]))
+                if 0 < common < min(len(name), len(second)):
+                    second = second[common:]
+                keys = [f"{first}/{second}"]
+            if keys:
+                # Ctrl as a caret, the old ``^PgUp`` -- room on the bar for F1 and F10.
+                label = keys[0]
+                hints.append(("^" + label[len("Ctrl-"):] if label.startswith("Ctrl-") else label, caption))
         return hints
 
     def tooltip_at(self, x: int, y: int) -> str:

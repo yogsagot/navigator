@@ -178,7 +178,12 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   top edge kept. The drop-down keeps six weeks. `C` (`SwapCalendars`, the window's key table and *Calendar* menu) trades
   `gregorian_grid` and `selected_grid`, and in `only` flips the window's `swapped` (the Gregorian alone); refused
   (`refusal()`, greyed) in `both` or with the Gregorian chosen. Its key-bar hint (`key_hints()`) names the calendar
-  `C` would show.
+  `C` would show. `CalendarView.key_hints()` puts PgUp/PgDn, Ctrl+PgUp/PgDn and M/Y on the bar as three paired hints
+  (`PgUp/Dn Month`, `^PgUp/Dn Year` -- Ctrl as a caret and the shared `Pg` said once, here alone; `M/Y Choose`)
+  and `T Today`, read from the current bindings, then the window's `C` with `tr("Gregorian")`, a short word apart
+  from the menus' `~G~regorian`. Measured tight (all items, one blank each) every catalogue fits 80 columns with F1
+  and F10; Latvian exactly, Russian and Latvian with short captions (`Выбор`, `Григор.`, `Izvēle`, `Mēn.`) -- keep
+  them short.
   **Its paging and picking are commands in a key table** (`navml/widgets/dialog/commands.py`: `PreviousMonth` PgUp,
   `NextMonth` PgDn, `PreviousYear`/`NextYear` Ctrl+PgUp/PgDn, `ChooseMonth` M, `ChooseYear` Y, `GoToToday` T, each
   letter with Shift too), Key bindings' *Calendar* section, so both the drop-down and the window have them; the

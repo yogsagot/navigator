@@ -671,7 +671,7 @@ flag = "JP"
 "Select all" = "すべて選択"
 # navml/widgets/dialog/commands.py:119
 "Previous month" = "前月"
-# navml/widgets/dialog/commands.py:125, navml/widgets/dialog/date_button/date_button.py:422
+# navml/widgets/dialog/commands.py:125
 "Next month" = "翌月"
 # navml/widgets/dialog/commands.py:131
 "Previous year" = "前年"
@@ -689,51 +689,55 @@ flag = "JP"
 "Calendar view" = "暦の表示"
 # navml/widgets/dialog/commands.py:186
 "Swap calendars" = "暦を切り替え"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "月"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Tu" = "火"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "We" = "水"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Th" = "木"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Fr" = "金"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Sa" = "土"
-# navml/widgets/dialog/date_button/date_button.py:105
+# navml/widgets/dialog/date_button/date_button.py:106
 "Su" = "日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Monday" = "月曜日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Tuesday" = "火曜日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Wednesday" = "水曜日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Thursday" = "木曜日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Friday" = "金曜日"
-# navml/widgets/dialog/date_button/date_button.py:110
-"Saturday" = "土曜日"
 # navml/widgets/dialog/date_button/date_button.py:111
+"Monday" = "月曜日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Tuesday" = "火曜日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Wednesday" = "水曜日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Thursday" = "木曜日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Friday" = "金曜日"
+# navml/widgets/dialog/date_button/date_button.py:111
+"Saturday" = "土曜日"
+# navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "日曜日"
-# navml/widgets/dialog/date_button/date_button.py:422
-"Prev month" = "前の月"
-# navml/widgets/dialog/date_button/date_button.py:441
-"The month before" = "前の月"
-# navml/widgets/dialog/date_button/date_button.py:443
-"The month after" = "次の月"
-# navml/widgets/dialog/date_button/date_button.py:445
-"A click chooses the month" = "クリックで月を選択"
-# navml/widgets/dialog/date_button/date_button.py:447
-"A click chooses the year" = "クリックで年を選択"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:428
+"Month" = "月"
+# navml/widgets/dialog/date_button/date_button.py:428
+"Year" = "年"
+# navml/widgets/dialog/date_button/date_button.py:429
+"Choose" = "選択"
+# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
 "Today" = "今日"
-# navml/widgets/dialog/date_button/date_button.py:454
-"{weekday}, {date}, week {week}" = "{weekday}、{date}、第 {week} 週"
+# navml/widgets/dialog/date_button/date_button.py:463
+"The month before" = "前の月"
 # navml/widgets/dialog/date_button/date_button.py:465
-"{n} day from today" = ["今日から {n} 日後"]
+"The month after" = "次の月"
 # navml/widgets/dialog/date_button/date_button.py:467
+"A click chooses the month" = "クリックで月を選択"
+# navml/widgets/dialog/date_button/date_button.py:469
+"A click chooses the year" = "クリックで年を選択"
+# navml/widgets/dialog/date_button/date_button.py:476
+"{weekday}, {date}, week {week}" = "{weekday}、{date}、第 {week} 週"
+# navml/widgets/dialog/date_button/date_button.py:487
+"{n} day from today" = ["今日から {n} 日後"]
+# navml/widgets/dialog/date_button/date_button.py:489
 "{n} day ago" = ["{n} 日前"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter で確定、Escape で取り消し。"

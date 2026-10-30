@@ -1147,7 +1147,7 @@ flag = "LV"
 "S~a~turday" = "Ses~t~diena"
 # navigator/widgets/setup/country_page/country_page.nml:82
 "Ca~l~endar system" = "~K~alendāra sistēma"
-# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:283
+# navigator/widgets/setup/country_page/country_page.nml:94, navigator/widgets/shell/calendar_window/calendar_window.nml:138, navigator/widgets/shell/calendar_window/calendar_window.py:285
 "Calendar ~v~iew" = "Kalendāra ~r~ādījums"
 # navigator/widgets/setup/country_page/country_page.nml:103
 "Custom ~f~ormat" = "Savs ~f~ormāts"
@@ -1541,27 +1541,27 @@ flag = "LV"
 "E~v~aluate" = "~A~prēķināt"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:218, navigator/lib/config/keybindings.py
 "Calendar" = "Kalendārs"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:277
+# navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
 "Go to current ~d~ate" = "Uz šodienas ~d~atumu"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:92
 "~C~alendar" = "K~a~lendārs"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:93
 "Move between months and years" = "Pārvietošanās starp mēnešiem un gadiem"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:269
+# navigator/widgets/shell/calendar_window/calendar_window.nml:96, navigator/widgets/shell/calendar_window/calendar_window.py:271
 "~P~revious month" = "~I~epriekšējais mēnesis"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:270
+# navigator/widgets/shell/calendar_window/calendar_window.nml:100, navigator/widgets/shell/calendar_window/calendar_window.py:272
 "~N~ext month" = "~N~ākamais mēnesis"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:271
+# navigator/widgets/shell/calendar_window/calendar_window.nml:104, navigator/widgets/shell/calendar_window/calendar_window.py:273
 "P~r~evious year" = "Iepriekšējais ~g~ads"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:272
+# navigator/widgets/shell/calendar_window/calendar_window.nml:108, navigator/widgets/shell/calendar_window/calendar_window.py:274
 "Ne~x~t year" = "Nāk~a~mais gads"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:274
+# navigator/widgets/shell/calendar_window/calendar_window.nml:113, navigator/widgets/shell/calendar_window/calendar_window.py:276
 "Choose ~m~onth..." = "Izvēlēties ~m~ēnesi..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:275
+# navigator/widgets/shell/calendar_window/calendar_window.nml:117, navigator/widgets/shell/calendar_window/calendar_window.py:277
 "Choose ~y~ear..." = "Izvēlēties gad~u~..."
-# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:278
+# navigator/widgets/shell/calendar_window/calendar_window.nml:126, navigator/widgets/shell/calendar_window/calendar_window.py:280
 "S~w~ap calendars" = "Samainīt ~k~alendārus"
-# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:280
+# navigator/widgets/shell/calendar_window/calendar_window.nml:134, navigator/widgets/shell/calendar_window/calendar_window.py:282
 "Calendar ~s~ystem" = "Kalendāra ~s~istēma"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:12
 "Commands history" = "Komandu vēsture"
@@ -3411,6 +3411,8 @@ flag = "LV"
 "The calendar system is the Gregorian" = "Izvēlētais kalendārs ir Gregora"
 # navigator/widgets/shell/calendar_window/calendar_window.py:229
 "Both months are shown" = "Abi mēneši jau redzami"
+# navigator/widgets/shell/calendar_window/calendar_window.py:238
+"Gregorian" = "Gregora"
 # navigator/widgets/shell/clock/clock.py:48
 "{weekday}, {date}" = "{weekday}, {date}"
 # navigator/widgets/shell/clock/clock.py:51
@@ -4128,8 +4130,6 @@ flag = "LV"
 # navigator/lib/system/mediainfo.py
 "Album" = "Albums"
 # navigator/lib/system/mediainfo.py
-"Year" = "Gads"
-# navigator/lib/system/mediainfo.py
 "Track" = "Celiņš"
 # navigator/lib/system/mediainfo.py
 "Genre" = "Žanrs"
@@ -4528,3 +4528,4 @@ flag = "LV"
 "O~w~ner      Group      Others     Special" = "Ī~p~ašnieks  Grupa      Citi       Speciālie"
 "~Name                           Start  End       Score~" = "~Vārds                          Sāk.   Beigas    Punkti~"
 "Name          Type       Length   Decimals" = "Vārds         Tips       Garums   Decimāļi"
+"Year" = "Gads"

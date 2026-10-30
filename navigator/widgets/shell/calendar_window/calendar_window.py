@@ -233,8 +233,10 @@ class CalendarWindow(Window):
         """``C`` and the calendar it puts the month in, while it can."""
         if self.refusal(SwapCalendars()):
             return super().key_hints()
-        other = "gregorian" if not self.gregorian_grid() else self.calendar_system()
-        return [("C", SYSTEMS[other].name()), *super().key_hints()]
+        if not self.gregorian_grid():
+            # Its own short word, where the bar is tight; menus keep the name.
+            return [("C", tr("Gregorian")), *super().key_hints()]
+        return [("C", SYSTEMS[self.calendar_system()].name()), *super().key_hints()]
 
     async def on_set_calendar_view(self, command: SetCalendarView) -> bool:
         self.display = command.view
