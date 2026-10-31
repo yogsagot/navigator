@@ -9,7 +9,7 @@ from navml.widgets.dialog.file_dialog import FileDialog
 
 from pathlib import Path
 from typing import Any, Callable
-from navkit.reactive import effect
+from navkit.reactive import effect, unbind
 from navml.background import Background, Outcome
 
 

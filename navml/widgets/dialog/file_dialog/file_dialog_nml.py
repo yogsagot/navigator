@@ -33,11 +33,18 @@ class FileDialog(Dialog, _Component):
 
     built it with OK and Help.
 
-    Every rectangle is ``TFileDialog.Init``'s, a 47 by 19 dialog: the name line
-    from column 3 with its label over it and the history button after it, the
-    *Files* and *Directories* lists side by side from row 6, nine rows deep,
-    each with its scroll bar as its last column, the buttons down the right ten
-    wide and three rows apart, and the info pane over rows 16 and 17.
+    **Not ``TFileDialog.Init``'s rectangles.**  The original was a fixed 47 by
+    19, sized for a 80 by 25 screen and 8.3 names: fifteen columns showed one
+    of today's names in part.  This one takes the screen less a margin, never
+    less than the original's, and every control is placed against the
+    dialog's edges, so they grow with it: the name line along the top with its
+    label over it, the lists from row 6 down to the info pane's two rows at
+    the bottom, the buttons down the right ten wide and three rows apart.
+
+    **The lists are swapped**: *Directories* on the left, narrower, and *Files*
+    on the right, taking three fifths of the room -- where one goes, then what
+    is there, read left to right, the way the tab order goes.
+
     ``Dialog``'s own row of buttons and its message are not this layout, and
     the hand-written half hides them.
     """
@@ -46,16 +53,16 @@ class FileDialog(Dialog, _Component):
     __navml_source__ = "file_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # file_dialog.nml:24
-    target: Field    # file_dialog.nml:33
-    files_caption: Label    # file_dialog.nml:42
-    files: FileList    # file_dialog.nml:51
-    dirs_caption: Label    # file_dialog.nml:59
-    dirs: FileList    # file_dialog.nml:68
-    pick: Button    # file_dialog.nml:78
-    abandon: Button    # file_dialog.nml:87
-    helper: Button    # file_dialog.nml:96
-    info: FileInfoPane    # file_dialog.nml:105
+    caption: Label    # file_dialog.nml:31
+    target: Field    # file_dialog.nml:40
+    dirs_caption: Label    # file_dialog.nml:49
+    dirs: FileList    # file_dialog.nml:58
+    files_caption: Label    # file_dialog.nml:66
+    files: FileList    # file_dialog.nml:75
+    pick: Button    # file_dialog.nml:85
+    abandon: Button    # file_dialog.nml:94
+    helper: Button    # file_dialog.nml:103
+    info: FileInfoPane    # file_dialog.nml:112
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -65,115 +72,123 @@ class FileDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_files_chosen(self, event: _Event) -> bool:    # file_dialog.nml:51
-        """``files`` raised an event whose handler is ``on_chosen``."""
-        return False
-
-    async def on_dirs_chosen(self, event: _Event) -> bool:    # file_dialog.nml:68
+    async def on_dirs_chosen(self, event: _Event) -> bool:    # file_dialog.nml:58
         """``dirs`` raised an event whose handler is ``on_chosen``."""
         return False
 
-    async def on_pick_click(self, event: _Event) -> bool:    # file_dialog.nml:78
+    async def on_files_chosen(self, event: _Event) -> bool:    # file_dialog.nml:75
+        """``files`` raised an event whose handler is ``on_chosen``."""
+        return False
+
+    async def on_pick_click(self, event: _Event) -> bool:    # file_dialog.nml:85
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # file_dialog.nml:87
+    async def on_abandon_click(self, event: _Event) -> bool:    # file_dialog.nml:94
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_helper_click(self, event: _Event) -> bool:    # file_dialog.nml:96
+    async def on_helper_click(self, event: _Event) -> bool:    # file_dialog.nml:103
         """``helper`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # file_dialog.nml:23
-        self.target = Field(parent=self)    # file_dialog.nml:32
-        self.files_caption = Label(parent=self)    # file_dialog.nml:41
-        self.files = FileList(parent=self)    # file_dialog.nml:50
-        self.dirs_caption = Label(parent=self)    # file_dialog.nml:58
-        self.dirs = FileList(parent=self)    # file_dialog.nml:67
-        self.pick = Button(parent=self)    # file_dialog.nml:77
-        self.abandon = Button(parent=self)    # file_dialog.nml:86
-        self.helper = Button(parent=self)    # file_dialog.nml:95
-        self.info = FileInfoPane(parent=self)    # file_dialog.nml:104
+        self.caption = Label(parent=self)    # file_dialog.nml:30
+        self.target = Field(parent=self)    # file_dialog.nml:39
+        self.dirs_caption = Label(parent=self)    # file_dialog.nml:48
+        self.dirs = FileList(parent=self)    # file_dialog.nml:57
+        self.files_caption = Label(parent=self)    # file_dialog.nml:65
+        self.files = FileList(parent=self)    # file_dialog.nml:74
+        self.pick = Button(parent=self)    # file_dialog.nml:84
+        self.abandon = Button(parent=self)    # file_dialog.nml:93
+        self.helper = Button(parent=self)    # file_dialog.nml:102
+        self.info = FileInfoPane(parent=self)    # file_dialog.nml:111
 
-        self.modal_width = 47    # file_dialog.nml:18
-        self.modal_height = 19    # file_dialog.nml:19
-        self.title = _bind(lambda _o: _tr('Open file'), yielding=True)    # file_dialog.nml:20
-
-        self.caption.text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # file_dialog.nml:25
-        self.caption.link = _bind(lambda _o: self.target.entry)    # file_dialog.nml:26
-        self.caption.x = 2    # file_dialog.nml:27
-        self.caption.y = 2    # file_dialog.nml:28
-        self.caption.width = 29    # file_dialog.nml:29
-        self.caption.height = 1    # file_dialog.nml:30
-
-        self.target.x = 3    # file_dialog.nml:34
-        self.target.y = 3    # file_dialog.nml:35
-        self.target.width = 31    # file_dialog.nml:36
-        self.target.height = 1    # file_dialog.nml:37
-        self.target.label_text = ''    # file_dialog.nml:38
-        self.target.label_width = 0    # file_dialog.nml:39
-
-        self.files_caption.text = _bind(    # file_dialog.nml:43
-            lambda _o: _tr('~F~iles'),
-            yielding=True,
+        self.modal_width = _bind(    # file_dialog.nml:25
+            lambda _o: max(47, _o.parent.width - 6) if _o.parent is not None else 47
         )
-        self.files_caption.link = _bind(lambda _o: self.files)    # file_dialog.nml:44
-        self.files_caption.x = 2    # file_dialog.nml:45
-        self.files_caption.y = 5    # file_dialog.nml:46
-        self.files_caption.width = 15    # file_dialog.nml:47
-        self.files_caption.height = 1    # file_dialog.nml:48
+        self.modal_height = _bind(    # file_dialog.nml:26
+            lambda _o: max(19, _o.parent.height - 4) if _o.parent is not None else 19
+        )
+        self.title = _bind(lambda _o: _tr('Open file'), yielding=True)    # file_dialog.nml:27
 
-        self.files.framed = False    # file_dialog.nml:52
-        self.files.x = 3    # file_dialog.nml:53
-        self.files.y = 6    # file_dialog.nml:54
-        self.files.width = 15    # file_dialog.nml:55
-        self.files.height = 9    # file_dialog.nml:56
-        self.files.on_chosen = self.on_files_chosen    # file_dialog.nml:51
+        self.caption.text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # file_dialog.nml:32
+        self.caption.link = _bind(lambda _o: self.target.entry)    # file_dialog.nml:33
+        self.caption.x = 2    # file_dialog.nml:34
+        self.caption.y = 2    # file_dialog.nml:35
+        self.caption.width = _bind(lambda _o: max(0, _o.parent.width - 18))    # file_dialog.nml:36
+        self.caption.height = 1    # file_dialog.nml:37
 
-        self.dirs_caption.text = _bind(    # file_dialog.nml:60
+        self.target.x = 3    # file_dialog.nml:41
+        self.target.y = 3    # file_dialog.nml:42
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # file_dialog.nml:43
+        self.target.height = 1    # file_dialog.nml:44
+        self.target.label_text = ''    # file_dialog.nml:45
+        self.target.label_width = 0    # file_dialog.nml:46
+
+        self.dirs_caption.text = _bind(    # file_dialog.nml:50
             lambda _o: _tr('~D~irectories'),
             yielding=True,
         )
-        self.dirs_caption.link = _bind(lambda _o: self.dirs)    # file_dialog.nml:61
-        self.dirs_caption.x = 19    # file_dialog.nml:62
-        self.dirs_caption.y = 5    # file_dialog.nml:63
-        self.dirs_caption.width = 15    # file_dialog.nml:64
-        self.dirs_caption.height = 1    # file_dialog.nml:65
+        self.dirs_caption.link = _bind(lambda _o: self.dirs)    # file_dialog.nml:51
+        self.dirs_caption.x = 2    # file_dialog.nml:52
+        self.dirs_caption.y = 5    # file_dialog.nml:53
+        self.dirs_caption.width = _bind(lambda _o: self.dirs.width)    # file_dialog.nml:54
+        self.dirs_caption.height = 1    # file_dialog.nml:55
 
-        self.dirs.framed = False    # file_dialog.nml:69
-        self.dirs.x = 20    # file_dialog.nml:70
-        self.dirs.y = 6    # file_dialog.nml:71
-        self.dirs.width = 15    # file_dialog.nml:72
-        self.dirs.height = 9    # file_dialog.nml:73
-        self.dirs.on_chosen = self.on_dirs_chosen    # file_dialog.nml:68
+        self.dirs.framed = False    # file_dialog.nml:59
+        self.dirs.x = 3    # file_dialog.nml:60
+        self.dirs.y = 6    # file_dialog.nml:61
+        self.dirs.width = _bind(    # file_dialog.nml:62
+            lambda _o: max(0, _o.parent.width - 17) * 2 // 5
+        )
+        self.dirs.height = _bind(lambda _o: max(0, _o.parent.height - 10))    # file_dialog.nml:63
+        self.dirs.on_chosen = self.on_dirs_chosen    # file_dialog.nml:58
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # file_dialog.nml:79
-        self.pick.default = True    # file_dialog.nml:80
-        self.pick.x = 35    # file_dialog.nml:81
-        self.pick.y = 3    # file_dialog.nml:82
-        self.pick.width = 10    # file_dialog.nml:83
-        self.pick.height = 2    # file_dialog.nml:84
-        self.pick.on_click = self.on_pick_click    # file_dialog.nml:78
+        self.files_caption.text = _bind(    # file_dialog.nml:67
+            lambda _o: _tr('~F~iles'),
+            yielding=True,
+        )
+        self.files_caption.link = _bind(lambda _o: self.files)    # file_dialog.nml:68
+        self.files_caption.x = _bind(lambda _o: self.files.x - 1)    # file_dialog.nml:69
+        self.files_caption.y = 5    # file_dialog.nml:70
+        self.files_caption.width = _bind(lambda _o: self.files.width)    # file_dialog.nml:71
+        self.files_caption.height = 1    # file_dialog.nml:72
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # file_dialog.nml:88
-        self.abandon.x = 35    # file_dialog.nml:89
-        self.abandon.y = 6    # file_dialog.nml:90
-        self.abandon.width = 10    # file_dialog.nml:91
-        self.abandon.height = 2    # file_dialog.nml:92
-        self.abandon.on_click = self.on_abandon_click    # file_dialog.nml:87
+        self.files.framed = False    # file_dialog.nml:76
+        self.files.x = _bind(lambda _o: self.dirs.x + self.dirs.width + 2)    # file_dialog.nml:77
+        self.files.y = 6    # file_dialog.nml:78
+        self.files.width = _bind(    # file_dialog.nml:79
+            lambda _o: max(0, _o.parent.width - 17 - self.dirs.width)
+        )
+        self.files.height = _bind(lambda _o: max(0, _o.parent.height - 10))    # file_dialog.nml:80
+        self.files.on_chosen = self.on_files_chosen    # file_dialog.nml:75
 
-        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # file_dialog.nml:97
-        self.helper.disabled = True    # file_dialog.nml:98
-        self.helper.x = 35    # file_dialog.nml:99
-        self.helper.y = 9    # file_dialog.nml:100
-        self.helper.width = 10    # file_dialog.nml:101
-        self.helper.height = 2    # file_dialog.nml:102
-        self.helper.on_click = self.on_helper_click    # file_dialog.nml:96
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # file_dialog.nml:86
+        self.pick.default = True    # file_dialog.nml:87
+        self.pick.x = _bind(lambda _o: max(0, _o.parent.width - 12))    # file_dialog.nml:88
+        self.pick.y = 3    # file_dialog.nml:89
+        self.pick.width = 10    # file_dialog.nml:90
+        self.pick.height = 2    # file_dialog.nml:91
+        self.pick.on_click = self.on_pick_click    # file_dialog.nml:85
 
-        self.info.x = 1    # file_dialog.nml:106
-        self.info.y = 16    # file_dialog.nml:107
-        self.info.width = 45    # file_dialog.nml:108
-        self.info.height = 2    # file_dialog.nml:109
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # file_dialog.nml:95
+        self.abandon.x = _bind(lambda _o: max(0, _o.parent.width - 12))    # file_dialog.nml:96
+        self.abandon.y = 6    # file_dialog.nml:97
+        self.abandon.width = 10    # file_dialog.nml:98
+        self.abandon.height = 2    # file_dialog.nml:99
+        self.abandon.on_click = self.on_abandon_click    # file_dialog.nml:94
+
+        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # file_dialog.nml:104
+        self.helper.disabled = True    # file_dialog.nml:105
+        self.helper.x = _bind(lambda _o: max(0, _o.parent.width - 12))    # file_dialog.nml:106
+        self.helper.y = 9    # file_dialog.nml:107
+        self.helper.width = 10    # file_dialog.nml:108
+        self.helper.height = 2    # file_dialog.nml:109
+        self.helper.on_click = self.on_helper_click    # file_dialog.nml:103
+
+        self.info.x = 1    # file_dialog.nml:113
+        self.info.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # file_dialog.nml:114
+        self.info.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # file_dialog.nml:115
+        self.info.height = 2    # file_dialog.nml:116

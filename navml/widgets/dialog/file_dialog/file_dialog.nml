@@ -7,16 +7,23 @@ from navml.widgets.dialog.label import Label
 #: DOS Navigator's ``TFileDialog`` (``DNSTDDLG.PAS``), as ``GetFileNameDialog``
 #: built it with OK and Help.
 #:
-#: Every rectangle is ``TFileDialog.Init``'s, a 47 by 19 dialog: the name line
-#: from column 3 with its label over it and the history button after it, the
-#: *Files* and *Directories* lists side by side from row 6, nine rows deep,
-#: each with its scroll bar as its last column, the buttons down the right ten
-#: wide and three rows apart, and the info pane over rows 16 and 17.
+#: **Not ``TFileDialog.Init``'s rectangles.**  The original was a fixed 47 by
+#: 19, sized for a 80 by 25 screen and 8.3 names: fifteen columns showed one
+#: of today's names in part.  This one takes the screen less a margin, never
+#: less than the original's, and every control is placed against the
+#: dialog's edges, so they grow with it: the name line along the top with its
+#: label over it, the lists from row 6 down to the info pane's two rows at
+#: the bottom, the buttons down the right ten wide and three rows apart.
+#:
+#: **The lists are swapped**: *Directories* on the left, narrower, and *Files*
+#: on the right, taking three fifths of the room -- where one goes, then what
+#: is there, read left to right, the way the tab order goes.
+#:
 #: ``Dialog``'s own row of buttons and its message are not this layout, and
 #: the hand-written half hides them.
 FileDialog(Dialog):
-    modal_width: 47
-    modal_height: 19
+    modal_width: max(47, parent.width - 6) if parent is not None else 47
+    modal_height: max(19, parent.height - 4) if parent is not None else 19
     title: "Open file"
 
     #: ``InputName``: what the caller calls the name -- *File Name*, *Paste from*.
@@ -26,51 +33,51 @@ FileDialog(Dialog):
         link: target.entry
         x: 2
         y: 2
-        width: 29
+        width: max(0, parent.width - 18)
         height: 1
 
     Field:
         id: target
         x: 3
         y: 3
-        width: 31
+        width: max(0, parent.width - 16)
         height: 1
         label_text: ""
         label_width: 0
 
     Label:
-        id: files_caption
-        text: "~F~iles"
-        link: files
-        x: 2
-        y: 5
-        width: 15
-        height: 1
-
-    FileList:
-        id: files
-        framed: False
-        x: 3
-        y: 6
-        width: 15
-        height: 9
-
-    Label:
         id: dirs_caption
         text: "~D~irectories"
         link: dirs
-        x: 19
+        x: 2
         y: 5
-        width: 15
+        width: dirs.width
         height: 1
 
     FileList:
         id: dirs
         framed: False
-        x: 20
+        x: 3
         y: 6
-        width: 15
-        height: 9
+        width: max(0, parent.width - 17) * 2 // 5
+        height: max(0, parent.height - 10)
+
+    Label:
+        id: files_caption
+        text: "~F~iles"
+        link: files
+        x: files.x - 1
+        y: 5
+        width: files.width
+        height: 1
+
+    FileList:
+        id: files
+        framed: False
+        x: dirs.x + dirs.width + 2
+        y: 6
+        width: max(0, parent.width - 17 - dirs.width)
+        height: max(0, parent.height - 10)
 
     #: ``cmFileOpen``, the default: whatever the name line says, a directory or a
     #: wildcard changing what is listed and a file name closing the dialog.
@@ -78,7 +85,7 @@ FileDialog(Dialog):
         id: pick
         text: "O~K~"
         default: True
-        x: 35
+        x: max(0, parent.width - 12)
         y: 3
         width: 10
         height: 2
@@ -86,7 +93,7 @@ FileDialog(Dialog):
     Button:
         id: abandon
         text: "Cancel"
-        x: 35
+        x: max(0, parent.width - 12)
         y: 6
         width: 10
         height: 2
@@ -96,7 +103,7 @@ FileDialog(Dialog):
         id: helper
         text: "~H~elp"
         disabled: True
-        x: 35
+        x: max(0, parent.width - 12)
         y: 9
         width: 10
         height: 2
@@ -104,6 +111,6 @@ FileDialog(Dialog):
     FileInfoPane:
         id: info
         x: 1
-        y: 16
-        width: 45
+        y: max(0, parent.height - 3)
+        width: max(0, parent.width - 2)
         height: 2

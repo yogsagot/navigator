@@ -101,7 +101,7 @@ def test_a_name_typed_over_the_wildcard_closes_with_its_full_path(tree):
 
 
 def test_the_files_list_fills_the_name_line_and_the_info_pane(tree):
-    answer, dialog = run(tree, KeyEvent("tab"), KeyEvent("down"))
+    answer, dialog = run(tree, KeyEvent("tab"), KeyEvent("tab"), KeyEvent("down"))
     assert answer == "open"
     assert dialog.target.value == "beta.txt"
     path, line = dialog.info.lines()
@@ -110,13 +110,13 @@ def test_the_files_list_fills_the_name_line_and_the_info_pane(tree):
 
 
 def test_enter_on_a_file_closes_with_it(tree):
-    answer, _ = run(tree, KeyEvent("tab"), KeyEvent("down"), KeyEvent("enter"))
+    answer, _ = run(tree, KeyEvent("tab"), KeyEvent("tab"), KeyEvent("down"), KeyEvent("enter"))
     assert answer == str(tree / "beta.txt")
 
 
 def test_enter_on_a_directory_lists_it_and_stays_up(tree):
     seen = []
-    answer, dialog = run(tree, KeyEvent("tab"), KeyEvent("tab"), KeyEvent("down"),
+    answer, dialog = run(tree, KeyEvent("tab"), KeyEvent("down"),
                          KeyEvent("enter"), look(seen, lambda d: d.dirs.focused))
     assert answer == "open"
     assert dialog.directory == tree / "sub"
@@ -134,32 +134,33 @@ def test_a_typed_wildcard_lists_through_it(tree):
 
 
 def test_dot_dot_with_the_wildcard_goes_up(tree):
-    answer, dialog = run(tree / "sub", KeyEvent("tab"), KeyEvent("tab"), KeyEvent("enter"))
+    answer, dialog = run(tree / "sub", KeyEvent("tab"), KeyEvent("enter"))
     assert dialog.directory == tree
 
 
 def test_right_and_left_move_between_controls_but_not_out_of_the_name_line(tree):
     seen = []
     run(tree, KeyEvent("right"), look(seen, lambda d: d.target.entry.focused),
-        KeyEvent("tab"), KeyEvent("right"), look(seen, lambda d: d.dirs.focused),
-        KeyEvent("left"), look(seen, lambda d: d.files.focused))
+        KeyEvent("tab"), KeyEvent("right"), look(seen, lambda d: d.files.focused),
+        KeyEvent("left"), look(seen, lambda d: d.dirs.focused))
     assert seen == [True, True, True]
 
 
 def test_tab_skips_an_empty_files_list(tree):
     seen = []
     _, dialog = run(tree, *typed("*.none"), KeyEvent("enter"), KeyEvent("tab"),
-                    look(seen, lambda d: d.dirs.focused))
-    assert dialog.files.items == [] and seen == [True]
+                    look(seen, lambda d: d.dirs.focused), KeyEvent("tab"),
+                    look(seen, lambda d: d.pick.focused))
+    assert dialog.files.items == [] and seen == [True, True]
 
 
 def test_typing_in_a_list_searches_it(tree):
     seen = []
-    _, dialog = run(tree, KeyEvent("tab"), *typed("g"),
+    _, dialog = run(tree, KeyEvent("tab"), KeyEvent("tab"), *typed("g"),
                     look(seen, lambda d: d.files.cursor_position()[0]))
     assert dialog.files.selected.name == "gamma.txt"
     assert seen == [2]  # the caret after the "g" typed
-    _, dialog = run(tree, KeyEvent("tab"), *typed("gz"))
+    _, dialog = run(tree, KeyEvent("tab"), KeyEvent("tab"), *typed("gz"))
     assert dialog.files.selected.name == "gamma.txt"  # nothing begins "gz": ignored
     assert dialog.files.search == "g"
 
@@ -179,3 +180,51 @@ def test_the_history_keeps_the_full_path(tree):
 def test_title_and_label_are_the_callers(tree):
     _, dialog = run(tree, title="Copy block to", label="File ~N~ame")
     assert dialog.title == "Copy block to" and dialog.caption.text == "File ~N~ame"
+
+
+def test_the_dialog_takes_most_of_the_screen_with_directories_left_of_files(tree):
+    seen = []
+    run(tree, look(seen, lambda d: (d.width, d.height, d.dirs.x, d.dirs.width, d.files.x, d.files.width,
+                                    d.pick.x, d.info.y, d.info.width)))
+    width, height, dirs_x, dirs_width, files_x, files_width, pick_x, info_y, info_width = seen[0]
+    assert (width, height) == (74, 21)  # an 80 by 25 screen, less a margin
+    assert dirs_x < files_x and files_width > dirs_width
+    assert files_x + files_width <= pick_x  # the buttons' column stays clear
+    assert info_y == height - 3 and info_width == width - 2
+
+
+def test_the_dialog_is_never_smaller_than_dos_navigators():
+    root = Widget()
+    app = Application(root, terminal=FakeTerminal(40, 15))
+    dialog = FileDialog(directory=os.getcwd())
+    seen = []
+    run_app(app, [lambda a: a.spawn(dialog.execute(a)), lambda a: None,
+                  lambda a: seen.append((dialog.width, dialog.height))])
+    assert seen == [(47, 19)]
+
+
+def test_the_info_panes_columns_line_up_on_the_longest_name_listed(tree):
+    (tree / "a rather long file name.txt").write_text("x")
+    seen = []
+    _, dialog = run(tree, KeyEvent("tab"), KeyEvent("tab"), KeyEvent("down"),
+                    look(seen, lambda d: d.info.lines()[1]))
+    line = seen[0]
+    assert dialog.info.name_width == len("a rather long file name.txt")
+    name = dialog.files.selected.name
+    assert line.startswith(" " + name + " " * (27 - len(name)) + " ")
+    assert line[29] != " "  # the size begins right after the column
+
+
+def test_a_name_too_long_for_the_pane_is_cut_and_the_date_kept():
+    from navml.widgets.dialog.file_list import FileInfoPane, FileItem
+
+    pane = FileInfoPane()
+    pane.width = 45
+    pane.name_width = 80
+    pane.item = FileItem("x" * 80, False, 5, 1e9)
+    when = FileInfoPane.stamp(1e9)
+    _, line = pane.lines()
+    assert len(line) <= 45 and line.endswith(when)
+    pane.width, pane.name_width = 45, 3
+    _, line = pane.lines()
+    assert line.startswith(" " + "x" * 12 + " 5")  # never narrower than DN's twelve

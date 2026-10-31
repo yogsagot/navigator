@@ -28,6 +28,7 @@ from typing import Any, Callable, ClassVar
 
 import time
 
+from navkit.bidi import display_width, fit_cells, pad_cells
 from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import peek, reactive
@@ -164,6 +165,10 @@ class FileList(ListViewer):
         return min(x, max(0, self.width - 2)), y
 
 
+#: DN's width for the info pane's name: an 8.3 name and a blank.
+NAME_CELLS = 12
+
+
 class FileInfoPane(Widget):
     """``TFileInfoPane``: the path being listed, and the entry last focused.
 
@@ -173,12 +178,20 @@ class FileInfoPane(Widget):
     form with a two-digit year unless an application says otherwise.  It
     keeps the last entry while the keyboard is elsewhere, as the pane kept
     the last ``cmFileFocused`` record.
+
+    A departure: the name's column is :attr:`name_width` wide, the longest
+    name listed, not DN's twelve, which an 8.3 name filled and today's spill
+    out of, pushing the size and date along with every move of the cursor.
+    It is never narrower than twelve, and never so wide that the size and
+    date fall off the pane: a name longer than that is cut.
     """
 
     #: The directory and wildcard, ``FExpand``-ed.
     path: str = reactive("")
     #: The entry last focused in either list, or None.
     item: FileItem | None = reactive(None)
+    #: The cells the longest name listed takes: the name column's width.
+    name_width: int = reactive(NAME_CELLS)
 
     #: How the date and time are written.
     DATE_FORMAT = "%d-%m-%y %H:%M"
@@ -199,7 +212,13 @@ class FileInfoPane(Widget):
             return " " + self.path, ""
         size = tr("Directory") if item.is_dir else str(item.size)
         when = type(self).stamp(item.mtime) if item.mtime else ""
-        return " " + self.path, f" {item.name:<12} {size:<10}  {when}"
+        column = max(NAME_CELLS, self.name_width)
+        if self.width:
+            # What the size and date need after the name, kept on the pane.
+            room = self.width - 1 - (1 + 10 + 2 + display_width(when))
+            column = max(NAME_CELLS, min(column, room))
+        name = pad_cells(fit_cells(item.name, column), column)
+        return " " + self.path, f" {name} {size:<10}  {when}"
 
     def render(self, surface: Surface) -> None:
         style = self.style

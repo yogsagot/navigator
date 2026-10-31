@@ -6,11 +6,13 @@ from navml.widgets.dialog.file_dialog import FileDialog
 #:
 #: Not DN's: ``LoadColors`` opened the plain 47-column ``GetFileNameDialog``,
 #: whose 15-column lists cut off most theme names (``solarized-light.nss``),
-#: and it showed nothing before the file was loaded.  The hand-written half
-#: moves the base's controls to make the room; this adds the box.
+#: and it showed nothing before the file was loaded.  Nor the base's size
+#: today: it takes most of the screen, which would hide the palette being
+#: previewed, so this one stays 59 by 20.  The base binds its size and its
+#: controls' places to its edges, and a literal here would be assigned over
+#: those bindings, so the hand-written half unbinds and places them all;
+#: this adds the box.
 PaletteFileDialog(FileDialog):
-    modal_width: 59
-    modal_height: 20
 
     CheckBoxes:
         id: preview

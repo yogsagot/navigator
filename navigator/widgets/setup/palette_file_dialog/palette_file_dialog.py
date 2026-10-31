@@ -12,7 +12,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Callable
 
-from navkit.reactive import effect
+from navkit.reactive import effect, unbind
 
 from navml.background import Background, Outcome
 from navml.widgets.dialog.file_dialog import FileDialog
@@ -20,15 +20,25 @@ from navml.widgets.dialog.file_dialog import FileDialog
 #: Where the palette under the cursor is read.
 _READER = Background("navigator-palette-preview", workers=1)
 
-#: The columns the base's controls take, widened: the *Files* list holds a
-#: theme's name, the buttons move right of the wider lists.
-_FILES = (3, 25)
-_DIRS = (29, 17)
+#: The dialog's size: small enough to leave the previewed screen in sight.
+_SIZE = (59, 20)
+#: The columns the base's controls take, as its own are laid out --
+#: *Directories* left of *Files* -- but fixed: the *Files* list holds a
+#: theme's name, the buttons stand right of the lists.
+_DIRS = (3, 17)
+_FILES = (22, 25)
 _BUTTONS = 47
 
 
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
+
+
+def _place(widget: Any, **values: Any) -> None:
+    """*values* given to *widget*'s attributes, each binding the base gave it taken back first."""
+    for name, value in values.items():
+        unbind(widget, getattr(type(widget), name))
+        setattr(widget, name, value)
 
 
 class PaletteFileDialog(FileDialog):
@@ -42,16 +52,17 @@ class PaletteFileDialog(FileDialog):
         self._shown = False
         super().__init__(**kwargs)
         self.preview_palette = preview
-        self.files.x, self.files.width = _FILES
-        self.files_caption.x, self.files_caption.width = _FILES[0] - 1, _FILES[1]
-        self.dirs.x, self.dirs.width = _DIRS
-        self.dirs_caption.x, self.dirs_caption.width = _DIRS[0] - 1, _DIRS[1]
-        self.target.width = _BUTTONS - 4
-        self.caption.width = _BUTTONS - 6
+        width, height = _SIZE
+        _place(self, modal_width=width, modal_height=height)
+        _place(self.dirs, x=_DIRS[0], width=_DIRS[1], height=9)
+        _place(self.dirs_caption, x=_DIRS[0] - 1, width=_DIRS[1])
+        _place(self.files, x=_FILES[0], width=_FILES[1], height=9)
+        _place(self.files_caption, x=_FILES[0] - 1, width=_FILES[1])
+        _place(self.target, width=_BUTTONS - 4)
+        _place(self.caption, width=_BUTTONS - 6)
         for button in self.buttons_row:
-            button.x = _BUTTONS
-        self.info.y = 17
-        self.info.width = self.modal_width - 2
+            _place(button, x=_BUTTONS)
+        _place(self.info, y=17, width=width - 2)
 
     def mounted(self) -> None:
         super().mounted()

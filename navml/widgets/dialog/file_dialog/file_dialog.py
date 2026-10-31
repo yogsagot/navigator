@@ -36,6 +36,7 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 
+from navkit.bidi import display_width
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect
@@ -125,6 +126,7 @@ class FileDialog(Dialog):
             self.files.show(files)
             self.dirs.show(dirs)
             self.info.path = os.path.join(str(directory), wildcard)
+            self.info.name_width = max((display_width(item.name) for item in files + dirs), default=0)
             if then is not None:
                 then()
 

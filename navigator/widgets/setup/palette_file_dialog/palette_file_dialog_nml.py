@@ -31,32 +31,33 @@ class PaletteFileDialog(FileDialog, _Component):
 
     Not DN's: ``LoadColors`` opened the plain 47-column ``GetFileNameDialog``,
     whose 15-column lists cut off most theme names (``solarized-light.nss``),
-    and it showed nothing before the file was loaded.  The hand-written half
-    moves the base's controls to make the room; this adds the box.
+    and it showed nothing before the file was loaded.  Nor the base's size
+    today: it takes most of the screen, which would hide the palette being
+    previewed, so this one stays 59 by 20.  The base binds its size and its
+    controls' places to its edges, and a literal here would be assigned over
+    those bindings, so the hand-written half unbinds and places them all;
+    this adds the box.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "palette_file_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    preview: CheckBoxes    # palette_file_dialog.nml:16
+    preview: CheckBoxes    # palette_file_dialog.nml:18
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.preview = CheckBoxes(parent=self)    # palette_file_dialog.nml:15
+        self.preview = CheckBoxes(parent=self)    # palette_file_dialog.nml:17
 
-        self.modal_width = 59    # palette_file_dialog.nml:12
-        self.modal_height = 20    # palette_file_dialog.nml:13
-
-        self.preview.x = 3    # palette_file_dialog.nml:17
-        self.preview.y = 16    # palette_file_dialog.nml:18
-        self.preview.width = 30    # palette_file_dialog.nml:19
-        self.preview.height = 1    # palette_file_dialog.nml:20
-        self.preview.items = _bind(    # palette_file_dialog.nml:21
+        self.preview.x = 3    # palette_file_dialog.nml:19
+        self.preview.y = 16    # palette_file_dialog.nml:20
+        self.preview.width = 30    # palette_file_dialog.nml:21
+        self.preview.height = 1    # palette_file_dialog.nml:22
+        self.preview.items = _bind(    # palette_file_dialog.nml:23
             lambda _o: [_tr('~P~review palette')],
             yielding=True,
         )
-        self.preview.tooltips = _bind(    # palette_file_dialog.nml:22
+        self.preview.tooltips = _bind(    # palette_file_dialog.nml:24
             lambda _o: [_tr('Paint the palette under the cursor in the box beside the list')],
             yielding=True,
         )

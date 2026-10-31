@@ -15,6 +15,7 @@ from navml.widgets.dialog.label import Label
 import os
 from pathlib import Path
 from typing import Any, Callable
+from navkit.bidi import display_width
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect
@@ -27,10 +28,10 @@ from navml.widgets.dialog.file_list import scan
 class FileDialog(Dialog, _Component):
     caption: Label
     target: Field
-    files_caption: Label
-    files: FileList
     dirs_caption: Label
     dirs: FileList
+    files_caption: Label
+    files: FileList
     pick: Button
     abandon: Button
     helper: Button
