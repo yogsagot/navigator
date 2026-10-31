@@ -267,12 +267,42 @@ def _ordered_cells(chars: tuple[str, ...], rtl: bool) -> tuple[LaidCell, ...]:
     return tuple(out)
 
 
+#: The isolates (Unicode 6.3), which python-bidi 0.4 predates and refuses
+#: (``AssertionError: LRI not allowed here``), as the embeddings they
+#: generalise: what differs is only how neutrals at their edges resolve.
+_ISOLATES = {"\u2066": "\u202a", "\u2067": "\u202b", "\u2069": "\u202c"}
+#: FSI's stand-in: an embedding in the direction of what follows it.
+_FSI = "\u2068"
+#: What stands for a character with no bidirectional class -- unassigned, or a
+#: noncharacter, for which ``unicodedata`` answers ``""`` and python-bidi
+#: fails the same way: a neutral, U+FFFD, which is what it is shown as.
+_NEUTRAL = "\ufffd"
+
+
+def _classifiable(text: str) -> str:
+    """*text* as the algorithm is given it: the same length, every character
+    one python-bidi 0.4 has a class for.  Only the ordering sees this; each
+    cell still shows its own character."""
+    if text.isascii():
+        return text
+    out = []
+    for index, char in enumerate(text):
+        if char in _ISOLATES:
+            char = _ISOLATES[char]
+        elif char == _FSI:
+            char = "\u202b" if _first_strong(text[index + 1:]) == "R" else "\u202a"
+        elif not unicodedata.bidirectional(char):
+            char = _NEUTRAL
+        out.append(char)
+    return "".join(out)
+
+
 def _order(clusters: list[tuple[int, str]], rtl: bool) -> tuple[LaidCell, ...]:
     """*clusters* -- (index, a letter and its marks), logical order -- shaped,
     ordered by the Unicode Bidi Algorithm in a paragraph that is right to
     left when *rtl*, and mirrored where right-to-left."""
     clusters = _shape(clusters)
-    bases = "".join(cluster[0] for _, cluster in clusters)
+    bases = _classifiable("".join(cluster[0] for _, cluster in clusters))
     storage = get_empty_storage()
     base_level = 1 if rtl else 0
     storage["base_level"] = base_level

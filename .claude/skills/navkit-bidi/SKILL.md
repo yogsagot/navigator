@@ -23,6 +23,10 @@ language reads its screen right to left). It is the second standing exception be
 - python-bidi is **held below 0.5**: 0.5+ is a Rust extension returning only the display string; Navigator needs each
   character's place (style, caret) and the Linux packages are `arch: all`. Its `bidi.algorithm` steps are run one by
   one with an `at` index stamped on each char dict.
+- **0.4 predates Unicode 6.3's isolates and knows no class `""`**: an LRI/RLI/FSI/PDI, an unassigned code point or a
+  noncharacter beside an RTL letter failed `resolve_implicit_levels`' assert inside a paint. `_classifiable()` hands
+  the algorithm stand-ins of the same length (isolates as LRE/RLE/PDF, FSI by the next strong letter, the classless
+  as U+FFFD's ON); the cells still show the real characters, and the isolates, like embeddings, get none.
 - `caret_column(text, index, rtl)` / `index_at(text, column, rtl)`: columns as `draw_runs` paints them (reversed on a
   mirrored surface). The caret sits on the character it is before; at the end, past the end the paragraph grows from.
   `painted_cells(text, rtl)` is `(index, column, width)` per painted cell -- how `link_urls` (StaticText) marks an

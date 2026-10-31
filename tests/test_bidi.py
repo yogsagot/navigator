@@ -96,6 +96,20 @@ def test_format_characters_take_no_cell():
     assert buffer.draw_text(0, 0, "a‏b‮c") == 3
 
 
+@pytest.mark.parametrize("char", ["⁦", "⁧", "⁨", "⁩", "͸", "￿"])
+def test_isolates_and_unclassified_characters_beside_hebrew_do_not_stop_the_layout(char):
+    # python-bidi 0.4 knows no isolates, and nothing without a class: once an
+    # AssertionError out of the viewer's paint.
+    text = f"שלום {char}abc x"
+    assert order_cells(list(text)) is not None
+    assert layout(text)
+
+
+def test_an_isolate_keeps_left_to_right_text_whole_inside_hebrew():
+    assert shown("שלום ⁦abc⁩ עולם") == "םלוע abc םולש"
+    assert shown("שלום ⁨abc⁩ עולם") == "םלוע abc םולש"  # FSI: by its first strong letter
+
+
 def test_text_on_a_mirrored_surface_reads_right_once_mirrored():
     buffer = ScreenBuffer(12, 1)
     buffer.rtl = True
