@@ -87,7 +87,9 @@ from navigator.widgets.shell.commands import (
     LocalMenuFileEdit,
     MenuFileEdit,
     NewManager,
+    OpenEdit,
     OpenTreeWindow,
+    OpenView,
     OpenVolumesWindow,
     SetupConfirmation,
     Settings,
@@ -2942,6 +2944,73 @@ class Shell(DockLayout):
             await Dialog(
                 title=tr("Cannot view file") if viewing else tr("Cannot edit file"),
                 prompt=f"{path}: {error.strerror or error}",
+                buttons="ok",
+            ).execute(self.application)
+
+    # -- File > View > Open..., File > Edit > Open... ---------------------------
+
+    async def on_open_view(self, event: OpenView) -> bool:
+        self.spawn(self.open_chosen("view"))
+        return True
+
+    async def on_open_edit(self, event: OpenEdit) -> bool:
+        self.spawn(self.open_chosen("edit"))
+        return True
+
+    async def open_chosen(self, kind: str) -> None:
+        """A file chosen in a file box, viewed or edited -- not DN's.
+
+        The box opens on the active panel's directory when that is on the
+        disk, else where Navigator was started, and lists dot-files as that
+        panel does.  A name typed that is not there yet is a new file to the
+        editor, as Shift+F4's is, and said so by the viewer.  With *Internal
+        viewer* (*editor*) off the file goes to ``$PAGER`` (``$EDITOR``), as
+        Shift+F4's does -- not through ``viewers.ini``/``editors.ini``, whose
+        macros name the file at the panel's cursor rather than this one.
+        """
+        import errno
+        import shlex
+
+        from navml.widgets.dialog.dialog import Dialog
+        from navml.widgets.dialog.file_dialog import FileDialog
+
+        from navigator.lib.config.file_history import open_editor, open_viewer
+
+        viewing = kind == "view"
+        manager = self.active_manager
+        panel = manager.active_panel if manager is not None else None
+        directory = panel.path if panel is not None and panel.location.is_local else None
+        hidden = panel.show_hidden if panel is not None else SETTINGS.system.show_hidden
+        name = await FileDialog(
+            title=tr("View file") if viewing else tr("Edit file"),
+            label=tr("~F~ile name"),
+            history_id="view_open" if viewing else "edit_open",
+            directory=directory,
+            hidden=hidden,
+            ok_text=tr("~O~pen"),
+        ).execute(self.application)
+        if not name:
+            return
+        path = Path(name)
+        internal = SETTINGS.system.internal_viewer if viewing else SETTINGS.system.internal_editor
+        if not internal:
+            if viewing and not await asyncio.to_thread(path.exists):
+                await Dialog(title=tr("Cannot view file"), prompt=f"{path.name}: {os.strerror(errno.ENOENT)}",
+                             buttons="ok").execute(self.application)
+                return
+            variable, fallback = ("PAGER", "less") if viewing else ("EDITOR", "vi")
+            program = os.environ.get(variable, "").strip() or fallback
+            self.run_command(f"{program} {shlex.quote(str(path))}")
+            return
+        try:
+            if viewing:
+                await open_viewer(self.desktop, path)
+            else:
+                await open_editor(self.desktop, path, new=not await asyncio.to_thread(path.exists))
+        except OSError as error:
+            await Dialog(
+                title=tr("Cannot view file") if viewing else tr("Cannot edit file"),
+                prompt=f"{path.name}: {error.strerror or error}",
                 buttons="ok",
             ).execute(self.application)
 

@@ -99,6 +99,26 @@ class EditHistory(Command):
     title = "Edit History"
 
 
+class OpenView(Command):
+    """File > View > *Open...*: a file chosen in a file box, viewed.
+
+    Not DN's, whose viewer was reached from a panel or the history; here a
+    file anywhere can be viewed with no file manager open.
+    """
+
+    title = "Open to view"
+
+
+class OpenEdit(Command):
+    """File > Edit > *Open...*: a file chosen in a file box, edited.
+
+    Not DN's, as :class:`OpenView`; unlike Shift+F4's *Edit new file*, the
+    box lists the directory and only a file that is there is opened.
+    """
+
+    title = "Open to edit"
+
+
 class OpenTreeWindow(Command):
     """Disk > Directory tree: a *Directory Tree* window on the desktop.
 
