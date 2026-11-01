@@ -1028,7 +1028,7 @@ direction = "rtl"
 "Give every row back the action the comparison chose" = "החזר לכל שורה את הפעולה שההשוואה בחרה"
 # navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "השווה מ~ח~דש"
-# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:318 ...
 "Cl~o~se" = "סג~ו~ר"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "צבעים"
@@ -1366,9 +1366,9 @@ direction = "rtl"
 "Press a key" = "לחץ על מקש"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "לחץ על המקש, או שניים לצירוף.\nEnter מאשר, Esc מבטל."
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:23
 "~P~review palette" = "~ת~צוגה מקדימה של ערכה"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:22
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:24
 "Paint the palette under the cursor in the box beside the list" = "צייר את ערכת הצבעים שתחת הסמן בתיבה שליד הרשימה"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "שומרי מסך ~נ~בחרים"
@@ -1500,46 +1500,120 @@ direction = "rtl"
 "minutes (0: each time)" = "דקות (0: בכל פעם)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "טבלת ASCII"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
 "Calculator" = "מחשבון"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:40
-"Ex~p~ression" = "~ב~יטוי"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:46
-"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "מספרים כמו 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, השוואות, IF, SIN, SQRT, LN, PI"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:67
-"Copy ~A~s" = "ה~ע~תק בתור"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~D~EC" = "~D~EC"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~H~EX" = "~H~EX"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~B~IN" = "~B~IN"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~O~CT" = "~O~CT"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~E~XP" = "~E~XP"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in decimal" = "העתק מעתיק את הערך בבסיס עשרוני"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in hexadecimal" = "העתק מעתיק את הערך בבסיס הקסדצימלי"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in binary" = "העתק מעתיק את הערך בבסיס בינארי"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in octal" = "העתק מעתיק את הערך בבסיס אוקטלי"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in scientific notation" = "העתק מעתיק את הערך בכתיב מדעי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:349, navigator/widgets/shell/calculator_window/calculator_window.py:512
+"~S~imple" = "~פ~שוט"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:352, navigator/widgets/shell/calculator_window/calculator_window.py:513
+"C~l~assic" = "~ק~לאסי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:355, navigator/widgets/shell/calculator_window/calculator_window.py:514
+"Sc~i~entific" = "~מ~דעי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:358, navigator/widgets/shell/calculator_window/calculator_window.py:515
+"Pro~g~ramming" = "~ת~כנות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A pocket calculator" = "מחשבון כיס"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"DOS Navigator's calculator: the expression in five forms" = "המחשבון של DOS Navigator: הביטוי בחמש צורות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"Functions, angles, memory and the last answer" = "פונקציות, זוויות, זיכרון והתשובה האחרונה"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A word of 8 to 64 bits in four bases" = "מילה של 8 עד 64 סיביות בארבעה בסיסים"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:87
-"The value in decimal" = "הערך בבסיס עשרוני"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:97
-"The whole part in hexadecimal, two's complement in 64 bits" = "החלק השלם בהקסדצימלי, משלים ל-2 ב-64 סיביות"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:107
-"The whole part in binary, two's complement in 64 bits" = "החלק השלם בבינארי, משלים ל-2 ב-64 סיביות"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:117
-"The whole part in octal, two's complement in 64 bits" = "החלק השלם באוקטלי, משלים ל-2 ב-64 סיביות"
+"Ex~p~ression" = "~ב~יטוי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:93
+"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "מספרים כמו 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, השוואות, IF, SIN, SQRT, LN, PI"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:118
+"The line's value; Enter or = puts it in the line" = "ערך השורה; Enter או = מכניסים אותו לשורה"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~D~eg" = "מע~ל~ות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~R~ad" = "~ר~דיאנים"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"Gr~a~d" = "~ג~ראד"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in degrees, a turn 360" = "זוויות במעלות, סיבוב 360"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in radians, a turn 2π" = "זוויות ברדיאנים, סיבוב 2π"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in grads, a turn 400" = "זוויות בגראד, סיבוב 400"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:139
+"M: a value in memory; 2nd and hyp: the keys' other functions" = "M: ערך בזיכרון; 2nd ו-hyp: הפונקציות האחרות של המקשים"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:156
+"Copy ~A~s" = "ה~ע~תק בתור"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~D~EC" = "~D~EC"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~H~EX" = "~H~EX"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~B~IN" = "~B~IN"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~O~CT" = "~O~CT"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165
+"~E~XP" = "~E~XP"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in decimal" = "העתק מעתיק את הערך בבסיס עשרוני"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in hexadecimal" = "העתק מעתיק את הערך בבסיס הקסדצימלי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in binary" = "העתק מעתיק את הערך בבסיס בינארי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in octal" = "העתק מעתיק את הערך בבסיס אוקטלי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in scientific notation" = "העתק מעתיק את הערך בכתיב מדעי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:176, navigator/widgets/shell/calculator_window/calculator_window.nml:282
+"The value in decimal" = "הערך בבסיס עשרוני"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:186
+"The whole part in hexadecimal, two's complement in 64 bits" = "החלק השלם בהקסדצימלי, משלים ל-2 ב-64 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:196
+"The whole part in binary, two's complement in 64 bits" = "החלק השלם בבינארי, משלים ל-2 ב-64 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:206
+"The whole part in octal, two's complement in 64 bits" = "החלק השלם באוקטלי, משלים ל-2 ב-64 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:216
 "The value in scientific notation" = "הערך בכתיב מדעי"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:132
+# navigator/widgets/shell/calculator_window/calculator_window.nml:221
 "E~v~aluate" = "~ח~שב"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in hexadecimal" = "המספרים נכתבים בהקסדצימלי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in decimal" = "המספרים נכתבים בעשרוני"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in octal" = "המספרים נכתבים באוקטלי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in binary" = "המספרים נכתבים בבינארי"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:272
+"The value in hexadecimal, two's complement in the word" = "הערך בהקסדצימלי, משלים לשתיים במילה"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:292
+"The value in octal, two's complement in the word" = "הערך באוקטלי, משלים לשתיים במילה"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:302
+"The value in binary, two's complement in the word" = "הערך בבינארי, משלים לשתיים במילה"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"~Q~WORD" = "~Q~WORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"D~W~ORD" = "D~W~ORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"WO~R~D" = "WO~R~D"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"B~Y~TE" = "B~Y~TE"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 64 bits" = "מילה של 64 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 32 bits" = "מילה של 32 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 16 bits" = "מילה של 16 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 8 bits" = "מילה של 8 סיביות"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:319
+"Sig~n~ed" = "עם ~ס~ימן"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:320
+"The word read as two's complement; unticked, unsigned" = "המילה נקראת כמשלים לשתיים; לא מסומן, ללא סימן"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:339
+"Click a bit, or Space on it, to flip it" = "לחיצה על סיבית, או רווח עליה, הופכת אותה"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:292
+"~C~alculator" = "מ~ח~שבון"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:346
+"The calculator's faces, copying its value and closing it" = "פני המחשבון, העתקת הערך וסגירתו"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:365, navigator/widgets/shell/calculator_window/calculator_window.py:518
+"~B~it toggling keypad" = "מקלדת ~ס~יביות"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:238, navigator/lib/config/keybindings.py
 "Calendar" = "לוח שנה"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
@@ -1752,8 +1826,6 @@ direction = "rtl"
 "Calculator, calendar, remote links, the user menu and histories" = "מחשבון, לוח שנה, קישורים מרוחקים, תפריט המשתמש והיסטוריות"
 # navigator/widgets/shell/main_menu/main_menu.nml:288
 "S~y~stem Information" = "מידע ~מ~ערכת"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"~C~alculator" = "מ~ח~שבון"
 # navigator/widgets/shell/main_menu/main_menu.nml:298
 "Ca~l~endar" = "~ל~וח שנה"
 # navigator/widgets/shell/main_menu/main_menu.nml:302
@@ -2336,11 +2408,13 @@ direction = "rtl"
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
 # navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:937
+# navigator/settings.py:938
+"Utilities > Calculator (not DN's)" = "כלים > מחשבון (לא של DN)"
+# navigator/settings.py:959
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
-# navigator/settings.py:964
+# navigator/settings.py:986
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:980
+# navigator/settings.py:1002
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -2572,7 +2646,7 @@ direction = "rtl"
 "Information" = "מידע"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1727
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1732
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
@@ -2912,7 +2986,7 @@ direction = "rtl"
 "~R~atio" = "~י~חס דחיסה"
 # navigator/widgets/manager/commands.py:29
 "View" = "הצג"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1766, navigator/widgets/shell/shell/shell.py:1819 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1771, navigator/widgets/shell/shell/shell.py:1824 ...
 "Open with" = "פתח עם"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "שנה שם"
@@ -3174,7 +3248,7 @@ direction = "rtl"
 "{name}: not a dBase file" = "{name}: אינו קובץ dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["קובץ מסומן אחד", "שני קבצים מסומנים", "{n} קבצים מסומנים"]
-# navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "פשוט"
 # navigator/widgets/manager/panel/option_items.py:50
 "Hid" = "נסת"
@@ -3402,8 +3476,16 @@ direction = "rtl"
 "Every saver there is; Add puts the one at the cursor among the selected" = "כל שומרי המסך הקיימים; הוסף מצרף את זה שבסמן לנבחרים"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "תו: {char} עשרוני: {decimal:3d} Hex: {hex:02x}"
-# navigator/widgets/shell/calculator_window/calculator_window.py:42
+# navigator/widgets/shell/calculator_window/calculator_window.py:217
 "Overflow" = "גלישה"
+# navigator/widgets/shell/calculator_window/commands.py:20
+"Classic" = "קלאסי"
+# navigator/widgets/shell/calculator_window/commands.py:26
+"Scientific" = "מדעי"
+# navigator/widgets/shell/calculator_window/commands.py:32
+"Programming" = "תכנות"
+# navigator/widgets/shell/calculator_window/commands.py:44
+"Bits" = "סיביות"
 # navigator/widgets/shell/calendar_window/calendar_window.py:43
 "~S~elected calendar only" = "~ר~ק הלוח הנבחר"
 # navigator/widgets/shell/calendar_window/calendar_window.py:44
@@ -3522,19 +3604,19 @@ direction = "rtl"
 "Interface Setup hides the command line" = "הגדרות הממשק מסתירות את שורת הפקודה"
 # navigator/widgets/shell/shell/shell.py:1041
 "No file panels are open" = "אין חלוניות קבצים פתוחות"
-# navigator/widgets/shell/shell/shell.py:2634, navigator/widgets/shell/shell/shell.py:2627
+# navigator/widgets/shell/shell/shell.py:2639, navigator/widgets/shell/shell/shell.py:2632
 "Disconnect" = "נתק"
 # navigator/widgets/shell/shell/shell.py:1065
 "No connection is open" = "אין חיבור פתוח"
 # navigator/widgets/shell/shell/shell.py:1106
 "A command is still running" = "פקודה עדיין רצה"
-# navigator/widgets/shell/shell/shell.py:1765
+# navigator/widgets/shell/shell/shell.py:1770
 "~C~ommand..." = "~פ~קודה..."
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1908
 "Choose action" = "בחר פעולה"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File View History" = "היסטוריית הצגת קבצים"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File Edit History" = "היסטוריית עריכת קבצים"
 # navigator/widgets/shell/shell/shell.py:1056
 "The editor has the keys" = "המקשים אצל העורך"
@@ -3548,25 +3630,25 @@ direction = "rtl"
 "The command line is empty" = "שורת הפקודה ריקה"
 # navigator/widgets/shell/shell/shell.py:1105
 "File Manager Setup's Use arrows is off" = "\"השתמש בחצים\" כבוי בהגדרות מנהל הקבצים"
-# navigator/widgets/shell/shell/shell.py:1817
+# navigator/widgets/shell/shell/shell.py:1822
 "~C~ommand (!.! is the file; else it goes at the end)" = "~פ~קודה (!.! הוא הקובץ; אחרת הוא נוסף בסוף)"
-# navigator/widgets/shell/shell/shell.py:2477, navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2482, navigator/widgets/shell/shell/shell.py:2668
 "{protocol} link" = "קישור {protocol}"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track viewing history" = "מעקב היסטוריית הצגה"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track editing history" = "מעקב היסטוריית עריכה"
 # navigator/widgets/shell/shell/shell.py:1112
 "The shell cannot complete" = "המעטפת אינה יכולה להשלים"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "User menu (global)" = "תפריט משתמש (כללי)"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "Local menu" = "תפריט מקומי"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "User menu (local)" = "תפריט משתמש (מקומי)"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "Global menu" = "תפריט כללי"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2630
 "Close the {protocol} connection to {host}?" = "לסגור את חיבור {protocol} אל {host}?"
 # navigator/widgets/shell/shell/shell.py:372
 "Store Color Palette" = "שמור ערכת צבעים"
@@ -3582,39 +3664,39 @@ direction = "rtl"
 "Not a palette:\n{error}" = "אינה ערכת צבעים:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "החצים מזיזים את האזור\nShift-חצים משנים את גודל האזור\n\nלאחר הבחירה הקש Enter כדי להעתיק\nאת תמונת האזור ללוח"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "View file" = "הצגת קובץ"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "Edit file" = "עריכת קובץ"
-# navigator/widgets/shell/shell/shell.py:2103
+# navigator/widgets/shell/shell/shell.py:2108
 "No file manager is open to panelize into" = "אין מנהל קבצים פתוח להצגת התוצאות בחלונית"
-# navigator/widgets/shell/shell/shell.py:2524
+# navigator/widgets/shell/shell/shell.py:2529
 "Wrong passphrase for {key}. Try again:" = "ביטוי סיסמה שגוי עבור {key}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2530
 "Passphrase for {key}:" = "ביטוי סיסמה עבור {key}:"
-# navigator/widgets/shell/shell/shell.py:2511
-"Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2512
-"Secret key for {who}:" = "מפתח סודי עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2515
-"Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
 # navigator/widgets/shell/shell/shell.py:2516
+"Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
+# navigator/widgets/shell/shell/shell.py:2517
+"Secret key for {who}:" = "מפתח סודי עבור {who}:"
+# navigator/widgets/shell/shell/shell.py:2520
+"Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
+# navigator/widgets/shell/shell/shell.py:2521
 "{protocol} password for {who}:" = "סיסמת {protocol} עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2664
+# navigator/widgets/shell/shell/shell.py:2669
 "Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "Set the interface option\n\"{option}\" ON first" = "תחילה הפעל את אפשרות הממשק\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1478
+# navigator/widgets/shell/shell/shell.py:1483
 "Cannot edit {path}: {error}" = "לא ניתן לערוך את {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1505
+# navigator/widgets/shell/shell/shell.py:1510
 "File {name} not found" = "הקובץ {name} לא נמצא"
-# navigator/widgets/shell/shell/shell.py:1656
+# navigator/widgets/shell/shell/shell.py:1661
 "Cannot write the menu's script: {error}" = "לא ניתן לכתוב את סקריפט התפריט: {error}"
-# navigator/widgets/shell/shell/shell.py:2494
+# navigator/widgets/shell/shell/shell.py:2499
 "Connecting to {host} over {protocol}" = "מתחבר אל {host} באמצעות {protocol}"
-# navigator/widgets/shell/shell/shell.py:2735
+# navigator/widgets/shell/shell/shell.py:2740
 "Cannot save the key bindings: {error}" = "לא ניתן לשמור את הקצאת המקשים: {error}"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2896
 "Cannot save the settings: {error}" = "לא ניתן לשמור את ההגדרות: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "קוד יציאה {status}"
@@ -4470,6 +4552,18 @@ direction = "rtl"
 "The level a game starts at, 1 to 10" = "השלב שבו מתחיל משחק, 1 עד 10"
 # navigator/settings.py
 "Classic Tetris, or Pentix's 27 figures" = "טטריס קלאסי, או 27 הצורות של Pentix"
+# navigator/settings.py
+"The calculator's face: simple, classic (DN's), scientific or programming" = "פני המחשבון: פשוט, קלאסי (של DN), מדעי או תכנות"
+# navigator/settings.py
+"What the scientific calculator's angles are measured in" = "במה נמדדות הזוויות של המחשבון המדעי"
+# navigator/settings.py
+"The base the programming calculator's numbers are typed in" = "הבסיס שבו נכתבים המספרים של מחשבון התכנות"
+# navigator/settings.py
+"The programming calculator's word: 64, 32, 16 or 8 bits" = "המילה של מחשבון התכנות: 64, 32, 16 או 8 סיביות"
+# navigator/settings.py
+"The programming calculator reads its word as signed" = "מחשבון התכנות קורא את המילה עם סימן"
+# navigator/settings.py
+"The programming calculator shows its bits to flip instead of its keys" = "מחשבון התכנות מציג סיביות להפיכה במקום מקשיו"
 # navigator/settings.py
 "Encoding writes the file's date and time first" = "הקידוד כותב תחילה את תאריך הקובץ ושעתו"
 # navigator/settings.py

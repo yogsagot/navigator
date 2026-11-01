@@ -1027,7 +1027,7 @@ flag = "RU"
 "Give every row back the action the comparison chose" = "Вернуть каждой строке действие, выбранное сравнением"
 # navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "Сравнить с~н~ова"
-# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:318 ...
 "Cl~o~se" = "~З~акрыть"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "Цвета"
@@ -1365,9 +1365,9 @@ flag = "RU"
 "Press a key" = "Нажмите клавишу"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "Нажмите клавишу (или две подряд).\nEnter — принять, Esc — отмена."
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:23
 "~P~review palette" = "Пр~е~дпросмотр палитры"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:22
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:24
 "Paint the palette under the cursor in the box beside the list" = "Показывать палитру под курсором в окне рядом со списком"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "~А~ктивные"
@@ -1499,46 +1499,120 @@ flag = "RU"
 "minutes (0: each time)" = "минут (0: каждый раз)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "Таблица ASCII"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
 "Calculator" = "Калькулятор"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:40
-"Ex~p~ression" = "~В~ыражение"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:46
-"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "Числа вида 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, сравнения, IF, SIN, SQRT, LN, PI"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:67
-"Copy ~A~s" = "~Ф~ормат"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~D~EC" = "~D~EC"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~H~EX" = "~H~EX"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~B~IN" = "~B~IN"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~O~CT" = "~O~CT"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~E~XP" = "~E~XP"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in decimal" = "Копировать копирует значение в десятичном виде"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in hexadecimal" = "Копировать копирует значение в шестнадцатеричном виде"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in binary" = "Копировать копирует значение в двоичном виде"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in octal" = "Копировать копирует значение в восьмеричном виде"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in scientific notation" = "Копировать копирует значение в экспоненциальной записи"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:349, navigator/widgets/shell/calculator_window/calculator_window.py:512
+"~S~imple" = "~П~ростой"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:352, navigator/widgets/shell/calculator_window/calculator_window.py:513
+"C~l~assic" = "К~л~ассический"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:355, navigator/widgets/shell/calculator_window/calculator_window.py:514
+"Sc~i~entific" = "~Н~аучный"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:358, navigator/widgets/shell/calculator_window/calculator_window.py:515
+"Pro~g~ramming" = "Прогр~а~ммист"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A pocket calculator" = "Карманный калькулятор"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"DOS Navigator's calculator: the expression in five forms" = "Калькулятор DOS Navigator: выражение в пяти формах"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"Functions, angles, memory and the last answer" = "Функции, углы, память и последний ответ"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A word of 8 to 64 bits in four bases" = "Слово от 8 до 64 бит в четырёх системах"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:87
-"The value in decimal" = "Значение в десятичном виде"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:97
-"The whole part in hexadecimal, two's complement in 64 bits" = "Целая часть в шестнадцатеричном виде, дополнительный код в 64 битах"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:107
-"The whole part in binary, two's complement in 64 bits" = "Целая часть в двоичном виде, дополнительный код в 64 битах"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:117
-"The whole part in octal, two's complement in 64 bits" = "Целая часть в восьмеричном виде, дополнительный код в 64 битах"
+"Ex~p~ression" = "~В~ыражение"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:93
+"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "Числа вида 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, сравнения, IF, SIN, SQRT, LN, PI"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:118
+"The line's value; Enter or = puts it in the line" = "Значение строки; Enter или = помещает его в строку"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~D~eg" = "~Г~радусы"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~R~ad" = "~Р~адианы"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"Gr~a~d" = "Гра~д~ы"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in degrees, a turn 360" = "Углы в градусах, оборот 360"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in radians, a turn 2π" = "Углы в радианах, оборот 2π"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in grads, a turn 400" = "Углы в градах, оборот 400"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:139
+"M: a value in memory; 2nd and hyp: the keys' other functions" = "M: значение в памяти; 2nd и hyp: вторые функции клавиш"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:156
+"Copy ~A~s" = "~Ф~ормат"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~D~EC" = "~D~EC"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~H~EX" = "~H~EX"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~B~IN" = "~B~IN"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~O~CT" = "~O~CT"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165
+"~E~XP" = "~E~XP"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in decimal" = "Копировать копирует значение в десятичном виде"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in hexadecimal" = "Копировать копирует значение в шестнадцатеричном виде"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in binary" = "Копировать копирует значение в двоичном виде"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in octal" = "Копировать копирует значение в восьмеричном виде"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in scientific notation" = "Копировать копирует значение в экспоненциальной записи"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:176, navigator/widgets/shell/calculator_window/calculator_window.nml:282
+"The value in decimal" = "Значение в десятичном виде"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:186
+"The whole part in hexadecimal, two's complement in 64 bits" = "Целая часть в шестнадцатеричном виде, дополнительный код в 64 битах"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:196
+"The whole part in binary, two's complement in 64 bits" = "Целая часть в двоичном виде, дополнительный код в 64 битах"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:206
+"The whole part in octal, two's complement in 64 bits" = "Целая часть в восьмеричном виде, дополнительный код в 64 битах"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:216
 "The value in scientific notation" = "Значение в экспоненциальной записи"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:132
+# navigator/widgets/shell/calculator_window/calculator_window.nml:221
 "E~v~aluate" = "Вы~ч~ислить"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in hexadecimal" = "Числа вводятся в шестнадцатеричной системе"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in decimal" = "Числа вводятся в десятичной системе"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in octal" = "Числа вводятся в восьмеричной системе"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in binary" = "Числа вводятся в двоичной системе"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:272
+"The value in hexadecimal, two's complement in the word" = "Значение в шестнадцатеричной системе, дополнительный код в слове"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:292
+"The value in octal, two's complement in the word" = "Значение в восьмеричной системе, дополнительный код в слове"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:302
+"The value in binary, two's complement in the word" = "Значение в двоичной системе, дополнительный код в слове"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"~Q~WORD" = "~Q~WORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"D~W~ORD" = "D~W~ORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"WO~R~D" = "WO~R~D"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"B~Y~TE" = "B~Y~TE"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 64 bits" = "Слово из 64 бит"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 32 bits" = "Слово из 32 бит"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 16 bits" = "Слово из 16 бит"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 8 bits" = "Слово из 8 бит"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:319
+"Sig~n~ed" = "Со ~з~наком"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:320
+"The word read as two's complement; unticked, unsigned" = "Слово читается в дополнительном коде; без отметки — без знака"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:339
+"Click a bit, or Space on it, to flip it" = "Щелчок по биту или пробел на нём переключает его"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:292
+"~C~alculator" = "~К~алькулятор"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:346
+"The calculator's faces, copying its value and closing it" = "Режимы калькулятора, копирование значения и закрытие"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:365, navigator/widgets/shell/calculator_window/calculator_window.py:518
+"~B~it toggling keypad" = "~Б~итовая клавиатура"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:238, navigator/lib/config/keybindings.py
 "Calendar" = "Календарь"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
@@ -1751,8 +1825,6 @@ flag = "RU"
 "Calculator, calendar, remote links, the user menu and histories" = "Калькулятор, календарь, удалённые соединения, меню пользователя и истории"
 # navigator/widgets/shell/main_menu/main_menu.nml:288
 "S~y~stem Information" = "~С~истемная информация"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"~C~alculator" = "~К~алькулятор"
 # navigator/widgets/shell/main_menu/main_menu.nml:298
 "Ca~l~endar" = "Кал~е~ндарь"
 # navigator/widgets/shell/main_menu/main_menu.nml:302
@@ -2335,11 +2407,13 @@ flag = "RU"
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
 # navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:937
+# navigator/settings.py:938
+"Utilities > Calculator (not DN's)" = "Утилиты > Калькулятор (не из DN)"
+# navigator/settings.py:959
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:964
+# navigator/settings.py:986
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:980
+# navigator/settings.py:1002
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Неверный пароль для {name}. Ещё раз:"
@@ -2571,7 +2645,7 @@ flag = "RU"
 "Information" = "Информация"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1727
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1732
 "Cannot open {path}: {error}" = "Не удаётся открыть {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "Файл {name} изменён. Сохранить?"
@@ -2911,7 +2985,7 @@ flag = "RU"
 "~R~atio" = "Сте~п~ень сжатия"
 # navigator/widgets/manager/commands.py:29
 "View" = "Смотр"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1766, navigator/widgets/shell/shell/shell.py:1819 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1771, navigator/widgets/shell/shell/shell.py:1824 ...
 "Open with" = "Открыть через"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "Перем"
@@ -3173,7 +3247,7 @@ flag = "RU"
 "{name}: not a dBase file" = "{name}: не файл dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} отмеченный файл", "{n} отмеченных файла", "{n} отмеченных файлов"]
-# navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "Краткий"
 # navigator/widgets/manager/panel/option_items.py:50
 "Hid" = "Скр"
@@ -3401,8 +3475,16 @@ flag = "RU"
 "Every saver there is; Add puts the one at the cursor among the selected" = "Все заставки; Добавить помещает ту, что под курсором, в выбранные"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Десятичный: {decimal:3d} Hex: {hex:02x}"
-# navigator/widgets/shell/calculator_window/calculator_window.py:42
+# navigator/widgets/shell/calculator_window/calculator_window.py:217
 "Overflow" = "Переполнение"
+# navigator/widgets/shell/calculator_window/commands.py:20
+"Classic" = "Классический"
+# navigator/widgets/shell/calculator_window/commands.py:26
+"Scientific" = "Научный"
+# navigator/widgets/shell/calculator_window/commands.py:32
+"Programming" = "Программист"
+# navigator/widgets/shell/calculator_window/commands.py:44
+"Bits" = "Биты"
 # navigator/widgets/shell/calendar_window/calendar_window.py:43
 "~S~elected calendar only" = "~Т~олько выбранный календарь"
 # navigator/widgets/shell/calendar_window/calendar_window.py:44
@@ -3521,19 +3603,19 @@ flag = "RU"
 "Interface Setup hides the command line" = "Настройка интерфейса скрывает командную строку"
 # navigator/widgets/shell/shell/shell.py:1041
 "No file panels are open" = "Нет открытых файловых панелей"
-# navigator/widgets/shell/shell/shell.py:2634, navigator/widgets/shell/shell/shell.py:2627
+# navigator/widgets/shell/shell/shell.py:2639, navigator/widgets/shell/shell/shell.py:2632
 "Disconnect" = "Разорвать связь"
 # navigator/widgets/shell/shell/shell.py:1065
 "No connection is open" = "Нет открытых соединений"
 # navigator/widgets/shell/shell/shell.py:1106
 "A command is still running" = "Команда ещё выполняется"
-# navigator/widgets/shell/shell/shell.py:1765
+# navigator/widgets/shell/shell/shell.py:1770
 "~C~ommand..." = "~К~оманда..."
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1908
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1056
 "The editor has the keys" = "Клавиши у редактора"
@@ -3547,25 +3629,25 @@ flag = "RU"
 "The command line is empty" = "Командная строка пуста"
 # navigator/widgets/shell/shell/shell.py:1105
 "File Manager Setup's Use arrows is off" = "В настройке файлового менеджера выключено «Использовать стрелки»"
-# navigator/widgets/shell/shell/shell.py:1817
+# navigator/widgets/shell/shell/shell.py:1822
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
-# navigator/widgets/shell/shell/shell.py:2477, navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2482, navigator/widgets/shell/shell/shell.py:2668
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1112
 "The shell cannot complete" = "Оболочка не может дополнить"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "User menu (global)" = "Меню пользователя (общее)"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "Local menu" = "Локальное меню"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "User menu (local)" = "Меню пользователя (локальное)"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "Global menu" = "Общее меню"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2630
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:372
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -3581,39 +3663,39 @@ flag = "RU"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "View file" = "Просмотр файла"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "Edit file" = "Редактирование файла"
-# navigator/widgets/shell/shell/shell.py:2103
+# navigator/widgets/shell/shell/shell.py:2108
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
-# navigator/widgets/shell/shell/shell.py:2524
+# navigator/widgets/shell/shell/shell.py:2529
 "Wrong passphrase for {key}. Try again:" = "Неверная фраза-пароль для {key}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2530
 "Passphrase for {key}:" = "Фраза-пароль для {key}:"
-# navigator/widgets/shell/shell/shell.py:2511
-"Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2512
-"Secret key for {who}:" = "Секретный ключ для {who}:"
-# navigator/widgets/shell/shell/shell.py:2515
-"Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
 # navigator/widgets/shell/shell/shell.py:2516
+"Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
+# navigator/widgets/shell/shell/shell.py:2517
+"Secret key for {who}:" = "Секретный ключ для {who}:"
+# navigator/widgets/shell/shell/shell.py:2520
+"Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
+# navigator/widgets/shell/shell/shell.py:2521
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:2664
+# navigator/widgets/shell/shell/shell.py:2669
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1478
+# navigator/widgets/shell/shell/shell.py:1483
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1505
+# navigator/widgets/shell/shell/shell.py:1510
 "File {name} not found" = "Файл {name} не найден"
-# navigator/widgets/shell/shell/shell.py:1656
+# navigator/widgets/shell/shell/shell.py:1661
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:2494
+# navigator/widgets/shell/shell/shell.py:2499
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2735
+# navigator/widgets/shell/shell/shell.py:2740
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2896
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "код выхода {status}"
@@ -4469,6 +4551,18 @@ flag = "RU"
 "The level a game starts at, 1 to 10" = "Уровень, с которого начинается игра, от 1 до 10"
 # navigator/settings.py
 "Classic Tetris, or Pentix's 27 figures" = "Классический Тетрис или 27 фигур Pentix"
+# navigator/settings.py
+"The calculator's face: simple, classic (DN's), scientific or programming" = "Режим калькулятора: простой, классический (DN), научный или программиста"
+# navigator/settings.py
+"What the scientific calculator's angles are measured in" = "В чём измеряются углы научного калькулятора"
+# navigator/settings.py
+"The base the programming calculator's numbers are typed in" = "Система счисления, в которой вводятся числа калькулятора программиста"
+# navigator/settings.py
+"The programming calculator's word: 64, 32, 16 or 8 bits" = "Слово калькулятора программиста: 64, 32, 16 или 8 бит"
+# navigator/settings.py
+"The programming calculator reads its word as signed" = "Калькулятор программиста читает слово со знаком"
+# navigator/settings.py
+"The programming calculator shows its bits to flip instead of its keys" = "Калькулятор программиста показывает биты для переключения вместо клавиш"
 # navigator/settings.py
 "Encoding writes the file's date and time first" = "При кодировании сначала записываются дата и время файла"
 # navigator/settings.py

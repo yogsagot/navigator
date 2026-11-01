@@ -1028,7 +1028,7 @@ direction = "rtl"
 "Give every row back the action the comparison chose" = "إرجاع الإجراء الذي اختارته المقارنة إلى كل صف"
 # navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "مقارنة م~ج~ددا"
-# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:318 ...
 "Cl~o~se" = "إ~غ~لاق"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "الألوان"
@@ -1366,9 +1366,9 @@ direction = "rtl"
 "Press a key" = "اضغط مفتاحا"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "اضغط المفتاح، أو اثنين لتركيبة.\nEnter يقبل، Esc يلغي."
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:23
 "~P~review palette" = "~م~عاينة لوحة الألوان"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:22
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:24
 "Paint the palette under the cursor in the box beside the list" = "رسم لوحة الألوان التي تحت المؤشر في المربع بجانب القائمة"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "الحافظات ال~م~حددة"
@@ -1500,46 +1500,120 @@ direction = "rtl"
 "minutes (0: each time)" = "دقائق (0: كل مرة)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "جدول ASCII"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
 "Calculator" = "الآلة الحاسبة"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:40
-"Ex~p~ression" = "ال~ت~عبير"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:46
-"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "أعداد مثل 12، 1.5، 1E+3، $FF، 0x1F، 101b، 17o؛ + - * / ^ %، & | \\ ~ << >>، مقارنات، IF، SIN، SQRT، LN، PI"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:67
-"Copy ~A~s" = "نسخ ~ب~صيغة"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~D~EC" = "~D~EC"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~H~EX" = "~H~EX"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~B~IN" = "~B~IN"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~O~CT" = "~O~CT"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~E~XP" = "~E~XP"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in decimal" = "زر نسخ ينسخ القيمة بالنظام العشري"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in hexadecimal" = "زر نسخ ينسخ القيمة بالنظام الست عشري"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in binary" = "زر نسخ ينسخ القيمة بالنظام الثنائي"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in octal" = "زر نسخ ينسخ القيمة بالنظام الثماني"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in scientific notation" = "زر نسخ ينسخ القيمة بالترميز العلمي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:349, navigator/widgets/shell/calculator_window/calculator_window.py:512
+"~S~imple" = "~ب~سيط"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:352, navigator/widgets/shell/calculator_window/calculator_window.py:513
+"C~l~assic" = "~ك~لاسيكي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:355, navigator/widgets/shell/calculator_window/calculator_window.py:514
+"Sc~i~entific" = "~ع~لمي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:358, navigator/widgets/shell/calculator_window/calculator_window.py:515
+"Pro~g~ramming" = "برم~ج~ة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A pocket calculator" = "آلة حاسبة للجيب"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"DOS Navigator's calculator: the expression in five forms" = "حاسبة DOS Navigator: التعبير بخمس صيغ"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"Functions, angles, memory and the last answer" = "دوال وزوايا وذاكرة وآخر نتيجة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A word of 8 to 64 bits in four bases" = "كلمة من 8 إلى 64 بتًا بأربعة أنظمة"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:87
-"The value in decimal" = "القيمة بالنظام العشري"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:97
-"The whole part in hexadecimal, two's complement in 64 bits" = "الجزء الصحيح بالنظام الست عشري، المتمم الثنائي في 64 بت"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:107
-"The whole part in binary, two's complement in 64 bits" = "الجزء الصحيح بالنظام الثنائي، المتمم الثنائي في 64 بت"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:117
-"The whole part in octal, two's complement in 64 bits" = "الجزء الصحيح بالنظام الثماني، المتمم الثنائي في 64 بت"
+"Ex~p~ression" = "ال~ت~عبير"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:93
+"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "أعداد مثل 12، 1.5، 1E+3، $FF، 0x1F، 101b، 17o؛ + - * / ^ %، & | \\ ~ << >>، مقارنات، IF، SIN، SQRT، LN، PI"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:118
+"The line's value; Enter or = puts it in the line" = "قيمة السطر؛ Enter أو = يضعها في السطر"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~D~eg" = "~د~رجات"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~R~ad" = "~ر~اديان"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"Gr~a~d" = "~غ~راد"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in degrees, a turn 360" = "الزوايا بالدرجات، الدورة 360"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in radians, a turn 2π" = "الزوايا بالراديان، الدورة 2π"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in grads, a turn 400" = "الزوايا بالغراد، الدورة 400"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:139
+"M: a value in memory; 2nd and hyp: the keys' other functions" = "M: قيمة في الذاكرة؛ 2nd و hyp: الوظائف الأخرى للمفاتيح"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:156
+"Copy ~A~s" = "نسخ ~ب~صيغة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~D~EC" = "~D~EC"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~H~EX" = "~H~EX"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~B~IN" = "~B~IN"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~O~CT" = "~O~CT"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165
+"~E~XP" = "~E~XP"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in decimal" = "زر نسخ ينسخ القيمة بالنظام العشري"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in hexadecimal" = "زر نسخ ينسخ القيمة بالنظام الست عشري"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in binary" = "زر نسخ ينسخ القيمة بالنظام الثنائي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in octal" = "زر نسخ ينسخ القيمة بالنظام الثماني"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in scientific notation" = "زر نسخ ينسخ القيمة بالترميز العلمي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:176, navigator/widgets/shell/calculator_window/calculator_window.nml:282
+"The value in decimal" = "القيمة بالنظام العشري"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:186
+"The whole part in hexadecimal, two's complement in 64 bits" = "الجزء الصحيح بالنظام الست عشري، المتمم الثنائي في 64 بت"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:196
+"The whole part in binary, two's complement in 64 bits" = "الجزء الصحيح بالنظام الثنائي، المتمم الثنائي في 64 بت"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:206
+"The whole part in octal, two's complement in 64 bits" = "الجزء الصحيح بالنظام الثماني، المتمم الثنائي في 64 بت"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:216
 "The value in scientific notation" = "القيمة بالترميز العلمي"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:132
+# navigator/widgets/shell/calculator_window/calculator_window.nml:221
 "E~v~aluate" = "~ح~ساب"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in hexadecimal" = "تُكتب الأعداد بالنظام الست عشري"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in decimal" = "تُكتب الأعداد بالنظام العشري"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in octal" = "تُكتب الأعداد بالنظام الثماني"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in binary" = "تُكتب الأعداد بالنظام الثنائي"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:272
+"The value in hexadecimal, two's complement in the word" = "القيمة بالنظام الست عشري، بالمتمم الثنائي في الكلمة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:292
+"The value in octal, two's complement in the word" = "القيمة بالنظام الثماني، بالمتمم الثنائي في الكلمة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:302
+"The value in binary, two's complement in the word" = "القيمة بالنظام الثنائي، بالمتمم الثنائي في الكلمة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"~Q~WORD" = "~Q~WORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"D~W~ORD" = "D~W~ORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"WO~R~D" = "WO~R~D"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"B~Y~TE" = "B~Y~TE"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 64 bits" = "كلمة من 64 بتًا"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 32 bits" = "كلمة من 32 بتًا"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 16 bits" = "كلمة من 16 بتًا"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 8 bits" = "كلمة من 8 بتات"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:319
+"Sig~n~ed" = "بإ~ش~ارة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:320
+"The word read as two's complement; unticked, unsigned" = "تُقرأ الكلمة بالمتمم الثنائي؛ دون علامة، بلا إشارة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:339
+"Click a bit, or Space on it, to flip it" = "انقر بتًا، أو اضغط المسافة عليه، لقلبه"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:292
+"~C~alculator" = "ال~ح~اسبة"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:346
+"The calculator's faces, copying its value and closing it" = "أوجه الحاسبة، ونسخ قيمتها وإغلاقها"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:365, navigator/widgets/shell/calculator_window/calculator_window.py:518
+"~B~it toggling keypad" = "~ل~وحة البتات"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:238, navigator/lib/config/keybindings.py
 "Calendar" = "التقويم"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
@@ -1752,8 +1826,6 @@ direction = "rtl"
 "Calculator, calendar, remote links, the user menu and histories" = "الحاسبة، التقويم، الروابط البعيدة، قائمة المستخدم والسجلات"
 # navigator/widgets/shell/main_menu/main_menu.nml:288
 "S~y~stem Information" = "معلومات ال~ن~ظام"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"~C~alculator" = "ال~ح~اسبة"
 # navigator/widgets/shell/main_menu/main_menu.nml:298
 "Ca~l~endar" = "التق~و~يم"
 # navigator/widgets/shell/main_menu/main_menu.nml:302
@@ -2336,11 +2408,13 @@ direction = "rtl"
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "خيارات > التكوين > الإعدادات الإقليمية (dlgCountrySetup في DN)"
 # navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > اللعبة > الإعداد (dlgGameSetup في DN)"
-# navigator/settings.py:937
+# navigator/settings.py:938
+"Utilities > Calculator (not DN's)" = "الأدوات > الحاسبة (ليست من DN)"
+# navigator/settings.py:959
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ملف > ترميز UU / فك ترميز UU (dlgUUEncode وdlgUUDecode في DN)"
-# navigator/settings.py:964
+# navigator/settings.py:986
 "File > Checksums > Calculate (not DN's)" = "ملف > المجاميع الاختبارية > حساب (ليس من DN)"
-# navigator/settings.py:980
+# navigator/settings.py:1002
 "Options > Configuration > Communications (DN's cmSetupModem)" = "خيارات > التكوين > الاتصالات (cmSetupModem في DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "كلمة مرور خاطئة لـ {name}. حاول مجددا:"
@@ -2572,7 +2646,7 @@ direction = "rtl"
 "Information" = "معلومات"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1727
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1732
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
@@ -2912,7 +2986,7 @@ direction = "rtl"
 "~R~atio" = "~ن~سبة الضغط"
 # navigator/widgets/manager/commands.py:29
 "View" = "عرض"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1766, navigator/widgets/shell/shell/shell.py:1819 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1771, navigator/widgets/shell/shell/shell.py:1824 ...
 "Open with" = "فتح بواسطة"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "تسمية"
@@ -3174,7 +3248,7 @@ direction = "rtl"
 "{name}: not a dBase file" = "{name}: ليس ملف dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} ملف محدد", "ملف واحد محدد", "ملفان محددان", "{n} ملفات محددة", "{n} ملفا محددا", "{n} ملف محدد"]
-# navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "بسيط"
 # navigator/widgets/manager/panel/option_items.py:50
 "Hid" = "مخفي"
@@ -3402,8 +3476,16 @@ direction = "rtl"
 "Every saver there is; Add puts the one at the cursor among the selected" = "كل شاشات التوقف المتاحة؛ إضافة تضع التي عند المؤشر بين المختارة"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "الحرف: {char} عشري: {decimal:3d} Hex: {hex:02x}"
-# navigator/widgets/shell/calculator_window/calculator_window.py:42
+# navigator/widgets/shell/calculator_window/calculator_window.py:217
 "Overflow" = "تجاوز السعة"
+# navigator/widgets/shell/calculator_window/commands.py:20
+"Classic" = "كلاسيكي"
+# navigator/widgets/shell/calculator_window/commands.py:26
+"Scientific" = "علمي"
+# navigator/widgets/shell/calculator_window/commands.py:32
+"Programming" = "برمجة"
+# navigator/widgets/shell/calculator_window/commands.py:44
+"Bits" = "بتات"
 # navigator/widgets/shell/calendar_window/calendar_window.py:43
 "~S~elected calendar only" = "التقويم المختار ~ف~قط"
 # navigator/widgets/shell/calendar_window/calendar_window.py:44
@@ -3522,19 +3604,19 @@ direction = "rtl"
 "Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
 # navigator/widgets/shell/shell/shell.py:1041
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
-# navigator/widgets/shell/shell/shell.py:2634, navigator/widgets/shell/shell/shell.py:2627
+# navigator/widgets/shell/shell/shell.py:2639, navigator/widgets/shell/shell/shell.py:2632
 "Disconnect" = "قطع الاتصال"
 # navigator/widgets/shell/shell/shell.py:1065
 "No connection is open" = "لا يوجد اتصال مفتوح"
 # navigator/widgets/shell/shell/shell.py:1106
 "A command is still running" = "ما زال أمر قيد التشغيل"
-# navigator/widgets/shell/shell/shell.py:1765
+# navigator/widgets/shell/shell/shell.py:1770
 "~C~ommand..." = "~أ~مر..."
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1908
 "Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File Edit History" = "سجل تحرير الملفات"
 # navigator/widgets/shell/shell/shell.py:1056
 "The editor has the keys" = "المفاتيح لدى المحرر"
@@ -3548,25 +3630,25 @@ direction = "rtl"
 "The command line is empty" = "سطر الأوامر فارغ"
 # navigator/widgets/shell/shell/shell.py:1105
 "File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:1817
+# navigator/widgets/shell/shell/shell.py:1822
 "~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
-# navigator/widgets/shell/shell/shell.py:2477, navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2482, navigator/widgets/shell/shell/shell.py:2668
 "{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track editing history" = "تتبع سجل التحرير"
 # navigator/widgets/shell/shell/shell.py:1112
 "The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "User menu (global)" = "قائمة المستخدم (عامة)"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "Local menu" = "القائمة المحلية"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "User menu (local)" = "قائمة المستخدم (محلية)"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "Global menu" = "القائمة العامة"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2630
 "Close the {protocol} connection to {host}?" = "إغلاق اتصال {protocol} مع {host}؟"
 # navigator/widgets/shell/shell/shell.py:372
 "Store Color Palette" = "حفظ لوحة الألوان"
@@ -3582,39 +3664,39 @@ direction = "rtl"
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "Edit file" = "تحرير ملف"
-# navigator/widgets/shell/shell/shell.py:2103
+# navigator/widgets/shell/shell/shell.py:2108
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
-# navigator/widgets/shell/shell/shell.py:2524
+# navigator/widgets/shell/shell/shell.py:2529
 "Wrong passphrase for {key}. Try again:" = "عبارة مرور خاطئة لـ {key}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2530
 "Passphrase for {key}:" = "عبارة المرور لـ {key}:"
-# navigator/widgets/shell/shell/shell.py:2511
-"Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2512
-"Secret key for {who}:" = "المفتاح السري لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2515
-"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
 # navigator/widgets/shell/shell/shell.py:2516
+"Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
+# navigator/widgets/shell/shell/shell.py:2517
+"Secret key for {who}:" = "المفتاح السري لـ {who}:"
+# navigator/widgets/shell/shell/shell.py:2520
+"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
+# navigator/widgets/shell/shell/shell.py:2521
 "{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2664
+# navigator/widgets/shell/shell/shell.py:2669
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1478
+# navigator/widgets/shell/shell/shell.py:1483
 "Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1505
+# navigator/widgets/shell/shell/shell.py:1510
 "File {name} not found" = "الملف {name} غير موجود"
-# navigator/widgets/shell/shell/shell.py:1656
+# navigator/widgets/shell/shell/shell.py:1661
 "Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
-# navigator/widgets/shell/shell/shell.py:2494
+# navigator/widgets/shell/shell/shell.py:2499
 "Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:2735
+# navigator/widgets/shell/shell/shell.py:2740
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2896
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"
@@ -4470,6 +4552,18 @@ direction = "rtl"
 "The level a game starts at, 1 to 10" = "المستوى الذي تبدأ به اللعبة، من 1 إلى 10"
 # navigator/settings.py
 "Classic Tetris, or Pentix's 27 figures" = "Tetris الكلاسيكية، أو أشكال Pentix الـ 27"
+# navigator/settings.py
+"The calculator's face: simple, classic (DN's), scientific or programming" = "وجه الحاسبة: بسيط أو كلاسيكي (DN) أو علمي أو برمجة"
+# navigator/settings.py
+"What the scientific calculator's angles are measured in" = "الوحدة التي تُقاس بها زوايا الحاسبة العلمية"
+# navigator/settings.py
+"The base the programming calculator's numbers are typed in" = "النظام الذي تُكتب به أعداد حاسبة البرمجة"
+# navigator/settings.py
+"The programming calculator's word: 64, 32, 16 or 8 bits" = "كلمة حاسبة البرمجة: 64 أو 32 أو 16 أو 8 بتات"
+# navigator/settings.py
+"The programming calculator reads its word as signed" = "تقرأ حاسبة البرمجة كلمتها بإشارة"
+# navigator/settings.py
+"The programming calculator shows its bits to flip instead of its keys" = "تعرض حاسبة البرمجة بتاتها لقلبها بدل مفاتيحها"
 # navigator/settings.py
 "Encoding writes the file's date and time first" = "الترميز يكتب تاريخ الملف ووقته أولا"
 # navigator/settings.py

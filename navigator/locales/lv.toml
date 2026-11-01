@@ -1027,7 +1027,7 @@ flag = "LV"
 "Give every row back the action the comparison chose" = "Atgriezt katrai rindai darbību, ko izvēlējās salīdzināšana"
 # navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "Salīdzināt atkār~t~oti"
-# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:318 ...
 "Cl~o~se" = "Aizvē~r~t"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "Krāsas"
@@ -1365,9 +1365,9 @@ flag = "LV"
 "Press a key" = "Nospiediet taustiņu"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "Nospiediet taustiņu vai divus akordam.\nEnter apstiprina, Esc atceļ."
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:23
 "~P~review palette" = "Priekš~s~katīt paleti"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:22
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:24
 "Paint the palette under the cursor in the box beside the list" = "Rādīt kursora paleti lodziņā blakus sarakstam"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "~I~zvēlētie"
@@ -1499,46 +1499,120 @@ flag = "LV"
 "minutes (0: each time)" = "minūtes (0: katru reizi)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "ASCII tabula"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
 "Calculator" = "Kalkulators"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:40
-"Ex~p~ression" = "~I~zteiksme"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:46
-"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "Skaitļi kā 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, salīdzinājumi, IF, SIN, SQRT, LN, PI"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:67
-"Copy ~A~s" = "Kopē~t~ kā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~D~EC" = "~D~EC"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~H~EX" = "~H~EX"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~B~IN" = "~B~IN"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~O~CT" = "~O~CT"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~E~XP" = "~E~XP"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in decimal" = "Kopēt kopē vērtību decimālā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in hexadecimal" = "Kopēt kopē vērtību heksadecimālā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in binary" = "Kopēt kopē vērtību binārā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in octal" = "Kopēt kopē vērtību astotnieku sistēmā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in scientific notation" = "Kopēt kopē vērtību eksponentformā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:349, navigator/widgets/shell/calculator_window/calculator_window.py:512
+"~S~imple" = "~V~ienkāršs"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:352, navigator/widgets/shell/calculator_window/calculator_window.py:513
+"C~l~assic" = "Kl~a~siskais"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:355, navigator/widgets/shell/calculator_window/calculator_window.py:514
+"Sc~i~entific" = "~Z~inātniskais"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:358, navigator/widgets/shell/calculator_window/calculator_window.py:515
+"Pro~g~ramming" = "~P~rogrammētāja"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A pocket calculator" = "Kabatas kalkulators"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"DOS Navigator's calculator: the expression in five forms" = "DOS Navigator kalkulators: izteiksme piecos veidos"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"Functions, angles, memory and the last answer" = "Funkcijas, leņķi, atmiņa un pēdējā atbilde"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A word of 8 to 64 bits in four bases" = "8 līdz 64 bitu vārds četrās bāzēs"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:87
-"The value in decimal" = "Vērtība decimālā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:97
-"The whole part in hexadecimal, two's complement in 64 bits" = "Veselā daļa heksadecimālā, papildkodā 64 bitos"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:107
-"The whole part in binary, two's complement in 64 bits" = "Veselā daļa binārā, papildkodā 64 bitos"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:117
-"The whole part in octal, two's complement in 64 bits" = "Veselā daļa astotnieku sistēmā, papildkodā 64 bitos"
+"Ex~p~ression" = "~I~zteiksme"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:93
+"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "Skaitļi kā 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, salīdzinājumi, IF, SIN, SQRT, LN, PI"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:118
+"The line's value; Enter or = puts it in the line" = "Rindas vērtība; Enter vai = ieliek to rindā"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~D~eg" = "~G~rādi"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~R~ad" = "~R~adiāni"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"Gr~a~d" = "Gra~d~i"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in degrees, a turn 360" = "Leņķi grādos, apgrieziens 360"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in radians, a turn 2π" = "Leņķi radiānos, apgrieziens 2π"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in grads, a turn 400" = "Leņķi gradiānos, apgrieziens 400"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:139
+"M: a value in memory; 2nd and hyp: the keys' other functions" = "M: vērtība atmiņā; 2nd un hyp: taustiņu otras funkcijas"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:156
+"Copy ~A~s" = "Kopē~t~ kā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~D~EC" = "~D~EC"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~H~EX" = "~H~EX"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~B~IN" = "~B~IN"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~O~CT" = "~O~CT"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165
+"~E~XP" = "~E~XP"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in decimal" = "Kopēt kopē vērtību decimālā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in hexadecimal" = "Kopēt kopē vērtību heksadecimālā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in binary" = "Kopēt kopē vērtību binārā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in octal" = "Kopēt kopē vērtību astotnieku sistēmā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in scientific notation" = "Kopēt kopē vērtību eksponentformā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:176, navigator/widgets/shell/calculator_window/calculator_window.nml:282
+"The value in decimal" = "Vērtība decimālā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:186
+"The whole part in hexadecimal, two's complement in 64 bits" = "Veselā daļa heksadecimālā, papildkodā 64 bitos"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:196
+"The whole part in binary, two's complement in 64 bits" = "Veselā daļa binārā, papildkodā 64 bitos"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:206
+"The whole part in octal, two's complement in 64 bits" = "Veselā daļa astotnieku sistēmā, papildkodā 64 bitos"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:216
 "The value in scientific notation" = "Vērtība eksponentformā"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:132
+# navigator/widgets/shell/calculator_window/calculator_window.nml:221
 "E~v~aluate" = "~A~prēķināt"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in hexadecimal" = "Skaitļus raksta heksadecimāli"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in decimal" = "Skaitļus raksta decimāli"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in octal" = "Skaitļus raksta oktāli"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in binary" = "Skaitļus raksta bināri"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:272
+"The value in hexadecimal, two's complement in the word" = "Vērtība heksadecimāli, papildkodā vārda platumā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:292
+"The value in octal, two's complement in the word" = "Vērtība oktāli, papildkodā vārda platumā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:302
+"The value in binary, two's complement in the word" = "Vērtība bināri, papildkodā vārda platumā"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"~Q~WORD" = "~Q~WORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"D~W~ORD" = "D~W~ORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"WO~R~D" = "WO~R~D"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"B~Y~TE" = "B~Y~TE"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 64 bits" = "64 bitu vārds"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 32 bits" = "32 bitu vārds"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 16 bits" = "16 bitu vārds"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 8 bits" = "8 bitu vārds"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:319
+"Sig~n~ed" = "Ar ~z~īmi"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:320
+"The word read as two's complement; unticked, unsigned" = "Vārds lasīts papildkodā; bez atzīmes — bez zīmes"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:339
+"Click a bit, or Space on it, to flip it" = "Noklikšķiniet uz bita vai nospiediet uz tā atstarpi, lai to apgrieztu"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:292
+"~C~alculator" = "~K~alkulators"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:346
+"The calculator's faces, copying its value and closing it" = "Kalkulatora veidi, vērtības kopēšana un aizvēršana"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:365, navigator/widgets/shell/calculator_window/calculator_window.py:518
+"~B~it toggling keypad" = "~B~itu tastatūra"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:238, navigator/lib/config/keybindings.py
 "Calendar" = "Kalendārs"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
@@ -1751,8 +1825,6 @@ flag = "LV"
 "Calculator, calendar, remote links, the user menu and histories" = "Kalkulators, kalendārs, attālinātie savienojumi, lietotāja izvēlne un vēstures"
 # navigator/widgets/shell/main_menu/main_menu.nml:288
 "S~y~stem Information" = "Sistēmas ~i~nformācija"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"~C~alculator" = "~K~alkulators"
 # navigator/widgets/shell/main_menu/main_menu.nml:298
 "Ca~l~endar" = "Kal~e~ndārs"
 # navigator/widgets/shell/main_menu/main_menu.nml:302
@@ -2335,11 +2407,13 @@ flag = "LV"
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Iestatījumi > Konfigurācija > Valsts formāti (DN dlgCountrySetup)"
 # navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Spēle > Iestatīšana (DN dlgGameSetup)"
-# navigator/settings.py:937
+# navigator/settings.py:938
+"Utilities > Calculator (not DN's)" = "Utilītas > Kalkulators (nav DN)"
+# navigator/settings.py:959
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Fails > UU kodēt / UU dekodēt (DN dlgUUEncode, dlgUUDecode)"
-# navigator/settings.py:964
+# navigator/settings.py:986
 "File > Checksums > Calculate (not DN's)" = "Fails > Kontrolsummas > Aprēķināt (nav DN)"
-# navigator/settings.py:980
+# navigator/settings.py:1002
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Nepareiza {name} parole. Mēģiniet vēlreiz:"
@@ -2571,7 +2645,7 @@ flag = "LV"
 "Information" = "Informācija"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1727
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1732
 "Cannot open {path}: {error}" = "Nevar atvērt {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "Fails {name} ir mainīts. Saglabāt?"
@@ -2911,7 +2985,7 @@ flag = "LV"
 "~R~atio" = "Attie~c~ība"
 # navigator/widgets/manager/commands.py:29
 "View" = "Skatīt"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1766, navigator/widgets/shell/shell/shell.py:1819 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1771, navigator/widgets/shell/shell/shell.py:1824 ...
 "Open with" = "Atvērt ar"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "Pārdēv"
@@ -3173,7 +3247,7 @@ flag = "LV"
 "{name}: not a dBase file" = "{name}: nav dBase fails"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} atlasīts fails", "{n} atlasīti faili", "{n} atlasītu failu"]
-# navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "Vienkāršs"
 # navigator/widgets/manager/panel/option_items.py:50
 "Hid" = "Slēpt"
@@ -3401,8 +3475,16 @@ flag = "LV"
 "Every saver there is; Add puts the one at the cursor among the selected" = "Visi ekrānsaudzētāji; Pievienot ieliek to, uz kura ir kursors, izvēlētajos"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Simb.: {char} Dec.: {decimal:3d} Hex: {hex:02x}"
-# navigator/widgets/shell/calculator_window/calculator_window.py:42
+# navigator/widgets/shell/calculator_window/calculator_window.py:217
 "Overflow" = "Pārpilde"
+# navigator/widgets/shell/calculator_window/commands.py:20
+"Classic" = "Klasiskais"
+# navigator/widgets/shell/calculator_window/commands.py:26
+"Scientific" = "Zinātniskais"
+# navigator/widgets/shell/calculator_window/commands.py:32
+"Programming" = "Programmētāja"
+# navigator/widgets/shell/calculator_window/commands.py:44
+"Bits" = "Biti"
 # navigator/widgets/shell/calendar_window/calendar_window.py:43
 "~S~elected calendar only" = "Tikai ~i~zvēlētais kalendārs"
 # navigator/widgets/shell/calendar_window/calendar_window.py:44
@@ -3521,19 +3603,19 @@ flag = "LV"
 "Interface Setup hides the command line" = "Saskarnes iestatījumi paslēpj komandrindu"
 # navigator/widgets/shell/shell/shell.py:1041
 "No file panels are open" = "Nav atvērtu failu paneļu"
-# navigator/widgets/shell/shell/shell.py:2634, navigator/widgets/shell/shell/shell.py:2627
+# navigator/widgets/shell/shell/shell.py:2639, navigator/widgets/shell/shell/shell.py:2632
 "Disconnect" = "Atvienot"
 # navigator/widgets/shell/shell/shell.py:1065
 "No connection is open" = "Nav atvērta savienojuma"
 # navigator/widgets/shell/shell/shell.py:1106
 "A command is still running" = "Komanda vēl darbojas"
-# navigator/widgets/shell/shell/shell.py:1765
+# navigator/widgets/shell/shell/shell.py:1770
 "~C~ommand..." = "~K~omanda..."
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1908
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File Edit History" = "Failu rediģēšanas vēsture"
 # navigator/widgets/shell/shell/shell.py:1056
 "The editor has the keys" = "Taustiņi pieder redaktoram"
@@ -3547,25 +3629,25 @@ flag = "LV"
 "The command line is empty" = "Komandrinda ir tukša"
 # navigator/widgets/shell/shell/shell.py:1105
 "File Manager Setup's Use arrows is off" = "Failu pārvaldnieka iestatījumos Lietot bultas ir izslēgts"
-# navigator/widgets/shell/shell/shell.py:1817
+# navigator/widgets/shell/shell/shell.py:1822
 "~C~ommand (!.! is the file; else it goes at the end)" = "~K~omanda (!.! ir fails; citādi tas nāk beigās)"
-# navigator/widgets/shell/shell/shell.py:2477, navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2482, navigator/widgets/shell/shell/shell.py:2668
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track editing history" = "Sekot rediģēšanas vēsturei"
 # navigator/widgets/shell/shell/shell.py:1112
 "The shell cannot complete" = "Čaula nevar papildināt"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "User menu (global)" = "Lietotāja izvēlne (globālā)"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "Local menu" = "Lokālā izvēlne"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "User menu (local)" = "Lietotāja izvēlne (lokālā)"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "Global menu" = "Globālā izvēlne"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2630
 "Close the {protocol} connection to {host}?" = "Aizvērt {protocol} savienojumu ar {host}?"
 # navigator/widgets/shell/shell/shell.py:372
 "Store Color Palette" = "Saglabāt krāsu paleti"
@@ -3581,39 +3663,39 @@ flag = "LV"
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "View file" = "Skatīt failu"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "Edit file" = "Rediģēt failu"
-# navigator/widgets/shell/shell/shell.py:2103
+# navigator/widgets/shell/shell/shell.py:2108
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
-# navigator/widgets/shell/shell/shell.py:2524
+# navigator/widgets/shell/shell/shell.py:2529
 "Wrong passphrase for {key}. Try again:" = "Nepareiza ieejas frāze atslēgai {key}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2530
 "Passphrase for {key}:" = "Ieejas frāze atslēgai {key}:"
-# navigator/widgets/shell/shell/shell.py:2511
-"Wrong secret key for {who}. Try again:" = "Nepareiza slepenā atslēga {who}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2512
-"Secret key for {who}:" = "Slepenā atslēga {who}:"
-# navigator/widgets/shell/shell/shell.py:2515
-"Wrong {protocol} password for {who}. Try again:" = "Nepareiza {protocol} parole lietotājam {who}. Mēģiniet vēlreiz:"
 # navigator/widgets/shell/shell/shell.py:2516
+"Wrong secret key for {who}. Try again:" = "Nepareiza slepenā atslēga {who}. Mēģiniet vēlreiz:"
+# navigator/widgets/shell/shell/shell.py:2517
+"Secret key for {who}:" = "Slepenā atslēga {who}:"
+# navigator/widgets/shell/shell/shell.py:2520
+"Wrong {protocol} password for {who}. Try again:" = "Nepareiza {protocol} parole lietotājam {who}. Mēģiniet vēlreiz:"
+# navigator/widgets/shell/shell/shell.py:2521
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
-# navigator/widgets/shell/shell/shell.py:2664
+# navigator/widgets/shell/shell/shell.py:2669
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
-# navigator/widgets/shell/shell/shell.py:1478
+# navigator/widgets/shell/shell/shell.py:1483
 "Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1505
+# navigator/widgets/shell/shell/shell.py:1510
 "File {name} not found" = "Fails {name} nav atrasts"
-# navigator/widgets/shell/shell/shell.py:1656
+# navigator/widgets/shell/shell/shell.py:1661
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
-# navigator/widgets/shell/shell/shell.py:2494
+# navigator/widgets/shell/shell/shell.py:2499
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:2735
+# navigator/widgets/shell/shell/shell.py:2740
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2896
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "izejas statuss {status}"
@@ -4469,6 +4551,18 @@ flag = "LV"
 "The level a game starts at, 1 to 10" = "Līmenis, ar kuru sākas spēle, no 1 līdz 10"
 # navigator/settings.py
 "Classic Tetris, or Pentix's 27 figures" = "Klasiskais Tetris vai Pentix 27 figūras"
+# navigator/settings.py
+"The calculator's face: simple, classic (DN's), scientific or programming" = "Kalkulatora veids: vienkāršs, klasiskais (DN), zinātniskais vai programmētāja"
+# navigator/settings.py
+"What the scientific calculator's angles are measured in" = "Kādās vienībās mēra zinātniskā kalkulatora leņķus"
+# navigator/settings.py
+"The base the programming calculator's numbers are typed in" = "Bāze, kurā raksta programmētāja kalkulatora skaitļus"
+# navigator/settings.py
+"The programming calculator's word: 64, 32, 16 or 8 bits" = "Programmētāja kalkulatora vārds: 64, 32, 16 vai 8 biti"
+# navigator/settings.py
+"The programming calculator reads its word as signed" = "Programmētāja kalkulators lasa vārdu ar zīmi"
+# navigator/settings.py
+"The programming calculator shows its bits to flip instead of its keys" = "Programmētāja kalkulators taustiņu vietā rāda apgriežamos bitus"
 # navigator/settings.py
 "Encoding writes the file's date and time first" = "Kodējot vispirms tiek ierakstīts faila datums un laiks"
 # navigator/settings.py

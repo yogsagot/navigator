@@ -5,23 +5,23 @@ flag = "JP"
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:71
 "~Y~es" = "はい(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:86, navml/widgets/window_manager/window_manager.nml:39
 "O~K~" = "O~K~"
 # navml/widgets/dialog/dialog/dialog.nml:80
 "~N~o" = "いいえ(~N~)"
 # navml/widgets/dialog/dialog/dialog.nml:88
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:104, navml/widgets/window_manager/window_manager.nml:66
 "~H~elp" = "ヘルプ(~H~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:20
+# navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "ファイルを開く"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:25, navml/widgets/dialog/file_dialog/file_dialog.py:84
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
 "~N~ame" = "名前(~N~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:43
-"~F~iles" = "ファイル(~F~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:60
+# navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "ディレクトリ(~D~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:67
+"~F~iles" = "ファイル(~F~)"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:95, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
 "Cancel" = "取消"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "ウィンドウ管理"
@@ -741,13 +741,13 @@ flag = "JP"
 "{n} day ago" = ["{n} 日前"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter で確定、Escape で取り消し。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:200
+# navml/widgets/dialog/file_dialog/file_dialog.py:202
 "Invalid file name." = "無効なファイル名です。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:191
+# navml/widgets/dialog/file_dialog/file_dialog.py:193
 "Invalid drive or directory." = "無効なドライブまたはディレクトリです。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:226
+# navml/widgets/dialog/file_dialog/file_dialog.py:228
 "Error" = "エラー"
-# navml/widgets/dialog/file_list/file_list.py:200
+# navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "ディレクトリ"
 # navml/widgets/dialog/history/history.py:266, navml/widgets/dialog/history/history.py:272, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " 検索: "

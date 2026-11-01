@@ -1027,7 +1027,7 @@ flag = "CN"
 "Give every row back the action the comparison chose" = "将所有行恢复为比较所选的操作"
 # navigator/widgets/manager/sync_window/sync_window.nml:156
 "Compare a~g~ain" = "重新比较(~G~)"
-# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/manager/sync_window/sync_window.py:318
+# navigator/widgets/manager/sync_window/sync_window.nml:168, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:318 ...
 "Cl~o~se" = "关闭(~O~)"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "颜色"
@@ -1365,9 +1365,9 @@ flag = "CN"
 "Press a key" = "按一个键"
 # navigator/widgets/setup/key_capture_dialog/key_capture_dialog.nml:19
 "Press the key, or two for a chord.\nEnter takes it, Esc cancels." = "按下按键，组合键可按两个。\nEnter 确认，Esc 取消。"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:21
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:23
 "~P~review palette" = "预览调色板(~P~)"
-# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:22
+# navigator/widgets/setup/palette_file_dialog/palette_file_dialog.nml:24
 "Paint the palette under the cursor in the box beside the list" = "在列表旁的框中显示光标处的调色板"
 # navigator/widgets/setup/savers_page/savers_page.nml:28
 "~S~elected savers" = "已选屏幕保护(~S~)"
@@ -1499,46 +1499,120 @@ flag = "CN"
 "minutes (0: each time)" = "分钟(0：每次)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "ASCII 表"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:19, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
 "Calculator" = "计算器"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:40
-"Ex~p~ression" = "表达式(~P~)"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:46
-"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "数字如 12、1.5、1E+3、$FF、0x1F、101b、17o；+ - * / ^ %、& | \\ ~ << >>、比较、IF、SIN、SQRT、LN、PI"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:67
-"Copy ~A~s" = "复制为(~A~)"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~D~EC" = "~D~EC"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~H~EX" = "~H~EX"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~B~IN" = "~B~IN"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~O~CT" = "~O~CT"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:76
-"~E~XP" = "~E~XP"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in decimal" = "“复制”以十进制复制数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in hexadecimal" = "“复制”以十六进制复制数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in binary" = "“复制”以二进制复制数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in octal" = "“复制”以八进制复制数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:77
-"Copy copies the value in scientific notation" = "“复制”以科学计数法复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:349, navigator/widgets/shell/calculator_window/calculator_window.py:512
+"~S~imple" = "简单(~S~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:352, navigator/widgets/shell/calculator_window/calculator_window.py:513
+"C~l~assic" = "经典(~L~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:355, navigator/widgets/shell/calculator_window/calculator_window.py:514
+"Sc~i~entific" = "科学(~I~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:77, navigator/widgets/shell/calculator_window/calculator_window.nml:358, navigator/widgets/shell/calculator_window/calculator_window.py:515
+"Pro~g~ramming" = "程序员(~G~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A pocket calculator" = "袖珍计算器"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"DOS Navigator's calculator: the expression in five forms" = "DOS Navigator 的计算器：表达式的五种形式"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"Functions, angles, memory and the last answer" = "函数、角度、存储器和上次答案"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:78
+"A word of 8 to 64 bits in four bases" = "四种进制下 8 到 64 位的字"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:87
-"The value in decimal" = "十进制数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:97
-"The whole part in hexadecimal, two's complement in 64 bits" = "整数部分的十六进制，64 位补码"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:107
-"The whole part in binary, two's complement in 64 bits" = "整数部分的二进制，64 位补码"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:117
-"The whole part in octal, two's complement in 64 bits" = "整数部分的八进制，64 位补码"
+"Ex~p~ression" = "表达式(~P~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:93
+"Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI" = "数字如 12、1.5、1E+3、$FF、0x1F、101b、17o；+ - * / ^ %、& | \\ ~ << >>、比较、IF、SIN、SQRT、LN、PI"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:118
+"The line's value; Enter or = puts it in the line" = "该行的值；Enter 或 = 将其放入行中"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~D~eg" = "度(~D~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"~R~ad" = "弧度(~R~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:127
+"Gr~a~d" = "百分度(~A~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in degrees, a turn 360" = "角度以度为单位，一周 360"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in radians, a turn 2π" = "角度以弧度为单位，一周 2π"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:128
+"Angles in grads, a turn 400" = "角度以百分度为单位，一周 400"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:139
+"M: a value in memory; 2nd and hyp: the keys' other functions" = "M：存储器中有值；2nd 和 hyp：按键的另一功能"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:156
+"Copy ~A~s" = "复制为(~A~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~D~EC" = "~D~EC"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~H~EX" = "~H~EX"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~B~IN" = "~B~IN"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165, navigator/widgets/shell/calculator_window/calculator_window.nml:261
+"~O~CT" = "~O~CT"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:165
+"~E~XP" = "~E~XP"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in decimal" = "“复制”以十进制复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in hexadecimal" = "“复制”以十六进制复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in binary" = "“复制”以二进制复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in octal" = "“复制”以八进制复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:166
+"Copy copies the value in scientific notation" = "“复制”以科学计数法复制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:176, navigator/widgets/shell/calculator_window/calculator_window.nml:282
+"The value in decimal" = "十进制数值"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:186
+"The whole part in hexadecimal, two's complement in 64 bits" = "整数部分的十六进制，64 位补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:196
+"The whole part in binary, two's complement in 64 bits" = "整数部分的二进制，64 位补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:206
+"The whole part in octal, two's complement in 64 bits" = "整数部分的八进制，64 位补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:216
 "The value in scientific notation" = "科学计数法数值"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:132
+# navigator/widgets/shell/calculator_window/calculator_window.nml:221
 "E~v~aluate" = "计算(~V~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in hexadecimal" = "以十六进制输入数字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in decimal" = "以十进制输入数字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in octal" = "以八进制输入数字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:262
+"Type the numbers in binary" = "以二进制输入数字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:272
+"The value in hexadecimal, two's complement in the word" = "十六进制值，字内补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:292
+"The value in octal, two's complement in the word" = "八进制值，字内补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:302
+"The value in binary, two's complement in the word" = "二进制值，字内补码"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"~Q~WORD" = "~Q~WORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"D~W~ORD" = "D~W~ORD"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"WO~R~D" = "WO~R~D"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:310
+"B~Y~TE" = "B~Y~TE"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 64 bits" = "64 位的字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 32 bits" = "32 位的字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 16 bits" = "16 位的字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:311
+"A word of 8 bits" = "8 位的字"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:319
+"Sig~n~ed" = "有符号(~N~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:320
+"The word read as two's complement; unticked, unsigned" = "以补码读取该字；不勾选为无符号"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:339
+"Click a bit, or Space on it, to flip it" = "单击某位或在其上按空格以翻转"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:292
+"~C~alculator" = "计算器(~C~)"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:346
+"The calculator's faces, copying its value and closing it" = "计算器的形式、复制其值和关闭"
+# navigator/widgets/shell/calculator_window/calculator_window.nml:365, navigator/widgets/shell/calculator_window/calculator_window.py:518
+"~B~it toggling keypad" = "位键盘(~B~)"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:37, navigator/widgets/shell/commands.py:238, navigator/lib/config/keybindings.py
 "Calendar" = "日历"
 # navigator/widgets/shell/calendar_window/calendar_window.nml:79, navigator/widgets/shell/calendar_window/calendar_window.nml:122, navigator/widgets/shell/calendar_window/calendar_window.py:279
@@ -1751,8 +1825,6 @@ flag = "CN"
 "Calculator, calendar, remote links, the user menu and histories" = "计算器、日历、远程链接、用户菜单和历史"
 # navigator/widgets/shell/main_menu/main_menu.nml:288
 "S~y~stem Information" = "系统信息(~Y~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"~C~alculator" = "计算器(~C~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:298
 "Ca~l~endar" = "日历(~L~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:302
@@ -2335,11 +2407,13 @@ flag = "CN"
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "选项 > 配置 > 国家/地区（DN 的 dlgCountrySetup）"
 # navigator/settings.py:922
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > 游戏 > 设置（DN 的 dlgGameSetup）"
-# navigator/settings.py:937
+# navigator/settings.py:938
+"Utilities > Calculator (not DN's)" = "实用工具 > 计算器（非 DN）"
+# navigator/settings.py:959
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "文件 > UU 编码 / UU 解码（DN 的 dlgUUEncode、dlgUUDecode）"
-# navigator/settings.py:964
+# navigator/settings.py:986
 "File > Checksums > Calculate (not DN's)" = "文件 > 校验和 > 计算（非 DN 原有）"
-# navigator/settings.py:980
+# navigator/settings.py:1002
 "Options > Configuration > Communications (DN's cmSetupModem)" = "选项 > 配置 > 通信（DN 的 cmSetupModem）"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} 的密码错误。请重试:"
@@ -2571,7 +2645,7 @@ flag = "CN"
 "Information" = "信息"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["已替换 {n} 处"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1727
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1732
 "Cannot open {path}: {error}" = "无法打开 {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "文件 {name} 已修改。是否保存？"
@@ -2911,7 +2985,7 @@ flag = "CN"
 "~R~atio" = "压缩率(~R~)"
 # navigator/widgets/manager/commands.py:29
 "View" = "查看"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1766, navigator/widgets/shell/shell/shell.py:1819 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1771, navigator/widgets/shell/shell/shell.py:1824 ...
 "Open with" = "打开方式"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
 "Ren" = "重命名"
@@ -3173,7 +3247,7 @@ flag = "CN"
 "{name}: not a dBase file" = "{name}: 不是 dBase 文件"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} 个选中的文件"]
-# navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "简单"
 # navigator/widgets/manager/panel/option_items.py:50
 "Hid" = "隐藏"
@@ -3401,8 +3475,16 @@ flag = "CN"
 "Every saver there is; Add puts the one at the cursor among the selected" = "所有屏幕保护；“添加”将光标处的一项加入已选列表"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "字符: {char} 十进制: {decimal:3d} 十六进制: {hex:02x}"
-# navigator/widgets/shell/calculator_window/calculator_window.py:42
+# navigator/widgets/shell/calculator_window/calculator_window.py:217
 "Overflow" = "溢出"
+# navigator/widgets/shell/calculator_window/commands.py:20
+"Classic" = "经典"
+# navigator/widgets/shell/calculator_window/commands.py:26
+"Scientific" = "科学"
+# navigator/widgets/shell/calculator_window/commands.py:32
+"Programming" = "程序员"
+# navigator/widgets/shell/calculator_window/commands.py:44
+"Bits" = "位"
 # navigator/widgets/shell/calendar_window/calendar_window.py:43
 "~S~elected calendar only" = "仅所选历法(~S~)"
 # navigator/widgets/shell/calendar_window/calendar_window.py:44
@@ -3521,19 +3603,19 @@ flag = "CN"
 "Interface Setup hides the command line" = "界面设置隐藏了命令行"
 # navigator/widgets/shell/shell/shell.py:1041
 "No file panels are open" = "没有打开的文件面板"
-# navigator/widgets/shell/shell/shell.py:2634, navigator/widgets/shell/shell/shell.py:2627
+# navigator/widgets/shell/shell/shell.py:2639, navigator/widgets/shell/shell/shell.py:2632
 "Disconnect" = "断开"
 # navigator/widgets/shell/shell/shell.py:1065
 "No connection is open" = "没有打开的连接"
 # navigator/widgets/shell/shell/shell.py:1106
 "A command is still running" = "命令仍在运行"
-# navigator/widgets/shell/shell/shell.py:1765
+# navigator/widgets/shell/shell/shell.py:1770
 "~C~ommand..." = "命令(~C~)..."
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1908
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:2934
+# navigator/widgets/shell/shell/shell.py:2939
 "File Edit History" = "文件编辑历史"
 # navigator/widgets/shell/shell/shell.py:1056
 "The editor has the keys" = "按键由编辑器处理"
@@ -3547,25 +3629,25 @@ flag = "CN"
 "The command line is empty" = "命令行为空"
 # navigator/widgets/shell/shell/shell.py:1105
 "File Manager Setup's Use arrows is off" = "文件管理器设置的“使用方向键”已关闭"
-# navigator/widgets/shell/shell/shell.py:1817
+# navigator/widgets/shell/shell/shell.py:1822
 "~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
-# navigator/widgets/shell/shell/shell.py:2477, navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2482, navigator/widgets/shell/shell/shell.py:2668
 "{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:2924
+# navigator/widgets/shell/shell/shell.py:2929
 "Track editing history" = "记录编辑历史"
 # navigator/widgets/shell/shell/shell.py:1112
 "The shell cannot complete" = "shell 无法补全"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "User menu (global)" = "用户菜单（全局）"
-# navigator/widgets/shell/shell/shell.py:1543
+# navigator/widgets/shell/shell/shell.py:1548
 "Local menu" = "本地菜单"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "User menu (local)" = "用户菜单（本地）"
-# navigator/widgets/shell/shell/shell.py:1545
+# navigator/widgets/shell/shell/shell.py:1550
 "Global menu" = "全局菜单"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2630
 "Close the {protocol} connection to {host}?" = "关闭到 {host} 的 {protocol} 连接？"
 # navigator/widgets/shell/shell/shell.py:372
 "Store Color Palette" = "存储调色板"
@@ -3581,39 +3663,39 @@ flag = "CN"
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "View file" = "查看文件"
-# navigator/widgets/shell/shell/shell.py:2981
+# navigator/widgets/shell/shell/shell.py:2990
 "Edit file" = "编辑文件"
-# navigator/widgets/shell/shell/shell.py:2103
+# navigator/widgets/shell/shell/shell.py:2108
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
-# navigator/widgets/shell/shell/shell.py:2524
+# navigator/widgets/shell/shell/shell.py:2529
 "Wrong passphrase for {key}. Try again:" = "{key} 的口令错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2525
+# navigator/widgets/shell/shell/shell.py:2530
 "Passphrase for {key}:" = "{key} 的口令："
-# navigator/widgets/shell/shell/shell.py:2511
-"Wrong secret key for {who}. Try again:" = "{who} 的私密密钥错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2512
-"Secret key for {who}:" = "{who} 的私密密钥："
-# navigator/widgets/shell/shell/shell.py:2515
-"Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
 # navigator/widgets/shell/shell/shell.py:2516
+"Wrong secret key for {who}. Try again:" = "{who} 的私密密钥错误。请重试："
+# navigator/widgets/shell/shell/shell.py:2517
+"Secret key for {who}:" = "{who} 的私密密钥："
+# navigator/widgets/shell/shell/shell.py:2520
+"Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
+# navigator/widgets/shell/shell/shell.py:2521
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
-# navigator/widgets/shell/shell/shell.py:2664
+# navigator/widgets/shell/shell/shell.py:2669
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:2927
+# navigator/widgets/shell/shell/shell.py:2932
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
-# navigator/widgets/shell/shell/shell.py:1478
+# navigator/widgets/shell/shell/shell.py:1483
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
-# navigator/widgets/shell/shell/shell.py:1505
+# navigator/widgets/shell/shell/shell.py:1510
 "File {name} not found" = "找不到文件 {name}"
-# navigator/widgets/shell/shell/shell.py:1656
+# navigator/widgets/shell/shell/shell.py:1661
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
-# navigator/widgets/shell/shell/shell.py:2494
+# navigator/widgets/shell/shell/shell.py:2499
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:2735
+# navigator/widgets/shell/shell/shell.py:2740
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2896
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"
@@ -4469,6 +4551,18 @@ flag = "CN"
 "The level a game starts at, 1 to 10" = "游戏的起始级别，1 到 10"
 # navigator/settings.py
 "Classic Tetris, or Pentix's 27 figures" = "经典俄罗斯方块，或 Pentix 的 27 种图形"
+# navigator/settings.py
+"The calculator's face: simple, classic (DN's), scientific or programming" = "计算器形式：简单、经典（DN）、科学或程序员"
+# navigator/settings.py
+"What the scientific calculator's angles are measured in" = "科学计算器的角度单位"
+# navigator/settings.py
+"The base the programming calculator's numbers are typed in" = "程序员计算器输入数字所用的进制"
+# navigator/settings.py
+"The programming calculator's word: 64, 32, 16 or 8 bits" = "程序员计算器的字：64、32、16 或 8 位"
+# navigator/settings.py
+"The programming calculator reads its word as signed" = "程序员计算器以有符号方式读取字"
+# navigator/settings.py
+"The programming calculator shows its bits to flip instead of its keys" = "程序员计算器以可翻转的位代替按键"
 # navigator/settings.py
 "Encoding writes the file's date and time first" = "编码时先写入文件的日期和时间"
 # navigator/settings.py

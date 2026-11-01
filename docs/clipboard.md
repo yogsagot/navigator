@@ -97,7 +97,7 @@ you paste goes to the running program too.
 
 ### Other ways to copy
 
-- **Calculator**: the *Copy* button puts the result on the clipboard.
+- **Calculator**: the *Copy* button (Classic) and *Calculator > Copy* (every face) put the result on the clipboard.
 - **Screen grabber** (Alt+Shift+Ins): move and size the area with the arrows and Shift+arrows, then press Enter to copy
   that part of the screen as text -- or drag the area out with the mouse, and it is copied when you let go. Esc or a
   right click leaves without copying.

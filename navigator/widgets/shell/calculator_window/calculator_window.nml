@@ -1,27 +1,56 @@
+from navigator.widgets.shell.calculator_window.bit_grid import BitGrid
 from navigator.widgets.shell.calculator_window.calc_line import CalcLine
+from navigator.widgets.shell.calculator_window.commands import CalculatorClassic, CalculatorCopy, CalculatorProgramming, CalculatorScientific, CalculatorSimple, ToggleBitKeypad
+from navigator.widgets.manager.commands import Calculator
+from navigator.widgets.shell.calculator_window.keypad import Keypad
+from navkit.widget import Widget
+from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
-#: Ctrl+F6, Utilities > Calculator: DOS Navigator's ``dlgCalculator``.
+#: Ctrl+F6, Utilities > Calculator: DOS Navigator's ``dlgCalculator``, and
+#: three faces beside it.
 #:
 #: A dialog DN put on the desktop as a window (``InsertWindow``), so it stays
-#: up beside the others; one at a time.  Laid out where the resource and
-#: ``InsertCalc`` put things: the expression with its history, *Copy As*'s
-#: five forms, the indicator's five rows beside them -- decimal, hexadecimal,
-#: binary, octal and the exponent form, worked out as the line is typed --
-#: and *Evaluate*, *Copy* and *Close* along the bottom.  Help is left out.
+#: up beside the others; one at a time.  *Classic* is DN's, laid out where
+#: the resource and ``InsertCalc`` put things: the expression with its
+#: history, *Copy As*'s five forms, the indicator's five rows beside them --
+#: decimal, hexadecimal, binary, octal and the exponent form, worked out as
+#: the line is typed -- and *Evaluate*, *Copy* and *Close* along the bottom.
+#: Help is left out.
+#:
+#: **A departure, asked for**: *Simple* (the default), *Scientific* and
+#: *Programming* put a pad of keys under the same line, with its value worked
+#: out under it, and the strip of four along the top, the window's own
+#: *Calculator* menu and Ctrl+1..4 (Ctrl+F6 again, where a terminal sends no
+#: Ctrl+digit) choose between them.  The window takes each face's size.
 CalculatorWindow(Window):
     title: "Calculator"
     zoomable: False
     resizable: False
 
+    #: ``simple``, ``classic``, ``scientific`` or ``programming``; the Python
+    #: half's ``set_mode`` is what changes it.
+    property mode: "simple"
     #: The indicator's five rows (``TIndicator.Draw``), the Python half's.
     property rows: ["", "", "", "", ""]
+    #: The pads' value under the line, the Python half's.
+    property result: ""
+    #: Scientific's ``M``, ``2nd`` and ``hyp`` marks, the Python half's.
+    property marks: ""
+    #: Programming's four forms: hexadecimal, decimal, octal and binary.
+    property forms: ["", "", "", ""]
+    #: Programming's bits to flip shown in place of its keys.
+    property bit_keypad: False
 
     #: A dialog's keys, which a window does not have of its own: Esc closes,
     #: Enter evaluates, Tab walks the controls -- this window's alone.
@@ -30,22 +59,40 @@ CalculatorWindow(Window):
         enter: Default
         tab: SelectNext
         shift+tab: SelectPrevious
+        ctrl+1: CalculatorSimple
+        ctrl+2: CalculatorClassic
+        ctrl+3: CalculatorScientific
+        ctrl+4: CalculatorProgramming
+        #: The manager's Ctrl+F6 again, here: the shell turns it into the next face.
+        ctrl+f6: Calculator
+
+    #: The four faces, a strip along the top: two by two where the window is
+    #: narrow, in a row where it is wide.
+    RadioButtons:
+        id: mode_strip
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 2 if root.mode in ("simple", "classic") else 1
+        items: ["~S~imple", "C~l~assic", "Sc~i~entific", "Pro~g~ramming"]
+        tooltips: ["A pocket calculator", "DOS Navigator's calculator: the expression in five forms", "Functions, angles, memory and the last answer", "A word of 8 to 64 bits in four bases"]
 
     Label:
         id: expression_caption
+        visible: root.mode == "classic"
         x: 2
-        y: 2
+        y: 4
         width: 12
         height: 1
         text: "Ex~p~ression"
         link: line
 
-    #: DN's ``TCalcLine``, its history ``hsCalcLine``.
+    #: DN's ``TCalcLine``, its history ``hsCalcLine``: every face's line.
     CalcLine:
         id: line
         tooltip: "Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI"
         x: 2
-        y: 3
+        y: 5 if root.mode == "classic" else 4 if root.mode == "simple" else 3
         width: max(1, parent.width - 7)
         height: 1
 
@@ -54,101 +101,270 @@ CalculatorWindow(Window):
         link: line
         history_id: "calc"
         x: max(0, parent.width - 5)
-        y: 3
+        y: line.y
         width: 3
         height: 1
 
-    Label:
-        id: copy_caption
+    #: The pads' value, under the line.
+    StaticText:
+        id: result_row
+        visible: root.mode in ("simple", "scientific")
         x: 2
-        y: 5
-        width: 10
+        y: line.y + 1
+        width: max(0, parent.width - 4)
         height: 1
-        text: "Copy ~A~s"
-        link: copy_as
+        align: "right"
+        text: root.result
+        tooltip: "The line's value; Enter or = puts it in the line"
 
     RadioButtons:
-        id: copy_as
+        id: angle
+        visible: root.mode == "scientific"
         x: 2
-        y: 6
-        width: 9
-        height: 5
-        items: ["~D~EC", "~H~EX", "~B~IN", "~O~CT", "~E~XP"]
-        tooltips: ["Copy copies the value in decimal", "Copy copies the value in hexadecimal", "Copy copies the value in binary", "Copy copies the value in octal", "Copy copies the value in scientific notation"]
+        y: 5
+        width: 30
+        height: 1
+        items: ["~D~eg", "~R~ad", "Gr~a~d"]
+        tooltips: ["Angles in degrees, a turn 360", "Angles in radians, a turn 2π", "Angles in grads, a turn 400"]
 
     StaticText:
-        id: row0
-        x: 12
-        y: 6
-        width: max(0, parent.width - 14)
+        id: marks_row
+        visible: root.mode == "scientific"
+        x: 34
+        y: 5
+        width: max(0, parent.width - 36)
         height: 1
         align: "right"
-        text: root.rows[0]
-        tooltip: "The value in decimal"
+        text: root.marks
+        tooltip: "M: a value in memory; 2nd and hyp: the keys' other functions"
 
-    StaticText:
-        id: row1
-        x: 12
+    #: DN's face, under its line.
+    Widget:
+        id: classic
+        visible: root.mode == "classic"
+        x: 0
         y: 7
-        width: max(0, parent.width - 14)
-        height: 1
-        align: "right"
-        text: root.rows[1]
-        tooltip: "The whole part in hexadecimal, two's complement in 64 bits"
+        width: parent.width
+        height: 9
 
-    StaticText:
-        id: row2
-        x: 12
-        y: 8
-        width: max(0, parent.width - 14)
-        height: 1
-        align: "right"
-        text: root.rows[2]
-        tooltip: "The whole part in binary, two's complement in 64 bits"
+        Label:
+            id: copy_caption
+            x: 2
+            y: 0
+            width: 10
+            height: 1
+            text: "Copy ~A~s"
+            link: copy_as
 
-    StaticText:
-        id: row3
-        x: 12
-        y: 9
-        width: max(0, parent.width - 14)
-        height: 1
-        align: "right"
-        text: root.rows[3]
-        tooltip: "The whole part in octal, two's complement in 64 bits"
+        RadioButtons:
+            id: copy_as
+            x: 2
+            y: 1
+            width: 9
+            height: 5
+            items: ["~D~EC", "~H~EX", "~B~IN", "~O~CT", "~E~XP"]
+            tooltips: ["Copy copies the value in decimal", "Copy copies the value in hexadecimal", "Copy copies the value in binary", "Copy copies the value in octal", "Copy copies the value in scientific notation"]
 
-    StaticText:
-        id: row4
-        x: 12
+        StaticText:
+            id: row0
+            x: 12
+            y: 1
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.rows[0]
+            tooltip: "The value in decimal"
+
+        StaticText:
+            id: row1
+            x: 12
+            y: 2
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.rows[1]
+            tooltip: "The whole part in hexadecimal, two's complement in 64 bits"
+
+        StaticText:
+            id: row2
+            x: 12
+            y: 3
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.rows[2]
+            tooltip: "The whole part in binary, two's complement in 64 bits"
+
+        StaticText:
+            id: row3
+            x: 12
+            y: 4
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.rows[3]
+            tooltip: "The whole part in octal, two's complement in 64 bits"
+
+        StaticText:
+            id: row4
+            x: 12
+            y: 5
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.rows[4]
+            tooltip: "The value in scientific notation"
+
+        #: DN's ``cmCalcValue``, the default.
+        Button:
+            id: evaluate_button
+            text: "E~v~aluate"
+            default: True
+            x: 3
+            y: 7
+            width: 12
+            height: 2
+
+        #: DN's ``cmCopyClip``: the value, in *Copy As*'s form, on the clipboard.
+        Button:
+            id: copy_button
+            text: "~C~opy"
+            x: 16
+            y: 7
+            width: 10
+            height: 2
+
+        Button:
+            id: close_button
+            text: "Close"
+            x: 27
+            y: 7
+            width: 10
+            height: 2
+
+    #: Programming's forms, the base the line is typed in chosen beside them,
+    #: and the word.
+    Widget:
+        id: programming
+        visible: root.mode == "programming"
+        x: 0
+        y: 4
+        width: parent.width
+        height: 5
+
+        RadioButtons:
+            id: base
+            x: 2
+            y: 0
+            width: 9
+            height: 4
+            items: ["~H~EX", "~D~EC", "~O~CT", "~B~IN"]
+            tooltips: ["Type the numbers in hexadecimal", "Type the numbers in decimal", "Type the numbers in octal", "Type the numbers in binary"]
+
+        StaticText:
+            id: hex_row
+            x: 12
+            y: 0
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.forms[0]
+            tooltip: "The value in hexadecimal, two's complement in the word"
+
+        StaticText:
+            id: dec_row
+            x: 12
+            y: 1
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.forms[1]
+            tooltip: "The value in decimal"
+
+        StaticText:
+            id: oct_row
+            x: 12
+            y: 2
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.forms[2]
+            tooltip: "The value in octal, two's complement in the word"
+
+        StaticText:
+            id: bin_row
+            x: 12
+            y: 3
+            width: max(0, parent.width - 14)
+            height: 1
+            align: "right"
+            text: root.forms[3]
+            tooltip: "The value in binary, two's complement in the word"
+
+        RadioButtons:
+            id: word
+            x: 2
+            y: 4
+            width: 42
+            height: 1
+            items: ["~Q~WORD", "D~W~ORD", "WO~R~D", "B~Y~TE"]
+            tooltips: ["A word of 64 bits", "A word of 32 bits", "A word of 16 bits", "A word of 8 bits"]
+
+        CheckBoxes:
+            id: signed
+            x: 46
+            y: 4
+            width: max(0, parent.width - 48)
+            height: 1
+            items: ["Sig~n~ed"]
+            tooltips: ["The word read as two's complement; unticked, unsigned"]
+
+    #: The keys of the face that has them.
+    Keypad:
+        id: pad
+        visible: root.mode != "classic" and not (root.mode == "programming" and root.bit_keypad)
+        x: 2
+        y: 10 if root.mode == "programming" else 7
+        width: max(0, parent.width - 4)
+        height: 10 if root.mode == "programming" else 12
+
+    #: Programming's bits, in its keys' place.
+    BitGrid:
+        id: bit_grid
+        visible: root.mode == "programming" and root.bit_keypad
+        x: 2
         y: 10
-        width: max(0, parent.width - 14)
-        height: 1
-        align: "right"
-        text: root.rows[4]
-        tooltip: "The value in scientific notation"
+        width: max(0, parent.width - 4)
+        height: 10
+        tooltip: "Click a bit, or Space on it, to flip it"
 
-    #: DN's ``cmCalcValue``, the default.
-    Button:
-        id: evaluate_button
-        text: "E~v~aluate"
-        default: True
-        x: 3
-        y: 12
-        width: 12
-        height: 2
-
-    #: DN's ``cmCopyClip``: the value, in *Copy As*'s form, on the clipboard.
-    Button:
-        id: copy_button
-        text: "~C~opy"
-        x: 16
-        y: 12
-        width: 10
-        height: 2
-
-    Button:
-        id: close_button
-        text: "Close"
-        x: 27
-        y: 12
-        width: 10
-        height: 2
+    #: The window's own menu on the bar after *File* while it is active, as
+    #: the game's is.  Also its right-click menu.
+    SubMenu:
+        id: calculator_menu
+        text: '~C~alculator'
+        tooltip: "The calculator's faces, copying its value and closing it"
+        after: 'File'
+        MenuItem:
+            text: '~S~imple'
+            command: CalculatorSimple
+        MenuItem:
+            text: 'C~l~assic'
+            command: CalculatorClassic
+        MenuItem:
+            text: 'Sc~i~entific'
+            command: CalculatorScientific
+        MenuItem:
+            text: 'Pro~g~ramming'
+            command: CalculatorProgramming
+        MenuLine:
+        MenuItem:
+            text: '~C~opy'
+            command: CalculatorCopy
+        MenuItem:
+            text: '~B~it toggling keypad'
+            command: ToggleBitKeypad
+        MenuLine:
+        MenuItem:
+            text: 'Cl~o~se'
+            command: CloseWindow

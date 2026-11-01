@@ -17,7 +17,7 @@ What a window keeps:
   -- cursor, scroll -- is the file's own history's, which opening restores.
   SmartPad comes back as SmartPad.
 - a **tree window** the directory it was on.
-- the **calculator** its expression, and the **calendar** that it was open (on today again), the calendar
+- the **calculator** its expression and its face, and the **calendar** that it was open (on today again), the calendar
   system and the view its menu chose.
 
 And whether the trash can shows, and where (``TTrashCan``).
@@ -133,7 +133,7 @@ def _window(window: Any) -> dict[str, Any] | None:
         kept.update(kind="tree", path=str(where) if where is not None else None,
                     hidden=bool(window.tree.show_hidden))
     elif isinstance(window, CalculatorWindow):
-        kept.update(kind="calculator", expression=window.line.value)
+        kept.update(kind="calculator", expression=window.line.value, mode=window.mode)
     elif isinstance(window, CalendarWindow):
         kept.update(kind="calendar", calendar=window.chosen, view=window.display)
     elif isinstance(window, VolumesWindow):
@@ -296,9 +296,13 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
 
         return desktop.open(TreeWindow(start=_directory(kept.get("path")), hidden=kept.get("hidden", True)))
     if kind == "calculator":
+        from navigator.settings import CalculatorData
         from navigator.widgets.shell.calculator_window import CalculatorWindow
 
         window = desktop.open(CalculatorWindow())
+        mode = kept.get("mode")
+        # An older desktop kept no face: DN's, the only one there was.
+        window.set_mode(mode if mode in CalculatorData.MODES else "classic", focus=False, save=False)
         window.line.value = kept.get("expression") or ""
         return window
     if kind == "calendar":

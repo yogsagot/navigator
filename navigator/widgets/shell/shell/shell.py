@@ -1359,22 +1359,27 @@ class Shell(DockLayout):
 
     async def on_calculator(self, event: Calculator) -> bool:
         """Ctrl+F6, Utilities > *Calculator*: ``InsertCalc`` -- the one calculator
-        window, brought forward if it is open, else opened where DN put it."""
+        window, brought forward if it is open, else opened where DN put it, in
+        the face it last had.  Already in front, the next face: a departure,
+        for terminals that send no Ctrl+digit."""
         from navigator.widgets.shell.calculator_window import CalculatorWindow
-        from navigator.widgets.shell.calculator_window.calculator_window import HEIGHT, WIDTH, X, Y
+        from navigator.widgets.shell.calculator_window.calculator_window import X, Y
 
         if self.console_visible:
             self.toggle_console()
         desktop = self.desktop
         for window in desktop.windows():
             if isinstance(window, CalculatorWindow):
-                desktop.activate(window)
+                if window is desktop.active_window:
+                    window.cycle_mode()
+                else:
+                    desktop.activate(window)
                 return True
         window = desktop.open(CalculatorWindow())
-        width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
-        window.locate(min(X, max(0, desktop.width - width)), min(Y, max(0, desktop.height - height)),
-                      width, height)
+        window.x, window.y = X, Y
+        window.place()
         window.take_keyboard()
+        window.line.focus()
         return True
 
     # -- Utilities > Calendar --------------------------------------------------------

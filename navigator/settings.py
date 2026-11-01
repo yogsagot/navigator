@@ -929,6 +929,28 @@ class TetrisData(Section):
     preview: bool = Setting(False, doc="Show the next piece (it scores less)")
 
 
+class CalculatorData(Section):
+    """Ctrl+F6's calculator: the mode it opens in and each mode's switches.
+    Not DN's: a departure, asked for -- DOS Navigator's calculator had one
+    face and nothing to keep."""
+
+    name = "calculator"
+    title = "Utilities > Calculator (not DN's)"
+
+    MODES: ClassVar[tuple[str, ...]] = ("simple", "classic", "scientific", "programming")
+    ANGLES: ClassVar[tuple[str, ...]] = ("deg", "rad", "grad")
+    RADIXES: ClassVar[tuple[str, ...]] = ("hex", "dec", "oct", "bin")
+    WORDS: ClassVar[tuple[str, ...]] = ("qword", "dword", "word", "byte")
+
+    mode: str = Setting("simple", choices=MODES,
+                        doc="The calculator's face: simple, classic (DN's), scientific or programming")
+    angle: str = Setting("deg", choices=ANGLES, doc="What the scientific calculator's angles are measured in")
+    radix: str = Setting("dec", choices=RADIXES, doc="The base the programming calculator's numbers are typed in")
+    word: str = Setting("qword", choices=WORDS, doc="The programming calculator's word: 64, 32, 16 or 8 bits")
+    signed: bool = Setting(True, doc="The programming calculator reads its word as signed")
+    bit_keypad: bool = Setting(False, doc="The programming calculator shows its bits to flip instead of its keys")
+
+
 class UUCodeData(Section):
     """``TUUEncodeData`` and ``UUDecodeOptions``: what File > UU Encode and
     UU Decode were last accepted with, kept as DN kept them (``cfgUUEData``)."""
@@ -1000,7 +1022,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    UUCodeData, ChecksumData, RemoteData,
+    CalculatorData, UUCodeData, ChecksumData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1034,6 +1056,7 @@ class Settings:
     savers: SaversData
     country: CountryData
     tetris: TetrisData
+    calculator: CalculatorData
     uucode: UUCodeData
     checksum: ChecksumData
     remote: RemoteData

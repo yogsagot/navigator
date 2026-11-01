@@ -6,23 +6,23 @@ direction = "rtl"
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:71
 "~Y~es" = "~כ~ן"
-# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:79, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:86, navml/widgets/window_manager/window_manager.nml:39
 "O~K~" = "~א~ישור"
 # navml/widgets/dialog/dialog/dialog.nml:80
 "~N~o" = "~ל~א"
 # navml/widgets/dialog/dialog/dialog.nml:88
 "~C~ancel" = "~ב~יטול"
-# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:97, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:104, navml/widgets/window_manager/window_manager.nml:66
 "~H~elp" = "~ע~זרה"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:20
+# navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "פתח קובץ"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:25, navml/widgets/dialog/file_dialog/file_dialog.py:84
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
 "~N~ame" = "ש~ם~"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:43
-"~F~iles" = "~ק~בצים"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:60
+# navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "~ת~יקיות"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:88, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:67
+"~F~iles" = "~ק~בצים"
+# navml/widgets/dialog/file_dialog/file_dialog.nml:95, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
 "Cancel" = "ביטול"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "מנהל חלונות"
@@ -742,13 +742,13 @@ direction = "rtl"
 "{n} day ago" = ["לפני יום אחד", "לפני יומיים", "לפני {n} ימים"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter מאשר, Escape סוגר."
-# navml/widgets/dialog/file_dialog/file_dialog.py:200
+# navml/widgets/dialog/file_dialog/file_dialog.py:202
 "Invalid file name." = "שם קובץ לא חוקי."
-# navml/widgets/dialog/file_dialog/file_dialog.py:191
+# navml/widgets/dialog/file_dialog/file_dialog.py:193
 "Invalid drive or directory." = "כונן או תיקייה לא חוקיים."
-# navml/widgets/dialog/file_dialog/file_dialog.py:226
+# navml/widgets/dialog/file_dialog/file_dialog.py:228
 "Error" = "שגיאה"
-# navml/widgets/dialog/file_list/file_list.py:200
+# navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "תיקייה"
 # navml/widgets/dialog/history/history.py:266, navml/widgets/dialog/history/history.py:272, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " חיפוש: "

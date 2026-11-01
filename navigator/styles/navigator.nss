@@ -369,6 +369,20 @@ GameInfo::info-bright  { fg: $dialog-label-selected-fg; bg: $dialog-label-select
 GameInfo::best         { fg: $dialog-cluster-selected-fg; bg: $dialog-cluster-selected-bg; bold: $dialog-cluster-selected-bold; dim: $dialog-cluster-selected-dim; italic: $dialog-cluster-selected-italic; underline: $dialog-cluster-selected-underline; reverse: $dialog-cluster-selected-reverse }
 GameInfo::best-bright  { fg: $dialog-cluster-shortcut-fg; bg: $dialog-cluster-shortcut-bg; bold: $dialog-cluster-shortcut-bold; dim: $dialog-cluster-shortcut-dim; italic: $dialog-cluster-shortcut-italic; underline: $dialog-cluster-shortcut-underline; reverse: $dialog-cluster-shortcut-reverse }
 
+/* The calculator's pads and bits (not DN's): a pad's keys are buttons
+   (PadButton, whose classes no other button has), with = in the default
+   button's colours and the operators' captions in the shortcut letter's; the bits are static text, a set one in the clusters'
+   bright, the one under the keyboard the input line's selection, and a bit
+   past the word greyed as a disabled button is. */
+Button.equals StaticText             { fg: $dialog-button-default-fg; bg: $dialog-button-default-bg; bold: $dialog-button-default-bold; dim: $dialog-button-default-dim; italic: $dialog-button-default-italic; underline: $dialog-button-default-underline; reverse: $dialog-button-default-reverse }
+Button.equals                        { fg: $dialog-button-default-fg; bg: $dialog-button-default-bg; bold: $dialog-button-default-bold; dim: $dialog-button-default-dim; italic: $dialog-button-default-italic; underline: $dialog-button-default-underline; reverse: $dialog-button-default-reverse }
+Button.operator StaticText           { fg: $dialog-button-shortcut-fg; bold: $dialog-button-shortcut-bold; dim: $dialog-button-shortcut-dim; italic: $dialog-button-shortcut-italic; underline: $dialog-button-shortcut-underline; reverse: $dialog-button-shortcut-reverse }
+BitGrid                              { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }
+BitGrid::label                       { fg: $dialog-label-normal-fg; bg: $dialog-label-normal-bg; bold: $dialog-label-normal-bold; dim: $dialog-label-normal-dim; italic: $dialog-label-normal-italic; underline: $dialog-label-normal-underline; reverse: $dialog-label-normal-reverse }
+BitGrid::bit:set                     { fg: $dialog-cluster-selected-fg; bg: $dialog-cluster-selected-bg; bold: $dialog-cluster-selected-bold; dim: $dialog-cluster-selected-dim; italic: $dialog-cluster-selected-italic; underline: $dialog-cluster-selected-underline; reverse: $dialog-cluster-selected-reverse }
+BitGrid::bit:outside                 { fg: $dialog-button-disabled-fg; bg: $dialog-button-disabled-bg; bold: $dialog-button-disabled-bold; dim: $dialog-button-disabled-dim; italic: $dialog-button-disabled-italic; underline: $dialog-button-disabled-underline; reverse: $dialog-button-disabled-reverse }
+BitGrid::bit:selected                { fg: $dialog-input-selected-fg; bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
+
 /* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
    its text in their static text, dragged in their frame icons' colour. */
 /* The menu bar's ROOT while root access is open: the error box's white on red. */
