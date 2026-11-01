@@ -219,8 +219,9 @@ __nav_complete() {
 #: way: its interface on the terminal, the chosen command on the swapped
 #: descriptor, handed back as an ``R`` mark.  The ``O`` mark before it is where
 #: the console starts showing, so the line that ran it is never seen.
-#: ``__nav_keys`` says, once, which of the two the user's Up and Ctrl+R are.
-#: ``__nav_forget`` drops the line just run if it began with a space, which
+#: ``__nav_keys`` says, once, which of the two the user's Up and Ctrl+R are,
+#: from ``bind -X``: bash 5.3 prints its bindings ``"\e[A" "command"``, without
+#: the colon earlier ones put after the key.  ``__nav_forget`` drops the line just run if it began with a space, which
 #: ``ignorespace`` would have kept out -- but bash-preexec strips that from
 #: ``HISTCONTROL``, because it reads the command from ``history 1``, so every
 #: silent line would be in the history.  Dropped at the next prompt, first,
@@ -251,8 +252,9 @@ __nav_atuin() {
 __nav_keys() {
     local keys up= search=
     keys=$(bind -X 2>/dev/null)
-    [[ $keys == *'"\e[A": "__atuin_history'* ]] && up=atuin
-    [[ $keys == *'"\C-r": "__atuin_history'* ]] && search=atuin
+    keys=${keys//'": "'/'" "'}
+    [[ $keys == *'"\e[A" "__atuin_history'* ]] && up=atuin
+    [[ $keys == *'"\C-r" "__atuin_history'* ]] && search=atuin
     printf '@MARK@;U;%s;%s\007' "$up" "$search"
 }
 __nav_keys
