@@ -342,3 +342,68 @@ def test_the_tree_view_box_and_ctrl_t_switch_together(deep):
     assert seen[0] == (0, False, False)
     assert seen[1] == (1, True, True) and seen[2] == "sub/"
     assert seen[3] == (0, False, False)
+
+
+def test_what_a_show_box_hides_is_neither_counted_nor_synchronized(sides):
+    from navigator.widgets.manager.commands import ToggleSyncShow
+
+    app = navigator(sides)
+    seen = {}
+    run_app(app, [*open_window(app), KeyEvent("f", alt=True),
+                  lambda a: seen.update(rows=listed(a), summary=sync_window(a).summary.text,
+                                        ticked=sync_window(a).checks(ToggleSyncShow(0))),
+                  lambda a: sync_window(a).rows.focus(),  # Alt+F left it on the boxes
+                  KeyEvent("right", ctrl=True), KeyEvent("f5"), Until(lambda a: a.modal is not None),
+                  lambda a: seen.update(prompt=a.modal.prompt), KeyEvent("escape"),
+                  KeyEvent("f", alt=True), lambda a: seen.update(back=listed(a)["c"])])
+    assert "c" not in seen["rows"] and seen["ticked"] is False
+    assert seen["summary"].startswith("1 right")
+    assert seen["prompt"] == "Copy 3 files?"  # b, d and e; not c
+    assert seen["back"] == ("left-only", "right")  # Ctrl+Right left it as it was
+
+
+def test_options_are_kept_and_the_trees_walked_again_with_them(sides):
+    from navigator.settings import SETTINGS
+    from navigator.widgets.manager.sync_options_dialog import SyncOptionsDialog
+
+    app = navigator(sides)
+    seen = {}
+
+    def answer(a):
+        dialog = a.modal
+        seen["dialog"] = isinstance(dialog, SyncOptionsDialog)
+        dialog.mask.value = "b;c"
+        dialog.times.value = 0
+        dialog.options.value = 2  # Asymmetric
+
+    run_app(app, [*open_window(app), KeyEvent("p", alt=True), Until(lambda a: a.modal is not None), answer,
+                  KeyEvent("enter"), Until(lambda a: a.modal is None and "e" not in listed(a)),
+                  lambda a: seen.update(rows=listed(a))])
+    assert seen["dialog"]
+    assert seen["rows"] == {"b": ("differs", "right"), "c": ("left-only", "right")}
+    section = SETTINGS.synchronize
+    assert (section.mask, section.times, section.hour_shift, section.asymmetric) == ("b;c", "exact", False, True)
+    assert "[synchronize]" in SETTINGS.path.read_text()
+
+
+def test_the_dialog_opens_on_the_options_it_is_given():
+    from navigator.lib.file_ops import dirsync
+    from navigator.widgets.manager.sync_options_dialog import SyncOptionsDialog
+
+    options = dirsync.SyncOptions(mask="*.py", tolerance=60, hour_shift=True, asymmetric=False)
+    dialog = SyncOptionsDialog(options)
+    assert (dialog.mask.value, dialog.times.value, dialog.options.value) == ("*.py", 2, 1)
+    assert dialog.accept() == options
+
+
+def test_the_tree_lists_what_the_show_boxes_let_through_and_acts_on_that_alone(deep, monkeypatch):
+    from navigator.widgets.manager.sync_window import SyncWindow
+
+    monkeypatch.setattr(SyncWindow, "tree_view", False)
+    app = navigator(deep)
+    seen = {}
+    run_app(app, [*open_window(app), KeyEvent("t", ctrl=True), KeyEvent("d", alt=True),
+                  lambda a: seen.update(tree=lines(a)), lambda a: sync_window(a).rows.focus(),
+                  lambda a: to_path(a, "sub"), KeyEvent("delete"), lambda a: seen.update(rows=listed_rows(a))])
+    assert seen["tree"] == ["sub/", "sub/mine", "c", "e"]  # sub/deep, b and d differ
+    assert seen["rows"]["sub/mine"] == "delete" and seen["rows"]["sub/deep"] == "skip"

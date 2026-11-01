@@ -23,16 +23,31 @@ The model half, run on a thread (:func:`walk`):
   conflict, left alone.
 - **Every drive**: each directory is listed by its drive
   (``Drive.children``), as a *Find* on a server is.
+
+What Total Commander's window has besides, kept in ``navigator.ini``'s
+``[synchronize]`` and handed to :func:`walk` as :class:`SyncOptions`:
+
+- **Times within a tolerance are the same** (``same_time``): two seconds by
+  default, as FAT keeps them, a minute for an FTP listing, and optionally an
+  exact hour apart, as a daylight-saving change leaves them.
+- **A file mask** (:class:`Mask`): a panel filter's patterns, a ``/`` ending
+  one that names directories, which are then neither listed nor walked.
+  While it holds back any file, a directory on one side alone is walked
+  into, its files rows, so that copying it does not bring what it holds back.
+- **Asymmetric**: the right side is to become a copy of the left -- what is
+  on the right alone is deleted, and a pair that differs copied right,
+  whichever side is newer (:attr:`SyncRow.mirror`).
 """
 
 from __future__ import annotations
 
 import stat
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import PurePosixPath
 from typing import Any
 
-from navigator.lib.file_ops.dircompare import CompareRequest, same_file
+from navigator.lib.appearance.filetypes import in_filter, patterns
+from navigator.lib.file_ops.dircompare import CompareRequest, same_file, same_time
 from navigator.lib.system.job import Job, Stopped
 
 #: What a row is: on the left alone, on the right alone, on both and
@@ -52,6 +67,70 @@ ALLOWED = {
     SAME: (SKIP,),
     CONFLICT: (SKIP,),
 }
+
+
+#: The *Show* boxes' statuses, a bit each: on the left alone, on the right
+#: alone, different (conflicts with them), the same.
+SHOW_GROUPS: tuple[tuple[str, ...], ...] = ((LEFT_ONLY,), (RIGHT_ONLY,), (DIFFERS, CONFLICT), (SAME,))
+#: What the window shows at first: everything but the same.
+SHOW_DEFAULT = 0b0111
+
+#: ``[synchronize] times``' choices, as seconds of tolerance.
+TOLERANCES = {"exact": 0, "fat": 2, "minute": 60}
+
+
+def shown(rows: list[SyncRow], show: int) -> list[SyncRow]:
+    """The rows whose status a bit of *show* (:data:`SHOW_GROUPS`) lets through."""
+    statuses = {status for bit, group in enumerate(SHOW_GROUPS) if show & (1 << bit) for status in group}
+    return [row for row in rows if row.status in statuses]
+
+
+class Mask:
+    """The *File mask*: a panel filter's patterns (``in_filter``), ``;``
+    between them, ``-`` before one that excludes.  One ending in ``/`` is a
+    directory's, the rest are files' (and links'); a side with only
+    exclusions starts from everything, so ``-*.bak;-.git/`` is all but
+    backups and ``.git``.  Names are matched, not paths."""
+
+    def __init__(self, text: str = "") -> None:
+        self.text = text
+        files: list[str] = []
+        dirs: list[str] = []
+        for pattern in patterns(text.replace(" ", "")):
+            if pattern.endswith("/"):
+                dirs.append(pattern.rstrip("/"))
+            else:
+                files.append(pattern)
+        self._files, self._dirs = self._from_all(files), self._from_all(dirs)
+        #: Whether some file is held back: a directory on one side alone is
+        #: then walked into, not copied or deleted whole.
+        self.restricts_files = self._files not in ("", "*")
+
+    @staticmethod
+    def _from_all(found: list[str]) -> str:
+        if found and all(pattern.startswith("-") for pattern in found):
+            found = ["*", *found]
+        return ";".join(found)
+
+    def files(self, name: str) -> bool:
+        return in_filter(name, self._files)
+
+    def dirs(self, name: str) -> bool:
+        return in_filter(name, self._dirs)
+
+
+@dataclass(frozen=True)
+class SyncOptions:
+    """What *Synchronize options* answered (``[synchronize]``)."""
+
+    #: The *File mask* (:class:`Mask`); empty takes everything.
+    mask: str = ""
+    #: Seconds two times may be apart and still be the same.
+    tolerance: int = TOLERANCES["fat"]
+    #: Times exactly an hour apart (within *tolerance*) are the same too.
+    hour_shift: bool = False
+    #: The right side is to become a copy of the left.
+    asymmetric: bool = False
 
 
 class SyncJob(Job):
@@ -99,6 +178,11 @@ class SyncRow:
     action: str = SKIP
     #: Why a conflict is one, for a directory that could not be listed.
     error: str = ""
+    #: Compared *Asymmetric*: the right side is to become a copy of the left.
+    mirror: bool = False
+    #: In a directory on one side alone, walked into under a file mask: a
+    #: copy across makes the directory first (:attr:`SyncPlan.directories`).
+    lonely_parent: bool = False
 
     @property
     def allowed(self) -> tuple[str, ...]:
@@ -106,7 +190,11 @@ class SyncRow:
 
     @property
     def default_action(self) -> str:
+        if self.mirror and self.status == RIGHT_ONLY:
+            return DELETE
         if self.status == DIFFERS:
+            if self.mirror:
+                return COPY_RIGHT
             return {"left": COPY_RIGHT, "right": COPY_LEFT}.get(self.newer or "", SKIP)
         return self.allowed[0]
 
@@ -117,22 +205,27 @@ class SyncRow:
 
 
 def make_row(path: PurePosixPath, left: Side | None, right: Side | None, status: str,
-             error: str = "") -> SyncRow:
-    """A row with its default action."""
+             error: str = "", options: SyncOptions | None = None, lonely_parent: bool = False) -> SyncRow:
+    """A row with its default action; *options* say how near two times are
+    the same, and whether the right is a mirror."""
+    options = options or SyncOptions()
     newer = None
-    if left is not None and right is not None and int(left.mtime) != int(right.mtime):
+    if left is not None and right is not None and not same_time(left.mtime, right.mtime, options.tolerance,
+                                                                 options.hour_shift):
         newer = "left" if left.mtime > right.mtime else "right"
-    row = SyncRow(path, left, right, status, newer, SKIP, error)
+    row = SyncRow(path, left, right, status, newer, SKIP, error, options.asymmetric, lonely_parent)
     return with_action(row, "default")
 
 
 @dataclass(frozen=True)
 class SyncPlan:
     """What :func:`plan` makes of the rows: the copies, each ``(source,
-    target)``, and the deletes."""
+    target)``, and the deletes; and the directories the copies' targets
+    need made first, which only a file mask leaves missing."""
 
     pairs: list[tuple[Any, Any]]
     deletes: list[Any]
+    directories: list[Any] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -148,34 +241,40 @@ class Summary:
 
 
 def walk(left: Any, right: Any, request: CompareRequest, job: Any = None,
-         show_hidden: bool = True) -> list[SyncRow]:
+         show_hidden: bool = True, options: SyncOptions | None = None) -> list[SyncRow]:
     """Every path below *left* and *right* (two directories, on any drives),
     each a :class:`SyncRow` -- the ones the same included, which the window
-    hides until asked.  Raises ``OSError`` when either directory itself
-    cannot be listed, :class:`Stopped` when *job* is stopped."""
+    hides until asked -- but what *options*' mask holds back.  Raises
+    ``OSError`` when either directory itself cannot be listed,
+    :class:`Stopped` when *job* is stopped."""
     from navigator.lib.drives import Location, drive_of
 
+    options = options or SyncOptions()
+    mask = Mask(options.mask)
     left, right = Location.of(left), Location.of(right)
     left_drive, right_drive = drive_of(left), drive_of(right)
     rows: list[SyncRow] = []
-    pending = [PurePosixPath()]
+    # Each directory to list, and which sides have it: a directory on one
+    # side alone is walked only while the mask holds back some file.
+    pending: list[tuple[PurePosixPath, bool, bool]] = [(PurePosixPath(), True, True)]
     while pending:
-        relative = pending.pop()
+        relative, on_left, on_right = pending.pop()
         here, there = below(left, relative), below(right, relative)
         if job is not None:
             if job.stopped:
                 raise Stopped
             job.directory = str(relative) if relative.parts else ""
         try:
-            mine = _listing(left_drive, here, show_hidden)
-            theirs = _listing(right_drive, there, show_hidden)
+            mine = _listing(left_drive, here, show_hidden, mask) if on_left else {}
+            theirs = _listing(right_drive, there, show_hidden, mask) if on_right else {}
         except OSError as error:
             if not relative.parts:
                 raise
             from navigator.lib.file_ops.filecopy import error_message
 
-            rows.append(make_row(relative, Side("dir", 0, 0, stat.S_IFDIR), Side("dir", 0, 0, stat.S_IFDIR),
-                                 CONFLICT, error_message(error)))
+            directory = Side("dir", 0, 0, stat.S_IFDIR)
+            rows.append(make_row(relative, directory if on_left else None, directory if on_right else None,
+                                 CONFLICT, error_message(error), options))
             continue
         subdirectories = []
         for name in sorted(mine.keys() | theirs.keys()):
@@ -189,10 +288,14 @@ def walk(left: Any, right: Any, request: CompareRequest, job: Any = None,
                 failed = one if isinstance(one, OSError) else two
                 rows.append(make_row(path, None if isinstance(one, OSError) else _side(one),
                                      None if isinstance(two, OSError) else _side(two),
-                                     CONFLICT, error_message(failed)))  # type: ignore[arg-type]
+                                     CONFLICT, error_message(failed), options))  # type: ignore[arg-type]
                 continue
             a = None if one is None else Side.of(one)
             b = None if two is None else Side.of(two)
+            lonely = a if b is None else b if a is None else None
+            if lonely is not None and lonely.kind == "dir" and mask.restricts_files:
+                subdirectories.append((path, b is None, a is None))
+                continue
             if b is None:
                 status = LEFT_ONLY
             elif a is None:
@@ -200,14 +303,15 @@ def walk(left: Any, right: Any, request: CompareRequest, job: Any = None,
             elif a.kind != b.kind or a.kind == "other":
                 status = CONFLICT
             elif a.kind == "dir":
-                subdirectories.append(path)
+                subdirectories.append((path, True, True))
                 continue
             elif a.kind == "link":
                 status = SAME if _same_link(left_drive, here / name, right_drive, there / name) else DIFFERS
             else:
-                status = SAME if same_file(a, b, request, *_contents(here / name, there / name, request)) \
+                status = SAME if same_file(a, b, request, *_contents(here / name, there / name, request),
+                                           tolerance=options.tolerance, hour_shift=options.hour_shift) \
                     else DIFFERS
-            rows.append(make_row(path, a, b, status))
+            rows.append(make_row(path, a, b, status, options=options, lonely_parent=not (on_left and on_right)))
             if job is not None and status != SAME:
                 job.found += 1
         pending.extend(reversed(subdirectories))
@@ -221,8 +325,18 @@ def below(root: Any, relative: PurePosixPath) -> Any:
     return root / str(relative) if relative.parts else root
 
 
-def _listing(drive: Any, place: Any, show_hidden: bool) -> dict[str, Any]:
-    return {name: info for name, info in drive.children(place) if show_hidden or not name.startswith(".")}
+def _listing(drive: Any, place: Any, show_hidden: bool, mask: Mask) -> dict[str, Any]:
+    return {name: info for name, info in drive.children(place)
+            if (show_hidden or not name.startswith(".")) and _passes(mask, name, info)}
+
+
+def _passes(mask: Mask, name: str, info: Any) -> bool:
+    """Whether *mask* lets *name* through: a directory by its directory
+    patterns, anything else by its files'; one that could not be read is
+    kept, to be said."""
+    if isinstance(info, OSError):
+        return True
+    return mask.dirs(name) if stat.S_ISDIR(info.st_mode) else mask.files(name)
 
 
 def _side(info: Any) -> Side | None:
@@ -249,8 +363,9 @@ def _contents(a: Any, b: Any, request: CompareRequest) -> tuple[Any, Any]:
 def plan(rows: list[SyncRow], left: Any, right: Any) -> SyncPlan:
     """The copies and deletes the rows' actions ask for, below the
     directories *left* and *right*.  Each copy's target is the very path it
-    replaces or makes: its directory is there, as a row in a directory on
-    one side alone is never listed apart from it."""
+    replaces or makes.  Its directory is there -- a row in a directory on one
+    side alone is never listed apart from it -- but under a file mask, which
+    walks into one: then the directory is in the plan's *directories*."""
     from navigator.lib.file_ops.filecopy import shown
 
     # Below the shown places, not their locations: a local path joined as a
@@ -258,6 +373,7 @@ def plan(rows: list[SyncRow], left: Any, right: Any) -> SyncPlan:
     left, right = shown(left), shown(right)
     pairs: list[tuple[Any, Any]] = []
     deletes: list[Any] = []
+    directories: dict[Any, None] = {}
     for row in rows:
         here, there = below(left, row.path), below(right, row.path)
         if row.action == COPY_RIGHT:
@@ -266,7 +382,9 @@ def plan(rows: list[SyncRow], left: Any, right: Any) -> SyncPlan:
             pairs.append((there, here))
         elif row.action == DELETE:
             deletes.append(here if row.left is not None else there)
-    return SyncPlan(pairs, deletes)
+        if row.lonely_parent and row.action in (COPY_RIGHT, COPY_LEFT):
+            directories[below(right if row.action == COPY_RIGHT else left, row.path.parent)] = None
+    return SyncPlan(pairs, deletes, list(directories))
 
 
 def summary(rows: list[SyncRow]) -> Summary:
@@ -292,7 +410,8 @@ def with_action(row: SyncRow, action: str) -> SyncRow:
         action = row.default_action
     if action not in row.allowed or action == row.action:
         return row
-    return SyncRow(row.path, row.left, row.right, row.status, row.newer, action, row.error)
+    return SyncRow(row.path, row.left, row.right, row.status, row.newer, action, row.error, row.mirror,
+                   row.lonely_parent)
 
 
 # -- the tree view ------------------------------------------------------------------
@@ -306,7 +425,8 @@ class DirNode:
     subdirectories, its own rows, and what they all come to (:func:`annotate`).
 
     A directory on one side alone is not one: it is a row, a leaf, as
-    :func:`walk` never goes into it.
+    :func:`walk` never goes into it -- unless a file mask holds back some
+    file, when its files are the rows and it is a directory here too.
     """
 
     __slots__ = ("path", "parent", "depth", "dirs", "rows", "status", "action", "count", "allowed",
@@ -436,5 +556,5 @@ __all__ = [
     "MIXED", "DirNode", "annotate", "build_tree", "replace_rows", "rows_beneath",
     "ALLOWED", "CONFLICT", "COPY_LEFT", "COPY_RIGHT", "DELETE", "DIFFERS", "LEFT_ONLY", "RIGHT_ONLY", "SAME",
     "SKIP", "Side", "Summary", "below", "SyncJob", "SyncPlan", "SyncRow", "make_row", "plan", "summary",
-    "walk", "with_action",
+    "walk", "with_action", "Mask", "SHOW_DEFAULT", "SHOW_GROUPS", "SyncOptions", "TOLERANCES", "shown",
 ]

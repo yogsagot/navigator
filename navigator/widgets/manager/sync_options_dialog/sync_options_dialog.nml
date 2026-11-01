@@ -1,0 +1,63 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: The *Synchronize* window's *Options*: Total Commander's *Synchronize
+#: directories* options.  Not DN's: a departure, asked for -- DOS Navigator
+#: had no window to synchronize from (``navigator.lib.file_ops.dirsync``).
+#:
+#: The file mask on top, as *Select*'s, how near two times are the same
+#: under it, and the two switches; OK compares both trees again.
+SyncOptionsDialog(Dialog):
+    modal_width: 52
+    modal_height: 16
+    title: "Synchronize options"
+
+    Label:
+        id: mask_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "~F~ile mask"
+        link: mask.entry
+
+    Field:
+        id: mask
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "sync_mask"
+        tooltip: "Empty compares everything; ; between patterns, - before one leaves it out, / after one names directories: *.py;-.git/"
+
+    Label:
+        id: times_caption
+        x: 2
+        y: 4
+        width: 30
+        height: 1
+        text: "Times are the same"
+        link: times
+
+    RadioButtons:
+        id: times
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 3
+        items: ["~E~xactly, to the second", "Within ~2~ seconds (FAT)", "Within a ~m~inute (FTP)"]
+        tooltips: ["Any difference of a second or more makes two files different", "FAT and exFAT keep times in steps of two seconds", "An FTP server's listing may give times to the minute"]
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 9
+        width: max(0, parent.width - 4)
+        height: 2
+        items: ["Or an exact ~h~our apart", "~A~symmetric: right becomes a copy of left"]
+        tooltips: ["A daylight-saving change moves a FAT stick's times by an hour", "What only the right side has is deleted, and a file that differs is copied right, whichever is newer"]

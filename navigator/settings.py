@@ -992,6 +992,25 @@ class ChecksumData(Section):
     mode: str = Setting("combined", choices=MODES, doc="One list for all the files, or one beside each file")
 
 
+class SynchronizeData(Section):
+    """*Compare directories*' *Synchronize* window: what *Options* last
+    accepted.  Not DN's: a departure, asked for -- Total Commander's
+    *Synchronize directories* options, which DOS Navigator had no window for."""
+
+    name = "synchronize"
+    title = "Panel > Compare directories > Synchronize (not DN's)"
+
+    #: How far apart two times may be and be the same: to the second, two
+    #: seconds as FAT keeps them, or a minute as an FTP listing may give them.
+    TIMES: ClassVar[tuple[str, ...]] = ("exact", "fat", "minute")
+
+    mask: str = Setting("", doc="Which files and directories (ending in /) are compared; - before one leaves it out")
+    times: str = Setting("fat", choices=TIMES,
+                         doc="How far apart two times may be and be the same: exact, fat (2 s) or minute")
+    hour_shift: bool = Setting(False, doc="Times exactly an hour apart are the same, as daylight saving leaves them")
+    asymmetric: bool = Setting(False, doc="The right side becomes a copy of the left: what only it has is deleted")
+
+
 class RemoteData(Section):
     """Connections to other drives: Options > Configuration > *Communications*,
     where DN set up the modem and the cable its Navigator Link ran over
@@ -1022,7 +1041,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, ChecksumData, RemoteData,
+    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1059,6 +1078,7 @@ class Settings:
     calculator: CalculatorData
     uucode: UUCodeData
     checksum: ChecksumData
+    synchronize: SynchronizeData
     remote: RemoteData
 
     def __init__(self) -> None:

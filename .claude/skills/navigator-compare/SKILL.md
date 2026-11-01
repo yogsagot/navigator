@@ -10,7 +10,7 @@ Three features share one dialog's checks and one model directory (`navigator/lib
 | Feature | Model | Widgets | DN? |
 |---|---|---|---|
 | Panel > Compare directories, *Select*/*Unselect* | `dircompare.py` | `CompareDialog` | `cmCompareDir` -> `CM_CompareDirs` |
-| ... *Window, recursive* | `dirsync.py` | `SyncWindow`, `SyncList`, `CompareProgress` | **a departure**: Total Commander's *Synchronize directories* |
+| ... *Window, recursive* | `dirsync.py` | `SyncWindow`, `SyncList`, `CompareProgress`, `SyncOptionsDialog` | **a departure**: Total Commander's *Synchronize directories* |
 | File > Compare files | `filediff.py` | `DiffWindow`, `DiffView` | **a departure**: `mcdiff`/meld; DN compared no files line by line |
 
 ## Compare directories: tagging (DN's)
@@ -34,10 +34,31 @@ always the left column**, whichever panel is active. Dot-files are walked only w
 - **`dirsync.walk`** lists directory pairs breadth-first through `Drive.children` (any drive). A path is
   `LEFT_ONLY`, `RIGHT_ONLY`, `DIFFERS`, `SAME` or `CONFLICT` (file against directory, a FIFO, an unlistable
   subdirectory -- its `error` shows on the list's footer). **A directory on one side alone is one row**, not walked
-  into: copying it copies its tree, and so every row's target directory exists. Links are not followed; two are the
-  same when `readlink` agrees. Files are compared by **`dircompare.same_file`, the symmetric twin of `_matches`**: a time
-  differing either way differs (DN's tagging asks *this one no newer*), and differing sizes skip the contents read.
-  The walk returns every row, `SAME` included; *Show identical* (Ctrl+H) only filters what is listed.
+  into: copying it copies its tree, and so every row's target directory exists -- **unless a file mask holds back
+  some file** (below). Links are not followed; two are the same when `readlink` agrees. Files are compared by
+  **`dircompare.same_file`, the symmetric twin of `_matches`**: a time differing either way differs (DN's tagging asks
+  *this one no newer*), and differing sizes skip the contents read. The walk returns every row, `SAME` included; the
+  *Show* boxes only filter what is listed.
+- **`SyncOptions`** (`[synchronize]` in `navigator.ini`, `SynchronizeData`; *Options*, Alt+P, `SyncOptionsDialog`,
+  whose OK keeps them and walks again; `sync_options()`/`keep_sync_options()` in `sync_window.py`). The Compare
+  directories dialog is DN's and is left alone.
+  - **Times** (`dircompare.same_time`): within `tolerance` seconds -- `times` is `exact`/`fat`/`minute`, 0/2/60, `fat`
+    by default -- or with `hour_shift` within it of exactly 3600 apart. Both `same_file`'s check and `make_row`'s
+    `newer` use it, so a pair a size apart with "equal" times defaults to skip. DN's tagging (`_matches`) is untouched.
+  - **Mask** (`dirsync.Mask`): `in_filter`'s syntax (`;`, `-` excludes, last match wins); a pattern ending in `/` is a
+    directory's, and a side with only exclusions starts from `*`. Names, not paths. An excluded directory is neither
+    listed nor walked. While `restricts_files`, a one-sided directory is walked on its one side, its files rows with
+    `lonely_parent`; `plan()` puts their targets' directories in `SyncPlan.directories`, which go to
+    `CopyRequest.directories`, made (`makedirs`, through `_try`) before the pairs are copied. Deletes there leave the
+    directories, as TC does.
+  - **Asymmetric** (`SyncRow.mirror`): `default_action` gives `RIGHT_ONLY` delete and `DIFFERS` copy-right whatever is
+    newer; `ALLOWED` is unchanged, so every row can still be overridden. The left panel is the master (Ctrl+U swaps).
+- **The *Show* boxes** (`show`, one row, `dirsync.SHOW_GROUPS`: left only, right only, different + conflicts,
+  identical; the first three ticked at every opening; Ctrl+H is the fourth, the menu's `ToggleSyncShow(group)` the
+  others). **What is not listed is not synchronized**: the window keeps `all_rows` and derives `shown_rows` in
+  `_show()`, and `summary`, `plan()` and `SetAllSyncActions` work on `shown_rows`, as in TC. The tree is built from
+  `shown_rows` and dropped when the boxes change, so a directory's roll-up and `rows_beneath` see only what is
+  listed; `SyncList.show_rows` lists what it is handed.
 - **Nothing per row runs per frame.** `enables(Synchronize)` is asked at every key-bar repaint, so it reads
   `SyncWindow.totals` (`dirsync.summary`, kept by `_show`), never `plan()` -- which joins two paths a row (0.3 s for
   40k rows) and runs on F5 alone.

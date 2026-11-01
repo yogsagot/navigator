@@ -1,5 +1,5 @@
 from navkit.bidi import display_width
-from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, ToggleHidden, ToggleTree
+from navigator.widgets.manager.commands import DiffFiles, Rescan, SetAllSyncActions, SetSyncAction, Synchronize, SyncSetup, ToggleHidden, ToggleSyncShow, ToggleTree
 from navigator.widgets.manager.sync_list import SyncList
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
@@ -30,9 +30,12 @@ from navml.widgets.window import Window
 #: Gray + and - and Enter open and close one, * opens them all.
 #:
 #: Laid out as Disk > Volumes is: the list without a frame of its own, a
-#: dialog's row under it.  *Show identical* -- or Ctrl+H, as it shows a
-#: panel's dot-files -- lists the paths that are the same too; Ctrl+R and
-#: Alt+R compare again.
+#: dialog's rows under it.  The *Show* boxes say which rows are listed --
+#: on the left alone, on the right alone, different, identical (Ctrl+H, as
+#: it shows a panel's dot-files) -- and only what is listed is synchronized,
+#: as in Total Commander.  *Options* (``SyncOptionsDialog``) has the file
+#: mask, how near two times are the same, and *Asymmetric*; Ctrl+R and Alt+R
+#: compare again.
 SyncWindow(Window):
     title: "Synchronize"
     #: Zoomed, as the viewer's window: a path wants every column it can get.
@@ -56,7 +59,7 @@ SyncWindow(Window):
         x: 1
         y: 1
         width: max(0, parent.width - 1)
-        height: max(0, parent.height - 4)
+        height: max(0, parent.height - 6)
 
     #: Over the bottom frame, a column in, as the viewer's info line: the row
     #: under the cursor's two times, or why it is a conflict.
@@ -68,20 +71,21 @@ SyncWindow(Window):
         width: min(display_width(self.text), max(0, parent.width - 3))
         height: 1
 
+    #: Which rows are listed, a box a kind (``dirsync.SHOW_GROUPS``), one row.
     CheckBoxes:
-        id: identical
+        id: show
         x: 2
-        y: max(0, parent.height - 3)
-        width: 22
+        y: max(0, parent.height - 5)
+        width: max(0, parent.width - 4)
         height: 1
-        items: ["Show ~i~dentical"]
-        tooltips: ["List the files that are the same on both sides too"]
+        items: ["Le~f~t only", "Ri~g~ht only", "~D~ifferent", "~I~dentical"]
+        tooltips: ["List what only the left side has", "List what only the right side has", "List the files that differ, and the conflicts", "List the files that are the same on both sides too"]
 
     #: The tree view, as Ctrl+T and the menu switch it: in sight, so it is found.
     CheckBoxes:
         id: tree_box
-        x: 26
-        y: max(0, parent.height - 3)
+        x: 2
+        y: max(0, parent.height - 4)
         width: 18
         height: 1
         items: ["~T~ree view"]
@@ -91,14 +95,23 @@ SyncWindow(Window):
         id: summary
         x: 2
         y: max(0, parent.height - 2)
-        width: max(0, parent.width - 30)
+        width: max(0, parent.width - 4)
         height: 1
+
+    Button:
+        id: options_button
+        text: "O~p~tions"
+        tooltip: "The file mask, how near two times are the same, and Asymmetric"
+        x: max(0, parent.width - 45)
+        y: max(0, parent.height - 4)
+        width: 12
+        height: 2
 
     Button:
         id: sync_button
         text: "~S~ynchronize"
         x: max(0, parent.width - 31)
-        y: max(0, parent.height - 3)
+        y: max(0, parent.height - 4)
         width: 16
         height: 2
 
@@ -106,7 +119,7 @@ SyncWindow(Window):
         id: close_button
         text: "Close"
         x: max(0, parent.width - 13)
-        y: max(0, parent.height - 3)
+        y: max(0, parent.height - 4)
         width: 10
         height: 2
 
@@ -156,6 +169,18 @@ SyncWindow(Window):
             text: 'Compare a~g~ain'
             command: Rescan
         MenuItem:
+            text: 'Show left o~n~ly'
+            tooltip: "List what only the left side has"
+            command: ToggleSyncShow(0)
+        MenuItem:
+            text: 'Show right onl~y~'
+            tooltip: "List what only the right side has"
+            command: ToggleSyncShow(1)
+        MenuItem:
+            text: 'Sho~w~ different'
+            tooltip: "List the files that differ, and the conflicts"
+            command: ToggleSyncShow(2)
+        MenuItem:
             text: 'Show ~i~dentical'
             tooltip: "List the files that are the same on both sides too"
             command: ToggleHidden
@@ -163,6 +188,10 @@ SyncWindow(Window):
             text: '~T~ree view'
             tooltip: "Show the rows under their directories, as a tree"
             command: ToggleTree
+        MenuItem:
+            text: 'O~p~tions...'
+            tooltip: "The file mask, how near two times are the same, and Asymmetric"
+            command: SyncSetup
         MenuLine:
         MenuItem:
             text: 'Cl~o~se'

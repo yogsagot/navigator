@@ -2,9 +2,12 @@
 
 The two trees are walked on a thread (:func:`navigator.lib.file_ops.dirsync.walk`),
 under *Compare directories* if it takes a while, whose Cancel stops it.
-Every path is kept, the same ones too; *Show identical* only changes which
-are listed.  An action changed replaces its row in a new list -- a
-collection must be replaced to count as changed.
+Every path is kept, the same ones too; the *Show* boxes only change which
+are listed -- and so which are synchronized: what is not listed is neither
+counted, set by Ctrl+Right/Ctrl+Left nor done by F5.  An action changed
+replaces its row in a new list -- a collection must be replaced to count as
+changed.  *Options* (``SyncOptionsDialog``) are kept in ``[synchronize]``
+(:func:`sync_options`), and change what the next walk finds.
 
 *Synchronize* is the file manager's (``Manager.synchronize``): the copies
 and deletes go through F5's and F8's own workers, boxes and questions.
@@ -35,14 +38,35 @@ from navigator.widgets.manager.commands import (
     SetAllSyncActions,
     SetSyncAction,
     Synchronize,
+    SyncSetup,
     ToggleHidden,
+    ToggleSyncShow,
     ToggleTree,
 )
 from navigator.widgets.manager.panel.panel import human_size
 from navigator.widgets.manager.sync_list import SyncList
 
 
-async def walk_trees(app: Any, left: Any, right: Any, request: Any, show_hidden: bool) -> list[Any] | None:
+def sync_options() -> dirsync.SyncOptions:
+    """What ``[synchronize]`` keeps: the options the next walk is made with."""
+    from navigator.settings import SETTINGS
+
+    section = SETTINGS.synchronize
+    return dirsync.SyncOptions(mask=section.mask, tolerance=dirsync.TOLERANCES.get(section.times, 2),
+                               hour_shift=section.hour_shift, asymmetric=section.asymmetric)
+
+
+def keep_sync_options(options: dirsync.SyncOptions) -> None:
+    """*options* kept in ``[synchronize]`` and saved."""
+    from navigator.widgets.manager.manager.manager import Manager
+
+    times = next(name for name, seconds in dirsync.TOLERANCES.items() if seconds == options.tolerance)
+    Manager._keep_section("synchronize", {"mask": options.mask, "times": times,
+                                          "hour_shift": options.hour_shift, "asymmetric": options.asymmetric})
+
+
+async def walk_trees(app: Any, left: Any, right: Any, request: Any, show_hidden: bool,
+                     options: dirsync.SyncOptions | None = None) -> list[Any] | None:
     """``dirsync.walk`` on a thread, under its box if it takes a while; None
     when cancelled, or when a directory could not be read (said)."""
     from navigator.lib.file_ops.filecopy import error_message
@@ -57,7 +81,7 @@ async def walk_trees(app: Any, left: Any, right: Any, request: Any, show_hidden:
 
     try:
         return await run_with_progress(
-            app, lambda: dirsync.walk(left, right, request, job, show_hidden), job,
+            app, lambda: dirsync.walk(left, right, request, job, show_hidden, options), job,
             CompareProgress, refresh, delay=SLOW_PROGRESS_DELAY,
         )
     except Stopped:
@@ -93,23 +117,29 @@ class SyncWindow(Window):
     tree_view = False
 
     def __init__(self, manager: Any = None, left: Any = None, right: Any = None, request: Any = None,
-                 rows: list[Any] | None = None, show_hidden: bool = True, **kwargs: Any) -> None:
+                 rows: list[Any] | None = None, show_hidden: bool = True,
+                 options: dirsync.SyncOptions | None = None, **kwargs: Any) -> None:
         """*manager* does the synchronizing; *left* and *right* are the two
         directories, *request* the compare's checks and *rows* what
-        ``dirsync.walk`` found; *show_hidden* walks dot-files too."""
+        ``dirsync.walk`` found; *show_hidden* walks dot-files too, and
+        *options* are what the walk was made with -- and the next one is."""
         super().__init__(**kwargs)
         self.manager = manager
         self.left_place = left
         self.right_place = right
         self.request = request
         self.show_hidden = show_hidden
+        self.options = options or dirsync.SyncOptions()
         self.all_rows: list[Any] = list(rows or ())
-        #: The rows as a tree, for the tree view: built when first asked for,
-        #: dropped whenever the rows change.
+        #: The rows the *Show* boxes let through: what is listed, counted and synchronized.
+        self.shown_rows: list[Any] = []
+        #: The rows as a tree, for the tree view: built from the shown rows
+        #: when first asked for, dropped whenever they change.
         self._tree: dirsync.DirNode | None = None
         self.rows.tree = SyncWindow.tree_view
         self.tree_box.value = 1 if SyncWindow.tree_view else 0
-        #: What the rows' actions come to, counted again whenever a row
+        self.show.value = self._showing = dirsync.SHOW_DEFAULT
+        #: What the shown rows' actions come to, counted again whenever a row
         #: changes: what the summary line says, and what F5's ``enables`` --
         #: asked at every repaint of the key bar -- reads instead of a plan.
         self.totals = dirsync.summary(self.all_rows)
@@ -119,12 +149,16 @@ class SyncWindow(Window):
 
     @property
     def show_identical(self) -> bool:
-        """Whether *Show identical* is ticked."""
-        return bool(self.identical.value & 1)
+        """Whether *Identical* is ticked."""
+        return self.showing(3)
 
     @show_identical.setter
     def show_identical(self, value: bool) -> None:
-        self.identical.value = 1 if value else 0
+        self.show.value = self.show.value | 8 if value else self.show.value & ~8
+
+    def showing(self, group: int) -> bool:
+        """Whether the *Show* box *group* (``dirsync.SHOW_GROUPS``) is ticked."""
+        return bool(self.show.value & (1 << group))
 
     def mounted(self) -> None:
         super().mounted()
@@ -133,7 +167,11 @@ class SyncWindow(Window):
 
     def _follow_box(self) -> None:
         """A box ticked or cleared, by a key, a click, Ctrl+H or Ctrl+T: list again."""
-        self.identical.value  # noqa: B018 -- what this effect follows
+        show = self.show.value
+        if show != self._showing:
+            # The tree is the shown rows': built again for others.
+            self._showing = show
+            self._tree = None
         tree = bool(self.tree_box.value & 1)
         SyncWindow.tree_view = self.rows.tree = tree
         self._show()
@@ -159,14 +197,20 @@ class SyncWindow(Window):
         and cursor, as ``_follow_box`` calls this and must not run again at
         every cursor move."""
         listing = self.rows
+        self.shown_rows = dirsync.shown(self.all_rows, self._showing)
         root = None
         if peek(listing, SyncList.tree):
             if self._tree is None:
-                self._tree = dirsync.build_tree(self.all_rows)
+                self._tree = dirsync.build_tree(self.shown_rows)
             root = self._tree
-        listing.show_rows(self.all_rows, root, self.show_identical)
-        listing.error = None if peek(listing, ListViewer.items) else tr("The directories are the same.")
-        self.totals = dirsync.summary(self.all_rows)
+        listing.show_rows(self.shown_rows, root)
+        if peek(listing, ListViewer.items):
+            listing.error = None
+        elif any(row.status != dirsync.SAME for row in self.all_rows):
+            listing.error = tr("Nothing that differs is shown.")
+        else:
+            listing.error = tr("The directories are the same.")
+        self.totals = dirsync.summary(self.shown_rows)
         self.summary.text = self.summary_text()
 
     def summary_text(self) -> str:
@@ -197,8 +241,9 @@ class SyncWindow(Window):
         return True
 
     async def on_set_all_sync_actions(self, command: SetAllSyncActions) -> bool:
+        """Every row listed given the action, where it allows it."""
         changed = {}
-        for row in self.all_rows:
+        for row in self.shown_rows:
             new = dirsync.with_action(row, command.action)
             if new is not row:
                 changed[id(row)] = new
@@ -206,7 +251,8 @@ class SyncWindow(Window):
         return True
 
     def plan(self) -> dirsync.SyncPlan:
-        return dirsync.plan(self.all_rows, self.left_place, self.right_place)
+        """What F5 does: the listed rows' actions."""
+        return dirsync.plan(self.shown_rows, self.left_place, self.right_place)
 
     def _comparable(self) -> Any:
         """The row under the cursor, when it is two files to compare."""
@@ -229,15 +275,21 @@ class SyncWindow(Window):
         return super().refusal(command)
 
     def checks(self, command: Any) -> bool | None:
-        """The menu ticks *Show identical* and *Tree view* while they are on."""
+        """The menu ticks the *Show* entries and *Tree view* while they are on."""
         if isinstance(command, ToggleHidden):
             return self.show_identical
+        if isinstance(command, ToggleSyncShow):
+            return self.showing(command.group)
         if isinstance(command, ToggleTree):
             return self.rows.tree
         return super().checks(command)
 
     async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
         self.show_identical = not self.show_identical
+        return True
+
+    async def on_toggle_sync_show(self, command: ToggleSyncShow) -> bool:
+        self.show.value = self.show.value ^ (1 << command.group)
         return True
 
     async def on_toggle_tree(self, event: ToggleTree) -> bool:
@@ -265,11 +317,33 @@ class SyncWindow(Window):
     async def rescan(self) -> None:
         """Ctrl+R: both trees walked again, the actions back to their defaults."""
         rows = await walk_trees(self.application, self.left_place, self.right_place, self.request,
-                                self.show_hidden)
+                                self.show_hidden, self.options)
         if rows is not None:
             self.all_rows = rows
             self._tree = None
             self._show()
+
+    async def on_sync_setup(self, event: SyncSetup) -> bool:
+        self.spawn(self.setup())
+        return True
+
+    async def on_options_button_click(self, event: Event) -> bool:
+        self.spawn(self.setup())
+        return True
+
+    async def setup(self) -> None:
+        """*Options*: asked, kept in ``[synchronize]``, and both trees compared again with them."""
+        from navigator.widgets.manager.sync_options_dialog import SyncOptionsDialog
+
+        app = self.application
+        if app is None:
+            return
+        options = await SyncOptionsDialog(self.options).execute(app)
+        if options is None:
+            return
+        keep_sync_options(options)
+        self.options = options
+        await self.rescan()
 
     async def on_synchronize(self, event: Synchronize) -> bool:
         self.spawn(self.synchronize())
@@ -314,6 +388,7 @@ class SyncWindow(Window):
         menu.add_item(tr("D~e~fault action"), SetSyncAction("default"))
         menu.add_line()
         menu.add_item(tr("~T~ree view"), ToggleTree)
+        menu.add_item(tr("O~p~tions..."), SyncSetup)
         menu.add_item(tr("~S~ynchronize"), Synchronize)
         menu.add_item(tr("Cl~o~se"), CloseWindow)
         return menu
@@ -351,7 +426,7 @@ class SyncWindow(Window):
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():
-            for control in (self.identical, self.tree_box, self.sync_button, self.close_button):
+            for control in (self.show, self.tree_box, self.options_button, self.sync_button, self.close_button):
                 if control.shortcut_match(event.key):
                     return await control.activate(event.key)
         return await super().on_key(event)

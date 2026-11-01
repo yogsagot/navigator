@@ -2019,7 +2019,7 @@ class Manager(Window):
         and what differs listed in the *Synchronize* window -- the left
         panel's tree on the left, whichever is active."""
         from navigator.widgets.manager.sync_window import SyncWindow
-        from navigator.widgets.manager.sync_window.sync_window import walk_trees
+        from navigator.widgets.manager.sync_window.sync_window import sync_options, walk_trees
 
         app, desktop = self.application, self.desktop
         if app is None or desktop is None:
@@ -2030,11 +2030,12 @@ class Manager(Window):
                          buttons="ok").execute(app)
             return
         show_hidden = self.left.show_hidden and self.right.show_hidden
-        rows = await walk_trees(app, left, right, request, show_hidden)
+        options = sync_options()
+        rows = await walk_trees(app, left, right, request, show_hidden, options)
         if rows is None:
             return
         desktop.open(SyncWindow(manager=self, left=left, right=right, request=request, rows=rows,
-                                show_hidden=show_hidden))
+                                show_hidden=show_hidden, options=options))
 
     async def synchronize(self, plan: Any) -> bool:
         """The *Synchronize* window's F5: *plan*'s copies, then its deletes,
@@ -2063,6 +2064,7 @@ class Manager(Window):
                 request = filecopy.CopyRequest(
                     sources=[], target="", mode=filecopy.OVERWRITE, options=filecopy.PRESERVE,
                     flush=SETTINGS.system.flush_buffers, pairs=list(plan.pairs),
+                    directories=list(plan.directories),
                 )
                 ok = await self._run_copy(self.left, request, self.left.location, move=False, others=(self.right,))
             if ok and deletes:

@@ -79,15 +79,27 @@ def _matches(entry: Any, other: Any, request: CompareRequest,
     return True
 
 
-def same_file(entry: Any, other: Any, request: CompareRequest, mine: Any = None, theirs: Any = None) -> bool:
+def same_time(mine: float, theirs: float, tolerance: int = 0, hour_shift: bool = False) -> bool:
+    """Whether two modification times are the same to the second, or within
+    *tolerance* seconds of it -- FAT keeps two-second steps, an FTP listing
+    may give minutes alone -- or, with *hour_shift*, within it of exactly an
+    hour apart, as a daylight-saving change leaves a FAT stick's times.  The
+    recursive compare's (:mod:`dirsync`); DN's tagging keeps to the second."""
+    apart = abs(int(mine) - int(theirs))
+    return apart <= tolerance or (hour_shift and abs(apart - 3600) <= tolerance)
+
+
+def same_file(entry: Any, other: Any, request: CompareRequest, mine: Any = None, theirs: Any = None,
+              tolerance: int = 0, hour_shift: bool = False) -> bool:
     """Whether two files, both there, pass every check *request* asks for --
     either way round, which :func:`differing`'s *this one no newer* is not:
     the recursive compare lists a pair once, not each side against the other.
     *entry* and *other* have ``size``, ``mtime`` and ``mode``; *mine* and
-    *theirs* are where they are, needed only to compare contents."""
+    *theirs* are where they are, needed only to compare contents.  Times are
+    compared by :func:`same_time`, with *tolerance* and *hour_shift*."""
     if request.size and entry.size != other.size:
         return False
-    if request.time and int(entry.mtime) != int(other.mtime):
+    if request.time and not same_time(entry.mtime, other.mtime, tolerance, hour_shift):
         return False
     if request.attributes and stat.S_IMODE(entry.mode) != stat.S_IMODE(other.mode):
         return False

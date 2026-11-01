@@ -581,6 +581,21 @@ class Synchronize(Command):
     title = "Sync"
 
 
+@dataclass(frozen=True, slots=True)
+class ToggleSyncShow(Command):
+    """In the *Synchronize* window, one of the *Show* boxes ticked or cleared:
+    ``group`` is its bit -- 0 on the left alone, 1 on the right alone, 2
+    different, 3 identical (``dirsync.SHOW_GROUPS``).  What is not shown is
+    not synchronized either."""
+
+    group: int = 0
+
+
+class SyncSetup(Command):
+    """The *Synchronize* window's *Options*: the file mask, how near two
+    times are the same, and *Asymmetric* -- then both trees compared again."""
+
+
 class ToggleHidden(Command):
     """Ctrl+H: show or hide the active panel's dot-files.
 
@@ -727,6 +742,8 @@ __all__ = [
     "SetSyncAction",
     "SetAllSyncActions",
     "Synchronize",
+    "ToggleSyncShow",
+    "SyncSetup",
     "ChangeInactive",
     "GoToFile",
     "ReadFileList",

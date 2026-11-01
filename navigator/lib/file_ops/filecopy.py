@@ -70,10 +70,14 @@ class CopyRequest:
     flatten: bool = False
     #: Each source with its own target, ``(source, target)``, in place of
     #: *sources* and *target*: the target is the very path the source is
-    #: copied to, and its directory is there.  Navigator's own, for
-    #: *Synchronize* (:mod:`navigator.lib.file_ops.dirsync`), whose copies go
-    #: both ways in one job.
+    #: copied to, and its directory is there, or in *directories*.
+    #: Navigator's own, for *Synchronize* (:mod:`navigator.lib.file_ops.dirsync`),
+    #: whose copies go both ways in one job.
     pairs: list[tuple[Path | Location, Path | Location]] | None = None
+    #: With *pairs*: directories made first, and any missing above them --
+    #: where a file mask has *Synchronize* copy files out of a directory the
+    #: other side lacks, rather than the directory whole.
+    directories: list[Path | Location] | None = None
     #: File > *Create archive...*'s: how the new archive the target names is
     #: packed (``archive.ArchiveOptions``); None packs as an F5 into one does.
     archive: Any = None
@@ -499,6 +503,10 @@ class _Copier(Elevated):
             if request.pairs is not None:
                 pairs = list(request.pairs)
                 places = [place for pair in pairs for place in pair]
+                for each in request.directories or ():
+                    self._checkpoint()
+                    directory = Location.of(each)
+                    self._try(directory, lambda: self._drive_of(directory).makedirs(directory))
             else:
                 target = target_location(request.target, self.cwd)
                 opened = _open_target_archive(target, request.archive)

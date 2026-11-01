@@ -158,3 +158,74 @@ def test_rows_replaced_in_the_tree_roll_up_as_a_tree_built_anew(trees):
 
     same(root, fresh)
     assert root.action == dirsync.SKIP
+
+
+# -- the options: times, the mask, asymmetric, the Show boxes -------------------------------
+
+
+def test_times_within_the_tolerance_are_the_same():
+    from navigator.lib.file_ops.dircompare import same_time
+
+    assert same_time(100.9, 100.1) and not same_time(100, 101)
+    assert same_time(100, 102, 2) and not same_time(100, 103, 2)
+    assert same_time(100, 159, 60) and not same_time(100, 161, 60)
+    assert not same_time(100, 3700, 2) and same_time(100, 3701, 2, hour_shift=True)
+    assert same_time(3701, 100, 2, hour_shift=True) and not same_time(100, 3800, 2, hour_shift=True)
+
+
+def test_a_second_apart_is_the_same_on_fat_and_different_exactly(tmp_path):
+    make(tmp_path / "L", {"a": (b"1", 101), "b": (b"2", 100)})
+    make(tmp_path / "R", {"a": (b"1", 100), "b": (b"22", 101)})
+    trees = tmp_path / "L", tmp_path / "R"
+    fat = {str(row.path): row for row in dirsync.walk(*trees, CompareRequest(), options=dirsync.SyncOptions())}
+    assert fat["a"].status == dirsync.SAME
+    # A size apart, times the same as FAT has them: nobody is newer.
+    assert (fat["b"].status, fat["b"].newer, fat["b"].action) == (dirsync.DIFFERS, None, dirsync.SKIP)
+    exact = dirsync.walk(*trees, CompareRequest(), options=dirsync.SyncOptions(tolerance=0))
+    assert statuses(exact)["a"] == dirsync.DIFFERS
+
+
+def test_the_mask_takes_files_and_leaves_out_directories():
+    mask = dirsync.Mask("*.py;-test_*;-.git/")
+    assert mask.files("a.py") and not mask.files("test_a.py") and not mask.files("a.txt")
+    assert mask.dirs("src") and not mask.dirs(".git") and mask.restricts_files
+    everything = dirsync.Mask("-*.bak")
+    assert everything.files("a.txt") and not everything.files("a.bak") and everything.restricts_files
+    assert dirsync.Mask("").files("x") and not dirsync.Mask("").restricts_files
+    assert not dirsync.Mask("-node_modules/").restricts_files
+
+
+def test_a_masked_walk_prunes_directories_and_goes_into_lonely_ones(tmp_path):
+    make(tmp_path / "L", {"a.py": (b"1", 100), "a.txt": (b"2", 100), ".git/x.py": (b"3", 100),
+                          "new/b.py": (b"4", 100), "new/b.txt": (b"5", 100), "new/deeper/c.py": (b"6", 100)})
+    make(tmp_path / "R", {"gone/d.py": (b"7", 100), "gone/d.txt": (b"8", 100)})
+    left, right = tmp_path / "L", tmp_path / "R"
+    rows = dirsync.walk(left, right, CompareRequest(), options=dirsync.SyncOptions(mask="*.py;-.git/"))
+    assert statuses(rows) == {"a.py": dirsync.LEFT_ONLY, "gone/d.py": dirsync.RIGHT_ONLY,
+                              "new/b.py": dirsync.LEFT_ONLY, "new/deeper/c.py": dirsync.LEFT_ONLY}
+    # Without a mask a lonely directory is one row, copied whole.
+    assert statuses(dirsync.walk(left, right, CompareRequest()))["new"] == dirsync.LEFT_ONLY
+    plan = dirsync.plan(rows, left, right)
+    assert sorted(map(str, plan.directories)) == [str(left / "gone"), str(right / "new"), str(right / "new/deeper")]
+    request = filecopy.CopyRequest(sources=[], target="", mode=filecopy.OVERWRITE, options=filecopy.PRESERVE,
+                                   pairs=plan.pairs, directories=plan.directories)
+    filecopy.run(request, filecopy.CopyJob(asker=lambda question: pytest.fail(f"asked {question}")), left)
+    assert (right / "new/deeper/c.py").read_bytes() == b"6" and not (right / "new/b.txt").exists()
+
+
+def test_asymmetric_makes_the_right_a_copy_of_the_left(trees):
+    rows = {str(row.path): row
+            for row in dirsync.walk(*trees, CompareRequest(), options=dirsync.SyncOptions(asymmetric=True))}
+    assert rows["theirs"].action == dirsync.DELETE
+    assert rows["older"].action == dirsync.COPY_RIGHT  # the right's is newer, and still goes
+    assert rows["only"].action == dirsync.COPY_RIGHT
+    assert dirsync.with_action(dirsync.with_action(rows["theirs"], dirsync.COPY_LEFT), "default").action \
+        == dirsync.DELETE
+
+
+def test_the_show_boxes_choose_rows_by_status(trees):
+    rows = dirsync.walk(*trees, CompareRequest(contents=True))
+    assert {row.status for row in dirsync.shown(rows, dirsync.SHOW_DEFAULT)} == {
+        dirsync.LEFT_ONLY, dirsync.RIGHT_ONLY, dirsync.DIFFERS, dirsync.CONFLICT}
+    assert {str(row.path) for row in dirsync.shown(rows, 0b0010)} == {"theirs"}
+    assert {row.status for row in dirsync.shown(rows, 0b1000)} == {dirsync.SAME}

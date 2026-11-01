@@ -121,15 +121,15 @@ class SyncList(ListViewer):
         #: The directories closed in the tree view; every other one is open.
         self.collapsed: frozenset[PurePosixPath] = frozenset()
         self._root: dirsync.DirNode | None = None
-        self._show_same = False
 
     # -- what is listed ----------------------------------------------------------
 
-    def show_rows(self, rows: list[dirsync.SyncRow], root: dirsync.DirNode | None, show_same: bool) -> None:
+    def show_rows(self, rows: list[dirsync.SyncRow], root: dirsync.DirNode | None) -> None:
         """List *rows* -- in the tree view under *root*, their tree -- the
-        same ones only with *show_same*, the cursor kept on its path."""
+        cursor kept on its path.  The window has chosen them, by its *Show*
+        boxes, and built the tree of them alone."""
         current = self._current()
-        self._root, self._show_same = root, show_same
+        self._root = root
         if peek(self, SyncList.tree) and root is not None:
             if current is not None:
                 # Its directories opened, so it is still there to stand on.
@@ -137,7 +137,7 @@ class SyncList(ListViewer):
                                            if path not in current.parents)
             self.items = self._lines(root)
         else:
-            self.items = [row for row in rows if show_same or row.status != dirsync.SAME]
+            self.items = list(rows)
         self._put_cursor(current)
 
     def _current(self) -> PurePosixPath | None:
@@ -164,14 +164,14 @@ class SyncList(ListViewer):
                     return
 
     def _lines(self, root: dirsync.DirNode) -> list[Line]:
-        """The tree flattened: what is open, the same rows only with ``_show_same``."""
-        show_same, collapsed = self._show_same, self.collapsed
+        """The tree flattened: what is open.  Every directory has a row
+        beneath, as the tree is built of the rows listed alone."""
+        collapsed = self.collapsed
         lines: list[Line] = []
 
         def walk(node: dirsync.DirNode, depth: int, rails: tuple[bool, ...]) -> None:
-            entries: list[Any] = [child for _, child in sorted(node.dirs.items())
-                                  if show_same or child.count]
-            entries += [row for row in node.rows if show_same or row.status != dirsync.SAME]
+            entries: list[Any] = [child for _, child in sorted(node.dirs.items())]
+            entries += node.rows
             last = len(entries) - 1
             for index, entry in enumerate(entries):
                 more = index < last
