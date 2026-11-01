@@ -58,13 +58,16 @@ MODE_COMMANDS = {CalculatorSimple: "simple", CalculatorClassic: "classic",
 #: What may be typed into the line, by face (Classic's takes anything, as
 #: DN's did): Simple's digits and arithmetic; Scientific's also the names
 #: of its functions and constants; Programming's the base's digits and the
-#: word's symbols, its named operators coming from the pad.  No face but
-#: Classic takes a space.
+#: word's symbols, and its named operators spelt out (:data:`WORDS_TYPED`).
+#: No face but Classic takes a space.
 _ARITHMETIC = "0123456789.+-*/%^()"
 ACCEPTS = {"simple": frozenset(_ARITHMETIC),
            "scientific": frozenset(_ARITHMETIC + "!,ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")}
 #: Programming's symbols beside the base's digits.
 _WORD_SYMBOLS = "+-*/%^()&|\\~<>"
+#: Programming's operators that may be typed by name (AND, NOT, SHL, ROR...),
+#: the longest first, so NAND is not taken for the AND it ends in.
+WORDS_TYPED = tuple(sorted(calculator.WORD_OPERATORS, key=lambda word: (-len(word), word)))
 
 
 def accepts(mode: str, radix: int) -> frozenset[str]:
@@ -164,6 +167,7 @@ class CalculatorWindow(Window):
         keyboard, and what else the face's line takes."""
         radix = self.context().radix if self.mode == "programming" else 16
         self.line.accepts = accepts(self.mode, radix)
+        self.line.words = WORDS_TYPED if self.mode == "programming" else ()
         if self.pad.radix != radix:
             self.pad.radix = radix
             self.pad.refresh()

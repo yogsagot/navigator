@@ -316,8 +316,17 @@ def test_a_byte_wraps_and_digits_past_the_base_are_refused(place):
 
 @pytest.mark.parametrize("mode, radix, typed_text, line", [
     ("programming", "oct", "17 9$+2G", "17+2"),
-    ("programming", "hex", "ff x&1", "ff&1"),
+    ("programming", "hex", "ff q&1", "ff&1"),
     ("programming", "bin", "102+1", "10+1"),
+    ("programming", "hex", "ffand1", "ff AND 1"),
+    ("programming", "oct", "7 or 1Xor2", "7 OR 1 XOR 2"),
+    ("programming", "dec", "6anD3g", "6 AND 3"),
+    ("programming", "hex", "CAN", "CAN"),
+    ("programming", "hex", "ffnand1nor2", "ff NAND 1 NOR 2"),
+    ("programming", "dec", "not5", "NOT 5"),
+    ("programming", "dec", "(not5)", "(NOT 5)"),
+    ("programming", "bin", "1shl10shr1sar1", "1 SHL 10 SHR 1 SAR 1"),
+    ("programming", "hex", "Arol4ror1mod3", "A ROL 4 ROR 1 MOD 3"),
     ("simple", "dec", "2 + x3$", "2+3"),
     ("scientific", "dec", "sin( 90)#", "sin(90)"),
 ])
@@ -340,6 +349,17 @@ def test_a_paste_loses_its_spaces_and_is_refused_whole_for_a_bad_character(place
     run_app(app, [KeyEvent("f6", ctrl=True), lambda a: None, paste("1 000"), lambda a: None, look,
                   paste("+19"), lambda a: None, look])
     assert seen == ["1000", "1000"]
+
+
+def test_a_pasted_word_operator_keeps_its_spaces(place):
+    from navkit.events import PasteEvent
+    SETTINGS.calculator.mode, SETTINGS.calculator.radix = "programming", "hex"
+    app = navigator(place)
+    seen = {}
+    run_app(app, [KeyEvent("f6", ctrl=True), lambda a: None,
+                  lambda a: a.spawn(calc(a).line.on_paste(PasteEvent("ff and 0F xor 1"))), lambda a: None,
+                  lambda a: seen.update(line=calc(a).line.value, result=calc(a).forms[1])])
+    assert seen == {"line": "ff AND 0F XOR 1", "result": "14"}
 
 
 def test_classic_takes_anything_as_dn_did(classic):

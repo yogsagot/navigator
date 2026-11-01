@@ -33,9 +33,12 @@ description: Ctrl+F6, Utilities > Calculator -- DOS Navigator's CCALC.PAS/PAR.PA
   place: 64 bits in four rows, a click or Space flips one (`BitFlipped`).
 - **What the line takes** is the face's (`calculator_window.accepts(mode, radix)`, set on `CalcLine.accepts` by
   `_follow_radix`): Simple digits and `.+-*/%^()`; Scientific those plus letters (function names), `!` and `,`;
-  Programming the base's digits (either case) and `+-*/%^()&|\~<>`, its named operators coming from the pad with
-  their spaces. No space in any of them. A paste loses its spaces and is refused whole for any other stray
-  character. Classic's `accepts` is empty: anything, as DN's line. Only typing and pasting are filtered; the pad
+  Programming the base's digits (either case) and `+-*/%^()&|\~<>`, plus every named operator spelt out
+  (`WORD_OPERATORS`, longest first as `WORDS_TYPED` → `CalcLine.words`): a letter is taken while it continues one of
+  them (`CalcLine.spelling`, a whole word before a partial one, so `ROR` is not `R` of another), and the letter that
+  finishes it rewrites it with spaces round it (`ffand1` is `ff AND 1`, `(not5` is `(NOT 5`). Each word has a letter
+  that is no hex digit, so none is taken for a number. No space in any face. A paste loses its
+  spaces (kept round a word) and is refused whole for any other stray character. Classic's `accepts` is empty: anything, as DN's line. Only typing and pasting are filtered; the pad
   writes the line directly.
 - **Memory and `Ans`** are the window's, shared by the faces, not saved.
 - **Settings are written untracked** (`_keep`): the effects that save them follow the window's controls; reading
