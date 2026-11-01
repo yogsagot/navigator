@@ -228,7 +228,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `colours-themes-glyphs` | palconv and themes, palette pinning, glyph tiers, icons, file-type colours |
 | `console-command-line` | console/pyte/pty, subshell, Ctrl+O, the command line, completion, history, atuin |
 | `navigator-panels` | Manager and Panel: view modes, tagging, quick search, hidden files, hiding sides |
-| `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes |
+| `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes, Disk > Directory sizes (ncdu-like) |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-calculator` | Ctrl+F6's calculator: DN's Classic and the Simple/Scientific/Programming faces, the parser's `Context`, the pads, `[calculator]` |

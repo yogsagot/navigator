@@ -1,0 +1,134 @@
+from navigator.widgets.manager.commands import Delete, Rescan
+from navigator.widgets.shell.commands import GoToUsage, ToggleApparentSize, UsageSortItems, UsageSortName, UsageSortSize
+from navigator.widgets.shell.usage_list import UsageList
+from navml.commands import CloseWindow
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import SelectNext, SelectPrevious
+from navml.widgets.dialog.static_text import StaticText
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.window import Window
+
+#: Disk > Directory sizes: what takes the room under a directory, biggest
+#: first, a row each with its size, its share, a bar and how many entries are
+#: under it -- ``ncdu``'s view.  **Not DOS Navigator's**: a departure, asked
+#: for; ``navigator/lib/file_ops/dirusage.py`` says what of DN's it borders.
+#:
+#: Laid out as Disk > Volumes is: the list without a frame of its own, one
+#: column into the window's; under it the status line -- where the listed
+#: directory is and what it adds up to, or what the scan has met so far --
+#: *Apparent size* on the left, *Go* and *Close* on the right.
+#:
+#: The whole tree is read once, on a thread, when the window opens -- on the
+#: active panel's directory, any drive's -- and again only on Ctrl+R; going
+#: down (Enter, Right) and up (Backspace, Left, Enter on ``..``) is then free.
+#: Another file system is not entered, as ``ncdu -x``.  F8 or Del erases the
+#: entry under the cursor as F8 in a panel does -- its dialog, its Trash, its
+#: questions -- and takes it off the totals with no second read.  *Go* sends
+#: the active panel there and closes the window; Enter on a file does that
+#: and leaves it open.  Ctrl+N, Ctrl+S and Ctrl+E sort by name, size and
+#: entries -- not the F-keys DN sorted a panel by, which the desktop and the
+#: global table already hold here (Ctrl+F3 *New manager*, Ctrl+F4 closing,
+#: Ctrl+F5 sizing); the same key again turns the order round.  Ctrl+A, or the box, shows the bytes
+#: files say they hold instead of the room they take on the disk.
+UsageWindow(Window):
+    title: "Directory sizes"
+
+    keys:
+        escape: CloseWindow
+        ctrl+r: Rescan
+        alt+r: Rescan
+        f8: Delete
+        delete: Delete
+        ctrl+a: ToggleApparentSize
+        ctrl+n: UsageSortName
+        ctrl+s: UsageSortSize
+        ctrl+e: UsageSortItems
+        tab: SelectNext
+        shift+tab: SelectPrevious
+
+    UsageList:
+        id: entries
+        framed: False
+        x: 1
+        y: 1
+        width: max(0, parent.width - 1)
+        height: max(0, parent.height - 4)
+
+    StaticText:
+        id: status
+        x: 2
+        y: max(0, parent.height - 3)
+        width: max(0, parent.width - 28)
+        height: 1
+
+    CheckBoxes:
+        id: apparent_box
+        x: 2
+        y: max(0, parent.height - 2)
+        width: 22
+        height: 1
+        items: ["~A~pparent size"]
+        tooltips: ["The bytes files hold rather than the room they take on the disk"]
+
+    Button:
+        id: go_button
+        text: "~G~o"
+        default: True
+        x: max(0, parent.width - 23)
+        y: max(0, parent.height - 3)
+        width: 10
+        height: 2
+
+    Button:
+        id: close_button
+        text: "Close"
+        x: max(0, parent.width - 12)
+        y: max(0, parent.height - 3)
+        width: 10
+        height: 2
+
+    #: The window's own menu on the bar after *File* while it is active, as
+    #: Disk > Volumes' is; the sort it is in and *Apparent size* ticked.  Also
+    #: its right-click menu.
+    SubMenu:
+        id: usage_menu
+        text: '~S~izes'
+        tooltip: "Sort, re-read and erase what the directory sizes list"
+        after: 'File'
+        MenuItem:
+            text: '~R~e-read'
+            command: Rescan
+            key: 'Ctrl-R'
+        MenuLine:
+        MenuItem:
+            text: 'Sort by ~n~ame'
+            command: UsageSortName
+            key: 'Ctrl-N'
+        MenuItem:
+            text: 'Sort by ~s~ize'
+            command: UsageSortSize
+            key: 'Ctrl-S'
+        MenuItem:
+            text: 'Sort by ~e~ntries'
+            command: UsageSortItems
+            key: 'Ctrl-E'
+        MenuItem:
+            text: '~A~pparent size'
+            tooltip: "The bytes files hold rather than the room they take on the disk"
+            command: ToggleApparentSize
+            key: 'Ctrl-A'
+        MenuLine:
+        MenuItem:
+            text: '~G~o to directory'
+            command: GoToUsage
+        MenuItem:
+            text: '~D~elete...'
+            command: Delete
+            key: 'F8'
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

@@ -3354,34 +3354,46 @@ class Manager(Window):
         the trash can did with ``Confirms := 0``: no dialog, and Yes to the
         questions on the way.  Without *dialog* the Delete dialog is left
         out, the caller having asked already."""
+        other = self.right if panel is self.left else self.left
+        if self.application is None or not entries:
+            return
+        done: list[Path] = []
+        try:
+            done = await self.erase_located(panel.location, entries, quiet=quiet, dialog=dialog)
+        finally:
+            panel.untag_paths(done)
+            panel.reload()
+            other.reload()
+
+    async def erase_located(self, here: Location, entries: list[Any], *, quiet: bool = False,
+                            dialog: bool = True) -> list[Any]:
+        """*entries*, named in the directory *here*, erased as F8 erases them
+        -- the dialog, the Trash, the questions; what went in full.  What
+        :meth:`erase_entries` does for a panel, for a window that lists files
+        without being one (Disk > Directory sizes), which reads the panels
+        again itself."""
         from navigator.lib.file_ops import fileerase
         from navigator.widgets.file_ops.delete_dialog import DeleteDialog
 
         app = self.application
-        other = self.right if panel is self.left else self.left
         if app is None or not entries:
-            return
+            return []
         # *Erase single file* and *Erase multiple files* in Confirmations
         # (``cfSingleErase``, ``cfMultiErase``): unticked, there is no dialog,
         # and so no *Recursive delete* either -- a non-empty directory is
         # then asked about below, if that is ticked.
         confirms = SETTINGS.confirmations
-        trash = self._trashes(panel, entries)
+        trash = SETTINGS.file_manager.use_trash and all(
+            Location.of(entry.path_in(here)).is_local for entry in entries)
         if dialog and not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
-            request = await DeleteDialog(entries=entries, here=panel.location, trash=trash).execute(app)
+            request = await DeleteDialog(entries=entries, here=here, trash=trash).execute(app)
         else:
             request = fileerase.EraseRequest(
-                sources=[shown(panel.entry_location(entry)) for entry in entries], trash=trash,
+                sources=[shown(entry.path_in(here)) for entry in entries], trash=trash,
             )
         if request is None:
-            return
-        done: list[Path] = []
-        try:
-            done = await self._run_erase(request, quiet=quiet)
-        finally:
-            panel.untag_paths(done)
-            panel.reload()
-            other.reload()
+            return []
+        return await self._run_erase(request, quiet=quiet)
 
     @staticmethod
     def _trashes(panel: Panel, entries: list[Any]) -> bool:

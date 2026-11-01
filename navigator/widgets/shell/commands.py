@@ -161,6 +161,51 @@ class OpenVolumesWindow(Command):
     title = "Volumes"
 
 
+class OpenUsageWindow(Command):
+    """Disk > Directory sizes: what takes the room under the active panel's
+    directory, biggest first, as ``ncdu`` shows it.
+
+    Not DOS Navigator's -- a departure, asked for, recorded in
+    ``navigator/lib/file_ops/dirusage.py``: DN counted a directory's bytes
+    (Alt+G, *Directory length*, the tree window's info line) but never ranked
+    what is in one by them.
+    """
+
+    title = "Directory sizes"
+
+
+class UsageSortSize(Command):
+    """Directory sizes > *Sort by size* (Ctrl+S); again, the other way round."""
+
+    title = "Size"
+
+
+class UsageSortName(Command):
+    """Directory sizes > *Sort by name* (Ctrl+N); again, the other way round."""
+
+    title = "Name"
+
+
+class UsageSortItems(Command):
+    """Directory sizes > *Sort by entries* (Ctrl+E): how many are under each; again, the other way round."""
+
+    title = "Entries"
+
+
+class ToggleApparentSize(Command):
+    """Directory sizes > *Apparent size* (Ctrl+A): the bytes files say they
+    hold, or the room they take on the disk (``ncdu``'s ``a``)."""
+
+    title = "Apparent"
+
+
+class GoToUsage(Command):
+    """Directory sizes > *Go*: the active panel to the directory under the
+    cursor, or to a file's directory with the cursor on the file."""
+
+    title = "Go"
+
+
 class ToggleMarkBySpace(Command):
     """Space with the command line empty: :class:`ToggleMark`.
 
@@ -348,6 +393,12 @@ __all__ = [
     "NewManager",
     "OpenTreeWindow",
     "OpenVolumesWindow",
+    "OpenUsageWindow",
+    "UsageSortSize",
+    "UsageSortName",
+    "UsageSortItems",
+    "ToggleApparentSize",
+    "GoToUsage",
     "MountVolume",
     "UnmountVolume",
     "EjectVolume",

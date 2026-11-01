@@ -100,6 +100,8 @@ _WIDGETS = {
     "SystemSetupPage": "setup.system_setup_page",
     "TreeWindow": "tree.tree_window",
     "VolumesWindow": "shell.volumes_window",
+    "UsageList": "shell.usage_list",
+    "UsageWindow": "shell.usage_window",
     "SyncList": "manager.sync_list",
     "SyncWindow": "manager.sync_window",
     "ViewerFindDialog": "viewer.viewer_find_dialog",
@@ -172,6 +174,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.shell import Shell
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.shell.volumes_window import VolumesWindow
+    from navigator.widgets.shell.usage_list import UsageList
+    from navigator.widgets.shell.usage_window import UsageWindow
     from navigator.widgets.manager.sync_list import SyncList
     from navigator.widgets.manager.sync_window import SyncWindow
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog

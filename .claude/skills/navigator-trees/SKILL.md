@@ -1,6 +1,6 @@
 ---
 name: navigator-trees
-description: Directory trees -- navml's TreeView/TreeNode, Navigator's DirectoryTree (Ctrl+T in the passive panel), Alt+T Choose Directory (TTreeDialog, change_dir_dialog), Disk > Directory tree window (TTreeWindow, tree_window), Disk > Volumes (VolumesWindow, VolumeList, navigator/lib/system/volumes.py), tree quick search (Ctrl+S, path-based), and hidden-file handling in trees. Use when working on any tree view.
+description: Directory trees -- navml's TreeView/TreeNode, Navigator's DirectoryTree (Ctrl+T in the passive panel), Alt+T Choose Directory (TTreeDialog, change_dir_dialog), Disk > Directory tree window (TTreeWindow, tree_window), Disk > Volumes (VolumesWindow, VolumeList, navigator/lib/system/volumes.py), Disk > Directory sizes (ncdu's view: UsageWindow, UsageList, navigator/lib/file_ops/dirusage.py), tree quick search (Ctrl+S, path-based), and hidden-file handling in trees. Use when working on any tree view.
 ---
 
 # Trees
@@ -77,6 +77,20 @@ Slots `[94-101]`, `[104-110]`.
   window's tree, Alt+T's) it offers none and the click goes on out, so the Tree window's own menu still answers.
   The menu takes the keyboard (Quick search needs it), so *Close tree* hands it to the panel put back, DN's
   `SwitchView`. Tests aim at a row that is painted: the tree reads from `/`, and where it scrolls depends on /tmp.
+
+- **Disk > Directory sizes** (`OpenUsageWindow`, `UsageWindow`, `UsageList`; a departure, asked for -- DN had Alt+G
+  and the tree's info line, never a ranking) is `ncdu`'s view, laid out as Volumes. `dirusage.scan` walks the whole
+  tree once into `UsageNode`s on `Background("nav-usage")`, a `call_every` timer showing the `UsageJob`'s counters;
+  only the newest scan (`_scans`) lands, and closing or Ctrl+R stops the one under way. Rules beyond `dirlength`'s:
+  a directory's own size counts, another `st_dev` is listed but not entered (`other_fs`, `ncdu -x`; remote drives say
+  0 so never), a hard link counts once (`hardlink`). Both `size` (apparent) and `usage` (`st_blocks`*512) are kept;
+  Ctrl+A or the box picks one. Enter/Right descend, Backspace/Left/`..` ascend, all in memory. Sorting is Ctrl+N/
+  Ctrl+S/Ctrl+E (name/size/entries; again reverses) -- **not Ctrl+F3..F5**, which *New manager*, the desktop's close
+  and size/move hold. F8/Del goes through `Manager.erase_located` (F8's dialog, Trash, questions, As root; factored
+  out of `erase_entries`), then `dirusage.remove` takes it off the totals with no rescan; the window is given the
+  manager as SyncWindow is. *Go* (`GoToUsage`) sends the active panel there (a file: `Panel.go_to_entry`) and closes;
+  Enter on a file does it and stays. Its menu *~S~izes* ticks the sort and *Apparent size*; in lv, *~G~o to directory*
+  and *~D~elete...* stand where *~G~o*/*~D~elete* would share a hotkey with *Re-read*/*Close*.
 
 ## Read when
 

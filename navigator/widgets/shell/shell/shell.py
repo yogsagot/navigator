@@ -90,6 +90,7 @@ from navigator.widgets.shell.commands import (
     OpenEdit,
     OpenTreeWindow,
     OpenView,
+    OpenUsageWindow,
     OpenVolumesWindow,
     SetupConfirmation,
     Settings,
@@ -3037,6 +3038,16 @@ class Shell(DockLayout):
         from navigator.widgets.shell.volumes_window import VolumesWindow
 
         self.desktop.open(VolumesWindow())
+        return True
+
+    async def on_open_usage_window(self, event: OpenUsageWindow) -> bool:
+        """Disk > Directory sizes: what takes the room under the active panel's
+        directory -- on whatever drive it is -- in a window."""
+        from navigator.widgets.shell.usage_window import UsageWindow
+
+        manager = self.active_manager
+        panel = manager.active_panel if manager is not None else None
+        self.desktop.open(UsageWindow(start=panel.location if panel is not None else None, manager=manager))
         return True
 
     async def on_chosen(self, event: Any) -> bool:
