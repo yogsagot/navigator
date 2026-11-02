@@ -24,7 +24,7 @@ from conftest import Until, run_app
 
 from navigator.lib.drives import Location, Site
 from navigator.lib.drives.sessions import SESSIONS, Answers, NeedPassword
-from navigator.lib.system import gio, volumes
+from navigator.lib.system import desktop as desktop_module, gio, kio, volumes
 from navigator.lib.system.volumes import Volume
 from navigator.settings import SETTINGS
 
@@ -443,6 +443,8 @@ def desktop(tmp_path, monkeypatch):
     monkeypatch.setattr(gio, "program", lambda which=None: "/usr/bin/gio")
     monkeypatch.setenv("DISPLAY", ":0")
     monkeypatch.setattr(gio, "open_file", lambda path: opened.append(Path(path)))
+    # The machine's own xdg-open must not open the file when a test takes gio away.
+    monkeypatch.setattr(desktop_module, "xdg_open", lambda which=None: None)
     return navigator(tmp_path), opened
 
 
@@ -468,6 +470,68 @@ def test_enter_leaves_it_alone_without_the_setting_a_display_or_gio(desktop, mon
         monkeypatch.setattr(gio, "program", lambda which=None: None)
     run_app(app, [to("picture.png"), KeyEvent("enter"), lambda a: None, lambda a: None])
     assert opened == [] and app.modal is None
+
+
+@pytest.fixture
+def xdg_only(desktop, monkeypatch):
+    """The desktop fixture with neither gio nor kioclient, and xdg-open recording what it is given."""
+    handed = []
+    monkeypatch.setattr(gio, "program", lambda which=None: None)
+    monkeypatch.setattr(kio, "program", lambda which=None: None)
+    monkeypatch.setattr(desktop_module, "xdg_open", lambda which=None: "/usr/bin/xdg-open")
+    monkeypatch.setattr(desktop_module, "run_xdg_open", lambda xdg, path: handed.append((xdg, Path(path))))
+    return desktop[0], handed
+
+
+def test_with_neither_gio_nor_kio_enter_falls_back_to_xdg_open(xdg_only, tmp_path):
+    from test_associations import to
+
+    app, handed = xdg_only
+    run_app(app, [to("picture.png"), KeyEvent("enter"), Until(lambda a: handed)])
+    assert handed == [("/usr/bin/xdg-open", tmp_path / "picture.png")]
+
+
+@pytest.mark.parametrize("why", ["off", "missing"])
+def test_xdg_open_is_not_used_when_the_plumbing_is_off_or_it_is_missing(xdg_only, monkeypatch, why):
+    from test_associations import to
+
+    app, handed = xdg_only
+    if why == "off":
+        SETTINGS.system.desktop_vfs = "off"
+    else:
+        monkeypatch.setattr(desktop_module, "xdg_open", lambda which=None: None)
+    run_app(app, [to("picture.png"), KeyEvent("enter"), lambda a: None, lambda a: None])
+    assert handed == [] and app.modal is None
+
+
+def test_open_with_stays_greyed_out_with_only_xdg_open(xdg_only):
+    from test_associations import to
+    from navigator.widgets.manager.commands import OpenWith
+
+    app, _ = xdg_only
+    seen = []
+    run_app(app, [to("picture.png"), lambda a: seen.append(a.command_enabled(OpenWith(), a.focused))])
+    assert seen == [False]
+
+
+def test_xdg_open_says_its_failure(tmp_path):
+    script = tmp_path / "xdg-open"
+    script.write_text("#!/bin/sh\necho 'xdg-open: no method available for opening' >&2\nexit 3\n")
+    script.chmod(0o755)
+    with pytest.raises(OSError) as raised:
+        desktop_module.run_xdg_open(str(script), tmp_path / "picture.png")
+    assert raised.value.strerror == "xdg-open: no method available for opening"
+
+
+def test_xdg_open_is_left_running_once_it_has_not_failed(tmp_path):
+    import time
+
+    script = tmp_path / "xdg-open"
+    script.write_text(f"#!/bin/sh\nsleep 5\ntouch {tmp_path / 'late'}\n")
+    script.chmod(0o755)
+    began = time.monotonic()
+    desktop_module.run_xdg_open(str(script), tmp_path / "picture.png", wait=0.2)
+    assert time.monotonic() - began < 2 and not (tmp_path / "late").exists()
 
 
 def test_open_with_lists_the_applications_and_launches_the_one_chosen(desktop, tmp_path, monkeypatch):

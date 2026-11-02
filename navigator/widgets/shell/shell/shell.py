@@ -1844,14 +1844,14 @@ class Shell(DockLayout):
     def desktop_opens() -> bool:
         """Whether Enter on a file ``extensions.ini`` has nothing for opens it
         in the desktop's application: *Pass other files to desktop* on, and
-        ``gio`` or KIO and a display to open it on."""
+        ``gio``, KIO or ``xdg-open`` and a display to open it on."""
         from navigator.lib.system import desktop
 
-        return SETTINGS.file_manager.open_unassociated and desktop.program() is not None and desktop.graphical()
+        return SETTINGS.file_manager.open_unassociated and desktop.opener() is not None and desktop.graphical()
 
     async def open_on_desktop(self, path: Path) -> bool:
         """*path* opened in the desktop's default application for its type
-        (``gio open``, ``kioclient exec``) -- not DN's, where a file
+        (``gio open``, ``kioclient exec``, else ``xdg-open``) -- not DN's, where a file
         ``DN.EXT`` had no line for did nothing; nor here with *Pass other
         files to desktop* off.  A failure is said.  True when it was handed over."""
         from navigator.lib.system import desktop

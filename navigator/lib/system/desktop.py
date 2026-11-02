@@ -18,11 +18,21 @@ udisks2's own ``udisksctl`` (:mod:`navigator.lib.system.udisks`) -- with
 ``off`` too, as udisks2 is the system's, not the desktop's plumbing.
 :func:`volumes`, :func:`mount_device`, :func:`unmount` and :func:`eject`
 ask it.
+
+Enter alone has a last resort: with neither installed (and the setting not
+``off``), :func:`open_file` hands the file to freedesktop's ``xdg-open``
+(``xdg-utils``), which knows the default application and nothing else, so
+*Open with* stays greyed out.  :func:`opener` is what Enter asks.
 """
 
 from __future__ import annotations
 
+import errno
 import os
+import shutil
+import subprocess
+import tempfile
+from collections.abc import Callable
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -93,8 +103,59 @@ def _module() -> ModuleType:
     return module
 
 
+#: How long ``xdg-open`` is watched for failing before it is left to run.
+XDG_OPEN_WAIT = 2.0
+
+
+def xdg_open(which: Callable[[str], str | None] | None = None) -> str | None:
+    """The ``xdg-open`` to run, or None: not installed.  Looked up at the call,
+    as :func:`navigator.lib.system.gio.program` is."""
+    return (which or shutil.which)("xdg-open")
+
+
+def opener() -> str | None:
+    """The program Enter opens a file with: the backend's, else ``xdg-open``
+    unless ``[system] desktop_vfs`` is ``off``; None for nothing."""
+    from navigator.settings import SETTINGS
+
+    found = program()
+    if found is None and SETTINGS.system.desktop_vfs != "off":
+        found = xdg_open()
+    return found
+
+
 def open_file(path: Path | str) -> None:
-    _module().open_file(path)
+    module = backend()
+    if module is not None:
+        module.open_file(path)
+        return
+    xdg = opener()
+    if xdg is None:
+        raise OSError(errno.ENOENT, missing())
+    run_xdg_open(xdg, path)
+
+
+def run_xdg_open(xdg: str, path: Path | str, wait: float = XDG_OPEN_WAIT) -> None:
+    """*path* handed to ``xdg-open``, which, unlike ``gio open``, may run the
+    application itself until it is closed: so it is watched for *wait*
+    seconds for a failure to say, then left running, in a session of its own
+    and away from the terminal, which is the console's."""
+    # A file, not a pipe: an application still running when this returns
+    # must not die of a write to a closed pipe.
+    with tempfile.TemporaryFile() as errors:
+        process = subprocess.Popen(
+            [xdg, str(path)], stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=errors,
+            start_new_session=True,
+        )
+        try:
+            code = process.wait(wait)
+        except subprocess.TimeoutExpired:
+            return
+        errors.seek(0)
+        err = errors.read().decode("utf-8", "replace")
+    if code != 0:
+        lines = [line.strip() for line in err.splitlines() if line.strip()]
+        raise OSError(errno.EIO, lines[-1] if lines else f"xdg-open failed ({code})")
 
 
 def content_type(path: Path | str) -> str:
@@ -161,6 +222,6 @@ def link_schemes() -> dict[str, str]:
 
 __all__ = [
     "App", "applications", "backend", "content_type", "eject", "graphical", "kde_session", "launch",
-    "link_name", "link_schemes", "missing", "mount_device", "name", "open_file", "program", "trash",
-    "unmount", "volume_backend", "volume_program", "volumes",
+    "link_name", "link_schemes", "missing", "mount_device", "name", "open_file", "opener", "program", "run_xdg_open",
+    "trash", "unmount", "volume_backend", "volume_program", "volumes", "xdg_open",
 ]

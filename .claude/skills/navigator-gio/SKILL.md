@@ -64,7 +64,13 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
 - `Shell.on_open_file` → `_open_here`: `extensions.ini` first (`run_associated`); nothing there →
   `open_on_desktop(path)` (`gio open`).
 - `desktop_opens()` requires all three: `[file_manager] open_unassociated` on (File Manager Setup's *Pass other files
-  to desktop*, default on), `gio`, and a display. Otherwise nothing happens, as in DN.
+  to desktop*, default on), `desktop.opener()` (`gio`/KIO, else `xdg-open` unless `desktop_vfs = off`), and a display.
+  Otherwise nothing happens, as in DN.
+- **`xdg-open`, the last resort** (`desktop.run_xdg_open`): Enter only; *Open with* still needs `program()`, as
+  xdg-open lists no applications. Its generic path may run the application in the foreground until it is closed, so
+  it is not run to its end like `gio open`: DEVNULL in and out, stderr to a temp file (never a pipe, which would
+  SIGPIPE an application still writing), a session of its own, watched `XDG_OPEN_WAIT` seconds for a non-zero exit
+  (its last stderr line is the error), then left running.
 - **A file on another drive** (`_open_elsewhere`): the `UseFile` copy is opened and **left in place**. Nothing waits
   for a desktop application, so nothing is sent back. The private temp dir goes at exit.
 - **File > Open with** and the panel's right-click *Open with* (`OpenWith`, `Manager.on_open_with` →

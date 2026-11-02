@@ -657,7 +657,8 @@ class FMSetupData(Section):
     #: (navigator.lib.file_ops.trash), off as DN's behaviour is.
     use_trash: bool = Setting(False, doc="F8 moves files on the disk to the Trash")
     #: Not DN's, where Enter on a file DN.EXT had no line for did nothing:
-    #: the desktop's default application, through ``gio open``.
+    #: the desktop's default application, through ``gio open`` (or KIO's, or
+    #: ``xdg-open`` with neither).
     open_unassociated: bool = Setting(
         True, doc="Enter on a file extensions.ini has no section for opens it in the desktop's application",
     )
