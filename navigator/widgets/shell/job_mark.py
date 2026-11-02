@@ -1,11 +1,12 @@
 """The menu bar's mark of operations in the background, just before the window strip's chips.
 
 Not DN's, whose copies held the screen (``navigator.lib.system.background``).
-While a copy or an erase is in the background the bar says how far it is --
-`` 42% ``, or `` 2:37% `` for two, each counted by its own fraction -- and
-`` ?42% `` in the error box's colours (``JobMark:asking``) while one has a
-question waiting.  A click, or Window > *Background operation*, brings a box
-back: one with a question first, else the newest.
+While a copy or an erase is in the background the bar says how far it is:
+`` 42% ``, and one segment each for more -- `` 10%|20% ``, oldest first --
+each its own tooltip and its own click, which brings that one's box back.
+A segment whose work has a question waiting reads ``?20%`` in the error
+box's colours (``JobMark::job:asking``).  Window > *Background operation*
+brings a box back too: one with a question first, else the newest.
 """
 
 from __future__ import annotations
@@ -21,22 +22,40 @@ from navkit.screen import Surface
 from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
-from navigator.lib.system.background import BACKGROUND
+from navigator.lib.system.background import BACKGROUND, Running
 from navigator.widgets.shell.commands import ShowBackground
+
+#: Between two segments.
+SEPARATOR = "|"
+
+
+def segment(entry: Running) -> str:
+    """``42%``, or ``?42%`` while *entry* has a question waiting."""
+    return f"{'?' if entry.asking else ''}{entry.percent}%"
+
+
+def segments() -> list[tuple[int, str, Running]]:
+    """``(start, text, entry)`` for each operation, oldest first, after the leading space."""
+    found: list[tuple[int, str, Running]] = []
+    x = 1
+    for entry in BACKGROUND.jobs:
+        text = segment(entry)
+        found.append((x, text, entry))
+        x += display_width(text) + display_width(SEPARATOR)
+    return found
 
 
 def caption() -> str:
     """What the mark says now; ``""`` with nothing in the background."""
-    jobs = BACKGROUND.jobs
-    if not jobs:
+    if not BACKGROUND.jobs:
         return ""
-    mark = "?" if BACKGROUND.asking else ""
-    count = f"{len(jobs)}:" if len(jobs) > 1 else ""
-    return f" {mark}{count}{BACKGROUND.percent()}% "
+    return f" {SEPARATOR.join(text for _, text, _ in segments())} "
 
 
 class JobMark(Widget):
     """:func:`caption` over the bar's row, while anything is in the background."""
+
+    parts = ("job",)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -52,30 +71,51 @@ class JobMark(Widget):
         """As wide as :func:`caption` is now."""
         return display_width(caption())
 
-    @computed
-    def asking(self) -> bool:
-        """A question waits: the ``asking`` state its colours follow."""
-        return BACKGROUND.asking
+    def entry_at(self, column: int) -> Running | None:
+        """The operation whose segment is under *column*: the space before
+        the first goes with it, and the one after the last with that."""
+        found = segments()
+        if not found:
+            return None
+        for start, text, entry in found:
+            # A separator goes with the segment after it.
+            if column < start + display_width(text):
+                return entry
+        return found[-1][2]
 
     def tooltip_at(self, x: int, y: int) -> str:
-        """Each operation, how far it is, whether it waits; and how to bring one back."""
-        lines = []
-        for entry in BACKGROUND.jobs:
-            if entry.asking:
-                lines.append(tr("{operation}: waiting for an answer").format(operation=entry.title))
-            else:
-                lines.append(tr("{operation}: {percent}% done").format(operation=entry.title, percent=entry.percent))
+        """The operation under *x*: what it was started on and how far it is,
+        or that it waits; the file it is on; and how to bring it back."""
+        entry = self.entry_at(x)
+        if entry is None:
+            return super().tooltip_at(x, y)
+        if entry.asking:
+            line = tr("{operation}: waiting for an answer").format(operation=entry.subject)
+        else:
+            line = tr("{operation}: {percent}% done").format(operation=entry.subject, percent=entry.percent)
         app = self.application
         key = commands.key_for(app, ShowBackground) if app is not None else None
-        lines.append(with_keys(tr("Click to bring the box back"), commands.key_label(key) if key else ""))
-        return tooltip.lines(*lines)
+        # The file in hand indented under it, as the box's row would name it.
+        return tooltip.lines(line, f"  {entry.current}" if entry.current else "",
+                             with_keys(tr("Click to bring the box back"), commands.key_label(key) if key else ""))
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if event.button != "left" or event.action != "press":
             return False
-        BACKGROUND.recall()
+        entry = self.entry_at(event.x)
+        if entry is None:
+            return False
+        BACKGROUND.recall(entry)
         return True
 
     def render(self, surface: Surface) -> None:
-        surface.fill(0, 0, self.width, self.height, " ", self.style)
-        surface.draw_text(0, 0, caption(), self.style)
+        style = self.style
+        surface.fill(0, 0, self.width, self.height, " ", style)
+        runs: list[tuple[str, Any]] = [(" ", style)]
+        for index, (_, text, entry) in enumerate(segments()):
+            if index:
+                runs.append((SEPARATOR, style))
+            runs.append((text, self.part_style("job", asking=entry.asking)))
+        runs.append((" ", style))
+        if BACKGROUND.jobs:
+            surface.draw_runs(0, 0, runs, self.width)

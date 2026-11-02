@@ -32,12 +32,17 @@ class Running:
     total: int = reactive(0)
     #: The worker has a question and waits for the box to come back.
     asking: bool = reactive(False)
+    #: The file it is on now, as its box's row names it.
+    current: str = reactive("")
 
-    def __init__(self, job: Any, title: str, owner: Background | None = None) -> None:
+    def __init__(self, job: Any, title: str, owner: Background | None = None, subject: str = "") -> None:
         self._owner = owner
         #: The worker's :class:`~navigator.lib.system.job.Job`, for quitting to stop.
         self.job = job
         self.title = title
+        #: What was started, fixed when it went away: *Copy photos to
+        #: /mnt/backup*, *Erase 3 files*; the title where there is no more.
+        self.subject = subject or title
         #: Set when the user asks for the box back; its watcher waits on it.
         self.recalled = asyncio.Event()
 
@@ -70,8 +75,8 @@ class Background:
         if self.listener is not None:
             self.listener()
 
-    def add(self, job: Any, title: str) -> Running:
-        entry = Running(job, title, self)
+    def add(self, job: Any, title: str, subject: str = "") -> Running:
+        entry = Running(job, title, self, subject)
         self.jobs = (*self.jobs, entry)
         return entry
 
@@ -82,13 +87,6 @@ class Background:
     @property
     def asking(self) -> bool:
         return any(entry.asking for entry in self.jobs)
-
-    def percent(self) -> int:
-        """How far they all are together.  Bytes and entries do not add up,
-        so each counts by its own fraction, weighted alike."""
-        if not self.jobs:
-            return 0
-        return sum(entry.percent for entry in self.jobs) // len(self.jobs)
 
     def recall(self, entry: Running | None = None) -> bool:
         """Bring *entry*'s box back -- by default one with a question, else

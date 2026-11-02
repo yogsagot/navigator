@@ -104,6 +104,30 @@ def test_a_box_has_background_only_when_its_watcher_can_let_it_go(box_class, sto
 # -- the registry --------------------------------------------------------------------
 
 
+def test_the_subject_names_what_was_started():
+    from navigator.widgets.manager.manager.manager import job_subject
+
+    one, two = [Path("/home/u/photos")], [Path("/home/u/a"), Path("/home/u/b")]
+    assert job_subject("copy", one, "/mnt/backup/") == "Copy photos to /mnt/backup"
+    assert job_subject("move", two, "/mnt/backup") == "Move 2 files to /mnt/backup"
+    assert job_subject("erase", one) == "Erase photos"
+    assert job_subject("erase", two) == "Erase 2 files"
+    assert job_subject("copy", [], "/x") == ""
+    # The root is still a target.
+    assert job_subject("copy", one, "/") == "Copy photos to /"
+
+
+def test_the_file_in_hand_is_named_from_where_the_sources_are():
+    from navigator.widgets.manager.manager.manager import relative_to, source_base
+
+    base = source_base([Path("/home/u/photos")])
+    assert base == "/home/u"
+    assert relative_to("/home/u/photos/2019/a.jpg", base) == "photos/2019/a.jpg"
+    assert relative_to("/elsewhere/a.jpg", base) == "/elsewhere/a.jpg"
+    assert relative_to("/home/user2/a.jpg", base) == "/home/user2/a.jpg"
+    assert relative_to("/a", "") == "/a"
+
+
 def test_the_mark_counts_and_flags_a_question():
     assert caption() == ""
 
@@ -118,9 +142,9 @@ def test_the_mark_counts_and_flags_a_question():
     assert caption() == " 50% "
     second = BACKGROUND.add(Job(), "Erase")
     second.done, second.total = 1, 10
-    assert caption() == " 2:30% "
+    assert caption() == " 50%|10% "
     second.asking = True
-    assert caption() == " ?2:30% "
+    assert caption() == " 50%|?10% "
     BACKGROUND.recall()
     assert second.recalled.is_set() and not first.recalled.is_set()
     BACKGROUND.stop_all()
@@ -128,6 +152,33 @@ def test_the_mark_counts_and_flags_a_question():
     BACKGROUND.remove(first)
     BACKGROUND.remove(second)
     assert caption() == ""
+
+
+def test_each_segment_has_its_own_click_and_tooltip(two):
+    a, b = two
+    jobs = []
+
+    async def steps(app, shell):
+        for title, done in (("Copy", 10), ("Erase", 2)):
+            entry = BACKGROUND.add(object(), title)
+            entry.done, entry.total = done, 10 if title == "Erase" else 100
+            jobs.append(entry)
+        await asyncio.sleep(0.05)
+        mark = shell.job_mark
+        # " 10%|20% ": the first segment and the space before it, then the
+        # separator with the second, and the space after it.
+        owners = [mark.entry_at(x) for x in range(mark.width)]
+        tips = (mark.tooltip_at(1, 0), mark.tooltip_at(6, 0))
+        await mark.on_mouse_click(MouseClickEvent(6, 0, button="left"))
+        recalled = [entry.recalled.is_set() for entry in jobs]
+        return mark.width, owners, tips, recalled
+
+    width, owners, (first, second), recalled = run_shell(a, b, steps)
+    assert width == len(" 10%|20% ")
+    assert owners == [jobs[0]] * 4 + [jobs[1]] * 5
+    assert first.splitlines()[0] == "Copy: 10% done"
+    assert second.splitlines()[0] == "Erase: 20% done"
+    assert recalled == [False, True]
 
 
 # -- end to end ----------------------------------------------------------------------
@@ -157,6 +208,7 @@ def test_background_takes_the_box_down_and_the_end_is_toasted(two, monkeypatch):
             # One window: no chips, so the mark keeps to the strip's end.
             "end": (shell.job_mark.x + shell.job_mark.width, shell.window_strip.x + shell.window_strip.width),
             "title": BACKGROUND.jobs[0].title,
+            "tip": shell.job_mark.tooltip_at(1, 0).splitlines()[:2],
         }
         release.set()
         await wait_for(lambda: not BACKGROUND.jobs)
@@ -169,6 +221,7 @@ def test_background_takes_the_box_down_and_the_end_is_toasted(two, monkeypatch):
     seen = run_shell(a, b, steps)
     assert seen["modal"] is None and seen["visible"]
     assert seen["caption"] == " 40% " and seen["title"] == "Erase"
+    assert seen["tip"] == ["Erase one.txt: 40% done", "  one.txt"]
     assert seen["strip"] == seen["mark"] == len(" 40% ")
     assert seen["end"][0] == seen["end"][1]
     assert seen["toast"] == ("Erase", "Finished")

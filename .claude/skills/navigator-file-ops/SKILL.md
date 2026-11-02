@@ -124,7 +124,11 @@ by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Resto
   worker blocked on its future, until `BACKGROUND.recall()` (the mark's click, Window > *Background operation*,
   `ShowBackground`) sets `recalled`; the box comes back up and then the question is put. Never a dialog over
   whatever the user is doing.
-- **The mark** (`navigator/widgets/shell/job_mark.py`, `JobMark`): ` 42% `, ` 2:37% `, ` ?42% ` (`JobMark:asking`),
+- **The mark** (`navigator/widgets/shell/job_mark.py`, `JobMark`): ` 42% `, one segment a job oldest first (` 10%|?20% `), each its own
+  tooltip and click (`entry_at`, `BACKGROUND.recall(entry)`). The tooltip names the work by its `subject`
+  (`job_subject`: *Copy photos to /mnt/backup*, *Erase 3 files*; fixed when it went away) and, indented under it, the
+  file in hand (`current`, from *background*'s third value, `relative_to` the sources' directory) -- a snapshot,
+  as every tooltip is read once when it appears; `?` and `JobMark::job:asking` mark a waiting question,
   right-aligned just before the window strip's first chip (`Shell.strip_start()`, from the strip's `chips()`/`hidden()`; with no chips or no strip,
   just before *ROOT*/the clock). The strip's `x` gives up the mark's width at its left while it shows, so the mark
   never reaches the menus.

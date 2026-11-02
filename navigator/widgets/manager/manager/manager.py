@@ -3201,7 +3201,9 @@ class Manager(Window):
         job = filecopy.CopyJob()
         work = asyncio.ensure_future(asyncio.to_thread(filecopy.run, request, job, here))
         try:
-            await self._watch_copy(work, job, move)
+            await self._watch_copy(work, job, move, subject=job_subject(
+                "move" if move else "copy", request.sources, request.target),
+                base=source_base(request.sources))
             done = await work
         finally:
             if not work.done():
@@ -3220,7 +3222,8 @@ class Manager(Window):
             app.bell()
         return not job.stopped
 
-    async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool) -> None:
+    async def _watch_copy(self, work: asyncio.Future[Any], job: Any, move: bool, *,
+                          subject: str = "", base: str = "") -> None:
         """The copy's progress box, *Stop*, and the worker's questions, until *work* ends."""
         from navigator.lib.system.progress import Rate
         from navigator.widgets.file_ops.copy_progress import CopyProgress
@@ -3244,12 +3247,12 @@ class Manager(Window):
             box.speed = -1.0 if speed is None else speed
             box.left = -1.0 if left is None else left
 
-        def far() -> tuple[int, int]:
-            return job.done_bytes, job.total_bytes
+        def far() -> tuple[int, int, str]:
+            return job.done_bytes, job.total_bytes, relative_to(job.source, base)
 
         await self._watch_job(
             work, job, lambda: CopyProgress(move=move), refresh, self._answer_copy_question,
-            background=far, title=tr("Rename/move") if move else tr("Copy"),
+            background=far, title=tr("Rename/move") if move else tr("Copy"), subject=subject,
         )
 
     async def _watch_job(
@@ -3261,8 +3264,9 @@ class Manager(Window):
         answer: Callable[[Any], Awaitable[Any]],
         abort: str | None = None,
         *,
-        background: Callable[[], tuple[int, int]] | None = None,
+        background: Callable[[], tuple[int, int, str]] | None = None,
         title: str = "",
+        subject: str = "",
     ) -> None:
         """A worker's progress box, its one button, and its questions, until *work* ends.
 
@@ -3272,8 +3276,8 @@ class Manager(Window):
         The box closing -- its button, or Esc -- holds the worker and asks
         ``dlQueryAbort`` before anything stops.
 
-        With *background* -- the job's done and total, for the menu bar's
-        mark -- the box has *Background* too (a departure; DN's boxes held
+        With *background* -- the job's done, total and current file, for the
+        menu bar's mark and its tooltip, which names the work by *subject* -- the box has *Background* too (a departure; DN's boxes held
         the screen).  Pressed, the box comes down and the work goes on,
         registered in ``BACKGROUND`` under *title*: a question then waits,
         the mark showing it, until the box is called back
@@ -3301,7 +3305,7 @@ class Manager(Window):
             if box is not None:
                 refresh(box)
             elif away is not None and background is not None:
-                away.done, away.total = background()
+                away.done, away.total, away.current = background()
 
         def show() -> None:
             nonlocal box, shown, seen
@@ -3347,8 +3351,9 @@ class Manager(Window):
                 if shown is not None and shown.done():
                     if not shown.cancelled() and shown.result() is AWAY:
                         box, shown = None, None
-                        away = BACKGROUND.add(job, title)
-                        away.done, away.total = background() if background is not None else (0, 0)
+                        away = BACKGROUND.add(job, title, subject)
+                        if background is not None:
+                            away.done, away.total, away.current = background()
                         recall = asyncio.ensure_future(away.recalled.wait())
                         continue
                     # *Stop*, or Esc: ``dlQueryAbort`` before anything stops.
@@ -3519,6 +3524,7 @@ class Manager(Window):
         from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
         job = fileerase.EraseJob()
+        base = source_base(request.sources)
         work = asyncio.ensure_future(asyncio.to_thread(fileerase.run, request, job))
         rate = Rate()
         loop = asyncio.get_running_loop()
@@ -3535,7 +3541,8 @@ class Manager(Window):
         try:
             await self._watch_job(work, job, DeleteProgress, refresh,
                                   lambda question: self._answer_erase_question(question, quiet=quiet),
-                                  background=lambda: (job.done, max(1, job.total)), title=tr("Erase"))
+                                  background=lambda: (job.done, max(1, job.total), relative_to(job.path, base)),
+                                  title=tr("Erase"), subject=job_subject("erase", request.sources))
             return await work
         finally:
             if not work.done():
@@ -4992,6 +4999,40 @@ def sort_order_captions() -> list[str]:
     captions = dict(zip(SORT_MODES, sort_captions()))
     return [captions[mode].replace("~", "") if reverse else captions[mode]
             for mode, reverse in sort_orders()]
+
+
+def job_subject(kind: str, sources: Sequence[Any], target: str = "") -> str:
+    """What a copy, a move or an erase sent to the background was started on,
+    for its tooltip: *Copy photos to /mnt/backup*, *Erase 3 files*.  ``""``
+    with no *sources* (Synchronize's pairs), and the title stands in."""
+    if not sources:
+        return ""
+    target = target.rstrip("/") or target
+    if len(sources) == 1:
+        name = sources[0].name or str(sources[0])
+        if kind == "erase":
+            return tr("Erase {name}").format(name=name)
+        if kind == "move":
+            return tr("Move {name} to {target}").format(name=name, target=target)
+        return tr("Copy {name} to {target}").format(name=name, target=target)
+    n = len(sources)
+    if kind == "erase":
+        return tr_n("Erase {n} file", "Erase {n} files", n)
+    if kind == "move":
+        return tr_n("Move {n} file to {target}", "Move {n} files to {target}", n, target=target)
+    return tr_n("Copy {n} file to {target}", "Copy {n} files to {target}", n, target=target)
+
+
+def source_base(sources: Sequence[Any]) -> str:
+    """The directory *sources* are in, which the file in hand is named from."""
+    return str(sources[0].parent) if sources else ""
+
+
+def relative_to(path: str, base: str) -> str:
+    """*path* from *base* when it is under it, else whole."""
+    if base and path.startswith(base.rstrip("/") + "/"):
+        return path[len(base.rstrip("/")) + 1:]
+    return path
 
 
 def action_caption(action: str) -> str:
