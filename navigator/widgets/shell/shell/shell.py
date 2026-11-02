@@ -2826,11 +2826,49 @@ class Shell(DockLayout):
         self.root_mark.open = ELEVATION.running
 
     async def on_show_background(self, event: ShowBackground) -> bool:
-        """Window > *Background operation*: a box sent away put back up."""
+        """Window > *Background operation*: a box sent away put back up --
+        the one there is, or the one chosen from a list of them all."""
         from navigator.lib.system.background import BACKGROUND
 
-        BACKGROUND.recall()
+        if len(BACKGROUND.jobs) > 1:
+            self.spawn(self.choose_background())
+        else:
+            BACKGROUND.recall()
         return True
+
+    async def choose_background(self) -> None:
+        """Every operation in the background in a box, oldest first, as the
+        menu bar's mark lists them: what each was started on and how far it
+        is, or that it waits.  The cursor starts on one with a question,
+        else on the newest; the one chosen has its box back."""
+        from navml.widgets.dialog.control import escape_caption
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.lib.system.background import BACKGROUND
+
+        app = self.application
+        jobs = BACKGROUND.jobs
+        box_menu = SubMenu()
+        chosen_of = {}
+        for number, entry in enumerate(jobs, 1):
+            if entry.asking:
+                line = tr("{operation}: waiting for an answer").format(operation=entry.subject)
+            else:
+                line = tr("{operation}: {percent}% done").format(operation=entry.subject, percent=entry.percent)
+            # Numbered for a key each, as DN's lists of windows were.
+            hotkey = f"~{number}~ " if number < 10 else "  "
+            chosen_of[id(box_menu.add_item(hotkey + escape_caption(line)))] = entry
+        waiting = [index for index, entry in enumerate(jobs) if entry.asking]
+        title = tr("Background operations")
+        box = PopupMenu(box_menu, behind=self, title=title, current=waiting[0] if waiting else len(jobs) - 1)
+        width, height = PopupMenu.measure(box_menu, app, self, title)
+        box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
+        chosen = await box.execute(app)
+        entry = chosen_of.get(id(chosen)) if chosen is not None else None
+        # It may have ended while the box was up.
+        if entry is not None and entry in BACKGROUND.jobs:
+            BACKGROUND.recall(entry)
 
     def strip_start(self) -> int:
         """The column the window strip's chips begin at -- or its ``+k``

@@ -3731,7 +3731,7 @@ flag = "JP"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "裏処理"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "選択解除(~L~)"
@@ -3757,9 +3757,9 @@ flag = "JP"
 "Pinned" = "固定済み"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "クリックでボックスを戻す"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: 応答待ち"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: {percent}% 完了"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3777,6 +3777,8 @@ flag = "JP"
 "No file panels are open" = "ファイルパネルが開いていません"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "切断"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "バックグラウンド処理"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "開いている接続はありません"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3785,9 +3787,9 @@ flag = "JP"
 "~C~ommand..." = "コマンド(~C~)..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "動作の選択"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "ファイル表示履歴"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "ファイル編集履歴"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "キーはエディタが使用中です"
@@ -3807,9 +3809,9 @@ flag = "JP"
 "~C~ommand (!.! is the file; else it goes at the end)" = "コマンド(~C~) (!.! がファイル。なければ末尾に付加)"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "{protocol} リンク"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "表示履歴を記録"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "編集履歴を記録"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "シェルが補完できません"
@@ -3837,9 +3839,9 @@ flag = "JP"
 "Not a palette:\n{error}" = "パレットではありません:\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "矢印キーで範囲を移動\nShift+矢印キーで範囲のサイズを変更\n\n選択後 Enter で範囲の内容を\nクリップボードに入れます"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "ファイルの表示"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "ファイルの編集"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "パネル化先のファイル管理が開いていません"
@@ -3857,7 +3859,7 @@ flag = "JP"
 "{protocol} password for {who}:" = "{who} の {protocol} パスワード:"
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "先にインターフェースのオプション\n\"{option}\" をオンにしてください"
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "{path} を編集できません: {error}"
@@ -3867,9 +3869,9 @@ flag = "JP"
 "Cannot write the menu's script: {error}" = "メニューのスクリプトを書き込めません: {error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "{protocol} で {host} に接続中"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "キー割り当てを保存できません: {error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "設定を保存できません: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "終了ステータス {status}"

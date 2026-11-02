@@ -3731,7 +3731,7 @@ flag = "RU"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "Фон"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~С~нять выделение"
@@ -3757,9 +3757,9 @@ flag = "RU"
 "Pinned" = "К закреплённой"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Щёлкните, чтобы вернуть окно"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: ждёт ответа"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: выполнено {percent}%"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3777,6 +3777,8 @@ flag = "RU"
 "No file panels are open" = "Нет открытых файловых панелей"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "Разорвать связь"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "Фоновые операции"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "Нет открытых соединений"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3785,9 +3787,9 @@ flag = "RU"
 "~C~ommand..." = "~К~оманда..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "Клавиши у редактора"
@@ -3807,9 +3809,9 @@ flag = "RU"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "Оболочка не может дополнить"
@@ -3837,9 +3839,9 @@ flag = "RU"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "Просмотр файла"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "Редактирование файла"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
@@ -3857,7 +3859,7 @@ flag = "RU"
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -3867,9 +3869,9 @@ flag = "RU"
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "код выхода {status}"

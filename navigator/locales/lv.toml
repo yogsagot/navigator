@@ -3731,7 +3731,7 @@ flag = "LV"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "Fonā"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~N~oņemt atlasi"
@@ -3757,9 +3757,9 @@ flag = "LV"
 "Pinned" = "Piespraustie"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Noklikšķiniet, lai atgrieztu logu"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: gaida atbildi"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: {percent}% paveikts"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3777,6 +3777,8 @@ flag = "LV"
 "No file panels are open" = "Nav atvērtu failu paneļu"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "Atvienot"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "Fona darbības"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "Nav atvērta savienojuma"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3785,9 +3787,9 @@ flag = "LV"
 "~C~ommand..." = "~K~omanda..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "Failu rediģēšanas vēsture"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "Taustiņi pieder redaktoram"
@@ -3807,9 +3809,9 @@ flag = "LV"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~K~omanda (!.! ir fails; citādi tas nāk beigās)"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "Sekot rediģēšanas vēsturei"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "Čaula nevar papildināt"
@@ -3837,9 +3839,9 @@ flag = "LV"
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "Skatīt failu"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "Rediģēt failu"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
@@ -3857,7 +3859,7 @@ flag = "LV"
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
@@ -3867,9 +3869,9 @@ flag = "LV"
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "izejas statuss {status}"

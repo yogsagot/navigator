@@ -344,3 +344,42 @@ def test_quitting_with_work_in_the_background_asks_and_stops_it(two, monkeypatch
     prompt = asyncio.run(main())
     assert prompt == "1 operation is running in the background. Stop it and quit?"
     assert stopped.wait(2)
+
+
+def test_with_two_away_the_command_lets_one_be_chosen(two):
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    a, b = two
+    jobs = []
+
+    async def steps(app, shell):
+        for title in ("Copy", "Erase"):
+            entry = BACKGROUND.add(object(), title, f"{title} things")
+            entry.done, entry.total = 5, 10
+            jobs.append(entry)
+        jobs[0].asking = True
+        await app.run_command(ShowBackground)
+        await wait_for(lambda: isinstance(app.modal, PopupMenu))
+        box = app.modal
+        captions = [item.text for item in box.menu.entries()]
+        start = box.start
+        app.post_event(KeyEvent("2", char="2"))
+        await wait_for(lambda: app.modal is None)
+        return captions, start, [entry.recalled.is_set() for entry in jobs]
+
+    captions, start, recalled = run_shell(a, b, steps)
+    assert captions == ["~1~ Copy things: waiting for an answer", "~2~ Erase things: 50% done"]
+    assert start == 0
+    assert recalled == [False, True]
+
+
+def test_with_one_away_the_command_brings_it_back_at_once(two):
+    a, b = two
+
+    async def steps(app, shell):
+        entry = BACKGROUND.add(object(), "Copy")
+        await app.run_command(ShowBackground)
+        await asyncio.sleep(0.05)
+        return app.modal, entry.recalled.is_set()
+
+    assert run_shell(a, b, steps) == (None, True)

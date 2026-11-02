@@ -625,8 +625,9 @@ class SmbLink(Command):
 
 class ShowBackground(Command):
     """Window > *Background operation*: the progress box of a copy or an
-    erase sent to the background put back up -- one with a question waiting
-    first, else the newest (``navigator.lib.system.background``).  Not DN's,
-    whose boxes held the screen."""
+    erase sent to the background put back up -- the one there is, or, with
+    more, the one chosen from a list of them (``Shell.choose_background``;
+    ``navigator.lib.system.background``).  Not DN's, whose boxes held the
+    screen."""
 
     title = "Backgr"

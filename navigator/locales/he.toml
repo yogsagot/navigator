@@ -3732,7 +3732,7 @@ direction = "rtl"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "רקע"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~ב~טל בחירה"
@@ -3758,9 +3758,9 @@ direction = "rtl"
 "Pinned" = "מוצמד"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "לחיצה מחזירה את התיבה"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: ממתין לתשובה"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: {percent}% הושלמו"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3778,6 +3778,8 @@ direction = "rtl"
 "No file panels are open" = "אין חלוניות קבצים פתוחות"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "נתק"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "פעולות רקע"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "אין חיבור פתוח"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3786,9 +3788,9 @@ direction = "rtl"
 "~C~ommand..." = "~פ~קודה..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "בחר פעולה"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "היסטוריית הצגת קבצים"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "היסטוריית עריכת קבצים"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "המקשים אצל העורך"
@@ -3808,9 +3810,9 @@ direction = "rtl"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~פ~קודה (!.! הוא הקובץ; אחרת הוא נוסף בסוף)"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "קישור {protocol}"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "מעקב היסטוריית הצגה"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "מעקב היסטוריית עריכה"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "המעטפת אינה יכולה להשלים"
@@ -3838,9 +3840,9 @@ direction = "rtl"
 "Not a palette:\n{error}" = "אינה ערכת צבעים:\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "החצים מזיזים את האזור\nShift-חצים משנים את גודל האזור\n\nלאחר הבחירה הקש Enter כדי להעתיק\nאת תמונת האזור ללוח"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "הצגת קובץ"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "עריכת קובץ"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "אין מנהל קבצים פתוח להצגת התוצאות בחלונית"
@@ -3858,7 +3860,7 @@ direction = "rtl"
 "{protocol} password for {who}:" = "סיסמת {protocol} עבור {who}:"
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "תחילה הפעל את אפשרות הממשק\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "לא ניתן לערוך את {path}: {error}"
@@ -3868,9 +3870,9 @@ direction = "rtl"
 "Cannot write the menu's script: {error}" = "לא ניתן לכתוב את סקריפט התפריט: {error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "מתחבר אל {host} באמצעות {protocol}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "לא ניתן לשמור את הקצאת המקשים: {error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "לא ניתן לשמור את ההגדרות: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "קוד יציאה {status}"

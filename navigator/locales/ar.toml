@@ -3732,7 +3732,7 @@ direction = "rtl"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "خلفية"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~إ~لغاء التحديد"
@@ -3758,9 +3758,9 @@ direction = "rtl"
 "Pinned" = "المثبتة"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "انقر لإعادة المربع"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: بانتظار إجابة"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: اكتمل {percent}%"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3778,6 +3778,8 @@ direction = "rtl"
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "قطع الاتصال"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "العمليات في الخلفية"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "لا يوجد اتصال مفتوح"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3786,9 +3788,9 @@ direction = "rtl"
 "~C~ommand..." = "~أ~مر..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "سجل تحرير الملفات"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "المفاتيح لدى المحرر"
@@ -3808,9 +3810,9 @@ direction = "rtl"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "تتبع سجل التحرير"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
@@ -3838,9 +3840,9 @@ direction = "rtl"
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "تحرير ملف"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
@@ -3858,7 +3860,7 @@ direction = "rtl"
 "{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
@@ -3868,9 +3870,9 @@ direction = "rtl"
 "Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"

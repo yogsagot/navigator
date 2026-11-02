@@ -122,7 +122,8 @@ by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Resto
 - **Away**, the box is gone and the job is a `Running` in `navigator/lib/system/background.py`'s `BACKGROUND` (loop
   only; `tick` copies `(done, total)` in). **A question waits**: taken from the worker and held, `asking` set, the
   worker blocked on its future, until `BACKGROUND.recall()` (the mark's click, Window > *Background operation*,
-  `ShowBackground`) sets `recalled`; the box comes back up and then the question is put. Never a dialog over
+  `ShowBackground` -- with more than one away it opens `Shell.choose_background`, a `PopupMenu` of them numbered
+  `~1~`.., the cursor on one waiting, else the newest) sets `recalled`; the box comes back up and then the question is put. Never a dialog over
   whatever the user is doing.
 - **The mark** (`navigator/widgets/shell/job_mark.py`, `JobMark`): ` 42% `, one segment a job oldest first (` 10%|?20% `), each its own
   tooltip and click (`entry_at`, `BACKGROUND.recall(entry)`). The tooltip names the work by its `subject`

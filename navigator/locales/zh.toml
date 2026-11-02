@@ -3731,7 +3731,7 @@ flag = "CN"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:632
+# navigator/widgets/shell/commands.py:633
 "Backgr" = "后台"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "清除选择(~L~)"
@@ -3757,9 +3757,9 @@ flag = "CN"
 "Pinned" = "已固定"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "单击以恢复进度框"
-# navigator/widgets/shell/job_mark.py:93
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2856
 "{operation}: waiting for an answer" = "{operation}: 等待回答"
-# navigator/widgets/shell/job_mark.py:95
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2858
 "{operation}: {percent}% done" = "{operation}: 已完成 {percent}%"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
@@ -3777,6 +3777,8 @@ flag = "CN"
 "No file panels are open" = "没有打开的文件面板"
 # navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:2770
 "Disconnect" = "断开"
+# navigator/widgets/shell/shell/shell.py:2863
+"Background operations" = "后台操作"
 # navigator/widgets/shell/shell/shell.py:1199
 "No connection is open" = "没有打开的连接"
 # navigator/widgets/shell/shell/shell.py:1244
@@ -3785,9 +3787,9 @@ flag = "CN"
 "~C~ommand..." = "命令(~C~)..."
 # navigator/widgets/shell/shell/shell.py:2046
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3154
 "File Edit History" = "文件编辑历史"
 # navigator/widgets/shell/shell/shell.py:1188
 "The editor has the keys" = "按键由编辑器处理"
@@ -3807,9 +3809,9 @@ flag = "CN"
 "~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
 # navigator/widgets/shell/shell/shell.py:2620, navigator/widgets/shell/shell/shell.py:2806
 "{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:3106
+# navigator/widgets/shell/shell/shell.py:3144
 "Track editing history" = "记录编辑历史"
 # navigator/widgets/shell/shell/shell.py:1250
 "The shell cannot complete" = "shell 无法补全"
@@ -3837,9 +3839,9 @@ flag = "CN"
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
 # navigator/widgets/shell/shell/shell.py:564
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "View file" = "查看文件"
-# navigator/widgets/shell/shell/shell.py:3167
+# navigator/widgets/shell/shell/shell.py:3205
 "Edit file" = "编辑文件"
 # navigator/widgets/shell/shell/shell.py:2246
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
@@ -3857,7 +3859,7 @@ flag = "CN"
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
 # navigator/widgets/shell/shell/shell.py:2807
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:3109
+# navigator/widgets/shell/shell/shell.py:3147
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
 # navigator/widgets/shell/shell/shell.py:1621
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
@@ -3867,9 +3869,9 @@ flag = "CN"
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
 # navigator/widgets/shell/shell/shell.py:2637
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:2917
+# navigator/widgets/shell/shell/shell.py:2955
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:3073
+# navigator/widgets/shell/shell/shell.py:3111
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"
