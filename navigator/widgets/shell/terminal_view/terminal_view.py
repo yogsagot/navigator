@@ -129,6 +129,11 @@ class TerminalView(ScreenView):
 
     # -- keys ------------------------------------------------------------------
 
+    def takes_raw_keys(self) -> bool:
+        """While a program runs its keys are its own: no chord (Ctrl+J, Ctrl+K)
+        is started with them."""
+        return self.busy
+
     async def on_key(self, event: KeyEvent) -> bool:
         """The program's, but for the window keys; once it has ended, Esc and
         Enter close the window.

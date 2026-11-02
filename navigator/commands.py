@@ -20,6 +20,30 @@ class Help(Command):
 
 
 @dataclass(frozen=True, slots=True)
+class RecordMacro(Command):
+    """Ctrl+J R 1 .. 9: DOS Navigator's Alt+Shift+N (``KeyMacroses``) --
+    every key typed from here on recorded into slot *slot*; pressed again,
+    with any digit, the recording ends, as any Alt+Shift+digit ended DN's.
+    On a chord of DN's Ctrl+J, a departure: Alt+digits are the file
+    manager's quick directories, and terminals take them."""
+
+    title = "Record"
+
+    slot: int = 1
+
+
+@dataclass(frozen=True, slots=True)
+class PlayMacro(Command):
+    """Ctrl+J 1 .. 9: DOS Navigator's Alt+N -- slot *slot*'s keys typed
+    again (``MacroPlaying``).  DN's Ctrl+J N played the editor's macros;
+    those are Ctrl+J 0's now."""
+
+    title = "Play"
+
+    slot: int = 1
+
+
+@dataclass(frozen=True, slots=True)
 class Quit(Command):
     """Leave Navigator.
 
@@ -88,6 +112,8 @@ class ToggleConsole(Command):
 __all__ = [
     "AsciiTable",
     "Help",
+    "PlayMacro",
+    "RecordMacro",
     "OpenSmartpad",
     "PrintFile",
     "Quit",

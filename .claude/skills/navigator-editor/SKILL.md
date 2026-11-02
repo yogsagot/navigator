@@ -350,6 +350,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **A hidden block** (`block_hidden`, DN's `not BlockVisible`; ^K H / Alt+H toggle it): still marked (`marked`) and
   still following edits, but not painted and not acted on -- `has_block`, which the block commands' `enables` read,
   is DN's `BlockVisible and ValidBlock`. Marking anew shows it (`_set_block`/`_set_ordered`, `read_block`, `_unmark`).
+- **Editor macros, Ctrl+J 0** (`SelectMacro`, DN's `cmSelectMacro`, empty there): `macros.ini`'s `MACRO` blocks
+  for the file's type in a `PopupMenu`, the one chosen played by `macros.play_steps` -- the
+  `navigator-macros` skill has the file's syntax and how lines run.
 - **Markers, ^K1-9 / ^Q1-9** (`PlaceMarker(n)`/`GotoMarker(n)`, DN's `cmPlaceMarker`/`cmGotoMarker` over `MarkPos`):
   `FileEditor.markers`, nine fixed `(line, col)` -- not moved by edits, as DN's were not. Going to one centres it
   (`Pos := Delta - Size div 2`) and, being a movement, unmarks under *Persistent blocks* off; an unset one does

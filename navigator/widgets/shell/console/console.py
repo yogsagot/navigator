@@ -162,6 +162,11 @@ class Console(ScreenView):
     #: The keyboard stays with the command line, as it does for a left click.
     context_focus = False
 
+    def takes_raw_keys(self) -> bool:
+        """While a program runs its keys are its own: no chord (Ctrl+J, Ctrl+K)
+        is started with them."""
+        return self.busy
+
     async def on_key(self, event: KeyEvent) -> bool:
         """Everything typed while the console has the keyboard.
 

@@ -350,6 +350,10 @@ class Application:
     #: swallowed either way, as WordStar's was.  Reactive, so whatever shows
     #: that a chord is pending (an editor's info line) follows it.
     chord: str = reactive("")
+    #: Given every key and paste before anything handles it, when set: what a
+    #: recorder of keystrokes hangs off (Navigator's macros).  Plain, and
+    #: called on the loop; it must not raise or block.
+    input_tap: Callable[[Event], None] | None = None
     #: Which set of :data:`navkit.glyphs.MARKS` a check box or radio button
     #: whose ``look`` is ``auto`` draws with.  Plain, read at every paint:
     #: whoever changes it calls :meth:`invalidate`.
@@ -1540,6 +1544,9 @@ class Application:
             return
         dispatching, self._dispatching = self._dispatching, True
         try:
+            tap = self.input_tap
+            if tap is not None and isinstance(event, (KeyEvent, PasteEvent)):
+                tap(event)
             if await self.on_event(event):
                 return
             if isinstance(event, KeyEvent):
@@ -1852,6 +1859,9 @@ class Application:
         """
         if event.name in ("", None):
             return False
+        if not self.chord and self._raw_keys():
+            # A program on a pty is typed at: Ctrl+J is its, not a chord's.
+            return False
         sequence = f"{self.chord} {event.name}" if self.chord else event.name
         tables = self._key_tables()
         if self.chord:
@@ -1865,6 +1875,15 @@ class Application:
             self.chord = sequence
             return True
         return bool(sequence != event.name)
+
+    def _raw_keys(self) -> bool:
+        """Whether a widget on the focus path takes keys raw just now
+        (:meth:`Widget.takes_raw_keys`), so no chord may begin."""
+        if self.modal is not None:
+            return False
+        scope = self._root
+        path = scope._focus_path() if scope is not None else []
+        return any(widget.takes_raw_keys() for widget in path)
 
     async def _run_key(self, event: KeyEvent) -> bool:
         """The application's own key table, before the tree and never past a

@@ -1,0 +1,14 @@
+from navkit.database import Model
+
+#: A key macro: DOS Navigator's ``TKeyMacros``, one of the ten
+#: ``KeyMacroses`` -- the keys recorded into a slot, kept between sessions
+#: (a departure: DN's lived as long as the desktop did).
+#:
+#: ``keys`` is the recording as JSON (``navigator/lib/config/macros.py``
+#: ``encode``): every key, and every paste, in the order typed.
+KeyMacro(Model):
+    table: "key_macros"
+    #: 1 to 9: the digit of ``Ctrl+J R N`` and ``Ctrl+J N``.
+    field slot: int
+    field keys: str = "[]"
+    unique by_slot: slot

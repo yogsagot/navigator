@@ -66,6 +66,8 @@ QUICK_RUN = "quickrun.ini"
 #: Which lexer colours which file: DN's ``DN.HGL``.  Its own format, read by
 #: :mod:`navigator.lib.highlight`; only its place and template are kept here.
 HIGHLIGHT = "highlight.ini"
+#: The editor's macros (DN's ``MACRO`` blocks in ``DN.HGL``): ``navigator.lib.config.macros``.
+MACROS = "macros.ini"
 #: F2's user menu, DN's ``DN.MNU``: :mod:`navigator.lib.config.usermenu` reads it.
 MENU = "menu.ini"  # usermenu.GLOBAL_NAME, spelt out: importing the user menu is for when it is used
 
@@ -199,6 +201,8 @@ Disk usage = du -sh !\\*
     HIGHLIGHT: files("navigator.assets").joinpath("highlight.ini").read_text(encoding="utf-8"),
     # A user menu for a Linux desktop, to change or replace.
     MENU: files("navigator.assets").joinpath("menu.ini").read_text(encoding="utf-8"),
+    # The editor's macros, commented and with a few to start from.
+    MACROS: files("navigator.assets").joinpath("macros.ini").read_text(encoding="utf-8"),
 }
 
 

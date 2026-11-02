@@ -181,6 +181,13 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   path's) is held in the reactive `Application.chord`; the next key completes it -- looked up in the same tables,
   same order -- or is swallowed with it, never typed. Off the path a prefix key is an ordinary key, so Ctrl+K still
   reaches a program in the console.
+- **`Widget.takes_raw_keys()`** (False by default): a widget on the focus path answering True -- the console and a
+  terminal window while a program runs -- means no chord starts there (`Application._raw_keys`), so a chord the
+  application's own table binds (Ctrl+J, the key macros) still leaves Ctrl+J to the program. Keys bound alone
+  are unaffected.
+- **`Application.input_tap`**: a plain callable, when set, given every `KeyEvent` and `PasteEvent` before
+  `on_event` -- what Navigator's key recorder hangs off (`navigator-macros`). Called on the loop; it must not
+  raise or block.
 - An instance in a table (`GoParent(by_key=True)`) lets `enables` treat the key and the menu differently.
 - Key names: a bare `+` is `plus`, a bare Space is named `space` (its `key` is `" "`), keypad operators
   `kp_plus`/`kp_minus`/`kp_multiply`/`kp_divide`.

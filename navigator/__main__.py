@@ -44,7 +44,8 @@ from navigator.lib.drives import Location
 from navigator.lib.config import keybindings, language
 from navigator.lib.config.associations import seed_all as seed_associations
 from navigator.lib.config.bookmarks import seed_bookmarks
-from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
+from navigator.commands import AsciiTable, Help, OpenSmartpad, PlayMacro, Quit, RecordMacro, Refresh, ScreenGrab
+from navigator.commands import ShowUserScreen, ToggleConsole
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
@@ -436,6 +437,11 @@ class Navigator(Application):
         #: *Quick run*, DN's Ctrl+Shift+F1 .. F10 (``QuickExecExternal``):
         #: ``quickrun.ini``'s ``[F1]`` .. ``[F10]``.
         **{f"ctrl+shift+f{number}": QuickRun(number) for number in range(1, 11)},
+        #: Key macros, DN's Alt+Shift+N and Alt+N (``KeyMacroses``): on a
+        #: chord of DN's Ctrl+J instead, as Alt+digits are the file manager's
+        #: quick directories (``navigator.lib.config.macros``).
+        **{f"ctrl+j r {slot}": RecordMacro(slot) for slot in range(1, 10)},
+        **{f"ctrl+j {slot}": PlayMacro(slot) for slot in range(1, 10)},
     }
 
     def refusal(self, command: Command) -> str:
@@ -444,6 +450,45 @@ class Navigator(Application):
         if isinstance(command, Quit) and command.desktop and self._console_over_windows():
             return tr("The console is over the windows: Alt-X is the program's")
         return ""
+
+    # -- key macros --------------------------------------------------------------
+
+    @property
+    def macros(self) -> Any:
+        """The one :class:`~navigator.lib.config.macros.Recorder`."""
+        recorder = self.__dict__.get("_macros")
+        if recorder is None:
+            from navigator.lib.config.macros import Recorder
+
+            recorder = self.__dict__["_macros"] = Recorder(self)
+        return recorder
+
+    async def on_record_macro(self, event: RecordMacro) -> bool:
+        """Ctrl+J R N: recording into slot N starts -- or, while one runs,
+        ends, the chord that ended it left out of it."""
+        recorder = self.macros
+        if recorder.recording is not None:
+            recorder.stop()
+            self.shell.macro_mark.slot = 0
+        else:
+            recorder.start(event.slot)
+            self.shell.macro_mark.slot = event.slot
+        return True
+
+    async def on_play_macro(self, event: PlayMacro) -> bool:
+        """Ctrl+J N: slot N's keys typed again.  While recording, what is
+        played is recorded, not the chord that played it, as DN recorded
+        the keys its feed gave."""
+        from navigator.lib.config.macros import load
+
+        recorder = self.macros
+        if recorder.playing:
+            return True
+        recorder.drop_chord()
+        events = load(event.slot)
+        if events:
+            self.spawn(recorder.play(events))
+        return True
 
     async def on_toggle_console(self, event: ToggleConsole) -> bool:
         self.shell.toggle_console()

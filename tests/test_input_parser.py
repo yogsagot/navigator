@@ -26,7 +26,7 @@ def names(events) -> list[str]:
         (b"\x11", ["ctrl+q"]),
         (b"\x01\x1a", ["ctrl+a", "ctrl+z"]),
         (b"\r", ["enter"]),
-        (b"\n", ["enter"]),
+        (b"\n", ["ctrl+j"]),  # Enter is CR in raw mode: LF is Ctrl+J
         (b"\t", ["tab"]),
         (b"\x7f", ["backspace"]),
         (b"\x08", ["backspace"]),

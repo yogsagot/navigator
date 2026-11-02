@@ -81,7 +81,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 - `extensions.ini`, `viewers.ini`, `editors.ini` and `quickrun.ini` sit beside it too: what Enter, F3/F4 (or
   Alt+F3/Alt+F4) and Ctrl+Shift+F1..F10 run for a file or key, edited from Options (`navigator-user-menu` skill);
   `menu.ini` is F2's user menu (a `.navigator-menu.ini` in a panel's directory or above wins there);
-  `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill)
+  `highlight.ini` beside them says which Pygments lexer colours which file (`navigator-editor` skill);
+  `macros.ini` holds the editor's macros, DN's `MACRO` blocks (`navigator-macros` skill)
 - `keybindings.ini` beside it holds every key-table binding, written with the defaults on first start and rewritten by
   Options > Configuration > Key bindings; a line that will not parse warns and keeps its default. That dialog's
   Save/Load write and read whole sets in `keymaps/` beside it; default, WordStar, DN 1.51 and Emacs sets ship in
@@ -234,6 +235,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-calculator` | Ctrl+F6's calculator: DN's Classic and the Simple/Scientific/Programming faces, the parser's `Context`, the pads, `[calculator]` |
+| `navigator-macros` | Key macros (Ctrl+J R N records anywhere, Ctrl+J N plays; `KeyMacro`, `>MACRO<`) and the editor's `macros.ini` (Ctrl+J 0) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |
 | `navigator-bookmarks` | Alt+F1/Alt+F2/Alt+C bookmarks, first set and seeding, `PopupMenu` |
 | `navigator-gio` | the `gio` command: Volumes' Mount/Unmount/Eject, Enter/Open with in desktop applications, GVfs drives, `gio trash`; the `desktop.py` facade and `[system] desktop_vfs` |

@@ -501,6 +501,14 @@ class GotoMarker(Command):
     marker: int = 1
 
 
+class SelectMacro(Command):
+    """Ctrl+J 0: DOS Navigator's ``cmSelectMacro``, whose body was empty --
+    the macros ``macros.ini`` has for this file's type, in a box, and the one
+    chosen played (``navigator.lib.config.macros``)."""
+
+    title = "Macro"
+
+
 class BlockRead(Command):
     """``cmBlockRead``: ^K^R -- Editor > Edit > *Paste from...*: a file's text at the cursor, marked."""
 
@@ -570,6 +578,7 @@ class SaveText(Command):
 
 
 __all__ = [
+    "SelectMacro",
     "Clear",
     "ClipboardCopy",
     "ClipboardCut",

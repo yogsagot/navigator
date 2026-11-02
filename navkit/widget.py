@@ -1071,6 +1071,12 @@ class Widget:
         """
         return ""
 
+    def takes_raw_keys(self) -> bool:
+        """Whether keys typed here are a program's just now -- a console or a
+        terminal running one -- so the application starts no chord with them
+        (Ctrl+J, Ctrl+K are the program's).  Keys bound alone still work."""
+        return False
+
     def key_hints(self) -> Sequence[tuple[str, str]]:
         """The keys this widget takes that no key table names, as
         ``(label, caption)`` pairs already spelled for show and translated --

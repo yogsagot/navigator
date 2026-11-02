@@ -54,9 +54,9 @@ direction = "rtl"
 "~E~ditor" = "ال~م~حرر"
 # navigator/widgets/editor/edit_window/edit_window.nml:137
 "Editing, the file, search, paragraphs and blocks" = "التحرير والملف والبحث والفقرات والكتل"
-# navigator/widgets/editor/edit_window/edit_window.nml:144, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.nml:144, navigator/widgets/editor/file_editor/file_editor.py:2910
 "~U~ndo" = "تر~ا~جع"
-# navigator/widgets/editor/edit_window/edit_window.nml:148, navigator/widgets/editor/file_editor/file_editor.py:2864
+# navigator/widgets/editor/edit_window/edit_window.nml:148, navigator/widgets/editor/file_editor/file_editor.py:2911
 "R~e~do" = "إ~ع~ادة"
 # navigator/widgets/editor/edit_window/edit_window.nml:165
 "C~o~py to..." = "نسخ ~إ~لى..."
@@ -68,9 +68,9 @@ direction = "rtl"
 "Insert a file's text at the cursor" = "إدراج نص ملف عند المؤشر"
 # navigator/widgets/editor/edit_window/edit_window.nml:175
 "Delete the selection without copying it to the clipboard" = "حذف التحديد دون نسخه إلى الحافظة"
-# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:2870
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:2917
 "~D~elete line" = "~ح~ذف السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:185, navigator/widgets/editor/file_editor/file_editor.py:2871
+# navigator/widgets/editor/edit_window/edit_window.nml:185, navigator/widgets/editor/file_editor/file_editor.py:2918
 "Delete ~w~ord left" = "حذف ال~ك~لمة السابقة"
 # navigator/widgets/editor/edit_window/edit_window.nml:189
 "Insert l~i~ne" = "إ~د~راج سطر"
@@ -92,9 +92,9 @@ direction = "rtl"
 "E~x~it" = "خر~و~ج"
 # navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ب~حث"
-# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/editor/file_editor/file_editor.py:2874
+# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/editor/file_editor/file_editor.py:2921
 "~F~ind..." = "بح~ث~..."
-# navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2875
+# navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2922
 "~R~eplace..." = "~ا~ستبدال..."
 # navigator/widgets/editor/edit_window/edit_window.nml:238
 "~S~earch again" = "~ت~كرار البحث"
@@ -166,7 +166,7 @@ direction = "rtl"
 "~W~ord" = "ك~ل~مة"
 # navigator/widgets/editor/edit_window/edit_window.nml:362, navigator/widgets/editor/edit_window/edit_window.nml:377, navigator/widgets/editor/edit_window/edit_window.nml:392
 "~L~ine" = "~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:386, navigator/widgets/editor/file_editor/file_editor.py:2883
+# navigator/widgets/editor/edit_window/edit_window.nml:386, navigator/widgets/editor/file_editor/file_editor.py:2930
 "~C~apitalize" = "تكبير ~ا~لأول"
 # navigator/widgets/editor/edit_window/edit_window.nml:401
 "Optio~n~s" = "~خ~يارات"
@@ -204,7 +204,7 @@ direction = "rtl"
 "File t~y~pe" = "~ن~وع الملف"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "استبدال"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:293
+# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:294
 "Find" = "بحث"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:26, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:37
 "~T~ext to find" = "~ن~ص البحث"
@@ -396,7 +396,7 @@ direction = "rtl"
 "No dump" = "بلا dump"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No atime" = "بلا atime"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/manager/commands.py:616
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/manager/commands.py:617
 "Sync" = "تزامن"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Dir sync" = "تزامن مجلد"
@@ -708,7 +708,7 @@ direction = "rtl"
 "Pre~v~iew" = "ال~ت~الية"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "إظهار الشكل التالي"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:603 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:607 ...
 "~C~lose" = "إ~غ~لاق"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "أفضل عشرة في بنتيكس"
@@ -942,7 +942,7 @@ direction = "rtl"
 "S~a~me directory in other panel" = "المجلد ~ذ~اته في اللوحة الأخرى"
 # navigator/widgets/manager/manager/manager.nml:315
 "Send the other panel to this directory" = "نقل اللوحة الأخرى إلى هذا المجلد"
-# navigator/widgets/manager/manager/manager.nml:321, navigator/widgets/manager/commands.py:564
+# navigator/widgets/manager/manager/manager.nml:321, navigator/widgets/manager/commands.py:565
 "Show in other panel" = "إظهار في اللوحة الأخرى"
 # navigator/widgets/manager/manager/manager.nml:322
 "Show the found file in the other panel" = "إظهار الملف الموجود في اللوحة الأخرى"
@@ -1740,7 +1740,7 @@ direction = "rtl"
 "A command run in a window opens it zoomed" = "الأمر الذي يعمل في نافذة يفتحها مكبرة"
 # navigator/widgets/shell/execute_command_dialog/execute_command_dialog.nml:45, navigator/settings.py
 "A command run in a window holds every key until the window is closed" = "الأمر الذي يعمل في نافذة يحتجز كل المفاتيح حتى تغلق النافذة"
-# navigator/widgets/shell/exit_dialog/exit_dialog.nml:14, navigator/commands.py:32
+# navigator/widgets/shell/exit_dialog/exit_dialog.nml:14, navigator/commands.py:56
 "Exit" = "خروج"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:24
 "Do you wish to quit" = "هل تريد إنهاء"
@@ -2045,66 +2045,70 @@ direction = "rtl"
 # navigator/widgets/shell/main_menu/main_menu.nml:532
 "Edit highlight.ini: which syntax colours which file" = "تحرير highlight.ini: أي تلوين نحوي يلون أي ملف"
 # navigator/widgets/shell/main_menu/main_menu.nml:535
-"~G~lobal menu definition..." = "تعريف القائمة ال~ش~املة..."
+"Macro file e~d~it..." = "تحرير ملف الما~ك~رو..."
 # navigator/widgets/shell/main_menu/main_menu.nml:536
-"Edit the F2 user menu used everywhere" = "تحرير قائمة المستخدم F2 المستخدمة في كل مكان"
+"Edit macros.ini: the editor's macros, offered by Ctrl+J 0" = "تحرير macros.ini: وحدات ماكرو المحرر التي يعرضها Ctrl+J 0"
 # navigator/widgets/shell/main_menu/main_menu.nml:539
-"Local ~m~enu definition..." = "تعريف ال~ق~ائمة المحلية..."
+"~G~lobal menu definition..." = "تعريف القائمة ال~ش~املة..."
 # navigator/widgets/shell/main_menu/main_menu.nml:540
-"Edit this directory's own F2 user menu" = "تحرير قائمة المستخدم F2 الخاصة بهذا المجلد"
+"Edit the F2 user menu used everywhere" = "تحرير قائمة المستخدم F2 المستخدمة في كل مكان"
 # navigator/widgets/shell/main_menu/main_menu.nml:543
-"~V~iewers..." = "عار~ض~ات..."
+"Local ~m~enu definition..." = "تعريف ال~ق~ائمة المحلية..."
 # navigator/widgets/shell/main_menu/main_menu.nml:544
-"Edit viewers.ini: the external viewer for each kind of file" = "تحرير viewers.ini: العارض الخارجي لكل نوع ملف"
+"Edit this directory's own F2 user menu" = "تحرير قائمة المستخدم F2 الخاصة بهذا المجلد"
 # navigator/widgets/shell/main_menu/main_menu.nml:547
-"~E~ditors..." = "م~ح~ررات..."
+"~V~iewers..." = "عار~ض~ات..."
 # navigator/widgets/shell/main_menu/main_menu.nml:548
-"Edit editors.ini: the external editor for each kind of file" = "تحرير editors.ini: المحرر الخارجي لكل نوع ملف"
+"Edit viewers.ini: the external viewer for each kind of file" = "تحرير viewers.ini: العارض الخارجي لكل نوع ملف"
+# navigator/widgets/shell/main_menu/main_menu.nml:551
+"~E~ditors..." = "م~ح~ررات..."
 # navigator/widgets/shell/main_menu/main_menu.nml:552
-"~S~ave desktop" = "حف~ظ~ سطح المكتب"
-# navigator/widgets/shell/main_menu/main_menu.nml:553
-"Keep the open windows, to have them back later" = "الاحتفاظ بالنوافذ المفتوحة لاستعادتها لاحقا"
+"Edit editors.ini: the external editor for each kind of file" = "تحرير editors.ini: المحرر الخارجي لكل نوع ملف"
 # navigator/widgets/shell/main_menu/main_menu.nml:556
-"~L~oad desktop" = "~ا~ستعادة سطح المكتب"
+"~S~ave desktop" = "حف~ظ~ سطح المكتب"
 # navigator/widgets/shell/main_menu/main_menu.nml:557
-"Replace these windows with the ones last saved" = "استبدال هذه النوافذ بآخر ما حفظ"
+"Keep the open windows, to have them back later" = "الاحتفاظ بالنوافذ المفتوحة لاستعادتها لاحقا"
+# navigator/widgets/shell/main_menu/main_menu.nml:560
+"~L~oad desktop" = "~ا~ستعادة سطح المكتب"
 # navigator/widgets/shell/main_menu/main_menu.nml:561
-"C~o~lors..." = "ألوا~ن~..."
-# navigator/widgets/shell/main_menu/main_menu.nml:564
-"S~t~ore palette" = "~خ~زن اللوحة"
+"Replace these windows with the ones last saved" = "استبدال هذه النوافذ بآخر ما حفظ"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
-"Save the colours as a theme of your own" = "حفظ الألوان كسمة خاصة بك"
+"C~o~lors..." = "ألوا~ن~..."
 # navigator/widgets/shell/main_menu/main_menu.nml:568
-"Lo~a~d palette" = "~ج~لب اللوحة"
+"S~t~ore palette" = "~خ~زن اللوحة"
 # navigator/widgets/shell/main_menu/main_menu.nml:569
-"Use colours saved in a file" = "استخدام ألوان محفوظة في ملف"
+"Save the colours as a theme of your own" = "حفظ الألوان كسمة خاصة بك"
+# navigator/widgets/shell/main_menu/main_menu.nml:572
+"Lo~a~d palette" = "~ج~لب اللوحة"
 # navigator/widgets/shell/main_menu/main_menu.nml:573
+"Use colours saved in a file" = "استخدام ألوان محفوظة في ملف"
+# navigator/widgets/shell/main_menu/main_menu.nml:577
 "~W~indow" = "~ن~افذة"
-# navigator/widgets/shell/main_menu/main_menu.nml:574
+# navigator/widgets/shell/main_menu/main_menu.nml:578
 "Arrange, switch between and close windows" = "ترتيب النوافذ والتنقل بينها وإغلاقها"
-# navigator/widgets/shell/main_menu/main_menu.nml:576
+# navigator/widgets/shell/main_menu/main_menu.nml:580
 "~T~ile" = "~ر~صف"
-# navigator/widgets/shell/main_menu/main_menu.nml:579
+# navigator/widgets/shell/main_menu/main_menu.nml:583
 "C~a~scade" = "~م~تتالية"
-# navigator/widgets/shell/main_menu/main_menu.nml:582
-"Cl~o~se all" = "إغلاق ال~ك~ل"
 # navigator/widgets/shell/main_menu/main_menu.nml:586
+"Cl~o~se all" = "إغلاق ال~ك~ل"
+# navigator/widgets/shell/main_menu/main_menu.nml:590
 "~S~ize/Move" = "~ح~جم/نقل"
-# navigator/widgets/shell/main_menu/main_menu.nml:587
-"Move and size the window with the keyboard" = "تحريك النافذة وتغيير حجمها بلوحة المفاتيح"
 # navigator/widgets/shell/main_menu/main_menu.nml:591
-"~Z~oom" = "~ت~كبير"
+"Move and size the window with the keyboard" = "تحريك النافذة وتغيير حجمها بلوحة المفاتيح"
 # navigator/widgets/shell/main_menu/main_menu.nml:595
-"~N~ext" = "~ا~لتالية"
+"~Z~oom" = "~ت~كبير"
 # navigator/widgets/shell/main_menu/main_menu.nml:599
+"~N~ext" = "~ا~لتالية"
+# navigator/widgets/shell/main_menu/main_menu.nml:603
 "~P~revious" = "ال~س~ابقة"
-# navigator/widgets/shell/main_menu/main_menu.nml:608
+# navigator/widgets/shell/main_menu/main_menu.nml:612
 "~L~ist..." = "~ق~ائمة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:609
+# navigator/widgets/shell/main_menu/main_menu.nml:613
 "All the windows, to switch to one or close it" = "كل النوافذ، للانتقال إلى إحداها أو إغلاقها"
-# navigator/widgets/shell/main_menu/main_menu.nml:614
+# navigator/widgets/shell/main_menu/main_menu.nml:618
 "~B~ackground operation..." = "عملية في ال~خ~لفية..."
-# navigator/widgets/shell/main_menu/main_menu.nml:615
+# navigator/widgets/shell/main_menu/main_menu.nml:619
 "Bring back the progress box of a copy or an erase running in the background" = "إعادة مربع تقدم النسخ أو الحذف الجاري في الخلفية"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "معاملات القائمة"
@@ -2312,21 +2316,25 @@ direction = "rtl"
 "~F~irst row is a header" = "ال~ص~ف الأول عنوان"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:58
 "~E~ncoding" = "~ت~رميز"
-# navigator/__main__.py:556
+# navigator/__main__.py:601
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "تعذرت قراءة حافظة سطح المكتب، فلصق Navigator آخر نسخة لديه. ثبت xclip أو xsel (X11)، أو wl-clipboard (Wayland)، لمشاركة الحافظة مع البرامج الأخرى."
-# navigator/__main__.py:443, navigator/widgets/shell/shell/shell.py:776, navigator/widgets/shell/shell/shell.py:1120
+# navigator/__main__.py:449, navigator/widgets/shell/shell/shell.py:777, navigator/widgets/shell/shell/shell.py:1121
 "A program in the console has the keys" = "برنامج في وحدة التحكم يملك المفاتيح"
-# navigator/__main__.py:445
+# navigator/__main__.py:451
 "The console is over the windows: Alt-X is the program's" = "وحدة التحكم فوق النوافذ: Alt-X للبرنامج"
-# navigator/__main__.py:479
+# navigator/__main__.py:524
 "{n} operation is running in the background. Stop it and quit?" = ["لا عمليات تعمل في الخلفية. إيقافها والخروج؟", "عملية واحدة تعمل في الخلفية. إيقافها والخروج؟", "عمليتان تعملان في الخلفية. إيقافهما والخروج؟", "{n} عمليات تعمل في الخلفية. إيقافها والخروج؟", "{n} عملية تعمل في الخلفية. إيقافها والخروج؟", "{n} عملية تعمل في الخلفية. إيقافها والخروج؟"]
-# navigator/__main__.py:561
+# navigator/__main__.py:606
 "Clipboard" = "الحافظة"
-# navigator/commands.py:67
+# navigator/commands.py:30
+"Record" = "تسجيل"
+# navigator/commands.py:41
+"Play" = "تشغيل"
+# navigator/commands.py:91
 "Character table" = "جدول الأحرف"
-# navigator/commands.py:73
+# navigator/commands.py:97
 "SmartPad" = "SmartPad"
-# navigator/commands.py:81
+# navigator/commands.py:105
 "Print" = "طباعة"
 # navigator/lib/appearance/savers.py:34
 "∙ Star flight" = "∙ رحلة النجوم"
@@ -2498,7 +2506,7 @@ direction = "rtl"
 "No files in this directory" = "لا ملفات في هذا المجلد"
 # navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ ملف، {total}", "~{n:,}~ ملف، {total}", "~{n:,}~ ملف، {total}", "~{n:,}~ ملفات، {total}", "~{n:,}~ ملفا، {total}", "~{n:,}~ ملف، {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:247
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:248
 "Drive" = "القرص"
 # navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "إجمالي الذاكرة: ~{n:,}~ ك.بايت"
@@ -2646,7 +2654,7 @@ direction = "rtl"
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "رابط GVfs/KIO جديد (MTP, WebDAV ~و~غيرها)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "إضافة"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:63 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:64 ...
 "Edit" = "تحرير"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5206
 "~N~ew SSH link (SFTP)..." = "رابط SSH ~ج~ديد (SFTP)..."
@@ -2692,7 +2700,7 @@ direction = "rtl"
 "Lowercase" = "أحرف صغيرة"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "حرف أول كبير"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:152
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:238, navigator/widgets/viewer/commands.py:152
 "Sort" = "فرز"
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "حساب المجموع"
@@ -2760,29 +2768,31 @@ direction = "rtl"
 "Place marker" = "وضع علامة"
 # navigator/widgets/editor/commands.py:499
 "Go to marker" = "الذهاب إلى علامة"
-# navigator/widgets/editor/commands.py:507
+# navigator/widgets/editor/commands.py:509
+"Macro" = "ماكرو"
+# navigator/widgets/editor/commands.py:515
 "Read block" = "قراءة كتلة"
-# navigator/widgets/editor/commands.py:513
+# navigator/widgets/editor/commands.py:521
 "Write block" = "كتابة كتلة"
-# navigator/widgets/editor/commands.py:519
+# navigator/widgets/editor/commands.py:527
 "Insert date" = "إدراج التاريخ"
-# navigator/widgets/editor/commands.py:525
+# navigator/widgets/editor/commands.py:533
 "Insert time" = "إدراج الوقت"
-# navigator/widgets/editor/commands.py:532
+# navigator/widgets/editor/commands.py:540
 "Vertical blocks" = "كتل عمودية"
-# navigator/widgets/editor/commands.py:545
+# navigator/widgets/editor/commands.py:553
 "Redo" = "إعادة"
-# navigator/widgets/editor/commands.py:551
+# navigator/widgets/editor/commands.py:559
 "Open" = "فتح"
-# navigator/widgets/editor/commands.py:557, navigator/widgets/viewer/commands.py:99
+# navigator/widgets/editor/commands.py:565, navigator/widgets/viewer/commands.py:99
 "Save as" = "حفظ باسم"
-# navigator/widgets/editor/commands.py:563
+# navigator/widgets/editor/commands.py:571
 "Save all" = "حفظ الكل"
-# navigator/widgets/editor/commands.py:569
+# navigator/widgets/editor/commands.py:577
 "Save" = "حفظ"
 # navigator/widgets/editor/edit_window/edit_window.py:914, navigator/widgets/editor/edit_window/edit_window.py:826
 "Untitled" = "بلا عنوان"
-# navigator/widgets/editor/edit_window/edit_window.py:372, navigator/widgets/editor/file_editor/file_editor.py:2764
+# navigator/widgets/editor/edit_window/edit_window.py:372, navigator/widgets/editor/file_editor/file_editor.py:2811
 "No block is marked" = "لا توجد كتلة محددة"
 # navigator/widgets/editor/edit_window/edit_window.py:413, navigator/widgets/editor/edit_window/edit_window.py:916, navigator/widgets/editor/edit_window/edit_window.py:428 ...
 "Warning" = "تحذير"
@@ -2820,7 +2830,7 @@ direction = "rtl"
 "Information" = "معلومات"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1819
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1820
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
@@ -2828,36 +2838,42 @@ direction = "rtl"
 "Save file {name}?" = "حفظ الملف {name}؟"
 # navigator/widgets/editor/edit_window/edit_window.py:429
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "الملف {name}\nمعلم للقراءة فقط.\nتعديله على أي حال؟"
-# navigator/widgets/editor/file_editor/file_editor.py:2876
+# navigator/widgets/editor/file_editor/file_editor.py:2119, navigator/widgets/editor/file_editor/file_editor.py:2113, navigator/widgets/editor/file_editor/file_editor.py:2130
+"Macros" = "وحدات الماكرو"
+# navigator/widgets/editor/file_editor/file_editor.py:2923
 "~G~o to line..." = "~ذ~هاب إلى سطر..."
-# navigator/widgets/editor/file_editor/file_editor.py:2878
+# navigator/widgets/editor/file_editor/file_editor.py:2925
 "~I~ndent block" = "~ز~يادة الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:2879
+# navigator/widgets/editor/file_editor/file_editor.py:2926
 "U~n~indent block" = "~ت~قليل الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:2880
+# navigator/widgets/editor/file_editor/file_editor.py:2927
 "Change ca~s~e" = "حالة ~ا~لأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:2881
+# navigator/widgets/editor/file_editor/file_editor.py:2928
 "~U~pper case" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:2882
+# navigator/widgets/editor/file_editor/file_editor.py:2929
 "~L~ower case" = "أحرف ~ص~غيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:2885
+# navigator/widgets/editor/file_editor/file_editor.py:2932
 "Sa~v~e" = "~ح~فظ"
-# navigator/widgets/editor/file_editor/file_editor.py:2767
+# navigator/widgets/editor/file_editor/file_editor.py:2814
 "Nothing to undo" = "لا شيء للتراجع عنه"
-# navigator/widgets/editor/file_editor/file_editor.py:2770
+# navigator/widgets/editor/file_editor/file_editor.py:2817
 "Nothing to redo" = "لا شيء لإعادته"
-# navigator/widgets/editor/file_editor/file_editor.py:2778
+# navigator/widgets/editor/file_editor/file_editor.py:2825
 "The text is empty" = "النص فارغ"
-# navigator/widgets/editor/file_editor/file_editor.py:3600
+# navigator/widgets/editor/file_editor/file_editor.py:3647
 "Line and column: a click goes to a line" = "السطر والعمود: النقر ينتقل إلى سطر"
-# navigator/widgets/editor/file_editor/file_editor.py:3601
+# navigator/widgets/editor/file_editor/file_editor.py:3648
 "The character's code: a click opens the character table" = "رمز الحرف: النقر يفتح جدول الأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:3602
+# navigator/widgets/editor/file_editor/file_editor.py:3649
 "Vertical blocks: a click makes them stream blocks" = "كتل عمودية: النقر يجعلها كتلا متدفقة"
-# navigator/widgets/editor/file_editor/file_editor.py:3603
+# navigator/widgets/editor/file_editor/file_editor.py:3650
 "Stream blocks: a click makes them vertical" = "كتل متدفقة: النقر يجعلها عمودية"
-# navigator/widgets/editor/file_editor/file_editor.py:1811, navigator/widgets/editor/file_editor/file_editor.py:1850
+# navigator/widgets/editor/file_editor/file_editor.py:2113
+"macros.ini has no macro for this file" = "لا يحوي macros.ini ماكرو لهذا الملف"
+# navigator/widgets/editor/file_editor/file_editor.py:1815, navigator/widgets/editor/file_editor/file_editor.py:1854
 "Vertical blocks need for this operation" = "هذه العملية تتطلب كتلا عمودية"
+# navigator/widgets/editor/file_editor/file_editor.py:2130
+"Not an editor command: {names}" = "ليس أمر محرر: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "لغات ~ب~رمجة"
 # navigator/widgets/editor/file_type_menu.py:29
@@ -3012,7 +3028,7 @@ direction = "rtl"
 "Failed: {n}" = "فاشل: {n}"
 # navigator/widgets/file_ops/checksum_report/checksum_report.py:33
 "Missing: {missing}    Unreadable: {unreadable}" = "مفقود: {missing}    غير مقروء: {unreadable}"
-# navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:224, navigator/widgets/shell/commands.py:129 ...
+# navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:225, navigator/widgets/shell/commands.py:129 ...
 "Tree" = "شجرة"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:47
 "~C~opy ~{n} file~ to" = ["~ن~سخ ~{n} ملف~ إلى", "~ن~سخ ~ملف واحد~ إلى", "~ن~سخ ~ملفين~ إلى", "~ن~سخ ~{n} ملفات~ إلى", "~ن~سخ ~{n} ملفا~ إلى", "~ن~سخ ~{n} ملف~ إلى"]
@@ -3116,9 +3132,9 @@ direction = "rtl"
 "Pause" = "توقف"
 # navigator/widgets/game/commands.py:23
 "Top 10" = "أفضل 10"
-# navigator/widgets/game/commands.py:29, navigator/widgets/manager/commands.py:264
+# navigator/widgets/game/commands.py:29, navigator/widgets/manager/commands.py:265
 "Setup" = "إعداد"
-# navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:311
+# navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:312
 "Preview" = "معاينة"
 # navigator/widgets/game/game_window/game_window.py:99
 "Game over\n\nFinal score - {score}" = "انتهت اللعبة\n\nالنتيجة النهائية - {score}"
@@ -3140,7 +3156,7 @@ direction = "rtl"
 "The figure that falls next: while it is shown, a figure set down scores 70%" = "الشكل الذي يسقط تاليا: ما دام ظاهرا، يحصد الشكل الموضوع 70%"
 # navigator/widgets/game/game_window/info.py:59
 "While Next is shown, a figure set down and an emptied glass score 70%" = "ما دام التالي ظاهرا، يحصد الشكل الموضوع وإفراغ الكأس 70%"
-# navigator/widgets/game/game_window/info.py:79, navigator/widgets/manager/commands.py:305, navigator/widgets/manager/panel/option_items.py:52 ...
+# navigator/widgets/game/game_window/info.py:79, navigator/widgets/manager/commands.py:306, navigator/widgets/manager/panel/option_items.py:52 ...
 "Info" = "معلومات"
 # navigator/widgets/game/game_window/info.py:80
 "Score: ~{score}~" = "النقاط: ~{score}~"
@@ -3170,35 +3186,35 @@ direction = "rtl"
 "~R~atio" = "~ن~سبة الضغط"
 # navigator/widgets/manager/commands.py:29
 "View" = "عرض"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1858, navigator/widgets/shell/shell/shell.py:1911 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1859, navigator/widgets/shell/shell/shell.py:1912 ...
 "Open with" = "فتح بواسطة"
-# navigator/widgets/manager/commands.py:79, navigator/widgets/manager/commands.py:276, navigator/widgets/manager/commands.py:287
+# navigator/widgets/manager/commands.py:80, navigator/widgets/manager/commands.py:277, navigator/widgets/manager/commands.py:288
 "Ren" = "تسمية"
-# navigator/widgets/manager/commands.py:90
+# navigator/widgets/manager/commands.py:91
 "SymLnk" = "رابط"
-# navigator/widgets/manager/commands.py:125, navigator/widgets/manager/panel/panel.py:2713
+# navigator/widgets/manager/commands.py:126, navigator/widgets/manager/panel/panel.py:2713
 "Attr" = "سمات"
-# navigator/widgets/manager/commands.py:129
+# navigator/widgets/manager/commands.py:130
 "MkDir" = "مجلد"
-# navigator/widgets/manager/commands.py:142, navigator/widgets/manager/commands.py:706
+# navigator/widgets/manager/commands.py:143, navigator/widgets/manager/commands.py:707
 "Del" = "حذف"
-# navigator/widgets/manager/commands.py:153
+# navigator/widgets/manager/commands.py:154
 "Re-read" = "تحديث"
-# navigator/widgets/manager/commands.py:215
+# navigator/widgets/manager/commands.py:216
 "Go to directory" = "الذهاب إلى مجلد"
-# navigator/widgets/manager/commands.py:299
+# navigator/widgets/manager/commands.py:300
 "Calc" = "حاسبة"
-# navigator/widgets/manager/commands.py:572
+# navigator/widgets/manager/commands.py:573
 "Go to file" = "الذهاب إلى ملف"
-# navigator/widgets/manager/commands.py:592
+# navigator/widgets/manager/commands.py:593
 "Compare" = "مقارنة"
-# navigator/widgets/manager/commands.py:646
+# navigator/widgets/manager/commands.py:647
 "Hidden" = "مخفية"
-# navigator/widgets/manager/commands.py:663
+# navigator/widgets/manager/commands.py:664
 "Arc" = "أرشفة"
-# navigator/widgets/manager/commands.py:670
+# navigator/widgets/manager/commands.py:671
 "Ext" = "استخراج"
-# navigator/widgets/manager/commands.py:695
+# navigator/widgets/manager/commands.py:696
 "Edit..." = "تحرير..."
 # navigator/widgets/manager/compare_progress/compare_progress.py:31
 "{n} difference found" = ["عثر على {n} اختلاف", "عثر على اختلاف واحد", "عثر على اختلافين", "عثر على {n} اختلافات", "عثر على {n} اختلافا", "عثر على {n} اختلاف"]
@@ -3218,7 +3234,7 @@ direction = "rtl"
 "Only in a file panel, not beside it" = "في لوحة الملفات فقط، لا بجانبها"
 # navigator/widgets/manager/manager/manager.py:2460
 "No files are tagged, and the cursor is on none" = "لا ملفات محددة، والمؤشر ليس على ملف"
-# navigator/widgets/manager/manager/manager.py:2461, navigator/widgets/shell/shell/shell.py:1178
+# navigator/widgets/manager/manager/manager.py:2461, navigator/widgets/shell/shell/shell.py:1179
 "The command line holds text: the key edits it" = "في سطر الأوامر نص: المفتاح يحرره"
 # navigator/widgets/manager/manager/manager.py:2462
 "This drive cannot be written to" = "لا يمكن الكتابة على هذا القرص"
@@ -3292,11 +3308,11 @@ direction = "rtl"
 "Delete {n} file?" = ["حذف {n} ملف؟", "حذف ملف واحد؟", "حذف ملفين؟", "حذف {n} ملفات؟", "حذف {n} ملفا؟", "حذف {n} ملف؟"]
 # navigator/widgets/manager/manager/manager.py:2272
 "A place inside an archive cannot be bookmarked" = "لا يمكن وضع إشارة مرجعية لمكان داخل أرشيف"
-# navigator/widgets/manager/manager/manager.py:2466, navigator/widgets/shell/shell/shell.py:781
+# navigator/widgets/manager/manager/manager.py:2466, navigator/widgets/shell/shell/shell.py:782
 "fzf is not installed, or the shell is not bash or zsh" = "fzf غير مثبت، أو أن الصدفة ليست bash أو zsh"
 # navigator/widgets/manager/manager/manager.py:2472, navigator/widgets/manager/manager/manager.py:2609, navigator/widgets/manager/manager/manager.py:2634
 "The cursor is not on a file" = "المؤشر ليس على ملف"
-# navigator/widgets/manager/manager/manager.py:2474, navigator/widgets/shell/shell/shell.py:1162
+# navigator/widgets/manager/manager/manager.py:2474, navigator/widgets/shell/shell/shell.py:1163
 "Neither GIO nor KIO is installed" = "لا GIO ولا KIO مثبت"
 # navigator/widgets/manager/manager/manager.py:2475
 "No graphical desktop to open it on" = "لا سطح مكتب رسومي لفتحه عليه"
@@ -3318,7 +3334,7 @@ direction = "rtl"
 "The file clipboard is empty" = "حافظة الملفات فارغة"
 # navigator/widgets/manager/manager/manager.py:2569
 "File Manager Setup's Del erases is off" = "خيار «DEL يمسح الملفات» في إعداد مدير الملفات معطل"
-# navigator/widgets/manager/manager/manager.py:2574, navigator/widgets/manager/manager/manager.py:2617, navigator/widgets/shell/shell/shell.py:1139
+# navigator/widgets/manager/manager/manager.py:2574, navigator/widgets/manager/manager/manager.py:2617, navigator/widgets/shell/shell/shell.py:1140
 "The cursor is on no file" = "المؤشر ليس على أي ملف"
 # navigator/widgets/manager/manager/manager.py:2586
 "Not inside an archive" = "ليس داخل أرشيف"
@@ -3682,7 +3698,7 @@ direction = "rtl"
 "Cannot bind that:\n{error}" = "لا يمكن ربط ذلك:\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} مربوط بـ {command}.\nإعادة ربطه؟"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:326
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:327
 "Cannot make {path}: {error}" = "لا يمكن إنشاء {path}: {error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} هو المفتاح العام لـ {command}، ويفحص\nأولا. ربطه هنا على أي حال؟"
@@ -3768,29 +3784,31 @@ direction = "rtl"
 "Extension File" = "ملف الامتدادات"
 # navigator/widgets/shell/commands.py:513
 "Highlight File" = "ملف التلوين"
-# navigator/widgets/shell/commands.py:519
+# navigator/widgets/shell/commands.py:521
+"Macro File" = "ملف الماكرو"
+# navigator/widgets/shell/commands.py:527
 "Viewers" = "العارضات"
-# navigator/widgets/shell/commands.py:525
+# navigator/widgets/shell/commands.py:533
 "Editors" = "المحررات"
-# navigator/widgets/shell/commands.py:543
+# navigator/widgets/shell/commands.py:551
 "Panel Defaults" = "افتراضيات اللوحات"
-# navigator/widgets/shell/commands.py:553
-"SSH" = "SSH"
 # navigator/widgets/shell/commands.py:561
+"SSH" = "SSH"
+# navigator/widgets/shell/commands.py:569
 "Discon" = "قطع"
-# navigator/widgets/shell/commands.py:570
+# navigator/widgets/shell/commands.py:578
 "Unroot" = "بلا root"
-# navigator/widgets/shell/commands.py:585
-"Comms" = "الاتصالات"
 # navigator/widgets/shell/commands.py:593
+"Comms" = "الاتصالات"
+# navigator/widgets/shell/commands.py:601
 "FTP" = "FTP"
-# navigator/widgets/shell/commands.py:602
+# navigator/widgets/shell/commands.py:610
 "S3" = "S3"
-# navigator/widgets/shell/commands.py:614
-"GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
+"GVfs" = "GVfs"
+# navigator/widgets/shell/commands.py:630
 "SMB" = "SMB"
-# navigator/widgets/shell/commands.py:633
+# navigator/widgets/shell/commands.py:641
 "Backgr" = "خلفية"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~إ~لغاء التحديد"
@@ -3816,10 +3834,14 @@ direction = "rtl"
 "Pinned" = "المثبتة"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "انقر لإعادة المربع"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2805
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2812
 "{operation}: waiting for an answer" = "{operation}: بانتظار إجابة"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2807
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2814
 "{operation}: {percent}% done" = "{operation}: اكتمل {percent}%"
+# navigator/widgets/shell/macro_mark.py:50
+"The same keys again stop it" = "المفاتيح نفسها مجددًا توقفه"
+# navigator/widgets/shell/macro_mark.py:49
+"Recording keys into macro {slot}" = "تسجيل المفاتيح في الماكرو {slot}"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"
 # navigator/widgets/shell/root_mark.py:51
@@ -3830,107 +3852,107 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["يغلق بعد {n} دقيقة خمول", "يغلق بعد دقيقة خمول واحدة", "يغلق بعد دقيقتي خمول", "يغلق بعد {n} دقائق خمول", "يغلق بعد {n} دقيقة خمول", "يغلق بعد {n} دقيقة خمول"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} يغلقه الآن"
-# navigator/widgets/shell/shell/shell.py:1121
-"Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
 # navigator/widgets/shell/shell/shell.py:1122
+"Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
+# navigator/widgets/shell/shell/shell.py:1123
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
-# navigator/widgets/shell/shell/shell.py:2726, navigator/widgets/shell/shell/shell.py:2719
+# navigator/widgets/shell/shell/shell.py:2733, navigator/widgets/shell/shell/shell.py:2726
 "Disconnect" = "قطع الاتصال"
-# navigator/widgets/shell/shell/shell.py:2812
+# navigator/widgets/shell/shell/shell.py:2819
 "Background operations" = "العمليات في الخلفية"
-# navigator/widgets/shell/shell/shell.py:1148
+# navigator/widgets/shell/shell/shell.py:1149
 "No connection is open" = "لا يوجد اتصال مفتوح"
-# navigator/widgets/shell/shell/shell.py:1193
+# navigator/widgets/shell/shell/shell.py:1194
 "A command is still running" = "ما زال أمر قيد التشغيل"
-# navigator/widgets/shell/shell/shell.py:1857
+# navigator/widgets/shell/shell/shell.py:1858
 "~C~ommand..." = "~أ~مر..."
-# navigator/widgets/shell/shell/shell.py:1995
+# navigator/widgets/shell/shell/shell.py:1996
 "Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:3103
+# navigator/widgets/shell/shell/shell.py:3110
 "File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:3103
+# navigator/widgets/shell/shell/shell.py:3110
 "File Edit History" = "سجل تحرير الملفات"
-# navigator/widgets/shell/shell/shell.py:1137
+# navigator/widgets/shell/shell/shell.py:1138
 "The editor has the keys" = "المفاتيح لدى المحرر"
-# navigator/widgets/shell/shell/shell.py:1150
+# navigator/widgets/shell/shell/shell.py:1151
 "No root access is open" = "لا توجد صلاحية root مفتوحة"
-# navigator/widgets/shell/shell/shell.py:1154
+# navigator/widgets/shell/shell/shell.py:1155
 "Nothing is running in the background" = "لا شيء يعمل في الخلفية"
-# navigator/widgets/shell/shell/shell.py:1168
+# navigator/widgets/shell/shell/shell.py:1169
 "Only in a file panel or the console" = "فقط في لوحة ملفات أو في الطرفية"
-# navigator/widgets/shell/shell/shell.py:1176
+# navigator/widgets/shell/shell/shell.py:1177
 "File Manager Setup's Space toggles is off" = "خيار المسافة تحدد في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:1188
+# navigator/widgets/shell/shell/shell.py:1189
 "The command line is empty" = "سطر الأوامر فارغ"
-# navigator/widgets/shell/shell/shell.py:1192
+# navigator/widgets/shell/shell/shell.py:1193
 "File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:1909
+# navigator/widgets/shell/shell/shell.py:1910
 "~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
-# navigator/widgets/shell/shell/shell.py:2569, navigator/widgets/shell/shell/shell.py:2755
+# navigator/widgets/shell/shell/shell.py:2576, navigator/widgets/shell/shell/shell.py:2762
 "{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:3093
+# navigator/widgets/shell/shell/shell.py:3100
 "Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:3093
+# navigator/widgets/shell/shell/shell.py:3100
 "Track editing history" = "تتبع سجل التحرير"
-# navigator/widgets/shell/shell/shell.py:1199
+# navigator/widgets/shell/shell/shell.py:1200
 "The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
-# navigator/widgets/shell/shell/shell.py:1635
+# navigator/widgets/shell/shell/shell.py:1636
 "User menu (global)" = "قائمة المستخدم (عامة)"
-# navigator/widgets/shell/shell/shell.py:1635
+# navigator/widgets/shell/shell/shell.py:1636
 "Local menu" = "القائمة المحلية"
-# navigator/widgets/shell/shell/shell.py:1637
+# navigator/widgets/shell/shell/shell.py:1638
 "User menu (local)" = "قائمة المستخدم (محلية)"
-# navigator/widgets/shell/shell/shell.py:1637
+# navigator/widgets/shell/shell/shell.py:1638
 "Global menu" = "القائمة العامة"
-# navigator/widgets/shell/shell/shell.py:2717
+# navigator/widgets/shell/shell/shell.py:2724
 "Close the {protocol} connection to {host}?" = "إغلاق اتصال {protocol} مع {host}؟"
-# navigator/widgets/shell/shell/shell.py:328
+# navigator/widgets/shell/shell/shell.py:329
 "Store Color Palette" = "حفظ لوحة الألوان"
-# navigator/widgets/shell/shell/shell.py:386
+# navigator/widgets/shell/shell/shell.py:387
 "Load Color Palette" = "تحميل لوحة الألوان"
-# navigator/widgets/shell/shell/shell.py:233
+# navigator/widgets/shell/shell/shell.py:234
 "No desktop has been saved" = "لم يحفظ أي سطح مكتب"
-# navigator/widgets/shell/shell/shell.py:255
+# navigator/widgets/shell/shell/shell.py:256
 "Cannot read the theme: {error}" = "لا يمكن قراءة السمة: {error}"
-# navigator/widgets/shell/shell/shell.py:274
+# navigator/widgets/shell/shell/shell.py:275
 "Cannot save the palette: {error}" = "لا يمكن حفظ لوحة الألوان: {error}"
-# navigator/widgets/shell/shell/shell.py:401
+# navigator/widgets/shell/shell/shell.py:402
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
-# navigator/widgets/shell/shell/shell.py:513
+# navigator/widgets/shell/shell/shell.py:514
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:3154
+# navigator/widgets/shell/shell/shell.py:3161
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:3154
+# navigator/widgets/shell/shell/shell.py:3161
 "Edit file" = "تحرير ملف"
-# navigator/widgets/shell/shell/shell.py:2195
+# navigator/widgets/shell/shell/shell.py:2202
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
-# navigator/widgets/shell/shell/shell.py:2616
+# navigator/widgets/shell/shell/shell.py:2623
 "Wrong passphrase for {key}. Try again:" = "عبارة مرور خاطئة لـ {key}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2617
+# navigator/widgets/shell/shell/shell.py:2624
 "Passphrase for {key}:" = "عبارة المرور لـ {key}:"
-# navigator/widgets/shell/shell/shell.py:2603
+# navigator/widgets/shell/shell/shell.py:2610
 "Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2604
+# navigator/widgets/shell/shell/shell.py:2611
 "Secret key for {who}:" = "المفتاح السري لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2607
+# navigator/widgets/shell/shell/shell.py:2614
 "Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2608
+# navigator/widgets/shell/shell/shell.py:2615
 "{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2756
+# navigator/widgets/shell/shell/shell.py:2763
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
-# navigator/widgets/shell/shell/shell.py:3096
+# navigator/widgets/shell/shell/shell.py:3103
 "Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1570
+# navigator/widgets/shell/shell/shell.py:1571
 "Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1597
+# navigator/widgets/shell/shell/shell.py:1598
 "File {name} not found" = "الملف {name} غير موجود"
-# navigator/widgets/shell/shell/shell.py:1748
+# navigator/widgets/shell/shell/shell.py:1749
 "Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
-# navigator/widgets/shell/shell/shell.py:2586
+# navigator/widgets/shell/shell/shell.py:2593
 "Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:2904
+# navigator/widgets/shell/shell/shell.py:2911
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:3060
+# navigator/widgets/shell/shell/shell.py:3067
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"

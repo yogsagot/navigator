@@ -771,8 +771,13 @@ def _control_key(byte: int, *, alt: bool = False, ctrl_h: bool = False) -> KeyEv
     match byte:
         case 0x09:
             return KeyEvent("tab", "\t", alt=alt)
-        case 0x0D | 0x0A:
+        case 0x0D:
             return KeyEvent("enter", "\n", alt=alt)
+        case 0x0A:
+            # Enter is CR in raw mode (ICRNL is off), so LF can only be
+            # Ctrl+J -- the same reasoning as Ctrl+H below.  A pasted line
+            # break arrives inside bracketed paste, not as a key.
+            return KeyEvent("j", ctrl=True, alt=alt)
         case 0x7F:
             return KeyEvent("backspace", alt=alt)
         case 0x08 if not ctrl_h:

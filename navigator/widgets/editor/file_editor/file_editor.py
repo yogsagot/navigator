@@ -72,6 +72,7 @@ from navigator.widgets.editor.commands import (
     ReverseSearch,
     StartSearch,
     AsciiTable,
+    SelectMacro,
     GotoLineNumber,
     BracketPair,
     PrintBlock,
@@ -560,6 +561,9 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+shift+]": LowString,
         "ctrl+shift+\\": CapString,
         "ctrl+p": AsciiTable,
+        #: DN's Ctrl+J 0, ``cmSelectMacro``: the file type's macros.  Ctrl+J 1..9,
+        #: which played them in DN, play key macros now -- the application's.
+        "ctrl+j 0": SelectMacro,
         "alt+left": BracketPair,
         "alt+right": BracketPair,
         "alt+j": FJustify,
@@ -2083,6 +2087,49 @@ class FileEditor(ContextMenuHost, Widget):
             self._go_column(line, max(0, col - 1))
         if how != "move":
             self._pen = (direction + 2) % 4
+
+    # -- Ctrl+J 0: macros ------------------------------------------------------------
+
+    async def on_select_macro(self, event: SelectMacro) -> bool:
+        self.spawn(self.select_macro())
+        return True
+
+    async def select_macro(self) -> None:
+        """``cmSelectMacro``: this file's macros (``macros.ini``) in a box, and
+        the one chosen played -- a departure, DN's was empty."""
+        import asyncio
+
+        from navml.widgets.dialog.dialog import Dialog
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.lib.config import macros
+
+        app = self.application
+        sections = await asyncio.to_thread(macros.read)
+        name = self.path.name if self.path is not None else ""
+        found = macros.macros_for(sections, name)
+        if not found:
+            await Dialog(title=tr("Macros"), prompt=tr("macros.ini has no macro for this file"),
+                         buttons="ok").execute(app)
+            self.focus()
+            return
+        menu = SubMenu()
+        items = [menu.add_item(macro.name.replace("~", "~~")) for macro in found]
+        title = tr("Macros")
+        width, height = PopupMenu.measure(menu, app, self, title)
+        ox, oy = self.offset()
+        box = PopupMenu(menu, ox + self.x + max(0, (self.width - width) // 2),
+                        oy + self.y + max(0, (self.height - height) // 2), behind=self, title=title)
+        chosen = await box.execute(app)
+        self.focus()
+        if chosen is None:
+            return
+        unknown = await macros.play_steps(self, found[items.index(chosen)].steps)
+        if unknown:
+            await Dialog(title=tr("Macros"), prompt=tr("Not an editor command: {names}").format(
+                names=", ".join(unknown)), buttons="ok").execute(app)
+            self.focus()
 
     # -- ^K1-9 and ^Q1-9 -----------------------------------------------------------
 

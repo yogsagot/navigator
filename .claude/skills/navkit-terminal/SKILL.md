@@ -41,6 +41,9 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
 - **Ctrl+H vs Backspace**: a legacy terminal sends Ctrl+H as 0x08, which navkit reads as Ctrl+H only once the tty's
   erase character (`Terminal.erase`, termios `VERASE`, read before raw mode) says Backspace is 0x7F, and as Backspace
   otherwise (`InputParser.ctrl_h`).
+- **0x0A is Ctrl+J, 0x0D Enter**: in raw mode (ICRNL off) Enter sends CR, so a legacy terminal's LF can only be
+  Ctrl+J -- the key macros' chord prefix (`navigator-macros`). A pasted line break comes inside bracketed paste,
+  and `encode_key` sends Ctrl+J to a child as 0x0A again.
 - Keypad operators are named `kp_plus`/`kp_minus`/`kp_multiply`/`kp_divide` (`char` kept), from kitty codes or from
   `SS3` under application keypad mode. xfce4-terminal (VTE) and PyCharm send Gray `+` as a bare `+` even then (named
   `plus`); only Ghostty told them apart, which is why Navigator binds the plain keys too.

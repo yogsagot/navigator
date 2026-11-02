@@ -513,6 +513,14 @@ class EditHGL(Command):
     title = "Highlight File"
 
 
+class EditMacros(Command):
+    """Options > Macro file edit: ``macros.ini``, the editor's macros -- DN
+    kept them in ``DN.HGL``, edited by Highlight file edit; a file of their
+    own here, beside it (``navigator.lib.config.macros``)."""
+
+    title = "Macro File"
+
+
 class ExternalViewers(Command):
     """Options > Viewers: DOS Navigator's ``cmExternalViewers``, ``viewers.ini`` (DN's ``DN.VWR``)."""
 

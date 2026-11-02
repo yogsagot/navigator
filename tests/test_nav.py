@@ -1709,6 +1709,7 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.shell.job_mark",                  # the marks over the bar's row
         "navigator.widgets.shell.keybar",
         "navigator.widgets.shell.keybar.keybar",
+        "navigator.widgets.shell.macro_mark",                # >MACRO< while keys are recorded
         "navigator.widgets.shell.main_menu",
         "navigator.widgets.shell.main_menu.main_menu",
         "navigator.widgets.shell.main_menu.main_menu_nml",
@@ -2951,6 +2952,9 @@ def test_the_application_keeps_only_what_is_global():
         *(f"ctrl+shift+f{number}" for number in range(1, 11)),
         # The context menu of whatever holds the keyboard.
         "menu", "shift+f10",
+        # Key macros, recorded and played anywhere: DN's were the application's too.
+        *(f"ctrl+j r {slot}" for slot in range(1, 10)),
+        *(f"ctrl+j {slot}" for slot in range(1, 10)),
     }
     assert table["ctrl+o"] is ToggleConsole
     assert table["f1"] is Help

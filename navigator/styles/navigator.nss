@@ -392,6 +392,9 @@ JobMark::job:asking    { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $erro
 Toast                  { fg: $bar-fg; bg: $bar-bg; bold: $bar-bold; dim: $bar-dim; italic: $bar-italic; underline: $bar-underline; reverse: $bar-reverse }
 /* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
    its text in their static text, dragged in their frame icons' colour. */
+/* The menu bar's >MACRO< while keys are recorded: the bar's key colours, as the
+   window strip's numbers and the mark of work in the background. */
+MacroMark              { fg: $bar-key-fg; bg: $bar-key-bg; bold: $bar-key-bold; dim: $bar-key-dim; italic: $bar-key-italic; underline: $bar-key-underline; reverse: $bar-key-reverse }
 /* The menu bar's ROOT while root access is open: the error box's white on red. */
 RootMark               { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
 TrashCan               { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }

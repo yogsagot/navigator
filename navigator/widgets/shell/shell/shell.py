@@ -61,6 +61,7 @@ from navigator.widgets.shell.commands import (
     EditQuickRun,
     ExtFileEdit,
     EditHGL,
+    EditMacros,
     ExternalViewers,
     ExternalEditors,
     QuickRun,
@@ -2009,6 +2010,12 @@ class Shell(DockLayout):
 
     async def on_edit_hgl(self, event: EditHGL) -> bool:
         self.spawn(self.edit_associations(HIGHLIGHT))
+        return True
+
+    async def on_edit_macros(self, event: EditMacros) -> bool:
+        from navigator.lib.config.associations import MACROS
+
+        self.spawn(self.edit_associations(MACROS))
         return True
 
     async def on_external_viewers(self, event: ExternalViewers) -> bool:

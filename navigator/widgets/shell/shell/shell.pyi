@@ -11,6 +11,7 @@ from navigator.widgets.shell.command_line import CommandLine
 from navigator.widgets.shell.console import Console
 from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.shell.job_mark import JobMark
+from navigator.widgets.shell.macro_mark import MacroMark
 from navigator.widgets.shell.main_menu import MainMenu
 from navigator.widgets.shell.root_mark import RootMark
 from navigator.widgets.shell.trash_can import TrashCan
@@ -41,7 +42,7 @@ from navigator.lib.system import fuzzy
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
-from navigator.widgets.shell.commands import EditLinks, Game, S3Link, GvfsLink, FtpLink, HangUp, CloseRootAccess, ShowBackground, NavyLink, SmbLink, SetupLink, OpenCalendar, ToggleTrashCan, OpenTrash, EmptyTrash, SaversSetup, CountrySetup, ScreenRest, About, ChangeColors, DriveInfoSetup, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, ExecuteCommandLineInWindow, FileManagerDefaults, EnvEdit, ExecuteOsCommand, LoadColors, LoadDesktop, SaveDesktop, StoreColors, SystemInfo, FileManagerSetup, HistoryList, FuzzyHistory, InsertName, InsertPath, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenEdit, OpenTreeWindow, OpenView, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
+from navigator.widgets.shell.commands import EditLinks, Game, S3Link, GvfsLink, FtpLink, HangUp, CloseRootAccess, ShowBackground, NavyLink, SmbLink, SetupLink, OpenCalendar, ToggleTrashCan, OpenTrash, EmptyTrash, SaversSetup, CountrySetup, ScreenRest, About, ChangeColors, DriveInfoSetup, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, ExecuteCommandLineInWindow, FileManagerDefaults, EnvEdit, ExecuteOsCommand, LoadColors, LoadDesktop, SaveDesktop, StoreColors, SystemInfo, FileManagerSetup, HistoryList, FuzzyHistory, InsertName, InsertPath, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenEdit, OpenTreeWindow, OpenView, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.dialog.date_button import CalendarView
 from navml.widgets.dialog.file_list import FileInfoPane
@@ -65,6 +66,7 @@ class Shell(DockLayout, _Component):
     window_strip: WindowStrip
     clock: Clock
     root_mark: RootMark
+    macro_mark: MacroMark
     job_mark: JobMark
     trash: TrashCan
     keybar: KeyBar
@@ -181,6 +183,7 @@ class Shell(DockLayout, _Component):
     async def on_edit_quick_run(self, event: EditQuickRun) -> bool: ...
     async def on_ext_file_edit(self, event: ExtFileEdit) -> bool: ...
     async def on_edit_hgl(self, event: EditHGL) -> bool: ...
+    async def on_edit_macros(self, event: EditMacros) -> bool: ...
     async def on_external_viewers(self, event: ExternalViewers) -> bool: ...
     async def on_external_editors(self, event: ExternalEditors) -> bool: ...
     async def edit_associations(self, file_name: str) -> None: ...

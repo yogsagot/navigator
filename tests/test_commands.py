@@ -355,6 +355,35 @@ def test_a_chord_runs_its_command_and_neither_key_reaches_on_key(terminal):
     assert root.keys_seen == []
 
 
+def test_a_widget_taking_keys_raw_starts_no_chord(terminal):
+    """A program on a pty is typed at: Ctrl+K is its, not a chord's -- the
+    console's and a terminal window's while one runs (``takes_raw_keys``)."""
+
+    class Raw(WordStar):
+        def takes_raw_keys(self):
+            return True
+
+    root = Raw()
+    root.can_focus = True
+    app = Application(root, terminal=terminal)
+    run_app(app, [lambda a: root.focus(), KeyEvent("k", ctrl=True), KeyEvent("s", "s")])
+    assert root.ran == [] and root.keys_seen == ["ctrl+k", "s"]
+    assert app.chord == ""
+
+
+def test_the_input_tap_sees_every_key_and_paste_first(terminal):
+    from navkit.events import PasteEvent
+
+    root = WordStar()
+    root.can_focus = True
+    app = Application(root, terminal=terminal)
+    tapped = []
+    app.input_tap = tapped.append
+    run_app(app, [lambda a: root.focus(), KeyEvent("k", ctrl=True), KeyEvent("s", "s"), PasteEvent("x")])
+    assert [getattr(e, "name", None) or e.text for e in tapped] == ["ctrl+k", "s", "x"]
+    assert root.ran == [Save()]
+
+
 def test_a_key_completing_nothing_is_swallowed_with_the_chord(terminal):
     root = WordStar()
     root.can_focus = True

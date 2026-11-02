@@ -3,6 +3,7 @@ from navigator.widgets.shell.command_line import CommandLine
 from navigator.widgets.shell.console import Console
 from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.shell.job_mark import JobMark
+from navigator.widgets.shell.macro_mark import MacroMark
 from navigator.widgets.shell.main_menu import MainMenu
 from navigator.widgets.shell.root_mark import RootMark
 from navigator.widgets.shell.trash_can import TrashCan
@@ -76,7 +77,7 @@ Shell(DockLayout):
         align: "right"
         x: menu.item_span(len(menu.entries()))[0] + 1 + (job_mark.width if job_mark.visible else 0)
         y: 0
-        width: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width) - 1 - self.x)
+        width: max(0, (macro_mark.x if macro_mark.visible else root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width) - 1 - self.x)
         height: 1
         labels: SETTINGS.interface.window_strip == "full"
         visible: SETTINGS.interface.window_strip != "off" and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
@@ -105,6 +106,17 @@ Shell(DockLayout):
         y: 0
         width: self.natural_width
         visible: self.open and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
+        style:
+            dock: none
+
+    #: DN's ``>MACRO<`` while keys are recorded (``navigator.lib.config.macros``):
+    #: before *ROOT*, or the clock, floating as they do.
+    MacroMark:
+        id: macro_mark
+        x: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width) - 1 - self.width)
+        y: 0
+        width: self.natural_width
+        visible: self.slot > 0 and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
         style:
             dock: none
 
