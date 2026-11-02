@@ -1,0 +1,22 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: F6 in the spreadsheet: DOS Navigator's ``dlgGotoCellNumber``, *Go to Cell
+#: Number* -- one line, a cell (``B12``), a row (``12``) or a column (``B``).
+#: A row taller than DN's 41 by 7, for the blank row this library keeps
+#: between line and buttons; Help is left out.
+GotoCellDialog(Dialog):
+    modal_width: 41
+    modal_height: 8
+    title: "Go to Cell Number"
+
+    #: DN's ``hsGotoCell``.
+    Field:
+        id: cell
+        x: 3
+        y: 2
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "~E~nter new cell number"
+        label_width: 23
+        history_id: "goto_cell"

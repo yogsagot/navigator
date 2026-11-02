@@ -1,6 +1,6 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, Ctrl+Q QuickViewer, and pictures shown on kitty/sixel terminals (image.py). Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), the CSV spreadsheet (table.py, SheetWindow, As Spreadsheet), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, Ctrl+Q QuickViewer, and pictures shown on kitty/sixel terminals (image.py). Use when changing the viewer or quick view.
 ---
 
 # The file viewer
@@ -147,6 +147,40 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
   *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a
   right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
+- **The spreadsheet** (F3 on a name in `[viewer] table_masks` (`*.csv;*.tsv;*.tab`, `render_tables` on), File >
+  View > *As Spreadsheet* `ViewAsSpreadsheet` on any file). DN's F3 on a `.WKZ` opened `TCalcWindow` (CALC.PAS);
+  here it opens on a delimited text file, **view-only**.
+  - **The model** is `navigator/lib/viewer/table.py`. `guess` picks the dialect: the delimiter by
+    `csv.Sniffer` among `, ; tab |` (tab for `.tsv`/`.tab`), the header by `has_header`, a BOM as
+    `utf-8-sig`, and non-UTF-8 as `cp1252`. `TableSource` walks the file once on its own thread (`start`).
+    The walk is a regex over quotes and line endings, noting each record's start in `starts`, so a quoted
+    field may hold delimiters and line breaks. `\r\n` split across blocks is carried over.
+  - **Reading rows**: a record is `pread` between two starts and parsed by `csv` alone (`record`/`row`,
+    an LRU of `CACHED_ROWS`). The loop reads only plain fields: `records`, `complete`, `percent`.
+  - **Thread work** runs under `run_with_progress`, as a `Work`: `sort_order` (numbers as numbers when
+    every non-blank cell is one, blanks last) and `find` (DN's `SearchCell`, over the order shown).
+  - `cell_name`/`column_name`/`parse_cell` use DN's letters.
+  - **The window** is `navigator/widgets/viewer/sheet_window/` (`Sheet*`, not `TCalc*`, which the
+    calculator holds). `SheetView` paints `TCalcView.Draw`'s layout itself: the cell-name box and the
+    cell's text (`TInfoView`, `TCalcInfo`), a rule, the letters centred, the header frozen as titles (a
+    departure), a rule, then rows after a gutter (`max(5, digits)`).
+  - **Cells** are `PAD` wide beyond their width. A number is right-aligned and a line break shows as a
+    blank. Colours are the Editor/Spreadsheet group (`CUniWindow` `#8#13#14`: [71] headings, [76] cells,
+    [77] cursor, [72] the name).
+  - **Keys** follow `hcSpreadSheet`. Arrows, PgUp/PgDn and Ctrl+PgUp/PgDn move. Home goes to A1 and End to
+    the last cell. F6 is *Go to Cell Number* (`GotoCellDialog`, `dlgGotoCellNumber`, history
+    `goto_cell`). F7 is *Find* (`SheetFindDialog`, `dlgFindCell`: string or value, case, whole words;
+    `LAST` kept for the session), and Shift+F7/Ctrl+L search again from the cursor. *Column width* is
+    DN's mode (`SheetView.resizing`, Left/Right until Enter/Esc).
+  - **Departures, asked for**: Enter is *View cell* (the whole text, `DBListDialog`). F5 sorts (the view
+    only, cycling up, down and the file's order; `SheetView.order`/`sort`). Shift+F6 is *Format*
+    (`TableFormatDialog`: delimiter, header, encoding; a new `TableSource` walked anew). Shift+F4 goes to
+    F3's text view at the row's offset and back again (`FileWindow.as_table`, `row_at`), in the same
+    place (`take_place`). Esc/F3 close, Ctrl+Left/Right resize, and a click picks a cell.
+  - **The *Table* menu** joins the bar after *File*, and the right-click menu holds its main entries.
+  - **The indicator** is `row/rows`, plus `+ NN%` while walking (a `call_every` tick) and the sort.
+  - **A file on another drive** is fetched (`materialize`, `use_set`) by `Manager._view_sheet`. A file that
+    cannot be opened so falls through to the text viewer, which offers *As root*.
 - **Pictures, shown as pictures**, a departure (DN's viewer had none; asked for): on a terminal that draws them
   (`TerminalInfo.graphics`, kitty's graphics protocol or sixel -- `navkit-terminal`), a file `[viewer] image_masks`
   names (`render_images`) is *Markup view*'s fifth format, `image` (`{Image}`, `Img` on the strip). Shift+F4 gives the
@@ -181,3 +215,4 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 | Reference | Read when |
 |---|---|
 | `reference/file-viewer.md` | the full design and what is deferred |
+| `reference/spreadsheet.md` | the spreadsheet: what DN's `TCalcWindow` kept, left out and departed from |

@@ -1,0 +1,59 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: Shift+F6 in the spreadsheet: how a CSV or TSV file is cut into cells --
+#: not DN's, whose ``.WKZ`` said so itself.  The delimiter (*Other* takes the
+#: character typed beside it), whether the first row names the columns, and
+#: the encoding, one of the viewer's (``viewer.ENCODINGS``).
+TableFormatDialog(Dialog):
+    modal_width: 50
+    modal_height: 14
+    title: "Format"
+    buttons: "ok-cancel"
+
+    Label:
+        id: delimiter_caption
+        x: 3
+        y: 2
+        width: 20
+        height: 1
+        text: "Delimiter"
+        link: delimiter
+
+    RadioButtons:
+        id: delimiter
+        x: 3
+        y: 3
+        width: 18
+        height: 5
+        items: ["~C~omma", "~S~emicolon", "~T~ab", "~P~ipe", "~O~ther"]
+
+    Field:
+        id: other
+        x: 23
+        y: 7
+        width: 12
+        height: 1
+        label_text: "C~h~ar"
+        label_width: 6
+
+    CheckBoxes:
+        id: options
+        x: 23
+        y: 3
+        width: 25
+        height: 1
+        items: ["~F~irst row is a header"]
+
+    ChoiceField:
+        id: encoding
+        x: 3
+        y: 9
+        width: max(0, parent.width - 6)
+        height: 1
+        label_text: "~E~ncoding"
+        label_width: 10

@@ -624,6 +624,14 @@ class ViewerDefaultsData(Section):
         "*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.webp;*.tif;*.tiff;*.ico",
         doc="The files F3 shows as pictures, as masks separated by ';'",
     )
+    #: DN's F3 on a ``.WKZ`` opened its spreadsheet; F3 on a CSV or TSV
+    #: opens that window, view-only (``navigator.lib.viewer.table``).
+    render_tables: bool = Setting(
+        True, doc="F3 shows a CSV or TSV file as a spreadsheet rather than its text",
+    )
+    table_masks: str = Setting(
+        "*.csv;*.tsv;*.tab", doc="The files F3 shows as a spreadsheet, as masks separated by ';'",
+    )
 
 
 class FMSetupData(Section):

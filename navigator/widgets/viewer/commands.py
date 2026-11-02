@@ -124,6 +124,51 @@ class EditDbField(Command):
     title = "Edit Field"
 
 
+class GotoCell(Command):
+    """F6 in the spreadsheet: DN's ``cmGotoCell``, *Go to Cell Number*."""
+
+    title = "Goto"
+
+
+class FindCell(Command):
+    """F7 in the spreadsheet: DN's ``cmFindCell``, *Find*."""
+
+    title = "Search"
+
+
+class ChangeWidth(Command):
+    """Table > Column width: DN's ``cmChangeWidth`` -- Left and Right narrow
+    and widen the cursor's column until Enter or Esc."""
+
+
+class SortColumn(Command):
+    """F5 in the spreadsheet: the rows ordered by the cursor's column,
+    ascending, descending, then as in the file -- a departure: DN's
+    spreadsheet had no sort, F5 was its *Recalc*."""
+
+    title = "Sort"
+
+
+class TableFormat(Command):
+    """Shift+F6 in the spreadsheet: how the file is cut into cells -- its
+    delimiter, whether its first row is a header, its encoding (a departure,
+    on the viewer's *XLat* key)."""
+
+    title = "Format"
+
+
+class ViewSheetAsText(Command):
+    """Shift+F4 in the spreadsheet: the same file in F3's text view, at the
+    cursor's row; Shift+F4 there comes back (a departure, as *Markup view*)."""
+
+    title = "Text"
+
+
+class ShowCell(Command):
+    """Enter in the spreadsheet: the cell at the cursor, whole, in a box --
+    a departure: DN's Enter began editing it, and this window edits nothing."""
+
+
 class CloseViewer(Command):
     """F3 in a viewer: close it, as Midnight Commander's F3 does.
 
@@ -167,4 +212,11 @@ __all__ = [
     "ShowFields",
     "ShowMemo",
     "EditDbField",
+    "GotoCell",
+    "FindCell",
+    "ChangeWidth",
+    "SortColumn",
+    "TableFormat",
+    "ViewSheetAsText",
+    "ShowCell",
 ]

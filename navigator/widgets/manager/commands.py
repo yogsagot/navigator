@@ -54,6 +54,11 @@ class ViewAsDataBase(Command):
     """File > View > As DataBase: ``cmViewDBF``, the dBase viewer."""
 
 
+class ViewAsSpreadsheet(Command):
+    """File > View > As Spreadsheet: the spreadsheet window DN opened on a
+    ``.WKZ`` (``TCalcWindow``), on a CSV or TSV file -- view-only."""
+
+
 class Edit(Command):
     title = "Edit"
 
@@ -750,6 +755,7 @@ __all__ = [
     "ViewAsText",
     "ViewAsHex",
     "ViewAsDataBase",
+    "ViewAsSpreadsheet",
     "Edit",
     "Copy",
     "RenameMove",

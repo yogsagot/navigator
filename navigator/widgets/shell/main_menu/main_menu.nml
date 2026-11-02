@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -34,13 +34,14 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: **What only meant something on DOS is not here either**, a departure from
 #: the rule that an entry with no feature yet stays greyed: some can never
 #: have one on POSIX.  Gone are *EGA/VGA lines* and the two *Custom video
-#: modes*; *View as Spreadsheet* and *Unpack diskette images* (DN's own
-#: formats); *Format disk*, *Volume label*, *Reanimator* (FAT undelete) and
-#: *Disk editor* (sectors); *Memory Information* (conventional/XMS/EMS),
+#: modes*; *Unpack diskette images* (DN's own format); *Format disk*,
+#: *Volume label*, *Reanimator* (FAT undelete) and *Disk editor* (sectors); *Memory Information* (conventional/XMS/EMS),
 #: *Phone Book*, *Open spreadsheet*, *CD Player*, and the modem's *Terminal*
 #: and *Manual dial*; *Printer setup*, *Mouse* and *Terminal* under
 #: Configuration; and the seventeen DOS archivers under Archives, which a
 #: list of POSIX ones replaces once archives can be opened.
+#: *View as Spreadsheet* is back as *As Spreadsheet*, for a CSV or TSV file
+#: where DN's opened its own ``.WKZ``.
 #: *Navigator Link* (as *SSH link (SFTP)*, named for what is on the wire),
 #: *Disconnect* and *Communications* are back, for connections to servers
 #: (``navigator/lib/drives``) where DN's were to a PC on a cable, and
@@ -119,6 +120,12 @@ MainMenu(MenuBar):
                 text: 'As ~D~ataBase'
                 tooltip: "View a dBase file as a table"
                 command: ViewAsDataBase
+            #: DN's *View as Spreadsheet* opened its own ``.WKZ``; here a CSV
+            #: or TSV file, view-only, as F3 on one does.
+            MenuItem:
+                text: 'As ~S~preadsheet'
+                tooltip: "View a CSV or TSV file as a spreadsheet"
+                command: ViewAsSpreadsheet
             MenuLine:
             MenuItem:
                 text: 'Alternate vie~w~'

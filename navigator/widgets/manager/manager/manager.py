@@ -111,6 +111,7 @@ from navigator.widgets.manager.commands import (
     View,
     OpenWith,
     ViewAsDataBase,
+    ViewAsSpreadsheet,
     ViewAsHex,
     ViewAsText,
 )
@@ -154,6 +155,7 @@ def _is_archive(entry: Any) -> bool:
 
     return (not entry.is_dir and entry.name != ".." and stat.S_ISREG(entry.mode)
             and filetypes.group_of(entry.name) == "archive")
+
 
 
 class Manager(Window):
@@ -3980,6 +3982,38 @@ class Manager(Window):
         self.spawn(self.view("database"))
         return True
 
+    async def on_view_as_spreadsheet(self, event: ViewAsSpreadsheet) -> bool:
+        self.spawn(self.view("sheet"))
+        return True
+
+    async def _view_sheet(self, desktop: Any, place: Any) -> bool:
+        """F3 on a CSV or TSV, or *As Spreadsheet*: DN's ``XT = '.WKZ'`` --
+        the spreadsheet window, on a copy for a file on another drive.  False
+        when it could not be read so, for the text viewer to try (and to say
+        why, or offer *As root*)."""
+        from navigator.widgets.viewer.sheet_window.sheet_window import open_sheet
+
+        if isinstance(place, Path):
+            try:
+                await open_sheet(desktop, place)
+            except OSError:
+                return False
+            return True
+        from navigator.lib.drives import usefile
+        from navigator.widgets.drives.use_file import materialize
+
+        use = await materialize(self.application, [place])
+        if use is None:
+            return True
+        try:
+            window = await open_sheet(desktop, use.local_for(place))
+        except OSError:
+            await asyncio.to_thread(usefile.discard, use)
+            return False
+        window.use_set = use
+        window.title = str(place)
+        return True
+
     async def view(self, mode: str | None = None) -> None:
         """Open the selected file in a viewer on this window's desktop.
 
@@ -3992,6 +4026,14 @@ class Manager(Window):
         desktop = self.desktop
         if entry is None or entry.is_dir or desktop is None:
             return
+        from navigator.lib.viewer.table import is_table
+
+        if mode == "sheet" or (mode is None and is_table(entry.name)):
+            local = panel.location.is_local or entry.directory is not None
+            place = entry.path_in(panel.path) if local else panel.entry_location(entry)
+            if await self._view_sheet(desktop, place):
+                return
+            mode = None
         if not panel.location.is_local and entry.directory is None:
             from navigator.lib.viewer.dbf import DBFError
             from navigator.widgets.drives.use_file import database_elsewhere, view_elsewhere
