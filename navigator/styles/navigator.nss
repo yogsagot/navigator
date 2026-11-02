@@ -595,22 +595,6 @@ DBViewer                                       { fg: $dbase-normal-text-fg; bg: 
 DBViewer::titles                               { fg: $dbase-fields-titles-fg; bg: $dbase-fields-titles-bg; bold: $dbase-fields-titles-bold; dim: $dbase-fields-titles-dim; italic: $dbase-fields-titles-italic; underline: $dbase-fields-titles-underline; reverse: $dbase-fields-titles-reverse }
 DBViewer::cursor                               { fg: $dbase-cursor-fg; bg: $dbase-cursor-bg; bold: $dbase-cursor-bold; dim: $dbase-cursor-dim; italic: $dbase-cursor-italic; underline: $dbase-cursor-underline; reverse: $dbase-cursor-reverse }
 
-/* The spreadsheet (F3 on a CSV, File > View > As Spreadsheet): TCalcWindow is a
-   TUniWindow, the Editor/Spreadsheet group; TCalcView's palette #8#13#14 takes
-   its [71] for the letters, numbers and rules, [76] for cells, [77] for the
-   cursor; the cell's name is TInfoView's GetColor(9), [72].  The header row's
-   titles, not DN's, as the letters. */
-SheetWindow                                    { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
-SheetWindow:active                             { fg: $editor-frame-active-fg; bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
-SheetWindow::title                             { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
-SheetWindow:active::title                      { fg: $editor-frame-active-fg; bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
-SheetWindow::icon                              { fg: $editor-frame-icons-fg; bg: $editor-frame-icons-bg; bold: $editor-frame-icons-bold; dim: $editor-frame-icons-dim; italic: $editor-frame-icons-italic; underline: $editor-frame-icons-underline; reverse: $editor-frame-icons-reverse }
-SheetWindow StaticText#indicator               { fg: $editor-frame-active-fg; bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
-SheetView                                      { fg: $editor-normal-text-fg; bg: $editor-normal-text-bg; bold: $editor-normal-text-bold; dim: $editor-normal-text-dim; italic: $editor-normal-text-italic; underline: $editor-normal-text-underline; reverse: $editor-normal-text-reverse }
-SheetView::headings                            { fg: $editor-frame-active-fg; bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
-SheetView::titles                              { fg: $editor-frame-active-fg; bg: $editor-frame-active-bg; bold: true; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
-SheetView::cursor                              { fg: $editor-selected-text-fg; bg: $editor-selected-text-bg; bold: $editor-selected-text-bold; dim: $editor-selected-text-dim; italic: $editor-selected-text-italic; underline: $editor-selected-text-underline; reverse: $editor-selected-text-reverse }
-SheetView::name                                { fg: $editor-frame-title-fg; bg: $editor-frame-title-bg; bold: $editor-frame-title-bold; dim: $editor-frame-title-dim; italic: $editor-frame-title-italic; underline: $editor-frame-title-underline; reverse: $editor-frame-title-reverse }
 
 /* The editor: TEditWindow takes CUniWindow, the Editor/Spreadsheet group
    [70] to [77] -- TEditFrame's frame, icons and title, TEditScrollBar's page

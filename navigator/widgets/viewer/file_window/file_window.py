@@ -262,7 +262,7 @@ class FileWindow(Window):
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
         """Shift+F4, View > *Markup view*: a departure, DN's viewer had none.
-        On a CSV or TSV, the spreadsheet window in this one's place."""
+        On a CSV or TSV, the database window on it in this one's place."""
         if self.shows_table():
             self.spawn(self.as_table())
         else:
@@ -276,31 +276,28 @@ class FileWindow(Window):
         return self.viewer.path is not None and not self.viewer.remote and is_table(self.viewer.path.name)
 
     async def as_table(self) -> None:
-        """The spreadsheet window on this file, at the row the view's top is
-        in, where this window is; bytes typed in hex are asked about first."""
-        from navigator.widgets.viewer.sheet_window.sheet_window import open_sheet, take_place
+        """The database window on this CSV, at the row the view's top is in,
+        where this window is; bytes typed in hex are asked about first."""
+        from navigator.widgets.viewer.db_window.db_window import open_csv, take_place
 
         viewer, desktop = self.viewer, self.desktop
         if desktop is None or viewer.source is None:
             return
         if self.must_ask() and not await self.ask_to_close():
             return
-        from navigator.lib.viewer.table import TableSource
-
         offset = viewer.top if viewer.mode == "text" else viewer.cursor
         try:
-            window = await open_sheet(desktop, viewer.source.path)
+            window = await open_csv(desktop, viewer.source.path)
         except OSError as error:
             await Dialog(title=tr("Error"), prompt=tr("Cannot read the file: {error}").format(
                 error=error.strerror or error), buttons="ok").execute(self.application)
             return
-        source: TableSource = window.source
         if offset:
             import asyncio
 
+            source = window.csv.source
             await asyncio.to_thread(source.wait)
-            window.sheet.refresh()
-            window.sheet.go(row=source.row_at(offset))
+            window.viewer.go(record=source.row_at(offset))
         take_place(window, self)
         window.title = self.title
         window.use_set = getattr(self, "use_set", None)

@@ -49,7 +49,7 @@ its heading is added here.
 - History -- [`navml-library/history.md`](../.claude/skills/navml-library/reference/history.md)
 - Trees -- [`navigator-trees/trees.md`](../.claude/skills/navigator-trees/reference/trees.md)
 - The file viewer -- [`navigator-viewer/file-viewer.md`](../.claude/skills/navigator-viewer/reference/file-viewer.md)
-  - The spreadsheet: DN's TCalcWindow on a CSV -- [`navigator-viewer/spreadsheet.md`](../.claude/skills/navigator-viewer/reference/spreadsheet.md)
+  - CSV in the dBase window, and DN's spreadsheet -- [`navigator-viewer/spreadsheet.md`](../.claude/skills/navigator-viewer/reference/spreadsheet.md)
   - SQLite in the dBase window -- [`navigator-viewer/sqlite.md`](../.claude/skills/navigator-viewer/reference/sqlite.md)
 - The editor -- [`navigator-editor/editor.md`](../.claude/skills/navigator-editor/reference/editor.md)
 - Copying files -- [`navigator-file-ops/copying.md`](../.claude/skills/navigator-file-ops/reference/copying.md)

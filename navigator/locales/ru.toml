@@ -91,7 +91,7 @@ flag = "RU"
 "E~x~it" = "В~ы~ход"
 # navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~П~оиск"
-# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/viewer/sheet_window/sheet_window.nml:83 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/editor/file_editor/file_editor.py:2874
 "~F~ind..." = "~И~скать..."
 # navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2875
 "~R~eplace..." = "~З~аменить..."
@@ -203,7 +203,7 @@ flag = "RU"
 "File t~y~pe" = "~Т~ип файла"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "Замена"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:14, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15 ...
+# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:293
 "Find" = "Поиск"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:26, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:37
 "~T~ext to find" = "~И~скать текст"
@@ -213,7 +213,7 @@ flag = "RU"
 "Options" = "Параметры"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:56 ...
 "~C~ase sensitive" = "~Р~азличать регистр"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:51
+# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~W~hole words only" = "~Ц~елые слова"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~P~rompt on replace" = "~П~одтверждать замену"
@@ -1783,7 +1783,7 @@ flag = "RU"
 "Show or hide the trash can that files are dropped on to delete them" = "Показать или скрыть корзину, на которую бросают файлы для удаления"
 # navigator/widgets/shell/main_menu/main_menu.nml:104
 "View, edit, copy, move, archive and delete files" = "Просмотр, правка, копирование, перемещение, архивация и удаление файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/file_window/file_window.nml:123 ...
 "~V~iew" = "~С~мотреть"
 # navigator/widgets/shell/main_menu/main_menu.nml:109
 "~A~s is" = "~К~ак есть"
@@ -2181,29 +2181,45 @@ flag = "RU"
 "~A~ll fields" = "~П~о всем полям"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~В~перёд"
-# navigator/widgets/viewer/db_window/db_window.nml:58
-"Fields, memos, editing, tables and search" = "Поля, мемо, правка, таблицы и поиск"
-# navigator/widgets/viewer/db_window/db_window.nml:61, navigator/widgets/viewer/db_window/db_viewer.py:182
-"~F~ields..." = "~П~оля..."
-# navigator/widgets/viewer/db_window/db_window.nml:62
-"The file's structure: its fields and their types" = "Структура файла: его поля и их типы"
-# navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/db_window/db_viewer.py:183
-"~M~emo view" = "Просмотр ~м~емо"
 # navigator/widgets/viewer/db_window/db_window.nml:66
-"The memo text of the cell at the cursor" = "Текст мемо ячейки под курсором"
-# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:184
-"~E~dit field..." = "~Р~едактировать поле..."
-# navigator/widgets/viewer/db_window/db_window.nml:73
-"~T~ables..." = "~Т~аблицы..."
+"Fields, memos, editing, tables and search" = "Поля, мемо, правка, таблицы и поиск"
+# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:212
+"~F~ields..." = "~П~оля..."
+# navigator/widgets/viewer/db_window/db_window.nml:70
+"The file's structure: its fields and their types" = "Структура файла: его поля и их типы"
+# navigator/widgets/viewer/db_window/db_window.nml:73, navigator/widgets/viewer/db_window/db_viewer.py:213
+"~M~emo view" = "Просмотр ~м~емо"
 # navigator/widgets/viewer/db_window/db_window.nml:74
+"The memo text of the cell at the cursor" = "Текст мемо ячейки под курсором"
+# navigator/widgets/viewer/db_window/db_window.nml:77, navigator/widgets/viewer/db_window/db_viewer.py:214
+"~E~dit field..." = "~Р~едактировать поле..."
+# navigator/widgets/viewer/db_window/db_window.nml:81
+"~T~ables..." = "~Т~аблицы..."
+# navigator/widgets/viewer/db_window/db_window.nml:82
 "Another table or view of the SQLite file" = "Другая таблица или представление файла SQLite"
-# navigator/widgets/viewer/db_window/db_window.nml:77
+# navigator/widgets/viewer/db_window/db_window.nml:85
 "~Q~uery..." = "З~а~прос..."
-# navigator/widgets/viewer/db_window/db_window.nml:78
+# navigator/widgets/viewer/db_window/db_window.nml:86
 "Run a query that reads, and show its rows" = "Выполнить читающий запрос и показать его строки"
-# navigator/widgets/viewer/db_window/db_window.nml:82, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:90, navigator/widgets/viewer/db_window/db_viewer.py:215
+"S~o~rt by column" = "~С~ортировать по столбцу"
+# navigator/widgets/viewer/db_window/db_window.nml:91
+"Ascending, descending, then as in the file" = "По возрастанию, по убыванию, затем как в файле"
+# navigator/widgets/viewer/db_window/db_window.nml:94
+"Column ~w~idth..." = "~Ш~ирина столбца..."
+# navigator/widgets/viewer/db_window/db_window.nml:95
+"Left and Right narrow and widen the column; Enter ends" = "Влево и вправо сужают и расширяют столбец; Enter завершает"
+# navigator/widgets/viewer/db_window/db_window.nml:99
+"Fo~r~mat..." = "~Ф~ормат..."
+# navigator/widgets/viewer/db_window/db_window.nml:100
+"The delimiter, the header and the encoding" = "Разделитель, заголовок и кодировка"
+# navigator/widgets/viewer/db_window/db_window.nml:103
+"As te~x~t" = "Как те~к~ст"
+# navigator/widgets/viewer/db_window/db_window.nml:104
+"The same file in the text viewer" = "Тот же файл в текстовом просмотре"
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:217 ...
 "~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/db_window/db_window.nml:85, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~С~равнение"
@@ -2265,57 +2281,19 @@ flag = "RU"
 "Encod~i~ng..." = "~К~одировка..."
 # navigator/widgets/viewer/file_window/file_window.nml:208
 "The code page the file is read in" = "Кодовая страница, в которой читается файл"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:11
-"Go to Cell Number" = "Переход к ячейке"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:20
-"~E~nter new cell number" = "~В~ведите номер ячейки"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Переход на адрес"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~А~дрес"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:181 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:350 ...
 "Query" = "Запрос"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "Ход поиска"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:24
-"~P~attern" = "~О~бразец"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:34
-"Search as" = "Искать как"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43
-"~S~tring" = "~С~трока"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:303
-"~V~alue" = "~З~начение"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:62
-"~T~able" = "~Т~аблица"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:63
-"Cells, columns, sorting and search" = "Ячейки, столбцы, сортировка и поиск"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:66, navigator/widgets/viewer/sheet_window/sheet_view.py:302
-"~V~iew cell..." = "~П~оказать ячейку..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:67
-"The whole text of the cell at the cursor" = "Полный текст ячейки под курсором"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:70
-"C~o~lumn width..." = "~Ш~ирина столбца..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:71
-"Left and Right narrow and widen the column; Enter ends" = "Влево и вправо сужают и расширяют столбец; Enter завершает"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:74, navigator/widgets/viewer/sheet_window/sheet_view.py:303
-"~S~ort by column" = "~С~ортировать по столбцу"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:75
-"Ascending, descending, then as in the file" = "По возрастанию, по убыванию, затем как в файле"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:78
-"Fo~r~mat..." = "~Ф~ормат..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:79
-"The delimiter, the header and the encoding" = "Разделитель, заголовок и кодировка"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:89, navigator/widgets/viewer/sheet_window/sheet_view.py:307
-"Go to cell ~n~umber..." = "Перейти к ~я~чейке..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:93, navigator/widgets/viewer/sheet_window/sheet_view.py:309
-"As ~t~ext" = "Как ~т~екст"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:94
-"The same file in the text viewer" = "Тот же файл в текстовом просмотре"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:171
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:160
 "Format" = "Формат"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
 "Delimiter" = "Разделитель"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "~З~апятая"
@@ -2713,7 +2691,7 @@ flag = "RU"
 "Lowercase" = "Строчн"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "Заглавн"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:163
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:152
 "Sort" = "Сортир."
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "Вычислить сумму"
@@ -2817,9 +2795,9 @@ flag = "RU"
 "~P~aste from" = "~В~ставить из"
 # navigator/widgets/editor/edit_window/edit_window.py:833
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "~S~ave File As" = "~З~аписать в"
 # navigator/widgets/editor/edit_window/edit_window.py:126
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -2835,7 +2813,7 @@ flag = "RU"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:419, navigator/widgets/viewer/file_window/file_window.py:629 ...
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:626
 "Search string not found" = "Не могу найти строку"
 # navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Информация"
@@ -2901,7 +2879,7 @@ flag = "RU"
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:109
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:178
+# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:168
 "Text" = "Текст"
 # navigator/widgets/editor/option_items.py:87
 "Insert or overwrite" = "Вставка или замена"
@@ -4017,7 +3995,7 @@ flag = "RU"
 "Free %" = "Свободно %"
 # navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "Занято %"
-# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:446, navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
 "Type" = "Тип"
 # navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "Точка монтирования"
@@ -4047,7 +4025,7 @@ flag = "RU"
 "Hex/Text/Dump" = "Hex/Текст/Дамп"
 # navigator/widgets/viewer/commands.py:34
 "Rendered" = "Разметка"
-# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:144
+# navigator/widgets/viewer/commands.py:48
 "Goto" = "Перейти"
 # navigator/widgets/viewer/commands.py:74
 "Reverse Search" = "Обр.поиск"
@@ -4061,69 +4039,95 @@ flag = "RU"
 "View Memo" = "Мемо"
 # navigator/widgets/viewer/commands.py:124
 "Edit Field" = "Правка"
-# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:478
+# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:668
 "Tables" = "Таблицы"
-# navigator/widgets/viewer/commands.py:206
+# navigator/widgets/viewer/commands.py:191
 "Prev" = "Пред."
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "Число"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Character" = "Символ"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Memo" = "Мемо"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Logical" = "Логический"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Float" = "С запятой"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Length" = "Длина"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Decimals" = "Дробные"
-# navigator/widgets/viewer/db_window/db_window.py:136
+# navigator/widgets/viewer/db_window/db_window.py:190
 "The cursor is not on a memo field" = "Курсор не на поле memo"
-# navigator/widgets/viewer/db_window/db_window.py:138
+# navigator/widgets/viewer/db_window/db_window.py:192
 "The database is opened read-only" = "База данных открыта только для чтения"
-# navigator/widgets/viewer/db_window/db_window.py:140
+# navigator/widgets/viewer/db_window/db_window.py:194
 "Only in a SQLite file" = "Только в файле SQLite"
-# navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/viewer/db_window/db_window.py:196
+"Only in a CSV file" = "Только в файле CSV"
+# navigator/widgets/viewer/db_window/db_window.py:198
+"The file has no cells" = "В файле нет ячеек"
+# navigator/widgets/viewer/db_window/db_window.py:349
 "Constraints" = "Ограничения"
-# navigator/widgets/viewer/db_window/db_window.py:304
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Comma" = "Запятая"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Semicolon" = "Точка с запятой"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Tab" = "Табуляция"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Pipe" = "Вертикальная черта"
+# navigator/widgets/viewer/db_window/db_window.py:494
 "Edit field" = "Редактирование поля"
-# navigator/widgets/viewer/db_window/db_window.py:98
+# navigator/widgets/viewer/db_window/db_window.py:151
 "dBase View - {path}" = "Просмотр dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:135
+# navigator/widgets/viewer/db_window/db_window.py:189
 "The cursor is not on text or a blob" = "Курсор не на тексте и не на BLOB"
-# navigator/widgets/viewer/db_window/db_window.py:550, navigator/widgets/viewer/db_window/db_window.py:512
-"Empty database {name}" = "Пустая база данных {name}"
-# navigator/widgets/viewer/db_window/db_window.py:97
-"SQLite View - {path}" = "Просмотр SQLite - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:182
-"Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:173
+# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
 "{count} row" = ["{count} строка", "{count} строки", "{count} строк"]
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+"Empty database {name}" = "Пустая база данных {name}"
+# navigator/widgets/viewer/db_window/db_window.py:148
+"Spreadsheet - {path}" = "Электронная таблица - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:150
+"SQLite View - {path}" = "Просмотр SQLite - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Unique index" = "Уникальный индекс"
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Index" = "Индекс"
-# navigator/widgets/viewer/db_window/db_window.py:295, navigator/widgets/viewer/db_window/db_window.py:343
+# navigator/widgets/viewer/db_window/db_window.py:367
+"First row is a header" = "Первая строка — заголовок"
+# navigator/widgets/viewer/db_window/db_window.py:367
+"No header row" = "Без строки заголовка"
+# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
 "Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
-# navigator/widgets/viewer/db_window/db_window.py:254
+# navigator/widgets/viewer/db_window/db_window.py:493
+"~V~alue" = "~З~начение"
+# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+"Structure of {name}" = "Структура {name}"
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:461
+"Encoding" = "Кодировка"
+# navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "Не найден файл MEMO"
-# navigator/widgets/viewer/db_window/db_window.py:415, navigator/widgets/viewer/sheet_window/sheet_window.py:269
+# navigator/widgets/viewer/db_window/db_window.py:605
 "Searching" = "Поиск"
-# navigator/widgets/viewer/db_window/db_window.py:525, navigator/widgets/viewer/db_window/db_window.py:225
+# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
 "Reading" = "Чтение"
-# navigator/widgets/viewer/db_window/db_window.py:262
+# navigator/widgets/viewer/db_window/db_window.py:236
+"Sorting" = "Сортировка"
+# navigator/widgets/viewer/db_window/db_window.py:452
 "Memo view" = "Просмотр мемо"
-# navigator/widgets/viewer/db_window/db_window.py:512
+# navigator/widgets/viewer/db_window/db_window.py:702
 "No tables" = "Нет таблиц"
-# navigator/widgets/viewer/db_window/db_window.py:320
+# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1382 ...
+"Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
+# navigator/widgets/viewer/db_window/db_window.py:510
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "view" = "представление"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "table" = "таблица"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "Строка {line}, такая же, как строка {other} справа"
@@ -4185,21 +4189,17 @@ flag = "RU"
 "Byte {hex}, decimal {decimal}, octal {octal}, binary {binary}" = "Байт {hex}, десятичный {decimal}, восьмеричный {octal}, двоичный {binary}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:1348
 "Character {char}" = "Символ {char}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1382, navigator/widgets/viewer/file_window/file_window.py:294, navigator/widgets/viewer/sheet_window/sheet_window.py:303 ...
-"Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:383
+# navigator/widgets/viewer/file_window/file_window.py:380
 "Only in the text view" = "Только в текстовом режиме"
-# navigator/widgets/viewer/file_window/file_window.py:464
-"Encoding" = "Кодировка"
-# navigator/widgets/viewer/file_window/file_window.py:393
+# navigator/widgets/viewer/file_window/file_window.py:390
 "Not while the markup is rendered" = "Не пока разметка отрисована"
 # navigator/widgets/viewer/file_window/file_window.py:88
 "View - {path}" = "Просмотр - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:382
+# navigator/widgets/viewer/file_window/file_window.py:379
 "Nothing has been typed over in hex" = "В шестнадцатеричном режиме ничего не изменено"
-# navigator/widgets/viewer/file_window/file_window.py:385
+# navigator/widgets/viewer/file_window/file_window.py:382
 "Only in the hex and dump views" = "Только в шестнадцатеричном режиме и режиме дампа"
-# navigator/widgets/viewer/file_window/file_window.py:397, navigator/widgets/viewer/sheet_window/sheet_window.py:123
+# navigator/widgets/viewer/file_window/file_window.py:394
 "Nothing has been searched for yet" = "Ещё ничего не искали"
 # navigator/widgets/viewer/file_window/file_window.py:183
 "Information was modified. Save changes?" = "Информация изменена. Сохранить изменения?"
@@ -4209,14 +4209,6 @@ flag = "RU"
 "{path} has changed since it was opened. Nothing was written." = "{path} изменился после открытия. Ничего не записано."
 # navigator/widgets/viewer/quick_viewer/quick_viewer.py:108
 "~C~lose quick view" = "~З~акрыть быстрый просмотр"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:125
-"The file has no cells" = "В файле нет ячеек"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:96
-"Spreadsheet - {path}" = "Электронная таблица - {path}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:149
-"Cell {name}" = "Ячейка {name}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:190
-"Sorting" = "Сортировка"
 # navigator/lib/appearance/palette.py
 "Timer" = "Таймер"
 # navigator/lib/appearance/palette.py
@@ -4992,3 +4984,17 @@ flag = "RU"
 "View a dBase file as a table" = "Просмотреть файл dBase как таблицу"
 "Fields, memos, editing and search" = "Поля, мемо, правка и поиск"
 "{name}: not a dBase file" = "{name}: не файл dBase"
+"Go to Cell Number" = "Переход к ячейке"
+"~E~nter new cell number" = "~В~ведите номер ячейки"
+"~P~attern" = "~О~бразец"
+"Search as" = "Искать как"
+"~S~tring" = "~С~трока"
+"~T~able" = "~Т~аблица"
+"Cells, columns, sorting and search" = "Ячейки, столбцы, сортировка и поиск"
+"~V~iew cell..." = "~П~оказать ячейку..."
+"The whole text of the cell at the cursor" = "Полный текст ячейки под курсором"
+"C~o~lumn width..." = "~Ш~ирина столбца..."
+"~S~ort by column" = "~С~ортировать по столбцу"
+"Go to cell ~n~umber..." = "Перейти к ~я~чейке..."
+"As ~t~ext" = "Как ~т~екст"
+"Cell {name}" = "Ячейка {name}"

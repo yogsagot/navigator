@@ -1,5 +1,6 @@
-"""F3 on a CSV: DOS Navigator's spreadsheet window (``TCalcWindow``), view-only --
-the model in ``navigator/lib/viewer/table.py`` and the window around it."""
+"""F3 on a CSV: the database window (the dBase and SQLite viewer's) on a
+delimited text file, view-only -- the model in ``navigator/lib/viewer/table.py``
+and the window showing it."""
 
 from __future__ import annotations
 
@@ -13,16 +14,14 @@ from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
 from navigator.lib.viewer.table import (
-    CellSearch,
+    CSVTable,
     Dialect,
+    SortedView,
     TableSource,
     Work,
-    cell_name,
     column_name,
-    find,
     guess,
     number,
-    parse_cell,
     sort_order,
 )
 
@@ -98,62 +97,46 @@ def test_rows_read_again_after_leaving_the_cache(make, monkeypatch):
     assert [source.row(n)[0] for n in (0, 5, 9, 0)] == ["0", "5", "9", "0"]
 
 
-def test_widths_come_from_the_titles_and_rows(make):
-    source = make(CITIES)
-    source.measure()
-    assert source.columns == 3 and source.widths == [3, 9, 7]
-
-
-def test_cell_names_are_dns():
+def test_column_letters_and_numbers():
     assert [column_name(n) for n in (0, 25, 26, 27, 701, 702)] == ["A", "Z", "AA", "AB", "ZZ", "AAA"]
-    assert cell_name(1, 2) == "B3"
-    assert parse_cell("b12") == (1, 11) and parse_cell(" 7 ") == (None, 6) and parse_cell("C") == (2, None)
-    assert parse_cell("12B") is None and parse_cell("") is None and parse_cell("A0") is None
-
-
-def test_numbers():
     assert [number(t) for t in ("12", "-3.5", "1e3", "1,234.5", "nan", "", "1,2")] == [
         12.0, -3.5, 1000.0, 1234.5, None, None, None]
 
 
+def test_a_csv_as_the_database_window_reads_it(make):
+    table = CSVTable(make(CITIES))
+    assert [(f.name, f.kind, f.width) for f in table.fields] == [("id", "N", 3), ("city", "C", 9), ("pop", "N", 7)]
+    row = table.record(1)
+    assert table.shown(row, table.fields[1]) == "Lon don" and table.memo(row, table.fields[1]) == "Lon\r\ndon"
+    assert table.shown(table.record(2), table.fields[2]) == "      5"
+    assert table.flag(row) == " " and not table.editable
+
+
+def test_a_csv_without_a_header_names_its_columns_by_letter(make):
+    table = CSVTable(make(b"1,2\n3,4\n", dialect=Dialect(header=False)))
+    assert [f.name for f in table.fields] == ["A", "B"] and table.count == 2
+
+
 def test_a_column_of_numbers_sorts_as_numbers_blanks_last(make):
-    source = make(b"n\n10\n9\n\n100\n")
-    assert list(sort_order(source, 0, False)) == [1, 0, 3, 2]
-    assert list(sort_order(source, 0, True)) == [3, 0, 1, 2]
+    table = CSVTable(make(b"n\n10\n9\n\n100\n"))
+    field = table.fields[0]
+    assert list(sort_order(table, field, False)) == [1, 0, 3, 2]
+    assert list(sort_order(table, field, True)) == [3, 0, 1, 2]
 
 
-def test_text_sorts_case_aside(make):
-    source = make(b"name\nbob\nAnn\ncarl\n")
-    assert list(sort_order(source, 0, False)) == [1, 0, 2]
+def test_text_sorts_case_aside_and_the_view_reads_through_the_order(make):
+    table = CSVTable(make(b"name\nbob\nAnn\ncarl\n"))
+    order = sort_order(table, table.fields[0], False)
+    view = SortedView(table, order, 0, False)
+    assert [view.record(n)[0] for n in range(view.count)] == ["Ann", "bob", "carl"]
+    assert view.source_index(0) == 1 and view.fields is table.fields
 
 
 def test_a_stopped_sort_says_nothing(make):
     work = Work()
     work.stop()
-    assert sort_order(make(CITIES), 1, False, work) is None
-
-
-def test_find_as_string_and_value(make):
-    source = make(CITIES)
-    assert find(source, CellSearch("LON"), order=None, row=-1, column=0) == (1, 1)
-    assert find(source, CellSearch("LON", case=True), order=None, row=-1, column=0) is None
-    assert find(source, CellSearch("5", as_value=True), order=None, row=-1, column=0) == (2, 2)
-    assert find(source, CellSearch("say", whole=True), order=None, row=-1, column=0) == (2, 1)
-    assert find(source, CellSearch("sa", whole=True), order=None, row=-1, column=0) is None
-
-
-def test_find_goes_on_from_the_cell_and_back(make):
-    source = make(b"a,b\nx,x\nx,y\n", dialect=Dialect())
-    search = CellSearch("x")
-    assert find(source, search, order=None, row=0, column=0) == (0, 1)
-    assert find(source, search, order=None, row=0, column=1) == (1, 0)
-    assert find(source, search, order=None, row=1, column=0, backward=True) == (0, 1)
-
-
-def test_find_follows_the_order_shown(make):
-    source = make(b"n\nb\na\n")
-    order = sort_order(source, 0, False)
-    assert find(source, CellSearch("b"), order=order, row=-1, column=0) == (1, 0)
+    table = CSVTable(make(CITIES))
+    assert sort_order(table, table.fields[1], False, work) is None
 
 
 def test_a_big_file_has_rows_before_its_walk_ends(tmp_path):
@@ -185,11 +168,11 @@ def navigator(path) -> Navigator:
     return Navigator(path, path, terminal=FakeTerminal(80, 24))
 
 
-def sheet_window(app):
-    from navigator.widgets.viewer.sheet_window import SheetWindow
+def db_window(app):
+    from navigator.widgets.viewer.db_window import DBWindow
 
     window = app.shell.desktop.active_window
-    return window if isinstance(window, SheetWindow) else None
+    return window if isinstance(window, DBWindow) else None
 
 
 def file_window(app):
@@ -200,11 +183,7 @@ def file_window(app):
 
 
 def opened():
-    return [KeyEvent("end"), KeyEvent("f3"), Until(lambda a: sheet_window(a) is not None)]
-
-
-def keys(text: str) -> list[KeyEvent]:
-    return [KeyEvent(c.lower(), c, shift=c.isupper()) for c in text]
+    return [KeyEvent("end"), KeyEvent("f3"), Until(lambda a: db_window(a) is not None)]
 
 
 def screen(app) -> list[str]:
@@ -215,64 +194,82 @@ def screen(app) -> list[str]:
     return ["".join(buffer.get(x, y)[0] or " " for x in range(80)) for y in range(24)]
 
 
-def test_f3_on_a_csv_opens_the_spreadsheet(files):
+def test_f3_on_a_csv_opens_the_database_window(files):
     app = navigator(files)
     seen = {}
-    run_app(app, [*opened(), KeyEvent("right"), KeyEvent("down"),
-                  lambda a: seen.update(rows=screen(a), window=sheet_window(a))])
+    run_app(app, [*opened(), KeyEvent("down"),
+                  lambda a: seen.update(rows=screen(a), window=db_window(a))])
     window = seen["window"]
-    assert window.zoomed and window.title == str(files / "zz.csv")
+    assert window.zoomed and window.title == str(files / "zz.csv") and window.csv is not None
     assert window.list_name() == f"Spreadsheet - {files / 'zz.csv'}"
-    text = "\n".join(seen["rows"])
-    assert "B2" in text and "Lon don" in text and "Lon\r" not in text
-    assert "city" in text and "Paris, FR" in text
+    rows = seen["rows"]
+    assert rows[2].split() == ["║", "id", "city", "pop", "║"]
+    assert "Lon don" in rows[4] and "Paris, FR" in rows[3]
     assert window.indicator.text.startswith("2/4")
 
 
-def test_home_end_and_goto(files):
+def test_f2_f3_and_f4_on_a_csv(files):
+    from navigator.widgets.viewer.commands import EditDbField
+
     app = navigator(files)
-    seen = []
+    seen = {}
     run_app(app, [
-        *opened(),
-        KeyEvent("end"), lambda a: seen.append((sheet_window(a).sheet.col, sheet_window(a).sheet.row)),
-        KeyEvent("home"), lambda a: seen.append((sheet_window(a).sheet.col, sheet_window(a).sheet.row)),
-        KeyEvent("f6"), Until(lambda a: a.modal is not None), *keys("B3"), KeyEvent("enter"),
-        Until(lambda a: a.modal is None),
-        lambda a: seen.append((sheet_window(a).sheet.col, sheet_window(a).sheet.row)),
+        *opened(), KeyEvent("down"), KeyEvent("right"),
+        lambda a: seen.update(f4=db_window(a).refusal(EditDbField())),
+        KeyEvent("f3"), Until(lambda a: a.modal is not None),
+        lambda a: seen.update(memo=list(a.modal.lines.items)), KeyEvent("escape"), Until(lambda a: a.modal is None),
+        KeyEvent("f2"), Until(lambda a: a.modal is not None),
+        lambda a: seen.update(fields="\n".join(a.modal.lines.items)),
     ])
-    assert seen == [(2, 3), (0, 0), (1, 2)]
+    assert seen["f4"] == "The database is opened read-only"
+    assert seen["memo"] == ["Lon", "don"]
+    assert "city" in seen["fields"] and "Comma" in seen["fields"] and "4 rows" in seen["fields"]
 
 
-def test_find_and_search_again(files):
-    app = navigator(files)
-    seen = []
-    run_app(app, [
-        *opened(),
-        KeyEvent("f7"), Until(lambda a: a.modal is not None), *keys("0"), KeyEvent("enter"),
-        Until(lambda a: a.modal is None and sheet_window(a).sheet.row == 0 and sheet_window(a).sheet.col == 2),
-        lambda a: seen.append((sheet_window(a).sheet.col, sheet_window(a).sheet.row)),
-        KeyEvent("f7", shift=True), Until(lambda a: sheet_window(a).sheet.row == 1),
-        lambda a: seen.append((sheet_window(a).sheet.col, sheet_window(a).sheet.row)),
-    ])
-    assert seen == [(2, 0), (2, 1)]
-
-
-def test_f5_sorts_the_view_and_round_again(files):
+def test_f8_sorts_the_view_and_round_again(files):
     app = navigator(files)
     seen = []
 
     def firsts(a):
-        sheet = sheet_window(a).sheet
-        seen.append([sheet.cells(n)[0] for n in range(sheet.count)])
+        db = db_window(a).db
+        seen.append([db.record(n)[0] for n in range(db.count)])
 
     run_app(app, [
         *opened(), KeyEvent("right"), KeyEvent("right"),
-        KeyEvent("f5"), Until(lambda a: sheet_window(a).sheet.sort == (2, False)), firsts,
-        KeyEvent("f5"), Until(lambda a: sheet_window(a).sheet.sort == (2, True)), firsts,
-        KeyEvent("f5"), Until(lambda a: sheet_window(a).sheet.sort is None), firsts,
+        KeyEvent("f8"), Until(lambda a: getattr(db_window(a).db, "sort", None) == (2, False)), firsts,
+        KeyEvent("f8"), Until(lambda a: getattr(db_window(a).db, "sort", None) == (2, True)), firsts,
+        KeyEvent("f8"), Until(lambda a: getattr(db_window(a).db, "sort", None) is None), firsts,
     ])
     assert seen == [["3", "1", "2", "4"], ["2", "1", "3", "4"], ["1", "2", "3", "4"]]
     assert (files / "zz.csv").read_bytes() == CITIES
+
+
+def test_f7_searches_a_csv(files):
+    app = navigator(files)
+    seen = {}
+    run_app(app, [
+        *opened(),
+        KeyEvent("f7"), Until(lambda a: a.modal is not None), *[KeyEvent(c, c) for c in "say"],
+        KeyEvent("tab"), KeyEvent("tab"), KeyEvent("down"), KeyEvent("enter"),
+        Until(lambda a: a.modal is None and db_window(a).viewer.record == 2),
+        lambda a: seen.update(field=db_window(a).viewer.field),
+    ])
+    assert seen["field"] == 1
+
+
+def test_the_column_width_mode_and_ctrl_arrows(files):
+    from navigator.widgets.viewer.commands import ChangeWidth
+
+    app = navigator(files)
+    seen = []
+    run_app(app, [
+        *opened(), KeyEvent("right", ctrl=True),
+        lambda a: seen.append(db_window(a).viewer.width_of(0)),
+        lambda a: a.spawn(a.run_command(ChangeWidth)), Until(lambda a: db_window(a).viewer.resizing),
+        KeyEvent("left"), KeyEvent("left"), KeyEvent("enter"),
+        lambda a: seen.append((db_window(a).viewer.width_of(0), db_window(a).viewer.resizing)),
+    ])
+    assert seen == [4, (2, False)]
 
 
 def test_format_reads_the_file_again(files):
@@ -281,11 +278,11 @@ def test_format_reads_the_file_again(files):
     seen = []
     run_app(app, [
         *opened(),
-        lambda a: seen.append(sheet_window(a).source.dialect.delimiter),
+        lambda a: seen.append(db_window(a).csv.dialect.delimiter),
         KeyEvent("f6", shift=True), Until(lambda a: a.modal is not None),
         lambda a: a.modal.delimiter.__setattr__("value", 0),
-        KeyEvent("enter"), Until(lambda a: sheet_window(a).source.dialect.delimiter == ","),
-        lambda a: seen.append(sheet_window(a).sheet.cells(0)),
+        KeyEvent("enter"), Until(lambda a: db_window(a).csv.dialect.delimiter == ","),
+        lambda a: seen.append(db_window(a).db.record(0)),
     ])
     assert seen == [";", ["1;2"]]
 
@@ -299,12 +296,30 @@ def test_shift_f4_goes_to_the_text_and_back(files):
         *opened(), *[KeyEvent("down")] * 10,
         KeyEvent("f4", shift=True), Until(lambda a: file_window(a) is not None),
         lambda a: seen.update(top=file_window(a).viewer.top),
-        KeyEvent("f4", shift=True), Until(lambda a: sheet_window(a) is not None),
-        lambda a: seen.update(row=sheet_window(a).sheet.row),
+        KeyEvent("f4", shift=True),
+        # Moved to its row, then the text window closed.
+        Until(lambda a: db_window(a) is not None and len(a.shell.desktop.windows()) == 2),
+        lambda a: seen.update(row=db_window(a).viewer.record),
     ])
     assert seen["top"] == data.index(b"\n10,") + 1
     assert seen["row"] == 10
-    assert len(app.shell.desktop.windows()) == 2  # the manager and the sheet
+    assert len(app.shell.desktop.windows()) == 2  # the manager and the table
+
+
+def test_f8_sorts_a_sqlite_table_too(tmp_path, monkeypatch):
+    import sqlite3
+
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    connection = sqlite3.connect(tmp_path / "zz.sqlite")
+    connection.execute("CREATE TABLE t(n INTEGER)")
+    connection.executemany("INSERT INTO t VALUES (?)", [(3,), (1,), (2,)])
+    connection.commit()
+    connection.close()
+    app = navigator(tmp_path)
+    seen = []
+    run_app(app, [*opened(), KeyEvent("f8"), Until(lambda a: getattr(db_window(a).db, "sort", None) == (0, False)),
+                  lambda a: seen.extend(db_window(a).db.record(n)[0] for n in range(3))])
+    assert seen == [1, 2, 3]
 
 
 def test_as_spreadsheet_on_any_file(files):
@@ -314,12 +329,13 @@ def test_as_spreadsheet_on_any_file(files):
     (files / "zz.txt").write_bytes(b"one\ttwo\n")
     app = navigator(files)
     seen = {}
-    run_app(app, [KeyEvent("end"), lambda a: a.spawn(a.run_command(ViewAsSpreadsheet)), Until(lambda a: sheet_window(a) is not None),
-                  lambda a: seen.update(cells=sheet_window(a).sheet.cells(0) or sheet_window(a).source.titles())])
-    assert seen["cells"] == ["one", "two"]
+    run_app(app, [KeyEvent("end"), lambda a: a.spawn(a.run_command(ViewAsSpreadsheet)),
+                  Until(lambda a: db_window(a) is not None),
+                  lambda a: seen.update(fields=[f.name for f in db_window(a).db.fields])])
+    assert len(seen["fields"]) == 2
 
 
-def test_a_csv_on_another_drive(files, monkeypatch):
+def test_a_csv_on_another_drive(files):
     from navigator.lib.drives import mount, unmount
     from navigator.lib.drives.memory import MemoryDrive
 
@@ -328,8 +344,8 @@ def test_a_csv_on_another_drive(files, monkeypatch):
         drive.make("/zz.csv", CITIES)
         app = Navigator(drive.location("/"), files, terminal=FakeTerminal(80, 24))
         seen = {}
-        run_app(app, [*opened(), lambda a: seen.update(title=sheet_window(a).title,
-                                                       use=sheet_window(a).use_set is not None)])
+        run_app(app, [*opened(), lambda a: seen.update(title=db_window(a).title,
+                                                       use=db_window(a).use_set is not None)])
         assert seen == {"title": str(drive.location("/zz.csv")), "use": True}
     finally:
         unmount(drive.site)

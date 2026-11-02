@@ -92,7 +92,7 @@ direction = "rtl"
 "E~x~it" = "יצי~א~ה"
 # navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ח~יפוש"
-# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/viewer/sheet_window/sheet_window.nml:83 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/editor/file_editor/file_editor.py:2874
 "~F~ind..." = "~ח~פש..."
 # navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2875
 "~R~eplace..." = "~ה~חלף..."
@@ -204,7 +204,7 @@ direction = "rtl"
 "File t~y~pe" = "~ס~וג קובץ"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "החלפה"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:14, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15 ...
+# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:293
 "Find" = "חיפוש"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:26, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:37
 "~T~ext to find" = "~ט~קסט לחיפוש"
@@ -214,7 +214,7 @@ direction = "rtl"
 "Options" = "אפשרויות"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:56 ...
 "~C~ase sensitive" = "~ת~לוי רישיות"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:51
+# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~W~hole words only" = "מילים ~ש~למות בלבד"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~P~rompt on replace" = "~ב~קש אישור להחלפה"
@@ -1784,7 +1784,7 @@ direction = "rtl"
 "Show or hide the trash can that files are dropped on to delete them" = "הצג או הסתר את פח האשפה שמשליכים עליו קבצים כדי למחוק אותם"
 # navigator/widgets/shell/main_menu/main_menu.nml:104
 "View, edit, copy, move, archive and delete files" = "הצג, ערוך, העתק, העבר, ארכב ומחק קבצים"
-# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/file_window/file_window.nml:123 ...
 "~V~iew" = "הצ~ג~ה"
 # navigator/widgets/shell/main_menu/main_menu.nml:109
 "~A~s is" = "~כ~מו שהוא"
@@ -2182,29 +2182,45 @@ direction = "rtl"
 "~A~ll fields" = "~כ~ל השדות"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~ק~דימה"
-# navigator/widgets/viewer/db_window/db_window.nml:58
-"Fields, memos, editing, tables and search" = "שדות, תזכירים, עריכה, טבלאות וחיפוש"
-# navigator/widgets/viewer/db_window/db_window.nml:61, navigator/widgets/viewer/db_window/db_viewer.py:182
-"~F~ields..." = "~ש~דות..."
-# navigator/widgets/viewer/db_window/db_window.nml:62
-"The file's structure: its fields and their types" = "מבנה הקובץ: השדות שלו וסוגיהם"
-# navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/db_window/db_viewer.py:183
-"~M~emo view" = "תצוגת ~ת~זכיר"
 # navigator/widgets/viewer/db_window/db_window.nml:66
-"The memo text of the cell at the cursor" = "טקסט התזכיר של התא שבסמן"
-# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:184
-"~E~dit field..." = "~ע~רוך שדה..."
-# navigator/widgets/viewer/db_window/db_window.nml:73
-"~T~ables..." = "~ט~בלאות..."
+"Fields, memos, editing, tables and search" = "שדות, תזכירים, עריכה, טבלאות וחיפוש"
+# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:212
+"~F~ields..." = "~ש~דות..."
+# navigator/widgets/viewer/db_window/db_window.nml:70
+"The file's structure: its fields and their types" = "מבנה הקובץ: השדות שלו וסוגיהם"
+# navigator/widgets/viewer/db_window/db_window.nml:73, navigator/widgets/viewer/db_window/db_viewer.py:213
+"~M~emo view" = "תצוגת ~ת~זכיר"
 # navigator/widgets/viewer/db_window/db_window.nml:74
+"The memo text of the cell at the cursor" = "טקסט התזכיר של התא שבסמן"
+# navigator/widgets/viewer/db_window/db_window.nml:77, navigator/widgets/viewer/db_window/db_viewer.py:214
+"~E~dit field..." = "~ע~רוך שדה..."
+# navigator/widgets/viewer/db_window/db_window.nml:81
+"~T~ables..." = "~ט~בלאות..."
+# navigator/widgets/viewer/db_window/db_window.nml:82
 "Another table or view of the SQLite file" = "טבלה או תצוגה אחרת של קובץ ה-SQLite"
-# navigator/widgets/viewer/db_window/db_window.nml:77
+# navigator/widgets/viewer/db_window/db_window.nml:85
 "~Q~uery..." = "שא~י~לתה..."
-# navigator/widgets/viewer/db_window/db_window.nml:78
+# navigator/widgets/viewer/db_window/db_window.nml:86
 "Run a query that reads, and show its rows" = "הרץ שאילתת קריאה והצג את שורותיה"
-# navigator/widgets/viewer/db_window/db_window.nml:82, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:90, navigator/widgets/viewer/db_window/db_viewer.py:215
+"S~o~rt by column" = "~מ~יין לפי עמודה"
+# navigator/widgets/viewer/db_window/db_window.nml:91
+"Ascending, descending, then as in the file" = "בסדר עולה, יורד, ואז כבקובץ"
+# navigator/widgets/viewer/db_window/db_window.nml:94
+"Column ~w~idth..." = "~ר~וחב עמודה..."
+# navigator/widgets/viewer/db_window/db_window.nml:95
+"Left and Right narrow and widen the column; Enter ends" = "שמאלה וימינה מצרים ומרחיבים את העמודה; Enter מסיים"
+# navigator/widgets/viewer/db_window/db_window.nml:99
+"Fo~r~mat..." = "ת~ב~נית..."
+# navigator/widgets/viewer/db_window/db_window.nml:100
+"The delimiter, the header and the encoding" = "המפריד, הכותרת והקידוד"
+# navigator/widgets/viewer/db_window/db_window.nml:103
+"As te~x~t" = "~כ~טקסט"
+# navigator/widgets/viewer/db_window/db_window.nml:104
+"The same file in the text viewer" = "אותו קובץ בתצוגת הטקסט"
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:217 ...
 "~S~earch..." = "~ח~יפוש..."
-# navigator/widgets/viewer/db_window/db_window.nml:85, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "חפש ש~ו~ב"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~ה~שוואה"
@@ -2266,57 +2282,19 @@ direction = "rtl"
 "Encod~i~ng..." = "~ק~ידוד..."
 # navigator/widgets/viewer/file_window/file_window.nml:208
 "The code page the file is read in" = "קוד העמוד שבו הקובץ נקרא"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:11
-"Go to Cell Number" = "מעבר לתא"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:20
-"~E~nter new cell number" = "~ה~זן מספר תא"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "מעבר לכתובת"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~כ~תובת"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:181 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:350 ...
 "Query" = "שאילתה"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "התקדמות חיפוש"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:24
-"~P~attern" = "~ד~פוס"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:34
-"Search as" = "חפש כ"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43
-"~S~tring" = "~מ~חרוזת"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:303
-"~V~alue" = "~ע~רך"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:62
-"~T~able" = "~ט~בלה"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:63
-"Cells, columns, sorting and search" = "תאים, עמודות, מיון וחיפוש"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:66, navigator/widgets/viewer/sheet_window/sheet_view.py:302
-"~V~iew cell..." = "~ה~צג תא..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:67
-"The whole text of the cell at the cursor" = "כל הטקסט של התא שבסמן"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:70
-"C~o~lumn width..." = "~ר~וחב עמודה..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:71
-"Left and Right narrow and widen the column; Enter ends" = "שמאלה וימינה מצרים ומרחיבים את העמודה; Enter מסיים"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:74, navigator/widgets/viewer/sheet_window/sheet_view.py:303
-"~S~ort by column" = "מ~י~ין לפי עמודה"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:75
-"Ascending, descending, then as in the file" = "בסדר עולה, יורד, ואז כבקובץ"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:78
-"Fo~r~mat..." = "~ת~בנית..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:79
-"The delimiter, the header and the encoding" = "המפריד, הכותרת והקידוד"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:89, navigator/widgets/viewer/sheet_window/sheet_view.py:307
-"Go to cell ~n~umber..." = "~ע~בור לתא..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:93, navigator/widgets/viewer/sheet_window/sheet_view.py:309
-"As ~t~ext" = "כ~ט~קסט"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:94
-"The same file in the text viewer" = "אותו קובץ בתצוגת הטקסט"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:171
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:160
 "Format" = "תבנית"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
 "Delimiter" = "מפריד"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "~פ~סיק"
@@ -2714,7 +2692,7 @@ direction = "rtl"
 "Lowercase" = "אותיות קטנות"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "אות ראשית גדולה"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:163
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:152
 "Sort" = "מיון"
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "חשב סכום"
@@ -2818,9 +2796,9 @@ direction = "rtl"
 "~P~aste from" = "~ה~דבק מתוך"
 # navigator/widgets/editor/edit_window/edit_window.py:833
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "~S~ave File As" = "~ש~מור קובץ בשם"
 # navigator/widgets/editor/edit_window/edit_window.py:126
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -2836,7 +2814,7 @@ direction = "rtl"
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:419, navigator/widgets/viewer/file_window/file_window.py:629 ...
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:626
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
 # navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "מידע"
@@ -2902,7 +2880,7 @@ direction = "rtl"
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:109
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:178
+# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:168
 "Text" = "טקסט"
 # navigator/widgets/editor/option_items.py:87
 "Insert or overwrite" = "הוספה או דריסה"
@@ -4018,7 +3996,7 @@ direction = "rtl"
 "Free %" = "% פנוי"
 # navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "% בשימוש"
-# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:446, navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
 "Type" = "סוג"
 # navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "נקודת עיגון"
@@ -4048,7 +4026,7 @@ direction = "rtl"
 "Hex/Text/Dump" = "Hex/טקסט/Dump"
 # navigator/widgets/viewer/commands.py:34
 "Rendered" = "מעובד"
-# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:144
+# navigator/widgets/viewer/commands.py:48
 "Goto" = "עבור"
 # navigator/widgets/viewer/commands.py:74
 "Reverse Search" = "חיפוש לאחור"
@@ -4062,69 +4040,95 @@ direction = "rtl"
 "View Memo" = "הצג Memo"
 # navigator/widgets/viewer/commands.py:124
 "Edit Field" = "ערוך שדה"
-# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:478
+# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:668
 "Tables" = "טבלאות"
-# navigator/widgets/viewer/commands.py:206
+# navigator/widgets/viewer/commands.py:191
 "Prev" = "הקודם"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "מספרי"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Character" = "תו"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Memo" = "Memo"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Logical" = "לוגי"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Float" = "צף"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Length" = "אורך"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Decimals" = "עשרוניות"
-# navigator/widgets/viewer/db_window/db_window.py:136
+# navigator/widgets/viewer/db_window/db_window.py:190
 "The cursor is not on a memo field" = "הסמן אינו על שדה memo"
-# navigator/widgets/viewer/db_window/db_window.py:138
+# navigator/widgets/viewer/db_window/db_window.py:192
 "The database is opened read-only" = "מסד הנתונים פתוח לקריאה בלבד"
-# navigator/widgets/viewer/db_window/db_window.py:140
+# navigator/widgets/viewer/db_window/db_window.py:194
 "Only in a SQLite file" = "רק בקובץ SQLite"
-# navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/viewer/db_window/db_window.py:196
+"Only in a CSV file" = "רק בקובץ CSV"
+# navigator/widgets/viewer/db_window/db_window.py:198
+"The file has no cells" = "אין תאים בקובץ"
+# navigator/widgets/viewer/db_window/db_window.py:349
 "Constraints" = "אילוצים"
-# navigator/widgets/viewer/db_window/db_window.py:304
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Comma" = "פסיק"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Semicolon" = "נקודה ופסיק"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Tab" = "טאב"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Pipe" = "צינור"
+# navigator/widgets/viewer/db_window/db_window.py:494
 "Edit field" = "עריכת שדה"
-# navigator/widgets/viewer/db_window/db_window.py:98
+# navigator/widgets/viewer/db_window/db_window.py:151
 "dBase View - {path}" = "הצגת dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:135
+# navigator/widgets/viewer/db_window/db_window.py:189
 "The cursor is not on text or a blob" = "הסמן אינו על טקסט או BLOB"
-# navigator/widgets/viewer/db_window/db_window.py:550, navigator/widgets/viewer/db_window/db_window.py:512
-"Empty database {name}" = "מסד נתונים ריק {name}"
-# navigator/widgets/viewer/db_window/db_window.py:97
-"SQLite View - {path}" = "תצוגת SQLite - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:182
-"Structure of {name}" = "המבנה של {name}"
-# navigator/widgets/viewer/db_window/db_window.py:173
+# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
 "{count} row" = ["שורה אחת", "שתי שורות", "{count} שורות"]
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+"Empty database {name}" = "מסד נתונים ריק {name}"
+# navigator/widgets/viewer/db_window/db_window.py:148
+"Spreadsheet - {path}" = "גיליון אלקטרוני - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:150
+"SQLite View - {path}" = "תצוגת SQLite - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Unique index" = "אינדקס ייחודי"
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Index" = "אינדקס"
-# navigator/widgets/viewer/db_window/db_window.py:295, navigator/widgets/viewer/db_window/db_window.py:343
+# navigator/widgets/viewer/db_window/db_window.py:367
+"First row is a header" = "השורה הראשונה היא כותרת"
+# navigator/widgets/viewer/db_window/db_window.py:367
+"No header row" = "ללא שורת כותרת"
+# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
 "Could not edit field - file is write-protected" = "לא ניתן לערוך את השדה - הקובץ מוגן מכתיבה"
-# navigator/widgets/viewer/db_window/db_window.py:254
+# navigator/widgets/viewer/db_window/db_window.py:493
+"~V~alue" = "~ע~רך"
+# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+"Structure of {name}" = "המבנה של {name}"
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:461
+"Encoding" = "קידוד"
+# navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "קובץ MEMO לא נמצא"
-# navigator/widgets/viewer/db_window/db_window.py:415, navigator/widgets/viewer/sheet_window/sheet_window.py:269
+# navigator/widgets/viewer/db_window/db_window.py:605
 "Searching" = "מחפש"
-# navigator/widgets/viewer/db_window/db_window.py:525, navigator/widgets/viewer/db_window/db_window.py:225
+# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
 "Reading" = "קורא"
-# navigator/widgets/viewer/db_window/db_window.py:262
+# navigator/widgets/viewer/db_window/db_window.py:236
+"Sorting" = "ממיין"
+# navigator/widgets/viewer/db_window/db_window.py:452
 "Memo view" = "הצגת Memo"
-# navigator/widgets/viewer/db_window/db_window.py:512
+# navigator/widgets/viewer/db_window/db_window.py:702
 "No tables" = "אין טבלאות"
-# navigator/widgets/viewer/db_window/db_window.py:320
+# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1382 ...
+"Cannot read the file: {error}" = "לא ניתן לקרוא את הקובץ: {error}"
+# navigator/widgets/viewer/db_window/db_window.py:510
 "Could not edit field - {error}" = "לא ניתן לערוך את השדה - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "view" = "תצוגה"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "table" = "טבלה"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "שורה {line}, זהה לשורה {other} מימין"
@@ -4186,21 +4190,17 @@ direction = "rtl"
 "Byte {hex}, decimal {decimal}, octal {octal}, binary {binary}" = "בית {hex}, עשרוני {decimal}, אוקטלי {octal}, בינרי {binary}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:1348
 "Character {char}" = "תו {char}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1382, navigator/widgets/viewer/file_window/file_window.py:294, navigator/widgets/viewer/sheet_window/sheet_window.py:303 ...
-"Cannot read the file: {error}" = "לא ניתן לקרוא את הקובץ: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:383
+# navigator/widgets/viewer/file_window/file_window.py:380
 "Only in the text view" = "רק בתצוגת טקסט"
-# navigator/widgets/viewer/file_window/file_window.py:464
-"Encoding" = "קידוד"
-# navigator/widgets/viewer/file_window/file_window.py:393
+# navigator/widgets/viewer/file_window/file_window.py:390
 "Not while the markup is rendered" = "לא בזמן שהסימון מעובד"
 # navigator/widgets/viewer/file_window/file_window.py:88
 "View - {path}" = "הצגה - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:382
+# navigator/widgets/viewer/file_window/file_window.py:379
 "Nothing has been typed over in hex" = "שום דבר לא שונה בתצוגה ההקסדצימלית"
-# navigator/widgets/viewer/file_window/file_window.py:385
+# navigator/widgets/viewer/file_window/file_window.py:382
 "Only in the hex and dump views" = "רק בתצוגות hex ו-dump"
-# navigator/widgets/viewer/file_window/file_window.py:397, navigator/widgets/viewer/sheet_window/sheet_window.py:123
+# navigator/widgets/viewer/file_window/file_window.py:394
 "Nothing has been searched for yet" = "עדיין לא בוצע חיפוש"
 # navigator/widgets/viewer/file_window/file_window.py:183
 "Information was modified. Save changes?" = "המידע שונה. לשמור את השינויים?"
@@ -4210,14 +4210,6 @@ direction = "rtl"
 "{path} has changed since it was opened. Nothing was written." = "{path} השתנה מאז שנפתח. דבר לא נכתב."
 # navigator/widgets/viewer/quick_viewer/quick_viewer.py:108
 "~C~lose quick view" = "~ס~גור הצגה מהירה"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:125
-"The file has no cells" = "אין תאים בקובץ"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:96
-"Spreadsheet - {path}" = "גיליון אלקטרוני - {path}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:149
-"Cell {name}" = "תא {name}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:190
-"Sorting" = "ממיין"
 # navigator/lib/appearance/palette.py
 "Timer" = "שעון עצר"
 # navigator/lib/appearance/palette.py
@@ -4961,3 +4953,17 @@ direction = "rtl"
 "View a dBase file as a table" = "הצג קובץ dBase כטבלה"
 "Fields, memos, editing and search" = "שדות, תזכירים, עריכה וחיפוש"
 "{name}: not a dBase file" = "{name}: אינו קובץ dBase"
+"Go to Cell Number" = "מעבר לתא"
+"~E~nter new cell number" = "~ה~זן מספר תא"
+"~P~attern" = "~ד~פוס"
+"Search as" = "חפש כ"
+"~S~tring" = "~מ~חרוזת"
+"~T~able" = "~ט~בלה"
+"Cells, columns, sorting and search" = "תאים, עמודות, מיון וחיפוש"
+"~V~iew cell..." = "~ה~צג תא..."
+"The whole text of the cell at the cursor" = "כל הטקסט של התא שבסמן"
+"C~o~lumn width..." = "~ר~וחב עמודה..."
+"~S~ort by column" = "מ~י~ין לפי עמודה"
+"Go to cell ~n~umber..." = "~ע~בור לתא..."
+"As ~t~ext" = "כ~ט~קסט"
+"Cell {name}" = "תא {name}"

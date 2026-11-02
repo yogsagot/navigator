@@ -1,6 +1,6 @@
-"""CSV and TSV files for the spreadsheet window: what DOS Navigator's
-``TCalcView`` (CALC.PAS) showed, read from a delimited text file instead of
-DN's own ``.WKZ`` -- no widget in it.
+"""CSV and TSV files for the database window (``TDBWindow``, the dBase and
+SQLite viewer's): what DOS Navigator's spreadsheet (CALC.PAS) showed of its
+own ``.WKZ``, read from a delimited text file -- no widget in it.
 
 **A file of any size opens at once.**  A thread walks it once and notes where
 each record starts (:class:`TableSource` ``starts``), quote-aware, so a quoted
@@ -10,10 +10,10 @@ the walk's progress through plain fields -- ``complete``, ``position`` and a
 stop flag -- as :class:`navigator.lib.viewer.SearchJob` does, never anything
 reactive.
 
-**View-only**: nothing here writes.  Sorting orders the rows shown
-(:func:`sort_order`), never the file.
+**View-only**: nothing here writes.  Sorting (:func:`sort_order`,
+:class:`SortedView`) orders the rows shown, of any source, never the file.
 
-Cells are named as DN named them: columns ``A``..``Z``, ``AA``.., rows from 1.
+A file without a header names its columns as DN's spreadsheet did: ``A``..``Z``, ``AA``..
 """
 
 from __future__ import annotations
@@ -107,11 +107,6 @@ def is_table(name: str) -> bool:
         fnmatch.fnmatchcase(name, mask.strip().lower()) for mask in settings.table_masks.split(";") if mask.strip())
 
 
-def cell_name(column: int, row: int) -> str:
-    """DN's ``GetCellName``: column 0, row 0 is ``A1``; column 26 is ``AA``."""
-    return column_name(column) + str(row + 1)
-
-
 def column_name(column: int) -> str:
     """``A``..``Z``, ``AA``..``AZ``, ``BA``..: spreadsheet letters for *column* from 0."""
     name = ""
@@ -120,29 +115,6 @@ def column_name(column: int) -> str:
         column, rest = divmod(column - 1, 26)
         name = chr(ord("A") + rest) + name
     return name
-
-
-_CELL = re.compile(r"\s*([A-Za-z]*)\s*(\d*)\s*$")
-
-
-def parse_cell(text: str) -> tuple[int | None, int | None] | None:
-    """What *Go to Cell Number* was given: ``B12`` is column 1, row 11;
-    ``12`` a row alone, ``B`` a column alone (None for the other).  None for
-    anything else."""
-    match = _CELL.match(text)
-    if match is None or not (match.group(1) or match.group(2)):
-        return None
-    letters, digits = match.group(1).upper(), match.group(2)
-    column = None
-    if letters:
-        column = 0
-        for letter in letters:
-            column = column * 26 + ord(letter) - ord("A") + 1
-        column -= 1
-    row = int(digits) - 1 if digits else None
-    if row is not None and row < 0:
-        return None
-    return column, row
 
 
 def number(text: str) -> float | None:
@@ -381,13 +353,16 @@ class Work:
         return self._stop.is_set()
 
 
-def sort_order(source: TableSource, column: int, descending: bool, work: Work | None = None) -> array | None:
-    """The rows in the order of *column*'s cells -- as numbers when every
-    one that is not blank is one, else as text, case aside -- a stable sort,
-    blanks last either way.  None if stopped."""
-    source.wait()
+def sort_order(db: Any, field: Any, descending: bool, work: Work | None = None) -> array | None:
+    """The rows of *db* -- any source the database window shows -- in the
+    order of *field*'s cells: as numbers when every one that is not blank is
+    one, else as text, case aside; a stable sort, blanks last either way.
+    None if stopped.  A thread calls it: every row is read."""
+    wait = getattr(db, "wait", None)
+    if wait is not None:
+        wait()
     work = work or Work()
-    count = source.count
+    count = db.count
     work.total = count
     cells: list[str] = []
     for index in range(count):
@@ -395,90 +370,157 @@ def sort_order(source: TableSource, column: int, descending: bool, work: Work | 
             work.position = index
             if work.stopped:
                 return None
-        row = source.row(index)
-        cells.append(row[column] if row is not None and column < len(row) else "")
+        record = db.record(index)
+        cells.append(db.raw(record, field).strip() if record is not None else "")
     values = [number(cell) for cell in cells]
-    numeric = all(value is not None for value, cell in zip(values, cells) if cell.strip()) \
+    numeric = all(value is not None for value, cell in zip(values, cells) if cell) \
         and any(value is not None for value in values)
-    blank = [not cell.strip() for cell in cells]
-    if numeric:
-        keys: list[Any] = [value if value is not None else 0.0 for value in values]
-    else:
-        keys = [cell.casefold() for cell in cells]
-    order = sorted(range(count), key=keys.__getitem__, reverse=descending)
-    # Blanks last, in file order, whichever way.
-    order = [index for index in order if not blank[index]] + [index for index in range(count) if blank[index]]
+    keys: list[Any] = [value if value is not None else 0.0 for value in values] if numeric \
+        else [cell.casefold() for cell in cells]
+    order = sorted((index for index in range(count) if cells[index]), key=keys.__getitem__, reverse=descending)
+    order += [index for index in range(count) if not cells[index]]
     return array("Q", order)
 
 
-@dataclass(frozen=True)
-class CellSearch:
-    """DN's ``SearchData`` (``dlgFindCell``): the pattern, *Search as*
-    string or value, *Case sensitive* and *Whole words only*."""
+class SortedView:
+    """*db*'s rows in *order* (F8, a departure): everything the database
+    window asks of a source, a row's index read through the order -- and
+    F4's write, so a dBase field edited lands in the record shown."""
 
-    text: str
-    as_value: bool = False
-    case: bool = False
-    whole: bool = False
+    def __init__(self, db: Any, order: array, field: int, descending: bool) -> None:
+        self.db = db
+        self.order = order
+        #: The sort in force: the field's index, and whether descending.
+        self.sort = (field, descending)
 
-    def matches(self, cell: str) -> bool:
-        if self.as_value:
-            wanted, value = number(self.text), number(cell)
-            return wanted is not None and value is not None and wanted == value
-        text, cell = (self.text, cell) if self.case else (self.text.casefold(), cell.casefold())
-        if not self.whole:
-            return text in cell
-        return re.search(r"(?<!\w)" + re.escape(text) + r"(?!\w)", cell) is not None
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.db, name)
+
+    @property
+    def count(self) -> int:
+        return len(self.order)
+
+    def source_index(self, index: int) -> int:
+        return self.order[index] if 0 <= index < len(self.order) else index
+
+    def record(self, index: int) -> Any:
+        return self.db.record(self.order[index]) if 0 <= index < len(self.order) else None
+
+    def write_field(self, index: int, field: Any, text: str) -> None:
+        self.db.write_field(self.source_index(index), field, text)
 
 
-def find(source: TableSource, search: CellSearch, *, order: array | None, row: int, column: int,
-         backward: bool = False, work: Work | None = None) -> tuple[int, int] | None:
-    """``SearchCell``: the next cell after (*row*, *column*) -- or before it,
-    *backward* -- that *search* matches, row by row in the order shown;
-    ``(row, column)`` in that order, or None.  *row* -1 starts at the top."""
-    work = work or Work()
-    step = -1 if backward else 1
-    shown = row
-    first = True
-    while True:
-        if shown < 0 and not first:
-            return None
-        if shown >= 0:
-            if shown >= source.count:
-                if source.complete:
-                    return None
-                source.wait()
-                if shown >= source.count:
-                    return None
-            if shown % 1024 == 0:
-                work.position = shown
-                if work.stopped:
-                    return None
-            index = order[shown] if order is not None and shown < len(order) else shown
-            cells = source.row(index) or []
-            columns = range(len(cells))
-            if first:
-                columns = range(column + 1, len(cells)) if not backward else range(min(column, len(cells)) - 1, -1, -1)
-            elif backward:
-                columns = range(len(cells) - 1, -1, -1)
-            for at in columns:
-                if search.matches(cells[at]):
-                    return shown, at
-        first = False
-        shown += step
+@dataclass
+class CSVField:
+    """A CSV column as the database window reads a field: its name (the
+    header's, or its letter), kind (``N`` when every value sampled is a
+    number, else ``C``), index and width."""
+
+    name: str
+    kind: str
+    offset: int
+    width: int = MIN_WIDTH
+    length: int = 0
+    decimals: int = 0
+
+
+class CSVTable:
+    """A CSV or TSV file in the database window (a departure: DN showed its
+    ``.WKZ`` in a spreadsheet of its own): the source the dBase window asks
+    of a ``dbf.DBFile`` -- ``fields``, ``count``, ``record``, ``shown``,
+    ``raw``, ``memo``, ``flag`` -- over a :class:`TableSource` walked on its
+    thread; ``count`` grows until ``complete``."""
+
+    #: *Memo view* (F3) opens any cell, whole.
+    memo_kinds = frozenset({"C", "N"})
+    #: View-only: F4 is refused.
+    editable = False
+
+    def __init__(self, source: TableSource) -> None:
+        self.source = source
+        self.path = source.path
+        source.measure()
+        titles = source.titles() or []
+        self.fields: list[CSVField] = []
+        from navkit.bidi import display_width
+
+        for index in range(source.columns):
+            name = flat(titles[index]) if index < len(titles) else ""
+            name = name or column_name(index)
+            self.fields.append(CSVField(name, self._kind(index), index,
+                                        max(source.widths[index], min(MAX_WIDTH, display_width(name)))))
+
+    def _kind(self, index: int) -> str:
+        values = [row[index] for row in (self.source.row(n) for n in range(min(self.source.count, MEASURED)))
+                  if row is not None and index < len(row) and row[index].strip()]
+        return "N" if values and all(number(value) is not None for value in values) else "C"
+
+    @property
+    def count(self) -> int:
+        return self.source.count
+
+    @property
+    def complete(self) -> bool:
+        return self.source.complete
+
+    @property
+    def percent(self) -> int:
+        return self.source.percent
+
+    @property
+    def dialect(self) -> Dialect:
+        return self.source.dialect
+
+    def wait(self) -> None:
+        self.source.wait()
+
+    def record(self, index: int) -> list[str] | None:
+        return self.source.row(index)
+
+    @staticmethod
+    def flag(record: list[str]) -> str:
+        return " "
+
+    @staticmethod
+    def raw(record: list[str], field: CSVField) -> str:
+        return record[field.offset] if field.offset < len(record) else ""
+
+    @classmethod
+    def shown(cls, record: list[str], field: CSVField) -> str:
+        """The cell on one line; a number right-aligned in its column, as
+        dBase stores one."""
+        text = flat(cls.raw(record, field))
+        if field.kind == "N":
+            return text.strip().rjust(field.width)
+        return text
+
+    @classmethod
+    def memo(cls, record: list[str], field: CSVField) -> str | None:
+        return cls.raw(record, field)
+
+    def row_offset(self, index: int) -> int:
+        return self.source.row_offset(index)
+
+    def close(self) -> None:
+        self.source.close()
+
+
+def flat(text: str) -> str:
+    """*text* on one line: a line break or a tab is a blank."""
+    return "".join(" " if char in "\r\n\t\v\f" else char for char in text.replace("\r\n", "\n"))
 
 
 __all__ = [
-    "CellSearch",
+    "CSVField",
+    "CSVTable",
     "Dialect",
+    "SortedView",
     "TableSource",
     "Work",
-    "cell_name",
     "column_name",
-    "find",
+    "flat",
     "guess",
     "is_table",
     "number",
-    "parse_cell",
     "sort_order",
 ]

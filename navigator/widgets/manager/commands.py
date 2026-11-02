@@ -55,8 +55,9 @@ class ViewAsDataBase(Command):
 
 
 class ViewAsSpreadsheet(Command):
-    """File > View > As Spreadsheet: the spreadsheet window DN opened on a
-    ``.WKZ`` (``TCalcWindow``), on a CSV or TSV file -- view-only."""
+    """File > View > As Spreadsheet: DN's *View as Spreadsheet*, which opened
+    its own ``.WKZ`` (``TCalcWindow``); here a CSV or TSV file in the database
+    window, as the dBase and SQLite viewers show theirs -- view-only."""
 
 
 class Edit(Command):

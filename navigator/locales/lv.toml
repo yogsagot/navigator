@@ -91,7 +91,7 @@ flag = "LV"
 "E~x~it" = "~I~ziet"
 # navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~M~eklēt"
-# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/viewer/sheet_window/sheet_window.nml:83 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:230, navigator/widgets/shell/main_menu/main_menu.nml:169, navigator/widgets/editor/file_editor/file_editor.py:2874
 "~F~ind..." = "~M~eklēt..."
 # navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/editor/file_editor/file_editor.py:2875
 "~R~eplace..." = "Aizvi~e~tot..."
@@ -203,7 +203,7 @@ flag = "LV"
 "File t~y~pe" = "Faila ti~p~s"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "Aizstāt"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:14, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15 ...
+# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:293
 "Find" = "Meklēt"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:26, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:37
 "~T~ext to find" = "~M~eklēt"
@@ -213,7 +213,7 @@ flag = "LV"
 "Options" = "Iestatījumi"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:56 ...
 "~C~ase sensitive" = "~R~eģistrjutīgs"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:51
+# navigator/widgets/editor/find_dialog/find_dialog.nml:56, navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~W~hole words only" = "~T~ikai veseli vārdi"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:56
 "~P~rompt on replace" = "~P~ajautāt aizstājot"
@@ -1783,7 +1783,7 @@ flag = "LV"
 "Show or hide the trash can that files are dropped on to delete them" = "Rādīt vai slēpt miskasti, uz kuru nomet failus, lai tos dzēstu"
 # navigator/widgets/shell/main_menu/main_menu.nml:104
 "View, edit, copy, move, archive and delete files" = "Failu skatīšana, rediģēšana, kopēšana, pārvietošana, arhivēšana un dzēšana"
-# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/file_window/file_window.nml:123 ...
 "~V~iew" = "~S~katīt"
 # navigator/widgets/shell/main_menu/main_menu.nml:109
 "~A~s is" = "~K~ā ir"
@@ -2181,29 +2181,45 @@ flag = "LV"
 "~A~ll fields" = "~V~isos laukos"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~U~z priekšu"
-# navigator/widgets/viewer/db_window/db_window.nml:58
-"Fields, memos, editing, tables and search" = "Lauki, memo, rediģēšana, tabulas un meklēšana"
-# navigator/widgets/viewer/db_window/db_window.nml:61, navigator/widgets/viewer/db_window/db_viewer.py:182
-"~F~ields..." = "~L~auki..."
-# navigator/widgets/viewer/db_window/db_window.nml:62
-"The file's structure: its fields and their types" = "Faila struktūra: tā lauki un to tipi"
-# navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/db_window/db_viewer.py:183
-"~M~emo view" = "~A~pskatīt memo"
 # navigator/widgets/viewer/db_window/db_window.nml:66
-"The memo text of the cell at the cursor" = "Šūnas pie kursora memo teksts"
-# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:184
-"~E~dit field..." = "~R~ediģēt lauku..."
-# navigator/widgets/viewer/db_window/db_window.nml:73
-"~T~ables..." = "~T~abulas..."
+"Fields, memos, editing, tables and search" = "Lauki, memo, rediģēšana, tabulas un meklēšana"
+# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:212
+"~F~ields..." = "~L~auki..."
+# navigator/widgets/viewer/db_window/db_window.nml:70
+"The file's structure: its fields and their types" = "Faila struktūra: tā lauki un to tipi"
+# navigator/widgets/viewer/db_window/db_window.nml:73, navigator/widgets/viewer/db_window/db_viewer.py:213
+"~M~emo view" = "~A~pskatīt memo"
 # navigator/widgets/viewer/db_window/db_window.nml:74
+"The memo text of the cell at the cursor" = "Šūnas pie kursora memo teksts"
+# navigator/widgets/viewer/db_window/db_window.nml:77, navigator/widgets/viewer/db_window/db_viewer.py:214
+"~E~dit field..." = "~R~ediģēt lauku..."
+# navigator/widgets/viewer/db_window/db_window.nml:81
+"~T~ables..." = "~T~abulas..."
+# navigator/widgets/viewer/db_window/db_window.nml:82
 "Another table or view of the SQLite file" = "Cita SQLite faila tabula vai skats"
-# navigator/widgets/viewer/db_window/db_window.nml:77
+# navigator/widgets/viewer/db_window/db_window.nml:85
 "~Q~uery..." = "Vai~c~ājums..."
-# navigator/widgets/viewer/db_window/db_window.nml:78
+# navigator/widgets/viewer/db_window/db_window.nml:86
 "Run a query that reads, and show its rows" = "Izpildīt lasošu vaicājumu un rādīt tā rindas"
-# navigator/widgets/viewer/db_window/db_window.nml:82, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:90, navigator/widgets/viewer/db_window/db_viewer.py:215
+"S~o~rt by column" = "~S~kārtot pēc kolonnas"
+# navigator/widgets/viewer/db_window/db_window.nml:91
+"Ascending, descending, then as in the file" = "Augošā, dilstošā secībā, tad kā failā"
+# navigator/widgets/viewer/db_window/db_window.nml:94
+"Column ~w~idth..." = "~K~olonnas platums..."
+# navigator/widgets/viewer/db_window/db_window.nml:95
+"Left and Right narrow and widen the column; Enter ends" = "Pa kreisi un pa labi sašaurina un paplašina kolonnu; Enter beidz"
+# navigator/widgets/viewer/db_window/db_window.nml:99
+"Fo~r~mat..." = "~F~ormāts..."
+# navigator/widgets/viewer/db_window/db_window.nml:100
+"The delimiter, the header and the encoding" = "Atdalītājs, virsraksts un kodējums"
+# navigator/widgets/viewer/db_window/db_window.nml:103
+"As te~x~t" = "Kā t~e~kstu"
+# navigator/widgets/viewer/db_window/db_window.nml:104
+"The same file in the text viewer" = "Tas pats fails teksta skatītājā"
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:217 ...
 "~S~earch..." = "~M~eklēt..."
-# navigator/widgets/viewer/db_window/db_window.nml:85, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "Sa~l~īdzināt"
@@ -2265,57 +2281,19 @@ flag = "LV"
 "Encod~i~ng..." = "~K~odējums..."
 # navigator/widgets/viewer/file_window/file_window.nml:208
 "The code page the file is read in" = "Kodu lapa, kurā fails tiek lasīts"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:11
-"Go to Cell Number" = "Pāriet uz šūnu"
-# navigator/widgets/viewer/goto_cell_dialog/goto_cell_dialog.nml:20
-"~E~nter new cell number" = "~I~evadiet šūnas numuru"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Iet uz adresi"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~A~drese"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:181 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:350 ...
 "Query" = "Vaicājums"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "Meklēšanas gaita"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:24
-"~P~attern" = "~P~araugs"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:34
-"Search as" = "Meklēt kā"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43
-"~S~tring" = "Virk~n~e"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:303
-"~V~alue" = "~V~ērtība"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:62
-"~T~able" = "~T~abula"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:63
-"Cells, columns, sorting and search" = "Šūnas, kolonnas, kārtošana un meklēšana"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:66, navigator/widgets/viewer/sheet_window/sheet_view.py:302
-"~V~iew cell..." = "~R~ādīt šūnu..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:67
-"The whole text of the cell at the cursor" = "Visa kursora šūnas teksts"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:70
-"C~o~lumn width..." = "~K~olonnas platums..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:71
-"Left and Right narrow and widen the column; Enter ends" = "Pa kreisi un pa labi sašaurina un paplašina kolonnu; Enter beidz"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:74, navigator/widgets/viewer/sheet_window/sheet_view.py:303
-"~S~ort by column" = "~S~kārtot pēc kolonnas"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:75
-"Ascending, descending, then as in the file" = "Augošā, dilstošā secībā, tad kā failā"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:78
-"Fo~r~mat..." = "~F~ormāts..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:79
-"The delimiter, the header and the encoding" = "Atdalītājs, virsraksts un kodējums"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:89, navigator/widgets/viewer/sheet_window/sheet_view.py:307
-"Go to cell ~n~umber..." = "Pāriet uz ~š~ūnu..."
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:93, navigator/widgets/viewer/sheet_window/sheet_view.py:309
-"As ~t~ext" = "Kā ~t~ekstu"
-# navigator/widgets/viewer/sheet_window/sheet_window.nml:94
-"The same file in the text viewer" = "Tas pats fails teksta skatītājā"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:171
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:160
 "Format" = "Formāts"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
 "Delimiter" = "Atdalītājs"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "Ko~m~ats"
@@ -2713,7 +2691,7 @@ flag = "LV"
 "Lowercase" = "mazie"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "Lielsāk"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:163
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:152
 "Sort" = "Kārtot"
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "Summa"
@@ -2817,9 +2795,9 @@ flag = "LV"
 "~P~aste from" = "~I~elīmēt no"
 # navigator/widgets/editor/edit_window/edit_window.py:833
 "Open a File" = "Atvērt failu"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "Save File As" = "Saglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:490
+# navigator/widgets/editor/edit_window/edit_window.py:868, navigator/widgets/viewer/file_window/file_window.py:487
 "~S~ave File As" = "~S~aglabāt failu kā"
 # navigator/widgets/editor/edit_window/edit_window.py:126
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -2835,7 +2813,7 @@ flag = "LV"
 "Cannot print: {error}" = "Nevar drukāt: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:419, navigator/widgets/viewer/file_window/file_window.py:629 ...
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:626
 "Search string not found" = "Meklētā virkne nav atrasta"
 # navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Informācija"
@@ -2901,7 +2879,7 @@ flag = "LV"
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:109
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:178
+# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:168
 "Text" = "Teksts"
 # navigator/widgets/editor/option_items.py:87
 "Insert or overwrite" = "Ievietot vai pārrakstīt"
@@ -4017,7 +3995,7 @@ flag = "LV"
 "Free %" = "Brīvs %"
 # navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "Aizņemts %"
-# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:446, navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
 "Type" = "Tips"
 # navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "Montēšanas punkts"
@@ -4047,7 +4025,7 @@ flag = "LV"
 "Hex/Text/Dump" = "Hex/Teksts/Dump"
 # navigator/widgets/viewer/commands.py:34
 "Rendered" = "Atveidots"
-# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:144
+# navigator/widgets/viewer/commands.py:48
 "Goto" = "Pāriet"
 # navigator/widgets/viewer/commands.py:74
 "Reverse Search" = "Meklēt atpakaļ"
@@ -4061,69 +4039,95 @@ flag = "LV"
 "View Memo" = "Memo"
 # navigator/widgets/viewer/commands.py:124
 "Edit Field" = "LabLauk"
-# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:478
+# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:668
 "Tables" = "Tabulas"
-# navigator/widgets/viewer/commands.py:206
+# navigator/widgets/viewer/commands.py:191
 "Prev" = "Iepr."
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "Skaitlis"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Character" = "Rakstzīmes"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Memo" = "Memo"
-# navigator/widgets/viewer/db_window/db_window.py:432
+# navigator/widgets/viewer/db_window/db_window.py:622
 "Logical" = "Loģisks"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Float" = "Peldošs"
-# navigator/widgets/viewer/db_window/db_window.py:433
+# navigator/widgets/viewer/db_window/db_window.py:623
 "Picture" = "Attēls"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Length" = "Garums"
-# navigator/widgets/viewer/db_window/db_window.py:446
+# navigator/widgets/viewer/db_window/db_window.py:636
 "Decimals" = "Decimāldaļas"
-# navigator/widgets/viewer/db_window/db_window.py:136
+# navigator/widgets/viewer/db_window/db_window.py:190
 "The cursor is not on a memo field" = "Kursors nav uz memo lauka"
-# navigator/widgets/viewer/db_window/db_window.py:138
+# navigator/widgets/viewer/db_window/db_window.py:192
 "The database is opened read-only" = "Datubāze atvērta tikai lasīšanai"
-# navigator/widgets/viewer/db_window/db_window.py:140
+# navigator/widgets/viewer/db_window/db_window.py:194
 "Only in a SQLite file" = "Tikai SQLite failā"
-# navigator/widgets/viewer/db_window/db_window.py:180
+# navigator/widgets/viewer/db_window/db_window.py:196
+"Only in a CSV file" = "Tikai CSV failā"
+# navigator/widgets/viewer/db_window/db_window.py:198
+"The file has no cells" = "Failā nav šūnu"
+# navigator/widgets/viewer/db_window/db_window.py:349
 "Constraints" = "Ierobežojumi"
-# navigator/widgets/viewer/db_window/db_window.py:304
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Comma" = "Komats"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Semicolon" = "Semikols"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Tab" = "Tabulācija"
+# navigator/widgets/viewer/db_window/db_window.py:364
+"Pipe" = "Vertikāla svītra"
+# navigator/widgets/viewer/db_window/db_window.py:494
 "Edit field" = "Rediģēt lauku"
-# navigator/widgets/viewer/db_window/db_window.py:98
+# navigator/widgets/viewer/db_window/db_window.py:151
 "dBase View - {path}" = "dBase skats - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:135
+# navigator/widgets/viewer/db_window/db_window.py:189
 "The cursor is not on text or a blob" = "Kursors nav uz teksta vai BLOB"
-# navigator/widgets/viewer/db_window/db_window.py:550, navigator/widgets/viewer/db_window/db_window.py:512
-"Empty database {name}" = "Tukša datubāze {name}"
-# navigator/widgets/viewer/db_window/db_window.py:97
-"SQLite View - {path}" = "SQLite skats - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:182
-"Structure of {name}" = "{name} struktūra"
-# navigator/widgets/viewer/db_window/db_window.py:173
+# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
 "{count} row" = ["{count} rinda", "{count} rindas", "{count} rindu"]
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+"Empty database {name}" = "Tukša datubāze {name}"
+# navigator/widgets/viewer/db_window/db_window.py:148
+"Spreadsheet - {path}" = "Izklājlapa - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:150
+"SQLite View - {path}" = "SQLite skats - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Unique index" = "Unikāls indekss"
-# navigator/widgets/viewer/db_window/db_window.py:175
+# navigator/widgets/viewer/db_window/db_window.py:344
 "Index" = "Indekss"
-# navigator/widgets/viewer/db_window/db_window.py:295, navigator/widgets/viewer/db_window/db_window.py:343
+# navigator/widgets/viewer/db_window/db_window.py:367
+"First row is a header" = "Pirmā rinda ir virsraksts"
+# navigator/widgets/viewer/db_window/db_window.py:367
+"No header row" = "Bez virsraksta rindas"
+# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
 "Could not edit field - file is write-protected" = "Neizdevās rediģēt lauku - fails ir aizsargāts pret rakstīšanu"
-# navigator/widgets/viewer/db_window/db_window.py:254
+# navigator/widgets/viewer/db_window/db_window.py:493
+"~V~alue" = "~V~ērtība"
+# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+"Structure of {name}" = "{name} struktūra"
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:461
+"Encoding" = "Kodējums"
+# navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "Neizdevās atrast MEMO failu"
-# navigator/widgets/viewer/db_window/db_window.py:415, navigator/widgets/viewer/sheet_window/sheet_window.py:269
+# navigator/widgets/viewer/db_window/db_window.py:605
 "Searching" = "Meklē"
-# navigator/widgets/viewer/db_window/db_window.py:525, navigator/widgets/viewer/db_window/db_window.py:225
+# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
 "Reading" = "Lasa"
-# navigator/widgets/viewer/db_window/db_window.py:262
+# navigator/widgets/viewer/db_window/db_window.py:236
+"Sorting" = "Kārto"
+# navigator/widgets/viewer/db_window/db_window.py:452
 "Memo view" = "Memo skats"
-# navigator/widgets/viewer/db_window/db_window.py:512
+# navigator/widgets/viewer/db_window/db_window.py:702
 "No tables" = "Nav tabulu"
-# navigator/widgets/viewer/db_window/db_window.py:320
+# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1382 ...
+"Cannot read the file: {error}" = "Nevar nolasīt failu: {error}"
+# navigator/widgets/viewer/db_window/db_window.py:510
 "Could not edit field - {error}" = "Neizdevās rediģēt lauku - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "view" = "skats"
-# navigator/widgets/viewer/db_window/db_window.py:476
+# navigator/widgets/viewer/db_window/db_window.py:666
 "table" = "tabula"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "Rinda {line}, tāda pati kā rinda {other} labajā pusē"
@@ -4185,21 +4189,17 @@ flag = "LV"
 "Byte {hex}, decimal {decimal}, octal {octal}, binary {binary}" = "Baits {hex}, decimāli {decimal}, astotnieku {octal}, bināri {binary}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:1348
 "Character {char}" = "Rakstzīme {char}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1382, navigator/widgets/viewer/file_window/file_window.py:294, navigator/widgets/viewer/sheet_window/sheet_window.py:303 ...
-"Cannot read the file: {error}" = "Nevar nolasīt failu: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:383
+# navigator/widgets/viewer/file_window/file_window.py:380
 "Only in the text view" = "Tikai teksta skatā"
-# navigator/widgets/viewer/file_window/file_window.py:464
-"Encoding" = "Kodējums"
-# navigator/widgets/viewer/file_window/file_window.py:393
+# navigator/widgets/viewer/file_window/file_window.py:390
 "Not while the markup is rendered" = "Ne tad, kad marķējums ir atveidots"
 # navigator/widgets/viewer/file_window/file_window.py:88
 "View - {path}" = "Skatīt - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:382
+# navigator/widgets/viewer/file_window/file_window.py:379
 "Nothing has been typed over in hex" = "Heksadecimālajā režīmā nekas nav mainīts"
-# navigator/widgets/viewer/file_window/file_window.py:385
+# navigator/widgets/viewer/file_window/file_window.py:382
 "Only in the hex and dump views" = "Tikai heksadecimālajā un izdrukas skatā"
-# navigator/widgets/viewer/file_window/file_window.py:397, navigator/widgets/viewer/sheet_window/sheet_window.py:123
+# navigator/widgets/viewer/file_window/file_window.py:394
 "Nothing has been searched for yet" = "Vēl nekas nav meklēts"
 # navigator/widgets/viewer/file_window/file_window.py:183
 "Information was modified. Save changes?" = "Informācija ir mainīta. Saglabāt izmaiņas?"
@@ -4209,14 +4209,6 @@ flag = "LV"
 "{path} has changed since it was opened. Nothing was written." = "{path} ir mainījies kopš atvēršanas. Nekas netika ierakstīts."
 # navigator/widgets/viewer/quick_viewer/quick_viewer.py:108
 "~C~lose quick view" = "~A~izvērt ātro skatu"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:125
-"The file has no cells" = "Failā nav šūnu"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:96
-"Spreadsheet - {path}" = "Izklājlapa - {path}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:149
-"Cell {name}" = "Šūna {name}"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:190
-"Sorting" = "Kārto"
 # navigator/lib/appearance/palette.py
 "Timer" = "Taimeris"
 # navigator/lib/appearance/palette.py
@@ -4992,3 +4984,17 @@ flag = "LV"
 "View a dBase file as a table" = "Skatīt dBase failu kā tabulu"
 "Fields, memos, editing and search" = "Lauki, memo, rediģēšana un meklēšana"
 "{name}: not a dBase file" = "{name}: nav dBase fails"
+"Go to Cell Number" = "Pāriet uz šūnu"
+"~E~nter new cell number" = "~I~evadiet šūnas numuru"
+"~P~attern" = "~P~araugs"
+"Search as" = "Meklēt kā"
+"~S~tring" = "Virk~n~e"
+"~T~able" = "~T~abula"
+"Cells, columns, sorting and search" = "Šūnas, kolonnas, kārtošana un meklēšana"
+"~V~iew cell..." = "~R~ādīt šūnu..."
+"The whole text of the cell at the cursor" = "Visa kursora šūnas teksts"
+"C~o~lumn width..." = "~K~olonnas platums..."
+"~S~ort by column" = "~S~kārtot pēc kolonnas"
+"Go to cell ~n~umber..." = "Pāriet uz ~š~ūnu..."
+"As ~t~ext" = "Kā ~t~ekstu"
+"Cell {name}" = "Šūna {name}"

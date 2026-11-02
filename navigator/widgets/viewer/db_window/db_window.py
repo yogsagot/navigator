@@ -3,8 +3,11 @@
 
 **It shows a SQLite file too** (a departure; :mod:`navigator.lib.viewer.sqlite`):
 a table at a time, F5 choosing another and F6 a query, read-only -- F4 is
-refused.  The grid asks either source the same few questions (``fields``,
-``count``, ``record``, ``shown``, ``raw``, ``memo``, ``flag``)."""
+refused.  **And a CSV or TSV file** (:mod:`navigator.lib.viewer.table`),
+read-only, walked on a thread while shown: Shift+F6 its format, Shift+F4 its
+text.  F8 sorts any of them (the rows shown, never the file).  The grid asks
+every source the same few questions (``fields``, ``count``, ``record``,
+``shown``, ``raw``, ``memo``, ``flag``)."""
 
 from __future__ import annotations
 
@@ -19,6 +22,7 @@ from navml.widgets.window import Window
 
 from navigator.lib.viewer import dbf
 from navigator.widgets.viewer.commands import (
+    ChangeWidth,
     ChooseTable,
     ContinueSearch,
     EditDbField,
@@ -27,7 +31,13 @@ from navigator.widgets.viewer.commands import (
     SearchFor,
     ShowFields,
     ShowMemo,
+    SortColumn,
+    TableFormat,
+    ViewSheetAsText,
 )
+
+#: How often the indicator looks at a CSV still being walked, in seconds.
+TICK = 0.25
 
 
 class DBWindow(Window):
@@ -40,6 +50,8 @@ class DBWindow(Window):
         #: (``navigator.lib.viewer.sqlite.SQLiteFile``): closed with the window.
         self.sqlite = sqlite
         self._place: str | None = None
+        #: The timer following a CSV's walk while it goes on.
+        self._ticker: Any = None
         self.viewer.db = db
         self._search: dict[str, Any] | None = None
         #: The copy of a file from another drive this window shows, if it
@@ -79,20 +91,61 @@ class DBWindow(Window):
     def mounted(self) -> None:
         super().mounted()
         effect(self, DBWindow._follow_cursor)
+        self._follow_walk()
         self.viewer.focus()
 
+    def unmounting(self) -> None:
+        self._stop_ticking()
+        super().unmounting()
+
+    @property
+    def csv(self) -> Any:
+        """The CSV this window shows (``table.CSVTable``), sorted or not; or None."""
+        from navigator.lib.viewer.table import CSVTable, SortedView
+
+        db = self.db.db if isinstance(self.db, SortedView) else self.db
+        return db if isinstance(db, CSVTable) else None
+
+    def _follow_walk(self) -> None:
+        """A CSV still being walked: the count followed until it is all found."""
+        app = self.application
+        if (app is not None and self._ticker is None and self.db is not None
+                and not getattr(self.db, "complete", True)):
+            self._ticker = app.call_every(TICK, self._tick)
+
+    def _stop_ticking(self) -> None:
+        if self._ticker is not None:
+            self._ticker.cancel()
+            self._ticker = None
+
+    async def _tick(self) -> None:
+        if self.db is None or getattr(self.db, "complete", True):
+            self._stop_ticking()
+        self._follow_cursor()
+        self.viewer.invalidate()
+
     def _follow_cursor(self) -> None:
-        """``TDBIndicator``: ``record/records``."""
-        count = self.db.count if self.db is not None else 0
-        text = f"{self.viewer.record + 1}/{count}"
-        if getattr(self.db, "truncated", False):
+        """``TDBIndicator``: ``record/records`` -- ``+`` for a SQLite read
+        cut short, ``+ 42%`` while a CSV is still walked, and the sort."""
+        db = self.db
+        count = db.count if db is not None else 0
+        text = f"{self.viewer.record + 1}/{count:,}"
+        if getattr(db, "truncated", False):
             # A view or a query read whole, cut at its first ROW_LIMIT rows.
             text += "+"
+        if not getattr(db, "complete", True):
+            text += f"+ {db.percent}%"
+        sort = getattr(db, "sort", None)
+        if sort is not None and db is not None:
+            field, descending = sort
+            text += f" {db.fields[field].name}{'↓' if descending else '↑'}"
         self.indicator.text = text
 
     def list_name(self) -> str:
         """Window > List's line: ``dlDBViewName``, *dBase View - * and the name."""
         path = self.place
+        if self.csv is not None:
+            return tr("Spreadsheet - {path}").format(path=path)
         if self.sqlite is not None:
             return tr("SQLite View - {path}").format(path=path)
         return tr("dBase View - {path}").format(path=path)
@@ -102,6 +155,7 @@ class DBWindow(Window):
         return PurePosixPath(str(self.db.path)).name if self.db is not None else ""
 
     def close(self) -> None:
+        self._stop_ticking()
         if self.db is not None:
             self.db.close()
         if self.sqlite is not None:
@@ -138,7 +192,120 @@ class DBWindow(Window):
             return tr("The database is opened read-only")
         if isinstance(command, (ChooseTable, RunQuery)) and self.sqlite is None:
             return tr("Only in a SQLite file")
+        if isinstance(command, (TableFormat, ViewSheetAsText)) and self.csv is None:
+            return tr("Only in a CSV file")
+        if isinstance(command, (SortColumn, ChangeWidth)) and not (self.db is not None and self.db.fields):
+            return tr("The file has no cells")
         return super().refusal(command)
+
+    # -- F8, the width: every source -------------------------------------------------
+
+    async def on_change_width(self, event: ChangeWidth) -> bool:
+        """DN spreadsheet's ``cmChangeWidth``: Left and Right resize until Enter or Esc."""
+        self.viewer.resizing = True
+        self.viewer.focus()
+        return True
+
+    async def on_sort_column(self, event: SortColumn) -> bool:
+        self.spawn(self.sort())
+        return True
+
+    async def sort(self) -> None:
+        """F8 (a departure): the cursor's field ascending, then descending,
+        then the file's order again -- the rows shown, never the file.  On a
+        thread, every row read; *Sorting* if it takes a while."""
+        from navigator.lib.system.progress import run_with_progress
+        from navigator.lib.viewer.table import SortedView, Work, sort_order
+        from navigator.widgets.editor.loading import progress_box, refresh_box
+
+        viewer, db = self.viewer, self.db
+        if db is None or not db.fields:
+            return
+        field = viewer.field
+        base = db.db if isinstance(db, SortedView) else db
+        shown = db.source_index(viewer.record) if isinstance(db, SortedView) else viewer.record
+        current = getattr(db, "sort", None)
+        if current == (field, True):
+            self.db = viewer.db = base
+            viewer.go(record=shown)
+        else:
+            descending = current == (field, False)
+            work = Work()
+            order = await run_with_progress(
+                self.application, lambda: sort_order(base, base.fields[field], descending, work), work,
+                lambda: progress_box(work, tr("Sorting")), refresh_box(work))
+            if order is None or work.stopped:
+                return
+            self.db = viewer.db = SortedView(base, order, field, descending)
+            # The cursor stays on its record, wherever the sort put it.
+            viewer.go(record=list(order).index(shown) if shown < len(order) else 0)
+        self._follow_cursor()
+        viewer.invalidate()
+
+    # -- Shift+F6, Shift+F4: a CSV ----------------------------------------------------
+
+    async def on_table_format(self, event: TableFormat) -> bool:
+        self.spawn(self.table_format())
+        return True
+
+    async def table_format(self) -> None:
+        """*Format*: the file read again with the delimiter, header and
+        encoding chosen, from its start."""
+        import asyncio
+
+        from navigator.lib.viewer.table import CSVTable
+        from navigator.widgets.viewer.table_format_dialog import TableFormatDialog
+
+        csv = self.csv
+        if csv is None:
+            return
+        dialect = await TableFormatDialog(csv.dialect).execute(self.application)
+        self.viewer.focus()
+        if dialect is None or dialect == csv.dialect:
+            return
+        self._stop_ticking()
+        try:
+            source = await asyncio.to_thread(csv.source.with_dialect, dialect)
+            await asyncio.to_thread(first_screen, source)
+            fresh = await asyncio.to_thread(CSVTable, source)
+        except OSError as error:
+            await self._say(tr("Cannot read the file: {error}").format(error=error.strerror or error))
+            return
+        self.db = self.viewer.db = fresh
+        self.viewer.widths = {}
+        self.viewer.record = self.viewer.field = self.viewer.top = self.viewer.first_field = 0
+        self._follow_cursor()
+        self._follow_walk()
+        self.viewer.invalidate()
+
+    async def on_view_sheet_as_text(self, event: ViewSheetAsText) -> bool:
+        self.spawn(self.as_text())
+        return True
+
+    async def as_text(self) -> None:
+        """Shift+F4 (a departure, as *Markup view*'s): the same file in F3's
+        text view, at the cursor's record, in this window's place."""
+        from navigator.lib.config.file_history import open_viewer
+        from navigator.lib.viewer.table import SortedView
+
+        csv, desktop = self.csv, self.desktop
+        if csv is None or desktop is None:
+            return
+        db = self.db
+        row = db.source_index(self.viewer.record) if isinstance(db, SortedView) else self.viewer.record
+        offset = csv.row_offset(row) if db.count else 0
+        try:
+            window = await open_viewer(desktop, csv.path, "text")
+        except OSError as error:
+            await self._say(tr("Cannot read the file: {error}").format(error=error.strerror or error))
+            return
+        if window is None:
+            return
+        take_place(window, self)
+        window.title = self.title
+        window.use_set, self.use_set = self.use_set, None
+        window.viewer.seek(offset)
+        self.close()
 
     async def _say(self, prompt: str, title: str | None = None) -> None:
         await Dialog(title=tr("Error") if title is None else title, prompt=prompt, buttons="ok").execute(self.application)
@@ -148,6 +315,8 @@ class DBWindow(Window):
     async def on_show_fields(self, event: ShowFields) -> bool:
         if self.sqlite is not None:
             self.spawn(self.show_schema())
+        elif self.csv is not None:
+            self.spawn(self.show_columns())
         else:
             self.spawn(show_structure(self.application, self.db, tr("Structure of {name}")))
         return True
@@ -181,6 +350,26 @@ class DBWindow(Window):
         name = db.name or tr("Query")
         await DBListDialog(heading=heading, lines=lines, title=tr("Structure of {name}").format(name=name),
                            modal_width=69, modal_height=19).execute(self.application)
+        self.viewer.focus()
+
+    async def show_columns(self) -> None:
+        """F2 on a CSV: its columns -- name, and whether every value sampled
+        is a number -- then how it is read: delimiter, header, encoding, rows."""
+        from navigator.widgets.viewer.db_list_dialog import DBListDialog
+
+        csv = self.csv
+        kinds = {"N": tr("Numeric"), "C": tr("Character")}
+        lines = [_table_row(f.name, kinds.get(f.kind, f.kind), "", "") for f in csv.fields]
+        dialect = csv.dialect
+        delimiters = {",": tr("Comma"), ";": tr("Semicolon"), "\t": tr("Tab"), "|": tr("Pipe")}
+        lines += ["",
+                  " " + tr("Delimiter") + ": " + delimiters.get(dialect.delimiter, repr(dialect.delimiter)),
+                  " " + (tr("First row is a header") if dialect.header else tr("No header row")),
+                  " " + tr("Encoding") + ": " + dialect.encoding,
+                  " " + tr_n("{count} row", "{count} rows", csv.count, count=f"{csv.count:,}")]
+        name = csv.path.name if len(csv.path.name) <= 20 else "..." + csv.path.name[-17:]
+        await DBListDialog(heading=_table_row(tr("Name"), tr("Type"), "", ""), lines=lines,
+                           title=tr("Structure of {name}").format(name=name)).execute(self.application)
         self.viewer.focus()
 
     # -- F5, F6: SQLite -----------------------------------------------------------------
@@ -229,6 +418,7 @@ class DBWindow(Window):
             self.viewer.focus()
             return
         self.db = self.viewer.db = db
+        self.viewer.widths = {}
         self.viewer.record = self.viewer.field = 0
         self.viewer.first_field = self.viewer.top = 0
         self.title = self._title_of(db)
@@ -551,5 +741,54 @@ async def open_database(desktop: Any, path: Path) -> Any:
         db.close()
         return None
     window = desktop.open(DBWindow(db))
+    window.viewer.focus()
+    return window
+
+
+def take_place(window: Window, old: Window) -> None:
+    """*window* where *old* is: zoomed as it is, or in its rectangle."""
+    if old.zoomed and window.zoomed:
+        return
+    if old.zoomed:
+        window.toggle_zoom()
+        return
+    if window.zoomed:
+        window.toggle_zoom()
+    window.locate(old.x, old.y, old.width, old.height)
+    if window.parent is not None:
+        window.layout(window.parent.width, window.parent.height)
+
+
+def first_screen(source: Any) -> None:
+    """A CSV's walk started, and waited on until a screenful is found -- or
+    the file is done -- so the window opens with rows in it."""
+    import time
+
+    source.start()
+    deadline = time.monotonic() + 2.0
+    while not source.complete and source.records < 200 and time.monotonic() < deadline:
+        time.sleep(0.005)
+
+
+async def open_csv(desktop: Any, path: Path, *, row: int = 0) -> Any:
+    """F3 on a CSV or TSV, *As Spreadsheet*: the database window on it (a
+    departure: DN's ``.WKZ`` had a spreadsheet window of its own), zoomed
+    and given the keyboard, at *row*.  The file is guessed at and walked
+    far enough for a screen on a thread; the rest of the walk goes on while
+    the window is up.  ``OSError`` is the caller's."""
+    import asyncio
+
+    from navigator.lib.viewer.table import CSVTable, TableSource
+
+    def opened() -> CSVTable:
+        source = TableSource(path)
+        first_screen(source)
+        if row and not source.complete and source.records <= row:
+            source.wait()
+        return CSVTable(source)
+
+    db = await asyncio.to_thread(opened)
+    window = desktop.open(DBWindow(db))
+    window.viewer.go(record=row)
     window.viewer.focus()
     return window

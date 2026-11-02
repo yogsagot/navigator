@@ -18,7 +18,10 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
-from navigator.lib.viewer.dbf import DBFile  # or a SQLite table: navigator.lib.viewer.sqlite
+from navigator.lib.viewer.dbf import DBFile  # or a SQLite table, or a CSV: sqlite.py, table.py
+
+#: How wide a field may be made.
+WIDEST = 200
 
 
 class DBViewer(ContextMenuHost, Widget):
@@ -29,11 +32,17 @@ class DBViewer(ContextMenuHost, Widget):
     #: ``Delta``: the cursor's field and record.
     field: int = reactive(0)
     record: int = reactive(0)
+    #: DN spreadsheet's ``cmChangeWidth`` mode: Left and Right narrow and
+    #: widen the cursor's field until Enter or Esc (a departure in this
+    #: window, which DN's dBase viewer drew at the fields' own widths).
+    resizing: bool = reactive(False)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.can_focus = True
         self.db: DBFile | None = None
+        #: Fields narrowed or widened, by index: their width shown.
+        self.widths: dict[int, int] = {}
         #: ``Pos``: the first field shown, and the record on the first row.
         self.first_field = 0
         self.top = 0
@@ -57,6 +66,19 @@ class DBViewer(ContextMenuHost, Widget):
         while self.field > self.first_field + len(self.shown_fields()) - 1 and self.first_field < self.field:
             self.first_field += 1
 
+    def width_of(self, index: int) -> int:
+        """How wide field *index* is shown: as changed, else its own."""
+        width = self.widths.get(index)
+        return width if width is not None else self.db.fields[index].width
+
+    def widen(self, delta: int) -> None:
+        """The cursor's field one narrower or wider, 1 to :data:`WIDEST`."""
+        if self.db is None or not self.db.fields:
+            return
+        self.widths[self.field] = max(1, min(WIDEST, self.width_of(self.field) + delta))
+        self._clamp()
+        self.invalidate()
+
     def shown_fields(self) -> list[int]:
         """The fields that fit whole from ``first_field`` on -- one at least."""
         db = self.db
@@ -64,7 +86,7 @@ class DBViewer(ContextMenuHost, Widget):
             return []
         shown, x = [], 1
         for index in range(self.first_field, len(db.fields)):
-            x += db.fields[index].width + 1
+            x += self.width_of(index) + 1
             if x >= self.width:
                 break
             shown.append(index)
@@ -84,7 +106,15 @@ class DBViewer(ContextMenuHost, Widget):
             return False
         last_field, page = len(db.fields) - 1, max(1, self.height - 2)
         key = event.name
-        if key == "enter":
+        if self.resizing:
+            if key in ("left", "right"):
+                self.widen(-1 if key == "left" else 1)
+            elif key in ("enter", "escape"):
+                self.resizing = False
+            return True
+        if key in ("ctrl+left", "ctrl+right"):
+            self.widen(-1 if key == "ctrl+left" else 1)
+        elif key == "enter":
             if self.field < last_field:
                 self.go(field=self.field + 1)
             else:
@@ -145,7 +175,7 @@ class DBViewer(ContextMenuHost, Widget):
             return None
         left = 1
         for index in self.shown_fields():
-            width = db.fields[index].width
+            width = self.width_of(index)
             if left <= x < left + width:
                 return index, record
             left += width + 1
@@ -165,7 +195,7 @@ class DBViewer(ContextMenuHost, Widget):
             for index in self.shown_fields():
                 if index == self.field:
                     break
-                x += db.fields[index].width + 1
+                x += self.width_of(index) + 1
         return x, min(self.record - self.top + 2, max(0, self.height - 1))
 
     def context_menu(self) -> ContextMenu | None:
@@ -174,7 +204,7 @@ class DBViewer(ContextMenuHost, Widget):
         each time, so its captions follow the language."""
         from navml.commands import CloseWindow
 
-        from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchFor, ShowFields, ShowMemo
+        from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchFor, ShowFields, ShowMemo, SortColumn
 
         if self.db is None:
             return None
@@ -182,6 +212,7 @@ class DBViewer(ContextMenuHost, Widget):
         menu.add_item(tr("~F~ields..."), ShowFields)
         menu.add_item(tr("~M~emo view"), ShowMemo)
         menu.add_item(tr("~E~dit field..."), EditDbField)
+        menu.add_item(tr("S~o~rt by column"), SortColumn)
         menu.add_line()
         menu.add_item(tr("~S~earch..."), SearchFor)
         menu.add_item(tr("Search a~g~ain"), ContinueSearch)
@@ -203,8 +234,8 @@ class DBViewer(ContextMenuHost, Widget):
         surface.fill(0, 0, width, 1, " ", titles)
         x = 1
         for index in shown:
-            surface.draw_text(x, 0, db.fields[index].name, titles, max(0, width - x))
-            x += db.fields[index].width + 1
+            surface.draw_text(x, 0, db.fields[index].name, titles, max(0, min(self.width_of(index), width - x)))
+            x += self.width_of(index) + 1
         for row in range(1, height):
             number = self.top + row - 1
             record = db.record(number)
@@ -216,5 +247,8 @@ class DBViewer(ContextMenuHost, Widget):
                 field = db.fields[index]
                 style = cursor if number == self.record and index == self.field else plain
                 text = db.shown(record, field)
-                surface.draw_text(x, row, text, style, max(0, min(len(text), width - x)))
-                x += field.width + 1
+                field_width = self.width_of(index)
+                if style is not plain:
+                    surface.fill(x, row, max(0, min(field_width, width - x)), 1, " ", style)
+                surface.draw_text(x, row, text, style, max(0, min(field_width, width - x)))
+                x += field_width + 1

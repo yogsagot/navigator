@@ -206,7 +206,7 @@ def test_a_right_click_on_a_memo_cell_moves_there_and_offers_memo_view(place):
                   KeyEvent("m", "m"), Until(lambda a: isinstance(a.modal, DBListDialog)),
                   lambda a: seen.update(memo=list(a.modal.lines.items))])
     assert seen["cell"] == (4, 0)
-    assert list(seen["enabled"]) == ["Fields...", "Memo view", "Edit field...", "Search...",
-                                     "Search again", "Close"]
+    assert list(seen["enabled"]) == ["Fields...", "Memo view", "Edit field...", "Sort by column",
+                                     "Search...", "Search again", "Close"]
     assert seen["enabled"]["Memo view"]
     assert seen["memo"] == ["Hello", "memo"]

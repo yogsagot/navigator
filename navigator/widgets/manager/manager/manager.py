@@ -3988,14 +3988,14 @@ class Manager(Window):
 
     async def _view_sheet(self, desktop: Any, place: Any) -> bool:
         """F3 on a CSV or TSV, or *As Spreadsheet*: DN's ``XT = '.WKZ'`` --
-        the spreadsheet window, on a copy for a file on another drive.  False
+        the database window, on a copy for a file on another drive.  False
         when it could not be read so, for the text viewer to try (and to say
         why, or offer *As root*)."""
-        from navigator.widgets.viewer.sheet_window.sheet_window import open_sheet
+        from navigator.widgets.viewer.db_window.db_window import open_csv
 
         if isinstance(place, Path):
             try:
-                await open_sheet(desktop, place)
+                await open_csv(desktop, place)
             except OSError:
                 return False
             return True
@@ -4006,12 +4006,12 @@ class Manager(Window):
         if use is None:
             return True
         try:
-            window = await open_sheet(desktop, use.local_for(place))
+            window = await open_csv(desktop, use.local_for(place))
         except OSError:
             await asyncio.to_thread(usefile.discard, use)
             return False
         window.use_set = use
-        window.title = str(place)
+        window.place = str(place)
         return True
 
     async def view(self, mode: str | None = None) -> None:
