@@ -2069,8 +2069,16 @@ class Application:
         updated = dataclasses.replace(
             info, graphics=graphics, probe_graphics=False, cell_px=info.cell_px or answers.get("cell")
         )
-        if updated != info:
-            self.use_terminal_info(updated)
+        # Not use_terminal_info(): its whole-screen repaint, a second or so
+        # after the first frame, is what starting up looked like.  No cell
+        # on the screen depends on the answer -- no picture is shown yet --
+        # so what follows the info re-renders through the usual diff.
+        if updated.graphics != info.graphics:
+            self.terminal.write(self._graphics.release(info.graphics))
+        self.terminal.info = updated
+        if (updated.graphics, updated.cell_px) != (info.graphics, info.cell_px):
+            self.info_revision += 1
+            self.invalidate()
 
     def _on_signal(self, signum: int) -> None:
         if signum == signal.SIGWINCH:

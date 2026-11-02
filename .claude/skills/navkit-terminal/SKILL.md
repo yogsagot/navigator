@@ -90,7 +90,9 @@ slower than the timeout -- `allow` gives the real answer.
   under id 31 (`GRAPHICS_QUERY_ID`), `CSI 16 t` (cell size), then DA1 -- which every terminal answers, so its reply
   ends the asking. The parser turns the replies into `TerminalReplyEvent` (`graphics`, `cell`, `da1`), which
   `_on_readable` keeps from the event queue (`_terminal_replied`). kitty `OK` wins, else DA1 attribute 4 is sixel;
-  `use_terminal_info` applies it and repaints. Nothing answers in `GRAPHICS_ANSWER_TIMEOUT` (1 s): no pictures.
+  `_graphics_answered` sets it on `terminal.info` and, only if `graphics`/`cell_px` changed, bumps `info_revision` and
+  invalidates -- never `use_terminal_info`, whose whole-screen repaint ~1 s after the first frame made startup look
+  slow (no cell depends on the answer). Nothing answers in `GRAPHICS_ANSWER_TIMEOUT` (1 s): no pictures.
 - **`ESC _` is also Alt+_.** A whole `ESC _ G ... ESC \` is always a reply (a late one is never typed); an unfinished
   one is waited for only while `InputParser.answers_graphics` is set, and a lone `ESC _` then flushes as Alt+_. DA1
   (`CSI ? ... c`) and `CSI 6 ; h ; w t` never were keys.

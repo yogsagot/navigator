@@ -13,7 +13,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from navkit.i18n import LOCALE, SOURCE, languages, register_directory, register_package
+from navkit.i18n import LOCALE, SOURCE, has_catalogue, register_directory, register_package
 
 #: What the setting holds for "follow the environment".
 AUTOMATIC = ""
@@ -43,9 +43,10 @@ def resolve(code: str) -> str:
     """*code* as a language a catalogue exists for: itself, its bare language
     (``lv_LV`` to ``lv``), or English.  Automatic asks the environment."""
     wanted = code or from_environment()
-    known = languages()
     for candidate in (wanted, wanted.split("_")[0]):
-        if candidate in known:
+        # Only whether its file exists: listing every language would read
+        # every catalogue, at every start.
+        if candidate and has_catalogue(candidate):
             return candidate
     return SOURCE
 

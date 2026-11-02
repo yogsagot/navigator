@@ -36,6 +36,7 @@ built.
 
 from __future__ import annotations
 
+import re
 import tomllib
 from collections.abc import Callable, Iterable
 from importlib.resources import files
@@ -75,6 +76,9 @@ _CACHE: dict[str, dict[str, Any]] = {}
 _PLAIN: dict[str, dict[str, str]] = {}
 #: Whether each language reads right to left, as its ``[meta]`` says.
 _RTL: dict[str, bool] = {}
+#: Each catalogue file's ``[meta]`` table, by path: what listing the
+#: languages needs, read without parsing the strings after it.
+_META: dict[str, dict[str, Any]] = {}
 
 
 def register_package(package: str) -> None:
@@ -93,6 +97,7 @@ def _register(source: Any) -> None:
     _CACHE.clear()
     _PLAIN.clear()
     _RTL.clear()
+    _META.clear()
 
 
 def _files(code: str) -> Iterable[Any]:
@@ -108,6 +113,39 @@ def _read(candidate: Any) -> dict[str, Any]:
         return tomllib.loads(candidate.read_text(encoding="utf-8"))
     except (OSError, UnicodeDecodeError, tomllib.TOMLDecodeError):
         return {}
+
+
+#: The first table header after ``[meta]``: where a catalogue's head ends.
+_BODY = re.compile(r"^\[(?!meta\])", re.MULTILINE)
+
+
+def _meta(candidate: Any) -> dict[str, Any]:
+    """A catalogue's ``[meta]`` table, parsing only the text before the next
+    table -- a catalogue is hundreds of kilobytes of strings, and listing the
+    languages (or asking which way one reads) needs none of them.  A head
+    that does not parse alone falls back to reading the whole file."""
+    key = str(candidate)
+    found = _META.get(key)
+    if found is None:
+        try:
+            text = candidate.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            text = ""
+        body = _BODY.search(text)
+        try:
+            head = tomllib.loads(text[: body.start()] if body else text)
+        except tomllib.TOMLDecodeError:
+            head = _read(candidate)
+        found = head.get("meta", {})
+        if not isinstance(found, dict):
+            found = {}
+        _META[key] = found
+    return found
+
+
+def has_catalogue(code: str) -> bool:
+    """Whether a catalogue for *code* exists anywhere registered (English always does)."""
+    return code == SOURCE or any(True for _ in _files(code))
 
 
 def catalogue(code: str) -> dict[str, Any]:
@@ -148,7 +186,7 @@ def languages() -> dict[str, str]:
         for entry in sorted(entries, key=lambda e: e.name):
             if entry.name.endswith(".toml") and entry.is_file():
                 code = entry.name.removesuffix(".toml")
-                meta = _read(entry).get("meta", {})
+                meta = _meta(entry)
                 names[code] = meta.get("name") or names.get(code) or code
     return names
 
@@ -167,7 +205,7 @@ def flags() -> dict[str, str]:
             continue
         for entry in entries:
             if entry.name.endswith(".toml") and entry.is_file():
-                region = _read(entry).get("meta", {}).get("flag")
+                region = _meta(entry).get("flag")
                 if isinstance(region, str) and flag_emoji(region):
                     found[entry.name.removesuffix(".toml")] = region.upper()
     return found
@@ -186,7 +224,7 @@ def is_rtl(code: str | None = None) -> bool:
         found = False
         if code != SOURCE:
             for candidate in _files(code):
-                direction = _read(candidate).get("meta", {}).get("direction")
+                direction = _meta(candidate).get("direction")
                 if direction in ("rtl", "ltr"):
                     found = direction == "rtl"
         _RTL[code] = found
