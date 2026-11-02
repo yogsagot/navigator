@@ -84,6 +84,14 @@ class SearchAgain(Command):
     """Ctrl+L: ``cmContinueSearch`` again, bound with no caption as DN bound it."""
 
 
+class WriteModify(Command):
+    """Shift+F2, View > Store: DN's ``cmSave`` in the viewer, which ran
+    ``TFileViewer.WriteModify`` -- the bytes typed over in hex written into
+    the file."""
+
+    title = "Store"
+
+
 class SaveViewAs(Command):
     """Shift+F5, File > Save as: ``cmSaveAll`` -- the file viewed, written
     under another name, read in its encoding and written in the screen's."""
@@ -153,6 +161,7 @@ __all__ = [
     "ContinueSearch",
     "SearchAgain",
     "CloseViewer",
+    "WriteModify",
     "SaveViewAs",
     "ChooseEncoding",
     "ShowFields",

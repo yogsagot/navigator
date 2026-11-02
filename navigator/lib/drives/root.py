@@ -244,6 +244,26 @@ class RootDrive(LocalDrive):
         ELEVATION.call("write_text", handle=handle, backup=backup, check_lock=helper_checks)
 
 
+    def patch_file(self, location: Location | Path, runs: list[tuple[int, bytes]], *, size: int) -> None:
+        """F3's Shift+F2 as root: each ``(offset, bytes)`` run written in place
+        (``viewer.store_edits``), owner, mode and inode kept.  Refused with
+        ``viewer.FileChanged`` unless the file is still *size* bytes."""
+        from navigator.lib.viewer import FileChanged
+
+        path = _path(location)
+        if unpack_stat(ELEVATION.call("stat", path=path)).st_size != size:
+            raise FileChanged(path)
+        handle = ELEVATION.call("open_update", path=path)
+        try:
+            for offset, data in runs:
+                while data:
+                    written = ELEVATION.call("write_at", bytes(data[:CHUNK]), handle=handle, offset=offset)
+                    offset += written
+                    data = data[written:]
+            ELEVATION.call("sync", handle=handle)
+        finally:
+            ELEVATION.call("close", handle=handle)
+
     @staticmethod
     def release() -> None:
         """A use of it over: :meth:`~navigator.lib.system.elevate.Elevation.release`."""
@@ -422,6 +442,10 @@ class RootSiteDrive(Drive):
                    backup: bool = False) -> None:
         """The editor's write as root: what a file fetched from here goes back by."""
         ROOT_DRIVE.write_file(Path(str(path.path if isinstance(path, Location) else path)), chunks, job, backup)
+
+    def patch_file(self, location: Location, runs: list[tuple[int, bytes]], *, size: int) -> None:
+        """F3's Shift+F2 on a file here: written in place as root."""
+        ROOT_DRIVE.patch_file(on_disk(location), runs, size=size)
 
     def watch(self, location: Location, notify: Any) -> Any:
         """*Auto refresh*: the directory listed through the helper every

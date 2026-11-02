@@ -222,7 +222,9 @@ class FileViewer(ContextMenuHost, Widget):
     #: (:mod:`navigator.lib.highlight`), by its classes.
     #: A Markdown or HTML file's rendering, by what its cells are (``heading``,
     #: ``code``, ``link`` and the rest: :mod:`navigator.lib.viewer.layout`).
-    parts = ("selected", "token", "md")
+    #: A byte typed over in hex and not stored yet, by ``changed`` (a
+    #: departure: DN marked none).
+    parts = ("selected", "token", "md", "changed")
 
     #: The file, once :meth:`open` has read it.  Reactive so that the window's
     #: title can follow it; assigned only by :meth:`open`.
@@ -246,6 +248,15 @@ class FileViewer(ContextMenuHost, Widget):
 
     #: The byte the hex cursor is on, in hex mode.
     cursor: int = reactive(0)
+
+    #: Hex editing (DN's ``HexEdit``): which half of the byte's pair the
+    #: cursor is on, 0 the high one; and whether it is in the characters to
+    #: the right instead of the pairs -- DN's ``not HexEdit``, Tab's switch.
+    nibble: int = reactive(0)
+    in_chars: bool = reactive(False)
+    #: Whether bytes typed over differ from the file's (``ViewSource.edited``),
+    #: kept here so that Shift+F2 greys and the info line follow it.
+    edited: bool = reactive(False)
 
     #: The last search's hit, as ``(offset, length)``, drawn until the next.
     hit: tuple[int, int] | None = reactive(None)
@@ -282,6 +293,9 @@ class FileViewer(ContextMenuHost, Widget):
         super().__init__(**kwargs)
         self.source: ViewSource | None = None
         self._again: Any = None
+        #: Whether typing in hex mode types over bytes: the F3 window's
+        #: viewer, never the quick view's, whose keys are the panel's.
+        self.hex_editing = False
         self.syntax_highlight = SETTINGS.viewer.syntax_highlight
         self.show_hidden = SETTINGS.viewer.show_hidden
         self.rehighlight()
@@ -313,6 +327,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.path = source.path
         self.size = source.size
         self.top = self.x_delta = self.cursor = self.render_row = 0
+        self.nibble, self.in_chars, self.edited = 0, False, False
         self.hit = None
 
     def close_file(self) -> None:
@@ -407,6 +422,9 @@ class FileViewer(ContextMenuHost, Widget):
             phase = self.top % per
             ruler = "─".join(f"{(i + phase) % 256:02X}" for i in range(per))
             text = f"[{self.cursor & 0xFFFFFFFF:08X} {ruler}"
+            if self.edited:
+                # Bytes typed and not stored: a departure, DN's line said nothing.
+                text = "*" + text
         else:
             text = "[>=<][" if self.wrap else "[<=>]["
             text += tr("{percent}% of {size} Bytes").format(percent=self.percent(), size=group_digits(self.size))
@@ -556,8 +574,9 @@ class FileViewer(ContextMenuHost, Widget):
         offset = self.top
         self.mode = mode
         if mode == "hex":
-            # DN's cursor starts where the view does.
+            # DN's cursor starts where the view does, in the pairs.
             self.cursor = offset
+            self.nibble, self.in_chars = 0, False
         elif mode == "text":
             self.x_delta = 0
             self.seek(offset)
@@ -908,6 +927,8 @@ class FileViewer(ContextMenuHost, Widget):
             return self._rendered_key(name, rows)
         elif self.mode == "text":
             return self._text_key(name, rows)
+        elif self.editable and self._edit_key(event):
+            return True
         else:
             return self._hex_key(name, rows)
         return True
@@ -1009,6 +1030,126 @@ class FileViewer(ContextMenuHost, Widget):
             return False
         return True
 
+    # -- hex editing -----------------------------------------------------------
+    #
+    # ``FVIEWER.PAS``'s ``HandleEvent`` in ``ViewMode = 1``: in the pairs
+    # (``HexEdit``) Left and Right step a nibble and 0-9/A-F replace it; in
+    # the characters (Tab) they step a byte and a character replaces it; each
+    # typed moves on, as DN's ``Message(kbRight)`` did.  The bytes are the
+    # source's overlay until Shift+F2 stores them (``FileWindow.store``).
+
+    @property
+    def editable(self) -> bool:
+        """Whether a key typed here types over a byte: the F3 window's hex
+        view of a file that has a size to write back to."""
+        return (self.hex_editing and self.mode == "hex" and self.source is not None
+                and self.source.editable)
+
+    def _edit_key(self, event: KeyEvent) -> bool:
+        name = event.name
+        pairs = not self.in_chars
+        if name == "tab":
+            self.in_chars = not self.in_chars
+            self.nibble = 0
+        elif name == "left" and pairs:
+            if self.nibble:
+                self.nibble = 0
+            elif self.cursor > 0:
+                self.move_cursor(-1)
+                self.nibble = 1
+        elif name == "right" and pairs:
+            self._step_nibble()
+        elif name == "home" and pairs:
+            self.cursor = self.cursor - (self.cursor - self.top) % self.row_bytes()
+            self.nibble = 0
+        elif name == "end" and pairs:
+            per = self.row_bytes()
+            self.cursor = min(self.size - 1, self.cursor - (self.cursor - self.top) % per + per - 1)
+            self.nibble = 1
+        elif name == "ctrl+z":
+            self.undo_edit()
+        elif name == "backspace":
+            # A departure, as Ctrl+Z: a step back, the file's own byte put back there.
+            if self.cursor > 0:
+                self.move_cursor(-1)
+            self.nibble = 0
+            if self.source.revert(self.cursor):
+                self._edits_changed()
+        elif event.char and not (event.ctrl or event.alt or event.super_) and event.char.isprintable():
+            self._type(event.char)
+        else:
+            return False
+        return True
+
+    def _step_nibble(self) -> None:
+        """Right in the pairs: the low nibble, or the next byte's high one."""
+        if self.nibble == 0:
+            self.nibble = 1
+        elif self.cursor + 1 < self.size:
+            self.move_cursor(1)
+            self.nibble = 0
+
+    def _type(self, char: str) -> None:
+        """*char* typed over the byte at the cursor: a hex digit into its
+        nibble in the pairs, the character's byte in the characters.  Anything
+        else is swallowed, as DN cleared it."""
+        source = self.source
+        current = source.peek(self.cursor)
+        if current is None:
+            return
+        if not self.in_chars:
+            digit = "0123456789ABCDEF".find(char.upper())
+            if digit < 0 or len(char) != 1:
+                return
+            byte = (current & 0x0F) | (digit << 4) if self.nibble == 0 else (current & 0xF0) | digit
+            if source.patch(self.cursor, byte):
+                self._edits_changed()
+            self._step_nibble()
+            return
+        byte = self._byte_of(char)
+        if byte is None:
+            return
+        if source.patch(self.cursor, byte):
+            self._edits_changed()
+        if self.cursor + 1 < self.size:
+            self.move_cursor(1)
+
+    def _byte_of(self, char: str) -> int | None:
+        """The one byte *char* is in the code page the file is read in
+        (File > Encoding), or in ASCII under UTF-8; None if there is none."""
+        table = self.source.table
+        if table is not None:
+            try:
+                return table.index(char)
+            except ValueError:
+                return None
+        return ord(char) if ord(char) < 0x80 else None
+
+    def undo_edit(self) -> None:
+        """Ctrl+Z: the last byte typed taken back, the cursor on it."""
+        offset = self.source.undo() if self.source is not None else None
+        if offset is None:
+            return
+        self.cursor = offset
+        self.nibble = 0
+        self.follow_cursor()
+        self._edits_changed()
+
+    def _edits_changed(self) -> None:
+        self.edited = self.source.edited
+        self.invalidate()
+
+    def edits_stored(self, written: dict[int, int]) -> None:
+        """Shift+F2 done: the file holds the bytes *written* now; highlighting
+        and a rendering are made again from it."""
+        if self.source is None:
+            return
+        self.source.stored(written)
+        self.edited = self.source.edited
+        self.rehighlight()
+        self._forget_layout()
+        self.invalidate()
+
     # -- the mouse -------------------------------------------------------------
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
@@ -1024,6 +1165,8 @@ class FileViewer(ContextMenuHost, Widget):
         if event.action != "press" or event.button != "left":
             return False
         self.focus()
+        if self.editable and self._click_byte(event.x, event.y):
+            return True
         # DN's viewer had no row to point at: the outer quarters are Left and
         # Right, and the rest is Up above the middle and Down below it.
         if event.x < self.width // 4:
@@ -1033,6 +1176,18 @@ class FileViewer(ContextMenuHost, Widget):
         else:
             key = "up" if event.y < self.height // 2 else "down"
         await self.on_key(KeyEvent(key))
+        return True
+
+    def _click_byte(self, x: int, y: int) -> bool:
+        """A press on a pair or a character puts the cursor there, in that
+        column and on that nibble: a departure -- DN's quarters had no byte
+        to point at, and typing over one needs it."""
+        offset = self.byte_at(x, y)
+        if offset is None:
+            return False
+        self.cursor = offset
+        self.in_chars = x >= hex_chars_at(self.row_bytes())
+        self.nibble = 0 if self.in_chars else min(1, (x - HEX_PAIRS_AT) % 3)
         return True
 
     # -- the context menu --------------------------------------------------------
@@ -1151,7 +1306,9 @@ class FileViewer(ContextMenuHost, Widget):
         index = self.cursor - self.top
         if not 0 <= index < self.height * per:
             return None
-        return HEX_PAIRS_AT + (index % per) * 3, index // per
+        if self.in_chars:
+            return hex_chars_at(per) + index % per, index // per
+        return HEX_PAIRS_AT + (index % per) * 3 + self.nibble, index // per
 
     def byte_at(self, x: int, y: int) -> int | None:
         """The offset of the byte painted at *x*, *y* in the hex and dump
@@ -1397,6 +1554,8 @@ class FileViewer(ContextMenuHost, Widget):
         per = self.row_bytes()
         source = self.source
         hex_mode = self.mode == "hex"
+        edits = source.edits
+        changed = self.part_style("changed") if edits else style
         for y in range(self.height):
             address = self.top + y * per
             if address >= self.size:
@@ -1406,15 +1565,19 @@ class FileViewer(ContextMenuHost, Widget):
                 surface.draw_text(0, y, hex_row(data, address, per, self.filter, self.source.table), style)
             else:
                 surface.draw_text(0, y, dump_row(data, address, self.filter, self.source.table), style)
-            if self.hit is None:
+            if self.hit is None and not edits:
                 continue
             chars_at = hex_chars_at(per) if hex_mode else DUMP_CHARS_AT
             for index, byte in enumerate(data):
-                if not self._hit_covers(address + index):
+                if self._hit_covers(address + index):
+                    look = selected
+                elif address + index in edits:
+                    look = changed
+                else:
                     continue
                 if hex_mode:
-                    surface.draw_text(HEX_PAIRS_AT + index * 3, y, f"{byte:02X}", selected)
+                    surface.draw_text(HEX_PAIRS_AT + index * 3, y, f"{byte:02X}", look)
                     char = hex_row(data[index:index + 1], 0, 1, self.filter, self.source.table)[-1]
                 else:
                     char = dump_row(data[index:index + 1], 0, self.filter, self.source.table)[-1]
-                surface.set_cell(chars_at + index, y, char, selected)
+                surface.set_cell(chars_at + index, y, char, look)

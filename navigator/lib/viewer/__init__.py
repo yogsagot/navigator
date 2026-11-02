@@ -26,6 +26,7 @@ from __future__ import annotations
 
 import contextlib
 import concurrent.futures
+import errno
 import os
 import re
 import stat
@@ -197,9 +198,10 @@ def _opened(source: Any) -> Any:
     return stream() if stream is not None else open(source, "rb")
 
 
-def _save_elsewhere(source: Path, target: Any, codec: str) -> None:
+def _save_elsewhere(source: Path, target: Any, codec: str, edits: dict[int, int] | None = None) -> None:
     """:func:`save_as` to another drive: written beside the target under a
-    name of its own and renamed over it, as an upload is."""
+    name of its own and renamed over it, as an upload is.  *edits*, bytes
+    typed in hex, are laid over what is read (:func:`store_edits`)."""
     import secrets
 
     from navigator.lib.drives import drive_of
@@ -210,7 +212,11 @@ def _save_elsewhere(source: Path, target: Any, codec: str) -> None:
     written = beside if replace else target
     try:
         with drive.open_write(written) as out, _opened(source) as data:
+            at = 0
             while block := data.read(1 << 16):
+                if edits:
+                    block = overlay(block, at, edits)
+                at += len(block)
                 out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
         if replace:
             drive.replace(beside, target)
@@ -220,6 +226,103 @@ def _save_elsewhere(source: Path, target: Any, codec: str) -> None:
             with contextlib.suppress(OSError):
                 drive.unlink(beside)
         raise
+
+
+def overlay(data: bytes, base: int, edits: dict[int, int] | None) -> bytes:
+    """*data*, read at *base*, with the bytes of *edits* that fall in it."""
+    if not edits:
+        return data
+    end = base + len(data)
+    hits = [(offset - base, byte) for offset, byte in edits.items() if base <= offset < end]
+    if not hits:
+        return data
+    patched = bytearray(data)
+    for at, byte in hits:
+        patched[at] = byte
+    return bytes(patched)
+
+
+def _overlaid(read: Any, edits: dict[int, int] | None) -> Any:
+    """*read* with *edits* laid over what it answers."""
+    if not edits:
+        return read
+    return lambda offset, count: overlay(read(max(0, offset), count), max(0, offset), edits)
+
+
+def edit_runs(edits: dict[int, int]) -> list[tuple[int, bytes]]:
+    """*edits* as ``(offset, bytes)`` runs of neighbouring bytes, in order:
+    one write each."""
+    runs: list[tuple[int, bytearray]] = []
+    for offset in sorted(edits):
+        if runs and runs[-1][0] + len(runs[-1][1]) == offset:
+            runs[-1][1].append(edits[offset])
+        else:
+            runs.append((offset, bytearray((edits[offset],))))
+    return [(offset, bytes(data)) for offset, data in runs]
+
+
+class FileChanged(OSError):
+    """The file is not the size it was when the viewer opened it: the bytes
+    typed would land somewhere else, so nothing is written."""
+
+    def __init__(self, path: Any) -> None:
+        super().__init__(errno.ESTALE, "The file has changed since it was opened", str(path))
+
+
+def store_edits(source: ViewSource, edits: dict[int, int], *, as_root: bool = False) -> None:
+    """Shift+F2, ``TFileViewer.WriteModify``: the bytes typed in hex written
+    into the file.  A thread runs it.
+
+    A file on the disk is written in place, each run of neighbouring bytes
+    one ``pwrite`` -- DN's ``Seek(FilePos); Write(Buf^, BufSize)`` -- so a
+    gigabyte costs what was typed, and its inode, owner and links stay.  So
+    is one read through a drive that can (``patch_file``: the root helper's,
+    *As root*).  Any other drive has no writing in place, so the whole file
+    is written beside it with the bytes laid over and renamed over it, as
+    *Save as* writes there.  *as_root* writes a file on the disk through the
+    root helper (a departure; :mod:`navigator.lib.system.elevate`).
+
+    Raises :class:`FileChanged` if the file is no longer the size it was.
+    """
+    runs = edit_runs(edits)
+    if not runs:
+        return
+    if isinstance(source, ChunkedSource):
+        from navigator.lib.drives import drive_of
+
+        drive = source.drive or drive_of(source.origin)
+        if hasattr(drive, "patch_file"):
+            drive.patch_file(source.origin, runs, size=source.size)
+            return
+        if drive.stat(source.origin).st_size != source.size:
+            raise FileChanged(source.origin)
+        _save_elsewhere(source, source.origin, "utf-8", edits)
+        return
+    if as_root:
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        try:
+            ROOT_DRIVE.patch_file(source.path, runs, size=source.size)
+        finally:
+            ROOT_DRIVE.release()
+        return
+    fd = os.open(source.path, os.O_RDWR)
+    try:
+        if os.fstat(fd).st_size != source.size:
+            raise FileChanged(source.path)
+        write_runs(fd, runs)
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def write_runs(fd: int, runs: list[tuple[int, bytes]]) -> None:
+    """Each ``(offset, bytes)`` run written at its offset, short writes retried."""
+    for offset, data in runs:
+        while data:
+            written = os.pwrite(fd, data, offset)
+            offset += written
+            data = data[written:]
 
 
 @dataclass(frozen=True, slots=True)
@@ -248,6 +351,7 @@ class ViewSource:
         self._chunks: OrderedDict[int, bytes] = OrderedDict()
         self._data: bytes | None = None
         self._eol_cache: tuple[int, int, int] | None = None
+        self._start_edits()
         info = os.stat(self.path)
         if not stat.S_ISREG(info.st_mode):
             # A fifo would block the loop on the first read, a device might
@@ -291,7 +395,7 @@ class ViewSource:
         if chunk is not None:
             self._chunks.move_to_end(index)
             return chunk
-        chunk = os.pread(self._open(), CHUNK, index * CHUNK)
+        chunk = self._patched(index, os.pread(self._open(), CHUNK, index * CHUNK))
         self._chunks[index] = chunk
         if len(self._chunks) > CACHED_CHUNKS:
             self._chunks.popitem(last=False)
@@ -328,6 +432,112 @@ class ViewSource:
         data = b"".join(self._chunk(i) for i in range(first, last + 1))
         start = offset - first * CHUNK
         return data[start:start + count]
+
+    # -- hex editing -----------------------------------------------------------
+    #
+    # DN's ``HexEdit``: bytes typed over in hex mode, kept until Shift+F2's
+    # ``WriteModify`` stores them.  DN changed its 1K buffer and asked on every
+    # ``Seek`` out of it; here there is no such buffer, so the bytes typed are
+    # an overlay -- ``edits``, laid over every chunk as it is read and over
+    # one already cached as it is typed -- and the question waits for Store or
+    # close (a departure).  Everything that reads through the cache (rows,
+    # lines, ``peek``) shows them; a thread reading on its own is handed a copy.
+
+    def _start_edits(self) -> None:
+        #: Offset -> the byte typed there, for every byte that now differs
+        #: from the file's.
+        self.edits: dict[int, int] = {}
+        #: Offset -> the file's own byte, for every byte ever typed over.
+        self.originals: dict[int, int] = {}
+        #: ``(offset, byte before)`` per byte typed: what Ctrl+Z undoes (a
+        #: departure: DN had no undo).
+        self._undo: list[tuple[int, int]] = []
+
+    @property
+    def editable(self) -> bool:
+        """Whether bytes may be typed over: a file of a known size.  A
+        ``/proc`` file read whole has none to write back to."""
+        return self._data is None and self.size > 0
+
+    @property
+    def edited(self) -> bool:
+        """Whether any byte differs from the file's."""
+        return bool(self.edits)
+
+    @property
+    def can_undo(self) -> bool:
+        return bool(self._undo)
+
+    def _patched(self, index: int, chunk: bytes) -> bytes:
+        """*chunk* (number *index*) as read, with the bytes typed over in it."""
+        if not self.edits:
+            return chunk
+        base = index * CHUNK
+        hits = [(offset - base, byte) for offset, byte in self.edits.items()
+                if base <= offset < base + len(chunk)]
+        if not hits:
+            return chunk
+        data = bytearray(chunk)
+        for at, byte in hits:
+            data[at] = byte
+        return bytes(data)
+
+    def _show(self, offset: int, byte: int) -> None:
+        """*byte* at *offset* in a cached chunk, if there is one."""
+        index, at = divmod(offset, CHUNK)
+        chunk = self._chunks.get(index)
+        if chunk is not None and at < len(chunk):
+            self._chunks[index] = chunk[:at] + bytes((byte,)) + chunk[at + 1:]
+        self._eol_cache = None
+
+    def _set(self, offset: int, byte: int) -> None:
+        if byte == self.originals[offset]:
+            self.edits.pop(offset, None)
+        else:
+            self.edits[offset] = byte
+        self._show(offset, byte)
+
+    def patch(self, offset: int, byte: int) -> bool:
+        """*byte* typed at *offset*.  Only a byte already read can be typed
+        over -- one on screen is -- so this never reads; False if it is not."""
+        if not self.editable:
+            return False
+        current = self.peek(offset)
+        if current is None:
+            return False
+        # Never typed over before, what shows is the file's own.
+        self.originals.setdefault(offset, current)
+        self._undo.append((offset, current))
+        self._set(offset, byte)
+        return True
+
+    def revert(self, offset: int) -> bool:
+        """The file's own byte back at *offset*, undoably; False if it was not changed."""
+        if offset not in self.edits:
+            return False
+        current = self.edits[offset]
+        self._undo.append((offset, current))
+        self._set(offset, self.originals[offset])
+        return True
+
+    def undo(self) -> int | None:
+        """The last byte typed taken back; its offset, or None with nothing to undo."""
+        if not self._undo:
+            return None
+        offset, byte = self._undo.pop()
+        self._set(offset, byte)
+        return offset
+
+    def stored(self, written: dict[int, int]) -> None:
+        """The bytes *written* are in the file now: the file's own from here,
+        and nothing typed before is left to undo.  A byte typed while they
+        were being written stays an edit."""
+        for offset, byte in written.items():
+            self.originals[offset] = byte
+            if self.edits.get(offset) == byte:
+                del self.edits[offset]
+        self.originals = {offset: self.originals[offset] for offset in self.edits}
+        self._undo = []
 
     # -- lines ---------------------------------------------------------------
 
@@ -445,7 +655,8 @@ class ViewSource:
     # -- searching -----------------------------------------------------------
 
     def find(self, pattern: re.Pattern[bytes], start: int, *, backward: bool = False,
-             span: int = 64, job: SearchJob | None = None) -> tuple[int, int] | None:
+             span: int = 64, job: SearchJob | None = None,
+             edits: dict[int, int] | None = None) -> tuple[int, int] | None:
         """The first match at or after *start*, or the last one before it.
 
         *span* is the longest a match can be, which is how far consecutive
@@ -456,6 +667,10 @@ class ViewSource:
         window and asked whether to stop -- ``SearchFileStr``'s gauge and
         its ``CancelSearch``.  A stopped search answers ``None``, and the job
         says it was stopped.
+
+        *edits* are the bytes typed in hex and not stored yet, as
+        :attr:`edits` was when the search began: a copy, since the loop may
+        type more while this thread reads.
         """
         # Its own descriptor and no cache: this runs on a thread while the
         # loop goes on painting through the shared one.
@@ -472,7 +687,7 @@ class ViewSource:
                 offset = max(0, offset)
                 return os.pread(fd, max(0, min(count, self.size - offset)), offset)
         try:
-            return self._find(read, pattern, start, backward, span, job or SearchJob())
+            return self._find(_overlaid(read, edits), pattern, start, backward, span, job or SearchJob())
         finally:
             if self._data is None:
                 os.close(fd)
@@ -557,6 +772,7 @@ class ChunkedSource(ViewSource):
         self._chunks: OrderedDict[int, bytes] = OrderedDict()
         self._data = None
         self._eol_cache = None
+        self._start_edits()
         self.size = size
         self._reader = reader
         #: One read at a time on *reader*: made here, not on first use, as
@@ -582,6 +798,7 @@ class ChunkedSource(ViewSource):
             chunk = self._landed.pop(index, None)
             failed = self._failed
         if chunk is not None:
+            chunk = self._patched(index, chunk)
             self._chunks[index] = chunk
             if len(self._chunks) > REMOTE_CACHED_CHUNKS:
                 self._chunks.popitem(last=False)
@@ -640,9 +857,11 @@ class ChunkedSource(ViewSource):
         return True
 
     def find(self, pattern: re.Pattern[bytes], start: int, *, backward: bool = False,
-             span: int = 64, job: SearchJob | None = None) -> tuple[int, int] | None:
+             span: int = 64, job: SearchJob | None = None,
+             edits: dict[int, int] | None = None) -> tuple[int, int] | None:
         """:meth:`ViewSource.find`, on its thread, through the drive."""
-        return self._find(self.read_blocking, pattern, start, backward, span, job or SearchJob())
+        return self._find(_overlaid(self.read_blocking, edits), pattern, start, backward, span,
+                          job or SearchJob())
 
     def stream(self) -> Any:
         """The whole file, from its drive: what *Save as* writes out."""

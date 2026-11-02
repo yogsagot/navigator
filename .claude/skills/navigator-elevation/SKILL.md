@@ -120,6 +120,12 @@ user's own authentication. What the review found and the rules it left:
   staged members stay staged, the rewrite is made in the copy. `finish_drives(..., elevate=)` asks
   `Elevated._finish_as_root` first (copy/move, erase and Alt+E pass it; Alt+E's finish now runs inside `_Changer.run`). On the loop,
   `widgets/drives/archives.open_archive_or_root` (Enter, Shift+F2's *Extract*) asks `ask_as_root`.
+- **F3's Shift+F2 *Store*** (`FileWindow.store`): a refused write of bytes typed in hex offers *As root*. Then
+  `RootDrive.patch_file` checks the size (`stat`), opens the file with **`open_update`**
+  (`_pinned(follow=True)`, `O_RDWR|O_NOFOLLOW`, no `O_CREAT`, no `O_TRUNC`, and only a regular file), and
+  writes each run with **`write_at`** (`os.pwrite`). Nothing is created or truncated, and owner, mode and inode
+  stay. A file viewed as root already (a `ChunkedSource` on `ROOT_DRIVE`, or `root:///`) is written the same
+  way, unasked.
 - **The viewer's Save as** (`FileWindow.save_as`): a refused local target retries `viewer.save_as(..., as_root=True)`,
   written through `ROOT_DRIVE.write_file` (owner/mode kept), released after.
 - **A write-protected `.dbf`** (`DBWindow._edit_as_root`): editing a field offers *As root*, then the window moves

@@ -35,6 +35,7 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     SwitchRendered,
     Unwrap,
+    WriteModify,
 )
 from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
@@ -64,6 +65,8 @@ class FileWindow(Window):
         if mode is None:
             mode = "hex" if SETTINGS.viewer.hex_mode else "text"
         self.viewer.open(path, source=source)
+        # Typing in hex types over bytes here, never in a quick view.
+        self.viewer.hex_editing = True
         self.viewer.mode = mode
         self.viewer.wrap = SETTINGS.viewer.wrap_lines
         if mode == "hex":
@@ -163,7 +166,86 @@ class FileWindow(Window):
 
     async def on_close_viewer(self, event: CloseViewer) -> bool:
         """F3 again: Midnight Commander's way out, beside DN's Esc."""
-        self.close()
+        self.request_close()
+        return True
+
+    # -- hex editing ---------------------------------------------------------------
+
+    def must_ask(self) -> bool:
+        """``TFileViewer.Valid(cmClose)`` ran ``WriteModify``: bytes typed over
+        in hex and not stored ask first."""
+        return self.viewer.edited
+
+    async def ask_to_close(self) -> bool:
+        """DN's ``dlViewQuery``: store, lose, or stay open."""
+        answer = await Dialog(
+            title=tr("Warning"),
+            prompt=tr("Information was modified. Save changes?"),
+            buttons="yes-no-cancel",
+        ).execute(self.application)
+        if answer is None:
+            return False
+        if answer is True:
+            return await self.store()
+        return True
+
+    async def on_write_modify(self, event: WriteModify) -> bool:
+        self.spawn(self.store())
+        return True
+
+    async def store(self) -> bool:
+        """Shift+F2, ``WriteModify``: the bytes typed over written into the
+        file, on a thread; True once they are.  A refusal on the disk offers
+        *As root* (a departure; :mod:`navigator.lib.system.elevate`); a file
+        fetched from another drive goes back there, as the editor's F2 puts
+        it; the panels showing it look again (DN's ``RereadDirectory``)."""
+        import asyncio
+
+        viewer = self.viewer
+        source = viewer.source
+        app = self.application
+        if source is None or not viewer.edited:
+            return True
+        edits = dict(source.edits)
+        use = getattr(self, "use_set", None)
+        place: Any = use.copies[0].origin if use is not None else getattr(source, "origin", source.path)
+        try:
+            try:
+                await asyncio.to_thread(viewer_model.store_edits, source, edits)
+            except viewer_model.FileChanged:
+                raise
+            except OSError as error:
+                from navigator.lib.system.elevate import ELEVATION, refused
+
+                if not (not viewer.remote and use is None and refused(error)
+                        and await asyncio.to_thread(ELEVATION.available)):
+                    raise
+                from navigator.widgets.file_ops.as_root import ask_as_root
+
+                message = tr("Could not write to file {path}: {error}").format(
+                    path=place, error=error.strerror or error)
+                if not await ask_as_root(app, message):
+                    return False
+                await asyncio.to_thread(viewer_model.store_edits, source, edits, as_root=True)
+        except viewer_model.FileChanged:
+            await Dialog(title=tr("Error"),
+                         prompt=tr("{path} has changed since it was opened. Nothing was written.").format(path=place),
+                         buttons="ok").execute(app)
+            return False
+        except OSError as error:
+            await Dialog(title=tr("Error"),
+                         prompt=tr("Could not write to file {path}: {error}").format(
+                             path=place, error=error.strerror or error),
+                         buttons="ok").execute(app)
+            return False
+        viewer.edits_stored(edits)
+        if use is not None:
+            from navigator.widgets.drives.use_file import put_back
+
+            await put_back(app, use, ask=False)
+        from navigator.widgets.editor.edit_window.edit_window import FileSaved
+
+        await self.emit(FileSaved(place))
         return True
 
     # -- the switches ----------------------------------------------------------
@@ -251,7 +333,10 @@ class FileWindow(Window):
         *Markup view* is text only too, and wants a file no bigger than
         ``RENDER_LIMIT`` -- a picture, a terminal that draws it
         (``FileViewer.render_refusal``); while it renders, Wrap and Hidden
-        characters have nothing to act on."""
+        characters have nothing to act on.  Shift+F2's *Store* waits for a
+        byte typed over in hex."""
+        if isinstance(command, WriteModify):
+            return "" if self.viewer.edited else tr("Nothing has been typed over in hex")
         text_only = tr("Only in the text view")
         if isinstance(command, GotoAddress):
             return tr("Only in the hex and dump views") if self.viewer.mode == "text" else ""
@@ -475,6 +560,8 @@ class FileWindow(Window):
         job = SearchJob()
         job.position = start
         total = source.size
+        # The bytes typed over in hex, as they are now: the thread's own copy.
+        edits = dict(source.edits)
 
         def make_box() -> Any:
             from navigator.widgets.viewer.search_progress import SearchProgress
@@ -486,7 +573,7 @@ class FileWindow(Window):
 
         found = await run_with_progress(
             self.application,
-            lambda: source.find(pattern, start, backward=backward, span=span, job=job),
+            lambda: source.find(pattern, start, backward=backward, span=span, job=job, edits=edits),
             job, make_box, refresh,
         )
         if job.stopped:

@@ -15,7 +15,30 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   or a control is its CP437 glyph.
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
-  it in either mode. Read-only for now, so Shift+F2's *Store* (DN's hex-edit `WriteModify`) stays greyed.
+  it in either mode.
+- **Hex editing** is DN's `HexEdit` (`FVIEWER.PAS`, `ViewMode = 1` only; never dump, text or the Ctrl+Q quick
+  view, `FileViewer.hex_editing` set by `FileWindow`). In the pairs 0-9/A-F replace the cursor's nibble
+  (`FileViewer.nibble`) and Left/Right/Home/End step nibbles; Tab moves to the characters (`in_chars`), where a
+  character replaces the byte. That works only for a character in File > Encoding's code page, or ASCII under
+  UTF-8. Each key moves on, as DN's `Message(kbRight)` did. **Shift+F2, View > *Store*** is `WriteModify` (DN's
+  `cmSave`), greyed until something is typed. Closing (Esc, F3, Alt+X) with bytes typed asks DN's
+  `dlViewQuery` *Information was modified. Save changes?*, through `must_ask`/`ask_to_close`.
+  - **The bytes are an overlay** on `ViewSource` (`edits`, `originals`, `patch`/`revert`/`undo`/`stored`). They
+    are laid over each chunk as it is read (`_patched`) and over one already cached as it is typed (`_show`),
+    so everything reading through the cache shows them.
+  - **A thread reading on its own does not see them.** Search gets a copy (`find(edits=)`); the lexer and the
+    markup renderer read the disk until Store, which re-lexes. DN asked on every buffer `Seek`; with no buffer
+    here it asks only on Store and close (a departure).
+  - **`viewer.store_edits`** writes on a thread. A file on the disk is written in place, one `pwrite` per run of
+    neighbouring bytes (`edit_runs`), so inode, owner and links are kept. A drive with `patch_file` (the root
+    helper's, and `root:///`) is written in place too. Any other drive gets the whole file rewritten beside it
+    with the bytes laid over (`_save_elsewhere(edits=)`). An archive member's copy goes back by `put_back`.
+  - **A file no longer the size it was opened at** raises `FileChanged`, and nothing is written.
+  - **A refusal on the disk offers *As root***, which writes through `RootDrive.patch_file`.
+  - **Departures**, asked for: bytes typed and not stored are marked (`FileViewer::changed`, Compare files'
+    `$diff-changed-*`), and the info line starts with `*`. Ctrl+Z takes back the last byte typed, and
+    Backspace steps back and puts the file's own byte there; Store clears what can be undone. A click on a
+    pair or a character puts the cursor there.
 - **Shift+F6, File > Encoding** is DN's `cmLoadXlatTable`: instead of an `XLT\*.XLT` table, a `PopupMenu` of one-byte
   code pages (`viewer.ENCODINGS`, *UTF-8* first and meaning none). `FileViewer.set_encoding` puts `byte_table(codec)` on
   `ViewSource.table`, which `line()` (and so wrapping and scrolling), the hex and dump rows and `compile_search(...,

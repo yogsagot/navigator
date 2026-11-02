@@ -334,6 +334,24 @@ class _Helper:
                 flags |= os.O_NOFOLLOW
             return self._keep(os.fdopen(os.open(there, flags, mode), "wb"))
 
+    def open_update(self, path: str) -> int:
+        """F3's Shift+F2 *As root*: an existing file opened to be written in
+        place -- never created, never truncated, the end not a link (as
+        ``open_write``), and only a regular file."""
+        with self._pinned(path, follow=True) as there:
+            flags = os.O_RDWR
+            if PINNABLE:
+                flags |= os.O_NOFOLLOW
+            fd = os.open(there, flags)
+        if not stat.S_ISREG(os.fstat(fd).st_mode):
+            os.close(fd)
+            raise OSError(errno.EINVAL, "Not a regular file", path)
+        return self._keep(os.fdopen(fd, "r+b", buffering=0))
+
+    def write_at(self, handle: int, offset: int, data: bytes = b"") -> int:
+        """*data* at *offset*, the file's position untouched: F3's bytes typed in hex."""
+        return os.pwrite(self.files[handle].fileno(), data, offset)
+
     def read(self, handle: int, count: int) -> tuple[None, bytes]:
         return None, self.files[handle].read(count)
 

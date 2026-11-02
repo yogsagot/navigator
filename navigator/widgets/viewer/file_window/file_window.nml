@@ -1,6 +1,6 @@
 from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, WriteModify
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
@@ -28,9 +28,8 @@ FileWindow(Window):
     zoomed: True
 
     #: ``StatusDef hcView``, in its order: the plain row, then Ctrl's and
-    #: Shift's.  Shift+F2's *Store* is left out, there being no hex editing
-    #: to store, so the bar closes up round it; Shift+F6's *XLat* chooses an
-    #: encoding.  Ctrl+L continues a search with no caption, as it did.
+    #: Shift's.  Shift+F2's *Store* writes the bytes typed over in hex
+    #: (``WriteModify``); Shift+F6's *XLat* chooses an encoding.  Ctrl+L continues a search with no caption, as it did.
     #: F3 closes the viewer, as Midnight Commander's does -- not DN's, which
     #: bound nothing there -- and has no caption either, so the line is DN's.
     keys:
@@ -44,6 +43,7 @@ FileWindow(Window):
         f6: AddFilter
         f7: SearchFor
         ctrl+f7: ReverseSearch
+        shift+f2: WriteModify
         shift+f5: SaveViewAs
         shift+f6: ChooseEncoding
         shift+f7: ContinueSearch
@@ -114,8 +114,7 @@ FileWindow(Window):
     #: window is the active one: a ``SubMenu`` among a window's children is
     #: one the shell's ``MenuBar.context`` binding puts there.  DOS Navigator's
     #: viewer had none -- everything here is on the viewer's keys, gathered in
-    #: one place.  The three ``StatusDef hcView`` keys Navigator cannot do yet
-    #: are shown greyed, as the main menu shows every feature still to come.
+    #: one place.
     #: Two captions depart from DN's: *32-255 filter* is *Printable filter*,
     #: since a UTF-8 text has no one-byte code page to count to 255 in, and
     #: *XLat*'s code-page tables are *Encoding...*, a choice of encoding.
@@ -194,9 +193,11 @@ FileWindow(Window):
             command: GotoAddress
         MenuLine:
         #: No letter: *Show hidden characters* has the only one its caption
-        #: could take, and this is greyed until it exists.
+        #: could take.  Greyed until a byte has been typed over in hex.
         MenuItem:
             text: 'Store'
+            tooltip: "Write the bytes typed over in hex into the file"
+            command: WriteModify
             key: 'Shift-F2'
         MenuItem:
             text: 'Sav~e~ as...'

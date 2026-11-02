@@ -123,7 +123,6 @@ What is deliberately not done:
 
 Left for later, in the order DN's status line lists them:
 
-- hex editing, with Tab between the columns, Shift+F2 *Store* and Shift+F5 *Save as*
 - Shift+F6 *XLat* tables, as an encoding chooser (*View > Encoding...*)
 - the *Find* dialog's linked `He~x~` line
 - view history (Alt+PgDn, and reopening at the last position)

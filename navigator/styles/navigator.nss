@@ -553,6 +553,9 @@ FileWindow ScrollBar::arrow,
 FileWindow ScrollBar::thumb                    { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg; bold: $viewer-scroll-bar-icons-bold; dim: $viewer-scroll-bar-icons-dim; italic: $viewer-scroll-bar-icons-italic; underline: $viewer-scroll-bar-icons-underline; reverse: $viewer-scroll-bar-icons-reverse }
 FileViewer                                     { fg: $viewer-normal-text-fg;   bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
 FileViewer::selected                           { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
+/* A byte typed over in hex and not stored yet (a departure: DN marked none), in
+   the colour Compare files gives a changed line, so every theme has one. */
+FileViewer::changed                            { fg: $diff-changed-fg; bold: $diff-changed-bold; dim: $diff-changed-dim; italic: $diff-changed-italic; underline: $diff-changed-underline; reverse: $diff-changed-reverse }
 
 /* File > Compare files, not DN's: dressed as the viewer is, its window the
    File Viewer group's frame, its text the viewer's Normal text [117], the
