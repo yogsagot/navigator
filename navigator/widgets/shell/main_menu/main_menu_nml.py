@@ -18,7 +18,7 @@ from navkit.reactive import bind as _bind
 from navml.component import Component as _Component
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole    # main_menu.nml:1
 from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsText    # main_menu.nml:2
-from navigator.widgets.shell.commands import OpenEdit, OpenView, About, CloseRootAccess, EditLinks, FtpLink, GvfsLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
+from navigator.widgets.shell.commands import OpenEdit, OpenView, About, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow    # main_menu.nml:4
 from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:5
 from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:6
@@ -248,6 +248,7 @@ class MainMenu(MenuBar, _Component):
         _w131 = MenuItem(parent=self.window)    # main_menu.nml:593
         _w132 = MenuLine(parent=self.window)    # main_menu.nml:597
         _w133 = MenuItem(parent=self.window)    # main_menu.nml:598
+        _w134 = MenuItem(parent=self.window)    # main_menu.nml:604
 
         self.system.text = '~≡~'    # main_menu.nml:57
         self.system.tooltip = _bind(    # main_menu.nml:58
@@ -1024,3 +1025,13 @@ class MainMenu(MenuBar, _Component):
         )
         _w133.command = WindowManager    # main_menu.nml:601
         _w133.key = 'Alt-0'    # main_menu.nml:602
+
+        _w134.text = _bind(    # main_menu.nml:605
+            lambda _o: _tr('~B~ackground operation'),
+            yielding=True,
+        )
+        _w134.tooltip = _bind(    # main_menu.nml:606
+            lambda _o: _tr('Bring back the progress box of a copy or an erase running in the background'),
+            yielding=True,
+        )
+        _w134.command = ShowBackground    # main_menu.nml:607

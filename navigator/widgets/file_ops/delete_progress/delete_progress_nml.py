@@ -42,68 +42,69 @@ class DeleteProgress(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "delete_progress.nml"
 
-    action: str = _reactive('')    # delete_progress.nml:22
-    path: str = _reactive('')    # delete_progress.nml:23
-    done: int = _reactive(0)    # delete_progress.nml:24
-    total: int = _reactive(0)    # delete_progress.nml:25
-    speed = _reactive(factory=lambda: -1.0)    # delete_progress.nml:26
-    left = _reactive(factory=lambda: -1.0)    # delete_progress.nml:27
+    background: bool = _reactive(False)    # delete_progress.nml:24
+    action: str = _reactive('')    # delete_progress.nml:25
+    path: str = _reactive('')    # delete_progress.nml:26
+    done: int = _reactive(0)    # delete_progress.nml:27
+    total: int = _reactive(0)    # delete_progress.nml:28
+    speed = _reactive(factory=lambda: -1.0)    # delete_progress.nml:29
+    left = _reactive(factory=lambda: -1.0)    # delete_progress.nml:30
 
     #: Ids, annotated so the hand-written half completes them.
-    action_row: StaticText    # delete_progress.nml:30
-    path_row: StaticText    # delete_progress.nml:39
-    bar: ProgressBar    # delete_progress.nml:49
-    count_row: StaticText    # delete_progress.nml:59
-    pace_row: StaticText    # delete_progress.nml:68
+    action_row: StaticText    # delete_progress.nml:33
+    path_row: StaticText    # delete_progress.nml:42
+    bar: ProgressBar    # delete_progress.nml:52
+    count_row: StaticText    # delete_progress.nml:62
+    pace_row: StaticText    # delete_progress.nml:71
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.action_row = StaticText(parent=self)    # delete_progress.nml:29
-        self.path_row = StaticText(parent=self)    # delete_progress.nml:38
-        self.bar = ProgressBar(parent=self)    # delete_progress.nml:48
-        self.count_row = StaticText(parent=self)    # delete_progress.nml:58
-        self.pace_row = StaticText(parent=self)    # delete_progress.nml:67
+        self.action_row = StaticText(parent=self)    # delete_progress.nml:32
+        self.path_row = StaticText(parent=self)    # delete_progress.nml:41
+        self.bar = ProgressBar(parent=self)    # delete_progress.nml:51
+        self.count_row = StaticText(parent=self)    # delete_progress.nml:61
+        self.pace_row = StaticText(parent=self)    # delete_progress.nml:70
 
         self.modal_width = 50    # delete_progress.nml:16
         self.modal_height = 11    # delete_progress.nml:17
         self.title = _bind(lambda _o: _tr('Erase'), yielding=True)    # delete_progress.nml:18
-        self.buttons = 'ok'    # delete_progress.nml:19
-        self.closable = False    # delete_progress.nml:20
+        self.buttons = _bind(lambda _o: 'yes-no' if self.background else 'ok')    # delete_progress.nml:21
+        self.closable = False    # delete_progress.nml:22
 
-        self.action_row.x = 2    # delete_progress.nml:31
-        self.action_row.y = 1    # delete_progress.nml:32
-        self.action_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:33
-        self.action_row.height = 1    # delete_progress.nml:34
-        self.action_row.align = 'center'    # delete_progress.nml:35
-        self.action_row.text = _bind(lambda _o: self.action)    # delete_progress.nml:36
+        self.action_row.x = 2    # delete_progress.nml:34
+        self.action_row.y = 1    # delete_progress.nml:35
+        self.action_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:36
+        self.action_row.height = 1    # delete_progress.nml:37
+        self.action_row.align = 'center'    # delete_progress.nml:38
+        self.action_row.text = _bind(lambda _o: self.action)    # delete_progress.nml:39
 
-        self.path_row.x = 2    # delete_progress.nml:40
-        self.path_row.y = 2    # delete_progress.nml:41
-        self.path_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:42
-        self.path_row.height = 1    # delete_progress.nml:43
-        self.path_row.align = 'center'    # delete_progress.nml:44
-        self.path_row.text = _bind(lambda _o: self.fit(self.path))    # delete_progress.nml:45
-        self.path_row.tooltip = _bind(lambda _o: self.whole(self.path))    # delete_progress.nml:46
+        self.path_row.x = 2    # delete_progress.nml:43
+        self.path_row.y = 2    # delete_progress.nml:44
+        self.path_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:45
+        self.path_row.height = 1    # delete_progress.nml:46
+        self.path_row.align = 'center'    # delete_progress.nml:47
+        self.path_row.text = _bind(lambda _o: self.fit(self.path))    # delete_progress.nml:48
+        self.path_row.tooltip = _bind(lambda _o: self.whole(self.path))    # delete_progress.nml:49
 
-        self.bar.x = 4    # delete_progress.nml:50
-        self.bar.y = 4    # delete_progress.nml:51
-        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # delete_progress.nml:52
-        self.bar.height = 1    # delete_progress.nml:53
-        self.bar.value = _bind(lambda _o: self.done)    # delete_progress.nml:54
-        self.bar.total = _bind(lambda _o: max(1, self.total))    # delete_progress.nml:56
+        self.bar.x = 4    # delete_progress.nml:53
+        self.bar.y = 4    # delete_progress.nml:54
+        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # delete_progress.nml:55
+        self.bar.height = 1    # delete_progress.nml:56
+        self.bar.value = _bind(lambda _o: self.done)    # delete_progress.nml:57
+        self.bar.total = _bind(lambda _o: max(1, self.total))    # delete_progress.nml:59
 
-        self.count_row.x = 2    # delete_progress.nml:60
-        self.count_row.y = 5    # delete_progress.nml:61
-        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:62
-        self.count_row.height = 1    # delete_progress.nml:63
-        self.count_row.align = 'center'    # delete_progress.nml:64
-        self.count_row.text = _bind(    # delete_progress.nml:65
+        self.count_row.x = 2    # delete_progress.nml:63
+        self.count_row.y = 5    # delete_progress.nml:64
+        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:65
+        self.count_row.height = 1    # delete_progress.nml:66
+        self.count_row.align = 'center'    # delete_progress.nml:67
+        self.count_row.text = _bind(    # delete_progress.nml:68
             lambda _o: self.count(self.done, self.total, self.bar.percent)
         )
 
-        self.pace_row.x = 2    # delete_progress.nml:69
-        self.pace_row.y = 6    # delete_progress.nml:70
-        self.pace_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:71
-        self.pace_row.height = 1    # delete_progress.nml:72
-        self.pace_row.align = 'center'    # delete_progress.nml:73
-        self.pace_row.text = _bind(lambda _o: self.pace(self.speed, self.left))    # delete_progress.nml:74
+        self.pace_row.x = 2    # delete_progress.nml:72
+        self.pace_row.y = 6    # delete_progress.nml:73
+        self.pace_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:74
+        self.pace_row.height = 1    # delete_progress.nml:75
+        self.pace_row.align = 'center'    # delete_progress.nml:76
+        self.pace_row.text = _bind(lambda _o: self.pace(self.speed, self.left))    # delete_progress.nml:77

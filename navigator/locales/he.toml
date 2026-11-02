@@ -482,7 +482,7 @@ direction = "rtl"
 "Verify Checksums" = "אימות סיכומי ביקורת"
 # navigator/widgets/file_ops/checksum_report/checksum_report.nml:31
 "~P~roblems" = "~ב~עיות"
-# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24
+# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24, navigator/widgets/manager/manager/manager.py:3252
 "Rename/move" = "שינוי שם/העברה"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:58
 "~O~verwrite all existing files" = "~ד~רוס את כל הקבצים הקיימים"
@@ -520,7 +520,7 @@ direction = "rtl"
 "~R~ecursive delete" = "מחיקה ~ר~קורסיבית"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:46
 "Delete directories with everything in them" = "מחק תיקיות עם כל מה שבתוכן"
-# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18
+# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18, navigator/widgets/manager/manager/manager.py:3538
 "Erase" = "מחיקה"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:18
 "Extract files" = "חילוץ קבצים"
@@ -750,9 +750,9 @@ direction = "rtl"
 "Show" = "הצג"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "גו~ד~ל"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4881
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4957
 "~A~ttributes" = "~מ~אפיינים"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4881
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4957
 "~O~wner" = "~ב~עלים"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~נ~תיב"
@@ -962,13 +962,13 @@ direction = "rtl"
 "Re~v~erse order" = "סדר ~ה~פוך"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "הסדר מתהפך: הגדול, החדש, Z תחילה..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4881 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4957 ...
 "~E~xtension" = "סי~ו~מת"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "מאפיינים"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4902
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4978
 "Ty~p~e" = "סו~ג~"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4881 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4957 ...
 "~U~nsorted" = "~ל~א ממוין"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:52, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:62
 "Display" = "תצוגה"
@@ -1098,7 +1098,7 @@ direction = "rtl"
 "~I~tem" = "~פ~ריט"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:62
 "~F~oreground" = "~ח~זית"
-# navigator/widgets/setup/colors_dialog/colors_dialog.nml:78
+# navigator/widgets/setup/colors_dialog/colors_dialog.nml:78, navigator/widgets/file_ops/background_button.py:36
 "~B~ackground" = "~ר~קע"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:102
 "Any colour: a name, #rrggbb, or default for the terminal's own" = "כל צבע: שם, #rrggbb, או default לצבע של המסוף עצמו"
@@ -2096,6 +2096,10 @@ direction = "rtl"
 "~L~ist..." = "~ר~שימה..."
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "כל החלונות, כדי לעבור לאחד או לסגור אותו"
+# navigator/widgets/shell/main_menu/main_menu.nml:605
+"~B~ackground operation" = "פעולת רק~ע~"
+# navigator/widgets/shell/main_menu/main_menu.nml:606
+"Bring back the progress box of a copy or an erase running in the background" = "החזרת תיבת ההתקדמות של העתקה או מחיקה שרצה ברקע"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "פרמטרי תפריט"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
@@ -2252,13 +2256,15 @@ direction = "rtl"
 "~A~ddress" = "~כ~תובת"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "התקדמות חיפוש"
-# navigator/__main__.py:543
+# navigator/__main__.py:557
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "לא ניתן היה לקרוא את הלוח של שולחן העבודה, ולכן Navigator הדביק את ההעתקה האחרונה שלו. התקן xclip או xsel (X11), או wl-clipboard (Wayland), כדי לשתף את הלוח עם תוכניות אחרות."
-# navigator/__main__.py:441, navigator/widgets/shell/shell/shell.py:826, navigator/widgets/shell/shell/shell.py:1170
+# navigator/__main__.py:444, navigator/widgets/shell/shell/shell.py:857, navigator/widgets/shell/shell/shell.py:1201
 "A program in the console has the keys" = "תוכנית במסוף מקבלת את המקשים"
-# navigator/__main__.py:443
+# navigator/__main__.py:446
 "The console is over the windows: Alt-X is the program's" = "המסוף מעל החלונות: Alt-X שייך לתוכנית"
-# navigator/__main__.py:548
+# navigator/__main__.py:480
+"{n} operation is running in the background. Stop it and quit?" = ["פעולה אחת רצה ברקע. לעצור אותה ולצאת?", "שתי פעולות רצות ברקע. לעצור אותן ולצאת?", "{n} פעולות רצות ברקע. לעצור אותן ולצאת?"]
+# navigator/__main__.py:562
 "Clipboard" = "לוח"
 # navigator/commands.py:67
 "Character table" = "טבלת תווים"
@@ -2502,29 +2508,29 @@ direction = "rtl"
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "אפשרויות > תצורה > עורך/מציג -- המציג (dlgEditorDefaults של DN)"
 # navigator/settings.py:624
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "אפשרויות > מנהל קבצים > הגדרות (dlgFMSetup של DN)"
-# navigator/settings.py:695
+# navigator/settings.py:696
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל למנהל חדש (dlgFMDefaults של DN)"
-# navigator/settings.py:749
+# navigator/settings.py:750
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "אפשרויות > מנהל קבצים > לוח מידע (dlgDriveInfoSetup של DN)"
-# navigator/settings.py:786
+# navigator/settings.py:787
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל לעמודות (dlgColumnsDefaults של DN)"
-# navigator/settings.py:831
+# navigator/settings.py:832
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "אפשרויות > מנהל קבצים > קבוצות הדגשה (dlgHighlightGroups של DN)"
-# navigator/settings.py:846
+# navigator/settings.py:847
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "אפשרויות > תצורה > שומרי מסך (TSaversDialog של DN)"
-# navigator/settings.py:878
+# navigator/settings.py:879
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
-# navigator/settings.py:929
+# navigator/settings.py:930
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:945
+# navigator/settings.py:946
 "Utilities > Calculator (not DN's)" = "כלים > מחשבון (לא של DN)"
-# navigator/settings.py:966
+# navigator/settings.py:967
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
-# navigator/settings.py:993
+# navigator/settings.py:994
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:1008
+# navigator/settings.py:1009
 "Panel > Compare directories > Synchronize (not DN's)" = "לוח > השוואת תיקיות > סנכרון (לא מ-DN)"
-# navigator/settings.py:1028
+# navigator/settings.py:1029
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -2578,19 +2584,19 @@ direction = "rtl"
 "~A~ccept" = "~ק~בל"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "לא ניתן לאמת את המארח {host}.\nטביעת האצבע של מפתח {type} היא\n{fingerprint}"
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5056
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5132
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "קישור ~G~Vfs/KIO חדש (MTP, WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "הוסף"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "ערוך"
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5041
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5117
 "~N~ew SSH link (SFTP)..." = "קישור SSH ~ח~דש (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5041
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5117
 "New ~F~TP link..." = "קישור ~F~TP חדש..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5042
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5118
 "New S~M~B link (Windows share)..." = "קישור S~M~B חדש (שיתוף Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5042
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5118
 "New S~3~ link (Amazon S3)..." = "קישור S~3~ חדש (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "קישור חדש"
@@ -2756,7 +2762,7 @@ direction = "rtl"
 "Information" = "מידע"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1865
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1900
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
@@ -2960,15 +2966,15 @@ direction = "rtl"
 "~R~ename or move file ~{name}~ to" = "~ש~נה שם או העבר את הקובץ ~{name}~ אל"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:52
 "~R~ename or move Directory ~{name}~ to" = "~ש~נה שם או העבר את התיקייה ~{name}~ אל"
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:50, navigator/widgets/viewer/search_progress/search_progress.py:27
-"~S~top" = "~ע~צור"
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:68
-"{n:,} byte ({size}, {percent}%)" = ["{n:,} בית ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)"]
 # navigator/widgets/file_ops/copy_progress/copy_progress.py:67
+"{n:,} byte ({size}, {percent}%)" = ["{n:,} בית ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)", "{n:,} בתים ({size}, {percent}%)"]
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:49, navigator/widgets/viewer/search_progress/search_progress.py:27
+"~S~top" = "~ע~צור"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:66
 "{n:,} byte ({percent}%)" = ["{n:,} בית ({percent}%)", "{n:,} בתים ({percent}%)", "{n:,} בתים ({percent}%)"]
-# navigator/widgets/file_ops/copy_progress/copy_progress.py:78
-"Speed {speed}/s, {time} left" = "מהירות {speed}/ש׳, נותרו {time}"
 # navigator/widgets/file_ops/copy_progress/copy_progress.py:77
+"Speed {speed}/s, {time} left" = "מהירות {speed}/ש׳, נותרו {time}"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py:76
 "Speed {speed}/s" = "מהירות {speed}/ש׳"
 # navigator/widgets/file_ops/count_progress/count_progress.py:80
 "Bytes" = "בתים"
@@ -2986,11 +2992,11 @@ direction = "rtl"
 "directory ~{name}~?" = "את התיקייה ~{name}~?"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.py:88
 "Do you wish to move to the Trash" = "להעביר לאשפה"
-# navigator/widgets/file_ops/delete_progress/delete_progress.py:50
-"Speed {n:,} file/s, {time} left" = ["מהירות {n:,} קובץ/ש׳, נותרו {time}", "מהירות {n:,} קבצים/ש׳, נותרו {time}", "מהירות {n:,} קבצים/ש׳, נותרו {time}"]
 # navigator/widgets/file_ops/delete_progress/delete_progress.py:49
+"Speed {n:,} file/s, {time} left" = ["מהירות {n:,} קובץ/ש׳, נותרו {time}", "מהירות {n:,} קבצים/ש׳, נותרו {time}", "מהירות {n:,} קבצים/ש׳, נותרו {time}"]
+# navigator/widgets/file_ops/delete_progress/delete_progress.py:48
 "Speed {n:,} file/s" = ["מהירות {n:,} קובץ/ש׳", "מהירות {n:,} קבצים/ש׳", "מהירות {n:,} קבצים/ש׳"]
-# navigator/widgets/file_ops/delete_progress/delete_progress.py:41
+# navigator/widgets/file_ops/delete_progress/delete_progress.py:40
 "{done:,} of {total:,} ({percent}%)" = "{done:,} מתוך {total:,} ({percent}%)"
 # navigator/widgets/file_ops/erase_query/erase_query.py:36
 "Directory {name}\nis not empty.\nDo you wish to delete it?" = "התיקייה {name}\nאינה ריקה.\nהאם למחוק אותה?"
@@ -3106,7 +3112,7 @@ direction = "rtl"
 "~R~atio" = "~י~חס דחיסה"
 # navigator/widgets/manager/commands.py:29
 "View" = "הצג"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1904, navigator/widgets/shell/shell/shell.py:1957 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1939, navigator/widgets/shell/shell/shell.py:1992 ...
 "Open with" = "פתח עם"
 # navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:271, navigator/widgets/manager/commands.py:282
 "Ren" = "שנה שם"
@@ -3152,7 +3158,7 @@ direction = "rtl"
 "Only in a file panel, not beside it" = "רק בלוח קבצים, לא לצדו"
 # navigator/widgets/manager/manager/manager.py:2458
 "No files are tagged, and the cursor is on none" = "אין קבצים מתויגים, והסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:2459, navigator/widgets/shell/shell/shell.py:1224
+# navigator/widgets/manager/manager/manager.py:2459, navigator/widgets/shell/shell/shell.py:1259
 "The command line holds text: the key edits it" = "בשורת הפקודה יש טקסט: המקש עורך אותו"
 # navigator/widgets/manager/manager/manager.py:2460
 "This drive cannot be written to" = "לא ניתן לכתוב לכונן זה"
@@ -3160,11 +3166,11 @@ direction = "rtl"
 "Not in a Find listing" = "לא ברשימת חיפוש"
 # navigator/widgets/manager/manager/manager.py:3143
 "To {path}" = "אל {path}"
-# navigator/widgets/manager/manager/manager.py:4881
+# navigator/widgets/manager/manager/manager.py:4957
 "T~y~pe" = "~ס~וג"
-# navigator/widgets/manager/manager/manager.py:5017
+# navigator/widgets/manager/manager/manager.py:5093
 "~L~ink" = "~ק~ישור"
-# navigator/widgets/manager/manager/manager.py:5060
+# navigator/widgets/manager/manager/manager.py:5136
 "Needs the desktop's gio or KDE's kioclient command" = "נדרשת הפקודה gio של שולחן העבודה או kioclient של KDE"
 # navigator/widgets/manager/manager/manager.py:1199
 "Panelize" = "הצג בלוח"
@@ -3190,25 +3196,25 @@ direction = "rtl"
 "~S~ymlink here" = "~ק~ישור סמלי לכאן"
 # navigator/widgets/manager/manager/manager.py:3135
 "~R~elative symlink here" = "קישור סמלי ~י~חסי לכאן"
-# navigator/widgets/manager/manager/manager.py:3705
+# navigator/widgets/manager/manager/manager.py:3781
 "{n} link was left as it was:" = ["קישור אחד נותר כפי שהיה:", "שני קישורים נותרו כפי שהיו:", "{n} קישורים נותרו כפי שהיו:"]
-# navigator/widgets/manager/manager/manager.py:4054
+# navigator/widgets/manager/manager/manager.py:4130
 "~I~nternal editor" = "עורך ~פ~נימי"
-# navigator/widgets/manager/manager/manager.py:4131, navigator/widgets/manager/manager/manager.py:4165
+# navigator/widgets/manager/manager/manager.py:4207, navigator/widgets/manager/manager/manager.py:4241
 "Is a directory" = "זוהי תיקייה"
-# navigator/widgets/manager/manager/manager.py:4539
+# navigator/widgets/manager/manager/manager.py:4615
 "Drag to resize the panels" = "גרור כדי לשנות את גודל הלוחות"
-# navigator/widgets/manager/manager/manager.py:4545
+# navigator/widgets/manager/manager/manager.py:4621
 "Double-click to split them evenly" = "לחיצה כפולה מחלקת אותם שווה בשווה"
-# navigator/widgets/manager/manager/manager.py:4981
+# navigator/widgets/manager/manager/manager.py:5057
 "~R~emove this folder" = "~ה~סר תיקייה זו"
-# navigator/widgets/manager/manager/manager.py:4981
+# navigator/widgets/manager/manager/manager.py:5057
 "~A~dd this folder" = "~ה~וסף תיקייה זו"
 # navigator/widgets/manager/manager/manager.py:461
 "Encoding {name}" = "מקודד את {name}"
 # navigator/widgets/manager/manager/manager.py:514
 "Decoding {name}" = "מפענח את {name}"
-# navigator/widgets/manager/manager/manager.py:869, navigator/widgets/manager/manager/manager.py:1084, navigator/widgets/manager/manager/manager.py:3704
+# navigator/widgets/manager/manager/manager.py:869, navigator/widgets/manager/manager/manager.py:1084, navigator/widgets/manager/manager/manager.py:3780
 "and {n} more" = ["ועוד אחד", "ועוד שניים", "ועוד {n}"]
 # navigator/widgets/manager/manager/manager.py:870
 "{n} file could not be read:" = ["לא ניתן היה לקרוא קובץ אחד:", "לא ניתן היה לקרוא שני קבצים:", "לא ניתן היה לקרוא {n} קבצים:"]
@@ -3222,11 +3228,11 @@ direction = "rtl"
 "Delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
 # navigator/widgets/manager/manager/manager.py:2270
 "A place inside an archive cannot be bookmarked" = "לא ניתן ליצור סימנייה למקום בתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:2464, navigator/widgets/shell/shell/shell.py:831
+# navigator/widgets/manager/manager/manager.py:2464, navigator/widgets/shell/shell/shell.py:862
 "fzf is not installed, or the shell is not bash or zsh" = "fzf אינו מותקן, או שהמעטפת אינה bash או zsh"
 # navigator/widgets/manager/manager/manager.py:2470, navigator/widgets/manager/manager/manager.py:2607, navigator/widgets/manager/manager/manager.py:2632
 "The cursor is not on a file" = "הסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:2472, navigator/widgets/shell/shell/shell.py:1208
+# navigator/widgets/manager/manager/manager.py:2472, navigator/widgets/shell/shell/shell.py:1243
 "Neither GIO nor KIO is installed" = "לא GIO ולא KIO מותקנים"
 # navigator/widgets/manager/manager/manager.py:2473
 "No graphical desktop to open it on" = "אין שולחן עבודה גרפי לפתוח בו"
@@ -3248,7 +3254,7 @@ direction = "rtl"
 "The file clipboard is empty" = "לוח הגזירים של הקבצים ריק"
 # navigator/widgets/manager/manager/manager.py:2567
 "File Manager Setup's Del erases is off" = "האפשרות «DEL מוחק קבצים» בהגדרות מנהל הקבצים כבויה"
-# navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2615, navigator/widgets/shell/shell/shell.py:1189
+# navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2615, navigator/widgets/shell/shell/shell.py:1220
 "The cursor is on no file" = "הסמן אינו על אף קובץ"
 # navigator/widgets/manager/manager/manager.py:2584
 "Not inside an archive" = "לא בתוך ארכיון"
@@ -3272,25 +3278,25 @@ direction = "rtl"
 "Do you wish to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
 # navigator/widgets/manager/manager/manager.py:3112
 "Do you wish to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:4133, navigator/widgets/manager/manager/manager.py:4167
+# navigator/widgets/manager/manager/manager.py:4209, navigator/widgets/manager/manager/manager.py:4243
 "No such directory" = "אין תיקייה כזו"
-# navigator/widgets/manager/manager/manager.py:4181
+# navigator/widgets/manager/manager/manager.py:4257
 "$EDITOR edits a file on another drive only once it is there" = "$EDITOR עורך קובץ בכונן אחר רק לאחר שהוא נמצא שם"
-# navigator/widgets/manager/manager/manager.py:4926
+# navigator/widgets/manager/manager/manager.py:5002
 "Erasing the file" = "מוחק את הקובץ"
-# navigator/widgets/manager/manager/manager.py:4927
+# navigator/widgets/manager/manager/manager.py:5003
 "Erasing the directory" = "מוחק את התיקייה"
-# navigator/widgets/manager/manager/manager.py:4928
+# navigator/widgets/manager/manager/manager.py:5004
 "Moving to the Trash" = "מעביר לאשפה"
-# navigator/widgets/manager/manager/manager.py:4929
+# navigator/widgets/manager/manager/manager.py:5005
 "Changing attributes of" = "משנה מאפיינים של"
-# navigator/widgets/manager/manager/manager.py:4975
+# navigator/widgets/manager/manager/manager.py:5051
 "Mounted now, not a bookmark" = "מעוגן כעת, לא סימנייה"
-# navigator/widgets/manager/manager/manager.py:4977
+# navigator/widgets/manager/manager/manager.py:5053
 "Not there now" = "לא קיים כעת"
-# navigator/widgets/manager/manager/manager.py:5033
+# navigator/widgets/manager/manager/manager.py:5109
 "Connected" = "מחובר"
-# navigator/widgets/manager/manager/manager.py:5033
+# navigator/widgets/manager/manager/manager.py:5109
 "Not connected" = "לא מחובר"
 # navigator/widgets/manager/manager/manager.py:668
 "The input file is too small to UU-Encode." = "קובץ הקלט קטן מדי לקידוד UU."
@@ -3306,9 +3312,9 @@ direction = "rtl"
 "Copy {copies} and delete {deletes}?" = "להעתיק {copies} ולמחוק {deletes}?"
 # navigator/widgets/manager/manager/manager.py:2945
 "Print file {name}?" = "להדפיס את הקובץ {name}?"
-# navigator/widgets/manager/manager/manager.py:4056
+# navigator/widgets/manager/manager/manager.py:4132
 "Choose editor" = "בחר עורך"
-# navigator/widgets/manager/manager/manager.py:5065
+# navigator/widgets/manager/manager/manager.py:5141
 "~E~dit links..." = "~ע~רוך קישורים..."
 # navigator/widgets/manager/manager/manager.py:1212
 "Stop the command?" = "לעצור את הפקודה?"
@@ -3330,11 +3336,15 @@ direction = "rtl"
 "Do you wish to move {name} to the Trash?" = "להעביר את {name} לאשפה?"
 # navigator/widgets/manager/manager/manager.py:3110
 "Do you wish to delete {name}?" = "למחוק את {name}?"
-# navigator/widgets/manager/manager/manager.py:3785
+# navigator/widgets/manager/manager/manager.py:3389
+"Stopped" = "נעצר"
+# navigator/widgets/manager/manager/manager.py:3389
+"Finished" = "הסתיים"
+# navigator/widgets/manager/manager/manager.py:3861
 "Reading file attributes" = "קורא מאפייני קבצים"
 # navigator/widgets/manager/manager/manager.py:2021, navigator/widgets/viewer/diff_window/diff_window.py:140
 "Comparing files" = "משווה קבצים"
-# navigator/widgets/manager/manager/manager.py:3691
+# navigator/widgets/manager/manager/manager.py:3767
 "a link on the way would lead elsewhere" = "קישור בדרך היה מוביל למקום אחר"
 # navigator/widgets/manager/manager/manager.py:1185
 "A command's output can be panelized on this machine's disk only" = "ניתן להציג פלט של פקודה בלוח רק בדיסק של מחשב זה"
@@ -3348,23 +3358,23 @@ direction = "rtl"
 "Both panels show the same directory." = "שני הלוחות מציגים את אותה תיקייה."
 # navigator/widgets/manager/manager/manager.py:2852, navigator/widgets/manager/manager/manager.py:2886
 "Cannot make directory {name}: {error}" = "לא ניתן ליצור את התיקייה {name}: {error}"
-# navigator/widgets/manager/manager/manager.py:3338, navigator/widgets/manager/manager/manager.py:3574
+# navigator/widgets/manager/manager/manager.py:3410, navigator/widgets/manager/manager/manager.py:3650
 "Would you like to create directory {path}?" = "האם ליצור את התיקייה {path}?"
-# navigator/widgets/manager/manager/manager.py:3343
+# navigator/widgets/manager/manager/manager.py:3415
 "There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
-# navigator/widgets/manager/manager/manager.py:4146, navigator/widgets/manager/manager/manager.py:4189, navigator/widgets/manager/manager/manager.py:4228 ...
+# navigator/widgets/manager/manager/manager.py:4222, navigator/widgets/manager/manager/manager.py:4265, navigator/widgets/manager/manager/manager.py:4304 ...
 "Cannot edit file" = "לא ניתן לערוך את הקובץ"
 # navigator/widgets/manager/manager/manager.py:2901, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
 "Cannot make directory" = "לא ניתן ליצור תיקייה"
-# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:3931, navigator/widgets/manager/manager/manager.py:3946 ...
+# navigator/widgets/manager/manager/manager.py:4069, navigator/widgets/manager/manager/manager.py:4007, navigator/widgets/manager/manager/manager.py:4022 ...
 "Cannot view file" = "לא ניתן להציג את הקובץ"
-# navigator/widgets/manager/manager/manager.py:5051
+# navigator/widgets/manager/manager/manager.py:5127
 "Install {extra}" = "התקן את {extra}"
 # navigator/widgets/manager/manager/manager.py:1289
 "Directory {place} is not there" = "התיקייה {place} אינה קיימת"
 # navigator/widgets/manager/manager/manager.py:1561
 "a name cannot hold a /" = "שם אינו יכול להכיל /"
-# navigator/widgets/manager/manager/manager.py:3297
+# navigator/widgets/manager/manager/manager.py:3358
 "Abort operation?" = "לבטל את הפעולה?"
 # navigator/widgets/manager/manager/manager.py:1149, navigator/widgets/manager/manager/manager.py:1134
 "Cannot read {path}: {reason}" = "לא ניתן לקרוא את {path}: {reason}"
@@ -3372,7 +3382,7 @@ direction = "rtl"
 "Cannot run {command}: {reason}" = "לא ניתן להריץ את {command}: {reason}"
 # navigator/widgets/manager/manager/manager.py:2974
 "Cannot print {name}: {reason}" = "לא ניתן להדפיס את {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:3947, navigator/widgets/manager/manager/manager.py:3925, navigator/widgets/manager/manager/manager.py:3961
+# navigator/widgets/manager/manager/manager.py:4023, navigator/widgets/manager/manager/manager.py:4001, navigator/widgets/manager/manager/manager.py:4037
 "{name}: not a dBase file" = "{name}: אינו קובץ dBase"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["קובץ מסומן אחד", "שני קבצים מסומנים", "{n} קבצים מסומנים"]
@@ -3602,7 +3612,7 @@ direction = "rtl"
 "Cannot bind that:\n{error}" = "לא ניתן להקצות זאת:\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} מוקצה ל-{command}.\nלהקצות מחדש?"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:376
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:407
 "Cannot make {path}: {error}" = "לא ניתן ליצור את {path}: {error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} הוא המקש הכללי של {command}, שנבדק\nראשון. להקצות אותו כאן בכל זאת?"
@@ -3710,6 +3720,8 @@ direction = "rtl"
 "GVfs" = "GVfs"
 # navigator/widgets/shell/commands.py:622
 "SMB" = "SMB"
+# navigator/widgets/shell/commands.py:632
+"Backgr" = "רקע"
 # navigator/widgets/shell/console/screen_view.py:204
 "C~l~ear selection" = "~ב~טל בחירה"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
@@ -3732,6 +3744,12 @@ direction = "rtl"
 "Pin" = "הצמד"
 # navigator/widgets/shell/file_history_dialog/file_history_dialog.py:35
 "Pinned" = "מוצמד"
+# navigator/widgets/shell/job_mark.py:59
+"Click to bring the box back" = "לחיצה מחזירה את התיבה"
+# navigator/widgets/shell/job_mark.py:54
+"{operation}: waiting for an answer" = "{operation}: ממתין לתשובה"
+# navigator/widgets/shell/job_mark.py:56
+"{operation}: {percent}% done" = "{operation}: {percent}% הושלמו"
 # navigator/widgets/shell/root_mark.py:29
 "ROOT" = "ROOT"
 # navigator/widgets/shell/root_mark.py:45
@@ -3742,103 +3760,105 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["נסגרת אחרי דקה אחת ללא פעילות", "נסגרת אחרי שתי דקות ללא פעילות", "נסגרת אחרי {n} דקות ללא פעילות"]
 # navigator/widgets/shell/root_mark.py:52
 "{menu} closes it now" = "{menu} סוגר אותה מיד"
-# navigator/widgets/shell/shell/shell.py:1171
+# navigator/widgets/shell/shell/shell.py:1202
 "Interface Setup hides the command line" = "הגדרות הממשק מסתירות את שורת הפקודה"
-# navigator/widgets/shell/shell/shell.py:1172
+# navigator/widgets/shell/shell/shell.py:1203
 "No file panels are open" = "אין חלוניות קבצים פתוחות"
-# navigator/widgets/shell/shell/shell.py:2772, navigator/widgets/shell/shell/shell.py:2765
+# navigator/widgets/shell/shell/shell.py:2807, navigator/widgets/shell/shell/shell.py:2800
 "Disconnect" = "נתק"
-# navigator/widgets/shell/shell/shell.py:1198
+# navigator/widgets/shell/shell/shell.py:1229
 "No connection is open" = "אין חיבור פתוח"
-# navigator/widgets/shell/shell/shell.py:1239
+# navigator/widgets/shell/shell/shell.py:1274
 "A command is still running" = "פקודה עדיין רצה"
-# navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/shell/shell/shell.py:1938
 "~C~ommand..." = "~פ~קודה..."
-# navigator/widgets/shell/shell/shell.py:2041
+# navigator/widgets/shell/shell/shell.py:2076
 "Choose action" = "בחר פעולה"
-# navigator/widgets/shell/shell/shell.py:3072
+# navigator/widgets/shell/shell/shell.py:3132
 "File View History" = "היסטוריית הצגת קבצים"
-# navigator/widgets/shell/shell/shell.py:3072
+# navigator/widgets/shell/shell/shell.py:3132
 "File Edit History" = "היסטוריית עריכת קבצים"
-# navigator/widgets/shell/shell/shell.py:1187
+# navigator/widgets/shell/shell/shell.py:1218
 "The editor has the keys" = "המקשים אצל העורך"
-# navigator/widgets/shell/shell/shell.py:1200
+# navigator/widgets/shell/shell/shell.py:1231
 "No root access is open" = "אין גישת root פתוחה"
-# navigator/widgets/shell/shell/shell.py:1214
+# navigator/widgets/shell/shell/shell.py:1235
+"Nothing is running in the background" = "שום דבר אינו רץ ברקע"
+# navigator/widgets/shell/shell/shell.py:1249
 "Only in a file panel or the console" = "רק בחלונית קבצים או במסוף"
-# navigator/widgets/shell/shell/shell.py:1222
+# navigator/widgets/shell/shell/shell.py:1257
 "File Manager Setup's Space toggles is off" = "\"רווח מסמן\" כבוי בהגדרות מנהל הקבצים"
-# navigator/widgets/shell/shell/shell.py:1234
+# navigator/widgets/shell/shell/shell.py:1269
 "The command line is empty" = "שורת הפקודה ריקה"
-# navigator/widgets/shell/shell/shell.py:1238
+# navigator/widgets/shell/shell/shell.py:1273
 "File Manager Setup's Use arrows is off" = "\"השתמש בחצים\" כבוי בהגדרות מנהל הקבצים"
-# navigator/widgets/shell/shell/shell.py:1955
+# navigator/widgets/shell/shell/shell.py:1990
 "~C~ommand (!.! is the file; else it goes at the end)" = "~פ~קודה (!.! הוא הקובץ; אחרת הוא נוסף בסוף)"
-# navigator/widgets/shell/shell/shell.py:2615, navigator/widgets/shell/shell/shell.py:2801
+# navigator/widgets/shell/shell/shell.py:2650, navigator/widgets/shell/shell/shell.py:2836
 "{protocol} link" = "קישור {protocol}"
-# navigator/widgets/shell/shell/shell.py:3062
+# navigator/widgets/shell/shell/shell.py:3122
 "Track viewing history" = "מעקב היסטוריית הצגה"
-# navigator/widgets/shell/shell/shell.py:3062
+# navigator/widgets/shell/shell/shell.py:3122
 "Track editing history" = "מעקב היסטוריית עריכה"
-# navigator/widgets/shell/shell/shell.py:1245
+# navigator/widgets/shell/shell/shell.py:1280
 "The shell cannot complete" = "המעטפת אינה יכולה להשלים"
-# navigator/widgets/shell/shell/shell.py:1681
+# navigator/widgets/shell/shell/shell.py:1716
 "User menu (global)" = "תפריט משתמש (כללי)"
-# navigator/widgets/shell/shell/shell.py:1681
+# navigator/widgets/shell/shell/shell.py:1716
 "Local menu" = "תפריט מקומי"
-# navigator/widgets/shell/shell/shell.py:1683
+# navigator/widgets/shell/shell/shell.py:1718
 "User menu (local)" = "תפריט משתמש (מקומי)"
-# navigator/widgets/shell/shell/shell.py:1683
+# navigator/widgets/shell/shell/shell.py:1718
 "Global menu" = "תפריט כללי"
-# navigator/widgets/shell/shell/shell.py:2763
+# navigator/widgets/shell/shell/shell.py:2798
 "Close the {protocol} connection to {host}?" = "לסגור את חיבור {protocol} אל {host}?"
-# navigator/widgets/shell/shell/shell.py:378
+# navigator/widgets/shell/shell/shell.py:409
 "Store Color Palette" = "שמור ערכת צבעים"
-# navigator/widgets/shell/shell/shell.py:436
+# navigator/widgets/shell/shell/shell.py:467
 "Load Color Palette" = "טען ערכת צבעים"
-# navigator/widgets/shell/shell/shell.py:283
+# navigator/widgets/shell/shell/shell.py:314
 "No desktop has been saved" = "לא נשמר שולחן עבודה"
-# navigator/widgets/shell/shell/shell.py:305
+# navigator/widgets/shell/shell/shell.py:336
 "Cannot read the theme: {error}" = "לא ניתן לקרוא את ערכת הנושא: {error}"
-# navigator/widgets/shell/shell/shell.py:324
+# navigator/widgets/shell/shell/shell.py:355
 "Cannot save the palette: {error}" = "לא ניתן לשמור את ערכת הצבעים: {error}"
-# navigator/widgets/shell/shell/shell.py:451
+# navigator/widgets/shell/shell/shell.py:482
 "Not a palette:\n{error}" = "אינה ערכת צבעים:\n{error}"
-# navigator/widgets/shell/shell/shell.py:563
+# navigator/widgets/shell/shell/shell.py:594
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "החצים מזיזים את האזור\nShift-חצים משנים את גודל האזור\n\nלאחר הבחירה הקש Enter כדי להעתיק\nאת תמונת האזור ללוח"
-# navigator/widgets/shell/shell/shell.py:3123
+# navigator/widgets/shell/shell/shell.py:3183
 "View file" = "הצגת קובץ"
-# navigator/widgets/shell/shell/shell.py:3123
+# navigator/widgets/shell/shell/shell.py:3183
 "Edit file" = "עריכת קובץ"
-# navigator/widgets/shell/shell/shell.py:2241
+# navigator/widgets/shell/shell/shell.py:2276
 "No file manager is open to panelize into" = "אין מנהל קבצים פתוח להצגת התוצאות בחלונית"
-# navigator/widgets/shell/shell/shell.py:2662
+# navigator/widgets/shell/shell/shell.py:2697
 "Wrong passphrase for {key}. Try again:" = "ביטוי סיסמה שגוי עבור {key}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2663
+# navigator/widgets/shell/shell/shell.py:2698
 "Passphrase for {key}:" = "ביטוי סיסמה עבור {key}:"
-# navigator/widgets/shell/shell/shell.py:2649
+# navigator/widgets/shell/shell/shell.py:2684
 "Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2650
+# navigator/widgets/shell/shell/shell.py:2685
 "Secret key for {who}:" = "מפתח סודי עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2653
+# navigator/widgets/shell/shell/shell.py:2688
 "Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2654
+# navigator/widgets/shell/shell/shell.py:2689
 "{protocol} password for {who}:" = "סיסמת {protocol} עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:2802
+# navigator/widgets/shell/shell/shell.py:2837
 "Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
-# navigator/widgets/shell/shell/shell.py:3065
+# navigator/widgets/shell/shell/shell.py:3125
 "Set the interface option\n\"{option}\" ON first" = "תחילה הפעל את אפשרות הממשק\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1616
+# navigator/widgets/shell/shell/shell.py:1651
 "Cannot edit {path}: {error}" = "לא ניתן לערוך את {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1643
+# navigator/widgets/shell/shell/shell.py:1678
 "File {name} not found" = "הקובץ {name} לא נמצא"
-# navigator/widgets/shell/shell/shell.py:1794
+# navigator/widgets/shell/shell/shell.py:1829
 "Cannot write the menu's script: {error}" = "לא ניתן לכתוב את סקריפט התפריט: {error}"
-# navigator/widgets/shell/shell/shell.py:2632
+# navigator/widgets/shell/shell/shell.py:2667
 "Connecting to {host} over {protocol}" = "מתחבר אל {host} באמצעות {protocol}"
-# navigator/widgets/shell/shell/shell.py:2873
+# navigator/widgets/shell/shell/shell.py:2933
 "Cannot save the key bindings: {error}" = "לא ניתן לשמור את הקצאת המקשים: {error}"
-# navigator/widgets/shell/shell/shell.py:3029
+# navigator/widgets/shell/shell/shell.py:3089
 "Cannot save the settings: {error}" = "לא ניתן לשמור את ההגדרות: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "קוד יציאה {status}"

@@ -1,6 +1,6 @@
 ---
 name: navml-library
-description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, Spinner, navml.background, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
+description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, Spinner, Toast, navml.background, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
 ---
 
 # The widget library: dialogs, controls, layouts, history
@@ -68,6 +68,11 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 - **`ProgressBar`** (`navml/widgets/progress_bar/`): `value`/`total`/`percent`, as wide as placed, `█▒` from navkit's
   `GAUGES`. **`Spinner`** (`navml/widgets/spinner/`): one cell turning through navkit's `SPINNERS` every `interval` ms
   while mounted (`call_every`, as `Timer`); `frame` counts up. Navigator's `WriteWin` puts one beside its message.
+- **`Toast`** (`navml/widgets/toast/`, not Turbo Vision's): `text` in a one-row frame titled `title`, never focused,
+  gone after `seconds` (`TOAST_SECONDS`, 5; `call_later` armed in `mounted()`) or a left press; `natural_width` is
+  how wide it would be, `gone` is called once it is off the tree. **Whoever adds it places it**: Navigator's
+  `Shell.toast(text, title=, seconds=)` adds it first and *then* binds its geometry (bound before `add`, the dock
+  layout gives it the whole band), at the desktop's bottom right, newer ones lower (`_Toasts`).
 - **`navml/background.py`'s `Background`**: a widget's slow read on a pool of threads, answered on the loop with an
   `Outcome` and the application woken to paint it; with no application running it answers on the spot. One pool per
   kind of read. `TreeView.probe_in_background` and `FileDialog.read_directory` use it.

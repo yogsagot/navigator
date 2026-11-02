@@ -146,6 +146,28 @@ def test_numbers_alone_kept_to_the_clock(tree):
     assert [start for start, _, _ in strip.chips()] == [strip.width - 9, strip.width - 6, strip.width - 3]
     clock = app.shell.clock.x
     assert rows[0][clock - 10:clock] == " 1  2  3  "
+    # Where the background mark would stand: just before the first chip.
+    assert strip.content_start() == strip.width - 9
+
+
+def test_the_background_mark_stands_just_before_the_chips(tree):
+    from navigator.lib.system.background import BACKGROUND
+
+    SETTINGS.interface.window_strip = "numbers"
+    rows = []
+
+    def away(a):
+        entry = BACKGROUND.add(object(), "Copy")
+        entry.done, entry.total = 42, 100
+
+    app = navigator(tree)
+    run_app(app, [opener("Notes", "Todo"), away, lambda a: rows.append(top_row(a))])
+    strip, mark, menu = app.shell.window_strip, app.shell.job_mark, app.shell.menu
+    assert mark.visible
+    assert mark.x + mark.width == strip.x + strip.chips()[0][0]
+    assert strip.x == menu.item_span(len(menu.entries()))[0] + 1 + mark.width
+    clock = app.shell.clock.x
+    assert rows[0][clock - 15:clock] == " 42%  1  2  3  "
 
 
 def test_full_chips_name_the_windows_and_the_top_one_is_selected(tree):
@@ -180,6 +202,7 @@ def test_one_window_shows_no_strip(tree):
     app = navigator(tree)
     run_app(app, [lambda a: None])
     assert app.shell.window_strip.chips() == []
+    assert app.shell.window_strip.content_start() == app.shell.window_strip.width
 
 
 def test_a_click_on_a_chip_brings_its_window_forward(tree):

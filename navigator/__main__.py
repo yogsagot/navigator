@@ -33,7 +33,7 @@ from navkit.commands import Command
 from navkit.database import DATABASE
 from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import tier_named
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 from navkit.process import MARKER
 from navkit.reactive import effect
 from navkit.stylesheet import Stylesheet
@@ -54,6 +54,7 @@ from navigator.lib.appearance.scheme import (
 )
 from navigator.lib.config.file_history import remember_windows
 from navigator.lib.file_ops.clip import CLIP
+from navigator.lib.system.background import BACKGROUND
 from navigator.lib.system import dirwatch, errorlog
 from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
@@ -124,6 +125,8 @@ class Navigator(Application):
         # The panels' Ctrl+C/Ctrl+X clip is no widget's: its changes ask for
         # a frame through here.
         CLIP.listener = self.invalidate
+        # And so do the operations in the background, for the bar's mark.
+        BACKGROUND.listener = self.invalidate
 
     @property
     def manager(self) -> Manager:
@@ -461,14 +464,25 @@ class Navigator(Application):
         Navigator running.  Asked from a task, for the reason every dialog is.
         """
         desktop = self.shell.desktop
-        if SETTINGS.confirmations.exit or any(window.must_ask() for window in desktop.windows()):
+        if (SETTINGS.confirmations.exit or BACKGROUND.jobs
+                or any(window.must_ask() for window in desktop.windows())):
             self.spawn(self._quit_asking())
             return True
         self.exit()
         return True
 
     async def _quit_asking(self) -> None:
-        if SETTINGS.confirmations.exit:
+        if BACKGROUND.jobs:
+            # Asked whatever *Exit confirmation* says: quitting stops them.
+            from navml.widgets.dialog.dialog import Dialog
+
+            n = len(BACKGROUND.jobs)
+            prompt = tr_n("{n} operation is running in the background. Stop it and quit?",
+                          "{n} operations are running in the background. Stop them and quit?", n)
+            if await Dialog(title=tr("Confirm"), prompt=prompt, buttons="yes-no").execute(self) is not True:
+                return
+            BACKGROUND.stop_all()
+        elif SETTINGS.confirmations.exit:
             from navigator.widgets.shell.exit_dialog import ExitDialog
 
             answer = await ExitDialog().execute(self)

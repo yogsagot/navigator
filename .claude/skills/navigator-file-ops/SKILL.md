@@ -111,6 +111,30 @@ that `can("symlink")` and `can("rename")`.
   (`filefind.KINDS`' `broken_link`; on another drive one `drive.exists` per link, asked only when the kind is
   wanted).
 
+## In the background (copy, move, erase)
+
+A departure, asked for: DN's `TWhileView` held the screen. `Manager._watch_job(..., background=, title=)` -- passed
+by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Restore, multi-rename and Find stay modal.
+- **The button** (`navigator/widgets/file_ops/background_button.py`): a box given `background` turns its `buttons` to
+  `yes-no`, `ok` saying *Background* (the default: Enter sends it away) and `no` the old *Stop*/*Cancel*. `ok`
+  answers the `BACKGROUND` sentinel; `no`'s False and Esc's None both mean Stop -> *Abort operation?*. (A derived
+  half cannot define `on_no_click`: the generator refuses an `on_<id>_` for an id not in its own document.)
+- **Away**, the box is gone and the job is a `Running` in `navigator/lib/system/background.py`'s `BACKGROUND` (loop
+  only; `tick` copies `(done, total)` in). **A question waits**: taken from the worker and held, `asking` set, the
+  worker blocked on its future, until `BACKGROUND.recall()` (the mark's click, Window > *Background operation*,
+  `ShowBackground`) sets `recalled`; the box comes back up and then the question is put. Never a dialog over
+  whatever the user is doing.
+- **The mark** (`navigator/widgets/shell/job_mark.py`, `JobMark`): ` 42% `, ` 2:37% `, ` ?42% ` (`JobMark:asking`),
+  right-aligned just before the window strip's first chip (`WindowStrip.content_start()`; with no chips or no strip,
+  just before *ROOT*/the clock). The strip's `x` gives up the mark's width at its left while it shows, so the mark
+  never reaches the menus.
+- **The end**: once a box has been up (or the job went away) a toast says *title* over *Finished*/*Stopped*
+  (`Shell.toast`, through `app.root`); not after a failure, which has its own box, nor a cancelled watcher.
+- **The window may be gone** when it ends (tasks are the application's): `_run_copy`/`erase_entries` reload only
+  panels still mounted, and a question with no application is answered None (Esc).
+- **Quitting** with anything away always asks (`_quit_asking`, in place of *Exit confirmation*); Yes is
+  `BACKGROUND.stop_all()`. Tests: `tests/test_background_jobs.py`; `conftest` empties `BACKGROUND` around each.
+
 ## Erase (F8, Del)
 
 DN's `ERASER.PAS`. `navigator/lib/file_ops/fileerase.py` (`EraseRequest`, `EraseJob`, `run` on a thread, depth first, **never through

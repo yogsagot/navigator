@@ -10,13 +10,13 @@ from navml.widgets.progress_bar import ProgressBar
 
 from typing import Any
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
-from navml.widgets.dialog.button import Button
 from navigator.lib.system.progress import duration_text
+from navigator.widgets.file_ops import background_button
 from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path, whole_path
 
 
 class DeleteProgress(Dialog, _Component):
+    background: bool
     action: str
     path: str
     done: int

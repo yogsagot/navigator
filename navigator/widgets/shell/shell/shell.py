@@ -21,7 +21,7 @@ from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
-from navkit.reactive import bind, computed, effect, untracked
+from navkit.reactive import bind, computed, effect, reactive, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet, StylesheetError
@@ -43,6 +43,7 @@ from navigator.widgets.shell.commands import (
     FtpLink,
     HangUp,
     CloseRootAccess,
+    ShowBackground,
     NavyLink,
     SmbLink,
     SetupLink,
@@ -124,6 +125,20 @@ MAX_COMPLETIONS = 500
 _SHELL_SPECIAL = set(" \t'\"\\$&;|<>()*?[]!#{}`")
 
 
+class _Toasts:
+    """The toasts up, oldest first: where each stands, the newest lowest."""
+
+    items: tuple[Any, ...] = reactive(())
+
+    def above(self, toast: Any) -> int:
+        """How many toasts high *toast*'s bottom is: itself and every newer one."""
+        items = self.items
+        return len(items) - items.index(toast) if toast in items else 1
+
+    def drop(self, toast: Any) -> None:
+        self.items = tuple(item for item in self.items if item is not toast)
+
+
 class Shell(DockLayout):
     """The Navigator screen: menu bar, console, desktop and key bar."""
 
@@ -191,6 +206,19 @@ class Shell(DockLayout):
         self.root_mark.y = bind(lambda w: 0)
         self.root_mark.visible = bind(
             lambda w: w.open and not interface.hide_menu_bar and not self.console_visible)
+        # How far the operations in the background are, just before the
+        # window strip's chips (``job_mark``); placed with the strip below.
+        from navigator.lib.system.background import BACKGROUND
+        from navigator.widgets.shell.job_mark import JobMark, caption as job_caption
+
+        self.job_mark = self.add(JobMark())
+        self.job_mark.merge_style("dock: none")
+        self.job_mark.y = bind(lambda w: 0)
+        self.job_mark.width = bind(lambda w: display_width(job_caption()))
+        self.job_mark.visible = bind(
+            lambda w: bool(BACKGROUND.jobs) and not interface.hide_menu_bar and not self.console_visible)
+        #: The toasts up now, the newest at the bottom (:meth:`toast`).
+        self._toasts = _Toasts()
         self.keybar.visible = bind(lambda w: not interface.hide_status_line)
         self.keybar.menu = self.menu
         # *Auto hide Command Line*: DN 1.51 declared the box and never read
@@ -219,7 +247,14 @@ class Shell(DockLayout):
         # The clock floats over the bar's end: a bar that would reach it
         # closes up its captions (``MenuBar.tight``).
         self.menu.reserve = bind(lambda w: max(0, w.width - clock.x + 1) if clock.visible else 0)
-        self.window_strip.x = bind(lambda w: menu.item_span(len(menu.entries()))[0] + 1)
+        # The mark of work in the background stands just before the strip's
+        # chips, which keep to the clock's end -- the strip giving up its
+        # first cells to it, so the mark never reaches the menus.
+        job_mark, strip = self.job_mark, self.window_strip
+        self.window_strip.x = bind(
+            lambda w: menu.item_span(len(menu.entries()))[0] + 1 + (job_mark.width if job_mark.visible else 0))
+        self.job_mark.x = bind(
+            lambda w: strip.x + (strip.content_start() if strip.visible else strip.width) - w.width)
         root_mark = self.root_mark
         self.window_strip.width = bind(
             lambda w: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width)
@@ -1198,6 +1233,10 @@ class Shell(DockLayout):
             return tr("No connection is open")
         if isinstance(command, CloseRootAccess):
             return "" if self.root_mark.open else tr("No root access is open")
+        if isinstance(command, ShowBackground):
+            from navigator.lib.system.background import BACKGROUND
+
+            return "" if BACKGROUND.jobs else tr("Nothing is running in the background")
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return "" if self.active_manager is not None else no_manager
         if isinstance(command, GvfsLink):
@@ -2819,6 +2858,31 @@ class Shell(DockLayout):
         from navigator.lib.system.elevate import ELEVATION
 
         self.root_mark.open = ELEVATION.running
+
+    async def on_show_background(self, event: ShowBackground) -> bool:
+        """Window > *Background operation*: a box sent away put back up."""
+        from navigator.lib.system.background import BACKGROUND
+
+        BACKGROUND.recall()
+        return True
+
+    def toast(self, text: str, *, title: str = "", seconds: float | None = None) -> Any:
+        """*text* in a passing box at the desktop's bottom right, over the
+        windows (and the console), stacked above any still up; gone after
+        *seconds* (``TOAST_SECONDS``) or a click."""
+        from navml.widgets.toast import TOAST_SECONDS, Toast
+
+        toasts = self._toasts
+        desktop = self.desktop
+        toast = self.add(Toast(text, title=title, seconds=TOAST_SECONDS if seconds is None else seconds))
+        toast.merge_style("dock: none")
+        toast.height = bind(lambda w: 3)
+        toast.width = bind(lambda w: max(0, min(w.natural_width, desktop.width - 2)))
+        toast.x = bind(lambda w: max(0, desktop.x + desktop.width - w.width - 1))
+        toast.y = bind(lambda w: max(0, desktop.y + desktop.height - w.height * toasts.above(w)))
+        toast.gone = toasts.drop
+        toasts.items = (*toasts.items, toast)
+        return toast
 
     async def on_close_root_access(self, event: CloseRootAccess) -> bool:
         self.spawn(self.close_root_access())

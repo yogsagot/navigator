@@ -383,6 +383,13 @@ BitGrid::bit:set                     { fg: $dialog-cluster-selected-fg; bg: $dia
 BitGrid::bit:outside                 { fg: $dialog-button-disabled-fg; bg: $dialog-button-disabled-bg; bold: $dialog-button-disabled-bold; dim: $dialog-button-disabled-dim; italic: $dialog-button-disabled-italic; underline: $dialog-button-disabled-underline; reverse: $dialog-button-disabled-reverse }
 BitGrid::bit:selected                { fg: $dialog-input-selected-fg; bg: $dialog-input-selected-bg; bold: $dialog-input-selected-bold; dim: $dialog-input-selected-dim; italic: $dialog-input-selected-italic; underline: $dialog-input-selected-underline; reverse: $dialog-input-selected-reverse }
 
+/* The menu bar's mark of operations in the background (job_mark.py): the
+   bar's key colours, as the window strip's numbers; with a question waiting,
+   the error box's white on red, as ROOT. */
+JobMark                { fg: $bar-key-fg; bg: $bar-key-bg; bold: $bar-key-bold; dim: $bar-key-dim; italic: $bar-key-italic; underline: $bar-key-underline; reverse: $bar-key-reverse }
+JobMark:asking         { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
+/* A toast (navml's Toast): a passing word, in the tooltip's colours. */
+Toast                  { fg: $bar-fg; bg: $bar-bg; bold: $bar-bold; dim: $bar-dim; italic: $bar-italic; underline: $bar-underline; reverse: $bar-reverse }
 /* The trash can (trash_can.py): DN's CGrayWindow, the gray dialogs' family --
    its text in their static text, dragged in their frame icons' colour. */
 /* The menu bar's ROOT while root access is open: the error box's white on red. */

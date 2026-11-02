@@ -3208,10 +3208,13 @@ class Manager(Window):
                 # Cancelled -- Navigator is going -- so the thread is told to
                 # stop rather than left copying, or asking, behind it.
                 job.stop()
-        panel.untag_paths(done)
-        panel.reload()
+        # The window may have closed while the copy was in the background.
+        if panel.application is not None:
+            panel.untag_paths(done)
+            panel.reload()
         for other in others:
-            other.reload()
+            if other.application is not None:
+                other.reload()
         if SETTINGS.file_manager.beep_after_copy and not job.stopped and app is not None:
             # ``BeepAfterCopy``, after a copy that was not aborted.
             app.bell()
@@ -3241,8 +3244,12 @@ class Manager(Window):
             box.speed = -1.0 if speed is None else speed
             box.left = -1.0 if left is None else left
 
+        def far() -> tuple[int, int]:
+            return job.done_bytes, job.total_bytes
+
         await self._watch_job(
-            work, job, lambda: CopyProgress(move=move), refresh, self._answer_copy_question
+            work, job, lambda: CopyProgress(move=move), refresh, self._answer_copy_question,
+            background=far, title=tr("Rename/move") if move else tr("Copy"),
         )
 
     async def _watch_job(
@@ -3253,6 +3260,9 @@ class Manager(Window):
         refresh: Callable[[Any], None],
         answer: Callable[[Any], Awaitable[Any]],
         abort: str | None = None,
+        *,
+        background: Callable[[], tuple[int, int]] | None = None,
+        title: str = "",
     ) -> None:
         """A worker's progress box, its one button, and its questions, until *work* ends.
 
@@ -3261,35 +3271,86 @@ class Manager(Window):
         tick.  Each question the worker puts goes to *answer*, one at a time.
         The box closing -- its button, or Esc -- holds the worker and asks
         ``dlQueryAbort`` before anything stops.
+
+        With *background* -- the job's done and total, for the menu bar's
+        mark -- the box has *Background* too (a departure; DN's boxes held
+        the screen).  Pressed, the box comes down and the work goes on,
+        registered in ``BACKGROUND`` under *title*: a question then waits,
+        the mark showing it, until the box is called back
+        (``BACKGROUND.recall``), which puts it up again.  Once a box has been
+        up, the end is said in a toast, *title* over *Finished* or *Stopped*.
         """
+        from navigator.lib.system.background import BACKGROUND, Running
         from navigator.lib.system.progress import PROGRESS_DELAY, PROGRESS_TICK
+        from navigator.widgets.file_ops.background_button import BACKGROUND as AWAY
 
         app = self.application
         loop = asyncio.get_running_loop()
         started = loop.time()
         box: Any = None
         shown: asyncio.Future[Any] | None = None
+        #: Registered while in the background, and the wait for its recall.
+        away: Running | None = None
+        recall: asyncio.Future[Any] | None = None
+        #: A question taken from the worker while away, put once the box is back.
+        held: Any = None
+        seen = False
 
         async def tick() -> None:
             # Through the queue, so each update is painted with its batch.
             if box is not None:
                 refresh(box)
+            elif away is not None and background is not None:
+                away.done, away.total = background()
+
+        def show() -> None:
+            nonlocal box, shown, seen
+            box = make_box()
+            if background is not None:
+                box.background = True
+            refresh(box)
+            shown = asyncio.ensure_future(box.execute(app))
+            seen = True
 
         repeat = app.call_every(PROGRESS_TICK, tick)
         try:
             while not work.done():
-                waiting = {work} if shown is None else {work, shown}
+                waiting: set[asyncio.Future[Any]] = {work}
+                if shown is not None:
+                    waiting.add(shown)
+                if recall is not None:
+                    waiting.add(recall)
                 await asyncio.wait(waiting, timeout=PROGRESS_TICK, return_when=asyncio.FIRST_COMPLETED)
-                pending = job.take_question()
-                if pending is not None:
+                pending = held if held is not None else job.take_question()
+                if pending is not None and away is not None:
+                    # Away, a question waits for the box to come back.
+                    held = pending
+                    away.asking = True
+                elif pending is not None:
+                    held = None
                     question, future = pending
                     result = None
                     try:
-                        result = await answer(question)
+                        if self.application is not None:
+                            # A window closed while its work was away has
+                            # no one to ask: the question is Esc'd.
+                            result = await answer(question)
                     finally:
                         future.set_result(result)
                     continue
+                if away is not None:
+                    if recall is not None and recall.done():
+                        BACKGROUND.remove(away)
+                        away, recall = None, None
+                        show()
+                    continue
                 if shown is not None and shown.done():
+                    if not shown.cancelled() and shown.result() is AWAY:
+                        box, shown = None, None
+                        away = BACKGROUND.add(job, title)
+                        away.done, away.total = background() if background is not None else (0, 0)
+                        recall = asyncio.ensure_future(away.recalled.wait())
+                        continue
                     # *Stop*, or Esc: ``dlQueryAbort`` before anything stops.
                     box, shown = None, None
                     job.pause()
@@ -3302,11 +3363,17 @@ class Manager(Window):
                 if work.done():
                     break
                 if shown is None and not job.stopped and loop.time() - started >= PROGRESS_DELAY:
-                    box = make_box()
-                    refresh(box)
-                    shown = asyncio.ensure_future(box.execute(app))
+                    show()
         finally:
             repeat.cancel()
+            if away is not None:
+                BACKGROUND.remove(away)
+            if recall is not None and not recall.done():
+                recall.cancel()
+            if held is not None and not held[1].done():
+                # The work ended -- or this watcher was cancelled -- with a
+                # question unasked: answered as Esc would, so no worker waits.
+                held[1].set_result(None)
             if shown is not None and not shown.done():
                 # Cancelled rather than closed: a box whose ``execute`` has
                 # not started yet has nothing to close, and would mount and
@@ -3315,6 +3382,11 @@ class Manager(Window):
                 # cancellation of this task is not swallowed with its own.
                 shown.cancel()
                 await asyncio.wait({shown})
+        if seen and background is not None and work.done() and not work.cancelled() and work.exception() is None:
+            # The application's root is the shell, which places toasts.
+            toast = getattr(getattr(app, "root", None), "toast", None)
+            if toast is not None and app.is_running:
+                toast(tr("Stopped") if job.stopped else tr("Finished"), title=title)
 
     async def _ask_yes_no(self, prompt: str, title: str | None = None) -> Any:
         return await Dialog(title=title or tr("Confirm"), prompt=prompt, buttons="yes-no").execute(self.application)
@@ -3396,9 +3468,12 @@ class Manager(Window):
         try:
             done = await self.erase_located(panel.location, entries, quiet=quiet, dialog=dialog)
         finally:
-            panel.untag_paths(done)
-            panel.reload()
-            other.reload()
+            # The window may have closed while the erase was in the background.
+            if panel.application is not None:
+                panel.untag_paths(done)
+                panel.reload()
+            if other.application is not None:
+                other.reload()
 
     async def erase_located(self, here: Location, entries: list[Any], *, quiet: bool = False,
                             dialog: bool = True) -> list[Any]:
@@ -3459,7 +3534,8 @@ class Manager(Window):
 
         try:
             await self._watch_job(work, job, DeleteProgress, refresh,
-                                  lambda question: self._answer_erase_question(question, quiet=quiet))
+                                  lambda question: self._answer_erase_question(question, quiet=quiet),
+                                  background=lambda: (job.done, max(1, job.total)), title=tr("Erase"))
             return await work
         finally:
             if not work.done():

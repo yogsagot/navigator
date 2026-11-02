@@ -11,14 +11,14 @@ from navml.widgets.progress_bar import ProgressBar
 from typing import Any
 from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
-from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.system.progress import duration_text
+from navigator.widgets.file_ops import background_button
 from navigator.widgets.manager.panel.panel import human_size
 
 
 class CopyProgress(Dialog, _Component):
+    background: bool
     move: bool
     packing: bool
     source: str

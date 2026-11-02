@@ -280,6 +280,18 @@ def _quiet_scheduler():
 
 
 @pytest.fixture(autouse=True)
+def _nothing_in_background():
+    """No operation one test sent to the background is left for the next."""
+    from navigator.lib.system.background import BACKGROUND
+
+    BACKGROUND.jobs = ()
+    BACKGROUND.listener = None
+    yield
+    BACKGROUND.jobs = ()
+    BACKGROUND.listener = None
+
+
+@pytest.fixture(autouse=True)
 def _fresh_database():
     """Every test gets an empty ``:memory:`` database: the one every model uses.
 

@@ -621,3 +621,12 @@ class SmbLink(Command):
 
     title = "SMB"
     scheme = "smb"
+
+
+class ShowBackground(Command):
+    """Window > *Background operation*: the progress box of a copy or an
+    erase sent to the background put back up -- one with a question waiting
+    first, else the newest (``navigator.lib.system.background``).  Not DN's,
+    whose boxes held the screen."""
+
+    title = "Backgr"

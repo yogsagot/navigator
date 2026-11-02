@@ -24,7 +24,7 @@ from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
-from navkit.reactive import bind, computed, effect, untracked
+from navkit.reactive import bind, computed, effect, reactive, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet, StylesheetError
@@ -37,7 +37,7 @@ from navigator.lib.system import fuzzy
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
-from navigator.widgets.shell.commands import EditLinks, Game, S3Link, GvfsLink, FtpLink, HangUp, CloseRootAccess, NavyLink, SmbLink, SetupLink, OpenCalendar, ToggleTrashCan, OpenTrash, EmptyTrash, SaversSetup, CountrySetup, ScreenRest, About, ChangeColors, DriveInfoSetup, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, ExecuteCommandLineInWindow, FileManagerDefaults, EnvEdit, ExecuteOsCommand, LoadColors, LoadDesktop, SaveDesktop, StoreColors, SystemInfo, FileManagerSetup, HistoryList, FuzzyHistory, InsertName, InsertPath, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenEdit, OpenTreeWindow, OpenView, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
+from navigator.widgets.shell.commands import EditLinks, Game, S3Link, GvfsLink, FtpLink, HangUp, CloseRootAccess, ShowBackground, NavyLink, SmbLink, SetupLink, OpenCalendar, ToggleTrashCan, OpenTrash, EmptyTrash, SaversSetup, CountrySetup, ScreenRest, About, ChangeColors, DriveInfoSetup, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, EditHistory, EditorDefaults, ExecuteCommandLine, ExecuteCommandLineInWindow, FileManagerDefaults, EnvEdit, ExecuteOsCommand, LoadColors, LoadDesktop, SaveDesktop, StoreColors, SystemInfo, FileManagerSetup, HistoryList, FuzzyHistory, InsertName, InsertPath, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenEdit, OpenTreeWindow, OpenView, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ToggleMarkBySpace, ViewHistory
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.dialog.date_button import CalendarView
 from navml.widgets.dialog.file_list import FileInfoPane
@@ -47,6 +47,9 @@ from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QU
 from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
+
+
+class _Toasts(object): ...
 
 
 class UserScreenPeek(Widget): ...
@@ -226,6 +229,8 @@ class Shell(DockLayout, _Component):
     def close_linked(self, site: Any, why: str = ...) -> None: ...
     def connections_in_use(self) -> set[Any]: ...
     async def follow_root(self) -> None: ...
+    async def on_show_background(self, event: ShowBackground) -> bool: ...
+    def toast(self, text: str, *, title: str = ..., seconds: float | None = ...) -> Any: ...
     async def on_close_root_access(self, event: CloseRootAccess) -> bool: ...
     async def close_root_access(self) -> None: ...
     async def reap_connections(self) -> None: ...

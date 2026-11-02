@@ -5,12 +5,11 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
 
-from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.system.progress import duration_text
+from navigator.widgets.file_ops import background_button
 from navigator.widgets.file_ops.copy_progress.copy_progress import fit_path, whole_path
 
 
@@ -20,8 +19,8 @@ class DeleteProgress(Dialog):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         # *Cancel* where DN's ``dlStop`` said *Stop*: a departure in word only.
-        unbind(self.ok, Button.text)
-        self.ok.text = tr("~C~ancel")
+        # *Background* beside it, when the watcher can let the box go.
+        background_button.wire(self, tr("~C~ancel"))
 
     def fit(self, path: str) -> str:
         """*path*, cut from the left to fit the row."""
@@ -51,5 +50,5 @@ class DeleteProgress(Dialog):
                     time=duration_text(left))
 
     def accept(self) -> Any:
-        """*Cancel* answers what Esc does."""
-        return None
+        """*Cancel* answers what Esc does; *Background* sends the box away."""
+        return background_button.answer(self)

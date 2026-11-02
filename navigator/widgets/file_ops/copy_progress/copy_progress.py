@@ -6,13 +6,12 @@ from typing import Any
 
 from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
-from navkit.reactive import unbind
 
-from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.system.progress import duration_text
+from navigator.widgets.file_ops import background_button
 from navigator.widgets.manager.panel.panel import human_size
 
 
@@ -45,9 +44,9 @@ class CopyProgress(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        # DN's ``dlStop``, as `SearchProgress' relabels it.
-        unbind(self.ok, Button.text)
-        self.ok.text = tr("~S~top")
+        # DN's ``dlStop``, as `SearchProgress' relabels it -- or *Background*
+        # beside it, when the watcher can let the box go.
+        background_button.wire(self, tr("~S~top"))
 
     def fit(self, label: str, path: str) -> str:
         """*label* and then *path*, cut to the row: :func:`fit_path`."""
@@ -78,5 +77,5 @@ class CopyProgress(Dialog):
         return tr("Speed {speed}/s, {time} left").format(speed=rate, time=duration_text(left))
 
     def accept(self) -> Any:
-        """*Stop* answers what Esc does."""
-        return None
+        """*Stop* answers what Esc does; *Background* sends the box away."""
+        return background_button.answer(self)
