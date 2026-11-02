@@ -4812,9 +4812,28 @@ direction = "rtl"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "الثواني بين فحوص مجلد الخادم للتحديث التلقائي؛ 0 أبدا"
 
 # No longer shown anywhere; kept so nothing written is lost.
+
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Image" = "صورة"
+# navigator/widgets/editor/option_items.py
+"Img" = "صورة"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"{format} {width}×{height}" = "{format} {width}×{height}"
+# navigator/lib/viewer/image.py
+"Pictures other than PNG need Pillow: pip install {extra}" = "الصور غير PNG تحتاج إلى Pillow: pip install {extra}"
+# navigator/settings.py
+"F3 and the quick view show a picture as one, on a terminal that can draw it" = "يعرض F3 والعرض السريع الصورة كصورة في طرفية قادرة على رسمها"
+# navigator/settings.py
+"The files F3 shows as pictures, as masks separated by ';'" = "الملفات التي يعرضها F3 كصور، أقنعة مفصولة بـ ';'"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"This terminal draws no pictures" = "هذه الطرفية لا ترسم الصور"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Too big to show as a picture" = "أكبر من أن يُعرض كصورة"
+
 [unused]
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"
 "~End~" = "~نهاية~"
 "~Score~" = "~حصيلة~"
 "Year" = "السنة"
+

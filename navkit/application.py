@@ -48,15 +48,18 @@ from navkit.events import (
     MouseClickEvent,
     PasteEvent,
     ResizeEvent,
+    TerminalReplyEvent,
     WakeEvent,
 )
 from navkit.glyphs import DEFAULT_MARKS
 from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.capabilities import BIDI_WORDS
+from navkit.graphics import GraphicsLayer
 from navkit.screen import ScreenBuffer, Surface, for_words, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.tooltip import ShowTooltip, Tooltip
+from navkit.terminal import GRAPHICS_QUERY_ID as _GRAPHICS_QUERY_ID
 from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
 from navkit import clipboard, commands, i18n
 from navkit.widget import Widget, _call, check_handlers
@@ -81,6 +84,11 @@ DOUBLE_CLICK_TIMEOUT = 0.4
 #: ``clipboard-read = ask``), and one that never answers (VTE, JediTerm) is
 #: the case this is for.
 CLIPBOARD_ANSWER_TIMEOUT = 0.5
+
+#: How long the terminal has to answer :meth:`Terminal.query_graphics` before
+#: it is taken to draw no pictures.  Its last question is one every terminal
+#: answers, so this is only for one that answers nothing at all.
+GRAPHICS_ANSWER_TIMEOUT = 1.0
 
 #: Milliseconds the mouse pointer must rest on a widget with a tooltip before
 #: the tooltip shows.  Overridable per application (``tooltip_delay=``); zero off.
@@ -438,6 +446,12 @@ class Application:
         #: painted, by ``id``: what :attr:`busy` waits on.
         self._posted: set[int] = set()
         self._parser = InputParser()
+        #: The pictures on the screen (:mod:`navkit.graphics`).
+        self._graphics = GraphicsLayer()
+        #: What the terminal has answered to :meth:`Terminal.query_graphics`
+        #: so far, while it is being asked; None otherwise.
+        self._graphics_answers: dict[str, Any] | None = None
+        self._graphics_timer: asyncio.TimerHandle | None = None
         self._loop: asyncio.AbstractEventLoop | None = None
         self._escape_timer: asyncio.TimerHandle | None = None
         #: Turns two presses and a clock into a double-click.  Zero off.
@@ -601,6 +615,7 @@ class Application:
             for repeat in self._repeats:
                 repeat._arm(self._loop)
             self._resize(*self.terminal.size)
+            self._ask_graphics()
             try:
                 await self.on_start()
             except Exception as error:
@@ -1124,6 +1139,7 @@ class Application:
         self._released = on_input
         for event in self._parser.flush():
             self.post_event(event)
+        self.terminal.write(self._graphics.release(self.terminal.info.graphics))
         self.terminal.suspend()
         self._cursor_shown = None
 
@@ -1147,6 +1163,8 @@ class Application:
         """Use *info* -- a :class:`~navkit.capabilities.TerminalInfo` -- from
         the next frame on, and paint that frame whole.  This is how a running
         application changes its colour depth or glyph tier."""
+        if info.graphics != self.terminal.info.graphics:
+            self.terminal.write(self._graphics.release(self.terminal.info.graphics))
         self.terminal.info = info
         self.info_revision += 1
         self.redraw()
@@ -1157,6 +1175,7 @@ class Application:
             return
         self._released = None
         self.terminal.resume()
+        self._graphics.forget()  # left with the alternate screen
         self._front = None
         self._cursor_shown = None
         self._dirty = False
@@ -1214,7 +1233,12 @@ class Application:
         shown = self._back.mirrored() if rtl else self._back
         if self.terminal.info.bidi == BIDI_WORDS:
             shown = for_words(shown)
-        output = render_diff(self._front, shown, self.terminal.info)
+        # Before the diff: a sixel picture that goes has its cells written
+        # again, so it is told before the diff is worked out.
+        before, after = self._graphics.compose(
+            self._back.placements, shown, self._front, self.terminal.info.graphics
+        )
+        output = before + render_diff(self._front, shown, self.terminal.info) + after
         cursor = self._cursor()
         if cursor != self._cursor_shown:
             # Emitted after the diff, always: painting moves the terminal's
@@ -1942,6 +1966,9 @@ class Application:
         if self._escape_timer is not None:
             self._escape_timer.cancel()
             self._escape_timer = None
+        if self._graphics_timer is not None:
+            self._graphics_timer.cancel()
+            self._graphics_timer = None
         if self._reader_fd is not None:
             with contextlib.suppress(Exception):
                 self._loop.remove_reader(self._reader_fd)
@@ -1964,7 +1991,10 @@ class Application:
             if not data:
                 return
         for event in self._parser.feed(data):
-            self.post_event(event)
+            if isinstance(event, TerminalReplyEvent):
+                self._terminal_replied(event)
+            else:
+                self.post_event(event)
         self._schedule_escape_flush()
 
     def _schedule_escape_flush(self) -> None:
@@ -1982,8 +2012,73 @@ class Application:
         for event in self._parser.flush():
             self.post_event(event)
 
+    # -- which pictures the terminal draws ------------------------------------
+
+    def _ask_graphics(self) -> None:
+        """Ask the terminal how it draws pictures, if anything wants to know.
+
+        It is asked when :attr:`TerminalInfo.probe_graphics` says to, and
+        also when ``NAVKIT_GRAPHICS`` named a protocol but the tty does not
+        know its cell size in pixels, which ``CSI 16 t`` may still say.  The
+        answers come in as input (:meth:`_terminal_replied`); the terminal's
+        info is updated once the last has, or after
+        :data:`GRAPHICS_ANSWER_TIMEOUT`.
+        """
+        info = self.terminal.info
+        cell_px = getattr(self.terminal, "cell_px", None)
+        if cell_px is not None and cell_px != info.cell_px:
+            info = dataclasses.replace(info, cell_px=cell_px)
+            self.terminal.info = info
+        if not self.terminal.is_tty or self._loop is None:
+            return
+        if not (info.probe_graphics or (info.graphics and info.cell_px is None)):
+            return
+        self._graphics_answers = {}
+        self._parser.answers_graphics = True
+        self.terminal.query_graphics()
+        self._graphics_timer = self._loop.call_later(GRAPHICS_ANSWER_TIMEOUT, self._graphics_answered)
+
+    def _terminal_replied(self, event: TerminalReplyEvent) -> None:
+        answers = self._graphics_answers
+        if answers is None:
+            return  # a reply nobody waits for any more
+        if event.kind == "graphics":
+            keys, _, message = event.text.partition(";")
+            if f"i={_GRAPHICS_QUERY_ID}" in keys.split(","):
+                answers["kitty"] = message.startswith("OK")
+        elif event.kind == "cell" and len(event.params) == 2 and all(event.params):
+            height, width = event.params
+            answers["cell"] = (width, height)
+        elif event.kind == "da1":
+            answers["sixel"] = 4 in event.params
+            self._graphics_answered()
+
+    def _graphics_answered(self) -> None:
+        """The terminal has said all it will: draw pictures its way."""
+        answers, self._graphics_answers = self._graphics_answers, None
+        if answers is None:
+            return
+        if self._graphics_timer is not None:
+            self._graphics_timer.cancel()
+            self._graphics_timer = None
+        self._parser.answers_graphics = False
+        info = self.terminal.info
+        graphics = info.graphics
+        if info.probe_graphics:
+            graphics = "kitty" if answers.get("kitty") else "sixel" if answers.get("sixel") else ""
+        updated = dataclasses.replace(
+            info, graphics=graphics, probe_graphics=False, cell_px=info.cell_px or answers.get("cell")
+        )
+        if updated != info:
+            self.use_terminal_info(updated)
+
     def _on_signal(self, signum: int) -> None:
         if signum == signal.SIGWINCH:
+            cell_px = getattr(self.terminal, "cell_px", None)
+            if cell_px is not None and cell_px != self.terminal.info.cell_px:
+                # A font size changed with the window: pictures are scaled by it.
+                self.terminal.info = dataclasses.replace(self.terminal.info, cell_px=cell_px)
+                self.info_revision += 1
             self.post_event(ResizeEvent(*self.terminal.size))
         else:
             self.exit()

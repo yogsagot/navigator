@@ -4811,5 +4811,24 @@ flag = "CN"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
 
 # No longer shown anywhere; kept so nothing written is lost.
+
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Image" = "图像"
+# navigator/widgets/editor/option_items.py
+"Img" = "图像"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"{format} {width}×{height}" = "{format} {width}×{height}"
+# navigator/lib/viewer/image.py
+"Pictures other than PNG need Pillow: pip install {extra}" = "PNG 以外的图片需要 Pillow：pip install {extra}"
+# navigator/settings.py
+"F3 and the quick view show a picture as one, on a terminal that can draw it" = "F3 和快速查看在能绘制图片的终端上把图片显示为图片"
+# navigator/settings.py
+"The files F3 shows as pictures, as masks separated by ';'" = "F3 显示为图片的文件，以 ';' 分隔的掩码"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"This terminal draws no pictures" = "此终端不能绘制图片"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Too big to show as a picture" = "太大，无法显示为图片"
+
 [unused]
 "Year" = "年份"
+

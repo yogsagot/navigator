@@ -12,7 +12,9 @@ from __future__ import annotations
 
 import base64
 import binascii
+import fcntl
 import os
+import struct
 import sys
 import termios
 import tty
@@ -29,6 +31,7 @@ from navkit.events import (
     ModifiersEvent,
     MouseClickEvent,
     PasteEvent,
+    TerminalReplyEvent,
 )
 
 ALT_SCREEN_ON = "\x1b[?1049h"
@@ -127,6 +130,20 @@ _CLIPBOARD_REPLY = b"\x1b]52;"
 # An answer larger than this is not waited for any further: its bytes are
 # dropped rather than held while the terminal keeps sending.
 _CLIPBOARD_REPLY_MAX = 16 * 1024 * 1024
+# The head of a kitty graphics protocol reply, ``ESC _ G ... ESC \``, and how
+# long one may be: an ``OK`` or an error message, never more.
+_GRAPHICS_REPLY = b"\x1b_G"
+_GRAPHICS_REPLY_MAX = 4096
+# Which protocol a terminal speaks, asked once (Terminal.query_graphics): a
+# one-pixel kitty query with an id of its own, the cell size in pixels, and
+# Primary Device Attributes last -- which every terminal answers, so its reply
+# says the others have had their chance.  Attribute 4 in it is sixel.
+GRAPHICS_QUERY_ID = 31
+GRAPHICS_QUERY = (
+    f"\x1b_Gi={GRAPHICS_QUERY_ID},s=1,v=1,a=q,t=d,f=24;AAAA\x1b\\"
+    "\x1b[16t"
+    "\x1b[c"
+)
 
 
 def clipboard_osc(text: str, *, primary: bool = False) -> str:
@@ -352,6 +369,12 @@ class InputParser:
         #: Backspace, as it always was; the application sets this from
         #: :attr:`Terminal.erase` once the tty has said.
         self.ctrl_h = False
+        #: Whether an unfinished ``ESC _ G`` is waited for as a kitty graphics
+        #: reply rather than taken as Alt+_ and a G: only while the
+        #: application waits for the answer to :meth:`Terminal.query_graphics`,
+        #: every other graphics command being sent with replies turned off.
+        #: A whole one is a reply whenever it arrives.
+        self.answers_graphics = False
 
     @property
     def pending_escape(self) -> bool:
@@ -364,6 +387,8 @@ class InputParser:
         if self._buf.startswith(_CLIPBOARD_REPLY):
             # A clipboard answer still arriving: a slow terminal, or a big
             # clipboard, is not a lone ESC and must not be flushed as one.
+            return False
+        if self.answers_graphics and self._buf.startswith(_GRAPHICS_REPLY):
             return False
         return self._incomplete and bool(self._buf) and self._buf[0] == 0x1B
 
@@ -382,6 +407,10 @@ class InputParser:
             # whatever followed it typed as it was.
             del self._buf[:2]
             return [KeyEvent("]", "]", alt=True), *self._parse()]
+        if len(self._buf) >= 2 and self._buf[1] == 0x5F:
+            # Alt+_, typed while a graphics reply was awaited.
+            del self._buf[:2]
+            return [KeyEvent("_", "_", alt=True, base=keyboard.latin("_")), *self._parse()]
         del self._buf[:1]
         return [KeyEvent("escape"), *self._parse()]
 
@@ -472,7 +501,25 @@ class InputParser:
             if terminator == "~" and body == b"200":
                 self._paste = bytearray()
                 return final + 1, None
+            reply = _reply(body, terminator)
+            if reply is not None:
+                return final + 1, reply
             return final + 1, self._csi(body, terminator)
+
+        if second == 0x5F:  # APC: a graphics reply, or Alt+_
+            # A whole reply is taken whenever it comes, a late one included,
+            # rather than typed; one still arriving is waited for only while
+            # an answer is expected, since ESC _ alone is also Alt+_.
+            head = bytes(buf[: len(_GRAPHICS_REPLY)])
+            if self.answers_graphics and _GRAPHICS_REPLY.startswith(head) and len(head) < len(_GRAPHICS_REPLY):
+                return 0, None
+            if head == _GRAPHICS_REPLY:
+                end = bytes(buf[:_GRAPHICS_REPLY_MAX]).find(b"\x1b\\")
+                if end >= 0:
+                    text = bytes(buf[len(_GRAPHICS_REPLY) : end]).decode("utf-8", "replace")
+                    return end + 2, TerminalReplyEvent("graphics", text=text)
+                if self.answers_graphics and len(buf) <= _GRAPHICS_REPLY_MAX:
+                    return 0, None
 
         if second == 0x5D:  # OSC -- only a clipboard reply is one
             head = bytes(buf[: len(_CLIPBOARD_REPLY)])
@@ -654,6 +701,21 @@ def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | Non
         return KeyEvent(chr(code), ctrl=True, alt=alt, shift=shift)
     char = text or (chr(shifted) if shift and shifted else chr(code))
     return KeyEvent(char.lower(), char, alt=alt, shift=char.isupper())
+
+
+def _reply(body: bytes, terminator: str) -> Event | None:
+    """A terminal's answer that arrives as a ``CSI`` sequence, or None.
+
+    Primary Device Attributes (``CSI ? 62 ; 4 ; ... c``) and the cell size
+    (``CSI 6 ; height ; width t``): no key is ever sent either way.
+    """
+    if terminator == "c" and body.startswith(b"?"):
+        return TerminalReplyEvent("da1", tuple(int(p) for p in body[1:].split(b";") if p.isdigit()))
+    if terminator == "t" and body.startswith(b"6;"):
+        numbers = [int(p) for p in body.split(b";") if p.isdigit()]
+        if len(numbers) == 3:
+            return TerminalReplyEvent("cell", tuple(numbers[1:]))
+    return None
 
 
 def _csi_key(body: bytes, terminator: str) -> Event | None:
@@ -1075,6 +1137,27 @@ class Terminal:
         if self.info.clipboard:
             self.write(clipboard_osc(text, primary=primary))
             self.flush()
+
+    def query_graphics(self) -> None:
+        """Ask which way of drawing a picture this terminal knows
+        (:data:`GRAPHICS_QUERY`); the answers arrive as input, as
+        :class:`~navkit.events.TerminalReplyEvent`."""
+        self.write(GRAPHICS_QUERY)
+        self.flush()
+
+    @property
+    def cell_px(self) -> tuple[int, int] | None:
+        """One cell's ``(width, height)`` in pixels, as the tty's window size
+        says -- ``TIOCGWINSZ``'s pixel fields, which a terminal may leave 0 --
+        or None."""
+        try:
+            packed = fcntl.ioctl(self._out.fileno(), termios.TIOCGWINSZ, b"\0" * 8)
+        except (OSError, ValueError, AttributeError):
+            return None
+        rows, columns, width, height = struct.unpack("HHHH", packed)
+        if not (rows and columns and width and height):
+            return None
+        return width // columns, height // rows
 
     def query_clipboard(self, *, primary: bool = False) -> None:
         """Ask for the clipboard; the answer arrives as a paste, if at all."""

@@ -29,6 +29,7 @@ if TYPE_CHECKING:
     # Only for the annotation: the renderer takes whatever it is handed, and
     # importing it for real would tie the buffer to the terminal layer.
     from navkit.capabilities import TerminalInfo
+    from navkit.graphics import Picture
 
 #: A painted cell: the character it shows and the style it shows it in.  The
 #: character is ``""`` for the second half of a double-width character, which
@@ -312,6 +313,23 @@ class Surface:
             used += width
         return used
 
+    def place_image(
+        self, picture: Picture, x: int = 0, y: int = 0, style: Style = DEFAULT_STYLE
+    ) -> None:
+        """Show *picture* with its top left at *x*, *y* (:mod:`navkit.graphics`).
+
+        Its cells are filled with blanks in *style* -- what shows through a
+        transparent picture, and what is left if it cannot be shown -- each
+        stamped with the picture's id; the frame writes the picture over them
+        once it is composed, if every stamp is still there then.  Painted over
+        in part, or clipped by a view, it is not shown at all.
+        """
+        self.fill(x, y, picture.cols, picture.rows, " ", style.derive(image=picture.id))
+        self._register(picture, x, y)
+
+    def _register(self, picture: Picture, x: int, y: int) -> None:
+        """Record *picture* on the frame; nothing to do on a bare surface."""
+
     def mirror(self) -> None:
         """Reverse every row of this surface in place, glyphs through :data:`FLIP`.
 
@@ -426,6 +444,9 @@ class _View(Surface):
                 self._x + left, self._y + top, right - left, bottom - top, char, style
             )
 
+    def _register(self, picture: Picture, x: int, y: int) -> None:
+        self._target._register(picture, self._x + x, self._y + y)
+
     def blit(
         self,
         source: Surface,
@@ -458,13 +479,18 @@ class _View(Surface):
 class ScreenBuffer(Surface):
     """A grid of cells: the surface a whole frame is composed in."""
 
-    __slots__ = ("width", "height", "_rows", "rtl")
+    __slots__ = ("width", "height", "_rows", "rtl", "placements")
 
     def __init__(self, width: int, height: int, style: Style = DEFAULT_STYLE):
         self.width = max(0, width)
         self.height = max(0, height)
         self.rtl = False
         self._rows: list[list[Cell]] = []
+        #: The pictures placed on this frame (:meth:`Surface.place_image`):
+        #: ``{id: (picture, y)}``, *y* the row its top is on.  The column is
+        #: not kept: it is read off the stamps once the frame has been
+        #: mirrored, if it is going to be.
+        self.placements: dict[int, tuple[Picture, int]] = {}
         self.clear(style)
 
     def resize(self, width: int, height: int, style: Style = DEFAULT_STYLE) -> None:
@@ -477,6 +503,20 @@ class ScreenBuffer(Surface):
         """Fill the whole buffer with *char* in *style*."""
         blank: Cell = (char, style)
         self._rows = [[blank] * self.width for _ in range(self.height)]
+        self.placements = {}
+
+    def _register(self, picture: Picture, x: int, y: int) -> None:
+        self.placements[picture.id] = (picture, y)
+
+    def invalidate(self, x: int, y: int, width: int, height: int) -> None:
+        """Make the cells of a rectangle match nothing, so that a diff
+        against this buffer writes them all again."""
+        cell: Cell = ("\0", DEFAULT_STYLE)
+        left, right = max(0, x), min(self.width, x + width)
+        if right <= left:
+            return
+        for row in range(max(0, y), min(self.height, y + height)):
+            self._rows[row][left:right] = [cell] * (right - left)
 
     def get(self, x: int, y: int) -> Cell:
         """Return the cell at *x*, *y*, or a blank cell if out of bounds."""
@@ -578,6 +618,7 @@ class ScreenBuffer(Surface):
         """
         out = ScreenBuffer(0, 0)
         out.width, out.height, out.rtl = self.width, self.height, self.rtl
+        out.placements = dict(self.placements)
         flip = FLIP
         rows = []
         for row in self._rows:
@@ -606,6 +647,7 @@ class ScreenBuffer(Surface):
         self.height = other.height
         self.rtl = other.rtl
         self._rows = [row.copy() for row in other._rows]
+        self.placements = dict(other.placements)
 
 
 def for_words(buffer: ScreenBuffer) -> ScreenBuffer:

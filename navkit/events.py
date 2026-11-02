@@ -376,3 +376,19 @@ class ModifiersEvent(Event):
 @dataclass(frozen=True, slots=True)
 class WakeEvent(Event):
     """Internal: wakes the event loop so it can repaint or shut down."""
+
+@dataclass(frozen=True, slots=True)
+class TerminalReplyEvent(Event):
+    """The terminal answering a question the application asked it.
+
+    *kind* is which question: ``"graphics"``, the kitty graphics protocol's
+    reply (*text* what came between ``ESC _ G`` and ``ESC \\``); ``"da1"``,
+    Primary Device Attributes (*params* the numbers after ``CSI ?``);
+    ``"cell"``, ``CSI 16 t``'s cell size (*params* height and width in
+    pixels).  The application keeps these to itself, the way it keeps a
+    :class:`ModifiersEvent`: no widget is offered one.
+    """
+
+    kind: str
+    params: tuple[int, ...] = ()
+    text: str = ""

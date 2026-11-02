@@ -4811,5 +4811,24 @@ flag = "JP"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
 
 # No longer shown anywhere; kept so nothing written is lost.
+
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Image" = "画像"
+# navigator/widgets/editor/option_items.py
+"Img" = "画像"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"{format} {width}×{height}" = "{format} {width}×{height}"
+# navigator/lib/viewer/image.py
+"Pictures other than PNG need Pillow: pip install {extra}" = "PNG 以外の画像には Pillow が必要です: pip install {extra}"
+# navigator/settings.py
+"F3 and the quick view show a picture as one, on a terminal that can draw it" = "F3 とクイックビューは、描画できる端末で画像を画像として表示します"
+# navigator/settings.py
+"The files F3 shows as pictures, as masks separated by ';'" = "F3 が画像として表示するファイル（';' 区切りのマスク）"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"This terminal draws no pictures" = "この端末は画像を描画できません"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Too big to show as a picture" = "大きすぎて画像として表示できません"
+
 [unused]
 "Year" = "年"
+

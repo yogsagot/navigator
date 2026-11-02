@@ -746,6 +746,11 @@ def main(argv: list[str] | None = None) -> int:
              "icon beside each name (default: the settings file's, else detect)",
     )
     parser.add_argument(
+        "--graphics", choices=("auto", "kitty", "sixel", "none"), default=None,
+        help="how F3 and the quick view draw a picture: kitty's graphics "
+             "protocol, sixel, or `none' to show its bytes (default: ask the terminal)",
+    )
+    parser.add_argument(
         "--marks", choices=MARK_LOOKS, default=None,
         help="how check boxes and radio buttons are drawn: `dos' [X] (•), "
              "`brackets' [✓] (●), `boxes' without brackets, Nerd Font "
@@ -883,6 +888,10 @@ def main(argv: list[str] | None = None) -> int:
     # And how right-to-left text is sent, over NAVKIT_BIDI.
     if args.bidi is not None:
         info = replace(info, bidi=args.bidi)
+    # And how a picture is drawn, over NAVKIT_GRAPHICS: named, nothing is asked.
+    if args.graphics is not None and args.graphics != "auto":
+        graphics = "" if args.graphics == "none" else args.graphics
+        info = replace(info, graphics=graphics, probe_graphics=False)
     terminal = Terminal(info=info, reprogram_palette=args.reprogram_palette)
 
     left = _start_directory(args.left) if args.left else Path.cwd()

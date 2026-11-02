@@ -615,6 +615,15 @@ class ViewerDefaultsData(Section):
     pdf_masks: str = Setting(
         "*.pdf", doc="The files F3 renders as PDF, as masks separated by ';'",
     )
+    #: The same for a picture, drawn on a terminal that speaks kitty's
+    #: graphics protocol or sixel (``navigator.lib.viewer.image``).
+    render_images: bool = Setting(
+        True, doc="F3 and the quick view show a picture as one, on a terminal that can draw it",
+    )
+    image_masks: str = Setting(
+        "*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.webp;*.tif;*.tiff;*.ico",
+        doc="The files F3 shows as pictures, as masks separated by ';'",
+    )
 
 
 class FMSetupData(Section):

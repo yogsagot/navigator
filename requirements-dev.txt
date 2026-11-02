@@ -7,3 +7,6 @@ paramiko>=3.4
 pyftpdlib>=2.0
 # The S3 drive's tests run against moto's S3 server in a thread (tests/test_s3.py).
 moto[server]>=5
+# The viewer's pictures (navigator.lib.viewer.image, tests/test_viewer_image.py):
+# the `images' extra.
+Pillow>=10

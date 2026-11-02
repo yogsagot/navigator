@@ -4811,6 +4811,24 @@ flag = "LV"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Sekundes starp servera direktorijas pārbaudēm automātiskai atsvaidzināšanai; 0 — nekad"
 
 # No longer shown anywhere; kept so nothing written is lost.
+
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Image" = "Attēls"
+# navigator/widgets/editor/option_items.py
+"Img" = "Att"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"{format} {width}×{height}" = "{format} {width}×{height}"
+# navigator/lib/viewer/image.py
+"Pictures other than PNG need Pillow: pip install {extra}" = "Attēliem, kas nav PNG, vajag Pillow: pip install {extra}"
+# navigator/settings.py
+"F3 and the quick view show a picture as one, on a terminal that can draw it" = "F3 un ātrā skate rāda attēlu kā attēlu terminālī, kas to spēj zīmēt"
+# navigator/settings.py
+"The files F3 shows as pictures, as masks separated by ';'" = "Faili, ko F3 rāda kā attēlus, maskas atdalītas ar ';'"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"This terminal draws no pictures" = "Šis terminālis attēlus nezīmē"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Too big to show as a picture" = "Par lielu, lai rādītu kā attēlu"
+
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"
@@ -4849,3 +4867,4 @@ flag = "LV"
 "~Name                           Start  End       Score~" = "~Vārds                          Sāk.   Beigas    Punkti~"
 "Name          Type       Length   Decimals" = "Vārds         Tips       Garums   Decimāļi"
 "Year" = "Gads"
+

@@ -40,10 +40,13 @@ depends:
 # -- paramiko and smbprotocol need `cryptography', which is compiled.  The launcher's -s keeps
 # the system's dist-packages on the path, so the distribution's own do.
 # 7-Zip's command line reads 7z and rar archives and writes 7z (arctool.py).
+# Pillow, compiled too, lets F3 show pictures other than a PNG on kitty
+# (navigator/lib/viewer/image.py); Debian calls it python3-pil.
 suggests:
   - python3-paramiko
   - python3-smbprotocol
   - python3-keyring
+  - python3-pil
   - 7zip
 overrides:
   rpm:
@@ -53,6 +56,7 @@ overrides:
       - python3-paramiko
       - python3-smbprotocol
       - python3-keyring
+      - python3-pillow
       - 7zip
 
 contents:

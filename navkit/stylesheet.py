@@ -38,8 +38,9 @@ if TYPE_CHECKING:
 #: declaration: where a cell points is content, which a widget knows and a
 #: sheet does not, so it is set while painting and never cascades.
 #: ``terminal_palette`` is the same: it says whose colours a child program's
-#: cells are, which only the widget showing them knows.
-STYLE_FIELDS = frozenset(Style.__dataclass_fields__) - {"link", "terminal_palette"}
+#: cells are, which only the widget showing them knows.  ``image`` too: the
+#: picture a cell lies under.
+STYLE_FIELDS = frozenset(Style.__dataclass_fields__) - {"link", "terminal_palette", "image"}
 
 #: The sixteen colours :mod:`navkit.style` names, as a sheet spells them.
 #: Listed rather than introspected so that a future integer constant in that

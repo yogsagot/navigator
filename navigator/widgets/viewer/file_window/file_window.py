@@ -249,7 +249,8 @@ class FileWindow(Window):
     def refusal(self, command: Command) -> str:
         """F5 is hex and dump only, and F2 text only, as ``Draw`` switched them.
         *Markup view* is text only too, and wants a file no bigger than
-        ``RENDER_LIMIT``; while it renders, Wrap and Hidden
+        ``RENDER_LIMIT`` -- a picture, a terminal that draws it
+        (``FileViewer.render_refusal``); while it renders, Wrap and Hidden
         characters have nothing to act on."""
         text_only = tr("Only in the text view")
         if isinstance(command, GotoAddress):
@@ -257,7 +258,7 @@ class FileWindow(Window):
         if isinstance(command, SwitchRendered):
             if self.viewer.mode != "text":
                 return text_only
-            return "" if self.viewer.can_render else tr("Not a markup file, or too big to render")
+            return self.viewer.render_refusal()
         if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.rendering:
             return tr("Not while the markup is rendered")
         if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):

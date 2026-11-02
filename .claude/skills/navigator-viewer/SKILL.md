@@ -1,6 +1,6 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, and Ctrl+Q QuickViewer. Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, Ctrl+Q QuickViewer, and pictures shown on kitty/sixel terminals (image.py). Use when changing the viewer or quick view.
 ---
 
 # The file viewer
@@ -124,6 +124,21 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
   *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a
   right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
+- **Pictures, shown as pictures**, a departure (DN's viewer had none; asked for): on a terminal that draws them
+  (`TerminalInfo.graphics`, kitty's graphics protocol or sixel -- `navkit-terminal`), a file `[viewer] image_masks`
+  names (`render_images`) is *Markup view*'s fifth format, `image` (`{Image}`, `Img` on the strip). Shift+F4 gives the
+  source, hex and dump work as ever; a terminal that draws nothing, tmux/screen, or `--graphics none` shows the bytes
+  as before (`can_render` false). `navigator/lib/viewer/image.py`'s `decode` runs on `_RENDERER` (`_picture`, the
+  whole file through `read_blocking` when remote, `IMAGE_LIMIT` 64 MiB) and makes a `navkit.graphics.Picture` fitted to
+  the viewer less a caption row (`fit`: aspect kept by `cell_px`, else 2:1, never enlarged), keyed on where, size,
+  cols, rows, protocol and `cell_px`; `picture` holds it (`image.Shown`, with format and pixel size), `showing_picture`
+  paints it centred with `place_image` and `PNG 1280×320` under it, `picture_pending` says *Reading...*, a failure
+  shows the source. **Pillow is optional** (`navigator-fm[images]`, compiled): without it only a PNG on kitty is shown
+  (sent as it is; a PNG over `KITTY_AS_IS` is re-encoded smaller when Pillow is there), everything else is the source.
+  Sixel is quantised to 255 colours plus a transparent one and encoded by `navkit.graphics.sixel_encode`. An animation
+  shows its first frame. **A picture anything paints over is hidden whole** (a menu, a dialog, a window -- the
+  `navkit-widgets-input` skill's *Pictures*), and one under a dimmed modal stays bright. Ctrl+Q's quick view has it
+  through its `FileViewer`; a new file's picture has a new id, so the last one is freed.
 - Commands: `navigator/widgets/viewer/commands.py`.
 
 - **Every bound key is on the View menu** (a departure, asked for): F4 and F6, which cycle, are *He~x~/Text/Dump*

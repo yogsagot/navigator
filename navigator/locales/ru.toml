@@ -4811,6 +4811,24 @@ flag = "RU"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
 
 # No longer shown anywhere; kept so nothing written is lost.
+
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Image" = "Изображение"
+# navigator/widgets/editor/option_items.py
+"Img" = "Изоб"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"{format} {width}×{height}" = "{format} {width}×{height}"
+# navigator/lib/viewer/image.py
+"Pictures other than PNG need Pillow: pip install {extra}" = "Для изображений, кроме PNG, нужен Pillow: pip install {extra}"
+# navigator/settings.py
+"F3 and the quick view show a picture as one, on a terminal that can draw it" = "F3 и быстрый просмотр показывают изображение картинкой в терминале, который умеет её рисовать"
+# navigator/settings.py
+"The files F3 shows as pictures, as masks separated by ';'" = "Файлы, которые F3 показывает как изображения, маски через ';'"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"This terminal draws no pictures" = "Этот терминал не рисует изображения"
+# navigator/widgets/viewer/file_viewer/file_viewer.py
+"Too big to show as a picture" = "Слишком велико, чтобы показать как изображение"
+
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"
@@ -4849,3 +4867,4 @@ flag = "RU"
 "~Name                           Start  End       Score~" = "~Имя                            Старт  Финиш     Очки~"
 "Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"
 "Year" = "Год"
+

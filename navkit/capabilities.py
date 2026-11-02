@@ -256,6 +256,10 @@ def _utf8(env: Mapping[str, str]) -> bool:
     return False
 
 
+#: The ways of drawing a picture :attr:`TerminalInfo.graphics` names.
+GRAPHICS = ("kitty", "sixel")
+
+
 @dataclass(frozen=True)
 class TerminalInfo:
     """What this terminal supports, and what to do about it.
@@ -326,6 +330,18 @@ class TerminalInfo:
     #: ``allow-passthrough on``, delivers none of the bidi switches (probed),
     #: so inside it a terminal's own bidi has to be turned off by hand.
     multiplexer: str = ""
+    #: How a picture is drawn: ``"kitty"`` (the kitty graphics protocol),
+    #: ``"sixel"``, or ``""`` for not at all.  Nothing in the environment says
+    #: so, so it is ``""`` until the terminal has been asked
+    #: (:attr:`probe_graphics`) or ``NAVKIT_GRAPHICS`` has said.
+    graphics: str = ""
+    #: Whether the application should ask the terminal which of the two it
+    #: speaks (:meth:`navkit.terminal.Terminal.query_graphics`): an interactive
+    #: terminal, no multiplexer in between, and ``NAVKIT_GRAPHICS`` unset.
+    probe_graphics: bool = False
+    #: One cell's ``(width, height)`` in pixels, or ``None`` while unknown --
+    #: what a picture is scaled by to fill whole cells.
+    cell_px: tuple[int, int] | None = None
 
     @property
     def truecolor(self) -> bool:
@@ -399,6 +415,11 @@ class TerminalInfo:
         ``NAVKIT_HYPERLINKS`` (``on`` or ``off``) says whether to write OSC 8
         hyperlinks, which are otherwise written on any interactive terminal
         but the Linux console.  ``NAVKIT_CLIPBOARD`` does the same for OSC 52.
+
+        ``NAVKIT_GRAPHICS`` (``kitty``, ``sixel`` or ``none``) says how a
+        picture is drawn, which is otherwise asked of the terminal once it is
+        running -- but not inside tmux or screen, which pass neither protocol
+        on unless told to, nor on the Linux console.
         """
         env = os.environ if env is None else env
         plain = not is_tty or env.get("TERM", "") in ("", "dumb")
@@ -461,7 +482,16 @@ class TerminalInfo:
         elif choice in ("terminal", "none", "off"):
             palette = None
 
+        graphics, probe = "", False
+        choice = env.get("NAVKIT_GRAPHICS", "").strip().lower()
+        if choice in GRAPHICS:
+            graphics = choice
+        elif choice not in ("none", "off", "no", "0"):
+            probe = not plain and env.get("TERM", "") != "linux" and not _multiplexer(env)
+
         return cls(
+            graphics=graphics,
+            probe_graphics=probe,
             colors=colors,
             palette=palette,
             glyphs=glyphs,

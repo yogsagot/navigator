@@ -1,6 +1,6 @@
 ---
 name: navkit-terminal
-description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -- raw mode, the alternate screen, mouse and bracketed paste, InputParser and escape timeouts, the kitty keyboard protocol and held modifiers, keypad and Ctrl+H/Backspace decoding, TerminalInfo detection and NAVKIT_* overrides, OSC 8 hyperlinks, the OSC 52 clipboard, and tools/keyprobe.py. Use when a key arrives wrong, a terminal behaves differently, or adding a terminal feature.
+description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -- raw mode, the alternate screen, mouse and bracketed paste, InputParser and escape timeouts, the kitty keyboard protocol and held modifiers, keypad and Ctrl+H/Backspace decoding, TerminalInfo detection and NAVKIT_* overrides, OSC 8 hyperlinks, the OSC 52 clipboard, asking which graphics protocol it speaks (kitty/sixel, NAVKIT_GRAPHICS, cell_px), and tools/keyprobe.py. Use when a key arrives wrong, a terminal behaves differently, or adding a terminal feature.
 ---
 
 # The terminal layer
@@ -79,6 +79,24 @@ after that paste is dispatched (Navigator shows a box suggesting xclip/xsel/wl-c
 `"terminal"` (bracketed paste), `"answer"` (the parser's OSC 52 reply) or `"private"`; an `"answer"` arriving with no
 query pending is dropped, so a late one cannot paste a second time. Ghostty's `clipboard-read = ask` prompt is usually
 slower than the timeout -- `allow` gives the real answer.
+
+## Graphics: which protocol, asked once
+
+- **The one thing navkit asks the terminal.** `TerminalInfo.graphics` (`"kitty"`, `"sixel"`, `""`) cannot be read
+  off the environment, so `detect()` sets `probe_graphics` instead: on an interactive terminal, not `TERM=linux`, not
+  inside tmux/screen (neither passes the protocols on unasked), `NAVKIT_GRAPHICS` unset. `NAVKIT_GRAPHICS=kitty|sixel|none`
+  (Navigator's `--graphics`) states it and nothing is asked.
+- `Application._ask_graphics` (after `start()`, before `on_start`) writes `GRAPHICS_QUERY`: a one-pixel kitty query
+  under id 31 (`GRAPHICS_QUERY_ID`), `CSI 16 t` (cell size), then DA1 -- which every terminal answers, so its reply
+  ends the asking. The parser turns the replies into `TerminalReplyEvent` (`graphics`, `cell`, `da1`), which
+  `_on_readable` keeps from the event queue (`_terminal_replied`). kitty `OK` wins, else DA1 attribute 4 is sixel;
+  `use_terminal_info` applies it and repaints. Nothing answers in `GRAPHICS_ANSWER_TIMEOUT` (1 s): no pictures.
+- **`ESC _` is also Alt+_.** A whole `ESC _ G ... ESC \` is always a reply (a late one is never typed); an unfinished
+  one is waited for only while `InputParser.answers_graphics` is set, and a lone `ESC _` then flushes as Alt+_. DA1
+  (`CSI ? ... c`) and `CSI 6 ; h ; w t` never were keys.
+- **`cell_px`**, a cell's pixels, is `TIOCGWINSZ`'s pixel fields (`Terminal.cell_px`) first -- refreshed on SIGWINCH,
+  a font size change -- else `CSI 16 t`'s answer. Unknown, a picture takes a cell as twice as tall as wide.
+- What is drawn, and when, is `navkit/graphics.py` (`navkit-widgets-input`, *Pictures*).
 
 ## Window title
 

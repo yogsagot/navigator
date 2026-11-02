@@ -48,6 +48,7 @@ MARKDOWN = ("M↓", icons.OPTION_MARKDOWN)
 HTML = ("</>", icons.OPTION_HTML)
 RST = ("rST", icons.OPTION_RST)
 PDF = ("PDF", icons.OPTION_PDF)
+IMAGE = ("Img", icons.OPTION_IMAGE)
 
 
 def _type_label(widget: Any) -> str:
@@ -100,6 +101,8 @@ def _format_label(viewer: Any) -> str:
     format = viewer.render_format
     if format == "pdf":
         return option_label(tr("PDF"), PDF, viewer.glyphs)
+    if format == "image":
+        return option_label(tr("Img"), IMAGE, viewer.glyphs)
     if format == "html":
         return option_label(tr("HTML"), HTML, viewer.glyphs)
     if format == "rst":

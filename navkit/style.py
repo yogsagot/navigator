@@ -78,6 +78,12 @@ class Style:
     #: a sheet; :meth:`sgr` ignores it, since an unresolved index is exactly
     #: what SGR sends anyway.
     terminal_palette: bool = False
+    #: The :class:`~navkit.graphics.Picture` this cell lies under, by id, or
+    #: 0.  Set only by :meth:`~navkit.screen.Surface.place_image`, which
+    #: stamps every cell a picture covers; a stamp something painted over is
+    #: how the frame learns the picture is covered.  Never declared by a
+    #: sheet, and :meth:`sgr` ignores it.
+    image: int = 0
 
     def derive(self, **changes) -> Style:
         """Return a copy of this style with *changes* applied."""

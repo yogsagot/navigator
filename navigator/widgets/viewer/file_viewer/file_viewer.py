@@ -51,7 +51,7 @@ from navigator.widgets.viewer.commands import (
     Unwrap,
 )
 from navigator.settings import SETTINGS
-from navigator.lib.viewer import html, markdown, pdf, rst
+from navigator.lib.viewer import html, image, markdown, pdf, rst
 from navigator.lib.viewer.layout import RENDER_LIMIT, Layout, decode
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
@@ -166,6 +166,18 @@ def _lay_out(name: str, data: bytes | None, size: int, codec: str, width: int, u
     return RENDERERS[format](data[:size], width, codec=codec, unicode=unicode)
 
 
+def _picture(name: str, data: bytes | None, size: int, cols: int, rows: int,
+             cell_px: tuple[int, int] | None, protocol: str, read: Any = None) -> image.Shown:
+    """On the thread: the whole file read, as :func:`_lay_out` reads it, and
+    made a picture *cols* x *rows* cells at most (:func:`navigator.lib.viewer.image.decode`)."""
+    if read is not None:
+        data = read(0, size)
+    elif data is None:
+        with open(name, "rb") as stream:
+            data = stream.read(size)
+    return image.decode(data[:size], cols, rows, cell_px, protocol)
+
+
 
 def _laid_row(row: Any, width: int) -> tuple[list, list]:
     """A rendered *row*'s cells as painted, and the cell each came from (None
@@ -249,6 +261,10 @@ class FileViewer(ContextMenuHost, Widget):
     #: The file laid out, for the width it was asked at; None until the
     #: thread has done it.
     render_layout: Any = reactive(None)
+    #: The file as a picture (:class:`navigator.lib.viewer.image.Shown`),
+    #: for the size it was asked at, while the terminal draws pictures; None
+    #: until the thread has made it.
+    picture: Any = reactive(None)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -580,7 +596,8 @@ class FileViewer(ContextMenuHost, Widget):
             return ""
         settings = SETTINGS.viewer
         name = Path(path).name.lower()
-        for format, on, masks in (("pdf", settings.render_pdf, settings.pdf_masks),
+        for format, on, masks in (("image", settings.render_images, settings.image_masks),
+                                  ("pdf", settings.render_pdf, settings.pdf_masks),
                                   ("html", settings.render_html, settings.html_masks),
                                   ("rst", settings.render_rst, settings.rst_masks),
                                   ("markdown", settings.render_markdown, settings.markdown_masks)):
@@ -590,8 +607,10 @@ class FileViewer(ContextMenuHost, Widget):
         return ""
 
     def format_label(self) -> str:
-        """What the mark calls the format: *PDF*, *HTML*, *reST*, *Markdown*."""
+        """What the mark calls the format: *Image*, *PDF*, *HTML*, *reST*, *Markdown*."""
         format = self.render_format
+        if format == "image":
+            return tr("Image")
         if format == "pdf":
             return tr("PDF")
         if format == "html":
@@ -609,9 +628,47 @@ class FileViewer(ContextMenuHost, Widget):
     @property
     def can_render(self) -> bool:
         """Whether this file can be rendered at all: no bigger than
-        ``RENDER_LIMIT`` (a PDF, ``PDF_LIMIT``), since it is read and parsed whole."""
-        limit = pdf.PDF_LIMIT if self.render_format == "pdf" else RENDER_LIMIT
+        ``RENDER_LIMIT`` (a PDF, ``PDF_LIMIT``), since it is read and parsed
+        whole.  A picture wants ``IMAGE_LIMIT``, a terminal that draws
+        pictures, and Pillow unless it is a PNG on kitty."""
+        format = self.render_format
+        if format == "image":
+            return (self.source is not None and self.size <= image.IMAGE_LIMIT
+                    and image.can_show(self.source.path.name, self.graphics))
+        limit = pdf.PDF_LIMIT if format == "pdf" else RENDER_LIMIT
         return self.source is not None and self.size <= limit
+
+    def render_refusal(self) -> str:
+        """Why *Markup view* is greyed for this file, or "" when it is not."""
+        if self.can_render:
+            return ""
+        if self.render_format == "image" and self.source is not None:
+            if not self.graphics:
+                return tr("This terminal draws no pictures")
+            if self.size > image.IMAGE_LIMIT:
+                return tr("Too big to show as a picture")
+            return image.available() or ""
+        return tr("Not a markup file, or too big to render")
+
+    @property
+    def graphics(self) -> str:
+        """How the terminal draws a picture -- ``kitty``, ``sixel`` -- or ""."""
+        app = self.application
+        return app.terminal.info.graphics if app is not None else ""
+
+    @property
+    def showing_picture(self) -> bool:
+        """Whether the file is painted as a picture: text mode, *Markup
+        view* on for a picture, and the picture in."""
+        return (self.mode == "text" and self.rendered and self.render_format == "image"
+                and self.picture is not None and self.can_render)
+
+    @property
+    def picture_pending(self) -> bool:
+        """Whether a picture is on its way, and nothing to show meanwhile."""
+        return (self.mode == "text" and self.rendered and self.render_format == "image"
+                and self.picture is None and self._picture_asked != self._picture_for
+                and self.can_render)
 
     @property
     def rendering(self) -> bool:
@@ -641,6 +698,10 @@ class FileViewer(ContextMenuHost, Widget):
         self._render_stop: threading.Event | None = None
         if self.render_layout is not None:
             self.render_layout = None
+        self._picture_asked: Any = None
+        self._picture_for: Any = None
+        if self.picture is not None:
+            self.picture = None
 
     def _render_last_row(self) -> int:
         layout = self.render_layout
@@ -660,6 +721,9 @@ class FileViewer(ContextMenuHost, Widget):
         source = self.source
         if source is None or not self.rendered or self.mode != "text" or not self.can_render:
             return
+        if self.render_format == "image":
+            self._want_picture()
+            return
         remote = self.remote
         unicode = self.glyphs >= GLYPHS_UNICODE
         where = str(source.origin) if remote else str(source.path)
@@ -673,6 +737,51 @@ class FileViewer(ContextMenuHost, Widget):
         _RENDERER.run(self, _lay_out, str(source.path), source._data, self.size, self.encoding,
                       max(1, self.width), unicode, source.read_blocking if remote else None, format,
                       done=lambda outcome: self._laid_out(outcome, key, stop))
+
+    def _want_picture(self) -> None:
+        """Ask the thread for the picture at the size, protocol and cell size
+        in force, unless it is in or on its way; the one there is painted
+        until it lands."""
+        source = self.source
+        app = self.application
+        if source is None or app is None:
+            return
+        info = app.terminal.info
+        remote = self.remote
+        where = str(source.origin) if remote else str(source.path)
+        # A row under it for what it is.
+        cols, rows = max(1, self.width), max(1, self.height - 1)
+        key = (where, self.size, cols, rows, info.graphics, info.cell_px)
+        if key in (self._picture_for, self._picture_asked):
+            return
+        self._picture_asked = key
+        _RENDERER.run(self, _picture, str(source.path), source._data, self.size, cols, rows,
+                      info.cell_px, info.graphics, source.read_blocking if remote else None,
+                      done=lambda outcome: self._pictured(outcome, key))
+
+    def _pictured(self, outcome: Outcome, key: Any) -> None:
+        if key != self._picture_asked:
+            return  # another file or size, or forgotten meanwhile
+        self._picture_for = key
+        try:
+            self.picture = outcome.result()
+        except Exception:
+            # Not a picture after all, or one nothing here reads: the source.
+            self.picture = None
+        self.invalidate()
+
+    def _paint_picture(self, surface: Surface) -> None:
+        """The picture in the middle, and under it what it is."""
+        shown = self.picture
+        picture = shown.picture
+        room = max(1, self.height - 1)
+        x, y = max(0, (self.width - picture.cols) // 2), max(0, (room - picture.rows) // 2)
+        surface.place_image(picture, x, y, self.style)
+        text = tr("{format} {width}×{height}").format(
+            format=shown.format or tr("Image"), width=shown.width, height=shown.height)
+        if self.height > 1:
+            text = text[: self.width]
+            surface.draw_text(max(0, (self.width - display_width(text)) // 2), self.height - 1, text, self.style)
 
     def _laid_out(self, outcome: Outcome, key: Any, stop: threading.Event) -> None:
         if stop is not self._render_stop or stop.is_set():
@@ -1084,7 +1193,11 @@ class FileViewer(ContextMenuHost, Widget):
         try:
             if self.mode == "text":
                 self._want_layout()
-                if self.rendering:
+                if self.showing_picture:
+                    self._paint_picture(surface)
+                elif self.picture_pending:
+                    self._say(surface, tr("Reading..."))
+                elif self.rendering:
                     self._paint_rendered(surface)
                 else:
                     self._render_text(surface)

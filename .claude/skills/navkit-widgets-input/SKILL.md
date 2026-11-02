@@ -19,6 +19,25 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `render(surface)` paints; `layout(width, height)` is called on the root at every resize and steps around any size
   that carries a binding (no `self.x +` arithmetic anywhere).
 
+## Pictures (kitty graphics, sixel)
+
+- **A widget never paints a picture.** It calls `surface.place_image(picture, x, y, style)` in `render()` with a
+  `navkit.graphics.Picture` (`cols`, `rows`, `png` for kitty, a ready `sixel` DCS string -- built off the loop). That
+  fills the cells with blanks whose `Style.image` is the picture's id (never declared by a sheet) and records
+  `{id: (picture, y)}` in `ScreenBuffer.placements` through the views; `copy_from`/`mirrored` carry it, `clear` empties it.
+- `Application._render` hands the frame to `GraphicsLayer.compose` **between composing and diffing**: escapes to go
+  before the diff (a kitty placement deleted, so text written next is not under it) and after it (pictures written
+  over the blanks the diff has just written), all before the cursor. **A picture is shown only while every stamp
+  survives** -- found in the buffer as it goes out, so a mirrored screen and a widget kept left to right
+  (`mirrors = False`) put it where its cells went. Painted over at all (a window, a menu, a shadow) or clipped by a
+  view, it is hidden whole; a sixel one also keeps off the last line (it would scroll).
+- kitty: transmitted once per id (`q=2` everywhere: an answer would be typed), placed at a CUP with `C=1`, deleted
+  (`d=i`) when hidden or moved, freed (`d=I`) once no frame places it; a full repaint deletes every placement and
+  places again; `release_terminal` frees all and `reclaim_terminal` forgets (the alternate screen took them). sixel:
+  pixels in the cells, so written again on any full repaint or move, and the cells of one that goes are invalidated
+  in `_front` (`ScreenBuffer.invalidate`) so the diff blanks them. Tests: `tests/test_graphics.py`, a `FakeTerminal`
+  whose info says `graphics="kitty"`.
+
 ## Failures: never silent
 
 - **Every exception escaping application code goes through `Application.fail(error, fatal=False)`**: handlers

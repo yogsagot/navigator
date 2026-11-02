@@ -82,7 +82,7 @@ nml = "navigator.lib.highlight.lexers:NmlLexer"
 nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "moto[server]>=5"]
+dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "moto[server]>=5", "Pillow>=10"]
 # Utilities > Navigator Link to SSH servers (`navigator.lib.drives.sftp`).
 # Optional because it is the one dependency with compiled parts (through
 # `cryptography`); without it the Link entries say what to install.
@@ -93,6 +93,10 @@ smb = ["smbprotocol>=1.13"]
 # *Save in keyring* in the password box: passwords kept by the desktop's
 # keyring, never by Navigator (`navigator.lib.drives.credentials`).
 keyring = ["keyring>=24"]
+# F3 and Ctrl+Q showing a picture on a kitty or sixel terminal
+# (`navigator.lib.viewer.image`): Pillow reads and scales it, and is compiled.
+# Without it kitty is still sent a PNG as it is.
+images = ["Pillow>=10"]
 
 [project.urls]
 Homepage = "https://github.com/yogsagot/navigator"
