@@ -632,6 +632,12 @@ class ViewerDefaultsData(Section):
     table_masks: str = Setting(
         "*.csv;*.tsv;*.tab", doc="The files F3 shows as a spreadsheet, as masks separated by ';'",
     )
+    #: F3 on one of these opens the database window when the file is a SQLite
+    #: one (by its header); else the text viewer, as before.
+    database_masks: str = Setting(
+        "*.sqlite;*.sqlite3;*.db;*.db3",
+        doc="The files F3 opens as a SQLite database, if they are one, as masks separated by ';'",
+    )
 
 
 class FMSetupData(Section):

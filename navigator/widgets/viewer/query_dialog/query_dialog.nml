@@ -1,0 +1,20 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: F6 in the database window on a SQLite file: a query, typed on one line
+#: with its history -- not DN's, whose dBase viewer had no SQL to type.  It
+#: runs reading only (``navigator.lib.viewer.sqlite``).
+QueryDialog(Dialog):
+    modal_width: 70
+    modal_height: 8
+    title: "Query"
+
+    Field:
+        id: sql
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~S~ELECT"
+        label_width: 8
+        history_id: "sql_query"

@@ -1,6 +1,6 @@
 ---
 name: navigator-viewer
-description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase), the CSV spreadsheet (table.py, SheetWindow, As Spreadsheet), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, Ctrl+Q QuickViewer, and pictures shown on kitty/sixel terminals (image.py). Use when changing the viewer or quick view.
+description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/viewer/__init__.py (ViewSource, pread chunks), FileViewer in FileWindow, text/hex/dump modes, wrap, filters, Shift+F6 encodings (DN's XLT) and Shift+F5 Save as, the dBase viewer (dbf.py, DBWindow, As DataBase) and SQLite in it (sqlite.py), the CSV spreadsheet (table.py, SheetWindow, As Spreadsheet), bytes-regex search on a thread with SearchJob and SearchProgress, go to address, the View menu, Ctrl+Q QuickViewer, and pictures shown on kitty/sixel terminals (image.py). Use when changing the viewer or quick view.
 ---
 
 # The file viewer
@@ -147,6 +147,36 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
   *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a
   right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
+- **SQLite in the dBase window**, a departure (DN read dBase alone). It opens with F3 on a name in
+  `[viewer] database_masks` (`*.sqlite;*.sqlite3;*.db;*.db3`) whose file starts with SQLite's header
+  (`is_sqlite`; any other `.db` stays text), or with *As DataBase*, which tells the format by that header
+  (`open_database` → `open_sqlite`). A file that is neither raises `DBFError`, so F3 falls back to text and
+  *As DataBase* says *not a dBase or SQLite file*.
+  - **The model** is `navigator/lib/viewer/sqlite.py`, **read-only always**: `mode=ro` (else `immutable=1`)
+    plus `PRAGMA query_only`.
+  - **`SQLiteFile`** holds one connection under an `RLock`. It answers `objects` (tables, then views;
+    `sqlite_%` left out), `columns` (`table_xinfo`, affinity → `N`/`F`/`C`/`B`), `table`, `query` and
+    `schema`.
+  - **`SQLTable`** answers what the window asks of a `DBFile`: `fields`, `count`, `record`, `shown`,
+    `raw`, `memo`, `flag`, `memo_kinds`, `editable`, `path`, `close`. `DBViewer` paints `db.flag(record)`,
+    and `DBWindow` reads `memo_kinds`/`editable`, so the dBase code stays as it was.
+  - **Reading an ordinary table**: its rowids are listed on a thread, and a `BLOCK` of rows is fetched by
+    `WHERE rowid >= ?`, an indexed seek done on the loop as the dBase `pread` is. A view, a `WITHOUT ROWID`
+    table or a query is read whole on the thread, up to `ROW_LIMIT` (`truncated`, shown as `+` after the
+    count).
+  - **Cells**: NULL is blank, a blob is `‹blob N bytes›` (Memo view shows it as hex rows), and line breaks
+    show as blanks.
+  - **Keys**: F4 is refused (*The database is opened read-only*). **F5 *Tables*** (`ChooseTable`,
+    `choose_object`, a `PopupMenu`) also opens first when a file has more than one table; none gives
+    *Empty database*. **F6 *Query*** (`RunQuery`, `QueryDialog`, history `sql_query`) runs one statement
+    under an authorizer allowing SELECT/READ/FUNCTION/RECURSIVE only. INSERT, ATTACH, a write `PRAGMA` and a
+    second statement are refused, and SQLite's message shows in *Error*. **F2** (`DBWindow.show_schema`)
+    lists the columns with declared type and `PK`/`NOT NULL`, then the rows, the indexes and the `CREATE`.
+    **F7** runs `dbf.find` (any source with `raw`) on a thread with a stop flag, for dBase too.
+  - **The title** is the place and the table (or *Query*). `DBWindow.place` is the original's path for a
+    copy. The window list says *SQLite View -*.
+  - **A copy fetched** from another drive or as root brings its `-wal` too (`database_elsewhere`,
+    `fetch_database`), and a read-only connection reads it.
 - **The spreadsheet** (F3 on a name in `[viewer] table_masks` (`*.csv;*.tsv;*.tab`, `render_tables` on), File >
   View > *As Spreadsheet* `ViewAsSpreadsheet` on any file). DN's F3 on a `.WKZ` opened `TCalcWindow` (CALC.PAS);
   here it opens on a delimited text file, **view-only**.
@@ -215,4 +245,5 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 | Reference | Read when |
 |---|---|
 | `reference/file-viewer.md` | the full design and what is deferred |
+| `reference/sqlite.md` | SQLite in the dBase window: why read-only, the rowid paging, the query's authorizer |
 | `reference/spreadsheet.md` | the spreadsheet: what DN's `TCalcWindow` kept, left out and departed from |

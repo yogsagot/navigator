@@ -95,12 +95,12 @@ async def database_as_root(desktop: Any, path: Path) -> Any:
         return None
     window.use_set = use
     window.root_held = True
-    window.title = str(path)
+    window.place = str(path)
     return window
 
 
 async def fetch_database(app: Any, path: Path) -> Any:
-    """*path* and its memo file fetched through the root helper into the
+    """*path* and its memo file (or SQLite's ``-wal``) fetched through the root helper into the
     private directory (owner only), the helper **held** for the window that
     will put fields back -- its ``close()`` lets go.  None if stopped."""
     from navigator.lib.drives import usefile
@@ -116,6 +116,10 @@ async def fetch_database(app: Any, path: Path) -> Any:
             memo = Location.of(Path(path).with_suffix(suffix))
             if memo != origin and ROOT_DRIVE.exists(memo):
                 origins.append(memo)
+        # A SQLite file's write-ahead log, which holds what is not checkpointed yet.
+        wal = Location.of(Path(f"{path}-wal"))
+        if ROOT_DRIVE.exists(wal):
+            origins.append(wal)
         try:
             use = usefile.fetch(origins, job, drive=ROOT_DRIVE)
         except BaseException:

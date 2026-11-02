@@ -18,7 +18,7 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
-from navigator.lib.viewer.dbf import DBFile
+from navigator.lib.viewer.dbf import DBFile  # or a SQLite table: navigator.lib.viewer.sqlite
 
 
 class DBViewer(ContextMenuHost, Widget):
@@ -210,7 +210,7 @@ class DBViewer(ContextMenuHost, Widget):
             record = db.record(number)
             if record is None:
                 break
-            surface.draw_text(0, row, record[:1].decode("cp437", "replace"), plain, 1)
+            surface.draw_text(0, row, db.flag(record), plain, 1)
             x = 1
             for index in shown:
                 field = db.fields[index]

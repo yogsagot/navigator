@@ -4040,14 +4040,17 @@ class Manager(Window):
 
             origin = panel.entry_location(entry)
             try:
-                if mode == "database" or (mode is None and origin.name.lower().endswith(".dbf")):
+                from navigator.lib.viewer.sqlite import is_database
+
+                if mode == "database" or (mode is None and (origin.name.lower().endswith(".dbf")
+                                                            or is_database(origin.name))):
                     try:
                         await database_elsewhere(desktop, origin)
                         return
                     except DBFError:
                         if mode == "database":
                             await Dialog(title=tr("Cannot view file"),
-                                         prompt=tr("{name}: not a dBase file").format(name=entry.name),
+                                         prompt=tr("{name}: not a dBase or SQLite file").format(name=entry.name),
                                          buttons="ok").execute(self.application)
                             return
                     mode = None
@@ -4057,7 +4060,10 @@ class Manager(Window):
                              buttons="ok").execute(self.application)
             return
         path = entry.path_in(panel.path)
-        if mode == "database" or (mode is None and path.suffix.lower() == ".dbf"):
+        from navigator.lib.viewer.sqlite import is_database, is_sqlite
+
+        if mode == "database" or (mode is None and (path.suffix.lower() == ".dbf"
+                                                    or (is_database(path.name) and is_sqlite(path)))):
             # ``ViewFile``'s ``XT = '.DBF'``, and *As DataBase*: the dBase
             # viewer -- F3 on a ``.dbf`` that is not one falls back to text.
             from navigator.lib.viewer.dbf import DBFError
@@ -4069,7 +4075,7 @@ class Manager(Window):
             except DBFError:
                 if mode == "database":
                     await Dialog(title=tr("Cannot view file"),
-                                 prompt=tr("{name}: not a dBase file").format(name=entry.name),
+                                 prompt=tr("{name}: not a dBase or SQLite file").format(name=entry.name),
                                  buttons="ok").execute(self.application)
                     return
             except OSError as error:
@@ -4083,7 +4089,7 @@ class Manager(Window):
                         await database_as_root(desktop, path)
                     except DBFError:
                         await Dialog(title=tr("Cannot view file"),
-                                     prompt=tr("{name}: not a dBase file").format(name=entry.name),
+                                     prompt=tr("{name}: not a dBase or SQLite file").format(name=entry.name),
                                      buttons="ok").execute(self.application)
                     except OSError as again:
                         await Dialog(title=tr("Cannot view file"),

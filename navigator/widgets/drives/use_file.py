@@ -157,9 +157,23 @@ async def database_elsewhere(desktop: Any, origin: Location) -> Any:
     """*As DataBase* on a file on another drive: fetched, and the dBase
     window opened on the copy; a field edited goes back (``DBWindow``).
     ``OSError`` and ``dbf.DBFError`` are the caller's."""
+    import asyncio
+
+    from navigator.lib.drives import drive_of
     from navigator.widgets.viewer.db_window.db_window import open_database
 
-    use = await materialize(desktop.application, [origin])
+    # A SQLite file's write-ahead log, if there is one, beside it: what was
+    # written since the last checkpoint is in there.
+    wal = origin.parent / f"{origin.name}-wal"
+
+    def has_wal() -> bool:
+        try:
+            return drive_of(wal).exists(wal)
+        except OSError:
+            return False
+
+    origins = [origin, wal] if await asyncio.to_thread(has_wal) else [origin]
+    use = await materialize(desktop.application, origins)
     if use is None:
         return None
     try:
@@ -171,5 +185,5 @@ async def database_elsewhere(desktop: Any, origin: Location) -> Any:
         usefile.discard(use)
         return None
     window.use_set = use
-    window.title = str(origin)
+    window.place = str(origin)
     return window

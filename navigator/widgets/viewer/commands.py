@@ -124,6 +124,20 @@ class EditDbField(Command):
     title = "Edit Field"
 
 
+class ChooseTable(Command):
+    """F5 in the database window on a SQLite file: its tables and views in a
+    box, one to show (a departure: a ``.dbf`` is one table)."""
+
+    title = "Tables"
+
+
+class RunQuery(Command):
+    """F6 in the database window on a SQLite file: a query typed, its rows
+    shown in the grid -- reading only (a departure)."""
+
+    title = "Query"
+
+
 class GotoCell(Command):
     """F6 in the spreadsheet: DN's ``cmGotoCell``, *Go to Cell Number*."""
 
@@ -212,6 +226,8 @@ __all__ = [
     "ShowFields",
     "ShowMemo",
     "EditDbField",
+    "ChooseTable",
+    "RunQuery",
     "GotoCell",
     "FindCell",
     "ChangeWidth",

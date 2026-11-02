@@ -139,7 +139,7 @@ def test_a_dbf_that_is_not_one_is_viewed_as_text_and_as_database_says_so(place):
                   KeyEvent("escape"), lambda a: None, lambda a: a.spawn(a.run_command(ViewAsDataBase)),
                   Until(lambda a: getattr(a.modal, "title", "") == "Cannot view file"),
                   lambda a: seen.update(prompt=a.modal.prompt)])
-    assert seen["prompt"] == "fake.dbf: not a dBase file"
+    assert seen["prompt"] == "fake.dbf: not a dBase or SQLite file"
 
 
 def test_an_empty_database_shows_its_structure_and_opens_no_window(place):

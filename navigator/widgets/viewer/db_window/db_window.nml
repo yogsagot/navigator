@@ -1,5 +1,5 @@
 from navkit.bidi import display_width
-from navigator.widgets.viewer.commands import ContinueSearch, EditDbField, SearchAgain, SearchFor, ShowFields, ShowMemo
+from navigator.widgets.viewer.commands import ChooseTable, ContinueSearch, EditDbField, RunQuery, SearchAgain, SearchFor, ShowFields, ShowMemo
 from navigator.widgets.viewer.db_window.db_viewer import DBViewer
 from navml.commands import CloseWindow
 from navml.widgets.dialog.static_text import StaticText
@@ -15,6 +15,9 @@ from navml.widgets.window import Window
 #: ``record/records`` over the bottom frame ten columns in.  It opens
 #: zoomed, as the file viewer does; DN filled the desktop with it too.  Its
 #: keys are ``StatusDef hcDBView``'s.
+#:
+#: A SQLite file opens here too, a table at a time and read-only (a
+#: departure): F5 *Tables* and F6 *Query* are for it alone, F4 is refused.
 DBWindow(Window):
     zoomed: True
 
@@ -23,6 +26,8 @@ DBWindow(Window):
         f2: ShowFields
         f3: ShowMemo
         f4: EditDbField
+        f5: ChooseTable
+        f6: RunQuery
         f7: SearchFor
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
@@ -50,7 +55,7 @@ DBWindow(Window):
     SubMenu:
         id: view_menu
         text: '~V~iew'
-        tooltip: "Fields, memos, editing and search"
+        tooltip: "Fields, memos, editing, tables and search"
         after: 'File'
         MenuItem:
             text: '~F~ields...'
@@ -63,6 +68,15 @@ DBWindow(Window):
         MenuItem:
             text: '~E~dit field...'
             command: EditDbField
+        #: SQLite's alone, greyed for a ``.dbf``.
+        MenuItem:
+            text: '~T~ables...'
+            tooltip: "Another table or view of the SQLite file"
+            command: ChooseTable
+        MenuItem:
+            text: '~Q~uery...'
+            tooltip: "Run a query that reads, and show its rows"
+            command: RunQuery
         MenuLine:
         MenuItem:
             text: '~S~earch...'

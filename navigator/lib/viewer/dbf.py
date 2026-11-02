@@ -21,6 +21,7 @@ import os
 import struct
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 #: The code page names and values are read in.
 CODEC = "cp437"
@@ -85,6 +86,11 @@ class DBFile:
 
     #: Records read at a time around the one wanted, as DN's ``Buf`` held them.
     CACHE = 256
+    #: The kinds *Memo view* (F3) opens on: memo fields alone.  A SQLite
+    #: table (``navigator.lib.viewer.sqlite``) answers the same questions.
+    memo_kinds = frozenset({"M"})
+    #: F4 changes a field in the file.
+    editable = True
 
     def record(self, index: int) -> bytes | None:
         """Record *index*, from 0, or None past either end (``GetRecord``)."""
@@ -106,6 +112,11 @@ class DBFile:
         if self._fd is not None:
             os.close(self._fd)
             self._fd = None
+
+    @staticmethod
+    def flag(record: bytes) -> str:
+        """The first column: ``*`` for a deleted record."""
+        return record[:1].decode(CODEC, "replace")
 
     @staticmethod
     def raw(record: bytes, field: Field) -> str:
@@ -195,19 +206,26 @@ def number_stored(text: str, field: Field) -> str | None:
 
 
 def find(db: DBFile, text: str, *, case: bool, all_fields: bool, backward: bool,
-         record: int, field: int) -> tuple[int, int] | None:
+         record: int, field: int, work: Any = None) -> tuple[int, int] | None:
     """``ContSearch``: the first cell after record *record* holding *text* --
     or before it, *backward* -- in the cursor's field (*field*) or in all of
     them; ``(record, field)``, or None.
 
     DN started a record's fields from the wrong end, so that only one of
-    them was looked at; here every one in the scope is, in order.
+    them was looked at; here every one in the scope is, in order.  Any
+    source with ``fields``, ``count``, ``record`` and ``raw`` will do -- a
+    SQLite table too.  *work*, given, is told where it is and may stop it.
     """
     wanted = text if case else text.upper()
     fields = range(len(db.fields)) if all_fields else [field]
     step = -1 if backward else 1
     number = record + step
     while 0 <= number < db.count:
+        if work is not None and number % 1024 == 0:
+            # On a thread (``DBWindow._find``): how far, and whether to stop.
+            work.position = number if not backward else db.count - number
+            if work.stopped:
+                return None
         data = db.record(number)
         if data is not None:
             for index in (reversed(fields) if backward else fields):

@@ -593,7 +593,7 @@ flag = "RU"
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:64, navigator/widgets/file_ops/as_root.py:208
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:64, navigator/widgets/file_ops/as_root.py:212
 "~S~kip" = "П~р~опуск"
 # navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:12
 "Change link targets" = "Изменить цели ссылок"
@@ -749,11 +749,11 @@ flag = "RU"
 "Columns Setup" = "Установки колонок"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:93, navigator/widgets/editor/option_items.py:129 ...
 "Show" = "Показ"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012 ...
 "~S~ize" = "Ра~з~мер"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5012
 "~A~ttributes" = "~А~трибуты"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:5012
 "~O~wner" = "В~л~аделец"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~П~уть"
@@ -963,13 +963,13 @@ flag = "RU"
 "Re~v~erse order" = "Обратн~ы~й порядок"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "Обратный порядок: сначала большие, новые, Z..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006, navigator/widgets/manager/manager/manager.py:5027
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012, navigator/widgets/manager/manager/manager.py:5033
 "~E~xtension" = "Ра~с~ширение"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "Атрибуты"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5027
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5033
 "Ty~p~e" = "~Т~ип"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006, navigator/widgets/manager/manager/manager.py:5028
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012, navigator/widgets/manager/manager/manager.py:5034
 "~U~nsorted" = "~Н~е сортировать"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:54, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:62
 "Display" = "Внешний вид"
@@ -1783,7 +1783,7 @@ flag = "RU"
 "Show or hide the trash can that files are dropped on to delete them" = "Показать или скрыть корзину, на которую бросают файлы для удаления"
 # navigator/widgets/shell/main_menu/main_menu.nml:104
 "View, edit, copy, move, archive and delete files" = "Просмотр, правка, копирование, перемещение, архивация и удаление файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:52, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/file_window/file_window.nml:123 ...
 "~V~iew" = "~С~мотреть"
 # navigator/widgets/shell/main_menu/main_menu.nml:109
 "~A~s is" = "~К~ак есть"
@@ -1796,7 +1796,7 @@ flag = "RU"
 # navigator/widgets/shell/main_menu/main_menu.nml:120
 "As ~D~ataBase" = "~Б~аза данных"
 # navigator/widgets/shell/main_menu/main_menu.nml:121
-"View a dBase file as a table" = "Просмотреть файл dBase как таблицу"
+"View a dBase or SQLite file as a table" = "Просмотреть файл dBase или SQLite как таблицу"
 # navigator/widgets/shell/main_menu/main_menu.nml:126
 "As ~S~preadsheet" = "~Э~лектронная таблица"
 # navigator/widgets/shell/main_menu/main_menu.nml:127
@@ -2181,21 +2181,29 @@ flag = "RU"
 "~A~ll fields" = "~П~о всем полям"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~В~перёд"
-# navigator/widgets/viewer/db_window/db_window.nml:53
-"Fields, memos, editing and search" = "Поля, мемо, правка и поиск"
-# navigator/widgets/viewer/db_window/db_window.nml:56, navigator/widgets/viewer/db_window/db_viewer.py:182
+# navigator/widgets/viewer/db_window/db_window.nml:58
+"Fields, memos, editing, tables and search" = "Поля, мемо, правка, таблицы и поиск"
+# navigator/widgets/viewer/db_window/db_window.nml:61, navigator/widgets/viewer/db_window/db_viewer.py:182
 "~F~ields..." = "~П~оля..."
-# navigator/widgets/viewer/db_window/db_window.nml:57
+# navigator/widgets/viewer/db_window/db_window.nml:62
 "The file's structure: its fields and their types" = "Структура файла: его поля и их типы"
-# navigator/widgets/viewer/db_window/db_window.nml:60, navigator/widgets/viewer/db_window/db_viewer.py:183
+# navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/db_window/db_viewer.py:183
 "~M~emo view" = "Просмотр ~м~емо"
-# navigator/widgets/viewer/db_window/db_window.nml:61
+# navigator/widgets/viewer/db_window/db_window.nml:66
 "The memo text of the cell at the cursor" = "Текст мемо ячейки под курсором"
-# navigator/widgets/viewer/db_window/db_window.nml:64, navigator/widgets/viewer/db_window/db_viewer.py:184
+# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:184
 "~E~dit field..." = "~Р~едактировать поле..."
-# navigator/widgets/viewer/db_window/db_window.nml:68, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:73
+"~T~ables..." = "~Т~аблицы..."
+# navigator/widgets/viewer/db_window/db_window.nml:74
+"Another table or view of the SQLite file" = "Другая таблица или представление файла SQLite"
+# navigator/widgets/viewer/db_window/db_window.nml:77
+"~Q~uery..." = "З~а~прос..."
+# navigator/widgets/viewer/db_window/db_window.nml:78
+"Run a query that reads, and show its rows" = "Выполнить читающий запрос и показать его строки"
+# navigator/widgets/viewer/db_window/db_window.nml:82, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
 "~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/db_window/db_window.nml:71, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
+# navigator/widgets/viewer/db_window/db_window.nml:85, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
 "Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~С~равнение"
@@ -2265,6 +2273,10 @@ flag = "RU"
 "Goto Address" = "Переход на адрес"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~А~дрес"
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:181 ...
+"Query" = "Запрос"
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:18
+"~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "Ход поиска"
 # navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:24
@@ -2273,7 +2285,7 @@ flag = "RU"
 "Search as" = "Искать как"
 # navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43
 "~S~tring" = "~С~трока"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:161
+# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:303
 "~V~alue" = "~З~начение"
 # navigator/widgets/viewer/sheet_window/sheet_window.nml:62
 "~T~able" = "~Т~аблица"
@@ -2301,7 +2313,7 @@ flag = "RU"
 "As ~t~ext" = "Как ~т~екст"
 # navigator/widgets/viewer/sheet_window/sheet_window.nml:94
 "The same file in the text viewer" = "Тот же файл в текстовом просмотре"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:157
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:171
 "Format" = "Формат"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24
 "Delimiter" = "Разделитель"
@@ -2573,31 +2585,31 @@ flag = "RU"
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
 # navigator/settings.py:572
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:641
+# navigator/settings.py:647
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:713
+# navigator/settings.py:719
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:767
+# navigator/settings.py:773
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:804
+# navigator/settings.py:810
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:849
+# navigator/settings.py:855
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:864
+# navigator/settings.py:870
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:896
+# navigator/settings.py:902
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:947
+# navigator/settings.py:953
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:963
+# navigator/settings.py:969
 "Utilities > Calculator (not DN's)" = "Утилиты > Калькулятор (не из DN)"
-# navigator/settings.py:984
+# navigator/settings.py:990
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:1011
+# navigator/settings.py:1017
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:1026
+# navigator/settings.py:1032
 "Panel > Compare directories > Synchronize (not DN's)" = "Панель > Сравнить каталоги > Синхронизация (не из DN)"
-# navigator/settings.py:1046
+# navigator/settings.py:1052
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Неверный пароль для {name}. Ещё раз:"
@@ -2651,19 +2663,19 @@ flag = "RU"
 "~A~ccept" = "~П~ринять"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Подлинность сервера {host} не может быть установлена.\nОтпечаток ключа {type}:\n{fingerprint}"
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5215
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "Добавить"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:63 ...
 "Edit" = "Правка"
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5200
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5206
 "~N~ew SSH link (SFTP)..." = "~Н~овая связь по SSH (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5200
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5206
 "New ~F~TP link..." = "Новая связь по ~F~TP..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5201
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5207
 "New S~M~B link (Windows share)..." = "Новая связь по S~M~B (общая папка Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5201
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5207
 "New S~3~ link (Amazon S3)..." = "Новая связь по S~3~ (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "Новая ссылка"
@@ -2701,7 +2713,7 @@ flag = "RU"
 "Lowercase" = "Строчн"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "Заглавн"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:149
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:163
 "Sort" = "Сортир."
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "Вычислить сумму"
@@ -2823,7 +2835,7 @@ flag = "RU"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:264, navigator/widgets/viewer/file_window/file_window.py:629 ...
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:419, navigator/widgets/viewer/file_window/file_window.py:629 ...
 "Search string not found" = "Не могу найти строку"
 # navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Информация"
@@ -2889,7 +2901,7 @@ flag = "RU"
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:109
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:164
+# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:178
 "Text" = "Текст"
 # navigator/widgets/editor/option_items.py:87
 "Insert or overwrite" = "Вставка или замена"
@@ -2953,19 +2965,19 @@ flag = "RU"
 "The passwords do not match." = "Пароли не совпадают."
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.py:198
 "Cannot replace {path}: {error}" = "Не удалось заменить {path}: {error}"
-# navigator/widgets/file_ops/as_root.py:35, navigator/widgets/file_ops/as_root.py:192, navigator/widgets/file_ops/as_root.py:188
+# navigator/widgets/file_ops/as_root.py:35, navigator/widgets/file_ops/as_root.py:196, navigator/widgets/file_ops/as_root.py:192
 "Root access" = "Доступ root"
-# navigator/widgets/file_ops/as_root.py:172, navigator/widgets/file_ops/as_root.py:210
+# navigator/widgets/file_ops/as_root.py:176, navigator/widgets/file_ops/as_root.py:214
 "As ~r~oot" = "От ~и~мени root"
 # navigator/widgets/file_ops/as_root.py:33
 "Wrong password. Try again:" = "Неверный пароль. Попробуйте ещё раз:"
-# navigator/widgets/file_ops/as_root.py:160
+# navigator/widgets/file_ops/as_root.py:164
 "Root will run code from {path}, which your user can change." = "Root запустит код из {path}, который ваш пользователь может изменить."
-# navigator/widgets/file_ops/as_root.py:191
+# navigator/widgets/file_ops/as_root.py:195
 "Open {path} as root?" = "Открыть {path} от имени root?"
 # navigator/widgets/file_ops/as_root.py:42
 "Root access was refused: {reason}" = "В доступе root отказано: {reason}"
-# navigator/widgets/file_ops/as_root.py:188
+# navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: доступ root недоступен"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "каталог"
@@ -3217,7 +3229,7 @@ flag = "RU"
 "{count} byte of memory in all" = ["Всего {count} байт памяти", "Всего {count} байта памяти", "Всего {count} байт памяти"]
 # navigator/widgets/manager/info_panel/info_panel.py:173
 "Connection" = "Соединение"
-# navigator/widgets/manager/manager/manager.py:5065
+# navigator/widgets/manager/manager/manager.py:5071
 "Copy {n} file to {target}" = ["Копировать {n} файл в {target}", "Копировать {n} файла в {target}", "Копировать {n} файлов в {target}"]
 # navigator/widgets/manager/manager/manager.py:739
 "Calculating checksums" = "Вычисление контрольных сумм"
@@ -3235,15 +3247,15 @@ flag = "RU"
 "Not in a Find listing" = "Не в списке поиска"
 # navigator/widgets/manager/manager/manager.py:3145
 "To {path}" = "Куда: {path}"
-# navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/manager/manager.py:5012
 "T~y~pe" = "~Т~ип"
-# navigator/widgets/manager/manager/manager.py:5062
+# navigator/widgets/manager/manager/manager.py:5068
 "Erase {n} file" = ["Удалить {n} файл", "Удалить {n} файла", "Удалить {n} файлов"]
-# navigator/widgets/manager/manager/manager.py:5064
+# navigator/widgets/manager/manager/manager.py:5070
 "Move {n} file to {target}" = ["Переместить {n} файл в {target}", "Переместить {n} файла в {target}", "Переместить {n} файлов в {target}"]
-# navigator/widgets/manager/manager/manager.py:5176
+# navigator/widgets/manager/manager/manager.py:5182
 "~L~ink" = "~С~вязь"
-# navigator/widgets/manager/manager/manager.py:5219
+# navigator/widgets/manager/manager/manager.py:5225
 "Needs the desktop's gio or KDE's kioclient command" = "Нужна команда gio рабочего стола или kioclient из KDE"
 # navigator/widgets/manager/manager/manager.py:1201
 "Panelize" = "Вывод в панель"
@@ -3271,17 +3283,17 @@ flag = "RU"
 "~R~elative symlink here" = "~О~тносительная ссылка"
 # navigator/widgets/manager/manager/manager.py:3790
 "{n} link was left as it was:" = ["{n} ссылка оставлена как была:", "{n} ссылки оставлены как были:", "{n} ссылок оставлены как были:"]
-# navigator/widgets/manager/manager/manager.py:4179
+# navigator/widgets/manager/manager/manager.py:4185
 "~I~nternal editor" = "~В~строенный редактор"
-# navigator/widgets/manager/manager/manager.py:4256, navigator/widgets/manager/manager/manager.py:4290
+# navigator/widgets/manager/manager/manager.py:4262, navigator/widgets/manager/manager/manager.py:4296
 "Is a directory" = "Это каталог"
-# navigator/widgets/manager/manager/manager.py:4664
-"Drag to resize the panels" = "Перетащите, чтобы изменить размер панелей"
 # navigator/widgets/manager/manager/manager.py:4670
+"Drag to resize the panels" = "Перетащите, чтобы изменить размер панелей"
+# navigator/widgets/manager/manager/manager.py:4676
 "Double-click to split them evenly" = "Двойной щелчок делит их поровну"
-# navigator/widgets/manager/manager/manager.py:5140
+# navigator/widgets/manager/manager/manager.py:5146
 "~R~emove this folder" = "~У~брать этот каталог"
-# navigator/widgets/manager/manager/manager.py:5140
+# navigator/widgets/manager/manager/manager.py:5146
 "~A~dd this folder" = "~Д~обавить этот каталог"
 # navigator/widgets/manager/manager/manager.py:463
 "Encoding {name}" = "Кодируется {name}"
@@ -3351,27 +3363,27 @@ flag = "RU"
 "Do you wish to move {n} file to the Trash?" = ["Переместить {n} файл в корзину?", "Переместить {n} файла в корзину?", "Переместить {n} файлов в корзину?"]
 # navigator/widgets/manager/manager/manager.py:3114
 "Do you wish to delete {n} file?" = ["Удалить {n} файл?", "Удалить {n} файла?", "Удалить {n} файлов?"]
-# navigator/widgets/manager/manager/manager.py:4258, navigator/widgets/manager/manager/manager.py:4292
+# navigator/widgets/manager/manager/manager.py:4264, navigator/widgets/manager/manager/manager.py:4298
 "No such directory" = "Нет такого каталога"
-# navigator/widgets/manager/manager/manager.py:4306
+# navigator/widgets/manager/manager/manager.py:4312
 "$EDITOR edits a file on another drive only once it is there" = "$EDITOR правит файл на другом диске, только когда он там уже есть"
-# navigator/widgets/manager/manager/manager.py:5059
+# navigator/widgets/manager/manager/manager.py:5065
 "Copy {name} to {target}" = "Копировать {name} в {target}"
-# navigator/widgets/manager/manager/manager.py:5085
+# navigator/widgets/manager/manager/manager.py:5091
 "Erasing the file" = "Удаляется файл"
-# navigator/widgets/manager/manager/manager.py:5086
+# navigator/widgets/manager/manager/manager.py:5092
 "Erasing the directory" = "Удаляется каталог"
-# navigator/widgets/manager/manager/manager.py:5087
+# navigator/widgets/manager/manager/manager.py:5093
 "Moving to the Trash" = "Перемещение в корзину"
-# navigator/widgets/manager/manager/manager.py:5088
+# navigator/widgets/manager/manager/manager.py:5094
 "Changing attributes of" = "Меняются атрибуты"
-# navigator/widgets/manager/manager/manager.py:5134
+# navigator/widgets/manager/manager/manager.py:5140
 "Mounted now, not a bookmark" = "Смонтировано сейчас, не закладка"
-# navigator/widgets/manager/manager/manager.py:5136
+# navigator/widgets/manager/manager/manager.py:5142
 "Not there now" = "Сейчас недоступно"
-# navigator/widgets/manager/manager/manager.py:5192
+# navigator/widgets/manager/manager/manager.py:5198
 "Connected" = "Подключено"
-# navigator/widgets/manager/manager/manager.py:5192
+# navigator/widgets/manager/manager/manager.py:5198
 "Not connected" = "Не подключено"
 # navigator/widgets/manager/manager/manager.py:670
 "The input file is too small to UU-Encode." = "Файл слишком мал для UU-кодирования."
@@ -3387,13 +3399,13 @@ flag = "RU"
 "Copy {copies} and delete {deletes}?" = "Копировать {copies} и удалить {deletes}?"
 # navigator/widgets/manager/manager/manager.py:2947
 "Print file {name}?" = "Печатать файл {name}?"
-# navigator/widgets/manager/manager/manager.py:4181
+# navigator/widgets/manager/manager/manager.py:4187
 "Choose editor" = "Выберите редактор"
-# navigator/widgets/manager/manager/manager.py:5056
+# navigator/widgets/manager/manager/manager.py:5062
 "Erase {name}" = "Удалить {name}"
-# navigator/widgets/manager/manager/manager.py:5058
+# navigator/widgets/manager/manager/manager.py:5064
 "Move {name} to {target}" = "Переместить {name} в {target}"
-# navigator/widgets/manager/manager/manager.py:5224
+# navigator/widgets/manager/manager/manager.py:5230
 "~E~dit links..." = "~И~зменить ссылки..."
 # navigator/widgets/manager/manager/manager.py:1214
 "Stop the command?" = "Остановить команду?"
@@ -3441,13 +3453,13 @@ flag = "RU"
 "Would you like to create directory {path}?" = "Хотите создать каталог {path}?"
 # navigator/widgets/manager/manager/manager.py:3422
 "There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
-# navigator/widgets/manager/manager/manager.py:4271, navigator/widgets/manager/manager/manager.py:4314, navigator/widgets/manager/manager/manager.py:4353 ...
+# navigator/widgets/manager/manager/manager.py:4277, navigator/widgets/manager/manager/manager.py:4320, navigator/widgets/manager/manager/manager.py:4359 ...
 "Cannot edit file" = "Невозможно редактировать файл"
 # navigator/widgets/manager/manager/manager.py:2903, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
 "Cannot make directory" = "Невозможно создать каталог"
-# navigator/widgets/manager/manager/manager.py:4118, navigator/widgets/manager/manager/manager.py:4056, navigator/widgets/manager/manager/manager.py:4071 ...
+# navigator/widgets/manager/manager/manager.py:4124, navigator/widgets/manager/manager/manager.py:4059, navigator/widgets/manager/manager/manager.py:4077 ...
 "Cannot view file" = "Невозможно просмотреть файл"
-# navigator/widgets/manager/manager/manager.py:5210
+# navigator/widgets/manager/manager/manager.py:5216
 "Install {extra}" = "Установите {extra}"
 # navigator/widgets/manager/manager/manager.py:1291
 "Directory {place} is not there" = "Каталога {place} нет"
@@ -3461,8 +3473,8 @@ flag = "RU"
 "Cannot run {command}: {reason}" = "Не удалось запустить {command}: {reason}"
 # navigator/widgets/manager/manager/manager.py:2976
 "Cannot print {name}: {reason}" = "Невозможно печатать {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:4072, navigator/widgets/manager/manager/manager.py:4050, navigator/widgets/manager/manager/manager.py:4086
-"{name}: not a dBase file" = "{name}: не файл dBase"
+# navigator/widgets/manager/manager/manager.py:4078, navigator/widgets/manager/manager/manager.py:4053, navigator/widgets/manager/manager/manager.py:4092
+"{name}: not a dBase or SQLite file" = "{name}: не файл dBase или SQLite"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} отмеченный файл", "{n} отмеченных файла", "{n} отмеченных файлов"]
 # navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
@@ -4005,7 +4017,7 @@ flag = "RU"
 "Free %" = "Свободно %"
 # navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "Занято %"
-# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:446, navigator/widgets/viewer/db_window/db_window.py:180
 "Type" = "Тип"
 # navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "Точка монтирования"
@@ -4035,7 +4047,7 @@ flag = "RU"
 "Hex/Text/Dump" = "Hex/Текст/Дамп"
 # navigator/widgets/viewer/commands.py:34
 "Rendered" = "Разметка"
-# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:130
+# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:144
 "Goto" = "Перейти"
 # navigator/widgets/viewer/commands.py:74
 "Reverse Search" = "Обр.поиск"
@@ -4049,42 +4061,70 @@ flag = "RU"
 "View Memo" = "Мемо"
 # navigator/widgets/viewer/commands.py:124
 "Edit Field" = "Правка"
-# navigator/widgets/viewer/commands.py:192
+# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:478
+"Tables" = "Таблицы"
+# navigator/widgets/viewer/commands.py:206
 "Prev" = "Пред."
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Numeric" = "Число"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Character" = "Символ"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Memo" = "Мемо"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Logical" = "Логический"
-# navigator/widgets/viewer/db_window/db_window.py:278
+# navigator/widgets/viewer/db_window/db_window.py:433
 "Float" = "С запятой"
-# navigator/widgets/viewer/db_window/db_window.py:278
+# navigator/widgets/viewer/db_window/db_window.py:433
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/viewer/db_window/db_window.py:446
 "Length" = "Длина"
-# navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/viewer/db_window/db_window.py:446
 "Decimals" = "Дробные"
-# navigator/widgets/viewer/db_window/db_window.py:84
+# navigator/widgets/viewer/db_window/db_window.py:136
 "The cursor is not on a memo field" = "Курсор не на поле memo"
-# navigator/widgets/viewer/db_window/db_window.py:162
+# navigator/widgets/viewer/db_window/db_window.py:138
+"The database is opened read-only" = "База данных открыта только для чтения"
+# navigator/widgets/viewer/db_window/db_window.py:140
+"Only in a SQLite file" = "Только в файле SQLite"
+# navigator/widgets/viewer/db_window/db_window.py:180
+"Constraints" = "Ограничения"
+# navigator/widgets/viewer/db_window/db_window.py:304
 "Edit field" = "Редактирование поля"
-# navigator/widgets/viewer/db_window/db_window.py:52
+# navigator/widgets/viewer/db_window/db_window.py:98
 "dBase View - {path}" = "Просмотр dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:93
-"Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:319
+# navigator/widgets/viewer/db_window/db_window.py:135
+"The cursor is not on text or a blob" = "Курсор не на тексте и не на BLOB"
+# navigator/widgets/viewer/db_window/db_window.py:550, navigator/widgets/viewer/db_window/db_window.py:512
 "Empty database {name}" = "Пустая база данных {name}"
-# navigator/widgets/viewer/db_window/db_window.py:153, navigator/widgets/viewer/db_window/db_window.py:201
+# navigator/widgets/viewer/db_window/db_window.py:97
+"SQLite View - {path}" = "Просмотр SQLite - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:182
+"Structure of {name}" = "Структура {name}"
+# navigator/widgets/viewer/db_window/db_window.py:173
+"{count} row" = ["{count} строка", "{count} строки", "{count} строк"]
+# navigator/widgets/viewer/db_window/db_window.py:175
+"Unique index" = "Уникальный индекс"
+# navigator/widgets/viewer/db_window/db_window.py:175
+"Index" = "Индекс"
+# navigator/widgets/viewer/db_window/db_window.py:295, navigator/widgets/viewer/db_window/db_window.py:343
 "Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
-# navigator/widgets/viewer/db_window/db_window.py:112
+# navigator/widgets/viewer/db_window/db_window.py:254
 "Could not find MEMO file" = "Не найден файл MEMO"
-# navigator/widgets/viewer/db_window/db_window.py:120
+# navigator/widgets/viewer/db_window/db_window.py:415, navigator/widgets/viewer/sheet_window/sheet_window.py:269
+"Searching" = "Поиск"
+# navigator/widgets/viewer/db_window/db_window.py:525, navigator/widgets/viewer/db_window/db_window.py:225
+"Reading" = "Чтение"
+# navigator/widgets/viewer/db_window/db_window.py:262
 "Memo view" = "Просмотр мемо"
-# navigator/widgets/viewer/db_window/db_window.py:178
+# navigator/widgets/viewer/db_window/db_window.py:512
+"No tables" = "Нет таблиц"
+# navigator/widgets/viewer/db_window/db_window.py:320
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
+# navigator/widgets/viewer/db_window/db_window.py:476
+"view" = "представление"
+# navigator/widgets/viewer/db_window/db_window.py:476
+"table" = "таблица"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "Строка {line}, такая же, как строка {other} справа"
 # navigator/widgets/viewer/diff_view/diff_view.py:52
@@ -4177,8 +4217,6 @@ flag = "RU"
 "Cell {name}" = "Ячейка {name}"
 # navigator/widgets/viewer/sheet_window/sheet_window.py:190
 "Sorting" = "Сортировка"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:269
-"Searching" = "Поиск"
 # navigator/lib/appearance/palette.py
 "Timer" = "Таймер"
 # navigator/lib/appearance/palette.py
@@ -4718,6 +4756,8 @@ flag = "RU"
 # navigator/settings.py
 "The files F3 shows as a spreadsheet, as masks separated by ';'" = "Файлы, которые F3 показывает как электронную таблицу, маски через ';'"
 # navigator/settings.py
+"The files F3 opens as a SQLite database, if they are one, as masks separated by ';'" = "Файлы, которые F3 открывает как базу SQLite, если это она, маски через ';'"
+# navigator/settings.py
 "The panel follows the tree's cursor once it rests" = "Панель следует за курсором дерева, когда он останавливается"
 # navigator/settings.py
 "Files can be dragged out of a panel with the mouse" = "Файлы можно перетаскивать из панели мышью"
@@ -4949,3 +4989,6 @@ flag = "RU"
 "~Name                           Start  End       Score~" = "~Имя                            Старт  Финиш     Очки~"
 "Name          Type       Length   Decimals" = "Имя           Тип        Длина    Дес.знаки"
 "Year" = "Год"
+"View a dBase file as a table" = "Просмотреть файл dBase как таблицу"
+"Fields, memos, editing and search" = "Поля, мемо, правка и поиск"
+"{name}: not a dBase file" = "{name}: не файл dBase"

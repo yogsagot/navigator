@@ -118,7 +118,7 @@ MainMenu(MenuBar):
                 command: ViewAsHex
             MenuItem:
                 text: 'As ~D~ataBase'
-                tooltip: "View a dBase file as a table"
+                tooltip: "View a dBase or SQLite file as a table"
                 command: ViewAsDataBase
             #: DN's *View as Spreadsheet* opened its own ``.WKZ``; here a CSV
             #: or TSV file, view-only, as F3 on one does.

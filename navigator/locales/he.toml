@@ -594,7 +594,7 @@ direction = "rtl"
 "A~p~pend" = "~ה~וסף"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~ש~נה שם"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:64, navigator/widgets/file_ops/as_root.py:208
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:64, navigator/widgets/file_ops/as_root.py:212
 "~S~kip" = "דל~ג~"
 # navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:12
 "Change link targets" = "שינוי יעדי קישורים"
@@ -750,11 +750,11 @@ direction = "rtl"
 "Columns Setup" = "הגדרת עמודות"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:24, navigator/widgets/editor/option_items.py:93, navigator/widgets/editor/option_items.py:129 ...
 "Show" = "הצג"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012 ...
 "~S~ize" = "גו~ד~ל"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5012
 "~A~ttributes" = "~מ~אפיינים"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:5012
 "~O~wner" = "~ב~עלים"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "~נ~תיב"
@@ -964,13 +964,13 @@ direction = "rtl"
 "Re~v~erse order" = "סדר ~ה~פוך"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "הסדר מתהפך: הגדול, החדש, Z תחילה..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006, navigator/widgets/manager/manager/manager.py:5027
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012, navigator/widgets/manager/manager/manager.py:5033
 "~E~xtension" = "סי~ו~מת"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "מאפיינים"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5027
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5033
 "Ty~p~e" = "סו~ג~"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5006, navigator/widgets/manager/manager/manager.py:5028
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5012, navigator/widgets/manager/manager/manager.py:5034
 "~U~nsorted" = "~ל~א ממוין"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:54, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:62
 "Display" = "תצוגה"
@@ -1784,7 +1784,7 @@ direction = "rtl"
 "Show or hide the trash can that files are dropped on to delete them" = "הצג או הסתר את פח האשפה שמשליכים עליו קבצים כדי למחוק אותם"
 # navigator/widgets/shell/main_menu/main_menu.nml:104
 "View, edit, copy, move, archive and delete files" = "הצג, ערוך, העתק, העבר, ארכב ומחק קבצים"
-# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:52, navigator/widgets/viewer/file_window/file_window.nml:123 ...
+# navigator/widgets/shell/main_menu/main_menu.nml:107, navigator/widgets/viewer/db_window/db_window.nml:57, navigator/widgets/viewer/file_window/file_window.nml:123 ...
 "~V~iew" = "הצ~ג~ה"
 # navigator/widgets/shell/main_menu/main_menu.nml:109
 "~A~s is" = "~כ~מו שהוא"
@@ -1797,7 +1797,7 @@ direction = "rtl"
 # navigator/widgets/shell/main_menu/main_menu.nml:120
 "As ~D~ataBase" = "כ~מ~סד נתונים"
 # navigator/widgets/shell/main_menu/main_menu.nml:121
-"View a dBase file as a table" = "הצג קובץ dBase כטבלה"
+"View a dBase or SQLite file as a table" = "הצג קובץ dBase או SQLite כטבלה"
 # navigator/widgets/shell/main_menu/main_menu.nml:126
 "As ~S~preadsheet" = "כגיליון ~א~לקטרוני"
 # navigator/widgets/shell/main_menu/main_menu.nml:127
@@ -2182,21 +2182,29 @@ direction = "rtl"
 "~A~ll fields" = "~כ~ל השדות"
 # navigator/widgets/viewer/db_search_dialog/db_search_dialog.nml:78, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:70
 "~F~orward" = "~ק~דימה"
-# navigator/widgets/viewer/db_window/db_window.nml:53
-"Fields, memos, editing and search" = "שדות, תזכירים, עריכה וחיפוש"
-# navigator/widgets/viewer/db_window/db_window.nml:56, navigator/widgets/viewer/db_window/db_viewer.py:182
+# navigator/widgets/viewer/db_window/db_window.nml:58
+"Fields, memos, editing, tables and search" = "שדות, תזכירים, עריכה, טבלאות וחיפוש"
+# navigator/widgets/viewer/db_window/db_window.nml:61, navigator/widgets/viewer/db_window/db_viewer.py:182
 "~F~ields..." = "~ש~דות..."
-# navigator/widgets/viewer/db_window/db_window.nml:57
+# navigator/widgets/viewer/db_window/db_window.nml:62
 "The file's structure: its fields and their types" = "מבנה הקובץ: השדות שלו וסוגיהם"
-# navigator/widgets/viewer/db_window/db_window.nml:60, navigator/widgets/viewer/db_window/db_viewer.py:183
+# navigator/widgets/viewer/db_window/db_window.nml:65, navigator/widgets/viewer/db_window/db_viewer.py:183
 "~M~emo view" = "תצוגת ~ת~זכיר"
-# navigator/widgets/viewer/db_window/db_window.nml:61
+# navigator/widgets/viewer/db_window/db_window.nml:66
 "The memo text of the cell at the cursor" = "טקסט התזכיר של התא שבסמן"
-# navigator/widgets/viewer/db_window/db_window.nml:64, navigator/widgets/viewer/db_window/db_viewer.py:184
+# navigator/widgets/viewer/db_window/db_window.nml:69, navigator/widgets/viewer/db_window/db_viewer.py:184
 "~E~dit field..." = "~ע~רוך שדה..."
-# navigator/widgets/viewer/db_window/db_window.nml:68, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
+# navigator/widgets/viewer/db_window/db_window.nml:73
+"~T~ables..." = "~ט~בלאות..."
+# navigator/widgets/viewer/db_window/db_window.nml:74
+"Another table or view of the SQLite file" = "טבלה או תצוגה אחרת של קובץ ה-SQLite"
+# navigator/widgets/viewer/db_window/db_window.nml:77
+"~Q~uery..." = "שא~י~לתה..."
+# navigator/widgets/viewer/db_window/db_window.nml:78
+"Run a query that reads, and show its rows" = "הרץ שאילתת קריאה והצג את שורותיה"
+# navigator/widgets/viewer/db_window/db_window.nml:82, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:186 ...
 "~S~earch..." = "~ח~יפוש..."
-# navigator/widgets/viewer/db_window/db_window.nml:71, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
+# navigator/widgets/viewer/db_window/db_window.nml:85, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/sheet_window/sheet_window.nml:86 ...
 "Search a~g~ain" = "חפש ש~ו~ב"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~ה~שוואה"
@@ -2266,6 +2274,10 @@ direction = "rtl"
 "Goto Address" = "מעבר לכתובת"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~כ~תובת"
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:138, navigator/widgets/viewer/db_window/db_window.py:181 ...
+"Query" = "שאילתה"
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:18
+"~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
 "Search Progress" = "התקדמות חיפוש"
 # navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:24
@@ -2274,7 +2286,7 @@ direction = "rtl"
 "Search as" = "חפש כ"
 # navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43
 "~S~tring" = "~מ~חרוזת"
-# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:161
+# navigator/widgets/viewer/sheet_find_dialog/sheet_find_dialog.nml:43, navigator/widgets/viewer/db_window/db_window.py:303
 "~V~alue" = "~ע~רך"
 # navigator/widgets/viewer/sheet_window/sheet_window.nml:62
 "~T~able" = "~ט~בלה"
@@ -2302,7 +2314,7 @@ direction = "rtl"
 "As ~t~ext" = "כ~ט~קסט"
 # navigator/widgets/viewer/sheet_window/sheet_window.nml:94
 "The same file in the text viewer" = "אותו קובץ בתצוגת הטקסט"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:157
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:171
 "Format" = "תבנית"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24
 "Delimiter" = "מפריד"
@@ -2574,31 +2586,31 @@ direction = "rtl"
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "אפשרויות > תצורה > עורך/מציג -- העורך (dlgEditorDefaults של DN)"
 # navigator/settings.py:572
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "אפשרויות > תצורה > עורך/מציג -- המציג (dlgEditorDefaults של DN)"
-# navigator/settings.py:641
+# navigator/settings.py:647
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "אפשרויות > מנהל קבצים > הגדרות (dlgFMSetup של DN)"
-# navigator/settings.py:713
+# navigator/settings.py:719
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל למנהל חדש (dlgFMDefaults של DN)"
-# navigator/settings.py:767
+# navigator/settings.py:773
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "אפשרויות > מנהל קבצים > לוח מידע (dlgDriveInfoSetup של DN)"
-# navigator/settings.py:804
+# navigator/settings.py:810
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל לעמודות (dlgColumnsDefaults של DN)"
-# navigator/settings.py:849
+# navigator/settings.py:855
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "אפשרויות > מנהל קבצים > קבוצות הדגשה (dlgHighlightGroups של DN)"
-# navigator/settings.py:864
+# navigator/settings.py:870
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "אפשרויות > תצורה > שומרי מסך (TSaversDialog של DN)"
-# navigator/settings.py:896
+# navigator/settings.py:902
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
-# navigator/settings.py:947
+# navigator/settings.py:953
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:963
+# navigator/settings.py:969
 "Utilities > Calculator (not DN's)" = "כלים > מחשבון (לא של DN)"
-# navigator/settings.py:984
+# navigator/settings.py:990
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
-# navigator/settings.py:1011
+# navigator/settings.py:1017
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:1026
+# navigator/settings.py:1032
 "Panel > Compare directories > Synchronize (not DN's)" = "לוח > השוואת תיקיות > סנכרון (לא מ-DN)"
-# navigator/settings.py:1046
+# navigator/settings.py:1052
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -2652,19 +2664,19 @@ direction = "rtl"
 "~A~ccept" = "~ק~בל"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "לא ניתן לאמת את המארח {host}.\nטביעת האצבע של מפתח {type} היא\n{fingerprint}"
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5215
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "קישור ~G~Vfs/KIO חדש (MTP, WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "הוסף"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:63 ...
 "Edit" = "ערוך"
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5200
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5206
 "~N~ew SSH link (SFTP)..." = "קישור SSH ~ח~דש (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5200
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5206
 "New ~F~TP link..." = "קישור ~F~TP חדש..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5201
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5207
 "New S~M~B link (Windows share)..." = "קישור S~M~B חדש (שיתוף Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5201
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5207
 "New S~3~ link (Amazon S3)..." = "קישור S~3~ חדש (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "קישור חדש"
@@ -2702,7 +2714,7 @@ direction = "rtl"
 "Lowercase" = "אותיות קטנות"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "אות ראשית גדולה"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:149
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:237, navigator/widgets/viewer/commands.py:163
 "Sort" = "מיון"
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "חשב סכום"
@@ -2824,7 +2836,7 @@ direction = "rtl"
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:240
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:264, navigator/widgets/viewer/file_window/file_window.py:629 ...
+# navigator/widgets/editor/edit_window/edit_window.py:671, navigator/widgets/viewer/db_window/db_window.py:419, navigator/widgets/viewer/file_window/file_window.py:629 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
 # navigator/widgets/editor/edit_window/edit_window.py:677, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "מידע"
@@ -2890,7 +2902,7 @@ direction = "rtl"
 "HTML" = "HTML"
 # navigator/widgets/editor/option_items.py:109
 "RST" = "RST"
-# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:164
+# navigator/widgets/editor/option_items.py:120, navigator/widgets/viewer/commands.py:178
 "Text" = "טקסט"
 # navigator/widgets/editor/option_items.py:87
 "Insert or overwrite" = "הוספה או דריסה"
@@ -2954,19 +2966,19 @@ direction = "rtl"
 "The passwords do not match." = "הסיסמאות אינן תואמות."
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.py:198
 "Cannot replace {path}: {error}" = "לא ניתן להחליף את {path}: {error}"
-# navigator/widgets/file_ops/as_root.py:35, navigator/widgets/file_ops/as_root.py:192, navigator/widgets/file_ops/as_root.py:188
+# navigator/widgets/file_ops/as_root.py:35, navigator/widgets/file_ops/as_root.py:196, navigator/widgets/file_ops/as_root.py:192
 "Root access" = "גישת root"
-# navigator/widgets/file_ops/as_root.py:172, navigator/widgets/file_ops/as_root.py:210
+# navigator/widgets/file_ops/as_root.py:176, navigator/widgets/file_ops/as_root.py:214
 "As ~r~oot" = "~כ~-root"
 # navigator/widgets/file_ops/as_root.py:33
 "Wrong password. Try again:" = "סיסמה שגויה. נסה שוב:"
-# navigator/widgets/file_ops/as_root.py:160
+# navigator/widgets/file_ops/as_root.py:164
 "Root will run code from {path}, which your user can change." = "root יריץ קוד מתוך {path}, שהמשתמש שלך יכול לשנות."
-# navigator/widgets/file_ops/as_root.py:191
+# navigator/widgets/file_ops/as_root.py:195
 "Open {path} as root?" = "לפתוח את {path} כ-root?"
 # navigator/widgets/file_ops/as_root.py:42
 "Root access was refused: {reason}" = "גישת root נדחתה: {reason}"
-# navigator/widgets/file_ops/as_root.py:188
+# navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: גישת root אינה זמינה"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "תיקייה"
@@ -3218,7 +3230,7 @@ direction = "rtl"
 "{count} byte of memory in all" = ["{count} בית זיכרון בסך הכל", "{count} בתים זיכרון בסך הכל", "{count} בתים זיכרון בסך הכל"]
 # navigator/widgets/manager/info_panel/info_panel.py:173
 "Connection" = "חיבור"
-# navigator/widgets/manager/manager/manager.py:5065
+# navigator/widgets/manager/manager/manager.py:5071
 "Copy {n} file to {target}" = ["העתקת קובץ אחד אל {target}", "העתקת שני קבצים אל {target}", "העתקת {n} קבצים אל {target}"]
 # navigator/widgets/manager/manager/manager.py:739
 "Calculating checksums" = "מחשב סיכומי ביקורת"
@@ -3236,15 +3248,15 @@ direction = "rtl"
 "Not in a Find listing" = "לא ברשימת חיפוש"
 # navigator/widgets/manager/manager/manager.py:3145
 "To {path}" = "אל {path}"
-# navigator/widgets/manager/manager/manager.py:5006
+# navigator/widgets/manager/manager/manager.py:5012
 "T~y~pe" = "~ס~וג"
-# navigator/widgets/manager/manager/manager.py:5062
+# navigator/widgets/manager/manager/manager.py:5068
 "Erase {n} file" = ["מחיקת קובץ אחד", "מחיקת שני קבצים", "מחיקת {n} קבצים"]
-# navigator/widgets/manager/manager/manager.py:5064
+# navigator/widgets/manager/manager/manager.py:5070
 "Move {n} file to {target}" = ["העברת קובץ אחד אל {target}", "העברת שני קבצים אל {target}", "העברת {n} קבצים אל {target}"]
-# navigator/widgets/manager/manager/manager.py:5176
+# navigator/widgets/manager/manager/manager.py:5182
 "~L~ink" = "~ק~ישור"
-# navigator/widgets/manager/manager/manager.py:5219
+# navigator/widgets/manager/manager/manager.py:5225
 "Needs the desktop's gio or KDE's kioclient command" = "נדרשת הפקודה gio של שולחן העבודה או kioclient של KDE"
 # navigator/widgets/manager/manager/manager.py:1201
 "Panelize" = "הצג בלוח"
@@ -3272,17 +3284,17 @@ direction = "rtl"
 "~R~elative symlink here" = "קישור סמלי ~י~חסי לכאן"
 # navigator/widgets/manager/manager/manager.py:3790
 "{n} link was left as it was:" = ["קישור אחד נותר כפי שהיה:", "שני קישורים נותרו כפי שהיו:", "{n} קישורים נותרו כפי שהיו:"]
-# navigator/widgets/manager/manager/manager.py:4179
+# navigator/widgets/manager/manager/manager.py:4185
 "~I~nternal editor" = "עורך ~פ~נימי"
-# navigator/widgets/manager/manager/manager.py:4256, navigator/widgets/manager/manager/manager.py:4290
+# navigator/widgets/manager/manager/manager.py:4262, navigator/widgets/manager/manager/manager.py:4296
 "Is a directory" = "זוהי תיקייה"
-# navigator/widgets/manager/manager/manager.py:4664
-"Drag to resize the panels" = "גרור כדי לשנות את גודל הלוחות"
 # navigator/widgets/manager/manager/manager.py:4670
+"Drag to resize the panels" = "גרור כדי לשנות את גודל הלוחות"
+# navigator/widgets/manager/manager/manager.py:4676
 "Double-click to split them evenly" = "לחיצה כפולה מחלקת אותם שווה בשווה"
-# navigator/widgets/manager/manager/manager.py:5140
+# navigator/widgets/manager/manager/manager.py:5146
 "~R~emove this folder" = "~ה~סר תיקייה זו"
-# navigator/widgets/manager/manager/manager.py:5140
+# navigator/widgets/manager/manager/manager.py:5146
 "~A~dd this folder" = "~ה~וסף תיקייה זו"
 # navigator/widgets/manager/manager/manager.py:463
 "Encoding {name}" = "מקודד את {name}"
@@ -3352,27 +3364,27 @@ direction = "rtl"
 "Do you wish to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
 # navigator/widgets/manager/manager/manager.py:3114
 "Do you wish to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:4258, navigator/widgets/manager/manager/manager.py:4292
+# navigator/widgets/manager/manager/manager.py:4264, navigator/widgets/manager/manager/manager.py:4298
 "No such directory" = "אין תיקייה כזו"
-# navigator/widgets/manager/manager/manager.py:4306
+# navigator/widgets/manager/manager/manager.py:4312
 "$EDITOR edits a file on another drive only once it is there" = "$EDITOR עורך קובץ בכונן אחר רק לאחר שהוא נמצא שם"
-# navigator/widgets/manager/manager/manager.py:5059
+# navigator/widgets/manager/manager/manager.py:5065
 "Copy {name} to {target}" = "העתקת {name} אל {target}"
-# navigator/widgets/manager/manager/manager.py:5085
+# navigator/widgets/manager/manager/manager.py:5091
 "Erasing the file" = "מוחק את הקובץ"
-# navigator/widgets/manager/manager/manager.py:5086
+# navigator/widgets/manager/manager/manager.py:5092
 "Erasing the directory" = "מוחק את התיקייה"
-# navigator/widgets/manager/manager/manager.py:5087
+# navigator/widgets/manager/manager/manager.py:5093
 "Moving to the Trash" = "מעביר לאשפה"
-# navigator/widgets/manager/manager/manager.py:5088
+# navigator/widgets/manager/manager/manager.py:5094
 "Changing attributes of" = "משנה מאפיינים של"
-# navigator/widgets/manager/manager/manager.py:5134
+# navigator/widgets/manager/manager/manager.py:5140
 "Mounted now, not a bookmark" = "מעוגן כעת, לא סימנייה"
-# navigator/widgets/manager/manager/manager.py:5136
+# navigator/widgets/manager/manager/manager.py:5142
 "Not there now" = "לא קיים כעת"
-# navigator/widgets/manager/manager/manager.py:5192
+# navigator/widgets/manager/manager/manager.py:5198
 "Connected" = "מחובר"
-# navigator/widgets/manager/manager/manager.py:5192
+# navigator/widgets/manager/manager/manager.py:5198
 "Not connected" = "לא מחובר"
 # navigator/widgets/manager/manager/manager.py:670
 "The input file is too small to UU-Encode." = "קובץ הקלט קטן מדי לקידוד UU."
@@ -3388,13 +3400,13 @@ direction = "rtl"
 "Copy {copies} and delete {deletes}?" = "להעתיק {copies} ולמחוק {deletes}?"
 # navigator/widgets/manager/manager/manager.py:2947
 "Print file {name}?" = "להדפיס את הקובץ {name}?"
-# navigator/widgets/manager/manager/manager.py:4181
+# navigator/widgets/manager/manager/manager.py:4187
 "Choose editor" = "בחר עורך"
-# navigator/widgets/manager/manager/manager.py:5056
+# navigator/widgets/manager/manager/manager.py:5062
 "Erase {name}" = "מחיקת {name}"
-# navigator/widgets/manager/manager/manager.py:5058
+# navigator/widgets/manager/manager/manager.py:5064
 "Move {name} to {target}" = "העברת {name} אל {target}"
-# navigator/widgets/manager/manager/manager.py:5224
+# navigator/widgets/manager/manager/manager.py:5230
 "~E~dit links..." = "~ע~רוך קישורים..."
 # navigator/widgets/manager/manager/manager.py:1214
 "Stop the command?" = "לעצור את הפקודה?"
@@ -3442,13 +3454,13 @@ direction = "rtl"
 "Would you like to create directory {path}?" = "האם ליצור את התיקייה {path}?"
 # navigator/widgets/manager/manager/manager.py:3422
 "There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
-# navigator/widgets/manager/manager/manager.py:4271, navigator/widgets/manager/manager/manager.py:4314, navigator/widgets/manager/manager/manager.py:4353 ...
+# navigator/widgets/manager/manager/manager.py:4277, navigator/widgets/manager/manager/manager.py:4320, navigator/widgets/manager/manager/manager.py:4359 ...
 "Cannot edit file" = "לא ניתן לערוך את הקובץ"
 # navigator/widgets/manager/manager/manager.py:2903, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
 "Cannot make directory" = "לא ניתן ליצור תיקייה"
-# navigator/widgets/manager/manager/manager.py:4118, navigator/widgets/manager/manager/manager.py:4056, navigator/widgets/manager/manager/manager.py:4071 ...
+# navigator/widgets/manager/manager/manager.py:4124, navigator/widgets/manager/manager/manager.py:4059, navigator/widgets/manager/manager/manager.py:4077 ...
 "Cannot view file" = "לא ניתן להציג את הקובץ"
-# navigator/widgets/manager/manager/manager.py:5210
+# navigator/widgets/manager/manager/manager.py:5216
 "Install {extra}" = "התקן את {extra}"
 # navigator/widgets/manager/manager/manager.py:1291
 "Directory {place} is not there" = "התיקייה {place} אינה קיימת"
@@ -3462,8 +3474,8 @@ direction = "rtl"
 "Cannot run {command}: {reason}" = "לא ניתן להריץ את {command}: {reason}"
 # navigator/widgets/manager/manager/manager.py:2976
 "Cannot print {name}: {reason}" = "לא ניתן להדפיס את {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:4072, navigator/widgets/manager/manager/manager.py:4050, navigator/widgets/manager/manager/manager.py:4086
-"{name}: not a dBase file" = "{name}: אינו קובץ dBase"
+# navigator/widgets/manager/manager/manager.py:4078, navigator/widgets/manager/manager/manager.py:4053, navigator/widgets/manager/manager/manager.py:4092
+"{name}: not a dBase or SQLite file" = "{name}: אינו קובץ dBase או SQLite"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["קובץ מסומן אחד", "שני קבצים מסומנים", "{n} קבצים מסומנים"]
 # navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
@@ -4006,7 +4018,7 @@ direction = "rtl"
 "Free %" = "% פנוי"
 # navigator/widgets/shell/volume_list/volume_list.py:130
 "Use %" = "% בשימוש"
-# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/shell/volume_list/volume_list.py:131, navigator/widgets/viewer/db_window/db_window.py:446, navigator/widgets/viewer/db_window/db_window.py:180
 "Type" = "סוג"
 # navigator/widgets/shell/volume_list/volume_list.py:131
 "Mount point" = "נקודת עיגון"
@@ -4036,7 +4048,7 @@ direction = "rtl"
 "Hex/Text/Dump" = "Hex/טקסט/Dump"
 # navigator/widgets/viewer/commands.py:34
 "Rendered" = "מעובד"
-# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:130
+# navigator/widgets/viewer/commands.py:48, navigator/widgets/viewer/commands.py:144
 "Goto" = "עבור"
 # navigator/widgets/viewer/commands.py:74
 "Reverse Search" = "חיפוש לאחור"
@@ -4050,42 +4062,70 @@ direction = "rtl"
 "View Memo" = "הצג Memo"
 # navigator/widgets/viewer/commands.py:124
 "Edit Field" = "ערוך שדה"
-# navigator/widgets/viewer/commands.py:192
+# navigator/widgets/viewer/commands.py:131, navigator/widgets/viewer/db_window/db_window.py:478
+"Tables" = "טבלאות"
+# navigator/widgets/viewer/commands.py:206
 "Prev" = "הקודם"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Numeric" = "מספרי"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Character" = "תו"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Memo" = "Memo"
-# navigator/widgets/viewer/db_window/db_window.py:277
+# navigator/widgets/viewer/db_window/db_window.py:432
 "Logical" = "לוגי"
-# navigator/widgets/viewer/db_window/db_window.py:278
+# navigator/widgets/viewer/db_window/db_window.py:433
 "Float" = "צף"
-# navigator/widgets/viewer/db_window/db_window.py:278
+# navigator/widgets/viewer/db_window/db_window.py:433
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/viewer/db_window/db_window.py:446
 "Length" = "אורך"
-# navigator/widgets/viewer/db_window/db_window.py:291
+# navigator/widgets/viewer/db_window/db_window.py:446
 "Decimals" = "עשרוניות"
-# navigator/widgets/viewer/db_window/db_window.py:84
+# navigator/widgets/viewer/db_window/db_window.py:136
 "The cursor is not on a memo field" = "הסמן אינו על שדה memo"
-# navigator/widgets/viewer/db_window/db_window.py:162
+# navigator/widgets/viewer/db_window/db_window.py:138
+"The database is opened read-only" = "מסד הנתונים פתוח לקריאה בלבד"
+# navigator/widgets/viewer/db_window/db_window.py:140
+"Only in a SQLite file" = "רק בקובץ SQLite"
+# navigator/widgets/viewer/db_window/db_window.py:180
+"Constraints" = "אילוצים"
+# navigator/widgets/viewer/db_window/db_window.py:304
 "Edit field" = "עריכת שדה"
-# navigator/widgets/viewer/db_window/db_window.py:52
+# navigator/widgets/viewer/db_window/db_window.py:98
 "dBase View - {path}" = "הצגת dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:93
-"Structure of {name}" = "המבנה של {name}"
-# navigator/widgets/viewer/db_window/db_window.py:319
+# navigator/widgets/viewer/db_window/db_window.py:135
+"The cursor is not on text or a blob" = "הסמן אינו על טקסט או BLOB"
+# navigator/widgets/viewer/db_window/db_window.py:550, navigator/widgets/viewer/db_window/db_window.py:512
 "Empty database {name}" = "מסד נתונים ריק {name}"
-# navigator/widgets/viewer/db_window/db_window.py:153, navigator/widgets/viewer/db_window/db_window.py:201
+# navigator/widgets/viewer/db_window/db_window.py:97
+"SQLite View - {path}" = "תצוגת SQLite - {path}"
+# navigator/widgets/viewer/db_window/db_window.py:152, navigator/widgets/viewer/db_window/db_window.py:182
+"Structure of {name}" = "המבנה של {name}"
+# navigator/widgets/viewer/db_window/db_window.py:173
+"{count} row" = ["שורה אחת", "שתי שורות", "{count} שורות"]
+# navigator/widgets/viewer/db_window/db_window.py:175
+"Unique index" = "אינדקס ייחודי"
+# navigator/widgets/viewer/db_window/db_window.py:175
+"Index" = "אינדקס"
+# navigator/widgets/viewer/db_window/db_window.py:295, navigator/widgets/viewer/db_window/db_window.py:343
 "Could not edit field - file is write-protected" = "לא ניתן לערוך את השדה - הקובץ מוגן מכתיבה"
-# navigator/widgets/viewer/db_window/db_window.py:112
+# navigator/widgets/viewer/db_window/db_window.py:254
 "Could not find MEMO file" = "קובץ MEMO לא נמצא"
-# navigator/widgets/viewer/db_window/db_window.py:120
+# navigator/widgets/viewer/db_window/db_window.py:415, navigator/widgets/viewer/sheet_window/sheet_window.py:269
+"Searching" = "מחפש"
+# navigator/widgets/viewer/db_window/db_window.py:525, navigator/widgets/viewer/db_window/db_window.py:225
+"Reading" = "קורא"
+# navigator/widgets/viewer/db_window/db_window.py:262
 "Memo view" = "הצגת Memo"
-# navigator/widgets/viewer/db_window/db_window.py:178
+# navigator/widgets/viewer/db_window/db_window.py:512
+"No tables" = "אין טבלאות"
+# navigator/widgets/viewer/db_window/db_window.py:320
 "Could not edit field - {error}" = "לא ניתן לערוך את השדה - {error}"
+# navigator/widgets/viewer/db_window/db_window.py:476
+"view" = "תצוגה"
+# navigator/widgets/viewer/db_window/db_window.py:476
+"table" = "טבלה"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "שורה {line}, זהה לשורה {other} מימין"
 # navigator/widgets/viewer/diff_view/diff_view.py:52
@@ -4178,8 +4218,6 @@ direction = "rtl"
 "Cell {name}" = "תא {name}"
 # navigator/widgets/viewer/sheet_window/sheet_window.py:190
 "Sorting" = "ממיין"
-# navigator/widgets/viewer/sheet_window/sheet_window.py:269
-"Searching" = "מחפש"
 # navigator/lib/appearance/palette.py
 "Timer" = "שעון עצר"
 # navigator/lib/appearance/palette.py
@@ -4719,6 +4757,8 @@ direction = "rtl"
 # navigator/settings.py
 "The files F3 shows as a spreadsheet, as masks separated by ';'" = "הקבצים ש-F3 מציג כגיליון אלקטרוני, מסכות מופרדות ב-';'"
 # navigator/settings.py
+"The files F3 opens as a SQLite database, if they are one, as masks separated by ';'" = "הקבצים ש-F3 פותח כמסד SQLite, אם הם כאלה, מסכות מופרדות ב-';'"
+# navigator/settings.py
 "The panel follows the tree's cursor once it rests" = "החלונית עוקבת אחרי סמן העץ כשהוא נעצר"
 # navigator/settings.py
 "Files can be dragged out of a panel with the mouse" = "ניתן לגרור קבצים מחלונית בעכבר"
@@ -4918,3 +4958,6 @@ direction = "rtl"
 "~End~" = "~סיום~"
 "~Score~" = "~ניקוד~"
 "Year" = "שנה"
+"View a dBase file as a table" = "הצג קובץ dBase כטבלה"
+"Fields, memos, editing and search" = "שדות, תזכירים, עריכה וחיפוש"
+"{name}: not a dBase file" = "{name}: אינו קובץ dBase"

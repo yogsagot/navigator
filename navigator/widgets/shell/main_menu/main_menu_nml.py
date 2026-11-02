@@ -342,7 +342,7 @@ class MainMenu(MenuBar, _Component):
 
         _w15.text = _bind(lambda _o: _tr('As ~D~ataBase'), yielding=True)    # main_menu.nml:120
         _w15.tooltip = _bind(    # main_menu.nml:121
-            lambda _o: _tr('View a dBase file as a table'),
+            lambda _o: _tr('View a dBase or SQLite file as a table'),
             yielding=True,
         )
         _w15.command = ViewAsDataBase    # main_menu.nml:122
