@@ -6,6 +6,7 @@ from navigator.widgets.shell.job_mark import JobMark
 from navigator.widgets.shell.main_menu import MainMenu
 from navigator.widgets.shell.root_mark import RootMark
 from navigator.widgets.shell.trash_can import TrashCan
+from navigator.lib.config import country
 from navigator.settings import SETTINGS
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
@@ -50,34 +51,47 @@ Shell(DockLayout):
     #:
     #: After the desktop, so it paints over it: Interface's *Hide menu bar*
     #: (``ouiHideMenu``) gives the desktop the top row and shows the bar
-    #: there, floating, only while a menu is open.  Its dock and visibility
-    #: are bound in ``__init__``; its geometry is its own, so floating or
-    #: docked it is the top row.
+    #: there, floating, only while a menu is open (``current`` is -1 only
+    #: while none is); its geometry is its own, so floating or docked it is
+    #: the top row.  The clock floats over the bar's end: a bar that would
+    #: reach it closes up its captions (``MenuBar.tight``).
     MainMenu:
         id: menu
         context: None if parent.console_visible else desktop.active_window
         width: parent.width
         height: 1
+        inline_style: "dock: none" if SETTINGS.interface.hide_menu_bar else "dock: top; basis: 1"
+        visible: not SETTINGS.interface.hide_menu_bar or self.current >= 0
+        reserve: max(0, self.width - clock.x + 1) if clock.visible else 0
 
     #: Interface's *Window strip*: the windows by number, over the stretch of
     #: the menu bar between its last menu and the clock, kept to the clock's
     #: end -- after the bar, so it paints over it, and floating as the clock
-    #: does.  Its columns and whether it shows are bound in ``__init__``.
+    #: does: from a cell after the last menu, less the cells it gives up
+    #: to the mark of work in the background, to a cell before *ROOT* or the
+    #: clock, on a bar that is docked and over windows that are showing.
     WindowStrip:
         id: window_strip
         desktop: parent.desktop
         align: "right"
+        x: menu.item_span(len(menu.entries()))[0] + 1 + (job_mark.width if job_mark.visible else 0)
         y: 0
+        width: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width) - 1 - self.x)
         height: 1
+        labels: SETTINGS.interface.window_strip == "full"
+        visible: SETTINGS.interface.window_strip != "off" and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
         style:
             dock: none
 
     #: Over the menu bar's right end, which is why it comes after it, and
     #: outside the docking altogether: it floats where its own lines put it.
-    #: Shown while Interface's *Clock* is ticked: bound in ``__init__``.
+    #: Shown while Interface's *Clock* is ticked (``ouiClock``); *Country
+    #: support*'s 12 hours put ``am``/``pm`` after the minutes.
     Clock:
         id: clock
+        visible: SETTINGS.interface.clock
         x: max(0, parent.width - self.width)
+        width: 7 if country.twelve_hours() else 5
         y: 0
         style:
             dock: none
@@ -96,7 +110,7 @@ Shell(DockLayout):
 
     #: How far the operations in the background are, just before the window
     #: strip's chips -- which keep to the clock's end, the strip giving up
-    #: its first cells to the mark (``__init__``), so it never reaches the
+    #: its first cells to the mark (its ``x``), so it never reaches the
     #: menus.  With no chips, or no strip, just before *ROOT* or the clock.
     JobMark:
         id: job_mark
@@ -116,21 +130,26 @@ Shell(DockLayout):
             dock: none
 
     #: DN's status line, which Interface's *Hide status line* takes away
-    #: (bound in ``__init__``), and the dock then gives its row to the layers.
+    #: (``ouiHideStatus``), and the dock then gives its row to the layers.
     KeyBar:
         id: keybar
+        visible: not SETTINGS.interface.hide_status_line
         style:
             dock: bottom
             basis: 1
 
     #: ``TCommandLine``.  Never focused: the keys a window declines walk up
     #: to this screen, which hands them to it.  Interface's *Hide Command
-    #: Line* (``ouiHideCmdline``) takes it away, row and keys: bound in
-    #: ``__init__``.
+    #: Line* (``ouiHideCmdline``) takes it away, row and keys.  *Auto hide
+    #: Command Line*: DN 1.51 declared the box and never read it, so this is
+    #: the behaviour its ``CheckSize`` and ``ToggleCmdLine`` gave a hidden
+    #: line -- shown once it holds text, its row back to the desktop once it
+    #: is empty again.
     CommandLine:
         id: command_line
         prompt: parent.command_prompt
         prompt_cells: parent.command_prompt_cells
+        visible: not SETTINGS.interface.hide_command_line and (not SETTINGS.interface.auto_hide_command_line or self.value != "")
         style:
             dock: bottom
             basis: 1

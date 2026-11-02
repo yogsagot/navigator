@@ -83,10 +83,11 @@ class DeleteDialog(Dialog):
             # A row more, so the buttons keep their distance from the boxes.
             self.modal_height += 1
             self.options.value |= TRASH
-            options = self.options
-            self.prompt_head.text = bind(
-                lambda o: tr("Do you wish to move to the Trash") if options.value & TRASH
-                else tr("Do you wish to delete"))
+
+    def trashing(self) -> bool:
+        """Whether *Move to Trash* is ticked, which the first line follows;
+        never without the box (``trash`` false)."""
+        return bool(self.options.value & TRASH)
 
     def focusable(self) -> list[Any]:
         """*Yes* first, as the message box's focus was, and the box after the buttons."""

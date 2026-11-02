@@ -29,7 +29,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, computed, effect, peek, reactive, untracked
+from navkit.reactive import computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -37,7 +37,9 @@ from navkit.tooltip import lines as tooltip_lines, with_keys
 
 from navml.quick_search import name_pattern
 from navml.widgets.dialog.list_viewer import ListViewer
-from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
+from navml.widgets.menu.commands import ShowContextMenu
+from navml.widgets.menu.context_menu import ContextMenu
+from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 
 # Imported under another name because ``Panel`` declares an ``icons`` style
 # property: inside a method the global still wins, but two ``icons`` a few
@@ -56,7 +58,6 @@ from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.commands import AdvancedFilter
 from navigator.widgets.manager.panel.drag import Dropped
-from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
 
 
 @dataclass(frozen=True, slots=True)
@@ -238,7 +239,7 @@ def human_size(size: int) -> str:
     return f"{value:.1f}{unit}" if value < 9.95 else f"{value:.0f}{unit}"
 
 
-class Panel(ContextMenuHost, ListViewer):
+class Panel(ListViewer):
     """One side of the desktop: a directory, listed.
 
     The model is the one :class:`ListViewer` defines -- assign ``path`` and
@@ -428,21 +429,6 @@ class Panel(ContextMenuHost, ListViewer):
         self.archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
         if path is not None:
             self.location = Location.of(path)
-        #: A departure: the panel's options on its bottom frame, right-aligned
-        #: before the corner as the editor's are, each lit while on and
-        #: switched by a click (``option_items.panel_items``); File Manager
-        #: Setup's *Option flags* shows them.  A quick search's label, centred
-        #: on the same row, comes first: the strip drops items to keep clear.
-        self.options = self.add(PanelOptionStrip(name="options"))
-        self.options.target = self
-        self.options.items = panel_items(self)
-        self.options.room = bind(lambda s: s.parent._options_room())
-        self.options.width = bind(lambda s: s.used_width)
-        self.options.height = 1
-        self.options.x = bind(lambda s: max(0, s.parent.width - 3 - s.width))
-        self.options.y = bind(lambda s: max(0, s.parent.height - 1))
-        self.options.visible = bind(lambda s: s.parent.framed and s.parent.error is None
-                                    and SETTINGS.file_manager.show_options)
 
     def _options_room(self) -> int:
         """The columns the option strip may take: up to the quick search's
@@ -1702,12 +1688,20 @@ class Panel(ContextMenuHost, ListViewer):
             self.marked = (self.marked | keys) if flag else (self.marked - keys)
 
     # -- the context menu -------------------------------------------------------
+    #
+    # ``ContextMenuHost``'s hooks and handlers, written out as ``InputLine``'s
+    # are: a component's hand-written half has one base, its markup's.
 
     async def on_context_menu(self, event: Any) -> bool:
-        """Declined while the right button selects, which the press did."""
+        """Declined while the right button selects, which the press did;
+        else the cursor to the click and the menu at the pointer."""
         if self._right_selects():
             return False
-        return await super().on_context_menu(event)
+        return open_on_click(self, event)
+
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
+        """The Menu key or Shift+F10: the menu at :meth:`context_point`."""
+        return open_on_key(self)
 
     def prepare_context(self, x: int, y: int) -> None:
         """The cursor to the row clicked, as a left click puts it; the tags

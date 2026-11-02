@@ -7,12 +7,11 @@ from navml.component import Component as _Component
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 from typing import Any
-from navkit.reactive import bind
 from navkit.widget import Widget
 from navigator.settings import SETTINGS, PanelDefaultsData
-from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 
 class FMDefaultsPage(_Component):

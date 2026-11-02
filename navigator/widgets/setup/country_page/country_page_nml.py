@@ -176,3 +176,4 @@ class CountryPage(_Component):
         self.example.y = 14    # country_page.nml:120
         self.example.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:121
         self.example.height = 1    # country_page.nml:122
+        self.example.text = _bind(lambda _o: self.example_text())    # country_page.nml:123

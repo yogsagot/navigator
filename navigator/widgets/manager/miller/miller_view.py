@@ -243,8 +243,6 @@ class MillerView(Widget):
         #: The column after the chain, listing the directory at the cursor;
         #: made by :meth:`open_at`, and becoming the chain's last on a step in.
         self.preview_dir: MillerColumn | None = None
-        self.preview_file: QuickViewer = self.add(QuickViewer())
-        self.preview_file.visible = False
 
     def mounted(self) -> None:
         super().mounted()

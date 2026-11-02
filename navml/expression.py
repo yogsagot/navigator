@@ -45,6 +45,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import inspect
 from dataclasses import dataclass
 from typing import Iterable
 
@@ -98,6 +99,10 @@ class Compiled:
     #: (``bind(..., yielding=True)``): the only thing it follows is the
     #: language, or all it does is choose between caption literals.
     yielding: bool = False
+    #: Whether a free name was one of the imported objects the caller asked
+    #: to follow -- ``SETTINGS``, a module -- which a property line binds
+    #: although it reads nothing of the widget.
+    reads_import: bool = False
 
     @property
     def binding(self) -> str:
@@ -118,10 +123,12 @@ class _Scope(ast.NodeTransformer):
     def __init__(
         self, owner: ast.expr, own: Iterable[str], ids: Iterable[str],
         bound: Iterable[str] = (),
+        followed: Iterable[str] = (),
     ):
         self.owner = owner
         self.own = frozenset(own)
         self.ids = frozenset(ids)
+        self.followed = frozenset(followed)
         #: A stack of the names each enclosing scope binds.  It starts with one
         #: frame rather than none -- the prototype in ``navml/DESIGN.md`` starts
         #: empty -- so that a walrus at the top level of an expression records
@@ -132,6 +139,8 @@ class _Scope(ast.NodeTransformer):
         self.translated = False
         #: Whether the expression calls something that reads the language.
         self.reads_language = False
+        #: Whether it reads one of the imported objects in *followed*.
+        self.reads_import = False
 
     def visit(self, node: ast.AST) -> ast.AST:
         """Hand *node* to whichever handler claims its type.
@@ -217,6 +226,10 @@ class _Scope(ast.NodeTransformer):
         if name in _TRANSLATING:
             # Not the widget's, but it reads the language, which changes.
             self.reads_language = True
+        elif name in self.followed:
+            # Not the widget's either, but an object whose reactive
+            # attributes can change under the line: ``SETTINGS.interface``.
+            self.reads_import = True
         return node
 
     def translate(self, node: ast.expr) -> ast.expr:
@@ -274,6 +287,7 @@ def compile_expression(
     line: int = 0,
     filename: str = "<markup>",
     translate: bool = False,
+    followed: Iterable[str] = (),
 ) -> Compiled:
     """Compile one property expression.
 
@@ -282,13 +296,15 @@ def compile_expression(
     belongs to, which is the lambda's parameter unless a handler is being
     compiled through :func:`compile_handler`.  With *translate*, the caption
     literals are wrapped in :data:`TRANSLATE`, which makes the expression one
-    that has to be followed: the language can change under it.
+    that has to be followed: the language can change under it.  *followed*
+    names the imported objects an expression is followed for reading (see
+    :func:`followed_imports`), which ``reads_import`` reports.
     """
     tree = _parse(source, line, filename, mode="eval")
     constant = isinstance(tree.body, ast.Constant)
     # Before translate(), which rewrites the literals in place.
     captions = translate and _captions_only(tree.body)
-    scope = _Scope(_owner(owner, line, filename), own, ids)
+    scope = _Scope(_owner(owner, line, filename), own, ids, followed=followed)
     body = scope.visit(scope.translate(tree.body) if translate else tree.body)
     return Compiled(
         expression=ast.unparse(ast.fix_missing_locations(body)),
@@ -297,6 +313,30 @@ def compile_expression(
         translated=scope.translated,
         yielding=scope.reads_language
         and (not scope.rewrote or captions),
+        reads_import=scope.reads_import,
+    )
+
+
+#: Values an import may bind that never change, so reading one is no reason to
+#: follow a line.
+_IMMUTABLE = (int, float, complex, str, bytes, bool, tuple, frozenset, type(None))
+
+
+def followed_imports(namespace: dict) -> frozenset[str]:
+    """The names an import block bound to an object a line should follow.
+
+    A module or an instance -- ``country``, ``SETTINGS`` -- may hold reactive
+    state, so a line reading one is bound even when it reads nothing of the
+    widget.  A class, a function or an immutable value is left out: a line
+    naming ``RestoreTrash`` or calling ``display_width`` gives the same answer
+    every time it runs.
+    """
+    return frozenset(
+        name for name, value in namespace.items()
+        if not name.startswith("__")
+        and not isinstance(value, type)
+        and not inspect.isroutine(value)
+        and not isinstance(value, _IMMUTABLE)
     )
 
 

@@ -45,6 +45,7 @@ from navml.expression import (
     TRANSLATED,
     compile_expression,
     compile_handler,
+    followed_imports,
 )
 from navml.parser import (
     AliasDecl,
@@ -183,6 +184,7 @@ def _collect_lines(
 ) -> None:
     """The property, style and handler lines of one block."""
     resolved = build.resolved
+    followed = followed_imports(resolved.namespace)
     for prop in block.properties:
         compiled = compile_expression(
             prop.expression,
@@ -191,7 +193,13 @@ def _collect_lines(
             line=prop.line,
             filename=resolved.filename,
             translate=prop.name in TRANSLATED,
+            followed=followed,
         )
+        if (compiled.reads_import and not compiled.rewritten
+                and _followable(resolved, block, prop.name)):
+            # ``visible: SETTINGS.interface.clock`` reads nothing of the
+            # widget, but what it reads can change: bound all the same.
+            compiled = replace(compiled, rewritten=True)
         if compiled.translated:
             build.needing("_tr")
             if not _followable(resolved, block, prop.name):

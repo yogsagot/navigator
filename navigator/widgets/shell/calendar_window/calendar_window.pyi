@@ -14,6 +14,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navigator.lib.config import country
 
 import datetime
 from typing import Any
@@ -25,7 +26,6 @@ from navml.widgets.dialog.commands import ChooseMonth, ChooseYear, GoToToday, Ne
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
-from navigator.lib.config import country
 
 
 class CalendarWindow(Window, _Component):

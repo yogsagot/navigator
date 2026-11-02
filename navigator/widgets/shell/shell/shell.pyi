@@ -14,6 +14,7 @@ from navigator.widgets.shell.job_mark import JobMark
 from navigator.widgets.shell.main_menu import MainMenu
 from navigator.widgets.shell.root_mark import RootMark
 from navigator.widgets.shell.trash_can import TrashCan
+from navigator.lib.config import country
 from navigator.settings import SETTINGS
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
@@ -24,7 +25,6 @@ import os
 import random
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Callable
-from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
@@ -46,7 +46,6 @@ from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.dialog.date_button import CalendarView
 from navml.widgets.dialog.file_list import FileInfoPane
 from navigator.lib.appearance import filetypes
-from navigator.lib.config import country
 from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
 from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.widgets.manager.manager import Manager

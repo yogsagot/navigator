@@ -168,7 +168,7 @@ model: `home_trash()` (`$XDG_DATA_HOME/Trash`), `trash_for` (home trash on its o
 - **Ways in**: Disk > *Trash* (`OpenTrash`), the trash can's double click (where DN's *Reanimator* was), the
   bookmarks box's `~T~rash` (so `t` left `BOOKMARK_KEYS`), and `trash:///` anywhere a place is typed; `..` or Backspace at its root goes back where the panel was. Disk > *Empty
   Trash* (`EmptyTrash` -> `Manager.empty_trash`, through `_run_erase`); File > *Restore from Trash* (after Delete; **hidden**, not greyed, unless the active panel is the Trash's root:
-  `Shell.__init__` binds the item's `hidden` to `Manager.shows_trash` of the bar's context) and the context
+  `main_menu.nml` binds the item's `hidden` to `Manager.shows_trash` of the bar's context) and the context
   menu (`RestoreTrash` -> `Manager.restore_trash`, root items only). The drive is `navigator-drives`'.
 - Tests: `tests/test_trash.py`; `conftest` points `XDG_DATA_HOME` into each test's directory, so nothing reaches the
   user's Trash.

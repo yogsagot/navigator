@@ -120,3 +120,4 @@ CountryPage:
         y: 14
         width: max(0, parent.width - 6)
         height: 1
+        text: root.example_text()

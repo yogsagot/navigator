@@ -6,7 +6,10 @@ description: The file manager window and its panels -- Manager (manager.nml/mana
 # The file manager and its panels
 
 `navigator/widgets/manager/`: the `manager/` window, `panel/` (whose `panel.py` carries `DirEntry` beside `Panel`), and
-`select_dialog/`. **`manager.py` is the worked example of a converted screen**: the document holds the tree and
+`select_dialog/`. `Panel` and `MillerView` are components: `panel.nml` declares the option strip (`options`) and
+`miller_view.nml` the file preview (`preview_file`); everything else is their hand-written halves'. A component's
+`.py` has one base, its markup's, so `Panel` writes `ContextMenuHost`'s hooks out (`on_context_menu`,
+`on_show_context_menu`) rather than mixing it in. **`manager.py` is the worked example of a converted screen**: the document holds the tree and
 geometry; Python holds the keys, `active_panel` and the paths markup may not bind (`left.path`, `right.path` are seeded
 after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and lets listing, cursor and scroll follow.
 `Manager.passive_panel` names the other panel. `manager.nml` holds Tab, Alt+R/Ctrl+R and F2-F8. Commands live in

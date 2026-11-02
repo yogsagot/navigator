@@ -16,7 +16,7 @@ DeleteDialog(Dialog):
     title: "Delete"
     buttons: "ok-cancel"
 
-    #: ``dlEraseConfirm1``'s first line.
+    #: ``dlEraseConfirm1``'s first line; *Move to Trash* ticked says so.
     Label:
         id: prompt_head
         x: 2
@@ -24,7 +24,7 @@ DeleteDialog(Dialog):
         width: max(0, parent.width - 4)
         height: 1
         align: "center"
-        text: "Do you wish to delete"
+        text: "Do you wish to move to the Trash" if root.trashing() else "Do you wish to delete"
 
     #: ``file NAME?``, ``directory NAME?`` or ``3 files?``: the hand-written half's.
     Label:

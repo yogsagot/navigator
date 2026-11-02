@@ -14,6 +14,7 @@ import re
 import pathlib
 
 import pytest
+from conftest import settle
 
 from navkit.events import emitted
 from navkit.reactive import declarations, is_bound
@@ -241,6 +242,43 @@ def test_an_event_declared_in_markup_lands_beside_the_component(generated):
 def test_a_style_block_becomes_one_inline_style(generated):
     _, namespace = generated("Panel:\n    style:\n        bg: red\n        fg: white\n")
     assert namespace["Panel"]().inline_style == "bg: red; fg: white"
+
+
+def test_a_line_reading_an_imported_object_is_followed(generated, tmp_path, monkeypatch):
+    """``visible: SETTINGS.interface.clock`` reads nothing of the widget, but
+    the object's attribute can change: the line is bound, not run once."""
+    (tmp_path / "followed_source.py").write_text(
+        "from navkit.reactive import reactive\n"
+        "class Source:\n"
+        "    shown: bool = reactive(True)\n"
+        "class Mark:\n"
+        "    pass\n"
+        "SOURCE = Source()\n"
+        "LIMIT = 3\n"
+        "def natural():\n"
+        "    return 7\n"
+    )
+    monkeypatch.syspath_prepend(str(tmp_path))
+    source, namespace = generated(
+        "from followed_source import LIMIT, Mark, SOURCE, natural\n"
+        "from navml.widgets.dialog.label import Label\n\n"
+        "Panel:\n"
+        "    Label:\n"
+        "        id: cap\n"
+        "        visible: SOURCE.shown\n"
+        "        width: natural()\n"
+        "        height: LIMIT\n"
+    )
+    assert "self.cap.visible = _bind(" in source
+    assert "self.cap.width = natural()" in source
+    assert "self.cap.height = LIMIT" in source
+    panel = namespace["Panel"]()
+    assert panel.cap.visible is True
+    import followed_source
+
+    followed_source.SOURCE.shown = False
+    settle()
+    assert panel.cap.visible is False
 
 
 # -- what the markup handler compiles to -------------------------------------

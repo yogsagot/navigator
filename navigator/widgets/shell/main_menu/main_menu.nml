@@ -235,12 +235,14 @@ MainMenu(MenuBar):
             key: 'F8'
         #: Not DN's: the freedesktop Trash (RestoreTrash's docstring), beside
         #: what puts files there.  Shown only while the active panel is the
-        #: Trash's own listing: the shell binds ``hidden`` (``Shell.__init__``).
+        #: Trash's own listing (``Manager.shows_trash``) -- a viewer or an
+        #: editor in front has no such panel.
         MenuItem:
             id: file_restore_trash
             text: 'Restore from Tras~h~'
             tooltip: "Put the selected files back where they were deleted from"
             command: RestoreTrash
+            hidden: not getattr(root.context, "shows_trash", False)
         MenuItem:
             text: 'File ~A~ttributes...'
             tooltip: "Permissions, owner, group, dates, ACLs and extended attributes"

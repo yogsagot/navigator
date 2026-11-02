@@ -1,0 +1,24 @@
+from navigator.settings import SETTINGS
+from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
+from navml.widgets.dialog.list_viewer import ListViewer
+
+#: One side of the desktop: a directory, listed (``TFilePanel``).  The listing,
+#: its model and its painting are the hand-written half's; the markup holds
+#: the one child a panel has of its own.
+Panel(ListViewer):
+    #: A departure: the panel's options on its bottom frame, right-aligned
+    #: before the corner as the editor's are, each lit while on and switched
+    #: by a click (``option_items.panel_items``); File Manager Setup's *Option
+    #: flags* shows them.  A quick search's label, centred on the same row,
+    #: comes first: the strip drops items to keep clear (``_options_room``).
+    PanelOptionStrip:
+        id: options
+        name: "options"
+        target: root
+        items: panel_items(root)
+        room: parent._options_room()
+        x: max(0, parent.width - 3 - self.width)
+        y: max(0, parent.height - 1)
+        width: self.used_width
+        height: 1
+        visible: parent.framed and parent.error is None and SETTINGS.file_manager.show_options

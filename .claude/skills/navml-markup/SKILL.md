@@ -39,7 +39,14 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
 - A component's parameters are the properties it declares, arriving as keywords; `Component.__init__` sets them before
   `Widget.__init__` joins the widget to its parent. An unknown keyword still raises.
 - A property line compiles to a binding (an expression's free names are rewritten on the syntax tree into the
-  one-argument lambda `bind()` expects).
+  one-argument lambda `bind()` expects). A line that reads nothing of the widget tree is evaluated once -- **unless it
+  reads an imported module or instance** (`SETTINGS`, `country`; `expression.followed_imports`), which can change
+  under it: `visible: SETTINGS.interface.clock` is bound. An imported class, function or immutable value is not
+  followed (`command: RestoreTrash`, `height: LIMIT` stay plain), nor is a root `property` declaration (still a
+  factory) or a plain attribute that cannot follow a binding.
+- **Markup cannot import from its own hand-written half** (a circular import); give the `.py` a method the line calls
+  (`text: ... if root.trashing() else ...` in `delete_dialog.nml`). `tr()` in a markup line is not seen by
+  `tools/i18n.py extract`: put the call in a method too (`CountryPage.example_text`).
 - **A property a widget *navigates* cannot be bound.** A bound attribute is read-only until unbound, so
   `path: root.left_path` paints and then raises the first time `Panel.enter()` assigns `path`. Markup cannot say a
   starting value: seed it in the hand-written `__init__` after `super().__init__()` (`manager.py` seeds `left.path`,

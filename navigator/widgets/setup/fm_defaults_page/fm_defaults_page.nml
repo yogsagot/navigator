@@ -1,6 +1,7 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 #: Options > File Manager > New Manager defaults: DOS Navigator's ``dlgFMDefaults``.
 #:
@@ -41,7 +42,8 @@ FMDefaultsPage:
         y: 2
         width: max(0, parent.width - 4)
         height: 3
-        items: ["~N~ame", "~E~xtension", "~S~ize", "~T~ime", "Attributes", "O~w~ner", "Ty~p~e", "~U~nsorted"]
+        #: Each order's caption ends in the way it runs, following the box.
+        items: sort_radio_captions(bool(reverse.value), root.glyphs)
 
     Label:
         id: display_caption

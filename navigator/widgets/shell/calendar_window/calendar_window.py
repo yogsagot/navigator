@@ -52,28 +52,6 @@ class CalendarWindow(Window):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        # The day spelled under the weeks and the week's first day, following
-        # *Country support* --
-        # navml's view knows no country, so it is told from here.
-        for view in (self.month, self.other):
-            view.first_weekday = bind(lambda w: country.first_weekday())
-        # The month in the menu's calendar, else *Country support*'s, and the
-        # day spelled in the Gregorian -- or as *View* says: in the calendar
-        # under the Gregorian month, and not at all under one month alone or
-        # two side by side, whose grids already say it.
-        self.month.system = bind(lambda w: "gregorian" if self.gregorian_grid() else self.calendar_system())
-        self.month.date_format = bind(lambda w: "" if self.calendar_view() in ("only", "both") else country.date_format())
-        self.month.label = bind(lambda w: self.calendar_system() if self.calendar_view() == "gregorian_grid"
-                                else "gregorian")
-        # Side by side, the calendar first and the Gregorian beside it.
-        self.other.system = bind(lambda w: "gregorian")
-        # Only the weeks the month has, the row spelling the day (if any)
-        # right under them, then a blank and the button.
-        for view in (self.month, self.other):
-            view.compact = True
-            view.height = bind(lambda w: 2 + self.rows() + self.spelled_rows())
-        self.today_button.y = bind(lambda w: 1 + 2 + self.rows() + self.spelled_rows() + 1)
-        self.other.visible = bind(lambda w: self.both())
         for key, system in SYSTEMS.items():
             item = self.system_menu.add_item("", SetCalendarSystem(key))
             item.text = bind(lambda w, system=system: system.caption())

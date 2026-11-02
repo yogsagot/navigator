@@ -61,7 +61,7 @@ class DeleteDialog(Dialog, _Component):
         self.prompt_head.height = 1    # delete_dialog.nml:25
         self.prompt_head.align = 'center'    # delete_dialog.nml:26
         self.prompt_head.text = _bind(    # delete_dialog.nml:27
-            lambda _o: _tr('Do you wish to delete'),
+            lambda _o: _tr('Do you wish to move to the Trash') if self.trashing() else _tr('Do you wish to delete'),
             yielding=True,
         )
 

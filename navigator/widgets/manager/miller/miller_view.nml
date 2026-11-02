@@ -1,0 +1,13 @@
+from navigator.widgets.viewer.quick_viewer import QuickViewer
+
+#: Miller columns (Alt+F12): the columns from the root down to the directory
+#: being browsed, and the preview after them.  The columns come and go with
+#: the chain (``open_at``, ``close``), so the markup holds only what is always
+#: there: the file half of the preview.
+MillerView:
+    #: The preview of a file under the cursor: the Ctrl+Q quick view, shown
+    #: while ``preview`` is ``"file"``.  The directory half (``preview_dir``)
+    #: is a column, made with the rest.
+    QuickViewer:
+        id: preview_file
+        visible: False

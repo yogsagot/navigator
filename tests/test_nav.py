@@ -1690,10 +1690,12 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.manager.manager.manager_nml",
         "navigator.widgets.manager.miller",                 # Alt+F12, placed by the manager
         "navigator.widgets.manager.miller.miller_view",
+        "navigator.widgets.manager.miller.miller_view_nml",
         "navigator.widgets.manager.panel",
         "navigator.widgets.manager.panel.drag",             # what a mouse drag carries, the panel's
         "navigator.widgets.manager.panel.option_items",     # the panel's option strip
         "navigator.widgets.manager.panel.panel",
+        "navigator.widgets.manager.panel.panel_nml",
         "navigator.widgets.shell",
         "navigator.widgets.shell.clock",
         "navigator.widgets.shell.clock.clock",
@@ -4675,3 +4677,20 @@ def test_a_directory_the_panel_comes_to_is_told_to_zoxide(tree, quiet_console, m
         assert added == []
     finally:
         SETTINGS.interface.feed_zoxide = True
+
+
+def test_interface_switches_follow_the_markup_while_running(tmp_path):
+    """The clock, the key bar and the command line are shown by lines in
+    ``shell.nml`` that read only ``SETTINGS``: bound, so a change in
+    Options > Interface takes them away without a restart."""
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    shown = lambda a: seen.append((a.shell.clock.visible, a.shell.keybar.visible, a.shell.command_line.visible))
+
+    def hide(a):
+        SETTINGS.interface.clock = False
+        SETTINGS.interface.hide_status_line = True
+        SETTINGS.interface.hide_command_line = True
+
+    run_app(app, [shown, hide, shown])
+    assert seen == [(True, True, True), (False, False, False)]

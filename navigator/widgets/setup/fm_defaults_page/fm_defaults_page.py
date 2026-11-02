@@ -4,11 +4,9 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.reactive import bind
 from navkit.widget import Widget
 
 from navigator.settings import SETTINGS, PanelDefaultsData
-from navigator.widgets.manager.manager.manager import sort_radio_captions
 
 
 class FMDefaultsPage(Widget):
@@ -17,8 +15,6 @@ class FMDefaultsPage(Widget):
     def __init__(self, section: PanelDefaultsData | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.section = section or SETTINGS.panel_defaults
-        # Each order's caption ends in the way it runs, following the box.
-        self.sort_by.items = bind(lambda _o: sort_radio_captions(bool(self.reverse.value), self.glyphs))
         self.sort_by.value = PanelDefaultsData.SORT_BY.index(self.section.sort_by)
         self.sort_by.tooltip = self.section.tooltip("sort_by")
         self.reverse.value = 1 if self.section.sort_reverse else 0

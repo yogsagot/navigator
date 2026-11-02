@@ -17,7 +17,6 @@ import random
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Callable
 
-from navkit.bidi import display_width
 from navkit.commands import Command
 from navkit.events import Event, KeyEvent
 from navkit.i18n import tr
@@ -174,14 +173,6 @@ class Shell(DockLayout):
         # A shell that exits while it has the real terminal -- ``exit`` typed
         # at it -- can no longer hand it back, so Navigator takes it.
         self.console.subshell.on_exit = lambda status: self.end_relay()
-        # Options > Configuration > Interface: ``ouiClock``, ``ouiHideStatus``,
-        # ``ouiHideMenu`` and ``ouiHideCmdline``.  Bound here rather than in
-        # the markup, which evaluates a line that reads nothing of its widget
-        # once -- and these read only SETTINGS.
-        interface = SETTINGS.interface
-        self.clock.visible = bind(lambda w: interface.clock)
-        # *Country support*'s 12 hours put ``am``/``pm`` after the minutes.
-        self.clock.width = bind(lambda w: 7 if country.twelve_hours() else 5)
         # navml's file dialogs know no country, so they are told from here;
         # ``country.stamp`` reads the settings at each paint.
         FileInfoPane.stamp = staticmethod(country.stamp)
@@ -189,49 +180,7 @@ class Shell(DockLayout):
         CalendarView.default_first_weekday = staticmethod(country.first_weekday)
         #: The toasts up now, the newest at the bottom (:meth:`toast`).
         self._toasts = _Toasts()
-        self.keybar.visible = bind(lambda w: not interface.hide_status_line)
         self.keybar.menu = self.menu
-        # *Auto hide Command Line*: DN 1.51 declared the box and never read
-        # it, so this is the behaviour its ``CheckSize`` and ``ToggleCmdLine``
-        # gave a hidden line -- shown once it holds text, its row back to the
-        # desktop once it is empty again.
-        self.command_line.visible = bind(
-            lambda w: not interface.hide_command_line
-            and (not interface.auto_hide_command_line or w.value != "")
-        )
-        # A hidden bar gives the desktop its row and floats over it while a
-        # menu is open -- ``current`` is -1 only while none is.
-        self.menu.inline_style = bind(
-            lambda w: "dock: none" if interface.hide_menu_bar else "dock: top; basis: 1"
-        )
-        self.menu.visible = bind(lambda w: not interface.hide_menu_bar or w.current >= 0)
-        # File > Restore from Trash is there only while the file manager in
-        # front shows the Trash's own listing (``Manager.shows_trash``); a
-        # viewer or an editor in front has no such panel.
-        menu = self.menu
-        self.menu.file_restore_trash.hidden = bind(
-            lambda w: not getattr(menu.context, "shows_trash", False))
-        # *Window strip*: from a cell after the last menu to a cell before the
-        # clock, on a bar that is docked and over windows that are showing.
-        menu, clock = self.menu, self.clock
-        # The clock floats over the bar's end: a bar that would reach it
-        # closes up its captions (``MenuBar.tight``).
-        self.menu.reserve = bind(lambda w: max(0, w.width - clock.x + 1) if clock.visible else 0)
-        # The strip gives up its first cells to the mark of work in the
-        # background, which stands just before its chips (``shell.nml``).
-        job_mark, root_mark = self.job_mark, self.root_mark
-        self.window_strip.x = bind(
-            lambda w: menu.item_span(len(menu.entries()))[0] + 1 + (job_mark.width if job_mark.visible else 0))
-        self.window_strip.width = bind(
-            lambda w: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width)
-                          - 1 - w.x)
-        )
-        self.window_strip.labels = bind(lambda w: interface.window_strip == "full")
-        self.window_strip.visible = bind(
-            lambda w: interface.window_strip != "off"
-            and not interface.hide_menu_bar
-            and not self.console_visible
-        )
         #: Up and Down through the shell's history: the entries, where the walk
         #: is, what was typed before it began, and what it last put on the line.
         self._walk: tuple[list[str], int, str, str] | None = None

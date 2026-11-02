@@ -6,7 +6,6 @@ import time
 from typing import Any
 
 from navkit.i18n import tr
-from navkit.reactive import bind
 from navkit.widget import Widget
 from navml.calendars import SYSTEMS, plain
 
@@ -47,7 +46,6 @@ class CountryPage(Widget):
         self.calendar_view.choices = list(self.views)
         self.calendar_view.value = next(name for name, key in self.views.items() if key == self.section.calendar_view)
         self.calendar_view.tooltip = self.section.tooltip("calendar_view")
-        self.example.text = bind(lambda w: tr("Example: {stamp}").format(stamp=self.sample()))
 
     def chosen_format(self) -> str:
         """The date format the buttons and the line say, before OK."""
@@ -57,6 +55,10 @@ class CountryPage(Widget):
     def sample(self) -> str:
         """Now, as a panel's *Date* column would show it with these choices."""
         return country.stamp_in(time.time(), self.chosen_format(), HOURS[self.time_format.value] == "12h")
+
+    def example_text(self) -> str:
+        """The line under the choices: :meth:`sample`, said as an example."""
+        return tr("Example: {stamp}").format(stamp=self.sample())
 
     def accept(self) -> dict[str, Any]:
         return {

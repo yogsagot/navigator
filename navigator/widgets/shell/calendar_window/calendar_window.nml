@@ -6,6 +6,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navigator.lib.config import country
 
 #: Utilities > Calendar: Turbo Vision's ``TCalendarWindow`` (TVDEMO), not DOS
 #: Navigator's -- DN 1.51 had no calendar; a departure, asked for.
@@ -17,7 +18,7 @@ from navml.widgets.window import Window
 #: did.  *Go to current date* (Alt+D, or ``T`` in the month) brings today
 #: back under the cursor -- not TVDEMO's, asked for.  Under the weeks the
 #: day under the cursor is spelled in *Country support*'s date format, as a
-#: date line's drop-down spells it in the line's (bound in ``__init__``).
+#: date line's drop-down spells it in the line's.
 #: Esc closes it.
 #:
 #: **The month can be in another calendar** (``navml.calendars``: Julian,
@@ -55,13 +56,24 @@ CalendarWindow(Window):
         c: SwapCalendars
         shift+c: SwapCalendars
 
+    #: The month in the menu's calendar, else *Country support*'s, and the
+    #: day spelled in the Gregorian -- or as *View* says: in the calendar
+    #: under the Gregorian month, and not at all under one month alone or two
+    #: side by side, whose grids already say it.  The week's first day is
+    #: *Country support*'s: navml's view knows no country.  Only the weeks the
+    #: month has, the row spelling the day (if any) right under them.
     CalendarView:
         id: month
         x: 2
         y: 1
         width: 22
-        height: 9
+        height: 2 + root.rows() + root.spelled_rows()
+        compact: True
         can_focus: True
+        first_weekday: country.first_weekday()
+        system: "gregorian" if root.gregorian_grid() else root.calendar_system()
+        date_format: "" if root.calendar_view() in ("only", "both") else country.date_format()
+        label: root.calendar_system() if root.calendar_view() == "gregorian_grid" else "gregorian"
 
     #: The Gregorian month beside the calendar system's, in *View*'s *Both
     #: months*; on the same day as ``month``, which the window keeps.
@@ -70,15 +82,19 @@ CalendarWindow(Window):
         x: 27
         y: 1
         width: 22
-        height: 9
+        height: 2 + root.rows() + root.spelled_rows()
+        compact: True
         can_focus: True
-        visible: False
+        visible: root.both()
+        first_weekday: country.first_weekday()
+        system: "gregorian"
 
+    #: A blank under the weeks, then the button.
     Button:
         id: today_button
         text: "Go to current ~d~ate"
         x: 2
-        y: 11
+        y: 1 + 2 + root.rows() + root.spelled_rows() + 1
         width: 23
         height: 2
 
