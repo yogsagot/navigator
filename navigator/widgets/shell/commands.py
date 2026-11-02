@@ -298,6 +298,13 @@ class HistoryList(Command):
     """
 
 
+class FuzzyHistory(Command):
+    """Alt+Shift+F8, Utilities > Search history (fzf): the commands typed, here
+    and in the shell, searched by fzf on the console; the one chosen goes on
+    the line.  Not DOS Navigator's (a departure, asked for).
+    """
+
+
 class MenuFileEdit(Command):
     """Options > Global menu definition: the global ``menu.ini`` in an editor.
 
@@ -376,6 +383,7 @@ __all__ = [
     "ScreenRest",
     "MenuFileEdit",
     "HistoryList",
+    "FuzzyHistory",
     "EnvEdit",
     "SystemInfo",
     "OpenCalendar",

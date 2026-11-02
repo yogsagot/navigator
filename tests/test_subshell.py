@@ -550,3 +550,164 @@ def test_an_atuin_up_binding_is_recognised_and_run(home, tmp_path, monkeypatch):
     shown = text(subshell.screen)
     assert "FAKE ATUIN ls" in shown
     assert not any("__nav_atuin" in line for line in shown)
+
+
+def fake_fzf(home: Path) -> Path:
+    """An ``fzf`` and a ``zoxide`` on a ``PATH`` of their own.
+
+    fzf keeps what it was given in ``fzf.input`` -- its standard input, then a
+    line of its arguments and one of ``FZF_DEFAULT_OPTS`` -- draws ``FAKE
+    FZF`` on the terminal and chooses ``$FAKE_FZF_CHOICE``, else the first line it read.
+    zoxide's database is two directories, and what it is told to add goes to
+    ``zoxide.log``.
+    """
+    bin_dir = home / "bin"
+    bin_dir.mkdir(exist_ok=True)
+    fzf = bin_dir / "fzf"
+    fzf.write_text(
+        '#!/bin/sh\n'
+        f'log={home}/fzf.input\n'
+        '[ -t 0 ] && : > "$log" || cat > "$log"\n'
+        'printf "ARGS %s\\nOPTS %s\\n" "$*" "$FZF_DEFAULT_OPTS" >> "$log"\n'
+        'echo "FAKE FZF" > /dev/tty\n'
+        'if [ -n "${FAKE_FZF_CHOICE+set}" ]; then printf "%s\\n" "$FAKE_FZF_CHOICE"\n'
+        'else head -n 1 "$log"; fi\n'
+    )
+    zoxide = bin_dir / "zoxide"
+    zoxide.write_text(
+        '#!/bin/sh\n'
+        'if [ "$1" = query ]; then printf "/z/one\\n/z/two\\n"; exit; fi\n'
+        f'echo "$@" >> {home}/zoxide.log\n'
+    )
+    for program in (fzf, zoxide):
+        program.chmod(0o755)
+    return bin_dir
+
+
+@pytest.fixture
+def fzf_path(home, monkeypatch) -> Path:
+    bin_dir = fake_fzf(home)
+    monkeypatch.setenv("PATH", f"{bin_dir}:{os.environ['PATH']}")
+    return bin_dir
+
+
+async def picked(shell: str, cwd: Path, kind: str, line: str = "", listing: Path | None = None,
+                 before: str | None = None):
+    """What :meth:`Subshell.pick` handed back, after running *before* if given."""
+    done = asyncio.Event()
+    subshell, ready = await started(shell, cwd, on_finished=lambda *_: done.set())
+    chosen = []
+    try:
+        if before is not None:
+            ready.clear()
+            subshell.run(before, cwd)
+            await asyncio.wait_for(done.wait(), 10)
+            await asyncio.wait_for(ready.wait(), 10)  # and its prompt, after
+        ready.clear()
+        assert subshell.pick(kind, line, chosen.append, listing)
+        assert subshell.busy
+        await asyncio.wait_for(ready.wait(), 10)
+    finally:
+        subshell.stop()
+    return subshell, chosen
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_fzf_s_key_bindings_are_recognised(shell, home, tmp_path, fzf_path):
+    rc(home,
+       bash="__fzf_history__() { :; }\n__fzf_cd__() { :; }\nfzf-file-widget() { :; }\n"
+            "bind -x '\"\\C-r\": __fzf_history__'\n"
+            "bind '\"\\ec\": \" \\C-b\\C-k \\C-u`__fzf_cd__`\\e\\C-e\\er\\C-m\"'\n"
+            "bind -x '\"\\C-t\": fzf-file-widget'",
+       zsh="fzf-history-widget() { :; }\nfzf-cd-widget() { :; }\nfzf-file-widget() { :; }\n"
+           "zle -N fzf-history-widget\nzle -N fzf-cd-widget\nzle -N fzf-file-widget\n"
+           "bindkey '^R' fzf-history-widget\nbindkey '\\ec' fzf-cd-widget\n"
+           "bindkey '^T' fzf-file-widget")
+
+    async def go():
+        subshell, _ = await started(shell, tmp_path)
+        subshell.stop()
+        return subshell
+
+    subshell = run(go())
+    assert (subshell.up_binding, subshell.search_binding, subshell.cd_binding,
+            subshell.file_binding) == (None, "fzf", "fzf", "fzf")
+    assert subshell.has_fzf
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_no_fzf_means_no_pick(shell, tmp_path, monkeypatch):
+    if shutil.which("fzf"):
+        pytest.skip("fzf is installed")
+
+    async def go():
+        subshell, _ = await started(shell, tmp_path)
+        try:
+            return subshell.has_fzf, subshell.pick("history", "", lambda _: None)
+        finally:
+            subshell.stop()
+
+    assert run(go()) == (False, False)
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_fzf_searches_navigator_s_history_then_the_shell_s(shell, home, tmp_path, fzf_path):
+    listing = tmp_path / "commands"
+    listing.write_text("nav command\necho typed\n")
+    subshell, chosen = run(picked(shell, tmp_path, "history", "ech", listing, before="echo typed"))
+    assert chosen == ["nav command"]
+    log = (home / "fzf.input").read_text().splitlines()
+    # Navigator's first, each once, and no line of the hook's among them.
+    assert log[:2] == ["nav command", "echo typed"]
+    assert not any("__nav" in line for line in log)
+    assert "ARGS --query=ech" in log
+    assert any(line.startswith("OPTS") and "--scheme=history" in line for line in log)
+    shown = text(subshell.screen)
+    assert "FAKE FZF" in shown
+    assert not any("__nav_fzf" in line for line in shown)
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_fzf_jumps_to_zoxide_s_directories_then_navigator_s(shell, home, tmp_path, fzf_path,
+                                                             monkeypatch):
+    monkeypatch.setenv("FAKE_FZF_CHOICE", "/z/two")
+    monkeypatch.setenv("FZF_ALT_C_OPTS", "--mine")
+    listing = tmp_path / "directories"
+    listing.write_text("/z/one\n/nav/dir\n")
+    _, chosen = run(picked(shell, tmp_path, "directories", "", listing))
+    assert chosen == ["/z/two"]
+    log = (home / "fzf.input").read_text().splitlines()
+    assert log[:3] == ["/z/one", "/z/two", "/nav/dir"]
+    opts = next(line for line in log if line.startswith("OPTS"))
+    assert opts.endswith("--mine") and "--scheme=path" in opts
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+def test_a_cancelled_pick_hands_back_nothing(shell, tmp_path, fzf_path, monkeypatch):
+    monkeypatch.setenv("FAKE_FZF_CHOICE", "")
+    _, chosen = run(picked(shell, tmp_path, "cd"))
+    assert chosen in ([""], ["\n"]) and not chosen[0].strip()
+
+
+@pytest.mark.parametrize("shell", HOOKED)
+@pytest.mark.parametrize("feeds", [True, False])
+def test_feeding_zoxide_silences_its_own_hook(shell, feeds, home, tmp_path):
+    log = home / "hooked"
+    rc(home,
+       bash=f"__zoxide_hook() {{ echo hook >> {log}; }}\nPROMPT_COMMAND=\"__zoxide_hook;$PROMPT_COMMAND\"",
+       zsh=f"__zoxide_hook() {{ echo hook >> {log} }}\nprecmd_functions+=(__zoxide_hook)")
+    (tmp_path / "sub").mkdir()
+
+    async def go():
+        done = asyncio.Event()
+        subshell = Subshell(ConsoleScreen(80, 24), shell=shutil.which(shell),
+                            on_finished=lambda *_: done.set())
+        subshell.feeds_zoxide = lambda: feeds
+        try:
+            subshell.run("cd sub", tmp_path)
+            await asyncio.wait_for(done.wait(), 10)
+        finally:
+            subshell.stop()
+
+    run(go())
+    assert log.exists() is not feeds

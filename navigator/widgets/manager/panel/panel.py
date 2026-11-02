@@ -963,11 +963,17 @@ class Panel(ContextMenuHost, ListViewer):
     @staticmethod
     def _remember_directory(path: Path) -> None:
         """Interface's *Track directories*: *path* first in the ``directories``
-        history (Alt+Backspace), as ``AddToDirectoryHistory`` put it."""
+        history (Alt+Backspace), as ``AddToDirectoryHistory`` put it.  And
+        ``[interface] feed_zoxide``: a directory on the disk told to zoxide
+        too (a departure), so its ``z`` knows where the panels have been."""
         if SETTINGS.interface.track_directories:
             from navml.history import HISTORY
 
             HISTORY.add("directories", str(path))
+        if SETTINGS.interface.feed_zoxide and path.is_local:
+            from navigator.lib.system import fuzzy
+
+            fuzzy.add(str(path.local))
 
     def reload(self, key: str | None = None) -> None:
         """Re-read the directory this panel shows, keeping the cursor on its entry.

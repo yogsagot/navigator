@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
@@ -100,6 +100,7 @@ Manager(Window):
         alt+k: SetupColumns
         alt+delete: AdvancedFilter
         alt+backspace: DirHistory
+        alt+j: JumpToDirectory
         ctrl+t: ToggleTree
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
@@ -330,3 +331,9 @@ Manager(Window):
             text: 'History of directories...'
             command: DirHistory
             key: 'Alt-BkSp'
+        #: Not DN's: fzf over zoxide's directories and the panels' history.
+        MenuItem:
+            text: '~J~ump to directory...'
+            tooltip: "zoxide's directories and the panels' history, searched by fzf"
+            command: JumpToDirectory
+            key: 'Alt-J'

@@ -424,6 +424,13 @@ class InterfaceData(Section):
     track_viewing: bool = Setting(True, doc="Track viewing history: Alt+PgDn, modes restored")
     #: On, a departure as the two above: DN's default was off.
     track_directories: bool = Setting(True, doc="Track directories: Alt+Backspace lists where the panels have been")
+    #: Not DN's (a departure, asked for): zoxide's database learns the
+    #: directories the panels come to, and the shell's own zoxide hook is
+    #: silenced so none is counted twice.  In navigator.ini alone: the
+    #: Interface page has no row left.  Read when the shell starts.
+    feed_zoxide: bool = Setting(
+        True, doc="Tell zoxide every directory a panel comes to, where zoxide is installed",
+    )
     #: A departure: DN fixed these at 20 (``MaxHistorySize``,
     #: ``MaxEditHistorySize``), when every list sat in 64K of DOS memory.
     #: One size for every history; pinned entries are never counted out.

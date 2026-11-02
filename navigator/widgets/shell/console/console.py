@@ -15,6 +15,7 @@ from navkit.reactive import effect, reactive
 from navkit.screen import Cell
 
 from navigator.lib.system.subshell import Subshell
+from navigator.settings import SETTINGS
 from navigator.widgets.shell.console.screen_view import WHEEL_LINES, ScreenView
 
 #: Wider than any row a prompt is typed on; a longer one wraps, and the row it
@@ -85,6 +86,7 @@ class Console(ScreenView):
             self.screen, on_output=self._changed, on_prompt=self._prompted,
             on_busy=self._busy_changed,
         )
+        self.subshell.feeds_zoxide = lambda: SETTINGS.interface.feed_zoxide
         self.seeded = False
         # The pty is told how big it is whenever this widget is, which is the
         # whole of the resize handling: the kernel raises SIGWINCH on the

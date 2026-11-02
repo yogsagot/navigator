@@ -46,7 +46,7 @@ from navigator.lib.config import keybindings, language
 from navigator.lib.config.associations import seed_all as seed_associations
 from navigator.lib.config.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady
+from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
 from navigator.lib.appearance.scheme import (
@@ -70,6 +70,7 @@ from navigator.widgets.shell.commands import (
     QuickRun,
     Game,
     HistoryList,
+    FuzzyHistory,
     NewManager,
     OpenCalendar,
     ViewHistory,
@@ -391,6 +392,7 @@ class Navigator(Application):
         "alt+f5": ShowUserScreen,
         "alt+shift+insert": ScreenGrab,
         "alt+f8": HistoryList,
+        "alt+shift+f8": FuzzyHistory,
         "ctrl+f3": NewManager,
         "alt+pageup": EditHistory,
         "alt+pagedown": ViewHistory,
@@ -515,6 +517,11 @@ class Navigator(Application):
     async def on_history_chosen(self, event: HistoryChosen) -> bool:
         """What atuin's search chose: posted from the pty's reader."""
         self.shell.history_chosen(event.text)
+        return True
+
+    async def on_pick_chosen(self, event: PickChosen) -> bool:
+        """What fzf chose on the console: posted from the pty's reader."""
+        self.shell.pick_chosen(event.text)
         return True
 
     async def on_command_finished(self, event: CommandFinished) -> bool:

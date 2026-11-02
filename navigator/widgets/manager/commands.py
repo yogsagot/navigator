@@ -432,6 +432,13 @@ class DirHistory(Command):
     """
 
 
+class JumpToDirectory(Command):
+    """Alt+J, Panel > Jump to directory: zoxide's directories and the panels'
+    history, searched by fzf on the console; the active panel goes to the one
+    chosen.  Not DOS Navigator's (a departure, asked for).
+    """
+
+
 class ListOfDirs(Command):
     """Alt+Shift+0, Panel > Quick dirs: the bookmarks box for the active panel.
 
@@ -755,6 +762,7 @@ __all__ = [
     "SetupColumns",
     "AdvancedFilter",
     "DirHistory",
+    "JumpToDirectory",
     "ListOfDirs",
     "QuickChange",
     "StoreQuickDir",

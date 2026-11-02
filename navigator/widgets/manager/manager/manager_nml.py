@@ -17,7 +17,7 @@ from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile    # manager.nml:1
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile    # manager.nml:1
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit    # manager.nml:2
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator    # manager.nml:3
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup    # manager.nml:4
@@ -123,29 +123,30 @@ class Manager(Window, _Component):
         'alt+k': SetupColumns,    # manager.nml:100
         'alt+delete': AdvancedFilter,    # manager.nml:101
         'alt+backspace': DirHistory,    # manager.nml:102
-        'ctrl+t': ToggleTree,    # manager.nml:103
-        'ctrl+q': QuickView,    # manager.nml:104
-        'ctrl+y': ToggleShowMode,    # manager.nml:105
-        'ctrl+h': ToggleHidden,    # manager.nml:106
-        'alt+i': ToggleInfoLines,    # manager.nml:107
-        'ctrl+r': Rescan,    # manager.nml:108
-        'ctrl+s': QuickSearch,    # manager.nml:109
-        'shift+f1': ArchiveFiles,    # manager.nml:110
-        'shift+f2': ExtractArchive,    # manager.nml:111
-        'shift+f4': EditNamed,    # manager.nml:112
-        'shift+f5': MakeLink,    # manager.nml:113
-        'shift+f8': DeleteSingle,    # manager.nml:114
+        'alt+j': JumpToDirectory,    # manager.nml:103
+        'ctrl+t': ToggleTree,    # manager.nml:104
+        'ctrl+q': QuickView,    # manager.nml:105
+        'ctrl+y': ToggleShowMode,    # manager.nml:106
+        'ctrl+h': ToggleHidden,    # manager.nml:107
+        'alt+i': ToggleInfoLines,    # manager.nml:108
+        'ctrl+r': Rescan,    # manager.nml:109
+        'ctrl+s': QuickSearch,    # manager.nml:110
+        'shift+f1': ArchiveFiles,    # manager.nml:111
+        'shift+f2': ExtractArchive,    # manager.nml:112
+        'shift+f4': EditNamed,    # manager.nml:113
+        'shift+f5': MakeLink,    # manager.nml:114
+        'shift+f8': DeleteSingle,    # manager.nml:115
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    panels: HorizontalLayout    # manager.nml:117
-    left: Panel    # manager.nml:124
-    right: Panel    # manager.nml:128
-    tree: DirectoryTree    # manager.nml:137
-    quick: QuickViewer    # manager.nml:143
-    info: InfoPanel    # manager.nml:148
-    miller: MillerView    # manager.nml:153
-    panel_menu: SubMenu    # manager.nml:163
+    panels: HorizontalLayout    # manager.nml:118
+    left: Panel    # manager.nml:125
+    right: Panel    # manager.nml:129
+    tree: DirectoryTree    # manager.nml:138
+    quick: QuickViewer    # manager.nml:144
+    info: InfoPanel    # manager.nml:149
+    miller: MillerView    # manager.nml:154
+    panel_menu: SubMenu    # manager.nml:164
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -155,334 +156,346 @@ class Manager(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_left_dropped(self, event: _Event) -> bool:    # manager.nml:124
+    async def on_left_dropped(self, event: _Event) -> bool:    # manager.nml:125
         """``left`` raised an event whose handler is ``on_dropped``."""
         return False
 
-    async def on_left_execute_file(self, event: _Event) -> bool:    # manager.nml:124
+    async def on_left_execute_file(self, event: _Event) -> bool:    # manager.nml:125
         """``left`` raised an event whose handler is ``on_execute_file``."""
         return False
 
-    async def on_left_open_file(self, event: _Event) -> bool:    # manager.nml:124
+    async def on_left_open_file(self, event: _Event) -> bool:    # manager.nml:125
         """``left`` raised an event whose handler is ``on_open_file``."""
         return False
 
-    async def on_right_dropped(self, event: _Event) -> bool:    # manager.nml:128
+    async def on_right_dropped(self, event: _Event) -> bool:    # manager.nml:129
         """``right`` raised an event whose handler is ``on_dropped``."""
         return False
 
-    async def on_right_execute_file(self, event: _Event) -> bool:    # manager.nml:128
+    async def on_right_execute_file(self, event: _Event) -> bool:    # manager.nml:129
         """``right`` raised an event whose handler is ``on_execute_file``."""
         return False
 
-    async def on_right_open_file(self, event: _Event) -> bool:    # manager.nml:128
+    async def on_right_open_file(self, event: _Event) -> bool:    # manager.nml:129
         """``right`` raised an event whose handler is ``on_open_file``."""
         return False
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:137
+    async def on_tree_chosen(self, event: _Event) -> bool:    # manager.nml:138
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.panels = HorizontalLayout(parent=self)    # manager.nml:116
-        self.left = Panel(parent=self.panels)    # manager.nml:123
-        self.right = Panel(parent=self.panels)    # manager.nml:127
-        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:136
-        self.quick = QuickViewer(parent=self.panels)    # manager.nml:142
-        self.info = InfoPanel(parent=self.panels)    # manager.nml:147
-        self.miller = MillerView(parent=self.panels)    # manager.nml:152
-        self.panel_menu = SubMenu(parent=self)    # manager.nml:162
-        _w1 = MenuItem(parent=self.panel_menu)    # manager.nml:167
-        _w2 = MenuItem(parent=self.panel_menu)    # manager.nml:172
-        _w3 = MenuItem(parent=self.panel_menu)    # manager.nml:178
-        _w4 = MenuItem(parent=self.panel_menu)    # manager.nml:183
-        _w5 = MenuItem(parent=self.panel_menu)    # manager.nml:187
-        _w6 = MenuItem(parent=self.panel_menu)    # manager.nml:192
-        _w7 = MenuLine(parent=self.panel_menu)    # manager.nml:196
-        _w8 = MenuItem(parent=self.panel_menu)    # manager.nml:198
-        _w9 = MenuItem(parent=self.panel_menu)    # manager.nml:203
-        _w10 = MenuLine(parent=self.panel_menu)    # manager.nml:207
-        _w11 = MenuItem(parent=self.panel_menu)    # manager.nml:212
-        _w12 = MenuItem(parent=self.panel_menu)    # manager.nml:216
-        _w13 = MenuLine(parent=self.panel_menu)    # manager.nml:220
-        _w14 = MenuItem(parent=self.panel_menu)    # manager.nml:221
-        _w15 = MenuItem(parent=self.panel_menu)    # manager.nml:225
-        _w16 = MenuItem(parent=self.panel_menu)    # manager.nml:229
-        _w17 = MenuItem(parent=self.panel_menu)    # manager.nml:233
-        _w18 = MenuItem(parent=self.panel_menu)    # manager.nml:237
-        _w19 = MenuItem(parent=self.panel_menu)    # manager.nml:241
-        _w20 = MenuItem(parent=self.panel_menu)    # manager.nml:247
-        _w21 = MenuItem(parent=self.panel_menu)    # manager.nml:251
-        _w22 = MenuLine(parent=self.panel_menu)    # manager.nml:255
-        _w23 = MenuItem(parent=self.panel_menu)    # manager.nml:256
-        _w24 = MenuItem(parent=self.panel_menu)    # manager.nml:260
-        _w25 = MenuItem(parent=self.panel_menu)    # manager.nml:265
-        _w26 = MenuLine(parent=self.panel_menu)    # manager.nml:270
-        _w27 = MenuItem(parent=self.panel_menu)    # manager.nml:271
-        _w28 = MenuItem(parent=self.panel_menu)    # manager.nml:275
-        _w29 = MenuItem(parent=self.panel_menu)    # manager.nml:279
-        _w30 = MenuItem(parent=self.panel_menu)    # manager.nml:283
-        _w31 = MenuItem(parent=self.panel_menu)    # manager.nml:288
-        _w32 = MenuLine(parent=self.panel_menu)    # manager.nml:293
-        _w33 = MenuItem(parent=self.panel_menu)    # manager.nml:294
-        _w34 = MenuItem(parent=self.panel_menu)    # manager.nml:299
-        _w35 = MenuItem(parent=self.panel_menu)    # manager.nml:304
-        _w36 = MenuItem(parent=self.panel_menu)    # manager.nml:308
-        _w37 = MenuItem(parent=self.panel_menu)    # manager.nml:312
-        _w38 = MenuItem(parent=self.panel_menu)    # manager.nml:319
-        _w39 = MenuItem(parent=self.panel_menu)    # manager.nml:324
-        _w40 = MenuItem(parent=self.panel_menu)    # manager.nml:329
+        self.panels = HorizontalLayout(parent=self)    # manager.nml:117
+        self.left = Panel(parent=self.panels)    # manager.nml:124
+        self.right = Panel(parent=self.panels)    # manager.nml:128
+        self.tree = DirectoryTree(parent=self.panels)    # manager.nml:137
+        self.quick = QuickViewer(parent=self.panels)    # manager.nml:143
+        self.info = InfoPanel(parent=self.panels)    # manager.nml:148
+        self.miller = MillerView(parent=self.panels)    # manager.nml:153
+        self.panel_menu = SubMenu(parent=self)    # manager.nml:163
+        _w1 = MenuItem(parent=self.panel_menu)    # manager.nml:168
+        _w2 = MenuItem(parent=self.panel_menu)    # manager.nml:173
+        _w3 = MenuItem(parent=self.panel_menu)    # manager.nml:179
+        _w4 = MenuItem(parent=self.panel_menu)    # manager.nml:184
+        _w5 = MenuItem(parent=self.panel_menu)    # manager.nml:188
+        _w6 = MenuItem(parent=self.panel_menu)    # manager.nml:193
+        _w7 = MenuLine(parent=self.panel_menu)    # manager.nml:197
+        _w8 = MenuItem(parent=self.panel_menu)    # manager.nml:199
+        _w9 = MenuItem(parent=self.panel_menu)    # manager.nml:204
+        _w10 = MenuLine(parent=self.panel_menu)    # manager.nml:208
+        _w11 = MenuItem(parent=self.panel_menu)    # manager.nml:213
+        _w12 = MenuItem(parent=self.panel_menu)    # manager.nml:217
+        _w13 = MenuLine(parent=self.panel_menu)    # manager.nml:221
+        _w14 = MenuItem(parent=self.panel_menu)    # manager.nml:222
+        _w15 = MenuItem(parent=self.panel_menu)    # manager.nml:226
+        _w16 = MenuItem(parent=self.panel_menu)    # manager.nml:230
+        _w17 = MenuItem(parent=self.panel_menu)    # manager.nml:234
+        _w18 = MenuItem(parent=self.panel_menu)    # manager.nml:238
+        _w19 = MenuItem(parent=self.panel_menu)    # manager.nml:242
+        _w20 = MenuItem(parent=self.panel_menu)    # manager.nml:248
+        _w21 = MenuItem(parent=self.panel_menu)    # manager.nml:252
+        _w22 = MenuLine(parent=self.panel_menu)    # manager.nml:256
+        _w23 = MenuItem(parent=self.panel_menu)    # manager.nml:257
+        _w24 = MenuItem(parent=self.panel_menu)    # manager.nml:261
+        _w25 = MenuItem(parent=self.panel_menu)    # manager.nml:266
+        _w26 = MenuLine(parent=self.panel_menu)    # manager.nml:271
+        _w27 = MenuItem(parent=self.panel_menu)    # manager.nml:272
+        _w28 = MenuItem(parent=self.panel_menu)    # manager.nml:276
+        _w29 = MenuItem(parent=self.panel_menu)    # manager.nml:280
+        _w30 = MenuItem(parent=self.panel_menu)    # manager.nml:284
+        _w31 = MenuItem(parent=self.panel_menu)    # manager.nml:289
+        _w32 = MenuLine(parent=self.panel_menu)    # manager.nml:294
+        _w33 = MenuItem(parent=self.panel_menu)    # manager.nml:295
+        _w34 = MenuItem(parent=self.panel_menu)    # manager.nml:300
+        _w35 = MenuItem(parent=self.panel_menu)    # manager.nml:305
+        _w36 = MenuItem(parent=self.panel_menu)    # manager.nml:309
+        _w37 = MenuItem(parent=self.panel_menu)    # manager.nml:313
+        _w38 = MenuItem(parent=self.panel_menu)    # manager.nml:320
+        _w39 = MenuItem(parent=self.panel_menu)    # manager.nml:325
+        _w40 = MenuItem(parent=self.panel_menu)    # manager.nml:330
+        _w41 = MenuItem(parent=self.panel_menu)    # manager.nml:335
 
         self.zoomed = True    # manager.nml:40
         self.min_width = 24    # manager.nml:41
         self.min_height = 5    # manager.nml:42
 
-        self.panels.x = 0    # manager.nml:118
-        self.panels.y = 0    # manager.nml:119
-        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:120
-        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:121
+        self.panels.x = 0    # manager.nml:119
+        self.panels.y = 0    # manager.nml:120
+        self.panels.width = _bind(lambda _o: _o.parent.width)    # manager.nml:121
+        self.panels.height = _bind(lambda _o: _o.parent.height)    # manager.nml:122
 
-        self.left.title_margin = 5    # manager.nml:125
-        self.left.on_dropped = self.on_left_dropped    # manager.nml:124
-        self.left.on_execute_file = self.on_left_execute_file    # manager.nml:124
-        self.left.on_open_file = self.on_left_open_file    # manager.nml:124
+        self.left.title_margin = 5    # manager.nml:126
+        self.left.on_dropped = self.on_left_dropped    # manager.nml:125
+        self.left.on_execute_file = self.on_left_execute_file    # manager.nml:125
+        self.left.on_open_file = self.on_left_open_file    # manager.nml:125
 
-        self.right.title_margin = 5    # manager.nml:129
-        self.right.on_dropped = self.on_right_dropped    # manager.nml:128
-        self.right.on_execute_file = self.on_right_execute_file    # manager.nml:128
-        self.right.on_open_file = self.on_right_open_file    # manager.nml:128
+        self.right.title_margin = 5    # manager.nml:130
+        self.right.on_dropped = self.on_right_dropped    # manager.nml:129
+        self.right.on_execute_file = self.on_right_execute_file    # manager.nml:129
+        self.right.on_open_file = self.on_right_open_file    # manager.nml:129
 
-        self.tree.type_to_search = False    # manager.nml:138
-        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:137
+        self.tree.type_to_search = False    # manager.nml:139
+        self.tree.on_chosen = self.on_tree_chosen    # manager.nml:138
 
-        self.quick.title_margin = 5    # manager.nml:144
+        self.quick.title_margin = 5    # manager.nml:145
 
-        self.panel_menu.text = _bind(lambda _o: _tr('~P~anel'), yielding=True)    # manager.nml:164
-        self.panel_menu.tooltip = _bind(    # manager.nml:165
+        self.panel_menu.text = _bind(lambda _o: _tr('~P~anel'), yielding=True)    # manager.nml:165
+        self.panel_menu.tooltip = _bind(    # manager.nml:166
             lambda _o: _tr('List files, compare, sort, filter, select and change directory'),
             yielding=True,
         )
-        self.panel_menu.after = 'Utilities'    # manager.nml:166
+        self.panel_menu.after = 'Utilities'    # manager.nml:167
 
-        _w1.text = _bind(lambda _o: _tr('~M~ake list file...'), yielding=True)    # manager.nml:168
-        _w1.tooltip = _bind(    # manager.nml:169
+        _w1.text = _bind(lambda _o: _tr('~M~ake list file...'), yielding=True)    # manager.nml:169
+        _w1.tooltip = _bind(    # manager.nml:170
             lambda _o: _tr("Write the tagged files' names to a list file"),
             yielding=True,
         )
-        _w1.command = MakeList    # manager.nml:170
-        _w1.key = 'Alt-L'    # manager.nml:171
+        _w1.command = MakeList    # manager.nml:171
+        _w1.key = 'Alt-L'    # manager.nml:172
 
-        _w2.text = _bind(lambda _o: _tr('Read file ~l~ist'), yielding=True)    # manager.nml:173
-        _w2.tooltip = _bind(    # manager.nml:174
+        _w2.text = _bind(lambda _o: _tr('Read file ~l~ist'), yielding=True)    # manager.nml:174
+        _w2.tooltip = _bind(    # manager.nml:175
             lambda _o: _tr('Show the files a list file names as a listing'),
             yielding=True,
         )
-        _w2.command = ReadFileList    # manager.nml:175
-        _w2.key = 'Alt-V'    # manager.nml:176
+        _w2.command = ReadFileList    # manager.nml:176
+        _w2.key = 'Alt-V'    # manager.nml:177
 
-        _w3.text = _bind(    # manager.nml:179
+        _w3.text = _bind(    # manager.nml:180
             lambda _o: _tr('Paneli~z~e command...'),
             yielding=True,
         )
-        _w3.tooltip = _bind(    # manager.nml:180
+        _w3.tooltip = _bind(    # manager.nml:181
             lambda _o: _tr('Run a command and list the files it prints in the panel'),
             yielding=True,
         )
-        _w3.command = Panelize    # manager.nml:181
-        _w3.key = 'Alt-Y'    # manager.nml:182
+        _w3.command = Panelize    # manager.nml:182
+        _w3.key = 'Alt-Y'    # manager.nml:183
 
-        _w4.text = _bind(    # manager.nml:184
+        _w4.text = _bind(    # manager.nml:185
             lambda _o: _tr('~C~ompare directories'),
             yielding=True,
         )
-        _w4.tooltip = _bind(    # manager.nml:185
+        _w4.tooltip = _bind(    # manager.nml:186
             lambda _o: _tr('Tag what each panel has that the other lacks or has older'),
             yielding=True,
         )
-        _w4.command = CompareDir    # manager.nml:186
+        _w4.command = CompareDir    # manager.nml:187
 
-        _w5.text = _bind(    # manager.nml:188
+        _w5.text = _bind(    # manager.nml:189
             lambda _o: _tr('Count directory len~g~th'),
             yielding=True,
         )
-        _w5.tooltip = _bind(    # manager.nml:189
+        _w5.tooltip = _bind(    # manager.nml:190
             lambda _o: _tr('Add up the bytes under the selected directories'),
             yielding=True,
         )
-        _w5.command = CountLength    # manager.nml:190
-        _w5.key = 'Alt-G'    # manager.nml:191
+        _w5.command = CountLength    # manager.nml:191
+        _w5.key = 'Alt-G'    # manager.nml:192
 
-        _w6.text = _bind(lambda _o: _tr('Directory Branc~h~'), yielding=True)    # manager.nml:193
-        _w6.tooltip = _bind(    # manager.nml:194
+        _w6.text = _bind(lambda _o: _tr('Directory Branc~h~'), yielding=True)    # manager.nml:194
+        _w6.tooltip = _bind(    # manager.nml:195
             lambda _o: _tr('Every file below this directory in one listing'),
             yielding=True,
         )
-        _w6.command = DirBranch    # manager.nml:195
+        _w6.command = DirBranch    # manager.nml:196
 
-        _w8.text = _bind(lambda _o: _tr('Multi-rename...'), yielding=True)    # manager.nml:199
-        _w8.tooltip = _bind(    # manager.nml:200
+        _w8.text = _bind(lambda _o: _tr('Multi-rename...'), yielding=True)    # manager.nml:200
+        _w8.tooltip = _bind(    # manager.nml:201
             lambda _o: _tr('Rename the tagged files by a pattern'),
             yielding=True,
         )
-        _w8.command = MultiRename    # manager.nml:201
-        _w8.key = 'Alt-A'    # manager.nml:202
+        _w8.command = MultiRename    # manager.nml:202
+        _w8.key = 'Alt-A'    # manager.nml:203
 
-        _w9.text = _bind(lambda _o: _tr('Undo multi-rename'), yielding=True)    # manager.nml:204
-        _w9.tooltip = _bind(    # manager.nml:205
+        _w9.text = _bind(lambda _o: _tr('Undo multi-rename'), yielding=True)    # manager.nml:205
+        _w9.tooltip = _bind(    # manager.nml:206
             lambda _o: _tr('Put back the names the last multi-rename changed'),
             yielding=True,
         )
-        _w9.command = UndoMultiRename    # manager.nml:206
+        _w9.command = UndoMultiRename    # manager.nml:207
 
-        _w11.text = _bind(lambda _o: _tr('E~x~tract to...'), yielding=True)    # manager.nml:213
-        _w11.command = ExtractTo    # manager.nml:214
-        _w11.key = 'Shift-F2'    # manager.nml:215
+        _w11.text = _bind(lambda _o: _tr('E~x~tract to...'), yielding=True)    # manager.nml:214
+        _w11.command = ExtractTo    # manager.nml:215
+        _w11.key = 'Shift-F2'    # manager.nml:216
 
-        _w12.text = _bind(lambda _o: _tr('Test archive'), yielding=True)    # manager.nml:217
-        _w12.tooltip = _bind(    # manager.nml:218
+        _w12.text = _bind(lambda _o: _tr('Test archive'), yielding=True)    # manager.nml:218
+        _w12.tooltip = _bind(    # manager.nml:219
             lambda _o: _tr('Read the archive through and check it for errors'),
             yielding=True,
         )
-        _w12.command = ArcTest    # manager.nml:219
+        _w12.command = ArcTest    # manager.nml:220
 
-        _w14.text = _bind(lambda _o: _tr('Setup c~o~lumns'), yielding=True)    # manager.nml:222
-        _w14.command = SetupColumns    # manager.nml:223
-        _w14.key = 'Alt-K'    # manager.nml:224
+        _w14.text = _bind(lambda _o: _tr('Setup c~o~lumns'), yielding=True)    # manager.nml:223
+        _w14.command = SetupColumns    # manager.nml:224
+        _w14.key = 'Alt-K'    # manager.nml:225
 
-        _w15.text = _bind(lambda _o: _tr('~S~etup Panel'), yielding=True)    # manager.nml:226
-        _w15.command = PanelSetup    # manager.nml:227
-        _w15.key = 'Alt-S'    # manager.nml:228
+        _w15.text = _bind(lambda _o: _tr('~S~etup Panel'), yielding=True)    # manager.nml:227
+        _w15.command = PanelSetup    # manager.nml:228
+        _w15.key = 'Alt-S'    # manager.nml:229
 
-        _w16.text = _bind(lambda _o: _tr('Sort ~b~y...'), yielding=True)    # manager.nml:230
-        _w16.command = SortBy    # manager.nml:231
-        _w16.key = 'Alt-B'    # manager.nml:232
+        _w16.text = _bind(lambda _o: _tr('Sort ~b~y...'), yielding=True)    # manager.nml:231
+        _w16.command = SortBy    # manager.nml:232
+        _w16.key = 'Alt-B'    # manager.nml:233
 
-        _w17.text = _bind(lambda _o: _tr('Vie~w~ mode'), yielding=True)    # manager.nml:234
-        _w17.command = ToggleShowMode    # manager.nml:235
-        _w17.key = 'Ctrl-Y'    # manager.nml:236
+        _w17.text = _bind(lambda _o: _tr('Vie~w~ mode'), yielding=True)    # manager.nml:235
+        _w17.command = ToggleShowMode    # manager.nml:236
+        _w17.key = 'Ctrl-Y'    # manager.nml:237
 
-        _w18.text = _bind(    # manager.nml:238
+        _w18.text = _bind(    # manager.nml:239
             lambda _o: _tr('Show/hide h~i~dden files'),
             yielding=True,
         )
-        _w18.command = ToggleHidden    # manager.nml:239
-        _w18.key = 'Ctrl-H'    # manager.nml:240
+        _w18.command = ToggleHidden    # manager.nml:240
+        _w18.key = 'Ctrl-H'    # manager.nml:241
 
-        _w19.text = _bind(lambda _o: _tr('Show/hide ~f~ooter'), yielding=True)    # manager.nml:242
-        _w19.command = ToggleInfoLines    # manager.nml:243
-        _w19.key = 'Alt-I'    # manager.nml:244
+        _w19.text = _bind(lambda _o: _tr('Show/hide ~f~ooter'), yielding=True)    # manager.nml:243
+        _w19.command = ToggleInfoLines    # manager.nml:244
+        _w19.key = 'Alt-I'    # manager.nml:245
 
-        _w20.text = _bind(lambda _o: _tr('Move divider left'), yielding=True)    # manager.nml:248
-        _w20.command = MoveSeparator(step=-1)    # manager.nml:249
-        _w20.key = 'Alt-Left'    # manager.nml:250
+        _w20.text = _bind(lambda _o: _tr('Move divider left'), yielding=True)    # manager.nml:249
+        _w20.command = MoveSeparator(step=-1)    # manager.nml:250
+        _w20.key = 'Alt-Left'    # manager.nml:251
 
-        _w21.text = _bind(lambda _o: _tr('Move divider right'), yielding=True)    # manager.nml:252
-        _w21.command = MoveSeparator(step=1)    # manager.nml:253
-        _w21.key = 'Alt-Right'    # manager.nml:254
+        _w21.text = _bind(lambda _o: _tr('Move divider right'), yielding=True)    # manager.nml:253
+        _w21.command = MoveSeparator(step=1)    # manager.nml:254
+        _w21.key = 'Alt-Right'    # manager.nml:255
 
-        _w23.text = _bind(lambda _o: _tr('Director~y~ tree'), yielding=True)    # manager.nml:257
-        _w23.command = ToggleTree    # manager.nml:258
-        _w23.key = 'Ctrl-T'    # manager.nml:259
+        _w23.text = _bind(lambda _o: _tr('Director~y~ tree'), yielding=True)    # manager.nml:258
+        _w23.command = ToggleTree    # manager.nml:259
+        _w23.key = 'Ctrl-T'    # manager.nml:260
 
-        _w24.text = _bind(lambda _o: _tr('I~n~fo'), yielding=True)    # manager.nml:261
-        _w24.tooltip = _bind(    # manager.nml:262
+        _w24.text = _bind(lambda _o: _tr('I~n~fo'), yielding=True)    # manager.nml:262
+        _w24.tooltip = _bind(    # manager.nml:263
             lambda _o: _tr('Disk and directory information in the other panel'),
             yielding=True,
         )
-        _w24.command = DiskInfo    # manager.nml:263
-        _w24.key = 'Ctrl-L'    # manager.nml:264
+        _w24.command = DiskInfo    # manager.nml:264
+        _w24.key = 'Ctrl-L'    # manager.nml:265
 
-        _w25.text = _bind(lambda _o: _tr('Quic~k~ view'), yielding=True)    # manager.nml:266
-        _w25.tooltip = _bind(    # manager.nml:267
+        _w25.text = _bind(lambda _o: _tr('Quic~k~ view'), yielding=True)    # manager.nml:267
+        _w25.tooltip = _bind(    # manager.nml:268
             lambda _o: _tr('Preview the file at the cursor in the other panel'),
             yielding=True,
         )
-        _w25.command = QuickView    # manager.nml:268
-        _w25.key = 'Ctrl-Q'    # manager.nml:269
+        _w25.command = QuickView    # manager.nml:269
+        _w25.key = 'Ctrl-Q'    # manager.nml:270
 
-        _w27.text = _bind(lambda _o: _tr('Select grou~p~...'), yielding=True)    # manager.nml:272
-        _w27.command = SelectGroup    # manager.nml:273
-        _w27.key = 'Gray "+"'    # manager.nml:274
+        _w27.text = _bind(lambda _o: _tr('Select grou~p~...'), yielding=True)    # manager.nml:273
+        _w27.command = SelectGroup    # manager.nml:274
+        _w27.key = 'Gray "+"'    # manager.nml:275
 
-        _w28.text = _bind(lambda _o: _tr('~U~nselect group...'), yielding=True)    # manager.nml:276
-        _w28.command = UnselectGroup    # manager.nml:277
-        _w28.key = 'Gray "-"'    # manager.nml:278
+        _w28.text = _bind(lambda _o: _tr('~U~nselect group...'), yielding=True)    # manager.nml:277
+        _w28.command = UnselectGroup    # manager.nml:278
+        _w28.key = 'Gray "-"'    # manager.nml:279
 
-        _w29.text = _bind(lambda _o: _tr('In~v~ert selection'), yielding=True)    # manager.nml:280
-        _w29.command = InvertSelection    # manager.nml:281
-        _w29.key = 'Gray "*"'    # manager.nml:282
+        _w29.text = _bind(lambda _o: _tr('In~v~ert selection'), yielding=True)    # manager.nml:281
+        _w29.command = InvertSelection    # manager.nml:282
+        _w29.key = 'Gray "*"'    # manager.nml:283
 
-        _w30.text = _bind(lambda _o: _tr('Select all files'), yielding=True)    # manager.nml:284
-        _w30.tooltip = _bind(    # manager.nml:285
+        _w30.text = _bind(lambda _o: _tr('Select all files'), yielding=True)    # manager.nml:285
+        _w30.tooltip = _bind(    # manager.nml:286
             lambda _o: _tr('Select every file and directory in this panel'),
             yielding=True,
         )
-        _w30.command = SelectAll    # manager.nml:286
-        _w30.key = 'Ctrl-A'    # manager.nml:287
+        _w30.command = SelectAll    # manager.nml:287
+        _w30.key = 'Ctrl-A'    # manager.nml:288
 
-        _w31.text = _bind(lambda _o: _tr('Advanced filter...'), yielding=True)    # manager.nml:289
-        _w31.tooltip = _bind(    # manager.nml:290
+        _w31.text = _bind(lambda _o: _tr('Advanced filter...'), yielding=True)    # manager.nml:290
+        _w31.tooltip = _bind(    # manager.nml:291
             lambda _o: _tr('Show or hide files by extension'),
             yielding=True,
         )
-        _w31.command = AdvancedFilter    # manager.nml:291
-        _w31.key = 'Alt-Del'    # manager.nml:292
+        _w31.command = AdvancedFilter    # manager.nml:292
+        _w31.key = 'Alt-Del'    # manager.nml:293
 
-        _w33.text = _bind(lambda _o: _tr('Change ~d~rive'), yielding=True)    # manager.nml:295
-        _w33.tooltip = _bind(    # manager.nml:296
+        _w33.text = _bind(lambda _o: _tr('Change ~d~rive'), yielding=True)    # manager.nml:296
+        _w33.tooltip = _bind(    # manager.nml:297
             lambda _o: _tr('Send this panel to a bookmarked directory'),
             yielding=True,
         )
-        _w33.command = ChangeDrive    # manager.nml:297
-        _w33.key = 'Alt-C'    # manager.nml:298
+        _w33.command = ChangeDrive    # manager.nml:298
+        _w33.key = 'Alt-C'    # manager.nml:299
 
-        _w34.text = _bind(lambda _o: _tr('Change direc~t~ory'), yielding=True)    # manager.nml:300
-        _w34.tooltip = _bind(    # manager.nml:301
+        _w34.text = _bind(lambda _o: _tr('Change direc~t~ory'), yielding=True)    # manager.nml:301
+        _w34.tooltip = _bind(    # manager.nml:302
             lambda _o: _tr('Choose a directory from a tree'),
             yielding=True,
         )
-        _w34.command = ChangeDirectory    # manager.nml:302
-        _w34.key = 'Alt-T'    # manager.nml:303
+        _w34.command = ChangeDirectory    # manager.nml:303
+        _w34.key = 'Alt-T'    # manager.nml:304
 
-        _w35.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # manager.nml:305
-        _w35.command = QuickSearch    # manager.nml:306
-        _w35.key = 'Ctrl-S'    # manager.nml:307
+        _w35.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # manager.nml:306
+        _w35.command = QuickSearch    # manager.nml:307
+        _w35.key = 'Ctrl-S'    # manager.nml:308
 
-        _w36.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # manager.nml:309
-        _w36.command = Rescan    # manager.nml:310
-        _w36.key = 'Alt-R'    # manager.nml:311
+        _w36.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # manager.nml:310
+        _w36.command = Rescan    # manager.nml:311
+        _w36.key = 'Alt-R'    # manager.nml:312
 
-        _w37.text = _bind(    # manager.nml:313
+        _w37.text = _bind(    # manager.nml:314
             lambda _o: _tr('S~a~me directory in other panel'),
             yielding=True,
         )
-        _w37.tooltip = _bind(    # manager.nml:314
+        _w37.tooltip = _bind(    # manager.nml:315
             lambda _o: _tr('Send the other panel to this directory'),
             yielding=True,
         )
-        _w37.command = EqualizePanels    # manager.nml:315
-        _w37.key = 'Alt-='    # manager.nml:316
+        _w37.command = EqualizePanels    # manager.nml:316
+        _w37.key = 'Alt-='    # manager.nml:317
 
-        _w38.text = _bind(lambda _o: _tr('Show in other panel'), yielding=True)    # manager.nml:320
-        _w38.tooltip = _bind(    # manager.nml:321
+        _w38.text = _bind(lambda _o: _tr('Show in other panel'), yielding=True)    # manager.nml:321
+        _w38.tooltip = _bind(    # manager.nml:322
             lambda _o: _tr('Show the found file in the other panel'),
             yielding=True,
         )
-        _w38.command = ChangeInactive    # manager.nml:322
-        _w38.key = 'Shift-Enter'    # manager.nml:323
+        _w38.command = ChangeInactive    # manager.nml:323
+        _w38.key = 'Shift-Enter'    # manager.nml:324
 
-        _w39.text = _bind(lambda _o: _tr('~Q~uick dirs...'), yielding=True)    # manager.nml:325
-        _w39.tooltip = _bind(    # manager.nml:326
+        _w39.text = _bind(lambda _o: _tr('~Q~uick dirs...'), yielding=True)    # manager.nml:326
+        _w39.tooltip = _bind(    # manager.nml:327
             lambda _o: _tr('The bookmarks, for this panel'),
             yielding=True,
         )
-        _w39.command = ListOfDirs    # manager.nml:327
-        _w39.key = 'Alt-Shift-0'    # manager.nml:328
+        _w39.command = ListOfDirs    # manager.nml:328
+        _w39.key = 'Alt-Shift-0'    # manager.nml:329
 
-        _w40.text = _bind(    # manager.nml:330
+        _w40.text = _bind(    # manager.nml:331
             lambda _o: _tr('History of directories...'),
             yielding=True,
         )
-        _w40.command = DirHistory    # manager.nml:331
-        _w40.key = 'Alt-BkSp'    # manager.nml:332
+        _w40.command = DirHistory    # manager.nml:332
+        _w40.key = 'Alt-BkSp'    # manager.nml:333
+
+        _w41.text = _bind(    # manager.nml:336
+            lambda _o: _tr('~J~ump to directory...'),
+            yielding=True,
+        )
+        _w41.tooltip = _bind(    # manager.nml:337
+            lambda _o: _tr("zoxide's directories and the panels' history, searched by fzf"),
+            yielding=True,
+        )
+        _w41.command = JumpToDirectory    # manager.nml:338
+        _w41.key = 'Alt-J'    # manager.nml:339

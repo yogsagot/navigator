@@ -66,6 +66,7 @@ from navkit.console import ConsoleScreen
 from navkit.events import Event
 from navkit.process import PtyProcess
 
+from navigator.lib.system import fuzzy
 from navigator.lib.system.tempdir import temp_root as _temp_root
 
 #: The OSC number the marks are carried under.  Private: no terminal assigns it.
@@ -114,6 +115,14 @@ class HistoryReady(Event):
 @dataclass(frozen=True, slots=True)
 class HistoryChosen(Event):
     """What atuin's search handed back: empty if it was cancelled."""
+
+    text: str
+
+
+@dataclass(frozen=True, slots=True)
+class PickChosen(Event):
+    """What fzf handed back (:meth:`Subshell.pick`): a line a choice, empty if
+    it was cancelled."""
 
     text: str
 
@@ -250,12 +259,21 @@ __nav_atuin() {
     printf '@MARK@;R;%s\007' "$(printf '%s' "$out" | base64 -w0)"
 }
 __nav_keys() {
-    local keys up= search=
+    local keys line up= search= cd= file=
     keys=$(bind -X 2>/dev/null)
     keys=${keys//'": "'/'" "'}
     [[ $keys == *'"\e[A" "__atuin_history'* ]] && up=atuin
     [[ $keys == *'"\C-r" "__atuin_history'* ]] && search=atuin
-    printf '@MARK@;U;%s;%s\007' "$up" "$search"
+    # fzf's bindings are bind -x in one version and macros in another.
+    while IFS= read -r line; do
+        case $line in
+            '"\C-r"'*__fzf_history__*) search=fzf ;;
+            '"\ec"'*__fzf_cd__*) cd=fzf ;;
+            '"\C-t"'*fzf-file-widget*|'"\C-t"'*__fzf_select__*) file=fzf ;;
+        esac
+    done <<< "$(bind -X 2>/dev/null; bind -s 2>/dev/null)"
+    printf '@MARK@;U;%s;%s;%s;%s;%s;%s\007' "$up" "$search" "$cd" "$file" \
+        "$(command -v fzf)" "$(command -v zoxide)"
 }
 __nav_keys
 """
@@ -278,16 +296,125 @@ __nav_atuin() {
     printf '@MARK@;R;%s\a' "$(print -rn -- $out | base64 -w0)"
 }
 __nav_keys() {
-    local up= search=
+    local up= search= cd= file=
     [[ $(bindkey '^[[A') == *atuin* || $(bindkey '^[OA') == *atuin* ]] && up=atuin
     [[ $(bindkey '^R') == *atuin* ]] && search=atuin
-    printf '@MARK@;U;%s;%s\a' "$up" "$search"
+    [[ $(bindkey '^R') == *fzf-history-widget* ]] && search=fzf
+    [[ $(bindkey '\ec') == *fzf-cd-widget* ]] && cd=fzf
+    [[ $(bindkey '^T') == *fzf-file-widget* ]] && file=fzf
+    printf '@MARK@;U;%s;%s;%s;%s;%s;%s\a' "$up" "$search" "$cd" "$file" \
+        "${commands[fzf]-}" "${commands[zoxide]-}"
 }
 __nav_keys
 """
 
 
-def _bash_rc(nonce: str) -> str:
+#: fzf on the console, for :meth:`Subshell.pick` (a departure: DOS Navigator
+#: had no fuzzy finder).  ``__nav_fzf KIND QUERY [FILE]`` -- *QUERY* in
+#: base64, *FILE* Navigator's own list, put first -- runs fzf over what *KIND*
+#: names, the way fzf's own key bindings run it, the user's ``FZF_*_OPTS``
+#: last so they win: ``history`` (Ctrl+R: the file, then the shell's
+#: history), ``directories`` (zoxide's database by frecency, then the file),
+#: ``cd`` (Alt+C: the directories below, ``FZF_ALT_C_COMMAND``'s if set) and
+#: ``files`` (Ctrl+T, several).  fzf draws on the terminal itself, so its
+#: choice is plainly its output, handed back as an ``R`` mark after the ``O``
+#: mark that starts the console showing.
+_BASH_FZF = r"""
+__nav_fzf() {
+    local kind=$1 query file=${3-} out
+    query=$(printf '%s' "$2" | base64 -d 2>/dev/null)
+    __nav_forget
+    printf '@MARK@;O\007'
+    case $kind in
+    history)
+        out=$({ [[ -n $file ]] && cat -- "$file"
+                HISTTIMEFORMAT= fc -lnr -100000 2>/dev/null | sed 's/^[[:space:]]*//'; } |
+              awk 'NF && !/^ *__nav_/ && !s[$0]++' |
+              FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=history +m ${FZF_CTRL_R_OPTS-}" \
+              fzf --query="$query") ;;
+    directories)
+        out=$({ command -v zoxide >/dev/null && zoxide query -l 2>/dev/null
+                [[ -n $file ]] && cat -- "$file"; } |
+              awk 'NF && !/^ *__nav_/ && !s[$0]++' |
+              FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+              fzf --query="$query") ;;
+    cd)
+        if [[ -n ${FZF_ALT_C_COMMAND-} ]]; then
+            out=$(eval "$FZF_ALT_C_COMMAND" |
+                  FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+                  fzf --query="$query")
+        else
+            out=$(FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+                  fzf --walker=dir,follow,hidden --query="$query")
+        fi ;;
+    files)
+        if [[ -n ${FZF_CTRL_T_COMMAND-} ]]; then
+            out=$(eval "$FZF_CTRL_T_COMMAND" |
+                  FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path -m ${FZF_CTRL_T_OPTS-}" \
+                  fzf --query="$query")
+        else
+            out=$(FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path -m ${FZF_CTRL_T_OPTS-}" \
+                  fzf --walker=file,dir,follow,hidden --query="$query")
+        fi ;;
+    esac
+    printf '@MARK@;R;%s\007' "$(printf '%s' "$out" | base64 -w0)"
+}
+"""
+
+#: The same for zsh.  ``fc -lnr 1`` is the whole history: zsh refuses an
+#: event before its first where bash takes the oldest it has.
+_ZSH_FZF = r"""
+__nav_fzf() {
+    local kind=$1 query=$(print -rn -- $2 | base64 -d 2>/dev/null) file=${3-} out
+    printf '@MARK@;O\a'
+    case $kind in
+    history)
+        out=$({ [[ -n $file ]] && cat -- $file; fc -lnr 1 2>/dev/null; } |
+              awk 'NF && !/^ *__nav_/ && !s[$0]++' |
+              FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=history +m ${FZF_CTRL_R_OPTS-}" \
+              fzf --query=$query) ;;
+    directories)
+        out=$({ (( $+commands[zoxide] )) && zoxide query -l 2>/dev/null
+                [[ -n $file ]] && cat -- $file; } |
+              awk 'NF && !/^ *__nav_/ && !s[$0]++' |
+              FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+              fzf --query=$query) ;;
+    cd)
+        if [[ -n ${FZF_ALT_C_COMMAND-} ]]; then
+            out=$(eval "$FZF_ALT_C_COMMAND" |
+                  FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+                  fzf --query=$query)
+        else
+            out=$(FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path +m ${FZF_ALT_C_OPTS-}" \
+                  fzf --walker=dir,follow,hidden --query=$query)
+        fi ;;
+    files)
+        if [[ -n ${FZF_CTRL_T_COMMAND-} ]]; then
+            out=$(eval "$FZF_CTRL_T_COMMAND" |
+                  FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path -m ${FZF_CTRL_T_OPTS-}" \
+                  fzf --query=$query)
+        else
+            out=$(FZF_DEFAULT_OPTS="${FZF_DEFAULT_OPTS-} --scheme=path -m ${FZF_CTRL_T_OPTS-}" \
+                  fzf --walker=file,dir,follow,hidden --query=$query)
+        fi ;;
+    esac
+    printf '@MARK@;R;%s\a' "$(print -rn -- $out | base64 -w0)"
+}
+"""
+
+#: Interface's *Feed zoxide*: the panels tell zoxide every directory they
+#: come to, and one the shell ``cd``\ s to the active panel follows -- so
+#: zoxide's own hook, were it left, would count those twice.  It is made to
+#: do nothing, keeping the status it was called with.
+_BASH_ZOXIDE = r"""
+declare -F __zoxide_hook >/dev/null && __zoxide_hook() { return "$?"; }
+"""
+_ZSH_ZOXIDE = r"""
+(( $+functions[__zoxide_hook] )) && __zoxide_hook() { return $? }
+"""
+
+
+def _bash_rc(nonce: str, feeds_zoxide: bool = False) -> str:
     # $? is caught first and the mark printed last, so a prompt command the
     # user's rc installed -- starship, a git prompt -- neither clobbers the
     # status nor rewrites PS1 after us.  PROMPT_COMMAND may be an array in
@@ -329,11 +456,15 @@ else
         PROMPT_COMMAND=${{PROMPT_COMMAND//"$__bp_install_string"/}}
         PROMPT_COMMAND=${{PROMPT_COMMAND%$'\\n'}}
     fi
+    # zoxide's init leaves "__zoxide_hook;" in an empty one, and a ";" after
+    # that would be ";;", a syntax error that ends every prompt.
+    while [[ $PROMPT_COMMAND == *[\\;[:space:]] ]]; do PROMPT_COMMAND=${{PROMPT_COMMAND%?}}; done
     PROMPT_COMMAND="__nav_status=\\$?;__nav_forget;${{PROMPT_COMMAND:+$PROMPT_COMMAND;}}__nav_prompt${{__nav_bp:+$'\\n'$__nav_bp}}"
     unset __nav_bp
 fi
 HISTCONTROL="ignorespace${{HISTCONTROL:+:$HISTCONTROL}}"
-""" + (_BASH_COMPLETE + _BASH_HISTORY).replace("@MARK@", mark)
+""" + (_BASH_COMPLETE + _BASH_HISTORY + _BASH_FZF
+       + (_BASH_ZOXIDE if feeds_zoxide else "")).replace("@MARK@", mark)
 
 
 def _zsh_env() -> str:
@@ -348,7 +479,7 @@ ZDOTDIR=$__nav_zdotdir
 """
 
 
-def _zsh_rc(nonce: str) -> str:
+def _zsh_rc(nonce: str, feeds_zoxide: bool = False) -> str:
     mark = f"\\e]{MARK};{nonce}"
     return f"""\
 ZDOTDIR=$NAV_USER_ZDOTDIR
@@ -369,7 +500,8 @@ __nav_prompt() {{
 }}
 precmd_functions=(__nav_status $precmd_functions __nav_prompt)
 setopt HIST_IGNORE_SPACE
-""" + (_ZSH_COMPLETE + _ZSH_HISTORY).replace("@MARK@", mark)
+""" + (_ZSH_COMPLETE + _ZSH_HISTORY + _ZSH_FZF
+       + (_ZSH_ZOXIDE if feeds_zoxide else "")).replace("@MARK@", mark)
 
 
 def _sh_rc(nonce: str) -> str:
@@ -399,7 +531,8 @@ def command_shell(shell: str | None = None) -> str:
     return shell
 
 
-def shell_argv(shell: str, directory: Path, nonce: str) -> tuple[list[str], dict[str, str]]:
+def shell_argv(shell: str, directory: Path, nonce: str,
+               feeds_zoxide: bool = False) -> tuple[list[str], dict[str, str]]:
     """The command line and extra environment that start *shell* with the hook.
 
     The rc files are written into *directory*.  bash and zsh are integrated in
@@ -410,11 +543,11 @@ def shell_argv(shell: str, directory: Path, nonce: str) -> tuple[list[str], dict
     name = Path(shell).name
     if name == "bash":
         rc = directory / "bashrc"
-        rc.write_text(_bash_rc(nonce))
+        rc.write_text(_bash_rc(nonce, feeds_zoxide))
         return [shell, "--rcfile", str(rc), "-i"], {}
     if name == "zsh":
         (directory / ".zshenv").write_text(_zsh_env())
-        (directory / ".zshrc").write_text(_zsh_rc(nonce))
+        (directory / ".zshrc").write_text(_zsh_rc(nonce, feeds_zoxide))
         env = {"ZDOTDIR": str(directory)}
         if "ZDOTDIR" in os.environ:
             env["NAV_USER_ZDOTDIR"] = os.environ["ZDOTDIR"]
@@ -497,10 +630,19 @@ class Subshell:
         #: atuin chose.
         self._histories: list[Callable[[list[str]], None]] = []
         self._chosen: Callable[[str], None] | None = None
-        #: What the user's Up and Ctrl+R run in their own terminal: ``"atuin"``,
-        #: or None for readline's history walk and reverse search.
+        #: What the user's Up and Ctrl+R run in their own terminal: ``"atuin"``
+        #: (Ctrl+R ``"fzf"`` too), or None for readline's history walk and
+        #: reverse search; and their Alt+C and Ctrl+T, ``"fzf"`` or None.
         self.up_binding: str | None = None
         self.search_binding: str | None = None
+        self.cd_binding: str | None = None
+        self.file_binding: str | None = None
+        #: The shell found fzf, so :meth:`pick` can run it.
+        self.has_fzf = False
+        #: Asked as each shell starts -- ``[interface] feed_zoxide`` -- whether
+        #: Navigator tells zoxide where the panels go, when zoxide's own hook
+        #: in the shell is made to do nothing.
+        self.feeds_zoxide: Callable[[], bool] = lambda: False
         self._paste = False
         #: The line editor is zsh's, which reads a bracketed paste whenever.
         self._zle = False
@@ -544,7 +686,7 @@ class Subshell:
         )
         self._mark_start = b"\x1b]%d;%s;" % (MARK, self._nonce.encode())
         self._directory = tempfile.mkdtemp(prefix="navigator-shell-", dir=_temp_root())
-        argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce)
+        argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce, self.feeds_zoxide())
         self._zle = Path(argv[0]).name == "zsh"
         #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.
         self.can_complete = Path(argv[0]).name in ("bash", "zsh")
@@ -692,11 +834,40 @@ class Subshell:
         what was chosen: empty if the search was cancelled, and prefixed
         ``__atuin_accept__:`` if the user asked for it to run at once.
         """
-        if not self.is_running or self.busy or not self.can_complete:
-            return False
         encoded = base64.b64encode(line.encode()).decode("ascii")
         words = " ".join(shlex.quote(arg) for arg in args)
-        self._queue.append((f" __nav_atuin {encoded} {words}", "reveal"))
+        return self._reveal(f" __nav_atuin {encoded} {words}", callback)
+
+    #: What :meth:`pick` can run fzf over.
+    PICKS = ("history", "directories", "cd", "files")
+
+    def pick(self, kind: str, line: str, callback: Callable[[str], None],
+             listing: Path | None = None) -> bool:
+        """Run fzf on the console over *kind* (:attr:`PICKS`), *line* its query.
+
+        Run as :meth:`search_history` runs atuin: drawn on the console with
+        every key while it runs, the line that started it never shown.
+        *listing* is a file of Navigator's own entries, put before the shell's
+        (``history``) or after zoxide's (``directories``).  *callback* gets
+        what fzf printed -- a line for each choice, empty if it was cancelled.
+        False if the shell cannot run it: no fzf, or no hook to run it with.
+        """
+        if kind not in self.PICKS or not self.has_fzf:
+            return False
+        encoded = base64.b64encode(line.encode()).decode("ascii")
+        words = [kind, encoded] + ([str(listing)] if listing is not None else [])
+        return self._reveal(" __nav_fzf " + " ".join(shlex.quote(word) for word in words), callback)
+
+    def scratch(self, name: str) -> Path | None:
+        """Where a file this shell alone reads -- a :meth:`pick` listing -- may
+        be written: its own private directory, gone with it.  None while no
+        shell runs."""
+        return Path(self._directory) / name if self._directory is not None else None
+
+    def _reveal(self, text: str, callback: Callable[[str], None]) -> bool:
+        if not self.is_running or self.busy or not self.can_complete:
+            return False
+        self._queue.append((text, "reveal"))
         self._chosen = callback
         self.busy = True
         self._send_next()
@@ -870,9 +1041,13 @@ class Subshell:
 
     def _mark(self, kind: bytes, data: bytes | None) -> None:
         if kind == b"U":
-            up, _, search = (data or b"").partition(b";")
-            self.up_binding = up.decode() or None
-            self.search_binding = search.decode() or None
+            fields = [field.decode(errors="replace") or None
+                      for field in (data or b"").split(b";")]
+            fields += [None] * (6 - len(fields))
+            self.up_binding, self.search_binding, self.cd_binding, self.file_binding = fields[:4]
+            fuzzy.found("fzf", fields[4])
+            fuzzy.found("zoxide", fields[5])
+            self.has_fzf = fields[4] is not None
             return
         if kind == b"H":
             entries = _decode_list(data)

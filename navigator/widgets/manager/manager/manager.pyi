@@ -6,7 +6,7 @@ from typing import Any as _Any
 from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
@@ -41,7 +41,7 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
 from navkit.stylesheet import parse_declarations
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped, label_for
@@ -136,6 +136,7 @@ class Manager(Window, _Component):
     async def on_find_file(self, event: FindFile) -> bool: ...
     async def find_file(self, panel: Panel) -> None: ...
     async def _go_to(self, panel: Panel, place: str) -> None: ...
+    async def on_jump_to_directory(self, event: JumpToDirectory) -> bool: ...
     async def on_dir_history(self, event: DirHistory) -> bool: ...
     async def dir_history(self, panel: Panel) -> None: ...
     async def on_quick_change(self, event: QuickChange) -> bool: ...

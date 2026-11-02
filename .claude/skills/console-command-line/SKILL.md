@@ -76,7 +76,7 @@ With it off, Ctrl+O and *ESC for user screen* call `Shell.relay_terminal()` inst
 
 **Commands run in one persistent `$SHELL`** (`Subshell`, owned by the `Console`): bash and zsh load the user's rc then a
 hook; anything else runs bash or `sh`. The hook prints private OSC marks (`ESC ] 6973;<nonce>;A|B|D` ...) for prompt
-position, command finished, and `$PWD`; other marks: `C` (completion), `H` (history), `U` (atuin keys), `R` (atuin
+position, command finished, and `$PWD`; other marks: `C` (completion), `H` (history), `U` (atuin/fzf keys, where fzf and zoxide are), `R` (atuin's or fzf's
 choice), `O` (reveal output).
 
 - **The shell's own prompt is held back** and painted only when a command is sent, so the log reads `prompt$ cmd`, the shape DN's `/dir>cmd` echo had.
@@ -133,6 +133,26 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   choice back in an `R` mark, `__atuin_accept__:` runs it). Such a line is sent in the queue's **`"reveal"` mode**:
   hidden until its `O` mark, holding keys (`busy`), finishing no command. With panels up, Up is the panel's and Ctrl+R
   re-reads.
+- **fzf and zoxide** (a departure, asked for; `navigator/lib/system/fuzzy.py`). `__nav_keys`' `U` mark is
+  `up;search;cd;file;fzf-path;zoxide-path`: Ctrl+R `fzf` (`__fzf_history__` / `fzf-history-widget`), Alt+C
+  (`__fzf_cd__`, found in `bind -s` too, where older fzf binds a macro), Ctrl+T (`fzf-file-widget`/`__fzf_select__`) ->
+  `Subshell.search_binding`/`cd_binding`/`file_binding`, and `has_fzf`. `Subshell.pick(kind, line, callback, listing)`
+  sends ` __nav_fzf KIND QUERY [FILE]` in `"reveal"` mode, like atuin: fzf draws on `/dev/tty`, its stdout comes back
+  as the `R` mark (no descriptor swap). Kinds: `history` (the listing -- Navigator's command history -- then `fc
+  -lnr`, deduplicated, `__nav_` lines dropped), `directories` (`zoxide query -l`, then the listing -- the
+  `directories` history), `cd` and `files` (`FZF_ALT_C_COMMAND`/`FZF_CTRL_T_COMMAND`, else `--walker`). The user's
+  `FZF_*_OPTS` go after ours in `FZF_DEFAULT_OPTS`, as fzf's own bindings do. The listing is written on a thread into
+  `Subshell.scratch()` (the shell's private directory). `Shell.pick` puts the console up if it was down
+  (`_show_console`, never the relayed terminal) and `Shell.pick_chosen` (`PickChosen`, posted from the reader) takes
+  it down again: Alt+J (`JumpToDirectory`, `Manager._go_to`), Alt+Shift+F8 (`FuzzyHistory`, onto the line), and on the
+  idle console Ctrl+R/Alt+C/Ctrl+T where the rc binds them to fzf (Alt+C moves the active panel; the console keeps
+  the keys). Both commands refuse (`Shell.fuzzy_refusal`) without fzf or with `sh`.
+- **`[interface] feed_zoxide`** (navigator.ini only: the Interface page has no row left): `Panel._remember_directory`
+  hands every local directory a panel comes to to `fuzzy.add` (`zoxide add` on one worker thread), and the rc makes
+  zoxide's own `__zoxide_hook` do nothing (`_BASH_ZOXIDE`/`_ZSH_ZOXIDE`, asked of `Subshell.feeds_zoxide()` as the
+  shell starts), since a shell `cd` moves the panel and would be counted twice. `z`/`zi` typed on the line work as
+  any `cd` does. The bash rc strips trailing `;`/blanks from `PROMPT_COMMAND` before appending to it: zoxide's init
+  leaves `__zoxide_hook;` in an empty one, and `;;` broke every prompt.
 - **A line starting `|` is panelized, not run** (a departure): `Shell.run_command` (typed) records it in the history,
   clears the line and hands the rest to `Shell._panelize` -> `Manager.panelize`, whose capture runs off the pty
   (`navigator-panels`, *Panelize command*). A leading pipe is a shell syntax error, so no command is lost to it.

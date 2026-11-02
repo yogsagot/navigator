@@ -194,6 +194,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   list `directories` (`Panel._remember_directory`, DN's `AddToDirectoryHistory`) while Interface's *Track
   directories* is on (on by default, a departure; off, Alt+Backspace says DN's `dlSetDirHistory`).
   `DirHistoryDialog` (`dlgDirectoryHistory`): *Go to* (Enter, a double click), *Delete record* (stays open), Cancel.
+- **`JumpToDirectory`** (Alt+J, Panel > Jump to directory; a departure): fzf on the console over zoxide's
+  directories and this same history, the active panel to the one chosen (`console-command-line`, *fzf and zoxide*).
+  `_remember_directory` also tells zoxide (`[interface] feed_zoxide`).
 - **Quick directories are the bookmarks** (a merge, a departure: DN's nine `DirsToChange` slots and its drive
   letters' box were two things; Navigator's bookmarks already replaced the letters with directories). Alt+1..9
   `QuickChange(slot)` go to the *N*-th bookmark with no box (none that far: nothing); Alt+Shift+1..9

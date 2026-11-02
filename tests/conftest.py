@@ -298,6 +298,18 @@ def _fresh_database():
 
 
 @pytest.fixture(autouse=True)
+def _no_zoxide(monkeypatch):
+    """No test tells the real zoxide where its panels went -- that database
+    is the user's -- and none inherits where another found fzf or zoxide."""
+    from navigator.lib.system import fuzzy
+
+    monkeypatch.setattr(fuzzy, "add", lambda directory: None)
+    fuzzy.forget()
+    yield
+    fuzzy.forget()
+
+
+@pytest.fixture(autouse=True)
 def _default_keys():
     """Every test starts from the keys the code binds: ``keybindings.ini``'s
     overrides live on the classes, and would outlast the test that made them."""

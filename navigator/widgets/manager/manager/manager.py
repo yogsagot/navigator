@@ -85,6 +85,7 @@ from navigator.widgets.manager.commands import (
     SetupColumns,
     AdvancedFilter,
     DirHistory,
+    JumpToDirectory,
     ListOfDirs,
     QuickChange,
     StoreQuickDir,
@@ -1286,6 +1287,16 @@ class Manager(Window):
         panel.location = target
         panel.focus()
 
+    async def on_jump_to_directory(self, event: JumpToDirectory) -> bool:
+        """Alt+J: fzf over zoxide's directories and the panels' history (a
+        departure), and the active panel to the one chosen -- connected first
+        if it is on another drive, as Alt+Backspace's are."""
+        shell = getattr(self.application, "shell", None)
+        if shell is not None:
+            panel = self.active_panel
+            self.spawn(shell.jump_directory(lambda place: self.spawn(self._go_to(panel, place))))
+        return True
+
     async def on_dir_history(self, event: DirHistory) -> bool:
         self.spawn(self.dir_history(self.active_panel))
         return True
@@ -2443,6 +2454,9 @@ class Manager(Window):
         typed = tr("The command line holds text: the key edits it")
         read_only = tr("This drive cannot be written to")
         not_found = tr("Not in a Find listing")
+        if isinstance(command, JumpToDirectory):
+            shell = getattr(self.application, "shell", None)
+            return shell.fuzzy_refusal() if shell is not None else tr("fzf is not installed, or the shell is not bash or zsh")
         if isinstance(command, OpenWith):
             from navigator.lib.system import desktop
 

@@ -23,7 +23,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import IDLE, FakeTerminal, awaited, mounted, run_app, settle, key_bar_hints
+from conftest import IDLE, FakeTerminal, Until, awaited, mounted, run_app, settle, key_bar_hints
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons
 from navigator import __version__
@@ -2936,8 +2936,8 @@ def test_the_application_keeps_only_what_is_global():
         "shift+f11",
         # ≡ > User screen: a look at the console from anywhere; the screen grabber.
         "alt+f5", "alt+shift+insert",
-        # Utilities > Commands History, the command line's.
-        "alt+f8",
+        # Utilities > Commands History, the command line's; and fzf's search of it.
+        "alt+f8", "alt+shift+f8",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
         # The same line, run in a window of its own.
@@ -4547,3 +4547,128 @@ def test_the_key_bar_leads_with_hints_puts_an_f_key_s_in_its_place_and_the_neare
     assert ("F2", "Hinted", True) in row  # F2's hint in F2's place, not the bound command
     labels = [key for key, _, _ in row]
     assert labels[labels.index("f1") + 1] == "F2"  # between F1 and F3, where F2 stands
+
+
+# -- fzf and zoxide ----------------------------------------------------------------
+
+
+@pytest.fixture
+def fzf_shell(monkeypatch, tmp_path):
+    """A running shell with fzf, whose picks are recorded and answered with *answer*.
+
+    Each pick is ``(kind, line, listing)``, the listing what Navigator wrote
+    for it.  The answer comes back as the real one does, from outside the
+    batch that asked.
+    """
+
+    class State:
+        picks: list[tuple[str, str, list[str]]] = []
+        answer = ""
+        has_fzf = True
+        search_binding = cd_binding = file_binding = None
+
+    def pick(self, kind, line, callback, listing=None):
+        if not self.has_fzf:
+            return False
+        State.picks.append((kind, line, listing.read_text().splitlines() if listing else []))
+        callback(State.answer)
+        return True
+
+    real_init = Subshell.__init__
+
+    def init(self, *args, **kwargs):
+        real_init(self, *args, **kwargs)
+        self.can_complete, self.has_fzf = True, State.has_fzf
+        self.search_binding, self.cd_binding, self.file_binding = (
+            State.search_binding, State.cd_binding, State.file_binding)
+        self._directory = str(tmp_path)
+
+    monkeypatch.setattr(Subshell, "__init__", init)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.is_running", property(lambda self: True))
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.pick", pick)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.sync", lambda self, cwd: None)
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell._cleanup", lambda self: None)
+    State.picks = []
+    return State
+
+
+def test_alt_j_jumps_the_panel_where_fzf_chose(tree, quiet_console, fzf_shell):
+    from navml.history import HISTORY
+
+    HISTORY.add("directories", str(tree / "alpha"))
+    fzf_shell.answer = f"{tree / 'beta'}\n"
+    app = navigator(tree)
+    run_app(app, [KeyEvent("j", alt=True), Until(lambda a: a.manager.left.path == tree / "beta")])
+    kind, line, listing = fzf_shell.picks[0]
+    assert (kind, line) == ("directories", "")
+    assert str(tree / "alpha") in listing
+    # The console came up for fzf, and went again.
+    assert not app.shell.console_visible
+
+
+def test_alt_shift_f8_puts_what_fzf_chose_on_the_line(tree, quiet_console, fzf_shell):
+    fzf_shell.answer = "git status\n"
+    app = navigator(tree)
+    run_app(app, [*typed("gi"), KeyEvent("f8", alt=True, shift=True),
+                  Until(lambda a: a.shell.command_line.value == "git status")])
+    assert fzf_shell.picks[0][:2] == ("history", "gi")
+
+
+def test_a_cancelled_pick_changes_nothing(tree, quiet_console, fzf_shell):
+    app = navigator(tree)
+    run_app(app, [*typed("gi"), KeyEvent("f8", alt=True, shift=True),
+                  Until(lambda a: a.shell._picking is None)])
+    assert app.shell.command_line.value == "gi"
+    assert not app.shell.console_visible
+
+
+def test_the_console_s_fzf_keys_are_the_user_s_own(tree, quiet_console, fzf_shell):
+    fzf_shell.search_binding = fzf_shell.cd_binding = fzf_shell.file_binding = "fzf"
+    fzf_shell.answer = "alpha\n"
+    app = navigator(tree)
+
+    seen = []
+
+    def at_tree(a):
+        a.shell.console.subshell.cwd = tree
+
+    run_app(app, [
+        at_tree, KeyEvent("o", ctrl=True), KeyEvent("c", alt=True),
+        Until(lambda a: a.manager.left.path == tree / "alpha"),
+        lambda a: seen.append((a.shell.console_visible, type(a.focused).__name__)),
+        KeyEvent("t", ctrl=True),
+        Until(lambda a: a.shell.command_line.value == "alpha "),
+        KeyEvent("r", ctrl=True), Until(lambda a: len(fzf_shell.picks) == 3),
+    ])
+    assert seen == [(True, "Console")]  # the panel went, the console kept the keys
+    assert [kind for kind, _, _ in fzf_shell.picks] == ["cd", "files", "history"]
+    # Ctrl+O put the console up, so it stays up.
+    assert app.shell.console_visible
+
+
+def test_without_fzf_alt_j_is_greyed(tree, quiet_console, fzf_shell, monkeypatch):
+    from navigator.widgets.manager.commands import JumpToDirectory
+
+    fzf_shell.has_fzf = False
+    app = navigator(tree)
+    run_app(app, [KeyEvent("j", alt=True)])
+    assert fzf_shell.picks == []
+    assert app.manager.refusal(JumpToDirectory()) != ""
+
+
+def test_a_directory_the_panel_comes_to_is_told_to_zoxide(tree, quiet_console, monkeypatch):
+    from navigator.lib.system import fuzzy
+
+    added = []
+    monkeypatch.setattr(fuzzy, "add", added.append)
+    app = navigator(tree)
+    run_app(app, [KeyEvent("down"), KeyEvent("enter"),
+                  Until(lambda a: a.manager.left.path == tree / "alpha")])
+    assert str(tree / "alpha") in added
+    SETTINGS.interface.feed_zoxide = False
+    try:
+        added.clear()
+        run_app(navigator(tree / "alpha"), [])
+        assert added == []
+    finally:
+        SETTINGS.interface.feed_zoxide = True
