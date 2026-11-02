@@ -83,11 +83,11 @@ flag = "CN"
 "Save ~a~s..." = "另存为(~A~)..."
 # navigator/widgets/editor/edit_window/edit_window.nml:209
 "Save a~l~l..." = "全部保存(~L~)..."
-# navigator/widgets/editor/edit_window/edit_window.nml:214, navigator/widgets/shell/main_menu/main_menu.nml:202
+# navigator/widgets/editor/edit_window/edit_window.nml:214, navigator/widgets/shell/main_menu/main_menu.nml:225
 "~P~rint" = "打印(~P~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:218
 "Print ~b~lock" = "打印块(~B~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:223, navigator/widgets/shell/main_menu/main_menu.nml:260
+# navigator/widgets/editor/edit_window/edit_window.nml:223, navigator/widgets/shell/main_menu/main_menu.nml:283
 "E~x~it" = "退出(~X~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:228, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "搜索(~S~)"
@@ -153,7 +153,7 @@ flag = "CN"
 "Insert ~t~ime" = "插入时间(~T~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:341
 "Du~p~licate line" = "复制行(~P~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:306
+# navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:329
 "Character ta~b~le" = "字符表(~B~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:349
 "Line Dra~w~ing" = "画线(~W~)"
@@ -203,7 +203,7 @@ flag = "CN"
 "File t~y~pe" = "文件类型(~Y~)"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/editor/commands.py:282
 "Replace" = "替换"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:265
+# navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:15, navigator/widgets/manager/commands.py:288
 "Find" = "查找"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:26, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:37
 "~T~ext to find" = "查找文本(~T~)"
@@ -395,7 +395,7 @@ flag = "CN"
 "No dump" = "不转储"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "No atime" = "无 atime"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/manager/commands.py:588
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/manager/commands.py:611
 "Sync" = "同步"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Dir sync" = "目录同步"
@@ -535,10 +535,12 @@ flag = "CN"
 "Check the archive for errors, writing nothing" = "检查压缩包是否有错误，不写入任何内容"
 # navigator/widgets/file_ops/link_dialog/link_dialog.nml:16
 "Create symlink" = "创建符号链接"
-# navigator/widgets/file_ops/link_dialog/link_dialog.nml:48
+# navigator/widgets/file_ops/link_dialog/link_dialog.nml:48, navigator/widgets/file_ops/link_target_dialog/link_target_dialog.nml:44
 "~R~elative link" = "相对链接(~R~)"
-# navigator/widgets/file_ops/link_dialog/link_dialog.nml:49
+# navigator/widgets/file_ops/link_dialog/link_dialog.nml:49, navigator/widgets/file_ops/link_target_dialog/link_target_dialog.nml:45
 "Point the link at a path relative to it, so the two can be moved together" = "让链接指向相对路径，以便两者可以一起移动"
+# navigator/widgets/file_ops/link_target_dialog/link_target_dialog.nml:15
+"Edit link target" = "编辑链接目标"
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml:17
 "Make directory" = "创建目录"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:16
@@ -547,9 +549,9 @@ flag = "CN"
 "~N~ame mask" = "名称掩码(~N~)"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:34
 "E~x~tension mask" = "扩展名掩码(~X~)"
-# navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:44, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
+# navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:44, navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:20, navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:23
 "~S~earch for" = "搜索(~S~)"
-# navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:54
+# navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:54, navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:30
 "Re~p~lace with" = "替换为(~P~)"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.nml:64
 "Regular ~e~xpression" = "正则表达式(~E~)"
@@ -585,12 +587,14 @@ flag = "CN"
 "Give this answer for every file that is already there" = "对每个已存在的文件都作出此回答"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "覆盖(~O~)"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:418, navigator/widgets/manager/manager/manager.py:854 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:418, navigator/widgets/manager/manager/manager.py:859 ...
 "A~p~pend" = "追加(~P~)"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "重命名(~R~)"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:64, navigator/widgets/file_ops/as_root.py:208
 "~S~kip" = "跳过(~S~)"
+# navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:12
+"Change link targets" = "更改链接目标"
 # navigator/widgets/file_ops/rename_dialog/rename_dialog.nml:15
 "Quick rename" = "快速重命名"
 # navigator/widgets/file_ops/uu_decode_dialog/uu_decode_dialog.nml:16
@@ -673,7 +677,7 @@ flag = "CN"
 "Classic ~t~etris" = "经典俄罗斯方块(~T~)"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "Penti~x~"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:418
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:441
 "~O~ptions" = "选项(~O~)"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "方块预览(~P~)"
@@ -681,7 +685,7 @@ flag = "CN"
 "Show the next piece (it scores less)" = "显示下一个方块（得分较少）"
 # navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "Navigator 游戏"
-# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:378 ...
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:401 ...
 "~N~ew" = "新建(~N~)"
 # navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:101, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "设置(~S~)"
@@ -701,7 +705,7 @@ flag = "CN"
 "Pre~v~iew" = "预览(~V~)"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "显示下一个方块"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:141, navigator/widgets/shell/main_menu/main_menu.nml:571 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:141, navigator/widgets/shell/main_menu/main_menu.nml:594 ...
 "~C~lose" = "关闭(~C~)"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix 前十名"
@@ -711,27 +715,29 @@ flag = "CN"
 "You have entered Top Ten!" = "您进入了前十名！"
 # navigator/widgets/game/winner_dialog/winner_dialog.nml:19
 "Enter your name:" = "输入您的名字:"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:16
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:17
 "Advanced search" = "高级搜索"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:25
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:26
 "Date is ~a~fter" = "日期晚于(~A~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:36
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:37
 "Date is ~b~efore" = "日期早于(~B~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:46
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:47
 "Size is ~g~reater than" = "大小大于(~G~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:55
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:56
 "Size is ~l~ess than" = "大小小于(~L~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:64, navigator/lib/drives/base.py
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:65, navigator/lib/drives/base.py
 "Kind" = "种类"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:73
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:74
 "E~x~ecutable" = "可执行(~X~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:73
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:74
 "S~y~mbolic link" = "符号链接(~Y~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:73
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:74
 "H~i~dden" = "隐藏(~I~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:73
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:74
 "R~e~ad-only" = "只读(~E~)"
-# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:87
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:74
+"Broke~n~ link" = "损坏的链接(~N~)"
+# navigator/widgets/manager/advanced_search_dialog/advanced_search_dialog.nml:88
 "~C~lear all" = "全部清除(~C~)"
 # navigator/widgets/manager/bookmark_label_dialog/bookmark_label_dialog.nml:11
 "Bookmark label" = "书签标签"
@@ -743,9 +749,9 @@ flag = "CN"
 "Show" = "显示"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44 ...
 "~S~ize" = "大小(~S~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4720
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:4881
 "~A~ttributes" = "属性(~A~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4720
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:33, navigator/widgets/manager/manager/manager.py:4881
 "~O~wner" = "所有者(~O~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:33
 "~P~ath" = "路径(~P~)"
@@ -753,7 +759,7 @@ flag = "CN"
 "~B~rief" = "简略(~B~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:47
 "~F~ull" = "完整(~F~)"
-# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2040
+# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2045
 "Compare directories" = "比较目录"
 # navigator/widgets/manager/compare_dialog/compare_dialog.nml:37
 "Compare ~s~ize" = "比较大小(~S~)"
@@ -821,7 +827,7 @@ flag = "CN"
 "~A~ll drives" = "所有驱动器(~A~)"
 # navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:88
 "Ad~v~anced..." = "高级(~V~)..."
-# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1222, navigator/widgets/manager/manager/manager.py:1148 ...
+# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1227, navigator/widgets/manager/manager/manager.py:1153 ...
 "No files found" = "未找到文件"
 # navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:13
 "Make List File" = "创建列表文件"
@@ -855,7 +861,7 @@ flag = "CN"
 "~C~ompare directories" = "比较目录(~C~)"
 # navigator/widgets/manager/manager/manager.nml:186
 "Tag what each panel has that the other lacks or has older" = "标记每个面板中另一面板没有或较旧的文件"
-# navigator/widgets/manager/manager/manager.nml:189, navigator/widgets/manager/panel/panel.py:1818
+# navigator/widgets/manager/manager/manager.nml:189, navigator/widgets/manager/panel/panel.py:1826
 "Count directory len~g~th" = "统计目录大小(~G~)"
 # navigator/widgets/manager/manager/manager.nml:190
 "Add up the bytes under the selected directories" = "累计所选目录下的字节数"
@@ -871,9 +877,9 @@ flag = "CN"
 "Undo multi-rename" = "撤销批量重命名"
 # navigator/widgets/manager/manager/manager.nml:206
 "Put back the names the last multi-rename changed" = "恢复上次批量重命名更改的名称"
-# navigator/widgets/manager/manager/manager.nml:214, navigator/widgets/manager/panel/panel.py:1811
+# navigator/widgets/manager/manager/manager.nml:214, navigator/widgets/manager/panel/panel.py:1819
 "E~x~tract to..." = "解压到(~X~)..."
-# navigator/widgets/manager/manager/manager.nml:218, navigator/widgets/manager/manager/manager.py:1082
+# navigator/widgets/manager/manager/manager.nml:218, navigator/widgets/manager/manager/manager.py:1087
 "Test archive" = "测试压缩包"
 # navigator/widgets/manager/manager/manager.nml:219
 "Read the archive through and check it for errors" = "完整读取压缩包并检查错误"
@@ -903,13 +909,13 @@ flag = "CN"
 "Quic~k~ view" = "快速查看(~K~)"
 # navigator/widgets/manager/manager/manager.nml:268
 "Preview the file at the cursor in the other panel" = "在另一面板中预览光标处的文件"
-# navigator/widgets/manager/manager/manager.nml:273, navigator/widgets/manager/panel/panel.py:1823
+# navigator/widgets/manager/manager/manager.nml:273, navigator/widgets/manager/panel/panel.py:1831
 "Select grou~p~..." = "选择组(~P~)..."
-# navigator/widgets/manager/manager/manager.nml:277, navigator/widgets/manager/panel/panel.py:1824
+# navigator/widgets/manager/manager/manager.nml:277, navigator/widgets/manager/panel/panel.py:1832
 "~U~nselect group..." = "取消选择组(~U~)..."
-# navigator/widgets/manager/manager/manager.nml:281, navigator/widgets/manager/panel/panel.py:1825
+# navigator/widgets/manager/manager/manager.nml:281, navigator/widgets/manager/panel/panel.py:1833
 "In~v~ert selection" = "反向选择(~V~)"
-# navigator/widgets/manager/manager/manager.nml:285, navigator/widgets/manager/panel/panel.py:1826
+# navigator/widgets/manager/manager/manager.nml:285, navigator/widgets/manager/panel/panel.py:1834
 "Select all files" = "选择所有文件"
 # navigator/widgets/manager/manager/manager.nml:286
 "Select every file and directory in this panel" = "选择此面板中的所有文件和目录"
@@ -925,7 +931,7 @@ flag = "CN"
 "Change direc~t~ory" = "切换目录(~T~)"
 # navigator/widgets/manager/manager/manager.nml:302
 "Choose a directory from a tree" = "从目录树中选择目录"
-# navigator/widgets/manager/manager/manager.nml:306, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2150 ...
+# navigator/widgets/manager/manager/manager.nml:306, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2155 ...
 "Quick s~e~arch" = "快速搜索(~E~)"
 # navigator/widgets/manager/manager/manager.nml:310, navigator/widgets/shell/usage_window/usage_window.nml:102, navigator/widgets/shell/volumes_window/volumes_window.nml:143 ...
 "~R~e-read" = "刷新(~R~)"
@@ -933,7 +939,7 @@ flag = "CN"
 "S~a~me directory in other panel" = "另一面板转到相同目录(~A~)"
 # navigator/widgets/manager/manager/manager.nml:315
 "Send the other panel to this directory" = "将另一面板转到此目录"
-# navigator/widgets/manager/manager/manager.nml:321, navigator/widgets/manager/commands.py:536
+# navigator/widgets/manager/manager/manager.nml:321, navigator/widgets/manager/commands.py:559
 "Show in other panel" = "在另一面板中显示"
 # navigator/widgets/manager/manager/manager.nml:322
 "Show the found file in the other panel" = "在另一面板中显示找到的文件"
@@ -949,19 +955,19 @@ flag = "CN"
 "zoxide's directories and the panels' history, searched by fzf" = "zoxide 的目录和面板历史，用 fzf 搜索"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "面板选项"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2750
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:25, navigator/widgets/manager/manager/manager.py:2769
 "Sort by" = "排序方式"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:35, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:36
 "Re~v~erse order" = "倒序(~V~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "按相反顺序排列：最大、最新、Z 在前..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4720 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4881 ...
 "~E~xtension" = "扩展名(~E~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:31, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48 ...
 "Attributes" = "属性"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4741
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4902
 "Ty~p~e" = "类型(~P~)"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4720 ...
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:44, navigator/widgets/manager/manager/manager.py:4881 ...
 "~U~nsorted" = "不排序(~U~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:52, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:62
 "Display" = "显示"
@@ -1021,7 +1027,7 @@ flag = "CN"
 "A daylight-saving change moves a FAT stick's times by an hour" = "夏令时切换会使 FAT 存储设备上的时间偏移一小时"
 # navigator/widgets/manager/sync_options_dialog/sync_options_dialog.nml:63
 "What only the right side has is deleted, and a file that differs is copied right, whichever is newer" = "仅右侧有的项将被删除，不同的文件无论哪边较新都复制到右侧"
-# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:2070, navigator/widgets/manager/sync_window/sync_window.py:190
+# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:2075, navigator/widgets/manager/sync_window/sync_window.py:190
 "Synchronize" = "同步"
 # navigator/widgets/manager/sync_window/sync_window.nml:81
 "Le~f~t only" = "仅左侧(~F~)"
@@ -1117,7 +1123,7 @@ flag = "CN"
 "Date" = "日期"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:39
 "~F~ile find" = "查找(~F~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2714, navigator/widgets/manager/sync_list/sync_list.py:459
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:48, navigator/widgets/manager/panel/panel.py:2722, navigator/widgets/manager/sync_list/sync_list.py:459
 "Path" = "路径"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:56
 "~A~rchives" = "压缩包(~A~)"
@@ -1463,13 +1469,13 @@ flag = "CN"
 "The editor's and the viewer's defaults" = "编辑器和查看器的默认设置"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "How the file panels behave and look" = "文件面板的行为和外观"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:469
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:492
 "What the information panel (Ctrl+L) shows" = "信息面板(Ctrl+L)显示的内容"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:473
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:496
 "How a new file manager's panels start" = "新文件管理器的面板如何开始"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "面板在磁盘上、Find: 列表中和压缩包中显示的列"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:481
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:504
 "Which files the panels show in which colour" = "面板用什么颜色显示哪些文件"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "远程连接：保活、超时、空闲连接和已更改的文件"
@@ -1663,7 +1669,7 @@ flag = "CN"
 "The word read as two's complement; unticked, unsigned" = "以补码读取该字；不勾选为无符号"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:339
 "Click a bit, or Space on it, to flip it" = "单击某位或在其上按空格以翻转"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:297
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:320
 "~C~alculator" = "计算器(~C~)"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:346
 "The calculator's faces, copying its value and closing it" = "计算器的形式、复制其值和关闭"
@@ -1807,9 +1813,9 @@ flag = "CN"
 "Open ~w~ith..." = "打开方式(~W~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:159
 "Open the file in a desktop application chosen from a list" = "用从列表中选择的桌面应用程序打开文件"
-# navigator/widgets/shell/main_menu/main_menu.nml:166, navigator/widgets/manager/panel/panel.py:1794
+# navigator/widgets/shell/main_menu/main_menu.nml:166, navigator/widgets/manager/panel/panel.py:1797
 "~C~opy..." = "复制(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:170, navigator/widgets/manager/panel/panel.py:1795
+# navigator/widgets/shell/main_menu/main_menu.nml:170, navigator/widgets/manager/panel/panel.py:1798
 "~R~ename/Move..." = "重命名/移动(~R~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:176
 "~Q~uick rename..." = "快速重命名(~Q~)..."
@@ -1819,257 +1825,275 @@ flag = "CN"
 "Create arch~i~ve..." = "创建压缩包(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:188
 "Ex~t~ract archive..." = "解压压缩包(~T~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:192, navigator/widgets/manager/panel/panel.py:1796
+# navigator/widgets/shell/main_menu/main_menu.nml:195
+"~S~ymlinks" = "符号链接(~S~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:197, navigator/widgets/manager/panel/panel.py:1799
 "Create ~s~ymlink..." = "创建符号链接(~S~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:193
+# navigator/widgets/shell/main_menu/main_menu.nml:198
 "Make a symbolic link to each selected file" = "为每个选中的文件创建符号链接"
-# navigator/widgets/shell/main_menu/main_menu.nml:199
+# navigator/widgets/shell/main_menu/main_menu.nml:203
+"~E~dit link target..." = "编辑链接目标(~E~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:204
+"Change what the selected links point at" = "更改所选链接指向的位置"
+# navigator/widgets/shell/main_menu/main_menu.nml:207
+"Make ~r~elative" = "改为相对路径(~R~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:208
+"Rewrite each selected link's target relative to the link" = "将每个所选链接的目标改写为相对于链接的路径"
+# navigator/widgets/shell/main_menu/main_menu.nml:211
+"Make ~a~bsolute" = "改为绝对路径(~A~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:212
+"Rewrite each selected link's target as a full path" = "将每个所选链接的目标改写为完整路径"
+# navigator/widgets/shell/main_menu/main_menu.nml:216
+"Select ~b~roken links" = "选择损坏的链接(~B~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:217
+"Tag every link here that points nowhere" = "标记此处所有不指向任何位置的链接"
+# navigator/widgets/shell/main_menu/main_menu.nml:222
 "Compare fi~l~es..." = "比较文件(~L~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:206, navigator/widgets/manager/panel/panel.py:1819
+# navigator/widgets/shell/main_menu/main_menu.nml:229, navigator/widgets/manager/panel/panel.py:1827
 "~M~ake directory" = "创建目录(~M~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:218, navigator/widgets/manager/panel/panel.py:1780
+# navigator/widgets/shell/main_menu/main_menu.nml:241, navigator/widgets/manager/panel/panel.py:1783
 "Restore from Tras~h~" = "从回收站还原(~H~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:219
-"Put the selected files back where they were deleted from" = "将选中的文件放回删除前的位置"
-# navigator/widgets/shell/main_menu/main_menu.nml:222, navigator/widgets/manager/panel/panel.py:1798
-"File ~A~ttributes..." = "文件属性(~A~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:223
-"Permissions, owner, group, dates, ACLs and extended attributes" = "权限、所有者、组、日期、ACL 和扩展属性"
-# navigator/widgets/shell/main_menu/main_menu.nml:227
-"UU E~n~code..." = "UU 编码(~N~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:228
-"Encode the file as plain text, the old way of mailing files" = "将文件编码为纯文本，旧时邮寄文件的方式"
-# navigator/widgets/shell/main_menu/main_menu.nml:232
-"~U~U Decode..." = "~U~U 解码..."
-# navigator/widgets/shell/main_menu/main_menu.nml:233
-"Decode the files UU-encoded in this file" = "解码此文件中 UU 编码的文件"
-# navigator/widgets/shell/main_menu/main_menu.nml:240
-"Chec~k~sums" = "校验和(~K~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:242
-"~C~alculate..." = "计算(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:243
-"Hash the tagged files and write their checksums to a list" = "计算已标记文件的哈希，并将校验和写入列表"
+"Put the selected files back where they were deleted from" = "将选中的文件放回删除前的位置"
+# navigator/widgets/shell/main_menu/main_menu.nml:245, navigator/widgets/manager/panel/panel.py:1806
+"File ~A~ttributes..." = "文件属性(~A~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:246
-"~V~erify" = "验证(~V~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:247
-"Hash the files a checksum list names again and check them" = "重新计算校验和列表中文件的哈希并核对"
+"Permissions, owner, group, dates, ACLs and extended attributes" = "权限、所有者、组、日期、ACL 和扩展属性"
 # navigator/widgets/shell/main_menu/main_menu.nml:250
-"Delete single file" = "删除单个文件"
+"UU E~n~code..." = "UU 编码(~N~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:251
-"Delete the file at the cursor, not the selection" = "删除光标处的文件，而不是选中的文件"
+"Encode the file as plain text, the old way of mailing files" = "将文件编码为纯文本，旧时邮寄文件的方式"
+# navigator/widgets/shell/main_menu/main_menu.nml:255
+"~U~U Decode..." = "~U~U 解码..."
 # navigator/widgets/shell/main_menu/main_menu.nml:256
-"Execute ~O~S command" = "执行系统命令(~O~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:257
-"Type a command in a box and run it" = "在框中输入命令并运行"
+"Decode the files UU-encoded in this file" = "解码此文件中 UU 编码的文件"
+# navigator/widgets/shell/main_menu/main_menu.nml:263
+"Chec~k~sums" = "校验和(~K~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:265
-"~D~isk" = "磁盘(~D~)"
+"~C~alculate..." = "计算(~C~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:266
+"Hash the tagged files and write their checksums to a list" = "计算已标记文件的哈希，并将校验和写入列表"
+# navigator/widgets/shell/main_menu/main_menu.nml:269
+"~V~erify" = "验证(~V~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:270
+"Hash the files a checksum list names again and check them" = "重新计算校验和列表中文件的哈希并核对"
+# navigator/widgets/shell/main_menu/main_menu.nml:273
+"Delete single file" = "删除单个文件"
+# navigator/widgets/shell/main_menu/main_menu.nml:274
+"Delete the file at the cursor, not the selection" = "删除光标处的文件，而不是选中的文件"
+# navigator/widgets/shell/main_menu/main_menu.nml:279
+"Execute ~O~S command" = "执行系统命令(~O~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:280
+"Type a command in a box and run it" = "在框中输入命令并运行"
+# navigator/widgets/shell/main_menu/main_menu.nml:288
+"~D~isk" = "磁盘(~D~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:289
 "The directory tree, volumes and the Trash" = "目录树、卷和回收站"
-# navigator/widgets/shell/main_menu/main_menu.nml:268
-"~D~irectory tree" = "目录树(~D~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:271, navigator/widgets/shell/volumes_window/volumes_window.nml:139
-"~V~olumes" = "卷(~V~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:272
-"Disks and partitions: mount, unmount and eject them" = "磁盘和分区：挂载、卸载和弹出"
-# navigator/widgets/shell/main_menu/main_menu.nml:276
-"Directory ~s~izes" = "目录大小(~S~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:277
-"What takes the room under the panel's directory, biggest first" = "面板目录中占用空间的内容，从大到小"
-# navigator/widgets/shell/main_menu/main_menu.nml:283, navigator/widgets/manager/manager/manager.py:2261
-"~T~rash" = "回收站(~T~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:286
-"~E~mpty Trash" = "清空回收站(~E~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:290, navigator/widgets/shell/root_mark.py:51
-"~U~tilities" = "工具(~U~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:291
+"~D~irectory tree" = "目录树(~D~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:294, navigator/widgets/shell/volumes_window/volumes_window.nml:139
+"~V~olumes" = "卷(~V~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:295
+"Disks and partitions: mount, unmount and eject them" = "磁盘和分区：挂载、卸载和弹出"
+# navigator/widgets/shell/main_menu/main_menu.nml:299
+"Directory ~s~izes" = "目录大小(~S~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:300
+"What takes the room under the panel's directory, biggest first" = "面板目录中占用空间的内容，从大到小"
+# navigator/widgets/shell/main_menu/main_menu.nml:306, navigator/widgets/manager/manager/manager.py:2266
+"~T~rash" = "回收站(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:309
+"~E~mpty Trash" = "清空回收站(~E~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:313, navigator/widgets/shell/root_mark.py:51
+"~U~tilities" = "工具(~U~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:314
 "Calculator, calendar, remote links, the user menu and histories" = "计算器、日历、远程链接、用户菜单和历史"
-# navigator/widgets/shell/main_menu/main_menu.nml:293
-"S~y~stem Information" = "系统信息(~Y~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:303
-"Ca~l~endar" = "日历(~L~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:307
-"Pick a character to type where the cursor is" = "选择一个字符输入到光标处"
 # navigator/widgets/shell/main_menu/main_menu.nml:316
-"~S~SH link (SFTP)..." = "~S~SH 链接 (SFTP)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:320
-"~F~TP link..." = "~F~TP 链接..."
-# navigator/widgets/shell/main_menu/main_menu.nml:323
-"S~M~B link (Windows share)..." = "S~M~B 链接 (Windows 共享)..."
+"S~y~stem Information" = "系统信息(~Y~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:326
-"S~3~ link (Amazon S3)..." = "S~3~ 链接 (Amazon S3)..."
+"Ca~l~endar" = "日历(~L~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:330
-"~G~Vfs/KIO link (MTP, WebDAV...)..." = "~G~Vfs/KIO 链接 (MTP、WebDAV...)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:331
-"A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "手机、WebDAV 共享、Google Drive：桌面能挂载的任何东西"
-# navigator/widgets/shell/main_menu/main_menu.nml:334
-"~D~isconnect" = "断开(~D~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:335
-"Close a connection; its panels go back to the disk" = "关闭连接；其面板回到磁盘"
-# navigator/widgets/shell/main_menu/main_menu.nml:339, navigator/widgets/shell/root_mark.py:51
-"Close ~r~oot access" = "关闭 root 权限(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:340
-"End root access now, rather than after its timeout" = "立即结束 root 权限，而不是等到超时"
+"Pick a character to type where the cursor is" = "选择一个字符输入到光标处"
+# navigator/widgets/shell/main_menu/main_menu.nml:339
+"~S~SH link (SFTP)..." = "~S~SH 链接 (SFTP)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:343
-"Saved l~i~nks..." = "已保存的链接(~I~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:344
-"The saved connections: edit them, or connect to one" = "已保存的连接：编辑或连接"
-# navigator/widgets/shell/main_menu/main_menu.nml:348
-"Edi~t~ environment" = "编辑环境变量(~T~)"
+"~F~TP link..." = "~F~TP 链接..."
+# navigator/widgets/shell/main_menu/main_menu.nml:346
+"S~M~B link (Windows share)..." = "S~M~B 链接 (Windows 共享)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:349
-"Edit the environment variables commands run with" = "编辑运行命令时使用的环境变量"
-# navigator/widgets/shell/main_menu/main_menu.nml:352
-"~U~ser menu" = "用户菜单(~U~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:356
-"Commands ~H~istory" = "命令历史(~H~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:361
-"Fu~z~zy history search..." = "模糊搜索历史(~Z~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:362
-"The commands typed, here and in the shell, searched by fzf" = "在这里和 shell 中输入的命令，用 fzf 搜索"
+"S~3~ link (Amazon S3)..." = "S~3~ 链接 (Amazon S3)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:353
+"~G~Vfs/KIO link (MTP, WebDAV...)..." = "~G~Vfs/KIO 链接 (MTP、WebDAV...)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:354
+"A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "手机、WebDAV 共享、Google Drive：桌面能挂载的任何东西"
+# navigator/widgets/shell/main_menu/main_menu.nml:357
+"~D~isconnect" = "断开(~D~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:358
+"Close a connection; its panels go back to the disk" = "关闭连接；其面板回到磁盘"
+# navigator/widgets/shell/main_menu/main_menu.nml:362, navigator/widgets/shell/root_mark.py:51
+"Close ~r~oot access" = "关闭 root 权限(~R~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:363
+"End root access now, rather than after its timeout" = "立即结束 root 权限，而不是等到超时"
 # navigator/widgets/shell/main_menu/main_menu.nml:366
-"File ~E~dit History" = "文件编辑历史(~E~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:370
-"File ~V~iew History" = "文件查看历史(~V~)"
+"Saved l~i~nks..." = "已保存的链接(~I~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:367
+"The saved connections: edit them, or connect to one" = "已保存的连接：编辑或连接"
+# navigator/widgets/shell/main_menu/main_menu.nml:371
+"Edi~t~ environment" = "编辑环境变量(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:372
+"Edit the environment variables commands run with" = "编辑运行命令时使用的环境变量"
 # navigator/widgets/shell/main_menu/main_menu.nml:375
+"~U~ser menu" = "用户菜单(~U~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:379
+"Commands ~H~istory" = "命令历史(~H~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:384
+"Fu~z~zy history search..." = "模糊搜索历史(~Z~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:385
+"The commands typed, here and in the shell, searched by fzf" = "在这里和 shell 中输入的命令，用 fzf 搜索"
+# navigator/widgets/shell/main_menu/main_menu.nml:389
+"File ~E~dit History" = "文件编辑历史(~E~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:393
+"File ~V~iew History" = "文件查看历史(~V~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:398
 "~M~anager" = "管理(~M~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:376
+# navigator/widgets/shell/main_menu/main_menu.nml:399
 "New file managers, swapping and hiding panels, bookmarks" = "新建文件管理器、交换和隐藏面板、书签"
-# navigator/widgets/shell/main_menu/main_menu.nml:382
+# navigator/widgets/shell/main_menu/main_menu.nml:405
 "~S~wap panels" = "交换面板(~S~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:386
+# navigator/widgets/shell/main_menu/main_menu.nml:409
 "Show/hide ~l~eft panel" = "显示/隐藏左面板(~L~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:390
-"Show/hide ~r~ight panel" = "显示/隐藏右面板(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:394
-"Show/hide inactive ~p~anel" = "显示/隐藏非活动面板(~P~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:395
-"Hide the panel without the keyboard, or show it again" = "隐藏没有键盘焦点的面板，或再次显示"
-# navigator/widgets/shell/main_menu/main_menu.nml:401
-"~M~iller columns" = "Miller 列(~M~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:402
-"Browse in columns, each directory beside its parent" = "分列浏览，每个目录在其父目录旁边"
-# navigator/widgets/shell/main_menu/main_menu.nml:407
-"Bookmarks le~f~t" = "左侧书签(~F~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:408
-"Send the left panel to a bookmarked directory" = "将左面板转到书签中的目录"
-# navigator/widgets/shell/main_menu/main_menu.nml:412
-"Bookmarks rig~h~t" = "右侧书签(~H~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:413
-"Send the right panel to a bookmarked directory" = "将右面板转到书签中的目录"
-# navigator/widgets/shell/main_menu/main_menu.nml:419
-"Settings, configuration files, the desktop and colours" = "设置、配置文件、桌面和颜色"
-# navigator/widgets/shell/main_menu/main_menu.nml:423
-"Sett~i~ngs..." = "设置(~I~)..."
+"Show/hide ~r~ight panel" = "显示/隐藏右面板(~R~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:417
+"Show/hide inactive ~p~anel" = "显示/隐藏非活动面板(~P~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:418
+"Hide the panel without the keyboard, or show it again" = "隐藏没有键盘焦点的面板，或再次显示"
 # navigator/widgets/shell/main_menu/main_menu.nml:424
-"Every setup page in one box, behind tabs" = "所有设置页集中在一个带标签页的框中"
-# navigator/widgets/shell/main_menu/main_menu.nml:429
-"~C~onfiguration" = "配置(~C~)"
+"~M~iller columns" = "Miller 列(~M~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:425
+"Browse in columns, each directory beside its parent" = "分列浏览，每个目录在其父目录旁边"
+# navigator/widgets/shell/main_menu/main_menu.nml:430
+"Bookmarks le~f~t" = "左侧书签(~F~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:431
-"S~y~stem Setup..." = "系统设置(~Y~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:434
-"~S~tartup..." = "启动(~S~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:437
-"~I~nterface..." = "界面(~I~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:440
-"~C~onfirmations..." = "确认(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:444
-"Screen sa~v~ers..." = "屏幕保护(~V~)..."
+"Send the left panel to a bookmarked directory" = "将左面板转到书签中的目录"
+# navigator/widgets/shell/main_menu/main_menu.nml:435
+"Bookmarks rig~h~t" = "右侧书签(~H~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:436
+"Send the right panel to a bookmarked directory" = "将右面板转到书签中的目录"
+# navigator/widgets/shell/main_menu/main_menu.nml:442
+"Settings, configuration files, the desktop and colours" = "设置、配置文件、桌面和颜色"
+# navigator/widgets/shell/main_menu/main_menu.nml:446
+"Sett~i~ngs..." = "设置(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:447
-"C~o~untry support..." = "区域支持(~O~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:450
-"Comm~u~nications..." = "通信(~U~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:451
-"Settings for remote connections" = "远程连接设置"
-# navigator/widgets/shell/main_menu/main_menu.nml:455
-"~E~ditor/Viewer..." = "编辑器/查看器(~E~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:459
-"~K~ey bindings..." = "按键绑定(~K~)..."
+"Every setup page in one box, behind tabs" = "所有设置页集中在一个带标签页的框中"
+# navigator/widgets/shell/main_menu/main_menu.nml:452
+"~C~onfiguration" = "配置(~C~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:454
+"S~y~stem Setup..." = "系统设置(~Y~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:457
+"~S~tartup..." = "启动(~S~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:460
+"~I~nterface..." = "界面(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:463
+"~C~onfirmations..." = "确认(~C~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:467
+"Screen sa~v~ers..." = "屏幕保护(~V~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:470
+"C~o~untry support..." = "区域支持(~O~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:473
+"Comm~u~nications..." = "通信(~U~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:474
+"Settings for remote connections" = "远程连接设置"
+# navigator/widgets/shell/main_menu/main_menu.nml:478
+"~E~ditor/Viewer..." = "编辑器/查看器(~E~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:482
+"~K~ey bindings..." = "按键绑定(~K~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:486
 "~F~ile Manager" = "文件管理器(~F~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:465
+# navigator/widgets/shell/main_menu/main_menu.nml:488
 "~S~etup..." = "设置(~S~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:468
-"~I~nformation panel..." = "信息面板(~I~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:472
-"New Manager ~d~efaults..." = "新管理器默认值(~D~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:476
-"~C~olumn defaults..." = "列默认值(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:477
-"The columns a new panel shows" = "新面板显示的列"
-# navigator/widgets/shell/main_menu/main_menu.nml:480
-"~H~ighlight groups..." = "高亮组(~H~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:485
-"A~r~chives" = "压缩包(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:487
-"Current archiver..." = "当前压缩程序..."
 # navigator/widgets/shell/main_menu/main_menu.nml:491
-"~Q~uick run file edit..." = "编辑快速运行文件(~Q~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:492
-"Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "编辑 quickrun.ini：Ctrl+Shift+F1 至 F10 运行的命令"
+"~I~nformation panel..." = "信息面板(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:495
-"E~x~tension file edit..." = "编辑扩展名文件(~X~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:496
-"Edit extensions.ini: what Enter runs for each kind of file" = "编辑 extensions.ini：Enter 对各类文件运行什么"
+"New Manager ~d~efaults..." = "新管理器默认值(~D~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:499
-"~H~ighlight file edit..." = "编辑高亮文件(~H~)..."
+"~C~olumn defaults..." = "列默认值(~C~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:500
-"Edit highlight.ini: which syntax colours which file" = "编辑 highlight.ini：用哪种语法为哪个文件着色"
+"The columns a new panel shows" = "新面板显示的列"
 # navigator/widgets/shell/main_menu/main_menu.nml:503
-"~G~lobal menu definition..." = "全局菜单定义(~G~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:504
-"Edit the F2 user menu used everywhere" = "编辑全局使用的 F2 用户菜单"
-# navigator/widgets/shell/main_menu/main_menu.nml:507
-"Local ~m~enu definition..." = "本地菜单定义(~M~)..."
+"~H~ighlight groups..." = "高亮组(~H~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:508
-"Edit this directory's own F2 user menu" = "编辑此目录自己的 F2 用户菜单"
-# navigator/widgets/shell/main_menu/main_menu.nml:511
-"~V~iewers..." = "查看器(~V~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:512
-"Edit viewers.ini: the external viewer for each kind of file" = "编辑 viewers.ini：各类文件的外部查看器"
+"A~r~chives" = "压缩包(~R~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:510
+"Current archiver..." = "当前压缩程序..."
+# navigator/widgets/shell/main_menu/main_menu.nml:514
+"~Q~uick run file edit..." = "编辑快速运行文件(~Q~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:515
+"Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "编辑 quickrun.ini：Ctrl+Shift+F1 至 F10 运行的命令"
+# navigator/widgets/shell/main_menu/main_menu.nml:518
+"E~x~tension file edit..." = "编辑扩展名文件(~X~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:519
+"Edit extensions.ini: what Enter runs for each kind of file" = "编辑 extensions.ini：Enter 对各类文件运行什么"
+# navigator/widgets/shell/main_menu/main_menu.nml:522
+"~H~ighlight file edit..." = "编辑高亮文件(~H~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:523
+"Edit highlight.ini: which syntax colours which file" = "编辑 highlight.ini：用哪种语法为哪个文件着色"
+# navigator/widgets/shell/main_menu/main_menu.nml:526
+"~G~lobal menu definition..." = "全局菜单定义(~G~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:527
+"Edit the F2 user menu used everywhere" = "编辑全局使用的 F2 用户菜单"
+# navigator/widgets/shell/main_menu/main_menu.nml:530
+"Local ~m~enu definition..." = "本地菜单定义(~M~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:531
+"Edit this directory's own F2 user menu" = "编辑此目录自己的 F2 用户菜单"
+# navigator/widgets/shell/main_menu/main_menu.nml:534
+"~V~iewers..." = "查看器(~V~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:535
+"Edit viewers.ini: the external viewer for each kind of file" = "编辑 viewers.ini：各类文件的外部查看器"
+# navigator/widgets/shell/main_menu/main_menu.nml:538
 "~E~ditors..." = "编辑器(~E~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:516
+# navigator/widgets/shell/main_menu/main_menu.nml:539
 "Edit editors.ini: the external editor for each kind of file" = "编辑 editors.ini：各类文件的外部编辑器"
-# navigator/widgets/shell/main_menu/main_menu.nml:520
+# navigator/widgets/shell/main_menu/main_menu.nml:543
 "~S~ave desktop" = "保存桌面(~S~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:521
-"Keep the open windows, to have them back later" = "保存打开的窗口，以便日后恢复"
-# navigator/widgets/shell/main_menu/main_menu.nml:524
-"~L~oad desktop" = "加载桌面(~L~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:525
-"Replace these windows with the ones last saved" = "用上次保存的窗口替换当前窗口"
-# navigator/widgets/shell/main_menu/main_menu.nml:529
-"C~o~lors..." = "颜色(~O~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:532
-"S~t~ore palette" = "存储调色板(~T~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:533
-"Save the colours as a theme of your own" = "将颜色保存为自己的主题"
-# navigator/widgets/shell/main_menu/main_menu.nml:536
-"Lo~a~d palette" = "加载调色板(~A~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:537
-"Use colours saved in a file" = "使用文件中保存的颜色"
-# navigator/widgets/shell/main_menu/main_menu.nml:541
-"~W~indow" = "窗口(~W~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:542
-"Arrange, switch between and close windows" = "排列、切换和关闭窗口"
 # navigator/widgets/shell/main_menu/main_menu.nml:544
-"~T~ile" = "平铺(~T~)"
+"Keep the open windows, to have them back later" = "保存打开的窗口，以便日后恢复"
 # navigator/widgets/shell/main_menu/main_menu.nml:547
-"C~a~scade" = "层叠(~A~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:550
-"Cl~o~se all" = "全部关闭(~O~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:554
-"~S~ize/Move" = "大小/移动(~S~)"
+"~L~oad desktop" = "加载桌面(~L~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:548
+"Replace these windows with the ones last saved" = "用上次保存的窗口替换当前窗口"
+# navigator/widgets/shell/main_menu/main_menu.nml:552
+"C~o~lors..." = "颜色(~O~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:555
-"Move and size the window with the keyboard" = "用键盘移动窗口和调整大小"
+"S~t~ore palette" = "存储调色板(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:556
+"Save the colours as a theme of your own" = "将颜色保存为自己的主题"
 # navigator/widgets/shell/main_menu/main_menu.nml:559
-"~Z~oom" = "缩放(~Z~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:563
-"~N~ext" = "下一个(~N~)"
+"Lo~a~d palette" = "加载调色板(~A~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:560
+"Use colours saved in a file" = "使用文件中保存的颜色"
+# navigator/widgets/shell/main_menu/main_menu.nml:564
+"~W~indow" = "窗口(~W~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:565
+"Arrange, switch between and close windows" = "排列、切换和关闭窗口"
 # navigator/widgets/shell/main_menu/main_menu.nml:567
-"~P~revious" = "上一个(~P~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:576
-"~L~ist..." = "列表(~L~)..."
+"~T~ile" = "平铺(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:570
+"C~a~scade" = "层叠(~A~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:573
+"Cl~o~se all" = "全部关闭(~O~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:577
+"~S~ize/Move" = "大小/移动(~S~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:578
+"Move and size the window with the keyboard" = "用键盘移动窗口和调整大小"
+# navigator/widgets/shell/main_menu/main_menu.nml:582
+"~Z~oom" = "缩放(~Z~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:586
+"~N~ext" = "下一个(~N~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:590
+"~P~revious" = "上一个(~P~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:599
+"~L~ist..." = "列表(~L~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "所有窗口，可切换到某个窗口或将其关闭"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "菜单参数"
@@ -2107,7 +2131,7 @@ flag = "CN"
 "Sort by ~s~ize" = "按大小排序(~S~)"
 # navigator/widgets/shell/usage_window/usage_window.nml:115, navigator/widgets/shell/usage_window/usage_window.py:379
 "Sort by ~e~ntries" = "按项目数排序(~E~)"
-# navigator/widgets/shell/usage_window/usage_window.nml:125, navigator/widgets/manager/manager/manager.py:2148, navigator/widgets/shell/usage_window/usage_window.py:382
+# navigator/widgets/shell/usage_window/usage_window.nml:125, navigator/widgets/manager/manager/manager.py:2153, navigator/widgets/shell/usage_window/usage_window.py:382
 "~G~o to directory" = "转到目录(~G~)"
 # navigator/widgets/shell/usage_window/usage_window.nml:128, navigator/widgets/shell/usage_window/usage_window.py:383
 "~D~elete..." = "删除(~D~)..."
@@ -2229,7 +2253,7 @@ flag = "CN"
 "Search Progress" = "搜索进度"
 # navigator/__main__.py:543
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "无法读取桌面剪贴板，因此 Navigator 粘贴了自己最近复制的内容。安装 xclip 或 xsel (X11)，或 wl-clipboard (Wayland)，即可与其他程序共享剪贴板。"
-# navigator/__main__.py:441, navigator/widgets/shell/shell/shell.py:826, navigator/widgets/shell/shell/shell.py:1163
+# navigator/__main__.py:441, navigator/widgets/shell/shell/shell.py:826, navigator/widgets/shell/shell/shell.py:1170
 "A program in the console has the keys" = "控制台中的程序正在接收按键"
 # navigator/__main__.py:443
 "The console is over the windows: Alt-X is the program's" = "控制台位于窗口之上：Alt-X 归该程序所有"
@@ -2259,11 +2283,11 @@ flag = "CN"
 "Its output becomes the active panel's listing" = "其输出成为活动面板的列表"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "在独立窗口中运行"
-# navigator/lib/drives/listing.py:108, navigator/lib/drives/listing.py:214
+# navigator/lib/drives/listing.py:108, navigator/lib/drives/listing.py:220
 "UP--DIR" = "上级目录"
 # navigator/lib/drives/listing.py:108, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "目录"
-# navigator/lib/drives/listing.py:214
+# navigator/lib/drives/listing.py:220
 "SUB-DIR" = "子目录"
 # navigator/lib/file_ops/fileattr.py:410
 "There is no user {name}" = "没有用户 {name}"
@@ -2305,9 +2329,9 @@ flag = "CN"
 "[{token}] is not a placeholder" = "[{token}] 不是占位符"
 # navigator/lib/file_ops/multirename.py:233
 "Not a regular expression: {reason}" = "不是正则表达式：{reason}"
-# navigator/lib/file_ops/multirename.py:408, navigator/widgets/manager/manager/manager.py:1583
+# navigator/lib/file_ops/multirename.py:408, navigator/widgets/manager/manager/manager.py:1588
 "a file of that name is already there" = "已存在同名文件"
-# navigator/lib/file_ops/multirename.py:444, navigator/lib/file_ops/multirename.py:419, navigator/widgets/manager/manager/manager.py:1585 ...
+# navigator/lib/file_ops/multirename.py:444, navigator/lib/file_ops/multirename.py:419, navigator/widgets/manager/manager/manager.py:1590 ...
 "Could not rename {old}\nto {new}: {reason}" = "无法将 {old}\n重命名为 {new}：{reason}"
 # navigator/lib/file_ops/multirename.py:239
 "Cannot replace with {text}: {reason}" = "无法替换为 {text}：{reason}"
@@ -2377,7 +2401,7 @@ flag = "CN"
 "Size: ~not counted~" = "大小: ~未统计~"
 # navigator/lib/system/diskinfo.py:238
 "Size: ~{n:,}~ byte" = ["大小: ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2303
+# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2311
 "~{n:,}~ byte" = ["~{n:,}~ 字节"]
 # navigator/lib/system/diskinfo.py:232
 "Name: ~{name}~" = "名称: ~{name}~"
@@ -2407,11 +2431,11 @@ flag = "CN"
 "Links: ~{links}~, inode ~{inode}~" = "链接: ~{links}~，inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
 "Link to: ~{target}~" = "链接到: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2299
+# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2307
 "No files in this directory" = "此目录中没有文件"
 # navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ 个文件，共 {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:219
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:242
 "Drive" = "驱动器"
 # navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "内存总计 ~{n:,}~K 字节"
@@ -2553,19 +2577,19 @@ flag = "CN"
 "~A~ccept" = "接受(~A~)"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "无法确认主机 {host} 的真实性。\n{type} 密钥指纹为\n{fingerprint}"
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:4895
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5056
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新建 GVfs/KIO 链接(~G~) (MTP, WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
 "Add" = "添加"
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:58 ...
 "Edit" = "编辑"
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4880
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5041
 "~N~ew SSH link (SFTP)..." = "新建 SSH 链接(~N~) (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:4880
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:5041
 "New ~F~TP link..." = "新建 FTP 链接(~F~)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4881
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5042
 "New S~M~B link (Windows share)..." = "新建 SMB 链接(~M~) (Windows 共享)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:4881
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:5042
 "New S~3~ link (Amazon S3)..." = "新建 S3 链接(~3~) (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "新建链接"
@@ -2603,7 +2627,7 @@ flag = "CN"
 "Lowercase" = "小写"
 # navigator/widgets/editor/commands.py:243
 "Capitalize" = "首字母大写"
-# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:209
+# navigator/widgets/editor/commands.py:249, navigator/widgets/manager/commands.py:232
 "Sort" = "排序"
 # navigator/widgets/editor/commands.py:257
 "Calculate sum" = "计算总和"
@@ -2715,9 +2739,9 @@ flag = "CN"
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:128, navigator/widgets/editor/edit_window/edit_window.py:130
 "Edit - {path}" = "编辑 - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:414, navigator/widgets/manager/manager/manager.py:852, navigator/widgets/manager/manager/manager.py:1863 ...
+# navigator/widgets/editor/edit_window/edit_window.py:414, navigator/widgets/manager/manager/manager.py:857, navigator/widgets/manager/manager/manager.py:1868 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "文件 {name}\n已存在。\n是否覆盖？"
-# navigator/widgets/editor/edit_window/edit_window.py:768, navigator/widgets/manager/manager/manager.py:2930
+# navigator/widgets/editor/edit_window/edit_window.py:768, navigator/widgets/manager/manager/manager.py:2949
 "Confirmation" = "确认"
 # navigator/widgets/editor/edit_window/edit_window.py:769
 "Print {n} line?" = ["打印 {n} 行？"]
@@ -2731,7 +2755,7 @@ flag = "CN"
 "Information" = "信息"
 # navigator/widgets/editor/edit_window/edit_window.py:677
 "{n} replace made" = ["已替换 {n} 处"]
-# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1858
+# navigator/widgets/editor/edit_window/edit_window.py:841, navigator/widgets/shell/shell/shell.py:1865
 "Cannot open {path}: {error}" = "无法打开 {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/editor/edit_window/edit_window.py:828
 "File {name} was modified. Save?" = "文件 {name} 已修改。是否保存？"
@@ -2869,11 +2893,11 @@ flag = "CN"
 "{path}: root access is not available" = "{path}: 无法使用 root 访问"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
 "directory" = "目录"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2065, navigator/widgets/manager/manager/manager.py:2065
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2070, navigator/widgets/manager/manager/manager.py:2070
 "{n} file" = ["{n} 个文件"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} 个目录"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2325, navigator/widgets/manager/panel/panel.py:2442 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2333, navigator/widgets/manager/panel/panel.py:2450 ...
 "{n:,} byte" = ["{n:,} 字节"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<不同>"
@@ -2921,7 +2945,7 @@ flag = "CN"
 "Failed: {n}" = "失败: {n}"
 # navigator/widgets/file_ops/checksum_report/checksum_report.py:33
 "Missing: {missing}    Unreadable: {unreadable}" = "缺失: {missing}    不可读: {unreadable}"
-# navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:196, navigator/widgets/shell/commands.py:129 ...
+# navigator/widgets/file_ops/commands.py:15, navigator/widgets/manager/commands.py:219, navigator/widgets/shell/commands.py:129 ...
 "Tree" = "树"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.py:47
 "~C~opy ~{n} file~ to" = ["复制(~C~) ~{n} 个文件~ 到"]
@@ -2981,6 +3005,8 @@ flag = "CN"
 "Create ~s~ymlink to file ~{name}~ in" = "创建符号链接(~S~)，指向文件 ~{name}~，位于"
 # navigator/widgets/file_ops/link_dialog/link_dialog.py:40
 "Create ~s~ymlink to Directory ~{name}~ in" = "创建符号链接(~S~)，指向目录 ~{name}~，位于"
+# navigator/widgets/file_ops/link_target_dialog/link_target_dialog.py:27
+"~L~ink {name} points to" = "链接 {name} 指向(~L~)"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:80
 "{n} name cannot be given" = ["{n} 个名称无法使用"]
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:82
@@ -3007,6 +3033,14 @@ flag = "CN"
 "Existing:  {date}  {size} byte" = ["现有文件:  {date}  {size} 字节"]
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.py:39
 "File {name}\nalready exists in destination directory" = "文件 {name}\n已存在于目标目录中"
+# navigator/widgets/file_ops/relink_dialog/relink_dialog.py:40
+"{n} target cannot be given" = ["{n} 个目标无法设置"]
+# navigator/widgets/file_ops/relink_dialog/relink_dialog.py:43
+"{n} link to change" = ["{n} 个链接待更改"]
+# navigator/widgets/file_ops/relink_dialog/relink_preview.py:16
+"The new target is empty" = "新目标为空"
+# navigator/widgets/file_ops/relink_dialog/relink_preview.py:18
+"A target cannot hold a NUL character" = "目标不能包含 NUL 字符"
 # navigator/widgets/file_ops/rename_dialog/rename_dialog.py:20
 "~R~ename {name} to" = "将 {name} 重命名(~R~)为"
 # navigator/widgets/file_ops/xattr_entry_dialog/xattr_entry_dialog.py:31
@@ -3017,9 +3051,9 @@ flag = "CN"
 "Pause" = "暂停"
 # navigator/widgets/game/commands.py:23
 "Top 10" = "前 10 名"
-# navigator/widgets/game/commands.py:29, navigator/widgets/manager/commands.py:236
+# navigator/widgets/game/commands.py:29, navigator/widgets/manager/commands.py:259
 "Setup" = "设置"
-# navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:283
+# navigator/widgets/game/commands.py:41, navigator/widgets/manager/commands.py:306
 "Preview" = "预览"
 # navigator/widgets/game/game_window/game_window.py:99
 "Game over\n\nFinal score - {score}" = "游戏结束\n\n最终得分 - {score}"
@@ -3041,7 +3075,7 @@ flag = "CN"
 "The figure that falls next: while it is shown, a figure set down scores 70%" = "下一个落下的方块: 显示时，落下的方块得 70% 分"
 # navigator/widgets/game/game_window/info.py:59
 "While Next is shown, a figure set down and an emptied glass score 70%" = "显示“下一个”时，落下的方块和清空容器得 70% 分"
-# navigator/widgets/game/game_window/info.py:79, navigator/widgets/manager/commands.py:277, navigator/widgets/manager/panel/option_items.py:52 ...
+# navigator/widgets/game/game_window/info.py:79, navigator/widgets/manager/commands.py:300, navigator/widgets/manager/panel/option_items.py:52 ...
 "Info" = "信息"
 # navigator/widgets/game/game_window/info.py:80
 "Score: ~{score}~" = "得分: ~{score}~"
@@ -3055,7 +3089,7 @@ flag = "CN"
 "~Name:~ {name}" = "~名称:~ {name}"
 # navigator/widgets/game/game_window/info.py:97
 "~Score:~ {score}" = "~得分:~ {score}"
-# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2707, navigator/widgets/shell/commands.py:186 ...
+# navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2715, navigator/widgets/shell/commands.py:186 ...
 "Name" = "名称"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Start" = "开始"
@@ -3071,35 +3105,35 @@ flag = "CN"
 "~R~atio" = "压缩率(~R~)"
 # navigator/widgets/manager/commands.py:29
 "View" = "查看"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1897, navigator/widgets/shell/shell/shell.py:1950 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:1904, navigator/widgets/shell/shell/shell.py:1957 ...
 "Open with" = "打开方式"
-# navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:248, navigator/widgets/manager/commands.py:259
+# navigator/widgets/manager/commands.py:74, navigator/widgets/manager/commands.py:271, navigator/widgets/manager/commands.py:282
 "Ren" = "重命名"
 # navigator/widgets/manager/commands.py:85
 "SymLnk" = "符号链接"
-# navigator/widgets/manager/commands.py:97, navigator/widgets/manager/panel/panel.py:2711
+# navigator/widgets/manager/commands.py:120, navigator/widgets/manager/panel/panel.py:2719
 "Attr" = "属性"
-# navigator/widgets/manager/commands.py:101
+# navigator/widgets/manager/commands.py:124
 "MkDir" = "建目录"
-# navigator/widgets/manager/commands.py:114, navigator/widgets/manager/commands.py:678
+# navigator/widgets/manager/commands.py:137, navigator/widgets/manager/commands.py:701
 "Del" = "删除"
-# navigator/widgets/manager/commands.py:125
+# navigator/widgets/manager/commands.py:148
 "Re-read" = "重读"
-# navigator/widgets/manager/commands.py:187
+# navigator/widgets/manager/commands.py:210
 "Go to directory" = "转到目录"
-# navigator/widgets/manager/commands.py:271
+# navigator/widgets/manager/commands.py:294
 "Calc" = "计算器"
-# navigator/widgets/manager/commands.py:544
+# navigator/widgets/manager/commands.py:567
 "Go to file" = "转到文件"
-# navigator/widgets/manager/commands.py:564
+# navigator/widgets/manager/commands.py:587
 "Compare" = "比较"
-# navigator/widgets/manager/commands.py:618
+# navigator/widgets/manager/commands.py:641
 "Hidden" = "隐藏"
-# navigator/widgets/manager/commands.py:635
+# navigator/widgets/manager/commands.py:658
 "Arc" = "压缩"
-# navigator/widgets/manager/commands.py:642
+# navigator/widgets/manager/commands.py:665
 "Ext" = "解压"
-# navigator/widgets/manager/commands.py:667
+# navigator/widgets/manager/commands.py:690
 "Edit..." = "编辑..."
 # navigator/widgets/manager/compare_progress/compare_progress.py:31
 "{n} difference found" = ["发现 {n} 处差异"]
@@ -3109,227 +3143,235 @@ flag = "CN"
 "{count} byte of memory in all" = ["内存共 {count} 字节"]
 # navigator/widgets/manager/info_panel/info_panel.py:173
 "Connection" = "连接"
-# navigator/widgets/manager/manager/manager.py:732
+# navigator/widgets/manager/manager/manager.py:737
 "Calculating checksums" = "正在计算校验和"
-# navigator/widgets/manager/manager/manager.py:1770
+# navigator/widgets/manager/manager/manager.py:1775
 "Do you wish to empty the Trash?\n{n} item will be erased for good." = ["是否清空回收站？\n{n} 项将被永久删除。"]
-# navigator/widgets/manager/manager/manager.py:2452
+# navigator/widgets/manager/manager/manager.py:2457
 "Only in a file panel, not beside it" = "仅限文件面板内，不能在其旁边"
-# navigator/widgets/manager/manager/manager.py:2453
+# navigator/widgets/manager/manager/manager.py:2458
 "No files are tagged, and the cursor is on none" = "没有已标记的文件，光标也不在文件上"
-# navigator/widgets/manager/manager/manager.py:2454, navigator/widgets/shell/shell/shell.py:1217
+# navigator/widgets/manager/manager/manager.py:2459, navigator/widgets/shell/shell/shell.py:1224
 "The command line holds text: the key edits it" = "命令行中有文本: 此键用于编辑它"
-# navigator/widgets/manager/manager/manager.py:2455
+# navigator/widgets/manager/manager/manager.py:2460
 "This drive cannot be written to" = "此驱动器不可写"
-# navigator/widgets/manager/manager/manager.py:2456
+# navigator/widgets/manager/manager/manager.py:2461
 "Not in a Find listing" = "不在查找结果列表中"
-# navigator/widgets/manager/manager/manager.py:3124
+# navigator/widgets/manager/manager/manager.py:3143
 "To {path}" = "到 {path}"
-# navigator/widgets/manager/manager/manager.py:4720
+# navigator/widgets/manager/manager/manager.py:4881
 "T~y~pe" = "类型(~Y~)"
-# navigator/widgets/manager/manager/manager.py:4856
+# navigator/widgets/manager/manager/manager.py:5017
 "~L~ink" = "链接(~L~)"
-# navigator/widgets/manager/manager/manager.py:4899
+# navigator/widgets/manager/manager/manager.py:5060
 "Needs the desktop's gio or KDE's kioclient command" = "需要桌面的 gio 或 KDE 的 kioclient 命令"
-# navigator/widgets/manager/manager/manager.py:1194
+# navigator/widgets/manager/manager/manager.py:1199
 "Panelize" = "列入面板"
-# navigator/widgets/manager/manager/manager.py:1792
+# navigator/widgets/manager/manager/manager.py:1797
 "Rename" = "重命名"
-# navigator/widgets/manager/manager/manager.py:2152
+# navigator/widgets/manager/manager/manager.py:2157
 "~C~lose tree" = "关闭树(~C~)"
-# navigator/widgets/manager/manager/manager.py:2280
+# navigator/widgets/manager/manager/manager.py:2285
 "Bookmarks" = "书签"
-# navigator/widgets/manager/manager/manager.py:2450
+# navigator/widgets/manager/manager/manager.py:2455
 "The connection to this panel's drive is closed" = "此面板驱动器的连接已关闭"
-# navigator/widgets/manager/manager/manager.py:2473
+# navigator/widgets/manager/manager/manager.py:2478
 "Not in Miller columns (Alt-F12)" = "在 Miller 列视图 (Alt-F12) 中不可用"
-# navigator/widgets/manager/manager/manager.py:2475, navigator/widgets/manager/manager/manager.py:2574
+# navigator/widgets/manager/manager/manager.py:2480, navigator/widgets/manager/manager/manager.py:2593
 "Only on the local disk" = "仅限本地磁盘"
-# navigator/widgets/manager/manager/manager.py:2928
+# navigator/widgets/manager/manager/manager.py:2947
 "Print {n} file?" = ["打印 {n} 个文件？"]
-# navigator/widgets/manager/manager/manager.py:3113
+# navigator/widgets/manager/manager/manager.py:3132
 "~C~opy here" = "复制到此处(~C~)"
-# navigator/widgets/manager/manager/manager.py:3114
+# navigator/widgets/manager/manager/manager.py:3133
 "~M~ove here" = "移动到此处(~M~)"
-# navigator/widgets/manager/manager/manager.py:3115
+# navigator/widgets/manager/manager/manager.py:3134
 "~S~ymlink here" = "在此处创建符号链接(~S~)"
-# navigator/widgets/manager/manager/manager.py:3116
+# navigator/widgets/manager/manager/manager.py:3135
 "~R~elative symlink here" = "在此处创建相对符号链接(~R~)"
-# navigator/widgets/manager/manager/manager.py:3893
+# navigator/widgets/manager/manager/manager.py:3705
+"{n} link was left as it was:" = ["{n} 个链接保持原样:"]
+# navigator/widgets/manager/manager/manager.py:4054
 "~I~nternal editor" = "内置编辑器(~I~)"
-# navigator/widgets/manager/manager/manager.py:3970, navigator/widgets/manager/manager/manager.py:4004
+# navigator/widgets/manager/manager/manager.py:4131, navigator/widgets/manager/manager/manager.py:4165
 "Is a directory" = "是一个目录"
-# navigator/widgets/manager/manager/manager.py:4378
+# navigator/widgets/manager/manager/manager.py:4539
 "Drag to resize the panels" = "拖动以调整面板大小"
-# navigator/widgets/manager/manager/manager.py:4384
+# navigator/widgets/manager/manager/manager.py:4545
 "Double-click to split them evenly" = "双击以平分面板"
-# navigator/widgets/manager/manager/manager.py:4820
+# navigator/widgets/manager/manager/manager.py:4981
 "~R~emove this folder" = "移除此目录(~R~)"
-# navigator/widgets/manager/manager/manager.py:4820
+# navigator/widgets/manager/manager/manager.py:4981
 "~A~dd this folder" = "添加此目录(~A~)"
-# navigator/widgets/manager/manager/manager.py:456
+# navigator/widgets/manager/manager/manager.py:461
 "Encoding {name}" = "正在编码 {name}"
-# navigator/widgets/manager/manager/manager.py:509
+# navigator/widgets/manager/manager/manager.py:514
 "Decoding {name}" = "正在解码 {name}"
-# navigator/widgets/manager/manager/manager.py:864, navigator/widgets/manager/manager/manager.py:1079
+# navigator/widgets/manager/manager/manager.py:869, navigator/widgets/manager/manager/manager.py:1084, navigator/widgets/manager/manager/manager.py:3704
 "and {n} more" = ["及其他 {n} 项"]
-# navigator/widgets/manager/manager/manager.py:865
+# navigator/widgets/manager/manager/manager.py:870
 "{n} file could not be read:" = ["{n} 个文件无法读取:"]
-# navigator/widgets/manager/manager/manager.py:1058
+# navigator/widgets/manager/manager/manager.py:1063
 "Testing {name}" = "正在测试 {name}"
-# navigator/widgets/manager/manager/manager.py:1345
+# navigator/widgets/manager/manager/manager.py:1350
 "Store this directory\nas bookmark {slot}?" = "将此目录保存\n为书签 {slot}？"
-# navigator/widgets/manager/manager/manager.py:2067
+# navigator/widgets/manager/manager/manager.py:2072
 "Copy {n} file?" = ["复制 {n} 个文件？"]
-# navigator/widgets/manager/manager/manager.py:2069
+# navigator/widgets/manager/manager/manager.py:2074
 "Delete {n} file?" = ["删除 {n} 个文件？"]
-# navigator/widgets/manager/manager/manager.py:2265
+# navigator/widgets/manager/manager/manager.py:2270
 "A place inside an archive cannot be bookmarked" = "压缩包内的位置不能加入书签"
-# navigator/widgets/manager/manager/manager.py:2459, navigator/widgets/shell/shell/shell.py:831
+# navigator/widgets/manager/manager/manager.py:2464, navigator/widgets/shell/shell/shell.py:831
 "fzf is not installed, or the shell is not bash or zsh" = "未安装 fzf，或 shell 不是 bash 或 zsh"
-# navigator/widgets/manager/manager/manager.py:2465, navigator/widgets/manager/manager/manager.py:2588, navigator/widgets/manager/manager/manager.py:2613
+# navigator/widgets/manager/manager/manager.py:2470, navigator/widgets/manager/manager/manager.py:2607, navigator/widgets/manager/manager/manager.py:2632
 "The cursor is not on a file" = "光标不在文件上"
-# navigator/widgets/manager/manager/manager.py:2467, navigator/widgets/shell/shell/shell.py:1201
+# navigator/widgets/manager/manager/manager.py:2472, navigator/widgets/shell/shell/shell.py:1208
 "Neither GIO nor KIO is installed" = "GIO 和 KIO 均未安装"
-# navigator/widgets/manager/manager/manager.py:2468
+# navigator/widgets/manager/manager/manager.py:2473
 "No graphical desktop to open it on" = "没有可用于打开它的图形桌面"
-# navigator/widgets/manager/manager/manager.py:2493
-"Only inside an archive" = "仅限压缩包内"
-# navigator/widgets/manager/manager/manager.py:2498
-"No archive is tagged or at the cursor" = "没有已标记的压缩包，光标处也没有"
-# navigator/widgets/manager/manager/manager.py:2503
-"Neither panel's directory can be written to" = "两个面板的目录均不可写"
-# navigator/widgets/manager/manager/manager.py:2524
-"File Manager Setup's BS upper dir is off" = "文件管理器设置中的“BS 返回上级目录”已关闭"
-# navigator/widgets/manager/manager/manager.py:2535
-"The file clipboard is empty" = "文件剪贴板为空"
-# navigator/widgets/manager/manager/manager.py:2548
-"File Manager Setup's Del erases is off" = "文件管理器设置中的“Del 删除”已关闭"
-# navigator/widgets/manager/manager/manager.py:2553, navigator/widgets/manager/manager/manager.py:2596, navigator/widgets/shell/shell/shell.py:1182
-"The cursor is on no file" = "光标不在任何文件上"
-# navigator/widgets/manager/manager/manager.py:2565
-"Not inside an archive" = "不在压缩包内"
-# navigator/widgets/manager/manager/manager.py:2580
-"No multi-rename to undo" = "没有可撤销的批量重命名"
-# navigator/widgets/manager/manager/manager.py:2584
-"Only in the Trash" = "仅限回收站内"
-# navigator/widgets/manager/manager/manager.py:2595
-"Only in a Find listing" = "仅限查找结果列表中"
-# navigator/widgets/manager/manager/manager.py:2600
-"Tag one file, or put the cursor on one" = "请标记一个文件，或将光标置于文件上"
-# navigator/widgets/manager/manager/manager.py:2609
-"No checksum file is tagged or at the cursor" = "没有已标记的校验和文件，光标处也没有"
-# navigator/widgets/manager/manager/manager.py:2619
-"Tag two files, or put the cursor on a file with a namesake in the other panel" = "请标记两个文件，或将光标置于另一面板中有同名文件的文件上"
-# navigator/widgets/manager/manager/manager.py:2622
-"The other panel is hidden" = "另一面板已隐藏"
-# navigator/widgets/manager/manager/manager.py:2629
-"No name is cut to scroll" = "没有被截断、可滚动的名称"
-# navigator/widgets/manager/manager/manager.py:3088
-"Do you wish to move {n} file to the Trash?" = ["是否将 {n} 个文件移到回收站？"]
-# navigator/widgets/manager/manager/manager.py:3093
-"Do you wish to delete {n} file?" = ["是否删除 {n} 个文件？"]
-# navigator/widgets/manager/manager/manager.py:3972, navigator/widgets/manager/manager/manager.py:4006
-"No such directory" = "没有此目录"
-# navigator/widgets/manager/manager/manager.py:4020
-"$EDITOR edits a file on another drive only once it is there" = "$EDITOR 只能在文件复制到本地后编辑其他驱动器上的文件"
-# navigator/widgets/manager/manager/manager.py:4765
-"Erasing the file" = "正在删除文件"
-# navigator/widgets/manager/manager/manager.py:4766
-"Erasing the directory" = "正在删除目录"
-# navigator/widgets/manager/manager/manager.py:4767
-"Moving to the Trash" = "正在移到回收站"
-# navigator/widgets/manager/manager/manager.py:4768
-"Changing attributes of" = "正在更改属性:"
-# navigator/widgets/manager/manager/manager.py:4814
-"Mounted now, not a bookmark" = "当前已挂载，非书签"
-# navigator/widgets/manager/manager/manager.py:4816
-"Not there now" = "当前不存在"
-# navigator/widgets/manager/manager/manager.py:4872
-"Connected" = "已连接"
-# navigator/widgets/manager/manager/manager.py:4872
-"Not connected" = "未连接"
-# navigator/widgets/manager/manager/manager.py:663
-"The input file is too small to UU-Encode." = "输入文件太小，无法进行 UU 编码。"
-# navigator/widgets/manager/manager/manager.py:775
-"{n} checksum file already exists.\nOK to overwrite it?" = ["{n} 个校验和文件已存在。\n是否覆盖？"]
-# navigator/widgets/manager/manager/manager.py:816
-"Verifying checksums" = "正在验证校验和"
-# navigator/widgets/manager/manager/manager.py:1075
-"No errors found in {name}" = "{name} 中未发现错误"
-# navigator/widgets/manager/manager/manager.py:1080
-"{n} error found in {name}:" = ["{name} 中发现 {n} 个错误:"]
-# navigator/widgets/manager/manager/manager.py:2064
-"Copy {copies} and delete {deletes}?" = "复制 {copies} 并删除 {deletes}？"
-# navigator/widgets/manager/manager/manager.py:2480
+# navigator/widgets/manager/manager/manager.py:2496, navigator/widgets/manager/manager/manager.py:2485
 "This drive cannot hold links" = "此驱动器不支持链接"
-# navigator/widgets/manager/manager/manager.py:2926
+# navigator/widgets/manager/manager/manager.py:2497
+"No symbolic link is selected" = "未选择符号链接"
+# navigator/widgets/manager/manager/manager.py:2501
+"No broken links here" = "这里没有损坏的链接"
+# navigator/widgets/manager/manager/manager.py:2512
+"Only inside an archive" = "仅限压缩包内"
+# navigator/widgets/manager/manager/manager.py:2517
+"No archive is tagged or at the cursor" = "没有已标记的压缩包，光标处也没有"
+# navigator/widgets/manager/manager/manager.py:2522
+"Neither panel's directory can be written to" = "两个面板的目录均不可写"
+# navigator/widgets/manager/manager/manager.py:2543
+"File Manager Setup's BS upper dir is off" = "文件管理器设置中的“BS 返回上级目录”已关闭"
+# navigator/widgets/manager/manager/manager.py:2554
+"The file clipboard is empty" = "文件剪贴板为空"
+# navigator/widgets/manager/manager/manager.py:2567
+"File Manager Setup's Del erases is off" = "文件管理器设置中的“Del 删除”已关闭"
+# navigator/widgets/manager/manager/manager.py:2572, navigator/widgets/manager/manager/manager.py:2615, navigator/widgets/shell/shell/shell.py:1189
+"The cursor is on no file" = "光标不在任何文件上"
+# navigator/widgets/manager/manager/manager.py:2584
+"Not inside an archive" = "不在压缩包内"
+# navigator/widgets/manager/manager/manager.py:2599
+"No multi-rename to undo" = "没有可撤销的批量重命名"
+# navigator/widgets/manager/manager/manager.py:2603
+"Only in the Trash" = "仅限回收站内"
+# navigator/widgets/manager/manager/manager.py:2614
+"Only in a Find listing" = "仅限查找结果列表中"
+# navigator/widgets/manager/manager/manager.py:2619
+"Tag one file, or put the cursor on one" = "请标记一个文件，或将光标置于文件上"
+# navigator/widgets/manager/manager/manager.py:2628
+"No checksum file is tagged or at the cursor" = "没有已标记的校验和文件，光标处也没有"
+# navigator/widgets/manager/manager/manager.py:2638
+"Tag two files, or put the cursor on a file with a namesake in the other panel" = "请标记两个文件，或将光标置于另一面板中有同名文件的文件上"
+# navigator/widgets/manager/manager/manager.py:2641
+"The other panel is hidden" = "另一面板已隐藏"
+# navigator/widgets/manager/manager/manager.py:2648
+"No name is cut to scroll" = "没有被截断、可滚动的名称"
+# navigator/widgets/manager/manager/manager.py:3107
+"Do you wish to move {n} file to the Trash?" = ["是否将 {n} 个文件移到回收站？"]
+# navigator/widgets/manager/manager/manager.py:3112
+"Do you wish to delete {n} file?" = ["是否删除 {n} 个文件？"]
+# navigator/widgets/manager/manager/manager.py:4133, navigator/widgets/manager/manager/manager.py:4167
+"No such directory" = "没有此目录"
+# navigator/widgets/manager/manager/manager.py:4181
+"$EDITOR edits a file on another drive only once it is there" = "$EDITOR 只能在文件复制到本地后编辑其他驱动器上的文件"
+# navigator/widgets/manager/manager/manager.py:4926
+"Erasing the file" = "正在删除文件"
+# navigator/widgets/manager/manager/manager.py:4927
+"Erasing the directory" = "正在删除目录"
+# navigator/widgets/manager/manager/manager.py:4928
+"Moving to the Trash" = "正在移到回收站"
+# navigator/widgets/manager/manager/manager.py:4929
+"Changing attributes of" = "正在更改属性:"
+# navigator/widgets/manager/manager/manager.py:4975
+"Mounted now, not a bookmark" = "当前已挂载，非书签"
+# navigator/widgets/manager/manager/manager.py:4977
+"Not there now" = "当前不存在"
+# navigator/widgets/manager/manager/manager.py:5033
+"Connected" = "已连接"
+# navigator/widgets/manager/manager/manager.py:5033
+"Not connected" = "未连接"
+# navigator/widgets/manager/manager/manager.py:668
+"The input file is too small to UU-Encode." = "输入文件太小，无法进行 UU 编码。"
+# navigator/widgets/manager/manager/manager.py:780
+"{n} checksum file already exists.\nOK to overwrite it?" = ["{n} 个校验和文件已存在。\n是否覆盖？"]
+# navigator/widgets/manager/manager/manager.py:821
+"Verifying checksums" = "正在验证校验和"
+# navigator/widgets/manager/manager/manager.py:1080
+"No errors found in {name}" = "{name} 中未发现错误"
+# navigator/widgets/manager/manager/manager.py:1085
+"{n} error found in {name}:" = ["{name} 中发现 {n} 个错误:"]
+# navigator/widgets/manager/manager/manager.py:2069
+"Copy {copies} and delete {deletes}?" = "复制 {copies} 并删除 {deletes}？"
+# navigator/widgets/manager/manager/manager.py:2945
 "Print file {name}?" = "打印文件 {name}？"
-# navigator/widgets/manager/manager/manager.py:3895
+# navigator/widgets/manager/manager/manager.py:4056
 "Choose editor" = "选择编辑器"
-# navigator/widgets/manager/manager/manager.py:4904
+# navigator/widgets/manager/manager/manager.py:5065
 "~E~dit links..." = "编辑链接(~E~)..."
-# navigator/widgets/manager/manager/manager.py:1207
-"Stop the command?" = "停止该命令？"
-# navigator/widgets/manager/manager/manager.py:1222
-"No files found\n{reason}" = "未找到文件\n{reason}"
-# navigator/widgets/manager/manager/manager.py:1231
-"Panel: {command}" = "面板: {command}"
-# navigator/widgets/manager/manager/manager.py:1260
-"Find: {mask}" = "查找: {mask}"
-# navigator/widgets/manager/manager/manager.py:1431
-"Branch: {path}" = "分支: {path}"
-# navigator/widgets/manager/manager/manager.py:1471
-"Cancel search?" = "取消搜索？"
-# navigator/widgets/manager/manager/manager.py:1949, navigator/widgets/manager/manager/manager.py:1955
-"Cannot open {path}: {reason}" = "无法打开 {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2283
-"Label" = "标签"
-# navigator/widgets/manager/manager/manager.py:3086
-"Do you wish to move {name} to the Trash?" = "是否将 {name} 移到回收站？"
-# navigator/widgets/manager/manager/manager.py:3091
-"Do you wish to delete {name}?" = "是否删除 {name}？"
-# navigator/widgets/manager/manager/manager.py:3624
-"Reading file attributes" = "正在读取文件属性"
-# navigator/widgets/manager/manager/manager.py:2016, navigator/widgets/viewer/diff_window/diff_window.py:140
-"Comparing files" = "正在比较文件"
-# navigator/widgets/manager/manager/manager.py:1180
-"A command's output can be panelized on this machine's disk only" = "命令输出只能在本机磁盘上列入面板"
-# navigator/widgets/manager/manager/manager.py:1314
-"Set the interface option\n\"Track directories\" ON first" = "请先打开界面选项\n“跟踪目录”"
-# navigator/widgets/manager/manager/manager.py:1768, navigator/widgets/manager/manager/manager.py:1772, navigator/widgets/shell/commands.py:349
-"Empty Trash" = "清空回收站"
-# navigator/widgets/manager/manager/manager.py:1768
-"The Trash is empty" = "回收站为空"
-# navigator/widgets/manager/manager/manager.py:2040
-"Both panels show the same directory." = "两个面板显示的是同一目录。"
-# navigator/widgets/manager/manager/manager.py:2833, navigator/widgets/manager/manager/manager.py:2867
-"Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"
-# navigator/widgets/manager/manager/manager.py:3319, navigator/widgets/manager/manager/manager.py:3555
-"Would you like to create directory {path}?" = "是否创建目录 {path}？"
-# navigator/widgets/manager/manager/manager.py:3324
-"There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
-# navigator/widgets/manager/manager/manager.py:3985, navigator/widgets/manager/manager/manager.py:4028, navigator/widgets/manager/manager/manager.py:4067 ...
-"Cannot edit file" = "无法编辑文件"
-# navigator/widgets/manager/manager/manager.py:2882, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
-"Cannot make directory" = "无法创建目录"
-# navigator/widgets/manager/manager/manager.py:3832, navigator/widgets/manager/manager/manager.py:3770, navigator/widgets/manager/manager/manager.py:3785 ...
-"Cannot view file" = "无法查看文件"
-# navigator/widgets/manager/manager/manager.py:4890
-"Install {extra}" = "请安装 {extra}"
-# navigator/widgets/manager/manager/manager.py:1284
-"Directory {place} is not there" = "目录 {place} 不存在"
-# navigator/widgets/manager/manager/manager.py:1556
-"a name cannot hold a /" = "名称不能包含 /"
-# navigator/widgets/manager/manager/manager.py:3278
-"Abort operation?" = "中止操作？"
-# navigator/widgets/manager/manager/manager.py:1144, navigator/widgets/manager/manager/manager.py:1129
-"Cannot read {path}: {reason}" = "无法读取 {path}: {reason}"
 # navigator/widgets/manager/manager/manager.py:1212
+"Stop the command?" = "停止该命令？"
+# navigator/widgets/manager/manager/manager.py:1227
+"No files found\n{reason}" = "未找到文件\n{reason}"
+# navigator/widgets/manager/manager/manager.py:1236
+"Panel: {command}" = "面板: {command}"
+# navigator/widgets/manager/manager/manager.py:1265
+"Find: {mask}" = "查找: {mask}"
+# navigator/widgets/manager/manager/manager.py:1436
+"Branch: {path}" = "分支: {path}"
+# navigator/widgets/manager/manager/manager.py:1476
+"Cancel search?" = "取消搜索？"
+# navigator/widgets/manager/manager/manager.py:1954, navigator/widgets/manager/manager/manager.py:1960
+"Cannot open {path}: {reason}" = "无法打开 {path}: {reason}"
+# navigator/widgets/manager/manager/manager.py:2288
+"Label" = "标签"
+# navigator/widgets/manager/manager/manager.py:3105
+"Do you wish to move {name} to the Trash?" = "是否将 {name} 移到回收站？"
+# navigator/widgets/manager/manager/manager.py:3110
+"Do you wish to delete {name}?" = "是否删除 {name}？"
+# navigator/widgets/manager/manager/manager.py:3785
+"Reading file attributes" = "正在读取文件属性"
+# navigator/widgets/manager/manager/manager.py:2021, navigator/widgets/viewer/diff_window/diff_window.py:140
+"Comparing files" = "正在比较文件"
+# navigator/widgets/manager/manager/manager.py:3691
+"a link on the way would lead elsewhere" = "路径上的链接会指向别处"
+# navigator/widgets/manager/manager/manager.py:1185
+"A command's output can be panelized on this machine's disk only" = "命令输出只能在本机磁盘上列入面板"
+# navigator/widgets/manager/manager/manager.py:1319
+"Set the interface option\n\"Track directories\" ON first" = "请先打开界面选项\n“跟踪目录”"
+# navigator/widgets/manager/manager/manager.py:1773, navigator/widgets/manager/manager/manager.py:1777, navigator/widgets/shell/commands.py:349
+"Empty Trash" = "清空回收站"
+# navigator/widgets/manager/manager/manager.py:1773
+"The Trash is empty" = "回收站为空"
+# navigator/widgets/manager/manager/manager.py:2045
+"Both panels show the same directory." = "两个面板显示的是同一目录。"
+# navigator/widgets/manager/manager/manager.py:2852, navigator/widgets/manager/manager/manager.py:2886
+"Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"
+# navigator/widgets/manager/manager/manager.py:3338, navigator/widgets/manager/manager/manager.py:3574
+"Would you like to create directory {path}?" = "是否创建目录 {path}？"
+# navigator/widgets/manager/manager/manager.py:3343
+"There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
+# navigator/widgets/manager/manager/manager.py:4146, navigator/widgets/manager/manager/manager.py:4189, navigator/widgets/manager/manager/manager.py:4228 ...
+"Cannot edit file" = "无法编辑文件"
+# navigator/widgets/manager/manager/manager.py:2901, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:112
+"Cannot make directory" = "无法创建目录"
+# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:3931, navigator/widgets/manager/manager/manager.py:3946 ...
+"Cannot view file" = "无法查看文件"
+# navigator/widgets/manager/manager/manager.py:5051
+"Install {extra}" = "请安装 {extra}"
+# navigator/widgets/manager/manager/manager.py:1289
+"Directory {place} is not there" = "目录 {place} 不存在"
+# navigator/widgets/manager/manager/manager.py:1561
+"a name cannot hold a /" = "名称不能包含 /"
+# navigator/widgets/manager/manager/manager.py:3297
+"Abort operation?" = "中止操作？"
+# navigator/widgets/manager/manager/manager.py:1149, navigator/widgets/manager/manager/manager.py:1134
+"Cannot read {path}: {reason}" = "无法读取 {path}: {reason}"
+# navigator/widgets/manager/manager/manager.py:1217
 "Cannot run {command}: {reason}" = "无法运行 {command}: {reason}"
-# navigator/widgets/manager/manager/manager.py:2955
+# navigator/widgets/manager/manager/manager.py:2974
 "Cannot print {name}: {reason}" = "无法打印 {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:3786, navigator/widgets/manager/manager/manager.py:3764, navigator/widgets/manager/manager/manager.py:3800
+# navigator/widgets/manager/manager/manager.py:3947, navigator/widgets/manager/manager/manager.py:3925, navigator/widgets/manager/manager/manager.py:3961
 "{name}: not a dBase file" = "{name}: 不是 dBase 文件"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} 个选中的文件"]
@@ -3347,17 +3389,17 @@ flag = "CN"
 "View mode: simple, detailed or list" = "视图模式: 简单、详细或列表"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "排序方式"
-# navigator/widgets/manager/panel/panel.py:2326
+# navigator/widgets/manager/panel/panel.py:2334
 "~{total} in {n}~ selected file" = ["~{n} 个选中的文件，共 {total}~"]
-# navigator/widgets/manager/panel/panel.py:1805
+# navigator/widgets/manager/panel/panel.py:1813
 "Paste from clip~b~oard" = "从剪贴板粘贴(~B~)"
-# navigator/widgets/manager/panel/panel.py:1830
+# navigator/widgets/manager/panel/panel.py:1838
 "~I~nsert name" = "插入名称(~I~)"
-# navigator/widgets/manager/panel/panel.py:1831
+# navigator/widgets/manager/panel/panel.py:1839
 "Insert pa~t~h" = "插入路径(~T~)"
-# navigator/widgets/manager/panel/panel.py:2323
+# navigator/widgets/manager/panel/panel.py:2331
 "No files selected" = "未选中文件"
-# navigator/widgets/manager/panel/panel.py:2431, navigator/widgets/manager/panel/panel.py:2313
+# navigator/widgets/manager/panel/panel.py:2439, navigator/widgets/manager/panel/panel.py:2321
 "~{n:,}~ free byte on ~{mount}" = ["可用 ~{n:,}~ 字节，位于 ~{mount}"]
 # navigator/widgets/manager/panel/panel.py:1496
 "The file's name" = "文件名称"
@@ -3377,33 +3419,33 @@ flag = "CN"
 "The directory the file was found in" = "找到该文件的目录"
 # navigator/widgets/manager/panel/panel.py:1600
 "Search:" = "搜索:"
-# navigator/widgets/manager/panel/panel.py:1775
+# navigator/widgets/manager/panel/panel.py:1778
 "Go to ~f~ile" = "转到文件(~F~)"
-# navigator/widgets/manager/panel/panel.py:1776
+# navigator/widgets/manager/panel/panel.py:1779
 "Show in ~o~ther panel" = "在另一面板中显示(~O~)"
-# navigator/widgets/manager/panel/panel.py:1784
+# navigator/widgets/manager/panel/panel.py:1787
 "Vie~w~" = "查看(~W~)"
-# navigator/widgets/manager/panel/panel.py:1803
+# navigator/widgets/manager/panel/panel.py:1811
 "Cop~y~ to clipboard" = "复制到剪贴板(~Y~)"
-# navigator/widgets/manager/panel/panel.py:1804
-"Cut to c~l~ipboard" = "剪切到剪贴板(~L~)"
 # navigator/widgets/manager/panel/panel.py:1812
+"Cut to c~l~ipboard" = "剪切到剪贴板(~L~)"
+# navigator/widgets/manager/panel/panel.py:1820
 "Test arc~h~ive" = "测试压缩包(~H~)"
-# navigator/widgets/manager/panel/panel.py:2292
+# navigator/widgets/manager/panel/panel.py:2300
 "Clipboard: ~{n}~ file to move" = ["剪贴板: ~{n}~ 个文件待移动"]
-# navigator/widgets/manager/panel/panel.py:2294
+# navigator/widgets/manager/panel/panel.py:2302
 "Clipboard: ~{n}~ file to copy" = ["剪贴板: ~{n}~ 个文件待复制"]
-# navigator/widgets/manager/panel/panel.py:2304
+# navigator/widgets/manager/panel/panel.py:2312
 "Total: ~{n:,}~ file with {total}" = ["总计: ~{n:,}~ 个文件，共 {total}"]
-# navigator/widgets/manager/panel/panel.py:2389, navigator/widgets/manager/panel/panel.py:2459
+# navigator/widgets/manager/panel/panel.py:2397, navigator/widgets/manager/panel/panel.py:2467
 "From {path}" = "来自 {path}"
-# navigator/widgets/manager/panel/panel.py:2457, navigator/widgets/manager/panel/panel.py:2394
+# navigator/widgets/manager/panel/panel.py:2465, navigator/widgets/manager/panel/panel.py:2402
 "an unknown place" = "未知位置"
-# navigator/widgets/manager/panel/panel.py:2678
+# navigator/widgets/manager/panel/panel.py:2686
 "Reading directory..." = "正在读取目录..."
-# navigator/widgets/manager/panel/panel.py:2709, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2717, navigator/lib/drives/base.py
 "Packed" = "压缩后"
-# navigator/widgets/manager/panel/panel.py:2710
+# navigator/widgets/manager/panel/panel.py:2718
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1434
 "Only files matching {mask} are shown" = "仅显示匹配 {mask} 的文件"
@@ -3411,15 +3453,21 @@ flag = "CN"
 "{n} commit ahead of its upstream" = ["领先上游 {n} 个提交"]
 # navigator/widgets/manager/panel/panel.py:1447
 "{n} commit behind its upstream" = ["落后上游 {n} 个提交"]
-# navigator/widgets/manager/panel/panel.py:1791
+# navigator/widgets/manager/panel/panel.py:1794
 "Ope~n~ with..." = "打开方式(~N~)..."
-# navigator/widgets/manager/panel/panel.py:1815
+# navigator/widgets/manager/panel/panel.py:1802
+"Edit lin~k~ target..." = "编辑链接目标(~K~)..."
+# navigator/widgets/manager/panel/panel.py:1803
+"Make relative" = "改为相对路径"
+# navigator/widgets/manager/panel/panel.py:1804
+"Make absolute" = "改为绝对路径"
+# navigator/widgets/manager/panel/panel.py:1823
 "E~x~tract archive..." = "解压压缩包(~X~)..."
 # navigator/widgets/manager/panel/panel.py:1421
 "A click sorts by {order}" = "单击按{order}排序"
-# navigator/widgets/manager/panel/panel.py:2315
+# navigator/widgets/manager/panel/panel.py:2323
 "~{size}~ free on ~{mount}" = "可用 ~{size}~，位于 ~{mount}"
-# navigator/widgets/manager/panel/panel.py:2391, navigator/widgets/manager/panel/panel.py:2460
+# navigator/widgets/manager/panel/panel.py:2399, navigator/widgets/manager/panel/panel.py:2468
 "From {path}, deleted {when}" = "来自 {path}，删除于 {when}"
 # navigator/widgets/manager/panel/panel.py:1441
 "Git work tree, HEAD detached at {commit}" = "Git 工作树，HEAD 分离于 {commit}"
@@ -3693,55 +3741,55 @@ flag = "CN"
 "It closes after {n} idle minute" = ["空闲 {n} 分钟后关闭"]
 # navigator/widgets/shell/root_mark.py:52
 "{menu} closes it now" = "{menu} 可立即关闭"
-# navigator/widgets/shell/shell/shell.py:1164
+# navigator/widgets/shell/shell/shell.py:1171
 "Interface Setup hides the command line" = "界面设置隐藏了命令行"
-# navigator/widgets/shell/shell/shell.py:1165
+# navigator/widgets/shell/shell/shell.py:1172
 "No file panels are open" = "没有打开的文件面板"
-# navigator/widgets/shell/shell/shell.py:2765, navigator/widgets/shell/shell/shell.py:2758
+# navigator/widgets/shell/shell/shell.py:2772, navigator/widgets/shell/shell/shell.py:2765
 "Disconnect" = "断开"
-# navigator/widgets/shell/shell/shell.py:1191
+# navigator/widgets/shell/shell/shell.py:1198
 "No connection is open" = "没有打开的连接"
-# navigator/widgets/shell/shell/shell.py:1232
+# navigator/widgets/shell/shell/shell.py:1239
 "A command is still running" = "命令仍在运行"
-# navigator/widgets/shell/shell/shell.py:1896
+# navigator/widgets/shell/shell/shell.py:1903
 "~C~ommand..." = "命令(~C~)..."
-# navigator/widgets/shell/shell/shell.py:2034
+# navigator/widgets/shell/shell/shell.py:2041
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:3065
+# navigator/widgets/shell/shell/shell.py:3072
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:3065
+# navigator/widgets/shell/shell/shell.py:3072
 "File Edit History" = "文件编辑历史"
-# navigator/widgets/shell/shell/shell.py:1180
+# navigator/widgets/shell/shell/shell.py:1187
 "The editor has the keys" = "按键由编辑器处理"
-# navigator/widgets/shell/shell/shell.py:1193
+# navigator/widgets/shell/shell/shell.py:1200
 "No root access is open" = "未开启 root 权限"
-# navigator/widgets/shell/shell/shell.py:1207
+# navigator/widgets/shell/shell/shell.py:1214
 "Only in a file panel or the console" = "仅在文件面板或控制台中可用"
-# navigator/widgets/shell/shell/shell.py:1215
+# navigator/widgets/shell/shell/shell.py:1222
 "File Manager Setup's Space toggles is off" = "文件管理器设置的“空格切换”已关闭"
-# navigator/widgets/shell/shell/shell.py:1227
+# navigator/widgets/shell/shell/shell.py:1234
 "The command line is empty" = "命令行为空"
-# navigator/widgets/shell/shell/shell.py:1231
-"File Manager Setup's Use arrows is off" = "文件管理器设置的“使用方向键”已关闭"
-# navigator/widgets/shell/shell/shell.py:1948
-"~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
-# navigator/widgets/shell/shell/shell.py:2608, navigator/widgets/shell/shell/shell.py:2794
-"{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:3055
-"Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:3055
-"Track editing history" = "记录编辑历史"
 # navigator/widgets/shell/shell/shell.py:1238
+"File Manager Setup's Use arrows is off" = "文件管理器设置的“使用方向键”已关闭"
+# navigator/widgets/shell/shell/shell.py:1955
+"~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
+# navigator/widgets/shell/shell/shell.py:2615, navigator/widgets/shell/shell/shell.py:2801
+"{protocol} link" = "{protocol} 链接"
+# navigator/widgets/shell/shell/shell.py:3062
+"Track viewing history" = "记录查看历史"
+# navigator/widgets/shell/shell/shell.py:3062
+"Track editing history" = "记录编辑历史"
+# navigator/widgets/shell/shell/shell.py:1245
 "The shell cannot complete" = "shell 无法补全"
-# navigator/widgets/shell/shell/shell.py:1674
+# navigator/widgets/shell/shell/shell.py:1681
 "User menu (global)" = "用户菜单（全局）"
-# navigator/widgets/shell/shell/shell.py:1674
+# navigator/widgets/shell/shell/shell.py:1681
 "Local menu" = "本地菜单"
-# navigator/widgets/shell/shell/shell.py:1676
+# navigator/widgets/shell/shell/shell.py:1683
 "User menu (local)" = "用户菜单（本地）"
-# navigator/widgets/shell/shell/shell.py:1676
+# navigator/widgets/shell/shell/shell.py:1683
 "Global menu" = "全局菜单"
-# navigator/widgets/shell/shell/shell.py:2756
+# navigator/widgets/shell/shell/shell.py:2763
 "Close the {protocol} connection to {host}?" = "关闭到 {host} 的 {protocol} 连接？"
 # navigator/widgets/shell/shell/shell.py:378
 "Store Color Palette" = "存储调色板"
@@ -3757,39 +3805,39 @@ flag = "CN"
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
 # navigator/widgets/shell/shell/shell.py:563
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3123
 "View file" = "查看文件"
-# navigator/widgets/shell/shell/shell.py:3116
+# navigator/widgets/shell/shell/shell.py:3123
 "Edit file" = "编辑文件"
-# navigator/widgets/shell/shell/shell.py:2234
+# navigator/widgets/shell/shell/shell.py:2241
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
-# navigator/widgets/shell/shell/shell.py:2655
+# navigator/widgets/shell/shell/shell.py:2662
 "Wrong passphrase for {key}. Try again:" = "{key} 的口令错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2656
+# navigator/widgets/shell/shell/shell.py:2663
 "Passphrase for {key}:" = "{key} 的口令："
-# navigator/widgets/shell/shell/shell.py:2642
+# navigator/widgets/shell/shell/shell.py:2649
 "Wrong secret key for {who}. Try again:" = "{who} 的私密密钥错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2643
+# navigator/widgets/shell/shell/shell.py:2650
 "Secret key for {who}:" = "{who} 的私密密钥："
-# navigator/widgets/shell/shell/shell.py:2646
+# navigator/widgets/shell/shell/shell.py:2653
 "Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
-# navigator/widgets/shell/shell/shell.py:2647
+# navigator/widgets/shell/shell/shell.py:2654
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
-# navigator/widgets/shell/shell/shell.py:2795
+# navigator/widgets/shell/shell/shell.py:2802
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:3058
+# navigator/widgets/shell/shell/shell.py:3065
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
-# navigator/widgets/shell/shell/shell.py:1609
+# navigator/widgets/shell/shell/shell.py:1616
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
-# navigator/widgets/shell/shell/shell.py:1636
+# navigator/widgets/shell/shell/shell.py:1643
 "File {name} not found" = "找不到文件 {name}"
-# navigator/widgets/shell/shell/shell.py:1787
+# navigator/widgets/shell/shell/shell.py:1794
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
-# navigator/widgets/shell/shell/shell.py:2625
+# navigator/widgets/shell/shell/shell.py:2632
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:2866
+# navigator/widgets/shell/shell/shell.py:2873
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:3022
+# navigator/widgets/shell/shell/shell.py:3029
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"

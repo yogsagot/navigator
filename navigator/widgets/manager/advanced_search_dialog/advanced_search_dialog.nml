@@ -9,10 +9,11 @@ from navml.widgets.dialog.label import Label
 #: Its four lines and its kinds, and OK, *Clear all* and Cancel -- along the
 #: bottom, where this library puts a dialog's buttons, rather than down the
 #: right.  Dates are ``YYYY-MM-DD`` with an optional ``HH:MM``; the kinds are
-#: POSIX's, where DN's were the four DOS attributes (:mod:`navigator.lib.file_ops.filefind`).
+#: POSIX's, where DN's were the four DOS attributes, and a fifth, *Broken
+#: link*, is Navigator's own (:mod:`navigator.lib.file_ops.filefind`).
 AdvancedSearchDialog(Dialog):
     modal_width: 52
-    modal_height: 16
+    modal_height: 17
     title: "Advanced search"
 
     #: DN's ``hsFindAfter``.
@@ -69,8 +70,8 @@ AdvancedSearchDialog(Dialog):
         x: 3
         y: 9
         width: max(0, parent.width - 6)
-        height: 2
-        items: ["E~x~ecutable", "S~y~mbolic link", "H~i~dden", "R~e~ad-only"]
+        height: 3
+        items: ["E~x~ecutable", "S~y~mbolic link", "H~i~dden", "R~e~ad-only", "Broke~n~ link"]
 
     Button:
         id: pick

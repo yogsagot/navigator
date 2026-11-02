@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsText
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, CloseRootAccess, EditLinks, FtpLink, GvfsLink, S3Link, Game, HangUp, NavyLink, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -188,11 +188,34 @@ MainMenu(MenuBar):
             text: 'Ex~t~ract archive...'
             command: ExtractArchive
             key: 'Shift-F2'
-        MenuItem:
-            text: 'Create ~s~ymlink...'
-            tooltip: "Make a symbolic link to each selected file"
-            command: MakeLink
-            key: 'Shift-F5'
+        #: Not DN's -- DOS had no links: Shift+F5's link made, and the
+        #: rest changing links already there (EditLinkTarget's docstring).
+        SubMenu:
+            id: file_symlinks
+            text: '~S~ymlinks'
+            MenuItem:
+                text: 'Create ~s~ymlink...'
+                tooltip: "Make a symbolic link to each selected file"
+                command: MakeLink
+                key: 'Shift-F5'
+            MenuLine:
+            MenuItem:
+                text: '~E~dit link target...'
+                tooltip: "Change what the selected links point at"
+                command: EditLinkTarget
+            MenuItem:
+                text: 'Make ~r~elative'
+                tooltip: "Rewrite each selected link's target relative to the link"
+                command: LinkRelative
+            MenuItem:
+                text: 'Make ~a~bsolute'
+                tooltip: "Rewrite each selected link's target as a full path"
+                command: LinkAbsolute
+            MenuLine:
+            MenuItem:
+                text: 'Select ~b~roken links'
+                tooltip: "Tag every link here that points nowhere"
+                command: SelectBrokenLinks
         #: A departure: DOS Navigator compared no files line by line
         #: (``DiffWindow``).  Its ``l``: *Create archive* needed the ``i``.
         MenuItem:

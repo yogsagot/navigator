@@ -1,0 +1,45 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > Symlink > Edit link target: one link's target in a line.  A
+#: departure with no resource behind it, as Shift+F5's box is: Quick
+#: rename's box with Create symlink's *Relative link* under the line.
+LinkTargetDialog(Dialog):
+    #: ``Link NAME points to``, naming the link.
+    property caption: ""
+
+    modal_width: 61
+    modal_height: 10
+    title: "Edit link target"
+    close_on_outside_click: True
+
+    Label:
+        id: caption_label
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: root.caption
+        link: line.entry
+
+    Field:
+        id: line
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "link"
+
+    #: Bit 1: the line rewritten relative to the link's directory, or back.
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 4
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["~R~elative link"]
+        tooltips: ["Point the link at a path relative to it, so the two can be moved together"]

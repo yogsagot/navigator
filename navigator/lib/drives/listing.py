@@ -164,6 +164,12 @@ class DirEntry:
         return f"{_user_name(self.uid)}:{_group_name(self.gid)}"
 
     @property
+    def is_stale_link(self) -> bool:
+        """A link pointing nowhere: its ``mode`` is then the link's own, there
+        being no target to describe -- what ``!`` and *Broken link* show."""
+        return self.is_link and stat.S_ISLNK(self.mode)
+
+    @property
     def type_mark(self) -> str:
         """Midnight Commander's one-character file type, for the gutter
         without an icon: ``/`` directory, ``*`` executable, ``@`` symlink,
@@ -176,7 +182,7 @@ class DirEntry:
         """
         mode = self.mode
         if self.is_link:
-            if stat.S_ISLNK(mode):
+            if self.is_stale_link:
                 return "!"
             return "~" if self.is_dir else "@"
         if self.is_dir:

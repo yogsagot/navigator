@@ -58,6 +58,10 @@ from navigator.widgets.manager.commands import (
     SelectAll,
     MakeDirectory,
     MakeLink,
+    EditLinkTarget,
+    LinkAbsolute,
+    LinkRelative,
+    SelectBrokenLinks,
     MoveSeparator,
     PasteFromClipboard,
     PrintFile,
@@ -160,7 +164,8 @@ class Manager(Window):
 
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
-    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums)
+    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums, EditLinkTarget, LinkRelative,
+                        LinkAbsolute, SelectBrokenLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -2480,6 +2485,20 @@ class Manager(Window):
                     return tr("This drive cannot hold links")
             except DriveGone:
                 return gone()
+        if isinstance(command, (EditLinkTarget, LinkRelative, LinkAbsolute)):
+            if self._aside_focused():
+                return aside
+            try:
+                drive = panel.drive
+            except DriveGone:
+                return gone()
+            if not (drive.can("symlink") and drive.can("rename")):
+                return tr("This drive cannot hold links")
+            return unless(bool(self.selected_links(panel)), tr("No symbolic link is selected"))
+        if isinstance(command, SelectBrokenLinks):
+            if self._aside_focused():
+                return aside
+            return unless(any(entry.is_stale_link for entry in panel.items), tr("No broken links here"))
         if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename,
                                 MultiRename)):
             try:
@@ -3585,6 +3604,148 @@ class Manager(Window):
             panel.reload()
             for other in others:
                 other.reload()
+
+    # -- changing links ----------------------------------------------------------
+
+    def selected_links(self, panel: Panel) -> list[Any]:
+        """The symbolic links in :meth:`selection`: what File > Symlink's
+        *Edit link target*, *Make relative* and *Make absolute* change."""
+        return [entry for entry in self.selection(panel) if entry.is_link]
+
+    async def on_edit_link_target(self, event: EditLinkTarget) -> bool:
+        self.spawn(self.edit_link_targets())
+        return True
+
+    async def on_link_relative(self, event: LinkRelative) -> bool:
+        self.spawn(self.switch_links(relative=True))
+        return True
+
+    async def on_link_absolute(self, event: LinkAbsolute) -> bool:
+        self.spawn(self.switch_links(relative=False))
+        return True
+
+    async def on_select_broken_links(self, event: SelectBrokenLinks) -> bool:
+        self.select_broken_links(self.active_panel)
+        return True
+
+    def select_broken_links(self, panel: Panel) -> None:
+        """Tag every link in *panel* that points nowhere, beside the tags there."""
+        keys = {entry.key for entry in panel.items if entry.is_stale_link}
+        if keys - panel.marked:
+            panel.marked = panel.marked | keys
+
+    async def edit_link_targets(self) -> None:
+        """One link: its target in a line (``LinkTargetDialog``).  Several:
+        one replacement in all their targets, seen first (``RelinkDialog``).
+        Then each is changed by :func:`filelink.retarget`."""
+        from navigator.lib.file_ops import filelink
+        from navigator.widgets.file_ops.link_target_dialog import LinkTargetDialog
+        from navigator.widgets.file_ops.relink_dialog import RelinkDialog
+
+        app = self.application
+        panel = self.active_panel
+        entries = self.selected_links(panel)
+        if app is None or not entries:
+            return
+        links = [(panel.entry_location(entry), entry.link_target or "") for entry in entries]
+        if len(links) == 1:
+            link, target = links[0]
+            try:
+                base = await asyncio.to_thread(filelink.link_base, panel.drive, link)
+            except (OSError, DriveGone):
+                base = str(link.parent.path)
+            answer = await LinkTargetDialog(name=link.name, target=target, base=base).execute(app)
+            if answer is None or answer == target:
+                return
+            changes = [(link, answer)]
+        else:
+            rows = await RelinkDialog(links=links).execute(app)
+            if not rows:
+                return
+            changes = [(row.link, row.new) for row in rows if not row.problem]
+        await self._retarget(panel, changes)
+
+    async def switch_links(self, *, relative: bool) -> None:
+        """*Make relative* / *Make absolute*: each selected link rewritten to
+        reach the same file (:func:`filelink.switched`), no question asked.
+        One already so is left alone; one whose rewritten target would reach
+        another file is skipped, and the skipped are said in one box."""
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator.lib.file_ops import filecopy, filelink
+
+        panel = self.active_panel
+        entries = self.selected_links(panel)
+        if self.application is None or not entries:
+            return
+        try:
+            drive = panel.drive
+        except DriveGone:
+            return
+        changes, already, skipped = [], [], []
+        for entry in entries:
+            link = panel.entry_location(entry)
+            try:
+                target = await asyncio.to_thread(filelink.switched, drive, link, relative)
+            except filelink.NotTheSame:
+                skipped.append((link.name, tr("a link on the way would lead elsewhere")))
+                continue
+            except OSError as error:
+                skipped.append((link.name, filecopy.error_message(error)))
+                continue
+            if target is None:
+                already.append(link)
+            else:
+                changes.append((link, target))
+        await self._retarget(panel, changes, already=already)
+        if skipped:
+            lines = [escape_caption(f"{name}: {reason}") for name, reason in skipped[:8]]
+            if len(skipped) > 8:
+                lines.append(tr_n("and {n} more", "and {n} more", len(skipped) - 8))
+            prompt = tr_n("{n} link was left as it was:", "{n} links were left as they were:", len(skipped))
+            await Dialog(title=tr("Error"), prompt=prompt + "\n" + "\n".join(lines),
+                         buttons="ok").execute(self.application)
+
+    async def _retarget(self, panel: Panel, changes: list[tuple[Location, str]], *,
+                        already: Sequence[Location] = ()) -> None:
+        """Each ``(link, target)`` of *changes* made so, on a thread, a
+        failure put as Copy's *Skip* / *Cancel* (and *As root* for a local
+        refusal); then the changed and the *already* right untagged, and
+        both panels re-read."""
+        from navigator.lib.file_ops import filecopy, filelink
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        as_root = False
+        changed: list[Location] = list(already)
+        try:
+            for link, target in changes:
+                while True:
+                    if as_root and link.is_local:
+                        from navigator.lib.drives.root import ROOT_DRIVE
+
+                        drive = ROOT_DRIVE
+                    else:
+                        drive = drive_of(link)
+                    try:
+                        await asyncio.to_thread(filelink.retarget, drive, link, target)
+                    except OSError as error:
+                        answer = await self._ask_skip(filecopy.error_message(error),
+                                                      elevate=link.is_local and not as_root and refused(error))
+                        if answer == filecopy.AS_ROOT:
+                            as_root = True
+                            continue
+                        if not answer:
+                            return
+                        break
+                    changed.append(link)
+                    break
+        finally:
+            if as_root:
+                await asyncio.to_thread(ELEVATION.release)
+            finished = set(changed)
+            panel.untag(entry for entry in panel.items if panel.entry_location(entry) in finished)
+            panel.reload()
+            self.passive_panel.reload()
 
     # -- attributes --------------------------------------------------------------
 

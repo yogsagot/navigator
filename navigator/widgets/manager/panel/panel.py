@@ -1747,10 +1747,13 @@ class Panel(ContextMenuHost, ListViewer):
             CutToClipboard,
             Delete,
             Edit,
+            EditLinkTarget,
             ExtractArchive,
             ExtractTo,
             GoToFile,
             InvertSelection,
+            LinkAbsolute,
+            LinkRelative,
             MakeDirectory,
             MakeLink,
             OpenWith,
@@ -1794,6 +1797,11 @@ class Panel(ContextMenuHost, ListViewer):
             menu.add_item(tr("~C~opy..."), Copy)
             menu.add_item(tr("~R~ename/Move..."), RenameMove)
             menu.add_item(tr("Create ~s~ymlink..."), MakeLink)
+            if any(item.is_link for item in (self.marked_entries if tagged else [entry])):
+                # File > Symlinks' three, only where there is a link to change.
+                menu.add_item(tr("Edit lin~k~ target..."), EditLinkTarget)
+                menu.add_item(tr("Make relative"), LinkRelative)
+                menu.add_item(tr("Make absolute"), LinkAbsolute)
             menu.add_item(tr("~D~elete"), Delete)
             menu.add_item(tr("File ~A~ttributes..."), ChangeAttributes)
             menu.add_line()

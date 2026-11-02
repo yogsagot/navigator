@@ -23,9 +23,9 @@ and ``/sys`` are never walked.
 Departures: the dialog opens on *Recursive search* and *Current directory*,
 where DN's record started all zeros -- a one-level look at the root;
 *Advanced search*'s dates are ``YYYY-MM-DD [HH:MM]`` rather than the
-country's format, and its four kinds are POSIX's -- executable, symbolic
-link, hidden (a dot-file) and read-only -- where DN's were the DOS
-attributes; names are matched case and all, as everywhere in a panel.
+country's format, and its kinds are POSIX's -- executable, symbolic
+link, hidden (a dot-file), read-only, and a link pointing nowhere -- where
+DN's were the DOS attributes; names are matched case and all, as everywhere in a panel.
 """
 
 from __future__ import annotations
@@ -36,7 +36,7 @@ import stat
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 from navigator.lib.appearance import filetypes
 from navigator.lib.system.job import Job
@@ -45,7 +45,7 @@ from navigator.lib.system.job import Job
 SCOPES = ("disk", "directory", "drives")
 
 #: *Advanced search*'s kinds, in the dialog's order.
-KINDS = ("executable", "symlink", "hidden", "read_only")
+KINDS = ("executable", "symlink", "hidden", "read_only", "broken_link")
 
 #: How much of a file is read at a time looking for the text.
 CHUNK = 1 << 16
@@ -183,7 +183,10 @@ def mount_point(path: Path) -> Path:
     return path
 
 
-def _passes(name: str, info: os.stat_result, is_link: bool, limits: Advanced) -> bool:
+def _passes(name: str, info: os.stat_result, is_link: bool, limits: Advanced,
+            broken: Callable[[], bool] = lambda: False) -> bool:
+    """Whether the file is within *limits*; *broken* answers whether a link
+    points nowhere, asked only when that kind is wanted."""
     if limits.after is not None and info.st_mtime < limits.after:
         return False
     if limits.before is not None and info.st_mtime > limits.before:
@@ -200,6 +203,8 @@ def _passes(name: str, info: os.stat_result, is_link: bool, limits: Advanced) ->
             kinds.add("executable")
         if is_link:
             kinds.add("symlink")
+            if "broken_link" in limits.kinds and broken():
+                kinds.add("broken_link")
         if name.startswith("."):
             kinds.add("hidden")
         if not info.st_mode & stat.S_IWUSR:
@@ -261,7 +266,8 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                         continue
                     if not filetypes.in_filter(item.name, request.mask):
                         continue
-                    if not _passes(item.name, info, is_link, limits):
+                    # A link's ``info`` is its own only when it points nowhere.
+                    if not _passes(item.name, info, is_link, limits, lambda: stat.S_ISLNK(info.st_mode)):
                         continue
                     if pattern is not None:
                         if stat.S_ISDIR(info.st_mode) or not holds(item.path, pattern, job):
@@ -309,7 +315,8 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
                 continue
             if not filetypes.in_filter(name, request.mask):
                 continue
-            if not _passes(name, info, is_link, limits):
+            # ``children`` answers ``lstat``: whether a link leads anywhere is one more question.
+            if not _passes(name, info, is_link, limits, lambda: not drive.exists(directory / name)):
                 continue
             if pattern is not None:
                 if is_dir or not holds_on_drive(directory / name, pattern, job):

@@ -88,6 +88,29 @@ dropped. `navigator/lib/file_ops/filelink.py` is the model, reading the target w
 dialog cut down, with one session-remembered *Relative link* box. `Manager.make_links` works with no worker thread and
 shares Copy's *Skip* box.
 
+**Changing links already there** (File > *Symlinks*, Create symlink's submenu now; no keys, all in
+`Manager.keyless_commands`; *Edit link target* and the two *Make* also in the context menu when the selection holds a
+link). A departure too. Enabled on links in `Manager.selected_links` (the selection's `is_link` entries) on a drive
+that `can("symlink")` and `can("rename")`.
+- **`filelink.retarget(drive, link, target)`**: a new link `.navlink-<n>` beside it, then `drive.replace` over it --
+  never a moment without the name, a failure unlinks the temporary; refuses (`EINVAL`) a non-link. Every step on a
+  thread (`Manager._retarget`), Skip/Cancel and *As root* as Shift+F5 has (`RootDrive.same_file` stats as root).
+- **Edit link target** (`EditLinkTarget`): one link -> `LinkTargetDialog` (`file_ops/link_target_dialog`), the target
+  in a line, *Relative link* rewriting the line in place (an effect on the box, the line `peek`ed); several ->
+  `RelinkDialog` (`file_ops/relink_dialog`), *Search for*/*Replace with* over every target (`filelink.replaced`,
+  pure), the `RelinkPreview` kept up by an effect, OK refused while nothing changes or a target comes out empty or
+  with a NUL; the two lines kept for the session.
+- **Make relative / Make absolute** (`LinkRelative`/`LinkAbsolute`): no box. `filelink.switched` reads from
+  `link_base` -- the link's parent with links followed (`drive.realpath`), as the kernel reads a relative target, not
+  the panel's path -- and rewrites by the letters; when the link reaches a file, the new target must reach **the same
+  one** (`drive.same_file`, the new path joined with its `..` left in), else `NotTheSame` and it is left, said in one
+  Error box (eight lines, then *and N more*). A broken link is rewritten by its letters alone. One already so is left
+  silently. The changed and the already-so are untagged; the skipped keep their tags.
+- **Broken links**: `DirEntry.is_stale_link` (link with its own `S_IFLNK` mode, what `!` shows). *Select broken
+  links* (`SelectBrokenLinks`) adds their tags; Alt+F7's Advanced search has a fifth kind, *Broken link*
+  (`filefind.KINDS`' `broken_link`; on another drive one `drive.exists` per link, asked only when the kind is
+  wanted).
+
 ## Erase (F8, Del)
 
 DN's `ERASER.PAS`. `navigator/lib/file_ops/fileerase.py` (`EraseRequest`, `EraseJob`, `run` on a thread, depth first, **never through
@@ -216,6 +239,6 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
 | Reference | Read when |
 |---|---|
 | `reference/copying.md` | copy/move model, dialog, progress and overwrite queries |
-| `reference/symlinks.md` | symbolic links |
+| `reference/symlinks.md` | symbolic links, and changing them |
 | `reference/deleting.md` | erase model, queries, recursion |
 | `reference/file-attributes.md` | the attributes dialog and model |

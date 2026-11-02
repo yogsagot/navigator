@@ -85,6 +85,29 @@ class MakeLink(Command):
     title = "SymLnk"
 
 
+class EditLinkTarget(Command):
+    """File > Symlink > Edit link target: what the selected links point at,
+    one link's in a line, several changed by one replacement.  A departure,
+    as Shift+F5 is: DOS had no links.  Not bound: the key is the user's."""
+
+
+class LinkRelative(Command):
+    """File > Symlink > Make relative: each selected link's absolute target
+    rewritten relative to the link's directory, reaching the same file.
+    A departure; not bound."""
+
+
+class LinkAbsolute(Command):
+    """File > Symlink > Make absolute: each selected link's relative target
+    rewritten as the absolute path it reaches.  A departure; not bound."""
+
+
+class SelectBrokenLinks(Command):
+    """File > Symlink > Select broken links: tag every link in the panel that
+    points nowhere -- the ones the ``!`` mark and the *Broken link* colour
+    show.  A departure; not bound."""
+
+
 class ChangeAttributes(Command):
     """Alt+E: *File Attributes*, DN's ``cmSetFAttr``, read for Linux.
 
@@ -731,6 +754,10 @@ __all__ = [
     "Copy",
     "RenameMove",
     "MakeLink",
+    "EditLinkTarget",
+    "LinkRelative",
+    "LinkAbsolute",
+    "SelectBrokenLinks",
     "ChangeAttributes",
     "MakeDirectory",
     "Delete",

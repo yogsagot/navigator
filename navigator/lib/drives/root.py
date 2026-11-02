@@ -128,6 +128,15 @@ class RootDrive(LocalDrive):
     def realpath(self, location: Location) -> Location:
         return Location.of(Path(ELEVATION.call("realpath", path=_path(location))))
 
+    def same_file(self, a: Location, b: Location) -> bool:
+        # The helper's stat: LocalDrive's ``samefile`` would be the user's,
+        # refused in the very directory root was asked into.
+        try:
+            first, second = self.stat(a), self.stat(b)
+        except OSError:
+            return False
+        return (first.st_dev, first.st_ino) == (second.st_dev, second.st_ino)
+
     def writable(self, location: Location, st: Any) -> bool:
         return ELEVATION.call("writable", path=_path(location))
 

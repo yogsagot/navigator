@@ -1,0 +1,47 @@
+from navigator.widgets.file_ops.relink_dialog.relink_preview import RelinkPreview
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.static_text import StaticText
+
+#: File > Symlink > Edit link target with several links selected: one
+#: replacement in all their targets, for a tree that moved.  A departure;
+#: Multi-rename's box cut down to its *Search for* / *Replace with*.
+RelinkDialog(Dialog):
+    modal_width: 76
+    modal_height: 20
+    title: "Change link targets"
+
+    Field:
+        id: search
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~S~earch for"
+        label_width: 14
+        history_id: "relink_search"
+
+    Field:
+        id: replace
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Re~p~lace with"
+        label_width: 14
+        history_id: "relink_replace"
+
+    RelinkPreview:
+        id: preview
+        x: 2
+        y: 4
+        width: max(0, parent.width - 4)
+        height: max(0, parent.height - 9)
+
+    StaticText:
+        id: status
+        x: 2
+        y: max(0, parent.height - 5)
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"

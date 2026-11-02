@@ -20,3 +20,23 @@ It borrows everything it can from Copy.
   Commander's Ctrl+X S would need prefix chords, which navkit's key tables do not have. Shift+F5 was a placeholder
   for a floppy-era feature, and it sits beside F5.
 
+
+#### Changing links that are there
+
+File > *Symlinks* holds Shift+F5 and four more, each a departure for the same reason. None has a key: F-keys and
+Alt/Ctrl+letters are DN's, and these are rare enough for the menu, the panel's context menu and Key bindings.
+
+- **No system call changes a link**, so `filelink.retarget` makes the new one beside it (`.navlink-<n>`, a dot-file,
+  a short name so a 255-byte link name still fits) and renames it over the old: `rename(2)` replaces atomically, so a
+  program reading the link sees the old or the new, never nothing. A failed rename unlinks the temporary.
+- **Relative to what**: a relative target is read by the kernel from the directory the link is really in. A panel in
+  `~/www`, itself a link to `/srv/www`, would otherwise turn `../x` into `~/x` where the kernel means `/srv/x`; so
+  `link_base` asks `drive.realpath(parent)`.
+- **By the letters, then checked**: `normpath` takes a `..` out as if the part before it were a directory. Behind a
+  link it is not (`hop/..` is `hop`'s target's parent), so `switched` stats the new target -- joined with its `..`
+  kept, which the kernel resolves properly -- and compares it with the link's (`same_file`). A mismatch is skipped
+  and said, never written. A broken link has nothing to compare with and is converted by its letters, which is what
+  `ln -sr` does too.
+- **Several links** are not each asked: a replacement over all their targets (the moved-tree case: `/old/root` to
+  `/new/root`) is previewed, as Multi-rename's rule is. Whether a new target exists is not shown: the preview is
+  pure, re-planned on every key, and a `stat` per row per key would put the disk on the loop.
