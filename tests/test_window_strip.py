@@ -147,7 +147,7 @@ def test_numbers_alone_kept_to_the_clock(tree):
     clock = app.shell.clock.x
     assert rows[0][clock - 10:clock] == " 1  2  3  "
     # Where the background mark would stand: just before the first chip.
-    assert strip.content_start() == strip.width - 9
+    assert app.shell.strip_start() == strip.x + strip.width - 9
 
 
 def test_the_background_mark_stands_just_before_the_chips(tree):
@@ -202,7 +202,8 @@ def test_one_window_shows_no_strip(tree):
     app = navigator(tree)
     run_app(app, [lambda a: None])
     assert app.shell.window_strip.chips() == []
-    assert app.shell.window_strip.content_start() == app.shell.window_strip.width
+    strip = app.shell.window_strip
+    assert app.shell.strip_start() == strip.x + strip.width
 
 
 def test_a_click_on_a_chip_brings_its_window_forward(tree):

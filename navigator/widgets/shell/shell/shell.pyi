@@ -10,7 +10,11 @@ from navigator.widgets.shell.clock import Clock
 from navigator.widgets.shell.command_line import CommandLine
 from navigator.widgets.shell.console import Console
 from navigator.widgets.shell.keybar import KeyBar
+from navigator.widgets.shell.job_mark import JobMark
 from navigator.widgets.shell.main_menu import MainMenu
+from navigator.widgets.shell.root_mark import RootMark
+from navigator.widgets.shell.trash_can import TrashCan
+from navigator.settings import SETTINGS
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 from navml.widgets.window_strip import WindowStrip
@@ -45,7 +49,6 @@ from navigator.lib.appearance import filetypes
 from navigator.lib.config import country
 from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
 from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
-from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
 
 
@@ -62,6 +65,9 @@ class Shell(DockLayout, _Component):
     menu: MainMenu
     window_strip: WindowStrip
     clock: Clock
+    root_mark: RootMark
+    job_mark: JobMark
+    trash: TrashCan
     keybar: KeyBar
     command_line: CommandLine
     _grabber_told: _Any
@@ -230,6 +236,7 @@ class Shell(DockLayout, _Component):
     def connections_in_use(self) -> set[Any]: ...
     async def follow_root(self) -> None: ...
     async def on_show_background(self, event: ShowBackground) -> bool: ...
+    def strip_start(self) -> int: ...
     def toast(self, text: str, *, title: str = ..., seconds: float | None = ...) -> Any: ...
     async def on_close_root_access(self, event: CloseRootAccess) -> bool: ...
     async def close_root_access(self) -> None: ...

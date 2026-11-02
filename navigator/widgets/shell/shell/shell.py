@@ -187,36 +187,6 @@ class Shell(DockLayout):
         FileInfoPane.stamp = staticmethod(country.stamp)
         # The same for the week a dropped calendar starts on.
         CalendarView.default_first_weekday = staticmethod(country.first_weekday)
-        # ≡ > Trashcan on/off's ``TTrashCan``: over the desktop's windows,
-        # floating where its own bindings put it, as the clock does.
-        from navigator.widgets.shell.trash_can import TrashCan
-
-        self.trash = self.add(TrashCan(self.desktop))
-        self.trash.merge_style("dock: none")
-        # *ROOT* before the clock while root access is open: floating as it
-        # does, over the bar's row.
-        from navigator.widgets.shell.root_mark import RootMark, caption
-
-        self.root_mark = self.add(RootMark())
-        self.root_mark.merge_style("dock: none")
-        clock_ = self.clock
-        self.root_mark.width = bind(lambda w: display_width(caption()))
-        self.root_mark.x = bind(
-            lambda w: max(0, (clock_.x - 1 if clock_.visible else self.menu.width) - w.width))
-        self.root_mark.y = bind(lambda w: 0)
-        self.root_mark.visible = bind(
-            lambda w: w.open and not interface.hide_menu_bar and not self.console_visible)
-        # How far the operations in the background are, just before the
-        # window strip's chips (``job_mark``); placed with the strip below.
-        from navigator.lib.system.background import BACKGROUND
-        from navigator.widgets.shell.job_mark import JobMark, caption as job_caption
-
-        self.job_mark = self.add(JobMark())
-        self.job_mark.merge_style("dock: none")
-        self.job_mark.y = bind(lambda w: 0)
-        self.job_mark.width = bind(lambda w: display_width(job_caption()))
-        self.job_mark.visible = bind(
-            lambda w: bool(BACKGROUND.jobs) and not interface.hide_menu_bar and not self.console_visible)
         #: The toasts up now, the newest at the bottom (:meth:`toast`).
         self._toasts = _Toasts()
         self.keybar.visible = bind(lambda w: not interface.hide_status_line)
@@ -247,15 +217,11 @@ class Shell(DockLayout):
         # The clock floats over the bar's end: a bar that would reach it
         # closes up its captions (``MenuBar.tight``).
         self.menu.reserve = bind(lambda w: max(0, w.width - clock.x + 1) if clock.visible else 0)
-        # The mark of work in the background stands just before the strip's
-        # chips, which keep to the clock's end -- the strip giving up its
-        # first cells to it, so the mark never reaches the menus.
-        job_mark, strip = self.job_mark, self.window_strip
+        # The strip gives up its first cells to the mark of work in the
+        # background, which stands just before its chips (``shell.nml``).
+        job_mark, root_mark = self.job_mark, self.root_mark
         self.window_strip.x = bind(
             lambda w: menu.item_span(len(menu.entries()))[0] + 1 + (job_mark.width if job_mark.visible else 0))
-        self.job_mark.x = bind(
-            lambda w: strip.x + (strip.content_start() if strip.visible else strip.width) - w.width)
-        root_mark = self.root_mark
         self.window_strip.width = bind(
             lambda w: max(0, (root_mark.x if root_mark.visible else clock.x if clock.visible else menu.width)
                           - 1 - w.x)
@@ -2865,6 +2831,20 @@ class Shell(DockLayout):
 
         BACKGROUND.recall()
         return True
+
+    def strip_start(self) -> int:
+        """The column the window strip's chips begin at -- or its ``+k``
+        alone, which keeps to its right end too -- and the strip's end
+        when it shows none: where the mark of work in the background ends."""
+        strip = self.window_strip
+        end = strip.x + strip.width
+        if not strip.visible:
+            return end
+        chips = strip.chips()
+        if chips:
+            return strip.x + chips[0][0]
+        hidden = strip.hidden()
+        return end - len(f"+{hidden}") if hidden else end
 
     def toast(self, text: str, *, title: str = "", seconds: float | None = None) -> Any:
         """*text* in a passing box at the desktop's bottom right, over the

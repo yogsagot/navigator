@@ -125,7 +125,7 @@ by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Resto
   `ShowBackground`) sets `recalled`; the box comes back up and then the question is put. Never a dialog over
   whatever the user is doing.
 - **The mark** (`navigator/widgets/shell/job_mark.py`, `JobMark`): ` 42% `, ` 2:37% `, ` ?42% ` (`JobMark:asking`),
-  right-aligned just before the window strip's first chip (`WindowStrip.content_start()`; with no chips or no strip,
+  right-aligned just before the window strip's first chip (`Shell.strip_start()`, from the strip's `chips()`/`hidden()`; with no chips or no strip,
   just before *ROOT*/the clock). The strip's `x` gives up the mark's width at its left while it shows, so the mark
   never reaches the menus.
 - **The end**: once a box has been up (or the job went away) a toast says *title* over *Finished*/*Stopped*

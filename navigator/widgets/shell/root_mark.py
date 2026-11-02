@@ -15,8 +15,9 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import commands, tooltip
+from navkit.bidi import display_width
 from navkit.i18n import tr, tr_n
-from navkit.reactive import reactive
+from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.tooltip import with_keys
 from navkit.widget import Widget
@@ -39,6 +40,11 @@ class RootMark(Widget):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.height = 1
+
+    @computed
+    def natural_width(self) -> int:
+        """As wide as :func:`caption`, in the language of the day."""
+        return display_width(caption())
 
     def tooltip_at(self, x: int, y: int) -> str:
         """What *ROOT* means, when it closes by itself, and how to close it now."""

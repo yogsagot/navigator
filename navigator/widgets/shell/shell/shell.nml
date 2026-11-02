@@ -2,7 +2,11 @@ from navigator.widgets.shell.clock import Clock
 from navigator.widgets.shell.command_line import CommandLine
 from navigator.widgets.shell.console import Console
 from navigator.widgets.shell.keybar import KeyBar
+from navigator.widgets.shell.job_mark import JobMark
 from navigator.widgets.shell.main_menu import MainMenu
+from navigator.widgets.shell.root_mark import RootMark
+from navigator.widgets.shell.trash_can import TrashCan
+from navigator.settings import SETTINGS
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 from navml.widgets.window_strip import WindowStrip
@@ -75,6 +79,39 @@ Shell(DockLayout):
         id: clock
         x: max(0, parent.width - self.width)
         y: 0
+        style:
+            dock: none
+
+    #: *ROOT* before the clock while root access is open (``open`` set once
+    #: a second by ``follow_root``): floating as the clock does, over the
+    #: bar's row.
+    RootMark:
+        id: root_mark
+        x: max(0, (clock.x - 1 if clock.visible else menu.width) - self.width)
+        y: 0
+        width: self.natural_width
+        visible: self.open and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
+        style:
+            dock: none
+
+    #: How far the operations in the background are, just before the window
+    #: strip's chips -- which keep to the clock's end, the strip giving up
+    #: its first cells to the mark (``__init__``), so it never reaches the
+    #: menus.  With no chips, or no strip, just before *ROOT* or the clock.
+    JobMark:
+        id: job_mark
+        x: root.strip_start() - self.width
+        y: 0
+        width: self.natural_width
+        visible: self.busy and not SETTINGS.interface.hide_menu_bar and not parent.console_visible
+        style:
+            dock: none
+
+    #: ≡ > Trashcan on/off's ``TTrashCan``: over the desktop's windows, at
+    #: the desktop's bottom right corner by its own bindings.
+    TrashCan:
+        id: trash
+        desktop: parent.desktop
         style:
             dock: none
 

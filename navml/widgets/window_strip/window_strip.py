@@ -72,14 +72,6 @@ class WindowStrip(Widget):
         """How many windows have no chip for want of room."""
         return self._layout()[1]
 
-    def content_start(self) -> int:
-        """The column its first chip (or its ``+k``) starts at; its width
-        when it shows nothing -- where something kept beside it goes."""
-        chips, hidden, end = self._layout()
-        if chips:
-            return chips[0][0]
-        return end if hidden else self.width
-
     def window_at(self, column: int) -> Any:
         """The window whose chip is under *column*, or None."""
         for start, text, window in self.chips():

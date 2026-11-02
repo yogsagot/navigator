@@ -13,6 +13,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import commands, tooltip
+from navkit.bidi import display_width
 from navkit.events import MouseClickEvent
 from navkit.i18n import tr
 from navkit.reactive import computed
@@ -40,6 +41,16 @@ class JobMark(Widget):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.height = 1
+
+    @computed
+    def busy(self) -> bool:
+        """Anything in the background: when the mark shows at all."""
+        return bool(BACKGROUND.jobs)
+
+    @computed
+    def natural_width(self) -> int:
+        """As wide as :func:`caption` is now."""
+        return display_width(caption())
 
     @computed
     def asking(self) -> bool:

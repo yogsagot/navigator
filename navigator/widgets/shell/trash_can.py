@@ -32,7 +32,10 @@ WIDTH, HEIGHT = 5, 3
 
 
 class TrashCan(Widget):
-    """The trash can, bound to the corner of *desktop*."""
+    """The trash can, bound to the corner of :attr:`desktop`."""
+
+    #: The desktop whose corner it keeps to; nothing shows without one.
+    desktop: Any = reactive(None)
 
     #: Shown by ≡ > Trashcan on/off.
     shown: bool = reactive(False)
@@ -42,14 +45,19 @@ class TrashCan(Widget):
     #: Being dragged: ``sfDragging``, drawn in the frame-icons colour.
     dragging: bool = reactive(False)
 
-    def __init__(self, desktop: Any, **kwargs: Any) -> None:
+    def __init__(self, desktop: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.desktop = desktop
+        # Given here or bound by the markup that declares it (``shell.nml``),
+        # which sets it only once the widget is built.
+        if desktop is not None:
+            self.desktop = desktop
         self.width = bind(lambda o: WIDTH)
         self.height = bind(lambda o: HEIGHT)
-        self.x = bind(lambda o: o.desktop.x + max(0, o.desktop.width - WIDTH - o.gap_x))
-        self.y = bind(lambda o: o.desktop.y + max(0, o.desktop.height - HEIGHT - o.gap_y))
-        self.visible = bind(lambda o: o.shown and o.desktop.visible)
+        self.x = bind(lambda o: 0 if o.desktop is None
+                      else o.desktop.x + max(0, o.desktop.width - WIDTH - o.gap_x))
+        self.y = bind(lambda o: 0 if o.desktop is None
+                      else o.desktop.y + max(0, o.desktop.height - HEIGHT - o.gap_y))
+        self.visible = bind(lambda o: o.shown and o.desktop is not None and o.desktop.visible)
         self._grab: tuple[int, int] | None = None
 
     def place(self, x: int, y: int) -> None:
