@@ -34,7 +34,6 @@ from typing import Any
 from urllib.parse import quote, unquote
 
 from navigator.lib.system.job import Job, Stopped
-from navigator.lib.system.volumes import parse_mounts
 
 #: An info file's suffix, and its first line.
 INFO_SUFFIX = ".trashinfo"
@@ -75,6 +74,10 @@ def home_trash() -> Path:
 
 
 def _mounts() -> list[str]:
+    # Here, not at the top: volumes brings gio, kio and udisks with it, a
+    # hundredth of a second of every start for a trash that is seldom opened.
+    from navigator.lib.system.volumes import parse_mounts
+
     try:
         text = Path("/proc/self/mounts").read_text(errors="replace")
     except OSError:

@@ -24,7 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from navkit.events import Event
-from navigator.lib.file_ops.filecopy import shown
+from navigator.lib.drives.location import shown
 from navkit.i18n import tr_n
 from navkit.screen import Surface
 from navkit.widget import Widget

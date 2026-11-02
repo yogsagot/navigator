@@ -41,16 +41,6 @@ from collections.abc import Sequence
 from typing import Any
 from functools import lru_cache
 
-import arabic_reshaper
-from bidi.algorithm import (
-    explicit_embed_and_overrides,
-    get_embedding_levels,
-    get_empty_storage,
-    reorder_resolved_levels,
-    resolve_implicit_levels,
-    resolve_neutral_types,
-    resolve_weak_types,
-)
 from bidi.mirror import MIRRORED
 
 #: One painted cell of laid-out text: the logical index of the character it
@@ -65,11 +55,18 @@ _RTL_CLASSES = frozenset({"R", "AL", "AN", "RLE", "RLO", "RLI", "LRE", "LRO", "P
 #: Letter forms, one per letter, and no ligatures: a ligature is two letters
 #: in one glyph, and only lam-alef -- which Arabic cannot do without -- is
 #: made, by :func:`_shape`, where its two indices can be kept track of.
-_RESHAPER = arabic_reshaper.ArabicReshaper(configuration={
-    "delete_harakat": False,
-    "shift_harakat_position": False,
-    "support_ligatures": False,
-})
+@lru_cache(maxsize=1)
+def _reshaper() -> Any:
+    # Made, and arabic_reshaper imported, the first time Arabic is shaped:
+    # with python-bidi's algorithm below, a few milliseconds of every start
+    # for text most screens never hold.
+    import arabic_reshaper
+
+    return arabic_reshaper.ArabicReshaper(configuration={
+        "delete_harakat": False,
+        "shift_harakat_position": False,
+        "support_ligatures": False,
+    })
 
 #: Lam's initial and medial forms, which a following alef joins.
 _LAM_JOINING = {"ﻟ": 0, "ﻠ": 1}
@@ -184,7 +181,7 @@ def _shape(clusters: list[tuple[int, str]]) -> list[tuple[int, str]]:
     bases = "".join(cluster[0] for _, cluster in clusters)
     if not any("؀" <= char <= "ۿ" for char in bases):
         return clusters
-    shaped = _RESHAPER.reshape(bases)
+    shaped = _reshaper().reshape(bases)
     if len(shaped) != len(bases):
         return clusters  # not the one-for-one this relies on: leave it unshaped
     out: list[tuple[int, str]] = []
@@ -301,6 +298,16 @@ def _order(clusters: list[tuple[int, str]], rtl: bool) -> tuple[LaidCell, ...]:
     """*clusters* -- (index, a letter and its marks), logical order -- shaped,
     ordered by the Unicode Bidi Algorithm in a paragraph that is right to
     left when *rtl*, and mirrored where right-to-left."""
+    from bidi.algorithm import (  # the first right-to-left text: see _reshaper
+        explicit_embed_and_overrides,
+        get_embedding_levels,
+        get_empty_storage,
+        reorder_resolved_levels,
+        resolve_implicit_levels,
+        resolve_neutral_types,
+        resolve_weak_types,
+    )
+
     clusters = _shape(clusters)
     bases = _classifiable("".join(cluster[0] for _, cluster in clusters))
     storage = get_empty_storage()

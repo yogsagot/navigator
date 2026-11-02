@@ -50,6 +50,7 @@ import configparser
 import dataclasses
 import importlib
 import re
+import sys
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from functools import cached_property
@@ -224,10 +225,14 @@ class Section:
             override_keys(self.cls, table, self.base)
 
 
-def sections(app_class: type) -> list[Section]:
-    """Every section, the application's own as *app_class*'s table."""
+def sections(app_class: type, skip: Iterable[str] = ()) -> list[Section]:
+    """Every section, the application's own as *app_class*'s table; those
+    named in *skip* are left out, their classes not imported."""
+    skip = set(skip)
     found = []
     for name, title, where in TABLES:
+        if name in skip:
+            continue
         if where is None:
             cls = app_class
         else:
@@ -380,19 +385,31 @@ def render(found: Iterable[Section], assignments: Mapping[str, Assignment],
     return coder.render()
 
 
-def read(file: Path, found: Iterable[Section]) -> tuple[dict[str, Assignment], list[str]]:
-    """What *file* binds, section by section, and a warning per line that
-    will not do.  ``OSError`` or ``configparser.Error`` for a file that
-    cannot be read at all."""
+def _parse(file: Path) -> configparser.ConfigParser:
     parser = configparser.ConfigParser(
         interpolation=None, inline_comment_prefixes=INLINE_COMMENT_PREFIXES
     )
     with open(file, encoding="utf-8") as stream:
         parser.read_file(stream)
+    return parser
+
+
+def read(file: Path, found: Iterable[Section], *,
+         parser: configparser.ConfigParser | None = None,
+         skip: Iterable[str] = ()) -> tuple[dict[str, Assignment], list[str]]:
+    """What *file* binds, section by section, and a warning per line that
+    will not do.  ``OSError`` or ``configparser.Error`` for a file that
+    cannot be read at all.  *parser* is the file already parsed; the
+    sections named in *skip* are passed over without a word."""
+    if parser is None:
+        parser = _parse(file)
+    skip = set(skip)
     by_name = {section.name: section for section in found}
     assignments: dict[str, Assignment] = {}
     warnings: list[str] = []
     for name in parser.sections():
+        if name in skip:
+            continue
         section = by_name.get(name)
         if section is None:
             warnings.append(f"{file}: [{name}]: no such section")
@@ -428,15 +445,50 @@ def load(app_class: type, file: Path | None = None) -> list[str]:
     will not do.  A missing file binds the defaults, and one that cannot be
     read at all is a warning and the defaults too."""
     file = file or path()
-    found = sections(app_class)
     try:
-        assignments, warnings = read(file, found)
+        parser = _parse(file)
     except FileNotFoundError:
-        assignments, warnings = {}, []
+        parser, warnings = None, []
     except (OSError, configparser.Error) as error:
-        assignments, warnings = {}, [f"{file}: {error}"]
+        parser, warnings = None, [f"{file}: {error}"]
+    skip = _as_shipped(parser)
+    found = sections(app_class, skip)
+    if parser is None:
+        assignments = {}
+    else:
+        assignments, warnings = read(file, found, parser=parser, skip=skip)
     apply(found, assignments)
     return warnings
+
+
+def _as_shipped(parser: configparser.ConfigParser | None) -> set[str]:
+    """The sections that can be left alone at the start: what the file says
+    of them (nothing, for one it leaves out) is the shipped default set line
+    for line, and their class is not imported yet -- so it has no override
+    to undo, and its own table is already what the file asks for.
+
+    Not reading them is not importing them: most of the tables belong to
+    windows nobody has opened yet (the editor, the game), and importing
+    every one of them was a sixth of the time before the first frame.  A
+    section that differs in any way, a respelt key included, is read as
+    always.
+    """
+    try:
+        shipped = _parse(presets_dir() / f"{FILE_NAME.removesuffix('.ini')}_default.ini")
+    except (OSError, configparser.Error):
+        return set()
+    same = set()
+    for name, _title, where in TABLES:
+        if where is None or where.partition(":")[0] in sys.modules:
+            continue
+        if not shipped.has_section(name):
+            continue
+        if parser is not None and parser.has_section(name) and (
+            dict(parser.items(name)) != dict(shipped.items(name))
+        ):
+            continue
+        same.add(name)
+    return same
 
 
 def seed(app_class: type, file: Path | None = None) -> bool:

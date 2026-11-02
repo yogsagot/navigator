@@ -437,8 +437,14 @@ class Stylesheet:
     rules: tuple[Rule, ...] = ()
     variables: Mapping[str, str] = field(default_factory=dict)
     _state_names: frozenset[str] = field(init=False, repr=False, compare=False)
+    #: The rules that could match a widget of a class asked about a part,
+    #: by ``(class, part)``, in cascade order -- see :meth:`declarations_for`.
+    _candidates: dict[tuple[type, str | None], tuple[Rule, ...]] = field(
+        init=False, repr=False, compare=False
+    )
 
     def __post_init__(self) -> None:
+        object.__setattr__(self, "_candidates", {})
         object.__setattr__(self, "_state_names", frozenset(
             state
             for rule in self.rules
@@ -470,12 +476,32 @@ class Stylesheet:
         supplies whatever the winner did not mention, which falls out of
         updating a dict in ascending order.
         """
-        matched = [r for r in self.rules if r.selector.matches(widget, request)]
-        matched.sort(key=lambda rule: rule.sort_key)
         declarations: dict[str, Any] = {}
-        for rule in matched:
-            declarations.update(rule.declarations)
+        for rule in self._rules_for(type(widget), request.part):
+            if rule.selector.matches(widget, request):
+                declarations.update(rule.declarations)
         return declarations
+
+    def _rules_for(self, cls: type, part: str | None) -> tuple[Rule, ...]:
+        """The rules whose subject names *part* and a type *cls* is (or
+        none), sorted for the cascade: what is left to match is everything
+        else.  Worked out once per class and part, since testing every rule
+        against every widget was most of styling a frame."""
+        key = (cls, part)
+        found = self._candidates.get(key)
+        if found is None:
+            names = {base.__name__ for base in cls.__mro__}
+            found = tuple(sorted(
+                (
+                    rule for rule in self.rules
+                    if rule.selector.subject.part == part
+                    and (rule.selector.subject.type_name is None
+                         or rule.selector.subject.type_name in names)
+                ),
+                key=lambda rule: rule.sort_key,
+            ))
+            self._candidates[key] = found
+        return found
 
 
 #: A sheet that says nothing, so a widget with no stylesheet still resolves.
@@ -527,16 +553,42 @@ _PIECE = re.compile(r":not\(([^()]*)\)|(::|[#.:])([\w-]+)")
 _NOT = re.compile(r":not\(([^()]*)\)")
 
 
+def _blank(match: re.Match[str]) -> str:
+    """*match*'s text as blanks, its newlines kept: a string op rather than
+    a regular expression per comment, two thousand of them in a theme."""
+    return "\n".join(" " * len(piece) for piece in match.group().split("\n"))
+
+
 def _blank_comments(text: str) -> str:
     """Replace comments with whitespace, keeping every newline in place.
 
     Line numbers in errors are worth more than the few bytes this wastes.
     """
-    return _COMMENT.sub(lambda m: re.sub(r"[^\n]", " ", m.group()), text)
+    return _COMMENT.sub(_blank, text)
 
 
 def _line_of(text: str, position: int) -> int:
     return text.count("\n", 0, position) + 1
+
+
+class _Lines:
+    """:func:`_line_of` for positions asked in increasing order, counting
+    only the newlines since the last one -- counting from the top for every
+    rule made reading a theme quadratic, a third of its time."""
+
+    __slots__ = ("_text", "_position", "_line")
+
+    def __init__(self, text: str) -> None:
+        self._text = text
+        self._position = 0
+        self._line = 1
+
+    def __call__(self, position: int) -> int:
+        if position < self._position:
+            return _line_of(self._text, position)
+        self._line += self._text.count("\n", self._position, position)
+        self._position = position
+        return self._line
 
 
 def _parse_negation(text: str, line: int, filename: str) -> Compound:
@@ -679,9 +731,10 @@ def _collect_variables(text: str) -> tuple[dict[str, str], dict[str, int]]:
     source = _blank_comments(text)
     raw: dict[str, str] = {}
     lines: dict[str, int] = {}
+    line_of = _Lines(source)
     for match in _VARIABLE.finditer(source):
         raw[match.group(1)] = match.group(2).strip()
-        lines[match.group(1)] = _line_of(source, match.start())
+        lines[match.group(1)] = line_of(match.start())
     return raw, lines
 
 
@@ -909,17 +962,18 @@ def _parse_with(
 ) -> Stylesheet:
     """:func:`parse`, but against an already-merged variable table."""
     source = _VARIABLE.sub(
-        lambda m: re.sub(r"[^\n]", " ", m.group()), _blank_comments(text)
+        _blank, _blank_comments(text)
     )
     rules: list[Rule] = []
     consumed = 0
+    line_of = _Lines(source)
     for match in _BLOCK.finditer(source):
         # Everything since the previous block closed is this block's selector
         # list.  A stray brace therefore lands in the selector rather than in a
         # check of its own, and `_parse_selector' rejects it with the line.
         selectors = source[consumed : match.start()]
         consumed = match.end()
-        line = _line_of(source, match.start(1))
+        line = line_of(match.start(1))
         declarations = _parse_declarations(match.group(1), variables, line, filename)
         for piece in _split_group(selectors, line, filename):
             if not piece.strip():

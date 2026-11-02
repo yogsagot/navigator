@@ -52,7 +52,7 @@ from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.drives import trash as trash_drive
 from navigator.lib.file_ops.clip import CLIP
-from navigator.lib.file_ops.filecopy import shown
+from navigator.lib.drives.location import shown
 from navigator.settings import SETTINGS
 
 

@@ -39,6 +39,7 @@ from typing import IO, Any, Callable
 from navkit.i18n import tr
 
 from navigator.lib.drives import Location, drive_of
+from navigator.lib.drives.location import shown  # noqa: F401 -- re-exported
 from navigator.lib.system.job import POLL, Job, Stopped
 
 #: The copy modes, which are the dialog's radio buttons in order.
@@ -254,15 +255,6 @@ class Destination:
 
     def path_for(self, source: Path | Location) -> Path | Location:
         return self.directory / self.name_for(source)
-
-
-def shown(location: Path | Location) -> Path | Location:
-    """*location* as a question or an answer names it: the plain
-    :class:`~pathlib.Path` on the disk, so what reads one there reads what
-    it always did, and the location itself elsewhere.  A path is a path."""
-    if not isinstance(location, Location):
-        return location
-    return location.local if location.is_local else location
 
 
 def target_location(target: str, cwd: Path | Location) -> Location:

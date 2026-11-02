@@ -179,3 +179,16 @@ class Location:
 
 
 __all__ = ["LOCAL_SITE", "Location", "RemoteLocation", "Site"]
+
+
+def shown(location: Path | Location) -> Path | Location:
+    """*location* as a question or an answer names it: the plain
+    :class:`~pathlib.Path` on the disk, so what reads one there reads what
+    it always did, and the location itself elsewhere.  A path is a path.
+
+    Here rather than beside the copier that first needed it
+    (:mod:`navigator.lib.file_ops.filecopy`, which re-exports it): the panels
+    use it too, and importing the copier for it was part of every start."""
+    if not isinstance(location, Location):
+        return location
+    return location.local if location.is_local else location

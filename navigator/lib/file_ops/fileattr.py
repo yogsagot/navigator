@@ -49,6 +49,7 @@ from navigator.lib.file_ops import acl as acls
 from navigator.lib.file_ops import fsflags
 from navigator.lib.file_ops.filecopy import Elevated, Failure, error_message, finish_drives
 from navigator.lib.system.job import Job, Stopped
+from navigator.lib.system.users import group_name, user_name  # noqa: F401 -- re-exported
 
 #: The mode bits the dialog's grid shows, in its order: owner, group and
 #: others, each read/write/execute, then set-user-ID, set-group-ID, sticky.
@@ -387,22 +388,6 @@ def assignable_groups() -> list[str]:
     for gid in {os.getegid(), *os.getgroups()}:
         names.add(group_name(gid))
     return sorted(names)
-
-
-def user_name(uid: int) -> str:
-    """*uid*'s name, or the number when it has none."""
-    try:
-        return pwd.getpwuid(uid).pw_name
-    except KeyError:
-        return str(uid)
-
-
-def group_name(gid: int) -> str:
-    """*gid*'s name, or the number when it has none."""
-    try:
-        return grp.getgrgid(gid).gr_name
-    except KeyError:
-        return str(gid)
 
 
 def parse_user(text: str) -> int | None:

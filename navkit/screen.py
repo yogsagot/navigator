@@ -420,7 +420,9 @@ class _View(Surface):
     def set_cell(self, x: int, y: int, char: str, style: Style = DEFAULT_STYLE) -> int:
         if not (0 <= x < self.width and 0 <= y < self.height):
             return max(1, char_width(char))
-        if char_width(char) == 2 and x + 1 >= self.width:
+        # The edge first: measuring the character is the dearer half, and
+        # every view between a widget and the screen asks this of every cell.
+        if x + 1 >= self.width and char_width(char) == 2:
             # The trailing half would land on whatever is beside this widget,
             # so show a blank rather than let it escape -- the same bargain
             # ScreenBuffer makes at the edge of the screen.
@@ -528,6 +530,10 @@ class ScreenBuffer(Surface):
         """Paint a single character and return how many cells it consumed."""
         if not (0 <= y < self.height) or not (0 <= x < self.width):
             return max(1, char_width(char))
+        if " " <= char < "\x7f" and len(char) == 1:
+            # Printable ASCII, nearly every cell of a frame: one wide, no marks.
+            self._rows[y][x] = (char, style)
+            return 1
         width = char_width(char)
         if width == 0:
             return 0

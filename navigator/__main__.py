@@ -23,7 +23,6 @@ import os
 import sqlite3
 import sys
 from dataclasses import replace
-from importlib import metadata
 from pathlib import Path
 from typing import Any
 
@@ -642,6 +641,10 @@ def version_banner() -> str:
     installed, and metadata is absent precisely in the case where the source
     tree is the honest answer.
     """
+    # Imported here: importlib.metadata is a hundredth of a second of every
+    # start, for a flag that is seldom given.
+    from importlib import metadata
+
     try:
         version = metadata.version("navigator-fm")
     except metadata.PackageNotFoundError:

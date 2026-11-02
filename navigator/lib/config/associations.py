@@ -47,10 +47,13 @@ import fnmatch
 from dataclasses import dataclass
 from importlib.resources import files
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from navigator.lib.appearance.filetypes import patterns
 from navigator.settings import config_dir
-from navigator.lib.config.usermenu import GLOBAL_NAME, Commands, commands_of
+
+if TYPE_CHECKING:
+    from navigator.lib.config.usermenu import Commands
 
 #: Enter on a file that is not to be run itself: DN's ``DN.EXT``.
 EXTENSIONS = "extensions.ini"
@@ -64,7 +67,7 @@ QUICK_RUN = "quickrun.ini"
 #: :mod:`navigator.lib.highlight`; only its place and template are kept here.
 HIGHLIGHT = "highlight.ini"
 #: F2's user menu, DN's ``DN.MNU``: :mod:`navigator.lib.config.usermenu` reads it.
-MENU = GLOBAL_NAME
+MENU = "menu.ini"  # usermenu.GLOBAL_NAME, spelt out: importing the user menu is for when it is used
 
 
 @dataclass(frozen=True)
@@ -110,6 +113,8 @@ def parse(text: str, source: str = "<string>") -> list[Group]:
         parser.read_string(text, source)
     except configparser.Error as error:
         raise ValueError(str(error)) from None
+    from navigator.lib.config.usermenu import commands_of
+
     return [
         Group(name, tuple(Action(caption, commands_of(value.splitlines()))
                           for caption, value in parser.items(name)))

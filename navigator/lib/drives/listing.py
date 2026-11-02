@@ -23,7 +23,7 @@ from navkit.i18n import tr
 
 from navigator.lib.appearance import filetypes
 from navigator.lib.config import country
-from navigator.lib.file_ops.fileattr import group_name, user_name
+from navigator.lib.system.users import group_name, user_name
 
 # Asked once per id rather than once per row painted: the password and group
 # databases do not change under a running listing often enough to matter.

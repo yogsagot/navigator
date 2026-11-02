@@ -51,7 +51,7 @@ from navigator.widgets.viewer.commands import (
     Unwrap,
 )
 from navigator.settings import SETTINGS
-from navigator.lib.viewer import html, image, markdown, pdf, rst
+from navigator.lib.viewer import image, markdown, pdf, rst
 from navigator.lib.viewer.layout import RENDER_LIMIT, Layout, decode
 from navigator.lib.viewer import (
     DUMP_CHARS_AT,
@@ -102,7 +102,19 @@ HEAD = 256
 _RENDERER = Background("nav-view-render", workers=1)
 
 #: How each format a file can be rendered as is laid out.
-RENDERERS = {"markdown": markdown.render, "rst": rst.render, "html": html.render, "pdf": pdf.render}
+RENDERERS = {"markdown": markdown.render, "rst": rst.render, "html": None, "pdf": pdf.render}
+
+
+def _renderer(format: str) -> Any:
+    """*format*'s renderer.  HTML's is imported on first use: ``html.parser``
+    is a few milliseconds of every start, the quick view being in the
+    file manager's markup whether or not it is ever shown."""
+    found = RENDERERS[format]
+    if found is None:
+        from navigator.lib.viewer import html
+
+        found = RENDERERS[format] = html.render
+    return found
 
 
 def _when_here(method: Any) -> Any:
@@ -163,7 +175,7 @@ def _lay_out(name: str, data: bytes | None, size: int, codec: str, width: int, u
     elif data is None:
         with open(name, "rb") as stream:
             data = stream.read(size)
-    return RENDERERS[format](data[:size], width, codec=codec, unicode=unicode)
+    return _renderer(format)(data[:size], width, codec=codec, unicode=unicode)
 
 
 def _picture(name: str, data: bytes | None, size: int, cols: int, rows: int,
