@@ -602,6 +602,6 @@ MainMenu(MenuBar):
             key: 'Alt-0'
         #: Not DN's: the box of a copy or an erase sent to the background.
         MenuItem:
-            text: '~B~ackground operation'
+            text: '~B~ackground operation...'
             tooltip: "Bring back the progress box of a copy or an erase running in the background"
             command: ShowBackground

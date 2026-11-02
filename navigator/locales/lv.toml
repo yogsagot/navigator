@@ -2096,7 +2096,7 @@ flag = "LV"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "Visi logi, lai pārslēgtos uz kādu vai to aizvērtu"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "~F~ona darbība"
+"~B~ackground operation..." = "~F~ona darbība..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "Atgriezt fonā strādājošas kopēšanas vai dzēšanas progresa logu"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15

@@ -2096,7 +2096,7 @@ flag = "CN"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "所有窗口，可切换到某个窗口或将其关闭"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "后台操作(~B~)"
+"~B~ackground operation..." = "后台操作(~B~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "恢复在后台运行的复制或删除的进度框"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15

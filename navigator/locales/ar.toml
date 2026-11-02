@@ -2097,7 +2097,7 @@ direction = "rtl"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "كل النوافذ، للانتقال إلى إحداها أو إغلاقها"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "عملية في ال~خ~لفية"
+"~B~ackground operation..." = "عملية في ال~خ~لفية..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "إعادة مربع تقدم النسخ أو الحذف الجاري في الخلفية"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15

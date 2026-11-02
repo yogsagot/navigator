@@ -2097,7 +2097,7 @@ direction = "rtl"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "כל החלונות, כדי לעבור לאחד או לסגור אותו"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "פעולת רק~ע~"
+"~B~ackground operation..." = "פעולת רק~ע~..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "החזרת תיבת ההתקדמות של העתקה או מחיקה שרצה ברקע"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15

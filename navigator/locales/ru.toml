@@ -2096,7 +2096,7 @@ flag = "RU"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "Все окна, чтобы переключиться на одно или закрыть его"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "~Ф~оновая операция"
+"~B~ackground operation..." = "~Ф~оновая операция..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "Вернуть окно хода копирования или удаления, работающего в фоне"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15

@@ -1027,7 +1027,7 @@ class MainMenu(MenuBar, _Component):
         _w133.key = 'Alt-0'    # main_menu.nml:602
 
         _w134.text = _bind(    # main_menu.nml:605
-            lambda _o: _tr('~B~ackground operation'),
+            lambda _o: _tr('~B~ackground operation...'),
             yielding=True,
         )
         _w134.tooltip = _bind(    # main_menu.nml:606

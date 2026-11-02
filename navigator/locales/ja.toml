@@ -2096,7 +2096,7 @@ flag = "JP"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
 "All the windows, to switch to one or close it" = "すべてのウィンドウ: 切り替えまたは閉じる"
 # navigator/widgets/shell/main_menu/main_menu.nml:605
-"~B~ackground operation" = "バックグラウンド処理(~B~)"
+"~B~ackground operation..." = "バックグラウンド処理(~B~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:606
 "Bring back the progress box of a copy or an erase running in the background" = "バックグラウンドで実行中のコピーまたは削除の進行状況ボックスを戻す"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
