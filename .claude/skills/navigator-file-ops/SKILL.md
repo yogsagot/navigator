@@ -296,8 +296,8 @@ passphrase), `ChecksumProgress` through `Manager._run_checksums`, errors through
   times. The encrypted files are kept.
 - **Targets already there** are counted before anything runs (`existing_targets`) and asked about in one
   question. *Delete originals* (Encrypt only, off by default) unlinks each source whose copy was written in full.
-- **`PasswordDialog`'s title and label are set after construction**: the markup's captions are yielding bindings,
-  which give way to an assignment but override a `title=` keyword.
+- **The passphrase box's label is set after construction**: the markup's captions are yielding bindings, which
+  give way to an assignment but override a keyword. `PasswordDialog` does this for its own `title=`.
 
 ## Replace in files (Alt+Shift+F7)
 

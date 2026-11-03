@@ -10,9 +10,14 @@ from navml.widgets.dialog.dialog import Dialog
 class PasswordDialog(Dialog):
     """A password or a passphrase, never shown and never copied."""
 
-    def __init__(self, prompt: str = "", *, can_keep: bool = False, **kwargs: Any) -> None:
-        """*prompt* says what for; *can_keep* offers *Save in keyring*."""
+    def __init__(self, prompt: str = "", *, can_keep: bool = False, title: str = "", **kwargs: Any) -> None:
+        """*prompt* says what for; *can_keep* offers *Save in keyring*; *title*
+        replaces *Password*."""
         super().__init__(**kwargs)
+        if title:
+            # After construction: the markup's caption is a yielding binding,
+            # which gives way to an assignment but overrides a keyword.
+            self.title = title
         self.prompt = prompt
         self.entry.entry.password = True
         self.keep.visible = can_keep

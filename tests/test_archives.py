@@ -798,6 +798,7 @@ def test_a_password_typed_twice_differently_is_refused(desk, monkeypatch):
     monkeypatch.setattr("navigator.lib.drives.archive.can_encrypt", lambda kind: True)
     app, here = desk
     (here / "notes.txt").write_text("n\n")
+    seen = []
 
     def password(text):
         def action(a):
@@ -809,10 +810,12 @@ def test_a_password_typed_twice_differently_is_refused(desk, monkeypatch):
         KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
         KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")),
         lambda a: setattr(a.modal.kind, "value", 0), password("one"),
-        KeyEvent("enter"), Until(modal_is("PasswordDialog")), password("two"), KeyEvent("enter"),
+        KeyEvent("enter"), Until(modal_is("PasswordDialog")), lambda a: seen.append(a.modal.title),
+        password("two"), KeyEvent("enter"),
         Until(lambda a: a.modal is not None and a.modal.title == "Error"), KeyEvent("enter"),
         Until(modal_is("ArchiveDialog")),
     ])
+    assert seen == ["Re-enter Password"]  # the keyword wins over the markup's *Password*
     assert not (here / "out" / "notes.zip").exists()
 
 
@@ -826,16 +829,20 @@ def test_enter_on_an_encrypted_archive_asks_its_password(desk, name):
     (tree / "secret.txt").write_text("s")
     arctool.write_archive(here / name, tree, type_=name.rsplit(".", 1)[1], password="pw")
 
+    seen = []
+
     def answer(text):
         return lambda a: setattr(a.modal.entry, "value", text)
 
     run_app(app, [
         KeyEvent("r", ctrl=True), Until(lambda a: name in names(a)), at(name),
-        KeyEvent("enter"), Until(modal_is("PasswordDialog"), timeout=5), answer("wrong"), KeyEvent("enter"),
+        KeyEvent("enter"), Until(modal_is("PasswordDialog"), timeout=5), lambda a: seen.append(a.modal.title),
+        answer("wrong"), KeyEvent("enter"),
         Until(lambda a: a.modal is not None and "Wrong password" in str(a.modal.prompt), timeout=5),
         answer("pw"), KeyEvent("enter"),
         Until(lambda a: "secret.txt" in names(a), timeout=5),
     ])
+    assert seen == ["Archive password"]
 
 
 def test_the_right_click_menu_offers_the_archive_commands_where_they_apply(desk):

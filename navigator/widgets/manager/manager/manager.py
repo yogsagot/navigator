@@ -982,9 +982,8 @@ class Manager(Window):
                     prompt = tr("The passphrase is wrong. Type it again:")
                 else:
                     prompt = tr_n("{n} file needs a passphrase:", "{n} files need a passphrase:", len(pending))
-                box = PasswordDialog(prompt=prompt)
-                # After construction: the markup's captions give way to an assignment, not to a keyword.
-                box.title = tr("Passphrase")
+                box = PasswordDialog(prompt=prompt, title=tr("Passphrase"))
+                # After construction: the markup's label gives way to an assignment, not to a keyword.
                 box.entry.label_text = tr("~P~assphrase")
                 reply = await box.execute(app)
                 if reply is None:
