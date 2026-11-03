@@ -93,6 +93,7 @@ _WIDGETS = {
     "MkdirDialog": "file_ops.mkdir_dialog",
     "OverwriteQuery": "file_ops.overwrite_query",
     "Panel": "manager.panel",
+    "ReplaceQuery": "file_ops.replace_query",
     "QuickViewer": "viewer.quick_viewer",
     "SearchProgress": "viewer.search_progress",
     "SelectDialog": "manager.select_dialog",
@@ -170,6 +171,7 @@ if TYPE_CHECKING:
     from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
     from navigator.widgets.shell.main_menu import MainMenu
     from navigator.widgets.manager.panel import DirEntry, Panel
+    from navigator.widgets.file_ops.replace_query import ReplaceQuery
     from navigator.widgets.viewer.quick_viewer import QuickViewer
     from navigator.widgets.viewer.search_progress import SearchProgress
     from navigator.widgets.manager.select_dialog import SelectDialog

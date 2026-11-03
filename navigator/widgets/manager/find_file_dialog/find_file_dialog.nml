@@ -11,10 +11,17 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: this library's buttons; DN's own row of OK, *Advanced...* and Cancel,
 #: Help left out with nothing to show yet.  Cancel carries no letter, as the
 #: resource's did: ``~C~`` is *Case sensitive*'s.
+#:
+#: Not DN's: *Regular expression* among the options, a row lower for it, and,
+#: with *replacing*, File > Replace in files' *Replace with* line under the
+#: text, the rest two rows lower (``navigator.lib.file_ops.filereplace``).
 FindFileDialog(Dialog):
+    #: File > Replace in files rather than Find file.
+    property replacing: False
+
     modal_width: 52
-    modal_height: 18
-    title: "Find File"
+    modal_height: 21 if root.replacing else 19
+    title: "Replace in Files" if root.replacing else "Find File"
 
     #: DN's ``hsFindMask``.
     Field:
@@ -38,10 +45,22 @@ FindFileDialog(Dialog):
         label_width: 14
         history_id: "find_text"
 
+    #: Not DN's: what replaces the text, ``\1`` a group's with *Regular expression*.
+    Field:
+        id: replacement
+        visible: root.replacing
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Rep~l~ace with"
+        label_width: 14
+        history_id: "replace_text"
+
     Label:
         id: options_caption
         x: 3
-        y: 6
+        y: 8 if root.replacing else 6
         width: 12
         height: 1
         text: "Options"
@@ -50,16 +69,16 @@ FindFileDialog(Dialog):
     CheckBoxes:
         id: options
         x: 3
-        y: 7
+        y: 9 if root.replacing else 7
         width: max(0, parent.width - 6)
-        height: 2
-        items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words"]
-        tooltips: ["Also match the size, date and kind set by Advanced...", "", "Search the subdirectories too", ""]
+        height: 3
+        items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words", "Regular e~x~pression"]
+        tooltips: ["Also match the size, date and kind set by Advanced...", "", "Search the subdirectories too", "", "The text is a Python regular expression, matched across lines"]
 
     Label:
         id: scope_caption
         x: 3
-        y: 10
+        y: 13 if root.replacing else 11
         width: 10
         height: 1
         text: "Scope"
@@ -68,7 +87,7 @@ FindFileDialog(Dialog):
     RadioButtons:
         id: scope
         x: 3
-        y: 11
+        y: 14 if root.replacing else 12
         width: max(0, parent.width - 6)
         height: 2
         items: ["~E~ntire disk", "Current ~d~irectory", "~A~ll drives"]

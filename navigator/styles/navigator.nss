@@ -583,6 +583,14 @@ DiffView::line.removed                         { fg: $diff-removed-fg; bold: $di
 DiffView::line.changed                         { fg: $diff-changed-fg; bold: $diff-changed-bold; dim: $diff-changed-dim; italic: $diff-changed-italic; underline: $diff-changed-underline; reverse: $diff-changed-reverse }
 DiffView::filler                               { dim: true }
 DiffView::mark.current                         { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
+/* Replace in files' box (ReplaceQuery): its changed lines coloured as
+   Compare files colours its own, on the viewer's background. */
+ChangeList                                     { fg: $viewer-normal-text-fg; bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
+ChangeList::line.added                         { fg: $diff-added-fg; bold: $diff-added-bold; dim: $diff-added-dim; italic: $diff-added-italic; underline: $diff-added-underline; reverse: $diff-added-reverse }
+ChangeList::line.removed                       { fg: $diff-removed-fg; bold: $diff-removed-bold; dim: $diff-removed-dim; italic: $diff-removed-italic; underline: $diff-removed-underline; reverse: $diff-removed-reverse }
+ChangeList::row:selected,
+ChangeList::line.added:selected,
+ChangeList::line.removed:selected              { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
 
 /* The dBase viewer (File > View > As DataBase): TDBWindow takes CDBWindow,
    the dBase viewer group [166] to [171] -- its frame, icons, the field

@@ -81,6 +81,7 @@ from navigator.widgets.manager.commands import (
     CountLength,
     FastRename,
     FindFile,
+    ReplaceInFiles,
     MakeList,
     ReadFileList,
     Panelize,
@@ -146,7 +147,7 @@ _LOCAL_ONLY: tuple[type, ...] = ()
 _NOT_IN_MILLER: tuple[type, ...] = (
     SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
     CompareDir, DiffFiles, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
-    DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates,
+    DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates, ReplaceInFiles,
 )
 
 
@@ -1267,6 +1268,56 @@ class Manager(Window):
             return
         await self._search_into(panel, request, tr("Find: {mask}").format(mask=request.mask))
 
+    async def on_replace_in_files(self, event: ReplaceInFiles) -> bool:
+        self.spawn(self.replace_in_files(self.active_panel))
+        return True
+
+    async def replace_in_files(self, panel: Panel) -> None:
+        """File > Replace in files (a departure, asked for): Find File's
+        search from *panel*, the text replaced in each file holding it once
+        :class:`~navigator.widgets.file_ops.replace_query.ReplaceQuery` says
+        so (:func:`navigator.lib.file_ops.filereplace.replace`, on a thread).
+
+        The files changed fill a *Replaced:* listing as Find's fill its own,
+        and a toast says how many replacements in how many files; none
+        changed leaves the panel as it was and says why.
+        """
+        from navigator.lib.file_ops.filereplace import ReplaceJob, ReplaceQuestion, replace
+        from navigator.widgets.manager.find_file_dialog import FindFileDialog
+
+        app = self.application
+        if app is None:
+            return
+        request = await FindFileDialog(replacing=True).execute(app)
+        if request is None:
+            return
+        job = ReplaceJob()
+
+        def work(start: Any, make: Any, hidden: bool, mounts: Any) -> list[Any]:
+            return replace(request, start, make, job, show_hidden=hidden, mounts=mounts)
+
+        async def answer(question: Any) -> Any:
+            from navigator.widgets.file_ops.replace_query import ReplaceQuery
+
+            if isinstance(question, ReplaceQuestion):
+                return await ReplaceQuery(question=question).execute(app)
+            return await self._answer_copy_question(question)
+
+        def nothing() -> str:
+            if not job.matched:
+                return tr("No files found")
+            return tr("No files changed")
+
+        await self._search_into(panel, request.find, tr("Replaced: {text}").format(text=request.find.text),
+                                job=job, work=work, answer=answer, nothing=nothing)
+        if job.found:
+            toast = getattr(getattr(app, "root", None), "toast", None)
+            if toast is not None and app.is_running:
+                # A toast is one line: the files under the replacements' count.
+                toast(tr_n("{count} file changed", "{count} files changed", len(job.found), count=len(job.found)),
+                      title=tr_n("{count} replacement", "{count} replacements", job.replacements,
+                                 count=job.replacements))
+
     # -- where the panels have been, and the quick directories ----------------------
 
     async def _go_to(self, panel: Panel, place: str) -> None:
@@ -1505,9 +1556,17 @@ class Manager(Window):
                                      return_to=current.name if current is not None else None, keep_order=True))
         panel.focus()
 
-    async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
+    async def _search_into(self, panel: Panel, request: Any, title: str, *, job: Any = None,
+                           work: Callable[..., list[Any]] | None = None,
+                           answer: Callable[[Any], Awaitable[Any]] | None = None,
+                           nothing: Callable[[], str] | None = None) -> None:
         """*request* searched from *panel*'s directory into a listing titled
-        *title*, filling as it is found; nothing found says so."""
+        *title*, filling as it is found; nothing found says so.
+
+        Replace in files passes its own *job*, the *work* that walks --
+        given the start, the entry maker, whether hidden files count and the
+        mounts -- the *answer* to its questions, and what *nothing* found
+        says."""
         from navigator.lib.config.bookmarks import mounted_places
         from navigator.lib.file_ops.filefind import FindJob, FindListing, search
         from navigator.widgets.manager.find_progress import FindProgress
@@ -1520,12 +1579,16 @@ class Manager(Window):
         current = panel.selected
         listing = FindListing(title, start, live=True,
                               return_to=current.name if current is not None else None)
-        job = FindJob()
+        if job is None:
+            job = FindJob()
+        walk = work
 
         def work() -> list[Any]:
             mounts = mounted_places() if request.scope == "drives" and isinstance(start, Path) else ()
-            return search(request, start, lambda directory, item, info: make_entry(item, directory),
-                          job, show_hidden=hidden, mounts=mounts)
+            make = lambda directory, item, info: make_entry(item, directory)  # noqa: E731
+            if walk is not None:
+                return walk(start, make, hidden, mounts)
+            return search(request, start, make, job, show_hidden=hidden, mounts=mounts)
 
         def refresh(box: Any = None) -> None:
             if box is not None:
@@ -1542,7 +1605,7 @@ class Manager(Window):
 
         running = asyncio.ensure_future(asyncio.to_thread(work))
         try:
-            await self._watch_job(running, job, FindProgress, refresh, no_questions,
+            await self._watch_job(running, job, FindProgress, refresh, answer or no_questions,
                                   abort=tr("Cancel search?"))
             await running
         finally:
@@ -1551,7 +1614,8 @@ class Manager(Window):
         refresh()
         listing.live = False
         if not listing.entries:
-            await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
+            prompt = nothing() if nothing is not None else tr("No files found")
+            await Dialog(title=tr("Error"), prompt=prompt, buttons="ok").execute(app)
             return
         if panel.found is listing:
             panel.reload()

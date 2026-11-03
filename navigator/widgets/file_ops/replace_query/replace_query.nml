@@ -1,0 +1,65 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.file_ops.replace_query.change_list import ChangeList
+
+#: File > Replace in files, a file holding the text: replace in it?
+#:
+#: Not DN's -- a departure, asked for (``navigator.lib.file_ops.filereplace``):
+#: the file's name and how many replacements over every line they change,
+#: each as it is over what it will be, and buttons asked as ``dlgOverwriteQuery``
+#: and ``dlEraseRO`` asked theirs -- *Yes*, *All* the files after it too,
+#: *Skip*, *Cancel* the whole replace.  As wide and tall as the screen lets,
+#: up to 76 by 22, so the lines show as much as they can.
+ReplaceQuery(Dialog):
+    modal_width: max(40, min(76, parent.width - 4)) if parent is not None else 76
+    modal_height: max(12, min(22, parent.height - 2)) if parent is not None else 22
+    title: "Replace"
+
+    StaticText:
+        id: details
+        x: 1
+        y: 1
+        width: max(0, parent.width - 2)
+        height: 2
+        align: "center"
+
+    ChangeList:
+        id: changes
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: max(1, parent.height - 8)
+
+    Button:
+        id: agree
+        text: "~Y~es"
+        default: True
+        x: root.slot(0)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: every
+        text: "~A~ll"
+        x: root.slot(1)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: skip
+        text: "~S~kip"
+        x: root.slot(2)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: root.slot(3)
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

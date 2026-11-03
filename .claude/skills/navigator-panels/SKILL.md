@@ -397,6 +397,28 @@ groups wasting most bytes first, each by path. Nothing is tagged. Ctrl+R re-`sta
 left with one file stays until the next search. Menu only (every letter of the name is taken), no key; local disk
 and not in a listing. Nothing alike: *No duplicate files found*.
 
+**Find's *Regular expression*** (bit 16 of the options, a departure, asked for): `FindRequest.regex`;
+`filefind.text_pattern(..., regex=True)` compiles the text as Python's `re` (bytes, `MULTILINE`, *Whole words* wrapping
+it in a group), and `holds`/`holds_on_drive(whole=True)` match the file read whole, since nothing bounds a pattern's
+span for the chunk overlap. `FindFileDialog.refusal()` puts an invalid pattern in an Error box before closing.
+
+**Alt+Shift+F7, File > Replace in files** (`ReplaceInFiles`, `Manager.replace_in_files`; a departure, asked for -- DN
+had none; not Ctrl+Alt+F7, the desktop's VT switch): `FindFileDialog(replacing=True)` -- *Rep~l~ace with* (history
+`replace_text`) under the text, the rest two rows lower, its own session (`_replace_session`) so its ticks are not
+Find's -- gives a `filereplace.ReplaceRequest`. `navigator/lib/file_ops/filereplace.py`'s `replace` is `filefind.search`
+with a **`match` hook** in place of `holds`: each file is read whole (skipped: a NUL in the first `BINARY_PROBE` bytes,
+or over `LARGEST`), `plan` makes the new bytes as `re.sub` would (a template with *Regular expression*, the literal
+bytes without -- backslashes and all) and the `Change`s (line spans touched, before/after, made `printable`, the first
+`SHOWN`), and a `ReplaceQuestion` goes through `Job.ask` to `ReplaceQuery` (`navigator/widgets/file_ops/replace_query/`:
+counts, a `ChangeList` coloured by `::line.removed`/`::line.added` on the viewer's colours, *Yes* (default) / *All* /
+*Skip* / *Cancel*). All stops the asking (`ReplaceJob.all`); Cancel raises `Stopped`, and what was written stays.
+**Written from the planned bytes**, after checking size and `st_mtime_ns` again (changed while asked: a `Failure`,
+Skip/Cancel): on the disk by the editor's `save.write_file` (temp + rename, mode/owner kept, links followed, a locked
+file refused), elsewhere by `drive.open_write`; an `OSError` is a `Failure` through `_answer_copy_question`. It runs
+through `_search_into(job=, work=, answer=, nothing=)`, so the files changed fill a live `Replaced: <text>` listing;
+a toast says the files and the replacements; none changed says *No files changed* (*No files found* if none held it).
+Not in Miller columns.
+
 **Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
 its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,
 `marked`, `_keep` and `reload(key=...)`. Untag through `Panel.untag(entries)` / `untag_paths(paths)`; `tag_paths(locations)` tags (Verify checksums' failures).

@@ -9,7 +9,11 @@ sorts and masks, under ``..`` that goes back to where the panel was.
 (:func:`navigator.lib.appearance.filetypes.in_filter`, so ``*.c;*.h`` and ``-`` work as in a
 panel), passing *Advanced search*'s dates, sizes and kinds if it is ticked,
 and holding the *text to find* if there is one -- a directory then never
-matches.  A directory is walked into with *Recursive search*, whatever its
+matches.  With *Regular expression* ticked (not DN's: a departure, asked
+for) the text is Python's ``re`` pattern, matched against the file's bytes
+whole, so it may span lines; without, it is the text itself, looked for a
+chunk at a time.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
+walks the same way, through :func:`search`'s *match*.  A directory is walked into with *Recursive search*, whatever its
 name; never through a symbolic link, and never onto another file system
 when the scope is a disk.
 
@@ -76,6 +80,8 @@ class FindRequest:
     limits: Advanced = Advanced()
     #: Whether a directory may be a match; *Directory Branch* lists files alone.
     directories: bool = True
+    #: *Regular expression*: *text* is a pattern, not the text itself.
+    regex: bool = False
 
 
 def parse_time(text: str) -> float | None:
@@ -97,34 +103,52 @@ def parse_size(text: str) -> int | None:
     return int(text) or None
 
 
-def text_pattern(text: str, *, case: bool, words: bool) -> re.Pattern[bytes] | None:
-    """What a file has to hold, as ``SearchFileStr`` looked for it; None for no text."""
+def text_pattern(text: str, *, case: bool, words: bool, regex: bool = False) -> re.Pattern[bytes] | None:
+    """What a file has to hold, as ``SearchFileStr`` looked for it; None for no text.
+
+    With *regex*, *text* is a pattern (``^`` and ``$`` at each line), and
+    an invalid one raises ``re.error``."""
     if not text:
         return None
-    body = re.escape(text.encode("utf-8", "surrogateescape"))
+    raw = text.encode("utf-8", "surrogateescape")
+    body = b"(?:" + raw + b")" if regex else re.escape(raw)
     if words:
         body = rb"(?<![\w])" + body + rb"(?![\w])"
-    return re.compile(body, 0 if case else re.IGNORECASE)
+    flags = (0 if case else re.IGNORECASE) | (re.MULTILINE if regex else 0)
+    return re.compile(body, flags)
 
 
-def holds(path: str, pattern: re.Pattern[bytes], job: Any = None) -> bool:
+def request_pattern(request: FindRequest) -> re.Pattern[bytes] | None:
+    """:func:`text_pattern` for what *request* asks."""
+    return text_pattern(request.text, case=request.case, words=request.words, regex=request.regex)
+
+
+def holds(path: str, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool = False) -> bool:
     """Whether the file at *path* holds *pattern*: read a chunk at a time,
-    each overlapping the last by as much as a match could span."""
-    overlap = max(0, len(pattern.pattern) * 4)
-    tail = b""
+    each overlapping the last by as much as a match could span -- or, for a
+    regular expression (*whole*), whose span nothing bounds, all at once."""
     try:
         with open(path, "rb") as file:
-            while True:
-                if job is not None and job.stopped:
-                    return False
-                chunk = file.read(CHUNK)
-                if not chunk:
-                    return False
-                if pattern.search(tail + chunk):
-                    return True
-                tail = (tail + chunk)[-overlap:] if overlap else b""
+            return _holds(file, pattern, job, whole)
     except OSError:
         return False
+
+
+def _holds(file: Any, pattern: re.Pattern[bytes], job: Any, whole: bool) -> bool:
+    """:func:`holds` on an open *file*."""
+    if whole:
+        return pattern.search(file.read()) is not None
+    overlap = max(0, len(pattern.pattern) * 4)
+    tail = b""
+    while True:
+        if job is not None and job.stopped:
+            return False
+        chunk = file.read(CHUNK)
+        if not chunk:
+            return False
+        if pattern.search(tail + chunk):
+            return True
+        tail = (tail + chunk)[-overlap:] if overlap else b""
 
 
 class FindJob(Job):
@@ -217,16 +241,30 @@ def _passes(name: str, info: os.stat_result, is_link: bool, limits: Advanced,
     return True
 
 
+#: What decides whether a file passing the mask and the limits holds the
+#: text: given the file (a path's text on the disk, a ``Location`` on
+#: another drive) and the pattern.  *Replace in files* passes one that
+#: replaces, and answers whether it did.
+Match = Callable[[Any, "re.Pattern[bytes]"], bool]
+
+
 def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
-           *, show_hidden: bool = True, mounts: Iterable[Path] = ()) -> list[Any]:
+           *, show_hidden: bool = True, mounts: Iterable[Path] = (), match: Match | None = None) -> list[Any]:
     """Walk the scope, appending to ``job.found`` every match, as *make_entry*
     makes it from ``(directory, os.DirEntry, stat)``.  Ends early when *job*
-    is stopped.  Touches only the file system: a thread runs it.
+    is stopped.  Touches only the file system: a thread runs it.  *match*,
+    if given, decides for a file whether it holds the text, in place of
+    :func:`holds`.
     """
-    pattern = text_pattern(request.text, case=request.case, words=request.words)
+    pattern = request_pattern(request)
     limits = request.limits if request.advanced else Advanced()
+    if match is None:
+        def match(place: Any, wanted: re.Pattern[bytes]) -> bool:
+            if isinstance(place, str):
+                return holds(place, wanted, job, whole=request.regex)
+            return holds_on_drive(place, wanted, job, whole=request.regex)
     if not isinstance(start, (str, os.PathLike)) and not start.is_local:
-        return _search_drive(request, start, job, pattern, limits, show_hidden)
+        return _search_drive(request, start, job, pattern, limits, show_hidden, match)
     if not isinstance(start, (str, os.PathLike)):
         start = start.local
     one_device = request.scope != "directory"
@@ -273,7 +311,7 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     if not _passes(item.name, info, is_link, limits, lambda: stat.S_ISLNK(info.st_mode)):
                         continue
                     if pattern is not None:
-                        if stat.S_ISDIR(info.st_mode) or not holds(item.path, pattern, job):
+                        if stat.S_ISDIR(info.st_mode) or not match(item.path, pattern):
                             continue
                     job.found.append(make_entry(directory, item, info))
             pending.extend(reversed(sorted(subdirectories)))
@@ -281,7 +319,7 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
 
 
 def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, limits: Advanced,
-                  show_hidden: bool) -> list[Any]:
+                  show_hidden: bool, match: Match) -> list[Any]:
     """:func:`search` on a drive other than the disk: the same walk, each
     directory listed by its drive (``Drive.children``), a file's text read
     through it.  Only *start* and below -- or the drive's top, for *disk*
@@ -322,7 +360,7 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
             if not _passes(name, info, is_link, limits, lambda: not drive.exists(directory / name)):
                 continue
             if pattern is not None:
-                if is_dir or not holds_on_drive(directory / name, pattern, job):
+                if is_dir or not match(directory / name, pattern):
                     continue
             job.found.append(DirEntry(name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
                                       is_link, directory=directory))
@@ -330,23 +368,13 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
     return job.found
 
 
-def holds_on_drive(location: Any, pattern: re.Pattern[bytes], job: Any = None) -> bool:
+def holds_on_drive(location: Any, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool = False) -> bool:
     """:func:`holds` for a file on another drive, read through it."""
     from navigator.lib.drives import drive_of
 
-    overlap = max(0, len(pattern.pattern) * 4)
-    tail = b""
     try:
         with drive_of(location).open_read(location) as file:
-            while True:
-                if job is not None and job.stopped:
-                    return False
-                chunk = file.read(CHUNK)
-                if not chunk:
-                    return False
-                if pattern.search(tail + chunk):
-                    return True
-                tail = (tail + chunk)[-overlap:] if overlap else b""
+            return _holds(file, pattern, job, whole)
     except OSError:
         return False
 

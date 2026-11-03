@@ -294,6 +294,18 @@ class FindFile(Command):
     title = "Find"
 
 
+class ReplaceInFiles(Command):
+    """Alt+Shift+F7, File > Replace in files: Find File's search, the text
+    replaced in each file found, asked file by file.
+
+    A departure, asked for: DOS Navigator had no such command
+    (:mod:`navigator.lib.file_ops.filereplace`).  Not Ctrl+Alt+F7, which
+    the desktop takes to switch virtual terminals.
+    """
+
+    title = "Repl"
+
+
 class Calculator(Command):
     """Ctrl+F6, ``cmCalculator``."""
 
@@ -818,6 +830,7 @@ __all__ = [
     "FastRename",
     "QuickRename",
     "FindFile",
+    "ReplaceInFiles",
     "Calculator",
     "PrintFile",
     "DiskInfo",

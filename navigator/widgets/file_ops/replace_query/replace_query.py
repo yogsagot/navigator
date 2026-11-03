@@ -1,0 +1,66 @@
+"""What Replace in files' *Replace* box says, and what each of its buttons answers.
+
+The answer is :data:`~navigator.lib.file_ops.filereplace.YES`, ``ALL`` or
+``SKIP``, or ``None`` for Cancel and Esc, which stops the whole replace.
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from navkit.events import Event
+from navkit.i18n import tr, tr_n
+
+from navml.widgets.dialog.control import escape_caption
+from navml.widgets.dialog.dialog import Dialog
+
+from navigator.lib.file_ops.filereplace import ALL, SKIP, YES, ReplaceQuestion
+from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
+from navigator.widgets.file_ops.replace_query.change_list import rows_of
+
+#: Each button's width, and the columns between two.
+BUTTON, GAP = 11, 2
+
+
+def describe(question: ReplaceQuestion) -> str:
+    """The file's name, and how many replacements -- and changed lines past
+    what the list holds."""
+    text = tr_n("File {name}: {count} replacement", "File {name}: {count} replacements", question.count,
+                name=escape_caption(cut(question.path.name)), count=question.count)
+    if question.more:
+        text += "\n" + tr_n("{count} more change is not listed", "{count} more changes are not listed",
+                            question.more, count=question.more)
+    return text
+
+
+class ReplaceQuery(Dialog):
+    """*Replace*: Yes, All, Skip or Cancel, over the lines that change."""
+
+    def __init__(self, question: ReplaceQuestion | None = None, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.row.visible = False
+        self.message.visible = False
+        if question is not None:
+            self.details.text = describe(question)
+            self.changes.items = rows_of(question.changes)
+
+    def slot(self, index: int) -> int:
+        """The column of the *index*-th button of the row, which is centred."""
+        wide = 4 * BUTTON + 3 * GAP
+        return max(0, (self.width - wide) // 2) + index * (BUTTON + GAP)
+
+    @property
+    def buttons_row(self) -> tuple[Any, ...]:
+        return (self.agree, self.every, self.skip, self.abandon)
+
+    async def on_agree_click(self, event: Event) -> bool:
+        self.close(YES)
+        return True
+
+    async def on_every_click(self, event: Event) -> bool:
+        self.close(ALL)
+        return True
+
+    async def on_skip_click(self, event: Event) -> bool:
+        self.close(SKIP)
+        return True

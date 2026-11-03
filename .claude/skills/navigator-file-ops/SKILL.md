@@ -263,6 +263,11 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
 - **Every read goes through `drive_of(...).open_read`/`children`**, so both work on any drive; all of it runs on a
   thread through `run_with_progress` (`ChecksumProgress`), asking nothing mid-work.
 
+## Replace in files (Alt+Shift+F7)
+
+Find File's search with a replacing `match` (`navigator/lib/file_ops/filereplace.py`, `ReplaceQuery`); documented
+with Find in the `navigator-panels` skill. Writes go through the editor's `save.write_file`, never in place.
+
 ## Read when
 
 | Reference | Read when |
