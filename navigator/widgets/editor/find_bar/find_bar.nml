@@ -1,0 +1,54 @@
+from navml.widgets.dialog.field import Field
+from navigator.widgets.editor.commands import CloseFindBar, FindNext, FindPrevious, ReplaceMatch, ReplaceMatches, ShowFindBar, ShowReplaceBar, SwitchMatchCase, SwitchRegex, SwitchWholeWords
+
+#: Ctrl+F (and Ctrl+R with a second line): a small box over the edit area's
+#: top-right corner, searching as it is typed into -- a departure, asked for,
+#: after IntelliJ IDEA's: DN had the *Find* and *Replace* dialogs alone, which
+#: F7 and Ctrl+F7 still open.
+#:
+#: The text to find with its history (shared with the dialogs), then the three
+#: switches -- *Match case* ``Aa``, *Whole words* ``W``, *Regular expression*
+#: ``.*`` -- which match and where the cursor is among them (``3/12``), and
+#: the previous, next and close arrows.  Replacing, a second line for the new
+#: text with *Replace* and *All* after it.  Everything after the lines is
+#: painted by the Python half, which also answers a click on it.
+FindBar:
+    #: With the line for the new text, *Replace* and *All*: Ctrl+R's.
+    property replace: False
+
+    #: While the bar holds the keyboard.  Esc puts it away, Enter and F3 go to
+    #: the next match (Enter in the new text replaces the one found first).
+    keys:
+        escape: CloseFindBar
+        enter: FindNext
+        f3: FindNext
+        shift+enter: FindPrevious
+        shift+f3: FindPrevious
+        alt+c: SwitchMatchCase
+        alt+w: SwitchWholeWords
+        alt+r: SwitchRegex
+        alt+a: ReplaceMatches
+        ctrl+alt+enter: ReplaceMatches
+        ctrl+f: ShowFindBar
+        ctrl+r: ShowReplaceBar
+
+    #: The text to find, from the frame to where the switches begin.
+    Field:
+        id: query
+        x: 1
+        y: 1
+        width: max(4, parent.width - 29)
+        height: 1
+        label_width: 0
+        history_id: "find_text"
+
+    #: What a match is replaced by: Ctrl+R's line.
+    Field:
+        id: new
+        visible: root.replace
+        x: 1
+        y: 2
+        width: max(4, parent.width - 29)
+        height: 1
+        label_width: 0
+        history_id: "find_text"

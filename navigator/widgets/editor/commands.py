@@ -296,6 +296,70 @@ class ReverseSearch(Command):
     title = "Rev. Search"
 
 
+# -- the Find bar (a departure: DN had the dialogs alone) ----------------------------
+
+
+class ShowFindBar(Command):
+    """Ctrl+F, Editor > Search > *Find bar*: the Find bar in the edit area's corner,
+    searching as it is typed into."""
+
+    title = "Find bar"
+
+
+class ShowReplaceBar(Command):
+    """Ctrl+R, Editor > Search > *Replace bar*: the Find bar with a line for the new text."""
+
+    title = "Replace bar"
+
+
+class CloseFindBar(Command):
+    """Esc in the Find bar, or in the editor while it shows: the bar put away."""
+
+    title = "Close Find bar"
+
+
+class FindNext(Command):
+    """Enter or F3 in the Find bar: the next match, round from the start past the last."""
+
+    title = "Next match"
+
+
+class FindPrevious(Command):
+    """Shift+Enter or Shift+F3 in the Find bar: the match before, round from the end."""
+
+    title = "Previous match"
+
+
+class SwitchMatchCase(Command):
+    """Alt+C in the Find bar: *Match case*."""
+
+    title = "Match case"
+
+
+class SwitchWholeWords(Command):
+    """Alt+W in the Find bar: *Whole words*."""
+
+    title = "Whole words"
+
+
+class SwitchRegex(Command):
+    """Alt+R in the Find bar: *Regular expression*."""
+
+    title = "Regular expression"
+
+
+class ReplaceMatch(Command):
+    """Enter in the Replace bar's new text: the match found replaced, then the next found."""
+
+    title = "Replace match"
+
+
+class ReplaceMatches(Command):
+    """Ctrl+Alt+Enter or Alt+A in the Replace bar: every match replaced, one undo step."""
+
+    title = "Replace all matches"
+
+
 class FJustify(Command):
     """``cmFJustify``: Alt+J, ^B^J -- the block one paragraph, justified to the margins."""
 
@@ -614,6 +678,16 @@ __all__ = [
     "Replace",
     "ReverseSearch",
     "StartSearch",
+    "ShowFindBar",
+    "ShowReplaceBar",
+    "CloseFindBar",
+    "FindNext",
+    "FindPrevious",
+    "SwitchMatchCase",
+    "SwitchWholeWords",
+    "SwitchRegex",
+    "ReplaceMatch",
+    "ReplaceMatches",
     "SaveAll",
     "LoadText",
     "SaveTextAs",

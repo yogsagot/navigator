@@ -628,6 +628,20 @@ EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg
 FileEditor                                     { fg: $editor-normal-text-fg;   bg: $editor-normal-text-bg; caret: underline; bold: $editor-normal-text-bold; dim: $editor-normal-text-dim; italic: $editor-normal-text-italic; underline: $editor-normal-text-underline; reverse: $editor-normal-text-reverse }
 FileEditor:overwrite                           { caret: block }
 FileEditor::selected                           { fg: $editor-selected-text-fg; bg: $editor-selected-text-bg; bold: $editor-selected-text-bold; dim: $editor-selected-text-dim; italic: $editor-selected-text-italic; underline: $editor-selected-text-underline; reverse: $editor-selected-text-reverse }
+/* The Find bar (Ctrl+F, a departure): a small box of a dialog's colours over
+   the edit area's corner, so its lines and history buttons are a dialog's;
+   a switch that is on reversed, as the option strip's; "Bad pattern" and
+   "No matches" in the error box's colours. */
+EditWindow FindBar                             { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; border: single; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+EditWindow FindBar::switch:checked             { reverse: true }
+EditWindow FindBar::arrow                      { bold: true }
+EditWindow FindBar::button                     { underline: true }
+EditWindow FindBar::error                      { fg: $error-dialog-fg; bg: $error-dialog-bg }
+/* The Find bar's other matches (a departure, with the bar): the selected
+   text's foreground, bold and underlined, on the line's own ground -- so no
+   theme needs a slot of its own; the match found is `::selected'. */
+FileEditor::match                              { fg: $editor-selected-text-fg; bg: $editor-normal-text-bg; bold: true; underline: true }
+FileEditor::match:current_line                 { bg: $editor-highlight-current-line-bg }
 /* HiliteLine and HiliteColumn: the Editor group's [182], [183] and [185]. */
 FileEditor::current_line                       { fg: $editor-highlight-current-line-fg;          bg: $editor-highlight-current-line-bg; bold: $editor-highlight-current-line-bold; dim: $editor-highlight-current-line-dim; italic: $editor-highlight-current-line-italic; underline: $editor-highlight-current-line-underline; reverse: $editor-highlight-current-line-reverse }
 FileEditor::current_line_selected              { fg: $editor-highlight-current-line-selected-fg; bg: $editor-highlight-current-line-selected-bg; bold: $editor-highlight-current-line-selected-bold; dim: $editor-highlight-current-line-selected-dim; italic: $editor-highlight-current-line-selected-italic; underline: $editor-highlight-current-line-selected-underline; reverse: $editor-highlight-current-line-selected-reverse }

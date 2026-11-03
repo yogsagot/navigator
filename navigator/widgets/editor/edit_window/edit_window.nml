@@ -1,7 +1,8 @@
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
 from navml.widgets.option_strip import OptionStrip
@@ -60,6 +61,16 @@ EditWindow(Window):
         y: 1
         width: max(0, parent.width - 2)
         height: max(0, parent.height - 2)
+
+    #: Ctrl+F's Find bar and Ctrl+R's Replace bar (a departure): over the edit
+    #: area's top-right corner, a cell short of the scroll bar, and hidden
+    #: where the area is too narrow for it.  Shown by ``open``, never bound.
+    FindBar:
+        id: find_bar
+        width: min(50, editor.width - 1) if editor.width >= 36 else 0
+        height: 4 if self.replace else 3
+        x: editor.x + editor.width - self.width - 1
+        y: editor.y
 
     #: Its value is the cursor's line, as ``VScroll`` was ``Delta.Y``.
     ScrollBar:
@@ -226,6 +237,17 @@ EditWindow(Window):
         SubMenu:
             id: edit_menu_search
             text: '~S~earch'
+            #: The Find and Replace bars, a departure; DN's dialogs follow.
+            MenuItem:
+                text: 'Find ~b~ar'
+                tooltip: "Search as you type, in a bar over the text"
+                command: ShowFindBar
+                key: 'Ctrl-F'
+            MenuItem:
+                text: 'Replace b~a~r'
+                command: ShowReplaceBar
+                key: 'Ctrl-R'
+            MenuLine:
             MenuItem:
                 text: '~F~ind...'
                 command: StartSearch

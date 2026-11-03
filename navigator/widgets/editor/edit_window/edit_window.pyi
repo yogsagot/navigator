@@ -8,8 +8,9 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
 from navml.widgets.option_strip import OptionStrip
@@ -36,7 +37,7 @@ from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
-from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseFileType, SetFileType
+from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseFileType, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 from navigator.widgets.editor.option_items import editor_items
 
@@ -46,6 +47,7 @@ class FileSaved(Event): ...
 
 class EditWindow(Window, _Component):
     editor: FileEditor
+    find_bar: FindBar
     vbar: ScrollBar
     hbar: ScrollBar
     info: InfoLine
@@ -92,6 +94,10 @@ class EditWindow(Window, _Component):
     async def write_block(self) -> None: ...
     async def on_block_read(self, event: BlockRead) -> bool: ...
     async def read_block(self) -> None: ...
+    async def on_show_find_bar(self, event: ShowFindBar) -> bool: ...
+    async def on_show_replace_bar(self, event: ShowReplaceBar) -> bool: ...
+    async def on_close_find_bar(self, event: CloseFindBar) -> bool: ...
+    def enables(self, command: Any) -> bool: ...
     async def on_start_search(self, event: StartSearch) -> bool: ...
     async def on_replace(self, event: Replace) -> bool: ...
     async def on_cont_search(self, event: ContSearch) -> bool: ...

@@ -51,7 +51,10 @@ from navigator.widgets.editor.commands import (
     SaveText,
     SaveTextAs,
     ChooseFileType,
+    CloseFindBar,
     SetFileType,
+    ShowFindBar,
+    ShowReplaceBar,
 )
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 from navigator.widgets.editor.option_items import editor_items
@@ -568,6 +571,28 @@ class EditWindow(Window):
             return
         self.editor.read_block(text)
 
+    # -- Ctrl+F and Ctrl+R: the Find bar ---------------------------------------------------
+
+    async def on_show_find_bar(self, event: ShowFindBar) -> bool:
+        self.find_bar.open(replace=False)
+        return True
+
+    async def on_show_replace_bar(self, event: ShowReplaceBar) -> bool:
+        self.find_bar.open(replace=True)
+        return True
+
+    async def on_close_find_bar(self, event: CloseFindBar) -> bool:
+        self.find_bar.close()
+        return True
+
+    def enables(self, command: Any) -> bool:
+        # Esc in the editor closes the bar while it shows, and the window else.
+        if isinstance(command, CloseFindBar):
+            return self.find_bar.visible
+        if isinstance(command, (ShowFindBar, ShowReplaceBar)) and not self.find_bar.width:
+            return False
+        return super().enables(command)
+
     # -- F7: find and replace ------------------------------------------------------------
 
     #: ``ReplaceAll``: whether the last Replace was *Change all*, which Shift+F7 keeps.
@@ -657,7 +682,7 @@ class EditWindow(Window):
             if choice is None:
                 return True
             if choice == "yes":
-                end = editor.replace_found(found, data.new)
+                end = editor.replace_found(found, search.replacement(editor.document.lines, found, data))
                 at = found[0] if backward else end
                 editor._go(at)
                 if not prompt:
@@ -845,6 +870,7 @@ class EditWindow(Window):
             return
         self.remember_history()
         self._leave_smartpad(path)
+        self.find_bar.close()
         self.editor.use_document(path, document)
         # The menu's choice was the file left's; the record may bring one back.
         self.editor.file_type = ""

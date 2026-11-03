@@ -65,7 +65,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   command in the table is here.
 - **The defaults are modern, WordStar is a preset (departure, asked for).** `FileEditor.keys` binds no WordStar key:
   not the Ctrl+E/S/D/A/F/R/W/Z diamond, not Ctrl+G/T, not the ^K/^Q/^B chords. The freed keys do what every editor
-  since does: Ctrl+F find, Ctrl+R replace, Ctrl+G go to line, Ctrl+Z undo, Ctrl+Up/Down scroll, and Ctrl+S save
+  since does: Ctrl+F the Find bar, Ctrl+R the Replace bar (F7/Ctrl+F7 keep DN's dialogs), Ctrl+G go to line, Ctrl+Z undo, Ctrl+Up/Down scroll, and Ctrl+S save
   (`EditWindow`'s, so the editor must not bind Ctrl+S). `WORDSTAR` (module level in `file_editor.py`) keeps DN's
   keys as they were, `keyless_commands = tuple(WORDSTAR.values())` keeps every command listed (and named as before)
   in Key bindings, and `navigator/assets/keymaps/keybindings_wordstar.ini` / `keybindings_dn151.ini` bind them back
@@ -213,6 +213,37 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   replace* is ticked, each replacement its own undo step (`udReplace`); only *Change all* goes on past the first;
   replacements made unasked end with *N replaces made*. Shift+F7 repeats the last search, replacement included, from
   the cursor. Departure: the query box is centred, where DN put it clear of the line found.
+- **The Find bar, Ctrl+F / Ctrl+R** (`ShowFindBar`/`ShowReplaceBar`, also Editor > Search > *Find bar*/*Replace
+  bar*; a departure, asked for, after IntelliJ IDEA's -- DN had the dialogs alone, which F7/Ctrl+F7 keep):
+  `FindBar` (`editor/find_bar`), a child of `EditWindow` declared after the editor so it paints over its top-right
+  corner a cell short of the scroll bar, 50 wide (none under a 36-cell edit area; `ShowFindBar` is then disabled),
+  dialog-coloured (`EditWindow FindBar`). Row 1: the text (`Field#query`, history `find_text` shared with the
+  dialogs), `Aa W .*` (*Match case* Alt+C, *Whole words* Alt+W, *Regular expression* Alt+R -- not IDEA's Alt+X,
+  Navigator's quit; `::switch:checked` reversed), the count (`3/12`, `?/12` with the cursor off a match, `…`
+  while counting, *No matches* / *Bad pattern* in `::error`), `↑ ↓ ×` (`^ v x` in ascii). Row 2 (Replace): the new
+  text (`Field#new`), *Replace* and *All*. Everything after the lines is painted by `render` and clicked through
+  `_hits`; tooltips name the keys. Keys are its own table (`[find_bar]` in `keybindings.ini`): Enter/F3 next,
+  Shift+Enter/Shift+F3 previous, both wrapping round with no box; Enter in the new text replaces (`FindNext`
+  checks the focus); Alt+A / Ctrl+Alt+Enter all; Tab/Shift+Tab between the lines (`on_key`); Esc closes and gives
+  the editor the keyboard. Esc in the *editor* closes the bar too while its matches are lit -- in
+  `FileEditor.on_key`, not its table, which would shadow the window's Esc (a test forbids that).
+  **Incremental**: `open` seeds from `FileEditor.search_seed()` (a one-line block, else the word at the cursor, from
+  its start, which is the origin) and an effect searches from the origin on every change of the text or a switch
+  (`untracked()` round the search, or the cursor it moves would re-run it); nothing found puts the cursor back at the
+  origin (`place_cursor`). Matches are shown with `show_found`, so `found_on_display` is what the count and the
+  arrows go on from. **Every match on screen is lit**: `FileEditor.highlight_query` (a `SearchData`, replaced) and
+  `render` painting `search.line_matches` per visible line as `FileEditor::match` -- the selected text's fg, bold
+  and underlined on the line's ground, so no theme needed a slot -- under the block and the match found. **The count
+  runs on a thread** (`Background("find-count")`, `search.all_matches` over a copy of the lines, at most
+  `MATCH_LIMIT` = 10 000, shown `10000+`), an effect on the search and `editor.revision`, a stale answer dropped by
+  generation; the place among them is `bisect` on the loop. *Replace* replaces the match lit (else finds one first),
+  one undo step, and finds the next; *All* is `FileEditor.replace_all`, last first, **one** undo step, and says
+  *N replaced* in the count's place. The bar writes text and switches to `search.SEARCH` (whole text, forward,
+  `new` None), so Shift+F7/Alt+F7 go on from it; the dialogs set `regex` back off (`FindDialog._store`). **Regular
+  expressions** are the bar's: `SearchData.regex`, `search.pattern_of` (cached), `valid`, still within one line,
+  an empty match never one; `replacement()` expands `\1`/`\g<name>` from the match at the place found, which the
+  dialog path's replacing uses too. F3's *Open* closes the bar. Known limit: the bar can cover a match on the top
+  two or three rows, which is not scrolled clear.
 - **Paragraph formatting, Alt+J/R/L/C** (`FJustify`/`FRight`/`FLeft`/`FCenter`, DN's `cmF*` and `FormatBlock`; also
   ^B^J/R/L/C and Editor > Paragraph): `navigator/lib/editor/paragraph.py`. The stream block's whole lines (one ending at a
   line's start leaves that line out) are one paragraph -- blank lines are no break, runs of blanks one -- laid out

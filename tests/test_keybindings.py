@@ -14,7 +14,8 @@ from navigator.widgets.editor.commands import (
     MoveLeft,
     PageDown,
     SaveText,
-    StartSearch,
+    ShowFindBar,
+    ShowReplaceBar,
     Undo,
 )
 from navigator.widgets.editor.edit_window import EditWindow
@@ -202,7 +203,9 @@ PRESETS = ("keybindings_default.ini", "keybindings_wordstar.ini", "keybindings_d
 
 def test_the_editor_s_defaults_are_the_modern_keys():
     assert key_table(FileEditor)["ctrl+z"] is Undo
-    assert key_table(FileEditor)["ctrl+f"] is StartSearch
+    # The Find bar; F7 and Ctrl+F7 keep DN's dialogs.
+    assert key_table(FileEditor)["ctrl+f"] is ShowFindBar
+    assert key_table(FileEditor)["ctrl+r"] is ShowReplaceBar
     assert key_table(EditWindow)["ctrl+s"] is SaveText
     assert "ctrl+s" not in keybindings.own_keys(FileEditor, section("editor").base)
 
@@ -268,6 +271,23 @@ def test_a_shipped_set_binds_through_load(tmp_path):
     assert key_table(FileEditor)["ctrl+s"] is MoveLeft
     assert key_table(FileEditor)["ctrl+c"] is PageDown
     assert "ctrl+s" not in key_table(EditWindow)
+
+
+def test_a_line_still_naming_a_retired_default_takes_today_s(tmp_path):
+    # A file seeded before the Find bar took Ctrl+F and Ctrl+R from the dialogs.
+    file = tmp_path / "keybindings.ini"
+    file.write_text("[editor]\nstart_search = ctrl+f\nreplace = ctrl+r\nundo = alt+backspace, ctrl+z\n")
+    found = keybindings.sections(Navigator)
+    assignments, warnings = keybindings.read(file, found)
+    assert warnings == []
+    editor = assignments["editor"]
+    assert editor["start_search"] == () and editor["show_find_bar"] == ("ctrl+f",)
+    assert editor["replace"] == () and editor["show_replace_bar"] == ("ctrl+r",)
+    # A key the user chose is still theirs.
+    file.write_text("[editor]\nstart_search = ctrl+f, f9\n")
+    assignments, _ = keybindings.read(file, found)
+    assert assignments["editor"]["start_search"] == ("ctrl+f", "f9")
+    assert assignments["editor"]["show_find_bar"] == ()
 
 
 # -- the dialog ------------------------------------------------------------------------

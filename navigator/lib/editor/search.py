@@ -12,13 +12,19 @@ passed over.
 :data:`SEARCH` is the dialog's record, kept from one search to the next as
 DN's typed constant was -- ``Options: 4`` (prompt on replace), forward,
 global, from the start.
+
+*Regular expression* is the Find bar's (a departure: DN's search was for a
+string alone): the text is a Python pattern, still matched within one line,
+and the new text may name its groups (``\\1``, ``\\g<name>``).  A match of
+nothing is never one.  :func:`all_matches` is what the bar counts, on a thread.
 """
 
 from __future__ import annotations
 
+import functools
 import re
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Iterator
 
 from navigator.lib.editor.document import Pos
 
@@ -46,6 +52,8 @@ class SearchData:
     selected: bool = False
     #: ``Origin``: 0 entire scope, 1 from cursor.
     from_cursor: bool = False
+    #: The Find bar's *Regular expression*: *text* is a pattern (a departure).
+    regex: bool = False
 
 
 #: The search the dialogs last set up, which F7 shows and Shift+F7 repeats.
@@ -58,25 +66,110 @@ def _whole(line: str, start: int, end: int) -> bool:
     )
 
 
-def find_in_line(
-    line: str, text: str, start: int, stop: int, *, case: bool, whole: bool, backward: bool,
-) -> tuple[int, int] | None:
-    """The first match of *text* lying within ``line[start:stop]``, or the last if
-    *backward*: its start and end, or None."""
-    if not text or stop - start < len(text):
-        return None
-    pattern = re.compile(re.escape(text), 0 if case else re.IGNORECASE)
-    found = None
+@functools.lru_cache(maxsize=64)
+def pattern_of(text: str, case: bool, regex: bool) -> re.Pattern[str]:
+    """The compiled pattern *text* stands for; :class:`re.error` for a bad one."""
+    return re.compile(text if regex else re.escape(text), 0 if case else re.IGNORECASE)
+
+
+def valid(data: SearchData) -> bool:
+    """Whether *data*'s text is something to search for: a pattern that compiles."""
+    if not data.text:
+        return False
+    try:
+        pattern_of(data.text, data.case, data.regex)
+    except re.error:
+        return False
+    return True
+
+
+def _matches(
+    line: str, pattern: re.Pattern[str], start: int, stop: int, whole: bool,
+) -> Iterator[tuple[int, int]]:
+    """Every match within ``line[start:stop]``, a step past each one's start, as
+    DN's search went on -- so they may overlap; empty ones left out."""
     at = start
-    while True:
+    while at <= stop:
         match = pattern.search(line, at, stop)
         if match is None:
+            return
+        begin, end = match.span()
+        if end > begin and (not whole or _whole(line, begin, end)):
+            yield begin, end
+        at = begin + 1
+
+
+def find_in_line(
+    line: str, text: str, start: int, stop: int, *, case: bool, whole: bool, backward: bool,
+    regex: bool = False,
+) -> tuple[int, int] | None:
+    """The first match of *text* lying within ``line[start:stop]``, or the last if
+    *backward*: its start and end, or None.  A bad pattern matches nothing."""
+    if not text or (not regex and stop - start < len(text)):
+        return None
+    try:
+        pattern = pattern_of(text, case, regex)
+    except re.error:
+        return None
+    found = None
+    for found in _matches(line, pattern, start, stop, whole):
+        if not backward:
             return found
-        if not whole or _whole(line, match.start(), match.end()):
-            if not backward:
-                return match.start(), match.end()
-            found = match.start(), match.end()
-        at = match.start() + 1
+    return found
+
+
+def replacement(lines: list[str], found: tuple[Pos, Pos], data: SearchData) -> str:
+    """What *found* is replaced by: *data*'s new text, its groups filled in under
+    *Regular expression* from the match found there."""
+    new = data.new or ""
+    if not data.regex:
+        return new
+    start, end = found
+    try:
+        pattern = pattern_of(data.text, data.case, True)
+        match = pattern.match(lines[start.line], start.index, end.index)
+        return match.expand(new) if match is not None else new
+    except (re.error, IndexError):
+        return new
+
+
+#: How many matches the Find bar counts before it says "more".
+MATCH_LIMIT = 10_000
+
+
+def _line_matches(line: str, pattern: re.Pattern[str], whole: bool) -> Iterator[tuple[int, int]]:
+    """A line's matches, each searched for from the end of the one before."""
+    at = 0
+    while at <= len(line):
+        hit = next(_matches(line, pattern, at, len(line), whole), None)
+        if hit is None:
+            return
+        yield hit
+        at = hit[1]
+
+
+def all_matches(
+    lines: list[str], data: SearchData, *, limit: int = MATCH_LIMIT,
+) -> list[tuple[int, int, int]]:
+    """Every match of *data* in the text, ``(line, start, end)`` in order; at
+    most *limit*.  For a thread: it reads *lines* and nothing reactive."""
+    if not valid(data):
+        return []
+    pattern = pattern_of(data.text, data.case, data.regex)
+    found: list[tuple[int, int, int]] = []
+    for number, line in enumerate(lines):
+        for start, end in _line_matches(line, pattern, data.whole):
+            found.append((number, start, end))
+            if len(found) >= limit:
+                return found
+    return found
+
+
+def line_matches(line: str, data: SearchData) -> list[tuple[int, int]]:
+    """The matches :func:`all_matches` gives in one *line*: what the editor lights."""
+    if not valid(data):
+        return []
+    return list(_line_matches(line, pattern_of(data.text, data.case, data.regex), data.whole))
 
 
 def find(
@@ -99,7 +192,7 @@ def find(
             return 0, len(lines[number])
         return bounds(number)
 
-    options = dict(case=data.case, whole=data.whole, backward=backward)
+    options = dict(case=data.case, whole=data.whole, backward=backward, regex=data.regex)
     if not backward:
         line, start = at.line, at.index
         while 0 <= line < count:

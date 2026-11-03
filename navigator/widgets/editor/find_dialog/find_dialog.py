@@ -52,6 +52,9 @@ class FindDialog(Dialog):
         data.backward = self.direction.value == 1
         data.selected = self.scope.value == 1
         data.from_cursor = self.origin.value == 1
+        # The dialogs search for the text itself, as DN's did; a pattern is the
+        # Find bar's alone.
+        data.regex = False
 
     def accept(self) -> str:
         self._store()

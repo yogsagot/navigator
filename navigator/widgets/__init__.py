@@ -66,6 +66,7 @@ _WIDGETS = {
     "EditorDefaultsPage": "setup.editor_defaults_page",
     "EditFileDialog": "editor.edit_file_dialog",
     "EditWindow": "editor.edit_window",
+    "FindBar": "editor.find_bar",
     "EraseQuery": "file_ops.erase_query",
     "ErrorDialog": "shell.error_dialog",
     "ExitDialog": "shell.exit_dialog",
@@ -144,6 +145,7 @@ if TYPE_CHECKING:
     from navigator.widgets.tree.directory_tree import DirectoryTree
     from navigator.widgets.editor.edit_file_dialog import EditFileDialog
     from navigator.widgets.editor.edit_window import EditWindow
+    from navigator.widgets.editor.find_bar import FindBar
     from navigator.widgets.file_ops.erase_query import EraseQuery
     from navigator.widgets.editor.file_editor import FileEditor, InfoLine
     from navigator.widgets.editor.find_dialog import FindDialog

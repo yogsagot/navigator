@@ -99,6 +99,7 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("calendar_view", "Calendar", "navml.widgets.dialog.date_button:CalendarView"),
     ("editor", "Editor", "navigator.widgets.editor.file_editor:FileEditor"),
     ("edit_window", "Editor window", "navigator.widgets.editor.edit_window:EditWindow"),
+    ("find_bar", "Find bar", "navigator.widgets.editor.find_bar:FindBar"),
     ("viewer", "Viewer", "navigator.widgets.viewer.file_window:FileWindow"),
     ("diff_window", "Compare files", "navigator.widgets.viewer.diff_window:DiffWindow"),
     ("db_viewer", "Database viewer", "navigator.widgets.viewer.db_window:DBWindow"),
@@ -394,6 +395,20 @@ def _parse(file: Path) -> configparser.ConfigParser:
     return parser
 
 
+#: Defaults Navigator has since changed: section, command, and the keys it
+#: had by default before.  The file is written whole on the first start, so
+#: every command's line names the keys it had then; a line still naming
+#: exactly a retired default was never the user's choice and is read as no
+#: line at all -- the command takes today's default, and the key goes to the
+#: command that has it now.  Without this a default once written could never
+#: change: Ctrl+F stayed with ``start_search`` after it became the Find bar's.
+RETIRED_DEFAULTS: dict[tuple[str, str], tuple[tuple[str, ...], ...]] = {
+    # The Find bar took Ctrl+F and Ctrl+R from DN's dialogs (F7, Ctrl+F7 stay).
+    ("editor", "start_search"): (("ctrl+f",),),
+    ("editor", "replace"): (("ctrl+r",),),
+}
+
+
 def read(file: Path, found: Iterable[Section], *,
          parser: configparser.ConfigParser | None = None,
          skip: Iterable[str] = ()) -> tuple[dict[str, Assignment], list[str]]:
@@ -421,9 +436,13 @@ def read(file: Path, found: Iterable[Section], *,
                 warnings.append(f"{file}: [{name}] {option}: no such command")
                 continue
             try:
-                assignment[option] = parse_keys(text)
+                keys = parse_keys(text)
             except ValueError as error:
                 warnings.append(f"{file}: [{name}] {option}: {error}; using the default")
+                continue
+            if keys != entry.defaults and keys in RETIRED_DEFAULTS.get((name, option), ()):
+                continue
+            assignment[option] = keys
         assignment = section.complete(assignment)
         try:
             section.table(assignment)

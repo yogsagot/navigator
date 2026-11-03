@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import functools
 import re
+import sys
 import threading
 import time
 import unicodedata
@@ -46,6 +47,9 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.widgets.editor.commands import (
+    CloseFindBar,
+    ShowFindBar,
+    ShowReplaceBar,
     SwitchHiColumn,
     SwitchHiLine,
     SwitchHighLight,
@@ -451,6 +455,7 @@ class FileEditor(ContextMenuHost, Widget):
         "current_line",
         "current_line_selected",
         "current_column",
+        "match",
     )
 
     #: ``EDITOR COMMANDS``, the keys that need no second one.  A binding with
@@ -570,12 +575,12 @@ class FileEditor(ContextMenuHost, Widget):
         "alt+r": FRight,
         "alt+l": FLeft,
         "alt+c": FCenter,
-        # What the freed keys do in every editor since: ``cmStartSearch``,
-        # ``cmReplace`` and ``cmGotoLineNumber`` (F7, Ctrl+F7 and Alt+G stay),
-        # and ``cmUndo`` (Alt+Backspace stays).  Ctrl+S, *Save*, is the
-        # editor window's, which owns ``SaveText``.
-        "ctrl+f": StartSearch,
-        "ctrl+r": Replace,
+        # What the freed keys do in every editor since: the Find bar (a
+        # departure; F7 and Ctrl+F7 keep DN's dialogs), ``cmGotoLineNumber``
+        # (Alt+G stays) and ``cmUndo`` (Alt+Backspace stays).  Ctrl+S, *Save*,
+        # is the editor window's, which owns ``SaveText``.
+        "ctrl+f": ShowFindBar,
+        "ctrl+r": ShowReplaceBar,
         "ctrl+g": GotoLineNumber,
         "ctrl+z": Undo,
         "ctrl+shift+z": Redo,
@@ -599,6 +604,11 @@ class FileEditor(ContextMenuHost, Widget):
 
     #: One counter standing for the whole text.
     revision: int = reactive(0)
+
+    #: What the Find bar searches for, every match of it on screen painted as
+    #: ``FileEditor::match`` -- the one found as ``::selected`` -- or None.  A
+    #: departure, with the bar.  Replaced, never changed in place.
+    highlight_query: SearchData | None = reactive(None)
 
     #: The cursor: a line, and a column on screen.
     line: int = reactive(0)
@@ -2957,6 +2967,11 @@ class FileEditor(ContextMenuHost, Widget):
         if event.is_printable:
             self.type_text(event.char)
             return True
+        if event.matches("escape") and self.highlight_query is not None and self.application is not None:
+            # Esc puts the Find bar away while its matches are lit, before the
+            # window's Esc closes the window.  Not a key of this table: it
+            # would shadow the window's.
+            return await commands.run(self.application, CloseFindBar, self)
         return False
 
     async def on_paste(self, event: PasteEvent) -> bool:
@@ -3191,6 +3206,28 @@ class FileEditor(ContextMenuHost, Widget):
             stop += 1
         return text[start:stop]
 
+    def search_seed(self) -> tuple[str, Pos]:
+        """What the Find bar starts with, and the place it searches from: a block
+        within one line, else the word at the cursor, either from its start;
+        neither, nothing from the cursor."""
+        block = self.block
+        if self.has_block and block is not None and block[0].line == block[1].line and block[0] != block[1]:
+            start, end = block
+            return self.document.lines[start.line][start.index:end.index], start
+        here = self._mark_pos()
+        word = self.word_at_cursor()
+        if not word:
+            return "", here
+        text, index = self.document.lines[here.line], here.index
+        while index and text[index - 1] not in BREAK_CHARS:
+            index -= 1
+        return word, Pos(here.line, index)
+
+    def place_cursor(self, pos: Pos) -> None:
+        """The cursor put on *pos*, a place in the text, and brought into view."""
+        self._moved()
+        self._go(pos)
+
     def _search_bounds(self, number: int) -> tuple[int, int] | None:
         """The part of line *number* the block covers, as indices -- *Selected text*:
         from its first stretch's start to its last's end; :meth:`find` passes
@@ -3238,6 +3275,24 @@ class FileEditor(ContextMenuHost, Widget):
         end = self.buffer.insert(found[0], new)
         self._end()
         return end
+
+    def replace_all(self, data: SearchData) -> int:
+        """The Find bar's *All*: every match of *data* replaced, in one undo step
+        (a departure: DN's *Change all* made each its own); how many.  Last
+        first, so the places found before stand."""
+        found = search.all_matches(self.document.lines, data, limit=sys.maxsize)
+        if not found:
+            return 0
+        self._moved()
+        self._begin()
+        for number, start, end in reversed(found):
+            place = (Pos(number, start), Pos(number, end))
+            new = search.replacement(self.document.lines, place, data)
+            self.buffer.delete(*place)
+            self.buffer.insert(place[0], new)
+        self._end()
+        self._found = None
+        return len(found)
 
     def _found_columns(self, number: int) -> tuple[int, int] | None:
         found, mark = self._found, self._found_for
@@ -3505,6 +3560,9 @@ class FileEditor(ContextMenuHost, Widget):
         looks: dict[tuple[tuple[str, ...], bool], Any] = {}
         hidden = self.show_hidden
         tier = 0 if self.glyphs >= GLYPHS_UNICODE else 1
+        query = self.highlight_query
+        if query is not None and not search.valid(query):
+            query = None
         for y in range(self.height):
             number = self.top + y
             if number >= len(lines):
@@ -3552,6 +3610,10 @@ class FileEditor(ContextMenuHost, Widget):
                     surface.fill(start - left, y, stop - start, 1, " ", selected)
             spans = tokens[number] if tokens is not None and number < len(tokens) else ()
             at = 0
+            # The Find bar's matches on this line, as indices: lit under the
+            # block and the match found, over the tokens.
+            marks = search.line_matches(text, query) if query is not None else ()
+            match_style = self.part_style("match", current_line=current) if marks else None
             if hidden:
                 # The line's ending, a cell past its text, in the colours there.
                 end = columns.width(text, self.tab_size)
@@ -3570,6 +3632,8 @@ class FileEditor(ContextMenuHost, Widget):
                     cell = selected
                 elif span is not None and span[0] <= (column + shift if painted else origin[column]) < span[1]:
                     cell = selected
+                elif marks and any(begin <= index < end for begin, end in marks):
+                    cell = match_style
                 else:
                     cell = style
                     if order is not None:
