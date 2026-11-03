@@ -206,6 +206,90 @@ class GoToUsage(Command):
     title = "Go"
 
 
+class OpenProcessWindow(Command):
+    """Utilities > Process list: the running processes, sorted and signalled,
+    as FAR Manager's process panel lists them.
+
+    Not DOS Navigator's -- a departure, asked for, recorded in
+    ``navigator/lib/system/processes.py``: DOS ran one program at a time.
+    """
+
+    title = "Processes"
+
+
+class ProcessSortPid(Command):
+    """Process list > *Sort by PID* (Ctrl+P); again, the other way round."""
+
+    title = "PID"
+
+
+class ProcessSortUser(Command):
+    """Process list > *Sort by user* (Ctrl+U); again, the other way round."""
+
+    title = "User"
+
+
+class ProcessSortState(Command):
+    """Process list > *Sort by state* (Ctrl+E); again, the other way round."""
+
+    title = "State"
+
+
+class ProcessSortCpu(Command):
+    """Process list > *Sort by CPU* (Ctrl+L, the load), busiest first; again, the other way round."""
+
+    title = "CPU"
+
+
+class ProcessSortMemory(Command):
+    """Process list > *Sort by memory* (Ctrl+Z, its size), biggest first; again, the other way round."""
+
+    title = "Memory"
+
+
+class ProcessSortCommand(Command):
+    """Process list > *Sort by command* (Ctrl+N, its name); again, the other way round."""
+
+    title = "Command"
+
+
+class ProcessTree(Command):
+    """Process list > *Tree* (Ctrl+T): each process under its parent, or one flat list."""
+
+    title = "Tree"
+
+
+class ProcessMineOnly(Command):
+    """Process list > *Mine only* (Ctrl+H): only the user's own processes, or everyone's."""
+
+    title = "Mine"
+
+
+class SignalProcess(Command):
+    """Process list > *Signal* (F7): send the process under the cursor a signal chosen from a box."""
+
+    title = "Signal"
+
+
+class KillProcess(Command):
+    """Process list > *Kill* (F8, Del): ask the process under the cursor to end (SIGTERM), after asking."""
+
+    title = "Kill"
+
+
+@dataclass(frozen=True, slots=True)
+class SendSignal(Command):
+    """An entry of *Signal*'s box: *signal* to the process under the cursor."""
+
+    signal: int = 15
+
+
+class ProcessDetails(Command):
+    """Process list > *Details* (F3): what ``/proc`` says of the process under the cursor."""
+
+    title = "Details"
+
+
 class ToggleMarkBySpace(Command):
     """Space with the command line empty: :class:`ToggleMark`.
 
@@ -420,6 +504,19 @@ __all__ = [
     "MountVolume",
     "UnmountVolume",
     "EjectVolume",
+    "OpenProcessWindow",
+    "ProcessSortPid",
+    "ProcessSortUser",
+    "ProcessSortState",
+    "ProcessSortCpu",
+    "ProcessSortMemory",
+    "ProcessSortCommand",
+    "ProcessTree",
+    "ProcessMineOnly",
+    "SignalProcess",
+    "KillProcess",
+    "ProcessDetails",
+    "SendSignal",
     "ToggleMarkBySpace",
 ]
 

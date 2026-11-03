@@ -103,6 +103,8 @@ _WIDGETS = {
     "SystemSetupPage": "setup.system_setup_page",
     "TreeWindow": "tree.tree_window",
     "VolumesWindow": "shell.volumes_window",
+    "ProcessWindow": "shell.process_window",
+    "ProcessList": "shell.process_list",
     "UsageList": "shell.usage_list",
     "UsageWindow": "shell.usage_window",
     "SyncList": "manager.sync_list",
@@ -180,6 +182,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.shell import Shell
     from navigator.widgets.tree.tree_window import TreeWindow
     from navigator.widgets.shell.volumes_window import VolumesWindow
+    from navigator.widgets.shell.process_window import ProcessWindow
+    from navigator.widgets.shell.process_list import ProcessList
     from navigator.widgets.shell.usage_list import UsageList
     from navigator.widgets.shell.usage_window import UsageWindow
     from navigator.widgets.manager.sync_list import SyncList

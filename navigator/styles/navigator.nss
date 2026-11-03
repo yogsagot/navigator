@@ -510,6 +510,25 @@ UsageWindow ScrollBar                          { fg: $dialog-scroll-bar-page-fg;
 UsageWindow ScrollBar::arrow,
 UsageWindow ScrollBar::thumb                   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg; bold: $dialog-scroll-bar-icons-bold; dim: $dialog-scroll-bar-icons-dim; italic: $dialog-scroll-bar-icons-italic; underline: $dialog-scroll-bar-icons-underline; reverse: $dialog-scroll-bar-icons-reverse }
 
+/* Utilities > Process list, not DN's: dressed as Disk > Volumes is.  The
+   kernel's own threads and zombies are dim, as a cut file is; a stopped
+   process italic. */
+ProcessWindow,
+ProcessWindow:active                             { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+ProcessWindow::title,
+ProcessWindow:active::title                      { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+ProcessWindow::icon                              { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
+ProcessWindow ProcessList                          { fg: $dialog-list-normal-fg; bg: $dialog-list-normal-bg; bold: $dialog-list-normal-bold; dim: $dialog-list-normal-dim; italic: $dialog-list-normal-italic; underline: $dialog-list-normal-underline; reverse: $dialog-list-normal-reverse }
+ProcessWindow ProcessList::row:selected            { fg: $dialog-list-focused-fg; bg: $dialog-list-focused-bg; bold: $dialog-list-focused-bold; dim: $dialog-list-focused-dim; italic: $dialog-list-focused-italic; underline: $dialog-list-focused-underline; reverse: $dialog-list-focused-reverse }
+ProcessWindow ProcessList::divider                 { fg: $dialog-list-divider-fg; bg: $dialog-list-divider-bg; bold: $dialog-list-divider-bold; dim: $dialog-list-divider-dim; italic: $dialog-list-divider-italic; underline: $dialog-list-divider-underline; reverse: $dialog-list-divider-reverse }
+ProcessWindow ProcessList::heading                 { fg: $dialog-label-normal-fg; bg: $dialog-label-normal-bg; bold: $dialog-label-normal-bold; dim: $dialog-label-normal-dim; italic: $dialog-label-normal-italic; underline: $dialog-label-normal-underline; reverse: $dialog-label-normal-reverse }
+ProcessWindow ScrollBar                          { fg: $dialog-scroll-bar-page-fg; bg: $dialog-scroll-bar-page-bg; bold: $dialog-scroll-bar-page-bold; dim: $dialog-scroll-bar-page-dim; italic: $dialog-scroll-bar-page-italic; underline: $dialog-scroll-bar-page-underline; reverse: $dialog-scroll-bar-page-reverse }
+ProcessWindow ScrollBar::arrow,
+ProcessWindow ScrollBar::thumb                   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg; bold: $dialog-scroll-bar-icons-bold; dim: $dialog-scroll-bar-icons-dim; italic: $dialog-scroll-bar-icons-italic; underline: $dialog-scroll-bar-icons-underline; reverse: $dialog-scroll-bar-icons-reverse }
+ProcessWindow ProcessList::row.kernel          { dim: true }
+ProcessWindow ProcessList::row.zombie          { dim: true }
+ProcessWindow ProcessList::row.stopped         { italic: true }
+
 /* Compare directories' Synchronize window, not DN's: a dialog's frame as
    Disk > Volumes', round a file panel's rows -- Normal text [85], the cursor
    [88], the column titles [165] -- so a row's status colours it as a file

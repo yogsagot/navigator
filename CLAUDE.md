@@ -234,6 +234,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-trees` | TreeView, DirectoryTree, Alt+T, the tree window, Disk > Volumes, Disk > Directory sizes (ncdu-like) |
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
+| `navigator-processes` | Utilities > Process list (FAR's process panel, a departure): `/proc` model, CPU sampling, tree, signals and the root helper's `kill`, `[processes] refresh` |
 | `navigator-calculator` | Ctrl+F6's calculator: DN's Classic and the Simple/Scientific/Programming faces, the parser's `Context`, the pads, `[calculator]` |
 | `navigator-macros` | Key macros (Ctrl+J R N records anywhere, Ctrl+J N plays; `KeyMacro`, `>MACRO<`) and the editor's `macros.ini` (Ctrl+J 0) |
 | `navigator-game` | ≡ > Game (Alt+F9): DN's Tetris and Pentix, the Top Ten, *Setup game* |

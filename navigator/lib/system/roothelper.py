@@ -280,6 +280,13 @@ class _Helper:
         with self._pinned(path, follow=follow) as there:
             os.chown(there, uid, gid, follow_symlinks=not PINNABLE and follow)
 
+    def kill(self, pid: int, signal: int) -> None:
+        """Utilities > Process list's signal, to a process the user could not
+        signal.  Never init, nor this helper, nor what started it."""
+        if pid <= 1 or pid in (os.getpid(), os.getppid()):
+            raise OSError(errno.EPERM, "Navigator does not signal that process", str(pid))
+        os.kill(pid, signal)
+
     def utime(self, path: str, atime_ns: int, mtime_ns: int, follow: bool) -> None:
         with self._pinned(path, follow=follow) as there:
             os.utime(there, ns=(atime_ns, mtime_ns), follow_symlinks=not PINNABLE and follow)

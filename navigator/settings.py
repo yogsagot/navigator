@@ -1041,6 +1041,16 @@ class SynchronizeData(Section):
     asymmetric: bool = Setting(False, doc="The right side becomes a copy of the left: what only it has is deleted")
 
 
+class ProcessesData(Section):
+    """Utilities > Process list.  Not DN's: a departure, asked for -- DOS ran
+    one program at a time and DN had no processes to list."""
+
+    name = "processes"
+    title = "Utilities > Process list (not DN's)"
+
+    refresh: int = Setting(2, doc="Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R")
+
+
 class RemoteData(Section):
     """Connections to other drives: Options > Configuration > *Communications*,
     where DN set up the modem and the cable its Navigator Link ran over
@@ -1075,7 +1085,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, RemoteData,
+    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, ProcessesData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1116,6 +1126,7 @@ class Settings:
     uucode: UUCodeData
     checksum: ChecksumData
     synchronize: SynchronizeData
+    processes: ProcessesData
     remote: RemoteData
 
     def __init__(self) -> None:

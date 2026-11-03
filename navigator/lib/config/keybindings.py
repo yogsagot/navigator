@@ -94,6 +94,8 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("tree_window", "Tree window", "navigator.widgets.tree.tree_window:TreeWindow"),
     ("volumes_window", "Volumes window", "navigator.widgets.shell.volumes_window:VolumesWindow"),
     ("usage_window", "Directory sizes window", "navigator.widgets.shell.usage_window:UsageWindow"),
+    ("process_window", "Process list", "navigator.widgets.shell.process_window:ProcessWindow"),
+    ("process_list", "Process list rows", "navigator.widgets.shell.process_list:ProcessList"),
     ("sync_window", "Synchronize window", "navigator.widgets.manager.sync_window:SyncWindow"),
     ("tree_view", "Trees", "navml.widgets.dialog.tree_view:TreeView"),
     ("calendar_view", "Calendar", "navml.widgets.dialog.date_button:CalendarView"),

@@ -97,6 +97,7 @@ from navigator.widgets.shell.commands import (
     OpenView,
     OpenUsageWindow,
     OpenVolumesWindow,
+    OpenProcessWindow,
     SetupConfirmation,
     Settings,
     StartupSetup,
@@ -1141,6 +1142,10 @@ class Shell(DockLayout):
             return tr("A program in the console has the keys")
         hidden = tr("Interface Setup hides the command line")
         no_manager = tr("No file panels are open")
+        if isinstance(command, OpenProcessWindow):
+            from navigator.lib.system import processes
+
+            return "" if processes.available() else tr("There is no /proc to read processes from")
         if isinstance(command, AsciiTable):
             # ``ouiHideCmdline``: a hidden line takes no character either.
             return hidden if SETTINGS.interface.hide_command_line else ""
@@ -3313,6 +3318,12 @@ class Shell(DockLayout):
         else:
             start = panel.path if panel.location.is_local else None
             self.desktop.open(TreeWindow(start=start, hidden=panel.show_hidden))
+        return True
+
+    async def on_open_process_window(self, event: OpenProcessWindow) -> bool:
+        from navigator.widgets.shell.process_window import ProcessWindow
+
+        self.desktop.open(ProcessWindow())
         return True
 
     async def on_open_volumes_window(self, event: OpenVolumesWindow) -> bool:
