@@ -5,8 +5,15 @@ through ``Background``) when the window opens, on Ctrl+R, and every
 ``[processes] refresh`` seconds -- a tick is let go while a read is still
 under way, or while a box is up over the desktop.  Only the newest read is
 listed, and the cursor stays on the process it was on, by number, however the
-order moved.  *Mine only*, *Tree* and the sort change what is shown, never
-what was read, so they need no read.
+order moved.  *Mine only*, *Tree*, the filter and the sort change what is
+shown, never what was read, so they need no read.
+
+**The filter is the only search** (htop's F4): a line across the top whose
+text, anywhere in a process's command, name, user or number, keeps it in the
+list.  It replaced a quick search that moved the cursor as letters were typed
+on the list with nothing to show it but the status line.  In a tree a match
+keeps the parents above it, dimmed (``.context``), so it is still seen where it
+runs.
 
 **A signal is sent to the process that was read, not to its number**:
 :func:`~navigator.lib.system.processes.signal_process` reads it again first
@@ -28,6 +35,7 @@ from navkit.bidi import display_width
 from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import effect, peek
+from navkit.text import caption_runs
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
 from navml.widgets.dialog.commands import QuickSearch, SelectNext, SelectPrevious
@@ -45,7 +53,7 @@ from navigator.lib.system import processes
 from navigator.lib.system.elevate import ELEVATION, refused
 from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.shell.commands import (
-    KillProcess, ProcessDetails, ProcessMineOnly, ProcessSortCommand, ProcessSortCpu, ProcessSortMemory,
+    FilterProcesses, KillProcess, ProcessDetails, ProcessMineOnly, ProcessSortCommand, ProcessSortCpu, ProcessSortMemory,
     ProcessSortPid, ProcessSortState, ProcessSortUser, ProcessTree, SendSignal, SignalProcess,
 )
 from navigator.widgets.shell.process_list import SortChosen
@@ -86,8 +94,11 @@ class ProcessWindow(Window):
         self._reads = 0
         self._reading = False
         self._ticker: Any = None
-        #: What the status line says when nothing is being searched for.
-        self._summary = ""
+
+    @staticmethod
+    def caption_width(text: str) -> int:
+        """How many cells *text* takes drawn as a caption, its ``~`` marks gone."""
+        return sum(display_width(run) for run, _ in caption_runs(text))
 
     @property
     def mine_only(self) -> bool:
@@ -110,8 +121,11 @@ class ProcessWindow(Window):
     def mounted(self) -> None:
         super().mounted()
         self.processes.uid = self.uid
-        effect(self, ProcessWindow._follow_boxes)
-        effect(self, ProcessWindow._follow_search)
+        self.processes.filter_line = self.filter
+        self.filter.rows = self.processes
+        # A symbol, not a word: set here because a markup literal is translated.
+        self.clear_filter.text = "X"
+        effect(self, ProcessWindow._follow_view)
         # Not from ``__init__``: until the window is on the desktop it has no
         # application, and ``Background`` would read on the loop instead.
         self.reload()
@@ -130,19 +144,13 @@ class ProcessWindow(Window):
         # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
         self.processes.focus()
 
-    def _follow_boxes(self) -> None:
-        """*Mine only* or *Tree* ticked or cleared, by a key, a click or the menu: list again."""
+    def _follow_view(self) -> None:
+        """*Mine only* or *Tree* ticked or cleared, by a key, a click or the
+        menu, or the filter typed: list again."""
         self.mine_box.value  # noqa: B018 -- what this effect follows
         self.tree_box.value  # noqa: B018
+        self.filter.value  # noqa: B018
         self._show()
-
-    def _follow_search(self) -> None:
-        """The status line: what is being searched for, while it is."""
-        search = self.processes.search
-        if search is None:
-            self.status.text = escape_caption(self._summary)
-        else:
-            self.status.text = escape_caption(tr("Search: {text}").format(text=search))
 
     # -- reading ----------------------------------------------------------------------
 
@@ -172,33 +180,41 @@ class ProcessWindow(Window):
     def _show(self) -> None:
         """List what was read, keeping the cursor on the process it was on.
 
-        The list's items and cursor are peeked: ``_follow_boxes`` calls this,
+        The list's items and cursor are peeked: ``_follow_view`` calls this,
         and an effect that read them would run again at every cursor move.
+        A process the filter hid, or kept only as a match's parent, takes
+        the cursor to the first match.
         """
         listing = self.processes
         items = peek(listing, ListViewer.items)
         cursor = peek(listing, ListViewer.cursor)
         current = items[cursor].process.pid if 0 <= cursor < len(items) else None
         found = [each for each in self._found if not self.mine_only or each.uid == self.uid]
+        text = peek(self.filter, type(self.filter).value)
+        picked = [each for each in found if processes.matches(each, text)]
         tree = self.tree
         if tree:
-            shown = processes.tree(found, self.sort, self.descending)
+            kept, context = processes.with_ancestors(found, picked)
+            shown = processes.tree(kept, self.sort, self.descending, context)
         else:
-            shown = [processes.Row(each) for each in processes.ordered(found, self.sort, self.descending)]
+            shown = [processes.Row(each) for each in processes.ordered(picked, self.sort, self.descending)]
         listing.tree = tree
         listing.sort = self.sort
         listing.descending = self.descending
         listing.items = shown
-        if current is not None:
-            for index, row in enumerate(shown):
-                if row.process.pid == current:
-                    listing.cursor = index
-                    break
+        at = next((index for index, row in enumerate(shown)
+                   if row.process.pid == current and not row.context), None)
+        if at is None:
+            at = next((index for index, row in enumerate(shown) if not row.context), 0)
+        listing.cursor = at
         mine = sum(1 for each in self._found if each.uid == self.uid)
-        self._summary = tr_n("{count} process, {mine} yours", "{count} processes, {mine} yours",
-                             len(self._found), count=f"{len(self._found):,}", mine=f"{mine:,}")
-        if peek(listing, type(listing).search) is None:
-            self.status.text = escape_caption(self._summary)
+        summary = tr_n("{count} process, {mine} yours", "{count} processes, {mine} yours",
+                       len(self._found), count=f"{len(self._found):,}", mine=f"{mine:,}")
+        if text.strip():
+            summary = tr_n("{shown} of {count} process match the filter",
+                           "{shown} of {count} processes match the filter", len(found),
+                           shown=f"{len(picked):,}", count=f"{len(found):,}")
+        self.status.text = escape_caption(summary)
 
     # -- sorting ------------------------------------------------------------------------
 
@@ -247,10 +263,21 @@ class ProcessWindow(Window):
         self.mine_only = not self.mine_only
         return True
 
+    async def on_filter_processes(self, command: FilterProcesses) -> bool:
+        """F4, Ctrl+S or the menu's *Filter*: the keyboard to the filter line, its text picked."""
+        self.filter.focus()
+        self.filter.select_all()
+        return True
+
     async def on_quick_search(self, command: QuickSearch) -> bool:
-        """The menu's *Quick search*: the list's, with the keyboard given to it."""
-        self.processes.focus()
-        return await self.processes.on_quick_search(command)
+        """The list's own Ctrl+S, which it has no search for: the filter's."""
+        return await self.on_filter_processes(FilterProcesses())
+
+    async def on_clear_filter_click(self, event: Event) -> bool:
+        self.filter.value = ""
+        self.filter.cursor = 0
+        self.filter.focus()
+        return True
 
     async def on_rescan(self, event: Rescan) -> bool:
         self.reload()
@@ -447,6 +474,7 @@ class ProcessWindow(Window):
         menu.add_line()
         menu.add_item(tr("Tr~e~e"), ProcessTree)
         menu.add_item(tr("M~i~ne only"), ProcessMineOnly)
+        menu.add_item(tr("~F~ilter"), FilterProcesses)
         menu.add_line()
         menu.add_item(tr("~D~etails..."), ProcessDetails)
         menu.add_item(tr("~S~ignal..."), SignalProcess)
@@ -489,8 +517,8 @@ class ProcessWindow(Window):
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():
-            for control in (self.mine_box, self.tree_box, self.signal_button, self.kill_button,
-                            self.details_button, self.close_button):
+            for control in (self.filter_caption, self.mine_box, self.tree_box, self.signal_button,
+                            self.kill_button, self.details_button, self.close_button):
                 if control.shortcut_match(event.key):
                     return await control.activate(event.key)
         return await super().on_key(event)

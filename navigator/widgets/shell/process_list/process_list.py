@@ -14,10 +14,13 @@ not sort; it says which column was clicked (:class:`SortChosen`) and the
 window, which keeps the order, does it.  The sorted column's title carries
 ▲ or ▼ (``^``/``v`` on an ASCII terminal), the scroll bar's arrows.
 
-**Ctrl+S, or typing, searches** as a tree does (``navml.quick_search``): what
-has been typed is the start of a process's name, its command or its number,
-and the cursor goes to the first such row from where it is.  Ctrl+S again
-finds the next; Esc, or any key the search has no use for, ends it.
+**Typing filters**: the list keeps no search of its own.  A character typed
+on it (Space aside), or Backspace, goes to the window's *Filter* line
+(:attr:`ProcessList.filter_line`), and the keyboard with it, as htop's F4
+takes it; Esc on the list empties a filter that holds something.  Ctrl+S is
+left to the window, which gives the keyboard to the line.  ``ProcessFilter``
+is that line: Enter, Down, Up, PgDn and PgUp hand the keyboard back to the
+list, and Esc empties it -- an empty one lets Esc close the window.
 """
 
 from __future__ import annotations
@@ -29,11 +32,11 @@ from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width, pad_cells
 from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.i18n import tr
-from navkit.reactive import effect, peek, reactive
+from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.style import Style
-from navml.quick_search import name_pattern
 from navml.widgets.dialog.commands import QuickSearch
+from navml.widgets.dialog.input_line import InputLine
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
 
@@ -71,8 +74,6 @@ class ProcessList(ListViewer):
     descending: bool = reactive(False)
     #: The user whose rows are ``.mine``.
     uid: int = reactive(-1)
-    #: What has been typed of the quick search, or None while it is off.
-    search: str | None = reactive(None)
 
     emits = (ChosenEvent, SortChosen)
     keys = {"ctrl+s": QuickSearch}
@@ -82,10 +83,8 @@ class ProcessList(ListViewer):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.header = 1
-
-    def mounted(self) -> None:
-        super().mounted()
-        effect(self, ProcessList._end_search_unfocused)
+        #: The window's *Filter* line, which typing on the list goes to.
+        self.filter_line: InputLine | None = None
 
     @property
     def ellipsis(self) -> str:
@@ -157,6 +156,8 @@ class ProcessList(ListViewer):
             classes.append("root")
         if process.kernel_thread:
             classes.append("kernel")
+        if item.context:
+            classes.append("context")
         state = _STATE_CLASSES.get(process.state)
         if state:
             classes.append(state)
@@ -217,59 +218,50 @@ class ProcessList(ListViewer):
                 return True
         return await super().on_mouse_click(event)
 
-    # -- the quick search -----------------------------------------------------------------
-
-    @property
-    def edits_text(self) -> bool:
-        """True while searching, so a command line's Enter, Home, End and Tab
-        step aside and reach the search, which ends on them."""
-        return self.search is not None
-
-    def _end_search_unfocused(self) -> None:
-        if not self.focus_within and peek(self, ProcessList.search) is not None:
-            self.search = None
-
-    def find(self, text: str, start: int) -> int | None:
-        """The first row from *start* on, wrapping, whose process's name,
-        command, or command's program, *text* begins -- or whose number it does."""
-        pattern = name_pattern(text)
-        rows = self.items
-        for step in range(len(rows)):
-            index = (start + step) % len(rows)
-            process = rows[index].process
-            program = process.command.split(" ", 1)[0].rsplit("/", 1)[-1]
-            if any(pattern.match(each) for each in (process.name, program, process.command, str(process.pid))):
-                return index
-        return None
-
-    async def on_quick_search(self, event: QuickSearch) -> bool:
-        """Ctrl+S starts the search, and while one is on finds the next match."""
-        if self.search is None:
-            self.search = ""
-        elif self.search:
-            found = self.find(self.search, self.cursor + 1)
-            if found is not None:
-                self.cursor = found
-        return True
+    # -- typing goes to the filter -----------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
         if self.inert:
             return False
-        if self.search is not None:
-            if event.is_printable and event.char:
-                text = self.search + event.char
-                found = self.find(text, self.cursor)
-                if found is not None:
-                    self.cursor = found
-                    self.search = text
+        line = self.filter_line
+        if line is not None:
+            typed = event.is_printable and event.char and not (event.alt or event.ctrl) and event.char != " "
+            if typed or (event.matches("backspace") and line.value):
+                line.focus()
+                line.anchor = None
+                line.cursor = len(line.value)
+                return await line.on_key(event)
+            if event.matches("escape") and line.value:
+                line.value = ""
+                line.cursor = 0
                 return True
-            if event.matches("backspace"):
-                self.search = self.search[:-1]
-                return True
-            self.search = None
-            if event.matches("escape"):
-                return True
-        elif event.is_printable and event.char and not (event.alt or event.ctrl) and event.char != " ":
-            self.search = ""
-            return await self.on_key(event)
+        return await super().on_key(event)
+
+
+class ProcessFilter(InputLine):
+    """The window's *Filter* line: what is typed narrows the list
+    (:func:`navigator.lib.system.processes.matches`).  Enter and the list's
+    movement keys give the keyboard back to :attr:`rows`, the movement made
+    there; Esc empties the line, and an empty line leaves Esc to the window."""
+
+    #: A command line's Enter, Home, End and Tab step aside for it.
+    edits_text = True
+
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+        self.rows: ProcessList | None = None
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        if self.inert:
+            return False
+        rows = self.rows
+        if event.matches("escape") and self.value:
+            self.value = ""
+            self.cursor = 0
+            return True
+        if rows is not None and event.matches("enter", "down", "up", "pagedown", "pageup"):
+            rows.focus()
+            if not event.matches("enter"):
+                await rows.on_key(event)
+            return True
         return await super().on_key(event)

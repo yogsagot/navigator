@@ -284,7 +284,7 @@ direction = "rtl"
 "ACL Entry" = "مدخل ACL"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:26
 "~T~ype" = "ال~ن~وع"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/lib/system/processes.py:376, navigator/widgets/manager/commands.py:25 ...
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/lib/system/processes.py:406, navigator/widgets/manager/commands.py:25 ...
 "User" = "مستخدم"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
 "Group" = "مجموعة"
@@ -972,7 +972,7 @@ direction = "rtl"
 "Choose a directory from a tree" = "اختيار مجلد من شجرة"
 # navigator/widgets/manager/manager/manager.nml:313, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2289 ...
 "Quick s~e~arch" = "~ب~حث سريع"
-# navigator/widgets/manager/manager/manager.nml:317, navigator/widgets/shell/process_window/process_window.nml:136, navigator/widgets/shell/usage_window/usage_window.nml:102 ...
+# navigator/widgets/manager/manager/manager.nml:317, navigator/widgets/shell/process_window/process_window.nml:171, navigator/widgets/shell/usage_window/usage_window.nml:102 ...
 "~R~e-read" = "~إ~عادة القراءة"
 # navigator/widgets/manager/manager/manager.nml:321
 "S~a~me directory in other panel" = "المجلد ~ذ~اته في اللوحة الأخرى"
@@ -1744,7 +1744,7 @@ direction = "rtl"
 "~R~un" = "ت~ش~غيل"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:35
 "~D~rop" = "إ~د~راج"
-# navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:53, navigator/widgets/shell/process_window/process_window.nml:102
+# navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:53, navigator/widgets/shell/process_window/process_window.nml:137
 "~K~ill" = "~ح~ذف"
 # navigator/widgets/shell/command_palette/command_palette.nml:18, navigator/widgets/shell/commands.py:399
 "Commands" = "الأوامر"
@@ -2166,45 +2166,51 @@ direction = "rtl"
 "Bring back the progress box of a copy or an erase running in the background" = "إعادة مربع تقدم النسخ أو الحذف الجاري في الخلفية"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "معاملات القائمة"
-# navigator/widgets/shell/process_window/process_window.nml:37, navigator/widgets/shell/process_window/process_window.py:406, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/process_window/process_window.nml:41, navigator/widgets/shell/process_window/process_window.py:433, navigator/lib/config/keybindings.py
 "Process list" = "قائمة العمليات"
-# navigator/widgets/shell/process_window/process_window.nml:79
+# navigator/widgets/shell/process_window/process_window.nml:70, navigator/widgets/shell/process_window/process_window.nml:211, navigator/widgets/shell/process_window/process_window.py:467
+"~F~ilter" = "تصف~ي~ة"
+# navigator/widgets/shell/process_window/process_window.nml:81
+"Show only the processes whose command, name, user or PID holds this" = "اعرض فقط العمليات التي يحتوي أمرها أو اسمها أو مستخدمها أو PID الخاص بها على هذا النص"
+# navigator/widgets/shell/process_window/process_window.nml:91
+"Clear the filter" = "امسح التصفية"
+# navigator/widgets/shell/process_window/process_window.nml:114
 "~M~ine only" = "عملياتي ~ف~قط"
-# navigator/widgets/shell/process_window/process_window.nml:80, navigator/widgets/shell/process_window/process_window.nml:172
+# navigator/widgets/shell/process_window/process_window.nml:115, navigator/widgets/shell/process_window/process_window.nml:207
 "Only your own processes" = "عملياتك فقط"
-# navigator/widgets/shell/process_window/process_window.nml:89, navigator/widgets/shell/process_window/process_window.nml:167
+# navigator/widgets/shell/process_window/process_window.nml:124, navigator/widgets/shell/process_window/process_window.nml:202
 "Each process under its parent" = "كل عملية تحت أصلها"
-# navigator/widgets/shell/process_window/process_window.nml:93
+# navigator/widgets/shell/process_window/process_window.nml:128
 "~S~ignal" = "إشا~ر~ة"
-# navigator/widgets/shell/process_window/process_window.nml:111
+# navigator/widgets/shell/process_window/process_window.nml:146
 "~D~etails" = "تفا~ص~يل"
-# navigator/widgets/shell/process_window/process_window.nml:132
+# navigator/widgets/shell/process_window/process_window.nml:167
 "~P~rocesses" = "~ع~مليات"
-# navigator/widgets/shell/process_window/process_window.nml:133
+# navigator/widgets/shell/process_window/process_window.nml:168
 "Sort, search and signal the running processes" = "فرز العمليات الجارية والبحث فيها وإرسال الإشارات إليها"
-# navigator/widgets/shell/process_window/process_window.nml:141
-"Sort by ~P~ID" = "فرز حسب ~P~ID"
-# navigator/widgets/shell/process_window/process_window.nml:145
-"Sort by ~u~ser" = "فرز حسب ال~م~ستخدم"
-# navigator/widgets/shell/process_window/process_window.nml:149
-"Sort by s~t~ate" = "فرز حسب ال~ح~الة"
-# navigator/widgets/shell/process_window/process_window.nml:153
-"Sort by CPU ~l~oad" = "فرز حسب ~ت~حميل المعالج"
-# navigator/widgets/shell/process_window/process_window.nml:157
-"Sort by ~m~emory" = "فرز حسب ال~ذ~اكرة"
-# navigator/widgets/shell/process_window/process_window.nml:161
-"Sort by comma~n~d" = "فرز حسب ال~أ~مر"
-# navigator/widgets/shell/process_window/process_window.nml:166, navigator/widgets/shell/process_window/process_window.py:438
-"Tr~e~e" = "~ش~جرة"
-# navigator/widgets/shell/process_window/process_window.nml:171, navigator/widgets/shell/process_window/process_window.py:439
-"M~i~ne only" = "عملياتي ~ف~قط"
 # navigator/widgets/shell/process_window/process_window.nml:176
-"~Q~uick search" = "~ب~حث سريع"
-# navigator/widgets/shell/process_window/process_window.nml:181, navigator/widgets/shell/process_window/process_window.py:441
+"Sort by ~P~ID" = "فرز حسب ~P~ID"
+# navigator/widgets/shell/process_window/process_window.nml:180
+"Sort by ~u~ser" = "فرز حسب ال~م~ستخدم"
+# navigator/widgets/shell/process_window/process_window.nml:184
+"Sort by s~t~ate" = "فرز حسب ال~ح~الة"
+# navigator/widgets/shell/process_window/process_window.nml:188
+"Sort by CPU ~l~oad" = "فرز حسب ~ت~حميل المعالج"
+# navigator/widgets/shell/process_window/process_window.nml:192
+"Sort by ~m~emory" = "فرز حسب ال~ذ~اكرة"
+# navigator/widgets/shell/process_window/process_window.nml:196
+"Sort by comma~n~d" = "فرز حسب ال~أ~مر"
+# navigator/widgets/shell/process_window/process_window.nml:201, navigator/widgets/shell/process_window/process_window.py:465
+"Tr~e~e" = "~ش~جرة"
+# navigator/widgets/shell/process_window/process_window.nml:206, navigator/widgets/shell/process_window/process_window.py:466
+"M~i~ne only" = "عملياتي ~ف~قط"
+# navigator/widgets/shell/process_window/process_window.nml:212
+"Show only the processes whose command, name, user or PID holds what is typed" = "اعرض فقط العمليات التي يحتوي أمرها أو اسمها أو مستخدمها أو PID الخاص بها على ما تمت كتابته"
+# navigator/widgets/shell/process_window/process_window.nml:217, navigator/widgets/shell/process_window/process_window.py:469
 "~D~etails..." = "تفا~ص~يل..."
-# navigator/widgets/shell/process_window/process_window.nml:185, navigator/widgets/shell/process_window/process_window.py:442
+# navigator/widgets/shell/process_window/process_window.nml:221, navigator/widgets/shell/process_window/process_window.py:470
 "~S~ignal..." = "إشا~ر~ة..."
-# navigator/widgets/shell/process_window/process_window.nml:189, navigator/widgets/shell/process_window/process_window.py:443
+# navigator/widgets/shell/process_window/process_window.nml:225, navigator/widgets/shell/process_window/process_window.py:471
 "~K~ill..." = "إ~ن~هاء..."
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "معلومات النظام"
@@ -2648,35 +2654,35 @@ direction = "rtl"
 "parked" = "مركونة"
 # navigator/lib/system/processes.py:56
 "paging" = "تبديل صفحات"
-# navigator/lib/system/processes.py:347, navigator/lib/system/processes.py:425
+# navigator/lib/system/processes.py:377, navigator/lib/system/processes.py:455
 "The process has ended" = "انتهت العملية"
-# navigator/lib/system/processes.py:371
+# navigator/lib/system/processes.py:401
 "Process" = "العملية"
-# navigator/lib/system/processes.py:372, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2694 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2694 ...
 "Name" = "الاسم"
-# navigator/lib/system/processes.py:373, navigator/widgets/shell/commands.py:253, navigator/widgets/shell/process_list/process_list.py:119
+# navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:253, navigator/widgets/shell/process_list/process_list.py:118
 "Command" = "الأمر"
-# navigator/lib/system/processes.py:374
+# navigator/lib/system/processes.py:404
 "Program" = "البرنامج"
-# navigator/lib/system/processes.py:377, navigator/widgets/shell/commands.py:235
+# navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:235
 "State" = "الحالة"
-# navigator/lib/system/processes.py:378
+# navigator/lib/system/processes.py:408
 "Parent" = "الأصل"
-# navigator/lib/system/processes.py:379
+# navigator/lib/system/processes.py:409
 "Started" = "بدأت"
-# navigator/lib/system/processes.py:380
+# navigator/lib/system/processes.py:410
 "Threads" = "الخيوط"
-# navigator/lib/system/processes.py:381
+# navigator/lib/system/processes.py:411
 "Nice" = "الأولوية"
-# navigator/lib/system/processes.py:382
+# navigator/lib/system/processes.py:412
 "Resident" = "المقيمة"
-# navigator/lib/system/processes.py:383
+# navigator/lib/system/processes.py:413
 "Virtual" = "الافتراضية"
-# navigator/lib/system/processes.py:384
+# navigator/lib/system/processes.py:414
 "Open files" = "الملفات المفتوحة"
-# navigator/lib/system/processes.py:385
+# navigator/lib/system/processes.py:415
 "Environment" = "البيئة"
-# navigator/lib/system/processes.py:416, navigator/widgets/shell/process_window/process_window.py:292
+# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:310
 "Navigator does not signal that process" = "لا يرسل Navigator إشارات إلى هذه العملية"
 # navigator/lib/system/sysinfo.py:147
 "Machine type" = "نوع الجهاز"
@@ -4008,13 +4014,13 @@ direction = "rtl"
 "Go" = "انتقال"
 # navigator/widgets/shell/commands.py:217
 "Processes" = "العمليات"
-# navigator/widgets/shell/commands.py:223, navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/commands.py:223, navigator/widgets/shell/process_list/process_list.py:118
 "PID" = "PID"
 # navigator/widgets/shell/commands.py:265
 "Mine" = "عملياتي"
 # navigator/widgets/shell/commands.py:271
 "Signal" = "إشارة"
-# navigator/widgets/shell/commands.py:277, navigator/widgets/shell/process_window/process_window.py:332
+# navigator/widgets/shell/commands.py:277, navigator/widgets/shell/process_window/process_window.py:359
 "Kill" = "إنهاء"
 # navigator/widgets/shell/commands.py:290
 "Details" = "التفاصيل"
@@ -4104,25 +4110,25 @@ direction = "rtl"
 "The same keys again stop it" = "المفاتيح نفسها مجددًا توقفه"
 # navigator/widgets/shell/macro_mark.py:49
 "Recording keys into macro {slot}" = "تسجيل المفاتيح في الماكرو {slot}"
-# navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/process_list/process_list.py:118
 "S" = "S"
-# navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/process_list/process_list.py:118
 "CPU %" = "المعالج %"
-# navigator/widgets/shell/process_list/process_list.py:148
+# navigator/widgets/shell/process_list/process_list.py:147
 "State {state}, {threads} threads" = "الحالة {state}، الخيوط {threads}"
-# navigator/widgets/shell/process_window/process_window.py:197
+# navigator/widgets/shell/process_window/process_window.py:205
 "{count} process, {mine} yours" = ["{count} عملية، {mine} لك", "عملية واحدة، {mine} لك", "عمليتان، {mine} لك", "{count} عمليات، {mine} لك", "{count} عملية، {mine} لك", "{count} عملية، {mine} لك"]
-# navigator/widgets/shell/process_window/process_window.py:290
+# navigator/widgets/shell/process_window/process_window.py:208
+"{shown} of {count} process match the filter" = ["تطابق التصفية {shown} من {count} عملية", "تطابق التصفية {shown} من {count} عملية", "تطابق التصفية {shown} من {count} عمليتين", "تطابق التصفية {shown} من {count} عمليات", "تطابق التصفية {shown} من {count} عملية", "تطابق التصفية {shown} من {count} عملية"]
+# navigator/widgets/shell/process_window/process_window.py:308
 "The cursor is on no process" = "المؤشر ليس على عملية"
-# navigator/widgets/shell/process_window/process_window.py:331
+# navigator/widgets/shell/process_window/process_window.py:358
 "Ask process {pid} ({name}) to end?" = "هل تطلب من العملية {pid} ({name}) أن تنتهي؟"
-# navigator/widgets/shell/process_window/process_window.py:356
+# navigator/widgets/shell/process_window/process_window.py:383
 "Signal {pid}" = "إشارة {pid}"
-# navigator/widgets/shell/process_window/process_window.py:388
+# navigator/widgets/shell/process_window/process_window.py:415
 "Cannot signal process {pid} ({name}): {error}" = "تعذر إرسال إشارة إلى العملية {pid} ({name}): {error}"
-# navigator/widgets/shell/process_window/process_window.py:144
-"Search: {text}" = "بحث: {text}"
-# navigator/widgets/shell/process_window/process_window.py:318
+# navigator/widgets/shell/process_window/process_window.py:344
 "Process {pid}" = "العملية {pid}"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"

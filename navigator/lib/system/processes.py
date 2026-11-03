@@ -125,6 +125,8 @@ class Row:
     rails: tuple[bool, ...] = ()
     #: Whether this is its parent's last child.
     last: bool = True
+    #: Shown only as the parent of a match: the filter did not pick it.
+    context: bool = False
 
 
 _USERS: dict[int, str] = {}
@@ -289,11 +291,39 @@ def ordered(found: Iterable[Process], by: str, descending: bool) -> list[Process
     return sorted(found, key=sort_key(by), reverse=descending)
 
 
-def tree(found: Iterable[Process], by: str = "pid", descending: bool = False) -> list[Row]:
+def matches(process: Process, text: str) -> bool:
+    """Whether the window's filter *text* -- any case, anywhere -- is in
+    *process*'s command, its name, its owner or its number.  Empty matches all."""
+    text = text.strip().casefold()
+    if not text:
+        return True
+    return any(text in each.casefold() for each in (process.command, process.name, process.user, str(process.pid)))
+
+
+def with_ancestors(found: Iterable[Process], picked: Iterable[Process]) -> tuple[list[Process], set[int]]:
+    """*picked*, and every ancestor of one of them that is in *found*: what a
+    filtered tree shows.  Also the pids of the ancestors added, which the
+    filter did not pick."""
+    by_pid = {process.pid: process for process in found}
+    shown = {process.pid: process for process in picked}
+    added: set[int] = set()
+    for process in list(shown.values()):
+        parent = by_pid.get(process.ppid)
+        while parent is not None and parent.pid not in shown:
+            shown[parent.pid] = parent
+            added.add(parent.pid)
+            parent = by_pid.get(parent.ppid) if parent.ppid != parent.pid else None
+    return list(shown.values()), added
+
+
+def tree(found: Iterable[Process], by: str = "pid", descending: bool = False,
+         context: Iterable[int] = ()) -> list[Row]:
     """*found* as a tree, depth first: each process under its parent, the
     children of one parent in the order *by* gives.  One whose parent is not
     in *found* -- pid 1, the kernel's threads under 2 when 2 is filtered
-    out, an orphan of a filter -- is a root."""
+    out, an orphan of a filter -- is a root.  A pid in *context* is a
+    parent shown for a match's sake (:attr:`Row.context`)."""
+    context = set(context)
     found = list(found)
     known = {process.pid for process in found}
     children: dict[int, list[Process]] = {}
@@ -313,7 +343,7 @@ def tree(found: Iterable[Process], by: str = "pid", descending: bool = False) ->
                 continue
             seen.add(process.pid)
             last = index == len(level) - 1
-            rows.append(Row(process, depth, rails, last))
+            rows.append(Row(process, depth, rails, last, process.pid in context))
             below = children.get(process.pid)
             if below:
                 walk(below, depth + 1, rails + (not last,) if depth else rails)

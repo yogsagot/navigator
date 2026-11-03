@@ -216,14 +216,86 @@ def test_the_cursor_stays_on_its_process_when_read_again_and_the_tree_and_mine_o
     assert seen[2][:2] == ([300, 310], 310)
 
 
-def test_typing_searches_and_f3_shows_the_details(tmp_path, monkeypatch):
+def test_typing_filters_and_f3_shows_the_details(tmp_path, monkeypatch):
     seen = []
     monkeypatch.setattr(processes, "details", lambda pid, proc=processes.PROC: [("Process", str(pid))])
-    process_run(tmp_path, monkeypatch, KeyEvent("c", char="c"), KeyEvent("r", char="r"),
-                lambda a: seen.append(a.shell.desktop.active_window.processes.selected.process.pid),
-                KeyEvent("escape"), KeyEvent("f3"), Until(lambda a: a.modal is not None),
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        seen.append((pids(a), window.processes.selected.process.pid, window.filter.value,
+                     window.filter.focused, window.status.text))
+
+    process_run(tmp_path, monkeypatch, KeyEvent("c", char="c"), KeyEvent("r", char="r"), look,
+                KeyEvent("down"), KeyEvent("escape"), look,
+                KeyEvent("f3"), Until(lambda a: a.modal is not None),
                 lambda a: seen.append(type(a.modal).__name__), KeyEvent("enter"))
-    assert seen == [200, "Dialog"]
+    assert seen[0][:4] == ([200], 200, "cr", True)
+    assert seen[0][4] == "1 of 4 processes match the filter"
+    # Down gave the keyboard to the list; Esc there emptied the filter.
+    assert seen[1][:4] == ([1, 200, 300, 310], 200, "", False)
+    assert seen[1][4].startswith("4 processes")
+    assert seen[2] == "Dialog"
+
+
+def test_the_filter_matches_the_user_and_the_number_and_esc_empties_it_then_closes(tmp_path, monkeypatch):
+    seen = []
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        seen.append(pids(a) if getattr(window, "filter", None) is not None else None)
+
+    def type_text(text):
+        return [KeyEvent(char, char=char) for char in text]
+
+    process_run(tmp_path, monkeypatch, KeyEvent("f4"), *type_text("ME"), look,
+                KeyEvent("escape"), look, *type_text("31"), look,
+                KeyEvent("escape"), KeyEvent("escape"), look)
+    assert seen[:3] == [[300, 310], [1, 200, 300, 310], [310]]
+    assert seen[3] is None
+
+
+def test_a_filtered_tree_keeps_the_parents_of_a_match_dimmed(tmp_path, monkeypatch):
+    seen = []
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        rows = window.processes.items
+        seen.append(([row.process.pid for row in rows], [row.context for row in rows],
+                     window.processes.selected.process.pid))
+
+    process_run(tmp_path, monkeypatch, KeyEvent("t", ctrl=True), KeyEvent("s", ctrl=True),
+                *[KeyEvent(c, char=c) for c in "vim"], look)
+    assert seen == [([1, 300, 310], [True, True, False], 310)]
+
+
+def test_no_control_covers_another_on_an_80_column_screen(tmp_path, monkeypatch):
+    """*Mine only* sat under the buttons once, which covered its caption."""
+    seen = []
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        controls = [window.filter_caption, window.filter, window.clear_filter, window.mine_box, window.tree_box,
+                    window.signal_button, window.kill_button, window.details_button, window.close_button]
+        for control in controls:
+            assert 0 < control.x and control.x + control.width < window.width, control.id
+        for i, one in enumerate(controls):
+            for other in controls[i + 1:]:
+                apart = (one.x + one.width <= other.x or other.x + other.width <= one.x
+                         or one.y + one.height <= other.y or other.y + other.height <= one.y)
+                assert apart, (one.id, other.id)
+        seen.append(window.mine_box.width >= len("[ ] Mine only"))
+
+    process_run(tmp_path, monkeypatch, look)
+    assert seen == [True]
+
+
+def test_matches_and_with_ancestors():
+    found = fake_processes()
+    vim = next(each for each in found if each.pid == 310)
+    assert processes.matches(vim, "NOTES") and processes.matches(vim, "31") and processes.matches(vim, " ")
+    assert not processes.matches(vim, "cron")
+    kept, added = processes.with_ancestors(found, [vim])
+    assert sorted(each.pid for each in kept) == [1, 300, 310] and added == {1, 300}
 
 
 def test_f8_asks_then_sends_sigterm_and_a_refusal_offers_as_root(tmp_path, monkeypatch):

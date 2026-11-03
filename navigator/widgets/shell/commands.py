@@ -265,6 +265,12 @@ class ProcessMineOnly(Command):
     title = "Mine"
 
 
+class FilterProcesses(Command):
+    """Process list > *Filter* (F4, Ctrl+S): the keyboard to the filter line, htop's F4."""
+
+    title = "Filter"
+
+
 class SignalProcess(Command):
     """Process list > *Signal* (F7): send the process under the cursor a signal chosen from a box."""
 
@@ -513,6 +519,7 @@ __all__ = [
     "ProcessSortCommand",
     "ProcessTree",
     "ProcessMineOnly",
+    "FilterProcesses",
     "SignalProcess",
     "KillProcess",
     "ProcessDetails",

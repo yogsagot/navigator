@@ -512,7 +512,8 @@ UsageWindow ScrollBar::thumb                   { fg: $dialog-scroll-bar-icons-fg
 
 /* Utilities > Process list, not DN's: dressed as Disk > Volumes is.  The
    kernel's own threads and zombies are dim, as a cut file is; a stopped
-   process italic. */
+   process italic; in a filtered tree, a parent shown only for a match's
+   sake (.context) dim too. */
 ProcessWindow,
 ProcessWindow:active                             { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 ProcessWindow::title,
@@ -528,6 +529,7 @@ ProcessWindow ScrollBar::thumb                   { fg: $dialog-scroll-bar-icons-
 ProcessWindow ProcessList::row.kernel          { dim: true }
 ProcessWindow ProcessList::row.zombie          { dim: true }
 ProcessWindow ProcessList::row.stopped         { italic: true }
+ProcessWindow ProcessList::row.context         { dim: true }
 
 /* Compare directories' Synchronize window, not DN's: a dialog's frame as
    Disk > Volumes', round a file panel's rows -- Normal text [85], the cursor

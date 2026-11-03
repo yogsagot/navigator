@@ -283,7 +283,7 @@ flag = "CN"
 "ACL Entry" = "ACL 条目"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:26
 "~T~ype" = "类型(~T~)"
-# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/lib/system/processes.py:376, navigator/widgets/manager/commands.py:25 ...
+# navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/lib/system/processes.py:406, navigator/widgets/manager/commands.py:25 ...
 "User" = "用户"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:35, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:92
 "Group" = "组"
@@ -971,7 +971,7 @@ flag = "CN"
 "Choose a directory from a tree" = "从目录树中选择目录"
 # navigator/widgets/manager/manager/manager.nml:313, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2289 ...
 "Quick s~e~arch" = "快速搜索(~E~)"
-# navigator/widgets/manager/manager/manager.nml:317, navigator/widgets/shell/process_window/process_window.nml:136, navigator/widgets/shell/usage_window/usage_window.nml:102 ...
+# navigator/widgets/manager/manager/manager.nml:317, navigator/widgets/shell/process_window/process_window.nml:171, navigator/widgets/shell/usage_window/usage_window.nml:102 ...
 "~R~e-read" = "刷新(~R~)"
 # navigator/widgets/manager/manager/manager.nml:321
 "S~a~me directory in other panel" = "另一面板转到相同目录(~A~)"
@@ -1743,7 +1743,7 @@ flag = "CN"
 "~R~un" = "运行(~R~)"
 # navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:35
 "~D~rop" = "移除(~D~)"
-# navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:53, navigator/widgets/shell/process_window/process_window.nml:102
+# navigator/widgets/shell/command_history_dialog/command_history_dialog.nml:53, navigator/widgets/shell/process_window/process_window.nml:137
 "~K~ill" = "终止(~K~)"
 # navigator/widgets/shell/command_palette/command_palette.nml:18, navigator/widgets/shell/commands.py:399
 "Commands" = "命令"
@@ -2165,45 +2165,51 @@ flag = "CN"
 "Bring back the progress box of a copy or an erase running in the background" = "恢复在后台运行的复制或删除的进度框"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "菜单参数"
-# navigator/widgets/shell/process_window/process_window.nml:37, navigator/widgets/shell/process_window/process_window.py:406, navigator/lib/config/keybindings.py
+# navigator/widgets/shell/process_window/process_window.nml:41, navigator/widgets/shell/process_window/process_window.py:433, navigator/lib/config/keybindings.py
 "Process list" = "进程列表"
-# navigator/widgets/shell/process_window/process_window.nml:79
+# navigator/widgets/shell/process_window/process_window.nml:70, navigator/widgets/shell/process_window/process_window.nml:211, navigator/widgets/shell/process_window/process_window.py:467
+"~F~ilter" = "过滤(~F~)"
+# navigator/widgets/shell/process_window/process_window.nml:81
+"Show only the processes whose command, name, user or PID holds this" = "仅显示命令、名称、用户或 PID 包含此文本的进程"
+# navigator/widgets/shell/process_window/process_window.nml:91
+"Clear the filter" = "清除过滤"
+# navigator/widgets/shell/process_window/process_window.nml:114
 "~M~ine only" = "仅我的(~M~)"
-# navigator/widgets/shell/process_window/process_window.nml:80, navigator/widgets/shell/process_window/process_window.nml:172
+# navigator/widgets/shell/process_window/process_window.nml:115, navigator/widgets/shell/process_window/process_window.nml:207
 "Only your own processes" = "仅显示您自己的进程"
-# navigator/widgets/shell/process_window/process_window.nml:89, navigator/widgets/shell/process_window/process_window.nml:167
+# navigator/widgets/shell/process_window/process_window.nml:124, navigator/widgets/shell/process_window/process_window.nml:202
 "Each process under its parent" = "每个进程显示在其父进程之下"
-# navigator/widgets/shell/process_window/process_window.nml:93
+# navigator/widgets/shell/process_window/process_window.nml:128
 "~S~ignal" = "信号(~S~)"
-# navigator/widgets/shell/process_window/process_window.nml:111
+# navigator/widgets/shell/process_window/process_window.nml:146
 "~D~etails" = "详情(~D~)"
-# navigator/widgets/shell/process_window/process_window.nml:132
+# navigator/widgets/shell/process_window/process_window.nml:167
 "~P~rocesses" = "进程(~P~)"
-# navigator/widgets/shell/process_window/process_window.nml:133
+# navigator/widgets/shell/process_window/process_window.nml:168
 "Sort, search and signal the running processes" = "对正在运行的进程排序、搜索和发送信号"
-# navigator/widgets/shell/process_window/process_window.nml:141
-"Sort by ~P~ID" = "按 PID 排序(~P~)"
-# navigator/widgets/shell/process_window/process_window.nml:145
-"Sort by ~u~ser" = "按用户排序(~U~)"
-# navigator/widgets/shell/process_window/process_window.nml:149
-"Sort by s~t~ate" = "按状态排序(~T~)"
-# navigator/widgets/shell/process_window/process_window.nml:153
-"Sort by CPU ~l~oad" = "按 CPU 负载排序(~L~)"
-# navigator/widgets/shell/process_window/process_window.nml:157
-"Sort by ~m~emory" = "按内存排序(~M~)"
-# navigator/widgets/shell/process_window/process_window.nml:161
-"Sort by comma~n~d" = "按命令排序(~N~)"
-# navigator/widgets/shell/process_window/process_window.nml:166, navigator/widgets/shell/process_window/process_window.py:438
-"Tr~e~e" = "树(~E~)"
-# navigator/widgets/shell/process_window/process_window.nml:171, navigator/widgets/shell/process_window/process_window.py:439
-"M~i~ne only" = "仅我的(~I~)"
 # navigator/widgets/shell/process_window/process_window.nml:176
-"~Q~uick search" = "快速搜索(~Q~)"
-# navigator/widgets/shell/process_window/process_window.nml:181, navigator/widgets/shell/process_window/process_window.py:441
+"Sort by ~P~ID" = "按 PID 排序(~P~)"
+# navigator/widgets/shell/process_window/process_window.nml:180
+"Sort by ~u~ser" = "按用户排序(~U~)"
+# navigator/widgets/shell/process_window/process_window.nml:184
+"Sort by s~t~ate" = "按状态排序(~T~)"
+# navigator/widgets/shell/process_window/process_window.nml:188
+"Sort by CPU ~l~oad" = "按 CPU 负载排序(~L~)"
+# navigator/widgets/shell/process_window/process_window.nml:192
+"Sort by ~m~emory" = "按内存排序(~M~)"
+# navigator/widgets/shell/process_window/process_window.nml:196
+"Sort by comma~n~d" = "按命令排序(~N~)"
+# navigator/widgets/shell/process_window/process_window.nml:201, navigator/widgets/shell/process_window/process_window.py:465
+"Tr~e~e" = "树(~E~)"
+# navigator/widgets/shell/process_window/process_window.nml:206, navigator/widgets/shell/process_window/process_window.py:466
+"M~i~ne only" = "仅我的(~I~)"
+# navigator/widgets/shell/process_window/process_window.nml:212
+"Show only the processes whose command, name, user or PID holds what is typed" = "仅显示命令、名称、用户或 PID 包含所输入文本的进程"
+# navigator/widgets/shell/process_window/process_window.nml:217, navigator/widgets/shell/process_window/process_window.py:469
 "~D~etails..." = "详情(~D~)..."
-# navigator/widgets/shell/process_window/process_window.nml:185, navigator/widgets/shell/process_window/process_window.py:442
+# navigator/widgets/shell/process_window/process_window.nml:221, navigator/widgets/shell/process_window/process_window.py:470
 "~S~ignal..." = "信号(~S~)..."
-# navigator/widgets/shell/process_window/process_window.nml:189, navigator/widgets/shell/process_window/process_window.py:443
+# navigator/widgets/shell/process_window/process_window.nml:225, navigator/widgets/shell/process_window/process_window.py:471
 "~K~ill..." = "终止(~K~)..."
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "系统信息"
@@ -2647,35 +2653,35 @@ flag = "CN"
 "parked" = "已驻留"
 # navigator/lib/system/processes.py:56
 "paging" = "换页"
-# navigator/lib/system/processes.py:347, navigator/lib/system/processes.py:425
+# navigator/lib/system/processes.py:377, navigator/lib/system/processes.py:455
 "The process has ended" = "进程已结束"
-# navigator/lib/system/processes.py:371
+# navigator/lib/system/processes.py:401
 "Process" = "进程"
-# navigator/lib/system/processes.py:372, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2694 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2694 ...
 "Name" = "名称"
-# navigator/lib/system/processes.py:373, navigator/widgets/shell/commands.py:253, navigator/widgets/shell/process_list/process_list.py:119
+# navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:253, navigator/widgets/shell/process_list/process_list.py:118
 "Command" = "命令"
-# navigator/lib/system/processes.py:374
+# navigator/lib/system/processes.py:404
 "Program" = "程序"
-# navigator/lib/system/processes.py:377, navigator/widgets/shell/commands.py:235
+# navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:235
 "State" = "状态"
-# navigator/lib/system/processes.py:378
+# navigator/lib/system/processes.py:408
 "Parent" = "父进程"
-# navigator/lib/system/processes.py:379
+# navigator/lib/system/processes.py:409
 "Started" = "启动于"
-# navigator/lib/system/processes.py:380
+# navigator/lib/system/processes.py:410
 "Threads" = "线程"
-# navigator/lib/system/processes.py:381
+# navigator/lib/system/processes.py:411
 "Nice" = "优先级"
-# navigator/lib/system/processes.py:382
+# navigator/lib/system/processes.py:412
 "Resident" = "常驻内存"
-# navigator/lib/system/processes.py:383
+# navigator/lib/system/processes.py:413
 "Virtual" = "虚拟内存"
-# navigator/lib/system/processes.py:384
+# navigator/lib/system/processes.py:414
 "Open files" = "打开的文件"
-# navigator/lib/system/processes.py:385
+# navigator/lib/system/processes.py:415
 "Environment" = "环境变量"
-# navigator/lib/system/processes.py:416, navigator/widgets/shell/process_window/process_window.py:292
+# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:310
 "Navigator does not signal that process" = "Navigator 不向该进程发送信号"
 # navigator/lib/system/sysinfo.py:147
 "Machine type" = "机器类型"
@@ -4007,13 +4013,13 @@ flag = "CN"
 "Go" = "转到"
 # navigator/widgets/shell/commands.py:217
 "Processes" = "进程"
-# navigator/widgets/shell/commands.py:223, navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/commands.py:223, navigator/widgets/shell/process_list/process_list.py:118
 "PID" = "PID"
 # navigator/widgets/shell/commands.py:265
 "Mine" = "我的"
 # navigator/widgets/shell/commands.py:271
 "Signal" = "信号"
-# navigator/widgets/shell/commands.py:277, navigator/widgets/shell/process_window/process_window.py:332
+# navigator/widgets/shell/commands.py:277, navigator/widgets/shell/process_window/process_window.py:359
 "Kill" = "终止"
 # navigator/widgets/shell/commands.py:290
 "Details" = "详情"
@@ -4103,25 +4109,25 @@ flag = "CN"
 "The same keys again stop it" = "再按同样的键停止"
 # navigator/widgets/shell/macro_mark.py:49
 "Recording keys into macro {slot}" = "正在把按键录制到宏 {slot}"
-# navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/process_list/process_list.py:118
 "S" = "S"
-# navigator/widgets/shell/process_list/process_list.py:119
+# navigator/widgets/shell/process_list/process_list.py:118
 "CPU %" = "CPU %"
-# navigator/widgets/shell/process_list/process_list.py:148
+# navigator/widgets/shell/process_list/process_list.py:147
 "State {state}, {threads} threads" = "状态 {state}，{threads} 个线程"
-# navigator/widgets/shell/process_window/process_window.py:197
+# navigator/widgets/shell/process_window/process_window.py:205
 "{count} process, {mine} yours" = ["{count} 个进程，其中我的 {mine} 个"]
-# navigator/widgets/shell/process_window/process_window.py:290
+# navigator/widgets/shell/process_window/process_window.py:208
+"{shown} of {count} process match the filter" = ["{count} 个进程中有 {shown} 个符合过滤条件"]
+# navigator/widgets/shell/process_window/process_window.py:308
 "The cursor is on no process" = "光标不在进程上"
-# navigator/widgets/shell/process_window/process_window.py:331
+# navigator/widgets/shell/process_window/process_window.py:358
 "Ask process {pid} ({name}) to end?" = "要请求进程 {pid} ({name}) 结束吗？"
-# navigator/widgets/shell/process_window/process_window.py:356
+# navigator/widgets/shell/process_window/process_window.py:383
 "Signal {pid}" = "信号 {pid}"
-# navigator/widgets/shell/process_window/process_window.py:388
+# navigator/widgets/shell/process_window/process_window.py:415
 "Cannot signal process {pid} ({name}): {error}" = "无法向进程 {pid} ({name}) 发送信号：{error}"
-# navigator/widgets/shell/process_window/process_window.py:144
-"Search: {text}" = "搜索：{text}"
-# navigator/widgets/shell/process_window/process_window.py:318
+# navigator/widgets/shell/process_window/process_window.py:344
 "Process {pid}" = "进程 {pid}"
 # navigator/widgets/shell/root_mark.py:30
 "ROOT" = "ROOT"

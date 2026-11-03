@@ -1,6 +1,6 @@
 ---
 name: navigator-processes
-description: Utilities > Process list, FAR Manager's process panel and a departure from DN (DOS ran one program at a time) -- navigator/lib/system/processes.py (read/gather from /proc with no psutil, parse_stat's last-")" split, Process and Row, Sampler's top-style CPU %, ordered/tree, details, SIGNALS, protected/send/still/signal_process), the root helper's kill op, ProcessList (columns, tree glyphs, header-click SortChosen, type-to-search), ProcessWindow (refresh timer, cursor kept by PID, sorts Ctrl+P/U/E/L/Z/N, Ctrl+T tree, Ctrl+H mine only, F3 details, F7 signal box, F8/Del SIGTERM, As root), and [processes] refresh. Use when changing the process list or anything that signals a process.
+description: Utilities > Process list, FAR Manager's process panel and a departure from DN (DOS ran one program at a time) -- navigator/lib/system/processes.py (read/gather from /proc with no psutil, parse_stat's last-")" split, Process and Row, Sampler's top-style CPU %, ordered/tree, details, SIGNALS, protected/send/still/signal_process), the root helper's kill op, ProcessList (columns, tree glyphs, header-click SortChosen, the Filter line ProcessFilter), ProcessWindow (refresh timer, cursor kept by PID, sorts Ctrl+P/U/E/L/Z/N, Ctrl+T tree, Ctrl+H mine only, F3 details, F7 signal box, F8/Del SIGTERM, As root), and [processes] refresh. Use when changing the process list or anything that signals a process.
 ---
 
 # Process list
@@ -42,14 +42,25 @@ re-raises a plain `OSError`, so test `.errno`, not the subclass.
 - `ProcessList` is Python only, copying `VolumeList`: fixed columns plus a flexible *Command* column, the dividers
   painted in `render_header`, and ▲/▼ (`glyphs.scrollbar`) on the sorted column. **A press on the header row emits
   `SortChosen(by)`** (the only header-click sort in Navigator). Row classes `.mine`, `.root`, `.kernel`, `.zombie`,
-  `.stopped`, `.running` and `.waiting` are styled in `navigator.nss`.
-- Quick search lives in the list: Ctrl+S, or typing a printable character other than Space. It matches the start of
-  `comm`, the program's basename, the command or the pid (`navml.quick_search.name_pattern`). The window's status line
-  shows `Search: …` while it runs (an effect on `search`). `edits_text` is true while searching.
+  `.stopped`, `.running`, `.waiting` and `.context` are styled in `navigator.nss`.
+- **The filter is the only search** (htop's F4). The *Filter* line (`ProcessFilter`, an `InputLine` with
+  `edits_text`) and its X button sit across the top, the list under them. `processes.matches` keeps a process whose
+  command, name, user or pid holds the text, in any case. It replaced a quick search that jumped the cursor with nothing
+  but the status line to show it; the user found that confusing.
+  - Typing a printable character other than Space on the list, or Backspace with a filter, moves the keyboard into the
+    line (`ProcessList.filter_line`). Ctrl+S, F4, Alt+F and *Filter* in the menu focus it with its text picked
+    (`QuickSearch`, handled by the window).
+  - In the line, Enter, Down, Up, PgDn and PgUp give the keyboard back to the list (`ProcessFilter.rows`), and the
+    movement is made there. Esc empties a non-empty filter, on the line or on the list. An empty one lets Esc reach
+    `CloseWindow`.
+  - In a tree a match keeps its ancestors (`with_ancestors`), as `Row.context` rows styled `.context` (dim). A
+    cursor on a hidden or context row moves to the first match.
+  - The status line says `N of M processes match the filter` while there is text in it.
 - `ProcessWindow` reads through `Background("nav-processes", workers=1)` with a read counter, so only the newest read
   is shown. It starts in `mounted()`. A `call_every([processes] refresh)` timer (0 turns it off) skips a tick while a
-  read is in flight or `app.modal` is set. It is cancelled in `unmounting()`. `_show()` peeks the items and the cursor
-  and puts the cursor back **by pid**.
+  read is in flight or `app.modal` is set. It is cancelled in `unmounting()`. `_show()` peeks the items, the cursor and
+  the filter's text, and puts the cursor back **by pid**. `_follow_view` is the effect that follows the two boxes and
+  the filter.
 - Sorting keys: Ctrl+P (pid), Ctrl+U (user), Ctrl+E (state), Ctrl+L (CPU load), Ctrl+Z (memory size) and Ctrl+N
   (command name). They are not the Ctrl+F keys FAR uses, because the desktop and the global table hold those. Pressing
   the same key again reverses the order. CPU and memory sort biggest first (`DESCENDING_FIRST`).
