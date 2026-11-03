@@ -561,6 +561,18 @@ class NavyLink(Command):
     title = "SSH"
 
 
+class Terminal(Command):
+    """Utilities > *Remote shell*: where DOS Navigator had ``cmTerminal``, the
+    modem's terminal window (``DNUTIL.PAS`` ``OpenTerminal``) -- here a login
+    shell on the server the active panel is browsing over SFTP, ``ssh -t``
+    in a command window (``TerminalWindow``), in the panel's directory.  One
+    still running for that server is brought forward instead, as DN's
+    ``Term^.Select`` brought back its one terminal.  A departure in what is at
+    the other end: a server's shell, not a modem."""
+
+    title = "Term"
+
+
 class HangUp(Command):
     """Utilities > *Disconnect*, Alt+H: DN's ``cmHangUp``.  Closes a connection
     -- the one, or one chosen of several -- and its panels go back to the disk,

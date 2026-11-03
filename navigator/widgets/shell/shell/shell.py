@@ -41,6 +41,7 @@ from navigator.widgets.shell.commands import (
     GvfsLink,
     FtpLink,
     HangUp,
+    Terminal,
     CloseRootAccess,
     ShowBackground,
     NavyLink,
@@ -1147,6 +1148,10 @@ class Shell(DockLayout):
             if any(sessions.is_connection(drive.site.scheme) for drive in mounted()):
                 return ""
             return tr("No connection is open")
+        if isinstance(command, Terminal):
+            from navigator.lib.drives import remote_shell
+
+            return "" if remote_shell.program() is not None else tr("The ssh command is not installed")
         if isinstance(command, CloseRootAccess):
             return "" if self.root_mark.open else tr("No root access is open")
         if isinstance(command, ShowBackground):
@@ -2150,14 +2155,15 @@ class Shell(DockLayout):
         self.console.run(command, cwd)
 
     def run_in_window(self, command: str, *, cwd: Path | None = None, zoomed: bool | None = None,
-                      modal: bool | None = None, closes: bool = False, uses: list[Any] = (),
+                      modal: bool | None = None, closes: bool | Callable[[int], bool] = False, uses: list[Any] = (),
                       cleanup: list[Path] = (), title: str | None = None) -> Any:
         """Run *command* in a window of its own (``TerminalWindow``), not on the console.
 
         *cwd* is where, the active panel's directory unless given; *zoomed*
         and *modal* how the window opens, System Setup's *Command windows*
         unless given; *closes*, that the window goes as soon as the command
-        ends with status 0 rather than staying with its output.  *uses* are files fetched from another drive for it,
+        ends with status 0 rather than staying with its output -- or a test
+        of the wait status saying which ends take it.  *uses* are files fetched from another drive for it,
         offered back up once the window is closed; *cleanup* are files written
         for it alone (a user menu item's script), removed then.  *title* is
         what the window calls it, the command unless given.  Returns the
@@ -2474,6 +2480,8 @@ class Shell(DockLayout):
             scheme = request.scheme
         if scheme == "gvfs":
             return await self.gvfs_link(panel)
+        if scheme == "sftp" and request is None:
+            return await self.ssh_link(panel)
         family = (("ftp", "ftps") if scheme in ("ftp", "ftps") else ("s3", "s3+http") if scheme in ("s3", "s3+http")
                   else (scheme,))
         missing = sessions.available(scheme)
@@ -2490,6 +2498,25 @@ class Shell(DockLayout):
             return False
         # Remembered once it worked, every line of it together: a mistyped
         # host that never answered does not come back to be picked.
+        await asyncio.to_thread(recent.remember, recent.Recent(
+            request.scheme, request.host, request.user, request.port, request.path))
+        return True
+
+    async def ssh_link(self, panel: Any) -> bool:
+        """Utilities > *SSH link (SFTP)*: the SSH connection manager
+        (``SshLinkDialog``), and *panel* sent where *Connect* says.  True
+        once the panel is there."""
+        from navigator.lib.drives import recent, sessions
+        from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog, location_of, sftp_entries
+
+        entries = await asyncio.to_thread(sftp_entries)
+        request = await SshLinkDialog(entries, mode="panel",
+                                      missing=sessions.available("sftp")).execute(self.application)
+        if request is None:
+            return False
+        if not await self.go_remote(panel, location_of(request)):
+            return False
+        # Remembered once it worked, as ``navy_link`` does.
         await asyncio.to_thread(recent.remember, recent.Recent(
             request.scheme, request.host, request.user, request.port, request.path))
         return True
@@ -2699,6 +2726,65 @@ class Shell(DockLayout):
             row = await asyncio.to_thread(profiles.find, chosen.name)
             if row is not None:
                 await self.go_remote(panel, profiles.location_of(row))
+
+    async def on_terminal(self, event: Terminal) -> bool:
+        self.spawn(self.open_remote_shell())
+        return True
+
+    def remote_shell_location(self) -> Location | None:
+        """The directory on an SSH server the active panel is in -- the
+        archive's, inside one opened there -- or None."""
+        from navigator.lib.drives import remote_shell
+
+        manager = self.active_manager
+        return None if manager is None else remote_shell.target(manager.active_panel.location)
+
+    def _running_remote_shell(self, site: Site) -> Any:
+        """The command window still logged in to *site* by Remote shell, brought
+        forward -- DN's ``OpenTerminal`` selecting its one terminal -- or None."""
+        from navigator.widgets.shell.terminal_window import TerminalWindow
+
+        for window in reversed(self.desktop.windows()):
+            if isinstance(window, TerminalWindow) and window.remote_site == site and window.view.busy:
+                if self.console_visible:
+                    self.toggle_console()
+                self.desktop.activate(window)
+                return window
+        return None
+
+    async def open_remote_shell(self) -> Any:
+        """Utilities > *Remote shell*: ``cmTerminal``'s ``OpenTerminal``.  The
+        window still running for the active panel's server brought forward;
+        else the SSH connection manager (``SshLinkDialog``), on that server
+        if the panel is on one, and *Connect* runs ``ssh -t`` there in a
+        command window (:mod:`navigator.lib.drives.remote_shell`).  Returns
+        the window, or None when cancelled."""
+        from navigator.lib.drives import recent, remote_shell
+        from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog, location_of, sftp_entries
+
+        here = self.remote_shell_location()
+        if here is not None:
+            window = self._running_remote_shell(here.site)
+            if window is not None:
+                return window
+        entries = await asyncio.to_thread(sftp_entries)
+        request = await SshLinkDialog(entries, mode="shell", select=here).execute(self.application)
+        if request is None:
+            return None
+        location = location_of(request)
+        window = self._running_remote_shell(location.site)
+        if window is None:
+            # Gone when the connection ends -- Ctrl+D, ``exit`` -- however the
+            # remote shell's last command did; kept to show ``ssh``'s own
+            # failure (refused, unreachable, not let in).
+            window = self.run_in_window(remote_shell.command(location), closes=remote_shell.ended_well,
+                                        title=tr("ssh {login}").format(login=remote_shell.login(location.site)))
+            if window is None:
+                return None
+            window.remote_site = location.site
+        await asyncio.to_thread(recent.remember, recent.Recent(
+            request.scheme, request.host, request.user, request.port, request.path))
+        return window
 
     async def on_hang_up(self, event: HangUp) -> bool:
         self.spawn(self.hang_up())

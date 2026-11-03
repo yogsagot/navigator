@@ -35,7 +35,7 @@ class TerminalWindow(Window):
 
     def __init__(self, command: str = "", cwd: Path | None = None, *, shell: str | None = None,
                  title: str | None = None, on_close: Callable[[], Any] | None = None,
-                 closes: bool = False, **kwargs: Any) -> None:
+                 closes: bool | Callable[[int], bool] = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         #: What the title calls the command: *command* itself unless given.
         self.command = title or command
@@ -47,7 +47,15 @@ class TerminalWindow(Window):
         self.on_close = on_close
         #: Gone as soon as the command ends with status 0, rather than kept
         #: with its output: Alt+F4's console editors, whose screen is done with.
+        #: Or a test of the wait status saying which ends close it: Remote
+        #: shell's, every end but ``ssh``'s own failure
+        #: (:func:`navigator.lib.drives.remote_shell.ended_well`).
         self.closes = closes
+        #: The server a Utilities > *Remote shell* is logged in to (a
+        #: :class:`~navigator.lib.drives.Site`), None for any other command:
+        #: asked for again while it runs, this window comes forward, as DN's
+        #: ``OpenTerminal`` selected its one terminal rather than open another.
+        self.remote_site: Any = None
         self.title = bind(lambda w: w.caption())
 
     def caption(self) -> str:
@@ -59,9 +67,10 @@ class TerminalWindow(Window):
 
     def command_ended(self, status: int) -> None:
         """The command has ended (``TerminalView``): the window closed if it
-        :attr:`closes` and the command ended well; one that failed stays, to
-        say how."""
-        if self.closes and status == 0:
+        :attr:`closes` and the command ended well -- status 0, or as its test
+        says; one that failed stays, to say how."""
+        ended_well = self.closes(status) if callable(self.closes) else self.closes and status == 0
+        if ended_well:
             self.close()
 
     def take_keyboard(self) -> None:
@@ -103,11 +112,13 @@ class TerminalWindow(Window):
 
 def open_terminal(desktop: Any, command: str, cwd: Path | None = None, *, zoomed: bool = True,
                   modal: bool = False, shell: str | None = None, title: str | None = None,
-                  closes: bool = False, on_close: Callable[[], Any] | None = None) -> TerminalWindow:
+                  closes: bool | Callable[[int], bool] = False,
+                  on_close: Callable[[], Any] | None = None) -> TerminalWindow:
     """Run *command* in a new window on *desktop*: zoomed or :data:`COLUMNS` x
     :data:`LINES` (cut to the desktop) in the middle, one among the windows or
     *modal*, holding every key until it is closed.  *closes* takes it off as
-    soon as the command ends with status 0.
+    soon as the command ends with status 0 -- or, a test of the wait status,
+    as soon as it ends as the test likes.
 
     A window opened zoomed still has that rectangle to go back to.
     """

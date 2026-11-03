@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Remote shell (ssh -t, DN's cmTerminal) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -336,6 +336,47 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   protocol), `HangUp` (*Disconnect*, Alt+H; greyed with
   nothing mounted), `SetupLink` (Options > Configuration > *Communications...* → `CommunicationsPage`, `[remote]`
   keepalive, timeout, idle_disconnect, upload_changed).
+- **The SSH connection manager** (`navigator/widgets/drives/ssh_link_dialog/`, `SshLinkDialog`, after FileZilla's
+  Site Manager; a departure, asked for): Utilities > *SSH link (SFTP)* (Alt+F11, `Shell.ssh_link`; `navy_link` with
+  scheme `sftp` and no request goes there, so the Link box's *New SSH link* does too) and Utilities > *Remote shell*
+  both open it. The kept `sftp` profiles down the left (`sftp_entries()`, read on a thread by the caller), the lines
+  on the right under `ConnectDialog`'s ids, *Name* (`label`) on top, then `host`, `user`, `port`, `directory`.
+  **Two states**, `chosen`:
+  - **None: a one-off connection**, how it opens (keyboard on Name; the list shows no cursor unfocused), and after
+    *Delete*. *Connect* uses the lines; *Save*/*Delete* greyed; the line under says *Not saved -- New keeps it*.
+  - **A connection chosen** -- the cursor moved onto a row (effect `_follow_cursor`), or a click or Space on one,
+    even the cursor's (`saved_list.py`'s `SavedList.on_choose`): the lines *are* it. A **double click** connects
+    (`SavedList.on_activate` → `_activate`, only once the row is the chosen one: a double click away from a changed
+    connection only asks). **Changed** while they differ
+    from `_baseline`: the row says `name *`, *Save* (F2) lights up. Save is `profiles.replace` (renamed in place;
+    another connection's name is refused in the status line, no prompt). **Leaving a changed one asks** *Save
+    changes to "x"?* Yes/No/Cancel (`_settle()`): choosing another row (the cursor is put back meanwhile), *New*,
+    *Connect*, *Cancel*, Esc (`must_ask`/`ask_to_close`).
+  - *New* (Ins): kept at once and chosen, Name focused with its text selected -- the one-off lines if a host is
+    typed, else empty under *New connection* (`unique_name()`: *New connection 2*...). *Delete* (Del) asks.
+  - `_follow_lines` (effect) **reads all five values first, every run**: an effect depends only on what its last
+    run read, and one that short-circuited on `chosen is None` at mount never ran again (found by a test).
+    A button's note (`_say`) outranks the state text until the lines change from `_noted`.
+  - **Every line has a history** (`history_id` `ssh_name`/`ssh_host`/`ssh_login`/`ssh_port`/`ssh_directory`),
+    recorded (`record_history()`) on *Connect*, *Save* and *New* -- the box closes by its own `close()`, never
+    `on_ok_click`, so it records itself. Host remembers only hosts, as the others do: not `ConnectDialog`'s
+    recent whole connections (`choices`), which the saved list on the left stands for here. `recent.remember`
+    still runs after a connection that worked.
+  - A `user@host:port` typed in Host wins over Login/Port. *Connect* (default) answers a `ConnectRequest`;
+    `missing` (no paramiko) blocks it only in `mode="panel"`. Remote shell's preselect sets the panel's directory
+    into the baseline, so it is no change. FTP/SMB/S3/GVfs, the Link box's F2 and *Saved links* keep `ConnectDialog`.
+- **Remote shell** (`Terminal`, Utilities > *Remote shell*, no key -- DN's `cmTerminal`, the modem terminal, which
+  stood before *Hang up*): `navigator/lib/drives/remote_shell.py`. `Shell.open_remote_shell` first brings forward a
+  still-running `TerminalWindow` whose `remote_site` is the active panel's server (DN's `OpenTerminal`,
+  `Term^.Select`); else it opens the manager in `mode="shell"`, `select=` the panel's SSH location (`target()`: inside
+  an archive opened there, the archive's directory) -- the matching profile chosen with the panel's directory in
+  *Directory*, or the lines filled from it. *Connect* runs `command()`, `ssh -t [-p PORT] [-l USER] -- HOST
+  'cd DIR 2>/dev/null; exec "${SHELL:-/bin/sh}" -l'` (no `cd` for the home directory, `.`), `shlex`-quoted twice,
+  through `run_in_window(closes=remote_shell.ended_well)` -- the window goes when the connection ends (Ctrl+D,
+  `exit`, any remote status) but stays for `ssh`'s own failure (255) or a signal, to show it -- and remembers it
+  in `recent`. Only host/user/port are passed: `ssh` reads `~/.ssh/config`
+  as `credentials.host_config` does for paramiko; ssh asks any password in the window. Needs no panel and no
+  paramiko; greyed only with no `ssh` on `PATH`.
 - **Start and desktop**: `nav sftp://host/dir` opens that side on the disk and `go_remote`s it in `on_start`; a saved
   desktop keeps the URL plus `"local"` (the anchor) and reconnects the same way.
 

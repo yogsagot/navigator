@@ -1,0 +1,155 @@
+from navigator.widgets.drives.commands import DeleteSshLink, NewSshLink, SaveSshLink
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navigator.widgets.drives.ssh_link_dialog.saved_list import SavedList
+from navml.widgets.dialog.static_text import StaticText
+
+#: Utilities > *SSH link (SFTP)* (Alt+F11, DN's ``cmNavyLink``) and
+#: Utilities > *Remote shell* (DN's ``cmTerminal``): the SSH connections kept,
+#: down the left, and the one to connect to on the right -- a connection
+#: manager after FileZilla's Site Manager, asked for.  A departure: DN's link
+#: was one cable, with nothing to keep or choose.
+#:
+#: It opens with the lines empty, a one-off connection kept by nothing;
+#: choosing one in the list -- the cursor moved, a row clicked, Space -- makes
+#: the lines that connection, kept by *Save* once changed (the row says ``*``,
+#: and leaving it asks); a double click connects to it.  *New* makes one at
+#: once, under a placeholder name ready to be typed over (or from the one-off
+#: lines), and *Delete* takes one away.  Every line remembers what it held when *Connect*, *Save* or *New*
+#: was pressed (``ssh_name``, ``ssh_host``, ``ssh_login``, ``ssh_port``,
+#: ``ssh_directory``), dropped by its ``▐↓▌`` or Down.
+#: *Connect* sends the panel there (SSH link) or opens ``ssh`` in a command
+#: window (Remote shell).  The lines are ``ConnectDialog``'s, under the same
+#: ids; ``~/.ssh/config``'s ``Host`` names work as the host.
+SshLinkDialog(Dialog):
+    modal_width: 76
+    modal_height: 19
+    #: The mode's: ``SshLinkDialog`` puts *Remote shell* in for the shell.
+    title: "SSH link (SFTP)"
+
+    keys:
+        insert: NewSshLink
+        f2: SaveSshLink
+        delete: DeleteSshLink
+
+    Label:
+        id: links_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "~S~aved"
+        link: links
+
+    SavedList:
+        id: links
+        x: 2
+        y: 2
+        width: 24
+        height: 12
+
+    Field:
+        id: label
+        x: 28
+        y: 2
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "~N~ame"
+        label_width: 12
+        history_id: "ssh_name"
+
+    Field:
+        id: host
+        x: 28
+        y: 4
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "~H~ost"
+        label_width: 12
+        #: The hosts typed, as every line here remembers its own: not
+        #: ``ConnectDialog``'s whole connections, which the list on the left is.
+        history_id: "ssh_host"
+
+    Field:
+        id: user
+        x: 28
+        y: 6
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "~L~ogin"
+        label_width: 12
+        history_id: "ssh_login"
+
+    Field:
+        id: port
+        x: 28
+        y: 8
+        width: 24
+        height: 1
+        label_text: "P~o~rt"
+        label_width: 12
+        history_id: "ssh_port"
+
+    Field:
+        id: directory
+        x: 28
+        y: 10
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "~D~irectory"
+        label_width: 12
+        history_id: "ssh_directory"
+
+    #: Why a connection cannot be made, the state (one-off, changed), or
+    #: what a button just did.
+    StaticText:
+        id: missing
+        x: 28
+        y: 12
+        width: max(0, parent.width - 30)
+        height: 2
+        text: ""
+        wrap: True
+
+    Button:
+        id: create
+        text: "Ne~w~"
+        x: 2
+        y: 15
+        width: 13
+        height: 2
+
+    Button:
+        id: save
+        text: "Sav~e~"
+        x: 16
+        y: 15
+        width: 12
+        height: 2
+
+    Button:
+        id: delete
+        text: "Dele~t~e"
+        x: 29
+        y: 15
+        width: 12
+        height: 2
+
+    Button:
+        id: connect
+        text: "~C~onnect"
+        default: True
+        x: 47
+        y: 15
+        width: 13
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 61
+        y: 15
+        width: 12
+        height: 2
