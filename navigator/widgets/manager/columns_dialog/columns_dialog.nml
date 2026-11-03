@@ -4,7 +4,8 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
 
 #: Alt+K, Panel > Setup columns: DOS Navigator's ``dlgDiskParms`` (and, for a
-#: *Find:* listing, ``dlgFindParms``, whose last box is the path).
+#: *Find:* listing, ``dlgFindParms``, less its last box, the path: a
+#: departure, the directory being a footer line of its own here).
 #:
 #: *Show* and its boxes, OK, *Brief*, *Full* and Cancel, where DN had them
 #: down the right and along the bottom; the boxes are the detailed mode's
@@ -29,8 +30,8 @@ ColumnsDialog(Dialog):
         x: 3
         y: 2
         width: 20
-        height: 5
-        items: ["~S~ize", "~A~ttributes", "~O~wner", "~D~ate", "~P~ath"]
+        height: 4
+        items: ["~S~ize", "~A~ttributes", "~O~wner", "~D~ate"]
 
     #: DN's ``cmYes``: names alone.
     Button:

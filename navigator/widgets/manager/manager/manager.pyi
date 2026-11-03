@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
@@ -41,7 +41,7 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
 from navkit.stylesheet import parse_declarations
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, FindDuplicates, Edit, EditNamed, ExtractArchive, ExtractTo, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, MakeList, ReadFileList, Panelize, MultiRename, UndoMultiRename, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnselectGroup, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped, label_for
@@ -149,6 +149,8 @@ class Manager(Window, _Component):
     async def setup_columns(self, panel: Panel) -> None: ...
     async def on_dir_branch(self, event: DirBranch) -> bool: ...
     async def directory_branch(self, panel: Panel) -> None: ...
+    async def on_find_duplicates(self, event: FindDuplicates) -> bool: ...
+    async def find_duplicates(self, panel: Panel, request: Any = ...) -> None: ...
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None: ...
     async def on_fast_rename(self, event: FastRename) -> bool: ...
     async def fast_rename(self, panel: Panel) -> None: ...

@@ -45,6 +45,7 @@ from navigator.widgets.manager.commands import (
     DeleteSingle,
     DirBranch,
     DiskInfo,
+    FindDuplicates,
     Edit,
     EditNamed,
     ExtractArchive,
@@ -145,7 +146,7 @@ _LOCAL_ONLY: tuple[type, ...] = ()
 _NOT_IN_MILLER: tuple[type, ...] = (
     SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
     CompareDir, DiffFiles, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
-    DirBranch, ReadFileList, Panelize, ScrollNames,
+    DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates,
 )
 
 
@@ -1418,8 +1419,7 @@ class Manager(Window):
             return
         columns = answer[1]
         panel.shown_columns = columns
-        shown = columns - ({"path"} if panel.found is None else set())
-        panel.view_mode = "detailed" if shown else "list"
+        panel.view_mode = "detailed" if columns else "list"
 
     async def on_dir_branch(self, event: DirBranch) -> bool:
         self.spawn(self.directory_branch(self.active_panel))
@@ -1436,6 +1436,74 @@ class Manager(Window):
             return  # ``CM_Branch`` acted on a disk alone
         request = FindRequest(recursive=True, scope="directory", directories=False)
         await self._search_into(panel, request, tr("Branch: {path}").format(path=panel.title_location))
+
+    async def on_find_duplicates(self, event: FindDuplicates) -> bool:
+        self.spawn(self.find_duplicates(self.active_panel))
+        return True
+
+    async def find_duplicates(self, panel: Panel, request: Any = None) -> None:
+        """Panel > Find duplicates: the identical files below *panel*'s
+        directory, asked for first when *request* is not given, compared on
+        a thread (:func:`navigator.lib.file_ops.duplicates.find_duplicates`) into a
+        listing that keeps its groups together.  A departure, asked for."""
+        from navigator.lib.file_ops.duplicates import DuplicatesJob, find_duplicates
+        from navigator.lib.file_ops.filefind import FindListing
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.manager.duplicates_dialog import DuplicatesDialog
+        from navigator.widgets.manager.find_progress import FindProgress
+        from navigator.widgets.manager.panel.panel import entry_at
+
+        app = self.application
+        if app is None or panel.found is not None or not panel.location.is_local:
+            return
+        if request is None:
+            request = await DuplicatesDialog().execute(app)
+            if request is None:
+                return
+        here, hidden = Path(panel.path), panel.show_hidden
+        current = panel.selected
+        job = DuplicatesJob()
+
+        def work() -> list[Any]:
+            groups = find_duplicates(request, here, job, show_hidden=hidden)
+            entries = []
+            for group in groups:
+                for path in group:
+                    entry = entry_at(path, path.parent)
+                    if entry is not None:
+                        entries.append(entry)
+            return entries
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Find duplicates")
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = job.directory
+            box.count = len(job.found) if job.phase == "scan" else job.candidates
+
+        async def no_questions(question: Any) -> None:
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(work))
+        try:
+            await self._watch_job(running, job, make_box, refresh, no_questions,
+                                  abort=tr("Cancel search?"))
+            entries = await running
+        except Stopped:
+            return
+        finally:
+            if not running.done():
+                job.stop()
+        if panel.location != Location.of(here) or panel.found is not None:
+            return  # the panel went elsewhere meanwhile
+        if not entries:
+            await Dialog(title=tr("Error"), prompt=tr("No duplicate files found"), buttons="ok").execute(app)
+            return
+        panel.show_found(FindListing(tr("Duplicates: {path}").format(path=panel.title_location), here, entries,
+                                     return_to=current.name if current is not None else None, keep_order=True))
+        panel.focus()
 
     async def _search_into(self, panel: Panel, request: Any, title: str) -> None:
         """*request* searched from *panel*'s directory into a listing titled
@@ -2587,6 +2655,10 @@ class Manager(Window):
         if isinstance(command, DirBranch):
             # ``CM_Branch`` acted on a disk's directory alone.
             return unless(panel.found is None, not_found)
+        if isinstance(command, FindDuplicates):
+            if panel.found is not None:
+                return not_found
+            return unless(panel.location.is_local, tr("Only on the local disk"))
         if isinstance(command, MakeDirectory):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.

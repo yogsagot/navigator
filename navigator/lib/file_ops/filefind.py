@@ -151,6 +151,9 @@ class FindListing:
     #: The shell command whose output this is, for a panelized one: Ctrl+R
     #: runs it again rather than asking about each entry.
     command: str | None = None
+    #: The listing's own order is kept whatever the panel sorts by: *Find
+    #: duplicates*' groups (:mod:`navigator.lib.file_ops.duplicates`).
+    keep_order: bool = False
 
 
 def roots(start: Path, scope: str, mounts: Iterable[Path] = ()) -> list[Path]:

@@ -1,0 +1,41 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+
+#: Panel > Find duplicates: which files below the panel's directory to
+#: compare.  A departure, asked for -- DOS Navigator had no such command
+#: (:mod:`navigator.lib.file_ops.duplicates`).
+DuplicatesDialog(Dialog):
+    modal_width: 52
+    modal_height: 10
+    title: "Find duplicates"
+    buttons: "ok-cancel"
+
+    Field:
+        id: mask
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~F~ile mask"
+        label_width: 16
+        history_id: "find_mask"
+
+    Field:
+        id: min_size
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~M~inimum size"
+        label_width: 16
+        history_id: "duplicates_size"
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 5
+        width: max(0, parent.width - 6)
+        height: 1
+        items: ["Search ~s~ubdirectories"]
+

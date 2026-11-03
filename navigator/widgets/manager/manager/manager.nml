@@ -1,5 +1,5 @@
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit
+from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename, UndoMultiRename
@@ -194,6 +194,12 @@ Manager(Window):
             text: 'Directory Branc~h~'
             tooltip: "Every file below this directory in one listing"
             command: DirBranch
+        #: A departure, asked for (FindDuplicates' docstring); every letter
+        #: of the name is another item's, so it has none.
+        MenuItem:
+            text: 'Find duplicates...'
+            tooltip: "List the files below this directory whose contents are the same"
+            command: FindDuplicates
         MenuLine:
         #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's docstring).
         MenuItem:

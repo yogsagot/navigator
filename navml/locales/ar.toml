@@ -750,11 +750,11 @@ direction = "rtl"
 "Error" = "خطأ"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "مجلد"
-# navml/widgets/dialog/history/history.py:266, navml/widgets/dialog/history/history.py:272, navml/widgets/dialog/tree_view/tree_view.py:529 ...
+# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:529 ...
 " Search: " = " بحث: "
-# navml/widgets/dialog/history/history.py:110
+# navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "اختيار من القائمة ({key})"
-# navml/widgets/dialog/history/history.py:112
+# navml/widgets/dialog/history/history.py:116
 "Earlier entries ({key})" = "إدخالات سابقة ({key})"
 # navml/widgets/dialog/input_line/input_line.py:410
 "The line cannot be changed now" = "لا يمكن تغيير السطر الآن"

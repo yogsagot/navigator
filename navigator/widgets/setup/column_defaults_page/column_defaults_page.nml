@@ -44,8 +44,8 @@ ColumnDefaultsPage:
         x: 21
         y: 2
         width: 17
-        height: 5
-        items: ["Size", "Attributes", "Owner", "Date", "Path"]
+        height: 4
+        items: ["Size", "Attributes", "Owner", "Date"]
 
     Label:
         id: arc_caption

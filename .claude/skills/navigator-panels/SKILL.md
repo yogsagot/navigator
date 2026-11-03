@@ -99,7 +99,7 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   would fall under 12 cells.
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
 - A too-long name ends in `…` (`fit_text`, in cells) and starts with one while scrolled (`window_text`); `...` at the
-  ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title, footer path and path column cut their start with the
+  ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title and footer path cut their start with the
   same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
 - A name is shown through `Panel.shown_name` (`navkit.bidi.reveal`): a direction override, isolate or control in it is a
@@ -161,7 +161,8 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
     gutter. DN's `GetDown` was always name, size, date, time; following the columns is Navigator's. The size is
     `DirEntry.info_size` (every digit, or `UP--DIR`/`SUB-DIR`), right-aligned on its column's edge and taking cells
     from the name where wider. Drawn as it is, never split on `~` (`PLAIN_INFO`).
-  - a second line under it: a *Find:* entry's directory (DN's find drive) unless the path column shows it, or
+  - a second line under it: a *Find:* entry's directory (DN's find drive), the panel's whole width -- **there is no path column**: it was
+    Navigator's, too narrow for a path, and is gone (`[column_defaults] find_path` is `OBSOLETE`) -- or
     `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes). It is **kept while the listing could need it** -- always on a *Find:*
     listing, while the listing holds a symlink otherwise -- so the listing never changes height as the cursor moves.
   - *Selected files* (`::selected-files`, `[120]`/`[121]`): `No files selected`, or `~X bytes in N~ selected files`.
@@ -223,11 +224,9 @@ on the same mask after each, until *Close*.
 ## Columns Setup (Alt+K)
 
 `SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
-`ColumnsDialog` (`dlgDiskParms`; `dlgFindParms`'s *Path* box only in a *Find:* listing) over
-**`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date,
-and `path` (`display_path`, measured like owner up to `MAX_PATH_WIDTH`, cut from its start), shown only where entries
-are from elsewhere. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
-list mode; *Full* every column. `DROP_ORDER` still drops columns (owner, attributes, path, date) to keep the name
+`ColumnsDialog` (`dlgDiskParms`; `dlgFindParms` less its *Path* box, the directory being the footer's line) over
+**`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
+list mode; *Full* every column. `DROP_ORDER` still drops columns (owner, attributes, date) to keep the name
 `MIN_NAME_WIDTH`.
 
 A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, so a panel holds two sets:
@@ -385,6 +384,18 @@ a NUL: `find -print0`) into a `FindListing(command=...)` titled `Panel: <command
 with the first stderr line when the command failed. **Ctrl+R in such a listing runs the command again** (`on_rescan`),
 columns and cursor kept. Enabled only on the local disk. Two more ways in: a command line starting `|`
 (`console-command-line`) and a user-menu item with a `<|` line (`navigator-user-menu`).
+
+**Panel > Find duplicates** (`FindDuplicates`, `Manager.find_duplicates`; a departure, asked for -- DN had none):
+`DuplicatesDialog` (mask, history `find_mask`; minimum size, default 1 so empty files are out, `valid()` refusing a
+non-number; *Search subdirectories*; kept for the session), then `navigator/lib/file_ops/duplicates.py`'s
+`find_duplicates` on a thread: the walk is `filefind.search` (hidden files follow the panel's Ctrl+H), symlinks and
+non-regular files dropped, **hard links collapsed to the first name by path** (erasing one frees nothing), then
+narrowed by size, a quick blake2b of the first and last `CHUNK` (a file of at most 2×CHUNK is then read whole and
+skips the next step), and a full blake2b. Stop raises `Stopped`: half a result is no answer. **The listing keeps its
+own order** (`FindListing(keep_order=True)`: `Panel.reload` reads it `unsorted`, whatever `sort_mode` says): the
+groups wasting most bytes first, each by path. Nothing is tagged. Ctrl+R re-`stat`s, dropping erased files; a group
+left with one file stays until the next search. Menu only (every letter of the name is taken), no key; local disk
+and not in a listing. Nothing alike: *No duplicate files found*.
 
 **Entries can live elsewhere**: `DirEntry.directory` (None in a directory listing), **`DirEntry.path_in(here)`** for
 its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole path when elsewhere) for tags,

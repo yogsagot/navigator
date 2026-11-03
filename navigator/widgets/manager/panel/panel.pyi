@@ -85,7 +85,6 @@ class Panel(ListViewer, _Component):
     DETAIL_ORDER: _Any
     DROP_ORDER: _Any
     ARCHIVE_ONLY: _Any
-    MAX_PATH_WIDTH: _Any
     MAX_OWNER_WIDTH: _Any
     MIN_NAME_WIDTH: _Any
     GIT_CELLS: _Any
@@ -191,7 +190,6 @@ class Panel(ListViewer, _Component):
     async def on_key(self, event: KeyEvent) -> bool: ...
     def arrows_to_line(self, event: KeyEvent) -> bool: ...
     detail_columns: tuple[tuple[str, int, int], ...]
-    def _path_width(self) -> int: ...
     def _owner_width(self) -> int: ...
     list_columns: tuple[tuple[int, int, int], ...]
     capacity: int

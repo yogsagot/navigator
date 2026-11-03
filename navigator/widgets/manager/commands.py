@@ -531,6 +531,14 @@ class Panelize(Command):
     """
 
 
+class FindDuplicates(Command):
+    """Panel > Find duplicates: identical files below the panel's directory, as a listing.
+
+    A departure, asked for: DOS Navigator had no such command
+    (:mod:`navigator.lib.file_ops.duplicates`).
+    """
+
+
 class MultiRename(Command):
     """Alt+M, Panel > Multi-rename: the tagged files renamed by a pattern.
 
@@ -793,6 +801,7 @@ __all__ = [
     "UndoMultiRename",
     "RestoreTrash",
     "DirBranch",
+    "FindDuplicates",
     "SetupColumns",
     "AdvancedFilter",
     "DirHistory",

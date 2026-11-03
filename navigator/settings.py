@@ -812,7 +812,7 @@ class ColumnDefaultsData(Section):
     #: *Disk Drive*'s boxes, in their order.
     DISK: ClassVar[tuple[str, ...]] = ("disk_size", "disk_attributes", "disk_owner", "disk_date")
     #: *File find*'s boxes, in their order.
-    FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_owner", "find_date", "find_path")
+    FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_owner", "find_date")
     #: *Archives*' boxes, in their order.
     ARC: ClassVar[tuple[str, ...]] = ("arc_size", "arc_packed", "arc_ratio", "arc_attributes", "arc_owner",
                                       "arc_date")
@@ -825,7 +825,6 @@ class ColumnDefaultsData(Section):
     find_attributes: bool = Setting(True, doc="A Find: listing shows the attributes")
     find_owner: bool = Setting(True, doc="A Find: listing shows the owner")
     find_date: bool = Setting(True, doc="A Find: listing shows the date")
-    find_path: bool = Setting(True, doc="A Find: listing shows each file's directory")
     arc_size: bool = Setting(True, doc="An archive shows the original size")
     arc_packed: bool = Setting(True, doc="An archive shows the packed size")
     arc_ratio: bool = Setting(True, doc="An archive shows the packed size as a percentage of the original")
@@ -1089,6 +1088,9 @@ OBSOLETE: dict[str, frozenset[str]] = {
         "alt_difference", "ctrl_difference", "keep_descriptions", "drive_line",
         "quick_search", "description_files",
     }),
+    # A *Find:* listing's directory is a footer line of its own, the whole
+    # panel wide: the path column it was is gone.
+    "column_defaults": frozenset({"find_path"}),
 }
 
 

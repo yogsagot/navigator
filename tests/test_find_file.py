@@ -310,7 +310,7 @@ def test_the_progress_line_cuts_a_long_directory_from_its_start():
     assert FindProgress.fit(box, path) == "..." + path[-49:]
 
 
-def test_a_path_column_takes_the_directory_s_line_over(place):
+def test_the_directory_s_line_stays_however_wide_the_panel(place):
     app = navigator(place)
     seen = {}
 
@@ -323,10 +323,9 @@ def test_a_path_column_takes_the_directory_s_line_over(place):
     run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
                   Until(finding), lambda a: None, to(str(place / "a" / "deep" / "note.txt")), look("narrow"),
                   lambda a: setattr(a.manager.left, "width", 150), lambda a: None, look("wide")])
-    columns, lines = seen["narrow"]
-    assert "path" not in columns and lines[1].endswith("/a/deep")
-    columns, lines = seen["wide"]
-    assert "path" in columns and lines[0].rstrip().endswith("/a/deep") and "/a/deep" not in lines[1]
+    for key in ("narrow", "wide"):
+        columns, lines = seen[key]
+        assert "path" not in columns and lines[1].endswith("/a/deep")
 
 
 def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place):

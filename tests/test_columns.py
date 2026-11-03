@@ -64,7 +64,7 @@ def test_brief_and_full(place):
     assert seen["full"] == ("detailed", ["name", "size", "attributes", "owner", "date"])
 
 
-def test_a_find_listing_has_a_path_column_cut_from_its_start(place):
+def test_a_find_listing_gives_the_directory_a_footer_line_not_a_column(place):
     from navigator.widgets.manager.commands import DirBranch
 
     app = navigator(place)
@@ -76,21 +76,15 @@ def test_a_find_listing_has_a_path_column_cut_from_its_start(place):
     def look(a):
         panel = a.manager.left
         panel.cursor = [e.name for e in panel.items].index("x.txt")
-        x = dict((k, (x, w)) for k, x, w in panel.detail_columns)["path"]
-        from navkit.screen import ScreenBuffer
-        buffer = ScreenBuffer(panel.width, panel.height)
-        panel.render(buffer)
-        rows = ["".join(buffer.get(c, r)[0] or " " for c in range(x[0], x[0] + x[1]))
-                for r in range(panel.height)]
-        seen.update(keys=keys(panel), rows=rows, width=x[1])
+        seen.update(keys=keys(panel), lines=[text for text, _ in panel.info_lines], width=panel.inner_width)
 
     run_app(app, [detailed, lambda a: a.spawn(a.run_command(DirBranch)),
                   Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live),
                   lambda a: None, look])
-    assert seen["keys"][-1] == "path"
+    assert "path" not in seen["keys"]
     deep = str(place / "deep" / "er")
     shown = deep if len(deep) <= seen["width"] else "\u2026" + deep[-(seen["width"] - 1):]
-    assert any(row.rstrip() == shown for row in seen["rows"])
+    assert seen["lines"][1] == shown
 
 
 def test_column_defaults_seed_a_new_panel_and_each_find_listing(place):
@@ -117,7 +111,7 @@ def test_column_defaults_seed_a_new_panel_and_each_find_listing(place):
                   Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live),
                   lambda a: None, lambda a: seen.update(again=keys(a.manager.left))])
     assert seen["disk"] == ["name", "size", "date"]
-    assert seen["find"] == ["name", "attributes", "owner", "date", "path"]
+    assert seen["find"] == ["name", "attributes", "owner", "date"]
     assert seen["back"] == ["name", "size", "date"]
     assert seen["again"] == seen["find"]
 
@@ -134,12 +128,12 @@ def test_the_column_defaults_dialog_saves_its_section(place):
         seen["title"] = page.title
         seen["before"] = (page.disk.value, page.find.value)
         page.disk.value = 0b1001
-        page.find.value = 0b10000
+        page.find.value = 0b1000
 
     run_app(app, [lambda a: a.spawn(a.run_command(ColumnDefaults)),
                   Until(lambda a: getattr(a.modal, "title", None) == "Settings", timeout=5),
                   untick, KeyEvent("enter"), lambda a: None])
-    assert seen["title"] == "Columns" and seen["before"] == (0b1111, 0b11111)
+    assert seen["title"] == "Columns" and seen["before"] == (0b1111, 0b1111)
     assert SETTINGS.column_defaults.columns(False) == {"size", "date"}
-    assert SETTINGS.column_defaults.columns(True) == {"path"}
+    assert SETTINGS.column_defaults.columns(True) == {"date"}
     assert "disk_owner = no" in SETTINGS.path.read_text()

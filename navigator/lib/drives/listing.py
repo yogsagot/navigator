@@ -145,11 +145,6 @@ class DirEntry:
         return stat.filemode(self.mode)[1:]
 
     @property
-    def display_path(self) -> str:
-        """Where an entry from elsewhere is: a *Find:* listing's path column."""
-        return str(self.directory) if self.directory is not None else ""
-
-    @property
     def display_owner(self) -> str:
         """``user:group``, as ``ls -l`` names them, a number where no name is
         known, and blank for an entry that could not be read.

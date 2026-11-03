@@ -91,9 +91,9 @@ class ColumnDefaultsPage(_Component):
         self.find.x = 21    # column_defaults_page.nml:44
         self.find.y = 2    # column_defaults_page.nml:45
         self.find.width = 17    # column_defaults_page.nml:46
-        self.find.height = 5    # column_defaults_page.nml:47
+        self.find.height = 4    # column_defaults_page.nml:47
         self.find.items = _bind(    # column_defaults_page.nml:48
-            lambda _o: [_tr('Size'), _tr('Attributes'), _tr('Owner'), _tr('Date'), _tr('Path')],
+            lambda _o: [_tr('Size'), _tr('Attributes'), _tr('Owner'), _tr('Date')],
             yielding=True,
         )
 

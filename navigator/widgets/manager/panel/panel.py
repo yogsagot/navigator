@@ -320,7 +320,7 @@ class Panel(ListViewer):
     #: The same over a *Find:* listing, which was a drive of its own in DN
     #: with its own ``ShowFlags``: seeded from *File find* by each listing
     #: shown, and the only one of the two where ``path`` counts.
-    find_columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date", "path")))
+    find_columns: frozenset[str] = reactive(frozenset(("size", "attributes", "owner", "date")))
     #: The same in an archive (DN's ``TArcDrive``, whose ``ShowFlags`` were
     #: ``ColumnsDefaults.Arc``): seeded from *Archives* by each archive gone
     #: into, and the only one where ``packed`` and ``ratio`` count.
@@ -806,6 +806,8 @@ class Panel(ListViewer):
                 request.return_to, request.keep = pending.return_to, pending.keep
         self._generation += 1
         generation = self._generation
+        if found is not None and found.keep_order:
+            sort = "unsorted"  # *Find duplicates*' groups stay together
         if found is not None and found.live:
             # Still being searched: the entries as found, only ordered.
             entries = [DirEntry("..", True, 0)] + [e for e in found.entries
@@ -1449,7 +1451,7 @@ class Panel(ListViewer):
             for key, left, width in self.detail_columns:
                 if not left <= x < left + width or key == "name":
                     continue
-                if key in ("owner", "path"):
+                if key == "owner":
                     whole = getattr(item, self.DETAIL_COLUMNS[key][2])
                     return whole if text_width(whole) > width else ""
                 return ""
@@ -1486,7 +1488,6 @@ class Panel(ListViewer):
             "attributes": tr("Permissions: the owner's, the group's and others'"),
             "owner": tr("The owner and group"),
             "date": tr("When the file was last modified"),
-            "path": tr("The directory the file was found in"),
         }[key]
 
     def sort_arrow(self, key: str) -> str:
@@ -1936,14 +1937,11 @@ class Panel(ListViewer):
         "attributes": ("Attr", 9, "display_attributes"),
         "owner": ("Owner", None, "display_owner"),
         "date": ("Date", None, "display_date"),
-        "path": ("Path", None, "display_path"),
     }
-    DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "owner", "date", "path")
-    DROP_ORDER = ("owner", "attributes", "ratio", "packed", "path", "date")
+    DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "owner", "date")
+    DROP_ORDER = ("owner", "attributes", "ratio", "packed", "date")
     #: The columns only an archive's entries fill.
     ARCHIVE_ONLY = frozenset(("packed", "ratio"))
-    #: The widest the path column grows; a longer one starts with ``...``.
-    MAX_PATH_WIDTH = 30
     #: The widest the owner column grows; a longer ``user:group`` ends in
     #: ``...``.
     MAX_OWNER_WIDTH = 17
@@ -1961,17 +1959,16 @@ class Panel(ListViewer):
         the date.  The owner column is as wide as the longest owner listed.
         """
         inset, inner = self.inset, self.inner_width
-        # *Columns Setup*'s choice, the path only where entries are from
-        # elsewhere, the packed size and ratio only in an archive.
+        # *Columns Setup*'s choice, the packed size and ratio only in an
+        # archive.  A *Find:* listing's directories have a footer line of
+        # their own (:meth:`_second_line`), not a column.
         wanted, listing = self.shown_columns, self.found is not None
         in_archive = self.location.outer is not None and not listing
         shown = [key for key in self.DETAIL_ORDER
-                 if key in wanted and (key != "path" or listing)
-                 and (key not in self.ARCHIVE_ONLY or in_archive)]
+                 if key in wanted and (key not in self.ARCHIVE_ONLY or in_archive)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
         widths["owner"] = self._owner_width()
         widths["date"] = country.stamp_width()
-        widths["path"] = self._path_width() if "path" in shown else 0
 
         def rest() -> int:
             return inner - sum(widths[key] + 1 for key in shown)
@@ -1989,12 +1986,6 @@ class Panel(ListViewer):
             columns.append((key, x, width))
             x += width + 1
         return tuple(columns)
-
-    def _path_width(self) -> int:
-        """The path column's width: its longest directory, between its
-        heading and :data:`MAX_PATH_WIDTH`."""
-        longest = max((text_width(item.display_path) for item in self.items), default=0)
-        return max(len(self.heading("path")), min(longest, self.MAX_PATH_WIDTH))
 
     def _owner_width(self) -> int:
         """The owner column's width: its longest ``user:group``, never
@@ -2359,8 +2350,6 @@ class Panel(ListViewer):
                     x = start
                 text = fit_text(text, width, self.ellipsis)
                 text = " " * (width - text_width(text)) + text
-            elif key == "path":
-                text = self._cut_start(entry.display_path, width)
             else:
                 text = fit_text(getattr(entry, self.DETAIL_COLUMNS[key][2]), width, self.ellipsis)
             pieces.append((x, text))
@@ -2372,12 +2361,10 @@ class Panel(ListViewer):
 
     def _second_line(self, entry: DirEntry | None) -> str | None:
         """The line under *Current file*, or None where the listing needs
-        none: the directory of a *Find:* listing's file, unless the path
-        column shows it, ``-> target`` for a symlink, blank for anything else
-        while the line is kept."""
+        none: the directory of a *Find:* listing's file (the whole width, where
+        a column never had room for it), ``-> target`` for a symlink, blank for
+        anything else while the line is kept."""
         if self.found is not None:
-            if any(key == "path" for key, _, _ in self.detail_columns):
-                return None  # the path column already says it
             if entry is None:
                 return ""
             where = str(entry.directory) if entry.directory is not None else str(self.location)
@@ -2661,8 +2648,6 @@ class Panel(ListViewer):
                     # The cursor bar covers the dividers; draw them back in it.
                     surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
                 text = getattr(item, self.DETAIL_COLUMNS[key][2])
-                if key == "path":
-                    text = self._cut_start(text, width)
                 surface.draw_text(x, y, fit_text(text, width, self.ellipsis), style, width)
             return
         # Still an explicit limit: the name stops where the size column
@@ -2713,7 +2698,6 @@ class Panel(ListViewer):
             "attributes": tr("Attr"),
             "owner": tr("Owner"),
             "date": tr("Date"),
-            "path": tr("Path"),
         }[key]
 
     def _column_spans(self) -> list[tuple[str, int, int]]:
