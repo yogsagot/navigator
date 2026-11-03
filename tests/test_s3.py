@@ -192,7 +192,7 @@ def test_utilities_s3_link_sends_the_panel_into_a_bucket(endpoint, isolated, tmp
 
     try:
         run_app(app, [
-            lambda a: a.spawn(a.run_command(S3Link)), Until(lambda a: type(a.modal).__name__ == "ConnectDialog"),
+            lambda a: a.spawn(a.run_command(S3Link)), Until(lambda a: type(a.modal).__name__ == "LinkManagerDialog"),
             fill, KeyEvent("enter"),
             Until(lambda a: [e.name for e in a.manager.left.items] == ["..", "a.txt"], timeout=10),
             lambda a: seen.update(where=a.manager.left.title_location),

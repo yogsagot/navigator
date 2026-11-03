@@ -205,12 +205,12 @@ def test_smb_link_asks_for_the_share_and_the_panel_goes_there(server, tmp_path, 
         a.modal.entry.value = PASSWORD
 
     run_app(app, [
-        lambda a: a.spawn(a.run_command(SmbLink)), Until(lambda a: type(a.modal).__name__ == "ConnectDialog"),
+        lambda a: a.spawn(a.run_command(SmbLink)), Until(lambda a: type(a.modal).__name__ == "LinkManagerDialog"),
         fill, KeyEvent("enter"),
         Until(lambda a: type(a.modal).__name__ == "PasswordDialog", timeout=5), password, KeyEvent("enter"),
         Until(lambda a: [e.name for e in a.manager.left.items] == ["..", "sub", "a.txt"], timeout=5),
         lambda a: seen.update(where=a.manager.left.title_location),
     ])
-    assert seen["title"] == "SMB link (Windows share)" and seen["share"] == "~S~hare/dir"
+    assert seen["title"] == "SMB link (Windows share)" and seen["share"] == "Sh~a~re/dir"
     assert seen["asked"] == "SMB (Windows share) password for alice@nas:"
     assert seen["where"] == "SMB:nas:/public/docs"

@@ -1,38 +1,42 @@
-from navigator.widgets.drives.commands import DeleteSshLink, NewSshLink, SaveSshLink
+from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, SaveLinkEntry
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
-from navigator.widgets.drives.ssh_link_dialog.saved_list import SavedList
+from navigator.widgets.drives.link_manager.saved_list import SavedList
 from navml.widgets.dialog.static_text import StaticText
 
-#: Utilities > *SSH link (SFTP)* (Alt+F11, DN's ``cmNavyLink``) and
-#: Utilities > *Remote shell* (DN's ``cmTerminal``): the SSH connections kept,
-#: down the left, and the one to connect to on the right -- a connection
-#: manager after FileZilla's Site Manager, asked for.  A departure: DN's link
-#: was one cable, with nothing to keep or choose.
+#: Utilities > *SSH link (SFTP)* (Alt+F11, DN's ``cmNavyLink``), *FTP link*,
+#: *SMB link*, *S3 link*, *GVfs/KIO link* and *Remote shell* (DN's
+#: ``cmTerminal``): one protocol's kept connections down the left, and the one
+#: to connect to on the right -- a connection manager after FileZilla's Site
+#: Manager, asked for, one a protocol (``LinkManagerDialog.family``).  A
+#: departure: DN's link was one cable, with nothing to keep or choose.
 #:
 #: It opens with the lines empty, a one-off connection kept by nothing;
 #: choosing one in the list -- the cursor moved, a row clicked, Space -- makes
 #: the lines that connection, kept by *Save* once changed (the row says ``*``,
 #: and leaving it asks); a double click connects to it.  *New* makes one at
 #: once, under a placeholder name ready to be typed over (or from the one-off
-#: lines), and *Delete* takes one away.  Every line remembers what it held when *Connect*, *Save* or *New*
-#: was pressed (``ssh_name``, ``ssh_host``, ``ssh_login``, ``ssh_port``,
-#: ``ssh_directory``), dropped by its ``▐↓▌`` or Down.
-#: *Connect* sends the panel there (SSH link) or opens ``ssh`` in a command
-#: window (Remote shell).  The lines are ``ConnectDialog``'s, under the same
-#: ids; ``~/.ssh/config``'s ``Host`` names work as the host.
-SshLinkDialog(Dialog):
+#: lines), and *Delete* takes one away.  Every line remembers what it held when
+#: *Connect*, *Save* or *New* was pressed, under its protocol's history ids,
+#: dropped by its ``▐↓▌`` or Down.  *Connect* sends the panel there, or opens
+#: ``ssh`` in a command window (Remote shell).
+#:
+#: The lines are ``ConnectDialog``'s, under the same ids; the protocol's
+#: captions and TLS box are put in by the hand-written half.  GVfs/KIO places
+#: have no host-and-login form: their box shows *Name* and *URI* alone.
+LinkManagerDialog(Dialog):
     modal_width: 76
-    modal_height: 19
-    #: The mode's: ``SshLinkDialog`` puts *Remote shell* in for the shell.
+    modal_height: 20
+    #: The protocol's, always: ``LinkManagerDialog`` puts it in.
     title: "SSH link (SFTP)"
 
     keys:
-        insert: NewSshLink
-        f2: SaveSshLink
-        delete: DeleteSshLink
+        insert: NewLinkEntry
+        f2: SaveLinkEntry
+        delete: DeleteLinkEntry
 
     Label:
         id: links_caption
@@ -48,7 +52,7 @@ SshLinkDialog(Dialog):
         x: 2
         y: 2
         width: 24
-        height: 12
+        height: 13
 
     Field:
         id: label
@@ -59,6 +63,18 @@ SshLinkDialog(Dialog):
         label_text: "~N~ame"
         label_width: 12
         history_id: "ssh_name"
+
+    #: GVfs/KIO's one line, in place of Host, Login, Port and Directory.
+    Field:
+        id: uri
+        x: 28
+        y: 4
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "~U~RI"
+        label_width: 12
+        history_id: "gvfs_uri"
+        visible: False
 
     Field:
         id: host
@@ -102,12 +118,22 @@ SshLinkDialog(Dialog):
         label_width: 12
         history_id: "ssh_directory"
 
+    #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
+    CheckBoxes:
+        id: secure
+        x: 29
+        y: 12
+        width: max(0, parent.width - 32)
+        height: 1
+        items: ["Encr~y~pt with TLS"]
+        visible: False
+
     #: Why a connection cannot be made, the state (one-off, changed), or
     #: what a button just did.
     StaticText:
         id: missing
         x: 28
-        y: 12
+        y: 13
         width: max(0, parent.width - 30)
         height: 2
         text: ""
@@ -117,7 +143,7 @@ SshLinkDialog(Dialog):
         id: create
         text: "Ne~w~"
         x: 2
-        y: 15
+        y: 16
         width: 13
         height: 2
 
@@ -125,7 +151,7 @@ SshLinkDialog(Dialog):
         id: save
         text: "Sav~e~"
         x: 16
-        y: 15
+        y: 16
         width: 12
         height: 2
 
@@ -133,7 +159,7 @@ SshLinkDialog(Dialog):
         id: delete
         text: "Dele~t~e"
         x: 29
-        y: 15
+        y: 16
         width: 12
         height: 2
 
@@ -142,7 +168,7 @@ SshLinkDialog(Dialog):
         text: "~C~onnect"
         default: True
         x: 47
-        y: 15
+        y: 16
         width: 13
         height: 2
 
@@ -150,6 +176,6 @@ SshLinkDialog(Dialog):
         id: abandon
         text: "Cancel"
         x: 61
-        y: 15
+        y: 16
         width: 12
         height: 2

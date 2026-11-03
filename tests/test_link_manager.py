@@ -1,4 +1,4 @@
-"""The SSH connection manager (``navigator/widgets/drives/ssh_link_dialog``):
+"""The link managers (``navigator/widgets/drives/link_manager``), SSH's first:
 Utilities > SSH link (SFTP) and Remote shell open it.  It opens on a one-off
 connection; choosing a kept one makes the lines that connection, kept by Save
 once changed (leaving it asks); New makes one at once under a placeholder
@@ -16,7 +16,7 @@ from navkit.events import KeyEvent
 from navigator.lib.drives import profiles
 from navigator.lib.drives.location import Location, Site
 from navigator.widgets.drives.connect_dialog import ConnectRequest
-from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog, sftp_entries
+from navigator.widgets.drives.link_manager import LinkManagerDialog, sftp_entries
 
 
 @pytest.fixture
@@ -39,7 +39,7 @@ def names():
 
 
 def is_manager(a):
-    return isinstance(a.modal, SshLinkDialog)
+    return isinstance(a.modal, LinkManagerDialog)
 
 
 def modal_is(name):
@@ -205,40 +205,40 @@ def answer_of(app, dialog, actions):
 
 
 def test_connect_answers_the_chosen_connection(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     assert answer_of(desk, dialog, [lambda a: dialog._choose(0), KeyEvent("enter")]) == ConnectRequest(
         "sftp", "web.example", "deploy", 2222, "/srv")
 
 
 def test_connect_answers_the_one_off_lines(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     actions = [lambda a: setattr(dialog.host, "value", "eve@far.example"), KeyEvent("enter")]
     assert answer_of(desk, dialog, actions) == ConnectRequest("sftp", "far.example", "eve", 0, "")
 
 
 def test_connect_with_changes_asks_then_answers_what_is_shown(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     actions = [lambda a: dialog._choose(0), lambda a: setattr(dialog.directory, "value", "/tmp"),
                KeyEvent("enter"), Until(modal_is("Dialog")), KeyEvent("n", alt=True)]
     assert answer_of(desk, dialog, actions) == ConnectRequest("sftp", "web.example", "deploy", 2222, "/srv")
 
 
 def test_cancel_answers_nothing(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     assert answer_of(desk, dialog, [KeyEvent("escape")]) is None
 
 
 def test_missing_paramiko_stops_connect_for_a_panel_but_not_a_shell(desk):
-    panel = SshLinkDialog(sftp_entries(), missing="No module named 'paramiko'")
+    panel = LinkManagerDialog(sftp_entries(), missing="No module named 'paramiko'")
     panel._fill(0)
     assert panel.accept() is None and panel.missing.text == "No module named 'paramiko'"
-    shell = SshLinkDialog(sftp_entries(), mode="shell", missing="No module named 'paramiko'")
+    shell = LinkManagerDialog(sftp_entries(), mode="shell", missing="No module named 'paramiko'")
     shell._fill(0)
     assert shell.accept() is not None and shell.title == "Remote shell"
 
 
 def test_select_chooses_the_kept_link_with_the_panel_s_directory_unchanged(desk):
-    dialog = SshLinkDialog(sftp_entries(), mode="shell",
+    dialog = LinkManagerDialog(sftp_entries(), mode="shell",
                            select=Location(Site("sftp", "", "box.lan"), PurePosixPath("/var/log")))
     assert dialog.links.cursor == 1 and dialog.chosen == 1
     assert lines(dialog) == ("box.lan", "", "", "/var/log", "box")
@@ -247,7 +247,7 @@ def test_select_chooses_the_kept_link_with_the_panel_s_directory_unchanged(desk)
 
 
 def test_select_with_no_kept_link_fills_the_one_off_lines(desk):
-    dialog = SshLinkDialog(sftp_entries(), mode="shell",
+    dialog = LinkManagerDialog(sftp_entries(), mode="shell",
                            select=Location(Site("sftp", "eve", "far.example", 2022), PurePosixPath("/tmp")))
     assert dialog.chosen is None and dialog.save.disabled
     assert lines(dialog) == ("far.example", "eve", "2022", "/tmp", "")
@@ -256,7 +256,7 @@ def test_select_with_no_kept_link_fills_the_one_off_lines(desk):
 def test_every_line_has_a_history_kept_on_connect(desk):
     from navml.history import HISTORY
 
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     seen = {}
 
     def fill(a):
@@ -280,7 +280,7 @@ def test_host_remembers_only_its_own_value(desk):
 
     recent.remember(recent.Recent("sftp", "old.example", "bob", 22, "/srv"))
     HISTORY.add("ssh_host", "typed.example")
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     seen = {}
 
     async def pick(a):
@@ -305,13 +305,13 @@ def press_on_row(dialog, row):
 
 
 def test_a_double_click_on_a_saved_connection_connects(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     answer = answer_of(desk, dialog, [press_on_row(dialog, 1), press_on_row(dialog, 1)])
     assert answer == ConnectRequest("sftp", "box.lan", "", 0, "")
 
 
 def test_a_double_click_away_from_a_changed_connection_only_asks(desk):
-    dialog = SshLinkDialog(sftp_entries())
+    dialog = LinkManagerDialog(sftp_entries())
     seen = {}
     actions = [lambda a: dialog._choose(0), lambda a: setattr(dialog.port, "value", "22"),
                press_on_row(dialog, 1), press_on_row(dialog, 1), Until(modal_is("Dialog")),
@@ -320,3 +320,112 @@ def test_a_double_click_away_from_a_changed_connection_only_asks(desk):
                Until(modal_is("Dialog")), KeyEvent("n", alt=True)]
     assert answer_of(desk, dialog, actions) is None
     assert seen == {"asked": 'Save changes to "web"?', "chosen": 0, "port": "22"}
+
+
+# -- the other protocols -----------------------------------------------------------------------
+
+
+@pytest.fixture
+def every_protocol(saved):
+    profiles.save("mirror", "ftp", "ftp.example")
+    profiles.save("vault", "ftps", "secure.example", "eve", 990, "/pub")
+    profiles.save("bucket", "s3+http", "minio.lan", "key", 9000, "/photos")
+    profiles.save("phone", "mtp", "Pixel", "", 0, "/DCIM")
+
+
+def test_each_manager_lists_its_own_protocol(every_protocol, monkeypatch):
+    from navigator.widgets.drives.link_manager import entries_for
+
+    monkeypatch.setattr("navigator.widgets.drives.link_manager.link_manager.schemes_of",
+                        lambda family: ("mtp", "dav") if family == "gvfs" else
+                        __import__("navigator.widgets.drives.link_manager.link_manager",
+                                   fromlist=["FAMILIES"]).FAMILIES[family].schemes)
+    assert [e.name for e in entries_for("sftp")] == ["web", "box"]
+    assert [e.name for e in entries_for("ftp")] == ["mirror", "vault"]
+    assert [e.name for e in entries_for("smb")] == ["nas"]
+    assert [e.name for e in entries_for("s3")] == ["bucket"]
+    assert [e.name for e in entries_for("gvfs")] == ["phone"]
+
+
+def test_ftp_s_tls_box_is_its_scheme(every_protocol, desk):
+    from navigator.widgets.drives.link_manager import entries_for
+
+    dialog = LinkManagerDialog(entries_for("ftp"), family="ftp")
+    assert dialog.title == "FTP link" and dialog.secure.visible and dialog.secure.value == 0
+    dialog._fill(1)
+    assert dialog.secure.value == 1 and lines(dialog) == ("secure.example", "eve", "990", "/pub", "vault")
+    dialog.secure.value = 0
+    assert dialog.changed
+    dialog.secure.value = 1
+    dialog.host.value = "other.example"
+    assert dialog.accept() == ConnectRequest("ftps", "other.example", "eve", 990, "/pub")
+
+
+def test_ftp_saves_the_scheme_its_box_says(every_protocol, desk):
+    from navigator.widgets.drives.link_manager import entries_for
+
+    dialog = LinkManagerDialog(entries_for("ftp"), family="ftp")
+    run_app(desk, [lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+                   lambda a: dialog._fill(0), lambda a: setattr(dialog.secure, "value", 1),
+                   lambda a: a.spawn(dialog.save_link()), Until(lambda a: "saved" in dialog.missing.text),
+                   KeyEvent("escape")])
+    assert profiles.find("mirror").scheme == "ftps"
+
+
+def test_smb_s_share_is_the_directory_s_first_name(desk):
+    dialog = LinkManagerDialog([], family="smb")
+    assert dialog.title == "SMB link (Windows share)" and dialog.directory.label_text == "Sh~a~re/dir"
+    assert not dialog.secure.visible
+    dialog.host.value = "alice@nas"
+    dialog.directory.value = "public/docs"
+    assert dialog.accept() == ConnectRequest("smb", "nas", "alice", 0, "/public/docs")
+
+
+def test_s3_starts_at_aws_with_tls_and_unticked_is_plain_http(desk):
+    from navigator.lib.drives.s3 import AWS_HOST
+
+    dialog = LinkManagerDialog([], family="s3")
+    assert dialog.title == "S3 link (Amazon S3)"
+    assert (dialog.host.label_text, dialog.user.label_text, dialog.directory.label_text) == (
+        "End~p~oint", "Access ~k~ey", "~B~ucket/dir")
+    assert dialog.host.value == AWS_HOST and dialog.secure.value == 1
+    dialog.directory.value = "photos"
+    assert dialog.accept() == ConnectRequest("s3", AWS_HOST, "", 0, "/photos")
+    dialog.secure.value = 0
+    assert dialog.accept().scheme == "s3+http"
+
+
+@pytest.fixture
+def gvfs_schemes(monkeypatch):
+    monkeypatch.setattr("navigator.lib.system.desktop.link_schemes", lambda: {"mtp": "", "dav": "", "sftp": ""})
+
+
+def test_gvfs_shows_name_and_uri_alone(every_protocol, gvfs_schemes, desk):
+    from navigator.widgets.drives.link_manager import entries_for
+
+    dialog = LinkManagerDialog(entries_for("gvfs"), family="gvfs")
+    assert dialog.title == "GVfs/KIO link" and dialog.links.items == ["phone"]
+    assert dialog.uri.visible and not any(line.visible for line in (dialog.host, dialog.user, dialog.port,
+                                                                       dialog.directory))
+    dialog._fill(0)
+    assert dialog.uri.value == "mtp://Pixel/DCIM"
+    dialog.uri.value = "dav://alice@files.lan/share"
+    assert dialog.accept() == ConnectRequest("dav", "files.lan", "alice", 0, "/share")
+
+
+def test_gvfs_new_keeps_the_uri_typed(gvfs_schemes, desk):
+    dialog = LinkManagerDialog([], family="gvfs")
+    run_app(desk, [lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+                   lambda a: setattr(dialog.uri, "value", "mtp://Pixel/DCIM"), lambda a: a.spawn(dialog.new_link()),
+                   Until(lambda a: dialog.links.items == ["Pixel"]), KeyEvent("escape")])
+    row = profiles.find("Pixel")
+    assert (row.scheme, row.host, row.path) == ("mtp", "Pixel", "/DCIM")
+
+
+def test_gvfs_refuses_what_it_does_not_reach(gvfs_schemes, desk):
+    dialog = LinkManagerDialog([], family="gvfs")
+    run_app(desk, [lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+                   lambda a: setattr(dialog.uri, "value", "sftp://host/"), lambda a: a.spawn(dialog.connect_to()),
+                   lambda a: None, KeyEvent("escape")])
+    assert dialog.result is None
+    assert "sftp://host/ is no place" in dialog.missing.text and "mtp://, dav://" in dialog.missing.text

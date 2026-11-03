@@ -5,15 +5,15 @@ flag = "JP"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "バージョン情報"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:30, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
 "SSH link (SFTP)" = "SSH リンク (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:69
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:85
 "~H~ost" = "ホスト(~H~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:38, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:81
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:38, navigator/widgets/drives/link_manager/link_manager.nml:97
 "~L~ogin" = "ログイン(~L~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:47, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:91
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:47, navigator/widgets/drives/link_manager/link_manager.nml:107
 "P~o~rt" = "ポート(~O~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:56, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:101
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:56, navigator/widgets/drives/link_manager/link_manager.nml:117
 "~D~irectory" = "パス(~D~)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:74
 "~K~eep in the Link list" = "リンク一覧に保存(~K~)"
@@ -25,12 +25,24 @@ flag = "JP"
 "Encrypt the connection: FTPS rather than plain FTP" = "接続を暗号化: 平文の FTP ではなく FTPS"
 # navigator/widgets/drives/host_key_query/host_key_query.nml:11
 "Unknown SSH host" = "不明な SSH ホスト"
+# navigator/widgets/drives/link_manager/link_manager.nml:47
+"~S~aved" = "保存済み(~S~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:74
+"~U~RI" = "URI(~U~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:128
+"Encr~y~pt with TLS" = "TLS で暗号化(~Y~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:144
+"Ne~w~" = "新規(~W~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:152
+"Sav~e~" = "保存(~E~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:160
+"Dele~t~e" = "削除(~T~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:168, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+"~C~onnect" = "接続(~C~)"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "保存済みリンク"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:29
 "~L~inks" = "リンク(~L~)"
-# navigator/widgets/drives/links_dialog/links_dialog.nml:41, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:142
-"~C~onnect" = "接続(~C~)"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:50
 "~E~dit..." = "編集(~E~)..."
 # navigator/widgets/drives/links_dialog/links_dialog.nml:58
@@ -45,14 +57,6 @@ flag = "JP"
 "~S~ave in keyring" = "キーリングに保存(~S~)"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:32
 "Remember the password in the desktop's keyring, so it is not asked again" = "パスワードをデスクトップのキーリングに記憶し、再度尋ねないようにします"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:43
-"~S~aved" = "保存済み(~S~)"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:118
-"Ne~w~" = "新規(~W~)"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:126
-"Sav~e~" = "保存(~E~)"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.nml:134
-"Dele~t~e" = "削除(~T~)"
 # navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:9
 "Edit new file" = "新規ファイルの編集"
 # navigator/widgets/editor/edit_file_dialog/edit_file_dialog.nml:18, navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:22, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:243 ...
@@ -519,7 +523,7 @@ flag = "JP"
 "Delete the originals once copied: a move" = "コピー後に元を削除します (移動)"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "ディレクトリサイズを計算中"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:126 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
 "Delete" = "削除"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "ごみ箱へ移動しますか"
@@ -687,7 +691,7 @@ flag = "JP"
 "Classic ~t~etris" = "クラシックテトリス(~T~)"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "Penti~x~"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:459
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:460
 "~O~ptions" = "設定(~O~)"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "次のピースを表示(~P~)"
@@ -695,7 +699,7 @@ flag = "JP"
 "Show the next piece (it scores less)" = "次のピースを表示します (得点は下がります)"
 # navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "Navigator のゲーム"
-# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:419 ...
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:420 ...
 "~N~ew" = "新規(~N~)"
 # navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:101, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "設定(~S~)"
@@ -715,7 +719,7 @@ flag = "JP"
 "Pre~v~iew" = "プレビュー(~V~)"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "次の図形を表示します"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:616 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:617 ...
 "~C~lose" = "閉じる(~C~)"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Pentix トップ 10"
@@ -1479,13 +1483,13 @@ flag = "JP"
 "The editor's and the viewer's defaults" = "エディタとビューアの既定値"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "How the file panels behave and look" = "ファイルパネルの動作と外観"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:510
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:511
 "What the information panel (Ctrl+L) shows" = "情報パネル (Ctrl+L) の表示内容"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:514
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:515
 "How a new file manager's panels start" = "新しいファイルマネージャのパネルの初期状態"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "ディスク上、Find: の一覧、アーカイブ内でパネルが表示する列"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:522
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:523
 "Which files the panels show in which colour" = "パネルがどのファイルをどの色で表示するか"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "リモート接続: キープアライブ、タイムアウト、アイドル接続、変更されたファイル"
@@ -1927,199 +1931,199 @@ flag = "JP"
 "Ca~l~endar" = "カレンダー(~L~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:340
 "Pick a character to type where the cursor is" = "カーソル位置に入力する文字を選びます"
-# navigator/widgets/shell/main_menu/main_menu.nml:352
+# navigator/widgets/shell/main_menu/main_menu.nml:353
 "~S~SH link (SFTP)..." = "~S~SH リンク (SFTP)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:356
+# navigator/widgets/shell/main_menu/main_menu.nml:357
 "~F~TP link..." = "~F~TP リンク..."
-# navigator/widgets/shell/main_menu/main_menu.nml:359
+# navigator/widgets/shell/main_menu/main_menu.nml:360
 "S~M~B link (Windows share)..." = "S~M~B リンク (Windows 共有)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:362
+# navigator/widgets/shell/main_menu/main_menu.nml:363
 "S~3~ link (Amazon S3)..." = "S~3~ リンク (Amazon S3)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:366
-"~G~Vfs/KIO link (MTP, WebDAV...)..." = "~G~Vfs/KIO リンク (MTP, WebDAV...)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:367
+"~G~Vfs/KIO link (MTP, WebDAV...)..." = "~G~Vfs/KIO リンク (MTP, WebDAV...)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:368
 "A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "スマートフォン、WebDAV 共有、Google Drive など、デスクトップがマウントできるもの"
-# navigator/widgets/shell/main_menu/main_menu.nml:371
-"Rem~o~te shell..." = "リモートシェル(~O~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:372
+"Rem~o~te shell..." = "リモートシェル(~O~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:373
 "A shell on the server the active panel is browsing over SSH" = "アクティブなパネルが SSH で閲覧しているサーバー上のシェル"
-# navigator/widgets/shell/main_menu/main_menu.nml:375
-"~D~isconnect" = "切断(~D~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:376
+"~D~isconnect" = "切断(~D~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:377
 "Close a connection; its panels go back to the disk" = "接続を閉じます。そのパネルはディスクに戻ります"
-# navigator/widgets/shell/main_menu/main_menu.nml:380, navigator/widgets/shell/root_mark.py:57
+# navigator/widgets/shell/main_menu/main_menu.nml:381, navigator/widgets/shell/root_mark.py:57
 "Close ~r~oot access" = "root アクセスを閉じる(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:381
+# navigator/widgets/shell/main_menu/main_menu.nml:382
 "End root access now, rather than after its timeout" = "タイムアウトを待たずに今すぐ root アクセスを終了します"
-# navigator/widgets/shell/main_menu/main_menu.nml:384
-"Saved l~i~nks..." = "保存済みリンク(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:385
+"Saved l~i~nks..." = "保存済みリンク(~I~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:386
 "The saved connections: edit them, or connect to one" = "保存済みの接続: 編集、または接続"
-# navigator/widgets/shell/main_menu/main_menu.nml:389
-"Edi~t~ environment" = "環境変数の編集(~T~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:390
+"Edi~t~ environment" = "環境変数の編集(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:391
 "Edit the environment variables commands run with" = "コマンド実行時の環境変数を編集します"
-# navigator/widgets/shell/main_menu/main_menu.nml:393
+# navigator/widgets/shell/main_menu/main_menu.nml:394
 "~U~ser menu" = "ユーザーメニュー(~U~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:397
+# navigator/widgets/shell/main_menu/main_menu.nml:398
 "Commands ~H~istory" = "コマンド履歴(~H~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:402
-"Fu~z~zy history search..." = "履歴のあいまい検索(~Z~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:403
+"Fu~z~zy history search..." = "履歴のあいまい検索(~Z~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:404
 "The commands typed, here and in the shell, searched by fzf" = "こことシェルで入力したコマンドを fzf で検索"
-# navigator/widgets/shell/main_menu/main_menu.nml:407
+# navigator/widgets/shell/main_menu/main_menu.nml:408
 "File ~E~dit History" = "ファイル編集履歴(~E~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:411
+# navigator/widgets/shell/main_menu/main_menu.nml:412
 "File ~V~iew History" = "ファイル表示履歴(~V~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:416
-"~M~anager" = "管理(~M~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:417
+"~M~anager" = "管理(~M~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:418
 "New file managers, swapping and hiding panels, bookmarks" = "新しいファイルマネージャ、パネルの入れ替えと非表示、ブックマーク"
-# navigator/widgets/shell/main_menu/main_menu.nml:423
+# navigator/widgets/shell/main_menu/main_menu.nml:424
 "~S~wap panels" = "パネル入れ替え(~S~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:427
+# navigator/widgets/shell/main_menu/main_menu.nml:428
 "Show/hide ~l~eft panel" = "左パネル表示/非表示(~L~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:431
+# navigator/widgets/shell/main_menu/main_menu.nml:432
 "Show/hide ~r~ight panel" = "右パネル表示/非表示(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:435
-"Show/hide inactive ~p~anel" = "非アクティブパネル表示/非表示(~P~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:436
+"Show/hide inactive ~p~anel" = "非アクティブパネル表示/非表示(~P~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:437
 "Hide the panel without the keyboard, or show it again" = "キーボードを持たない方のパネルを隠す、または再表示します"
-# navigator/widgets/shell/main_menu/main_menu.nml:442
-"~M~iller columns" = "Miller 列(~M~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:443
+"~M~iller columns" = "Miller 列(~M~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:444
 "Browse in columns, each directory beside its parent" = "各ディレクトリを親の横に並べた列で閲覧します"
-# navigator/widgets/shell/main_menu/main_menu.nml:448
-"Bookmarks le~f~t" = "左のブックマーク(~F~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:449
+"Bookmarks le~f~t" = "左のブックマーク(~F~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:450
 "Send the left panel to a bookmarked directory" = "左パネルをブックマークしたディレクトリへ移動します"
-# navigator/widgets/shell/main_menu/main_menu.nml:453
-"Bookmarks rig~h~t" = "右のブックマーク(~H~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:454
+"Bookmarks rig~h~t" = "右のブックマーク(~H~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:455
 "Send the right panel to a bookmarked directory" = "右パネルをブックマークしたディレクトリへ移動します"
-# navigator/widgets/shell/main_menu/main_menu.nml:460
+# navigator/widgets/shell/main_menu/main_menu.nml:461
 "Settings, configuration files, the desktop and colours" = "設定、設定ファイル、デスクトップ、色"
-# navigator/widgets/shell/main_menu/main_menu.nml:464
-"Sett~i~ngs..." = "設定(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:465
+"Sett~i~ngs..." = "設定(~I~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:466
 "Every setup page in one box, behind tabs" = "すべての設定ページをタブで1つの枠に"
-# navigator/widgets/shell/main_menu/main_menu.nml:470
+# navigator/widgets/shell/main_menu/main_menu.nml:471
 "~C~onfiguration" = "構成(~C~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:472
+# navigator/widgets/shell/main_menu/main_menu.nml:473
 "S~y~stem Setup..." = "システム設定(~Y~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:475
+# navigator/widgets/shell/main_menu/main_menu.nml:476
 "~S~tartup..." = "起動(~S~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:478
+# navigator/widgets/shell/main_menu/main_menu.nml:479
 "~I~nterface..." = "インターフェース(~I~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:481
+# navigator/widgets/shell/main_menu/main_menu.nml:482
 "~C~onfirmations..." = "確認(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:485
+# navigator/widgets/shell/main_menu/main_menu.nml:486
 "Screen sa~v~ers..." = "スクリーンセーバー(~V~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:488
+# navigator/widgets/shell/main_menu/main_menu.nml:489
 "C~o~untry support..." = "地域の設定(~O~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:491
-"Comm~u~nications..." = "通信(~U~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:492
+"Comm~u~nications..." = "通信(~U~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:493
 "Settings for remote connections" = "リモート接続の設定"
-# navigator/widgets/shell/main_menu/main_menu.nml:496
+# navigator/widgets/shell/main_menu/main_menu.nml:497
 "~E~ditor/Viewer..." = "エディタ/ビューア(~E~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:500
+# navigator/widgets/shell/main_menu/main_menu.nml:501
 "~K~ey bindings..." = "キー割り当て(~K~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:504
+# navigator/widgets/shell/main_menu/main_menu.nml:505
 "~F~ile Manager" = "ファイルマネージャ(~F~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:506
+# navigator/widgets/shell/main_menu/main_menu.nml:507
 "~S~etup..." = "設定(~S~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:509
+# navigator/widgets/shell/main_menu/main_menu.nml:510
 "~I~nformation panel..." = "情報パネル(~I~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:513
+# navigator/widgets/shell/main_menu/main_menu.nml:514
 "New Manager ~d~efaults..." = "新規マネージャの既定値(~D~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:517
-"~C~olumn defaults..." = "列の既定値(~C~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:518
+"~C~olumn defaults..." = "列の既定値(~C~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:519
 "The columns a new panel shows" = "新しいパネルが表示する列"
-# navigator/widgets/shell/main_menu/main_menu.nml:521
+# navigator/widgets/shell/main_menu/main_menu.nml:522
 "~H~ighlight groups..." = "強調表示グループ(~H~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:526
+# navigator/widgets/shell/main_menu/main_menu.nml:527
 "A~r~chives" = "アーカイブ(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:528
+# navigator/widgets/shell/main_menu/main_menu.nml:529
 "Current archiver..." = "現在のアーカイバ..."
-# navigator/widgets/shell/main_menu/main_menu.nml:532
-"~Q~uick run file edit..." = "クイック実行ファイルの編集(~Q~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:533
+"~Q~uick run file edit..." = "クイック実行ファイルの編集(~Q~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:534
 "Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "quickrun.ini を編集: Ctrl+Shift+F1〜F10 で実行するコマンド"
-# navigator/widgets/shell/main_menu/main_menu.nml:536
-"E~x~tension file edit..." = "拡張子ファイルの編集(~X~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:537
+"E~x~tension file edit..." = "拡張子ファイルの編集(~X~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:538
 "Edit extensions.ini: what Enter runs for each kind of file" = "extensions.ini を編集: ファイルの種類ごとに Enter で実行するもの"
-# navigator/widgets/shell/main_menu/main_menu.nml:540
-"~H~ighlight file edit..." = "強調表示ファイルの編集(~H~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:541
+"~H~ighlight file edit..." = "強調表示ファイルの編集(~H~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:542
 "Edit highlight.ini: which syntax colours which file" = "highlight.ini を編集: どの構文でどのファイルを色付けするか"
-# navigator/widgets/shell/main_menu/main_menu.nml:544
-"Macro file e~d~it..." = "マクロファイルの編集(~D~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:545
+"Macro file e~d~it..." = "マクロファイルの編集(~D~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:546
 "Edit macros.ini: the editor's macros, offered by Ctrl+J 0" = "macros.ini の編集: Ctrl+J 0 で使うエディタのマクロ"
-# navigator/widgets/shell/main_menu/main_menu.nml:548
-"~G~lobal menu definition..." = "グローバルメニュー定義(~G~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:549
+"~G~lobal menu definition..." = "グローバルメニュー定義(~G~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:550
 "Edit the F2 user menu used everywhere" = "どこでも使う F2 のユーザーメニューを編集します"
-# navigator/widgets/shell/main_menu/main_menu.nml:552
-"Local ~m~enu definition..." = "ローカルメニュー定義(~M~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:553
+"Local ~m~enu definition..." = "ローカルメニュー定義(~M~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:554
 "Edit this directory's own F2 user menu" = "このディレクトリ専用の F2 ユーザーメニューを編集します"
-# navigator/widgets/shell/main_menu/main_menu.nml:556
-"~V~iewers..." = "ビューア(~V~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:557
+"~V~iewers..." = "ビューア(~V~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:558
 "Edit viewers.ini: the external viewer for each kind of file" = "viewers.ini を編集: ファイルの種類ごとの外部ビューア"
-# navigator/widgets/shell/main_menu/main_menu.nml:560
-"~E~ditors..." = "エディタ(~E~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:561
+"~E~ditors..." = "エディタ(~E~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:562
 "Edit editors.ini: the external editor for each kind of file" = "editors.ini を編集: ファイルの種類ごとの外部エディタ"
-# navigator/widgets/shell/main_menu/main_menu.nml:565
-"~S~ave desktop" = "デスクトップを保存(~S~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:566
+"~S~ave desktop" = "デスクトップを保存(~S~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:567
 "Keep the open windows, to have them back later" = "開いているウィンドウを記録し、後で戻せるようにします"
-# navigator/widgets/shell/main_menu/main_menu.nml:569
-"~L~oad desktop" = "デスクトップを読み込み(~L~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:570
+"~L~oad desktop" = "デスクトップを読み込み(~L~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:571
 "Replace these windows with the ones last saved" = "現在のウィンドウを最後に保存したものに置き換えます"
-# navigator/widgets/shell/main_menu/main_menu.nml:574
+# navigator/widgets/shell/main_menu/main_menu.nml:575
 "C~o~lors..." = "色(~O~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:577
-"S~t~ore palette" = "パレットを保存(~T~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:578
+"S~t~ore palette" = "パレットを保存(~T~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:579
 "Save the colours as a theme of your own" = "色を自分のテーマとして保存します"
-# navigator/widgets/shell/main_menu/main_menu.nml:581
-"Lo~a~d palette" = "パレットを読み込み(~A~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:582
+"Lo~a~d palette" = "パレットを読み込み(~A~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:583
 "Use colours saved in a file" = "ファイルに保存した色を使います"
-# navigator/widgets/shell/main_menu/main_menu.nml:586
-"~W~indow" = "窓(~W~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:587
+"~W~indow" = "窓(~W~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:588
 "Arrange, switch between and close windows" = "ウィンドウの整列、切り替え、閉じる"
-# navigator/widgets/shell/main_menu/main_menu.nml:589
+# navigator/widgets/shell/main_menu/main_menu.nml:590
 "~T~ile" = "並べて表示(~T~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:592
+# navigator/widgets/shell/main_menu/main_menu.nml:593
 "C~a~scade" = "重ねて表示(~A~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:595
+# navigator/widgets/shell/main_menu/main_menu.nml:596
 "Cl~o~se all" = "すべて閉じる(~O~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:599
-"~S~ize/Move" = "サイズ/移動(~S~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:600
+"~S~ize/Move" = "サイズ/移動(~S~)"
+# navigator/widgets/shell/main_menu/main_menu.nml:601
 "Move and size the window with the keyboard" = "キーボードでウィンドウを移動・サイズ変更します"
-# navigator/widgets/shell/main_menu/main_menu.nml:604
+# navigator/widgets/shell/main_menu/main_menu.nml:605
 "~Z~oom" = "最大化(~Z~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:608
+# navigator/widgets/shell/main_menu/main_menu.nml:609
 "~N~ext" = "次へ(~N~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:612
+# navigator/widgets/shell/main_menu/main_menu.nml:613
 "~P~revious" = "前へ(~P~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:621
-"~L~ist..." = "一覧(~L~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:622
+"~L~ist..." = "一覧(~L~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:623
 "All the windows, to switch to one or close it" = "すべてのウィンドウ: 切り替えまたは閉じる"
-# navigator/widgets/shell/main_menu/main_menu.nml:627
-"~B~ackground operation..." = "バックグラウンド処理(~B~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:628
+"~B~ackground operation..." = "バックグラウンド処理(~B~)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:629
 "Bring back the progress box of a copy or an erase running in the background" = "バックグラウンドで実行中のコピーまたは削除の進行状況ボックスを戻す"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "メニューのパラメータ"
@@ -2625,7 +2629,7 @@ flag = "JP"
 "~E~ndpoint" = "エンドポイント(~E~)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:99
 "~A~ccess key" = "アクセスキー(~A~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:100
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:100, navigator/widgets/drives/link_manager/link_manager.py:202
 "~B~ucket/dir" = "バケット/ディレクトリ(~B~)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:59
 "GVfs/KIO link ({protocol})" = "GVfs/KIO リンク ({protocol})"
@@ -2647,20 +2651,64 @@ flag = "JP"
 "S3 link (Amazon S3)" = "S3 リンク (Amazon S3)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "Edit S3 link (Amazon S3)" = "S3 リンクの編集 (Amazon S3)"
-# navigator/widgets/drives/desktop_link.py:32
+# navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:192
 "GVfs/KIO link" = "GVfs/KIO リンク"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, webdav://, gdrive://...)" = "URI(~U~) (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "URI(~U~) (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:410
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} は KIO で到達できません。対応スキーム: {schemes}"
-# navigator/widgets/drives/desktop_link.py:45
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:411
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} は GVfs で到達できません。対応スキーム: {schemes}"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
 "~A~ccept" = "受け入れる(~A~)"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "ホスト {host} の真正性を確認できません。\n{type} 鍵のフィンガープリント:\n{fingerprint}"
+# navigator/widgets/drives/link_manager/link_manager.py:144
+"Remote shell" = "リモートシェル"
+# navigator/widgets/drives/link_manager/link_manager.py:198
+"Sh~a~re/dir" = "共有/パス(~A~)"
+# navigator/widgets/drives/link_manager/link_manager.py:200
+"End~p~oint" = "エンドポイント(~P~)"
+# navigator/widgets/drives/link_manager/link_manager.py:201
+"Access ~k~ey" = "アクセスキー(~K~)"
+# navigator/widgets/drives/link_manager/link_manager.py:404
+"Type a URI to connect to" = "接続する URI を入力してください"
+# navigator/widgets/drives/link_manager/link_manager.py:216
+"For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "例: mtp://Phone/、webdav://host/dir、gdrive://you@gmail.com/"
+# navigator/widgets/drives/link_manager/link_manager.py:218
+"For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "例: mtp://Phone/、dav://host/dir、google-drive://you@gmail.com/"
+# navigator/widgets/drives/link_manager/link_manager.py:232
+"New" = "新規"
+# navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/editor/commands.py:577
+"Save" = "保存"
+# navigator/widgets/drives/link_manager/link_manager.py:401
+"Type a host to connect to" = "接続するホストを入力してください"
+# navigator/widgets/drives/link_manager/link_manager.py:205
+"Encr~y~pt with TLS (HTTPS)" = "TLS で暗号化 (HTTPS)(~Y~)"
+# navigator/widgets/drives/link_manager/link_manager.py:205
+"Encr~y~pt with TLS (FTPS)" = "TLS で暗号化 (FTPS)(~Y~)"
+# navigator/widgets/drives/link_manager/link_manager.py:277
+"Changed — Save keeps it" = "変更あり — 「保存」で保存されます"
+# navigator/widgets/drives/link_manager/link_manager.py:509
+"Type its URI, then New keeps it" = "URI を入力してから「新規」で保存できます"
+# navigator/widgets/drives/link_manager/link_manager.py:519
+"New connection" = "新しい接続"
+# navigator/widgets/drives/link_manager/link_manager.py:561
+"\"{name}\" saved" = "「{name}」を保存しました"
+# navigator/widgets/drives/link_manager/link_manager.py:586
+"\"{name}\" deleted" = "「{name}」を削除しました"
+# navigator/widgets/drives/link_manager/link_manager.py:279
+"Not saved — New keeps it" = "未保存 — 「新規」で保存できます"
+# navigator/widgets/drives/link_manager/link_manager.py:552
+"Another connection is named \"{name}\"" = "「{name}」という接続は既にあります"
+# navigator/widgets/drives/link_manager/link_manager.py:436
+"Save changes" = "変更の保存"
+# navigator/widgets/drives/link_manager/link_manager.py:437
+"Save changes to \"{name}\"?" = "「{name}」への変更を保存しますか?"
+# navigator/widgets/drives/link_manager/link_manager.py:579, navigator/widgets/drives/links_dialog/links_dialog.py:196
+"Delete the link \"{name}\"?" = "リンク \"{name}\" を削除しますか?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新規 GVfs/KIO リンク(~G~) (MTP、WebDAV...)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
@@ -2677,32 +2725,6 @@ flag = "JP"
 "New S~3~ link (Amazon S3)..." = "新規 S3 リンク(~3~) (Amazon S3)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:149
 "New link" = "新規リンク"
-# navigator/widgets/drives/links_dialog/links_dialog.py:196, navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:396
-"Delete the link \"{name}\"?" = "リンク \"{name}\" を削除しますか?"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:82
-"Remote shell" = "リモートシェル"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:126
-"New" = "新規"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:126, navigator/widgets/editor/commands.py:577
-"Save" = "保存"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:302
-"Type a host to connect to" = "接続するホストを入力してください"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:344
-"New connection" = "新しい接続"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:169
-"Changed — Save keeps it" = "変更あり — 「保存」で保存されます"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:378
-"\"{name}\" saved" = "「{name}」を保存しました"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:404
-"\"{name}\" deleted" = "「{name}」を削除しました"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:171
-"Not saved — New keeps it" = "未保存 — 「新規」で保存できます"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:369
-"Another connection is named \"{name}\"" = "「{name}」という接続は既にあります"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:273
-"Save changes" = "変更の保存"
-# navigator/widgets/drives/ssh_link_dialog/ssh_link_dialog.py:274
-"Save changes to \"{name}\"?" = "「{name}」への変更を保存しますか?"
 # navigator/widgets/drives/use_file.py:61
 "{n} file was changed. Upload it back?" = ["{n} 個のファイルが変更されました。アップロードし直しますか?"]
 # navigator/widgets/drives/use_file.py:73
@@ -3869,9 +3891,9 @@ flag = "JP"
 "Pinned" = "固定済み"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "クリックでボックスを戻す"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2898
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2904
 "{operation}: waiting for an answer" = "{operation}: 応答待ち"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2900
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2906
 "{operation}: {percent}% done" = "{operation}: {percent}% 完了"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "同じキーをもう一度押すと停止"
@@ -3891,9 +3913,9 @@ flag = "JP"
 "Interface Setup hides the command line" = "インターフェース設定でコマンドラインが非表示です"
 # navigator/widgets/shell/shell/shell.py:1124
 "No file panels are open" = "ファイルパネルが開いていません"
-# navigator/widgets/shell/shell/shell.py:2819, navigator/widgets/shell/shell/shell.py:2812
+# navigator/widgets/shell/shell/shell.py:2825, navigator/widgets/shell/shell/shell.py:2818
 "Disconnect" = "切断"
-# navigator/widgets/shell/shell/shell.py:2905
+# navigator/widgets/shell/shell/shell.py:2911
 "Background operations" = "バックグラウンド処理"
 # navigator/widgets/shell/shell/shell.py:1150
 "No connection is open" = "開いている接続はありません"
@@ -3903,9 +3925,9 @@ flag = "JP"
 "~C~ommand..." = "コマンド(~C~)..."
 # navigator/widgets/shell/shell/shell.py:2001
 "Choose action" = "動作の選択"
-# navigator/widgets/shell/shell/shell.py:3196
+# navigator/widgets/shell/shell/shell.py:3202
 "File View History" = "ファイル表示履歴"
-# navigator/widgets/shell/shell/shell.py:3196
+# navigator/widgets/shell/shell/shell.py:3202
 "File Edit History" = "ファイル編集履歴"
 # navigator/widgets/shell/shell/shell.py:1139
 "The editor has the keys" = "キーはエディタが使用中です"
@@ -3925,11 +3947,11 @@ flag = "JP"
 "File Manager Setup's Use arrows is off" = "ファイル管理設定の「矢印キーを使う」がオフです"
 # navigator/widgets/shell/shell/shell.py:1915
 "~C~ommand (!.! is the file; else it goes at the end)" = "コマンド(~C~) (!.! がファイル。なければ末尾に付加)"
-# navigator/widgets/shell/shell/shell.py:2603, navigator/widgets/shell/shell/shell.py:2848
+# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2854
 "{protocol} link" = "{protocol} リンク"
-# navigator/widgets/shell/shell/shell.py:3186
+# navigator/widgets/shell/shell/shell.py:3192
 "Track viewing history" = "表示履歴を記録"
-# navigator/widgets/shell/shell/shell.py:3186
+# navigator/widgets/shell/shell/shell.py:3192
 "Track editing history" = "編集履歴を記録"
 # navigator/widgets/shell/shell/shell.py:1205
 "The shell cannot complete" = "シェルが補完できません"
@@ -3941,13 +3963,13 @@ flag = "JP"
 "User menu (local)" = "ユーザーメニュー (ローカル)"
 # navigator/widgets/shell/shell/shell.py:1643
 "Global menu" = "グローバルメニュー"
-# navigator/widgets/shell/shell/shell.py:2810
+# navigator/widgets/shell/shell/shell.py:2816
 "Close the {protocol} connection to {host}?" = "{host} への {protocol} 接続を閉じますか?"
 # navigator/widgets/shell/shell/shell.py:330
 "Store Color Palette" = "カラーパレットの保存"
 # navigator/widgets/shell/shell/shell.py:388
 "Load Color Palette" = "カラーパレットの読み込み"
-# navigator/widgets/shell/shell/shell.py:2781
+# navigator/widgets/shell/shell/shell.py:2787
 "ssh {login}" = "ssh {login}"
 # navigator/widgets/shell/shell/shell.py:235
 "No desktop has been saved" = "保存されたデスクトップはありません"
@@ -3959,27 +3981,27 @@ flag = "JP"
 "Not a palette:\n{error}" = "パレットではありません:\n{error}"
 # navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "矢印キーで範囲を移動\nShift+矢印キーで範囲のサイズを変更\n\n選択後 Enter で範囲の内容を\nクリップボードに入れます"
-# navigator/widgets/shell/shell/shell.py:3247
+# navigator/widgets/shell/shell/shell.py:3253
 "View file" = "ファイルの表示"
-# navigator/widgets/shell/shell/shell.py:3247
+# navigator/widgets/shell/shell/shell.py:3253
 "Edit file" = "ファイルの編集"
 # navigator/widgets/shell/shell/shell.py:2208
 "No file manager is open to panelize into" = "パネル化先のファイル管理が開いていません"
-# navigator/widgets/shell/shell/shell.py:2650
+# navigator/widgets/shell/shell/shell.py:2656
 "Wrong passphrase for {key}. Try again:" = "{key} のパスフレーズが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2651
+# navigator/widgets/shell/shell/shell.py:2657
 "Passphrase for {key}:" = "{key} のパスフレーズ:"
-# navigator/widgets/shell/shell/shell.py:2637
+# navigator/widgets/shell/shell/shell.py:2643
 "Wrong secret key for {who}. Try again:" = "{who} のシークレットキーが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2638
+# navigator/widgets/shell/shell/shell.py:2644
 "Secret key for {who}:" = "{who} のシークレットキー:"
-# navigator/widgets/shell/shell/shell.py:2641
+# navigator/widgets/shell/shell/shell.py:2647
 "Wrong {protocol} password for {who}. Try again:" = "{who} の {protocol} パスワードが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2642
+# navigator/widgets/shell/shell/shell.py:2648
 "{protocol} password for {who}:" = "{who} の {protocol} パスワード:"
-# navigator/widgets/shell/shell/shell.py:2849
+# navigator/widgets/shell/shell/shell.py:2855
 "Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
-# navigator/widgets/shell/shell/shell.py:3189
+# navigator/widgets/shell/shell/shell.py:3195
 "Set the interface option\n\"{option}\" ON first" = "先にインターフェースのオプション\n\"{option}\" をオンにしてください"
 # navigator/widgets/shell/shell/shell.py:1576
 "Cannot edit {path}: {error}" = "{path} を編集できません: {error}"
@@ -3987,11 +4009,11 @@ flag = "JP"
 "File {name} not found" = "ファイル {name} が見つかりません"
 # navigator/widgets/shell/shell/shell.py:1754
 "Cannot write the menu's script: {error}" = "メニューのスクリプトを書き込めません: {error}"
-# navigator/widgets/shell/shell/shell.py:2620
+# navigator/widgets/shell/shell/shell.py:2626
 "Connecting to {host} over {protocol}" = "{protocol} で {host} に接続中"
-# navigator/widgets/shell/shell/shell.py:2997
+# navigator/widgets/shell/shell/shell.py:3003
 "Cannot save the key bindings: {error}" = "キー割り当てを保存できません: {error}"
-# navigator/widgets/shell/shell/shell.py:3153
+# navigator/widgets/shell/shell/shell.py:3159
 "Cannot save the settings: {error}" = "設定を保存できません: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "終了ステータス {status}"

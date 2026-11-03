@@ -2480,8 +2480,13 @@ class Shell(DockLayout):
             scheme = request.scheme
         if scheme == "gvfs":
             return await self.gvfs_link(panel)
-        if scheme == "sftp" and request is None:
-            return await self.ssh_link(panel)
+        if request is None:
+            # Every protocol's menu item, and the Link box's *New ... link*:
+            # its connection manager.  A *request* (filled in from elsewhere)
+            # still goes to the one-shot box below.
+            from navigator.widgets.drives.link_manager import family_of
+
+            return await self.link_manager(panel, family_of(scheme))
         family = (("ftp", "ftps") if scheme in ("ftp", "ftps") else ("s3", "s3+http") if scheme in ("s3", "s3+http")
                   else (scheme,))
         missing = sessions.available(scheme)
@@ -2502,38 +2507,39 @@ class Shell(DockLayout):
             request.scheme, request.host, request.user, request.port, request.path))
         return True
 
-    async def ssh_link(self, panel: Any) -> bool:
-        """Utilities > *SSH link (SFTP)*: the SSH connection manager
-        (``SshLinkDialog``), and *panel* sent where *Connect* says.  True
-        once the panel is there."""
+    async def link_manager(self, panel: Any, family: str) -> bool:
+        """Utilities > *SSH link*, *FTP link*, *SMB link*, *S3 link* and
+        *GVfs/KIO link*: *family*'s connection manager (``LinkManagerDialog``),
+        and *panel* sent where *Connect* says.  True once the panel is there."""
         from navigator.lib.drives import recent, sessions
-        from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog, location_of, sftp_entries
+        from navigator.widgets.drives.link_manager import FAMILIES, LinkManagerDialog, entries_for, location_of
 
-        entries = await asyncio.to_thread(sftp_entries)
-        request = await SshLinkDialog(entries, mode="panel",
-                                      missing=sessions.available("sftp")).execute(self.application)
+        entries = await asyncio.to_thread(entries_for, family)
+        schemes = FAMILIES[family].schemes
+        missing = sessions.available(schemes[0]) if schemes else None
+        request = await LinkManagerDialog(entries, family=family, mode="panel",
+                                          missing=missing).execute(self.application)
         if request is None:
             return False
-        if not await self.go_remote(panel, location_of(request)):
+        target = location_of(request)
+        if family == "gvfs" and target.path == PurePosixPath("."):
+            # A desktop place opens at its root: GVfs and KIO have no home there.
+            target = Location(target.site, PurePosixPath("/"))
+        if not await self.go_remote(panel, target):
             return False
-        # Remembered once it worked, as ``navy_link`` does.
-        await asyncio.to_thread(recent.remember, recent.Recent(
-            request.scheme, request.host, request.user, request.port, request.path))
+        if family != "gvfs":
+            # Remembered once it worked, as ``navy_link`` does.
+            await asyncio.to_thread(recent.remember, recent.Recent(
+                request.scheme, request.host, request.user, request.port, request.path))
         return True
 
     async def gvfs_link(self, panel: Any) -> bool:
-        """Utilities > *GVfs/KIO link*: a URI asked -- ``mtp://``, ``dav://``,
-        ``google-drive://``... (:func:`navigator.widgets.drives.desktop_link.ask_desktop_uri`)
-        -- and *panel* sent there, mounted through GVfs
-        (:mod:`navigator.lib.drives.gvfs`) or, where the desktop's plumbing
-        is KDE's, kio-fuse (:mod:`navigator.lib.drives.kio`).  True once the
-        panel is there."""
-        from navigator.widgets.drives.desktop_link import ask_desktop_uri
-
-        target = await ask_desktop_uri(self.application)
-        if target is None:
-            return False
-        return await self.go_remote(panel, target)
+        """Utilities > *GVfs/KIO link*: its connection manager, the places
+        kept by URI -- ``mtp://``, ``dav://``, ``google-drive://``... -- and
+        *panel* sent there, mounted through GVfs (:mod:`navigator.lib.drives.gvfs`)
+        or, where the desktop's plumbing is KDE's, kio-fuse
+        (:mod:`navigator.lib.drives.kio`).  True once the panel is there."""
+        return await self.link_manager(panel, "gvfs")
 
     async def go_remote(self, panel: Any, target: Location) -> bool:
         """*panel* to *target* on another drive, connected first -- asking
@@ -2755,12 +2761,12 @@ class Shell(DockLayout):
     async def open_remote_shell(self) -> Any:
         """Utilities > *Remote shell*: ``cmTerminal``'s ``OpenTerminal``.  The
         window still running for the active panel's server brought forward;
-        else the SSH connection manager (``SshLinkDialog``), on that server
+        else the SSH connection manager (``LinkManagerDialog``), on that server
         if the panel is on one, and *Connect* runs ``ssh -t`` there in a
         command window (:mod:`navigator.lib.drives.remote_shell`).  Returns
         the window, or None when cancelled."""
         from navigator.lib.drives import recent, remote_shell
-        from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog, location_of, sftp_entries
+        from navigator.widgets.drives.link_manager import LinkManagerDialog, location_of, sftp_entries
 
         here = self.remote_shell_location()
         if here is not None:
@@ -2768,7 +2774,7 @@ class Shell(DockLayout):
             if window is not None:
                 return window
         entries = await asyncio.to_thread(sftp_entries)
-        request = await SshLinkDialog(entries, mode="shell", select=here).execute(self.application)
+        request = await LinkManagerDialog(entries, family="sftp", mode="shell", select=here).execute(self.application)
         if request is None:
             return None
         location = location_of(request)

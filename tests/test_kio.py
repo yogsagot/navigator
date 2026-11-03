@@ -452,7 +452,7 @@ def test_where_the_trash_has_no_directory_kio_takes_it(tmp_path, monkeypatch, fa
     assert ["kioclient", "--noninteractive", "move", str(place / "a.txt"), "trash:/"] in fake_kde()["calls"]
 
 
-def test_the_link_box_is_kios_under_kio(tmp_path, monkeypatch):
+def test_the_link_manager_is_kios_under_kio(tmp_path, monkeypatch):
     from test_nav import navigator
     from navigator.widgets.shell.commands import GvfsLink
 
@@ -460,5 +460,8 @@ def test_the_link_box_is_kios_under_kio(tmp_path, monkeypatch):
     seen = {}
     app = navigator(tmp_path)
     run_app(app, [lambda a: a.spawn(a.run_command(GvfsLink)), Until(lambda a: a.modal is not None),
-                  lambda a: seen.update(title=a.modal.title, caption=a.modal.caption), KeyEvent("escape")])
-    assert seen == {"title": "GVfs/KIO link", "caption": "~U~RI (mtp://, webdav://, gdrive://...)"}
+                  lambda a: seen.update(title=a.modal.title, uri=a.modal.uri.visible, host=a.modal.host.visible,
+                                        examples=a.modal.uri.entry.tooltip), KeyEvent("escape")])
+    # Its connection manager, Name and URI alone, the examples the backend's own.
+    assert seen == {"title": "GVfs/KIO link", "uri": True, "host": False,
+                    "examples": "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/"}

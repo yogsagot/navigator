@@ -191,7 +191,7 @@ def test_ftp_link_logs_in_and_the_panel_goes_there(tmp_path, isolated, monkeypat
 
     try:
         run_app(app, [
-            lambda a: a.spawn(a.run_command(FtpLink)), Until(lambda a: type(a.modal).__name__ == "ConnectDialog"),
+            lambda a: a.spawn(a.run_command(FtpLink)), Until(lambda a: type(a.modal).__name__ == "LinkManagerDialog"),
             fill, KeyEvent("enter"),
             Until(lambda a: type(a.modal).__name__ == "PasswordDialog", timeout=10), password, KeyEvent("enter"),
             Until(lambda a: [e.name for e in a.manager.left.items] == ["..", "sub", "a.txt"], timeout=10),

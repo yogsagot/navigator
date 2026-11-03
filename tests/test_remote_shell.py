@@ -126,9 +126,9 @@ def test_opens_ssh_in_a_window_and_brings_it_back_while_it_runs(tmp_path, monkey
         seen.update(text=text(window), title=window.title, site=window.remote_site, busy=window.view.busy)
 
     def manager(a):
-        from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog
+        from navigator.widgets.drives.link_manager import LinkManagerDialog
 
-        return isinstance(a.modal, SshLinkDialog)
+        return isinstance(a.modal, LinkManagerDialog)
 
     def lines(a):
         seen.update(title_box=a.modal.title, host=a.modal.host.value, directory=a.modal.directory.value)
@@ -154,7 +154,7 @@ def test_opens_ssh_in_a_window_and_brings_it_back_while_it_runs(tmp_path, monkey
 
 def test_with_no_ssh_panel_the_box_s_lines_say_where(tmp_path, monkeypatch, fake_ssh):
     from navigator.lib.drives import profiles
-    from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
 
     profiles.save("box", "sftp", "box.lan", "root", 0, "")
     app = make(tmp_path, monkeypatch)
@@ -164,7 +164,7 @@ def test_with_no_ssh_panel_the_box_s_lines_say_where(tmp_path, monkeypatch, fake
         found = windows(a)
         return bool(found) and "<box.lan>" in text(found[0])
 
-    run_app(app, [lambda a: a.spawn(a.run_command(Terminal)), Until(lambda a: isinstance(a.modal, SshLinkDialog)),
+    run_app(app, [lambda a: a.spawn(a.run_command(Terminal)), Until(lambda a: isinstance(a.modal, LinkManagerDialog)),
                   lambda a: seen.update(items=list(a.modal.links.items), empty=a.modal.host.value == ""),
                   lambda a: a.modal.links.focus(), KeyEvent(" "), KeyEvent("enter"), Until(showing),
                   lambda a: seen.update(text=text(windows(a)[0]).replace("\n", ""), title=windows(a)[0].title)])
@@ -188,7 +188,7 @@ def test_ended_well_is_every_ssh_exit_but_its_own_failure():
 
 @pytest.mark.parametrize("code, closed", [(0, True), (1, True), (255, False)])
 def test_the_window_goes_when_the_connection_ends_but_stays_for_ssh_s_failure(tmp_path, monkeypatch, code, closed):
-    from navigator.widgets.drives.ssh_link_dialog import SshLinkDialog
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
 
     bin_dir = tmp_path / "bin"
     bin_dir.mkdir()
@@ -203,7 +203,7 @@ def test_the_window_goes_when_the_connection_ends_but_stays_for_ssh_s_failure(tm
     def connect(a):
         a.modal.host.value = "box.lan"
 
-    run_app(app, [lambda a: a.spawn(a.run_command(Terminal)), Until(lambda a: isinstance(a.modal, SshLinkDialog)),
+    run_app(app, [lambda a: a.spawn(a.run_command(Terminal)), Until(lambda a: isinstance(a.modal, LinkManagerDialog)),
                   connect, KeyEvent("enter"), Until(lambda a: windows(a) and "ready" in text(windows(a)[0])),
                   lambda a: seen.update(window=windows(a)[0]), KeyEvent("enter"),
                   Until(lambda a: seen["window"].view.status is not None),

@@ -1,4 +1,4 @@
-"""The drives' dialogs' commands: what *Saved links* and the SSH connection manager handle."""
+"""The drives' dialogs' commands: what *Saved links* and the link managers handle."""
 
 from __future__ import annotations
 
@@ -26,19 +26,18 @@ class MoveLinkDown(Command):
     """Ctrl+Down in *Saved links*: the focused link one place down."""
 
 
-class NewSshLink(Command):
-    """Ins in the SSH connection manager (``SshLinkDialog``): a new connection,
-    kept at once and chosen -- empty under a placeholder name, or the one-off
-    lines typed."""
+class NewLinkEntry(Command):
+    """Ins in a link manager (``LinkManagerDialog``): a new connection, kept at
+    once and chosen -- empty under a placeholder name, or the one-off lines typed."""
 
 
-class SaveSshLink(Command):
-    """F2 in the SSH connection manager: the chosen connection made what the lines say."""
+class SaveLinkEntry(Command):
+    """F2 in a link manager: the chosen connection made what the lines say."""
 
 
-class DeleteSshLink(Command):
-    """Del in the SSH connection manager's list: the chosen connection, once asked."""
+class DeleteLinkEntry(Command):
+    """Del in a link manager's list: the chosen connection, once asked."""
 
 
-__all__ = ["AddLink", "DeleteLink", "DeleteSshLink", "EditLink", "MoveLinkDown", "MoveLinkUp", "NewSshLink",
-           "SaveSshLink"]
+__all__ = ["AddLink", "DeleteLink", "DeleteLinkEntry", "EditLink", "MoveLinkDown", "MoveLinkUp", "NewLinkEntry",
+           "SaveLinkEntry"]

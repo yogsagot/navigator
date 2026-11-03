@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH link (SFTP) (Alt+F11) / Remote shell (ssh -t, DN's cmTerminal) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH/FTP/SMB/S3/GVfs link managers (Alt+F11 for SSH) / Remote shell (ssh -t, DN's cmTerminal) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -336,11 +336,25 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   protocol), `HangUp` (*Disconnect*, Alt+H; greyed with
   nothing mounted), `SetupLink` (Options > Configuration > *Communications...* → `CommunicationsPage`, `[remote]`
   keepalive, timeout, idle_disconnect, upload_changed).
-- **The SSH connection manager** (`navigator/widgets/drives/ssh_link_dialog/`, `SshLinkDialog`, after FileZilla's
-  Site Manager; a departure, asked for): Utilities > *SSH link (SFTP)* (Alt+F11, `Shell.ssh_link`; `navy_link` with
-  scheme `sftp` and no request goes there, so the Link box's *New SSH link* does too) and Utilities > *Remote shell*
-  both open it. The kept `sftp` profiles down the left (`sftp_entries()`, read on a thread by the caller), the lines
-  on the right under `ConnectDialog`'s ids, *Name* (`label`) on top, then `host`, `user`, `port`, `directory`.
+- **The link managers** (`navigator/widgets/drives/link_manager/`, `LinkManagerDialog(family=...)`, after
+  FileZilla's Site Manager; a departure, asked for): one a protocol, one component. Utilities > *SSH link (SFTP)*
+  (Alt+F11), *FTP link*, *SMB link*, *S3 link* and *GVfs/KIO link* open their family's (`Shell.link_manager(panel,
+  family)`; `navy_link` with no request and `gvfs_link` go there, so the Link box's *New ... link* items do too);
+  *Remote shell* opens SSH's in `mode="shell"`. Each lists only its family's profiles (`entries_for(family)`, read
+  on a thread by the caller; `family_of(scheme)` maps back), the lines on the right under `ConnectDialog`'s ids,
+  *Name* (`label`) on top, then `host`, `user`, `port`, `directory`. `FAMILIES` and `_dress()` hold what differs:
+  - `sftp` -- as below; histories `ssh_*`. `ftp` -- lists `ftp`/`ftps`; the `secure` box (*Encr~y~pt with TLS
+    (FTPS)*) is the scheme, unticked to start. `smb` -- *Sh~a~re/dir*, a leading `/` added (`rooted`). `s3` --
+    lists `s3`/`s3+http`; *End~p~oint* (one-off and New start at `AWS_HOST`), *Access ~k~ey*, *~B~ucket/dir*
+    (rooted), the box (*HTTPS*) ticked to start. `gvfs` -- the backend's `link_schemes()` less Navigator's own
+    (`schemes_of`): *Name* and a `uri` line alone (`uri_of`/`Location.parse` both ways; status line moved up);
+    `problem()` refuses a URI nothing reaches with the old *is no place GVfs/KIO reaches* strings; *New* cannot
+    keep an empty place (no scheme, so in no list): from a chosen one it starts a one-off to type the URI into.
+  - The box's state is in `_values()` (so ticking it is a change) and decides the scheme written; histories are
+    `{family}_name`... (`gvfs_uri` for the URI). `missing` is `sessions.available` of the family's first scheme.
+  - Captions set from Python (*Sh~a~re/dir*, *End~p~oint*...) are not in `tools/i18n.py check`'s clash check,
+    which reads markup: their letters were picked by hand against the box's (N H L o D S w e t C, and each
+    language's own). Its method for that is `problem()`, never `refusal()`, which is navkit's command hook.
   **Two states**, `chosen`:
   - **None: a one-off connection**, how it opens (keyboard on Name; the list shows no cursor unfocused), and after
     *Delete*. *Connect* uses the lines; *Save*/*Delete* greyed; the line under says *Not saved -- New keeps it*.

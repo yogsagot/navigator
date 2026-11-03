@@ -345,9 +345,10 @@ MainMenu(MenuBar):
         #: *Manual dial*.  The link is to a server now, and the *Terminal* a
         #: shell on it (*Remote shell*, ``cmTerminal``).
         #: Named for its protocol, where DN's said *Navigator Link*: what is
-        #: on the wire is never in doubt.  It and *Remote shell* open the SSH
-        #: connection manager (``SshLinkDialog``), the kept SSH connections
-        #: listed beside the lines -- a departure, asked for.
+        #: on the wire is never in doubt.  Each link opens its protocol's
+        #: connection manager (``LinkManagerDialog``), the kept connections
+        #: listed beside the lines -- *Remote shell* the SSH one -- a
+        #: departure, asked for.
         MenuItem:
             text: '~S~SH link (SFTP)...'
             command: NavyLink

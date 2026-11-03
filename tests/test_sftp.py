@@ -211,7 +211,7 @@ def test_navigator_link_asks_the_key_then_the_password_and_the_panel_goes_there(
         a.modal.entry.value = PASSWORD
 
     run_app(app, [
-        KeyEvent("f11", alt=True), Until(modal_is("SshLinkDialog")), fill, KeyEvent("enter"),
+        KeyEvent("f11", alt=True), Until(modal_is("LinkManagerDialog")), fill, KeyEvent("enter"),
         Until(modal_is("HostKeyQuery"), timeout=10),
         lambda a: seen.update(key=a.modal.prompt), KeyEvent("enter"),
         Until(modal_is("PasswordDialog"), timeout=10), password, KeyEvent("enter"),
