@@ -24,9 +24,10 @@ from navml.widgets.window import Window
 #: own, one column into the window's; under it the status line -- how many
 #: processes, and how many the filter lets through -- then *Mine only* and
 #: *Tree* on the left, *Signal*, *Kill*, *Details* and *Close* on the right.
-#: The boxes are as wide as their captions, and the window never narrower
-#: than the boxes and the buttons side by side, which once covered *Mine
-#: only* in a window opened on an 80-column screen.
+#: The boxes and the buttons are as wide as their captions, the buttons
+#: lined up from the right edge, and the window never narrower than all of
+#: them side by side: the buttons once covered *Mine only* in a window
+#: opened on an 80-column screen, and a fixed width cut a translated caption.
 #:
 #: Ctrl+P, Ctrl+U, Ctrl+E, Ctrl+L, Ctrl+Z and Ctrl+N sort by number, user,
 #: state, CPU (the load), memory (the size) and command (the name), as does a
@@ -42,7 +43,7 @@ from navml.widgets.window import Window
 #: and Alt+R read again at once.
 ProcessWindow(Window):
     title: "Process list"
-    min_width: 50 + max(mine_box.width, tree_box.width)
+    min_width: max(mine_box.width, tree_box.width) + signal_button.width + kill_button.width + details_button.width + close_button.width + 8
 
     keys:
         escape: CloseWindow
@@ -132,18 +133,18 @@ ProcessWindow(Window):
     Button:
         id: signal_button
         text: "~S~ignal"
-        x: max(0, parent.width - 47)
+        x: max(0, kill_button.x - 1 - self.width)
         y: max(0, parent.height - 3)
-        width: 11
+        width: root.caption_width(self.text) + 5
         height: 2
         disabled: not root.allows("signal")
 
     Button:
         id: kill_button
         text: "~K~ill"
-        x: max(0, parent.width - 35)
+        x: max(0, details_button.x - 1 - self.width)
         y: max(0, parent.height - 3)
-        width: 9
+        width: root.caption_width(self.text) + 5
         height: 2
         disabled: not root.allows("signal")
 
@@ -151,18 +152,18 @@ ProcessWindow(Window):
         id: details_button
         text: "~D~etails"
         default: True
-        x: max(0, parent.width - 25)
+        x: max(0, close_button.x - 1 - self.width)
         y: max(0, parent.height - 3)
-        width: 12
+        width: root.caption_width(self.text) + 5
         height: 2
         disabled: not root.allows("details")
 
     Button:
         id: close_button
         text: "Close"
-        x: max(0, parent.width - 12)
+        x: max(0, parent.width - 2 - self.width)
         y: max(0, parent.height - 3)
-        width: 10
+        width: root.caption_width(self.text) + 5
         height: 2
 
     #: The window's own menu on the bar after *File* while it is active, as
