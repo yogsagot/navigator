@@ -1022,6 +1022,26 @@ class ChecksumData(Section):
     mode: str = Setting("combined", choices=MODES, doc="One list for all the files, or one beside each file")
 
 
+class EncryptionData(Section):
+    """File > Encryption's last choices, and the age identities Decrypt uses.
+    Not DN's: a departure, asked for -- DOS Navigator encrypted nothing.  A
+    passphrase is never kept here."""
+
+    name = "encryption"
+    title = "File > Encryption (not DN's)"
+
+    TOOLS: ClassVar[tuple[str, ...]] = ("gpg", "age")
+    METHODS: ClassVar[tuple[str, ...]] = ("passphrase", "recipients")
+
+    tool: str = Setting("gpg", choices=TOOLS, doc="The program Encrypt runs")
+    method: str = Setting("passphrase", choices=METHODS, doc="Encrypt to a passphrase, or to recipients' keys")
+    armor: bool = Setting(False, doc="Encrypted files are ASCII text (gpg: .asc)")
+    delete_originals: bool = Setting(False, doc="Encrypt removes each file once its encrypted copy is written")
+    recipients: str = Setting("", doc="The last recipients: gpg key IDs, or age keys or files of them, by spaces")
+    age_identities: str = Setting(
+        "", doc="age identity files Decrypt tries, by spaces; empty: $XDG_CONFIG_HOME/age/keys.txt if it is there")
+
+
 class SynchronizeData(Section):
     """*Compare directories*' *Synchronize* window: what *Options* last
     accepted.  Not DN's: a departure, asked for -- Total Commander's
@@ -1095,7 +1115,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
+    CalculatorData, UUCodeData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1135,6 +1155,7 @@ class Settings:
     calculator: CalculatorData
     uucode: UUCodeData
     checksum: ChecksumData
+    encryption: EncryptionData
     synchronize: SynchronizeData
     processes: ProcessesData
     monitor: MonitorData

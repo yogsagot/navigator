@@ -466,6 +466,25 @@ class VerifyChecksums(Command):
     """
 
 
+class EncryptFiles(Command):
+    """File > Encryption > Encrypt: the tagged files -- a tagged directory's to
+    the bottom -- encrypted by gpg or age, each beside itself
+    (:mod:`navigator.lib.file_ops.encrypt`).
+
+    **A departure**, asked for: DOS Navigator encrypted nothing, so there is
+    no ``cm*`` to name it after.  Not bound: the key is the user's to give.
+    """
+
+
+class DecryptFiles(Command):
+    """File > Encryption > Decrypt: the tagged encrypted files -- or the one at
+    the cursor -- decrypted beside themselves, the passphrase asked only when
+    one is wanted.
+
+    **A departure**, asked for, as :class:`EncryptFiles` is.  Not bound.
+    """
+
+
 class DirHistory(Command):
     """Alt+Backspace, Panel > History of directories: where the panels have been.
 
@@ -798,6 +817,8 @@ __all__ = [
     "UuDecode",
     "CalculateChecksums",
     "VerifyChecksums",
+    "EncryptFiles",
+    "DecryptFiles",
     "CompareDir",
     "DiffFiles",
     "SetSyncAction",

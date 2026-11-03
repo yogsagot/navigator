@@ -110,6 +110,8 @@ from navigator.widgets.manager.commands import (
     UuEncode,
     CalculateChecksums,
     VerifyChecksums,
+    EncryptFiles,
+    DecryptFiles,
     View,
     OpenWith,
     ViewAsDataBase,
@@ -168,8 +170,8 @@ class Manager(Window):
 
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
-    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums, EditLinkTarget, LinkRelative,
-                        LinkAbsolute, SelectBrokenLinks)
+    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
+                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -792,9 +794,7 @@ class Manager(Window):
             # One per directory: each re-reads every panel showing it.
             for location in {location.parent: location for location in written}.values():
                 await self.emit(FileSaved(shown(location)))
-        failed = {name for name, _ in job.errors}
-        panel.untag(entry for entry, source in zip(entries, sources)
-                    if not any(name == str(source) or name.startswith(f"{source}/") for name in failed))
+        self._untag_done(panel, entries, sources, job.errors)
         if job.errors:
             await self._say_checksum_errors(job.errors)
 
@@ -864,15 +864,175 @@ class Manager(Window):
         reply = await query.execute(self.application)
         return None if reply is None else reply is False
 
-    async def _say_checksum_errors(self, errors: list[tuple[str, str]]) -> None:
-        """What could not be read, the first eight of it, as the archive test says its failures."""
+    async def _say_checksum_errors(self, errors: list[tuple[str, str]], heading: str | None = None) -> None:
+        """What could not be read, the first eight of it, as the archive test
+        says its failures; *heading* in place of *N files could not be read:*."""
         from navml.widgets.dialog.control import escape_caption
 
         lines = [escape_caption(f"{name}: {reason}") for name, reason in errors[:8]]
         if len(errors) > 8:
             lines.append(tr_n("and {n} more", "and {n} more", len(errors) - 8))
-        prompt = tr_n("{n} file could not be read:", "{n} files could not be read:", len(errors)) + "\n" + "\n".join(lines)
+        if heading is None:
+            heading = tr_n("{n} file could not be read:", "{n} files could not be read:", len(errors))
+        prompt = heading + "\n" + "\n".join(lines)
         await Dialog(title=tr("Error"), prompt=prompt, buttons="ok").execute(self.application)
+
+    # -- Encryption (navigator.lib.file_ops.encrypt): not DN's, a departure ------------------------
+
+    async def on_encrypt_files(self, event: EncryptFiles) -> bool:
+        self.spawn(self.encrypt_files(self.active_panel))
+        return True
+
+    async def on_decrypt_files(self, event: DecryptFiles) -> bool:
+        self.spawn(self.decrypt_files(self.active_panel))
+        return True
+
+    async def encrypt_files(self, panel: Panel) -> None:
+        """File > Encryption > Encrypt: the tagged files -- or the cursor's --
+        a tagged directory's to the bottom, each encrypted beside itself by gpg
+        or age, streamed through their drives on a thread.
+
+        Targets already there are asked about first, in one question.  *Delete
+        originals* removes each source whose encrypted copy was written in full;
+        Esc in the box stops it, leaving no half-written file.  The entries done
+        are untagged and the panels read again.
+        """
+        from navigator.lib.file_ops import encrypt
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.file_ops.encrypt_dialog import EncryptDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        answer = await EncryptDialog().execute(app)
+        if answer is None:
+            return
+        kept = {key: answer[key] for key in ("tool", "method", "armor", "delete_originals")}
+        if answer["method"] == "recipients":
+            kept["recipients"] = " ".join(answer["recipients"])
+        self._keep_section("encryption", kept)
+        options = encrypt.Options(tool=answer["tool"], method=answer["method"], passphrase=answer["passphrase"],
+                                  recipients=answer["recipients"], armor=answer["armor"])
+        sources = [panel.entry_location(entry) for entry in entries]
+        job = encrypt.EncryptJob()
+        title = tr("Encrypting")
+        try:
+            def gather() -> tuple[list[Any], int]:
+                plans = encrypt.plan_encrypt(sources, options, job)
+                return plans, encrypt.existing_targets(plans)
+
+            plans, there = await self._run_checksums(gather, job, title)
+            if there and not await self._ask_over_targets(there):
+                return
+            done = await self._run_checksums(lambda: encrypt.encrypt(plans, options, job), job, title)
+            if answer["delete_originals"] and done:
+                await self._run_checksums(lambda: encrypt.remove_originals(done, job), job, title)
+        except Stopped:
+            return
+        finally:
+            for each in self.all_panels:
+                each.reload()
+        self._untag_done(panel, entries, sources, job.errors)
+        if job.errors:
+            await self._say_checksum_errors(
+                self._encryption_reasons(job.errors),
+                tr_n("{n} file could not be encrypted:", "{n} files could not be encrypted:", len(job.errors)))
+
+    async def decrypt_files(self, panel: Panel) -> None:
+        """File > Encryption > Decrypt: the tagged encrypted files -- or the
+        cursor's, a tagged directory's ``.gpg``/``.asc``/``.age`` files -- each
+        decrypted beside itself, without its ending.
+
+        Each file is tried without a passphrase first (a public-key file's key
+        may be unlocked in gpg's agent already, an age file's identity is a
+        file); those that wanted one are tried again with the one asked then,
+        three times at most.  The encrypted files are kept.
+        """
+        from navigator.lib.file_ops import encrypt
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.drives.password_dialog import PasswordDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        identities = SETTINGS.encryption.age_identities.split() or encrypt.default_identities()
+        options = encrypt.Options(identities=identities)
+        sources = [panel.entry_location(entry) for entry in entries]
+        job = encrypt.EncryptJob()
+        title = tr("Decrypting")
+        try:
+            def gather() -> tuple[list[Any], int]:
+                plans = encrypt.plan_decrypt(sources, job)
+                return plans, encrypt.existing_targets(plans)
+
+            plans, there = await self._run_checksums(gather, job, title)
+            if not plans and not job.errors:
+                await Dialog(title=tr("Error"), prompt=tr("No encrypted file is tagged or at the cursor"),
+                             buttons="ok").execute(app)
+                return
+            if there and not await self._ask_over_targets(there):
+                return
+            await self._run_checksums(lambda: encrypt.decrypt(plans, options, job), job, title)
+            pending = job.needs_passphrase
+            tries = 0
+            while pending and tries < 3:
+                if tries:
+                    prompt = tr("The passphrase is wrong. Type it again:")
+                else:
+                    prompt = tr_n("{n} file needs a passphrase:", "{n} files need a passphrase:", len(pending))
+                box = PasswordDialog(prompt=prompt)
+                # After construction: the markup's captions give way to an assignment, not to a keyword.
+                box.title = tr("Passphrase")
+                box.entry.label_text = tr("~P~assphrase")
+                reply = await box.execute(app)
+                if reply is None:
+                    pending = []
+                    break
+                options.passphrase = reply[0]
+                again = pending
+                await self._run_checksums(lambda: encrypt.decrypt(again, options, job), job, title)
+                pending = job.bad_passphrase
+                tries += 1
+            job.errors.extend((str(plan.source), encrypt.BAD_PASSPHRASE) for plan in pending)
+        except Stopped:
+            return
+        finally:
+            options.passphrase = None
+            for each in self.all_panels:
+                each.reload()
+        self._untag_done(panel, entries, sources, job.errors)
+        if job.errors:
+            await self._say_checksum_errors(
+                self._encryption_reasons(job.errors),
+                tr_n("{n} file could not be decrypted:", "{n} files could not be decrypted:", len(job.errors)))
+
+    async def _ask_over_targets(self, there: int) -> bool:
+        """Whether *there* files already where the results go are written over."""
+        prompt = tr_n("{n} file already exists.\nOK to overwrite it?",
+                      "{n} files already exist.\nOK to overwrite them?", there)
+        return bool(await Dialog(title=tr("Warning"), prompt=prompt, buttons="yes-no").execute(self.application))
+
+    @staticmethod
+    def _untag_done(panel: Panel, entries: list[Any], sources: list[Location],
+                    errors: list[tuple[str, str]]) -> None:
+        """The entries untagged whose files -- a directory's every one -- were done."""
+        failed = {name for name, _ in errors}
+        panel.untag(entry for entry, source in zip(entries, sources)
+                    if not any(name == str(source) or name.startswith(f"{source}/") for name in failed))
+
+    @staticmethod
+    def _encryption_reasons(errors: list[tuple[str, str]]) -> list[tuple[str, str]]:
+        """*errors* with the model's own reasons translated."""
+        from navigator.lib.file_ops import encrypt
+
+        reasons = {
+            encrypt.BAD_PASSPHRASE: tr("wrong passphrase"),
+            encrypt.NO_IDENTITY: tr("no age identity file: set age_identities in navigator.ini's [encryption]"),
+            encrypt.NO_SECRET_KEY: tr("no secret key for it"),
+        }
+        return [(name, reasons.get(reason, reason)) for name, reason in errors]
 
     # -- archives: Extract to, Test, Extract archive (ARCVIEW.PAS) ---------------------------------
 
@@ -2605,6 +2765,18 @@ class Manager(Window):
             if desktop.program() is None:
                 return tr("Neither GIO nor KIO is installed")
             return unless(desktop.graphical(), tr("No graphical desktop to open it on"))
+        if isinstance(command, (EncryptFiles, DecryptFiles)):
+            from navigator.lib.file_ops import encrypt
+
+            if not encrypt.available():
+                return tr("Neither gpg nor age is installed")
+            chosen = self.selection(panel)
+            if not chosen:
+                return nothing
+            if isinstance(command, DecryptFiles):
+                return unless(any(entry.is_dir or encrypt.suffix_tool(entry.name) for entry in chosen),
+                              tr("No encrypted file is tagged or at the cursor"))
+            return ""
         if isinstance(command, ToggleMiller):
             # A *Find:* listing is no directory to open columns on.
             return unless(self.miller_mode or panel.found is None, not_found)

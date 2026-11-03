@@ -1,0 +1,120 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: File > Encryption > Encrypt.  Not DN's: a departure, asked for -- DOS
+#: Navigator encrypted nothing (``navigator.lib.file_ops.encrypt``).
+#:
+#: The program and what to encrypt to side by side, the passphrase twice or
+#: the recipients under them -- each greyed while the other is chosen -- and
+#: the two options last.
+EncryptDialog(Dialog):
+    modal_width: 64
+    modal_height: 17
+    title: "Encrypt Files"
+
+    Label:
+        id: tool_caption
+        x: 2
+        y: 1
+        width: 12
+        height: 1
+        text: "Pr~o~gram"
+        link: tool
+
+    #: A program that is not installed is greyed, its tooltip saying so.
+    RadioButtons:
+        id: tool
+        x: 2
+        y: 2
+        width: 22
+        height: 2
+        items: ["~G~nuPG (gpg)", "ag~e~"]
+
+    Label:
+        id: method_caption
+        x: 26
+        y: 1
+        width: 14
+        height: 1
+        text: "Encrypt ~t~o"
+        link: method
+
+    RadioButtons:
+        id: method
+        x: 26
+        y: 2
+        width: max(0, parent.width - 28)
+        height: 2
+        items: ["~P~assphrase", "~R~ecipients' keys"]
+
+    Field:
+        id: passphrase
+        x: 2
+        y: 5
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Pa~s~sphrase"
+        label_width: 13
+        disabled: method.value != 0
+
+    Field:
+        id: confirm
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~C~onfirm"
+        label_width: 13
+        disabled: method.value != 0
+
+    #: gpg key IDs or fingerprints; age keys or files of them; by spaces.
+    Field:
+        id: recipients
+        x: 2
+        y: 8
+        width: max(0, parent.width - 16)
+        height: 1
+        label_text: "Rec~i~pients"
+        label_width: 13
+        history_id: "encrypt-recipients"
+        disabled: method.value != 1
+
+    #: gpg's keys in a box, the one chosen added to the recipients.
+    Button:
+        id: choose_keys
+        text: "Ke~y~s..."
+        x: max(0, parent.width - 13)
+        y: 8
+        width: 11
+        height: 2
+        disabled: method.value != 1 or tool.value != 0
+
+    CheckBoxes:
+        id: options
+        x: 3
+        y: 10
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["~A~SCII armor", "~D~elete originals"]
+        tooltips: ["Write the encrypted files as text (gpg names them .asc)", "Remove each file once its encrypted copy is written"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 19
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 32
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

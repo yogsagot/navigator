@@ -3582,7 +3582,11 @@ def test_only_entries_with_a_handler_behind_them_are_enabled(tree):
         return parse_shortcut(text)[0]
 
     run_app(app, [probe])
-    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Symlinks", "Make directory", "Checksums", "Execute OS command", "Exit"]
+    from navigator.lib.file_ops.encrypt import available
+
+    # Encryption is greyed where neither gpg nor age is installed.
+    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Symlinks", "Make directory", "Checksums",
+                    *(["Encryption"] if available() else []), "Execute OS command", "Exit"]
 
 
 def test_a_nested_menu_shades_the_box_it_opened_from(tree):

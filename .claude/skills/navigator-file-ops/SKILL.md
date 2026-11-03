@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -262,6 +262,42 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
   bad ones). Missing is `FileNotFoundError`; a list with no lines is in `lists_unreadable`.
 - **Every read goes through `drive_of(...).open_read`/`children`**, so both work on any drive; all of it runs on a
   thread through `run_with_progress` (`ChecksumProgress`), asking nothing mid-work.
+
+## Encryption (File > Encryption)
+
+`navigator/lib/file_ops/encrypt.py`, **a departure, asked for** -- DN encrypted nothing, so `EncryptFiles` and
+`DecryptFiles` are named for what they do and are keyless, like Checksums, whose shape it copies: `EncryptDialog`,
+`[encryption]` (`EncryptionData`: tool, method, armor, delete_originals, recipients, age_identities -- never a
+passphrase), `ChecksumProgress` through `Manager._run_checksums`, errors through `_say_checksum_errors(errors, heading)`.
+- **Programs**: `gpg` and `age`, looked up with `shutil.which` at the call (`program`, `available`). A missing one is
+  a greyed radio item with *install the gnupg/age package* in its tooltip; neither greys both commands
+  (`Manager.refusal`). Decrypt is also refused when the selection holds no directory and no `.gpg`/`.pgp`/`.asc`/`.age`.
+- **Names**: `name.gpg`, `name.asc` (gpg, armored), `name.age` (armored too); back to `name`, or `name.out` for a file
+  with no such ending. A tagged directory is walked by `checksum.walk`; Encrypt skips files already encrypted.
+  Decrypt confirms each file by its first bytes (`sniff`: age's magic or armor, PGP armor, an OpenPGP packet tag
+  1/3/9/18/20) -- an `.asc` must hold a *message*, not a signature or a key.
+- **Streaming, no temporary file**: `run_filter` feeds `drive_of(src).open_read` to the child's stdin on a thread
+  and writes its stdout through `drive_of(dst).open_write`, so it works on any drive and leaves nothing in the clear
+  in `/tmp`. `_drain` polls Stop with `select` every 0.1 s (age at a prompt writes nothing). Stop or failure kills
+  the child's **process group** (each child leads a session: a helper holding the pipes would otherwise block) and
+  unlinks the target. `_each` calls each target drive's `finish()` once, at the end (an archive is rewritten once).
+- **A passphrase never goes in argv or the environment**, and no child can reach Navigator's terminal (each is
+  started in a new session). gpg: `--batch --no-tty --pinentry-mode loopback --passphrase-fd N` (a pipe in
+  `pass_fds`, written and closed before the start), `--no-symkey-cache` so a passphrase typed here does not go on
+  unlocking files elsewhere; recipients get `--trust-model always` (the user picked them by name). age reads one
+  only from `/dev/tty`: with `age-plugin-batchpass` (age 1.3) it is `-j batchpass` and `AGE_PASSPHRASE_FD`; without,
+  age runs on a private pty made its controlling terminal (`_controlling`: `setsid` + `TIOCSCTTY` in `preexec_fn`) and
+  `_Answerer` types the passphrase at each prompt. `navkit.process.PtyProcess` is the loop's and cannot be used there.
+- **Decrypt asks only when it must**: every file is tried with no passphrase first (gpg's agent may hold the secret
+  key; an age file to recipients uses `age_identities`, else `$XDG_CONFIG_HOME/age/keys.txt`). gpg's status lines
+  decide: `NEED_PASSPHRASE*` with none given -> `job.needs_passphrase`, `BAD_PASSPHRASE` -> `job.bad_passphrase`; an
+  age file is passphrase-encrypted when its header has an `scrypt` stanza (`age_wants_passphrase`). Then one
+  `PasswordDialog` (*N files need a passphrase:*) for them all, retried with *The passphrase is wrong* up to three
+  times. The encrypted files are kept.
+- **Targets already there** are counted before anything runs (`existing_targets`) and asked about in one
+  question. *Delete originals* (Encrypt only, off by default) unlinks each source whose copy was written in full.
+- **`PasswordDialog`'s title and label are set after construction**: the markup's captions are yielding bindings,
+  which give way to an assignment but override a `title=` keyword.
 
 ## Replace in files (Alt+Shift+F7)
 

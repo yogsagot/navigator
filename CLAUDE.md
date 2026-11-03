@@ -52,6 +52,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - FFmpeg's `ffprobe`, when installed, gives Ctrl+L's *Current file* an audio or video file's duration, streams and
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out
+- GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encryption's programs
+  (`navigator/lib/file_ops/encrypt.py`); a missing one is greyed with the package to install (`navigator-file-ops`)
 - Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
   `navigator-fm[smb]` (smbprotocol) -- both need the compiled `cryptography` -- `navigator-fm[keyring]` (*Save in
   keyring*) and `navigator-fm[images]` (Pillow, compiled: F3 and Ctrl+Q show pictures on a kitty or sixel terminal;
