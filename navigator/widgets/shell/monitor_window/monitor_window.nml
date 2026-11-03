@@ -1,0 +1,99 @@
+from navigator.widgets.manager.commands import Rescan
+from navigator.widgets.shell.monitor_meters import CpuMeters, MemoryMeters, SensorList
+from navml.commands import CloseWindow
+from navml.widgets.dialog.commands import SelectNext, SelectPrevious
+from navml.widgets.dialog.group_box import GroupBox
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.window import Window
+
+#: Utilities > System monitor: every processor's load, the memory and the
+#: sensors, read again every ``[monitor] refresh`` seconds.  **Not DOS
+#: Navigator's**: a departure, asked for -- DOS had one processor and nothing
+#: to measure it by.  The window beside Process list, built as it is;
+#: ``navigator/lib/system/monitor.py`` says how ``/proc`` and ``/sys`` are read.
+#:
+#: Three boxes, titled on their frames as System Information's are: *CPU* --
+#: every processor together, then each one in columns, its share and its
+#: clock; *Memory* -- what is in use, the commit charge (*Virtual*) and swap;
+#: *Sensors* -- each chip's temperatures and fans, left out where there are
+#: none.  **The window opens at the size its content needs**, so 4 processors
+#: and 64 give boxes of different heights, and it fits itself again when a
+#: processor or a sensor comes or goes -- until the user moves, resizes,
+#: zooms or tiles it, when the size is theirs.  A box too short for what it
+#: lists scrolls (the arrows, PgUp/PgDn, the wheel); Tab goes from one to the
+#: other.  Esc closes it; Ctrl+R and Alt+R read again at once.
+MonitorWindow(Window):
+    title: "System monitor"
+    min_width: 40
+    min_height: 11
+
+    keys:
+        escape: CloseWindow
+        ctrl+r: Rescan
+        alt+r: Rescan
+        tab: SelectNext
+        shift+tab: SelectPrevious
+
+    GroupBox:
+        id: cpu_box
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: root.heights[0]
+        title: "CPU"
+
+        CpuMeters:
+            id: cpu
+            x: 2
+            y: 1
+            width: max(0, parent.width - 3)
+            height: max(0, parent.height - 2)
+
+    GroupBox:
+        id: memory_box
+        x: 2
+        y: cpu_box.y + cpu_box.height
+        width: max(0, parent.width - 4)
+        height: root.heights[1]
+        title: "Memory"
+
+        MemoryMeters:
+            id: memory
+            x: 2
+            y: 1
+            width: max(0, parent.width - 4)
+            height: max(0, parent.height - 2)
+
+    GroupBox:
+        id: sensor_box
+        x: 2
+        y: memory_box.y + memory_box.height
+        width: max(0, parent.width - 4)
+        height: root.heights[2]
+        visible: root.heights[2] >= 3
+        title: "Sensors"
+
+        SensorList:
+            id: sensors
+            x: 2
+            y: 1
+            width: max(0, parent.width - 3)
+            height: max(0, parent.height - 2)
+
+    #: The window's own menu on the bar after *File* while it is active, as
+    #: Process list's is.  Also its right-click menu.
+    SubMenu:
+        id: monitor_menu
+        text: 'Mo~n~itor'
+        tooltip: "The processors, the memory and the sensors"
+        after: 'File'
+        MenuItem:
+            text: '~R~e-read'
+            command: Rescan
+            key: 'Ctrl-R'
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

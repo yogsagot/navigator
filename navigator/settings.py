@@ -1051,6 +1051,16 @@ class ProcessesData(Section):
     refresh: int = Setting(2, doc="Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R")
 
 
+class MonitorData(Section):
+    """Utilities > System monitor.  Not DN's: a departure, asked for -- DOS
+    had one processor and nothing to measure it by."""
+
+    name = "monitor"
+    title = "Utilities > System monitor (not DN's)"
+
+    refresh: int = Setting(1, doc="Seconds between reads of the system monitor while it is open; 0 reads only on Ctrl+R")
+
+
 class RemoteData(Section):
     """Connections to other drives: Options > Configuration > *Communications*,
     where DN set up the modem and the cable its Navigator Link ran over
@@ -1085,7 +1095,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, ProcessesData, RemoteData,
+    CalculatorData, UUCodeData, ChecksumData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1127,6 +1137,7 @@ class Settings:
     checksum: ChecksumData
     synchronize: SynchronizeData
     processes: ProcessesData
+    monitor: MonitorData
     remote: RemoteData
 
     def __init__(self) -> None:

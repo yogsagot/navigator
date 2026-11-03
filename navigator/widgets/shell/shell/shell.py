@@ -98,6 +98,7 @@ from navigator.widgets.shell.commands import (
     OpenUsageWindow,
     OpenVolumesWindow,
     OpenProcessWindow,
+    OpenMonitorWindow,
     SetupConfirmation,
     Settings,
     StartupSetup,
@@ -1146,6 +1147,10 @@ class Shell(DockLayout):
             from navigator.lib.system import processes
 
             return "" if processes.available() else tr("There is no /proc to read processes from")
+        if isinstance(command, OpenMonitorWindow):
+            from navigator.lib.system import monitor
+
+            return "" if monitor.available() else tr("There is no /proc/stat to read the processors from")
         if isinstance(command, AsciiTable):
             # ``ouiHideCmdline``: a hidden line takes no character either.
             return hidden if SETTINGS.interface.hide_command_line else ""
@@ -3324,6 +3329,13 @@ class Shell(DockLayout):
         from navigator.widgets.shell.process_window import ProcessWindow
 
         self.desktop.open(ProcessWindow())
+        return True
+
+    async def on_open_monitor_window(self, event: OpenMonitorWindow) -> bool:
+        """Utilities > System monitor: the processors, the memory and the sensors in a window."""
+        from navigator.widgets.shell.monitor_window import MonitorWindow
+
+        self.desktop.open(MonitorWindow())
         return True
 
     async def on_open_volumes_window(self, event: OpenVolumesWindow) -> bool:

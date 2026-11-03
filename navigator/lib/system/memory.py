@@ -28,18 +28,23 @@ class NotEnoughMemory(MemoryError):
     """The text would not fit.  Not an ``OSError``: no file is at fault."""
 
 
+def meminfo(text: str) -> dict[str, int]:
+    """Every line of a ``/proc/meminfo`` that has a number, in bytes (a
+    figure without a unit, as ``HugePages_Total``, as it stands)."""
+    values: dict[str, int] = {}
+    for line in text.splitlines():
+        name, _, rest = line.partition(":")
+        fields = rest.split()
+        if not fields or not fields[0].isdigit():
+            continue
+        unit = fields[1].lower() if len(fields) > 1 else ""
+        values[name.strip()] = int(fields[0]) * (1024 if unit == "kb" else 1)
+    return values
+
+
 def parse_meminfo(text: str) -> int | None:
     """``MemAvailable`` from a ``/proc/meminfo``, in bytes, or None if absent."""
-    for line in text.splitlines():
-        if line.startswith("MemAvailable:"):
-            fields = line.split()
-            try:
-                value = int(fields[1])
-            except (IndexError, ValueError):
-                return None
-            unit = fields[2].lower() if len(fields) > 2 else "kb"
-            return value * 1024 if unit == "kb" else value
-    return None
+    return meminfo(text).get("MemAvailable")
 
 
 def available_memory() -> int | None:

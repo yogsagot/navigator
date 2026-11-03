@@ -97,12 +97,9 @@ def _disks(root: Path) -> list[tuple[str, str]]:
 
 
 def _memory(root: Path) -> list[tuple[str, str]]:
-    values: dict[str, int] = {}
-    for line in _read(root / "proc/meminfo").splitlines():
-        name, _, rest = line.partition(":")
-        words = rest.split()
-        if words and words[0].isdigit():
-            values[name] = int(words[0]) * 1024
+    from navigator.lib.system.memory import meminfo
+
+    values = meminfo(_read(root / "proc/meminfo"))
     found: list[tuple[str, str]] = []
     for label, key in (("Total", "MemTotal"), ("Available", "MemAvailable"), ("Swap", "SwapTotal")):
         if key in values:

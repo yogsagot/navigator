@@ -217,6 +217,18 @@ class OpenProcessWindow(Command):
     title = "Processes"
 
 
+class OpenMonitorWindow(Command):
+    """Utilities > System monitor: each processor's load, the memory and the
+    sensors, read live.
+
+    Not DOS Navigator's -- a departure, asked for, recorded in
+    ``navigator/lib/system/monitor.py``: DOS had one processor and nothing to
+    measure it by.
+    """
+
+    title = "System monitor"
+
+
 class ProcessSortPid(Command):
     """Process list > *Sort by PID* (Ctrl+P); again, the other way round."""
 
@@ -511,6 +523,7 @@ __all__ = [
     "UnmountVolume",
     "EjectVolume",
     "OpenProcessWindow",
+    "OpenMonitorWindow",
     "ProcessSortPid",
     "ProcessSortUser",
     "ProcessSortState",

@@ -531,6 +531,31 @@ ProcessWindow ProcessList::row.zombie          { dim: true }
 ProcessWindow ProcessList::row.stopped         { italic: true }
 ProcessWindow ProcessList::row.context         { dim: true }
 
+/* Utilities > System monitor, not DN's: a dialog's frame as Process list's,
+   round boxes of static text as System Information's -- DN's gauge, drawn in
+   the static text's colour.  A processor or a memory line at 90% or more is
+   in the label shortcut's colour, a sensor at its chip's high limit too, and
+   one at its critical limit in the error box's. */
+MonitorWindow,
+MonitorWindow:active                             { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+MonitorWindow::title,
+MonitorWindow:active::title                      { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+MonitorWindow::icon                              { fg: $dialog-frame-icons-fg; bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
+MonitorWindow CpuMeters,
+MonitorWindow MemoryMeters,
+MonitorWindow SensorList,
+MonitorWindow CpuMeters::done                    { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }
+MonitorWindow MemoryMeters::done,
+MonitorWindow SensorList::row                    { fg: $dialog-static-text-fg; bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }
+MonitorWindow CpuMeters::done.busy,
+MonitorWindow MemoryMeters::done.busy,
+MonitorWindow SensorList::row.warm               { fg: $dialog-label-shortcut-fg; bg: $dialog-label-shortcut-bg; bold: $dialog-label-shortcut-bold; dim: $dialog-label-shortcut-dim; italic: $dialog-label-shortcut-italic; underline: $dialog-label-shortcut-underline; reverse: $dialog-label-shortcut-reverse }
+MonitorWindow SensorList::row.hot                { fg: $error-dialog-fg; bg: $error-dialog-bg; bold: $error-dialog-bold; dim: $error-dialog-dim; italic: $error-dialog-italic; underline: $error-dialog-underline; reverse: $error-dialog-reverse }
+MonitorWindow SensorList::heading                { fg: $dialog-label-selected-fg; bg: $dialog-label-selected-bg; bold: $dialog-label-selected-bold; dim: $dialog-label-selected-dim; italic: $dialog-label-selected-italic; underline: $dialog-label-selected-underline; reverse: $dialog-label-selected-reverse }
+MonitorWindow ScrollBar                          { fg: $dialog-scroll-bar-page-fg; bg: $dialog-scroll-bar-page-bg; bold: $dialog-scroll-bar-page-bold; dim: $dialog-scroll-bar-page-dim; italic: $dialog-scroll-bar-page-italic; underline: $dialog-scroll-bar-page-underline; reverse: $dialog-scroll-bar-page-reverse }
+MonitorWindow ScrollBar::arrow,
+MonitorWindow ScrollBar::thumb                   { fg: $dialog-scroll-bar-icons-fg; bg: $dialog-scroll-bar-icons-bg; bold: $dialog-scroll-bar-icons-bold; dim: $dialog-scroll-bar-icons-dim; italic: $dialog-scroll-bar-icons-italic; underline: $dialog-scroll-bar-icons-underline; reverse: $dialog-scroll-bar-icons-reverse }
+
 /* Compare directories' Synchronize window, not DN's: a dialog's frame as
    Disk > Volumes', round a file panel's rows -- Normal text [85], the cursor
    [88], the column titles [165] -- so a row's status colours it as a file
