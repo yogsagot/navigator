@@ -21,6 +21,8 @@ class ConnectRequest:
     path: str = ""
     name: str = ""
     keep: bool = False
+    #: SSH's: Remote shell's own ``ssh`` words, from the link manager.
+    options: str = ""
 
 
 def split_host(text: str) -> tuple[str, str, int]:

@@ -429,3 +429,30 @@ def test_gvfs_refuses_what_it_does_not_reach(gvfs_schemes, desk):
                    lambda a: None, KeyEvent("escape")])
     assert dialog.result is None
     assert "sftp://host/ is no place" in dialog.missing.text and "mtp://, dav://" in dialog.missing.text
+
+
+
+# -- ssh options -------------------------------------------------------------------------------
+
+
+def test_ssh_options_are_ssh_s_alone_and_kept_with_the_connection(desk):
+    dialog = LinkManagerDialog(sftp_entries())
+    assert dialog.options.visible
+    assert not LinkManagerDialog([], family="ftp").options.visible
+    run_app(desk, [lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+                   lambda a: dialog._fill(0), lambda a: setattr(dialog.options, "value", "-A -J jump"),
+                   lambda a: a.spawn(dialog.save_link()), Until(lambda a: "saved" in dialog.missing.text),
+                   KeyEvent("escape")])
+    assert profiles.find("web").options == "-A -J jump"
+    assert dialog.accept().options == "-A -J jump"
+
+
+def test_an_edit_elsewhere_keeps_a_connection_s_ssh_options(saved):
+    profiles.save("web", "sftp", "web.example", "deploy", 2222, "/srv", "-A")
+    # The Link box's F2 (``ConnectDialog``, no such line) replaces without them.
+    profiles.replace("web", "web", "sftp", "web.example", "root", 22, "/srv")
+    assert profiles.find("web").options == "-A"
+    # Saved links writes every entry back, theirs carried over.
+    entries = profiles.entries()
+    profiles.store(entries)
+    assert profiles.find("web").options == "-A"

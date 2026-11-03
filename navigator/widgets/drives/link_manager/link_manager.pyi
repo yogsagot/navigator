@@ -43,6 +43,7 @@ class LinkManagerDialog(Dialog, _Component):
     user: Field
     port: Field
     directory: Field
+    options: Field
     secure: CheckBoxes
     missing: StaticText
     create: Button

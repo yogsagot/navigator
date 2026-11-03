@@ -1132,6 +1132,23 @@ def test_communications_sets_the_desktop_integration_beside_system_setups_values
     assert "desktop_vfs = kio" in config_path().read_text(encoding="utf-8")
 
 
+def test_communications_keeps_remote_shell_s_ssh_options(tmp_path, quiet_console):
+    from navigator.widgets.shell.commands import SetupLink
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def edit(a):
+        seen["shown"] = a.modal.remote.ssh_options.value
+        a.modal.remote.ssh_options.value = "-Y -C "
+
+    run_app(app, [lambda a: a.spawn(a.run_command(SetupLink)), lambda a: None, edit, KeyEvent("enter"),
+                  lambda a: None])
+    assert seen["shown"] == "-Y"
+    assert SETTINGS.remote.ssh_options == "-Y -C"
+    assert "ssh_options = -Y -C" in config_path().read_text(encoding="utf-8")
+
+
 def test_simple_settings_tabs_take_a_row_off_the_box_and_a_page_keeps_its_rows(tmp_path, quiet_console):
     from navigator.widgets.setup.settings_dialog.settings_dialog import SIMPLE_HEIGHT
 

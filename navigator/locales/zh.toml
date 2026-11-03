@@ -5,7 +5,7 @@ flag = "CN"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "关于"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "SSH link (SFTP)" = "SSH 链接 (SFTP)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:85
 "~H~ost" = "主机(~H~)"
@@ -29,15 +29,17 @@ flag = "CN"
 "~S~aved" = "已保存(~S~)"
 # navigator/widgets/drives/link_manager/link_manager.nml:74
 "~U~RI" = "URI(~U~)"
-# navigator/widgets/drives/link_manager/link_manager.nml:128
+# navigator/widgets/drives/link_manager/link_manager.nml:130
+"ssh opt~i~ons" = "ssh 选项(~I~)"
+# navigator/widgets/drives/link_manager/link_manager.nml:142
 "Encr~y~pt with TLS" = "使用 TLS 加密(~Y~)"
-# navigator/widgets/drives/link_manager/link_manager.nml:144
+# navigator/widgets/drives/link_manager/link_manager.nml:158
 "Ne~w~" = "新建(~W~)"
-# navigator/widgets/drives/link_manager/link_manager.nml:152
+# navigator/widgets/drives/link_manager/link_manager.nml:166
 "Sav~e~" = "保存(~E~)"
-# navigator/widgets/drives/link_manager/link_manager.nml:160
+# navigator/widgets/drives/link_manager/link_manager.nml:174
 "Dele~t~e" = "删除(~T~)"
-# navigator/widgets/drives/link_manager/link_manager.nml:168, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+# navigator/widgets/drives/link_manager/link_manager.nml:182, navigator/widgets/drives/links_dialog/links_dialog.nml:41
 "~C~onnect" = "连接(~C~)"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "已保存的链接"
@@ -523,7 +525,7 @@ flag = "CN"
 "Delete the originals once copied: a move" = "复制完成后删除原文件，即移动"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "正在统计目录大小"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
 "Delete" = "删除"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "是否移到回收站"
@@ -1147,38 +1149,40 @@ flag = "CN"
 "Packed size" = "压缩后大小"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:65
 "Ratio" = "压缩率"
-# navigator/widgets/setup/communications_page/communications_page.nml:24
+# navigator/widgets/setup/communications_page/communications_page.nml:25
 "~K~eep-alive every" = "保活间隔(~K~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:35, navigator/widgets/setup/communications_page/communications_page.nml:92, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
+# navigator/widgets/setup/communications_page/communications_page.nml:36, navigator/widgets/setup/communications_page/communications_page.nml:93, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
 "seconds (0: never)" = "秒（0：从不）"
-# navigator/widgets/setup/communications_page/communications_page.nml:43
+# navigator/widgets/setup/communications_page/communications_page.nml:44
 "Connecting ~w~aits" = "连接等待(~W~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:54
+# navigator/widgets/setup/communications_page/communications_page.nml:55
 "seconds" = "秒"
-# navigator/widgets/setup/communications_page/communications_page.nml:62
+# navigator/widgets/setup/communications_page/communications_page.nml:63
 "~C~lose an idle connection" = "关闭空闲连接(~C~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:73
+# navigator/widgets/setup/communications_page/communications_page.nml:74
 "minutes (0: never)" = "分钟（0：从不）"
-# navigator/widgets/setup/communications_page/communications_page.nml:81
+# navigator/widgets/setup/communications_page/communications_page.nml:82
 "~L~ook for changes every" = "检查更改间隔(~L~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:100
+# navigator/widgets/setup/communications_page/communications_page.nml:101
 "A fetched file a program changed goes ~b~ack" = "程序修改过的已下载文件传回(~B~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "~A~sk first" = "先询问(~A~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Alwa~y~s" = "总是(~Y~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Ne~v~er" = "从不(~V~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:117
+# navigator/widgets/setup/communications_page/communications_page.nml:118
 "~D~esktop integration: volumes, links, opening files" = "桌面集成：卷、链接、打开文件(~D~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "Au~t~o" = "自动(~T~)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~G~IO (GNOME, Xfce...)" = "~G~IO (GNOME, Xfce...)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "K~I~O (KDE)" = "K~I~O (KDE)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~O~ff" = "关闭(~O~)"
+# navigator/widgets/setup/communications_page/communications_page.nml:137
+"Remote shell's ss~h~ options" = "远程 Shell 的 ssh 选项(~H~)"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Erase ~s~ingle file" = "删除单个文件(~S~)"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
@@ -2623,33 +2627,33 @@ flag = "CN"
 "Cannot read {path}: {error}" = "无法读取 {path}: {error}"
 # navigator/widgets/drives/archives.py:70
 "Archive password" = "压缩包密码"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:94
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:96
 "~S~hare/dir" = "共享/目录(~S~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:98
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:100
 "~E~ndpoint" = "端点(~E~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:99
-"~A~ccess key" = "访问密钥(~A~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:100, navigator/widgets/drives/link_manager/link_manager.py:202
-"~B~ucket/dir" = "存储桶/目录(~B~)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
-"GVfs/KIO link ({protocol})" = "GVfs/KIO 链接 ({protocol})"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
-"Edit GVfs/KIO link ({protocol})" = "编辑 GVfs/KIO 链接 ({protocol})"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:101
+"~A~ccess key" = "访问密钥(~A~)"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:102, navigator/widgets/drives/link_manager/link_manager.py:207
+"~B~ucket/dir" = "存储桶/目录(~B~)"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+"GVfs/KIO link ({protocol})" = "GVfs/KIO 链接 ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+"Edit GVfs/KIO link ({protocol})" = "编辑 GVfs/KIO 链接 ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:103
 "Encrypt with ~T~LS (HTTPS)" = "用 TLS 加密(~T~) (HTTPS)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "Edit SSH link (SFTP)" = "编辑 SSH 链接 (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "FTP link" = "FTP 链接"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "Edit FTP link" = "编辑 FTP 链接"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "SMB link (Windows share)" = "SMB 链接 (Windows 共享)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "Edit SMB link (Windows share)" = "编辑 SMB 链接 (Windows 共享)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "S3 link (Amazon S3)" = "S3 链接 (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "Edit S3 link (Amazon S3)" = "编辑 S3 链接 (Amazon S3)"
 # navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:192
 "GVfs/KIO link" = "GVfs/KIO 链接"
@@ -2657,9 +2661,9 @@ flag = "CN"
 "~U~RI (mtp://, webdav://, gdrive://...)" = "URI(~U~) (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "URI(~U~) (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:410
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:417
 "{uri} is no place KIO reaches. It knows {schemes}" = "KIO 无法访问 {uri}。它支持 {schemes}"
-# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:411
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:418
 "{uri} is no place GVfs reaches. It knows {schemes}" = "GVfs 无法访问 {uri}。它支持 {schemes}"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
 "~A~ccept" = "接受(~A~)"
@@ -2667,47 +2671,49 @@ flag = "CN"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "无法确认主机 {host} 的真实性。\n{type} 密钥指纹为\n{fingerprint}"
 # navigator/widgets/drives/link_manager/link_manager.py:144
 "Remote shell" = "远程 Shell"
-# navigator/widgets/drives/link_manager/link_manager.py:198
+# navigator/widgets/drives/link_manager/link_manager.py:199
+"Added to Remote shell's ssh command, after Communications' own (-Y); SSH link's panel reads ~/.ssh/config alone" = "添加到远程 Shell 的 ssh 命令中,位于“通信”的通用选项 (-Y) 之后;SSH 链接的面板只读取 ~/.ssh/config"
+# navigator/widgets/drives/link_manager/link_manager.py:203
 "Sh~a~re/dir" = "共享/目录(~A~)"
-# navigator/widgets/drives/link_manager/link_manager.py:200
+# navigator/widgets/drives/link_manager/link_manager.py:205
 "End~p~oint" = "端点(~P~)"
-# navigator/widgets/drives/link_manager/link_manager.py:201
+# navigator/widgets/drives/link_manager/link_manager.py:206
 "Access ~k~ey" = "访问密钥(~K~)"
-# navigator/widgets/drives/link_manager/link_manager.py:404
+# navigator/widgets/drives/link_manager/link_manager.py:411
 "Type a URI to connect to" = "请输入要连接的 URI"
-# navigator/widgets/drives/link_manager/link_manager.py:216
+# navigator/widgets/drives/link_manager/link_manager.py:221
 "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "例如 mtp://Phone/、webdav://host/dir 或 gdrive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:218
+# navigator/widgets/drives/link_manager/link_manager.py:223
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "例如 mtp://Phone/、dav://host/dir 或 google-drive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:232
+# navigator/widgets/drives/link_manager/link_manager.py:237
 "New" = "新建"
-# navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/editor/commands.py:577
+# navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/editor/commands.py:577
 "Save" = "保存"
-# navigator/widgets/drives/link_manager/link_manager.py:401
+# navigator/widgets/drives/link_manager/link_manager.py:408
 "Type a host to connect to" = "请输入要连接的主机"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (HTTPS)" = "使用 TLS 加密 (HTTPS)(~Y~)"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (FTPS)" = "使用 TLS 加密 (FTPS)(~Y~)"
-# navigator/widgets/drives/link_manager/link_manager.py:277
+# navigator/widgets/drives/link_manager/link_manager.py:282
 "Changed — Save keeps it" = "已更改 — “保存”可保存"
-# navigator/widgets/drives/link_manager/link_manager.py:509
+# navigator/widgets/drives/link_manager/link_manager.py:516
 "Type its URI, then New keeps it" = "输入 URI 后,“新建”可保存"
-# navigator/widgets/drives/link_manager/link_manager.py:519
+# navigator/widgets/drives/link_manager/link_manager.py:526
 "New connection" = "新连接"
-# navigator/widgets/drives/link_manager/link_manager.py:561
+# navigator/widgets/drives/link_manager/link_manager.py:568
 "\"{name}\" saved" = "已保存“{name}”"
-# navigator/widgets/drives/link_manager/link_manager.py:586
+# navigator/widgets/drives/link_manager/link_manager.py:593
 "\"{name}\" deleted" = "已删除“{name}”"
-# navigator/widgets/drives/link_manager/link_manager.py:279
+# navigator/widgets/drives/link_manager/link_manager.py:284
 "Not saved — New keeps it" = "未保存 — “新建”可保存"
-# navigator/widgets/drives/link_manager/link_manager.py:552
+# navigator/widgets/drives/link_manager/link_manager.py:559
 "Another connection is named \"{name}\"" = "已有名为“{name}”的连接"
-# navigator/widgets/drives/link_manager/link_manager.py:436
+# navigator/widgets/drives/link_manager/link_manager.py:443
 "Save changes" = "保存更改"
-# navigator/widgets/drives/link_manager/link_manager.py:437
+# navigator/widgets/drives/link_manager/link_manager.py:444
 "Save changes to \"{name}\"?" = "保存对“{name}”的更改?"
-# navigator/widgets/drives/link_manager/link_manager.py:579, navigator/widgets/drives/links_dialog/links_dialog.py:196
+# navigator/widgets/drives/link_manager/link_manager.py:586, navigator/widgets/drives/links_dialog/links_dialog.py:198
 "Delete the link \"{name}\"?" = "删除链接“{name}”？"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新建 GVfs/KIO 链接(~G~) (MTP, WebDAV...)..."
@@ -3891,9 +3897,9 @@ flag = "CN"
 "Pinned" = "已固定"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "单击以恢复进度框"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2904
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2905
 "{operation}: waiting for an answer" = "{operation}: 等待回答"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2906
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2907
 "{operation}: {percent}% done" = "{operation}: 已完成 {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "再按同样的键停止"
@@ -3913,9 +3919,9 @@ flag = "CN"
 "Interface Setup hides the command line" = "界面设置隐藏了命令行"
 # navigator/widgets/shell/shell/shell.py:1124
 "No file panels are open" = "没有打开的文件面板"
-# navigator/widgets/shell/shell/shell.py:2825, navigator/widgets/shell/shell/shell.py:2818
+# navigator/widgets/shell/shell/shell.py:2826, navigator/widgets/shell/shell/shell.py:2819
 "Disconnect" = "断开"
-# navigator/widgets/shell/shell/shell.py:2911
+# navigator/widgets/shell/shell/shell.py:2912
 "Background operations" = "后台操作"
 # navigator/widgets/shell/shell/shell.py:1150
 "No connection is open" = "没有打开的连接"
@@ -3925,9 +3931,9 @@ flag = "CN"
 "~C~ommand..." = "命令(~C~)..."
 # navigator/widgets/shell/shell/shell.py:2001
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File Edit History" = "文件编辑历史"
 # navigator/widgets/shell/shell/shell.py:1139
 "The editor has the keys" = "按键由编辑器处理"
@@ -3947,11 +3953,11 @@ flag = "CN"
 "File Manager Setup's Use arrows is off" = "文件管理器设置的“使用方向键”已关闭"
 # navigator/widgets/shell/shell/shell.py:1915
 "~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
-# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2854
+# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2855
 "{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track editing history" = "记录编辑历史"
 # navigator/widgets/shell/shell/shell.py:1205
 "The shell cannot complete" = "shell 无法补全"
@@ -3963,13 +3969,13 @@ flag = "CN"
 "User menu (local)" = "用户菜单（本地）"
 # navigator/widgets/shell/shell/shell.py:1643
 "Global menu" = "全局菜单"
-# navigator/widgets/shell/shell/shell.py:2816
+# navigator/widgets/shell/shell/shell.py:2817
 "Close the {protocol} connection to {host}?" = "关闭到 {host} 的 {protocol} 连接？"
 # navigator/widgets/shell/shell/shell.py:330
 "Store Color Palette" = "存储调色板"
 # navigator/widgets/shell/shell/shell.py:388
 "Load Color Palette" = "加载调色板"
-# navigator/widgets/shell/shell/shell.py:2787
+# navigator/widgets/shell/shell/shell.py:2788
 "ssh {login}" = "ssh {login}"
 # navigator/widgets/shell/shell/shell.py:235
 "No desktop has been saved" = "尚未保存桌面"
@@ -3981,9 +3987,9 @@ flag = "CN"
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
 # navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "View file" = "查看文件"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "Edit file" = "编辑文件"
 # navigator/widgets/shell/shell/shell.py:2208
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
@@ -3999,9 +4005,9 @@ flag = "CN"
 "Wrong {protocol} password for {who}. Try again:" = "{who} 的 {protocol} 密码错误。请重试："
 # navigator/widgets/shell/shell/shell.py:2648
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
-# navigator/widgets/shell/shell/shell.py:2855
+# navigator/widgets/shell/shell/shell.py:2856
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:3195
+# navigator/widgets/shell/shell/shell.py:3196
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
 # navigator/widgets/shell/shell/shell.py:1576
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
@@ -4011,9 +4017,9 @@ flag = "CN"
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
 # navigator/widgets/shell/shell/shell.py:2626
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:3003
+# navigator/widgets/shell/shell/shell.py:3004
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:3159
+# navigator/widgets/shell/shell/shell.py:3160
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"
@@ -5023,6 +5029,8 @@ flag = "CN"
 "A file from another drive that a program changed goes back: ask, always or never" = "来自其他驱动器且被程序修改的文件是否传回：ask、always 或 never"
 # navigator/settings.py
 "Seconds to wait for a server to answer when connecting" = "连接时等待服务器响应的秒数"
+# navigator/settings.py
+"Words added to every Remote shell's ssh command, before a connection's own" = "添加到每个远程 Shell 的 ssh 命令中、位于连接自身选项之前的参数"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
 

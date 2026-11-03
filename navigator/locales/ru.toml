@@ -5,7 +5,7 @@ flag = "RU"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "О программе"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "SSH link (SFTP)" = "Связь по SSH (SFTP)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:85
 "~H~ost" = "~С~ервер"
@@ -29,15 +29,17 @@ flag = "RU"
 "~S~aved" = "Со~х~ранённые"
 # navigator/widgets/drives/link_manager/link_manager.nml:74
 "~U~RI" = "~А~дрес (URI)"
-# navigator/widgets/drives/link_manager/link_manager.nml:128
+# navigator/widgets/drives/link_manager/link_manager.nml:130
+"ssh opt~i~ons" = "Пара~м~етры ssh"
+# navigator/widgets/drives/link_manager/link_manager.nml:142
 "Encr~y~pt with TLS" = "~Ш~ифровать (TLS)"
-# navigator/widgets/drives/link_manager/link_manager.nml:144
+# navigator/widgets/drives/link_manager/link_manager.nml:158
 "Ne~w~" = "~Н~овая"
-# navigator/widgets/drives/link_manager/link_manager.nml:152
+# navigator/widgets/drives/link_manager/link_manager.nml:166
 "Sav~e~" = "Сох~р~анить"
-# navigator/widgets/drives/link_manager/link_manager.nml:160
+# navigator/widgets/drives/link_manager/link_manager.nml:174
 "Dele~t~e" = "~У~далить"
-# navigator/widgets/drives/link_manager/link_manager.nml:168, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+# navigator/widgets/drives/link_manager/link_manager.nml:182, navigator/widgets/drives/links_dialog/links_dialog.nml:41
 "~C~onnect" = "Подк~л~ючить"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "Сохранённые ссылки"
@@ -523,7 +525,7 @@ flag = "RU"
 "Delete the originals once copied: a move" = "Удалить оригиналы после копирования: перемещение"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Подсчёт размера каталога"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
 "Delete" = "Удаление"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "Переместить в корзину"
@@ -1147,38 +1149,40 @@ flag = "RU"
 "Packed size" = "Сжатый размер"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:65
 "Ratio" = "Степень сжатия"
-# navigator/widgets/setup/communications_page/communications_page.nml:24
+# navigator/widgets/setup/communications_page/communications_page.nml:25
 "~K~eep-alive every" = "~П~роверять связь каждые"
-# navigator/widgets/setup/communications_page/communications_page.nml:35, navigator/widgets/setup/communications_page/communications_page.nml:92, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
+# navigator/widgets/setup/communications_page/communications_page.nml:36, navigator/widgets/setup/communications_page/communications_page.nml:93, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
 "seconds (0: never)" = "сек. (0: никогда)"
-# navigator/widgets/setup/communications_page/communications_page.nml:43
+# navigator/widgets/setup/communications_page/communications_page.nml:44
 "Connecting ~w~aits" = "~О~жидание соединения"
-# navigator/widgets/setup/communications_page/communications_page.nml:54
+# navigator/widgets/setup/communications_page/communications_page.nml:55
 "seconds" = "секунд"
-# navigator/widgets/setup/communications_page/communications_page.nml:62
+# navigator/widgets/setup/communications_page/communications_page.nml:63
 "~C~lose an idle connection" = "~З~акрыть простаивающую связь"
-# navigator/widgets/setup/communications_page/communications_page.nml:73
+# navigator/widgets/setup/communications_page/communications_page.nml:74
 "minutes (0: never)" = "мин. (0: никогда)"
-# navigator/widgets/setup/communications_page/communications_page.nml:81
+# navigator/widgets/setup/communications_page/communications_page.nml:82
 "~L~ook for changes every" = "Проверять ~и~зменения каждые"
-# navigator/widgets/setup/communications_page/communications_page.nml:100
+# navigator/widgets/setup/communications_page/communications_page.nml:101
 "A fetched file a program changed goes ~b~ack" = "Изменённый программой файл отправляется о~б~ратно"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "~A~sk first" = "~С~прашивать"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Alwa~y~s" = "~В~сегда"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Ne~v~er" = "~Н~икогда"
-# navigator/widgets/setup/communications_page/communications_page.nml:117
+# navigator/widgets/setup/communications_page/communications_page.nml:118
 "~D~esktop integration: volumes, links, opening files" = "~Р~абочий стол: тома, связи, открытие файлов"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "Au~t~o" = "~А~вто"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~G~IO (GNOME, Xfce...)" = "~G~IO (GNOME, Xfce...)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "K~I~O (KDE)" = "~K~IO (KDE)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~O~ff" = "Отк~л~ючено"
+# navigator/widgets/setup/communications_page/communications_page.nml:137
+"Remote shell's ss~h~ options" = "Пара~м~етры ssh для оболочки"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Erase ~s~ingle file" = "Удаление ~о~дного файла"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
@@ -2623,33 +2627,33 @@ flag = "RU"
 "Cannot read {path}: {error}" = "Не удаётся прочитать {path}: {error}"
 # navigator/widgets/drives/archives.py:70
 "Archive password" = "Пароль архива"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:94
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:96
 "~S~hare/dir" = "~О~бщая папка/каталог"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:98
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:100
 "~E~ndpoint" = "~Т~очка доступа"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:99
-"~A~ccess key" = "~К~люч доступа"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:100, navigator/widgets/drives/link_manager/link_manager.py:202
-"~B~ucket/dir" = "~Б~акет/каталог"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
-"GVfs/KIO link ({protocol})" = "Связь по GVfs/KIO ({protocol})"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
-"Edit GVfs/KIO link ({protocol})" = "Изменить связь по GVfs/KIO ({protocol})"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:101
+"~A~ccess key" = "~К~люч доступа"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:102, navigator/widgets/drives/link_manager/link_manager.py:207
+"~B~ucket/dir" = "~Б~акет/каталог"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+"GVfs/KIO link ({protocol})" = "Связь по GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+"Edit GVfs/KIO link ({protocol})" = "Изменить связь по GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:103
 "Encrypt with ~T~LS (HTTPS)" = "Шифровать по TLS (~H~TTPS)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "Edit SSH link (SFTP)" = "Изменить связь по SSH (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "FTP link" = "Связь по FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "Edit FTP link" = "Изменить связь по FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "SMB link (Windows share)" = "Связь по SMB (общая папка Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "Edit SMB link (Windows share)" = "Изменить связь по SMB (общая папка Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "S3 link (Amazon S3)" = "Связь по S3 (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "Edit S3 link (Amazon S3)" = "Изменить связь по S3 (Amazon S3)"
 # navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:192
 "GVfs/KIO link" = "Связь по GVfs/KIO"
@@ -2657,9 +2661,9 @@ flag = "RU"
 "~U~RI (mtp://, webdav://, gdrive://...)" = "~U~RI (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "~U~RI (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:410
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:417
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} — не место, доступное KIO. Он знает {schemes}"
-# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:411
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:418
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} — не место, доступное GVfs. Он знает {schemes}"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
 "~A~ccept" = "~П~ринять"
@@ -2667,47 +2671,49 @@ flag = "RU"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Подлинность сервера {host} не может быть установлена.\nОтпечаток ключа {type}:\n{fingerprint}"
 # navigator/widgets/drives/link_manager/link_manager.py:144
 "Remote shell" = "Удалённая оболочка"
-# navigator/widgets/drives/link_manager/link_manager.py:198
+# navigator/widgets/drives/link_manager/link_manager.py:199
+"Added to Remote shell's ssh command, after Communications' own (-Y); SSH link's panel reads ~/.ssh/config alone" = "Добавляются к команде ssh удалённой оболочки после общих из «Связи» (-Y); панель «Связи по SSH» читает только ~/.ssh/config"
+# navigator/widgets/drives/link_manager/link_manager.py:203
 "Sh~a~re/dir" = "Р~е~сурс/каталог"
-# navigator/widgets/drives/link_manager/link_manager.py:200
+# navigator/widgets/drives/link_manager/link_manager.py:205
 "End~p~oint" = "~А~дрес"
-# navigator/widgets/drives/link_manager/link_manager.py:201
+# navigator/widgets/drives/link_manager/link_manager.py:206
 "Access ~k~ey" = "Ключ ~д~оступа"
-# navigator/widgets/drives/link_manager/link_manager.py:404
+# navigator/widgets/drives/link_manager/link_manager.py:411
 "Type a URI to connect to" = "Введите URI для подключения"
-# navigator/widgets/drives/link_manager/link_manager.py:216
+# navigator/widgets/drives/link_manager/link_manager.py:221
 "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "Например mtp://Phone/, webdav://host/dir или gdrive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:218
+# navigator/widgets/drives/link_manager/link_manager.py:223
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "Например mtp://Phone/, dav://host/dir или google-drive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:232
+# navigator/widgets/drives/link_manager/link_manager.py:237
 "New" = "Новая"
-# navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/editor/commands.py:577
+# navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/editor/commands.py:577
 "Save" = "Запись"
-# navigator/widgets/drives/link_manager/link_manager.py:401
+# navigator/widgets/drives/link_manager/link_manager.py:408
 "Type a host to connect to" = "Введите сервер для подключения"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (HTTPS)" = "~Ш~ифровать (TLS, HTTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (FTPS)" = "~Ш~ифровать (TLS, FTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:277
+# navigator/widgets/drives/link_manager/link_manager.py:282
 "Changed — Save keeps it" = "Изменено — «Сохранить» запишет"
-# navigator/widgets/drives/link_manager/link_manager.py:509
+# navigator/widgets/drives/link_manager/link_manager.py:516
 "Type its URI, then New keeps it" = "Введите URI, затем «Новая» сохранит"
-# navigator/widgets/drives/link_manager/link_manager.py:519
+# navigator/widgets/drives/link_manager/link_manager.py:526
 "New connection" = "Новая связь"
-# navigator/widgets/drives/link_manager/link_manager.py:561
+# navigator/widgets/drives/link_manager/link_manager.py:568
 "\"{name}\" saved" = "«{name}» сохранена"
-# navigator/widgets/drives/link_manager/link_manager.py:586
+# navigator/widgets/drives/link_manager/link_manager.py:593
 "\"{name}\" deleted" = "«{name}» удалена"
-# navigator/widgets/drives/link_manager/link_manager.py:279
+# navigator/widgets/drives/link_manager/link_manager.py:284
 "Not saved — New keeps it" = "Не сохранено — «Новая» сохранит"
-# navigator/widgets/drives/link_manager/link_manager.py:552
+# navigator/widgets/drives/link_manager/link_manager.py:559
 "Another connection is named \"{name}\"" = "Связь «{name}» уже есть"
-# navigator/widgets/drives/link_manager/link_manager.py:436
+# navigator/widgets/drives/link_manager/link_manager.py:443
 "Save changes" = "Сохранить изменения"
-# navigator/widgets/drives/link_manager/link_manager.py:437
+# navigator/widgets/drives/link_manager/link_manager.py:444
 "Save changes to \"{name}\"?" = "Сохранить изменения в «{name}»?"
-# navigator/widgets/drives/link_manager/link_manager.py:579, navigator/widgets/drives/links_dialog/links_dialog.py:196
+# navigator/widgets/drives/link_manager/link_manager.py:586, navigator/widgets/drives/links_dialog/links_dialog.py:198
 "Delete the link \"{name}\"?" = "Удалить ссылку \"{name}\"?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
@@ -3891,9 +3897,9 @@ flag = "RU"
 "Pinned" = "К закреплённой"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Щёлкните, чтобы вернуть окно"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2904
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2905
 "{operation}: waiting for an answer" = "{operation}: ждёт ответа"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2906
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2907
 "{operation}: {percent}% done" = "{operation}: выполнено {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "Те же клавиши снова её остановят"
@@ -3913,9 +3919,9 @@ flag = "RU"
 "Interface Setup hides the command line" = "Настройка интерфейса скрывает командную строку"
 # navigator/widgets/shell/shell/shell.py:1124
 "No file panels are open" = "Нет открытых файловых панелей"
-# navigator/widgets/shell/shell/shell.py:2825, navigator/widgets/shell/shell/shell.py:2818
+# navigator/widgets/shell/shell/shell.py:2826, navigator/widgets/shell/shell/shell.py:2819
 "Disconnect" = "Разорвать связь"
-# navigator/widgets/shell/shell/shell.py:2911
+# navigator/widgets/shell/shell/shell.py:2912
 "Background operations" = "Фоновые операции"
 # navigator/widgets/shell/shell/shell.py:1150
 "No connection is open" = "Нет открытых соединений"
@@ -3925,9 +3931,9 @@ flag = "RU"
 "~C~ommand..." = "~К~оманда..."
 # navigator/widgets/shell/shell/shell.py:2001
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1139
 "The editor has the keys" = "Клавиши у редактора"
@@ -3947,11 +3953,11 @@ flag = "RU"
 "File Manager Setup's Use arrows is off" = "В настройке файлового менеджера выключено «Использовать стрелки»"
 # navigator/widgets/shell/shell/shell.py:1915
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
-# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2854
+# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2855
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1205
 "The shell cannot complete" = "Оболочка не может дополнить"
@@ -3963,13 +3969,13 @@ flag = "RU"
 "User menu (local)" = "Меню пользователя (локальное)"
 # navigator/widgets/shell/shell/shell.py:1643
 "Global menu" = "Общее меню"
-# navigator/widgets/shell/shell/shell.py:2816
+# navigator/widgets/shell/shell/shell.py:2817
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:330
 "Store Color Palette" = "Запомнить цветовую палитру"
 # navigator/widgets/shell/shell/shell.py:388
 "Load Color Palette" = "Загрузить цветовую палитру"
-# navigator/widgets/shell/shell/shell.py:2787
+# navigator/widgets/shell/shell/shell.py:2788
 "ssh {login}" = "ssh {login}"
 # navigator/widgets/shell/shell/shell.py:235
 "No desktop has been saved" = "Рабочий стол не сохранялся"
@@ -3981,9 +3987,9 @@ flag = "RU"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "View file" = "Просмотр файла"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "Edit file" = "Редактирование файла"
 # navigator/widgets/shell/shell/shell.py:2208
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
@@ -3999,9 +4005,9 @@ flag = "RU"
 "Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
 # navigator/widgets/shell/shell/shell.py:2648
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:2855
+# navigator/widgets/shell/shell/shell.py:2856
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
-# navigator/widgets/shell/shell/shell.py:3195
+# navigator/widgets/shell/shell/shell.py:3196
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1576
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -4011,9 +4017,9 @@ flag = "RU"
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
 # navigator/widgets/shell/shell/shell.py:2626
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:3003
+# navigator/widgets/shell/shell/shell.py:3004
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:3159
+# navigator/widgets/shell/shell/shell.py:3160
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "код выхода {status}"
@@ -5023,6 +5029,8 @@ flag = "RU"
 "A file from another drive that a program changed goes back: ask, always or never" = "Файл с другого диска, изменённый программой, отправляется обратно: спрашивать, всегда или никогда"
 # navigator/settings.py
 "Seconds to wait for a server to answer when connecting" = "Секунды ожидания ответа сервера при подключении"
+# navigator/settings.py
+"Words added to every Remote shell's ssh command, before a connection's own" = "Слова, добавляемые к каждой команде ssh удалённой оболочки перед параметрами связи"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
 

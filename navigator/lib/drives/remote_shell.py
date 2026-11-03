@@ -66,17 +66,32 @@ def login(site: Site) -> str:
     return f"{user}{host}{port}"
 
 
-def command(location: Location) -> str:
+def words_of(text: str) -> list[str]:
+    """*text* as the shell would split it -- quotes and all -- or by blanks
+    when its quoting does not close."""
+    try:
+        return shlex.split(text)
+    except ValueError:
+        return text.split()
+
+
+def command(location: Location, options: str = "") -> str:
     """The command line that logs in to *location*'s server and starts a
     login shell in its directory -- or the home directory, if that one has
     gone -- quoted for the local ``sh -c`` and the remote shell both.  With
     no directory (``profiles.HOME``, ``.``) the shell starts where ``ssh``
-    puts it, the home directory."""
+    puts it, the home directory.
+
+    ``[remote] ssh_options`` (``-Y`` unless changed) come first, then the
+    connection's own *options*, both before the host -- a later word wins
+    where ``ssh`` lets one."""
+    from navigator.settings import SETTINGS
+
     site = location.site
     remote = 'exec "${SHELL:-/bin/sh}" -l'
     if str(location.path) not in ("", "."):
         remote = f"cd {shlex.quote(str(location.path))} 2>/dev/null; {remote}"
-    words = ["ssh", "-t"]
+    words = ["ssh", "-t", *words_of(SETTINGS.remote.ssh_options), *words_of(options)]
     if site.port:
         words += ["-p", str(site.port)]
     if site.user:

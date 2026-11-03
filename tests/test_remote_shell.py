@@ -31,17 +31,18 @@ def words(command: str) -> list[str]:
 def test_the_command_names_user_port_and_host_and_starts_in_the_directory():
     command = remote_shell.command(Location(SITE, PurePosixPath("/srv/it's a dir")))
     argv = words(command)
-    assert argv[:7] == ["ssh", "-t", "-p", "2222", "-l", "bob", "--"]
-    assert argv[7] == "example.org"
+    # ``-Y`` is ``[remote] ssh_options``' default: X11 forwarding, for the clipboard there.
+    assert argv[:8] == ["ssh", "-t", "-Y", "-p", "2222", "-l", "bob", "--"]
+    assert argv[8] == "example.org"
     # What the remote shell is given parses back to cd into the directory.
-    remote = shlex.split(argv[8])
+    remote = shlex.split(argv[9])
     assert remote[:2] == ["cd", "/srv/it's a dir"]
-    assert argv[8].endswith('exec "${SHELL:-/bin/sh}" -l')
+    assert argv[9].endswith('exec "${SHELL:-/bin/sh}" -l')
 
 
 def test_no_user_or_port_leaves_ssh_config_to_say():
     argv = words(remote_shell.command(Location(Site("sftp", "", "box"), PurePosixPath("/"))))
-    assert argv[:4] == ["ssh", "-t", "--", "box"]
+    assert argv[:5] == ["ssh", "-t", "-Y", "--", "box"]
 
 
 def test_login_for_the_title():
@@ -170,7 +171,7 @@ def test_with_no_ssh_panel_the_box_s_lines_say_where(tmp_path, monkeypatch, fake
                   lambda a: seen.update(text=text(windows(a)[0]).replace("\n", ""), title=windows(a)[0].title)])
     # Opened empty; Space on the saved connection chose it, Enter connected.
     assert seen["items"] == ["box"] and seen["empty"]
-    assert "<-l><root><--><box.lan><exec \"${SHELL:-/bin/sh}\" -l>" in seen["text"]
+    assert "<-Y><-l><root><--><box.lan><exec \"${SHELL:-/bin/sh}\" -l>" in seen["text"]
     assert seen["title"] == "ssh root@box.lan"
 
 
@@ -211,3 +212,40 @@ def test_the_window_goes_when_the_connection_ends_but_stays_for_ssh_s_failure(tm
     assert seen["open"] is not closed
     if not closed:
         assert seen["title"] == "ssh box.lan - exit status 255"
+
+
+def test_the_setting_then_the_connection_s_own_options_come_before_the_host(monkeypatch):
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setattr(SETTINGS.remote, "ssh_options", "-Y -o 'ServerAliveInterval 30'")
+    argv = words(remote_shell.command(Location(Site("sftp", "", "box"), PurePosixPath(".")), "-A -J jump"))
+    assert argv[:9] == ["ssh", "-t", "-Y", "-o", "ServerAliveInterval 30", "-A", "-J", "jump", "--"]
+    assert argv[9] == "box"
+
+
+def test_no_setting_and_unclosed_quotes_still_make_a_command(monkeypatch):
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setattr(SETTINGS.remote, "ssh_options", "")
+    argv = words(remote_shell.command(Location(Site("sftp", "", "box"), PurePosixPath(".")), "-o 'broken"))
+    assert argv[:5] == ["ssh", "-t", "-o", "'broken", "--"]
+
+
+def test_a_connection_s_options_reach_its_remote_shell(tmp_path, monkeypatch, fake_ssh):
+    from navigator.lib.drives import profiles
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
+
+    profiles.save("box", "sftp", "box.lan", "root", 0, "", "-A")
+    app = make(tmp_path, monkeypatch)
+    seen = {}
+
+    def showing(a):
+        found = windows(a)
+        return bool(found) and "<box.lan>" in text(found[0])
+
+    run_app(app, [lambda a: a.spawn(a.run_command(Terminal)), Until(lambda a: isinstance(a.modal, LinkManagerDialog)),
+                  lambda a: seen.update(field=a.modal.options.visible), lambda a: a.modal.links.focus(), KeyEvent(" "),
+                  lambda a: seen.update(options=a.modal.options.value), KeyEvent("enter"), Until(showing),
+                  lambda a: seen.update(text=text(windows(a)[0]).replace("\n", ""))])
+    assert seen["field"] and seen["options"] == "-A"
+    assert "<-t><-Y><-A><-l><root><--><box.lan>" in seen["text"]

@@ -118,6 +118,20 @@ LinkManagerDialog(Dialog):
         label_width: 12
         history_id: "ssh_directory"
 
+    #: SSH's: words added to Remote shell's ``ssh`` -- ``-A -J jump`` -- after
+    #: ``[remote] ssh_options``.  Not SSH link's panel: paramiko reads
+    #: ``~/.ssh/config``, and no flags.
+    Field:
+        id: options
+        x: 28
+        y: 12
+        width: max(0, parent.width - 30)
+        height: 1
+        label_text: "ssh opt~i~ons"
+        label_width: 12
+        history_id: "ssh_options"
+        visible: False
+
     #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
     CheckBoxes:
         id: secure

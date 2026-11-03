@@ -169,3 +169,19 @@ def test_utilities_and_the_link_list_open_it(desk):
     run_app(desk, [lambda a: seen.update(on=a.shell.enables(__import__(
         "navigator.widgets.shell.commands", fromlist=["EditLinks"]).EditLinks()))])
     assert seen["on"] is not False
+
+
+def test_an_edit_keeps_the_link_s_ssh_options(monkeypatch):
+    """``ConnectDialog`` has no *ssh options* line; the edited link keeps its own."""
+    import asyncio
+
+    from navigator.widgets.drives.connect_dialog import ConnectDialog, ConnectRequest
+    from navigator.widgets.drives.links_dialog import LinksDialog
+
+    async def answer(self, app=None):
+        return ConnectRequest("sftp", "web.example", "root", 22, "/srv", "web", True)
+
+    monkeypatch.setattr(ConnectDialog, "execute", answer)
+    dialog = LinksDialog([Entry("web", "sftp", "web.example", "deploy", 2222, "/srv", "-A")])
+    edited = asyncio.run(dialog._ask(dialog.entries[0], "sftp"))
+    assert edited == Entry("web", "sftp", "web.example", "root", 22, "/srv", "-A")

@@ -5,7 +5,7 @@ flag = "LV"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "Par"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "SSH link (SFTP)" = "SSH savienojums (SFTP)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:85
 "~H~ost" = "~S~erveris"
@@ -29,15 +29,17 @@ flag = "LV"
 "~S~aved" = "Sa~g~labātie"
 # navigator/widgets/drives/link_manager/link_manager.nml:74
 "~U~RI" = "~U~RI"
-# navigator/widgets/drives/link_manager/link_manager.nml:128
+# navigator/widgets/drives/link_manager/link_manager.nml:130
+"ssh opt~i~ons" = "ssh ~p~arametri"
+# navigator/widgets/drives/link_manager/link_manager.nml:142
 "Encr~y~pt with TLS" = "Šif~r~ēt ar TLS"
-# navigator/widgets/drives/link_manager/link_manager.nml:144
+# navigator/widgets/drives/link_manager/link_manager.nml:158
 "Ne~w~" = "~J~auns"
-# navigator/widgets/drives/link_manager/link_manager.nml:152
+# navigator/widgets/drives/link_manager/link_manager.nml:166
 "Sav~e~" = "Sagla~b~āt"
-# navigator/widgets/drives/link_manager/link_manager.nml:160
+# navigator/widgets/drives/link_manager/link_manager.nml:174
 "Dele~t~e" = "D~z~ēst"
-# navigator/widgets/drives/link_manager/link_manager.nml:168, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+# navigator/widgets/drives/link_manager/link_manager.nml:182, navigator/widgets/drives/links_dialog/links_dialog.nml:41
 "~C~onnect" = "Savie~n~ot"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "Saglabātās saites"
@@ -523,7 +525,7 @@ flag = "LV"
 "Delete the originals once copied: a move" = "Dzēst oriģinālus pēc kopēšanas: pārvietošana"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "Skaita direktorijas izmēru"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
 "Delete" = "Dzēst"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "Vai pārvietot uz atkritni"
@@ -1147,38 +1149,40 @@ flag = "LV"
 "Packed size" = "Sasp. izmērs"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:65
 "Ratio" = "Attiecība"
-# navigator/widgets/setup/communications_page/communications_page.nml:24
+# navigator/widgets/setup/communications_page/communications_page.nml:25
 "~K~eep-alive every" = "~U~zturēt savienojumu ik pēc"
-# navigator/widgets/setup/communications_page/communications_page.nml:35, navigator/widgets/setup/communications_page/communications_page.nml:92, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
+# navigator/widgets/setup/communications_page/communications_page.nml:36, navigator/widgets/setup/communications_page/communications_page.nml:93, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
 "seconds (0: never)" = "sek. (0: nekad)"
-# navigator/widgets/setup/communications_page/communications_page.nml:43
+# navigator/widgets/setup/communications_page/communications_page.nml:44
 "Connecting ~w~aits" = "~G~aidīt savienojumu"
-# navigator/widgets/setup/communications_page/communications_page.nml:54
+# navigator/widgets/setup/communications_page/communications_page.nml:55
 "seconds" = "sekundēm"
-# navigator/widgets/setup/communications_page/communications_page.nml:62
+# navigator/widgets/setup/communications_page/communications_page.nml:63
 "~C~lose an idle connection" = "~A~izvērt dīkstāvē pēc"
-# navigator/widgets/setup/communications_page/communications_page.nml:73
+# navigator/widgets/setup/communications_page/communications_page.nml:74
 "minutes (0: never)" = "min. (0: nekad)"
-# navigator/widgets/setup/communications_page/communications_page.nml:81
+# navigator/widgets/setup/communications_page/communications_page.nml:82
 "~L~ook for changes every" = "~M~eklēt izmaiņas ik pēc"
-# navigator/widgets/setup/communications_page/communications_page.nml:100
+# navigator/widgets/setup/communications_page/communications_page.nml:101
 "A fetched file a program changed goes ~b~ack" = "Programmas mainīts fails tiek sūtīts atpaka~ļ~"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "~A~sk first" = "~J~autāt"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Alwa~y~s" = "~V~ienmēr"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Ne~v~er" = "~N~ekad"
-# navigator/widgets/setup/communications_page/communications_page.nml:117
+# navigator/widgets/setup/communications_page/communications_page.nml:118
 "~D~esktop integration: volumes, links, opening files" = "~D~arbvirsma: sējumi, saites, failu atvēršana"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "Au~t~o" = "Au~t~omātiski"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~G~IO (GNOME, Xfce...)" = "GI~O~ (GNOME, Xfce...)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "K~I~O (KDE)" = "~K~IO (KDE)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~O~ff" = "~I~zslēgts"
+# navigator/widgets/setup/communications_page/communications_page.nml:137
+"Remote shell's ss~h~ options" = "Attālās čaulas ss~h~ parametri"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Erase ~s~ingle file" = "Dzēst ~v~ienu failu"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
@@ -2623,33 +2627,33 @@ flag = "LV"
 "Cannot read {path}: {error}" = "Nevar nolasīt {path}: {error}"
 # navigator/widgets/drives/archives.py:70
 "Archive password" = "Arhīva parole"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:94
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:96
 "~S~hare/dir" = "~K~oplietojums/dir."
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:98
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:100
 "~E~ndpoint" = "~G~alapunkts"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:99
-"~A~ccess key" = "Piekļuves ~a~tslēga"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:100, navigator/widgets/drives/link_manager/link_manager.py:202
-"~B~ucket/dir" = "Ka~u~ss/dir."
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
-"GVfs/KIO link ({protocol})" = "GVfs/KIO savienojums ({protocol})"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
-"Edit GVfs/KIO link ({protocol})" = "Labot GVfs/KIO savienojumu ({protocol})"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:101
+"~A~ccess key" = "Piekļuves ~a~tslēga"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:102, navigator/widgets/drives/link_manager/link_manager.py:207
+"~B~ucket/dir" = "Ka~u~ss/dir."
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+"GVfs/KIO link ({protocol})" = "GVfs/KIO savienojums ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+"Edit GVfs/KIO link ({protocol})" = "Labot GVfs/KIO savienojumu ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:103
 "Encrypt with ~T~LS (HTTPS)" = "Šifrēt ar ~T~LS (HTTPS)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "Edit SSH link (SFTP)" = "Labot SSH savienojumu (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "FTP link" = "FTP savienojums"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "Edit FTP link" = "Labot FTP savienojumu"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "SMB link (Windows share)" = "SMB savienojums (Windows koplietojums)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "Edit SMB link (Windows share)" = "Labot SMB savienojumu (Windows koplietojums)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "S3 link (Amazon S3)" = "S3 savienojums (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "Edit S3 link (Amazon S3)" = "Labot S3 savienojumu (Amazon S3)"
 # navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:192
 "GVfs/KIO link" = "GVfs/KIO savienojums"
@@ -2657,9 +2661,9 @@ flag = "LV"
 "~U~RI (mtp://, webdav://, gdrive://...)" = "~U~RI (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "~U~RI (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:410
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:417
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} nav vieta, ko KIO sasniedz. Tā pazīst {schemes}"
-# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:411
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:418
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} nav vieta, ko GVfs sasniedz. Tā pazīst {schemes}"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
 "~A~ccept" = "~P~ieņemt"
@@ -2667,47 +2671,49 @@ flag = "LV"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "Servera {host} autentiskumu nevar pārbaudīt.\n{type} atslēgas nospiedums ir\n{fingerprint}"
 # navigator/widgets/drives/link_manager/link_manager.py:144
 "Remote shell" = "Attālā čaula"
-# navigator/widgets/drives/link_manager/link_manager.py:198
+# navigator/widgets/drives/link_manager/link_manager.py:199
+"Added to Remote shell's ssh command, after Communications' own (-Y); SSH link's panel reads ~/.ssh/config alone" = "Pievienoti attālās čaulas ssh komandai pēc “Sakaru” kopējiem (-Y); SSH savienojuma panelis lasa tikai ~/.ssh/config"
+# navigator/widgets/drives/link_manager/link_manager.py:203
 "Sh~a~re/dir" = "~K~oplietojums/dir."
-# navigator/widgets/drives/link_manager/link_manager.py:200
+# navigator/widgets/drives/link_manager/link_manager.py:205
 "End~p~oint" = "Gal~a~punkts"
-# navigator/widgets/drives/link_manager/link_manager.py:201
+# navigator/widgets/drives/link_manager/link_manager.py:206
 "Access ~k~ey" = "Piekļuves a~t~slēga"
-# navigator/widgets/drives/link_manager/link_manager.py:404
+# navigator/widgets/drives/link_manager/link_manager.py:411
 "Type a URI to connect to" = "Ierakstiet URI, kuram pievienoties"
-# navigator/widgets/drives/link_manager/link_manager.py:216
+# navigator/widgets/drives/link_manager/link_manager.py:221
 "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "Piemēram mtp://Phone/, webdav://host/dir vai gdrive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:218
+# navigator/widgets/drives/link_manager/link_manager.py:223
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "Piemēram mtp://Phone/, dav://host/dir vai google-drive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:232
+# navigator/widgets/drives/link_manager/link_manager.py:237
 "New" = "Jauns"
-# navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/editor/commands.py:577
+# navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/editor/commands.py:577
 "Save" = "Saglab."
-# navigator/widgets/drives/link_manager/link_manager.py:401
+# navigator/widgets/drives/link_manager/link_manager.py:408
 "Type a host to connect to" = "Ierakstiet serveri, kuram pievienoties"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (HTTPS)" = "Šif~r~ēt ar TLS (HTTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (FTPS)" = "Šif~r~ēt ar TLS (FTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:277
+# navigator/widgets/drives/link_manager/link_manager.py:282
 "Changed — Save keeps it" = "Mainīts — “Saglabāt” to saglabās"
-# navigator/widgets/drives/link_manager/link_manager.py:509
+# navigator/widgets/drives/link_manager/link_manager.py:516
 "Type its URI, then New keeps it" = "Ierakstiet URI, tad “Jauns” to saglabās"
-# navigator/widgets/drives/link_manager/link_manager.py:519
+# navigator/widgets/drives/link_manager/link_manager.py:526
 "New connection" = "Jauns savienojums"
-# navigator/widgets/drives/link_manager/link_manager.py:561
+# navigator/widgets/drives/link_manager/link_manager.py:568
 "\"{name}\" saved" = "\"{name}\" saglabāts"
-# navigator/widgets/drives/link_manager/link_manager.py:586
+# navigator/widgets/drives/link_manager/link_manager.py:593
 "\"{name}\" deleted" = "\"{name}\" dzēsts"
-# navigator/widgets/drives/link_manager/link_manager.py:279
+# navigator/widgets/drives/link_manager/link_manager.py:284
 "Not saved — New keeps it" = "Nav saglabāts — “Jauns” to saglabās"
-# navigator/widgets/drives/link_manager/link_manager.py:552
+# navigator/widgets/drives/link_manager/link_manager.py:559
 "Another connection is named \"{name}\"" = "Savienojums \"{name}\" jau ir"
-# navigator/widgets/drives/link_manager/link_manager.py:436
+# navigator/widgets/drives/link_manager/link_manager.py:443
 "Save changes" = "Saglabāt izmaiņas"
-# navigator/widgets/drives/link_manager/link_manager.py:437
+# navigator/widgets/drives/link_manager/link_manager.py:444
 "Save changes to \"{name}\"?" = "Saglabāt izmaiņas savienojumā \"{name}\"?"
-# navigator/widgets/drives/link_manager/link_manager.py:579, navigator/widgets/drives/links_dialog/links_dialog.py:196
+# navigator/widgets/drives/link_manager/link_manager.py:586, navigator/widgets/drives/links_dialog/links_dialog.py:198
 "Delete the link \"{name}\"?" = "Dzēst saiti \"{name}\"?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Jauns G~V~fs/KIO savienojums (MTP, WebDAV...)..."
@@ -3891,9 +3897,9 @@ flag = "LV"
 "Pinned" = "Piespraustie"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Noklikšķiniet, lai atgrieztu logu"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2904
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2905
 "{operation}: waiting for an answer" = "{operation}: gaida atbildi"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2906
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2907
 "{operation}: {percent}% done" = "{operation}: {percent}% paveikts"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "Tie paši taustiņi to apturēs"
@@ -3913,9 +3919,9 @@ flag = "LV"
 "Interface Setup hides the command line" = "Saskarnes iestatījumi paslēpj komandrindu"
 # navigator/widgets/shell/shell/shell.py:1124
 "No file panels are open" = "Nav atvērtu failu paneļu"
-# navigator/widgets/shell/shell/shell.py:2825, navigator/widgets/shell/shell/shell.py:2818
+# navigator/widgets/shell/shell/shell.py:2826, navigator/widgets/shell/shell/shell.py:2819
 "Disconnect" = "Atvienot"
-# navigator/widgets/shell/shell/shell.py:2911
+# navigator/widgets/shell/shell/shell.py:2912
 "Background operations" = "Fona darbības"
 # navigator/widgets/shell/shell/shell.py:1150
 "No connection is open" = "Nav atvērta savienojuma"
@@ -3925,9 +3931,9 @@ flag = "LV"
 "~C~ommand..." = "~K~omanda..."
 # navigator/widgets/shell/shell/shell.py:2001
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File Edit History" = "Failu rediģēšanas vēsture"
 # navigator/widgets/shell/shell/shell.py:1139
 "The editor has the keys" = "Taustiņi pieder redaktoram"
@@ -3947,11 +3953,11 @@ flag = "LV"
 "File Manager Setup's Use arrows is off" = "Failu pārvaldnieka iestatījumos Lietot bultas ir izslēgts"
 # navigator/widgets/shell/shell/shell.py:1915
 "~C~ommand (!.! is the file; else it goes at the end)" = "~K~omanda (!.! ir fails; citādi tas nāk beigās)"
-# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2854
+# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2855
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track editing history" = "Sekot rediģēšanas vēsturei"
 # navigator/widgets/shell/shell/shell.py:1205
 "The shell cannot complete" = "Čaula nevar papildināt"
@@ -3963,13 +3969,13 @@ flag = "LV"
 "User menu (local)" = "Lietotāja izvēlne (lokālā)"
 # navigator/widgets/shell/shell/shell.py:1643
 "Global menu" = "Globālā izvēlne"
-# navigator/widgets/shell/shell/shell.py:2816
+# navigator/widgets/shell/shell/shell.py:2817
 "Close the {protocol} connection to {host}?" = "Aizvērt {protocol} savienojumu ar {host}?"
 # navigator/widgets/shell/shell/shell.py:330
 "Store Color Palette" = "Saglabāt krāsu paleti"
 # navigator/widgets/shell/shell/shell.py:388
 "Load Color Palette" = "Ielādēt krāsu paleti"
-# navigator/widgets/shell/shell/shell.py:2787
+# navigator/widgets/shell/shell/shell.py:2788
 "ssh {login}" = "ssh {login}"
 # navigator/widgets/shell/shell/shell.py:235
 "No desktop has been saved" = "Neviena darbvirsma nav saglabāta"
@@ -3981,9 +3987,9 @@ flag = "LV"
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
 # navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "View file" = "Skatīt failu"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "Edit file" = "Rediģēt failu"
 # navigator/widgets/shell/shell/shell.py:2208
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
@@ -3999,9 +4005,9 @@ flag = "LV"
 "Wrong {protocol} password for {who}. Try again:" = "Nepareiza {protocol} parole lietotājam {who}. Mēģiniet vēlreiz:"
 # navigator/widgets/shell/shell/shell.py:2648
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
-# navigator/widgets/shell/shell/shell.py:2855
+# navigator/widgets/shell/shell/shell.py:2856
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
-# navigator/widgets/shell/shell/shell.py:3195
+# navigator/widgets/shell/shell/shell.py:3196
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
 # navigator/widgets/shell/shell/shell.py:1576
 "Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
@@ -4011,9 +4017,9 @@ flag = "LV"
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
 # navigator/widgets/shell/shell/shell.py:2626
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:3003
+# navigator/widgets/shell/shell/shell.py:3004
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:3159
+# navigator/widgets/shell/shell/shell.py:3160
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "izejas statuss {status}"
@@ -5023,6 +5029,8 @@ flag = "LV"
 "A file from another drive that a program changed goes back: ask, always or never" = "Fails no cita diska, ko mainījusi programma, tiek atgriezts: jautāt, vienmēr vai nekad"
 # navigator/settings.py
 "Seconds to wait for a server to answer when connecting" = "Sekundes, cik gaidīt servera atbildi, pieslēdzoties"
+# navigator/settings.py
+"Words added to every Remote shell's ssh command, before a connection's own" = "Vārdi, ko pievieno katrai attālās čaulas ssh komandai pirms savienojuma pašu parametriem"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Sekundes starp servera direktorijas pārbaudēm automātiskai atsvaidzināšanai; 0 — nekad"
 

@@ -37,6 +37,8 @@ class CommunicationsPage(Widget):
         self.refresh.tooltip = self.section.tooltip("refresh")
         self.upload_changed.value = RemoteData.UPLOAD.index(self.section.upload_changed)
         self.upload_changed.tooltip = self.section.tooltip("upload_changed")
+        self.ssh_options.value = self.section.ssh_options
+        self.ssh_options.entry.tooltip = self.section.tooltip("ssh_options")
 
     def accept(self) -> dict[str, dict[str, Any]]:
         section = self.section
@@ -47,6 +49,7 @@ class CommunicationsPage(Widget):
                 "idle_disconnect": _number(self.idle_disconnect.value, section.idle_disconnect),
                 "refresh": _number(self.refresh.value, section.refresh),
                 "upload_changed": RemoteData.UPLOAD[self.upload_changed.value],
+                "ssh_options": self.ssh_options.value.strip(),
             },
             "system": {"desktop_vfs": DESKTOP_VFS[self.desktop_vfs.value]},
         }

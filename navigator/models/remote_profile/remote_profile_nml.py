@@ -35,21 +35,22 @@ class RemoteProfile(Model):    # remote_profile.nml:9
         _Field("port", int, 0),    # remote_profile.nml:17
         _Field("user", str, ''),    # remote_profile.nml:19
         _Field("path", str, ''),    # remote_profile.nml:21
-        _Field("seq", int, 0),    # remote_profile.nml:23
+        _Field("options", str, ''),    # remote_profile.nml:25
+        _Field("seq", int, 0),    # remote_profile.nml:27
     )
     __indexes__ = (
-        _Index("by_name", ('name',), unique=True),    # remote_profile.nml:24
-        _Index("by_seq", ('seq',)),    # remote_profile.nml:25
+        _Index("by_name", ('name',), unique=True),    # remote_profile.nml:28
+        _Index("by_seq", ('seq',)),    # remote_profile.nml:29
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "remote_profiles" ("id" INTEGER PRIMARY KEY, "name" TEXT NOT NULL DEFAULT \'\', "scheme" TEXT NOT NULL DEFAULT \'\', "host" TEXT NOT NULL DEFAULT \'\', "port" INTEGER NOT NULL DEFAULT 0, "user" TEXT NOT NULL DEFAULT \'\', "path" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0)',
+        'CREATE TABLE "remote_profiles" ("id" INTEGER PRIMARY KEY, "name" TEXT NOT NULL DEFAULT \'\', "scheme" TEXT NOT NULL DEFAULT \'\', "host" TEXT NOT NULL DEFAULT \'\', "port" INTEGER NOT NULL DEFAULT 0, "user" TEXT NOT NULL DEFAULT \'\', "path" TEXT NOT NULL DEFAULT \'\', "options" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0)',
         'CREATE UNIQUE INDEX "remote_profiles_by_name" ON "remote_profiles" ("name")',
         'CREATE INDEX "remote_profiles_by_seq" ON "remote_profiles" ("seq")',
     )
-    __schema__ = "58721791b81e8a59"
+    __schema__ = "858255efa890d37c"
 
     id: int | None
 
@@ -69,5 +70,10 @@ class RemoteProfile(Model):    # remote_profile.nml:9
     #: Where the panel opens; empty for the home directory there.
     path: str    # remote_profile.nml:21
 
+    #: SSH's alone: words added to Remote shell's ``ssh`` command, after
+    #: ``[remote] ssh_options`` -- ``-A -J jump``.  SSH link's panel goes
+    #: through paramiko, which reads ``~/.ssh/config`` and no flags.
+    options: str    # remote_profile.nml:25
+
     #: Smaller first; a profile added goes after every other.
-    seq: int    # remote_profile.nml:23
+    seq: int    # remote_profile.nml:27

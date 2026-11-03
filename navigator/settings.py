@@ -1062,6 +1062,10 @@ class RemoteData(Section):
         doc="A file from another drive that a program changed goes back: ask, always or never",
     )
     timeout: int = Setting(15, doc="Seconds to wait for a server to answer when connecting")
+    #: Not DN's: what Utilities > *Remote shell* adds to every ``ssh`` it runs,
+    #: before a connection's own *ssh options*.  ``-Y`` (trusted X11
+    #: forwarding) lets a program there reach this desktop's clipboard.
+    ssh_options: str = Setting("-Y", doc="Words added to every Remote shell's ssh command, before a connection's own")
     #: Not DN's: no server says when a directory changed, so *Auto refresh
     #: panels* asks again this often.  Off by default, as every look is traffic.
     refresh: int = Setting(0, doc="Seconds between looks at a server's directory for Auto refresh; 0 never")

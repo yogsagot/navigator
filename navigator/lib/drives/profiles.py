@@ -33,6 +33,8 @@ class Entry:
     user: str = ""
     port: int = 0
     path: str = ""
+    #: SSH's: Remote shell's own ``ssh`` words (``RemoteProfile.options``).
+    options: str = ""
 
 
 def profiles() -> list[RemoteProfile]:
@@ -53,16 +55,20 @@ def location_of(profile: RemoteProfile) -> Location:
     return Location(site_of(profile), PurePosixPath(profile.path) if profile.path else HOME)
 
 
-def save(name: str, scheme: str, host: str, user: str = "", port: int = 0, path: str = "") -> RemoteProfile:
-    """*name* kept as the profile for this place, replacing one of that name."""
+def save(name: str, scheme: str, host: str, user: str = "", port: int = 0, path: str = "",
+         options: str | None = None) -> RemoteProfile:
+    """*name* kept as the profile for this place, replacing one of that name.
+    *options* None keeps a replaced one's (a box that does not show them)."""
     with DATABASE.transaction():
         row = find(name)
         if row is None:
             last = max((each.seq for each in RemoteProfile.all()), default=0)
             row = RemoteProfile.create(name=name, scheme=scheme, host=host, user=user, port=port,
-                                       path=path, seq=last + 1)
+                                       path=path, options=options or "", seq=last + 1)
         else:
             row.scheme, row.host, row.user, row.port, row.path = scheme, host, user, port, path
+            if options is not None:
+                row.options = options
             row.save()
     return row
 
@@ -76,26 +82,29 @@ def remove(name: str) -> bool:
 
 
 def replace(old: str, name: str, scheme: str, host: str, user: str = "", port: int = 0,
-            path: str = "") -> RemoteProfile:
+            path: str = "", options: str | None = None) -> RemoteProfile:
     """The profile *old*, edited -- renamed to *name* if that differs, in the
     place it had.  A name another profile has already is that one's, and it
-    goes: the one being edited takes its name."""
+    goes: the one being edited takes its name.  *options* None keeps its own:
+    the Link box's F2 edits in ``ConnectDialog``, which has no such line."""
     with DATABASE.transaction():
         row = find(old)
         if row is None:
-            return save(name, scheme, host, user, port, path)
+            return save(name, scheme, host, user, port, path, options)
         if name != old:
             other = find(name)
             if other is not None:
                 other.delete()
         row.name, row.scheme, row.host, row.user, row.port, row.path = name, scheme, host, user, port, path
+        if options is not None:
+            row.options = options
         row.save()
     return row
 
 
 def entries() -> list[Entry]:
     """Every profile as an :class:`Entry`, in the user's order."""
-    return [Entry(row.name, row.scheme, row.host, row.user, row.port, row.path) for row in profiles()]
+    return [Entry(row.name, row.scheme, row.host, row.user, row.port, row.path, row.options) for row in profiles()]
 
 
 def store(entries: list[Entry]) -> None:
@@ -110,10 +119,10 @@ def store(entries: list[Entry]) -> None:
             row = find(entry.name)
             if row is None:
                 RemoteProfile.create(name=entry.name, scheme=entry.scheme, host=entry.host, user=entry.user,
-                                     port=entry.port, path=entry.path, seq=seq)
+                                     port=entry.port, path=entry.path, options=entry.options, seq=seq)
                 continue
-            row.scheme, row.host, row.user, row.port, row.path, row.seq = (
-                entry.scheme, entry.host, entry.user, entry.port, entry.path, seq)
+            row.scheme, row.host, row.user, row.port, row.path, row.options, row.seq = (
+                entry.scheme, entry.host, entry.user, entry.port, entry.path, entry.options, seq)
             row.save()
 
 

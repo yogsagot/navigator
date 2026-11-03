@@ -194,6 +194,11 @@ class LinkManagerDialog(Dialog):
         for line, name in ((self.label, "name"), (self.host, "host"), (self.user, "login"),
                            (self.port, "port"), (self.directory, "directory")):
             line.history_id = f"{prefix}_{name}"
+        if key == "sftp":
+            self.options.visible = True
+            self.options.entry.tooltip = tr(
+                "Added to Remote shell's ssh command, after Communications' own (-Y); "
+                "SSH link's panel reads ~/.ssh/config alone")
         if key == "smb":
             self.directory.label_text = tr("Sh~a~re/dir")
         if key == "s3":
@@ -240,7 +245,7 @@ class LinkManagerDialog(Dialog):
     def _values(self) -> tuple[str, ...]:
         """Every line, the TLS box and the URI: what *changed* compares."""
         return (self.label.value, self.host.value, self.user.value, self.port.value, self.directory.value,
-                str(self.secure.value & 1), self.uri.value)
+                str(self.secure.value & 1), self.uri.value, self.options.value)
 
     @property
     def changed(self) -> bool:
@@ -359,6 +364,7 @@ class LinkManagerDialog(Dialog):
         if self.family.secure is not None:
             self.secure.value = 1 if entry.scheme == self.family.secure[0] else 0
         self.uri.value = uri_of(entry) if self.family.key == "gvfs" else ""
+        self.options.value = entry.options
 
     def _entry(self, fallback: str = "") -> Entry:
         """What the lines say, as a connection, host or none -- named by
@@ -381,7 +387,8 @@ class LinkManagerDialog(Dialog):
         directory = self.directory.value.strip()
         if self.family.rooted and directory and not directory.startswith("/"):
             directory = "/" + directory
-        return Entry(name, scheme, host, user or self.user.value.strip(), port, directory)
+        options = self.options.value.strip() if self.family.key == "sftp" else ""
+        return Entry(name, scheme, host, user or self.user.value.strip(), port, directory, options)
 
     def _uri_entry(self, fallback: str) -> Entry:
         """GVfs/KIO's line as a connection: no scheme for an empty or local one."""
@@ -451,7 +458,7 @@ class LinkManagerDialog(Dialog):
         entry = self.lines()
         if entry is None:
             return None
-        return ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path)
+        return ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path, options=entry.options)
 
     async def on_connect_click(self, event: Event) -> bool:
         self.spawn(self.connect_to())
@@ -519,7 +526,7 @@ class LinkManagerDialog(Dialog):
             entry = replace(self._blank(), name=tr("New connection"))
         entry = replace(entry, name=unique_name(entry.name, taken))
         await asyncio.to_thread(profiles.save, entry.name, entry.scheme, entry.host, entry.user, entry.port,
-                                entry.path)
+                                entry.path, entry.options)
         await self._reread(entry.name)
         if self.chosen is not None:
             self._fill(self.chosen)
@@ -554,7 +561,7 @@ class LinkManagerDialog(Dialog):
             return False
         self.record_history()
         await asyncio.to_thread(profiles.replace, old, entry.name, entry.scheme, entry.host, entry.user,
-                                entry.port, entry.path)
+                                entry.port, entry.path, entry.options)
         await self._reread(entry.name)
         if self.chosen is not None:
             self._fill(self.chosen)

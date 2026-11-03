@@ -4,6 +4,7 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
+from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -28,5 +29,6 @@ class CommunicationsPage(_Component):
     upload_changed: RadioButtons
     desktop_vfs_caption: Label
     desktop_vfs: RadioButtons
+    ssh_options: Field
     def __init__(self, section: RemoteData | None = ..., system: SystemData | None = ..., **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...

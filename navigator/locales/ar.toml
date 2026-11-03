@@ -6,7 +6,7 @@ direction = "rtl"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "حول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "SSH link (SFTP)" = "اتصال SSH (SFTP)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:85
 "~H~ost" = "ال~خ~ادم"
@@ -30,15 +30,17 @@ direction = "rtl"
 "~S~aved" = "المحفو~ظ~ة"
 # navigator/widgets/drives/link_manager/link_manager.nml:74
 "~U~RI" = "~ع~نوان URI"
-# navigator/widgets/drives/link_manager/link_manager.nml:128
+# navigator/widgets/drives/link_manager/link_manager.nml:130
+"ssh opt~i~ons" = "خ~ي~ارات ssh"
+# navigator/widgets/drives/link_manager/link_manager.nml:142
 "Encr~y~pt with TLS" = "~ت~شفير بـ TLS"
-# navigator/widgets/drives/link_manager/link_manager.nml:144
+# navigator/widgets/drives/link_manager/link_manager.nml:158
 "Ne~w~" = "جدي~د~"
-# navigator/widgets/drives/link_manager/link_manager.nml:152
+# navigator/widgets/drives/link_manager/link_manager.nml:166
 "Sav~e~" = "ح~ف~ظ"
-# navigator/widgets/drives/link_manager/link_manager.nml:160
+# navigator/widgets/drives/link_manager/link_manager.nml:174
 "Dele~t~e" = "~ح~ذف"
-# navigator/widgets/drives/link_manager/link_manager.nml:168, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+# navigator/widgets/drives/link_manager/link_manager.nml:182, navigator/widgets/drives/links_dialog/links_dialog.nml:41
 "~C~onnect" = "ات~ص~ال"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "الاتصالات المحفوظة"
@@ -524,7 +526,7 @@ direction = "rtl"
 "Delete the originals once copied: a move" = "حذف الأصول بعد نسخها: أي نقل"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "حساب حجم المجلد"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/drives/links_dialog/links_dialog.py:44 ...
 "Delete" = "حذف"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "هل تريد النقل إلى سلة المهملات"
@@ -1148,38 +1150,40 @@ direction = "rtl"
 "Packed size" = "الحجم المضغوط"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:65
 "Ratio" = "النسبة"
-# navigator/widgets/setup/communications_page/communications_page.nml:24
+# navigator/widgets/setup/communications_page/communications_page.nml:25
 "~K~eep-alive every" = "~ف~حص الاتصال كل"
-# navigator/widgets/setup/communications_page/communications_page.nml:35, navigator/widgets/setup/communications_page/communications_page.nml:92, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
+# navigator/widgets/setup/communications_page/communications_page.nml:36, navigator/widgets/setup/communications_page/communications_page.nml:93, navigator/widgets/setup/system_setup_page/system_setup_page.nml:105
 "seconds (0: never)" = "ثانية (0: أبدا)"
-# navigator/widgets/setup/communications_page/communications_page.nml:43
+# navigator/widgets/setup/communications_page/communications_page.nml:44
 "Connecting ~w~aits" = "م~ه~لة الاتصال"
-# navigator/widgets/setup/communications_page/communications_page.nml:54
+# navigator/widgets/setup/communications_page/communications_page.nml:55
 "seconds" = "ثانية"
-# navigator/widgets/setup/communications_page/communications_page.nml:62
+# navigator/widgets/setup/communications_page/communications_page.nml:63
 "~C~lose an idle connection" = "إ~غ~لاق الاتصال الخامل"
-# navigator/widgets/setup/communications_page/communications_page.nml:73
+# navigator/widgets/setup/communications_page/communications_page.nml:74
 "minutes (0: never)" = "دقيقة (0: أبدا)"
-# navigator/widgets/setup/communications_page/communications_page.nml:81
+# navigator/widgets/setup/communications_page/communications_page.nml:82
 "~L~ook for changes every" = "تفقد التغييرات ~ك~ل"
-# navigator/widgets/setup/communications_page/communications_page.nml:100
+# navigator/widgets/setup/communications_page/communications_page.nml:101
 "A fetched file a program changed goes ~b~ack" = "الملف المجلوب الذي غيره برنامج ي~ع~اد رفعه"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "~A~sk first" = "~ا~سأل أولا"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Alwa~y~s" = "~د~ائما"
-# navigator/widgets/setup/communications_page/communications_page.nml:109
+# navigator/widgets/setup/communications_page/communications_page.nml:110
 "Ne~v~er" = "أ~ب~دا"
-# navigator/widgets/setup/communications_page/communications_page.nml:117
+# navigator/widgets/setup/communications_page/communications_page.nml:118
 "~D~esktop integration: volumes, links, opening files" = "~س~طح المكتب: الأقراص، الاتصالات، فتح الملفات"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "Au~t~o" = "~ت~لقائي"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~G~IO (GNOME, Xfce...)" = "~G~IO (GNOME, Xfce...)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "K~I~O (KDE)" = "K~I~O (KDE)"
-# navigator/widgets/setup/communications_page/communications_page.nml:127
+# navigator/widgets/setup/communications_page/communications_page.nml:128
 "~O~ff" = "~م~عطل"
+# navigator/widgets/setup/communications_page/communications_page.nml:137
+"Remote shell's ss~h~ options" = "خيارات ss~h~ للصدفة البعيدة"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
 "Erase ~s~ingle file" = "حذف ملف ~و~احد"
 # navigator/widgets/setup/confirmations_page/confirmations_page.nml:20
@@ -2624,33 +2628,33 @@ direction = "rtl"
 "Cannot read {path}: {error}" = "تعذرت قراءة {path}: {error}"
 # navigator/widgets/drives/archives.py:70
 "Archive password" = "كلمة مرور الأرشيف"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:94
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:96
 "~S~hare/dir" = "~م~شاركة/مجلد"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:98
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:100
 "~E~ndpoint" = "~ن~قطة الوصول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:99
-"~A~ccess key" = "~م~فتاح الوصول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:100, navigator/widgets/drives/link_manager/link_manager.py:202
-"~B~ucket/dir" = "حاو~ي~ة/مجلد"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
-"GVfs/KIO link ({protocol})" = "رابط GVfs/KIO ({protocol})"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
-"Edit GVfs/KIO link ({protocol})" = "تعديل رابط GVfs/KIO ({protocol})"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:101
+"~A~ccess key" = "~م~فتاح الوصول"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:102, navigator/widgets/drives/link_manager/link_manager.py:207
+"~B~ucket/dir" = "حاو~ي~ة/مجلد"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+"GVfs/KIO link ({protocol})" = "رابط GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+"Edit GVfs/KIO link ({protocol})" = "تعديل رابط GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:103
 "Encrypt with ~T~LS (HTTPS)" = "~ت~شفير عبر TLS (HTTPS)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:47
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
 "Edit SSH link (SFTP)" = "تعديل رابط SSH (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "FTP link" = "رابط FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:48
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
 "Edit FTP link" = "تعديل رابط FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "SMB link (Windows share)" = "رابط SMB (مشاركة Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:49
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:51
 "Edit SMB link (Windows share)" = "تعديل رابط SMB (مشاركة Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "S3 link (Amazon S3)" = "رابط S3 (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:50
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:52
 "Edit S3 link (Amazon S3)" = "تعديل رابط S3 (Amazon S3)"
 # navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:192
 "GVfs/KIO link" = "رابط GVfs/KIO"
@@ -2658,9 +2662,9 @@ direction = "rtl"
 "~U~RI (mtp://, webdav://, gdrive://...)" = "~ع~نوان URI (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "~ع~نوان URI (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:410
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:417
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} ليس مكانا يصل إليه KIO. يعرف: {schemes}"
-# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:411
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:418
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} ليس مكانا يصل إليه GVfs. يعرف: {schemes}"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
 "~A~ccept" = "~ق~بول"
@@ -2668,47 +2672,49 @@ direction = "rtl"
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "تعذر التحقق من هوية المضيف {host}.\nبصمة مفتاح {type} هي\n{fingerprint}"
 # navigator/widgets/drives/link_manager/link_manager.py:144
 "Remote shell" = "صدفة بعيدة"
-# navigator/widgets/drives/link_manager/link_manager.py:198
+# navigator/widgets/drives/link_manager/link_manager.py:199
+"Added to Remote shell's ssh command, after Communications' own (-Y); SSH link's panel reads ~/.ssh/config alone" = "تُضاف إلى أمر ssh للصدفة البعيدة بعد خيارات «الاتصالات» العامة (-Y)؛ لوحة اتصال SSH تقرأ ~/.ssh/config وحده"
+# navigator/widgets/drives/link_manager/link_manager.py:203
 "Sh~a~re/dir" = "المشا~ر~كة/المجلد"
-# navigator/widgets/drives/link_manager/link_manager.py:200
+# navigator/widgets/drives/link_manager/link_manager.py:205
 "End~p~oint" = "نقطة ال~ن~هاية"
-# navigator/widgets/drives/link_manager/link_manager.py:201
+# navigator/widgets/drives/link_manager/link_manager.py:206
 "Access ~k~ey" = "مفتاح ال~و~صول"
-# navigator/widgets/drives/link_manager/link_manager.py:404
+# navigator/widgets/drives/link_manager/link_manager.py:411
 "Type a URI to connect to" = "اكتب URI للاتصال به"
-# navigator/widgets/drives/link_manager/link_manager.py:216
+# navigator/widgets/drives/link_manager/link_manager.py:221
 "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "مثلًا mtp://Phone/ أو webdav://host/dir أو gdrive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:218
+# navigator/widgets/drives/link_manager/link_manager.py:223
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "مثلًا mtp://Phone/ أو dav://host/dir أو google-drive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:232
+# navigator/widgets/drives/link_manager/link_manager.py:237
 "New" = "جديد"
-# navigator/widgets/drives/link_manager/link_manager.py:232, navigator/widgets/editor/commands.py:577
+# navigator/widgets/drives/link_manager/link_manager.py:237, navigator/widgets/editor/commands.py:577
 "Save" = "حفظ"
-# navigator/widgets/drives/link_manager/link_manager.py:401
+# navigator/widgets/drives/link_manager/link_manager.py:408
 "Type a host to connect to" = "اكتب خادمًا للاتصال به"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (HTTPS)" = "~ت~شفير بـ TLS ‏(HTTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:205
+# navigator/widgets/drives/link_manager/link_manager.py:210
 "Encr~y~pt with TLS (FTPS)" = "~ت~شفير بـ TLS ‏(FTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:277
+# navigator/widgets/drives/link_manager/link_manager.py:282
 "Changed — Save keeps it" = "تغيّر — «حفظ» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:509
+# navigator/widgets/drives/link_manager/link_manager.py:516
 "Type its URI, then New keeps it" = "اكتب URI، ثم «جديد» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:519
+# navigator/widgets/drives/link_manager/link_manager.py:526
 "New connection" = "اتصال جديد"
-# navigator/widgets/drives/link_manager/link_manager.py:561
+# navigator/widgets/drives/link_manager/link_manager.py:568
 "\"{name}\" saved" = "حُفظ \"{name}\""
-# navigator/widgets/drives/link_manager/link_manager.py:586
+# navigator/widgets/drives/link_manager/link_manager.py:593
 "\"{name}\" deleted" = "حُذف \"{name}\""
-# navigator/widgets/drives/link_manager/link_manager.py:279
+# navigator/widgets/drives/link_manager/link_manager.py:284
 "Not saved — New keeps it" = "غير محفوظ — «جديد» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:552
+# navigator/widgets/drives/link_manager/link_manager.py:559
 "Another connection is named \"{name}\"" = "يوجد اتصال باسم \"{name}\" بالفعل"
-# navigator/widgets/drives/link_manager/link_manager.py:436
+# navigator/widgets/drives/link_manager/link_manager.py:443
 "Save changes" = "حفظ التغييرات"
-# navigator/widgets/drives/link_manager/link_manager.py:437
+# navigator/widgets/drives/link_manager/link_manager.py:444
 "Save changes to \"{name}\"?" = "أتريد حفظ التغييرات في \"{name}\"؟"
-# navigator/widgets/drives/link_manager/link_manager.py:579, navigator/widgets/drives/links_dialog/links_dialog.py:196
+# navigator/widgets/drives/link_manager/link_manager.py:586, navigator/widgets/drives/links_dialog/links_dialog.py:198
 "Delete the link \"{name}\"?" = "حذف الرابط \"{name}\"؟"
 # navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:5221
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "رابط GVfs/KIO جديد (MTP, WebDAV ~و~غيرها)..."
@@ -3892,9 +3898,9 @@ direction = "rtl"
 "Pinned" = "المثبتة"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "انقر لإعادة المربع"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2904
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:2905
 "{operation}: waiting for an answer" = "{operation}: بانتظار إجابة"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2906
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:2907
 "{operation}: {percent}% done" = "{operation}: اكتمل {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "المفاتيح نفسها مجددًا توقفه"
@@ -3914,9 +3920,9 @@ direction = "rtl"
 "Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
 # navigator/widgets/shell/shell/shell.py:1124
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
-# navigator/widgets/shell/shell/shell.py:2825, navigator/widgets/shell/shell/shell.py:2818
+# navigator/widgets/shell/shell/shell.py:2826, navigator/widgets/shell/shell/shell.py:2819
 "Disconnect" = "قطع الاتصال"
-# navigator/widgets/shell/shell/shell.py:2911
+# navigator/widgets/shell/shell/shell.py:2912
 "Background operations" = "العمليات في الخلفية"
 # navigator/widgets/shell/shell/shell.py:1150
 "No connection is open" = "لا يوجد اتصال مفتوح"
@@ -3926,9 +3932,9 @@ direction = "rtl"
 "~C~ommand..." = "~أ~مر..."
 # navigator/widgets/shell/shell/shell.py:2001
 "Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:3202
+# navigator/widgets/shell/shell/shell.py:3203
 "File Edit History" = "سجل تحرير الملفات"
 # navigator/widgets/shell/shell/shell.py:1139
 "The editor has the keys" = "المفاتيح لدى المحرر"
@@ -3948,11 +3954,11 @@ direction = "rtl"
 "File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
 # navigator/widgets/shell/shell/shell.py:1915
 "~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
-# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2854
+# navigator/widgets/shell/shell/shell.py:2609, navigator/widgets/shell/shell/shell.py:2855
 "{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:3192
+# navigator/widgets/shell/shell/shell.py:3193
 "Track editing history" = "تتبع سجل التحرير"
 # navigator/widgets/shell/shell/shell.py:1205
 "The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
@@ -3964,13 +3970,13 @@ direction = "rtl"
 "User menu (local)" = "قائمة المستخدم (محلية)"
 # navigator/widgets/shell/shell/shell.py:1643
 "Global menu" = "القائمة العامة"
-# navigator/widgets/shell/shell/shell.py:2816
+# navigator/widgets/shell/shell/shell.py:2817
 "Close the {protocol} connection to {host}?" = "إغلاق اتصال {protocol} مع {host}؟"
 # navigator/widgets/shell/shell/shell.py:330
 "Store Color Palette" = "حفظ لوحة الألوان"
 # navigator/widgets/shell/shell/shell.py:388
 "Load Color Palette" = "تحميل لوحة الألوان"
-# navigator/widgets/shell/shell/shell.py:2787
+# navigator/widgets/shell/shell/shell.py:2788
 "ssh {login}" = "ssh {login}"
 # navigator/widgets/shell/shell/shell.py:235
 "No desktop has been saved" = "لم يحفظ أي سطح مكتب"
@@ -3982,9 +3988,9 @@ direction = "rtl"
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
 # navigator/widgets/shell/shell/shell.py:515
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:3253
+# navigator/widgets/shell/shell/shell.py:3254
 "Edit file" = "تحرير ملف"
 # navigator/widgets/shell/shell/shell.py:2208
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
@@ -4000,9 +4006,9 @@ direction = "rtl"
 "Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
 # navigator/widgets/shell/shell/shell.py:2648
 "{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2855
+# navigator/widgets/shell/shell/shell.py:2856
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
-# navigator/widgets/shell/shell/shell.py:3195
+# navigator/widgets/shell/shell/shell.py:3196
 "Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1576
 "Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
@@ -4012,9 +4018,9 @@ direction = "rtl"
 "Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
 # navigator/widgets/shell/shell/shell.py:2626
 "Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:3003
+# navigator/widgets/shell/shell/shell.py:3004
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:3159
+# navigator/widgets/shell/shell/shell.py:3160
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"
@@ -5024,6 +5030,8 @@ direction = "rtl"
 "A file from another drive that a program changed goes back: ask, always or never" = "الملف من قرص آخر الذي غيره برنامج يعاد: اسأل، أو دائما، أو أبدا"
 # navigator/settings.py
 "Seconds to wait for a server to answer when connecting" = "ثواني انتظار رد الخادم عند الاتصال"
+# navigator/settings.py
+"Words added to every Remote shell's ssh command, before a connection's own" = "كلمات تُضاف إلى كل أمر ssh للصدفة البعيدة قبل خيارات الاتصال نفسه"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "الثواني بين فحوص مجلد الخادم للتحديث التلقائي؛ 0 أبدا"
 

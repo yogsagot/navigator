@@ -176,7 +176,9 @@ class LinksDialog(Dialog):
         answer = await ConnectDialog(request, editing=True, scheme=scheme).execute(self.application)
         if answer is None:
             return None
-        return Entry(answer.name or answer.host, answer.scheme, answer.host, answer.user, answer.port, answer.path)
+        # ``ConnectDialog`` has no *ssh options* line: an edited link keeps its own.
+        return Entry(answer.name or answer.host, answer.scheme, answer.host, answer.user, answer.port, answer.path,
+                     entry.options if entry is not None else "")
 
     async def on_delete_click(self, event: Event) -> bool:
         self.spawn(self.delete_link())

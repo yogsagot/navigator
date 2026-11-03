@@ -19,6 +19,10 @@ RemoteProfile(Model):
     field user: str
     #: Where the panel opens; empty for the home directory there.
     field path: str
+    #: SSH's alone: words added to Remote shell's ``ssh`` command, after
+    #: ``[remote] ssh_options`` -- ``-A -J jump``.  SSH link's panel goes
+    #: through paramiko, which reads ``~/.ssh/config`` and no flags.
+    field options: str
     #: Smaller first; a profile added goes after every other.
     field seq: int
     unique by_name: name

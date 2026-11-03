@@ -2783,7 +2783,8 @@ class Shell(DockLayout):
             # Gone when the connection ends -- Ctrl+D, ``exit`` -- however the
             # remote shell's last command did; kept to show ``ssh``'s own
             # failure (refused, unreachable, not let in).
-            window = self.run_in_window(remote_shell.command(location), closes=remote_shell.ended_well,
+            window = self.run_in_window(remote_shell.command(location, request.options),
+                                        closes=remote_shell.ended_well,
                                         title=tr("ssh {login}").format(login=remote_shell.login(location.site)))
             if window is None:
                 return None

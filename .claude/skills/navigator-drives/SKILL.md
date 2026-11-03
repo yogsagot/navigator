@@ -335,7 +335,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **Commands** `NavyLink` (Utilities > *SSH link (SFTP)...*, Alt+F11 -- DN's *Navigator Link*, renamed for its
   protocol), `HangUp` (*Disconnect*, Alt+H; greyed with
   nothing mounted), `SetupLink` (Options > Configuration > *Communications...* → `CommunicationsPage`, `[remote]`
-  keepalive, timeout, idle_disconnect, upload_changed).
+  keepalive, timeout, idle_disconnect, upload_changed, ssh_options).
 - **The link managers** (`navigator/widgets/drives/link_manager/`, `LinkManagerDialog(family=...)`, after
   FileZilla's Site Manager; a departure, asked for): one a protocol, one component. Utilities > *SSH link (SFTP)*
   (Alt+F11), *FTP link*, *SMB link*, *S3 link* and *GVfs/KIO link* open their family's (`Shell.link_manager(panel,
@@ -388,9 +388,16 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   'cd DIR 2>/dev/null; exec "${SHELL:-/bin/sh}" -l'` (no `cd` for the home directory, `.`), `shlex`-quoted twice,
   through `run_in_window(closes=remote_shell.ended_well)` -- the window goes when the connection ends (Ctrl+D,
   `exit`, any remote status) but stays for `ssh`'s own failure (255) or a signal, to show it -- and remembers it
-  in `recent`. Only host/user/port are passed: `ssh` reads `~/.ssh/config`
+  in `recent`. Of the place only host/user/port are passed: `ssh` reads `~/.ssh/config`
   as `credentials.host_config` does for paramiko; ssh asks any password in the window. Needs no panel and no
   paramiko; greyed only with no `ssh` on `PATH`.
+- **ssh options** (`command(location, options)`): after `-t` come `[remote] ssh_options` (Communications' *Remote
+  shell's ssh options*, default **`-Y`**, trusted X11 forwarding, so a program there reaches this desktop's
+  clipboard) and then the connection's own (`RemoteProfile.options`, the SSH manager's *ssh opt~i~ons* line,
+  `ConnectRequest.options`), all before `--` and the host; `words_of` splits as the shell does, by blanks when
+  quotes do not close. **Remote shell only**: SSH link's panel is paramiko, which reads `~/.ssh/config` and no
+  flags. `profiles.save`/`replace` take `options=None` to keep a row's own -- the Link box's F2 edits in
+  `ConnectDialog`, which has no such line -- and *Saved links*' `_ask` carries the edited entry's over.
 - **Start and desktop**: `nav sftp://host/dir` opens that side on the disk and `go_remote`s it in `on_start`; a saved
   desktop keeps the URL plus `"local"` (the anchor) and reconnects the same way.
 
