@@ -318,6 +318,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **`usefile.py`** DN's `UseFile`: `fetch(origins, job)` into `private_dir()/remote/<pid>/<site-hash>/<mkdtemp>/`,
   `changed`, `conflicts` (the original changed since), `upload` (written beside as `.name.nav-XXXXXX`, chmod, `replace`
   over), `discard`, `sweep` (dead processes' directories, at start, on a thread; nothing is made just to look).
+  `changed` compares size and `mtime_ns`, and the copy keeps the original's time -- so a copy whose recorded time is
+  within `RACY_NS` (2 s) of the moment it was recorded also keeps a SHA-256 (`_stamp`, git's "racy" case), compared
+  when size and time agree: a same-size write in the same clock tick was once missed (and `test_elevate` flaked).
 - **Loop side** `navigator/widgets/drives/`: `use_file.py` (`materialize`, `put_back` under `[remote] upload_changed`
   ask/always/never, `view_elsewhere`, `edit_elsewhere`), `connect_dialog` (`ConnectRequest`, `split_host`),
   `password_dialog` (navml `InputLine.password`: stars, nothing copied), `host_key_query` ("once"/"save"/None).

@@ -12,6 +12,13 @@ cable.  What a program changed is told by :func:`changed` -- the local
 copy's size or time no longer what the download left -- and
 :func:`upload` puts it back: written beside the original under a name of its
 own and renamed over it, so the original is whole until the new one is.
+
+**A time that cannot tell** is git's "racy" case: a copy whose recorded time
+is within :data:`RACY_NS` of when it was recorded -- an original written just
+before the fetch, or the copy just after an upload -- may be written again in
+the same clock tick, at the same size, and look untouched.  Such a copy keeps
+a digest of its contents too (:func:`_stamp`), which :func:`changed` compares
+when size and time agree.  Only those files are read twice.
 :func:`conflicts` says which originals changed on the drive meanwhile, for
 the caller to ask about first.
 
@@ -25,6 +32,7 @@ import os
 import secrets
 import shutil
 import tempfile
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -49,6 +57,9 @@ class TempCopy:
     #: The drive it was fetched through and goes back through, when not
     #: *origin*'s own: the root helper's, for a file opened *As root*.
     drive: Any = None
+    #: The local copy's SHA-256 when its time was too recent to tell a later
+    #: write by (:func:`_stamp`); None when the time alone tells.
+    digest: bytes | None = None
 
     def through(self) -> Any:
         return self.drive or drive_of(self.origin)
@@ -105,9 +116,9 @@ def fetch(origins: list[Location], job: Any, drive: Any = None) -> UseSet:
                 _pump(reader, writer, job)
             os.utime(local, ns=(st.st_atime_ns, st.st_mtime_ns))
             os.chmod(local, st.st_mode & 0o700 | 0o600 if drive is not None else st.st_mode & 0o777 | 0o600)
-            mine = os.stat(local)
-            use.copies.append(TempCopy(origin, local, mine.st_size, mine.st_mtime_ns, st.st_size, st.st_mtime,
-                                       drive=drive))
+            copy = TempCopy(origin, local, origin_size=st.st_size, origin_mtime=st.st_mtime, drive=drive)
+            _stamp(copy)
+            use.copies.append(copy)
     except BaseException:
         discard(use)
         raise
@@ -207,16 +218,39 @@ def fetch_head(origin: Location, limit: int = HEAD_LIMIT) -> UseSet:
     return use
 
 
+#: How recent a recorded time is too recent to tell a later write by: a
+#: coarse clock's tick, and FAT's two-second times, are both inside it.
+RACY_NS = 2_000_000_000
+
+
+def _digest(path: Path) -> bytes:
+    digest = hashlib.sha256()
+    with open(path, "rb") as reader:
+        while data := reader.read(1 << 20):
+            digest.update(data)
+    return digest.digest()
+
+
+def _stamp(copy: TempCopy) -> None:
+    """How *copy*'s local file stands now, for :func:`changed` -- with its
+    digest when its time is too recent to tell a later write by."""
+    mine = os.stat(copy.local)
+    copy.size, copy.mtime_ns = mine.st_size, mine.st_mtime_ns
+    copy.digest = _digest(copy.local) if mine.st_mtime_ns >= time.time_ns() - RACY_NS else None
+
+
 def changed(use: UseSet) -> list[TempCopy]:
-    """The copies a program has written to since they were fetched."""
+    """The copies a program has written to since they were fetched: size or
+    time moved, or -- for a copy whose time could not tell -- the contents."""
     found = []
     for copy in use.copies:
         try:
             st = os.stat(copy.local)
+            if (st.st_size, st.st_mtime_ns) != (copy.size, copy.mtime_ns) or (
+                    copy.digest is not None and _digest(copy.local) != copy.digest):
+                found.append(copy)
         except OSError:
             continue
-        if (st.st_size, st.st_mtime_ns) != (copy.size, copy.mtime_ns):
-            found.append(copy)
     return found
 
 
@@ -251,8 +285,7 @@ def upload(copies: list[TempCopy], job: Any) -> None:
 
             drive.write_file(Path(origin.local) if origin.is_local else origin, chunks(), job)
             st = drive.stat(origin)
-            mine = os.stat(copy.local)
-            copy.size, copy.mtime_ns = mine.st_size, mine.st_mtime_ns
+            _stamp(copy)
             copy.origin_size, copy.origin_mtime = st.st_size, st.st_mtime
             continue
         try:
@@ -280,8 +313,7 @@ def upload(copies: list[TempCopy], job: Any) -> None:
             raise
         drive.finish()
         st = drive.stat(origin)
-        mine = os.stat(copy.local)
-        copy.size, copy.mtime_ns = mine.st_size, mine.st_mtime_ns
+        _stamp(copy)
         copy.origin_size, copy.origin_mtime = st.st_size, st.st_mtime
 
 

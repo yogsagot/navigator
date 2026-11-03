@@ -305,6 +305,48 @@ def test_usefile_fetches_notices_a_change_and_puts_it_back(memory):
     assert not use.directory.exists()
 
 
+def test_a_same_size_write_in_the_fetchs_clock_tick_is_still_a_change(tmp_path):
+    # Git's "racy" case: the copy keeps the original's time, and an original
+    # written just before the fetch leaves a copy a program can rewrite in the
+    # same tick at the same size.  The time is put back by hand here, so the
+    # test does not depend on the clock's resolution.
+    from navigator.lib.drives import usefile
+    from navigator.lib.system.job import Job
+
+    class Counting(Job):
+        position = total = 0
+
+    origin = tmp_path / "data.bin"
+    origin.write_bytes(b"before")
+    use = usefile.fetch([Location.of(origin)], Counting())
+    try:
+        copy = use.copies[0]
+        assert copy.digest is not None  # written just now: the time cannot tell
+        assert usefile.changed(use) == []
+        copy.local.write_bytes(b"after!")
+        os.utime(copy.local, ns=(copy.mtime_ns, copy.mtime_ns))
+        assert usefile.changed(use) == [copy]
+    finally:
+        usefile.discard(use)
+
+
+def test_a_copy_of_an_old_file_is_told_by_its_time_alone(tmp_path):
+    from navigator.lib.drives import usefile
+    from navigator.lib.system.job import Job
+
+    class Counting(Job):
+        position = total = 0
+
+    origin = tmp_path / "old.bin"
+    origin.write_bytes(b"settled")
+    os.utime(origin, (1_000_000_000, 1_000_000_000))
+    use = usefile.fetch([Location.of(origin)], Counting())
+    try:
+        assert use.copies[0].digest is None  # read once, not twice
+    finally:
+        usefile.discard(use)
+
+
 def test_f4_on_another_drive_edits_a_copy_and_f2_puts_it_back(desk, monkeypatch):
     from conftest import Until, run_app
     from navkit.events import KeyEvent
