@@ -585,6 +585,15 @@ DiffView::filler                               { dim: true }
 DiffView::mark.current                         { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
 /* Replace in files' box (ReplaceQuery): its changed lines coloured as
    Compare files colours its own, on the viewer's background. */
+/* The command palette (Alt+Shift+P): a dialog's list, the letters typed lit
+   as a label's shortcut is (underlined
+   under the cursor bar, whose colours they keep), the keys in the divider's colour, and a command
+   that cannot run here greyed as a disabled button is. */
+CommandList::match                             { fg: $dialog-label-shortcut-fg; bold: $dialog-label-shortcut-bold; dim: $dialog-label-shortcut-dim; italic: $dialog-label-shortcut-italic; underline: $dialog-label-shortcut-underline; reverse: $dialog-label-shortcut-reverse }
+CommandList::match:selected                    { fg: $dialog-list-focused-fg; bg: $dialog-list-focused-bg; bold: $dialog-list-focused-bold; dim: $dialog-list-focused-dim; italic: $dialog-list-focused-italic; underline: true; reverse: $dialog-list-focused-reverse }
+CommandList::key                               { fg: $dialog-list-divider-fg; bold: $dialog-list-divider-bold; dim: $dialog-list-divider-dim; italic: $dialog-list-divider-italic; underline: $dialog-list-divider-underline; reverse: $dialog-list-divider-reverse }
+CommandList::key:selected                      { fg: $dialog-list-focused-fg; bg: $dialog-list-focused-bg; bold: $dialog-list-focused-bold; dim: $dialog-list-focused-dim; italic: $dialog-list-focused-italic; underline: $dialog-list-focused-underline; reverse: $dialog-list-focused-reverse }
+CommandList::row.disabled                      { fg: $dialog-button-disabled-fg; bold: $dialog-button-disabled-bold; dim: $dialog-button-disabled-dim; italic: $dialog-button-disabled-italic; underline: $dialog-button-disabled-underline; reverse: $dialog-button-disabled-reverse }
 ChangeList                                     { fg: $viewer-normal-text-fg; bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold; dim: $viewer-normal-text-dim; italic: $viewer-normal-text-italic; underline: $viewer-normal-text-underline; reverse: $viewer-normal-text-reverse }
 ChangeList::line.added                         { fg: $diff-added-fg; bold: $diff-added-bold; dim: $diff-added-dim; italic: $diff-added-italic; underline: $diff-added-underline; reverse: $diff-added-reverse }
 ChangeList::line.removed                       { fg: $diff-removed-fg; bold: $diff-removed-bold; dim: $diff-removed-dim; italic: $diff-removed-italic; underline: $diff-removed-underline; reverse: $diff-removed-reverse }

@@ -305,6 +305,16 @@ class FuzzyHistory(Command):
     """
 
 
+class OpenCommandPalette(Command):
+    """Alt+Shift+P, ≡ > Command palette: every command that applies where the
+    keyboard is -- the menus' items and the keys bound there -- found by a few
+    of its letters and run (``CommandPalette``).  Not DOS Navigator's (a
+    departure, asked for).
+    """
+
+    title = "Commands"
+
+
 class MenuFileEdit(Command):
     """Options > Global menu definition: the global ``menu.ini`` in an editor.
 

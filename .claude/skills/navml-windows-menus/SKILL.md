@@ -1,6 +1,6 @@
 ---
 name: navml-windows-menus
-description: Overlapping windows and menus -- navml's Window, Desktop, Modal stacking, raising, dragging/resizing/zooming, shadows, Window > List (Windows Manager), Tile/Cascade/Close all, `must_ask`/`ask_to_close`, and MenuBar/MenuBox/SubMenu/MenuItem/MenuLine, the MenuContainer API, menu ticks, and a window's own menu joining the bar (`MenuBar.context`). Use when touching the desktop, a window, or Navigator's main menu.
+description: Overlapping windows and menus -- navml's Window, Desktop, Modal stacking, raising, dragging/resizing/zooming, shadows, Window > List (Windows Manager), Tile/Cascade/Close all, `must_ask`/`ask_to_close`, and MenuBar/MenuBox/SubMenu/MenuItem/MenuLine, the MenuContainer API, menu ticks, a window's own menu joining the bar (`MenuBar.context`), and the command palette (Alt+Shift+P, `CommandPalette`, `navml/fuzzy.py`). Use when touching the desktop, a window, or Navigator's main menu.
 ---
 
 # Windows, the desktop and menus
@@ -110,6 +110,19 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   the first entry shown, a plain attribute `scroll()` derives from `current` while painting and in `entry_at` -- never
   assign it. `▲`/`▼` on the frame mark hidden entries. `move(n)`/`page(n)` move without wrapping, unlike `step`.
   Only `PopupMenu` opens one short (cut to the screen, PgUp/PgDn, wheel); the bar's boxes keep their measured height.
+- **The command palette** (Alt+Shift+P, ≡ > *Command palette*; `OpenCommandPalette`; a departure, asked for --
+  DN had none) is the main menu, searchable. `CommandPalette` (`navigator/widgets/shell/command_palette/`)
+  `gather`s from `behind` -- `app.focused` recorded by `Shell.command_palette` **before** the box opens, as
+  `MenuBar.open` records it -- every `MenuItem` with a command under `app.shell.menu.entries()` (so the context
+  window's menus join, hidden ones do not; title from the live-translated `text`, key from `menu_box.key_caption`),
+  then each titled command in `app.bindings(behind)` whose **class** no item holds (the editor's Ctrl+A, the macro
+  slots; a key's variant of an item's command, Alt+F6's *Ren*, is left to the item). Enabled and the reason are
+  `command_enabled`/`command_disabled_reason` from `behind`. `narrow` ranks by `navml/fuzzy.py` (subsequence,
+  word-start/consecutive/prefix bonuses, gaps cost), the menu path at a third, menu order between equals. The
+  filter line keeps the keyboard; Up/Down/PgUp/PgDn go to the list (`CommandList.row_selected` shows its cursor
+  while the dialog holds the focus). Enter on a greyed row stays, the hint saying why; the answer is run with
+  `app.run_command(command, start=behind)`. A new command needs nothing here: a menu item or a titled key binding
+  is enough.
 
 ## Read when
 

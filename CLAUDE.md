@@ -222,7 +222,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navml-markup` | writing `.nml`: imports, ids, properties, aliases, events, expressions, `style:`/`keys:`, handlers |
 | `navml-components` | two halves, component directories and groups, the merge/finder, parser and generator internals |
 | `navml-library` | dialogs and controls, layouts, history, the four dialog rules, About |
-| `navml-windows-menus` | desktop, windows, modal stacking, window list/tile/cascade, menus and their API |
+| `navml-windows-menus` | desktop, windows, modal stacking, window list/tile/cascade, menus and their API, the command palette (Alt+Shift+P) |
 | `navkit-database` | the SQLite database, `Model`/`Query`, model documents in `.nml`, schema fingerprints and migration, `--database` |
 | `navkit-reactive` | `reactive`/`computed`/`effect`/`bind`, type checks, binding rules |
 | `navkit-stylesheet` | `.nss` language, cascade, parts, `StyleProperty` |

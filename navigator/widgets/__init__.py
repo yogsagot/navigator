@@ -47,6 +47,7 @@ _WIDGETS = {
     "AsciiChart": "shell.ascii_chart",
     "CharTable": "shell.char_table",
     "UnicodeChart": "shell.unicode_chart",
+    "CommandPalette": "shell.command_palette",
     "UnicodeGrid": "shell.unicode_grid",
     "AboutDialog": "about_dialog",
     "AttrDialog": "file_ops.attr_dialog",
@@ -158,6 +159,7 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.ascii_chart import AsciiChart
     from navigator.widgets.shell.char_table import CharTable
     from navigator.widgets.shell.unicode_chart import UnicodeChart
+    from navigator.widgets.shell.command_palette import CommandPalette
     from navigator.widgets.shell.unicode_grid import UnicodeGrid
     from navigator.widgets.viewer.diff_view import DiffView
     from navigator.widgets.viewer.diff_window import DiffWindow

@@ -73,6 +73,7 @@ from navigator.widgets.shell.commands import (
     HistoryList,
     FuzzyHistory,
     NewManager,
+    OpenCommandPalette,
     OpenCalendar,
     ViewHistory,
 )
@@ -396,6 +397,10 @@ class Navigator(Application):
         "alt+shift+insert": ScreenGrab,
         "alt+f8": HistoryList,
         "alt+shift+f8": FuzzyHistory,
+        #: ≡ > *Command palette*: not DN's (a departure, asked for), so a key
+        #: no table and no preset uses; ESC P on a terminal without the kitty
+        #: protocol, where Ctrl+Shift+P would arrive as Ctrl+P.
+        "alt+shift+p": OpenCommandPalette,
         "ctrl+f3": NewManager,
         "alt+pageup": EditHistory,
         "alt+pagedown": ViewHistory,

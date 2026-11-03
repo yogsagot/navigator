@@ -85,6 +85,7 @@ from navigator.widgets.shell.commands import (
     HistoryList,
     FuzzyHistory,
     InsertName,
+    OpenCommandPalette,
     InsertPath,
     InterfaceSetup,
     KeyBindingsSetup,
@@ -473,6 +474,24 @@ class Shell(DockLayout):
     async def on_fuzzy_history(self, event: FuzzyHistory) -> bool:
         self.fuzzy_history()
         return True
+
+    async def on_open_command_palette(self, event: OpenCommandPalette) -> bool:
+        self.spawn(self.command_palette())
+        return True
+
+    async def command_palette(self) -> None:
+        """Alt+Shift+P: the command chosen in ``CommandPalette``, run from
+        where the keyboard was before the box opened -- its enabled state and
+        keys were asked from there too."""
+        from navigator.widgets.shell.command_palette import CommandPalette
+
+        app = self.application
+        if app is None:
+            return
+        behind = app.focused
+        chosen = await CommandPalette(behind=behind).execute(app)
+        if chosen is not None:
+            await app.run_command(chosen, start=behind)
 
     async def on_history_list(self, event: HistoryList) -> bool:
         self.spawn(self.command_history())

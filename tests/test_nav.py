@@ -2944,6 +2944,8 @@ def test_the_application_keeps_only_what_is_global():
         "alt+f5", "alt+shift+insert",
         # Utilities > Commands History, the command line's; and fzf's search of it.
         "alt+f8", "alt+shift+f8",
+        # ≡ > Command palette: every command, found by name, from anywhere.
+        "alt+shift+p",
         # The command line's, while it has text; the panel's otherwise.
         "enter", "home", "end", "tab",
         # The same line, run in a window of its own.
