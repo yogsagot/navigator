@@ -17,6 +17,10 @@ DOS Navigator's sources replace Turbo Vision's ``HistList`` (see
   opens on the *second* entry, because the first is the text just recorded.
 * **Enter or a double click puts the entry in the line**, selected whole, so
   typing replaces it; Esc leaves the line as it was.
+* **Del forgets the entry under the cursor** (a departure, asked for: DN's
+  ``HistList`` had ``DeleteHistoryStr`` but no key in the viewer called it),
+  as Alt+F8's command history does; the last one gone, the list closes.  A
+  ``choices`` list is not a history and keeps Del to itself.
 * **Accepting the dialog records every line that has a history**, which is
   what Turbo Vision's ``cmRecordHistory`` broadcast did; cancelling records
   nothing.
@@ -283,6 +287,25 @@ class HistoryList(ListViewer, DropDown):
             self.button.choose(text)
         return True
 
+    def forget(self) -> None:
+        """Del: the entry under the cursor out of its history and the list.
+
+        The first entry is the line's own text, recorded as the list opened;
+        forgotten, it is recorded again if the dialog is accepted, as Turbo
+        Vision recorded every line on OK.
+        """
+        button, text = self.button, self.selected
+        if button is None or not button.history_id or button.choices or text is None:
+            return
+        button.store.remove(button.history_id, text)
+        rows = [row for row in self.items if row != text]
+        if not rows:
+            self.close()
+            return
+        cursor = self.cursor
+        self.items = rows
+        self.cursor = min(cursor, len(rows) - 1)
+
     async def on_key(self, event: KeyEvent) -> bool:
         if event.matches("escape"):
             self.close()
@@ -299,6 +322,9 @@ class HistoryList(ListViewer, DropDown):
                     self.search = None
                 return True
             self.search = None
+        if event.matches("delete"):
+            self.forget()
+            return True
         await super().on_key(event)
         # A modal list keeps every other key: nothing behind it may act.
         return True

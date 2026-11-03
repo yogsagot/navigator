@@ -287,6 +287,9 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 
 `navml/history.py`'s `HistoryStore`/`HISTORY` is DOS Navigator's `HistList`: per-id lists, newest first, `limit` each (DN's 20; Navigator sets it from `interface.history_size`, default 50),
 pinned entries kept (`HistoryStore.limit`). The `History` button drops a `HistoryList`, which `Field(history_id=...)` places after its line.
+**Del in a `HistoryList` forgets the entry under the cursor** (`HistoryList.forget` -> `HistoryStore.remove`; a
+departure, asked for, as Alt+F8's list does), the cursor staying on the row that moves up and the list closing with
+its last entry; a `choices` list and a `CompletionList` (no button) ignore it.
 Ids in use: `"mkdir"`, `"select"`, `"command"`, ... Slots `[53-56]`. The lists persist: they are rows of the `history`
 table (`navml/models/history_entry/`, DN's rules in its `.py` half's `remember()`), written as each change is made
 (see `navkit-database`). Tests get an empty `:memory:` database each.

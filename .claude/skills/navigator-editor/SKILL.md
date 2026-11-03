@@ -232,8 +232,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`untracked()` round the search, or the cursor it moves would re-run it); nothing found puts the cursor back at the
   origin (`place_cursor`). Matches are shown with `show_found`, so `found_on_display` is what the count and the
   arrows go on from. **Every match on screen is lit**: `FileEditor.highlight_query` (a `SearchData`, replaced) and
-  `render` painting `search.line_matches` per visible line as `FileEditor::match` -- the selected text's fg, bold
-  and underlined on the line's ground, so no theme needed a slot -- under the block and the match found. **The count
+  `render` painting `search.line_matches` per visible line as `FileEditor::match` -- the line's own colours reversed
+  and underlined, so no theme needed a slot -- under the block and the match found. **The count
   runs on a thread** (`Background("find-count")`, `search.all_matches` over a copy of the lines, at most
   `MATCH_LIMIT` = 10 000, shown `10000+`), an effect on the search and `editor.revision`, a stale answer dropped by
   generation; the place among them is `bisect` on the loop. *Replace* replaces the match lit (else finds one first),

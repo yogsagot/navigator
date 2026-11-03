@@ -104,6 +104,51 @@ def test_down_drops_the_list_on_the_second_entry_and_enter_takes_it(tmp_path):
     assert seen[1] == ("MkdirDialog", "newer")
 
 
+def test_del_forgets_the_entry_under_the_cursor(tmp_path):
+    HISTORY.add("mkdir", "oldest")
+    HISTORY.add("mkdir", "older")
+    HISTORY.add("mkdir", "newer")
+    app = navigator(tmp_path)
+    seen = []
+    note = lambda a: seen.append((a.modal.items, a.modal.cursor))  # noqa: E731
+    run_app(app, [
+        KeyEvent("f7"), lambda a: None, KeyEvent("t", "t"), KeyEvent("down"),
+        KeyEvent("delete"), note,
+        KeyEvent("end"), KeyEvent("delete"), note,
+        KeyEvent("escape"),
+    ])
+    # "newer" goes and the cursor stays on the row that moved up; at the
+    # bottom, the cursor moves up with the list.
+    assert seen[0] == (["t", "older", "oldest"], 1)
+    assert seen[1] == (["t", "older"], 1)
+    assert HISTORY.entries("mkdir") == ["t", "older"]
+
+
+def test_del_on_the_last_entry_closes_the_list_and_keeps_the_line(tmp_path):
+    app = navigator(tmp_path)
+    seen = []
+    run_app(app, [
+        KeyEvent("f7"), lambda a: None, KeyEvent("t", "t"), KeyEvent("down"),
+        lambda a: seen.append(a.modal.items),
+        KeyEvent("delete"),
+        lambda a: seen.append((type(a.modal).__name__, field_of(a).value)),
+        KeyEvent("escape"),
+    ])
+    assert seen == [["t"], ("MkdirDialog", "t")]
+    assert HISTORY.entries("mkdir") == []
+
+
+def test_del_leaves_a_list_of_choices_alone():
+    from navml.widgets.dialog.history.history import History, HistoryList
+
+    button = History()
+    button.choices = ["root", "juris"]
+    listed = HistoryList(button)
+    listed.items = ["root", "juris"]
+    listed.forget()
+    assert listed.items == ["root", "juris"]
+
+
 def test_escape_leaves_the_line_as_it_was(tmp_path):
     HISTORY.add("mkdir", "old")
     app = navigator(tmp_path)

@@ -637,11 +637,11 @@ EditWindow FindBar::switch:checked             { reverse: true }
 EditWindow FindBar::arrow                      { bold: true }
 EditWindow FindBar::button                     { underline: true }
 EditWindow FindBar::error                      { fg: $error-dialog-fg; bg: $error-dialog-bg }
-/* The Find bar's other matches (a departure, with the bar): the selected
-   text's foreground, bold and underlined, on the line's own ground -- so no
-   theme needs a slot of its own; the match found is `::selected'. */
-FileEditor::match                              { fg: $editor-selected-text-fg; bg: $editor-normal-text-bg; bold: true; underline: true }
-FileEditor::match:current_line                 { bg: $editor-highlight-current-line-bg }
+/* The Find bar's other matches (a departure, with the bar): the line's own
+   colours reversed and underlined -- readable in every theme, and no theme
+   needs a slot of its own; the match found is `::selected'. */
+FileEditor::match                              { fg: $editor-normal-text-fg; bg: $editor-normal-text-bg; reverse: true; underline: true }
+FileEditor::match:current_line                 { fg: $editor-highlight-current-line-fg; bg: $editor-highlight-current-line-bg; reverse: true; underline: true }
 /* HiliteLine and HiliteColumn: the Editor group's [182], [183] and [185]. */
 FileEditor::current_line                       { fg: $editor-highlight-current-line-fg;          bg: $editor-highlight-current-line-bg; bold: $editor-highlight-current-line-bold; dim: $editor-highlight-current-line-dim; italic: $editor-highlight-current-line-italic; underline: $editor-highlight-current-line-underline; reverse: $editor-highlight-current-line-reverse }
 FileEditor::current_line_selected              { fg: $editor-highlight-current-line-selected-fg; bg: $editor-highlight-current-line-selected-bg; bold: $editor-highlight-current-line-selected-bold; dim: $editor-highlight-current-line-selected-dim; italic: $editor-highlight-current-line-selected-italic; underline: $editor-highlight-current-line-selected-underline; reverse: $editor-highlight-current-line-selected-reverse }
