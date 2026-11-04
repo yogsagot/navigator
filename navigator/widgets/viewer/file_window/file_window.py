@@ -37,6 +37,7 @@ from navigator.widgets.viewer.commands import (
     SetViewMode,
     SwitchRendered,
     Unwrap,
+    ViewAsTree,
     WriteModify,
 )
 from navigator.widgets.editor.commands import ChooseFileType, SetFileType, SwitchHiddenChars, SwitchHighLight
@@ -442,10 +443,27 @@ class FileWindow(Window):
         viewer = self.viewer
         return viewer.path is not None and not viewer.remote and kind_by_name(viewer.path.name) is not None
 
-    async def as_tree(self) -> None:
-        """The structured view of this file where this window is; bytes typed
-        in hex are asked about first.  A file that is not what its name says
-        is said so, and the text goes to the line the parser stopped on."""
+    async def on_view_as_tree(self, event: ViewAsTree) -> bool:
+        """View > *Data tree*: the tree for any file on the disk -- read as
+        its name or its first bytes say (``structured.kind_for``), so an HTML
+        page too, whose Shift+F4 is the Markup view's."""
+        from navigator.lib.viewer.structured import kind_for
+
+        viewer = self.viewer
+        if viewer.source is None or viewer.path is None:
+            return True
+        try:
+            head = viewer.source.read(0, 64)
+        except OSError:
+            head = b""
+        self.spawn(self.as_tree(kind_for(viewer.path.name, head)))
+        return True
+
+    async def as_tree(self, kind: str | None = None) -> None:
+        """The structured view of this file -- read as *kind*, else as its
+        name says -- where this window is; bytes typed in hex are asked about
+        first.  A file that is not what it was read as is said so, and the
+        text goes to the line the parser stopped on."""
         from navigator.lib.viewer.structured import ParseFailed
         from navigator.widgets.viewer.db_window.db_window import take_place
         from navigator.widgets.viewer.struct_window.struct_window import failure_text, open_tree
@@ -456,7 +474,7 @@ class FileWindow(Window):
         if self.must_ask() and not await self.ask_to_close():
             return
         try:
-            window = await open_tree(desktop, viewer.source.path)
+            window = await open_tree(desktop, viewer.source.path, kind)
         except ParseFailed as error:
             if error.offset is not None:
                 viewer.set_mode("text")
@@ -593,6 +611,10 @@ class FileWindow(Window):
             return self.viewer.render_refusal()
         if isinstance(command, FollowEnd):
             return self.follow_refusal()
+        if isinstance(command, ViewAsTree):
+            if self.viewer.remote:
+                return tr("Not for a file read across a network")
+            return "" if self.viewer.source is not None else tr("Nothing is open")
         if isinstance(command, FilterLines):
             if self.viewer.mode != "text":
                 return text_only

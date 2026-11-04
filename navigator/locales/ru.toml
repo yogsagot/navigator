@@ -2443,9 +2443,9 @@ flag = "RU"
 "As te~x~t" = "Как те~к~ст"
 # navigator/widgets/viewer/db_window/db_window.nml:104
 "The same file in the text viewer" = "Тот же файл в текстовом просмотре"
-# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:207, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:213, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
 "~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:210, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~С~равнение"
@@ -2483,45 +2483,49 @@ flag = "RU"
 "~M~arkup view" = "Просмотр ~р~азметки"
 # navigator/widgets/viewer/file_window/file_window.nml:168
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "Показать файл Markdown, reST, HTML или PDF отрисованным или его исходник"
-# navigator/widgets/viewer/file_window/file_window.nml:172
+# navigator/widgets/viewer/file_window/file_window.nml:174
+"D~a~ta tree" = "Дере~в~о данных"
+# navigator/widgets/viewer/file_window/file_window.nml:175
+"Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree" = "Показать данные файла (JSON, YAML, TOML, XML или HTML) деревом"
+# navigator/widgets/viewer/file_window/file_window.nml:178
 "S~y~ntax highlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/viewer/file_window/file_window.nml:177
+# navigator/widgets/viewer/file_window/file_window.nml:183
 "Sh~o~w hidden characters" = "Показывать скр~ы~тые символы"
-# navigator/widgets/viewer/file_window/file_window.nml:182
+# navigator/widgets/viewer/file_window/file_window.nml:188
 "~F~ile type" = "Тип фай~л~а"
-# navigator/widgets/viewer/file_window/file_window.nml:186
+# navigator/widgets/viewer/file_window/file_window.nml:192
 "Fi~l~ters" = "Фил~ь~тры"
-# navigator/widgets/viewer/file_window/file_window.nml:187, navigator/widgets/viewer/file_window/file_window.nml:191
+# navigator/widgets/viewer/file_window/file_window.nml:193, navigator/widgets/viewer/file_window/file_window.nml:197
 "Hide characters: none, all but ASCII, or the control characters" = "Скрывать символы: никакие, все кроме ASCII или управляющие"
-# navigator/widgets/viewer/file_window/file_window.nml:190, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
+# navigator/widgets/viewer/file_window/file_window.nml:196, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
 "Fi~l~ter" = "Фил~ь~тр"
-# navigator/widgets/viewer/file_window/file_window.nml:195
+# navigator/widgets/viewer/file_window/file_window.nml:201
 "~N~o filter" = "~Б~ез фильтра"
-# navigator/widgets/viewer/file_window/file_window.nml:198
+# navigator/widgets/viewer/file_window/file_window.nml:204
 "~A~SCII filter" = "~Ф~ильтр ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:199
+# navigator/widgets/viewer/file_window/file_window.nml:205
 "Hide control characters and everything beyond ASCII" = "Скрыть управляющие символы и всё за пределами ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:202
+# navigator/widgets/viewer/file_window/file_window.nml:208
 "~P~rintable filter" = "Фильтр ~в~идимых"
-# navigator/widgets/viewer/file_window/file_window.nml:203
+# navigator/widgets/viewer/file_window/file_window.nml:209
 "Hide control characters" = "Скрыть управляющие символы"
-# navigator/widgets/viewer/file_window/file_window.nml:213
+# navigator/widgets/viewer/file_window/file_window.nml:219
 "Re~v~erse search" = "Поиск ~н~азад"
-# navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
+# navigator/widgets/viewer/file_window/file_window.nml:222, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
 "Go to add~r~ess..." = "Перейти по ~а~дресу..."
-# navigator/widgets/viewer/file_window/file_window.nml:217
+# navigator/widgets/viewer/file_window/file_window.nml:223
 "Jump to an offset in the file" = "Перейти к смещению в файле"
-# navigator/widgets/viewer/file_window/file_window.nml:223, navigator/widgets/viewer/commands.py:108
+# navigator/widgets/viewer/file_window/file_window.nml:229, navigator/widgets/viewer/commands.py:108
 "Store" = "Запомнить"
-# navigator/widgets/viewer/file_window/file_window.nml:224
+# navigator/widgets/viewer/file_window/file_window.nml:230
 "Write the bytes typed over in hex into the file" = "Записать в файл байты, изменённые в шестнадцатеричном режиме"
-# navigator/widgets/viewer/file_window/file_window.nml:228
+# navigator/widgets/viewer/file_window/file_window.nml:234
 "Sav~e~ as..." = "~С~охранить как..."
-# navigator/widgets/viewer/file_window/file_window.nml:232, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
+# navigator/widgets/viewer/file_window/file_window.nml:238, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
 "Encod~i~ng..." = "~К~одировка..."
-# navigator/widgets/viewer/file_window/file_window.nml:233
+# navigator/widgets/viewer/file_window/file_window.nml:239
 "The code page the file is read in" = "Кодовая страница, в которой читается файл"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
 "Filter lines" = "Фильтр строк"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "~П~оказать строки, содержащие"
@@ -3259,9 +3263,9 @@ flag = "RU"
 "~P~aste from" = "~В~ставить из"
 # navigator/widgets/editor/edit_window/edit_window.py:858
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "~S~ave File As" = "~З~аписать в"
 # navigator/widgets/editor/edit_window/edit_window.py:129
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -3277,7 +3281,7 @@ flag = "RU"
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:243
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:844 ...
+# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:866 ...
 "Search string not found" = "Не могу найти строку"
 # navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Информация"
@@ -4693,6 +4697,8 @@ flag = "RU"
 "Copy value" = "Копировать значение"
 # navigator/widgets/viewer/commands.py:269, navigator/widgets/viewer/struct_window/struct_window.py:86
 "Expand all" = "Развернуть всё"
+# navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
+"Data tree" = "Дерево данных"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "Число"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
@@ -4757,7 +4763,7 @@ flag = "RU"
 "~V~alue" = "~З~начение"
 # navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
 "Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:679
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:701
 "Encoding" = "Кодировка"
 # navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "Не найден файл MEMO"
@@ -4829,7 +4835,7 @@ flag = "RU"
 "Too big to show as a picture" = "Слишком велико, чтобы показать как изображение"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:859
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:402
 "No lines match" = "Нет совпадающих строк"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:458
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
@@ -4845,33 +4851,37 @@ flag = "RU"
 "Character {char}" = "Символ {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:447
 "Lines: {pattern}" = "Строки: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:583
+# navigator/widgets/viewer/file_window/file_window.py:601
 "Only in the text view" = "Только в текстовом режиме"
-# navigator/widgets/viewer/file_window/file_window.py:293
+# navigator/widgets/viewer/file_window/file_window.py:294
 "This file has no size to follow" = "У этого файла нет размера, за которым следить"
-# navigator/widgets/viewer/file_window/file_window.py:295
+# navigator/widgets/viewer/file_window/file_window.py:296
 "Not for a copy fetched from elsewhere" = "Не для копии, полученной извне"
-# navigator/widgets/viewer/file_window/file_window.py:297
+# navigator/widgets/viewer/file_window/file_window.py:298
 "Not while bytes typed over are not stored" = "Не пока изменённые байты не сохранены"
-# navigator/widgets/viewer/file_window/file_window.py:299, navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:600
+# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
 "Not while the markup is rendered" = "Не пока разметка отрисована"
-# navigator/widgets/viewer/file_window/file_window.py:587, navigator/widgets/viewer/file_window/file_window.py:603
+# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
 "Not while lines are filtered" = "Не пока строки отфильтрованы"
-# navigator/widgets/viewer/file_window/file_window.py:97
+# navigator/widgets/viewer/file_window/file_window.py:98
 "View - {path}" = "Просмотр - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:582
+# navigator/widgets/viewer/file_window/file_window.py:600
 "Nothing has been typed over in hex" = "В шестнадцатеричном режиме ничего не изменено"
-# navigator/widgets/viewer/file_window/file_window.py:585
+# navigator/widgets/viewer/file_window/file_window.py:603
 "Only in the hex and dump views" = "Только в шестнадцатеричном режиме и режиме дампа"
-# navigator/widgets/viewer/file_window/file_window.py:609, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:616
+"Not for a file read across a network" = "Не для файла, читаемого по сети"
+# navigator/widgets/viewer/file_window/file_window.py:617
+"Nothing is open" = "Ничего не открыто"
+# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "Ещё ничего не искали"
-# navigator/widgets/viewer/file_window/file_window.py:196
+# navigator/widgets/viewer/file_window/file_window.py:197
 "Information was modified. Save changes?" = "Информация изменена. Сохранить изменения?"
-# navigator/widgets/viewer/file_window/file_window.py:238, navigator/widgets/viewer/file_window/file_window.py:250
+# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
 "Could not write to file {path}: {error}" = "Не удалось записать в файл {path}: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:464
+# navigator/widgets/viewer/file_window/file_window.py:482
 "Not a tree" = "Не дерево"
-# navigator/widgets/viewer/file_window/file_window.py:245
+# navigator/widgets/viewer/file_window/file_window.py:246
 "{path} has changed since it was opened. Nothing was written." = "{path} изменился после открытия. Ничего не записано."
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "Не регулярное выражение: {error}"
@@ -5183,8 +5193,6 @@ flag = "RU"
 "Viewer" = "Просмотрщик"
 # navigator/lib/config/keybindings.py
 "Database viewer" = "Просмотр баз данных"
-# navigator/lib/config/keybindings.py
-"Data tree" = "Дерево данных"
 # navigator/lib/config/keybindings.py
 "Copy dialog" = "Диалог копирования"
 # navigator/lib/config/keybindings.py

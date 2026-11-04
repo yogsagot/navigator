@@ -59,3 +59,16 @@ took a file's size once, hid characters (F6) but never lines, and showed bytes a
 - `STRUCT_LIMIT` is 32 MiB. *Expand all* opens at most `EXPAND_LIMIT` (5 000) nodes, and refuses more.
 - **No checkbox** for `[viewer] render_structured` (F3 opens the tree) or `structured_masks`, as the other render
   switches have none.
+
+## HTML in the tree (View > *Data tree*)
+
+- **Not on Shift+F4**: that key is the Markup view's for HTML, so the tree is a View menu entry with no key
+  (`ViewAsTree`), which also opens any file the masks do not name. `structured.kind_for` reads the masks, then the
+  extension, then the first bytes (`{`/`[` JSON, `<!doctype html`/`<html` HTML, `<` XML, anything else YAML).
+- **Not `xml.etree`'s parser**, which refuses real pages. `_read_html` feeds `html.parser` (no new dependency) into
+  `ElementTree` elements, so the XML tree, its XPath-style paths and *Copy value* serve HTML unchanged. It forgives a
+  page the way the Markup view's reader (`html.py`) does. A start tag closes what it implies (`_CLOSED_BY`): the
+  last `li`, a cell and row, a `p` before a block. `_VOID` elements hold nothing, and an end tag closes its element
+  wherever it is open and is ignored where it is not. Comments and the doctype are left out. It never raises.
+- **Mixed content**: text after a child element (an `ElementTree` tail) is shown as a `#text` row after that child,
+  for XML too, so `two <b>bold</b> tail` keeps all three pieces in order.

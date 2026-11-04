@@ -250,7 +250,12 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   element), F7/Shift+F7/Ctrl+L search every key and value on a thread (`structured.find`), `*` and *Expand all* open
   up to `EXPAND_LIMIT` nodes, Shift+F4 goes back to the text (at a YAML node's line), and Esc closes. A parse error
   says *Line N, column M* and puts the text at that line. Local files and fetched copies only; `STRUCT_LIMIT`
-  32 MiB. `[viewer] render_structured` (off, no checkbox) makes F3 open the tree. Its own *Data* menu joins the
+  32 MiB. `[viewer] render_structured` (off, no checkbox) makes F3 open the tree. **View > *D~a~ta tree*** (`ViewAsTree`, no key) opens it for any file on the disk, read as
+  `structured.kind_for` says: the masks, else the extension, else the first bytes. That includes **HTML**, whose
+  Shift+F4 stays the Markup view: `_read_html` builds `ElementTree` elements through `html.parser` the way a
+  browser forgives a page. Unclosed `li`/`p`/`td`/`tr`/`dt`/`dd`/`option` are closed by the next one (`_CLOSED_BY`, and
+  a block closes a `p`), empty elements (`_VOID`) hold nothing, and a stray end tag is ignored. The XML tree shows
+  the result, with text after a child (a tail) as `#text` in its place. Its own *Data* menu joins the
   bar, and `[struct_window]` is its key table.
 
 ## Tooltips

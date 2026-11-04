@@ -2444,9 +2444,9 @@ direction = "rtl"
 "As te~x~t" = "~כ~טקסט"
 # navigator/widgets/viewer/db_window/db_window.nml:104
 "The same file in the text viewer" = "אותו קובץ בתצוגת הטקסט"
-# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:207, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:213, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
 "~S~earch..." = "~ח~יפוש..."
-# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:210, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "חפש ש~ו~ב"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~ה~שוואה"
@@ -2484,45 +2484,49 @@ direction = "rtl"
 "~M~arkup view" = "תצוגה מ~ע~ובדת"
 # navigator/widgets/viewer/file_window/file_window.nml:168
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "הצג קובץ Markdown, reST, HTML או PDF מעובד, או את המקור שלו"
-# navigator/widgets/viewer/file_window/file_window.nml:172
+# navigator/widgets/viewer/file_window/file_window.nml:174
+"D~a~ta tree" = "עץ ~ה~נתונים"
+# navigator/widgets/viewer/file_window/file_window.nml:175
+"Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree" = "הצגת נתוני הקובץ (JSON,‏ YAML,‏ TOML,‏ XML או HTML) כעץ"
+# navigator/widgets/viewer/file_window/file_window.nml:178
 "S~y~ntax highlight" = "הדגשת ~ת~חביר"
-# navigator/widgets/viewer/file_window/file_window.nml:177
+# navigator/widgets/viewer/file_window/file_window.nml:183
 "Sh~o~w hidden characters" = "הצג תווים ~נ~סתרים"
-# navigator/widgets/viewer/file_window/file_window.nml:182
+# navigator/widgets/viewer/file_window/file_window.nml:188
 "~F~ile type" = "סוג קוב~ץ~"
-# navigator/widgets/viewer/file_window/file_window.nml:186
+# navigator/widgets/viewer/file_window/file_window.nml:192
 "Fi~l~ters" = "~מ~סננים"
-# navigator/widgets/viewer/file_window/file_window.nml:187, navigator/widgets/viewer/file_window/file_window.nml:191
+# navigator/widgets/viewer/file_window/file_window.nml:193, navigator/widgets/viewer/file_window/file_window.nml:197
 "Hide characters: none, all but ASCII, or the control characters" = "הסתר תווים: אף אחד, כל מה שאינו ASCII, או תווי הבקרה"
-# navigator/widgets/viewer/file_window/file_window.nml:190, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
+# navigator/widgets/viewer/file_window/file_window.nml:196, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
 "Fi~l~ter" = "~מ~סנן"
-# navigator/widgets/viewer/file_window/file_window.nml:195
+# navigator/widgets/viewer/file_window/file_window.nml:201
 "~N~o filter" = "~ל~לא מסנן"
-# navigator/widgets/viewer/file_window/file_window.nml:198
+# navigator/widgets/viewer/file_window/file_window.nml:204
 "~A~SCII filter" = "מסנן ~A~SCII"
-# navigator/widgets/viewer/file_window/file_window.nml:199
+# navigator/widgets/viewer/file_window/file_window.nml:205
 "Hide control characters and everything beyond ASCII" = "הסתר תווי בקרה וכל מה שמעבר ל-ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:202
+# navigator/widgets/viewer/file_window/file_window.nml:208
 "~P~rintable filter" = "מסנ~ן~ תווים הדפסים"
-# navigator/widgets/viewer/file_window/file_window.nml:203
+# navigator/widgets/viewer/file_window/file_window.nml:209
 "Hide control characters" = "הסתר תווי בקרה"
-# navigator/widgets/viewer/file_window/file_window.nml:213
+# navigator/widgets/viewer/file_window/file_window.nml:219
 "Re~v~erse search" = "ח~י~פוש לאחור"
-# navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
+# navigator/widgets/viewer/file_window/file_window.nml:222, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
 "Go to add~r~ess..." = "מעבר ל~כ~תובת..."
-# navigator/widgets/viewer/file_window/file_window.nml:217
+# navigator/widgets/viewer/file_window/file_window.nml:223
 "Jump to an offset in the file" = "קפוץ להיסט בקובץ"
-# navigator/widgets/viewer/file_window/file_window.nml:223, navigator/widgets/viewer/commands.py:108
+# navigator/widgets/viewer/file_window/file_window.nml:229, navigator/widgets/viewer/commands.py:108
 "Store" = "שמירה"
-# navigator/widgets/viewer/file_window/file_window.nml:224
+# navigator/widgets/viewer/file_window/file_window.nml:230
 "Write the bytes typed over in hex into the file" = "כתיבת הבתים ששונו בתצוגה ההקסדצימלית לקובץ"
-# navigator/widgets/viewer/file_window/file_window.nml:228
+# navigator/widgets/viewer/file_window/file_window.nml:234
 "Sav~e~ as..." = "שמור ~ב~שם..."
-# navigator/widgets/viewer/file_window/file_window.nml:232, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
+# navigator/widgets/viewer/file_window/file_window.nml:238, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
 "Encod~i~ng..." = "~ק~ידוד..."
-# navigator/widgets/viewer/file_window/file_window.nml:233
+# navigator/widgets/viewer/file_window/file_window.nml:239
 "The code page the file is read in" = "קוד העמוד שבו הקובץ נקרא"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
 "Filter lines" = "סינון שורות"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "~ה~צגת שורות המכילות"
@@ -3260,9 +3264,9 @@ direction = "rtl"
 "~P~aste from" = "~ה~דבק מתוך"
 # navigator/widgets/editor/edit_window/edit_window.py:858
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "~S~ave File As" = "~ש~מור קובץ בשם"
 # navigator/widgets/editor/edit_window/edit_window.py:129
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -3278,7 +3282,7 @@ direction = "rtl"
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:243
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:844 ...
+# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:866 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
 # navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "מידע"
@@ -4694,6 +4698,8 @@ direction = "rtl"
 "Copy value" = "העתקת ערך"
 # navigator/widgets/viewer/commands.py:269, navigator/widgets/viewer/struct_window/struct_window.py:86
 "Expand all" = "פתיחת הכול"
+# navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
+"Data tree" = "עץ נתונים"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "מספרי"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
@@ -4758,7 +4764,7 @@ direction = "rtl"
 "~V~alue" = "~ע~רך"
 # navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
 "Structure of {name}" = "המבנה של {name}"
-# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:679
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:701
 "Encoding" = "קידוד"
 # navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "קובץ MEMO לא נמצא"
@@ -4830,7 +4836,7 @@ direction = "rtl"
 "Too big to show as a picture" = "גדול מכדי להציג כתמונה"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:859
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:402
 "No lines match" = "אין שורות תואמות"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:458
 "{percent}% of {size} Bytes" = "{percent}% מתוך {size} בתים"
@@ -4846,33 +4852,37 @@ direction = "rtl"
 "Character {char}" = "תו {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:447
 "Lines: {pattern}" = "שורות: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:583
+# navigator/widgets/viewer/file_window/file_window.py:601
 "Only in the text view" = "רק בתצוגת טקסט"
-# navigator/widgets/viewer/file_window/file_window.py:293
+# navigator/widgets/viewer/file_window/file_window.py:294
 "This file has no size to follow" = "לקובץ זה אין גודל לעקוב אחריו"
-# navigator/widgets/viewer/file_window/file_window.py:295
+# navigator/widgets/viewer/file_window/file_window.py:296
 "Not for a copy fetched from elsewhere" = "לא עבור עותק שהובא ממקום אחר"
-# navigator/widgets/viewer/file_window/file_window.py:297
+# navigator/widgets/viewer/file_window/file_window.py:298
 "Not while bytes typed over are not stored" = "לא כל עוד בתים שנכתבו מחדש לא נשמרו"
-# navigator/widgets/viewer/file_window/file_window.py:299, navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:600
+# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
 "Not while the markup is rendered" = "לא בזמן שהסימון מעובד"
-# navigator/widgets/viewer/file_window/file_window.py:587, navigator/widgets/viewer/file_window/file_window.py:603
+# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
 "Not while lines are filtered" = "לא כל עוד השורות מסוננות"
-# navigator/widgets/viewer/file_window/file_window.py:97
+# navigator/widgets/viewer/file_window/file_window.py:98
 "View - {path}" = "הצגה - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:582
+# navigator/widgets/viewer/file_window/file_window.py:600
 "Nothing has been typed over in hex" = "שום דבר לא שונה בתצוגה ההקסדצימלית"
-# navigator/widgets/viewer/file_window/file_window.py:585
+# navigator/widgets/viewer/file_window/file_window.py:603
 "Only in the hex and dump views" = "רק בתצוגות hex ו-dump"
-# navigator/widgets/viewer/file_window/file_window.py:609, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:616
+"Not for a file read across a network" = "לא עבור קובץ הנקרא דרך הרשת"
+# navigator/widgets/viewer/file_window/file_window.py:617
+"Nothing is open" = "שום דבר אינו פתוח"
+# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "עדיין לא בוצע חיפוש"
-# navigator/widgets/viewer/file_window/file_window.py:196
+# navigator/widgets/viewer/file_window/file_window.py:197
 "Information was modified. Save changes?" = "המידע שונה. לשמור את השינויים?"
-# navigator/widgets/viewer/file_window/file_window.py:238, navigator/widgets/viewer/file_window/file_window.py:250
+# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
 "Could not write to file {path}: {error}" = "לא ניתן לכתוב לקובץ {path}: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:464
+# navigator/widgets/viewer/file_window/file_window.py:482
 "Not a tree" = "לא עץ"
-# navigator/widgets/viewer/file_window/file_window.py:245
+# navigator/widgets/viewer/file_window/file_window.py:246
 "{path} has changed since it was opened. Nothing was written." = "{path} השתנה מאז שנפתח. דבר לא נכתב."
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "לא ביטוי רגולרי: {error}"
@@ -5184,8 +5194,6 @@ direction = "rtl"
 "Viewer" = "מציג"
 # navigator/lib/config/keybindings.py
 "Database viewer" = "מציג מסדי נתונים"
-# navigator/lib/config/keybindings.py
-"Data tree" = "עץ נתונים"
 # navigator/lib/config/keybindings.py
 "Copy dialog" = "תיבת העתקה"
 # navigator/lib/config/keybindings.py

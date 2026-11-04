@@ -39,7 +39,7 @@ from typing import Any, Iterator
 STRUCT_LIMIT = 32 * 1024 * 1024
 
 #: The formats, and what reads each.
-KINDS = ("json", "jsonl", "yaml", "toml", "xml", "plist")
+KINDS = ("json", "jsonl", "yaml", "toml", "xml", "plist", "html")
 
 #: How many characters of a value a row or a search looks at.
 VALUE_LIMIT = 4096
@@ -95,6 +95,35 @@ def kind_by_name(name: str | Path | None, masks: str | None = None) -> str | Non
     if suffix.endswith("ml") or suffix == ".svg":
         return "xml"
     return "json"
+
+
+#: What View > *Data tree* reads a file as when the masks do not name it:
+#: by its extension first.
+_BY_SUFFIX = {".json": "json", ".geojson": "json", ".ipynb": "json", ".jsonl": "jsonl", ".ndjson": "jsonl",
+              ".yaml": "yaml", ".yml": "yaml", ".toml": "toml", ".xml": "xml", ".svg": "xml",
+              ".xhtml": "html", ".html": "html", ".htm": "html", ".plist": "plist"}
+
+
+def kind_for(name: str | Path, head: bytes = b"") -> str:
+    """What View > *Data tree* reads *name* as: what the masks say, else
+    its extension (``.html`` HTML among them, which Shift+F4 leaves to the
+    Markup view), else its first bytes -- ``{`` or ``[`` JSON, ``<`` XML
+    (HTML when it says ``<!doctype html`` or ``<html``), anything else YAML,
+    which reads most plain text as something."""
+    kind = kind_by_name(name)
+    if kind is not None:
+        return kind
+    kind = _BY_SUFFIX.get(Path(name).suffix.lower())
+    if kind is not None:
+        return kind
+    start = head.lstrip(b"\xef\xbb\xbf \t\r\n")[:64].lower()
+    if start[:1] in (b"{", b"["):
+        return "json"
+    if start.startswith((b"<!doctype html", b"<html")):
+        return "html"
+    if start[:1] == b"<":
+        return "xml"
+    return "yaml"
 
 
 # -- the tree ------------------------------------------------------------------------
@@ -502,14 +531,81 @@ def _read_xml(data: bytes) -> Node:
     return _element(root, None)
 
 
+#: HTML's elements that hold nothing and have no end tag.
+_VOID = frozenset({"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param",
+                   "source", "track", "wbr"})
+
+#: The elements a start tag closes while they are the one open, as many as
+#: there are: a new ``<li>`` ends the last, a ``<tr>`` the cell and the row
+#: before it, a block a paragraph -- what makes unclosed lists, tables and
+#: paragraphs come out as a browser builds them.
+_BLOCKS = ("address", "article", "aside", "blockquote", "div", "dl", "fieldset", "footer", "form", "h1", "h2",
+           "h3", "h4", "h5", "h6", "header", "hr", "main", "nav", "ol", "pre", "section", "table", "ul")
+_CLOSED_BY = {"li": {"li"}, "p": {"p"}, "dt": {"dt", "dd"}, "dd": {"dt", "dd"}, "tr": {"tr", "td", "th"},
+              "td": {"td", "th"}, "th": {"td", "th"}, "option": {"option"},
+              **{block: {"p"} for block in _BLOCKS}}
+
+
+def _read_html(data: bytes) -> Node:
+    """HTML as a browser forgives it, through the standard library's
+    ``html.parser``: unclosed ``<li>`` and ``<p>`` closed by the next, empty
+    elements (``<br>``) holding nothing, an end tag closing its element
+    wherever it is open and ignored where it is not -- the Markup view's
+    reading of HTML (:mod:`navigator.lib.viewer.html`), built into elements
+    the XML tree shows.  Comments and the doctype are left out.  It never
+    refuses a file."""
+    import xml.etree.ElementTree as ElementTree
+    from html.parser import HTMLParser
+
+    document = ElementTree.Element("#document")
+    stack = [document]
+
+    def add_text(text: str) -> None:
+        parent = stack[-1]
+        if len(parent):
+            last = parent[-1]
+            last.tail = (last.tail or "") + text
+        else:
+            parent.text = (parent.text or "") + text
+
+    class Builder(HTMLParser):
+        def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            closes = _CLOSED_BY.get(tag, ())
+            while len(stack) > 1 and stack[-1].tag in closes:
+                stack.pop()
+            element = ElementTree.SubElement(stack[-1], tag, {name: value or "" for name, value in attrs})
+            if tag not in _VOID:
+                stack.append(element)
+
+        def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+            ElementTree.SubElement(stack[-1], tag, {name: value or "" for name, value in attrs})
+
+        def handle_endtag(self, tag: str) -> None:
+            for depth in range(len(stack) - 1, 0, -1):
+                if stack[depth].tag == tag:
+                    del stack[depth:]
+                    return
+
+        def handle_data(self, data: str) -> None:
+            add_text(data)
+
+    builder = Builder(convert_charrefs=True)
+    builder.feed(data.decode("utf-8", errors="replace"))
+    builder.close()
+    elements = list(document)
+    if len(elements) == 1 and not (document.text or "").strip() and not (elements[0].tail or "").strip():
+        return _element(elements[0], None)
+    return _element(document, None)
+
+
 def _local(name: str) -> str:
     """A name without its ``{namespace}``: what the file's reader sees."""
     return name.rsplit("}", 1)[-1] if name.startswith("{") else name
 
 
 def _element(element: Any, parent: Node | None) -> Node:
-    count = (len(element.attrib) + sum(isinstance(child.tag, str) for child in element)
-             + (1 if (element.text or "").strip() else 0))
+    count = (len(element.attrib) + (1 if (element.text or "").strip() else 0)
+             + sum(1 + (1 if (child.tail or "").strip() else 0) for child in element if isinstance(child.tag, str)))
     return Node(_local(element.tag) if isinstance(element.tag, str) else "?", "element",
                 parent=parent, format="xml", data=element, count=count)
 
@@ -524,6 +620,10 @@ def _xml_children(node: Node) -> Iterator[Node]:
     for child in element:
         if isinstance(child.tag, str):
             yield _element(child, node)
+            tail = (child.tail or "").strip()
+            if tail:
+                # Mixed content: the text after a child, where it is.
+                yield Node("#text", "text", tail, parent=node, format="xml")
 
 
 def _xml_dump(node: Node) -> str:
@@ -532,7 +632,7 @@ def _xml_dump(node: Node) -> str:
     return ElementTree.tostring(node._data, encoding="unicode")
 
 
-_READERS = {"json": _read_json, "jsonl": _read_jsonl, "toml": _read_toml, "plist": _read_plist,
+_READERS = {"html": _read_html, "json": _read_json, "jsonl": _read_jsonl, "toml": _read_toml, "plist": _read_plist,
             "yaml": _read_yaml, "xml": _read_xml}
 _CHILDREN = {"json": _python_children, "toml": _python_children, "plist": _python_children,
              "yaml": _yaml_children, "xml": _xml_children}

@@ -267,3 +267,11 @@ class ExpandAll(Command):
     small enough (``EXPAND_LIMIT`` nodes)."""
 
     title = "Expand all"
+
+
+class ViewAsTree(Command):
+    """View > *Data tree*: the file's data as a tree -- whatever its name,
+    HTML included, whose Shift+F4 stays the Markup view.  A departure,
+    asked for."""
+
+    title = "Data tree"

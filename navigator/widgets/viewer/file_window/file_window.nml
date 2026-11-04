@@ -1,6 +1,6 @@
 from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, FilterLines, FollowEnd, GotoAddress, HexMode, SaveViewAs
-from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, WriteModify
+from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, ViewAsTree, WriteModify
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
@@ -168,6 +168,12 @@ FileWindow(Window):
             tooltip: "Show a Markdown, reST, HTML or PDF file rendered, or its source"
             command: SwitchRendered
             key: 'Shift-F4'
+        #: A departure, asked for: any file's data as a tree -- HTML too,
+        #: whose Shift+F4 is the Markup view's.  No key.
+        MenuItem:
+            text: 'D~a~ta tree'
+            tooltip: "Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree"
+            command: ViewAsTree
         MenuItem:
             text: 'S~y~ntax highlight'
             command: SwitchHighLight

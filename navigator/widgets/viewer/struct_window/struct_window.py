@@ -34,7 +34,7 @@ from navigator.widgets.viewer.commands import (
 from navigator.widgets.viewer.struct_window.data_tree import root_node
 
 #: What the window list calls each format.
-FORMAT_NAMES = {"json": "JSON", "jsonl": "JSON", "yaml": "YAML", "toml": "TOML", "xml": "XML", "plist": "plist"}
+FORMAT_NAMES = {"html": "HTML", "json": "JSON", "jsonl": "JSON", "yaml": "YAML", "toml": "TOML", "xml": "XML", "plist": "plist"}
 
 
 class StructWindow(Window):

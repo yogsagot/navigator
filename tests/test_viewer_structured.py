@@ -174,3 +174,73 @@ def test_a_file_that_is_not_what_it_says_stays_text(data_dir):
     ])
     assert isinstance(seen["window"], FileWindow)
     assert "Line 2, column 3" in seen["prompt"]
+
+
+# -- HTML, through View > Data tree ------------------------------------------------------
+
+
+def tags(node, depth=0):
+    """The tree as ``depth tag`` and ``depth #text`` lines, attributes left out."""
+    lines = []
+    for child in node.children():
+        if child.kind == "element":
+            lines.append(f"{depth} {child.key}")
+            lines.extend(tags(child, depth + 1))
+        elif child.kind == "text":
+            lines.append(f"{depth} '{child.text}'")
+    return lines
+
+
+def test_html_is_built_as_a_browser_forgives_it():
+    root = parse(b"<!doctype html><html><body><ul><li>one<li>two <b>bold</b> tail</ul>"
+                 b"<p>a<p>b<br>c<table><tr><td>1<td>2<tr><td>3</table></body></html>", "html")
+    assert root.key == "html"
+    assert tags(root) == [
+        "0 body",
+        "1 ul", "2 li", "3 'one'", "2 li", "3 'two'", "3 b", "4 'bold'", "3 'tail'",
+        "1 p", "2 'a'",
+        "1 p", "2 'b'", "2 br", "2 'c'",
+        "1 table", "2 tr", "3 td", "4 '1'", "3 td", "4 '2'", "2 tr", "3 td", "4 '3'",
+    ]
+
+
+def test_html_attributes_entities_and_stray_end_tags():
+    root = parse(b'<div id="x" hidden>a &amp; b</span></div>', "html")
+    assert [(c.key, c.kind, c.text) for c in root.children()] == [
+        ("id", "attribute", "x"), ("hidden", "attribute", ""), ("#text", "text", "a & b")]
+    assert path(root.children()[0]) == "/div/@id"
+
+
+def test_what_data_tree_reads_a_file_as():
+    from navigator.lib.viewer.structured import kind_for
+
+    assert kind_for("page.html") == "html" and kind_for("page.HTM") == "html"
+    assert kind_for("notes", b"  {\"a\": 1}") == "json"
+    assert kind_for("notes", b"<?xml version='1.0'?>") == "xml"
+    assert kind_for("notes", b"<!DOCTYPE html>") == "html"
+    assert kind_for("notes", b"key: value") == "yaml"
+
+
+def test_the_view_menu_opens_an_html_page_as_a_tree(data_dir):
+    from navigator.widgets.viewer.commands import ViewAsTree
+    from navigator.widgets.viewer.file_window import FileWindow
+    from navigator.widgets.viewer.struct_window import StructWindow
+
+    (data_dir / "a.json").unlink()
+    (data_dir / "page.html").write_text("<html><body><h1>Title</h1><p>text</body></html>")
+    app = Navigator(data_dir, data_dir, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def menu(a):
+        window = active(a)
+        assert isinstance(window, FileWindow)
+        seen["enabled"] = a.command_enabled(ViewAsTree(), a.focused)
+        a.spawn(window.viewer.emit(ViewAsTree()))
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f3"), IDLE, menu,
+        Until(lambda a: isinstance(active(a), StructWindow)),
+        lambda a: seen.update(screen=screen_text(a), kind=active(a).kind),
+    ])
+    assert seen["enabled"] and seen["kind"] == "html"
+    assert "html <1>" in seen["screen"] and "body <2>" in seen["screen"]

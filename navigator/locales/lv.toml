@@ -2443,9 +2443,9 @@ flag = "LV"
 "As te~x~t" = "Kā t~e~kstu"
 # navigator/widgets/viewer/db_window/db_window.nml:104
 "The same file in the text viewer" = "Tas pats fails teksta skatītājā"
-# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:207, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:213, navigator/widgets/viewer/struct_window/struct_window.nml:59 ...
 "~S~earch..." = "~M~eklēt..."
-# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:210, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "Sa~l~īdzināt"
@@ -2483,45 +2483,49 @@ flag = "LV"
 "~M~arkup view" = "Atveid~o~t marķējumu"
 # navigator/widgets/viewer/file_window/file_window.nml:168
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "Rādīt Markdown, reST, HTML vai PDF failu atveidotu vai tā avotu"
-# navigator/widgets/viewer/file_window/file_window.nml:172
+# navigator/widgets/viewer/file_window/file_window.nml:174
+"D~a~ta tree" = "~D~atu koks"
+# navigator/widgets/viewer/file_window/file_window.nml:175
+"Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree" = "Rādīt faila datus (JSON, YAML, TOML, XML vai HTML) kā koku"
+# navigator/widgets/viewer/file_window/file_window.nml:178
 "S~y~ntax highlight" = "S~i~ntakses izcelšana"
-# navigator/widgets/viewer/file_window/file_window.nml:177
+# navigator/widgets/viewer/file_window/file_window.nml:183
 "Sh~o~w hidden characters" = "Rādīt slēptās zīm~e~s"
-# navigator/widgets/viewer/file_window/file_window.nml:182
+# navigator/widgets/viewer/file_window/file_window.nml:188
 "~F~ile type" = "~F~aila tips"
-# navigator/widgets/viewer/file_window/file_window.nml:186
+# navigator/widgets/viewer/file_window/file_window.nml:192
 "Fi~l~ters" = "Fi~l~tri"
-# navigator/widgets/viewer/file_window/file_window.nml:187, navigator/widgets/viewer/file_window/file_window.nml:191
+# navigator/widgets/viewer/file_window/file_window.nml:193, navigator/widgets/viewer/file_window/file_window.nml:197
 "Hide characters: none, all but ASCII, or the control characters" = "Slēpt rakstzīmes: nevienu, visas, izņemot ASCII, vai vadības rakstzīmes"
-# navigator/widgets/viewer/file_window/file_window.nml:190, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
+# navigator/widgets/viewer/file_window/file_window.nml:196, navigator/widgets/viewer/file_viewer/file_viewer.py:1434
 "Fi~l~ter" = "Fi~l~trs"
-# navigator/widgets/viewer/file_window/file_window.nml:195
+# navigator/widgets/viewer/file_window/file_window.nml:201
 "~N~o filter" = "~B~ez filtra"
-# navigator/widgets/viewer/file_window/file_window.nml:198
+# navigator/widgets/viewer/file_window/file_window.nml:204
 "~A~SCII filter" = "AS~C~II filtrs"
-# navigator/widgets/viewer/file_window/file_window.nml:199
+# navigator/widgets/viewer/file_window/file_window.nml:205
 "Hide control characters and everything beyond ASCII" = "Slēpt vadības rakstzīmes un visu ārpus ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:202
+# navigator/widgets/viewer/file_window/file_window.nml:208
 "~P~rintable filter" = "Drukā~j~amo filtrs"
-# navigator/widgets/viewer/file_window/file_window.nml:203
+# navigator/widgets/viewer/file_window/file_window.nml:209
 "Hide control characters" = "Slēpt vadības rakstzīmes"
-# navigator/widgets/viewer/file_window/file_window.nml:213
+# navigator/widgets/viewer/file_window/file_window.nml:219
 "Re~v~erse search" = "Meklēt ~a~tpakaļ"
-# navigator/widgets/viewer/file_window/file_window.nml:216, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
+# navigator/widgets/viewer/file_window/file_window.nml:222, navigator/widgets/viewer/file_viewer/file_viewer.py:1438
 "Go to add~r~ess..." = "Uz ad~r~esi..."
-# navigator/widgets/viewer/file_window/file_window.nml:217
+# navigator/widgets/viewer/file_window/file_window.nml:223
 "Jump to an offset in the file" = "Pāriet uz nobīdi failā"
-# navigator/widgets/viewer/file_window/file_window.nml:223, navigator/widgets/viewer/commands.py:108
+# navigator/widgets/viewer/file_window/file_window.nml:229, navigator/widgets/viewer/commands.py:108
 "Store" = "Uzglabāt"
-# navigator/widgets/viewer/file_window/file_window.nml:224
+# navigator/widgets/viewer/file_window/file_window.nml:230
 "Write the bytes typed over in hex into the file" = "Ierakstīt failā heksadecimālajā režīmā mainītos baitus"
-# navigator/widgets/viewer/file_window/file_window.nml:228
+# navigator/widgets/viewer/file_window/file_window.nml:234
 "Sav~e~ as..." = "~S~aglabāt kā..."
-# navigator/widgets/viewer/file_window/file_window.nml:232, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
+# navigator/widgets/viewer/file_window/file_window.nml:238, navigator/widgets/viewer/file_viewer/file_viewer.py:1440
 "Encod~i~ng..." = "~K~odējums..."
-# navigator/widgets/viewer/file_window/file_window.nml:233
+# navigator/widgets/viewer/file_window/file_window.nml:239
 "The code page the file is read in" = "Kodu lapa, kurā fails tiek lasīts"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
 "Filter lines" = "Filtrēt rindas"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "Rādīt rindas, ~k~as satur"
@@ -3259,9 +3263,9 @@ flag = "LV"
 "~P~aste from" = "~I~elīmēt no"
 # navigator/widgets/editor/edit_window/edit_window.py:858
 "Open a File" = "Atvērt failu"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "Save File As" = "Saglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:705
+# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:727
 "~S~ave File As" = "~S~aglabāt failu kā"
 # navigator/widgets/editor/edit_window/edit_window.py:129
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -3277,7 +3281,7 @@ flag = "LV"
 "Cannot print: {error}" = "Nevar drukāt: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:243
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:844 ...
+# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:866 ...
 "Search string not found" = "Meklētā virkne nav atrasta"
 # navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "Informācija"
@@ -4693,6 +4697,8 @@ flag = "LV"
 "Copy value" = "Kopēt vērtību"
 # navigator/widgets/viewer/commands.py:269, navigator/widgets/viewer/struct_window/struct_window.py:86
 "Expand all" = "Izvērst visu"
+# navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
+"Data tree" = "Datu koks"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
 "Numeric" = "Skaitlis"
 # navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
@@ -4757,7 +4763,7 @@ flag = "LV"
 "~V~alue" = "~V~ērtība"
 # navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
 "Structure of {name}" = "{name} struktūra"
-# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:679
+# navigator/widgets/viewer/db_window/db_window.py:368, navigator/widgets/viewer/file_window/file_window.py:701
 "Encoding" = "Kodējums"
 # navigator/widgets/viewer/db_window/db_window.py:444
 "Could not find MEMO file" = "Neizdevās atrast MEMO failu"
@@ -4829,7 +4835,7 @@ flag = "LV"
 "Too big to show as a picture" = "Par lielu, lai rādītu kā attēlu"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:859
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:401
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1106, navigator/widgets/viewer/file_window/file_window.py:402
 "No lines match" = "Neviena rinda neatbilst"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:458
 "{percent}% of {size} Bytes" = "{percent}% no {size} baitiem"
@@ -4845,33 +4851,37 @@ flag = "LV"
 "Character {char}" = "Rakstzīme {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:447
 "Lines: {pattern}" = "Rindas: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:583
+# navigator/widgets/viewer/file_window/file_window.py:601
 "Only in the text view" = "Tikai teksta skatā"
-# navigator/widgets/viewer/file_window/file_window.py:293
+# navigator/widgets/viewer/file_window/file_window.py:294
 "This file has no size to follow" = "Šim failam nav izmēra, kam sekot"
-# navigator/widgets/viewer/file_window/file_window.py:295
+# navigator/widgets/viewer/file_window/file_window.py:296
 "Not for a copy fetched from elsewhere" = "Ne kopijai, kas atnesta no citurienes"
-# navigator/widgets/viewer/file_window/file_window.py:297
+# navigator/widgets/viewer/file_window/file_window.py:298
 "Not while bytes typed over are not stored" = "Ne kamēr pārrakstītie baiti nav saglabāti"
-# navigator/widgets/viewer/file_window/file_window.py:299, navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:600
+# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
 "Not while the markup is rendered" = "Ne tad, kad marķējums ir atveidots"
-# navigator/widgets/viewer/file_window/file_window.py:587, navigator/widgets/viewer/file_window/file_window.py:603
+# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
 "Not while lines are filtered" = "Ne kamēr rindas ir filtrētas"
-# navigator/widgets/viewer/file_window/file_window.py:97
+# navigator/widgets/viewer/file_window/file_window.py:98
 "View - {path}" = "Skatīt - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:582
+# navigator/widgets/viewer/file_window/file_window.py:600
 "Nothing has been typed over in hex" = "Heksadecimālajā režīmā nekas nav mainīts"
-# navigator/widgets/viewer/file_window/file_window.py:585
+# navigator/widgets/viewer/file_window/file_window.py:603
 "Only in the hex and dump views" = "Tikai heksadecimālajā un izdrukas skatā"
-# navigator/widgets/viewer/file_window/file_window.py:609, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:616
+"Not for a file read across a network" = "Ne failam, ko lasa pa tīklu"
+# navigator/widgets/viewer/file_window/file_window.py:617
+"Nothing is open" = "Nekas nav atvērts"
+# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "Vēl nekas nav meklēts"
-# navigator/widgets/viewer/file_window/file_window.py:196
+# navigator/widgets/viewer/file_window/file_window.py:197
 "Information was modified. Save changes?" = "Informācija ir mainīta. Saglabāt izmaiņas?"
-# navigator/widgets/viewer/file_window/file_window.py:238, navigator/widgets/viewer/file_window/file_window.py:250
+# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
 "Could not write to file {path}: {error}" = "Neizdevās ierakstīt failā {path}: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:464
+# navigator/widgets/viewer/file_window/file_window.py:482
 "Not a tree" = "Nav koks"
-# navigator/widgets/viewer/file_window/file_window.py:245
+# navigator/widgets/viewer/file_window/file_window.py:246
 "{path} has changed since it was opened. Nothing was written." = "{path} ir mainījies kopš atvēršanas. Nekas netika ierakstīts."
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "Nav regulārā izteiksme: {error}"
@@ -5183,8 +5193,6 @@ flag = "LV"
 "Viewer" = "Skatītājs"
 # navigator/lib/config/keybindings.py
 "Database viewer" = "Datubāzes skatītājs"
-# navigator/lib/config/keybindings.py
-"Data tree" = "Datu koks"
 # navigator/lib/config/keybindings.py
 "Copy dialog" = "Kopēšanas dialogs"
 # navigator/lib/config/keybindings.py
