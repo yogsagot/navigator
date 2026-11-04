@@ -571,6 +571,41 @@ def test_a_popup_taller_than_the_screen_is_cut_to_it_and_scrolls():
     assert seen["chosen"].text == "~L~ast"
 
 
+def test_a_bar_box_taller_than_the_screen_is_cut_below_the_bar_and_scrolls():
+    root = Widget()
+    bar = MenuBar(parent=root)
+    bar.x, bar.y = 0, 0
+    bar.width = bind(lambda o: o.parent.width)
+    bar.height = bind(lambda o: 1)
+    tall = SubMenu(parent=bar, text="~T~all")
+    for index in range(20):
+        MenuItem(parent=tall, text=f"Entry {index}")
+    inner = SubMenu(parent=tall, text="~I~nner")
+    for index in range(20):
+        MenuItem(parent=inner, text=f"Deep {index}")
+    app = Application(root, terminal=FakeTerminal(width=40, height=10))
+    seen = {}
+
+    def look(key):
+        def record(a):
+            box = boxes(a)[-1]
+            seen[key] = (box.y, box.height, box.current, box.scroll())
+        return record
+
+    run_app(app, [
+        lambda a: bar.open(0, drop=True), look("opened"),
+        KeyEvent("pagedown"), look("paged"),
+        MouseClickEvent(5, 4, "wheel_down", "press"), look("wheeled"),
+        KeyEvent("end"), look("end"),
+        KeyEvent("enter"), look("inner"),
+    ])
+    assert seen["opened"] == (1, 9, 0, 0)        # cut to the rows under the bar
+    assert seen["paged"] == (1, 9, 6, 0)
+    assert seen["wheeled"] == (1, 9, 7, 1)
+    assert seen["end"] == (1, 9, 20, 14)
+    assert seen["inner"][0:2] == (1, 9)          # the nested box opened on screen, cut too
+
+
 def test_a_hebrew_hotkey_opens_by_its_letter_or_by_the_key_in_its_place():
     root = Widget()
     bar = MenuBar(parent=root)

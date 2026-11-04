@@ -18,6 +18,9 @@ every key and click itself.  The rules it answers them by are
 * **The mouse** selects what it is over while the button is down, and chooses
   on release; a press on a box (or on the bar) closes every box opened above
   it, and a press outside every box and the bar closes the menu.
+* **A box taller than the room below the bar is cut to it and scrolls**
+  (``MenuBox`` has how; a departure, TV's boxes never outgrew the screen):
+  PgUp/PgDn move a box's height, the wheel moves the top box's selection.
 """
 
 from __future__ import annotations
@@ -109,8 +112,12 @@ class MenuSession(Widget):
     def _drop(self, menu: SubMenu, x: int, y: int) -> MenuBox:
         """Open a box for *menu* with its corner at *x*, *y*, kept on screen."""
         width, height = MenuBox.measure(menu, self.application, self._asker())
+        # Never over the bar: a box too tall for the rest of the screen is cut
+        # to it and scrolls; one that fits moves up as far as the bar's row.
+        floor = self._bar_origin()[1] + 1
+        height = min(height, max(3, self.height - floor))
         x = max(0, min(x, self.width - width))
-        y = max(0, min(y, self.height - height))
+        y = max(min(floor, max(0, self.height - height)), min(y, self.height - height))
         box = MenuBox(menu, x=x, y=y, width=width, height=height)
         box.behind = self._asker()
         self.add(box)
@@ -138,7 +145,7 @@ class MenuSession(Widget):
             if box is not self.boxes[-1]:
                 for later in self.boxes[self.boxes.index(box) + 1:]:
                     self.remove(later)
-            self._drop(entry, box.x + 2, box.y + index + 2)
+            self._drop(entry, box.x + 2, box.y + index - box.scroll() + 2)
             return
         if isinstance(entry, MenuItem):
             await self._run(entry)
@@ -197,6 +204,10 @@ class MenuSession(Widget):
         elif event.matches("end"):
             top.current = len(top.entries())
             top.step(-1)
+        elif event.matches("pageup"):
+            top.page(-1)
+        elif event.matches("pagedown"):
+            top.page(1)
         elif event.matches("enter"):
             await self.choose(top, top.current)
         elif event.matches("right"):
@@ -237,6 +248,9 @@ class MenuSession(Widget):
     # -- the mouse -----------------------------------------------------------------------
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.button in ("wheel_up", "wheel_down") and self.boxes:
+            self.boxes[-1].move(-1 if event.button == "wheel_up" else 1)
+            return True
         if event.button != "left" or event.is_wheel:
             return True
         bx, by = self._bar_origin()

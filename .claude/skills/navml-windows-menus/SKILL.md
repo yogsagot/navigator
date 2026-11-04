@@ -109,7 +109,8 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **A `MenuBox` opened shorter than `measure()` scrolls** (a departure; TV boxes never outgrew the screen): `top` is
   the first entry shown, a plain attribute `scroll()` derives from `current` while painting and in `entry_at` -- never
   assign it. `▲`/`▼` on the frame mark hidden entries. `move(n)`/`page(n)` move without wrapping, unlike `step`.
-  Only `PopupMenu` opens one short (cut to the screen, PgUp/PgDn, wheel); the bar's boxes keep their measured height.
+  `PopupMenu` cuts one to the screen; the bar's `MenuSession._drop` cuts one to the rows below the bar (never over
+  it), a nested box opening beside its entry's *shown* row. Both: PgUp/PgDn, and the wheel moves the top box.
 - **A `filterable` submenu's popup box filters as it is typed in** (`SubMenu.filterable`, a departure for long
   unmarked lists: *Open with*'s *Other applications*). `PopupBox.filter` is the text; the first printable key (Space
   only once there is text) shows its line under the top frame -- `head()` is then 1, which `rows()`, `entry_at` and
