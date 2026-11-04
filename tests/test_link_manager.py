@@ -158,7 +158,11 @@ def test_leaving_a_changed_connection_asks(desk, answer, saved_port, stays):
     run_app(desk, [open_manager, Until(is_manager), lambda a: a.modal._choose(0),
                    lambda a: setattr(a.modal.port, "value", "22"), lambda a: a.modal.links.focus(),
                    KeyEvent("down"), Until(modal_is("Dialog")), lambda a: seen.update(prompt=a.modal.prompt),
-                   KeyEvent(answer, alt=answer != "escape"), Until(is_manager), Until(lambda a: not a.busy),
+                   KeyEvent(answer, alt=answer != "escape"),
+                   # Yes saves on a thread and only then moves on (``_settle``,
+                   # ``save_link``, ``_reread``): wait for the move, which an idle
+                   # queue does not mean.  Cancel stays, so there is none to wait for.
+                   Until(lambda a: is_manager(a) and (stays or a.modal.chosen == 1)), Until(lambda a: not a.busy),
                    lambda a: seen.update(state(a), cursor=a.modal.links.cursor), KeyEvent("escape"),
                    *([Until(modal_is("Dialog")), KeyEvent("n", alt=True)] if stays else [])])
     assert seen["prompt"] == 'Save changes to "web"?'
