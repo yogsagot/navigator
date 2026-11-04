@@ -546,6 +546,7 @@ def test_open_with_lists_the_applications_and_launches_the_one_chosen(desktop, t
     monkeypatch.setattr(gio, "content_type", lambda path: "image/png")
     monkeypatch.setattr(gio, "applications", lambda mime: apps if mime == "image/png" else [])
     monkeypatch.setattr(gio, "launch", lambda app, path: launched.append((app.id, Path(path))))
+    monkeypatch.setattr(desktop_module, "other_applications", lambda listed: [])
     seen = {}
 
     def look(a):
@@ -554,8 +555,123 @@ def test_open_with_lists_the_applications_and_launches_the_one_chosen(desktop, t
 
     run_app(app, [to("picture.png"), lambda a: seen.update(enabled=a.command_enabled(OpenWith(), a.focused)),
                   lambda a: a.spawn(a.run_command(OpenWith)), Until(lambda a: popup(a)), look, KeyEvent("down"), KeyEvent("enter"), Until(lambda a: launched)])
-    assert seen["enabled"] and seen["captions"] == ["Image Viewer", "GNU Image Manipulation Program", "Command..."]
+    assert seen["enabled"] and seen["captions"] == ["Image Viewer", "GNU Image Manipulation Program",
+                                                    "Set default", "Command..."]
     assert launched == [("gimp.desktop", tmp_path / "picture.png")]
+
+
+def write_desktop(directory: Path, name: str, body: str) -> Path:
+    path = directory / name
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("[Desktop Entry]\nType=Application\n" + body)
+    return path
+
+
+def test_mime_marks_the_default(tmp_path, monkeypatch):
+    text = ("Default application for “image/png”: gimp.desktop\n"
+            "Registered applications:\n\teog.desktop\n\tgimp.desktop\n")
+    assert gio.parse_default(text) == "gimp.desktop"
+    assert gio.parse_default("No default applications for “x/y”\n") == ""
+    monkeypatch.setattr(gio, "run", lambda *args, **kw: text)
+    assert [(a.id, a.default) for a in gio.applications("image/png", [])] == [("gimp.desktop", True),
+                                                                               ("eog.desktop", False)]
+
+
+def test_set_default_asks_gio_mime(fake_gio):
+    gio.set_default("image/png", gio.App("gimp.desktop", "GIMP", None))
+    assert ["mime", "image/png", "gimp.desktop"] in fake_gio()["calls"]
+
+
+def test_all_applications_are_those_a_file_can_be_opened_in(tmp_path, monkeypatch):
+    from navigator.lib.system import desktop_entry
+
+    user, system = tmp_path / "user", tmp_path / "system"
+    monkeypatch.setenv("XDG_CURRENT_DESKTOP", "XFCE")
+    write_desktop(system, "gimp.desktop", "Name=GIMP\nExec=gimp %U\n")
+    write_desktop(system, "zed.desktop", "Name=zed\nExec=zed %f\n")
+    write_desktop(system, "kde4/kate.desktop", "Name=Kate\nExec=kate %F\n")
+    write_desktop(system, "settings.desktop", "Name=Settings\nExec=settings\n")       # takes no file
+    write_desktop(system, "hidden.desktop", "Name=Hidden\nExec=h %f\nNoDisplay=true\n")
+    write_desktop(system, "gone.desktop", "Name=Gone\nExec=g %f\nHidden=true\n")
+    write_desktop(system, "absent.desktop", "Name=Absent\nExec=a %f\nTryExec=no-such-program-here\n")
+    write_desktop(system, "gnome.desktop", "Name=Gnomish\nExec=g %f\nOnlyShowIn=GNOME;\n")
+    write_desktop(system, "notxfce.desktop", "Name=NotXfce\nExec=g %f\nNotShowIn=XFCE;\n")
+    write_desktop(system, "link.desktop", "Name=Link\nExec=x %f\n".replace("Type=Application", ""))
+    (system / "link.desktop").write_text("[Desktop Entry]\nType=Link\nName=Link\nURL=x\n")
+    write_desktop(system, "mine.desktop", "Name=System's\nExec=m %f\n")
+    write_desktop(user, "mine.desktop", "Name=Mine\nExec=m %f\n")
+    found = desktop_entry.all_applications([user, system])
+    assert [(a.id, a.name) for a in found] == [("gimp.desktop", "GIMP"), ("kde4-kate.desktop", "Kate"),
+                                               ("mine.desktop", "Mine"), ("zed.desktop", "zed")]
+    assert found[2].path == user / "mine.desktop"
+    others = desktop_entry.other_applications([gio.App("gimp.desktop", "GIMP", None)], [user, system])
+    assert [a.id for a in others] == ["kde4-kate.desktop", "mine.desktop", "zed.desktop"]
+
+
+def test_set_default_in_mimeapps_keeps_the_rest_and_puts_it_first(tmp_path):
+    from navigator.lib.system import desktop_entry
+
+    mimeapps = tmp_path / "mimeapps.list"
+    mimeapps.write_text("# mine\n[Added Associations]\nimage/png=eog.desktop;gimp.desktop;\ntext/plain=geany.desktop;\n"
+                        "\n[Default Applications]\nimage/png=eog.desktop\ntext/plain=geany.desktop\n"
+                        "\n[Removed Associations]\nimage/png=bad.desktop;\n")
+    desktop_entry.set_default_in_mimeapps("image/png", "gimp.desktop", mimeapps)
+    desktop_entry.set_default_in_mimeapps("image/jpeg", "gimp.desktop", mimeapps)
+    assert mimeapps.read_text() == (
+        "# mine\n[Added Associations]\nimage/png=gimp.desktop;eog.desktop;\ntext/plain=geany.desktop;\n"
+        "image/jpeg=gimp.desktop;\n"
+        "\n[Default Applications]\nimage/png=gimp.desktop\ntext/plain=geany.desktop\nimage/jpeg=gimp.desktop\n"
+        "\n[Removed Associations]\nimage/png=bad.desktop;\n")
+    fresh = tmp_path / "new" / "mimeapps.list"
+    desktop_entry.set_default_in_mimeapps("image/png", "gimp.desktop", fresh)
+    assert fresh.read_text() == ("[Default Applications]\nimage/png=gimp.desktop\n\n"
+                                 "[Added Associations]\nimage/png=gimp.desktop;\n")
+
+
+@pytest.fixture
+def open_with_box(desktop, tmp_path, monkeypatch):
+    """*Open with* on picture.png: Image Viewer the type's own default, GIMP among the others."""
+    apps = [gio.App("eog.desktop", "Image Viewer", Path("/x/eog.desktop"), True)]
+    others = [gio.App("gimp.desktop", "GIMP", Path("/x/gimp.desktop"))]
+    calls = []
+    monkeypatch.setattr(gio, "content_type", lambda path: "image/png")
+    monkeypatch.setattr(gio, "applications", lambda mime: apps)
+    monkeypatch.setattr(desktop_module, "other_applications", lambda listed: others)
+    monkeypatch.setattr(gio, "launch", lambda app, path: calls.append(("launch", app.id, Path(path))))
+    monkeypatch.setattr(gio, "set_default", lambda mime, app: calls.append(("default", mime, app.id)))
+    return desktop[0], calls
+
+
+def _open_with(*keys):
+    from test_associations import popup, to
+    from navigator.widgets.manager.commands import OpenWith
+
+    return [to("picture.png"), lambda a: a.spawn(a.run_command(OpenWith)), Until(lambda a: popup(a)),
+            *[KeyEvent(key, char=key if len(key) == 1 else "") for key in keys]]
+
+
+def test_open_with_offers_the_other_applications_and_opens_one(open_with_box, tmp_path):
+    from test_associations import popup
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    app, calls = open_with_box
+    seen = {}
+
+    def look(a):
+        box = popup(a)
+        seen["title"] = box.boxes[0].title
+        seen["captions"] = [parse_shortcut(entry.text)[0] for entry in box.box.entries() if hasattr(entry, "text")]
+
+    run_app(app, [*_open_with(), look, KeyEvent("o", char="o"), KeyEvent("enter"), Until(lambda a: calls)])
+    assert seen["title"] == "Open with (image/png)"
+    assert seen["captions"] == ["Image Viewer (default)", "Other applications", "Set default", "Command..."]
+    assert calls == [("launch", "gimp.desktop", tmp_path / "picture.png")]
+
+
+def test_set_default_sets_it_and_opens_nothing(open_with_box):
+    app, calls = open_with_box
+    run_app(app, [*_open_with("d", "o", "enter"), Until(lambda a: calls), lambda a: None])
+    assert calls == [("default", "image/png", "gimp.desktop")]
 
 
 # -- gio trash ----------------------------------------------------------------------------
@@ -670,3 +786,12 @@ def test_open_with_runs_a_command_typed_in_the_console_and_keeps_it_for_the_exte
     assert seen == {"title": "Open with", "history": "open_with.png"}
     assert script_of(ran) == "gimp -n picture.png\n"
     assert "gimp -n" in HISTORY.entries("open_with.png")
+
+
+def test_other_applications_are_filtered_as_they_are_typed(open_with_box, tmp_path, monkeypatch):
+    app, calls = open_with_box
+    many = [gio.App(f"{name.lower()}.desktop", name, Path(f"/x/{name.lower()}.desktop"))
+            for name in ("Darktable", "GIMP", "Inkscape", "Krita")]
+    monkeypatch.setattr(desktop_module, "other_applications", lambda listed: many)
+    run_app(app, [*_open_with("o", "k", "r", "enter"), Until(lambda a: calls)])
+    assert calls == [("launch", "krita.desktop", tmp_path / "picture.png")]

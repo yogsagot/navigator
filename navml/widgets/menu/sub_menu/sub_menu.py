@@ -198,6 +198,15 @@ class SubMenu(MenuContainer, MenuNode):
     #: The keys this submenu's box takes, as ``(label, caption)`` for the key
     #: bar, when a popup opens it -- never in its frame.
     hints: tuple[tuple[str, str], ...] = ()
+    #: Whether a popup's box for this submenu filters as it is typed in,
+    #: rather than choosing by marked letter -- a long list of names with
+    #: none marked (*Open with*'s *Other applications*); see
+    #: :class:`~navml.widgets.menu.popup_menu.PopupBox`.  A bar's boxes ignore it.
+    filterable: bool = False
+    #: Whether a popup opens this submenu's box in the middle of the screen's
+    #: height, rather than level with its entry -- still beside it.  A bar's
+    #: boxes ignore it.
+    centred: bool = False
 
 
 def _names(anchor: Anchor, entry: MenuNode) -> bool:

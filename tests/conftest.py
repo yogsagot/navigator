@@ -372,6 +372,8 @@ def _default_settings(monkeypatch, tmp_path):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
     # Nor the user's Trash (navigator.lib.file_ops.trash).
     monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    # Nor the machine's installed applications (*Open with*'s *Other applications*).
+    monkeypatch.setenv("XDG_DATA_DIRS", str(tmp_path / "data-dirs"))
     SETTINGS.reset()
     SETTINGS.panel_defaults.view_mode = "simple"
     # A failure fails the test rather than opening a box nobody answers; the

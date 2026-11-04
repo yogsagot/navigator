@@ -139,17 +139,34 @@ def parse_mime(text: str) -> list[str]:
     return list(dict.fromkeys(found))
 
 
+def parse_default(text: str) -> str:
+    """The default application's id ``gio mime TYPE`` names; ``""`` for none."""
+    for line in text.splitlines():
+        match = re.match(r"^Default application for .*: (\S+\.desktop)$", line.strip())
+        if match:
+            return match.group(1)
+    return ""
+
+
 def applications(mime: str, dirs: Iterable[Path] | None = None) -> list[App]:
-    """The applications that open *mime*, the default first, by their names."""
+    """The applications that open *mime*, the default first (and marked so), by their names."""
     if not mime:
         return []
     dirs = list(application_dirs() if dirs is None else dirs)
+    text = run("mime", mime)
+    default = parse_default(text)
     found = []
-    for app_id in parse_mime(run("mime", mime)):
+    for app_id in parse_mime(text):
         path = desktop_file(app_id, dirs)
         name = desktop_name(path) if path is not None else ""
-        found.append(App(app_id, name or app_id.removesuffix(".desktop"), path))
+        found.append(App(app_id, name or app_id.removesuffix(".desktop"), path, app_id == default))
     return found
+
+
+def set_default(mime: str, app: App) -> None:
+    """*app* what *mime* opens in from now on: ``gio mime TYPE APP``, which
+    writes the user's ``mimeapps.list``."""
+    run("mime", mime, app.id)
 
 
 def launch(app: App, path: Path | str) -> None:

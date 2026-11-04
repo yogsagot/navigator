@@ -1859,8 +1859,12 @@ class Shell(DockLayout):
 
     async def open_with(self, origin: Location) -> None:
         """File > *Open with*: the applications the desktop has for *origin*'s
-        type, in a box, the default first, and the file opened in the one
-        chosen (``gio launch``, ``kstart``) -- or, under them, *Command...*: a command line
+        type, in a box, the default first and marked, and the file opened in
+        the one chosen (``gio launch``, ``kstart``).  Under them, as GNOME's
+        and Xfce's have it, *Other applications* (every other installed one,
+        :func:`~navigator.lib.system.desktop.other_applications`), *Set
+        default* (the same two layers again: the one chosen becomes what the
+        type opens in, and nothing is opened) and *Command...*: a command line
         of the user's own (:meth:`open_with_command`).  Not DN's.
 
         A file on another drive is typed by its name, and fetched
@@ -1881,16 +1885,22 @@ class Shell(DockLayout):
             else:
                 mime = mimetypes.guess_type(origin.name)[0] or ""
             apps = await asyncio.to_thread(desktop.applications, mime)
+            others = await asyncio.to_thread(desktop.other_applications, apps)
         except OSError as error:
             await Dialog(title=tr("Open with"), buttons="ok",
                          prompt=escape_caption(error.strerror or str(error))).execute(app)
             return
         box_menu = SubMenu()
-        chosen_of = {id(box_menu.add_item(escape_caption(each.name))): each for each in apps}
-        if apps:
+        #: Each application's item: the application, and whether it is set as the default.
+        chosen_of: dict[int, tuple[Any, bool]] = {}
+        self._fill_open_with(box_menu, apps, others, chosen_of, setting=False)
+        if apps or others:
             box_menu.add_line()
+        defaults = box_menu.add_submenu(tr("Set ~d~efault"))
+        self._fill_open_with(defaults, apps, others, chosen_of, setting=True)
+        defaults.disabled = not mime or not (apps or others)
         command = box_menu.add_item(tr("~C~ommand..."))
-        title = tr("Open with")
+        title = tr("Open with ({type})").format(type=mime) if mime else tr("Open with")
         box = PopupMenu(box_menu, behind=self, title=title)
         width, height = PopupMenu.measure(box_menu, app, self, title)
         box.at = ((app.root.width - width) // 2, (app.root.height - height) // 2)
@@ -1899,6 +1909,17 @@ class Shell(DockLayout):
             await self.open_with_command(origin)
             return
         if chosen is None or id(chosen) not in chosen_of:
+            return
+        application, setting = chosen_of[id(chosen)]
+        if setting:
+            try:
+                await asyncio.to_thread(desktop.set_default, mime, application)
+            except OSError as error:
+                await Dialog(title=tr("Set default"), buttons="ok",
+                             prompt=escape_caption(error.strerror or str(error))).execute(app)
+                return
+            self.toast(tr("{name} now opens {type}").format(name=application.name, type=mime),
+                       title=tr("Set default"))
             return
         path: Path
         if origin.is_local:
@@ -1911,10 +1932,33 @@ class Shell(DockLayout):
                 return
             path = use.local_for(origin) or use.directory / origin.name
         try:
-            await asyncio.to_thread(desktop.launch, chosen_of[id(chosen)], path)
+            await asyncio.to_thread(desktop.launch, application, path)
         except OSError as error:
             await Dialog(title=tr("Open with"), buttons="ok",
                          prompt=escape_caption(error.strerror or str(error))).execute(app)
+
+    @staticmethod
+    def _fill_open_with(menu: Any, apps: list[Any], others: list[Any],
+                        chosen_of: dict[int, tuple[Any, bool]], *, setting: bool) -> None:
+        """*Open with*'s layers into *menu*: the type's own applications (the
+        default marked), then *Other applications* in a box of their own;
+        each item recorded in *chosen_of* with *setting*."""
+        from navml.widgets.dialog.control import escape_caption
+
+        for each in apps:
+            name = escape_caption(each.name)
+            caption = tr("{name} (default)").format(name=name) if each.default else name
+            chosen_of[id(menu.add_item(caption))] = (each, setting)
+        if not others:
+            return
+        if apps:
+            menu.add_line()
+        other = menu.add_submenu(tr("~O~ther applications"))
+        other.filterable = True
+        other.centred = True
+        other.footer = tr("Type to filter")
+        for each in others:
+            chosen_of[id(other.add_item(escape_caption(each.name)))] = (each, setting)
 
     @staticmethod
     def open_with_history(name: str) -> str:

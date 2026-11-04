@@ -618,3 +618,111 @@ def test_an_open_menu_takes_a_letter_typed_on_another_layout():
     assert letter_of(entries, "ד") == 0  # dalet is typed on s's key
     assert letter_of(entries, "e") == 2  # qof's key on a US keyboard
     assert letter_of(entries, "ק") == 2
+
+
+def _filter_popup(height=20):
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    menu = SubMenu(text="Apps")
+    menu.filterable = True
+    for name in ("Geany", "GIMP", "Image Viewer", "LibreOffice Writer", "Mousepad"):
+        MenuItem(parent=menu, text=name)
+    app = Application(Widget(), terminal=FakeTerminal(width=40, height=height))
+    seen: dict = {}
+
+    async def run(a):
+        seen["chosen"] = await PopupMenu(menu, 2, 1).execute(a)
+
+    def box(a):
+        return next(c for c in a.root.children if isinstance(c, PopupMenu)).boxes[-1]
+
+    def look(name):
+        return lambda a: seen.__setitem__(name, (box(a).filter, [e.text for e in box(a).entries()],
+                                                 box(a).height, box(a).current,
+                                                 next(c for c in a.root.children
+                                                      if isinstance(c, PopupMenu)).cursor_position()))
+
+    return app, seen, run, box, look
+
+
+def test_a_filterable_popup_filters_as_it_is_typed_in_and_esc_empties_it_first():
+    app, seen, run, box, look = _filter_popup()
+    run_app(app, [
+        lambda a: a.spawn(run(a)), look("opened"),
+        KeyEvent("i", "i"), look("i"),
+        KeyEvent("m", "m"), look("im"),
+        KeyEvent("backspace"), KeyEvent("backspace"), look("cleared by backspace"),
+        KeyEvent("q", "q"), KeyEvent("z", "z"), look("none"),
+        KeyEvent("escape"), look("cleared by esc"),
+        KeyEvent("w", "w"), KeyEvent("r", "r"), KeyEvent("enter"), lambda a: None,
+    ])
+    assert seen["opened"] == ("", ["Geany", "GIMP", "Image Viewer", "LibreOffice Writer", "Mousepad"], 7, 0, None)
+    # Every caption holding an "i", in any case; the line takes a row, and the caret is after the text.
+    assert seen["i"][:4] == ("i", ["GIMP", "Image Viewer", "LibreOffice Writer"], 6, 0)
+    assert seen["i"][4] == (2 + 4, 1 + 1)
+    assert seen["im"][:4] == ("im", ["GIMP", "Image Viewer"], 5, 0)
+    assert seen["cleared by backspace"][:4] == ("", ["Geany", "GIMP", "Image Viewer", "LibreOffice Writer",
+                                                     "Mousepad"], 7, 1)
+    assert seen["none"][:4] == ("qz", [], 3, -1)
+    assert seen["cleared by esc"][0] == "" and seen["cleared by esc"][2] == 7
+    # Esc emptied the filter but kept the box; then "wr" filtered to the one choice.
+    assert seen["chosen"].text == "LibreOffice Writer"
+
+
+def test_a_filters_cross_clears_it():
+    app, seen, run, box, look = _filter_popup()
+
+    def click_cross(a):
+        b = box(a)
+        a.post_event(MouseClickEvent(b.x + b.width - 4, b.y + 1, "left", "press"))
+
+    run_app(app, [lambda a: a.spawn(run(a)), KeyEvent("y", "y"), look("g"), click_cross, look("after"),
+                  KeyEvent("escape")])
+    assert seen["g"][1] == ["Geany"]
+    assert seen["after"][:3] == ("", ["Geany", "GIMP", "Image Viewer", "LibreOffice Writer", "Mousepad"], 7)
+    assert seen["chosen"] is None
+
+
+def test_a_filters_line_paints_its_whole_row_margins_included():
+    from navml.widgets.menu.popup_menu.popup_menu import PopupBox
+
+    menu = SubMenu(text="Apps")
+    menu.filterable = True
+    for name in ("Geany", "GIMP"):
+        MenuItem(parent=menu, text=name)
+    box = PopupBox(menu, x=0, y=0, width=14, height=4)
+    box.opened_height = box.room = 4
+    box.set_filter("g")
+    buffer = ScreenBuffer(box.width, box.height)
+    for y in range(box.height):
+        buffer.view(0, 0, box.width, box.height).draw_text(0, y, "#" * box.width, None)
+    box.render_tree(buffer.view(0, 0, box.width, box.height))
+    rows = ["".join(buffer.get(x, y)[0] or " " for x in range(box.width)) for y in range(box.height)]
+    # Nothing beneath shows through on any row of the box, the filter's included.
+    assert all("#" not in row for row in rows), rows
+    assert rows[1] == " │ g      × │ "
+
+
+def test_a_centred_submenu_opens_in_the_middle_and_stays_there_as_it_is_filtered():
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    menu = SubMenu(text="Pick")
+    MenuItem(parent=menu, text="~O~ne")
+    more = SubMenu(parent=menu, text="~M~ore")
+    more.filterable = more.centred = True
+    for name in ("Geany", "GIMP", "Image Viewer", "LibreOffice Writer", "Mousepad"):
+        MenuItem(parent=more, text=name)
+    app = Application(Widget(), terminal=FakeTerminal(width=40, height=21))
+    seen = []
+
+    async def run(a):
+        await PopupMenu(menu, 2, 1).execute(a)
+
+    def look(a):
+        box = next(c for c in a.root.children if isinstance(c, PopupMenu)).boxes[-1]
+        seen.append((box.y, box.height))
+
+    run_app(app, [lambda a: a.spawn(run(a)), KeyEvent("m", "m"), look, KeyEvent("i", "i"), look,
+                  KeyEvent("m", "m"), look, KeyEvent("escape"), look, KeyEvent("escape"), KeyEvent("escape")])
+    # Seven rows in twenty-one: from row 7; six from 7, five from 8; back to seven from 7.
+    assert seen == [(7, 7), (7, 6), (8, 5), (7, 7)]

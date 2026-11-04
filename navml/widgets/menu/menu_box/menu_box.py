@@ -174,9 +174,14 @@ class MenuBox(Widget):
                 self.current = index
                 return
 
+    def head(self) -> int:
+        """Rows inside the top frame that are not entries: none here; a
+        popup's filter line (:class:`~navml.widgets.menu.popup_menu.PopupBox`)."""
+        return 0
+
     def rows(self) -> int:
         """How many entries fit inside the frame."""
-        return max(0, self.height - 2)
+        return max(0, self.height - 2 - self.head())
 
     def scroll(self) -> int:
         """Move :attr:`top` the least that shows the selection; the new top.
@@ -232,7 +237,7 @@ class MenuBox(Widget):
 
     def entry_at(self, row: int) -> int:
         """The entry on *row* of this box, or -1 for the frame."""
-        index = row - 1
+        index = row - 1 - self.head()
         if not 0 <= index < self.rows():
             return -1
         index += self.scroll()
@@ -253,14 +258,14 @@ class MenuBox(Widget):
             surface.draw_text(width - 2, y, ends[1] + " ", normal)
 
         entries = self.entries()
-        top, rows = self.scroll(), self.rows()
+        top, rows, head = self.scroll(), self.rows(), self.head()
         frame_line(0, (tl, tr), horizontal, normal)
         if self.title and width >= 8:
             label = fit_cells(f" {self.title} ", width - 6)
             surface.draw_text((width - display_width(label)) // 2, 0, label, normal)
         for index in range(top, min(len(entries), top + rows)):
             entry = entries[index]
-            y = index - top + 1
+            y = index - top + 1 + head
             if isinstance(entry, MenuLine):
                 frame_line(y, (left_tee, right_tee), horizontal, normal)
                 continue
@@ -282,7 +287,7 @@ class MenuBox(Widget):
                     surface.draw_text(width - 5 - display_width(key), y, key, row)
             elif key:
                 surface.draw_text(width - 3 - display_width(key), y, key, row)
-        bottom = min(len(entries), rows) + 1
+        bottom = min(len(entries), rows) + 1 + head
         frame_line(bottom, (bl, br), horizontal, normal)
         if self.footer and width >= 8:
             label = fit_cells(f" {self.footer} ", width - 6)

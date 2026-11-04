@@ -110,6 +110,15 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   the first entry shown, a plain attribute `scroll()` derives from `current` while painting and in `entry_at` -- never
   assign it. `▲`/`▼` on the frame mark hidden entries. `move(n)`/`page(n)` move without wrapping, unlike `step`.
   Only `PopupMenu` opens one short (cut to the screen, PgUp/PgDn, wheel); the bar's boxes keep their measured height.
+- **A `filterable` submenu's popup box filters as it is typed in** (`SubMenu.filterable`, a departure for long
+  unmarked lists: *Open with*'s *Other applications*). `PopupBox.filter` is the text; the first printable key (Space
+  only once there is text) shows its line under the top frame -- `head()` is then 1, which `rows()`, `entry_at` and
+  painting skip -- and `entries()` keeps captions holding it, any case, lines dropped. Backspace edits, Esc or a press
+  on its `×` empties it (Esc closes only an empty one); marked letters do not choose there. `set_filter` keeps the
+  selection's entry if shown, and fits the box: `opened_height` empty, else up to `room` (one row more, as the screen
+  allows). `PopupMenu.cursor_position` puts the caret at the text's end.
+- **A `centred` submenu's popup box** (`SubMenu.centred`) opens in the middle of the screen's height, beside its
+  entry still, and `set_filter` keeps it there as it shrinks or grows.
 - **The command palette** (Alt+Shift+P, ≡ > *Command palette*; `OpenCommandPalette`; a departure, asked for --
   DN had none) is the main menu, searchable. `CommandPalette` (`navigator/widgets/shell/command_palette/`)
   `gather`s from `behind` -- `app.focused` recorded by `Shell.command_palette` **before** the box opens, as

@@ -1,6 +1,6 @@
 ---
 name: navigator-kio
-description: KDE's KIO and Solid through their commands -- navigator/lib/system/kio.py (COMMANDS with KF6/KF5 names, program()/command(), run() and _reason, open_file via kioclient exec, content_type via kmimetypefinder, applications via ktraderclient6 and parse_trader, launch via kstart, KioVolume and parse_solid/parse_devices for solid-hardware6 list details, mount_device/unmount/eject by UDI, KIO_SCHEMES/kio_schemes/plugin_dirs, HOSTLESS/kio_url, kio-fuse's mountUrl/remoteUrl over dbus-send and parse_reply, trash via kioclient move), KIO drives (navigator/lib/drives/kio.py: KioDrive over kio-fuse, root_of, with_password, NeedPassword from an authentication refusal), and how [system] desktop_vfs picks it over GIO (navigator/lib/system/desktop.py). Use when touching any of these, or when something works under GNOME but not under KDE.
+description: KDE's KIO and Solid through their commands -- navigator/lib/system/kio.py (COMMANDS with KF6/KF5 names, program()/command(), run() and _reason, open_file via kioclient exec, content_type via kmimetypefinder, applications via ktraderclient6 and parse_trader, launch via kstart, set_default via mimeapps.list and kbuildsycoca6, KioVolume and parse_solid/parse_devices for solid-hardware6 list details, mount_device/unmount/eject by UDI, KIO_SCHEMES/kio_schemes/plugin_dirs, HOSTLESS/kio_url, kio-fuse's mountUrl/remoteUrl over dbus-send and parse_reply, trash via kioclient move), KIO drives (navigator/lib/drives/kio.py: KioDrive over kio-fuse, root_of, with_password, NeedPassword from an authentication refusal), and how [system] desktop_vfs picks it over GIO (navigator/lib/system/desktop.py). Use when touching any of these, or when something works under GNOME but not under KDE.
 ---
 
 # KIO (KDE's commands)
@@ -32,6 +32,7 @@ through `navigator/lib/system/desktop.py` (`navigator-gio` skill has the facade 
 | type | `content_type(path)` | `kmimetypefinder PATH` (first word of the last line, needs a `/`) |
 | apps | `applications(mime)` | `ktraderclient6 --mimetype M --servicetype Application` → `parse_trader` |
 | launch | `launch(app, path)` | `kstart --application DESKTOP --url PATH` (`kstart5 --service …`), detached |
+| default | `set_default(mime, app)` | `mimeapps.list` written (`desktop_entry.set_default_in_mimeapps`), then `kbuildsycoca6` (`kbuildsycoca5`) if installed |
 | volumes | `volumes()` | `solid-hardware6 list details` → `parse_solid` |
 | mount etc. | `mount_device(v)`, `unmount(w)`, `eject(w)` | `solid-hardware6 mount\|unmount\|eject UDI` |
 | links | `mount_url(uri)`, `remote_url(path)` | `dbus-send --session --print-reply --dest=org.kde.KIOFuse /org/kde/KIOFuse org.kde.KIOFuse.VFS.mountUrl string:URL` |

@@ -41,6 +41,16 @@ top frame; :meth:`measure` takes the same title so the caller places a box as
 wide as the one shown.  A **footer** (``footer="To /tmp"``) goes in its bottom
 frame the same way.
 
+**A filterable submenu filters as it is typed in** (``SubMenu.filterable``),
+a departure for long lists of names with no letter marked: the first
+printable key shows a filter line under the top frame -- hidden until then
+-- and the box keeps the entries whose caption holds the text, in any case.
+A ``centred`` submenu's box opens in the middle of the screen's height, still
+beside its entry, and stays there as the filter fits it.
+Backspace edits it, Esc or a click on its ``×`` empties it (Esc closes the
+box only once it is empty), and the box grows by the line's row while it
+shows and fits to what is left; the terminal's caret sits at the text's end.
+
 **An entry need not ask for a command.**  A bar's item without one is greyed
 until its feature exists; a popup's entries are usually choices its caller
 reads off the answer, so here an item is enabled unless it is ``disabled``,
@@ -53,7 +63,9 @@ import asyncio
 from typing import TYPE_CHECKING, Any, Sequence
 
 from navkit import keyboard
+from navkit.bidi import display_width, fit_cells
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import bind
 from navkit.screen import Surface
 from navkit.widget import Widget
@@ -69,12 +81,94 @@ if TYPE_CHECKING:
 
 
 class PopupBox(MenuBox):
-    """A :class:`MenuBox` whose command-less items are choices, not stubs."""
+    """A :class:`MenuBox` whose command-less items are choices, not stubs;
+    one for a ``filterable`` submenu filters them as it is typed in."""
+
+    #: What the filter's line clears it with, and its ASCII stand-in.
+    CLEAR = "×"
+    CLEAR_ASCII = "x"
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        #: The text typed into the filter; empty hides its line.
+        self.filter = ""
+        #: The height the box opened with, and the most it may grow to: what
+        #: :meth:`set_filter` fits it between.  Set by whoever drops it.
+        self.opened_height = self.height if isinstance(self.height, int) else 0
+        self.room = self.opened_height
+
+    @property
+    def filterable(self) -> bool:
+        return bool(getattr(self.menu, "filterable", False))
 
     def enabled(self, entry: MenuNode) -> bool:
         if isinstance(entry, MenuItem) and entry.command is None:
             return not entry.disabled
         return super().enabled(entry)
+
+    def entries(self) -> list[MenuNode]:
+        """The submenu's entries; while filtering, those whose caption holds
+        the filter (lines dropped)."""
+        entries = super().entries()
+        if not self.filter:
+            return entries
+        wanted = self.filter.casefold()
+        return [entry for entry in entries if not isinstance(entry, MenuLine)
+                and wanted in parse_shortcut(entry.text)[0].casefold()]
+
+    def head(self) -> int:
+        return 1 if self.filter else 0
+
+    def set_filter(self, text: str) -> None:
+        """Filter by *text*: the selection kept on its entry if it is still
+        shown, else the first; the box fitted to what is shown."""
+        before = super().entries() if not self.filter else self.entries()
+        was = before[self.current] if 0 <= self.current < len(before) else None
+        self.filter = text
+        entries = self.entries()
+        if text:
+            self.height = max(3, min(self.room, len(entries) + 3))
+        else:
+            self.height = self.opened_height
+        if getattr(self.menu, "centred", False) and self.parent is not None:
+            self.y = max(0, (self.parent.height - self.height) // 2)
+        self.top = 0
+        if was is not None and was in entries:
+            self.current = entries.index(was)
+        else:
+            self.current = -1
+            self.step(1)
+        self.invalidate()
+
+    def clear_at(self, x: int, y: int) -> bool:
+        """Whether *x*, *y* (the box's own) is the filter line's ``×``."""
+        return bool(self.filter) and y == 1 and self.width - 5 <= x <= self.width - 3
+
+    def caret(self) -> tuple[int, int] | None:
+        """Where the caret goes, in the box's coordinates: the filter's end."""
+        if not self.filter:
+            return None
+        return min(3 + display_width(self.filter), self.width - 6), 1
+
+    def render(self, surface: Surface) -> None:
+        super().render(surface)
+        if not self.filter:
+            return
+        vertical = self.box_charset()[5]
+        row = self.part_style("item")
+        # The whole row, the margin outside the frame too, as every row of the box.
+        surface.draw_text(0, 1, " " + vertical, self.style)
+        surface.draw_text(2, 1, " " * max(0, self.width - 4), row)
+        surface.draw_text(self.width - 2, 1, vertical + " ", self.style)
+        shown = self.filter
+        room = max(0, self.width - 9)
+        if display_width(shown) > room:
+            # The end of what is typed, where the caret is.
+            while shown and display_width(shown) > room:
+                shown = shown[1:]
+        surface.draw_text(3, 1, fit_cells(shown, room), row)
+        clear = self.CLEAR if self.glyphs >= GLYPHS_UNICODE else self.CLEAR_ASCII
+        surface.draw_text(self.width - 4, 1, clear, self.part_style("hotkey"))
 
 
 class PopupMenu(Widget):
@@ -201,8 +295,15 @@ class PopupMenu(Widget):
         width = min(width, max(10, self.width))
         height = min(height, max(3, self.height))
         x = max(0, min(x, self.width - width))
+        if getattr(menu, "centred", False):
+            y = (self.height - height) // 2
         y = max(0, min(y, self.height - height))
         box = PopupBox(menu, title=title, footer=footer, x=x, y=y, width=width, height=height)
+        box.opened_height = height
+        # A filter's line takes a row: the box may grow by it, as far as the screen.
+        # A centred box moves up to make that room.
+        below = self.height if getattr(menu, "centred", False) else self.height - y
+        box.room = max(height, min(height + 1, below))
         box.behind = self.behind
         self.add(box)
         if box.selectable(current):
@@ -227,7 +328,7 @@ class PopupMenu(Widget):
         if isinstance(entry, SubMenu):
             for later in boxes[boxes.index(box) + 1:]:
                 self.remove(later)
-            self._drop(entry, box.x + 2, box.y + index - box.top + 2, footer=entry.footer)
+            self._drop(entry, box.x + 2, box.y + index - box.top + box.head() + 2, footer=entry.footer)
         elif isinstance(entry, MenuItem):
             self.close(entry)
 
@@ -238,6 +339,8 @@ class PopupMenu(Widget):
         if not boxes:
             return True
         box = boxes[-1]
+        if box.filterable and self._filter_key(box, event):
+            return True
         if event.matches("escape"):
             if len(boxes) > 1:
                 self.remove(box)
@@ -275,6 +378,27 @@ class PopupMenu(Widget):
                 self.choose(index)
         return True
 
+    def _filter_key(self, box: PopupBox, event: KeyEvent) -> bool:
+        """A key a filterable box takes for its filter; whether it was one."""
+        if event.matches("escape") and box.filter:
+            box.set_filter("")
+        elif event.matches("backspace") and box.filter:
+            box.set_filter(box.filter[:-1])
+        elif event.char and event.char.isprintable() and not event.ctrl and not event.alt \
+                and (event.char != " " or box.filter):
+            box.set_filter(box.filter + event.char)
+        else:
+            return False
+        return True
+
+    def cursor_position(self) -> tuple[int, int] | None:
+        """The caret at the end of the top box's filter, while it has one."""
+        boxes = self.boxes
+        caret = boxes[-1].caret() if boxes else None
+        if caret is None:
+            return None
+        return boxes[-1].x + caret[0], boxes[-1].y + caret[1]
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         boxes = self.boxes
         if not boxes:
@@ -295,6 +419,9 @@ class PopupMenu(Widget):
             if event.action == "press":
                 for later in boxes[boxes.index(box) + 1:]:
                     self.remove(later)
+                if box.clear_at(event.x - box.x, event.y - box.y):
+                    box.set_filter("")
+                    return True
             row = box.entry_at(event.y - box.y)
             inside = box.x + 2 <= event.x < box.x + box.width - 2
             if row >= 0 and inside and box.selectable(row):

@@ -37,7 +37,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
-from navigator.lib.system import gio, kio, udisks
+from navigator.lib.system import desktop_entry, gio, kio, udisks
 from navigator.lib.system.desktop_entry import App, graphical
 
 
@@ -170,6 +170,16 @@ def launch(app: App, path: Path | str) -> None:
     _module().launch(app, path)
 
 
+def other_applications(listed: list[App]) -> list[App]:
+    """Every other installed application, by name: the same on either
+    backend, read from the ``.desktop`` files themselves."""
+    return desktop_entry.other_applications(listed)
+
+
+def set_default(mime: str, app: App) -> None:
+    _module().set_default(mime, app)
+
+
 def volume_backend() -> ModuleType | None:
     """Who Disk > Volumes asks: :func:`backend` where its volume command is
     installed, else :mod:`~navigator.lib.system.udisks` where ``udisksctl``
@@ -222,6 +232,6 @@ def link_schemes() -> dict[str, str]:
 
 __all__ = [
     "App", "applications", "backend", "content_type", "eject", "graphical", "kde_session", "launch",
-    "link_name", "link_schemes", "missing", "mount_device", "name", "open_file", "opener", "program", "run_xdg_open",
-    "trash", "unmount", "volume_backend", "volume_program", "volumes", "xdg_open",
+    "link_name", "link_schemes", "missing", "mount_device", "name", "open_file", "opener", "other_applications", "program",
+    "run_xdg_open", "set_default", "trash", "unmount", "volume_backend", "volume_program", "volumes", "xdg_open",
 ]

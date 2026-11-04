@@ -36,7 +36,9 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
-from navigator.lib.system.desktop_entry import App, application_dirs, desktop_file, desktop_name, launch_detached
+from navigator.lib.system.desktop_entry import (
+    App, application_dirs, desktop_file, desktop_name, launch_detached, set_default_in_mimeapps,
+)
 
 #: How long a quick question may take.
 TIMEOUT = 15.0
@@ -56,6 +58,7 @@ COMMANDS: dict[str, tuple[str, ...]] = {
     "kmimetypefinder": ("kmimetypefinder", "kmimetypefinder6", "kmimetypefinder5"),
     "ktraderclient": ("ktraderclient6", "ktraderclient5", "ktraderclient"),
     "kstart": ("kstart", "kstart6", "kstart5"),
+    "kbuildsycoca": ("kbuildsycoca6", "kbuildsycoca5"),
     "solid-hardware": ("solid-hardware6", "solid-hardware5", "solid-hardware"),
 }
 
@@ -197,8 +200,20 @@ def applications(mime: str, dirs: Iterable[Path] | None = None) -> list[App]:
         seen.add(app_id)
         path = desktop_file(app_id, dirs)
         name = name or (desktop_name(path) if path is not None else "")
-        found.append(App(app_id, name or app_id.removesuffix(".desktop"), path))
+        # KDE's first offer is the preferred one: what Enter opens it in.
+        found.append(App(app_id, name or app_id.removesuffix(".desktop"), path, not found))
     return found
+
+
+def set_default(mime: str, app: App) -> None:
+    """*app* what *mime* opens in from now on: the user's ``mimeapps.list``
+    (as *File Associations* in System Settings writes it), then
+    ``kbuildsycoca6`` where installed, so KDE's cache -- which
+    ``ktraderclient6`` reads -- has it at once rather than at its next scan."""
+    set_default_in_mimeapps(mime, app.id)
+    sycoca = command("kbuildsycoca")
+    if sycoca is not None:
+        run([sycoca], timeout=MOUNT_TIMEOUT)
 
 
 def launch(app: App, path: Path | str) -> None:

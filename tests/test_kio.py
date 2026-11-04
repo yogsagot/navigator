@@ -297,10 +297,22 @@ def test_applications_open_and_launch_through_kde(fake_kde, tmp_path):
     apps = kio.applications("image/png", [])
     assert [(app.id, app.name) for app in apps] == [("org.kde.gwenview.desktop", "Gwenview"),
                                                    ("gimp.desktop", "GNU Image Manipulation Program")]
+    # KDE's first offer is its preferred one.
+    assert [app.default for app in apps] == [True, False]
     picture = tmp_path / "p.png"
     assert kio.content_type(picture) == "image/png"
     kio.open_file(picture)
     assert ["kioclient", "--noninteractive", "exec", str(picture)] in fake_kde()["calls"]
+
+
+def test_set_default_writes_mimeapps_and_rebuilds_kdes_cache(fake_kde, tmp_path, monkeypatch):
+    sycoca = tmp_path / "bin" / "kbuildsycoca6"
+    sycoca.write_text(f"#!{sys.executable}\n{FAKE}")
+    sycoca.chmod(0o755)
+    kio.set_default("image/png", kio.App("gimp.desktop", "GIMP", None))
+    mimeapps = tmp_path / "config" / "mimeapps.list"
+    assert "[Default Applications]\nimage/png=gimp.desktop\n" in mimeapps.read_text()
+    assert ["kbuildsycoca6"] in fake_kde()["calls"]
 
 
 def test_volumes_mount_and_eject_by_udi(fake_kde):

@@ -78,9 +78,22 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   1. `content_type` (`gio info -a standard::content-type`) gives the file's type;
   2. `applications(mime)` (`gio mime`: the default, then registered, then recommended, each once; `Name=` from the
      `.desktop` file in the XDG data dirs, `a-b.desktop` also tried as `a/b.desktop`) lists the programs;
-  3. a centred `PopupMenu` offers them;
+  3. a centred `PopupMenu` titled *Open with (TYPE)* offers them, the default captioned *NAME (default)*
+     (`App.default`: gio's *Default application* line, KDE's first offer). The three layers of GNOME's and Xfce's:
+     the type's own, then **Other applications** -- a submenu of every other installed application
+     (`desktop.other_applications` → `desktop_entry.all_applications`, the same on either backend: every
+     `*.desktop` under `application_dirs()`, id = path with `/` as `-`, the first directory's winning; kept when
+     `Type=Application`, not `NoDisplay`/`Hidden`, `TryExec` installed, `OnlyShowIn`/`NotShowIn` admitting
+     `$XDG_CURRENT_DESKTOP`, and `Exec` taking a file (`%f %F %u %U`); sorted by name). Its box is `filterable` and `centred`
+     (footer *Type to filter*; `navml-windows-menus`);
   4. `gio launch DESKTOP-FILE FILE` opens the one chosen.
-  5. Or **Command...**, last, under a line: `Shell.open_with_command` asks a command line in an `EditLineDialog`
+  5. **Set default**, a submenu of the same two layers (greyed with no type): the one chosen becomes the type's
+     default (`desktop.set_default`: `gio mime TYPE APP`; KIO writes `mimeapps.list` itself,
+     `desktop_entry.set_default_in_mimeapps` -- `[Default Applications]` and first in `[Added Associations]`, every
+     other line kept, a symlinked file written through -- then runs `kbuildsycoca6` if installed). Nothing is
+     opened; a toast says it. The tests point `XDG_DATA_DIRS` at an empty directory (`tests/conftest.py`), so the
+     machine's applications never reach one.
+  6. Or **Command...**, last: `Shell.open_with_command` asks a command line in an `EditLineDialog`
      whose history is the extension's own (`open_with_history`: `open_with.png`, `open_with` with none). It is run
      in the console as an `extensions.ini` entry is (`run_commands`), so the user menu's macros work. With no `!`
      in it, ` !.!` goes on the end (`open_with_line`). A remote file is fetched there and sent back when the
