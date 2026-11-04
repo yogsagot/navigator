@@ -285,3 +285,28 @@ def test_a_long_value_wraps_and_the_cursor_passes_its_rows(data_dir):
     assert seen["more"] >= 2
     # Two Downs: the root, then past every row of the long value, onto `next`.
     assert seen["path"] == ".next"
+
+
+def test_the_tree_s_scroll_bar_shows_only_while_its_rows_go_past_the_view(data_dir):
+    """As the viewer's, the editor's and Compare files': the list's bar, only
+    while there are more rows -- wrapped values' rows counted -- than show."""
+    import json
+
+    from navigator.widgets.viewer.struct_window import StructWindow
+
+    (data_dir / "b.json").write_text(json.dumps({f"key{n}": n for n in range(40)}))
+    (data_dir / "c.json").write_text(json.dumps({"long": "word " * 400}))
+    app = Navigator(data_dir, data_dir, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def tree_of(name):
+        def open_it(a):
+            panel = a.manager.active_panel
+            panel.cursor = next(i for i, item in enumerate(panel.items) if item.name == name)
+        return [open_it, KeyEvent("f3"), IDLE, KeyEvent("shift+f4"),
+                Until(lambda a: isinstance(active(a), StructWindow)),
+                lambda a: seen.update({name: active(a).tree.bar.visible}),
+                KeyEvent("escape"), IDLE]
+
+    run_app(app, [*tree_of("a.json"), *tree_of("b.json"), *tree_of("c.json")], timeout=15)
+    assert seen == {"a.json": False, "b.json": True, "c.json": True}

@@ -770,3 +770,86 @@ def test_the_quick_view_s_own_menu_views_renders_and_closes_only_itself(files):
     assert seen["after"] is None and seen["manager"]  # the panel back, the file manager still open
     assert seen["keys"]  # the right click never took the keyboard, so closing leaves it where it was
     assert seen["viewing"] == files / "text.txt"
+
+
+def test_a_row_wider_than_the_view_puts_a_scroll_bar_on_the_bottom_frame(tmp_path, quiet_console):
+    """A departure, as the editor's: DN's viewer had the right frame's bar alone."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    (tmp_path / "wide.txt").write_text("short\n" + "x" * 200 + "\nshort\n")
+    app = navigator(tmp_path)
+    seen = {}
+
+    def look(a, key):
+        window = opened(a)
+        seen[key] = (window.hbar.visible, window.hbar.maximum, window.viewer.x_delta)
+        seen["width"] = window.viewer.width
+
+    def drag(a):
+        window = opened(a)
+        a.spawn(window.on_hbar_scroll(ScrollEvent(value=50)))
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, lambda a: look(a, "open"),
+                  drag, lambda a: None, lambda a: look(a, "dragged"),
+                  KeyEvent("f2"), lambda a: look(a, "wrapped")])
+    visible, maximum, _ = seen["open"]
+    # Its range is the widest row on screen less the view's width.
+    assert visible and maximum == 200 - seen["width"]
+    assert seen["dragged"][2] == 50
+    assert seen["wrapped"][0] is False
+
+
+def test_rows_that_fit_leave_the_bottom_frame_without_a_bar(files):
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE,
+                  lambda a: seen.update(visible=opened(a).hbar.visible)])
+    assert seen["visible"] is False
+
+
+def test_the_quick_view_has_the_bottom_bar_too_while_the_keyboard_is_in_it(tmp_path, quiet_console):
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    (tmp_path / "wide.txt").write_text("x" * 300 + "\n")
+    app = navigator(tmp_path)
+    seen = {}
+
+    def look(a, key):
+        quick = a.manager.quick
+        seen[key] = (quick.hbar.visible, quick.viewer.x_delta)
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("q", ctrl=True),
+        Until(lambda a: a.manager.quick.viewer.source is not None),
+        lambda a: look(a, "panel"),
+        lambda a: a.manager.quick.viewer.focus(), lambda a: look(a, "inside"),
+        lambda a: a.spawn(a.manager.quick.on_hbar_scroll(ScrollEvent(value=40))), lambda a: None,
+        lambda a: look(a, "dragged"),
+    ])
+    # As the right bar: hidden while the keyboard is with the panel.
+    assert seen["panel"][0] is False
+    assert seen["inside"][0] is True
+    assert seen["dragged"][1] == 40
+
+
+def test_the_right_bar_shows_only_while_the_file_is_taller_than_the_view(tmp_path, quiet_console):
+    """A departure, asked for, as the bottom bar: DN's ``TViewScroll`` was always there."""
+    (tmp_path / "a_short.txt").write_text("one\ntwo\n")
+    (tmp_path / "b_long.txt").write_text("".join(f"line {n}\n" for n in range(100)))
+    (tmp_path / "c_wide.txt").write_text("y" * 2000 + "\n")
+    app = navigator(tmp_path)
+    seen = {}
+
+    def look(key):
+        return lambda a: seen.update({key: opened(a).bar.visible})
+
+    run_app(app, [
+        KeyEvent("down"), KeyEvent("f3"), IDLE, look("short"), KeyEvent("escape"), IDLE,
+        KeyEvent("down"), KeyEvent("f3"), IDLE, look("long"), KeyEvent("ctrl+end"), look("long at end"),
+        KeyEvent("escape"), IDLE,
+        KeyEvent("down"), KeyEvent("f3"), IDLE, look("wide"), KeyEvent("f2"), look("wide wrapped"),
+        KeyEvent("f4"), look("wide in hex"),
+    ])
+    # One long line fits unwrapped; wrapped it is 26 rows, and in hex 125.
+    assert seen == {"short": False, "long": True, "long at end": True,
+                    "wide": False, "wide wrapped": True, "wide in hex": True}

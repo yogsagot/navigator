@@ -13,6 +13,20 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   the bottom edge.
 - **Positions are byte offsets and nothing counts lines**, so a gigabyte opens at once. Text is UTF-8; an undecodable byte
   or a control is its CP437 glyph.
+- **A scroll bar on the bottom frame** (`FileWindow.hbar`), a departure, asked for: DN's viewer had the right
+  frame's bar alone. It sits between the info line (and its `{Markdown}`/`{Tree}` mark) and the option strip, and is
+  shown while a row on screen is wider than the view. Its value is `x_delta`, and its range is
+  `FileViewer.row_span`, the widest row showing. Nothing measures the whole file, so this is End's `CM_END`
+  measure, decoded only to `SPAN_LOOK` (4096) columns or two views past the scroll, so a minified line is not
+  decoded whole on every move. It is 0, and the bar hidden, while wrapped, rendered, in hex or dump, or narrower than
+  4 cells. *Filter lines*' rows are measured with their gutter. `on_hbar_scroll` sets `x_delta`.
+  **The right bar likewise shows only while there is more than the view holds** (`FileViewer.overflows`, a
+  departure, asked for: DN's `TViewScroll` was always there). In text that means the top is past the start or the
+  last row on screen is not the file's last, since nothing counts lines. For the markup view and *Filter lines* it
+  means more rows than the view; for hex and dump, more bytes than the rows show; a picture never overflows. The
+  frame shows where the bar would be.
+  Ctrl+Q's quick view has the same bar (`QuickViewer.hbar`) across its bottom frame. Like its right bar, after
+  DN's `TFileViewer.SetState`, it is shown only while the keyboard is in the quick view.
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
   it in either mode.

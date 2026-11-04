@@ -864,6 +864,35 @@ class FileEditor(ContextMenuHost, Widget):
         self.revision
         return len(self.buffer.document)
 
+    # -- what the frame's scroll bars show (a departure, asked for: DN's editor
+    # had both always; shown only while there is more than the area holds, as
+    # the viewer's) --------------------------------------------------------------
+
+    @computed
+    def overflows(self) -> bool:
+        """Whether there are more lines than the area shows, or it is scrolled
+        down from the first: what shows the right frame's bar."""
+        return self.top > 0 or self.line_count > max(1, self.height)
+
+    @computed
+    def row_span(self) -> int:
+        """How many columns the widest line on screen takes -- or the cursor's
+        column, past a line's end -- what the bottom bar's range is."""
+        self.revision
+        lines = self.document.lines
+        widest = self.col + 1
+        for number in range(self.top, min(len(lines), self.top + max(1, self.height))):
+            text = lines[number]
+            span = len(text) if text.isascii() and "\t" not in text else self._line_width(number)
+            widest = max(widest, span)
+        return widest
+
+    @computed
+    def overflows_across(self) -> bool:
+        """Whether a line on screen is wider than the area, or it is scrolled
+        sideways: what shows the bottom frame's bar."""
+        return self.left > 0 or self.row_span > max(1, self.width)
+
     # -- the cursor --------------------------------------------------------------
 
     def _text(self, line: int | None = None) -> str:

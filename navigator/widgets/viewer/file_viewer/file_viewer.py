@@ -81,6 +81,10 @@ WHEEL_ROWS = 3
 #: How far Ctrl+Left and Ctrl+Right move text sideways.
 BIG_STEP = 20
 
+#: How many columns of each row on screen the bottom scroll bar measures,
+#: at least (``FileViewer.row_span``).
+SPAN_LOOK = 4096
+
 #: The thread syntax highlighting lexes on.
 _LEXER = Background("nav-view-lex", workers=1)
 
@@ -479,6 +483,61 @@ class FileViewer(ContextMenuHost, Widget):
         if self.rendered or self.format_by_name(self.path):
             return "{" + self.format_label() + "}"
         return ""
+
+    @computed
+    def row_span(self) -> int:
+        """How many columns the widest row on screen takes: how far the bottom
+        frame's scroll bar reaches (a departure, as the editor's -- DN's viewer
+        had the right one alone).  Nothing counts the whole file's lines, so
+        the rows showing are the measure, as End's ``CM_END`` measures them.
+        0 where nothing goes sideways: wrapped, rendered, hex and dump."""
+        self.size, self.encoding, self.filter  # a new size or reading: measured again
+        if self.source is None:
+            return 0
+        if self.filtering:
+            self.lines_revision
+            shown = self.lines.shown[self.lines_row:self.lines_row + max(1, self.height)]
+            if not shown:
+                return 0
+            gutter = len(str(shown[-1].number)) + 1
+            return gutter + max(len(hit.text.expandtabs(8)) for hit in shown)
+        if self.mode != "text" or self.wrap or self.rendering or self.showing_picture:
+            return 0
+        # Measured as far as ``SPAN_LOOK`` columns, or two views past where it
+        # is scrolled to: a minified line is not decoded whole on every move,
+        # and the bar reaches further as the view goes right.
+        reach = max(SPAN_LOOK, self.x_delta + 2 * max(1, self.width))
+        try:
+            rows = self._text_rows(self.height, max_cols=reach)
+        except (NotYet, OSError):
+            return 0
+        return max((len(row.cells) for row in rows), default=0)
+
+    @computed
+    def overflows(self) -> bool:
+        """Whether there is more than the view holds, up or down: what shows
+        the right frame's scroll bar (a departure, asked for, as the bottom
+        one: DN's ``TViewScroll`` was always there).  A file that fits whole
+        has none; nothing counts its lines, so in text the view's top is at
+        the start and its last row on screen is the file's last."""
+        self.size, self.encoding, self.filter, self.wrap
+        if self.source is None or self.height <= 0:
+            return False
+        if self.filtering:
+            self.lines_revision
+            return len(self.lines.shown) > self.height
+        if self.mode == "text" and self.showing_picture:
+            return False
+        if self.rendering:
+            return len(self.render_layout.rows) > self.height
+        if self.mode != "text":
+            return self.size > self.height * self.row_bytes()
+        if self.top > 0:
+            return True
+        try:
+            return not self._end_showing()
+        except (NotYet, OSError):
+            return True
 
     def percent(self) -> int:
         """How far into the file the view is: 100 once the end is showing."""

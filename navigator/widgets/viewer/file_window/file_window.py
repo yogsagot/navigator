@@ -636,6 +636,12 @@ class FileWindow(Window):
         self.viewer.seek(event.value)
         return True
 
+    async def on_hbar_scroll(self, event: ScrollEvent) -> bool:
+        """The bottom bar was worked (a departure, as the editor's): its value
+        is the column the rows start at."""
+        self.viewer.x_delta = max(0, event.value)
+        return True
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A press on ``{Markdown}`` after the info line switches it."""
         mark = self.md_mark

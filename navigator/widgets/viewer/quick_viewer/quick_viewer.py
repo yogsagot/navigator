@@ -191,6 +191,11 @@ class QuickViewer(Widget):
         self.viewer.seek(event.value)
         return True
 
+    async def on_hbar_scroll(self, event: ScrollEvent) -> bool:
+        """The bottom bar was worked: the column the rows start at."""
+        self.viewer.x_delta = max(0, event.value)
+        return True
+
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
         """Shift+F4: a Markdown, reST, HTML or PDF file rendered, or its source, as in F3."""
         if self.viewer.mode == "text" and self.viewer.can_render:

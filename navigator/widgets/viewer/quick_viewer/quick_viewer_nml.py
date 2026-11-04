@@ -35,24 +35,26 @@ class QuickViewer(_Component):
     The viewer is the F3 window's, framed the way a panel is framed because it
     stands where one stood.  ``ViewInsert`` gave it a ``TViewScroll`` on the
     frame's right column, shown only while the viewer is selected
-    (``TFileViewer.SetState``); the bar here does the same.
+    (``TFileViewer.SetState``); the bar here does the same, and so does the
+    bottom frame's (a departure, as the F3 window's).
     """
 
     #: The document this class was generated from.
     __navml_source__ = "quick_viewer.nml"
 
     #: View > *Markdown*'s key, as in the F3 window, while the keyboard is in here.
-    keys = {    # quick_viewer.nml:19
-        'shift+f4': SwitchRendered,    # quick_viewer.nml:20
+    keys = {    # quick_viewer.nml:20
+        'shift+f4': SwitchRendered,    # quick_viewer.nml:21
     }
 
     #: Columns left clear at each end of the top frame for the window's icons,
     #: as a panel leaves them.
-    title_margin: int = _reactive(0)    # quick_viewer.nml:16
+    title_margin: int = _reactive(0)    # quick_viewer.nml:17
 
     #: Ids, annotated so the hand-written half completes them.
-    viewer: FileViewer    # quick_viewer.nml:23
-    bar: ScrollBar    # quick_viewer.nml:30
+    viewer: FileViewer    # quick_viewer.nml:24
+    bar: ScrollBar    # quick_viewer.nml:31
+    hbar: ScrollBar    # quick_viewer.nml:48
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -62,28 +64,50 @@ class QuickViewer(_Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:30
+    async def on_bar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:31
         """``bar`` raised an event whose handler is ``on_scroll``."""
+        return False
+
+    async def on_hbar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:48
+        """``hbar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.viewer = FileViewer(parent=self)    # quick_viewer.nml:22
-        self.bar = ScrollBar(parent=self)    # quick_viewer.nml:29
+        self.viewer = FileViewer(parent=self)    # quick_viewer.nml:23
+        self.bar = ScrollBar(parent=self)    # quick_viewer.nml:30
+        self.hbar = ScrollBar(parent=self)    # quick_viewer.nml:47
 
-        self.viewer.x = 1    # quick_viewer.nml:24
-        self.viewer.y = 1    # quick_viewer.nml:25
-        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # quick_viewer.nml:26
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:27
+        self.viewer.x = 1    # quick_viewer.nml:25
+        self.viewer.y = 1    # quick_viewer.nml:26
+        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # quick_viewer.nml:27
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:28
 
-        self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # quick_viewer.nml:31
-        self.bar.y = 1    # quick_viewer.nml:32
-        self.bar.width = 1    # quick_viewer.nml:33
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:34
-        self.bar.value = _bind(lambda _o: self.viewer.top)    # quick_viewer.nml:35
-        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # quick_viewer.nml:36
-        self.bar.page = _bind(    # quick_viewer.nml:37
+        self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # quick_viewer.nml:32
+        self.bar.y = 1    # quick_viewer.nml:33
+        self.bar.width = 1    # quick_viewer.nml:34
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:35
+        self.bar.value = _bind(lambda _o: self.viewer.top)    # quick_viewer.nml:36
+        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # quick_viewer.nml:37
+        self.bar.page = _bind(    # quick_viewer.nml:38
             lambda _o: max(1, self.viewer.width * self.viewer.height)
         )
-        self.bar.visible = _bind(lambda _o: self.viewer.focused)    # quick_viewer.nml:38
-        self.bar.on_scroll = self.on_bar_scroll    # quick_viewer.nml:30
+        self.bar.visible = _bind(    # quick_viewer.nml:41
+            lambda _o: self.viewer.focused and self.viewer.overflows
+        )
+        self.bar.on_scroll = self.on_bar_scroll    # quick_viewer.nml:31
+
+        self.hbar.orientation = 'horizontal'    # quick_viewer.nml:49
+        self.hbar.x = 2    # quick_viewer.nml:50
+        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # quick_viewer.nml:51
+        self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # quick_viewer.nml:52
+        self.hbar.height = 1    # quick_viewer.nml:53
+        self.hbar.value = _bind(lambda _o: self.viewer.x_delta)    # quick_viewer.nml:54
+        self.hbar.maximum = _bind(    # quick_viewer.nml:55
+            lambda _o: max(0, self.viewer.row_span - self.viewer.width)
+        )
+        self.hbar.page = _bind(lambda _o: max(1, self.viewer.width))    # quick_viewer.nml:56
+        self.hbar.visible = _bind(    # quick_viewer.nml:57
+            lambda _o: self.viewer.focused and self.viewer.row_span > self.viewer.width and (_o.width >= 4)
+        )
+        self.hbar.on_scroll = self.on_hbar_scroll    # quick_viewer.nml:48

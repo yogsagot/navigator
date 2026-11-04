@@ -174,3 +174,34 @@ def test_hebrew_in_compared_files_reads_the_right_way_round():
 
     assert text(1, 19) == "".join(cell for _, cell in layout("שלום abc"))
     assert text(22, 19) == "".join(cell for _, cell in layout("שלום abd"))
+
+
+def test_the_scroll_bars_show_only_while_there_is_more_than_the_view_holds(sides):
+    """A departure, asked for, as the viewer's: each bar only while the
+    rows or a line go past what the view shows."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    (sides / "west" / "c.txt").write_text("short\nleft\n")
+    (sides / "east" / "c.txt").write_text("short\nright " + "w" * 120 + "\n")
+    (sides / "west" / "d.txt").write_text("one\n")
+    (sides / "east" / "d.txt").write_text("two\n")
+    seen = {}
+
+    def bars(key):
+        return lambda a: seen.update({key: (window(a).bar.visible, window(a).hbar.visible)})
+
+    def close(a):
+        window(a).close()
+
+    app = navigator(sides)
+    run_app(app, [
+        lambda a: put_cursor(a, "a.txt"), diff, Until(window), bars("long"), close,
+        lambda a: put_cursor(a, "d.txt"), diff, Until(window), bars("short"), close,
+        lambda a: put_cursor(a, "c.txt"), diff, Until(window), bars("wide"),
+        lambda a: a.spawn(window(a).on_hbar_scroll(ScrollEvent(value=30))), lambda a: None,
+        lambda a: seen.update(shifted=window(a).view.x_delta),
+    ])
+    assert seen["long"] == (True, False)
+    assert seen["short"] == (False, False)
+    assert seen["wide"] == (False, True)
+    assert seen["shifted"] == 30

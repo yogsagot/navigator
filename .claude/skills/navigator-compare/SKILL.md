@@ -122,6 +122,11 @@ compare only) get a box with `DiffersAt`'s byte and line; files differing only i
   (not rebindable, as the viewer's); N/Alt+Down and P/Alt+Up (`NextDifference`, `PreviousDifference`), F3/Esc and
   Ctrl+R are the window's table (`diff_window`). Next/previous count from the current difference while it is on show,
   else from the view. `open_diff` calls `view.go_to(0)` after `desktop.open`, as the view's height is unknown before.
+- **The scroll bars show only while there is more than the view holds** (a departure, asked for, as the viewer's and
+  the editor's). The right one (`bar`) shows while `DiffView.overflows`, meaning more rows than `page`. The bottom one
+  (`hbar`, after the info line) shows while `overflows_across`, meaning the longest line on show (`row_span`, End's
+  `_longest`) is wider than one side's `room`, or the view is scrolled sideways. Its value is `x_delta`, and it
+  scrolls both sides as one (`DiffWindow.on_hbar_scroll`).
 - Marks `-`/`+` begin every non-equal row, so the view reads in mono; the current difference's marks are
   `::mark.current`. Text is decoded by the viewer's `decode_cells` (UTF-8, CP437 fallback, tabs, wide characters).
 

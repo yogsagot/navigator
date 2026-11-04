@@ -3069,3 +3069,28 @@ def test_every_entry_on_the_editor_s_menu_shows_its_key(files):
                   lambda a: a.spawn(editor_window(a).editor.emit(ShowContextMenu())),
                   Until(lambda a: popup(a) is not None), look])
     assert missing == []
+
+
+def test_the_scroll_bars_show_only_while_there_is_more_than_the_area_holds(files):
+    """A departure, asked for, as the viewer's: DN's editor had both bars always."""
+    app = navigator(files)
+    seen = {}
+
+    def look(key):
+        def act(a):
+            window = editor_window(a)
+            seen[key] = (window.vbar.visible, window.hbar.visible)
+        return act
+
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f4"), Until(lambda a: editor_window(a) is not None), IDLE,
+        look("short"),
+        KeyEvent("end"), PasteEvent("x" * 90), look("wide"),
+        KeyEvent("home"), look("wide, scrolled back"),
+        KeyEvent("ctrl+end"), PasteEvent("\n" * 25), look("long"),
+    ], timeout=15)
+    assert seen["short"] == (False, False)
+    assert seen["wide"] == (False, True)
+    # The wide line is still on screen, so the bar stays.
+    assert seen["wide, scrolled back"] == (False, True)
+    assert seen["long"][0] is True

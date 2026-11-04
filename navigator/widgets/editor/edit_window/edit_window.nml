@@ -72,10 +72,12 @@ EditWindow(Window):
         x: editor.x + editor.width - self.width - 1
         y: editor.y
 
-    #: Its value is the cursor's line, as ``VScroll`` was ``Delta.Y``.
+    #: Its value is the cursor's line, as ``VScroll`` was ``Delta.Y``.  Shown
+    #: only while there are more lines than the area holds (a departure, asked
+    #: for, as the viewer's: DN's was always there).
     ScrollBar:
         id: vbar
-        visible: root.active
+        visible: root.active and editor.overflows
         x: parent.width - 1
         y: 1
         width: 1
@@ -84,20 +86,23 @@ EditWindow(Window):
         maximum: max(0, editor.line_count - 1)
         page: max(1, editor.height)
 
-    #: From column 24 to the corner, as ``ChangeBounds`` sized it; its range is
-    #: DN's 0 to 255 until the cursor goes further.  With the option strip
-    #: showing it ends a cell short of the strip instead, and narrower than its
-    #: two arrows, thumb and a cell of track it is not shown at all.
+    #: From column 24 to the corner, as ``ChangeBounds`` sized it.  With the
+    #: option strip showing it ends a cell short of the strip instead, and
+    #: narrower than its two arrows, thumb and a cell of track it is not shown
+    #: at all.  Shown only while a line on screen is wider than the area, or it
+    #: is scrolled sideways, and its range is the widest of them
+    #: (``FileEditor.row_span``) -- a departure, asked for, as the viewer's:
+    #: DN's was always there and ran 0 to 255.
     ScrollBar:
         id: hbar
         orientation: "horizontal"
-        visible: root.active and self.width >= 4
+        visible: root.active and editor.overflows_across and self.width >= 4
         x: 24
         y: max(0, parent.height - 1)
         width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - 24)
         height: 1
         value: editor.col
-        maximum: max(255, editor.col)
+        maximum: max(0, editor.row_span - 1)
         page: max(1, editor.width)
 
     #: ``TInfoLine``: over the bottom frame, two columns in, as wide as it says.

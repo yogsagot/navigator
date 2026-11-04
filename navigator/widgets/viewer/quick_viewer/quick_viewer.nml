@@ -9,7 +9,8 @@ from navml.widgets.dialog.scroll_bar import ScrollBar
 #: The viewer is the F3 window's, framed the way a panel is framed because it
 #: stands where one stood.  ``ViewInsert`` gave it a ``TViewScroll`` on the
 #: frame's right column, shown only while the viewer is selected
-#: (``TFileViewer.SetState``); the bar here does the same.
+#: (``TFileViewer.SetState``); the bar here does the same, and so does the
+#: bottom frame's (a departure, as the F3 window's).
 QuickViewer:
     #: Columns left clear at each end of the top frame for the window's icons,
     #: as a panel leaves them.
@@ -35,4 +36,22 @@ QuickViewer:
         value: viewer.top
         maximum: viewer.size
         page: max(1, viewer.width * viewer.height)
-        visible: viewer.focused
+        #: And only while there is more than the view holds (a departure, as
+        #: the F3 window's).
+        visible: viewer.focused and viewer.overflows
+
+    #: A departure, asked for, as the F3 window's: DN's quick view had the
+    #: right bar alone.  On the bottom frame, a cell in from each corner, while
+    #: a row on screen is wider than the view (``FileViewer.row_span``) -- and,
+    #: as the right one, while the keyboard is in here.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        x: 2
+        y: max(0, parent.height - 1)
+        width: max(0, parent.width - 4)
+        height: 1
+        value: viewer.x_delta
+        maximum: max(0, viewer.row_span - viewer.width)
+        page: max(1, viewer.width)
+        visible: viewer.focused and viewer.row_span > viewer.width and self.width >= 4

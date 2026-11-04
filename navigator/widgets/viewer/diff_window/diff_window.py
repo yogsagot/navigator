@@ -95,6 +95,11 @@ class DiffWindow(Window):
         self.view.scroll_to(event.value)
         return True
 
+    async def on_hbar_scroll(self, event: ScrollEvent) -> bool:
+        """The bottom bar was worked: both sides scrolled to its column."""
+        self.view.x_delta = max(0, event.value)
+        return True
+
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
     # ``VolumesWindow``'s are.
 

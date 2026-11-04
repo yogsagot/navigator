@@ -402,3 +402,35 @@ def test_a_refused_signal_is_sent_by_the_root_helper(tmp_path, monkeypatch):
         unmount(root.ROOT_SITE)
         elevate.ELEVATION.close()
         elevate.ELEVATION.command = None
+
+
+@pytest.mark.parametrize("count, shown", [(0, False), (60, True)])
+def test_the_scroll_bar_shows_only_while_the_list_is_longer_than_the_window(tmp_path, monkeypatch, count, shown):
+    """The list's bar (navml's ``ListViewer``): only while there are more
+    processes than rows, as the viewer's, the editor's and the tree's."""
+    many = [Process(1000 + n, 1, os.getuid(), "me", "S", 1, 1 << 20, 0, 0, 10 + n, f"job{n}", f"job{n}")
+            for n in range(count)]
+    monkeypatch.setattr(processes, "gather", lambda proc=processes.PROC: fake_processes() + many)
+    seen = []
+
+    def look(a):
+        seen.append(a.shell.desktop.active_window.processes.bar.visible)
+
+    from test_nav import navigator
+
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setattr(SETTINGS.processes, "refresh", 0)
+    app = navigator(tmp_path)
+
+    def open_it(a):
+        from navigator.widgets.shell.commands import OpenProcessWindow
+
+        a.spawn(a.run_command(OpenProcessWindow))
+
+    def listed(a):
+        window = a.shell.desktop.active_window
+        return getattr(window, "processes", None) is not None and bool(window.processes.items)
+
+    run_app(app, [open_it, Until(listed), look])
+    assert seen == [shown]

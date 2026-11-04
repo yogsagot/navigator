@@ -130,6 +130,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   type, else `lexer_name` (the lexing thread returns `(lexer_label, spans)`; kept while Hi is off), else `auto`.
   Priority on a short frame: info line, then strip (`room`), then hbar, which ends a cell before the strip and hides
   under 4 cells. Styled `EditWindow OptionStrip::item:checked { reverse }`, `:disabled { dim }`.
+  **Both scroll bars show only while there is more than the edit area holds** (a departure, asked for, as the
+  viewer's: DN's were always there). The right one (`vbar`) shows while `FileEditor.overflows`, meaning more lines
+  than rows or scrolled down. The bottom one (`hbar`) shows while `overflows_across`, meaning a line on screen, or the
+  cursor's column, is wider than the area, or the area is scrolled sideways. Its range is `row_span - 1`, the widest
+  of them, not DN's 0 to 255. The frame shows where a bar would be.
 - **Hidden characters** (`SwitchHiddenChars`, a departure: Editor > Options > *Show hidden characters*, View >
   *Hidden characters*, the strip's ¶; `show_hidden`, seeded from `[editor]`/`[viewer] show_hidden`, not kept in the
   history): `navigator.lib.viewer.HIDDEN_MARKS` -- `·` blank, `→` a tab's first column, and each line's own ending a cell

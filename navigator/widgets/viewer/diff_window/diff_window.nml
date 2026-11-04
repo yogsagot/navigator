@@ -43,9 +43,12 @@ DiffWindow(Window):
         width: max(0, parent.width - 2)
         height: max(0, parent.height - 2)
 
-    #: On the frame's right column, as the viewer's; its value is the row on top.
+    #: On the frame's right column, as the viewer's; its value is the row on
+    #: top.  Shown only while there are more rows than the view holds (a
+    #: departure, asked for, as the viewer's).
     ScrollBar:
         id: bar
+        visible: view.overflows
         x: parent.width - 1
         y: 2
         width: 1
@@ -63,6 +66,22 @@ DiffWindow(Window):
         width: min(display_width(view.info_text), max(0, parent.width - 3))
         height: 1
         text: view.info_text
+
+    #: On the bottom frame after the info line, as the viewer's: how far both
+    #: sides are scrolled sideways, while a line on show is wider than its side
+    #: (``DiffView.row_span``) or they are scrolled.  Narrower than its arrows,
+    #: thumb and a cell of track, it is not shown.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        visible: view.overflows_across and self.width >= 4
+        x: info.x + info.width + 1
+        y: max(0, parent.height - 1)
+        width: max(0, parent.width - 2 - self.x)
+        height: 1
+        value: view.x_delta
+        maximum: max(0, view.row_span - view.room, view.x_delta)
+        page: view.room
 
     #: The window's own menu on the bar after *File* while it is active, and
     #: its right-click menu.

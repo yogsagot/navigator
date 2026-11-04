@@ -67,8 +67,11 @@ FileWindow(Window):
     #: On the frame's right column, a row in from each corner.  Its value is
     #: the byte offset on top -- ``TViewScroll`` counted bytes, not lines, which
     #: is what lets a gigabyte have a thumb without being counted first.
+    #: Shown only while there is more than the view holds (a departure, asked
+    #: for, as the bottom bar: ``TViewScroll`` was always there).
     ScrollBar:
         id: bar
+        visible: viewer.overflows
         x: parent.width - 1
         y: 1
         width: 1
@@ -99,6 +102,24 @@ FileWindow(Window):
         height: 1
         text: viewer.render_mark
         classes: frozenset({'rendered'}) if viewer.rendered else frozenset({'rendered', 'off'})
+
+    #: A departure, asked for: DN's viewer had the right frame's bar alone.
+    #: On the bottom frame between the info line (and its mark) and the option
+    #: strip, while a row on screen is wider than the view -- its range is the
+    #: widest of them (``FileViewer.row_span``), since nothing measures the
+    #: whole file.  Narrower than its arrows, thumb and a cell of track, it is
+    #: not shown, as the editor's.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        visible: root.active and viewer.row_span > viewer.width and self.width >= 4
+        x: md_mark.x + md_mark.width + 1
+        y: max(0, parent.height - 1)
+        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - self.x)
+        height: 1
+        value: viewer.x_delta
+        maximum: max(0, viewer.row_span - viewer.width)
+        page: max(1, viewer.width)
 
     #: A departure: DN had no such strip.  The viewer's options on the bottom
     #: frame, right-aligned before the corner, each lit while on and switched by

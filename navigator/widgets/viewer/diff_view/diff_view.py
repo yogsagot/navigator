@@ -107,6 +107,33 @@ class DiffView(Widget):
         """The furthest ``top`` goes: the last row at the bottom."""
         return max(0, self.total - self.page)
 
+    # -- what the frame's scroll bars show (a departure, asked for: shown only
+    # while there is more than the view holds, as the viewer's and the
+    # editor's) ---------------------------------------------------------------
+
+    @computed
+    def overflows(self) -> bool:
+        """Whether there are more rows than the view shows: the right bar."""
+        return self.total > self.page
+
+    @computed
+    def room(self) -> int:
+        """How many columns of text one side shows, past its mark column:
+        how far End scrolls each line in."""
+        return max(1, (self.width - 1) // 2 - 1)
+
+    @computed
+    def row_span(self) -> int:
+        """The longest line on show, either side: the bottom bar's range."""
+        self.top, self.model, self.page
+        return self._longest()
+
+    @computed
+    def overflows_across(self) -> bool:
+        """Whether a line on show is wider than its side, or both are scrolled
+        sideways: the bottom bar."""
+        return self.x_delta > 0 or self.row_span > self.room
+
     @computed
     def info_text(self) -> str:
         """The bottom frame's: which difference, of how many, and what they come to."""
@@ -208,8 +235,7 @@ class DiffView(Widget):
         elif name == "home":
             self.x_delta = 0
         elif name == "end":
-            room = max(1, (self.width - 1) // 2 - 1)
-            self.x_delta = max(0, self._longest() - room)
+            self.x_delta = max(0, self._longest() - self.room)
         else:
             return False
         return True
