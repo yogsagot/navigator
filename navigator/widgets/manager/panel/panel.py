@@ -1607,6 +1607,11 @@ class Panel(ListViewer):
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if self._drag is not None and event.action in ("move", "release"):
             return self._dragging(event)
+        if event.button == "middle" and event.action == "press":
+            # The middle button (the wheel pressed) tags as DN's right button
+            # did, whatever *Right button* says: with the right one opening
+            # the context menu, this is where DN's tagging went.
+            return self._right_marking(event)
         if event.button == "right" or self._right_mark is not None:
             if self._right_mark is not None or (
                 event.action == "press" and self._right_selects()
@@ -1641,13 +1646,17 @@ class Panel(ListViewer):
     # File Manager Setup's *Right button*: the context menu (the default; see
     # ``ContextMenuHost``), or DOS Navigator's own use of it, which selected.
 
+    def claims_middle_click(self, x: int, y: int) -> bool:
+        """A row is the middle button's: it tags there (VTE pastes instead, see navkit)."""
+        return not self.inert and self.index_at(x, y) is not None
+
     @staticmethod
     def _right_selects() -> bool:
         return SETTINGS.file_manager.right_button == "select"
 
     def _right_marking(self, event: MouseClickEvent) -> bool:
         """DN's right button: a press toggles the row's tag, and a drag gives
-        every row it passes the same one.
+        every row it passes the same one.  The middle button always does this.
 
         ``FLPANELX.PAS``: ``MSelect`` when the right button is down,
         ``SelectFlag := not Selected`` from the row pressed, and the loop
@@ -1664,6 +1673,8 @@ class Panel(ListViewer):
             if index is None:
                 return True
             entry = self.items[index]
+            if app is not None and app.focused is not self:
+                self.focus()
             self.cursor = index
             flag = not self.is_marked(entry)
             self._tag_rows(index, index, flag)

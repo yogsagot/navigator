@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, Until, run_app
 from navkit.events import MouseClickEvent
 
 from navigator.__main__ import Navigator
@@ -75,3 +75,65 @@ def test_ctrl_double_click_inserts_the_name_and_tags_nothing(tree):
     run_app(app, [*click(3), lambda a: None, *ctrl_click(5), *ctrl_click(5)])
     assert tagged(app) == []
     assert app.shell.command_line.value.strip() == "one.txt"
+
+
+def middle(y: int, action: str = "press", x: int = 5) -> MouseClickEvent:
+    return MouseClickEvent(x=x, y=y, button="middle", action=action)
+
+
+def test_a_middle_click_toggles_the_rows_tag(tree):
+    """DN's right button, which the context menu took: the cursor goes there too."""
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [middle(5), middle(5, "release"), middle(3), middle(3, "release"),
+                  lambda a: None])
+    assert tagged(app) == ["alpha", "one.txt"]
+    assert app.manager.left.selected.name == "alpha"
+    run_app(app := Navigator(tree, tree, terminal=FakeTerminal(80, 24)),
+            [middle(5), middle(5, "release"), lambda a: None, middle(5), middle(5, "release")])
+    assert tagged(app) == []
+
+
+def test_a_middle_drag_tags_every_row_it_passes_and_never_dot_dot(tree):
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [middle(6), MouseClickEvent(x=5, y=2, button="middle", action="move"),
+                  middle(2, "release")])
+    assert tagged(app) == ["alpha", "beta", "one.txt", "two.txt"]
+
+
+def test_a_middle_click_in_the_other_panel_tags_there(tree):
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [middle(4, x=45), middle(4, "release", x=45), lambda a: None])
+    assert [e.name for e in app.manager.right.marked_entries] == ["beta"]
+    assert app.manager.active_panel is app.manager.right
+
+
+def test_vte_middle_click_pastes_and_reports_only_the_release_and_still_tags(tree):
+    """xfce4-terminal: the press is a paste of the primary selection, then the
+    release alone; over a row the paste is dropped and the row tagged."""
+    from navkit.events import PasteEvent
+
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [MouseClickEvent(x=5, y=5, button="none", action="move"),
+                  PasteEvent("primary text"), middle(5, "release"), lambda a: None])
+    assert tagged(app) == ["one.txt"]
+    assert app.shell.command_line.value == ""
+
+
+def test_vte_middle_click_off_the_rows_still_pastes(tree):
+    from navkit.events import PasteEvent
+
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [MouseClickEvent(x=5, y=22, button="none", action="move"),
+                  PasteEvent("primary text"), middle(22, "release"), lambda a: None])
+    assert tagged(app) == []
+    assert app.shell.command_line.value == "primary text"
+
+
+def test_a_paste_over_a_row_with_no_release_after_it_still_arrives(tree):
+    """Ctrl+Shift+V with the pointer resting on a row: held a moment, then let go."""
+    from navkit.events import PasteEvent
+
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
+    run_app(app, [MouseClickEvent(x=5, y=5, button="none", action="move"),
+                  PasteEvent("pasted"), Until(lambda a: a.shell.command_line.value == "pasted")])
+    assert tagged(app) == []

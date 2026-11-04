@@ -77,6 +77,10 @@ _ARROW_MIRROR = {"left": "right", "right": "left"}
 #: transmission, which is nobody's preference, and this one against a user's
 #: hand, which is the application's to state.
 DOUBLE_CLICK_TIMEOUT = 0.4
+#: How long a terminal's paste is held while the pointer rests on a widget
+#: that claims the middle button, waiting for the release that says it was
+#: VTE's middle click (see :meth:`Application._hold_paste`).
+MIDDLE_PASTE_WINDOW = 0.5
 
 #: How long a paste waits for the terminal to answer an OSC 52 query before it
 #: pastes the application's own copy instead.  A terminal that answers does so
@@ -460,6 +464,12 @@ class Application:
         self._escape_timer: asyncio.TimerHandle | None = None
         #: Turns two presses and a clock into a double-click.  Zero off.
         self._clicks = ClickTracker(double_click)
+        #: The middle button is down (a press seen, its release not yet).
+        self._middle_down = False
+        #: A terminal paste held back by :meth:`_hold_paste`, its timer, and
+        #: the one let go, which is not held again.
+        self._held_paste: tuple[PasteEvent, Repeat] | None = None
+        self._paste_let_go: PasteEvent | None = None
         #: Milliseconds the pointer rests before a tooltip shows; zero for none.
         self.tooltip_delay = tooltip_delay
         #: The tooltip waiting for the pointer to rest, and the one shown.
@@ -1508,6 +1518,16 @@ class Application:
             # the way the pointer's position is: nothing is offered it.
             self.modifiers = event.modifiers
             return
+        if isinstance(event, PasteEvent) and self._hold_paste(event):
+            return
+        if (isinstance(event, MouseClickEvent) and event.button == "middle"
+                and not isinstance(event, (DoubleClickEvent, ContextMenuEvent))):
+            if event.action == "press":
+                self._middle_down = True
+            elif event.action == "release":
+                if not self._middle_down:
+                    await self._lone_middle_release(event)
+                self._middle_down = False
         # Any input takes a tooltip away, shown or waiting; only the pointer
         # coming to rest (below) asks for one again.  The pointer moving off
         # one shown keeps the next quick; anything else makes it wait again.
@@ -1757,6 +1777,67 @@ class Application:
         tooltip, self._tooltip = self._tooltip, None
         if tooltip is not None and tooltip.parent is not None:
             tooltip.parent.remove(tooltip)
+
+    # -- VTE's middle click -------------------------------------------------------
+    #
+    # VTE (xfce4-terminal) does not report a middle *press* under mouse
+    # tracking: it pastes the primary selection itself and reports only the
+    # release.  A widget that wants the middle button (a file panel tagging)
+    # says so through :meth:`Widget.claims_middle_click`; a terminal paste
+    # while the pointer rests on such a spot is held for a moment, and a lone
+    # middle release there turns into the press it lost, the paste dropped.
+
+    def _middle_claimer(self, x: int, y: int) -> bool:
+        """Whether the widget at screen *x*, *y* (or one above it) claims the middle button."""
+        if self._capture is not None:
+            return False
+        modal = self.modal
+        if modal is not None:
+            dx, dy = modal.offset()
+            widget = modal.widget_at(x - dx, y - dy)
+        else:
+            widget = self._root.widget_at(x, y) if self._root is not None else None
+        while widget is not None:
+            dx, dy = widget.offset()
+            if widget.claims_middle_click(x - dx - widget.x, y - dy - widget.y):
+                return True
+            if widget is modal:
+                break
+            widget = widget.parent
+        return False
+
+    def _hold_paste(self, event: PasteEvent) -> bool:
+        """Hold a terminal's *event* while the pointer rests where the middle button is claimed."""
+        if event is self._paste_let_go:
+            self._paste_let_go = None
+            return False
+        if (event.origin != "terminal" or self._middle_down or self.pointer is None
+                or self._held_paste is not None or not self._middle_claimer(*self.pointer)):
+            return False
+
+        async def let_go() -> None:
+            self._release_held_paste()
+
+        self._held_paste = (event, self.call_later(MIDDLE_PASTE_WINDOW, let_go))
+        return True
+
+    def _release_held_paste(self) -> None:
+        """The held paste was a paste after all: deliver it."""
+        held, self._held_paste = self._held_paste, None
+        if held is not None:
+            held[1].cancel()
+            self._paste_let_go = held[0]
+            self.post_event(held[0])
+
+    async def _lone_middle_release(self, event: MouseClickEvent) -> None:
+        """A middle release with no press: VTE pasted instead of reporting it."""
+        if self._middle_claimer(event.x, event.y):
+            if self._held_paste is not None:
+                self._held_paste[1].cancel()
+                self._held_paste = None
+            await self._handle(dataclasses.replace(event, action="press"))
+        else:
+            self._release_held_paste()
 
     def _hover(self, event: MouseClickEvent) -> None:
         """Move :attr:`hovered` to whatever is under *event*'s position.

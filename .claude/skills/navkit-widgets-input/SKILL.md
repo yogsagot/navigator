@@ -119,6 +119,12 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   because `Application._loop.time()` is the only clock event handling can reach; keyed on exact cell and button; counts upward
   (a triple click raises one); forgotten on wheel, resize or modal push/pop. `DOUBLE_CLICK_TIMEOUT` 0.4, overridable via
   `Application(double_click=...)`. Clockless by construction (told `now`).
+- **VTE's middle click** (xfce4-terminal, found with keyprobe): under mouse tracking VTE reports no middle *press*; it
+  pastes the primary selection (a `PasteEvent`) and reports only the release. A widget that wants the middle button
+  at a spot says `claims_middle_click(x, y)` (own coordinates, False by default). A terminal paste while
+  `Application.pointer` rests on such a spot is held `MIDDLE_PASTE_WINDOW` (0.5 s, `_hold_paste`); a middle release
+  with no press (`_middle_down`) there drops it and is preceded by the press it lost (`_lone_middle_release`),
+  anywhere else lets it go at once. A paste with no release after it (Ctrl+Shift+V over a panel row) arrives late.
 - **A right press is offered twice**: as itself, then inline as a `ContextMenuEvent` (`on_context_menu`) along the
   same route. It is not raised when a widget held the capture before the press, when the press took it, or for a
   press outside the modal. navkit says where a menu was asked for; navml's `ContextMenuHost` decides what it is

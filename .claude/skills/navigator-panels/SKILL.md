@@ -312,6 +312,11 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   is DN's own (`FLPANELX.PAS`): a press toggles the row's tag and captures the mouse, and a drag gives every row it
   passes the same tag, scrolling past either end (`Panel._right_marking`). The Menu key and Shift+F10 open the menu
   under either setting.
+- **The middle button (the wheel pressed) always tags as DN's right button did** (`on_mouse_click` sends its press
+  to `_right_marking`, a departure, asked for: the right button's default is the menu): a press toggles the row's
+  tag, a drag gives every row it passes the same one. Either button's press makes its panel the active one. On VTE (xfce4-terminal), which pastes on a middle
+  press and reports only the release, `Panel.claims_middle_click` (a row) has navkit drop the paste and deliver the
+  press (`navkit-widgets-input`, *VTE's middle click*); a drag with it held cannot work there.
 
 ## Copy, cut and paste through the clipboard (Ctrl+C/Ctrl+X/Ctrl+V)
 

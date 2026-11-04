@@ -564,6 +564,17 @@ class Widget:
         """True if *x*, *y* -- in the parent's coordinates -- is inside this."""
         return self.x <= x < self.x + self.width and self.y <= y < self.y + self.height
 
+    def claims_middle_click(self, x: int, y: int) -> bool:
+        """Whether a middle click at *x*, *y* (this widget's own coordinates) is this widget's.
+
+        False by default.  A widget that does something of its own with the
+        middle button there (a file panel tags the row) says True, so that on
+        a terminal that pastes the primary selection on a middle press and
+        reports only the release (VTE's), the application drops the paste and
+        delivers the press it lost.  See ``Application._lone_middle_release``.
+        """
+        return False
+
     def widget_at(self, x: int, y: int) -> Widget | None:
         """The innermost widget at *x*, *y* -- in the parent's coordinates.
 
