@@ -204,8 +204,11 @@ def monitor_run(where, monkeypatch, snapshots, *actions, size=(100, 40)):
         a.spawn(a.run_command(OpenMonitorWindow))
 
     def read(a):
+        # ``_shape`` is set in the read's callback, which posts the wake-up that
+        # runs the effects filling the meters (the sensors' rows among them):
+        # not busy is once that batch is handled and painted.
         window = a.shell.desktop.active_window
-        return getattr(window, "cpu", None) is not None and window._shape is not None
+        return getattr(window, "cpu", None) is not None and window._shape is not None and not a.busy
 
     run_app(app, [open_it, Until(read), *actions, lambda a: None])
     return app
