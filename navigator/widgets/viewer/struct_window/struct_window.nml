@@ -1,0 +1,71 @@
+from navigator.widgets.viewer.commands import ContinueSearch, CopyPath, CopyValue, ExpandAll, SearchAgain, SearchFor, ViewTreeAsText
+from navigator.widgets.viewer.struct_window.data_tree import DataTree
+from navml.commands import CloseWindow
+from navml.widgets.menu.menu_item import MenuItem
+from navml.widgets.menu.menu_line import MenuLine
+from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.window import Window
+
+#: F3's structured view: a JSON, YAML, TOML, XML or property-list file's data
+#: as a tree, Shift+F4 from the text and back (``FileWindow.as_tree``).  A
+#: departure, asked for -- DOS Navigator's viewer had bytes and lines only.
+#:
+#: Dressed as the directory tree window is: the tree fills the frame less a
+#: row, which is the path of the node under the cursor, and its scroll bar
+#: stands on the frame's right edge.
+StructWindow(Window):
+    title: "Data"
+
+    keys:
+        escape: CloseWindow
+        shift+f4: ViewTreeAsText
+        ctrl+insert: CopyPath
+        ctrl+shift+c: CopyValue
+        f7: SearchFor
+        shift+f7: ContinueSearch
+        ctrl+l: SearchAgain
+
+    DataTree:
+        id: tree
+        framed: False
+        x: 1
+        y: 1
+        width: max(0, parent.width - 1)
+        height: max(0, parent.height - 2)
+
+    #: The window's own menu on the bar after *File*, as the viewer's *View*
+    #: is, and its right-click menu.
+    SubMenu:
+        id: data_menu
+        text: '~D~ata'
+        tooltip: "Copy, search and fold the tree"
+        after: 'File'
+        MenuItem:
+            text: '~T~ext view'
+            tooltip: "The file's text, where the cursor's node is when that is known"
+            command: ViewTreeAsText
+            key: 'Shift-F4'
+        MenuLine:
+        MenuItem:
+            text: 'Copy ~p~ath'
+            tooltip: "The path of the node under the cursor, to the clipboard"
+            command: CopyPath
+        MenuItem:
+            text: 'Copy ~v~alue'
+            tooltip: "The node's value -- a branch as text -- to the clipboard"
+            command: CopyValue
+        MenuLine:
+        MenuItem:
+            text: '~S~earch...'
+            tooltip: "Find text in the keys and values; Ctrl+S finds a key as it is typed"
+            command: SearchFor
+        MenuItem:
+            text: 'Search ~a~gain'
+            command: ContinueSearch
+        MenuItem:
+            text: 'E~x~pand all'
+            command: ExpandAll
+        MenuLine:
+        MenuItem:
+            text: '~C~lose'
+            command: CloseWindow

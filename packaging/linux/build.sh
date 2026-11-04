@@ -60,6 +60,10 @@ rm -rf "$LIB/bin"
 # `wcwidth/__init__.py'), so it goes and the package stays `arch: all'.  Any
 # other compiled module still fails the assertion below.
 rm -f "$LIB"/wcwidth/_wcwidth_c*.so "$LIB"/wcwidth/_wcwidth_c.pyi
+# PyYAML's platform wheel brings libyaml's loader the same way: `yaml' falls
+# back to its own pure-Python reader without it (`__with_libyaml__' False), and
+# F3's structured view needs no more.
+rm -f "$LIB"/yaml/_yaml*.so
 find build/root -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
 find build/root -name '*.pyc' -delete
 

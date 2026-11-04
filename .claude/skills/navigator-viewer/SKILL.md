@@ -226,6 +226,33 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   (`HexMode`) and *Fi~l~ter* (`AddFilter`) above the entries that pick one mode or filter, on the context menu too.
   Only Ctrl+L (`SearchAgain`, *Search again*'s second key) and F3 (`CloseViewer`) stay uncaptioned, as DN and MC had them.
 
+- **Follow end (Ctrl+T, View > *Follow e~n~d*)**, a departure, asked for (`tail -f`): `FileViewer.follow`,
+  `{Follow}` on the info line. `FileWindow._follow_tick` runs every `FOLLOW_TICK` (0.5 s): `ViewSource.refresh()`
+  `fstat`s the open fd (one syscall, so on the loop), and a `ChunkedSource` takes the size its drive gives on a
+  thread (`stat_size`). It answers grew, shrank or same, drops the chunk cached short (all of them on a shrink),
+  and `viewer.resized` shows the end. **Any move back up lets go**, as `less`'s F does; Ctrl+T again resumes.
+  Refused (`follow_refusal`) for a fetched copy (`use_set`), unstored hex bytes, a rendered view and a `/proc` file.
+  Never kept in the view record.
+- **Filter lines (Ctrl+G, View > *Fil~t~er lines...*)**, a departure, asked for (`grep`); it is named so it is not
+  taken for F6's character filters. `FilterLinesDialog` takes the text plus *Regular expression*, *Case sensitive*
+  and *Invert*; a bad regex is refused in the box, and an empty line with OK takes the filter off. `lines.LineScan`
+  counts and matches lines on a thread through `run_with_progress` and *Search Progress*, up to `HIT_LIMIT`, and
+  continues from `scanned_to`, which is how a followed log stays filtered. `FileViewer.lines` with `filtering`
+  paints the number gutter and the text itself (`_paint_lines`, `::lines.number/cursor/match`). Enter goes to the
+  line in the whole file and Esc goes back. Text mode only; Wrap, ¶ and Markup view are greyed while it filters.
+- **The structured view (Shift+F4 on `[viewer] structured_masks`)**, a departure, asked for: `StructWindow` with
+  `DataTree(TreeView)` in the viewer's place (`FileWindow.as_tree`/`shows_tree`, `{Tree}` struck after the info
+  line, a click on it opens the tree). The model is `navigator/lib/viewer/structured.py`: lazy `Node`s over
+  `json` (order and repeated keys kept), `tomllib`, `xml.etree`, `plistlib`, and PyYAML's **composer** (no
+  constructor runs; tags are shown, never acted on; marks give YAML nodes an offset). Rows are `key: value`,
+  coloured by kind (`DataTree::string/number/bool/null/date/tagged/count`), with the cursor's path on the last row
+  (jq-style, or XPath-style for XML). Ctrl+Ins copies the path, Ctrl+Shift+C the value (a branch as JSON, YAML or the
+  element), F7/Shift+F7/Ctrl+L search every key and value on a thread (`structured.find`), `*` and *Expand all* open
+  up to `EXPAND_LIMIT` nodes, Shift+F4 goes back to the text (at a YAML node's line), and Esc closes. A parse error
+  says *Line N, column M* and puts the text at that line. Local files and fetched copies only; `STRUCT_LIMIT`
+  32 MiB. `[viewer] render_structured` (off, no checkbox) makes F3 open the tree. Its own *Data* menu joins the
+  bar, and `[struct_window]` is its key table.
+
 ## Tooltips
 
 - In hex and dump, `FileViewer.tooltip_at` names the byte under the pointer (`byte_at`): offset, hex, decimal,
@@ -241,3 +268,4 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 | `reference/file-viewer.md` | the full design and what is deferred |
 | `reference/sqlite.md` | SQLite in the dBase window: why read-only, the rowid paging, the query's authorizer |
 | `reference/spreadsheet.md` | why a CSV opens in the dBase window and not DN's spreadsheet look |
+| `reference/follow-lines-tree.md` | Follow end, Filter lines and the structured view: why polling, what a new size invalidates, why the composer, laziness and aliases |

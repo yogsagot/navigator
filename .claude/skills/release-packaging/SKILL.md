@@ -62,7 +62,8 @@ leave a working `nav`.
   Python. A venv could not: it bakes its minor version into `lib/python3.N/site-packages` and into `pyvenv.cfg`, so it
   would need one build per distro. `build.sh` fails the build if a `.so` ever appears in the staged tree, since that
   is the moment the claim stops being true. One is removed first: wcwidth (pyte's) ships an *optional* C accelerator
-  in a platform wheel since 0.9 and falls back to its own Python without it (`HAS_C_EXTENSION`). python-bidi is held
+  in a platform wheel since 0.9 and falls back to its own Python without it (`HAS_C_EXTENSION`). PyYAML's libyaml loader (`yaml/_yaml*.so`) goes the same way, `yaml` falling back to its
+  pure-Python reader. python-bidi is held
   below 0.5 for the same reason (0.5+ is Rust); it and arabic-reshaper are vendored like the rest, `six` with them,
   so distributions' `python3-bidi` (Ubuntu 24.04: 0.4.2) is never a dependency.
 - **`/usr/bin/nav` runs `python3 -sP`, and the `-P` is not hygiene.** A file manager is launched inside arbitrary

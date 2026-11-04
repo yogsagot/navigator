@@ -605,6 +605,36 @@ FileViewer::selected                           { fg: $viewer-selected-text-fg; b
 /* A byte typed over in hex and not stored yet (a departure: DN marked none), in
    the colour Compare files gives a changed line, so every theme has one. */
 FileViewer::changed                            { fg: $diff-changed-fg; bold: $diff-changed-bold; dim: $diff-changed-dim; italic: $diff-changed-italic; underline: $diff-changed-underline; reverse: $diff-changed-reverse }
+/* View > Filter lines (a departure): each line's number in the comments'
+   colour, the cursor's number as selected text, and what matched in the
+   heading colour -- existing variables only, so every theme has them. */
+FileViewer::lines.number                       { fg: $viewer-comments-fg }
+FileViewer::lines.cursor                       { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; reverse: $viewer-selected-text-reverse }
+FileViewer::lines.match                        { fg: $viewer-heading-fg; bold: true }
+
+/* F3's structured view (a departure): dressed as the viewer it replaces --
+   its frame, its text, the selected text for the cursor's key -- and each
+   value in the colour the viewer's syntax highlighting gives its kind. */
+StructWindow                                   { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg; bold: $viewer-frame-passive-bold; dim: $viewer-frame-passive-dim; italic: $viewer-frame-passive-italic; underline: $viewer-frame-passive-underline; reverse: $viewer-frame-passive-reverse }
+StructWindow:active                            { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+StructWindow::title                            { fg: $viewer-frame-passive-fg; bg: $viewer-frame-passive-bg; bold: $viewer-frame-passive-bold; dim: $viewer-frame-passive-dim; italic: $viewer-frame-passive-italic; underline: $viewer-frame-passive-underline; reverse: $viewer-frame-passive-reverse }
+StructWindow:active::title                     { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
+StructWindow::icon                             { fg: $viewer-frame-icons-fg;   bg: $viewer-frame-icons-bg; bold: $viewer-frame-icons-bold; dim: $viewer-frame-icons-dim; italic: $viewer-frame-icons-italic; underline: $viewer-frame-icons-underline; reverse: $viewer-frame-icons-reverse }
+StructWindow ScrollBar                         { fg: $viewer-scroll-bar-page-fg;  bg: $viewer-scroll-bar-page-bg; bold: $viewer-scroll-bar-page-bold; dim: $viewer-scroll-bar-page-dim; italic: $viewer-scroll-bar-page-italic; underline: $viewer-scroll-bar-page-underline; reverse: $viewer-scroll-bar-page-reverse }
+StructWindow ScrollBar::arrow,
+StructWindow ScrollBar::thumb                  { fg: $viewer-scroll-bar-icons-fg; bg: $viewer-scroll-bar-icons-bg; bold: $viewer-scroll-bar-icons-bold; dim: $viewer-scroll-bar-icons-dim; italic: $viewer-scroll-bar-icons-italic; underline: $viewer-scroll-bar-icons-underline; reverse: $viewer-scroll-bar-icons-reverse }
+DataTree                                       { fg: $viewer-comments-fg; bg: $viewer-normal-text-bg }
+DataTree::node                                 { fg: $viewer-normal-text-fg; bg: $viewer-normal-text-bg; bold: $viewer-normal-text-bold }
+DataTree::node:selected                        { fg: $viewer-selected-text-fg; bg: $viewer-selected-text-bg; bold: $viewer-selected-text-bold; dim: $viewer-selected-text-dim; italic: $viewer-selected-text-italic; underline: $viewer-selected-text-underline; reverse: $viewer-selected-text-reverse }
+DataTree::punct,
+DataTree::count                                { fg: $viewer-symbols-fg; bg: $viewer-normal-text-bg }
+DataTree::string                               { fg: $viewer-strings-fg; bg: $viewer-normal-text-bg }
+DataTree::number,
+DataTree::date                                 { fg: $viewer-numbers-fg; bg: $viewer-normal-text-bg }
+DataTree::bool,
+DataTree::null,
+DataTree::tagged                               { fg: $viewer-keyword-fg; bg: $viewer-normal-text-bg }
+DataTree::info                                 { fg: $viewer-frame-active-fg;  bg: $viewer-frame-active-bg; bold: $viewer-frame-active-bold; dim: $viewer-frame-active-dim; italic: $viewer-frame-active-italic; underline: $viewer-frame-active-underline; reverse: $viewer-frame-active-reverse }
 
 /* File > Compare files, not DN's: dressed as the viewer is, its window the
    File Viewer group's frame, its text the viewer's Normal text [117], the

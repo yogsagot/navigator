@@ -401,6 +401,48 @@ class ViewSource:
             self._chunks.popitem(last=False)
         return chunk
 
+    # -- following a file that grows ------------------------------------------
+    #
+    # View > *Follow end* (Ctrl+T), ``tail -f``: a departure, DN's viewer took
+    # the size once.  The size is looked at again and what it changed undone:
+    # the last chunk was cached short and would stay short, and a file cut
+    # shorter (a log rotated, truncated) has nothing cached that still holds.
+
+    def refresh(self, new_size: int | None = None) -> str:
+        """The size looked at again -- ``fstat`` on the open descriptor, one
+        call, or *new_size* as a thread found it -- and ``"grew"``,
+        ``"shrank"`` or ``"same"``.  A file read whole (``/proc``) stays as
+        it is, unless it was an empty file that has since been written to,
+        which is read as any other from then on."""
+        if new_size is None:
+            if self._data is not None and self._data:
+                return "same"
+            new_size = os.fstat(self._open()).st_size
+        if self._data is not None:
+            if not new_size:
+                return "same"
+            self._data = None
+        return self._resized(new_size)
+
+    def _resized(self, new_size: int) -> str:
+        old = self.size
+        if new_size == old:
+            return "same"
+        if new_size > old:
+            if old:
+                self._chunks.pop((old - 1) // CHUNK, None)
+        else:
+            self._chunks.clear()
+        self._eol_cache = None
+        self.size = new_size
+        return "grew" if new_size > old else "shrank"
+
+    @property
+    def can_follow(self) -> bool:
+        """Whether there is a size to look at again: not a ``/proc`` file
+        read whole, which has none."""
+        return self._data is None or not self._data
+
     def peek(self, offset: int) -> int | None:
         """The byte at *offset* if it is already in memory, else None -- never
         a read: what a tooltip asks from the loop, where a disk may not be
@@ -847,6 +889,29 @@ class ChunkedSource(ViewSource):
             if self._reader is None:
                 raise OSError(9, "The file is closed", str(self.origin))
             return self._reader.read_at(offset, count)
+
+    def refresh(self, new_size: int | None = None) -> str:
+        """:meth:`ViewSource.refresh`, with the size a thread found by asking
+        the drive (:meth:`stat_size`): none is looked at here, on the loop."""
+        if new_size is None:
+            return "same"
+        result = self._resized(new_size)
+        if result == "shrank":
+            with self._lock:
+                self._landed.clear()
+        elif result == "grew":
+            with self._lock:
+                # A chunk that landed short is short no more.
+                for index, data in list(self._landed.items()):
+                    if len(data) < CHUNK:
+                        del self._landed[index]
+        return result
+
+    def stat_size(self) -> int:
+        """The file's size as its drive says now: waiting, so on a thread."""
+        from navigator.lib.drives import drive_of
+
+        return (self.drive or drive_of(self.origin)).stat(self.origin).st_size
 
     def ready(self, offset: int, count: int) -> bool:
         """Whether ``read(offset, count)`` would answer now; asks for what it lacks."""

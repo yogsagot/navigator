@@ -4453,7 +4453,12 @@ class Manager(Window):
                 return
             mode = None
         try:
-            await open_viewer(desktop, path, mode)
+            window = await open_viewer(desktop, path, mode)
+            if window is not None and mode is None and SETTINGS.viewer.render_structured \
+                    and window.shows_tree():
+                # ``[viewer] render_structured``: the data as a tree straight
+                # away, as F3 shows a CSV as a spreadsheet (a departure).
+                await window.as_tree()
         except OSError as error:
             from navigator.lib.system.elevate import ELEVATION, refused
 

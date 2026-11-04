@@ -106,6 +106,7 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("viewer", "Viewer", "navigator.widgets.viewer.file_window:FileWindow"),
     ("diff_window", "Compare files", "navigator.widgets.viewer.diff_window:DiffWindow"),
     ("db_viewer", "Database viewer", "navigator.widgets.viewer.db_window:DBWindow"),
+    ("struct_window", "Data tree", "navigator.widgets.viewer.struct_window:StructWindow"),
     ("dialog", "Dialogs", "navml.widgets.dialog.dialog:Dialog"),
     ("tab_view", "Tabs", "navml.widgets.dialog.tab_view:TabView"),
     ("copy_dialog", "Copy dialog", "navigator.widgets.file_ops.copy_dialog:CopyDialog"),

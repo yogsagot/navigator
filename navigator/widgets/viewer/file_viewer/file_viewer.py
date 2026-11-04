@@ -224,7 +224,9 @@ class FileViewer(ContextMenuHost, Widget):
     #: ``code``, ``link`` and the rest: :mod:`navigator.lib.viewer.layout`).
     #: A byte typed over in hex and not stored yet, by ``changed`` (a
     #: departure: DN marked none).
-    parts = ("selected", "token", "md", "changed")
+    #: View > *Filter lines*' rows, by ``number`` (the gutter), ``cursor``
+    #: (the row Enter goes to) and ``match`` (what matched in a line).
+    parts = ("selected", "token", "md", "changed", "lines")
 
     #: The file, once :meth:`open` has read it.  Reactive so that the window's
     #: title can follow it; assigned only by :meth:`open`.
@@ -289,6 +291,19 @@ class FileViewer(ContextMenuHost, Widget):
     #: until the thread has made it.
     picture: Any = reactive(None)
 
+    #: View > *Follow end* (Ctrl+T): the end kept in view as the file grows,
+    #: ``tail -f`` -- a departure.  The window looks at the size; scrolling
+    #: back up lets go.  Never kept in the view history.
+    follow: bool = reactive(False)
+    #: View > *Filter lines* (Ctrl+G): the scan whose lines are shown instead
+    #: of the file's (:class:`navigator.lib.viewer.lines.LineScan`), or None.
+    lines: Any = reactive(None)
+    #: The filtered row on top, and the row the cursor is on.
+    lines_row: int = reactive(0)
+    lines_cursor: int = reactive(0)
+    #: Bumped when the scan's lists grow: the scan itself is not reactive.
+    lines_revision: int = reactive(0)
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.source: ViewSource | None = None
@@ -329,6 +344,8 @@ class FileViewer(ContextMenuHost, Widget):
         self.top = self.x_delta = self.cursor = self.render_row = 0
         self.nibble, self.in_chars, self.edited = 0, False, False
         self.hit = None
+        self.follow = False
+        self.lines = None
 
     def close_file(self) -> None:
         """Show nothing: what a quick view shows for a directory."""
@@ -341,6 +358,8 @@ class FileViewer(ContextMenuHost, Widget):
         self.size = 0
         self.top = self.x_delta = self.cursor = self.render_row = 0
         self.hit = None
+        self.follow = False
+        self.lines = None
 
     def _chunk_arrived(self) -> None:
         """On the fetching thread: tell the loop."""
@@ -417,6 +436,15 @@ class FileViewer(ContextMenuHost, Widget):
         In hex mode the percentage gives way to the cursor's offset and a
         ruler of the row's columns, as ``TViewInfo.Draw`` wrote it.
         """
+        follow = "{" + tr("Follow") + "}" if self.follow else ""
+        if self.filtering:
+            self.lines_revision  # the scan grew: said again
+            scan = self.lines
+            shown = len(scan.shown)
+            text = "[" + tr("{shown} of {lines} lines").format(
+                shown=group_digits(shown) + ("+" if scan.truncated else ""),
+                lines=group_digits(max(scan.lines, shown)))
+            return text + "]{" + tr("Lines: {pattern}").format(pattern=scan.pattern.text) + "}" + follow
         if self.mode == "hex":
             per = self.row_bytes()
             phase = self.top % per
@@ -429,7 +457,7 @@ class FileViewer(ContextMenuHost, Widget):
             text = "[>=<][" if self.wrap else "[<=>]["
             text += tr("{percent}% of {size} Bytes").format(percent=self.percent(), size=group_digits(self.size))
         tag = "" if self.encoding == "utf-8" else "{" + dict(ENCODINGS)[self.encoding].split()[0] + "}"
-        return text + "]" + FILTER_TAGS[self.filter] + tag
+        return text + "]" + FILTER_TAGS[self.filter] + tag + follow
 
     @computed
     def render_mark(self) -> str:
@@ -437,7 +465,16 @@ class FileViewer(ContextMenuHost, Widget):
         switches: while *Markup view* is on, and -- struck through by the
         window -- while it is off for a file the masks name.  Empty where it
         cannot render."""
-        if self.mode != "text" or not self.can_render:
+        if self.mode != "text" or self.filtering:
+            return ""
+        if not self.rendered and not self.remote and self.hex_editing and self.path is not None:
+            # A JSON, YAML, TOML or XML file: Shift+F4 shows its data as a
+            # tree, struck through here as any switch that is off.
+            from navigator.lib.viewer.structured import kind_by_name
+
+            if kind_by_name(self.path.name) is not None:
+                return "{" + tr("Tree") + "}"
+        if not self.can_render:
             return ""
         if self.rendered or self.format_by_name(self.path):
             return "{" + self.format_label() + "}"
@@ -445,6 +482,9 @@ class FileViewer(ContextMenuHost, Widget):
 
     def percent(self) -> int:
         """How far into the file the view is: 100 once the end is showing."""
+        if self.filtering:
+            shown = len(self.lines.shown)
+            return 100 if self.lines_row >= self._lines_last_row() else self.lines_row * 100 // max(1, shown)
         layout = self.render_layout if self.rendering else None
         if layout is not None:
             last = self._render_last_row()
@@ -474,6 +514,8 @@ class FileViewer(ContextMenuHost, Widget):
         if self.source is None:
             return
         offset = max(0, min(offset, self.size))
+        if offset < self.top:
+            self.follow = False
         if self.rendering:
             self._render_go(self.render_layout.row_for(offset))
             return
@@ -490,6 +532,9 @@ class FileViewer(ContextMenuHost, Widget):
         """Move the view *count* rows, down for positive; the ends stop it."""
         if self.source is None:
             return
+        if count < 0:
+            # Scrolled back up: *Follow end* lets go, as ``less``'s F does.
+            self.follow = False
         if self.rendering:
             self._render_go(self.render_row + count)
             return
@@ -520,6 +565,7 @@ class FileViewer(ContextMenuHost, Widget):
         self.top = top
 
     def to_start(self) -> None:
+        self.follow = False
         self.top = self.x_delta = self.render_row = 0
         self.cursor = 0
 
@@ -546,6 +592,8 @@ class FileViewer(ContextMenuHost, Widget):
         """Move the hex cursor *delta* bytes, and the view after it."""
         if self.size == 0:
             return
+        if delta < 0:
+            self.follow = False
         cursor = min(max(self.cursor + delta, 0), self.size - 1)
         self.cursor = cursor
         self.follow_cursor()
@@ -882,6 +930,13 @@ class FileViewer(ContextMenuHost, Widget):
         self.hit = (offset, length)
         if self.source is None:
             return
+        if self.filtering:
+            index = self._lines_index(offset)
+            if index is not None:
+                self._lines_to(index)
+                return
+            # Not on a line shown: the whole file again, at the hit.
+            self.leave_lines()
         if self.rendering:
             row = self.render_layout.row_for(offset)
             if not self.render_row <= row < self.render_row + max(1, self.height):
@@ -912,6 +967,174 @@ class FileViewer(ContextMenuHost, Widget):
             if not self.x_delta <= column < self.x_delta + self.width:
                 self.x_delta = max(0, column - self.width // 2)
 
+    # -- Follow end ------------------------------------------------------------
+
+    def resized(self, result: str) -> None:
+        """The source found to have grown or shrunk (``ViewSource.refresh``):
+        the size taken again, and -- following -- the end shown.  A file cut
+        shorter is shown from where it now ends, and a filter reads it anew."""
+        source = self.source
+        if source is None or result == "same":
+            return
+        self.size = source.size
+        if result == "shrank":
+            if self.cursor >= self.size:
+                self.cursor = max(0, self.size - 1)
+            if self.top > self.size:
+                self.top = 0
+            self.hit = None
+        self.invalidate()
+        if self.follow and not self.filtering:
+            self.to_end()
+
+    # -- Filter lines ----------------------------------------------------------
+
+    @property
+    def filtering(self) -> bool:
+        """Whether the rows shown are *Filter lines*': text mode, a scan in."""
+        return self.lines is not None and self.mode == "text"
+
+    def show_lines(self, scan: Any) -> None:
+        """*scan*'s lines shown instead of the file, the cursor on the line
+        the view's top is in -- or on the last one, following."""
+        self.lines = scan
+        self.hit = None
+        self.lines_revision += 1
+        self.lines_row = self.lines_cursor = 0
+        if self.follow:
+            self._lines_to(len(scan.shown) - 1)
+            return
+        index = self._lines_index(self.top, after=True)
+        self._lines_to(index if index is not None else 0)
+
+    def lines_grew(self) -> None:
+        """The scan read on (*Follow end*): painted again, the last line in view."""
+        self.lines_revision += 1
+        self.invalidate()
+        if self.follow and self.lines is not None:
+            self._lines_to(len(self.lines.shown) - 1)
+
+    def leave_lines(self, *, to_line: bool = False) -> None:
+        """Back to the whole file -- at the cursor's line with *to_line*
+        (Enter), else where it was."""
+        scan = self.lines
+        if scan is None:
+            return
+        shown = scan.shown
+        target = shown[self.lines_cursor].start if to_line and 0 <= self.lines_cursor < len(shown) else None
+        self.lines = None
+        self.lines_row = self.lines_cursor = 0
+        if target is not None:
+            self.follow = False
+            self.seek(target)
+        elif self.follow:
+            self.to_end()
+
+    def _lines_index(self, offset: int, *, after: bool = False) -> int | None:
+        """The shown row whose line holds *offset*; *after*, else the first
+        row past it (the last when none is)."""
+        shown = self.lines.shown
+        starts = [hit.start for hit in shown]
+        index = bisect.bisect_right(starts, offset) - 1
+        if index >= 0 and shown[index].start <= offset <= shown[index].end:
+            return index
+        if not after or not shown:
+            return None
+        return min(index + 1, len(shown) - 1)
+
+    def _lines_last_row(self) -> int:
+        return max(0, len(self.lines.shown) - max(1, self.height)) if self.lines is not None else 0
+
+    def _lines_to(self, index: int) -> None:
+        """The cursor on row *index*, and the rows scrolled to show it."""
+        shown = self.lines.shown
+        if not shown:
+            self.lines_cursor = self.lines_row = 0
+            return
+        index = max(0, min(index, len(shown) - 1))
+        if index < self.lines_cursor:
+            self.follow = False
+        self.lines_cursor = index
+        rows = max(1, self.height)
+        if index < self.lines_row:
+            self.lines_row = index
+        elif index >= self.lines_row + rows:
+            self.lines_row = index - rows + 1
+        self.lines_row = max(0, min(self.lines_row, self._lines_last_row()))
+        # The scroll bar and the view history go by the line's offset.
+        self.top = shown[index].start
+
+    def _lines_key(self, name: str, rows: int) -> bool:
+        """The filtered rows' keys: a cursor up and down them, Enter to the
+        line in the whole file, Esc back to it where it was."""
+        moves = {"up": -1, "down": 1, "pageup": -rows, "pagedown": rows}
+        last = len(self.lines.shown) - 1
+        if name in moves:
+            self._lines_to(self.lines_cursor + moves[name])
+        elif name in ("ctrl+home", "ctrl+pageup"):
+            self._lines_to(0)
+            self.x_delta = 0
+        elif name in ("ctrl+end", "ctrl+pagedown"):
+            self._lines_to(last)
+        elif name == "enter":
+            self.leave_lines(to_line=True)
+        elif name == "escape":
+            self.leave_lines()
+        elif name == "left":
+            self.x_delta = max(0, self.x_delta - 1)
+        elif name == "right":
+            self.x_delta += 1
+        elif name == "ctrl+left":
+            self.x_delta = max(0, self.x_delta - BIG_STEP)
+        elif name == "ctrl+right":
+            self.x_delta += BIG_STEP
+        elif name == "home":
+            self.x_delta = 0
+        elif name == "end":
+            self._lines_to(last)
+        else:
+            return False
+        return True
+
+    def _paint_lines(self, surface: Surface) -> None:
+        """*Filter lines*' rows: each line's number in a gutter, then its text
+        scrolled by ``x_delta``, what matched in it marked."""
+        self.lines_revision  # repainted as the scan grows
+        scan = self.lines
+        shown = scan.shown
+        if not shown:
+            self._say(surface, tr("No lines match"))
+            return
+        style = self.style
+        number = self.part_style("lines", classes=("number",))
+        cursor = self.part_style("lines", classes=("cursor",))
+        match = self.part_style("lines", classes=("match",))
+        digits = len(str(shown[-1].number))
+        bar = "│" if self.glyphs >= GLYPHS_UNICODE else "|"
+        for y in range(self.height):
+            index = self.lines_row + y
+            if index >= len(shown):
+                break
+            hit = shown[index]
+            text = "".join(cp437(ord(char)) if ord(char) < 0x20 else char
+                           for char in hit.text.expandtabs(8))
+            runs = [(f"{hit.number:>{digits}}", cursor if index == self.lines_cursor else number),
+                    (bar, number)]
+            visible = text[self.x_delta:]
+            cut = len(text) - len(visible)
+            at = 0
+            for start, end in scan.spans(text):
+                start, end = max(0, start - cut), max(0, end - cut)
+                if end <= at:
+                    continue
+                if start > at:
+                    runs.append((visible[at:start], style))
+                runs.append((visible[max(at, start):end], match))
+                at = end
+            if at < len(visible):
+                runs.append((visible[at:], style))
+            surface.draw_runs(0, y, [run for run in runs if run[0]], max_width=self.width)
+
     # -- keys ------------------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
@@ -919,6 +1142,8 @@ class FileViewer(ContextMenuHost, Widget):
             return False
         name = event.name
         rows = max(1, self.height - 1)
+        if self.filtering:
+            return self._lines_key(name, rows)
         if name in ("ctrl+pageup",):
             self.to_start()
         elif name in ("ctrl+pagedown",):
@@ -1360,7 +1585,9 @@ class FileViewer(ContextMenuHost, Widget):
         if self.source is None:
             return
         try:
-            if self.mode == "text":
+            if self.filtering:
+                self._paint_lines(surface)
+            elif self.mode == "text":
                 self._want_layout()
                 if self.showing_picture:
                     self._paint_picture(surface)

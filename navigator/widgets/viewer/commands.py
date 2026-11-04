@@ -42,6 +42,22 @@ class SetViewMode(Command):
     mode: str = "text"
 
 
+class FollowEnd(Command):
+    """Ctrl+T, View > *Follow end*: ``tail -f`` -- the end of a file that is
+    still being written kept in view as it grows.  A departure, asked for:
+    DN's viewer took a file's size once."""
+
+    title = "Follow"
+
+
+class FilterLines(Command):
+    """Ctrl+G, View > *Filter lines*: only the lines matching a pattern,
+    each under its own number -- ``grep`` in the viewer.  A departure, asked
+    for; DN's F6 filters hid characters, never lines.  Text mode only."""
+
+    title = "Lines"
+
+
 class GotoAddress(Command):
     """F5, ``cmGotoCell``: go to a hex address.  Hex and dump only, as in DN."""
 
@@ -218,3 +234,36 @@ __all__ = [
     "TableFormat",
     "ViewSheetAsText",
 ]
+
+
+# -- the structured view -------------------------------------------------------
+#
+# Shift+F4 on a JSON, YAML, TOML or XML file: its data as a tree you fold
+# (``struct_window``).  A departure, asked for -- DN's viewer had no such view.
+
+
+class ViewTreeAsText(Command):
+    """Shift+F4 in the tree: the same file in F3's text view, in its place."""
+
+    title = "Text"
+
+
+class CopyPath(Command):
+    """Ctrl+Ins in the tree: the path of the node under the cursor --
+    ``.servers[2].host``, or ``/config/server[2]/@port`` -- to the clipboard."""
+
+    title = "Copy path"
+
+
+class CopyValue(Command):
+    """Ctrl+Shift+C in the tree: the node's value to the clipboard -- a
+    branch as its own format's text."""
+
+    title = "Copy value"
+
+
+class ExpandAll(Command):
+    """``*`` in the tree, *Expand all*: every branch opened, for a document
+    small enough (``EXPAND_LIMIT`` nodes)."""
+
+    title = "Expand all"

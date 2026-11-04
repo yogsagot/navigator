@@ -45,12 +45,13 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 ## Environment and commands
 
 - Python 3.12, virtualenv at `venv/` (not tracked): `source venv/bin/activate`
-- Nine run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
+- Ten run-time dependencies, all pure Python: `pyte`, the VT emulator behind `navkit/console.py`, which is what
   makes Ctrl+O possible at all, `pygments`, the lexers behind syntax highlighting (`navigator/lib/highlight/__init__.py`),
   `watchdog`, which tells a panel its directory changed on disk (`navigator/lib/system/dirwatch.py`), `markdown-it-py`
   and `docutils`, which read Markdown and reStructuredText for F3's View > *Markup view* (HTML is the stdlib's
   `html.parser`), `pypdf`, which reads a PDF's text for the same view, `boto3`, the S3 drive, and `python-bidi` (held
-  below 0.5, the last pure-Python release) with `arabic-reshaper`, which lay out Hebrew and Arabic (`navkit/bidi.py`) —
+  below 0.5, the last pure-Python release) with `arabic-reshaper`, which lay out Hebrew and Arabic (`navkit/bidi.py`), and
+  `PyYAML`, which reads YAML for F3's structured view (`navigator/lib/viewer/structured.py`) —
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - FFmpeg's `ffprobe`, when installed, gives Ctrl+L's *Current file* an audio or video file's duration, streams and
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out

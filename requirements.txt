@@ -34,3 +34,7 @@ pypdf>=4
 # architecture-independent Linux package.  It brings `six`.
 python-bidi>=0.4.2,<0.5
 arabic-reshaper>=3.0
+# F3's structured view of a YAML file (`navigator.lib.viewer.structured`):
+# JSON, TOML and XML are the standard library's, YAML is not.  Pure Python,
+# with libyaml's C loader used only when its wheel brings it.
+PyYAML>=6

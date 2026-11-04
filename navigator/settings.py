@@ -632,6 +632,17 @@ class ViewerDefaultsData(Section):
     table_masks: str = Setting(
         "*.csv;*.tsv;*.tab", doc="The files F3 shows as a spreadsheet, as masks separated by ';'",
     )
+    #: Shift+F4 on one of these shows its data as a tree you fold
+    #: (``navigator.lib.viewer.structured``, a departure: DN had none).  F3
+    #: opens the text unless *render_structured* says the tree; no checkbox,
+    #: as the formats above have none.
+    render_structured: bool = Setting(
+        False, doc="F3 opens a JSON, YAML, TOML or XML file as a tree rather than its text",
+    )
+    structured_masks: str = Setting(
+        "*.json;*.geojson;*.ipynb;*.jsonl;*.ndjson;*.yaml;*.yml;*.toml;*.xml;*.svg;*.plist",
+        doc="The files Shift+F4 shows as a tree of their data, as masks separated by ';'",
+    )
     #: F3 on one of these opens the database window when the file is a SQLite
     #: one (by its header); else the text viewer, as before.
     database_masks: str = Setting(

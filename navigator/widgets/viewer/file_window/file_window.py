@@ -26,6 +26,8 @@ from navigator.widgets.viewer.commands import (
     SaveViewAs,
     CloseViewer,
     ContinueSearch,
+    FilterLines,
+    FollowEnd,
     GotoAddress,
     HexMode,
     ReverseSearch,
@@ -46,6 +48,9 @@ from navigator.lib.system.progress import run_with_progress
 from navigator.lib.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
+
+#: How often *Follow end* looks at the file's size, in seconds.
+FOLLOW_TICK = 0.5
 
 
 class FileWindow(Window):
@@ -76,6 +81,10 @@ class FileWindow(Window):
         self.info.tooltip = self.viewer.info_tooltip()
         fill_file_types(self.view_menu_file_type, self)
         self.options.items = viewer_items(self.viewer)
+        #: *Follow end*'s ticker while it follows, and whether a look at the
+        #: size (or a scan of what was added) is still on a thread.
+        self._follow_timer: Any = None
+        self._follow_busy = False
 
     def take_keyboard(self) -> None:
         # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
@@ -149,6 +158,10 @@ class FileWindow(Window):
         viewer.x_delta = record.x_delta if fits and viewer.mode == "text" else 0
         viewer.cursor = min(record.cursor, max(0, viewer.size - 1)) if fits else 0
         viewer.seek(record.top if fits else 0)
+
+    def unmounting(self) -> None:
+        super().unmounting()
+        self._stop_following()
 
     def close(self) -> None:
         # ``TFileViewer.Valid(cmClose)``: the record is written on the way out.
@@ -248,6 +261,148 @@ class FileWindow(Window):
         await self.emit(FileSaved(place))
         return True
 
+    # -- Follow end and Filter lines ---------------------------------------------
+    #
+    # Departures, asked for: ``tail -f`` and ``grep`` in the viewer.  DN's took
+    # a file's size once and hid characters, never lines.
+
+    async def on_follow_end(self, event: FollowEnd) -> bool:
+        """Ctrl+T: follow the end of the file as it grows, or stop."""
+        viewer = self.viewer
+        if viewer.follow:
+            viewer.follow = False
+            self._stop_following()
+            return True
+        viewer.follow = True
+        if viewer.filtering:
+            viewer.lines_grew()
+        else:
+            viewer.to_end()
+        if self._follow_timer is None and self.application is not None:
+            self._follow_timer = self.application.call_every(FOLLOW_TICK, self._follow_tick)
+        return True
+
+    def follow_refusal(self) -> str:
+        """Why *Follow end* is greyed, or "": a file with a size to look at
+        again, read here and not from a copy, no bytes typed over, not rendered."""
+        viewer = self.viewer
+        source = viewer.source
+        if viewer.follow:
+            return ""
+        if source is None or not source.can_follow:
+            return tr("This file has no size to follow")
+        if getattr(self, "use_set", None) is not None:
+            return tr("Not for a copy fetched from elsewhere")
+        if viewer.edited:
+            return tr("Not while bytes typed over are not stored")
+        if viewer.rendering or viewer.showing_picture:
+            return tr("Not while the markup is rendered")
+        return ""
+
+    def _stop_following(self) -> None:
+        timer, self._follow_timer = self._follow_timer, None
+        if timer is not None:
+            timer.cancel()
+
+    async def _follow_tick(self) -> None:
+        """Every ``FOLLOW_TICK``: the size looked at again -- on a thread for a
+        file across a network or read as root -- and, grown, the end shown and
+        a filter read on over what was added."""
+        import asyncio
+
+        viewer = self.viewer
+        source = viewer.source
+        if not viewer.follow or source is None:
+            # Scrolled back up, or the file let go: following is over.
+            self._stop_following()
+            return
+        if self._follow_busy:
+            return
+        self._follow_busy = True
+        try:
+            try:
+                if viewer.remote:
+                    result = source.refresh(await asyncio.to_thread(source.stat_size))
+                else:
+                    result = source.refresh()
+            except OSError:
+                return  # gone for a moment (a log rotated): looked at next tick
+            if viewer.source is not source:
+                return
+            viewer.resized(result)
+            scan = viewer.lines
+            if scan is None or result == "same":
+                return
+            from navigator.lib.viewer import lines
+
+            if result == "shrank":
+                scan = lines.LineScan(scan.pattern, viewer.encoding)
+            await asyncio.to_thread(lines.scan, scan, source, source.size)
+            if viewer.source is source and viewer.lines is not None:
+                if scan is not viewer.lines:
+                    viewer.show_lines(scan)
+                else:
+                    viewer.lines_grew()
+        finally:
+            self._follow_busy = False
+
+    async def on_filter_lines(self, event: FilterLines) -> bool:
+        self.spawn(self.filter_lines())
+        return True
+
+    async def filter_lines(self) -> None:
+        """Ctrl+G: ask for the pattern, opened on the last one, and show the
+        lines matching it.  An empty line puts the whole file back."""
+        from navigator.lib.viewer import lines
+        from navigator.widgets.viewer.filter_lines_dialog import FilterLinesDialog
+
+        viewer = self.viewer
+        last = viewer.lines.pattern if viewer.lines is not None else lines.last_pattern
+        pattern = await FilterLinesDialog(last=last).execute(self.application)
+        if pattern is None:
+            return
+        if pattern == "":
+            # OK on an empty line: the filter taken off.
+            viewer.leave_lines()
+            return
+        lines.last_pattern = pattern
+        await self.show_lines(pattern)
+
+    async def show_lines(self, pattern: Any) -> None:
+        """The file scanned for *pattern* on a thread -- *Search Progress*
+        after a moment, Stop in it showing nothing -- and its lines shown."""
+        from navigator.lib.viewer import lines
+
+        viewer = self.viewer
+        source = viewer.source
+        if source is None:
+            return
+        scan = lines.LineScan(pattern, viewer.encoding)
+        total = source.size
+
+        def make_box() -> Any:
+            from navigator.widgets.viewer.search_progress import SearchProgress
+
+            return SearchProgress(total=total, position=scan.position)
+
+        def refresh(box: Any) -> None:
+            box.position = scan.position
+
+        try:
+            await run_with_progress(self.application, lambda: lines.scan(scan, source, total),
+                                    scan, make_box, refresh)
+        except OSError as error:
+            await Dialog(title=tr("Error"), prompt=tr("Cannot read the file: {error}").format(
+                error=error.strerror or error), buttons="ok").execute(self.application)
+            return
+        if scan.stopped or viewer.source is not source:
+            return
+        if not scan.shown:
+            await Dialog(title=tr("Filter lines"), prompt=tr("No lines match"),
+                         buttons="ok").execute(self.application)
+            return
+        viewer.show_lines(scan)
+
     # -- the switches ----------------------------------------------------------
 
     async def on_unwrap(self, event: Unwrap) -> bool:
@@ -262,9 +417,12 @@ class FileWindow(Window):
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
         """Shift+F4, View > *Markup view*: a departure, DN's viewer had none.
-        On a CSV or TSV, the database window on it in this one's place."""
+        On a CSV or TSV, the database window on it in this one's place; on
+        a JSON, YAML, TOML or XML file, the tree of its data."""
         if self.shows_table():
             self.spawn(self.as_table())
+        elif self.shows_tree():
+            self.spawn(self.as_tree())
         else:
             self.viewer.toggle_rendered()
         return True
@@ -274,6 +432,47 @@ class FileWindow(Window):
         from navigator.lib.viewer.table import is_table
 
         return self.viewer.path is not None and not self.viewer.remote and is_table(self.viewer.path.name)
+
+    def shows_tree(self) -> bool:
+        """Whether Shift+F4 shows this file's data as a tree
+        (``[viewer] structured_masks``): a file on the disk, or a copy of one
+        fetched from elsewhere."""
+        from navigator.lib.viewer.structured import kind_by_name
+
+        viewer = self.viewer
+        return viewer.path is not None and not viewer.remote and kind_by_name(viewer.path.name) is not None
+
+    async def as_tree(self) -> None:
+        """The structured view of this file where this window is; bytes typed
+        in hex are asked about first.  A file that is not what its name says
+        is said so, and the text goes to the line the parser stopped on."""
+        from navigator.lib.viewer.structured import ParseFailed
+        from navigator.widgets.viewer.db_window.db_window import take_place
+        from navigator.widgets.viewer.struct_window.struct_window import failure_text, open_tree
+
+        viewer, desktop = self.viewer, self.desktop
+        if desktop is None or viewer.source is None:
+            return
+        if self.must_ask() and not await self.ask_to_close():
+            return
+        try:
+            window = await open_tree(desktop, viewer.source.path)
+        except ParseFailed as error:
+            if error.offset is not None:
+                viewer.set_mode("text")
+                viewer.seek(error.offset)
+            await Dialog(title=tr("Not a tree"), prompt=failure_text(error), buttons="ok").execute(self.application)
+            return
+        except OSError as error:
+            await Dialog(title=tr("Error"), prompt=tr("Cannot read the file: {error}").format(
+                error=error.strerror or error), buttons="ok").execute(self.application)
+            return
+        take_place(window, self)
+        window.title = self.title
+        window.use_set = getattr(self, "use_set", None)
+        self.use_set = None
+        viewer.edited = False
+        self.close()
 
     async def as_table(self) -> None:
         """The database window on this CSV, at the row the view's top is in,
@@ -366,6 +565,10 @@ class FileWindow(Window):
             return self.viewer.rendered
         if isinstance(command, SetFileType):
             return self.viewer.file_type == command.file_type
+        if isinstance(command, FollowEnd):
+            return self.viewer.follow
+        if isinstance(command, FilterLines):
+            return self.viewer.filtering
         return super().checks(command)
 
     def refusal(self, command: Command) -> str:
@@ -380,12 +583,24 @@ class FileWindow(Window):
         text_only = tr("Only in the text view")
         if isinstance(command, GotoAddress):
             return tr("Only in the hex and dump views") if self.viewer.mode == "text" else ""
+        if isinstance(command, SwitchRendered) and self.viewer.filtering:
+            return tr("Not while lines are filtered")
         if isinstance(command, SwitchRendered):
-            if self.shows_table():
+            if self.shows_table() or self.shows_tree():
                 return ""
             if self.viewer.mode != "text":
                 return text_only
             return self.viewer.render_refusal()
+        if isinstance(command, FollowEnd):
+            return self.follow_refusal()
+        if isinstance(command, FilterLines):
+            if self.viewer.mode != "text":
+                return text_only
+            if self.viewer.rendering or self.viewer.showing_picture:
+                return tr("Not while the markup is rendered")
+            return ""
+        if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.filtering:
+            return tr("Not while lines are filtered")
         if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.rendering:
             return tr("Not while the markup is rendered")
         if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):
@@ -405,7 +620,10 @@ class FileWindow(Window):
         if (event.action == "press" and event.button == "left" and mark.width
                 and event.y == mark.y and mark.x <= event.x < mark.x + mark.width
                 and self.enables(SwitchRendered())):
-            self.viewer.toggle_rendered()
+            if self.shows_tree():
+                self.spawn(self.as_tree())
+            else:
+                self.viewer.toggle_rendered()
             return True
         return await super().on_mouse_click(event)
 

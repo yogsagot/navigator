@@ -1,5 +1,5 @@
 from navkit.bidi import display_width
-from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, GotoAddress, HexMode, SaveViewAs
+from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, FilterLines, FollowEnd, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, WriteModify
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
 from navigator.settings import SETTINGS
@@ -52,6 +52,10 @@ FileWindow(Window):
         ctrl+shift+h: ChooseFileType
         #: *Hidden characters*, as in the editor.
         ctrl+shift+8: SwitchHiddenChars
+        #: *Follow end* and *Filter lines*: departures, asked for -- ``tail
+        #: -f`` and ``grep``, which DN's viewer had neither of.
+        ctrl+t: FollowEnd
+        ctrl+g: FilterLines
 
     FileViewer:
         id: viewer
@@ -148,6 +152,15 @@ FileWindow(Window):
         MenuItem:
             text: '~W~rap lines'
             command: Unwrap
+        #: Departures, asked for: ``tail -f`` and ``grep`` in the viewer.
+        MenuItem:
+            text: 'Follow e~n~d'
+            tooltip: "Keep the end of a growing file in view, as tail -f does"
+            command: FollowEnd
+        MenuItem:
+            text: 'Fil~t~er lines...'
+            tooltip: "Show only the lines matching a pattern, with their numbers"
+            command: FilterLines
         #: A departure: a Markdown, reStructuredText, HTML or PDF file rendered,
         #: or its source.
         MenuItem:

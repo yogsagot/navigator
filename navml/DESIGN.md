@@ -51,6 +51,7 @@ its heading is added here.
 - The file viewer -- [`navigator-viewer/file-viewer.md`](../.claude/skills/navigator-viewer/reference/file-viewer.md)
   - CSV in the dBase window, and DN's spreadsheet -- [`navigator-viewer/spreadsheet.md`](../.claude/skills/navigator-viewer/reference/spreadsheet.md)
   - SQLite in the dBase window -- [`navigator-viewer/sqlite.md`](../.claude/skills/navigator-viewer/reference/sqlite.md)
+  - Follow end, Filter lines and the structured view -- [`navigator-viewer/follow-lines-tree.md`](../.claude/skills/navigator-viewer/reference/follow-lines-tree.md)
 - The editor -- [`navigator-editor/editor.md`](../.claude/skills/navigator-editor/reference/editor.md)
 - Copying files -- [`navigator-file-ops/copying.md`](../.claude/skills/navigator-file-ops/reference/copying.md)
   - Symbolic links -- [`navigator-file-ops/symlinks.md`](../.claude/skills/navigator-file-ops/reference/symlinks.md)

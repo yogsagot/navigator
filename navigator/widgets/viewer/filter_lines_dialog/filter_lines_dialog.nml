@@ -1,0 +1,49 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: Ctrl+G in a viewer, View > *Filter lines*: the lines to show, and how they
+#: are matched.  A departure, asked for -- DN's viewer had no such box; it is
+#: laid out as F7's *Find* is, the pattern on the line under its caption and
+#: the switches under that.
+FilterLinesDialog(Dialog):
+    modal_width: 50
+    modal_height: 13
+    title: "Filter lines"
+
+    Label:
+        id: what_caption
+        x: 2
+        y: 2
+        width: 24
+        height: 1
+        text: "~S~how lines containing"
+        link: what.entry
+
+    Field:
+        id: what
+        x: 2
+        y: 3
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "view_lines"
+
+    Label:
+        id: options_caption
+        x: 2
+        y: 5
+        width: 12
+        height: 1
+        text: "Options"
+        link: options
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 3
+        items: ["~R~egular expression", "~C~ase sensitive", "~I~nvert (lines not matching)"]
