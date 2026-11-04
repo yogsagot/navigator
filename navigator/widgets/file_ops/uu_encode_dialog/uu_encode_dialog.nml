@@ -7,7 +7,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
-#: File > UU Encode, Ctrl+F7: DOS Navigator's ``dlgUUEncode``.
+#: File > Encoding > UU Encode, Ctrl+F7: DOS Navigator's ``dlgUUEncode``.
 #:
 #: Laid out where the resource puts things: where to on the second row, the
 #: *Prefixes* and the *Checksum level* side by side under it, *Lines per

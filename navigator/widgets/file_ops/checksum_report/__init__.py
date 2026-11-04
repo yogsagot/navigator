@@ -1,4 +1,4 @@
-"""What File > Checksums > Verify found."""
+"""What File > Encoding > Checksums > Verify found."""
 
 from navigator.widgets.file_ops.checksum_report.checksum_report import ChecksumReport
 

@@ -1,4 +1,4 @@
-"""Panel > Multi-rename (Alt+A): many files renamed by one pattern, seen before it is done.
+"""File > Multi-rename (Alt+A): many files renamed by one pattern, seen before it is done.
 
 A departure: Total Commander's *Multi-Rename Tool*.  DOS Navigator's own
 group rename was F6's ``*``/``?`` mask (:func:`navigator.lib.file_ops.filecopy.apply_mask`),

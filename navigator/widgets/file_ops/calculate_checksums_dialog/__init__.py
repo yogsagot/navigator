@@ -1,4 +1,4 @@
-"""File > Checksums > Calculate: which digest, and where it is written."""
+"""File > Encoding > Checksums > Calculate: which digest, and where it is written."""
 
 from navigator.widgets.file_ops.calculate_checksums_dialog.calculate_checksums_dialog import CalculateChecksumsDialog
 

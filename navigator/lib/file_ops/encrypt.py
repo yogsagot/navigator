@@ -1,4 +1,4 @@
-"""File > Encryption: the tagged files encrypted, and decrypted again, by
+"""File > Encoding > Encryption: the tagged files encrypted, and decrypted again, by
 GnuPG's ``gpg`` or by ``age`` -- **a departure, asked for**: DOS Navigator
 encrypted nothing.
 

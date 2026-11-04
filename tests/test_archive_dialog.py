@@ -1,4 +1,4 @@
-"""File > Create archive (Shift+F1): the box, DN's ``dlgArchiveFiles`` -- its
+"""File > Archive > Create archive (Shift+F1): the box, DN's ``dlgArchiveFiles`` -- its
 type and name following each other, the levels and password each type
 allows, what is greyed for want of a tool -- and navml's per-item
 ``enable_mask`` (Turbo Vision's ``EnableMask``) it needs."""

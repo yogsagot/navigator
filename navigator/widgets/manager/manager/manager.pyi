@@ -65,6 +65,9 @@ class Manager(Window, _Component):
     info: InfoPanel
     miller: MillerView
     panel_menu: SubMenu
+    panel_display: SubMenu
+    panel_select: SubMenu
+    panel_other: SubMenu
     replaced: Any
     replacement: Any
     _last_panel: Any

@@ -407,3 +407,22 @@ def test_the_tree_lists_what_the_show_boxes_let_through_and_acts_on_that_alone(d
                   lambda a: to_path(a, "sub"), KeyEvent("delete"), lambda a: seen.update(rows=listed_rows(a))])
     assert seen["tree"] == ["sub/", "sub/mine", "c", "e"]  # sub/deep, b and d differ
     assert seen["rows"]["sub/mine"] == "delete" and seen["rows"]["sub/deep"] == "skip"
+
+
+def test_the_synchronize_menu_fits_an_80_by_25_screen(sides):
+    # The other menus are measured in test_nav's
+    # test_every_menu_box_fits_an_80_by_25_screen; this window needs two trees.
+    from navml.widgets.menu.menu_box import MenuBox
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    app = navigator(sides)
+    heights = {}
+
+    def walk(a, menu, path):
+        heights[path] = MenuBox.measure(menu, a, a.focused)[1]
+        for entry in menu.entries():
+            if isinstance(entry, SubMenu):
+                walk(a, entry, f"{path} > {entry.text}")
+
+    run_app(app, [*open_window(app), lambda a: walk(a, sync_window(a).sync_menu, "Synchronize")])
+    assert heights and max(heights.values()) <= 24

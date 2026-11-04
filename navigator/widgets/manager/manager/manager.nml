@@ -157,10 +157,17 @@ Manager(Window):
     #: DOS Navigator's *Panel* menu (``dlgMainMenu``), the file manager's own:
     #: on the main bar after *Utilities*, where DN had it, but only while this
     #: window is the active one -- every entry acts on its panels, and from a
-    #: viewer or an editor every one was greyed.  *Directory tree*, *Info* and
-    #: *Quick view* are here rather than in *Manager*, a departure: each puts
-    #: something in the passive panel's place.  Their letters are new, since
-    #: d, i and q were taken in this box.
+    #: viewer or an editor every one was greyed.
+    #:
+    #: **Grouped to fit an 80x25 screen**, a departure: the additions had
+    #: grown it past twice DN's 21 rows.  DN's own entries stay at the top in
+    #: DN's order; what was added goes in *Display*, *Selection* and *Other
+    #: panel*, and DN's four selection entries with them, their Gray +/-/*
+    #: keys being how they are used.  *Multi-rename* and the archive's
+    #: *Extract to*/*Test archive* are File's (``main_menu.nml``).
+    #: *Directory tree*, *Info* and *Quick view* are here rather than in
+    #: *Manager*, a departure: each puts something in the passive panel's
+    #: place, so they are *Other panel*'s.
     SubMenu:
         id: panel_menu
         text: '~P~anel'
@@ -195,36 +202,11 @@ Manager(Window):
             text: 'Directory Branc~h~'
             tooltip: "Every file below this directory in one listing"
             command: DirBranch
-        #: A departure, asked for (FindDuplicates' docstring); every letter
-        #: of the name is another item's, so it has none.
+        #: A departure, asked for (FindDuplicates' docstring).
         MenuItem:
             text: 'Find duplicates...'
             tooltip: "List the files below this directory whose contents are the same"
             command: FindDuplicates
-        MenuLine:
-        #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's docstring).
-        MenuItem:
-            text: 'Multi-rename...'
-            tooltip: "Rename the tagged files by a pattern"
-            command: MultiRename
-            key: 'Alt-A'
-        MenuItem:
-            text: 'Undo multi-rename'
-            tooltip: "Put back the names the last multi-rename changed"
-            command: UndoMultiRename
-        MenuLine:
-        #: DN's archive panel key bar, F4 and F6 (``hcArchives``): a menu's
-        #: here, F4 and F6 staying Edit and Rename/Move.
-        #: Shift+F2 is *Extract archive*'s, which does this in an archive
-        #: (``Manager.on_extract_archive``): the key is that one's binding.
-        MenuItem:
-            text: 'E~x~tract to...'
-            command: ExtractTo
-            key: 'Shift-F2'
-        MenuItem:
-            text: 'Test archive'
-            tooltip: "Read the archive through and check it for errors"
-            command: ArcTest
         MenuLine:
         MenuItem:
             text: 'Setup c~o~lumns'
@@ -238,66 +220,91 @@ Manager(Window):
             text: 'Sort ~b~y...'
             command: SortBy
             key: 'Alt-B'
-        MenuItem:
-            text: 'Vie~w~ mode'
-            command: ToggleShowMode
-            key: 'Ctrl-Y'
-        MenuItem:
-            text: 'Show/hide h~i~dden files'
-            command: ToggleHidden
-            key: 'Ctrl-H'
-        MenuItem:
-            text: 'Show/hide ~f~ooter'
-            command: ToggleInfoLines
-            key: 'Alt-I'
-        #: Not on DN's menu, where Alt+Left/Right moved the ``TSeparator`` with
-        #: no ``cm*`` -- a departure, asked for.  No hotkeys: only ``j`` is free.
-        MenuItem:
-            text: 'Move divider left'
-            command: MoveSeparator(step=-1)
-            key: 'Alt-Left'
-        MenuItem:
-            text: 'Move divider right'
-            command: MoveSeparator(step=1)
-            key: 'Alt-Right'
-        MenuLine:
-        MenuItem:
-            text: 'Director~y~ tree'
-            command: ToggleTree
-            key: 'Ctrl-T'
-        MenuItem:
-            text: 'I~n~fo'
-            tooltip: "Disk and directory information in the other panel"
-            command: DiskInfo
-            key: 'Ctrl-L'
-        MenuItem:
-            text: 'Quic~k~ view'
-            tooltip: "Preview the file at the cursor in the other panel"
-            command: QuickView
-            key: 'Ctrl-Q'
-        MenuLine:
-        MenuItem:
-            text: 'Select grou~p~...'
-            command: SelectGroup
-            key: 'Gray "+"'
-        MenuItem:
-            text: '~U~nselect group...'
-            command: UnselectGroup
-            key: 'Gray "-"'
-        MenuItem:
-            text: 'In~v~ert selection'
-            command: InvertSelection
-            key: 'Gray "*"'
-        MenuItem:
-            text: 'Select all files'
-            tooltip: "Select every file and directory in this panel"
-            command: SelectAll
-            key: 'Ctrl-A'
-        MenuItem:
-            text: 'Advanced filter...'
-            tooltip: "Show or hide files by extension"
-            command: AdvancedFilter
-            key: 'Alt-Del'
+        SubMenu:
+            id: panel_display
+            text: 'D~i~splay'
+            tooltip: "View mode, hidden files, the footer and the divider"
+            MenuItem:
+                text: 'Vie~w~ mode'
+                command: ToggleShowMode
+                key: 'Ctrl-Y'
+            MenuItem:
+                text: 'Show/hide h~i~dden files'
+                command: ToggleHidden
+                key: 'Ctrl-H'
+            MenuItem:
+                text: 'Show/hide ~f~ooter'
+                command: ToggleInfoLines
+                key: 'Alt-I'
+            MenuLine:
+            #: Not on DN's menu, where Alt+Left/Right moved the ``TSeparator``
+            #: with no ``cm*`` -- a departure, asked for.
+            MenuItem:
+                text: 'Move divider left'
+                command: MoveSeparator(step=-1)
+                key: 'Alt-Left'
+            MenuItem:
+                text: 'Move divider right'
+                command: MoveSeparator(step=1)
+                key: 'Alt-Right'
+        SubMenu:
+            id: panel_select
+            text: 'Selectio~n~'
+            tooltip: "Select or unselect files by a mask, or filter them"
+            MenuItem:
+                text: 'Select grou~p~...'
+                command: SelectGroup
+                key: 'Gray "+"'
+            MenuItem:
+                text: '~U~nselect group...'
+                command: UnselectGroup
+                key: 'Gray "-"'
+            MenuItem:
+                text: 'In~v~ert selection'
+                command: InvertSelection
+                key: 'Gray "*"'
+            MenuItem:
+                text: 'Select all files'
+                tooltip: "Select every file and directory in this panel"
+                command: SelectAll
+                key: 'Ctrl-A'
+            MenuLine:
+            MenuItem:
+                text: 'Advanced filter...'
+                tooltip: "Show or hide files by extension"
+                command: AdvancedFilter
+                key: 'Alt-Del'
+        SubMenu:
+            id: panel_other
+            text: 'Other ~p~anel'
+            tooltip: "Put a tree, information or a preview in the other panel"
+            MenuItem:
+                text: 'Director~y~ tree'
+                command: ToggleTree
+                key: 'Ctrl-T'
+            MenuItem:
+                text: 'I~n~fo'
+                tooltip: "Disk and directory information in the other panel"
+                command: DiskInfo
+                key: 'Ctrl-L'
+            MenuItem:
+                text: 'Quic~k~ view'
+                tooltip: "Preview the file at the cursor in the other panel"
+                command: QuickView
+                key: 'Ctrl-Q'
+            MenuLine:
+            MenuItem:
+                text: 'S~a~me directory in other panel'
+                tooltip: "Send the other panel to this directory"
+                command: EqualizePanels
+                key: 'Alt-='
+            #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
+            #: departure, asked for.
+            MenuItem:
+                text: 'Show in other panel'
+                tooltip: "Show the found file in the other panel"
+                command: ChangeInactive
+                key: 'Shift-Enter'
         MenuLine:
         MenuItem:
             text: 'Change ~d~rive'
@@ -309,6 +316,12 @@ Manager(Window):
             tooltip: "Choose a directory from a tree"
             command: ChangeDirectory
             key: 'Alt-T'
+        #: Not DN's: fzf over zoxide's directories and the panels' history.
+        MenuItem:
+            text: '~J~ump to directory...'
+            tooltip: "zoxide's directories and the panels' history, searched by fzf"
+            command: JumpToDirectory
+            key: 'Alt-J'
         MenuItem:
             text: 'Quick s~e~arch'
             command: QuickSearch
@@ -318,18 +331,6 @@ Manager(Window):
             command: Rescan
             key: 'Alt-R'
         MenuItem:
-            text: 'S~a~me directory in other panel'
-            tooltip: "Send the other panel to this directory"
-            command: EqualizePanels
-            key: 'Alt-='
-        #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
-        #: departure, asked for.  No hotkey: only ``j`` is free.
-        MenuItem:
-            text: 'Show in other panel'
-            tooltip: "Show the found file in the other panel"
-            command: ChangeInactive
-            key: 'Shift-Enter'
-        MenuItem:
             text: '~Q~uick dirs...'
             tooltip: "The bookmarks, for this panel"
             command: ListOfDirs
@@ -338,9 +339,3 @@ Manager(Window):
             text: 'History of directories...'
             command: DirHistory
             key: 'Alt-BkSp'
-        #: Not DN's: fzf over zoxide's directories and the panels' history.
-        MenuItem:
-            text: '~J~ump to directory...'
-            tooltip: "zoxide's directories and the panels' history, searched by fzf"
-            command: JumpToDirectory
-            key: 'Alt-J'

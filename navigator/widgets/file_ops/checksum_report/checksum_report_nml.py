@@ -27,7 +27,7 @@ __all__ = ["ChecksumReport"]
 
 
 class ChecksumReport(Dialog, _Component):
-    """File > Checksums > Verify's answer.  Not DN's: a departure, asked for.
+    """File > Encoding > Checksums > Verify's answer.  Not DN's: a departure, asked for.
 
     The counts at the top and, when anything did not match, every such file
     in a list under them -- as many as there are, which a message box's few

@@ -29,7 +29,7 @@ __all__ = ["CalculateChecksumsDialog"]
 
 
 class CalculateChecksumsDialog(Dialog, _Component):
-    """File > Checksums > Calculate.  Not DN's: a departure, asked for -- DOS
+    """File > Encoding > Checksums > Calculate.  Not DN's: a departure, asked for -- DOS
 
     Navigator had no checksums (``navigator.lib.file_ops.checksum``).
 

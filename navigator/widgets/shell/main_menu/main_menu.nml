@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, UndoMultiRename, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -197,17 +197,48 @@ MainMenu(MenuBar):
             tooltip: "Rename the file at the cursor in a small box"
             command: QuickRename
             key: 'Shift-F6'
-        #: DN's ``Cop~y~ to archive``, renamed -- a departure, asked for: it
-        #: makes a new archive, in its own box (``dlgArchiveFiles``).  Every
-        #: letter of the name is taken, so *Compare files* gave up its ``i``.
-        MenuItem:
-            text: 'Create arch~i~ve...'
-            command: ArchiveFiles
-            key: 'Shift-F1'
-        MenuItem:
-            text: 'Ex~t~ract archive...'
-            command: ExtractArchive
-            key: 'Shift-F2'
+        #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's
+        #: docstring), moved here from Panel to fit an 80x25 screen.
+        SubMenu:
+            id: file_multi_rename
+            text: 'M~u~lti-rename'
+            MenuItem:
+                text: 'Multi-rename...'
+                tooltip: "Rename the tagged files by a pattern"
+                command: MultiRename
+                key: 'Alt-A'
+            MenuItem:
+                text: 'Undo multi-rename'
+                tooltip: "Put back the names the last multi-rename changed"
+                command: UndoMultiRename
+        #: DN's two archive entries, nested with the archive panel's *Extract
+        #: to* and *Test archive* (DN's ``hcArchives`` key bar, once on Panel)
+        #: -- a departure, so File fits an 80x25 screen.
+        SubMenu:
+            id: file_archive
+            text: 'Arch~i~ve'
+            tooltip: "Create, extract and test archives"
+            #: DN's ``Cop~y~ to archive``, renamed -- a departure, asked for: it
+            #: makes a new archive, in its own box (``dlgArchiveFiles``).
+            MenuItem:
+                text: 'Create arch~i~ve...'
+                command: ArchiveFiles
+                key: 'Shift-F1'
+            MenuItem:
+                text: 'Ex~t~ract archive...'
+                command: ExtractArchive
+                key: 'Shift-F2'
+            MenuLine:
+            #: Shift+F2 is *Extract archive*'s, which does this in an archive
+            #: (``Manager.on_extract_archive``): the key is that one's binding.
+            MenuItem:
+                text: 'E~x~tract to...'
+                command: ExtractTo
+                key: 'Shift-F2'
+            MenuItem:
+                text: 'Test archive'
+                tooltip: "Read the archive through and check it for errors"
+                command: ArcTest
         #: Not DN's -- DOS had no links: Shift+F5's link made, and the
         #: rest changing links already there (EditLinkTarget's docstring).
         SubMenu:
@@ -275,42 +306,49 @@ MainMenu(MenuBar):
             tooltip: "Permissions, owner, group, dates, ACLs and extended attributes"
             command: ChangeAttributes
             key: 'Alt-E'
-        MenuItem:
-            text: 'UU E~n~code...'
-            tooltip: "Encode the file as plain text, the old way of mailing files"
-            command: UuEncode
-            key: 'Ctrl-F7'
-        MenuItem:
-            text: '~U~U Decode...'
-            tooltip: "Decode the files UU-encoded in this file"
-            command: UuDecode
-            key: 'Ctrl-F8'
-        #: Not DN's: a departure, asked for -- coreutils' ``*sum`` lists of
-        #: the tagged files, made and checked (CalculateChecksums' docstring).
+        #: DN's UU entries with the checksums and encryption that came later,
+        #: nested so File fits an 80x25 screen -- a departure.
         SubMenu:
-            id: file_checksums
-            text: 'Chec~k~sums'
+            id: file_encoding
+            text: 'E~n~coding'
+            tooltip: "UU encoding, checksums and encryption"
             MenuItem:
-                text: '~C~alculate...'
-                tooltip: "Hash the tagged files and write their checksums to a list"
-                command: CalculateChecksums
+                text: 'UU E~n~code...'
+                tooltip: "Encode the file as plain text, the old way of mailing files"
+                command: UuEncode
+                key: 'Ctrl-F7'
             MenuItem:
-                text: '~V~erify'
-                tooltip: "Hash the files a checksum list names again and check them"
-                command: VerifyChecksums
-        #: Not DN's: a departure, asked for -- gpg or age over the tagged
-        #: files, each written beside itself (EncryptFiles' docstring).
-        SubMenu:
-            id: file_encryption
-            text: 'Encr~y~ption'
-            MenuItem:
-                text: '~E~ncrypt...'
-                tooltip: "Encrypt the tagged files with gpg or age, each beside itself"
-                command: EncryptFiles
-            MenuItem:
-                text: '~D~ecrypt'
-                tooltip: "Decrypt the tagged gpg or age files, each beside itself"
-                command: DecryptFiles
+                text: '~U~U Decode...'
+                tooltip: "Decode the files UU-encoded in this file"
+                command: UuDecode
+                key: 'Ctrl-F8'
+            MenuLine:
+            #: Not DN's: a departure, asked for -- coreutils' ``*sum`` lists of
+            #: the tagged files, made and checked (CalculateChecksums' docstring).
+            SubMenu:
+                id: file_checksums
+                text: 'Chec~k~sums'
+                MenuItem:
+                    text: '~C~alculate...'
+                    tooltip: "Hash the tagged files and write their checksums to a list"
+                    command: CalculateChecksums
+                MenuItem:
+                    text: '~V~erify'
+                    tooltip: "Hash the files a checksum list names again and check them"
+                    command: VerifyChecksums
+            #: Not DN's: a departure, asked for -- gpg or age over the tagged
+            #: files, each written beside itself (EncryptFiles' docstring).
+            SubMenu:
+                id: file_encryption
+                text: 'Encr~y~ption'
+                MenuItem:
+                    text: '~E~ncrypt...'
+                    tooltip: "Encrypt the tagged files with gpg or age, each beside itself"
+                    command: EncryptFiles
+                MenuItem:
+                    text: '~D~ecrypt'
+                    tooltip: "Decrypt the tagged gpg or age files, each beside itself"
+                    command: DecryptFiles
         MenuItem:
             text: 'Delete single file'
             tooltip: "Delete the file at the cursor, not the selection"

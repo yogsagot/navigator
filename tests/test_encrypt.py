@@ -1,4 +1,4 @@
-"""File > Encryption: files encrypted and decrypted by gpg or age
+"""File > Encoding > Encryption: files encrypted and decrypted by gpg or age
 (:mod:`navigator.lib.file_ops.encrypt`), on the disk and on another drive."""
 
 from __future__ import annotations

@@ -46,7 +46,9 @@ class FileWindow(Window, _Component):
     md_mark: StaticText
     options: OptionStrip
     view_menu: SubMenu
+    view_menu_mode: SubMenu
     view_menu_file_type: SubMenu
+    view_menu_filter: SubMenu
     def __init__(self, path: Path | str, *, mode: str | None = ..., source: Any = ..., **kwargs: Any) -> None: ...
     def take_keyboard(self) -> None: ...
     def list_name(self) -> str: ...

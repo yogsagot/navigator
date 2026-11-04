@@ -123,20 +123,27 @@ FileWindow(Window):
         text: '~V~iew'
         tooltip: "Text, hex or dump, wrapping, filters, search and encoding"
         after: 'File'
-        #: F4 had no entry while the three below stood for it -- a departure,
-        #: asked for, so every bound key shows on the menu.
-        MenuItem:
-            text: 'He~x~/Text/Dump'
-            command: HexMode
-        MenuItem:
-            text: '~T~ext'
-            command: SetViewMode('text')
-        MenuItem:
-            text: '~H~ex'
-            command: SetViewMode('hex')
-        MenuItem:
-            text: '~D~ump'
-            command: SetViewMode('dump')
+        #: The modes and the filters are nested so the box fits an 80x25
+        #: screen -- a departure, as the menu is.
+        SubMenu:
+            id: view_menu_mode
+            text: 'Mo~d~e'
+            tooltip: "Text, hex or dump"
+            #: F4 had no entry while the three below stood for it -- a
+            #: departure, asked for, so every bound key shows on the menu.
+            MenuItem:
+                text: 'He~x~/Text/Dump'
+                command: HexMode
+            MenuLine:
+            MenuItem:
+                text: '~T~ext'
+                command: SetViewMode('text')
+            MenuItem:
+                text: '~H~ex'
+                command: SetViewMode('hex')
+            MenuItem:
+                text: '~D~ump'
+                command: SetViewMode('dump')
         MenuLine:
         MenuItem:
             text: '~W~rap lines'
@@ -161,22 +168,27 @@ FileWindow(Window):
             id: view_menu_file_type
             text: '~F~ile type'
             key_command: ChooseFileType
-        #: F6, as F4 above.
-        MenuItem:
-            text: 'Fi~l~ter'
+        SubMenu:
+            id: view_menu_filter
+            text: 'Fi~l~ters'
             tooltip: "Hide characters: none, all but ASCII, or the control characters"
-            command: AddFilter
-        MenuItem:
-            text: '~N~o filter'
-            command: SetViewFilter(0)
-        MenuItem:
-            text: '~A~SCII filter'
-            tooltip: "Hide control characters and everything beyond ASCII"
-            command: SetViewFilter(1)
-        MenuItem:
-            text: '~P~rintable filter'
-            tooltip: "Hide control characters"
-            command: SetViewFilter(2)
+            #: F6, as F4 above.
+            MenuItem:
+                text: 'Fi~l~ter'
+                tooltip: "Hide characters: none, all but ASCII, or the control characters"
+                command: AddFilter
+            MenuLine:
+            MenuItem:
+                text: '~N~o filter'
+                command: SetViewFilter(0)
+            MenuItem:
+                text: '~A~SCII filter'
+                tooltip: "Hide control characters and everything beyond ASCII"
+                command: SetViewFilter(1)
+            MenuItem:
+                text: '~P~rintable filter'
+                tooltip: "Hide control characters"
+                command: SetViewFilter(2)
         MenuLine:
         MenuItem:
             text: '~S~earch...'

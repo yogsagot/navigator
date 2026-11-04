@@ -7,7 +7,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 
-#: File > *Create archive...* (Shift+F1): DOS Navigator's ``dlgArchiveFiles``,
+#: File > Archive > *Create archive...* (Shift+F1): DOS Navigator's ``dlgArchiveFiles``,
 #: 64 by 18 as the resource had it.
 #:
 #: Laid out where DN put things: the name on the second row, *Password* under

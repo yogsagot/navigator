@@ -1,4 +1,4 @@
-"""Panel > Extract to, Shift+F2: where an archive's files go, and how."""
+"""File > Archive > Extract to, Shift+F2: where an archive's files go, and how."""
 
 from navigator.widgets.file_ops.extract_dialog.extract_dialog import ExtractDialog
 

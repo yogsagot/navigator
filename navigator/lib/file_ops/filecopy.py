@@ -79,7 +79,7 @@ class CopyRequest:
     #: where a file mask has *Synchronize* copy files out of a directory the
     #: other side lacks, rather than the directory whole.
     directories: list[Path | Location] | None = None
-    #: File > *Create archive...*'s: how the new archive the target names is
+    #: File > Archive > *Create archive...*'s: how the new archive the target names is
     #: packed (``archive.ArchiveOptions``); None packs as an F5 into one does.
     archive: Any = None
 

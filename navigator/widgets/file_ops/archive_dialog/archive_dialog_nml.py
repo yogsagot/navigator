@@ -32,7 +32,7 @@ __all__ = ["ArchiveDialog"]
 
 
 class ArchiveDialog(Dialog, _Component):
-    """File > *Create archive...* (Shift+F1): DOS Navigator's ``dlgArchiveFiles``,
+    """File > Archive > *Create archive...* (Shift+F1): DOS Navigator's ``dlgArchiveFiles``,
 
     64 by 18 as the resource had it.
 

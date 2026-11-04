@@ -5,7 +5,7 @@ from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
-#: File > Encryption > Encrypt.  Not DN's: a departure, asked for -- DOS
+#: File > Encoding > Encryption > Encrypt.  Not DN's: a departure, asked for -- DOS
 #: Navigator encrypted nothing (``navigator.lib.file_ops.encrypt``).
 #:
 #: The program and what to encrypt to side by side, the passphrase twice or

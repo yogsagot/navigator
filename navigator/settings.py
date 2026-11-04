@@ -982,7 +982,7 @@ class CalculatorData(Section):
 
 
 class UUCodeData(Section):
-    """``TUUEncodeData`` and ``UUDecodeOptions``: what File > UU Encode and
+    """``TUUEncodeData`` and ``UUDecodeOptions``: what File > Encoding > UU Encode and
     UU Decode were last accepted with, kept as DN kept them (``cfgUUEData``)."""
 
     name = "uucode"
@@ -1021,7 +1021,7 @@ class SplitData(Section):
 
 
 class ChecksumData(Section):
-    """File > Checksums > *Calculate*'s last choices.  Not DN's: a departure,
+    """File > Encoding > Checksums > *Calculate*'s last choices.  Not DN's: a departure,
     asked for -- DOS Navigator had no checksums to keep anything of."""
 
     name = "checksum"
@@ -1035,7 +1035,7 @@ class ChecksumData(Section):
 
 
 class EncryptionData(Section):
-    """File > Encryption's last choices, and the age identities Decrypt uses.
+    """File > Encoding > Encryption's last choices, and the age identities Decrypt uses.
     Not DN's: a departure, asked for -- DOS Navigator encrypted nothing.  A
     passphrase is never kept here."""
 

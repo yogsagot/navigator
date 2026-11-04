@@ -197,7 +197,7 @@ class EqualizePanels(Command):
 
     Not DOS Navigator's -- 1.51 had no such command, a departure; Midnight
     Commander's ``Alt+I`` (*Sync panels*), on a free key since Alt+I is the
-    footer here.  Panel > Same directory in other panel.
+    footer here.  Panel > Other panel > Same directory in other panel.
     """
 
 
@@ -436,14 +436,14 @@ class CountLength(Command):
 
 
 class UuEncode(Command):
-    """Ctrl+F7, File > UU Encode: the file at the cursor, UU-encoded.
+    """Ctrl+F7, File > Encoding > UU Encode: the file at the cursor, UU-encoded.
 
     DOS Navigator's ``cmUUEncodeFile`` (``UuEncode``, UUCODE.PAS).
     """
 
 
 class UuDecode(Command):
-    """Ctrl+F8, File > UU Decode: the files UU-encoded in the file at the cursor.
+    """Ctrl+F8, File > Encoding > UU Decode: the files UU-encoded in the file at the cursor.
 
     DOS Navigator's ``cmUUDecodeFile`` (``UuDecode``, UUCODE.PAS).
     """
@@ -463,7 +463,7 @@ class SplitCombine(Command):
 
 
 class CalculateChecksums(Command):
-    """File > Checksums > Calculate: the tagged files' digests, in one list or
+    """File > Encoding > Checksums > Calculate: the tagged files' digests, in one list or
     a list beside each (:mod:`navigator.lib.file_ops.checksum`).
 
     **A departure**, asked for: DOS Navigator had no checksums, so there is
@@ -472,7 +472,7 @@ class CalculateChecksums(Command):
 
 
 class VerifyChecksums(Command):
-    """File > Checksums > Verify: the files the tagged lists -- or the one at
+    """File > Encoding > Checksums > Verify: the files the tagged lists -- or the one at
     the cursor -- name, hashed again and checked.
 
     **A departure**, asked for, as :class:`CalculateChecksums` is.  Not bound.
@@ -480,7 +480,7 @@ class VerifyChecksums(Command):
 
 
 class EncryptFiles(Command):
-    """File > Encryption > Encrypt: the tagged files -- a tagged directory's to
+    """File > Encoding > Encryption > Encrypt: the tagged files -- a tagged directory's to
     the bottom -- encrypted by gpg or age, each beside itself
     (:mod:`navigator.lib.file_ops.encrypt`).
 
@@ -490,7 +490,7 @@ class EncryptFiles(Command):
 
 
 class DecryptFiles(Command):
-    """File > Encryption > Decrypt: the tagged encrypted files -- or the one at
+    """File > Encoding > Encryption > Decrypt: the tagged encrypted files -- or the one at
     the cursor -- decrypted beside themselves, the passphrase asked only when
     one is wanted.
 
@@ -539,7 +539,7 @@ class StoreQuickDir(Command):
 
 
 class AdvancedFilter(Command):
-    """Alt+Del, Panel > Advanced filter: show or hide files by extension.
+    """Alt+Del, Panel > Selection > Advanced filter: show or hide files by extension.
 
     DOS Navigator's ``cmAdvFilter`` (``CM_AdvancedFilter``).
     """
@@ -584,7 +584,7 @@ class FindDuplicates(Command):
 
 
 class MultiRename(Command):
-    """Alt+M, Panel > Multi-rename: the tagged files renamed by a pattern.
+    """Alt+M, File > Multi-rename: the tagged files renamed by a pattern.
 
     A departure: Total Commander's *Multi-Rename Tool* (its Ctrl+M is Enter
     in a terminal); DOS Navigator's group rename was F6's ``*``/``?`` mask
@@ -593,7 +593,7 @@ class MultiRename(Command):
 
 
 class UndoMultiRename(Command):
-    """Panel > Undo multi-rename: the last batch's names put back.
+    """File > Multi-rename > Undo multi-rename: the last batch's names put back.
 
     A departure, with :class:`MultiRename`; kept for the session only.
     """
@@ -710,7 +710,7 @@ class ToggleInfoLines(Command):
 
 
 class ArchiveFiles(Command):
-    """Shift+F1, ``cmPanelArcFiles``: File > *Create archive...*, DN's
+    """Shift+F1, ``cmPanelArcFiles``: File > Archive > *Create archive...*, DN's
     *Copy to archive*."""
 
     title = "Arc"

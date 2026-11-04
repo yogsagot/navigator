@@ -1216,7 +1216,7 @@ def test_the_panel_menu_carries_ctrl_h(tree):
     seen = []
 
     def look(a):
-        item = _entry(a.shell.menu, "Panel", "Show/hide hidden files")
+        item = _entry(a.shell.menu, "Panel", "Display", "Show/hide hidden files")
         seen.append((key_caption(item, a, a.manager.left),
                      a.command_enabled(item.command, a.manager.left)))
 
@@ -1229,7 +1229,7 @@ def test_the_menu_ticks_ctrl_h_while_the_active_panel_shows_dot_files(tree):
     seen = []
 
     def look(a):
-        item = _entry(a.shell.menu, "Panel", "Show/hide hidden files")
+        item = _entry(a.shell.menu, "Panel", "Display", "Show/hide hidden files")
         seen.append(a.command_checked(item.command, a.manager.left))
 
     run_app(app, [look, KeyEvent("h", ctrl=True), look, KeyEvent("tab"), look])
@@ -1243,8 +1243,8 @@ def test_the_panel_menu_carries_ctrl_y_and_ctrl_s(tree):
     seen = []
 
     def look(a):
-        for caption in ("View mode", "Quick search"):
-            item = _entry(a.shell.menu, "Panel", caption)
+        for path in (("Display", "View mode"), ("Quick search",)):
+            item = _entry(a.shell.menu, "Panel", *path)
             seen.append((key_caption(item, a, a.manager.left),
                          a.command_enabled(item.command, a.manager.left)))
 
@@ -1254,7 +1254,7 @@ def test_the_panel_menu_carries_ctrl_y_and_ctrl_s(tree):
 
 def test_panel_view_mode_from_the_menu_cycles_the_active_panel(tree):
     app = navigator(tree)
-    run_app(app, [KeyEvent("f10"), *keys("pw")])
+    run_app(app, [KeyEvent("f10"), *keys("piw")])
     assert app.manager.left.view_mode == "detailed"
     assert app.manager.right.view_mode == "simple"
 
@@ -3587,11 +3587,9 @@ def test_only_entries_with_a_handler_behind_them_are_enabled(tree):
         return parse_shortcut(text)[0]
 
     run_app(app, [probe])
-    from navigator.lib.file_ops.encrypt import available
-
-    # Encryption is greyed where neither gpg nor age is installed.
-    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Symlinks", "Make directory", "Checksums",
-                    *(["Encryption"] if available() else []), "Execute OS command", "Exit"]
+    # Encoding holds Checksums, so it is enabled with or without gpg and age.
+    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Multi-rename", "Archive", "Symlinks",
+                    "Make directory", "Encoding", "Execute OS command", "Exit"]
 
 
 def test_a_nested_menu_shades_the_box_it_opened_from(tree):
@@ -4506,19 +4504,60 @@ def test_panel_is_on_the_bar_only_while_a_file_manager_is_active(tree):
     assert seen[3] is True
 
 
-def test_the_panel_menu_holds_the_tree_info_and_quick_view_and_manager_does_not(tree):
+def test_every_menu_box_fits_an_80_by_25_screen(tree):
+    """Each box the bar drops, the file manager's, the viewer's and the
+    editor's menus with them, fits under the bar on 25 rows without
+    scrolling -- the next entry that would overflow one has to find a
+    submenu.  Boxes filled at run time from long lists scroll by design."""
+    from navml.widgets.menu.menu_box import MenuBox
+    from navml.widgets.menu.sub_menu import SubMenu
+    from navml.widgets.dialog.control.control import parse_shortcut
+
+    app = Navigator(tree, tree, terminal=FakeTerminal(80, 25))
+    heights = {}
+
+    def walk(a, menu, path):
+        if getattr(menu, "filterable", False) or menu.key_command is not None:
+            return
+        _, height = MenuBox.measure(menu, a, a.focused)
+        heights[path] = height
+        for entry in menu.entries():
+            if isinstance(entry, SubMenu):
+                walk(a, entry, f"{path} > {parse_shortcut(entry.text)[0]}")
+
+    def look(a):
+        for entry in a.shell.menu.entries():
+            if isinstance(entry, SubMenu):
+                walk(a, entry, parse_shortcut(entry.text)[0])
+
+    def active(a):
+        return a.shell.desktop.active_window
+
+    def opened(attr):
+        return lambda a: getattr(active(a), attr, None) is not None
+
+    run_app(app, [look,
+                  KeyEvent("end"), KeyEvent("f3"), Until(opened("viewer")), look,
+                  KeyEvent("escape"), Until(lambda a: active(a) is a.manager),
+                  KeyEvent("f4"), Until(opened("editor")), look])
+    for name in ("Panel", "File", "View", "Editor"):
+        assert name in heights
+    assert {path: height for path, height in heights.items() if height > 24} == {}
+
+
+def test_the_panel_menus_other_panel_holds_the_tree_info_and_quick_view_and_manager_does_not(tree):
     app = navigator(tree)
     seen = {}
 
     def look(a):
         from navml.widgets.dialog.control.control import parse_shortcut
 
-        names = lambda m: [parse_shortcut(getattr(e, "text", ""))[0]    # noqa: E731
-                           for e in _entry(a.shell.menu, m).entries()]
-        seen["panel"], seen["manager"] = names("Panel"), names("Manager")
+        names = lambda *m: [parse_shortcut(getattr(e, "text", ""))[0]    # noqa: E731
+                            for e in _entry(a.shell.menu, *m).entries()]
+        seen["panel"], seen["manager"] = names("Panel", "Other panel"), names("Manager")
 
     run_app(app, [look,
-                  KeyEvent("p", "p", alt=True), KeyEvent("y", "y"), lambda a: None,
+                  KeyEvent("p", "p", alt=True), KeyEvent("p", "p"), KeyEvent("y", "y"), lambda a: None,
                   lambda a: seen.update(tree=a.manager.tree.visible)])
     for caption in ("Directory tree", "Info", "Quick view"):
         assert caption in seen["panel"] and caption not in seen["manager"]

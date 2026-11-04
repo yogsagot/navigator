@@ -5,7 +5,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 
-#: Panel > Extract to, and Shift+F2 on an archive: DOS Navigator's
+#: File > Archive > Extract to, and Shift+F2 on an archive: DOS Navigator's
 #: ``dlgExtract``.
 #:
 #: Where to, the two options, and OK / Cancel / Tree.  DN's *Password* line

@@ -97,11 +97,11 @@ flag = "RU"
 "Save ~a~s..." = "Сохранить ~к~ак..."
 # navigator/widgets/editor/edit_window/edit_window.nml:220
 "Save a~l~l..." = "Сохранить ~в~се..."
-# navigator/widgets/editor/edit_window/edit_window.nml:225, navigator/widgets/shell/main_menu/main_menu.nml:252
+# navigator/widgets/editor/edit_window/edit_window.nml:225, navigator/widgets/shell/main_menu/main_menu.nml:283
 "~P~rint" = "~Н~апечатать"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Print ~b~lock" = "Печатать ~б~лок"
-# navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/shell/main_menu/main_menu.nml:325
+# navigator/widgets/editor/edit_window/edit_window.nml:234, navigator/widgets/shell/main_menu/main_menu.nml:363
 "E~x~it" = "В~ы~ход"
 # navigator/widgets/editor/edit_window/edit_window.nml:239, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~П~оиск"
@@ -173,7 +173,7 @@ flag = "RU"
 "Insert ~t~ime" = "Вставить ~в~ремя"
 # navigator/widgets/editor/edit_window/edit_window.nml:363
 "Du~p~licate line" = "Ду~б~лировать строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:367, navigator/widgets/shell/main_menu/main_menu.nml:385
+# navigator/widgets/editor/edit_window/edit_window.nml:367, navigator/widgets/shell/main_menu/main_menu.nml:423
 "Character ta~b~le" = "~Т~аблица символов"
 # navigator/widgets/editor/edit_window/edit_window.nml:371
 "Line Dra~w~ing" = "~Р~исование линий"
@@ -741,7 +741,7 @@ flag = "RU"
 "Classic ~t~etris" = "~Т~етрис"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "~П~ентикс"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:542
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:580
 "~O~ptions" = "~Н~астройки"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~С~лед. фигура"
@@ -749,7 +749,7 @@ flag = "RU"
 "Show the next piece (it scores less)" = "Показывать следующую фигуру (очков меньше)"
 # navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "Игра Навигатора"
-# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:502 ...
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:540 ...
 "~N~ew" = "~Н~овый"
 # navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:101, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "~О~пции"
@@ -769,7 +769,7 @@ flag = "RU"
 "Pre~v~iew" = "~С~ледующая фигура"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "Показывать следующую фигуру"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:699 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:737 ...
 "~C~lose" = "~З~акрыть"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "Рекорды Пентикса"
@@ -917,122 +917,120 @@ flag = "RU"
 "Write each file's whole path, not its name alone" = "Записывать полный путь каждого файла, а не только имя"
 # navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:43
 "Write a file's path only where it is not in the list file's own directory" = "Записывать путь файла, только если он не в каталоге файла-списка"
-# navigator/widgets/manager/manager/manager.nml:166
+# navigator/widgets/manager/manager/manager.nml:173
 "~P~anel" = "~П~анель"
-# navigator/widgets/manager/manager/manager.nml:167
+# navigator/widgets/manager/manager/manager.nml:174
 "List files, compare, sort, filter, select and change directory" = "Списки файлов, сравнение, сортировка, фильтр, выделение и смена каталога"
-# navigator/widgets/manager/manager/manager.nml:170
+# navigator/widgets/manager/manager/manager.nml:177
 "~M~ake list file..." = "~С~оздать список файлов..."
-# navigator/widgets/manager/manager/manager.nml:171
+# navigator/widgets/manager/manager/manager.nml:178
 "Write the tagged files' names to a list file" = "Записать имена отмеченных файлов в файл-список"
-# navigator/widgets/manager/manager/manager.nml:175
-"Read file ~l~ist" = "~З~агрузить список файлов"
-# navigator/widgets/manager/manager/manager.nml:176
-"Show the files a list file names as a listing" = "Показать файлы из файла-списка как список"
-# navigator/widgets/manager/manager/manager.nml:181
-"Paneli~z~e command..." = "Фа~й~лы из вывода команды..."
 # navigator/widgets/manager/manager/manager.nml:182
+"Read file ~l~ist" = "~З~агрузить список файлов"
+# navigator/widgets/manager/manager/manager.nml:183
+"Show the files a list file names as a listing" = "Показать файлы из файла-списка как список"
+# navigator/widgets/manager/manager/manager.nml:188
+"Paneli~z~e command..." = "Фа~й~лы из вывода команды..."
+# navigator/widgets/manager/manager/manager.nml:189
 "Run a command and list the files it prints in the panel" = "Выполнить команду и показать в панели файлы, которые она выводит"
-# navigator/widgets/manager/manager/manager.nml:186
+# navigator/widgets/manager/manager/manager.nml:193
 "~C~ompare directories" = "Ср~а~внить каталоги"
-# navigator/widgets/manager/manager/manager.nml:187
+# navigator/widgets/manager/manager/manager.nml:194
 "Tag what each panel has that the other lacks or has older" = "Отметить то, что есть в каждой панели, но отсутствует или старее в другой"
-# navigator/widgets/manager/manager/manager.nml:190, navigator/widgets/manager/panel/panel.py:1821
+# navigator/widgets/manager/manager/manager.nml:197, navigator/widgets/manager/panel/panel.py:1870
 "Count directory len~g~th" = "В~ы~числить размер каталога"
-# navigator/widgets/manager/manager/manager.nml:191
+# navigator/widgets/manager/manager/manager.nml:198
 "Add up the bytes under the selected directories" = "Подсчитать байты в выделенных каталогах"
-# navigator/widgets/manager/manager/manager.nml:195
-"Directory Branc~h~" = "~В~етвь каталога"
-# navigator/widgets/manager/manager/manager.nml:196
-"Every file below this directory in one listing" = "Все файлы ниже этого каталога в одном списке"
-# navigator/widgets/manager/manager/manager.nml:201
-"Find duplicates..." = "Поиск дубликатов..."
 # navigator/widgets/manager/manager/manager.nml:202
-"List the files below this directory whose contents are the same" = "Показать файлы ниже этого каталога с одинаковым содержимым"
+"Directory Branc~h~" = "~В~етвь каталога"
+# navigator/widgets/manager/manager/manager.nml:203
+"Every file below this directory in one listing" = "Все файлы ниже этого каталога в одном списке"
 # navigator/widgets/manager/manager/manager.nml:207
-"Multi-rename..." = "Групповое переименование..."
+"Find duplicates..." = "Поиск дубликатов..."
 # navigator/widgets/manager/manager/manager.nml:208
-"Rename the tagged files by a pattern" = "Переименовать отмеченные файлы по шаблону"
+"List the files below this directory whose contents are the same" = "Показать файлы ниже этого каталога с одинаковым содержимым"
 # navigator/widgets/manager/manager/manager.nml:212
-"Undo multi-rename" = "Отменить групповое переименование"
-# navigator/widgets/manager/manager/manager.nml:213
-"Put back the names the last multi-rename changed" = "Вернуть имена, изменённые последним групповым переименованием"
-# navigator/widgets/manager/manager/manager.nml:221, navigator/widgets/manager/panel/panel.py:1814
-"E~x~tract to..." = "Извле~ч~ь в..."
-# navigator/widgets/manager/manager/manager.nml:225, navigator/widgets/manager/manager/manager.py:1294
-"Test archive" = "Проверить архив"
-# navigator/widgets/manager/manager/manager.nml:226
-"Read the archive through and check it for errors" = "Прочитать архив целиком и проверить его на ошибки"
-# navigator/widgets/manager/manager/manager.nml:230
 "Setup c~o~lumns" = "Установки ~к~олонок"
-# navigator/widgets/manager/manager/manager.nml:234
+# navigator/widgets/manager/manager/manager.nml:216
 "~S~etup Panel" = "~У~становки панели"
-# navigator/widgets/manager/manager/manager.nml:238
+# navigator/widgets/manager/manager/manager.nml:220
 "Sort ~b~y..." = "Сор~т~ировать по..."
-# navigator/widgets/manager/manager/manager.nml:242
+# navigator/widgets/manager/manager/manager.nml:225
+"D~i~splay" = "В~и~д"
+# navigator/widgets/manager/manager/manager.nml:226
+"View mode, hidden files, the footer and the divider" = "Режим просмотра, скрытые файлы, нижняя строка и разделитель"
+# navigator/widgets/manager/manager/manager.nml:228
 "Vie~w~ mode" = "Ре~ж~им просмотра"
-# navigator/widgets/manager/manager/manager.nml:246
+# navigator/widgets/manager/manager/manager.nml:232
 "Show/hide h~i~dden files" = "Показ скрытых ~ф~айлов"
-# navigator/widgets/manager/manager/manager.nml:250
+# navigator/widgets/manager/manager/manager.nml:236
 "Show/hide ~f~ooter" = "Нижн~я~я часть панели"
-# navigator/widgets/manager/manager/manager.nml:256
+# navigator/widgets/manager/manager/manager.nml:243
 "Move divider left" = "Сдвинуть разделитель влево"
-# navigator/widgets/manager/manager/manager.nml:260
+# navigator/widgets/manager/manager/manager.nml:247
 "Move divider right" = "Сдвинуть разделитель вправо"
-# navigator/widgets/manager/manager/manager.nml:265
-"Director~y~ tree" = "~Д~ерево каталогов"
-# navigator/widgets/manager/manager/manager.nml:269
-"I~n~fo" = "И~н~формация"
-# navigator/widgets/manager/manager/manager.nml:270
-"Disk and directory information in the other panel" = "Сведения о диске и каталоге в другой панели"
-# navigator/widgets/manager/manager/manager.nml:274
-"Quic~k~ view" = "Быстрый ~п~росмотр"
-# navigator/widgets/manager/manager/manager.nml:275
-"Preview the file at the cursor in the other panel" = "Предпросмотр файла под курсором в другой панели"
-# navigator/widgets/manager/manager/manager.nml:280, navigator/widgets/manager/panel/panel.py:1826
+# navigator/widgets/manager/manager/manager.nml:252
+"Selectio~n~" = "~П~ометка"
+# navigator/widgets/manager/manager/manager.nml:253
+"Select or unselect files by a mask, or filter them" = "Пометить или снять пометку файлов по маске или отфильтровать их"
+# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1875
 "Select grou~p~..." = "Пометить ~г~руппу..."
-# navigator/widgets/manager/manager/manager.nml:284, navigator/widgets/manager/panel/panel.py:1827
+# navigator/widgets/manager/manager/manager.nml:259, navigator/widgets/manager/panel/panel.py:1876
 "~U~nselect group..." = "Снять пометку по ~ш~аблону..."
-# navigator/widgets/manager/manager/manager.nml:288, navigator/widgets/manager/panel/panel.py:1828
+# navigator/widgets/manager/manager/manager.nml:263, navigator/widgets/manager/panel/panel.py:1877
 "In~v~ert selection" = "~И~нвертировать пометку"
-# navigator/widgets/manager/manager/manager.nml:292, navigator/widgets/manager/panel/panel.py:1829
+# navigator/widgets/manager/manager/manager.nml:267, navigator/widgets/manager/panel/panel.py:1878
 "Select all files" = "Пометить всё"
-# navigator/widgets/manager/manager/manager.nml:293
+# navigator/widgets/manager/manager/manager.nml:268
 "Select every file and directory in this panel" = "Пометить все файлы и каталоги этой панели"
-# navigator/widgets/manager/manager/manager.nml:297
+# navigator/widgets/manager/manager/manager.nml:273
 "Advanced filter..." = "Расширенный фильтр..."
-# navigator/widgets/manager/manager/manager.nml:298
+# navigator/widgets/manager/manager/manager.nml:274
 "Show or hide files by extension" = "Показать или скрыть файлы по расширению"
-# navigator/widgets/manager/manager/manager.nml:303
-"Change ~d~rive" = "См~е~нить диск"
-# navigator/widgets/manager/manager/manager.nml:304
-"Send this panel to a bookmarked directory" = "Перейти в этой панели в каталог из закладок"
-# navigator/widgets/manager/manager/manager.nml:308
-"Change direc~t~ory" = "Сменить ката~л~ог"
-# navigator/widgets/manager/manager/manager.nml:309
-"Choose a directory from a tree" = "Выбрать каталог из дерева"
-# navigator/widgets/manager/manager/manager.nml:313, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2492 ...
-"Quick s~e~arch" = "Быст~р~ый поиск"
-# navigator/widgets/manager/manager/manager.nml:317, navigator/widgets/shell/monitor_window/monitor_window.nml:93, navigator/widgets/shell/process_window/process_window.nml:178 ...
-"~R~e-read" = "~О~бновить"
-# navigator/widgets/manager/manager/manager.nml:321
+# navigator/widgets/manager/manager/manager.nml:279
+"Other ~p~anel" = "~Д~ругая панель"
+# navigator/widgets/manager/manager/manager.nml:280
+"Put a tree, information or a preview in the other panel" = "Показать дерево, информацию или просмотр в другой панели"
+# navigator/widgets/manager/manager/manager.nml:282
+"Director~y~ tree" = "~Д~ерево каталогов"
+# navigator/widgets/manager/manager/manager.nml:286
+"I~n~fo" = "И~н~формация"
+# navigator/widgets/manager/manager/manager.nml:287
+"Disk and directory information in the other panel" = "Сведения о диске и каталоге в другой панели"
+# navigator/widgets/manager/manager/manager.nml:291
+"Quic~k~ view" = "Быстрый ~п~росмотр"
+# navigator/widgets/manager/manager/manager.nml:292
+"Preview the file at the cursor in the other panel" = "Предпросмотр файла под курсором в другой панели"
+# navigator/widgets/manager/manager/manager.nml:297
 "S~a~me directory in other panel" = "Син~х~ронизировать панели"
-# navigator/widgets/manager/manager/manager.nml:322
+# navigator/widgets/manager/manager/manager.nml:298
 "Send the other panel to this directory" = "Перейти в другой панели в этот каталог"
-# navigator/widgets/manager/manager/manager.nml:328, navigator/widgets/manager/commands.py:617
+# navigator/widgets/manager/manager/manager.nml:304, navigator/widgets/manager/commands.py:617
 "Show in other panel" = "Показать в другой панели"
-# navigator/widgets/manager/manager/manager.nml:329
+# navigator/widgets/manager/manager/manager.nml:305
 "Show the found file in the other panel" = "Показать найденный файл в другой панели"
-# navigator/widgets/manager/manager/manager.nml:333
-"~Q~uick dirs..." = "~Б~ыстрый переход..."
-# navigator/widgets/manager/manager/manager.nml:334
-"The bookmarks, for this panel" = "Закладки для этой панели"
-# navigator/widgets/manager/manager/manager.nml:338
-"History of directories..." = "История каталогов..."
-# navigator/widgets/manager/manager/manager.nml:343
+# navigator/widgets/manager/manager/manager.nml:310
+"Change ~d~rive" = "См~е~нить диск"
+# navigator/widgets/manager/manager/manager.nml:311
+"Send this panel to a bookmarked directory" = "Перейти в этой панели в каталог из закладок"
+# navigator/widgets/manager/manager/manager.nml:315
+"Change direc~t~ory" = "Сменить ката~л~ог"
+# navigator/widgets/manager/manager/manager.nml:316
+"Choose a directory from a tree" = "Выбрать каталог из дерева"
+# navigator/widgets/manager/manager/manager.nml:321
 "~J~ump to directory..." = "Пере~м~еститься в каталог..."
-# navigator/widgets/manager/manager/manager.nml:344
+# navigator/widgets/manager/manager/manager.nml:322
 "zoxide's directories and the panels' history, searched by fzf" = "Каталоги zoxide и история панелей, поиск через fzf"
+# navigator/widgets/manager/manager/manager.nml:326, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2492 ...
+"Quick s~e~arch" = "Быст~р~ый поиск"
+# navigator/widgets/manager/manager/manager.nml:330, navigator/widgets/shell/monitor_window/monitor_window.nml:93, navigator/widgets/shell/process_window/process_window.nml:178 ...
+"~R~e-read" = "~О~бновить"
+# navigator/widgets/manager/manager/manager.nml:334
+"~Q~uick dirs..." = "~Б~ыстрый переход..."
+# navigator/widgets/manager/manager/manager.nml:335
+"The bookmarks, for this panel" = "Закладки для этой панели"
+# navigator/widgets/manager/manager/manager.nml:339
+"History of directories..." = "История каталогов..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "Установки панели"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:26, navigator/widgets/manager/manager/manager.py:3122
@@ -1117,21 +1115,21 @@ flag = "RU"
 "~D~ifferent" = "~Р~азличные"
 # navigator/widgets/manager/sync_window/sync_window.nml:81
 "~I~dentical" = "~О~динаковые"
-# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:173
+# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:179
 "List what only the left side has" = "Показывать то, что есть только слева"
-# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:177
+# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:183
 "List what only the right side has" = "Показывать то, что есть только справа"
-# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:181
+# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:187
 "List the files that differ, and the conflicts" = "Показывать различающиеся файлы и конфликты"
-# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:185
+# navigator/widgets/manager/sync_window/sync_window.nml:82, navigator/widgets/manager/sync_window/sync_window.nml:191
 "List the files that are the same on both sides too" = "Показывать также файлы, одинаковые с обеих сторон"
-# navigator/widgets/manager/sync_window/sync_window.nml:91, navigator/widgets/manager/sync_window/sync_window.nml:188, navigator/widgets/manager/sync_window/sync_window.py:390
+# navigator/widgets/manager/sync_window/sync_window.nml:91, navigator/widgets/manager/sync_window/sync_window.nml:194, navigator/widgets/manager/sync_window/sync_window.py:390
 "~T~ree view" = "~Д~ерево"
-# navigator/widgets/manager/sync_window/sync_window.nml:92, navigator/widgets/manager/sync_window/sync_window.nml:189
+# navigator/widgets/manager/sync_window/sync_window.nml:92, navigator/widgets/manager/sync_window/sync_window.nml:195
 "Show the rows under their directories, as a tree" = "Показать строки под их каталогами, деревом"
 # navigator/widgets/manager/sync_window/sync_window.nml:103
 "O~p~tions" = "~П~араметры"
-# navigator/widgets/manager/sync_window/sync_window.nml:104, navigator/widgets/manager/sync_window/sync_window.nml:193
+# navigator/widgets/manager/sync_window/sync_window.nml:104, navigator/widgets/manager/sync_window/sync_window.nml:199
 "The file mask, how near two times are the same, and Asymmetric" = "Маска файлов, допуск по времени и асимметричный режим"
 # navigator/widgets/manager/sync_window/sync_window.nml:112, navigator/widgets/manager/sync_window/sync_window.nml:130, navigator/widgets/manager/sync_window/sync_window.nml:134 ...
 "~S~ynchronize" = "~С~инхронизировать"
@@ -1159,17 +1157,21 @@ flag = "RU"
 "Give every row back the action the comparison chose" = "Вернуть каждой строке действие, выбранное сравнением"
 # navigator/widgets/manager/sync_window/sync_window.nml:169
 "Compare a~g~ain" = "Сравнить с~н~ова"
-# navigator/widgets/manager/sync_window/sync_window.nml:172
-"Show left o~n~ly" = "~П~оказать только слева"
+# navigator/widgets/manager/sync_window/sync_window.nml:175
+"Sho~w~" = "~П~оказать"
 # navigator/widgets/manager/sync_window/sync_window.nml:176
+"Which rows the list shows" = "Какие строки показывает список"
+# navigator/widgets/manager/sync_window/sync_window.nml:178
+"Show left o~n~ly" = "~П~оказать только слева"
+# navigator/widgets/manager/sync_window/sync_window.nml:182
 "Show right onl~y~" = "По~к~азать только справа"
-# navigator/widgets/manager/sync_window/sync_window.nml:180
+# navigator/widgets/manager/sync_window/sync_window.nml:186
 "Sho~w~ different" = "Показать разл~и~чные"
-# navigator/widgets/manager/sync_window/sync_window.nml:184
+# navigator/widgets/manager/sync_window/sync_window.nml:190
 "Show ~i~dentical" = "Показать ~о~динаковые"
-# navigator/widgets/manager/sync_window/sync_window.nml:192, navigator/widgets/manager/sync_window/sync_window.py:391
+# navigator/widgets/manager/sync_window/sync_window.nml:198, navigator/widgets/manager/sync_window/sync_window.py:391
 "O~p~tions..." = "Параме~т~ры..."
-# navigator/widgets/manager/sync_window/sync_window.nml:197, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:393 ...
+# navigator/widgets/manager/sync_window/sync_window.nml:203, navigator/widgets/shell/calculator_window/calculator_window.nml:369, navigator/widgets/manager/sync_window/sync_window.py:393 ...
 "Cl~o~se" = "~З~акрыть"
 # navigator/widgets/setup/colors_dialog/colors_dialog.nml:22
 "Colors" = "Цвета"
@@ -1347,7 +1349,7 @@ flag = "RU"
 "Viewer options" = "Опции просмотра"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "He~x~ mode" = "Hex-ре~ж~им"
-# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:142, navigator/widgets/viewer/file_viewer/file_viewer.py:1207
+# navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51, navigator/widgets/viewer/file_window/file_window.nml:149, navigator/widgets/viewer/file_viewer/file_viewer.py:1207
 "~W~rap lines" = "Перен~о~с строк"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:51
 "Optio~n~ strip" = "Полоса опци~й~"
@@ -1549,13 +1551,13 @@ flag = "RU"
 "The editor's and the viewer's defaults" = "Умолчания редактора и просмотрщика"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "How the file panels behave and look" = "Как ведут себя и выглядят файловые панели"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:593
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:631
 "What the information panel (Ctrl+L) shows" = "Что показывает информационная панель (Ctrl+L)"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:597
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:635
 "How a new file manager's panels start" = "С чем открываются панели нового файлового менеджера"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "Столбцы, которые панель показывает на диске, в списке Find: и в архиве"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:605
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:643
 "Which files the panels show in which colour" = "Какие файлы панели показывают каким цветом"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "Удалённые соединения: keep-alive, тайм-ауты, простаивающие соединения и изменённые файлы"
@@ -1749,7 +1751,7 @@ flag = "RU"
 "The word read as two's complement; unticked, unsigned" = "Слово читается в дополнительном коде; без отметки — без знака"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:339
 "Click a bit, or Space on it, to flip it" = "Щелчок по биту или пробел на нём переключает его"
-# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:376
+# navigator/widgets/shell/calculator_window/calculator_window.nml:345, navigator/widgets/shell/main_menu/main_menu.nml:414
 "~C~alculator" = "~К~алькулятор"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:346
 "The calculator's faces, copying its value and closing it" = "Режимы калькулятора, копирование значения и закрытие"
@@ -1907,347 +1909,371 @@ flag = "RU"
 "Replace in files..." = "Замена в файлах..."
 # navigator/widgets/shell/main_menu/main_menu.nml:182
 "Find files holding a text and replace it in them, file by file" = "Найти файлы с текстом и заменить его в них, файл за файлом"
-# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1792
+# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1841
 "~C~opy..." = "~К~опировать..."
-# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1793
+# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1842
 "~R~ename/Move..." = "Пе~р~еименовать/перенести..."
 # navigator/widgets/shell/main_menu/main_menu.nml:196
 "~Q~uick rename..." = "~Б~ыстро переименовать..."
 # navigator/widgets/shell/main_menu/main_menu.nml:197
 "Rename the file at the cursor in a small box" = "Переименовать файл под курсором в небольшом окне"
 # navigator/widgets/shell/main_menu/main_menu.nml:204
-"Create arch~i~ve..." = "С~о~здать архив..."
-# navigator/widgets/shell/main_menu/main_menu.nml:208
-"Ex~t~ract archive..." = "Из~в~лечь из архива..."
-# navigator/widgets/shell/main_menu/main_menu.nml:215
-"~S~ymlinks" = "Си~м~вол. ссылки"
-# navigator/widgets/shell/main_menu/main_menu.nml:217, navigator/widgets/manager/panel/panel.py:1794
-"Create ~s~ymlink..." = "Си~м~вол. ссылка..."
-# navigator/widgets/shell/main_menu/main_menu.nml:218
-"Make a symbolic link to each selected file" = "Создать символическую ссылку на каждый выделенный файл"
-# navigator/widgets/shell/main_menu/main_menu.nml:223
-"~E~dit link target..." = "~И~зменить цель ссылки..."
+"M~u~lti-rename" = "~Г~рупповое переименование"
+# navigator/widgets/shell/main_menu/main_menu.nml:206
+"Multi-rename..." = "Групповое переименование..."
+# navigator/widgets/shell/main_menu/main_menu.nml:207
+"Rename the tagged files by a pattern" = "Переименовать отмеченные файлы по шаблону"
+# navigator/widgets/shell/main_menu/main_menu.nml:211
+"Undo multi-rename" = "Отменить групповое переименование"
+# navigator/widgets/shell/main_menu/main_menu.nml:212
+"Put back the names the last multi-rename changed" = "Вернуть имена, изменённые последним групповым переименованием"
+# navigator/widgets/shell/main_menu/main_menu.nml:219
+"Arch~i~ve" = "Ар~х~ив"
+# navigator/widgets/shell/main_menu/main_menu.nml:220
+"Create, extract and test archives" = "Создание, распаковка и проверка архивов"
 # navigator/widgets/shell/main_menu/main_menu.nml:224
-"Change what the selected links point at" = "Изменить, куда указывают выбранные ссылки"
-# navigator/widgets/shell/main_menu/main_menu.nml:227
-"Make ~r~elative" = "Сделать ~о~тносительной"
+"Create arch~i~ve..." = "С~о~здать архив..."
 # navigator/widgets/shell/main_menu/main_menu.nml:228
-"Rewrite each selected link's target relative to the link" = "Переписать цель каждой выбранной ссылки относительно самой ссылки"
-# navigator/widgets/shell/main_menu/main_menu.nml:231
-"Make ~a~bsolute" = "Сделать ~а~бсолютной"
-# navigator/widgets/shell/main_menu/main_menu.nml:232
-"Rewrite each selected link's target as a full path" = "Переписать цель каждой выбранной ссылки как полный путь"
-# navigator/widgets/shell/main_menu/main_menu.nml:236
-"Select ~b~roken links" = "Пометить ~б~итые ссылки"
-# navigator/widgets/shell/main_menu/main_menu.nml:237
-"Tag every link here that points nowhere" = "Пометить здесь все ссылки, которые никуда не указывают"
-# navigator/widgets/shell/main_menu/main_menu.nml:243
-"Split/com~b~ine..." = "Разбить/с~ц~епить..."
-# navigator/widgets/shell/main_menu/main_menu.nml:244
-"Cut the file into parts of a given size, or put a split file back together" = "Разрезать файл на части заданного размера или собрать разбитый файл обратно"
+"Ex~t~ract archive..." = "Из~в~лечь из архива..."
+# navigator/widgets/shell/main_menu/main_menu.nml:235, navigator/widgets/manager/panel/panel.py:1863
+"E~x~tract to..." = "Извле~ч~ь в..."
+# navigator/widgets/shell/main_menu/main_menu.nml:239, navigator/widgets/manager/manager/manager.py:1294
+"Test archive" = "Проверить архив"
+# navigator/widgets/shell/main_menu/main_menu.nml:240
+"Read the archive through and check it for errors" = "Прочитать архив целиком и проверить его на ошибки"
+# navigator/widgets/shell/main_menu/main_menu.nml:246
+"~S~ymlinks" = "Си~м~вол. ссылки"
+# navigator/widgets/shell/main_menu/main_menu.nml:248, navigator/widgets/manager/panel/panel.py:1843
+"Create ~s~ymlink..." = "Си~м~вол. ссылка..."
 # navigator/widgets/shell/main_menu/main_menu.nml:249
-"Compare fi~l~es..." = "Сравнить фа~й~лы..."
-# navigator/widgets/shell/main_menu/main_menu.nml:256, navigator/widgets/manager/panel/panel.py:1822
-"~M~ake directory" = "Создать ка~т~алог"
-# navigator/widgets/shell/main_menu/main_menu.nml:269, navigator/widgets/manager/panel/panel.py:1778
-"Restore from Tras~h~" = "Восстановить и~з~ корзины"
-# navigator/widgets/shell/main_menu/main_menu.nml:270
-"Put the selected files back where they were deleted from" = "Вернуть выделенные файлы туда, откуда они были удалены"
-# navigator/widgets/shell/main_menu/main_menu.nml:274, navigator/widgets/manager/panel/panel.py:1801
-"File ~A~ttributes..." = "~А~трибуты файла..."
+"Make a symbolic link to each selected file" = "Создать символическую ссылку на каждый выделенный файл"
+# navigator/widgets/shell/main_menu/main_menu.nml:254
+"~E~dit link target..." = "~И~зменить цель ссылки..."
+# navigator/widgets/shell/main_menu/main_menu.nml:255
+"Change what the selected links point at" = "Изменить, куда указывают выбранные ссылки"
+# navigator/widgets/shell/main_menu/main_menu.nml:258
+"Make ~r~elative" = "Сделать ~о~тносительной"
+# navigator/widgets/shell/main_menu/main_menu.nml:259
+"Rewrite each selected link's target relative to the link" = "Переписать цель каждой выбранной ссылки относительно самой ссылки"
+# navigator/widgets/shell/main_menu/main_menu.nml:262
+"Make ~a~bsolute" = "Сделать ~а~бсолютной"
+# navigator/widgets/shell/main_menu/main_menu.nml:263
+"Rewrite each selected link's target as a full path" = "Переписать цель каждой выбранной ссылки как полный путь"
+# navigator/widgets/shell/main_menu/main_menu.nml:267
+"Select ~b~roken links" = "Пометить ~б~итые ссылки"
+# navigator/widgets/shell/main_menu/main_menu.nml:268
+"Tag every link here that points nowhere" = "Пометить здесь все ссылки, которые никуда не указывают"
+# navigator/widgets/shell/main_menu/main_menu.nml:274
+"Split/com~b~ine..." = "Разбить/с~ц~епить..."
 # navigator/widgets/shell/main_menu/main_menu.nml:275
-"Permissions, owner, group, dates, ACLs and extended attributes" = "Права, владелец, группа, даты, ACL и расширенные атрибуты"
-# navigator/widgets/shell/main_menu/main_menu.nml:279
-"UU E~n~code..." = "UU-ко~д~ирование..."
+"Cut the file into parts of a given size, or put a split file back together" = "Разрезать файл на части заданного размера или собрать разбитый файл обратно"
 # navigator/widgets/shell/main_menu/main_menu.nml:280
-"Encode the file as plain text, the old way of mailing files" = "Закодировать файл как простой текст, старый способ пересылки файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:284
-"~U~U Decode..." = "UU-раскодировани~е~..."
-# navigator/widgets/shell/main_menu/main_menu.nml:285
-"Decode the files UU-encoded in this file" = "Раскодировать файлы, закодированные UU в этом файле"
-# navigator/widgets/shell/main_menu/main_menu.nml:292
-"Chec~k~sums" = "~Х~еш-суммы"
-# navigator/widgets/shell/main_menu/main_menu.nml:294
-"~C~alculate..." = "~В~ычислить..."
-# navigator/widgets/shell/main_menu/main_menu.nml:295
-"Hash the tagged files and write their checksums to a list" = "Вычислить хеши отмеченных файлов и записать контрольные суммы в список"
-# navigator/widgets/shell/main_menu/main_menu.nml:298
-"~V~erify" = "~П~роверить"
-# navigator/widgets/shell/main_menu/main_menu.nml:299
-"Hash the files a checksum list names again and check them" = "Заново вычислить хеши файлов из списка контрольных сумм и проверить их"
-# navigator/widgets/shell/main_menu/main_menu.nml:305
-"Encr~y~ption" = "~Ш~ифрование"
-# navigator/widgets/shell/main_menu/main_menu.nml:307
-"~E~ncrypt..." = "~З~ашифровать..."
-# navigator/widgets/shell/main_menu/main_menu.nml:308
-"Encrypt the tagged files with gpg or age, each beside itself" = "Зашифровать отмеченные файлы с помощью gpg или age, каждый рядом с собой"
-# navigator/widgets/shell/main_menu/main_menu.nml:311
-"~D~ecrypt" = "~Р~асшифровать"
-# navigator/widgets/shell/main_menu/main_menu.nml:312
-"Decrypt the tagged gpg or age files, each beside itself" = "Расшифровать отмеченные файлы gpg или age, каждый рядом с собой"
-# navigator/widgets/shell/main_menu/main_menu.nml:315
-"Delete single file" = "Удалить один файл"
+"Compare fi~l~es..." = "Сравнить фа~й~лы..."
+# navigator/widgets/shell/main_menu/main_menu.nml:287, navigator/widgets/manager/panel/panel.py:1871
+"~M~ake directory" = "Создать ка~т~алог"
+# navigator/widgets/shell/main_menu/main_menu.nml:300, navigator/widgets/manager/panel/panel.py:1827
+"Restore from Tras~h~" = "Восстановить и~з~ корзины"
+# navigator/widgets/shell/main_menu/main_menu.nml:301
+"Put the selected files back where they were deleted from" = "Вернуть выделенные файлы туда, откуда они были удалены"
+# navigator/widgets/shell/main_menu/main_menu.nml:305, navigator/widgets/manager/panel/panel.py:1850
+"File ~A~ttributes..." = "~А~трибуты файла..."
+# navigator/widgets/shell/main_menu/main_menu.nml:306
+"Permissions, owner, group, dates, ACLs and extended attributes" = "Права, владелец, группа, даты, ACL и расширенные атрибуты"
+# navigator/widgets/shell/main_menu/main_menu.nml:313
+"E~n~coding" = "Ко~д~ирование"
+# navigator/widgets/shell/main_menu/main_menu.nml:314
+"UU encoding, checksums and encryption" = "UU-кодирование, хеш-суммы и шифрование"
 # navigator/widgets/shell/main_menu/main_menu.nml:316
-"Delete the file at the cursor, not the selection" = "Удалить файл под курсором, а не выделение"
+"UU E~n~code..." = "UU-ко~д~ирование..."
+# navigator/widgets/shell/main_menu/main_menu.nml:317
+"Encode the file as plain text, the old way of mailing files" = "Закодировать файл как простой текст, старый способ пересылки файлов"
 # navigator/widgets/shell/main_menu/main_menu.nml:321
-"Execute ~O~S command" = "Выпо~л~нить команду ОС"
+"~U~U Decode..." = "UU-раскодировани~е~..."
 # navigator/widgets/shell/main_menu/main_menu.nml:322
-"Type a command in a box and run it" = "Ввести команду в окне и выполнить её"
+"Decode the files UU-encoded in this file" = "Раскодировать файлы, закодированные UU в этом файле"
 # navigator/widgets/shell/main_menu/main_menu.nml:330
-"~D~isk" = "~Д~иск"
-# navigator/widgets/shell/main_menu/main_menu.nml:331
-"The directory tree, volumes and the Trash" = "Дерево каталогов, тома и корзина"
+"Chec~k~sums" = "~Х~еш-суммы"
+# navigator/widgets/shell/main_menu/main_menu.nml:332
+"~C~alculate..." = "~В~ычислить..."
 # navigator/widgets/shell/main_menu/main_menu.nml:333
-"~D~irectory tree" = "~Д~ерево каталогов"
-# navigator/widgets/shell/main_menu/main_menu.nml:336, navigator/widgets/shell/volumes_window/volumes_window.nml:139
-"~V~olumes" = "~Т~ома"
+"Hash the tagged files and write their checksums to a list" = "Вычислить хеши отмеченных файлов и записать контрольные суммы в список"
+# navigator/widgets/shell/main_menu/main_menu.nml:336
+"~V~erify" = "~П~роверить"
 # navigator/widgets/shell/main_menu/main_menu.nml:337
-"Disks and partitions: mount, unmount and eject them" = "Диски и разделы: монтировать, размонтировать и извлекать"
-# navigator/widgets/shell/main_menu/main_menu.nml:341
-"Directory ~s~izes" = "~Р~азмеры каталогов"
-# navigator/widgets/shell/main_menu/main_menu.nml:342
-"What takes the room under the panel's directory, biggest first" = "Что занимает место в каталоге панели, крупное сначала"
-# navigator/widgets/shell/main_menu/main_menu.nml:348, navigator/widgets/manager/manager/manager.py:2603
-"~T~rash" = "~К~орзина"
-# navigator/widgets/shell/main_menu/main_menu.nml:351
-"~E~mpty Trash" = "~О~чистить корзину"
-# navigator/widgets/shell/main_menu/main_menu.nml:355, navigator/widgets/shell/root_mark.py:57
-"~U~tilities" = "~У~тилиты"
-# navigator/widgets/shell/main_menu/main_menu.nml:356
-"Calculator, calendar, remote links, the user menu and histories" = "Калькулятор, календарь, удалённые соединения, меню пользователя и истории"
-# navigator/widgets/shell/main_menu/main_menu.nml:358
-"S~y~stem Information" = "~С~истемная информация"
-# navigator/widgets/shell/main_menu/main_menu.nml:364
-"~P~rocess list" = "Список про~ц~ессов"
-# navigator/widgets/shell/main_menu/main_menu.nml:365
-"The running processes: sort them, see one, send it a signal" = "Запущенные процессы: сортировка, сведения, отправка сигнала"
+"Hash the files a checksum list names again and check them" = "Заново вычислить хеши файлов из списка контрольных сумм и проверить их"
+# navigator/widgets/shell/main_menu/main_menu.nml:343
+"Encr~y~ption" = "~Ш~ифрование"
+# navigator/widgets/shell/main_menu/main_menu.nml:345
+"~E~ncrypt..." = "~З~ашифровать..."
+# navigator/widgets/shell/main_menu/main_menu.nml:346
+"Encrypt the tagged files with gpg or age, each beside itself" = "Зашифровать отмеченные файлы с помощью gpg или age, каждый рядом с собой"
+# navigator/widgets/shell/main_menu/main_menu.nml:349
+"~D~ecrypt" = "~Р~асшифровать"
+# navigator/widgets/shell/main_menu/main_menu.nml:350
+"Decrypt the tagged gpg or age files, each beside itself" = "Расшифровать отмеченные файлы gpg или age, каждый рядом с собой"
+# navigator/widgets/shell/main_menu/main_menu.nml:353
+"Delete single file" = "Удалить один файл"
+# navigator/widgets/shell/main_menu/main_menu.nml:354
+"Delete the file at the cursor, not the selection" = "Удалить файл под курсором, а не выделение"
+# navigator/widgets/shell/main_menu/main_menu.nml:359
+"Execute ~O~S command" = "Выпо~л~нить команду ОС"
+# navigator/widgets/shell/main_menu/main_menu.nml:360
+"Type a command in a box and run it" = "Ввести команду в окне и выполнить её"
+# navigator/widgets/shell/main_menu/main_menu.nml:368
+"~D~isk" = "~Д~иск"
+# navigator/widgets/shell/main_menu/main_menu.nml:369
+"The directory tree, volumes and the Trash" = "Дерево каталогов, тома и корзина"
 # navigator/widgets/shell/main_menu/main_menu.nml:371
-"System mo~n~itor" = "Монитор систем~ы~"
-# navigator/widgets/shell/main_menu/main_menu.nml:372
-"Each processor's load, the memory and the temperature sensors, read live" = "Загрузка каждого процессора, память и датчики температуры в реальном времени"
-# navigator/widgets/shell/main_menu/main_menu.nml:382
-"Ca~l~endar" = "Кал~е~ндарь"
-# navigator/widgets/shell/main_menu/main_menu.nml:386
-"Pick a character to type where the cursor is" = "Выбрать символ для ввода в позиции курсора"
+"~D~irectory tree" = "~Д~ерево каталогов"
+# navigator/widgets/shell/main_menu/main_menu.nml:374, navigator/widgets/shell/volumes_window/volumes_window.nml:139
+"~V~olumes" = "~Т~ома"
+# navigator/widgets/shell/main_menu/main_menu.nml:375
+"Disks and partitions: mount, unmount and eject them" = "Диски и разделы: монтировать, размонтировать и извлекать"
+# navigator/widgets/shell/main_menu/main_menu.nml:379
+"Directory ~s~izes" = "~Р~азмеры каталогов"
+# navigator/widgets/shell/main_menu/main_menu.nml:380
+"What takes the room under the panel's directory, biggest first" = "Что занимает место в каталоге панели, крупное сначала"
+# navigator/widgets/shell/main_menu/main_menu.nml:386, navigator/widgets/manager/manager/manager.py:2603
+"~T~rash" = "~К~орзина"
+# navigator/widgets/shell/main_menu/main_menu.nml:389
+"~E~mpty Trash" = "~О~чистить корзину"
+# navigator/widgets/shell/main_menu/main_menu.nml:393, navigator/widgets/shell/root_mark.py:57
+"~U~tilities" = "~У~тилиты"
+# navigator/widgets/shell/main_menu/main_menu.nml:394
+"Calculator, calendar, remote links, the user menu and histories" = "Калькулятор, календарь, удалённые соединения, меню пользователя и истории"
+# navigator/widgets/shell/main_menu/main_menu.nml:396
+"S~y~stem Information" = "~С~истемная информация"
 # navigator/widgets/shell/main_menu/main_menu.nml:402
-"Lin~k~" = "Св~я~зи"
+"~P~rocess list" = "Список про~ц~ессов"
 # navigator/widgets/shell/main_menu/main_menu.nml:403
-"A server, a share, a container or a phone: its files in the active panel" = "Сервер, общая папка, контейнер или телефон: его файлы в активной панели"
-# navigator/widgets/shell/main_menu/main_menu.nml:405
-"~S~SH (SFTP)..." = "~S~SH (SFTP)..."
+"The running processes: sort them, see one, send it a signal" = "Запущенные процессы: сортировка, сведения, отправка сигнала"
 # navigator/widgets/shell/main_menu/main_menu.nml:409
-"~F~TP..." = "~F~TP..."
-# navigator/widgets/shell/main_menu/main_menu.nml:412
-"S~M~B (Windows share)..." = "S~M~B (общая папка Windows)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:415
-"S~3~ (Amazon S3)..." = "S~3~ (Amazon S3)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:419
-"~G~Vfs/KIO (MTP, WebDAV...)..." = "~G~Vfs/KIO (MTP, WebDAV...)..."
+"System mo~n~itor" = "Монитор систем~ы~"
+# navigator/widgets/shell/main_menu/main_menu.nml:410
+"Each processor's load, the memory and the temperature sensors, read live" = "Загрузка каждого процессора, память и датчики температуры в реальном времени"
 # navigator/widgets/shell/main_menu/main_menu.nml:420
-"A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "Телефон, ресурс WebDAV, Google Drive: всё, что может смонтировать рабочий стол"
-# navigator/widgets/shell/main_menu/main_menu.nml:425, navigator/widgets/shell/main_menu/main_menu.nml:446
-"~D~ocker container..." = "Контейнер ~D~ocker..."
-# navigator/widgets/shell/main_menu/main_menu.nml:426
-"A running container's files, through docker exec" = "Файлы работающего контейнера, через docker exec"
-# navigator/widgets/shell/main_menu/main_menu.nml:429, navigator/widgets/shell/main_menu/main_menu.nml:450
-"~P~odman container..." = "Контейнер ~P~odman..."
-# navigator/widgets/shell/main_menu/main_menu.nml:430
-"A running container's files, through podman exec" = "Файлы работающего контейнера, через podman exec"
-# navigator/widgets/shell/main_menu/main_menu.nml:433, navigator/widgets/shell/main_menu/main_menu.nml:454
-"~A~ndroid device (adb)..." = "Устройство ~A~ndroid (adb)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:434
-"A phone's or a tablet's files, over USB debugging" = "Файлы телефона или планшета, через отладку по USB"
-# navigator/widgets/shell/main_menu/main_menu.nml:439
-"Rem~o~te shell" = "~У~далённая оболочка"
+"Ca~l~endar" = "Кал~е~ндарь"
+# navigator/widgets/shell/main_menu/main_menu.nml:424
+"Pick a character to type where the cursor is" = "Выбрать символ для ввода в позиции курсора"
 # navigator/widgets/shell/main_menu/main_menu.nml:440
-"A shell on a server, in a container or on a phone, in a window" = "Оболочка на сервере, в контейнере или на телефоне, в окне"
-# navigator/widgets/shell/main_menu/main_menu.nml:442
-"~S~SH..." = "~S~SH..."
+"Lin~k~" = "Св~я~зи"
+# navigator/widgets/shell/main_menu/main_menu.nml:441
+"A server, a share, a container or a phone: its files in the active panel" = "Сервер, общая папка, контейнер или телефон: его файлы в активной панели"
 # navigator/widgets/shell/main_menu/main_menu.nml:443
-"A login shell on a server, ssh -t" = "Оболочка входа на сервере, ssh -t"
+"~S~SH (SFTP)..." = "~S~SH (SFTP)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:447
-"A shell in a running container, docker exec -it" = "Оболочка в работающем контейнере, docker exec -it"
-# navigator/widgets/shell/main_menu/main_menu.nml:451
-"A shell in a running container, podman exec -it" = "Оболочка в работающем контейнере, podman exec -it"
-# navigator/widgets/shell/main_menu/main_menu.nml:455
-"A shell on a phone or a tablet, adb shell" = "Оболочка на телефоне или планшете, adb shell"
+"~F~TP..." = "~F~TP..."
+# navigator/widgets/shell/main_menu/main_menu.nml:450
+"S~M~B (Windows share)..." = "S~M~B (общая папка Windows)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:453
+"S~3~ (Amazon S3)..." = "S~3~ (Amazon S3)..."
+# navigator/widgets/shell/main_menu/main_menu.nml:457
+"~G~Vfs/KIO (MTP, WebDAV...)..." = "~G~Vfs/KIO (MTP, WebDAV...)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:458
-"~D~isconnect" = "Ра~з~орвать связь"
-# navigator/widgets/shell/main_menu/main_menu.nml:459
-"Close a connection; its panels go back to the disk" = "Закрыть соединение; его панели вернутся на диск"
-# navigator/widgets/shell/main_menu/main_menu.nml:463, navigator/widgets/shell/root_mark.py:57
-"Close ~r~oot access" = "Закрыть доступ ~r~oot"
+"A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "Телефон, ресурс WebDAV, Google Drive: всё, что может смонтировать рабочий стол"
+# navigator/widgets/shell/main_menu/main_menu.nml:463, navigator/widgets/shell/main_menu/main_menu.nml:484
+"~D~ocker container..." = "Контейнер ~D~ocker..."
 # navigator/widgets/shell/main_menu/main_menu.nml:464
-"End root access now, rather than after its timeout" = "Завершить доступ root сейчас, не дожидаясь тайм-аута"
-# navigator/widgets/shell/main_menu/main_menu.nml:467
-"Saved l~i~nks..." = "Со~х~ранённые ссылки..."
+"A running container's files, through docker exec" = "Файлы работающего контейнера, через docker exec"
+# navigator/widgets/shell/main_menu/main_menu.nml:467, navigator/widgets/shell/main_menu/main_menu.nml:488
+"~P~odman container..." = "Контейнер ~P~odman..."
 # navigator/widgets/shell/main_menu/main_menu.nml:468
-"The saved connections: edit them, or connect to one" = "Сохранённые соединения: изменить их или подключиться к одному"
+"A running container's files, through podman exec" = "Файлы работающего контейнера, через podman exec"
+# navigator/widgets/shell/main_menu/main_menu.nml:471, navigator/widgets/shell/main_menu/main_menu.nml:492
+"~A~ndroid device (adb)..." = "Устройство ~A~ndroid (adb)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:472
-"Edi~t~ environment" = "Переменные ~о~кружения"
-# navigator/widgets/shell/main_menu/main_menu.nml:473
-"Edit the environment variables commands run with" = "Изменить переменные окружения, с которыми выполняются команды"
-# navigator/widgets/shell/main_menu/main_menu.nml:476
-"~U~ser menu" = "~М~еню пользователя"
+"A phone's or a tablet's files, over USB debugging" = "Файлы телефона или планшета, через отладку по USB"
+# navigator/widgets/shell/main_menu/main_menu.nml:477
+"Rem~o~te shell" = "~У~далённая оболочка"
+# navigator/widgets/shell/main_menu/main_menu.nml:478
+"A shell on a server, in a container or on a phone, in a window" = "Оболочка на сервере, в контейнере или на телефоне, в окне"
 # navigator/widgets/shell/main_menu/main_menu.nml:480
-"Commands ~H~istory" = "~И~стория команд"
+"~S~SH..." = "~S~SH..."
+# navigator/widgets/shell/main_menu/main_menu.nml:481
+"A login shell on a server, ssh -t" = "Оболочка входа на сервере, ssh -t"
 # navigator/widgets/shell/main_menu/main_menu.nml:485
-"Fu~z~zy history search..." = "~Н~ечёткий поиск в истории..."
-# navigator/widgets/shell/main_menu/main_menu.nml:486
-"The commands typed, here and in the shell, searched by fzf" = "Введённые команды, здесь и в оболочке, поиск через fzf"
-# navigator/widgets/shell/main_menu/main_menu.nml:490
-"File ~E~dit History" = "История ~р~едактирования"
-# navigator/widgets/shell/main_menu/main_menu.nml:494
-"File ~V~iew History" = "История ~п~росмотра"
-# navigator/widgets/shell/main_menu/main_menu.nml:499
-"~M~anager" = "~М~енеджер"
-# navigator/widgets/shell/main_menu/main_menu.nml:500
-"New file managers, swapping and hiding panels, bookmarks" = "Новые файловые менеджеры, обмен и скрытие панелей, закладки"
+"A shell in a running container, docker exec -it" = "Оболочка в работающем контейнере, docker exec -it"
+# navigator/widgets/shell/main_menu/main_menu.nml:489
+"A shell in a running container, podman exec -it" = "Оболочка в работающем контейнере, podman exec -it"
+# navigator/widgets/shell/main_menu/main_menu.nml:493
+"A shell on a phone or a tablet, adb shell" = "Оболочка на телефоне или планшете, adb shell"
+# navigator/widgets/shell/main_menu/main_menu.nml:496
+"~D~isconnect" = "Ра~з~орвать связь"
+# navigator/widgets/shell/main_menu/main_menu.nml:497
+"Close a connection; its panels go back to the disk" = "Закрыть соединение; его панели вернутся на диск"
+# navigator/widgets/shell/main_menu/main_menu.nml:501, navigator/widgets/shell/root_mark.py:57
+"Close ~r~oot access" = "Закрыть доступ ~r~oot"
+# navigator/widgets/shell/main_menu/main_menu.nml:502
+"End root access now, rather than after its timeout" = "Завершить доступ root сейчас, не дожидаясь тайм-аута"
+# navigator/widgets/shell/main_menu/main_menu.nml:505
+"Saved l~i~nks..." = "Со~х~ранённые ссылки..."
 # navigator/widgets/shell/main_menu/main_menu.nml:506
-"~S~wap panels" = "~О~бменять панели"
+"The saved connections: edit them, or connect to one" = "Сохранённые соединения: изменить их или подключиться к одному"
 # navigator/widgets/shell/main_menu/main_menu.nml:510
-"Show/hide ~l~eft panel" = "Показать/скрыть ~л~евую панель"
+"Edi~t~ environment" = "Переменные ~о~кружения"
+# navigator/widgets/shell/main_menu/main_menu.nml:511
+"Edit the environment variables commands run with" = "Изменить переменные окружения, с которыми выполняются команды"
 # navigator/widgets/shell/main_menu/main_menu.nml:514
-"Show/hide ~r~ight panel" = "Показать/скрыть ~п~равую панель"
+"~U~ser menu" = "~М~еню пользователя"
 # navigator/widgets/shell/main_menu/main_menu.nml:518
-"Show/hide inactive ~p~anel" = "Показать/скрыть п~а~ссивную панель"
-# navigator/widgets/shell/main_menu/main_menu.nml:519
-"Hide the panel without the keyboard, or show it again" = "Скрыть панель без фокуса клавиатуры или показать её снова"
-# navigator/widgets/shell/main_menu/main_menu.nml:525
-"~M~iller columns" = "Колонки ~М~иллера"
-# navigator/widgets/shell/main_menu/main_menu.nml:526
-"Browse in columns, each directory beside its parent" = "Просматривать в столбцах, каждый каталог рядом с родительским"
-# navigator/widgets/shell/main_menu/main_menu.nml:531
-"Bookmarks le~f~t" = "~З~акладки слева"
+"Commands ~H~istory" = "~И~стория команд"
+# navigator/widgets/shell/main_menu/main_menu.nml:523
+"Fu~z~zy history search..." = "~Н~ечёткий поиск в истории..."
+# navigator/widgets/shell/main_menu/main_menu.nml:524
+"The commands typed, here and in the shell, searched by fzf" = "Введённые команды, здесь и в оболочке, поиск через fzf"
+# navigator/widgets/shell/main_menu/main_menu.nml:528
+"File ~E~dit History" = "История ~р~едактирования"
 # navigator/widgets/shell/main_menu/main_menu.nml:532
-"Send the left panel to a bookmarked directory" = "Перейти в левой панели в каталог из закладок"
-# navigator/widgets/shell/main_menu/main_menu.nml:536
-"Bookmarks rig~h~t" = "Закладки сп~р~ава"
+"File ~V~iew History" = "История ~п~росмотра"
 # navigator/widgets/shell/main_menu/main_menu.nml:537
-"Send the right panel to a bookmarked directory" = "Перейти в правой панели в каталог из закладок"
-# navigator/widgets/shell/main_menu/main_menu.nml:543
-"Settings, configuration files, the desktop and colours" = "Настройки, файлы конфигурации, рабочий стол и цвета"
-# navigator/widgets/shell/main_menu/main_menu.nml:547
-"Sett~i~ngs..." = "~Н~астройки..."
+"~M~anager" = "~М~енеджер"
+# navigator/widgets/shell/main_menu/main_menu.nml:538
+"New file managers, swapping and hiding panels, bookmarks" = "Новые файловые менеджеры, обмен и скрытие панелей, закладки"
+# navigator/widgets/shell/main_menu/main_menu.nml:544
+"~S~wap panels" = "~О~бменять панели"
 # navigator/widgets/shell/main_menu/main_menu.nml:548
-"Every setup page in one box, behind tabs" = "Все страницы настроек в одном окне, на вкладках"
-# navigator/widgets/shell/main_menu/main_menu.nml:553
-"~C~onfiguration" = "~К~онфигурация"
-# navigator/widgets/shell/main_menu/main_menu.nml:555
-"S~y~stem Setup..." = "~С~истемные установки..."
-# navigator/widgets/shell/main_menu/main_menu.nml:558
-"~S~tartup..." = "Процесс ~з~агрузки/выгрузки..."
-# navigator/widgets/shell/main_menu/main_menu.nml:561
-"~I~nterface..." = "~И~нтерфейс..."
+"Show/hide ~l~eft panel" = "Показать/скрыть ~л~евую панель"
+# navigator/widgets/shell/main_menu/main_menu.nml:552
+"Show/hide ~r~ight panel" = "Показать/скрыть ~п~равую панель"
+# navigator/widgets/shell/main_menu/main_menu.nml:556
+"Show/hide inactive ~p~anel" = "Показать/скрыть п~а~ссивную панель"
+# navigator/widgets/shell/main_menu/main_menu.nml:557
+"Hide the panel without the keyboard, or show it again" = "Скрыть панель без фокуса клавиатуры или показать её снова"
+# navigator/widgets/shell/main_menu/main_menu.nml:563
+"~M~iller columns" = "Колонки ~М~иллера"
 # navigator/widgets/shell/main_menu/main_menu.nml:564
-"~C~onfirmations..." = "~П~одтверждения..."
-# navigator/widgets/shell/main_menu/main_menu.nml:568
-"Screen sa~v~ers..." = "~Э~кранные заставки..."
-# navigator/widgets/shell/main_menu/main_menu.nml:571
-"C~o~untry support..." = "Национальные ~ф~орматы..."
+"Browse in columns, each directory beside its parent" = "Просматривать в столбцах, каждый каталог рядом с родительским"
+# navigator/widgets/shell/main_menu/main_menu.nml:569
+"Bookmarks le~f~t" = "~З~акладки слева"
+# navigator/widgets/shell/main_menu/main_menu.nml:570
+"Send the left panel to a bookmarked directory" = "Перейти в левой панели в каталог из закладок"
 # navigator/widgets/shell/main_menu/main_menu.nml:574
-"Comm~u~nications..." = "Св~я~зь..."
+"Bookmarks rig~h~t" = "Закладки сп~р~ава"
 # navigator/widgets/shell/main_menu/main_menu.nml:575
-"Settings for remote connections" = "Настройки удалённых соединений"
-# navigator/widgets/shell/main_menu/main_menu.nml:579
-"~E~ditor/Viewer..." = "~Р~едактор/просмотр..."
-# navigator/widgets/shell/main_menu/main_menu.nml:583
-"~K~ey bindings..." = "~Н~азначение клавиш..."
-# navigator/widgets/shell/main_menu/main_menu.nml:587
-"~F~ile Manager" = "~М~енеджер файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:589
-"~S~etup..." = "~У~становки..."
-# navigator/widgets/shell/main_menu/main_menu.nml:592
-"~I~nformation panel..." = "Окно ~и~нформации..."
+"Send the right panel to a bookmarked directory" = "Перейти в правой панели в каталог из закладок"
+# navigator/widgets/shell/main_menu/main_menu.nml:581
+"Settings, configuration files, the desktop and colours" = "Настройки, файлы конфигурации, рабочий стол и цвета"
+# navigator/widgets/shell/main_menu/main_menu.nml:585
+"Sett~i~ngs..." = "~Н~астройки..."
+# navigator/widgets/shell/main_menu/main_menu.nml:586
+"Every setup page in one box, behind tabs" = "Все страницы настроек в одном окне, на вкладках"
+# navigator/widgets/shell/main_menu/main_menu.nml:591
+"~C~onfiguration" = "~К~онфигурация"
+# navigator/widgets/shell/main_menu/main_menu.nml:593
+"S~y~stem Setup..." = "~С~истемные установки..."
 # navigator/widgets/shell/main_menu/main_menu.nml:596
-"New Manager ~d~efaults..." = "Установки для ~н~ового окна..."
-# navigator/widgets/shell/main_menu/main_menu.nml:600
-"~C~olumn defaults..." = "К~о~лонки панелей..."
-# navigator/widgets/shell/main_menu/main_menu.nml:601
-"The columns a new panel shows" = "Столбцы, которые показывает новая панель"
-# navigator/widgets/shell/main_menu/main_menu.nml:604
-"~H~ighlight groups..." = "~Г~руппы файлов..."
+"~S~tartup..." = "Процесс ~з~агрузки/выгрузки..."
+# navigator/widgets/shell/main_menu/main_menu.nml:599
+"~I~nterface..." = "~И~нтерфейс..."
+# navigator/widgets/shell/main_menu/main_menu.nml:602
+"~C~onfirmations..." = "~П~одтверждения..."
+# navigator/widgets/shell/main_menu/main_menu.nml:606
+"Screen sa~v~ers..." = "~Э~кранные заставки..."
 # navigator/widgets/shell/main_menu/main_menu.nml:609
-"A~r~chives" = "А~р~хиваторы"
-# navigator/widgets/shell/main_menu/main_menu.nml:611
-"Current archiver..." = "Текущий архиватор..."
-# navigator/widgets/shell/main_menu/main_menu.nml:615
-"~Q~uick run file edit..." = "Файл ~б~ыстрого запуска..."
-# navigator/widgets/shell/main_menu/main_menu.nml:616
-"Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "Изменить quickrun.ini: команды, запускаемые Ctrl+Shift+F1–F10"
-# navigator/widgets/shell/main_menu/main_menu.nml:619
-"E~x~tension file edit..." = "~Ф~айл расширений..."
-# navigator/widgets/shell/main_menu/main_menu.nml:620
-"Edit extensions.ini: what Enter runs for each kind of file" = "Изменить extensions.ini: что Enter запускает для каждого типа файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:623
-"~H~ighlight file edit..." = "Файл раскраски ре~д~актора..."
-# navigator/widgets/shell/main_menu/main_menu.nml:624
-"Edit highlight.ini: which syntax colours which file" = "Изменить highlight.ini: какой синтаксис раскрашивает какой файл"
+"C~o~untry support..." = "Национальные ~ф~орматы..."
+# navigator/widgets/shell/main_menu/main_menu.nml:612
+"Comm~u~nications..." = "Св~я~зь..."
+# navigator/widgets/shell/main_menu/main_menu.nml:613
+"Settings for remote connections" = "Настройки удалённых соединений"
+# navigator/widgets/shell/main_menu/main_menu.nml:617
+"~E~ditor/Viewer..." = "~Р~едактор/просмотр..."
+# navigator/widgets/shell/main_menu/main_menu.nml:621
+"~K~ey bindings..." = "~Н~азначение клавиш..."
+# navigator/widgets/shell/main_menu/main_menu.nml:625
+"~F~ile Manager" = "~М~енеджер файлов"
 # navigator/widgets/shell/main_menu/main_menu.nml:627
-"Macro file e~d~it..." = "Файл макр~о~сов..."
-# navigator/widgets/shell/main_menu/main_menu.nml:628
-"Edit macros.ini: the editor's macros, offered by Ctrl+J 0" = "Правка macros.ini: макросы редактора, вызываемые Ctrl+J 0"
-# navigator/widgets/shell/main_menu/main_menu.nml:631
-"~G~lobal menu definition..." = "~Г~лобальное меню пользователя..."
-# navigator/widgets/shell/main_menu/main_menu.nml:632
-"Edit the F2 user menu used everywhere" = "Изменить меню пользователя F2, используемое везде"
-# navigator/widgets/shell/main_menu/main_menu.nml:635
-"Local ~m~enu definition..." = "~Л~окальное меню пользователя..."
-# navigator/widgets/shell/main_menu/main_menu.nml:636
-"Edit this directory's own F2 user menu" = "Изменить собственное меню пользователя F2 этого каталога"
+"~S~etup..." = "~У~становки..."
+# navigator/widgets/shell/main_menu/main_menu.nml:630
+"~I~nformation panel..." = "Окно ~и~нформации..."
+# navigator/widgets/shell/main_menu/main_menu.nml:634
+"New Manager ~d~efaults..." = "Установки для ~н~ового окна..."
+# navigator/widgets/shell/main_menu/main_menu.nml:638
+"~C~olumn defaults..." = "К~о~лонки панелей..."
 # navigator/widgets/shell/main_menu/main_menu.nml:639
-"~V~iewers..." = "Программы ~п~росмотра..."
-# navigator/widgets/shell/main_menu/main_menu.nml:640
-"Edit viewers.ini: the external viewer for each kind of file" = "Изменить viewers.ini: внешняя программа просмотра для каждого типа файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:643
-"~E~ditors..." = "Р~е~дакторы..."
-# navigator/widgets/shell/main_menu/main_menu.nml:644
-"Edit editors.ini: the external editor for each kind of file" = "Изменить editors.ini: внешний редактор для каждого типа файлов"
-# navigator/widgets/shell/main_menu/main_menu.nml:648
-"~S~ave desktop" = "~З~апомнить состояние"
+"The columns a new panel shows" = "Столбцы, которые показывает новая панель"
+# navigator/widgets/shell/main_menu/main_menu.nml:642
+"~H~ighlight groups..." = "~Г~руппы файлов..."
+# navigator/widgets/shell/main_menu/main_menu.nml:647
+"A~r~chives" = "А~р~хиваторы"
 # navigator/widgets/shell/main_menu/main_menu.nml:649
-"Keep the open windows, to have them back later" = "Сохранить открытые окна, чтобы вернуть их позже"
-# navigator/widgets/shell/main_menu/main_menu.nml:652
-"~L~oad desktop" = "~В~осстановить состояние"
+"Current archiver..." = "Текущий архиватор..."
 # navigator/widgets/shell/main_menu/main_menu.nml:653
-"Replace these windows with the ones last saved" = "Заменить эти окна последними сохранёнными"
+"~Q~uick run file edit..." = "Файл ~б~ыстрого запуска..."
+# navigator/widgets/shell/main_menu/main_menu.nml:654
+"Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "Изменить quickrun.ini: команды, запускаемые Ctrl+Shift+F1–F10"
 # navigator/widgets/shell/main_menu/main_menu.nml:657
-"C~o~lors..." = "~Ц~вета..."
-# navigator/widgets/shell/main_menu/main_menu.nml:660
-"S~t~ore palette" = "~С~охранить палитру"
+"E~x~tension file edit..." = "~Ф~айл расширений..."
+# navigator/widgets/shell/main_menu/main_menu.nml:658
+"Edit extensions.ini: what Enter runs for each kind of file" = "Изменить extensions.ini: что Enter запускает для каждого типа файлов"
 # navigator/widgets/shell/main_menu/main_menu.nml:661
-"Save the colours as a theme of your own" = "Сохранить цвета как собственную тему"
-# navigator/widgets/shell/main_menu/main_menu.nml:664
-"Lo~a~d palette" = "З~а~грузить палитру"
+"~H~ighlight file edit..." = "Файл раскраски ре~д~актора..."
+# navigator/widgets/shell/main_menu/main_menu.nml:662
+"Edit highlight.ini: which syntax colours which file" = "Изменить highlight.ini: какой синтаксис раскрашивает какой файл"
 # navigator/widgets/shell/main_menu/main_menu.nml:665
-"Use colours saved in a file" = "Использовать цвета, сохранённые в файле"
+"Macro file e~d~it..." = "Файл макр~о~сов..."
+# navigator/widgets/shell/main_menu/main_menu.nml:666
+"Edit macros.ini: the editor's macros, offered by Ctrl+J 0" = "Правка macros.ini: макросы редактора, вызываемые Ctrl+J 0"
 # navigator/widgets/shell/main_menu/main_menu.nml:669
-"~W~indow" = "~О~кна"
+"~G~lobal menu definition..." = "~Г~лобальное меню пользователя..."
 # navigator/widgets/shell/main_menu/main_menu.nml:670
-"Arrange, switch between and close windows" = "Упорядочивание, переключение и закрытие окон"
-# navigator/widgets/shell/main_menu/main_menu.nml:672
-"~T~ile" = "Уложить ~ч~ерепицей"
-# navigator/widgets/shell/main_menu/main_menu.nml:675
-"C~a~scade" = "~К~аскад"
+"Edit the F2 user menu used everywhere" = "Изменить меню пользователя F2, используемое везде"
+# navigator/widgets/shell/main_menu/main_menu.nml:673
+"Local ~m~enu definition..." = "~Л~окальное меню пользователя..."
+# navigator/widgets/shell/main_menu/main_menu.nml:674
+"Edit this directory's own F2 user menu" = "Изменить собственное меню пользователя F2 этого каталога"
+# navigator/widgets/shell/main_menu/main_menu.nml:677
+"~V~iewers..." = "Программы ~п~росмотра..."
 # navigator/widgets/shell/main_menu/main_menu.nml:678
-"Cl~o~se all" = "Закрыть ~в~се"
+"Edit viewers.ini: the external viewer for each kind of file" = "Изменить viewers.ini: внешняя программа просмотра для каждого типа файлов"
+# navigator/widgets/shell/main_menu/main_menu.nml:681
+"~E~ditors..." = "Р~е~дакторы..."
 # navigator/widgets/shell/main_menu/main_menu.nml:682
-"~S~ize/Move" = "~Р~азмер/сдвиг"
-# navigator/widgets/shell/main_menu/main_menu.nml:683
-"Move and size the window with the keyboard" = "Перемещать окно и менять его размер с клавиатуры"
+"Edit editors.ini: the external editor for each kind of file" = "Изменить editors.ini: внешний редактор для каждого типа файлов"
+# navigator/widgets/shell/main_menu/main_menu.nml:686
+"~S~ave desktop" = "~З~апомнить состояние"
 # navigator/widgets/shell/main_menu/main_menu.nml:687
-"~Z~oom" = "Р~а~звернуть"
+"Keep the open windows, to have them back later" = "Сохранить открытые окна, чтобы вернуть их позже"
+# navigator/widgets/shell/main_menu/main_menu.nml:690
+"~L~oad desktop" = "~В~осстановить состояние"
 # navigator/widgets/shell/main_menu/main_menu.nml:691
-"~N~ext" = "~С~ледующее"
+"Replace these windows with the ones last saved" = "Заменить эти окна последними сохранёнными"
 # navigator/widgets/shell/main_menu/main_menu.nml:695
-"~P~revious" = "~П~редыдущее"
-# navigator/widgets/shell/main_menu/main_menu.nml:704
-"~L~ist..." = "Сп~и~сок..."
-# navigator/widgets/shell/main_menu/main_menu.nml:705
-"All the windows, to switch to one or close it" = "Все окна, чтобы переключиться на одно или закрыть его"
+"C~o~lors..." = "~Ц~вета..."
+# navigator/widgets/shell/main_menu/main_menu.nml:698
+"S~t~ore palette" = "~С~охранить палитру"
+# navigator/widgets/shell/main_menu/main_menu.nml:699
+"Save the colours as a theme of your own" = "Сохранить цвета как собственную тему"
+# navigator/widgets/shell/main_menu/main_menu.nml:702
+"Lo~a~d palette" = "З~а~грузить палитру"
+# navigator/widgets/shell/main_menu/main_menu.nml:703
+"Use colours saved in a file" = "Использовать цвета, сохранённые в файле"
+# navigator/widgets/shell/main_menu/main_menu.nml:707
+"~W~indow" = "~О~кна"
+# navigator/widgets/shell/main_menu/main_menu.nml:708
+"Arrange, switch between and close windows" = "Упорядочивание, переключение и закрытие окон"
 # navigator/widgets/shell/main_menu/main_menu.nml:710
+"~T~ile" = "Уложить ~ч~ерепицей"
+# navigator/widgets/shell/main_menu/main_menu.nml:713
+"C~a~scade" = "~К~аскад"
+# navigator/widgets/shell/main_menu/main_menu.nml:716
+"Cl~o~se all" = "Закрыть ~в~се"
+# navigator/widgets/shell/main_menu/main_menu.nml:720
+"~S~ize/Move" = "~Р~азмер/сдвиг"
+# navigator/widgets/shell/main_menu/main_menu.nml:721
+"Move and size the window with the keyboard" = "Перемещать окно и менять его размер с клавиатуры"
+# navigator/widgets/shell/main_menu/main_menu.nml:725
+"~Z~oom" = "Р~а~звернуть"
+# navigator/widgets/shell/main_menu/main_menu.nml:729
+"~N~ext" = "~С~ледующее"
+# navigator/widgets/shell/main_menu/main_menu.nml:733
+"~P~revious" = "~П~редыдущее"
+# navigator/widgets/shell/main_menu/main_menu.nml:742
+"~L~ist..." = "Сп~и~сок..."
+# navigator/widgets/shell/main_menu/main_menu.nml:743
+"All the windows, to switch to one or close it" = "Все окна, чтобы переключиться на одно или закрыть его"
+# navigator/widgets/shell/main_menu/main_menu.nml:748
 "~B~ackground operation..." = "~Ф~оновая операция..."
-# navigator/widgets/shell/main_menu/main_menu.nml:711
+# navigator/widgets/shell/main_menu/main_menu.nml:749
 "Bring back the progress box of a copy or an erase running in the background" = "Вернуть окно хода копирования или удаления, работающего в фоне"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "Параметры меню"
@@ -2417,9 +2443,9 @@ flag = "RU"
 "As te~x~t" = "Как те~к~ст"
 # navigator/widgets/viewer/db_window/db_window.nml:104
 "The same file in the text viewer" = "Тот же файл в текстовом просмотре"
-# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:182, navigator/widgets/viewer/db_window/db_viewer.py:217 ...
+# navigator/widgets/viewer/db_window/db_window.nml:108, navigator/widgets/viewer/file_window/file_window.nml:194, navigator/widgets/viewer/db_window/db_viewer.py:217 ...
 "~S~earch..." = "~И~скать..."
-# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:185, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
+# navigator/widgets/viewer/db_window/db_window.nml:111, navigator/widgets/viewer/file_window/file_window.nml:197, navigator/widgets/viewer/db_window/db_viewer.py:218 ...
 "Search a~g~ain" = "Искать ~е~щё"
 # navigator/widgets/viewer/diff_window/diff_window.nml:71
 "~C~ompare" = "~С~равнение"
@@ -2433,53 +2459,59 @@ flag = "RU"
 "~C~ompare again" = "Сравнить с~н~ова"
 # navigator/widgets/viewer/file_window/file_window.nml:124
 "Text, hex or dump, wrapping, filters, search and encoding" = "Текст, hex или дамп, перенос, фильтры, поиск и кодировка"
-# navigator/widgets/viewer/file_window/file_window.nml:129, navigator/widgets/viewer/file_viewer/file_viewer.py:1202
+# navigator/widgets/viewer/file_window/file_window.nml:130
+"Mo~d~e" = "Ре~ж~им"
+# navigator/widgets/viewer/file_window/file_window.nml:131
+"Text, hex or dump" = "Текст, шестнадцатеричный вид или дамп"
+# navigator/widgets/viewer/file_window/file_window.nml:135, navigator/widgets/viewer/file_viewer/file_viewer.py:1202
 "He~x~/Text/Dump" = "Hex/Текст/Да~м~п"
-# navigator/widgets/viewer/file_window/file_window.nml:132, navigator/widgets/viewer/file_viewer/file_viewer.py:1203
+# navigator/widgets/viewer/file_window/file_window.nml:139, navigator/widgets/viewer/file_viewer/file_viewer.py:1203
 "~T~ext" = "~Т~екст"
-# navigator/widgets/viewer/file_window/file_window.nml:135, navigator/widgets/viewer/file_viewer/file_viewer.py:1204
+# navigator/widgets/viewer/file_window/file_window.nml:142, navigator/widgets/viewer/file_viewer/file_viewer.py:1204
 "~H~ex" = "~Ш~естнадцатеричный"
-# navigator/widgets/viewer/file_window/file_window.nml:138, navigator/widgets/viewer/file_viewer/file_viewer.py:1205
+# navigator/widgets/viewer/file_window/file_window.nml:145, navigator/widgets/viewer/file_viewer/file_viewer.py:1205
 "~D~ump" = "~Д~амп"
-# navigator/widgets/viewer/file_window/file_window.nml:147, navigator/widgets/viewer/file_viewer/file_viewer.py:1208, navigator/widgets/viewer/quick_viewer/quick_viewer.py:106
+# navigator/widgets/viewer/file_window/file_window.nml:154, navigator/widgets/viewer/file_viewer/file_viewer.py:1208, navigator/widgets/viewer/quick_viewer/quick_viewer.py:106
 "~M~arkup view" = "Просмотр ~р~азметки"
-# navigator/widgets/viewer/file_window/file_window.nml:148
+# navigator/widgets/viewer/file_window/file_window.nml:155
 "Show a Markdown, reST, HTML or PDF file rendered, or its source" = "Показать файл Markdown, reST, HTML или PDF отрисованным или его исходник"
-# navigator/widgets/viewer/file_window/file_window.nml:152
+# navigator/widgets/viewer/file_window/file_window.nml:159
 "S~y~ntax highlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/viewer/file_window/file_window.nml:157
+# navigator/widgets/viewer/file_window/file_window.nml:164
 "Sh~o~w hidden characters" = "Показывать скр~ы~тые символы"
-# navigator/widgets/viewer/file_window/file_window.nml:162
+# navigator/widgets/viewer/file_window/file_window.nml:169
 "~F~ile type" = "Тип фай~л~а"
-# navigator/widgets/viewer/file_window/file_window.nml:166, navigator/widgets/viewer/file_viewer/file_viewer.py:1209
-"Fi~l~ter" = "Фил~ь~тр"
-# navigator/widgets/viewer/file_window/file_window.nml:167
-"Hide characters: none, all but ASCII, or the control characters" = "Скрывать символы: никакие, все кроме ASCII или управляющие"
-# navigator/widgets/viewer/file_window/file_window.nml:170
-"~N~o filter" = "~Б~ез фильтра"
 # navigator/widgets/viewer/file_window/file_window.nml:173
+"Fi~l~ters" = "Фил~ь~тры"
+# navigator/widgets/viewer/file_window/file_window.nml:174, navigator/widgets/viewer/file_window/file_window.nml:178
+"Hide characters: none, all but ASCII, or the control characters" = "Скрывать символы: никакие, все кроме ASCII или управляющие"
+# navigator/widgets/viewer/file_window/file_window.nml:177, navigator/widgets/viewer/file_viewer/file_viewer.py:1209
+"Fi~l~ter" = "Фил~ь~тр"
+# navigator/widgets/viewer/file_window/file_window.nml:182
+"~N~o filter" = "~Б~ез фильтра"
+# navigator/widgets/viewer/file_window/file_window.nml:185
 "~A~SCII filter" = "~Ф~ильтр ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:174
+# navigator/widgets/viewer/file_window/file_window.nml:186
 "Hide control characters and everything beyond ASCII" = "Скрыть управляющие символы и всё за пределами ASCII"
-# navigator/widgets/viewer/file_window/file_window.nml:177
+# navigator/widgets/viewer/file_window/file_window.nml:189
 "~P~rintable filter" = "Фильтр ~в~идимых"
-# navigator/widgets/viewer/file_window/file_window.nml:178
+# navigator/widgets/viewer/file_window/file_window.nml:190
 "Hide control characters" = "Скрыть управляющие символы"
-# navigator/widgets/viewer/file_window/file_window.nml:188
+# navigator/widgets/viewer/file_window/file_window.nml:200
 "Re~v~erse search" = "Поиск ~н~азад"
-# navigator/widgets/viewer/file_window/file_window.nml:191, navigator/widgets/viewer/file_viewer/file_viewer.py:1213
+# navigator/widgets/viewer/file_window/file_window.nml:203, navigator/widgets/viewer/file_viewer/file_viewer.py:1213
 "Go to add~r~ess..." = "Перейти по ~а~дресу..."
-# navigator/widgets/viewer/file_window/file_window.nml:192
+# navigator/widgets/viewer/file_window/file_window.nml:204
 "Jump to an offset in the file" = "Перейти к смещению в файле"
-# navigator/widgets/viewer/file_window/file_window.nml:198, navigator/widgets/viewer/commands.py:92
+# navigator/widgets/viewer/file_window/file_window.nml:210, navigator/widgets/viewer/commands.py:92
 "Store" = "Запомнить"
-# navigator/widgets/viewer/file_window/file_window.nml:199
+# navigator/widgets/viewer/file_window/file_window.nml:211
 "Write the bytes typed over in hex into the file" = "Записать в файл байты, изменённые в шестнадцатеричном режиме"
-# navigator/widgets/viewer/file_window/file_window.nml:203
+# navigator/widgets/viewer/file_window/file_window.nml:215
 "Sav~e~ as..." = "~С~охранить как..."
-# navigator/widgets/viewer/file_window/file_window.nml:207, navigator/widgets/viewer/file_viewer/file_viewer.py:1215
+# navigator/widgets/viewer/file_window/file_window.nml:219, navigator/widgets/viewer/file_viewer/file_viewer.py:1215
 "Encod~i~ng..." = "~К~одировка..."
-# navigator/widgets/viewer/file_window/file_window.nml:208
+# navigator/widgets/viewer/file_window/file_window.nml:220
 "The code page the file is read in" = "Кодовая страница, в которой читается файл"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:11
 "Goto Address" = "Переход на адрес"
@@ -2691,7 +2723,7 @@ flag = "RU"
 "Size: ~not counted~" = "Размер: ~не подсчитан~"
 # navigator/lib/system/diskinfo.py:238
 "Size: ~{n:,}~ byte" = ["Размер: ~{n:,}~ байт", "Размер: ~{n:,}~ байта", "Размер: ~{n:,}~ байт"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2296
+# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2345
 "~{n:,}~ byte" = ["~{n:,}~ байт", "~{n:,}~ байта", "~{n:,}~ байт"]
 # navigator/lib/system/diskinfo.py:232
 "Name: ~{name}~" = "Имя: ~{name}~"
@@ -2721,7 +2753,7 @@ flag = "RU"
 "Links: ~{links}~, inode ~{inode}~" = "Ссылок: ~{links}~, inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
 "Link to: ~{target}~" = "Ссылка на: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2292
+# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2341
 "No files in this directory" = "В этом каталоге файлов нет"
 # navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ файл, {total}", "~{n:,}~ файла, {total}", "~{n:,}~ файлов, {total}"]
@@ -2771,7 +2803,7 @@ flag = "RU"
 "The process has ended" = "Процесс завершился"
 # navigator/lib/system/processes.py:401
 "Process" = "Процесс"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2694 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2743 ...
 "Name" = "Имя"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:118
 "Command" = "Команда"
@@ -3241,13 +3273,13 @@ flag = "RU"
 "Nothing to redo" = "Нечего повторять"
 # navigator/widgets/editor/file_editor/file_editor.py:2835
 "The text is empty" = "Текст пуст"
-# navigator/widgets/editor/file_editor/file_editor.py:3711
-"Line and column: a click goes to a line" = "Строка и столбец: щелчок переходит к строке"
-# navigator/widgets/editor/file_editor/file_editor.py:3712
-"The character's code: a click opens the character table" = "Код символа: щелчок открывает таблицу символов"
-# navigator/widgets/editor/file_editor/file_editor.py:3713
-"Vertical blocks: a click makes them stream blocks" = "Вертикальные блоки: щелчок делает их потоковыми"
 # navigator/widgets/editor/file_editor/file_editor.py:3714
+"Line and column: a click goes to a line" = "Строка и столбец: щелчок переходит к строке"
+# navigator/widgets/editor/file_editor/file_editor.py:3715
+"The character's code: a click opens the character table" = "Код символа: щелчок открывает таблицу символов"
+# navigator/widgets/editor/file_editor/file_editor.py:3716
+"Vertical blocks: a click makes them stream blocks" = "Вертикальные блоки: щелчок делает их потоковыми"
+# navigator/widgets/editor/file_editor/file_editor.py:3717
 "Stream blocks: a click makes them vertical" = "Потоковые блоки: щелчок делает их вертикальными"
 # navigator/widgets/editor/file_editor/file_editor.py:2123
 "macros.ini has no macro for this file" = "В macros.ini нет макросов для этого файла"
@@ -3371,7 +3403,7 @@ flag = "RU"
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2318, navigator/widgets/manager/panel/panel.py:2431 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2367, navigator/widgets/manager/panel/panel.py:2480 ...
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<различается>"
@@ -3603,7 +3635,7 @@ flag = "RU"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:126, navigator/widgets/manager/panel/panel.py:2698
+# navigator/widgets/manager/commands.py:126, navigator/widgets/manager/panel/panel.py:2747
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:130
 "MkDir" = "Каталог"
@@ -3943,87 +3975,87 @@ flag = "RU"
 "View mode: simple, detailed or list" = "Режим просмотра: простой, подробный или список"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "Порядок сортировки"
-# navigator/widgets/manager/panel/panel.py:2319
+# navigator/widgets/manager/panel/panel.py:2368
 "~{total} in {n}~ selected file" = ["~{total} в {n}~ отмеченном файле", "~{total} в {n}~ отмеченных файлах", "~{total} в {n}~ отмеченных файлах"]
-# navigator/widgets/manager/panel/panel.py:1808
+# navigator/widgets/manager/panel/panel.py:1857
 "Paste from clip~b~oard" = "Вст~а~вить из буфера"
-# navigator/widgets/manager/panel/panel.py:1833
+# navigator/widgets/manager/panel/panel.py:1882
 "~I~nsert name" = "~В~ставить имя"
-# navigator/widgets/manager/panel/panel.py:1834
+# navigator/widgets/manager/panel/panel.py:1883
 "Insert pa~t~h" = "Вставить по~л~ный путь"
-# navigator/widgets/manager/panel/panel.py:2316
+# navigator/widgets/manager/panel/panel.py:2365
 "No files selected" = "Нет отмеченных файлов"
-# navigator/widgets/manager/panel/panel.py:2420, navigator/widgets/manager/panel/panel.py:2306
+# navigator/widgets/manager/panel/panel.py:2469, navigator/widgets/manager/panel/panel.py:2355
 "~{n:,}~ free byte on ~{mount}" = ["Свободно ~{n:,}~ байт на ~{mount}", "Свободно ~{n:,}~ байта на ~{mount}", "Свободно ~{n:,}~ байт на ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1484
+# navigator/widgets/manager/panel/panel.py:1493
 "The file's name" = "Имя файла"
-# navigator/widgets/manager/panel/panel.py:1485
+# navigator/widgets/manager/panel/panel.py:1494
 "The file's size" = "Размер файла"
-# navigator/widgets/manager/panel/panel.py:1486
+# navigator/widgets/manager/panel/panel.py:1495
 "The size packed in the archive" = "Сжатый размер в архиве"
-# navigator/widgets/manager/panel/panel.py:1487
+# navigator/widgets/manager/panel/panel.py:1496
 "The packed size as a percentage of the original" = "Сжатый размер в процентах от исходного"
-# navigator/widgets/manager/panel/panel.py:1488
+# navigator/widgets/manager/panel/panel.py:1497
 "Permissions: the owner's, the group's and others'" = "Права: владельца, группы и остальных"
-# navigator/widgets/manager/panel/panel.py:1489
+# navigator/widgets/manager/panel/panel.py:1498
 "The owner and group" = "Владелец и группа"
-# navigator/widgets/manager/panel/panel.py:1490
+# navigator/widgets/manager/panel/panel.py:1499
 "When the file was last modified" = "Когда файл был изменён в последний раз"
-# navigator/widgets/manager/panel/panel.py:1587
+# navigator/widgets/manager/panel/panel.py:1596
 "Search:" = "Поиск:"
-# navigator/widgets/manager/panel/panel.py:1773
+# navigator/widgets/manager/panel/panel.py:1822
 "Go to ~f~ile" = "Перейти к ~ф~айлу"
-# navigator/widgets/manager/panel/panel.py:1774
+# navigator/widgets/manager/panel/panel.py:1823
 "Show in ~o~ther panel" = "Показать в ~д~ругой панели"
-# navigator/widgets/manager/panel/panel.py:1782
+# navigator/widgets/manager/panel/panel.py:1831
 "Vie~w~" = "~С~мотреть"
-# navigator/widgets/manager/panel/panel.py:1806
+# navigator/widgets/manager/panel/panel.py:1855
 "Cop~y~ to clipboard" = "Копировать в ~б~уфер"
-# navigator/widgets/manager/panel/panel.py:1807
+# navigator/widgets/manager/panel/panel.py:1856
 "Cut to c~l~ipboard" = "Вырезать в бу~ф~ер"
-# navigator/widgets/manager/panel/panel.py:1815
+# navigator/widgets/manager/panel/panel.py:1864
 "Test arc~h~ive" = "Проверить ар~х~ив"
-# navigator/widgets/manager/panel/panel.py:2285
+# navigator/widgets/manager/panel/panel.py:2334
 "Clipboard: ~{n}~ file to move" = ["В буфере: ~{n}~ файл для перемещения", "В буфере: ~{n}~ файла для перемещения", "В буфере: ~{n}~ файлов для перемещения"]
-# navigator/widgets/manager/panel/panel.py:2287
+# navigator/widgets/manager/panel/panel.py:2336
 "Clipboard: ~{n}~ file to copy" = ["В буфере: ~{n}~ файл для копирования", "В буфере: ~{n}~ файла для копирования", "В буфере: ~{n}~ файлов для копирования"]
-# navigator/widgets/manager/panel/panel.py:2297
+# navigator/widgets/manager/panel/panel.py:2346
 "Total: ~{n:,}~ file with {total}" = ["Всего: ~{n:,}~ файл, {total}", "Всего: ~{n:,}~ файла, {total}", "Всего: ~{n:,}~ файлов, {total}"]
-# navigator/widgets/manager/panel/panel.py:2378, navigator/widgets/manager/panel/panel.py:2448
+# navigator/widgets/manager/panel/panel.py:2427, navigator/widgets/manager/panel/panel.py:2497
 "From {path}" = "Из {path}"
-# navigator/widgets/manager/panel/panel.py:2446, navigator/widgets/manager/panel/panel.py:2383
+# navigator/widgets/manager/panel/panel.py:2495, navigator/widgets/manager/panel/panel.py:2432
 "an unknown place" = "неизвестного места"
-# navigator/widgets/manager/panel/panel.py:2665
+# navigator/widgets/manager/panel/panel.py:2714
 "Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:2696, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:2745, navigator/lib/drives/base.py
 "Packed" = "Сжато"
-# navigator/widgets/manager/panel/panel.py:2697
+# navigator/widgets/manager/panel/panel.py:2746
 "%" = "%"
-# navigator/widgets/manager/panel/panel.py:1422
-"Only files matching {mask} are shown" = "Показаны только файлы, соответствующие {mask}"
-# navigator/widgets/manager/panel/panel.py:1433
-"{n} commit ahead of its upstream" = ["{n} коммит впереди вышестоящей ветки", "{n} коммита впереди вышестоящей ветки", "{n} коммитов впереди вышестоящей ветки"]
-# navigator/widgets/manager/panel/panel.py:1435
-"{n} commit behind its upstream" = ["{n} коммит позади вышестоящей ветки", "{n} коммита позади вышестоящей ветки", "{n} коммитов позади вышестоящей ветки"]
-# navigator/widgets/manager/panel/panel.py:1789
-"Ope~n~ with..." = "Открыть ~ч~ерез..."
-# navigator/widgets/manager/panel/panel.py:1797
-"Edit lin~k~ target..." = "Изменить цель сс~ы~лки..."
-# navigator/widgets/manager/panel/panel.py:1798
-"Make relative" = "Сделать относительной"
-# navigator/widgets/manager/panel/panel.py:1799
-"Make absolute" = "Сделать абсолютной"
-# navigator/widgets/manager/panel/panel.py:1818
-"E~x~tract archive..." = "Извле~ч~ь из архива..."
-# navigator/widgets/manager/panel/panel.py:1409
-"A click sorts by {order}" = "Щелчок сортирует по: {order}"
-# navigator/widgets/manager/panel/panel.py:2308
-"~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
-# navigator/widgets/manager/panel/panel.py:2380, navigator/widgets/manager/panel/panel.py:2449
-"From {path}, deleted {when}" = "Из {path}, удалён {when}"
-# navigator/widgets/manager/panel/panel.py:1429
-"Git work tree, HEAD detached at {commit}" = "Рабочее дерево git, HEAD отсоединён на {commit}"
 # navigator/widgets/manager/panel/panel.py:1431
+"Only files matching {mask} are shown" = "Показаны только файлы, соответствующие {mask}"
+# navigator/widgets/manager/panel/panel.py:1442
+"{n} commit ahead of its upstream" = ["{n} коммит впереди вышестоящей ветки", "{n} коммита впереди вышестоящей ветки", "{n} коммитов впереди вышестоящей ветки"]
+# navigator/widgets/manager/panel/panel.py:1444
+"{n} commit behind its upstream" = ["{n} коммит позади вышестоящей ветки", "{n} коммита позади вышестоящей ветки", "{n} коммитов позади вышестоящей ветки"]
+# navigator/widgets/manager/panel/panel.py:1838
+"Ope~n~ with..." = "Открыть ~ч~ерез..."
+# navigator/widgets/manager/panel/panel.py:1846
+"Edit lin~k~ target..." = "Изменить цель сс~ы~лки..."
+# navigator/widgets/manager/panel/panel.py:1847
+"Make relative" = "Сделать относительной"
+# navigator/widgets/manager/panel/panel.py:1848
+"Make absolute" = "Сделать абсолютной"
+# navigator/widgets/manager/panel/panel.py:1867
+"E~x~tract archive..." = "Извле~ч~ь из архива..."
+# navigator/widgets/manager/panel/panel.py:1418
+"A click sorts by {order}" = "Щелчок сортирует по: {order}"
+# navigator/widgets/manager/panel/panel.py:2357
+"~{size}~ free on ~{mount}" = "Свободно ~{size}~ на ~{mount}"
+# navigator/widgets/manager/panel/panel.py:2429, navigator/widgets/manager/panel/panel.py:2498
+"From {path}, deleted {when}" = "Из {path}, удалён {when}"
+# navigator/widgets/manager/panel/panel.py:1438
+"Git work tree, HEAD detached at {commit}" = "Рабочее дерево git, HEAD отсоединён на {commit}"
+# navigator/widgets/manager/panel/panel.py:1440
 "Git work tree, on {branch}" = "Рабочее дерево git, на {branch}"
 # navigator/widgets/manager/sync_list/sync_list.py:83
 "Left alone" = "Оставлено как есть"

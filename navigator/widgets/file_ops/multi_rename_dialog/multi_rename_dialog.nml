@@ -6,7 +6,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 
-#: Panel > Multi-rename (Alt+A): the tagged files renamed by one pattern, every
+#: File > Multi-rename (Alt+A): the tagged files renamed by one pattern, every
 #: new name shown before anything is done.  A departure -- Total Commander's
 #: *Multi-Rename Tool*; DOS Navigator's group rename was F6's ``*``/``?`` mask,
 #: which stays.  The placeholders are :mod:`navigator.lib.file_ops.multirename`'s.

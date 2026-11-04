@@ -1,4 +1,4 @@
-"""Panel > Multi-rename (Alt+A): the rule language, the plan's checks, the
+"""File > Multi-rename (Alt+A): the rule language, the plan's checks, the
 renames on a thread with Undo, and the box driving them."""
 
 from __future__ import annotations

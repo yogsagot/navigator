@@ -91,7 +91,7 @@ A departure (asked for): DN knew no git. In a work tree, each row ends in a lett
 
 ## View modes (Ctrl+Y, DN's `cmToggleShowMode`)
 
-Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu entry DN never had).
+Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mode* (a menu entry DN never had).
 - *simple*: name and size.
 - *detailed*: Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date (**modification** time,
   `DD-MM-YYYY hh:mm`, since Linux has no portable creation time; the four-digit year is a departure). Owner is a departure, 5-17 cells as the longest listed
@@ -175,7 +175,7 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > View mode* (a menu
   changing where it stands (Alt+G) bumps `Panel.sizes_token`: the same list of the same entries is no change to
   `items`.
   **Alt+I hides that footer** -- divider and lines -- per panel (`ToggleInfoLines`, `Panel.show_info`/`toggle_info`,
-  *Panel > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
+  *Panel > Display > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
   The command has no `title`, so the Alt key bar keeps *Z Zoom*.
 - **The option strip** (a departure, as the editor's and viewer's): each panel's bottom frame carries navml's
   `OptionStrip` (`Panel.options`, added in Python in `Panel.__init__` -- Panel has no markup), right-aligned 3 cells
@@ -239,7 +239,7 @@ is showing. **Options > File Manager > Column defaults** (`ColumnDefaults`, `dlg
 
 `ToggleHidden`, `Panel.show_hidden`, `toggle_hidden`, per panel, shown by default -- our key (it took DN's *Directory
 Branch*, whose caption was dropped), where DN's `ossShowHidden` was a system option. The re-read keeps the cursor; a tag
-on a name it hides is dropped. *Panel > Show/hide hidden files* is **ticked** while the active panel shows them. Every
+on a name it hides is dropped. *Panel > Display > Show/hide hidden files* is **ticked** while the active panel shows them. Every
 directory tree follows it (see `navigator-trees`). Ctrl+H decoding: `navkit-terminal`.
 
 **Hidden files, the footer, the view mode and the order are remembered per side** (a departure): the effect
@@ -490,7 +490,7 @@ directory at each read, `fmiDirLen`) is not written yet.
 
 ## Information panel (Ctrl+L)
 
-`DiskInfo`, `Manager.on_disk_info`, DN's `cmDiskInfo` -> `SwitchView(dtInfo)` (also Panel > Info): `InfoPanel`
+`DiskInfo`, `Manager.on_disk_info`, DN's `cmDiskInfo` -> `SwitchView(dtInfo)` (also Panel > Other panel > Info): `InfoPanel`
 (`manager/info_panel`, Python-only, framed like the quick view, `::highlight` for DN's `~` runs) takes the passive
 panel's place as the tree and quick view do. `Manager._info_follows_panel` (an effect on the active panel's path,
 items and `reload_token`; not while it shows a *Find:* listing) calls `InfoPanel.show`, which reads the disk and the
@@ -525,7 +525,7 @@ files are the `navigator-compare` skill.
 
 ## Same directory in other panel (Alt+=)
 
-`EqualizePanels`, `Manager.equalize_panels`, Panel > Same directory in other panel: the passive panel goes to the
+`EqualizePanels`, `Manager.equalize_panels`, Panel > Other panel > Same directory in other panel: the passive panel goes to the
 active panel's directory, and the keyboard stays. **A departure**: DN 1.51 had no such command; it is Midnight
 Commander's *Sync panels*. MC's Alt+I is the footer here and every Alt+letter can be a menu-bar accelerator (Alt+O
 opens *Options*), hence Alt+=. The passive side is brought as Alt+F1/F2 bring theirs (`bring_side`: a hidden side is
@@ -605,7 +605,7 @@ divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltR
   take them.
 - A saved desktop keeps `split` (`desktop_state`).
 
-- **Every feature key is on a menu** (departures, asked for): Panel > *Move divider left/right* (`MoveSeparator(step=∓1)`,
+- **Every feature key is on a menu** (departures, asked for): Panel > Display > *Move divider left/right* (`MoveSeparator(step=∓1)`,
   Alt+Left/Right; no hotkeys, `j` being the only free letter), and the panel's right-click menu ends with *Insert name*
   / *Insert path* (`InsertName`/`InsertPath`, Ctrl+Enter / Ctrl+Shift+Enter, answered by the shell). Left off on
   purpose: Alt+1..9 / Alt+Shift+1..9 (the bookmarks box has them), Alt+F6 (*Quick rename* is its menu form),

@@ -343,7 +343,7 @@ def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place)
 
     def panel_menu(name):
         def action(a):
-            item = next(e for e in a.manager.panel_menu.entries() if getattr(e, "command", None) is ChangeInactive)
+            item = a.manager.panel_menu.item_for(ChangeInactive)
             seen[name] = (key_caption(item, a, a.manager.left), a.command_enabled(ChangeInactive, a.manager.left))
         return action
 

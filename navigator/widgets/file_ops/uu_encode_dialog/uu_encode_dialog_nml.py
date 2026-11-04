@@ -32,7 +32,7 @@ __all__ = ["UUEncodeDialog"]
 
 
 class UUEncodeDialog(Dialog, _Component):
-    """File > UU Encode, Ctrl+F7: DOS Navigator's ``dlgUUEncode``.
+    """File > Encoding > UU Encode, Ctrl+F7: DOS Navigator's ``dlgUUEncode``.
 
     Laid out where the resource puts things: where to on the second row, the
     *Prefixes* and the *Checksum level* side by side under it, *Lines per

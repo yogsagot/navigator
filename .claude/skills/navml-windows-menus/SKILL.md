@@ -90,8 +90,14 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
   `MenuBar.context`, which `shell.nml` binds to the desktop's active window, each placing itself with `before:`/`after:`.
   The viewer's *View* and the editor's *Editor* menus go after *File*.
 - **Panel is the file manager's own menu** (`manager.nml`, `manager.panel_menu`, after *Utilities* only while a file
-  manager is active); *Directory tree*, *Info* and *Quick view* moved into it from *Manager* -- a departure; *Manager*
-  stays global for *New*.
+  manager is active); *Directory tree*, *Info* and *Quick view* moved into it from *Manager* (under *Other panel*) --
+  a departure; *Manager* stays global for *New*.
+- **Every box fits an 80x25 screen** (at most 22 entry rows under the bar; `test_every_menu_box_fits_an_80_by_25_screen`
+  measures the bar's, Panel's, the viewer's and the editor's). A departure in how, not what: DN's own entries stay
+  at the top in DN's order, and additions go into submenus -- Panel > *Display*/*Selection*/*Other panel*, File >
+  *Multi-rename*/*Archive*/*Encoding* (UU, Checksums, Encryption), the viewer's View > *Mode*/*Filters*, the sync
+  window's Synchronize > *Show* (measured in `test_compare_dirs.py`). A new entry that would overflow a box joins or
+  makes a submenu; a box filled at run time from a long list scrolls.
 - **A popup menu** is `PopupMenu` (`TMenuPopup`): one `MenuBox` anywhere, run like a dialog -- spawn
   `execute(app)`, which answers the `MenuItem` chosen or None; a command-less item is a choice, not greyed. `keys=`
   adds keys that close it on the selected entry (enabled or not), setting `pressed` and `selected`, for a caller that

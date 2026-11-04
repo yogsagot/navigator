@@ -168,22 +168,28 @@ SyncWindow(Window):
         MenuItem:
             text: 'Compare a~g~ain'
             command: Rescan
-        MenuItem:
-            text: 'Show left o~n~ly'
-            tooltip: "List what only the left side has"
-            command: ToggleSyncShow(0)
-        MenuItem:
-            text: 'Show right onl~y~'
-            tooltip: "List what only the right side has"
-            command: ToggleSyncShow(1)
-        MenuItem:
-            text: 'Sho~w~ different'
-            tooltip: "List the files that differ, and the conflicts"
-            command: ToggleSyncShow(2)
-        MenuItem:
-            text: 'Show ~i~dentical'
-            tooltip: "List the files that are the same on both sides too"
-            command: ToggleHidden
+        #: The four list filters nested, so the box keeps clear of an 80x25
+        #: screen's last row; the window's Show check boxes do the same.
+        SubMenu:
+            id: sync_menu_show
+            text: 'Sho~w~'
+            tooltip: "Which rows the list shows"
+            MenuItem:
+                text: 'Show left o~n~ly'
+                tooltip: "List what only the left side has"
+                command: ToggleSyncShow(0)
+            MenuItem:
+                text: 'Show right onl~y~'
+                tooltip: "List what only the right side has"
+                command: ToggleSyncShow(1)
+            MenuItem:
+                text: 'Sho~w~ different'
+                tooltip: "List the files that differ, and the conflicts"
+                command: ToggleSyncShow(2)
+            MenuItem:
+                text: 'Show ~i~dentical'
+                tooltip: "List the files that are the same on both sides too"
+                command: ToggleHidden
         MenuItem:
             text: '~T~ree view'
             tooltip: "Show the rows under their directories, as a tree"

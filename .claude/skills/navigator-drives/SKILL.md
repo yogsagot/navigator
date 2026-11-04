@@ -40,7 +40,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   prefix left it), a relative one is on the working directory's drive.
 - **Capabilities grey commands, not errors.** `Manager._LOCAL_ONLY` is **empty**: every command asks the drive or
   works on a fetched copy; it is where a new command that cannot goes until it is taught to. What a drive cannot do
-  at all its capabilities grey (`enables`): rename/move/delete/mkdir/F4 need `write`, Shift+F5 needs `symlink`. File > Checksums reads every file through `open_read`/`children`, so it needs nothing more.
+  at all its capabilities grey (`enables`): rename/move/delete/mkdir/F4 need `write`, Shift+F5 needs `symlink`. File > Encoding > Checksums reads every file through `open_read`/`children`, so it needs nothing more.
 - **The last ones, and how**: Shift+F4 reads its name as a copy's target line does (`target_location`: a URL, an
   archive place, or relative to the panel's drive) -- an existing file there is fetched and edited, a new one is an
   empty copy (`usefile.blank`) that F2 makes there (`$EDITOR` only for one already there). Shift+F5 makes a link on
@@ -315,7 +315,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   take a `.docx` (a zip) in. Inside one, F5/F6/F8/F7/rename/F4 work as anywhere; no bookmark or quick directory is
   kept there, history skips it, and a saved desktop keeps the archive's directory with the cursor on it.
 - **Extract to, Test, Shift+F2** (`ARCVIEW.PAS` `HandleCommand`/`ExtractFiles`, `FLPANELX.PAS` `cmExtractArchive`):
-  Panel > *Extract to...* (`ExtractTo`, cmExtractTo) and *Test archive* (`ArcTest`, cmArcTest), enabled only in an
+  File > Archive > *Extract to...* (`ExtractTo`, cmExtractTo) and *Test archive* (`ArcTest`, cmArcTest), enabled only in an
   archive; Files > *Extract archive...* (`ExtractArchive`, Shift+F2) only outside one, on archive-type files.
   `ExtractDialog` is `dlgExtract` (*Extract to* on the Copy history, *Extract with path names* ticked, *Test only*,
   Tree) less *Password* (zipfile knows only ZipCrypto); an empty line is the archive's own directory. Extracting is
@@ -326,7 +326,7 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   said in a box. **Departure, recorded**: DN put Extract/Test/Password on F4/F6/F7 of an archive panel's key bar
   (`hcArchives`); here F4 and F6 stay Edit and Rename/Move, which work in an archive.
   **Shift+F2 extracts everywhere** (a departure, asked for): outside an archive it is *Extract archive*, inside one
-  `Manager.on_extract_archive` runs *Extract to...* -- so Panel > *Extract to...* shows Shift-F2 as a static key (the
+  `Manager.on_extract_archive` runs *Extract to...* -- so File > Archive > *Extract to...* shows Shift-F2 as a static key (the
   binding is `ExtractArchive`'s). The panel's right-click menu offers *Extract to...* and *Test archive* in an
   archive, and *Extract archive...* on an archive file outside one (`panel._archive_file`). **Shift+F1, File > *Create
   archive...*** (`ArchiveFiles`, `cmPanelArcFiles`; DN's caption *Copy to archive*, renamed -- a departure, asked

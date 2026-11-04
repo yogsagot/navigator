@@ -28,7 +28,7 @@ __all__ = ["ChecksumProgress"]
 
 
 class ChecksumProgress(Dialog, _Component):
-    """Files being hashed, by File > Checksums' Calculate and Verify.  Not DN's
+    """Files being hashed, by File > Encoding > Checksums' Calculate and Verify.  Not DN's
 
     (a departure, as the feature is): the file being read, a gauge over the
     bytes of them all, how many are done, and *Cancel*, which says what Esc does.

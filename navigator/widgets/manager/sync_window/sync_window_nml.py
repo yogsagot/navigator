@@ -91,6 +91,7 @@ class SyncWindow(Window, _Component):
     sync_button: Button    # sync_window.nml:111
     close_button: Button    # sync_window.nml:119
     sync_menu: SubMenu    # sync_window.nml:129
+    sync_menu_show: SubMenu    # sync_window.nml:174
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -137,14 +138,15 @@ class SyncWindow(Window, _Component):
         _w12 = MenuItem(parent=self.sync_menu)    # sync_window.nml:163
         _w13 = MenuLine(parent=self.sync_menu)    # sync_window.nml:167
         _w14 = MenuItem(parent=self.sync_menu)    # sync_window.nml:168
-        _w15 = MenuItem(parent=self.sync_menu)    # sync_window.nml:171
-        _w16 = MenuItem(parent=self.sync_menu)    # sync_window.nml:175
-        _w17 = MenuItem(parent=self.sync_menu)    # sync_window.nml:179
-        _w18 = MenuItem(parent=self.sync_menu)    # sync_window.nml:183
-        _w19 = MenuItem(parent=self.sync_menu)    # sync_window.nml:187
-        _w20 = MenuItem(parent=self.sync_menu)    # sync_window.nml:191
-        _w21 = MenuLine(parent=self.sync_menu)    # sync_window.nml:195
-        _w22 = MenuItem(parent=self.sync_menu)    # sync_window.nml:196
+        self.sync_menu_show = SubMenu(parent=self.sync_menu)    # sync_window.nml:173
+        _w15 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:177
+        _w16 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:181
+        _w17 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:185
+        _w18 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:189
+        _w19 = MenuItem(parent=self.sync_menu)    # sync_window.nml:193
+        _w20 = MenuItem(parent=self.sync_menu)    # sync_window.nml:197
+        _w21 = MenuLine(parent=self.sync_menu)    # sync_window.nml:201
+        _w22 = MenuItem(parent=self.sync_menu)    # sync_window.nml:202
 
         self.title = _bind(lambda _o: _tr('Synchronize'), yielding=True)    # sync_window.nml:40
         self.zoomed = True    # sync_window.nml:42
@@ -276,47 +278,56 @@ class SyncWindow(Window, _Component):
         _w14.text = _bind(lambda _o: _tr('Compare a~g~ain'), yielding=True)    # sync_window.nml:169
         _w14.command = Rescan    # sync_window.nml:170
 
-        _w15.text = _bind(lambda _o: _tr('Show left o~n~ly'), yielding=True)    # sync_window.nml:172
-        _w15.tooltip = _bind(    # sync_window.nml:173
+        self.sync_menu_show.text = _bind(    # sync_window.nml:175
+            lambda _o: _tr('Sho~w~'),
+            yielding=True,
+        )
+        self.sync_menu_show.tooltip = _bind(    # sync_window.nml:176
+            lambda _o: _tr('Which rows the list shows'),
+            yielding=True,
+        )
+
+        _w15.text = _bind(lambda _o: _tr('Show left o~n~ly'), yielding=True)    # sync_window.nml:178
+        _w15.tooltip = _bind(    # sync_window.nml:179
             lambda _o: _tr('List what only the left side has'),
             yielding=True,
         )
-        _w15.command = ToggleSyncShow(0)    # sync_window.nml:174
+        _w15.command = ToggleSyncShow(0)    # sync_window.nml:180
 
-        _w16.text = _bind(lambda _o: _tr('Show right onl~y~'), yielding=True)    # sync_window.nml:176
-        _w16.tooltip = _bind(    # sync_window.nml:177
+        _w16.text = _bind(lambda _o: _tr('Show right onl~y~'), yielding=True)    # sync_window.nml:182
+        _w16.tooltip = _bind(    # sync_window.nml:183
             lambda _o: _tr('List what only the right side has'),
             yielding=True,
         )
-        _w16.command = ToggleSyncShow(1)    # sync_window.nml:178
+        _w16.command = ToggleSyncShow(1)    # sync_window.nml:184
 
-        _w17.text = _bind(lambda _o: _tr('Sho~w~ different'), yielding=True)    # sync_window.nml:180
-        _w17.tooltip = _bind(    # sync_window.nml:181
+        _w17.text = _bind(lambda _o: _tr('Sho~w~ different'), yielding=True)    # sync_window.nml:186
+        _w17.tooltip = _bind(    # sync_window.nml:187
             lambda _o: _tr('List the files that differ, and the conflicts'),
             yielding=True,
         )
-        _w17.command = ToggleSyncShow(2)    # sync_window.nml:182
+        _w17.command = ToggleSyncShow(2)    # sync_window.nml:188
 
-        _w18.text = _bind(lambda _o: _tr('Show ~i~dentical'), yielding=True)    # sync_window.nml:184
-        _w18.tooltip = _bind(    # sync_window.nml:185
+        _w18.text = _bind(lambda _o: _tr('Show ~i~dentical'), yielding=True)    # sync_window.nml:190
+        _w18.tooltip = _bind(    # sync_window.nml:191
             lambda _o: _tr('List the files that are the same on both sides too'),
             yielding=True,
         )
-        _w18.command = ToggleHidden    # sync_window.nml:186
+        _w18.command = ToggleHidden    # sync_window.nml:192
 
-        _w19.text = _bind(lambda _o: _tr('~T~ree view'), yielding=True)    # sync_window.nml:188
-        _w19.tooltip = _bind(    # sync_window.nml:189
+        _w19.text = _bind(lambda _o: _tr('~T~ree view'), yielding=True)    # sync_window.nml:194
+        _w19.tooltip = _bind(    # sync_window.nml:195
             lambda _o: _tr('Show the rows under their directories, as a tree'),
             yielding=True,
         )
-        _w19.command = ToggleTree    # sync_window.nml:190
+        _w19.command = ToggleTree    # sync_window.nml:196
 
-        _w20.text = _bind(lambda _o: _tr('O~p~tions...'), yielding=True)    # sync_window.nml:192
-        _w20.tooltip = _bind(    # sync_window.nml:193
+        _w20.text = _bind(lambda _o: _tr('O~p~tions...'), yielding=True)    # sync_window.nml:198
+        _w20.tooltip = _bind(    # sync_window.nml:199
             lambda _o: _tr('The file mask, how near two times are the same, and Asymmetric'),
             yielding=True,
         )
-        _w20.command = SyncSetup    # sync_window.nml:194
+        _w20.command = SyncSetup    # sync_window.nml:200
 
-        _w22.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # sync_window.nml:197
-        _w22.command = CloseWindow    # sync_window.nml:198
+        _w22.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # sync_window.nml:203
+        _w22.command = CloseWindow    # sync_window.nml:204

@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -39,7 +39,7 @@ leaves the row blank.
 - **Without path names** (`CopyRequest.flatten`, *Extract files*' box unticked): a directory copied puts every file
   under it straight into the target (`_Copier._flattened`), no directory made; Extract to and Shift+F2 use it
   (`navigator-drives`, *Extract to, Test, Shift+F2*).
-- **Into an archive** (`CopyRequest.archive`, File > *Create archive...*'s `ArchiveOptions`; `navigator-drives`,
+- **Into an archive** (`CopyRequest.archive`, File > Archive > *Create archive...*'s `ArchiveOptions`; `navigator-drives`,
   *Shift+F1*): after the last file the copier packs (`job.packing`, `CopyProgress.packing` says *Packing* NAME *into*
   the archive, `_watch_copy` restarting the speed); Stop there leaves the archive as it was and moves nothing, and a
   move's sources are deleted only once the archive is written (`_Copier._held`).
@@ -264,7 +264,7 @@ is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_comman
   drive works; `finish()` once. Run by `Manager._run_uucode` (`FileJob` under `WriteWin`, *Beep after copy* past
   20 s). *As root* is not offered yet. Tests: `tests/test_splitfile.py`.
 
-## Checksums (File > Checksums)
+## Checksums (File > Encoding > Checksums)
 
 `navigator/lib/file_ops/checksum.py`, **a departure, asked for** -- DN had no checksums, so the commands
 (`CalculateChecksums`, `VerifyChecksums`) are named for what they do and are in `Manager.keyless_commands` (no default key).
@@ -286,7 +286,7 @@ is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_comman
 - **Every read goes through `drive_of(...).open_read`/`children`**, so both work on any drive; all of it runs on a
   thread through `run_with_progress` (`ChecksumProgress`), asking nothing mid-work.
 
-## Encryption (File > Encryption)
+## Encryption (File > Encoding > Encryption)
 
 `navigator/lib/file_ops/encrypt.py`, **a departure, asked for** -- DN encrypted nothing, so `EncryptFiles` and
 `DecryptFiles` are named for what they do and are keyless, like Checksums, whose shape it copies: `EncryptDialog`,

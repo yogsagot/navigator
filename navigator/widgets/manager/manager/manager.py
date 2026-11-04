@@ -757,7 +757,7 @@ class Manager(Window):
         return True
 
     async def calculate_checksums(self, panel: Panel) -> None:
-        """File > Checksums > Calculate: the tagged files' -- or the cursor's
+        """File > Encoding > Checksums > Calculate: the tagged files' -- or the cursor's
         -- digests, a tagged directory's files to the bottom, written as
         ``sha256sum`` writes them: in one list, its names from the list's
         directory, or in ``name.<ext>`` beside each file.
@@ -843,7 +843,7 @@ class Manager(Window):
             await self._say_checksum_errors(job.errors)
 
     async def verify_checksums(self, panel: Panel) -> None:
-        """File > Checksums > Verify: every file the tagged lists name hashed
+        """File > Encoding > Checksums > Verify: every file the tagged lists name hashed
         again and checked, on a thread through its drive.
 
         The lists are the tagged files whose names say they are lists --
@@ -932,7 +932,7 @@ class Manager(Window):
         return True
 
     async def encrypt_files(self, panel: Panel) -> None:
-        """File > Encryption > Encrypt: the tagged files -- or the cursor's --
+        """File > Encoding > Encryption > Encrypt: the tagged files -- or the cursor's --
         a tagged directory's to the bottom, each encrypted beside itself by gpg
         or age, streamed through their drives on a thread.
 
@@ -984,7 +984,7 @@ class Manager(Window):
                 tr_n("{n} file could not be encrypted:", "{n} files could not be encrypted:", len(job.errors)))
 
     async def decrypt_files(self, panel: Panel) -> None:
-        """File > Encryption > Decrypt: the tagged encrypted files -- or the
+        """File > Encoding > Encryption > Decrypt: the tagged encrypted files -- or the
         cursor's, a tagged directory's ``.gpg``/``.asc``/``.age`` files -- each
         decrypted beside itself, without its ending.
 
@@ -1100,7 +1100,7 @@ class Manager(Window):
         return True
 
     async def on_archive_files(self, event: ArchiveFiles) -> bool:
-        """Shift+F1, File > *Create archive...*: ``cmPanelArcFiles``, DN's
+        """Shift+F1, File > Archive > *Create archive...*: ``cmPanelArcFiles``, DN's
         *Archive files* box (``ArchiveDialog``) naming the new archive and
         how it is packed, then a copy into it -- which makes it and packs it
         (``filecopy._open_target_archive``).  DN's caption was *Copy to
@@ -2035,7 +2035,7 @@ class Manager(Window):
         return True
 
     async def undo_multi_rename(self, panel: Panel) -> None:
-        """Panel > Undo multi-rename: the last batch's files given their old names back."""
+        """File > Multi-rename > Undo multi-rename: the last batch's files given their old names back."""
         batch, Manager.last_renames = Manager.last_renames, None
         if batch is None or not batch.done:
             return

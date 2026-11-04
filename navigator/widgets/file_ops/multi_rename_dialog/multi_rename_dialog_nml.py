@@ -30,7 +30,7 @@ __all__ = ["MultiRenameDialog"]
 
 
 class MultiRenameDialog(Dialog, _Component):
-    """Panel > Multi-rename (Alt+A): the tagged files renamed by one pattern, every
+    """File > Multi-rename (Alt+A): the tagged files renamed by one pattern, every
 
     new name shown before anything is done.  A departure -- Total Commander's
     *Multi-Rename Tool*; DOS Navigator's group rename was F6's ``*``/``?`` mask,

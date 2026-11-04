@@ -27,7 +27,7 @@ __all__ = ["FilterDialog"]
 
 
 class FilterDialog(Dialog, _Component):
-    """Alt+Del, Panel > Advanced filter: DOS Navigator's ``dlgAdvancedFilter``.
+    """Alt+Del, Panel > Selection > Advanced filter: DOS Navigator's ``dlgAdvancedFilter``.
 
     The list of masks over *Show*, *Hide* and *Close*, as ``DN.DNR`` and
     ``MakeDialog`` laid them out, a column wider.  Help is left out.

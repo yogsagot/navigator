@@ -1,4 +1,4 @@
-"""File > Checksums: coreutils' ``*sum`` lists made and checked
+"""File > Encoding > Checksums: coreutils' ``*sum`` lists made and checked
 (:mod:`navigator.lib.file_ops.checksum`), on the disk and on another drive."""
 
 from __future__ import annotations

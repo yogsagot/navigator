@@ -67,7 +67,7 @@ NEW_KINDS: tuple[tuple[str, str, str], ...] = (
     (".rar", "rar", ""),
 )
 
-#: File > *Create archive...*'s *Archive type*, in its order: the label,
+#: File > Archive > *Create archive...*'s *Archive type*, in its order: the label,
 #: the name's suffix, and ``(kind, compression)``.
 FORMATS: tuple[tuple[str, str, tuple[str, str]], ...] = (
     ("ZIP", ".zip", ("zip", "")),

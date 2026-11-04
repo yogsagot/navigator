@@ -1,4 +1,4 @@
-"""File > UU Encode (Ctrl+F7) and UU Decode (Ctrl+F8): DOS Navigator's
+"""File > Encoding > UU Encode (Ctrl+F7) and UU Decode (Ctrl+F8): DOS Navigator's
 ``UuEncode`` and ``UU_Decode``."""
 
 from __future__ import annotations

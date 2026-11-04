@@ -30,7 +30,7 @@ __all__ = ["UUDecodeDialog"]
 
 
 class UUDecodeDialog(Dialog, _Component):
-    """File > UU Decode, Ctrl+F8: DOS Navigator's ``dlgUUDecode``.
+    """File > Encoding > UU Decode, Ctrl+F8: DOS Navigator's ``dlgUUDecode``.
 
     The target directory under its caption, the three options, and OK /
     Cancel / Tree; Help is left out, having nothing to show yet.  A row taller

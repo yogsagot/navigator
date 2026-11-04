@@ -219,7 +219,7 @@ def test_the_panel_menu_moves_it_and_shows_alt_arrows(place):
     seen = {}
 
     def look(a):
-        entries = {parse_shortcut(e.text)[0]: e for e in a.manager.panel_menu.entries()
+        entries = {parse_shortcut(e.text)[0]: e for e in a.manager.panel_display.entries()
                    if hasattr(e, "command")}
         left, right = entries["Move divider left"], entries["Move divider right"]
         seen["keys"] = (key_caption(left, a, a.manager.left), key_caption(right, a, a.manager.left))

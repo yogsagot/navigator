@@ -30,7 +30,7 @@ __all__ = ["ExtractDialog"]
 
 
 class ExtractDialog(Dialog, _Component):
-    """Panel > Extract to, and Shift+F2 on an archive: DOS Navigator's
+    """File > Archive > Extract to, and Shift+F2 on an archive: DOS Navigator's
 
     ``dlgExtract``.
 

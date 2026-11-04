@@ -3,7 +3,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.static_text import StaticText
 
-#: File > Checksums > Verify's answer.  Not DN's: a departure, asked for.
+#: File > Encoding > Checksums > Verify's answer.  Not DN's: a departure, asked for.
 #:
 #: The counts at the top and, when anything did not match, every such file
 #: in a list under them -- as many as there are, which a message box's few

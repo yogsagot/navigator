@@ -30,7 +30,7 @@ __all__ = ["EncryptDialog"]
 
 
 class EncryptDialog(Dialog, _Component):
-    """File > Encryption > Encrypt.  Not DN's: a departure, asked for -- DOS
+    """File > Encoding > Encryption > Encrypt.  Not DN's: a departure, asked for -- DOS
 
     Navigator encrypted nothing (``navigator.lib.file_ops.encrypt``).
 

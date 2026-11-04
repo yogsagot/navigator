@@ -1,4 +1,4 @@
-"""File > Checksums: the tagged files' digests written to a list, and checked
+"""File > Encoding > Checksums: the tagged files' digests written to a list, and checked
 against one -- **a departure, asked for**: DOS Navigator had no checksums.
 
 The lists are GNU coreutils' ``*sum`` files, so ``sha256sum -c`` checks what

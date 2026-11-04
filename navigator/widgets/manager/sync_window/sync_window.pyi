@@ -44,6 +44,7 @@ class SyncWindow(Window, _Component):
     sync_button: Button
     close_button: Button
     sync_menu: SubMenu
+    sync_menu_show: SubMenu
     keys: _Any
     tree_view: _Any
     def __init__(self, manager: Any = ..., left: Any = ..., right: Any = ..., request: Any = ..., rows: list[Any] | None = ..., show_hidden: bool = ..., options: dirsync.SyncOptions | None = ..., **kwargs: Any) -> None: ...

@@ -56,7 +56,7 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out
 - The `docker`, `podman` and `adb` commands, when installed, are the container and device drives' (`navigator-drives`);
   a missing one greys its Utilities > Link and Remote shell entries with the command to install
-- GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encryption's programs
+- GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encoding > Encryption's programs
   (`navigator/lib/file_ops/encrypt.py`); a missing one is greyed with the package to install (`navigator-file-ops`)
 - Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
   `navigator-fm[smb]` (smbprotocol) -- both need the compiled `cryptography` -- `navigator-fm[keyring]` (*Save in
