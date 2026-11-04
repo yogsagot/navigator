@@ -3002,9 +3002,12 @@ class FileEditor(ContextMenuHost, Widget):
             self.focus()
             self._moved()
             before = self._here()
-            self._point(event, extending=event.shift)
+            # Ctrl+click is Shift+click for terminals that keep Shift+click
+            # for their own selection (VTE's: xfce4-terminal), as in panels.
+            extend = event.shift or event.ctrl
+            self._point(event, extending=extend)
             here = self._here()
-            if event.shift:
+            if extend:
                 # Shift+click: the block's far end stays, as Shift+movement keeps it.
                 self._extend_block(before)
                 ends = self._block_ends()

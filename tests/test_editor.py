@@ -920,6 +920,13 @@ def test_a_click_unmarks_and_a_shift_click_extends(files):
     assert editor.block is None and (editor.line, editor.col) == (1, 6)
 
 
+def test_a_ctrl_click_extends_as_a_shift_click_does(files):
+    """VTE (xfce4-terminal) never reports Shift+click; Ctrl+click does the same."""
+    _, editor = mouse(files, (2, 0, "press", {}), (2, 0, "release", {}),
+                      (3, 1, "press", {"ctrl": True}), (3, 1, "release", {}))
+    assert editor.block == (Pos(0, 2), Pos(1, 3))
+
+
 @pytest.mark.parametrize("vertical", [False, True])
 def test_a_drag_past_a_lines_end_marks_only_to_its_end(files, vertical):
     # Terminals report motion within the pressed cell too: that marks nothing.

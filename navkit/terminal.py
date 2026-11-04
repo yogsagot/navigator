@@ -76,8 +76,13 @@ def place_cursor(x: int, y: int, shape: str = "default") -> str:
 # motion, 1006: report them in the unambiguous SGR format.
 # Plain motion is what makes ``:hovered`` possible; the application keeps it
 # to itself, so no widget sees the extra traffic.
-MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1003h\x1b[?1006h"
-MOUSE_OFF = "\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l"
+# ``CSI > 1 s`` is xterm's XTSHIFTESCAPE: Shift+click is reported to the
+# application instead of starting the terminal's own selection (xterm,
+# Ghostty under its default ``mouse-shift-capture``); ``CSI > 0 s`` gives it
+# back.  A terminal without it ignores it -- VTE's (xfce4-terminal, GNOME
+# Terminal) and kitty's always keep Shift+click for themselves.
+MOUSE_ON = "\x1b[?1000h\x1b[?1002h\x1b[?1003h\x1b[?1006h\x1b[>1s"
+MOUSE_OFF = "\x1b[>0s\x1b[?1006l\x1b[?1003l\x1b[?1002l\x1b[?1000l"
 PASTE_ON = "\x1b[?2004h"
 PASTE_OFF = "\x1b[?2004l"
 # The kitty keyboard protocol, pushed onto the terminal's own stack of flags

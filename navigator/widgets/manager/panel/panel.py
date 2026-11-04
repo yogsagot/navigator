@@ -398,6 +398,8 @@ class Panel(ListViewer):
         #: select): what every row it passes gets -- tagged or not -- and the
         #: row it last reached.
         self._right_mark: tuple[bool, int] | None = None
+        # The row and the tags before a Ctrl+click's range (``_shift_select``).
+        self._before_range: tuple[int, frozenset] | None = None
         #: What stops the read's directory counting (*Directory length*).
         self._scan_job: ScanJob | None = None
         #: The directory being watched (*Auto refresh panels*), and the
@@ -1258,9 +1260,16 @@ class Panel(ListViewer):
 
     async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Ctrl+double click is Ctrl+Enter, as in DOS Navigator; a plain one opens."""
-        if event.ctrl and event.button == "left" and self.index_at(event.x, event.y) is not None:
+        index = self.index_at(event.x, event.y)
+        if event.ctrl and event.button == "left" and index is not None:
             from navigator.widgets.shell.commands import InsertName, InsertPath
 
+            # The first press of the pair tagged a range (``_shift_select``):
+            # a Ctrl+double click inserts the name and tags nothing.
+            before = self._before_range
+            if before is not None and before[0] == index:
+                self.marked = before[1]
+            self._before_range = None
             await self.emit(InsertPath() if event.shift else InsertName())
             return True
         return await super().on_double_click(event)
@@ -1605,6 +1614,11 @@ class Panel(ListViewer):
                 return self._right_marking(event)
         if event.action == "press" and not event.is_wheel:
             self.quick_search = None
+        if (event.action == "press" and event.button == "left" and (event.shift or event.ctrl)
+                and not event.is_wheel and not self.inert):
+            index = self.index_at(event.x, event.y)
+            if index is not None:
+                return self._shift_select(index)
         taken = await super().on_mouse_click(event)
         if (not taken and not self.inert and event.action == "press" and event.button == "left"
                 and not event.is_wheel):
@@ -1679,6 +1693,30 @@ class Panel(ListViewer):
             self._tag_rows(last + step, index, flag)
             self.cursor = index
             self._right_mark = (flag, index)
+        return True
+
+    def _shift_select(self, index: int) -> bool:
+        """Shift+ or Ctrl+left click: tag every row from the cursor to the one clicked.
+
+        A departure, asked for: DN's left button only moved the cursor.  The
+        range takes both ends and adds to whatever was tagged (``..`` never),
+        the cursor goes to the row clicked, and no drag starts.  Ctrl is the
+        same because VTE (xfce4-terminal) never reports Shift+click.  A
+        Ctrl+click on the cursor's own row tags nothing, and the tags before
+        a Ctrl+click are kept in ``_before_range`` so that a Ctrl+double click
+        (DN's Insert name) can put them back.
+        """
+        app = self.application
+        if app is not None and app.focused is not self:
+            self.focus()
+        start = self.cursor if 0 <= self.cursor < len(self.items) else index
+        if start != index or self._before_range is None or self._before_range[0] != index:
+            # A second press on the row just clicked keeps the first's note,
+            # which is what a double click puts back.
+            self._before_range = (index, self.marked)
+        if start != index:
+            self._tag_rows(start, index, True)
+        self.cursor = index
         return True
 
     def _tag_rows(self, first: int, last: int, flag: bool) -> None:

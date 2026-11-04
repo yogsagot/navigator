@@ -407,7 +407,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   top-left). A column block keeps its columns through edits and moves only by whole lines.
 - **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured, and only once the
   pointer leaves the pressed cell -- terminals report motion inside it, `_press_cell`) marks from the press,
-  scrolling a line at a time past the top or bottom row; Shift+click extends the block as Shift+movement does; a
+  scrolling a line at a time past the top or bottom row; Shift+click (or Ctrl+click, for VTE terminals that keep Shift+click, as in panels) extends the block as Shift+movement does; a
   double-click marks the word between `BREAK_CHARS`, and a drag with the button still down after it marks whole
   words (`_drag_word`; the press before the double-click already captured the mouse, so `on_double_click` must not
   end the drag). A block marked by the mouse becomes the primary selection on

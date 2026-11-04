@@ -302,6 +302,11 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
   instances that `Manager.enables` disables while the line has text; the menu's instances are unaffected. **The plain
   `+`, `-`, `*` are bound the same way** (mc's rule), because VTE and PyCharm send Gray `+` as bare `+`.
 
+- **Shift+ or Ctrl+left click tags a range** (`Panel._shift_select`, a departure, asked for: DN's left button only
+  moved the cursor): every row from the cursor to the one clicked, both ends, added to what was tagged, `..` never;
+  the cursor goes to the row clicked and no drag starts. Ctrl because VTE (xfce4-terminal) and kitty never report
+  Shift+click; xterm and Ghostty do once asked (`MOUSE_ON`'s XTSHIFTESCAPE, `CSI > 1 s`). A Ctrl+double click
+  (Insert name) puts back the tags its first press changed (`_before_range`).
 - **The right button** follows File Manager Setup's *Right button* (`[file_manager] right_button`, a departure).
   `menu`, the default, opens the panel's context menu (`Panel.context_menu`, built from DN's `GetSelection`). `select`
   is DN's own (`FLPANELX.PAS`): a press toggles the row's tag and captures the mouse, and a drag gives every row it
