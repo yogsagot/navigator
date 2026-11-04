@@ -33,7 +33,8 @@ over inventing modern alternatives when the two conflict** -- fidelity is the po
   line, the Owner column, byte-exact editor saves, Gray keys typing while the line has text, *Recursive delete*,
   Linux file attributes, symlinks on Shift+F5, F3 closing the viewer, `navigator.ini` in place of `DN.CFG`, the
   editor's and viewer's option strip on the bottom frame, *Hidden characters*, File > *Compare files* and *Compare
-  directories*' *Window, recursive* (`navigator-compare`).
+  directories*' *Window, recursive* (`navigator-compare`), Split/combine by size into `.001` parts with a Total Commander `.crc`
+  and no key (`navigator-file-ops`).
 - **The one standing modern exception is the Nerd Font icon gutter** in `Panel`; don't re-litigate it and don't read it
   as licence for the next flourish.
 - When DN defined something but never used it (the tree window), or the 1.51 source lacks a handler (Alt+letter quick

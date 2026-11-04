@@ -1,0 +1,90 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > Split/combine on a file that is not a part: DOS Navigator's
+#: ``dlgSplitFile``.
+#:
+#: *Split NAME to* over the target line, as ``LongCopy``'s ``CopyDialog``
+#: inserted the name into the label, and OK / Cancel / Tree along the bottom;
+#: Help is left out, having nothing to show yet.  A row taller than DN's 50
+#: by 11, for this library's buttons.
+#:
+#: **A departure**: *Part size* is new -- DN split where each floppy filled,
+#: and a POSIX disk does not fill a part at a time -- and its two boxes,
+#: *Binary splitting only* (the ``.D01`` header, which the ``.001`` parts do
+#: not have) and *Verify disk writes* (as Copy's was), are dropped for *Write
+#: checksum file*, the set's ``NAME.crc`` (``navigator/lib/file_ops/splitfile.py``).
+SplitDialog(Dialog):
+    modal_width: 50
+    modal_height: 12
+    title: "Split file"
+
+    keys:
+        f10: ChooseTarget
+
+    Label:
+        id: target_caption
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: "~S~plit to"
+        link: target.entry
+
+    #: DN's ``hsFBBCopy``.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "splitfile"
+
+    Field:
+        id: size
+        x: 2
+        y: 4
+        width: 28
+        height: 1
+        label_text: "Part si~z~e"
+        label_width: 12
+        history_id: "split_size"
+
+    CheckBoxes:
+        id: options
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 1
+        items: ["~W~rite checksum file (.crc)"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

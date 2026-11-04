@@ -1,0 +1,64 @@
+from navigator.widgets.file_ops.commands import ChooseTarget
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+
+#: File > Split/combine on a part (``NAME.001`` ...) or the set's ``NAME.crc``:
+#: DOS Navigator's ``dlgCombineFile``.
+#:
+#: *Combine NAME to* over the target line, and OK / Cancel / Tree; Help is
+#: left out, having nothing to show yet.  A row taller than DN's 50 by 8, for
+#: this library's buttons.
+CombineDialog(Dialog):
+    modal_width: 50
+    modal_height: 9
+    title: "Combine file"
+
+    keys:
+        f10: ChooseTarget
+
+    Label:
+        id: target_caption
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        text: "~C~ombine to"
+        link: target.entry
+
+    #: DN's ``hsFBBCopy``, shared with *Split file*.
+    Field:
+        id: target
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: ""
+        label_width: 0
+        history_id: "splitfile"
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 5
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 18
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: tree
+        text: "~T~ree"
+        x: 31
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

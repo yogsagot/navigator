@@ -449,6 +449,19 @@ class UuDecode(Command):
     """
 
 
+class SplitCombine(Command):
+    """File > Split/combine: the file at the cursor cut into ``NAME.001``,
+    ``NAME.002`` ... of a given size -- or, on a part or the set's
+    ``NAME.crc``, the set put back together.
+
+    DOS Navigator's ``cmPanelLongCopy`` (``LongCopy``, FBB.PAS).  **Departures**
+    (:mod:`navigator.lib.file_ops.splitfile`): by a size asked for, not where
+    a floppy filled; ``.001`` parts and Total Commander's ``.crc``, not ``.D01``
+    with a header; and not bound -- DN's Shift+F5 is *Create symlink*'s -- so
+    the key is the user's to give.
+    """
+
+
 class CalculateChecksums(Command):
     """File > Checksums > Calculate: the tagged files' digests, in one list or
     a list beside each (:mod:`navigator.lib.file_ops.checksum`).
@@ -814,6 +827,7 @@ __all__ = [
     "SortBy",
     "CountLength",
     "UuEncode",
+    "SplitCombine",
     "UuDecode",
     "CalculateChecksums",
     "VerifyChecksums",

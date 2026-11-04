@@ -108,6 +108,7 @@ from navigator.widgets.manager.commands import (
     UnselectGroup,
     UuDecode,
     UuEncode,
+    SplitCombine,
     CalculateChecksums,
     VerifyChecksums,
     EncryptFiles,
@@ -170,7 +171,7 @@ class Manager(Window):
 
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
-    keyless_commands = (CompareDir, DiffFiles, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
+    keyless_commands = (CompareDir, DiffFiles, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
                         EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
@@ -701,6 +702,49 @@ class Manager(Window):
         if isinstance(question, uucode.DecodeError):
             await Dialog(title=tr("Error"), prompt=question.text, buttons="ok").execute(app)
         return None
+
+    # -- Split/combine (navigator.lib.file_ops.splitfile): DN's cmPanelLongCopy --------------------
+
+    async def on_split_combine(self, event: SplitCombine) -> bool:
+        self.spawn(self.split_combine(self.active_panel))
+        return True
+
+    async def split_combine(self, panel: Panel) -> None:
+        """File > Split/combine: ``LongCopy`` -- the file at the cursor split
+        into parts of the size asked, or, when it is a part or the set's
+        ``.crc`` (DN's ``Tuda``), the set combined; on a thread either way."""
+        from navigator.lib.file_ops import splitfile
+
+        app = self.application
+        place = self._uu_place(panel)
+        if app is None or place is None:
+            return
+        siblings = {entry.name for entry in panel.items}
+        other = self._uu_other(panel)
+        here = place.parent.local if place.is_local else place.parent
+        cwd = place.parent
+        if splitfile.mode_for(place.name, siblings) == "combine":
+            from navigator.widgets.file_ops.combine_dialog import CombineDialog
+
+            answer = await CombineDialog(name=place.name, here=here, other=other,
+                                         hidden=panel.show_hidden).execute(app)
+            if answer is None:
+                return
+            combine = splitfile.CombineRequest(place, answer["target"], cwd)
+            await self._run_uucode(panel, lambda job: splitfile.combine(combine, job),
+                                   tr("Combining {name}").format(name=place.name), beep_after=20)
+            return
+        from navigator.widgets.file_ops.split_dialog import SplitDialog
+
+        answer = await SplitDialog(name=place.name, here=here, other=other,
+                                   hidden=panel.show_hidden).execute(app)
+        if answer is None:
+            return
+        self._keep_section("split", answer["split"])
+        split = splitfile.SplitRequest(place, answer["target"], cwd, answer["size"],
+                                       checksum=SETTINGS.split.checksum)
+        await self._run_uucode(panel, lambda job: splitfile.split(split, job),
+                               tr("Splitting {name}").format(name=place.name), beep_after=20)
 
     # -- Checksums (navigator.lib.file_ops.checksum): not DN's, a departure -------------------------
 
@@ -2935,7 +2979,7 @@ class Manager(Window):
                 return aside
             return unless(any(not entry.is_dir for entry in self.selection(panel)),
                           tr("No checksum file is tagged or at the cursor"))
-        if isinstance(command, (UuEncode, UuDecode)):
+        if isinstance(command, (UuEncode, UuDecode, SplitCombine)):
             # DN's ``PF^.Attr and Directory = 0``: the file at the cursor.
             entry = panel.selected
             return unless(entry is not None and not entry.is_dir, tr("The cursor is not on a file"))

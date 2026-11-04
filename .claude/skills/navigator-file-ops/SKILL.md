@@ -84,7 +84,7 @@ has a problem.
 ## Symlinks (Shift+F5)
 
 *File > Create symlink…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is
-dropped. `navigator/lib/file_ops/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
+back keyless (*Split / combine* below). `navigator/lib/file_ops/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
 dialog cut down, with one session-remembered *Relative link* box. `Manager.make_links` works with no worker thread and
 shares Copy's *Skip* box.
 
@@ -240,6 +240,29 @@ by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* box
   section headers, `table`, `filetime`, `begin`/`end`, `sum -r/size` checked, anything else passed over. A severe
   error breaks a file, written only with *Save broken files*; *Check existing files* asks; *Display error messages*
   shows each. Departures: names keep case and length; a blank line also ends the data; `crc64` is not checked.
+
+## Split / combine (File > Split/combine)
+
+DN's `cmPanelLongCopy` (`FBB.PAS` `LongCopy`, `dlgSplitFile`/`dlgCombineFile`); `navigator/lib/file_ops/splitfile.py`
+is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_commands`), since Shift+F5 is Create symlink's.
+- **One command, the name decides** (DN's `Tuda`, `splitfile.mode_for`): `NAME.NNN` (three digits or more), or a
+  `NAME.crc` beside its `NAME.001`, combines; anything else splits. Enabled as UU is: a file at the cursor.
+- **Departures**: split by a size asked for (`parse_size`: `100M`, `1.44M`, `4G`, bytes; powers of 1024) where DN
+  filled each floppy; headerless `NAME.001`, `.002`.. (`part_name`, `.1000` past 999) where DN wrote `.D01` behind a
+  `Navigator Long Copy` header; and Total Commander's `NAME.crc` (`filename=`/`size=`/`crc32=`, `crc_text`/`read_crc`)
+  where DN checked nothing -- so TC, Double Commander and 7-Zip combine what this splits and the other way. The dialog
+  drops *Binary splitting only* and *Verify disk writes* for *Write checksum file*; size and box are `[split]`
+  (`SplitData`), kept through `_keep_section`. Both dialogs share DN's `hsFBBCopy` history (`splitfile`).
+- **Split** refuses a file no larger than one part; lists the target once and asks `uucode.FileExists`
+  (Yes/No/All/Cancel; No or Cancel abandons before a byte is written) of each part or `.crc` there and of stale
+  higher-numbered parts, which are removed once agreed. Parts take the source's mtime (`SetFTime(F2, OldDate)`).
+- **Combine** reads `.001` on until a number is missing; with a `.crc` only the parts its `size` reaches (a stale
+  later one is not read), *NAME is missing* when they fall short, an error when the size ends inside a part. The
+  name is the `.crc`'s `filename`, else the base; the file takes the first part's mtime. **A CRC mismatch keeps the
+  file** and says so; without a `.crc` nothing is checked.
+- Stop or a failure removes what that run wrote (DN's `Erase(f2)`). Every read and write is `drive_of(...)`'s, so any
+  drive works; `finish()` once. Run by `Manager._run_uucode` (`FileJob` under `WriteWin`, *Beep after copy* past
+  20 s). *As root* is not offered yet. Tests: `tests/test_splitfile.py`.
 
 ## Checksums (File > Checksums)
 

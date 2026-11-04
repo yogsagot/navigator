@@ -1008,6 +1008,18 @@ class UUCodeData(Section):
     save_broken: bool = Setting(False, doc="Decoding keeps a file it could not decode whole")
 
 
+class SplitData(Section):
+    """File > Split/combine's last choices: DN's ``dlgSplitFile`` kept
+    nothing but its target history; the part size and the checksum box are
+    new with splitting by size (a departure, :mod:`navigator.lib.file_ops.splitfile`)."""
+
+    name = "split"
+    title = "File > Split/combine (DN's dlgSplitFile)"
+
+    size: str = Setting("100M", doc="The size of each part: 100M, 1.44M, 4G or bytes")
+    checksum: bool = Setting(True, doc="Split writes the set's NAME.crc, which Combine checks")
+
+
 class ChecksumData(Section):
     """File > Checksums > *Calculate*'s last choices.  Not DN's: a departure,
     asked for -- DOS Navigator had no checksums to keep anything of."""
@@ -1115,7 +1127,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
+    CalculatorData, UUCodeData, SplitData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1154,6 +1166,7 @@ class Settings:
     tetris: TetrisData
     calculator: CalculatorData
     uucode: UUCodeData
+    split: SplitData
     checksum: ChecksumData
     encryption: EncryptionData
     synchronize: SynchronizeData

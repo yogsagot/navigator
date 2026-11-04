@@ -120,6 +120,8 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
         "UU decode dialog",
         "navigator.widgets.file_ops.uu_decode_dialog:UUDecodeDialog",
     ),
+    ("split_dialog", "Split dialog", "navigator.widgets.file_ops.split_dialog:SplitDialog"),
+    ("combine_dialog", "Combine dialog", "navigator.widgets.file_ops.combine_dialog:CombineDialog"),
     ("extract_dialog", "Extract dialog", "navigator.widgets.file_ops.extract_dialog:ExtractDialog"),
     ("links_dialog", "Saved links", "navigator.widgets.drives.links_dialog:LinksDialog"),
     ("calculator", "Calculator", "navigator.widgets.shell.calculator_window:CalculatorWindow"),
