@@ -1,4 +1,4 @@
-from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, SaveLinkEntry
+from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, ReadLiveLinks, SaveLinkEntry
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
@@ -37,6 +37,7 @@ LinkManagerDialog(Dialog):
         insert: NewLinkEntry
         f2: SaveLinkEntry
         delete: DeleteLinkEntry
+        ctrl+r: ReadLiveLinks
 
     Label:
         id: links_caption

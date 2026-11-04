@@ -39,5 +39,10 @@ class DeleteLinkEntry(Command):
     """Del in a link manager's list: the chosen connection, once asked."""
 
 
-__all__ = ["AddLink", "DeleteLink", "DeleteLinkEntry", "EditLink", "MoveLinkDown", "MoveLinkUp", "NewLinkEntry",
+class ReadLiveLinks(Command):
+    """Ctrl+R in a Docker, Podman or Android link manager: the containers
+    running and the devices attached read again."""
+
+
+__all__ = ["AddLink", "ReadLiveLinks", "DeleteLink", "DeleteLinkEntry", "EditLink", "MoveLinkDown", "MoveLinkUp", "NewLinkEntry",
            "SaveLinkEntry"]

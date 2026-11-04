@@ -1,6 +1,6 @@
 ---
 name: navigator-drives
-description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > SSH/FTP/SMB/S3/GVfs link managers (Alt+F11 for SSH) / Remote shell (ssh -t, DN's cmTerminal) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
+description: Remote and virtual drives -- navigator/lib/drives/ (Location and Site, Drive/LocalDrive/MemoryDrive/SftpDrive/FtpDrive/SmbDrive/ArchiveDrive/TrashDrive (trash:///), ExecDrive with DockerDrive (docker://, podman://) and AdbDrive (adb://) -- every step a docker exec / adb shell -T process, the live lists of containers and devices, capabilities, zip and tar archives (and 7z/rar through 7-Zip's, unrar's and rar's command lines) entered with Enter (DN's TArcDrive), Extract to / Test / Shift+F2, archive columns, drive_of/mount/unmount, listing.py with DirEntry and the local scan), SESSIONS (connect and its NeedPassword/NeedPassphrase/UnknownHostKey questions, the SFTP channel pool, the transport watcher and one silent reconnect, idle reaping, closing → panels fall back like DN's cmCloseLinked), credentials (ssh config/agent/keys, known_hosts, optional keyring), RemoteProfile, UseFile temp copies and upload-back, copy/erase across drives through the one copier, Panel.location vs Panel.path, Manager's _LOCAL_ONLY gate, Utilities > Link > SSH/FTP/SMB/S3/GVfs/Docker/Podman/Android link managers (Alt+F11 for SSH) / Remote shell > SSH/Docker/Podman/Android (ssh -t, docker exec -it, adb shell; DN's cmTerminal) / Disconnect (Alt+H), the Link part of the Alt+F1/F2 box, Options > Configuration > Communications, and how to add a protocol. Use when touching anything that may not be a local path.
 ---
 
 # Drives
@@ -8,7 +8,8 @@ description: Remote and virtual drives -- navigator/lib/drives/ (Location and Si
 DOS Navigator's panel held a **`TDrive`** (`DRIVES.PAS`): the disk, an archive (`TArcDrive`), a *Find:* listing
 (`TFindDrive`), `TEMP:` (`TTempDrive`), or the PC at the other end of a cable (`TLinkDrive`, `NAVYLINK.PAS`, *Navigator
 Link*, Alt+F11). `navigator/lib/drives/` is that object for a modern system. There are the disk, an in-memory drive
-(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3, archives (`ARCVIEW.PAS`) and the Trash (`trash:///`). NFS is only
+(the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3, a Docker or Podman container, an Android device over adb,
+archives (`ARCVIEW.PAS`) and the Trash (`trash:///`). NFS is only
 ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` has the plan and the phases.
 
 ## Rules
@@ -162,9 +163,44 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   copy and a delete; a directory's is `EXDEV`, the copier then copying and deleting. `open_random` is ranged GETs
   (F3 by chunks). No modes, owners, links or times. Unreachable after botocore's retries is `DriveGone`.
   `make_client` is the hook a test replaces. Title `S3:endpoint:/bucket/dir`; `describe` adds `Region`.
-- **Each protocol is named and has its own entry**: Utilities > *SSH link (SFTP)...* (Alt+F11, `NavyLink`), *FTP
-  link...* (`FtpLink`), *SMB link (Windows share)...* (`SmbLink`), *S3 link (Amazon S3)...* (`S3Link`), each
-  `Shell.navy_link(panel, scheme=)`; the
+- **Containers and devices** (`execdrive.py`, `docker.py`, `podman.py`, `adb.py`; `docker://[user@]name/path`,
+  `podman://...`, `adb://serial/path`). No file protocol at the other end, only `sh` and its tools (GNU, busybox,
+  toybox): **every step is one process** through `ExecDrive._run` (the one seam -- a persistent shell can stand in
+  later), a fixed `sh -c SCRIPT sh "$1" "$2"` script, **the paths always arguments, never written into the
+  script**. `docker exec [-i] [-u USER] NAME words...` takes the words as they are; **adb joins its words into one
+  line for the device's shell**, so `AdbDrive.argv` is `adb [-s SERIAL] shell -T shlex.join(words)` -- `-T` is
+  shell protocol v2 without a pty: separate stdout/stderr, binary-clean, the exit status and stdin (Android 7+).
+  - A listing is one `LIST` run: `stat -c STAT_FORMAT` (`%f %s %Y %X %u %g %h %i %U %G %n`, the name last) over
+    the globbed names, then each link's `stat -L` and `readlink` after `LINKS_MARK`, then `df -Pk` after
+    `FREE_MARK` when asked. `parse_stat` takes a line not starting with the numbers as the rest of the name before
+    it (a newline in a name). A missing or unreadable directory is said in `strerror`'s words by the script
+    itself, since dash's `cd` does not.
+  - Failures: `os_error` finds `strerror`'s text (glibc, musl and bionic spellings) and answers the `OSError`
+    subclass; else `EIO` with the words. The subclass's `lost(text, status)` says the other end is gone
+    (`docker.LOST_WORDS`: *is not running*, *No such container*, the daemon; adb's *device 'x' not found*,
+    *offline*, *unauthorized* → *Allow USB debugging on the device*) -- `on_lost`, then `DriveGone`.
+    `docker exec`'s 126/127 *executable file not found* is *NAME has no shell (sh)*.
+  - Steps: `RENAME` refuses an existing `$2` (`EEXIST`), `REPLACE` a directory there (`mv` would move into it),
+    `unlink` looks first (`rm -f` says nothing of a missing file), `utime` is POSIX `TZ=UTC0 touch -a/-m -t`
+    (whole seconds), `copy_attributes` mode and both times in **one** run.
+  - **Data streams through pipes, not tar** (a departure from the item, recorded in the module): `open_read` is
+    `cat -- path` (`_Reader`, killed on an early close, the exit status an `OSError` at EOF), `open_write` is
+    `sh -c 'cat > "$1"'` (`_Writer`, the failure raised on `close`), so the copier counts per chunk, an
+    overwritten file keeps its owner and inode (`docker cp`'s tar writes uid 0), and adb works the same.
+    `open_random` is `tail -c +N | head -c COUNT` a chunk (F3 by chunks).
+  - "Connecting" holds nothing: `docker inspect` (running? `Config.WorkingDir` is `home`, `Config.Image` for
+    `describe`), `adb get-state` (`home` `/sdcard`; model and Android version by `getprop`). `polled` (Auto
+    refresh looks again). Capabilities: containers write, rename, symlink, chmod, chown, free space; a device no
+    symlink or chown (`/sdcard` is FUSE). Title `DOCKER:name:/path`, `ADB:serial:/path`. Names and serials keep
+    their case (`location.AS_WRITTEN`); a networked serial `host:port` is the site's host and port
+    (`adb.serial_of`, `Device.site`). `available()` names the missing command (`EXTRA_HINT` is the program).
+  - What is there now: `docker.list_containers(engine)` (`ps --format '{{json .}}'`, Docker's lines and
+    Podman's array with `Names` a list -- `parse_ps`) and `adb.list_devices()` (`devices -l`, `parse_devices`).
+- **Each protocol is named and has its own entry**, all in Utilities > **Lin~k~ ▸** (`utilities_link`; a
+  departure, asked for: one entry a protocol, grouped, no box first asking which): *SSH (SFTP)...* (Alt+F11,
+  `NavyLink`), *FTP...* (`FtpLink`), *SMB (Windows share)...* (`SmbLink`), *S3 (Amazon S3)...* (`S3Link`),
+  *GVfs/KIO...* (`GvfsLink`), *Docker container...* (`DockerLink`), *Podman container...* (`PodmanLink`),
+  *Android device (adb)...* (`AdbLink`), each `Shell.navy_link(panel, scheme=)`; the
   `ConnectDialog(scheme=)` is that protocol's (`titles(scheme)`), FTP's with *Encrypt with TLS (FTPS)* (`secure`,
   the scheme then `ftps`), SMB's *Directory* captioned *Share/dir* (a share typed without `/` is made `/share`),
   S3's *Endpoint* (opening on `s3.amazonaws.com`), *Access key* and *Bucket/dir*, its `secure` box *Encrypt with
@@ -335,15 +371,15 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   key bar says *F2 Edit*, *Del Delete*, *Ctrl+↑↓ Move* while the list is open (`SubMenu.hints`; `Up/Down` in the ASCII tier); `_go_to` connects a URL through
   `app.shell.reach`; F3/F4/Alt+F3/Alt+F4/`$PAGER`/`$EDITOR` fetch first. `EditWindow.use_set`: F2 writes the copy and
   `put_back(ask=False)`; the title names the origin; no edit record; closing discards. `FileWindow.use_set` the same.
-- **Commands** `NavyLink` (Utilities > *SSH link (SFTP)...*, Alt+F11 -- DN's *Navigator Link*, renamed for its
+- **Commands** `NavyLink` (Utilities > *Link* > *SSH (SFTP)...*, Alt+F11 -- DN's *Navigator Link*, renamed for its
   protocol), `HangUp` (*Disconnect*, Alt+H; greyed with
   nothing mounted), `SetupLink` (Options > Configuration > *Communications...* → `CommunicationsPage`, `[remote]`
   keepalive, timeout, idle_disconnect, upload_changed, ssh_options).
 - **The link managers** (`navigator/widgets/drives/link_manager/`, `LinkManagerDialog(family=...)`, after
-  FileZilla's Site Manager; a departure, asked for): one a protocol, one component. Utilities > *SSH link (SFTP)*
-  (Alt+F11), *FTP link*, *SMB link*, *S3 link* and *GVfs/KIO link* open their family's (`Shell.link_manager(panel,
-  family)`; `navy_link` with no request and `gvfs_link` go there, so the Link box's *New ... link* items do too);
-  *Remote shell* opens SSH's in `mode="shell"`. Each lists only its family's profiles (`entries_for(family)`, read
+  FileZilla's Site Manager; a departure, asked for): one a protocol, one component. Each Utilities > *Link* entry
+  opens its family's (`Shell.link_manager(panel, family)`; `navy_link` with no request and `gvfs_link` go there, so
+  the Link box's *New ... link* items do too); each Utilities > *Remote shell* entry opens its family's in
+  `mode="shell"`. Each lists only its family's profiles (`entries_for(family)`, read
   on a thread by the caller; `family_of(scheme)` maps back), the lines on the right under `ConnectDialog`'s ids,
   *Name* (`label`) on top, then `host`, `user`, `port`, `directory`. `FAMILIES` and `_dress()` hold what differs:
   - `sftp` -- as below; histories `ssh_*`. `ftp` -- lists `ftp`/`ftps`; the `secure` box (*Encr~y~pt with TLS
@@ -353,6 +389,13 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     (`schemes_of`): *Name* and a `uri` line alone (`uri_of`/`Location.parse` both ways; status line moved up);
     `problem()` refuses a URI nothing reaches with the old *is no place GVfs/KIO reaches* strings; *New* cannot
     keep an empty place (no scheme, so in no list): from a chosen one it starts a one-off to type the URI into.
+    `docker`/`podman` -- *Cont~a~iner*, *Use~r~* (`exec -u`), no port. `adb` -- *Se~r~ial*, no user, the port a
+    networked serial's. These three are **live** (`Family.live`): below the kept rows a heading (*── Running ──*,
+    *── Connected ──*) and what is there now (`live_targets(family)`, read on a thread when the box mounts and on
+    Ctrl+R, `ReadLiveLinks`; a failure or nothing there goes on the status line). Rows past `len(entries)` are
+    reached only through `_live_at(row)`: choosing one fills the lines as a one-off (`_fill_live`, `chosen`
+    None), *New* keeps it, *Connect* or a double click goes there; the heading does nothing; Delete and `_settle`
+    never see them. An empty *Directory* opens on the drive's `home`.
   - The box's state is in `_values()` (so ticking it is a change) and decides the scheme written; histories are
     `{family}_name`... (`gvfs_uri` for the URI). `missing` is `sessions.available` of the family's first scheme.
   - Captions set from Python (*Sh~a~re/dir*, *End~p~oint*...) are not in `tools/i18n.py check`'s clash check,
@@ -380,20 +423,25 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     recent whole connections (`choices`), which the saved list on the left stands for here. `recent.remember`
     still runs after a connection that worked.
   - A `user@host:port` typed in Host wins over Login/Port. *Connect* (default) answers a `ConnectRequest`;
-    `missing` (no paramiko) blocks it only in `mode="panel"`. Remote shell's preselect sets the panel's directory
-    into the baseline, so it is no change. FTP/SMB/S3/GVfs, the Link box's F2 and *Saved links* keep `ConnectDialog`.
-- **Remote shell** (`Terminal`, Utilities > *Remote shell*, no key -- DN's `cmTerminal`, the modem terminal, which
-  stood before *Hang up*): `navigator/lib/drives/remote_shell.py`. `Shell.open_remote_shell` first brings forward a
-  still-running `TerminalWindow` whose `remote_site` is the active panel's server (DN's `OpenTerminal`,
-  `Term^.Select`); else it opens the manager in `mode="shell"`, `select=` the panel's SSH location (`target()`: inside
-  an archive opened there, the archive's directory) -- the matching profile chosen with the panel's directory in
-  *Directory*, or the lines filled from it. *Connect* runs `command()`, `ssh -t [-p PORT] [-l USER] -- HOST
-  'cd DIR 2>/dev/null; exec "${SHELL:-/bin/sh}" -l'` (no `cd` for the home directory, `.`), `shlex`-quoted twice,
-  through `run_in_window(closes=remote_shell.ended_well)` -- the window goes when the connection ends (Ctrl+D,
-  `exit`, any remote status) but stays for `ssh`'s own failure (255) or a signal, to show it -- and remembers it
-  in `recent`. Of the place only host/user/port are passed: `ssh` reads `~/.ssh/config`
+    `missing` (no paramiko) blocks it only in `mode="panel"`. **Nothing is taken from the panel** (asked for: a
+    box whose contents follow what the panel shows is implicit behaviour): it always opens on a one-off.
+    FTP/SMB/S3/GVfs, the Link box's F2 and *Saved links* keep `ConnectDialog` (which has *~C~ontainer*/*~U~ser*
+    and *~S~erial* for the new three).
+- **Remote shell** (Utilities > **Rem~o~te shell ▸**, `utilities_shell`: *SSH...* `Terminal` -- DN's `cmTerminal`,
+  the modem terminal, which stood before *Hang up* -- *Docker container...* `DockerShell`, *Podman container...*
+  `PodmanShell`, *Android device (adb)...* `AdbShell`; no keys): `navigator/lib/drives/remote_shell.py`.
+  `Shell.open_remote_shell(family)` opens that family's manager in `mode="shell"`, never prefilled from the
+  panel; *Connect* brings forward a still-running `TerminalWindow` whose `remote_site` is the site chosen (DN's
+  `OpenTerminal`, `Term^.Select`), else runs `command()` through `run_in_window(closes=remote_shell.closes(scheme),
+  title=remote_shell.title(site))` and remembers it in `recent`. SSH's is `ssh -t [-p PORT] [-l USER] -- HOST
+  'cd DIR 2>/dev/null; exec "${SHELL:-/bin/sh}" -l'` (no `cd` for the home directory, `.`), `shlex`-quoted twice;
+  a container's `ENGINE exec -it [-u USER] [-w DIR] NAME sh -c 'exec "${SHELL:-/bin/sh}" -l'`; a device's
+  `adb [-s SERIAL] shell -t ['cd DIR 2>/dev/null; exec sh']`. The window goes when the shell ends (Ctrl+D,
+  `exit`, any status of its own) but stays for the program's own failure (`ssh`'s and `adb`'s 255, the engines'
+  125-127) or a signal, to show it. Of an SSH place only host/user/port are passed: `ssh` reads `~/.ssh/config`
   as `credentials.host_config` does for paramiko; ssh asks any password in the window. Needs no panel and no
-  paramiko; greyed only with no `ssh` on `PATH`.
+  paramiko; each entry greyed only with its command missing (`remote_shell.program(scheme)`). While a command
+  window has the keys every command is refused (*A program in the console has the keys*).
 - **ssh options** (`command(location, options)`): after `-t` come `[remote] ssh_options` (Communications' *Remote
   shell's ssh options*, default **`-Y`**, trusted X11 forwarding, so a program there reaches this desktop's
   clipboard) and then the connection's own (`RemoteProfile.options`, the SSH manager's *ssh opt~i~ons* line,
@@ -411,6 +459,10 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   (`sessions.protocol_sign`, ``SFTP:host:/path``, as DN's said ``LINK:``). A new protocol adds its pair to
   `sessions.PROTOCOLS` and its own menu entry.
 
+- Containers and Android devices (`docker://`, `podman://`, `adb://`): DOS had neither. Their bytes go through
+  `cat` pipes rather than `docker cp`'s tar (`execdrive.py` says why). The Utilities links and shells are two
+  submenus, one entry a protocol, and a shell's place is chosen in its link manager, never taken from the panel
+  (both asked for).
 - Remote edit uploads back (DN's `TLinkDrive.UseFile` refused to edit across the cable).
 - *Auto refresh* is local only: no watch on a remote directory (`Drive.watch` answers a `Watch` that never calls).
 - Enter on a remote executable opens it as a file: nothing there can be run from here.
@@ -452,6 +504,12 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   (pyftpdlib's timers are per process: two servers in one trip over each other), with an MLSD and a LIST-only
   server (`[mlsd]`/`[list]`); `drop()` kills and restarts it on its port. `tests/test_smb.py` puts a stand-in
   `smbclient` over a local directory into `smb.CLIENT` -- no SMB server is written in Python.
+- `tests/test_container_drives.py` against `tests/fake_engine.py`, a stand-in `docker`/`podman`/`adb` (which by
+  `FAKE_ENGINE_NAME`, set by the fixture's wrapper scripts on `PATH`) that runs what it is given on this machine,
+  so the "container" is the test's `tmp_path`; `$FAKE_ENGINE_STATE`'s `containers.json`/`devices.json` say what
+  exists and runs (flip `running` to lose one). Parsers on captured GNU/busybox/toybox output; the drives through
+  the copier and eraser; the link managers' live part, New, Ctrl+R and the submenus in the app. A real `alpine`
+  container only with `NAVIGATOR_CONTAINER_TESTS=1` and a working engine.
 - `tests/test_sftp.py` (skipped without paramiko) against `tests/sftp_server.py`, paramiko's own server on
   `127.0.0.1:0` rooted in a temp directory, password `secret`. The `isolated` fixture points `HOME` at a temp
   directory, drops `SSH_AUTH_SOCK` and turns the keyring off, so nothing of the user's `~/.ssh` or keyring is read or

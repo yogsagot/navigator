@@ -77,6 +77,12 @@ def _is_archive_name(text: str) -> bool:
     return bool(name) and filetypes.group_of(name) == "archive"
 
 
+#: Navigator's own schemes whose "host" is a name, not DNS's: a container's
+#: (``docker://WebApp/``) or an Android device's serial (``adb://R58M123ABC/``),
+#: both case-sensitive.
+AS_WRITTEN = frozenset({"docker", "podman", "adb"})
+
+
 def _host(parts: SplitResult, scheme: str) -> str:
     """The host *parts* name: lower case, as DNS has it -- but as written
     for a GVfs or KIO scheme, whose "host" is a phone's or a camera's name
@@ -84,7 +90,7 @@ def _host(parts: SplitResult, scheme: str) -> str:
     from navigator.lib.system.gio import GVFS_SCHEMES
     from navigator.lib.system.kio import KIO_SCHEMES
 
-    if scheme not in GVFS_SCHEMES and scheme not in KIO_SCHEMES:
+    if scheme not in GVFS_SCHEMES and scheme not in KIO_SCHEMES and scheme not in AS_WRITTEN:
         return parts.hostname or ""
     host = parts.netloc.rpartition("@")[2]
     if host.startswith("["):

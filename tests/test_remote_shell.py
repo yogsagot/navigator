@@ -1,5 +1,6 @@
-"""Utilities > *Remote shell*: DN's ``cmTerminal`` as ``ssh -t`` to the server
-the active panel is browsing over SFTP, in a command window.
+"""Utilities > *Remote shell*: DN's ``cmTerminal`` as ``ssh -t`` to a server --
+or ``docker exec -it`` / ``adb shell`` -- chosen in that protocol's link
+manager, in a command window.  Nothing is taken from the panel.
 
 The end-to-end tests put a fake ``ssh`` first on ``PATH`` -- a script that
 prints its arguments and waits -- and run it on a real pty, as
@@ -19,7 +20,7 @@ from navkit.events import KeyEvent
 from navigator.__main__ import Navigator
 from navigator.lib.drives import remote_shell
 from navigator.lib.drives.location import Location, Site
-from navigator.widgets.shell.commands import Terminal
+from navigator.widgets.shell.commands import AdbShell, DockerShell, Terminal
 
 SITE = Site("sftp", "bob", "example.org", 2222)
 
@@ -51,17 +52,6 @@ def test_login_for_the_title():
     assert remote_shell.login(Site("sftp", "", "::1")) == "::1"
 
 
-def test_target_takes_only_ssh_servers_and_an_archive_s_directory():
-    there = Location(SITE, PurePosixPath("/srv"))
-    assert remote_shell.target(there) is there
-    assert remote_shell.target(Location.of("/tmp")) is None
-    assert remote_shell.target(Location(Site("ftp", "", "h"), PurePosixPath("/"))) is None
-    inside = Location(Site("arc"), PurePosixPath("/docs"), Location(SITE, PurePosixPath("/srv/x.zip")))
-    assert remote_shell.target(inside) == Location(SITE, PurePosixPath("/srv"))
-    local_archive = Location(Site("arc"), PurePosixPath("/"), Location.of("/tmp/x.zip"))
-    assert remote_shell.target(local_archive) is None
-
-
 def make(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
     monkeypatch.setattr("navigator.lib.system.tempdir.private_dir", lambda: tmp_path / "private")
@@ -70,7 +60,7 @@ def make(tmp_path, monkeypatch):
 
 
 def test_not_refused_on_a_local_panel_or_with_no_manager(tmp_path, monkeypatch):
-    monkeypatch.setattr(remote_shell, "program", lambda: "/usr/bin/ssh")
+    monkeypatch.setattr(remote_shell, "program", lambda scheme="sftp": "/usr/bin/ssh")
     app = make(tmp_path, monkeypatch)
     seen = {}
     run_app(app, [lambda a: seen.update(why=a.shell.refusal(Terminal()))])
@@ -79,10 +69,13 @@ def test_not_refused_on_a_local_panel_or_with_no_manager(tmp_path, monkeypatch):
 
 def test_refused_without_ssh(tmp_path, monkeypatch):
     app = make(tmp_path, monkeypatch)
-    monkeypatch.setattr(remote_shell, "program", lambda: None)
+    monkeypatch.setattr(remote_shell, "program", lambda scheme="sftp": None)
     seen = {}
-    run_app(app, [lambda a: seen.update(why=a.shell.refusal(Terminal()))])
+    run_app(app, [lambda a: seen.update(why=a.shell.refusal(Terminal()), docker=a.shell.refusal(DockerShell()),
+                                        adb=a.shell.refusal(AdbShell()))])
     assert seen["why"] == "The ssh command is not installed"
+    assert seen["docker"] == "The docker command is not installed"
+    assert seen["adb"] == "The adb command is not installed"
 
 
 def windows(app):
@@ -109,14 +102,25 @@ def fake_ssh(tmp_path, monkeypatch):
     return script
 
 
-def test_opens_ssh_in_a_window_and_brings_it_back_while_it_runs(tmp_path, monkeypatch, fake_ssh):
+def test_opens_ssh_in_a_window_and_finds_it_while_it_runs(tmp_path, monkeypatch, fake_ssh):
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
+
     app = make(tmp_path, monkeypatch)
-    monkeypatch.setattr("navigator.widgets.shell.shell.Shell.remote_shell_location",
-                        lambda self: Location(SITE, PurePosixPath("/srv/a b")))
     seen = {}
 
     def command(a):
         a.spawn(a.run_command(Terminal))
+
+    def manager(a):
+        return isinstance(a.modal, LinkManagerDialog)
+
+    def fill(a):
+        seen.setdefault("title_box", a.modal.title)
+        seen.setdefault("empty", a.modal.host.value == "")
+        a.modal.host.value = "example.org"
+        a.modal.user.value = "bob"
+        a.modal.port.value = "2222"
+        a.modal.directory.value = "/srv/a b"
 
     def showing(a):
         found = windows(a)
@@ -124,33 +128,23 @@ def test_opens_ssh_in_a_window_and_brings_it_back_while_it_runs(tmp_path, monkey
 
     def look(a):
         window = windows(a)[0]
-        seen.update(text=text(window), title=window.title, site=window.remote_site, busy=window.view.busy)
-
-    def manager(a):
-        from navigator.widgets.drives.link_manager import LinkManagerDialog
-
-        return isinstance(a.modal, LinkManagerDialog)
-
-    def lines(a):
-        seen.update(title_box=a.modal.title, host=a.modal.host.value, directory=a.modal.directory.value)
+        seen.update(text=text(window), title=window.title, site=window.remote_site, busy=window.view.busy,
+                    window=window)
 
     def again(a):
-        seen["window"] = windows(a)[0]
-        command(a)
+        # Chosen again while it runs (``open_remote_shell`` past its box): no second window.
+        seen["again"] = a.shell._running_remote_shell(SITE)
 
-    run_app(app, [command, Until(manager), lines, KeyEvent("enter"), Until(showing), look, again,
-                  lambda a: seen.update(count=len(windows(a)), top=a.shell.desktop.active_window is seen["window"],
-                                        box=a.modal is not None)])
-    # The box opens on the panel's server, and its Connect is Enter.
-    assert seen["title_box"] == "Remote shell" and seen["host"] == "example.org"
-    assert seen["directory"] == "/srv/a b"
-    # Asked again while it runs: the window comes forward, no box.
-    assert not seen["box"]
+    run_app(app, [command, Until(manager), fill, KeyEvent("enter"), Until(showing), look, again,
+                  lambda a: seen.update(count=len(windows(a)), top=a.shell.desktop.active_window is seen["window"])])
+    # The box opens empty, whatever the panel shows; its Connect is Enter.
+    assert seen["title_box"] == "Remote shell" and seen["empty"]
     assert "<-t>" in seen["text"] and "<-p>" in seen["text"] and "<bob>" in seen["text"]
     assert "<cd '/srv/a b' 2>/dev/null; exec \"${SHELL:-/bin/sh}\" -l>" in seen["text"].replace("\n", "")
     assert seen["title"] == "ssh bob@example.org:2222"
     assert seen["site"] == SITE and seen["busy"]
-    assert seen["count"] == 1 and seen["top"]
+    # The same server chosen again while it runs: that window comes forward.
+    assert seen["again"] is seen["window"] and seen["count"] == 1 and seen["top"]
 
 
 def test_with_no_ssh_panel_the_box_s_lines_say_where(tmp_path, monkeypatch, fake_ssh):
@@ -185,6 +179,63 @@ def test_ended_well_is_every_ssh_exit_but_its_own_failure():
     assert remote_shell.ended_well(1 << 8)  # the remote shell's last command failed
     assert not remote_shell.ended_well(255 << 8)  # ssh itself: refused, unreachable, not let in
     assert not remote_shell.ended_well(9)  # killed by a signal
+    # docker exec's own failures: the daemon's (125), nothing to run (126, 127).
+    assert remote_shell.ended_well(255 << 8, "docker") and not remote_shell.ended_well(125 << 8, "docker")
+    assert not remote_shell.ended_well(255 << 8, "adb")
+
+
+def test_a_container_s_shell_is_docker_exec_in_its_directory():
+    argv = words(remote_shell.command(Location(Site("docker", "www", "Web"), PurePosixPath("/srv/a b"))))
+    assert argv == ["docker", "exec", "-it", "-u", "www", "-w", "/srv/a b", "Web", "sh", "-c",
+                    'exec "${SHELL:-/bin/sh}" -l']
+    argv = words(remote_shell.command(Location(Site("podman", "", "box"), PurePosixPath("."))))
+    assert argv[:4] == ["podman", "exec", "-it", "box"]
+    assert remote_shell.title(Site("docker", "www", "Web")) == "docker exec -u www Web"
+
+
+def test_a_device_s_shell_is_adb_shell():
+    argv = words(remote_shell.command(Location(Site("adb", "", "192.168.1.5", 5555), PurePosixPath("/sdcard/a b"))))
+    assert argv[:5] == ["adb", "-s", "192.168.1.5:5555", "shell", "-t"]
+    assert shlex.split(argv[5]) == ["cd", "/sdcard/a b", "2>/dev/null;", "exec", "sh"]
+    assert words(remote_shell.command(Location(Site("adb", "", "R5"), PurePosixPath(".")))) == [
+        "adb", "-s", "R5", "shell", "-t"]
+    assert remote_shell.title(Site("adb", "", "R5")) == "adb shell R5"
+
+
+def test_docker_s_shell_opens_from_its_own_manager(tmp_path, monkeypatch):
+    """Utilities > Remote shell > Docker container: Docker's manager in its
+    shell mode, and Connect runs ``docker exec -it`` in a window."""
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
+
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir()
+    script = bin_dir / "docker"
+    script.write_text('#!/bin/sh\nif [ "$1" = ps ]; then echo \'{"Names":"web","Image":"nginx"}\'; exit 0; fi\n'
+                      'for a in "$@"; do printf "<%s>\\n" "$a"; done\nexec sleep 30\n')
+    script.chmod(0o755)
+    monkeypatch.setenv("PATH", f"{bin_dir}:{__import__('os').environ['PATH']}")
+    app = make(tmp_path, monkeypatch)
+    seen = {}
+
+    def manager(a):
+        return isinstance(a.modal, LinkManagerDialog) and bool(a.modal.live)
+
+    def choose(a):
+        seen.update(title=a.modal.title, rows=list(a.modal.links.items))
+        a.modal.links.focus()
+        a.modal.links.cursor = 1
+
+    def showing(a):
+        found = windows(a)
+        return bool(found) and "<web>" in text(found[0])
+
+    run_app(app, [lambda a: a.spawn(a.run_command(DockerShell)), Until(manager), choose, KeyEvent("enter"),
+                  Until(showing), lambda a: seen.update(text=text(windows(a)[0]).replace("\n", ""),
+                                                        window=windows(a)[0].title)])
+    assert seen["title"] == "Remote shell: Docker container"
+    assert seen["rows"] == ["── Running ──", "web  nginx"]
+    assert "<exec><-it><web><sh><-c>" in seen["text"]
+    assert seen["window"] == "docker exec web"
 
 
 @pytest.mark.parametrize("code, closed", [(0, True), (1, True), (255, False)])

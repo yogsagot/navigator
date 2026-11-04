@@ -50,6 +50,9 @@ def titles(scheme: str) -> tuple[str, str]:
         "ftp": (tr("FTP link"), tr("Edit FTP link")),
         "smb": (tr("SMB link (Windows share)"), tr("Edit SMB link (Windows share)")),
         "s3": (tr("S3 link (Amazon S3)"), tr("Edit S3 link (Amazon S3)")),
+        "docker": (tr("Docker container"), tr("Edit Docker container link")),
+        "podman": (tr("Podman container"), tr("Edit Podman container link")),
+        "adb": (tr("Android device (adb)"), tr("Edit Android device link (adb)")),
     }.get(family) or _desktop_titles(scheme)
 
 
@@ -105,6 +108,15 @@ class ConnectDialog(Dialog):
             self.secure.value = 0 if scheme == "s3+http" else 1
             if request is None:
                 self.host.value = AWS_HOST
+        if scheme in ("docker", "podman"):
+            # A container's name and ``exec -u``'s user; no port.
+            self.host.label_text = tr("~C~ontainer")
+            self.user.label_text = tr("~U~ser")
+            self.port.visible = False
+        if scheme == "adb":
+            # The device's serial; a networked one's port.  No user.
+            self.host.label_text = tr("~S~erial")
+            self.user.visible = False
         self._recent = list(recent)
         self.host.choices = [link.text() for link in self._recent]
         # The list's choice fills the one line it drops from; a connection is

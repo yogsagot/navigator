@@ -137,7 +137,9 @@ class LinksDialog(Dialog):
         # The protocols, as the *Link* list's *New* items name them.
         schemes = {id(menu.add_item(caption)): scheme for caption, scheme in (
             (tr("~N~ew SSH link (SFTP)..."), "sftp"), (tr("New ~F~TP link..."), "ftp"),
-            (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3"))}
+            (tr("New S~M~B link (Windows share)..."), "smb"), (tr("New S~3~ link (Amazon S3)..."), "s3"),
+            (tr("New ~D~ocker container link..."), "docker"), (tr("New ~P~odman container link..."), "podman"),
+            (tr("New ~A~ndroid device link (adb)..."), "adb"))}
         # Whatever the desktop's GVfs or KIO reaches: its URI first, then the box to name it.
         desktop_item = menu.add_item(tr("New ~G~Vfs/KIO link (MTP, WebDAV...)..."))
         if desktop.program() is None:

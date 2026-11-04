@@ -42,6 +42,9 @@ SCHEMES: dict[str, str] = {
     "smb": "navigator.lib.drives.smb",
     "s3": "navigator.lib.drives.s3",
     "s3+http": "navigator.lib.drives.s3",
+    "docker": "navigator.lib.drives.docker",
+    "podman": "navigator.lib.drives.podman",
+    "adb": "navigator.lib.drives.adb",
 }
 
 #: The module of every scheme GVfs reaches (:data:`navigator.lib.system.gio.GVFS_SCHEMES`):
@@ -56,6 +59,10 @@ KIO = "navigator.lib.drives.kio"
 EXTRA_HINT: dict[str, str] = {
     "sftp": "navigator-fm[sftp]",
     "smb": "navigator-fm[smb]",
+    # Not extras but programs: the menu names the command to install.
+    "docker": "docker",
+    "podman": "podman",
+    "adb": "adb",
 }
 
 #: What each scheme is called wherever a connection is named -- the menu, the
@@ -70,6 +77,10 @@ PROTOCOLS: dict[str, tuple[str, str]] = {
     "smb": ("SMB", "SMB (Windows share)"),
     "s3": ("S3", "S3 (Amazon S3 and compatible)"),
     "s3+http": ("S3", "S3 over plain HTTP"),
+    # Commands run in a container or on a device (navigator.lib.drives.execdrive).
+    "docker": ("DOCKER", "Docker container"),
+    "podman": ("PODMAN", "Podman container"),
+    "adb": ("ADB", "Android device (adb)"),
     # GVfs's (navigator.lib.drives.gvfs).
     "mtp": ("MTP", "MTP (phone or player)"),
     "gphoto2": ("PTP", "PTP (camera)"),

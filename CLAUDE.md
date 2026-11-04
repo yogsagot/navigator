@@ -34,7 +34,9 @@ layered in three parts, each depending only on the one below:
 names has to be importable by its own name.
 
 Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS, SMB or S3
-(Utilities > SSH link (SFTP), Alt+F11; FTP link; SMB link; S3 link), anywhere the desktop's GVfs or KDE's KIO reaches (GVfs/KIO link:
+(Utilities > Link > SSH (SFTP), Alt+F11; FTP; SMB; S3), inside a running Docker or Podman container or on an Android device over adb
+(`docker://`, `podman://`, `adb://`; Utilities > Link > Docker container, Podman container, Android device -- every step a `docker
+exec`/`adb shell` process, `navigator/lib/drives/execdrive.py`; Utilities > Remote shell > ... opens a shell there), anywhere the desktop's GVfs or KDE's KIO reaches (GVfs/KIO link:
 `mtp://`, `dav://`, `webdav://`, `google-drive://`..., through the `gio` command or KDE's `kioclient`/kio-fuse, one of them
 by `[system] desktop_vfs` through `navigator/lib/system/desktop.py` -- `navigator-gio` and `navigator-kio` skills, which also
 have Volumes' Mount/Eject, udisks2's `udisksctl` doing it where neither can, and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
@@ -52,6 +54,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - FFmpeg's `ffprobe`, when installed, gives Ctrl+L's *Current file* an audio or video file's duration, streams and
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out
+- The `docker`, `podman` and `adb` commands, when installed, are the container and device drives' (`navigator-drives`);
+  a missing one greys its Utilities > Link and Remote shell entries with the command to install
 - GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encryption's programs
   (`navigator/lib/file_ops/encrypt.py`); a missing one is greyed with the package to install (`navigator-file-ops`)
 - Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),

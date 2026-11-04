@@ -17,6 +17,13 @@ What differs between protocols is :data:`FAMILIES`' and :meth:`LinkManagerDialog
 the schemes listed, the captions, the TLS box (FTP's ``ftps``, S3's
 ``s3``/``s3+http``), S3's endpoint to start from, the share or bucket as the
 first name of SMB's and S3's directory, and GVfs/KIO's single URI line.
+
+A *live* family -- Docker's, Podman's, Android's -- lists below its kept
+connections what is there now: the containers running, the devices
+attached (``docker ps``, ``adb devices -l``), read on a thread when the box
+opens and again on Ctrl+R.  Choosing one of those fills the lines as a
+one-off, which *New* keeps and *Connect* goes to; nothing else touches them
+(:meth:`LinkManagerDialog._live_at`).
 """
 
 from __future__ import annotations
@@ -37,7 +44,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navigator.lib.drives import profiles
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.profiles import Entry
-from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, SaveLinkEntry
+from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, ReadLiveLinks, SaveLinkEntry
 from navigator.widgets.drives.connect_dialog.connect_dialog import ConnectRequest, split_host, titles
 
 
@@ -56,6 +63,8 @@ class Family:
     rooted: bool = False
     #: What its lines' histories are called: ``{prefix}_name``, ``{prefix}_host``...
     history: str = ""
+    #: What is there now is listed under the kept connections (:func:`live_targets`).
+    live: bool = False
 
 
 #: Every family, by its key.
@@ -65,7 +74,35 @@ FAMILIES: dict[str, Family] = {
     "smb": Family("smb", ("smb",), rooted=True, history="smb"),
     "s3": Family("s3", ("s3", "s3+http"), secure=("s3", "s3+http"), rooted=True, history="s3"),
     "gvfs": Family("gvfs", history="gvfs"),
+    "docker": Family("docker", ("docker",), history="docker", live=True),
+    "podman": Family("podman", ("podman",), history="podman", live=True),
+    "adb": Family("adb", ("adb",), history="adb", live=True),
 }
+
+
+def live_targets(family: str) -> list[tuple[str, Entry]]:
+    """What *family* can connect to now -- the containers running, the
+    devices attached -- each as its row's caption and the lines it fills.
+    On a thread: it asks the engine.  Raises ``OSError`` with its words."""
+    if family in ("docker", "podman"):
+        from navigator.lib.drives import docker
+
+        found = docker.list_containers(family)
+        width = max((len(each.name) for each in found), default=0)
+        return [(f"{each.name.ljust(width)}  {each.image}".rstrip(), Entry(each.name, family, each.name))
+                for each in found]
+    if family == "adb":
+        from navigator.lib.drives import adb
+
+        rows = []
+        for device in adb.list_devices():
+            site = device.site()
+            caption = f"{device.model} {device.serial}".strip()
+            if device.state != "device":
+                caption += f" ({device.state})"
+            rows.append((caption, Entry(device.model or device.serial, "adb", site.host, "", site.port)))
+        return rows
+    return []
 
 
 def family_of(scheme: str) -> str:
@@ -123,15 +160,13 @@ class LinkManagerDialog(Dialog):
     and *Remote shell*: one protocol's connection manager."""
 
     def __init__(self, entries: list[Entry] | None = None, *, family: str = "sftp", mode: str = "panel",
-                 select: Location | None = None, missing: str | None = None,
-                 **kwargs: Any) -> None:
+                 missing: str | None = None, **kwargs: Any) -> None:
         """*entries* are *family*'s kept connections (:func:`entries_for`).
         *mode* is what *Connect* is for: ``"panel"`` sends the panel there,
-        ``"shell"`` (SSH's alone) opens ``ssh`` -- which needs no paramiko,
-        so *missing* (why the protocol cannot be used) stops *Connect* only in
-        ``"panel"``.  *select* is where the active panel is: the kept
-        connection to that server chosen, or the one-off lines filled from it
-        when none is."""
+        ``"shell"`` opens a shell there (``ssh``, which needs no paramiko,
+        ``docker exec``, ``adb shell``) -- so *missing* (why the protocol
+        cannot be used) stops *Connect* only in ``"panel"``.  The box opens
+        on a one-off: nothing is taken from where the panel is."""
         super().__init__(**kwargs)
         self.row.visible = False
         self.message.visible = False
@@ -141,7 +176,12 @@ class LinkManagerDialog(Dialog):
         self.mode = mode
         self._dress()
         if mode == "shell":
-            self.title = tr("Remote shell")
+            if family == "sftp":
+                self.title = tr("Remote shell")
+            else:
+                from navigator.lib.drives.sessions import protocol_name
+
+                self.title = tr("Remote shell: {protocol}").format(protocol=protocol_name(family))
         self.entries: list[Entry] = [replace(entry) for entry in entries or ()]
         #: The kept connection the lines are, or None: they are a one-off.
         self.chosen: int | None = None
@@ -153,22 +193,11 @@ class LinkManagerDialog(Dialog):
         self._note = ""
         self._noted: tuple[str, ...] = ()
         self._missing = missing if mode == "panel" else None
+        #: What is there now (a live family's), and why it could not be read.
+        self.live: list[tuple[str, Entry]] = []
+        self._live_error = ""
         self._list_rows()
-        index = self._index_of(select.site) if select is not None else None
-        here = "" if select is None or select.path == profiles.HOME else str(select.path)
-        if index is not None:
-            self.links.cursor = index
-            self._fill(index)
-            # Where the panel is, rather than where the connection opens: the
-            # shell starts beside the files being looked at -- and that is not
-            # a change to the connection, so nothing asks to save it.
-            self.directory.value = here
-            self._baseline = self._values()
-        elif select is not None:
-            site = select.site
-            self._fill_lines(Entry("", site.scheme, site.host, site.user, site.port, here))
-        else:
-            self._fill_lines(self._blank())
+        self._fill_lines(self._blank())
         #: The cursor the lines last followed: the effect acts only when the
         #: user moves it, not when it first runs or a re-read puts it back.
         self._followed = self.links.cursor
@@ -180,6 +209,8 @@ class LinkManagerDialog(Dialog):
         super().mounted()
         effect(self, LinkManagerDialog._follow_cursor)
         effect(self, LinkManagerDialog._follow_lines)
+        if self.family.live:
+            self.spawn(self.read_live())
         # The list shows its cursor only while it has the keyboard, so with
         # nothing chosen the keyboard starts on the top line, Name: no row
         # looks chosen while the lines are a one-off.  A chosen one starts on
@@ -208,6 +239,16 @@ class LinkManagerDialog(Dialog):
         if self.family.secure is not None:
             self.secure.visible = True
             self.secure.items = [tr("Encr~y~pt with TLS (HTTPS)") if key == "s3" else tr("Encr~y~pt with TLS (FTPS)")]
+        if key in ("docker", "podman"):
+            # Letters free in the box: ~C~onnect has C, ~D~irectory D.
+            self.host.label_text = tr("Cont~a~iner")
+            self.user.label_text = tr("Use~r~")
+            self.port.visible = False
+        if key == "adb":
+            self.host.label_text = tr("Se~r~ial")
+            self.user.visible = False
+        if self.family.live:
+            self.directory.entry.tooltip = tr("Empty: the container's working directory, or a device's /sdcard")
         if key == "gvfs":
             for line in (self.host, self.user, self.port, self.directory):
                 line.visible = False
@@ -269,8 +310,8 @@ class LinkManagerDialog(Dialog):
         changed = self.changed
         self.save.disabled = not changed
         self.delete.disabled = self.chosen is None
-        items = [escape_caption(entry.name) for entry in self.entries]
-        if changed and self.chosen is not None and self.chosen < len(items):
+        items = self._rows()
+        if changed and self.chosen is not None and self.chosen < len(self.entries):
             items[self.chosen] += " *"
         if items != peek(self.links, ListViewer.items):
             self.links.items = items
@@ -278,6 +319,8 @@ class LinkManagerDialog(Dialog):
             text = self._missing
         elif self._note:
             text = self._note
+        elif self._live_error:
+            text = self._live_error
         elif changed:
             text = tr("Changed — Save keeps it")
         elif self.chosen is None:
@@ -292,18 +335,44 @@ class LinkManagerDialog(Dialog):
 
     # -- the list and the lines -------------------------------------------------------
 
-    def _list_rows(self) -> None:
-        self.links.items = [escape_caption(entry.name) for entry in self.entries]
-        self.links.cursor = max(0, min(self.links.cursor, len(self.entries) - 1))
+    def _rows(self) -> list[str]:
+        """The list's rows: the kept connections, then -- a live family's --
+        a heading and what is there now."""
+        rows = [escape_caption(entry.name) for entry in self.entries]
+        if self.family.live and self.live:
+            heading = tr("Connected") if self.family.key == "adb" else tr("Running")
+            rows.append(f"── {heading} ──")
+            rows.extend(escape_caption(caption) for caption, _ in self.live)
+        return rows
 
-    def _index_of(self, site: Site) -> int | None:
-        """The first kept connection to *site*: the same host, and the same
-        user and port where *site* names them."""
-        for index, entry in enumerate(self.entries):
-            if (entry.host == site.host and (not site.user or entry.user == site.user)
-                    and (not site.port or entry.port == site.port)):
-                return index
-        return None
+    def _live_at(self, index: int) -> Entry | None:
+        """The live target on row *index*, or None (a kept one, the heading)."""
+        at = index - len(self.entries) - 1
+        return self.live[at][1] if self.live and 0 <= at < len(self.live) else None
+
+    def _list_rows(self) -> None:
+        rows = self._rows()
+        self.links.items = rows
+        self.links.cursor = max(0, min(self.links.cursor, len(rows) - 1))
+
+    async def on_read_live_links(self, event: ReadLiveLinks) -> bool:
+        if self.family.live:
+            self.spawn(self.read_live())
+        return True
+
+    async def read_live(self) -> None:
+        """What is there now, read on a thread into the list's live part."""
+        try:
+            live = await asyncio.to_thread(live_targets, self.family.key)
+            error = ""
+        except OSError as failure:
+            live, error = [], str(failure.strerror or failure)
+        self.live, self._live_error = live, error
+        if not live and not error:
+            self._live_error = (tr("No device is attached (is USB debugging on?)") if self.family.key == "adb"
+                                else tr("No container is running"))
+        self._list_rows()
+        self._show_state()
 
     def _follow_cursor(self) -> None:
         """The cursor moved onto a row: that connection chosen (an effect)."""
@@ -314,7 +383,18 @@ class LinkManagerDialog(Dialog):
 
     def _choose(self, index: int) -> None:
         """Row *index* chosen -- by the cursor, a click or Space.  Leaving a
-        changed connection asks first; the cursor stays on it meanwhile."""
+        changed connection asks first; the cursor stays on it meanwhile.
+        A live row fills the lines as a one-off; the heading does nothing."""
+        if index >= len(self.entries) and self.family.live:
+            if self._live_at(index) is None:
+                self._followed = index
+                return
+            if not self.changed:
+                self._fill_live(index)
+                return
+            self._put_cursor(self.chosen)
+            self.spawn(self._choose_asking(index))
+            return
         if not 0 <= index < len(self.entries) or index == self.chosen and self.changed:
             self._put_cursor(self.chosen if self.chosen is not None else index)
             return
@@ -328,12 +408,28 @@ class LinkManagerDialog(Dialog):
         """A row double-clicked: *Connect* to it -- once its first click has
         made it the chosen one.  While leaving a changed connection is still
         being asked about, it is not, and the double click does nothing more."""
-        if index == self.chosen:
+        if index == self.chosen or self.chosen is None and self._live_at(index) is not None:
             self.spawn(self.connect_to())
 
     async def _choose_asking(self, index: int) -> None:
-        if await self._settle() and 0 <= index < len(self.entries):
+        if not await self._settle():
+            return
+        if 0 <= index < len(self.entries):
             self._fill(index)
+        elif self._live_at(index) is not None:
+            self._fill_live(index)
+
+    def _fill_live(self, index: int) -> None:
+        """Live row *index*'s lines, a one-off: *New* keeps it."""
+        entry = self._live_at(index)
+        if entry is None:
+            return
+        self.chosen = None
+        self._put_cursor(index)
+        self._fill_lines(entry)
+        self._baseline = ()
+        self._note = ""
+        self._show_state()
 
     def _put_cursor(self, index: int | None) -> None:
         if index is not None:
@@ -405,7 +501,13 @@ class LinkManagerDialog(Dialog):
         """Why the lines cannot be connected to or kept: no host, or a URI
         nothing reaches -- else ``""``."""
         if self.family.key != "gvfs":
-            return "" if self._entry().host else tr("Type a host to connect to")
+            if self._entry().host:
+                return ""
+            if self.family.key == "adb":
+                return tr("Type a device's serial, or choose one below")
+            if self.family.live:
+                return tr("Type a container's name, or choose one below")
+            return tr("Type a host to connect to")
         text = self.uri.value.strip()
         if not text:
             return tr("Type a URI to connect to")
@@ -431,8 +533,9 @@ class LinkManagerDialog(Dialog):
         self.entries = await asyncio.to_thread(entries_for, self.family.key)
         index = next((i for i, entry in enumerate(self.entries) if entry.name == name), None)
         self.chosen = index
-        self.links.items = [escape_caption(entry.name) for entry in self.entries]
-        self._put_cursor(index if index is not None else max(0, min(self.links.cursor, len(self.entries) - 1)))
+        rows = self._rows()
+        self.links.items = rows
+        self._put_cursor(index if index is not None else max(0, min(self.links.cursor, len(rows) - 1)))
 
     async def _settle(self) -> bool:
         """Leaving the chosen connection: if it is changed, *Save changes?* --
@@ -600,5 +703,6 @@ def location_of(request: ConnectRequest) -> Location:
                     PurePosixPath(request.path) if request.path else profiles.HOME)
 
 
-__all__ = ["FAMILIES", "Family", "LinkManagerDialog", "entries_for", "family_of", "location_of", "schemes_of",
+__all__ = ["FAMILIES", "Family", "LinkManagerDialog", "entries_for", "family_of", "live_targets", "location_of",
+           "schemes_of",
            "sftp_entries"]

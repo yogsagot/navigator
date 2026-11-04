@@ -486,6 +486,12 @@ __all__ = [
     "EditLinks",
     "S3Link",
     "GvfsLink",
+    "DockerLink",
+    "PodmanLink",
+    "AdbLink",
+    "DockerShell",
+    "PodmanShell",
+    "AdbShell",
     "SaversSetup",
     "CountrySetup",
     "ToggleTrashCan",
@@ -689,15 +695,64 @@ class NavyLink(Command):
 
 
 class Terminal(Command):
-    """Utilities > *Remote shell*: where DOS Navigator had ``cmTerminal``, the
-    modem's terminal window (``DNUTIL.PAS`` ``OpenTerminal``) -- here a login
-    shell on the server the active panel is browsing over SFTP, ``ssh -t``
-    in a command window (``TerminalWindow``), in the panel's directory.  One
-    still running for that server is brought forward instead, as DN's
+    """Utilities > *Remote shell* > *SSH*: where DOS Navigator had
+    ``cmTerminal``, the modem's terminal window (``DNUTIL.PAS``
+    ``OpenTerminal``) -- here a login shell on a server chosen in SSH's link
+    manager, ``ssh -t`` in a command window (``TerminalWindow``).  One still
+    running for that server is brought forward instead, as DN's
     ``Term^.Select`` brought back its one terminal.  A departure in what is at
     the other end: a server's shell, not a modem."""
 
     title = "Term"
+    scheme = "sftp"
+
+
+class DockerShell(Command):
+    """Utilities > *Remote shell* > *Docker container*: a shell in a container
+    chosen in Docker's link manager, ``docker exec -it``.  Not DN's."""
+
+    title = "Docker shell"
+    scheme = "docker"
+
+
+class PodmanShell(Command):
+    """Utilities > *Remote shell* > *Podman container*: ``podman exec -it``."""
+
+    title = "Podman shell"
+    scheme = "podman"
+
+
+class AdbShell(Command):
+    """Utilities > *Remote shell* > *Android device*: ``adb shell`` on a
+    device chosen in Android's link manager."""
+
+    title = "adb shell"
+    scheme = "adb"
+
+
+class DockerLink(Command):
+    """Utilities > *Link* > *Docker container*: a running container's files,
+    through ``docker exec`` (:mod:`navigator.lib.drives.docker`), and the
+    active panel sent there.  Not DN's."""
+
+    title = "Docker"
+    scheme = "docker"
+
+
+class PodmanLink(Command):
+    """Utilities > *Link* > *Podman container*: the same through ``podman exec``."""
+
+    title = "Podman"
+    scheme = "podman"
+
+
+class AdbLink(Command):
+    """Utilities > *Link* > *Android device (adb)*: a device's files through
+    ``adb shell`` (:mod:`navigator.lib.drives.adb`), and the active panel
+    sent there."""
+
+    title = "Android"
+    scheme = "adb"
 
 
 class HangUp(Command):

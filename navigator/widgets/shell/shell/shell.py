@@ -39,6 +39,12 @@ from navigator.widgets.shell.commands import (
     Game,
     S3Link,
     GvfsLink,
+    DockerLink,
+    PodmanLink,
+    AdbLink,
+    DockerShell,
+    PodmanShell,
+    AdbShell,
     FtpLink,
     HangUp,
     Terminal,
@@ -1177,10 +1183,13 @@ class Shell(DockLayout):
             if any(sessions.is_connection(drive.site.scheme) for drive in mounted()):
                 return ""
             return tr("No connection is open")
-        if isinstance(command, Terminal):
+        if isinstance(command, (Terminal, DockerShell, PodmanShell, AdbShell)):
             from navigator.lib.drives import remote_shell
 
-            return "" if remote_shell.program() is not None else tr("The ssh command is not installed")
+            if remote_shell.program(command.scheme) is not None:
+                return ""
+            return tr("The {command} command is not installed").format(
+                command=remote_shell.PROGRAMS[command.scheme])
         if isinstance(command, CloseRootAccess):
             return "" if self.root_mark.open else tr("No root access is open")
         if isinstance(command, ShowBackground):
@@ -1189,6 +1198,12 @@ class Shell(DockLayout):
             return "" if BACKGROUND.jobs else tr("Nothing is running in the background")
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return "" if self.active_manager is not None else no_manager
+        if isinstance(command, (DockerLink, PodmanLink, AdbLink)):
+            from navigator.lib.drives import sessions
+
+            if self.active_manager is None:
+                return no_manager
+            return sessions.available(command.scheme) or ""
         if isinstance(command, GvfsLink):
             from navigator.lib.system import desktop
 
@@ -2535,6 +2550,15 @@ class Shell(DockLayout):
     async def on_gvfs_link(self, event: GvfsLink) -> bool:
         return self._link_command("gvfs")
 
+    async def on_docker_link(self, event: DockerLink) -> bool:
+        return self._link_command("docker")
+
+    async def on_podman_link(self, event: PodmanLink) -> bool:
+        return self._link_command("podman")
+
+    async def on_adb_link(self, event: AdbLink) -> bool:
+        return self._link_command("adb")
+
     def _link_command(self, scheme: str) -> bool:
         manager = self.active_manager
         if manager is not None:
@@ -2807,16 +2831,20 @@ class Shell(DockLayout):
                 await self.go_remote(panel, profiles.location_of(row))
 
     async def on_terminal(self, event: Terminal) -> bool:
-        self.spawn(self.open_remote_shell())
+        self.spawn(self.open_remote_shell("sftp"))
         return True
 
-    def remote_shell_location(self) -> Location | None:
-        """The directory on an SSH server the active panel is in -- the
-        archive's, inside one opened there -- or None."""
-        from navigator.lib.drives import remote_shell
+    async def on_docker_shell(self, event: DockerShell) -> bool:
+        self.spawn(self.open_remote_shell("docker"))
+        return True
 
-        manager = self.active_manager
-        return None if manager is None else remote_shell.target(manager.active_panel.location)
+    async def on_podman_shell(self, event: PodmanShell) -> bool:
+        self.spawn(self.open_remote_shell("podman"))
+        return True
+
+    async def on_adb_shell(self, event: AdbShell) -> bool:
+        self.spawn(self.open_remote_shell("adb"))
+        return True
 
     def _running_remote_shell(self, site: Site) -> Any:
         """The command window still logged in to *site* by Remote shell, brought
@@ -2831,34 +2859,31 @@ class Shell(DockLayout):
                 return window
         return None
 
-    async def open_remote_shell(self) -> Any:
-        """Utilities > *Remote shell*: ``cmTerminal``'s ``OpenTerminal``.  The
-        window still running for the active panel's server brought forward;
-        else the SSH connection manager (``LinkManagerDialog``), on that server
-        if the panel is on one, and *Connect* runs ``ssh -t`` there in a
-        command window (:mod:`navigator.lib.drives.remote_shell`).  Returns
-        the window, or None when cancelled."""
+    async def open_remote_shell(self, family: str = "sftp") -> Any:
+        """Utilities > *Remote shell* > *SSH*, *Docker container*, *Podman
+        container*, *Android device*: ``cmTerminal``'s ``OpenTerminal``.
+        *family*'s link manager (``LinkManagerDialog``) in its shell mode, and
+        *Connect* runs ``ssh -t``, ``docker exec -it`` or ``adb shell`` there
+        in a command window (:mod:`navigator.lib.drives.remote_shell`) -- or
+        brings forward the one still running for that place.  Nothing is
+        taken from the panel: where is chosen in the box.  Returns the
+        window, or None when cancelled."""
         from navigator.lib.drives import recent, remote_shell
-        from navigator.widgets.drives.link_manager import LinkManagerDialog, location_of, sftp_entries
+        from navigator.widgets.drives.link_manager import LinkManagerDialog, entries_for, location_of
 
-        here = self.remote_shell_location()
-        if here is not None:
-            window = self._running_remote_shell(here.site)
-            if window is not None:
-                return window
-        entries = await asyncio.to_thread(sftp_entries)
-        request = await LinkManagerDialog(entries, family="sftp", mode="shell", select=here).execute(self.application)
+        entries = await asyncio.to_thread(entries_for, family)
+        request = await LinkManagerDialog(entries, family=family, mode="shell").execute(self.application)
         if request is None:
             return None
         location = location_of(request)
         window = self._running_remote_shell(location.site)
         if window is None:
-            # Gone when the connection ends -- Ctrl+D, ``exit`` -- however the
-            # remote shell's last command did; kept to show ``ssh``'s own
-            # failure (refused, unreachable, not let in).
+            # Gone when the shell ends -- Ctrl+D, ``exit`` -- however its last
+            # command did; kept to show the program's own failure (refused,
+            # unreachable, not let in, no such container).
             window = self.run_in_window(remote_shell.command(location, request.options),
-                                        closes=remote_shell.ended_well,
-                                        title=tr("ssh {login}").format(login=remote_shell.login(location.site)))
+                                        closes=remote_shell.closes(location.site.scheme),
+                                        title=remote_shell.title(location.site))
             if window is None:
                 return None
             window.remote_site = location.site

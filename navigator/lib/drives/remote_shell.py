@@ -1,10 +1,14 @@
 """Utilities > *Remote shell*: what DOS Navigator's ``cmTerminal`` became.
 
-DN's *Terminal* talked to a modem.  Here it is a login shell on the server a
-panel is browsing over SFTP: ``ssh -t`` run in a command window
-(``TerminalWindow``), starting in the panel's directory there.
+DN's *Terminal* talked to a modem.  Here it is a shell at the other end of a
+link, in a command window (``TerminalWindow``), one menu entry a protocol:
+*SSH* -- a login shell on a server, ``ssh -t`` -- and, for the container and
+device drives, ``docker exec -it`` / ``podman exec -it`` and ``adb shell``.
+Which one, and where, is chosen in that protocol's link manager; nothing is
+taken from the panel (asked for: a command whose behaviour follows what the
+panel shows is an implicit one).
 
-Nothing but the site's own host, user and port is passed: ``ssh`` reads
+Of an SSH site only its host, user and port are passed: ``ssh`` reads
 ``~/.ssh/config`` -- HostName, Port, User, IdentityFile, ProxyJump -- just as
 :func:`navigator.lib.drives.credentials.host_config` does for the SFTP drive,
 so both reach the same machine as the same user.  A password or passphrase is
@@ -16,12 +20,14 @@ from __future__ import annotations
 import os
 import shlex
 import shutil
-from pathlib import PurePosixPath
 
 from navigator.lib.drives.location import Location, Site
 
-#: The schemes whose servers take an SSH login.
-SCHEMES = frozenset({"sftp"})
+#: The schemes a shell can be opened on: SSH's, the containers', a device's.
+SCHEMES = frozenset({"sftp", "docker", "podman", "adb"})
+
+#: The command each scheme's shell is run by.
+PROGRAMS = {"sftp": "ssh", "docker": "docker", "podman": "podman", "adb": "adb"}
 
 
 #: The status ``ssh`` exits with when it fails itself -- refused, unreachable,
@@ -29,33 +35,46 @@ SCHEMES = frozenset({"sftp"})
 SSH_FAILED = 255
 
 
-def ended_well(status: int) -> bool:
+#: The statuses ``docker exec`` (and ``podman exec``) exit with when they fail
+#: themselves: the daemon refused (125), nothing to run (126, 127).
+EXEC_FAILED = frozenset({125, 126, 127})
+
+
+def ended_well(status: int, scheme: str = "sftp") -> bool:
     """Whether a Remote shell that ended with wait *status* closes its window:
-    ``ssh`` exited -- Ctrl+D or ``exit`` there, with whatever status the
-    remote shell's last command left -- and not with its own failure, nor by
-    a signal, either of which the window stays to show."""
-    return os.WIFEXITED(status) and os.WEXITSTATUS(status) != SSH_FAILED
+    the program exited -- Ctrl+D or ``exit`` there, with whatever status the
+    shell's last command left -- and not with its own failure (``ssh``'s and
+    ``adb``'s 255, the engines' 125-127), nor by a signal, either of which
+    the window stays to show."""
+    if not os.WIFEXITED(status):
+        return False
+    code = os.WEXITSTATUS(status)
+    if scheme in ("docker", "podman"):
+        return code not in EXEC_FAILED
+    return code != SSH_FAILED
 
 
-def program() -> str | None:
-    """Where the ``ssh`` command is, or None when OpenSSH's client is not installed."""
-    return shutil.which("ssh")
+def program(scheme: str = "sftp") -> str | None:
+    """Where *scheme*'s shell command is (``ssh``, ``docker``, ``podman``,
+    ``adb``), or None when it is not installed."""
+    return shutil.which(PROGRAMS.get(scheme, scheme))
 
 
-def target(location: Location | None) -> Location | None:
-    """The directory on an SSH server *location* stands for, or None.
+def closes(scheme: str):
+    """:func:`ended_well` for *scheme*, as ``run_in_window`` takes it."""
+    return lambda status: ended_well(status, scheme)
 
-    Inside an archive opened on the server (``arc``, stacked on the file it
-    was opened from), that archive's directory: the shell cannot enter it.
-    """
-    inside = False
-    while location is not None and location.site.scheme == "arc":
-        location, inside = location.outer, True
-    if location is None or location.site.scheme not in SCHEMES:
-        return None
-    if inside:
-        return Location(location.site, PurePosixPath(location.path).parent)
-    return location
+
+def title(site: Site) -> str:
+    """The shell window's title: ``ssh bob@host``, ``docker exec web``, ``adb shell R58M...``."""
+    if site.scheme in ("docker", "podman"):
+        user = f" -u {site.user}" if site.user else ""
+        return f"{site.scheme} exec{user} {site.host}"
+    if site.scheme == "adb":
+        from navigator.lib.drives.adb import serial_of
+
+        return f"adb shell {serial_of(site)}".rstrip()
+    return f"ssh {login(site)}"
 
 
 def login(site: Site) -> str:
@@ -88,6 +107,8 @@ def command(location: Location, options: str = "") -> str:
     from navigator.settings import SETTINGS
 
     site = location.site
+    if site.scheme in ("docker", "podman", "adb"):
+        return _exec_command(location)
     remote = 'exec "${SHELL:-/bin/sh}" -l'
     if str(location.path) not in ("", "."):
         remote = f"cd {shlex.quote(str(location.path))} 2>/dev/null; {remote}"
@@ -97,4 +118,28 @@ def command(location: Location, options: str = "") -> str:
     if site.user:
         words += ["-l", site.user]
     words += ["--", site.host, remote]
+    return shlex.join(words)
+
+
+def _exec_command(location: Location) -> str:
+    """The command line for a shell in a container (``ENGINE exec -it``) or
+    on a device (``adb shell``), in *location*'s directory -- the working
+    directory or the device's own start, with none (``.``)."""
+    site = location.site
+    directory = "" if str(location.path) in ("", ".") else str(location.path)
+    if site.scheme == "adb":
+        from navigator.lib.drives.adb import serial_of
+
+        serial = serial_of(site)
+        words = ["adb", *(["-s", serial] if serial else []), "shell", "-t"]
+        if directory:
+            # One word here, which adb hands the device's shell as its line.
+            words.append(f"cd {shlex.quote(directory)} 2>/dev/null; exec sh")
+        return shlex.join(words)
+    words = [site.scheme, "exec", "-it"]
+    if site.user:
+        words += ["-u", site.user]
+    if directory:
+        words += ["-w", directory]
+    words += [site.host, "sh", "-c", 'exec "${SHELL:-/bin/sh}" -l']
     return shlex.join(words)

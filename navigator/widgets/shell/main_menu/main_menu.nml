@@ -1,6 +1,6 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
 from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
-from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
+from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -382,35 +382,71 @@ MainMenu(MenuBar):
         MenuLine:
         #: DN's modem group, less what a cable and a modem were for: the
         #: *Manual dial*.  The link is to a server now, and the *Terminal* a
-        #: shell on it (*Remote shell*, ``cmTerminal``).
+        #: shell there (*Remote shell*, ``cmTerminal``).
         #: Named for its protocol, where DN's said *Navigator Link*: what is
         #: on the wire is never in doubt.  Each link opens its protocol's
         #: connection manager (``LinkManagerDialog``), the kept connections
-        #: listed beside the lines -- *Remote shell* the SSH one -- a
-        #: departure, asked for.
-        MenuItem:
-            text: '~S~SH link (SFTP)...'
-            command: NavyLink
-            key: 'Alt-F11'
-        MenuItem:
-            text: '~F~TP link...'
-            command: FtpLink
-        MenuItem:
-            text: 'S~M~B link (Windows share)...'
-            command: SmbLink
-        MenuItem:
-            text: 'S~3~ link (Amazon S3)...'
-            command: S3Link
-        #: Not DN's: whatever the desktop's GVfs or KDE's KIO reaches.
-        MenuItem:
-            text: '~G~Vfs/KIO link (MTP, WebDAV...)...'
-            tooltip: "A phone, a WebDAV share, Google Drive: anything the desktop can mount"
-            command: GvfsLink
+        #: listed beside the lines -- a departure, asked for.  Grouped in two
+        #: submenus, one entry a protocol (asked for: no box first asking
+        #: which), and a shell's place chosen in its manager, never taken
+        #: from the panel.
+        SubMenu:
+            id: utilities_link
+            text: 'Lin~k~'
+            tooltip: "A server, a share, a container or a phone: its files in the active panel"
+            MenuItem:
+                text: '~S~SH (SFTP)...'
+                command: NavyLink
+                key: 'Alt-F11'
+            MenuItem:
+                text: '~F~TP...'
+                command: FtpLink
+            MenuItem:
+                text: 'S~M~B (Windows share)...'
+                command: SmbLink
+            MenuItem:
+                text: 'S~3~ (Amazon S3)...'
+                command: S3Link
+            #: Not DN's: whatever the desktop's GVfs or KDE's KIO reaches.
+            MenuItem:
+                text: '~G~Vfs/KIO (MTP, WebDAV...)...'
+                tooltip: "A phone, a WebDAV share, Google Drive: anything the desktop can mount"
+                command: GvfsLink
+            MenuLine:
+            #: Not DN's: commands run there (``navigator/lib/drives/execdrive.py``).
+            MenuItem:
+                text: '~D~ocker container...'
+                tooltip: "A running container's files, through docker exec"
+                command: DockerLink
+            MenuItem:
+                text: '~P~odman container...'
+                tooltip: "A running container's files, through podman exec"
+                command: PodmanLink
+            MenuItem:
+                text: '~A~ndroid device (adb)...'
+                tooltip: "A phone's or a tablet's files, over USB debugging"
+                command: AdbLink
         #: DN's *Terminal*, where it stood, before *Hang up*.
-        MenuItem:
-            text: 'Rem~o~te shell...'
-            tooltip: "A shell on the server the active panel is browsing over SSH"
-            command: Terminal
+        SubMenu:
+            id: utilities_shell
+            text: 'Rem~o~te shell'
+            tooltip: "A shell on a server, in a container or on a phone, in a window"
+            MenuItem:
+                text: '~S~SH...'
+                tooltip: "A login shell on a server, ssh -t"
+                command: Terminal
+            MenuItem:
+                text: '~D~ocker container...'
+                tooltip: "A shell in a running container, docker exec -it"
+                command: DockerShell
+            MenuItem:
+                text: '~P~odman container...'
+                tooltip: "A shell in a running container, podman exec -it"
+                command: PodmanShell
+            MenuItem:
+                text: '~A~ndroid device (adb)...'
+                tooltip: "A shell on a phone or a tablet, adb shell"
+                command: AdbShell
         MenuItem:
             text: '~D~isconnect'
             tooltip: "Close a connection; its panels go back to the disk"

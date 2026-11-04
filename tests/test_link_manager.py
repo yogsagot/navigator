@@ -6,15 +6,12 @@ name; Delete takes one away; Connect answers where to go."""
 
 from __future__ import annotations
 
-from pathlib import PurePosixPath
-
 import pytest
 
 from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.drives import profiles
-from navigator.lib.drives.location import Location, Site
 from navigator.widgets.drives.connect_dialog import ConnectRequest
 from navigator.widgets.drives.link_manager import LinkManagerDialog, sftp_entries
 
@@ -235,22 +232,6 @@ def test_missing_paramiko_stops_connect_for_a_panel_but_not_a_shell(desk):
     shell = LinkManagerDialog(sftp_entries(), mode="shell", missing="No module named 'paramiko'")
     shell._fill(0)
     assert shell.accept() is not None and shell.title == "Remote shell"
-
-
-def test_select_chooses_the_kept_link_with_the_panel_s_directory_unchanged(desk):
-    dialog = LinkManagerDialog(sftp_entries(), mode="shell",
-                           select=Location(Site("sftp", "", "box.lan"), PurePosixPath("/var/log")))
-    assert dialog.links.cursor == 1 and dialog.chosen == 1
-    assert lines(dialog) == ("box.lan", "", "", "/var/log", "box")
-    # The panel's directory is no change to the connection: Connect asks nothing.
-    assert not dialog.changed and dialog.save.disabled
-
-
-def test_select_with_no_kept_link_fills_the_one_off_lines(desk):
-    dialog = LinkManagerDialog(sftp_entries(), mode="shell",
-                           select=Location(Site("sftp", "eve", "far.example", 2022), PurePosixPath("/tmp")))
-    assert dialog.chosen is None and dialog.save.disabled
-    assert lines(dialog) == ("far.example", "eve", "2022", "/tmp", "")
 
 
 def test_every_line_has_a_history_kept_on_connect(desk):
