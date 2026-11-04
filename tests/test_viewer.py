@@ -562,7 +562,8 @@ def test_the_view_menu_switches_the_mode_and_ticks_the_one_in_force(files):
     run_app(app, [
         KeyEvent("end"), KeyEvent("f3"), IDLE,
         KeyEvent("v", "v", alt=True), lambda a: seen.update(open=a.shell.menu.is_open),
-        KeyEvent("h", "h"), lambda a: None, ask,
+        # The modes are in View > Mo~d~e, nested so the box fits 80x25.
+        KeyEvent("d", "d"), KeyEvent("h", "h"), lambda a: None, ask,
     ])
     assert seen["open"] is True
     assert seen["mode"] == "hex"
@@ -694,14 +695,16 @@ def test_the_view_menu_shows_f4_f6_and_hidden_characters_has_a_hotkey(files):
     seen = {}
 
     def look(a):
-        menu = opened(a).view_menu
-        for caption in ("Hex/Text/Dump", "Filter", "Show hidden characters"):
+        window = opened(a)
+        # F4's and F6's entries head the Mode and Filters submenus.
+        for menu, caption in ((window.view_menu_mode, "Hex/Text/Dump"), (window.view_menu_filter, "Filter"),
+                              (window.view_menu, "Show hidden characters")):
             seen[caption] = key_caption(menu.entry(caption), a, a.focused)
 
     run_app(app, [KeyEvent("end"), KeyEvent("f3"), IDLE, look,
                   KeyEvent("v", "v", alt=True), KeyEvent("o", "o"), lambda a: None,
                   lambda a: seen.update(hidden=opened(a).viewer.show_hidden),
-                  KeyEvent("v", "v", alt=True), KeyEvent("x", "x"), lambda a: None,
+                  KeyEvent("v", "v", alt=True), KeyEvent("d", "d"), KeyEvent("x", "x"), lambda a: None,
                   lambda a: seen.update(mode=opened(a).viewer.mode)])
     assert seen == {"Hex/Text/Dump": "F4", "Filter": "F6",
                     "Show hidden characters": "Ctrl-Shift-8", "hidden": True, "mode": "hex"}
