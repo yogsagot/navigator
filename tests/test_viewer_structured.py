@@ -244,3 +244,44 @@ def test_the_view_menu_opens_an_html_page_as_a_tree(data_dir):
     ])
     assert seen["enabled"] and seen["kind"] == "html"
     assert "html <1>" in seen["screen"] and "body <2>" in seen["screen"]
+
+
+# -- long values, wrapped ------------------------------------------------------------------
+
+
+def test_wrap_line_breaks_at_a_blank_in_the_second_half_else_where_full():
+    from navigator.widgets.viewer.struct_window.data_tree import wrap_line
+
+    assert wrap_line("alpha beta gamma", 12, 12) == ["alpha beta ", "gamma"]
+    assert wrap_line("x" * 25, 10, 8) == ["x" * 10, "x" * 8, "x" * 7]
+    assert wrap_line("short", 10, 10) == ["short"]
+    # A wide character is two columns, and never split.
+    assert wrap_line("漢字漢字", 5, 5) == ["漢字", "漢字"]
+
+
+def test_a_long_value_wraps_and_the_cursor_passes_its_rows(data_dir):
+    import json
+
+    from navigator.widgets.viewer.struct_window import StructWindow
+    from navigator.widgets.viewer.struct_window.data_tree import ValueRow
+
+    long = "word " * 40
+    (data_dir / "a.json").write_text(json.dumps({"long": long.strip(), "next": 1}))
+    app = Navigator(data_dir, data_dir, terminal=FakeTerminal(80, 24))
+    seen = {}
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("shift+f4"),
+        Until(lambda a: isinstance(active(a), StructWindow)),
+        lambda a: seen.update(screen=screen_text(a)),
+        KeyEvent("down"), KeyEvent("down"),
+        lambda a: seen.update(path=active(a).tree.path_text(),
+                              more=sum(isinstance(row, ValueRow) for row in active(a).tree.items)),
+    ])
+    lines = seen["screen"].splitlines()
+    first = next(index for index, line in enumerate(lines) if 'long: "word word' in line)
+    # The rows more hang under the value, the rail carried down beside them.
+    assert lines[first + 1].lstrip("║ ").startswith("│")
+    assert "word word" in lines[first + 1] and "word" in lines[first + 2]
+    assert seen["more"] >= 2
+    # Two Downs: the root, then past every row of the long value, onto `next`.
+    assert seen["path"] == ".next"

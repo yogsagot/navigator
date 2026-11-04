@@ -244,8 +244,9 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   `DataTree(TreeView)` in the viewer's place (`FileWindow.as_tree`/`shows_tree`, `{Tree}` struck after the info
   line, a click on it opens the tree). The model is `navigator/lib/viewer/structured.py`: lazy `Node`s over
   `json` (order and repeated keys kept), `tomllib`, `xml.etree`, `plistlib`, and PyYAML's **composer** (no
-  constructor runs; tags are shown, never acted on; marks give YAML nodes an offset). Rows are `key: value`,
-  coloured by kind (`DataTree::string/number/bool/null/date/tagged/count`), with the cursor's path on the last row
+  constructor runs; tags are shown, never acted on; marks give YAML nodes an offset). Rows are `key: value` (a long value **wraps**: `ValueRow`s after its row, hung under the
+  value or under the key when that is narrow, rails carried down, `WRAP_ROWS` at most; the cursor passes over
+  them, `DataTree.move_cursor`, and lands back on the node's row from a click), coloured by kind (`DataTree::string/number/bool/null/date/tagged/count`), with the cursor's path on the last row
   (jq-style, or XPath-style for XML). Ctrl+Ins copies the path, Ctrl+Shift+C the value (a branch as JSON, YAML or the
   element), F7/Shift+F7/Ctrl+L search every key and value on a thread (`structured.find`), `*` and *Expand all* open
   up to `EXPAND_LIMIT` nodes, Shift+F4 goes back to the text (at a YAML node's line), and Esc closes. A parse error

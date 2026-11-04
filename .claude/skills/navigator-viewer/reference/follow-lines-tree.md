@@ -72,3 +72,18 @@ took a file's size once, hid characters (F6) but never lines, and showed bytes a
   wherever it is open and is ignored where it is not. Comments and the doctype are left out. It never raises.
 - **Mixed content**: text after a child element (an `ElementTree` tail) is shown as a `#text` row after that child,
   for XML too, so `two <b>bold</b> tail` keeps all three pieces in order.
+
+## Long values wrap
+
+- **A node may take several rows.** `DataTree._flatten` adds a `ValueRow` (a `TreeRow` that knows its piece) after a
+  scalar's row for each further row its value needs at the tree's width. `wrap_line` breaks at a blank in the
+  row's second half, or where the row is full, and keeps a wide character whole. A value's own line breaks start new
+  rows. The rows hang under the value, or under the key when fewer than `MIN_WRAP` columns would be left, and the
+  ancestors' rails, and the node's own when a sibling follows, run down beside them. `WRAP_ROWS` (40) at most, then
+  `…`, with the whole value in the tooltip and *Copy value*.
+- **navml's `TreeView` registers its flatten effect as `type(self)._flatten`**, as `ListViewer` does
+  `_follow_cursor`, so a subclass can lay a node out on more rows. The override keeps the cursor on the node it was
+  on (`peek` at the old rows), since rows come and go above it as the width changes.
+- **The cursor never rests on a `ValueRow`**: `move_cursor` passes over them in the direction moved and scrolls the
+  node's last row into view, and an effect (`_onto_first_row`) moves a cursor a click or the scroll bar put on one
+  back to its node's row.

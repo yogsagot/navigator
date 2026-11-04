@@ -246,8 +246,10 @@ class TreeView(ListViewer):
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
-        # be clamped onto them.
-        effect(self, TreeView._flatten)
+        # be clamped onto them.  Looked up on the class, as ListViewer's
+        # ``_follow_cursor`` is, so a subclass that lays a node out on more
+        # than one row can say how.
+        effect(self, type(self)._flatten)
         super().mounted()
         effect(self, TreeView._end_search_unfocused)
         effect(self, TreeView._end_search_on_new_root)

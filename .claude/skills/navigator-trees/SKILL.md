@@ -8,7 +8,8 @@ description: Directory trees -- navml's TreeView/TreeNode, Navigator's Directory
 Slots `[94-101]`, `[104-110]`.
 
 - The library's `TreeView` is a `ListViewer` of flattened, lazily loaded `TreeNode`s, drawn as `TTreeView.Draw` draws
-  them. Navigator's `DirectoryTree` (`navigator/widgets/tree/`) is what **Ctrl+T** puts in the passive panel's place
+  them. Its flatten effect is `type(self)._flatten`, so a subclass may put a node on several rows (F3's
+  structured view wraps long values that way, `navigator-viewer`). Navigator's `DirectoryTree` (`navigator/widgets/tree/`) is what **Ctrl+T** puts in the passive panel's place
   (DBLWND.PAS's `SwitchView`, via `Manager.switch_view`): the tree follows the active panel, and Enter or a resting
   cursor sends the panel where the tree points -- the resting one only under File Manager Setup's *Auto change
   directory* (`fmoAutoChangeDir`, on by default); Enter always.

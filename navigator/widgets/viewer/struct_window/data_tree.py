@@ -9,11 +9,13 @@ the same way, so nothing below a closed branch exists.
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Any
 
 from navkit.bidi import display_width
-from navkit.reactive import computed
-from navkit.screen import Surface
+from navkit.reactive import computed, effect, peek
+from navkit.screen import Surface, char_width
+from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import TreeNode, TreeRow, TreeView
 
 from navigator.lib.viewer import structured
@@ -24,9 +26,47 @@ from navigator.lib.viewer.structured import Node
 #: rows by the hundred thousand.
 EXPAND_LIMIT = 5000
 
-#: The most characters of a value a row shows: the rest is cut, as the
-#: cursor's value is whole on the path line's tooltip and in *Copy value*.
-SHOWN_VALUE = 512
+#: The most rows one value is wrapped onto: the rest is cut, with ``…``, and
+#: is whole in the row's tooltip and in *Copy value*.
+WRAP_ROWS = 40
+
+#: The narrowest a value's column may be for its wrapped rows to hang under
+#: it; narrower, they start under the key instead.
+MIN_WRAP = 16
+
+
+@dataclass(frozen=True)
+class ValueRow(TreeRow):
+    """A row more of a long value: its node's, under the value's first row.
+    The cursor passes over it, and a click on it is on its node."""
+
+    piece: int = 1
+
+    def __str__(self) -> str:
+        return ""
+
+
+def wrap_line(text: str, first: int, width: int) -> list[str]:
+    """*text* cut into rows *first* columns wide, then *width* -- at the last
+    blank in a row's second half when there is one, else where it is full."""
+    pieces: list[str] = []
+    room = max(1, first)
+    while True:
+        used, cut = 0, len(text)
+        for index, char in enumerate(text):
+            used += char_width(char)
+            if used > room:
+                cut = max(1, index)
+                break
+        if cut >= len(text):
+            pieces.append(text)
+            return pieces
+        blank = text.rfind(" ", 0, cut)
+        if blank >= cut // 2 and blank > 0:
+            cut = blank + 1
+        pieces.append(text[:cut])
+        text = text[cut:]
+        room = max(1, width)
 
 
 def _tree_node(node: Node) -> TreeNode:
@@ -72,6 +112,100 @@ class DataTree(TreeView):
     @computed
     def rows(self) -> int:
         return max(0, self.height - 2 * self.inset - self.header - self.INFO_ROWS)
+
+    def mounted(self) -> None:
+        self._pieces_for: dict[tuple[int, int], tuple[list[str], bool]] = {}
+        super().mounted()
+        effect(self, DataTree._onto_first_row)
+
+    # -- long values, wrapped -------------------------------------------------------------
+
+    def _flatten(self) -> None:
+        """The tree's rows, and after a long value's row the rows more it
+        wraps onto (:class:`ValueRow`) -- as many as the width makes.  The
+        cursor stays on the node it was on, however many rows came or went
+        above it."""
+        held = None
+        before = peek(self, ListViewer.items)
+        at = peek(self, ListViewer.cursor)
+        if 0 <= at < len(before):
+            held = before[at].node
+        TreeView._flatten(self)
+        width = self.inner_width
+        rows: list[TreeRow] = []
+        for row in self.items:
+            rows.append(row)
+            pieces, _ = self.pieces(row, width)
+            rows.extend(ValueRow(row.node, row.level, row.more, row.rails, piece)
+                        for piece in range(1, len(pieces)))
+        self.items = rows
+        if held is not None:
+            index = self.index_of(held)
+            if index >= 0:
+                self.cursor = index
+
+    def pieces(self, row: TreeRow, width: int) -> tuple[list[str], bool]:
+        """A scalar's value as the rows it is painted on -- its own row's
+        part first, after the key -- and whether ``WRAP_ROWS`` cut it.  A
+        branch's is its count, on one row."""
+        node = row.node.data
+        if node is None or node.container:
+            return [], False
+        key = (id(row.node), width)
+        found = self._pieces_for.get(key)
+        if found is not None:
+            return found
+        if len(self._pieces_for) > 4096:
+            self._pieces_for.clear()
+        text = node.text[:structured.VALUE_LIMIT].replace("\t", " ")
+        if node.kind == "string" and node.format != "xml":
+            text = f'"{text}"'
+        column = 2 + 3 * len(row.rails) + len(self.branch(row))
+        value_at = column + display_width(row.node.name) + 2
+        indent = value_at if width - value_at >= MIN_WRAP else column
+        pieces: list[str] = []
+        for number, line in enumerate(text.split("\n")):
+            pieces.extend(wrap_line(line, width - (value_at if number == 0 else indent), width - indent))
+        cut = len(pieces) > WRAP_ROWS or len(node.text) > structured.VALUE_LIMIT
+        if len(pieces) > WRAP_ROWS:
+            pieces = pieces[:WRAP_ROWS]
+        if cut:
+            pieces[-1] = pieces[-1][:-1] + "…" if pieces[-1] else "…"
+        self._pieces_for[key] = (pieces, cut)
+        return pieces, cut
+
+    def _first_row(self, index: int) -> int:
+        while index > 0 and isinstance(self.items[index], ValueRow):
+            index -= 1
+        return index
+
+    def _onto_first_row(self) -> None:
+        """A click, the scroll bar or a search that lands on a value's row
+        more puts the cursor on its node's first row."""
+        items, cursor = self.items, self.cursor
+        if 0 <= cursor < len(items) and isinstance(items[cursor], ValueRow):
+            self.cursor = self._first_row(cursor)
+
+    def move_cursor(self, delta: int) -> None:
+        """Up and Down pass over a value's rows more, to the next node's
+        first row; and the rows of the node arrived on are brought into view."""
+        items = self.items
+        if not items or not delta:
+            return
+        step = 1 if delta > 0 else -1
+        target = min(max(self.cursor + delta, 0), len(items) - 1)
+        while 0 <= target < len(items) and isinstance(items[target], ValueRow):
+            target += step
+        if target >= len(items):
+            target = self._first_row(len(items) - 1)
+        target = max(0, target)
+        self.cursor = target
+        end = target
+        while end + 1 < len(items) and isinstance(items[end + 1], ValueRow):
+            end += 1
+        rows = self.rows
+        if rows and end >= self.scroll + rows:
+            self.scroll = max(0, min(target, end - rows + 1))
 
     @computed
     def selected_data(self) -> Node | None:
@@ -126,20 +260,25 @@ class DataTree(TreeView):
 
     # -- painting -------------------------------------------------------------------------
 
-    def value_runs(self, node: Node) -> list[tuple[str, str]]:
-        """What follows a row's name, as ``(text, part)`` pieces."""
+    def value_runs(self, row: TreeRow) -> list[tuple[str, str]]:
+        """What follows a row's name, as ``(text, part)`` pieces: a branch's
+        count, or ``: `` and the first of its value's rows."""
+        node = row.node.data
         if node.container:
             brackets = {"object": "{}", "array": "[]", "element": "<>"}[node.kind]
             return [(f" {brackets[0]}{node.count}{brackets[1]}", "count")]
-        text = node.text[:SHOWN_VALUE].replace("\n", "↵").replace("\t", " ")
-        if node.kind == "string" and node.format != "xml":
-            text = f'"{text}"'
-        part = node.kind if node.kind in self.parts else "string"
-        return [(": ", "punct"), (text, part)]
+        pieces, _ = self.pieces(row, self.inner_width)
+        return [(": ", "punct"), (pieces[0] if pieces else "", self.value_part(node))]
+
+    def value_part(self, node: Node) -> str:
+        return node.kind if node.kind in self.parts else "string"
 
     def render_row(self, surface: Surface, y: int, index: int, item: TreeRow) -> None:
         # The rails, the branch and the name, as the tree draws them; then
         # the value, in its kind's colour, after the name.
+        if isinstance(item, ValueRow):
+            self._render_more(surface, y, item)
+            return
         super().render_row(surface, y, index, item)
         node = item.node.data
         if node is None:
@@ -149,21 +288,52 @@ class DataTree(TreeView):
         # Right after the name: on the cursor's row, over the blank its
         # highlight pads the name with.
         at = column + display_width(item.node.name) - shift
-        if at >= inner:
+        if at >= inner or at < 0:
             return
-        runs = [(text, self.part_style(part)) for text, part in self.value_runs(node)]
-        if at < 0:
-            return
+        runs = [(text, self.part_style(part)) for text, part in self.value_runs(item)]
         surface.draw_runs(inset + at, y, runs, max_width=inner - at)
 
+    def _render_more(self, surface: Surface, y: int, item: ValueRow) -> None:
+        """A value's row more: the rails carried down past it -- its own
+        node's too when a sibling follows -- and its piece of the value,
+        under the value's first row (or under the key, when that is narrow)."""
+        _, _, _, vertical, _ = self._chars()
+        shift, inset, inner = self.shift, self.inset, self.inner_width
+        line = self.style
+
+        def put(column: int, text: str, style: Any) -> None:
+            x = column - shift
+            if x + len(text) <= 0 or x >= inner:
+                return
+            if x < 0:
+                text, x = text[-x:], 0
+            surface.draw_text(inset + x, y, text, style, inner - x)
+
+        column = 2
+        for more in item.rails:
+            if more:
+                put(column, vertical, line)
+            column += 3
+        if item.level and item.more:
+            put(column, vertical, line)
+        pieces, _ = self.pieces(item, inner)
+        if item.piece >= len(pieces):
+            return
+        branch = column + len(self.branch(item))
+        value_at = branch + display_width(item.node.name) + 2
+        indent = value_at if inner - value_at >= MIN_WRAP else branch
+        x = indent - shift
+        if 0 <= x < inner:
+            surface.draw_runs(inset + x, y, [(pieces[item.piece], self.part_style(self.value_part(item.node.data)))],
+                              max_width=inner - x)
+
     def row_tooltip(self, index: int, item: TreeRow) -> str:
-        """A value cut at the edge, whole -- or as much as a tooltip holds."""
+        """A value cut at ``WRAP_ROWS``, whole -- or as much as a tooltip holds."""
         node = item.node.data
         if node is None or node.container:
-            return super().row_tooltip(index, item)
-        at = 2 + 3 * len(item.rails) + len(self.branch(item)) - self.shift
-        width = display_width(item.node.name) + 2 + display_width(node.text[:SHOWN_VALUE]) + 2
-        return node.text[:structured.VALUE_LIMIT] if at + width > self.inner_width else ""
+            return super().row_tooltip(index, item) if not isinstance(item, ValueRow) else ""
+        _, cut = self.pieces(item, self.inner_width)
+        return node.text[:structured.VALUE_LIMIT] if cut else ""
 
     def path_text(self) -> str:
         node = self.selected_data
