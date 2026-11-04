@@ -20,11 +20,12 @@ device's user is the shell's; ``/sdcard`` is home.
 
 from __future__ import annotations
 
+import os
 import shlex
 import shutil
 import subprocess
 from dataclasses import dataclass
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 
 from navigator.lib.drives.base import CHMOD, FREE_SPACE, RENAME, WRITE, DriveGone
 from navigator.lib.drives.execdrive import ExecDrive
@@ -39,9 +40,37 @@ LOST_WORDS = ("no devices/emulators found", "device offline", "device unauthoriz
               "more than one device/emulator", "device still authorizing", "cannot connect to daemon")
 
 
+def sdk_dirs() -> list[Path]:
+    """The ``platform-tools`` directories an Android SDK keeps ``adb`` in, when
+    it is not on ``PATH``: ``$ANDROID_HOME``'s, ``$ANDROID_SDK_ROOT``'s, then
+    where Android Studio installs the SDK (``~/Android/Sdk`` on Linux,
+    ``~/Library/Android/sdk`` on macOS) -- Studio does not add it to ``PATH``."""
+    roots = [os.environ.get(name, "") for name in ("ANDROID_HOME", "ANDROID_SDK_ROOT")]
+    home = Path.home()
+    places = [Path(root) for root in roots if root] + [home / "Android" / "Sdk", home / "Library" / "Android" / "sdk"]
+    return [place / "platform-tools" for place in places]
+
+
+#: :func:`sdk_dirs` itself, which the tests stand in for.
+SDK_DIRS = sdk_dirs
+
+
 def program() -> str | None:
-    """Where ``adb`` is, or None."""
-    return shutil.which("adb")
+    """Where ``adb`` is -- on ``PATH``, else in an Android SDK -- or None."""
+    found = shutil.which("adb")
+    if found:
+        return found
+    for place in sdk_dirs():
+        found = shutil.which("adb", path=str(place))
+        if found:
+            return found
+    return None
+
+
+def command() -> str:
+    """The word that runs ``adb``: plain ``adb`` when ``PATH`` has it, the
+    SDK's full path when only an SDK does."""
+    return "adb" if shutil.which("adb") else (program() or "adb")
 
 
 def available() -> str | None:
@@ -70,7 +99,7 @@ def lost(text: str) -> str | None:
 
 
 def _argv(serial: str, *words: str) -> list[str]:
-    return ["adb", *(["-s", serial] if serial else []), *words]
+    return [command(), *(["-s", serial] if serial else []), *words]
 
 
 class AdbDrive(ExecDrive):
@@ -169,7 +198,7 @@ def list_devices() -> list[Device]:
     """The devices attached now (on a thread).  Raises ``OSError`` with adb's
     words when it cannot say."""
     try:
-        done = subprocess.run(["adb", "devices", "-l"], capture_output=True, stdin=subprocess.DEVNULL, timeout=30)
+        done = subprocess.run([command(), "devices", "-l"], capture_output=True, stdin=subprocess.DEVNULL, timeout=30)
     except FileNotFoundError as error:
         raise OSError("adb: command not found") from error
     except subprocess.TimeoutExpired as error:
@@ -179,5 +208,5 @@ def list_devices() -> list[Device]:
     return parse_devices(done.stdout.decode("utf-8", "replace"))
 
 
-__all__ = ["AdbDrive", "Device", "HOME", "available", "connect", "list_devices", "lost", "parse_devices",
-           "program", "serial_of"]
+__all__ = ["AdbDrive", "Device", "HOME", "available", "command", "connect", "list_devices", "lost",
+           "parse_devices", "program", "sdk_dirs", "serial_of"]

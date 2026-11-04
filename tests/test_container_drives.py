@@ -197,6 +197,41 @@ def test_the_programs_are_found_or_said_missing(engines, monkeypatch):
     assert "adb" in adb.available()
 
 
+@pytest.mark.parametrize("where", ["studio", "ANDROID_HOME", "ANDROID_SDK_ROOT"])
+def test_adb_is_found_in_an_android_sdk_off_path(engines, tmp_path, monkeypatch, where):
+    """Android Studio puts adb in ~/Android/Sdk/platform-tools and leaves PATH
+    alone; the SDK's variables name another place.  Found there, adb runs by
+    its full path, the drive's steps and the device list alike."""
+    from navigator.lib.drives import remote_shell
+
+    monkeypatch.setattr(adb, "sdk_dirs", adb.SDK_DIRS)
+    home = tmp_path / "home"
+    sdk = home / "Android" / "Sdk" if where == "studio" else tmp_path / "elsewhere" / "sdk"
+    (sdk / "platform-tools").mkdir(parents=True)
+    tool = sdk / "platform-tools" / "adb"
+    shutil.copy(shutil.which("adb"), tool)
+    monkeypatch.setenv("PATH", f"{Path(sys.executable).parent}:/usr/bin:/bin")
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.delenv("ANDROID_HOME", raising=False)
+    monkeypatch.delenv("ANDROID_SDK_ROOT", raising=False)
+    if where != "studio":
+        monkeypatch.setenv(where, str(sdk))
+    assert adb.available() is None
+    assert adb.program() == str(tool) == remote_shell.program("adb")
+    assert adb.AdbDrive(Site("adb", "", "R5")).argv(["ls"])[0] == str(tool)
+    assert [each.serial for each in adb.list_devices()] == ["R58M123ABC", "LOCKED1"]
+    assert remote_shell.command(Location(Site("adb", "", "R5"), PurePosixPath("."))).startswith(str(tool))
+
+
+def test_adb_on_path_wins_over_an_sdk_and_runs_by_name(engines, tmp_path, monkeypatch):
+    monkeypatch.setattr(adb, "sdk_dirs", adb.SDK_DIRS)
+    (tmp_path / "home" / "Android" / "Sdk" / "platform-tools").mkdir(parents=True)
+    shutil.copy(shutil.which("adb"), tmp_path / "home" / "Android" / "Sdk" / "platform-tools" / "adb")
+    monkeypatch.setenv("HOME", str(tmp_path / "home"))
+    assert adb.program() == shutil.which("adb")
+    assert adb.command() == "adb"
+
+
 def test_connecting_checks_the_container_runs(engines, tmp_path):
     drive = SESSIONS.connect(Site("docker", "", "Box"), Answers())
     assert drive.home == PurePosixPath(str(tmp_path))

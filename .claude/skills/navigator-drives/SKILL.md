@@ -194,6 +194,11 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     symlink or chown (`/sdcard` is FUSE). Title `DOCKER:name:/path`, `ADB:serial:/path`. Names and serials keep
     their case (`location.AS_WRITTEN`); a networked serial `host:port` is the site's host and port
     (`adb.serial_of`, `Device.site`). `available()` names the missing command (`EXTRA_HINT` is the program).
+    **adb off `PATH`**: Android Studio installs it in `~/Android/Sdk/platform-tools` (macOS `~/Library/Android/sdk`)
+    and leaves `PATH` alone, so `adb.program()` tries `PATH`, then `$ANDROID_HOME`, `$ANDROID_SDK_ROOT` and those
+    (`sdk_dirs`); every argv starts with `adb.command()` -- bare `adb` when `PATH` has it, else the full path (also
+    `remote_shell.program("adb")` and its `adb shell -t`). conftest's `_no_android_sdk` empties `sdk_dirs` so no
+    test finds the developer's SDK; the lookup's own tests put back `adb.SDK_DIRS`.
   - What is there now: `docker.list_containers(engine)` (`ps --format '{{json .}}'`, Docker's lines and
     Podman's array with `Names` a list -- `parse_ps`) and `adb.list_devices()` (`devices -l`, `parse_devices`).
 - **Each protocol is named and has its own entry**, all in Utilities > **Lin~k~ ▸** (`utilities_link`; a

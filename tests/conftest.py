@@ -322,6 +322,16 @@ def _no_zoxide(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
+def _no_android_sdk(monkeypatch):
+    """No test finds the developer's own Android SDK (``~/Android/Sdk``): adb
+    is the fake on ``PATH`` or missing.  A test of the SDK lookup puts
+    ``adb.sdk_dirs`` back (``adb.SDK_DIRS``)."""
+    from navigator.lib.drives import adb
+
+    monkeypatch.setattr(adb, "sdk_dirs", lambda: [])
+
+
+@pytest.fixture(autouse=True)
 def _default_keys():
     """Every test starts from the keys the code binds: ``keybindings.ini``'s
     overrides live on the classes, and would outlast the test that made them."""

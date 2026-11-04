@@ -56,7 +56,12 @@ def ended_well(status: int, scheme: str = "sftp") -> bool:
 
 def program(scheme: str = "sftp") -> str | None:
     """Where *scheme*'s shell command is (``ssh``, ``docker``, ``podman``,
-    ``adb``), or None when it is not installed."""
+    ``adb``, which an Android SDK may hold off ``PATH``), or None when it is
+    not installed."""
+    if scheme == "adb":
+        from navigator.lib.drives import adb
+
+        return adb.program()
     return shutil.which(PROGRAMS.get(scheme, scheme))
 
 
@@ -128,10 +133,10 @@ def _exec_command(location: Location) -> str:
     site = location.site
     directory = "" if str(location.path) in ("", ".") else str(location.path)
     if site.scheme == "adb":
-        from navigator.lib.drives.adb import serial_of
+        from navigator.lib.drives.adb import command, serial_of
 
         serial = serial_of(site)
-        words = ["adb", *(["-s", serial] if serial else []), "shell", "-t"]
+        words = [command(), *(["-s", serial] if serial else []), "shell", "-t"]
         if directory:
             # One word here, which adb hands the device's shell as its line.
             words.append(f"cd {shlex.quote(directory)} 2>/dev/null; exec sh")
