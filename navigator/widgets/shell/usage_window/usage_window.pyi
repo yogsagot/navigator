@@ -17,6 +17,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
 
 from typing import Any
@@ -43,6 +44,7 @@ from navigator.widgets.shell.usage_list.usage_list import UP
 
 class UsageWindow(Window, _Component):
     entries: UsageList
+    hbar: ScrollBar
     status: StaticText
     apparent_box: CheckBoxes
     go_button: Button
@@ -68,6 +70,7 @@ class UsageWindow(Window, _Component):
     def descend(self, node: dirusage.UsageNode) -> None: ...
     def ascend(self) -> None: ...
     async def on_chosen(self, event: ChosenEvent) -> bool: ...
+    async def on_hbar_scroll(self, event: Any) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...
     def go(self, node: dirusage.UsageNode | None, *, close: bool = ...) -> bool: ...
     async def on_go_to_usage(self, command: GoToUsage) -> bool: ...

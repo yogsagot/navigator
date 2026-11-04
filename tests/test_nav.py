@@ -1041,6 +1041,41 @@ def test_left_and_right_scroll_the_names_and_stop_at_the_ends(tmp_path, quiet_co
     assert app.manager.left.name_offset == 2
 
 
+def test_the_bottom_bar_follows_the_name_scroll_and_shows_only_while_a_name_is_cut(tmp_path, quiet_console):
+    """A departure, asked for, as the editor's: on the bottom frame left of
+    the option strip, the names' scroll -- only while a name is cut or they
+    are scrolled, never in the list mode or under a quick search's label."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    (tmp_path / LONG_NAME).write_text("")
+    (tmp_path / "other").mkdir()
+    (tmp_path / "other" / "short").write_text("")
+    app = navigator(tmp_path, size=(80, 24))
+    seen = {}
+
+    def look(key):
+        def act(a):
+            panel = a.manager.left
+            seen[key] = (panel.hbar.visible, panel.hbar.value, panel.name_offset)
+        return act
+
+    def drag(a):
+        a.spawn(a.manager.left.on_hbar_scroll(ScrollEvent(value=4)))
+
+    run_app(app, [look("open"), KeyEvent("right"), KeyEvent("right"), look("scrolled"),
+                  drag, lambda a: None, look("dragged"),
+                  KeyEvent("s", ctrl=True), look("searching"), KeyEvent("escape"),
+                  lambda a: setattr(a.manager.left, "view_mode", "list"), look("list")])
+    assert seen["open"] == (True, 0, 0)
+    assert seen["scrolled"] == (True, 2, 2)
+    assert seen["dragged"][2] == 4
+    assert seen["searching"][0] is False
+    assert seen["list"][0] is False
+    app = navigator(tmp_path / "other", size=(80, 24))
+    run_app(app, [look("short")])
+    assert seen["short"][0] is False
+
+
 def test_left_and_right_move_the_caret_while_the_line_has_text(tmp_path, quiet_console):
     (tmp_path / LONG_NAME).write_text("")
     app = navigator(tmp_path)

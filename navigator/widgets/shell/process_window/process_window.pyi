@@ -18,6 +18,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
 
 import asyncio
@@ -48,6 +49,7 @@ class ProcessWindow(Window, _Component):
     filter: ProcessFilter
     clear_filter: Button
     processes: ProcessList
+    hbar: ScrollBar
     status: StaticText
     mine_box: CheckBoxes
     tree_box: CheckBoxes
@@ -112,4 +114,5 @@ class ProcessWindow(Window, _Component):
     async def on_select_next(self, event: SelectNext) -> bool: ...
     async def on_select_previous(self, event: SelectPrevious) -> bool: ...
     def _step(self, by: int) -> None: ...
+    async def on_hbar_scroll(self, event: Any) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...

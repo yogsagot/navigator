@@ -43,6 +43,13 @@ re-raises a plain `OSError`, so test `.errno`, not the subclass.
   painted in `render_header`, and ▲/▼ (`glyphs.scrollbar`) on the sorted column. **A press on the header row emits
   `SortChosen(by)`** (the only header-click sort in Navigator). Row classes `.mine`, `.root`, `.kernel`, `.zombie`,
   `.stopped`, `.running`, `.waiting` and `.context` are styled in `navigator.nss`.
+- **The *Command* column scrolls sideways** (a departure, asked for: FAR's panel cut a command at its column's end).
+  Left/Right move it a column, and Ctrl+Left/Right by `BIG_STEP` (20). Home and End stay the list's first and last
+  process. `ProcessList.x_delta` is applied in `cells()` to the whole cell, branch included. Right stops where the
+  widest command on screen ends (`command_span` less `command_room`). **Its bar** (`ProcessWindow.hbar`) is on the
+  window's bottom frame under that column (`command_x`), shown only while a command on screen is cut or the column
+  is scrolled (`overflows_across`), as the viewer's, the editor's and Compare files' bars are. `on_hbar_scroll` sets
+  `x_delta`. The right bar is the list's own, shown only while there are more processes than rows.
 - **The filter is the only search** (htop's F4). The *Filter* line (`ProcessFilter`, an `InputLine` with
   `edits_text`) and its X button sit across the top, the list under them. `processes.matches` keeps a process whose
   command, name, user or pid holds the text, in any case. It replaced a quick search that jumped the cursor with nothing

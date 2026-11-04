@@ -179,6 +179,13 @@ there are windows.
   `Window`) is titled with the command, then `"cmd - exit status N"` / `"killed by signal N"`.
   `open_terminal()` opens it zoomed or 80×24 inside the frame (centred, staggered), and a zoomed one keeps
   that rectangle to unzoom to.
+  **Its right frame has a scroll bar for the history** (`TerminalWindow.bar`, a departure, asked for, as the
+  viewer's). It is shown only while lines have gone off the top (`ScreenView.overflows`), and never while a
+  full-screen program has the alternate screen. Its value is `scroll_above` and its range `scroll_total`
+  (`ConsoleScreen.scroll_extent`: pyte's `history.top`/`bottom`), so at the live screen the thumb is at the bottom.
+  `on_bar_scroll` calls `ScreenView.scroll_to`, which pages there in pyte's steps. **The console behind the desktop
+  has no bar**: it has no frame, and one would cover the shell's last column (asked: *windows only*). Nothing
+  scrolls sideways, as a terminal's lines wrap at its width.
   Utilities > *Remote shell* opens one on `ssh -t` and sets `remote_site`, so asking again selects it
   (`navigator-drives` skill).
 - **How one is started.** `Shell.run_in_window(command, cwd=, zoomed=, modal=, closes=, uses=, cleanup=, title=)`, from:

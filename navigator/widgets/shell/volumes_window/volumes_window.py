@@ -135,6 +135,13 @@ class VolumesWindow(Window):
         if await self.volumes.choose():
             self.request_close()
 
+    async def on_hbar_scroll(self, event: Any) -> bool:
+        """The bottom bar was worked: its value counts from the mount points'
+        starts, ``back`` from their ends."""
+        volumes = self.volumes
+        volumes.back = max(0, volumes.mount_reach - event.value)
+        return True
+
     async def on_chosen(self, event: ChosenEvent) -> bool:
         """Enter on a volume not mounted: mounted first, then chosen; any other walks on up."""
         volume = event.node

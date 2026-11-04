@@ -252,3 +252,41 @@ def test_the_volumes_menu_ticks_show_all_mounts_and_a_right_click_offers_it(tmp_
     assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "F5", "F6", "F7", "Esc"]
     assert (seen["off"], seen["on"], seen["again"]) == (False, True, False)
     assert seen["items"] == ["Re-read", "Show all mounts", "Mount", "Unmount", "Eject", "Close"]
+
+
+def test_left_and_right_scroll_the_mount_point_column_from_its_ends(tmp_path, monkeypatch):
+    """A departure, asked for, as the process list's: the column opens on the
+    mount points' ends, its bar's thumb on the right; Left goes towards their
+    starts, Right back.  The right bar is the list's own, shown only while
+    there are more volumes than rows."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    seen = {}
+
+    def look(key):
+        def act(a):
+            window = a.shell.desktop.active_window
+            rows = window.volumes
+            seen[key] = dict(bar=window.hbar.visible, value=window.hbar.value, maximum=window.hbar.maximum,
+                             back=rows.back, right_bar=rows.bar.visible, under=window.hbar.x == rows.x + rows.mount_x)
+        return act
+
+    def drag(value):
+        return lambda a: a.spawn(a.shell.desktop.active_window.on_hbar_scroll(ScrollEvent(value=value)))
+
+    def zoom(a):
+        # Room for the column to be more than its blanks.
+        a.shell.desktop.active_window.toggle_zoom()
+
+    volumes_run(tmp_path, monkeypatch, zoom, lambda a: None, look("open"),
+                KeyEvent("left"), KeyEvent("left"), KeyEvent("left"), look("left"),
+                *[KeyEvent("right")] * 5, look("right"),
+                *[KeyEvent("ctrl+left")] * 10, look("far left"),
+                drag(1), lambda a: None, look("dragged"))
+    opened = seen["open"]
+    assert opened["bar"] and opened["under"] and opened["value"] == opened["maximum"] > 0
+    assert opened["right_bar"] is False
+    assert seen["left"]["back"] == 3 and seen["left"]["value"] == opened["maximum"] - 3
+    assert seen["right"]["back"] == 0
+    assert seen["far left"]["back"] == opened["maximum"] and seen["far left"]["value"] == 0
+    assert seen["dragged"]["back"] == opened["maximum"] - 1

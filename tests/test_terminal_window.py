@@ -258,3 +258,32 @@ def test_a_window_opened_to_close_goes_when_its_command_ends_well_and_stays_when
                   lambda a: seen.update(stayed=terminal(a) is seen["window"], title=seen["window"].title)])
     assert not seen["left"]
     assert seen["stayed"] and seen["title"] == "exit 3 - exit status 3"
+
+
+def test_the_right_bar_shows_the_history_only_while_there_is_some(app):
+    """A departure, asked for, as the viewer's: the window's right frame has
+    the program's history, shown only while lines have gone off the top.  The
+    console behind the desktop has no bar: it has no frame."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    seen = {}
+
+    def look(key):
+        def act(a):
+            window = terminal(a)
+            seen[key] = dict(bar=window.bar.visible, value=window.bar.value, maximum=window.bar.maximum,
+                             back=window.view.screen.scrolled_back)
+        return act
+
+    def drag(value):
+        return lambda a: a.spawn(terminal(a).on_bar_scroll(ScrollEvent(value=value)))
+
+    run_app(app, [run("&printf short"), Until(ended), look("short"), KeyEvent("escape"),
+                  run("&seq 100"), Until(ended), look("long"),
+                  drag(0), lambda a: None, look("top"),
+                  drag(10_000), lambda a: None, look("bottom")], timeout=15)
+    assert seen["short"]["bar"] is False
+    long = seen["long"]
+    assert long["bar"] and long["maximum"] > 0 and long["value"] == long["maximum"] and not long["back"]
+    assert seen["top"]["value"] == 0 and seen["top"]["back"]
+    assert seen["bottom"]["value"] == long["maximum"] and not seen["bottom"]["back"]

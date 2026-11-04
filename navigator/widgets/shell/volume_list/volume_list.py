@@ -18,7 +18,8 @@ from typing import Any
 from navkit.bidi import display_width, pad_cells
 from navkit import glyphs as glyphs_module
 from navkit.i18n import tr
-from navkit.reactive import reactive
+from navkit.events import KeyEvent
+from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
@@ -46,11 +47,20 @@ def _percent(free: int | None, total: int | None, show_free: bool) -> str:
     return f"{round(share * 100 / total)}%"
 
 
+#: How far Ctrl+Left and Ctrl+Right scroll the *Mount point* column.
+BIG_STEP = 20
+
+
 class VolumeList(ListViewer):
     """Mounted volumes: name, type, mount point, used (or free) share, free space and size."""
 
     #: The share column shows the free share instead of the used one.
     show_free: bool = reactive(False)
+    #: How many columns of each mount point are held back at its end: what
+    #: Left scrolls the *Mount point* column by, Right taking it back.  A
+    #: departure, asked for: the column showed the end alone (``_cut_start``),
+    #: and still opens so, its scroll bar's thumb on the right.
+    back: int = reactive(0)
 
     #: Enter or a double click, carrying the volume as its ``node``: the
     #: tree's event, as Window > List's is, since a row was chosen and that is
@@ -83,6 +93,50 @@ class VolumeList(ListViewer):
             spans.append((x, width))
             x += width + 1
         return spans
+
+    # -- the Mount point column sideways (a departure, asked for) ---------------
+
+    @computed
+    def mount_x(self) -> int:
+        return self.columns()[2][0]
+
+    @computed
+    def mount_width(self) -> int:
+        return self.columns()[2][1]
+
+    @computed
+    def mount_room(self) -> int:
+        """How many columns of a mount point show: its column less a blank each side."""
+        return max(1, self.mount_width - 2)
+
+    @computed
+    def mount_span(self) -> int:
+        """The widest mount point on screen: the bottom bar's range."""
+        rows = self.items[self.scroll:self.scroll + max(1, self.rows)]
+        return max((display_width(self.cells(item)[2][0]) for item in rows), default=0)
+
+    @computed
+    def mount_reach(self) -> int:
+        """How far the column scrolls: the widest mount point less what shows."""
+        return max(0, self.mount_span - self.mount_room)
+
+    @computed
+    def overflows_across(self) -> bool:
+        """Whether a mount point on screen is cut, or the column is scrolled."""
+        return self.back > 0 or self.mount_span > self.mount_room
+
+    def scroll_mount(self, columns: int) -> None:
+        """The column *columns* further right -- towards the mount points'
+        ends, where it opens -- or left, negative, towards their starts."""
+        self.back = max(0, min(self.back - columns, max(self.mount_reach, self.back)))
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        """Left and Right scroll the *Mount point* column, Ctrl by ``BIG_STEP``."""
+        steps = {"left": -1, "right": 1, "ctrl+left": -BIG_STEP, "ctrl+right": BIG_STEP}
+        if not self.inert and event.name in steps:
+            self.scroll_mount(steps[event.name])
+            return True
+        return await super().on_key(event)
 
     def cells(self, item: Any) -> list[tuple[str, bool]]:
         """*item*'s text in each column, and whether it is right-aligned.
@@ -154,6 +208,8 @@ class VolumeList(ListViewer):
             if room <= 0:
                 continue
             if column == 2:
+                if self.back:
+                    text = text[:max(0, len(text) - self.back)]
                 text = self._cut_start(text, room)
             else:
                 text = fit_text(text, room, self.ellipsis)

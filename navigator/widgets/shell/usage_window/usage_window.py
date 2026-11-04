@@ -211,6 +211,8 @@ class UsageWindow(Window):
         if node.children is None:
             return
         self.here = node
+        # Another directory's names: from their start again.
+        self.entries.x_delta = 0
         self._show(cursor_on="")
 
     def ascend(self) -> None:
@@ -219,6 +221,7 @@ class UsageWindow(Window):
         if here is None or here.parent is None:
             return
         self.here = here.parent
+        self.entries.x_delta = 0
         self._show(cursor_on=here.name)
 
     # -- what the keys do ---------------------------------------------------------------
@@ -232,6 +235,11 @@ class UsageWindow(Window):
             self.descend(node)
         elif isinstance(node, dirusage.UsageNode):
             self.go(node)
+        return True
+
+    async def on_hbar_scroll(self, event: Any) -> bool:
+        """The bottom bar was worked: the *Name* column scrolled to its column."""
+        self.entries.x_delta = max(0, event.value)
         return True
 
     async def on_key(self, event: KeyEvent) -> bool:

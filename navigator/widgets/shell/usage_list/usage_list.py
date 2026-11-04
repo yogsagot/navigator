@@ -23,7 +23,8 @@ from typing import Any
 from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width, pad_cells
 from navkit.i18n import tr
-from navkit.reactive import reactive
+from navkit.events import KeyEvent
+from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
@@ -61,6 +62,10 @@ def mark(node: UsageNode) -> str:
     return " "
 
 
+#: How far Ctrl+Left and Ctrl+Right scroll the *Name* column.
+BIG_STEP = 20
+
+
 class UsageList(ListViewer):
     """A directory's entries with their sizes, shares, bars and counts."""
 
@@ -70,6 +75,12 @@ class UsageList(ListViewer):
     #: What the listed directory adds up to, in the size shown: the 100% of
     #: the share column.  The window sets it with the items.
     whole: int = reactive(0)
+
+    #: Columns the *Name* column is scrolled to the left: a departure, asked
+    #: for, as the process list's *Command*.  Shift+Left/Right move it a
+    #: column, Ctrl+Left/Right ``BIG_STEP`` -- Left and Right are ``ncdu``'s
+    #: up and down the tree here (``UsageWindow.on_key``).
+    x_delta: int = reactive(0)
 
     #: Enter or a double click, carrying the node (or :data:`UP`) as its ``node``.
     emits = (ChosenEvent,)
@@ -108,17 +119,58 @@ class UsageList(ListViewer):
         """*item*'s text in each column, and whether it is right-aligned;
         *largest* is the biggest beside it, *room* the bar's cells."""
         if not isinstance(item, UsageNode):
-            return [("", True), ("", True), ("", False), ("", True), ("  ..", False)]
+            return [("", True), ("", True), ("", False), ("", True), (self.name_text(item)[self.x_delta:], False)]
         amount = item.amount(self.apparent)
         share = f"{amount * 100 / self.whole:.1f}%" if self.whole > 0 else ""
         cells = round(amount * room / largest) if largest > 0 else 0
         bar = glyphs_module.gauge("dos", self.glyphs)[0] * cells
         items = f"{item.items:,}" if item.is_dir else ""
-        name = item.name + ("/" if item.is_dir else "")
-        return [(human_size(amount), True), (share, True), (bar, False), (items, True), (f"{mark(item)} {name}", False)]
+        return [(human_size(amount), True), (share, True), (bar, False), (items, True),
+                (self.name_text(item)[self.x_delta:], False)]
 
     def row_text(self, index: int, item: Any) -> str:
         return item.name
+
+    # -- the Name column sideways (a departure, asked for) -----------------------
+
+    def name_text(self, item: Any) -> str:
+        """*item*'s *Name* cell whole: its mark and name, a directory's ``/``."""
+        if not isinstance(item, UsageNode):
+            return "  .."
+        return f"{mark(item)} {item.name}" + ("/" if item.is_dir else "")
+
+    @computed
+    def name_x(self) -> int:
+        return self.columns()[-1][0]
+
+    @computed
+    def name_room(self) -> int:
+        """How many columns of a name show: its column less a blank each side."""
+        return max(1, self.columns()[-1][1] - 2)
+
+    @computed
+    def name_span(self) -> int:
+        """The widest name on screen: the bottom bar's range."""
+        rows = self.items[self.scroll:self.scroll + max(1, self.rows)]
+        return max((display_width(self.name_text(item)) for item in rows), default=0)
+
+    @computed
+    def overflows_across(self) -> bool:
+        """Whether a name on screen is cut, or the column is scrolled."""
+        return self.x_delta > 0 or self.name_span > self.name_room
+
+    def scroll_names(self, columns: int) -> None:
+        """The *Name* column *columns* further right (left, negative), no
+        further than the widest name on screen ends."""
+        furthest = max(0, self.name_span - self.name_room, self.x_delta if columns < 0 else 0)
+        self.x_delta = max(0, min(self.x_delta + columns, furthest))
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        steps = {"shift+left": -1, "shift+right": 1, "ctrl+left": -BIG_STEP, "ctrl+right": BIG_STEP}
+        if not self.inert and event.name in steps:
+            self.scroll_names(steps[event.name])
+            return True
+        return await super().on_key(event)
 
     def row_tooltip(self, index: int, item: Any) -> str:
         """What the row leaves out: both sizes in exact bytes, and what its mark means."""

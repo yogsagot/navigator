@@ -144,12 +144,14 @@ def fake_processes() -> list[Process]:
     ]
 
 
-def process_run(where, monkeypatch, *actions):
+def process_run(where, monkeypatch, *actions, running=None):
     from test_nav import navigator
 
     from navigator.settings import SETTINGS
 
-    monkeypatch.setattr(processes, "gather", lambda proc=processes.PROC: fake_processes())
+    # Looked up when called: a test may put another ``fake_processes`` in.
+    monkeypatch.setattr(processes, "gather",
+                        lambda proc=processes.PROC: (running or globals()["fake_processes"])())
     monkeypatch.setattr(SETTINGS.processes, "refresh", 0)
     app = navigator(where)
 
@@ -434,3 +436,40 @@ def test_the_scroll_bar_shows_only_while_the_list_is_longer_than_the_window(tmp_
 
     run_app(app, [open_it, Until(listed), look])
     assert seen == [shown]
+
+
+def test_left_and_right_scroll_the_command_column_and_its_bar_shows_while_one_is_cut(tmp_path, monkeypatch):
+    """A departure, asked for: FAR's panel cut a command where its column ended."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    long = "/usr/bin/python3 -m some.module " + "--option value " * 12
+    extra = [Process(400, 1, os.getuid(), "me", "S", 1, 1 << 20, 0, 0, 5, "python3", long)]
+    seen = {}
+
+    def look(key):
+        def act(a):
+            window = a.shell.desktop.active_window
+            rows = window.processes
+            seen[key] = (window.hbar.visible, rows.x_delta, window.hbar.x == rows.x + rows.command_x)
+        return act
+
+    def drag(a):
+        window = a.shell.desktop.active_window
+        a.spawn(window.on_hbar_scroll(ScrollEvent(value=7)))
+
+    def narrow(a):
+        a.shell.desktop.active_window.filter.value = "cron"
+
+    process_run(tmp_path, monkeypatch, lambda a: a.shell.desktop.active_window.processes.focus(),
+                look("cut"), KeyEvent("right"), KeyEvent("ctrl+right"), look("scrolled"),
+                KeyEvent("ctrl+left"), KeyEvent("left"), KeyEvent("left"), look("back"),
+                drag, lambda a: None, look("dragged"),
+                lambda a: setattr(a.shell.desktop.active_window.processes, "x_delta", 0),
+                narrow, lambda a: None, look("short"), running=lambda: fake_processes() + extra)
+    assert seen["cut"] == (True, 0, True)
+    assert seen["scrolled"][1] == 21
+    # Left stops at the column's start.
+    assert seen["back"][1] == 0
+    assert seen["dragged"][1] == 7
+    # Only cron's short command left: nothing cut, nothing scrolled, no bar.
+    assert seen["short"][0] is False

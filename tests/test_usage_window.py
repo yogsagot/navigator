@@ -174,3 +174,40 @@ def test_closing_mid_read_stops_the_walk(tmp_path, monkeypatch):
                   KeyEvent("escape"), lambda a: None, lambda a: release.set()])
     assert seen == [True]
     assert jobs[0].stopped
+
+
+def test_shift_and_ctrl_arrows_scroll_the_name_column_and_its_bar_shows_while_one_is_cut(tmp_path):
+    """A departure, asked for, as the process list's: Left and Right are
+    ``ncdu``'s up and down here, so Shift (a column) and Ctrl (twenty) scroll."""
+    from navml.widgets.dialog.scroll_bar import ScrollEvent
+
+    fill(tmp_path)
+    (tmp_path / ("a_long_name_" * 12)).write_bytes(b"x" * 1000)
+    seen = {}
+
+    def look(key):
+        def act(a):
+            shown = window(a)
+            rows = shown.entries
+            seen[key] = dict(bar=shown.hbar.visible, x=rows.x_delta, under=shown.hbar.x == rows.x + rows.name_x,
+                             right_bar=rows.bar.visible)
+        return act
+
+    def drag(a):
+        a.spawn(window(a).on_hbar_scroll(ScrollEvent(value=5)))
+
+    def into_small(a):
+        rows = window(a).entries
+        rows.cursor = next(i for i, item in enumerate(rows.items) if item.name == "small")
+
+    usage_run(tmp_path, look("open"),
+              KeyEvent("shift+right"), KeyEvent("shift+right"), look("shifted"),
+              KeyEvent("ctrl+right"), KeyEvent("ctrl+left"), KeyEvent("shift+left"), look("back"),
+              drag, lambda a: None, look("dragged"),
+              into_small, KeyEvent("right"), look("inside"))
+    assert seen["open"] == dict(bar=True, x=0, under=True, right_bar=False)
+    assert seen["shifted"]["x"] == 2
+    assert seen["back"]["x"] == 1
+    assert seen["dragged"]["x"] == 5
+    # Into `small`, whose one short name fits: from the start, and no bar.
+    assert seen["inside"]["x"] == 0 and seen["inside"]["bar"] is False

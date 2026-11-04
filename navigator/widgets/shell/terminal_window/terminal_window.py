@@ -73,6 +73,12 @@ class TerminalWindow(Window):
         if ended_well:
             self.close()
 
+    async def on_bar_scroll(self, event: Any) -> bool:
+        """The right bar was worked (a departure, as the viewer's): the view
+        that many rows of history down from the top."""
+        self.view.scroll_to(event.value)
+        return True
+
     def take_keyboard(self) -> None:
         self.view.focus()
 

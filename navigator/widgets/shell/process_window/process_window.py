@@ -514,6 +514,11 @@ class ProcessWindow(Window):
         index = order.index(focused) if focused in order else (-1 if by > 0 else 0)
         order[(index + by) % len(order)].focus()
 
+    async def on_hbar_scroll(self, event: Any) -> bool:
+        """The bottom bar was worked: the *Command* column scrolled to its column."""
+        self.processes.x_delta = max(0, event.value)
+        return True
+
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and a marked letter: that control, as a dialog's ``Alt+letter`` walk."""
         if event.alt and not event.ctrl and len(event.key) == 1 and event.key.isalpha():

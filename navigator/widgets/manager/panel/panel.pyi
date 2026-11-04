@@ -3,10 +3,13 @@
 
 from typing import Any as _Any
 
+from navkit.events import Event as _Event
+
 from navml.component import Component as _Component
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
 from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.scroll_bar import ScrollBar
 
 import asyncio
 import concurrent.futures
@@ -54,6 +57,7 @@ class _ScanRequest(object): ...
 
 class Panel(ListViewer, _Component):
     options: PanelOptionStrip
+    hbar: ScrollBar
     location: Location
     reload_token: int
     sizes_token: int
@@ -204,6 +208,7 @@ class Panel(ListViewer, _Component):
     name_offset: int
     def can_scroll_names(self, step: int) -> bool: ...
     def scroll_names(self, step: int) -> None: ...
+    async def on_hbar_scroll(self, event: Any) -> bool: ...
     show_icons: bool
     gutter: int
     git_cells: int

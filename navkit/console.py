@@ -513,6 +513,17 @@ class ConsoleScreen:
         history = self.screen.history
         return history.position < history.size
 
+    @property
+    def scroll_extent(self) -> tuple[int, int]:
+        """How many rows of history are above the view, and how many below it
+        (back towards the live screen): what a scroll bar beside it shows.
+        None either way while a full-screen program has the alternate screen,
+        which keeps no history."""
+        if self.alternate:
+            return 0, 0
+        history = self.screen.history
+        return len(history.top), len(history.bottom)
+
     # -- selection -----------------------------------------------------------
 
     def text(self, start: tuple[int, int], end: tuple[int, int]) -> str:

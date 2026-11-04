@@ -102,6 +102,11 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title and footer path cut their start with the
   same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
+  **The names' scroll has a bar** (`Panel.hbar`, a departure, asked for, as the editor's). It runs on the bottom frame
+  from a cell in to a cell short of the option strip, with value `name_offset` and range `max_name_scroll`, the
+  longest name in the directory, which is the clamp Left/Right already use. It is shown only while a name is cut or
+  scrolled, never in the list mode, and not while a quick search's label stands on that row. `on_hbar_scroll` sets
+  `name_scroll`. The right bar is the `ListViewer`'s own, shown only while there are more entries than fit.
 - A name is shown through `Panel.shown_name` (`navkit.bidi.reveal`): a direction override, isolate or control in it is a
   `⁇` (`?` in ASCII) painted reversed out of the row, which reorders nothing -- `photo⁇gpj.exe`, not `photoexe.jpg`.
   Widths, scrolling, list columns, tooltips and the info line measure the shown name; anything that *uses* the name

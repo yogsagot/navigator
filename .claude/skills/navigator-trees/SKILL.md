@@ -107,3 +107,19 @@ Slots `[94-101]`, `[104-110]`.
 - `VolumeList.row_tooltip`: the whole mount point and device, the mount's options (`Volume.options`, the fourth
   field of `/proc/self/mounts` through `volumes.mount_options`) and the sizes in exact bytes. A greyed Mount,
   Unmount or Eject says why (`VolumesWindow.refusal`).
+- **Directory sizes' *Name* column scrolls sideways** (a departure, asked for, as the process list's *Command*), from
+  the left, since names are cut at their end. Left and Right are `ncdu`'s up and down the tree here
+  (`UsageWindow.on_key` takes them only without a modifier), so **Shift+Left/Right** move it a column and
+  **Ctrl+Left/Right** `BIG_STEP` (20) (`UsageList.on_key`, `x_delta`, applied to the whole cell, mark included).
+  Going into or out of a directory starts it from the left again. **Its bar** (`UsageWindow.hbar`) is on the bottom
+  frame under the column (`name_x`), shown only while a name on screen is cut or the column is scrolled
+  (`overflows_across`, `name_span` against `name_room`). The right bar is the list's own, shown only while there are
+  more entries than rows.
+- **The *Mount point* column scrolls sideways** (a departure, asked for, as the process list's *Command*). It opens
+  on the mount points' ends, as `_cut_start` cuts them, so it scrolls *from the right*: `VolumeList.back` is how
+  many columns are held back at each end. Left adds one, Right takes one back, and Ctrl+Left/Right move by
+  `BIG_STEP` (20), up to `mount_reach` (the widest mount point on screen less `mount_room`). **Its bar**
+  (`VolumesWindow.hbar`) is on the bottom frame under the column (`mount_x`, `mount_width`) and shown only while a
+  mount point on screen is cut or the column is scrolled (`overflows_across`). Its value is `mount_reach - back`, so
+  the thumb starts on the right, and `on_hbar_scroll` turns it back into `back`. The right bar is the list's own,
+  shown only while there are more volumes than rows.

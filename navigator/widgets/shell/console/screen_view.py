@@ -16,7 +16,7 @@ from typing import Any
 from navkit.console import ConsoleScreen
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.i18n import tr
-from navkit.reactive import reactive
+from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.terminal import encode_key, encode_mouse
 from navkit.widget import Widget
@@ -286,6 +286,37 @@ class ScreenView(ContextMenuHost, Widget):
         """*lines* rows back (negative) or forward (positive) through the scrollback."""
         self.screen.scroll(lines)
         self._changed()
+
+    # -- what a scroll bar beside it shows (a window's: the console has none) --
+
+    @computed
+    def scroll_above(self) -> int:
+        """Rows of history above the view: a scroll bar's value."""
+        _ = self.revision
+        return self.screen.scroll_extent[0]
+
+    @computed
+    def scroll_total(self) -> int:
+        """Rows of history above and below the view: a scroll bar's range."""
+        _ = self.revision
+        return sum(self.screen.scroll_extent)
+
+    @computed
+    def overflows(self) -> bool:
+        """Whether there is more than the view shows: history, kept by a
+        program not on the alternate screen."""
+        return self.scroll_total > 0
+
+    def scroll_to(self, above: int) -> None:
+        """The view with *above* rows of history over it, as near as there is."""
+        for _ in range(64):
+            gap = above - self.scroll_above
+            if not gap:
+                return
+            before = self.screen.scroll_extent
+            self.scroll_lines(gap)
+            if self.screen.scroll_extent == before:
+                return
 
     # -- painting ------------------------------------------------------------
 

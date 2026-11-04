@@ -1,6 +1,7 @@
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel.option_items import PanelOptionStrip, panel_items
 from navml.widgets.dialog.list_viewer import ListViewer
+from navml.widgets.dialog.scroll_bar import ScrollBar
 
 #: One side of the desktop: a directory, listed (``TFilePanel``).  The listing,
 #: its model and its painting are the hand-written half's; the markup holds
@@ -22,3 +23,22 @@ Panel(ListViewer):
         width: self.used_width
         height: 1
         visible: parent.framed and parent.error is None and SETTINGS.file_manager.show_options
+
+    #: A departure, asked for, as the editor's: on the bottom frame from a
+    #: cell in to a cell short of the option strip, how far Left and Right have
+    #: scrolled the names (``name_offset``), while a name is cut or they are
+    #: scrolled -- never in the list mode, whose columns fit the names, nor
+    #: while a quick search's label stands on the row.  The right bar is the
+    #: list's own, shown only while there are more entries than show.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        x: 1
+        y: max(0, parent.height - 1)
+        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 1) - self.x)
+        height: 1
+        value: parent.name_offset
+        maximum: parent.max_name_scroll
+        page: max(1, parent.name_room)
+        visible: parent.framed and parent.error is None and parent.quick_search is None and parent.view_mode != "list" and (parent.max_name_scroll > 0 or parent.name_offset > 0) and self.width >= 4
+

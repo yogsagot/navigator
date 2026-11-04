@@ -2167,6 +2167,12 @@ class Panel(ListViewer):
         """Left and Right in the simple and detailed modes: every name a cell along."""
         self.name_scroll = max(0, min(self.name_offset + step, self.max_name_scroll))
 
+    async def on_hbar_scroll(self, event: Any) -> bool:
+        """The bottom bar was worked (a departure, as the editor's): the names
+        scrolled to its value."""
+        self.name_scroll = max(0, min(event.value, self.max_name_scroll))
+        return True
+
     # -- painting ------------------------------------------------------------
 
     @property

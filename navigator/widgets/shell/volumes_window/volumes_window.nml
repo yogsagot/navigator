@@ -8,6 +8,7 @@ from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
 
 #: Disk > Volumes: every mounted volume -- its name, type, mount point, free
@@ -64,6 +65,22 @@ VolumesWindow(Window):
         y: 1
         width: max(0, parent.width - 1)
         height: max(0, parent.height - (5 if parent.width >= 82 else 7))
+
+    #: A departure, asked for, as the process list's: on the bottom frame
+    #: under the *Mount point* column, how far Left and Right have scrolled
+    #: it, while a mount point on screen is cut there or it is scrolled.  The
+    #: column opens on the mount points' ends, so its thumb starts on the right.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        visible: volumes.overflows_across and self.width >= 4
+        x: volumes.x + volumes.mount_x
+        y: max(0, parent.height - 1)
+        width: volumes.mount_width
+        height: 1
+        value: max(0, volumes.mount_reach - volumes.back)
+        maximum: max(volumes.mount_reach, volumes.back)
+        page: volumes.mount_room
 
     CheckBoxes:
         id: everything

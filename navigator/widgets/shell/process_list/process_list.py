@@ -32,7 +32,7 @@ from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width, pad_cells
 from navkit.events import Event, KeyEvent, MouseClickEvent
 from navkit.i18n import tr
-from navkit.reactive import reactive
+from navkit.reactive import computed, reactive
 from navkit.screen import Surface
 from navkit.style import Style
 from navml.widgets.dialog.commands import QuickSearch
@@ -64,6 +64,10 @@ class SortChosen(Event):
     by: str = "pid"
 
 
+#: How far Ctrl+Left and Ctrl+Right scroll the *Command* column, as the viewer's.
+BIG_STEP = 20
+
+
 class ProcessList(ListViewer):
     """Processes: number, owner, state, CPU share, resident memory and command."""
 
@@ -74,6 +78,10 @@ class ProcessList(ListViewer):
     descending: bool = reactive(False)
     #: The user whose rows are ``.mine``.
     uid: int = reactive(-1)
+    #: Columns the *Command* column is scrolled to the left, by Left and
+    #: Right: a departure, asked for, as the viewer's sideways scroll -- FAR's
+    #: process panel cut a command where its column ended.
+    x_delta: int = reactive(0)
 
     emits = (ChosenEvent, SortChosen)
     keys = {"ctrl+s": QuickSearch}
@@ -118,13 +126,48 @@ class ProcessList(ListViewer):
         return (tr("PID"), tr("User"), tr("S"), tr("CPU %"), tr("Memory"), tr("Command"))
 
     def cells(self, row: processes.Row) -> list[tuple[str, bool]]:
-        """*row*'s text in each column, and whether it is right-aligned."""
+        """*row*'s text in each column, and whether it is right-aligned; the
+        command scrolled ``x_delta`` columns to the left."""
         process = row.process
         return [
             (str(process.pid), True), (process.user, False), (process.state, False),
             (f"{process.cpu:.1f}", True), (human_size(process.rss), True),
-            (self.branch(row) + process.command, False),
+            (self.command_text(row)[self.x_delta:], False),
         ]
+
+    def command_text(self, row: processes.Row) -> str:
+        """*row*'s *Command* cell whole: its branch in the tree, then the command."""
+        return self.branch(row) + row.process.command
+
+    # -- the Command column sideways (a departure, asked for) ------------------
+
+    @computed
+    def command_x(self) -> int:
+        """Where the *Command* column starts, in the list's columns."""
+        return self.columns()[-1][0]
+
+    @computed
+    def command_room(self) -> int:
+        """How many columns of a command show: its column less a blank each side."""
+        return max(1, self.columns()[-1][1] - 2)
+
+    @computed
+    def command_span(self) -> int:
+        """The widest command on screen, in columns: the bottom bar's range."""
+        items, start = self.items, self.scroll
+        rows = items[start:start + max(1, self.rows)]
+        return max((display_width(self.command_text(row)) for row in rows), default=0)
+
+    @computed
+    def overflows_across(self) -> bool:
+        """Whether a command on screen is cut, or the column is scrolled: the bottom bar."""
+        return self.x_delta > 0 or self.command_span > self.command_room
+
+    def scroll_command(self, columns: int) -> None:
+        """The *Command* column *columns* further right (left, negative), no
+        further than the widest command on screen ends."""
+        furthest = max(0, self.command_span - self.command_room, self.x_delta if columns < 0 else 0)
+        self.x_delta = max(0, min(self.x_delta + columns, furthest))
 
     def branch(self, row: processes.Row) -> str:
         """The box characters before a command in the tree: ``│ `` for each
@@ -235,6 +278,11 @@ class ProcessList(ListViewer):
                 line.value = ""
                 line.cursor = 0
                 return True
+        # Left and Right scroll the *Command* column, Ctrl by ``BIG_STEP``.
+        steps = {"left": -1, "right": 1, "ctrl+left": -BIG_STEP, "ctrl+right": BIG_STEP}
+        if event.name in steps:
+            self.scroll_command(steps[event.name])
+            return True
         return await super().on_key(event)
 
 

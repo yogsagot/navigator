@@ -16,6 +16,7 @@ from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
+from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
 
 import asyncio
@@ -36,6 +37,7 @@ from navigator.lib.system import desktop, volumes
 
 class VolumesWindow(Window, _Component):
     volumes: VolumeList
+    hbar: ScrollBar
     everything: CheckBoxes
     free_box: CheckBoxes
     mount_button: Button
@@ -56,6 +58,7 @@ class VolumesWindow(Window, _Component):
     def _read(self, read: int, outcome: Outcome) -> None: ...
     def _show(self) -> None: ...
     async def go(self) -> None: ...
+    async def on_hbar_scroll(self, event: Any) -> bool: ...
     async def on_chosen(self, event: ChosenEvent) -> bool: ...
     async def _desktop(self, step: Any, *args: Any) -> bool: ...
     async def _mount_and_choose(self, volume: volumes.Volume, *, close: bool) -> None: ...
