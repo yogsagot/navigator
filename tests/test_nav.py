@@ -3279,9 +3279,14 @@ def test_the_clock_blinks_every_half_second(tree):
     app = navigator(tree, size=(80, 24))
     clock = app.shell.clock
     assert clock.tick.interval == 500
-    seen = []
-    run_app(app, [lambda a: seen.append(clock.blink)], settle=0.02)
-    assert seen == [True]
+    # The colon shows first.  Read before the loop runs: on a slow runner the
+    # loop can take longer than one interval to start, and a tick has then
+    # already flipped it by the time an action looks (CI, Python 3.13).
+    assert clock.blink is True
+    armed = []
+    run_app(app, [lambda a: armed.append(clock.tick._repeat is not None)], settle=0.02)
+    assert armed == [True]
+    seen = [True]
 
     # One tick of its timer flips it, and the next flips it back.
     async def two_ticks():
