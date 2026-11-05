@@ -285,6 +285,35 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   FIFOs and hard links in a tar are not listed (and a rewrite drops them). Reads share one file, one at a time
   (`_Locked`). Title `ZIP:a.zip:/inner` (`get_dir`, DN's `ZIP:C:A.ZIP\INNER`). `..` is always listed; at the root
   `change_up` is `(outer.parent, outer.name)`, so the cursor lands on the archive.
+- **The read-only kinds and the single compressed file** (none DN's; `members.py`'s `ListedArchive`, the
+  shape `ToolArchive` has -- `infolist()` of `ToolInfo` (now with `owner`, and `ref`, the back-end's handle),
+  `open(info)`, `read_link`, `details()` for `describe`, `close()` -- so `ArchiveDrive.listed` indexes and reads
+  them as it does 7-Zip's). `_open` tries, by content: 7z/rar; **squashfs** (`squashfs.offset_of`: `hsqs` at 0,
+  or a type 2 **AppImage** -- `AI\x02` at ELF byte 8, the image at `e_shoff + e_shentsize*e_shnum`) through
+  `unsquashfs` (`-lls -full -UTC -d ''`, `parse_lls`; a file read by `-no-wildcards [-o OFF] -cat` through a
+  pipe, extracted to a private directory before squashfs-tools 4.6 had `-cat`; missing is `NeedsTool`
+  *install squashfs-tools*); **`ar`** (`debpkg.parse_ar`, GNU and BSD names) -- a **deb** when `debian-binary`
+  is there, laid out as `dpkg-deb -R` unpacks it (data at the root, the control tar under `DEBIAN/`, each tar
+  decompressed whole into a private plain one; hard links listed, read as their target; `Package` from
+  `control`), else the raw members (`ArArchive`, a `.a`); **rpm** (`rpmpkg`: lead, signature header padded to 8,
+  header -- NAME/VERSION/RELEASE/ARCH for `Package` -- then the payload by magic, gz/bz2/xz/lzma/zst/none,
+  decompressed into a private cpio; rpm 4.12's stripped `07070X` is `NeedsTool`); **cpio** (`cpio.parse`:
+  newc, crc, odc, old binary either order; members read by `members.window`'s `pread`; a `newc` hard-link
+  group reads the name that has the bytes; devices and FIFOs not listed); then a **compressed** file: a tar as
+  before, a cpio (`.cpio.gz`, an initramfs, decompressed to a plain one), else **one compressed file**
+  (`stream.py`, kind `STREAM`: one member named as gunzip names it, `member_name`; its size counted by one
+  pass on opening; `sign` the compression's, `GZ:app.log.gz:/`). `READ_ONLY_KINDS` (deb, rpm, cpio,
+  squashfs, ar) have no capabilities and every mutator is `EROFS` (`_refuse`: a target line can still name
+  one). A `STREAM` has `write` only: its one member may be written over (F4's F2 -- `usefile.upload` writes
+  straight over it, there being no `rename`) and `utime`d, and `finish` compresses it anew the same way
+  (`_write_stream`, `stream.writer`, zst through `zstd.compress`); anything else is `EROFS`. The decompressing
+  passes take the opening's `job` (`members.stopped_check`). `*.squashfs;*.sqfs` joined the *archive* file
+  type; **`*.appimage` did not**, so Enter still runs one -- **Ctrl+PgDn** (`GoInto`, DN's `_CtrlPgDn`: a
+  directory, `..` and a *Find:* entry as Enter; on a file, which DN's left alone, a departure) and File >
+  Archive > *Open archive* (`OpenArchive`, `Panel.open_as_archive`, a regular file outside an archive) open
+  any file by its content, `enter_archive(forced=True)` saying *{name} is not an archive Navigator can read*
+  rather than running it. `tests/test_archive_formats.py` builds every kind in the test (squashfs with
+  `mksquashfs`, skipped without squashfs-tools).
 - **Writing an archive is a rewrite** (DN's packers rewrote too) **at a level**: `ArchiveDrive.level` (one of
   `LEVEL_NAMES`: store/fastest/normal/maximum/ultra, `normal` unless *Create archive* said) is
   `LEVELS[(kind, compression)]` to each writer -- deflate level (*store* = `ZIP_STORED`, new members only; old

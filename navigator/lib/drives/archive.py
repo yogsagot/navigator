@@ -38,6 +38,7 @@ import lzma
 import os
 import shutil
 import stat
+import struct
 import tarfile
 import tempfile
 import threading
@@ -139,6 +140,14 @@ def can_encrypt(kind: tuple[str, str]) -> bool:
 #: The kinds read through an archiver's command line (``arctool``).
 TOOL_KINDS = ("7z", "rar")
 
+#: The kinds read and never written (``members.ListedArchive``): every step
+#: that would change one is ``EROFS``, and its capabilities grey them.
+READ_ONLY_KINDS = ("deb", "rpm", "cpio", "squashfs", "ar")
+
+#: A single compressed file (:mod:`navigator.lib.drives.stream`): its one
+#: member may be written over, nothing else.
+STREAM = "stream"
+
 
 class NotAnArchive(Exception):
     """The file is not one this drive can read: Enter runs it instead."""
@@ -218,24 +227,6 @@ class _Locked(io.RawIOBase):
         super().close()
 
 
-def _compression_of(path: Path) -> str:
-    """A tar's compression, by its first bytes: ``gz``, ``bz2``, ``xz``, ``zst`` or ``""``."""
-    try:
-        with open(path, "rb") as file:
-            head = file.read(6)
-    except OSError:
-        return ""
-    if head[:2] == b"\x1f\x8b":
-        return "gz"
-    if head[:3] == b"BZh":
-        return "bz2"
-    if head == b"\xfd7zXZ\x00":
-        return "xz"
-    if head[:4] == b"\x28\xb5\x2f\xfd":  # zstd.MAGIC
-        return "zst"
-    return ""
-
-
 class ArchiveDrive(Drive):
     """One archive's files, read and rewritten through :mod:`zipfile` or
     :mod:`tarfile`, or read (and a 7z rewritten) through 7-Zip."""
@@ -245,7 +236,7 @@ class ArchiveDrive(Drive):
 
     def __init__(self, outer: Location, local: Path, *, use: Any = None,
                  new: tuple[str, str] | None = None, options: ArchiveOptions | None = None,
-                 password: str = "") -> None:
+                 password: str = "", job: Any = None) -> None:
         """*new* -- ``(kind, compression)`` -- makes an empty archive, written
         at the first :meth:`finish`, where *local* is not there yet, packed as
         *options* say.  *password* opens an encrypted one."""
@@ -273,9 +264,14 @@ class ArchiveDrive(Drive):
             self._archive = None
             #: Read -- and written -- through 7-Zip or rar (``arctool``).
             self.tool = self.kind in TOOL_KINDS or bool(self.password)
+            self.listed = False
             self._dirty = True
         else:
-            self._load()
+            self._load(job)
+        if self.kind in READ_ONLY_KINDS:
+            self.capabilities = frozenset()
+        elif self.kind == STREAM:
+            self.capabilities = frozenset((WRITE,))
         if self.kind == "rar":
             from navigator.lib.drives import arctool
 
@@ -308,14 +304,16 @@ class ArchiveDrive(Drive):
             member.children = existing.children
         node.children[last] = member
 
-    def _load(self) -> None:
+    def _load(self, job: Any = None) -> None:
         """The archive on the disk, opened: its kind, its compression, and
         whether 7-Zip reads it."""
-        from navigator.lib.drives import arctool
+        from navigator.lib.drives import arctool, members
 
         old = self._plain
-        self.kind, self._archive, self.compression, self._plain = _open(self.local, self.password)
+        self.kind, self._archive, self.compression, self._plain = _open(self.local, self.password, job)
         self.tool = isinstance(self._archive, arctool.ToolArchive)
+        #: Read through one of ``members.ListedArchive``'s back-ends.
+        self.listed = isinstance(self._archive, members.ListedArchive)
         members = self._archive.infolist() if self.tool else []
         if members and not self._archive.encrypted:
             # A password given for one that is not encrypted: a rewrite stays as it was.
@@ -331,7 +329,7 @@ class ArchiveDrive(Drive):
     def _index(self) -> None:
         if self._archive is None:
             return
-        if self.tool:
+        if self.tool or self.listed:
             for info in self._archive.infolist():
                 link = None
                 if info.is_link:
@@ -340,7 +338,7 @@ class ArchiveDrive(Drive):
                     except OSError:
                         link = ""  # damaged: listed still, for Test to say so
                 self._place(info.path, _Member(info.path, info.is_dir, info.size, info.mtime, info.mode,
-                                               link, None, None if info.is_dir else info.packed, info))
+                                               link, info.owner, None if info.is_dir else info.packed, info))
         elif self.kind == "zip":
             for info in self._archive.infolist():
                 mode = (info.external_attr >> 16) & 0xFFFF
@@ -386,12 +384,20 @@ class ArchiveDrive(Drive):
         """*inner* in this archive."""
         return Location(ARCHIVE_SITE, PurePosixPath(inner), self.outer)
 
+    def _refuse(self, location: Location, *, rewrite: bool = False) -> None:
+        """``EROFS`` for a step this kind cannot take: none, in a read-only
+        one; in a single compressed file any but writing its one member over
+        (*rewrite*)."""
+        if self.kind in READ_ONLY_KINDS or (self.kind == STREAM and not rewrite):
+            raise _error(errno.EROFS, location)
+
     # -- names ---------------------------------------------------------------------------------
 
     @property
     def sign(self) -> str:
-        """DN's ``GetSign``: ``ZIP``, ``TAR``."""
-        return self.kind.upper()
+        """DN's ``GetSign``: ``ZIP``, ``TAR``; a single compressed file's
+        is its compression's, ``GZ``."""
+        return self.compression.upper() if self.kind == STREAM else self.kind.upper()
 
     def get_dir(self, location: Location) -> str:
         """``ZIP:name.zip:/inside``: DN's ``ZIP:C:NAME.ZIP\\INSIDE``, the
@@ -497,9 +503,12 @@ class ArchiveDrive(Drive):
         return Path(name)
 
     def open_write(self, location: Location, *, append: bool = False, mode: int = 0o666) -> IO[bytes]:
+        self._refuse(location, rewrite=True)
         with self._tree:
             parent, name = self._parent(location)
             member = parent.children.get(name)
+            if member is None and self.kind == STREAM:
+                raise _error(errno.EROFS, location)  # it holds one file, that one
             if member is not None and member.is_dir:
                 raise _error(errno.EISDIR, location)
             staged = self._stage()
@@ -514,6 +523,7 @@ class ArchiveDrive(Drive):
         return open(staged, "ab" if append else "wb")
 
     def mkdir(self, location: Location, mode: int = 0o777) -> None:
+        self._refuse(location)
         with self._tree:
             parent, name = self._parent(location)
             if name in parent.children:
@@ -522,6 +532,7 @@ class ArchiveDrive(Drive):
             self._dirty = True
 
     def rmdir(self, location: Location) -> None:
+        self._refuse(location)
         with self._tree:
             parent, name = self._parent(location)
             member = parent.children.get(name)
@@ -535,6 +546,7 @@ class ArchiveDrive(Drive):
             self._dirty = True
 
     def unlink(self, location: Location) -> None:
+        self._refuse(location)
         with self._tree:
             parent, name = self._parent(location)
             member = parent.children.get(name)
@@ -546,6 +558,7 @@ class ArchiveDrive(Drive):
             self._dirty = True
 
     def _move(self, source: Location, dest: Location, *, replace: bool) -> None:
+        self._refuse(source)
         with self._tree:
             source_parent, source_name = self._parent(source)
             member = source_parent.children.get(source_name)
@@ -572,6 +585,7 @@ class ArchiveDrive(Drive):
         self._move(source, dest, replace=True)
 
     def symlink(self, target: str, location: Location) -> None:
+        self._refuse(location)
         with self._tree:
             parent, name = self._parent(location)
             if name in parent.children:
@@ -580,11 +594,13 @@ class ArchiveDrive(Drive):
             self._dirty = True
 
     def chmod(self, location: Location, mode: int) -> None:
+        self._refuse(location)
         with self._tree:
             self._member(location).mode = mode & 0o7777
             self._dirty = True
 
     def utime(self, location: Location, atime_ns: int, mtime_ns: int, *, follow: bool = True) -> None:
+        self._refuse(location, rewrite=True)
         with self._tree:
             member = self._member(location)
             member.mtime = mtime_ns / 1e9
@@ -619,6 +635,8 @@ class ArchiveDrive(Drive):
                 with self._lock:
                     if self.tool:
                         self._write_tool(new, job)
+                    elif self.kind == STREAM:
+                        self._write_stream(new, job)
                     elif self.kind == "zip":
                         self._write_zip(new, job)
                     else:
@@ -810,6 +828,28 @@ class ArchiveDrive(Drive):
             shutil.rmtree(tree, ignore_errors=True)
             shutil.rmtree(old, ignore_errors=True)
 
+    def _write_stream(self, target: Path, job: Any = None) -> None:
+        """The one member compressed anew as the file was, at :attr:`level`."""
+        from navigator.lib.drives import stream, zstd
+
+        files = [(path, member) for path, member in self._walk(self.root) if not member.is_dir]
+        if len(files) != 1:
+            raise _error(errno.EROFS, self.outer)
+        path, member = files[0]
+        level = level_of(("tar", self.compression), self.level)
+        _counting(job, path, member.stat().st_size)
+        if self.compression == "zst":
+            plain = Path(tempfile.mkstemp(prefix=f".{target.name}.", dir=target.parent)[1])
+            try:
+                with self._source(member) as reader, open(plain, "wb") as writer:
+                    _pump(reader, writer, job)
+                zstd.compress(plain, target, level or 3)
+            finally:
+                _unlink_quietly(plain)
+            return
+        with self._source(member) as reader, stream.writer(target, self.compression, level) as writer:
+            _pump(reader, writer, job)
+
     def _source(self, member: _Member) -> IO[bytes]:
         """Where *member*'s bytes are: its staged file, or the archive as it was."""
         if member.staged is not None:
@@ -829,9 +869,12 @@ class ArchiveDrive(Drive):
             packed = os.stat(self.local).st_size
         except OSError:
             packed = 0
-        kind = self.sign + (f" ({self.compression})" if self.compression else "")
-        return [("Archive", str(self.outer)), ("Kind", kind), ("Files", f"{members:,}"),
-                ("Packed", f"{packed:,}"), ("Unpacked", f"{unpacked:,}")]
+        kind = self.sign + (f" ({self.compression})" if self.compression and self.kind != STREAM else "")
+        lines = [("Archive", str(self.outer)), ("Kind", kind), ("Files", f"{members:,}"),
+                 ("Packed", f"{packed:,}"), ("Unpacked", f"{unpacked:,}")]
+        if self.listed and self._archive is not None:
+            lines += self._archive.details()
+        return lines
 
     # -- testing -------------------------------------------------------------------------------
 
@@ -1014,31 +1057,51 @@ def _tool_archive(local: Path, kind: str, password: str) -> Any:
         raise NotAnArchive(error.strerror or str(error)) from error
 
 
-def _open(local: Path, password: str = "") -> tuple[str, Any, str, Path | None]:
+def _open(local: Path, password: str = "", job: Any = None) -> tuple[str, Any, str, Path | None]:
     """``(kind, archive, compression, plain)`` for *local*, by what is in it,
     not its name: a 7z or rar -- or a zip with encrypted members -- through
-    7-Zip, a ``.tar.zst`` through *plain*, the plain tar it is decompressed
-    into (the caller's to delete)."""
-    from navigator.lib.drives import arctool, zstd
+    7-Zip; a squashfs image (or an AppImage's) through ``unsquashfs``; a deb,
+    an ``ar``, an rpm or a cpio read here; a compressed tar or cpio, or else
+    a single compressed file (``stream``).  *plain* is the file a ``zst``
+    one was decompressed into (the caller's to delete).  *job* stops the
+    passes that decompress."""
+    from navigator.lib.drives import arctool, cpio, debpkg, members, rpmpkg, squashfs
 
     kind = arctool.kind_of(local)
     if kind is not None:
         return kind, _tool_archive(local, kind, password), "", None
-    compression = _compression_of(local)
-    if compression == "zst":
-        if not zstd.available():
-            raise NeedsTool(zstd.MISSING)
-        plain = _private_file(".tar")
+    offset = squashfs.offset_of(local)
+    if offset is not None:
         try:
-            zstd.decompress(local, plain)
-            if not tarfile.is_tarfile(plain):
-                raise NotAnArchive(str(local))
-            return "tar", tarfile.open(plain), compression, plain
-        except BaseException as error:
-            _unlink_quietly(plain)
-            if isinstance(error, (OSError, tarfile.TarError, EOFError)):
-                raise NotAnArchive(str(error)) from error
-            raise
+            return "squashfs", squashfs.SquashArchive(local, offset), "", None
+        except arctool.MissingTool as error:
+            raise NeedsTool(str(error)) from error
+        except OSError as error:
+            raise NotAnArchive(error.strerror or str(error)) from error
+    try:
+        with open(local, "rb") as file:
+            head = file.read(8)
+    except OSError as error:
+        raise NotAnArchive(str(error)) from error
+    try:
+        if debpkg.is_ar(head):
+            try:
+                return "deb", debpkg.DebArchive(local, job), "", None
+            except debpkg.ArError:
+                return "ar", debpkg.ArArchive(local), "", None
+        if rpmpkg.is_rpm(head):
+            return "rpm", rpmpkg.RpmArchive(local, job), "", None
+        if cpio.is_cpio(head):
+            return "cpio", cpio.CpioArchive(local, job), "", None
+    except cpio.CpioError as error:
+        if str(error).startswith("rpm large-file"):
+            raise NeedsTool(str(error)) from error
+        raise NotAnArchive(str(error)) from error
+    except _BROKEN as error:
+        raise NotAnArchive(str(error) or type(error).__name__) from error
+    compression = members.compression_of_bytes(head)
+    if compression:
+        return _open_compressed(local, compression, job)
     try:
         if zipfile.is_zipfile(local):
             archive = zipfile.ZipFile(local)
@@ -1051,6 +1114,54 @@ def _open(local: Path, password: str = "") -> tuple[str, Any, str, Path | None]:
     except (OSError, zipfile.BadZipFile, tarfile.TarError, EOFError) as error:
         raise NotAnArchive(str(error)) from error
     raise NotAnArchive(str(local))
+
+
+#: What a damaged archive of the kinds read here raises.
+_BROKEN = (OSError, EOFError, struct.error, ValueError, UnicodeDecodeError, lzma.LZMAError, zlib.error,
+           tarfile.TarError)
+
+
+def _open_compressed(local: Path, compression: str, job: Any) -> tuple[str, Any, str, Path | None]:
+    """A compressed file: a tar (as :mod:`tarfile` reads it, or a ``zst``
+    one through a plain copy), a cpio (decompressed into a plain one -- an
+    initramfs, a ``.cpio.gz``), else a single compressed file."""
+    from navigator.lib.drives import cpio, stream, zstd
+    from navigator.lib.drives.members import stopped_check
+
+    if compression == "zst" and not zstd.available():
+        raise NeedsTool(zstd.MISSING)
+    plain: Path | None = None
+    try:
+        if compression == "zst":
+            plain = _private_file(".tar")
+            zstd.decompress(local, plain)
+            if tarfile.is_tarfile(plain):
+                return "tar", tarfile.open(plain), compression, plain
+            with open(plain, "rb") as file:
+                head = file.read(6)
+        else:
+            if compression != "lzma" and tarfile.is_tarfile(local):
+                return "tar", tarfile.open(local), compression, None
+            with stream.open_path(local, compression) as reader:
+                head = reader.read(6)
+            if cpio.is_cpio(head):
+                plain = _private_file(".cpio")
+                with stream.open_path(local, compression) as reader, open(plain, "wb") as writer:
+                    while data := reader.read(1 << 20):
+                        stopped_check(job)
+                        writer.write(data)
+        if cpio.is_cpio(head):
+            assert plain is not None
+            return "cpio", cpio.CpioArchive(plain, job), compression, plain
+        return STREAM, stream.StreamArchive(local, compression, plain, job), compression, plain
+    except BaseException as error:
+        if plain is not None:
+            _unlink_quietly(plain)
+        if isinstance(error, cpio.CpioError):
+            raise NotAnArchive(str(error)) from error
+        if isinstance(error, _BROKEN):
+            raise NotAnArchive(str(error) or type(error).__name__) from error
+        raise
 
 
 def new_kind(name: str) -> tuple[str, str] | None:
@@ -1111,7 +1222,7 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_r
             raise
         ELEVATION.hold()
         try:
-            drive = ArchiveDrive(outer, use.local_for(outer), use=use, password=password)
+            drive = ArchiveDrive(outer, use.local_for(outer), use=use, password=password, job=job)
         except BaseException:
             usefile.discard(use)
             ELEVATION.unhold()
@@ -1142,7 +1253,7 @@ def open_archive(outer: Location, job: Any = None, *, create: bool = False, as_r
         use = usefile.fetch([outer], job if job is not None else _NoJob())
         local = use.local_for(outer)
     try:
-        drive = ArchiveDrive(outer, local, use=use, password=password)
+        drive = ArchiveDrive(outer, local, use=use, password=password, job=job)
     except BaseException:
         if use is not None:
             from navigator.lib.drives import usefile
@@ -1214,6 +1325,6 @@ def close_all() -> None:
 
 
 __all__ = ["ARCHIVE_SITE", "ArchiveDrive", "ArchiveOptions", "FORMATS", "LEVELS", "LEVEL_NAMES", "NEW_KINDS",
-           "NeedPassword", "NeedsTool", "NotAnArchive", "TOOL_KINDS", "can_encrypt", "close_all", "find",
+           "NeedPassword", "NeedsTool", "NotAnArchive", "READ_ONLY_KINDS", "STREAM", "TOOL_KINDS", "can_encrypt", "close_all", "find",
            "format_missing", "hold", "leave", "level_of", "new_kind", "open_archive", "release_unheld",
            "release_unused"]

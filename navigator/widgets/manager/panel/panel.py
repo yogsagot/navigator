@@ -1125,6 +1125,41 @@ class Panel(ListViewer):
             # Another drive's links are its own to follow: the name is enough.
             self.location = self._plain_where_readable((self.location / entry.name).normalized())
 
+    def go_into(self) -> None:
+        """Ctrl+PgDn, DN's ``_CtrlPgDn``: what Enter does on a directory,
+        ``..`` or a *Find:* listing's entry; on a file, which DN's left
+        alone, the file opened as an archive whatever its name
+        (:meth:`open_as_archive`, a departure)."""
+        entry = self.selected
+        if entry is None:
+            return
+        if self.found is not None or entry.is_dir:
+            self.enter()
+            return
+        self.open_as_archive()
+
+    def archive_candidate(self) -> DirEntry | None:
+        """The file at the cursor that *Open archive* may open: a regular
+        file, not in an archive already (DN opened none from inside
+        another) nor in a *Find:* listing."""
+        entry = self.selected
+        if (entry is None or entry.is_dir or self.found is not None or self.location.outer is not None
+                or not stat.S_ISREG(entry.mode)):
+            return None
+        return entry
+
+    def open_as_archive(self) -> None:
+        """The file at the cursor opened as an archive, by what is in it --
+        never run, as Enter runs one that is not."""
+        entry = self.archive_candidate()
+        if entry is not None:
+            self.spawn(self._open_as_archive(entry))
+
+    async def _open_as_archive(self, entry: DirEntry) -> None:
+        from navigator.widgets.drives.archives import enter_archive
+
+        await enter_archive(self, self.entry_location(entry), forced=True)
+
     def go_up(self) -> None:
         """Go to the parent directory, the cursor on the one just left.
 

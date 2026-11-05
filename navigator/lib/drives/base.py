@@ -361,7 +361,7 @@ class Drive:
 #: information panel translates, listed for the catalogues
 #: (``navigator/locales/__init__.py``).
 DESCRIBED = ("Server", "Host key", "Software", "Cipher", "Security", "Shares", "Archive", "Kind", "Files",
-             "Packed", "Unpacked", "Region", "Container", "Image", "Engine", "Device", "Android")
+             "Packed", "Unpacked", "Package", "Region", "Container", "Image", "Engine", "Device", "Android")
 
 
 class SeekingReader:

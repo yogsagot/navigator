@@ -71,10 +71,12 @@ async def ask_archive_password(app: Any, origin: Location, *, wrong: bool = Fals
     return None if answer is None else answer[0]
 
 
-async def enter_archive(panel: Any, origin: Location) -> bool:
+async def enter_archive(panel: Any, origin: Location, *, forced: bool = False) -> bool:
     """*panel* into the archive at *origin*: DN's ``ArcViewer`` and
     ``InsertDrive``.  False if it is no archive this can read -- the caller
-    runs it as a file instead, as DN did; True otherwise, a failure said."""
+    runs it as a file instead, as DN did; True otherwise, a failure said.
+    *forced* (Ctrl+PgDn, *Open archive*): one that is not is said too, and
+    True -- nothing is run."""
     from navigator.lib.drives import archive
     from navigator.widgets.editor.loading import FileJob
 
@@ -88,7 +90,12 @@ async def enter_archive(panel: Any, origin: Location) -> bool:
                 path=escape_caption(str(origin)), error=escape_caption(str(error))), buttons="ok").execute(app)
         return True
     except archive.NotAnArchive:
-        return False
+        if not forced:
+            return False
+        if app is not None:
+            await Dialog(title=tr("Error"), prompt=tr("{name} is not an archive Navigator can read").format(
+                name=escape_caption(origin.name)), buttons="ok").execute(app)
+        return True
     except Stopped:
         return True
     except OSError as error:

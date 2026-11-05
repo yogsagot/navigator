@@ -355,6 +355,14 @@ class GoParent(Command):
     by_key: bool = False
 
 
+class GoInto(Command):
+    """Ctrl+PgDn, DN's ``_CtrlPgDn``: the counterpart of :class:`GoParent`
+    -- into the directory at the cursor, up from ``..``, to a *Find:*
+    listing's entry.  On a file, which DN's left alone, it opens the file as
+    an archive whatever its name (:class:`OpenArchive`, a departure): the
+    way into an AppImage, which Enter runs."""
+
+
 @dataclass(frozen=True, slots=True)
 class ScrollNames(Command):
     """Left and Right in the simple and the detailed modes: scroll every name
@@ -754,6 +762,13 @@ class ArcTest(Command):
     """
 
 
+class OpenArchive(Command):
+    """File > Archive > *Open archive*: the file at the cursor opened as an
+    archive whatever its name -- an AppImage, which Enter runs, a static
+    library's ``.a`` -- what Ctrl+PgDn (:class:`GoInto`) does on a file.
+    Not DN's: its archives were known by signature, Enter trying every file."""
+
+
 class MountImage(Command):
     """Disk > *Mount image*: the ``.iso``/``.img`` at the cursor mounted and
     opened, as Enter does (*ENTER mounts disc images* on or off).  Not DN's,
@@ -899,6 +914,8 @@ __all__ = [
     "QuickView",
     "ToggleMark",
     "GoParent",
+    "GoInto",
+    "OpenArchive",
     "ScrollNames",
     "MoveSeparator",
     "SelectGroup",

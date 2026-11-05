@@ -112,6 +112,10 @@ class ToolInfo:
     #: ``Symbolic Link`` for a rar); None where it is read as the member's
     #: contents (a 7z's).
     target: str | None = None
+    #: ``user:group`` where the format keeps them (a deb's tars, squashfs).
+    owner: str | None = None
+    #: The back-end's own handle on the member (``members.ListedArchive``'s).
+    ref: Any = None
 
 
 # -- listing ---------------------------------------------------------------------------------

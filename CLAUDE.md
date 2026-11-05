@@ -55,6 +55,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   install them with `./venv/bin/pip install -r requirements.txt`. Everything else is stdlib. Test tooling lives in `requirements-dev.txt`: `./venv/bin/pip install -r requirements-dev.txt`
 - FFmpeg's `ffprobe`, when installed, gives Ctrl+L's *Current file* an audio or video file's duration, streams and
   tags (`navigator/lib/system/mediainfo.py`); without it those lines are left out
+- squashfs-tools' `unsquashfs`, when installed, reads a `.squashfs`/`.sqfs` image and an AppImage's (Ctrl+PgDn) as an
+  archive; deb, rpm, cpio and single `.gz/.bz2/.xz/.zst` files need nothing (`navigator-drives`)
 - The `docker`, `podman` and `adb` commands, when installed, are the container and device drives' (`navigator-drives`);
   a missing one greys its Utilities > Link and Remote shell entries with the command to install
 - GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encoding > Encryption's programs

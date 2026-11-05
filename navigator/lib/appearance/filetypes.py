@@ -49,7 +49,7 @@ BY_TYPE = {
 CATEGORIES = {
     "archive": "*.zip;*.tar;*.gz;*.tgz;*.bz2;*.tbz;*.tbz2;*.xz;*.txz;*.zst;*.lz;*.lzma;*.z;"
                "*.7z;*.rar;*.arj;*.lha;*.lzh;*.cab;*.ace;*.zoo;*.cpio;*.deb;*.rpm;*.apk;"
-               "*.jar;*.war;*.whl;*.iso;*.img;*.dmg",
+               "*.jar;*.war;*.whl;*.iso;*.img;*.dmg;*.squashfs;*.sqfs",
     "image": "*.png;*.jpg;*.jpeg;*.gif;*.bmp;*.svg;*.webp;*.ico;*.tif;*.tiff;*.psd;*.xcf;"
              "*.pcx;*.tga;*.heic;*.avif;*.raw;*.cr2;*.nef",
     "media": "*.mp3;*.flac;*.ogg;*.oga;*.opus;*.wav;*.m4a;*.aac;*.wma;*.mid;*.midi;*.mod;"

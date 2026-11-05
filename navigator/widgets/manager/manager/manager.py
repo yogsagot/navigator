@@ -50,6 +50,8 @@ from navigator.widgets.manager.commands import (
     EditNamed,
     ExtractArchive,
     ExtractTo,
+    OpenArchive,
+    GoInto,
     GoParent,
     GoToTreeDirectory,
     HideInactive,
@@ -214,6 +216,8 @@ class Manager(Window):
         "backspace": GoParent(by_key=True),
         "shift+backspace": GoParent(),
         "ctrl+pageup": GoParent(),
+        #: DN's ``_CtrlPgDn``; on a file it opens it as an archive (a departure).
+        "ctrl+pagedown": GoInto(),
         #: DN's quick directories: Alt+1 .. Alt+9 go, Alt+Shift+1 .. 9 store,
         #: Alt+Shift+0 lists them.  A terminal without the kitty protocol
         #: sends Alt with the shifted character, so a US layout's ``!`` ..
@@ -1093,6 +1097,14 @@ class Manager(Window):
 
     async def on_arc_test(self, event: ArcTest) -> bool:
         self.spawn(self.test_archive(self.active_panel))
+        return True
+
+    async def on_go_into(self, event: GoInto) -> bool:
+        self.active_panel.go_into()
+        return True
+
+    async def on_open_archive(self, event: OpenArchive) -> bool:
+        self.active_panel.open_as_archive()
         return True
 
     # -- disk images: Unmount image (a departure: DOS had no loop devices) ---------------------------
@@ -3074,6 +3086,12 @@ class Manager(Window):
                 return read_only
         if isinstance(command, (ExtractTo, ArcTest)):
             return unless(panel.location.outer is not None, tr("Only inside an archive"))
+        if isinstance(command, GoInto):
+            return unless(not self._aside_focused(), aside)
+        if isinstance(command, OpenArchive):
+            if panel.location.outer is not None:
+                return tr("Not from inside an archive")
+            return unless(panel.archive_candidate() is not None, tr("No file at the cursor"))
         if isinstance(command, MountImage):
             from navigator.lib.system import udisks
 
