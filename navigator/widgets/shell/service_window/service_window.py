@@ -8,11 +8,19 @@ or a box is up.  Only the newest read is listed, and the cursor stays on the
 unit it was on, by name.  The filter and the sort change what is shown, never
 what was read.
 
-**Doing something to a unit** runs ``systemctl --no-ask-password VERB`` as
-the user first; polkit's refusal (``EPERM``) is offered *As root*, as a
-refused file step is, and done by the root helper's ``systemctl`` -- never for
-a user unit, whose manager is the user's own.  **F3 follows the journal** in
-the viewer: :mod:`navigator.widgets.shell.service_window.journal_window`.
+**The service manager is a backend** (:mod:`navigator.lib.system.services`):
+systemd or OpenRC, picked when the window opens.  What it has not -- OpenRC's
+masking, user services, other kinds -- is greyed with the reason; the title
+names a manager other than systemd.
+
+**Doing something to a unit** runs the backend's command as the user first
+(``systemctl --no-ask-password``, ``rc-service``); a refusal (``EPERM``) is
+offered *As root*, as a refused file step is, and done by the root helper's
+``service`` op -- never for a user unit, whose manager is the user's own.
+**F3 follows the log** in the viewer:
+:mod:`navigator.widgets.shell.service_window.journal_window`.  **F4** opens
+what the backend says (a unit file or drop-in, an ``/etc/conf.d`` file); a
+save is followed by systemd's daemon-reload, or by OpenRC's offer of a restart.
 **Enter in the list is handled here** (*Details*), so the list's
 ``ChosenEvent`` does not walk up to the screen, which would take it for a
 directory.
@@ -55,7 +63,7 @@ from navigator.widgets.shell.process_list import SortChosen
 _READER = Background("nav-services", workers=1)
 
 #: Each sort command's key.
-_SORTS = ((ServiceSortName, "name"), (ServiceSortActive, "active"), (ServiceSortFileState, "file_state"),
+_SORTS = ((ServiceSortName, "name"), (ServiceSortActive, "active"), (ServiceSortFileState, "startup"),
           (ServiceSortDescription, "description"))
 
 #: The verbs asked about first: what takes a running unit away.
@@ -102,13 +110,15 @@ def _discard_unused(override: Path) -> None:
 
 
 class ServiceWindow(Window):
-    """systemd's units in a window of their own."""
+    """The system's services -- systemd's units, OpenRC's services -- in a window of their own."""
 
     def __init__(self, user: bool = False, all_types: bool = False, sort: str = "name",
                  descending: bool = False, **kwargs: Any) -> None:
         """*user* ticks *User units*, *all_types* ticks *All types*; *sort* is
         one of :data:`~navigator.lib.system.services.SORTS`, *descending* its way round."""
         super().__init__(**kwargs)
+        #: The service manager this window works, None where there is none.
+        self.backend = services.current()
         self.user = user
         self.all_types = all_types
         self.sort = sort if sort in services.SORTS else "name"
@@ -152,6 +162,12 @@ class ServiceWindow(Window):
         self.filter.rows = self.units
         # A symbol, not a word: set here because a markup literal is translated.
         self.clear_filter.text = "X"
+        backend = self.backend
+        if backend is not None and backend.name != "systemd":
+            self.title = tr("Services ({manager})").format(manager=backend.title)
+            self.units.noun = "service"
+        self.user_box.disabled = backend is None or not backend.user_scope
+        self.types_box.disabled = backend is None or not backend.all_types
         effect(self, ServiceWindow._follow_view)
         app = self.application
         seconds = _refresh()
@@ -261,7 +277,7 @@ class ServiceWindow(Window):
         return True
 
     async def on_service_sort_file_state(self, command: ServiceSortFileState) -> bool:
-        self._sort_by("file_state")
+        self._sort_by("startup")
         return True
 
     async def on_service_sort_description(self, command: ServiceSortDescription) -> bool:
@@ -269,11 +285,13 @@ class ServiceWindow(Window):
         return True
 
     async def on_service_user_units(self, command: ServiceUserUnits) -> bool:
-        self.user = not self.user
+        if not self.user_box.disabled:
+            self.user = not self.user
         return True
 
     async def on_service_all_types(self, command: ServiceAllTypes) -> bool:
-        self.all_types = not self.all_types
+        if not self.types_box.disabled:
+            self.all_types = not self.all_types
         return True
 
     async def on_filter_services(self, command: FilterServices) -> bool:
@@ -318,6 +336,14 @@ class ServiceWindow(Window):
         return self.selected is not None
 
     def refusal(self, command: Any) -> str:
+        backend = self.backend
+        lacks = tr("Not something {manager} does").format(manager=backend.title if backend else "")
+        if isinstance(command, ServiceUserUnits):
+            return "" if backend is not None and backend.user_scope else lacks
+        if isinstance(command, ServiceAllTypes):
+            return "" if backend is not None and backend.all_types else lacks
+        if isinstance(command, ServiceVerb) and backend is not None and command.verb not in backend.verbs:
+            return lacks
         if isinstance(command, (ServiceVerb, ServiceJournal, ServiceDetails, EditUnitFile)):
             return "" if self.selected is not None else tr("The cursor is on no unit")
         return super().refusal(command)
@@ -334,7 +360,7 @@ class ServiceWindow(Window):
         return True
 
     async def _details(self, unit: services.Unit) -> None:
-        """What ``systemctl status`` says of *unit*, in a box."""
+        """What the manager says of *unit* (``systemctl status``, ``rc-service status``), in a box."""
         try:
             text = await asyncio.to_thread(services.details, unit)
         except OSError as error:
@@ -353,9 +379,9 @@ class ServiceWindow(Window):
     async def on_service_journal(self, command: ServiceJournal) -> bool:
         unit = self.selected
         if unit is not None:
-            from navigator.widgets.shell.service_window.journal_window import open_journal
+            from navigator.widgets.shell.service_window.journal_window import open_log
 
-            self.spawn(open_journal(self, unit))
+            self.spawn(open_log(self, unit))
         return True
 
     # -- F4: the unit's file in the editor -------------------------------------------------
@@ -367,34 +393,31 @@ class ServiceWindow(Window):
         return True
 
     async def _edit(self, unit: services.Unit) -> None:
-        """*unit*'s file in an editor window: the administrator's own as it
-        is, a package's through a drop-in override (``systemctl edit``'s
-        ``<unit>.d/override.conf``), a new one seeded with the package's file
-        commented out.  Read as the user -- unit files are everyone's to read
-        -- and a save refused permission is offered *As root* by the editor."""
+        """What the backend says *unit* is set up by, in an editor window:
+        systemd's own unit file as it is, a package's through a drop-in
+        override (``<unit>.d/override.conf``), OpenRC's ``/etc/conf.d`` file.
+        A new one is seeded with what it overrides, commented out.  Read as
+        the user -- these are everyone's to read -- and a save refused
+        permission is offered *As root* by the editor itself."""
         from navigator.lib.config.file_history import open_editor
 
         try:
-            fragment = await asyncio.to_thread(services.unit_file, unit)
-            path, vendor = services.edit_target(unit, fragment)
-            seed = ""
+            plan = await asyncio.to_thread(services.edit_plan, unit)
+            path = plan.path
             made = False
-            if vendor is not None:
+            if plan.seed is not None:
                 made = await self._override_dir(unit, path.parent)
                 if made is None:
                     return
-                if not await asyncio.to_thread(path.exists):
-                    original = await asyncio.to_thread(vendor.read_text, errors="replace")
-                    seed = services.override_text(unit, vendor, original)
-            window = await open_editor(self.parent, path, new=bool(seed))
+            window = await open_editor(self.parent, path, new=plan.seed is not None)
         except OSError as error:
             await self._say(error)
             return
         if window is None:
             return
-        if seed:
-            window.editor.insert_text(seed)
-            window.editor.go_to_line(services.OVERRIDE_LINE)
+        if plan.seed is not None:
+            window.editor.insert_text(plan.seed)
+            window.editor.go_to_line(plan.line)
         if made:
             window.after_close = lambda: _discard_unused(path)
         self._editing[str(path)] = unit
@@ -436,18 +459,24 @@ class ServiceWindow(Window):
 
     def unit_file_saved(self, path: Path) -> None:
         """``Shell.on_file_saved``: a file was written.  One F4 opened from
-        here has systemd read its unit files again, or the edit would not
-        count until the next boot."""
+        here is made to count: systemd reads its unit files again (else not
+        until the next boot); OpenRC's is read at the next start, so a
+        running service is offered a restart."""
         unit = self._editing.get(str(path))
-        if unit is not None:
-            self.spawn(self._daemon_reload(unit))
+        if unit is None:
+            return
+        backend = services.backend_of(unit)
+        if backend.reload_after_edit:
+            self.spawn(self._after_edit(unit))
+        elif backend.restart_after_edit:
+            self.spawn(self._offer_restart(unit))
 
-    async def _daemon_reload(self, unit: services.Unit) -> None:
+    async def _after_edit(self, unit: services.Unit) -> None:
         """``systemctl daemon-reload`` for *unit*'s manager; refused, as root --
         at once if root access is already open (the file was most likely just
         saved through it), else after asking."""
         try:
-            await asyncio.to_thread(services.daemon_reload, unit.user)
+            await asyncio.to_thread(services.after_edit, unit)
         except OSError as error:
             if not (refused(error) and not unit.user and await asyncio.to_thread(ELEVATION.available)):
                 await self._say(error)
@@ -462,7 +491,7 @@ class ServiceWindow(Window):
 
             def as_root() -> None:
                 try:
-                    ELEVATION.call("daemon_reload")
+                    ELEVATION.call("after_edit", manager=unit.backend)
                 finally:
                     ELEVATION.release()
 
@@ -473,10 +502,22 @@ class ServiceWindow(Window):
                 return
         self.reload()
 
+    async def _offer_restart(self, unit: services.Unit) -> None:
+        """OpenRC: the settings saved count from the next start -- now, if
+        the service runs and the user says so."""
+        now = next((each for each in self._found if each.name == unit.name), unit)
+        if not now.running:
+            return
+        question = tr("Restart {unit} now, so it reads its new settings?").format(unit=unit.name)
+        answer = await Dialog(title=tr("Services"), buttons="yes-no",
+                              prompt=escape_caption(question)).execute(self.application)
+        if answer is True:
+            await self._act(now, "restart")
+
     async def on_service_verb(self, command: ServiceVerb) -> bool:
-        """F5, F6, F7, F8, Ctrl+E, Ctrl+D and the menu's: ``systemctl VERB``."""
+        """F5, F6, F7, F8, Ctrl+E, Ctrl+D and the menu's: the manager's VERB."""
         unit = self.selected
-        if unit is not None and command.verb in services.VERBS:
+        if unit is not None and command.verb in services.backend_of(unit).verbs:
             self.spawn(self._act(unit, command.verb))
         return True
 
@@ -512,7 +553,7 @@ class ServiceWindow(Window):
 
         def as_root() -> None:
             try:
-                ELEVATION.call("systemctl", verb=verb, unit=unit.name)
+                ELEVATION.call("service", manager=unit.backend, verb=verb, unit=unit.name)
             finally:
                 ELEVATION.release()
 

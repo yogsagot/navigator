@@ -1,4 +1,4 @@
-"""Utilities > Services: reading ``systemctl``, the root helper's ops, the window and F3's journal."""
+"""Utilities > Services with systemd: reading ``systemctl``, the root helper's ops, the window, F3 and F4."""
 
 from __future__ import annotations
 
@@ -17,7 +17,7 @@ from navkit.events import KeyEvent
 from conftest import Until, run_app
 
 from navigator.lib.system import services
-from navigator.lib.system.services import Unit
+from navigator.lib.system.services import Unit, common, systemd
 
 
 def completed(stdout: str = "", returncode: int = 0, stderr: str = "") -> subprocess.CompletedProcess[str]:
@@ -54,12 +54,12 @@ def fake_systemctl(calls: list[list[str]], json_works: bool = True):
 
 def test_the_loaded_units_and_the_installed_ones_are_merged_and_templates_left_out(monkeypatch):
     calls: list[list[str]] = []
-    monkeypatch.setattr(services, "_run", fake_systemctl(calls))
+    monkeypatch.setattr(common, "run", fake_systemctl(calls))
     found = {unit.name: unit for unit in services.gather()}
     assert set(found) == {"cron.service", "getty@tty1.service", "broken.service", "idle.service"}
-    assert found["cron.service"].file_state == "enabled" and found["cron.service"].running
+    assert found["cron.service"].startup == "enabled" and found["cron.service"].running
     # An instance takes its template's state; one installed but not loaded is inactive.
-    assert found["getty@tty1.service"].file_state == "enabled"
+    assert found["getty@tty1.service"].startup == "enabled"
     assert (found["idle.service"].active, found["idle.service"].sub) == ("inactive", "dead")
     assert found["broken.service"].failed
     assert all("--type=service" in argv for argv in calls) and all("--user" not in argv for argv in calls)
@@ -67,25 +67,25 @@ def test_the_loaded_units_and_the_installed_ones_are_merged_and_templates_left_o
 
 def test_user_units_and_every_type_are_asked_for_and_plain_columns_read_without_json(monkeypatch):
     calls: list[list[str]] = []
-    monkeypatch.setattr(services, "_run", fake_systemctl(calls, json_works=False))
+    monkeypatch.setattr(common, "run", fake_systemctl(calls, json_works=False))
     found = {unit.name: unit for unit in services.gather(user=True, all_types=True)}
     assert found["cron.service"].description == "Regular jobs" and found["cron.service"].user
-    assert found["idle.service"].file_state == "disabled" and found["idle.service"].description == ""
+    assert found["idle.service"].startup == "disabled" and found["idle.service"].description == ""
     assert all(argv[:2] == ["systemctl", "--user"] and "--type=service" not in argv for argv in calls)
 
 
 def test_ordered_matches_and_valid_names():
-    a = Unit("b.service", active="active", sub="running", file_state="enabled", description="Zeta")
-    b = Unit("A.service", active="inactive", file_state="disabled", description="alpha")
-    c = Unit("c.timer", active="active", sub="waiting", file_state="enabled", description="Gamma")
+    a = Unit("b.service", active="active", sub="running", startup="enabled", description="Zeta")
+    b = Unit("A.service", active="inactive", startup="disabled", description="alpha")
+    c = Unit("c.timer", active="active", sub="waiting", startup="enabled", description="Gamma")
     assert [u.name for u in services.ordered([a, b, c], "name", False)] == ["A.service", "b.service", "c.timer"]
     assert [u.name for u in services.ordered([a, b, c], "active", False)] == ["b.service", "c.timer", "A.service"]
     assert [u.name for u in services.ordered([a, b, c], "description", True)] == ["b.service", "c.timer",
                                                                                    "A.service"]
     assert services.matches(b, "ALPH") and services.matches(c, "timer") and not services.matches(a, "gamma")
-    assert services.valid_unit("getty@tty1.service") and services.valid_unit("sys-kernel-debug.mount")
+    assert systemd.valid_unit("getty@tty1.service") and systemd.valid_unit("sys-kernel-debug.mount")
     for bad in ("-H.service", "a b.service", "x;rm.service", "noext", ""):
-        assert not services.valid_unit(bad), bad
+        assert not systemd.valid_unit(bad), bad
 
 
 def test_act_asks_no_password_and_a_polkit_refusal_is_eperm(monkeypatch):
@@ -99,7 +99,7 @@ def test_act_asks_no_password_and_a_polkit_refusal_is_eperm(monkeypatch):
             return completed(returncode=1, stderr="Failed to start denied.service: Access denied\n")
         return completed(returncode=5, stderr="Unit nope.service not found.")
 
-    monkeypatch.setattr(services, "_run", run)
+    monkeypatch.setattr(common, "run", run)
     with pytest.raises(OSError) as denied:
         services.act(Unit("denied.service"), "start")
     assert denied.value.errno == errno.EPERM and refused(denied.value)
@@ -116,19 +116,22 @@ def test_act_asks_no_password_and_a_polkit_refusal_is_eperm(monkeypatch):
 # -- the root helper ---------------------------------------------------------
 
 
-def test_the_helpers_systemctl_runs_only_a_listed_verb_on_a_valid_name(monkeypatch):
+def test_the_helpers_service_op_runs_only_a_listed_verb_of_a_known_manager_on_a_valid_name(monkeypatch):
     from navigator.lib.system import roothelper
 
     calls: list[list[str]] = []
-    monkeypatch.setattr(services, "_run", lambda argv: calls.append(argv) or completed())
+    monkeypatch.setattr(common, "run", lambda argv: calls.append(argv) or completed())
     helper = roothelper._Helper()
-    assert {"systemctl", "journal_follow", "journal_stop"} <= roothelper.OPS
-    for verb, unit in (("poweroff", "cron.service"), ("start", "--root=/x"), ("start", "a b.service")):
+    assert {"service", "after_edit", "journal_follow", "journal_stop"} <= roothelper.OPS
+    assert not {"systemctl", "daemon_reload"} & roothelper.OPS
+    for manager, verb, unit in (("systemd", "poweroff", "cron.service"), ("systemd", "start", "--root=/x"),
+                                ("systemd", "start", "a b.service"), ("upstart", "start", "cron.service"),
+                                ("openrc", "mask", "sshd")):
         with pytest.raises(OSError) as refused:
-            helper.systemctl(verb, unit)
+            helper.service(manager, verb, unit)
         assert refused.value.errno == errno.EINVAL
     assert calls == []
-    helper.systemctl("restart", "cron.service")
+    helper.service("systemd", "restart", "cron.service")
     assert calls == [["systemctl", "--no-ask-password", "restart", "--", "cron.service"]]
 
 
@@ -138,7 +141,7 @@ LINES = "import sys, time\nfor n in range(10000):\n    print('line', n, flush=Tr
 def test_the_helper_follows_a_journal_into_the_users_file_and_stops_it(tmp_path, monkeypatch):
     from navigator.lib.system import roothelper
 
-    monkeypatch.setattr(services, "journal_argv", lambda name, user, lines: [sys.executable, "-c", LINES])
+    monkeypatch.setattr(systemd, "journal_argv", lambda name, user, lines: [sys.executable, "-c", LINES])
     helper = roothelper._Helper(trusted=frozenset({os.getuid()}))
     out = tmp_path / "journal.log"
     with pytest.raises(OSError):
@@ -168,7 +171,7 @@ def fake_units() -> list[Unit]:
     ]
 
 
-def service_run(where, monkeypatch, *actions, reads=None):
+def service_run(where, monkeypatch, *actions, reads=None, units=None, manager="systemd"):
     from test_nav import navigator
 
     from navigator.settings import SETTINGS
@@ -176,10 +179,11 @@ def service_run(where, monkeypatch, *actions, reads=None):
     def gather(user=False, all_types=False):
         if reads is not None:
             reads.append((user, all_types))
-        return fake_units()
+        return (units or fake_units)()
 
     monkeypatch.setattr(services, "gather", gather)
     monkeypatch.setattr(SETTINGS.services, "refresh", 0)
+    monkeypatch.setattr(SETTINGS.services, "manager", manager)
     app = navigator(where)
 
     def open_it(a):
@@ -254,7 +258,7 @@ def test_a_refused_start_is_offered_as_root_and_done_by_the_helper(tmp_path, mon
     original = elevate.ELEVATION.call
 
     def call(op, payload=b"", **args):
-        if op != "systemctl":
+        if op != "service":
             return original(op, payload, **args)
         root_calls.append((op, args))
         return None
@@ -264,7 +268,7 @@ def test_a_refused_start_is_offered_as_root_and_done_by_the_helper(tmp_path, mon
     monkeypatch.setattr(as_root, "ask_as_root", yes)
     service_run(tmp_path, monkeypatch, KeyEvent("f6"), Until(lambda a: bool(root_calls)))
     assert "broken.service" in asked[0]
-    assert root_calls == [("systemctl", {"verb": "restart", "unit": "broken.service"})]
+    assert root_calls == [("service", {"manager": "systemd", "verb": "restart", "unit": "broken.service"})]
 
 
 def test_f3_follows_the_journal_in_the_viewer_and_closing_it_stops_journalctl(tmp_path, monkeypatch):
@@ -278,8 +282,8 @@ def test_f3_follows_the_journal_in_the_viewer_and_closing_it_stops_journalctl(tm
         started.append((name, user, lines))
         return [sys.executable, "-c", LINES]
 
-    monkeypatch.setattr(services, "journal_argv", argv)
-    monkeypatch.setattr(services, "can_read_journal", lambda unit: True)
+    monkeypatch.setattr(systemd, "journal_argv", argv)
+    monkeypatch.setattr(systemd, "can_read_journal", lambda unit: True)
     (tmp_path / "tmp").mkdir()
     monkeypatch.setattr(tempdir, "private_dir", lambda: tmp_path / "tmp")
     monkeypatch.setattr(SETTINGS.services, "journal_lines", 50)
@@ -310,30 +314,31 @@ def test_f3_follows_the_journal_in_the_viewer_and_closing_it_stops_journalctl(tm
 def test_unit_file_is_the_fragment_and_a_masked_unit_has_none(monkeypatch):
     calls: list[list[str]] = []
     answers = {"cron.service": "/usr/lib/systemd/system/cron.service\n", "masked.service": "/dev/null\n"}
-    monkeypatch.setattr(services, "_run", lambda argv: calls.append(argv) or completed(answers[argv[-1]]))
-    assert str(services.unit_file(Unit("cron.service"))) == "/usr/lib/systemd/system/cron.service"
+    monkeypatch.setattr(common, "run", lambda argv: calls.append(argv) or completed(answers[argv[-1]]))
+    assert str(systemd.unit_file(Unit("cron.service"))) == "/usr/lib/systemd/system/cron.service"
     assert calls[0] == ["systemctl", "show", "--property=FragmentPath", "--value", "--", "cron.service"]
     with pytest.raises(OSError) as none:
-        services.unit_file(Unit("masked.service", user=True))
+        systemd.unit_file(Unit("masked.service", user=True))
     assert none.value.errno == errno.ENOENT and calls[1][:2] == ["systemctl", "--user"]
 
 
-def test_the_helpers_daemon_reload(monkeypatch):
+def test_the_helpers_after_edit_reloads_systemd_and_does_nothing_for_openrc(monkeypatch):
     from navigator.lib.system import roothelper
 
     calls: list[list[str]] = []
-    monkeypatch.setattr(services, "_run", lambda argv: calls.append(argv) or completed())
-    assert "daemon_reload" in roothelper.OPS
-    roothelper._Helper().daemon_reload()
+    monkeypatch.setattr(common, "run", lambda argv: calls.append(argv) or completed())
+    roothelper._Helper().after_edit("openrc")
+    assert calls == []
+    roothelper._Helper().after_edit("systemd")
     assert calls == [["systemctl", "--no-ask-password", "daemon-reload"]]
 
 
 def test_a_masked_unit_has_no_file_to_edit(monkeypatch):
     calls: list[list[str]] = []
-    monkeypatch.setattr(services, "_run", lambda argv: calls.append(argv) or completed("/usr/lib/x.service\n"))
-    for masked in (Unit("a.service", file_state="masked"), Unit("b.service", load="masked")):
+    monkeypatch.setattr(common, "run", lambda argv: calls.append(argv) or completed("/usr/lib/x.service\n"))
+    for masked in (Unit("a.service", startup="masked"), Unit("b.service", load="masked")):
         with pytest.raises(OSError) as refused:
-            services.unit_file(masked)
+            systemd.unit_file(masked)
         assert "unmask it first" in refused.value.strerror
     assert calls == []
 
@@ -346,29 +351,29 @@ def test_a_package_file_is_overridden_and_the_admins_own_edited(tmp_path, monkey
     vendor.write_text("[Service]\nExecStart=/usr/sbin/cron\n")
     (own / "linked.service").symlink_to(vendor)
     (own / "mine.service").write_text("")
-    monkeypatch.setattr(services, "admin_dir", lambda user: own)
+    monkeypatch.setattr(systemd, "admin_dir", lambda user: own)
     unit = Unit("cron.service")
-    assert services.edit_target(unit, vendor) == (own / "cron.service.d" / "override.conf", vendor)
+    assert systemd.edit_target(unit, vendor) == (own / "cron.service.d" / "override.conf", vendor)
     # A link in /etc to a package's file is still the package's.
-    assert services.edit_target(unit, own / "linked.service")[1] == own / "linked.service"
-    assert services.edit_target(unit, own / "mine.service") == (own / "mine.service", None)
-    text = services.override_text(unit, vendor, vendor.read_text())
+    assert systemd.edit_target(unit, own / "linked.service")[1] == own / "linked.service"
+    assert systemd.edit_target(unit, own / "mine.service") == (own / "mine.service", None)
+    text = systemd.override_text(unit, vendor, vendor.read_text())
     lines = text.splitlines()
     assert all(line.startswith("#") or not line for line in lines)
-    assert lines[services.OVERRIDE_LINE - 1] == "" and "# ExecStart=/usr/sbin/cron" in lines
+    assert lines[systemd.OVERRIDE_LINE - 1] == "" and "# ExecStart=/usr/sbin/cron" in lines
 
 
 def test_the_admins_directories(tmp_path, monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    assert services.admin_dir(False) == Path("/etc/systemd/system")
-    assert services.admin_dir(True) == tmp_path / "systemd" / "user"
+    assert systemd.admin_dir(False) == Path("/etc/systemd/system")
+    assert systemd.admin_dir(True) == tmp_path / "systemd" / "user"
 
 
 def edit_run(tmp_path, monkeypatch, fragment, *after):
     reloads: list[bool] = []
-    monkeypatch.setattr(services, "admin_dir", lambda user: tmp_path / "etc")
-    monkeypatch.setattr(services, "unit_file", lambda unit: fragment)
-    monkeypatch.setattr(services, "daemon_reload", lambda user: reloads.append(user))
+    monkeypatch.setattr(systemd, "admin_dir", lambda user: tmp_path / "etc")
+    monkeypatch.setattr(systemd, "unit_file", lambda unit: fragment)
+    monkeypatch.setattr(systemd, "daemon_reload", lambda user: reloads.append(user))
     seen = {}
 
     def editing(a):
@@ -402,9 +407,9 @@ def test_f4_on_a_package_file_writes_a_drop_in_override(tmp_path, monkeypatch):
     vendor.write_text("[Unit]\nDescription=Broken thing\n")
     seen = edit_run(tmp_path, monkeypatch, vendor)
     override = tmp_path / "etc" / "broken.service.d" / "override.conf"
-    assert seen["path"] == override and seen["line"] == services.OVERRIDE_LINE - 1
+    assert seen["path"] == override and seen["line"] == systemd.OVERRIDE_LINE - 1
     lines = override.read_text().splitlines()
-    assert lines[services.OVERRIDE_LINE - 1] == "# edited" and "# Description=Broken thing" in lines
+    assert lines[systemd.OVERRIDE_LINE - 1] == "# edited" and "# Description=Broken thing" in lines
     assert vendor.read_text() == "[Unit]\nDescription=Broken thing\n"
 
 
@@ -416,9 +421,9 @@ def test_the_override_directory_made_for_an_unsaved_override_is_removed(tmp_path
     directory = tmp_path / "etc" / "broken.service.d"
     if existed:
         directory.mkdir(parents=True)
-    monkeypatch.setattr(services, "admin_dir", lambda user: tmp_path / "etc")
-    monkeypatch.setattr(services, "unit_file", lambda unit: vendor)
-    monkeypatch.setattr(services, "daemon_reload", lambda user: None)
+    monkeypatch.setattr(systemd, "admin_dir", lambda user: tmp_path / "etc")
+    monkeypatch.setattr(systemd, "unit_file", lambda unit: vendor)
+    monkeypatch.setattr(systemd, "daemon_reload", lambda user: None)
     override = directory / "override.conf"
 
     def editing(a):

@@ -423,7 +423,7 @@ flag = "CN"
 "No COW" = "无 COW"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Compress" = "压缩"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:174 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:222 ...
 "Journal" = "日志"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Top dir" = "顶层目录"
@@ -651,7 +651,7 @@ flag = "CN"
 "Give this answer for every file that is already there" = "对每个已存在的文件都作出此回答"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "覆盖(~O~)"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:421, navigator/widgets/manager/manager/manager.py:919 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:427, navigator/widgets/manager/manager/manager.py:919 ...
 "A~p~pend" = "追加(~P~)"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "重命名(~R~)"
@@ -1851,7 +1851,7 @@ flag = "CN"
 "Navigator?" = "Navigator？"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "今后退出时不再询问(选项 > 确认)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:858, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:864, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "打开(~O~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "关于、屏幕保护、SmartPad、回收站和游戏"
@@ -2087,10 +2087,10 @@ flag = "CN"
 "~P~rocess list" = "进程列表(~P~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:434
 "The running processes: sort them, see one, send it a signal" = "正在运行的进程：排序、查看、发送信号"
-# navigator/widgets/shell/main_menu/main_menu.nml:440, navigator/widgets/shell/service_window/service_window.nml:178
+# navigator/widgets/shell/main_menu/main_menu.nml:440, navigator/widgets/shell/service_window/service_window.nml:180
 "~S~ervices" = "服务(~S~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:441
-"systemd's units: start, stop, enable them, follow their journal" = "systemd 单元: 启动、停止、启用, 跟踪其日志"
+"The system's services: start, stop, enable them, follow their log" = "系统服务: 启动、停止、启用, 跟踪其日志"
 # navigator/widgets/shell/main_menu/main_menu.nml:447
 "System mo~n~itor" = "系统监视器(~N~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:448
@@ -2335,11 +2335,11 @@ flag = "CN"
 "The processors, the memory and the sensors" = "处理器、内存和传感器"
 # navigator/widgets/shell/process_window/process_window.nml:46, navigator/widgets/shell/process_window/process_window.py:443, navigator/lib/config/keybindings.py
 "Process list" = "进程列表"
-# navigator/widgets/shell/process_window/process_window.nml:77, navigator/widgets/shell/process_window/process_window.nml:235, navigator/widgets/shell/service_window/service_window.nml:71 ...
+# navigator/widgets/shell/process_window/process_window.nml:77, navigator/widgets/shell/process_window/process_window.nml:235, navigator/widgets/shell/service_window/service_window.nml:73 ...
 "~F~ilter" = "过滤(~F~)"
 # navigator/widgets/shell/process_window/process_window.nml:88
 "Show only the processes whose command, name, user or PID holds this" = "仅显示命令、名称、用户或 PID 包含此文本的进程"
-# navigator/widgets/shell/process_window/process_window.nml:98, navigator/widgets/shell/service_window/service_window.nml:92
+# navigator/widgets/shell/process_window/process_window.nml:98, navigator/widgets/shell/service_window/service_window.nml:94
 "Clear the filter" = "清除过滤"
 # navigator/widgets/shell/process_window/process_window.nml:138
 "~M~ine only" = "仅我的(~M~)"
@@ -2379,65 +2379,65 @@ flag = "CN"
 "~S~ignal..." = "信号(~S~)..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "终止(~K~)..."
-# navigator/widgets/shell/service_window/service_window.nml:40, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:383 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:444 ...
 "Services" = "服务"
-# navigator/widgets/shell/service_window/service_window.nml:82
+# navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "只显示名称或描述中包含此内容的单元"
-# navigator/widgets/shell/service_window/service_window.nml:116
+# navigator/widgets/shell/service_window/service_window.nml:118
 "~U~ser units" = "用户单元(~U~)"
-# navigator/widgets/shell/service_window/service_window.nml:117, navigator/widgets/shell/service_window/service_window.nml:203
+# navigator/widgets/shell/service_window/service_window.nml:119, navigator/widgets/shell/service_window/service_window.nml:205
 "Your own service manager's units (systemctl --user), not the system's" = "你自己的服务管理器的单元 (systemctl --user), 而非系统的"
-# navigator/widgets/shell/service_window/service_window.nml:125, navigator/widgets/shell/service_window/service_window.nml:207
+# navigator/widgets/shell/service_window/service_window.nml:127, navigator/widgets/shell/service_window/service_window.nml:209
 "~A~ll types" = "所有类型(~A~)"
-# navigator/widgets/shell/service_window/service_window.nml:126, navigator/widgets/shell/service_window/service_window.nml:208
+# navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "也包括定时器、套接字、挂载等, 不只是服务"
-# navigator/widgets/shell/service_window/service_window.nml:130, navigator/widgets/shell/service_window/service_window.nml:233, navigator/widgets/shell/service_window/service_window.py:524
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:603
 "S~t~art" = "启动(~T~)"
-# navigator/widgets/shell/service_window/service_window.nml:139
+# navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "停止(~O~)"
-# navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:218, navigator/widgets/shell/service_window/service_window.py:520
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:599
 "~J~ournal" = "日志(~J~)"
-# navigator/widgets/shell/service_window/service_window.nml:179
-"Start, stop, enable and follow systemd's units" = "启动、停止、启用并跟踪 systemd 单元"
-# navigator/widgets/shell/service_window/service_window.nml:187, navigator/widgets/shell/usage_window/usage_window.nml:123, navigator/widgets/shell/usage_window/usage_window.py:385
+# navigator/widgets/shell/service_window/service_window.nml:181
+"Start, stop, enable and follow the system's services" = "启动、停止、启用并跟踪系统服务"
+# navigator/widgets/shell/service_window/service_window.nml:189, navigator/widgets/shell/usage_window/usage_window.nml:123, navigator/widgets/shell/usage_window/usage_window.py:385
 "Sort by ~n~ame" = "按名称排序(~N~)"
-# navigator/widgets/shell/service_window/service_window.nml:191
+# navigator/widgets/shell/service_window/service_window.nml:193
 "Sort by ~s~tate" = "按状态排序(~S~)"
-# navigator/widgets/shell/service_window/service_window.nml:195
+# navigator/widgets/shell/service_window/service_window.nml:197
 "Sort by start-~u~p" = "按自启动排序(~U~)"
-# navigator/widgets/shell/service_window/service_window.nml:198
+# navigator/widgets/shell/service_window/service_window.nml:200
 "Sort by ~d~escription" = "按描述排序(~D~)"
-# navigator/widgets/shell/service_window/service_window.nml:202
+# navigator/widgets/shell/service_window/service_window.nml:204
 "Us~e~r units" = "用户单元(~E~)"
-# navigator/widgets/shell/service_window/service_window.nml:213
+# navigator/widgets/shell/service_window/service_window.nml:215
 "Show only the units whose name or description holds what is typed" = "只显示名称或描述中包含所输入内容的单元"
-# navigator/widgets/shell/service_window/service_window.nml:219
+# navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "在查看器中显示单元的日志, 跟随其末尾"
-# navigator/widgets/shell/service_window/service_window.nml:223, navigator/widgets/shell/service_window/service_window.py:521
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:600
 "Edit unit file" = "编辑单元文件"
-# navigator/widgets/shell/service_window/service_window.nml:224
+# navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "在编辑器中打开单元的文件, 软件包的文件则通过 drop-in 覆盖文件; 保存后 systemd 重新读取单元文件"
-# navigator/widgets/shell/service_window/service_window.nml:228, navigator/widgets/shell/service_window/service_window.py:522
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:601
 "Detai~l~s..." = "详细信息(~L~)..."
-# navigator/widgets/shell/service_window/service_window.nml:237, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:525
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:604
 "Restart" = "重启"
-# navigator/widgets/shell/service_window/service_window.nml:241, navigator/widgets/shell/service_window/service_window.py:526
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:605
 "Rel~o~ad" = "重新加载(~O~)"
-# navigator/widgets/shell/service_window/service_window.nml:245, navigator/widgets/shell/service_window/service_window.py:527
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:606
 "Sto~p~..." = "停止(~P~)..."
-# navigator/widgets/shell/service_window/service_window.nml:250, navigator/widgets/shell/service_window/service_window.py:529
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:608
 "Ena~b~le" = "启用(~B~)"
-# navigator/widgets/shell/service_window/service_window.nml:251
+# navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "开机时启动, 用户单元则在登录时启动"
-# navigator/widgets/shell/service_window/service_window.nml:255, navigator/widgets/shell/service_window/service_window.py:530
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:609
 "D~i~sable" = "禁用(~I~)"
-# navigator/widgets/shell/service_window/service_window.nml:256
+# navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "不再开机启动"
-# navigator/widgets/shell/service_window/service_window.nml:260, navigator/widgets/shell/service_window/service_window.py:531
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:610
 "~M~ask..." = "屏蔽(~M~)..."
-# navigator/widgets/shell/service_window/service_window.nml:261
+# navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "永不启动, 即使被其他单元请求"
-# navigator/widgets/shell/service_window/service_window.nml:264, navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:611
 "Unmas~k~" = "取消屏蔽(~K~)"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "系统信息"
@@ -3023,19 +3023,43 @@ flag = "CN"
 "Environment" = "环境变量"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator 不向该进程发送信号"
-# navigator/lib/system/services.py:78
+# navigator/lib/system/services/__init__.py:72
+"No service manager Navigator knows runs here: systemd or OpenRC" = "这里没有运行 Navigator 认识的服务管理器: systemd 或 OpenRC"
+# navigator/lib/system/services/openrc.py:268
+"OpenRC" = "OpenRC"
+# navigator/lib/system/services/openrc.py:87
+"There is no rc-service: install OpenRC" = "没有 rc-service: 请安装 OpenRC"
+# navigator/lib/system/services/openrc.py:89
+"OpenRC is not the system's service manager" = "OpenRC 不是系统的服务管理器"
+# navigator/lib/system/services/openrc.py:194
+"Status: {state}" = "状态: {state}"
+# navigator/lib/system/services/openrc.py:196
+"Runlevels: {levels}" = "运行级别: {levels}"
+# navigator/lib/system/services/openrc.py:196
+"Script: {path}" = "脚本: {path}"
+# navigator/lib/system/services/openrc.py:229
+"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC 没有为 {unit} 保留日志, 也没有系统日志文件"
+# navigator/lib/system/services/openrc.py:243
+"Settings for {unit}, read by {path} each time it starts." = "{unit} 的设置, {path} 每次启动时读取。"
+# navigator/lib/system/services/openrc.py:244
+"A setting made here wins over the script's own; restart {unit} for it to count." = "这里的设置优先于脚本自身的设置; 重启 {unit} 后生效。"
+# navigator/lib/system/services/openrc.py:248
+"The settings {path} makes:" = "{path} 所做的设置:"
+# navigator/lib/system/services/systemd.py:284
+"systemd" = "systemd"
+# navigator/lib/system/services/systemd.py:63
 "There is no systemctl: install systemd" = "没有 systemctl: 请安装 systemd"
-# navigator/lib/system/services.py:80
+# navigator/lib/system/services/systemd.py:65
 "systemd is not the system's service manager" = "systemd 不是系统的服务管理器"
-# navigator/lib/system/services.py:330
+# navigator/lib/system/services/systemd.py:236
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "像 ExecStart= 这样的列表设置, 先用单独一行 ExecStart= 清空。"
-# navigator/lib/system/services.py:299
+# navigator/lib/system/services/systemd.py:205
 "{unit} is masked: unmask it first" = "{unit} 已被屏蔽: 请先取消屏蔽"
-# navigator/lib/system/services.py:305
+# navigator/lib/system/services/systemd.py:211
 "{unit} has no unit file to edit" = "{unit} 没有可编辑的单元文件"
-# navigator/lib/system/services.py:329
+# navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "{unit} 的覆盖: 这里的设置优先于 {path}。"
-# navigator/lib/system/services.py:333
+# navigator/lib/system/services/systemd.py:239
 "{path} as it is:" = "{path} 原样内容:"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "机器类型"
@@ -3111,9 +3135,9 @@ flag = "CN"
 "Utilities > Process list (not DN's)" = "工具 > 进程列表（非 DN 原有）"
 # navigator/settings.py:1124
 "Utilities > Services (not DN's)" = "实用工具 > 服务 (非 DN 原有)"
-# navigator/settings.py:1135
+# navigator/settings.py:1141
 "Utilities > System monitor (not DN's)" = "工具 > 系统监视器 (DN 没有)"
-# navigator/settings.py:1147
+# navigator/settings.py:1153
 "Options > Configuration > Communications (DN's cmSetupModem)" = "选项 > 配置 > 通信（DN 的 cmSetupModem）"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} 的密码错误。请重试:"
@@ -3295,7 +3319,7 @@ flag = "CN"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} 在获取后已在远端被更改。是否覆盖？"
 # navigator/widgets/drives/use_file.py:57
 "{name} was changed. Upload it back to {place}?" = "{name} 已更改。是否上传回 {place}？"
-# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:258 ...
+# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:264 ...
 "Cannot write {path}: {error}" = "无法写入 {path}: {error}"
 # navigator/widgets/drives/use_file.py:63, navigator/widgets/drives/use_file.py:75
 "Upload" = "上传"
@@ -3429,53 +3453,53 @@ flag = "CN"
 "Save as" = "另存为"
 # navigator/widgets/editor/commands.py:635
 "Save all" = "全部保存"
-# navigator/widgets/editor/edit_window/edit_window.py:940, navigator/widgets/editor/edit_window/edit_window.py:851
+# navigator/widgets/editor/edit_window/edit_window.py:946, navigator/widgets/editor/edit_window/edit_window.py:857
 "Untitled" = "未命名"
-# navigator/widgets/editor/edit_window/edit_window.py:375, navigator/widgets/editor/file_editor/file_editor.py:2850
+# navigator/widgets/editor/edit_window/edit_window.py:381, navigator/widgets/editor/file_editor/file_editor.py:2850
 "No block is marked" = "未标记块"
-# navigator/widgets/editor/edit_window/edit_window.py:416, navigator/widgets/editor/edit_window/edit_window.py:942, navigator/widgets/editor/edit_window/edit_window.py:431 ...
+# navigator/widgets/editor/edit_window/edit_window.py:422, navigator/widgets/editor/edit_window/edit_window.py:948, navigator/widgets/editor/edit_window/edit_window.py:437 ...
 "Warning" = "警告"
-# navigator/widgets/editor/edit_window/edit_window.py:468
+# navigator/widgets/editor/edit_window/edit_window.py:474
 "Copy block to" = "复制块到"
-# navigator/widgets/editor/edit_window/edit_window.py:468
+# navigator/widgets/editor/edit_window/edit_window.py:474
 "File ~N~ame" = "文件名(~N~)"
-# navigator/widgets/editor/edit_window/edit_window.py:538
+# navigator/widgets/editor/edit_window/edit_window.py:544
 "Paste from File" = "从文件粘贴"
-# navigator/widgets/editor/edit_window/edit_window.py:538
+# navigator/widgets/editor/edit_window/edit_window.py:544
 "~P~aste from" = "粘贴自(~P~)"
-# navigator/widgets/editor/edit_window/edit_window.py:858
+# navigator/widgets/editor/edit_window/edit_window.py:864
 "Open a File" = "打开文件"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:900, navigator/widgets/viewer/file_window/file_window.py:733
 "Save File As" = "文件另存为"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:900, navigator/widgets/viewer/file_window/file_window.py:733
 "~S~ave File As" = "文件另存为(~S~)"
-# navigator/widgets/editor/edit_window/edit_window.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:132
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:131, navigator/widgets/editor/edit_window/edit_window.py:133
+# navigator/widgets/editor/edit_window/edit_window.py:134, navigator/widgets/editor/edit_window/edit_window.py:136
 "Edit - {path}" = "编辑 - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:417, navigator/widgets/manager/manager/manager.py:917, navigator/widgets/manager/manager/manager.py:2416 ...
+# navigator/widgets/editor/edit_window/edit_window.py:423, navigator/widgets/manager/manager/manager.py:917, navigator/widgets/manager/manager/manager.py:2416 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "文件 {name}\n已存在。\n是否覆盖？"
-# navigator/widgets/editor/edit_window/edit_window.py:793, navigator/widgets/manager/manager/manager.py:3545
+# navigator/widgets/editor/edit_window/edit_window.py:799, navigator/widgets/manager/manager/manager.py:3545
 "Confirmation" = "确认"
-# navigator/widgets/editor/edit_window/edit_window.py:794
+# navigator/widgets/editor/edit_window/edit_window.py:800
 "Print {n} line?" = ["打印 {n} 行？"]
-# navigator/widgets/editor/edit_window/edit_window.py:802
+# navigator/widgets/editor/edit_window/edit_window.py:808
 "Cannot print: {error}" = "无法打印: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:243
+# navigator/widgets/editor/edit_window/edit_window.py:249
 "Confirm file save" = "确认保存文件"
-# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:872 ...
+# navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:872 ...
 "Search string not found" = "未找到搜索字符串"
-# navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
+# navigator/widgets/editor/edit_window/edit_window.py:708, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "信息"
-# navigator/widgets/editor/edit_window/edit_window.py:702
+# navigator/widgets/editor/edit_window/edit_window.py:708
 "{n} replace made" = ["已替换 {n} 处"]
-# navigator/widgets/editor/edit_window/edit_window.py:866, navigator/widgets/shell/shell/shell.py:1879
+# navigator/widgets/editor/edit_window/edit_window.py:872, navigator/widgets/shell/shell/shell.py:1879
 "Cannot open {path}: {error}" = "无法打开 {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:943, navigator/widgets/editor/edit_window/edit_window.py:853
+# navigator/widgets/editor/edit_window/edit_window.py:949, navigator/widgets/editor/edit_window/edit_window.py:859
 "File {name} was modified. Save?" = "文件 {name} 已修改。是否保存？"
-# navigator/widgets/editor/edit_window/edit_window.py:244
+# navigator/widgets/editor/edit_window/edit_window.py:250
 "Save file {name}?" = "保存文件 {name}？"
-# navigator/widgets/editor/edit_window/edit_window.py:432
+# navigator/widgets/editor/edit_window/edit_window.py:438
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "文件 {name}\n被标记为只读。\n仍要修改吗？"
 # navigator/widgets/editor/file_editor/file_editor.py:2158, navigator/widgets/editor/file_editor/file_editor.py:2152, navigator/widgets/editor/file_editor/file_editor.py:2169
 "Macros" = "宏"
@@ -4555,9 +4579,9 @@ flag = "CN"
 "Mask" = "屏蔽"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "取消屏蔽"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:44
 "Start-up" = "自启动"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:44
 "Description" = "描述"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "垃圾桶"
@@ -4705,27 +4729,41 @@ flag = "CN"
 "It closes after {n} idle minute" = ["空闲 {n} 分钟后关闭"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} 可立即关闭"
-# navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/service_list/service_list.py:43
 "Unit" = "单元"
+# navigator/widgets/shell/service_list/service_list.py:43
+"Service" = "服务"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "日志: {unit}"
-# navigator/widgets/shell/service_window/journal_window.py:172
+# navigator/widgets/shell/service_window/journal_window.py:194
+"Log: {unit} (its lines in {path})" = "日志: {unit} ({path} 中它的行)"
+# navigator/widgets/shell/service_window/journal_window.py:197
+"Log: {unit}" = "日志: {unit}"
+# navigator/widgets/shell/service_window/journal_window.py:220
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "只有 root 和 systemd-journal 组能读取 {unit} 的全部日志: 以你的身份只能看到你自己的行。"
-# navigator/widgets/shell/service_window/service_window.py:202
+# navigator/widgets/shell/service_window/journal_window.py:186
+"Only root reads {path}, where {unit}'s log is." = "只有 root 能读取 {path}, {unit} 的日志在其中。"
+# navigator/widgets/shell/service_window/service_window.py:247
 "{shown} of {count} unit match the filter" = [""]
-# navigator/widgets/shell/service_window/service_window.py:207
+# navigator/widgets/shell/service_window/service_window.py:252
 "{count} unit, {running} running, {failed} failed" = [""]
-# navigator/widgets/shell/service_window/service_window.py:293
+# navigator/widgets/shell/service_window/service_window.py:340
+"Not something {manager} does" = "{manager} 不做这件事"
+# navigator/widgets/shell/service_window/service_window.py:348
 "The cursor is on no unit" = "光标不在单元上"
-# navigator/widgets/shell/service_window/service_window.py:381
+# navigator/widgets/shell/service_window/service_window.py:442
 "{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} 属于软件包: 它在 {path} 中被覆盖, 而只有 root 能创建该目录。"
-# navigator/widgets/shell/service_window/service_window.py:453
+# navigator/widgets/shell/service_window/service_window.py:511
+"Restart {unit} now, so it reads its new settings?" = "现在重启 {unit}, 让它读取新设置吗?"
+# navigator/widgets/shell/service_window/service_window.py:532
 "Stop {unit}?" = "停止 {unit}?"
-# navigator/widgets/shell/service_window/service_window.py:453
+# navigator/widgets/shell/service_window/service_window.py:532
 "Mask {unit}? It will not start at all until unmasked." = "屏蔽 {unit}? 在取消屏蔽之前它将完全不会启动。"
-# navigator/widgets/shell/service_window/service_window.py:470
+# navigator/widgets/shell/service_window/service_window.py:549
 "Cannot {verb} {unit}: {error}" = "无法对 {unit} 执行 {verb}: {error}"
-# navigator/widgets/shell/service_window/service_window.py:420
+# navigator/widgets/shell/service_window/service_window.py:167
+"Services ({manager})" = "服务 ({manager})"
+# navigator/widgets/shell/service_window/service_window.py:487
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "{unit} 的文件已保存, 但无法让 systemd 重新读取: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "界面设置隐藏了命令行"
@@ -5936,6 +5974,8 @@ flag = "CN"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "进程列表打开时两次读取之间的秒数；0 表示仅在 Ctrl+R 时读取"
 # navigator/settings.py
+"The service manager Services works: auto (the one running), systemd or openrc" = "服务窗口使用的服务管理器: auto (正在运行的)、systemd 或 openrc"
+# navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "服务窗口打开时读取单元的间隔秒数; 0 表示只在 Ctrl+R 时读取"
 # navigator/settings.py
 "How many of a unit's last journal lines F3 shows before following it" = "F3 开始跟踪前显示的单元日志末尾行数"
@@ -5998,3 +6038,5 @@ flag = "CN"
 "Take back the last move, rename, delete to Trash or new directory" = "撤销上一次移动、重命名、删除到回收站或新建目录"
 "Create, extract and test archives" = "创建、解压和测试压缩包"
 "The unit's file in the editor; saved, systemd reads its unit files again" = "在编辑器中打开单元的文件; 保存后 systemd 重新读取单元文件"
+"systemd's units: start, stop, enable them, follow their journal" = "systemd 单元: 启动、停止、启用, 跟踪其日志"
+"Start, stop, enable and follow systemd's units" = "启动、停止、启用并跟踪 systemd 单元"

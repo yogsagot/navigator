@@ -293,30 +293,35 @@ class _Helper:
             raise OSError(errno.EPERM, "Navigator does not signal that process", str(pid))
         os.kill(pid, signal)
 
-    # Utilities > Services: a closed list of verbs on a checked name, as
-    # ``kill`` refuses init -- ``services.VERBS`` and ``services.valid_unit``.
+    # Utilities > Services: a closed list of managers, each with its closed
+    # list of verbs, on a checked name -- as ``kill`` refuses init.  The
+    # command line is always the backend's, never the client's.
 
-    def systemctl(self, verb: str, unit: str) -> None:
-        """``systemctl VERB UNIT`` on the system's manager, for a unit the
-        user could not start, stop, enable... alone."""
+    def service(self, manager: str, verb: str, unit: str) -> None:
+        """*verb* done to *unit* by *manager*'s backend (``systemctl``,
+        ``rc-service``/``rc-update``), for a service the user could not start,
+        stop, enable... alone."""
         from navigator.lib.system import services
 
-        services.act(services.Unit(self._unit(unit)), self._verb(verb))
+        backend = self._backend(manager)
+        if verb not in backend.verbs:
+            raise OSError(errno.EINVAL, "Not something Navigator does to a service", str(verb))
+        backend.act(services.Unit(self._name(backend, unit), backend=backend.name), verb)
 
-    def daemon_reload(self) -> None:
-        """Services' F4: the system manager's unit files read again after one
-        was edited as root."""
-        from navigator.lib.system import services
-
-        services.daemon_reload(False)
+    def after_edit(self, manager: str) -> None:
+        """Services' F4: what makes an edit saved as root count -- systemd's
+        daemon-reload; nothing for a manager that needs nothing."""
+        backend = self._backend(manager)
+        if backend.reload_after_edit:
+            backend.after_edit(False)
 
     def journal_follow(self, unit: str, path: str, lines: int) -> int:
         """Services' F3 *As root*: ``journalctl --follow`` on *unit*, written
         into *path* -- an existing file of the asking user's, never a link,
         never created -- until :meth:`journal_stop` or this helper's end."""
-        from navigator.lib.system import services
+        from navigator.lib.system.services import systemd
 
-        name = self._unit(unit)
+        name = self._name(systemd.BACKEND, unit)
         with self._pinned(path) as there:
             flags = os.O_WRONLY | os.O_APPEND | (os.O_NOFOLLOW if PINNABLE else 0)
             fd = os.open(there, flags)
@@ -326,7 +331,7 @@ class _Helper:
                 raise OSError(errno.EPERM, "Not a file of the user's to write the journal into", path)
             import subprocess
 
-            process = subprocess.Popen(services.journal_argv(name, False, int(lines)), stdout=fd,
+            process = subprocess.Popen(systemd.journal_argv(name, False, int(lines)), stdout=fd,
                                        stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True,
                                        env={**os.environ, "SYSTEMD_PAGER": "", "SYSTEMD_COLORS": "0"})
         finally:
@@ -350,20 +355,19 @@ class _Helper:
             services.stop_process(self.journals.popitem()[1])
 
     @staticmethod
-    def _unit(unit: str) -> str:
+    def _backend(manager: str) -> Any:
         from navigator.lib.system import services
 
-        if not isinstance(unit, str) or not services.valid_unit(unit):
-            raise OSError(errno.EINVAL, "Not a unit's name", str(unit))
-        return unit
+        backend = services.BACKENDS.get(manager) if isinstance(manager, str) else None
+        if backend is None:
+            raise OSError(errno.EINVAL, "Not a service manager Navigator knows", str(manager))
+        return backend
 
     @staticmethod
-    def _verb(verb: str) -> str:
-        from navigator.lib.system import services
-
-        if verb not in services.VERBS:
-            raise OSError(errno.EINVAL, "Not something Navigator does to a unit", str(verb))
-        return verb
+    def _name(backend: Any, unit: str) -> str:
+        if not isinstance(unit, str) or not backend.valid_name(unit) or not backend.installed(unit):
+            raise OSError(errno.EINVAL, "Not a service's name", str(unit))
+        return unit
 
     def utime(self, path: str, atime_ns: int, mtime_ns: int, follow: bool) -> None:
         with self._pinned(path, follow=follow) as there:

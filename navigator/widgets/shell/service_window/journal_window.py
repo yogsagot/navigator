@@ -1,4 +1,13 @@
-"""Services' F3: a unit's journal in the viewer, following its end.
+"""Services' F3: a service's log in the viewer, following its end.
+
+What is followed is the backend's to say (``services.log``): systemd's
+journal through ``journalctl --follow`` (:func:`open_journal`, below), or a
+log file -- an OpenRC service's own, or the system log with only the lines
+holding the service's name shown, through the viewer's *Filter lines*
+(:func:`open_log_file`).  A log file the user may not read is offered *As
+root* and read through the root helper, as F3 reads any file.
+
+**systemd's journal**:
 
 ``journalctl --follow`` writes into a private temporary file
 (:func:`navigator.lib.system.tempdir.private_dir`), and the F3 viewer opens it
@@ -60,15 +69,6 @@ def _stop_all() -> None:
 
 
 atexit.register(_stop_all)
-
-
-def _journal_lines() -> int:
-    from navigator.settings import SETTINGS
-
-    try:
-        return max(0, int(SETTINGS.services.journal_lines))
-    except (AttributeError, TypeError, ValueError):
-        return 200
 
 
 def _make_file(unit: services.Unit) -> Path:
@@ -150,14 +150,62 @@ def _stopper(path: Path, end: Callable[[], None]) -> Callable[[], None]:
     return stop
 
 
-async def open_journal(window: Any, unit: services.Unit) -> JournalWindow | None:
-    """F3 in Services: *unit*'s journal, followed, in a viewer on *window*'s
-    desktop.  Said in a box when it cannot be; None then."""
+async def open_log(window: Any, unit: services.Unit) -> Any:
+    """F3 in Services: what *unit*'s backend says its log is, followed in a
+    viewer on *window*'s desktop.  Said in a box when there is none; None then."""
+    try:
+        target = await asyncio.to_thread(services.log, unit)
+    except OSError as error:
+        await _say(window.application, error)
+        return None
+    if isinstance(target, services.Journal):
+        return await open_journal(window, unit, target)
+    return await open_log_file(window, unit, target)
+
+
+async def open_log_file(window: Any, unit: services.Unit, target: services.LogFile) -> Any:
+    """*target*'s file in the viewer, following its end -- only the lines
+    holding the service's name when it is a log every service writes to."""
+    from navigator.lib.system.elevate import refused
+    from navigator.lib.viewer import ViewSource
+    from navigator.lib.viewer.lines import LinePattern
+
+    app = window.application
+    desktop = window.parent
+    path = target.path
+    try:
+        try:
+            source = await asyncio.to_thread(ViewSource, path)
+            viewer = FileWindow(path, mode="text", source=source)
+            desktop.open(viewer)
+        except OSError as error:
+            if not (refused(error) and await asyncio.to_thread(ELEVATION.available)):
+                raise
+            from navigator.widgets.file_ops.as_root import ask_as_root, view_as_root
+
+            message = tr("Only root reads {path}, where {unit}'s log is.").format(path=path, unit=unit.name)
+            if not await ask_as_root(app, escape_caption(message), title=tr("Journal")):
+                return None
+            viewer = await view_as_root(desktop, path, mode="text")
+    except OSError as error:
+        await _say(app, error)
+        return None
+    if target.pattern:
+        viewer.title = tr("Log: {unit} (its lines in {path})").format(unit=unit.name, path=path)
+        await viewer.show_lines(LinePattern(target.pattern))
+    else:
+        viewer.title = tr("Log: {unit}").format(unit=unit.name)
+    await viewer.on_follow_end(FollowEnd())
+    return viewer
+
+
+async def open_journal(window: Any, unit: services.Unit, target: services.Journal) -> JournalWindow | None:
+    """*unit*'s journal (*target*'s ``journalctl``), followed, in a viewer on
+    *window*'s desktop.  Said in a box when it cannot be; None then."""
     from navigator.lib.viewer import ViewSource
 
     app = window.application
     desktop = window.parent
-    lines = _journal_lines()
     try:
         path = await asyncio.to_thread(_make_file, unit)
     except OSError as error:
@@ -166,7 +214,7 @@ async def open_journal(window: Any, unit: services.Unit) -> JournalWindow | None
     stop: Callable[[], None] | None = None
     try:
         root = False
-        if not services.can_read_journal(unit) and await asyncio.to_thread(ELEVATION.available):
+        if not target.readable and await asyncio.to_thread(ELEVATION.available):
             from navigator.widgets.file_ops.as_root import ask_as_root
 
             message = tr("Only root and the systemd-journal group read all of {unit}'s journal: "
@@ -174,7 +222,7 @@ async def open_journal(window: Any, unit: services.Unit) -> JournalWindow | None
             root = await ask_as_root(app, escape_caption(message), title=tr("Journal"))
         if root:
             pid = await asyncio.to_thread(ELEVATION.call, "journal_follow", unit=unit.name, path=str(path),
-                                          lines=lines)
+                                          lines=services.journal_lines())
             ELEVATION.hold()
 
             def end_as_root() -> None:
@@ -189,8 +237,7 @@ async def open_journal(window: Any, unit: services.Unit) -> JournalWindow | None
             stop = _stopper(path, end_as_root)
             await asyncio.to_thread(_first_lines, path, lambda: False)
         else:
-            follower = await asyncio.to_thread(services.Follower,
-                                               services.journal_argv(unit.name, unit.user, lines), path)
+            follower = await asyncio.to_thread(services.Follower, target.argv, path)
             stop = _stopper(path, follower.stop)
             await asyncio.to_thread(_first_lines, path, lambda: follower.process.poll() is not None)
         source = await asyncio.to_thread(ViewSource, path)
@@ -212,4 +259,4 @@ async def _say(app: Any, error: OSError) -> None:
                  prompt=escape_caption(error.strerror or str(error))).execute(app)
 
 
-__all__ = ["JournalWindow", "open_journal"]
+__all__ = ["JournalWindow", "open_journal", "open_log", "open_log_file"]

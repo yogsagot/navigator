@@ -424,7 +424,7 @@ direction = "rtl"
 "No COW" = "ללא COW"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Compress" = "דחיסה"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:174 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:222 ...
 "Journal" = "יומן"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Top dir" = "תיקיית על"
@@ -652,7 +652,7 @@ direction = "rtl"
 "Give this answer for every file that is already there" = "תן תשובה זו לכל קובץ שכבר קיים שם"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~ד~רוס"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:421, navigator/widgets/manager/manager/manager.py:919 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:427, navigator/widgets/manager/manager/manager.py:919 ...
 "A~p~pend" = "~ה~וסף"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~ש~נה שם"
@@ -1852,7 +1852,7 @@ direction = "rtl"
 "Navigator?" = "מ-Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "צא בלי לשאול מעכשיו (אפשרויות > אישורים)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:858, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:864, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~פ~תח"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "אודות, שומר המסך, SmartPad, פח האשפה והמשחק"
@@ -2088,10 +2088,10 @@ direction = "rtl"
 "~P~rocess list" = "~ר~שימת תהליכים"
 # navigator/widgets/shell/main_menu/main_menu.nml:434
 "The running processes: sort them, see one, send it a signal" = "התהליכים הרצים: מיון, צפייה, שליחת אות"
-# navigator/widgets/shell/main_menu/main_menu.nml:440, navigator/widgets/shell/service_window/service_window.nml:178
+# navigator/widgets/shell/main_menu/main_menu.nml:440, navigator/widgets/shell/service_window/service_window.nml:180
 "~S~ervices" = "שירותי~ם~"
 # navigator/widgets/shell/main_menu/main_menu.nml:441
-"systemd's units: start, stop, enable them, follow their journal" = "יחידות systemd: הפעלה, עצירה, הפעלה באתחול, מעקב אחר היומן"
+"The system's services: start, stop, enable them, follow their log" = "שירותי המערכת: הפעלה, עצירה, הפעלה באתחול, מעקב אחר היומן"
 # navigator/widgets/shell/main_menu/main_menu.nml:447
 "System mo~n~itor" = "ניטור מער~כ~ת"
 # navigator/widgets/shell/main_menu/main_menu.nml:448
@@ -2336,11 +2336,11 @@ direction = "rtl"
 "The processors, the memory and the sensors" = "המעבדים, הזיכרון והחיישנים"
 # navigator/widgets/shell/process_window/process_window.nml:46, navigator/widgets/shell/process_window/process_window.py:443, navigator/lib/config/keybindings.py
 "Process list" = "רשימת תהליכים"
-# navigator/widgets/shell/process_window/process_window.nml:77, navigator/widgets/shell/process_window/process_window.nml:235, navigator/widgets/shell/service_window/service_window.nml:71 ...
+# navigator/widgets/shell/process_window/process_window.nml:77, navigator/widgets/shell/process_window/process_window.nml:235, navigator/widgets/shell/service_window/service_window.nml:73 ...
 "~F~ilter" = "מס~נ~ן"
 # navigator/widgets/shell/process_window/process_window.nml:88
 "Show only the processes whose command, name, user or PID holds this" = "הצג רק תהליכים שהפקודה, השם, המשתמש או ה-PID שלהם מכילים טקסט זה"
-# navigator/widgets/shell/process_window/process_window.nml:98, navigator/widgets/shell/service_window/service_window.nml:92
+# navigator/widgets/shell/process_window/process_window.nml:98, navigator/widgets/shell/service_window/service_window.nml:94
 "Clear the filter" = "נקה את המסנן"
 # navigator/widgets/shell/process_window/process_window.nml:138
 "~M~ine only" = "~ר~ק שלי"
@@ -2380,65 +2380,65 @@ direction = "rtl"
 "~S~ignal..." = "~א~ות..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "~ה~רוג..."
-# navigator/widgets/shell/service_window/service_window.nml:40, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:383 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:444 ...
 "Services" = "שירותים"
-# navigator/widgets/shell/service_window/service_window.nml:82
+# navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "הצג רק יחידות ששמן או תיאורן מכילים זאת"
-# navigator/widgets/shell/service_window/service_window.nml:116
+# navigator/widgets/shell/service_window/service_window.nml:118
 "~U~ser units" = "יחידות ~מ~שתמש"
-# navigator/widgets/shell/service_window/service_window.nml:117, navigator/widgets/shell/service_window/service_window.nml:203
+# navigator/widgets/shell/service_window/service_window.nml:119, navigator/widgets/shell/service_window/service_window.nml:205
 "Your own service manager's units (systemctl --user), not the system's" = "היחידות של מנהל השירותים שלך (systemctl --user), לא של המערכת"
-# navigator/widgets/shell/service_window/service_window.nml:125, navigator/widgets/shell/service_window/service_window.nml:207
+# navigator/widgets/shell/service_window/service_window.nml:127, navigator/widgets/shell/service_window/service_window.nml:209
 "~A~ll types" = "~כ~ל הסוגים"
-# navigator/widgets/shell/service_window/service_window.nml:126, navigator/widgets/shell/service_window/service_window.nml:208
+# navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "גם טיימרים, שקעים, עיגונים וכל השאר, לא רק שירותים"
-# navigator/widgets/shell/service_window/service_window.nml:130, navigator/widgets/shell/service_window/service_window.nml:233, navigator/widgets/shell/service_window/service_window.py:524
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:603
 "S~t~art" = "~ה~פעל"
-# navigator/widgets/shell/service_window/service_window.nml:139
+# navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "~ע~צור"
-# navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:218, navigator/widgets/shell/service_window/service_window.py:520
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:599
 "~J~ournal" = "~י~ומן"
-# navigator/widgets/shell/service_window/service_window.nml:179
-"Start, stop, enable and follow systemd's units" = "הפעלה, עצירה, הפעלה באתחול ומעקב אחר יחידות systemd"
-# navigator/widgets/shell/service_window/service_window.nml:187, navigator/widgets/shell/usage_window/usage_window.nml:123, navigator/widgets/shell/usage_window/usage_window.py:385
+# navigator/widgets/shell/service_window/service_window.nml:181
+"Start, stop, enable and follow the system's services" = "הפעלה, עצירה, הפעלה באתחול ומעקב אחר שירותי המערכת"
+# navigator/widgets/shell/service_window/service_window.nml:189, navigator/widgets/shell/usage_window/usage_window.nml:123, navigator/widgets/shell/usage_window/usage_window.py:385
 "Sort by ~n~ame" = "מיין לפי ~ש~ם"
-# navigator/widgets/shell/service_window/service_window.nml:191
+# navigator/widgets/shell/service_window/service_window.nml:193
 "Sort by ~s~tate" = "מיין לפי ~מ~צב"
-# navigator/widgets/shell/service_window/service_window.nml:195
+# navigator/widgets/shell/service_window/service_window.nml:197
 "Sort by start-~u~p" = "מיין לפי ~א~תחול"
-# navigator/widgets/shell/service_window/service_window.nml:198
+# navigator/widgets/shell/service_window/service_window.nml:200
 "Sort by ~d~escription" = "מיין לפי ~ת~יאור"
-# navigator/widgets/shell/service_window/service_window.nml:202
+# navigator/widgets/shell/service_window/service_window.nml:204
 "Us~e~r units" = "יחי~ד~ות משתמש"
-# navigator/widgets/shell/service_window/service_window.nml:213
+# navigator/widgets/shell/service_window/service_window.nml:215
 "Show only the units whose name or description holds what is typed" = "הצג רק יחידות ששמן או תיאורן מכילים את מה שהוקלד"
-# navigator/widgets/shell/service_window/service_window.nml:219
+# navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "יומן היחידה במציג, במעקב אחר סופו"
-# navigator/widgets/shell/service_window/service_window.nml:223, navigator/widgets/shell/service_window/service_window.py:521
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:600
 "Edit unit file" = "ערוך את קובץ היחידה"
-# navigator/widgets/shell/service_window/service_window.nml:224
+# navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "קובץ היחידה בעורך, ושל חבילה דרך קובץ דריסה; לאחר שמירה systemd קורא מחדש את קובצי היחידות"
-# navigator/widgets/shell/service_window/service_window.nml:228, navigator/widgets/shell/service_window/service_window.py:522
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:601
 "Detai~l~s..." = "~פ~רטים..."
-# navigator/widgets/shell/service_window/service_window.nml:237, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:525
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:604
 "Restart" = "הפעל מחדש"
-# navigator/widgets/shell/service_window/service_window.nml:241, navigator/widgets/shell/service_window/service_window.py:526
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:605
 "Rel~o~ad" = "טען מ~ח~דש"
-# navigator/widgets/shell/service_window/service_window.nml:245, navigator/widgets/shell/service_window/service_window.py:527
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:606
 "Sto~p~..." = "ע~צ~ור..."
-# navigator/widgets/shell/service_window/service_window.nml:250, navigator/widgets/shell/service_window/service_window.py:529
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:608
 "Ena~b~le" = "אפש~ר~"
-# navigator/widgets/shell/service_window/service_window.nml:251
+# navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "מופעל באתחול, או בכניסה עבור יחידת משתמש"
-# navigator/widgets/shell/service_window/service_window.nml:255, navigator/widgets/shell/service_window/service_window.py:530
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:609
 "D~i~sable" = "~ב~טל"
-# navigator/widgets/shell/service_window/service_window.nml:256
+# navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "לא מופעל עוד באתחול"
-# navigator/widgets/shell/service_window/service_window.nml:260, navigator/widgets/shell/service_window/service_window.py:531
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:610
 "~M~ask..." = "מס~ך~..."
-# navigator/widgets/shell/service_window/service_window.nml:261
+# navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "לעולם לא מופעל, גם לא על ידי יחידה אחרת"
-# navigator/widgets/shell/service_window/service_window.nml:264, navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:611
 "Unmas~k~" = "הסר מס~ו~ך"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "מידע מערכת"
@@ -3024,19 +3024,43 @@ direction = "rtl"
 "Environment" = "סביבה"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator אינו שולח אותות לתהליך זה"
-# navigator/lib/system/services.py:78
+# navigator/lib/system/services/__init__.py:72
+"No service manager Navigator knows runs here: systemd or OpenRC" = "לא פועל כאן מנהל שירותים ש-Navigator מכיר: systemd או OpenRC"
+# navigator/lib/system/services/openrc.py:268
+"OpenRC" = "OpenRC"
+# navigator/lib/system/services/openrc.py:87
+"There is no rc-service: install OpenRC" = "אין rc-service: התקן את OpenRC"
+# navigator/lib/system/services/openrc.py:89
+"OpenRC is not the system's service manager" = "OpenRC אינו מנהל השירותים של המערכת"
+# navigator/lib/system/services/openrc.py:194
+"Status: {state}" = "מצב: {state}"
+# navigator/lib/system/services/openrc.py:196
+"Runlevels: {levels}" = "רמות ריצה: {levels}"
+# navigator/lib/system/services/openrc.py:196
+"Script: {path}" = "סקריפט: {path}"
+# navigator/lib/system/services/openrc.py:229
+"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC אינו שומר יומן עבור {unit}, ואין קובץ יומן מערכת"
+# navigator/lib/system/services/openrc.py:243
+"Settings for {unit}, read by {path} each time it starts." = "הגדרות עבור {unit}, ש-{path} קורא בכל הפעלה."
+# navigator/lib/system/services/openrc.py:244
+"A setting made here wins over the script's own; restart {unit} for it to count." = "מה שמוגדר כאן גובר על הגדרות הסקריפט; הפעל מחדש את {unit} כדי שייכנס לתוקף."
+# navigator/lib/system/services/openrc.py:248
+"The settings {path} makes:" = "ההגדרות ש-{path} קובע:"
+# navigator/lib/system/services/systemd.py:284
+"systemd" = "systemd"
+# navigator/lib/system/services/systemd.py:63
 "There is no systemctl: install systemd" = "אין systemctl: התקן את systemd"
-# navigator/lib/system/services.py:80
+# navigator/lib/system/services/systemd.py:65
 "systemd is not the system's service manager" = "systemd אינו מנהל השירותים של המערכת"
-# navigator/lib/system/services.py:330
+# navigator/lib/system/services/systemd.py:236
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "הגדרת רשימה כמו ExecStart= מרוקנת תחילה בשורה משלה, ExecStart= לבדה."
-# navigator/lib/system/services.py:299
+# navigator/lib/system/services/systemd.py:205
 "{unit} is masked: unmask it first" = "{unit} ממוסכת: הסר תחילה את המיסוך"
-# navigator/lib/system/services.py:305
+# navigator/lib/system/services/systemd.py:211
 "{unit} has no unit file to edit" = "ל-{unit} אין קובץ יחידה לעריכה"
-# navigator/lib/system/services.py:329
+# navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "דריסה עבור {unit}: מה שמוגדר כאן גובר על {path}."
-# navigator/lib/system/services.py:333
+# navigator/lib/system/services/systemd.py:239
 "{path} as it is:" = "{path} כפי שהוא:"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "סוג מחשב"
@@ -3112,9 +3136,9 @@ direction = "rtl"
 "Utilities > Process list (not DN's)" = "כלים > רשימת תהליכים (לא של DN)"
 # navigator/settings.py:1124
 "Utilities > Services (not DN's)" = "כלים > שירותים (לא של DN)"
-# navigator/settings.py:1135
+# navigator/settings.py:1141
 "Utilities > System monitor (not DN's)" = "כלים > ניטור מערכת (לא של DN)"
-# navigator/settings.py:1147
+# navigator/settings.py:1153
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -3296,7 +3320,7 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} השתנה שם מאז שהובא. לדרוס?"
 # navigator/widgets/drives/use_file.py:57
 "{name} was changed. Upload it back to {place}?" = "{name} השתנה. להעלות אותו בחזרה אל {place}?"
-# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:258 ...
+# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:264 ...
 "Cannot write {path}: {error}" = "לא ניתן לכתוב את {path}: {error}"
 # navigator/widgets/drives/use_file.py:63, navigator/widgets/drives/use_file.py:75
 "Upload" = "העלאה"
@@ -3430,53 +3454,53 @@ direction = "rtl"
 "Save as" = "שמור בשם"
 # navigator/widgets/editor/commands.py:635
 "Save all" = "שמור הכל"
-# navigator/widgets/editor/edit_window/edit_window.py:940, navigator/widgets/editor/edit_window/edit_window.py:851
+# navigator/widgets/editor/edit_window/edit_window.py:946, navigator/widgets/editor/edit_window/edit_window.py:857
 "Untitled" = "ללא שם"
-# navigator/widgets/editor/edit_window/edit_window.py:375, navigator/widgets/editor/file_editor/file_editor.py:2850
+# navigator/widgets/editor/edit_window/edit_window.py:381, navigator/widgets/editor/file_editor/file_editor.py:2850
 "No block is marked" = "לא סומן בלוק"
-# navigator/widgets/editor/edit_window/edit_window.py:416, navigator/widgets/editor/edit_window/edit_window.py:942, navigator/widgets/editor/edit_window/edit_window.py:431 ...
+# navigator/widgets/editor/edit_window/edit_window.py:422, navigator/widgets/editor/edit_window/edit_window.py:948, navigator/widgets/editor/edit_window/edit_window.py:437 ...
 "Warning" = "אזהרה"
-# navigator/widgets/editor/edit_window/edit_window.py:468
+# navigator/widgets/editor/edit_window/edit_window.py:474
 "Copy block to" = "העתק בלוק אל"
-# navigator/widgets/editor/edit_window/edit_window.py:468
+# navigator/widgets/editor/edit_window/edit_window.py:474
 "File ~N~ame" = "~ש~ם קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:538
+# navigator/widgets/editor/edit_window/edit_window.py:544
 "Paste from File" = "הדבקה מקובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:538
+# navigator/widgets/editor/edit_window/edit_window.py:544
 "~P~aste from" = "~ה~דבק מתוך"
-# navigator/widgets/editor/edit_window/edit_window.py:858
+# navigator/widgets/editor/edit_window/edit_window.py:864
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:900, navigator/widgets/viewer/file_window/file_window.py:733
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:894, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:900, navigator/widgets/viewer/file_window/file_window.py:733
 "~S~ave File As" = "~ש~מור קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:132
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:131, navigator/widgets/editor/edit_window/edit_window.py:133
+# navigator/widgets/editor/edit_window/edit_window.py:134, navigator/widgets/editor/edit_window/edit_window.py:136
 "Edit - {path}" = "עריכה - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:417, navigator/widgets/manager/manager/manager.py:917, navigator/widgets/manager/manager/manager.py:2416 ...
+# navigator/widgets/editor/edit_window/edit_window.py:423, navigator/widgets/manager/manager/manager.py:917, navigator/widgets/manager/manager/manager.py:2416 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "הקובץ {name}\nכבר קיים.\nלדרוס אותו?"
-# navigator/widgets/editor/edit_window/edit_window.py:793, navigator/widgets/manager/manager/manager.py:3545
+# navigator/widgets/editor/edit_window/edit_window.py:799, navigator/widgets/manager/manager/manager.py:3545
 "Confirmation" = "אישור"
-# navigator/widgets/editor/edit_window/edit_window.py:794
+# navigator/widgets/editor/edit_window/edit_window.py:800
 "Print {n} line?" = ["להדפיס שורה אחת?", "להדפיס שתי שורות?", "להדפיס {n} שורות?"]
-# navigator/widgets/editor/edit_window/edit_window.py:802
+# navigator/widgets/editor/edit_window/edit_window.py:808
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:243
+# navigator/widgets/editor/edit_window/edit_window.py:249
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:696, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:872 ...
+# navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:872 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
-# navigator/widgets/editor/edit_window/edit_window.py:702, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
+# navigator/widgets/editor/edit_window/edit_window.py:708, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:200 ...
 "Information" = "מידע"
-# navigator/widgets/editor/edit_window/edit_window.py:702
+# navigator/widgets/editor/edit_window/edit_window.py:708
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:866, navigator/widgets/shell/shell/shell.py:1879
+# navigator/widgets/editor/edit_window/edit_window.py:872, navigator/widgets/shell/shell/shell.py:1879
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:943, navigator/widgets/editor/edit_window/edit_window.py:853
+# navigator/widgets/editor/edit_window/edit_window.py:949, navigator/widgets/editor/edit_window/edit_window.py:859
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
-# navigator/widgets/editor/edit_window/edit_window.py:244
+# navigator/widgets/editor/edit_window/edit_window.py:250
 "Save file {name}?" = "לשמור את הקובץ {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:432
+# navigator/widgets/editor/edit_window/edit_window.py:438
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "הקובץ {name}\nמסומן לקריאה בלבד.\nלשנות אותו בכל זאת?"
 # navigator/widgets/editor/file_editor/file_editor.py:2158, navigator/widgets/editor/file_editor/file_editor.py:2152, navigator/widgets/editor/file_editor/file_editor.py:2169
 "Macros" = "מאקרו"
@@ -4556,9 +4580,9 @@ direction = "rtl"
 "Mask" = "מסך"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "הסר מיסוך"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:44
 "Start-up" = "אתחול"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:44
 "Description" = "תיאור"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "פח"
@@ -4706,27 +4730,41 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["נסגרת אחרי דקה אחת ללא פעילות", "נסגרת אחרי שתי דקות ללא פעילות", "נסגרת אחרי {n} דקות ללא פעילות"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} סוגר אותה מיד"
-# navigator/widgets/shell/service_list/service_list.py:40
+# navigator/widgets/shell/service_list/service_list.py:43
 "Unit" = "יחידה"
+# navigator/widgets/shell/service_list/service_list.py:43
+"Service" = "שירות"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "יומן: {unit}"
-# navigator/widgets/shell/service_window/journal_window.py:172
+# navigator/widgets/shell/service_window/journal_window.py:194
+"Log: {unit} (its lines in {path})" = "יומן: {unit} (השורות שלו ב-{path})"
+# navigator/widgets/shell/service_window/journal_window.py:197
+"Log: {unit}" = "יומן: {unit}"
+# navigator/widgets/shell/service_window/journal_window.py:220
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "רק root וקבוצת systemd-journal קוראים את כל היומן של {unit}: בשמך מוצגות רק השורות שלך."
-# navigator/widgets/shell/service_window/service_window.py:202
+# navigator/widgets/shell/service_window/journal_window.py:186
+"Only root reads {path}, where {unit}'s log is." = "רק root קורא את {path}, שבו נמצא היומן של {unit}."
+# navigator/widgets/shell/service_window/service_window.py:247
 "{shown} of {count} unit match the filter" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:207
+# navigator/widgets/shell/service_window/service_window.py:252
 "{count} unit, {running} running, {failed} failed" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:293
+# navigator/widgets/shell/service_window/service_window.py:340
+"Not something {manager} does" = "{manager} אינו עושה זאת"
+# navigator/widgets/shell/service_window/service_window.py:348
 "The cursor is on no unit" = "הסמן אינו על יחידה"
-# navigator/widgets/shell/service_window/service_window.py:381
+# navigator/widgets/shell/service_window/service_window.py:442
 "{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} שייכת לחבילה: היא נדרסת ב-{path}, שרק root רשאי ליצור."
-# navigator/widgets/shell/service_window/service_window.py:453
+# navigator/widgets/shell/service_window/service_window.py:511
+"Restart {unit} now, so it reads its new settings?" = "להפעיל מחדש את {unit} עכשיו, כדי שיקרא את ההגדרות החדשות?"
+# navigator/widgets/shell/service_window/service_window.py:532
 "Stop {unit}?" = "לעצור את {unit}?"
-# navigator/widgets/shell/service_window/service_window.py:453
+# navigator/widgets/shell/service_window/service_window.py:532
 "Mask {unit}? It will not start at all until unmasked." = "למסך את {unit}? היא לא תופעל כלל עד שהמיסוך יוסר."
-# navigator/widgets/shell/service_window/service_window.py:470
+# navigator/widgets/shell/service_window/service_window.py:549
 "Cannot {verb} {unit}: {error}" = "לא ניתן לבצע {verb} ל-{unit}: {error}"
-# navigator/widgets/shell/service_window/service_window.py:420
+# navigator/widgets/shell/service_window/service_window.py:167
+"Services ({manager})" = "שירותים ({manager})"
+# navigator/widgets/shell/service_window/service_window.py:487
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "הקובץ של {unit} נשמר, אך לא ניתן לבקש מ-systemd לקרוא אותו מחדש: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "הגדרות הממשק מסתירות את שורת הפקודה"
@@ -5937,6 +5975,8 @@ direction = "rtl"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "שניות בין קריאות של רשימת התהליכים כשהיא פתוחה; 0 קורא רק ב-Ctrl+R"
 # navigator/settings.py
+"The service manager Services works: auto (the one running), systemd or openrc" = "מנהל השירותים שחלון השירותים עובד איתו: auto (זה שפועל), systemd או openrc"
+# navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "שניות בין קריאות היחידות כשחלון השירותים פתוח; 0 קורא רק ב-Ctrl+R"
 # navigator/settings.py
 "How many of a unit's last journal lines F3 shows before following it" = "כמה משורות היומן האחרונות של יחידה F3 מציג לפני המעקב"
@@ -6003,3 +6043,5 @@ direction = "rtl"
 "Take back the last move, rename, delete to Trash or new directory" = "ביטול ההעברה, שינוי השם, המחיקה לאשפה או התיקייה החדשה האחרונים"
 "Create, extract and test archives" = "יצירה, חילוץ ובדיקה של ארכיונים"
 "The unit's file in the editor; saved, systemd reads its unit files again" = "קובץ היחידה בעורך; לאחר שמירה systemd קורא מחדש את קובצי היחידות"
+"systemd's units: start, stop, enable them, follow their journal" = "יחידות systemd: הפעלה, עצירה, הפעלה באתחול, מעקב אחר היומן"
+"Start, stop, enable and follow systemd's units" = "הפעלה, עצירה, הפעלה באתחול ומעקב אחר יחידות systemd"

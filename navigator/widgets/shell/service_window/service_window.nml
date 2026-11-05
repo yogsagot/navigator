@@ -13,26 +13,28 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
-#: Utilities > Services: systemd's units -- name, whether it runs, how it
-#: starts, what it is -- a row each, read again every ``[services] refresh``
-#: seconds.  **Not DOS Navigator's**: a departure, asked for -- DOS had no
-#: service manager.  Process list's sibling, laid out as it is;
-#: ``navigator/lib/system/services.py`` says how ``systemctl`` is asked.
+#: Utilities > Services: the system's services -- systemd's units or OpenRC's
+#: services: name, whether it runs, how it starts, what it is -- a row each,
+#: read again every ``[services] refresh`` seconds.  **Not DOS Navigator's**:
+#: a departure, asked for -- DOS had no service manager.  Process list's
+#: sibling, laid out as it is; ``navigator/lib/system/services/`` says how
+#: each manager is asked, and what one has not is greyed with the reason.
 #:
 #: *Filter* and its X across the top; the list under them; the status line,
 #: then *User units* and *All types* on the left, *Start*, *Stop*, *Journal*,
 #: *Edit* and *Close* on the right, the window never narrower than all of them.
 #:
-#: F4 opens the unit's file in the editor, and saving it runs ``systemctl
-#: daemon-reload`` (as root when the user may not).  Not Filter, as F4 is in
+#: F4 opens the unit's file in the editor -- a package's through a drop-in, an
+#: OpenRC service's ``/etc/conf.d`` file -- and saving it runs ``systemctl
+#: daemon-reload`` (as root when the user may not), or OpenRC offers a restart.  Not Filter, as F4 is in
 #: Process list: F4 is Edit everywhere else in Navigator.
 #:
 #: F5 starts the unit under the cursor, F6 restarts it, F7 reloads it, F8 or
 #: Del stops it after asking; Ctrl+E enables it and Ctrl+D disables it, and
 #: the menu masks and unmasks.  What the user may not do alone is offered *As
-#: root*, through the root helper's ``systemctl``.  F3 opens the unit's
-#: journal in the viewer, following its end; Enter says what ``systemctl
-#: status`` does.  Ctrl+U lists the user's own manager's units, Ctrl+A every
+#: root*, through the root helper's ``service``.  F3 opens the unit's
+#: journal (OpenRC: its log, or the system log's lines naming it) in the
+#: viewer, following its end; Enter says what its status is.  Ctrl+U lists the user's own manager's units, Ctrl+A every
 #: type rather than services; Ctrl+N and Ctrl+L sort by name and state, as a
 #: click on a column's title does.  Typing, Ctrl+S or Alt+F goes to the
 #: filter; Esc empties it, then closes the window; Ctrl+R reads again.
@@ -176,7 +178,7 @@ ServiceWindow(Window):
     SubMenu:
         id: service_menu
         text: '~S~ervices'
-        tooltip: "Start, stop, enable and follow systemd's units"
+        tooltip: "Start, stop, enable and follow the system's services"
         after: 'File'
         MenuItem:
             text: '~R~e-read'

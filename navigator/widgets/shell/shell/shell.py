@@ -3425,7 +3425,7 @@ class Shell(DockLayout):
         return True
 
     async def on_open_service_window(self, event: OpenServiceWindow) -> bool:
-        """Utilities > Services: systemd's units in a window."""
+        """Utilities > Services: the system's services in a window."""
         from navigator.widgets.shell.service_window import ServiceWindow
 
         self.desktop.open(ServiceWindow())

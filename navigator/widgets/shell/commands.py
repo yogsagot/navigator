@@ -309,11 +309,11 @@ class ProcessDetails(Command):
 
 
 class OpenServiceWindow(Command):
-    """Utilities > Services: systemd's units, started, stopped, enabled and
-    followed in their journal.
+    """Utilities > Services: the system's services (systemd's or OpenRC's),
+    started, stopped, enabled and followed in their log.
 
     Not DOS Navigator's -- a departure, asked for, recorded in
-    ``navigator/lib/system/services.py``: DOS had no service manager.
+    ``navigator/lib/system/services/``: DOS had no service manager.
     """
 
     title = "Services"

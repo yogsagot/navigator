@@ -1,8 +1,9 @@
 """The list inside Utilities > Services: a row per systemd unit, under column titles.
 
 A :class:`~navigator.widgets.shell.process_list.ColumnList`, as Process list's
-is: *Unit*, *State* (active and sub state, ``active/running``) and *Start-up*
-(the unit file's state: enabled, disabled, static, masked) keep their widths;
+is: *Unit* (*Service* for OpenRC), *State* (systemd's active and sub state,
+``active/running``; OpenRC's ``started``, ``crashed``...) and *Start-up* (the
+unit file's state -- enabled, static, masked -- or OpenRC's runlevels) keep their widths;
 *Description* takes what is left.  A click on a title sorts by it, and typing
 goes to the window's *Filter* line, both as Process list's.
 """
@@ -28,20 +29,23 @@ class ServiceList(ColumnList):
     """Units: name, whether it runs, how it starts, and what it is."""
 
     WIDTHS = (UNIT_WIDTH, STATE_WIDTH, STARTUP_WIDTH, None)
-    SORTS = ("name", "active", "file_state", "description")
+    SORTS = ("name", "active", "startup", "description")
 
     keys = {"ctrl+s": QuickSearch}
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self.sort = "name"
+        #: The first column's title: a *Unit* of systemd's, a *Service* of OpenRC's.
+        self.noun = "unit"
 
     def titles(self) -> tuple[str, ...]:
-        return (tr("Unit"), tr("State"), tr("Start-up"), tr("Description"))
+        first = tr("Unit") if self.noun == "unit" else tr("Service")
+        return (first, tr("State"), tr("Start-up"), tr("Description"))
 
     def cells(self, row: services.Unit) -> list[tuple[str, bool]]:
         state = f"{row.active}/{row.sub}" if row.sub else row.active
-        return [(row.name, False), (state, False), (row.file_state, False), (row.description, False)]
+        return [(row.name, False), (state, False), (row.startup, False), (row.description, False)]
 
     def row_text(self, index: int, item: Any) -> str:
         return item.name

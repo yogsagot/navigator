@@ -797,7 +797,7 @@ class MainMenu(MenuBar, _Component):
 
         _w78.text = _bind(lambda _o: _tr('~S~ervices'), yielding=True)    # main_menu.nml:440
         _w78.tooltip = _bind(    # main_menu.nml:441
-            lambda _o: _tr("systemd's units: start, stop, enable them, follow their journal"),
+            lambda _o: _tr("The system's services: start, stop, enable them, follow their log"),
             yielding=True,
         )
         _w78.command = OpenServiceWindow    # main_menu.nml:442
