@@ -1,6 +1,6 @@
 ---
 name: navigator-services
-description: Utilities > Services, a departure from DN (DOS had no service manager) -- navigator/lib/system/services/ (the Backend interface in common.py with Unit, run/failure, Journal/LogFile/EditPlan, Follower; __init__.py's BACKENDS, current() and [services] manager, the dispatchers gather/act/details/log/edit_plan/after_edit, ordered/matches; systemd.py merging systemctl list-units and list-unit-files, drop-in overrides, daemon-reload, journalctl; openrc.py with rc-status --servicelist, rc-update show --verbose, rc-service, the own or filtered system log, /etc/conf.d; runit.py with definition directories, links in the supervised directory, sv status and its root-only supervise/, svlogd's current, conf or run), the root helper's service/service_states/after_edit/journal_follow/journal_stop ops, ServiceList (a ColumnList), ServiceWindow (greying what a backend has not, ? states read as root, F3/F4/F5-F8, Ctrl+E/Ctrl+D, As root), F3's JournalWindow and log-file viewer, and [services] manager/refresh/journal_lines. Use when changing the Services window, adding a service manager, or changing what one runs.
+description: Utilities > Services, a departure from DN (DOS had no service manager) -- navigator/lib/system/services/ (the Backend interface in common.py with Unit, run/failure, Journal/LogFile/EditPlan, Follower; __init__.py's BACKENDS, current() and [services] manager, the dispatchers gather/act/details/log/edit_plan/after_edit, ordered/matches; systemd.py merging systemctl list-units and list-unit-files, drop-in overrides, daemon-reload, journalctl; openrc.py with rc-status --servicelist, rc-update show --verbose, rc-service, the own or filtered system log, /etc/conf.d; runit.py with definition directories, links in the supervised directory, sv status and its root-only supervise/, svlogd's current, conf or run; sysvinit.py with /etc/init.d scripts, LSB headers, hidden shutdown scripts, status only where handled, rc?.d links, update-rc.d/chkconfig, root-owned scripts only, /etc/default), the root helper's service/service_states/after_edit/journal_follow/journal_stop ops, ServiceList (a ColumnList), ServiceWindow (greying what a backend has not, ? states read as root, F3/F4/F5-F8, Ctrl+E/Ctrl+D, As root), F3's JournalWindow and log-file viewer, and [services] manager/refresh/journal_lines. Use when changing the Services window, adding a service manager, or changing what one runs.
 ---
 
 # Services
@@ -13,7 +13,7 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
 ## The interface (`navigator/lib/system/services/`)
 
 - **One `Backend` per service manager** (`common.py`): `name`, `title`, a closed `verbs` tuple, capability flags
-  (`user_scope`, `all_types`, `reload_after_edit`, `restart_after_edit`, `states_need_root`) and the methods
+  (`user_scope`, `all_types`, `reload_after_edit`, `restart_after_edit`, `states_need_root`, `refresh_floor`) and the methods
   `refusal`, `valid_name`, `installed`, `gather`, `act`, `details`, `log` (a `Journal(argv, readable)` or
   `LogFile(path, pattern)`), `edit_plan` (an `EditPlan(path, seed, line, warning)`), `after_edit` and `states`. Each module (`systemd.py`, `openrc.py`) keeps its
   work in module functions and a thin class over them, so **tests patch the module function** (`systemd.unit_file`,
@@ -24,11 +24,13 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   is `EIO` with what was said.
 - **Shared in `common.py`**: `UNKNOWN` (`?`, a state the user may not read) and `with_states()` filling it,
   `SYSTEM_LOGS` (socklog's `everything/current`, `/var/log/messages`, `/var/log/syslog`) and `system_log()` -- the
-  F3 fallback OpenRC and runit share, filtered to the service's name -- and `pid1()`.
+  F3 fallback OpenRC, runit and SysVinit share, filtered to the service's name -- and `pid1()`. `run()` takes a
+  `timeout` (SysVinit's `status` gets 3 s). `LogFile.guessed` makes the title say a log was found by name.
 - `Unit` has `backend` (the name of the one that read it) and `startup` (systemd's file state, or OpenRC's runlevels
   joined, `disabled` for none). `running`/`failed` cover both managers' words.
 - `__init__.py`: `BACKENDS`, `current()` (`[services] manager` names one, else the first whose `refusal()` is empty:
-  systemd, then OpenRC, then runit), `refusal_reason()` for the menu's grey, and the dispatchers the window calls --
+  systemd, then OpenRC, then runit, then SysVinit -- last because Gentoo and Devuan run OpenRC under a sysvinit
+  `init`), `refusal_reason()` for the menu's grey, and the dispatchers the window calls --
   `gather` (on `current()`, dropping `user`/`all_types` it cannot do), and `act`/`details`/`log`/`edit_plan`/
   `after_edit` on `backend_of(unit)`. **The window calls only these**, so a window test patches `services.gather`,
   `services.act`.
@@ -93,6 +95,29 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
 - F4: `conf` when `reads_conf(run)` (Void's `[ -r conf ] && . ./conf`), seeded with `run` commented out; else the
   `run` script itself with `EditPlan.warning` (*an update of its package may replace it*), which the window asks
   OK/Cancel on before opening. `restart_after_edit`.
+
+## SysVinit (`sysvinit.py`)
+
+- **No list and no states**: services are the executable files in the first of `INIT_DIRS`; the description is the
+  LSB header's `Short-Description` (`header()` joins continued lines) or Red Hat's `# description:`; start-up is
+  the runlevels whose `rc<N>.d` (under the first of `RC_BASES`) has an `S<NN><name>` link, `boot` for `rcS.d`.
+  It is the manager when `pid1() == "init"` and `/etc/inittab` exists.
+- **Safety rules, each tested**:
+  - Never listed: `HIDDEN` (`rc`, `halt`, `reboot`, `sendsigs`, `umountfs`...), `dpkg`/`rpm` leftovers, and any
+    `shutdown_only()` script (LSB starts it only in 0/6 and stops it in 0 or 6). F5 on `halt` must be impossible.
+  - **`status` runs only where `has_status()` finds a `status` case**: an old script that ignores its argument
+    would start. Others are `unknown` (*no status action*), nothing run.
+  - `status` runs `PARALLEL` (8) at once, each `STATUS_TIMEOUT` (3 s); a hang is `unknown` (*no answer*). Codes:
+    0 `running`, 1/2 `fail`, 3 `stopped`, 4 or a refusal `UNKNOWN` (read as root like runit's), else `unknown`.
+  - **`installed()` -- what the root helper requires -- is a listed script owned by `OWNER` (root) and writable by
+    nobody else**: a script the user could change would be their code run as root.
+- Verbs: the script itself (`/etc/init.d/X VERB`, never `service`, which may hand over to systemd); exit 4 (LSB's
+  insufficient privilege) is `EPERM`. `verbs` is a property: enable/disable only with `enabler()`'s `update-rc.d`
+  (`defaults` first when it has no links at all, then `enable`/`disable`) or `chkconfig` (`--add`, then `on`/`off`).
+- `refresh_floor = 15`: each read is a process per script.
+- F3: `/var/log/<name>.log` (`guessed`), else `common.system_log`. F4: `settings_file()` -- the `/etc/default` or
+  `/etc/sysconfig` directory the script names -- seeded with OpenRC's `conf_text` when new; else the script with a
+  warning.
 
 ## As root
 
@@ -169,6 +194,11 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   `manager = "openrc"` **and `openrc.refusal` patched to ""** (else the shell greys Services on a machine without
   OpenRC): greying, As root, F3 filtered, F4 then the restart offer. `/etc/init.d`, `/etc/conf.d` and the system logs
   are the `etc` fixture's, in `tmp_path`.
+- `tests/test_services_sysvinit.py`: the `etc` fixture (LSB, Red Hat, no-status, hanging, code-4, shutdown-only and
+  hidden scripts, `rc2.d`/`rcS.d` links, `/etc/default` and `/etc/sysconfig`), `common.run` faked **with its
+  `timeout` keyword**: what is listed and never run, status codes, each verb with and without a tool, the helper's
+  ownership check (`OWNER` patched to the test's user to pass), F3, F4, and the window's 15 s floor (spying on
+  `Application.call_every`, `service_run(..., refresh=3)`).
 - `tests/test_services_runit.py`: the `tree` fixture (definitions, a supervised directory with links, a `down` file,
   `svlogd` and `vlogger` loggers, a `conf`-reading `run`, a directory placed in the supervised directory), `sv status`
   faked through `common.run` (states, and every one refused), each verb (never removing a directory), F3, F4 and its

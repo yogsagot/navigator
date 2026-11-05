@@ -1,11 +1,12 @@
 """The list inside Utilities > Services: a row per service, under column titles.
 
 A :class:`~navigator.widgets.shell.process_list.ColumnList`, as Process list's
-is: *Unit* (*Service* for OpenRC and runit), *State* (systemd's active and sub
-state, ``active/running``; OpenRC's ``started``, ``crashed``...; runit's
-``run/120s``, ``down/normally up``, ``?`` when only root may read it) and
-*Start-up* (the unit file's state, OpenRC's runlevels, runit's ``enabled``,
-``enabled, down`` or ``disabled``) keep their widths;
+is: *Unit* (*Service* for the other managers), *State* (systemd's active and
+sub state, ``active/running``; OpenRC's ``started``, ``crashed``...; runit's
+``run/120s``, ``down/normally up``; SysVinit's ``running``, ``stopped``,
+``unknown``; ``?`` when only root may read it) and *Start-up* (the unit file's
+state, OpenRC's or SysVinit's runlevels, runit's ``enabled``, ``enabled, down``
+or ``disabled``) keep their widths;
 *Description* takes what is left.  A click on a title sorts by it, and typing
 goes to the window's *Filter* line, both as Process list's.
 """

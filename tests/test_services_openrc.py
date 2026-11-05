@@ -13,7 +13,7 @@ from navkit.events import KeyEvent
 from conftest import Until
 
 from navigator.lib.system import services
-from navigator.lib.system.services import Unit, common, openrc, runit, systemd
+from navigator.lib.system.services import Unit, common, openrc, runit, systemd, sysvinit
 
 from test_services import service_run
 
@@ -148,12 +148,13 @@ def test_the_running_manager_is_picked_unless_one_is_named(monkeypatch):
 
     monkeypatch.setattr(SETTINGS.services, "manager", "auto")
     monkeypatch.setattr(runit, "refusal", lambda: "no runit")
+    monkeypatch.setattr(sysvinit, "refusal", lambda: "no sysvinit")
     monkeypatch.setattr(systemd, "refusal", lambda: "no systemd")
     monkeypatch.setattr(openrc, "refusal", lambda: "")
     assert services.current() is openrc.BACKEND and services.refusal_reason() == ""
     monkeypatch.setattr(openrc, "refusal", lambda: "no openrc")
     assert services.current() is None
-    assert "systemd, OpenRC or runit" in services.refusal_reason()
+    assert "systemd, OpenRC, runit or SysVinit" in services.refusal_reason()
     monkeypatch.setattr(SETTINGS.services, "manager", "systemd")
     assert services.current() is systemd.BACKEND and services.refusal_reason() == "no systemd"
 

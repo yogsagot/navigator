@@ -171,7 +171,7 @@ def fake_units() -> list[Unit]:
     ]
 
 
-def service_run(where, monkeypatch, *actions, reads=None, units=None, manager="systemd"):
+def service_run(where, monkeypatch, *actions, reads=None, units=None, manager="systemd", refresh=0):
     from test_nav import navigator
 
     from navigator.settings import SETTINGS
@@ -182,7 +182,7 @@ def service_run(where, monkeypatch, *actions, reads=None, units=None, manager="s
         return (units or fake_units)()
 
     monkeypatch.setattr(services, "gather", gather)
-    monkeypatch.setattr(SETTINGS.services, "refresh", 0)
+    monkeypatch.setattr(SETTINGS.services, "refresh", refresh)
     monkeypatch.setattr(SETTINGS.services, "manager", manager)
     app = navigator(where)
 

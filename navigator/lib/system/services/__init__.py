@@ -7,10 +7,13 @@ them -- through the root helper when the user may not -- follows a service's
 log in the F3 viewer and edits how it is set up with F4.
 
 **One interface, a backend per manager** (:class:`common.Backend`): systemd
-(:mod:`.systemd`), OpenRC (:mod:`.openrc`) and runit (:mod:`.runit`).
-:func:`current` picks the one running this system -- systemd when
-``/run/systemd/system`` is there, else OpenRC when ``/run/openrc`` is, else
-runit when it is the first process -- unless ``[services] manager`` names one.
+(:mod:`.systemd`), OpenRC (:mod:`.openrc`), runit (:mod:`.runit`) and SysVinit
+(:mod:`.sysvinit`).  :func:`current` picks the one running this system --
+systemd when ``/run/systemd/system`` is there, else OpenRC when ``/run/openrc``
+is, else runit when it is the first process, else SysVinit when ``init`` is
+and ``/etc/inittab`` is there (Gentoo and Devuan run OpenRC under a sysvinit
+``init``, which is why it is asked last) -- unless ``[services] manager``
+names one.
 The window calls only the functions here, which hand each service to the
 backend that read it; what a backend has not (masking, user
 services) is greyed by the window from the backend's attributes.
@@ -25,14 +28,14 @@ from __future__ import annotations
 from collections.abc import Iterable
 from typing import Any
 
-from navigator.lib.system.services import common, openrc, runit, systemd
+from navigator.lib.system.services import common, openrc, runit, systemd, sysvinit
 from navigator.lib.system.services.common import (
     UNKNOWN, Backend, EditPlan, Follower, Journal, LogFile, Unit, stop_process, with_states,
 )
 
 #: Every backend, by its name -- the root helper's closed list too.
 BACKENDS: dict[str, Backend] = {backend.name: backend
-                                for backend in (systemd.BACKEND, openrc.BACKEND, runit.BACKEND)}
+                                for backend in (systemd.BACKEND, openrc.BACKEND, runit.BACKEND, sysvinit.BACKEND)}
 
 #: ``[services] manager``'s choices.
 MANAGERS = ("auto", *BACKENDS)
@@ -71,7 +74,7 @@ def refusal_reason() -> str:
     if chosen != "auto":
         return BACKENDS[chosen].refusal()
     if current() is None:
-        return tr("No service manager Navigator knows runs here: systemd, OpenRC or runit")
+        return tr("No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit")
     return ""
 
 
@@ -159,6 +162,6 @@ def matches(unit: Unit, text: str) -> bool:
 __all__ = [
     "BACKENDS", "MANAGERS", "SORTS", "UNKNOWN", "Backend", "EditPlan", "Follower", "Journal", "LogFile", "Unit",
     "act", "after_edit", "available", "backend_of", "common", "current", "details", "edit_plan", "gather",
-    "journal_lines", "log", "matches", "openrc", "ordered", "refusal_reason", "runit", "stop_process",
+    "journal_lines", "log", "matches", "openrc", "ordered", "refusal_reason", "runit", "stop_process", "sysvinit",
     "systemd", "with_states",
 ]

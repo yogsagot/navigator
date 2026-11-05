@@ -61,20 +61,20 @@ class Unit:
 
     @property
     def running(self) -> bool:
-        return self.active in ("active", "reloading", "activating", "started", "starting", "run")
+        return self.active in ("active", "reloading", "activating", "started", "starting", "run", "running")
 
     @property
     def masked(self) -> bool:
         return self.startup.startswith("masked") or self.load == "masked"
 
 
-def run(argv: list[str]) -> subprocess.CompletedProcess[str]:
+def run(argv: list[str], timeout: float = TIMEOUT) -> subprocess.CompletedProcess[str]:
     """*argv* run with its output gathered, in English so a refusal can be
-    read, and given up on after :data:`TIMEOUT`.  Raises ``OSError``."""
+    read, and given up on after *timeout* seconds.  Raises ``OSError``."""
     environment = {**os.environ, "LANG": "C", "LC_ALL": "C", "SYSTEMD_PAGER": "", "SYSTEMD_COLORS": "0",
                    "EINFO_COLOR": "NO"}
     try:
-        return subprocess.run(argv, capture_output=True, text=True, errors="replace", timeout=TIMEOUT,
+        return subprocess.run(argv, capture_output=True, text=True, errors="replace", timeout=timeout,
                               stdin=subprocess.DEVNULL, env=environment, check=False)
     except subprocess.TimeoutExpired as error:
         raise OSError(errno.ETIMEDOUT, f"{argv[0]} did not answer in time", argv[0]) from error
@@ -107,6 +107,9 @@ class LogFile:
 
     path: Path
     pattern: str | None = None
+    #: Found by the service's name alone (SysVinit's ``/var/log/<name>.log``):
+    #: the window's title says so.
+    guessed: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -143,6 +146,9 @@ class Backend:
     #: Whether the user may not read every service's state, so that some
     #: come back :data:`UNKNOWN` and :meth:`states` is asked as root.
     states_need_root = False
+    #: The fewest seconds between the window's timed reads, whatever
+    #: ``[services] refresh`` says: reading costs a process per service (SysVinit).
+    refresh_floor = 0
 
     def refusal(self) -> str:
         """Why it is not this system's service manager, or ""."""

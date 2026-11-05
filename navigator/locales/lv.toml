@@ -423,7 +423,7 @@ flag = "LV"
 "No COW" = "Bez COW"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Compress" = "Saspiest"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:222 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318, navigator/widgets/shell/commands.py:387, navigator/widgets/shell/service_window/journal_window.py:224 ...
 "Journal" = "Žurnāls"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:318
 "Top dir" = "Augšdir."
@@ -2379,7 +2379,7 @@ flag = "LV"
 "~S~ignal..." = "Si~g~nāls..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "~B~eigt..."
-# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:376 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:380 ...
 "Services" = "Pakalpojumi"
 # navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "Rādīt tikai vienības, kuru nosaukumā vai aprakstā ir šis"
@@ -2391,11 +2391,11 @@ flag = "LV"
 "~A~ll types" = "~V~isi tipi"
 # navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "Arī taimeri, ligzdas, montējumi un pārējie, ne tikai pakalpojumi"
-# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:670
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:674
 "S~t~art" = "Pala~i~st"
 # navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "~A~pturēt"
-# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:666
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:670
 "~J~ournal" = "~Ž~urnāls"
 # navigator/widgets/shell/service_window/service_window.nml:181
 "Start, stop, enable and follow the system's services" = "Palaist, apturēt, iespējot sistēmas pakalpojumus un sekot tiem"
@@ -2413,31 +2413,31 @@ flag = "LV"
 "Show only the units whose name or description holds what is typed" = "Rādīt tikai vienības, kuru nosaukumā vai aprakstā ir ierakstītais"
 # navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "Vienības žurnāls skatītājā, sekojot tā beigām"
-# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:667
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:671
 "Edit unit file" = "Rediģēt vienības failu"
 # navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "Vienības fails redaktorā, pakotnes fails — ar papildinājumu override; pēc saglabāšanas systemd pārlasa vienību failus"
-# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:668
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:672
 "Detai~l~s..." = "Sī~k~āk..."
-# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:671
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:675
 "Restart" = "Pārstartēt"
-# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:672
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:676
 "Rel~o~ad" = "Pārlā~d~ēt"
-# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:673
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:677
 "Sto~p~..." = "Aptu~r~ēt..."
-# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:675
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:679
 "Ena~b~le" = "Iesp~ē~jot"
 # navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "Palaists sāknējot vai, lietotāja vienībai, piesakoties"
-# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:676
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:680
 "D~i~sable" = "Atspē~j~ot"
 # navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "Vairs netiek palaists sāknējot"
-# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:677
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:681
 "~M~ask..." = "~M~askēt..."
 # navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "Nekad netiek palaists, pat ne no citas vienības"
-# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:678
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:682
 "Unmas~k~" = "No~ņ~emt masku"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "Sistēmas informācija"
@@ -3023,9 +3023,9 @@ flag = "LV"
 "Environment" = "Vide"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator šim procesam signālus nesūta"
-# navigator/lib/system/services/__init__.py:74
-"No service manager Navigator knows runs here: systemd, OpenRC or runit" = "Šeit nedarbojas neviens Navigator zināms pakalpojumu pārvaldnieks: systemd, OpenRC vai runit"
-# navigator/lib/system/services/common.py:202
+# navigator/lib/system/services/__init__.py:77
+"No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "Šeit nedarbojas neviens Navigator zināms pakalpojumu pārvaldnieks: systemd, OpenRC, runit vai SysVinit"
+# navigator/lib/system/services/common.py:208
 "{manager} keeps no log for {unit}, and there is no system log file" = "{manager} nevada žurnālu vienībai {unit}, un sistēmas žurnāla faila nav"
 # navigator/lib/system/services/openrc.py:259
 "OpenRC" = "OpenRC"
@@ -3033,11 +3033,11 @@ flag = "LV"
 "There is no rc-service: install OpenRC" = "Nav rc-service: uzstādiet OpenRC"
 # navigator/lib/system/services/openrc.py:86
 "OpenRC is not the system's service manager" = "OpenRC nav sistēmas pakalpojumu pārvaldnieks"
-# navigator/lib/system/services/openrc.py:191, navigator/lib/system/services/runit.py:260
+# navigator/lib/system/services/openrc.py:191, navigator/lib/system/services/runit.py:260, navigator/lib/system/services/sysvinit.py:332 ...
 "Status: {state}" = "Stāvoklis: {state}"
 # navigator/lib/system/services/openrc.py:193
 "Runlevels: {levels}" = "Izpildlīmeņi: {levels}"
-# navigator/lib/system/services/openrc.py:193
+# navigator/lib/system/services/openrc.py:193, navigator/lib/system/services/sysvinit.py:341
 "Script: {path}" = "Skripts: {path}"
 # navigator/lib/system/services/openrc.py:234, navigator/lib/system/services/runit.py:312
 "Settings for {unit}, read by {path} each time it starts." = "{unit} iestatījumi, ko {path} nolasa katrā palaišanā."
@@ -3053,7 +3053,7 @@ flag = "LV"
 "runit is not the system's service manager" = "runit nav sistēmas pakalpojumu pārvaldnieks"
 # navigator/lib/system/services/runit.py:95, navigator/lib/system/services/runit.py:224
 "runit has no service directory here" = "runit šeit nav pakalpojumu mapes"
-# navigator/lib/system/services/runit.py:261
+# navigator/lib/system/services/runit.py:261, navigator/lib/system/services/sysvinit.py:337
 "Start-up: {state}" = "Palaišana: {state}"
 # navigator/lib/system/services/runit.py:242
 "{unit} is not enabled: enable it first" = "{unit} nav iespējots: vispirms iespējojiet to"
@@ -3085,6 +3085,16 @@ flag = "LV"
 "{unit} has no unit file to edit" = "{unit} nav vienības faila, ko rediģēt"
 # navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "Papildinājums vienībai {unit}: šeit iestatītais ir svarīgāks par {path}."
+# navigator/lib/system/services/sysvinit.py:387
+"SysVinit" = "SysVinit"
+# navigator/lib/system/services/sysvinit.py:112
+"There is no /etc/init.d" = "Nav /etc/init.d"
+# navigator/lib/system/services/sysvinit.py:114
+"SysVinit is not the system's service manager" = "SysVinit nav sistēmas pakalpojumu pārvaldnieks"
+# navigator/lib/system/services/sysvinit.py:336
+"{path} has no status action" = "{path} nav darbības status"
+# navigator/lib/system/services/sysvinit.py:378
+"{unit} reads no settings file, so its script is edited: an update of its package may replace it or ask about it." = "{unit} nelasa iestatījumu failu, tāpēc tiek rediģēts tā skripts: pakotnes atjauninājums to var aizstāt vai par to jautāt."
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "Datora tips"
 # navigator/lib/system/sysinfo.py:146
@@ -3159,9 +3169,9 @@ flag = "LV"
 "Utilities > Process list (not DN's)" = "Rīki > Procesu saraksts (nav DN)"
 # navigator/settings.py:1124
 "Utilities > Services (not DN's)" = "Utilītas > Pakalpojumi (nav DN)"
-# navigator/settings.py:1141
+# navigator/settings.py:1142
 "Utilities > System monitor (not DN's)" = "Rīki > Sistēmas monitors (nav DN)"
-# navigator/settings.py:1153
+# navigator/settings.py:1154
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Iestatījumi > Konfigurācija > Sakari (DN cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "Nepareiza {name} parole. Mēģiniet vēlreiz:"
@@ -4603,9 +4613,9 @@ flag = "LV"
 "Mask" = "Maskēt"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "Noņemt masku"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:46
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:47
 "Start-up" = "Palaišana"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:46
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:47
 "Description" = "Apraksts"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "Atkritne"
@@ -4753,47 +4763,49 @@ flag = "LV"
 "It closes after {n} idle minute" = ["Tā aizveras pēc {n} dīkstāves minūtes", "Tā aizveras pēc {n} dīkstāves minūtēm", "Tā aizveras pēc {n} dīkstāves minūtēm"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} to aizver tūlīt"
-# navigator/widgets/shell/service_list/service_list.py:45
+# navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Vienība"
-# navigator/widgets/shell/service_list/service_list.py:45
+# navigator/widgets/shell/service_list/service_list.py:46
 "Service" = "Pakalpojums"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "Žurnāls: {unit}"
 # navigator/widgets/shell/service_window/journal_window.py:194
 "Log: {unit} (its lines in {path})" = "Žurnāls: {unit} (tā rindas failā {path})"
 # navigator/widgets/shell/service_window/journal_window.py:197
+"Log: {unit} ({path}, found by its name)" = "Žurnāls: {unit} ({path}, atrasts pēc nosaukuma)"
+# navigator/widgets/shell/service_window/journal_window.py:199
 "Log: {unit}" = "Žurnāls: {unit}"
-# navigator/widgets/shell/service_window/journal_window.py:220
+# navigator/widgets/shell/service_window/journal_window.py:222
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "Visu {unit} žurnālu lasa tikai root un grupa systemd-journal: jūsu vārdā redzamas tikai jūsu rindas."
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "Tikai root lasa {path}, kur ir {unit} žurnāls."
-# navigator/widgets/shell/service_window/service_window.py:292
+# navigator/widgets/shell/service_window/service_window.py:296
 "{shown} of {count} unit match the filter" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:297
-"{count} unit, {running} running, {failed} failed" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:402
-"Not something {manager} does" = "{manager} to nedara"
-# navigator/widgets/shell/service_window/service_window.py:410
-"The cursor is on no unit" = "Kursors nav uz vienības"
-# navigator/widgets/shell/service_window/service_window.py:509
-"{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} pieder pakotnei: to papildina mapē {path}, ko var izveidot tikai root."
-# navigator/widgets/shell/service_window/service_window.py:578
-"Restart {unit} now, so it reads its new settings?" = "Pārstartēt {unit} tagad, lai tas nolasa jaunos iestatījumus?"
-# navigator/widgets/shell/service_window/service_window.py:599
-"Stop {unit}?" = "Apturēt {unit}?"
-# navigator/widgets/shell/service_window/service_window.py:599
-"Mask {unit}? It will not start at all until unmasked." = "Maskēt {unit}? Tā netiks palaista vispār, līdz maska tiks noņemta."
-# navigator/widgets/shell/service_window/service_window.py:616
-"Cannot {verb} {unit}: {error}" = "Neizdevās {verb} {unit}: {error}"
-# navigator/widgets/shell/service_window/service_window.py:200
-"Services ({manager})" = "Pakalpojumi ({manager})"
 # navigator/widgets/shell/service_window/service_window.py:301
+"{count} unit, {running} running, {failed} failed" = ["", "", ""]
+# navigator/widgets/shell/service_window/service_window.py:406
+"Not something {manager} does" = "{manager} to nedara"
+# navigator/widgets/shell/service_window/service_window.py:414
+"The cursor is on no unit" = "Kursors nav uz vienības"
+# navigator/widgets/shell/service_window/service_window.py:513
+"{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} pieder pakotnei: to papildina mapē {path}, ko var izveidot tikai root."
+# navigator/widgets/shell/service_window/service_window.py:582
+"Restart {unit} now, so it reads its new settings?" = "Pārstartēt {unit} tagad, lai tas nolasa jaunos iestatījumus?"
+# navigator/widgets/shell/service_window/service_window.py:603
+"Stop {unit}?" = "Apturēt {unit}?"
+# navigator/widgets/shell/service_window/service_window.py:603
+"Mask {unit}? It will not start at all until unmasked." = "Maskēt {unit}? Tā netiks palaista vispār, līdz maska tiks noņemta."
+# navigator/widgets/shell/service_window/service_window.py:620
+"Cannot {verb} {unit}: {error}" = "Neizdevās {verb} {unit}: {error}"
+# navigator/widgets/shell/service_window/service_window.py:201
+"Services ({manager})" = "Pakalpojumi ({manager})"
+# navigator/widgets/shell/service_window/service_window.py:305
 "{summary}; states need root: Ctrl+R reads them as root" = "{summary}; stāvokļiem vajag root: Ctrl+R tos nolasa kā root"
-# navigator/widgets/shell/service_window/service_window.py:374
+# navigator/widgets/shell/service_window/service_window.py:378
 "Only root reads whether {manager}'s enabled services run." = "Tikai root redz, vai {manager} iespējotie pakalpojumi darbojas."
-# navigator/widgets/shell/service_window/service_window.py:303
+# navigator/widgets/shell/service_window/service_window.py:307
 "{summary}; states read as root at {time}, Ctrl+R reads them again" = "{summary}; stāvokļi nolasīti kā root plkst. {time}, Ctrl+R tos nolasa vēlreiz"
-# navigator/widgets/shell/service_window/service_window.py:554
+# navigator/widgets/shell/service_window/service_window.py:558
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "{unit} fails ir saglabāts, bet systemd nevar likt to pārlasīt: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "Saskarnes iestatījumi paslēpj komandrindu"
@@ -6004,7 +6016,7 @@ flag = "LV"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "Sekundes starp procesu saraksta nolasīšanām, kamēr tas ir atvērts; 0 nolasa tikai ar Ctrl+R"
 # navigator/settings.py
-"The service manager Services works: auto (the one running), systemd, openrc or runit" = "Pakalpojumu pārvaldnieks logam Pakalpojumi: auto (tas, kas darbojas), systemd, openrc vai runit"
+"The service manager Services works: auto (the one running), systemd, openrc, runit or sysvinit" = "Pakalpojumu pārvaldnieks logam Pakalpojumi: auto (tas, kas darbojas), systemd, openrc, runit vai sysvinit"
 # navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "Sekundes starp vienību nolasījumiem, kamēr Pakalpojumi ir atvērti; 0 nolasa tikai ar Ctrl+R"
 # navigator/settings.py
@@ -6109,3 +6121,5 @@ flag = "LV"
 "No service manager Navigator knows runs here: systemd or OpenRC" = "Šeit nedarbojas neviens Navigator zināms pakalpojumu pārvaldnieks: systemd vai OpenRC"
 "OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC nevada žurnālu vienībai {unit}, un sistēmas žurnāla faila nav"
 "The service manager Services works: auto (the one running), systemd or openrc" = "Pakalpojumu pārvaldnieks logam Pakalpojumi: auto (tas, kas darbojas), systemd vai openrc"
+"No service manager Navigator knows runs here: systemd, OpenRC or runit" = "Šeit nedarbojas neviens Navigator zināms pakalpojumu pārvaldnieks: systemd, OpenRC vai runit"
+"The service manager Services works: auto (the one running), systemd, openrc or runit" = "Pakalpojumu pārvaldnieks logam Pakalpojumi: auto (tas, kas darbojas), systemd, openrc vai runit"

@@ -435,7 +435,7 @@ MainMenu(MenuBar):
             command: OpenProcessWindow
         #: Not in ``dlgMainMenu``: DOS had no service manager.  A departure,
         #: asked for -- Process list's sibling for the system's services, systemd's,
-        #: OpenRC's or runit's (``navigator/lib/system/services/``).
+        #: OpenRC's, runit's or SysVinit's (``navigator/lib/system/services/``).
         MenuItem:
             text: '~S~ervices'
             tooltip: "The system's services: start, stop, enable them, follow their log"

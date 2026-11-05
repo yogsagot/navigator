@@ -193,6 +193,8 @@ async def open_log_file(window: Any, unit: services.Unit, target: services.LogFi
     if target.pattern:
         viewer.title = tr("Log: {unit} (its lines in {path})").format(unit=unit.name, path=path)
         await viewer.show_lines(LinePattern(target.pattern))
+    elif target.guessed:
+        viewer.title = tr("Log: {unit} ({path}, found by its name)").format(unit=unit.name, path=path)
     else:
         viewer.title = tr("Log: {unit}").format(unit=unit.name)
     await viewer.on_follow_end(FollowEnd())

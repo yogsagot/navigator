@@ -9,22 +9,23 @@ unit it was on, by name.  The filter and the sort change what is shown, never
 what was read.
 
 **The service manager is a backend** (:mod:`navigator.lib.system.services`):
-systemd, OpenRC or runit, picked when the window opens.  What it has not --
+systemd, OpenRC, runit or SysVinit, picked when the window opens.  What it has not --
 masking, user services, other kinds -- is greyed with the reason; the title
-names a manager other than systemd.  **States only root may read** (runit's)
+names a manager other than systemd.  **States only root may read** (runit's, SysVinit's)
 show ``?`` with a hint: an explicit read (opening, Ctrl+R, after an action)
 reads them through root access when it is open, Ctrl+R asks for it first;
 the timer's read never touches the helper and keeps the states last read as
 root, said so, so an open window never keeps root access open.
 
 **Doing something to a unit** runs the backend's command as the user first
-(``systemctl --no-ask-password``, ``rc-service``, ``sv``); a refusal (``EPERM``) is
+(``systemctl --no-ask-password``, ``rc-service``, ``sv``, the init script); a refusal (``EPERM``) is
 offered *As root*, as a refused file step is, and done by the root helper's
 ``service`` op -- never for a user unit, whose manager is the user's own.
 **F3 follows the log** in the viewer:
 :mod:`navigator.widgets.shell.service_window.journal_window`.  **F4** opens
 what the backend says (a unit file or drop-in, an ``/etc/conf.d`` file, a
-runit ``conf`` or, after a warning, its ``run``); a save is followed by
+runit ``conf``, an ``/etc/default`` file, or after a warning a ``run`` or init
+script); a save is followed by
 systemd's daemon-reload, or by the offer of a restart.
 **Enter in the list is handled here** (*Details*), so the list's
 ``ChosenEvent`` does not walk up to the screen, which would take it for a
@@ -136,7 +137,7 @@ def _discard_unused(override: Path) -> None:
 
 
 class ServiceWindow(Window):
-    """The system's services -- systemd's units, OpenRC's or runit's services -- in a window of their own."""
+    """The system's services -- systemd's units, or OpenRC's, runit's or SysVinit's services -- in a window."""
 
     def __init__(self, user: bool = False, all_types: bool = False, sort: str = "name",
                  descending: bool = False, **kwargs: Any) -> None:
@@ -204,6 +205,9 @@ class ServiceWindow(Window):
         effect(self, ServiceWindow._follow_view)
         app = self.application
         seconds = _refresh()
+        if seconds > 0 and backend is not None:
+            # A manager whose every read costs a process per service is read less often.
+            seconds = max(seconds, backend.refresh_floor)
         if app is not None and seconds > 0:
             self._ticker = app.call_every(seconds, self._tick)
 
