@@ -49,6 +49,16 @@ Slots `[94-101]`, `[104-110]`.
   `/media/`, `/run/media/`, `/mnt/` (KIO's rule). Every call passes `--no-user-interaction`: a polkit refusal (an SSH
   session) is an error box at once. **Eject** unmounts every file system on the drive, then `busctl ... Drive Eject`
   for an `Ejectable` one (a disc: `udisksctl` has no eject) or `udisksctl power-off -p drives/...` otherwise.
+- **Disk images** (`udisks.attach_image`, Enter's -- `navigator-panels`): `udisksctl loop-setup -r -f FILE`, always
+  read-only (the answer's `Mapped file ... as /dev/loopN.` names the device), or the user's loop already on that
+  `Loop.BackingFile` reused; the dump re-read every `PROBE_INTERVAL` up to `PROBE_TIMEOUT` until udev has probed it
+  (`IdUsage`, or a `PartitionTable` whose partitions are there); every file system on it mounted, an *already mounted*
+  refusal (GVfs automounting first) no failure; then `busctl ... Loop SetAutoclear true` so the loop goes when its last
+  file system is unmounted (skipped without busctl). None to mount: `loop-delete` and `EINVAL`. `parse_volumes` lists
+  **the user's own loops** and their partitions (`Loop.SetupByUID` == `os.getuid()`, never 0; `_loop_of` through
+  `Partition.Table`), named by label else the image's file name, with `loop`, `size`, Unmount and Eject; root's and
+  snaps' stay hidden. **Eject on one** unmounts its file systems and runs `udisksctl loop-delete`. Always udisks,
+  whatever `desktop_vfs` says: neither `gio` nor Solid's command sets up a loop.
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a

@@ -673,7 +673,7 @@ class FMSetupData(Section):
 
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
-        "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
+        "enter_mounts_images", "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
         "use_trash", "open_unassociated",
     )
     DISPLAY: ClassVar[tuple[str, ...]] = (
@@ -687,6 +687,9 @@ class FMSetupData(Section):
     beep_after_copy: bool = Setting(False, doc="Ring the terminal's bell after a copy")
     #: DN's ``fmoEnterArchives``: zip and tar (``navigator/lib/drives/archive.py``).
     enter_opens_archive: bool = Setting(True, doc="Enter opens an archive (zip, tar) as a directory")
+    #: Not DN's, which had no loop devices: an ``.iso`` or ``.img`` attached
+    #: read-only through udisks2 and mounted (``navigator/lib/system/udisks.py``).
+    enter_mounts_images: bool = Setting(True, doc="Enter mounts a disk image (.iso, .img) and opens it")
     space_toggles_selection: bool = Setting(
         True, doc="Space tags the cursor's file while the command line is empty",
     )

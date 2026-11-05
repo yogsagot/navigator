@@ -37,6 +37,14 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   `Manager.on_go_parent` swallows it while `CommandLine.holds_backspace()` says it is within `BACKSPACE_RUN` (0.6 s)
   of the last one the line took or swallowed; each swallowed one restarts the wait, so a held key never gets through.
 - **Enter on an executable runs it**; Ctrl+Enter inserts the name (see `console-command-line`).
+- **Enter on a disk image mounts it** (`.iso`/`.img`, `udisks.is_image_name`; a departure, DOS had no loop devices):
+  `Panel._may_mount_image` -- `[file_manager] enter_mounts_images` (File Manager Setup's *ENTER mounts disc images*,
+  default on), the local disk outside an archive, a regular file, `udisks.program()` -- is asked before
+  `_may_enter_archive`. `navigator/widgets/drives/disk_image.py`'s `enter_image` runs `udisks.attach_image` under
+  *Mounting image* and takes the panel to the mount point; with several file systems a centred `PopupMenu` (*Mount
+  NAME*: label, size, mount point) asks which, Cancel staying put with all mounted. A failure is a box. Without
+  udisksctl it falls back to the archive (if *Enter opens archive*) and then `OpenFile`, as before. The library side
+  is `navigator-trees`' udisks paragraph. Tests: `tests/test_udisks.py` (`image_desk`).
 
 ## Auto refresh (`[file_manager] auto_refresh`)
 

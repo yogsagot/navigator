@@ -19,7 +19,7 @@ tool**, not GLib itself -- PyGObject is compiled, and every run-time dependency 
   it greys out through it (`enables()`), and the Enter and trash fallbacks check it before trying. The facade looks the
   backend's function up at each call, so a test's `monkeypatch.setattr(gio, ...)` reaches it.
   Disk > Volumes alone asks `desktop.volume_backend()` (gated by `volume_program()`): this module, KIO with Solid's
-  command, else udisks2's `udisksctl` (`navigator/lib/system/udisks.py`, `navigator-trees` skill), `off` included.
+  command, else udisks2's `udisksctl` (`navigator/lib/system/udisks.py`, `navigator-trees` skill), `off` included. Enter on a disk image always asks udisks (`loop-setup`).
 - **`gio.program()`** is only `shutil.which("gio")`, looked up at the call, as `printing.print_command` does.
 - **Shared with KIO** (`navigator/lib/system/desktop_entry.py`, re-exported by `gio`): `App`, `application_dirs`,
   `desktop_file`, `desktop_name`, `graphical`, `launch_detached`. A backend's volume (`GioVolume`, `KioVolume`,

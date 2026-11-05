@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from navkit.events import KeyEvent
@@ -342,3 +344,235 @@ def test_the_volumes_window_mounts_and_ejects_through_udisks(tmp_path, monkeypat
     run_app(app, [open_it, Until(listed), KeyEvent("f5"), Until(mounted), KeyEvent("f7"),
                   Until(lambda a: not mounted(a)), lambda a: None])
     assert state["calls"] == [("mount", "/dev/sdc1"), ("eject", "/dev/sdc1")]
+
+
+# -- disk images -------------------------------------------------------------------------
+
+#: The user (uid 1000) has an ISO on loop7, mounted, and a partitioned image
+#: on loop8 whose two partitions are not; root has a loop of its own.
+LOOPS = f"""\
+{BLOCKS}loop7:
+  org.freedesktop.UDisks2.Block:
+    Device:                     /dev/loop7
+    Drive:                      '/'
+    HintIgnore:                 false
+    HintSystem:                 true
+    IdLabel:                    UBUNTU
+    IdUsage:                    filesystem
+    Size:                       52428800
+  org.freedesktop.UDisks2.Filesystem:
+    MountPoints:        /media/me/UBUNTU
+  org.freedesktop.UDisks2.Loop:
+    BackingFile:        /home/me/ubuntu.iso
+    SetupByUID:         1000
+
+{BLOCKS}loop8:
+  org.freedesktop.UDisks2.Block:
+    Device:                     /dev/loop8
+    Drive:                      '/'
+    HintSystem:                 true
+    IdUsage:
+  org.freedesktop.UDisks2.Loop:
+    BackingFile:        /home/me/sd card.img
+    SetupByUID:         1000
+  org.freedesktop.UDisks2.PartitionTable:
+    Partitions:         {BLOCKS}loop8p1
+                        {BLOCKS}loop8p2
+
+{BLOCKS}loop8p1:
+  org.freedesktop.UDisks2.Block:
+    Device:                     /dev/loop8p1
+    Drive:                      '/'
+    HintSystem:                 true
+    IdLabel:                    boot
+    IdUsage:                    filesystem
+  org.freedesktop.UDisks2.Filesystem:
+    MountPoints:
+  org.freedesktop.UDisks2.Partition:
+    Table:              '{BLOCKS}loop8'
+
+{BLOCKS}loop8p2:
+  org.freedesktop.UDisks2.Block:
+    Device:                     /dev/loop8p2
+    Drive:                      '/'
+    HintSystem:                 true
+    IdUsage:                    filesystem
+  org.freedesktop.UDisks2.Filesystem:
+    MountPoints:
+  org.freedesktop.UDisks2.Partition:
+    Table:              '{BLOCKS}loop8'
+
+{BLOCKS}loop9:
+  org.freedesktop.UDisks2.Block:
+    Device:                     /dev/loop9
+    Drive:                      '/'
+    HintSystem:                 true
+    IdUsage:                    filesystem
+  org.freedesktop.UDisks2.Filesystem:
+    MountPoints:        /mnt/root
+  org.freedesktop.UDisks2.Loop:
+    BackingFile:        /root/root.iso
+    SetupByUID:         0
+"""
+
+
+def _mounted(text: str, device: str, where: str) -> str:
+    """*text* with *device*'s empty ``MountPoints`` made *where*."""
+    head, _, tail = text.partition(f"    Device:                     {device}\n")
+    return head + f"    Device:                     {device}\n" + tail.replace(
+        "    MountPoints:\n", f"    MountPoints:        {where}\n", 1)
+
+
+def test_the_users_own_loops_are_listed_and_root_s_and_snaps_are_not():
+    found = {volume.device: volume for volume in udisks.parse_volumes(DUMP + "\n" + LOOPS, uid=1000)}
+    assert "/dev/loop3" not in found and "/dev/loop9" not in found
+    iso = found["/dev/loop7"]
+    assert (iso.name, iso.local, iso.loop, iso.size) == ("UBUNTU", "/media/me/UBUNTU", BLOCKS + "loop7", 52428800)
+    assert iso.can_unmount and iso.can_eject
+    assert found["/dev/loop8p1"].name == "boot" and found["/dev/loop8p1"].loop == BLOCKS + "loop8"
+    # No label: the image's own name.
+    assert found["/dev/loop8p2"].name == "sd card.img" and not found["/dev/loop8p2"].mounted
+    assert udisks.is_image_name("A.ISO") and udisks.is_image_name("x.img") and not udisks.is_image_name(".iso")
+
+
+@pytest.fixture
+def images(monkeypatch):
+    """udisksctl and busctl answering for :data:`LOOPS`: ``loop-setup`` maps
+    onto loop8, and each ``mount`` mounts in the dumps that follow."""
+    state = {"dump": DUMP, "calls": [], "already": set()}
+
+    def run(argv, timeout=udisks.TIMEOUT):
+        state["calls"].append(list(argv))
+        verb = argv[1]
+        if verb == "dump":
+            return state["dump"]
+        if verb == "loop-setup":
+            state["dump"] = DUMP + "\n" + LOOPS
+            return "Mapped file /home/me/sd card.img as /dev/loop8.\n"
+        if verb == "mount":
+            device = argv[3]
+            if device in state["already"]:
+                raise OSError(5, f"Error mounting {device}: Device {device} is already mounted at `/media/me/x'.")
+            state["dump"] = _mounted(state["dump"], device, "/media/me/" + device.rpartition("/")[2])
+        return ""
+
+    monkeypatch.setattr(udisks, "program", lambda which=None: "udisksctl")
+    monkeypatch.setattr(udisks.shutil, "which", lambda name: name if name == "busctl" else None)
+    monkeypatch.setattr(udisks, "run", run)
+    monkeypatch.setattr(udisks.os.path, "realpath", lambda path: str(path))
+    return state
+
+
+def test_an_image_is_set_up_read_only_and_every_file_system_on_it_mounted(images):
+    found = udisks.attach_image(Path("/home/me/sd card.img"), uid=1000)
+    calls = images["calls"]
+    assert ["udisksctl", "loop-setup", "-r", "-f", "/home/me/sd card.img", "--no-user-interaction"] in calls
+    assert ["udisksctl", "mount", "-b", "/dev/loop8p1", "--no-user-interaction"] in calls
+    assert ["udisksctl", "mount", "-b", "/dev/loop8p2", "--no-user-interaction"] in calls
+    assert ["busctl", "--system", "--allow-interactive-authorization=no", "call", "org.freedesktop.UDisks2",
+            BLOCKS + "loop8", "org.freedesktop.UDisks2.Loop", "SetAutoclear", "ba{sv}", "true", "0"] in calls
+    assert [(each.device, each.local) for each in found] == [
+        ("/dev/loop8p1", "/media/me/loop8p1"), ("/dev/loop8p2", "/media/me/loop8p2")]
+
+
+def test_an_image_attached_already_is_not_set_up_again_and_its_mount_is_kept(images):
+    images["dump"] = DUMP + "\n" + LOOPS
+    found = udisks.attach_image(Path("/home/me/ubuntu.iso"), uid=1000)
+    assert not any(call[1] in ("loop-setup", "mount") for call in images["calls"])
+    assert [each.local for each in found] == ["/media/me/UBUNTU"]
+
+
+def test_a_file_system_the_desktop_mounted_first_is_no_failure(images):
+    images["already"].add("/dev/loop8p1")
+    found = udisks.attach_image(Path("/home/me/sd card.img"), uid=1000)
+    assert [each.device for each in found] == ["/dev/loop8p2"]
+
+
+def test_an_image_with_no_file_system_is_detached_again(images, monkeypatch):
+    monkeypatch.setattr(udisks, "PROBE_TIMEOUT", 0.0)
+    bare = LOOPS.split(f"{BLOCKS}loop8p1:")[0].replace("loop7", "loop6")  # loop8 with no partitions yet
+
+    def run(argv, timeout=udisks.TIMEOUT):
+        images["calls"].append(list(argv))
+        if argv[1] == "loop-setup":
+            return "Mapped file /home/me/sd card.img as /dev/loop8.\n"
+        return DUMP + "\n" + bare if images["calls"][1:] else DUMP
+
+    monkeypatch.setattr(udisks, "run", run)
+    with pytest.raises(OSError, match="no file system"):
+        udisks.attach_image(Path("/home/me/sd card.img"), uid=1000)
+    assert images["calls"][-1] == ["udisksctl", "loop-delete", "-b", "/dev/loop8", "--no-user-interaction"]
+
+
+def test_eject_on_an_image_unmounts_it_and_detaches_the_loop(images, monkeypatch):
+    images["dump"] = _mounted(DUMP + "\n" + LOOPS, "/dev/loop8p2", "/media/me/data")
+    monkeypatch.setattr(udisks.os, "getuid", lambda: 1000)
+    udisks.eject("/media/me/data")
+    assert images["calls"][1:] == [
+        ["udisksctl", "unmount", "-b", "/dev/loop8p2", "--no-user-interaction"],
+        ["udisksctl", "loop-delete", "-b", "/dev/loop8", "--no-user-interaction"],
+    ]
+
+
+@pytest.fixture
+def image_desk(tmp_path, monkeypatch):
+    from navigator.__main__ import Navigator
+    from conftest import FakeTerminal
+
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    (tmp_path / "disk.iso").write_bytes(b"not a tar, nor a zip " * 200)
+    for name in ("one", "two", "out"):
+        (tmp_path / name).mkdir()
+    monkeypatch.setattr(udisks, "program", lambda which=None: "/usr/bin/udisksctl")
+    return Navigator(tmp_path, tmp_path / "out", terminal=FakeTerminal(100, 30)), tmp_path
+
+
+def _at_image(app):
+    panel = app.manager.left
+    panel.cursor = [entry.name for entry in panel.items].index("disk.iso")
+
+
+def test_enter_on_an_image_mounts_it_and_goes_there(image_desk, monkeypatch):
+    app, here = image_desk
+    asked = []
+
+    def attach(path, stop=None, uid=None):
+        asked.append(path)
+        return [udisks.UdisksVolume(name="DISK", device="/dev/loop7", local=str(here / "one"), loop="x")]
+
+    monkeypatch.setattr(udisks, "attach_image", attach)
+    run_app(app, [_at_image, KeyEvent("enter"), Until(lambda a: a.manager.left.path == here / "one", timeout=5)])
+    assert asked == [here / "disk.iso"]
+
+
+def test_an_image_with_two_file_systems_asks_which_to_open(image_desk, monkeypatch):
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    app, here = image_desk
+    monkeypatch.setattr(udisks, "attach_image", lambda path, stop=None, uid=None: [
+        udisks.UdisksVolume(name="boot", device="/dev/loop8p1", local=str(here / "one"), loop="x", size=1 << 30),
+        udisks.UdisksVolume(name="data", device="/dev/loop8p2", local=str(here / "two"), loop="x"),
+    ])
+    run_app(app, [
+        _at_image, KeyEvent("enter"), Until(lambda a: isinstance(a.modal, PopupMenu), timeout=5),
+        KeyEvent("down"), KeyEvent("enter"), Until(lambda a: a.manager.left.path == here / "two", timeout=5),
+    ])
+
+
+@pytest.mark.parametrize("why", ["no udisksctl", "setting off"])
+def test_without_udisks_or_with_the_setting_off_enter_opens_the_image_as_a_file(why, image_desk, monkeypatch):
+    app, here = image_desk
+    if why == "no udisksctl":
+        monkeypatch.setattr(udisks, "program", lambda which=None: None)
+    else:
+        monkeypatch.setattr(SETTINGS.file_manager, "enter_mounts_images", False)
+    monkeypatch.setattr(udisks, "attach_image", lambda *a, **k: pytest.fail("attached"))
+    opened = []
+
+    async def on_open_file(self, event):
+        opened.append(event.path)
+        return True
+
+    monkeypatch.setattr("navigator.widgets.shell.shell.Shell.on_open_file", on_open_file)
+    run_app(app, [_at_image, KeyEvent("enter"), Until(lambda a: opened, timeout=5)])
+    assert opened == [here / "disk.iso"]

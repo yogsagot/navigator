@@ -10,7 +10,13 @@ any system with removable media runs, for the same four things:
   without root where polkit allows the session, as a desktop does;
 * :func:`eject`: every file system of the drive unmounted, then an optical
   disc ejected -- ``udisksctl`` has no eject, so systemd's ``busctl`` asks
-  the drive -- or any other drive powered off, safe to pull out.
+  the drive -- or any other drive powered off, safe to pull out; a disk
+  image's loop device detached (``loop-delete``);
+* :func:`attach_image`: Enter on an ``.iso`` or ``.img`` -- the file set up
+  read-only on a loop device (``loop-setup -r``), every file system on it
+  mounted, as GNOME's Disk Image Mounter does.  Not DOS Navigator's either,
+  which had no loop devices.  Whatever udisks was always asked, desktop or
+  not: neither GIO's command nor Solid's sets up a loop.
 
 ``--no-user-interaction`` makes a polkit refusal (a session that is not the
 seat's active one) an error at once, rather than a wait for an agent that is
@@ -23,9 +29,11 @@ a thread runs it.
 from __future__ import annotations
 
 import errno
+import os
 import re
 import shutil
 import subprocess
+import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
@@ -45,6 +53,20 @@ ROOT = "/org/freedesktop/UDisks2/"
 
 #: Where a desktop mounts what the user plugged in, as :mod:`kio` has it.
 USER_MOUNTS = ("/media/", "/run/media/", "/mnt/")
+
+#: The names Enter mounts as a disk image (:func:`attach_image`).
+IMAGE_SUFFIXES = (".iso", ".img")
+
+#: How long a new loop device's file systems may take to be probed by udev.
+PROBE_TIMEOUT = 3.0
+#: How often the dump is read again meanwhile.
+PROBE_INTERVAL = 0.2
+
+
+def is_image_name(name: str) -> bool:
+    """Whether *name* is one :func:`attach_image` is for: an ``.iso`` or ``.img``."""
+    lower = name.lower()
+    return any(lower.endswith(suffix) and len(lower) > len(suffix) for suffix in IMAGE_SUFFIXES)
 
 
 def program(which: Callable[[str], str | None] | None = None) -> str | None:
@@ -101,7 +123,9 @@ class UdisksVolume:
     """A file system udisks2 knows of, as :class:`~navigator.lib.system.gio.GioVolume`
     has it -- the same names, so :func:`navigator.lib.system.volumes.merge`
     takes it.  *device* is what it is mounted and unmounted by, *drive* the
-    object path of the drive it is on (``""`` for none)."""
+    object path of the drive it is on (``""`` for none), *loop* the object
+    path of the user's loop device it is on -- a disk image -- and *size*
+    its size in bytes."""
 
     name: str
     device: str
@@ -111,6 +135,8 @@ class UdisksVolume:
     can_mount: bool = False
     can_unmount: bool = False
     can_eject: bool = False
+    loop: str = ""
+    size: int = 0
     #: GIO's only: no URI, no activation root.
     uri: str = ""
     activation_root: str = ""
@@ -188,35 +214,66 @@ def _true(props: dict[str, list[str]], key: str) -> bool:
     return _one(props, key) == "true"
 
 
-def parse_volumes(text: str) -> list[UdisksVolume]:
+def parse_volumes(text: str, uid: int | None = None) -> list[UdisksVolume]:
     """The file systems in a ``udisksctl dump``: every block used for one
-    that udisks2 does not ignore, less loop devices (snaps' images) and the
-    system's own that are not mounted (a recovery partition)."""
-    objects = parse_dump(text)
+    that udisks2 does not ignore, less the system's own that are not mounted
+    (a recovery partition) and loop devices -- snaps' images -- other than
+    those user *uid* (this process's) set up: a disk image Enter mounted."""
+    return _volumes_of(parse_dump(text), os.getuid() if uid is None else uid)
+
+
+def _volumes_of(objects: dict[str, dict[str, dict[str, list[str]]]], uid: int) -> list[UdisksVolume]:
     found = []
     for path, interfaces in objects.items():
         block, filesystem = interfaces.get("Block"), interfaces.get("Filesystem")
         if block is None or filesystem is None or _one(block, "IdUsage") != "filesystem":
             continue
-        if _true(block, "HintIgnore") or "Loop" in interfaces:
+        if _true(block, "HintIgnore"):
+            continue
+        loop = _loop_of(objects, path)
+        if loop and not _users_loop(objects, loop, uid):
             continue
         local = _one(filesystem, "MountPoints")
-        if _true(block, "HintSystem") and not local:
+        if _true(block, "HintSystem") and not local and not loop:
             continue
         drive_path = _drive_of(objects, path)
         drive = objects.get(drive_path, {}).get("Drive", {})
         removable = _true(drive, "Removable") or _true(drive, "MediaRemovable")
         model = " ".join(part for part in (_one(drive, "Vendor"), _one(drive, "Model")) if part)
         device = _one(block, "Device") or _one(block, "PreferredDevice")
+        backing = Path(_one(objects[loop].get("Loop", {}), "BackingFile")).name if loop else ""
         found.append(UdisksVolume(
-            name=_one(block, "IdLabel") or _one(block, "HintName") or model or device,
+            name=_one(block, "IdLabel") or _one(block, "HintName") or backing or model or device,
             device=device, uuid=_one(block, "IdUUID"), local=local, drive=drive_path,
             can_mount=not local,
-            can_unmount=bool(local) and (removable or (local + "/").startswith(USER_MOUNTS)),
-            can_eject=_true(drive, "Ejectable") or _true(drive, "CanPowerOff"),
+            can_unmount=bool(local) and (bool(loop) or removable or (local + "/").startswith(USER_MOUNTS)),
+            can_eject=bool(loop) or _true(drive, "Ejectable") or _true(drive, "CanPowerOff"),
+            loop=loop, size=_size(block),
         ))
     found.sort(key=lambda volume: volume.device)
     return found
+
+
+def _size(block: dict[str, list[str]]) -> int:
+    try:
+        return int(_one(block, "Size") or 0)
+    except ValueError:
+        return 0
+
+
+def _loop_of(objects: dict[str, dict[str, dict[str, list[str]]]], path: str) -> str:
+    """The loop device the block at *path* is, or is a partition of; ``""``."""
+    interfaces = objects.get(path, {})
+    if "Loop" in interfaces:
+        return path
+    table = _one(interfaces.get("Partition", {}), "Table")
+    return table if table and "Loop" in objects.get(table, {}) else ""
+
+
+def _users_loop(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str, uid: int) -> bool:
+    """Whether user *uid* set the loop device at *loop* up -- root's, and a
+    snap's (set up by no one), are the system's."""
+    return uid != 0 and _one(objects.get(loop, {}).get("Loop", {}), "SetupByUID") == str(uid)
 
 
 def _drive_of(objects: dict[str, dict[str, dict[str, list[str]]]], path: str) -> str:
@@ -261,10 +318,17 @@ def unmount(where: str) -> None:
 
 def eject(where: str) -> None:
     """The drive *where* is on made safe to remove: every file system on it
-    unmounted, then its disc ejected, or it powered off."""
+    unmounted, then its disc ejected, or it powered off.  A disk image's
+    loop device is detached instead."""
     text = run([_udisksctl(), "dump"])
     known = parse_volumes(text)
     volume = _find(where, known)
+    if volume.loop:
+        for each in known:
+            if each.loop == volume.loop and each.mounted:
+                run([_udisksctl(), "unmount", "-b", each.device, "--no-user-interaction"], timeout=MOUNT_TIMEOUT)
+        _loop_delete(parse_dump(text), volume.loop)
+        return
     if not volume.drive:
         raise OSError(errno.EINVAL, f"{volume.name} is on no drive that can be ejected")
     for each in known:
@@ -282,7 +346,115 @@ def eject(where: str) -> None:
             timeout=MOUNT_TIMEOUT)
 
 
+# -- disk images ---------------------------------------------------------------------------
+
+
+_MAPPED = re.compile(r"Mapped file .* as (/dev/\S+?)\.?\s*$", re.MULTILINE)
+
+
+def _loop_device(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> str:
+    block = objects.get(loop, {}).get("Block", {})
+    return _one(block, "Device") or _one(block, "PreferredDevice")
+
+
+def _loop_delete(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> None:
+    device = _loop_device(objects, loop) or "/dev/" + loop.rpartition("/")[2]
+    run([_udisksctl(), "loop-delete", "-b", device, "--no-user-interaction"])
+
+
+def _attached(objects: dict[str, dict[str, dict[str, list[str]]]], path: Path, uid: int) -> str:
+    """The user's loop device *path* is set up on already, or ``""``."""
+    wanted = os.path.realpath(path)
+    for each, interfaces in objects.items():
+        backing = _one(interfaces.get("Loop", {}), "BackingFile")
+        if backing and os.path.realpath(backing) == wanted and _users_loop(objects, each, uid):
+            return each
+    return ""
+
+
+def _by_device(objects: dict[str, dict[str, dict[str, list[str]]]], device: str) -> str:
+    for each, interfaces in objects.items():
+        block = interfaces.get("Block", {})
+        if device in (_one(block, "Device"), _one(block, "PreferredDevice")):
+            return each
+    return ""
+
+
+def loop_setup(path: Path) -> str:
+    """*path* set up read-only on a new loop device: the device, ``/dev/loopN``."""
+    out = run([_udisksctl(), "loop-setup", "-r", "-f", str(path), "--no-user-interaction"],
+              timeout=MOUNT_TIMEOUT)
+    match = _MAPPED.search(out)
+    if match is None:
+        raise OSError(errno.EIO, out.strip() or f"udisksctl set no loop device up for {path}")
+    return match.group(1)
+
+
+def _probed(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> bool:
+    """Whether udev has said what is on the loop device at *loop*: a file
+    system, or a partition table whose partitions are there."""
+    interfaces = objects.get(loop, {})
+    if _one(interfaces.get("Block", {}), "IdUsage"):
+        return True
+    table = interfaces.get("PartitionTable")
+    if table is None:
+        return False
+    partitions = table.get("Partitions", [])
+    return bool(partitions) and all(part in objects for part in partitions)
+
+
+def _set_autoclear(loop: str) -> None:
+    """The loop device at *loop* detached by the kernel once nothing is
+    mounted from it -- Volumes' Unmount, or the desktop's.  Without
+    ``busctl`` it stays until Eject."""
+    busctl = shutil.which("busctl")
+    if busctl is None:
+        return
+    try:
+        run([busctl, "--system", "--allow-interactive-authorization=no", "call", "org.freedesktop.UDisks2",
+             loop, "org.freedesktop.UDisks2.Loop", "SetAutoclear", "ba{sv}", "true", "0"])
+    except OSError:
+        pass  # a nicety: Eject detaches it all the same
+
+
+def attach_image(path: Path, stop: Callable[[], bool] | None = None,
+                 uid: int | None = None) -> list[UdisksVolume]:
+    """The disk image at *path* set up read-only on a loop device -- the one
+    it is on already, if any -- and every file system on it mounted where
+    udisks2 mounts, ``/media/$USER/LABEL``: those file systems, mounted.
+    ``OSError`` with udisksctl's reason, or for an image with none."""
+    uid = os.getuid() if uid is None else uid
+    objects = parse_dump(run([_udisksctl(), "dump"]))
+    loop = _attached(objects, path, uid)
+    if not loop:
+        device = loop_setup(path)
+        deadline = time.monotonic() + PROBE_TIMEOUT
+        while True:
+            objects = parse_dump(run([_udisksctl(), "dump"]))
+            loop = loop or _by_device(objects, device)
+            if (loop and _probed(objects, loop)) or time.monotonic() >= deadline or (stop and stop()):
+                break
+            time.sleep(PROBE_INTERVAL)
+        if not loop:
+            raise OSError(errno.EIO, f"udisks does not know {device}")
+    mine = [each for each in _volumes_of(objects, uid) if each.loop == loop]
+    if not mine:
+        _loop_delete(objects, loop)
+        raise OSError(errno.EINVAL, f"{path.name} has no file system udisks can mount")
+    for each in mine:
+        if not each.mounted:
+            try:
+                mount_device(each)
+            except OSError as error:
+                if "AlreadyMounted" not in str(error) and "already mounted" not in str(error).lower():
+                    raise
+    _set_autoclear(loop)
+    text = run([_udisksctl(), "dump"])
+    return [each for each in parse_volumes(text, uid) if each.loop == loop and each.mounted]
+
+
 __all__ = [
-    "MOUNT_TIMEOUT", "NO_BUSCTL", "NO_UDISKS", "ROOT", "TIMEOUT", "UdisksVolume", "eject", "mount_device",
-    "parse_dump", "parse_volumes", "program", "run", "unmount", "volumes",
+    "IMAGE_SUFFIXES", "MOUNT_TIMEOUT", "NO_BUSCTL", "NO_UDISKS", "ROOT", "TIMEOUT", "UdisksVolume",
+    "attach_image", "eject", "is_image_name", "loop_setup", "mount_device", "parse_dump", "parse_volumes",
+    "program", "run", "unmount", "volumes",
 ]

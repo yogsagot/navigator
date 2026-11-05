@@ -1219,6 +1219,11 @@ class Panel(ListViewer):
         if self.found is not None:
             self.enter()
             return True
+        if entry is not None and not entry.is_dir and self._may_mount_image(entry):
+            # Attached and mounted on a thread; without udisks it is entered
+            # or run below, as before.
+            self.spawn(self._mount_or_enter(entry))
+            return True
         if entry is not None and not entry.is_dir and self._may_enter_archive(entry):
             # Read on a thread: one that is no archive after all runs below.
             self.spawn(self._enter_or_run(entry))
@@ -1237,6 +1242,27 @@ class Panel(ListViewer):
         by what is in it, as ``ArcViewer`` read the signature."""
         return (SETTINGS.file_manager.enter_opens_archive and self.location.outer is None
                 and stat.S_ISREG(entry.mode) and filetypes.group_of(entry.name) == "archive")
+
+    def _may_mount_image(self, entry: DirEntry) -> bool:
+        """Whether Enter mounts *entry* as a disk image: *Enter mounts disc
+        images* on, an ``.iso`` or ``.img`` on the disk -- not in an archive
+        -- and ``udisksctl`` to attach it.  Not DN's, which had no loop devices
+        (:func:`navigator.lib.system.udisks.attach_image`)."""
+        from navigator.lib.system import udisks
+
+        return (SETTINGS.file_manager.enter_mounts_images and self.location.is_local
+                and self.location.outer is None and stat.S_ISREG(entry.mode)
+                and udisks.is_image_name(entry.name) and udisks.program() is not None)
+
+    async def _mount_or_enter(self, entry: DirEntry) -> None:
+        from navigator.widgets.drives.disk_image import enter_image
+
+        if await enter_image(self, entry.path_in(self.path)):
+            return
+        if self._may_enter_archive(entry):
+            await self._enter_or_run(entry)
+        else:
+            await self._run_file(entry)
 
     async def _enter_or_run(self, entry: DirEntry) -> None:
         from navigator.widgets.drives.archives import enter_archive
