@@ -1,4 +1,4 @@
-from navigator.widgets.manager.commands import Rescan, ToggleHidden
+from navigator.widgets.manager.commands import MountImage, Rescan, ToggleHidden, UnmountImage
 from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 from navigator.widgets.shell.volume_list import VolumeList
 from navml.commands import CloseWindow
@@ -40,7 +40,10 @@ from navml.widgets.window import Window
 #: too, greyed where the volume cannot: on *Go* and *Close*'s row where the
 #: window is wide enough beside the boxes, in a row over them where it is
 #: not; the F-keys are what puts them on the key bar.  Enter or *Go* on one not
-#: mounted mounts it first.
+#: mounted mounts it first.  *Mount image...* asks for a disk image file and
+#: mounts it (``udisksctl loop-setup``); *Unmount image*, on a row of one,
+#: unmounts every file system of that image and detaches it -- the Disk
+#: menu's two, which this window answers while it is active.
 VolumesWindow(Window):
     title: "Volumes"
 
@@ -176,6 +179,15 @@ VolumesWindow(Window):
             text: '~E~ject'
             command: EjectVolume
             key: 'F7'
+        MenuLine:
+        MenuItem:
+            text: 'Mount ~i~mage...'
+            tooltip: "A disk image file (.iso, .img): attached read-only and mounted"
+            command: MountImage
+        MenuItem:
+            text: 'Unmount ima~g~e'
+            tooltip: "The disk image this volume is on: every file system of it unmounted, and detached"
+            command: UnmountImage
         MenuLine:
         MenuItem:
             text: '~C~lose'

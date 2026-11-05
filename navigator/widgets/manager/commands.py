@@ -754,6 +754,12 @@ class ArcTest(Command):
     """
 
 
+class MountImage(Command):
+    """Disk > *Mount image*: the ``.iso``/``.img`` at the cursor mounted and
+    opened, as Enter does (*ENTER mounts disc images* on or off).  Not DN's,
+    which had no loop devices (:func:`navigator.lib.system.udisks.attach_image`)."""
+
+
 class UnmountImage(Command):
     """The panel's right-click *Unmount image*: the disk image the panel is
     in (or at the cursor, mounted) unmounted and its loop device detached,

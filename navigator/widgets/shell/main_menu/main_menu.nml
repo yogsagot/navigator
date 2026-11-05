@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, Undo, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText, UnmountImage
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, Undo, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText, MountImage, UnmountImage
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -385,8 +385,13 @@ MainMenu(MenuBar):
             text: '~V~olumes'
             tooltip: "Disks and partitions: mount, unmount and eject them"
             command: OpenVolumesWindow
-        #: Not DN's, which had no loop devices: the panel's right-click
-        #: *Unmount image* (UnmountImage's docstring), greyed outside one.
+        #: Not DN's, which had no loop devices: Enter's mounting of the image
+        #: at the cursor (MountImage's docstring), and the panel's right-click
+        #: *Unmount image* (UnmountImage's), each greyed where it does not apply.
+        MenuItem:
+            text: '~M~ount image'
+            tooltip: "The .iso or .img at the cursor: attached read-only, mounted and opened"
+            command: MountImage
         MenuItem:
             text: '~U~nmount image'
             tooltip: "The disk image the panel is in, or at its cursor: unmounted and detached"

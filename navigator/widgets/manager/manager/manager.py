@@ -59,6 +59,7 @@ from navigator.widgets.manager.commands import (
     SelectAll,
     MakeDirectory,
     MakeLink,
+    MountImage,
     EditLinkTarget,
     LinkAbsolute,
     LinkRelative,
@@ -155,14 +156,8 @@ _NOT_IN_MILLER: tuple[type, ...] = (
     SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
     CompareDir, DiffFiles, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
     DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates, ReplaceInFiles, ShowHardLinks,
-    UnmountImage,
+    MountImage, UnmountImage,
 )
-
-
-#: How many times *Unmount image* asks, while the mount is still busy, and
-#: how long it waits between: a shell following a panel out takes a moment.
-UNMOUNT_TRIES = 4
-UNMOUNT_WAIT = 0.3
 
 
 def _is_archive(entry: Any) -> bool:
@@ -1102,55 +1097,28 @@ class Manager(Window):
 
     # -- disk images: Unmount image (a departure: DOS had no loop devices) ---------------------------
 
+    async def on_mount_image(self, event: MountImage) -> bool:
+        """Disk > *Mount image*: Enter's mounting (``enter_image``), asked for
+        by name -- the image at the cursor, whatever *ENTER mounts disc
+        images* says."""
+        from navigator.widgets.drives.disk_image import enter_image
+
+        panel = self.active_panel
+        path = panel.image_file()
+        if path is not None:
+            self.spawn(enter_image(panel, path))
+        return True
+
     async def on_unmount_image(self, event: UnmountImage) -> bool:
         self.spawn(self.unmount_image(self.active_panel))
         return True
 
     async def unmount_image(self, panel: Any) -> None:
-        """The disk image *panel* is in -- or at its cursor -- unmounted, every
-        file system of it, and its loop device detached
-        (:func:`navigator.lib.system.udisks.eject`).  Each panel inside it is
-        first taken back to the image file, so that neither it nor the shell
-        that follows it keeps the mount busy; a mount still busy a moment
-        later (the shell's ``cd`` not yet done) is tried again, up to
-        :data:`UNMOUNT_TRIES` times.  A toast says it is done, a box why not."""
-        from navigator.lib.system import udisks
-        from navml.widgets.dialog.control import escape_caption
+        """The disk image *panel* is in -- or at its cursor -- unmounted and
+        detached (:func:`navigator.widgets.drives.disk_image.unmount_image`)."""
+        from navigator.widgets.drives.disk_image import unmount_image
 
-        mounts = panel.image_here()
-        if not mounts:
-            return
-        image = Path(mounts[0].backing)
-        points = [mount.point.rstrip("/") for mount in mounts]
-        for side in (self.left, self.right):
-            where = side.location
-            if where.is_local and any(str(where.local) == point or str(where.local).startswith(point + "/")
-                                      for point in points):
-                side.go_to_file(image)
-        app = self.application
-        failure: OSError | None = None
-        for attempt in range(UNMOUNT_TRIES):
-            # Let the panels' reads and the shell's ``cd`` land first.
-            await asyncio.sleep(UNMOUNT_WAIT if attempt else 0)
-            try:
-                await asyncio.to_thread(udisks.eject, mounts[0].device)
-            except OSError as error:
-                failure = error
-                if "busy" not in str(error).lower():
-                    break
-            else:
-                failure = None
-                break
-        if app is None:
-            return
-        if failure is not None:
-            await Dialog(title=tr("Error"), buttons="ok", prompt=tr("Cannot unmount {name}: {error}").format(
-                name=escape_caption(image.name), error=escape_caption(failure.strerror or str(failure)),
-            )).execute(app)
-            return
-        toast = getattr(getattr(app, "root", None), "toast", None)
-        if toast is not None and app.is_running:
-            toast(tr("Unmounted"), title=image.name)
+        await unmount_image(self.application, panel.image_here())
 
     async def on_extract_archive(self, event: ExtractArchive) -> bool:
         """Shift+F2: the archives at the cursor or tagged extracted -- or, in
@@ -3106,6 +3074,12 @@ class Manager(Window):
                 return read_only
         if isinstance(command, (ExtractTo, ArcTest)):
             return unless(panel.location.outer is not None, tr("Only inside an archive"))
+        if isinstance(command, MountImage):
+            from navigator.lib.system import udisks
+
+            if panel.image_file() is None:
+                return tr("No disk image at the cursor")
+            return unless(udisks.program() is not None, tr("udisksctl (udisks2) is not installed"))
         if isinstance(command, UnmountImage):
             return unless(bool(panel.image_here()), tr("Not in a mounted disk image"))
         if isinstance(command, ExtractArchive):

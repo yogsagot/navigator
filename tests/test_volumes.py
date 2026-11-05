@@ -38,19 +38,22 @@ def test_mounts_are_parsed_with_their_escapes_undone_and_the_last_mount_on_a_poi
     assert len(found) == 10
 
 
-@pytest.mark.parametrize("device, kind, real", [
-    ("/dev/sda2", "ext4", True),
-    ("/dev/loop3", "squashfs", False),
-    ("/dev/loop7", "ext4", False),
-    ("proc", "proc", False),
-    ("tmpfs", "tmpfs", False),
-    ("server:/export", "nfs4", True),
-    ("user@host:/home", "fuse.sshfs", True),
-    ("//nas/share", "cifs", True),
-    ("portal", "fuse.portal", False),
+@pytest.mark.parametrize("device, kind, real, point", [
+    ("/dev/sda2", "ext4", True, ""),
+    ("/dev/loop3", "squashfs", False, "/snap/core/1"),
+    ("/dev/loop7", "ext4", False, ""),
+    # A disk image mounted where the desktop mounts: the user's, listed.
+    ("/dev/loop46p1", "iso9660", True, "/media/me/Ubuntu 26.04"),
+    ("/dev/loop8", "vfat", True, "/run/media/me/BOOT"),
+    ("proc", "proc", False, ""),
+    ("tmpfs", "tmpfs", False, ""),
+    ("server:/export", "nfs4", True, ""),
+    ("user@host:/home", "fuse.sshfs", True, ""),
+    ("//nas/share", "cifs", True, ""),
+    ("portal", "fuse.portal", False, ""),
 ])
-def test_what_counts_as_a_real_volume(device, kind, real):
-    assert is_real(device, kind) is real
+def test_what_counts_as_a_real_volume(device, kind, real, point):
+    assert is_real(device, kind, point) is real
 
 
 def test_gather_names_each_volume_by_its_label_and_skips_one_it_cannot_stat(tmp_path, monkeypatch):
@@ -249,9 +252,11 @@ def test_the_volumes_menu_ticks_show_all_mounts_and_a_right_click_offers_it(tmp_
                                              if hasattr(e, "command")]),
                 KeyEvent("s", "s"), Until(lambda a: popup(a) is None), look("again"))
     assert "Volumes" in seen["bar"]
-    assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "F5", "F6", "F7", "Esc"]
+    # The two disk image entries have no key.
+    assert seen["keys"] == ["Ctrl-R", "Ctrl-H", "F5", "F6", "F7", "", "", "Esc"]
     assert (seen["off"], seen["on"], seen["again"]) == (False, True, False)
-    assert seen["items"] == ["Re-read", "Show all mounts", "Mount", "Unmount", "Eject", "Close"]
+    assert seen["items"] == ["Re-read", "Show all mounts", "Mount", "Unmount", "Eject", "Mount image...",
+                             "Unmount image", "Close"]
 
 
 def test_left_and_right_scroll_the_mount_point_column_from_its_ends(tmp_path, monkeypatch):

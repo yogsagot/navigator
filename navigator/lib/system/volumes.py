@@ -33,7 +33,7 @@ from pathlib import Path
 from navigator.lib.system.diskinfo import label_of, unescape
 from navigator.lib.system.gio import GioVolume
 from navigator.lib.system.kio import KioVolume
-from navigator.lib.system.udisks import UdisksVolume
+from navigator.lib.system.udisks import USER_MOUNTS, UdisksVolume
 
 #: File system types that hold no files of the user's, wherever they are mounted.
 PSEUDO_TYPES = frozenset((
@@ -111,13 +111,19 @@ def mount_options(text: str) -> dict[str, str]:
     return found
 
 
-def is_real(device: str, fs_type: str) -> bool:
-    """Whether a mount of *device* as *fs_type* is a volume the user keeps files on."""
+def is_real(device: str, fs_type: str, point: str = "") -> bool:
+    """Whether a mount of *device* as *fs_type* at *point* is a volume the
+    user keeps files on.  A loop device is a snap's image under ``/snap``,
+    plumbing -- unless it is mounted where a desktop mounts what the user
+    plugged in (:data:`~navigator.lib.system.udisks.USER_MOUNTS`): a disk
+    image Enter or the desktop mounted."""
     if fs_type in PSEUDO_TYPES or fs_type in PLUMBING_FUSE:
         return False
     if fs_type in NETWORK_TYPES or fs_type.startswith(("nfs", "fuse.")):
         return True
-    return device.startswith("/dev/") and not device.startswith("/dev/loop")
+    if device.startswith("/dev/loop"):
+        return (point.rstrip("/") + "/").startswith(USER_MOUNTS)
+    return device.startswith("/dev/")
 
 
 def volume_name(device: str, label: str) -> str:
@@ -151,7 +157,7 @@ def gather(*, mounts: Path = Path("/proc/self/mounts"),
         label = label_of(device, labels) if os.path.isabs(device) else ""
         found.append(Volume(
             name=volume_name(device, label), fs_type=fs_type, mount=point, device=device,
-            total=usage.total, free=usage.free, real=is_real(device, fs_type), options=options.get(point, ""),
+            total=usage.total, free=usage.free, real=is_real(device, fs_type, point), options=options.get(point, ""),
         ))
     found.sort(key=lambda volume: volume.mount)
     return found

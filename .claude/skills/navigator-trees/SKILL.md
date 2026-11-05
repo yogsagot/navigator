@@ -29,7 +29,8 @@ Slots `[94-101]`, `[104-110]`.
   column titles in its `header` band (Name, Type, Mount point, Use %, Free, Size; sizes by `sysinfo.size_text`; the *Show free %* box under *Show all mounts* makes Use % -- `df`'s -- Free %, `VolumeList.show_free`). The mounts
   are `navigator/lib/system/volumes.py`'s `gather()` over `/proc/self/mounts`, read on a thread (`Background`) from `mounted()`,
   never `__init__` -- a stale network mount holds `statvfs`, and one that raises is skipped. Only *real* volumes show
-  (`is_real`: a `/dev` device not a loop, a network or user FUSE mount); the *Show all mounts* box under the list (or
+  (`is_real`: a `/dev` device -- a loop only when mounted under `udisks.USER_MOUNTS`, a disk image the user
+  mounted, never a snap's under `/snap` -- a network or user FUSE mount); the *Show all mounts* box under the list (or
   Ctrl+H, which ticks it) shows the kernel's own too, without re-reading -- an effect on the box's `value`, which
   peeks the list so a cursor move does not wake it. Enter's `ChosenEvent` carries the `Volume` up to
   `Shell.on_chosen`, which sends the active panel to its mount point, and the window stays; *Go* (default, Alt+G) does
@@ -49,6 +50,13 @@ Slots `[94-101]`, `[104-110]`.
   `/media/`, `/run/media/`, `/mnt/` (KIO's rule). Every call passes `--no-user-interaction`: a polkit refusal (an SSH
   session) is an error box at once. **Eject** unmounts every file system on the drive, then `busctl ... Drive Eject`
   for an `Ejectable` one (a disc: `udisksctl` has no eject) or `udisksctl power-off -p drives/...` otherwise.
+- **Volumes' *Mount image...* and *Unmount image*** (its menu and right-click menu, no keys): the Disk menu's
+  `MountImage`/`UnmountImage`, which `VolumesWindow` answers while it is active. Mount asks for the file in a
+  `FileDialog` (history `mount_image`, started in the active panel's directory, its cursor's image named), then
+  `disk_image.mount_image` (progress, box, toast) and the cursor to the new row (`_select_mount`); Unmount takes the
+  row's image (`udisks.image_at(volume.mount)`) whole through `disk_image.unmount_image`, which the panel's command
+  uses too -- every Manager's `all_panels` inside it out first, the busy retries -- then reads again. Refusals: *The
+  cursor is on no disk image*, *udisksctl (udisks2) is not installed*.
 - **Disk images** (`udisks.attach_image`, Enter's -- `navigator-panels`): `udisksctl loop-setup -r -f FILE`, always
   read-only (the answer's `Mapped file ... as /dev/loopN.` names the device), or the user's loop already on that
   `Loop.BackingFile` reused; the dump re-read every `PROBE_INTERVAL` up to `PROBE_TIMEOUT` until udev has probed it

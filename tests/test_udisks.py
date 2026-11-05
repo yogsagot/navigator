@@ -676,10 +676,10 @@ def test_the_context_menu_offers_unmount_in_a_mounted_image_and_on_it(mounted_im
 
 
 def test_unmount_takes_the_panel_out_to_the_image_then_ejects_again_while_busy(mounted_image, monkeypatch):
-    from navigator.widgets.manager.manager import manager as manager_module
+    from navigator.widgets.drives import disk_image
 
     app, here = mounted_image
-    monkeypatch.setattr(manager_module, "UNMOUNT_WAIT", 0.0)
+    monkeypatch.setattr(disk_image, "UNMOUNT_WAIT", 0.0)
     ejected = []
 
     def eject(where):
@@ -740,3 +740,134 @@ def test_the_disk_menu_has_unmount_image_greyed_outside_one(mounted_image):
     assert seen["text"] == "~U~nmount image"
     assert seen["inside"] is True
     assert seen["outside"] is not True
+
+
+def test_disk_mount_image_mounts_the_image_at_the_cursor_whatever_enter_does(image_desk, monkeypatch):
+    from navigator.widgets.manager.commands import MountImage
+
+    app, here = image_desk
+    monkeypatch.setattr(SETTINGS.file_manager, "enter_mounts_images", False)
+    asked, seen = [], {}
+    monkeypatch.setattr(udisks, "attach_image", lambda path, stop=None, uid=None: asked.append(path) or [
+        udisks.UdisksVolume(name="DISK", device="/dev/loop7", local=str(here / "one"), loop="x")])
+
+    def look(name):
+        def at(a):
+            seen[name] = a.manager.refusal(MountImage()) or True
+        return at
+
+    run_app(app, [
+        lambda a: seen.update(text=a.root.menu.disk.item_for(MountImage).text),
+        lambda a: setattr(a.manager.left, "cursor", 0), look("on .."),
+        _at_image, look("on it"),
+        lambda a: a.spawn(a.run_command(MountImage)),
+        Until(lambda a: a.manager.left.path == here / "one", timeout=5),
+    ])
+    assert seen["text"] == "~M~ount image"
+    assert seen["on .."] == "No disk image at the cursor"
+    assert seen["on it"] is True
+    assert asked == [here / "disk.iso"]
+
+
+def test_disk_mount_image_without_udisksctl_is_greyed_saying_so(image_desk, monkeypatch):
+    from navigator.widgets.manager.commands import MountImage
+
+    app, here = image_desk
+    monkeypatch.setattr(udisks, "program", lambda which=None: None)
+    seen = {}
+    run_app(app, [_at_image, lambda a: seen.update(why=a.manager.refusal(MountImage()))])
+    assert seen["why"] == "udisksctl (udisks2) is not installed"
+
+
+def test_the_context_menu_offers_mount_on_an_image_not_mounted(image_desk, monkeypatch):
+    from navigator.widgets.manager.commands import MountImage, UnmountImage
+
+    app, here = image_desk
+    monkeypatch.setattr(udisks, "image_at", lambda path, *a, **k: [])
+    seen = {}
+
+    def look(name):
+        def at(a):
+            menu = a.manager.left.context_menu()
+            seen[name] = (menu.item_for(MountImage) is not None, menu.item_for(UnmountImage) is not None)
+        return at
+
+    def tag(a):
+        a.manager.left.marked = frozenset({a.manager.left.selected.key})
+
+    run_app(app, [
+        _at_image, look("on it"),
+        tag, look("tagged"), lambda a: setattr(a.manager.left, "marked", frozenset()),
+        lambda a: setattr(a.manager.left, "cursor", 0), look("on .."),
+        _at_image, lambda a: monkeypatch.setattr(udisks, "program", lambda which=None: None), look("no udisks"),
+    ])
+    assert seen == {"on it": (True, False), "tagged": (False, False), "on ..": (False, False),
+                    "no udisks": (False, False)}
+
+
+def test_the_volumes_window_mounts_an_image_asked_for_and_unmounts_it_whole(tmp_path, monkeypatch):
+    from test_nav import navigator
+    from navml.widgets.dialog.file_dialog import FileDialog
+    from navigator.widgets.manager.commands import MountImage, UnmountImage
+    from navigator.widgets.shell.commands import OpenVolumesWindow
+
+    image, mnt = tmp_path / "disk.iso", tmp_path / "mnt"
+    image.write_bytes(b"not a tar " * 100)
+    mnt.mkdir()
+    state = {"mounted": False, "calls": [], "asked": []}
+    mount = udisks.ImageMount(str(mnt), "/dev/loop7", str(image))
+
+    def gather_all():
+        rows = [Volume("root", "ext4", "/", "/dev/sda1", 10, 5)]
+        if state["mounted"]:
+            rows.append(Volume("DISK", "iso9660", str(mnt), "/dev/loop7", 10, 0, can_unmount=True,
+                               native=udisks.UdisksVolume("DISK", "/dev/loop7", local=str(mnt), loop="x")))
+        return rows
+
+    def attach(path, stop=None, uid=None):
+        state["calls"].append(("attach", path))
+        state["mounted"] = True
+        return [udisks.UdisksVolume("DISK", "/dev/loop7", local=str(mnt), loop="x")]
+
+    def eject(where):
+        state["calls"].append(("eject", where))
+        state["mounted"] = False
+
+    async def answer(self, app):
+        state["asked"].append((self.title, self.target.value))
+        return str(image)
+
+    monkeypatch.setattr(volumes, "gather_all", gather_all)
+    monkeypatch.setattr(udisks, "program", lambda which=None: "/usr/bin/udisksctl")
+    monkeypatch.setattr(udisks, "attach_image", attach)
+    monkeypatch.setattr(udisks, "eject", eject)
+    monkeypatch.setattr(udisks, "image_at", lambda path, *a, **k: [mount] if state["mounted"] and str(path) == str(mnt) else [])
+    monkeypatch.setattr(FileDialog, "execute", answer)
+    app = navigator(tmp_path)
+    seen = {}
+
+    def window(a):
+        return a.shell.desktop.active_window
+
+    def on_mount(a):
+        selected = window(a).volumes.selected
+        return selected is not None and selected.mount == str(mnt)
+
+    def refusals(name):
+        def at(a):
+            seen[name] = (window(a).refusal(MountImage()), window(a).refusal(UnmountImage()))
+        return at
+
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "cursor", [e.name for e in a.manager.left.items].index("disk.iso")),
+        lambda a: a.spawn(a.run_command(OpenVolumesWindow)),
+        Until(lambda a: bool(getattr(window(a), "volumes", None) and window(a).volumes.items)),
+        refusals("before"),
+        lambda a: a.spawn(a.run_command(MountImage)), Until(on_mount, timeout=5), refusals("mounted"),
+        lambda a: a.spawn(a.run_command(UnmountImage)),
+        Until(lambda a: len(window(a).volumes.items) == 1, timeout=5),
+    ])
+    assert state["asked"] == [("Mount image", str(image))]
+    assert state["calls"] == [("attach", image), ("eject", "/dev/loop7")]
+    assert seen["before"] == ("", "The cursor is on no disk image")
+    assert seen["mounted"] == ("", "")

@@ -13,11 +13,18 @@ else udisks2's own (:func:`navigator.lib.system.desktop.volume_backend`) --
 each run on a thread, its failure said in a box, the mounts read again after.
 Enter or *Go* on a volume not mounted mounts it, reads again, and only then
 chooses it -- with its mount point now -- for the screen.
+
+**Mount image** and **Unmount image** are the Disk menu's (``MountImage``,
+``UnmountImage``), answered here while the window is active: the first asks
+for an image file (DN's ``TFileDialog``) and mounts it, the cursor going to
+its row; the second unmounts the image of the row under the cursor, whole
+(:mod:`navigator.widgets.drives.disk_image`).
 """
 
 from __future__ import annotations
 
 import asyncio
+from pathlib import Path
 from typing import Any
 
 from navkit.events import ContextMenuEvent, Event, KeyEvent
@@ -36,7 +43,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
 from navigator.lib.system import desktop, volumes
-from navigator.widgets.manager.commands import Rescan, ToggleHidden
+from navigator.widgets.manager.commands import MountImage, Rescan, ToggleHidden, UnmountImage
 from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 
 #: Where the window reads the mounts.
@@ -54,6 +61,8 @@ class VolumesWindow(Window):
         self.show_free = show_free
         self._found: list[volumes.Volume] = []
         self._reads = 0
+        #: Where the cursor goes at the next listing: a mount point just mounted.
+        self._select_mount = ""
 
     @property
     def show_all(self) -> bool:
@@ -120,6 +129,12 @@ class VolumesWindow(Window):
         current = items[cursor] if 0 <= cursor < len(items) else None
         shown = [volume for volume in self._found if self.show_all or volume.real]
         listing.items = shown
+        wanted, self._select_mount = self._select_mount, ""
+        if wanted:
+            for index, volume in enumerate(shown):
+                if volume.mount == wanted:
+                    listing.cursor = index
+                    return
         if current is not None:
             for index, volume in enumerate(shown):
                 if volume.mount == current.mount:
@@ -199,6 +214,65 @@ class VolumesWindow(Window):
             self.spawn(self._desktop(desktop.eject, volume.target))
         return True
 
+    # -- Mount image, Unmount image -----------------------------------------------------
+
+    async def on_mount_image(self, command: MountImage) -> bool:
+        self.spawn(self._mount_image())
+        return True
+
+    async def _mount_image(self) -> None:
+        """A disk image file asked for -- listed from the active panel's
+        directory, its cursor's image named -- mounted, read again, and the
+        cursor on its first file system."""
+        from navml.widgets.dialog.file_dialog import FileDialog
+        from navigator.widgets.drives.disk_image import mount_image
+
+        app = self.application
+        directory, name = self._image_start()
+        dialog = FileDialog(title=tr("Mount image"), label=tr("~I~mage file"), history_id="mount_image",
+                            directory=directory, ok_text=tr("~M~ount"))
+        if name:
+            dialog.target.value = name
+        chosen = await dialog.execute(app)
+        if not chosen:
+            return
+        mounted = await mount_image(app, Path(chosen))
+        if mounted:
+            self._select_mount = mounted[0].local
+        self.reload()
+
+    def _image_start(self) -> tuple[Path, str]:
+        """Where *Mount image*'s box starts: the active panel's directory on
+        the disk, with the image at its cursor named -- else the home
+        directory.  Nothing here waits on a disk: the panel's own fields."""
+        manager = getattr(getattr(self.application, "root", None), "active_manager", None)
+        panel = getattr(manager, "active_panel", None)
+        if panel is not None and panel.location.is_local and panel.found is None:
+            image = panel.image_file()
+            return panel.path, (str(image) if image is not None else "")
+        return Path.home(), ""
+
+    def _image_mounts(self) -> list[Any]:
+        """The mounts of the disk image the row under the cursor is of, or ``[]``."""
+        from navigator.lib.system import udisks
+
+        volume = self.volumes.selected
+        if volume is None or not volume.mounted or udisks.program() is None:
+            return []
+        return udisks.image_at(volume.mount)
+
+    async def on_unmount_image(self, command: UnmountImage) -> bool:
+        mounts = self._image_mounts()
+        if mounts:
+            self.spawn(self._unmount_image(mounts))
+        return True
+
+    async def _unmount_image(self, mounts: list[Any]) -> None:
+        from navigator.widgets.drives.disk_image import unmount_image
+
+        await unmount_image(self.application, mounts)
+        self.reload()
+
     def allows(self, action: str) -> bool:
         """Whether ``"mount"``, ``"unmount"`` or ``"eject"`` can be done to the
         volume under the cursor: ``gio``, Solid or udisks is there and says it can.  What the
@@ -224,6 +298,14 @@ class VolumesWindow(Window):
                 if desktop.volume_program() is None:
                     return tr("Neither GIO, Solid nor udisks is installed")
                 return tr("Not for this volume")
+        if isinstance(command, MountImage):
+            from navigator.lib.system import udisks
+
+            return "" if udisks.program() is not None else tr("udisksctl (udisks2) is not installed")
+        if isinstance(command, UnmountImage):
+            if self._image_mounts():
+                return ""
+            return tr("The cursor is on no disk image")
         return super().refusal(command)
 
     async def on_mount_button_click(self, event: Event) -> bool:
@@ -272,6 +354,9 @@ class VolumesWindow(Window):
         menu.add_item(tr("~M~ount"), MountVolume)
         menu.add_item(tr("~U~nmount"), UnmountVolume)
         menu.add_item(tr("~E~ject"), EjectVolume)
+        menu.add_line()
+        menu.add_item(tr("Mount ~i~mage..."), MountImage)
+        menu.add_item(tr("Unmount ima~g~e"), UnmountImage)
         menu.add_line()
         menu.add_item(tr("~C~lose"), CloseWindow)
         return menu

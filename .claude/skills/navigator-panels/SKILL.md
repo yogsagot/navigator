@@ -51,12 +51,18 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   NAME*: label, size, mount point) asks which, Cancel staying put with all mounted. A failure is a box. Without
   udisksctl it falls back to the archive (if *Enter opens archive*) and then `OpenFile`, as before. The library side
   is `navigator-trees`' udisks paragraph. Tests: `tests/test_udisks.py` (`image_desk`).
+- **Disk > *~M~ount image*** (`MountImage`, `Manager.on_mount_image`): Enter's mounting (`enter_image`) of the image
+  at the cursor (`Panel.image_file`: a local `.iso`/`.img`, not in an archive or a *Find:* listing), whatever
+  *ENTER mounts disc images* says; `Manager.refusal` greys it with *No disk image at the cursor* or *udisksctl
+  (udisks2) is not installed*. Greyed in Miller columns. The right-click menu offers it too (no hotkey), on an image
+  at the cursor that is not mounted, nothing tagged and `udisksctl` there; a mounted one gets *Unmount image*
+  instead, never both.
 - **Unmount image** (`UnmountImage`: the right-click menu, no hotkey -- every letter of it is taken there -- and
   Disk > *~U~nmount image* under *Volumes*, greyed by `Manager.enables` outside one):
   offered while `Panel.image_here()` answers -- the panel inside a mounted image, or (nothing tagged) a mounted
   `.iso`/`.img` at the cursor -- from `udisks.image_at` (`/proc/self/mounts` and sysfs's `loop/backing_file`, never a
-  disk, so the menu asks as it is built; only mounts under `/media/`, `/run/media/`, `/mnt/`). `Manager.unmount_image`
-  takes each side inside it back to the image file (`Panel.go_to_file`), then `udisks.eject(device)` on a thread --
+  disk, so the menu asks as it is built; only mounts under `/media/`, `/run/media/`, `/mnt/`). `Manager.unmount_image` →
+  `disk_image.unmount_image` takes every Manager's panels inside it back to the image file (`Panel.go_to_file`), then `udisks.eject(device)` on a thread --
   again after `UNMOUNT_WAIT` while it says *busy*, up to `UNMOUNT_TRIES`, the shell's `cd` out taking a moment --
   then a toast *Unmounted*, or a box. Greyed in Miller columns.
 
