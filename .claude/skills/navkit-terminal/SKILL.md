@@ -83,6 +83,26 @@ after that paste is dispatched (Navigator shows a box suggesting xclip/xsel/wl-c
 query pending is dropped, so a late one cannot paste a second time. Ghostty's `clipboard-read = ask` prompt is usually
 slower than the timeout -- `allow` gives the real answer.
 
+## Focus reports and desktop notifications
+
+**Focus reports are their own mode.** `FOCUS_ON`/`FOCUS_OFF` (`CSI ? 1004 h/l`) go out when
+`TerminalInfo.focus_reports` -- any interactive terminal but `TERM=linux`; `NAVKIT_FOCUS=on|off` -- independent of the
+kitty push. The parser turns `CSI I`/`CSI O` into `FocusEvent(True/False)` (focus-out still releases held modifiers
+first); `Application._handle` keeps it as the reactive `terminal_focused` and offers it to no widget. It is `None`
+until the first report and again after `release_terminal`/`reclaim_terminal`: **unknown is not unfocused** -- a
+terminal that never reports (tmux without `focus-events on`) is never treated as one in the background.
+
+**`Application.notify(title, body, method=None, *, app_name=)`** (`navkit/notify.py`) sends whatever the focus; the
+caller checks `terminal_focused`. Ways (`TerminalInfo.notifications`, `NAVKIT_NOTIFY`): `osc9` (`ESC ] 9 ; title:
+body BEL` -- kitty, Ghostty, WezTerm, iTerm2, Windows Terminal, ConEmu), `osc777` (`ESC ] 777 ; notify ; title ;
+body BEL` -- foot, urxvt), `notify-send` (fallback only with `DISPLAY`/`WAYLAND_DISPLAY`, no `SSH_CONNECTION`/`SSH_TTY`
+and the program on `PATH`; VTE's terminals land here, showing neither OSC unpatched), `none`. `notify_osc` strips
+control characters, keeps `;` out of OSC 777's title, caps at `NOTIFY_MAX`, puts a zero-width space before a leading
+digit (`OSC 9 ; 4 ;` is ConEmu's progress) and wraps the sequence in tmux's (`allow-passthrough on` needed) or
+screen's `DCS`. `Terminal.notify` writes nothing while suspended or not started. `notify-send` is an
+`asyncio.create_subprocess_exec` task, reaped on the loop, a failure swallowed. `FakeTerminal.notifications` records
+`(title, body, kind)`.
+
 ## Graphics: which protocol, asked once
 
 - **The one thing navkit asks the terminal.** `TerminalInfo.graphics` (`"kitty"`, `"sixel"`, `""`) cannot be read

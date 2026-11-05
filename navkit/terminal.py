@@ -26,6 +26,7 @@ from navkit import keyboard
 from navkit.capabilities import TerminalInfo
 from navkit.events import (
     Event,
+    FocusEvent,
     KeyEvent,
     KeyReleaseEvent,
     ModifiersEvent,
@@ -90,11 +91,17 @@ PASTE_OFF = "\x1b[?2004l"
 # shifted key, 8 every key -- a bare modifier included -- as an escape, 16 the
 # text a key produces.  2 and 8 are the point: they are the only way a terminal
 # says a modifier is *held*.  A terminal that does not know the sequence
-# ignores it, so it is pushed without asking first.  Focus reporting (1004)
-# comes with it, because a release that happens in another window never
-# arrives, and losing the focus is the cue to forget what was held.
-KEYBOARD_ON = "\x1b[>31u\x1b[?1004h"
-KEYBOARD_OFF = "\x1b[?1004l\x1b[<u"
+# ignores it, so it is pushed without asking first.
+KEYBOARD_ON = "\x1b[>31u"
+KEYBOARD_OFF = "\x1b[<u"
+# Focus reporting: ``CSI I`` and ``CSI O`` as the terminal's window gains and
+# loses the focus.  The held modifiers need it -- a release that happens in
+# another window never arrives, and losing the focus is the cue to forget what
+# was held -- and so does a notification, which is only worth sending to a
+# desktop where nobody is looking at this terminal.  Its own flag
+# (``TerminalInfo.focus_reports``), so a legacy keyboard still gets it.
+FOCUS_ON = "\x1b[?1004h"
+FOCUS_OFF = "\x1b[?1004l"
 # Application keypad mode (DECKPAM) and back (DECKPNM).  The only way a
 # terminal without the kitty protocol tells the keypad's ``+`` from the other
 # one: it sends ``SS3 k`` instead of the character.  A kitty-protocol terminal
@@ -155,6 +162,49 @@ def clipboard_osc(text: str, *, primary: bool = False) -> str:
     """OSC 52: set the clipboard (``c``) or the primary selection (``p``)."""
     data = base64.b64encode(text.encode("utf-8")).decode("ascii")
     return f"\x1b]52;{'p' if primary else 'c'};{data}\x07"
+
+
+#: The longest title and body a notification carries, in characters: enough
+#: for a sentence naming a file, short of what a terminal might refuse.
+NOTIFY_MAX = 256
+
+
+def _notify_text(text: str, *, separators: str = "") -> str:
+    """*text* safe inside an OSC: no control character, none of *separators*,
+    on one line, and no longer than :data:`NOTIFY_MAX`."""
+    clean = "".join(" " if ch < " " or "\x7f" <= ch <= "\x9f" or ch in separators else ch for ch in text)
+    clean = " ".join(clean.split())
+    return clean if len(clean) <= NOTIFY_MAX else clean[: NOTIFY_MAX - 1] + "\u2026"
+
+
+def notify_osc(kind: str, title: str, body: str, *, multiplexer: str = "") -> str:
+    """A desktop notification as the terminal is asked for it, or ``""``.
+
+    *kind* ``"osc9"`` is iTerm2's ``OSC 9 ; text``, which carries one string,
+    so the title leads it; ``"osc777"`` is urxvt's ``OSC 777 ; notify ;
+    title ; body``, whose title may not hold a ``;``.  Inside tmux the
+    sequence is wrapped in tmux's ``DCS`` passthrough, which reaches the
+    terminal with ``allow-passthrough on`` and is dropped otherwise; inside
+    screen, in screen's.
+    """
+    title = _notify_text(title, separators=";")
+    body = _notify_text(body)
+    if kind == "osc9":
+        text = f"{title}: {body}" if title and body else title or body
+        if text[:1].isdigit():
+            # ``OSC 9 ; 4 ; ...`` and its siblings are ConEmu's and Windows
+            # Terminal's commands (progress, tab colour), not a message.
+            text = "\u200b" + text
+        sequence = f"\x1b]9;{text}\x07"
+    elif kind == "osc777":
+        sequence = f"\x1b]777;notify;{title};{body}\x07"
+    else:
+        return ""
+    if multiplexer == "tmux":
+        return "\x1bPtmux;" + sequence.replace("\x1b", "\x1b\x1b") + "\x1b\\"
+    if multiplexer == "screen":
+        return f"\x1bP{sequence}\x1b\\"
+    return sequence
 
 
 def clipboard_query(*, primary: bool = False) -> str:
@@ -604,7 +654,9 @@ class InputParser:
         if terminator in "IO" and body == b"":
             # Focus in, focus out.  Whatever was held when the focus left is
             # released somewhere this application will never hear about.
-            return self._hold(frozenset()) if terminator == "O" else []
+            if terminator == "O":
+                return [*self._hold(frozenset()), FocusEvent(False)]
+            return [FocusEvent(True)]
         key = _numbers(fields[0])
         mods = _numbers(fields[1]) if len(fields) > 1 else [1]
         param = mods[0] or 1
@@ -1111,6 +1163,8 @@ class Terminal:
             self.write(PASTE_ON)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_ON)
+        if self.info.focus_reports:
+            self.write(FOCUS_ON)
         if self.info.keypad:
             self.write(KEYPAD_ON)
         if self.reprogram_palette:
@@ -1126,6 +1180,8 @@ class Terminal:
             self.write(PALETTE_RESET)
         if self.info.keypad:
             self.write(KEYPAD_OFF)
+        if self.info.focus_reports:
+            self.write(FOCUS_OFF)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_OFF)
         if self.info.bracketed_paste:
@@ -1147,6 +1203,19 @@ class Terminal:
         if self.info.clipboard:
             self.write(clipboard_osc(text, primary=primary))
             self.flush()
+
+    def notify(self, title: str, body: str, *, kind: str | None = None) -> bool:
+        """Ask the terminal to put up a desktop notification, by *kind*
+        (``"osc9"`` or ``"osc777"``), else as :attr:`TerminalInfo.notifications`
+        says.  Whether anything was sent: nothing while the screen is handed
+        over, nor when neither names a sequence."""
+        kind = kind or self.info.notifications
+        sequence = notify_osc(kind, title, body, multiplexer=self.info.multiplexer)
+        if not sequence or self.suspended or not self._started:
+            return False
+        self.write(sequence)
+        self.flush()
+        return True
 
     def query_graphics(self) -> None:
         """Ask which way of drawing a picture this terminal knows

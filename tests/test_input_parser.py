@@ -267,12 +267,12 @@ def test_a_kitty_key_corrects_a_release_that_went_missing(parser):
 
 
 def test_losing_the_focus_forgets_what_was_held(parser):
-    from navkit.events import ModifiersEvent
+    from navkit.events import FocusEvent, ModifiersEvent
 
     parser.feed(b"\x1b[57443;3u")
-    assert parser.feed(b"\x1b[I") == []
-    assert parser.feed(b"\x1b[O") == [ModifiersEvent(frozenset())]
-    assert parser.feed(b"\x1b[O") == []
+    assert parser.feed(b"\x1b[I") == [FocusEvent(True)]
+    assert parser.feed(b"\x1b[O") == [ModifiersEvent(frozenset()), FocusEvent(False)]
+    assert parser.feed(b"\x1b[O") == [FocusEvent(False)]
 
 
 def test_legacy_input_never_holds_a_modifier(parser):

@@ -50,6 +50,8 @@ class FakeTerminal:
         #: What was copied, as ``(text, primary)``, and which reads were asked for.
         self.clipboard: list[tuple[str, bool]] = []
         self.clipboard_queries: list[bool] = []
+        #: Desktop notifications asked for, as ``(title, body, kind)``.
+        self.notifications: list[tuple[str, str, str | None]] = []
         #: Between suspend() and resume(), and what was written raw meanwhile.
         self.suspended = False
         self.relayed: list[bytes] = []
@@ -78,6 +80,10 @@ class FakeTerminal:
 
     def set_clipboard(self, text: str, *, primary: bool = False) -> None:
         self.clipboard.append((text, primary))
+
+    def notify(self, title: str, body: str, *, kind: str | None = None) -> bool:
+        self.notifications.append((title, body, kind))
+        return True
 
     def query_clipboard(self, *, primary: bool = False) -> None:
         self.clipboard_queries.append(primary)

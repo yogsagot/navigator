@@ -37,6 +37,7 @@ guess when the guess is wrong.
 from __future__ import annotations
 
 import os
+import shutil
 from dataclasses import dataclass, replace
 from functools import lru_cache
 from typing import Mapping
@@ -234,6 +235,45 @@ def _reorders(env: Mapping[str, str]) -> str:
     return ""
 
 
+#: How a desktop notification goes out, per :attr:`TerminalInfo.notifications`.
+NOTIFY_OSC9 = "osc9"
+NOTIFY_OSC777 = "osc777"
+NOTIFY_SEND = "notify-send"
+NOTIFY_NONE = "none"
+NOTIFICATIONS = (NOTIFY_OSC9, NOTIFY_OSC777, NOTIFY_SEND, NOTIFY_NONE)
+
+#: ``TERM_PROGRAM`` values of terminals that show OSC 9 as a notification.
+_OSC9_TERM_PROGRAMS = ("ghostty", "wezterm", "iterm.app")
+#: Variables that only those terminals (and kitty, ConEmu, Windows Terminal) set.
+_OSC9_MARKERS = ("KITTY_WINDOW_ID", "GHOSTTY_RESOURCES_DIR", "WEZTERM_PANE", "ITERM_SESSION_ID",
+                 "WT_SESSION", "ConEmuPID")
+#: ``TERM`` prefixes of terminals that show OSC 777's ``notify``.
+_OSC777_TERMS = ("foot", "rxvt-unicode")
+
+
+def _notifications(env: Mapping[str, str]) -> str:
+    """How a notification reaches the desktop from here, as best the environment says.
+
+    A terminal known to show one is asked first, since its sequence follows
+    the session over ssh: OSC 9 for kitty, Ghostty, WezTerm, iTerm2, Windows
+    Terminal and ConEmu; OSC 777 for foot and urxvt.  Anything else -- VTE's
+    terminals among them, which show neither unless patched -- falls back to
+    ``notify-send`` when this machine has a desktop of its own and the session
+    is not a remote one; otherwise there is no way, and ``"none"``.
+    """
+    if env.get("TERM_PROGRAM", "").strip().lower() in _OSC9_TERM_PROGRAMS:
+        return NOTIFY_OSC9
+    if env.get("TERM") == "xterm-kitty" or any(env.get(marker) for marker in _OSC9_MARKERS):
+        return NOTIFY_OSC9
+    if env.get("TERM", "").startswith(_OSC777_TERMS):
+        return NOTIFY_OSC777
+    remote = env.get("SSH_CONNECTION") or env.get("SSH_TTY")
+    desktop = env.get("DISPLAY") or env.get("WAYLAND_DISPLAY")
+    if desktop and not remote and shutil.which("notify-send", path=env.get("PATH")):
+        return NOTIFY_SEND
+    return NOTIFY_NONE
+
+
 def _multiplexer(env: Mapping[str, str]) -> str:
     """``"tmux"`` or ``"screen"`` when one stands between Navigator and the terminal."""
     if env.get("TMUX"):
@@ -342,6 +382,17 @@ class TerminalInfo:
     #: One cell's ``(width, height)`` in pixels, or ``None`` while unknown --
     #: what a picture is scaled by to fill whole cells.
     cell_px: tuple[int, int] | None = None
+    #: Whether to ask for focus reports (``CSI ? 1004 h``): the terminal then
+    #: sends ``CSI I`` and ``CSI O`` as its window gains and loses the focus,
+    #: which is how the application knows nobody is looking
+    #: (:attr:`navkit.application.Application.terminal_focused`).  A terminal
+    #: that does not know it ignores it; the Linux console has no windows.
+    focus_reports: bool = True
+    #: How a desktop notification is sent (:mod:`navkit.notify`): one of
+    #: :data:`NOTIFICATIONS` -- ``"osc9"`` or ``"osc777"`` through the
+    #: terminal, which reaches the desktop over ssh too, ``"notify-send"`` on
+    #: this machine's own desktop, or ``"none"``.
+    notifications: str = "none"
 
     @property
     def truecolor(self) -> bool:
@@ -416,6 +467,12 @@ class TerminalInfo:
         hyperlinks, which are otherwise written on any interactive terminal
         but the Linux console.  ``NAVKIT_CLIPBOARD`` does the same for OSC 52.
 
+        ``NAVKIT_FOCUS`` (``on`` or ``off``) says whether to ask for focus
+        reports, which are otherwise asked of any interactive terminal but the
+        Linux console.  ``NAVKIT_NOTIFY`` (``osc9``, ``osc777``,
+        ``notify-send`` or ``none``) says how a desktop notification is sent,
+        which is otherwise guessed by :func:`_notifications`.
+
         ``NAVKIT_GRAPHICS`` (``kitty``, ``sixel`` or ``none``) says how a
         picture is drawn, which is otherwise asked of the terminal once it is
         running -- but not inside tmux or screen, which pass neither protocol
@@ -472,6 +529,19 @@ class TerminalInfo:
 
         braille = env.get("TERM", "") != "linux"
 
+        focus_reports = not plain and env.get("TERM", "") != "linux"
+        choice = env.get("NAVKIT_FOCUS", "").strip().lower()
+        if choice in ("on", "yes", "1"):
+            focus_reports = True
+        elif choice in ("off", "no", "0", "none"):
+            focus_reports = False
+
+        notifications = env.get("NAVKIT_NOTIFY", "").strip().lower()
+        if notifications in ("off", "no", "0"):
+            notifications = NOTIFY_NONE
+        if notifications not in NOTIFICATIONS:
+            notifications = NOTIFY_NONE if plain else _notifications(env)
+
         bidi = env.get("NAVKIT_BIDI", "").strip().lower()
         if bidi not in BIDI_TIERS:
             bidi = _bidi(env)
@@ -507,6 +577,8 @@ class TerminalInfo:
             keypad=not plain,
             hyperlinks=hyperlinks,
             clipboard=clipboard,
+            focus_reports=focus_reports,
+            notifications=notifications,
         )
 
     def adapt(self, color: Color | None, *, pinned: bool = True) -> Color | None:

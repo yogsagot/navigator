@@ -293,15 +293,30 @@ def test_the_kitty_keyboard_protocol_is_pushed_and_popped():
     terminal, out = _terminal()
     terminal.start()
     written = out.getvalue()
-    assert "\x1b[>31u" in written and "\x1b[?1004h" in written
+    assert "\x1b[>31u" in written
     terminal.stop()
     restored = out.getvalue()[len(written):]
-    assert "\x1b[<u" in restored and "\x1b[?1004l" in restored
+    assert "\x1b[<u" in restored
 
     terminal, out = _terminal(kitty_keyboard=False)
     terminal.start()
     terminal.stop()
     assert ">31u" not in out.getvalue() and "<u" not in out.getvalue()
+
+
+def test_focus_reports_are_asked_for_on_their_own_flag():
+    """A legacy keyboard still gets them: a notification needs to know."""
+    terminal, out = _terminal(kitty_keyboard=False)
+    terminal.start()
+    written = out.getvalue()
+    assert "\x1b[?1004h" in written
+    terminal.stop()
+    assert "\x1b[?1004l" in out.getvalue()[len(written):]
+
+    terminal, out = _terminal(focus_reports=False)
+    terminal.start()
+    terminal.stop()
+    assert "?1004" not in out.getvalue()
 
 
 def test_the_keypad_goes_into_application_mode_and_back():

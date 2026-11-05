@@ -3838,6 +3838,11 @@ class Manager(Window):
         the mark showing it, until the box is called back
         (``BACKGROUND.recall``), which puts it up again.  Once a box has been
         up, the end is said in a toast, *title* over *Finished* or *Stopped*.
+
+        A departure too: once the box has been up, the end -- and a question
+        the worker waits on -- is also said in a desktop notification, but
+        only while the terminal has reported it is in the background
+        (``Shell.notify_away``, ``[system] notifications``).
         """
         from navigator.lib.system.background import BACKGROUND, Running
         from navigator.lib.system.progress import PROGRESS_DELAY, PROGRESS_TICK
@@ -3854,6 +3859,16 @@ class Manager(Window):
         #: A question taken from the worker while away, put once the box is back.
         held: Any = None
         seen = False
+        #: What the notifications name it by: *title*, else its box's title.
+        named = title
+        #: The question last notified, so one is told of once.
+        told: Any = None
+
+        def notify(text: str) -> None:
+            # The application's root is the shell, which knows the focus.
+            notify_away = getattr(getattr(app, "root", None), "notify_away", None)
+            if notify_away is not None and app.is_running:
+                notify_away(named or tr("Navigator"), text)
 
         async def tick() -> None:
             # Through the queue, so each update is painted with its batch.
@@ -3863,8 +3878,9 @@ class Manager(Window):
                 away.done, away.total, away.current = background()
 
         def show() -> None:
-            nonlocal box, shown, seen
+            nonlocal box, shown, seen, named
             box = make_box()
+            named = named or getattr(box, "title", "") or ""
             if background is not None:
                 box.background = True
             refresh(box)
@@ -3881,6 +3897,11 @@ class Manager(Window):
                     waiting.add(recall)
                 await asyncio.wait(waiting, timeout=PROGRESS_TICK, return_when=asyncio.FIRST_COMPLETED)
                 pending = held if held is not None else job.take_question()
+                if pending is not None and pending is not told and seen:
+                    told = pending
+                    what = subject or named
+                    notify(tr("Waiting for an answer: {what}").format(what=what) if what
+                           else tr("Waiting for an answer"))
                 if pending is not None and away is not None:
                     # Away, a question waits for the box to come back.
                     held = pending
@@ -3942,6 +3963,17 @@ class Manager(Window):
                 # cancellation of this task is not swallowed with its own.
                 shown.cancel()
                 await asyncio.wait({shown})
+        if seen and work.done() and not work.cancelled():
+            from navigator.lib.system.job import Stopped
+
+            error = work.exception()
+            what = subject or named
+            if error is None and not job.stopped:
+                notify(tr("Finished: {what}").format(what=what) if what else tr("Finished"))
+            elif error is None or isinstance(error, Stopped):
+                notify(tr("Stopped: {what}").format(what=what) if what else tr("Stopped"))
+            else:
+                notify(tr("Failed: {what}").format(what=what) if what else tr("Failed"))
         if seen and background is not None and work.done() and not work.cancelled() and work.exception() is None:
             # The application's root is the shell, which places toasts.
             toast = getattr(getattr(app, "root", None), "toast", None)

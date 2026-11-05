@@ -12,6 +12,9 @@ from navml.widgets.dialog.static_text import StaticText
 #: KDE's KIO -- mounts volumes, reaches GVfs/KIO links and opens files in the
 #: desktop's applications (``[system] desktop_vfs``,
 #: ``navigator.lib.system.desktop``); here, System Setup having no room left.
+#: *Notify when a long operation ends* is not DN's either: a desktop
+#: notification once the terminal is in the background (``[system]
+#: notifications``, ``Shell.notify_away``).
 CommunicationsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -136,3 +139,22 @@ CommunicationsPage:
         height: 1
         label_text: "Remote shell's ss~h~ options"
         label_width: 28
+
+    #: Not DN's: ``[system] notifications``.  Right under *ssh options*:
+    #: the page's last two rows are all a box with the tabs on top shows.
+    Label:
+        id: notifications_caption
+        x: 3
+        y: 14
+        width: max(0, parent.width - 6)
+        height: 1
+        text: "~N~otify when a long operation ends unwatched"
+        link: notifications
+
+    RadioButtons:
+        id: notifications
+        x: 3
+        y: 15
+        width: max(0, parent.width - 6)
+        height: 2
+        items: ["A~u~to", "Te~r~minal (OSC 9/777)", "notify-~s~end", "O~f~f"]

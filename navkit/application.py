@@ -44,6 +44,7 @@ from navkit.events import (
     Event,
     KeyEvent,
     KeyReleaseEvent,
+    FocusEvent,
     ModifiersEvent,
     MouseClickEvent,
     PasteEvent,
@@ -348,6 +349,12 @@ class Application:
     #: always empty.  Reactive, so a key bar reading it in ``render()`` swaps
     #: its row while Alt is held and swaps it back on the release.
     modifiers: frozenset[str] = reactive(frozenset())
+    #: Whether the terminal's window has the focus: True or False as its last
+    #: focus report said (:class:`FocusEvent`), ``None`` while it has said
+    #: nothing -- a terminal without focus reports, or the screen just taken
+    #: back from a :meth:`release_terminal`.  What decides whether a
+    #: :meth:`notify` is worth sending.
+    terminal_focused: bool | None = reactive(None)
     #: The keys of a chord pressed so far -- ``"ctrl+k"`` after Ctrl+K, when
     #: some table on the way to the focus binds a chord beginning with it --
     #: or empty.  The next key completes the chord or abandons it, and is
@@ -706,6 +713,20 @@ class Application:
         self._tasks.add(task)
         task.add_done_callback(self._finished)
         return task
+
+    # -- notifications -------------------------------------------------------
+
+    def notify(self, title: str, body: str, method: str | None = None, *, app_name: str = "") -> bool:
+        """A desktop notification of *title* and *body* (:mod:`navkit.notify`),
+        by *method* -- ``"osc9"``, ``"osc777"``, ``"notify-send"`` or
+        ``"none"`` -- else as the terminal's info says; *app_name* is what
+        ``notify-send`` files it under.  Sent whatever the
+        focus; a caller that wants it only for an absent user asks
+        :attr:`terminal_focused` first.  Whether it went out."""
+        from navkit import notify
+
+        return notify.send(self, title, body, method or self.terminal.info.notifications,
+                           app_name=app_name)
 
     # -- the clipboard -------------------------------------------------------
 
@@ -1156,6 +1177,7 @@ class Application:
         self.terminal.write(self._graphics.release(self.terminal.info.graphics))
         self.terminal.suspend()
         self._cursor_shown = None
+        self.terminal_focused = None
 
     def bell(self) -> None:
         """Ring the terminal's bell -- DOS Navigator's ``Beep`` -- now: a frame
@@ -1189,6 +1211,8 @@ class Application:
             return
         self._released = None
         self.terminal.resume()
+        # Whatever happened to the focus meanwhile went unreported.
+        self.terminal_focused = None
         self._graphics.forget()  # left with the alternate screen
         self._front = None
         self._cursor_shown = None
@@ -1513,6 +1537,10 @@ class Application:
             return
         if isinstance(event, ResizeEvent):
             self._resize(event.width, event.height)
+        if isinstance(event, FocusEvent):
+            # A fact about the terminal's window, kept the same way.
+            self.terminal_focused = event.focused
+            return
         if isinstance(event, ModifiersEvent):
             # A fact about the keyboard rather than something to act on, kept
             # the way the pointer's position is: nothing is offered it.

@@ -19,7 +19,7 @@ rejected, because it is a modern invention that shows a row nobody is holding.
 - **The parser owns the held set, and only kitty-form input may move it.** Kitty-form means a `u` terminator or an
   explicit `:event` type. A legacy Ctrl+F5 is followed by no release, so letting it set the state would leave Ctrl
   held for good. A kitty press carries the whole held set, so each one also corrects a release that went missing.
-- **Losing the focus forgets everything held.** Focus reporting (`?1004`) comes with the push. A release made
+- **Losing the focus forgets everything held.** Focus reporting (`?1004`, `FOCUS_ON`) is asked for on its own flag, `TerminalInfo.focus_reports`, so a legacy keyboard gets it too. A release made
   after Alt+Tab to another window is delivered to that window, so focus-out is the only cue the application gets.
 - **`ModifiersEvent` becomes `Application.modifiers` and goes no further**, the way a plain motion becomes
   `hovered`. It is reactive, so a key bar that reads it in `render()` repaints on the press and on the release.

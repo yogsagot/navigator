@@ -374,6 +374,20 @@ class ModifiersEvent(Event):
 
 
 @dataclass(frozen=True, slots=True)
+class FocusEvent(Event):
+    """The terminal's window gained (*focused*) or lost the focus.
+
+    Sent by a terminal asked for focus reports (``CSI ? 1004 h``) as
+    ``CSI I`` and ``CSI O``.  A terminal that does not know them sends
+    nothing, so :attr:`Application.terminal_focused` stays ``None``,
+    unknown, rather than guessing.  Like a :class:`ModifiersEvent` a fact
+    the application keeps, offered to no widget.
+    """
+
+    focused: bool = True
+
+
+@dataclass(frozen=True, slots=True)
 class WakeEvent(Event):
     """Internal: wakes the event loop so it can repaint or shut down."""
 

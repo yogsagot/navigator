@@ -3049,6 +3049,20 @@ class Shell(DockLayout):
         toasts.items = (*toasts.items, toast)
         return toast
 
+    def notify_away(self, title: str, text: str) -> bool:
+        """*text* under *title* as a desktop notification -- but only while
+        the terminal has said it is in the background, and ``[system]
+        notifications`` is not off (:mod:`navigator.lib.system.notify`).
+        A terminal that never reports its focus is never notified from:
+        nobody can tell whether it is watched.  Whether one went out."""
+        from navigator.lib.system import notify
+
+        app = self.application
+        if app is None or getattr(app, "terminal_focused", None) is not False:
+            return False
+        way = notify.method(SETTINGS.system.notifications, app.terminal.info.notifications)
+        return bool(app.notify(title, text, way, app_name="Navigator"))
+
     async def on_close_root_access(self, event: CloseRootAccess) -> bool:
         self.spawn(self.close_root_access())
         return True

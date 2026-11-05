@@ -291,6 +291,8 @@ ELEVATE = ("auto", "sudo", "pkexec", "off")
 #: ``[system] desktop_vfs``: whose desktop plumbing is asked
 #: (navigator.lib.system.desktop) -- auto is KDE's KIO in a KDE session, else GIO.
 DESKTOP_VFS = ("auto", "gio", "kio", "off")
+#: ``[system] notifications``: how a long operation's end reaches the desktop.
+NOTIFICATIONS = ("auto", "terminal", "notify-send", "off")
 
 
 class SystemData(Section):
@@ -358,6 +360,18 @@ class SystemData(Section):
     desktop_vfs: str = Setting(
         "auto", choices=DESKTOP_VFS,
         doc="The desktop's plumbing for volumes, links and opening files: GIO, KIO, or off; auto is KIO under KDE, else GIO",
+    )
+    #: Not DN's, which had no desktop to tell: a copy, move, erase or find
+    #: long enough to put its box up says it ended -- or that it waits on a
+    #: question -- in a desktop notification, but only once the terminal has
+    #: reported it lost the focus (``Shell.notify_away``).  *Terminal* is its
+    #: OSC 9 or OSC 777, which reaches the desktop over ssh; ``notify-send``
+    #: this machine's.  On *Communications*' page, beside the desktop's other
+    #: plumbing.
+    notifications: str = Setting(
+        "auto", choices=NOTIFICATIONS,
+        doc="When a long operation ends while the terminal is in the background, tell the desktop: "
+            "through the terminal (OSC 9/777), notify-send, or off; auto picks what this terminal shows",
     )
 
 

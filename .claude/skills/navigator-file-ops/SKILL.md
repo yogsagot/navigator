@@ -183,6 +183,12 @@ by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Resto
   never reaches the menus.
 - **The end**: once a box has been up (or the job went away) a toast says *title* over *Finished*/*Stopped*
   (`Shell.toast`, through `app.root`); not after a failure, which has its own box, nor a cancelled watcher.
+- **Desktop notification** (a departure, asked for; every `_watch_job`, background or not): once a box has been up,
+  the end -- *Finished*/*Stopped*/*Failed: {subject}* under *title* (else the box's title) -- and each question taken
+  from the worker (*Waiting for an answer*, once per question) go to `Shell.notify_away`, which sends only while
+  `app.terminal_focused is False` and `[system] notifications` is not `off` (`navigator/lib/system/notify.py` maps the
+  setting to navkit's way; `navkit-terminal`, *Focus reports and desktop notifications*). Not `run_with_progress`'s
+  boxes. Tests: `tests/test_notifications.py`.
 - **The window may be gone** when it ends (tasks are the application's): `_run_copy`/`erase_entries` reload only
   panels still mounted, and a question with no application is answered None (Esc).
 - **Quitting** with anything away always asks (`_quit_asking`, in place of *Exit confirmation*); Yes is
