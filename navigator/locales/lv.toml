@@ -3081,8 +3081,12 @@ flag = "LV"
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} nav vieta, ko KIO sasniedz. Tā pazīst {schemes}"
 # navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:520
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} nav vieta, ko GVfs sasniedz. Tā pazīst {schemes}"
-# navigator/widgets/drives/disk_image.py:69
+# navigator/widgets/drives/disk_image.py:65
+"{n} file system mounted" = ["Montēta {n} failu sistēma", "Montētas {n} failu sistēmas", "Montēts {n} failu sistēmu"]
+# navigator/widgets/drives/disk_image.py:83
 "Mount {name}" = "Montēt {name}"
+# navigator/widgets/drives/disk_image.py:63
+"Mounted at {where}" = "Montēts: {where}"
 # navigator/widgets/drives/disk_image.py:35
 "Mounting image" = "Montē attēlu"
 # navigator/widgets/drives/disk_image.py:41

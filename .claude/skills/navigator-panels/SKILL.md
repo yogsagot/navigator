@@ -46,7 +46,8 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   `Panel._may_mount_image` -- `[file_manager] enter_mounts_images` (File Manager Setup's *ENTER mounts disc images*,
   default on), the local disk outside an archive, a regular file, `udisks.program()` -- is asked before
   `_may_enter_archive`. `navigator/widgets/drives/disk_image.py`'s `enter_image` runs `udisks.attach_image` under
-  *Mounting image* and takes the panel to the mount point; with several file systems a centred `PopupMenu` (*Mount
+  *Mounting image*, says it in a toast titled with the image's name (*Mounted at PATH*, or *N file systems
+  mounted* -- before any box asks, as Cancel leaves them mounted), and takes the panel to the mount point; with several file systems a centred `PopupMenu` (*Mount
   NAME*: label, size, mount point) asks which, Cancel staying put with all mounted. A failure is a box. Without
   udisksctl it falls back to the archive (if *Enter opens archive*) and then `OpenFile`, as before. The library side
   is `navigator-trees`' udisks paragraph. Tests: `tests/test_udisks.py` (`image_desk`).

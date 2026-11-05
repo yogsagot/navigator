@@ -527,6 +527,12 @@ def image_desk(tmp_path, monkeypatch):
     return Navigator(tmp_path, tmp_path / "out", terminal=FakeTerminal(100, 30)), tmp_path
 
 
+def _toasts(app):
+    from navml.widgets.toast import Toast
+
+    return [child for child in app.root.children if isinstance(child, Toast)]
+
+
 def _at_image(app):
     panel = app.manager.left
     panel.cursor = [entry.name for entry in panel.items].index("disk.iso")
@@ -541,22 +547,29 @@ def test_enter_on_an_image_mounts_it_and_goes_there(image_desk, monkeypatch):
         return [udisks.UdisksVolume(name="DISK", device="/dev/loop7", local=str(here / "one"), loop="x")]
 
     monkeypatch.setattr(udisks, "attach_image", attach)
-    run_app(app, [_at_image, KeyEvent("enter"), Until(lambda a: a.manager.left.path == here / "one", timeout=5)])
+    said = []
+    run_app(app, [_at_image, KeyEvent("enter"), Until(lambda a: a.manager.left.path == here / "one", timeout=5),
+                  lambda a: said.extend((t.title, t.text) for t in _toasts(a))])
     assert asked == [here / "disk.iso"]
+    assert said == [("disk.iso", f"Mounted at {here / 'one'}")]
 
 
 def test_an_image_with_two_file_systems_asks_which_to_open(image_desk, monkeypatch):
     from navml.widgets.menu.popup_menu import PopupMenu
 
     app, here = image_desk
+    said = []
     monkeypatch.setattr(udisks, "attach_image", lambda path, stop=None, uid=None: [
         udisks.UdisksVolume(name="boot", device="/dev/loop8p1", local=str(here / "one"), loop="x", size=1 << 30),
         udisks.UdisksVolume(name="data", device="/dev/loop8p2", local=str(here / "two"), loop="x"),
     ])
     run_app(app, [
         _at_image, KeyEvent("enter"), Until(lambda a: isinstance(a.modal, PopupMenu), timeout=5),
+        lambda a: said.extend(t.text for t in _toasts(a)),
         KeyEvent("down"), KeyEvent("enter"), Until(lambda a: a.manager.left.path == here / "two", timeout=5),
     ])
+    # Said before the box asks: Cancel there leaves both mounted.
+    assert said == ["2 file systems mounted"]
 
 
 @pytest.mark.parametrize("why", ["no udisksctl", "setting off"])

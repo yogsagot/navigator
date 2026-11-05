@@ -3082,8 +3082,12 @@ direction = "rtl"
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} אינו מקום ש-KIO מגיע אליו. הוא מכיר את {schemes}"
 # navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:520
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} אינו מקום ש-GVfs מגיע אליו. הוא מכיר את {schemes}"
-# navigator/widgets/drives/disk_image.py:69
+# navigator/widgets/drives/disk_image.py:65
+"{n} file system mounted" = ["עוגנה מערכת קבצים אחת", "עוגנו שתי מערכות קבצים", "עוגנו {n} מערכות קבצים"]
+# navigator/widgets/drives/disk_image.py:83
 "Mount {name}" = "עגן את {name}"
+# navigator/widgets/drives/disk_image.py:63
+"Mounted at {where}" = "עוגן ב־{where}"
 # navigator/widgets/drives/disk_image.py:35
 "Mounting image" = "מעגן תמונה"
 # navigator/widgets/drives/disk_image.py:41

@@ -9,7 +9,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from navkit.i18n import tr
+from navkit.i18n import tr, tr_n
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -44,12 +44,26 @@ async def enter_image(panel: Any, path: Path) -> bool:
         return True
     if job.stopped or not mounted:
         return True
+    _say_mounted(app, path, mounted)
     volume = mounted[0] if len(mounted) == 1 else await _choose(panel, path, mounted)
     if volume is None or panel.parent is None:
         return True
     panel.leave_found()
     panel.path = Path(volume.local)
     return True
+
+
+def _say_mounted(app: Any, path: Path, mounted: list[Any]) -> None:
+    """A toast that *path* is mounted, and where -- said before any box asks
+    which file system to open, since Cancel there leaves them mounted."""
+    toast = getattr(getattr(app, "root", None), "toast", None)
+    if toast is None or not app.is_running:
+        return
+    if len(mounted) == 1:
+        text = tr("Mounted at {where}").format(where=mounted[0].local)
+    else:
+        text = tr_n("{n} file system mounted", "{n} file systems mounted", len(mounted))
+    toast(text, title=path.name)
 
 
 async def _choose(panel: Any, path: Path, mounted: list[Any]) -> Any:
