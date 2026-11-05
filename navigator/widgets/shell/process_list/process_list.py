@@ -68,23 +68,24 @@ class SortChosen(Event):
 BIG_STEP = 20
 
 
-class ProcessList(ListViewer):
-    """Processes: number, owner, state, CPU share, resident memory and command."""
+class ColumnList(ListViewer):
+    """A row per item under column titles, as Process list's and Services'
+    lists are: the fixed columns of :attr:`WIDTHS` and one flexible one
+    (``None``) taking what is left, a ``│`` between, the sorted column's
+    title marked, a press on a title emitting :class:`SortChosen` with its
+    :attr:`SORTS` key, and typing given to :attr:`filter_line`.  A subclass
+    says :meth:`titles` and :meth:`cells`."""
 
-    #: Each row is drawn under its parent's.
-    tree: bool = reactive(False)
+    #: Each column's width, ``None`` for the one that takes the rest.
+    WIDTHS: tuple[int | None, ...] = ()
+    #: Each column's sort key, in the columns' order.
+    SORTS: tuple[str, ...] = ()
+
     #: The sort in force and its way round, for the title's mark.
-    sort: str = reactive("pid")
+    sort: str = reactive("")
     descending: bool = reactive(False)
-    #: The user whose rows are ``.mine``.
-    uid: int = reactive(-1)
-    #: Columns the *Command* column is scrolled to the left, by Left and
-    #: Right: a departure, asked for, as the viewer's sideways scroll -- FAR's
-    #: process panel cut a command where its column ended.
-    x_delta: int = reactive(0)
 
     emits = (ChosenEvent, SortChosen)
-    keys = {"ctrl+s": QuickSearch}
 
     parts = ListViewer.parts + ("heading",)
 
@@ -105,7 +106,7 @@ class ProcessList(ListViewer):
 
     def columns(self) -> list[tuple[int, int]]:
         """``(x, width)`` of each column, a divider's cell between two."""
-        fixed = (PID_WIDTH, USER_WIDTH, STATE_WIDTH, CPU_WIDTH, MEMORY_WIDTH, None)
+        fixed = self.WIDTHS
         rest = max(0, self.inner_width - sum(width for width in fixed if width) - (len(fixed) - 1))
         spans: list[tuple[int, int]] = []
         x = self.inset
@@ -121,6 +122,115 @@ class ProcessList(ListViewer):
             if left <= x <= left + width:
                 return index
         return None
+
+    def titles(self) -> tuple[str, ...]:
+        raise NotImplementedError
+
+    def cells(self, row: Any) -> list[tuple[str, bool]]:
+        """*row*'s text in each column, and whether it is right-aligned."""
+        raise NotImplementedError
+
+    def render_header(self, surface: Surface) -> None:
+        """The column titles, the sorted one marked, and the dividers from
+        them down to the last row -- drawn before the rows, so the cursor bar
+        covers a divider it crosses, as a panel's does."""
+        arrows = glyphs_module.scrollbar("dos", self.glyphs)
+        mark = arrows[1] if self.descending else arrows[0]
+        top = self.inset
+        bottom = top + self.header + self.rows
+        right = self.inset + self.inner_width
+        heading, divider = self.part_style("heading"), self.part_style("divider")
+        spans = self.columns()
+        for index, (title, (x, width)) in enumerate(zip(self.titles(), spans)):
+            shown = min(width, right - x)
+            if shown <= 0:
+                break
+            if self.SORTS[index] == self.sort:
+                title = f"{title}{mark}"
+            title = fit_text(title, shown, self.ellipsis)
+            surface.draw_text(x + (shown - display_width(title)) // 2, top, title, heading, shown)
+            edge = x + width
+            if index < len(spans) - 1 and edge < right:
+                for y in range(top, bottom):
+                    surface.draw_text(edge, y, self.divider_glyph, divider, 1)
+
+    def render_row(self, surface: Surface, y: int, index: int, item: Any) -> None:
+        style = self.row_style(index, item)
+        right = self.inset + self.inner_width
+        for (text, flush_right), (x, width) in zip(self.cells(item), self.columns()):
+            # A blank on each side of the text, as a panel's columns have.
+            room = min(width, right - x) - 2
+            if room <= 0:
+                continue
+            text = fit_text(text, room, self.ellipsis)
+            if flush_right:
+                text = pad_cells(text, room, "right")
+            surface.draw_text(x + 1, y, text, style, room)
+
+    async def choose(self) -> bool:
+        if self.selected is None:
+            return False
+        await self.emit(ChosenEvent(self.selected))
+        return True
+
+    # -- the header ---------------------------------------------------------------------
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """A press on a column's title sorts by that column; anywhere else, as a list."""
+        if (not self.inert and event.button == "left" and event.action == "press"
+                and self.inset <= event.y < self.inset + self.header):
+            column = self.column_at(event.x)
+            if column is not None:
+                await self.emit(SortChosen(self.SORTS[column]))
+                return True
+        return await super().on_mouse_click(event)
+
+    # -- typing goes to the filter -----------------------------------------------------
+
+    def list_key(self, event: KeyEvent) -> bool:
+        """A key of the subclass's own, after the filter's and before the
+        list's movement: True when it was taken."""
+        return False
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        if self.inert:
+            return False
+        line = self.filter_line
+        if line is not None:
+            typed = event.is_printable and event.char and not (event.alt or event.ctrl) and event.char != " "
+            if typed or (event.matches("backspace") and line.value):
+                line.focus()
+                line.anchor = None
+                line.cursor = len(line.value)
+                return await line.on_key(event)
+            if event.matches("escape") and line.value:
+                line.value = ""
+                line.cursor = 0
+                return True
+        if self.list_key(event):
+            return True
+        return await super().on_key(event)
+
+
+class ProcessList(ColumnList):
+    """Processes: number, owner, state, CPU share, resident memory and command."""
+
+    WIDTHS = (PID_WIDTH, USER_WIDTH, STATE_WIDTH, CPU_WIDTH, MEMORY_WIDTH, None)
+    SORTS = COLUMN_SORTS
+
+    #: Each row is drawn under its parent's.
+    tree: bool = reactive(False)
+    #: The sort in force and its way round, for the title's mark.
+    sort: str = reactive("pid")
+    descending: bool = reactive(False)
+    #: The user whose rows are ``.mine``.
+    uid: int = reactive(-1)
+    #: Columns the *Command* column is scrolled to the left, by Left and
+    #: Right: a departure, asked for, as the viewer's sideways scroll -- FAR's
+    #: process panel cut a command where its column ended.
+    x_delta: int = reactive(0)
+
+    keys = {"ctrl+s": QuickSearch}
 
     def titles(self) -> tuple[str, ...]:
         return (tr("PID"), tr("User"), tr("S"), tr("CPU %"), tr("Memory"), tr("Command"))
@@ -206,84 +316,13 @@ class ProcessList(ListViewer):
             classes.append(state)
         return self.part_style("row", classes=tuple(classes), selected=self.row_selected(index))
 
-    def render_header(self, surface: Surface) -> None:
-        """The column titles, the sorted one marked, and the dividers from
-        them down to the last row -- drawn before the rows, so the cursor bar
-        covers a divider it crosses, as a panel's does."""
-        arrows = glyphs_module.scrollbar("dos", self.glyphs)
-        mark = arrows[1] if self.descending else arrows[0]
-        top = self.inset
-        bottom = top + self.header + self.rows
-        right = self.inset + self.inner_width
-        heading, divider = self.part_style("heading"), self.part_style("divider")
-        spans = self.columns()
-        for index, (title, (x, width)) in enumerate(zip(self.titles(), spans)):
-            shown = min(width, right - x)
-            if shown <= 0:
-                break
-            if COLUMN_SORTS[index] == self.sort:
-                title = f"{title}{mark}"
-            title = fit_text(title, shown, self.ellipsis)
-            surface.draw_text(x + (shown - display_width(title)) // 2, top, title, heading, shown)
-            edge = x + width
-            if index < len(spans) - 1 and edge < right:
-                for y in range(top, bottom):
-                    surface.draw_text(edge, y, self.divider_glyph, divider, 1)
-
-    def render_row(self, surface: Surface, y: int, index: int, item: Any) -> None:
-        style = self.row_style(index, item)
-        right = self.inset + self.inner_width
-        for (text, flush_right), (x, width) in zip(self.cells(item), self.columns()):
-            # A blank on each side of the text, as a panel's columns have.
-            room = min(width, right - x) - 2
-            if room <= 0:
-                continue
-            text = fit_text(text, room, self.ellipsis)
-            if flush_right:
-                text = pad_cells(text, room, "right")
-            surface.draw_text(x + 1, y, text, style, room)
-
-    async def choose(self) -> bool:
-        if self.selected is None:
-            return False
-        await self.emit(ChosenEvent(self.selected))
-        return True
-
-    # -- the header ---------------------------------------------------------------------
-
-    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        """A press on a column's title sorts by that column; anywhere else, as a list."""
-        if (not self.inert and event.button == "left" and event.action == "press"
-                and self.inset <= event.y < self.inset + self.header):
-            column = self.column_at(event.x)
-            if column is not None:
-                await self.emit(SortChosen(COLUMN_SORTS[column]))
-                return True
-        return await super().on_mouse_click(event)
-
-    # -- typing goes to the filter -----------------------------------------------------
-
-    async def on_key(self, event: KeyEvent) -> bool:
-        if self.inert:
-            return False
-        line = self.filter_line
-        if line is not None:
-            typed = event.is_printable and event.char and not (event.alt or event.ctrl) and event.char != " "
-            if typed or (event.matches("backspace") and line.value):
-                line.focus()
-                line.anchor = None
-                line.cursor = len(line.value)
-                return await line.on_key(event)
-            if event.matches("escape") and line.value:
-                line.value = ""
-                line.cursor = 0
-                return True
-        # Left and Right scroll the *Command* column, Ctrl by ``BIG_STEP``.
+    def list_key(self, event: KeyEvent) -> bool:
+        """Left and Right scroll the *Command* column, Ctrl by ``BIG_STEP``."""
         steps = {"left": -1, "right": 1, "ctrl+left": -BIG_STEP, "ctrl+right": BIG_STEP}
         if event.name in steps:
             self.scroll_command(steps[event.name])
             return True
-        return await super().on_key(event)
+        return False
 
 
 class ProcessFilter(InputLine):
@@ -297,7 +336,7 @@ class ProcessFilter(InputLine):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.rows: ProcessList | None = None
+        self.rows: ColumnList | None = None
 
     async def on_key(self, event: KeyEvent) -> bool:
         if self.inert:

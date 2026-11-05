@@ -244,6 +244,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-desktop` | Options > Save/Load desktop, `desktop_state`, Startup's *Autosave desktop* |
 | `navigator-user-menu` | F2's `menu.ini` user menu, its macros, running an item, `tempdir`/`system.temp_dir`; the `.ini` associations (Enter, F3/F4, Quick run) |
 | `navigator-processes` | Utilities > Process list (FAR's process panel, a departure): `/proc` model, CPU sampling, tree, signals and the root helper's `kill`, `[processes] refresh` |
+| `navigator-services` | Utilities > Services (a departure): systemd units via `systemctl`, the `ColumnList` it shares with Process list, start/stop/enable as root (the helper's `systemctl`/`journal_follow` ops), F3 following the journal in the viewer, `[services]` |
 | `navigator-monitor` | Utilities > System monitor (a departure): per-processor load and clocks, memory/commit/swap, hwmon temperatures and fans, the window that sizes itself to them, `[monitor] refresh` |
 | `navigator-calculator` | Ctrl+F6's calculator: DN's Classic and the Simple/Scientific/Programming faces, the parser's `Context`, the pads, `[calculator]` |
 | `navigator-macros` | Key macros (Ctrl+J R N records anywhere, Ctrl+J N plays; `KeyMacro`, `>MACRO<`) and the editor's `macros.ini` (Ctrl+J 0) |

@@ -96,6 +96,8 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("usage_window", "Directory sizes window", "navigator.widgets.shell.usage_window:UsageWindow"),
     ("process_window", "Process list", "navigator.widgets.shell.process_window:ProcessWindow"),
     ("process_list", "Process list rows", "navigator.widgets.shell.process_list:ProcessList"),
+    ("service_window", "Services", "navigator.widgets.shell.service_window:ServiceWindow"),
+    ("service_list", "Services rows", "navigator.widgets.shell.service_list:ServiceList"),
     ("monitor_window", "System monitor", "navigator.widgets.shell.monitor_window:MonitorWindow"),
     ("sync_window", "Synchronize window", "navigator.widgets.manager.sync_window:SyncWindow"),
     ("tree_view", "Trees", "navml.widgets.dialog.tree_view:TreeView"),

@@ -94,6 +94,9 @@ class EditWindow(Window):
         #: one there (``UseFile``): F2 writes the copy and then puts it back,
         #: the title names where it came from, and closing deletes it.
         self.use_set: Any = None
+        #: Called once the window has closed -- Services removes the
+        #: ``<unit>.d`` directory it made for an override never saved.
+        self.after_close: Any = None
         #: One save at a time: a second F2, or *Yes* to *Save?* while one is
         #: still writing, waits for it and then writes what the text is then.
         self._saving = asyncio.Lock()
@@ -222,6 +225,9 @@ class EditWindow(Window):
 
             use, self.use_set = self.use_set, None
             asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+        after, self.after_close = self.after_close, None
+        if after is not None:
+            after()
 
     # -- saving ------------------------------------------------------------------
 

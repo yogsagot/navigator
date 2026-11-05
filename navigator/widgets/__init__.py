@@ -105,6 +105,8 @@ _WIDGETS = {
     "VolumesWindow": "shell.volumes_window",
     "ProcessWindow": "shell.process_window",
     "ProcessList": "shell.process_list",
+    "ServiceWindow": "shell.service_window",
+    "ServiceList": "shell.service_list",
     "UsageList": "shell.usage_list",
     "UsageWindow": "shell.usage_window",
     "SyncList": "manager.sync_list",
@@ -184,6 +186,8 @@ if TYPE_CHECKING:
     from navigator.widgets.shell.volumes_window import VolumesWindow
     from navigator.widgets.shell.process_window import ProcessWindow
     from navigator.widgets.shell.process_list import ProcessList
+    from navigator.widgets.shell.service_window import ServiceWindow
+    from navigator.widgets.shell.service_list import ServiceList
     from navigator.widgets.shell.usage_list import UsageList
     from navigator.widgets.shell.usage_window import UsageWindow
     from navigator.widgets.manager.sync_list import SyncList

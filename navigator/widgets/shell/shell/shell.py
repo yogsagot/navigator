@@ -104,6 +104,7 @@ from navigator.widgets.shell.commands import (
     OpenUsageWindow,
     OpenVolumesWindow,
     OpenProcessWindow,
+    OpenServiceWindow,
     OpenMonitorWindow,
     SetupConfirmation,
     Settings,
@@ -1153,6 +1154,10 @@ class Shell(DockLayout):
             from navigator.lib.system import processes
 
             return "" if processes.available() else tr("There is no /proc to read processes from")
+        if isinstance(command, OpenServiceWindow):
+            from navigator.lib.system import services
+
+            return services.refusal_reason()
         if isinstance(command, OpenMonitorWindow):
             from navigator.lib.system import monitor
 
@@ -1284,6 +1289,11 @@ class Shell(DockLayout):
                 for panel in window.all_panels:
                     if panel.location == Location.of(directory):
                         panel.reload()
+        for window in self.desktop.windows():
+            # Utilities > Services: a unit file it opened, saved -- daemon-reload.
+            saved = getattr(window, "unit_file_saved", None)
+            if saved is not None:
+                saved(event.path)
         if rules:
             pending = [self.desktop]
             while pending:
@@ -3412,6 +3422,13 @@ class Shell(DockLayout):
         from navigator.widgets.shell.process_window import ProcessWindow
 
         self.desktop.open(ProcessWindow())
+        return True
+
+    async def on_open_service_window(self, event: OpenServiceWindow) -> bool:
+        """Utilities > Services: systemd's units in a window."""
+        from navigator.widgets.shell.service_window import ServiceWindow
+
+        self.desktop.open(ServiceWindow())
         return True
 
     async def on_open_monitor_window(self, event: OpenMonitorWindow) -> bool:

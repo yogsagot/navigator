@@ -1116,6 +1116,17 @@ class ProcessesData(Section):
     refresh: int = Setting(2, doc="Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R")
 
 
+class ServicesData(Section):
+    """Utilities > Services.  Not DN's: a departure, asked for -- DOS had no
+    service manager."""
+
+    name = "services"
+    title = "Utilities > Services (not DN's)"
+
+    refresh: int = Setting(3, doc="Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R")
+    journal_lines: int = Setting(200, doc="How many of a unit's last journal lines F3 shows before following it")
+
+
 class MonitorData(Section):
     """Utilities > System monitor.  Not DN's: a departure, asked for -- DOS
     had one processor and nothing to measure it by."""
@@ -1160,7 +1171,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, SplitData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, MonitorData, RemoteData,
+    CalculatorData, UUCodeData, SplitData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, ServicesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1204,6 +1215,7 @@ class Settings:
     encryption: EncryptionData
     synchronize: SynchronizeData
     processes: ProcessesData
+    services: ServicesData
     monitor: MonitorData
     remote: RemoteData
 

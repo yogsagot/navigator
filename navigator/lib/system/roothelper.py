@@ -110,6 +110,8 @@ class _Helper:
         self.next = 1
         #: ``write_file``'s text, gathered before it is written.
         self.pending: dict[int, tuple[IO[bytes], str]] = {}
+        #: Services' journals followed as root, by pid: ended with the helper.
+        self.journals: dict[int, Any] = {}
 
     @staticmethod
     def _where(path: str) -> Any:
@@ -291,6 +293,78 @@ class _Helper:
             raise OSError(errno.EPERM, "Navigator does not signal that process", str(pid))
         os.kill(pid, signal)
 
+    # Utilities > Services: a closed list of verbs on a checked name, as
+    # ``kill`` refuses init -- ``services.VERBS`` and ``services.valid_unit``.
+
+    def systemctl(self, verb: str, unit: str) -> None:
+        """``systemctl VERB UNIT`` on the system's manager, for a unit the
+        user could not start, stop, enable... alone."""
+        from navigator.lib.system import services
+
+        services.act(services.Unit(self._unit(unit)), self._verb(verb))
+
+    def daemon_reload(self) -> None:
+        """Services' F4: the system manager's unit files read again after one
+        was edited as root."""
+        from navigator.lib.system import services
+
+        services.daemon_reload(False)
+
+    def journal_follow(self, unit: str, path: str, lines: int) -> int:
+        """Services' F3 *As root*: ``journalctl --follow`` on *unit*, written
+        into *path* -- an existing file of the asking user's, never a link,
+        never created -- until :meth:`journal_stop` or this helper's end."""
+        from navigator.lib.system import services
+
+        name = self._unit(unit)
+        with self._pinned(path) as there:
+            flags = os.O_WRONLY | os.O_APPEND | (os.O_NOFOLLOW if PINNABLE else 0)
+            fd = os.open(there, flags)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_uid not in self.trusted:
+                raise OSError(errno.EPERM, "Not a file of the user's to write the journal into", path)
+            import subprocess
+
+            process = subprocess.Popen(services.journal_argv(name, False, int(lines)), stdout=fd,
+                                       stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, start_new_session=True,
+                                       env={**os.environ, "SYSTEMD_PAGER": "", "SYSTEMD_COLORS": "0"})
+        finally:
+            os.close(fd)
+        self.journals[process.pid] = process
+        return process.pid
+
+    def journal_stop(self, pid: int) -> None:
+        """The journal :meth:`journal_follow` started as *pid* ended; any
+        other number is no business of this op's."""
+        from navigator.lib.system import services
+
+        process = self.journals.pop(int(pid), None)
+        if process is not None:
+            services.stop_process(process)
+
+    def _stop_journals(self) -> None:
+        from navigator.lib.system import services
+
+        while self.journals:
+            services.stop_process(self.journals.popitem()[1])
+
+    @staticmethod
+    def _unit(unit: str) -> str:
+        from navigator.lib.system import services
+
+        if not isinstance(unit, str) or not services.valid_unit(unit):
+            raise OSError(errno.EINVAL, "Not a unit's name", str(unit))
+        return unit
+
+    @staticmethod
+    def _verb(verb: str) -> str:
+        from navigator.lib.system import services
+
+        if verb not in services.VERBS:
+            raise OSError(errno.EINVAL, "Not something Navigator does to a unit", str(verb))
+        return verb
+
     def utime(self, path: str, atime_ns: int, mtime_ns: int, follow: bool) -> None:
         with self._pinned(path, follow=follow) as there:
             os.utime(there, ns=(atime_ns, mtime_ns), follow_symlinks=not PINNABLE and follow)
@@ -418,6 +492,14 @@ OPS = frozenset(
 
 def serve(reader: IO[bytes], writer: IO[bytes]) -> None:
     helper = _Helper()
+    try:
+        _serve(helper, reader, writer)
+    finally:
+        # A journal followed as root ends with the helper, never left behind.
+        helper._stop_journals()
+
+
+def _serve(helper: _Helper, reader: IO[bytes], writer: IO[bytes]) -> None:
     writer.write(READY)
     writer.flush()
     while True:

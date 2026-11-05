@@ -308,6 +308,139 @@ class ProcessDetails(Command):
     title = "Details"
 
 
+class OpenServiceWindow(Command):
+    """Utilities > Services: systemd's units, started, stopped, enabled and
+    followed in their journal.
+
+    Not DOS Navigator's -- a departure, asked for, recorded in
+    ``navigator/lib/system/services.py``: DOS had no service manager.
+    """
+
+    title = "Services"
+
+
+class ServiceVerb(Command):
+    """A Services entry that runs ``systemctl VERB`` on the unit under the cursor."""
+
+    verb = ""
+
+
+class StartService(ServiceVerb):
+    """Services > *Start* (F5): ``systemctl start`` on the unit under the cursor."""
+
+    title = "Start"
+    verb = "start"
+
+
+class StopService(ServiceVerb):
+    """Services > *Stop* (F8, Del): ``systemctl stop`` on the unit under the cursor, after asking."""
+
+    title = "Stop"
+    verb = "stop"
+
+
+class RestartService(ServiceVerb):
+    """Services > *Restart* (F6): ``systemctl restart`` on the unit under the cursor."""
+
+    title = "Restart"
+    verb = "restart"
+
+
+class ReloadService(ServiceVerb):
+    """Services > *Reload* (F7): ``systemctl reload``, its configuration read again."""
+
+    title = "Reload"
+    verb = "reload"
+
+
+class EnableService(ServiceVerb):
+    """Services > *Enable* (Ctrl+E): ``systemctl enable``, started at boot (or log-in)."""
+
+    title = "Enable"
+    verb = "enable"
+
+
+class DisableService(ServiceVerb):
+    """Services > *Disable* (Ctrl+D): ``systemctl disable``, not started at boot."""
+
+    title = "Disable"
+    verb = "disable"
+
+
+class MaskService(ServiceVerb):
+    """Services > *Mask*: ``systemctl mask``, never started at all, after asking."""
+
+    title = "Mask"
+    verb = "mask"
+
+
+class UnmaskService(ServiceVerb):
+    """Services > *Unmask*: ``systemctl unmask``, a masked unit startable again."""
+
+    title = "Unmask"
+    verb = "unmask"
+
+
+class ServiceJournal(Command):
+    """Services > *Journal* (F3): the unit's journal in the viewer, following its end."""
+
+    title = "Journal"
+
+
+class EditUnitFile(Command):
+    """Services > *Edit* (F4): the unit's file in the editor; saved, ``systemctl daemon-reload``."""
+
+    title = "Edit"
+
+
+class ServiceDetails(Command):
+    """Services > *Details* (Enter): what ``systemctl status`` says of the unit under the cursor."""
+
+    title = "Details"
+
+
+class ServiceUserUnits(Command):
+    """Services > *User units* (Ctrl+U): the user's own manager's units, or the system's."""
+
+    title = "User"
+
+
+class ServiceAllTypes(Command):
+    """Services > *All types* (Ctrl+A): timers, sockets, mounts... too, or services only."""
+
+    title = "All"
+
+
+class FilterServices(Command):
+    """Services > *Filter* (F4, Ctrl+S): the keyboard to the filter line."""
+
+    title = "Filter"
+
+
+class ServiceSortName(Command):
+    """Services > *Sort by name* (Ctrl+N); again, the other way round."""
+
+    title = "Name"
+
+
+class ServiceSortActive(Command):
+    """Services > *Sort by state* (Ctrl+L, whether it runs); again, the other way round."""
+
+    title = "State"
+
+
+class ServiceSortFileState(Command):
+    """Services > *Sort by start-up* (enabled, disabled, static...); again, the other way round."""
+
+    title = "Start-up"
+
+
+class ServiceSortDescription(Command):
+    """Services > *Sort by description*; again, the other way round."""
+
+    title = "Description"
+
+
 class ToggleMarkBySpace(Command):
     """Space with the command line empty: :class:`ToggleMark`.
 
@@ -543,6 +676,26 @@ __all__ = [
     "KillProcess",
     "ProcessDetails",
     "SendSignal",
+    "OpenServiceWindow",
+    "ServiceVerb",
+    "StartService",
+    "StopService",
+    "RestartService",
+    "ReloadService",
+    "EnableService",
+    "DisableService",
+    "MaskService",
+    "UnmaskService",
+    "ServiceJournal",
+    "EditUnitFile",
+    "ServiceDetails",
+    "ServiceUserUnits",
+    "ServiceAllTypes",
+    "FilterServices",
+    "ServiceSortName",
+    "ServiceSortActive",
+    "ServiceSortFileState",
+    "ServiceSortDescription",
     "ToggleMarkBySpace",
 ]
 

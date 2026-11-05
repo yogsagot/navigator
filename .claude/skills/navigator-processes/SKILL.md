@@ -39,6 +39,9 @@ re-raises a plain `OSError`, so test `.errno`, not the subclass.
 
 ## The window (`navigator/widgets/shell/process_window/`, `process_list/`)
 
+- `ProcessList` is a `ColumnList` (same module, shared with Services' `ServiceList`): `WIDTHS`/`SORTS` declare the
+  columns; the base draws the titles and dividers, emits `SortChosen` and sends typing to `filter_line`;
+  `list_key()` is where `ProcessList` takes Left/Right. A change to the base touches both windows.
 - `ProcessList` is Python only, copying `VolumeList`: fixed columns plus a flexible *Command* column, the dividers
   painted in `render_header`, and ▲/▼ (`glyphs.scrollbar`) on the sorted column. **A press on the header row emits
   `SortChosen(by)`** (the only header-click sort in Navigator). Row classes `.mine`, `.root`, `.kernel`, `.zombie`,

@@ -460,3 +460,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 | Reference | Read when |
 |---|---|
 | `reference/editor.md` | the full design and the phases left |
+
+## Closing hook
+
+`EditWindow.after_close`, a plain callable (not an `on_*` handler), runs once after `close()`; Services uses it to
+remove the empty drop-in directory F4 made for an override never saved (`navigator-services`).
