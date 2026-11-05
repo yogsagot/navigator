@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, mounted, settle
+from conftest import FakeTerminal, mounted, settle, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
@@ -197,21 +197,21 @@ def test_f5_copies_what_is_tagged_to_the_other_panel(two):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         manager = shell.manager
         manager.left.cursor = next(
             i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
         )
         app.post_event(KeyEvent("insert"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: manager.left.marked == {"one.txt"})
         assert manager.left.marked == {"one.txt"}
         start = len(app.terminal.frames)
         app.post_event(KeyEvent("f5"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, CopyDialog) and " Copy " in "".join(app.terminal.frames[start:]))
         assert isinstance(app.modal, CopyDialog)
         assert " Copy " in "".join(app.terminal.frames[start:])
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None and not manager.left.marked and "one.txt" in [e.name for e in manager.right.items])
         state = (app.modal, manager.left.marked, [e.name for e in manager.right.items])
         app.exit()
         await task
@@ -234,19 +234,19 @@ def test_f5_asks_before_overwriting(two):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         manager = shell.manager
         manager.left.cursor = next(
             i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
         )
         app.post_event(KeyEvent("f5"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.4)
+        await wait_until(lambda: isinstance(app.modal, OverwriteQuery) and "already exists" in app.terminal.painted)
         asked = app.modal
         painted = app.terminal.painted
         app.post_event(KeyEvent("s", "s", alt=True))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None)
         after = app.modal
         app.exit()
         await task
@@ -268,20 +268,20 @@ def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         manager = shell.manager
         manager.left.cursor = next(
             i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
         )
         app.post_event(KeyEvent("f5"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
         app.modal.target.value = str(b / "new") + "/"
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.4)
+        await wait_until(lambda: app.modal is not None and not isinstance(app.modal, CopyDialog))
         asked = app.modal
         buttons = [w.text for w in asked.buttons_row if w.visible]
         app.post_event(KeyEvent("y", "y", alt=True))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None and (b / "new" / "one.txt").exists())
         after = app.modal
         app.exit()
         await task
@@ -302,16 +302,16 @@ def test_f5_to_a_missing_directory_creates_it_unasked_by_default(two):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         manager = shell.manager
         manager.left.cursor = next(
             i for i, e in enumerate(manager.left.items) if e.name == "one.txt"
         )
         app.post_event(KeyEvent("f5"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
         app.modal.target.value = str(b / "new") + "/"
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.4)
+        await wait_until(lambda: app.modal is None and (b / "new" / "one.txt").exists())
         after = app.modal
         app.exit()
         await task
@@ -328,7 +328,7 @@ def test_f5_is_disabled_on_dot_dot(two):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         manager = shell.manager
         manager.left.cursor = 0
         settle()

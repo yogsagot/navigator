@@ -10,7 +10,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, settle
+from conftest import FakeTerminal, handled, settle, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
@@ -286,7 +286,7 @@ def run_shell(a: Path, b: Path, steps):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         try:
             return await steps(app, shell)
         finally:
@@ -326,9 +326,9 @@ def test_alt_e_changes_the_tagged_files_and_untags_them(two):
         # The grid has the keyboard: across to Group, down to Write, press.
         for key in (KeyEvent("right"), KeyEvent("down"), KeyEvent(" ", " ")):
             app.post_event(key)
-        await asyncio.sleep(0.06)
+        await handled(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None and not panel.marked)
         return asked, app.modal, panel.marked
 
     asked, modal, marked = run_shell(a, b, steps)
@@ -348,7 +348,7 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
         await open_attributes(app)
         for key in (KeyEvent(" ", " "), KeyEvent(" ", " "), KeyEvent("escape")):
             app.post_event(key)
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is None)
         seen["unchanged"] = app.modal
 
         # Changed: Esc asks, and No keeps the dialog up as it was.
@@ -356,7 +356,7 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
         dialog = app.modal
         app.post_event(KeyEvent(" ", " "))
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         question = app.modal
         seen["asked"] = (
             type(question).__name__,
@@ -364,32 +364,32 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
             [b.text for b in question.buttons_row if b.visible],
         )
         app.post_event(KeyEvent("n", alt=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is dialog)
         seen["no"] = app.modal is dialog
 
         # Esc on the question is no answer either: the dialog stays.
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is dialog)
         seen["esc"] = app.modal is dialog
 
         # The close icon asks as Esc does, and Yes lets it go.
         app.post_event(MouseClickEvent(dialog.x + dialog.width - 4, dialog.y, "left", "press"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         seen["icon"] = type(app.modal).__name__
         app.post_event(KeyEvent("y", alt=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is None)
         seen["yes"] = app.modal
 
         # The Cancel button is the answer: changed, it closes without asking.
         await open_attributes(app)
         dialog = app.modal
         app.post_event(KeyEvent(" ", " "))
-        await asyncio.sleep(0.06)
+        await handled(app)
         seen["changed"] = dialog.must_ask()
         await dialog.cancel.press()
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is None)
         seen["cancel"] = app.modal
         return seen
 
@@ -413,12 +413,12 @@ def test_the_group_drop_down_offers_the_groups_on_the_current_one(two):
         dialog = app.modal
         dialog.group.entry.focus()
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         dropped = app.modal
         seen = (type(dropped).__name__, dropped.items, dropped.selected, dialog.group.value)
         app.post_event(KeyEvent("escape"))
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is None)
         return seen
 
     kind, items, selected, current = run_shell(a, b, steps)
@@ -468,27 +468,27 @@ def test_any_key_on_the_group_line_drops_its_list_and_typing_searches_it(two):
         line.focus()
         # Tab is the dialog's: it moves on and drops nothing.
         app.post_event(KeyEvent("tab"))
-        await asyncio.sleep(0.06)
+        await handled(app)
         seen["tab"] = (app.modal is dialog, line.focused)
 
         line.focus()
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         seen["enter"] = type(app.modal).__name__
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is dialog)
 
         # A letter drops the list and searches it for itself.
         for char in target:
             app.post_event(KeyEvent(char, char))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog and not app.busy)
         dropped = app.modal
         seen["search"] = (dropped.search, dropped.selected, dropped.footer_text())
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is dialog)
         seen["chosen"] = (app.modal is dialog, dialog.group.value, line.focused)
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await handled(app)
         return seen
 
     seen = run_shell(a, b, steps)
@@ -559,7 +559,7 @@ def test_up_and_down_move_between_the_lines_and_step_on_octal_date_and_time(two)
 
         async def press(key):
             app.post_event(KeyEvent(key))
-            await asyncio.sleep(0.03)
+            await handled(app)
             seen.append(names.get(id(app.focused), type(app.modal).__name__))
 
         dialog.group.entry.focus()
@@ -587,17 +587,17 @@ def test_home_and_end_in_the_group_list_go_to_its_ends(two):
         dialog = app.modal
         dialog.group.entry.focus()
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         groups = app.modal
         app.post_event(KeyEvent("end"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         last = groups.selected
         app.post_event(KeyEvent("home"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         first = groups.selected
         app.post_event(KeyEvent("escape"))
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return first, last, list(groups.items)
 
     first, last, items = run_shell(a, b, steps)
@@ -659,13 +659,13 @@ def test_the_key_bar_says_what_r_w_and_x_do_while_the_grid_has_the_keyboard(two)
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
         await open_attributes(app)
-        await asyncio.sleep(0.05)
+        await handled(app)
         in_grid = hints(shell)
         app.post_event(KeyEvent("tab"))
-        await asyncio.sleep(0.05)
+        await handled(app)
         elsewhere = hints(shell)
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.05)
+        await handled(app)
         return in_grid, elsewhere
 
     in_grid, elsewhere = run_shell(a, b, steps)
@@ -814,10 +814,10 @@ def test_ins_on_the_acl_list_adds_an_entry_picked_from_the_users(two):
         box.who.value = me
         box.perms.value = acl.READ | acl.EXECUTE
         app.spawn(box.ok.press())
-        await asyncio.sleep(0.1)
+        await wait_until(lambda: app.modal is dialog and any(me in row for row in dialog.acl_list.items))
         rows = list(dialog.acl_list.items)
         app.spawn(dialog.ok.press())
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None)
         return offered, rows
 
     offered, rows = run_shell(a, b, steps)

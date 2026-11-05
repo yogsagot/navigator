@@ -23,7 +23,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import IDLE, FakeTerminal, Until, awaited, mounted, run_app, settle, key_bar_hints
+from conftest import IDLE, FakeTerminal, Until, awaited, handled, mounted, run_app, settle, key_bar_hints, started, wait_until
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons
 from navigator import __version__
@@ -2406,10 +2406,10 @@ def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
         shell = Shell(root, root)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         start = len(app.terminal.frames)
         app.post_event(KeyEvent("kp_plus", "+"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, SelectDialog) and " Select " in "".join(app.terminal.frames[start:]))
         assert isinstance(app.modal, SelectDialog)
         assert " Select " in "".join(app.terminal.frames[start:])
         assert app.modal.mask.value == "*"
@@ -2418,9 +2418,9 @@ def test_gray_plus_asks_for_a_mask_and_tags_what_it_matches(mixed):
         assert app.modal.mask.entry.selected_text == "*"
         for char in "*.md":
             app.post_event(KeyEvent(char, char))
-        await asyncio.sleep(0.06)
+        await handled(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.12)
+        await wait_until(lambda: app.modal is None and not app.busy)
         marked = shell.manager.left.marked
         modal = app.modal
         app.exit()
@@ -2452,13 +2452,13 @@ def test_shift_gray_minus_opens_unselect_with_except_ticked(mixed):
         shell = Shell(root, root)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         app.post_event(KeyEvent("kp_minus", "-", shift=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None)
         modal = app.modal
         title, invert = modal.title, modal.options.value
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is None)
         app.exit()
         await task
         return modal, title, invert
@@ -3155,7 +3155,7 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
         )
         shell = app.shell
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.15)
+        await started(app, app.manager.left, app.manager.right)
         dump = desktop_dump(shell)
         app.exit()
         await task
@@ -3183,11 +3183,11 @@ def test_f7_makes_a_directory(tmp_path):
         manager = shell.manager
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
 
         start = len(app.terminal.frames)
         app.post_event(KeyEvent(key="f7"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: "Make directory" in "".join(app.terminal.frames[start:]))
         # Painted *before* anything answers it, which is the whole rule.
         assert "Make directory" in "".join(app.terminal.frames[start:])
         assert isinstance(app.modal, MkdirDialog)
@@ -3195,9 +3195,11 @@ def test_f7_makes_a_directory(tmp_path):
 
         for char in "reports":
             app.post_event(KeyEvent(key=char, char=char))
-        await asyncio.sleep(0.06)
+        await handled(app)
         app.post_event(KeyEvent(key="enter"))
-        await asyncio.sleep(0.12)
+        await wait_until(lambda: app.modal is None and (tmp_path / "reports").is_dir()
+                         and "reports" in [entry.name for entry in manager.left.items]
+                         and isinstance(app.focused, Panel))
 
         made = (tmp_path / "reports").is_dir()
         listed = [entry.name for entry in manager.left.items]
@@ -3218,14 +3220,14 @@ def test_escaping_f7_makes_nothing(tmp_path):
         manager = shell.manager
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         app.post_event(KeyEvent(key="f7"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: app.modal is not None)
         for char in "nope":
             app.post_event(KeyEvent(key=char, char=char))
-        await asyncio.sleep(0.06)
+        await handled(app)
         app.post_event(KeyEvent(key="escape"))
-        await asyncio.sleep(0.12)
+        await wait_until(lambda: app.modal is None)
         modal = app.modal
         app.exit()
         await task

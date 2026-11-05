@@ -6,7 +6,7 @@ import asyncio
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, handled, run_app, started, wait_until
 from navkit.application import Application
 from navkit.events import KeyEvent
 from navkit.screen import Surface
@@ -41,13 +41,13 @@ def test_a_handler_that_awaits_input_never_paints():
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await started(app)
         before = len(term.frames)
         app.post_event(KeyEvent(key="a"))
         await waited.wait()
         # The handler is parked.  Nothing may have painted since.
         assert len(term.frames) == before
-        await asyncio.sleep(0.1)
+        await handled(app)
         app.exit()
         await task
 
@@ -68,11 +68,11 @@ def test_spawn_lets_the_frame_paint_before_the_work_finishes():
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await wait_until(lambda: app.is_running)  # ``started`` is this test's own Event
         job = app.spawn(slowly())
         await started.wait()
         root.merge_style("bg: red")      # ask for a repaint
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: len(term.frames) >= 2)
         assert len(term.frames) >= 2, "the loop kept painting while work waited"
         done.set()
         assert await job == "answer"
@@ -93,7 +93,7 @@ def test_a_spawned_task_is_held_and_forgotten_again():
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await started(app)
         job = app.spawn(work())
         assert job in app._tasks
         release.set()
@@ -121,9 +121,9 @@ def test_exiting_cancels_whatever_is_still_waiting():
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await started(app)
         job = app.spawn(work())
-        await asyncio.sleep(0.02)
+        await asyncio.sleep(0)
         app.exit()
         await task
         assert cleaned == ["finally ran"]
@@ -161,7 +161,7 @@ def test_a_widget_spawns_through_its_application():
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await started(app)
         await root.spawn(work())
         assert ran == [True]
         app.exit()

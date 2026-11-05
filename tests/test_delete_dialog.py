@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, settle
+from conftest import FakeTerminal, handled, settle, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent
@@ -116,14 +116,14 @@ def test_the_erase_box_shows_the_speed_as_it_goes(two, monkeypatch):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.6)
+        await wait_until(lambda: isinstance(app.modal, DeleteProgress) and app.modal.pace_row.text.startswith("Speed "))
         text = app.modal.pace_row.text
         app.modal.close(None)
-        await asyncio.sleep(0.1)
+        await handled(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await handled(app)
         return text
 
     text = run_shell(a, b, steps)
@@ -150,7 +150,7 @@ def run_shell(a: Path, b: Path, steps):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         try:
             return await steps(app, shell)
         finally:
@@ -180,11 +180,11 @@ def test_f8_deletes_what_is_tagged_and_untags_it(two):
         panel = shell.manager.left
         panel.marked = frozenset({"one.txt", "two.txt"})
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog) and "Recursive delete" in screen_text(app))
         asked = app.modal
         painted = screen_text(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is None and not panel.marked)
         return asked, painted, app.modal, panel.marked
 
     asked, painted, after, marked = run_shell(a, b, steps)
@@ -202,9 +202,9 @@ def test_no_deletes_nothing(two):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("n", alt=True))
-        await asyncio.sleep(0.1)
+        await wait_until(lambda: app.modal is None)
         return app.modal
 
     assert run_shell(a, b, steps) is None
@@ -223,7 +223,7 @@ def test_del_deletes_with_the_line_empty_and_edits_it_otherwise(two):
         shell.command_line.set_text("")
         settle()
         app.post_event(KeyEvent("delete"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         return typed, by_menu, app.modal
 
     typed, by_menu, modal = run_shell(a, b, steps)
@@ -239,10 +239,10 @@ def test_shift_f8_ignores_the_tags(two):
         panel.marked = frozenset({"two.txt"})
         put_cursor(panel, "one.txt")
         app.post_event(KeyEvent("f8", shift=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog) and "file one.txt?" in screen_text(app))
         painted = screen_text(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is None and not (a / "one.txt").exists())
         return painted, panel.marked
 
     painted, marked = run_shell(a, b, steps)
@@ -275,13 +275,13 @@ def test_a_non_empty_directory_asks_and_no_keeps_it(two):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "full")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: isinstance(app.modal, EraseQuery) and "is not empty." in screen_text(app))
         asked = app.modal
         painted = screen_text(app)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is None)
         return asked, painted, app.modal
 
     asked, painted, after = run_shell(a, b, steps)
@@ -298,9 +298,9 @@ def test_recursive_deletes_a_non_empty_directory_unasked(two):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "full")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None and not (a / "full").exists())
         return app.modal
 
     assert run_shell(a, b, steps) is None
@@ -325,16 +325,16 @@ def test_cancel_on_the_progress_box_asks_before_it_stops(two, monkeypatch):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.4)
+        await wait_until(lambda: isinstance(app.modal, DeleteProgress) and "Erasing the file" in screen_text(app))
         box = app.modal
         painted = screen_text(app)
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is not None and not isinstance(app.modal, DeleteProgress))
         abort = app.modal
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.3)
+        await wait_until(lambda: app.modal is None and seen.get("stopped"))
         return box, painted, abort, app.modal
 
     box, painted, abort, after = run_shell(a, b, steps)

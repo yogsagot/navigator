@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import faulthandler
+import time
 from pathlib import Path
 
 import pytest
@@ -248,6 +249,36 @@ def awaited(coro):
     is one line.
     """
     return asyncio.run(coro)
+
+
+async def wait_until(predicate, timeout: float = 2.0) -> None:
+    """Inside a test's own coroutine: wait until *predicate* holds -- a box
+    up, a box gone, a caption painted -- rather than sleeping a guessed time,
+    which a loaded machine outlasts.  ``AssertionError`` after *timeout*."""
+    end = time.monotonic() + timeout
+    while not predicate():
+        if time.monotonic() > end:
+            raise AssertionError(f"timed out after {timeout}s waiting for {getattr(predicate, '__name__', predicate)}")
+        await asyncio.sleep(0.01)
+
+
+async def handled(app, timeout: float = 2.0) -> None:
+    """Every event :meth:`Application.post_event` queued handled and painted
+    (``Application.busy``): what to wait for when a key is meant to change
+    nothing new -- a dialog staying up, a mark toggled -- so there is no state
+    to wait for.  Not work an event only started: a box a handler spawns
+    opens later, so wait for the box itself (:func:`wait_until`)."""
+    await asyncio.sleep(0)
+    await wait_until(lambda: not app.busy, timeout)
+
+
+async def started(app, *panels, timeout: float = 2.0) -> None:
+    """A test driving ``run_async`` itself: the application running and
+    painted once, and each of *panels* done reading its directory (its rows
+    there, ``scanning`` off) -- what a guessed sleep after starting the loop
+    stood for, and what a test putting the cursor on a file next needs."""
+    await wait_until(lambda: app.is_running and bool(getattr(app.terminal, "frames", True))
+                     and all(panel.items and not panel.scanning for panel in panels), timeout)
 
 
 def settle() -> None:

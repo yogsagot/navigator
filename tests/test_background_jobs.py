@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal
+from conftest import FakeTerminal, handled, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
@@ -20,6 +20,7 @@ from navigator.lib.file_ops import fileerase
 from navigator.lib.system.background import BACKGROUND
 from navigator.widgets.file_ops.background_button import BACKGROUND as AWAY
 from navigator.widgets.file_ops.copy_progress import CopyProgress
+from navigator.widgets.file_ops.delete_dialog import DeleteDialog
 from navigator.widgets.file_ops.delete_progress import DeleteProgress
 from navigator.widgets.shell.commands import ShowBackground
 from navigator.widgets.shell.job_mark import caption
@@ -41,7 +42,7 @@ def run_shell(a: Path, b: Path, steps):
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         BACKGROUND.listener = app.invalidate
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         try:
             return await steps(app, shell)
         finally:
@@ -163,7 +164,7 @@ def test_each_segment_has_its_own_click_and_tooltip(two):
             entry = BACKGROUND.add(object(), title)
             entry.done, entry.total = done, 10 if title == "Erase" else 100
             jobs.append(entry)
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: shell.job_mark.visible and shell.job_mark.width > 0)
         mark = shell.job_mark
         # " 10%|20% ": the first segment and the space before it, then the
         # separator with the second, and the space after it.
@@ -193,12 +194,12 @@ def test_background_takes_the_box_down_and_the_end_is_toasted(two, monkeypatch):
         strip_x = shell.window_strip.x
         put_cursor(shell.manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
         await wait_for(lambda: isinstance(app.modal, DeleteProgress))
         app.post_event(KeyEvent("enter"))
         await wait_for(lambda: bool(BACKGROUND.jobs))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is None and shell.job_mark.visible)
         seen = {
             "modal": app.modal,
             "visible": shell.job_mark.visible,
@@ -246,7 +247,7 @@ def test_a_question_waits_in_the_background_until_the_box_is_back(two, monkeypat
         manager._answer_erase_question = answer
         put_cursor(manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
         await wait_for(lambda: isinstance(app.modal, DeleteProgress))
         app.post_event(KeyEvent("enter"))
@@ -274,10 +275,10 @@ def test_a_click_on_a_toast_takes_it_away(two):
     async def steps(app, shell):
         first = shell.toast("one", title="Copy")
         second = shell.toast("two", title="Erase")
-        await asyncio.sleep(0.05)
+        await handled(app)
         stacked = (first.y, second.y, second.x + second.width)
         await second.on_mouse_click(MouseClickEvent(0, 0, button="left"))
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: second not in toasts(shell) and not app.busy)
         return stacked, toasts(shell), first.y
 
     (first_y, second_y, right), left, moved = run_shell(a, b, steps)
@@ -321,11 +322,11 @@ def test_quitting_with_work_in_the_background_asks_and_stops_it(two, monkeypatch
     async def main():
         app = Navigator(a, b, terminal=FakeTerminal(80, 24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.2)
+        await started(app, app.manager.left, app.manager.right)
         try:
             put_cursor(app.shell.manager.left, "one.txt")
             app.post_event(KeyEvent("f8"))
-            await asyncio.sleep(0.06)
+            await wait_until(lambda: isinstance(app.modal, DeleteDialog))
             app.post_event(KeyEvent("enter"))
             await wait_for(lambda: isinstance(app.modal, DeleteProgress))
             app.post_event(KeyEvent("enter"))
@@ -379,7 +380,8 @@ def test_with_one_away_the_command_brings_it_back_at_once(two):
     async def steps(app, shell):
         entry = BACKGROUND.add(object(), "Copy")
         await app.run_command(ShowBackground)
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: entry.recalled.is_set())
+        await handled(app)
         return app.modal, entry.recalled.is_set()
 
     assert run_shell(a, b, steps) == (None, True)
@@ -395,7 +397,7 @@ def test_an_end_in_the_box_is_not_toasted(two, monkeypatch, recalled):
     async def steps(app, shell):
         put_cursor(shell.manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
         await wait_for(lambda: isinstance(app.modal, DeleteProgress))
         if recalled:

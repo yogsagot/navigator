@@ -22,7 +22,7 @@ from navkit.stylesheet import parse
 from navkit.terminal import HIDE_CURSOR, SHOW_CURSOR
 from navkit.widget import Widget
 
-from conftest import FakeTerminal, RecordingWidget, run_app
+from conftest import FakeTerminal, RecordingWidget, run_app, started, wait_until
 
 
 def test_run_starts_and_restores_the_terminal(terminal):
@@ -280,12 +280,12 @@ def test_max_fps_throttles_repaints(terminal):
         app = Application(root, terminal=terminal, max_fps=20)
 
         async def driver():
-            await asyncio.sleep(0.01)
+            await wait_until(lambda: app.is_running)
             for index in range(4):
                 root.fill_char = str(index)
                 app.invalidate()
                 await asyncio.sleep(0)  # let the loop paint between changes
-            await asyncio.sleep(0.06)
+            await wait_until(lambda: len(terminal.frames) >= 2)
             app.exit()
 
         task = asyncio.ensure_future(driver())
@@ -790,7 +790,7 @@ def test_a_tick_already_queued_when_cancelled_is_dropped(terminal):
 
     async def main():
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.02)
+        await started(app)
         repeat._fire(asyncio.get_running_loop())  # a tick lands in the queue
         repeat.cancel()  # ...and its owner lets go before it is dispatched
         await asyncio.sleep(0.02)

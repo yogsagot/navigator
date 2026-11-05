@@ -9,7 +9,7 @@ import threading
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, run_app, wait_until
 
 from navkit import notify as navkit_notify
 from navkit.application import Application
@@ -21,6 +21,7 @@ from navkit.widget import Widget
 from navigator.lib.system import notify
 from navigator.lib.system.background import BACKGROUND
 from navigator.settings import SETTINGS
+from navigator.widgets.file_ops.delete_dialog import DeleteDialog
 from navigator.widgets.file_ops.delete_progress import DeleteProgress
 
 from test_background_jobs import held_erase, put_cursor, run_shell, two, wait_for  # noqa: F401
@@ -141,7 +142,7 @@ def test_notify_send_runs_on_the_loop(monkeypatch):
         app = Application(Widget(), terminal=FakeTerminal())
         app._loop = asyncio.get_running_loop()
         assert navkit_notify.send(app, "Copy", "Finished", "notify-send", app_name="Navigator")
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: bool(calls))
 
     asyncio.run(main())
     assert calls[0][0] == ("notify-send", "--app-name=Navigator", "--", "Copy", "Finished")
@@ -192,7 +193,13 @@ def notifications_setting():
     SETTINGS.system.notifications = keep
 
 
-def erase_and_wait(a, b, monkeypatch, focused, *, question=False):
+def erase_and_wait(a, b, monkeypatch, focused, *, told, question=False):
+    """An erase held until the box is sent away (or its question waits), then
+    let finish: what the terminal had been told while the question waited, and
+    by the end.  *told* is how many the caller expects by the end: they are
+    waited for, not slept for, since the last is sent after the job's thread
+    ends -- later still on a loaded machine.  None expected cannot be waited
+    for, so a short settle stands in; a slow one could only make that pass."""
     release = threading.Event()
     answers: list = []
     ask_now = threading.Event()
@@ -208,7 +215,7 @@ def erase_and_wait(a, b, monkeypatch, focused, *, question=False):
         manager._answer_erase_question = answer
         put_cursor(manager.left, "one.txt")
         app.post_event(KeyEvent("f8"))
-        await asyncio.sleep(0.06)
+        await wait_for(lambda: isinstance(app.modal, DeleteDialog))
         app.post_event(KeyEvent("enter"))
         await wait_for(lambda: isinstance(app.modal, DeleteProgress))
         if focused is not None:
@@ -219,7 +226,7 @@ def erase_and_wait(a, b, monkeypatch, focused, *, question=False):
             await wait_for(lambda: bool(BACKGROUND.jobs))
             ask_now.set()
             await wait_for(lambda: BACKGROUND.asking)
-            await asyncio.sleep(0.3)
+            await wait_for(lambda: bool(app.terminal.notifications))
             asked = list(app.terminal.notifications)
             BACKGROUND.recall()
             await wait_for(lambda: bool(answers))
@@ -227,7 +234,10 @@ def erase_and_wait(a, b, monkeypatch, focused, *, question=False):
             asked = []
         release.set()
         await wait_for(lambda: app.modal is None and not BACKGROUND.jobs)
-        await asyncio.sleep(0.1)
+        if told:
+            await wait_for(lambda: len(app.terminal.notifications) >= told)
+        else:
+            await asyncio.sleep(0.1)
         return asked, list(app.terminal.notifications)
 
     return run_shell(a, b, steps)
@@ -236,7 +246,7 @@ def erase_and_wait(a, b, monkeypatch, focused, *, question=False):
 def test_a_long_job_tells_a_terminal_in_the_background_it_ended(two, monkeypatch, notifications_setting):
     a, b = two
     SETTINGS.system.notifications = "auto"
-    _, told = erase_and_wait(a, b, monkeypatch, focused=False)
+    _, told = erase_and_wait(a, b, monkeypatch, focused=False, told=1)
     assert told == [("Erase", "Finished: Erase one.txt", "osc9")]
 
 
@@ -244,19 +254,19 @@ def test_a_long_job_tells_a_terminal_in_the_background_it_ended(two, monkeypatch
 def test_a_watched_or_unknown_terminal_is_not_told(two, monkeypatch, notifications_setting, focused):
     a, b = two
     SETTINGS.system.notifications = "auto"
-    assert erase_and_wait(a, b, monkeypatch, focused=focused)[1] == []
+    assert erase_and_wait(a, b, monkeypatch, focused=focused, told=0)[1] == []
 
 
 def test_off_tells_no_one(two, monkeypatch, notifications_setting):
     a, b = two
     SETTINGS.system.notifications = "off"
-    assert erase_and_wait(a, b, monkeypatch, focused=False)[1] == []
+    assert erase_and_wait(a, b, monkeypatch, focused=False, told=0)[1] == []
 
 
 def test_a_question_waiting_is_told_of_once(two, monkeypatch, notifications_setting):
     a, b = two
     SETTINGS.system.notifications = "terminal"
-    asked, told = erase_and_wait(a, b, monkeypatch, focused=False, question=True)
+    asked, told = erase_and_wait(a, b, monkeypatch, focused=False, question=True, told=2)
     assert asked == [("Erase", "Waiting for an answer: Erase one.txt", "osc9")]
     assert told == asked + [("Erase", "Finished: Erase one.txt", "osc9")]
 

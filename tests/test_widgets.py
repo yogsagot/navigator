@@ -97,7 +97,7 @@ def test_every_widget_declares_the_parts_it_paints(name, cls):
 
 import asyncio                                            # noqa: E402
 
-from conftest import FakeTerminal                         # noqa: E402
+from conftest import FakeTerminal, handled, started, wait_until  # noqa: E402
 from navkit.application import Application                # noqa: E402
 from navkit.events import KeyEvent                        # noqa: E402
 from navml.widgets import Button, Dialog, Label, StaticText, Window  # noqa: E402
@@ -118,14 +118,14 @@ def shown(keys=(), **kwargs):
         terminal = FakeTerminal(width=60, height=16)
         app = Application(root, terminal=terminal)
         loop = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.03)
+        await started(app)
         dialog = Dialog(**kwargs)
         job = app.spawn(dialog.execute(app))
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: app.modal is dialog and len(terminal.frames) > 1)
         frames_while_up.append(terminal.frames[-1])
         for key in keys:
             app.post_event(key)
-            await asyncio.sleep(0.02)
+            await handled(app)
         result.append(await asyncio.wait_for(job, 1))
         app.exit()
         await loop
@@ -197,10 +197,10 @@ def test_a_dialog_refuses_to_be_awaited_from_a_handler():
         root.can_focus = True
         app = Application(root, terminal=FakeTerminal(40, 10))
         loop = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.03)
+        await started(app)
         root.focus()
         app.post_event(KeyEvent(key="f1"))
-        await asyncio.sleep(0.05)
+        await wait_until(lambda: bool(caught))
         app.exit()
         await loop
 

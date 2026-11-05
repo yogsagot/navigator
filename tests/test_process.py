@@ -20,6 +20,8 @@ from navkit.process import MARKER, PtyProcess
 from navkit.style import RED
 from navkit.terminal import encode_key
 
+from conftest import wait_until
+
 
 def run(coro, timeout: float = 10.0):
     return asyncio.run(asyncio.wait_for(coro, timeout))
@@ -121,14 +123,14 @@ def test_resizing_signals_the_child():
         finished = asyncio.Event()
         process = PtyProcess(
             # Report the size again whenever the kernel says it changed.
-            ["/bin/sh", "-c", "trap 'stty size; exit 0' WINCH; sleep 5 & wait"],
+            ["/bin/sh", "-c", "trap 'stty size; exit 0' WINCH; echo ready; sleep 5 & wait"],
             columns=40,
             lines=6,
             on_output=console.feed,
             on_exit=lambda status: finished.set(),
         )
         process.start()
-        await asyncio.sleep(0.4)
+        await wait_until(lambda: "ready" in "\n".join(text_of(console, y) for y in range(6)))
         process.set_size(30, 9)
         await finished.wait()
         return console
@@ -146,7 +148,7 @@ def test_a_child_can_be_terminated():
             on_exit=lambda status: finished.set(),
         )
         process.start()
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: process.is_running)
         process.terminate()
         await finished.wait()
         return process

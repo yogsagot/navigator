@@ -12,7 +12,7 @@ from navml.widgets.dialog.date_button import Calendar, DateButton
 from navml.widgets.dialog.date_button.date_button import add_months
 from navml.widgets.dialog.time_button import TimeButton, TimePicker
 
-from conftest import FakeTerminal
+from conftest import FakeTerminal, handled, started, wait_until
 from navkit.application import Application
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.date_field import DateField
@@ -231,9 +231,9 @@ def run_dialog(steps):
 
         app = Application(Widget(), terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.05)
+        await started(app)
         app.overlay(dialog)
-        await asyncio.sleep(0.03)
+        await handled(app)
         try:
             return await steps(app, dialog, date, time)
         finally:
@@ -248,22 +248,22 @@ def test_alt_down_drops_the_picker_on_the_lines_value_and_enter_writes_it_back()
         date.value = "28-02-2026"
         date.entry.focus()
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         calendar = app.modal
         after_down = type(calendar).__name__
         opened_on = calendar.day
         app.post_event(KeyEvent("right"))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is dialog and date.value != "28-02-2026")
         time.value = "garbage"
         time.entry.focus()
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         face = app.modal
         for c in "081500":
             app.post_event(KeyEvent(c, c))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is dialog and time.value != "garbage")
         return after_down, opened_on, date.value, type(face).__name__, time.value, app.modal
 
     after_down, opened_on, date_text, face, time_text, modal = run_dialog(steps)
@@ -280,12 +280,12 @@ def test_a_12_hour_line_drops_a_12_hour_face_and_gets_am_or_pm_back():
         time.value = "09:05:07pm"
         time.entry.focus()
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         face = app.modal
         opened = (face.twelve, face.values, face.width)
         app.post_event(KeyEvent("a", "a"))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is dialog and time.value != "09:05:07pm")
         return opened, time.value
 
     opened, text = run_dialog(steps)
@@ -299,7 +299,7 @@ def test_the_dropped_calendar_spells_the_day_in_the_line_s_format():
         date.value = "2026-02-28"
         date.entry.focus()
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         calendar = app.modal
         return calendar.height, calendar.date_format, calendar_rows(calendar)[9].strip("│ ")
 
@@ -313,7 +313,7 @@ def test_esc_leaves_the_line_as_it_was():
         app.post_event(KeyEvent("down", alt=True))
         app.post_event(KeyEvent("pagedown"))
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return date.value, type(app.modal).__name__
 
     assert run_dialog(steps) == ("01-01-2026", "Dialog")
@@ -324,7 +324,7 @@ def test_a_click_on_the_button_drops_it_where_it_fits():
         button = date.picker
         dx, dy = button.offset()
         app.post_event(MouseClickEvent(dx + button.x + 1, dy + button.y, "left"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         popup = app.modal
         line = date.entry
         lx, ly = line.offset()
@@ -367,13 +367,13 @@ def run_calendar(steps):
 
         app = Application(Widget(), terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.05)
+        await started(app)
         app.overlay(dialog)
-        await asyncio.sleep(0.03)
+        await handled(app)
         date.value = "15-10-2026"
         date.entry.focus()
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         try:
             return await steps(app, app.modal, date)
         finally:
@@ -386,16 +386,16 @@ def run_calendar(steps):
 def test_y_drops_the_years_typing_finds_one_and_a_pick_returns_to_the_days():
     async def steps(app, calendar, date):
         app.post_event(KeyEvent("y", "y"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar)
         years = app.modal
         opened = (type(years).__name__, years.selected, calendar.section)
         for c in "1985":
             app.post_event(KeyEvent(c, c))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is calendar and calendar.day != datetime.date(2026, 10, 15))
         picked = (app.modal is calendar, calendar.day, calendar.section)
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar and date.value != "15-10-2026")
         return opened, picked, date.value
 
     opened, picked, value = run_calendar(steps)
@@ -409,13 +409,13 @@ def test_a_click_on_the_month_drops_the_months_on_the_one_shown():
         (mx, _), _ = calendar.title_spans()
         cx, cy = calendar.offset()
         app.post_event(MouseClickEvent(cx + calendar.x + mx + 1, cy + calendar.y + 1, "left"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar)
         months = app.modal
         seen = (type(months).__name__, len(months.items), months.selected)
         for c in "mar":
             app.post_event(KeyEvent(c, c))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is calendar and calendar.day != datetime.date(2026, 10, 15))
         return seen, calendar.day, months.footer_text()
 
     (kind, count, selected), day, _ = run_calendar(steps)
@@ -428,7 +428,7 @@ def test_esc_on_a_list_leaves_the_calendar_as_it_was():
         app.post_event(KeyEvent("m", "m"))
         app.post_event(KeyEvent("down"))
         app.post_event(KeyEvent("escape"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return app.modal is calendar, calendar.day
 
     assert run_calendar(steps) == (True, datetime.date(2026, 10, 15))
@@ -512,14 +512,14 @@ def test_typing_in_the_date_field_and_then_the_calendar_agree():
         for c in "15":
             app.post_event(KeyEvent(c, c))
         app.post_event(KeyEvent("down", alt=True))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not dialog)
         calendar = app.modal
         day = calendar.day
         app.post_event(KeyEvent("right"))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is dialog and date.value != "15-10-2026")
         app.post_event(KeyEvent("0", "0"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return day, date.value
 
     day, value = run_dialog(steps)
@@ -644,7 +644,7 @@ def test_plain_down_in_a_date_field_steps_rather_than_dropping_the_calendar():
         date.entry.focus()
         date.entry.select_all()
         app.post_event(KeyEvent("down"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return type(app.modal).__name__, date.value
 
     # The caret is on the day's tens: ten days back, across into September.
@@ -668,13 +668,13 @@ def test_pgup_and_pgdn_step_by_ten_times_the_place():
         app.post_event(KeyEvent("right"))
         app.post_event(KeyEvent("pageup"))
         time.value = "10:00:00"
-        await asyncio.sleep(0.03)
+        await handled(app)
         after_date = date.value
         time.entry.focus()
         time.entry.select_all()
         for key in ("right", "right", "right", "pagedown"):
             app.post_event(KeyEvent(key))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return after_date, time.value
 
     assert run_dialog(steps) == ("11-10-2026", "09:50:00")
@@ -711,16 +711,16 @@ def test_home_and_end_on_the_month_and_the_year():
 def test_home_and_end_in_the_year_list_go_to_its_ends():
     async def steps(app, calendar, date):
         app.post_event(KeyEvent("y", "y"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar)
         years = app.modal
         app.post_event(KeyEvent("end"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         last = years.selected
         app.post_event(KeyEvent("home"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         first = years.selected
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is calendar and calendar.day != datetime.date(2026, 10, 15))
         return first, last, calendar.day
 
     first, last, day = run_calendar(steps)
@@ -731,16 +731,16 @@ def test_home_and_end_in_the_year_list_go_to_its_ends():
 def test_home_and_end_in_the_month_list_go_to_january_and_december():
     async def steps(app, calendar, date):
         app.post_event(KeyEvent("m", "m"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar)
         months = app.modal
         app.post_event(KeyEvent("end"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         last = months.selected
         app.post_event(KeyEvent("home"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         first = months.selected
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is calendar and calendar.day != datetime.date(2026, 10, 15))
         return first, last, calendar.day
 
     first, last, day = run_calendar(steps)
@@ -762,11 +762,11 @@ def test_a_click_outside_the_calendar_closes_it_and_leaves_the_dialog():
         # Inside the dialog, past the calendar.
         x, y = dialog.x + dialog.width - 3, dialog.y + 1
         app.post_event(press(x, y))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is dialog and not app.busy)
         first = app.modal is dialog, date.value
         # Outside everything: the dialog is the outermost and stays.
         app.post_event(press(0, 0))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return first, app.modal is dialog
 
     assert run_calendar(steps) == ((True, "15-10-2026"), True)
@@ -775,10 +775,10 @@ def test_a_click_outside_the_calendar_closes_it_and_leaves_the_dialog():
 def test_a_click_outside_a_list_over_the_calendar_closes_only_the_list():
     async def steps(app, calendar, date):
         app.post_event(KeyEvent("m", "m"))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is not calendar)
         months = app.modal
         app.post_event(press(0, 0))
-        await asyncio.sleep(0.03)
+        await wait_until(lambda: app.modal is calendar)
         return type(months).__name__, app.modal is calendar
 
     assert run_calendar(steps) == ("HistoryList", True)
@@ -788,7 +788,7 @@ def test_the_wheel_and_a_release_outside_dismiss_nothing():
     async def steps(app, calendar, date):
         app.post_event(MouseClickEvent(0, 0, "wheel_up", "press"))
         app.post_event(MouseClickEvent(0, 0, "left", "release"))
-        await asyncio.sleep(0.03)
+        await handled(app)
         return app.modal is calendar
 
     assert run_calendar(steps) is True
@@ -808,16 +808,16 @@ def test_a_dialog_cancels_on_a_click_outside_only_where_it_says_so():
         inner = Dialog(modal_width=20, modal_height=6, close_on_outside_click=True)
         app = Application(Widget(), terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.05)
+        await started(app)
         try:
             app.overlay(outer)
             app.overlay(inner)
-            await asyncio.sleep(0.03)
+            await handled(app)
             app.post_event(press(0, 0))
-            await asyncio.sleep(0.03)
+            await wait_until(lambda: app.modal is outer)
             first = app.modal is outer, inner.result, inner.is_mounted
             app.post_event(press(0, 0))
-            await asyncio.sleep(0.03)
+            await handled(app)
             return first, app.modal is outer
         finally:
             app.exit()

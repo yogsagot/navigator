@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, settle
+from conftest import FakeTerminal, settle, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent
@@ -181,7 +181,7 @@ def run_shell(a: Path, b: Path, steps):
         shell = Shell(a, b)
         app = Application(shell, terminal=FakeTerminal(width=80, height=24))
         task = asyncio.create_task(app.run_async())
-        await asyncio.sleep(0.1)
+        await started(app, shell.manager.left, shell.manager.right)
         try:
             return await steps(app, shell.manager)
         finally:
@@ -213,7 +213,7 @@ def test_shift_f5_links_into_the_other_panel(two):
         start = len(app.terminal.frames)
         app.post_event(KeyEvent("f5", shift=True))
         await until(lambda: isinstance(app.modal, LinkDialog))
-        await asyncio.sleep(0.06)  # painted
+        await wait_until(lambda: " Create link " in "".join(app.terminal.frames[start:]))
         opened = app.modal
         # Every frame since the key, not the last: the clock may have
         # repainted its corner after the dialog's.
@@ -236,10 +236,10 @@ def test_tagged_entries_are_each_linked_relatively_and_untagged(two):
     async def steps(app, manager):
         manager.left.marked = frozenset({"one.txt", "two.txt"})
         app.post_event(KeyEvent("f5", shift=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, LinkDialog))
         app.modal.options.value = RELATIVE
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is None and not manager.left.marked)
         return manager.left.marked
 
     marked = run_shell(a, b, steps)
@@ -273,13 +273,13 @@ def test_a_link_in_the_way_asks_to_skip(two):
     async def steps(app, manager):
         put_cursor(manager.left, "one.txt")
         app.post_event(KeyEvent("f5", shift=True))
-        await asyncio.sleep(0.06)
+        await wait_until(lambda: isinstance(app.modal, LinkDialog))
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.2)
+        await wait_until(lambda: app.modal is not None and not isinstance(app.modal, LinkDialog) and "exists" in app.terminal.painted)
         asked = app.modal
         painted = app.terminal.painted
         app.post_event(KeyEvent("enter"))
-        await asyncio.sleep(0.1)
+        await wait_until(lambda: app.modal is None)
         return asked, painted, app.modal
 
     asked, painted, after = run_shell(a, b, steps)
