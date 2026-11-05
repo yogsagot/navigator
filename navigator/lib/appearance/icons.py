@@ -132,6 +132,8 @@ BY_TYPE = {
 #: The editor's and viewer's options on their option strip (``OptionStrip``),
 #: at the Nerd tier.  Font Awesome 4, at the same codepoints in Nerd Fonts 2
 #: and 3; every one checked present in JetBrainsMono Nerd Font.
+#: A panel's title on a read-only file system (``Panel.title_text``).
+READ_ONLY = "\uf023"         # nf-fa-lock
 OPTION_STREAM_BLOCKS = "\uf07e"    # nf-fa-arrows_h
 OPTION_COLUMN_BLOCKS = "\uf07d"    # nf-fa-arrows_v
 OPTION_INSERT = "\uf246"     # nf-fa-i_cursor

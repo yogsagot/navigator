@@ -785,6 +785,43 @@ def test_a_panel_title_that_says_it_all_has_no_tooltip(place):
     assert seen == [""]
 
 
+def test_a_read_only_file_system_is_marked_in_the_title_and_said_in_its_tooltip(place, monkeypatch):
+    import os
+
+    from navigator.__main__ import Navigator
+    from navigator.widgets.manager.panel import panel as panel_module
+
+    ro = place / "one"
+    real = os.statvfs
+
+    class Mounted:
+        """The real figures, the flags read-only on *ro*."""
+
+        def __init__(self, path):
+            self._real = real(path)
+            self.f_flag = os.ST_RDONLY if os.fspath(path) == str(ro) else self._real.f_flag
+
+        def __getattr__(self, name):
+            return getattr(self._real, name)
+
+    monkeypatch.setattr(panel_module.os, "statvfs", Mounted)
+    app = Navigator(ro, place / "two", terminal=FakeTerminal(240, 30))
+    seen = {}
+
+    def look(a):
+        left, right = a.manager.left, a.manager.right
+        seen["left"], seen["right"] = left.title_text(), right.title_text()
+        seen["tip"] = left.tooltip_at(left.label_x(seen["left"]) + 1, 0)
+        seen["mark"] = left.read_only_mark()
+
+    run_app(app, [look])
+    assert seen["left"] == f" {ro} {seen['mark']} "
+    assert seen["mark"] not in seen["right"]
+    # A widget with no terminal to ask draws at the Unicode tier.
+    assert panel_module.Panel.read_only_mark(panel_module.Panel(place)) == "[R/O]"
+    assert seen["tip"] == "A read-only file system: nothing here can be changed"
+
+
 # -- the character tables --------------------------------------------------------
 
 

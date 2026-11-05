@@ -37,6 +37,11 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   `Manager.on_go_parent` swallows it while `CommandLine.holds_backspace()` says it is within `BACKSPACE_RUN` (0.6 s)
   of the last one the line took or swallowed; each swallowed one restarts the wait, so a held key never gets through.
 - **Enter on an executable runs it**; Ctrl+Enter inserts the name (see `console-command-line`).
+- **A read-only file system is marked in the title**: `path [R/O] [mask]` (`read_only_mark`: a lock, `icons.READ_ONLY`
+  nf-fa-lock, at the Nerd tier), and the title's tooltip says *A read-only file system: nothing here can be changed*.
+  `Panel.read_only` comes with each read: `_read_location` asks `_is_read_only` (`os.statvfs`'s `ST_RDONLY`) on the
+  scan thread, the disk only and never over a *Find:* listing; `_apply` takes it as a fourth value. A departure, made
+  for mounted disk images and CDs. Test: `tests/test_tooltip.py`.
 - **Enter on a disk image mounts it** (`.iso`/`.img`, `udisks.is_image_name`; a departure, DOS had no loop devices):
   `Panel._may_mount_image` -- `[file_manager] enter_mounts_images` (File Manager Setup's *ENTER mounts disc images*,
   default on), the local disk outside an archive, a regular file, `udisks.program()` -- is asked before

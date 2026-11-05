@@ -945,7 +945,7 @@ flag = "JP"
 "~C~ompare directories" = "ディレクトリ比較(~C~)"
 # navigator/widgets/manager/manager/manager.nml:194
 "Tag what each panel has that the other lacks or has older" = "相手側にない、または相手側が古いファイルをマークします"
-# navigator/widgets/manager/manager/manager.nml:197, navigator/widgets/manager/panel/panel.py:1903
+# navigator/widgets/manager/manager/manager.nml:197, navigator/widgets/manager/panel/panel.py:1923
 "Count directory len~g~th" = "ディレクトリサイズを計算(~G~)"
 # navigator/widgets/manager/manager/manager.nml:198
 "Add up the bytes under the selected directories" = "選択したディレクトリ内のバイト数を合計します"
@@ -981,13 +981,13 @@ flag = "JP"
 "Selectio~n~" = "選択(~N~)"
 # navigator/widgets/manager/manager/manager.nml:253
 "Select or unselect files by a mask, or filter them" = "マスクでファイルを選択・解除、または絞り込み"
-# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1908
+# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1928
 "Select grou~p~..." = "グループ選択(~P~)..."
-# navigator/widgets/manager/manager/manager.nml:259, navigator/widgets/manager/panel/panel.py:1909
+# navigator/widgets/manager/manager/manager.nml:259, navigator/widgets/manager/panel/panel.py:1929
 "~U~nselect group..." = "グループ選択解除(~U~)..."
-# navigator/widgets/manager/manager/manager.nml:263, navigator/widgets/manager/panel/panel.py:1910
+# navigator/widgets/manager/manager/manager.nml:263, navigator/widgets/manager/panel/panel.py:1930
 "In~v~ert selection" = "選択を反転(~V~)"
-# navigator/widgets/manager/manager/manager.nml:267, navigator/widgets/manager/panel/panel.py:1911
+# navigator/widgets/manager/manager/manager.nml:267, navigator/widgets/manager/panel/panel.py:1931
 "Select all files" = "すべてのファイルを選択"
 # navigator/widgets/manager/manager/manager.nml:268
 "Select every file and directory in this panel" = "このパネルのすべてのファイルとディレクトリを選択します"
@@ -1207,7 +1207,7 @@ flag = "JP"
 "R~e~verse" = "反転(~E~)"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "ドライブ(~D~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:2796
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:2831
 "Links" = "リンク数"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "所有者"
@@ -1931,9 +1931,9 @@ flag = "JP"
 "Replace in files..." = "ファイル内置換..."
 # navigator/widgets/shell/main_menu/main_menu.nml:182
 "Find files holding a text and replace it in them, file by file" = "文字列を含むファイルを探し、ファイルごとに確認して置換します"
-# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1871
+# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1891
 "~C~opy..." = "コピー(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1872
+# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1892
 "~R~ename/Move..." = "名前変更/移動(~R~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:197
 "Rename ~t~ools" = "名前変更ツール(~T~)"
@@ -1959,7 +1959,7 @@ flag = "JP"
 "Create arch~i~ve..." = "アーカイブ作成(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:233
 "Ex~t~ract archive..." = "アーカイブを展開(~T~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:240, navigator/widgets/manager/panel/panel.py:1896
+# navigator/widgets/shell/main_menu/main_menu.nml:240, navigator/widgets/manager/panel/panel.py:1916
 "E~x~tract to..." = "展開(~X~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:244, navigator/widgets/manager/manager/manager.py:1299
 "Test archive" = "アーカイブのテスト"
@@ -1997,13 +1997,13 @@ flag = "JP"
 "Cut the file into parts of a given size, or put a split file back together" = "ファイルを指定サイズの部分に分割する、または分割されたファイルを元に戻す"
 # navigator/widgets/shell/main_menu/main_menu.nml:291
 "Compare fi~l~es..." = "ファイルの比較(~L~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:298, navigator/widgets/manager/panel/panel.py:1904
+# navigator/widgets/shell/main_menu/main_menu.nml:298, navigator/widgets/manager/panel/panel.py:1924
 "~M~ake directory" = "ディレクトリ作成(~M~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:311, navigator/widgets/manager/panel/panel.py:1857
+# navigator/widgets/shell/main_menu/main_menu.nml:311, navigator/widgets/manager/panel/panel.py:1877
 "Restore from Tras~h~" = "ごみ箱から復元(~H~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:312
 "Put the selected files back where they were deleted from" = "選択したファイルを削除前の場所に戻します"
-# navigator/widgets/shell/main_menu/main_menu.nml:316, navigator/widgets/manager/panel/panel.py:1883
+# navigator/widgets/shell/main_menu/main_menu.nml:316, navigator/widgets/manager/panel/panel.py:1903
 "File ~A~ttributes..." = "ファイル属性(~A~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:317
 "Permissions, owner, group, dates, ACLs and extended attributes" = "アクセス権、所有者、グループ、日付、ACL、拡張属性"
@@ -2835,7 +2835,7 @@ flag = "JP"
 "Size: ~not counted~" = "サイズ: ~未計算~"
 # navigator/lib/system/diskinfo.py:238
 "Size: ~{n:,}~ byte" = ["サイズ: ~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2389
+# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2424
 "~{n:,}~ byte" = ["~{n:,}~ バイト"]
 # navigator/lib/system/diskinfo.py:232
 "Name: ~{name}~" = "名前: ~{name}~"
@@ -2865,7 +2865,7 @@ flag = "JP"
 "Links: ~{links}~, inode ~{inode}~" = "リンク: ~{links}~、inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
 "Link to: ~{target}~" = "リンク先: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2385
+# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2420
 "No files in this directory" = "このディレクトリにファイルはありません"
 # navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ 個のファイル、計 {total}"]
@@ -2915,7 +2915,7 @@ flag = "JP"
 "The process has ended" = "プロセスは終了しました"
 # navigator/lib/system/processes.py:401
 "Process" = "プロセス"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2791 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2826 ...
 "Name" = "名前"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:126
 "Command" = "コマンド"
@@ -3521,7 +3521,7 @@ flag = "JP"
 "{n} file" = ["{n} 個のファイル"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["{n} 個のディレクトリ"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2411, navigator/widgets/manager/panel/panel.py:2526 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2446, navigator/widgets/manager/panel/panel.py:2561 ...
 "{n:,} byte" = ["{n:,} バイト"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<相違>"
@@ -3757,7 +3757,7 @@ flag = "JP"
 "Ren" = "改名"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "リンク"
-# navigator/widgets/manager/commands.py:133, navigator/widgets/manager/panel/panel.py:2795
+# navigator/widgets/manager/commands.py:133, navigator/widgets/manager/panel/panel.py:2830
 "Attr" = "属性"
 # navigator/widgets/manager/commands.py:137
 "MkDir" = "作成"
@@ -4125,93 +4125,97 @@ flag = "JP"
 "View mode: simple, detailed or list" = "表示モード: 簡易、詳細、一覧"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "並べ替え順"
-# navigator/widgets/manager/panel/panel.py:2412
+# navigator/widgets/manager/panel/panel.py:2447
 "~{total} in {n}~ selected file" = ["~{n} 個の選択ファイルに {total}~"]
-# navigator/widgets/manager/panel/panel.py:1890
+# navigator/widgets/manager/panel/panel.py:1910
 "Paste from clip~b~oard" = "クリップボードから貼り付け(~B~)"
-# navigator/widgets/manager/panel/panel.py:1915
+# navigator/widgets/manager/panel/panel.py:1935
 "~I~nsert name" = "名前を挿入(~I~)"
-# navigator/widgets/manager/panel/panel.py:1916
+# navigator/widgets/manager/panel/panel.py:1936
 "Insert pa~t~h" = "パスを挿入(~T~)"
-# navigator/widgets/manager/panel/panel.py:2409
+# navigator/widgets/manager/panel/panel.py:2444
 "No files selected" = "選択されたファイルはありません"
-# navigator/widgets/manager/panel/panel.py:2515, navigator/widgets/manager/panel/panel.py:2399
+# navigator/widgets/manager/panel/panel.py:2550, navigator/widgets/manager/panel/panel.py:2434
 "~{n:,}~ free byte on ~{mount}" = ["~{n:,}~ バイト空き: ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1521
+# navigator/widgets/manager/panel/panel.py:1476
+"A read-only file system: nothing here can be changed" = "読み取り専用のファイルシステムです: ここでは何も変更できません"
+# navigator/widgets/manager/panel/panel.py:1541
 "The file's name" = "ファイルの名前"
-# navigator/widgets/manager/panel/panel.py:1522
+# navigator/widgets/manager/panel/panel.py:1542
 "The file's size" = "ファイルのサイズ"
-# navigator/widgets/manager/panel/panel.py:1523
+# navigator/widgets/manager/panel/panel.py:1543
 "The size packed in the archive" = "アーカイブ内の圧縮サイズ"
-# navigator/widgets/manager/panel/panel.py:1524
+# navigator/widgets/manager/panel/panel.py:1544
 "The packed size as a percentage of the original" = "元のサイズに対する圧縮サイズの割合"
-# navigator/widgets/manager/panel/panel.py:1525
+# navigator/widgets/manager/panel/panel.py:1545
 "Permissions: the owner's, the group's and others'" = "アクセス権: 所有者、グループ、その他"
-# navigator/widgets/manager/panel/panel.py:1526
+# navigator/widgets/manager/panel/panel.py:1546
 "How many names the file has: its hard links" = "ファイルの名前の数（ハードリンク数）"
-# navigator/widgets/manager/panel/panel.py:1527
+# navigator/widgets/manager/panel/panel.py:1547
 "The owner and group" = "所有者とグループ"
-# navigator/widgets/manager/panel/panel.py:1528
+# navigator/widgets/manager/panel/panel.py:1548
 "When the file was last modified" = "最終更新日時"
-# navigator/widgets/manager/panel/panel.py:1625
+# navigator/widgets/manager/panel/panel.py:1645
 "Search:" = "検索:"
-# navigator/widgets/manager/panel/panel.py:1852
+# navigator/widgets/manager/panel/panel.py:1872
 "Go to ~f~ile" = "ファイルへ移動(~F~)"
-# navigator/widgets/manager/panel/panel.py:1853
-"Show in ~o~ther panel" = "反対側のパネルに表示(~O~)"
-# navigator/widgets/manager/panel/panel.py:1861
-"Vie~w~" = "表示(~W~)"
 # navigator/widgets/manager/panel/panel.py:1873
-"Create link~s~..." = "リンク作成(~S~)..."
-# navigator/widgets/manager/panel/panel.py:1888
-"Cop~y~ to clipboard" = "クリップボードにコピー(~Y~)"
-# navigator/widgets/manager/panel/panel.py:1889
-"Cut to c~l~ipboard" = "クリップボードに切り取り(~L~)"
-# navigator/widgets/manager/panel/panel.py:1897
-"Test arc~h~ive" = "アーカイブをテスト(~H~)"
-# navigator/widgets/manager/panel/panel.py:2378
-"Clipboard: ~{n}~ file to move" = ["クリップボード: 移動するファイル ~{n}~ 個"]
-# navigator/widgets/manager/panel/panel.py:2380
-"Clipboard: ~{n}~ file to copy" = ["クリップボード: コピーするファイル ~{n}~ 個"]
-# navigator/widgets/manager/panel/panel.py:2390
-"Total: ~{n:,}~ file with {total}" = ["合計: ~{n:,}~ 個のファイル、{total}"]
-# navigator/widgets/manager/panel/panel.py:2473, navigator/widgets/manager/panel/panel.py:2543
-"From {path}" = "元の場所 {path}"
-# navigator/widgets/manager/panel/panel.py:2541, navigator/widgets/manager/panel/panel.py:2478
-"an unknown place" = "不明な場所"
-# navigator/widgets/manager/panel/panel.py:2762
-"Reading directory..." = "ディレクトリを読み込み中..."
-# navigator/widgets/manager/panel/panel.py:2793, navigator/lib/drives/base.py
-"Packed" = "圧縮"
-# navigator/widgets/manager/panel/panel.py:2794
-"%" = "%"
-# navigator/widgets/manager/panel/panel.py:1459
-"Only files matching {mask} are shown" = "{mask} に一致するファイルのみ表示中"
-# navigator/widgets/manager/panel/panel.py:1470
-"{n} commit ahead of its upstream" = ["上流より {n} コミット先行"]
-# navigator/widgets/manager/panel/panel.py:1472
-"{n} commit behind its upstream" = ["上流より {n} コミット遅れ"]
-# navigator/widgets/manager/panel/panel.py:1868
-"Ope~n~ with..." = "アプリで開く(~N~)..."
-# navigator/widgets/manager/panel/panel.py:1876
-"Edit lin~k~ target..." = "リンク先の編集(~K~)..."
-# navigator/widgets/manager/panel/panel.py:1877
-"Make relative" = "相対パスにする"
-# navigator/widgets/manager/panel/panel.py:1878
-"Make absolute" = "絶対パスにする"
+"Show in ~o~ther panel" = "反対側のパネルに表示(~O~)"
 # navigator/widgets/manager/panel/panel.py:1881
+"Vie~w~" = "表示(~W~)"
+# navigator/widgets/manager/panel/panel.py:1893
+"Create link~s~..." = "リンク作成(~S~)..."
+# navigator/widgets/manager/panel/panel.py:1908
+"Cop~y~ to clipboard" = "クリップボードにコピー(~Y~)"
+# navigator/widgets/manager/panel/panel.py:1909
+"Cut to c~l~ipboard" = "クリップボードに切り取り(~L~)"
+# navigator/widgets/manager/panel/panel.py:1917
+"Test arc~h~ive" = "アーカイブをテスト(~H~)"
+# navigator/widgets/manager/panel/panel.py:2282
+"R/O" = "読取専用"
+# navigator/widgets/manager/panel/panel.py:2413
+"Clipboard: ~{n}~ file to move" = ["クリップボード: 移動するファイル ~{n}~ 個"]
+# navigator/widgets/manager/panel/panel.py:2415
+"Clipboard: ~{n}~ file to copy" = ["クリップボード: コピーするファイル ~{n}~ 個"]
+# navigator/widgets/manager/panel/panel.py:2425
+"Total: ~{n:,}~ file with {total}" = ["合計: ~{n:,}~ 個のファイル、{total}"]
+# navigator/widgets/manager/panel/panel.py:2508, navigator/widgets/manager/panel/panel.py:2578
+"From {path}" = "元の場所 {path}"
+# navigator/widgets/manager/panel/panel.py:2576, navigator/widgets/manager/panel/panel.py:2513
+"an unknown place" = "不明な場所"
+# navigator/widgets/manager/panel/panel.py:2797
+"Reading directory..." = "ディレクトリを読み込み中..."
+# navigator/widgets/manager/panel/panel.py:2828, navigator/lib/drives/base.py
+"Packed" = "圧縮"
+# navigator/widgets/manager/panel/panel.py:2829
+"%" = "%"
+# navigator/widgets/manager/panel/panel.py:1479
+"Only files matching {mask} are shown" = "{mask} に一致するファイルのみ表示中"
+# navigator/widgets/manager/panel/panel.py:1490
+"{n} commit ahead of its upstream" = ["上流より {n} コミット先行"]
+# navigator/widgets/manager/panel/panel.py:1492
+"{n} commit behind its upstream" = ["上流より {n} コミット遅れ"]
+# navigator/widgets/manager/panel/panel.py:1888
+"Ope~n~ with..." = "アプリで開く(~N~)..."
+# navigator/widgets/manager/panel/panel.py:1896
+"Edit lin~k~ target..." = "リンク先の編集(~K~)..."
+# navigator/widgets/manager/panel/panel.py:1897
+"Make relative" = "相対パスにする"
+# navigator/widgets/manager/panel/panel.py:1898
+"Make absolute" = "絶対パスにする"
+# navigator/widgets/manager/panel/panel.py:1901
 "Show hard links" = "ハードリンクを表示"
-# navigator/widgets/manager/panel/panel.py:1900
+# navigator/widgets/manager/panel/panel.py:1920
 "E~x~tract archive..." = "アーカイブを展開(~X~)..."
-# navigator/widgets/manager/panel/panel.py:1446
+# navigator/widgets/manager/panel/panel.py:1464
 "A click sorts by {order}" = "クリックで {order} 順に並べ替え"
-# navigator/widgets/manager/panel/panel.py:2401
+# navigator/widgets/manager/panel/panel.py:2436
 "~{size}~ free on ~{mount}" = "~{size}~ 空き: ~{mount}"
-# navigator/widgets/manager/panel/panel.py:2475, navigator/widgets/manager/panel/panel.py:2544
+# navigator/widgets/manager/panel/panel.py:2510, navigator/widgets/manager/panel/panel.py:2579
 "From {path}, deleted {when}" = "元の場所 {path}、削除日時 {when}"
-# navigator/widgets/manager/panel/panel.py:1466
+# navigator/widgets/manager/panel/panel.py:1486
 "Git work tree, HEAD detached at {commit}" = "Git 作業ツリー、HEAD は {commit} で切り離し"
-# navigator/widgets/manager/panel/panel.py:1468
+# navigator/widgets/manager/panel/panel.py:1488
 "Git work tree, on {branch}" = "Git 作業ツリー、ブランチ {branch}"
 # navigator/widgets/manager/sync_list/sync_list.py:83
 "Left alone" = "そのまま"

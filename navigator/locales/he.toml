@@ -946,7 +946,7 @@ direction = "rtl"
 "~C~ompare directories" = "ה~ש~ווה תיקיות"
 # navigator/widgets/manager/manager/manager.nml:194
 "Tag what each panel has that the other lacks or has older" = "תייג את מה שיש בכל לוח וחסר בשני או ישן יותר בו"
-# navigator/widgets/manager/manager/manager.nml:197, navigator/widgets/manager/panel/panel.py:1903
+# navigator/widgets/manager/manager/manager.nml:197, navigator/widgets/manager/panel/panel.py:1923
 "Count directory len~g~th" = "חשב ~ג~ודל תיקייה"
 # navigator/widgets/manager/manager/manager.nml:198
 "Add up the bytes under the selected directories" = "סכם את הבתים שתחת התיקיות הנבחרות"
@@ -982,13 +982,13 @@ direction = "rtl"
 "Selectio~n~" = "~ב~חירה"
 # navigator/widgets/manager/manager/manager.nml:253
 "Select or unselect files by a mask, or filter them" = "סמן או בטל סימון של קבצים לפי מסכה, או סנן אותם"
-# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1908
+# navigator/widgets/manager/manager/manager.nml:255, navigator/widgets/manager/panel/panel.py:1928
 "Select grou~p~..." = "סמן ~ק~בוצה..."
-# navigator/widgets/manager/manager/manager.nml:259, navigator/widgets/manager/panel/panel.py:1909
+# navigator/widgets/manager/manager/manager.nml:259, navigator/widgets/manager/panel/panel.py:1929
 "~U~nselect group..." = "~ב~טל סימון קבוצה..."
-# navigator/widgets/manager/manager/manager.nml:263, navigator/widgets/manager/panel/panel.py:1910
+# navigator/widgets/manager/manager/manager.nml:263, navigator/widgets/manager/panel/panel.py:1930
 "In~v~ert selection" = "~ה~פוך בחירה"
-# navigator/widgets/manager/manager/manager.nml:267, navigator/widgets/manager/panel/panel.py:1911
+# navigator/widgets/manager/manager/manager.nml:267, navigator/widgets/manager/panel/panel.py:1931
 "Select all files" = "בחר את כל הקבצים"
 # navigator/widgets/manager/manager/manager.nml:268
 "Select every file and directory in this panel" = "בחר כל קובץ ותיקייה בלוח זה"
@@ -1208,7 +1208,7 @@ direction = "rtl"
 "R~e~verse" = "~ה~יפוך"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "~כ~ונן דיסק"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:2796
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:2831
 "Links" = "קישורים"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "בעלים"
@@ -1932,9 +1932,9 @@ direction = "rtl"
 "Replace in files..." = "החלפה בקבצים..."
 # navigator/widgets/shell/main_menu/main_menu.nml:182
 "Find files holding a text and replace it in them, file by file" = "מציאת קבצים המכילים טקסט והחלפתו בהם, קובץ אחר קובץ"
-# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1871
+# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:1891
 "~C~opy..." = "ה~ע~תק..."
-# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1872
+# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:1892
 "~R~ename/Move..." = "ש~נ~ה שם/העבר..."
 # navigator/widgets/shell/main_menu/main_menu.nml:197
 "Rename ~t~ools" = "כל~י~ שינוי שם"
@@ -1960,7 +1960,7 @@ direction = "rtl"
 "Create arch~i~ve..." = "צו~ר~ ארכיון..."
 # navigator/widgets/shell/main_menu/main_menu.nml:233
 "Ex~t~ract archive..." = "ח~ל~ץ ארכיון..."
-# navigator/widgets/shell/main_menu/main_menu.nml:240, navigator/widgets/manager/panel/panel.py:1896
+# navigator/widgets/shell/main_menu/main_menu.nml:240, navigator/widgets/manager/panel/panel.py:1916
 "E~x~tract to..." = "חלץ ~א~ל..."
 # navigator/widgets/shell/main_menu/main_menu.nml:244, navigator/widgets/manager/manager/manager.py:1299
 "Test archive" = "בדוק ארכיון"
@@ -1998,13 +1998,13 @@ direction = "rtl"
 "Cut the file into parts of a given size, or put a split file back together" = "חיתוך הקובץ לחלקים בגודל נתון, או הרכבה מחדש של קובץ מפוצל"
 # navigator/widgets/shell/main_menu/main_menu.nml:291
 "Compare fi~l~es..." = "ה~ש~ווה קבצים..."
-# navigator/widgets/shell/main_menu/main_menu.nml:298, navigator/widgets/manager/panel/panel.py:1904
+# navigator/widgets/shell/main_menu/main_menu.nml:298, navigator/widgets/manager/panel/panel.py:1924
 "~M~ake directory" = "~צ~ור תיקייה"
-# navigator/widgets/shell/main_menu/main_menu.nml:311, navigator/widgets/manager/panel/panel.py:1857
+# navigator/widgets/shell/main_menu/main_menu.nml:311, navigator/widgets/manager/panel/panel.py:1877
 "Restore from Tras~h~" = "שח~ז~ר מהאשפה"
 # navigator/widgets/shell/main_menu/main_menu.nml:312
 "Put the selected files back where they were deleted from" = "החזר את הקבצים שנבחרו למקום שממנו נמחקו"
-# navigator/widgets/shell/main_menu/main_menu.nml:316, navigator/widgets/manager/panel/panel.py:1883
+# navigator/widgets/shell/main_menu/main_menu.nml:316, navigator/widgets/manager/panel/panel.py:1903
 "File ~A~ttributes..." = "~ת~כונות קובץ..."
 # navigator/widgets/shell/main_menu/main_menu.nml:317
 "Permissions, owner, group, dates, ACLs and extended attributes" = "הרשאות, בעלים, קבוצה, תאריכים, ACL ומאפיינים מורחבים"
@@ -2836,7 +2836,7 @@ direction = "rtl"
 "Size: ~not counted~" = "גודל: ~לא נספר~"
 # navigator/lib/system/diskinfo.py:238
 "Size: ~{n:,}~ byte" = ["גודל: ~{n:,}~ בית", "גודל: ~{n:,}~ בתים", "גודל: ~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2389
+# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2424
 "~{n:,}~ byte" = ["~{n:,}~ בית", "~{n:,}~ בתים", "~{n:,}~ בתים"]
 # navigator/lib/system/diskinfo.py:232
 "Name: ~{name}~" = "שם: ~{name}~"
@@ -2866,7 +2866,7 @@ direction = "rtl"
 "Links: ~{links}~, inode ~{inode}~" = "קישורים: ~{links}~, inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
 "Link to: ~{target}~" = "קישור אל: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2385
+# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2420
 "No files in this directory" = "אין קבצים בתיקייה זו"
 # navigator/lib/system/diskinfo.py:294
 "~{n:,}~ file with {total}" = ["~{n:,}~ קובץ, {total}", "~{n:,}~ קבצים, {total}", "~{n:,}~ קבצים, {total}"]
@@ -2916,7 +2916,7 @@ direction = "rtl"
 "The process has ended" = "התהליך הסתיים"
 # navigator/lib/system/processes.py:401
 "Process" = "תהליך"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2791 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:2826 ...
 "Name" = "שם"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:126
 "Command" = "פקודה"
@@ -3522,7 +3522,7 @@ direction = "rtl"
 "{n} file" = ["קובץ אחד", "שני קבצים", "{n} קבצים"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
 "{n} directory" = ["תיקייה אחת", "שתי תיקיות", "{n} תיקיות"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2411, navigator/widgets/manager/panel/panel.py:2526 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2446, navigator/widgets/manager/panel/panel.py:2561 ...
 "{n:,} byte" = ["{n:,} בית", "{n:,} בתים", "{n:,} בתים"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
 "<differs>" = "<שונה>"
@@ -3758,7 +3758,7 @@ direction = "rtl"
 "Ren" = "שנה שם"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "קישור"
-# navigator/widgets/manager/commands.py:133, navigator/widgets/manager/panel/panel.py:2795
+# navigator/widgets/manager/commands.py:133, navigator/widgets/manager/panel/panel.py:2830
 "Attr" = "מאפיין"
 # navigator/widgets/manager/commands.py:137
 "MkDir" = "תיקייה"
@@ -4126,93 +4126,97 @@ direction = "rtl"
 "View mode: simple, detailed or list" = "מצב תצוגה: פשוט, מפורט או רשימה"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "סדר מיון"
-# navigator/widgets/manager/panel/panel.py:2412
+# navigator/widgets/manager/panel/panel.py:2447
 "~{total} in {n}~ selected file" = ["~{total} בקובץ מסומן אחד~", "~{total} בשני קבצים מסומנים~", "~{total} ב-{n}~ קבצים מסומנים"]
-# navigator/widgets/manager/panel/panel.py:1890
+# navigator/widgets/manager/panel/panel.py:1910
 "Paste from clip~b~oard" = "ה~ד~בק מלוח הגזירים"
-# navigator/widgets/manager/panel/panel.py:1915
+# navigator/widgets/manager/panel/panel.py:1935
 "~I~nsert name" = "~ה~וסף שם"
-# navigator/widgets/manager/panel/panel.py:1916
+# navigator/widgets/manager/panel/panel.py:1936
 "Insert pa~t~h" = "הוסף ~נ~תיב"
-# navigator/widgets/manager/panel/panel.py:2409
+# navigator/widgets/manager/panel/panel.py:2444
 "No files selected" = "לא נבחרו קבצים"
-# navigator/widgets/manager/panel/panel.py:2515, navigator/widgets/manager/panel/panel.py:2399
+# navigator/widgets/manager/panel/panel.py:2550, navigator/widgets/manager/panel/panel.py:2434
 "~{n:,}~ free byte on ~{mount}" = ["~{n:,}~ בית פנוי ב-~{mount}", "~{n:,}~ בתים פנויים ב-~{mount}", "~{n:,}~ בתים פנויים ב-~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1521
+# navigator/widgets/manager/panel/panel.py:1476
+"A read-only file system: nothing here can be changed" = "מערכת קבצים לקריאה בלבד: לא ניתן לשנות כאן דבר"
+# navigator/widgets/manager/panel/panel.py:1541
 "The file's name" = "שם הקובץ"
-# navigator/widgets/manager/panel/panel.py:1522
+# navigator/widgets/manager/panel/panel.py:1542
 "The file's size" = "גודל הקובץ"
-# navigator/widgets/manager/panel/panel.py:1523
+# navigator/widgets/manager/panel/panel.py:1543
 "The size packed in the archive" = "הגודל הדחוס בארכיון"
-# navigator/widgets/manager/panel/panel.py:1524
+# navigator/widgets/manager/panel/panel.py:1544
 "The packed size as a percentage of the original" = "הגודל הדחוס כאחוז מהמקורי"
-# navigator/widgets/manager/panel/panel.py:1525
+# navigator/widgets/manager/panel/panel.py:1545
 "Permissions: the owner's, the group's and others'" = "הרשאות: של הבעלים, של הקבוצה ושל האחרים"
-# navigator/widgets/manager/panel/panel.py:1526
+# navigator/widgets/manager/panel/panel.py:1546
 "How many names the file has: its hard links" = "כמה שמות יש לקובץ: הקישורים הקשיחים שלו"
-# navigator/widgets/manager/panel/panel.py:1527
+# navigator/widgets/manager/panel/panel.py:1547
 "The owner and group" = "הבעלים והקבוצה"
-# navigator/widgets/manager/panel/panel.py:1528
+# navigator/widgets/manager/panel/panel.py:1548
 "When the file was last modified" = "מתי הקובץ שונה לאחרונה"
-# navigator/widgets/manager/panel/panel.py:1625
+# navigator/widgets/manager/panel/panel.py:1645
 "Search:" = "חיפוש:"
-# navigator/widgets/manager/panel/panel.py:1852
+# navigator/widgets/manager/panel/panel.py:1872
 "Go to ~f~ile" = "עבור ל~ק~ובץ"
-# navigator/widgets/manager/panel/panel.py:1853
-"Show in ~o~ther panel" = "הצג בלוח ה~ש~ני"
-# navigator/widgets/manager/panel/panel.py:1861
-"Vie~w~" = "ה~צ~ג"
 # navigator/widgets/manager/panel/panel.py:1873
-"Create link~s~..." = "צור ~ק~ישור..."
-# navigator/widgets/manager/panel/panel.py:1888
-"Cop~y~ to clipboard" = "ה~ע~תק ללוח הגזירים"
-# navigator/widgets/manager/panel/panel.py:1889
-"Cut to c~l~ipboard" = "~ג~זור ללוח הגזירים"
-# navigator/widgets/manager/panel/panel.py:1897
-"Test arc~h~ive" = "בדוק ~א~רכיון"
-# navigator/widgets/manager/panel/panel.py:2378
-"Clipboard: ~{n}~ file to move" = ["לוח הגזירים: ~קובץ אחד~ להעברה", "לוח הגזירים: ~שני קבצים~ להעברה", "לוח הגזירים: ~{n}~ קבצים להעברה"]
-# navigator/widgets/manager/panel/panel.py:2380
-"Clipboard: ~{n}~ file to copy" = ["לוח הגזירים: ~קובץ אחד~ להעתקה", "לוח הגזירים: ~שני קבצים~ להעתקה", "לוח הגזירים: ~{n}~ קבצים להעתקה"]
-# navigator/widgets/manager/panel/panel.py:2390
-"Total: ~{n:,}~ file with {total}" = ["סה״כ: ~{n:,}~ קובץ, {total}", "סה״כ: ~{n:,}~ קבצים, {total}", "סה״כ: ~{n:,}~ קבצים, {total}"]
-# navigator/widgets/manager/panel/panel.py:2473, navigator/widgets/manager/panel/panel.py:2543
-"From {path}" = "מתוך {path}"
-# navigator/widgets/manager/panel/panel.py:2541, navigator/widgets/manager/panel/panel.py:2478
-"an unknown place" = "מקום לא ידוע"
-# navigator/widgets/manager/panel/panel.py:2762
-"Reading directory..." = "קורא תיקייה..."
-# navigator/widgets/manager/panel/panel.py:2793, navigator/lib/drives/base.py
-"Packed" = "דחוס"
-# navigator/widgets/manager/panel/panel.py:2794
-"%" = "%"
-# navigator/widgets/manager/panel/panel.py:1459
-"Only files matching {mask} are shown" = "מוצגים רק קבצים התואמים ל-{mask}"
-# navigator/widgets/manager/panel/panel.py:1470
-"{n} commit ahead of its upstream" = ["קומיט אחד לפני ה-upstream שלו", "שני קומיטים לפני ה-upstream שלו", "{n} קומיטים לפני ה-upstream שלו"]
-# navigator/widgets/manager/panel/panel.py:1472
-"{n} commit behind its upstream" = ["קומיט אחד אחרי ה-upstream שלו", "שני קומיטים אחרי ה-upstream שלו", "{n} קומיטים אחרי ה-upstream שלו"]
-# navigator/widgets/manager/panel/panel.py:1868
-"Ope~n~ with..." = "~פ~תח עם..."
-# navigator/widgets/manager/panel/panel.py:1876
-"Edit lin~k~ target..." = "ערוך י~ע~ד קישור..."
-# navigator/widgets/manager/panel/panel.py:1877
-"Make relative" = "הפוך ליחסי"
-# navigator/widgets/manager/panel/panel.py:1878
-"Make absolute" = "הפוך למוחלט"
+"Show in ~o~ther panel" = "הצג בלוח ה~ש~ני"
 # navigator/widgets/manager/panel/panel.py:1881
+"Vie~w~" = "ה~צ~ג"
+# navigator/widgets/manager/panel/panel.py:1893
+"Create link~s~..." = "צור ~ק~ישור..."
+# navigator/widgets/manager/panel/panel.py:1908
+"Cop~y~ to clipboard" = "ה~ע~תק ללוח הגזירים"
+# navigator/widgets/manager/panel/panel.py:1909
+"Cut to c~l~ipboard" = "~ג~זור ללוח הגזירים"
+# navigator/widgets/manager/panel/panel.py:1917
+"Test arc~h~ive" = "בדוק ~א~רכיון"
+# navigator/widgets/manager/panel/panel.py:2282
+"R/O" = "קריאה בלבד"
+# navigator/widgets/manager/panel/panel.py:2413
+"Clipboard: ~{n}~ file to move" = ["לוח הגזירים: ~קובץ אחד~ להעברה", "לוח הגזירים: ~שני קבצים~ להעברה", "לוח הגזירים: ~{n}~ קבצים להעברה"]
+# navigator/widgets/manager/panel/panel.py:2415
+"Clipboard: ~{n}~ file to copy" = ["לוח הגזירים: ~קובץ אחד~ להעתקה", "לוח הגזירים: ~שני קבצים~ להעתקה", "לוח הגזירים: ~{n}~ קבצים להעתקה"]
+# navigator/widgets/manager/panel/panel.py:2425
+"Total: ~{n:,}~ file with {total}" = ["סה״כ: ~{n:,}~ קובץ, {total}", "סה״כ: ~{n:,}~ קבצים, {total}", "סה״כ: ~{n:,}~ קבצים, {total}"]
+# navigator/widgets/manager/panel/panel.py:2508, navigator/widgets/manager/panel/panel.py:2578
+"From {path}" = "מתוך {path}"
+# navigator/widgets/manager/panel/panel.py:2576, navigator/widgets/manager/panel/panel.py:2513
+"an unknown place" = "מקום לא ידוע"
+# navigator/widgets/manager/panel/panel.py:2797
+"Reading directory..." = "קורא תיקייה..."
+# navigator/widgets/manager/panel/panel.py:2828, navigator/lib/drives/base.py
+"Packed" = "דחוס"
+# navigator/widgets/manager/panel/panel.py:2829
+"%" = "%"
+# navigator/widgets/manager/panel/panel.py:1479
+"Only files matching {mask} are shown" = "מוצגים רק קבצים התואמים ל-{mask}"
+# navigator/widgets/manager/panel/panel.py:1490
+"{n} commit ahead of its upstream" = ["קומיט אחד לפני ה-upstream שלו", "שני קומיטים לפני ה-upstream שלו", "{n} קומיטים לפני ה-upstream שלו"]
+# navigator/widgets/manager/panel/panel.py:1492
+"{n} commit behind its upstream" = ["קומיט אחד אחרי ה-upstream שלו", "שני קומיטים אחרי ה-upstream שלו", "{n} קומיטים אחרי ה-upstream שלו"]
+# navigator/widgets/manager/panel/panel.py:1888
+"Ope~n~ with..." = "~פ~תח עם..."
+# navigator/widgets/manager/panel/panel.py:1896
+"Edit lin~k~ target..." = "ערוך י~ע~ד קישור..."
+# navigator/widgets/manager/panel/panel.py:1897
+"Make relative" = "הפוך ליחסי"
+# navigator/widgets/manager/panel/panel.py:1898
+"Make absolute" = "הפוך למוחלט"
+# navigator/widgets/manager/panel/panel.py:1901
 "Show hard links" = "הצג קישורים קשיחים"
-# navigator/widgets/manager/panel/panel.py:1900
+# navigator/widgets/manager/panel/panel.py:1920
 "E~x~tract archive..." = "~ח~לץ ארכיון..."
-# navigator/widgets/manager/panel/panel.py:1446
+# navigator/widgets/manager/panel/panel.py:1464
 "A click sorts by {order}" = "לחיצה ממיינת לפי {order}"
-# navigator/widgets/manager/panel/panel.py:2401
+# navigator/widgets/manager/panel/panel.py:2436
 "~{size}~ free on ~{mount}" = "~{size}~ פנויים ב-~{mount}"
-# navigator/widgets/manager/panel/panel.py:2475, navigator/widgets/manager/panel/panel.py:2544
+# navigator/widgets/manager/panel/panel.py:2510, navigator/widgets/manager/panel/panel.py:2579
 "From {path}, deleted {when}" = "מתוך {path}, נמחק {when}"
-# navigator/widgets/manager/panel/panel.py:1466
+# navigator/widgets/manager/panel/panel.py:1486
 "Git work tree, HEAD detached at {commit}" = "עץ עבודה של Git, HEAD מנותק ב-{commit}"
-# navigator/widgets/manager/panel/panel.py:1468
+# navigator/widgets/manager/panel/panel.py:1488
 "Git work tree, on {branch}" = "עץ עבודה של Git, על {branch}"
 # navigator/widgets/manager/sync_list/sync_list.py:83
 "Left alone" = "נשאר כמות שהוא"

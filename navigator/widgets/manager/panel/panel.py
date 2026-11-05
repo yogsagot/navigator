@@ -160,13 +160,28 @@ def _scanner_for(location: Location) -> concurrent.futures.ThreadPoolExecutor:
 
 
 def _read_location(location: Location, show_hidden: bool, sort: str, *, free: bool,
-                   **options: Any) -> tuple[list[DirEntry], str | None, tuple[int, str] | None]:
+                   **options: Any) -> tuple[list[DirEntry], str | None, tuple[int, str] | None, bool]:
     """A panel's read of *location*, on its thread: its drive's ``scan``,
-    and a drive gone or failing as the panel's error line."""
+    and a drive gone or failing as the panel's error line -- and whether the
+    directory is on a file system mounted read-only (:func:`_is_read_only`)."""
     try:
-        return drive_of(location).scan(location, show_hidden, sort, free=free, **options)
+        entries, error, free_space = drive_of(location).scan(location, show_hidden, sort, free=free, **options)
     except OSError as error:
-        return [], error.strerror or str(error), None
+        return [], error.strerror or str(error), None, False
+    return entries, error, free_space, error is None and _is_read_only(location)
+
+
+def _is_read_only(location: Location) -> bool:
+    """Whether *location* is on the disk, on a file system mounted read-only:
+    a disk image Enter mounted, a CD, a ``ro`` mount.  Its title says so, so
+    that a refused edit or copy into it is no surprise.  Another drive's
+    directories are its own to refuse."""
+    if not location.is_local:
+        return False
+    try:
+        return bool(os.statvfs(location.local).f_flag & os.ST_RDONLY)
+    except OSError:
+        return False
 
 #: How long a change on disk waits for the ones after it before the panel
 #: re-reads (*Auto refresh panels*): a copy of a thousand files is a handful
@@ -278,6 +293,8 @@ class Panel(ListViewer):
     #: *Free space*'s bytes and mount point for the directory read last;
     #: ``None`` without the box, or over a *Find:* listing.
     free_space: tuple[int, str] | None = reactive(None)
+    #: Whether the directory read last is on a file system mounted read-only.
+    read_only: bool = reactive(False)
     #: Columns kept clear at each end of the top edge, so the path never runs
     #: under a window icon painted there -- the file manager's close and zoom
     #: icons sit on its panels' frames.  Kept at both ends because the title
@@ -852,7 +869,7 @@ class Panel(ListViewer):
             app.post_event(WakeEvent())
 
     def _apply(self, request: _ScanRequest, entries: list[DirEntry], error: str | None,
-               free: tuple[int, str] | None = None) -> None:
+               free: tuple[int, str] | None = None, read_only: bool = False) -> None:
         """Show what a read of ``request.path`` found."""
         path = request.path
         where = request.where if request.where is not None else path
@@ -862,6 +879,7 @@ class Panel(ListViewer):
         self._scan_job = None
         self.scanning = False
         self.free_space = free
+        self.read_only = read_only
         self.items = entries
         self.error = error
         # Peeked, not read: the rescan must not depend on the tags, or every
@@ -1454,6 +1472,8 @@ class Panel(ListViewer):
         whole = self.found.title if self.found is not None else self.title_location
         if whole not in self.title_text():
             lines.append(whole)
+        if self.read_only and self.found is None:
+            lines.append(tr("A read-only file system: nothing here can be changed"))
         mask = self.file_mask.strip()
         if mask not in ("", filetypes.ALL_FILES):
             shown = tr("Only files matching {mask} are shown").format(mask=mask)
@@ -2252,6 +2272,15 @@ class Panel(ListViewer):
             return " "
         return git.marks.get(item.name, " ")
 
+    def read_only_mark(self) -> str:
+        """What the title says a read-only file system with: a lock at the
+        Nerd tier, else ``[R/O]``.  Not DN's, whose DOS drives were written
+        or failed with a box; a disk image is read-only before anything is
+        tried, and the title says it before the refusal does."""
+        if self.glyphs >= GLYPHS_NERD:
+            return icon_glyphs.READ_ONLY
+        return f"[{tr('R/O')}]"
+
     def git_text(self) -> str:
         """The branch for the title, with how far it is ahead of and behind
         its upstream (``master ↑2↓1``), or ``""`` outside a work tree."""
@@ -2289,6 +2318,10 @@ class Panel(ListViewer):
         reads as a directory that lacks them.  The path gives way first; the
         mask is cut only when the bracket alone would not fit.
 
+        **On a file system mounted read-only, a mark goes before it**
+        (:meth:`read_only_mark`), ``/media/me/UBUNTU [R/O]``: a disk image
+        Enter mounted is never written, and the title says so first.
+
         **In a git work tree the branch follows** (:meth:`git_text`), also
         not DN's: it is dropped before the path would be cut under
         :data:`MIN_NAME_WIDTH` cells to keep it.
@@ -2296,6 +2329,8 @@ class Panel(ListViewer):
         title = self.found.title if self.found is not None else self.title_location
         mask = self.file_mask.strip()
         suffix = f" [{mask}]" if mask not in ("", filetypes.ALL_FILES) else ""
+        if self.read_only and self.found is None:
+            suffix = f" {self.read_only_mark()}{suffix}"
         room = max(4, self.width - 4 - 2 * self.title_margin)
         if suffix and len(suffix) > room - 4:
             suffix = suffix[: max(0, room - 8)] + "...]" if room > 12 else ""

@@ -100,8 +100,8 @@ class MillerColumn(Panel):
     # -- what is listed --------------------------------------------------------
 
     def _apply(self, request: Any, entries: list[DirEntry], error: str | None,
-               free: tuple[int, str] | None = None) -> None:
-        super()._apply(request, [entry for entry in entries if entry.name != ".."], error, free)
+               free: tuple[int, str] | None = None, read_only: bool = False) -> None:
+        super()._apply(request, [entry for entry in entries if entry.name != ".."], error, free, read_only)
 
     def _remember_directory(self, path: Location) -> None:
         """Not each column: :meth:`MillerView.step_in` remembers a step."""
