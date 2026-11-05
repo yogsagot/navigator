@@ -599,11 +599,16 @@ class MultiRename(Command):
     """
 
 
-class UndoMultiRename(Command):
-    """File > Multi-rename > Undo multi-rename: the last batch's names put back.
+@dataclass(frozen=True, slots=True)
+class Undo(Command):
+    """Ctrl+Z, File > Undo: the session's newest move, rename, delete to the
+    Trash or new directory taken back (:mod:`navigator.lib.file_ops.undo`).
 
-    A departure, with :class:`MultiRename`; kept for the session only.
+    Not DOS Navigator's, which had no undo outside its editors.  *by_key* is
+    Ctrl+Z, which steps aside while the command line has text.
     """
+
+    by_key: bool = False
 
 
 class RestoreTrash(Command):
@@ -853,7 +858,7 @@ __all__ = [
     "ReadFileList",
     "Panelize",
     "MultiRename",
-    "UndoMultiRename",
+    "Undo",
     "RestoreTrash",
     "DirBranch",
     "FindDuplicates",

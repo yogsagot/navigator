@@ -109,6 +109,9 @@ class EraseJob(Job):
         self.path = ""
         #: True while the sources are being counted.
         self.measuring = True
+        #: What went to the Trash (``trash.Item``), for File > Undo; not what
+        #: the desktop's ``gio``/``kioclient`` took, which names nothing back.
+        self.trashed: list[Any] = []
 
 
 def run(request: EraseRequest, job: EraseJob) -> list[Path | Location]:
@@ -247,7 +250,7 @@ class _Eraser(Elevated):
         job.action = TRASHING
         job.path = str(path)
         try:
-            trash.move(path.local)
+            item = trash.move(path.local)
         except FileNotFoundError:
             return True
         except OSError as error:
@@ -271,6 +274,7 @@ class _Eraser(Elevated):
                 elif answer != YES:
                     return False
             return None
+        job.trashed.append(item)
         job.done += 1
         return True
 

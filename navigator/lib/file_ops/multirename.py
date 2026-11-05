@@ -47,7 +47,7 @@ from __future__ import annotations
 import re
 import time
 from collections.abc import Hashable, Iterable, Sequence
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable
 
 from navkit.i18n import tr
@@ -482,12 +482,3 @@ def _finish(drive: Any, place: Any, job: RenameJob) -> None:
             return
 
 
-@dataclass
-class Batch:
-    """The last batch renamed, for *Undo multi-rename*: what was renamed, newest last."""
-
-    done: list[tuple[Any, str, str]] = field(default_factory=list)
-
-    def undo_pairs(self) -> list[tuple[Any, str, str]]:
-        """What puts the batch back: each new name to its old, the last first."""
-        return [(place, new, old) for place, old, new in reversed(self.done)]

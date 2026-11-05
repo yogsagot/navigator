@@ -72,7 +72,7 @@ def test_a_right_click_on_a_file_moves_the_cursor_and_offers_its_operations(tree
     run_app(app, [right(5, 5), OPEN, lambda a: seen.update(captions=captions(a))])
     assert app.manager.left.selected.name == "one.txt"
     assert seen["captions"] == [
-        "View", "Edit", "Copy...", "Rename/Move...", "Create symlink...", "Delete",
+        "View", "Edit", "Copy...", "Rename/Move...", "Create links...", "Delete",
         "File Attributes...", "Copy to clipboard", "Cut to clipboard", "Paste from clipboard",
         "Make directory", "Select group...", "Unselect group...",
         "Invert selection", "Select all files", "Insert name", "Insert path",

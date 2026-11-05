@@ -15,8 +15,8 @@ from navigator.__main__ import Navigator
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.file_ops import multirename
 from navigator.lib.file_ops.multirename import Item, Rule, RuleError, new_names, plan, steps
-from navigator.widgets.manager.commands import MultiRename, UndoMultiRename
-from navigator.widgets.manager.manager.manager import Manager
+from navigator.lib.file_ops.undo import Renamed
+from navigator.widgets.manager.commands import MultiRename, Undo
 
 HERE = Path("/d")
 
@@ -118,7 +118,7 @@ def test_a_batch_renames_a_cycle_whole_and_undo_puts_it_back(tmp_path):
     assert {name: (tmp_path / name).read_text() for name in "abc"} == {"b": "A", "c": "B", "a": "C"}
     assert sorted(p.name for p in tmp_path.iterdir()) == ["a", "b", "c"]
     assert sorted(done) == sorted([(here, "a", "b"), (here, "b", "c"), (here, "c", "a")])
-    multirename.run(multirename.Batch(done).undo_pairs(), multirename.RenameJob(), drive_of)
+    multirename.run(Renamed(tuple(done)).undo_pairs(), multirename.RenameJob(), drive_of)
     assert {name: (tmp_path / name).read_text() for name in "abc"} == {"a": "A", "b": "B", "c": "C"}
 
 
@@ -186,7 +186,6 @@ def test_a_failed_temporary_rename_leaves_the_file_where_it_was(tmp_path):
 @pytest.fixture
 def place(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
-    monkeypatch.setattr(Manager, "last_renames", None)
     from navigator.widgets.file_ops.multi_rename_dialog import multi_rename_dialog
 
     monkeypatch.setitem(multi_rename_dialog._session, "rule", Rule())
@@ -222,10 +221,11 @@ def test_alt_a_previews_renames_and_undo_puts_the_names_back(place):
                   fill, lambda a: None, look, KeyEvent("enter"),
                   Until(lambda a: (place / "file02.txt").exists()), lambda a: None,
                   lambda a: seen.update(marked=a.manager.left.marked,
-                                        undo=a.command_enabled(UndoMultiRename())),
-                  lambda a: a.spawn(a.run_command(UndoMultiRename)),
+                                        undo=a.command_enabled(Undo())),
+                  lambda a: a.spawn(a.run_command(Undo)),
+                  Until(lambda a: a.modal is not None and a.modal.title == "Undo"), KeyEvent("enter"),
                   Until(lambda a: (place / "two.txt").exists()), lambda a: None,
-                  lambda a: seen.update(undone=a.command_enabled(UndoMultiRename()))])
+                  lambda a: seen.update(undone=a.command_enabled(Undo()))])
     assert seen["title"] == "Multi-rename"
     assert seen["preview"] == [("one.txt", "file01.txt"), ("two.txt", "file02.txt")]
     assert seen["status"] == "2 files to rename"
@@ -259,7 +259,7 @@ def test_multi_rename_needs_something_to_rename(place):
     run_app(app, [Until(lambda a: "one.txt" in [e.name for e in a.manager.left.items]),
                   lambda a: setattr(a.manager.left, "cursor", 0),
                   lambda a: seen.update(dots=a.command_enabled(MultiRename()),
-                                        undo=a.command_enabled(UndoMultiRename())),
+                                        undo=a.command_enabled(Undo())),
                   lambda a: setattr(a.manager.left, "cursor", 1),
                   lambda a: seen.update(file=a.command_enabled(MultiRename()))])
     assert seen == {"dots": False, "undo": False, "file": True}

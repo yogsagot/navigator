@@ -3623,7 +3623,7 @@ def test_only_entries_with_a_handler_behind_them_are_enabled(tree):
 
     run_app(app, [probe])
     # Encoding holds Checksums, so it is enabled with or without gpg and age.
-    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Multi-rename", "Archive", "Symlinks",
+    assert seen == ["View", "Edit", "Find...", "Replace in files...", "Rename tools", "Archive", "Links",
                     "Make directory", "Encoding", "Execute OS command", "Exit"]
 
 

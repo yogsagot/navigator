@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, UndoMultiRename, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, Undo, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -190,27 +190,32 @@ MainMenu(MenuBar):
             text: '~R~ename/Move...'
             command: RenameMove
             key: 'F6'
-        #: Not in ``dlgMainMenu``: a departure, asked for -- one entry renamed
-        #: in a box, without *Rename/Move*'s targets and modes.
-        MenuItem:
-            text: '~Q~uick rename...'
-            tooltip: "Rename the file at the cursor in a small box"
-            command: QuickRename
-            key: 'Shift-F6'
-        #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's
-        #: docstring), moved here from Panel to fit an 80x25 screen.
+        #: The two renames that are not DN's, nested so File fits an 80x25
+        #: screen with Undo -- a departure.
         SubMenu:
-            id: file_multi_rename
-            text: 'M~u~lti-rename'
+            id: file_rename_tools
+            text: 'Rename ~t~ools'
+            tooltip: "Quick rename and multi-rename"
+            #: Not in ``dlgMainMenu``: a departure, asked for -- one entry
+            #: renamed in a box, without *Rename/Move*'s targets and modes.
             MenuItem:
-                text: 'Multi-rename...'
+                text: '~Q~uick rename...'
+                tooltip: "Rename the file at the cursor in a small box"
+                command: QuickRename
+                key: 'Shift-F6'
+            #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's
+            #: docstring), moved here from Panel.  Its batch is undone by Undo.
+            MenuItem:
+                text: 'M~u~lti-rename...'
                 tooltip: "Rename the tagged files by a pattern"
                 command: MultiRename
                 key: 'Alt-A'
-            MenuItem:
-                text: 'Undo multi-rename'
-                tooltip: "Put back the names the last multi-rename changed"
-                command: UndoMultiRename
+        #: Not DN's (navigator.lib.file_ops.undo).
+        MenuItem:
+            text: '~U~ndo file operation'
+            tooltip: "Take back the last copy, move, rename, delete to Trash or new directory"
+            command: Undo
+            key: 'Ctrl-Z'
         #: DN's two archive entries, nested with the archive panel's *Extract
         #: to* and *Test archive* (DN's ``hcArchives`` key bar, once on Panel)
         #: -- a departure, so File fits an 80x25 screen.

@@ -292,6 +292,16 @@ def _nothing_in_background():
 
 
 @pytest.fixture(autouse=True)
+def _nothing_to_undo():
+    """File > Undo's history is the session's: empty around every test."""
+    from navigator.lib.file_ops.undo import UNDO
+
+    UNDO.clear()
+    yield
+    UNDO.clear()
+
+
+@pytest.fixture(autouse=True)
 def _fresh_database():
     """Every test gets an empty ``:memory:`` database: the one every model uses.
 

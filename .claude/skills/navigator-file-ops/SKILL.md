@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symbolic and hard links (filelink.py, LinkDialog), Show hard links (hardlinks.py), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symbolic and hard links (filelink.py, LinkDialog), Show hard links (hardlinks.py), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+Z Undo of copies, moves, renames, Trash and mkdir (undo.py, uncopy.py, Manager.undo), Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -78,8 +78,39 @@ has a problem.
   temporary back **only if its old name is still free**, else leaves it and says so.
 - **Bookkeeping** is `Manager._after_renames(panel, [(place, old, new)], at=)`, shared with `_rename_entry` (Alt+F6,
   Shift+F6): listing entries renamed, tags follow, `FileSaved`, reload, the other panel re-read if it shows the place.
-- **Undo multi-rename** (Panel menu, no key) reverses `Manager.last_renames` (`multirename.Batch`, session only, one
-  batch) through the same `run`; disabled when there is none.
+- **Undo** is File > Undo's (Ctrl+Z, *Undo* below): a batch goes on its history as one `undo.Renamed`, taken back
+  through the same `run`. *Undo multi-rename* and `Manager.last_renames` are gone. File > *Rename tools* nests Quick
+  rename and Multi-rename so File fits 80x25 with Undo.
+
+## Undo (Ctrl+Z, File > Undo file operation)
+
+A departure, asked for: DN had no undo outside its editors. `navigator/lib/file_ops/undo.py` is the model -- pure, no
+I/O: `Renamed`, `Copied`, `Moved`, `Trashed`, `MadeDirectory` (each `question()` for the Yes/No, `undone()` for the toast) on
+`UNDO`, the session's `History` (a stack, `LIMIT` 50, the oldest dropped; no Redo), shared by every Manager.
+`conftest` clears it around each test.
+- **What is recorded, where**: a copy or a move in `Manager._run_copy` from `CopyJob.copied`/`moved` (not into or
+  out of an archive, so not Extract either, not Synchronize's `pairs`, not Undo's own copy -- `record=False`); Alt+F6/Shift+F6 in `_rename_entry`; Alt+A's
+  batch in `multi_rename`; the Trash in `_run_erase` from `EraseJob.trashed` (the `trash.Item`s `_to_trash` got back);
+  F7 in `make_directory`, every branch.
+- **`CopyJob.moved` is the largest piece that went whole** (`_Copier._record`): a directory renamed, or made anew across
+  devices and emptied (its children's pairs replaced by its own, from `mark`), is one pair; one merged into a
+  directory already there leaves its children's. The destination is the one after an overwrite question's *Rename*.
+  An append is never recorded; an overwrite counts in `job.replaced`, and the question says those cannot come back.
+- **Undoing a copy removes only what is as it left it** (`navigator/lib/file_ops/uncopy.py`, reads only):
+  `CopyJob.copied` is `(dest, fingerprint)`, a file's or link's type, size and mtime read after the copy, a directory
+  made whole one record whose fingerprint lists everything under it (`collapse`, from its children's records; past
+  `MANIFEST_LIMIT` none, and never taken back). A file copied over another counts in `overwritten`, an append is
+  not recorded. `check` on a thread splits same/changed (gone is neither); the changed are said in one box (eight
+  lines, *and N more*) and dropped; the same go through `_run_erase(record=False)`, `recursive`, to the Trash when
+  on the disk whatever *F8 moves to Trash* says (`Copied.to_trash`; its *erase instead?* question where there is
+  none), for good elsewhere -- the question says which.
+- **Left out on purpose**: erases for good, attributes, links, archives, and what the desktop's
+  `gio trash`/`kioclient` took (it names nothing back).
+- **Undoing** (`Manager.undo`, spawned): asks, pops, then the worker that did it: `_run_renames`; the copier with
+  `pairs` back, `MOVE`, `ASK`, `directories` for a source directory gone since; `trash.restore_all` (never over
+  anything); `_undo_copy` above; `drive.rmdir` -- **only while empty**, Undo erases nothing (*NAME is not empty any more*, and dropped).
+  What was skipped or stopped goes back on the history, smaller. Both panels reload, then a toast.
+- **Ctrl+Z** is `Undo(by_key=True)` in `Manager.keys`, the command line's while it has text. Tests: `tests/test_undo.py`.
 
 ## Links (Shift+F5)
 

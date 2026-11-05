@@ -87,7 +87,7 @@ from navigator.widgets.manager.commands import (
     ReadFileList,
     Panelize,
     MultiRename,
-    UndoMultiRename,
+    Undo,
     RestoreTrash,
     SetupColumns,
     AdvancedFilter,
@@ -133,6 +133,8 @@ from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.drives import trash as trash_drive
 from navigator.lib.file_ops.clip import CLIP
+from navigator.lib.file_ops import undo as undo_history
+from navigator.lib.file_ops.undo import UNDO
 from navigator.lib.drives.location import shown
 from navigator.settings import SETTINGS
 
@@ -232,6 +234,8 @@ class Manager(Window):
         "ctrl+v": PasteFromClipboard(by_key=True),
         "shift+insert": PasteFromClipboard(by_key=True),
         "escape": ClearClipboard(by_key=True),
+        #: File > Undo (not DN's), the line's while it has text.
+        "ctrl+z": Undo(by_key=True),
         #: Scrolling a name too long for its column; the list mode's panel
         #: takes these first and moves a column instead.
         "left": ScrollNames(-1),
@@ -1936,6 +1940,7 @@ class Manager(Window):
                     return
                 await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(app)
                 return
+            UNDO.push(undo_history.Renamed(((here, old, new),)))
             await self._after_renames(panel, [(here, old, new)], at=(here, new))
             return
 
@@ -1988,9 +1993,6 @@ class Manager(Window):
         self.spawn(self.multi_rename(self.active_panel))
         return True
 
-    #: The last batch Multi-rename did, for *Undo multi-rename* (the session's).
-    last_renames: Any = None
-
     async def multi_rename(self, panel: Panel) -> None:
         """Alt+A: the tagged files -- or the one at the cursor -- renamed by
         a pattern, every new name previewed first
@@ -2027,22 +2029,190 @@ class Manager(Window):
         pairs = [(row.item.place, row.item.name, row.new) for row in rows]
         done = await self._run_renames(pairs)
         if done:
-            Manager.last_renames = multirename.Batch(done)
+            UNDO.push(undo_history.Renamed(tuple(done)))
             place, _old, new = done[0]
             await self._after_renames(panel, done, at=(place, new) if len(done) == 1 else None)
 
-    async def on_undo_multi_rename(self, event: UndoMultiRename) -> bool:
-        self.spawn(self.undo_multi_rename(self.active_panel))
+    # -- File > Undo (not DN's: navigator.lib.file_ops.undo) ---------------------
+
+    async def on_undo(self, event: Undo) -> bool:
+        self.spawn(self.undo(self.active_panel))
         return True
 
-    async def undo_multi_rename(self, panel: Panel) -> None:
-        """File > Multi-rename > Undo multi-rename: the last batch's files given their old names back."""
-        batch, Manager.last_renames = Manager.last_renames, None
-        if batch is None or not batch.done:
+    async def undo(self, panel: Panel) -> None:
+        """File > Undo (Ctrl+Z): the newest operation in the session's history
+        taken back, after a Yes, through the worker that did it.  What could
+        not be taken back (skipped, stopped) goes back on the history, so
+        Ctrl+Z can try it again."""
+        app = self.application
+        entry = UNDO.peek()
+        if app is None or entry is None:
             return
-        done = await self._run_renames(batch.undo_pairs())
+        if not await Dialog(title=tr("Undo"), prompt=entry.question(), buttons="yes-no").execute(app):
+            return
+        if UNDO.peek() is not entry:
+            return  # something else went on the history meanwhile
+        UNDO.pop()
+        left: Any = None
+        try:
+            if isinstance(entry, undo_history.Renamed):
+                left = await self._undo_renames(panel, entry)
+            elif isinstance(entry, undo_history.Moved):
+                left = await self._undo_move(panel, entry)
+            elif isinstance(entry, undo_history.Copied):
+                left = await self._undo_copy(entry)
+            elif isinstance(entry, undo_history.Trashed):
+                left = await self._undo_trash(panel, entry)
+            elif isinstance(entry, undo_history.MadeDirectory):
+                left = await self._undo_mkdir(panel, entry)
+        finally:
+            for side in (self.left, self.right):
+                if side.application is not None:
+                    side.reload()
+        if left is not None:
+            UNDO.push(left)
+            return
+        toast = getattr(getattr(app, "root", None), "toast", None)
+        if toast is not None and app.is_running:
+            toast(entry.undone(), title=tr("Undo"))
+
+    async def _undo_renames(self, panel: Panel, entry: Any) -> Any:
+        """The names put back (:meth:`_run_renames`); what was not, as an entry."""
+        done = await self._run_renames(entry.undo_pairs())
         if done:
             await self._after_renames(panel, done)
+        back = {(place, new) for place, new, _old in done}
+        rest = tuple(pair for pair in entry.pairs if (pair[0], pair[2]) not in back)
+        return undo_history.Renamed(rest) if rest else None
+
+    async def _undo_move(self, panel: Panel, entry: Any) -> Any:
+        """Each destination moved back to its source through the copier
+        (:meth:`_run_copy`, its questions and box), a source's directory
+        made again if the move emptied it away."""
+        from navigator.lib.file_ops import filecopy
+
+        pairs = entry.undo_pairs()
+        parents = list(dict.fromkeys(source.parent for _dest, source in pairs))
+
+        def missing() -> list[Any]:
+            return [parent for parent in parents if not drive_of(parent).is_dir(parent)]
+
+        request = filecopy.CopyRequest(
+            sources=[shown(dest) for dest, _ in pairs],
+            target=str(shown(parents[0])) if len(parents) == 1 else "",
+            mode=filecopy.ASK, options=filecopy.PRESERVE | filecopy.MOVE,
+            pairs=[(shown(dest), shown(source)) for dest, source in pairs],
+            directories=[shown(parent) for parent in await asyncio.to_thread(missing)],
+        )
+        job_done: list[Any] = []
+        await self._run_copy(panel, request, panel.location, move=True,
+                             others=(self.passive_panel,), record=False, done_into=job_done)
+        back = {Location.of(dest) for dest in job_done}
+        rest = tuple(pair for pair in entry.pairs if pair[1] not in back)
+        return undo_history.Moved(rest, entry.replaced) if rest else None
+
+    async def _undo_copy(self, entry: Any) -> Any:
+        """What the copy made removed -- only what is still as it left it
+        (:func:`navigator.lib.file_ops.uncopy.check`, on a thread), the rest
+        kept and said in one box -- through the eraser: to the Trash on the
+        disk (its *erase instead?* question where there is none), for good
+        elsewhere.  The Trash it goes to is not Undo's history again."""
+        from navigator.lib.file_ops import fileerase, uncopy
+
+        app = self.application
+        same, changed = await asyncio.to_thread(uncopy.check, list(entry.pairs), drive_of)
+        if changed:
+            lines = [str(shown(location)) for location in changed[:8]]
+            if len(changed) > 8:
+                lines.append(tr_n("and {n} more", "and {n} more", len(changed) - 8))
+            heading = tr_n("{n} entry changed since the copy, kept:",
+                           "{n} entries changed since the copy, kept:", len(changed))
+            await Dialog(title=tr("Undo"), prompt="\n".join([heading, *lines]), buttons="ok").execute(app)
+        if not same:
+            return None
+        request = fileerase.EraseRequest(sources=[shown(location) for location in same], recursive=True,
+                                         trash=entry.to_trash)
+        gone = {Location.of(source) for source in await self._run_erase(request, record=False)}
+        rest = tuple(pair for pair in entry.pairs if pair[0] in same and pair[0] not in gone)
+        return undo_history.Copied(rest, entry.overwritten) if rest else None
+
+    async def _undo_trash(self, panel: Panel, entry: Any) -> Any:
+        """The items restored where each came from (``trash.restore_all``:
+        never over anything, *Skip* or *Cancel* when the name is taken)."""
+        from navigator.lib.file_ops import filecopy, trash
+        from navigator.widgets.manager.find_progress import FindProgress
+
+        job = trash.RestoreJob()
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Restore")
+            box.count_row.visible = False
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = f"{job.count}/{job.total}  {job.current}"
+
+        async def answer(question: Any) -> Any:
+            if isinstance(question, filecopy.Failure):
+                return await self._ask_skip(question.message)
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(trash.restore_all, list(entry.items), job))
+        try:
+            await self._watch_job(running, job, make_box, refresh, answer)
+            await running
+        finally:
+            if not running.done():
+                job.stop()
+        back = {id(item) for item in job.done}
+        rest = tuple(item for item in entry.items if id(item) not in back)
+        return undo_history.Trashed(rest) if rest else None
+
+    async def _undo_mkdir(self, panel: Panel, entry: Any) -> Any:
+        """F7's directory removed -- only while it is empty: Undo erases
+        nothing.  Refused permission on the disk, *As root* as F7 offers it."""
+        from navigator.lib.system.elevate import ELEVATION, refused
+
+        place = entry.location
+        as_root = False
+
+        def remove() -> None:
+            if as_root:
+                from navigator.lib.drives.root import ROOT_DRIVE
+
+                drive = ROOT_DRIVE
+            else:
+                drive = drive_of(place)
+            try:
+                drive.rmdir(place)
+                drive.finish()
+            finally:
+                if as_root:
+                    ELEVATION.release()
+
+        while True:
+            try:
+                await asyncio.to_thread(remove)
+            except FileNotFoundError:
+                return None  # gone already: nothing left to undo
+            except OSError as error:
+                if error.errno in (errno.ENOTEMPTY, errno.EEXIST):
+                    message = tr("{name} is not empty any more").format(name=place.name)
+                else:
+                    message = tr("Cannot remove directory {name}: {error}").format(
+                        name=place.name, error=error.strerror or error)
+                    if (not as_root and place.is_local and refused(error)
+                            and await asyncio.to_thread(ELEVATION.available)):
+                        from navigator.widgets.file_ops.as_root import ask_as_root
+
+                        if await ask_as_root(self.application, message):
+                            as_root = True
+                            continue
+                        return entry
+                await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
+                return None if error.errno in (errno.ENOTEMPTY, errno.EEXIST) else entry
+            return None
 
     # -- the Trash (not DN's: navigator.lib.drives.trash) ------------------------
 
@@ -2797,6 +2967,11 @@ class Manager(Window):
         typed = tr("The command line holds text: the key edits it")
         read_only = tr("This drive cannot be written to")
         not_found = tr("Not in a Find listing")
+        # The history is the session's, whatever the panel shows.
+        if isinstance(command, Undo):
+            if command.by_key and self._command_line_has_text():
+                return typed
+            return unless(bool(UNDO), tr("Nothing to undo"))
         if isinstance(command, JumpToDirectory):
             shell = getattr(self.application, "shell", None)
             return shell.fuzzy_refusal() if shell is not None else tr("fzf is not installed, or the shell is not bash or zsh")
@@ -2960,8 +3135,6 @@ class Manager(Window):
             if self._aside_focused():
                 return aside
             return unless(bool(self.selection(panel)), nothing)
-        if isinstance(command, UndoMultiRename):
-            return unless(Manager.last_renames is not None, tr("No multi-rename to undo"))
         if isinstance(command, RestoreTrash):
             # The Trash's own items only: one inside a trashed directory has no place of its own to go back to.
             if not self.shows_trash:
@@ -3209,6 +3382,7 @@ class Manager(Window):
             if panel.location.is_local:
                 try:
                     (panel.path / name).mkdir()
+                    UNDO.push(undo_history.MadeDirectory(Location.of(panel.path / name)))
                 except OSError as error:
                     if not refused(error) or not await asyncio.to_thread(ELEVATION.available):
                         raise
@@ -3229,6 +3403,7 @@ class Manager(Window):
                             ELEVATION.release()
 
                     await asyncio.to_thread(make_as_root)
+                    UNDO.push(undo_history.MadeDirectory(place))
             else:
                 # Another drive is a round trip away: a thread makes it.
                 place = panel.location / name
@@ -3240,6 +3415,7 @@ class Manager(Window):
 
                 try:
                     await asyncio.to_thread(make)
+                    UNDO.push(undo_history.MadeDirectory(place))
                 except OSError as error:
                     # An archive on the disk whose rewrite was refused:
                     # *As root*, its rewrite put back through the helper.
@@ -3261,6 +3437,7 @@ class Manager(Window):
                         drive.finish()
 
                     await asyncio.to_thread(finish_as_root)
+                    UNDO.push(undo_history.MadeDirectory(place))
         except OSError as error:
             await Dialog(
                 title=tr("Cannot make directory"),
@@ -3557,9 +3734,14 @@ class Manager(Window):
         return await self._run_copy(panel, request, here, move=move, others=others)
 
     async def _run_copy(self, panel: Panel, request: Any, here: Any, *, move: bool,
-                        others: tuple[Any, ...] = ()) -> bool:
+                        others: tuple[Any, ...] = (), record: bool = True,
+                        done_into: list[Any] | None = None) -> bool:
         """*request* run on a thread under the copy's box and questions; then
-        what went is untagged in *panel*, and it and *others* look again."""
+        what went is untagged in *panel*, and it and *others* look again.
+
+        A copy or a move off and onto anything but an archive goes on File >
+        Undo's history, unless *record* is false (Undo's own); *done_into* is
+        given the sources done in full."""
         from navigator.lib.file_ops import filecopy
 
         app = self.application
@@ -3575,6 +3757,14 @@ class Manager(Window):
                 # Cancelled -- Navigator is going -- so the thread is told to
                 # stop rather than left copying, or asking, behind it.
                 job.stop()
+            elif record and request.archive is None and request.pairs is None and all(
+                    Location.of(source).outer is None for source in request.sources):
+                if move and job.moved and all(dest.outer is None for _source, dest in job.moved):
+                    UNDO.push(undo_history.Moved(tuple(job.moved), job.replaced))
+                elif not move and job.copied and all(dest.outer is None for dest, _fp in job.copied):
+                    UNDO.push(undo_history.Copied(tuple(job.copied), job.overwritten))
+        if done_into is not None:
+            done_into.extend(done)
         # The window may have closed while the copy was in the background.
         if panel.application is not None:
             panel.untag_paths(done)
@@ -3881,7 +4071,7 @@ class Manager(Window):
         Setup's *F8 moves to Trash* (not DN's), and only what is on the disk."""
         return SETTINGS.file_manager.use_trash and all(panel.entry_location(entry).is_local for entry in entries)
 
-    async def _run_erase(self, request: Any, *, quiet: bool = False) -> list[Any]:
+    async def _run_erase(self, request: Any, *, quiet: bool = False, record: bool = True) -> list[Any]:
         """*request* run on a thread under *Deleting* and the eraser's
         questions; what went in full.  Cancelled, the worker is told to stop."""
         from navigator.lib.file_ops import fileerase
@@ -3912,6 +4102,8 @@ class Manager(Window):
         finally:
             if not work.done():
                 job.stop()
+            elif record and getattr(request, "trash", False) and job.trashed:
+                UNDO.push(undo_history.Trashed(tuple(job.trashed)))
 
     async def _answer_erase_question(self, question: Any, *, quiet: bool = False) -> Any:
         """Put one of the eraser's questions to the user, and answer as it expects."""

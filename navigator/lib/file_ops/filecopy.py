@@ -40,6 +40,7 @@ from navkit.i18n import tr
 
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.drives.location import shown  # noqa: F401 -- re-exported
+from navigator.lib.file_ops import uncopy
 from navigator.lib.system.job import POLL, Job, Stopped
 
 #: The copy modes, which are the dialog's radio buttons in order.
@@ -183,6 +184,21 @@ class CopyJob(Job):
         #: True while an archive written into is packed (``ArchiveDrive.finish``):
         #: ``source`` is the member, ``dest`` the archive.
         self.packing = False
+        #: What a move took where, for File > Undo: the largest piece that
+        #: went whole, ``(source, dest)`` -- a directory renamed or made anew
+        #: is one pair, one merged into a directory already there leaves its
+        #: children's.  An append is never in it (it cannot be taken back).
+        self.moved: list[tuple[Location, Location]] = []
+        #: How many of those replaced a file that was there (gone for good).
+        self.replaced = 0
+        #: What a copy made, for File > Undo: ``(dest, fingerprint)`` -- the
+        #: largest piece made whole, as :attr:`moved`; a directory's
+        #: fingerprint lists everything under it
+        #: (:mod:`navigator.lib.file_ops.uncopy`).  Nothing copied over or
+        #: appended to is in it.
+        self.copied: list[tuple[Location, Any]] = []
+        #: How many files a copy overwrote (gone for good).
+        self.overwritten = 0
 
 
 # -- the target ----------------------------------------------------------------
@@ -461,6 +477,25 @@ class _Copier(Elevated):
 
     # -- the whole ---------------------------------------------------------------
 
+    def _record(self, source: Location, dest: Location, *, replaced: bool = False) -> None:
+        """*source* moved to *dest* (:attr:`CopyJob.moved`)."""
+        self.job.moved.append((source, dest))
+        if replaced:
+            self.job.replaced += 1
+
+    def _made(self, dest: Location, action: str) -> None:
+        """*dest* copied (:attr:`CopyJob.copied`): new, or over a file that was there."""
+        if action == "overwrite":
+            self.job.overwritten += 1
+            return
+        if action != "new":
+            return
+        try:
+            st = self._drive_of(dest).lstat(dest)
+        except OSError:
+            return
+        self.job.copied.append((dest, uncopy.fingerprint(st)))
+
     def _remove_source(self, source: Location, *, directory: bool = False) -> bool:
         """A moved *source* deleted -- or, into an archive, held until it is written."""
         if self._held is not None:
@@ -530,6 +565,8 @@ class _Copier(Elevated):
                 # Stopped while packing: the archive as it was, and nothing moved.
                 discard_drives(places)
                 done.clear()
+                job.moved.clear()
+                job.copied.clear()
             else:
                 # What went in full stays, as it would on a disk.
                 paired = [place for pair in request.pairs or () for place in pair]
@@ -619,11 +656,13 @@ class _Copier(Elevated):
                                  passing=(errno.EXDEV,)):
                     return False
                 self.job.done_bytes += size
+                self._record(source, dest)
                 return True
             except OSError:
                 # Every directory under this one is across the same line.
                 self._cross_device = True
         self._walking.add(key)
+        mark, copy_mark = len(self.job.moved), len(self.job.copied)
         try:
             made = False
 
@@ -659,7 +698,18 @@ class _Copier(Elevated):
                 except OSError:
                     pass
             if self.move and complete:
-                return self._remove_source(source, directory=True)
+                if not self._remove_source(source, directory=True):
+                    return False
+                if made:
+                    # Made anew and emptied: the directory went whole.
+                    del self.job.moved[mark:]
+                    self._record(source, dest)
+                return True
+            if not self.move and made and complete:
+                # Made whole: one record, listing everything under it.
+                children = self.job.copied[copy_mark:]
+                del self.job.copied[copy_mark:]
+                self.job.copied.append((dest, uncopy.collapse(dest, children)))
             return complete
         finally:
             self._walking.discard(key)
@@ -690,6 +740,8 @@ class _Copier(Elevated):
         dest_drive = self._drive_of(dest)
         self.job.source, self.job.dest = str(source), str(dest)
         self.job.file_bytes = self.job.file_done = 0
+        replaced = False
+        action = "new"
         if dest_drive.lexists(dest):
             if self._same_link(source, dest):
                 return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
@@ -698,10 +750,14 @@ class _Copier(Elevated):
                 return False
             if action == "append":
                 return self._fail(source, lambda: tr("Can not append to {name}: it is a link"), name=dest.name)
+            replaced = action == "overwrite"
         if self.move:
             try:
-                return self._try(source, lambda: self._rename(source, dest, replace=True),
-                                 passing=(errno.EXDEV,))
+                renamed = self._try(source, lambda: self._rename(source, dest, replace=True),
+                                    passing=(errno.EXDEV,))
+                if renamed:
+                    self._record(source, dest, replaced=replaced)
+                return renamed
             except OSError:
                 pass  # across drives: made anew below
 
@@ -726,7 +782,11 @@ class _Copier(Elevated):
                 except OSError:
                     pass
         if self.move:
-            return self._remove_source(source)
+            if not self._remove_source(source):
+                return False
+            self._record(source, dest, replaced=replaced)
+        else:
+            self._made(dest, action)
         return True
 
     def _same_link(self, source: Location, dest: Location) -> bool:
@@ -808,6 +868,7 @@ class _Copier(Elevated):
                 job.done_bytes += st.st_size
                 if renamed:
                     job.file_done = st.st_size
+                    self._record(source, dest, replaced=action == "overwrite")
                 return renamed
             except OSError:
                 pass  # across drives: copied and deleted
@@ -816,7 +877,12 @@ class _Copier(Elevated):
         if self.preserve:
             self._attributes(source, dest, st)
         if self.move:
-            return self._remove_source(source)
+            if not self._remove_source(source):
+                return False
+            if action != "append":
+                self._record(source, dest, replaced=action == "overwrite")
+        else:
+            self._made(dest, action)
         return True
 
     def _copy_bytes(self, source: Location, dest: Location, st: Any, *, append: bool) -> bool:
