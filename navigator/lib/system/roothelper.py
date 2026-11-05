@@ -308,6 +308,15 @@ class _Helper:
             raise OSError(errno.EINVAL, "Not something Navigator does to a service", str(verb))
         backend.act(services.Unit(self._name(backend, unit), backend=backend.name), verb)
 
+    def service_states(self, manager: str) -> dict[str, list[str]]:
+        """Services' states the user may not read (runit's ``supervise/``):
+        *manager*'s own fixed status command, run as root; no name or
+        command comes from the client."""
+        backend = self._backend(manager)
+        if not backend.states_need_root:
+            raise OSError(errno.EINVAL, "That manager's states are everyone's to read", str(manager))
+        return {name: list(state) for name, state in backend.states().items()}
+
     def after_edit(self, manager: str) -> None:
         """Services' F4: what makes an edit saved as root count -- systemd's
         daemon-reload; nothing for a manager that needs nothing."""

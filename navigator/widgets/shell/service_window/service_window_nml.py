@@ -38,9 +38,9 @@ __all__ = ["ServiceWindow"]
 
 
 class ServiceWindow(Window, _Component):
-    """Utilities > Services: the system's services -- systemd's units or OpenRC's
+    """Utilities > Services: the system's services -- systemd's units, OpenRC's or
 
-    services: name, whether it runs, how it starts, what it is -- a row each,
+    runit's services: name, whether it runs, how it starts, what it is -- a row each,
     read again every ``[services] refresh`` seconds.  **Not DOS Navigator's**:
     a departure, asked for -- DOS had no service manager.  Process list's
     sibling, laid out as it is; ``navigator/lib/system/services/`` says how

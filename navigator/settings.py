@@ -1125,10 +1125,10 @@ class ServicesData(Section):
 
     #: ``navigator.lib.system.services.MANAGERS``, written out: settings are
     #: read before anything that could import the backends.
-    MANAGERS: ClassVar[tuple[str, ...]] = ("auto", "systemd", "openrc")
+    MANAGERS: ClassVar[tuple[str, ...]] = ("auto", "systemd", "openrc", "runit")
 
     manager: str = Setting("auto", choices=MANAGERS,
-                           doc="The service manager Services works: auto (the one running), systemd or openrc")
+                           doc="The service manager Services works: auto (the one running), systemd, openrc or runit")
     refresh: int = Setting(3, doc="Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R")
     journal_lines: int = Setting(200, doc="How many of a unit's last journal lines F3 shows before following it")
 

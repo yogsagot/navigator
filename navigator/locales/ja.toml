@@ -2379,7 +2379,7 @@ flag = "JP"
 "~S~ignal..." = "シグナル(~S~)..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "終了(~K~)..."
-# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:444 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:376 ...
 "Services" = "サービス"
 # navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "名前か説明にこれを含むユニットだけを表示"
@@ -2391,11 +2391,11 @@ flag = "JP"
 "~A~ll types" = "すべての種類(~A~)"
 # navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "サービスだけでなく、タイマー、ソケット、マウントなども"
-# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:603
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:670
 "S~t~art" = "起動(~T~)"
 # navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "停止(~O~)"
-# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:599
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:666
 "~J~ournal" = "ジャーナル(~J~)"
 # navigator/widgets/shell/service_window/service_window.nml:181
 "Start, stop, enable and follow the system's services" = "システムのサービスを起動、停止、有効化、追跡"
@@ -2413,31 +2413,31 @@ flag = "JP"
 "Show only the units whose name or description holds what is typed" = "名前か説明に入力した文字を含むユニットだけを表示"
 # navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "ユニットのジャーナルをビューアーで末尾を追って表示"
-# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:600
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:667
 "Edit unit file" = "ユニットファイルを編集"
 # navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "ユニットのファイルをエディターで開く (パッケージのものはドロップインの override で)。保存すると systemd がユニットファイルを読み直す"
-# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:601
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:668
 "Detai~l~s..." = "詳細(~L~)..."
-# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:604
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:671
 "Restart" = "再起動"
-# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:605
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:672
 "Rel~o~ad" = "再読み込み(~O~)"
-# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:606
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:673
 "Sto~p~..." = "停止(~P~)..."
-# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:608
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:675
 "Ena~b~le" = "有効化(~B~)"
 # navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "起動時に、ユーザーユニットならログイン時に起動される"
-# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:609
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:676
 "D~i~sable" = "無効化(~I~)"
 # navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "起動時に起動されなくなる"
-# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:610
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:677
 "~M~ask..." = "マスク(~M~)..."
 # navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "他のユニットからも決して起動されない"
-# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:611
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:678
 "Unmas~k~" = "マスク解除(~K~)"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "システム情報"
@@ -3023,28 +3023,54 @@ flag = "JP"
 "Environment" = "環境変数"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator はこのプロセスにシグナルを送りません"
-# navigator/lib/system/services/__init__.py:72
-"No service manager Navigator knows runs here: systemd or OpenRC" = "Navigator が知っているサービスマネージャーがここでは動いていません: systemd か OpenRC"
-# navigator/lib/system/services/openrc.py:268
+# navigator/lib/system/services/__init__.py:74
+"No service manager Navigator knows runs here: systemd, OpenRC or runit" = "Navigator が知っているサービスマネージャーがここでは動いていません: systemd、OpenRC、runit"
+# navigator/lib/system/services/common.py:202
+"{manager} keeps no log for {unit}, and there is no system log file" = "{manager} は {unit} のログを持たず、システムログのファイルもありません"
+# navigator/lib/system/services/openrc.py:259
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:84
 "There is no rc-service: install OpenRC" = "rc-service がありません: OpenRC をインストールしてください"
-# navigator/lib/system/services/openrc.py:89
+# navigator/lib/system/services/openrc.py:86
 "OpenRC is not the system's service manager" = "OpenRC がシステムのサービスマネージャーではありません"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:191, navigator/lib/system/services/runit.py:260
 "Status: {state}" = "状態: {state}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Runlevels: {levels}" = "ランレベル: {levels}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Script: {path}" = "スクリプト: {path}"
-# navigator/lib/system/services/openrc.py:229
-"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC は {unit} のログを持たず、システムログのファイルもありません"
-# navigator/lib/system/services/openrc.py:243
+# navigator/lib/system/services/openrc.py:234, navigator/lib/system/services/runit.py:312
 "Settings for {unit}, read by {path} each time it starts." = "{unit} の設定。{path} が起動のたびに読む。"
-# navigator/lib/system/services/openrc.py:244
+# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
 "A setting made here wins over the script's own; restart {unit} for it to count." = "ここでの設定はスクリプト自身のものより優先される。反映するには {unit} を再起動する。"
-# navigator/lib/system/services/openrc.py:248
+# navigator/lib/system/services/openrc.py:239
 "The settings {path} makes:" = "{path} が行う設定:"
+# navigator/lib/system/services/runit.py:344
+"runit" = "runit"
+# navigator/lib/system/services/runit.py:91
+"There is no sv: install runit" = "sv がありません: runit をインストールしてください"
+# navigator/lib/system/services/runit.py:93
+"runit is not the system's service manager" = "runit がシステムのサービスマネージャーではありません"
+# navigator/lib/system/services/runit.py:95, navigator/lib/system/services/runit.py:224
+"runit has no service directory here" = "runit のサービスディレクトリがここにありません"
+# navigator/lib/system/services/runit.py:261
+"Start-up: {state}" = "自動起動: {state}"
+# navigator/lib/system/services/runit.py:242
+"{unit} is not enabled: enable it first" = "{unit} は有効ではありません: 先に有効化してください"
+# navigator/lib/system/services/runit.py:263
+"Defined in {path}" = "{path} で定義"
+# navigator/lib/system/services/runit.py:317, navigator/lib/system/services/systemd.py:239
+"{path} as it is:" = "現在の {path}:"
+# navigator/lib/system/services/runit.py:328
+"{unit} has no service directory" = "{unit} にはサービスディレクトリがありません"
+# navigator/lib/system/services/runit.py:336
+"{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "{unit} は設定ファイルを読まないので、run スクリプトを編集します: パッケージの更新で置き換えられることがあります。"
+# navigator/lib/system/services/runit.py:229
+"{unit} is not defined in {path}" = "{unit} は {path} で定義されていません"
+# navigator/lib/system/services/runit.py:238
+"{path} is not a link Navigator removes" = "{path} は Navigator が削除するリンクではありません"
+# navigator/lib/system/services/runit.py:266
+"Logs to {path}" = "ログの出力先 {path}"
 # navigator/lib/system/services/systemd.py:284
 "systemd" = "systemd"
 # navigator/lib/system/services/systemd.py:63
@@ -3059,8 +3085,6 @@ flag = "JP"
 "{unit} has no unit file to edit" = "{unit} には編集するユニットファイルがありません"
 # navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "{unit} のオーバーライド: ここでの設定が {path} より優先される。"
-# navigator/lib/system/services/systemd.py:239
-"{path} as it is:" = "現在の {path}:"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "マシンの種類"
 # navigator/lib/system/sysinfo.py:146
@@ -4579,9 +4603,9 @@ flag = "JP"
 "Mask" = "マスク"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "マスク解除"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:46
 "Start-up" = "自動起動"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:46
 "Description" = "説明"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "ごみ箱"
@@ -4729,9 +4753,9 @@ flag = "JP"
 "It closes after {n} idle minute" = ["{n} 分間使われないと閉じます"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} で今すぐ閉じます"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Unit" = "ユニット"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Service" = "サービス"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "ジャーナル: {unit}"
@@ -4743,27 +4767,33 @@ flag = "JP"
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "{unit} のジャーナル全体を読めるのは root と systemd-journal グループだけです: あなたとしては自分の行しか表示されません。"
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "{unit} のログがある {path} を読めるのは root だけです。"
-# navigator/widgets/shell/service_window/service_window.py:247
+# navigator/widgets/shell/service_window/service_window.py:292
 "{shown} of {count} unit match the filter" = [""]
-# navigator/widgets/shell/service_window/service_window.py:252
+# navigator/widgets/shell/service_window/service_window.py:297
 "{count} unit, {running} running, {failed} failed" = [""]
-# navigator/widgets/shell/service_window/service_window.py:340
+# navigator/widgets/shell/service_window/service_window.py:402
 "Not something {manager} does" = "{manager} にはできないことです"
-# navigator/widgets/shell/service_window/service_window.py:348
+# navigator/widgets/shell/service_window/service_window.py:410
 "The cursor is on no unit" = "カーソルがユニット上にありません"
-# navigator/widgets/shell/service_window/service_window.py:442
+# navigator/widgets/shell/service_window/service_window.py:509
 "{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} はパッケージのものです: {path} でオーバーライドされますが、これを作れるのは root だけです。"
-# navigator/widgets/shell/service_window/service_window.py:511
+# navigator/widgets/shell/service_window/service_window.py:578
 "Restart {unit} now, so it reads its new settings?" = "新しい設定を読ませるために、今 {unit} を再起動しますか?"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Stop {unit}?" = "{unit} を停止しますか?"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Mask {unit}? It will not start at all until unmasked." = "{unit} をマスクしますか? マスクを解除するまでまったく起動されません。"
-# navigator/widgets/shell/service_window/service_window.py:549
+# navigator/widgets/shell/service_window/service_window.py:616
 "Cannot {verb} {unit}: {error}" = "{unit} を {verb} できません: {error}"
-# navigator/widgets/shell/service_window/service_window.py:167
+# navigator/widgets/shell/service_window/service_window.py:200
 "Services ({manager})" = "サービス ({manager})"
-# navigator/widgets/shell/service_window/service_window.py:487
+# navigator/widgets/shell/service_window/service_window.py:301
+"{summary}; states need root: Ctrl+R reads them as root" = "{summary}; 状態の読み取りには root が必要: Ctrl+R で root として読む"
+# navigator/widgets/shell/service_window/service_window.py:374
+"Only root reads whether {manager}'s enabled services run." = "{manager} の有効なサービスが動いているかを見られるのは root だけです。"
+# navigator/widgets/shell/service_window/service_window.py:303
+"{summary}; states read as root at {time}, Ctrl+R reads them again" = "{summary}; 状態は {time} に root として読んだもの、Ctrl+R で読み直す"
+# navigator/widgets/shell/service_window/service_window.py:554
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "{unit} のファイルは保存されましたが、systemd に読み直させられません: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "インターフェース設定でコマンドラインが非表示です"
@@ -5974,7 +6004,7 @@ flag = "JP"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "プロセス一覧を開いている間の読み直し間隔 (秒)。0 なら Ctrl+R のときだけ"
 # navigator/settings.py
-"The service manager Services works: auto (the one running), systemd or openrc" = "サービスウィンドウが使うサービスマネージャー: auto (動いているもの)、systemd、openrc"
+"The service manager Services works: auto (the one running), systemd, openrc or runit" = "サービスウィンドウが使うサービスマネージャー: auto (動いているもの)、systemd、openrc、runit"
 # navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "サービスを開いている間のユニット読み直しの間隔(秒)。0 なら Ctrl+R でのみ読む"
 # navigator/settings.py
@@ -6040,3 +6070,6 @@ flag = "JP"
 "The unit's file in the editor; saved, systemd reads its unit files again" = "ユニットのファイルをエディターで開き、保存すると systemd がユニットファイルを読み直す"
 "systemd's units: start, stop, enable them, follow their journal" = "systemd のユニット: 起動、停止、有効化、ジャーナルの追跡"
 "Start, stop, enable and follow systemd's units" = "systemd のユニットを起動、停止、有効化、追跡"
+"No service manager Navigator knows runs here: systemd or OpenRC" = "Navigator が知っているサービスマネージャーがここでは動いていません: systemd か OpenRC"
+"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC は {unit} のログを持たず、システムログのファイルもありません"
+"The service manager Services works: auto (the one running), systemd or openrc" = "サービスウィンドウが使うサービスマネージャー: auto (動いているもの)、systemd、openrc"

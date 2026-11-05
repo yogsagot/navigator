@@ -13,7 +13,7 @@ from navkit.events import KeyEvent
 from conftest import Until
 
 from navigator.lib.system import services
-from navigator.lib.system.services import Unit, common, openrc, systemd
+from navigator.lib.system.services import Unit, common, openrc, runit, systemd
 
 from test_services import service_run
 
@@ -52,7 +52,7 @@ def etc(tmp_path, monkeypatch):
                                  'pidfile="/run/$RC_SVCNAME.pid"\n\ndepend() {\n\tneed net\n}\n')
     monkeypatch.setattr(openrc, "INIT_D", init_d)
     monkeypatch.setattr(openrc, "CONF_D", conf_d)
-    monkeypatch.setattr(openrc, "SYSTEM_LOGS", (tmp_path / "messages",))
+    monkeypatch.setattr(common, "SYSTEM_LOGS", (tmp_path / "messages",))
     return tmp_path
 
 
@@ -147,12 +147,13 @@ def test_the_running_manager_is_picked_unless_one_is_named(monkeypatch):
     from navigator.settings import SETTINGS
 
     monkeypatch.setattr(SETTINGS.services, "manager", "auto")
+    monkeypatch.setattr(runit, "refusal", lambda: "no runit")
     monkeypatch.setattr(systemd, "refusal", lambda: "no systemd")
     monkeypatch.setattr(openrc, "refusal", lambda: "")
     assert services.current() is openrc.BACKEND and services.refusal_reason() == ""
     monkeypatch.setattr(openrc, "refusal", lambda: "no openrc")
     assert services.current() is None
-    assert "systemd or OpenRC" in services.refusal_reason()
+    assert "systemd, OpenRC or runit" in services.refusal_reason()
     monkeypatch.setattr(SETTINGS.services, "manager", "systemd")
     assert services.current() is systemd.BACKEND and services.refusal_reason() == "no systemd"
 

@@ -2379,7 +2379,7 @@ flag = "RU"
 "~S~ignal..." = "С~и~гнал..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "Заве~р~шить..."
-# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:444 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:376 ...
 "Services" = "Службы"
 # navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "Показывать только юниты, в имени или описании которых есть это"
@@ -2391,11 +2391,11 @@ flag = "RU"
 "~A~ll types" = "~В~се типы"
 # navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "Таймеры, сокеты, точки монтирования и прочее, не только службы"
-# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:603
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:670
 "S~t~art" = "Зап~у~ск"
 # navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "~О~становить"
-# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:599
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:666
 "~J~ournal" = "~Ж~урнал"
 # navigator/widgets/shell/service_window/service_window.nml:181
 "Start, stop, enable and follow the system's services" = "Запуск, остановка, включение и слежение за службами системы"
@@ -2413,31 +2413,31 @@ flag = "RU"
 "Show only the units whose name or description holds what is typed" = "Показывать только юниты, в имени или описании которых есть набранное"
 # navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "Журнал юнита в просмотрщике, следя за его концом"
-# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:600
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:667
 "Edit unit file" = "Править файл юнита"
 # navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "Файл юнита в редакторе, файл пакета — через дополнение override; после сохранения systemd перечитывает файлы юнитов"
-# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:601
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:668
 "Detai~l~s..." = "~Д~етали..."
-# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:604
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:671
 "Restart" = "Перезапустить"
-# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:605
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:672
 "Rel~o~ad" = "П~е~резагрузить"
-# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:606
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:673
 "Sto~p~..." = "Ос~т~ановить..."
-# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:608
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:675
 "Ena~b~le" = "В~к~лючить"
 # navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "Запускается при загрузке или при входе для пользовательского юнита"
-# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:609
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:676
 "D~i~sable" = "Выкл~ю~чить"
 # navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "Больше не запускается при загрузке"
-# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:610
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:677
 "~M~ask..." = "~М~аскировать..."
 # navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "Никогда не запускается, даже другим юнитом"
-# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:611
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:678
 "Unmas~k~" = "Размаски~р~овать"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "Системная информация"
@@ -3023,28 +3023,54 @@ flag = "RU"
 "Environment" = "Окружение"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator не посылает сигналы этому процессу"
-# navigator/lib/system/services/__init__.py:72
-"No service manager Navigator knows runs here: systemd or OpenRC" = "Здесь не работает ни один известный Navigator менеджер служб: systemd или OpenRC"
-# navigator/lib/system/services/openrc.py:268
+# navigator/lib/system/services/__init__.py:74
+"No service manager Navigator knows runs here: systemd, OpenRC or runit" = "Здесь не работает ни один известный Navigator менеджер служб: systemd, OpenRC или runit"
+# navigator/lib/system/services/common.py:202
+"{manager} keeps no log for {unit}, and there is no system log file" = "{manager} не ведёт журнала для {unit}, и системного журнала нет"
+# navigator/lib/system/services/openrc.py:259
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:84
 "There is no rc-service: install OpenRC" = "Нет rc-service: установите OpenRC"
-# navigator/lib/system/services/openrc.py:89
+# navigator/lib/system/services/openrc.py:86
 "OpenRC is not the system's service manager" = "OpenRC не является менеджером служб системы"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:191, navigator/lib/system/services/runit.py:260
 "Status: {state}" = "Состояние: {state}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Runlevels: {levels}" = "Уровни запуска: {levels}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Script: {path}" = "Сценарий: {path}"
-# navigator/lib/system/services/openrc.py:229
-"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC не ведёт журнала для {unit}, и системного журнала нет"
-# navigator/lib/system/services/openrc.py:243
+# navigator/lib/system/services/openrc.py:234, navigator/lib/system/services/runit.py:312
 "Settings for {unit}, read by {path} each time it starts." = "Настройки {unit}, которые {path} читает при каждом запуске."
-# navigator/lib/system/services/openrc.py:244
+# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
 "A setting made here wins over the script's own; restart {unit} for it to count." = "Заданное здесь важнее настроек самого сценария; перезапустите {unit}, чтобы оно вступило в силу."
-# navigator/lib/system/services/openrc.py:248
+# navigator/lib/system/services/openrc.py:239
 "The settings {path} makes:" = "Настройки, которые задаёт {path}:"
+# navigator/lib/system/services/runit.py:344
+"runit" = "runit"
+# navigator/lib/system/services/runit.py:91
+"There is no sv: install runit" = "Нет sv: установите runit"
+# navigator/lib/system/services/runit.py:93
+"runit is not the system's service manager" = "runit не является менеджером служб системы"
+# navigator/lib/system/services/runit.py:95, navigator/lib/system/services/runit.py:224
+"runit has no service directory here" = "У runit здесь нет каталога служб"
+# navigator/lib/system/services/runit.py:261
+"Start-up: {state}" = "Автозапуск: {state}"
+# navigator/lib/system/services/runit.py:242
+"{unit} is not enabled: enable it first" = "{unit} не включена: сначала включите её"
+# navigator/lib/system/services/runit.py:263
+"Defined in {path}" = "Определена в {path}"
+# navigator/lib/system/services/runit.py:317, navigator/lib/system/services/systemd.py:239
+"{path} as it is:" = "{path} как есть:"
+# navigator/lib/system/services/runit.py:328
+"{unit} has no service directory" = "У {unit} нет каталога службы"
+# navigator/lib/system/services/runit.py:336
+"{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "{unit} не читает файл настроек, поэтому правится её сценарий run: обновление пакета может его заменить."
+# navigator/lib/system/services/runit.py:229
+"{unit} is not defined in {path}" = "{unit} не определена в {path}"
+# navigator/lib/system/services/runit.py:238
+"{path} is not a link Navigator removes" = "{path} — не ссылка, которую Navigator удаляет"
+# navigator/lib/system/services/runit.py:266
+"Logs to {path}" = "Журнал в {path}"
 # navigator/lib/system/services/systemd.py:284
 "systemd" = "systemd"
 # navigator/lib/system/services/systemd.py:63
@@ -3059,8 +3085,6 @@ flag = "RU"
 "{unit} has no unit file to edit" = "У {unit} нет файла юнита для правки"
 # navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "Дополнение для {unit}: заданное здесь важнее, чем в {path}."
-# navigator/lib/system/services/systemd.py:239
-"{path} as it is:" = "{path} как есть:"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "Тип машины"
 # navigator/lib/system/sysinfo.py:146
@@ -4579,9 +4603,9 @@ flag = "RU"
 "Mask" = "Маскировать"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "Размаскировать"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:46
 "Start-up" = "Автозапуск"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:46
 "Description" = "Описание"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "Корзина"
@@ -4729,9 +4753,9 @@ flag = "RU"
 "It closes after {n} idle minute" = ["Закрывается после {n} минуты простоя", "Закрывается после {n} минут простоя", "Закрывается после {n} минут простоя"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} закрывает его сразу"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Unit" = "Юнит"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Service" = "Служба"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "Журнал: {unit}"
@@ -4743,27 +4767,33 @@ flag = "RU"
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "Весь журнал {unit} читают только root и группа systemd-journal: от вашего имени видны только ваши строки."
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "Только root читает {path}, где журнал {unit}."
-# navigator/widgets/shell/service_window/service_window.py:247
+# navigator/widgets/shell/service_window/service_window.py:292
 "{shown} of {count} unit match the filter" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:252
+# navigator/widgets/shell/service_window/service_window.py:297
 "{count} unit, {running} running, {failed} failed" = ["", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:340
+# navigator/widgets/shell/service_window/service_window.py:402
 "Not something {manager} does" = "{manager} так не умеет"
-# navigator/widgets/shell/service_window/service_window.py:348
+# navigator/widgets/shell/service_window/service_window.py:410
 "The cursor is on no unit" = "Курсор не стоит на юните"
-# navigator/widgets/shell/service_window/service_window.py:442
+# navigator/widgets/shell/service_window/service_window.py:509
 "{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} принадлежит пакету: он дополняется в {path}, который может создать только root."
-# navigator/widgets/shell/service_window/service_window.py:511
+# navigator/widgets/shell/service_window/service_window.py:578
 "Restart {unit} now, so it reads its new settings?" = "Перезапустить {unit} сейчас, чтобы он прочитал новые настройки?"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Stop {unit}?" = "Остановить {unit}?"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Mask {unit}? It will not start at all until unmasked." = "Маскировать {unit}? Он не будет запускаться вовсе, пока не будет размаскирован."
-# navigator/widgets/shell/service_window/service_window.py:549
+# navigator/widgets/shell/service_window/service_window.py:616
 "Cannot {verb} {unit}: {error}" = "Не удалось выполнить {verb} для {unit}: {error}"
-# navigator/widgets/shell/service_window/service_window.py:167
+# navigator/widgets/shell/service_window/service_window.py:200
 "Services ({manager})" = "Службы ({manager})"
-# navigator/widgets/shell/service_window/service_window.py:487
+# navigator/widgets/shell/service_window/service_window.py:301
+"{summary}; states need root: Ctrl+R reads them as root" = "{summary}; состояния требуют root: Ctrl+R читает их от имени root"
+# navigator/widgets/shell/service_window/service_window.py:374
+"Only root reads whether {manager}'s enabled services run." = "Только root видит, работают ли включённые службы {manager}."
+# navigator/widgets/shell/service_window/service_window.py:303
+"{summary}; states read as root at {time}, Ctrl+R reads them again" = "{summary}; состояния прочитаны от имени root в {time}, Ctrl+R читает их снова"
+# navigator/widgets/shell/service_window/service_window.py:554
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "Файл {unit} сохранён, но systemd не удаётся велеть перечитать его: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "Настройка интерфейса скрывает командную строку"
@@ -5974,7 +6004,7 @@ flag = "RU"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "Секунды между чтениями списка процессов, пока он открыт; 0 — только по Ctrl+R"
 # navigator/settings.py
-"The service manager Services works: auto (the one running), systemd or openrc" = "Менеджер служб для окна Службы: auto (работающий), systemd или openrc"
+"The service manager Services works: auto (the one running), systemd, openrc or runit" = "Менеджер служб для окна Службы: auto (работающий), systemd, openrc или runit"
 # navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "Секунды между чтениями юнитов, пока открыто окно Службы; 0 — только по Ctrl+R"
 # navigator/settings.py
@@ -6076,3 +6106,6 @@ flag = "RU"
 "The unit's file in the editor; saved, systemd reads its unit files again" = "Файл юнита в редакторе; после сохранения systemd перечитывает файлы юнитов"
 "systemd's units: start, stop, enable them, follow their journal" = "Юниты systemd: запуск, остановка, включение, слежение за журналом"
 "Start, stop, enable and follow systemd's units" = "Запуск, остановка, включение и журнал юнитов systemd"
+"No service manager Navigator knows runs here: systemd or OpenRC" = "Здесь не работает ни один известный Navigator менеджер служб: systemd или OpenRC"
+"OpenRC keeps no log for {unit}, and there is no system log file" = "OpenRC не ведёт журнала для {unit}, и системного журнала нет"
+"The service manager Services works: auto (the one running), systemd or openrc" = "Менеджер служб для окна Службы: auto (работающий), systemd или openrc"

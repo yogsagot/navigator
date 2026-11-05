@@ -2380,7 +2380,7 @@ direction = "rtl"
 "~S~ignal..." = "إشا~ر~ة..."
 # navigator/widgets/shell/process_window/process_window.nml:249, navigator/widgets/shell/process_window/process_window.py:481
 "~K~ill..." = "إ~ن~هاء..."
-# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:444 ...
+# navigator/widgets/shell/service_window/service_window.nml:42, navigator/widgets/shell/commands.py:319, navigator/widgets/shell/service_window/service_window.py:376 ...
 "Services" = "الخدمات"
 # navigator/widgets/shell/service_window/service_window.nml:84
 "Show only the units whose name or description holds this" = "اعرض فقط الوحدات التي يحوي اسمها أو وصفها هذا"
@@ -2392,11 +2392,11 @@ direction = "rtl"
 "~A~ll types" = "~ك~ل الأنواع"
 # navigator/widgets/shell/service_window/service_window.nml:128, navigator/widgets/shell/service_window/service_window.nml:210
 "Timers, sockets, mounts and the rest too, not only services" = "المؤقتات والمقابس ونقاط الوصل والبقية أيضًا، لا الخدمات وحدها"
-# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:603
+# navigator/widgets/shell/service_window/service_window.nml:132, navigator/widgets/shell/service_window/service_window.nml:235, navigator/widgets/shell/service_window/service_window.py:670
 "S~t~art" = "~ش~غّل"
 # navigator/widgets/shell/service_window/service_window.nml:141
 "St~o~p" = "~أ~وقف"
-# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:599
+# navigator/widgets/shell/service_window/service_window.nml:150, navigator/widgets/shell/service_window/service_window.nml:220, navigator/widgets/shell/service_window/service_window.py:666
 "~J~ournal" = "السج~ل~"
 # navigator/widgets/shell/service_window/service_window.nml:181
 "Start, stop, enable and follow the system's services" = "تشغيل خدمات النظام وإيقافها وتمكينها ومتابعتها"
@@ -2414,31 +2414,31 @@ direction = "rtl"
 "Show only the units whose name or description holds what is typed" = "اعرض فقط الوحدات التي يحوي اسمها أو وصفها ما كُتب"
 # navigator/widgets/shell/service_window/service_window.nml:221
 "The unit's journal in the viewer, following its end" = "سجل الوحدة في العارض، مع متابعة نهايته"
-# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:600
+# navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:667
 "Edit unit file" = "حرّر ملف الوحدة"
 # navigator/widgets/shell/service_window/service_window.nml:226
 "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again" = "ملف الوحدة في المحرر، وملف الحزمة عبر ملف تجاوز؛ بعد حفظه يعيد systemd قراءة ملفات الوحدات"
-# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:601
+# navigator/widgets/shell/service_window/service_window.nml:230, navigator/widgets/shell/service_window/service_window.py:668
 "Detai~l~s..." = "التف~ا~صيل..."
-# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:604
+# navigator/widgets/shell/service_window/service_window.nml:239, navigator/widgets/shell/commands.py:345, navigator/widgets/shell/service_window/service_window.py:671
 "Restart" = "أعد التشغيل"
-# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:605
+# navigator/widgets/shell/service_window/service_window.nml:243, navigator/widgets/shell/service_window/service_window.py:672
 "Rel~o~ad" = "أعد ال~ت~حميل"
-# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:606
+# navigator/widgets/shell/service_window/service_window.nml:247, navigator/widgets/shell/service_window/service_window.py:673
 "Sto~p~..." = "أوق~ف~..."
-# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:608
+# navigator/widgets/shell/service_window/service_window.nml:252, navigator/widgets/shell/service_window/service_window.py:675
 "Ena~b~le" = "مكّ~ن~"
 # navigator/widgets/shell/service_window/service_window.nml:253
 "Started at boot, or at log-in for a user unit" = "تُشغَّل عند الإقلاع، أو عند الدخول لوحدة مستخدم"
-# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:609
+# navigator/widgets/shell/service_window/service_window.nml:257, navigator/widgets/shell/service_window/service_window.py:676
 "D~i~sable" = "~ع~طّل"
 # navigator/widgets/shell/service_window/service_window.nml:258
 "Not started at boot any more" = "لا تُشغَّل عند الإقلاع بعد الآن"
-# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:610
+# navigator/widgets/shell/service_window/service_window.nml:262, navigator/widgets/shell/service_window/service_window.py:677
 "~M~ask..." = "اح~ج~ب..."
 # navigator/widgets/shell/service_window/service_window.nml:263
 "Never started, not even by another unit" = "لا تُشغَّل أبدًا، ولا حتى من وحدة أخرى"
-# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:611
+# navigator/widgets/shell/service_window/service_window.nml:266, navigator/widgets/shell/service_window/service_window.py:678
 "Unmas~k~" = "ا~ر~فع الحجب"
 # navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:14
 "System Information" = "معلومات النظام"
@@ -3024,28 +3024,54 @@ direction = "rtl"
 "Environment" = "البيئة"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "لا يرسل Navigator إشارات إلى هذه العملية"
-# navigator/lib/system/services/__init__.py:72
-"No service manager Navigator knows runs here: systemd or OpenRC" = "لا يعمل هنا أي مدير خدمات يعرفه Navigator: systemd أو OpenRC"
-# navigator/lib/system/services/openrc.py:268
+# navigator/lib/system/services/__init__.py:74
+"No service manager Navigator knows runs here: systemd, OpenRC or runit" = "لا يعمل هنا أي مدير خدمات يعرفه Navigator: systemd أو OpenRC أو runit"
+# navigator/lib/system/services/common.py:202
+"{manager} keeps no log for {unit}, and there is no system log file" = "لا يحتفظ {manager} بسجل لـ {unit}، ولا يوجد ملف سجل للنظام"
+# navigator/lib/system/services/openrc.py:259
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:84
 "There is no rc-service: install OpenRC" = "لا يوجد rc-service: ثبّت OpenRC"
-# navigator/lib/system/services/openrc.py:89
+# navigator/lib/system/services/openrc.py:86
 "OpenRC is not the system's service manager" = "ليس OpenRC مدير خدمات النظام"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:191, navigator/lib/system/services/runit.py:260
 "Status: {state}" = "الحالة: {state}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Runlevels: {levels}" = "مستويات التشغيل: {levels}"
-# navigator/lib/system/services/openrc.py:196
+# navigator/lib/system/services/openrc.py:193
 "Script: {path}" = "البرنامج النصي: {path}"
-# navigator/lib/system/services/openrc.py:229
-"OpenRC keeps no log for {unit}, and there is no system log file" = "لا يحتفظ OpenRC بسجل لـ {unit}، ولا يوجد ملف سجل للنظام"
-# navigator/lib/system/services/openrc.py:243
+# navigator/lib/system/services/openrc.py:234, navigator/lib/system/services/runit.py:312
 "Settings for {unit}, read by {path} each time it starts." = "إعدادات {unit}، التي يقرؤها {path} في كل تشغيل."
-# navigator/lib/system/services/openrc.py:244
+# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
 "A setting made here wins over the script's own; restart {unit} for it to count." = "ما يُضبط هنا يغلب إعدادات البرنامج النصي نفسه؛ أعد تشغيل {unit} ليسري."
-# navigator/lib/system/services/openrc.py:248
+# navigator/lib/system/services/openrc.py:239
 "The settings {path} makes:" = "الإعدادات التي يضبطها {path}:"
+# navigator/lib/system/services/runit.py:344
+"runit" = "runit"
+# navigator/lib/system/services/runit.py:91
+"There is no sv: install runit" = "لا يوجد sv: ثبّت runit"
+# navigator/lib/system/services/runit.py:93
+"runit is not the system's service manager" = "ليس runit مدير خدمات النظام"
+# navigator/lib/system/services/runit.py:95, navigator/lib/system/services/runit.py:224
+"runit has no service directory here" = "ليس لـ runit مجلد خدمات هنا"
+# navigator/lib/system/services/runit.py:261
+"Start-up: {state}" = "الإقلاع: {state}"
+# navigator/lib/system/services/runit.py:242
+"{unit} is not enabled: enable it first" = "{unit} غير ممكّنة: مكّنها أولًا"
+# navigator/lib/system/services/runit.py:263
+"Defined in {path}" = "معرّفة في {path}"
+# navigator/lib/system/services/runit.py:317, navigator/lib/system/services/systemd.py:239
+"{path} as it is:" = "{path} كما هو:"
+# navigator/lib/system/services/runit.py:328
+"{unit} has no service directory" = "ليس لـ {unit} مجلد خدمة"
+# navigator/lib/system/services/runit.py:336
+"{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "لا تقرأ {unit} ملف إعدادات، لذا يُحرَّر برنامج run الخاص بها: قد يستبدله تحديث حزمتها."
+# navigator/lib/system/services/runit.py:229
+"{unit} is not defined in {path}" = "{unit} غير معرّفة في {path}"
+# navigator/lib/system/services/runit.py:238
+"{path} is not a link Navigator removes" = "{path} ليس رابطًا يزيله Navigator"
+# navigator/lib/system/services/runit.py:266
+"Logs to {path}" = "تكتب سجلها في {path}"
 # navigator/lib/system/services/systemd.py:284
 "systemd" = "systemd"
 # navigator/lib/system/services/systemd.py:63
@@ -3060,8 +3086,6 @@ direction = "rtl"
 "{unit} has no unit file to edit" = "ليس لـ {unit} ملف وحدة لتحريره"
 # navigator/lib/system/services/systemd.py:235
 "Override for {unit}: what is set here wins over {path}." = "تجاوز لـ {unit}: ما يُضبط هنا يغلب {path}."
-# navigator/lib/system/services/systemd.py:239
-"{path} as it is:" = "{path} كما هو:"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "نوع الجهاز"
 # navigator/lib/system/sysinfo.py:146
@@ -4580,9 +4604,9 @@ direction = "rtl"
 "Mask" = "احجب"
 # navigator/widgets/shell/commands.py:380
 "Unmask" = "ارفع الحجب"
-# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:435, navigator/widgets/shell/service_list/service_list.py:46
 "Start-up" = "الإقلاع"
-# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:44
+# navigator/widgets/shell/commands.py:441, navigator/widgets/shell/service_list/service_list.py:46
 "Description" = "الوصف"
 # navigator/widgets/shell/commands.py:576
 "Trashcan" = "سلة المهملات"
@@ -4730,9 +4754,9 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["يغلق بعد {n} دقيقة خمول", "يغلق بعد دقيقة خمول واحدة", "يغلق بعد دقيقتي خمول", "يغلق بعد {n} دقائق خمول", "يغلق بعد {n} دقيقة خمول", "يغلق بعد {n} دقيقة خمول"]
 # navigator/widgets/shell/root_mark.py:58
 "{menu} closes it now" = "{menu} يغلقه الآن"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Unit" = "الوحدة"
-# navigator/widgets/shell/service_list/service_list.py:43
+# navigator/widgets/shell/service_list/service_list.py:45
 "Service" = "الخدمة"
 # navigator/widgets/shell/service_window/journal_window.py:105
 "Journal: {unit}" = "السجل: {unit}"
@@ -4744,27 +4768,33 @@ direction = "rtl"
 "Only root and the systemd-journal group read all of {unit}'s journal: as you, only your own lines show." = "لا يقرأ سجل {unit} كله إلا root ومجموعة systemd-journal: باسمك تظهر أسطرك وحدها."
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "لا يقرأ {path} إلا root، وفيه سجل {unit}."
-# navigator/widgets/shell/service_window/service_window.py:247
+# navigator/widgets/shell/service_window/service_window.py:292
 "{shown} of {count} unit match the filter" = ["", "", "", "", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:252
+# navigator/widgets/shell/service_window/service_window.py:297
 "{count} unit, {running} running, {failed} failed" = ["", "", "", "", "", ""]
-# navigator/widgets/shell/service_window/service_window.py:340
+# navigator/widgets/shell/service_window/service_window.py:402
 "Not something {manager} does" = "ليس هذا مما يفعله {manager}"
-# navigator/widgets/shell/service_window/service_window.py:348
+# navigator/widgets/shell/service_window/service_window.py:410
 "The cursor is on no unit" = "المؤشر ليس على وحدة"
-# navigator/widgets/shell/service_window/service_window.py:442
+# navigator/widgets/shell/service_window/service_window.py:509
 "{unit} is the package's: it is overridden in {path}, which only root may create." = "{unit} تابعة للحزمة: تُتجاوز في {path}، الذي لا ينشئه إلا root."
-# navigator/widgets/shell/service_window/service_window.py:511
+# navigator/widgets/shell/service_window/service_window.py:578
 "Restart {unit} now, so it reads its new settings?" = "أأعيد تشغيل {unit} الآن ليقرأ إعداداته الجديدة؟"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Stop {unit}?" = "أأوقف {unit}؟"
-# navigator/widgets/shell/service_window/service_window.py:532
+# navigator/widgets/shell/service_window/service_window.py:599
 "Mask {unit}? It will not start at all until unmasked." = "أأحجب {unit}؟ لن تُشغَّل إطلاقًا حتى يُرفع الحجب."
-# navigator/widgets/shell/service_window/service_window.py:549
+# navigator/widgets/shell/service_window/service_window.py:616
 "Cannot {verb} {unit}: {error}" = "تعذّر {verb} {unit}: {error}"
-# navigator/widgets/shell/service_window/service_window.py:167
+# navigator/widgets/shell/service_window/service_window.py:200
 "Services ({manager})" = "الخدمات ({manager})"
-# navigator/widgets/shell/service_window/service_window.py:487
+# navigator/widgets/shell/service_window/service_window.py:301
+"{summary}; states need root: Ctrl+R reads them as root" = "{summary}؛ الحالات تحتاج root: يقرؤها Ctrl+R بصلاحيات root"
+# navigator/widgets/shell/service_window/service_window.py:374
+"Only root reads whether {manager}'s enabled services run." = "لا يرى إلا root هل تعمل خدمات {manager} الممكّنة."
+# navigator/widgets/shell/service_window/service_window.py:303
+"{summary}; states read as root at {time}, Ctrl+R reads them again" = "{summary}؛ قُرئت الحالات بصلاحيات root عند {time}، ويعيد Ctrl+R قراءتها"
+# navigator/widgets/shell/service_window/service_window.py:554
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "حُفظ ملف {unit}، لكن تعذّر أن يُطلب من systemd إعادة قراءته: {error}"
 # navigator/widgets/shell/shell/shell.py:1151
 "Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
@@ -5975,7 +6005,7 @@ direction = "rtl"
 # navigator/settings.py
 "Seconds between reads of the process list while it is open; 0 reads only on Ctrl+R" = "الثواني بين قراءات قائمة العمليات وهي مفتوحة؛ 0 يقرأ فقط عند Ctrl+R"
 # navigator/settings.py
-"The service manager Services works: auto (the one running), systemd or openrc" = "مدير الخدمات الذي تعمل به نافذة الخدمات: auto (العامل حاليًا) أو systemd أو openrc"
+"The service manager Services works: auto (the one running), systemd, openrc or runit" = "مدير الخدمات الذي تعمل به نافذة الخدمات: auto (العامل حاليًا) أو systemd أو openrc أو runit"
 # navigator/settings.py
 "Seconds between reads of the units while Services is open; 0 reads only on Ctrl+R" = "الثواني بين قراءات الوحدات ونافذة الخدمات مفتوحة؛ 0 يقرأ عند Ctrl+R فقط"
 # navigator/settings.py
@@ -6045,3 +6075,6 @@ direction = "rtl"
 "The unit's file in the editor; saved, systemd reads its unit files again" = "ملف الوحدة في المحرر؛ بعد حفظه يعيد systemd قراءة ملفات الوحدات"
 "systemd's units: start, stop, enable them, follow their journal" = "وحدات systemd: تشغيلها وإيقافها وتمكينها ومتابعة سجلها"
 "Start, stop, enable and follow systemd's units" = "تشغيل وحدات systemd وإيقافها وتمكينها ومتابعتها"
+"No service manager Navigator knows runs here: systemd or OpenRC" = "لا يعمل هنا أي مدير خدمات يعرفه Navigator: systemd أو OpenRC"
+"OpenRC keeps no log for {unit}, and there is no system log file" = "لا يحتفظ OpenRC بسجل لـ {unit}، ولا يوجد ملف سجل للنظام"
+"The service manager Services works: auto (the one running), systemd or openrc" = "مدير الخدمات الذي تعمل به نافذة الخدمات: auto (العامل حاليًا) أو systemd أو openrc"

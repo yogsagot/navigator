@@ -9,18 +9,23 @@ unit it was on, by name.  The filter and the sort change what is shown, never
 what was read.
 
 **The service manager is a backend** (:mod:`navigator.lib.system.services`):
-systemd or OpenRC, picked when the window opens.  What it has not -- OpenRC's
+systemd, OpenRC or runit, picked when the window opens.  What it has not --
 masking, user services, other kinds -- is greyed with the reason; the title
-names a manager other than systemd.
+names a manager other than systemd.  **States only root may read** (runit's)
+show ``?`` with a hint: an explicit read (opening, Ctrl+R, after an action)
+reads them through root access when it is open, Ctrl+R asks for it first;
+the timer's read never touches the helper and keeps the states last read as
+root, said so, so an open window never keeps root access open.
 
 **Doing something to a unit** runs the backend's command as the user first
-(``systemctl --no-ask-password``, ``rc-service``); a refusal (``EPERM``) is
+(``systemctl --no-ask-password``, ``rc-service``, ``sv``); a refusal (``EPERM``) is
 offered *As root*, as a refused file step is, and done by the root helper's
 ``service`` op -- never for a user unit, whose manager is the user's own.
 **F3 follows the log** in the viewer:
 :mod:`navigator.widgets.shell.service_window.journal_window`.  **F4** opens
-what the backend says (a unit file or drop-in, an ``/etc/conf.d`` file); a
-save is followed by systemd's daemon-reload, or by OpenRC's offer of a restart.
+what the backend says (a unit file or drop-in, an ``/etc/conf.d`` file, a
+runit ``conf`` or, after a warning, its ``run``); a save is followed by
+systemd's daemon-reload, or by the offer of a restart.
 **Enter in the list is handled here** (*Details*), so the list's
 ``ChosenEvent`` does not walk up to the screen, which would take it for a
 directory.
@@ -29,6 +34,7 @@ directory.
 from __future__ import annotations
 
 import asyncio
+import time
 from pathlib import Path
 from typing import Any
 
@@ -80,6 +86,26 @@ def _refresh() -> float:
         return 3.0
 
 
+def _read_units(user: bool, all_types: bool, root: bool) -> tuple[list[services.Unit], dict | None]:
+    """The reading thread's work: the services, and -- *root*, an explicit
+    read (opening, Ctrl+R, after an action) with root access already open --
+    the states the user may not read, through the helper's ``service_states``.
+    Returns the units and those states, None when they were not read."""
+    units = services.gather(user, all_types)
+    backend = services.current()
+    if not (root and backend is not None and backend.states_need_root and ELEVATION.running
+            and any(unit.active == services.UNKNOWN for unit in units)):
+        return units, None
+    try:
+        fresh = {name: tuple(state) for name, state in
+                 ELEVATION.call("service_states", manager=backend.name).items()}
+    except OSError:
+        return units, None
+    finally:
+        ELEVATION.release()
+    return services.with_states(units, fresh), fresh
+
+
 def _discard_unused(override: Path) -> None:
     """The editor on *override* closed: the ``<unit>.d`` directory F4 made for
     it removed, on a thread, if the override was never saved and nothing else
@@ -110,7 +136,7 @@ def _discard_unused(override: Path) -> None:
 
 
 class ServiceWindow(Window):
-    """The system's services -- systemd's units, OpenRC's services -- in a window of their own."""
+    """The system's services -- systemd's units, OpenRC's or runit's services -- in a window of their own."""
 
     def __init__(self, user: bool = False, all_types: bool = False, sort: str = "name",
                  descending: bool = False, **kwargs: Any) -> None:
@@ -132,6 +158,13 @@ class ServiceWindow(Window):
         self._ticker: Any = None
         #: The unit files F4 opened, by path: saving one runs daemon-reload.
         self._editing: dict[str, services.Unit] = {}
+        #: The states last read as root (runit's), and when: a timer's read,
+        #: which never asks the helper, shows them until Ctrl+R reads again.
+        self._root_states: dict[str, tuple[str, str]] = {}
+        self._root_time = ""
+        #: How the states shown were come by: "" all read, "unknown" some
+        #: the user may not read, "stale" filled from :attr:`_root_states`.
+        self._states = ""
 
     @staticmethod
     def caption_width(text: str) -> int:
@@ -196,12 +229,15 @@ class ServiceWindow(Window):
 
     # -- reading ----------------------------------------------------------------------
 
-    def reload(self) -> None:
-        """Read the units again, on a thread; only the newest read is listed."""
+    def reload(self, explicit: bool = True) -> None:
+        """Read the units again, on a thread; only the newest read is listed.
+        An *explicit* read -- not the timer's -- also reads through root
+        access, when it is open, what the user may not: the timer's never
+        does, so an open Services window does not keep root access open."""
         self._reads += 1
         self._reading = True
         wanted = (self.user, self.all_types)
-        _READER.run(self, services.gather, *wanted,
+        _READER.run(self, _read_units, *wanted, explicit,
                     done=lambda outcome, n=self._reads: self._read(n, wanted, outcome))
 
     async def _tick(self) -> None:
@@ -209,7 +245,7 @@ class ServiceWindow(Window):
         app = self.application
         if self._reading or app is None or app.modal is not None:
             return
-        self.reload()
+        self.reload(explicit=False)
 
     def _read(self, read: int, wanted: tuple[bool, bool], outcome: Outcome) -> None:
         if read != self._reads:
@@ -217,11 +253,20 @@ class ServiceWindow(Window):
         self._reading = False
         self._read_for = wanted
         try:
-            self._found = outcome.result()
+            found, fresh = outcome.result()
             self._error = ""
         except OSError as error:
-            self._found = []
+            found, fresh = [], None
             self._error = error.strerror or str(error)
+        if fresh is not None:
+            self._root_states, self._root_time = fresh, time.strftime("%H:%M")
+        self._states = ""
+        if any(unit.active == services.UNKNOWN for unit in found):
+            self._states = "unknown"
+            if self._root_states:
+                found = services.with_states(found, self._root_states)
+                self._states = "stale" if fresh is None else ""
+        self._found = found
         self._show()
 
     def _show(self) -> None:
@@ -252,6 +297,11 @@ class ServiceWindow(Window):
             summary = tr_n("{count} unit, {running} running, {failed} failed",
                            "{count} units, {running} running, {failed} failed", len(self._found),
                            count=f"{len(self._found):,}", running=f"{running:,}", failed=f"{failed:,}")
+        if not self._error and self._states == "unknown":
+            summary = tr("{summary}; states need root: Ctrl+R reads them as root").format(summary=summary)
+        elif not self._error and self._states == "stale":
+            summary = tr("{summary}; states read as root at {time}, Ctrl+R reads them again").format(
+                summary=summary, time=self._root_time)
         self.status.text = escape_caption(summary)
 
     # -- sorting and the boxes ----------------------------------------------------------
@@ -311,8 +361,20 @@ class ServiceWindow(Window):
         return True
 
     async def on_rescan(self, event: Rescan) -> bool:
-        self.reload()
+        self.spawn(self._rescan())
         return True
+
+    async def _rescan(self) -> None:
+        """Ctrl+R: read again -- with states only root may read (runit's) as
+        root, asking first when root access is not open."""
+        if self._states and not ELEVATION.running and await asyncio.to_thread(ELEVATION.available):
+            from navigator.widgets.file_ops.as_root import ask_as_root
+
+            backend = self.backend
+            message = tr("Only root reads whether {manager}'s enabled services run.").format(
+                manager=backend.title if backend is not None else "")
+            await ask_as_root(self.application, escape_caption(message), title=tr("Services"))
+        self.reload()
 
     def checks(self, command: Any) -> bool | None:
         """The *Services* menu ticks the sort in force and the two boxes."""
@@ -404,6 +466,11 @@ class ServiceWindow(Window):
         try:
             plan = await asyncio.to_thread(services.edit_plan, unit)
             path = plan.path
+            if plan.warning:
+                answer = await Dialog(title=tr("Services"), buttons="ok-cancel",
+                                      prompt=escape_caption(plan.warning)).execute(self.application)
+                if answer is not True:
+                    return
             made = False
             if plan.seed is not None:
                 made = await self._override_dir(unit, path.parent)

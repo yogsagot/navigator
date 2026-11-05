@@ -18,6 +18,14 @@ from typing import Any
 #: How long one command may take before it is given up on.
 TIMEOUT = 30.0
 
+#: A state the user may not read (runit's ``supervise/`` is root's): shown as
+#: it is, and read through the root helper when it may be.
+UNKNOWN = "?"
+
+#: The system logs F3 falls back on for a manager with no log of a
+#: service's own, the first one there: socklog's (Void), then syslog's.
+SYSTEM_LOGS = (Path("/var/log/socklog/everything/current"), Path("/var/log/messages"), Path("/var/log/syslog"))
+
 #: What a manager's tools say, in English (``LANG=C``), when they refuse a
 #: user: systemd's polkit, OpenRC's own checks, the kernel's.
 REFUSALS = ("access denied", "interactive authentication required", "permission denied",
@@ -49,11 +57,11 @@ class Unit:
 
     @property
     def failed(self) -> bool:
-        return self.active in ("failed", "crashed")
+        return self.active in ("failed", "crashed", "fail")
 
     @property
     def running(self) -> bool:
-        return self.active in ("active", "reloading", "activating", "started", "starting")
+        return self.active in ("active", "reloading", "activating", "started", "starting", "run")
 
     @property
     def masked(self) -> bool:
@@ -109,6 +117,9 @@ class EditPlan:
     path: Path
     seed: str | None = None
     line: int = 1
+    #: Said before it is opened, with OK and Cancel: what editing it means
+    #: (runit's ``run`` script, which a package update may replace).
+    warning: str = ""
 
 
 class Backend:
@@ -129,6 +140,9 @@ class Backend:
     reload_after_edit = False
     #: Whether an edit counts only from the service's next start (OpenRC's conf.d).
     restart_after_edit = False
+    #: Whether the user may not read every service's state, so that some
+    #: come back :data:`UNKNOWN` and :meth:`states` is asked as root.
+    states_need_root = False
 
     def refusal(self) -> str:
         """Why it is not this system's service manager, or ""."""
@@ -160,6 +174,41 @@ class Backend:
 
     def after_edit(self, user: bool) -> None:
         """What makes an edit count, when :attr:`reload_after_edit` says there is something."""
+
+    def states(self) -> dict[str, tuple[str, str]]:
+        """Every service's ``(active, sub)``, read by a fixed command of the
+        backend's own -- the root helper's ``service_states`` op, for a
+        backend whose :attr:`states_need_root`."""
+        raise NotImplementedError
+
+
+def with_states(units: list[Unit], states: dict[str, tuple[str, str]]) -> list[Unit]:
+    """*units* with each :data:`UNKNOWN` state filled from *states*, where it has one."""
+    from dataclasses import replace
+
+    return [replace(unit, active=states[unit.name][0], sub=states[unit.name][1])
+            if unit.active == UNKNOWN and unit.name in states else unit for unit in units]
+
+
+def system_log(unit: Unit, manager: str) -> LogFile:
+    """F3 for a service with no log of its own: the first of :data:`SYSTEM_LOGS`
+    there, its lines holding the service's name only.  Raises ``OSError``
+    when there is none."""
+    from navkit.i18n import tr
+
+    for system in SYSTEM_LOGS:
+        if system.is_file():
+            return LogFile(system, unit.name)
+    raise OSError(errno.ENOENT, tr("{manager} keeps no log for {unit}, and there is no system log file").format(
+        manager=manager, unit=unit.name), unit.name)
+
+
+def pid1() -> str:
+    """The name of the system's first process (``/proc/1/comm``), or ""."""
+    try:
+        return Path("/proc/1/comm").read_text().strip()
+    except OSError:
+        return ""
 
 
 # -- following -----------------------------------------------------------------------------

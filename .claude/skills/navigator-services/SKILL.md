@@ -1,6 +1,6 @@
 ---
 name: navigator-services
-description: Utilities > Services, a departure from DN (DOS had no service manager) -- navigator/lib/system/services/ (the Backend interface in common.py with Unit, run/failure, Journal/LogFile/EditPlan, Follower; __init__.py's BACKENDS, current() and [services] manager, the dispatchers gather/act/details/log/edit_plan/after_edit, ordered/matches; systemd.py merging systemctl list-units and list-unit-files, drop-in overrides, daemon-reload, journalctl; openrc.py with rc-status --servicelist, rc-update show --verbose, rc-service, the own or filtered system log, /etc/conf.d), the root helper's service/after_edit/journal_follow/journal_stop ops, ServiceList (a ColumnList), ServiceWindow (greying what a backend has not, F3/F4/F5-F8, Ctrl+E/Ctrl+D, As root), F3's JournalWindow and log-file viewer, and [services] manager/refresh/journal_lines. Use when changing the Services window, adding a service manager, or changing what one runs.
+description: Utilities > Services, a departure from DN (DOS had no service manager) -- navigator/lib/system/services/ (the Backend interface in common.py with Unit, run/failure, Journal/LogFile/EditPlan, Follower; __init__.py's BACKENDS, current() and [services] manager, the dispatchers gather/act/details/log/edit_plan/after_edit, ordered/matches; systemd.py merging systemctl list-units and list-unit-files, drop-in overrides, daemon-reload, journalctl; openrc.py with rc-status --servicelist, rc-update show --verbose, rc-service, the own or filtered system log, /etc/conf.d; runit.py with definition directories, links in the supervised directory, sv status and its root-only supervise/, svlogd's current, conf or run), the root helper's service/service_states/after_edit/journal_follow/journal_stop ops, ServiceList (a ColumnList), ServiceWindow (greying what a backend has not, ? states read as root, F3/F4/F5-F8, Ctrl+E/Ctrl+D, As root), F3's JournalWindow and log-file viewer, and [services] manager/refresh/journal_lines. Use when changing the Services window, adding a service manager, or changing what one runs.
 ---
 
 # Services
@@ -13,19 +13,22 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
 ## The interface (`navigator/lib/system/services/`)
 
 - **One `Backend` per service manager** (`common.py`): `name`, `title`, a closed `verbs` tuple, capability flags
-  (`user_scope`, `all_types`, `reload_after_edit`, `restart_after_edit`) and the methods `refusal`, `valid_name`,
-  `installed`, `gather`, `act`, `details`, `log` (a `Journal(argv, readable)` or `LogFile(path, pattern)`),
-  `edit_plan` (an `EditPlan(path, seed, line)`) and `after_edit`. Each module (`systemd.py`, `openrc.py`) keeps its
+  (`user_scope`, `all_types`, `reload_after_edit`, `restart_after_edit`, `states_need_root`) and the methods
+  `refusal`, `valid_name`, `installed`, `gather`, `act`, `details`, `log` (a `Journal(argv, readable)` or
+  `LogFile(path, pattern)`), `edit_plan` (an `EditPlan(path, seed, line, warning)`), `after_edit` and `states`. Each module (`systemd.py`, `openrc.py`) keeps its
   work in module functions and a thin class over them, so **tests patch the module function** (`systemd.unit_file`,
   `openrc.INIT_D`) and the class picks it up.
 - **Every command goes through `common.run(argv)`** (`LANG=C`, `EINFO_COLOR=NO`, a timeout, no stdin) -- one patch
   point for every backend. `common.failure()` reads a refusal (polkit's *Access denied*, OpenRC's *superuser access
   required*, *Permission denied*...) as `OSError(EPERM)`, which `elevate.refused()` takes for *As root*; anything else
   is `EIO` with what was said.
+- **Shared in `common.py`**: `UNKNOWN` (`?`, a state the user may not read) and `with_states()` filling it,
+  `SYSTEM_LOGS` (socklog's `everything/current`, `/var/log/messages`, `/var/log/syslog`) and `system_log()` -- the
+  F3 fallback OpenRC and runit share, filtered to the service's name -- and `pid1()`.
 - `Unit` has `backend` (the name of the one that read it) and `startup` (systemd's file state, or OpenRC's runlevels
   joined, `disabled` for none). `running`/`failed` cover both managers' words.
 - `__init__.py`: `BACKENDS`, `current()` (`[services] manager` names one, else the first whose `refusal()` is empty:
-  systemd, then OpenRC), `refusal_reason()` for the menu's grey, and the dispatchers the window calls --
+  systemd, then OpenRC, then runit), `refusal_reason()` for the menu's grey, and the dispatchers the window calls --
   `gather` (on `current()`, dropping `user`/`all_types` it cannot do), and `act`/`details`/`log`/`edit_plan`/
   `after_edit` on `backend_of(unit)`. **The window calls only these**, so a window test patches `services.gather`,
   `services.act`.
@@ -68,6 +71,29 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   out (not `depend()` or functions). No `after_edit`: `restart_after_edit`, so a save makes the window offer a
   restart of a running service.
 
+## runit (`runit.py`)
+
+- **No database, only directories**: definitions in the first of `DEFINITION_DIRS` (`/etc/sv`, Artix's
+  `/etc/runit/sv`), enabled = a link to one in `service_dir()` (`$SVDIR`, else the first of `SERVICE_DIRS`). A
+  directory placed in the supervised directory itself is listed too. **It is the manager only as the first
+  process** (`pid1() == "runit"`): Debian's runit can supervise under systemd.
+- `gather()`: every definition and enabled entry; one `sv status <svdir>/...` over the enabled. A disabled one is
+  `down` with nothing read; `startup` is `enabled`, `enabled, down` (a `down` file) or `disabled`. No descriptions in
+  runit: the column is what the `run` script's last `exec` runs.
+- **`supervise/` is root's on Void**, so `sv status` warns *access denied* per service: `parse_status` reports that
+  as refused, and `gather` marks the enabled `UNKNOWN` (`states_need_root`). A warning that is not a refusal (no
+  `runsv` yet) is `fail`. `states()` is the same fixed `sv status`, raising `EPERM` when every one was refused --
+  what the helper's `service_states` runs.
+- Verbs: `sv -w 7 start|stop|restart|reload <svdir>/X` (a disabled one is refused: *enable it first*); **enable
+  links the definition in; disable removes the link only if it is a link into the definitions** -- a directory placed
+  there is never removed. `installed()` is a definition by that name.
+- F3: `svlogd_dir()` -- the last `/path` after `svlogd` in `log/run` -- gives `DIR/current`, trusted as written (a
+  root-only log directory cannot be looked into; the viewer offers *As root*). Else `common.system_log` (Void's
+  `vlogger` goes to syslog).
+- F4: `conf` when `reads_conf(run)` (Void's `[ -r conf ] && . ./conf`), seeded with `run` commented out; else the
+  `run` script itself with `EditPlan.warning` (*an update of its package may replace it*), which the window asks
+  OK/Cancel on before opening. `restart_after_edit`.
+
 ## As root
 
 `roothelper._Helper`'s ops (OPS is built from public methods):
@@ -75,6 +101,8 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   `valid_name` and `installed`; then `backend.act()` -- the command line is always the backend's. A user unit is
   never offered root: its manager is the user's own.
 - `after_edit(manager)`: the backend's `after_edit` when `reload_after_edit`, else nothing.
+- `service_states(manager)`: for a backend with `states_need_root` only, its own `states()` -- no name or command
+  from the client.
 - `journal_follow(unit, path, lines)` (systemd only) writes `journalctl --follow` into **an existing file of the
   asking user's**, opened through `_pinned` without following a link and never created; `journal_stop(pid)` stops
   only a pid it started, and `serve()` stops them all in a `finally`.
@@ -88,8 +116,14 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
 - `ServiceList` is a `ColumnList` (in `process_list.py`, shared with `ProcessList`). Rows are `.running`, `.inactive`
   (dim), `.failed` (bold and underlined: **a colour of its own failed `test_no_theme_draws_an_unreadable_pair`**) and
   `.masked` (italic).
-- Reads go through `Background("nav-services")` with a read counter. **There is no read in `mounted()`**: the
-  `_follow_view` effect's first run reads, because `_read_for` is None. The cursor is kept by name.
+- Reads go through `Background("nav-services")` with a read counter, running `_read_units`. **There is no read in
+  `mounted()`**: the `_follow_view` effect's first run reads, because `_read_for` is None. The cursor is kept by name.
+- **States only root may read** (`UNKNOWN`): an *explicit* read (`reload()`: opening, Ctrl+R, after an action) with
+  root access already open also calls the helper's `service_states` and keeps the result in `_root_states`. **The
+  timer's read (`reload(explicit=False)`) never calls the helper**, so an open window never keeps root access alive
+  past `root_timeout`; it fills unknowns from `_root_states` and the status line says *states read as root at
+  HH:MM*. With none, it says *states need root: Ctrl+R reads them as root*; Ctrl+R then asks *As root* first
+  (`_rescan`) when root access is not open.
 - Keys: F3 log, F4 edit (**not Filter, as Process list's F4 is**), Enter details, F5 start, F6 restart, F7 reload,
   F8/Del stop (asks), Ctrl+E enable, Ctrl+D disable, Ctrl+U user units, Ctrl+A all types, Ctrl+N/Ctrl+L sort,
   Ctrl+S/Alt+F filter, Ctrl+R re-read. Mask (asks) and Unmask are in the menu only.
@@ -135,3 +169,9 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   `manager = "openrc"` **and `openrc.refusal` patched to ""** (else the shell greys Services on a machine without
   OpenRC): greying, As root, F3 filtered, F4 then the restart offer. `/etc/init.d`, `/etc/conf.d` and the system logs
   are the `etc` fixture's, in `tmp_path`.
+- `tests/test_services_runit.py`: the `tree` fixture (definitions, a supervised directory with links, a `down` file,
+  `svlogd` and `vlogger` loggers, a `conf`-reading `run`, a directory placed in the supervised directory), `sv status`
+  faked through `common.run` (states, and every one refused), each verb (never removing a directory), F3, F4 and its
+  warning, the helper's `service_states`/`service`, and the window: `?` with its hint, Ctrl+R reading as root with
+  `ELEVATION.running` faked (a class property: patch `type(ELEVATION)`), the timer's read keeping the stale states,
+  Ctrl+R asking when root access is closed.

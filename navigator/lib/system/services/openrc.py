@@ -15,7 +15,7 @@ other than services: the window greys what it has not.
 **F3**: OpenRC keeps no journal.  A service that names its own log
 (``output_log=``/``error_log=``, supervise-daemon's, as a plain path in its
 ``/etc/conf.d`` file or its script) is followed there; any other is followed
-in the system log (``/var/log/messages``, else ``/var/log/syslog``) with only
+in the system log (``common.SYSTEM_LOGS``) with only
 the lines holding its name shown -- approximate, as a name may appear in
 another's lines, and said so in the window's title.
 
@@ -42,9 +42,6 @@ RUN_OPENRC = Path("/run/openrc")
 #: Its services' scripts, and the settings each reads.
 INIT_D = Path("/etc/init.d")
 CONF_D = Path("/etc/conf.d")
-
-#: The system logs F3 falls back on, the first one there.
-SYSTEM_LOGS = (Path("/var/log/messages"), Path("/var/log/syslog"))
 
 #: What may be done to a service -- here and in the root helper's ``service`` op.
 VERBS = ("start", "stop", "restart", "reload", "enable", "disable")
@@ -218,16 +215,10 @@ def own_log(name: str) -> Path | None:
 def log(unit: Unit) -> LogFile:
     """F3: the service's own log, else the system log filtered to its name.
     Raises ``OSError`` when there is neither."""
-    from navkit.i18n import tr
-
     path = own_log(unit.name)
     if path is not None:
         return LogFile(path)
-    for system in SYSTEM_LOGS:
-        if system.is_file():
-            return LogFile(system, unit.name)
-    raise OSError(errno.ENOENT, tr("OpenRC keeps no log for {unit}, and there is no system log file").format(
-        unit=unit.name), unit.name)
+    return common.system_log(unit, "OpenRC")
 
 
 # -- F4: its settings ---------------------------------------------------------------------------

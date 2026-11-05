@@ -309,7 +309,7 @@ class ProcessDetails(Command):
 
 
 class OpenServiceWindow(Command):
-    """Utilities > Services: the system's services (systemd's or OpenRC's),
+    """Utilities > Services: the system's services (systemd's, OpenRC's or runit's),
     started, stopped, enabled and followed in their log.
 
     Not DOS Navigator's -- a departure, asked for, recorded in
