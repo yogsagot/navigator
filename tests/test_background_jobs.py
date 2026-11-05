@@ -383,3 +383,29 @@ def test_with_one_away_the_command_brings_it_back_at_once(two):
         return app.modal, entry.recalled.is_set()
 
     assert run_shell(a, b, steps) == (None, True)
+
+
+@pytest.mark.parametrize("recalled", [False, True])
+def test_an_end_in_the_box_is_not_toasted(two, monkeypatch, recalled):
+    """Never sent away, or called back before the end: the box showed it."""
+    a, b = two
+    release = threading.Event()
+    held_erase(monkeypatch, release)
+
+    async def steps(app, shell):
+        put_cursor(shell.manager.left, "one.txt")
+        app.post_event(KeyEvent("f8"))
+        await asyncio.sleep(0.06)
+        app.post_event(KeyEvent("enter"))
+        await wait_for(lambda: isinstance(app.modal, DeleteProgress))
+        if recalled:
+            app.post_event(KeyEvent("enter"))
+            await wait_for(lambda: bool(BACKGROUND.jobs))
+            await app.run_command(ShowBackground)
+            await wait_for(lambda: isinstance(app.modal, DeleteProgress))
+        release.set()
+        await wait_for(lambda: app.modal is None and not BACKGROUND.jobs)
+        await asyncio.sleep(0.2)
+        return toasts(shell)
+
+    assert run_shell(a, b, steps) == []

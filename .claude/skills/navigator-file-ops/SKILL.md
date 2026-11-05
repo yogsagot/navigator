@@ -181,8 +181,9 @@ by `_watch_copy` (bytes) and `_run_erase` (entries) only; Alt+E, UU, Test, Resto
   right-aligned just before the window strip's first chip (`Shell.strip_start()`, from the strip's `chips()`/`hidden()`; with no chips or no strip,
   just before *ROOT*/the clock). The strip's `x` gives up the mark's width at its left while it shows, so the mark
   never reaches the menus.
-- **The end**: once a box has been up (or the job went away) a toast says *title* over *Finished*/*Stopped*
-  (`Shell.toast`, through `app.root`); not after a failure, which has its own box, nor a cancelled watcher.
+- **The end**: only a job still away when it ends gets a toast, *title* over *Finished*/*Stopped* (`Shell.toast`,
+  through `app.root`) -- not one that ended in its box (never sent away, or called back first), not after a failure,
+  which has its own box, nor a cancelled watcher.
 - **Desktop notification** (a departure, asked for; every `_watch_job`, background or not): once a box has been up,
   the end -- *Finished*/*Stopped*/*Failed: {subject}* under *title* (else the box's title) -- and each question taken
   from the worker (*Waiting for an answer*, once per question) go to `Shell.notify_away`, which sends only while

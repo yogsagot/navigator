@@ -3836,8 +3836,9 @@ class Manager(Window):
         the screen).  Pressed, the box comes down and the work goes on,
         registered in ``BACKGROUND`` under *title*: a question then waits,
         the mark showing it, until the box is called back
-        (``BACKGROUND.recall``), which puts it up again.  Once a box has been
-        up, the end is said in a toast, *title* over *Finished* or *Stopped*.
+        (``BACKGROUND.recall``), which puts it up again.  An end while away --
+        not one in the box, called back or never sent -- is said in a toast,
+        *title* over *Finished* or *Stopped*.
 
         A departure too: once the box has been up, the end -- and a question
         the worker waits on -- is also said in a desktop notification, but
@@ -3974,8 +3975,9 @@ class Manager(Window):
                 notify(tr("Stopped: {what}").format(what=what) if what else tr("Stopped"))
             else:
                 notify(tr("Failed: {what}").format(what=what) if what else tr("Failed"))
-        if seen and background is not None and work.done() and not work.cancelled() and work.exception() is None:
-            # The application's root is the shell, which places toasts.
+        if away is not None and work.done() and not work.cancelled() and work.exception() is None:
+            # Only an end that happened in the background: one in its box was
+            # seen there.  The application's root is the shell, which places toasts.
             toast = getattr(getattr(app, "root", None), "toast", None)
             if toast is not None and app.is_running:
                 toast(tr("Stopped") if job.stopped else tr("Finished"), title=title)
