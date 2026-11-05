@@ -754,6 +754,13 @@ class ArcTest(Command):
     """
 
 
+class UnmountImage(Command):
+    """The panel's right-click *Unmount image*: the disk image the panel is
+    in (or at the cursor, mounted) unmounted and its loop device detached,
+    the panels inside it first taken back to the image file.  Not DN's,
+    which had no loop devices (:func:`navigator.lib.system.udisks.image_at`)."""
+
+
 class EditNamed(Command):
     """Shift+F4, ``cmXEditFile``: edit a file whose name is asked for."""
 

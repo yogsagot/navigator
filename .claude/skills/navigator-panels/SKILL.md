@@ -51,6 +51,14 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   NAME*: label, size, mount point) asks which, Cancel staying put with all mounted. A failure is a box. Without
   udisksctl it falls back to the archive (if *Enter opens archive*) and then `OpenFile`, as before. The library side
   is `navigator-trees`' udisks paragraph. Tests: `tests/test_udisks.py` (`image_desk`).
+- **Unmount image** (`UnmountImage`: the right-click menu, no hotkey -- every letter of it is taken there -- and
+  Disk > *~U~nmount image* under *Volumes*, greyed by `Manager.enables` outside one):
+  offered while `Panel.image_here()` answers -- the panel inside a mounted image, or (nothing tagged) a mounted
+  `.iso`/`.img` at the cursor -- from `udisks.image_at` (`/proc/self/mounts` and sysfs's `loop/backing_file`, never a
+  disk, so the menu asks as it is built; only mounts under `/media/`, `/run/media/`, `/mnt/`). `Manager.unmount_image`
+  takes each side inside it back to the image file (`Panel.go_to_file`), then `udisks.eject(device)` on a thread --
+  again after `UNMOUNT_WAIT` while it says *busy*, up to `UNMOUNT_TRIES`, the shell's `cd` out taking a moment --
+  then a toast *Unmounted*, or a box. Greyed in Miller columns.
 
 ## Auto refresh (`[file_manager] auto_refresh`)
 

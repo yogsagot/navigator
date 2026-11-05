@@ -14,7 +14,9 @@ any system with removable media runs, for the same four things:
   image's loop device detached (``loop-delete``);
 * :func:`attach_image`: Enter on an ``.iso`` or ``.img`` -- the file set up
   read-only on a loop device (``loop-setup -r``), every file system on it
-  mounted, as GNOME's Disk Image Mounter does.  Not DOS Navigator's either,
+  mounted, as GNOME's Disk Image Mounter does; :func:`image_at` says which
+  mounted image a directory is in (the panel's *Unmount image*), from
+  ``/proc`` and ``/sys`` alone.  Not DOS Navigator's either,
   which had no loop devices.  Whatever udisks was always asked, desktop or
   not: neither GIO's command nor Solid's sets up a loop.
 
@@ -327,7 +329,15 @@ def eject(where: str) -> None:
         for each in known:
             if each.loop == volume.loop and each.mounted:
                 run([_udisksctl(), "unmount", "-b", each.device, "--no-user-interaction"], timeout=MOUNT_TIMEOUT)
-        _loop_delete(parse_dump(text), volume.loop)
+        # Autoclear (:func:`attach_image`) detaches it as its last file
+        # system goes; udisks keeps the loop device, with no backing file.
+        if not _backed(parse_dump(run([_udisksctl(), "dump"])), volume.loop):
+            return
+        try:
+            _loop_delete(parse_dump(text), volume.loop)
+        except OSError:
+            if _backed(parse_dump(run([_udisksctl(), "dump"])), volume.loop):
+                raise
         return
     if not volume.drive:
         raise OSError(errno.EINVAL, f"{volume.name} is on no drive that can be ejected")
@@ -355,6 +365,11 @@ _MAPPED = re.compile(r"Mapped file .* as (/dev/\S+?)\.?\s*$", re.MULTILINE)
 def _loop_device(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> str:
     block = objects.get(loop, {}).get("Block", {})
     return _one(block, "Device") or _one(block, "PreferredDevice")
+
+
+def _backed(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> bool:
+    """Whether the loop device at *loop* still has an image file behind it."""
+    return bool(_one(objects.get(loop, {}).get("Loop", {}), "BackingFile"))
 
 
 def _loop_delete(objects: dict[str, dict[str, dict[str, list[str]]]], loop: str) -> None:
@@ -417,6 +432,72 @@ def _set_autoclear(loop: str) -> None:
         pass  # a nicety: Eject detaches it all the same
 
 
+@dataclass(frozen=True)
+class ImageMount:
+    """A file system mounted from a disk image: where, from which loop
+    device (or partition of one), and the image file behind it."""
+
+    point: str
+    device: str
+    backing: str
+
+
+#: What the kernel adds to a loop device's backing file that has been deleted.
+_DELETED = " (deleted)"
+
+
+def _backing_file(name: str, block: Path) -> str:
+    """The image file behind the loop device (or partition of one) *name*,
+    from sysfs; ``""`` for none."""
+    node = block / name
+    try:
+        if (node / "partition").exists():
+            node = node.resolve().parent
+        text = (node / "loop" / "backing_file").read_text(encoding="utf-8", errors="replace").strip()
+    except OSError:
+        return ""
+    return text.removesuffix(_DELETED)
+
+
+def image_mounts(mounts: str | None = None, block: Path = Path("/sys/class/block")) -> list[ImageMount]:
+    """The file systems mounted from disk images where a desktop mounts
+    (:data:`USER_MOUNTS`) -- snaps' images under ``/snap`` are not.  Read
+    from ``/proc/self/mounts`` and sysfs only, which never wait on a disk,
+    so a menu being built may ask."""
+    from navigator.lib.system.diskinfo import unescape
+
+    if mounts is None:
+        try:
+            mounts = Path("/proc/self/mounts").read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return []
+    found = []
+    for line in mounts.splitlines():
+        parts = line.split()
+        if len(parts) < 2 or not parts[0].startswith("/dev/loop"):
+            continue
+        point = unescape(parts[1])
+        if not (point.rstrip("/") + "/").startswith(USER_MOUNTS):
+            continue
+        backing = _backing_file(parts[0].removeprefix("/dev/"), block)
+        if backing:
+            found.append(ImageMount(point, parts[0], backing))
+    return found
+
+
+def image_at(path: Path | str, mounts: str | None = None,
+             block: Path = Path("/sys/class/block")) -> list[ImageMount]:
+    """Every mount of the disk image *path* is in -- or is, an ``.iso``
+    mounted -- or ``[]``: what *Unmount image* unmounts."""
+    known = image_mounts(mounts, block)
+    target = str(path)
+    for each in known:
+        point = each.point.rstrip("/")
+        if target in (each.backing, point) or target.startswith(point + "/"):
+            return [other for other in known if other.backing == each.backing]
+    return []
+
+
 def attach_image(path: Path, stop: Callable[[], bool] | None = None,
                  uid: int | None = None) -> list[UdisksVolume]:
     """The disk image at *path* set up read-only on a loop device -- the one
@@ -454,7 +535,7 @@ def attach_image(path: Path, stop: Callable[[], bool] | None = None,
 
 
 __all__ = [
-    "IMAGE_SUFFIXES", "MOUNT_TIMEOUT", "NO_BUSCTL", "NO_UDISKS", "ROOT", "TIMEOUT", "UdisksVolume",
-    "attach_image", "eject", "is_image_name", "loop_setup", "mount_device", "parse_dump", "parse_volumes",
+    "IMAGE_SUFFIXES", "MOUNT_TIMEOUT", "NO_BUSCTL", "NO_UDISKS", "ROOT", "TIMEOUT", "ImageMount", "UdisksVolume",
+    "attach_image", "eject", "image_at", "image_mounts", "is_image_name", "loop_setup", "mount_device", "parse_dump", "parse_volumes",
     "program", "run", "unmount", "volumes",
 ]

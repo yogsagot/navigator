@@ -59,6 +59,10 @@ Slots `[94-101]`, `[104-110]`.
   `Partition.Table`), named by label else the image's file name, with `loop`, `size`, Unmount and Eject; root's and
   snaps' stay hidden. **Eject on one** unmounts its file systems and runs `udisksctl loop-delete`. Always udisks,
   whatever `desktop_vfs` says: neither `gio` nor Solid's command sets up a loop.
+  `image_mounts`/`image_at` find a mounted image without udisks (`/proc/self/mounts` loop devices under the user
+  mount places, sysfs `backing_file`, a partition through its parent, ` (deleted)` cut); Eject runs `loop-delete`
+  only while the loop still has a `BackingFile`: autoclear detaches it as its last file system goes, and udisks
+  keeps the loop device with that empty (`loop-delete` then fails *Cannot perform operation*).
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a

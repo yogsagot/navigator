@@ -510,8 +510,30 @@ def test_eject_on_an_image_unmounts_it_and_detaches_the_loop(images, monkeypatch
     udisks.eject("/media/me/data")
     assert images["calls"][1:] == [
         ["udisksctl", "unmount", "-b", "/dev/loop8p2", "--no-user-interaction"],
+        ["udisksctl", "dump"],
         ["udisksctl", "loop-delete", "-b", "/dev/loop8", "--no-user-interaction"],
     ]
+
+
+def test_eject_leaves_a_loop_autoclear_detached_alone(images, monkeypatch):
+    """udisks keeps a detached loop device, its backing file empty: no
+    ``loop-delete``, which would fail *Cannot perform operation*."""
+    mounted = _mounted(DUMP + "\n" + LOOPS, "/dev/loop8p2", "/media/me/data")
+    detached = (DUMP + "\n" + LOOPS).replace("    BackingFile:        /home/me/sd card.img\n",
+                                                "    BackingFile:        \n")
+    dumps = iter([mounted, detached])
+    monkeypatch.setattr(udisks.os, "getuid", lambda: 1000)
+
+    def run(argv, timeout=udisks.TIMEOUT):
+        images["calls"].append(list(argv))
+        if argv[1] == "loop-delete":
+            raise OSError(5, "Cannot perform operation")
+        return next(dumps) if argv[1] == "dump" else ""
+
+    monkeypatch.setattr(udisks, "run", run)
+    udisks.eject("/media/me/data")
+    assert ["udisksctl", "unmount", "-b", "/dev/loop8p2", "--no-user-interaction"] in images["calls"]
+    assert not any(call[1] == "loop-delete" for call in images["calls"])
 
 
 @pytest.fixture
@@ -589,3 +611,132 @@ def test_without_udisks_or_with_the_setting_off_enter_opens_the_image_as_a_file(
     monkeypatch.setattr("navigator.widgets.shell.shell.Shell.on_open_file", on_open_file)
     run_app(app, [_at_image, KeyEvent("enter"), Until(lambda a: opened, timeout=5)])
     assert opened == [here / "disk.iso"]
+
+
+# -- Unmount image -----------------------------------------------------------------------
+
+
+def test_image_mounts_are_found_in_proc_and_sysfs_partitions_and_all(tmp_path):
+    block = tmp_path / "block"
+    (block / "loop7" / "loop").mkdir(parents=True)
+    (block / "loop7" / "loop" / "backing_file").write_text("/home/me/ubuntu.iso\n")
+    (block / "loop8" / "loop").mkdir(parents=True)
+    (block / "loop8" / "loop" / "backing_file").write_text("/home/me/sd card.img (deleted)\n")
+    (block / "loop8" / "loop8p1").mkdir()
+    (block / "loop8" / "loop8p1" / "partition").write_text("1\n")
+    (block / "loop8p1").symlink_to(block / "loop8" / "loop8p1")
+    (block / "loop3" / "loop").mkdir(parents=True)
+    (block / "loop3" / "loop" / "backing_file").write_text("/var/lib/snapd/snaps/core_1.snap\n")
+    mounts = ("/dev/nvme0n1p2 / ext4 rw 0 0\n"
+              "/dev/loop3 /snap/core/1 squashfs ro 0 0\n"
+              "/dev/loop7 /media/me/UBUNTU iso9660 ro 0 0\n"
+              "/dev/loop8p1 /media/me/boot\\040part vfat ro 0 0\n")
+    found = udisks.image_mounts(mounts, block)
+    assert found == [
+        udisks.ImageMount("/media/me/UBUNTU", "/dev/loop7", "/home/me/ubuntu.iso"),
+        udisks.ImageMount("/media/me/boot part", "/dev/loop8p1", "/home/me/sd card.img"),
+    ]
+    assert udisks.image_at("/media/me/UBUNTU/casper", mounts, block) == found[:1]
+    assert udisks.image_at("/home/me/sd card.img", mounts, block) == found[1:]
+    assert udisks.image_at("/media/me/UBUNTUX", mounts, block) == []
+    assert udisks.image_at("/snap/core/1", mounts, block) == []
+
+
+@pytest.fixture
+def mounted_image(image_desk, monkeypatch):
+    """disk.iso mounted at ``mnt`` beside it, the left panel inside it."""
+    app, here = image_desk
+    mnt = here / "mnt"
+    (mnt / "casper").mkdir(parents=True)
+    mount = udisks.ImageMount(str(mnt), "/dev/loop7", str(here / "disk.iso"))
+    monkeypatch.setattr(udisks, "image_at", lambda path, *a, **k: [mount] if str(path).startswith(
+        (str(mnt), str(here / "disk.iso"))) else [])
+    app.manager.left.path = mnt / "casper"
+    return app, here
+
+
+def test_the_context_menu_offers_unmount_in_a_mounted_image_and_on_it(mounted_image):
+    from navigator.widgets.manager.commands import UnmountImage
+
+    app, here = mounted_image
+    seen = {}
+
+    def look(name):
+        def at(a):
+            panel = a.manager.left
+            seen[name] = panel.context_menu().item_for(UnmountImage) is not None
+        return at
+
+    def to_image(a):
+        a.manager.left.go_to_file(here / "disk.iso")
+
+    run_app(app, [look("inside"), to_image, Until(lambda a: a.manager.left.selected.name == "disk.iso"),
+                  look("on it"), lambda a: setattr(a.manager.left, "cursor", 0), look("elsewhere")])
+    assert seen == {"inside": True, "on it": True, "elsewhere": False}
+
+
+def test_unmount_takes_the_panel_out_to_the_image_then_ejects_again_while_busy(mounted_image, monkeypatch):
+    from navigator.widgets.manager.manager import manager as manager_module
+
+    app, here = mounted_image
+    monkeypatch.setattr(manager_module, "UNMOUNT_WAIT", 0.0)
+    ejected = []
+
+    def eject(where):
+        ejected.append((where, app.manager.left.path))
+        if len(ejected) == 1:
+            raise OSError(5, "Error unmounting /dev/loop7: target is busy")
+
+    monkeypatch.setattr(udisks, "eject", eject)
+    said = []
+    run_app(app, [
+        lambda a: a.manager.spawn(a.manager.unmount_image(a.manager.left)),
+        Until(lambda a: len(ejected) == 2 and _toasts(a), timeout=5),
+        lambda a: said.extend((t.title, t.text) for t in _toasts(a)),
+        Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "disk.iso"),
+    ])
+    assert ejected == [("/dev/loop7", here), ("/dev/loop7", here)]
+    assert said == [("disk.iso", "Unmounted")]
+
+
+def test_an_unmount_refused_otherwise_is_said_in_a_box(mounted_image, monkeypatch):
+    from navml.widgets.dialog.dialog import Dialog
+
+    app, here = mounted_image
+    calls = []
+
+    def eject(where):
+        calls.append(where)
+        raise OSError(5, "Not authorized")
+
+    monkeypatch.setattr(udisks, "eject", eject)
+    seen = {}
+    run_app(app, [
+        lambda a: a.manager.spawn(a.manager.unmount_image(a.manager.left)),
+        Until(lambda a: isinstance(a.modal, Dialog), timeout=5),
+        lambda a: seen.update(prompt=a.modal.prompt),
+        KeyEvent("enter"),
+    ])
+    assert calls == ["/dev/loop7"]
+    assert seen["prompt"] == "Cannot unmount disk.iso: Not authorized"
+
+
+def test_the_disk_menu_has_unmount_image_greyed_outside_one(mounted_image):
+    from navigator.widgets.manager.commands import UnmountImage
+
+    app, here = mounted_image
+    seen = {}
+
+    def look(name):
+        def at(a):
+            seen[name] = a.manager.enables(UnmountImage())
+        return at
+
+    run_app(app, [
+        lambda a: seen.update(text=a.root.menu.disk.item_for(UnmountImage).text),
+        look("inside"), lambda a: setattr(a.manager.left, "path", here / "one"),
+        Until(lambda a: a.manager.left.path == here / "one"), look("outside"),
+    ])
+    assert seen["text"] == "~U~nmount image"
+    assert seen["inside"] is True
+    assert seen["outside"] is not True

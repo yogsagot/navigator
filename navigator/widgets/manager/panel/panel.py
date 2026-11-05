@@ -1066,6 +1066,29 @@ class Panel(ListViewer):
         self.found = None
         self.location = Location.of(entry.directory)
 
+    def go_to_file(self, path: Path) -> None:
+        """The directory holding *path* on the disk, the cursor on it."""
+        self.leave_found()
+        self._return_to = path.name
+        self.location = Location.of(path.parent)
+
+    def image_here(self) -> list[Any]:
+        """The mounts of the disk image this panel is in -- or, with nothing
+        tagged, the mounted ``.iso``/``.img`` at its cursor -- for *Unmount
+        image*; ``[]`` for none, off the disk, or without ``udisksctl``.
+        ``/proc`` and ``/sys`` only (:func:`navigator.lib.system.udisks.image_at`)."""
+        from navigator.lib.system import udisks
+
+        if not self.location.is_local or self.found is not None or udisks.program() is None:
+            return []
+        entry = self.selected
+        if (not self.marked and entry is not None and not entry.is_dir and entry.name != ".."
+                and udisks.is_image_name(entry.name)):
+            mounts = udisks.image_at(os.path.realpath(entry.path_in(self.path)))
+            if mounts:
+                return mounts
+        return udisks.image_at(self.path)
+
     def enter(self) -> None:
         """Descend into the selected directory -- or, in a *Find:* listing,
         go back (``..``) or go to the entry, as DN's Enter did there."""
@@ -1857,6 +1880,7 @@ class Panel(ListViewer):
             SelectAll,
             SelectGroup,
             ShowHardLinks,
+            UnmountImage,
             UnselectGroup,
             View,
         )
@@ -1918,6 +1942,10 @@ class Panel(ListViewer):
             menu.add_line()
         elif any(_archive_file(item) for item in (self.marked_entries if tagged else [entry])):
             menu.add_item(tr("E~x~tract archive..."), ExtractArchive, "Shift-F2")
+            menu.add_line()
+        if self.image_here():
+            # A mounted disk image (Enter's, ``udisks.attach_image``): not DN's.
+            menu.add_item(tr("Unmount image"), UnmountImage)
             menu.add_line()
         if entry is not None and entry.is_dir:
             menu.add_item(tr("Count directory len~g~th"), CountLength)
