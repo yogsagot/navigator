@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symlinks (filelink.py, LinkDialog), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symbolic and hard links (filelink.py, LinkDialog), Show hard links (hardlinks.py), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -81,14 +81,31 @@ has a problem.
 - **Undo multi-rename** (Panel menu, no key) reverses `Manager.last_renames` (`multirename.Batch`, session only, one
   batch) through the same `run`; disabled when there is none.
 
-## Symlinks (Shift+F5)
+## Links (Shift+F5)
 
-*File > Create symlink…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is
+*File > Links > Create link…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is
 back keyless (*Split / combine* below). `navigator/lib/file_ops/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
-dialog cut down, with one session-remembered *Relative link* box. `Manager.make_links` works with no worker thread and
-shares Copy's *Skip* box.
+dialog cut down: a *Symbolic link* / *Hard link* radio (`kind`) beside one *Relative link* box, both remembered for the
+session. `Manager.make_links` works with no worker thread and shares Copy's *Skip* box.
 
-**Changing links already there** (File > *Symlinks*, Create symlink's submenu now; no keys, all in
+- **Hard links** (`LinkRequest.hard`, `filelink.make_hard_link`): `Drive.link(source, dest)`, `os.link(...,
+  follow_symlinks=False)` -- `ln -P`, a symlink named is linked itself. Only where the drive `can("hardlink")`
+  (`HARDLINK`: the disk, `root:`; the root helper's `link` op pins both paths); elsewhere *Hard link* is greyed
+  (`can_hard`) and the model refuses `EOPNOTSUPP`. **A directory is refused with `EISDIR` before `link(2)` runs**: its
+  `EPERM` would read as a refusal *As root* could get past (`refused()`), and root cannot either. `EXDEV` (another
+  drive or file system) is put in words. *Relative link* is greyed while *Hard* is chosen (an effect on `kind`), and
+  the prompt follows (`prompt_for(entries, hard)`, its hotkey `l`). SFTP (`hardlink@openssh.com`, not in paramiko)
+  and the container drives (`ln`) could follow.
+- **Show hard links** (`ShowHardLinks`, File > Links, keyless; the context menu on a file with `nlink > 1`):
+  `navigator/lib/file_ops/hardlinks.py`'s `find_names` walks the file's file system from `filefind.mount_point` on a
+  thread (`HardLinksJob`, `FindProgress` *Find hard links*, Stop), never entering another device, hidden names
+  included, `DirEntry.inode()` compared before any `lstat`, **stopping once `st_nlink` names are found**. The names
+  go into the panel as a *Links: NAME* `FindListing` (`keep_order`, the file's own first, the cursor on it through
+  `show_found(at=)`); fewer found than `st_nlink` (an unreadable directory, a bind mount) is a toast. Refused off the
+  disk, inside a listing, in Miller columns, on a directory and on a file with one name. A panel hiding dot-files
+  hides those names too (`restat_found`). The *Links* column is `navigator-panels`'.
+
+**Changing links already there** (File > *Links*, Create link's submenu now; no keys, all in
 `Manager.keyless_commands`; *Edit link target* and the two *Make* also in the context menu when the selection holds a
 link). A departure too. Enabled on links in `Manager.selected_links` (the selection's `is_link` entries) on a drive
 that `can("symlink")` and `can("rename")`.
@@ -332,6 +349,6 @@ with Find in the `navigator-panels` skill. Writes go through the editor's `save.
 | Reference | Read when |
 |---|---|
 | `reference/copying.md` | copy/move model, dialog, progress and overwrite queries |
-| `reference/symlinks.md` | symbolic links, and changing them |
+| `reference/symlinks.md` | symbolic and hard links, changing them, finding a file's names |
 | `reference/deleting.md` | erase model, queries, recursion |
 | `reference/file-attributes.md` | the attributes dialog and model |

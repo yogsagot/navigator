@@ -1,4 +1,4 @@
-"""Symbolic links: Shift+F5's model, beside ``filecopy.py``'s F5 and F6.
+"""Links: Shift+F5's model, beside ``filecopy.py``'s F5 and F6.
 
 A departure -- DOS Navigator had no links to make -- so there is no
 original to follow, and the command borrows everything it can from Copy: the
@@ -7,6 +7,13 @@ directory, a name ending in ``/``, a ``MkName`` mask and a single new name all
 mean what they mean to F5.  A link is made in one system call, so there is no
 worker thread, no job and no progress box; :func:`make_link` raises and the
 file manager asks.
+
+The dialog's *Hard link* makes a second name for the file instead
+(``link(2)``, ``ln -P``: a symbolic link named is linked itself, not
+followed).  Only on a drive that ``can("hardlink")`` -- the disk, and the
+disk as root -- and never of a directory, which is refused here with
+``EISDIR`` before the kernel's ``EPERM`` could be read as a refusal *As root*
+might get past.
 
 The rest of File > Symlink changes links already there -- what one holds
 edited, a replacement in several (:func:`replaced`), absolute turned
@@ -32,6 +39,9 @@ class LinkRequest:
     #: Point each link at its source relative to the link's own directory,
     #: so a tree moved whole keeps working; absolute otherwise.
     relative: bool = False
+    #: A hard link (a second name for the file) instead of a symbolic one;
+    #: *relative* means nothing then.
+    hard: bool = False
 
 
 def link_path(source: Path, dest: Path, relative: bool) -> str:
@@ -48,8 +58,8 @@ def link_path(source: Path, dest: Path, relative: bool) -> str:
     return str(source)
 
 
-def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False) -> None:
-    """Make *dest* a symbolic link to *source*.
+def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False, hard: bool = False) -> None:
+    """Make *dest* a symbolic link to *source*, or with *hard* a second name for it.
 
     An existing *dest* is refused, a dangling link included -- ``os.symlink``
     would refuse it too, but only after the check this makes explicit.
@@ -58,6 +68,9 @@ def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False) -
     from navigator.lib.drives import Location, drive_of
 
     source_place, dest_place = Location.of(source), Location.of(dest)
+    if hard:
+        make_hard_link(source_place, dest_place, as_root)
+        return
     if as_root and dest_place.is_local and source_place.is_local:
         from navigator.lib.drives.root import ROOT_DRIVE
 
@@ -79,6 +92,39 @@ def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False) -
     if os.path.lexists(dest):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(dest))
     os.symlink(link_path(source, dest, relative), dest)
+
+
+def make_hard_link(source: Any, dest: Any, as_root: bool = False) -> None:
+    """*dest* made a second name for *source*, both locations.
+
+    Refused: a directory (``EISDIR``: ``link(2)`` would say ``EPERM``, which
+    reads as a refusal *As root* could get past, and it cannot); another
+    drive or file system (``EXDEV``, in words); a drive that cannot
+    (``can("hardlink")``); an existing *dest*."""
+    import stat as stat_module
+
+    from navigator.lib.drives import drive_of
+
+    if (source.site, source.outer) != (dest.site, dest.outer):
+        raise OSError(errno.EXDEV, "A hard link cannot cross file systems", str(dest))
+    drive = drive_of(dest)
+    if as_root and dest.is_local:
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        drive = ROOT_DRIVE
+    elif not drive.can("hardlink"):
+        raise OSError(errno.EOPNOTSUPP, "This drive cannot hold hard links", str(dest))
+    if stat_module.S_ISDIR(drive.lstat(source).st_mode):
+        raise OSError(errno.EISDIR, "A directory cannot be hard-linked", str(source))
+    if drive.lexists(dest):
+        raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(dest))
+    try:
+        drive.link(source, dest)
+    except OSError as error:
+        if error.errno == errno.EXDEV:
+            raise OSError(errno.EXDEV, "A hard link cannot cross file systems", str(dest)) from error
+        raise
+    drive.finish()
 
 
 # -- changing a link that is there -------------------------------------------------

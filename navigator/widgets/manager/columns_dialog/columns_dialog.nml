@@ -9,7 +9,7 @@ from navml.widgets.dialog.label import Label
 #:
 #: *Show* and its boxes, OK, *Brief*, *Full* and Cancel, where DN had them
 #: down the right and along the bottom; the boxes are the detailed mode's
-#: columns -- POSIX's size, attributes, owner and date, where DN's were size,
+#: columns -- POSIX's size, attributes, link count, owner and date, where DN's were size,
 #: date, time and descriptions, which ``descript.ion`` went with.
 ColumnsDialog(Dialog):
     modal_width: 40
@@ -30,8 +30,8 @@ ColumnsDialog(Dialog):
         x: 3
         y: 2
         width: 20
-        height: 4
-        items: ["~S~ize", "~A~ttributes", "~O~wner", "~D~ate"]
+        height: 5
+        items: ["~S~ize", "~A~ttributes", "L~i~nks", "~O~wner", "~D~ate"]
 
     #: DN's ``cmYes``: names alone.
     Button:

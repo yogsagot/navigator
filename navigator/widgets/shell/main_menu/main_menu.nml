@@ -1,5 +1,5 @@
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole
-from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, UndoMultiRename, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
+from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, MultiRename, UndoMultiRename, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText
 from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow
 from navml.widgets.menu.menu_bar import MenuBar
@@ -239,14 +239,15 @@ MainMenu(MenuBar):
                 text: 'Test archive'
                 tooltip: "Read the archive through and check it for errors"
                 command: ArcTest
-        #: Not DN's -- DOS had no links: Shift+F5's link made, and the
-        #: rest changing links already there (EditLinkTarget's docstring).
+        #: Not DN's -- DOS had no links: Shift+F5's link made (symbolic or
+        #: hard), the rest changing symbolic links already there
+        #: (EditLinkTarget's docstring), and a file's hard links shown.
         SubMenu:
             id: file_symlinks
-            text: '~S~ymlinks'
+            text: 'Link~s~'
             MenuItem:
-                text: 'Create ~s~ymlink...'
-                tooltip: "Make a symbolic link to each selected file"
+                text: 'Create ~l~ink...'
+                tooltip: "Make a symbolic or hard link to each selected file"
                 command: MakeLink
                 key: 'Shift-F5'
             MenuLine:
@@ -267,6 +268,11 @@ MainMenu(MenuBar):
                 text: 'Select ~b~roken links'
                 tooltip: "Tag every link here that points nowhere"
                 command: SelectBrokenLinks
+            MenuLine:
+            MenuItem:
+                text: 'Show ~h~ard links'
+                tooltip: "List every name the file at the cursor has on its file system"
+                command: ShowHardLinks
         #: DN's ``~S~plit/combine...`` (``cmPanelLongCopy``), back where it
         #: stood, after the links that took its Shift-F5 and its ``s``: so
         #: ``~b~`` and no key (SplitCombine's docstring has the departures).

@@ -114,6 +114,13 @@ class SelectBrokenLinks(Command):
     show.  A departure; not bound."""
 
 
+class ShowHardLinks(Command):
+    """File > Links > Show hard links: every name the file at the cursor has,
+    found on its file system (:mod:`navigator.lib.file_ops.hardlinks`) and put
+    in the panel as a *Links:* listing.  A departure, asked for: DOS had no
+    hard links.  Not bound."""
+
+
 class ChangeAttributes(Command):
     """Alt+E: *File Attributes*, DN's ``cmSetFAttr``, read for Linux.
 
@@ -817,6 +824,7 @@ __all__ = [
     "LinkRelative",
     "LinkAbsolute",
     "SelectBrokenLinks",
+    "ShowHardLinks",
     "ChangeAttributes",
     "MakeDirectory",
     "Delete",

@@ -9,7 +9,7 @@ from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 
 #: The boxes' columns, in their order (``Panel.DETAIL_ORDER``).
-COLUMNS = ("size", "attributes", "owner", "date")
+COLUMNS = ("size", "attributes", "links", "owner", "date")
 #: An archive's boxes: DN's ``dlgArcParms``, its original and packed sizes
 #: and ratio, then the rest.
 ARCHIVE_COLUMNS = ("size", "packed", "ratio", "attributes", "owner", "date")

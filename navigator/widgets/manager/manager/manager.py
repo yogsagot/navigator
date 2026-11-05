@@ -63,6 +63,7 @@ from navigator.widgets.manager.commands import (
     LinkAbsolute,
     LinkRelative,
     SelectBrokenLinks,
+    ShowHardLinks,
     MoveSeparator,
     PasteFromClipboard,
     PrintFile,
@@ -150,7 +151,7 @@ _LOCAL_ONLY: tuple[type, ...] = ()
 _NOT_IN_MILLER: tuple[type, ...] = (
     SwapPanels, HideLeft, HideRight, HideInactive, ToggleTree, QuickView, DiskInfo, EqualizePanels,
     CompareDir, DiffFiles, MoveSeparator, ChangeInactive, ToggleShowMode, ToggleInfoLines, SetupColumns, FindFile,
-    DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates, ReplaceInFiles,
+    DirBranch, ReadFileList, Panelize, ScrollNames, FindDuplicates, ReplaceInFiles, ShowHardLinks,
 )
 
 
@@ -172,7 +173,7 @@ class Manager(Window):
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
     keyless_commands = (CompareDir, DiffFiles, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
-                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks)
+                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks, ShowHardLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -2844,6 +2845,17 @@ class Manager(Window):
             if not (drive.can("symlink") and drive.can("rename")):
                 return tr("This drive cannot hold links")
             return unless(bool(self.selected_links(panel)), tr("No symbolic link is selected"))
+        if isinstance(command, ShowHardLinks):
+            if self._aside_focused():
+                return aside
+            if panel.found is not None:
+                return not_found
+            if not panel.location.is_local:
+                return tr("Only on the local disk")
+            entry = panel.selected
+            if entry is None or entry.name == ".." or entry.is_dir:
+                return tr("No file at the cursor")
+            return unless(entry.nlink > 1, tr("The file has no other names"))
         if isinstance(command, SelectBrokenLinks):
             if self._aside_focused():
                 return aside
@@ -3929,7 +3941,7 @@ class Manager(Window):
     # -- symbolic links ----------------------------------------------------------
 
     async def on_make_link(self, event: MakeLink) -> bool:
-        """Shift+F5: a symbolic link to each selected entry."""
+        """Shift+F5: a link -- symbolic or hard -- to each selected entry."""
         self.spawn(self.make_links())
         return True
 
@@ -3963,8 +3975,13 @@ class Manager(Window):
             return
         here = panel.location
         if ask:
+            try:
+                can_hard = drive_of(here).can("hardlink")
+            except DriveGone:
+                can_hard = False
             request = await LinkDialog(
                 entries=entries, here=here, other=target, hidden=panel.show_hidden, relative=relative,
+                can_hard=can_hard,
             ).execute(app)
         else:
             request = filelink.LinkRequest(
@@ -4023,7 +4040,7 @@ class Manager(Window):
                 while True:
                     try:
                         await step(filelink.make_link, source, destination.path_for(source),
-                                   request.relative, as_root)
+                                   request.relative, as_root, request.hard)
                     except OSError as error:
                         answer = await failed(error)
                         if answer == filecopy.AS_ROOT:
@@ -4063,6 +4080,76 @@ class Manager(Window):
     async def on_select_broken_links(self, event: SelectBrokenLinks) -> bool:
         self.select_broken_links(self.active_panel)
         return True
+
+    async def on_show_hard_links(self, event: ShowHardLinks) -> bool:
+        self.spawn(self.show_hard_links(self.active_panel))
+        return True
+
+    async def show_hard_links(self, panel: Panel) -> None:
+        """Every name of the file at *panel*'s cursor, found on its file
+        system on a thread (:func:`navigator.lib.file_ops.hardlinks.find_names`)
+        and shown in *panel* as a *Links:* listing, the file's own name first
+        and the cursor on it.  Fewer found than the file has (an unreadable
+        directory, another mount) is said in a toast.  A departure, asked for."""
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator.lib.file_ops import filecopy
+        from navigator.lib.file_ops.filefind import FindListing
+        from navigator.lib.file_ops.hardlinks import HardLinksJob, find_names
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.manager.find_progress import FindProgress
+        from navigator.widgets.manager.panel.panel import entry_at
+
+        app = self.application
+        entry = panel.selected
+        if app is None or entry is None or entry.name == ".." or panel.found is not None \
+                or not panel.location.is_local:
+            return
+        here = Path(panel.path)
+        path = Path(entry.path_in(here))
+        job = HardLinksJob()
+
+        def work() -> tuple[list[Any], int]:
+            names = find_names(path, job)
+            entries = [found for found in (entry_at(name, name.parent) for name in names.paths)
+                       if found is not None]
+            return entries, names.count
+
+        def make_box() -> Any:
+            box = FindProgress()
+            box.title = tr("Find hard links")
+            return box
+
+        def refresh(box: Any) -> None:
+            box.directory = job.directory
+            box.count = len(job.found)
+
+        async def no_questions(question: Any) -> None:
+            return None
+
+        running = asyncio.ensure_future(asyncio.to_thread(work))
+        try:
+            await self._watch_job(running, job, make_box, refresh, no_questions,
+                                  abort=tr("Cancel search?"))
+            entries, count = await running
+        except Stopped:
+            return
+        except OSError as error:
+            await Dialog(title=tr("Error"), prompt=escape_caption(filecopy.error_message(error)),
+                         buttons="ok").execute(app)
+            return
+        finally:
+            if not running.done():
+                job.stop()
+        if job.stopped or panel.location != Location.of(here) or panel.found is not None:
+            return  # stopped, or the panel went elsewhere meanwhile
+        panel.show_found(FindListing(tr("Links: {name}").format(name=entry.name), here, entries,
+                                     return_to=entry.name, keep_order=True), at=entry.name)
+        panel.focus()
+        toast = getattr(getattr(app, "root", None), "toast", None)
+        if len(entries) < count and toast is not None and app.is_running:
+            toast(tr("{found} of {count} names found").format(found=len(entries), count=count),
+                  title=tr("Links: {name}").format(name=entry.name))
 
     def select_broken_links(self, panel: Panel) -> None:
         """Tag every link in *panel* that points nowhere, beside the tags there."""

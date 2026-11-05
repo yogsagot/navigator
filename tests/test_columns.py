@@ -39,7 +39,7 @@ def test_ok_shows_the_detailed_mode_with_the_columns_ticked_and_none_is_names_al
             a.modal.show.value = value
         return action
 
-    run_app(app, [KeyEvent("k", alt=True), lambda a: None, tick(0b1001), KeyEvent("enter"), lambda a: None,
+    run_app(app, [KeyEvent("k", alt=True), lambda a: None, tick(0b10001), KeyEvent("enter"), lambda a: None,
                   lambda a: seen.update(first=(a.manager.left.view_mode, keys(a.manager.left),
                                                a.manager.right.view_mode)),
                   KeyEvent("k", alt=True), lambda a: None, tick(0), KeyEvent("enter"), lambda a: None,
@@ -61,7 +61,7 @@ def test_brief_and_full(place):
                   KeyEvent("k", alt=True), lambda a: None, KeyEvent("f", alt=True), lambda a: None,
                   lambda a: seen.update(full=(a.manager.left.view_mode, keys(a.manager.left)))])
     assert seen["brief"] == "list"
-    assert seen["full"] == ("detailed", ["name", "size", "attributes", "owner", "date"])
+    assert seen["full"] == ("detailed", ["name", "size", "attributes", "links", "owner", "date"])
 
 
 def test_a_find_listing_gives_the_directory_a_footer_line_not_a_column(place):
@@ -127,13 +127,13 @@ def test_the_column_defaults_dialog_saves_its_section(place):
         page = a.modal.column_defaults
         seen["title"] = page.title
         seen["before"] = (page.disk.value, page.find.value)
-        page.disk.value = 0b1001
-        page.find.value = 0b1000
+        page.disk.value = 0b10001
+        page.find.value = 0b10000
 
     run_app(app, [lambda a: a.spawn(a.run_command(ColumnDefaults)),
                   Until(lambda a: getattr(a.modal, "title", None) == "Settings", timeout=5),
                   untick, KeyEvent("enter"), lambda a: None])
-    assert seen["title"] == "Columns" and seen["before"] == (0b1111, 0b1111)
+    assert seen["title"] == "Columns" and seen["before"] == (0b11011, 0b11011)
     assert SETTINGS.column_defaults.columns(False) == {"size", "date"}
     assert SETTINGS.column_defaults.columns(True) == {"date"}
     assert "disk_owner = no" in SETTINGS.path.read_text()

@@ -40,3 +40,28 @@ Alt/Ctrl+letters are DN's, and these are rare enough for the menu, the panel's c
 - **Several links** are not each asked: a replacement over all their targets (the moved-tree case: `/old/root` to
   `/new/root`) is previewed, as Multi-rename's rule is. Whether a new target exists is not shown: the preview is
   pure, re-planned on every key, and a `stat` per row per key would put the disk on the loop.
+
+
+#### Hard links
+
+Shift+F5's dialog makes them too: a *Symbolic link* / *Hard link* choice rather than a second command, because the
+target, the history, the Tree button and the *Skip* box are all the same. Each choice is a departure, as the symlinks
+are.
+
+- **`ln -P`, not `-L`**: `os.link(..., follow_symlinks=False)` links a symlink named as itself. That is GNU `ln`'s
+  default, and it is the only reading under which every row of the panel can be hard-linked as shown.
+- **`EISDIR`, not the kernel's `EPERM`**: a directory cannot be hard-linked by anyone, but `EPERM` is in
+  `elevate.REFUSED`, so the *Skip* box would offer *As root* for something root cannot do. `make_hard_link` checks
+  with `lstat` first. A file the user does not own under `fs.protected_hardlinks` still gets `EPERM`, and there
+  *As root* does help.
+- **Only the disk**: `HARDLINK` is a capability of its own, not `SYMLINK`'s, since SFTP and the archives can hold a
+  symlink but not a second name.
+
+#### A file's other names
+
+The kernel counts a file's names (`st_nlink`, the *Links* column) but does not list them. *Show hard links* walks the
+whole file system the file lives on, from its mount point, because a name may be anywhere on it and nowhere else.
+Two things keep that tolerable: `os.DirEntry.inode()` comes with the directory read, so only a match costs an
+`lstat`; and the walk ends once it has found as many names as `st_nlink` says, which on a typical file with two
+names is long before the end. A name that only another mount of the same file system reaches (a bind mount), or one
+in a directory that cannot be read, is not found, and the toast says how many were.

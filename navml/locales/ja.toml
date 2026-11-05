@@ -749,7 +749,7 @@ flag = "JP"
 "Error" = "エラー"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "ディレクトリ"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:529 ...
+# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:531 ...
 " Search: " = " 検索: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "一覧から選択 ({key})"
@@ -779,7 +779,7 @@ flag = "JP"
 "Earlier tabs" = "前のタブ群"
 # navml/widgets/dialog/tab_view/tab_view.py:418
 "Later tabs" = "後のタブ群"
-# navml/widgets/dialog/tree_view/tree_view.py:533
+# navml/widgets/dialog/tree_view/tree_view.py:535
 "Next" = "次"
 # navml/widgets/menu/commands.py:14
 "Menu" = "メニュー"

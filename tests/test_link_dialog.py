@@ -1,4 +1,4 @@
-"""Shift+F5: the Create symlink dialog, the links it makes, and the command end to end."""
+"""Shift+F5: the Create link dialog, the links it makes (symbolic and hard), and the command end to end."""
 
 from __future__ import annotations
 
@@ -20,14 +20,14 @@ from navigator.widgets.manager.commands import MakeLink
 from navigator.lib.file_ops.filelink import LinkRequest, link_path, make_link
 from navigator.widgets.file_ops.link_dialog import LinkDialog
 from navigator.widgets.file_ops.link_dialog import link_dialog as link_dialog_module
-from navigator.widgets.file_ops.link_dialog.link_dialog import RELATIVE, prompt_for
+from navigator.widgets.file_ops.link_dialog.link_dialog import HARD, RELATIVE, SYMBOLIC, prompt_for
 from navigator.widgets.manager.panel import DirEntry
 from navigator.widgets.shell.shell import Shell
 
 
 @pytest.fixture(autouse=True)
 def fresh_session(monkeypatch):
-    monkeypatch.setattr(link_dialog_module, "_session", {"relative": False})
+    monkeypatch.setattr(link_dialog_module, "_session", {"relative": False, "hard": False})
 
 
 def entry(name: str, is_dir: bool = False) -> DirEntry:
@@ -46,7 +46,7 @@ def test_the_prompt_says_what_is_being_linked():
 
 def test_the_dialog_opens_on_the_other_panel(tmp_path):
     dialog = LinkDialog(entries=[entry("f.txt")], here=tmp_path / "a", other=tmp_path / "b")
-    assert dialog.title == "Create symlink"
+    assert dialog.title == "Create link"
     assert dialog.target.value == f"{tmp_path / 'b'}/f.txt"
     assert dialog.target.entry.selected_text == dialog.target.value
     assert dialog.options.value == 0
@@ -61,6 +61,34 @@ def test_ok_answers_a_request_and_relative_is_remembered(tmp_path):
     )
     again = LinkDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path / "b")
     assert again.options.value == RELATIVE
+
+
+def test_the_prompt_says_a_hard_link():
+    assert prompt_for([entry("f.txt")], hard=True) == "Create hard ~l~ink to file ~f.txt~ in"
+    assert prompt_for([entry("a"), entry("b")], hard=True) == "Create hard ~l~inks to ~2 files~ in"
+
+
+def test_hard_greys_relative_follows_the_prompt_and_is_remembered(tmp_path):
+    dialog = LinkDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path / "b")
+    dialog.mounted()
+    assert dialog.kind.value == SYMBOLIC and dialog.options.enable_mask == -1
+    dialog.options.value = RELATIVE
+    dialog.kind.value = HARD
+    settle()
+    assert dialog.options.enable_mask == 0
+    assert dialog.prompt_caption.text == "Create hard ~l~ink to file ~f.txt~ in"
+    request = dialog.accept()
+    assert request.hard and not request.relative  # a hard link holds no path
+    again = LinkDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path / "b")
+    assert again.kind.value == HARD
+    assert again.prompt_caption.text == "Create hard ~l~ink to file ~f.txt~ in"
+
+
+def test_hard_is_greyed_where_the_drive_cannot(tmp_path):
+    link_dialog_module._session["hard"] = True
+    dialog = LinkDialog(entries=[entry("f.txt")], here=tmp_path, other=tmp_path, can_hard=False)
+    assert dialog.kind.value == SYMBOLIC
+    assert not dialog.kind.item_enabled(HARD) and dialog.kind.item_enabled(SYMBOLIC)
 
 
 def test_an_empty_line_answers_nothing(tmp_path):
@@ -86,6 +114,48 @@ def test_make_link_links_and_refuses_what_exists(tmp_path):
     os.symlink("nowhere", tmp_path / "dangling")
     with pytest.raises(FileExistsError):
         make_link(tmp_path / "f.txt", tmp_path / "dangling", relative=False)
+
+
+def test_make_link_makes_a_hard_link_and_refuses_a_directory(tmp_path):
+    import errno
+
+    (tmp_path / "f.txt").write_text("f")
+    make_link(tmp_path / "f.txt", tmp_path / "g.txt", relative=False, hard=True)
+    assert (tmp_path / "g.txt").stat().st_ino == (tmp_path / "f.txt").stat().st_ino
+    assert (tmp_path / "f.txt").stat().st_nlink == 2
+    with pytest.raises(FileExistsError):
+        make_link(tmp_path / "f.txt", tmp_path / "g.txt", relative=False, hard=True)
+    (tmp_path / "d").mkdir()
+    with pytest.raises(OSError) as raised:
+        make_link(tmp_path / "d", tmp_path / "e", relative=False, hard=True)
+    assert raised.value.errno == errno.EISDIR  # not EPERM: no *As root* offered
+
+
+def test_a_hard_link_to_a_symlink_is_the_symlink_itself(tmp_path):
+    (tmp_path / "f.txt").write_text("f")
+    (tmp_path / "s").symlink_to("f.txt")
+    make_link(tmp_path / "s", tmp_path / "t", relative=False, hard=True)
+    assert os.readlink(tmp_path / "t") == "f.txt"  # ``ln -P``
+    assert (tmp_path / "t").lstat().st_ino == (tmp_path / "s").lstat().st_ino
+
+
+def test_a_hard_link_is_refused_on_a_drive_that_cannot(tmp_path):
+    import errno
+
+    from navigator.lib.drives import Location, mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    drive = mount(MemoryDrive("hard"))
+    try:
+        drive.make("/a.txt", "a")
+        with pytest.raises(OSError) as raised:
+            filelink.make_hard_link(drive.location("/a.txt"), drive.location("/b.txt"))
+        assert raised.value.errno == errno.EOPNOTSUPP
+        with pytest.raises(OSError) as raised:
+            filelink.make_hard_link(Location.of(tmp_path / "a"), drive.location("/b.txt"))
+        assert raised.value.errno == errno.EXDEV
+    finally:
+        unmount(drive.site)
 
 
 def test_a_link_to_nothing_is_made(tmp_path):
@@ -154,7 +224,7 @@ def test_shift_f5_links_into_the_other_panel(two):
 
     opened, painted, after, right = run_shell(a, b, steps)
     assert isinstance(opened, LinkDialog)
-    assert " Create symlink " in painted
+    assert " Create link " in painted
     assert after is None
     assert os.readlink(b / "one.txt") == str(a / "one.txt")
     assert "one.txt" in right
@@ -176,6 +246,24 @@ def test_tagged_entries_are_each_linked_relatively_and_untagged(two):
     assert os.readlink(b / "one.txt") == "../a/one.txt"
     assert os.readlink(b / "two.txt") == "../a/two.txt"
     assert marked == frozenset()
+
+
+def test_shift_f5_makes_a_hard_link_when_hard_is_chosen(two):
+    a, b = two
+
+    async def steps(app, manager):
+        put_cursor(manager.left, "one.txt")
+        app.post_event(KeyEvent("f5", shift=True))
+        await until(lambda: isinstance(app.modal, LinkDialog))
+        app.modal.kind.value = HARD
+        app.post_event(KeyEvent("enter"))
+        await until(lambda: not app._tasks and "one.txt" in [e.name for e in manager.right.items])
+        return [e.nlink for e in manager.right.items if e.name == "one.txt"]
+
+    counts = run_shell(a, b, steps)
+    assert not (b / "one.txt").is_symlink()
+    assert (b / "one.txt").stat().st_ino == (a / "one.txt").stat().st_ino
+    assert counts == [2]
 
 
 def test_a_link_in_the_way_asks_to_skip(two):
@@ -226,4 +314,4 @@ def test_the_file_menu_has_the_entry(two):
         return item.text, item.key
 
     text, key = run_shell(a, b, steps)
-    assert text == "Create ~s~ymlink..." and key == "Shift-F5"
+    assert text == "Create ~l~ink..." and key == "Shift-F5"

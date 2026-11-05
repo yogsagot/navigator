@@ -5,8 +5,9 @@ from navml.widgets.dialog.label import Label
 #:
 #: Its *Disk Drive*, *File find* and *Archives* groups, side by side as DN had
 #: them, the boxes *Columns Setup*'s (Alt+K) -- POSIX's size, attributes,
-#: owner and date where DN's were size, date, time and descriptions, and an
-#: archive's packed size and ratio as DN's.  *TEMP:* and *TDR View* are left
+#: link count (not in an archive), owner and date where DN's were size,
+#: date, time and descriptions, and an archive's packed size and ratio as
+#: DN's.  *TEMP:* and *TDR View* are left
 #: out, having only meant something on DOS.  Help is left out, having
 #: nothing to show yet.
 ColumnDefaultsPage:
@@ -27,8 +28,8 @@ ColumnDefaultsPage:
         x: 3
         y: 2
         width: 17
-        height: 4
-        items: ["Size", "Attributes", "Owner", "Date"]
+        height: 5
+        items: ["Size", "Attributes", "Links", "Owner", "Date"]
 
     Label:
         id: find_caption
@@ -44,8 +45,8 @@ ColumnDefaultsPage:
         x: 21
         y: 2
         width: 17
-        height: 4
-        items: ["Size", "Attributes", "Owner", "Date"]
+        height: 5
+        items: ["Size", "Attributes", "Links", "Owner", "Date"]
 
     Label:
         id: arc_caption

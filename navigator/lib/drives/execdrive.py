@@ -488,6 +488,8 @@ class ExecDrive(Drive):
             entry = DirEntry(name, is_dir, 0 if is_dir else size, mode, mtime, is_link, each.link_text,
                              each.st_uid, each.st_gid)
             entry.owner = each.owner
+            if not is_link:  # a link's own count, not its target's: left unknown
+                entry.nlink = each.st_nlink
             entries.append(entry)
         order = {key: options[key] for key in ("executables_first", "archives_first", "reverse")
                  if key in options}

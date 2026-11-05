@@ -37,6 +37,8 @@ from navigator.lib.drives.location import Location, Site
 WRITE = "write"
 RENAME = "rename"
 SYMLINK = "symlink"
+#: Hard links: a second name for a file (Shift+F5's *Hard link*).
+HARDLINK = "hardlink"
 CHMOD = "chmod"
 CHOWN = "chown"
 WATCH = "watch"
@@ -52,7 +54,7 @@ XATTR = "xattr"
 FSFLAGS = "fsflags"
 
 #: Everything: the local disk's.
-EVERYTHING = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN, WATCH, FREE_SPACE, EXEC, TREE, FIND,
+EVERYTHING = frozenset((WRITE, RENAME, SYMLINK, HARDLINK, CHMOD, CHOWN, WATCH, FREE_SPACE, EXEC, TREE, FIND,
                         UUCODE, PRINT, XATTR, FSFLAGS))
 
 
@@ -259,6 +261,11 @@ class Drive:
     def symlink(self, target: str, location: Location) -> None:
         raise unsupported(location)
 
+    def link(self, source: Location, dest: Location) -> None:
+        """A hard link: *dest* made a second name for *source* (a link
+        named by *source* is linked itself, not followed -- ``ln -P``)."""
+        raise unsupported(dest)
+
     def chmod(self, location: Location, mode: int) -> None:
         raise unsupported(location)
 
@@ -420,6 +427,6 @@ class PollWatch:
 
 __all__ = [
     "CHMOD", "CHOWN", "Child", "Drive", "DriveGone", "EVERYTHING", "EXEC", "FIND", "FREE_SPACE",
-    "FileStat", "PRINT", "PollWatch", "RENAME", "SYMLINK", "TREE", "UUCODE", "WATCH", "WRITE", "XATTR",
+    "FileStat", "HARDLINK", "PRINT", "PollWatch", "RENAME", "SYMLINK", "TREE", "UUCODE", "WATCH", "WRITE", "XATTR",
     "FSFLAGS", "unsupported",
 ]

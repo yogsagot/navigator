@@ -814,26 +814,31 @@ class ColumnDefaultsData(Section):
     (Alt+K), POSIX's size, attributes, owner and date where DN's were size,
     date, time and descriptions; an archive adds DN's packed size and ratio.
     DN's defaults were 0, its brief panel; Navigator's panels always showed
-    every column, so every box defaults on.
+    every column, so every box defaults on -- but *Links*, the hard link
+    count (a departure: DOS had no links), which few want to see.
     """
 
     name = "column_defaults"
     title = "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)"
 
     #: *Disk Drive*'s boxes, in their order.
-    DISK: ClassVar[tuple[str, ...]] = ("disk_size", "disk_attributes", "disk_owner", "disk_date")
+    DISK: ClassVar[tuple[str, ...]] = ("disk_size", "disk_attributes", "disk_links", "disk_owner",
+                                       "disk_date")
     #: *File find*'s boxes, in their order.
-    FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_owner", "find_date")
+    FIND: ClassVar[tuple[str, ...]] = ("find_size", "find_attributes", "find_links", "find_owner",
+                                       "find_date")
     #: *Archives*' boxes, in their order.
     ARC: ClassVar[tuple[str, ...]] = ("arc_size", "arc_packed", "arc_ratio", "arc_attributes", "arc_owner",
                                       "arc_date")
 
     disk_size: bool = Setting(True, doc="A directory shows the size")
     disk_attributes: bool = Setting(True, doc="A directory shows the attributes")
+    disk_links: bool = Setting(False, doc="A directory shows how many names (hard links) each file has")
     disk_owner: bool = Setting(True, doc="A directory shows the owner")
     disk_date: bool = Setting(True, doc="A directory shows the date")
     find_size: bool = Setting(True, doc="A Find: listing shows the size")
     find_attributes: bool = Setting(True, doc="A Find: listing shows the attributes")
+    find_links: bool = Setting(False, doc="A Find: listing shows how many names (hard links) each file has")
     find_owner: bool = Setting(True, doc="A Find: listing shows the owner")
     find_date: bool = Setting(True, doc="A Find: listing shows the date")
     arc_size: bool = Setting(True, doc="An archive shows the original size")

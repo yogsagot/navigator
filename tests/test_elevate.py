@@ -212,6 +212,16 @@ def test_the_drive_reads_writes_and_lists(started, tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
+def test_a_hard_link_is_made_through_the_helper(started, tmp_path):
+    (tmp_path / "f.txt").write_text("f")
+    ROOT_DRIVE.link(Location.of(tmp_path / "f.txt"), Location.of(tmp_path / "g.txt"))
+    assert (tmp_path / "g.txt").stat().st_ino == (tmp_path / "f.txt").stat().st_ino
+    from navigator.lib.file_ops.filelink import make_link
+
+    make_link(tmp_path / "f.txt", tmp_path / "h.txt", relative=False, as_root=True, hard=True)
+    assert (tmp_path / "f.txt").stat().st_nlink == 3
+
+
 def test_the_drive_raises_what_the_helper_met(started, tmp_path):
     with pytest.raises(FileNotFoundError) as raised:
         ROOT_DRIVE.stat(Location.of(tmp_path / "missing"))
@@ -335,7 +345,7 @@ def test_a_refusal_off_the_disk_is_not_offered(tmp_path):
 def test_the_helper_ops_are_a_closed_list():
     from navigator.lib.system.roothelper import OPS
 
-    assert "stat" in OPS and "write_text" in OPS
+    assert "stat" in OPS and "write_text" in OPS and "link" in OPS
     assert not any(name.startswith("_") for name in OPS)
     assert Path(elevate._ROOT, "navigator", "lib", "system", "roothelper.py").is_file()
 

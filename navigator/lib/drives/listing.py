@@ -49,12 +49,12 @@ class DirEntry:
     """
 
     __slots__ = ("name", "is_dir", "size", "mode", "mtime", "is_link", "link_target", "uid", "gid",
-                 "counted", "directory", "owner", "packed", "trashed")
+                 "counted", "directory", "owner", "packed", "trashed", "nlink")
 
     def __init__(self, name: str, is_dir: bool, size: int, mode: int = 0, mtime: float = 0.0,
                  is_link: bool = False, link_target: str | None = None,
                  uid: int | None = None, gid: int | None = None,
-                 directory: Path | None = None):
+                 directory: Path | None = None, nlink: int = 0):
         self.name = name
         self.is_dir = is_dir
         self.size = size
@@ -79,6 +79,10 @@ class DirEntry:
         #: entry the Trash lists (:mod:`navigator.lib.drives.trash`); None
         #: anywhere else.  The panel's second info line says them.
         self.trashed: tuple[str, float | None] | None = None
+        #: How many names the file has (``st_nlink``, the target's for a
+        #: link, as ``mode`` is): the *Links* column's; 0 where the drive
+        #: does not say.
+        self.nlink = nlink
 
     @property
     def key(self) -> str:
@@ -134,6 +138,14 @@ class DirEntry:
             return ""
         ratio = 100 if self.size == 0 else round(self.packed * 100 / self.size)
         return f"{min(ratio, 999):>3}%"
+
+    @property
+    def display_links(self) -> str:
+        """The *Links* column: how many names the file has, ``ls -l``'s
+        second column; blank where it is not known, and on ``..``."""
+        if not self.nlink or self.name == "..":
+            return ""
+        return str(self.nlink)
 
     @property
     def display_attributes(self) -> str:
@@ -328,7 +340,7 @@ def make_entry(item: os.DirEntry[str], directory: Path | None = None) -> DirEntr
     is_dir = stat.S_ISDIR(info.st_mode)
     size = 0 if is_dir else info.st_size
     return DirEntry(item.name, is_dir, size, info.st_mode, info.st_mtime, is_link,
-                    target, info.st_uid, info.st_gid, directory)
+                    target, info.st_uid, info.st_gid, directory, info.st_nlink)
 
 
 def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
@@ -350,7 +362,7 @@ def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
             pass
     is_dir = stat.S_ISDIR(info.st_mode)
     return DirEntry(path.name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
-                    is_link, target, info.st_uid, info.st_gid, directory)
+                    is_link, target, info.st_uid, info.st_gid, directory, info.st_nlink)
 
 
 def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,

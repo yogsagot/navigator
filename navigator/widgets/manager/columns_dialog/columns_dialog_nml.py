@@ -35,7 +35,7 @@ class ColumnsDialog(Dialog, _Component):
 
     *Show* and its boxes, OK, *Brief*, *Full* and Cancel, where DN had them
     down the right and along the bottom; the boxes are the detailed mode's
-    columns -- POSIX's size, attributes, owner and date, where DN's were size,
+    columns -- POSIX's size, attributes, link count, owner and date, where DN's were size,
     date, time and descriptions, which ``descript.ion`` went with.
     """
 
@@ -97,9 +97,9 @@ class ColumnsDialog(Dialog, _Component):
         self.show.x = 3    # columns_dialog.nml:30
         self.show.y = 2    # columns_dialog.nml:31
         self.show.width = 20    # columns_dialog.nml:32
-        self.show.height = 4    # columns_dialog.nml:33
+        self.show.height = 5    # columns_dialog.nml:33
         self.show.items = _bind(    # columns_dialog.nml:34
-            lambda _o: [_tr('~S~ize'), _tr('~A~ttributes'), _tr('~O~wner'), _tr('~D~ate')],
+            lambda _o: [_tr('~S~ize'), _tr('~A~ttributes'), _tr('L~i~nks'), _tr('~O~wner'), _tr('~D~ate')],
             yielding=True,
         )
 

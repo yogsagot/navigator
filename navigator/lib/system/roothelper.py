@@ -218,7 +218,7 @@ class _Helper:
         entries, error, space = read_listing(Path(path), show_hidden, sort, free=free, **options)
         # A list, not a tuple: a tuple answered is ``(value, payload)``.
         return [[[entry.name, entry.is_dir, entry.size, entry.mode, entry.mtime, entry.is_link,
-                 entry.link_target, entry.uid, entry.gid, entry.counted] for entry in entries], error, space]
+                 entry.link_target, entry.uid, entry.gid, entry.counted, entry.nlink] for entry in entries], error, space]
 
     def realpath(self, path: str) -> str:
         return str(Path(path).resolve())
@@ -259,6 +259,10 @@ class _Helper:
     def symlink(self, target: str, path: str) -> None:
         with self._pinned(path) as there:
             os.symlink(target, there)
+
+    def link(self, source: str, dest: str) -> None:
+        with self._pinned(source) as old, self._pinned(dest) as new:
+            os.link(old, new, follow_symlinks=False)
 
     def chmod(self, path: str, mode: int) -> None:
         # No lchmod on Linux: the file itself held open, so a link put in

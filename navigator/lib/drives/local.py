@@ -127,6 +127,9 @@ class LocalDrive(Drive):
     def symlink(self, target: str, location: Location) -> None:
         os.symlink(target, location.local)
 
+    def link(self, source: Location, dest: Location) -> None:
+        os.link(source.local, dest.local, follow_symlinks=False)
+
     def chmod(self, location: Location, mode: int) -> None:
         os.chmod(location.local, mode)
 

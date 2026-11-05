@@ -15,7 +15,7 @@ from collections.abc import Iterable
 from pathlib import Path, PurePosixPath
 from typing import IO, Any
 
-from navigator.lib.drives.base import CHMOD, CHOWN, FSFLAGS, RENAME, SYMLINK, WRITE, XATTR, Child, Drive
+from navigator.lib.drives.base import CHMOD, CHOWN, FSFLAGS, HARDLINK, RENAME, SYMLINK, WRITE, XATTR, Child, Drive
 from navigator.lib.drives.local import LocalDrive
 from navigator.lib.drives.location import LOCAL_SITE, Location, Site
 from navigator.lib.system.elevate import ELEVATION
@@ -180,6 +180,9 @@ class RootDrive(LocalDrive):
     def symlink(self, target: str, location: Location) -> None:
         ELEVATION.call("symlink", target=target, path=_path(location))
 
+    def link(self, source: Location, dest: Location) -> None:
+        ELEVATION.call("link", source=_path(source), dest=_path(dest))
+
     def chmod(self, location: Location, mode: int) -> None:
         ELEVATION.call("chmod", path=_path(location), mode=mode)
 
@@ -315,7 +318,7 @@ class RootSiteDrive(Drive):
     is not watched for changes, and the free space is not asked."""
 
     site = ROOT_SITE
-    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN, XATTR, FSFLAGS))
+    capabilities = frozenset((WRITE, RENAME, SYMLINK, HARDLINK, CHMOD, CHOWN, XATTR, FSFLAGS))
 
     def scan(self, location: Location, show_hidden: bool, sort: str, *, free: bool,
              **options: Any) -> tuple[list, str | None, tuple[int, str] | None]:
@@ -325,9 +328,10 @@ class RootSiteDrive(Drive):
         packed, error, space = ELEVATION.call("listing", path=str(location.path), show_hidden=show_hidden,
                                               sort=sort, free=free, options=options)
         entries = []
-        for name, is_dir, size, mode, mtime, is_link, target, uid, gid, counted in packed:
+        for name, is_dir, size, mode, mtime, is_link, target, uid, gid, counted, nlink in packed:
             entry = DirEntry(name, is_dir, size, mode, mtime, is_link, target, uid, gid)
             entry.counted = counted
+            entry.nlink = nlink
             entries.append(entry)
         return entries, error, tuple(space) if space else None
 
@@ -403,6 +407,9 @@ class RootSiteDrive(Drive):
 
     def symlink(self, target: str, location: Location) -> None:
         ROOT_DRIVE.symlink(target, on_disk(location))
+
+    def link(self, source: Location, dest: Location) -> None:
+        ROOT_DRIVE.link(on_disk(source), on_disk(dest))
 
     def chmod(self, location: Location, mode: int) -> None:
         ROOT_DRIVE.chmod(on_disk(location), mode)

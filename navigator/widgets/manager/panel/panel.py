@@ -1004,9 +1004,11 @@ class Panel(ListViewer):
             x, width = 1, max(1, self.name_width)
         return x + gutter, top + row, max(1, width - gutter)
 
-    def show_found(self, listing: Any) -> None:
-        """Show *listing* in place of the directory, the cursor at its top."""
+    def show_found(self, listing: Any, at: str | None = None) -> None:
+        """Show *listing* in place of the directory, the cursor at its top --
+        or on the first entry named *at*."""
         self._keep = None
+        self._return_to = at
         # DN's ``TFindDrive.Init``: a new drive, *File find*'s defaults.
         self.find_columns = SETTINGS.column_defaults.columns(True)
         self.found = listing
@@ -1495,6 +1497,7 @@ class Panel(ListViewer):
             "packed": tr("The size packed in the archive"),
             "ratio": tr("The packed size as a percentage of the original"),
             "attributes": tr("Permissions: the owner's, the group's and others'"),
+            "links": tr("How many names the file has: its hard links"),
             "owner": tr("The owner and group"),
             "date": tr("When the file was last modified"),
         }[key]
@@ -1807,6 +1810,7 @@ class Panel(ListViewer):
             RestoreTrash,
             SelectAll,
             SelectGroup,
+            ShowHardLinks,
             UnselectGroup,
             View,
         )
@@ -1840,12 +1844,15 @@ class Panel(ListViewer):
         if tagged or not on_parent:
             menu.add_item(tr("~C~opy..."), Copy)
             menu.add_item(tr("~R~ename/Move..."), RenameMove)
-            menu.add_item(tr("Create ~s~ymlink..."), MakeLink)
+            menu.add_item(tr("Create link~s~..."), MakeLink)
             if any(item.is_link for item in (self.marked_entries if tagged else [entry])):
                 # File > Symlinks' three, only where there is a link to change.
                 menu.add_item(tr("Edit lin~k~ target..."), EditLinkTarget)
                 menu.add_item(tr("Make relative"), LinkRelative)
                 menu.add_item(tr("Make absolute"), LinkAbsolute)
+            if not tagged and not on_parent and not entry.is_dir and entry.nlink > 1 and self.found is None:
+                # A file with other names: File > Links' *Show hard links*.
+                menu.add_item(tr("Show hard links"), ShowHardLinks)
             menu.add_item(tr("~D~elete"), Delete)
             menu.add_item(tr("File ~A~ttributes..."), ChangeAttributes)
             menu.add_line()
@@ -1984,11 +1991,12 @@ class Panel(ListViewer):
         "packed": ("Packed", 8, "display_packed"),
         "ratio": ("%", 4, "display_ratio"),
         "attributes": ("Attr", 9, "display_attributes"),
+        "links": ("Links", 5, "display_links"),
         "owner": ("Owner", None, "display_owner"),
         "date": ("Date", None, "display_date"),
     }
-    DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "owner", "date")
-    DROP_ORDER = ("owner", "attributes", "ratio", "packed", "date")
+    DETAIL_ORDER = ("size", "packed", "ratio", "attributes", "links", "owner", "date")
+    DROP_ORDER = ("links", "owner", "attributes", "ratio", "packed", "date")
     #: The columns only an archive's entries fill.
     ARCHIVE_ONLY = frozenset(("packed", "ratio"))
     #: The widest the owner column grows; a longer ``user:group`` ends in
@@ -2004,7 +2012,7 @@ class Panel(ListViewer):
 
         Each column after the name has a divider in the cell before it.  The
         name takes whatever is left; when that is under
-        :data:`MIN_NAME_WIDTH`, the owner goes, then the attributes, and then
+        :data:`MIN_NAME_WIDTH`, the link count goes, the owner, then the attributes, and then
         the date.  The owner column is as wide as the longest owner listed.
         """
         inset, inner = self.inset, self.inner_width
@@ -2013,11 +2021,15 @@ class Panel(ListViewer):
         # their own (:meth:`_second_line`), not a column.
         wanted, listing = self.shown_columns, self.found is not None
         in_archive = self.location.outer is not None and not listing
+        # No archive keeps a link count: *Links* is left out there.
         shown = [key for key in self.DETAIL_ORDER
-                 if key in wanted and (key not in self.ARCHIVE_ONLY or in_archive)]
+                 if key in wanted and (key not in self.ARCHIVE_ONLY or in_archive)
+                 and not (key == "links" and in_archive)]
         widths = {key: width for key, (_, width, _) in self.DETAIL_COLUMNS.items()}
         widths["owner"] = self._owner_width()
         widths["date"] = country.stamp_width()
+        # As wide as its heading in the language, which may be wider than five.
+        widths["links"] = max(widths["links"], display_width(self.heading("links")))
 
         def rest() -> int:
             return inner - sum(widths[key] + 1 for key in shown)
@@ -2407,6 +2419,8 @@ class Panel(ListViewer):
                 text = " " * (width - text_width(text)) + text
             else:
                 text = fit_text(getattr(entry, self.DETAIL_COLUMNS[key][2]), width, self.ellipsis)
+                if key == "links":
+                    text = text.rjust(width)
             pieces.append((x, text))
         line = fit_text(self.shown_name(entry), max(1, name_width), self.ellipsis)
         line = " " * name_x + line
@@ -2703,6 +2717,8 @@ class Panel(ListViewer):
                     # The cursor bar covers the dividers; draw them back in it.
                     surface.draw_text(x - 1, y, self.divider_glyph, style, 1)
                 text = getattr(item, self.DETAIL_COLUMNS[key][2])
+                if key == "links":
+                    text = text.rjust(width)  # a count, right-aligned as ``ls -l`` has it
                 surface.draw_text(x, y, fit_text(text, width, self.ellipsis), style, width)
             return
         # Still an explicit limit: the name stops where the size column
@@ -2751,6 +2767,7 @@ class Panel(ListViewer):
             "packed": tr("Packed"),
             "ratio": tr("%"),
             "attributes": tr("Attr"),
+            "links": tr("Links"),
             "owner": tr("Owner"),
             "date": tr("Date"),
         }[key]

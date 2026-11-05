@@ -95,8 +95,13 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - *simple*: name and size.
 - *detailed*: Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date (**modification** time,
   `DD-MM-YYYY hh:mm`, since Linux has no portable creation time; the four-digit year is a departure). Owner is a departure, 5-17 cells as the longest listed
-  (`DirEntry.display_owner`, names cached, a number where there is none). Owner, then Attr, then Date drop when the name
+  (`DirEntry.display_owner`, names cached, a number where there is none). Links, then Owner, then Attr, then Date drop when the name
   would fall under 12 cells.
+- **Links** (`ls -l`'s second column, a departure, asked for; **off by default**): `DirEntry.nlink`, the hard link
+  count, between Attr and Owner, right-aligned, at least 5 cells and as wide as its translated heading. It comes from the
+  stat the row already has (the target's for a symlink, as `mode` and the size are): `make_entry`, `entry_at`, the
+  root helper's `listing` (an 11th field) and `ExecDrive.scan`. A drive that does not say leaves 0, shown blank, as
+  is `..`. Never in an archive. No sort mode. File > Links > *Show hard links* lists the names (`navigator-file-ops`).
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
 - A too-long name ends in `…` (`fit_text`, in cells) and starts with one while scrolled (`window_text`); `...` at the
   ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title and footer path cut their start with the
@@ -230,8 +235,8 @@ on the same mask after each, until *Close*.
 
 `SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
 `ColumnsDialog` (`dlgDiskParms`; `dlgFindParms` less its *Path* box, the directory being the footer's line) over
-**`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, owner, date. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
-list mode; *Full* every column. `DROP_ORDER` still drops columns (owner, attributes, date) to keep the name
+**`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, links, owner, date. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
+list mode; *Full* every column. `DROP_ORDER` still drops columns (links, owner, attributes, date) to keep the name
 `MIN_NAME_WIDTH`.
 
 A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, so a panel holds two sets:

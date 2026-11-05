@@ -56,6 +56,8 @@ its heading is added here.
 - Copying files -- [`navigator-file-ops/copying.md`](../.claude/skills/navigator-file-ops/reference/copying.md)
   - Symbolic links -- [`navigator-file-ops/symlinks.md`](../.claude/skills/navigator-file-ops/reference/symlinks.md)
     - Changing links that are there -- [`navigator-file-ops/symlinks.md`](../.claude/skills/navigator-file-ops/reference/symlinks.md)
+    - Hard links -- [`navigator-file-ops/symlinks.md`](../.claude/skills/navigator-file-ops/reference/symlinks.md)
+    - A file's other names -- [`navigator-file-ops/symlinks.md`](../.claude/skills/navigator-file-ops/reference/symlinks.md)
   - Deleting files -- [`navigator-file-ops/deleting.md`](../.claude/skills/navigator-file-ops/reference/deleting.md)
   - File attributes -- [`navigator-file-ops/file-attributes.md`](../.claude/skills/navigator-file-ops/reference/file-attributes.md)
 - What Textual has that the library takes -- [`navml-library/from-textual.md`](../.claude/skills/navml-library/reference/from-textual.md)
