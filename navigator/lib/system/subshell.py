@@ -60,11 +60,11 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 from navkit.console import ConsoleScreen
 from navkit.events import Event
-from navkit.process import PtyProcess
+from navkit.process import DEFAULT_TERM, AttachedPty, PtyProcess
 
 from navigator.lib.system import fuzzy
 from navigator.lib.system.tempdir import temp_root as _temp_root
@@ -679,23 +679,14 @@ class Subshell:
         if self.is_running:
             return
         self._cleanup()
-        self._nonce = secrets.token_hex(8)
-        self._marks = re.compile(
-            rb"\x1b\]%d;%s;([ABCDHORU])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
-            % (MARK, self._nonce.encode())
-        )
-        self._mark_start = b"\x1b]%d;%s;" % (MARK, self._nonce.encode())
+        self._new_nonce()
         self._directory = tempfile.mkdtemp(prefix="navigator-shell-", dir=_temp_root())
         argv, extra = shell_argv(self.shell, Path(self._directory), self._nonce, self.feeds_zoxide())
-        self._zle = Path(argv[0]).name == "zsh"
-        #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.
-        self.can_complete = Path(argv[0]).name in ("bash", "zsh")
+        self._started_as(Path(argv[0]).name)
         env = dict(os.environ)
         for name in _LINE_EDITOR_VARIABLES:
             env.pop(name, None)
         env.update(extra)
-        self._tail, self._prompt = b"", b""
-        self._in_prompt = self._ready = self._silent = self.busy = self._paste = False
         self.process = PtyProcess(
             argv,
             cwd=cwd,
@@ -710,6 +701,28 @@ class Subshell:
         except OSError:
             self.process = None
             self._cleanup()
+
+    def _new_nonce(self) -> None:
+        """A new shell's nonce, and the pattern its marks are found by."""
+        self._nonce = secrets.token_hex(8)
+        self._marks = re.compile(
+            rb"\x1b\]%d;%s;([ABCDHORU])(?:;([^\x07\x1b]*))?(?:\x07|\x1b\\)"
+            % (MARK, self._nonce.encode())
+        )
+        self._mark_start = b"\x1b]%d;%s;" % (MARK, self._nonce.encode())
+
+    def _started_as(self, name: str) -> None:
+        """What a new shell named *name* can do, and nothing of the last one's state."""
+        self._zle = name == "zsh"
+        #: Whether the hook defines ``__nav_complete``: bash's and zsh's do.
+        self.can_complete = name in ("bash", "zsh")
+        self._tail, self._prompt = b"", b""
+        self._in_prompt = self._ready = self._silent = self.busy = self._paste = False
+
+    @property
+    def held_prompt(self) -> bytes:
+        """The prompt last held back from the screen: what the command line shows."""
+        return self._prompt
 
     def stop(self) -> None:
         if self.process is not None:
@@ -1125,6 +1138,92 @@ class Subshell:
             self.on_exit(status)
         if was_busy and self.on_finished is not None:
             self.on_finished(status, self.cwd)
+
+
+#: The variables a root console is sent from Navigator's environment -- the
+#: helper keeps only these and the ``LC_*`` locale (``roothelper.CONSOLE_KEEP``).
+_ROOT_SENT = ("COLORTERM", "LANG", "LANGUAGE", "TERM_PROGRAM", "TERM_PROGRAM_VERSION")
+
+
+class RootSubshell(Subshell):
+    """The console's shell as root (Utilities > *Elevate root access*).
+
+    The root helper starts it -- root's own login shell, its environment and
+    rc files, with the same hook -- on a pty it hands the master of back
+    (``roothelper._Helper.console``), so everything a :class:`Subshell` does
+    works on it unchanged.  Started in two halves, because asking the helper
+    waits: :meth:`open` on a thread, :meth:`attach` on the loop.  It holds
+    root access open while it lives (``ELEVATION.hold``), and is never
+    restarted by :meth:`run`: one that ended is the user's shell's turn again.
+    """
+
+    def __init__(self, screen: ConsoleScreen, **kwargs: Any) -> None:
+        super().__init__(screen, **kwargs)
+        self._held = False
+
+    def open(self, cwd: Path | None, columns: int, lines: int) -> tuple[int, int, str]:
+        """Ask the helper for the shell: its pid, pty master and name.
+        Blocking: on a thread.  Raises ``OSError``."""
+        from navigator.lib.system.elevate import ELEVATION
+
+        self._new_nonce()
+        env = {name: os.environ[name] for name in _ROOT_SENT if name in os.environ}
+        env.update({name: value for name, value in os.environ.items() if name.startswith("LC_")})
+        env.update(TERM=DEFAULT_TERM, NAVIGATOR="1")
+        (pid, name), fd = ELEVATION.call_fd(
+            "console", nonce=self._nonce, cwd=str(cwd or Path.home()), columns=columns, lines=lines,
+            env=env, feeds_zoxide=bool(self.feeds_zoxide()))
+        return int(pid), fd, str(name)
+
+    def attach(self, pid: int, fd: int, name: str, columns: int, lines: int) -> None:
+        """Start reading the shell :meth:`open` was given, on the loop."""
+        from navigator.lib.system.elevate import ELEVATION
+
+        self._started_as(name)
+        self.process = AttachedPty(fd, pid, columns=columns, lines=lines, on_output=self._on_output,
+                                   on_exit=self._on_exit, on_signal=lambda signum: self._hang_up(pid))
+        try:
+            self.process.start()
+        except (OSError, RuntimeError):
+            self.process = None
+            os.close(fd)
+            raise
+        ELEVATION.hold()
+        self._held = True
+
+    def start(self, cwd: Path | None = None, columns: int = 80, lines: int = 24) -> None:
+        """Never from here: :meth:`open` and :meth:`attach` start it."""
+
+    @staticmethod
+    def _hang_up(pid: int) -> None:
+        """The helper told to end *pid*, off the loop: the master let go of
+        hangs it up already, this makes sure."""
+        import threading
+
+        from navigator.lib.system.elevate import ELEVATION
+
+        def stop() -> None:
+            try:
+                ELEVATION.call("console_stop", pid=pid)
+            except OSError:
+                pass
+
+        threading.Thread(target=stop, name="root-console-stop", daemon=True).start()
+
+    def _let_go(self) -> None:
+        if self._held:
+            from navigator.lib.system.elevate import ELEVATION
+
+            self._held = False
+            ELEVATION.unhold()
+
+    def stop(self) -> None:
+        super().stop()
+        self._let_go()
+
+    def _on_exit(self, status: int) -> None:
+        self._let_go()
+        super()._on_exit(status)
 
 
 def _decode_list(data: bytes | None) -> list[str] | None:

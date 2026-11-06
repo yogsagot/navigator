@@ -244,3 +244,66 @@ class PtyProcess:
             self.status = status
         if self.on_exit is not None:
             self.on_exit(self.status or 0)
+
+
+class AttachedPty(PtyProcess):
+    """A pty master handed over by another process, with *pid* on its slave.
+
+    The program is not this process's child -- a root shell another process
+    started (``navigator``'s root console) -- so it is never ``waitpid``\\ ed
+    and cannot be signalled from here: *on_signal* is asked to do that, and
+    the end is the master's end of input, as :meth:`PtyProcess._on_readable`
+    already reads it.  Its status is reported as 0.
+    """
+
+    def __init__(
+        self,
+        fd: int,
+        pid: int,
+        *,
+        columns: int = 80,
+        lines: int = 24,
+        on_output: Callable[[bytes], None] | None = None,
+        on_exit: Callable[[int], None] | None = None,
+        on_signal: Callable[[int], None] | None = None,
+    ):
+        super().__init__([], columns=columns, lines=lines, on_output=on_output, on_exit=on_exit)
+        self._handed = fd
+        self._foreign = pid
+        self.on_signal = on_signal
+
+    def start(self) -> None:
+        """Start reading the master handed over."""
+        if self.pid is not None:
+            raise RuntimeError("process already started")
+        fd, self._handed = self._handed, None
+        if fd is None:
+            raise RuntimeError("the pty was let go of")
+        self.pid = self._foreign
+        self._fd = fd
+        os.set_blocking(fd, False)
+        self.set_size(self.columns, self.lines)
+        self._loop = get_running_loop()
+        self._loop.add_reader(fd, self._on_readable)
+
+    def signal(self, signum: int = signal.SIGTERM) -> None:
+        if self.is_running and self.on_signal is not None:
+            self.on_signal(signum)
+
+    terminate = signal
+
+    def kill(self) -> None:
+        self.signal(signal.SIGKILL)
+
+    def reap(self) -> bool:
+        """Gone once the master is let go of: whoever started it collects it."""
+        if self._fd is None and self.status is None:
+            self.status = 0
+        return self.status is not None
+
+    def _finish(self) -> None:
+        self._detach()
+        if self.status is None:
+            self.status = 0
+        if self.on_exit is not None:
+            self.on_exit(0)

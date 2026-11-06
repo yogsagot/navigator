@@ -95,6 +95,13 @@ choice), `O` (reveal output).
   refuses to start under it -- so `nav` typed inside Navigator says so and exits 1, while another terminal is
   unaffected (no lock file). `--help`, `--version` and `--list-themes` still work; `NAVIGATOR= nav` forces a nested copy.
 - Queries are answered in order -- `Subshell._completions` is a queue (two keys in one read send two queries).
+- **A root console** (Utilities > *Elevate root access*, `navigator-elevation`): `Console.go_root` swaps
+  `console.subshell` for a `RootSubshell` on the same screen, with the same callbacks. The user's shell is parked as
+  `console.user_subshell`, still running, and `go_user` brings it back as it was. Everything reads
+  `console.subshell` at call time, so nothing else needs to know. `RootSubshell.start` does nothing. Its two halves
+  are `open` on a thread (the helper call) and `attach` on the loop (`navkit.process.AttachedPty` over the handed-over
+  master: no `waitpid`; signals go to `console_stop` through the helper). `run()` therefore never restarts one that
+  ended.
 - **A mark can span many reads**: an `H` (history) or `C` (completion) answer is one base64 mark of up to a few
   hundred KB. `_on_output` carries an unended mark of ours (`_mark_start`) up to `_MARK_LIMIT`; anyone else's unended
   OSC is let go after 4K. With the old 4K cap for everything, a real-sized history was dropped and Up did nothing.

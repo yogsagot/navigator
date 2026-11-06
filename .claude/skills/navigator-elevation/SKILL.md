@@ -69,6 +69,23 @@ user's own authentication. What the review found and the rules it left:
   both keep the same hotkey in every catalogue. Greyed when there is no way to root (`Shell._root_reachable`,
   `ELEVATION.available()` cached by `[system] elevate`) or when already root. `CloseRootAccess` stays a command of
   its own: the mark's click and a user's key binding run it.
+- **Elevating also makes the console root's** (the menu entry only; an *As root* answer does not):
+  - **The op.** The helper's `console` op starts the helper user's own login shell (bash, zsh or sh; else bash on
+    `SECURE_PATH`) on a `pty.fork` of its own. Navigator's hook (`subshell.shell_argv`) goes into a root-owned
+    `mkdtemp`, never the user's temp directory. The environment is `sudo -i`'s (`console_environment`): the
+    target's HOME/USER/LOGNAME/SHELL, `SECURE_PATH`, and of what Navigator sends only `CONSOLE_KEEP` and `LC_*`.
+    The cwd is reached through `_pinned` (no other user's link), else root's home.
+  - **Handing the pty back.** The op answers `WithFd`. `_serve` sends the reply with `"fd": true`, then the master
+    with `SCM_RIGHTS` on the same socket (`_send_fd`), then closes its copy. `Elevation.call_fd` receives both
+    under the lock; the channel is unbuffered, so nothing is read ahead.
+  - **Lifetime.** `console_stop` and the end of the helper (`_stop_consoles`) hang the shell up (SIGHUP, SIGKILL
+    after `CONSOLE_GRACE`) and remove its rc directory. `_reap_consoles` collects one that exited by itself.
+  - **The Navigator side.** It is `RootSubshell` (`console-command-line`). It `hold()`s root access while it lives,
+    so the idle timeout leaves it alone. `Shell.close_root_access` and `follow_root` (the helper gone) call
+    `_back_to_user_shell`. `exit` typed at it brings the user's shell back with root access left open.
+  - **Threat model.** The master fd exists only in Navigator, which is non-dumpable while the helper runs, as for the
+    socket. Nothing user-writable is run as root: root's rc files, root's home, a root PATH, a root-owned rc
+    directory.
 - **Its tooltip** (`RootMark.tooltip_at`) says what it means, that it closes after `root_timeout` idle minutes (left
   out at 0), and that Utilities > *Close root access* closes it now -- the path built from the menu's own translated
   captions, so it reads as the menu does.

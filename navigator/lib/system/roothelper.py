@@ -61,6 +61,38 @@ def asker() -> int:
     return os.getuid()
 
 
+#: What a root console's environment keeps of the one Navigator sends: how
+#: the console draws and which language it speaks -- nothing that names code
+#: to run (``BASH_ENV``, ``ENV``, ``LD_*``, ``PATH``, a ``ZDOTDIR``...).
+CONSOLE_KEEP = frozenset({"TERM", "COLORTERM", "LANG", "LANGUAGE", "TERM_PROGRAM", "TERM_PROGRAM_VERSION",
+                          "NAVIGATOR"})
+#: A root console's ``PATH``: sudo's ``secure_path``, never the user's.
+SECURE_PATH = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+#: How long a root console hung up on has to go before it is killed.
+CONSOLE_GRACE = 1.0
+
+
+class WithFd:
+    """An op's answer that hands a file descriptor over too: sent beside the
+    reply with ``SCM_RIGHTS``, then closed here."""
+
+    def __init__(self, value: Any, fd: int) -> None:
+        self.value = value
+        self.fd = fd
+
+
+def console_environment(passwd: Any, sent: dict[str, str]) -> dict[str, str]:
+    """A root console's environment, as ``sudo -i`` gives one: the target
+    user's own HOME, USER, LOGNAME, SHELL and a secure PATH, and of *sent*
+    only :data:`CONSOLE_KEEP` and the ``LC_*`` locale."""
+    env = {name: str(value) for name, value in sent.items()
+           if (name in CONSOLE_KEEP or (name.startswith("LC_") and name[3:].isalpha()))
+           and isinstance(value, str) and "\0" not in value}
+    env.update(HOME=passwd.pw_dir, USER=passwd.pw_name, LOGNAME=passwd.pw_name,
+               SHELL=passwd.pw_shell, PATH=SECURE_PATH)
+    return env
+
+
 def pack_stat(st: os.stat_result) -> list[Any]:
     return [list(st), {name: getattr(st, name) for name in STAT_EXTRA if hasattr(st, name)}]
 
@@ -112,6 +144,8 @@ class _Helper:
         self.pending: dict[int, tuple[IO[bytes], str]] = {}
         #: Services' journals followed as root, by pid: ended with the helper.
         self.journals: dict[int, Any] = {}
+        #: Root consoles, by pid, and the directory of each one's rc files.
+        self.consoles: dict[int, str] = {}
 
     @staticmethod
     def _where(path: str) -> Any:
@@ -357,6 +391,82 @@ class _Helper:
         if process is not None:
             services.stop_process(process)
 
+    def console(self, nonce: str, cwd: str, columns: int, lines: int, env: dict[str, str],
+                feeds_zoxide: bool = False) -> WithFd:
+        """Utilities > *Elevate root access*: the console's shell as root, on
+        a pty of its own, its master handed back -- no program but the
+        helper's user's login shell (bash, zsh or sh; bash otherwise), with
+        Navigator's hook written into a directory of root's, root's own
+        environment (:func:`console_environment`) and in *cwd* if it can be
+        reached through no other user's link, else root's home."""
+        import pty
+        import pwd
+        import re
+
+        from navigator.lib.system import subshell
+        from navkit.process import set_winsize
+
+        if not re.fullmatch(r"[0-9a-f]{8,64}", nonce):
+            raise OSError(errno.EINVAL, "Not a console's nonce")
+        passwd = pwd.getpwuid(os.getuid())
+        shell = passwd.pw_shell if Path(passwd.pw_shell).name in ("bash", "zsh", "sh", "dash") else None
+        shell = shell or shutil.which("bash", path=SECURE_PATH) or "/bin/sh"
+        directory = tempfile.mkdtemp(prefix="navigator-root-shell-")
+        try:
+            argv, extra = subshell.shell_argv(shell, Path(directory), nonce, bool(feeds_zoxide))
+            extra.pop("NAV_USER_ZDOTDIR", None)
+            environment = {**console_environment(passwd, dict(env)), **extra}
+
+            def start(there: str) -> tuple[int, int]:
+                pid, master = pty.fork()
+                if pid == 0:  # the shell; never returns
+                    try:
+                        try:
+                            os.chdir(there)
+                        except OSError:
+                            os.chdir(passwd.pw_dir)
+                        os.execve(argv[0], argv, environment)
+                    finally:
+                        os._exit(127)
+                return pid, master
+
+            try:
+                with self._pinned(cwd, follow=True) as there:
+                    pid, master = start(there)
+            except OSError:
+                pid, master = start(passwd.pw_dir)  # cwd unreachable, or through another user's link
+        except BaseException:
+            shutil.rmtree(directory, ignore_errors=True)
+            raise
+        try:
+            set_winsize(master, int(columns), int(lines))
+        except OSError:
+            pass
+        self.consoles[pid] = directory
+        return WithFd([pid, Path(argv[0]).name], master)
+
+    def console_stop(self, pid: int) -> None:
+        """A root console :meth:`console` started is hung up on; any other
+        number is no business of this op's."""
+        directory = self.consoles.pop(int(pid), None)
+        if directory is not None:
+            _end_console(int(pid), directory)
+
+    def _reap_consoles(self) -> None:
+        """Root consoles that ended by themselves (``exit`` typed): collected,
+        and their rc files removed."""
+        for pid in list(self.consoles):
+            try:
+                done, _ = os.waitpid(pid, os.WNOHANG)
+            except ChildProcessError:
+                done = pid
+            if done:
+                shutil.rmtree(self.consoles.pop(pid), ignore_errors=True)
+
+    def _stop_consoles(self) -> None:
+        while self.consoles:
+            _end_console(*self.consoles.popitem())
+
     def _stop_journals(self) -> None:
         from navigator.lib.system import services
 
@@ -503,13 +613,60 @@ OPS = frozenset(
 )
 
 
+def _end_console(pid: int, directory: str) -> None:
+    """*pid*'s session hung up, killed after :data:`CONSOLE_GRACE` if it is
+    still there, collected; its rc files removed."""
+    import signal
+    import time
+
+    try:
+        os.killpg(pid, signal.SIGHUP)
+        os.killpg(pid, signal.SIGCONT)
+    except OSError:
+        pass
+    deadline = time.monotonic() + CONSOLE_GRACE
+    while True:
+        try:
+            done, _ = os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            break
+        if done:
+            break
+        if time.monotonic() >= deadline:
+            try:
+                os.killpg(pid, signal.SIGKILL)
+            except OSError:
+                pass
+            try:
+                os.waitpid(pid, 0)
+            except ChildProcessError:
+                pass
+            break
+        time.sleep(0.02)
+    shutil.rmtree(directory, ignore_errors=True)
+
+
 def serve(reader: IO[bytes], writer: IO[bytes]) -> None:
     helper = _Helper()
     try:
         _serve(helper, reader, writer)
     finally:
-        # A journal followed as root ends with the helper, never left behind.
+        # A journal followed as root ends with the helper, never left behind,
+        # and so does a root console.
         helper._stop_journals()
+        helper._stop_consoles()
+
+
+def _send_fd(writer: IO[bytes], fd: int) -> None:
+    """*fd* to the client, on the socket *writer* writes to, after the reply
+    just flushed: one byte with ``SCM_RIGHTS``."""
+    import socket
+
+    sock = socket.socket(fileno=os.dup(writer.fileno()))
+    try:
+        socket.send_fds(sock, [b"F"], [fd])
+    finally:
+        sock.close()
 
 
 def _serve(helper: _Helper, reader: IO[bytes], writer: IO[bytes]) -> None:
@@ -520,6 +677,7 @@ def _serve(helper: _Helper, reader: IO[bytes], writer: IO[bytes]) -> None:
             message, payload = receive(reader)
         except EOFError:
             return
+        helper._reap_consoles()
         op = message.get("op")
         args = message.get("args", {})
         if payload:
@@ -536,7 +694,13 @@ def _serve(helper: _Helper, reader: IO[bytes], writer: IO[bytes]) -> None:
         except Exception as error:  # noqa: BLE001 - said to the client, never lost
             send(writer, {"errno": 5, "strerror": f"{type(error).__name__}: {error}", "filename": None})
             continue
-        if isinstance(value, tuple):
+        if isinstance(value, WithFd):
+            try:
+                send(writer, {"ok": value.value, "fd": True})
+                _send_fd(writer, value.fd)
+            finally:
+                os.close(value.fd)
+        elif isinstance(value, tuple):
             send(writer, {"ok": value[0]}, value[1])
         else:
             send(writer, {"ok": value})

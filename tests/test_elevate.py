@@ -2111,3 +2111,146 @@ def test_convert_text_offers_as_root_once_for_the_refused_files(helper, tmp_path
     assert seen[0][0].replace("~", "") == "As root" and "2 files were refused permission" in seen[0][1]
     assert (locked / "a.txt").read_bytes() == b"x\n"
     assert "2 files converted" in seen[1]
+
+
+# -- the root console ---------------------------------------------------------------
+
+
+async def _root_session(tmp_path, commands, timeout=15.0):
+    """A :class:`RootSubshell` from the (unprivileged) helper, *commands* run
+    in it one after another: the screen's text and what each finished as."""
+    import asyncio
+
+    from navkit.console import ConsoleScreen
+    from navigator.lib.system.subshell import RootSubshell
+
+    screen = ConsoleScreen(200, 40)
+    finished: list = []
+    done = asyncio.Event()
+
+    def on_finished(status, cwd):
+        finished.append((status, cwd))
+        done.set()
+
+    shell = RootSubshell(screen, on_finished=on_finished)
+    pid, fd, name = await asyncio.to_thread(shell.open, tmp_path, 200, 40)
+    shell.attach(pid, fd, name, 200, 40)
+    try:
+        for command in commands:
+            done.clear()
+            shell.run(command, tmp_path)
+            await asyncio.wait_for(done.wait(), timeout)
+        held = ELEVATION._held
+        # What the shell was started with, before any rc file ran.
+        raw = Path(f"/proc/{pid}/environ").read_bytes()
+        started_env = dict(item.split("=", 1) for item in raw.decode().split("\0") if "=" in item)
+        return started_env, "\n".join(line.rstrip() for line in screen.screen.display), finished, held
+    finally:
+        shell.stop()
+
+
+@pytest.mark.skipif(not os.path.isdir("/proc/self"), reason="reads the shell's /proc environ")
+def test_the_helper_hands_a_root_console_back(started, tmp_path):
+    """The console's shell from the helper: its pty, the hook's marks, and
+    root's own environment -- here the helper's user's, as it runs unprivileged."""
+    import asyncio
+    import pwd
+
+    passwd = pwd.getpwuid(os.getuid())
+    env, text, finished, held = asyncio.run(_root_session(tmp_path, ["echo answer=$((6*7))", "cd .."]))
+    assert [status for status, _ in finished] == [0, 0]
+    assert finished[-1][1] == tmp_path.parent       # a cd reports where it went
+    assert "answer=42" in text
+    assert env["HOME"] == passwd.pw_dir and env["USER"] == passwd.pw_name
+    assert env["PATH"] == "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+    assert env["NAVIGATOR"] == "1" and env["TERM"] == "xterm-256color"
+    assert not {"BASH_ENV", "LD_PRELOAD", "PYTHONPATH", "VIRTUAL_ENV"} & env.keys()
+    assert held == 1                       # it holds root access open while it lives
+    assert ELEVATION._held == 0            # and lets go when it ends
+
+
+def test_a_root_console_ends_with_the_helper(started, tmp_path):
+    import asyncio
+
+    from navkit.console import ConsoleScreen
+    from navigator.lib.system.subshell import RootSubshell
+
+    async def main():
+        shell = RootSubshell(ConsoleScreen(80, 24))
+        ended = asyncio.Event()
+        shell.on_exit = lambda status: ended.set()
+        pid, fd, name = await asyncio.to_thread(shell.open, tmp_path, 80, 24)
+        shell.attach(pid, fd, name, 80, 24)
+        await asyncio.to_thread(ELEVATION.close)
+        await asyncio.wait_for(ended.wait(), 10)
+        return pid, shell.is_running
+
+    pid, running = asyncio.run(main())
+    assert not running
+    with pytest.raises(ProcessLookupError):
+        os.kill(pid, 0)
+
+
+def test_a_root_console_needs_a_nonce_of_its_own_shape(started, tmp_path):
+    with pytest.raises(OSError) as raised:
+        ELEVATION.call_fd("console", nonce="x; rm -rf /", cwd=str(tmp_path), columns=80, lines=24, env={})
+    assert raised.value.errno == errno.EINVAL
+    assert started.running
+
+
+def test_a_root_console_keeps_only_display_variables():
+    import pwd
+
+    from navigator.lib.system.roothelper import console_environment
+
+    passwd = pwd.getpwuid(os.getuid())
+    env = console_environment(passwd, {"TERM": "xterm-256color", "LANG": "lv_LV.UTF-8", "LC_TIME": "C",
+                                       "BASH_ENV": "/tmp/evil", "LD_PRELOAD": "x.so", "PATH": "/home/u/bin",
+                                       "ZDOTDIR": "/home/u", "LC_": "x", "PYTHONPATH": "/x"})
+    assert env == {"TERM": "xterm-256color", "LANG": "lv_LV.UTF-8", "LC_TIME": "C", "HOME": passwd.pw_dir,
+                   "USER": passwd.pw_name, "LOGNAME": passwd.pw_name, "SHELL": passwd.pw_shell,
+                   "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"}
+
+
+def test_elevating_makes_the_console_root_s_and_closing_brings_the_user_s_back(helper, tmp_path):
+    """Utilities > *Elevate root access*: the console's shell is the helper's
+    (here unprivileged); *Close root access* brings back the user's own,
+    parked as it was -- the same process, its variables kept."""
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.system.subshell import RootSubshell
+    from navigator.widgets.shell.commands import ToggleRootAccess
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def console(a):
+        return a.shell.console
+
+    def idle(a):
+        return console(a).subshell.is_running and not console(a).busy
+
+    def text(a):
+        return "\n".join(console(a).screen.screen.display)
+
+    run_app(app, [
+        lambda a: console(a).run("export NAV_PARKED=yes", tmp_path),
+        Until(idle, timeout=15),
+        lambda a: seen.update(user=console(a).user_subshell.process.pid),
+        lambda a: a.spawn(a.run_command(ToggleRootAccess())),
+        Until(lambda a: console(a).is_root and idle(a), timeout=15),
+        lambda a: seen.update(kind=type(console(a).subshell)),
+        lambda a: console(a).run("echo root-$((1+1)) parked=${NAV_PARKED-unset}", tmp_path),
+        Until(lambda a: idle(a) and "root-2" in text(a), timeout=15),
+        lambda a: seen.update(root=text(a)),
+        lambda a: a.spawn(a.run_command(ToggleRootAccess())),
+        Until(lambda a: not ELEVATION.running and not console(a).is_root, timeout=15),
+        lambda a: console(a).run('echo "back=$NAV_PARKED"', tmp_path),
+        Until(lambda a: idle(a) and "back=yes" in text(a), timeout=15),
+        lambda a: seen.update(again=console(a).subshell.process.pid, held=ELEVATION._held),
+    ], timeout=60)
+    assert seen["kind"] is RootSubshell
+    assert "parked=unset" in seen["root"]          # root's own environment, not the user's shell's
+    assert "Root shell: commands run as root" in seen["root"]
+    assert seen["again"] == seen["user"]          # the user's shell itself, not a new one
+    assert seen["held"] == 0

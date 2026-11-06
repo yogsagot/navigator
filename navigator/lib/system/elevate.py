@@ -270,6 +270,33 @@ class Elevation:
             raise OSError(message.get("errno") or errno.EIO, message.get("strerror"), message.get("filename"))
         return message["ok"], data
 
+    def call_fd(self, op: str, **args: Any) -> tuple[Any, int]:
+        """One step as root that hands a file descriptor back -- a root
+        console's pty master: its answer and the descriptor, received with
+        ``SCM_RIGHTS`` right after the reply (the channel reads nothing
+        ahead: ``buffering=0``)."""
+        with self._lock:
+            if not self.running or self._channel is None or self._socket is None:
+                raise OSError(errno.EACCES, "Root access is not open", args.get("path"))
+            try:
+                send(self._channel, {"op": op, "args": args})
+                message, _ = receive(self._channel)
+                fd = -1
+                if message.get("fd"):
+                    _, fds, _, _ = socket.recv_fds(self._socket, 1, 1)
+                    if not fds:
+                        raise ValueError("no descriptor came with the answer")
+                    fd = fds[0]
+            except (OSError, EOFError, ValueError) as error:
+                self._shut()
+                raise OSError(errno.EIO, f"The root helper ended: {error}", args.get("path")) from None
+            self._last = time.monotonic()
+        if "ok" not in message:
+            raise OSError(message.get("errno") or errno.EIO, message.get("strerror"), message.get("filename"))
+        if fd < 0:
+            raise OSError(errno.EIO, "The root helper handed no descriptor back")
+        return message["ok"], fd
+
     # -- ending ------------------------------------------------------------------
 
     def hold(self) -> None:

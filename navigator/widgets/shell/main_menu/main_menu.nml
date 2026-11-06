@@ -553,7 +553,7 @@ MainMenu(MenuBar):
         MenuItem:
             id: root_access
             text: 'Elevate ~r~oot access'
-            tooltip: "Open root access now: a step refused permission may then be done as root"
+            tooltip: "Open root access now: the console's shell and a step refused permission run as root"
             command: ToggleRootAccess
         MenuItem:
             text: 'Saved l~i~nks...'

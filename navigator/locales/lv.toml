@@ -2187,10 +2187,10 @@ flag = "LV"
 "~D~isconnect" = "~A~tvienot"
 # navigator/widgets/shell/main_menu/main_menu.nml:548
 "Close a connection; its panels go back to the disk" = "Aizvērt savienojumu; tā paneļi atgriežas uz disku"
-# navigator/widgets/shell/main_menu/main_menu.nml:555, navigator/widgets/shell/shell/shell.py:3096
+# navigator/widgets/shell/main_menu/main_menu.nml:555, navigator/widgets/shell/shell/shell.py:3106
 "Elevate ~r~oot access" = "{'ar': 'رفع صلاحيات ال~ج~ذر', 'he': 'הפעל ~ג~ישת root', 'ja': 'root 権限に昇格(~R~)', 'lv': 'Iegūt ~r~oot piekļuvi', 'ru': 'Получить доступ ~r~oot', 'zh': '获取 root 权限(~R~)'}"
-# navigator/widgets/shell/main_menu/main_menu.nml:556, navigator/widgets/shell/shell/shell.py:3097
-"Open root access now: a step refused permission may then be done as root" = "{'ar': 'فتح صلاحيات الجذر الآن: عندها يمكن تنفيذ خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: פעולה שנדחתה בגלל הרשאות תוכל להתבצע אז כ-root', 'ja': '今すぐ root アクセスを開きます: 権限で拒否された操作を root として行えるようになります', 'lv': 'Atvērt root piekļuvi tūlīt: darbību, kurai liegta atļauja, tad var veikt kā root', 'ru': 'Открыть доступ root сейчас: действие, в котором отказано в правах, можно будет выполнить от имени root', 'zh': '立即打开 root 权限：被拒绝权限的操作随后可以 root 身份执行'}"
+# navigator/widgets/shell/main_menu/main_menu.nml:556, navigator/widgets/shell/shell/shell.py:3107
+"Open root access now: the console's shell and a step refused permission run as root" = "{'ar': 'فتح صلاحيات الجذر الآن: تعمل صدفة الطرفية وكل خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: המעטפת במסוף ופעולה שנדחתה בגלל הרשאות ירוצו כ-root', 'ja': '今すぐ root アクセスを開きます: コンソールのシェルと権限で拒否された操作が root として実行されます', 'lv': 'Atvērt root piekļuvi tūlīt: konsoles čaula un darbība, kurai liegta atļauja, darbojas kā root', 'ru': 'Открыть доступ root сейчас: оболочка консоли и действия, в которых отказано в правах, выполняются от имени root', 'zh': '立即打开 root 权限：控制台的 shell 和被拒绝权限的操作以 root 身份运行'}"
 # navigator/widgets/shell/main_menu/main_menu.nml:559
 "Saved l~i~nks..." = "Sa~g~labātās saites..."
 # navigator/widgets/shell/main_menu/main_menu.nml:560
@@ -4833,6 +4833,10 @@ flag = "LV"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:997
 "Backgr" = "Fonā"
+# navigator/widgets/shell/console/console.py:190
+"Root shell: commands run as root until root access is closed" = "{'ar': 'صدفة الجذر: تعمل الأوامر بصلاحيات الجذر حتى تُغلق صلاحيات الجذر', 'he': 'מעטפת root: פקודות רצות כ-root עד שגישת root תיסגר', 'ja': 'root シェル: root アクセスを閉じるまでコマンドは root として実行されます', 'lv': 'Root čaula: komandas darbojas kā root, līdz root piekļuve tiek aizvērta', 'ru': 'Оболочка root: команды выполняются от имени root, пока доступ root не закрыт', 'zh': 'root shell：在关闭 root 权限之前，命令以 root 身份运行'}"
+# navigator/widgets/shell/console/console.py:204
+"Back to your own shell" = "{'ar': 'العودة إلى صدفتك', 'he': 'חזרה למעטפת שלך', 'ja': '自分のシェルに戻りました', 'lv': 'Atpakaļ jūsu čaulā', 'ru': 'Снова ваша оболочка', 'zh': '已回到你自己的 shell'}"
 # navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "~N~oņemt atlasi"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
@@ -4857,9 +4861,9 @@ flag = "LV"
 "Pinned" = "Piespraustie"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Noklikšķiniet, lai atgrieztu logu"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3021
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3031
 "{operation}: waiting for an answer" = "{operation}: gaida atbildi"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3023
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3033
 "{operation}: {percent}% done" = "{operation}: {percent}% paveikts"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "Tie paši taustiņi to apturēs"
@@ -4913,7 +4917,7 @@ flag = "LV"
 "It closes after {n} idle minute" = ["Tā aizveras pēc {n} dīkstāves minūtes", "Tā aizveras pēc {n} dīkstāves minūtēm", "Tā aizveras pēc {n} dīkstāves minūtēm"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "Klikšķiniet vai {menu}, lai to aizvērtu tūlīt"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3093
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3103
 "Close ~r~oot access" = "Aizvērt ~r~oot piekļuvi"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Vienība"
@@ -4967,7 +4971,7 @@ flag = "LV"
 "Type to filter" = "Rakstiet, lai filtrētu"
 # navigator/widgets/shell/shell/shell.py:2942, navigator/widgets/shell/shell/shell.py:2935
 "Disconnect" = "Atvienot"
-# navigator/widgets/shell/shell/shell.py:3028
+# navigator/widgets/shell/shell/shell.py:3038
 "Background operations" = "Fona darbības"
 # navigator/widgets/shell/shell/shell.py:1192
 "No connection is open" = "Nav atvērta savienojuma"
@@ -4983,11 +4987,11 @@ flag = "LV"
 "~O~ther applications" = "Citas ~l~ietotnes"
 # navigator/widgets/shell/shell/shell.py:2107
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:3094
-"End root access now, rather than after its timeout" = "Beigt root piekļuvi tūlīt, nevis pēc tās noildzes"
-# navigator/widgets/shell/shell/shell.py:3371
+# navigator/widgets/shell/shell/shell.py:3104
+"End root access now; the console goes back to your own shell" = "{'ar': 'إنهاء صلاحيات الجذر الآن؛ تعود الطرفية إلى صدفتك', 'he': 'סיים את גישת root עכשיו; המסוף חוזר למעטפת שלך', 'ja': '今すぐ root アクセスを終了します。コンソールは自分のシェルに戻ります', 'lv': 'Beigt root piekļuvi tūlīt; konsole atgriežas jūsu čaulā', 'ru': 'Завершить доступ root сейчас; консоль возвращается к вашей оболочке', 'zh': '立即结束 root 权限；控制台回到你自己的 shell'}"
+# navigator/widgets/shell/shell/shell.py:3401
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:3371
+# navigator/widgets/shell/shell/shell.py:3401
 "File Edit History" = "Failu rediģēšanas vēsture"
 # navigator/widgets/shell/shell/shell.py:1158
 "There is no /proc to read processes from" = "Nav /proc, no kā nolasīt procesus"
@@ -5013,9 +5017,9 @@ flag = "LV"
 "~C~ommand (!.! is the file; else it goes at the end)" = "~K~omanda (!.! ir fails; citādi tas nāk beigās)"
 # navigator/widgets/shell/shell/shell.py:2724, navigator/widgets/shell/shell/shell.py:2971
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:3361
+# navigator/widgets/shell/shell/shell.py:3391
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:3361
+# navigator/widgets/shell/shell/shell.py:3391
 "Track editing history" = "Sekot rediģēšanas vēsturei"
 # navigator/widgets/shell/shell/shell.py:1198
 "The {command} command is not installed" = "Komanda {command} nav instalēta"
@@ -5053,9 +5057,9 @@ flag = "LV"
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
 # navigator/widgets/shell/shell/shell.py:544
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:3422
+# navigator/widgets/shell/shell/shell.py:3452
 "View file" = "Skatīt failu"
-# navigator/widgets/shell/shell/shell.py:3422
+# navigator/widgets/shell/shell/shell.py:3452
 "Edit file" = "Rediģēt failu"
 # navigator/widgets/shell/shell/shell.py:2314
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
@@ -5073,7 +5077,7 @@ flag = "LV"
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
 # navigator/widgets/shell/shell/shell.py:2972
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
-# navigator/widgets/shell/shell/shell.py:3364
+# navigator/widgets/shell/shell/shell.py:3394
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
 # navigator/widgets/shell/shell/shell.py:1638
 "Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
@@ -5083,9 +5087,11 @@ flag = "LV"
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
 # navigator/widgets/shell/shell/shell.py:2741
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:3172
+# navigator/widgets/shell/shell/shell.py:3144
+"The console could not be made root's: {reason}" = "{'ar': 'تعذّر جعل الطرفية بصلاحيات الجذر: {reason}', 'he': 'לא ניתן היה להפוך את המסוף ל-root: {reason}', 'ja': 'コンソールを root にできませんでした: {reason}', 'lv': 'Konsoli neizdevās padarīt par root: {reason}', 'ru': 'Не удалось сделать консоль root: {reason}', 'zh': '无法将控制台切换为 root：{reason}'}"
+# navigator/widgets/shell/shell/shell.py:3202
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:3328
+# navigator/widgets/shell/shell/shell.py:3358
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "izejas statuss {status}"
@@ -6296,3 +6302,5 @@ flag = "LV"
 "Line endings: a click converts them" = "Rindu beigas: klikšķis tās pārveido"
 "8-bit ~e~ncoding" = "~8~ bitu kodējums"
 "not UTF-8, and no 8-bit encoding was chosen to read it as" = "nav UTF-8, un nav izvēlēts 8 bitu kodējums, kā to lasīt"
+"Open root access now: a step refused permission may then be done as root" = "{'ar': 'فتح صلاحيات الجذر الآن: عندها يمكن تنفيذ خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: פעולה שנדחתה בגלל הרשאות תוכל להתבצע אז כ-root', 'ja': '今すぐ root アクセスを開きます: 権限で拒否された操作を root として行えるようになります', 'lv': 'Atvērt root piekļuvi tūlīt: darbību, kurai liegta atļauja, tad var veikt kā root', 'ru': 'Открыть доступ root сейчас: действие, в котором отказано в правах, можно будет выполнить от имени root', 'zh': '立即打开 root 权限：被拒绝权限的操作随后可以 root 身份执行'}"
+"End root access now, rather than after its timeout" = "Beigt root piekļuvi tūlīt, nevis pēc tās noildzes"

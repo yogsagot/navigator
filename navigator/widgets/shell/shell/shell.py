@@ -2989,6 +2989,16 @@ class Shell(DockLayout):
         from navigator.lib.system.elevate import ELEVATION
 
         self.root_mark.open = ELEVATION.running
+        if not ELEVATION.running and self.console.is_root:
+            # Closed from elsewhere -- its helper ended: the user's shell back.
+            self._back_to_user_shell()
+
+    def _back_to_user_shell(self) -> None:
+        """The console's own shell back from root's, where the panel is now."""
+        self.console.go_user()
+        where = self._front_directory()
+        if where is not None:
+            self.console.subshell.sync(where)
 
     async def on_show_background(self, event: ShowBackground) -> bool:
         """Window > *Background operation*: a box sent away put back up --
@@ -3091,10 +3101,10 @@ class Shell(DockLayout):
         item = self.menu.root_access
         if self.root_mark.open:
             item.text = tr("Close ~r~oot access")
-            item.tooltip = tr("End root access now, rather than after its timeout")
+            item.tooltip = tr("End root access now; the console goes back to your own shell")
         else:
             item.text = tr("Elevate ~r~oot access")
-            item.tooltip = tr("Open root access now: a step refused permission may then be done as root")
+            item.tooltip = tr("Open root access now: the console's shell and a step refused permission run as root")
 
     #: ``ELEVATION.available()`` by System Setup's *Elevate*: its ``which``
     #: of sudo or pkexec asked once, not each time a menu is painted.
@@ -3116,12 +3126,30 @@ class Shell(DockLayout):
 
     async def open_root_access(self) -> None:
         """Utilities > *Elevate root access*: the root helper started, asking
-        for the password as *As root* does; the ROOT mark up at once."""
+        for the password as *As root* does; the ROOT mark up at once, and the
+        console's shell root's too (:meth:`Console.go_root`), the user's own
+        parked until root access closes."""
+        from navml.widgets.dialog.control import escape_caption
+
         from navigator.widgets.file_ops.as_root import open_root
 
         app = self.application
-        if app is not None and await open_root(app):
-            self.root_mark.open = True
+        if app is None or not await open_root(app):
+            return
+        self.root_mark.open = True
+        self.console.on_root_ended = self._root_shell_ended
+        try:
+            await self.console.go_root(self._command_directory())
+        except OSError as error:
+            await Dialog(title=tr("Error"), buttons="ok", prompt=tr(
+                "The console could not be made root's: {reason}").format(
+                    reason=escape_caption(error.strerror or str(error)))).execute(app)
+
+    def _root_shell_ended(self) -> None:
+        """``exit`` typed at the root shell: the user's back, root access left open."""
+        where = self._front_directory()
+        if where is not None:
+            self.console.subshell.sync(where)
 
     async def close_root_access(self) -> None:
         """Utilities > *Close root access*: the panels at ``root:`` back on
@@ -3130,6 +3158,8 @@ class Shell(DockLayout):
         from navigator.lib.drives import root
         from navigator.lib.system.elevate import ELEVATION
 
+        if self.console.is_root:
+            self._back_to_user_shell()
         self.close_linked(root.ROOT_SITE)
         await asyncio.to_thread(ELEVATION.close)
         self.root_mark.open = False

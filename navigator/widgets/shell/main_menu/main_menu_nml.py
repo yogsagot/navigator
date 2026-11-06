@@ -966,7 +966,7 @@ class MainMenu(MenuBar, _Component):
             yielding=True,
         )
         self.root_access.tooltip = _bind(    # main_menu.nml:556
-            lambda _o: _tr('Open root access now: a step refused permission may then be done as root'),
+            lambda _o: _tr("Open root access now: the console's shell and a step refused permission run as root"),
             yielding=True,
         )
         self.root_access.command = ToggleRootAccess    # main_menu.nml:557

@@ -2187,10 +2187,10 @@ flag = "CN"
 "~D~isconnect" = "断开(~D~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:548
 "Close a connection; its panels go back to the disk" = "关闭连接；其面板回到磁盘"
-# navigator/widgets/shell/main_menu/main_menu.nml:555, navigator/widgets/shell/shell/shell.py:3096
+# navigator/widgets/shell/main_menu/main_menu.nml:555, navigator/widgets/shell/shell/shell.py:3106
 "Elevate ~r~oot access" = "{'ar': 'رفع صلاحيات ال~ج~ذر', 'he': 'הפעל ~ג~ישת root', 'ja': 'root 権限に昇格(~R~)', 'lv': 'Iegūt ~r~oot piekļuvi', 'ru': 'Получить доступ ~r~oot', 'zh': '获取 root 权限(~R~)'}"
-# navigator/widgets/shell/main_menu/main_menu.nml:556, navigator/widgets/shell/shell/shell.py:3097
-"Open root access now: a step refused permission may then be done as root" = "{'ar': 'فتح صلاحيات الجذر الآن: عندها يمكن تنفيذ خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: פעולה שנדחתה בגלל הרשאות תוכל להתבצע אז כ-root', 'ja': '今すぐ root アクセスを開きます: 権限で拒否された操作を root として行えるようになります', 'lv': 'Atvērt root piekļuvi tūlīt: darbību, kurai liegta atļauja, tad var veikt kā root', 'ru': 'Открыть доступ root сейчас: действие, в котором отказано в правах, можно будет выполнить от имени root', 'zh': '立即打开 root 权限：被拒绝权限的操作随后可以 root 身份执行'}"
+# navigator/widgets/shell/main_menu/main_menu.nml:556, navigator/widgets/shell/shell/shell.py:3107
+"Open root access now: the console's shell and a step refused permission run as root" = "{'ar': 'فتح صلاحيات الجذر الآن: تعمل صدفة الطرفية وكل خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: המעטפת במסוף ופעולה שנדחתה בגלל הרשאות ירוצו כ-root', 'ja': '今すぐ root アクセスを開きます: コンソールのシェルと権限で拒否された操作が root として実行されます', 'lv': 'Atvērt root piekļuvi tūlīt: konsoles čaula un darbība, kurai liegta atļauja, darbojas kā root', 'ru': 'Открыть доступ root сейчас: оболочка консоли и действия, в которых отказано в правах, выполняются от имени root', 'zh': '立即打开 root 权限：控制台的 shell 和被拒绝权限的操作以 root 身份运行'}"
 # navigator/widgets/shell/main_menu/main_menu.nml:559
 "Saved l~i~nks..." = "已保存的链接(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:560
@@ -4833,6 +4833,10 @@ flag = "CN"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:997
 "Backgr" = "后台"
+# navigator/widgets/shell/console/console.py:190
+"Root shell: commands run as root until root access is closed" = "{'ar': 'صدفة الجذر: تعمل الأوامر بصلاحيات الجذر حتى تُغلق صلاحيات الجذر', 'he': 'מעטפת root: פקודות רצות כ-root עד שגישת root תיסגר', 'ja': 'root シェル: root アクセスを閉じるまでコマンドは root として実行されます', 'lv': 'Root čaula: komandas darbojas kā root, līdz root piekļuve tiek aizvērta', 'ru': 'Оболочка root: команды выполняются от имени root, пока доступ root не закрыт', 'zh': 'root shell：在关闭 root 权限之前，命令以 root 身份运行'}"
+# navigator/widgets/shell/console/console.py:204
+"Back to your own shell" = "{'ar': 'العودة إلى صدفتك', 'he': 'חזרה למעטפת שלך', 'ja': '自分のシェルに戻りました', 'lv': 'Atpakaļ jūsu čaulā', 'ru': 'Снова ваша оболочка', 'zh': '已回到你自己的 shell'}"
 # navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "清除选择(~L~)"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
@@ -4857,9 +4861,9 @@ flag = "CN"
 "Pinned" = "已固定"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "单击以恢复进度框"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3021
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3031
 "{operation}: waiting for an answer" = "{operation}: 等待回答"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3023
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3033
 "{operation}: {percent}% done" = "{operation}: 已完成 {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "再按同样的键停止"
@@ -4913,7 +4917,7 @@ flag = "CN"
 "It closes after {n} idle minute" = ["空闲 {n} 分钟后关闭"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "单击或 {menu} 可立即关闭"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3093
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3103
 "Close ~r~oot access" = "关闭 root 权限(~R~)"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "单元"
@@ -4967,7 +4971,7 @@ flag = "CN"
 "Type to filter" = "输入以筛选"
 # navigator/widgets/shell/shell/shell.py:2942, navigator/widgets/shell/shell/shell.py:2935
 "Disconnect" = "断开"
-# navigator/widgets/shell/shell/shell.py:3028
+# navigator/widgets/shell/shell/shell.py:3038
 "Background operations" = "后台操作"
 # navigator/widgets/shell/shell/shell.py:1192
 "No connection is open" = "没有打开的连接"
@@ -4983,11 +4987,11 @@ flag = "CN"
 "~O~ther applications" = "其他应用程序(~O~)"
 # navigator/widgets/shell/shell/shell.py:2107
 "Choose action" = "选择操作"
-# navigator/widgets/shell/shell/shell.py:3094
-"End root access now, rather than after its timeout" = "立即结束 root 权限，而不是等到超时"
-# navigator/widgets/shell/shell/shell.py:3371
+# navigator/widgets/shell/shell/shell.py:3104
+"End root access now; the console goes back to your own shell" = "{'ar': 'إنهاء صلاحيات الجذر الآن؛ تعود الطرفية إلى صدفتك', 'he': 'סיים את גישת root עכשיו; המסוף חוזר למעטפת שלך', 'ja': '今すぐ root アクセスを終了します。コンソールは自分のシェルに戻ります', 'lv': 'Beigt root piekļuvi tūlīt; konsole atgriežas jūsu čaulā', 'ru': 'Завершить доступ root сейчас; консоль возвращается к вашей оболочке', 'zh': '立即结束 root 权限；控制台回到你自己的 shell'}"
+# navigator/widgets/shell/shell/shell.py:3401
 "File View History" = "文件查看历史"
-# navigator/widgets/shell/shell/shell.py:3371
+# navigator/widgets/shell/shell/shell.py:3401
 "File Edit History" = "文件编辑历史"
 # navigator/widgets/shell/shell/shell.py:1158
 "There is no /proc to read processes from" = "没有可读取进程的 /proc"
@@ -5013,9 +5017,9 @@ flag = "CN"
 "~C~ommand (!.! is the file; else it goes at the end)" = "命令(~C~)（!.! 代表文件；否则文件名加在末尾）"
 # navigator/widgets/shell/shell/shell.py:2724, navigator/widgets/shell/shell/shell.py:2971
 "{protocol} link" = "{protocol} 链接"
-# navigator/widgets/shell/shell/shell.py:3361
+# navigator/widgets/shell/shell/shell.py:3391
 "Track viewing history" = "记录查看历史"
-# navigator/widgets/shell/shell/shell.py:3361
+# navigator/widgets/shell/shell/shell.py:3391
 "Track editing history" = "记录编辑历史"
 # navigator/widgets/shell/shell/shell.py:1198
 "The {command} command is not installed" = "未安装 {command} 命令"
@@ -5053,9 +5057,9 @@ flag = "CN"
 "Not a palette:\n{error}" = "不是调色板：\n{error}"
 # navigator/widgets/shell/shell/shell.py:544
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "用方向键移动区域\n用 Shift-方向键调整区域大小\n\n选好后按 Enter 将区域\n图像放入剪贴板"
-# navigator/widgets/shell/shell/shell.py:3422
+# navigator/widgets/shell/shell/shell.py:3452
 "View file" = "查看文件"
-# navigator/widgets/shell/shell/shell.py:3422
+# navigator/widgets/shell/shell/shell.py:3452
 "Edit file" = "编辑文件"
 # navigator/widgets/shell/shell/shell.py:2314
 "No file manager is open to panelize into" = "没有打开的文件管理器可放入列表"
@@ -5073,7 +5077,7 @@ flag = "CN"
 "{protocol} password for {who}:" = "{who} 的 {protocol} 密码："
 # navigator/widgets/shell/shell/shell.py:2972
 "Remote drive {name} is not accessible" = "远程驱动器 {name} 无法访问"
-# navigator/widgets/shell/shell/shell.py:3364
+# navigator/widgets/shell/shell/shell.py:3394
 "Set the interface option\n\"{option}\" ON first" = "请先打开界面选项\n“{option}”"
 # navigator/widgets/shell/shell/shell.py:1638
 "Cannot edit {path}: {error}" = "无法编辑 {path}：{error}"
@@ -5083,9 +5087,11 @@ flag = "CN"
 "Cannot write the menu's script: {error}" = "无法写入菜单脚本：{error}"
 # navigator/widgets/shell/shell/shell.py:2741
 "Connecting to {host} over {protocol}" = "正在通过 {protocol} 连接 {host}"
-# navigator/widgets/shell/shell/shell.py:3172
+# navigator/widgets/shell/shell/shell.py:3144
+"The console could not be made root's: {reason}" = "{'ar': 'تعذّر جعل الطرفية بصلاحيات الجذر: {reason}', 'he': 'לא ניתן היה להפוך את המסוף ל-root: {reason}', 'ja': 'コンソールを root にできませんでした: {reason}', 'lv': 'Konsoli neizdevās padarīt par root: {reason}', 'ru': 'Не удалось сделать консоль root: {reason}', 'zh': '无法将控制台切换为 root：{reason}'}"
+# navigator/widgets/shell/shell/shell.py:3202
 "Cannot save the key bindings: {error}" = "无法保存按键绑定：{error}"
-# navigator/widgets/shell/shell/shell.py:3328
+# navigator/widgets/shell/shell/shell.py:3358
 "Cannot save the settings: {error}" = "无法保存设置：{error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "退出状态 {status}"
@@ -6260,3 +6266,5 @@ flag = "CN"
 "Line endings: a click converts them" = "换行符：单击即可转换"
 "8-bit ~e~ncoding" = "8 位编码(~E~)"
 "not UTF-8, and no 8-bit encoding was chosen to read it as" = "不是 UTF-8，且未选择用于读取的 8 位编码"
+"Open root access now: a step refused permission may then be done as root" = "{'ar': 'فتح صلاحيات الجذر الآن: عندها يمكن تنفيذ خطوة رُفض إذنها بصلاحيات الجذر', 'he': 'פתח גישת root עכשיו: פעולה שנדחתה בגלל הרשאות תוכל להתבצע אז כ-root', 'ja': '今すぐ root アクセスを開きます: 権限で拒否された操作を root として行えるようになります', 'lv': 'Atvērt root piekļuvi tūlīt: darbību, kurai liegta atļauja, tad var veikt kā root', 'ru': 'Открыть доступ root сейчас: действие, в котором отказано в правах, можно будет выполнить от имени root', 'zh': '立即打开 root 权限：被拒绝权限的操作随后可以 root 身份执行'}"
+"End root access now, rather than after its timeout" = "立即结束 root 权限，而不是等到超时"

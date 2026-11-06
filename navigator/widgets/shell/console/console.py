@@ -7,14 +7,16 @@ the widget that puts one on the desktop and gives it the keyboard.
 
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from navkit.console import ConsoleScreen, seed_from_host
 from navkit.events import KeyEvent
+from navkit.i18n import tr
 from navkit.reactive import effect, reactive
 from navkit.screen import Cell
 
-from navigator.lib.system.subshell import Subshell
+from navigator.lib.system.subshell import RootSubshell, Subshell
 from navigator.settings import SETTINGS
 from navigator.widgets.shell.console.screen_view import WHEEL_LINES, ScreenView
 
@@ -87,6 +89,12 @@ class Console(ScreenView):
             on_busy=self._busy_changed,
         )
         self.subshell.feeds_zoxide = lambda: SETTINGS.interface.feed_zoxide
+        #: The user's own shell: :attr:`subshell` too, but while the console
+        #: is root (:meth:`go_root`), when it waits parked, as it was left.
+        self.user_subshell = self.subshell
+        #: Called when a root shell ends by itself (``exit`` typed at it),
+        #: once the user's shell is back.
+        self.on_root_ended = None
         self.seeded = False
         # The pty is told how big it is whenever this widget is, which is the
         # whole of the resize handling: the kernel raises SIGWINCH on the
@@ -136,6 +144,72 @@ class Console(ScreenView):
 
     def stop(self) -> None:
         self.subshell.stop()
+        if self.subshell is not self.user_subshell:
+            self.user_subshell.stop()
+
+    # -- as root -----------------------------------------------------------------
+
+    @property
+    def is_root(self) -> bool:
+        """The console's shell is root's (:meth:`go_root`)."""
+        return isinstance(self.subshell, RootSubshell)
+
+    async def go_root(self, cwd: Path | None) -> None:
+        """Utilities > *Elevate root access*: the console's shell root's, in
+        *cwd*, the user's own parked until :meth:`go_user`.  Raises
+        ``OSError`` when the helper cannot start one."""
+        if self.is_root:
+            return
+        user = self.user_subshell
+        root = RootSubshell(self.screen, on_output=self._changed, on_prompt=self._prompted,
+                            on_busy=self._busy_changed)
+        root.feeds_zoxide = user.feeds_zoxide
+        root.on_finished = user.on_finished
+        columns, lines = self._size()
+        try:
+            pid, fd, name = await asyncio.to_thread(root.open, cwd, columns, lines)
+        finally:
+            self.screen.respond = user.write
+        from navigator.lib.system.elevate import ELEVATION
+
+        if self.is_root or not ELEVATION.running:
+            # Another elevation got here first, or root access closed meanwhile.
+            import os
+
+            os.close(fd)
+            return
+
+        def ended(status: int) -> None:
+            if self.subshell is root:
+                self.go_user()
+                if self.on_root_ended is not None:
+                    self.on_root_ended()
+
+        root.on_exit = ended
+        root.attach(pid, fd, name, columns, lines)
+        self._say(tr("Root shell: commands run as root until root access is closed"))
+        self.screen.respond = root.write
+        self.subshell = root
+
+    def go_user(self) -> None:
+        """The user's own shell back, as it was parked; the root one ended."""
+        root = self.subshell
+        if root is self.user_subshell:
+            return
+        self.subshell = self.user_subshell
+        self.screen.respond = self.user_subshell.write
+        root.on_exit = None
+        root.stop()
+        self.running = self.user_subshell.busy
+        self._say(tr("Back to your own shell"))
+        if self.user_subshell.is_running:
+            self._prompted(self.user_subshell.held_prompt, self.user_subshell.cwd)
+
+    def _say(self, text: str) -> None:
+        """A line of Navigator's own in the console, between two shells' output."""
+        start = "\r\n" if self.screen.cursor[0] else ""
+        self.screen.feed(f"{start}\x1b[7m {text} \x1b[0m\r\n".encode())
+        self._changed()
 
     def _on_output(self, data: bytes) -> None:
         """Paint *data* straight onto the screen, past the shell's filter."""
