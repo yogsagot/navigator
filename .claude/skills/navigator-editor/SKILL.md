@@ -16,12 +16,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **A file round-trips byte for byte** -- tabs, each line's own terminator, non-UTF-8 bytes (`surrogateescape`) -- a
   departure from DN's rewriting. Saving renames a new file over the old one.
 - **Encodings and line endings** (a departure, asked for: DN's editor knew the screen's code page and `CR+LF`).
-  `navigator/lib/editor/encodings.py` is the table (`CODECS`: `utf-8`, `utf-8-bom`, `utf-16-le`/`-be` -- both with
-  a mark -- then the viewer's one-byte `ENCODINGS`), `sniff`, `bom`, `decode`/`encode` (surrogateescape for the
+  `navigator/lib/editor/encodings.py` is the table (`CODECS`: `UNICODE` -- `utf-8`, `utf-8-bom`, `utf-16-le`/`-be`,
+  `utf-32-le`/`-be`, all but the first with a mark -- then every code page of `navigator/lib/codepages.py`, one-byte
+  and CJK; `LEGACY` the latter's keys), `sniff` (UTF-32's marks before UTF-16's), `bom`, `decode`/`encode` (surrogateescape for the
   ASCII-compatible ones, so every byte still round-trips; UTF-16 strict) and `first_unencodable`. `Document.encoding`
   is the text's; `LineReader(encoding, fallback)` sniffs the mark from the first bytes and takes it off, decodes
   UTF-16 through an incremental decoder and cuts it as text, and a UTF-16 mark that does not decode is read again as
-  UTF-8 (`read_document`, `from_bytes`). `[editor] fallback_encoding` (Editor setup's *8-bit encoding*, default
+  UTF-8 (`read_document`, `from_bytes`). `[editor] fallback_encoding` (Editor setup's *Fallback encoding*, default
   `utf-8` = keep the bytes): a sniffed UTF-8 text with a byte that did not decode is re-read in that code page
   (`LineReader.escaped`, `Document.reinterpreted`). Saving writes the mark and the codec (`encode_lines(...,
   encoding=)`); `EditWindow._write` checks `first_unencodable` on a thread first and refuses with an `OSError`
@@ -46,6 +47,14 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   behind the window greys them all. `hbar` starts at `max(24, marks end + 1)` and the option strip's `room` is
   measured from the markers' end. Editor > File has *Line en~d~ings* and *En~c~oding* submenus, filled by
   `format_menu.fill_line_endings`/`fill_encodings` (letters chosen so no catalogue clashes).
+- **The code pages** are `navigator/lib/codepages.py`'s `CODEPAGES` (`CodePage(key, label, caption, group,
+  one_byte)`, grouped by `GROUPS`), shared by the editor, Convert text and the viewer (which takes `ONE_BYTE` only:
+  it draws byte by byte). One is let in only if `tests/test_editor_encodings.py` holds: ASCII bytes are ASCII, no
+  character encodes to a CR or LF byte (the reader cuts at breaks before decoding -- so no ISO-2022, HZ, UTF-7 or
+  EBCDIC), and any bytes round-trip through surrogateescape (so no CP932, CP950, Big5-HKSCS, Johab, CP864,
+  Shift_JIS-2004). A failing one is left out, never special-cased. Menus are `navigator/widgets/encoding_menu.fill`:
+  the top entries, a line, a submenu a group, every box under 24 rows (tested); `Filled.places` gives the viewer's
+  Shift+F6 the submenu to open on.
 - **Reading and writing run on a thread, behind DN's `WriteMsg`** (`ReadBlock`, `SaveFile`). `read_document`
   (`navigator/lib/editor/document.py`) reads 4 MiB chunks through `LineReader`, which splits exactly as `from_bytes` does
   however the bytes are cut (a CR ending a chunk waits for the next -- DN's `ReadBlock` stepped back for it), in a few

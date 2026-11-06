@@ -39,6 +39,8 @@ from typing import Any
 
 from navkit.screen import char_width
 
+from navigator.lib import codepages as _codepages
+
 #: How much the cache reads at once, and how many such chunks it keeps.
 CHUNK = 64 * 1024
 CACHED_CHUNKS = 32
@@ -110,23 +112,13 @@ def cp437(byte: int) -> str:
 
 
 #: File > Encoding (Shift+F6): what DN's ``*.XLT`` translation tables were
-#: for -- a file in another code page read in the one on the screen.  The
-#: code pages DN's tables translated between, and those a POSIX desktop
-#: still meets.  ``utf-8`` is none: the bytes as they come.
+#: for -- a file in another code page read in the one on the screen.  Every
+#: one-byte code page of :data:`navigator.lib.codepages.CODEPAGES` (DN's
+#: tables translated a dozen of them; the rest are a departure, asked for),
+#: as ``(codec, caption)``.  ``utf-8`` is none: the bytes as they come.
 ENCODINGS: tuple[tuple[str, str], ...] = (
     ("utf-8", "UTF-8"),
-    ("cp437", "CP437 DOS Latin US"),
-    ("cp850", "CP850 DOS Latin 1"),
-    ("cp852", "CP852 DOS Latin 2"),
-    ("cp866", "CP866 DOS Cyrillic"),
-    ("cp1250", "Windows-1250 Central European"),
-    ("cp1251", "Windows-1251 Cyrillic"),
-    ("cp1252", "Windows-1252 Western"),
-    ("iso8859-1", "ISO-8859-1 Latin 1"),
-    ("iso8859-2", "ISO-8859-2 Latin 2"),
-    ("iso8859-5", "ISO-8859-5 Cyrillic"),
-    ("koi8-r", "KOI8-R Russian"),
-    ("koi8-u", "KOI8-U Ukrainian"),
+    *((page.key, page.caption) for page in _codepages.ONE_BYTE),
 )
 
 

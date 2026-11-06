@@ -37,7 +37,7 @@ class EditorDefaultsPage(_Component):
     columns wider than DN's 52; Help is left out, having nothing to show yet.
     The line divisor lists LF first, a departure from DN's CR+LF, CR, LF:
     POSIX's own ending leads.  *Option strip* in each cluster is a departure
-    too, the strip being one (``OptionStrip``), and so is *8-bit encoding*,
+    too, the strip being one (``OptionStrip``), and so is *Fallback encoding*,
     what a file that is not UTF-8 is read as (``[editor] fallback_encoding``).
     """
 
@@ -186,7 +186,7 @@ class EditorDefaultsPage(_Component):
         )
         self.fallback_encoding.height = 1    # editor_defaults_page.nml:125
         self.fallback_encoding.label_text = _bind(    # editor_defaults_page.nml:126
-            lambda _o: _tr('8-bit ~e~ncoding'),
+            lambda _o: _tr('Fallback ~e~ncoding'),
             yielding=True,
         )
         self.fallback_encoding.label_width = 17    # editor_defaults_page.nml:127

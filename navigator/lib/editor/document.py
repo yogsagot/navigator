@@ -129,7 +129,7 @@ class LineReader:
     Gives exactly what :meth:`Document.from_bytes` gives for the whole, however
     the bytes are cut.  Each chunk is decoded up to its last line break in one
     call -- a CR or LF byte is never part of a UTF-8 sequence, nor of a
-    one-byte code page's, so a run of whole lines decodes as its lines would
+    legacy code page's (``navigator.lib.codepages`` admits none that is), so a run of whole lines decodes as its lines would
     one by one -- and what follows the break waits for the next chunk.  **A CR
     at a chunk's very end waits too**, since the LF that would make it one
     CRLF may be the next chunk's first byte: DN's ``ReadBlock`` stepped its
@@ -137,9 +137,9 @@ class LineReader:
 
     The encoding is *encoding*, or what the first bytes' byte order mark says
     (:func:`~navigator.lib.editor.encodings.sniff`), the mark taken off.
-    UTF-16, whose CR and LF are two bytes each, goes through an incremental
-    decoder first and is cut the same way as text.  *fallback*, a one-byte
-    code page, is what a sniffed UTF-8 text that turned out not to be is read
+    UTF-16 and UTF-32, whose CR and LF are more than a byte, go through an
+    incremental decoder first and are cut the same way as text.  *fallback*,
+    a legacy code page, is what a sniffed UTF-8 text that turned out not to be is read
     as instead (``[editor] fallback_encoding``).
     """
 
@@ -154,10 +154,12 @@ class LineReader:
         #: The first bytes, held until there are enough to tell a mark by.
         self._head = b"" if encoding is None else None
         self._strip = encoding is not None
+        #: With *encoding* given: the first bytes, held until its mark can be told.
+        self._held = b""
         #: Bytes after the last break taken, not yet decoded.
         self._pending: list[bytes] = []
         self._pending_size = 0
-        #: UTF-16's decoder, and the text it gave after the last break.
+        #: UTF-16 or UTF-32 decoder, and the text it gave after the last break.
         self._decoder: codecs.IncrementalDecoder | None = None
         self._text = ""
         #: What the decoded characters take, as CPython stores them.
@@ -166,17 +168,24 @@ class LineReader:
     def feed(self, chunk: bytes) -> None:
         if self._head is not None:
             chunk = self._head + chunk
-            if len(chunk) < 3 and chunk and any(
+            if len(chunk) < 4 and chunk and any(
                     mark.startswith(chunk) for mark in (codecs.BOM_UTF8, codecs.BOM_UTF16_LE,
-                                                        codecs.BOM_UTF16_BE)):
+                                                        codecs.BOM_UTF16_BE, codecs.BOM_UTF32_LE,
+                                                        codecs.BOM_UTF32_BE)):
                 self._head = chunk
                 return
             self._head = None
             self.encoding, skip = encodings.sniff(chunk)
             chunk = chunk[skip:]
         elif self._strip:
-            self._strip = False
+            # The encoding's own mark, if the text starts with it -- held
+            # until there are as many bytes as the mark has.
             mark = encodings.bom(self.encoding or "")
+            chunk = self._held + chunk
+            if mark and len(chunk) < len(mark) and mark.startswith(chunk):
+                self._held = chunk
+                return
+            self._strip, self._held = False, b""
             if mark and chunk.startswith(mark):
                 chunk = chunk[len(mark):]
         if not encodings.ascii_compatible(self.encoding or encodings.UTF8):
@@ -204,7 +213,7 @@ class LineReader:
         self._take(text, lines, endings)
 
     def _feed_text(self, text: str) -> None:
-        """UTF-16's :meth:`feed`: the same cut, on what the decoder gave."""
+        """UTF-16 and UTF-32 :meth:`feed`: the same cut, on what the decoder gave."""
         text = self._text + text
         end = len(text) - text.endswith("\r")
         cut = max(text.rfind("\n", 0, end), text.rfind("\r", 0, end))
@@ -222,7 +231,11 @@ class LineReader:
     def finish(self) -> Document:
         """The document, with whatever followed the last break as its last line.
 
-        Raises ``UnicodeDecodeError`` for UTF-16 that does not decode."""
+        Raises ``UnicodeDecodeError`` for UTF-16 or UTF-32 that does not decode."""
+        if self._held:
+            # Fewer bytes than the encoding's mark: they are text.
+            held, self._held, self._strip = self._held, b"", False
+            self.feed(held)
         if self._head is not None:
             # Fewer bytes than a mark: sniff what there is.
             head, self._head = self._head, None
@@ -317,8 +330,8 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
     (:data:`~navigator.lib.drives.root.ROOT_DRIVE`).
 
     The text is in *encoding*, else in what its byte order mark says, else
-    UTF-8 -- or the one-byte *fallback* when it is not.  A text that claims
-    UTF-16 by its mark and does not decode is read again as UTF-8.
+    UTF-8 -- or the legacy *fallback* when it is not.  A text that claims
+    UTF-16 or UTF-32 by its mark and does not decode is read again as UTF-8.
     """
     try:
         return _read_document(path, job, chunk, budget, as_root, encoding, fallback)

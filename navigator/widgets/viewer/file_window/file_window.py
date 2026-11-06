@@ -696,24 +696,29 @@ class FileWindow(Window):
     async def choose_encoding(self) -> None:
         """Shift+F6: ``LoadXlatTable`` -- the code pages in a box, the one in
         use marked.  DN offered its ``XLT\\*.XLT`` files and Shift+F6 again
-        put the table away; here *UTF-8* is that, first in the box."""
+        put the table away; here *UTF-8* is that, first in the box.  The code
+        pages are a submenu a group (``encoding_menu``), and the box opens with
+        the one in use dropped and selected."""
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
 
+        from navigator.lib import codepages
+        from navigator.widgets import encoding_menu
+
         viewer = self.viewer
-        codecs = [codec for codec, _ in viewer_model.ENCODINGS]
         menu = SubMenu()
-        items = [menu.add_item(caption) for _, caption in viewer_model.ENCODINGS]
+        filled = encoding_menu.fill(menu, [viewer_model.ENCODINGS[0]], codepages.ONE_BYTE)
         title = tr("Encoding")
         width, height = PopupMenu.measure(menu, self.application, self, title)
         ox, oy = self.offset()
         x = ox + self.x + max(0, (self.width - width) // 2)
         y = oy + self.y + max(0, (self.height - height) // 2)
-        box = PopupMenu(menu, x, y, current=codecs.index(viewer.encoding), behind=self,
-                        title=title)
-        chosen = await box.execute(self.application)
+        index, at = filled.places.get(viewer.encoding, (0, -1))
+        box = PopupMenu(menu, x, y, current=index, behind=self, title=title,
+                        submenu=(index, at) if at >= 0 else None)
+        chosen = filled.key_of(await box.execute(self.application))
         if chosen is not None:
-            viewer.set_encoding(codecs[items.index(chosen)])
+            viewer.set_encoding(chosen)
 
     async def save_as(self) -> None:
         """Shift+F5: ``cmSaveAll`` -- *Save File As*, and the file written

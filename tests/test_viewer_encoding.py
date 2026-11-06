@@ -75,7 +75,12 @@ def test_shift_f6_chooses_the_encoding_from_a_box(place):
         box = next(w for w in a.root.children if isinstance(w, PopupMenu))
         seen["current"] = box.box.current
         seen["title"] = box.box.title
-        for _ in range(4):
+        # UTF-8, then a submenu a group: the fifth is Cyrillic, where CP866
+        # is sixth (Windows-1251, KOI8-R, KOI8-U, KOI8-T, ISO-8859-5, CP866).
+        for _ in range(5):
+            a.post_event(KeyEvent("down"))
+        a.post_event(KeyEvent("enter"))
+        for _ in range(5):
             a.post_event(KeyEvent("down"))
         a.post_event(KeyEvent("enter"))
 
@@ -104,3 +109,23 @@ def test_shift_f5_saves_the_file_recoded(place):
                   Until(lambda a: isinstance(a.modal, FileDialog)), name_it, KeyEvent("enter"),
                   Until(lambda a: (place / "utf8.txt").exists())])
     assert (place / "utf8.txt").read_text(encoding="utf-8") == RUSSIAN
+
+
+def test_shift_f6_opens_on_the_group_of_the_encoding_in_use(place):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def on_file(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index("ru.txt")
+
+    def popup(a):
+        return next((w for w in a.root.children if isinstance(w, PopupMenu)), None)
+
+    run_app(app, [on_file, KeyEvent("f3"), Until(lambda a: viewer_of(a) is not None),
+                  lambda a: viewer_of(a).set_encoding("cp866"),
+                  KeyEvent("f6", shift=True), Until(lambda a: popup(a) is not None and len(popup(a).boxes) == 2),
+                  lambda a: seen.update(group=popup(a).boxes[0].current,
+                                        item=popup(a).boxes[1].menu.entries()[popup(a).boxes[1].current].text),
+                  KeyEvent("escape"), KeyEvent("escape")])
+    assert seen["item"].replace("~", "") == "CP866 DOS Cyrillic"

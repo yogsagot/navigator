@@ -135,3 +135,12 @@ def test_files_on_another_drive_are_converted_through_it():
         assert [name for name, _ in drive.children(drive.location("/files"))] == ["a.txt"]
     finally:
         unmount(drive.site)
+
+
+def test_cjk_encodings_both_ways(tmp_path):
+    (tmp_path / "jp.txt").write_bytes("日本語\r\n".encode("shift_jis"))
+    run([tmp_path / "jp.txt"], encoding=encodings.UTF8, fallback="shift_jis", ending="lf")
+    assert (tmp_path / "jp.txt").read_bytes() == "日本語\n".encode()
+    (tmp_path / "zh.txt").write_bytes("中文\n".encode())
+    run([tmp_path / "zh.txt"], encoding="gb18030")
+    assert (tmp_path / "zh.txt").read_bytes() == "中文\n".encode("gb18030")

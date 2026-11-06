@@ -44,7 +44,7 @@ class EditorDefaultsPage(Widget):
         self.line_divisor.tooltip = self.editor_section.tooltip("line_divisor")
         #: Each choice's caption and the key it stands for.
         self.encodings = {tr("UTF-8, bytes kept"): "utf-8",
-                          **{encodings.caption(key): key for key in encodings.ONE_BYTE}}
+                          **{encodings.caption(key): key for key in encodings.LEGACY}}
         self.fallback_encoding.choices = list(self.encodings)
         self.fallback_encoding.value = next(
             (caption for caption, key in self.encodings.items()

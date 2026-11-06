@@ -31,7 +31,7 @@ class ConvertTextDialog(Dialog):
         self.encodings = {tr("Keep each file's"): "keep",
                           **{encodings.caption(key): key for key, _, _ in encodings.CODECS}}
         self.fallbacks = {tr("Nothing: leave such files alone"): encodings.UTF8,
-                          **{encodings.caption(key): key for key in encodings.ONE_BYTE}}
+                          **{encodings.caption(key): key for key in encodings.LEGACY}}
         self.encoding.choices = list(self.encodings)
         self.encoding.value = _caption_of(self.encodings, section.encoding)
         self.fallback.choices = list(self.fallbacks)

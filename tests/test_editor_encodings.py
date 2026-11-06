@@ -256,3 +256,103 @@ def test_the_editor_reads_a_file_that_is_not_utf8_in_the_fallback(tmp_path, quie
                                         marks=marks_of(a))])
     assert seen["lines"][0] == "привет"
     assert seen["marks"].endswith("[Windows-1251]")
+
+
+# -- the table (navigator.lib.codepages): what lets a code page in ---------------------------
+
+
+LEGACY = [key for key, _, _ in encodings.CODECS if encodings.ascii_compatible(key)]
+
+
+@pytest.mark.parametrize("key", LEGACY)
+def test_every_code_page_keeps_ascii_and_never_puts_a_break_inside_a_character(key):
+    codec = encodings.python_codec(key)
+    assert bytes(range(128)).decode(codec) == "".join(map(chr, range(128)))
+    for code in range(0x80, 0x10000):
+        if 0xD800 <= code < 0xE000:
+            continue
+        try:
+            data = chr(code).encode(codec)
+        except UnicodeEncodeError:
+            continue
+        assert b"\r" not in data and b"\n" not in data, (key, hex(code))
+
+
+@pytest.mark.parametrize("key", [key for key, _, _ in encodings.CODECS])
+def test_any_bytes_come_back_as_they_were(key):
+    import random
+
+    rnd = random.Random(key)
+    for _ in range(200):
+        data = bytes(rnd.randrange(256) for _ in range(rnd.randrange(1, 40)))
+        try:
+            text = encodings.decode(data, key)
+        except UnicodeDecodeError:
+            assert not encodings.ascii_compatible(key)  # UTF-16/32 decode strictly
+            continue
+        assert encodings.encode(text, key) == data
+
+
+@pytest.mark.parametrize("key", [key for key, _, _ in encodings.CODECS])
+def test_a_text_reads_the_same_however_it_is_cut(key, tmp_path):
+    text = "".join(char for char in "Grüße мир 日本語 中文 한국어 ελληνικά\r\nnext\rlast\n"
+                   if char.isascii() or _writes(char, key))
+    data = encodings.bom(key) + encodings.encode(text, key)
+    path = tmp_path / "t"
+    path.write_bytes(data)
+    whole = read_document(path, encoding=key)
+    for size in (1, 2, 3, 5):
+        cut = read_document(path, encoding=key, chunk=size)
+        assert (cut.lines, cut.endings) == (whole.lines, whole.endings), size
+    assert whole.encode() == data
+
+
+def _writes(char: str, key: str) -> bool:
+    try:
+        encodings.encode(char, key)
+        return True
+    except UnicodeEncodeError:
+        return False
+
+
+def test_utf32_is_told_by_its_mark_before_utf16():
+    data = codecs.BOM_UTF32_LE + "a\r\nb".encode("utf-32-le")
+    document = Document.from_bytes(data)
+    assert document.encoding == encodings.UTF32_LE and document.lines == ["a", "b"]
+    assert document.encode() == data
+    assert chunked(data, 1).lines == ["a", "b"]
+
+
+def test_every_encoding_box_fits_a_24_row_screen():
+    from navml.widgets.menu.menu_box import MenuBox
+    from navml.widgets.menu.sub_menu import SubMenu
+    from navigator.lib import codepages
+    from navigator.lib.viewer import ENCODINGS
+    from navigator.widgets import encoding_menu
+    from navigator.widgets.editor.format_menu import fill_encodings
+
+    def boxes(menu):
+        yield menu
+        for entry in menu.entries():
+            if isinstance(entry, SubMenu):
+                yield from boxes(entry)
+
+    editor, viewer = SubMenu(), SubMenu()
+    fill_encodings(editor)
+    encoding_menu.fill(viewer, [ENCODINGS[0]], codepages.ONE_BYTE)
+    for menu in (editor, viewer):
+        for box in boxes(menu):
+            assert MenuBox.measure(box, None, None, "")[1] <= 22
+
+
+def test_save_with_a_cjk_encoding_writes_it(tmp_path, quiet_console):
+    from navigator.widgets.editor.commands import SaveWithEncoding
+
+    (tmp_path / "dir").mkdir()
+    (tmp_path / "text.txt").write_bytes("日本語\n".encode())
+    app = navigator(tmp_path)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: a.spawn(editor_window(a).editor.emit(SaveWithEncoding("shift_jis"))),
+                  Until(lambda a: editor_window(a).editor.document.encoding == "shift_jis"),
+                  KeyEvent("f2"), IDLE])
+    assert (tmp_path / "text.txt").read_bytes() == "日本語\n".encode("shift_jis")

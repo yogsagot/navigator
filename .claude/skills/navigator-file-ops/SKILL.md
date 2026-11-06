@@ -357,7 +357,8 @@ XLT tables, so `ConvertText` is named for what it does and keyless, shaped as En
 (encoding or *Keep each file's*, *Read non-UTF-8 as*, line endings or *Keep*, *Keep file times*; the endings radio
 has the first focus, Enter on a `ChoiceLine` dropping its list), `[text_conversion]` (`TextConversionData`),
 `ChecksumProgress` through `Manager._run_checksums`, one summary box (`_say_conversion`: converted, already so, left
-alone and why, failures). The encodings are the editor's (`navigator/lib/editor/encodings.py`), the line cut
+alone and why, failures). The encodings are the editor's (`navigator/lib/editor/encodings.py`: Unicode and every code page of
+`navigator/lib/codepages.py`, CJK included), the line cut
 `document.BREAK`.
 - **What a file is read as** (`read_text`): its mark, else UTF-8 when it decodes strictly, else the chosen one-byte
   code page (strictly too) -- otherwise left alone as *undecodable*. A NUL in the first 8 KiB (not UTF-16) is

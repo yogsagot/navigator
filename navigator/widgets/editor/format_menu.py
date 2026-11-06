@@ -19,6 +19,7 @@ from navkit.reactive import bind
 from navml.widgets.menu.sub_menu import SubMenu
 
 from navigator.lib.editor import encodings
+from navigator.widgets import encoding_menu
 from navigator.widgets.editor.commands import ReopenWithEncoding, SaveWithEncoding, SetLineEnding
 
 #: Each ending's key and its caption.
@@ -33,22 +34,6 @@ def _caption(text: Callable[[], str]) -> object:
     return bind(lambda _o: text(), yielding=True)
 
 
-def _marked(captions: list[str]) -> list[str]:
-    """*captions* with a hotkey each: the first letter or digit no caption
-    before it has taken, else none."""
-    taken: set[str] = set()
-    marked = []
-    for caption in captions:
-        for at, char in enumerate(caption):
-            if char.isalnum() and char.casefold() not in taken:
-                taken.add(char.casefold())
-                marked.append(f"{caption[:at]}~{char}~{caption[at + 1:]}")
-                break
-        else:
-            marked.append(caption)
-    return marked
-
-
 def fill_line_endings(menu: SubMenu) -> None:
     """The three endings into *menu*, an empty submenu."""
     for key, caption in ENDINGS:
@@ -57,9 +42,8 @@ def fill_line_endings(menu: SubMenu) -> None:
 
 
 def _fill_codecs(menu: SubMenu, command: type) -> None:
-    captions = _marked([encodings.caption(key) for key, _, _ in encodings.CODECS])
-    for (key, _, _), caption in zip(encodings.CODECS, captions):
-        menu.add_item(caption, command(key))
+    """The Unicode encodings, then the code pages a submenu a group."""
+    encoding_menu.fill(menu, [(key, caption) for key, _, caption in encodings.UNICODE], command=command)
 
 
 def fill_encodings(menu: SubMenu) -> None:

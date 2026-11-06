@@ -1150,7 +1150,7 @@ class Manager(Window):
 
         reasons = {
             textconv.BINARY: lambda detail: tr("looks binary"),
-            textconv.UNDECODABLE: lambda detail: tr("not UTF-8, and no 8-bit encoding was chosen to read it as"),
+            textconv.UNDECODABLE: lambda detail: tr("not UTF-8, and no encoding was chosen to read it as"),
             textconv.UNENCODABLE: lambda detail: tr("the encoding cannot write a character at {place}").format(
                 place=detail),
             textconv.TOO_LARGE: lambda detail: tr("too large"),

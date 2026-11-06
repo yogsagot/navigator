@@ -54,7 +54,10 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
     Backspace steps back and puts the file's own byte there; Store clears what can be undone. A click on a
     pair or a character puts the cursor there.
 - **Shift+F6, File > Encoding** is DN's `cmLoadXlatTable`: instead of an `XLT\*.XLT` table, a `PopupMenu` of one-byte
-  code pages (`viewer.ENCODINGS`, *UTF-8* first and meaning none). `FileViewer.set_encoding` puts `byte_table(codec)` on
+  code pages (`viewer.ENCODINGS`: *UTF-8* first and meaning none, then every one-byte page of
+  `navigator/lib/codepages.py` -- DN's dozen and the rest, a departure, asked for -- in a submenu a group through
+  `encoding_menu.fill`, the box opening on the group of the page in use). Multi-byte code pages are the editor's
+  only: the viewer draws a file byte by byte. `FileViewer.set_encoding` puts `byte_table(codec)` on
   `ViewSource.table`, which `line()` (and so wrapping and scrolling), the hex and dump rows and `compile_search(...,
   encoding=)` all go through; the info line ends `{CP866}`. Controls stay the VGA's glyphs. Not kept in the view record.
 - **Shift+F5, File > Save as** is `cmSaveAll`: DN's *Save File As* file dialog (history `edit_save`, the editor's), and

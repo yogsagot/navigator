@@ -11,7 +11,7 @@ links stay what they were.  A tagged directory is walked to the bottom, as
 Checksums walk one (:func:`navigator.lib.file_ops.checksum.walk`).
 
 What a file is read as: what its byte order mark says, else UTF-8 when it
-decodes as UTF-8, else the one-byte *fallback* (``Options.fallback``) when
+decodes as UTF-8, else the legacy *fallback* (``Options.fallback``) when
 one is given -- otherwise it is left alone.  Left alone too, and said why:
 a file that looks binary (a NUL in its first bytes, unless it is UTF-16), one
 whose text the target encoding cannot write, and one larger than
@@ -67,7 +67,7 @@ CHUNK = 1 << 20
 class Options:
     """What the files become: *encoding* (a key of ``encodings.CODECS``, or
     ``""`` to keep each file's), *ending* (``ENDINGS``), what a file that is
-    not UTF-8 is read as (*fallback*, a one-byte code page, or ``utf-8`` to
+    not UTF-8 is read as (*fallback*, a legacy code page, or ``utf-8`` to
     leave such a file alone), and whether its times are put back."""
 
     encoding: str = ""

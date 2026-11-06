@@ -522,9 +522,9 @@ direction = "rtl"
 "Kee~p~ each line's" = "~ה~שאר כמו שהן"
 # navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:51
 "L~F~ (Unix)" = "L~F~ (Unix)"
-# navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:51, navigator/widgets/editor/format_menu.py:27
-"~C~RLF (DOS, Windows)" = "~C~RLF (DOS, Windows)"
 # navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:51, navigator/widgets/editor/format_menu.py:28
+"~C~RLF (DOS, Windows)" = "~C~RLF (DOS, Windows)"
+# navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:51, navigator/widgets/editor/format_menu.py:29
 "C~R~ (classic Mac)" = "C~R~ (Mac הישן)"
 # navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:59
 "Keep file ~t~imes" = "שמור ~ז~מני קבצים"
@@ -1415,7 +1415,7 @@ direction = "rtl"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:118
 "CR" = "CR"
 # navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:126
-"8-bit ~e~ncoding" = "קידוד ~8~ סיביות"
+"Fallback ~e~ncoding" = "קידוד ~ח~לופי"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:71
 "Left panel in new Manager will be..." = "הפאנל השמאלי במנהל חדש יהיה..."
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
@@ -2762,6 +2762,32 @@ direction = "rtl"
 "∙ Clock" = "∙ שעון"
 # navigator/lib/appearance/savers.py:37
 "∙ Blackness" = "∙ חושך"
+# navigator/lib/codepages.py:49
+"~W~estern European" = "~מ~ערב אירופה"
+# navigator/lib/codepages.py:50
+"~C~entral European" = "מרכז ~א~ירופה"
+# navigator/lib/codepages.py:51
+"~S~outhern and Northern European" = "~ד~רום וצפון אירופה"
+# navigator/lib/codepages.py:52
+"~B~altic" = "~ב~לטי"
+# navigator/lib/codepages.py:53
+"C~y~rillic" = "~ק~ירילי"
+# navigator/lib/codepages.py:54
+"~G~reek" = "יוו~נ~ית"
+# navigator/lib/codepages.py:55
+"~T~urkish" = "~ט~ורקית"
+# navigator/lib/codepages.py:56
+"~H~ebrew and Yiddish" = "~ע~ברית ויידיש"
+# navigator/lib/codepages.py:57
+"~A~rabic" = "ערבי~ת~"
+# navigator/lib/codepages.py:58
+"Thai and ~V~ietnamese" = "תאית ו~ו~ייטנאמית"
+# navigator/lib/codepages.py:59
+"~J~apanese" = "~י~פנית"
+# navigator/lib/codepages.py:60
+"Ch~i~nese" = "~ס~ינית"
+# navigator/lib/codepages.py:61
+"~K~orean Hangul" = "קו~ר~יאנית (האנגול)"
 # navigator/lib/config/country.py:147
 "Last used {time}" = "שימוש אחרון {time}"
 # navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:70
@@ -3506,9 +3532,9 @@ direction = "rtl"
 "Hidden characters" = "תווים נסתרים"
 # navigator/widgets/editor/commands.py:443, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "סוג קובץ"
-# navigator/widgets/editor/commands.py:451, navigator/widgets/editor/format_menu.py:104
+# navigator/widgets/editor/commands.py:451, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "סיומי שורות"
-# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3004, navigator/widgets/editor/format_menu.py:111 ...
+# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3004, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "קידוד"
 # navigator/widgets/editor/commands.py:503
 "AutoBrackets" = "סוגריים אוטומטיים"
@@ -3578,9 +3604,9 @@ direction = "rtl"
 "~P~aste from" = "~ה~דבק מתוך"
 # navigator/widgets/editor/edit_window/edit_window.py:929
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:733
+# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
 "~S~ave File As" = "~ש~מור קובץ בשם"
 # navigator/widgets/editor/edit_window/edit_window.py:157
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -3596,7 +3622,7 @@ direction = "rtl"
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:274
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:767, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:872 ...
+# navigator/widgets/editor/edit_window/edit_window.py:767, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:877 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
 # navigator/widgets/editor/edit_window/edit_window.py:773, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
 "Information" = "מידע"
@@ -3674,11 +3700,11 @@ direction = "rtl"
 "Bad pattern" = "תבנית שגויה"
 # navigator/widgets/editor/find_bar/find_bar.py:272
 "No matches" = "אין התאמות"
-# navigator/widgets/editor/format_menu.py:26
+# navigator/widgets/editor/format_menu.py:27
 "~L~F (Unix)" = "~L~F (Unix)"
-# navigator/widgets/editor/format_menu.py:69
+# navigator/widgets/editor/format_menu.py:53
 "~R~eopen with encoding" = "~פ~תח מחדש בקידוד"
-# navigator/widgets/editor/format_menu.py:72
+# navigator/widgets/editor/format_menu.py:56
 "~S~ave with encoding" = "~ש~מור בקידוד"
 # navigator/widgets/editor/loading.py:118
 "Writing file" = "כותב קובץ"
@@ -4159,7 +4185,7 @@ direction = "rtl"
 # navigator/widgets/manager/manager/manager.py:1152
 "looks binary" = "נראה בינארי"
 # navigator/widgets/manager/manager/manager.py:1153
-"not UTF-8, and no 8-bit encoding was chosen to read it as" = "אינו UTF-8, ולא נבחר קידוד 8 סיביות לקרוא אותו בו"
+"not UTF-8, and no encoding was chosen to read it as" = "אינו UTF-8, ולא נבחר קידוד לקרוא אותו בו"
 # navigator/widgets/manager/manager/manager.py:1156
 "too large" = "גדול מדי"
 # navigator/widgets/manager/manager/manager.py:1162
@@ -4899,9 +4925,9 @@ direction = "rtl"
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "רק root קורא את {path}, שבו נמצא היומן של {unit}."
 # navigator/widgets/shell/service_window/service_window.py:296
-"{shown} of {count} unit match the filter" = ["", "", ""]
+"{shown} of {count} unit match the filter" = ["{shown} מתוך יחידה אחת תואמות למסנן", "{shown} מתוך שתי יחידות תואמות למסנן", "{shown} מתוך {count} יחידות תואמות למסנן"]
 # navigator/widgets/shell/service_window/service_window.py:301
-"{count} unit, {running} running, {failed} failed" = ["", "", ""]
+"{count} unit, {running} running, {failed} failed" = ["יחידה אחת, {running} פועלות, {failed} נכשלו", "שתי יחידות, {running} פועלות, {failed} נכשלו", "{count} יחידות, {running} פועלות, {failed} נכשלו"]
 # navigator/widgets/shell/service_window/service_window.py:406
 "Not something {manager} does" = "{manager} אינו עושה זאת"
 # navigator/widgets/shell/service_window/service_window.py:414
@@ -6223,3 +6249,5 @@ direction = "rtl"
 "No service manager Navigator knows runs here: systemd, OpenRC or runit" = "לא פועל כאן מנהל שירותים ש-Navigator מכיר: systemd,‏ OpenRC או runit"
 "The service manager Services works: auto (the one running), systemd, openrc or runit" = "מנהל השירותים שחלון השירותים עובד איתו: auto (זה שפועל), systemd,‏ openrc או runit"
 "Line endings: a click converts them" = "סיומי שורות: לחיצה ממירה אותם"
+"8-bit ~e~ncoding" = "קידוד ~8~ סיביות"
+"not UTF-8, and no 8-bit encoding was chosen to read it as" = "אינו UTF-8, ולא נבחר קידוד 8 סיביות לקרוא אותו בו"

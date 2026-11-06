@@ -50,7 +50,7 @@ from navkit.reactive import Reactive
 from navml.coder import Coder
 
 from navigator.lib.appearance import filetypes
-from navigator.lib.editor.encodings import CODECS as _CODECS, ONE_BYTE as _ONE_BYTE_ENCODINGS
+from navigator.lib.editor.encodings import CODECS as _CODECS, LEGACY as _LEGACY_ENCODINGS
 
 _ALL_ENCODINGS = tuple(key for key, _, _ in _CODECS)
 #: The file's name, in the directory :func:`config_dir` names.
@@ -584,7 +584,7 @@ class EditorDefaultsData(Section):
     #: (``navigator.lib.editor.encodings``): ``utf-8`` keeps the bytes that
     #: do not decode as they are.
     fallback_encoding: str = Setting(
-        "utf-8", choices=("utf-8", *_ONE_BYTE_ENCODINGS),
+        "utf-8", choices=("utf-8", *_LEGACY_ENCODINGS),
         doc="What a file that is not UTF-8 is read as by the editor: utf-8 keeps its bytes, or a code page",
     )
 
@@ -1094,7 +1094,7 @@ class TextConversionData(Section):
     )
     ending: str = Setting("keep", choices=ENDINGS, doc="The line endings the files get, or keep each line's")
     fallback: str = Setting(
-        "utf-8", choices=("utf-8", *_ONE_BYTE_ENCODINGS),
+        "utf-8", choices=("utf-8", *_LEGACY_ENCODINGS),
         doc="What a file that is not UTF-8 is read as: utf-8 leaves it alone, or a code page",
     )
     keep_times: bool = Setting(False, doc="A converted file keeps its modification time")

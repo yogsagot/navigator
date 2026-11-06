@@ -4,8 +4,8 @@ DOS Navigator's editor knew one code page, the screen's; a file in another was
 translated through an ``*.XLT`` table on the way in and out.  Here the editor
 holds Unicode and each text remembers the encoding its bytes are in: UTF-8
 (with or without a byte order mark), UTF-16 with a mark, or one of the
-one-byte code pages the viewer's Shift+F6 knows
-(:data:`navigator.lib.viewer.ENCODINGS`).
+legacy code pages of :data:`navigator.lib.codepages.CODEPAGES`
+(one-byte and CJK multi-byte).
 
 **What is read is written back byte for byte.**  A byte order mark is taken
 off on reading and put back on writing; the ASCII-compatible encodings decode
@@ -23,31 +23,44 @@ import codecs
 import re
 from typing import Iterable
 
-from navigator.lib.viewer import ENCODINGS as _ONE_BYTE
+from navigator.lib.codepages import CODEPAGES
 
 #: The default: UTF-8 without a mark.
 UTF8 = "utf-8"
 UTF8_BOM = "utf-8-bom"
 UTF16_LE = "utf-16-le"
 UTF16_BE = "utf-16-be"
+UTF32_LE = "utf-32-le"
+UTF32_BE = "utf-32-be"
 
-#: Every encoding a text may be in: its key, the short label the frame shows,
-#: and the caption a menu gives it.  The one-byte code pages are the viewer's.
-CODECS: tuple[tuple[str, str, str], ...] = (
+#: The Unicode encodings: key, the short label the frame shows, the caption a
+#: menu gives it.  All but plain UTF-8 are written with a mark.
+UNICODE: tuple[tuple[str, str, str], ...] = (
     (UTF8, "UTF-8", "UTF-8"),
     (UTF8_BOM, "UTF-8 BOM", "UTF-8 with BOM"),
     (UTF16_LE, "UTF-16LE", "UTF-16 LE with BOM"),
     (UTF16_BE, "UTF-16BE", "UTF-16 BE with BOM"),
-    *((key, caption.split()[0], caption) for key, caption in _ONE_BYTE if key != UTF8),
+    (UTF32_LE, "UTF-32LE", "UTF-32 LE with BOM"),
+    (UTF32_BE, "UTF-32BE", "UTF-32 BE with BOM"),
 )
 
-#: The one-byte code pages alone: what a file that is not UTF-8 may be read as.
-ONE_BYTE: tuple[str, ...] = tuple(key for key, _ in _ONE_BYTE if key != UTF8)
+#: Every encoding a text may be in: the Unicode ones, then every code page of
+#: :data:`navigator.lib.codepages.CODEPAGES`, as ``(key, label, caption)``.
+CODECS: tuple[tuple[str, str, str], ...] = (
+    *UNICODE,
+    *((page.key, page.label, page.caption) for page in CODEPAGES),
+)
+
+#: The legacy code pages alone: what a file that is not UTF-8 may be read as.
+LEGACY: tuple[str, ...] = tuple(page.key for page in CODEPAGES)
 
 _BY_KEY = {key: (short, caption) for key, short, caption in CODECS}
 
-#: Each mark and the encoding it says, longest first.
+#: Each mark and the encoding it says, longest first: UTF-32 LE's starts
+#: with UTF-16 LE's.
 _BOMS = (
+    (codecs.BOM_UTF32_LE, UTF32_LE),
+    (codecs.BOM_UTF32_BE, UTF32_BE),
     (codecs.BOM_UTF8, UTF8_BOM),
     (codecs.BOM_UTF16_LE, UTF16_LE),
     (codecs.BOM_UTF16_BE, UTF16_BE),
@@ -55,7 +68,11 @@ _BOMS = (
 _BOM_OF = {key: bom for bom, key in _BOMS}
 
 #: The Python codec each key decodes and encodes with, the mark aside.
-_PYTHON = {UTF8: "utf-8", UTF8_BOM: "utf-8", UTF16_LE: "utf-16-le", UTF16_BE: "utf-16-be"}
+_PYTHON = {UTF8: "utf-8", UTF8_BOM: "utf-8", UTF16_LE: "utf-16-le", UTF16_BE: "utf-16-be",
+           UTF32_LE: "utf-32-le", UTF32_BE: "utf-32-be"}
+
+#: What a CR or LF is more than one byte of.
+_WIDE = (UTF16_LE, UTF16_BE, UTF32_LE, UTF32_BE)
 
 
 def known(key: str) -> bool:
@@ -84,13 +101,15 @@ def bom(key: str) -> bytes:
 
 def ascii_compatible(key: str) -> bool:
     """Whether a CR and an LF are those bytes alone in *key* -- every encoding
-    but UTF-16, which the chunked reader must decode before it splits."""
-    return key not in (UTF16_LE, UTF16_BE)
+    but UTF-16 and UTF-32, which the chunked reader must decode before it
+    splits (every code page is checked to be: ``codepages``)."""
+    return key not in _WIDE
 
 
 def errors(key: str) -> str:
     """The error handler for *key*: ``surrogateescape`` keeps every byte of an
-    ASCII-compatible text; UTF-16 has nothing to keep a stray byte as."""
+    ASCII-compatible text; UTF-16 and UTF-32 have nothing to keep a stray
+    byte as."""
     return "surrogateescape" if ascii_compatible(key) else "strict"
 
 
