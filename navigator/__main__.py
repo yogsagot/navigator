@@ -799,6 +799,12 @@ def main(argv: list[str] | None = None) -> int:
              "icon beside each name (default: the settings file's, else detect)",
     )
     parser.add_argument(
+        "--charset", metavar="NAME", default=None,
+        help="the character set the terminal reads and sends, for one that is not "
+             "UTF-8: `koi8-r', `cp866', `iso8859-2', `euc-jp'... (default: the "
+             "locale's codeset, else UTF-8)",
+    )
+    parser.add_argument(
         "--graphics", choices=("auto", "kitty", "sixel", "none"), default=None,
         help="how F3 and the quick view draw a picture: kitty's graphics "
              "protocol, sixel, or `none' to show its bytes (default: ask the terminal)",
@@ -920,6 +926,14 @@ def main(argv: list[str] | None = None) -> int:
     # flag, then NAVKIT_PALETTE, then the settings file, then that default;
     # `detect' weighs the environment against the file's answer, and an
     # explicit flag is applied over what it decides.
+    # The terminal's charset, over the locale and NAVKIT_CHARSET: stated before
+    # `detect', since the glyph tier follows from what the charset can draw.
+    if args.charset is not None:
+        from navkit.capabilities import charset_named
+
+        if charset_named(args.charset) is None:
+            parser.error(f"--charset: {args.charset!r} is no character set a terminal can use")
+        os.environ["NAVKIT_CHARSET"] = args.charset
     info = TerminalInfo.detect(
         is_tty=is_a_tty(sys.stdin, sys.stdout),
         palette=VGA_PALETTE if appearance.palette == "dos" else None,

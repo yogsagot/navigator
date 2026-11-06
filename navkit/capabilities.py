@@ -296,6 +296,88 @@ def _utf8(env: Mapping[str, str]) -> bool:
     return False
 
 
+#: Codecs a terminal's charset can never be: they keep a state between bytes
+#: (a shift into another set), so a frame cut anywhere would draw garbage.
+_STATEFUL = ("iso2022", "utf_7", "hz", "utf_16", "utf_32")
+
+
+def charset_named(name: str) -> str | None:
+    """*name* -- a locale's codeset, ``KOI8-R``, ``CP866``, ``utf8`` -- as the
+    Python codec it is, or None for one that does not exist or that a
+    terminal cannot be (:data:`_STATEFUL`)."""
+    import codecs
+
+    try:
+        codec = codecs.lookup(name.strip()).name
+    except (LookupError, ValueError):
+        return None
+    normal = codec.replace("-", "_")
+    if any(normal.startswith(stateful) for stateful in _STATEFUL):
+        return None
+    return codec
+
+
+def _charset(env: Mapping[str, str]) -> str:
+    """The charset the locale says this terminal reads: the codeset after the
+    ``.`` of the most specific of ``LC_ALL``, ``LC_CTYPE``, ``LANG`` (its
+    ``@modifier`` aside).  A locale naming none -- ``C``, ``POSIX``,
+    ``ru_RU`` -- says nothing, and UTF-8 is assumed as it always was: a
+    ``LANG=C`` ssh session on a UTF-8 terminal is far commoner than a
+    terminal that is neither.
+
+    An ``LC_CTYPE`` of ``C.UTF-8`` beside an ``LANG`` naming another codeset
+    is passed over: it is what Python itself puts there (PEP 538) when the
+    locale ``LANG`` names is not installed -- the terminal is still what the
+    user said."""
+    coerced = env.get("LC_CTYPE", "").lower().replace("-", "") in ("c.utf8", "utf8")
+    for name in ("LC_ALL", "LC_CTYPE", "LANG"):
+        value = env.get(name, "")
+        if name == "LC_CTYPE" and coerced and "." in env.get("LANG", ""):
+            continue
+        if value:
+            _, dot, codeset = value.partition(".")
+            if not dot:
+                return "utf-8"
+            codeset = codeset.partition("@")[0]
+            named = charset_named(codeset)
+            if named is not None:
+                return named
+            # A stateful one (ISO-2022-JP) is a real charset this cannot
+            # speak: plain ASCII is what both sides read alike.  A name no
+            # codec knows says nothing.
+            return "ascii" if _known(codeset) else "utf-8"
+    return "utf-8"
+
+
+def _known(name: str) -> bool:
+    import codecs
+
+    try:
+        codecs.lookup(name)
+    except (LookupError, ValueError):
+        return False
+    return True
+
+
+def _draws_boxes(charset: str) -> bool:
+    """Whether *charset* has the single and double frames the Unicode tier
+    draws -- KOI8-R/U, CP866, CP437, CP850 have; CP1251, ISO-8859-5, Latin-1
+    and EUC-JP (single lines only) have not.  A tee it lacks (KOI8-U's ``╢``,
+    CP850's mixed ones) falls back to ``+`` alone, as any missing character
+    does, which is no reason to give up the lines."""
+    from navkit.glyphs import DOUBLE_BOX, SINGLE_BOX
+
+    try:
+        (SINGLE_BOX + DOUBLE_BOX).encode(charset)
+    except (UnicodeEncodeError, LookupError):
+        return False
+    return True
+
+
+def is_utf8(charset: str) -> bool:
+    return charset.replace("_", "-").lower() in ("utf-8", "utf8")
+
+
 #: The ways of drawing a picture :attr:`TerminalInfo.graphics` names.
 GRAPHICS = ("kitty", "sixel")
 
@@ -330,6 +412,13 @@ class TerminalInfo:
     #: otherwise, box drawing being safe on any terminal of the last thirty
     #: years that reads UTF-8.
     glyphs: int = GLYPHS_UNICODE
+    #: The character set the terminal reads and sends, as a Python codec:
+    #: ``utf-8`` almost everywhere, or the locale's legacy codeset -- KOI8-R,
+    #: CP866, ISO-8859-2, EUC-JP -- on a terminal set up for one (a departure,
+    #: asked for: :class:`navkit.terminal.Terminal` encodes every frame in it,
+    #: a character it has not falling back cell by cell, and the input and the
+    #: console decode through it).  ``NAVKIT_CHARSET`` overrides the locale.
+    charset: str = "utf-8"
     #: Whether to push the kitty keyboard protocol, the only way a terminal
     #: reports a bare modifier and a release -- what lets a key bar follow a
     #: held Alt.  Pushed without a query, since a terminal that does not know
@@ -457,9 +546,14 @@ class TerminalInfo:
         ``NAVKIT_GLYPHS`` (``ascii``, ``unicode``, ``nerd``) overrides it.  Left
         to itself the guess runs: a plain terminal gets ASCII, one of the
         emulators in :func:`_nerd_font` gets the Nerd tier, a UTF-8 locale gets
-        Unicode, and anything else gets ASCII -- conservative in the same
+        Unicode, a legacy charset Unicode if it draws boxes (KOI8-R, CP866) and
+        ASCII if not, and anything else gets ASCII -- conservative in the same
         direction as the colour guess, since a missing glyph is a replacement
         box on every line of the frame.
+
+        ``NAVKIT_CHARSET`` names the terminal's character set, else the
+        locale's codeset does (:attr:`charset`); a legacy one decides the
+        glyph tier by what it can draw.
 
         ``NAVKIT_KEYBOARD`` (``kitty``, or ``legacy``) says whether to push the
         kitty keyboard protocol, which is otherwise pushed on any interactive
@@ -501,9 +595,18 @@ class TerminalInfo:
             colors = stated
         colors = depth_named(env.get("NAVKIT_COLORS", ""), colors)
 
+        charset = charset_named(env.get("NAVKIT_CHARSET", "")) if env.get("NAVKIT_CHARSET") else None
+        if charset is None:
+            charset = _charset(env)
+        legacy = not is_utf8(charset)
+
         if glyphs is None:
             if plain:
                 glyphs = GLYPHS_ASCII
+            elif legacy:
+                # A legacy charset: frames as lines where it has them (KOI8-R,
+                # CP866), else ASCII; never the Nerd tier, whose icons it has not.
+                glyphs = GLYPHS_UNICODE if _draws_boxes(charset) else GLYPHS_ASCII
             elif _nerd_font(env):
                 glyphs = GLYPHS_NERD
             elif _utf8(env):
@@ -571,7 +674,8 @@ class TerminalInfo:
             colors=colors,
             palette=palette,
             glyphs=glyphs,
-            braille=braille,
+            charset=charset,
+            braille=braille and not legacy,
             bidi=bidi,
             reorders=_reorders(env),
             multiplexer=_multiplexer(env),

@@ -87,7 +87,8 @@ class ScreenView(ContextMenuHost, Widget):
         """Type *event* at the child; ``False`` if there is nobody to type at."""
         if not self.alive:
             return False
-        data = encode_key(event, application_cursor=self.screen.application_cursor)
+        data = encode_key(event, application_cursor=self.screen.application_cursor,
+                          charset=self.screen.charset)
         if not data:
             return False
         self.write_child(data)

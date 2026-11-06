@@ -30,6 +30,7 @@ cell holding ``""``.
 
 from __future__ import annotations
 
+import codecs
 import os
 import shutil
 import subprocess
@@ -44,6 +45,7 @@ from pyte import graphics as _graphics
 from pyte.screens import Char, StaticDefaultDict
 
 from navkit.bidi import LaidCell, order_cells
+from navkit.capabilities import is_utf8
 from navkit.screen import ScreenBuffer, Surface
 from navkit.style import Color, Style
 
@@ -306,10 +308,24 @@ class _Screen(pyte.HistoryScreen):
             self.tabstops.update(range((old + 7) // 8 * 8, self.columns, 8))
 
 
+#: The charset the programs on the console write in: the terminal's
+#: (:attr:`navkit.capabilities.TerminalInfo.charset`), which the application
+#: sets here as it starts -- every child inherits the same locale, and a
+#: console screen is made before there is an application to ask.
+CHARSET = "utf-8"
+
+
 class _Stream(pyte.ByteStream):
-    """pyte's stream, dispatching the sequences :class:`_Screen` adds."""
+    """pyte's stream, dispatching the sequences :class:`_Screen` adds, and
+    decoding what a program writes in *charset* rather than always UTF-8."""
 
     csi = {**pyte.ByteStream.csi, "b": "repeat_last", "S": "scroll_up", "T": "scroll_down"}
+
+    def __init__(self, screen: Any, charset: str = "utf-8") -> None:
+        super().__init__(screen)
+        if not is_utf8(charset):
+            # pyte decodes through ``utf8_decoder`` whatever it is.
+            self.utf8_decoder = codecs.getincrementaldecoder(charset)("replace")
 
 
 def _drop_private(name: str) -> Callable[..., None]:
@@ -357,10 +373,13 @@ class ConsoleScreen:
         lines: int = 24,
         *,
         history: int = DEFAULT_HISTORY,
+        charset: str | None = None,
     ):
         columns, lines = max(1, columns), max(1, lines)
+        #: What the program writes and is typed at in (:data:`CHARSET`).
+        self.charset = charset or CHARSET
         self.screen = _Screen(columns, lines, history)
-        self.stream = _Stream(self.screen)
+        self.stream = _Stream(self.screen, self.charset)
         # The mirror.  pyte's buffer is a sparse mapping of rows to sparse
         # mappings of columns, which is the right shape for an emulator and
         # the wrong one for a blit; keeping a real grid beside it means the
@@ -415,7 +434,7 @@ class ConsoleScreen:
                 # its parser is a generator, which an exception closes for
                 # good.  Start a fresh one; the rest of this read is lost,
                 # and whatever the program draws next lands.
-                self.stream = _Stream(self.screen)
+                self.stream = _Stream(self.screen, self.charset)
             self._synced = False
 
     def reset(self) -> None:

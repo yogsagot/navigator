@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import base64
 import binascii
+import codecs
 import fcntl
 import os
 import re
@@ -24,7 +25,7 @@ from dataclasses import replace
 from typing import IO
 
 from navkit import keyboard
-from navkit.capabilities import TerminalInfo
+from navkit.capabilities import TerminalInfo, is_utf8
 from navkit.events import (
     Event,
     FocusEvent,
@@ -449,6 +450,25 @@ class InputParser:
         #: release: believing its modifiers held would leave them held for
         #: good, and its press would promise a release that never comes.
         self.reports_releases = False
+        self._charset = "utf-8"
+        self._decoder: codecs.IncrementalDecoder | None = None
+
+    @property
+    def charset(self) -> str:
+        """What typed text and pastes arrive in (:attr:`TerminalInfo.charset`).
+        Not UTF-8, each byte past ASCII goes through the charset's own
+        decoder, which holds a multi-byte character's first bytes (EUC-JP,
+        GBK) until the rest arrives, as UTF-8's wait does."""
+        return self._charset
+
+    @charset.setter
+    def charset(self, name: str) -> None:
+        self._charset = name
+        self._decoder = None if is_utf8(name) else codecs.getincrementaldecoder(name)("replace")
+
+    def _decode(self, data: bytes) -> str:
+        """*data*, whole, in the charset: a paste."""
+        return data.decode("utf-8" if self._decoder is None else self._charset, "replace")
 
     @property
     def pending_escape(self) -> bool:
@@ -512,6 +532,13 @@ class InputParser:
                 del self._buf[:1]
                 events.append(_control_key(byte, ctrl_h=self.ctrl_h))
                 continue
+            if self._decoder is not None:
+                # A legacy charset: the byte to its decoder, which answers
+                # nothing while a multi-byte character is unfinished.
+                del self._buf[:1]
+                for char in self._decoder.decode(bytes((byte,))):
+                    events.append(KeyEvent(char.lower(), char, shift=char.isupper()))
+                continue
             length = _utf8_length(byte)
             if len(self._buf) < length:
                 self._incomplete = True
@@ -535,7 +562,7 @@ class InputParser:
             return False
         self._paste += self._buf[:index]
         del self._buf[: index + len(PASTE_END)]
-        events.append(PasteEvent(self._paste.decode("utf-8", "replace")))
+        events.append(PasteEvent(self._decode(bytes(self._paste))))
         self._paste = None
         return True
 
@@ -628,10 +655,16 @@ class InputParser:
         # Anything else is Alt plus whatever follows.
         if second < 0x20 or second == 0x7F:
             return 2, _control_key(second, alt=True, ctrl_h=self.ctrl_h)
-        length = _utf8_length(second)
-        if len(buf) < 1 + length:
-            return 0, None
-        char = bytes(buf[1 : 1 + length]).decode("utf-8", "replace")
+        if self._decoder is not None:
+            # A legacy charset: Alt with one byte's character (a
+            # multi-byte one under Alt is not a key anybody types).
+            length = 1
+            char = self._decode(bytes(buf[1:2]))
+        else:
+            length = _utf8_length(second)
+            if len(buf) < 1 + length:
+                return 0, None
+            char = bytes(buf[1 : 1 + length]).decode("utf-8", "replace")
         key = char.lower()
         return 1 + length, KeyEvent(
             key, char, alt=True, shift=char.isupper(), base=keyboard.latin(key)
@@ -944,7 +977,7 @@ def _with_modifiers(sequence: str, modifier: int) -> str:
     return f"\x1b[1;{modifier}{sequence[-1]}"
 
 
-def encode_key(event: KeyEvent, *, application_cursor: bool = False) -> bytes:
+def encode_key(event: KeyEvent, *, application_cursor: bool = False, charset: str = "utf-8") -> bytes:
     """Turn a key press back into the bytes a terminal would have sent.
 
     The inverse of :class:`InputParser`, and needed for the same reason
@@ -956,6 +989,9 @@ def encode_key(event: KeyEvent, *, application_cursor: bool = False) -> bytes:
     ``SS3`` rather than ``CSI``, and a curses program recognises only the
     spelling its terminfo entry names -- so an arrow sent the other way does
     nothing at all in ``htop`` or ``mc``.
+
+    *charset* is what the child reads typed text in: the terminal's
+    (:attr:`TerminalInfo.charset`), since it inherited the same locale.
 
     A special key held with Shift, Alt or Ctrl carries xterm's modifier
     parameter rather than losing the modifier.  Alt on anything else is the
@@ -993,7 +1029,9 @@ def encode_key(event: KeyEvent, *, application_cursor: bool = False) -> bytes:
         text = ""
     if not text:
         return b""
-    return (("\x1b" + text) if event.alt else text).encode("utf-8", "replace")
+    text = ("\x1b" + text) if event.alt else text
+    # In the child's charset -- the terminal's -- a character it has not as ``?``.
+    return text.encode("utf-8" if is_utf8(charset) else charset, "replace")
 
 
 #: The button number a mouse report carries, before modifiers and motion --
@@ -1072,6 +1110,38 @@ def _screen_passthrough(sequences: str) -> str:
 
 #: A lone surrogate: what ``surrogateescape`` keeps of a byte that is not UTF-8.
 _SURROGATE = re.compile("[\ud800-\udfff]")
+
+
+def _cell_fallback(error: UnicodeError) -> tuple[str, int]:
+    """The ``navkit-cell`` error handler: a character the terminal's charset
+    has not, written as what stands for it in ASCII
+    (:func:`navkit.glyphs.ascii_twin`) -- as many cells as the character
+    takes, so no column after it moves; a zero-width one as nothing."""
+    if not isinstance(error, UnicodeEncodeError):
+        raise error
+    from navkit.glyphs import ascii_twin
+    from navkit.screen import char_width
+
+    out = []
+    for char in error.object[error.start:error.end]:
+        width = char_width(char)
+        if width == 1:
+            out.append(ascii_twin(char))
+        elif width > 1:
+            out.append("?" * width)
+    return "".join(out), error.end
+
+
+codecs.register_error("navkit-cell", _cell_fallback)
+
+
+def encode_for(text: str, charset: str) -> bytes:
+    """*text* as a terminal reading *charset* is sent it: UTF-8 as it is,
+    any other charset with each character it has not falling back cell by
+    cell (``navkit-cell``)."""
+    if is_utf8(charset):
+        return text.encode("utf-8")
+    return text.encode(charset, "navkit-cell")
 
 
 class Terminal:
@@ -1347,7 +1417,8 @@ class Terminal:
             pass
 
     def flush(self) -> None:
-        """Write what is queued.  A lone surrogate -- a byte of a file name
+        """Write what is queued, in the terminal's charset
+        (:attr:`TerminalInfo.charset`, :func:`encode_for`).  A lone surrogate -- a byte of a file name
         that is not UTF-8, kept by ``surrogateescape`` -- goes out as U+FFFD,
         one cell as it was measured: written as it is, ``sys.stdout`` under a
         UTF-8 locale raises ``UnicodeEncodeError`` (a ``ValueError``) and the
@@ -1362,7 +1433,7 @@ class Terminal:
         try:
             if buffer is not None:
                 self._out.flush()  # anything queued in the text layer goes first
-                buffer.write(data.encode("utf-8"))
+                buffer.write(encode_for(data, self.info.charset))
                 buffer.flush()
             else:
                 self._out.write(data)

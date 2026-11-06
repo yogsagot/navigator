@@ -461,6 +461,11 @@ class Application:
         #: painted, by ``id``: what :attr:`busy` waits on.
         self._posted: set[int] = set()
         self._parser = InputParser()
+        self._parser.charset = getattr(getattr(self.terminal, "info", None), "charset", "utf-8")
+        # The console's programs write in the terminal's charset too.
+        from navkit import console
+
+        console.CHARSET = self._parser.charset
         #: The pictures on the screen (:mod:`navkit.graphics`).
         self._graphics = GraphicsLayer()
         #: What the terminal has answered to :meth:`Terminal.query_graphics`
@@ -1202,6 +1207,7 @@ class Application:
         if info.graphics != self.terminal.info.graphics:
             self.terminal.write(self._graphics.release(self.terminal.info.graphics))
         self.terminal.info = info
+        self._parser.charset = info.charset
         self.info_revision += 1
         self.redraw()
 

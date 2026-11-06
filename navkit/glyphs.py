@@ -261,3 +261,63 @@ def tier_named(name: str, default: int | None = None) -> int | None:
     program from starting.
     """
     return GLYPH_NAMES.get(name.strip().lower(), default)
+
+
+# -- a character a legacy charset has not ---------------------------------------------
+
+
+#: What a few common characters are written as where the terminal's charset has
+#: them not -- beside the pairs the vocabularies above give (:func:`ascii_twin`).
+_EXTRA_TWINS = {
+    "←": "<", "↑": "^", "→": ">", "↓": "v", "↔": "-", "↕": "|",
+    "▲": "^", "▼": "v", "◄": "<", "►": ">", "◀": "<", "▶": ">",
+    "…": ".", "·": ".", "•": "*", "☼": "*", "≡": "=", "×": "x",
+    "–": "-", "—": "-", "‘": "'", "’": "'", "“": '"', "”": '"',
+    "«": "<", "»": ">", "⁇": "?", "✓": "x", "●": "*", "○": "o",
+    "⏎": "$", "∅": "0", " ": " ", "�": "?",
+}
+
+
+def _twins() -> dict[str, str]:
+    """Each non-ASCII glyph of a Unicode-tier vocabulary paired with the ASCII
+    tier's in the same place, then :data:`_EXTRA_TWINS`."""
+    pairs: dict[str, str] = {}
+
+    def pair(fancy: str, plain: str) -> None:
+        for char, twin in zip(fancy, plain):
+            if not char.isascii() and twin.isascii():
+                pairs.setdefault(char, twin)
+
+    for name, chars in BOX_CHARSETS.items():
+        pair(chars, ASCII_BOX)
+        pair(BOX_JOINS.get(name, ""), ASCII_JOINS)
+    pair(DOS_SCROLLBAR, ASCII_SCROLLBAR)
+    pair(DOS_GAUGE, ASCII_GAUGE)
+    pair(DOS_SPINNER, ASCII_SPINNER)
+    for marks_set in (DOS_MARKS, BRACKET_MARKS, BOX_MARKS):
+        for fancy, plain in zip(marks_set, ASCII_MARKS):
+            pair(fancy, plain)
+    for char, twin in _EXTRA_TWINS.items():
+        pairs.setdefault(char, twin)
+    return pairs
+
+
+_TWINS: dict[str, str] | None = None
+
+
+def ascii_twin(char: str) -> str:
+    """One ASCII cell that stands for *char* on a terminal whose charset has it
+    not: its ASCII-tier twin, else its letter without the accent (``é`` ->
+    ``e``), else ``?``."""
+    global _TWINS
+    if _TWINS is None:
+        _TWINS = _twins()
+    twin = _TWINS.get(char)
+    if twin is not None:
+        return twin
+    import unicodedata
+
+    base = unicodedata.normalize("NFKD", char)[:1]
+    if base.isascii() and base.isprintable() and base:
+        return base
+    return "?"

@@ -27,6 +27,31 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
   - The loop keeps running meanwhile: timers, pty output, resizes.
   - Navigator uses this for mc's Ctrl+O (`console-command-line`).
 
+## A terminal that is not UTF-8 (a departure, asked for)
+
+`TerminalInfo.charset` is the Python codec the terminal reads and sends: the codeset after the `.` of `LC_ALL` >
+`LC_CTYPE` > `LANG` (`_charset`), `NAVKIT_CHARSET` (Navigator's `--charset`, set before `detect()`) over it. A
+locale naming none (`C`, `POSIX`, `ru_RU`) says nothing and keeps UTF-8 as before -- `LANG=C` over ssh on a UTF-8
+terminal is the common case; a stateful one (ISO-2022-JP, UTF-7, `charset_named` refuses it) is `ascii`.
+- **Everything above the tty stays Unicode**; only the boundary converts. `Terminal.flush` writes
+  `encode_for(data, charset)`: UTF-8 as before, anything else with the `navkit-cell` error handler, which writes a
+  character the charset has not as `glyphs.ascii_twin` -- its ASCII-tier twin from the vocabularies (`▲`->`^`,
+  `═`->`-`), a few common symbols, the letter without its accent, else `?` -- **as many cells as it takes** (`日`
+  -> `??`), so no column moves. `write_bytes` (a relayed program) stays raw: the child speaks the charset already.
+- **The tier follows what the charset can draw**: a legacy charset with both single and double frames (KOI8-R/U,
+  CP866, CP437, CP850) gets `GLYPHS_UNICODE` -- a tee it lacks falls back alone -- one without (CP1251, ISO-8859-x,
+  EUC-JP) `GLYPHS_ASCII`; never Nerd, and no braille spinner.
+- **Input**: `InputParser.charset` (the application sets it from the info, and again in `use_terminal_info`) sends
+  each byte past ASCII through the charset's incremental decoder, which holds a multi-byte character's first bytes
+  (EUC-JP, GBK); Alt+char takes one byte; a paste is decoded whole. Escapes, kitty keys (code points) and mouse are
+  charset-free.
+- **The console**: `navkit.console.CHARSET` (the application sets it -- a console screen is made before there is an
+  application to ask, and every child inherits the same locale); `_Stream` replaces pyte's `utf8_decoder` with the
+  charset's; `encode_key(..., charset=)` types at the child in it (`ScreenView.send` passes `screen.charset`).
+- **Stays UTF-8 by its protocol**: OSC 52, OSC 8, kitty graphics, the notifications.
+- `luit` remains the zero-code alternative where installed; the Linux console in non-UTF-8 mode (`unicode_stop`,
+  a CP866 font) has no such option, which is why this is done here. Tests: `tests/test_charset.py`.
+
 ## Keys
 
 - **The kitty keyboard protocol** is pushed without asking; `NAVKIT_KEYBOARD=legacy` turns it off. Only it reports a
