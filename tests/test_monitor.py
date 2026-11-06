@@ -293,7 +293,10 @@ def test_a_hot_sensor_a_warm_one_and_a_busy_bar_are_coloured_apart(tmp_path, mon
 
     hot = Chip("k10temp", "", (Temperature("a", 40.0, 70.0, 90.0), Temperature("b", 75.0, 70.0, 90.0),
                                Temperature("c", 95.0, 70.0, 90.0)))
-    monitor_run(tmp_path, monkeypatch, [snapshot(4, (hot,))], look)
+    # The rows are filled by an effect the read's wake-up runs, which can come
+    # a batch after ``monitor_run``'s wait on a slow machine: wait for them.
+    monitor_run(tmp_path, monkeypatch, [snapshot(4, (hot,))],
+                Until(lambda a: len(window_of(a).sensors.items) >= 4), look)
     (heading, normal, warm, hot_style), done, busy, base = seen[0]
     assert len({heading, normal, warm, hot_style}) == 4
     assert done != busy

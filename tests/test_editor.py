@@ -574,7 +574,10 @@ def test_editor_file_save_writes_and_edit_undo_undoes(files):
     app = navigator(files)
     run_app(app, [
         KeyEvent("end"), KeyEvent("f4"), IDLE, *typed("!"), lambda a: None,
-        KeyEvent("e", "e", alt=True), KeyEvent("f", "f"), KeyEvent("s", "s"), lambda a: None,
+        KeyEvent("e", "e", alt=True), KeyEvent("f", "f"), KeyEvent("s", "s"),
+        # The write runs on a thread and marks the save point when it lands:
+        # an undo before that finds the text still changed.
+        Until(lambda a: not editor_window(a).editor.modified),
         *typed("?"), lambda a: None,
         KeyEvent("e", "e", alt=True), KeyEvent("e", "e"), KeyEvent("u", "u"), lambda a: None,
     ])
