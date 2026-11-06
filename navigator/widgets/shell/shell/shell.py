@@ -1012,13 +1012,23 @@ class Shell(DockLayout):
         """The active panel's directory in the file manager in front, if one is
         open and it is on the local disk: the shell cannot follow a panel onto
         another drive, and stays in the last local directory it was in."""
-        where = self._front_location()
+        where = self._as_the_shell_sees(self._front_location())
         return where.local if where is not None and where.is_local else None
 
     def _front_remote(self) -> Location | None:
         """The active panel's place in front when it is on another drive."""
-        where = self._front_location()
+        where = self._as_the_shell_sees(self._front_location())
         return where if where is not None and not where.is_local else None
+
+    def _as_the_shell_sees(self, where: Location | None) -> Location | None:
+        """*where*, or its own place on the disk if it is ``root:`` and the
+        console's shell is root's: that shell can be there, so the command
+        line shows its prompt, follows the panel there and runs there."""
+        if where is not None and self.console.root:
+            from navigator.lib.drives import root
+
+            return root.on_disk(where)
+        return where
 
     @staticmethod
     def _remote_name(where: Location) -> str:
@@ -1041,12 +1051,13 @@ class Shell(DockLayout):
         if remote is not None:
             application = self.application
             if application is not None:
-                application.title = window_title(None).replace(" — ", f" {self._remote_name(remote)} — ", 1)
+                application.title = window_title(None, self.console.root).replace(
+                    " — ", f" {self._remote_name(remote)} — ", 1)
             return
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
-        title = window_title(Path(where) if where is not None else None)
+        title = window_title(Path(where) if where is not None else None, self.console.root)
         application = self.application
         if application is not None:
             application.title = title
@@ -1060,7 +1071,8 @@ class Shell(DockLayout):
         panel's directory here, so the prompt says that one.  With no file
         manager open it is where the shell last was.  Shown only until the
         shell's own prompt arrives (:attr:`command_prompt_cells`).  It ends in
-        a POSIX shell's ``$``, not DOS's ``PROMPT $P$G`` ``>``.  Blank while a
+        a POSIX shell's ``$`` -- root's ``#`` while the console is root's --
+        not DOS's ``PROMPT $P$G`` ``>``.  Blank while a
         command runs, as :attr:`command_prompt_cells` is.
         """
         if self.console.running:
@@ -1069,11 +1081,13 @@ class Shell(DockLayout):
         if remote is not None:
             # The panel's place, though a command still runs in the last local
             # directory: what the user is looking at is what the prompt names.
-            return f"{self._remote_name(remote)}$"
+            return f"{self._remote_name(remote)}{'#' if self.console.root else '$'}"
         where = self._front_directory()
         if where is None:
             where = self.console.subshell.cwd or self.console.cwd
-        return f"{where}$" if where is not None else "$"
+        # Root's ``#``, as a shell's ``\$`` says it: a root console, or Navigator run as root.
+        mark = "#" if self.console.root or (hasattr(os, "geteuid") and os.geteuid() == 0) else "$"
+        return f"{where}{mark}" if where is not None else mark
 
     @computed
     def command_prompt_cells(self) -> tuple:
@@ -1113,8 +1127,10 @@ class Shell(DockLayout):
         """Where a command runs: the active panel's directory -- or, with the
         panel on another drive, where the shell last was on the disk."""
         manager = self.active_manager
-        if manager is not None and manager.active_panel.location.is_local:
-            return manager.active_panel.path
+        if manager is not None:
+            where = self._as_the_shell_sees(manager.active_panel.location)
+            if where is not None and where.is_local:
+                return where.local
         return self.console.subshell.cwd or self.console.cwd
 
     @property
@@ -2394,14 +2410,28 @@ class Shell(DockLayout):
             # The shell never went where the panel is: only a ``cd`` typed in
             # the command takes the panel back to the disk.
             moved = cwd is not None and started is not None and cwd != started
-            if moved and not SETTINGS.startup.preserve_directory and not self._is_use_directory(cwd) \
-                    and cwd.is_dir():
-                panel.path = cwd
+            if moved and not SETTINGS.startup.preserve_directory and not self._is_use_directory(cwd):
+                self._panel_to_shell(panel, cwd)
         elif (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
-                and cwd.is_dir() and not self._is_use_directory(cwd)):
-            panel.path = cwd
+                and not self._is_use_directory(cwd)):
+            self._panel_to_shell(panel, cwd)
         for each in manager.all_panels:
             each.reload()
+
+    def _panel_to_shell(self, panel: Any, cwd: Path) -> None:
+        """*panel* where the shell went: a directory the user can see is, or
+        -- the console being root's -- ``root:`` there, for one under a
+        directory the user may not even look into (``/root/sub``)."""
+        try:
+            seen = cwd.is_dir()
+        except OSError:  # EACCES under a directory the user may not look into
+            seen = False
+        if seen:
+            panel.path = cwd
+        elif self.console.root and cwd.is_absolute():
+            from navigator.lib.drives import root
+
+            panel.location = root.root_location(cwd)
 
     @computed
     def block_insert(self) -> bool:

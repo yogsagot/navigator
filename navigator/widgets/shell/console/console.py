@@ -72,6 +72,10 @@ class Console(ScreenView):
     #: then the whole terminal's size, not this widget's.
     relayed: bool = reactive(False)
 
+    #: The console's shell is root's (:meth:`go_root`): reactive, so the
+    #: command line's prompt and the panel's place follow the switch.
+    root: bool = reactive(False)
+
     def __init__(self, cwd: Path | None = None, **kwargs):
         """*cwd* is optional because a widget markup constructs must be.
 
@@ -191,6 +195,7 @@ class Console(ScreenView):
         self._say(tr("Root shell: commands run as root until root access is closed"))
         self.screen.respond = root.write
         self.subshell = root
+        self.root = True
 
     def go_user(self) -> None:
         """The user's own shell back, as it was parked; the root one ended."""
@@ -198,6 +203,7 @@ class Console(ScreenView):
         if root is self.user_subshell:
             return
         self.subshell = self.user_subshell
+        self.root = False
         self.screen.respond = self.user_subshell.write
         root.on_exit = None
         root.stop()

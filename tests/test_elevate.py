@@ -1948,11 +1948,14 @@ def test_one_utilities_entry_elevates_and_closes_root_access(helper, tmp_path, q
 
     run_app(app, [
         look,
+        # The caption is an effect's, run after the batch that showed the
+        # mark: waited for too, or a loaded machine reads it a frame early.
         lambda a: a.spawn(a.run_command(ToggleRootAccess())),
-        Until(lambda a: a.shell.root_mark.visible, timeout=5),
+        Until(lambda a: a.shell.root_mark.visible and "Close" in a.shell.menu.root_access.text, timeout=5),
         look,
         lambda a: a.spawn(a.run_command(ToggleRootAccess())),
-        Until(lambda a: not ELEVATION.running and not a.shell.root_mark.visible, timeout=5),
+        Until(lambda a: not ELEVATION.running and not a.shell.root_mark.visible
+              and "Elevate" in a.shell.menu.root_access.text, timeout=5),
         look,
     ])
     assert seen == [("Elevate ~r~oot access", True, False),
@@ -2279,3 +2282,124 @@ def test_going_back_says_how_much_of_the_parked_shell_s_output_was_dropped(monke
     assert lines == ["Back to your own shell",
                      "20K of what your shell printed meanwhile was not kept: its oldest output",
                      "tail"]
+
+
+def test_an_unreadable_directory_goes_to_root_every_time_while_root_access_is_open(
+        started, tmp_path, quiet_console):
+    """Come to by the shell's ``cd`` (unasked, root access open), left, and
+    entered again from the panel: ``root:`` again, not *Permission denied* --
+    only a declined offer is not made again."""
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import KeyEvent
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    locked.chmod(0)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: list = []
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def at_root(a):
+        return panel(a).location == root.root_location(locked)
+
+    try:
+        run_app(app, [
+            Until(lambda a: any(e.name == "locked" for e in panel(a).items)),
+            lambda a: setattr(panel(a), "path", locked),          # as the shell's cd moves it
+            Until(at_root, timeout=10),
+            lambda a: seen.append(a.modal),
+            lambda a: panel(a).go_up(),
+            Until(lambda a: panel(a).location.is_local and any(e.name == "locked" for e in panel(a).items),
+                  timeout=10),
+            put_cursor_on("locked"), KeyEvent("enter"),
+            Until(at_root, timeout=10),
+            lambda a: seen.append(a.modal),
+        ], timeout=30)
+    finally:
+        locked.chmod(0o755)
+    assert seen == [None, None]  # neither time asked
+
+
+def test_a_root_console_s_prompt_is_root_s_and_a_root_panel_is_its_own_place(started, tmp_path, quiet_console):
+    """While the console is root's: the stand-in prompt ends in ``#``, a
+    ``root:`` panel is the shell's own place (its prompt shown, commands run
+    there), and a ``cd`` under a directory the user cannot look into takes
+    the panel to ``root:`` there."""
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import root
+
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def panel(a):
+        return manager_of(a).active_panel
+
+    def look(a, key):
+        shell = a.shell
+        seen[key] = (shell.command_prompt, shell._command_directory(), shell.command_prompt_cells)
+
+    def prompted(a):
+        from navigator.widgets.shell.console.console import prompt_cells
+
+        console = a.shell.console
+        console.prompt = seen["cells"] = prompt_cells(b"root@host:/tmp# ")
+        console.prompt_cwd = tmp_path
+
+    try:
+        run_app(app, [
+            Until(lambda a: panel(a).items),
+            lambda a: look(a, "user"),
+            lambda a: setattr(a.shell.console, "root", True),
+            prompted,
+            lambda a: look(a, "root"),
+            lambda a: setattr(panel(a), "location", root.root_location(tmp_path)),
+            Until(lambda a: panel(a).location.site == root.ROOT_SITE and not panel(a).scanning, timeout=10),
+            lambda a: look(a, "root panel"),
+            lambda a: locked.chmod(0),
+            lambda a: a.shell._panel_to_shell(panel(a), locked / "sub"),
+            lambda a: seen.update(went=panel(a).location),
+            lambda a: setattr(a.shell.console, "root", False),
+        ], timeout=20)
+    finally:
+        locked.chmod(0o755)
+    assert seen["user"][0] == f"{tmp_path}$"
+    assert seen["root"][0] == f"{tmp_path}#"
+    assert seen["root panel"][1:] == (tmp_path, seen["cells"])   # runs there, the shell's own prompt
+    assert seen["went"] == root.root_location(locked / "sub")
+
+
+def test_the_status_line_says_root_while_the_menu_bar_cannot(started, tmp_path, quiet_console):
+    """Console up (Ctrl+O): the menu bar's *ROOT* is gone with the bar, so the
+    status line says it at its right end, its items kept clear of it."""
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def look(a, key):
+        shell = a.shell
+        mark, bar = shell.key_root_mark, shell.keybar
+        last = max((start + width for _k, _c, start, width in bar.items()), default=0)
+        seen[key] = (shell.root_mark.visible, mark.visible, bar.reserve, last <= bar.width - bar.reserve,
+                     (mark.x + mark.width, mark.y) == (bar.x + bar.width, bar.y))
+
+    run_app(app, [
+        lambda a: a.spawn(a.shell.follow_root()),
+        Until(lambda a: a.shell.root_mark.visible),
+        lambda a: look(a, "panels"),
+        lambda a: setattr(a.shell, "console_visible", True),
+        Until(lambda a: a.shell.key_root_mark.visible),
+        lambda a: look(a, "console"),
+        lambda a: setattr(a.shell, "console_visible", False),
+    ])
+    assert seen["panels"][:3] == (True, False, 0)
+    width = len(" ROOT ") + 1
+    assert seen["console"] == (False, True, width, True, True)

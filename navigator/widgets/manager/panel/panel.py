@@ -597,8 +597,15 @@ class Panel(ListViewer):
     def _offer_root(self, path: Location) -> None:
         """A directory the panel came to and may not read: *As root* -- at
         once, unasked, while root access is open already; else asked, once
-        for that directory.  Yes puts the panel at ``root:`` there."""
-        if path == self._root_offered:
+        for that directory.  Yes puts the panel at ``root:`` there.
+
+        Once only while asking is what it would take: with root access open
+        there is no question to repeat, so a directory come to that way --
+        the root console's ``cd`` -- and then left is ``root:`` again when
+        the panel enters it (asked for), not *Permission denied*."""
+        from navigator.lib.system.elevate import ELEVATION
+
+        if path == self._root_offered and not ELEVATION.running:
             return
         self._root_offered = path
         app = self.application

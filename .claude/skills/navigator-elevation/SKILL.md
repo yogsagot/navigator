@@ -83,6 +83,17 @@ user's own authentication. What the review found and the rules it left:
   - **The Navigator side.** It is `RootSubshell` (`console-command-line`). It `hold()`s root access while it lives,
     so the idle timeout leaves it alone. `Shell.close_root_access` and `follow_root` (the helper gone) call
     `_back_to_user_shell`. `exit` typed at it brings the user's shell back with root access left open.
+  - **The command line while it is root's** (`Console.root`, reactive): a `root:` panel counts as its own place on
+    the disk (`Shell._as_the_shell_sees`, used by `_front_directory`, `_front_remote` and `_command_directory`). So
+    the shell follows the panel there, commands run there, and the shell's own prompt (root's `\$`, `#`) shows
+    instead of the `root://...$` stand-in. The stand-in prompt ends in `#` too.
+    The terminal's title says `root@host` with `~` meaning root's home (`title.window_title(where, root=True)`,
+    from `Shell._name_window`).
+  - **The status line says *ROOT* too** while the menu bar's mark cannot be seen (console up, or *Hide menu bar*):
+    `key_root_mark` in `shell.nml`, a second `RootMark` bound to the first's `open`, at the key bar's right end;
+    `KeyBar.reserve` keeps the items (and an open menu's hint) clear of it.
+  - **Following a cd.** `_follow_shell` goes through `_panel_to_shell`: a place the user cannot even stat
+    (`/root/sub`; 3.12's `is_dir()` raises `EACCES` there) takes the panel straight to `root:`.
   - **Threat model.** The master fd exists only in Navigator, which is non-dumpable while the helper runs, as for the
     socket. Nothing user-writable is run as root: root's rc files, root's home, a root PATH, a root-owned rc
     directory.
@@ -178,7 +189,9 @@ user's own authentication. What the review found and the rules it left:
     moves**, since the rescan effect runs first and would find no drive.
   - The offer: `Panel._apply`, for a *navigation* read (not a re-read) of a local directory that failed and
     `os.access` says is unreadable -> `_offer_root`, once per place (`_root_offered`). While the helper runs
-    already, it switches unasked, as the quick view does.
+    already, it switches unasked, as the quick view does -- every time: `_root_offered` stops only a repeat of
+    the question (declined, or no way to root), so a place first reached by the root console's `cd`, left, and
+    entered again from the panel is `root:` again, not *Permission denied*.
   - Leaving: Enter and `..` on `root:` go back to the disk itself where `readable_plainly` says the user may list;
     so do a directory chosen in the tree (`Manager.on_tree_chosen`) and in Alt+T (`Panel._plain_where_readable`).
   - Alt+F7 and the trees (Ctrl+T, Alt+T) need nothing of their own there: `filefind._search_drive` and

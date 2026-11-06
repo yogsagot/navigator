@@ -80,7 +80,8 @@ class Shell(DockLayout, _Component):
     job_mark: JobMark    # shell.nml:128
     trash: TrashCan    # shell.nml:139
     keybar: KeyBar    # shell.nml:147
-    command_line: CommandLine    # shell.nml:161
+    key_root_mark: RootMark    # shell.nml:160
+    command_line: CommandLine    # shell.nml:177
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -110,7 +111,8 @@ class Shell(DockLayout, _Component):
         self.job_mark = JobMark(parent=self)    # shell.nml:127
         self.trash = TrashCan(parent=self)    # shell.nml:138
         self.keybar = KeyBar(parent=self)    # shell.nml:146
-        self.command_line = CommandLine(parent=self)    # shell.nml:160
+        self.key_root_mark = RootMark(parent=self)    # shell.nml:159
+        self.command_line = CommandLine(parent=self)    # shell.nml:176
 
         self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:47
         self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:46
@@ -189,13 +191,27 @@ class Shell(DockLayout, _Component):
         self.keybar.visible = _bind(    # shell.nml:148
             lambda _o: not SETTINGS.interface.hide_status_line
         )
-        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:149
+        self.keybar.reserve = _bind(    # shell.nml:150
+            lambda _o: self.key_root_mark.width + 1 if self.key_root_mark.visible else 0
+        )
+        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:151
 
-        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:162
-        self.command_line.prompt_cells = _bind(    # shell.nml:163
+        self.key_root_mark.open = _bind(lambda _o: self.root_mark.open)    # shell.nml:161
+        self.key_root_mark.x = _bind(    # shell.nml:162
+            lambda _o: max(0, _o.parent.width - _o.width)
+        )
+        self.key_root_mark.y = _bind(lambda _o: self.keybar.y)    # shell.nml:163
+        self.key_root_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:164
+        self.key_root_mark.visible = _bind(    # shell.nml:165
+            lambda _o: _o.open and self.keybar.visible and (SETTINGS.interface.hide_menu_bar or _o.parent.console_visible)
+        )
+        self.key_root_mark.inline_style = 'dock: none'    # shell.nml:166
+
+        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:178
+        self.command_line.prompt_cells = _bind(    # shell.nml:179
             lambda _o: _o.parent.command_prompt_cells
         )
-        self.command_line.visible = _bind(    # shell.nml:164
+        self.command_line.visible = _bind(    # shell.nml:180
             lambda _o: not SETTINGS.interface.hide_command_line and (not SETTINGS.interface.auto_hide_command_line or _o.value != '')
         )
-        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:165
+        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:181

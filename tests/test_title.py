@@ -20,8 +20,10 @@ def host(monkeypatch, tmp_path):
     monkeypatch.setattr("socket.gethostname", lambda: "server.example.com")
     monkeypatch.setenv("HOME", str(tmp_path / "home"))
     title.user_host.cache_clear()
+    title.root_host.cache_clear()
     yield tmp_path
     title.user_host.cache_clear()
+    title.root_host.cache_clear()
 
 
 def test_the_title_names_user_short_host_and_directory(host):
@@ -29,6 +31,31 @@ def test_the_title_names_user_short_host_and_directory(host):
     assert title.window_title(host / "home") == "juris@server ~ — Navigator"
     assert title.window_title(host / "homely") == f"juris@server {host}/homely — Navigator"
     assert title.window_title(None) == "juris@server — Navigator"
+
+
+def test_a_root_console_s_title_is_root_s(host, monkeypatch):
+    """Utilities > *Elevate root access*: ``root@host``, and ``~`` root's
+    home, as the root shell's own ``\\w`` would put it."""
+    monkeypatch.setattr(title, "root_home", lambda: str(host / "roothome"))
+    assert title.window_title(host / "roothome" / "etc", root=True) == "root@server ~/etc — Navigator"
+    assert title.window_title(host / "home" / "src", root=True) == f"root@server {host}/home/src — Navigator"
+    assert title.window_title(None, root=True) == "root@server — Navigator"
+
+
+def test_the_application_title_follows_the_console_going_root(host, tmp_path, monkeypatch):
+    from navigator.__main__ import Navigator
+
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: list = []
+    run_app(app, [
+        lambda a: seen.append(a.title),
+        lambda a: setattr(a.shell.console, "root", True),
+        lambda a: seen.append(a.title),
+        lambda a: setattr(a.shell.console, "root", False),
+        lambda a: seen.append(a.title),
+    ])
+    assert [t.split(" ", 1)[0] for t in seen] == ["juris@server", "root@server", "juris@server"]
 
 
 def test_the_shells_title_is_pushed_once_and_popped_at_the_end():

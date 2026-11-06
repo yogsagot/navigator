@@ -47,6 +47,7 @@ from navkit.bidi import display_width
 from navkit.commands import Command, chain, key_label, layer_key
 from navkit.events import MouseClickEvent
 from navkit.i18n import tr
+from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.tooltip import lines, plain
 from navkit.widget import Widget
@@ -81,6 +82,10 @@ class KeyBar(Widget):
     #: None for none.
     menu: Any = None
 
+    #: Columns at the right end no item may reach: what floats there (the
+    #: shell's *ROOT* while the menu bar's cannot be seen).
+    reserve: int = reactive(0)
+
     def items(self) -> list[tuple[str, Command, int, int]]:
         """``(key, command, start, width)`` for each item, left to right.
 
@@ -101,16 +106,17 @@ class KeyBar(Widget):
         """
         row = [(key, command, display_width(_label(key, command)) + 1 + display_width(_title(command)))
                for key, command in self._row()]
+        room = max(0, self.width - self.reserve)
         column, lead = 0, 1
         for key, command, text in row:
-            if column + text >= self.width and FKEY.fullmatch(_label(key, command)):
+            if column + text >= room and FKEY.fullmatch(_label(key, command)):
                 lead = 0
                 break
             column += text + 2
         found, column = [], 0
         for key, command, text in row:
             width = lead + text + 1
-            if column + width - 2 >= self.width:
+            if column + width - 2 >= room:
                 break
             found.append((key, command, column, width))
             column += width
@@ -169,7 +175,7 @@ class KeyBar(Widget):
         surface.fill(0, 0, self.width, 1, " ", self.part_style("label"))
         hint = self.menu_hint()
         if hint:
-            surface.draw_text(1, 0, hint, self.part_style("label"), max(0, self.width - 1))
+            surface.draw_text(1, 0, hint, self.part_style("label"), max(0, self.width - self.reserve - 1))
             return
         for key, command, start, width in self.items():
             hint = isinstance(command, Hint)

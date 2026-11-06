@@ -146,9 +146,25 @@ Shell(DockLayout):
     KeyBar:
         id: keybar
         visible: not SETTINGS.interface.hide_status_line
+        #: The columns *ROOT* takes at its right end, kept clear of items.
+        reserve: key_root_mark.width + 1 if key_root_mark.visible else 0
         style:
             dock: bottom
             basis: 1
+
+    #: *ROOT* again at the status line's right end while the menu bar's own
+    #: cannot be seen -- the console up (Ctrl+O), or *Hide menu bar* -- so
+    #: root access open is never out of sight.  Its tooltip and click are
+    #: the menu bar's mark's.
+    RootMark:
+        id: key_root_mark
+        open: root_mark.open
+        x: max(0, parent.width - self.width)
+        y: keybar.y
+        width: self.natural_width
+        visible: self.open and keybar.visible and (SETTINGS.interface.hide_menu_bar or parent.console_visible)
+        style:
+            dock: none
 
     #: ``TCommandLine``.  Never focused: the keys a window declines walk up
     #: to this screen, which hands them to it.  Interface's *Hide Command
