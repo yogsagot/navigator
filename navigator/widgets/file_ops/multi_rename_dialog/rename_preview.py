@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import glyphs as glyphs_module
+from navkit.bidi import display_width, fit_cells, pad_cells, reveal
 from navkit.i18n import tr
 
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -32,14 +33,18 @@ class RenamePreview(ListViewer):
     done, the cursor's problem in the footer."""
 
     def row_text(self, index: int, item: Any) -> str:
+        """The names as the panel shows them -- a control as ``⁇`` -- and
+        measured in cells, so a tab or a combining accent keeps the arrows
+        in one column."""
         arrow = "→" if self.glyphs > glyphs_module.GLYPHS_ASCII else "->"
         mark = "!" if item.problem else " "
         half = max(4, (self.inner_width - 4) // 2)
-        old = item.item.name
-        if len(old) > half:
-            old = old[:half - 1] + glyphs_module.ellipsis(self.glyphs)[:1]
-        new = item.new if item.changed else ""
-        return f"{mark}{old:<{half}} {arrow if item.changed else ' '} {new}"
+        hidden = glyphs_module.hidden_mark(self.glyphs)
+        old = reveal(item.item.name, hidden)
+        if display_width(old) > half:
+            old = fit_cells(old, half - 1) + glyphs_module.ellipsis(self.glyphs)[:1]
+        new = reveal(item.new, hidden) if item.changed else ""
+        return f"{mark}{pad_cells(old, half)} {arrow if item.changed else ' '} {new}"
 
     def footer_text(self) -> str:
         row = self.selected

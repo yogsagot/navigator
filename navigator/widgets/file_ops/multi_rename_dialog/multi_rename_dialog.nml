@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.multi_rename_dialog.rename_preview import RenamePreview
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -12,7 +13,7 @@ from navml.widgets.dialog.static_text import StaticText
 #: which stays.  The placeholders are :mod:`navigator.lib.file_ops.multirename`'s.
 MultiRenameDialog(Dialog):
     modal_width: 76
-    modal_height: 23
+    modal_height: 25
     title: "Multi-rename"
 
     Field:
@@ -60,9 +61,21 @@ MultiRenameDialog(Dialog):
         x: 3
         y: 6
         width: 26
-        height: 3
-        items: ["Regular ~e~xpression", "Case sens~i~tive", "~F~irst match only"]
-        tooltips: ["The search is a regular expression, not plain text", "", "Replace only the first match in each name"]
+        height: 4
+        items: ["Regular ~e~xpression", "Case sens~i~tive", "~F~irst match only", "Clean up na~m~es"]
+        tooltips: ["The search is a regular expression, not plain text", "", "Replace only the first match in each name", "Bytes that are not UTF-8 read in the code page below, NFC, control characters to _, names differing only by case numbered"]
+
+    #: *Clean up names*' code page for bytes that are not UTF-8: the
+    #: viewer's Shift+F6 list.
+    ChoiceField:
+        id: codepage
+        x: 2
+        y: 11
+        width: 47
+        height: 1
+        label_text: "C~o~de page"
+        label_width: 11
+        disabled: not (options.value & 8)
 
     Label:
         id: case_caption
@@ -111,9 +124,9 @@ MultiRenameDialog(Dialog):
     RenamePreview:
         id: preview
         x: 2
-        y: 11
+        y: 13
         width: max(0, parent.width - 4)
-        height: max(0, parent.height - 16)
+        height: max(0, parent.height - 18)
 
     StaticText:
         id: status

@@ -6,6 +6,7 @@ from typing import Any as _Any
 from navml.component import Component as _Component
 from navigator.widgets.file_ops.multi_rename_dialog.rename_preview import RenamePreview
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -16,6 +17,7 @@ from typing import Any, Hashable, Sequence
 from navkit.i18n import tr, tr_n
 from navkit.reactive import effect
 from navigator.lib.file_ops import multirename
+from navigator.lib.viewer import ENCODINGS
 
 
 class MultiRenameDialog(Dialog, _Component):
@@ -24,6 +26,7 @@ class MultiRenameDialog(Dialog, _Component):
     search: Field
     replace: Field
     options: CheckBoxes
+    codepage: ChoiceField
     case_caption: Label
     case: RadioButtons
     start: Field

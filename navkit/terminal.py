@@ -14,6 +14,7 @@ import base64
 import binascii
 import fcntl
 import os
+import re
 import struct
 import sys
 import termios
@@ -1069,6 +1070,10 @@ def _screen_passthrough(sequences: str) -> str:
     return "".join(f"\x1bP\x1b{part}\x1b\\" for part in sequences.split("\x1b") if part)
 
 
+#: A lone surrogate: what ``surrogateescape`` keeps of a byte that is not UTF-8.
+_SURROGATE = re.compile("[\ud800-\udfff]")
+
+
 class Terminal:
     """The tty the application draws on.
 
@@ -1342,12 +1347,26 @@ class Terminal:
             pass
 
     def flush(self) -> None:
+        """Write what is queued.  A lone surrogate -- a byte of a file name
+        that is not UTF-8, kept by ``surrogateescape`` -- goes out as U+FFFD,
+        one cell as it was measured: written as it is, ``sys.stdout`` under a
+        UTF-8 locale raises ``UnicodeEncodeError`` (a ``ValueError``) and the
+        whole frame was lost while the screen buffer took it as painted, so
+        later frames repainted only what changed over a stale screen; under
+        C.UTF-8 the raw byte went to the terminal instead."""
         if not self._pending:
             return
         data, self._pending = "".join(self._pending), []
+        data = _SURROGATE.sub("�", data)
+        buffer = getattr(self._out, "buffer", None)
         try:
-            self._out.write(data)
-            self._out.flush()
+            if buffer is not None:
+                self._out.flush()  # anything queued in the text layer goes first
+                buffer.write(data.encode("utf-8"))
+                buffer.flush()
+            else:
+                self._out.write(data)
+                self._out.flush()
         except (BrokenPipeError, ValueError):
             pass
 

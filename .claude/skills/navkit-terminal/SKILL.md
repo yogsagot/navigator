@@ -13,6 +13,11 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
   sends `CSI 8 l` so VTE reorders nothing while Navigator owns the screen). Detection is conservative -- sixteen colours unless `COLORTERM`
   says otherwise; `NAVKIT_COLORS` (`truecolor`, `256`, `16`, `8`, `mono`, a number) overrides and outranks `NO_COLOR`.
   Colour/palette/glyph decisions are the `colours-themes-glyphs` skill.
+- **A frame must never be lost.** `Terminal.flush()` encodes the frame itself and writes bytes to `stdout.buffer`,
+  every lone surrogate (a non-UTF-8 file name byte, `surrogateescape`) as U+FFFD -- one cell, as `char_width`
+  measured it. Written as text, a strict UTF-8 stdout (any `xx_XX.UTF-8` locale; C.UTF-8 is `surrogateescape`, so a
+  test under it hides this) raised `UnicodeEncodeError`, a `ValueError` the flush swallowed: the frame vanished while
+  the back buffer took it as painted, and later diffs drew over a stale screen. Test pty runs under a real locale.
 - **Lending the terminal out.** `Terminal.suspend()`/`resume()` drop and restore the screen modes (alternate screen,
   mouse, paste, kitty flags, keypad, autowrap) but **keep raw mode**. `stop()` after a suspend restores termios only.
   `Terminal.write_bytes()` writes a relayed program's bytes unchanged.

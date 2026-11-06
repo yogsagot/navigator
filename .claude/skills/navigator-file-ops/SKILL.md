@@ -72,6 +72,15 @@ cannot be done, the footer says why). OK is refused (`valid()`) while the rule d
 has a problem.
 - **The language and checks are `navigator/lib/file_ops/multirename.py`'s docstring** -- pure, no I/O:
   `new_names`, `plan` (empty, `/`, `.`/`..`, two rows one name, a name taken by a file not renamed away).
+- **Clean up names** (the 4th option, bit 8; `Rule.cleanup`/`codepage`, the *Code page* choice from the viewer's
+  `ENCODINGS` minus UTF-8, greyed unless ticked) is step 0, before the masks: `clean()` re-decodes each run of
+  `surrogateescape` bytes in the code page (only those runs, so a mixed name keeps its UTF-8; undefined bytes -> `_`),
+  NFC, every `Cc` -> `_`. Then `plan` -> `_number_clashes` numbers names equal under `fold()` (NFC + casefold) per
+  place: a name on disk not among the items wins, then unchanged rows, then item order; the rest get ` (2)`, ` (3)`
+  before the extension (`numbered`). It runs before `leaving` is computed, since it can change an unchanged row.
+  File > Rename tools > *Select bad names* (`SelectBadNames`, `Manager.bad_names`/`select_bad_names`, greyed when
+  none) tags what it would change: `faults()` (BAD_UTF8/NFD/CONTROL) or `case_clashes()` per `entry.directory`.
+  All asked for (convmv-style re-decoding, numbering, `_` for controls).
 - **Order** (`steps`): a row whose new name is another row's old one goes through `.navrename-<n>-<old>` first, so
   swaps and cycles work. `run` (a `RenameJob` on a thread, through `_run_renames` -> `_watch_job`) re-checks
   `lexists` before each rename (never replaces), asks `filecopy.Failure` -> Skip/Cancel on an error, puts a stranded

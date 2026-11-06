@@ -16,7 +16,7 @@ from navigator.lib.drives import Location, drive_of
 from navigator.lib.file_ops import multirename
 from navigator.lib.file_ops.multirename import Item, Rule, RuleError, new_names, plan, steps
 from navigator.lib.file_ops.undo import Renamed
-from navigator.widgets.manager.commands import MultiRename, Undo
+from navigator.widgets.manager.commands import MultiRename, SelectBadNames, Undo
 
 HERE = Path("/d")
 
@@ -180,6 +180,50 @@ def test_a_failed_temporary_rename_leaves_the_file_where_it_was(tmp_path):
     assert sorted((p.name, p.read_text()) for p in tmp_path.iterdir()) == [("a", "A"), ("b", "B")]
 
 
+# -- cleaning up -------------------------------------------------------------------------
+
+
+def test_clean_reads_stray_bytes_in_the_code_page_and_fixes_the_rest():
+    clean = multirename.clean
+    assert clean("caf\udce9") == "café"                      # Latin-1 bytes, Windows-1252
+    assert clean("\udcef\udcf0\udce8", "cp1251") == "при"
+    assert clean("\u00e9t\udce9") == "été"                  # the valid UTF-8 left as it is
+    assert clean("x\udc81") == "x_"                          # undefined in Windows-1252
+    assert clean("e\u0301t\u00e9") == "\u00e9t\u00e9"          # NFD to NFC
+    assert clean("a\nb\x1b\x7f") == "a_b__"
+    assert clean("plain.txt") == "plain.txt"
+
+
+def test_faults_and_case_clashes_find_what_clean_up_fixes():
+    assert multirename.faults("caf\udce9") == {multirename.BAD_UTF8}
+    assert multirename.faults("e\u0301") == {multirename.NFD}
+    assert multirename.faults("a\tb") == {multirename.CONTROL}
+    assert multirename.faults("café.txt") == set()
+    assert multirename.case_clashes(["README", "readme", "x", "\u00e9", "E\u0301"]) == {"README", "readme", "\u00e9", "E\u0301"}
+
+
+def cleaned(*files: str, taken: set[str] | None = None) -> list[tuple[str, str | None]]:
+    rows = plan(Rule(cleanup=True), [Item(name, HERE) for name in files], {HERE: taken} if taken is not None else None)
+    return [(row.new, row.problem) for row in rows]
+
+
+def test_clean_up_numbers_names_differing_only_by_case():
+    assert cleaned("README", "readme") == [("README", None), ("readme (2)", None)]
+    assert cleaned("a.TXT", "A.txt") == [("a.TXT", None), ("A (2).txt", None)]
+    # A name staying in the directory wins over every file renamed.
+    assert cleaned("README", "readme", taken={"Readme", "README", "readme"}) == [
+        ("README (2)", None), ("readme (3)", None)]
+    # Made NFC, a name meets the one already there, and is numbered past it.
+    assert cleaned("e\u0301", taken={"\u00e9", "e\u0301"}) == [("\u00e9 (2)", None)]
+    # Without the tick nothing of this happens.
+    assert [row.new for row in plan(Rule(), [Item("README", HERE), Item("readme", HERE)])] == ["README", "readme"]
+
+
+def test_clean_up_runs_before_the_masks():
+    assert new_names(Rule(cleanup=True, name_mask="[N1-3]", case="upper"), [Item("caf\udce9.txt", HERE)]) == ["CAF.TXT"]
+    assert new_names(Rule(cleanup=True, codepage="cp866"), [Item("\udca0.txt", HERE)]) == ["а.txt"]
+
+
 # -- the box -----------------------------------------------------------------------------
 
 
@@ -288,3 +332,39 @@ def test_in_a_listing_each_file_is_renamed_in_its_own_directory(place, monkeypat
                                         marked=a.manager.left.marked)])
     renamed = [str(place / "a" / "a_README"), str(place / "b" / "b_README")]
     assert seen["items"] == ["..", *renamed] and seen["marked"] == frozenset(renamed)
+
+
+@pytest.fixture
+def messy(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    from navigator.widgets.file_ops.multi_rename_dialog import multi_rename_dialog
+
+    monkeypatch.setitem(multi_rename_dialog._session, "rule", Rule())
+    for name in ("caf\udce9", "e\u0301t\u00e9", "a\tb", "README", "readme", "fine.txt"):
+        (tmp_path / name).touch()
+    return tmp_path
+
+
+def test_select_bad_names_then_clean_up_fixes_them(messy):
+    app = navigator(messy)
+    seen = {}
+
+    def tick(a):
+        a.modal.options.value |= 8
+
+    run_app(app, [Until(lambda a: "fine.txt" in [e.name for e in a.manager.left.items]),
+                  lambda a: seen.update(enabled=a.command_enabled(SelectBadNames())),
+                  lambda a: a.spawn(a.run_command(SelectBadNames)), lambda a: None,
+                  lambda a: seen.update(marked=a.manager.left.marked),
+                  KeyEvent("a", alt=True), Until(lambda a: a.modal is not None), tick, lambda a: None,
+                  lambda a: seen.update(preview=sorted((row.item.name, row.new) for row in a.modal.preview.items
+                                                       if row.changed)),
+                  KeyEvent("enter"), Until(lambda a: (messy / "café").exists()), lambda a: None,
+                  lambda a: seen.update(after=a.command_enabled(SelectBadNames()))])
+    assert seen["enabled"] is True
+    assert seen["marked"] == frozenset({"caf\udce9", "e\u0301t\u00e9", "a\tb", "README", "readme"})
+    assert seen["preview"] == [("a\tb", "a_b"), ("caf\udce9", "café"), ("e\u0301t\u00e9", "\u00e9t\u00e9"),
+                               ("readme", "readme (2)")]
+    assert sorted(p.name for p in messy.iterdir()) == sorted(
+        ["a_b", "café", "\u00e9t\u00e9", "README", "readme (2)", "fine.txt"])
+    assert seen["after"] is False

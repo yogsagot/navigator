@@ -114,6 +114,14 @@ class SelectBrokenLinks(Command):
     show.  A departure; not bound."""
 
 
+class SelectBadNames(Command):
+    """File > Rename tools > Select bad names: tag every name in the panel
+    that is not UTF-8, is not in NFC, holds a control character, or differs
+    from another only by case (:func:`navigator.lib.file_ops.multirename.faults`,
+    ``case_clashes``) -- what Multi-rename's *Clean up names* fixes.  A
+    departure, asked for; not bound."""
+
+
 class ShowHardLinks(Command):
     """File > Links > Show hard links: every name the file at the cursor has,
     found on its file system (:mod:`navigator.lib.file_ops.hardlinks`) and put
@@ -857,6 +865,7 @@ __all__ = [
     "LinkRelative",
     "LinkAbsolute",
     "SelectBrokenLinks",
+    "SelectBadNames",
     "ShowHardLinks",
     "ChangeAttributes",
     "MakeDirectory",

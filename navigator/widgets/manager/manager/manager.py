@@ -66,6 +66,7 @@ from navigator.widgets.manager.commands import (
     LinkAbsolute,
     LinkRelative,
     SelectBrokenLinks,
+    SelectBadNames,
     ShowHardLinks,
     MoveSeparator,
     PasteFromClipboard,
@@ -180,7 +181,7 @@ class Manager(Window):
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
     keyless_commands = (CompareDir, DiffFiles, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
-                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks, ShowHardLinks)
+                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks, SelectBadNames, ShowHardLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -3075,6 +3076,10 @@ class Manager(Window):
             if self._aside_focused():
                 return aside
             return unless(any(entry.is_stale_link for entry in panel.items), tr("No broken links here"))
+        if isinstance(command, SelectBadNames):
+            if self._aside_focused():
+                return aside
+            return unless(bool(self.bad_names(panel)), tr("No bad names here"))
         if isinstance(command, (Copy, RenameMove, Delete, DeleteSingle, MakeDirectory, QuickRename, FastRename,
                                 MultiRename)):
             try:
@@ -4361,6 +4366,10 @@ class Manager(Window):
         self.select_broken_links(self.active_panel)
         return True
 
+    async def on_select_bad_names(self, event: SelectBadNames) -> bool:
+        self.select_bad_names(self.active_panel)
+        return True
+
     async def on_show_hard_links(self, event: ShowHardLinks) -> bool:
         self.spawn(self.show_hard_links(self.active_panel))
         return True
@@ -4434,6 +4443,29 @@ class Manager(Window):
     def select_broken_links(self, panel: Panel) -> None:
         """Tag every link in *panel* that points nowhere, beside the tags there."""
         keys = {entry.key for entry in panel.items if entry.is_stale_link}
+        if keys - panel.marked:
+            panel.marked = panel.marked | keys
+
+    @staticmethod
+    def bad_names(panel: Panel) -> set[Any]:
+        """The keys of *panel*'s entries Multi-rename's *Clean up names* would
+        change: a name wrong on its own, or one differing from another in its
+        directory only by case (a listing's entries each in their own)."""
+        from navigator.lib.file_ops import multirename
+
+        entries = [entry for entry in panel.items if entry.name != ".."]
+        keys = {entry.key for entry in entries if multirename.faults(entry.name)}
+        groups: dict[Any, list[Any]] = {}
+        for entry in entries:
+            groups.setdefault(entry.directory, []).append(entry)
+        for group in groups.values():
+            clashing = multirename.case_clashes(entry.name for entry in group)
+            keys |= {entry.key for entry in group if entry.name in clashing}
+        return keys
+
+    def select_bad_names(self, panel: Panel) -> None:
+        """Tag every bad name in *panel* (:meth:`bad_names`), beside the tags there."""
+        keys = self.bad_names(panel)
         if keys - panel.marked:
             panel.marked = panel.marked | keys
 

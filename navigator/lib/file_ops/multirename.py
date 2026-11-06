@@ -5,7 +5,17 @@ group rename was F6's ``*``/``?`` mask (:func:`navigator.lib.file_ops.filecopy.a
 which stays; this is for what a mask cannot say -- a counter, a part of the
 name, a date, a regular expression, a change of case.
 
-**A rule** (:class:`Rule`) makes each new name in three steps:
+**A rule** (:class:`Rule`) makes each new name in three steps, after an
+optional zeroth:
+
+0. *Clean up names* (:func:`clean`): a name that is not UTF-8 -- its stray
+   bytes kept as lone surrogates (``surrogateescape``) -- has each run of
+   them read in the chosen code page, convmv's way, a byte that still means
+   nothing becoming ``_``; then the name is put in NFC, and every control
+   character becomes ``_``.  Names that then differ only by case (or by
+   normalisation) in one directory are numbered, all but the first:
+   ``readme (2)`` (:func:`plan`).  What it fixes, :func:`faults` and
+   :func:`case_clashes` find (Panel > Select bad names).
 
 1. *Name mask* and *Extension mask* build the stem and the extension from
    placeholders in ``[ ]``, anything else being itself:
@@ -46,8 +56,9 @@ from __future__ import annotations
 
 import re
 import time
+import unicodedata
 from collections.abc import Hashable, Iterable, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, Callable
 
 from navkit.i18n import tr
@@ -56,6 +67,13 @@ from navigator.lib.system.job import Job, Stopped
 
 #: How *Case* may change a name, in the dialog's order.
 CASES = ("keep", "lower", "upper", "title", "first")
+
+#: What :func:`faults` and :func:`case_clashes` find wrong with a name.
+BAD_UTF8, NFD, CONTROL, CASE = "bad-utf8", "nfd", "control", "case"
+
+#: The code pages *Clean up names* may read stray bytes in (not UTF-8,
+#: which they are not); the viewer's Shift+F6 list.
+CLEANUP_CODEPAGE = "cp1252"
 
 #: What :func:`plan` may find wrong with a row (the dialog puts each in words).
 EMPTY, SLASH, DOTS, TWICE, TAKEN = "empty", "slash", "dots", "twice", "taken"
@@ -80,6 +98,8 @@ class Rule:
     counter_start: int = 1
     counter_step: int = 1
     counter_width: int = 1
+    cleanup: bool = False
+    codepage: str = CLEANUP_CODEPAGE
 
 
 @dataclass(frozen=True)
@@ -119,6 +139,61 @@ def split(name: str, is_dir: bool = False) -> tuple[str, str]:
     if dot <= 0:
         return name, ""
     return name[:dot], name[dot + 1:]
+
+
+# -- cleaning up -----------------------------------------------------------------------------
+
+_ESCAPED = re.compile("[\udc80-\udcff]+")
+
+
+def _control(char: str) -> bool:
+    return unicodedata.category(char) == "Cc"
+
+
+def faults(name: str) -> set[str]:
+    """What is wrong with *name* on its own: :data:`BAD_UTF8`, :data:`NFD`, :data:`CONTROL`."""
+    found = set()
+    if _ESCAPED.search(name):
+        found.add(BAD_UTF8)
+    readable = _ESCAPED.sub("", name)
+    if unicodedata.normalize("NFC", readable) != readable:
+        found.add(NFD)
+    if any(_control(char) for char in name):
+        found.add(CONTROL)
+    return found
+
+
+def fold(name: str) -> str:
+    """*name* as a case-insensitive, normalisation-blind filesystem would see it."""
+    return unicodedata.normalize("NFC", name).casefold()
+
+
+def case_clashes(names: Iterable[str]) -> set[str]:
+    """Those of *names* (one directory's) another differs from only by case or normalisation."""
+    groups: dict[str, list[str]] = {}
+    for name in names:
+        groups.setdefault(fold(name), []).append(name)
+    return {name for group in groups.values() if len(group) > 1 for name in group}
+
+
+def clean(name: str, codepage: str = CLEANUP_CODEPAGE) -> str:
+    """*name* cleaned up (the module docstring's step 0)."""
+    def decode(match: re.Match[str]) -> str:
+        raw = match.group(0).encode("utf-8", "surrogateescape")
+        try:
+            text = raw.decode(codepage, "replace")
+        except LookupError:
+            text = "\ufffd" * len(raw)
+        return text.replace("\ufffd", "_")
+
+    name = unicodedata.normalize("NFC", _ESCAPED.sub(decode, name))
+    return "".join("_" if _control(char) else char for char in name)
+
+
+def numbered(name: str, number: int, is_dir: bool = False) -> str:
+    """*name* with `` (number)`` before its extension."""
+    stem, ext = split(name, is_dir)
+    return f"{stem} ({number}).{ext}" if ext else f"{stem} ({number})"
 
 
 # -- the masks ------------------------------------------------------------------------------
@@ -263,6 +338,8 @@ def new_names(rule: Rule, items: Sequence[Item]) -> list[str]:
     change = _searcher(rule)
     names = []
     for number, item in enumerate(items):
+        if rule.cleanup:
+            item = replace(item, name=clean(item.name, rule.codepage))
         stem = _fill(name_parts, item, number, rule)
         ext = _fill(ext_parts, item, number, rule)
         name = f"{stem}.{ext}" if ext else stem
@@ -278,6 +355,8 @@ def plan(rule: Rule, items: Sequence[Item], taken: dict[Hashable, set[str]] | No
     they are known; a place left out is taken to hold only *items*."""
     rows = [Row(item, new) for item, new in zip(items, new_names(rule, items))]
     taken = taken or {}
+    if rule.cleanup:
+        _number_clashes(rows, taken)
     leaving: dict[Hashable, set[str]] = {}
     for row in rows:
         if row.changed:
@@ -305,6 +384,29 @@ def plan(rule: Rule, items: Sequence[Item], taken: dict[Hashable, set[str]] | No
         if row.changed and row.problem is None and (row.item.place, row.new) in kept:
             row.problem = TAKEN
     return rows
+
+
+def _number_clashes(rows: Sequence[Row], taken: dict[Hashable, set[str]]) -> None:
+    """Rows whose new names differ only by case (or normalisation) from
+    another's, or from a name in their place that is not being renamed,
+    numbered: that name wins, then a row keeping its name, then the first
+    in order."""
+    places: dict[Hashable, list[Row]] = {}
+    for row in rows:
+        places.setdefault(row.item.place, []).append(row)
+    for place, group in places.items():
+        mine = {row.item.name for row in group}
+        used = {fold(name) for name in taken.get(place, ()) if name not in mine}
+        ordered = [row for row in group if not row.changed] + [row for row in group if row.changed]
+        for row in ordered:
+            key = fold(row.new)
+            if key in used and row.new:
+                number = 2
+                while fold(numbered(row.new, number, row.item.is_dir)) in used:
+                    number += 1
+                row.new = numbered(row.new, number, row.item.is_dir)
+                key = fold(row.new)
+            used.add(key)
 
 
 # -- doing it ---------------------------------------------------------------------------------

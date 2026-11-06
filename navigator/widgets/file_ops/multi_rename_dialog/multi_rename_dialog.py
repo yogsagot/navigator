@@ -13,6 +13,10 @@ from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.file_ops import multirename
+from navigator.lib.viewer import ENCODINGS
+
+#: *Clean up names*' code pages, as the box names them (UTF-8 is none).
+_CODEPAGES = tuple((codec, label) for codec, label in ENCODINGS if codec != "utf-8")
 
 #: The last rule accepted, offered again next time.
 _session: dict[str, Any] = {"rule": multirename.Rule()}
@@ -33,7 +37,10 @@ class MultiRenameDialog(Dialog):
         self.ext_mask.value = rule.ext_mask
         self.search.value = rule.search
         self.replace.value = rule.replace
-        self.options.value = (1 if rule.regex else 0) | (2 if rule.case_sensitive else 0) | (4 if rule.first_only else 0)
+        self.options.value = ((1 if rule.regex else 0) | (2 if rule.case_sensitive else 0)
+                              | (4 if rule.first_only else 0) | (8 if rule.cleanup else 0))
+        self.codepage.choices = [label for _codec, label in _CODEPAGES]
+        self.codepage.value = dict(_CODEPAGES).get(rule.codepage, _CODEPAGES[0][1])
         self.case.value = multirename.CASES.index(rule.case)
         self.start.value = str(rule.counter_start)
         self.step.value = str(rule.counter_step)
@@ -61,7 +68,10 @@ class MultiRenameDialog(Dialog):
             regex=bool(options & 1), case_sensitive=bool(options & 2), first_only=bool(options & 4),
             case=multirename.CASES[self.case.value],
             counter_start=number(self.start.value), counter_step=number(self.step.value),
-            counter_width=number(self.digits.value, 1))
+            counter_width=number(self.digits.value, 1),
+            cleanup=bool(options & 8),
+            codepage=next((codec for codec, label in _CODEPAGES if label == self.codepage.value),
+                          multirename.CLEANUP_CODEPAGE))
 
     def _follow_rule(self) -> None:
         """The preview and the line under it, from the controls as they are."""

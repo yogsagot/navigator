@@ -598,3 +598,15 @@ def test_a_title_cannot_carry_a_control_out_of_its_osc():
     written = out.getvalue()[before:]
     osc = written[written.index("\x1b]0;"):]
     assert osc == "\x1b]0;evil[2Jdir\x07"
+
+
+def test_a_name_that_is_not_utf8_never_loses_the_frame():
+    """A lone surrogate (``surrogateescape``) goes out as U+FFFD: written as it
+    is, a strict UTF-8 stdout raised a ValueError the flush swallowed, and the
+    frame was lost while the screen buffer took it as painted."""
+    raw = io.BytesIO()
+    out = io.TextIOWrapper(raw, encoding="utf-8", errors="strict")
+    terminal = Terminal(input_stream=io.StringIO(), output_stream=out, info=TerminalInfo())
+    terminal.write("before caf\udce9 after")
+    terminal.flush()
+    assert raw.getvalue() == "before caf� after".encode()
