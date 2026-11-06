@@ -82,7 +82,7 @@ user's own authentication. What the review found and the rules it left:
   **While root access is open (the menu bar's ROOT), Alt+E's owner field is enabled** and every group offered:
   `fileattr.can_chown_user()` is `euid == 0 or ELEVATION.running`. A request with an owner or group then starts
   `_Changer` elevated (checked in `run()`, so a helper closed meanwhile falls back to refuse-then-offer).
-  **The dialog's own *As root*** (`root_button`, declared in `attr_dialog.nml` and moved into the base's `row` in
+  **The dialog's own *As root*** (`root_button`, declared in `attr_dialog.nml` and moved into the base's `row` between OK and Cancel in
   `__init__`; shown when `gather()`'s `can_elevate`: local, not root, `ELEVATION.available()`) runs `open_root`,
   enables Owner, offers every group, and sets `AttrRequest.as_root`, which elevates `_Changer` for any change.
 - **The loop side** is `navigator/widgets/file_ops/as_root.py`: `ask_skip(app, message, elevate=)` (Skip / As root /

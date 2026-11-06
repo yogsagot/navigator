@@ -257,8 +257,10 @@ class AttrDialog(Dialog):
         self.group.choices = with_current(facts["groups"], self.group.value)
         if "can_chown_group" in facts:
             self.group.disabled = not facts["can_chown_group"]
-        # *As root* beside OK and Cancel, centred with them.
-        self.row.add(self.root_button)
+        # *As root* between OK and Cancel, centred with them: added, then
+        # Cancel and Help moved after it (``add`` appends; nothing is mounted yet).
+        for button in (self.root_button, self.no, self.cancel, self.info):
+            self.row.add(button)
         self.root_button.visible = bool(facts.get("can_elevate"))
         # *Country support*'s order, where a mask can hold it (country.typed_date_format).
         self.date.date_format = country.typed_date_format()
@@ -690,7 +692,7 @@ class AttrDialog(Dialog):
 
     @property
     def buttons_row(self) -> tuple[Widget, ...]:
-        return (*super().buttons_row, self.root_button)
+        return (self.ok, self.root_button, self.no, self.cancel, self.info)
 
     async def on_root_button_click(self, event: Any) -> bool:
         """*As root*: root access opened (asking for the password if it is
