@@ -443,6 +443,49 @@ class ChooseFileType(Command):
     title = "File type"
 
 
+class ChooseLineEnding(Command):
+    """A click on the bottom frame's line-ending marker: LF, CRLF or CR in a
+    box over it, the one chosen made every line's (:class:`SetLineEnding`).
+    A departure, asked for: DN wrote each file in its own ``CR+LF``."""
+
+    title = "Line endings"
+
+
+class ChooseEncoding(Command):
+    """A click on the bottom frame's encoding marker: *Reopen with encoding*
+    and *Save with encoding* in a box over it.  A departure, asked for: DN's
+    editor knew the screen's code page alone."""
+
+    title = "Encoding"
+
+
+@dataclass(frozen=True, slots=True)
+class SetLineEnding(Command):
+    """Editor > File > *Line endings*: every line's ending made *ending*
+    (``lf``, ``crlf``, ``cr``), and the one new lines take -- one undo step.
+    Ticked while it is the only one the text has."""
+
+    ending: str = "lf"
+
+
+@dataclass(frozen=True, slots=True)
+class ReopenWithEncoding(Command):
+    """Editor > File > Encoding > *Reopen with*: the text's bytes read again as
+    *encoding* -- the file is not touched, and a changed text keeps its
+    changes.  One undo step; ticked while it is the text's encoding."""
+
+    encoding: str = "utf-8"
+
+
+@dataclass(frozen=True, slots=True)
+class SaveWithEncoding(Command):
+    """Editor > File > Encoding > *Save with*: the text to be written in
+    *encoding* from the next save on, refused when it has a character the
+    encoding cannot write.  One undo step; ticked while it is the text's."""
+
+    encoding: str = "utf-8"
+
+
 @dataclass(frozen=True, slots=True)
 class SetFileType(Command):
     """Editor > *File type* and View > *File type*: the language the
@@ -655,6 +698,11 @@ __all__ = [
     "SwitchHiddenChars",
     "SetFileType",
     "ChooseFileType",
+    "ChooseLineEnding",
+    "ChooseEncoding",
+    "SetLineEnding",
+    "ReopenWithEncoding",
+    "SaveWithEncoding",
     "SwitchFill",
     "CapString",
     "CapWord",

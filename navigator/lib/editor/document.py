@@ -14,6 +14,7 @@ too, which is all undo needs.
 
 from __future__ import annotations
 
+import codecs
 import os
 import re
 import stat
@@ -22,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from navigator.lib.editor import encodings
 from navigator.lib.system.job import Stopped
 from navigator.lib.system.memory import NotEnoughMemory
 
@@ -46,6 +48,9 @@ DEFAULT_NEWLINE = "\n"
 
 #: The Editor setup's *Line divisor* choices, as the terminators they name.
 NEWLINES = {"lf": "\n", "crlf": "\r\n", "cr": "\r"}
+
+#: What the bottom frame calls each terminator.
+ENDING_NAMES = {"\n": "LF", "\r\n": "CRLF", "\r": "CR"}
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -123,24 +128,63 @@ class LineReader:
 
     Gives exactly what :meth:`Document.from_bytes` gives for the whole, however
     the bytes are cut.  Each chunk is decoded up to its last line break in one
-    call -- a CR or LF byte is never part of a UTF-8 sequence, so a run of
-    whole lines decodes as its lines would one by one -- and what follows the
-    break waits for the next chunk.  **A CR at a chunk's very end waits too**,
-    since the LF that would make it one CRLF may be the next chunk's first
-    byte: DN's ``ReadBlock`` stepped its file back one byte for the same CR.
+    call -- a CR or LF byte is never part of a UTF-8 sequence, nor of a
+    one-byte code page's, so a run of whole lines decodes as its lines would
+    one by one -- and what follows the break waits for the next chunk.  **A CR
+    at a chunk's very end waits too**, since the LF that would make it one
+    CRLF may be the next chunk's first byte: DN's ``ReadBlock`` stepped its
+    file back one byte for the same CR.
+
+    The encoding is *encoding*, or what the first bytes' byte order mark says
+    (:func:`~navigator.lib.editor.encodings.sniff`), the mark taken off.
+    UTF-16, whose CR and LF are two bytes each, goes through an incremental
+    decoder first and is cut the same way as text.  *fallback*, a one-byte
+    code page, is what a sniffed UTF-8 text that turned out not to be is read
+    as instead (``[editor] fallback_encoding``).
     """
 
-    def __init__(self) -> None:
+    def __init__(self, encoding: str | None = None, fallback: str = "") -> None:
         self.lines: list[str] = []
         self.endings: list[str] = []
         self.counts: Counter[str] = Counter()
+        self.encoding = encoding
+        self.fallback = fallback
+        #: Whether a byte did not decode, kept as a lone surrogate.
+        self.escaped = False
+        #: The first bytes, held until there are enough to tell a mark by.
+        self._head = b"" if encoding is None else None
+        self._strip = encoding is not None
         #: Bytes after the last break taken, not yet decoded.
         self._pending: list[bytes] = []
         self._pending_size = 0
+        #: UTF-16's decoder, and the text it gave after the last break.
+        self._decoder: codecs.IncrementalDecoder | None = None
+        self._text = ""
         #: What the decoded characters take, as CPython stores them.
         self._chars = 0
 
     def feed(self, chunk: bytes) -> None:
+        if self._head is not None:
+            chunk = self._head + chunk
+            if len(chunk) < 3 and chunk and any(
+                    mark.startswith(chunk) for mark in (codecs.BOM_UTF8, codecs.BOM_UTF16_LE,
+                                                        codecs.BOM_UTF16_BE)):
+                self._head = chunk
+                return
+            self._head = None
+            self.encoding, skip = encodings.sniff(chunk)
+            chunk = chunk[skip:]
+        elif self._strip:
+            self._strip = False
+            mark = encodings.bom(self.encoding or "")
+            if mark and chunk.startswith(mark):
+                chunk = chunk[len(mark):]
+        if not encodings.ascii_compatible(self.encoding or encodings.UTF8):
+            if self._decoder is None:
+                self._decoder = codecs.getincrementaldecoder(
+                    encodings.python_codec(self.encoding or ""))("strict")
+            self._feed_text(self._decoder.decode(chunk))
+            return
         end = len(chunk) - chunk.endswith(b"\r")
         cut = max(chunk.rfind(b"\n", 0, end), chunk.rfind(b"\r", 0, end))
         if cut < 0:
@@ -154,27 +198,65 @@ class LineReader:
         rest = chunk[cut + 1:]
         self._pending = [rest] if rest else []
         self._pending_size = len(rest)
-        text = decode(head)
+        text = self._decode(head)
         lines, endings = _split(text)
         lines.pop()  # the "" after the break the head ends with
         self._take(text, lines, endings)
 
+    def _feed_text(self, text: str) -> None:
+        """UTF-16's :meth:`feed`: the same cut, on what the decoder gave."""
+        text = self._text + text
+        end = len(text) - text.endswith("\r")
+        cut = max(text.rfind("\n", 0, end), text.rfind("\r", 0, end))
+        if cut < 0:
+            self._text = text
+            return
+        head, self._text = text[:cut + 1], text[cut + 1:]
+        lines, endings = _split(head)
+        lines.pop()
+        self._take(head, lines, endings)
+
+    def _decode(self, data: bytes) -> str:
+        return encodings.decode(data, self.encoding or encodings.UTF8)
+
     def finish(self) -> Document:
-        """The document, with whatever followed the last break as its last line."""
-        text = decode(b"".join(self._pending))
+        """The document, with whatever followed the last break as its last line.
+
+        Raises ``UnicodeDecodeError`` for UTF-16 that does not decode."""
+        if self._head is not None:
+            # Fewer bytes than a mark: sniff what there is.
+            head, self._head = self._head, None
+            self.encoding, skip = encodings.sniff(head)
+            if head[skip:]:
+                self._pending, self._pending_size = [head[skip:]], len(head) - skip
+        encoding = self.encoding or encodings.UTF8
+        if self._decoder is not None or not encodings.ascii_compatible(encoding):
+            decoder = self._decoder or codecs.getincrementaldecoder(
+                encodings.python_codec(encoding))("strict")
+            text = self._text + decoder.decode(b"".join(self._pending), final=True)
+            self._text = ""
+        else:
+            text = self._decode(b"".join(self._pending))
         self._pending, self._pending_size = [], 0
         lines, endings = _split(text)
         self._take(text, lines, endings)
         self.endings.append("")
-        return Document(self.lines, self.endings, _newline(self.counts))
+        document = Document(self.lines, self.endings, _newline(self.counts), encoding,
+                            counts=self.counts)
+        if self.escaped and encoding == encodings.UTF8 and self.fallback not in ("", encodings.UTF8):
+            return document.reinterpreted(self.fallback)
+        return document
 
     def _take(self, text: str, lines: list[str], endings: list[str]) -> None:
         self.lines.extend(lines)
         self.endings.extend(endings)
         self.counts.update(endings)
+        ascii_ = text.isascii()
+        if not ascii_ and not self.escaped:
+            self.escaped = encodings.has_escaped(text)
         # Latin-1 text is a byte a character in CPython; anything else two or
         # more -- and an undecodable byte, kept as a surrogate, is two.
-        self._chars += len(text) * (1 if text.isascii() else 2)
+        self._chars += len(text) * (1 if ascii_ else 2)
 
     @property
     def estimate(self) -> int:
@@ -184,32 +266,40 @@ class LineReader:
 
 
 def encode_lines(lines: list[str], endings: list[str], job: Any = None, *,
-                 step: int = 65536):
+                 step: int = 65536, encoding: str = encodings.UTF8):
     """*lines* and their *endings* as bytes, *step* lines to a chunk: a save's.
 
     A *job* sees ``position`` as the lines done so far.  Each chunk is joined
     and encoded in one call, so a thread writing it hardly holds the loop up.
+    The bytes are in *encoding*, its byte order mark first.  A character it
+    cannot write raises ``UnicodeEncodeError`` -- check first with
+    :func:`~navigator.lib.editor.encodings.first_unencodable` to say where.
     """
+    mark = encodings.bom(encoding)
+    if mark:
+        yield mark
     for start in range(0, len(lines), step):
         stop = start + step
         parts = [part for pair in zip(lines[start:stop], endings[start:stop]) for part in pair]
-        yield encode("".join(parts))
+        yield encodings.encode("".join(parts), encoding)
         if job is not None:
             job.position = min(stop, len(lines))
 
 
 def read_text(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
-              budget: int | None = None, as_root: bool = False) -> str:
+              budget: int | None = None, as_root: bool = False, fallback: str = "") -> str:
     """*path*'s text as one string, line breaks and all: ^K R's block.
 
     Read as :func:`read_document` reads, a chunk at a time.
     """
-    document = read_document(path, job, chunk=chunk, budget=budget, as_root=as_root)
+    document = read_document(path, job, chunk=chunk, budget=budget, as_root=as_root,
+                             fallback=fallback)
     return "".join(line + ending for line, ending in zip(document.lines, document.endings))
 
 
 def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
-                  budget: int | None = None, as_root: bool = False) -> Document:
+                  budget: int | None = None, as_root: bool = False,
+                  encoding: str | None = None, fallback: str = "") -> Document:
     """Read *path* a chunk at a time, for a thread to do while the loop paints.
 
     Raises ``OSError`` for anything that is not a regular file -- looked at
@@ -225,7 +315,19 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
 
     *as_root* reads it through the root helper
     (:data:`~navigator.lib.drives.root.ROOT_DRIVE`).
+
+    The text is in *encoding*, else in what its byte order mark says, else
+    UTF-8 -- or the one-byte *fallback* when it is not.  A text that claims
+    UTF-16 by its mark and does not decode is read again as UTF-8.
     """
+    try:
+        return _read_document(path, job, chunk, budget, as_root, encoding, fallback)
+    except UnicodeDecodeError:
+        return _read_document(path, job, chunk, budget, as_root, encodings.UTF8, fallback)
+
+
+def _read_document(path: Path | str, job: Any, chunk: int, budget: int | None, as_root: bool,
+                   encoding: str | None, fallback: str) -> Document:
     if as_root:
         from navigator.lib.drives.location import Location
         from navigator.lib.drives.root import ROOT_DRIVE
@@ -243,7 +345,7 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
     if job is not None:
         job.total = size
         job.position = 0
-    reader = LineReader()
+    reader = LineReader(encoding, fallback)
     done = 0
     with (ROOT_DRIVE.open_read(where) if as_root else open(path, "rb", buffering=0)) as file:
         while True:
@@ -265,32 +367,93 @@ def read_document(path: Path | str, job: Any = None, *, chunk: int = READ_CHUNK,
 
 @dataclass
 class Document:
-    """Lines of text, their terminators, and the terminator new lines take."""
+    """Lines of text, their terminators, the terminator new lines take, and the
+    encoding the bytes are in (:mod:`navigator.lib.editor.encodings`).
+
+    ``counts`` tallies the terminators, kept by :meth:`insert` and
+    :meth:`delete`, so the bottom frame can say LF, CRLF, CR or Mixed without
+    walking the text.
+    """
 
     lines: list[str] = field(default_factory=lambda: [""])
     endings: list[str] = field(default_factory=lambda: [""])
     newline: str = DEFAULT_NEWLINE
+    encoding: str = encodings.UTF8
+    counts: Counter[str] = field(default=None, repr=False, compare=False)  # type: ignore[assignment]
+
+    def __post_init__(self) -> None:
+        if self.counts is None:
+            self.counts = Counter(self.endings[:-1])
+            self.counts.pop("", None)
 
     @classmethod
-    def from_bytes(cls, data: bytes) -> Document:
-        lines, endings = _split(decode(data))
-        counts = Counter(endings)
-        endings.append("")
-        return cls(lines, endings, _newline(counts))
+    def from_bytes(cls, data: bytes, encoding: str | None = None, fallback: str = "") -> Document:
+        """*data* as a text, read as :func:`read_document` reads a file."""
+        reader = LineReader(encoding, fallback)
+        reader.feed(data)
+        try:
+            return reader.finish()
+        except UnicodeDecodeError:
+            if encoding == encodings.UTF8:
+                raise
+            return cls.from_bytes(data, encodings.UTF8, fallback)
 
     @classmethod
-    def load(cls, path: Path | str) -> Document:
+    def load(cls, path: Path | str, fallback: str = "") -> Document:
         """Read *path*.  Raises ``OSError`` for anything that is not a regular file.
 
         A file that does not exist is not an error here: the caller decides
         whether an editor may start one.
         """
-        return read_document(path)
+        return read_document(path, fallback=fallback)
 
-    def encode(self) -> bytes:
-        """The bytes this document is: exactly what it was read from, if unedited."""
-        return b"".join(encode(line) + ending.encode("ascii")
-                        for line, ending in zip(self.lines, self.endings))
+    def encode(self, *, mark: bool = True) -> bytes:
+        """The bytes this document is: exactly what it was read from, if unedited.
+
+        In :attr:`encoding`, its byte order mark first unless *mark* is False.
+        Raises ``UnicodeEncodeError`` for a character the encoding has not."""
+        return b"".join(encode_lines(self.lines, self.endings, encoding=self.encoding)) if mark \
+            else encodings.encode("".join(part for pair in zip(self.lines, self.endings)
+                                          for part in pair), self.encoding)
+
+    def reinterpreted(self, encoding: str) -> Document:
+        """The same bytes read as *encoding*: *Reopen with encoding*, done on the
+        text in memory, so a changed text keeps its changes.  A byte order mark
+        is not part of it: the new text gets *encoding*'s, if any.
+
+        Raises ``UnicodeDecodeError`` when the bytes are not *encoding*, or
+        ``UnicodeEncodeError`` when the text has characters its own encoding
+        cannot write."""
+        data = self.encode(mark=False)
+        reader = LineReader(encoding)
+        reader._strip = False
+        reader.feed(data)
+        document = reader.finish()
+        if not document.counts:
+            document.newline = self.newline
+        return document
+
+    # -- line endings ------------------------------------------------------------
+
+    @property
+    def line_ending(self) -> str:
+        """``LF``, ``CRLF`` or ``CR`` for the one terminator the text uses,
+        ``Mixed`` for more than one, and the one new lines take for none."""
+        used = [ending for ending, count in self.counts.items() if count > 0]
+        if len(used) > 1:
+            return "Mixed"
+        return ENDING_NAMES.get(used[0] if used else self.newline, "LF")
+
+    def _count(self, removed: list[str], added: list[str]) -> None:
+        counts = self.counts
+        for ending in removed:
+            if ending:
+                counts[ending] -= 1
+                if counts[ending] <= 0:
+                    del counts[ending]
+        for ending in added:
+            if ending:
+                counts[ending] += 1
 
     # -- reading ---------------------------------------------------------------
 
@@ -330,6 +493,7 @@ class Document:
         end = Pos(at.line + len(new) - 1, len(new[-1]))
         new[-1] = new[-1] + tail
         breaks[-1] = last_ending
+        self._count((), breaks[:-1])
         self.lines[at.line:at.line + 1] = new
         self.endings[at.line:at.line + 1] = breaks
         return end
@@ -343,6 +507,7 @@ class Document:
             return removed
         joined = self.lines[start.line][:start.index] + self.lines[end.line][end.index:]
         ending = self.endings[end.line]
+        self._count(self.endings[start.line:end.line], ())
         self.lines[start.line:end.line + 1] = [joined]
         self.endings[start.line:end.line + 1] = [ending]
         return removed

@@ -50,6 +50,9 @@ from navkit.reactive import Reactive
 from navml.coder import Coder
 
 from navigator.lib.appearance import filetypes
+from navigator.lib.editor.encodings import CODECS as _CODECS, ONE_BYTE as _ONE_BYTE_ENCODINGS
+
+_ALL_ENCODINGS = tuple(key for key, _, _ in _CODECS)
 #: The file's name, in the directory :func:`config_dir` names.
 FILE_NAME = "navigator.ini"
 
@@ -577,6 +580,13 @@ class EditorDefaultsData(Section):
         "lf", choices=LINE_DIVISORS, doc="Line ending of a file with none yet, a new one",
     )
     tab_size: int = Setting(8, doc="Tab size")
+    #: A departure, asked for, with the encodings the editor learnt
+    #: (``navigator.lib.editor.encodings``): ``utf-8`` keeps the bytes that
+    #: do not decode as they are.
+    fallback_encoding: str = Setting(
+        "utf-8", choices=("utf-8", *_ONE_BYTE_ENCODINGS),
+        doc="What a file that is not UTF-8 is read as by the editor: utf-8 keeps its bytes, or a code page",
+    )
 
 
 class ViewerDefaultsData(Section):
@@ -1068,6 +1078,28 @@ class ChecksumData(Section):
     mode: str = Setting("combined", choices=MODES, doc="One list for all the files, or one beside each file")
 
 
+class TextConversionData(Section):
+    """File > Encoding > *Convert text*'s last choices.  Not DN's: a departure,
+    asked for -- DOS Navigator converted no text files
+    (``navigator.lib.file_ops.textconv``)."""
+
+    name = "text_conversion"
+    title = "File > Encoding > Convert text (not DN's)"
+
+    ENDINGS: ClassVar[tuple[str, ...]] = ("keep", "lf", "crlf", "cr")
+
+    encoding: str = Setting(
+        "keep", choices=("keep", *_ALL_ENCODINGS),
+        doc="The encoding the files are written in, or keep each file's",
+    )
+    ending: str = Setting("keep", choices=ENDINGS, doc="The line endings the files get, or keep each line's")
+    fallback: str = Setting(
+        "utf-8", choices=("utf-8", *_ONE_BYTE_ENCODINGS),
+        doc="What a file that is not UTF-8 is read as: utf-8 leaves it alone, or a code page",
+    )
+    keep_times: bool = Setting(False, doc="A converted file keeps its modification time")
+
+
 class EncryptionData(Section):
     """File > Encoding > Encryption's last choices, and the age identities Decrypt uses.
     Not DN's: a departure, asked for -- DOS Navigator encrypted nothing.  A
@@ -1179,7 +1211,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, SplitData, ChecksumData, EncryptionData, SynchronizeData, ProcessesData, ServicesData, MonitorData, RemoteData,
+    CalculatorData, UUCodeData, SplitData, ChecksumData, TextConversionData, EncryptionData, SynchronizeData, ProcessesData, ServicesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1220,6 +1252,7 @@ class Settings:
     uucode: UUCodeData
     split: SplitData
     checksum: ChecksumData
+    text_conversion: TextConversionData
     encryption: EncryptionData
     synchronize: SynchronizeData
     processes: ProcessesData

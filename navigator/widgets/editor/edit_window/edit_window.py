@@ -28,7 +28,8 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
-from navigator.lib.editor.document import Document, encode, encode_lines, read_text
+from navigator.lib.editor import encodings
+from navigator.lib.editor.document import Document, encode_lines, read_text
 from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
@@ -50,14 +51,32 @@ from navigator.widgets.editor.commands import (
     SaveAll,
     SaveText,
     SaveTextAs,
+    ChooseEncoding,
     ChooseFileType,
+    ChooseLineEnding,
     CloseFindBar,
     SetFileType,
     ShowFindBar,
     ShowReplaceBar,
 )
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.format_menu import (
+    choose_encoding, choose_line_ending, fill_encodings, fill_line_endings,
+)
 from navigator.widgets.editor.option_items import editor_items
+
+
+def unencodable(lines: list[str], where: tuple[int, int], encoding: str) -> OSError:
+    """Why a text cannot be written in *encoding*: the first character it has
+    not, at *where* in *lines* -- as an ``OSError``, so it is said as a write
+    that failed is, and nothing was written."""
+    line, index = where
+    char = lines[line][index] if index < len(lines[line]) else "?"
+    message = tr("{char} (U+{code:04X}) on line {line} cannot be written in {encoding}").format(
+        char=char, code=ord(char), line=line + 1, encoding=encodings.label(encoding))
+    error = OSError(message)
+    error.strerror = message
+    return error
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,6 +100,10 @@ class EditWindow(Window):
     """
 
     emits = (FileSaved,)
+
+    #: The bottom frame's two markers' boxes, a departure: no key by default,
+    #: but listed so Key bindings can give them one.
+    keyless_commands = (ChooseLineEnding(), ChooseEncoding())
 
     def __init__(
         self, path: Path | str, *, document: Document | None = None, new: bool = False,
@@ -106,6 +129,8 @@ class EditWindow(Window):
             self.editor.use_document(path, document)
         self.title = bind(lambda _o: self._title(), yielding=True)
         fill_file_types(self.edit_menu_file_type, self)
+        fill_line_endings(self.edit_menu_line_endings)
+        fill_encodings(self.edit_menu_encoding)
         self.options.items = editor_items(self.editor)
 
     def mounted(self) -> None:
@@ -320,16 +345,23 @@ class EditWindow(Window):
 
         async with self._saving:
             lines, endings, point = self.editor.snapshot()
+            encoding = self.editor.document.encoding
+            if encoding != encodings.UTF8:
+                # Before anything is written: a character the encoding has
+                # not would stop the write half way.
+                where = await asyncio.to_thread(encodings.first_unencodable, lines, encoding)
+                if where is not None:
+                    raise unencodable(lines, where, encoding)
 
             def write(job: Any) -> None:
                 if not as_root:
-                    write_file(path, encode_lines(lines, endings, job), job, backup)
+                    write_file(path, encode_lines(lines, endings, job, encoding=encoding), job, backup)
                     return
                 from navigator.lib.drives.root import ROOT_DRIVE
                 from navigator.lib.system.elevate import ELEVATION
 
                 try:
-                    ROOT_DRIVE.write_file(path, encode_lines(lines, endings, job), job, backup)
+                    ROOT_DRIVE.write_file(path, encode_lines(lines, endings, job, encoding=encoding), job, backup)
                 finally:
                     ELEVATION.release()
 
@@ -354,6 +386,28 @@ class EditWindow(Window):
         """Ctrl+Shift+H: the same menu in a box of its own."""
         self.spawn(self._choose_file_type())
         return True
+
+    # -- line endings and encoding (a departure, asked for: ``format_menu``) ----
+
+    async def on_choose_line_ending(self, event: ChooseLineEnding) -> bool:
+        self.spawn(self._choose_format(choose_line_ending, self.editor.ending_indicator()))
+        return True
+
+    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
+        self.spawn(self._choose_format(choose_encoding, self.editor.encoding_indicator()))
+        return True
+
+    async def _choose_format(self, choose: Any, zone: tuple[int, int]) -> None:
+        """The box over the marker clicked -- centred on the window while the
+        markers are not shown -- and the command chosen given to the editor."""
+        marks = self.marks
+        at = None
+        if marks.visible and marks.width:
+            ox, oy = marks.offset()
+            at = (ox + marks.x + zone[0], oy + marks.y)
+        command = await choose(self, at)
+        if command is not None:
+            await self.editor.emit(command)
 
     async def _choose_file_type(self) -> None:
         file_type = await choose_file_type(self)
@@ -470,7 +524,8 @@ class EditWindow(Window):
         one is asked about again before it is changed.  The directory written
         to is re-read in every panel showing it (``cmRereadDir``).
         """
-        data = encode(self.editor.block_file_text())
+        text = self.editor.block_file_text()
+        encoding = self.editor.document.encoding
         path = await self._block_file(tr("Copy block to"), tr("File ~N~ame"))
         if path is None:
             return
@@ -478,6 +533,15 @@ class EditWindow(Window):
         if answer is None:
             return
         append, restore = answer
+        # In the text's own encoding; a new file starts with its mark.
+        try:
+            data = (b"" if append else encodings.bom(encoding)) + encodings.encode(text, encoding)
+        except UnicodeEncodeError:
+            lines = text.split("\n")
+            where = encodings.first_unencodable(lines, encoding) or (0, 0)
+            await self._say(tr("Cannot write {path}: {error}").format(
+                path=path, error=unencodable(lines, where, encoding).strerror))
+            return
         from navigator.lib.system.elevate import ELEVATION, refused
 
         as_root = False
@@ -551,7 +615,8 @@ class EditWindow(Window):
 
         def read(job: Any, budget: Any) -> str:
             try:
-                return read_text(path, job, budget=budget, as_root=as_root)
+                return read_text(path, job, budget=budget, as_root=as_root,
+                                 fallback=SETTINGS.editor.fallback_encoding)
             finally:
                 if as_root:
                     ELEVATION.release()

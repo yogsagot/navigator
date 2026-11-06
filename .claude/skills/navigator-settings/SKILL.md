@@ -211,6 +211,8 @@ note:
 | `editor.autowrap` / `justify_on_wrap` | Seed a new editor's *Auto wrap* and *Justify on wrap* (Editor > Options switches one editor's) |
 | `editor.left_margin` / `right_margin` / `paragraph` | Seed a new editor's `margins` for paragraph formatting (Alt+J/R/L/C); *Format Margins* changes one editor's alone |
 | `viewer.hex_mode`, `viewer.wrap_lines` | Seed F3's viewer |
+| `editor.fallback_encoding` | A departure: what a file that is not valid UTF-8 is read as by the editor -- `utf-8` (default) keeps its bytes as they are, else one of `encodings.ONE_BYTE`; the Editor setup's *8-bit encoding* choice (`navigator-editor`, *Encodings*) |
+| `text_conversion.*` | File > Encoding > Convert text's last choices: `encoding` (`keep` or a `CODECS` key), `ending` (`keep`/`lf`/`crlf`/`cr`), `fallback`, `keep_times` (`navigator-file-ops`) |
 | `editor.line_divisor` | The terminator a text with no line break yet takes (`FileEditor.open` sets `Document.newline` from `document.NEWLINES`): a new file, an empty one, a single line. A file with breaks keeps its most common one |
 | `editor.persistent_blocks` | On (DN's default): the block stays as the cursor moves and edits go round it. Off: a movement without Shift, typing, Enter, Backspace and Del unmark it (`BlockOff`) |
 | `editor.overwrite_blocks` | Only with *Persistent blocks* off (DN's `(ebfPbl + ebfObl) = ebfObl`): typing and pastes replace the block (one undo), Del deletes it alone; Backspace never does |

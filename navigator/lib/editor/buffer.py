@@ -17,6 +17,14 @@ new edit makes the saved state unreachable, and says so.
 recording a change empties :attr:`EditBuffer.redo_stack`.  A departure -- DN
 had no redo; Borland's IDE did, on Shift+Alt+Backspace.  Redoing up to the
 save point leaves the text unmodified again.
+
+**A whole-text change is one swap** (:meth:`EditBuffer.swap`): converting
+every line ending, choosing the encoding to save in, or reading the bytes
+again in another -- a departure, asked for, as the bottom frame's markers
+are.  The change keeps the text's :class:`State` before and after (copies of
+the lists, which share their strings), and undo and redo put one or the other
+back.  Listeners hear ``"endings"`` when the lines stayed what they were and
+``"replace"`` when they did not.
 """
 
 from __future__ import annotations
@@ -27,13 +35,30 @@ from typing import Callable
 from navigator.lib.editor.document import Document, Pos, split_text
 
 
+@dataclass(frozen=True)
+class State:
+    """Everything a whole-text change may change."""
+
+    lines: list[str]
+    endings: list[str]
+    newline: str
+    encoding: str
+
+    @classmethod
+    def of(cls, document: Document) -> State:
+        return cls(list(document.lines), list(document.endings), document.newline, document.encoding)
+
+
 @dataclass
 class Change:
-    """One primitive edit: text inserted at a place, or taken out from it."""
+    """One primitive edit: text inserted at a place, or taken out from it --
+    or, for ``"swap"``, the whole text's state before and after."""
 
-    kind: str  # "insert" or "delete"
+    kind: str  # "insert", "delete" or "swap"
     at: Pos
     text: str
+    before: State | None = None
+    after: State | None = None
 
 
 @dataclass
@@ -118,6 +143,27 @@ class EditBuffer:
         self._tell("delete", start, end)
         return text
 
+    def swap(self, after: State, cursor: tuple[int, int]) -> None:
+        """Make the text *after*, as one undo step of its own."""
+        before = State.of(self.document)
+        self.seal()
+        self.begin(cursor)
+        self._record(Change("swap", Pos(*cursor), "", before, after))
+        self.end()
+        self._apply(before, after)
+
+    def _apply(self, old: State, new: State) -> None:
+        document = self.document
+        document.lines[:] = new.lines
+        document.endings[:] = new.endings
+        document.newline = new.newline
+        document.encoding = new.encoding
+        document.counts.clear()
+        document.counts.update(new.endings[:-1])
+        document.counts.pop("", None)
+        kind = "endings" if old.lines == new.lines else "replace"
+        self._tell(kind, Pos(0, 0), Pos(0, 0))
+
     def _tell(self, kind: str, start: Pos, end: Pos) -> None:
         for listener in self.listeners:
             listener(kind, start, end)
@@ -145,7 +191,9 @@ class EditBuffer:
         group = self.undo_stack.pop()
         document = self.document
         for change in reversed(group.changes):
-            if change.kind == "insert":
+            if change.kind == "swap":
+                self._apply(change.after, change.before)
+            elif change.kind == "insert":
                 end = _end_of(change.at, change.text)
                 document.delete(change.at, end)
                 self._tell("delete", change.at, end)
@@ -168,7 +216,10 @@ class EditBuffer:
         document = self.document
         at = group.changes[0].at
         for change in group.changes:
-            if change.kind == "insert":
+            if change.kind == "swap":
+                self._apply(change.before, change.after)
+                at = document.clamp(change.at)
+            elif change.kind == "insert":
                 at = document.insert(change.at, change.text)
                 self._tell("insert", change.at, at)
             else:

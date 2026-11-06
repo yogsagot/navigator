@@ -8,8 +8,8 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
-from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.widgets.editor.commands import ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
@@ -32,13 +32,15 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import bind, effect
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
-from navigator.lib.editor.document import Document, encode, encode_lines, read_text
+from navigator.lib.editor import encodings
+from navigator.lib.editor.document import Document, encode_lines, read_text
 from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
-from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseFileType, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
+from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseEncoding, ChooseFileType, ChooseLineEnding, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
+from navigator.widgets.editor.format_menu import choose_encoding, choose_line_ending, fill_encodings, fill_line_endings
 from navigator.widgets.editor.option_items import editor_items
 
 
@@ -51,9 +53,12 @@ class EditWindow(Window, _Component):
     vbar: ScrollBar
     hbar: ScrollBar
     info: InfoLine
+    marks: FormatMarks
     options: OptionStrip
     edit_menu: SubMenu
     edit_menu_file: SubMenu
+    edit_menu_line_endings: SubMenu
+    edit_menu_encoding: SubMenu
     edit_menu_search: SubMenu
     edit_menu_paragraph: SubMenu
     edit_menu_block: SubMenu
@@ -64,6 +69,7 @@ class EditWindow(Window, _Component):
     edit_menu_options: SubMenu
     edit_menu_file_type: SubMenu
     emits: _Any
+    keyless_commands: _Any
     _replace_all: _Any
     def __init__(self, path: Path | str, *, document: Document | None = ..., new: bool = ..., smartpad: bool = ..., **kwargs: Any) -> None: ...
     def mounted(self) -> None: ...
@@ -82,6 +88,9 @@ class EditWindow(Window, _Component):
     async def _write(self, path: Path, backup: bool = ..., as_root: bool = ...) -> bool: ...
     async def on_set_file_type(self, event: SetFileType) -> bool: ...
     async def on_choose_file_type(self, event: ChooseFileType) -> bool: ...
+    async def on_choose_line_ending(self, event: ChooseLineEnding) -> bool: ...
+    async def on_choose_encoding(self, event: ChooseEncoding) -> bool: ...
+    async def _choose_format(self, choose: Any, zone: tuple[int, int]) -> None: ...
     async def _choose_file_type(self) -> None: ...
     def set_file_type(self, file_type: str) -> None: ...
     def checks(self, command: Any) -> bool | None: ...

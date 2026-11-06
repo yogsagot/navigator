@@ -15,6 +15,37 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame.
 - **A file round-trips byte for byte** -- tabs, each line's own terminator, non-UTF-8 bytes (`surrogateescape`) -- a
   departure from DN's rewriting. Saving renames a new file over the old one.
+- **Encodings and line endings** (a departure, asked for: DN's editor knew the screen's code page and `CR+LF`).
+  `navigator/lib/editor/encodings.py` is the table (`CODECS`: `utf-8`, `utf-8-bom`, `utf-16-le`/`-be` -- both with
+  a mark -- then the viewer's one-byte `ENCODINGS`), `sniff`, `bom`, `decode`/`encode` (surrogateescape for the
+  ASCII-compatible ones, so every byte still round-trips; UTF-16 strict) and `first_unencodable`. `Document.encoding`
+  is the text's; `LineReader(encoding, fallback)` sniffs the mark from the first bytes and takes it off, decodes
+  UTF-16 through an incremental decoder and cuts it as text, and a UTF-16 mark that does not decode is read again as
+  UTF-8 (`read_document`, `from_bytes`). `[editor] fallback_encoding` (Editor setup's *8-bit encoding*, default
+  `utf-8` = keep the bytes): a sniffed UTF-8 text with a byte that did not decode is re-read in that code page
+  (`LineReader.escaped`, `Document.reinterpreted`). Saving writes the mark and the codec (`encode_lines(...,
+  encoding=)`); `EditWindow._write` checks `first_unencodable` on a thread first and refuses with an `OSError`
+  naming the character and line (`unencodable`), nothing written; ^K W writes the document's encoding, a new file
+  with its mark. `Document.counts` tallies the terminators, kept by `insert`/`delete`; `line_ending` is `LF`, `CRLF`,
+  `CR`, `Mixed`, or `newline`'s name with none. **A whole-text change is one swap**: `EditBuffer.swap(State, cursor)`
+  records `Change("swap", before=, after=)`, undo/redo put one back, listeners hear `"endings"` (lines unchanged:
+  nothing moves) or `"replace"` (`FileEditor` unmarks, clamps the cursor, rehighlights). Its uses are `SetLineEnding`
+  (every ending made one, and `newline`), `SaveWithEncoding` (only `encoding`, refused with a box and the cursor on
+  the first character it cannot write) and `ReopenWithEncoding` (`Document.reinterpreted` on a thread: the text's
+  own bytes, mark aside, read as the other; the file is not touched, so an unchanged text stays unchanged --
+  `mark_saved` after). All three are ticked through `FileEditor.checks`.
+  **The markers**: `FormatMarks#marks` (`StaticText`, `name: "info"`, beside `InfoLine` in `file_editor.py`) a cell
+  after the info line shows `FileEditor.format_text`, `[LF]═[UTF-8]` (bracketed as the option strip's items, a frame
+  cell between); `ending_indicator()`/`encoding_indicator()` are
+  its two zones, brackets included. A left press on the ending makes it the next of LF, CRLF, CR
+  (`next_line_ending`: a *Mixed* text first becomes its most common, `newline`) through `SetLineEnding`, one undo
+  step a click; a right press, or either on the encoding, emits `ChooseLineEnding`/`ChooseEncoding` (keyless, on
+  `EditWindow.keyless_commands`), which `EditWindow._choose_format` answers with a `PopupMenu` whose bottom-left is
+  at the marker (`format_menu.choose_line_ending`, opening on the text's ending; `choose_encoding`, two nested boxes
+  *Reopen with* / *Save with*). **`behind` is the editor**, not the window: the editor answers the commands, so a box
+  behind the window greys them all. `hbar` starts at `max(24, marks end + 1)` and the option strip's `room` is
+  measured from the markers' end. Editor > File has *Line en~d~ings* and *En~c~oding* submenus, filled by
+  `format_menu.fill_line_endings`/`fill_encodings` (letters chosen so no catalogue clashes).
 - **Reading and writing run on a thread, behind DN's `WriteMsg`** (`ReadBlock`, `SaveFile`). `read_document`
   (`navigator/lib/editor/document.py`) reads 4 MiB chunks through `LineReader`, which splits exactly as `from_bytes` does
   however the bytes are cut (a CR ending a chunk waits for the next -- DN's `ReadBlock` stepped back for it), in a few

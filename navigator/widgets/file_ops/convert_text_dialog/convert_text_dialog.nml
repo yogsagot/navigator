@@ -1,0 +1,76 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+
+#: File > Encoding > Convert text.  Not DN's: a departure, asked for -- DOS
+#: Navigator converted no text files (``navigator.lib.file_ops.textconv``).
+#:
+#: The encoding the files are written in and what one that is not UTF-8 is
+#: read as, then the line endings beside keeping the times.
+ConvertTextDialog(Dialog):
+    modal_width: 60
+    modal_height: 14
+    title: "Convert Text Files"
+
+    ChoiceField:
+        id: encoding
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~E~ncoding"
+        label_width: 22
+
+    ChoiceField:
+        id: fallback
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Read ~n~on-UTF-8 as"
+        label_width: 22
+
+    Label:
+        id: ending_caption
+        x: 2
+        y: 4
+        width: 14
+        height: 1
+        text: "~L~ine endings"
+        link: ending
+
+    RadioButtons:
+        id: ending
+        x: 2
+        y: 5
+        width: 28
+        height: 4
+        items: ["Kee~p~ each line's", "L~F~ (Unix)", "~C~RLF (DOS, Windows)", "C~R~ (classic Mac)"]
+
+    CheckBoxes:
+        id: options
+        x: 32
+        y: 5
+        width: max(0, parent.width - 34)
+        height: 1
+        items: ["Keep file ~t~imes"]
+
+    Button:
+        id: pick
+        text: "O~K~"
+        default: True
+        x: 17
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2
+
+    Button:
+        id: abandon
+        text: "Cancel"
+        x: 30
+        y: max(0, parent.height - 4)
+        width: 11
+        height: 2

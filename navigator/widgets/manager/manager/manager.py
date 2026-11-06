@@ -119,6 +119,7 @@ from navigator.widgets.manager.commands import (
     VerifyChecksums,
     EncryptFiles,
     DecryptFiles,
+    ConvertText,
     View,
     OpenWith,
     ViewAsDataBase,
@@ -181,7 +182,7 @@ class Manager(Window):
     #: Handled here and bound to no key, but listed in Key bindings so one can
     #: be given: Ctrl+C, DN's for *Compare directories*, is the clipboard's.
     keyless_commands = (CompareDir, DiffFiles, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles,
-                        EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks, SelectBadNames, ShowHardLinks)
+                        ConvertText, EditLinkTarget, LinkRelative, LinkAbsolute, SelectBrokenLinks, SelectBadNames, ShowHardLinks)
 
     #: The Gray keys, merged with the markup's ``keys:`` block, which names a
     #: command and cannot construct one.  Each says ``by_key``, so it steps
@@ -1063,6 +1064,112 @@ class Manager(Window):
             await self._say_checksum_errors(
                 self._encryption_reasons(job.errors),
                 tr_n("{n} file could not be decrypted:", "{n} files could not be decrypted:", len(job.errors)))
+
+    # -- Convert text (navigator.lib.file_ops.textconv): not DN's, a departure ------------------------
+
+    async def on_convert_text(self, event: ConvertText) -> bool:
+        self.spawn(self.convert_text(self.active_panel))
+        return True
+
+    async def convert_text(self, panel: Panel) -> None:
+        """File > Encoding > Convert text: the tagged files -- or the cursor's --
+        a tagged directory's to the bottom, each rewritten in place in the
+        encoding and with the line endings the box asks for, on a thread.
+
+        Esc in the box stops between two files.  The entries done are
+        untagged, the panels read again, and the outcome said: how many were
+        converted and how many were already so, then the files left alone
+        and why, and those that could not be read or written.
+        """
+        from navigator.lib.file_ops import textconv
+        from navigator.lib.system.job import Stopped
+        from navigator.widgets.file_ops.convert_text_dialog import ConvertTextDialog
+
+        app = self.application
+        entries = self.selection(panel)
+        if app is None or not entries:
+            return
+        answer = await ConvertTextDialog().execute(app)
+        if answer is None:
+            return
+        self._keep_section("text_conversion", answer)
+        options = textconv.Options(
+            encoding="" if answer["encoding"] == "keep" else answer["encoding"],
+            ending="" if answer["ending"] == "keep" else answer["ending"],
+            fallback=answer["fallback"], keep_times=answer["keep_times"])
+        sources = [panel.entry_location(entry) for entry in entries]
+        job = textconv.TextJob()
+        title = tr("Converting")
+        try:
+            files = await self._run_checksums(lambda: textconv.plan(sources, job), job, title)
+            job.position = 0
+            await self._run_checksums(lambda: textconv.convert(files, options, job), job, title)
+            await self._convert_as_root(job, options, title)
+        except Stopped:
+            return
+        finally:
+            for each in self.all_panels:
+                each.reload()
+        self._untag_done(panel, entries, sources, job.errors)
+        await self._say_conversion(job)
+
+    async def _convert_as_root(self, job: Any, options: Any, title: str) -> None:
+        """The files the disk refused permission, offered *As root* in one
+        question and converted again through the root helper -- a departure,
+        as everywhere (``navigator-elevation``).  Declined, or with no way to
+        root, they are failures like any other."""
+        from navigator.lib.file_ops import textconv
+        from navigator.lib.system.elevate import ELEVATION
+        from navigator.widgets.file_ops.as_root import ask_as_root
+
+        refused, job.refused = job.refused, []
+        if not refused:
+            return
+        names = "\n".join(f"{location}: {reason}" for location, _, reason in refused[:8])
+        if len(refused) > 8:
+            names += "\n" + tr_n("and {n} more", "and {n} more", len(refused) - 8)
+        message = tr_n("{n} file was refused permission:", "{n} files were refused permission:",
+                       len(refused)) + "\n" + names
+        if (not await asyncio.to_thread(ELEVATION.available)
+                or not await ask_as_root(self.application, message + "\n" + tr("Convert them as root?"))):
+            job.errors.extend((str(location), reason) for location, _, reason in refused)
+            return
+        files = [(location, size) for location, size, _ in refused]
+        job.files_done, job.files_total = 0, len(files)
+        job.position, job.total = 0, sum(size for _, size in files)
+        try:
+            await self._run_checksums(lambda: textconv.convert(files, options, job, as_root=True), job, title)
+        finally:
+            await asyncio.to_thread(ELEVATION.release)
+
+    async def _say_conversion(self, job: Any) -> None:
+        """How the conversion went, in one box."""
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator.lib.file_ops import textconv
+
+        reasons = {
+            textconv.BINARY: lambda detail: tr("looks binary"),
+            textconv.UNDECODABLE: lambda detail: tr("not UTF-8, and no 8-bit encoding was chosen to read it as"),
+            textconv.UNENCODABLE: lambda detail: tr("the encoding cannot write a character at {place}").format(
+                place=detail),
+            textconv.TOO_LARGE: lambda detail: tr("too large"),
+        }
+        lines = [tr_n("{n} file converted", "{n} files converted", len(job.converted)),
+                 tr_n("{n} file already so", "{n} files already so", len(job.unchanged))]
+        left = [(name, reasons[kind](detail)) for name, kind, detail in job.skipped]
+        for heading, failures in (
+                (tr_n("{n} file left alone:", "{n} files left alone:", len(left)), left),
+                (tr_n("{n} file could not be converted:", "{n} files could not be converted:",
+                      len(job.errors)), job.errors)):
+            if not failures:
+                continue
+            lines.append(heading)
+            lines += [escape_caption(f"{name}: {reason}") for name, reason in failures[:8]]
+            if len(failures) > 8:
+                lines.append(tr_n("and {n} more", "and {n} more", len(failures) - 8))
+        title = tr("Error") if job.errors else tr("Convert text")
+        await Dialog(title=title, prompt="\n".join(lines), buttons="ok").execute(self.application)
 
     async def _ask_over_targets(self, there: int) -> bool:
         """Whether *there* files already where the results go are written over."""
@@ -3037,6 +3144,8 @@ class Manager(Window):
                 return unless(any(entry.is_dir or encrypt.suffix_tool(entry.name) for entry in chosen),
                               tr("No encrypted file is tagged or at the cursor"))
             return ""
+        if isinstance(command, ConvertText):
+            return "" if self.selection(panel) else nothing
         if isinstance(command, ToggleMiller):
             # A *Find:* listing is no directory to open columns on.
             return unless(self.miller_mode or panel.found is None, not_found)

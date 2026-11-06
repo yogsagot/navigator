@@ -161,6 +161,11 @@ user's own authentication. What the review found and the rules it left:
     re-read; declined, the disk's own place, not asked about again.
   - `root._HOLDERS` is module-level: a test whose app ends with a panel at `root:` leaves its holder (the `helper`
     fixture in `tests/test_elevate.py` clears it).
+- **File > Encoding > Convert text** (`textconv.convert(..., as_root=)`): not an `Elevated` worker, since
+  `run_with_progress` relays no questions -- refusals are gathered in `TextJob.refused` and
+  `Manager._convert_as_root` asks `ask_as_root` once, Encryption's ask-once shape, then converts those again through
+  `ROOT_DRIVE`. A drive with `write_file` (`ROOT_DRIVE`, the `root:` site's) writes through it, so the file keeps its
+  owner, mode and links; a new file renamed over would be root's.
 - **Remote drives are deliberately not offered it**: local root cannot get past a server's refusal (FTP, SMB, S3
   have no notion of it; SFTP would need the server's `sftp-server` under its own sudo -- a separate feature,
   declined for now).

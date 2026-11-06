@@ -1,6 +1,6 @@
 ---
 name: navigator-file-ops
-description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symbolic and hard links (filelink.py, LinkDialog), Show hard links (hardlinks.py), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+Z Undo of copies, moves, renames, Trash and mkdir (undo.py, uncopy.py, Manager.undo), Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
+description: File operations -- F5 copy and F6 rename/move (navigator/lib/file_ops/filecopy.py, CopyDialog, CopyProgress, OverwriteQuery), Shift+F5 symbolic and hard links (filelink.py, LinkDialog), Show hard links (hardlinks.py), F8/Del erase (fileerase.py, DeleteDialog, EraseQuery, DeleteProgress) and the optional freedesktop Trash (trash.py, Restore, Empty Trash), Alt+E file attributes (fileattr.py, AttrDialog; its ACL, Xattrs and Flags tabs: acl.py, fsflags.py, AclEntryDialog, XattrEntryDialog), F7 mkdir, Ctrl+Z Undo of copies, moves, renames, Trash and mkdir (undo.py, uncopy.py, Manager.undo), Ctrl+F7/Ctrl+F8 UU encode/decode (uucode.py), File > Encoding > Checksums (checksum.py, CalculateChecksumsDialog, ChecksumProgress, ChecksumReport), File > Encoding > Encryption (encrypt.py over gpg/age, EncryptDialog), File > Encoding > Convert text (textconv.py, ConvertTextDialog), the Job worker contract (navigator/lib/system/job.py) and Manager._watch_job. Use when changing any operation over selected files.
 ---
 
 # File operations
@@ -349,6 +349,27 @@ is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_comman
   bad ones). Missing is `FileNotFoundError`; a list with no lines is in `lists_unreadable`.
 - **Every read goes through `drive_of(...).open_read`/`children`**, so both work on any drive; all of it runs on a
   thread through `run_with_progress` (`ChecksumProgress`), asking nothing mid-work.
+
+## Convert text (File > Encoding > Convert text)
+
+`navigator/lib/file_ops/textconv.py`, **a departure, asked for** -- DN converted text only through the viewer's
+XLT tables, so `ConvertText` is named for what it does and keyless, shaped as Encryption: `ConvertTextDialog`
+(encoding or *Keep each file's*, *Read non-UTF-8 as*, line endings or *Keep*, *Keep file times*; the endings radio
+has the first focus, Enter on a `ChoiceLine` dropping its list), `[text_conversion]` (`TextConversionData`),
+`ChecksumProgress` through `Manager._run_checksums`, one summary box (`_say_conversion`: converted, already so, left
+alone and why, failures). The encodings are the editor's (`navigator/lib/editor/encodings.py`), the line cut
+`document.BREAK`.
+- **What a file is read as** (`read_text`): its mark, else UTF-8 when it decodes strictly, else the chosen one-byte
+  code page (strictly too) -- otherwise left alone as *undecodable*. A NUL in the first 8 KiB (not UTF-16) is
+  *binary*; a character the target cannot write is *unencodable*, with its line:column; over `LIMIT` (256 MiB) *too
+  large*. Output equal to the input is not written (*unchanged*), so its time stays.
+- **Rewritten in place through its drive** (`_write`): `.NAME.navigator~` beside it, `chmod` to the old mode,
+  `replace` over it, the temporary unlinked on any failure; a hard-linked file or one reached through a symlink is
+  written into instead, so the links stay. *Keep file times* `utime`s the old times back. Every drive written to is
+  `finish()`ed once at the end (an archive rewritten once). No Ctrl+Z undo yet.
+- **As root** (`navigator-elevation`): a refusal on the disk is not an error but goes in `TextJob.refused`; after the
+  pass `Manager._convert_as_root` asks `ask_as_root` once for all of them and runs `convert(..., as_root=True)` over
+  those, every step through `ROOT_DRIVE`, releasing after. Declined or with no way to root they become failures.
 
 ## Encryption (File > Encoding > Encryption)
 

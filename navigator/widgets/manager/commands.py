@@ -521,6 +521,18 @@ class DecryptFiles(Command):
     """
 
 
+class ConvertText(Command):
+    """File > Encoding > Convert text: the tagged text files -- a tagged
+    directory's to the bottom, or the one at the cursor -- written again in
+    another encoding and with other line endings, each in place
+    (:mod:`navigator.lib.file_ops.textconv`).
+
+    **A departure**, asked for: DOS Navigator converted text only through the
+    viewer's ``*.XLT`` tables, so there is no ``cm*`` to name it after.  Not
+    bound: the key is the user's to give.
+    """
+
+
 class DirHistory(Command):
     """Alt+Backspace, Panel > History of directories: where the panels have been.
 
@@ -883,6 +895,7 @@ __all__ = [
     "VerifyChecksums",
     "EncryptFiles",
     "DecryptFiles",
+    "ConvertText",
     "CompareDir",
     "DiffFiles",
     "SetSyncAction",

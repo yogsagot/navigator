@@ -2783,7 +2783,9 @@ def test_the_strip_spells_each_option_for_the_glyph_tier(files, tier, expected):
 
     from navkit.capabilities import FULL
 
-    app = Navigator(files, files, terminal=FakeTerminal(80, 24, info=replace(FULL, glyphs=tier)))
+    # Wide enough for every item: at 80 columns the ascii words no longer fit
+    # beside the line-ending and encoding markers, and the file type goes first.
+    app = Navigator(files, files, terminal=FakeTerminal(90, 24, info=replace(FULL, glyphs=tier)))
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
     labels = [span[3] for span in editor_window(app).options.spans]
     assert labels == expected
@@ -2913,9 +2915,13 @@ def test_the_strip_follows_its_setting_and_the_scroll_bar_takes_the_room_back(fi
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, off, lambda a: None,
                   lambda a: seen.update(visible=editor_window(a).options.visible,
                                         hbar=editor_window(a).hbar.width,
+                                        x=editor_window(a).hbar.x,
+                                        marks=editor_window(a).marks.x + editor_window(a).marks.width,
                                         width=editor_window(a).width)])
     assert not seen["visible"]
-    assert seen["hbar"] == seen["width"] - 26
+    # From column 24, or after the line-ending and encoding markers, to the corner.
+    assert seen["x"] == max(24, seen["marks"] + 1)
+    assert seen["hbar"] == seen["width"] - 2 - seen["x"]
 
 
 def test_a_narrow_window_drops_the_last_items_and_the_scroll_bar(files):

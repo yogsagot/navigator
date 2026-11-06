@@ -5,8 +5,10 @@ from __future__ import annotations
 from typing import Any
 
 
+from navkit.i18n import tr
 from navkit.widget import Widget
 
+from navigator.lib.editor import encodings
 from navigator.settings import SETTINGS, EditorDefaultsData, ViewerDefaultsData
 
 #: The numbers, by the id of the line each is typed in.
@@ -40,6 +42,14 @@ class EditorDefaultsPage(Widget):
             self.editor_section.line_divisor
         )
         self.line_divisor.tooltip = self.editor_section.tooltip("line_divisor")
+        #: Each choice's caption and the key it stands for.
+        self.encodings = {tr("UTF-8, bytes kept"): "utf-8",
+                          **{encodings.caption(key): key for key in encodings.ONE_BYTE}}
+        self.fallback_encoding.choices = list(self.encodings)
+        self.fallback_encoding.value = next(
+            (caption for caption, key in self.encodings.items()
+             if key == self.editor_section.fallback_encoding), next(iter(self.encodings)))
+        self.fallback_encoding.tooltip = self.editor_section.tooltip("fallback_encoding")
 
     def _number(self, name: str) -> int:
         """The number typed for *name*; a blank place counts as nought."""
@@ -58,5 +68,7 @@ class EditorDefaultsPage(Widget):
         # A tab of nought columns would never stop.
         editor["tab_size"] = max(1, editor["tab_size"])
         editor["line_divisor"] = EditorDefaultsData.LINE_DIVISORS[self.line_divisor.value]
+        editor["fallback_encoding"] = self.encodings.get(self.fallback_encoding.value,
+                                                         self.editor_section.fallback_encoding)
         viewer = ViewerDefaultsData.from_bits(ViewerDefaultsData.OPTIONS, self.viewer.value)
         return {"editor": editor, "viewer": viewer}

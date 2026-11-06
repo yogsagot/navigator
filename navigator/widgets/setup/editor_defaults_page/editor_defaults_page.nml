@@ -1,4 +1,5 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -11,7 +12,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: columns wider than DN's 52; Help is left out, having nothing to show yet.
 #: The line divisor lists LF first, a departure from DN's CR+LF, CR, LF:
 #: POSIX's own ending leads.  *Option strip* in each cluster is a departure
-#: too, the strip being one (``OptionStrip``).
+#: too, the strip being one (``OptionStrip``), and so is *8-bit encoding*,
+#: what a file that is not UTF-8 is read as (``[editor] fallback_encoding``).
 EditorDefaultsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -114,3 +116,12 @@ EditorDefaultsPage:
         width: 26
         height: 1
         items: ["LF", "CR+LF", "CR"]
+
+    ChoiceField:
+        id: fallback_encoding
+        x: 30
+        y: 15
+        width: max(0, parent.width - 32)
+        height: 1
+        label_text: "8-bit ~e~ncoding"
+        label_width: 17

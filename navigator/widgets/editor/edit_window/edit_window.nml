@@ -1,7 +1,7 @@
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
-from navigator.widgets.editor.file_editor import FileEditor, InfoLine
+from navigator.widgets.editor.commands import ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
@@ -86,7 +86,9 @@ EditWindow(Window):
         maximum: max(0, editor.line_count - 1)
         page: max(1, editor.height)
 
-    #: From column 24 to the corner, as ``ChangeBounds`` sized it.  With the
+    #: From column 24 to the corner, as ``ChangeBounds`` sized it -- or from
+    #: after the line-ending and encoding markers, when they reach further
+    #: (a departure, with them).  With the
     #: option strip showing it ends a cell short of the strip instead, and
     #: narrower than its two arrows, thumb and a cell of track it is not shown
     #: at all.  Shown only while a line on screen is wider than the area, or it
@@ -97,9 +99,9 @@ EditWindow(Window):
         id: hbar
         orientation: "horizontal"
         visible: root.active and editor.overflows_across and self.width >= 4
-        x: 24
+        x: max(24, marks.x + marks.width + 1) if marks.visible and marks.width else 24
         y: max(0, parent.height - 1)
-        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - 24)
+        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - self.x)
         height: 1
         value: editor.col
         maximum: max(0, editor.row_span - 1)
@@ -117,6 +119,20 @@ EditWindow(Window):
         height: 1
         text: editor.info_text
 
+    #: A departure, asked for: the line ending and the encoding, ``[LF]═[UTF-8]``,
+    #: a cell after the info line, each a click away from its box
+    #: (``FormatMarks``, ``format_menu``).  Second to the info line when the
+    #: frame is short, before the option strip and the scroll bar.
+    FormatMarks:
+        id: marks
+        name: "info"
+        visible: root.active
+        x: info.x + info.width + 1
+        y: max(0, parent.height - 1)
+        width: min(display_width(editor.format_text), max(0, parent.width - 3 - self.x))
+        height: 1
+        text: editor.format_text
+
     #: A departure: DN had no such strip.  The editor's options on the bottom
     #: frame, right-aligned before the corner, each lit while on and switched by
     #: a click (``option_items.editor_items``) -- DN showed them only in the
@@ -126,7 +142,7 @@ EditWindow(Window):
         id: options
         visible: root.active and SETTINGS.editor.show_options
         target: editor
-        room: max(0, parent.width - 3 - (info.x + info.width) - 1)
+        room: max(0, parent.width - 3 - (marks.x + marks.width if marks.visible and marks.width else info.x + info.width) - 1)
         width: self.used_width
         x: max(0, parent.width - 3 - self.width)
         y: max(0, parent.height - 1)
@@ -225,6 +241,17 @@ EditWindow(Window):
                 text: 'Save a~l~l...'
                 command: SaveAll
                 key: 'Ctrl-F2'
+            MenuLine:
+            #: A departure, asked for, as the bottom frame's markers are:
+            #: filled by ``format_menu``.
+            SubMenu:
+                id: edit_menu_line_endings
+                text: 'Line en~d~ings'
+                key_command: ChooseLineEnding
+            SubMenu:
+                id: edit_menu_encoding
+                text: 'En~c~oding'
+                key_command: ChooseEncoding
             MenuLine:
             MenuItem:
                 text: '~P~rint'

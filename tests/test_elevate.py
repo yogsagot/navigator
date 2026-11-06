@@ -1886,3 +1886,78 @@ def test_root_sets_no_attribute_through_a_link_another_user_owns(tmp_path):
     assert raised.value.errno == errno.ELOOP
     with pytest.raises(OSError):
         ops.set_flags(str(tmp_path / "bait"), 0, True)
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_convert_text_refused_is_kept_for_as_root_and_done_through_the_helper(started, tmp_path):
+    from navigator.lib.file_ops import textconv
+
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    (locked / "a.txt").write_bytes(b"one\r\ntwo\r\n")
+    (locked / "a.txt").chmod(0o640)
+    locked.chmod(0o500)  # no new file can be made beside it
+    calls: list = []
+    real_call = ELEVATION.call_data
+
+    def counted(op, *args, **kwargs):
+        calls.append(op)
+        return real_call(op, *args, **kwargs)
+
+    options = textconv.Options(ending="lf")
+    try:
+        job = textconv.TextJob()
+        textconv.convert(textconv.plan([Location.of(locked / "a.txt")], job), options, job)
+        assert [location.name for location, _, _ in job.refused] == ["a.txt"] and not job.errors
+        locked.chmod(0o700)  # what root could have done anyway
+        ELEVATION.call_data = counted  # type: ignore[method-assign]
+        files = [(location, size) for location, size, _ in job.refused]
+        job.refused = []
+        textconv.convert(files, options, job, as_root=True)
+    finally:
+        locked.chmod(0o700)
+        vars(ELEVATION).pop("call_data", None)
+    assert (locked / "a.txt").read_bytes() == b"one\ntwo\n"
+    assert len(job.converted) == 1 and not job.errors and not job.refused
+    # Root's write_file, the editor's save: owner and mode kept, nothing left beside it.
+    assert "begin_text" in calls
+    assert (locked / "a.txt").stat().st_mode & 0o777 == 0o640
+    assert sorted(os.listdir(locked)) == ["a.txt"]
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_convert_text_offers_as_root_once_for_the_refused_files(helper, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import KeyEvent
+    from navigator.__main__ import Navigator
+    from navigator.widgets.file_ops.convert_text_dialog import ConvertTextDialog
+
+    locked = tmp_path / "locked"
+    locked.mkdir()
+    for name in ("a.txt", "b.txt"):
+        (locked / name).write_bytes(b"x\r\n")
+    locked.chmod(0o500)
+    SETTINGS.text_conversion.ending = "lf"
+    app = Navigator(locked, locked, terminal=FakeTerminal(80, 24))
+    seen: list = []
+
+    def start(a):
+        a.manager.left.marked = frozenset({"a.txt", "b.txt"})
+        a.manager.spawn(a.manager.convert_text(a.manager.left))
+
+    try:
+        run_app(app, [
+            start, Until(lambda a: isinstance(a.modal, ConvertTextDialog)), KeyEvent("enter"),
+            Until(lambda a: a.modal is not None and not isinstance(a.modal, ConvertTextDialog)),
+            lambda a: seen.append((a.modal.ok.text, a.modal.prompt)),
+            press_as_root(locked),
+            Until(lambda a: (locked / "b.txt").read_bytes() == b"x\n", timeout=10),
+            Until(lambda a: a.modal is not None and "converted" in getattr(a.modal, "prompt", "")),
+            lambda a: seen.append(a.modal.prompt),
+            KeyEvent("enter"),
+        ])
+    finally:
+        locked.chmod(0o700)
+    assert seen[0][0].replace("~", "") == "As root" and "2 files were refused permission" in seen[0][1]
+    assert (locked / "a.txt").read_bytes() == b"x\n"
+    assert "2 files converted" in seen[1]

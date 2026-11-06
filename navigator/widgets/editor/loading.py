@@ -21,6 +21,7 @@ from typing import Any
 from navkit.i18n import tr
 
 from navigator.lib.editor.document import Document, read_document
+from navigator.settings import SETTINGS
 from navigator.lib.system.job import Job, Stopped
 from navigator.lib.system.memory import NotEnoughMemory, edit_budget, out_of_memory
 from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
@@ -87,7 +88,8 @@ async def load_document(app: Any, path: Path | str, *, new: bool = False,
     """
     def read(job: Any, budget: Any) -> Document:
         try:
-            return read_document(path, job, budget=budget, as_root=as_root)
+            return read_document(path, job, budget=budget, as_root=as_root,
+                                 fallback=SETTINGS.editor.fallback_encoding)
         finally:
             if as_root:
                 from navigator.lib.system.elevate import ELEVATION

@@ -22,6 +22,8 @@ printable character.
 
 from __future__ import annotations
 
+import asyncio
+
 import functools
 import re
 import sys
@@ -47,6 +49,9 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 
 from navigator.widgets.editor.commands import (
+    ReopenWithEncoding,
+    SaveWithEncoding,
+    SetLineEnding,
     CloseFindBar,
     ShowFindBar,
     ShowReplaceBar,
@@ -139,7 +144,8 @@ from navigator.widgets.editor.commands import (
     WordRight,
 )
 from navigator.lib.editor import columns
-from navigator.lib.editor.buffer import EditBuffer
+from navigator.lib.editor import encodings
+from navigator.lib.editor.buffer import EditBuffer, State
 from navigator.lib.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
 from navigator.lib.editor import lock
 from navigator.lib.editor.save import write_file
@@ -770,7 +776,7 @@ class FileEditor(ContextMenuHost, Widget):
         """
         path = Path(path)
         try:
-            document = Document.load(path)
+            document = Document.load(path, SETTINGS.editor.fallback_encoding)
         except FileNotFoundError:
             if not new:
                 raise
@@ -822,7 +828,7 @@ class FileEditor(ContextMenuHost, Widget):
         if self.path is None:
             raise OSError("no file name")
         lines, endings, _ = self.snapshot()
-        write_file(self.path, encode_lines(lines, endings))
+        write_file(self.path, encode_lines(lines, endings, encoding=self.document.encoding))
         self.buffer.mark_saved()
         self.revision += 1
         self.lock_file()
@@ -1309,6 +1315,13 @@ class FileEditor(ContextMenuHost, Widget):
         an edit adds or takes out line breaks above it.
         """
         self._half_mark = None
+        if kind == "endings":
+            return  # every line as it was: only their terminators changed
+        if kind == "replace":
+            # The whole text read again: nothing marked in it means the same.
+            self._unmark()
+            self.line = min(self.line, len(self.document) - 1)
+            return
         block = self.block
         if block is not None:
             painted = block is self._painted_block
@@ -2904,7 +2917,125 @@ class FileEditor(ContextMenuHost, Widget):
             return self.back_indent
         if isinstance(command, SwitchWrap):
             return self.justify_on_wrap
+        if isinstance(command, SetLineEnding):
+            return self.document.line_ending == command.ending.upper()
+        if isinstance(command, (ReopenWithEncoding, SaveWithEncoding)):
+            return self.document.encoding == command.encoding
         return super().checks(command)
+
+    # -- line endings and encoding (a departure, asked for: ``format_menu``) -----
+
+    async def on_set_line_ending(self, event: SetLineEnding) -> bool:
+        """Every line's ending made the one asked for, and new lines' too:
+        one undo step, nothing done when the text has it already."""
+        newline = NEWLINES[event.ending]
+        document = self.document
+        if document.newline == newline and set(document.counts) <= {newline}:
+            return True
+        endings = [newline if ending else "" for ending in document.endings]
+        self.buffer.swap(State(list(document.lines), endings, newline, document.encoding),
+                         (self.line, self.col))
+        self.revision += 1
+        return True
+
+    async def on_reopen_with_encoding(self, event: ReopenWithEncoding) -> bool:
+        self.spawn(self.reopen_with_encoding(event.encoding))
+        return True
+
+    async def on_save_with_encoding(self, event: SaveWithEncoding) -> bool:
+        self.spawn(self.save_with_encoding(event.encoding))
+        return True
+
+    async def reopen_with_encoding(self, encoding: str) -> bool:
+        """The text's bytes read again as *encoding*, on a thread: the file is
+        not touched, so a changed text keeps its changes, and an unchanged one
+        stays unchanged.  One undo step.  False, and said, when the bytes are
+        not *encoding* or the text cannot be written in its own."""
+        document = self.document
+        if document.encoding == encoding:
+            return True
+        old = document.encoding
+        try:
+            new = await asyncio.to_thread(document.reinterpreted, encoding)
+        except UnicodeEncodeError:
+            await self._say_format(tr("The text has characters {encoding} cannot write, so it has no "
+                                      "bytes to read again.").format(encoding=encodings.label(old)))
+            return False
+        except UnicodeDecodeError:
+            await self._say_format(tr("The text does not read as {encoding}.").format(
+                encoding=encodings.label(encoding)))
+            return False
+        if self.document is not document:
+            return False  # another file opened meanwhile
+        was_modified = self.buffer.modified
+        self.buffer.swap(State(new.lines, new.endings, new.newline, encoding), (self.line, self.col))
+        if not was_modified:
+            self.buffer.mark_saved()
+        self.revision += 1
+        return True
+
+    async def save_with_encoding(self, encoding: str) -> bool:
+        """The text to be written in *encoding* from the next save on; one
+        undo step.  Refused, and said, when a character of it cannot be."""
+        document = self.document
+        if document.encoding == encoding:
+            return True
+        where = await asyncio.to_thread(encodings.first_unencodable, list(document.lines), encoding)
+        if self.document is not document:
+            return False
+        if where is not None:
+            line, index = where
+            text = document.lines[line]
+            char = text[index] if index < len(text) else "?"
+            await self._say_format(tr("{char} (U+{code:04X}) on line {line} cannot be written in {encoding}").format(
+                char=char, code=ord(char), line=line + 1, encoding=encodings.label(encoding)))
+            self._go(Pos(line, index))
+            return False
+        self.buffer.swap(State(list(document.lines), list(document.endings), document.newline, encoding),
+                         (self.line, self.col))
+        self.revision += 1
+        return True
+
+    async def _say_format(self, message: str) -> None:
+        from navml.widgets.dialog.dialog import Dialog
+
+        app = self.application
+        if app is not None:
+            await Dialog(title=tr("Encoding"), prompt=message, buttons="ok").execute(app)
+
+    @computed
+    def format_text(self) -> str:
+        """The bottom frame's markers: the line ending and the encoding,
+        ``[LF]═[UTF-8]``, bracketed as the option strip's items are, a frame
+        cell between -- a departure, asked for (``FormatMarks``)."""
+        self.revision
+        bar = "═" if self.glyphs >= GLYPHS_UNICODE else "="
+        ending = self.document.line_ending
+        label = encodings.label(self.document.encoding)
+        # Each zone takes its brackets too: a click on one is the marker's.
+        self._ending_at = (0, len(ending) + 2)
+        self._encoding_at = (len(ending) + 3, len(ending) + 5 + len(label))
+        return f"[{ending}]{bar}[{label}]"
+
+    def next_line_ending(self) -> str:
+        """What a left click on the line-ending marker makes the text: the
+        next of LF, CRLF and CR after the one it has -- or, with more than
+        one, the one most of its lines have (``Document.newline``)."""
+        order = ("lf", "crlf", "cr")
+        current = self.document.line_ending
+        if current == "Mixed":
+            return next(key for key, newline in NEWLINES.items() if newline == self.document.newline)
+        return order[(order.index(current.lower()) + 1) % len(order)]
+
+    def ending_indicator(self) -> tuple[int, int]:
+        """Where the line ending stands in :attr:`format_text`, end exclusive."""
+        _ = self.format_text
+        return self._ending_at
+
+    def encoding_indicator(self) -> tuple[int, int]:
+        """Where the encoding stands in :attr:`format_text`, end exclusive."""
+        _ = self.format_text
+        return self._encoding_at
 
     async def on_undo(self, event: Undo) -> bool:
         before = self.buffer.undo()
@@ -3427,6 +3558,11 @@ class FileEditor(ContextMenuHost, Widget):
     def _follow_tokens(self, kind: str, start: Pos, end: Pos) -> None:
         """An edit made: the tokens move with their text, and everything from the
         edited line on is to be lexed again."""
+        if kind == "endings":
+            return
+        if kind == "replace":
+            self.rehighlight()
+            return
         if self._lex_stop is not None:
             self._dirty_from = start.line if self._dirty_from is None else min(self._dirty_from, start.line)
         highlight.shift_spans(self._spans, kind, start, end)
@@ -3766,4 +3902,56 @@ class InfoLine(StaticText):
             start, end = editor.code_indicator()
             if start <= event.x < end:
                 await editor.emit(AsciiTable())
+        return True
+
+
+class FormatMarks(StaticText):
+    """The line ending and the encoding over the bottom frame, after the info
+    line: ``[LF]═[UTF-8]`` -- a departure, asked for: DN wrote every text in
+    ``CR+LF`` and the screen's code page, so it had nothing to show.
+
+    A left press on the line ending makes it the next of LF, CRLF and CR
+    (``FileEditor.next_line_ending``) and a right press asks for its box
+    (:class:`ChooseLineEnding`); either press on the encoding asks for its box
+    (:class:`ChooseEncoding`).  The window opens a box over the marker.  Every
+    press on the line is the line's, as on the info line.
+    """
+
+    def _zones(self) -> tuple[tuple[tuple[int, int], Any], ...]:
+        from navigator.widgets.editor.commands import ChooseEncoding, ChooseLineEnding
+
+        editor = getattr(self.parent, "editor", None)
+        if not isinstance(editor, FileEditor):
+            return ()
+        return ((editor.ending_indicator(), ChooseLineEnding),
+                (editor.encoding_indicator(), ChooseEncoding))
+
+    def tooltip_at(self, x: int, y: int) -> str:
+        from navigator.widgets.editor.commands import ChooseLineEnding
+
+        editor = getattr(self.parent, "editor", None)
+        app = self.application
+        for (start, end), command in self._zones():
+            if start <= x < end:
+                if command is ChooseLineEnding:
+                    text = tr("Line endings: a click makes them the next kind, a right click offers them all")
+                else:
+                    text = tr("Encoding: a click reopens or saves the text in another")
+                key = commands.key_for(app, command, editor) if app is not None else None
+                return with_keys(text, commands.key_label(key) if key else "")
+        return super().tooltip_at(x, y)
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.action != "press":
+            return True
+        from navigator.widgets.editor.commands import ChooseLineEnding, SetLineEnding
+
+        editor = getattr(self.parent, "editor", None)
+        if event.button in ("left", "right") and isinstance(editor, FileEditor):
+            for (start, end), command in self._zones():
+                if start <= event.x < end:
+                    if command is ChooseLineEnding and event.button == "left":
+                        await editor.emit(SetLineEnding(editor.next_line_ending()))
+                    else:
+                        await editor.emit(command())
         return True
