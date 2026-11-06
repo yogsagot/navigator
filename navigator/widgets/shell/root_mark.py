@@ -3,7 +3,8 @@
 Not DN's: DOS refused no one (``navigator.lib.system.elevate``).  While the
 root helper runs, a step refused permission -- a panel's read, the quick
 view's -- may go to root without asking again, so the screen says so, the
-way a shell's ``#`` prompt does.  Utilities > *Close root access* ends it.
+way a shell's ``#`` prompt does.  Utilities > *Close root access* ends it,
+and so does a click on the mark (asked for).
 
 **Its tooltip says what the mark means and how it ends** -- after System
 Setup's idle minutes, or at once from the menu -- since a bare ``ROOT`` says
@@ -16,6 +17,7 @@ from typing import Any
 
 from navkit import commands, tooltip
 from navkit.bidi import display_width
+from navkit.events import MouseClickEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
@@ -55,11 +57,20 @@ class RootMark(Widget):
             lines.append(tr_n("It closes after {n} idle minute", "It closes after {n} idle minutes", minutes))
         # The menu's own captions, so the path reads as the menu does in any language.
         path = " > ".join(caption.replace("~", "") for caption in (tr("~U~tilities"), tr("Close ~r~oot access")))
-        close = tr("{menu} closes it now").format(menu=path)
+        close = tr("Click, or {menu}, to close it now").format(menu=path)
         app = self.application
         key = commands.key_for(app, CloseRootAccess) if app is not None else None
         lines.append(with_keys(close, commands.key_label(key) if key else ""))
         return tooltip.lines(*lines)
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        """A press closes root access, as Utilities > *Close root access* does."""
+        if event.action != "press" or event.button != "left":
+            return False
+        app = self.application
+        if app is not None and self.open:
+            await app.run_command(CloseRootAccess())
+        return True
 
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)

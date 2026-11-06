@@ -1826,6 +1826,28 @@ def test_the_menu_bar_says_root_while_it_is_open_and_it_can_be_closed(started, t
     assert not ELEVATION.running
 
 
+def test_a_click_on_the_root_mark_closes_root_access(started, tmp_path, quiet_console):
+    from conftest import FakeTerminal, Until, run_app
+    from navkit.events import MouseClickEvent
+    from navigator.__main__ import Navigator
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+
+    def click(a):
+        mark = a.shell.root_mark
+        seen["position"] = (mark.x, mark.y)
+        a.post_event(MouseClickEvent(x=mark.x + 1, y=mark.y, button="left", action="press"))
+
+    run_app(app, [
+        lambda a: a.spawn(a.shell.follow_root()),
+        Until(lambda a: a.shell.root_mark.visible),
+        click,
+        Until(lambda a: not ELEVATION.running and not a.shell.root_mark.visible, timeout=5),
+    ])
+    assert not ELEVATION.running
+
+
 def test_the_helper_reads_and_writes_extended_attributes_and_flags(started, tmp_path):
     """Alt+E's ACL, Xattrs and Flags pages, as root: the six ops through the helper."""
     from navigator.lib.drives.location import Location

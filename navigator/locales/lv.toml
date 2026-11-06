@@ -4802,7 +4802,7 @@ flag = "LV"
 # navigator/widgets/shell/root_mark.py:55
 "It closes after {n} idle minute" = ["Tā aizveras pēc {n} dīkstāves minūtes", "Tā aizveras pēc {n} dīkstāves minūtēm", "Tā aizveras pēc {n} dīkstāves minūtēm"]
 # navigator/widgets/shell/root_mark.py:58
-"{menu} closes it now" = "{menu} to aizver tūlīt"
+"Click, or {menu}, to close it now" = "Klikšķiniet vai {menu}, lai to aizvērtu tūlīt"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Vienība"
 # navigator/widgets/shell/service_list/service_list.py:46

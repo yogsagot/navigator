@@ -4803,7 +4803,7 @@ direction = "rtl"
 # navigator/widgets/shell/root_mark.py:55
 "It closes after {n} idle minute" = ["يغلق بعد {n} دقيقة خمول", "يغلق بعد دقيقة خمول واحدة", "يغلق بعد دقيقتي خمول", "يغلق بعد {n} دقائق خمول", "يغلق بعد {n} دقيقة خمول", "يغلق بعد {n} دقيقة خمول"]
 # navigator/widgets/shell/root_mark.py:58
-"{menu} closes it now" = "{menu} يغلقه الآن"
+"Click, or {menu}, to close it now" = "انقر، أو {menu}، لإغلاقه الآن"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "الوحدة"
 # navigator/widgets/shell/service_list/service_list.py:46

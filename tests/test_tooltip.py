@@ -879,13 +879,13 @@ def test_the_root_mark_says_what_it_means_and_how_it_ends():
     assert lines == ["Root access is open",
                      "A step refused permission is done again as root without asking",
                      "It closes after 15 idle minutes",
-                     "Utilities > Close root access closes it now"]
+                     "Click, or Utilities > Close root access, to close it now"]
     SETTINGS.system.root_timeout = 0                     # closed after each step: no idle time to name
     assert len(mark.tooltip_at(1, 0).split("\n")) == 3
     # The menu path reads as the menu does, in the language shown.
     i18n.register_package("navigator.locales")
     i18n.LOCALE.code = "lv"
-    assert mark.tooltip_at(1, 0).split("\n")[-1].startswith("Rīki > Aizvērt root piekļuvi")
+    assert mark.tooltip_at(1, 0).split("\n")[-1].startswith("Klikšķiniet vai Rīki > Aizvērt root piekļuvi")
 
 
 # -- the panel divider -----------------------------------------------------------

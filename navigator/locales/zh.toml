@@ -4802,7 +4802,7 @@ flag = "CN"
 # navigator/widgets/shell/root_mark.py:55
 "It closes after {n} idle minute" = ["空闲 {n} 分钟后关闭"]
 # navigator/widgets/shell/root_mark.py:58
-"{menu} closes it now" = "{menu} 可立即关闭"
+"Click, or {menu}, to close it now" = "单击或 {menu} 可立即关闭"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "单元"
 # navigator/widgets/shell/service_list/service_list.py:46

@@ -4802,7 +4802,7 @@ flag = "RU"
 # navigator/widgets/shell/root_mark.py:55
 "It closes after {n} idle minute" = ["Закрывается после {n} минуты простоя", "Закрывается после {n} минут простоя", "Закрывается после {n} минут простоя"]
 # navigator/widgets/shell/root_mark.py:58
-"{menu} closes it now" = "{menu} закрывает его сразу"
+"Click, or {menu}, to close it now" = "Щелкните или {menu}, чтобы закрыть его сразу"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Юнит"
 # navigator/widgets/shell/service_list/service_list.py:46
