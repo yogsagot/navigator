@@ -644,6 +644,9 @@ class Subshell:
         #: in the shell is made to do nothing.
         self.feeds_zoxide: Callable[[], bool] = lambda: False
         self._paste = False
+        #: What the shell printed while parked (:meth:`park`), or None.
+        self._parked: list[bytes] | None = None
+        self._parked_size = self._parked_dropped = 0
         #: The line editor is zsh's, which reads a bracketed paste whenever.
         self._zle = False
         #: Whether the running shell can answer :meth:`complete`.
@@ -950,7 +953,41 @@ class Subshell:
 
     # -- output ----------------------------------------------------------------
 
+    def park(self) -> None:
+        """Keep what the shell prints from now on, unpainted, until
+        :meth:`unpark` -- the user's shell while the console is root's
+        (``Console.go_root``), so a background job of its own finishing
+        does not land among the root shell's output."""
+        if self._parked is None:
+            self._parked, self._parked_size, self._parked_dropped = [], 0, 0
+
+    def unpark(self) -> None:
+        """What the shell printed while parked, painted now, in order, and
+        read as it would have been then: its marks, its held-back prompt."""
+        chunks, self._parked = self._parked, None
+        for chunk in chunks or ():
+            self._on_output(chunk)
+
+    @property
+    def parked(self) -> bool:
+        return self._parked is not None
+
+    @property
+    def parked_dropped(self) -> int:
+        """Bytes the shell printed while parked that were not kept: the
+        oldest, past :data:`_PARKED_LIMIT`."""
+        return self._parked_dropped if self._parked is not None else 0
+
     def _on_output(self, data: bytes) -> None:
+        if self._parked is not None:
+            # At most _PARKED_LIMIT kept: the oldest reads go first.
+            self._parked.append(data)
+            self._parked_size += len(data)
+            while self._parked_size > _PARKED_LIMIT and len(self._parked) > 1:
+                dropped = len(self._parked.pop(0))
+                self._parked_size -= dropped
+                self._parked_dropped += dropped
+            return
         if _PASTE_ON in data or _PASTE_OFF in data:
             self._paste = data.rfind(_PASTE_ON) > data.rfind(_PASTE_OFF)
         data = self._tail + data
@@ -1139,6 +1176,9 @@ class Subshell:
         if was_busy and self.on_finished is not None:
             self.on_finished(status, self.cwd)
 
+
+#: How much a parked shell's output is kept of (:meth:`Subshell.park`).
+_PARKED_LIMIT = 1 << 20
 
 #: The variables a root console is sent from Navigator's environment -- the
 #: helper keeps only these and the ``LC_*`` locale (``roothelper.CONSOLE_KEEP``).

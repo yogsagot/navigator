@@ -2237,20 +2237,45 @@ def test_elevating_makes_the_console_root_s_and_closing_brings_the_user_s_back(h
         lambda a: console(a).run("export NAV_PARKED=yes", tmp_path),
         Until(idle, timeout=15),
         lambda a: seen.update(user=console(a).user_subshell.process.pid),
+        # A job of the user's shell that prints while the console is root's.
+        lambda a: console(a).run("(sleep 2; echo late-$((3+4))) &", tmp_path),
+        Until(idle, timeout=15),
         lambda a: a.spawn(a.run_command(ToggleRootAccess())),
         Until(lambda a: console(a).is_root and idle(a), timeout=15),
+        Until(lambda a: len(console(a).user_subshell._parked or ()) > 0, timeout=15),
         lambda a: seen.update(kind=type(console(a).subshell)),
         lambda a: console(a).run("echo root-$((1+1)) parked=${NAV_PARKED-unset}", tmp_path),
         Until(lambda a: idle(a) and "root-2" in text(a), timeout=15),
         lambda a: seen.update(root=text(a)),
+        lambda a: seen.update(parked=b"".join(console(a).user_subshell._parked)),
         lambda a: a.spawn(a.run_command(ToggleRootAccess())),
         Until(lambda a: not ELEVATION.running and not console(a).is_root, timeout=15),
         lambda a: console(a).run('echo "back=$NAV_PARKED"', tmp_path),
-        Until(lambda a: idle(a) and "back=yes" in text(a), timeout=15),
+        Until(lambda a: idle(a) and "back=yes" in text(a) and "late-7" in text(a), timeout=15),
         lambda a: seen.update(again=console(a).subshell.process.pid, held=ELEVATION._held),
     ], timeout=60)
     assert seen["kind"] is RootSubshell
     assert "parked=unset" in seen["root"]          # root's own environment, not the user's shell's
     assert "Root shell: commands run as root" in seen["root"]
+    assert b"late-7" in seen["parked"] and "late-7" not in seen["root"]   # kept, not painted
     assert seen["again"] == seen["user"]          # the user's shell itself, not a new one
     assert seen["held"] == 0
+
+
+def test_going_back_says_how_much_of_the_parked_shell_s_output_was_dropped(monkeypatch):
+    from navigator.lib.system import subshell as module
+    from navigator.widgets.shell.console.console import Console
+
+    monkeypatch.setattr(module, "_PARKED_LIMIT", 10)
+    console = Console()
+    console.screen.resize(100, 10)
+    user = console.user_subshell
+    user.park()
+    for chunk in (b"a" * 20480, b"tail"):
+        user._on_output(chunk)
+    console.subshell = module.RootSubshell(console.screen)   # as go_root leaves it
+    console.go_user()
+    lines = [line.strip() for line in console.screen.screen.display if line.strip()]
+    assert lines == ["Back to your own shell",
+                     "20K of what your shell printed meanwhile was not kept: its oldest output",
+                     "tail"]

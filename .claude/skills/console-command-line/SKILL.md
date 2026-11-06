@@ -97,7 +97,10 @@ choice), `O` (reveal output).
 - Queries are answered in order -- `Subshell._completions` is a queue (two keys in one read send two queries).
 - **A root console** (Utilities > *Elevate root access*, `navigator-elevation`): `Console.go_root` swaps
   `console.subshell` for a `RootSubshell` on the same screen, with the same callbacks. The user's shell is parked as
-  `console.user_subshell`, still running, and `go_user` brings it back as it was. Everything reads
+  `console.user_subshell`, still running, and `go_user` brings it back as it was. While parked, what it prints is kept,
+  not painted (`Subshell.park`/`unpark`, at most `_PARKED_LIMIT`, the oldest reads dropped first and counted in
+  `parked_dropped`, which `go_user` says the size of before the replay), and replayed
+  through `_on_output` after the *Back to your own shell* line, so its marks and prompt are read as they would have been. Everything reads
   `console.subshell` at call time, so nothing else needs to know. `RootSubshell.start` does nothing. Its two halves
   are `open` on a thread (the helper call) and `attach` on the loop (`navkit.process.AttachedPty` over the handed-over
   master: no `waitpid`; signals go to `console_stop` through the helper). `run()` therefore never restarts one that

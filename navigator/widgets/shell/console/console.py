@@ -187,6 +187,7 @@ class Console(ScreenView):
 
         root.on_exit = ended
         root.attach(pid, fd, name, columns, lines)
+        user.park()
         self._say(tr("Root shell: commands run as root until root access is closed"))
         self.screen.respond = root.write
         self.subshell = root
@@ -202,6 +203,13 @@ class Console(ScreenView):
         root.stop()
         self.running = self.user_subshell.busy
         self._say(tr("Back to your own shell"))
+        dropped = self.user_subshell.parked_dropped
+        if dropped:
+            from navigator.lib.system.sysinfo import size_text
+
+            self._say(tr("{size} of what your shell printed meanwhile was not kept: its oldest output").format(
+                size=size_text(dropped)))
+        self.user_subshell.unpark()
         if self.user_subshell.is_running:
             self._prompted(self.user_subshell.held_prompt, self.user_subshell.cwd)
 

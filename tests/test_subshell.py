@@ -711,3 +711,26 @@ def test_feeding_zoxide_silences_its_own_hook(shell, feeds, home, tmp_path):
 
     run(go())
     assert log.exists() is not feeds
+
+
+def test_a_parked_shell_s_output_is_kept_and_painted_when_it_is_back():
+    """The user's shell while the console is root's: nothing it prints is
+    painted until it is unparked, then all of it, in order -- at most
+    _PARKED_LIMIT of it, the oldest reads dropped first."""
+    from navigator.lib.system import subshell as module
+
+    screen = ConsoleScreen(80, 24)
+    shell = Subshell(screen)
+    shell.park()
+    shell._on_output(b"one ")
+    shell._on_output(b"two")
+    assert shell.parked and not text(screen)
+    shell.unpark()
+    assert not shell.parked and text(screen) == ["one two"]
+
+    shell.park()
+    shell._on_output(b"x" * module._PARKED_LIMIT)
+    shell._on_output(b"kept")
+    assert shell._parked == [b"kept"] and shell.parked_dropped == module._PARKED_LIMIT
+    shell.unpark()
+    assert shell.parked_dropped == 0

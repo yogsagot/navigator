@@ -4833,10 +4833,12 @@ flag = "RU"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:997
 "Backgr" = "Фон"
-# navigator/widgets/shell/console/console.py:190
+# navigator/widgets/shell/console/console.py:191
 "Root shell: commands run as root until root access is closed" = "{'ar': 'صدفة الجذر: تعمل الأوامر بصلاحيات الجذر حتى تُغلق صلاحيات الجذر', 'he': 'מעטפת root: פקודות רצות כ-root עד שגישת root תיסגר', 'ja': 'root シェル: root アクセスを閉じるまでコマンドは root として実行されます', 'lv': 'Root čaula: komandas darbojas kā root, līdz root piekļuve tiek aizvērta', 'ru': 'Оболочка root: команды выполняются от имени root, пока доступ root не закрыт', 'zh': 'root shell：在关闭 root 权限之前，命令以 root 身份运行'}"
-# navigator/widgets/shell/console/console.py:204
+# navigator/widgets/shell/console/console.py:205
 "Back to your own shell" = "{'ar': 'العودة إلى صدفتك', 'he': 'חזרה למעטפת שלך', 'ja': '自分のシェルに戻りました', 'lv': 'Atpakaļ jūsu čaulā', 'ru': 'Снова ваша оболочка', 'zh': '已回到你自己的 shell'}"
+# navigator/widgets/shell/console/console.py:210
+"{size} of what your shell printed meanwhile was not kept: its oldest output" = "{size} из того, что ваша оболочка вывела за это время, не сохранено: самый старый вывод"
 # navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "~С~нять выделение"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
