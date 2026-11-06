@@ -146,6 +146,34 @@ def test_media_details_join_the_table():
     assert {line.index(":") for line in text[1:]} == {len("Attributes")}
 
 
+def test_a_programs_libraries_continue_under_the_first():
+    from navigator.lib.system.programinfo import Program
+
+    program = Program(machine=62, kind="pie", interpreter="/lib/ld.so",
+                      needed=[("libc.so.6", "/lib/libc.so.6"), ("libgone.so.1", None)], stripped=True)
+    entry = DirEntry("prog", False, 10, 0o100755)
+    text = [line.rstrip() for line, _ in file_lines(entry, FileFacts(media=program))]
+    start = text.index("    Program: ~ELF 64-bit x86-64, PIE executable~")
+    assert text[start:] == [
+        "    Program: ~ELF 64-bit x86-64, PIE executable~",
+        "Interpreter: ~/lib/ld.so~",
+        "  Libraries: ~libc.so.6~",
+        "             ~libgone.so.1~ (not found)",
+        "    Symbols: ~stripped~",
+    ]
+    assert table(["Name: ~a~", ": ~b~"]) == ["Name: ~a~", "      ~b~"]
+
+
+def test_stat_file_recognises_a_program(tmp_path):
+    from test_programinfo import elf
+
+    (tmp_path / "prog").write_bytes(elf(type_=2))
+    (tmp_path / "prog").chmod(0o755)
+    (tmp_path / "libx.so").write_bytes(elf())
+    assert stat_file(tmp_path / "prog", "prog").mime == "application/x-executable"
+    assert stat_file(tmp_path / "libx.so", "libx.so").mime == "application/x-sharedlib"
+    assert stat_file(None, "libx.so").mime == "application/octet-stream"
+
 def test_stat_file(tmp_path):
     (tmp_path / "a.txt").write_text("x")
     facts = stat_file(tmp_path / "a.txt", "a.txt")
@@ -251,3 +279,19 @@ def test_a_media_file_is_described_a_moment_later_unless_switched_off(place):
                   Until(lambda a: a.manager.info.file_facts is not None), lambda a: None,
                   lambda a: seen.update(off=described(a))])
     assert "Name: ~b.png~" in seen["off"] and not any(line.startswith("Dimensions") for line in seen["off"])
+
+
+def test_a_program_is_described_a_moment_later(place):
+    from test_programinfo import elf
+
+    (place / "prog").write_bytes(elf(type_=2, needed=("libnowhere-at-all.so.9",)))
+    (place / "prog").chmod(0o755)
+
+    def to_prog(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index("prog")
+
+    app = navigator(place)
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), to_prog,
+                  Until(lambda a: "Libraries: ~libnowhere-at-all.so.9~ (not found)" in described(a))])
+    assert "Type: ~Executable file, application/x-executable~" in described(app)

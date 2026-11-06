@@ -13,6 +13,10 @@ value)`` on the loop, where :func:`~navkit.i18n.tr` may be read.
   ``ffprobe`` does not give.  Any other image is ``ffprobe``'s size.
 - **PDFs** are pypdf's: the pages and the document's title, author, subject
   and producer.
+- **Programs** (ELF executables, libraries, objects and core dumps, which
+  :func:`navigator.lib.system.programinfo.sniff` recognises) are
+  :mod:`~navigator.lib.system.programinfo`'s: the machine, the libraries
+  needed and whether each is found, and whether it is stripped.
 
 Nothing is run for a file the cursor has already left: *wanted* is asked
 first, the panel's reader having one thread a held-down key would queue
@@ -33,6 +37,8 @@ from typing import Any, Callable
 
 from navkit.i18n import tr, tr_n
 
+from navigator.lib.system import programinfo
+
 #: How long ``ffprobe`` may take over one file.
 TIMEOUT = 5.0
 
@@ -48,7 +54,8 @@ TAGS = ("title", "artist", "album", "date", "track", "genre")
 #: Every label :func:`pairs` gives, in English: what the information panel
 #: translates, listed for the catalogues (``navigator/locales/__init__.py``).
 LABELS = ("Duration", "Container", "Video", "Audio", "Bitrate", "Title", "Artist", "Album", "Year", "Track",
-          "Genre", "Date", "Dimensions", "Camera", "Taken", "Pages", "Author", "Subject", "Producer", "Encrypted")
+          "Genre", "Date", "Dimensions", "Camera", "Taken", "Pages", "Author", "Subject", "Producer", "Encrypted") \
+    + programinfo.LABELS
 
 
 @dataclass
@@ -73,10 +80,12 @@ class Media:
 
 
 def kind(mime: str) -> str | None:
-    """``audio``, ``video``, ``image`` or ``pdf`` for a MIME type; None for
-    anything else."""
+    """``audio``, ``video``, ``image``, ``pdf`` or ``program`` for a MIME
+    type; None for anything else."""
     if mime == "application/pdf":
         return "pdf"
+    if mime in programinfo.MIMES:
+        return "program"
     major = mime.partition("/")[0]
     return major if major in ("audio", "video", "image") else None
 
@@ -86,12 +95,15 @@ def program(which: Callable[[str], str | None] | None = None) -> str | None:
     return (which or shutil.which)("ffprobe")
 
 
-def read(path: Path, mime: str, wanted: Callable[[], bool] = lambda: True) -> Media | None:
-    """*path*'s :class:`Media`, or None: not a kind described, not readable,
-    or no longer *wanted*.  Runs on a thread."""
+def read(path: Path, mime: str, wanted: Callable[[], bool] = lambda: True) -> Any:
+    """*path*'s :class:`Media` (a program's
+    :class:`~navigator.lib.system.programinfo.Program`), or None: not a kind
+    described, not readable, or no longer *wanted*.  Runs on a thread."""
     what = kind(mime)
     if what is None or not wanted():
         return None
+    if what == "program":
+        return programinfo.read(path)
     try:
         if what == "pdf":
             return from_pdf(path)
@@ -316,11 +328,14 @@ def _channels(layout: str, channels: int) -> str:
     return layout or tr_n("{n} channel", "{n} channels", channels)
 
 
-def pairs(media: Media | None) -> list[tuple[str, str | float]]:
+def pairs(media: Any) -> list[tuple[str, str | float]]:
     """*media* as ``(label, value)``, the labels English (:data:`LABELS`), a
-    date as a time for the caller to stamp."""
+    date as a time for the caller to stamp; a program's as
+    :func:`navigator.lib.system.programinfo.pairs` gives them."""
     if media is None:
         return []
+    if isinstance(media, programinfo.Program):
+        return list(programinfo.pairs(media))
     out: list[tuple[str, str | float]] = []
     if media.encrypted:
         return [("Encrypted", tr("yes"))]

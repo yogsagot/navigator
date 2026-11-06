@@ -2325,7 +2325,7 @@ flag = "CN"
 "System monitor" = "系统监视器"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:45, navigator/lib/system/sysinfo.py:145, navigator/widgets/shell/commands.py:253
 "CPU" = "CPU"
-# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:335 ...
+# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:344 ...
 "Memory" = "内存"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:76
 "Sensors" = "传感器"
@@ -2893,83 +2893,83 @@ flag = "CN"
 "plain" = "纯文本"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "自动"
-# navigator/lib/system/diskinfo.py:217
+# navigator/lib/system/diskinfo.py:221
 "File" = "文件"
-# navigator/lib/system/diskinfo.py:208
-"Socket" = "套接字"
-# navigator/lib/system/diskinfo.py:210
-"Character device" = "字符设备"
 # navigator/lib/system/diskinfo.py:212
-"Block device" = "块设备"
+"Socket" = "套接字"
 # navigator/lib/system/diskinfo.py:214
-"FIFO" = "FIFO"
+"Character device" = "字符设备"
 # navigator/lib/system/diskinfo.py:216
+"Block device" = "块设备"
+# navigator/lib/system/diskinfo.py:218
+"FIFO" = "FIFO"
+# navigator/lib/system/diskinfo.py:220
 "Executable file" = "可执行文件"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:207
 "Broken symbolic link" = "失效的符号链接"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a directory" = "指向目录的符号链接"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a file" = "指向文件的符号链接"
-# navigator/lib/system/diskinfo.py:231, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:235, navigator/lib/appearance/palette.py
 "Current file" = "当前文件"
-# navigator/lib/system/diskinfo.py:236
-"Size: ~not counted~" = "大小: ~未统计~"
-# navigator/lib/system/diskinfo.py:238
-"Size: ~{n:,}~ byte" = ["大小: ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2508
-"~{n:,}~ byte" = ["~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:232
-"Name: ~{name}~" = "名称: ~{name}~"
-# navigator/lib/system/diskinfo.py:233
-"Type: ~{kind}~" = "类型: ~{kind}~"
-# navigator/lib/system/diskinfo.py:286
-"Current directory:" = "当前目录:"
-# navigator/lib/system/diskinfo.py:308
-"~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ 共 ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:311
-"~{n:,}~ free byte on ~{mount}~" = ["~{mount}~ 可用 ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:326
-"~{n:,}~ byte memory for user" = ["用户可用内存 ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:329
-"~{n:,}~ byte memory for Navigator" = ["Navigator 内存 ~{n:,}~ 字节"]
 # navigator/lib/system/diskinfo.py:240
-"Modified: ~{when}~" = "修改: ~{when}~"
+"Size: ~not counted~" = "大小: ~未统计~"
 # navigator/lib/system/diskinfo.py:242
-"Accessed: ~{when}~" = "访问: ~{when}~"
+"Size: ~{n:,}~ byte" = ["大小: ~{n:,}~ 字节"]
+# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2508
+"~{n:,}~ byte" = ["~{n:,}~ 字节"]
+# navigator/lib/system/diskinfo.py:236
+"Name: ~{name}~" = "名称: ~{name}~"
+# navigator/lib/system/diskinfo.py:237
+"Type: ~{kind}~" = "类型: ~{kind}~"
+# navigator/lib/system/diskinfo.py:295
+"Current directory:" = "当前目录:"
+# navigator/lib/system/diskinfo.py:317
+"~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ 共 ~{n:,}~ 字节"]
+# navigator/lib/system/diskinfo.py:320
+"~{n:,}~ free byte on ~{mount}~" = ["~{mount}~ 可用 ~{n:,}~ 字节"]
+# navigator/lib/system/diskinfo.py:335
+"~{n:,}~ byte memory for user" = ["用户可用内存 ~{n:,}~ 字节"]
+# navigator/lib/system/diskinfo.py:338
+"~{n:,}~ byte memory for Navigator" = ["Navigator 内存 ~{n:,}~ 字节"]
 # navigator/lib/system/diskinfo.py:244
+"Modified: ~{when}~" = "修改: ~{when}~"
+# navigator/lib/system/diskinfo.py:246
+"Accessed: ~{when}~" = "访问: ~{when}~"
+# navigator/lib/system/diskinfo.py:248
 "Changed: ~{when}~" = "变更: ~{when}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:251
 "Attributes: ~{attributes}~" = "属性: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:250
-"Owner: ~{owner}~" = "所有者: ~{owner}~"
-# navigator/lib/system/diskinfo.py:252
-"Links: ~{links}~, inode ~{inode}~" = "链接: ~{links}~，inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
+"Owner: ~{owner}~" = "所有者: ~{owner}~"
+# navigator/lib/system/diskinfo.py:256
+"Links: ~{links}~, inode ~{inode}~" = "链接: ~{links}~，inode ~{inode}~"
+# navigator/lib/system/diskinfo.py:258
 "Link to: ~{target}~" = "链接到: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2504
+# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2504
 "No files in this directory" = "此目录中没有文件"
-# navigator/lib/system/diskinfo.py:294
+# navigator/lib/system/diskinfo.py:303
 "~{n:,}~ file with {total}" = ["~{n:,}~ 个文件，共 {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:255
+# navigator/lib/system/diskinfo.py:342, navigator/widgets/manager/commands.py:255
 "Drive" = "驱动器"
-# navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "内存总计 ~{n:,}~K 字节"
-# navigator/lib/system/diskinfo.py:315
+# navigator/lib/system/diskinfo.py:324
 "Volume label on ~{mount}: {label}~" = "卷标 ~{mount}: {label}~"
-# navigator/lib/system/mediainfo.py:313
+# navigator/lib/system/mediainfo.py:325
 "mono" = "单声道"
-# navigator/lib/system/mediainfo.py:315
+# navigator/lib/system/mediainfo.py:327
 "stereo" = "立体声"
-# navigator/lib/system/mediainfo.py:316
+# navigator/lib/system/mediainfo.py:328
 "{n} channel" = ["{n} 声道"]
-# navigator/lib/system/mediainfo.py:326
+# navigator/lib/system/mediainfo.py:341
 "yes" = "是"
-# navigator/lib/system/mediainfo.py:343
+# navigator/lib/system/mediainfo.py:358
 "{n} fps" = "{n} fps"
-# navigator/lib/system/mediainfo.py:349
+# navigator/lib/system/mediainfo.py:364
 "{n} kHz" = "{n} kHz"
-# navigator/lib/system/mediainfo.py:354
+# navigator/lib/system/mediainfo.py:369
 "{n} kbit/s" = "{n} kbit/s"
 # navigator/lib/system/memory.py:80
 "Not enough memory to complete operation." = "内存不足，无法完成操作。"
@@ -3001,7 +3001,7 @@ flag = "CN"
 "Name" = "名称"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "命令"
-# navigator/lib/system/processes.py:404
+# navigator/lib/system/processes.py:404, navigator/lib/system/mediainfo.py
 "Program" = "程序"
 # navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:247, navigator/widgets/shell/commands.py:429 ...
 "State" = "状态"
@@ -3023,6 +3023,36 @@ flag = "CN"
 "Environment" = "环境变量"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator 不向该进程发送信号"
+# navigator/lib/system/programinfo.py:420
+"unknown type" = "未知类型"
+# navigator/lib/system/programinfo.py:435
+"(not found)" = "(未找到)"
+# navigator/lib/system/programinfo.py:430
+"ELF {bits}-bit {machine}, {kind}" = "ELF {bits} 位 {machine}，{kind}"
+# navigator/lib/system/programinfo.py:433
+"big-endian" = "大端序"
+# navigator/lib/system/programinfo.py:448
+"stripped" = "已剥离"
+# navigator/lib/system/programinfo.py:448
+"not stripped" = "未剥离"
+# navigator/lib/system/programinfo.py:418
+"executable" = "可执行文件"
+# navigator/lib/system/programinfo.py:418
+"PIE executable" = "PIE 可执行文件"
+# navigator/lib/system/programinfo.py:418
+"shared library" = "共享库"
+# navigator/lib/system/programinfo.py:419
+"object file" = "目标文件"
+# navigator/lib/system/programinfo.py:419
+"core dump" = "核心转储"
+# navigator/lib/system/programinfo.py:429
+"machine {n}" = "机器 {n}"
+# navigator/lib/system/programinfo.py:450
+"with debug info" = "含调试信息"
+# navigator/lib/system/programinfo.py:444
+"none, statically linked" = "无，静态链接"
+# navigator/lib/system/programinfo.py:446, navigator/widgets/shell/monitor_meters/monitor_meters.py:240
+"none" = "无"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "这里没有运行 Navigator 认识的服务管理器: systemd、OpenRC、runit 或 SysVinit"
 # navigator/lib/system/services/common.py:208
@@ -3143,35 +3173,35 @@ flag = "CN"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "选项 > 文件管理器 > 新管理器默认值（DN 的 dlgFMDefaults）"
 # navigator/settings.py:801
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "选项 > 文件管理器 > 信息面板（DN 的 dlgDriveInfoSetup）"
-# navigator/settings.py:839
+# navigator/settings.py:840
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "选项 > 文件管理器 > 列默认值（DN 的 dlgColumnsDefaults）"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "选项 > 文件管理器 > 高亮组（DN 的 dlgHighlightGroups）"
-# navigator/settings.py:902
+# navigator/settings.py:903
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "选项 > 配置 > 屏幕保护（DN 的 TSaversDialog）"
-# navigator/settings.py:934
+# navigator/settings.py:935
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "选项 > 配置 > 国家/地区（DN 的 dlgCountrySetup）"
-# navigator/settings.py:985
+# navigator/settings.py:986
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > 游戏 > 设置（DN 的 dlgGameSetup）"
-# navigator/settings.py:1001
+# navigator/settings.py:1002
 "Utilities > Calculator (not DN's)" = "实用工具 > 计算器（非 DN）"
-# navigator/settings.py:1022
+# navigator/settings.py:1023
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "文件 > UU 编码 / UU 解码（DN 的 dlgUUEncode、dlgUUDecode）"
-# navigator/settings.py:1050
+# navigator/settings.py:1051
 "File > Split/combine (DN's dlgSplitFile)" = "文件 > 分割/合并（DN 的 dlgSplitFile）"
-# navigator/settings.py:1061
+# navigator/settings.py:1062
 "File > Checksums > Calculate (not DN's)" = "文件 > 校验和 > 计算（非 DN 原有）"
-# navigator/settings.py:1076
+# navigator/settings.py:1077
 "File > Encryption (not DN's)" = "文件 > 加密 (非 DN 原有)"
-# navigator/settings.py:1096
+# navigator/settings.py:1097
 "Panel > Compare directories > Synchronize (not DN's)" = "面板 > 比较目录 > 同步（非 DN 原有）"
-# navigator/settings.py:1114
+# navigator/settings.py:1115
 "Utilities > Process list (not DN's)" = "工具 > 进程列表（非 DN 原有）"
-# navigator/settings.py:1124
+# navigator/settings.py:1125
 "Utilities > Services (not DN's)" = "实用工具 > 服务 (非 DN 原有)"
-# navigator/settings.py:1142
+# navigator/settings.py:1143
 "Utilities > System monitor (not DN's)" = "工具 > 系统监视器 (DN 没有)"
-# navigator/settings.py:1154
+# navigator/settings.py:1155
 "Options > Configuration > Communications (DN's cmSetupModem)" = "选项 > 配置 > 通信（DN 的 cmSetupModem）"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} 的密码错误。请重试:"
@@ -4731,8 +4761,6 @@ flag = "CN"
 "high {degrees}" = "高温 {degrees}"
 # navigator/widgets/shell/monitor_meters/monitor_meters.py:310
 "critical {degrees}" = "临界 {degrees}"
-# navigator/widgets/shell/monitor_meters/monitor_meters.py:240
-"none" = "无"
 # navigator/widgets/shell/process_list/process_list.py:236
 "S" = "S"
 # navigator/widgets/shell/process_list/process_list.py:236
@@ -5419,7 +5447,7 @@ flag = "CN"
 "Frame title" = "边框标题"
 # navigator/lib/appearance/palette.py
 "Comments" = "注释"
-# navigator/lib/appearance/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/system/mediainfo.py
 "Symbols" = "符号"
 # navigator/lib/appearance/palette.py
 "Strings" = "字符串"
@@ -5625,6 +5653,10 @@ flag = "CN"
 "Producer" = "生成程序"
 # navigator/lib/system/mediainfo.py
 "Encrypted" = "已加密"
+# navigator/lib/system/mediainfo.py
+"Interpreter" = "解释器"
+# navigator/lib/system/mediainfo.py
+"Libraries" = "库"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "配色方案，取 `nav --list-themes` 中的一个"
 # navigator/settings.py
@@ -5884,7 +5916,7 @@ flag = "CN"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "光标处的文件：类型、大小、时间、属性和所有者"
 # navigator/settings.py
-"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "媒体文件或 PDF 的详细信息：时长、流、标签、尺寸、页数（音视频需要 FFmpeg 的 ffprobe）"
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe); a program's architecture, the libraries it needs and whether it is stripped" = "媒体文件或 PDF 的详细信息：时长、流、标签、尺寸、页数（音视频需要 FFmpeg 的 ffprobe）；程序的架构、所需的库以及是否已剥离符号"
 # navigator/settings.py
 "The file system's size" = "文件系统的大小"
 # navigator/settings.py

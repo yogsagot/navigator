@@ -2326,7 +2326,7 @@ direction = "rtl"
 "System monitor" = "ניטור מערכת"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:45, navigator/lib/system/sysinfo.py:145, navigator/widgets/shell/commands.py:253
 "CPU" = "מעבד"
-# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:335 ...
+# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:344 ...
 "Memory" = "זיכרון"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:76
 "Sensors" = "חיישנים"
@@ -2894,83 +2894,83 @@ direction = "rtl"
 "plain" = "רגיל"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "אוטומטי"
-# navigator/lib/system/diskinfo.py:217
+# navigator/lib/system/diskinfo.py:221
 "File" = "קובץ"
-# navigator/lib/system/diskinfo.py:208
-"Socket" = "שקע"
-# navigator/lib/system/diskinfo.py:210
-"Character device" = "התקן תווים"
 # navigator/lib/system/diskinfo.py:212
-"Block device" = "התקן בלוקים"
+"Socket" = "שקע"
 # navigator/lib/system/diskinfo.py:214
-"FIFO" = "FIFO"
+"Character device" = "התקן תווים"
 # navigator/lib/system/diskinfo.py:216
+"Block device" = "התקן בלוקים"
+# navigator/lib/system/diskinfo.py:218
+"FIFO" = "FIFO"
+# navigator/lib/system/diskinfo.py:220
 "Executable file" = "קובץ הרצה"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:207
 "Broken symbolic link" = "קישור סמלי שבור"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a directory" = "קישור סמלי לתיקייה"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a file" = "קישור סמלי לקובץ"
-# navigator/lib/system/diskinfo.py:231, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:235, navigator/lib/appearance/palette.py
 "Current file" = "הקובץ הנוכחי"
-# navigator/lib/system/diskinfo.py:236
-"Size: ~not counted~" = "גודל: ~לא נספר~"
-# navigator/lib/system/diskinfo.py:238
-"Size: ~{n:,}~ byte" = ["גודל: ~{n:,}~ בית", "גודל: ~{n:,}~ בתים", "גודל: ~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2508
-"~{n:,}~ byte" = ["~{n:,}~ בית", "~{n:,}~ בתים", "~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:232
-"Name: ~{name}~" = "שם: ~{name}~"
-# navigator/lib/system/diskinfo.py:233
-"Type: ~{kind}~" = "סוג: ~{kind}~"
-# navigator/lib/system/diskinfo.py:286
-"Current directory:" = "התיקייה הנוכחית:"
-# navigator/lib/system/diskinfo.py:308
-"~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ בית בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~"]
-# navigator/lib/system/diskinfo.py:311
-"~{n:,}~ free byte on ~{mount}~" = ["~{n:,}~ בית פנוי ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~"]
-# navigator/lib/system/diskinfo.py:326
-"~{n:,}~ byte memory for user" = ["~{n:,}~ בית זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש"]
-# navigator/lib/system/diskinfo.py:329
-"~{n:,}~ byte memory for Navigator" = ["~{n:,}~ בית זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator"]
 # navigator/lib/system/diskinfo.py:240
-"Modified: ~{when}~" = "שונה: ~{when}~"
+"Size: ~not counted~" = "גודל: ~לא נספר~"
 # navigator/lib/system/diskinfo.py:242
-"Accessed: ~{when}~" = "גישה: ~{when}~"
+"Size: ~{n:,}~ byte" = ["גודל: ~{n:,}~ בית", "גודל: ~{n:,}~ בתים", "גודל: ~{n:,}~ בתים"]
+# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2508
+"~{n:,}~ byte" = ["~{n:,}~ בית", "~{n:,}~ בתים", "~{n:,}~ בתים"]
+# navigator/lib/system/diskinfo.py:236
+"Name: ~{name}~" = "שם: ~{name}~"
+# navigator/lib/system/diskinfo.py:237
+"Type: ~{kind}~" = "סוג: ~{kind}~"
+# navigator/lib/system/diskinfo.py:295
+"Current directory:" = "התיקייה הנוכחית:"
+# navigator/lib/system/diskinfo.py:317
+"~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ בית בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~"]
+# navigator/lib/system/diskinfo.py:320
+"~{n:,}~ free byte on ~{mount}~" = ["~{n:,}~ בית פנוי ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~", "~{n:,}~ בתים פנויים ב-~{mount}~"]
+# navigator/lib/system/diskinfo.py:335
+"~{n:,}~ byte memory for user" = ["~{n:,}~ בית זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש", "~{n:,}~ בתים זיכרון למשתמש"]
+# navigator/lib/system/diskinfo.py:338
+"~{n:,}~ byte memory for Navigator" = ["~{n:,}~ בית זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator", "~{n:,}~ בתים זיכרון ל-Navigator"]
 # navigator/lib/system/diskinfo.py:244
+"Modified: ~{when}~" = "שונה: ~{when}~"
+# navigator/lib/system/diskinfo.py:246
+"Accessed: ~{when}~" = "גישה: ~{when}~"
+# navigator/lib/system/diskinfo.py:248
 "Changed: ~{when}~" = "שינוי מצב: ~{when}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:251
 "Attributes: ~{attributes}~" = "מאפיינים: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:250
-"Owner: ~{owner}~" = "בעלים: ~{owner}~"
-# navigator/lib/system/diskinfo.py:252
-"Links: ~{links}~, inode ~{inode}~" = "קישורים: ~{links}~, inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
+"Owner: ~{owner}~" = "בעלים: ~{owner}~"
+# navigator/lib/system/diskinfo.py:256
+"Links: ~{links}~, inode ~{inode}~" = "קישורים: ~{links}~, inode ~{inode}~"
+# navigator/lib/system/diskinfo.py:258
 "Link to: ~{target}~" = "קישור אל: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2504
+# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2504
 "No files in this directory" = "אין קבצים בתיקייה זו"
-# navigator/lib/system/diskinfo.py:294
+# navigator/lib/system/diskinfo.py:303
 "~{n:,}~ file with {total}" = ["~{n:,}~ קובץ, {total}", "~{n:,}~ קבצים, {total}", "~{n:,}~ קבצים, {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:255
+# navigator/lib/system/diskinfo.py:342, navigator/widgets/manager/commands.py:255
 "Drive" = "כונן"
-# navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "סך הזיכרון: ~{n:,}~K בתים"
-# navigator/lib/system/diskinfo.py:315
+# navigator/lib/system/diskinfo.py:324
 "Volume label on ~{mount}: {label}~" = "תווית אמצעי ב-~{mount}: {label}~"
-# navigator/lib/system/mediainfo.py:313
+# navigator/lib/system/mediainfo.py:325
 "mono" = "מונו"
-# navigator/lib/system/mediainfo.py:315
+# navigator/lib/system/mediainfo.py:327
 "stereo" = "סטריאו"
-# navigator/lib/system/mediainfo.py:316
+# navigator/lib/system/mediainfo.py:328
 "{n} channel" = ["ערוץ אחד", "שני ערוצים", "{n} ערוצים"]
-# navigator/lib/system/mediainfo.py:326
+# navigator/lib/system/mediainfo.py:341
 "yes" = "כן"
-# navigator/lib/system/mediainfo.py:343
+# navigator/lib/system/mediainfo.py:358
 "{n} fps" = "{n} פריימים/ש׳"
-# navigator/lib/system/mediainfo.py:349
+# navigator/lib/system/mediainfo.py:364
 "{n} kHz" = "{n} קה״ץ"
-# navigator/lib/system/mediainfo.py:354
+# navigator/lib/system/mediainfo.py:369
 "{n} kbit/s" = "{n} קילוביט/ש׳"
 # navigator/lib/system/memory.py:80
 "Not enough memory to complete operation." = "אין די זיכרון להשלמת הפעולה."
@@ -3002,7 +3002,7 @@ direction = "rtl"
 "Name" = "שם"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "פקודה"
-# navigator/lib/system/processes.py:404
+# navigator/lib/system/processes.py:404, navigator/lib/system/mediainfo.py
 "Program" = "תוכנית"
 # navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:247, navigator/widgets/shell/commands.py:429 ...
 "State" = "מצב"
@@ -3024,6 +3024,36 @@ direction = "rtl"
 "Environment" = "סביבה"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator אינו שולח אותות לתהליך זה"
+# navigator/lib/system/programinfo.py:420
+"unknown type" = "סוג לא ידוע"
+# navigator/lib/system/programinfo.py:435
+"(not found)" = "(לא נמצאה)"
+# navigator/lib/system/programinfo.py:430
+"ELF {bits}-bit {machine}, {kind}" = "ELF {bits} סיביות {machine}, {kind}"
+# navigator/lib/system/programinfo.py:433
+"big-endian" = "big-endian"
+# navigator/lib/system/programinfo.py:448
+"stripped" = "הוסרו"
+# navigator/lib/system/programinfo.py:448
+"not stripped" = "לא הוסרו"
+# navigator/lib/system/programinfo.py:418
+"executable" = "קובץ הרצה"
+# navigator/lib/system/programinfo.py:418
+"PIE executable" = "קובץ הרצה PIE"
+# navigator/lib/system/programinfo.py:418
+"shared library" = "ספרייה משותפת"
+# navigator/lib/system/programinfo.py:419
+"object file" = "קובץ אובייקט"
+# navigator/lib/system/programinfo.py:419
+"core dump" = "dump ליבה"
+# navigator/lib/system/programinfo.py:429
+"machine {n}" = "מכונה {n}"
+# navigator/lib/system/programinfo.py:450
+"with debug info" = "עם מידע ניפוי"
+# navigator/lib/system/programinfo.py:444
+"none, statically linked" = "אין, קישור סטטי"
+# navigator/lib/system/programinfo.py:446, navigator/widgets/shell/monitor_meters/monitor_meters.py:240
+"none" = "אין"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "לא פועל כאן מנהל שירותים ש-Navigator מכיר: systemd,‏ OpenRC,‏ runit או SysVinit"
 # navigator/lib/system/services/common.py:208
@@ -3144,35 +3174,35 @@ direction = "rtl"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל למנהל חדש (dlgFMDefaults של DN)"
 # navigator/settings.py:801
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "אפשרויות > מנהל קבצים > לוח מידע (dlgDriveInfoSetup של DN)"
-# navigator/settings.py:839
+# navigator/settings.py:840
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל לעמודות (dlgColumnsDefaults של DN)"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "אפשרויות > מנהל קבצים > קבוצות הדגשה (dlgHighlightGroups של DN)"
-# navigator/settings.py:902
+# navigator/settings.py:903
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "אפשרויות > תצורה > שומרי מסך (TSaversDialog של DN)"
-# navigator/settings.py:934
+# navigator/settings.py:935
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
-# navigator/settings.py:985
+# navigator/settings.py:986
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:1001
+# navigator/settings.py:1002
 "Utilities > Calculator (not DN's)" = "כלים > מחשבון (לא של DN)"
-# navigator/settings.py:1022
+# navigator/settings.py:1023
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
-# navigator/settings.py:1050
+# navigator/settings.py:1051
 "File > Split/combine (DN's dlgSplitFile)" = "קובץ > פיצול/איחוד (dlgSplitFile של DN)"
-# navigator/settings.py:1061
+# navigator/settings.py:1062
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:1076
+# navigator/settings.py:1077
 "File > Encryption (not DN's)" = "קובץ > הצפנה (לא של DN)"
-# navigator/settings.py:1096
+# navigator/settings.py:1097
 "Panel > Compare directories > Synchronize (not DN's)" = "לוח > השוואת תיקיות > סנכרון (לא מ-DN)"
-# navigator/settings.py:1114
+# navigator/settings.py:1115
 "Utilities > Process list (not DN's)" = "כלים > רשימת תהליכים (לא של DN)"
-# navigator/settings.py:1124
+# navigator/settings.py:1125
 "Utilities > Services (not DN's)" = "כלים > שירותים (לא של DN)"
-# navigator/settings.py:1142
+# navigator/settings.py:1143
 "Utilities > System monitor (not DN's)" = "כלים > ניטור מערכת (לא של DN)"
-# navigator/settings.py:1154
+# navigator/settings.py:1155
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "סיסמה שגויה עבור {name}. נסה שוב:"
@@ -4732,8 +4762,6 @@ direction = "rtl"
 "high {degrees}" = "גבוהה {degrees}"
 # navigator/widgets/shell/monitor_meters/monitor_meters.py:310
 "critical {degrees}" = "קריטית {degrees}"
-# navigator/widgets/shell/monitor_meters/monitor_meters.py:240
-"none" = "אין"
 # navigator/widgets/shell/process_list/process_list.py:236
 "S" = "S"
 # navigator/widgets/shell/process_list/process_list.py:236
@@ -5420,7 +5448,7 @@ direction = "rtl"
 "Frame title" = "כותרת מסגרת"
 # navigator/lib/appearance/palette.py
 "Comments" = "הערות"
-# navigator/lib/appearance/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/system/mediainfo.py
 "Symbols" = "סמלים"
 # navigator/lib/appearance/palette.py
 "Strings" = "מחרוזות"
@@ -5626,6 +5654,10 @@ direction = "rtl"
 "Producer" = "יוצר"
 # navigator/lib/system/mediainfo.py
 "Encrypted" = "מוצפן"
+# navigator/lib/system/mediainfo.py
+"Interpreter" = "מפרש"
+# navigator/lib/system/mediainfo.py
+"Libraries" = "ספריות"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "ערכת צבעים, אחת מ-`nav --list-themes`"
 # navigator/settings.py
@@ -5885,7 +5917,7 @@ direction = "rtl"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "הקובץ שבסמן: סוגו, גודלו, זמניו, תכונותיו ובעליו"
 # navigator/settings.py
-"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "פרטי קובץ מדיה או PDF: משך, זרמים, תגיות, ממדים, עמודים (שמע ווידאו דורשים את ffprobe של FFmpeg)"
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe); a program's architecture, the libraries it needs and whether it is stripped" = "פרטי קובץ מדיה או PDF: משך, זרמים, תגיות, ממדים, עמודים (שמע ווידאו דורשים את ffprobe של FFmpeg); הארכיטקטורה של תוכנית, הספריות שהיא צריכה והאם הסמלים שלה הוסרו"
 # navigator/settings.py
 "The file system's size" = "גודל מערכת הקבצים"
 # navigator/settings.py

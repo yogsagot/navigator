@@ -557,6 +557,19 @@ which ffprobe does not give. Any other image gets ffprobe's size. PDFs come from
 key does not queue one ffprobe run per file behind the single worker. Labels are in `mediainfo.LABELS`, which the
 catalogues read through `navigator/locales/__init__.py`.
 
+Programs join it too, behind the same box: `navigator/lib/system/programinfo.py`. `mimetypes` guesses nothing for an
+ELF file (`.so` gets `application/octet-stream`), so `stat_file` calls `programinfo.sniff`, which reads the first
+4 KB of a regular file (the link's target) that is executable or named `*.so[.N]`/`.o`/`.ko`. Its MIME type
+(`application/x-executable`, `x-pie-executable`, `x-sharedlib`, `x-object`, `x-coredump`) is the `program` kind of
+`mediainfo.kind`; `mediainfo.read`/`pairs` hand a `Program` to `programinfo`. The rows are machine and kind, the
+interpreter, each `DT_NEEDED` library (`~name~ (not found)` when missing) and *Symbols* (stripped = no `.symtab`;
+`.debug_info` noted). Everything is read from the headers with seeks: **never `ldd`**, which on glibc may execute the
+file, and no `readelf`/`file` dependency. A library is looked for in glibc's order (RPATH only without RUNPATH,
+`LD_LIBRARY_PATH`, RUNPATH with `$ORIGIN`/`$LIB`, `/etc/ld.so.cache` parsed by `parse_cache`, musl's
+`/etc/ld-musl-*.path` else the default and multiarch directories) and counts only if its ELF class, byte order and
+machine match. Direct needs only, not the transitive tree. An empty label in `pairs` is a continuation row: `table()`
+lines its value up under the row above; a value already holding `~` keeps its own marks.
+
 ## Comparing directories (Panel menu)
 
 Panel > Compare directories (DN's `cmCompareDir`), its *Window, recursive* Synchronize window and File > Compare

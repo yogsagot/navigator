@@ -2325,7 +2325,7 @@ flag = "JP"
 "System monitor" = "システムモニタ"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:45, navigator/lib/system/sysinfo.py:145, navigator/widgets/shell/commands.py:253
 "CPU" = "CPU"
-# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:335 ...
+# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:344 ...
 "Memory" = "メモリ"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:76
 "Sensors" = "センサー"
@@ -2893,83 +2893,83 @@ flag = "JP"
 "plain" = "なし"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "自動"
-# navigator/lib/system/diskinfo.py:217
+# navigator/lib/system/diskinfo.py:221
 "File" = "ファイル"
-# navigator/lib/system/diskinfo.py:208
-"Socket" = "ソケット"
-# navigator/lib/system/diskinfo.py:210
-"Character device" = "キャラクタデバイス"
 # navigator/lib/system/diskinfo.py:212
-"Block device" = "ブロックデバイス"
+"Socket" = "ソケット"
 # navigator/lib/system/diskinfo.py:214
-"FIFO" = "FIFO"
+"Character device" = "キャラクタデバイス"
 # navigator/lib/system/diskinfo.py:216
+"Block device" = "ブロックデバイス"
+# navigator/lib/system/diskinfo.py:218
+"FIFO" = "FIFO"
+# navigator/lib/system/diskinfo.py:220
 "Executable file" = "実行ファイル"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:207
 "Broken symbolic link" = "壊れたシンボリックリンク"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a directory" = "ディレクトリへのシンボリックリンク"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a file" = "ファイルへのシンボリックリンク"
-# navigator/lib/system/diskinfo.py:231, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:235, navigator/lib/appearance/palette.py
 "Current file" = "現在のファイル"
-# navigator/lib/system/diskinfo.py:236
-"Size: ~not counted~" = "サイズ: ~未計算~"
-# navigator/lib/system/diskinfo.py:238
-"Size: ~{n:,}~ byte" = ["サイズ: ~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2508
-"~{n:,}~ byte" = ["~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:232
-"Name: ~{name}~" = "名前: ~{name}~"
-# navigator/lib/system/diskinfo.py:233
-"Type: ~{kind}~" = "種類: ~{kind}~"
-# navigator/lib/system/diskinfo.py:286
-"Current directory:" = "現在のディレクトリ:"
-# navigator/lib/system/diskinfo.py:308
-"~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ の総容量 ~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:311
-"~{n:,}~ free byte on ~{mount}~" = ["~{mount}~ の空き ~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:326
-"~{n:,}~ byte memory for user" = ["ユーザー用メモリ ~{n:,}~ バイト"]
-# navigator/lib/system/diskinfo.py:329
-"~{n:,}~ byte memory for Navigator" = ["Navigator 用メモリ ~{n:,}~ バイト"]
 # navigator/lib/system/diskinfo.py:240
-"Modified: ~{when}~" = "更新: ~{when}~"
+"Size: ~not counted~" = "サイズ: ~未計算~"
 # navigator/lib/system/diskinfo.py:242
-"Accessed: ~{when}~" = "アクセス: ~{when}~"
+"Size: ~{n:,}~ byte" = ["サイズ: ~{n:,}~ バイト"]
+# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2508
+"~{n:,}~ byte" = ["~{n:,}~ バイト"]
+# navigator/lib/system/diskinfo.py:236
+"Name: ~{name}~" = "名前: ~{name}~"
+# navigator/lib/system/diskinfo.py:237
+"Type: ~{kind}~" = "種類: ~{kind}~"
+# navigator/lib/system/diskinfo.py:295
+"Current directory:" = "現在のディレクトリ:"
+# navigator/lib/system/diskinfo.py:317
+"~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ の総容量 ~{n:,}~ バイト"]
+# navigator/lib/system/diskinfo.py:320
+"~{n:,}~ free byte on ~{mount}~" = ["~{mount}~ の空き ~{n:,}~ バイト"]
+# navigator/lib/system/diskinfo.py:335
+"~{n:,}~ byte memory for user" = ["ユーザー用メモリ ~{n:,}~ バイト"]
+# navigator/lib/system/diskinfo.py:338
+"~{n:,}~ byte memory for Navigator" = ["Navigator 用メモリ ~{n:,}~ バイト"]
 # navigator/lib/system/diskinfo.py:244
+"Modified: ~{when}~" = "更新: ~{when}~"
+# navigator/lib/system/diskinfo.py:246
+"Accessed: ~{when}~" = "アクセス: ~{when}~"
+# navigator/lib/system/diskinfo.py:248
 "Changed: ~{when}~" = "変更: ~{when}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:251
 "Attributes: ~{attributes}~" = "属性: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:250
-"Owner: ~{owner}~" = "所有者: ~{owner}~"
-# navigator/lib/system/diskinfo.py:252
-"Links: ~{links}~, inode ~{inode}~" = "リンク: ~{links}~、inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
+"Owner: ~{owner}~" = "所有者: ~{owner}~"
+# navigator/lib/system/diskinfo.py:256
+"Links: ~{links}~, inode ~{inode}~" = "リンク: ~{links}~、inode ~{inode}~"
+# navigator/lib/system/diskinfo.py:258
 "Link to: ~{target}~" = "リンク先: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2504
+# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2504
 "No files in this directory" = "このディレクトリにファイルはありません"
-# navigator/lib/system/diskinfo.py:294
+# navigator/lib/system/diskinfo.py:303
 "~{n:,}~ file with {total}" = ["~{n:,}~ 個のファイル、計 {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:255
+# navigator/lib/system/diskinfo.py:342, navigator/widgets/manager/commands.py:255
 "Drive" = "ドライブ"
-# navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "メモリ総量 ~{n:,}~K バイト"
-# navigator/lib/system/diskinfo.py:315
+# navigator/lib/system/diskinfo.py:324
 "Volume label on ~{mount}: {label}~" = "ボリュームラベル ~{mount}: {label}~"
-# navigator/lib/system/mediainfo.py:313
+# navigator/lib/system/mediainfo.py:325
 "mono" = "モノラル"
-# navigator/lib/system/mediainfo.py:315
+# navigator/lib/system/mediainfo.py:327
 "stereo" = "ステレオ"
-# navigator/lib/system/mediainfo.py:316
+# navigator/lib/system/mediainfo.py:328
 "{n} channel" = ["{n} チャンネル"]
-# navigator/lib/system/mediainfo.py:326
+# navigator/lib/system/mediainfo.py:341
 "yes" = "はい"
-# navigator/lib/system/mediainfo.py:343
+# navigator/lib/system/mediainfo.py:358
 "{n} fps" = "{n} fps"
-# navigator/lib/system/mediainfo.py:349
+# navigator/lib/system/mediainfo.py:364
 "{n} kHz" = "{n} kHz"
-# navigator/lib/system/mediainfo.py:354
+# navigator/lib/system/mediainfo.py:369
 "{n} kbit/s" = "{n} kbit/s"
 # navigator/lib/system/memory.py:80
 "Not enough memory to complete operation." = "操作を完了するためのメモリが不足しています。"
@@ -3001,7 +3001,7 @@ flag = "JP"
 "Name" = "名前"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "コマンド"
-# navigator/lib/system/processes.py:404
+# navigator/lib/system/processes.py:404, navigator/lib/system/mediainfo.py
 "Program" = "プログラム"
 # navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:247, navigator/widgets/shell/commands.py:429 ...
 "State" = "状態"
@@ -3023,6 +3023,36 @@ flag = "JP"
 "Environment" = "環境変数"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "Navigator はこのプロセスにシグナルを送りません"
+# navigator/lib/system/programinfo.py:420
+"unknown type" = "不明な種類"
+# navigator/lib/system/programinfo.py:435
+"(not found)" = "(見つかりません)"
+# navigator/lib/system/programinfo.py:430
+"ELF {bits}-bit {machine}, {kind}" = "ELF {bits} ビット {machine}、{kind}"
+# navigator/lib/system/programinfo.py:433
+"big-endian" = "ビッグエンディアン"
+# navigator/lib/system/programinfo.py:448
+"stripped" = "ストリップ済み"
+# navigator/lib/system/programinfo.py:448
+"not stripped" = "ストリップなし"
+# navigator/lib/system/programinfo.py:418
+"executable" = "実行ファイル"
+# navigator/lib/system/programinfo.py:418
+"PIE executable" = "PIE 実行ファイル"
+# navigator/lib/system/programinfo.py:418
+"shared library" = "共有ライブラリ"
+# navigator/lib/system/programinfo.py:419
+"object file" = "オブジェクトファイル"
+# navigator/lib/system/programinfo.py:419
+"core dump" = "コアダンプ"
+# navigator/lib/system/programinfo.py:429
+"machine {n}" = "マシン {n}"
+# navigator/lib/system/programinfo.py:450
+"with debug info" = "デバッグ情報あり"
+# navigator/lib/system/programinfo.py:444
+"none, statically linked" = "なし (静的リンク)"
+# navigator/lib/system/programinfo.py:446, navigator/widgets/shell/monitor_meters/monitor_meters.py:240
+"none" = "なし"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "Navigator が知っているサービスマネージャーがここでは動いていません: systemd、OpenRC、runit、SysVinit"
 # navigator/lib/system/services/common.py:208
@@ -3143,35 +3173,35 @@ flag = "JP"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "設定 > ファイルマネージャ > 新規マネージャの既定値 (DN の dlgFMDefaults)"
 # navigator/settings.py:801
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "設定 > ファイルマネージャ > 情報パネル (DN の dlgDriveInfoSetup)"
-# navigator/settings.py:839
+# navigator/settings.py:840
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "設定 > ファイルマネージャ > 列の既定値 (DN の dlgColumnsDefaults)"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "設定 > ファイルマネージャ > 強調表示グループ (DN の dlgHighlightGroups)"
-# navigator/settings.py:902
+# navigator/settings.py:903
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "設定 > 構成 > スクリーンセーバー (DN の TSaversDialog)"
-# navigator/settings.py:934
+# navigator/settings.py:935
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "設定 > 構成 > 地域設定 (DN の dlgCountrySetup)"
-# navigator/settings.py:985
+# navigator/settings.py:986
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > ゲーム > 設定 (DN の dlgGameSetup)"
-# navigator/settings.py:1001
+# navigator/settings.py:1002
 "Utilities > Calculator (not DN's)" = "ユーティリティ > 電卓 (DN にはない)"
-# navigator/settings.py:1022
+# navigator/settings.py:1023
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ファイル > UU エンコード / UU デコード (DN の dlgUUEncode、dlgUUDecode)"
-# navigator/settings.py:1050
+# navigator/settings.py:1051
 "File > Split/combine (DN's dlgSplitFile)" = "ファイル > 分割/結合 (DN の dlgSplitFile)"
-# navigator/settings.py:1061
+# navigator/settings.py:1062
 "File > Checksums > Calculate (not DN's)" = "ファイル > チェックサム > 計算 (DN にはない機能)"
-# navigator/settings.py:1076
+# navigator/settings.py:1077
 "File > Encryption (not DN's)" = "ファイル > 暗号化 (DN にはない)"
-# navigator/settings.py:1096
+# navigator/settings.py:1097
 "Panel > Compare directories > Synchronize (not DN's)" = "パネル > ディレクトリ比較 > 同期 (DN にはない機能)"
-# navigator/settings.py:1114
+# navigator/settings.py:1115
 "Utilities > Process list (not DN's)" = "ツール > プロセス一覧 (DN にはない)"
-# navigator/settings.py:1124
+# navigator/settings.py:1125
 "Utilities > Services (not DN's)" = "ユーティリティ > サービス (DN にはない)"
-# navigator/settings.py:1142
+# navigator/settings.py:1143
 "Utilities > System monitor (not DN's)" = "ツール > システムモニタ (DN にはない)"
-# navigator/settings.py:1154
+# navigator/settings.py:1155
 "Options > Configuration > Communications (DN's cmSetupModem)" = "設定 > 構成 > 通信 (DN の cmSetupModem)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} のパスワードが違います。再入力:"
@@ -4731,8 +4761,6 @@ flag = "JP"
 "high {degrees}" = "高温 {degrees}"
 # navigator/widgets/shell/monitor_meters/monitor_meters.py:310
 "critical {degrees}" = "臨界 {degrees}"
-# navigator/widgets/shell/monitor_meters/monitor_meters.py:240
-"none" = "なし"
 # navigator/widgets/shell/process_list/process_list.py:236
 "S" = "S"
 # navigator/widgets/shell/process_list/process_list.py:236
@@ -5419,7 +5447,7 @@ flag = "JP"
 "Frame title" = "枠タイトル"
 # navigator/lib/appearance/palette.py
 "Comments" = "コメント"
-# navigator/lib/appearance/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/system/mediainfo.py
 "Symbols" = "記号"
 # navigator/lib/appearance/palette.py
 "Strings" = "文字列"
@@ -5625,6 +5653,10 @@ flag = "JP"
 "Producer" = "作成ツール"
 # navigator/lib/system/mediainfo.py
 "Encrypted" = "暗号化"
+# navigator/lib/system/mediainfo.py
+"Interpreter" = "インタープリタ"
+# navigator/lib/system/mediainfo.py
+"Libraries" = "ライブラリ"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "配色テーマ。`nav --list-themes` のいずれか"
 # navigator/settings.py
@@ -5884,7 +5916,7 @@ flag = "JP"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "カーソル位置のファイル: 種類、サイズ、日時、属性、所有者"
 # navigator/settings.py
-"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "メディアファイルや PDF の詳細: 再生時間、ストリーム、タグ、解像度、ページ数 (音声・動画には FFmpeg の ffprobe が必要)"
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe); a program's architecture, the libraries it needs and whether it is stripped" = "メディアファイルや PDF の詳細: 再生時間、ストリーム、タグ、解像度、ページ数 (音声・動画には FFmpeg の ffprobe が必要)、プログラムのアーキテクチャ、必要なライブラリ、ストリップの有無"
 # navigator/settings.py
 "The file system's size" = "ファイルシステムのサイズ"
 # navigator/settings.py

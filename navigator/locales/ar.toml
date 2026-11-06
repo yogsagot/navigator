@@ -2326,7 +2326,7 @@ direction = "rtl"
 "System monitor" = "مراقب النظام"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:45, navigator/lib/system/sysinfo.py:145, navigator/widgets/shell/commands.py:253
 "CPU" = "المعالج"
-# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:335 ...
+# navigator/widgets/shell/monitor_window/monitor_window.nml:60, navigator/widgets/shell/system_info_dialog/system_info_dialog.nml:53, navigator/lib/system/diskinfo.py:344 ...
 "Memory" = "الذاكرة"
 # navigator/widgets/shell/monitor_window/monitor_window.nml:76
 "Sensors" = "المستشعرات"
@@ -2894,83 +2894,83 @@ direction = "rtl"
 "plain" = "عادي"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
 "auto" = "تلقائي"
-# navigator/lib/system/diskinfo.py:217
+# navigator/lib/system/diskinfo.py:221
 "File" = "ملف"
-# navigator/lib/system/diskinfo.py:208
-"Socket" = "مقبس"
-# navigator/lib/system/diskinfo.py:210
-"Character device" = "جهاز حرفي"
 # navigator/lib/system/diskinfo.py:212
-"Block device" = "جهاز كتلي"
+"Socket" = "مقبس"
 # navigator/lib/system/diskinfo.py:214
-"FIFO" = "FIFO"
+"Character device" = "جهاز حرفي"
 # navigator/lib/system/diskinfo.py:216
+"Block device" = "جهاز كتلي"
+# navigator/lib/system/diskinfo.py:218
+"FIFO" = "FIFO"
+# navigator/lib/system/diskinfo.py:220
 "Executable file" = "ملف تنفيذي"
-# navigator/lib/system/diskinfo.py:203
+# navigator/lib/system/diskinfo.py:207
 "Broken symbolic link" = "رابط رمزي معطوب"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a directory" = "رابط رمزي إلى مجلد"
-# navigator/lib/system/diskinfo.py:204
+# navigator/lib/system/diskinfo.py:208
 "Symbolic link to a file" = "رابط رمزي إلى ملف"
-# navigator/lib/system/diskinfo.py:231, navigator/lib/appearance/palette.py
+# navigator/lib/system/diskinfo.py:235, navigator/lib/appearance/palette.py
 "Current file" = "الملف الحالي"
-# navigator/lib/system/diskinfo.py:236
-"Size: ~not counted~" = "الحجم: ~غير محسوب~"
-# navigator/lib/system/diskinfo.py:238
-"Size: ~{n:,}~ byte" = ["الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايتات", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت"]
-# navigator/lib/system/diskinfo.py:293, navigator/widgets/manager/panel/panel.py:2508
-"~{n:,}~ byte" = ["~{n:,}~ بايت", "~{n:,}~ بايت", "~{n:,}~ بايت", "~{n:,}~ بايتات", "~{n:,}~ بايت", "~{n:,}~ بايت"]
-# navigator/lib/system/diskinfo.py:232
-"Name: ~{name}~" = "الاسم: ~{name}~"
-# navigator/lib/system/diskinfo.py:233
-"Type: ~{kind}~" = "النوع: ~{kind}~"
-# navigator/lib/system/diskinfo.py:286
-"Current directory:" = "المجلد الحالي:"
-# navigator/lib/system/diskinfo.py:308
-"~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايتات إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~"]
-# navigator/lib/system/diskinfo.py:311
-"~{n:,}~ free byte on ~{mount}~" = ["~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايتات حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~"]
-# navigator/lib/system/diskinfo.py:326
-"~{n:,}~ byte memory for user" = ["~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايتات ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم"]
-# navigator/lib/system/diskinfo.py:329
-"~{n:,}~ byte memory for Navigator" = ["~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايتات ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator"]
 # navigator/lib/system/diskinfo.py:240
-"Modified: ~{when}~" = "التعديل: ~{when}~"
+"Size: ~not counted~" = "الحجم: ~غير محسوب~"
 # navigator/lib/system/diskinfo.py:242
-"Accessed: ~{when}~" = "الوصول: ~{when}~"
+"Size: ~{n:,}~ byte" = ["الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايتات", "الحجم: ~{n:,}~ بايت", "الحجم: ~{n:,}~ بايت"]
+# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2508
+"~{n:,}~ byte" = ["~{n:,}~ بايت", "~{n:,}~ بايت", "~{n:,}~ بايت", "~{n:,}~ بايتات", "~{n:,}~ بايت", "~{n:,}~ بايت"]
+# navigator/lib/system/diskinfo.py:236
+"Name: ~{name}~" = "الاسم: ~{name}~"
+# navigator/lib/system/diskinfo.py:237
+"Type: ~{kind}~" = "النوع: ~{kind}~"
+# navigator/lib/system/diskinfo.py:295
+"Current directory:" = "المجلد الحالي:"
+# navigator/lib/system/diskinfo.py:317
+"~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايتات إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~"]
+# navigator/lib/system/diskinfo.py:320
+"~{n:,}~ free byte on ~{mount}~" = ["~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايتات حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~", "~{n:,}~ بايت حرة على ~{mount}~"]
+# navigator/lib/system/diskinfo.py:335
+"~{n:,}~ byte memory for user" = ["~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايتات ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم", "~{n:,}~ بايت ذاكرة للمستخدم"]
+# navigator/lib/system/diskinfo.py:338
+"~{n:,}~ byte memory for Navigator" = ["~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايتات ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator", "~{n:,}~ بايت ذاكرة لـ Navigator"]
 # navigator/lib/system/diskinfo.py:244
+"Modified: ~{when}~" = "التعديل: ~{when}~"
+# navigator/lib/system/diskinfo.py:246
+"Accessed: ~{when}~" = "الوصول: ~{when}~"
+# navigator/lib/system/diskinfo.py:248
 "Changed: ~{when}~" = "التغيير: ~{when}~"
-# navigator/lib/system/diskinfo.py:247
+# navigator/lib/system/diskinfo.py:251
 "Attributes: ~{attributes}~" = "السمات: ~{attributes}~"
-# navigator/lib/system/diskinfo.py:250
-"Owner: ~{owner}~" = "المالك: ~{owner}~"
-# navigator/lib/system/diskinfo.py:252
-"Links: ~{links}~, inode ~{inode}~" = "الروابط: ~{links}~، inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:254
+"Owner: ~{owner}~" = "المالك: ~{owner}~"
+# navigator/lib/system/diskinfo.py:256
+"Links: ~{links}~, inode ~{inode}~" = "الروابط: ~{links}~، inode ~{inode}~"
+# navigator/lib/system/diskinfo.py:258
 "Link to: ~{target}~" = "رابط إلى: ~{target}~"
-# navigator/lib/system/diskinfo.py:290, navigator/widgets/manager/panel/panel.py:2504
+# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2504
 "No files in this directory" = "لا ملفات في هذا المجلد"
-# navigator/lib/system/diskinfo.py:294
+# navigator/lib/system/diskinfo.py:303
 "~{n:,}~ file with {total}" = ["~{n:,}~ ملف، {total}", "~{n:,}~ ملف، {total}", "~{n:,}~ ملف، {total}", "~{n:,}~ ملفات، {total}", "~{n:,}~ ملفا، {total}", "~{n:,}~ ملف، {total}"]
-# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/commands.py:255
+# navigator/lib/system/diskinfo.py:342, navigator/widgets/manager/commands.py:255
 "Drive" = "القرص"
-# navigator/lib/system/diskinfo.py:324, navigator/widgets/manager/info_panel/info_panel.py:189
+# navigator/lib/system/diskinfo.py:333, navigator/widgets/manager/info_panel/info_panel.py:189
 "~{n:,}~K bytes total memory" = "إجمالي الذاكرة: ~{n:,}~ ك.بايت"
-# navigator/lib/system/diskinfo.py:315
+# navigator/lib/system/diskinfo.py:324
 "Volume label on ~{mount}: {label}~" = "تسمية وحدة التخزين على ~{mount}: {label}~"
-# navigator/lib/system/mediainfo.py:313
+# navigator/lib/system/mediainfo.py:325
 "mono" = "أحادي"
-# navigator/lib/system/mediainfo.py:315
+# navigator/lib/system/mediainfo.py:327
 "stereo" = "ستيريو"
-# navigator/lib/system/mediainfo.py:316
+# navigator/lib/system/mediainfo.py:328
 "{n} channel" = ["{n} قناة", "قناة واحدة", "قناتان", "{n} قنوات", "{n} قناة", "{n} قناة"]
-# navigator/lib/system/mediainfo.py:326
+# navigator/lib/system/mediainfo.py:341
 "yes" = "نعم"
-# navigator/lib/system/mediainfo.py:343
+# navigator/lib/system/mediainfo.py:358
 "{n} fps" = "{n} إطار/ث"
-# navigator/lib/system/mediainfo.py:349
+# navigator/lib/system/mediainfo.py:364
 "{n} kHz" = "{n} كيلوهرتز"
-# navigator/lib/system/mediainfo.py:354
+# navigator/lib/system/mediainfo.py:369
 "{n} kbit/s" = "{n} ك.بت/ث"
 # navigator/lib/system/memory.py:80
 "Not enough memory to complete operation." = "الذاكرة غير كافية لإتمام العملية."
@@ -3002,7 +3002,7 @@ direction = "rtl"
 "Name" = "الاسم"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "الأمر"
-# navigator/lib/system/processes.py:404
+# navigator/lib/system/processes.py:404, navigator/lib/system/mediainfo.py
 "Program" = "البرنامج"
 # navigator/lib/system/processes.py:407, navigator/widgets/shell/commands.py:247, navigator/widgets/shell/commands.py:429 ...
 "State" = "الحالة"
@@ -3024,6 +3024,36 @@ direction = "rtl"
 "Environment" = "البيئة"
 # navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
 "Navigator does not signal that process" = "لا يرسل Navigator إشارات إلى هذه العملية"
+# navigator/lib/system/programinfo.py:420
+"unknown type" = "نوع غير معروف"
+# navigator/lib/system/programinfo.py:435
+"(not found)" = "(غير موجودة)"
+# navigator/lib/system/programinfo.py:430
+"ELF {bits}-bit {machine}, {kind}" = "ELF {bits} بت {machine}، {kind}"
+# navigator/lib/system/programinfo.py:433
+"big-endian" = "big-endian"
+# navigator/lib/system/programinfo.py:448
+"stripped" = "مُزالة"
+# navigator/lib/system/programinfo.py:448
+"not stripped" = "غير مُزالة"
+# navigator/lib/system/programinfo.py:418
+"executable" = "ملف تنفيذي"
+# navigator/lib/system/programinfo.py:418
+"PIE executable" = "ملف تنفيذي PIE"
+# navigator/lib/system/programinfo.py:418
+"shared library" = "مكتبة مشتركة"
+# navigator/lib/system/programinfo.py:419
+"object file" = "ملف كائن"
+# navigator/lib/system/programinfo.py:419
+"core dump" = "تفريغ الذاكرة"
+# navigator/lib/system/programinfo.py:429
+"machine {n}" = "الآلة {n}"
+# navigator/lib/system/programinfo.py:450
+"with debug info" = "مع معلومات التنقيح"
+# navigator/lib/system/programinfo.py:444
+"none, statically linked" = "لا يوجد، ربط ساكن"
+# navigator/lib/system/programinfo.py:446, navigator/widgets/shell/monitor_meters/monitor_meters.py:240
+"none" = "لا يوجد"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "لا يعمل هنا أي مدير خدمات يعرفه Navigator: systemd أو OpenRC أو runit أو SysVinit"
 # navigator/lib/system/services/common.py:208
@@ -3144,35 +3174,35 @@ direction = "rtl"
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "خيارات > مدير الملفات > افتراضيات المدير الجديد (dlgFMDefaults في DN)"
 # navigator/settings.py:801
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "خيارات > مدير الملفات > لوحة المعلومات (dlgDriveInfoSetup في DN)"
-# navigator/settings.py:839
+# navigator/settings.py:840
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "خيارات > مدير الملفات > الأعمدة الافتراضية (dlgColumnsDefaults في DN)"
-# navigator/settings.py:887
+# navigator/settings.py:888
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "خيارات > مدير الملفات > مجموعات التلوين (dlgHighlightGroups في DN)"
-# navigator/settings.py:902
+# navigator/settings.py:903
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "خيارات > التكوين > شاشات التوقف (TSaversDialog في DN)"
-# navigator/settings.py:934
+# navigator/settings.py:935
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "خيارات > التكوين > الإعدادات الإقليمية (dlgCountrySetup في DN)"
-# navigator/settings.py:985
+# navigator/settings.py:986
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > اللعبة > الإعداد (dlgGameSetup في DN)"
-# navigator/settings.py:1001
+# navigator/settings.py:1002
 "Utilities > Calculator (not DN's)" = "الأدوات > الحاسبة (ليست من DN)"
-# navigator/settings.py:1022
+# navigator/settings.py:1023
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ملف > ترميز UU / فك ترميز UU (dlgUUEncode وdlgUUDecode في DN)"
-# navigator/settings.py:1050
+# navigator/settings.py:1051
 "File > Split/combine (DN's dlgSplitFile)" = "ملف > تقسيم/دمج (dlgSplitFile في DN)"
-# navigator/settings.py:1061
+# navigator/settings.py:1062
 "File > Checksums > Calculate (not DN's)" = "ملف > المجاميع الاختبارية > حساب (ليس من DN)"
-# navigator/settings.py:1076
+# navigator/settings.py:1077
 "File > Encryption (not DN's)" = "ملف > التشفير (ليس من DN)"
-# navigator/settings.py:1096
+# navigator/settings.py:1097
 "Panel > Compare directories > Synchronize (not DN's)" = "لوحة > مقارنة المجلدات > مزامنة (ليس من DN)"
-# navigator/settings.py:1114
+# navigator/settings.py:1115
 "Utilities > Process list (not DN's)" = "أدوات > قائمة العمليات (ليست من DN)"
-# navigator/settings.py:1124
+# navigator/settings.py:1125
 "Utilities > Services (not DN's)" = "أدوات > الخدمات (ليست من DN)"
-# navigator/settings.py:1142
+# navigator/settings.py:1143
 "Utilities > System monitor (not DN's)" = "الأدوات > مراقب النظام (ليس من DN)"
-# navigator/settings.py:1154
+# navigator/settings.py:1155
 "Options > Configuration > Communications (DN's cmSetupModem)" = "خيارات > التكوين > الاتصالات (cmSetupModem في DN)"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "كلمة مرور خاطئة لـ {name}. حاول مجددا:"
@@ -4732,8 +4762,6 @@ direction = "rtl"
 "high {degrees}" = "عالية {degrees}"
 # navigator/widgets/shell/monitor_meters/monitor_meters.py:310
 "critical {degrees}" = "حرجة {degrees}"
-# navigator/widgets/shell/monitor_meters/monitor_meters.py:240
-"none" = "لا يوجد"
 # navigator/widgets/shell/process_list/process_list.py:236
 "S" = "S"
 # navigator/widgets/shell/process_list/process_list.py:236
@@ -5420,7 +5448,7 @@ direction = "rtl"
 "Frame title" = "عنوان الإطار"
 # navigator/lib/appearance/palette.py
 "Comments" = "التعليقات"
-# navigator/lib/appearance/palette.py
+# navigator/lib/appearance/palette.py, navigator/lib/system/mediainfo.py
 "Symbols" = "الرموز"
 # navigator/lib/appearance/palette.py
 "Strings" = "السلاسل النصية"
@@ -5626,6 +5654,10 @@ direction = "rtl"
 "Producer" = "المنتج"
 # navigator/lib/system/mediainfo.py
 "Encrypted" = "مشفر"
+# navigator/lib/system/mediainfo.py
+"Interpreter" = "المفسّر"
+# navigator/lib/system/mediainfo.py
+"Libraries" = "المكتبات"
 # navigator/settings.py
 "Colour scheme, one of `nav --list-themes`" = "نظام الألوان، أحد `nav --list-themes`"
 # navigator/settings.py
@@ -5885,7 +5917,7 @@ direction = "rtl"
 # navigator/settings.py
 "The file under the cursor: its type, size, times, attributes and owner" = "الملف تحت المؤشر: نوعه وحجمه وأوقاته وسماته ومالكه"
 # navigator/settings.py
-"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe)" = "تفاصيل ملف الوسائط أو PDF: المدة والتدفقات والوسوم والأبعاد والصفحات (الصوت والفيديو يحتاجان ffprobe من FFmpeg)"
+"A media file's or PDF's details: duration, streams, tags, dimensions, pages (audio and video need FFmpeg's ffprobe); a program's architecture, the libraries it needs and whether it is stripped" = "تفاصيل ملف الوسائط أو PDF: المدة والتدفقات والوسوم والأبعاد والصفحات (الصوت والفيديو يحتاجان ffprobe من FFmpeg)؛ معمارية البرنامج والمكتبات التي يحتاجها وهل أُزيلت رموزه"
 # navigator/settings.py
 "The file system's size" = "حجم نظام الملفات"
 # navigator/settings.py

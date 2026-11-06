@@ -809,7 +809,8 @@ class DriveInfoData(Section):
     totals: bool = Setting(True, doc="How many files it holds, and their bytes")
     current_file: bool = Setting(True, doc="The file under the cursor: its type, size, times, attributes and owner")
     media_info: bool = Setting(True, doc="A media file's or PDF's details: duration, streams, tags, dimensions, "
-                                         "pages (audio and video need FFmpeg's ffprobe)")
+                                         "pages (audio and video need FFmpeg's ffprobe); a program's "
+                                         "architecture, the libraries it needs and whether it is stripped")
     volume_size: bool = Setting(True, doc="The file system's size")
     volume_free: bool = Setting(True, doc="Its free space")
     volume_label: bool = Setting(True, doc="Its label, or its device and type")

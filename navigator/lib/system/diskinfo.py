@@ -22,7 +22,9 @@ and inode (:func:`file_lines`).  A departure: ``TDiskInfo`` described the
 directory alone.  The listing's entry gives most of it; a local entry's
 access and change times, links and inode are one ``lstat`` on a thread
 (:func:`stat_file`), which a remote one goes without; a media file's or a
-PDF's details are a second read (:mod:`navigator.lib.system.mediainfo`).
+PDF's or a program's details are a second read (:mod:`navigator.lib.system.mediainfo`,
+:mod:`navigator.lib.system.programinfo`).  The stdlib's table guesses no
+type for an ELF file, so its first bytes are read for one (``programinfo.sniff``).
 """
 
 from __future__ import annotations
@@ -40,7 +42,7 @@ from navkit.i18n import tr, tr_n
 from navkit.text import escape_caption
 
 from navigator.lib.config import country
-from navigator.lib.system import mediainfo
+from navigator.lib.system import mediainfo, programinfo
 
 #: DN's ``sDirInfo`` and ``sFileID``, in the order it looked for them.
 INFO_FILES = ("DirInfo", "File_ID.DIZ")
@@ -192,6 +194,8 @@ def stat_file(path: Path | None, name: str) -> FileFacts:
         return facts
     facts.atime, facts.ctime = info.st_atime, info.st_ctime
     facts.nlink, facts.inode = info.st_nlink, info.st_ino
+    if facts.mime in ("", "application/octet-stream"):
+        facts.mime = programinfo.sniff(path) or facts.mime
     return facts
 
 
@@ -255,7 +259,10 @@ def file_lines(entry: Any, facts: FileFacts | None) -> list[tuple[str, bool]]:
     for label, value in mediainfo.pairs(facts.media):
         if isinstance(value, float):
             value = country.stamp(value)
-        out.append((f"{tr(label)}: ~{value}~", False))
+        # A value marked already keeps its marks; an empty label continues
+        # the row above (a program's libraries, :func:`table`).
+        value = value if "~" in value else f"~{value}~"
+        out.append((f"{tr(label) if label else ''}: {value}", False))
     return out[:1] + [(text, True) for text in table([text for text, _ in out[1:]])]
 
 
@@ -263,10 +270,12 @@ def table(rows: list[str]) -> list[str]:
     """*rows*, each ``Label: value``, as a table centred as one block: the
     labels right-aligned on their colons, and every row padded to the
     widest, so that centring them one by one starts them all in one column.
-    A row with no ``": "`` (a translation's) keeps its text."""
+    A row with no ``": "`` (a translation's) keeps its text; one with no
+    label continues the row above, its value under that one's."""
     split = [row.partition(": ") for row in rows]
     labels = max((display_width(label) for label, colon, _ in split if colon), default=0)
-    rows = [pad_cells(label, labels, "right") + colon + value if colon else label for label, colon, value in split]
+    rows = [pad_cells(label, labels, "right") + (colon if label else " " * len(colon)) + value if colon else label
+            for label, colon, value in split]
     width = max(display_width(row.replace("~", "")) for row in rows)
     return [row + " " * (width - display_width(row.replace("~", ""))) for row in rows]
 
