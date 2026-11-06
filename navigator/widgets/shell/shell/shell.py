@@ -49,6 +49,7 @@ from navigator.widgets.shell.commands import (
     HangUp,
     Terminal,
     CloseRootAccess,
+    ToggleRootAccess,
     ShowBackground,
     NavyLink,
     SmbLink,
@@ -953,6 +954,7 @@ class Shell(DockLayout):
         effect(self, Shell._size_histories)
         effect(self, Shell._choose_clipboard)
         effect(self, Shell._use_highlight_groups)
+        effect(self, Shell._name_root_access)
         from navigator.lib.drives.sessions import SESSIONS
 
         SESSIONS.add_listener(self._heard_closed)
@@ -1197,6 +1199,12 @@ class Shell(DockLayout):
                 command=remote_shell.PROGRAMS[command.scheme])
         if isinstance(command, CloseRootAccess):
             return "" if self.root_mark.open else tr("No root access is open")
+        if isinstance(command, ToggleRootAccess):
+            if self.root_mark.open or self._root_reachable():
+                return ""
+            if os.geteuid() == 0:
+                return tr("Navigator runs as root already")
+            return tr("No way to root: System Setup's Root access says Never offer, or there is no sudo or pkexec")
         if isinstance(command, ShowBackground):
             from navigator.lib.system.background import BACKGROUND
 
@@ -3076,6 +3084,44 @@ class Shell(DockLayout):
     async def on_close_root_access(self, event: CloseRootAccess) -> bool:
         self.spawn(self.close_root_access())
         return True
+
+    def _name_root_access(self) -> None:
+        """Utilities' one root entry says what it would do: *Elevate root
+        access* while root access is closed, *Close root access* while open."""
+        item = self.menu.root_access
+        if self.root_mark.open:
+            item.text = tr("Close ~r~oot access")
+            item.tooltip = tr("End root access now, rather than after its timeout")
+        else:
+            item.text = tr("Elevate ~r~oot access")
+            item.tooltip = tr("Open root access now: a step refused permission may then be done as root")
+
+    #: ``ELEVATION.available()`` by System Setup's *Elevate*: its ``which``
+    #: of sudo or pkexec asked once, not each time a menu is painted.
+    _reachable: dict[str, bool] = {}
+
+    def _root_reachable(self) -> bool:
+        from navigator.lib.system.elevate import ELEVATION
+
+        if ELEVATION.command is not None:  # the tests' helper
+            return True
+        chosen = SETTINGS.system.elevate
+        if chosen not in Shell._reachable:
+            Shell._reachable[chosen] = ELEVATION.available()
+        return Shell._reachable[chosen]
+
+    async def on_toggle_root_access(self, event: ToggleRootAccess) -> bool:
+        self.spawn(self.close_root_access() if self.root_mark.open else self.open_root_access())
+        return True
+
+    async def open_root_access(self) -> None:
+        """Utilities > *Elevate root access*: the root helper started, asking
+        for the password as *As root* does; the ROOT mark up at once."""
+        from navigator.widgets.file_ops.as_root import open_root
+
+        app = self.application
+        if app is not None and await open_root(app):
+            self.root_mark.open = True
 
     async def close_root_access(self) -> None:
         """Utilities > *Close root access*: the panels at ``root:`` back on

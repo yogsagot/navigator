@@ -25,7 +25,7 @@ from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navigator.settings import SETTINGS
-from navigator.widgets.shell.commands import CloseRootAccess
+from navigator.widgets.shell.commands import CloseRootAccess, ToggleRootAccess
 
 
 def caption() -> str:
@@ -59,7 +59,7 @@ class RootMark(Widget):
         path = " > ".join(caption.replace("~", "") for caption in (tr("~U~tilities"), tr("Close ~r~oot access")))
         close = tr("Click, or {menu}, to close it now").format(menu=path)
         app = self.application
-        key = commands.key_for(app, CloseRootAccess) if app is not None else None
+        key = (commands.key_for(app, CloseRootAccess) or commands.key_for(app, ToggleRootAccess)) if app is not None else None
         lines.append(with_keys(close, commands.key_label(key) if key else ""))
         return tooltip.lines(*lines)
 

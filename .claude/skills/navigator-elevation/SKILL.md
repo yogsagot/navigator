@@ -63,6 +63,12 @@ user's own authentication. What the review found and the rules it left:
   clock while `ELEVATION.running` (polled once a second, `Shell.follow_root`), since a panel or the quick view may
   then go to root unasked. Utilities > *Close root access* (`CloseRootAccess`, enabled while it shows) sends
   `root:` panels back to the disk and closes the helper.
+- **Utilities has one root entry** (`root_access` in `main_menu.nml`, command `ToggleRootAccess`): *Elevate root
+  access* while closed (`Shell.open_root_access`, `open_root`'s password box), *Close root access* while open
+  (`close_root_access`). `Shell._name_root_access`, an effect on `root_mark.open`, sets its caption and tooltip;
+  both keep the same hotkey in every catalogue. Greyed when there is no way to root (`Shell._root_reachable`,
+  `ELEVATION.available()` cached by `[system] elevate`) or when already root. `CloseRootAccess` stays a command of
+  its own: the mark's click and a user's key binding run it.
 - **Its tooltip** (`RootMark.tooltip_at`) says what it means, that it closes after `root_timeout` idle minutes (left
   out at 0), and that Utilities > *Close root access* closes it now -- the path built from the menu's own translated
   captions, so it reads as the menu does.

@@ -18,7 +18,7 @@ from navkit.reactive import bind as _bind
 from navml.component import Component as _Component
 from navigator.commands import AsciiTable, OpenSmartpad, PrintFile, Quit, Refresh, ScreenGrab, ShowUserScreen, ToggleConsole    # main_menu.nml:1
 from navigator.widgets.manager.commands import RestoreTrash, AlternateEdit, AlternateView, ArchiveFiles, Calculator, ChangeAttributes, ChangeLeft, ChangeRight, Copy, Delete, DeleteSingle, DiffFiles, Edit, EditNamed, ExtractArchive, ExtractTo, ArcTest, OpenArchive, MultiRename, Undo, FindFile, ReplaceInFiles, OpenWith, HideInactive, HideLeft, HideRight, MakeDirectory, MakeLink, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, SelectBadNames, ShowHardLinks, QuickRename, RenameMove, SwapPanels, ToggleMiller, UserMenu, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, ConvertText, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet, ViewAsText, MountImage, UnmountImage    # main_menu.nml:2
-from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenServiceWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
+from navigator.widgets.shell.commands import OpenEdit, OpenView, About, OpenCommandPalette, CloseRootAccess, ToggleRootAccess, ShowBackground, EditLinks, FtpLink, GvfsLink, S3Link, DockerLink, PodmanLink, AdbLink, DockerShell, PodmanShell, AdbShell, Game, HangUp, NavyLink, Terminal, SetupLink, SmbLink, SaversSetup, CountrySetup, ScreenRest, ToggleTrashCan, OpenTrash, EmptyTrash, ChangeColors, ColumnDefaults, HighlightGroups, EditQuickRun, ExtFileEdit, EditHGL, EditMacros, ExternalViewers, ExternalEditors, LoadColors, StoreColors, LoadDesktop, SaveDesktop, DriveInfoSetup, EditHistory, EnvEdit, ExecuteOsCommand, HistoryList, FuzzyHistory, OpenCalendar, SystemInfo, EditorDefaults, FileManagerDefaults, FileManagerSetup, InterfaceSetup, KeyBindingsSetup, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenServiceWindow, OpenMonitorWindow, SetupConfirmation, Settings, StartupSetup, SystemSetup, ViewHistory    # main_menu.nml:3
 from navml.commands import CascadeWindows, CloseAllWindows, CloseWindow, NextWindow, PreviousWindow, SizeMoveWindow, TileWindows, WindowManager, ZoomWindow    # main_menu.nml:4
 from navml.widgets.menu.menu_bar import MenuBar    # main_menu.nml:5
 from navml.widgets.menu.menu_item import MenuItem    # main_menu.nml:6
@@ -99,12 +99,13 @@ class MainMenu(MenuBar, _Component):
     utilities: SubMenu    # main_menu.nml:436
     utilities_link: SubMenu    # main_menu.nml:490
     utilities_shell: SubMenu    # main_menu.nml:527
-    manager: SubMenu    # main_menu.nml:587
-    options: SubMenu    # main_menu.nml:630
-    options_configuration: SubMenu    # main_menu.nml:641
-    options_file_manager: SubMenu    # main_menu.nml:675
-    options_archives: SubMenu    # main_menu.nml:697
-    window: SubMenu    # main_menu.nml:757
+    root_access: MenuItem    # main_menu.nml:554
+    manager: SubMenu    # main_menu.nml:590
+    options: SubMenu    # main_menu.nml:633
+    options_configuration: SubMenu    # main_menu.nml:644
+    options_file_manager: SubMenu    # main_menu.nml:678
+    options_archives: SubMenu    # main_menu.nml:700
+    window: SubMenu    # main_menu.nml:760
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -224,78 +225,78 @@ class MainMenu(MenuBar, _Component):
         _w99 = MenuItem(parent=self.utilities_shell)    # main_menu.nml:538
         _w100 = MenuItem(parent=self.utilities_shell)    # main_menu.nml:542
         _w101 = MenuItem(parent=self.utilities)    # main_menu.nml:546
-        _w102 = MenuItem(parent=self.utilities)    # main_menu.nml:551
-        _w103 = MenuItem(parent=self.utilities)    # main_menu.nml:555
-        _w104 = MenuLine(parent=self.utilities)    # main_menu.nml:559
-        _w105 = MenuItem(parent=self.utilities)    # main_menu.nml:560
-        _w106 = MenuItem(parent=self.utilities)    # main_menu.nml:564
-        _w107 = MenuItem(parent=self.utilities)    # main_menu.nml:568
-        _w108 = MenuItem(parent=self.utilities)    # main_menu.nml:573
-        _w109 = MenuItem(parent=self.utilities)    # main_menu.nml:578
-        _w110 = MenuItem(parent=self.utilities)    # main_menu.nml:582
-        self.manager = SubMenu(parent=self)    # main_menu.nml:586
-        _w111 = MenuItem(parent=self.manager)    # main_menu.nml:590
-        _w112 = MenuItem(parent=self.manager)    # main_menu.nml:594
-        _w113 = MenuItem(parent=self.manager)    # main_menu.nml:598
-        _w114 = MenuItem(parent=self.manager)    # main_menu.nml:602
-        _w115 = MenuItem(parent=self.manager)    # main_menu.nml:606
-        _w116 = MenuItem(parent=self.manager)    # main_menu.nml:613
-        _w117 = MenuLine(parent=self.manager)    # main_menu.nml:618
-        _w118 = MenuItem(parent=self.manager)    # main_menu.nml:619
-        _w119 = MenuItem(parent=self.manager)    # main_menu.nml:624
-        self.options = SubMenu(parent=self)    # main_menu.nml:629
-        _w120 = MenuItem(parent=self.options)    # main_menu.nml:635
-        _w121 = MenuLine(parent=self.options)    # main_menu.nml:639
-        self.options_configuration = SubMenu(parent=self.options)    # main_menu.nml:640
-        _w122 = MenuItem(parent=self.options_configuration)    # main_menu.nml:643
-        _w123 = MenuItem(parent=self.options_configuration)    # main_menu.nml:646
-        _w124 = MenuItem(parent=self.options_configuration)    # main_menu.nml:649
-        _w125 = MenuItem(parent=self.options_configuration)    # main_menu.nml:652
-        _w126 = MenuLine(parent=self.options_configuration)    # main_menu.nml:655
-        _w127 = MenuItem(parent=self.options_configuration)    # main_menu.nml:656
-        _w128 = MenuItem(parent=self.options_configuration)    # main_menu.nml:659
-        _w129 = MenuItem(parent=self.options_configuration)    # main_menu.nml:662
-        _w130 = MenuLine(parent=self.options_configuration)    # main_menu.nml:666
-        _w131 = MenuItem(parent=self.options_configuration)    # main_menu.nml:667
-        _w132 = MenuLine(parent=self.options_configuration)    # main_menu.nml:670
-        _w133 = MenuItem(parent=self.options_configuration)    # main_menu.nml:671
-        self.options_file_manager = SubMenu(parent=self.options)    # main_menu.nml:674
-        _w134 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:677
-        _w135 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:680
-        _w136 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:684
-        _w137 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:688
-        _w138 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:692
-        self.options_archives = SubMenu(parent=self.options)    # main_menu.nml:696
-        _w139 = MenuItem(parent=self.options_archives)    # main_menu.nml:699
-        _w140 = MenuLine(parent=self.options)    # main_menu.nml:702
-        _w141 = MenuItem(parent=self.options)    # main_menu.nml:703
-        _w142 = MenuItem(parent=self.options)    # main_menu.nml:707
-        _w143 = MenuItem(parent=self.options)    # main_menu.nml:711
-        _w144 = MenuItem(parent=self.options)    # main_menu.nml:715
-        _w145 = MenuItem(parent=self.options)    # main_menu.nml:719
-        _w146 = MenuItem(parent=self.options)    # main_menu.nml:723
-        _w147 = MenuItem(parent=self.options)    # main_menu.nml:727
-        _w148 = MenuItem(parent=self.options)    # main_menu.nml:731
-        _w149 = MenuLine(parent=self.options)    # main_menu.nml:735
-        _w150 = MenuItem(parent=self.options)    # main_menu.nml:736
-        _w151 = MenuItem(parent=self.options)    # main_menu.nml:740
-        _w152 = MenuLine(parent=self.options)    # main_menu.nml:744
-        _w153 = MenuItem(parent=self.options)    # main_menu.nml:745
-        _w154 = MenuItem(parent=self.options)    # main_menu.nml:748
-        _w155 = MenuItem(parent=self.options)    # main_menu.nml:752
-        self.window = SubMenu(parent=self)    # main_menu.nml:756
-        _w156 = MenuItem(parent=self.window)    # main_menu.nml:760
-        _w157 = MenuItem(parent=self.window)    # main_menu.nml:763
-        _w158 = MenuItem(parent=self.window)    # main_menu.nml:766
-        _w159 = MenuLine(parent=self.window)    # main_menu.nml:769
-        _w160 = MenuItem(parent=self.window)    # main_menu.nml:770
-        _w161 = MenuItem(parent=self.window)    # main_menu.nml:775
-        _w162 = MenuItem(parent=self.window)    # main_menu.nml:779
-        _w163 = MenuItem(parent=self.window)    # main_menu.nml:783
-        _w164 = MenuItem(parent=self.window)    # main_menu.nml:787
-        _w165 = MenuLine(parent=self.window)    # main_menu.nml:791
-        _w166 = MenuItem(parent=self.window)    # main_menu.nml:792
-        _w167 = MenuItem(parent=self.window)    # main_menu.nml:798
+        self.root_access = MenuItem(parent=self.utilities)    # main_menu.nml:553
+        _w102 = MenuItem(parent=self.utilities)    # main_menu.nml:558
+        _w103 = MenuLine(parent=self.utilities)    # main_menu.nml:562
+        _w104 = MenuItem(parent=self.utilities)    # main_menu.nml:563
+        _w105 = MenuItem(parent=self.utilities)    # main_menu.nml:567
+        _w106 = MenuItem(parent=self.utilities)    # main_menu.nml:571
+        _w107 = MenuItem(parent=self.utilities)    # main_menu.nml:576
+        _w108 = MenuItem(parent=self.utilities)    # main_menu.nml:581
+        _w109 = MenuItem(parent=self.utilities)    # main_menu.nml:585
+        self.manager = SubMenu(parent=self)    # main_menu.nml:589
+        _w110 = MenuItem(parent=self.manager)    # main_menu.nml:593
+        _w111 = MenuItem(parent=self.manager)    # main_menu.nml:597
+        _w112 = MenuItem(parent=self.manager)    # main_menu.nml:601
+        _w113 = MenuItem(parent=self.manager)    # main_menu.nml:605
+        _w114 = MenuItem(parent=self.manager)    # main_menu.nml:609
+        _w115 = MenuItem(parent=self.manager)    # main_menu.nml:616
+        _w116 = MenuLine(parent=self.manager)    # main_menu.nml:621
+        _w117 = MenuItem(parent=self.manager)    # main_menu.nml:622
+        _w118 = MenuItem(parent=self.manager)    # main_menu.nml:627
+        self.options = SubMenu(parent=self)    # main_menu.nml:632
+        _w119 = MenuItem(parent=self.options)    # main_menu.nml:638
+        _w120 = MenuLine(parent=self.options)    # main_menu.nml:642
+        self.options_configuration = SubMenu(parent=self.options)    # main_menu.nml:643
+        _w121 = MenuItem(parent=self.options_configuration)    # main_menu.nml:646
+        _w122 = MenuItem(parent=self.options_configuration)    # main_menu.nml:649
+        _w123 = MenuItem(parent=self.options_configuration)    # main_menu.nml:652
+        _w124 = MenuItem(parent=self.options_configuration)    # main_menu.nml:655
+        _w125 = MenuLine(parent=self.options_configuration)    # main_menu.nml:658
+        _w126 = MenuItem(parent=self.options_configuration)    # main_menu.nml:659
+        _w127 = MenuItem(parent=self.options_configuration)    # main_menu.nml:662
+        _w128 = MenuItem(parent=self.options_configuration)    # main_menu.nml:665
+        _w129 = MenuLine(parent=self.options_configuration)    # main_menu.nml:669
+        _w130 = MenuItem(parent=self.options_configuration)    # main_menu.nml:670
+        _w131 = MenuLine(parent=self.options_configuration)    # main_menu.nml:673
+        _w132 = MenuItem(parent=self.options_configuration)    # main_menu.nml:674
+        self.options_file_manager = SubMenu(parent=self.options)    # main_menu.nml:677
+        _w133 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:680
+        _w134 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:683
+        _w135 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:687
+        _w136 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:691
+        _w137 = MenuItem(parent=self.options_file_manager)    # main_menu.nml:695
+        self.options_archives = SubMenu(parent=self.options)    # main_menu.nml:699
+        _w138 = MenuItem(parent=self.options_archives)    # main_menu.nml:702
+        _w139 = MenuLine(parent=self.options)    # main_menu.nml:705
+        _w140 = MenuItem(parent=self.options)    # main_menu.nml:706
+        _w141 = MenuItem(parent=self.options)    # main_menu.nml:710
+        _w142 = MenuItem(parent=self.options)    # main_menu.nml:714
+        _w143 = MenuItem(parent=self.options)    # main_menu.nml:718
+        _w144 = MenuItem(parent=self.options)    # main_menu.nml:722
+        _w145 = MenuItem(parent=self.options)    # main_menu.nml:726
+        _w146 = MenuItem(parent=self.options)    # main_menu.nml:730
+        _w147 = MenuItem(parent=self.options)    # main_menu.nml:734
+        _w148 = MenuLine(parent=self.options)    # main_menu.nml:738
+        _w149 = MenuItem(parent=self.options)    # main_menu.nml:739
+        _w150 = MenuItem(parent=self.options)    # main_menu.nml:743
+        _w151 = MenuLine(parent=self.options)    # main_menu.nml:747
+        _w152 = MenuItem(parent=self.options)    # main_menu.nml:748
+        _w153 = MenuItem(parent=self.options)    # main_menu.nml:751
+        _w154 = MenuItem(parent=self.options)    # main_menu.nml:755
+        self.window = SubMenu(parent=self)    # main_menu.nml:759
+        _w155 = MenuItem(parent=self.window)    # main_menu.nml:763
+        _w156 = MenuItem(parent=self.window)    # main_menu.nml:766
+        _w157 = MenuItem(parent=self.window)    # main_menu.nml:769
+        _w158 = MenuLine(parent=self.window)    # main_menu.nml:772
+        _w159 = MenuItem(parent=self.window)    # main_menu.nml:773
+        _w160 = MenuItem(parent=self.window)    # main_menu.nml:778
+        _w161 = MenuItem(parent=self.window)    # main_menu.nml:782
+        _w162 = MenuItem(parent=self.window)    # main_menu.nml:786
+        _w163 = MenuItem(parent=self.window)    # main_menu.nml:790
+        _w164 = MenuLine(parent=self.window)    # main_menu.nml:794
+        _w165 = MenuItem(parent=self.window)    # main_menu.nml:795
+        _w166 = MenuItem(parent=self.window)    # main_menu.nml:801
 
         self.system.text = '~≡~'    # main_menu.nml:59
         self.system.tooltip = _bind(    # main_menu.nml:60
@@ -960,398 +961,398 @@ class MainMenu(MenuBar, _Component):
         _w101.command = HangUp    # main_menu.nml:549
         _w101.key = 'Alt-H'    # main_menu.nml:550
 
-        _w102.text = _bind(    # main_menu.nml:552
-            lambda _o: _tr('Close ~r~oot access'),
+        self.root_access.text = _bind(    # main_menu.nml:555
+            lambda _o: _tr('Elevate ~r~oot access'),
             yielding=True,
         )
-        _w102.tooltip = _bind(    # main_menu.nml:553
-            lambda _o: _tr('End root access now, rather than after its timeout'),
+        self.root_access.tooltip = _bind(    # main_menu.nml:556
+            lambda _o: _tr('Open root access now: a step refused permission may then be done as root'),
             yielding=True,
         )
-        _w102.command = CloseRootAccess    # main_menu.nml:554
+        self.root_access.command = ToggleRootAccess    # main_menu.nml:557
 
-        _w103.text = _bind(lambda _o: _tr('Saved l~i~nks...'), yielding=True)    # main_menu.nml:556
-        _w103.tooltip = _bind(    # main_menu.nml:557
+        _w102.text = _bind(lambda _o: _tr('Saved l~i~nks...'), yielding=True)    # main_menu.nml:559
+        _w102.tooltip = _bind(    # main_menu.nml:560
             lambda _o: _tr('The saved connections: edit them, or connect to one'),
             yielding=True,
         )
-        _w103.command = EditLinks    # main_menu.nml:558
+        _w102.command = EditLinks    # main_menu.nml:561
 
-        _w105.text = _bind(lambda _o: _tr('Edi~t~ environment'), yielding=True)    # main_menu.nml:561
-        _w105.tooltip = _bind(    # main_menu.nml:562
+        _w104.text = _bind(lambda _o: _tr('Edi~t~ environment'), yielding=True)    # main_menu.nml:564
+        _w104.tooltip = _bind(    # main_menu.nml:565
             lambda _o: _tr('Edit the environment variables commands run with'),
             yielding=True,
         )
-        _w105.command = EnvEdit    # main_menu.nml:563
+        _w104.command = EnvEdit    # main_menu.nml:566
 
-        _w106.text = _bind(lambda _o: _tr('~U~ser menu'), yielding=True)    # main_menu.nml:565
-        _w106.command = UserMenu    # main_menu.nml:566
-        _w106.key = 'F2'    # main_menu.nml:567
+        _w105.text = _bind(lambda _o: _tr('~U~ser menu'), yielding=True)    # main_menu.nml:568
+        _w105.command = UserMenu    # main_menu.nml:569
+        _w105.key = 'F2'    # main_menu.nml:570
 
-        _w107.text = _bind(lambda _o: _tr('Commands ~H~istory'), yielding=True)    # main_menu.nml:569
-        _w107.command = HistoryList    # main_menu.nml:570
-        _w107.key = 'Alt-F8'    # main_menu.nml:571
+        _w106.text = _bind(lambda _o: _tr('Commands ~H~istory'), yielding=True)    # main_menu.nml:572
+        _w106.command = HistoryList    # main_menu.nml:573
+        _w106.key = 'Alt-F8'    # main_menu.nml:574
 
-        _w108.text = _bind(    # main_menu.nml:574
+        _w107.text = _bind(    # main_menu.nml:577
             lambda _o: _tr('Fu~z~zy history search...'),
             yielding=True,
         )
-        _w108.tooltip = _bind(    # main_menu.nml:575
+        _w107.tooltip = _bind(    # main_menu.nml:578
             lambda _o: _tr('The commands typed, here and in the shell, searched by fzf'),
             yielding=True,
         )
-        _w108.command = FuzzyHistory    # main_menu.nml:576
-        _w108.key = 'Alt-Shift-F8'    # main_menu.nml:577
+        _w107.command = FuzzyHistory    # main_menu.nml:579
+        _w107.key = 'Alt-Shift-F8'    # main_menu.nml:580
 
-        _w109.text = _bind(    # main_menu.nml:579
+        _w108.text = _bind(    # main_menu.nml:582
             lambda _o: _tr('File ~E~dit History'),
             yielding=True,
         )
-        _w109.command = EditHistory    # main_menu.nml:580
-        _w109.key = 'Alt-PgUp'    # main_menu.nml:581
+        _w108.command = EditHistory    # main_menu.nml:583
+        _w108.key = 'Alt-PgUp'    # main_menu.nml:584
 
-        _w110.text = _bind(    # main_menu.nml:583
+        _w109.text = _bind(    # main_menu.nml:586
             lambda _o: _tr('File ~V~iew History'),
             yielding=True,
         )
-        _w110.command = ViewHistory    # main_menu.nml:584
-        _w110.key = 'Alt-PgDn'    # main_menu.nml:585
+        _w109.command = ViewHistory    # main_menu.nml:587
+        _w109.key = 'Alt-PgDn'    # main_menu.nml:588
 
-        self.manager.text = _bind(lambda _o: _tr('~M~anager'), yielding=True)    # main_menu.nml:588
-        self.manager.tooltip = _bind(    # main_menu.nml:589
+        self.manager.text = _bind(lambda _o: _tr('~M~anager'), yielding=True)    # main_menu.nml:591
+        self.manager.tooltip = _bind(    # main_menu.nml:592
             lambda _o: _tr('New file managers, swapping and hiding panels, bookmarks'),
             yielding=True,
         )
 
-        _w111.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # main_menu.nml:591
-        _w111.command = NewManager    # main_menu.nml:592
-        _w111.key = 'Ctrl-F3'    # main_menu.nml:593
+        _w110.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # main_menu.nml:594
+        _w110.command = NewManager    # main_menu.nml:595
+        _w110.key = 'Ctrl-F3'    # main_menu.nml:596
 
-        _w112.text = _bind(lambda _o: _tr('~S~wap panels'), yielding=True)    # main_menu.nml:595
-        _w112.command = SwapPanels    # main_menu.nml:596
-        _w112.key = 'Ctrl-U'    # main_menu.nml:597
+        _w111.text = _bind(lambda _o: _tr('~S~wap panels'), yielding=True)    # main_menu.nml:598
+        _w111.command = SwapPanels    # main_menu.nml:599
+        _w111.key = 'Ctrl-U'    # main_menu.nml:600
 
-        _w113.text = _bind(    # main_menu.nml:599
+        _w112.text = _bind(    # main_menu.nml:602
             lambda _o: _tr('Show/hide ~l~eft panel'),
             yielding=True,
         )
-        _w113.command = HideLeft    # main_menu.nml:600
-        _w113.key = 'Ctrl-F1'    # main_menu.nml:601
+        _w112.command = HideLeft    # main_menu.nml:603
+        _w112.key = 'Ctrl-F1'    # main_menu.nml:604
 
-        _w114.text = _bind(    # main_menu.nml:603
+        _w113.text = _bind(    # main_menu.nml:606
             lambda _o: _tr('Show/hide ~r~ight panel'),
             yielding=True,
         )
-        _w114.command = HideRight    # main_menu.nml:604
-        _w114.key = 'Ctrl-F2'    # main_menu.nml:605
+        _w113.command = HideRight    # main_menu.nml:607
+        _w113.key = 'Ctrl-F2'    # main_menu.nml:608
 
-        _w115.text = _bind(    # main_menu.nml:607
+        _w114.text = _bind(    # main_menu.nml:610
             lambda _o: _tr('Show/hide inactive ~p~anel'),
             yielding=True,
         )
-        _w115.tooltip = _bind(    # main_menu.nml:608
+        _w114.tooltip = _bind(    # main_menu.nml:611
             lambda _o: _tr('Hide the panel without the keyboard, or show it again'),
             yielding=True,
         )
-        _w115.command = HideInactive    # main_menu.nml:609
-        _w115.key = 'Ctrl-P'    # main_menu.nml:610
+        _w114.command = HideInactive    # main_menu.nml:612
+        _w114.key = 'Ctrl-P'    # main_menu.nml:613
 
-        _w116.text = _bind(lambda _o: _tr('~M~iller columns'), yielding=True)    # main_menu.nml:614
-        _w116.tooltip = _bind(    # main_menu.nml:615
+        _w115.text = _bind(lambda _o: _tr('~M~iller columns'), yielding=True)    # main_menu.nml:617
+        _w115.tooltip = _bind(    # main_menu.nml:618
             lambda _o: _tr('Browse in columns, each directory beside its parent'),
             yielding=True,
         )
-        _w116.command = ToggleMiller    # main_menu.nml:616
-        _w116.key = 'Alt-F12'    # main_menu.nml:617
+        _w115.command = ToggleMiller    # main_menu.nml:619
+        _w115.key = 'Alt-F12'    # main_menu.nml:620
 
-        _w118.text = _bind(lambda _o: _tr('Bookmarks le~f~t'), yielding=True)    # main_menu.nml:620
-        _w118.tooltip = _bind(    # main_menu.nml:621
+        _w117.text = _bind(lambda _o: _tr('Bookmarks le~f~t'), yielding=True)    # main_menu.nml:623
+        _w117.tooltip = _bind(    # main_menu.nml:624
             lambda _o: _tr('Send the left panel to a bookmarked directory'),
             yielding=True,
         )
-        _w118.command = ChangeLeft    # main_menu.nml:622
-        _w118.key = 'Alt-F1'    # main_menu.nml:623
+        _w117.command = ChangeLeft    # main_menu.nml:625
+        _w117.key = 'Alt-F1'    # main_menu.nml:626
 
-        _w119.text = _bind(lambda _o: _tr('Bookmarks rig~h~t'), yielding=True)    # main_menu.nml:625
-        _w119.tooltip = _bind(    # main_menu.nml:626
+        _w118.text = _bind(lambda _o: _tr('Bookmarks rig~h~t'), yielding=True)    # main_menu.nml:628
+        _w118.tooltip = _bind(    # main_menu.nml:629
             lambda _o: _tr('Send the right panel to a bookmarked directory'),
             yielding=True,
         )
-        _w119.command = ChangeRight    # main_menu.nml:627
-        _w119.key = 'Alt-F2'    # main_menu.nml:628
+        _w118.command = ChangeRight    # main_menu.nml:630
+        _w118.key = 'Alt-F2'    # main_menu.nml:631
 
-        self.options.text = _bind(lambda _o: _tr('~O~ptions'), yielding=True)    # main_menu.nml:631
-        self.options.tooltip = _bind(    # main_menu.nml:632
+        self.options.text = _bind(lambda _o: _tr('~O~ptions'), yielding=True)    # main_menu.nml:634
+        self.options.tooltip = _bind(    # main_menu.nml:635
             lambda _o: _tr('Settings, configuration files, the desktop and colours'),
             yielding=True,
         )
 
-        _w120.text = _bind(lambda _o: _tr('Sett~i~ngs...'), yielding=True)    # main_menu.nml:636
-        _w120.tooltip = _bind(    # main_menu.nml:637
+        _w119.text = _bind(lambda _o: _tr('Sett~i~ngs...'), yielding=True)    # main_menu.nml:639
+        _w119.tooltip = _bind(    # main_menu.nml:640
             lambda _o: _tr('Every setup page in one box, behind tabs'),
             yielding=True,
         )
-        _w120.command = Settings    # main_menu.nml:638
+        _w119.command = Settings    # main_menu.nml:641
 
-        self.options_configuration.text = _bind(    # main_menu.nml:642
+        self.options_configuration.text = _bind(    # main_menu.nml:645
             lambda _o: _tr('~C~onfiguration'),
             yielding=True,
         )
 
-        _w122.text = _bind(lambda _o: _tr('S~y~stem Setup...'), yielding=True)    # main_menu.nml:644
-        _w122.command = SystemSetup    # main_menu.nml:645
+        _w121.text = _bind(lambda _o: _tr('S~y~stem Setup...'), yielding=True)    # main_menu.nml:647
+        _w121.command = SystemSetup    # main_menu.nml:648
 
-        _w123.text = _bind(lambda _o: _tr('~S~tartup...'), yielding=True)    # main_menu.nml:647
-        _w123.command = StartupSetup    # main_menu.nml:648
+        _w122.text = _bind(lambda _o: _tr('~S~tartup...'), yielding=True)    # main_menu.nml:650
+        _w122.command = StartupSetup    # main_menu.nml:651
 
-        _w124.text = _bind(lambda _o: _tr('~I~nterface...'), yielding=True)    # main_menu.nml:650
-        _w124.command = InterfaceSetup    # main_menu.nml:651
+        _w123.text = _bind(lambda _o: _tr('~I~nterface...'), yielding=True)    # main_menu.nml:653
+        _w123.command = InterfaceSetup    # main_menu.nml:654
 
-        _w125.text = _bind(lambda _o: _tr('~C~onfirmations...'), yielding=True)    # main_menu.nml:653
-        _w125.command = SetupConfirmation    # main_menu.nml:654
+        _w124.text = _bind(lambda _o: _tr('~C~onfirmations...'), yielding=True)    # main_menu.nml:656
+        _w124.command = SetupConfirmation    # main_menu.nml:657
 
-        _w127.text = _bind(lambda _o: _tr('Screen sa~v~ers...'), yielding=True)    # main_menu.nml:657
-        _w127.command = SaversSetup    # main_menu.nml:658
+        _w126.text = _bind(lambda _o: _tr('Screen sa~v~ers...'), yielding=True)    # main_menu.nml:660
+        _w126.command = SaversSetup    # main_menu.nml:661
 
-        _w128.text = _bind(    # main_menu.nml:660
+        _w127.text = _bind(    # main_menu.nml:663
             lambda _o: _tr('C~o~untry support...'),
             yielding=True,
         )
-        _w128.command = CountrySetup    # main_menu.nml:661
+        _w127.command = CountrySetup    # main_menu.nml:664
 
-        _w129.text = _bind(    # main_menu.nml:663
+        _w128.text = _bind(    # main_menu.nml:666
             lambda _o: _tr('Comm~u~nications...'),
             yielding=True,
         )
-        _w129.tooltip = _bind(    # main_menu.nml:664
+        _w128.tooltip = _bind(    # main_menu.nml:667
             lambda _o: _tr('Settings for remote connections'),
             yielding=True,
         )
-        _w129.command = SetupLink    # main_menu.nml:665
+        _w128.command = SetupLink    # main_menu.nml:668
 
-        _w131.text = _bind(lambda _o: _tr('~E~ditor/Viewer...'), yielding=True)    # main_menu.nml:668
-        _w131.command = EditorDefaults    # main_menu.nml:669
+        _w130.text = _bind(lambda _o: _tr('~E~ditor/Viewer...'), yielding=True)    # main_menu.nml:671
+        _w130.command = EditorDefaults    # main_menu.nml:672
 
-        _w133.text = _bind(lambda _o: _tr('~K~ey bindings...'), yielding=True)    # main_menu.nml:672
-        _w133.command = KeyBindingsSetup    # main_menu.nml:673
+        _w132.text = _bind(lambda _o: _tr('~K~ey bindings...'), yielding=True)    # main_menu.nml:675
+        _w132.command = KeyBindingsSetup    # main_menu.nml:676
 
-        self.options_file_manager.text = _bind(    # main_menu.nml:676
+        self.options_file_manager.text = _bind(    # main_menu.nml:679
             lambda _o: _tr('~F~ile Manager'),
             yielding=True,
         )
 
-        _w134.text = _bind(lambda _o: _tr('~S~etup...'), yielding=True)    # main_menu.nml:678
-        _w134.command = FileManagerSetup    # main_menu.nml:679
+        _w133.text = _bind(lambda _o: _tr('~S~etup...'), yielding=True)    # main_menu.nml:681
+        _w133.command = FileManagerSetup    # main_menu.nml:682
 
-        _w135.text = _bind(    # main_menu.nml:681
+        _w134.text = _bind(    # main_menu.nml:684
             lambda _o: _tr('~I~nformation panel...'),
             yielding=True,
         )
-        _w135.tooltip = _bind(    # main_menu.nml:682
+        _w134.tooltip = _bind(    # main_menu.nml:685
             lambda _o: _tr('What the information panel (Ctrl+L) shows'),
             yielding=True,
         )
-        _w135.command = DriveInfoSetup    # main_menu.nml:683
+        _w134.command = DriveInfoSetup    # main_menu.nml:686
 
-        _w136.text = _bind(    # main_menu.nml:685
+        _w135.text = _bind(    # main_menu.nml:688
             lambda _o: _tr('New Manager ~d~efaults...'),
             yielding=True,
         )
-        _w136.tooltip = _bind(    # main_menu.nml:686
+        _w135.tooltip = _bind(    # main_menu.nml:689
             lambda _o: _tr("How a new file manager's panels start"),
             yielding=True,
         )
-        _w136.command = FileManagerDefaults    # main_menu.nml:687
+        _w135.command = FileManagerDefaults    # main_menu.nml:690
 
-        _w137.text = _bind(    # main_menu.nml:689
+        _w136.text = _bind(    # main_menu.nml:692
             lambda _o: _tr('~C~olumn defaults...'),
             yielding=True,
         )
-        _w137.tooltip = _bind(    # main_menu.nml:690
+        _w136.tooltip = _bind(    # main_menu.nml:693
             lambda _o: _tr('The columns a new panel shows'),
             yielding=True,
         )
-        _w137.command = ColumnDefaults    # main_menu.nml:691
+        _w136.command = ColumnDefaults    # main_menu.nml:694
 
-        _w138.text = _bind(    # main_menu.nml:693
+        _w137.text = _bind(    # main_menu.nml:696
             lambda _o: _tr('~H~ighlight groups...'),
             yielding=True,
         )
-        _w138.tooltip = _bind(    # main_menu.nml:694
+        _w137.tooltip = _bind(    # main_menu.nml:697
             lambda _o: _tr('Which files the panels show in which colour'),
             yielding=True,
         )
-        _w138.command = HighlightGroups    # main_menu.nml:695
+        _w137.command = HighlightGroups    # main_menu.nml:698
 
-        self.options_archives.text = _bind(    # main_menu.nml:698
+        self.options_archives.text = _bind(    # main_menu.nml:701
             lambda _o: _tr('A~r~chives'),
             yielding=True,
         )
 
-        _w139.text = _bind(    # main_menu.nml:700
+        _w138.text = _bind(    # main_menu.nml:703
             lambda _o: _tr('Current archiver...'),
             yielding=True,
         )
-        _w139.key = 'Alt-N'    # main_menu.nml:701
+        _w138.key = 'Alt-N'    # main_menu.nml:704
 
-        _w141.text = _bind(    # main_menu.nml:704
+        _w140.text = _bind(    # main_menu.nml:707
             lambda _o: _tr('~Q~uick run file edit...'),
             yielding=True,
         )
-        _w141.tooltip = _bind(    # main_menu.nml:705
+        _w140.tooltip = _bind(    # main_menu.nml:708
             lambda _o: _tr('Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run'),
             yielding=True,
         )
-        _w141.command = EditQuickRun    # main_menu.nml:706
+        _w140.command = EditQuickRun    # main_menu.nml:709
 
-        _w142.text = _bind(    # main_menu.nml:708
+        _w141.text = _bind(    # main_menu.nml:711
             lambda _o: _tr('E~x~tension file edit...'),
             yielding=True,
         )
-        _w142.tooltip = _bind(    # main_menu.nml:709
+        _w141.tooltip = _bind(    # main_menu.nml:712
             lambda _o: _tr('Edit extensions.ini: what Enter runs for each kind of file'),
             yielding=True,
         )
-        _w142.command = ExtFileEdit    # main_menu.nml:710
+        _w141.command = ExtFileEdit    # main_menu.nml:713
 
-        _w143.text = _bind(    # main_menu.nml:712
+        _w142.text = _bind(    # main_menu.nml:715
             lambda _o: _tr('~H~ighlight file edit...'),
             yielding=True,
         )
-        _w143.tooltip = _bind(    # main_menu.nml:713
+        _w142.tooltip = _bind(    # main_menu.nml:716
             lambda _o: _tr('Edit highlight.ini: which syntax colours which file'),
             yielding=True,
         )
-        _w143.command = EditHGL    # main_menu.nml:714
+        _w142.command = EditHGL    # main_menu.nml:717
 
-        _w144.text = _bind(    # main_menu.nml:716
+        _w143.text = _bind(    # main_menu.nml:719
             lambda _o: _tr('Macro file e~d~it...'),
             yielding=True,
         )
-        _w144.tooltip = _bind(    # main_menu.nml:717
+        _w143.tooltip = _bind(    # main_menu.nml:720
             lambda _o: _tr("Edit macros.ini: the editor's macros, offered by Ctrl+J 0"),
             yielding=True,
         )
-        _w144.command = EditMacros    # main_menu.nml:718
+        _w143.command = EditMacros    # main_menu.nml:721
 
-        _w145.text = _bind(    # main_menu.nml:720
+        _w144.text = _bind(    # main_menu.nml:723
             lambda _o: _tr('~G~lobal menu definition...'),
             yielding=True,
         )
-        _w145.tooltip = _bind(    # main_menu.nml:721
+        _w144.tooltip = _bind(    # main_menu.nml:724
             lambda _o: _tr('Edit the F2 user menu used everywhere'),
             yielding=True,
         )
-        _w145.command = MenuFileEdit    # main_menu.nml:722
+        _w144.command = MenuFileEdit    # main_menu.nml:725
 
-        _w146.text = _bind(    # main_menu.nml:724
+        _w145.text = _bind(    # main_menu.nml:727
             lambda _o: _tr('Local ~m~enu definition...'),
             yielding=True,
         )
-        _w146.tooltip = _bind(    # main_menu.nml:725
+        _w145.tooltip = _bind(    # main_menu.nml:728
             lambda _o: _tr("Edit this directory's own F2 user menu"),
             yielding=True,
         )
-        _w146.command = LocalMenuFileEdit    # main_menu.nml:726
+        _w145.command = LocalMenuFileEdit    # main_menu.nml:729
 
-        _w147.text = _bind(lambda _o: _tr('~V~iewers...'), yielding=True)    # main_menu.nml:728
-        _w147.tooltip = _bind(    # main_menu.nml:729
+        _w146.text = _bind(lambda _o: _tr('~V~iewers...'), yielding=True)    # main_menu.nml:731
+        _w146.tooltip = _bind(    # main_menu.nml:732
             lambda _o: _tr('Edit viewers.ini: the external viewer for each kind of file'),
             yielding=True,
         )
-        _w147.command = ExternalViewers    # main_menu.nml:730
+        _w146.command = ExternalViewers    # main_menu.nml:733
 
-        _w148.text = _bind(lambda _o: _tr('~E~ditors...'), yielding=True)    # main_menu.nml:732
-        _w148.tooltip = _bind(    # main_menu.nml:733
+        _w147.text = _bind(lambda _o: _tr('~E~ditors...'), yielding=True)    # main_menu.nml:735
+        _w147.tooltip = _bind(    # main_menu.nml:736
             lambda _o: _tr('Edit editors.ini: the external editor for each kind of file'),
             yielding=True,
         )
-        _w148.command = ExternalEditors    # main_menu.nml:734
+        _w147.command = ExternalEditors    # main_menu.nml:737
 
-        _w150.text = _bind(lambda _o: _tr('~S~ave desktop'), yielding=True)    # main_menu.nml:737
-        _w150.tooltip = _bind(    # main_menu.nml:738
+        _w149.text = _bind(lambda _o: _tr('~S~ave desktop'), yielding=True)    # main_menu.nml:740
+        _w149.tooltip = _bind(    # main_menu.nml:741
             lambda _o: _tr('Keep the open windows, to have them back later'),
             yielding=True,
         )
-        _w150.command = SaveDesktop    # main_menu.nml:739
+        _w149.command = SaveDesktop    # main_menu.nml:742
 
-        _w151.text = _bind(lambda _o: _tr('~L~oad desktop'), yielding=True)    # main_menu.nml:741
-        _w151.tooltip = _bind(    # main_menu.nml:742
+        _w150.text = _bind(lambda _o: _tr('~L~oad desktop'), yielding=True)    # main_menu.nml:744
+        _w150.tooltip = _bind(    # main_menu.nml:745
             lambda _o: _tr('Replace these windows with the ones last saved'),
             yielding=True,
         )
-        _w151.command = LoadDesktop    # main_menu.nml:743
+        _w150.command = LoadDesktop    # main_menu.nml:746
 
-        _w153.text = _bind(lambda _o: _tr('C~o~lors...'), yielding=True)    # main_menu.nml:746
-        _w153.command = ChangeColors    # main_menu.nml:747
+        _w152.text = _bind(lambda _o: _tr('C~o~lors...'), yielding=True)    # main_menu.nml:749
+        _w152.command = ChangeColors    # main_menu.nml:750
 
-        _w154.text = _bind(lambda _o: _tr('S~t~ore palette'), yielding=True)    # main_menu.nml:749
-        _w154.tooltip = _bind(    # main_menu.nml:750
+        _w153.text = _bind(lambda _o: _tr('S~t~ore palette'), yielding=True)    # main_menu.nml:752
+        _w153.tooltip = _bind(    # main_menu.nml:753
             lambda _o: _tr('Save the colours as a theme of your own'),
             yielding=True,
         )
-        _w154.command = StoreColors    # main_menu.nml:751
+        _w153.command = StoreColors    # main_menu.nml:754
 
-        _w155.text = _bind(lambda _o: _tr('Lo~a~d palette'), yielding=True)    # main_menu.nml:753
-        _w155.tooltip = _bind(    # main_menu.nml:754
+        _w154.text = _bind(lambda _o: _tr('Lo~a~d palette'), yielding=True)    # main_menu.nml:756
+        _w154.tooltip = _bind(    # main_menu.nml:757
             lambda _o: _tr('Use colours saved in a file'),
             yielding=True,
         )
-        _w155.command = LoadColors    # main_menu.nml:755
+        _w154.command = LoadColors    # main_menu.nml:758
 
-        self.window.text = _bind(lambda _o: _tr('~W~indow'), yielding=True)    # main_menu.nml:758
-        self.window.tooltip = _bind(    # main_menu.nml:759
+        self.window.text = _bind(lambda _o: _tr('~W~indow'), yielding=True)    # main_menu.nml:761
+        self.window.tooltip = _bind(    # main_menu.nml:762
             lambda _o: _tr('Arrange, switch between and close windows'),
             yielding=True,
         )
 
-        _w156.text = _bind(lambda _o: _tr('~T~ile'), yielding=True)    # main_menu.nml:761
-        _w156.command = TileWindows    # main_menu.nml:762
+        _w155.text = _bind(lambda _o: _tr('~T~ile'), yielding=True)    # main_menu.nml:764
+        _w155.command = TileWindows    # main_menu.nml:765
 
-        _w157.text = _bind(lambda _o: _tr('C~a~scade'), yielding=True)    # main_menu.nml:764
-        _w157.command = CascadeWindows    # main_menu.nml:765
+        _w156.text = _bind(lambda _o: _tr('C~a~scade'), yielding=True)    # main_menu.nml:767
+        _w156.command = CascadeWindows    # main_menu.nml:768
 
-        _w158.text = _bind(lambda _o: _tr('Cl~o~se all'), yielding=True)    # main_menu.nml:767
-        _w158.command = CloseAllWindows    # main_menu.nml:768
+        _w157.text = _bind(lambda _o: _tr('Cl~o~se all'), yielding=True)    # main_menu.nml:770
+        _w157.command = CloseAllWindows    # main_menu.nml:771
 
-        _w160.text = _bind(lambda _o: _tr('~S~ize/Move'), yielding=True)    # main_menu.nml:771
-        _w160.tooltip = _bind(    # main_menu.nml:772
+        _w159.text = _bind(lambda _o: _tr('~S~ize/Move'), yielding=True)    # main_menu.nml:774
+        _w159.tooltip = _bind(    # main_menu.nml:775
             lambda _o: _tr('Move and size the window with the keyboard'),
             yielding=True,
         )
-        _w160.command = SizeMoveWindow    # main_menu.nml:773
-        _w160.key = 'Ctrl-F5'    # main_menu.nml:774
+        _w159.command = SizeMoveWindow    # main_menu.nml:776
+        _w159.key = 'Ctrl-F5'    # main_menu.nml:777
 
-        _w161.text = _bind(lambda _o: _tr('~Z~oom'), yielding=True)    # main_menu.nml:776
-        _w161.command = ZoomWindow    # main_menu.nml:777
-        _w161.key = 'Alt-Z'    # main_menu.nml:778
+        _w160.text = _bind(lambda _o: _tr('~Z~oom'), yielding=True)    # main_menu.nml:779
+        _w160.command = ZoomWindow    # main_menu.nml:780
+        _w160.key = 'Alt-Z'    # main_menu.nml:781
 
-        _w162.text = _bind(lambda _o: _tr('~N~ext'), yielding=True)    # main_menu.nml:780
-        _w162.command = NextWindow    # main_menu.nml:781
-        _w162.key = 'F9'    # main_menu.nml:782
+        _w161.text = _bind(lambda _o: _tr('~N~ext'), yielding=True)    # main_menu.nml:783
+        _w161.command = NextWindow    # main_menu.nml:784
+        _w161.key = 'F9'    # main_menu.nml:785
 
-        _w163.text = _bind(lambda _o: _tr('~P~revious'), yielding=True)    # main_menu.nml:784
-        _w163.command = PreviousWindow    # main_menu.nml:785
-        _w163.key = 'Shift-F9'    # main_menu.nml:786
+        _w162.text = _bind(lambda _o: _tr('~P~revious'), yielding=True)    # main_menu.nml:787
+        _w162.command = PreviousWindow    # main_menu.nml:788
+        _w162.key = 'Shift-F9'    # main_menu.nml:789
 
-        _w164.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # main_menu.nml:788
-        _w164.command = CloseWindow    # main_menu.nml:789
-        _w164.key = 'Ctrl-F4'    # main_menu.nml:790
+        _w163.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # main_menu.nml:791
+        _w163.command = CloseWindow    # main_menu.nml:792
+        _w163.key = 'Ctrl-F4'    # main_menu.nml:793
 
-        _w166.text = _bind(lambda _o: _tr('~L~ist...'), yielding=True)    # main_menu.nml:793
-        _w166.tooltip = _bind(    # main_menu.nml:794
+        _w165.text = _bind(lambda _o: _tr('~L~ist...'), yielding=True)    # main_menu.nml:796
+        _w165.tooltip = _bind(    # main_menu.nml:797
             lambda _o: _tr('All the windows, to switch to one or close it'),
             yielding=True,
         )
-        _w166.command = WindowManager    # main_menu.nml:795
-        _w166.key = 'Alt-0'    # main_menu.nml:796
+        _w165.command = WindowManager    # main_menu.nml:798
+        _w165.key = 'Alt-0'    # main_menu.nml:799
 
-        _w167.text = _bind(    # main_menu.nml:799
+        _w166.text = _bind(    # main_menu.nml:802
             lambda _o: _tr('~B~ackground operation...'),
             yielding=True,
         )
-        _w167.tooltip = _bind(    # main_menu.nml:800
+        _w166.tooltip = _bind(    # main_menu.nml:803
             lambda _o: _tr('Bring back the progress box of a copy or an erase running in the background'),
             yielding=True,
         )
-        _w167.command = ShowBackground    # main_menu.nml:801
+        _w166.command = ShowBackground    # main_menu.nml:804

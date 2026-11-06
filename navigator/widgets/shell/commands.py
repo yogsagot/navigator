@@ -925,6 +925,15 @@ class CloseRootAccess(Command):
     title = "Unroot"
 
 
+class ToggleRootAccess(Command):
+    """Utilities > *Elevate root access* / *Close root access*: one entry,
+    captioned by whether root access is open -- the root helper started
+    (asking for the password), or closed as :class:`CloseRootAccess` closes
+    it.  Not DN's (``navigator.lib.system.elevate``)."""
+
+    title = "Root"
+
+
 class EditLinks(Command):
     """Utilities > *Saved links*: the connection profiles in one box -- edited,
     added, deleted, reordered, kept on OK -- and one connected to.

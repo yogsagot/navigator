@@ -1932,6 +1932,50 @@ def test_the_menu_bar_says_root_while_it_is_open_and_it_can_be_closed(started, t
     assert not ELEVATION.running
 
 
+def test_one_utilities_entry_elevates_and_closes_root_access(helper, tmp_path, quiet_console):
+    """Utilities' root entry: *Elevate root access* while closed, which opens
+    it, then *Close root access*, which closes it."""
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.widgets.shell.commands import ToggleRootAccess
+
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: list = []
+
+    def look(a):
+        item = a.shell.menu.root_access
+        seen.append((item.text, a.shell.enables(ToggleRootAccess()), ELEVATION.running))
+
+    run_app(app, [
+        look,
+        lambda a: a.spawn(a.run_command(ToggleRootAccess())),
+        Until(lambda a: a.shell.root_mark.visible, timeout=5),
+        look,
+        lambda a: a.spawn(a.run_command(ToggleRootAccess())),
+        Until(lambda a: not ELEVATION.running and not a.shell.root_mark.visible, timeout=5),
+        look,
+    ])
+    assert seen == [("Elevate ~r~oot access", True, False),
+                    ("Close ~r~oot access", True, True),
+                    ("Elevate ~r~oot access", True, False)]
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root has its own refusal")
+def test_the_root_entry_is_greyed_where_there_is_no_way_to_root(tmp_path, monkeypatch, quiet_console):
+    from conftest import FakeTerminal, run_app
+    from navigator.__main__ import Navigator
+    from navigator.widgets.shell.commands import ToggleRootAccess
+    from navigator.widgets.shell.shell import Shell
+
+    monkeypatch.setattr(SETTINGS.system, "elevate", "off")
+    monkeypatch.setattr(Shell, "_reachable", {})
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen: dict = {}
+    run_app(app, [lambda a: seen.update(enabled=a.shell.enables(ToggleRootAccess()),
+                                        why=a.shell.refusal(ToggleRootAccess()))])
+    assert not seen["enabled"] and seen["why"].startswith("No way to root")
+
+
 def test_a_click_on_the_root_mark_closes_root_access(started, tmp_path, quiet_console):
     from conftest import FakeTerminal, Until, run_app
     from navkit.events import MouseClickEvent
