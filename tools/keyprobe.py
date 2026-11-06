@@ -32,6 +32,8 @@ from navkit.terminal import (  # noqa: E402
     KEYBOARD_ON,
     KEYPAD_OFF,
     KEYPAD_ON,
+    MODIFY_KEYS_OFF,
+    MODIFY_KEYS_ON,
     MOUSE_OFF,
     MOUSE_ON,
     PASTE_OFF,
@@ -47,8 +49,8 @@ def main() -> int:
 
     # The keypad in application mode, as Navigator puts it: without it a
     # legacy terminal's Gray + is indistinguishable from the other +.
-    on = PASTE_ON + ("" if args.no_mouse else MOUSE_ON) + ("" if args.legacy else KEYBOARD_ON) + KEYPAD_ON
-    off = KEYPAD_OFF + ("" if args.legacy else KEYBOARD_OFF) + ("" if args.no_mouse else MOUSE_OFF) + PASTE_OFF
+    on = PASTE_ON + ("" if args.no_mouse else MOUSE_ON) + ("" if args.legacy else MODIFY_KEYS_ON + KEYBOARD_ON) + KEYPAD_ON
+    off = KEYPAD_OFF + ("" if args.legacy else KEYBOARD_OFF + MODIFY_KEYS_OFF) + ("" if args.no_mouse else MOUSE_OFF) + PASTE_OFF
     fd = sys.stdin.fileno()
     saved = termios.tcgetattr(fd)
     decoder = InputParser()

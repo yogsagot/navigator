@@ -335,6 +335,12 @@ class TerminalInfo:
     #: held Alt.  Pushed without a query, since a terminal that does not know
     #: it ignores it; ``NAVKIT_KEYBOARD=legacy`` is the way out if one does not.
     kitty_keyboard: bool = True
+    #: Whether to ask for xterm's modifyOtherKeys (level 1) as well, for the
+    #: terminals that never take the kitty push -- tmux with ``extended-keys
+    #: on`` above all, which sends Ctrl+Enter or Ctrl+Shift+letter only to a
+    #: program that asks this way.  Goes with :attr:`kitty_keyboard`:
+    #: ``NAVKIT_KEYBOARD=legacy`` turns both off.
+    modify_other_keys: bool = True
     #: Whether to put the keypad in application mode (DECKPAM), so a legacy
     #: terminal reports its ``+`` and ``-`` as keys of their own.  Off only
     #: where nothing interactive is on the other end.
@@ -574,6 +580,7 @@ class TerminalInfo:
             bracketed_paste=not plain,
             title=not plain,
             kitty_keyboard=kitty_keyboard,
+            modify_other_keys=kitty_keyboard,
             keypad=not plain,
             hyperlinks=hyperlinks,
             clipboard=clipboard,

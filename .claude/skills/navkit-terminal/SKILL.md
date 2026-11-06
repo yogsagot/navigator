@@ -26,6 +26,16 @@ description: The tty layer (navkit/terminal.py, capabilities.py, clipboard.py) -
 
 - **The kitty keyboard protocol** is pushed without asking; `NAVKIT_KEYBOARD=legacy` turns it off. Only it reports a
   held modifier (`Application.modifiers`, which the key bar reads).
+- **xterm's modifyOtherKeys** (`MODIFY_KEYS_ON`, `CSI > 4 ; 1 m`, `TerminalInfo.modify_other_keys`) is asked for
+  beside it, before the push, and reset by `CSI > 4 m`. It is for **tmux**, which ignores the kitty push and sends
+  Ctrl+Enter, Ctrl+Shift+letter or Ctrl+digit only to a program that asks this way (and only with tmux's
+  `extended-keys on`); xterm itself answers it too. Both forms are decoded: `CSI 27 ; mod ; code ~`, and
+  `CSI code ; mod u` (xterm's formatOtherKeys, tmux's `extended-keys-format csi-u`), whose capital letter under Ctrl
+  is folded to the lower-case key with Shift. **That `u` form is kitty's spelling but reports no release**, so a
+  `CSI u` key moves `modifiers` and sets `KeyEvent.releases` only once `InputParser.reports_releases` is set: a bare
+  modifier key or an event type has arrived, which only kitty proper (flags 2/8) sends. Before that a kitty
+  terminal's first press promises no release, and Button's Space flashes once instead of waiting for the release.
+  `NAVKIT_KEYBOARD=legacy` turns both requests off.
 - **Another layout's letters** (Hebrew, Arabic) under Ctrl/Alt/Super carry `KeyEvent.base`, the US key in the same
   place: kitty's base layout key (the third `:` field of the key code, asked for by flag 4), else
   `navkit/keyboard.py`'s SI-1452 and Arabic (101) position table (a legacy terminal's `ESC ס`; VTE already sends Ctrl

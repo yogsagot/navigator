@@ -94,6 +94,17 @@ PASTE_OFF = "\x1b[?2004l"
 # ignores it, so it is pushed without asking first.
 KEYBOARD_ON = "\x1b[>31u"
 KEYBOARD_OFF = "\x1b[<u"
+# xterm's modifyOtherKeys at level 1, and back to the terminal's default: a
+# key with no legacy encoding of its own (Ctrl+Enter, Ctrl+Shift+letter,
+# Ctrl+digit) arrives as ``CSI 27 ; mod ; code ~`` -- or, with xterm's
+# formatOtherKeys or tmux's ``extended-keys-format csi-u``, as ``CSI code ;
+# mod u`` -- instead of as the plain key it would otherwise be folded into.
+# The kitty push above is what most terminals answer; this is for those
+# that never will, tmux first: it ignores the push, and sends extended keys
+# (``extended-keys on``) only to a program that asks this way.  Neither form
+# reports a release.  A terminal that speaks both lets the kitty flags win.
+MODIFY_KEYS_ON = "\x1b[>4;1m"
+MODIFY_KEYS_OFF = "\x1b[>4m"
 # Focus reporting: ``CSI I`` and ``CSI O`` as the terminal's window gains and
 # loses the focus.  The held modifiers need it -- a release that happens in
 # another window never arrives, and losing the focus is the cue to forget what
@@ -430,6 +441,13 @@ class InputParser:
         #: every other graphics command being sent with replies turned off.
         #: A whole one is a reply whenever it arrives.
         self.answers_graphics = False
+        #: Whether the terminal has shown that it reports releases -- a bare
+        #: modifier key or an event type, which only the kitty protocol with
+        #: its flags 2 and 8 sends.  Until then a ``CSI u`` key may be xterm's
+        #: or tmux's extended form, which shares its spelling and reports no
+        #: release: believing its modifiers held would leave them held for
+        #: good, and its press would promise a release that never comes.
+        self.reports_releases = False
 
     @property
     def pending_escape(self) -> bool:
@@ -647,8 +665,12 @@ class InputParser:
 
         The kitty keyboard protocol is recognised by what legacy input never
         sends -- a ``u`` terminator, or an event type after a ``:`` -- and only
-        that form may move :attr:`modifiers`.  A kitty press carries the
-        whole held set, so each one also corrects a release that went missing.
+        that form may move :attr:`modifiers` -- and only once the terminal
+        has shown it reports releases (:attr:`reports_releases`), since
+        xterm's and tmux's extended keys share the ``u`` spelling and report
+        none.  A kitty press carries the whole held set, so each one also
+        corrects a release that went missing.  xterm's other extended form,
+        ``CSI 27 ; mod ; code ~``, is decoded as the same key.
         """
         fields = body.split(b";")
         if terminator in "IO" and body == b"":
@@ -661,11 +683,18 @@ class InputParser:
         mods = _numbers(fields[1]) if len(fields) > 1 else [1]
         param = mods[0] or 1
         kind = mods[1] if len(mods) > 1 else 1
-        kitty = terminator == "u" or len(mods) > 1
+        if len(mods) > 1:
+            self.reports_releases = True
+        if terminator == "~" and key[0] == 27 and len(fields) == 3:
+            # modifyOtherKeys: a key, never a release or a held modifier.
+            event = _kitty_key(_numbers(fields[2])[0], 0, param, "")
+            return [event] if event is not None else []
+        kitty = (terminator == "u" or len(mods) > 1) and self.reports_releases
         if terminator == "u":
             text = "".join(chr(c) for c in _numbers(fields[2]) if c) if len(fields) > 2 else ""
             code = key[0]
             if code in _KITTY_MODIFIER_KEYS:
+                self.reports_releases = True
                 return self._modifier_key(_KITTY_MODIFIER_KEYS[code], param, kind)
             event = _kitty_key(code, key[1] if len(key) > 1 else 0, param, text)
             base = key[2] if len(key) > 2 else 0
@@ -673,6 +702,11 @@ class InputParser:
             base = 0
             event = _csi_key(body, terminator)
         if not kitty:
+            if isinstance(event, KeyEvent):
+                if terminator == "u" and _super(param):
+                    # The ``u`` form spends that bit on Super whoever sent it.
+                    event = replace(event, super_=True)
+                event = _with_base(event, base)
             return [event] if event is not None else []
         out = self._hold(_held(param))
         if isinstance(event, KeyEvent):
@@ -735,7 +769,9 @@ def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | Non
     terminal sent it, so this mirrors :func:`_control_key` and the text path
     of :meth:`InputParser._parse` rather than inventing a spelling: a capital
     is the lower-case key with ``shift`` and its ``char``, Ctrl+letter has no
-    ``char``, Ctrl+Space is ``space``.
+    ``char``, Ctrl+Space is ``space``.  xterm's and tmux's extended keys come
+    here too, and may send a shifted letter's capital where kitty sends the
+    key: Ctrl+Shift+A is still ``a`` with both modifiers.
     """
     ctrl, alt, shift = _modifiers(param)
     name = _KITTY_KEYS.get(code)
@@ -755,6 +791,8 @@ def _kitty_key(code: int, shifted: int, param: int, text: str) -> KeyEvent | Non
     if code == 0x20 and ctrl:
         return KeyEvent("space", " ", ctrl=True, alt=alt, shift=shift)
     if ctrl:
+        if 0x41 <= code <= 0x5A:
+            return KeyEvent(chr(code).lower(), ctrl=True, alt=alt, shift=True)
         return KeyEvent(chr(code), ctrl=True, alt=alt, shift=shift)
     char = text or (chr(shifted) if shift and shifted else chr(code))
     return KeyEvent(char.lower(), char, alt=alt, shift=char.isupper())
@@ -1161,6 +1199,8 @@ class Terminal:
             self.write(MOUSE_ON)
         if self.info.bracketed_paste:
             self.write(PASTE_ON)
+        if self.info.modify_other_keys:
+            self.write(MODIFY_KEYS_ON)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_ON)
         if self.info.focus_reports:
@@ -1184,6 +1224,8 @@ class Terminal:
             self.write(FOCUS_OFF)
         if self.info.kitty_keyboard:
             self.write(KEYBOARD_OFF)
+        if self.info.modify_other_keys:
+            self.write(MODIFY_KEYS_OFF)
         if self.info.bracketed_paste:
             self.write(PASTE_OFF)
         if self.mouse:

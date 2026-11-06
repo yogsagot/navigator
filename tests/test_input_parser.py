@@ -233,6 +233,8 @@ def test_a_released_key_is_not_a_key(parser):
 
 
 def test_a_kitty_press_says_its_release_will_follow(parser):
+    # Once the terminal has shown it reports releases: a bare modifier did.
+    parser.feed(b"\x1b[57441;2u\x1b[57441;1:3u")
     (press,) = parser.feed(b"\x1b[32u")
     assert press == KeyEvent(" ", " ")
     assert press.releases is True
@@ -463,3 +465,47 @@ def test_a_bare_letter_of_another_layout_is_only_text():
 
 def test_the_base_layout_key_does_not_make_a_different_key():
     assert _keys("\x1bס".encode())[0] == KeyEvent("ס", "ס", alt=True)
+
+
+# -- xterm's modifyOtherKeys and tmux's extended keys -----------------------------
+
+
+@pytest.mark.parametrize(
+    ("sequence", "want"),
+    [
+        (b"\x1b[27;5;13~", KeyEvent("enter", "\n", ctrl=True)),
+        (b"\x1b[27;2;13~", KeyEvent("enter", "\n", shift=True)),
+        (b"\x1b[27;6;65~", KeyEvent("a", ctrl=True, shift=True)),
+        (b"\x1b[27;6;97~", KeyEvent("a", ctrl=True, shift=True)),
+        (b"\x1b[27;5;49~", KeyEvent("1", ctrl=True)),
+        (b"\x1b[27;5;9~", KeyEvent("tab", "\t", ctrl=True)),
+        (b"\x1b[27;3;120~", KeyEvent("x", "x", alt=True)),
+        (b"\x1b[13;5u", KeyEvent("enter", "\n", ctrl=True)),
+        (b"\x1b[65;6u", KeyEvent("a", ctrl=True, shift=True)),
+    ],
+)
+def test_an_xterm_or_tmux_extended_key_is_decoded(parser, sequence, want):
+    assert parser.feed(sequence) == [want]
+    assert not parser.pending_escape
+
+
+def test_an_extended_key_holds_no_modifier_and_promises_no_release(parser):
+    """tmux's ``csi-u`` form looks like kitty's, but nothing is released after it."""
+    (press,) = parser.feed(b"\x1b[97;5u")
+    assert press == KeyEvent("a", ctrl=True)
+    assert press.releases is False
+    assert parser.modifiers == frozenset()
+    (press,) = parser.feed(b"\x1b[27;5;13~")
+    assert press.releases is False
+    assert parser.modifiers == frozenset()
+
+
+def test_a_release_shows_the_terminal_is_kitty_proper(parser):
+    from navkit.events import ModifiersEvent
+
+    parser.feed(b"\x1b[97;1:3u")
+    assert parser.reports_releases
+    assert parser.feed(b"\x1b[97;5u") == [
+        ModifiersEvent(frozenset({"ctrl"})),
+        KeyEvent("a", ctrl=True),
+    ]

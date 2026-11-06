@@ -304,6 +304,30 @@ def test_the_kitty_keyboard_protocol_is_pushed_and_popped():
     assert ">31u" not in out.getvalue() and "<u" not in out.getvalue()
 
 
+def test_modify_other_keys_is_asked_for_and_given_back():
+    """What tmux needs before it sends Ctrl+Enter or Ctrl+Shift+letter at all."""
+    terminal, out = _terminal()
+    terminal.start()
+    written = out.getvalue()
+    assert "\x1b[>4;1m" in written
+    # Asked for before the kitty push, so a terminal that speaks both ends
+    # with the kitty flags in force.
+    assert written.index("\x1b[>4;1m") < written.index("\x1b[>31u")
+    terminal.stop()
+    assert "\x1b[>4m" in out.getvalue()[len(written):]
+
+    terminal, out = _terminal(modify_other_keys=False)
+    terminal.start()
+    terminal.stop()
+    assert ">4;1m" not in out.getvalue() and ">4m" not in out.getvalue()
+
+
+def test_legacy_keyboard_turns_modify_other_keys_off_too():
+    assert TerminalInfo.detect({"TERM": "tmux-256color", "TMUX": "/tmp/t,1,0"}, is_tty=True).modify_other_keys
+    info = TerminalInfo.detect({"TERM": "xterm", "NAVKIT_KEYBOARD": "legacy"}, is_tty=True)
+    assert not info.modify_other_keys
+
+
 def test_focus_reports_are_asked_for_on_their_own_flag():
     """A legacy keyboard still gets them: a notification needs to know."""
     terminal, out = _terminal(kitty_keyboard=False)
