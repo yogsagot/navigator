@@ -351,3 +351,16 @@ AttrDialog(Dialog):
         height: 1
         items: ["No", "Files", "Dirs", "All"]
         tooltips: ["Only the tagged directories themselves change", "The files under a tagged directory change too, the directories in it not", "The directories under a tagged directory change too, the files in it not", "Everything under a tagged directory changes too"]
+
+    #: Not DN's (DOS refused no one): root access opened from here, so Owner
+    #: can be given and every step of OK's change is the root helper's.
+    #: Shown where there is a way to root; moved into the base's button row
+    #: beside OK and Cancel by the Python half.
+    Button:
+        id: root_button
+        text: "A~s~ root"
+        tooltip: "Open root access: any owner and group, and the change made as root"
+        visible: False
+        style:
+            basis: 11
+            grow: 0

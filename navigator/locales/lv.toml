@@ -477,6 +477,10 @@ flag = "LV"
 "The directories under a tagged directory change too, the files in it not" = "Mainās arī direktorijas atzīmētajā direktorijā, tajā esošie faili ne"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Everything under a tagged directory changes too" = "Mainās arī viss atzīmētajā direktorijā"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:361
+"A~s~ root" = "K~ā~ root"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:362
+"Open root access: any owner and group, and the change made as root" = "Atvērt root piekļuvi: jebkurš īpašnieks un grupa, un izmaiņas tiek veiktas kā root"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "Aprēķināt kontrolsummas"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:23
@@ -2803,25 +2807,25 @@ flag = "LV"
 "DIR" = "MAPE"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "APAKŠMAPE"
-# navigator/lib/file_ops/fileattr.py:395
+# navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "Nav lietotāja {name}"
-# navigator/lib/file_ops/fileattr.py:400
+# navigator/lib/file_ops/fileattr.py:406
 "There is no group {name}" = "Nav grupas {name}"
-# navigator/lib/file_ops/fileattr.py:513
+# navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} nav derīgs laiks"
-# navigator/lib/file_ops/fileattr.py:504
+# navigator/lib/file_ops/fileattr.py:510
 "Give both a date and a time" = "Norādiet gan datumu, gan laiku"
-# navigator/lib/file_ops/fileattr.py:507, navigator/lib/file_ops/fileattr.py:534, navigator/lib/file_ops/fileattr.py:532
+# navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} nav derīgs datums"
 # navigator/lib/file_ops/fileattr.py:127
 "{text} is not an octal mode" = "{text} nav astotnieku režīms"
-# navigator/lib/file_ops/fileattr.py:463
+# navigator/lib/file_ops/fileattr.py:469
 "{name} is not in the user, trusted or security namespace" = "{name} nav user, trusted vai security nosaukumu telpā"
-# navigator/lib/file_ops/fileattr.py:465
+# navigator/lib/file_ops/fileattr.py:471
 "{name} is too long" = "{name} ir pārāk garš"
-# navigator/lib/file_ops/fileattr.py:450
+# navigator/lib/file_ops/fileattr.py:456
 "{text} is not hexadecimal" = "{text} nav heksadecimāls"
-# navigator/lib/file_ops/fileattr.py:455
+# navigator/lib/file_ops/fileattr.py:461
 "{text} is not base64" = "{text} nav base64"
 # navigator/lib/file_ops/filecopy.py:627
 "{name} is not a regular file" = "{name} nav parasts fails"
@@ -2953,7 +2957,7 @@ flag = "LV"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Nesakrīt faila {name} CRC, norādīts={listed}, aprēķināts={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "teksts"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:467
 "auto" = "auto"
 # navigator/lib/system/diskinfo.py:221
 "File" = "Fails"
@@ -3421,9 +3425,9 @@ flag = "LV"
 "Delete the link \"{name}\"?" = "Dzēst saiti \"{name}\"?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6088
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Jauns G~V~fs/KIO savienojums (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343
 "Add" = "Pievienot"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:64 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343, navigator/widgets/manager/commands.py:64 ...
 "Edit" = "Rediģēt"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6070
 "~N~ew SSH link (SFTP)..." = "~J~auns SSH savienojums (SFTP)..."
@@ -3795,39 +3799,39 @@ flag = "LV"
 "Root access was refused: {reason}" = "Root piekļuve atteikta: {reason}"
 # navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: root piekļuve nav pieejama"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "direktorija"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} direktorija", "{n} direktorijas", "{n} direktoriju"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
 "{n:,} byte" = ["{n:,} baits", "{n:,} baiti", "{n:,} baitu"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:582
 "<differs>" = "<atšķiras>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
 "File ~{name}~" = "Fails ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
 "broken link" = "bojāta saite"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:133
 "link to {target}, {kind}" = "saite uz {target}, {kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:310
 "Not on this drive" = "Nav pieejams šajā diskā"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:294, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:311
 "Not supported by this file system" = "Šī failu sistēma to neatbalsta"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "Directory ~{name}~" = "Direktorija ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "named pipe" = "nosaukts kanāls"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:341
 "Read Write Exec" = "Lasīt Rakstīt Izpild."
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "socket" = "ligzda"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
 "device" = "ierīce"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "special file" = "speciāls fails"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:684
 "Changes will be lost. Are you sure?" = "Izmaiņas tiks zaudētas. Vai tiešām?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done} no {n} faila, {percent}%", "{done} no {n} failiem, {percent}%", "{done} no {n} failiem, {percent}%"]
@@ -4827,7 +4831,7 @@ flag = "LV"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:988
 "Backgr" = "Fonā"
-# navigator/widgets/shell/console/screen_view.py:204
+# navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "~N~oņemt atlasi"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
 "Add Environment Variable" = "Pievienot vides mainīgo"

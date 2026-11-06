@@ -57,6 +57,7 @@ them: there they step the date or time, carrying as a calendar does.
 
 from __future__ import annotations
 
+import asyncio
 import os
 
 import stat
@@ -165,7 +166,7 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
             "user": "" if survey.uid is None else str(survey.uid), "users": [], "can_chown_user": can,
             "group": "" if survey.gid is None else str(survey.gid), "groups": [], "can_chown_group": can,
             "all_users": [], "all_groups": [], "names": acl_names(survey, numbers=True),
-            "can_xattr": drive.can("xattr"), "can_flags": drive.can("fsflags"),
+            "can_xattr": drive.can("xattr"), "can_flags": drive.can("fsflags"), "can_elevate": False,
         }
     return {
         "survey": survey,
@@ -179,7 +180,14 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
         "all_groups": fileattr.groups(),
         "names": acl_names(survey),
         "can_xattr": True, "can_flags": True,
+        "can_elevate": os.geteuid() != 0 and _elevation().available(),
     }
+
+
+def _elevation() -> Any:
+    from navigator.lib.system.elevate import ELEVATION
+
+    return ELEVATION
 
 
 def acl_names(survey: fileattr.Survey, numbers: bool = False) -> dict[tuple[str, int], str]:
@@ -227,6 +235,8 @@ class AttrDialog(Dialog):
         #: The bits the user has pressed, as grid items.
         self.touched = 0
         self._request: fileattr.AttrRequest | None = None
+        #: Set by *As root*: the change is the root helper's from its first step.
+        self.as_root = False
 
         survey = self.survey
         self.name_row.text = name_for(self._entries)
@@ -247,6 +257,9 @@ class AttrDialog(Dialog):
         self.group.choices = with_current(facts["groups"], self.group.value)
         if "can_chown_group" in facts:
             self.group.disabled = not facts["can_chown_group"]
+        # *As root* beside OK and Cancel, centred with them.
+        self.row.add(self.root_button)
+        self.root_button.visible = bool(facts.get("can_elevate"))
         # *Country support*'s order, where a mask can hold it (country.typed_date_format).
         self.date.date_format = country.typed_date_format()
         self.date.value = fileattr.date_text(survey.mtime, self.date.date_format)
@@ -673,6 +686,34 @@ class AttrDialog(Dialog):
         ).execute(self.application)
         return answer is True
 
+    # -- as root -----------------------------------------------------------------
+
+    @property
+    def buttons_row(self) -> tuple[Widget, ...]:
+        return (*super().buttons_row, self.root_button)
+
+    async def on_root_button_click(self, event: Any) -> bool:
+        """*As root*: root access opened (asking for the password if it is
+        not), the owner and every group offered, and OK's change done by the
+        root helper."""
+        self.spawn(self._go_root())
+        return True
+
+    async def _go_root(self) -> None:
+        from navigator.widgets.file_ops.as_root import open_root
+
+        app = self.application
+        if app is None or not await open_root(app):
+            return
+        groups = await asyncio.to_thread(fileattr.groups)
+        if self.parent is None:
+            return  # closed meanwhile
+        self.as_root = True
+        self.user.disabled = False
+        self.group.choices = with_current(groups, self.group.value)
+        self.root_button.disabled = True
+        (self.user if self.tabs.current == 0 else self.ok).focus()
+
     # -- what OK means -----------------------------------------------------------
 
     def build(self) -> fileattr.AttrRequest:
@@ -695,6 +736,7 @@ class AttrDialog(Dialog):
             gid=None if gid == survey.gid else gid,
             mtime=mtime,
             recurse=recurse,
+            as_root=self.as_root,
         )
         for row in self._acl_initial.keys() - self._acl.keys():
             (request.default_remove if row[0] else request.acl_remove).add(row[1:])

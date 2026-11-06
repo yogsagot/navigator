@@ -477,6 +477,10 @@ flag = "RU"
 "The directories under a tagged directory change too, the files in it not" = "Меняются и каталоги в отмеченном каталоге, но не файлы в нём"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Everything under a tagged directory changes too" = "Меняется и всё в отмеченном каталоге"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:361
+"A~s~ root" = "От име~н~и root"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:362
+"Open root access: any owner and group, and the change made as root" = "Открыть доступ root: любой владелец и группа, изменение выполняется от имени root"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "Вычисление контрольных сумм"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:23
@@ -2803,25 +2807,25 @@ flag = "RU"
 "DIR" = "КАТАЛОГ"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "ПОДКАТ"
-# navigator/lib/file_ops/fileattr.py:395
+# navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "Нет пользователя {name}"
-# navigator/lib/file_ops/fileattr.py:400
+# navigator/lib/file_ops/fileattr.py:406
 "There is no group {name}" = "Нет группы {name}"
-# navigator/lib/file_ops/fileattr.py:513
+# navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} - неверное время"
-# navigator/lib/file_ops/fileattr.py:504
+# navigator/lib/file_ops/fileattr.py:510
 "Give both a date and a time" = "Укажите и дату, и время"
-# navigator/lib/file_ops/fileattr.py:507, navigator/lib/file_ops/fileattr.py:534, navigator/lib/file_ops/fileattr.py:532
+# navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} - неверная дата"
 # navigator/lib/file_ops/fileattr.py:127
 "{text} is not an octal mode" = "{text} - не восьмеричный режим"
-# navigator/lib/file_ops/fileattr.py:463
+# navigator/lib/file_ops/fileattr.py:469
 "{name} is not in the user, trusted or security namespace" = "{name} не в пространстве имён user, trusted или security"
-# navigator/lib/file_ops/fileattr.py:465
+# navigator/lib/file_ops/fileattr.py:471
 "{name} is too long" = "{name} слишком длинное"
-# navigator/lib/file_ops/fileattr.py:450
+# navigator/lib/file_ops/fileattr.py:456
 "{text} is not hexadecimal" = "{text} не шестнадцатеричное число"
-# navigator/lib/file_ops/fileattr.py:455
+# navigator/lib/file_ops/fileattr.py:461
 "{text} is not base64" = "{text} не base64"
 # navigator/lib/file_ops/filecopy.py:627
 "{name} is not a regular file" = "{name} - не обычный файл"
@@ -2953,7 +2957,7 @@ flag = "RU"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Несовпадение CRC файла {name}, указано={listed}, вычислено={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "текст"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:467
 "auto" = "авто"
 # navigator/lib/system/diskinfo.py:221
 "File" = "Файл"
@@ -3421,9 +3425,9 @@ flag = "RU"
 "Delete the link \"{name}\"?" = "Удалить ссылку \"{name}\"?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6088
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "Новая связь по ~G~Vfs/KIO (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343
 "Add" = "Добавить"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:64 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343, navigator/widgets/manager/commands.py:64 ...
 "Edit" = "Правка"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6070
 "~N~ew SSH link (SFTP)..." = "~Н~овая связь по SSH (SFTP)..."
@@ -3795,39 +3799,39 @@ flag = "RU"
 "Root access was refused: {reason}" = "В доступе root отказано: {reason}"
 # navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: доступ root недоступен"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "каталог"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
 "{n} file" = ["{n} файл", "{n} файла", "{n} файлов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} каталог", "{n} каталога", "{n} каталогов"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
 "{n:,} byte" = ["{n:,} байт", "{n:,} байта", "{n:,} байт"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:582
 "<differs>" = "<различается>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
 "File ~{name}~" = "Файл ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
 "broken link" = "битая ссылка"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:133
 "link to {target}, {kind}" = "ссылка на {target}, {kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:310
 "Not on this drive" = "Недоступно на этом диске"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:294, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:311
 "Not supported by this file system" = "Не поддерживается этой файловой системой"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "Directory ~{name}~" = "Каталог ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "named pipe" = "именованный канал"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:341
 "Read Write Exec" = "Чтение Запись Запуск"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "socket" = "сокет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
 "device" = "устройство"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "special file" = "особый файл"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:684
 "Changes will be lost. Are you sure?" = "Изменения будут потеряны. Вы уверены?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done} из {n} файла, {percent}%", "{done} из {n} файлов, {percent}%", "{done} из {n} файлов, {percent}%"]
@@ -4827,7 +4831,7 @@ flag = "RU"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:988
 "Backgr" = "Фон"
-# navigator/widgets/shell/console/screen_view.py:204
+# navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "~С~нять выделение"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
 "Add Environment Variable" = "Добавление переменной"

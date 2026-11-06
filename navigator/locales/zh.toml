@@ -477,6 +477,10 @@ flag = "CN"
 "The directories under a tagged directory change too, the files in it not" = "已标记目录下的目录也更改，其中的文件不变"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Everything under a tagged directory changes too" = "已标记目录下的所有内容也一并更改"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:361
+"A~s~ root" = "以 root 身份(~S~)"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:362
+"Open root access: any owner and group, and the change made as root" = "打开 root 访问：任意所有者和组，更改以 root 身份进行"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "计算校验和"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:23
@@ -2803,25 +2807,25 @@ flag = "CN"
 "DIR" = "目录"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "子目录"
-# navigator/lib/file_ops/fileattr.py:395
+# navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "没有用户 {name}"
-# navigator/lib/file_ops/fileattr.py:400
+# navigator/lib/file_ops/fileattr.py:406
 "There is no group {name}" = "没有组 {name}"
-# navigator/lib/file_ops/fileattr.py:513
+# navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} 不是有效的时间"
-# navigator/lib/file_ops/fileattr.py:504
+# navigator/lib/file_ops/fileattr.py:510
 "Give both a date and a time" = "请同时给出日期和时间"
-# navigator/lib/file_ops/fileattr.py:507, navigator/lib/file_ops/fileattr.py:534, navigator/lib/file_ops/fileattr.py:532
+# navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} 不是有效的日期"
 # navigator/lib/file_ops/fileattr.py:127
 "{text} is not an octal mode" = "{text} 不是八进制模式"
-# navigator/lib/file_ops/fileattr.py:463
+# navigator/lib/file_ops/fileattr.py:469
 "{name} is not in the user, trusted or security namespace" = "{name} 不在 user、trusted 或 security 命名空间中"
-# navigator/lib/file_ops/fileattr.py:465
+# navigator/lib/file_ops/fileattr.py:471
 "{name} is too long" = "{name} 太长"
-# navigator/lib/file_ops/fileattr.py:450
+# navigator/lib/file_ops/fileattr.py:456
 "{text} is not hexadecimal" = "{text} 不是十六进制"
-# navigator/lib/file_ops/fileattr.py:455
+# navigator/lib/file_ops/fileattr.py:461
 "{text} is not base64" = "{text} 不是 base64"
 # navigator/lib/file_ops/filecopy.py:627
 "{name} is not a regular file" = "{name} 不是普通文件"
@@ -2953,7 +2957,7 @@ flag = "CN"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "文件 {name} CRC 不匹配，列出={listed}，计算={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "纯文本"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:467
 "auto" = "自动"
 # navigator/lib/system/diskinfo.py:221
 "File" = "文件"
@@ -3421,9 +3425,9 @@ flag = "CN"
 "Delete the link \"{name}\"?" = "删除链接“{name}”？"
 # navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6088
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新建 GVfs/KIO 链接(~G~) (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343
 "Add" = "添加"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:64 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343, navigator/widgets/manager/commands.py:64 ...
 "Edit" = "编辑"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6070
 "~N~ew SSH link (SFTP)..." = "新建 SSH 链接(~N~) (SFTP)..."
@@ -3795,39 +3799,39 @@ flag = "CN"
 "Root access was refused: {reason}" = "root 访问被拒绝: {reason}"
 # navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: 无法使用 root 访问"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "目录"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
 "{n} file" = ["{n} 个文件"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} 个目录"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
 "{n:,} byte" = ["{n:,} 字节"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:582
 "<differs>" = "<不同>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
 "File ~{name}~" = "文件 ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
 "broken link" = "失效链接"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:133
 "link to {target}, {kind}" = "链接到 {target}，{kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:310
 "Not on this drive" = "此驱动器不支持"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:294, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:311
 "Not supported by this file system" = "此文件系统不支持"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "Directory ~{name}~" = "目录 ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "named pipe" = "命名管道"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:341
 "Read Write Exec" = "读 写 执行"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "socket" = "套接字"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
 "device" = "设备"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "special file" = "特殊文件"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:684
 "Changes will be lost. Are you sure?" = "更改将丢失。确定吗？"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done}/{n} 个文件，{percent}%"]
@@ -4827,7 +4831,7 @@ flag = "CN"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:988
 "Backgr" = "后台"
-# navigator/widgets/shell/console/screen_view.py:204
+# navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "清除选择(~L~)"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
 "Add Environment Variable" = "添加环境变量"

@@ -93,6 +93,7 @@ class AttrDialog(Dialog, _Component):
     flags_note: StaticText    # attr_dialog.nml:329
     recurse_caption: Label    # attr_dialog.nml:338
     recurse: RadioButtons    # attr_dialog.nml:347
+    root_button: Button    # attr_dialog.nml:360
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -128,6 +129,10 @@ class AttrDialog(Dialog, _Component):
 
     async def on_xattr_delete_click(self, event: _Event) -> bool:    # attr_dialog.nml:283
         """``xattr_delete`` raised an event whose handler is ``on_click``."""
+        return False
+
+    async def on_root_button_click(self, event: _Event) -> bool:    # attr_dialog.nml:360
+        """``root_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
@@ -169,6 +174,7 @@ class AttrDialog(Dialog, _Component):
         self.flags_note = StaticText(parent=self.flags_page)    # attr_dialog.nml:328
         self.recurse_caption = Label(parent=self)    # attr_dialog.nml:337
         self.recurse = RadioButtons(parent=self)    # attr_dialog.nml:346
+        self.root_button = Button(parent=self)    # attr_dialog.nml:359
 
         self.modal_width = 64    # attr_dialog.nml:32
         self.modal_height = 21    # attr_dialog.nml:33
@@ -439,3 +445,15 @@ class AttrDialog(Dialog, _Component):
             lambda _o: [_tr('Only the tagged directories themselves change'), _tr('The files under a tagged directory change too, the directories in it not'), _tr('The directories under a tagged directory change too, the files in it not'), _tr('Everything under a tagged directory changes too')],
             yielding=True,
         )
+
+        self.root_button.text = _bind(    # attr_dialog.nml:361
+            lambda _o: _tr('A~s~ root'),
+            yielding=True,
+        )
+        self.root_button.tooltip = _bind(    # attr_dialog.nml:362
+            lambda _o: _tr('Open root access: any owner and group, and the change made as root'),
+            yielding=True,
+        )
+        self.root_button.visible = False    # attr_dialog.nml:363
+        self.root_button.inline_style = 'basis: 11; grow: 0'    # attr_dialog.nml:364
+        self.root_button.on_click = self.on_root_button_click    # attr_dialog.nml:360

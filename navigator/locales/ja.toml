@@ -477,6 +477,10 @@ flag = "JP"
 "The directories under a tagged directory change too, the files in it not" = "マークしたディレクトリ内のサブディレクトリも変更し、ファイルは変更しません"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:353
 "Everything under a tagged directory changes too" = "マークしたディレクトリ内のすべてを変更します"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:361
+"A~s~ root" = "root として(~S~)"
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:362
+"Open root access: any owner and group, and the change made as root" = "root アクセスを開く: 任意の所有者とグループ、変更は root として行う"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:15
 "Calculate Checksums" = "チェックサムの計算"
 # navigator/widgets/file_ops/calculate_checksums_dialog/calculate_checksums_dialog.nml:23
@@ -2803,25 +2807,25 @@ flag = "JP"
 "DIR" = "DIR"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "SUB-DIR"
-# navigator/lib/file_ops/fileattr.py:395
+# navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "ユーザー {name} は存在しません"
-# navigator/lib/file_ops/fileattr.py:400
+# navigator/lib/file_ops/fileattr.py:406
 "There is no group {name}" = "グループ {name} は存在しません"
-# navigator/lib/file_ops/fileattr.py:513
+# navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} は有効な時刻ではありません"
-# navigator/lib/file_ops/fileattr.py:504
+# navigator/lib/file_ops/fileattr.py:510
 "Give both a date and a time" = "日付と時刻の両方を指定してください"
-# navigator/lib/file_ops/fileattr.py:507, navigator/lib/file_ops/fileattr.py:534, navigator/lib/file_ops/fileattr.py:532
+# navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} は有効な日付ではありません"
 # navigator/lib/file_ops/fileattr.py:127
 "{text} is not an octal mode" = "{text} は8進のモードではありません"
-# navigator/lib/file_ops/fileattr.py:463
+# navigator/lib/file_ops/fileattr.py:469
 "{name} is not in the user, trusted or security namespace" = "{name} は user、trusted、security のいずれの名前空間にもありません"
-# navigator/lib/file_ops/fileattr.py:465
+# navigator/lib/file_ops/fileattr.py:471
 "{name} is too long" = "{name} は長すぎます"
-# navigator/lib/file_ops/fileattr.py:450
+# navigator/lib/file_ops/fileattr.py:456
 "{text} is not hexadecimal" = "{text} は16進数ではありません"
-# navigator/lib/file_ops/fileattr.py:455
+# navigator/lib/file_ops/fileattr.py:461
 "{text} is not base64" = "{text} は base64 ではありません"
 # navigator/lib/file_ops/filecopy.py:627
 "{name} is not a regular file" = "{name} は通常のファイルではありません"
@@ -2953,7 +2957,7 @@ flag = "JP"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "ファイル {name} の CRC 不一致、記載={listed}、計算={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "なし"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:454
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:467
 "auto" = "自動"
 # navigator/lib/system/diskinfo.py:221
 "File" = "ファイル"
@@ -3421,9 +3425,9 @@ flag = "JP"
 "Delete the link \"{name}\"?" = "リンク \"{name}\" を削除しますか?"
 # navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6088
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新規 GVfs/KIO リンク(~G~) (MTP、WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343
 "Add" = "追加"
-# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:330, navigator/widgets/manager/commands.py:64 ...
+# navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343, navigator/widgets/manager/commands.py:64 ...
 "Edit" = "編集"
 # navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6070
 "~N~ew SSH link (SFTP)..." = "新規 SSH リンク(~N~) (SFTP)..."
@@ -3795,39 +3799,39 @@ flag = "JP"
 "Root access was refused: {reason}" = "root アクセスが拒否されました: {reason}"
 # navigator/widgets/file_ops/as_root.py:192
 "{path}: root access is not available" = "{path}: root アクセスは利用できません"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:118
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "ディレクトリ"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:105, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2726, navigator/widgets/manager/manager/manager.py:2726
 "{n} file" = ["{n} 個のファイル"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:107
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} 個のディレクトリ"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:120, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2530, navigator/widgets/manager/panel/panel.py:2645 ...
 "{n:,} byte" = ["{n:,} バイト"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:569
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:582
 "<differs>" = "<相違>"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
 "File ~{name}~" = "ファイル ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:122
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:123
 "broken link" = "壊れたリンク"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:132
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:133
 "link to {target}, {kind}" = "{target} へのリンク、{kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:297
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:293, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:310
 "Not on this drive" = "このドライブにはありません"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:281, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:298
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:294, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:311
 "Not supported by this file system" = "このファイルシステムでは未対応"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:99
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "Directory ~{name}~" = "ディレクトリ ~{name}~"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:124
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "named pipe" = "名前付きパイプ"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:328
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:341
 "Read Write Exec" = "読取 書込 実行"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:126
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "socket" = "ソケット"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:128
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:129
 "device" = "デバイス"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:130
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "special file" = "特殊ファイル"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:671
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:684
 "Changes will be lost. Are you sure?" = "変更は失われます。よろしいですか?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done} / {n} 個のファイル、{percent}%"]
@@ -4827,7 +4831,7 @@ flag = "JP"
 "SMB" = "SMB"
 # navigator/widgets/shell/commands.py:988
 "Backgr" = "裏処理"
-# navigator/widgets/shell/console/screen_view.py:204
+# navigator/widgets/shell/console/screen_view.py:205
 "C~l~ear selection" = "選択解除(~L~)"
 # navigator/widgets/shell/environment_dialog/environment_dialog.py:79
 "Add Environment Variable" = "環境変数の追加"

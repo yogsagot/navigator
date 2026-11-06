@@ -450,6 +450,112 @@ def test_attributes_refused_go_on_as_root(helper, tmp_path):
     assert (box / "a.txt").stat().st_mode & 0o777 == 0o644
 
 
+@pytest.mark.skipif(IS_ROOT, reason="root may always give a file away")
+def test_alt_e_offers_the_owner_while_root_access_is_open(helper, tmp_path):
+    """The menu bar's ROOT: the owner field is enabled, every group offered."""
+    from navigator.lib.file_ops import fileattr
+    from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
+
+    path = tmp_path / "f"
+    path.write_text("x")
+    assert not gather([path])["can_chown_user"]
+    assert helper.begin() == READY_STATE
+    facts = gather([path])
+    assert facts["can_chown_user"] and fileattr.can_chown_user()
+    assert facts["groups"] == fileattr.groups()
+
+
+@pytest.mark.skipif(IS_ROOT, reason="nothing goes through the helper as root")
+def test_an_owner_asked_for_while_root_access_is_open_goes_to_the_helper(started, tmp_path, monkeypatch):
+    """Not refused as the user first and asked *As root* again."""
+    from navigator.lib.file_ops import fileattr
+
+    path = tmp_path / "f"
+    path.write_text("x")
+    seen: list = []
+    apply_one = fileattr.apply_one
+    monkeypatch.setattr(fileattr, "apply_one", lambda p, r, **kw: (seen.append(kw["as_root"]), apply_one(p, r, **kw)))
+
+    def asker(question):
+        raise AssertionError(f"asked {question}")
+
+    request = fileattr.AttrRequest(sources=[path], gid=os.getegid())
+    assert fileattr.run(request, fileattr.AttrJob(asker=asker)) == [path]
+    # Mode bits alone go as the user, as before.
+    assert fileattr.run(fileattr.AttrRequest(sources=[path], set_bits=0o004), fileattr.AttrJob(asker=asker)) == [path]
+    assert seen == [True, False]
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root needs no As root")
+def test_alt_e_as_root_opens_root_access_and_offers_the_owner(helper, tmp_path):
+    """The dialog's *As root*: the helper started, Owner enabled, every
+    group offered, and OK's request the helper's from its first step."""
+    import asyncio
+
+    from conftest import FakeTerminal, handled, started as painted
+    from navkit.application import Application
+    from navkit.events import KeyEvent
+    from navigator.lib.file_ops import fileattr
+    from navigator.widgets.file_ops.attr_dialog import AttrDialog
+    from navigator.widgets.shell.shell import Shell
+
+    (tmp_path / "f").write_text("x")
+
+    async def main():
+        shell = Shell(tmp_path, tmp_path)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await painted(app, shell.manager.left, shell.manager.right)
+        try:
+            panel = shell.manager.left
+            panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == "f")
+            app.post_event(KeyEvent("e", alt=True))
+            while not isinstance(app.modal, AttrDialog):
+                await asyncio.sleep(0.01)
+            dialog = app.modal
+            before = (dialog.root_button.visible, dialog.root_button.parent is dialog.row, dialog.user.disabled)
+            app.post_event(KeyEvent("s", alt=True))
+            for _ in range(500):
+                if dialog.as_root:
+                    break
+                await asyncio.sleep(0.01)
+            await handled(app)
+            after = (dialog.user.disabled, dialog.root_button.disabled, dialog.group.choices, dialog.build().as_root)
+            app.post_event(KeyEvent("escape"))
+            await handled(app)
+            return before, after
+        finally:
+            app.exit()
+            await task
+
+    before, after = asyncio.run(main())
+    assert before == (True, True, True)
+    assert ELEVATION.running
+    assert after == (False, True, fileattr.groups(), True)
+
+
+def test_alt_e_has_no_as_root_where_there_is_no_way_to_it(tmp_path, monkeypatch):
+    from navigator.widgets.file_ops.attr_dialog.attr_dialog import gather
+
+    (tmp_path / "f").write_text("x")
+    monkeypatch.setattr(SETTINGS.system, "elevate", "off")
+    assert not gather([tmp_path / "f"])["can_elevate"]
+
+
+@pytest.mark.skipif(IS_ROOT, reason="nothing goes through the helper as root")
+def test_a_request_marked_as_root_goes_to_the_helper_whatever_it_changes(started, tmp_path, monkeypatch):
+    from navigator.lib.file_ops import fileattr
+
+    path = tmp_path / "f"
+    path.write_text("x")
+    seen: list = []
+    apply_one = fileattr.apply_one
+    monkeypatch.setattr(fileattr, "apply_one", lambda p, r, **kw: (seen.append(kw["as_root"]), apply_one(p, r, **kw)))
+    request = fileattr.AttrRequest(sources=[path], set_bits=0o004, as_root=True)
+    assert fileattr.run(request, fileattr.AttrJob(asker=lambda q: None)) == [path]
+    assert seen == [True] and path.stat().st_mode & 0o004
+
+
 def test_apply_one_as_root_makes_the_same_calls(started, tmp_path):
     from navigator.lib.file_ops import fileattr
 

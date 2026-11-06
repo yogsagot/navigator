@@ -79,6 +79,12 @@ user's own authentication. What the review found and the rules it left:
   through the helper once elevated, and `apply_one(as_root=True)`) are wired. Alt+E's ACL, Xattrs and Flags pages go
   through `RootDrive`'s `listxattr`/`getxattr`/`setxattr`/`removexattr`/`get_flags`/`set_flags`, each a helper op
   through `_pinned` like `chmod` (`getxattr` answers its value as the raw payload, `setxattr` takes it as one).
+  **While root access is open (the menu bar's ROOT), Alt+E's owner field is enabled** and every group offered:
+  `fileattr.can_chown_user()` is `euid == 0 or ELEVATION.running`. A request with an owner or group then starts
+  `_Changer` elevated (checked in `run()`, so a helper closed meanwhile falls back to refuse-then-offer).
+  **The dialog's own *As root*** (`root_button`, declared in `attr_dialog.nml` and moved into the base's `row` in
+  `__init__`; shown when `gather()`'s `can_elevate`: local, not root, `ELEVATION.available()`) runs `open_root`,
+  enables Owner, offers every group, and sets `AttrRequest.as_root`, which elevates `_Changer` for any change.
 - **The loop side** is `navigator/widgets/file_ops/as_root.py`: `ask_skip(app, message, elevate=)` (Skip / As root /
   Cancel; answers True, None or `AS_ROOT`), `ask_as_root(app, message)` (As root / Cancel), and `open_root(app)` (the
   `PasswordDialog` titled *Root access* until sudo accepts, an *Error* box on a refusal, silence on Cancel).

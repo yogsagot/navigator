@@ -376,8 +376,14 @@ def groups() -> list[str]:
 
 
 def can_chown_user() -> bool:
-    """Whether a file may be given to another user: root's alone on Linux."""
-    return os.geteuid() == 0
+    """Whether a file may be given to another user: root's alone on Linux --
+    this process's, or the root helper's while root access is open (the
+    menu bar's ``ROOT``), which :class:`_Changer` then hands the change to."""
+    if os.geteuid() == 0:
+        return True
+    from navigator.lib.system.elevate import ELEVATION
+
+    return ELEVATION.running
 
 
 def assignable_groups() -> list[str]:
@@ -601,6 +607,8 @@ class AttrRequest:
     #: Inode flags to turn on, and off (:mod:`~navigator.lib.file_ops.fsflags`).
     flags_set: int = 0
     flags_clear: int = 0
+    #: The dialog's *As root* pressed: every step the root helper's.
+    as_root: bool = False
 
     @property
     def changes_acl(self) -> bool:
@@ -799,6 +807,15 @@ class _Changer(Elevated):
     def run(self) -> list[Path]:
         job = self.job
         done: list[Path] = []
+        # An owner or group asked for while root access is open was offered
+        # because it is (can_chown_user): the helper's from the first step,
+        # not refused as the user first and asked *As root* again.  Closed
+        # since, the change goes as the user and offers it as before.
+        # So is everything once the dialog's *As root* was pressed.
+        if self.request.as_root or self.request.uid is not None or self.request.gid is not None:
+            from navigator.lib.system.elevate import ELEVATION
+
+            self.elevated = os.geteuid() != 0 and ELEVATION.running
         try:
             counts = [self._measure(source) for source in self.request.sources]
             job.total = sum(counts)
