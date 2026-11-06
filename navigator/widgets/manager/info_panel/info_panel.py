@@ -11,6 +11,12 @@ details follow as a second read (:mod:`navigator.lib.system.mediainfo`).  A line
 (the current file's are a table, padded to one width to centre as a block);
 ``~`` runs are drawn in the ``highlight`` part, and the rules across the
 frame's colour.
+
+**It scrolls**, a departure: ``TDiskInfo`` had a screen's worth to show, and a
+program's libraries or a long information file run past the frame.  With the
+keyboard (Tab gives it) Up/Down, PgUp/PgDn and Home/End move it, the wheel
+does anywhere over it, and a scroll bar on the right frame shows where it is
+and drags, only while the lines overflow.
 """
 
 from __future__ import annotations
@@ -20,21 +26,26 @@ from pathlib import Path
 from typing import Any
 
 from navkit.bidi import display_width, fit_cells
+from navkit.events import KeyEvent, MouseClickEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr, tr_n
-from navkit.reactive import reactive
+from navkit.reactive import bind, reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget
 
 from navml.background import Background, Outcome
+from navml.widgets.dialog.scroll_bar import ScrollBar
 
 from navigator.lib.system import diskinfo, mediainfo
 from navigator.settings import SETTINGS
 
 #: Where a box charset keeps its horizontal line.
 HORIZONTAL = 4
+
+#: Lines a notch of the wheel moves.
+WHEEL_ROWS = 3
 
 #: Where the panel reads the disk and the machine.
 _READER = Background("nav-info", workers=1)
@@ -55,6 +66,8 @@ class InfoPanel(Widget):
     #: (:class:`navigator.lib.system.diskinfo.FileFacts`, None until read).
     entry: Any = reactive(None)
     file_facts: Any = reactive(None)
+    #: The first line shown, kept within :meth:`last_top` when drawn.
+    top: int = reactive(0)
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -63,6 +76,16 @@ class InfoPanel(Widget):
         self.title_margin = 0
         self._wanted: Path | None = None
         self._wanted_file: Any = None
+        #: Where the lines are, on the right frame while they overflow.
+        self.bar = self.add(ScrollBar())
+        self.bar.x = bind(lambda bar: max(0, bar.parent.width - 1))
+        self.bar.y = 1
+        self.bar.width = 1
+        self.bar.height = bind(lambda bar: max(0, bar.parent.height - 2))
+        self.bar.maximum = bind(lambda bar: bar.parent.last_top())
+        self.bar.value = bind(lambda bar: min(bar.parent.top, bar.parent.last_top()))
+        self.bar.page = bind(lambda bar: max(1, bar.parent.rows))
+        self.bar.visible = bind(lambda bar: bar.parent.last_top() > 0 and bar.height >= 3)
 
     #: For a place on another drive: what its drive says of itself
     #: (``Drive.describe``), shown in place of the disk's and the memory's.
@@ -86,6 +109,8 @@ class InfoPanel(Widget):
         self.entries = tuple(entries)
         if same and not reread:
             return
+        if not same:
+            self.top = 0
         self.directory = directory
         self._wanted = directory
         _READER.run(self, diskinfo.gather, directory,
@@ -137,6 +162,8 @@ class InfoPanel(Widget):
         from navigator.lib.drives import drive_of
 
         self.entries = tuple(entries)
+        if location != self._wanted:
+            self.top = 0
         self._wanted = location
 
         def ask() -> tuple[str, list[tuple[str, str]]]:
@@ -174,10 +201,53 @@ class InfoPanel(Widget):
             out += [(f"{tr(what)}: ~{value}~", False) for what, value in self.described]
         return out
 
+    # -- scrolling ---------------------------------------------------------------
+
+    @property
+    def rows(self) -> int:
+        """How many lines the frame holds."""
+        return max(0, self.height - 2)
+
+    def last_top(self) -> int:
+        """The furthest :attr:`top` goes: the last line at the bottom."""
+        return max(0, len(self.lines()) - self.rows)
+
+    def scroll_to(self, top: int) -> None:
+        self.top = max(0, min(top, self.last_top()))
+
+    def shown(self) -> list[tuple[str, bool]]:
+        """The lines in the frame, from :attr:`top`."""
+        top = min(self.top, self.last_top())
+        return self.lines()[top: top + self.rows]
+
+    async def on_key(self, event: KeyEvent) -> bool:
+        if event.ctrl or event.alt or event.shift:
+            return False
+        # From where it is drawn: a shorter description may have left top past the end.
+        top, page = min(self.top, self.last_top()), max(1, self.rows - 1)
+        moves = {"up": top - 1, "down": top + 1, "pageup": top - page, "pagedown": top + page,
+                 "home": 0, "end": self.last_top()}
+        if event.key not in moves:
+            return False
+        self.scroll_to(moves[event.key])
+        return True
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        if event.button in ("wheel_up", "wheel_down"):
+            step = -WHEEL_ROWS if event.button == "wheel_up" else WHEEL_ROWS
+            self.scroll_to(min(self.top, self.last_top()) + step)
+            return True
+        return await super().on_mouse_click(event)
+
+    async def on_scroll(self, event: Any) -> bool:
+        """The scroll bar asked to go somewhere."""
+        self.scroll_to(event.value)
+        return True
+
     def tooltip_at(self, x: int, y: int) -> str:
         """A line's whole text where the panel cut it, and the memory's exact
         bytes where the line rounds them to K -- what ``TDiskInfo`` left out."""
-        lines = self.lines()[: max(0, self.height - 2)]
+        lines = self.shown()
         row = y - 1
         if not 0 < x < self.width - 1 or not 0 <= row < len(lines):
             return super().tooltip_at(x, y)
@@ -201,7 +271,7 @@ class InfoPanel(Widget):
         if display_width(title) <= self.width - 4 - 2 * self.title_margin:
             surface.draw_text((self.width - display_width(title)) // 2, 0, title, self.part_style("title"))
         inner = self.width - 2
-        for row, (text, centred) in enumerate(self.lines()[: self.height - 2]):
+        for row, (text, centred) in enumerate(self.shown()):
             y = row + 1
             if text.startswith("\0"):
                 name = f" {text[1:]} " if text[1:] else ""

@@ -295,3 +295,42 @@ def test_a_program_is_described_a_moment_later(place):
     run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), to_prog,
                   Until(lambda a: "Libraries: ~libnowhere-at-all.so.9~ (not found)" in described(a))])
     assert "Type: ~Executable file, application/x-executable~" in described(app)
+
+
+def test_the_information_scrolls_when_it_overflows(place):
+    from navkit.events import MouseClickEvent
+
+    (place / "DirInfo").write_text("\n".join(f"line {n}" for n in range(60)))
+    seen = {}
+
+    def first(a):
+        return a.manager.info.shown()[0][0].strip()
+
+    def look(name):
+        return lambda a: seen.update({name: (first(a), a.manager.info.shown()[-1][0].strip(),
+                                             a.manager.info.bar.visible)})
+
+    app = navigator(place)
+    info = lambda a: a.manager.info  # noqa: E731
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: "line 0" in described(a)), look("start"),
+                  KeyEvent("tab"), lambda a: seen.update(focused=info(a).focused),
+                  KeyEvent("end"), look("end"), KeyEvent("down"), look("past"),
+                  KeyEvent("home"), KeyEvent("down"), KeyEvent("down"), look("two"),
+                  KeyEvent("pagedown"), lambda a: seen.update(page=info(a).top),
+                  lambda a: a.spawn(info(a).on_mouse_click(MouseClickEvent(1, 1, "wheel_up"))),
+                  lambda a: seen.update(wheel=info(a).top),
+                  lambda a: a.spawn(info(a).bar.scroll_to(5)), lambda a: seen.update(bar=info(a).top),
+                  lambda a: seen.update(last=info(a).last_top(), rows=info(a).rows)])
+    assert seen["focused"] and seen["start"][2] is True and seen["start"][1] != "line 59"
+    assert seen["end"][1:] == ("line 59", True) and seen["past"] == seen["end"]
+    assert seen["two"][0] == app.manager.info.lines()[2][0].strip()
+    assert seen["page"] == 2 + seen["rows"] - 1 and seen["wheel"] == seen["page"] - 3 and seen["bar"] == 5
+    assert seen["last"] > 0
+    assert app.manager.info.top == 5 and len(app.manager.info.shown()) == seen["rows"]
+
+
+def test_short_information_has_no_scroll_bar(place):
+    app = navigator(place)
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None)])
+    info = app.manager.info
+    assert info.last_top() == 0 and not info.bar.visible

@@ -539,6 +539,13 @@ the last answer up meanwhile. `diskinfo.lines` lays them out as `TDiskInfo.Draw`
 totals come from the listing (entries counted as `CountDirLen` counted them, bytes the files'). DN's EMS/XMS lines
 are left out; its memory three are read for POSIX.
 
+**A departure: it scrolls.** `InfoPanel.top` is the first line drawn, clamped at draw time (`shown()`, `last_top()`), so
+a shorter description after a cursor move never leaves it blank and a longer one keeps the place; a new directory
+resets it to 0. Focused (Tab, `Manager.switch_panel`) it takes Up/Down/PgUp/PgDn/Home/End; the wheel works anywhere
+over it; a navml `ScrollBar` child on the right frame column, bound to `top`/`last_top()` and visible only while the
+lines overflow, emits `ScrollEvent` to `on_scroll` (drag, arrows, page). It is plain `ScrollBar`-coloured, as
+Ctrl+Q's is. `tooltip_at` reads `shown()`, so a tooltip names the scrolled row.
+
 **A departure**: a *Current file* section (rule, then `Label: ~value~` lines, left-aligned) follows the directory
 block, behind the `current_file` box (*File under the cursor*). DN's `TDiskInfo` described the directory alone.
 `Manager._info_follows_cursor` is a separate effect on the active panel's `selected` and calls `InfoPanel.show_file`,
