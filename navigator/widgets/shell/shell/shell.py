@@ -433,7 +433,15 @@ class Shell(DockLayout):
         manager = self.active_manager
         entry = manager.active_panel.selected if manager is not None else None
         if entry is not None and entry.is_executable:
-            name = str(entry.path_in(manager.active_panel.path)) if entry.directory is not None else entry.name
+            name = entry.name
+            if entry.directory is not None:
+                # A *Find:* entry by its whole path -- on the disk only: one
+                # elsewhere cannot be run by a path from here, so its name.
+                from navigator.lib.drives.root import on_disk
+
+                place = on_disk(manager.active_panel.entry_location(entry))
+                if place.is_local:
+                    name = str(place.local)
             text = _escape(name) + " "
         box = ExecuteCommandDialog(text, zoomed=SETTINGS.system.command_window_zoomed,
                                    modal=SETTINGS.system.command_window_modal)

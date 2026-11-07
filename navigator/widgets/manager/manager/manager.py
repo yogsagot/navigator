@@ -1778,11 +1778,15 @@ class Manager(Window):
         """Alt+Del: ``CM_AdvancedFilter`` -- the *Filter* box over *panel*'s
         extensions, again after each *Show* or *Hide*, on the mask it was on,
         until *Close* (:mod:`navigator.lib.file_ops.advfilter`).  The extensions are the
-        directory's whatever the mask hides, read on a thread -- or a
-        listing's own; none at all, and there is nothing to ask."""
+        directory's whatever the mask hides, read on a thread through the
+        panel's drive (an archive, another drive, ``root:``) -- or a listing's
+        own, or the ones listed if the drive cannot be read; none at all, and
+        there is nothing to ask."""
         from navigator.lib.file_ops.advfilter import combine, extensions
         from navigator.widgets.manager.filter_dialog import FilterDialog
-        from navigator.widgets.manager.panel.panel import scan_directory
+
+        def read_all(location: Location, hidden: bool) -> list[Any]:
+            return drive_of(location).scan(location, hidden, "name", free=False)[0]
 
         app = self.application
         cursor = 0
@@ -1790,7 +1794,10 @@ class Manager(Window):
             if panel.found is not None:
                 entries = list(panel.found.entries)
             else:
-                entries, _ = await asyncio.to_thread(scan_directory, Path(panel.path), panel.show_hidden)
+                try:
+                    entries = await asyncio.to_thread(read_all, panel.location, panel.show_hidden)
+                except OSError:  # DriveGone too: what is shown is what there is
+                    entries = list(panel.items)
             masks = extensions(entries)
             if len(masks) < 2:
                 return

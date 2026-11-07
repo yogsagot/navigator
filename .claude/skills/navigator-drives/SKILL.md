@@ -22,7 +22,11 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **`Panel.location` is what a panel navigates** (reactive, seeded never bound). `Panel.path` is a property: the
   `Path` on the disk, `RemoteLocation` elsewhere -- so code not yet taught about drives fails loudly. Code that works
   anywhere reads `location`, `entry_location(entry)`, `drive`, `title_location`. `local_anchor` is the last local
-  directory the panel read (set in `_apply`), where it goes back when its drive closes.
+  directory the panel read (set in `_apply`), where it goes back when its drive closes. **A feature reachable from
+  any panel reads `path` only behind an `is_local` gate** (or `_LOCAL_ONLY`/`refusal`); wanting a disk directory,
+  it takes `root.on_disk(location)` when `.is_local` (a `root:` panel is the disk) and else falls back -- Alt+Del
+  scans through `drive_of(location).scan`, the editor's file box (`EditWindow._start_directory`) tries the other
+  panel, the edited file, home; Execute OS command gives a remote *Find:* entry by name.
 - **Every `Drive` method blocks and runs on a thread** (a remote one is a round trip; a local one may be a dead
   mount). The exceptions are the existing local single-syscall ones, which stay on `location.is_local` branches
   verbatim. `change_up()` is the one drive method a handler may call on the loop: it must be lexical.

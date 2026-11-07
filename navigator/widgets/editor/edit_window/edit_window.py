@@ -451,21 +451,36 @@ class EditWindow(Window):
         """``GetFileNameDialog``: DN's file dialog, with OK (or *ok_text*) and Help.
 
         It lists the active panel's directory first, which was DN's current
-        one; without a file manager, the edited file's.
+        one (:meth:`_start_directory`).
         """
         from navml.widgets.dialog.file_dialog import FileDialog
 
-        directory = self.editor.path.parent if self.editor.path is not None else None
-        shell = getattr(self.application, "shell", None)
-        manager = getattr(shell, "active_manager", None)
-        if manager is not None:
-            directory = manager.active_panel.path
+        directory = self._start_directory()
         dialog = FileDialog(
             title=title, label=label, history_id=history_id, ok_text=ok_text,
             directory=directory, hidden=SETTINGS.system.show_hidden,
         )
         name = await dialog.execute(self.application)
         return Path(name) if name else None
+
+    def _start_directory(self) -> Path | None:
+        """Where the file box opens: the active panel's directory, which was
+        DN's current one -- the box browses the disk alone, so a panel off it
+        (another drive, an archive) gives way to the other panel's, then the
+        edited file's (not a copy fetched from elsewhere, whose directory is a
+        private one), then home.  A ``root:`` panel's is its own directory."""
+        from navigator.lib.drives.root import on_disk
+
+        shell = getattr(self.application, "shell", None)
+        manager = getattr(shell, "active_manager", None)
+        if manager is not None:
+            for panel in (manager.active_panel, manager.passive_panel):
+                place = on_disk(panel.location) if panel is not None else None
+                if place is not None and place.is_local:
+                    return place.local
+        if self.editor.path is not None and self.use_set is None:
+            return self.editor.path.parent
+        return Path.home() if manager is not None else None
 
     async def _block_file(self, title: str, label: str) -> Path | None:
         """^K R and ^K W's name, in the history they shared, ``hsEditPasteFrom``."""

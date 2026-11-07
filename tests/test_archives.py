@@ -911,3 +911,24 @@ def test_an_archive_panel_has_its_own_columns_packed_and_ratio_among_them(desk):
     assert seen["inside"] == ["name", "size", "packed", "date"]
     entry = seen["entry"]
     assert entry.packed is not None and entry.display_ratio == f"{round(entry.packed * 100 / entry.size):>3}%"
+
+
+def test_advanced_filter_inside_an_archive_lists_its_extensions(desk, monkeypatch):
+    made = []
+
+    class Recorded:
+        def __init__(self, masks, cursor=0, **kw):
+            made.append(masks)
+
+        async def execute(self, app):
+            return None
+
+    monkeypatch.setattr("navigator.widgets.manager.filter_dialog.FilterDialog", Recorded)
+    app, here = desk
+    run_app(app, [
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("src"), KeyEvent("enter"), Until(lambda a: names(a) == ["..", "deep", "main.py"]),
+        lambda a: a.manager.spawn(a.manager.advanced_filter(a.manager.left)),
+        Until(lambda a: made, timeout=5), IDLE,
+    ])
+    assert made[0] == ["*", "*.py"]

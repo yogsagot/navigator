@@ -427,3 +427,120 @@ def test_choosing_a_recent_connection_fills_every_line():
     assert (request.host, request.user, request.port, request.path) == ("one.example", "me", 2222, "/srv")
     dialog.host.history.choose("two.example")
     assert (dialog.user.value, dialog.port.value, dialog.directory.value) == ("", "", "")
+
+
+# -- what reads a panel's directory reads it wherever the panel is ------------------------------------
+
+
+class Recorded:
+    """A dialog class stand-in: what it was made with, and no answer."""
+
+    made: list = []
+
+    def __init__(self, *args, **kwargs) -> None:
+        Recorded.made.append((args, kwargs))
+
+    async def execute(self, app):
+        return None
+
+
+@pytest.fixture
+def recorded():
+    Recorded.made = []
+    return Recorded
+
+
+def test_advanced_filter_on_another_drive_lists_what_the_mask_hides(desk, recorded, monkeypatch):
+    from conftest import IDLE, Until, run_app
+
+    monkeypatch.setattr("navigator.widgets.manager.filter_dialog.FilterDialog", recorded)
+    app, drive, there = desk
+    drive.make("/files/three.md", "third")
+
+    def mask_and_filter(a):
+        a.manager.left.set_file_mask("*.txt")
+        a.manager.spawn(a.manager.advanced_filter(a.manager.left))
+
+    run_app(app, [
+        on_memory(drive, "one.txt"), Until(lambda a: len(a.manager.left.items) == 4),
+        mask_and_filter, Until(lambda a: recorded.made, timeout=5), IDLE,
+    ])
+    (masks, _cursor), _ = recorded.made[0]
+    assert masks == ["*", "*.md", "*.txt"]
+
+
+def test_the_editors_file_box_starts_on_the_disk_when_the_panel_is_not(desk, recorded, monkeypatch):
+    from conftest import Until, run_app
+    from navigator.lib.config.file_history import open_editor
+
+    monkeypatch.setattr("navml.widgets.dialog.file_dialog.FileDialog", recorded)
+    app, drive, there = desk
+    (there / "local.txt").write_text("here")
+    seen: dict = {}
+
+    def ask(a):
+        async def go():
+            window = await open_editor(a.shell.desktop, there / "local.txt")
+            a.manager.left.location = drive.location("/files")
+            a.manager.right.location = drive.location("/files/dir")
+            assert a.manager.active_panel is a.manager.left
+            await window._ask_file("Open", "Name", "edit_open")
+            seen["first"] = recorded.made[-1][1]["directory"]
+            window.use_set = object()  # a fetched copy: its directory is no place to start
+            await window._ask_file("Open", "Name", "edit_open")
+            seen["copy"] = recorded.made[-1][1]["directory"]
+            a.manager.right.location = Location.of(there)
+            await window._ask_file("Open", "Name", "edit_open")
+            seen["other"] = recorded.made[-1][1]["directory"]
+            window.use_set = None
+        asyncio.ensure_future(go())
+
+    import asyncio
+
+    run_app(app, [ask, Until(lambda a: "other" in seen, timeout=5)])
+    assert seen == {"first": there, "copy": Path.home(), "other": there}
+
+
+def test_execute_os_command_on_a_find_listing_elsewhere_offers_the_name(desk, recorded, monkeypatch):
+    import stat as stat_module
+
+    from conftest import IDLE, Until, run_app
+    from navigator.lib.drives.listing import DirEntry
+    from navigator.lib.file_ops.filefind import FindListing
+
+    monkeypatch.setattr("navigator.widgets.shell.execute_command_dialog.ExecuteCommandDialog", recorded)
+    app, drive, there = desk
+    run_tool = DirEntry("tool", False, 3, stat_module.S_IFREG | 0o755, 0.0)
+    run_tool.directory = drive.location("/files")
+
+    def found(a):
+        panel = a.manager.left
+        # Live: shown as found, not looked up again on the drive.
+        panel.show_found(FindListing("tool", drive.location("/files"), [run_tool], live=True))
+
+    def run(a):
+        a.manager.left.cursor = [e.name for e in a.manager.left.items].index("tool")
+        a.shell.spawn(a.shell.execute_os_command())
+
+    run_app(app, [
+        on_memory(drive, "one.txt"), Until(lambda a: len(a.manager.left.items) == 3),
+        found, IDLE, run, Until(lambda a: recorded.made, timeout=5),
+    ])
+    (text,), _ = recorded.made[0]
+    assert text == "tool "
+
+
+def test_the_editors_file_box_opens_a_root_panel_s_own_directory(tmp_path):
+    from types import SimpleNamespace
+
+    from navigator.lib.drives.root import root_location
+    from navigator.widgets.editor.edit_window import EditWindow
+
+    elsewhere = SimpleNamespace(location=Location(Site("mem", host="x"), PurePosixPath("/files")))
+    as_root = SimpleNamespace(location=root_location(tmp_path))
+    manager = SimpleNamespace(active_panel=elsewhere, passive_panel=as_root)
+    window = SimpleNamespace(application=SimpleNamespace(shell=SimpleNamespace(active_manager=manager)),
+                             editor=SimpleNamespace(path=None), use_set=None)
+    assert EditWindow._start_directory(window) == tmp_path
+    alone = SimpleNamespace(application=None, editor=SimpleNamespace(path=tmp_path / "f.txt"), use_set=None)
+    assert EditWindow._start_directory(alone) == tmp_path
