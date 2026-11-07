@@ -362,7 +362,7 @@ class Drive:
 #: (``navigator/locales/__init__.py``).
 DESCRIBED = ("Server", "Host key", "Software", "Cipher", "Security", "Shares", "Archive", "Kind", "Files",
              "Packed", "Unpacked", "Package", "Region", "Container", "Image", "Engine", "Device", "Android",
-             "Forward")
+             "Forward", "Remote", "Backend", "Hashes")
 
 
 class SeekingReader:

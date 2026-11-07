@@ -30,6 +30,8 @@ class ConnectRequest:
     #: *generate_key* (``ssh-keygen``).
     copy_key: str = ""
     generate_key: bool = False
+    #: rclone's *Configure...*: not a connection but ``rclone config`` to run.
+    configure: bool = False
 
 
 def split_host(text: str) -> tuple[str, str, int]:
@@ -60,6 +62,7 @@ def titles(scheme: str) -> tuple[str, str]:
         "docker": (tr("Docker container"), tr("Edit Docker container link")),
         "podman": (tr("Podman container"), tr("Edit Podman container link")),
         "adb": (tr("Android device (adb)"), tr("Edit Android device link (adb)")),
+        "rclone": (tr("rclone remote"), tr("Edit rclone remote link")),
     }.get(family) or _desktop_titles(scheme)
 
 
@@ -124,6 +127,11 @@ class ConnectDialog(Dialog):
             # The device's serial; a networked one's port.  No user.
             self.host.label_text = tr("~S~erial")
             self.user.visible = False
+        if scheme == "rclone":
+            # The remote's name, as rclone config set it up; no user or port.
+            self.host.label_text = tr("~R~emote")
+            self.user.visible = False
+            self.port.visible = False
         self._recent = list(recent)
         self.host.choices = [link.text() for link in self._recent]
         # The list's choice fills the one line it drops from; a connection is
@@ -156,10 +164,13 @@ class ConnectDialog(Dialog):
         if self._missing:
             return None
         user, host, port = split_host(self.host.value)
+        if self.scheme == "rclone":
+            # A remote's name is all of the line: it may hold an @.
+            user, host, port = "", self.host.value.strip(), 0
         if not host:
             return None
         typed_port = self.port.value.strip()
-        if typed_port.isdigit():
+        if typed_port.isdigit() and self.scheme != "rclone":
             port = int(typed_port)
         name = self.label.value.strip()
         keep = bool(self.keep.value & 1) or self.editing

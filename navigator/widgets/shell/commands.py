@@ -622,6 +622,7 @@ __all__ = [
     "DockerLink",
     "PodmanLink",
     "AdbLink",
+    "RcloneLink",
     "DockerShell",
     "PodmanShell",
     "AdbShell",
@@ -906,6 +907,16 @@ class AdbLink(Command):
 
     title = "Android"
     scheme = "adb"
+
+
+class RcloneLink(Command):
+    """Utilities > *Link* > *rclone remote*: any remote ``rclone config`` has
+    set up -- Google Drive, OneDrive, Dropbox, B2... -- through one ``rclone
+    rcd`` (:mod:`navigator.lib.drives.rclone`), and the active panel sent
+    there.  Not DN's."""
+
+    title = "rclone"
+    scheme = "rclone"
 
 
 class HangUp(Command):

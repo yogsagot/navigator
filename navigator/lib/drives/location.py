@@ -61,7 +61,12 @@ class Site:
             return ""
         user = f"{quote(self.user, safe='')}@" if self.user else ""
         port = f":{self.port}" if self.port else ""
-        host = f"[{self.host}]" if ":" in self.host else self.host
+        if ":" in self.host:
+            host = f"[{self.host}]"
+        elif self.scheme in AS_WRITTEN:
+            host = quote(self.host, safe="")
+        else:
+            host = self.host
         return f"{self.scheme}://{user}{host}{port}"
 
 
@@ -78,9 +83,10 @@ def _is_archive_name(text: str) -> bool:
 
 
 #: Navigator's own schemes whose "host" is a name, not DNS's: a container's
-#: (``docker://WebApp/``) or an Android device's serial (``adb://R58M123ABC/``),
-#: both case-sensitive.
-AS_WRITTEN = frozenset({"docker", "podman", "adb"})
+#: (``docker://WebApp/``), an Android device's serial (``adb://R58M123ABC/``)
+#: or an rclone remote's (``rclone://My Drive/``), all case-sensitive -- and
+#: percent-encoded in the URL, since a remote's name may hold a space or ``@``.
+AS_WRITTEN = frozenset({"docker", "podman", "adb", "rclone"})
 
 
 def _host(parts: SplitResult, scheme: str) -> str:

@@ -9,7 +9,7 @@ DOS Navigator's panel held a **`TDrive`** (`DRIVES.PAS`): the disk, an archive (
 (`TFindDrive`), `TEMP:` (`TTempDrive`), or the PC at the other end of a cable (`TLinkDrive`, `NAVYLINK.PAS`, *Navigator
 Link*, Alt+F11). `navigator/lib/drives/` is that object for a modern system. There are the disk, an in-memory drive
 (the tests', later `TEMP:`), SFTP, FTP/FTPS, SMB, S3, a Docker or Podman container, an Android device over adb,
-archives (`ARCVIEW.PAS`) and the Trash (`trash:///`). NFS is only
+any remote `rclone config` has (`rclone://`), archives (`ARCVIEW.PAS`) and the Trash (`trash:///`). NFS is only
 ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` has the plan and the phases.
 
 ## Rules
@@ -201,6 +201,34 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     test finds the developer's SDK; the lookup's own tests put back `adb.SDK_DIRS`.
   - What is there now: `docker.list_containers(engine)` (`ps --format '{{json .}}'`, Docker's lines and
     Podman's array with `Names` a list -- `parse_ps`) and `adb.list_devices()` (`devices -l`, `parse_devices`).
+- **rclone** (`rclone.py`, `rclone://REMOTE/path`; the `rclone` command, 1.63+, nothing to pip-install). **One
+  `rclone rcd` a connection** (`Daemon`), on a Unix socket of its own (`_socket_path`: `$XDG_RUNTIME_DIR`, else
+  `private_dir()`, else a `mkdtemp` -- the first whose path fits `sun_path`, `_SOCKET_LIMIT` 100; pytest's
+  `tmp_path` would not) with `--rc-no-auth` (the directory, this user's alone, is the guard), `--rc-serve` and
+  `--ask-password=false`, `start_new_session`. Every step is a JSON POST to the rc over `_UnixConnection`
+  (`operations/list`, `stat`, `mkdir`, `rmdir`, `deletefile`, `movefile`; `sync/move` for a directory where
+  `fsinfo`'s `Features.DirMove`, else `EXDEV`; `about` for the free space, `FREE_SPACE` only where
+  `Features.About`); rclone's refusal (`{"error", "status"}`) is `os_error` by its words, else its status. Reads are
+  `--rc-serve`'s `GET /[REMOTE:]/path` streamed (`_Body`), F3's chunks ranged GETs (`_RangeReader`; a 200 for a
+  range is sliced, a 416 empty). **A write is one chunked multipart POST to `operations/uploadfile`** (`_Upload`;
+  `fs`/`remote` in the query, the name in `filename*=UTF-8''`), sent as the copier writes -- rclone's `Rcat`
+  reads the part as it comes; the answer read on close, an exception cuts the socket. No append, modes, owners,
+  links or times (`copy_attributes` does nothing: an object's time is its upload's). **The host is the remote's
+  name**, as written and percent-encoded in the URL (`location.AS_WRITTEN`; `Site.__str__` quotes such a host: a
+  name may hold a space or `@`); the path is from the remote's root (`REMOTE:` + the path less its `/`) -- an
+  sftp/local remote's root is where its config says, so the real-rclone test uses an `alias`. An **encrypted
+  config** is `NeedPassword` (rcd ends at once with *RCLONE_CONFIG_PASS*/*decrypt* words, `wants_password`;
+  `wrong` when one was given), given only in the daemon's environment, kept in the keyring under `Site("rclone")`
+  (one config, one password); `Shell.reach` asks it as *Password for rclone's configuration*. A daemon gone is
+  started again once silently (`_revive`), else `on_lost` → `DriveGone`. `connect` checks `config/listremotes`
+  for the name, `config/get` for its backend, `fsinfo` for features. `describe`: *Remote*, *Backend*, *Software*,
+  *Hashes*. Title `RCLONE:name:/path`. **Its link manager** (Utilities > Link > *~r~clone remote...*,
+  `RcloneLink`) is **live**: *── Configured ──* over `rclone listremotes --long` (`list_remotes`/
+  `parse_listremotes`, on a thread); `_entry` takes the *Re~m~ote* line whole (no `split_host`: an `@` is the
+  name's), no user or port; *Confi~g~ure...* (`configure`, rclone's only) closes the box with
+  `ConnectRequest(configure=True)` and `Shell.configure_rclone` runs `rclone config` in a window that stays.
+  `ConnectDialog` (F2 in the Link box, *Saved links*) has *~R~emote* likewise. No Remote shell entry: there is
+  nothing to run there.
 - **Each protocol is named and has its own entry**, all in Utilities > **Lin~k~ ▸** (`utilities_link`; a
   departure, asked for: one entry a protocol, grouped, no box first asking which): *SSH (SFTP)...* (Alt+F11,
   `NavyLink`), *FTP...* (`FtpLink`), *SMB (Windows share)...* (`SmbLink`), *S3 (Amazon S3)...* (`S3Link`),
@@ -522,6 +550,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   (`sessions.protocol_sign`, ``SFTP:host:/path``, as DN's said ``LINK:``). A new protocol adds its pair to
   `sessions.PROTOCOLS` and its own menu entry.
 
+- rclone remotes (`rclone://`): DOS had no cloud. Remotes are set up by `rclone config` itself (*Configure...*
+  runs it), not by boxes of Navigator's own for some seventy backends (asked for).
 - Containers and Android devices (`docker://`, `podman://`, `adb://`): DOS had neither. Their bytes go through
   `cat` pipes rather than `docker cp`'s tar (`execdrive.py` says why). The Utilities links and shells are two
   submenus, one entry a protocol, and a shell's place is chosen in its link manager, never taken from the panel
@@ -573,6 +603,12 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   exists and runs (flip `running` to lose one). Parsers on captured GNU/busybox/toybox output; the drives through
   the copier and eraser; the link managers' live part, New, Ctrl+R and the submenus in the app. A real `alpine`
   container only with `NAVIGATOR_CONTAINER_TESTS=1` and a working engine.
+- `tests/test_rclone.py` against `tests/fake_rclone.py`, a stand-in `rclone` on `PATH`: its `rcd` serves the rc
+  methods the drive asks and `--rc-serve`'s ranged objects on the Unix socket, over
+  `$FAKE_RCLONE_STATE/remotes/NAME`; `config.json` names the remotes (`dirmove`, `about` per remote) and a
+  `password` the config wants; `calls.log` and `argv.log` record what was asked. A real rclone, when installed, on
+  an `alias` remote set up through `RCLONE_CONFIG_NAVTEST_*` -- the one check of the real rc's names and shapes
+  (rclone was not at hand when this was written: the methods are from its documentation).
 - `tests/test_sftp.py` (skipped without paramiko) against `tests/sftp_server.py`, paramiko's own server on
   `127.0.0.1:0` rooted in a temp directory, password `secret`. The `isolated` fixture points `HOME` at a temp
   directory, drops `SSH_AUTH_SOCK` and turns the keyring off, so nothing of the user's `~/.ssh` or keyring is read or

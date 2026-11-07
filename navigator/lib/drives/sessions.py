@@ -45,6 +45,7 @@ SCHEMES: dict[str, str] = {
     "docker": "navigator.lib.drives.docker",
     "podman": "navigator.lib.drives.podman",
     "adb": "navigator.lib.drives.adb",
+    "rclone": "navigator.lib.drives.rclone",
 }
 
 #: The module of every scheme GVfs reaches (:data:`navigator.lib.system.gio.GVFS_SCHEMES`):
@@ -63,6 +64,7 @@ EXTRA_HINT: dict[str, str] = {
     "docker": "docker",
     "podman": "podman",
     "adb": "adb",
+    "rclone": "rclone",
 }
 
 #: What each scheme is called wherever a connection is named -- the menu, the
@@ -81,6 +83,8 @@ PROTOCOLS: dict[str, tuple[str, str]] = {
     "docker": ("DOCKER", "Docker container"),
     "podman": ("PODMAN", "Podman container"),
     "adb": ("ADB", "Android device (adb)"),
+    # Any remote rclone's configuration has (navigator.lib.drives.rclone).
+    "rclone": ("RCLONE", "rclone remote"),
     # GVfs's (navigator.lib.drives.gvfs).
     "mtp": ("MTP", "MTP (phone or player)"),
     "gphoto2": ("PTP", "PTP (camera)"),

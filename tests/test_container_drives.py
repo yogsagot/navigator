@@ -529,8 +529,8 @@ def test_android_s_link_names_the_device_and_greys_without_adb(engines, tmp_path
 def test_utilities_has_a_link_and_a_remote_shell_submenu(engines, tmp_path, monkeypatch):
     from conftest import run_app
     from navigator.widgets.shell.commands import (
-        AdbLink, AdbShell, DockerLink, DockerShell, FtpLink, GvfsLink, NavyLink, PodmanLink, PodmanShell, S3Link,
-        SmbLink, Terminal,
+        AdbLink, AdbShell, DockerLink, DockerShell, FtpLink, GvfsLink, NavyLink, PodmanLink, PodmanShell,
+        RcloneLink, S3Link, SmbLink, Terminal,
     )
 
     app = make_app(tmp_path, monkeypatch)
@@ -545,6 +545,7 @@ def test_utilities_has_a_link_and_a_remote_shell_submenu(engines, tmp_path, monk
                     top=commands(menu.utilities))
 
     run_app(app, [look])
-    assert seen["link"] == [NavyLink, FtpLink, SmbLink, S3Link, GvfsLink, DockerLink, PodmanLink, AdbLink]
+    assert seen["link"] == [NavyLink, FtpLink, SmbLink, S3Link, GvfsLink, DockerLink, PodmanLink, AdbLink,
+                            RcloneLink]
     assert seen["shell"] == [Terminal, DockerShell, PodmanShell, AdbShell]
     assert not {NavyLink, Terminal} & set(seen["top"])

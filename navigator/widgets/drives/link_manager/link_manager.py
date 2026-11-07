@@ -77,6 +77,7 @@ FAMILIES: dict[str, Family] = {
     "docker": Family("docker", ("docker",), history="docker", live=True),
     "podman": Family("podman", ("podman",), history="podman", live=True),
     "adb": Family("adb", ("adb",), history="adb", live=True),
+    "rclone": Family("rclone", ("rclone",), history="rclone", live=True),
 }
 
 
@@ -102,6 +103,13 @@ def live_targets(family: str) -> list[tuple[str, Entry]]:
                 caption += f" ({device.state})"
             rows.append((caption, Entry(device.model or device.serial, "adb", site.host, "", site.port)))
         return rows
+    if family == "rclone":
+        from navigator.lib.drives import rclone
+
+        found = rclone.list_remotes()
+        width = max((len(each.name) for each in found), default=0)
+        return [(f"{each.name.ljust(width)}  {each.kind}".rstrip(), Entry(each.name, "rclone", each.name))
+                for each in found]
     return []
 
 
@@ -259,6 +267,17 @@ class LinkManagerDialog(Dialog):
             self.user.visible = False
         if self.family.live:
             self.directory.entry.tooltip = tr("Empty: the container's working directory, or a device's /sdcard")
+        if key == "rclone":
+            # Letters free in the box: ~N~ame, ~S~aved, ~D~irectory, Ne~w~, Sav~e~, Dele~t~e, ~C~onnect.
+            self.host.label_text = tr("Re~m~ote")
+            self.host.entry.tooltip = tr("A remote's name, as rclone config set it up")
+            self.user.visible = False
+            self.port.visible = False
+            self.directory.entry.tooltip = tr("Empty: the remote's root")
+            self.configure.visible = True
+            self.configure.tooltip = tr("Set up, change or remove remotes with rclone config, in a window")
+            # Under the button, one line above the box's own.
+            self.missing.y, self.missing.height = 15, 1
         if key == "gvfs":
             for line in (self.host, self.user, self.port, self.directory):
                 line.visible = False
@@ -350,7 +369,7 @@ class LinkManagerDialog(Dialog):
         a heading and what is there now."""
         rows = [escape_caption(entry.name) for entry in self.entries]
         if self.family.live and self.live:
-            heading = tr("Connected") if self.family.key == "adb" else tr("Running")
+            heading = {"adb": tr("Connected"), "rclone": tr("Configured")}.get(self.family.key, tr("Running"))
             rows.append(f"── {heading} ──")
             rows.extend(escape_caption(caption) for caption, _ in self.live)
         return rows
@@ -380,7 +399,8 @@ class LinkManagerDialog(Dialog):
         self.live, self._live_error = live, error
         if not live and not error:
             self._live_error = (tr("No device is attached (is USB debugging on?)") if self.family.key == "adb"
-                                else tr("No container is running"))
+                                else tr("rclone has no remotes: Configure... sets one up")
+                                if self.family.key == "rclone" else tr("No container is running"))
         self._list_rows()
         self._show_state()
 
@@ -483,6 +503,11 @@ class LinkManagerDialog(Dialog):
         is all of it."""
         if self.family.key == "gvfs":
             return self._uri_entry(fallback)
+        if self.family.key == "rclone":
+            # A remote's name is all of the line: it may hold an @.
+            host = self.host.value.strip()
+            return Entry(self.label.value.strip() or fallback or host, "rclone", host, "", 0,
+                         self.directory.value.strip())
         user, host, port = split_host(self.host.value)
         typed = self.port.value.strip()
         if not port and typed.isdigit():
@@ -518,6 +543,8 @@ class LinkManagerDialog(Dialog):
                 return ""
             if self.family.key == "adb":
                 return tr("Type a device's serial, or choose one below")
+            if self.family.key == "rclone":
+                return tr("Type a remote's name, or choose one below")
             if self.family.live:
                 return tr("Type a container's name, or choose one below")
             return tr("Type a host to connect to")
@@ -710,6 +737,18 @@ class LinkManagerDialog(Dialog):
             self._set_forwards(forwards.render(answer))
             self._show_state()
         self.forwards_button.focus()
+
+    async def on_configure_click(self, event: Event) -> bool:
+        self.spawn(self.configure_remotes())
+        return True
+
+    async def configure_remotes(self) -> None:
+        """rclone's *Configure...*: the box answers a request for ``rclone
+        config``, which the caller runs in a command window (windows are the
+        desktop's, under every dialog) -- a changed connection settled first."""
+        if not await self._settle():
+            return
+        self.close(ConnectRequest("rclone", "", configure=True))
 
     async def on_copy_key_click(self, event: Event) -> bool:
         self.spawn(self.copy_key_to_server())

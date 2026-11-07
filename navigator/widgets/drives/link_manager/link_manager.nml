@@ -156,6 +156,16 @@ LinkManagerDialog(Dialog):
         height: 2
         visible: False
 
+    #: rclone's: ``rclone config`` in a window, which sets remotes up.
+    Button:
+        id: configure
+        text: "Confi~g~ure..."
+        x: 28
+        y: 13
+        width: 19
+        height: 2
+        visible: False
+
     #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
     CheckBoxes:
         id: secure

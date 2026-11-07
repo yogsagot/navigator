@@ -6,7 +6,7 @@ direction = "rtl"
 [strings]
 # navigator/widgets/about_dialog/about_dialog.nml:15, navigator/widgets/shell/commands.py:19
 "About" = "حول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:56
+# navigator/widgets/drives/connect_dialog/connect_dialog.nml:18, navigator/widgets/drives/link_manager/link_manager.nml:34, navigator/widgets/drives/connect_dialog/connect_dialog.py:58
 "SSH link (SFTP)" = "اتصال SSH (SFTP)"
 # navigator/widgets/drives/connect_dialog/connect_dialog.nml:26, navigator/widgets/drives/link_manager/link_manager.nml:86
 "~H~ost" = "ال~خ~ادم"
@@ -60,19 +60,21 @@ direction = "rtl"
 "~U~RI" = "~ع~نوان URI"
 # navigator/widgets/drives/link_manager/link_manager.nml:131
 "ssh opt~i~ons" = "خ~ي~ارات ssh"
-# navigator/widgets/drives/link_manager/link_manager.nml:141, navigator/widgets/drives/link_manager/link_manager.py:696
+# navigator/widgets/drives/link_manager/link_manager.nml:141, navigator/widgets/drives/link_manager/link_manager.py:723
 "~F~orwards..." = "توجي~ه~ المنافذ..."
 # navigator/widgets/drives/link_manager/link_manager.nml:152
 "Copy ~k~ey..." = "~ن~سخ المفتاح..."
-# navigator/widgets/drives/link_manager/link_manager.nml:166
+# navigator/widgets/drives/link_manager/link_manager.nml:162
+"Confi~g~ure..." = "ت~ك~وين..."
+# navigator/widgets/drives/link_manager/link_manager.nml:176
 "Encr~y~pt with TLS" = "~ت~شفير بـ TLS"
-# navigator/widgets/drives/link_manager/link_manager.nml:182
+# navigator/widgets/drives/link_manager/link_manager.nml:192
 "Ne~w~" = "جدي~د~"
-# navigator/widgets/drives/link_manager/link_manager.nml:190
+# navigator/widgets/drives/link_manager/link_manager.nml:200
 "Sav~e~" = "ح~ف~ظ"
-# navigator/widgets/drives/link_manager/link_manager.nml:198
+# navigator/widgets/drives/link_manager/link_manager.nml:208
 "Dele~t~e" = "~ح~ذف"
-# navigator/widgets/drives/link_manager/link_manager.nml:206, navigator/widgets/drives/links_dialog/links_dialog.nml:41
+# navigator/widgets/drives/link_manager/link_manager.nml:216, navigator/widgets/drives/links_dialog/links_dialog.nml:41
 "~C~onnect" = "ات~ص~ال"
 # navigator/widgets/drives/links_dialog/links_dialog.nml:14, navigator/lib/config/keybindings.py
 "Saved links" = "الاتصالات المحفوظة"
@@ -412,7 +414,7 @@ direction = "rtl"
 "In a directory, only a file's owner may delete or rename it" = "في المجلد لا يحذف الملف أو يعيد تسميته إلا مالكه"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:125
 "~O~ctal" = "~ث~ماني"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:146, navigator/widgets/drives/connect_dialog/connect_dialog.py:121
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:146, navigator/widgets/drives/connect_dialog/connect_dialog.py:124
 "~U~ser" = "م~س~تخدم"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "م~ج~موعة"
@@ -588,7 +590,7 @@ direction = "rtl"
 "Delete the originals once copied: a move" = "حذف الأصول بعد نسخها: أي نقل"
 # navigator/widgets/file_ops/count_progress/count_progress.nml:15
 "Counting directory length" = "حساب حجم المجلد"
-# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/link_manager/link_manager.py:288 ...
+# navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:16, navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/link_manager/link_manager.py:307 ...
 "Delete" = "حذف"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:27
 "Do you wish to move to the Trash" = "هل تريد النقل إلى سلة المهملات"
@@ -808,7 +810,7 @@ direction = "rtl"
 "Classic ~t~etris" = "~ت~تريس كلاسيكي"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:47
 "Penti~x~" = "~ب~نتيكس"
-# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:634
+# navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:55, navigator/widgets/setup/system_setup_page/system_setup_page.nml:39, navigator/widgets/shell/main_menu/main_menu.nml:640
 "~O~ptions" = "~خ~يارات"
 # navigator/widgets/game/game_setup_dialog/game_setup_dialog.nml:64
 "~P~iece preview" = "~ع~رض القطعة التالية"
@@ -816,7 +818,7 @@ direction = "rtl"
 "Show the next piece (it scores less)" = "إظهار القطعة التالية (نقاط أقل)"
 # navigator/widgets/game/game_window/game_window.nml:19
 "Navigator's game" = "لعبة Navigator"
-# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:594 ...
+# navigator/widgets/game/game_window/game_window.nml:52, navigator/widgets/game/game_window/game_window.nml:92, navigator/widgets/shell/main_menu/main_menu.nml:600 ...
 "~N~ew" = "~ج~ديدة"
 # navigator/widgets/game/game_window/game_window.nml:60, navigator/widgets/game/game_window/game_window.nml:101, navigator/widgets/game/game_window/game_window.py:198
 "~S~etup" = "إ~ع~داد"
@@ -836,7 +838,7 @@ direction = "rtl"
 "Pre~v~iew" = "ال~ت~الية"
 # navigator/widgets/game/game_window/game_window.nml:110
 "Show the next figure" = "إظهار الشكل التالي"
-# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:791 ...
+# navigator/widgets/game/game_window/game_window.nml:114, navigator/widgets/shell/calendar_window/calendar_window.nml:157, navigator/widgets/shell/main_menu/main_menu.nml:797 ...
 "~C~lose" = "إ~غ~لاق"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.nml:10
 "Pentix Top Ten" = "أفضل عشرة في بنتيكس"
@@ -1646,7 +1648,7 @@ direction = "rtl"
 "1~0~ minutes" = "1~0~ دقائق"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "استخدام ال~ف~أرة لاستدعاء الحافظة"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/widgets/shell/commands.py:716
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/widgets/shell/commands.py:717
 "Settings" = "الإعدادات"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "المحرر والعارض الداخليان، الحافظة، الملفات المؤقتة، الأعطال وصلاحيات الجذر"
@@ -1664,29 +1666,29 @@ direction = "rtl"
 "The editor's and the viewer's defaults" = "الإعدادات الافتراضية للمحرر والعارض"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "How the file panels behave and look" = "سلوك لوحات الملفات ومظهرها"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:685
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:691
 "What the information panel (Ctrl+L) shows" = "ما تعرضه لوحة المعلومات (Ctrl+L)"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:689
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:695
 "How a new file manager's panels start" = "كيف تبدأ لوحات مدير الملفات الجديد"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "الأعمدة التي تعرضها اللوحة على القرص، وفي قائمة Find: وفي الأرشيف"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:697
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:703
 "Which files the panels show in which colour" = "أي الملفات تعرضها اللوحات وبأي لون"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "الاتصالات البعيدة: الإبقاء حيا، المهل، الروابط الخاملة والملفات المتغيرة"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:67
 "System" = "النظام"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:728
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:729
 "Startup" = "بدء التشغيل"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:734
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:735
 "Interface" = "الواجهة"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:748
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:749
 "Confirmations" = "التأكيدات"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
 "Savers" = "الحافظات"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:607
 "Country" = "البلد"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:754
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:755
 "Editor/Viewer" = "المحرر/العارض"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:88, navigator/lib/config/keybindings.py
 "File panels" = "لوحات الملفات"
@@ -2214,209 +2216,213 @@ direction = "rtl"
 "~G~Vfs/KIO (MTP, WebDAV...)..." = "~G~Vfs/KIO (MTP, WebDAV...)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:509
 "A phone, a WebDAV share, Google Drive: anything the desktop can mount" = "هاتف، مشاركة WebDAV، Google Drive: أي شيء يستطيع سطح المكتب تركيبه"
-# navigator/widgets/shell/main_menu/main_menu.nml:514, navigator/widgets/shell/main_menu/main_menu.nml:535
+# navigator/widgets/shell/main_menu/main_menu.nml:514, navigator/widgets/shell/main_menu/main_menu.nml:541
 "~D~ocker container..." = "حاوية ~D~ocker..."
 # navigator/widgets/shell/main_menu/main_menu.nml:515
 "A running container's files, through docker exec" = "ملفات حاوية قيد التشغيل، عبر docker exec"
-# navigator/widgets/shell/main_menu/main_menu.nml:518, navigator/widgets/shell/main_menu/main_menu.nml:539
+# navigator/widgets/shell/main_menu/main_menu.nml:518, navigator/widgets/shell/main_menu/main_menu.nml:545
 "~P~odman container..." = "حاوية ~P~odman..."
 # navigator/widgets/shell/main_menu/main_menu.nml:519
 "A running container's files, through podman exec" = "ملفات حاوية قيد التشغيل، عبر podman exec"
-# navigator/widgets/shell/main_menu/main_menu.nml:522, navigator/widgets/shell/main_menu/main_menu.nml:543
+# navigator/widgets/shell/main_menu/main_menu.nml:522, navigator/widgets/shell/main_menu/main_menu.nml:549
 "~A~ndroid device (adb)..." = "جهاز ~A~ndroid (adb)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:523
 "A phone's or a tablet's files, over USB debugging" = "ملفات هاتف أو جهاز لوحي، عبر تصحيح USB"
 # navigator/widgets/shell/main_menu/main_menu.nml:528
-"Rem~o~te shell" = "~ص~دفة بعيدة"
+"~r~clone remote..." = "مستودع ~r~clone..."
 # navigator/widgets/shell/main_menu/main_menu.nml:529
+"Google Drive, OneDrive, Dropbox and some seventy more, set up with rclone config" = "Google Drive وOneDrive وDropbox ونحو سبعين غيرها، مُعدّة بـ rclone config"
+# navigator/widgets/shell/main_menu/main_menu.nml:534
+"Rem~o~te shell" = "~ص~دفة بعيدة"
+# navigator/widgets/shell/main_menu/main_menu.nml:535
 "A shell on a server, in a container or on a phone, in a window" = "صدفة على خادم أو في حاوية أو على هاتف، في نافذة"
-# navigator/widgets/shell/main_menu/main_menu.nml:531
+# navigator/widgets/shell/main_menu/main_menu.nml:537
 "~S~SH..." = "~S~SH..."
-# navigator/widgets/shell/main_menu/main_menu.nml:532
+# navigator/widgets/shell/main_menu/main_menu.nml:538
 "A login shell on a server, ssh -t" = "صدفة دخول على خادم، ssh -t"
-# navigator/widgets/shell/main_menu/main_menu.nml:536
+# navigator/widgets/shell/main_menu/main_menu.nml:542
 "A shell in a running container, docker exec -it" = "صدفة في حاوية قيد التشغيل، docker exec -it"
-# navigator/widgets/shell/main_menu/main_menu.nml:540
+# navigator/widgets/shell/main_menu/main_menu.nml:546
 "A shell in a running container, podman exec -it" = "صدفة في حاوية قيد التشغيل، podman exec -it"
-# navigator/widgets/shell/main_menu/main_menu.nml:544
+# navigator/widgets/shell/main_menu/main_menu.nml:550
 "A shell on a phone or a tablet, adb shell" = "صدفة على هاتف أو جهاز لوحي، adb shell"
-# navigator/widgets/shell/main_menu/main_menu.nml:547
+# navigator/widgets/shell/main_menu/main_menu.nml:553
 "~D~isconnect" = "~ق~طع الاتصال"
-# navigator/widgets/shell/main_menu/main_menu.nml:548
+# navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "إغلاق اتصال؛ تعود لوحاته إلى القرص"
-# navigator/widgets/shell/main_menu/main_menu.nml:555, navigator/widgets/shell/shell/shell.py:3169
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3190
 "Elevate ~r~oot access" = "رفع صلاحيات ال~ج~ذر"
-# navigator/widgets/shell/main_menu/main_menu.nml:556, navigator/widgets/shell/shell/shell.py:3170
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3191
 "Open root access now: the console's shell and a step refused permission run as root" = "فتح صلاحيات الجذر الآن: تعمل صدفة الطرفية وكل خطوة رُفض إذنها بصلاحيات الجذر"
-# navigator/widgets/shell/main_menu/main_menu.nml:559
-"Saved l~i~nks..." = "الرواب~ط~ المحفوظة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:560
-"The saved connections: edit them, or connect to one" = "الاتصالات المحفوظة: تحريرها أو الاتصال بأحدها"
-# navigator/widgets/shell/main_menu/main_menu.nml:564
-"Edi~t~ environment" = "تحرير ال~ب~يئة"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
+"Saved l~i~nks..." = "الرواب~ط~ المحفوظة..."
+# navigator/widgets/shell/main_menu/main_menu.nml:566
+"The saved connections: edit them, or connect to one" = "الاتصالات المحفوظة: تحريرها أو الاتصال بأحدها"
+# navigator/widgets/shell/main_menu/main_menu.nml:570
+"Edi~t~ environment" = "تحرير ال~ب~يئة"
+# navigator/widgets/shell/main_menu/main_menu.nml:571
 "Edit the environment variables commands run with" = "تحرير متغيرات البيئة التي تعمل بها الأوامر"
-# navigator/widgets/shell/main_menu/main_menu.nml:568
+# navigator/widgets/shell/main_menu/main_menu.nml:574
 "~U~ser menu" = "قائمة ال~م~ستخدم"
-# navigator/widgets/shell/main_menu/main_menu.nml:572
-"Commands ~H~istory" = "~س~جل الأوامر"
-# navigator/widgets/shell/main_menu/main_menu.nml:577
-"Fu~z~zy history search..." = "بح~ث~ تقريبي في السجل..."
 # navigator/widgets/shell/main_menu/main_menu.nml:578
+"Commands ~H~istory" = "~س~جل الأوامر"
+# navigator/widgets/shell/main_menu/main_menu.nml:583
+"Fu~z~zy history search..." = "بح~ث~ تقريبي في السجل..."
+# navigator/widgets/shell/main_menu/main_menu.nml:584
 "The commands typed, here and in the shell, searched by fzf" = "الأوامر المكتوبة، هنا وفي الصدفة، بالبحث عبر fzf"
-# navigator/widgets/shell/main_menu/main_menu.nml:582
+# navigator/widgets/shell/main_menu/main_menu.nml:588
 "File ~E~dit History" = "سجل ~ت~حرير الملفات"
-# navigator/widgets/shell/main_menu/main_menu.nml:586
-"File ~V~iew History" = "سجل ~ع~رض الملفات"
-# navigator/widgets/shell/main_menu/main_menu.nml:591
-"~M~anager" = "م~د~ير"
 # navigator/widgets/shell/main_menu/main_menu.nml:592
-"New file managers, swapping and hiding panels, bookmarks" = "مديرو ملفات جدد، تبديل اللوحات وإخفاؤها، الإشارات المرجعية"
+"File ~V~iew History" = "سجل ~ع~رض الملفات"
+# navigator/widgets/shell/main_menu/main_menu.nml:597
+"~M~anager" = "م~د~ير"
 # navigator/widgets/shell/main_menu/main_menu.nml:598
+"New file managers, swapping and hiding panels, bookmarks" = "مديرو ملفات جدد، تبديل اللوحات وإخفاؤها، الإشارات المرجعية"
+# navigator/widgets/shell/main_menu/main_menu.nml:604
 "~S~wap panels" = "~ت~بديل اللوحات"
-# navigator/widgets/shell/main_menu/main_menu.nml:602
+# navigator/widgets/shell/main_menu/main_menu.nml:608
 "Show/hide ~l~eft panel" = "إظهار/إخفاء اللوحة ال~ي~سرى"
-# navigator/widgets/shell/main_menu/main_menu.nml:606
+# navigator/widgets/shell/main_menu/main_menu.nml:612
 "Show/hide ~r~ight panel" = "إظهار/إخفاء اللوحة اليم~ن~ى"
-# navigator/widgets/shell/main_menu/main_menu.nml:610
+# navigator/widgets/shell/main_menu/main_menu.nml:616
 "Show/hide inactive ~p~anel" = "إظهار/إخفاء اللوحة ~غ~ير النشطة"
-# navigator/widgets/shell/main_menu/main_menu.nml:611
-"Hide the panel without the keyboard, or show it again" = "إخفاء اللوحة دون لوحة المفاتيح، أو إظهارها مجددا"
 # navigator/widgets/shell/main_menu/main_menu.nml:617
-"~M~iller columns" = "~أ~عمدة Miller"
-# navigator/widgets/shell/main_menu/main_menu.nml:618
-"Browse in columns, each directory beside its parent" = "التصفح في أعمدة، كل مجلد بجانب أصله"
+"Hide the panel without the keyboard, or show it again" = "إخفاء اللوحة دون لوحة المفاتيح، أو إظهارها مجددا"
 # navigator/widgets/shell/main_menu/main_menu.nml:623
-"Bookmarks le~f~t" = "الإشارات ي~س~ارا"
+"~M~iller columns" = "~أ~عمدة Miller"
 # navigator/widgets/shell/main_menu/main_menu.nml:624
-"Send the left panel to a bookmarked directory" = "إرسال اللوحة اليسرى إلى مجلد من الإشارات المرجعية"
-# navigator/widgets/shell/main_menu/main_menu.nml:628
-"Bookmarks rig~h~t" = "الإشارات ي~م~ينا"
+"Browse in columns, each directory beside its parent" = "التصفح في أعمدة، كل مجلد بجانب أصله"
 # navigator/widgets/shell/main_menu/main_menu.nml:629
-"Send the right panel to a bookmarked directory" = "إرسال اللوحة اليمنى إلى مجلد من الإشارات المرجعية"
+"Bookmarks le~f~t" = "الإشارات ي~س~ارا"
+# navigator/widgets/shell/main_menu/main_menu.nml:630
+"Send the left panel to a bookmarked directory" = "إرسال اللوحة اليسرى إلى مجلد من الإشارات المرجعية"
+# navigator/widgets/shell/main_menu/main_menu.nml:634
+"Bookmarks rig~h~t" = "الإشارات ي~م~ينا"
 # navigator/widgets/shell/main_menu/main_menu.nml:635
+"Send the right panel to a bookmarked directory" = "إرسال اللوحة اليمنى إلى مجلد من الإشارات المرجعية"
+# navigator/widgets/shell/main_menu/main_menu.nml:641
 "Settings, configuration files, the desktop and colours" = "الإعدادات، ملفات التهيئة، سطح المكتب والألوان"
-# navigator/widgets/shell/main_menu/main_menu.nml:639
-"Sett~i~ngs..." = "الإ~ع~دادات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:640
-"Every setup page in one box, behind tabs" = "كل صفحات الإعداد في مربع واحد، خلف ألسنة"
 # navigator/widgets/shell/main_menu/main_menu.nml:645
+"Sett~i~ngs..." = "الإ~ع~دادات..."
+# navigator/widgets/shell/main_menu/main_menu.nml:646
+"Every setup page in one box, behind tabs" = "كل صفحات الإعداد في مربع واحد، خلف ألسنة"
+# navigator/widgets/shell/main_menu/main_menu.nml:651
 "~C~onfiguration" = "~ت~هيئة"
-# navigator/widgets/shell/main_menu/main_menu.nml:647
-"S~y~stem Setup..." = "~ن~ظام..."
-# navigator/widgets/shell/main_menu/main_menu.nml:650
-"~S~tartup..." = "~ب~دء التشغيل..."
 # navigator/widgets/shell/main_menu/main_menu.nml:653
-"~I~nterface..." = "~و~اجهة..."
+"S~y~stem Setup..." = "~ن~ظام..."
 # navigator/widgets/shell/main_menu/main_menu.nml:656
+"~S~tartup..." = "~ب~دء التشغيل..."
+# navigator/widgets/shell/main_menu/main_menu.nml:659
+"~I~nterface..." = "~و~اجهة..."
+# navigator/widgets/shell/main_menu/main_menu.nml:662
 "~C~onfirmations..." = "~ت~أكيدات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:660
-"Screen sa~v~ers..." = "~ح~افظات الشاشة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:663
-"C~o~untry support..." = "~د~عم البلد..."
 # navigator/widgets/shell/main_menu/main_menu.nml:666
+"Screen sa~v~ers..." = "~ح~افظات الشاشة..."
+# navigator/widgets/shell/main_menu/main_menu.nml:669
+"C~o~untry support..." = "~د~عم البلد..."
+# navigator/widgets/shell/main_menu/main_menu.nml:672
 "Comm~u~nications..." = "~ا~تصالات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:667
+# navigator/widgets/shell/main_menu/main_menu.nml:673
 "Settings for remote connections" = "إعدادات الاتصالات البعيدة"
-# navigator/widgets/shell/main_menu/main_menu.nml:671
+# navigator/widgets/shell/main_menu/main_menu.nml:677
 "~E~ditor/Viewer..." = "~م~حرر/عارض..."
-# navigator/widgets/shell/main_menu/main_menu.nml:675
-"~K~ey bindings..." = "~ر~بط المفاتيح..."
-# navigator/widgets/shell/main_menu/main_menu.nml:679
-"~F~ile Manager" = "مدير ال~م~لفات"
 # navigator/widgets/shell/main_menu/main_menu.nml:681
+"~K~ey bindings..." = "~ر~بط المفاتيح..."
+# navigator/widgets/shell/main_menu/main_menu.nml:685
+"~F~ile Manager" = "مدير ال~م~لفات"
+# navigator/widgets/shell/main_menu/main_menu.nml:687
 "~S~etup..." = "إ~ع~داد..."
-# navigator/widgets/shell/main_menu/main_menu.nml:684
+# navigator/widgets/shell/main_menu/main_menu.nml:690
 "~I~nformation panel..." = "لوحة ال~م~علومات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:688
+# navigator/widgets/shell/main_menu/main_menu.nml:694
 "New Manager ~d~efaults..." = "افتراضيات المدير ال~ج~ديد..."
-# navigator/widgets/shell/main_menu/main_menu.nml:692
+# navigator/widgets/shell/main_menu/main_menu.nml:698
 "~C~olumn defaults..." = "افتراضيات ال~أ~عمدة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:693
+# navigator/widgets/shell/main_menu/main_menu.nml:699
 "The columns a new panel shows" = "الأعمدة التي تعرضها لوحة جديدة"
-# navigator/widgets/shell/main_menu/main_menu.nml:696
+# navigator/widgets/shell/main_menu/main_menu.nml:702
 "~H~ighlight groups..." = "مجموعات ال~ت~لوين..."
-# navigator/widgets/shell/main_menu/main_menu.nml:701
-"A~r~chives" = "~أ~رشيفات"
-# navigator/widgets/shell/main_menu/main_menu.nml:703
-"Current archiver..." = "أداة الأرشفة الحالية..."
 # navigator/widgets/shell/main_menu/main_menu.nml:707
+"A~r~chives" = "~أ~رشيفات"
+# navigator/widgets/shell/main_menu/main_menu.nml:709
+"Current archiver..." = "أداة الأرشفة الحالية..."
+# navigator/widgets/shell/main_menu/main_menu.nml:713
 "~Q~uick run file edit..." = "تحرير ملف التشغيل ال~س~ريع..."
-# navigator/widgets/shell/main_menu/main_menu.nml:708
+# navigator/widgets/shell/main_menu/main_menu.nml:714
 "Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run" = "تحرير quickrun.ini: الأوامر التي يشغلها Ctrl+Shift+F1 إلى F10"
-# navigator/widgets/shell/main_menu/main_menu.nml:711
+# navigator/widgets/shell/main_menu/main_menu.nml:717
 "E~x~tension file edit..." = "تحرير ملف الامت~د~ادات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:712
+# navigator/widgets/shell/main_menu/main_menu.nml:718
 "Edit extensions.ini: what Enter runs for each kind of file" = "تحرير extensions.ini: ما يشغله Enter لكل نوع ملف"
-# navigator/widgets/shell/main_menu/main_menu.nml:715
+# navigator/widgets/shell/main_menu/main_menu.nml:721
 "~H~ighlight file edit..." = "تحرير ملف ا~ل~تلوين..."
-# navigator/widgets/shell/main_menu/main_menu.nml:716
+# navigator/widgets/shell/main_menu/main_menu.nml:722
 "Edit highlight.ini: which syntax colours which file" = "تحرير highlight.ini: أي تلوين نحوي يلون أي ملف"
-# navigator/widgets/shell/main_menu/main_menu.nml:719
+# navigator/widgets/shell/main_menu/main_menu.nml:725
 "Macro file e~d~it..." = "تحرير ملف الما~ك~رو..."
-# navigator/widgets/shell/main_menu/main_menu.nml:720
+# navigator/widgets/shell/main_menu/main_menu.nml:726
 "Edit macros.ini: the editor's macros, offered by Ctrl+J 0" = "تحرير macros.ini: وحدات ماكرو المحرر التي يعرضها Ctrl+J 0"
-# navigator/widgets/shell/main_menu/main_menu.nml:723
+# navigator/widgets/shell/main_menu/main_menu.nml:729
 "~G~lobal menu definition..." = "تعريف القائمة ال~ش~املة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:724
+# navigator/widgets/shell/main_menu/main_menu.nml:730
 "Edit the F2 user menu used everywhere" = "تحرير قائمة المستخدم F2 المستخدمة في كل مكان"
-# navigator/widgets/shell/main_menu/main_menu.nml:727
+# navigator/widgets/shell/main_menu/main_menu.nml:733
 "Local ~m~enu definition..." = "تعريف ال~ق~ائمة المحلية..."
-# navigator/widgets/shell/main_menu/main_menu.nml:728
+# navigator/widgets/shell/main_menu/main_menu.nml:734
 "Edit this directory's own F2 user menu" = "تحرير قائمة المستخدم F2 الخاصة بهذا المجلد"
-# navigator/widgets/shell/main_menu/main_menu.nml:731
+# navigator/widgets/shell/main_menu/main_menu.nml:737
 "~V~iewers..." = "عار~ض~ات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:732
+# navigator/widgets/shell/main_menu/main_menu.nml:738
 "Edit viewers.ini: the external viewer for each kind of file" = "تحرير viewers.ini: العارض الخارجي لكل نوع ملف"
-# navigator/widgets/shell/main_menu/main_menu.nml:735
-"~E~ditors..." = "م~ح~ررات..."
-# navigator/widgets/shell/main_menu/main_menu.nml:736
-"Edit editors.ini: the external editor for each kind of file" = "تحرير editors.ini: المحرر الخارجي لكل نوع ملف"
-# navigator/widgets/shell/main_menu/main_menu.nml:740
-"~S~ave desktop" = "حف~ظ~ سطح المكتب"
 # navigator/widgets/shell/main_menu/main_menu.nml:741
+"~E~ditors..." = "م~ح~ررات..."
+# navigator/widgets/shell/main_menu/main_menu.nml:742
+"Edit editors.ini: the external editor for each kind of file" = "تحرير editors.ini: المحرر الخارجي لكل نوع ملف"
+# navigator/widgets/shell/main_menu/main_menu.nml:746
+"~S~ave desktop" = "حف~ظ~ سطح المكتب"
+# navigator/widgets/shell/main_menu/main_menu.nml:747
 "Keep the open windows, to have them back later" = "الاحتفاظ بالنوافذ المفتوحة لاستعادتها لاحقا"
-# navigator/widgets/shell/main_menu/main_menu.nml:744
+# navigator/widgets/shell/main_menu/main_menu.nml:750
 "~L~oad desktop" = "~ا~ستعادة سطح المكتب"
-# navigator/widgets/shell/main_menu/main_menu.nml:745
+# navigator/widgets/shell/main_menu/main_menu.nml:751
 "Replace these windows with the ones last saved" = "استبدال هذه النوافذ بآخر ما حفظ"
-# navigator/widgets/shell/main_menu/main_menu.nml:749
+# navigator/widgets/shell/main_menu/main_menu.nml:755
 "C~o~lors..." = "ألوا~ن~..."
-# navigator/widgets/shell/main_menu/main_menu.nml:752
+# navigator/widgets/shell/main_menu/main_menu.nml:758
 "S~t~ore palette" = "~خ~زن اللوحة"
-# navigator/widgets/shell/main_menu/main_menu.nml:753
+# navigator/widgets/shell/main_menu/main_menu.nml:759
 "Save the colours as a theme of your own" = "حفظ الألوان كسمة خاصة بك"
-# navigator/widgets/shell/main_menu/main_menu.nml:756
-"Lo~a~d palette" = "~ج~لب اللوحة"
-# navigator/widgets/shell/main_menu/main_menu.nml:757
-"Use colours saved in a file" = "استخدام ألوان محفوظة في ملف"
-# navigator/widgets/shell/main_menu/main_menu.nml:761
-"~W~indow" = "~ن~افذة"
 # navigator/widgets/shell/main_menu/main_menu.nml:762
-"Arrange, switch between and close windows" = "ترتيب النوافذ والتنقل بينها وإغلاقها"
-# navigator/widgets/shell/main_menu/main_menu.nml:764
-"~T~ile" = "~ر~صف"
+"Lo~a~d palette" = "~ج~لب اللوحة"
+# navigator/widgets/shell/main_menu/main_menu.nml:763
+"Use colours saved in a file" = "استخدام ألوان محفوظة في ملف"
 # navigator/widgets/shell/main_menu/main_menu.nml:767
-"C~a~scade" = "~م~تتالية"
+"~W~indow" = "~ن~افذة"
+# navigator/widgets/shell/main_menu/main_menu.nml:768
+"Arrange, switch between and close windows" = "ترتيب النوافذ والتنقل بينها وإغلاقها"
 # navigator/widgets/shell/main_menu/main_menu.nml:770
+"~T~ile" = "~ر~صف"
+# navigator/widgets/shell/main_menu/main_menu.nml:773
+"C~a~scade" = "~م~تتالية"
+# navigator/widgets/shell/main_menu/main_menu.nml:776
 "Cl~o~se all" = "إغلاق ال~ك~ل"
-# navigator/widgets/shell/main_menu/main_menu.nml:774
+# navigator/widgets/shell/main_menu/main_menu.nml:780
 "~S~ize/Move" = "~ح~جم/نقل"
-# navigator/widgets/shell/main_menu/main_menu.nml:775
+# navigator/widgets/shell/main_menu/main_menu.nml:781
 "Move and size the window with the keyboard" = "تحريك النافذة وتغيير حجمها بلوحة المفاتيح"
-# navigator/widgets/shell/main_menu/main_menu.nml:779
+# navigator/widgets/shell/main_menu/main_menu.nml:785
 "~Z~oom" = "~ت~كبير"
-# navigator/widgets/shell/main_menu/main_menu.nml:783
+# navigator/widgets/shell/main_menu/main_menu.nml:789
 "~N~ext" = "~ا~لتالية"
-# navigator/widgets/shell/main_menu/main_menu.nml:787
+# navigator/widgets/shell/main_menu/main_menu.nml:793
 "~P~revious" = "ال~س~ابقة"
-# navigator/widgets/shell/main_menu/main_menu.nml:796
-"~L~ist..." = "~ق~ائمة..."
-# navigator/widgets/shell/main_menu/main_menu.nml:797
-"All the windows, to switch to one or close it" = "كل النوافذ، للانتقال إلى إحداها أو إغلاقها"
 # navigator/widgets/shell/main_menu/main_menu.nml:802
-"~B~ackground operation..." = "عملية في ال~خ~لفية..."
+"~L~ist..." = "~ق~ائمة..."
 # navigator/widgets/shell/main_menu/main_menu.nml:803
+"All the windows, to switch to one or close it" = "كل النوافذ، للانتقال إلى إحداها أو إغلاقها"
+# navigator/widgets/shell/main_menu/main_menu.nml:808
+"~B~ackground operation..." = "عملية في ال~خ~لفية..."
+# navigator/widgets/shell/main_menu/main_menu.nml:809
 "Bring back the progress box of a copy or an erase running in the background" = "إعادة مربع تقدم النسخ أو الحذف الجاري في الخلفية"
 # navigator/widgets/shell/menu_params_dialog/menu_params_dialog.nml:15
 "Menu Parameters" = "معاملات القائمة"
@@ -2796,7 +2802,7 @@ direction = "rtl"
 "~F~irst row is a header" = "ال~ص~ف الأول عنوان"
 # navigator/__main__.py:606
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "تعذرت قراءة حافظة سطح المكتب، فلصق Navigator آخر نسخة لديه. ثبت xclip أو xsel (X11)، أو wl-clipboard (Wayland)، لمشاركة الحافظة مع البرامج الأخرى."
-# navigator/__main__.py:454, navigator/widgets/shell/shell/shell.py:807, navigator/widgets/shell/shell/shell.py:1168
+# navigator/__main__.py:454, navigator/widgets/shell/shell/shell.py:808, navigator/widgets/shell/shell/shell.py:1169
 "A program in the console has the keys" = "برنامج في وحدة التحكم يملك المفاتيح"
 # navigator/__main__.py:456
 "The console is over the windows: Alt-X is the program's" = "وحدة التحكم فوق النوافذ: Alt-X للبرنامج"
@@ -3340,59 +3346,65 @@ direction = "rtl"
 "Archive password" = "كلمة مرور الأرشيف"
 # navigator/widgets/drives/archives.py:96
 "{name} is not an archive Navigator can read" = "{name} ليس أرشيفًا يستطيع Navigator قراءته"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:106
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:109
 "~S~hare/dir" = "~م~شاركة/مجلد"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:110
-"~E~ndpoint" = "~ن~قطة الوصول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:111
-"~A~ccess key" = "~م~فتاح الوصول"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:112, navigator/widgets/drives/link_manager/link_manager.py:248
-"~B~ucket/dir" = "حاو~ي~ة/مجلد"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:120
-"~C~ontainer" = "حا~و~ية"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:125
-"~S~erial" = "~ر~قم تسلسلي"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:71
-"GVfs/KIO link ({protocol})" = "رابط GVfs/KIO ({protocol})"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:72
-"Edit GVfs/KIO link ({protocol})" = "تعديل رابط GVfs/KIO ({protocol})"
 # navigator/widgets/drives/connect_dialog/connect_dialog.py:113
+"~E~ndpoint" = "~ن~قطة الوصول"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:114
+"~A~ccess key" = "~م~فتاح الوصول"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:115, navigator/widgets/drives/link_manager/link_manager.py:256
+"~B~ucket/dir" = "حاو~ي~ة/مجلد"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:123
+"~C~ontainer" = "حا~و~ية"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:128
+"~S~erial" = "~ر~قم تسلسلي"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:132
+"~R~emote" = "مستودع ~ب~عيد"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:74
+"GVfs/KIO link ({protocol})" = "رابط GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:75
+"Edit GVfs/KIO link ({protocol})" = "تعديل رابط GVfs/KIO ({protocol})"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:116
 "Encrypt with ~T~LS (HTTPS)" = "~ت~شفير عبر TLS (HTTPS)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:56
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:58
 "Edit SSH link (SFTP)" = "تعديل رابط SSH (SFTP)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:57
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
 "FTP link" = "رابط FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:57
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
 "Edit FTP link" = "تعديل رابط FTP"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:58
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
 "SMB link (Windows share)" = "رابط SMB (مشاركة Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:58
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
 "Edit SMB link (Windows share)" = "تعديل رابط SMB (مشاركة Windows)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
 "S3 link (Amazon S3)" = "رابط S3 (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:59
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
 "Edit S3 link (Amazon S3)" = "تعديل رابط S3 (Amazon S3)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
 "Docker container" = "حاوية Docker"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:60
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
 "Edit Docker container link" = "تعديل رابط حاوية Docker"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:63
 "Podman container" = "حاوية Podman"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:61
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:63
 "Edit Podman container link" = "تعديل رابط حاوية Podman"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:64
 "Android device (adb)" = "جهاز Android (adb)"
-# navigator/widgets/drives/connect_dialog/connect_dialog.py:62
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:64
 "Edit Android device link (adb)" = "تعديل رابط جهاز Android (adb)"
-# navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:226
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:65
+"rclone remote" = "مستودع rclone"
+# navigator/widgets/drives/connect_dialog/connect_dialog.py:65
+"Edit rclone remote link" = "تعديل رابط مستودع rclone"
+# navigator/widgets/drives/desktop_link.py:32, navigator/widgets/drives/link_manager/link_manager.py:234
 "GVfs/KIO link" = "رابط GVfs/KIO"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, webdav://, gdrive://...)" = "~ع~نوان URI (mtp://, webdav://, gdrive://...)"
 # navigator/widgets/drives/desktop_link.py:30
 "~U~RI (mtp://, dav://, google-drive://...)" = "~ع~نوان URI (mtp://, dav://, google-drive://...)"
-# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:532
+# navigator/widgets/drives/desktop_link.py:44, navigator/widgets/drives/link_manager/link_manager.py:559
 "{uri} is no place KIO reaches. It knows {schemes}" = "{uri} ليس مكانا يصل إليه KIO. يعرف: {schemes}"
-# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:533
+# navigator/widgets/drives/desktop_link.py:45, navigator/widgets/drives/link_manager/link_manager.py:560
 "{uri} is no place GVfs reaches. It knows {schemes}" = "{uri} ليس مكانا يصل إليه GVfs. يعرف: {schemes}"
 # navigator/widgets/drives/disk_image.py:138
 "{n} file system mounted" = ["تم تركيب {n} نظام ملفات", "تم تركيب نظام ملفات واحد", "تم تركيب نظامي ملفات", "تم تركيب {n} أنظمة ملفات", "تم تركيب {n} نظام ملفات", "تم تركيب {n} نظام ملفات"]
@@ -3432,87 +3444,101 @@ direction = "rtl"
 "~A~ccept" = "~ق~بول"
 # navigator/widgets/drives/host_key_query/host_key_query.py:20
 "The authenticity of host {host} can't be established.\n{type} key fingerprint is\n{fingerprint}" = "تعذر التحقق من هوية المضيف {host}.\nبصمة مفتاح {type} هي\n{fingerprint}"
-# navigator/widgets/drives/link_manager/link_manager.py:233
+# navigator/widgets/drives/link_manager/link_manager.py:241
 "Added to Remote shell's ssh command, after Communications' own (-Y); SSH link's panel reads ~/.ssh/config alone" = "تُضاف إلى أمر ssh للصدفة البعيدة بعد خيارات «الاتصالات» العامة (-Y)؛ لوحة اتصال SSH تقرأ ~/.ssh/config وحده"
-# navigator/widgets/drives/link_manager/link_manager.py:237
+# navigator/widgets/drives/link_manager/link_manager.py:245
 "Port forwards (-L, -R, -D) opened with the panel's connection and Remote shell's ssh" = "إعادة توجيه المنافذ (-L، -R، -D) تُفتح مع اتصال اللوحة ومع ssh للصدفة البعيدة"
-# navigator/widgets/drives/link_manager/link_manager.py:240
+# navigator/widgets/drives/link_manager/link_manager.py:248
 "Put your public key on the server (ssh-copy-id), so no password is asked" = "ضع مفتاحك العام على الخادم (ssh-copy-id) كي لا تُسأل عن كلمة مرور"
-# navigator/widgets/drives/link_manager/link_manager.py:244
+# navigator/widgets/drives/link_manager/link_manager.py:252
 "Sh~a~re/dir" = "المشا~ر~كة/المجلد"
-# navigator/widgets/drives/link_manager/link_manager.py:246
-"End~p~oint" = "نقطة ال~ن~هاية"
-# navigator/widgets/drives/link_manager/link_manager.py:247
-"Access ~k~ey" = "مفتاح ال~و~صول"
 # navigator/widgets/drives/link_manager/link_manager.py:254
-"Cont~a~iner" = "حا~و~ية"
+"End~p~oint" = "نقطة ال~ن~هاية"
 # navigator/widgets/drives/link_manager/link_manager.py:255
+"Access ~k~ey" = "مفتاح ال~و~صول"
+# navigator/widgets/drives/link_manager/link_manager.py:262
+"Cont~a~iner" = "حا~و~ية"
+# navigator/widgets/drives/link_manager/link_manager.py:263
 "Use~r~" = "م~س~تخدم"
-# navigator/widgets/drives/link_manager/link_manager.py:258
+# navigator/widgets/drives/link_manager/link_manager.py:266
 "Se~r~ial" = "~ر~قم تسلسلي"
-# navigator/widgets/drives/link_manager/link_manager.py:261
+# navigator/widgets/drives/link_manager/link_manager.py:269
 "Empty: the container's working directory, or a device's /sdcard" = "فارغ: مجلد عمل الحاوية، أو ‎/sdcard للجهاز"
-# navigator/widgets/drives/link_manager/link_manager.py:523
-"Type a host to connect to" = "اكتب خادمًا للاتصال به"
-# navigator/widgets/drives/link_manager/link_manager.py:526
-"Type a URI to connect to" = "اكتب URI للاتصال به"
-# navigator/widgets/drives/link_manager/link_manager.py:180
-"Remote shell" = "صدفة بعيدة"
 # navigator/widgets/drives/link_manager/link_manager.py:272
+"Re~m~ote" = "مستودع ~ب~عيد"
+# navigator/widgets/drives/link_manager/link_manager.py:273
+"A remote's name, as rclone config set it up" = "اسم المستودع، كما أعدّه rclone config"
+# navigator/widgets/drives/link_manager/link_manager.py:276
+"Empty: the remote's root" = "فارغ: جذر المستودع"
+# navigator/widgets/drives/link_manager/link_manager.py:278
+"Set up, change or remove remotes with rclone config, in a window" = "إعداد المستودعات أو تغييرها أو إزالتها بـ rclone config، في نافذة"
+# navigator/widgets/drives/link_manager/link_manager.py:550
+"Type a host to connect to" = "اكتب خادمًا للاتصال به"
+# navigator/widgets/drives/link_manager/link_manager.py:553
+"Type a URI to connect to" = "اكتب URI للاتصال به"
+# navigator/widgets/drives/link_manager/link_manager.py:188
+"Remote shell" = "صدفة بعيدة"
+# navigator/widgets/drives/link_manager/link_manager.py:291
 "For example mtp://Phone/, webdav://host/dir or gdrive://you@gmail.com/" = "مثلًا mtp://Phone/ أو webdav://host/dir أو gdrive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:274
+# navigator/widgets/drives/link_manager/link_manager.py:293
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "مثلًا mtp://Phone/ أو dav://host/dir أو google-drive://you@gmail.com/"
-# navigator/widgets/drives/link_manager/link_manager.py:288
+# navigator/widgets/drives/link_manager/link_manager.py:307
 "New" = "جديد"
-# navigator/widgets/drives/link_manager/link_manager.py:288, navigator/widgets/editor/commands.py:684
+# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:684
 "Save" = "حفظ"
-# navigator/widgets/drives/link_manager/link_manager.py:353, navigator/widgets/manager/manager/manager.py:6176
-"Connected" = "متصل"
-# navigator/widgets/drives/link_manager/link_manager.py:353
+# navigator/widgets/drives/link_manager/link_manager.py:372
 "Running" = "قيد التشغيل"
-# navigator/widgets/drives/link_manager/link_manager.py:382
+# navigator/widgets/drives/link_manager/link_manager.py:401
 "No device is attached (is USB debugging on?)" = "لا يوجد جهاز متصل (هل تصحيح USB مفعّل؟)"
-# navigator/widgets/drives/link_manager/link_manager.py:383
-"No container is running" = "لا توجد حاوية قيد التشغيل"
-# navigator/widgets/drives/link_manager/link_manager.py:520
+# navigator/widgets/drives/link_manager/link_manager.py:545
 "Type a device's serial, or choose one below" = "اكتب الرقم التسلسلي لجهاز، أو اختر واحدًا أدناه"
-# navigator/widgets/drives/link_manager/link_manager.py:522
+# navigator/widgets/drives/link_manager/link_manager.py:547
+"Type a remote's name, or choose one below" = "اكتب اسم مستودع، أو اختر واحدًا أدناه"
+# navigator/widgets/drives/link_manager/link_manager.py:549
 "Type a container's name, or choose one below" = "اكتب اسم حاوية، أو اختر واحدة أدناه"
-# navigator/widgets/drives/link_manager/link_manager.py:733
+# navigator/widgets/drives/link_manager/link_manager.py:772
 "ssh-copy-id is not installed (it comes with the OpenSSH client)" = "ssh-copy-id غير مثبّت (يأتي مع عميل OpenSSH)"
-# navigator/widgets/drives/link_manager/link_manager.py:251
+# navigator/widgets/drives/link_manager/link_manager.py:259
 "Encr~y~pt with TLS (HTTPS)" = "~ت~شفير بـ TLS ‏(HTTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:251
+# navigator/widgets/drives/link_manager/link_manager.py:259
 "Encr~y~pt with TLS (FTPS)" = "~ت~شفير بـ TLS ‏(FTPS)"
-# navigator/widgets/drives/link_manager/link_manager.py:633
+# navigator/widgets/drives/link_manager/link_manager.py:402
+"rclone has no remotes: Configure... sets one up" = "لا مستودعات في rclone: «تكوين...» يُعدّ واحدًا"
+# navigator/widgets/drives/link_manager/link_manager.py:403
+"No container is running" = "لا توجد حاوية قيد التشغيل"
+# navigator/widgets/drives/link_manager/link_manager.py:660
 "Type its URI, then New keeps it" = "اكتب URI، ثم «جديد» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:643
+# navigator/widgets/drives/link_manager/link_manager.py:670
 "New connection" = "اتصال جديد"
-# navigator/widgets/drives/link_manager/link_manager.py:685
+# navigator/widgets/drives/link_manager/link_manager.py:712
 "\"{name}\" saved" = "حُفظ \"{name}\""
-# navigator/widgets/drives/link_manager/link_manager.py:696
+# navigator/widgets/drives/link_manager/link_manager.py:723
 "~F~orwards ({n})..." = "توجي~ه~ المنافذ ({n})..."
-# navigator/widgets/drives/link_manager/link_manager.py:795
+# navigator/widgets/drives/link_manager/link_manager.py:834
 "\"{name}\" deleted" = "حُذف \"{name}\""
-# navigator/widgets/drives/link_manager/link_manager.py:184
+# navigator/widgets/drives/link_manager/link_manager.py:192
 "Remote shell: {protocol}" = "صدفة بعيدة: {protocol}"
-# navigator/widgets/drives/link_manager/link_manager.py:335
+# navigator/widgets/drives/link_manager/link_manager.py:354
 "Changed — Save keeps it" = "تغيّر — «حفظ» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:676
+# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6176
+"Connected" = "متصل"
+# navigator/widgets/drives/link_manager/link_manager.py:372
+"Configured" = "المُعدّة"
+# navigator/widgets/drives/link_manager/link_manager.py:703
 "Another connection is named \"{name}\"" = "يوجد اتصال باسم \"{name}\" بالفعل"
-# navigator/widgets/drives/link_manager/link_manager.py:337
+# navigator/widgets/drives/link_manager/link_manager.py:356
 "Not saved — New keeps it" = "غير محفوظ — «جديد» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:559
+# navigator/widgets/drives/link_manager/link_manager.py:586
 "Save changes" = "حفظ التغييرات"
-# navigator/widgets/drives/link_manager/link_manager.py:769
+# navigator/widgets/drives/link_manager/link_manager.py:808
 "Key to copy" = "المفتاح المراد نسخه"
-# navigator/widgets/drives/link_manager/link_manager.py:739
+# navigator/widgets/drives/link_manager/link_manager.py:778
 "Copy key" = "نسخ المفتاح"
-# navigator/widgets/drives/link_manager/link_manager.py:560
+# navigator/widgets/drives/link_manager/link_manager.py:587
 "Save changes to \"{name}\"?" = "أتريد حفظ التغييرات في \"{name}\"؟"
-# navigator/widgets/drives/link_manager/link_manager.py:788, navigator/widgets/drives/links_dialog/links_dialog.py:200
+# navigator/widgets/drives/link_manager/link_manager.py:827, navigator/widgets/drives/links_dialog/links_dialog.py:200
 "Delete the link \"{name}\"?" = "حذف الرابط \"{name}\"؟"
-# navigator/widgets/drives/link_manager/link_manager.py:739
+# navigator/widgets/drives/link_manager/link_manager.py:778
 "There is no public key in {directory}. Make {key} (ed25519) and copy it?" = "لا يوجد مفتاح عام في {directory}. هل تُنشئ {key} (ed25519) وتنسخه؟"
 # navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6202
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "رابط GVfs/KIO جديد (MTP, WebDAV ~و~غيرها)..."
@@ -3718,7 +3744,7 @@ direction = "rtl"
 "Information" = "معلومات"
 # navigator/widgets/editor/edit_window/edit_window.py:773
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/shell/shell/shell.py:1903
+# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/shell/shell/shell.py:1904
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/editor/edit_window/edit_window.py:924
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
@@ -3990,7 +4016,7 @@ direction = "rtl"
 "Speed {n:,} file/s" = ["السرعة {n:,} ملف/ث", "السرعة {n:,} ملف/ث", "السرعة {n:,} ملف/ث", "السرعة {n:,} ملف/ث", "السرعة {n:,} ملف/ث", "السرعة {n:,} ملف/ث"]
 # navigator/widgets/file_ops/delete_progress/delete_progress.py:40
 "{done:,} of {total:,} ({percent}%)" = "{done:,} من {total:,} ({percent}%)"
-# navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.py:111, navigator/widgets/shell/commands.py:742
+# navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.py:111, navigator/widgets/shell/commands.py:743
 "Keys" = "المفاتيح"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.py:63
 "Name at least one recipient." = "حدّد مستلمًا واحدًا على الأقل."
@@ -4126,7 +4152,7 @@ direction = "rtl"
 "~R~atio" = "~ن~سبة الضغط"
 # navigator/widgets/manager/commands.py:29
 "View" = "عرض"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:2039, navigator/widgets/shell/shell/shell.py:1952 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:2040, navigator/widgets/shell/shell/shell.py:1953 ...
 "Open with" = "فتح بواسطة"
 # navigator/widgets/manager/commands.py:80, navigator/widgets/manager/commands.py:308, navigator/widgets/manager/commands.py:319
 "Ren" = "تسمية"
@@ -4188,7 +4214,7 @@ direction = "rtl"
 "Only in a file panel, not beside it" = "في لوحة الملفات فقط، لا بجانبها"
 # navigator/widgets/manager/manager/manager.py:3194
 "No files are tagged, and the cursor is on none" = "لا ملفات محددة، والمؤشر ليس على ملف"
-# navigator/widgets/manager/manager/manager.py:3195, navigator/widgets/shell/shell/shell.py:1257
+# navigator/widgets/manager/manager/manager.py:3195, navigator/widgets/shell/shell/shell.py:1258
 "The command line holds text: the key edits it" = "في سطر الأوامر نص: المفتاح يحرره"
 # navigator/widgets/manager/manager/manager.py:3196
 "This drive cannot be written to" = "لا يمكن الكتابة على هذا القرص"
@@ -4308,11 +4334,11 @@ direction = "rtl"
 "A Find listing is no directory to remember" = "قائمة البحث ليست مجلدًا يمكن تذكّره"
 # navigator/widgets/manager/manager/manager.py:3211
 "A place inside an archive cannot be remembered" = "لا يمكن تذكّر مكان داخل أرشيف"
-# navigator/widgets/manager/manager/manager.py:3214, navigator/widgets/shell/shell/shell.py:812
+# navigator/widgets/manager/manager/manager.py:3214, navigator/widgets/shell/shell/shell.py:813
 "fzf is not installed, or the shell is not bash or zsh" = "fzf غير مثبت، أو أن الصدفة ليست bash أو zsh"
 # navigator/widgets/manager/manager/manager.py:3220, navigator/widgets/manager/manager/manager.py:3402, navigator/widgets/manager/manager/manager.py:3427
 "The cursor is not on a file" = "المؤشر ليس على ملف"
-# navigator/widgets/manager/manager/manager.py:3222, navigator/widgets/shell/shell/shell.py:1241
+# navigator/widgets/manager/manager/manager.py:3222, navigator/widgets/shell/shell/shell.py:1242
 "Neither GIO nor KIO is installed" = "لا GIO ولا KIO مثبت"
 # navigator/widgets/manager/manager/manager.py:3223
 "No graphical desktop to open it on" = "لا سطح مكتب رسومي لفتحه عليه"
@@ -4350,7 +4376,7 @@ direction = "rtl"
 "The file clipboard is empty" = "حافظة الملفات فارغة"
 # navigator/widgets/manager/manager/manager.py:3360
 "File Manager Setup's Del erases is off" = "خيار «DEL يمسح الملفات» في إعداد مدير الملفات معطل"
-# navigator/widgets/manager/manager/manager.py:3365, navigator/widgets/manager/manager/manager.py:3410, navigator/widgets/shell/shell/shell.py:1199
+# navigator/widgets/manager/manager/manager.py:3365, navigator/widgets/manager/manager/manager.py:3410, navigator/widgets/shell/shell/shell.py:1200
 "The cursor is on no file" = "المؤشر ليس على أي ملف"
 # navigator/widgets/manager/manager/manager.py:3377
 "Not inside an archive" = "ليس داخل أرشيف"
@@ -4790,7 +4816,7 @@ direction = "rtl"
 "Cannot bind that:\n{error}" = "لا يمكن ربط ذلك:\n{error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:155
 "{key} is bound to {command}.\nReassign it?" = "{key} مربوط بـ {command}.\nإعادة ربطه؟"
-# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:339
+# navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:240, navigator/widgets/shell/shell/shell.py:340
 "Cannot make {path}: {error}" = "لا يمكن إنشاء {path}: {error}"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:167
 "{key} is the global key for {command}, which is\nlooked at first. Bind it here anyway?" = "{key} هو المفتاح العام لـ {command}، ويفحص\nأولا. ربطه هنا على أي حال؟"
@@ -4890,63 +4916,65 @@ direction = "rtl"
 "Screen Savers" = "شاشات التوقف"
 # navigator/widgets/shell/commands.py:614
 "Screen Rest" = "راحة الشاشة"
-# navigator/widgets/shell/commands.py:722
+# navigator/widgets/shell/commands.py:723
 "System Setup" = "إعدادات النظام"
-# navigator/widgets/shell/commands.py:763
+# navigator/widgets/shell/commands.py:764
 "File Manager Setup" = "إعدادات مدير الملفات"
-# navigator/widgets/shell/commands.py:769
+# navigator/widgets/shell/commands.py:770
 "Information Panel" = "لوحة المعلومات"
-# navigator/widgets/shell/commands.py:775
+# navigator/widgets/shell/commands.py:776
 "Column Defaults" = "افتراضيات الأعمدة"
-# navigator/widgets/shell/commands.py:781
+# navigator/widgets/shell/commands.py:782
 "Highlight Groups" = "مجموعات التلوين"
-# navigator/widgets/shell/commands.py:787
+# navigator/widgets/shell/commands.py:788
 "Quick Run File" = "ملف التشغيل السريع"
-# navigator/widgets/shell/commands.py:793
+# navigator/widgets/shell/commands.py:794
 "Extension File" = "ملف الامتدادات"
-# navigator/widgets/shell/commands.py:799
+# navigator/widgets/shell/commands.py:800
 "Highlight File" = "ملف التلوين"
-# navigator/widgets/shell/commands.py:807
+# navigator/widgets/shell/commands.py:808
 "Macro File" = "ملف الماكرو"
-# navigator/widgets/shell/commands.py:813
+# navigator/widgets/shell/commands.py:814
 "Viewers" = "العارضات"
-# navigator/widgets/shell/commands.py:819
+# navigator/widgets/shell/commands.py:820
 "Editors" = "المحررات"
-# navigator/widgets/shell/commands.py:837
+# navigator/widgets/shell/commands.py:838
 "Panel Defaults" = "افتراضيات اللوحات"
-# navigator/widgets/shell/commands.py:847
+# navigator/widgets/shell/commands.py:848
 "SSH" = "SSH"
-# navigator/widgets/shell/commands.py:859
+# navigator/widgets/shell/commands.py:860
 "Term" = "طرفية"
-# navigator/widgets/shell/commands.py:867
+# navigator/widgets/shell/commands.py:868
 "Docker shell" = "صدفة Docker"
-# navigator/widgets/shell/commands.py:874
+# navigator/widgets/shell/commands.py:875
 "Podman shell" = "صدفة Podman"
-# navigator/widgets/shell/commands.py:882
+# navigator/widgets/shell/commands.py:883
 "adb shell" = "adb shell"
-# navigator/widgets/shell/commands.py:891
+# navigator/widgets/shell/commands.py:892
 "Docker" = "Docker"
-# navigator/widgets/shell/commands.py:898
+# navigator/widgets/shell/commands.py:899
 "Podman" = "Podman"
-# navigator/widgets/shell/commands.py:907, navigator/lib/drives/base.py
+# navigator/widgets/shell/commands.py:908, navigator/lib/drives/base.py
 "Android" = "Android"
-# navigator/widgets/shell/commands.py:916
+# navigator/widgets/shell/commands.py:918
+"rclone" = "rclone"
+# navigator/widgets/shell/commands.py:927
 "Discon" = "قطع"
-# navigator/widgets/shell/commands.py:925
+# navigator/widgets/shell/commands.py:936
 "Unroot" = "بلا root"
-# navigator/widgets/shell/commands.py:934
+# navigator/widgets/shell/commands.py:945
 "Root" = "root"
-# navigator/widgets/shell/commands.py:949
+# navigator/widgets/shell/commands.py:960
 "Comms" = "الاتصالات"
-# navigator/widgets/shell/commands.py:957
+# navigator/widgets/shell/commands.py:968
 "FTP" = "FTP"
-# navigator/widgets/shell/commands.py:966
+# navigator/widgets/shell/commands.py:977
 "S3" = "S3"
-# navigator/widgets/shell/commands.py:978
+# navigator/widgets/shell/commands.py:989
 "GVfs" = "GVfs"
-# navigator/widgets/shell/commands.py:986
-"SMB" = "SMB"
 # navigator/widgets/shell/commands.py:997
+"SMB" = "SMB"
+# navigator/widgets/shell/commands.py:1008
 "Backgr" = "خلفية"
 # navigator/widgets/shell/console/console.py:195
 "Root shell: commands run as root until root access is closed" = "صدفة الجذر: تعمل الأوامر بصلاحيات الجذر حتى تُغلق صلاحيات الجذر"
@@ -4978,9 +5006,9 @@ direction = "rtl"
 "Pinned" = "المثبتة"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "انقر لإعادة المربع"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3094
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3115
 "{operation}: waiting for an answer" = "{operation}: بانتظار إجابة"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3096
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3117
 "{operation}: {percent}% done" = "{operation}: اكتمل {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "المفاتيح نفسها مجددًا توقفه"
@@ -5034,7 +5062,7 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["يغلق بعد {n} دقيقة خمول", "يغلق بعد دقيقة خمول واحدة", "يغلق بعد دقيقتي خمول", "يغلق بعد {n} دقائق خمول", "يغلق بعد {n} دقيقة خمول", "يغلق بعد {n} دقيقة خمول"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "انقر، أو {menu}، لإغلاقه الآن"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3166
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3187
 "Close ~r~oot access" = "إغلاق صلاحيات ال~ج~ذر"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "الوحدة"
@@ -5080,135 +5108,139 @@ direction = "rtl"
 "{summary}; states read as root at {time}, Ctrl+R reads them again" = "{summary}؛ قُرئت الحالات بصلاحيات root عند {time}، ويعيد Ctrl+R قراءتها"
 # navigator/widgets/shell/service_window/service_window.py:558
 "{unit}'s file was saved, but systemd cannot be told to read it again: {error}" = "حُفظ ملف {unit}، لكن تعذّر أن يُطلب من systemd إعادة قراءته: {error}"
-# navigator/widgets/shell/shell/shell.py:1169
-"Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
 # navigator/widgets/shell/shell/shell.py:1170
+"Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
+# navigator/widgets/shell/shell/shell.py:1171
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
-# navigator/widgets/shell/shell/shell.py:2008
+# navigator/widgets/shell/shell/shell.py:2009
 "Type to filter" = "اكتب للتصفية"
-# navigator/widgets/shell/shell/shell.py:3005, navigator/widgets/shell/shell/shell.py:2998
+# navigator/widgets/shell/shell/shell.py:3026, navigator/widgets/shell/shell/shell.py:3019
 "Disconnect" = "قطع الاتصال"
-# navigator/widgets/shell/shell/shell.py:3101
+# navigator/widgets/shell/shell/shell.py:3122
 "Background operations" = "العمليات في الخلفية"
-# navigator/widgets/shell/shell/shell.py:1208
+# navigator/widgets/shell/shell/shell.py:1209
 "No connection is open" = "لا يوجد اتصال مفتوح"
-# navigator/widgets/shell/shell/shell.py:1223
+# navigator/widgets/shell/shell/shell.py:1224
 "No way to root: System Setup's Root access says Never offer, or there is no sudo or pkexec" = "لا سبيل إلى الجذر: صلاحيات الجذر في إعداد النظام على «عدم العرض أبدا»، أو لا يوجد sudo ولا pkexec"
-# navigator/widgets/shell/shell/shell.py:1272
+# navigator/widgets/shell/shell/shell.py:1273
 "A command is still running" = "ما زال أمر قيد التشغيل"
-# navigator/widgets/shell/shell/shell.py:1948
+# navigator/widgets/shell/shell/shell.py:1949
 "Set ~d~efault" = "تعيين ~ا~لافتراضي"
-# navigator/widgets/shell/shell/shell.py:1951
-"~C~ommand..." = "~أ~مر..."
-# navigator/widgets/shell/shell/shell.py:2005
-"~O~ther applications" = "تطبيقات ~ب~ديلة"
-# navigator/widgets/shell/shell/shell.py:2123
-"Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:3167
-"End root access now; the console goes back to your own shell" = "إنهاء صلاحيات الجذر الآن؛ تعود الطرفية إلى صدفتك"
-# navigator/widgets/shell/shell/shell.py:3464
-"File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:3464
-"File Edit History" = "سجل تحرير الملفات"
-# navigator/widgets/shell/shell/shell.py:1174
-"There is no /proc to read processes from" = "لا يوجد /proc لقراءة العمليات منه"
-# navigator/widgets/shell/shell/shell.py:1182
-"There is no /proc/stat to read the processors from" = "لا يوجد /proc/stat لقراءة المعالجات منه"
-# navigator/widgets/shell/shell/shell.py:1197
-"The editor has the keys" = "المفاتيح لدى المحرر"
-# navigator/widgets/shell/shell/shell.py:1217
-"No root access is open" = "لا توجد صلاحية root مفتوحة"
-# navigator/widgets/shell/shell/shell.py:1222
-"Navigator runs as root already" = "يعمل Navigator بصلاحيات الجذر بالفعل"
-# navigator/widgets/shell/shell/shell.py:1227
-"Nothing is running in the background" = "لا شيء يعمل في الخلفية"
-# navigator/widgets/shell/shell/shell.py:1247
-"Only in a file panel or the console" = "فقط في لوحة ملفات أو في الطرفية"
-# navigator/widgets/shell/shell/shell.py:1255
-"File Manager Setup's Space toggles is off" = "خيار المسافة تحدد في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:1267
-"The command line is empty" = "سطر الأوامر فارغ"
-# navigator/widgets/shell/shell/shell.py:1271
-"File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:2037
-"~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
-# navigator/widgets/shell/shell/shell.py:2762, navigator/widgets/shell/shell/shell.py:3034
-"{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:3454
-"Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:3454
-"Track editing history" = "تتبع سجل التحرير"
-# navigator/widgets/shell/shell/shell.py:1214
-"The {command} command is not installed" = "الأمر {command} غير مثبت"
-# navigator/widgets/shell/shell/shell.py:1278
-"The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
-# navigator/widgets/shell/shell/shell.py:1719
-"User menu (global)" = "قائمة المستخدم (عامة)"
-# navigator/widgets/shell/shell/shell.py:1719
-"Local menu" = "القائمة المحلية"
-# navigator/widgets/shell/shell/shell.py:1721
-"User menu (local)" = "قائمة المستخدم (محلية)"
-# navigator/widgets/shell/shell/shell.py:1721
-"Global menu" = "القائمة العامة"
 # navigator/widgets/shell/shell/shell.py:1952
+"~C~ommand..." = "~أ~مر..."
+# navigator/widgets/shell/shell/shell.py:2006
+"~O~ther applications" = "تطبيقات ~ب~ديلة"
+# navigator/widgets/shell/shell/shell.py:2124
+"Choose action" = "اختر إجراء"
+# navigator/widgets/shell/shell/shell.py:3188
+"End root access now; the console goes back to your own shell" = "إنهاء صلاحيات الجذر الآن؛ تعود الطرفية إلى صدفتك"
+# navigator/widgets/shell/shell/shell.py:3485
+"File View History" = "سجل عرض الملفات"
+# navigator/widgets/shell/shell/shell.py:3485
+"File Edit History" = "سجل تحرير الملفات"
+# navigator/widgets/shell/shell/shell.py:1175
+"There is no /proc to read processes from" = "لا يوجد /proc لقراءة العمليات منه"
+# navigator/widgets/shell/shell/shell.py:1183
+"There is no /proc/stat to read the processors from" = "لا يوجد /proc/stat لقراءة المعالجات منه"
+# navigator/widgets/shell/shell/shell.py:1198
+"The editor has the keys" = "المفاتيح لدى المحرر"
+# navigator/widgets/shell/shell/shell.py:1218
+"No root access is open" = "لا توجد صلاحية root مفتوحة"
+# navigator/widgets/shell/shell/shell.py:1223
+"Navigator runs as root already" = "يعمل Navigator بصلاحيات الجذر بالفعل"
+# navigator/widgets/shell/shell/shell.py:1228
+"Nothing is running in the background" = "لا شيء يعمل في الخلفية"
+# navigator/widgets/shell/shell/shell.py:1248
+"Only in a file panel or the console" = "فقط في لوحة ملفات أو في الطرفية"
+# navigator/widgets/shell/shell/shell.py:1256
+"File Manager Setup's Space toggles is off" = "خيار المسافة تحدد في إعدادات مدير الملفات مطفأ"
+# navigator/widgets/shell/shell/shell.py:1268
+"The command line is empty" = "سطر الأوامر فارغ"
+# navigator/widgets/shell/shell/shell.py:1272
+"File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
+# navigator/widgets/shell/shell/shell.py:2038
+"~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
+# navigator/widgets/shell/shell/shell.py:2769, navigator/widgets/shell/shell/shell.py:3055
+"{protocol} link" = "رابط {protocol}"
+# navigator/widgets/shell/shell/shell.py:3475
+"Track viewing history" = "تتبع سجل العرض"
+# navigator/widgets/shell/shell/shell.py:3475
+"Track editing history" = "تتبع سجل التحرير"
+# navigator/widgets/shell/shell/shell.py:1215
+"The {command} command is not installed" = "الأمر {command} غير مثبت"
+# navigator/widgets/shell/shell/shell.py:1279
+"The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
+# navigator/widgets/shell/shell/shell.py:1720
+"User menu (global)" = "قائمة المستخدم (عامة)"
+# navigator/widgets/shell/shell/shell.py:1720
+"Local menu" = "القائمة المحلية"
+# navigator/widgets/shell/shell/shell.py:1722
+"User menu (local)" = "قائمة المستخدم (محلية)"
+# navigator/widgets/shell/shell/shell.py:1722
+"Global menu" = "القائمة العامة"
+# navigator/widgets/shell/shell/shell.py:1953
 "Open with ({type})" = "فتح بواسطة ({type})"
-# navigator/widgets/shell/shell/shell.py:1971, navigator/widgets/shell/shell/shell.py:1967
+# navigator/widgets/shell/shell/shell.py:1972, navigator/widgets/shell/shell/shell.py:1968
 "Set default" = "تعيين الافتراضي"
-# navigator/widgets/shell/shell/shell.py:2996
+# navigator/widgets/shell/shell/shell.py:3017
 "Close the {protocol} connection to {host}?" = "إغلاق اتصال {protocol} مع {host}؟"
-# navigator/widgets/shell/shell/shell.py:1970
+# navigator/widgets/shell/shell/shell.py:1971
 "{name} now opens {type}" = "{name} يفتح الآن {type}"
-# navigator/widgets/shell/shell/shell.py:1999
+# navigator/widgets/shell/shell/shell.py:2000
 "{name} (default)" = "{name} (افتراضي)"
-# navigator/widgets/shell/shell/shell.py:341
+# navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "حفظ لوحة الألوان"
-# navigator/widgets/shell/shell/shell.py:399
+# navigator/widgets/shell/shell/shell.py:400
 "Load Color Palette" = "تحميل لوحة الألوان"
-# navigator/widgets/shell/shell/shell.py:246
+# navigator/widgets/shell/shell/shell.py:247
 "No desktop has been saved" = "لم يحفظ أي سطح مكتب"
-# navigator/widgets/shell/shell/shell.py:268
+# navigator/widgets/shell/shell/shell.py:269
 "Cannot read the theme: {error}" = "لا يمكن قراءة السمة: {error}"
-# navigator/widgets/shell/shell/shell.py:287
+# navigator/widgets/shell/shell/shell.py:288
 "Cannot save the palette: {error}" = "لا يمكن حفظ لوحة الألوان: {error}"
-# navigator/widgets/shell/shell/shell.py:414
+# navigator/widgets/shell/shell/shell.py:415
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
-# navigator/widgets/shell/shell/shell.py:544
+# navigator/widgets/shell/shell/shell.py:545
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:3515
+# navigator/widgets/shell/shell/shell.py:3536
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:3515
+# navigator/widgets/shell/shell/shell.py:3536
 "Edit file" = "تحرير ملف"
-# navigator/widgets/shell/shell/shell.py:2330
+# navigator/widgets/shell/shell/shell.py:2331
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
+# navigator/widgets/shell/shell/shell.py:2816
+"Wrong password for rclone's configuration. Try again:" = "كلمة مرور إعدادات rclone خاطئة. حاول مجددا:"
 # navigator/widgets/shell/shell/shell.py:2817
+"Password for rclone's configuration:" = "كلمة مرور إعدادات rclone:"
+# navigator/widgets/shell/shell/shell.py:2828
 "Wrong passphrase for {key}. Try again:" = "عبارة مرور خاطئة لـ {key}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2818
+# navigator/widgets/shell/shell/shell.py:2829
 "Passphrase for {key}:" = "عبارة المرور لـ {key}:"
-# navigator/widgets/shell/shell/shell.py:2804
+# navigator/widgets/shell/shell/shell.py:2811
 "Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2805
+# navigator/widgets/shell/shell/shell.py:2812
 "Secret key for {who}:" = "المفتاح السري لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:2808
-"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2809
-"{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:3035
+# navigator/widgets/shell/shell/shell.py:3056
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
-# navigator/widgets/shell/shell/shell.py:3457
+# navigator/widgets/shell/shell/shell.py:3478
 "Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1654
+# navigator/widgets/shell/shell/shell.py:1655
 "Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1681
+# navigator/widgets/shell/shell/shell.py:1682
 "File {name} not found" = "الملف {name} غير موجود"
-# navigator/widgets/shell/shell/shell.py:1832
+# navigator/widgets/shell/shell/shell.py:1833
 "Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
-# navigator/widgets/shell/shell/shell.py:2787
+# navigator/widgets/shell/shell/shell.py:2794
 "Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:3207
+# navigator/widgets/shell/shell/shell.py:2819
+"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
+# navigator/widgets/shell/shell/shell.py:2820
+"{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
+# navigator/widgets/shell/shell/shell.py:3228
 "The console could not be made root's: {reason}" = "تعذّر جعل الطرفية بصلاحيات الجذر: {reason}"
-# navigator/widgets/shell/shell/shell.py:3265
+# navigator/widgets/shell/shell/shell.py:3286
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:3421
+# navigator/widgets/shell/shell/shell.py:3442
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"
@@ -5872,6 +5904,12 @@ direction = "rtl"
 "Engine" = "المحرك"
 # navigator/lib/drives/base.py
 "Forward" = "توجيه"
+# navigator/lib/drives/base.py
+"Remote" = "المستودع"
+# navigator/lib/drives/base.py
+"Backend" = "النوع"
+# navigator/lib/drives/base.py
+"Hashes" = "التجزئات"
 # navigator/lib/system/mediainfo.py
 "Duration" = "المدة"
 # navigator/lib/system/mediainfo.py

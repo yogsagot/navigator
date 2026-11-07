@@ -42,6 +42,7 @@ from navigator.widgets.shell.commands import (
     DockerLink,
     PodmanLink,
     AdbLink,
+    RcloneLink,
     DockerShell,
     PodmanShell,
     AdbShell,
@@ -1227,7 +1228,7 @@ class Shell(DockLayout):
             return "" if BACKGROUND.jobs else tr("Nothing is running in the background")
         if isinstance(command, (NavyLink, FtpLink, SmbLink, S3Link, OpenTrash, EmptyTrash)):
             return "" if self.active_manager is not None else no_manager
-        if isinstance(command, (DockerLink, PodmanLink, AdbLink)):
+        if isinstance(command, (DockerLink, PodmanLink, AdbLink, RcloneLink)):
             from navigator.lib.drives import sessions
 
             if self.active_manager is None:
@@ -2607,6 +2608,9 @@ class Shell(DockLayout):
     async def on_adb_link(self, event: AdbLink) -> bool:
         return self._link_command("adb")
 
+    async def on_rclone_link(self, event: RcloneLink) -> bool:
+        return self._link_command("rclone")
+
     def _link_command(self, scheme: str) -> bool:
         manager = self.active_manager
         if manager is not None:
@@ -2668,6 +2672,9 @@ class Shell(DockLayout):
             return False
         if request.copy_key:
             self.copy_ssh_key(request)
+            return False
+        if request.configure:
+            self.configure_rclone()
             return False
         target = location_of(request)
         if family == "gvfs" and target.path == PurePosixPath("."):
@@ -2804,6 +2811,10 @@ class Shell(DockLayout):
                         prompt = (tr("Wrong secret key for {who}. Try again:") if needed.wrong
                                   else tr("Secret key for {who}:")).format(
                             who=escape_caption(who))
+                    elif site.scheme == "rclone":
+                        # rclone's password is its encrypted configuration's, not the remote's.
+                        prompt = (tr("Wrong password for rclone's configuration. Try again:") if needed.wrong
+                                  else tr("Password for rclone's configuration:"))
                     else:
                         prompt = (tr("Wrong {protocol} password for {who}. Try again:") if needed.wrong
                                   else tr("{protocol} password for {who}:")).format(
@@ -2971,6 +2982,16 @@ class Shell(DockLayout):
         return self.run_in_window(
             remote_shell.copy_id_command(site, request.copy_key, request.options, generate=request.generate_key),
             closes=False, title=f"ssh-copy-id {remote_shell.login(site)}")
+
+    def configure_rclone(self) -> Any:
+        """The rclone link manager's *Configure...*: ``rclone config``, rclone's
+        own interactive setup, in a command window that stays to show how it
+        went.  Returns the window."""
+        import shlex
+
+        from navigator.lib.drives import rclone
+
+        return self.run_in_window(shlex.join(rclone.configure_command()), closes=False, title="rclone config")
 
     async def on_hang_up(self, event: HangUp) -> bool:
         self.spawn(self.hang_up())

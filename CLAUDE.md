@@ -36,7 +36,9 @@ names has to be importable by its own name.
 Drives (`navigator/lib/drives/`, DN's `TDrive`) put a panel on the disk, on a server over SFTP, FTP/FTPS, SMB or S3
 (Utilities > Link > SSH (SFTP), Alt+F11; FTP; SMB; S3), inside a running Docker or Podman container or on an Android device over adb
 (`docker://`, `podman://`, `adb://`; Utilities > Link > Docker container, Podman container, Android device -- every step a `docker
-exec`/`adb shell` process, `navigator/lib/drives/execdrive.py`; Utilities > Remote shell > ... opens a shell there), anywhere the desktop's GVfs or KDE's KIO reaches (GVfs/KIO link:
+exec`/`adb shell` process, `navigator/lib/drives/execdrive.py`; Utilities > Remote shell > ... opens a shell there), on any remote `rclone config` has set up (`rclone://REMOTE/path`,
+Utilities > Link > rclone remote: Google Drive, OneDrive, Dropbox and some seventy more, through one `rclone rcd` a
+connection, `navigator/lib/drives/rclone.py`), anywhere the desktop's GVfs or KDE's KIO reaches (GVfs/KIO link:
 `mtp://`, `dav://`, `webdav://`, `google-drive://`..., through the `gio` command or KDE's `kioclient`/kio-fuse, one of them
 by `[system] desktop_vfs` through `navigator/lib/system/desktop.py` -- `navigator-gio` and `navigator-kio` skills, which also
 have Volumes' Mount/Eject, udisks2's `udisksctl` doing it where neither can, and attaching an `.iso`/`.img` Enter mounts (`loop-setup`), and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
@@ -58,7 +60,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 - squashfs-tools' `unsquashfs`, when installed, reads a `.squashfs`/`.sqfs` image and an AppImage's (Ctrl+PgDn) as an
   archive; deb, rpm, cpio and single `.gz/.bz2/.xz/.zst` files need nothing (`navigator-drives`)
 - The `docker`, `podman` and `adb` commands, when installed, are the container and device drives' (`navigator-drives`);
-  a missing one greys its Utilities > Link and Remote shell entries with the command to install
+  a missing one greys its Utilities > Link and Remote shell entries with the command to install. `rclone` (1.63 or
+  later), when installed, is the rclone drive's; without it Utilities > Link > rclone remote is greyed
 - GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encoding > Encryption's programs
   (`navigator/lib/file_ops/encrypt.py`); a missing one is greyed with the package to install (`navigator-file-ops`)
 - Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
