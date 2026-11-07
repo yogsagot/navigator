@@ -15,10 +15,14 @@ refusal in rclone's shape (``{"error", "status", "path"}``).
 "password": null}`` -- a password there is the configuration's, wanted in
 ``RCLONE_CONFIG_PASS``.  Each remote's files are ``$FAKE_RCLONE_STATE/remotes/NAME``.
 Every rc call is appended to ``calls.log`` there, one JSON line.
+``"old": true`` there is an rclone before 1.63: ``unix://`` refused in its words,
+``--rc-addr=127.0.0.1:0`` served on a port of the system's, said on standard
+error, with ``RCLONE_RC_USER``/``RCLONE_RC_PASS`` wanted as basic authentication.
 """
 
 from __future__ import annotations
 
+import base64
 import json
 import os
 import re
@@ -221,7 +225,16 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _refused_auth(self) -> bool:
+        wanted = getattr(self.server, "auth", None)
+        if wanted is None or self.headers.get("Authorization") == wanted:
+            return False
+        self._send(401, b"Unauthorized", "text/plain")
+        return True
+
     def do_POST(self) -> None:
+        if self._refused_auth():
+            return
         parts = urlsplit(self.path)
         method = parts.path.lstrip("/")
         params = {key: values[0] for key, values in parse_qs(parts.query).items()}
@@ -247,6 +260,8 @@ class Handler(BaseHTTPRequestHandler):
         self._send(200, json.dumps(answer).encode())
 
     def do_GET(self) -> None:
+        if self._refused_auth():
+            return
         found = re.match(r"^/\[([^\]]*)\]/(.*)$", self.path)
         if found is None:
             self._send(404, b'{"error": "not found", "status": 404}')
@@ -279,15 +294,33 @@ class Server(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
     daemon_threads = True
 
 
+class TcpServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    daemon_threads = True
+
+
 def rcd(argv: list[str]) -> None:
     _check_password()
     address = next((each.split("=", 1)[1] for each in argv if each.startswith("--rc-addr=")), "")
-    if not address.startswith("unix://"):
+    old = bool(_config().get("old"))
+    (STATE / "rcd.pid").write_text(str(os.getpid()))
+    if address.startswith("unix://") and not old:
+        Server(address[len("unix://"):], Handler).serve_forever()
+        return
+    if address.startswith("unix://"):
+        sys.stderr.write("2026/01/01 00:00:00 Failed to start remote control: start server failed: listen tcp: "
+                         f"lookup tcp///{address[len('unix://'):]}: unknown port\n")
+        sys.exit(1)
+    if not old:
         sys.stderr.write("fake rclone: only --rc-addr=unix:// is served\n")
         sys.exit(2)
-    path = address[len("unix://"):]
-    (STATE / "rcd.pid").write_text(str(os.getpid()))
-    server = Server(path, Handler)
+    host, _, port = address.rpartition(":")
+    server = TcpServer((host, int(port)), Handler)
+    user, password = os.environ.get("RCLONE_RC_USER"), os.environ.get("RCLONE_RC_PASS")
+    if user and password:
+        server.auth = "Basic " + base64.b64encode(f"{user}:{password}".encode()).decode()
+    sys.stderr.write(f"2026/01/01 00:00:00 NOTICE: Serving remote control on "
+                     f"http://{host}:{server.server_address[1]}/\n")
+    sys.stderr.flush()
     server.serve_forever()
 
 

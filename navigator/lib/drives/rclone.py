@@ -34,17 +34,26 @@ environment (``RCLONE_CONFIG_PASS``, which only this user can read in
 No modes, owners, links or times to set: what a service keeps of those is
 rclone's business, and an object's time is its upload's.  A directory is
 renamed on the server where the backend can (``DirMove``), else ``EXDEV``
-and the copier copies it.  Needs rclone 1.63 or later (a Unix socket for
-``--rc-addr``).
+and the copier copies it.
+
+**An rclone before 1.63** (Ubuntu 24.04's is 1.60) cannot serve the remote
+control on a Unix socket.  When it says so the daemon is started again on
+``127.0.0.1``, on a port the system picks (read back from its *Serving remote
+control on* line), with a user and a random password of its own given in its
+environment (``RCLONE_RC_USER``/``RCLONE_RC_PASS``, never its command line)
+and sent with every request.  What was learnt is kept for the next daemon.
 """
 
 from __future__ import annotations
 
 import errno
 import http.client
+import base64
 import io
 import json
 import os
+import re
+import secrets
 import shutil
 import signal
 import socket
@@ -244,12 +253,35 @@ class _UnixConnection(http.client.HTTPConnection):
         self.sock = sock
 
 
+class _TcpConnection(http.client.HTTPConnection):
+    """HTTP to a daemon on ``127.0.0.1``, its user and password with every request."""
+
+    def __init__(self, port: int, authorization: str, timeout: float) -> None:
+        super().__init__("127.0.0.1", port, timeout=timeout)
+        self._authorization = authorization
+
+    def putrequest(self, method: str, url: str, *args: Any, **kwargs: Any) -> None:
+        super().putrequest(method, url, *args, **kwargs)
+        self.putheader("Authorization", self._authorization)
+
+
 class _Unreachable(Exception):
     """The daemon did not answer: gone, or never there."""
 
 
 _counter = 0
 _counter_lock = threading.Lock()
+
+#: Whether this rclone was found not to serve on a Unix socket (before 1.63):
+#: the next daemon goes to TCP at once.
+_tcp_only = False
+
+#: What an rclone before 1.63 says of ``--rc-addr=unix://...``: it took the
+#: whole as a host and port.
+_NO_UNIX = ("unknown port", "lookup tcp", "missing port", "too many colons")
+
+#: Where the daemon says it serves, when on TCP.
+_SERVING = re.compile(r"Serving remote control on https?://[^\s/]*:(\d+)/")
 
 
 #: The longest a socket's path may be (``sun_path`` is 108 bytes, its end a NUL).
@@ -298,34 +330,66 @@ class Daemon:
     def __init__(self, password: str | None = None) -> None:
         self.password = password
         self.path = ""
+        self.port = 0
+        self.tcp = False
+        self._authorization = ""
         self.process: subprocess.Popen[bytes] | None = None
         self.version = ""
 
     def argv(self) -> list[str]:
+        if self.tcp:
+            return [program() or PROGRAM, "rcd", "--rc-addr=127.0.0.1:0", "--rc-serve", "--ask-password=false"]
         return [program() or PROGRAM, "rcd", f"--rc-addr=unix://{self.path}", "--rc-serve", "--rc-no-auth",
                 "--ask-password=false"]
 
     def start(self) -> None:
-        """Up, its socket answering: raises ``NeedPassword``-worthy text as
-        ``PermissionError``, and the rest as ``OSError`` with rclone's words."""
-        self.path = _socket_path()
-        try:
-            os.unlink(self.path)
-        except FileNotFoundError:
-            pass
+        """Up and answering, on a Unix socket or else on TCP: raises
+        :class:`_StartFailed` with rclone's words when it ended first."""
+        global _tcp_only
+        if not _tcp_only:
+            try:
+                self._start(tcp=False)
+                return
+            except _StartFailed as error:
+                if not any(words in str(error).lower() for words in _NO_UNIX):
+                    raise
+                _tcp_only = True
+        self._start(tcp=True)
+
+    def _start(self, *, tcp: bool) -> None:
+        self.tcp = tcp
+        env = config_env(self.password)
+        if tcp:
+            self.path = ""
+            user, password = "navigator", secrets.token_urlsafe(24)
+            env["RCLONE_RC_USER"], env["RCLONE_RC_PASS"] = user, password
+            self._authorization = "Basic " + base64.b64encode(f"{user}:{password}".encode()).decode()
+        else:
+            self.path = _socket_path()
+            try:
+                os.unlink(self.path)
+            except FileNotFoundError:
+                pass
+        self.port = 0
         try:
             self.process = subprocess.Popen(self.argv(), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                                            stderr=subprocess.PIPE, env=config_env(self.password),
-                                            start_new_session=True)
+                                            stderr=subprocess.PIPE, env=env, start_new_session=True)
         except FileNotFoundError as error:
             raise OSError(errno.ENOENT, "rclone: command not found") from error
+        # Its standard error is read throughout, so a chatty daemon never blocks
+        # on it: the start's lines kept (the port, or why it ended), the rest dropped.
+        log = _Log()
+        reader = threading.Thread(target=log.read, args=(self.process.stderr,), daemon=True, name="nav-rclone-log")
+        reader.start()
         deadline = time.monotonic() + START_TIMEOUT
         while True:
             if self.process.poll() is not None:
-                text = self.process.stderr.read().decode("utf-8", "replace") if self.process.stderr else ""
+                reader.join(timeout=2)
                 self.process = None
-                raise _StartFailed(text.strip() or "rclone rcd ended at once")
-            if os.path.exists(self.path):
+                raise _StartFailed(log.text().strip() or "rclone rcd ended at once")
+            if tcp and not self.port:
+                self.port = log.port
+            if self.port if tcp else os.path.exists(self.path):
                 try:
                     self.version = str(self.call("core/version", timeout=5).get("version", ""))
                     break
@@ -333,18 +397,17 @@ class Daemon:
                     pass
             if time.monotonic() > deadline:
                 self.stop()
-                raise OSError(errno.ETIMEDOUT, "rclone rcd did not start (rclone 1.63 or later is needed)")
+                raise OSError(errno.ETIMEDOUT, "rclone rcd did not start")
             time.sleep(0.05)
-        # Its standard error is not read again: drained so a chatty daemon never blocks on it.
-        stderr = self.process.stderr
-        if stderr is not None:
-            threading.Thread(target=_drain, args=(stderr,), daemon=True, name="nav-rclone-log").start()
+        log.done()
 
     @property
     def alive(self) -> bool:
         return self.process is not None and self.process.poll() is None
 
-    def connection(self, timeout: float) -> _UnixConnection:
+    def connection(self, timeout: float) -> http.client.HTTPConnection:
+        if self.tcp:
+            return _TcpConnection(self.port, self._authorization, timeout)
         return _UnixConnection(self.path, timeout)
 
     def call(self, method: str, timeout: float = 60.0, **params: Any) -> dict[str, Any]:
@@ -415,12 +478,38 @@ class RcError(Exception):
         self.text, self.status = text, status
 
 
-def _drain(stream: Any) -> None:
-    try:
-        while stream.read(65536):
+class _Log:
+    """The daemon's standard error: its lines kept until it is up, then dropped."""
+
+    LIMIT = 65536
+
+    def __init__(self) -> None:
+        self._lines: list[str] = []
+        self._size = 0
+        self._keeping = True
+        self.port = 0
+
+    def read(self, stream: Any) -> None:
+        try:
+            for raw in stream:
+                if not self._keeping:
+                    continue
+                line = raw.decode("utf-8", "replace")
+                found = _SERVING.search(line)
+                if found and not self.port:
+                    self.port = int(found.group(1))
+                if self._size < self.LIMIT:
+                    self._lines.append(line)
+                    self._size += len(line)
+        except Exception:
             pass
-    except Exception:
-        pass
+
+    def text(self) -> str:
+        return "".join(self._lines)
+
+    def done(self) -> None:
+        self._keeping = False
+        self._lines = []
 
 
 def _answer(status: int, data: bytes) -> dict[str, Any]:
@@ -847,6 +936,13 @@ class _Upload(io.RawIOBase):
             self.close()
 
 
+def _environment_type(name: str) -> str:
+    """The backend of a remote set up in the environment, as rclone names its
+    variable: ``RCLONE_CONFIG_`` and the name upper-cased, ``-`` as ``_``."""
+    key = "RCLONE_CONFIG_" + name.upper().replace("-", "_") + "_TYPE"
+    return os.environ.get(key, "")
+
+
 def connect(site: Site, answers: Answers) -> RcloneDrive:
     """*site*'s remote, its daemon up: blocks, and raises what the user must answer."""
     from navigator.lib.drives import credentials
@@ -868,20 +964,23 @@ def connect(site: Site, answers: Answers) -> RcloneDrive:
         raise os_error(text, site.host) from error
     drive = RcloneDrive(site, daemon)
     try:
+        # Not config/listremotes: it leaves out a remote set up in the
+        # environment (RCLONE_CONFIG_NAME_TYPE=...), which fsinfo reaches.
         try:
-            remotes = drive.call("config/listremotes").get("remotes") or []
+            drive.info = drive.call("operations/fsinfo", fs=drive.fs)
         except OSError as error:
-            if wants_password(error.strerror or ""):
+            words = error.strerror or ""
+            if wants_password(words):
                 raise NeedPassword(site, "rclone", "rclone's configuration",
                                    wrong=answers.password is not None) from error
+            if "find section in config" in words:
+                raise DriveGone(site.host, f"rclone has no remote called {site.host}") from error
             raise
-        if site.host not in remotes:
-            raise DriveGone(site.host, f"rclone has no remote called {site.host}")
         try:
             drive.kind = str(drive.call("config/get", name=site.host).get("type") or "")
         except OSError:
             pass
-        drive.info = drive.call("operations/fsinfo", fs=drive.fs)
+        drive.kind = drive.kind or _environment_type(site.host)
         if drive.info.get("Features", {}).get("About"):
             drive.capabilities = drive.capabilities | {FREE_SPACE}
     except BaseException:

@@ -89,13 +89,14 @@ def fake(tmp_path, monkeypatch):
     monkeypatch.setenv("FAKE_RCLONE_STATE", str(state))
     monkeypatch.delenv("RCLONE_CONFIG_PASS", raising=False)
     monkeypatch.setattr(credentials, "keyring_available", lambda: False)
+    monkeypatch.setattr(rclone, "_tcp_only", False)
     write_config(state, {"Cloud": {"type": "drive"}, "flat": {"type": "b2", "dirmove": False, "about": False}})
     yield state
     SESSIONS.close_all()
 
 
-def write_config(state: Path, remotes: dict, password: str | None = None) -> None:
-    (state / "config.json").write_text(json.dumps({"remotes": remotes, "password": password}))
+def write_config(state: Path, remotes: dict, password: str | None = None, old: bool = False) -> None:
+    (state / "config.json").write_text(json.dumps({"remotes": remotes, "password": password, "old": old}))
 
 
 def at(name: str, path: str = "/") -> Location:
@@ -132,6 +133,28 @@ def test_connecting_starts_one_daemon_and_learns_the_remote(place, fake):
     path = drive.daemon.path
     SESSIONS.close(place.site)
     assert not drive.daemon.alive and not os.path.exists(path)
+
+
+def test_an_rclone_before_1_63_is_spoken_to_over_tcp_with_a_password(fake):
+    write_config(fake, {"Cloud": {"type": "drive"}}, old=True)
+    (fake / "remotes" / "Cloud" / "a.txt").write_text("alpha")
+    place = at("Cloud")
+    drive = SESSIONS.connect(place.site, Answers())
+    assert drive.daemon.tcp and drive.daemon.port and drive.names(place) == ["a.txt"]
+    with drive.open_read(place / "a.txt") as handle:
+        assert handle.read() == b"alpha"
+    with drive.open_write(place / "b.txt") as handle:
+        handle.write(b"beta")
+    assert (fake / "remotes" / "Cloud" / "b.txt").read_bytes() == b"beta"
+    argv = [json.loads(line) for line in (fake / "argv.log").read_text().splitlines()]
+    assert [each[1] for each in argv] == ["--rc-addr=unix://" + argv[0][1][len("--rc-addr=unix://"):],
+                                          "--rc-addr=127.0.0.1:0"]
+    assert not any(word.startswith(("--rc-user", "--rc-pass")) for each in argv for word in each)
+    # Learnt: the next daemon goes to TCP at once.
+    SESSIONS.close_all()
+    SESSIONS.connect(place.site, Answers())
+    argv = [json.loads(line) for line in (fake / "argv.log").read_text().splitlines()]
+    assert argv[-1][1] == "--rc-addr=127.0.0.1:0" and len(argv) == 3
 
 
 def test_a_remote_not_set_up_is_refused(fake):

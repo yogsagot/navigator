@@ -201,11 +201,15 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     test finds the developer's SDK; the lookup's own tests put back `adb.SDK_DIRS`.
   - What is there now: `docker.list_containers(engine)` (`ps --format '{{json .}}'`, Docker's lines and
     Podman's array with `Names` a list -- `parse_ps`) and `adb.list_devices()` (`devices -l`, `parse_devices`).
-- **rclone** (`rclone.py`, `rclone://REMOTE/path`; the `rclone` command, 1.63+, nothing to pip-install). **One
+- **rclone** (`rclone.py`, `rclone://REMOTE/path`; the `rclone` command, nothing to pip-install). **One
   `rclone rcd` a connection** (`Daemon`), on a Unix socket of its own (`_socket_path`: `$XDG_RUNTIME_DIR`, else
   `private_dir()`, else a `mkdtemp` -- the first whose path fits `sun_path`, `_SOCKET_LIMIT` 100; pytest's
   `tmp_path` would not) with `--rc-no-auth` (the directory, this user's alone, is the guard), `--rc-serve` and
-  `--ask-password=false`, `start_new_session`. Every step is a JSON POST to the rc over `_UnixConnection`
+  `--ask-password=false`, `start_new_session`. **Before 1.63** (Ubuntu 24.04's 1.60) `unix://` is taken for a
+  host and port (*lookup tcp ... unknown port*, `_NO_UNIX`): started again on `127.0.0.1:0`, the port read from its
+  *Serving remote control on* line (`_Log`, which reads standard error throughout and keeps it only until up), a
+  random user/password in `RCLONE_RC_USER`/`RCLONE_RC_PASS` (environment, not argv) sent as basic authentication by
+  `_TcpConnection.putrequest`; `_tcp_only` remembers it for the next daemon (a test resets it). Every step is a JSON POST to the rc over `_UnixConnection`
   (`operations/list`, `stat`, `mkdir`, `rmdir`, `deletefile`, `movefile`; `sync/move` for a directory where
   `fsinfo`'s `Features.DirMove`, else `EXDEV`; `about` for the free space, `FREE_SPACE` only where
   `Features.About`); rclone's refusal (`{"error", "status"}`) is `os_error` by its words, else its status. Reads are
@@ -220,8 +224,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   config** is `NeedPassword` (rcd ends at once with *RCLONE_CONFIG_PASS*/*decrypt* words, `wants_password`;
   `wrong` when one was given), given only in the daemon's environment, kept in the keyring under `Site("rclone")`
   (one config, one password); `Shell.reach` asks it as *Password for rclone's configuration*. A daemon gone is
-  started again once silently (`_revive`), else `on_lost` → `DriveGone`. `connect` checks `config/listremotes`
-  for the name, `config/get` for its backend, `fsinfo` for features. `describe`: *Remote*, *Backend*, *Software*,
+  started again once silently (`_revive`), else `on_lost` → `DriveGone`. `connect` asks `fsinfo` (features; *didn't
+  find section in config file* is no such remote -- not `config/listremotes`, which leaves out a remote set up in
+  the environment), `config/get` for its backend, else `RCLONE_CONFIG_NAME_TYPE`. `describe`: *Remote*, *Backend*, *Software*,
   *Hashes*. Title `RCLONE:name:/path`. **Its link manager** (Utilities > Link > *~r~clone remote...*,
   `RcloneLink`) is **live**: *── Configured ──* over `rclone listremotes --long` (`list_remotes`/
   `parse_listremotes`, on a thread); `_entry` takes the *Re~m~ote* line whole (no `split_host`: an `@` is the
@@ -604,11 +609,12 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   the copier and eraser; the link managers' live part, New, Ctrl+R and the submenus in the app. A real `alpine`
   container only with `NAVIGATOR_CONTAINER_TESTS=1` and a working engine.
 - `tests/test_rclone.py` against `tests/fake_rclone.py`, a stand-in `rclone` on `PATH`: its `rcd` serves the rc
-  methods the drive asks and `--rc-serve`'s ranged objects on the Unix socket, over
+  methods the drive asks and `--rc-serve`'s ranged objects on the Unix socket (or, with `"old": true`, refuses it
+  in 1.60's words and serves TCP with basic authentication), over
   `$FAKE_RCLONE_STATE/remotes/NAME`; `config.json` names the remotes (`dirmove`, `about` per remote) and a
   `password` the config wants; `calls.log` and `argv.log` record what was asked. A real rclone, when installed, on
-  an `alias` remote set up through `RCLONE_CONFIG_NAVTEST_*` -- the one check of the real rc's names and shapes
-  (rclone was not at hand when this was written: the methods are from its documentation).
+  an `alias` remote set up through `RCLONE_CONFIG_NAVTEST_*` -- the one check of the real rc's names and shapes,
+  passed with Ubuntu's rclone 1.60.1 (over TCP); the Unix socket of 1.63+ only against the fake.
 - `tests/test_sftp.py` (skipped without paramiko) against `tests/sftp_server.py`, paramiko's own server on
   `127.0.0.1:0` rooted in a temp directory, password `secret`. The `isolated` fixture points `HOME` at a temp
   directory, drops `SSH_AUTH_SOCK` and turns the keyring off, so nothing of the user's `~/.ssh` or keyring is read or

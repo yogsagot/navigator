@@ -60,8 +60,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 - squashfs-tools' `unsquashfs`, when installed, reads a `.squashfs`/`.sqfs` image and an AppImage's (Ctrl+PgDn) as an
   archive; deb, rpm, cpio and single `.gz/.bz2/.xz/.zst` files need nothing (`navigator-drives`)
 - The `docker`, `podman` and `adb` commands, when installed, are the container and device drives' (`navigator-drives`);
-  a missing one greys its Utilities > Link and Remote shell entries with the command to install. `rclone` (1.63 or
-  later), when installed, is the rclone drive's; without it Utilities > Link > rclone remote is greyed
+  a missing one greys its Utilities > Link and Remote shell entries with the command to install. `rclone`, when
+  installed, is the rclone drive's; without it Utilities > Link > rclone remote is greyed
 - GnuPG's `gpg` and `age` (with `age-plugin-batchpass` when there) are File > Encoding > Encryption's programs
   (`navigator/lib/file_ops/encrypt.py`); a missing one is greyed with the package to install (`navigator-file-ops`)
 - Four optional extras, each greyed out with what to install when missing: `navigator-fm[sftp]` (paramiko),
