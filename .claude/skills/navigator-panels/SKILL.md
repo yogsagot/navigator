@@ -19,9 +19,17 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
 
 - Arrows/PgUp/PgDn/Home/End move, Enter descends, Ctrl+R/Alt+R re-reads. **A re-read keeps the cursor on its entry**
   (`Panel.reload`, DN's `RereadDir`); only a change of directory starts at the top.
+- **Enter and Backspace work by the letters, never `resolve()`** on the loop (it stats each component: a hung mount
+  froze the screen): `Panel._entered` -- `..` is `normpath(path/..)`, a link to a directory its `link_target` taken
+  from here, else `path/name`; `go_up` `normpath(path/..)`. A link to a link is followed one step (a departure: the
+  same directory shown by another path, as bash's `cd`). Paste and a drop resolve their target on a thread
+  (`manager._real_place`; `on_dropped` spawns `_dropped`).
 - **A directory is read on a thread** (`scan_directory`, on `panel._SCANNER`). `_rescan`, the effect, takes the
   cursor notes (`_return_to`, `_keep`) into a `_ScanRequest`, waits `SCAN_GRACE` (50 ms) and applies inline if the
-  read is done -- nearly always, so a frame never shows a half state -- else spawns `_await_scan`, which applies only
+  read is done -- nearly always, so a frame never shows a half state -- **only for somewhere new on a drive with
+  `quick_listing`** (disk, archive, memory, `root:`, Trash; `_answers_here`): a re-read of the same place keeps its
+  rows and never waits, and a step on a drive a round trip away shows *scanning* at once rather than 50 ms later
+  (Miller's preview and PollWatch paid it every step). Otherwise it spawns `_await_scan`, which applies only
   if no later read was asked for (`_generation`). **With no application running it waits for the read**, so model
   tests' `reload()` + `settle()` still see the listing at once (and so does Navigator's first listing, before the loop
   starts). Meanwhile a re-read of the same directory keeps its rows; a new directory shows *Reading directory...*

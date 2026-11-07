@@ -116,6 +116,11 @@ class Drive:
     site: Site = Site()
     #: What it can do beyond reading (the constants above).
     capabilities: frozenset[str] = frozenset()
+    #: Whether a listing is answered here, nearly always within the panel's
+    #: ``SCAN_GRACE``: the disk, an archive's index, memory.  A panel waits
+    #: that long for one to spare a flash of empty rows; for a drive that
+    #: is a round trip away it would only be a pause on every step.
+    quick_listing: bool = False
 
     def can(self, capability: str) -> bool:
         return capability in self.capabilities

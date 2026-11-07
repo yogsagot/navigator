@@ -78,6 +78,7 @@ class MemoryDrive(Drive):
 
     capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD))
     seekable = True
+    quick_listing = True
 
     def __init__(self, name: str = "memory") -> None:
         self.site = Site("mem", host=name)

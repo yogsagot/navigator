@@ -64,6 +64,8 @@ class TrashDrive(Drive):
 
     site = TRASH_SITE
     capabilities = frozenset((WRITE, TREE, FIND, WATCH))
+    #: Trash directories on the disk.
+    quick_listing = True
     seekable = True
     #: ``..`` and Backspace at the root go back where the panel was.
     leaves_to_anchor = True

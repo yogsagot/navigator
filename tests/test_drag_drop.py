@@ -172,3 +172,22 @@ def test_the_destination_writes_home_as_a_tilde(place, monkeypatch):
     run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), Until(menu_up),
                                lambda a: seen.update(footer=a.modal.box.footer), KeyEvent("escape")])
     assert seen["footer"] == "To ~/b"
+
+
+def test_where_a_drop_lands_is_resolved_off_the_loop(place, monkeypatch):
+    import threading
+    import traceback
+
+    on_loop = []
+    real = Path.resolve
+
+    def resolve(self, *args, **kwargs):
+        callers = {frame.name for frame in traceback.extract_stack()}
+        if threading.current_thread() is threading.main_thread() and callers & {"on_dropped", "_dropped"}:
+            on_loop.append(self)
+        return real(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "resolve", resolve)
+    run_app(navigator(place), [*drag(at("left", "f1.txt"), at("right")), *choose("enter"),
+                               Until(lambda a: (place / "b" / "f1.txt").exists())])
+    assert on_loop == []

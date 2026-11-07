@@ -104,7 +104,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **`location.py`** `Site`, `Location`, `LOCAL_SITE`, `RemoteLocation`. `normalized()` is by the letters (`..`, `.`).
 - **`base.py`** `Drive` (TDrive's names: `get_dir` title, `real_name` copy target, `use_file`/`change_up`), `FileStat`
   (an `os.stat_result` look-alike; `st_dev`/`st_ino` 0 where there are none -- the copier's loop check falls back to
-  site+path), capability constants, `DriveGone`.
+  site+path), capability constants, `DriveGone`. `Drive.quick_listing` (False; True for local, archive, memory,
+  `root:`, Trash): whether a panel's read is worth its `SCAN_GRACE` wait -- set it on a new drive that answers here.
 - **`__init__.py`** `drive_of(location)` (`LOCAL` for the disk, the mounted drive for its site, else `DriveGone`),
   `mount`/`unmount`/`mounted`.
 - **`memory.py`** `MemoryDrive("name")`, site `mem://name`; `make(path, data)`/`read(path)` for tests. POSIX errors where

@@ -319,6 +319,8 @@ class RootSiteDrive(Drive):
 
     site = ROOT_SITE
     capabilities = frozenset((WRITE, RENAME, SYMLINK, HARDLINK, CHMOD, CHOWN, XATTR, FSFLAGS))
+    #: The disk, through one pipe to the helper.
+    quick_listing = True
 
     def scan(self, location: Location, show_hidden: bool, sort: str, *, free: bool,
              **options: Any) -> tuple[list, str | None, tuple[int, str] | None]:

@@ -598,7 +598,11 @@ def chdir_run(places, *actions):
     from test_nav import navigator
 
     app = navigator(places)
-    run_app(app, [KeyEvent("t", "t", alt=True), lambda a: None, *actions, lambda a: None])
+    # The box's tree walks down to the panel's directory on a thread: wait
+    # for the cursor to land before anything presses a key there.
+    run_app(app, [KeyEvent("t", "t", alt=True),
+                  Until(lambda a: getattr(a.modal, "accept", lambda: None)() == places.resolve(), timeout=5),
+                  *actions, lambda a: None])
     return app
 
 
@@ -647,8 +651,10 @@ def test_reread_keeps_the_cursor_and_finds_what_appeared(places):
     chdir_run(
         places, KeyEvent("+", "+"), KeyEvent("down"), appear,
         KeyEvent("r", "r", alt=True),
+        Until(lambda a: a.modal.accept() == (places / "alpha").resolve(), timeout=5),
         lambda a: seen.append(a.modal.accept()),
         KeyEvent("+", "+"),
+        Until(lambda a: a.modal.tree.selected_node.loaded, timeout=5),
         lambda a: seen.append([n.name for n in a.modal.tree.selected_node.children()]),
     )
     assert seen == [(places / "alpha").resolve(), ["fresh", "inner"]]
@@ -683,7 +689,12 @@ def tree_window_run(places, *actions):
 
         a.spawn(a.run_command(OpenTreeWindow))
 
-    run_app(app, [open_it, lambda a: None, *actions, lambda a: None])
+    def landed(a):
+        window = a.shell.desktop.active_window
+        tree = getattr(window, "tree", None)
+        return tree is not None and tree.selected_path == places.resolve()
+
+    run_app(app, [open_it, Until(landed, timeout=5), *actions, lambda a: None])
     return app
 
 
@@ -733,7 +744,11 @@ def test_ctrl_r_rereads_the_windows_tree(places):
     tree_window_run(
         places, KeyEvent("+", "+"), KeyEvent("down"),
         lambda a: (places / "alpha" / "fresh").mkdir(),
-        KeyEvent("r", ctrl=True), KeyEvent("+", "+"),
+        KeyEvent("r", ctrl=True),
+        Until(lambda a: a.shell.desktop.active_window.tree.selected_path == (places / "alpha").resolve(),
+              timeout=5),
+        KeyEvent("+", "+"),
+        Until(lambda a: a.shell.desktop.active_window.tree.selected_node.loaded, timeout=5),
         lambda a: seen.append(
             [n.name for n in a.shell.desktop.active_window.tree.selected_node.children()]),
     )

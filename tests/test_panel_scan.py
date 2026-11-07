@@ -144,3 +144,115 @@ def test_a_slow_re_read_keeps_the_rows_and_the_cursor(tree, slow_dir):
                   lambda a: seen.update(name=left(a).selected.name)])
     assert seen["during"] == (False, 3)  # the same directory: its rows stay up
     assert seen["name"] == "inside.txt"
+
+
+# -- the grace wait, only where it pays ----------------------------------------------------------------
+
+
+@pytest.fixture
+def graces(monkeypatch):
+    """Every grace ``_rescan`` waited, in seconds (0 for none)."""
+    import concurrent.futures
+
+    waited = []
+    real = concurrent.futures.Future.result
+
+    def result(self, timeout=None):
+        if threading.current_thread() is threading.main_thread() and timeout is not None:
+            waited.append(timeout)
+        return real(self, timeout)
+
+    monkeypatch.setattr(concurrent.futures.Future, "result", result)
+    return waited
+
+
+def test_a_re_read_of_the_same_place_does_not_wait(tree, graces):
+    app = navigator(tree)
+    seen = {}
+
+    def reread(a):
+        graces.clear()
+        left(a).reload()
+
+    run_app(app, [
+        Until(lambda a: len(left(a).items) > 1), reread, Until(lambda a: not left(a).scanning),
+        lambda a: seen.update(re_read=list(graces)),
+        lambda a: graces.clear(), go_to("fast"), KeyEvent("enter"),
+        Until(lambda a: left(a).path.name == "fast" and not left(a).scanning),
+        lambda a: seen.update(new=list(graces)),
+    ])
+    assert panel_module.SCAN_GRACE not in seen["re_read"]
+    assert panel_module.SCAN_GRACE in seen["new"]  # the disk, somewhere new: worth the wait
+
+
+def test_a_step_on_a_drive_a_round_trip_away_does_not_wait(tree, graces):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    class Far(MemoryDrive):
+        quick_listing = False
+
+        def scan(self, *args, **kwargs):
+            time.sleep(0.2)
+            return super().scan(*args, **kwargs)
+
+    drive = mount(Far("far"))
+    drive.make("/top/sub/x.txt", "x")
+    app = navigator(tree)
+    seen = {}
+
+    def step(a):
+        graces.clear()
+        left(a).location = drive.location("/top")
+
+    try:
+        run_app(app, [
+            step, lambda a: seen.update(scanning=left(a).scanning, waited=list(graces)),
+            Until(lambda a: [e.name for e in left(a).items] == ["..", "sub"], timeout=5),
+        ])
+    finally:
+        unmount(drive.site)
+    assert seen["scanning"] is True and panel_module.SCAN_GRACE not in seen["waited"]
+
+
+# -- Enter and Backspace work from the letters -------------------------------------------------------------
+
+
+@pytest.fixture
+def resolves_on_loop(monkeypatch):
+    """The ``Path.resolve`` calls made on the loop from Enter, Backspace,
+    paste or a drop."""
+    import traceback
+
+    found = []
+    real = Path.resolve
+
+    def resolve(self, *args, **kwargs):
+        callers = {frame.name for frame in traceback.extract_stack()}
+        if (threading.current_thread() is threading.main_thread()
+                and callers & {"enter", "go_up", "_entered", "paste_files", "on_dropped"}):
+            found.append(self)
+        return real(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "resolve", resolve)
+    return found
+
+
+def test_enter_and_backspace_resolve_nothing_and_a_link_goes_where_it_points(tree, resolves_on_loop):
+    (tree / "fast" / "inner").mkdir()
+    (tree / "to_fast").symlink_to("fast")
+    (tree / "slow" / "up_to_fast").symlink_to("../fast")
+    app = navigator(tree)
+    seen = {}
+    run_app(app, [
+        Until(lambda a: "to_fast" in [e.name for e in left(a).items]),
+        go_to("to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"),
+        go_to("inner"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast" / "inner"),
+        KeyEvent("backspace"), Until(lambda a: left(a).path == tree / "fast"),
+        lambda a: seen.update(cursor=left(a).selected.name),
+        KeyEvent("backspace"), Until(lambda a: left(a).path == tree),
+        go_to("slow"), KeyEvent("enter"), Until(lambda a: "up_to_fast" in [e.name for e in left(a).items]),
+        go_to("up_to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"),
+    ])
+    assert seen["cursor"] == "inner"
+    assert resolves_on_loop == []

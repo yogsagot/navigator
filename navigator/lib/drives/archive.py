@@ -232,6 +232,8 @@ class ArchiveDrive(Drive):
     :mod:`tarfile`, or read (and a 7z rewritten) through 7-Zip."""
 
     capabilities = frozenset((WRITE, RENAME, CHMOD, SYMLINK))
+    #: Listed from the index in memory, wherever the archive came from.
+    quick_listing = True
     site = ARCHIVE_SITE
 
     def __init__(self, outer: Location, local: Path, *, use: Any = None,

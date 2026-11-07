@@ -3862,9 +3862,7 @@ class Manager(Window):
         """
         if not CLIP:
             return
-        target = self.active_panel.location
-        if target.is_local and target.local.exists():
-            target = Location.of(target.local.resolve())
+        target = await asyncio.to_thread(_real_place, self.active_panel.location)
         entries, here, move = list(CLIP.entries), CLIP.here, CLIP.move
         if _into_itself(target, entries, here):
             return
@@ -3891,15 +3889,18 @@ class Manager(Window):
         if event.trash:
             self.spawn(self._drop_on_trash(source, list(event.entries)))
             return True
-        target = Location.of(event.target)
-        if target.is_local and target.local.exists():
-            target = Location.of(target.local.resolve())
+        self.spawn(self._dropped(event, source))
+        return True
+
+    async def _dropped(self, event: Dropped, source: Panel) -> None:
+        """The rest of :meth:`on_dropped`, in a task: where it was dropped is
+        resolved on a thread (a hung mount waits there, not on the loop)."""
+        target = await asyncio.to_thread(_real_place, Location.of(event.target))
         if _into_itself(target, event.entries, source.location):
-            return True
+            return
         target = shown(target)
         others = (event.panel,) if event.panel is not None and event.panel is not source else ()
-        self.spawn(self._drop_menu(event, target, others))
-        return True
+        await self._drop_menu(event, target, others)
 
     async def _drop_on_trash(self, source: Panel, entries: list[Any]) -> None:
         """``TTrashCan``: ``cmEraseGroup`` once a Yes/No box agrees.
@@ -6134,6 +6135,14 @@ def _entry_location(here: Any, entry: Any) -> Location:
     if entry.directory is not None:
         return Location.of(entry.directory) / entry.name
     return Location.of(here) / entry.name
+
+
+def _real_place(target: Location) -> Location:
+    """*target* with its links resolved, on the disk and if it is there --
+    blocking: on a thread."""
+    if target.is_local and target.local.exists():
+        return Location.of(target.local.resolve())
+    return target
 
 
 def _into_itself(target: Location, entries: Iterable[Any], here: Any) -> bool:

@@ -171,6 +171,15 @@ def _read_location(location: Location, show_hidden: bool, sort: str, *, free: bo
     return entries, error, free_space, error is None and _is_read_only(location)
 
 
+def _answers_here(location: Location) -> bool:
+    """Whether *location*'s drive lists without a round trip
+    (``Drive.quick_listing``), so a read is worth the panel's grace wait."""
+    try:
+        return drive_of(location).quick_listing
+    except OSError:  # DriveGone: the read will say so, at once
+        return False
+
+
 def _is_read_only(location: Location) -> bool:
     """Whether *location* is on the disk, on a file system mounted read-only:
     a disk image Enter mounted, a CD, a ``ro`` mount.  Its title says so, so
@@ -835,9 +844,12 @@ class Panel(ListViewer):
         """Re-read the directory, whenever the path or the token changes.
 
         **Read on a thread** (:func:`scan_directory`), so a directory on a
-        slow disk or a hung network mount does not stop the screen.  One read
-        within :data:`SCAN_GRACE` -- which is nearly every one -- is shown in
-        this same frame, as it always was; a slower one is shown when it is
+        slow disk or a hung network mount does not stop the screen.  A read of
+        somewhere new on a drive that answers here (``Drive.quick_listing``)
+        is waited for up to :data:`SCAN_GRACE` -- nearly every one is in by
+        then -- and shown in this same frame, sparing a flash of empty rows; a
+        slower one, a re-read of the same place (whose rows stay up meanwhile)
+        and any read from a drive a round trip away are shown when they are
         done, unless the panel has moved on by then.  With no application
         running (a test driving the model), the read is waited for.
         """
@@ -896,8 +908,11 @@ class Panel(ListViewer):
         if app is None or not app.is_running:
             self._apply(request, *future.result())
             return
+        grace = SCAN_GRACE if request.where != self._listed and _answers_here(path) else 0
         try:
-            result = future.result(timeout=SCAN_GRACE)
+            if not grace and not future.done():
+                raise concurrent.futures.TimeoutError
+            result = future.result(timeout=grace)
         except concurrent.futures.TimeoutError:
             self._pending = request
             if request.where != self._listed:
@@ -1169,12 +1184,30 @@ class Panel(ListViewer):
         # left behind as a note rather than applied on the next line.
         self._return_to = self.location.name if entry.name == ".." else None
         if self.location.is_local:
-            self.path = (self.path / entry.name).resolve()
+            self.path = self._entered(entry)
         elif entry.name == ".." and self.location.is_root:
             self.go_up()
         else:
             # Another drive's links are its own to follow: the name is enough.
             self.location = self._plain_where_readable((self.location / entry.name).normalized())
+
+    def _entered(self, entry: DirEntry) -> Path:
+        """Where Enter on *entry* goes on the disk, by the letters and what the
+        listing already read -- never ``resolve()``, which stats each step of
+        the path on the loop and waits there on a hung mount.
+
+        ``..`` is the parent of the path shown; a link to a directory goes
+        where it points (its ``link_target``, read with the directory), as
+        ``resolve()`` took it.  A departure only for a link to a link: the
+        first is followed and the path reached is shown, as bash's ``cd``
+        shows it -- the same directory, by another way.
+        """
+        here = self.path
+        if entry.name == "..":
+            return Path(os.path.normpath(here / ".."))
+        if entry.is_link and entry.link_target:
+            return Path(os.path.normpath(here / entry.link_target))
+        return here / entry.name
 
     def go_into(self) -> None:
         """Ctrl+PgDn, DN's ``_CtrlPgDn``: what Enter does on a directory,
@@ -1224,7 +1257,8 @@ class Panel(ListViewer):
         if not self.location.is_local:
             self._go_up_elsewhere()
             return
-        parent = (self.path / "..").resolve()
+        # By the letters: the place above the path shown (see :meth:`_entered`).
+        parent = Path(os.path.normpath(self.path / ".."))
         if parent == self.path:
             self.move_cursor(-len(self.items))
             return

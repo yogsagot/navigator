@@ -21,6 +21,7 @@ from navigator.lib.drives.location import LOCAL_SITE, Location
 class LocalDrive(Drive):
     site = LOCAL_SITE
     capabilities = EVERYTHING
+    quick_listing = True
 
     def scan(self, location: Location, show_hidden: bool, sort: str, *, free: bool,
              **options: Any) -> tuple[list, str | None, tuple[int, str] | None]:
