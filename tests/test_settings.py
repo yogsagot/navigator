@@ -1170,3 +1170,39 @@ def test_simple_settings_tabs_take_a_row_off_the_box_and_a_page_keeps_its_rows(t
                   KeyEvent("escape"), lambda a: None])
     assert seen == [seen[0], ("simple", SIMPLE_HEIGHT, 1, seen[0])]
     assert "settings_tabs = simple" in config_path().read_text(encoding="utf-8")
+
+
+def test_a_setting_kept_from_a_window_that_cannot_be_saved_is_said_once(tmp_path, monkeypatch):
+    from conftest import FakeTerminal, Until, run_app
+    from navml.widgets.toast import Toast
+
+    from navigator.__main__ import Navigator
+    from navigator import settings as settings_module
+    from navigator.lib.system import errorlog
+    from navigator.widgets.manager.manager.manager import Manager
+
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr(errorlog, "PATH", tmp_path / "errors.log")
+    monkeypatch.setattr(settings_module, "_SAID", set())
+
+    def refuse(*args, **kwargs):
+        raise PermissionError(13, "Permission denied", str(tmp_path / "navigator.ini"))
+
+    monkeypatch.setattr(settings_module.SETTINGS, "save", refuse)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def toasts(a):
+        return [child.text for child in a.root.children if isinstance(child, Toast)]
+
+    def keep(a):
+        before = settings_module.SETTINGS.checksum.mode
+        other = "single" if before != "single" else "each"
+        Manager._keep_section("checksum", {"mode": other}, a)
+        Manager._keep_section("checksum", {"mode": before}, a)  # again: still one toast
+        seen["kept"] = settings_module.SETTINGS.checksum.mode == before
+
+    run_app(app, [keep, Until(lambda a: toasts(a), timeout=5), lambda a: seen.update(toasts=toasts(a))])
+    assert seen["kept"]  # applied for the session all the same
+    assert len(seen["toasts"]) == 1 and "could not be saved" in seen["toasts"][0]
+    assert "saving [checksum]" in (tmp_path / "errors.log").read_text()

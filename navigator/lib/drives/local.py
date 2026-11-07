@@ -170,10 +170,8 @@ class LocalDrive(Drive):
         if not isinstance(source_drive, LocalDrive):
             super().copy_attributes(source_drive, source, dest, st, follow=follow)
             return
-        try:
-            shutil.copystat(source.local, dest.local, follow_symlinks=follow)
-        except OSError:
-            pass
+        # A failure goes to the copy, which says it (``CopyJob.attributes_lost``).
+        shutil.copystat(source.local, dest.local, follow_symlinks=follow)
 
     def watch(self, location: Location, notify: Callable[[], None]) -> Any:
         from navigator.lib.system import dirwatch

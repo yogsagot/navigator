@@ -27,7 +27,7 @@ from navml.widgets.window import Window
 
 from navigator.lib.utilities import calculator
 from navigator.lib.utilities.calculator import CLASSIC, CalcError, Context, Number
-from navigator.settings import SETTINGS, CalculatorData
+from navigator.settings import SETTINGS, CalculatorData, save_or_say
 from navigator.widgets.shell.calculator_window.bit_grid import BitFlipped
 from navigator.widgets.shell.calculator_window.commands import (
     CalculatorClassic,
@@ -409,8 +409,8 @@ class CalculatorWindow(Window):
             changed = {key: value for key, value in values.items() if getattr(section, key) != value}
         if changed:
             section.update(changed)
-            with contextlib.suppress(OSError):
-                SETTINGS.save(section="calculator")
+            # Said once if the file will not take it (``save_or_say``).
+            save_or_say("calculator", self.application)
 
     # -- events ----------------------------------------------------------------------------
 

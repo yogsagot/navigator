@@ -28,7 +28,11 @@ modes, `MkName` masks, rename-first moves with an `EXDEV` fallback, `resolve_tar
 a tree, mode and options remembered for the session. `Manager.copy_files` puts up `CopyProgress` (*Stop* asks *Abort
 operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as the worker asks. **The check boxes are a
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
-stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows.
+stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows. **What *Preserve attributes* could not
+keep is said, the copy never failed over it** (as `cp -p` warns): `Drive.copy_attributes` tries mode and times and
+raises the first failure that is not `base.UNSUPPORTED` (a drive with none to keep, S3's, is no failure);
+`LocalDrive`'s lets `copystat`'s through; the copier's `_attributes`/link branch note it on `CopyJob.lost_attributes`
+(`attributes_lost`, the first 100, `attributes_lost_count`) and `copy_entries` toasts the count and the first.
 **So is `CopyProgress`' speed row** (*Speed 9.5MB/s, 0:42 left*, the box 14 rows where DN's was 13): `_watch_copy`
 feeds `navigator.lib.system.progress.Rate` the job's `done_bytes` every tick, and the speed is the growth over the last
 `RATE_WINDOW` (5 s), so a pause behind a question drops out; the time left is the bytes still to go at that speed.

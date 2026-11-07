@@ -25,7 +25,7 @@ from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navigator.lib.utilities import tetris
-from navigator.settings import SETTINGS
+from navigator.settings import SETTINGS, save_or_say
 
 
 class GameWindow(Window, _Component):

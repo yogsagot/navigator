@@ -148,7 +148,10 @@ note:
 - **What OK does.** `Shell.setup(dialog, *sections)` spawns the dialog. For a multi-section answer it keeps only the
   sections whose values changed. It assigns those onto `SETTINGS` (reactive, so bindings repaint), then calls
   `SETTINGS.save(section=...)` for each. An `OSError` shows an *Error* box, and the values stay applied for the
-  session. A changed `interface.language` is applied after (`Shell.settings`).
+  session. **A setting a window keeps as it is used** (the calculator's face, a dialog's last choices through
+  `Manager._keep_section(name, values, app)`, *Setup game*, Synchronize's options) saves through
+  `settings.save_or_say(section, app)`: a failure logged and toasted once a session per file -- a box per save would
+  be one per click; never `contextlib.suppress(OSError)`. A changed `interface.language` is applied after (`Shell.settings`).
 - **Tests.** Open the dialog with `lambda a: a.spawn(a.run_command(InterfaceSetup))`, then reach the page through
   `a.modal.interface`. Build a page alone (`InterfacePage(section=...)`) to test its seeding and `accept()`.
 - **Numbers are three-digit `MaskedField`s.** Width is the label plus 5: three digits and the line's two columns.

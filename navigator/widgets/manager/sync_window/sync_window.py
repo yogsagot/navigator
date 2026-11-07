@@ -56,13 +56,14 @@ def sync_options() -> dirsync.SyncOptions:
                                hour_shift=section.hour_shift, asymmetric=section.asymmetric)
 
 
-def keep_sync_options(options: dirsync.SyncOptions) -> None:
-    """*options* kept in ``[synchronize]`` and saved."""
+def keep_sync_options(options: dirsync.SyncOptions, app: Any = None) -> None:
+    """*options* kept in ``[synchronize]`` and saved -- a failure said once in a toast."""
     from navigator.widgets.manager.manager.manager import Manager
 
     times = next(name for name, seconds in dirsync.TOLERANCES.items() if seconds == options.tolerance)
     Manager._keep_section("synchronize", {"mask": options.mask, "times": times,
-                                          "hour_shift": options.hour_shift, "asymmetric": options.asymmetric})
+                                          "hour_shift": options.hour_shift, "asymmetric": options.asymmetric},
+                           app)
 
 
 async def walk_trees(app: Any, left: Any, right: Any, request: Any, show_hidden: bool,
@@ -341,7 +342,7 @@ class SyncWindow(Window):
         options = await SyncOptionsDialog(self.options).execute(app)
         if options is None:
             return
-        keep_sync_options(options)
+        keep_sync_options(options, app)
         self.options = options
         await self.rescan()
 

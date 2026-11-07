@@ -37,7 +37,7 @@ from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navigator.lib.utilities import calculator
 from navigator.lib.utilities.calculator import CLASSIC, CalcError, Context, Number
-from navigator.settings import SETTINGS, CalculatorData
+from navigator.settings import SETTINGS, CalculatorData, save_or_say
 from navigator.widgets.shell.calculator_window.bit_grid import BitFlipped
 from navigator.widgets.shell.calculator_window.keypad import Key, PadPressed
 from navigator.widgets.shell.calculator_window.keys import PADS

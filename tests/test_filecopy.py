@@ -437,3 +437,50 @@ def test_a_paused_job_holds_the_worker(tree, tmp_path):
     job.resume()
     worker.join(5)
     assert result == [[src / "a.txt"]]
+
+
+def test_attributes_that_could_not_be_kept_are_noted_and_the_copy_still_done(tmp_path, monkeypatch):
+    import shutil
+
+    from navigator.lib.file_ops.filecopy import CopyJob, CopyRequest, run
+
+    src, dst = tmp_path / "src", tmp_path / "dst"
+    src.mkdir()
+    dst.mkdir()
+    (src / "a.txt").write_text("alpha")
+
+    def refuse(*args, **kwargs):
+        raise PermissionError(errno.EPERM, "Operation not permitted")
+
+    # A FAT stick: the bytes go, the mode and times do not.
+    monkeypatch.setattr(shutil, "copystat", refuse)
+    job = CopyJob(asker=lambda question: None)
+    done = run(CopyRequest([src / "a.txt"], str(dst), OVERWRITE, PRESERVE), job, tmp_path)
+    assert done == [src / "a.txt"] and (dst / "a.txt").read_text() == "alpha"
+    assert job.attributes_lost_count == 1
+    assert job.attributes_lost[0][1] == "Operation not permitted"
+
+
+def test_a_drive_that_keeps_no_attributes_at_all_is_no_failure(tmp_path):
+    from navigator.lib.drives import Location, mount, unmount
+    from navigator.lib.drives.base import UNSUPPORTED, unsupported
+    from navigator.lib.drives.memory import MemoryDrive
+    from navigator.lib.file_ops.filecopy import CopyJob, CopyRequest, run
+
+    class Plain(MemoryDrive):
+        def chmod(self, location, mode):
+            raise unsupported(location)
+
+        def utime(self, location, atime_ns, mtime_ns, *, follow=True):
+            raise unsupported(location)
+
+    drive = mount(Plain("plain"))
+    try:
+        drive.make("/in")
+        (tmp_path / "a.txt").write_text("alpha")
+        job = CopyJob(asker=lambda question: None)
+        run(CopyRequest([tmp_path / "a.txt"], str(drive.location("/in")), OVERWRITE, PRESERVE), job, tmp_path)
+        assert drive.read("/in/a.txt") == b"alpha"
+        assert job.attributes_lost_count == 0
+    finally:
+        unmount(drive.site)

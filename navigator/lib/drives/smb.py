@@ -288,7 +288,7 @@ def connect(site: Site, answers: Answers) -> SmbDrive:
             raise
         raise DriveGone(site.host, f"Cannot connect to {site.host}: {error}") from error
     if answers.save_password and answers.password and user:
-        credentials.save_password(site, answers.password)
+        answers.keyring_refused = credentials.save_password(site, answers.password) or ""
     return drive
 
 

@@ -988,7 +988,7 @@ def connect(site: Site, answers: Answers) -> RcloneDrive:
         drive.close()
         raise
     if answers.save_password and answers.password:
-        credentials.save_password(keyring_site, answers.password)
+        answers.keyring_refused = credentials.save_password(keyring_site, answers.password) or ""
     return drive
 
 

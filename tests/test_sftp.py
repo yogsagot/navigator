@@ -226,7 +226,8 @@ def test_navigator_link_asks_the_key_then_the_password_and_the_panel_goes_there(
     assert "SHA256:" in seen["key"] and seen["masked"]
     assert seen["title"] == "SFTP:127.0.0.1:/docs" and seen["prompt"] == "SFTP:127.0.0.1:/docs$"
     assert seen["dialog"] == "SSH link (SFTP)" and seen["asked"] == f"SFTP (SSH) password for tester@127.0.0.1:"
-    assert seen["lost"] == "Remote drive SFTP:127.0.0.1 is not accessible"
+    # And why, as the reconnect found it: the server is gone.
+    assert seen["lost"].startswith("Remote drive SFTP:127.0.0.1 is not accessible: Cannot connect to 127.0.0.1")
     assert seen["back"] == here
     from navigator.lib.drives.recent import Recent, recent
 
@@ -522,3 +523,53 @@ def test_closing_the_drive_ends_a_thread_waiting_for_a_channel(server):
     thread.join(5)
     assert not thread.is_alive() and isinstance(out["error"], DriveGone)
     connection.give(held)
+
+
+def test_a_keyring_that_will_not_keep_the_password_is_said_and_the_link_stays(server, app_on, monkeypatch):
+    import sys
+    import types
+
+    from conftest import Until, run_app
+    from navkit.events import KeyEvent
+    from navml.widgets.toast import Toast
+
+    # A keyring that is there but refuses (locked, its D-Bus gone).
+    fake = types.ModuleType("keyring")
+    fake.get_password = lambda service, account: None
+
+    def refuse(service, account, password):
+        raise RuntimeError("the collection is locked")
+
+    fake.set_password = refuse
+    monkeypatch.setitem(sys.modules, "keyring", fake)
+    monkeypatch.setattr("navigator.lib.drives.credentials.keyring_available", lambda: True)
+    app, here = app_on
+    seen = {}
+
+    def fill(a):
+        a.modal.host.value = f"tester@127.0.0.1:{server.port}"
+        a.modal.directory.value = "/docs"
+
+    def password(a):
+        a.modal.entry.value = PASSWORD
+        a.modal.keep.value = 1  # *Save in keyring*
+
+    def toasts(a):
+        return [child.text for child in a.root.children if isinstance(child, Toast)]
+
+    run_app(app, [
+        KeyEvent("f11", alt=True), Until(modal_is("LinkManagerDialog")), fill, KeyEvent("enter"),
+        Until(modal_is("HostKeyQuery"), timeout=10), KeyEvent("enter"),
+        Until(modal_is("PasswordDialog"), timeout=10), password, KeyEvent("enter"),
+        Until(lambda a: "a.txt" in [e.name for e in a.manager.left.items], timeout=10),
+        Until(lambda a: toasts(a), timeout=5),
+        lambda a: seen.update(toasts=toasts(a)),
+    ], timeout=60)
+    assert seen["toasts"] == ["The password was not saved in the keyring: the collection is locked"]
+
+
+def test_save_password_says_why_it_did_not(monkeypatch):
+    from navigator.lib.drives import credentials
+
+    monkeypatch.setattr(credentials, "keyring_available", lambda: False)
+    assert credentials.save_password(Site("sftp", host="h"), "x") == "no keyring is installed"

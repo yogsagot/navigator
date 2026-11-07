@@ -629,7 +629,7 @@ def connect(site: Site, answers: Answers) -> S3Drive:
                           site.host) from error
         raise
     if answers.save_password and answers.password and user and not profile:
-        credentials.save_password(site, answers.password)
+        answers.keyring_refused = credentials.save_password(site, answers.password) or ""
     return drive
 
 

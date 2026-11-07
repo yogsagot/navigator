@@ -85,6 +85,9 @@ class PtyProcess:
         self.status: int | None = None
         self._fd: int | None = None
         self._loop: AbstractEventLoop | None = None
+        #: What the pty would not take yet -- its buffer full while the child
+        #: is busy -- sent, in order, as it becomes writable (:meth:`_flush`).
+        self._pending = bytearray()
 
     @property
     def is_running(self) -> bool:
@@ -134,13 +137,39 @@ class PtyProcess:
                 pass
 
     def write(self, data: bytes) -> None:
-        """Send *data* to the child as though it had been typed."""
+        """Send *data* to the child as though it had been typed -- every byte:
+        what the pty will not take yet (a paste or a macro to a busy child
+        fills its few kilobytes) waits, in order, and goes as it can."""
         if self._fd is None or not data:
             return
+        if self._pending:
+            self._pending += data
+            return
         try:
-            os.write(self._fd, data)
-        except (OSError, BlockingIOError):
-            pass
+            sent = os.write(self._fd, data)
+        except BlockingIOError:
+            sent = 0
+        except OSError:
+            return  # the child is gone: no one to type to
+        if sent < len(data):
+            self._pending += data[sent:]
+            if self._loop is not None:
+                self._loop.add_writer(self._fd, self._flush)
+
+    def _flush(self) -> None:
+        """The pty is writable again: as much of what waits as it takes."""
+        fd = self._fd
+        if fd is None:
+            return
+        try:
+            sent = os.write(fd, self._pending)
+        except BlockingIOError:
+            return
+        except OSError:
+            sent = len(self._pending)  # gone: drop what had no one to go to
+        del self._pending[:sent]
+        if not self._pending and self._loop is not None:
+            self._loop.remove_writer(fd)
 
     def signal(self, signum: int = signal.SIGTERM) -> None:
         """Signal the child's whole process group."""
@@ -222,11 +251,13 @@ class PtyProcess:
 
     def _detach(self) -> None:
         fd, self._fd = self._fd, None
+        self._pending.clear()
         if fd is None:
             return
         if self._loop is not None:
             try:
                 self._loop.remove_reader(fd)
+                self._loop.remove_writer(fd)
             except (OSError, ValueError, RuntimeError):
                 pass
         try:

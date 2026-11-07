@@ -16,7 +16,7 @@ from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_
 from navml.widgets.window import Window
 
 from navigator.lib.utilities import tetris
-from navigator.settings import SETTINGS
+from navigator.settings import SETTINGS, save_or_say
 from navigator.widgets.game.commands import GameSetup, LevelUp, NewGame, PauseGame, ShowTopTen, TogglePreview
 
 #: The window's size: ``TGameWindow``'s, which fits an 80 by 25 screen's
@@ -125,8 +125,6 @@ class GameWindow(Window):
     async def setup(self) -> None:
         """F5, *Setup*: ``dlgGameSetup``, a new game in what it says, and the
         answer kept (``cmUpdateConfig``)."""
-        import contextlib
-
         from navigator.widgets.game.game_setup_dialog import GameSetupDialog
 
         game = self.game
@@ -136,8 +134,7 @@ class GameWindow(Window):
         if answer is None:
             return
         SETTINGS.tetris.update(answer)
-        with contextlib.suppress(OSError):
-            SETTINGS.save(section="tetris")
+        save_or_say("tetris", self.application)
         game.start_level, game.pentix, game.preview = answer["level"], answer["style"] == "pentix", answer["preview"]
         game.new_game()
         self._show_best()

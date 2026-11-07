@@ -39,6 +39,7 @@ from typing import IO, Any, Callable
 from navkit.i18n import tr
 
 from navigator.lib.drives import Location, drive_of
+from navigator.lib.drives.base import UNSUPPORTED
 from navigator.lib.drives.location import shown  # noqa: F401 -- re-exported
 from navigator.lib.file_ops import uncopy
 from navigator.lib.system.job import POLL, Job, Stopped
@@ -199,6 +200,23 @@ class CopyJob(Job):
         self.copied: list[tuple[Location, Any]] = []
         #: How many files a copy overwrote (gone for good).
         self.overwritten = 0
+        #: *Preserve attributes*: the copies whose times, mode or owner could
+        #: not be kept -- ``(shown path, reason)``, the first
+        #: :data:`ATTRIBUTES_KEPT` of them -- and how many in all.  The copy
+        #: goes on regardless, as ``cp -p`` does; the loop says it after.
+        self.attributes_lost: list[tuple[str, str]] = []
+        self.attributes_lost_count = 0
+
+    def lost_attributes(self, path: Any, error: BaseException) -> None:
+        """*path*'s attributes could not all be kept: *error* why."""
+        self.attributes_lost_count += 1
+        if len(self.attributes_lost) < ATTRIBUTES_KEPT:
+            reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
+            self.attributes_lost.append((str(shown(path)), reason))
+
+
+#: How many of the attributes not kept a copy remembers, to say the first.
+ATTRIBUTES_KEPT = 100
 
 
 # -- the target ----------------------------------------------------------------
@@ -774,13 +792,17 @@ class _Copier(Elevated):
         if self.preserve:
             try:
                 dest_drive.utime(dest, st.st_atime_ns, st.st_mtime_ns, follow=False)
-            except (OSError, NotImplementedError):
+            except NotImplementedError:
                 pass
+            except OSError as error:
+                if error.errno not in UNSUPPORTED:
+                    self.job.lost_attributes(dest, error)
             if self.is_root:
                 try:
                     dest_drive.chown(dest, st.st_uid, st.st_gid, follow=False)
-                except OSError:
-                    pass
+                except OSError as error:
+                    if error.errno not in UNSUPPORTED:
+                        self.job.lost_attributes(dest, error)
         if self.move:
             if not self._remove_source(source):
                 return False
@@ -914,14 +936,23 @@ class _Copier(Elevated):
                     return False
 
     def _attributes(self, source: Location, dest: Location, st: Any) -> None:
-        """*Preserve attributes*: mode, times and, as root, the owner."""
+        """*Preserve attributes*: mode, times and, as root, the owner -- what
+        cannot be kept noted on the job (``CopyJob.lost_attributes``), the copy
+        itself never failed over it."""
         dest_drive = self._drive_of(dest)
-        dest_drive.copy_attributes(self._drive_of(source), source, dest, st, follow=self.follow)
+        try:
+            dest_drive.copy_attributes(self._drive_of(source), source, dest, st, follow=self.follow)
+        except NotImplementedError:
+            pass
+        except OSError as error:
+            if error.errno not in UNSUPPORTED:
+                self.job.lost_attributes(dest, error)
         if self.is_root:
             try:
                 dest_drive.chown(dest, st.st_uid, st.st_gid)
-            except OSError:
-                pass
+            except OSError as error:
+                if error.errno not in UNSUPPORTED:
+                    self.job.lost_attributes(dest, error)
 
 
 def _open_target_archive(target: Location, options: Any = None) -> Location | None:

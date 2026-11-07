@@ -168,3 +168,35 @@ def test_starting_twice_is_refused():
         await finished.wait()
 
     run(drive())
+
+
+def test_a_busy_child_gets_every_byte_written_in_order(tmp_path):
+    # More than a pty's buffer, to a child that does not read for a while:
+    # what the pty will not take yet waits and goes later, none of it lost.
+    import string
+
+    out = tmp_path / "got"
+    size = 200 * 1024
+    data = (string.ascii_letters * (size // len(string.ascii_letters) + 1)).encode()[:size]
+    ready = tmp_path / "ready"
+    # Raw first -- a line-mode pty drops what passes its 4 KiB line -- then
+    # a pause in which nothing is read, so the writes fill the pty and wait.
+    command = f"stty raw -echo; touch {ready}; sleep 0.5; head -c {size} > {out}"
+
+    async def go():
+        finished = asyncio.Event()
+        process = PtyProcess(["/bin/sh", "-c", command], on_exit=lambda status: finished.set())
+        process.start()
+        while not ready.exists():
+            await asyncio.sleep(0.01)
+        process.write(data)
+        assert process._pending  # the pty took only part of it
+        await finished.wait()
+
+    run(go(), timeout=20)
+    assert out.read_bytes() == data
+
+
+def test_writing_to_a_child_that_has_ended_raises_nothing():
+    console, process = run(collect(["/bin/sh", "-c", "exit 0"]))
+    process.write(b"x" * 100_000)

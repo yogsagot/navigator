@@ -2802,6 +2802,13 @@ class Shell(DockLayout):
                         lambda: progress_box(job, tr("Connecting to {host} over {protocol}").format(
                             host=site.host, protocol=protocol)),
                     )
+                    # *Save in keyring* ticked and refused: connected all the
+                    # same, and the user told why the password will be asked again.
+                    refused = [each.keyring_refused for each in (answers, *answers.hops.values())
+                               if each.keyring_refused]
+                    if refused:
+                        self.toast(tr("The password was not saved in the keyring: {reason}").format(
+                            reason=escape_caption(refused[0])), title=protocol)
                     return True
                 except UnknownHostKey as unknown:
                     choice = await HostKeyQuery(unknown.hostname, unknown.key_type,
@@ -3057,13 +3064,20 @@ class Shell(DockLayout):
                         panel.location = panel.local_anchor
                         moved = True
         if why == "lost" and moved:
-            from navigator.lib.drives.sessions import protocol_name, protocol_sign
+            from navml.widgets.dialog.control import escape_caption
+            from navigator.lib.drives.sessions import SESSIONS, protocol_name, protocol_sign
 
+            name = f"{protocol_sign(site.scheme)}:{site.host}"
+            # And why, when the reconnect said (``Drive.lost_reason``).
+            reason = SESSIONS.reason(site)
+            if reason:
+                prompt = tr("Remote drive {name} is not accessible: {reason}").format(
+                    name=name, reason=escape_caption(reason))
+            else:
+                prompt = tr("Remote drive {name} is not accessible").format(name=name)
             self.spawn(Dialog(
                 title=tr("{protocol} link").format(protocol=protocol_name(site.scheme)),
-                prompt=tr("Remote drive {name} is not accessible").format(
-                    name=f"{protocol_sign(site.scheme)}:{site.host}"),
-                buttons="ok").execute(self.application))
+                prompt=prompt, buttons="ok").execute(self.application))
 
     def connections_in_use(self) -> set[Any]:
         """The sites some panel is on now: those no idle timer closes."""

@@ -184,17 +184,18 @@ def saved_password(site: Site) -> str | None:
         return None
 
 
-def save_password(site: Site, password: str) -> bool:
-    """*password* kept for *site*; False when the keyring would not."""
+def save_password(site: Site, password: str) -> str | None:
+    """*password* kept for *site*: None once it is, else why the keyring
+    would not -- for the caller to say (``Answers.keyring_refused``)."""
     if not keyring_available():
-        return False
+        return "no keyring is installed"
     import keyring
 
     try:
         keyring.set_password(KEYRING_SERVICE, account(site), password)
-    except Exception:
-        return False
-    return True
+    except Exception as error:  # noqa: BLE001 - any backend's refusal, said
+        return " ".join(str(error).split()) or type(error).__name__
+    return None
 
 
 def forget_password(site: Site) -> None:

@@ -1408,3 +1408,41 @@ def write_atomically(target: Path, text: str) -> None:
 
 #: The settings, shared by everything that reads one.
 SETTINGS = Settings()
+
+
+#: ``(file, errno)`` of the saves that failed and were said, this session.
+_SAID: set[tuple[str, int | None]] = set()
+
+
+def save_or_say(section: str, app: Any = None) -> bool:
+    """Section *section* saved; True once it is.  A file that cannot be
+    written (a read-only home, a full disk) is logged, and said once a
+    session in a toast -- the values stay applied meanwhile.  For a setting
+    a window keeps as it is used (the calculator's face, a dialog's last
+    choices), which saves often: a box per save would be one per click.
+    A setup dialog's OK says it in a box of its own (``Shell._setup``)."""
+    try:
+        SETTINGS.save(section=section)
+        return True
+    except OSError as error:
+        from navigator.lib.system import errorlog
+
+        errorlog.append(error, f"saving [{section}]")
+        target = str(error.filename or SETTINGS.path or config_path())
+        key = (target, error.errno)
+        if key in _SAID or app is None or not getattr(app, "is_running", False):
+            return False
+        _SAID.add(key)
+        from navml.widgets.dialog.control import escape_caption
+
+        text = tr("Settings could not be saved to {path}: {error}. They stay for this session.").format(
+            path=escape_caption(target), error=escape_caption(error.strerror or str(error)))
+        shell = getattr(app, "shell", None)
+
+        async def say() -> None:
+            # Spawned: a save made from an effect may not change the screen.
+            if shell is not None:
+                shell.toast(text, title=tr("Settings"))
+
+        app.spawn(say())
+        return False

@@ -750,7 +750,7 @@ direction = "rtl"
 "Error" = "خطأ"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "مجلد"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:531 ...
+# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:578 ...
 " Search: " = " بحث: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "اختيار من القائمة ({key})"
@@ -780,7 +780,7 @@ direction = "rtl"
 "Earlier tabs" = "الألسنة السابقة"
 # navml/widgets/dialog/tab_view/tab_view.py:418
 "Later tabs" = "الألسنة التالية"
-# navml/widgets/dialog/tree_view/tree_view.py:535
+# navml/widgets/dialog/tree_view/tree_view.py:582
 "Next" = "التالي"
 # navml/widgets/menu/commands.py:14
 "Menu" = "القائمة"

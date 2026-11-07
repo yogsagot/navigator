@@ -179,6 +179,9 @@ class Answers:
     #: (:mod:`navigator.lib.drives.forwards`), the link manager's or the
     #: profile's for the place; None or empty, none.
     forwards: list[Any] | None = None
+    #: Why the keyring would not keep the password *Save in keyring* asked to
+    #: keep (``credentials.save_password``); ``""`` once kept, or not asked.
+    keyring_refused: str = ""
 
     def for_hop(self, hop: Hop) -> Answers:
         """The answers for *hop* -- these, for None (the server itself)."""
@@ -240,6 +243,8 @@ class SessionManager:
         self._listeners: list[Listener] = []
         #: When each site's drive was last asked anything.
         self._used: dict[Site, float] = {}
+        #: Why a connection was lost, by site, until :meth:`reason` hands it out.
+        self._reasons: dict[Site, str] = {}
 
     # -- listening -----------------------------------------------------------------------------
 
@@ -262,8 +267,11 @@ class SessionManager:
         for listener in listeners:
             try:
                 listener(site, why)
-            except Exception:
-                pass
+            except Exception as error:
+                # Logged, never silent -- and the rest still told.
+                from navigator.lib.system import errorlog
+
+                errorlog.append(error, f"telling a listener that {site} was {why}")
 
     # -- connecting ------------------------------------------------------------------------------
 
@@ -289,12 +297,20 @@ class SessionManager:
         if drive is None:
             return False
         self._used.pop(site, None)
+        reason = getattr(drive, "lost_reason", "") if why == "lost" else ""
+        if reason:
+            self._reasons[site] = reason
         try:
             drive.close()
         except Exception:
             pass
         self._tell(site, why)
         return True
+
+    def reason(self, site: Site) -> str:
+        """Why *site*'s connection was lost, as its drive said (``Drive.lost_reason``),
+        once: ``""`` when it did not say."""
+        return self._reasons.pop(site, "")
 
     def close_all(self) -> None:
         for drive in mounted():

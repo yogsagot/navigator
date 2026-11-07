@@ -391,6 +391,12 @@ def test_the_info_band_counts_the_files_with_their_bytes(places):
     assert files_line(2, 12345) == "2 files with 12,345 bytes"
 
 
+def branch_in(a) -> bool:
+    """The focused tree's branch at the cursor read: ``+`` opens it on a thread."""
+    node = getattr(a.focused, "selected_node", None)
+    return node is not None and node.loaded
+
+
 def tree_on(places):
     """Ctrl+T, and the tree's cursor landed on the panel's directory -- its
     walk down is on a thread."""
@@ -479,7 +485,7 @@ def test_enter_in_the_tree_sends_the_panel_there_now(places):
     # "+" opens it, and Down reaches its first subdirectory.
     run_app(app, [
         *tree_on(places), KeyEvent("tab"),
-        KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"),
+        KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"), KeyEvent("enter"),
     ])
     assert app.manager.left.path == (places / "alpha").resolve()
 
@@ -622,17 +628,17 @@ def test_alt_t_opens_it_on_the_active_panels_directory(places):
 
 
 def test_enter_in_the_tree_sends_the_panel_there(places):
-    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"))
+    app = chdir_run(places, KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"), KeyEvent("enter"))
     assert app.modal is None
     assert app.manager.left.path == (places / "alpha").resolve()
     assert app.focused is app.manager.left
 
 
 def test_ok_sends_the_panel_and_escape_leaves_it(places):
-    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("down"),
+    app = chdir_run(places, KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"), KeyEvent("down"),
                     KeyEvent("down"), KeyEvent("k", "k", alt=True))
     assert app.manager.left.path == (places / "gamma").resolve()
-    app = chdir_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("escape"))
+    app = chdir_run(places, KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"), KeyEvent("escape"))
     assert app.modal is None and app.manager.left.path == places
 
 
@@ -640,10 +646,13 @@ def test_mkdir_makes_the_directory_where_the_tree_points(places):
     seen = []
     chdir_run(
         places,
-        KeyEvent("+", "+"), KeyEvent("down"),              # alpha
+        KeyEvent("+", "+"), Until(lambda a: a.modal.tree.selected_node.loaded, timeout=5),
+        KeyEvent("down"),                                  # alpha
         KeyEvent("m", "m", alt=True), lambda a: None,      # MkDir, over the dialog
         KeyEvent("n", "n"), KeyEvent("e", "e"), KeyEvent("w", "w"),
-        KeyEvent("enter"), lambda a: None,
+        KeyEvent("enter"),
+        Until(lambda a: type(a.modal).__name__ == "ChangeDirDialog"
+              and a.modal.accept() == (places / "alpha" / "new").resolve(), timeout=5),
         lambda a: seen.append((type(a.modal).__name__, a.modal.accept())),
     )
     assert (places / "alpha" / "new").is_dir()
@@ -657,7 +666,8 @@ def test_reread_keeps_the_cursor_and_finds_what_appeared(places):
         (places / "alpha" / "fresh").mkdir()
 
     chdir_run(
-        places, KeyEvent("+", "+"), KeyEvent("down"), appear,
+        places, KeyEvent("+", "+"), Until(lambda a: a.modal.tree.selected_node.loaded, timeout=5),
+        KeyEvent("down"), appear,
         KeyEvent("r", "r", alt=True),
         Until(lambda a: a.modal.accept() == (places / "alpha").resolve(), timeout=5),
         lambda a: seen.append(a.modal.accept()),
@@ -725,7 +735,7 @@ def test_the_window_opens_on_the_active_panels_directory_with_the_keys(places):
 
 
 def test_enter_sends_the_file_managers_panel_and_keeps_the_keyboard(places):
-    app = tree_window_run(places, KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"))
+    app = tree_window_run(places, KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"), KeyEvent("enter"))
     assert app.manager.left.path == (places / "alpha").resolve()
     window = app.shell.desktop.active_window
     assert type(window).__name__ == "TreeWindow" and app.focused is window.tree
@@ -750,7 +760,7 @@ def test_closing_the_window_gives_the_keyboard_back_to_the_right_panel(places):
 def test_ctrl_r_rereads_the_windows_tree(places):
     seen = []
     tree_window_run(
-        places, KeyEvent("+", "+"), KeyEvent("down"),
+        places, KeyEvent("+", "+"), Until(branch_in, timeout=5), KeyEvent("down"),
         lambda a: (places / "alpha" / "fresh").mkdir(),
         KeyEvent("r", ctrl=True),
         Until(lambda a: a.shell.desktop.active_window.tree.selected_path == (places / "alpha").resolve(),

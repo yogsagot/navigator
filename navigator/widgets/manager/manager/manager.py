@@ -643,23 +643,23 @@ class Manager(Window):
             return None
         return Path(other.path) if other.visible and other.found is None else None
 
-    @staticmethod
-    def _keep_uucode(values: dict[str, Any]) -> None:
+    def _keep_uucode(self, values: dict[str, Any]) -> None:
         """What the dialog was accepted with, kept for the next time and
         saved, as DN set ``ConfigModified`` when it changed."""
-        Manager._keep_section("uucode", values)
+        Manager._keep_section("uucode", values, self.application)
 
     @staticmethod
-    def _keep_section(name: str, values: dict[str, Any]) -> None:
-        """*values* kept in the settings section *name* and saved, when they changed it."""
-        import contextlib
+    def _keep_section(name: str, values: dict[str, Any], app: Any = None) -> None:
+        """*values* kept in the settings section *name* and saved, when they
+        changed it -- a file that cannot be written said once, in a toast
+        (``settings.save_or_say``), the values kept for the session."""
+        from navigator.settings import save_or_say
 
         section = getattr(SETTINGS, name)
         changed = {key: value for key, value in values.items() if getattr(section, key) != value}
         if changed:
             section.update(changed)
-            with contextlib.suppress(OSError):
-                SETTINGS.save(section=name)
+            save_or_say(name, app)
 
     async def _run_uucode(self, panel: Panel, work_on: Callable[[Any], Any], notice: str,
                           beep_after: float, as_root: Callable[[Any], Any] | None = None) -> None:
@@ -756,7 +756,7 @@ class Manager(Window):
                                    hidden=panel.show_hidden).execute(app)
         if answer is None:
             return
-        self._keep_section("split", answer["split"])
+        self._keep_section("split", answer["split"], self.application)
         split = splitfile.SplitRequest(place, answer["target"], cwd, answer["size"],
                                        checksum=SETTINGS.split.checksum)
         await self._run_uucode(panel, lambda job: splitfile.split(split, job),
@@ -796,7 +796,8 @@ class Manager(Window):
         answer = await CalculateChecksumsDialog(directory_name=panel.location.name).execute(app)
         if answer is None:
             return
-        self._keep_section("checksum", {"algorithm": answer["algorithm"], "mode": answer["mode"]})
+        self._keep_section("checksum", {"algorithm": answer["algorithm"], "mode": answer["mode"]},
+                           self.application)
         algorithm = answer["algorithm"]
         sources = [panel.entry_location(entry) for entry in entries]
         job = checksum.ChecksumJob()
@@ -971,7 +972,7 @@ class Manager(Window):
         kept = {key: answer[key] for key in ("tool", "method", "armor", "delete_originals")}
         if answer["method"] == "recipients":
             kept["recipients"] = " ".join(answer["recipients"])
-        self._keep_section("encryption", kept)
+        self._keep_section("encryption", kept, self.application)
         options = encrypt.Options(tool=answer["tool"], method=answer["method"], passphrase=answer["passphrase"],
                                   recipients=answer["recipients"], armor=answer["armor"])
         sources = [panel.entry_location(entry) for entry in entries]
@@ -1094,7 +1095,7 @@ class Manager(Window):
         answer = await ConvertTextDialog().execute(app)
         if answer is None:
             return
-        self._keep_section("text_conversion", answer)
+        self._keep_section("text_conversion", answer, self.application)
         options = textconv.Options(
             encoding="" if answer["encoding"] == "keep" else answer["encoding"],
             ending="" if answer["ending"] == "keep" else answer["ending"],
@@ -4042,6 +4043,18 @@ class Manager(Window):
         for other in others:
             if other.application is not None:
                 other.reload()
+        if job.attributes_lost_count:
+            # *Preserve attributes* kept what it could: the rest said once, as
+            # ``cp -p`` warns -- a FAT stick or a server keeps no owner or mode.
+            from navml.widgets.dialog.control import escape_caption
+
+            toast = getattr(getattr(app, "root", None), "toast", None)
+            if toast is not None and app.is_running:
+                path, reason = job.attributes_lost[0]
+                toast(tr_n("Times, permissions or owner were not kept on {n} file: {path}: {reason}",
+                           "Times, permissions or owner were not kept on {n} files, first {path}: {reason}",
+                           job.attributes_lost_count, path=escape_caption(path), reason=escape_caption(reason)),
+                      title=tr("Move") if move else tr("Copy"))
         if SETTINGS.file_manager.beep_after_copy and not job.stopped and app is not None:
             # ``BeepAfterCopy``, after a copy that was not aborted.
             app.bell()

@@ -749,7 +749,7 @@ flag = "LV"
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "Direktorija"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:531 ...
+# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:578 ...
 " Search: " = " Meklēt: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "Izvēlēties no saraksta ({key})"
@@ -779,7 +779,7 @@ flag = "LV"
 "Earlier tabs" = "Iepriekšējās cilnes"
 # navml/widgets/dialog/tab_view/tab_view.py:418
 "Later tabs" = "Nākamās cilnes"
-# navml/widgets/dialog/tree_view/tree_view.py:535
+# navml/widgets/dialog/tree_view/tree_view.py:582
 "Next" = "Nākamais"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Izvēlne"

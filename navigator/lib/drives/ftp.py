@@ -33,7 +33,7 @@ import time
 from pathlib import PurePosixPath
 from typing import IO, Any, Iterator
 
-from navigator.lib.drives.base import CHMOD, RENAME, WRITE, Child, Drive, DriveGone, FileStat
+from navigator.lib.drives.base import CHMOD, RENAME, WRITE, Child, Drive, DriveGone, FileStat, reason_of
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.pool import Pool, PoolClosed
 from navigator.lib.drives.sessions import Answers, NeedPassword
@@ -370,7 +370,8 @@ class FtpDrive(Drive):
         pool = self.pool
         try:
             client = pool.take()
-        except DriveGone:
+        except DriveGone as error:
+            self.lost_reason = reason_of(error)
             self._lost()
             raise
         try:
@@ -380,7 +381,9 @@ class FtpDrive(Drive):
             pool.give(client, broken=True)
         try:
             client = pool.remake()
-        except DriveGone:
+        except DriveGone as error:
+            # Why the server would not have us again, for the box that says so.
+            self.lost_reason = reason_of(error)
             self._lost()
             raise
         return client
@@ -630,7 +633,7 @@ def connect(site: Site, answers: Answers) -> FtpDrive:
     if answers.save_password and answers.password and site.user:
         from navigator.lib.drives.credentials import save_password
 
-        save_password(site, answers.password)
+        answers.keyring_refused = save_password(site, answers.password) or ""
     return drive
 
 

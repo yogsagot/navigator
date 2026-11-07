@@ -70,6 +70,17 @@ class DriveGone(OSError):
         self.name = name
 
 
+def reason_of(error: BaseException) -> str:
+    """What *error* says of why a connection could not be made again, for
+    ``Drive.lost_reason`` -- ``""`` for a bare *not accessible*, which the
+    box says already."""
+    if isinstance(error, DriveGone) and error.strerror == f"Remote drive {error.name} is not accessible":
+        cause = error.__cause__
+        return reason_of(cause) if cause is not None else ""
+    text = getattr(error, "strerror", None) or str(error)
+    return " ".join(text.split())
+
+
 class FileStat(NamedTuple):
     """What a drive that is not the disk says of a file: ``os.stat_result``'s
     fields, so code reading one reads the other.  ``st_dev`` and ``st_ino``
@@ -98,6 +109,11 @@ class FileStat(NamedTuple):
 Child = tuple[str, Any]
 
 
+#: What a drive answers for what it cannot do at all -- not a failure to keep
+#: an attribute, but none to keep (an S3 object's time is its upload's).
+UNSUPPORTED = frozenset((errno.ENOTSUP, errno.EOPNOTSUPP, errno.ENOSYS))
+
+
 def unsupported(location: Location | None = None, what: str = "") -> OSError:
     """The error for something *location*'s drive cannot do."""
     return OSError(errno.ENOTSUP, what or os.strerror(errno.ENOTSUP),
@@ -121,6 +137,10 @@ class Drive:
     #: that long for one to spare a flash of empty rows; for a drive that
     #: is a round trip away it would only be a pause on every step.
     quick_listing: bool = False
+    #: Why the connection went, once it has and could not be made again --
+    #: the reconnect's own failure, said with *Remote drive ... is not
+    #: accessible* (``SESSIONS.reason``); ``""`` while it is up, or unsaid.
+    lost_reason: str = ""
 
     def can(self, capability: str) -> bool:
         return capability in self.capabilities
@@ -302,15 +322,21 @@ class Drive:
     def copy_attributes(self, source_drive: Drive, source: Location, dest: Location, st: Any, *,
                         follow: bool) -> None:
         """*Preserve attributes*: *source*'s mode and times (its ``stat`` *st*)
-        given to *dest* on this drive.  What cannot be set is passed over."""
-        try:
-            self.chmod(dest, stat.S_IMODE(st.st_mode))
-        except OSError:
-            pass
-        try:
-            self.utime(dest, st.st_atime_ns, st.st_mtime_ns, follow=follow)
-        except OSError:
-            pass
+        given to *dest* on this drive.  Both are tried; what this drive cannot
+        do at all (:data:`UNSUPPORTED`) is passed over, and the first other
+        failure raised afterwards, for the copy to say it (as ``cp -p`` warns)."""
+        failed: OSError | None = None
+        for step in (lambda: self.chmod(dest, stat.S_IMODE(st.st_mode)),
+                     lambda: self.utime(dest, st.st_atime_ns, st.st_mtime_ns, follow=follow)):
+            try:
+                step()
+            except NotImplementedError:
+                continue
+            except OSError as error:
+                if error.errno not in UNSUPPORTED and failed is None:
+                    failed = error
+        if failed is not None:
+            raise failed
 
     # -- the rest ----------------------------------------------------------------
 

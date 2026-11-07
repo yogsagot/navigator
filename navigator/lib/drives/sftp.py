@@ -33,7 +33,9 @@ import threading
 from pathlib import PurePosixPath
 from typing import IO, Any, Iterator
 
-from navigator.lib.drives.base import CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive, DriveGone, FileStat
+from navigator.lib.drives.base import (
+    CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive, DriveGone, FileStat, reason_of,
+)
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.pool import Pool, PoolClosed
 from navigator.lib.drives.sessions import (
@@ -104,6 +106,9 @@ class _Connection:
         #: Called, on a thread of its own, once the connection is gone and
         #: could not be made again: the drive's, which tells the sessions.
         self.on_lost: Any = None
+        #: Why the connection could not be made again, when it could not
+        #: (``Drive.lost_reason``): what the reconnect itself ran into.
+        self.lost_reason = ""
         self.open()
 
     # -- connecting ------------------------------------------------------------------------------
@@ -217,7 +222,7 @@ class _Connection:
         if answers.save_password and answers.password and hop is not None:
             # A jump host's password is kept once it worked; the server's is
             # kept by :func:`connect`, once the drive answers.
-            credentials.save_password(site, answers.password)
+            answers.keyring_refused = credentials.save_password(site, answers.password) or ""
         return client
 
     @staticmethod
@@ -249,9 +254,10 @@ class _Connection:
             self.close(meant=False)
             try:
                 self.open()
+                self.lost_reason = ""
                 return
-            except Exception:
-                pass
+            except Exception as error:
+                self.lost_reason = reason_of(error)
         lost = self.on_lost
         if lost is not None:
             lost()
@@ -337,6 +343,7 @@ class _Connection:
                     try:
                         self.open()
                     except Exception as error:
+                        self.lost_reason = reason_of(error)
                         raise DriveGone(self.hostname) from error
             try:
                 channel = self._pool.take(self._new_channel)
@@ -485,6 +492,10 @@ class SftpDrive(Drive):
         self.on_lost: Any = None
         self.home = PurePosixPath("/")
         connection.on_lost = self._lost
+
+    @property
+    def lost_reason(self) -> str:  # type: ignore[override]
+        return self.connection.lost_reason
 
     # -- channels ----------------------------------------------------------------------------------
 
@@ -775,7 +786,7 @@ def connect(site: Site, answers: Answers) -> SftpDrive:
     if answers.save_password and answers.password:
         from navigator.lib.drives.credentials import save_password
 
-        save_password(site, answers.password)
+        answers.keyring_refused = save_password(site, answers.password) or ""
     return drive
 
 

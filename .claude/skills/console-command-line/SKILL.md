@@ -18,7 +18,8 @@ dependency and it is load-bearing.
   `CSI ? Pm r`) or misread (`CSI > 4;2 m`), and a parser rebuilt if pyte raises anyway (its parser is a generator one
   exception closes for good).
 - `navkit/process.py`'s `PtyProcess` runs a child on a pty via `loop.add_reader`, sized with `TIOCSWINSZ` on the master
-  (the kernel signals the child). A program that needs the real terminal goes through the relay (below), never a
+  (the kernel signals the child). **`write` loses no byte**: what the non-blocking pty will not take yet (a paste or a
+  macro to a busy child) waits in `_pending`, in order, flushed by `loop.add_writer`; a child gone drops it. A program that needs the real terminal goes through the relay (below), never a
   blocking call with the terminal stopped.
 - **A child is never given `LINES`/`COLUMNS`** (`PtyProcess.environment()` drops them, even if Navigator inherited
   them). ncurses lets them override the pty's size for good, so `htop` kept drawing for its starting size after

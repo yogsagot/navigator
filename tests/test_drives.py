@@ -544,3 +544,29 @@ def test_the_editors_file_box_opens_a_root_panel_s_own_directory(tmp_path):
     assert EditWindow._start_directory(window) == tmp_path
     alone = SimpleNamespace(application=None, editor=SimpleNamespace(path=tmp_path / "f.txt"), use_set=None)
     assert EditWindow._start_directory(alone) == tmp_path
+
+
+def test_a_listener_that_fails_is_logged_and_the_rest_are_still_told(tmp_path, monkeypatch):
+    from navigator.lib.drives.sessions import SESSIONS
+    from navigator.lib.system import errorlog
+
+    monkeypatch.setattr(errorlog, "PATH", tmp_path / "errors.log")
+    told = []
+
+    def broken(site, why):
+        raise RuntimeError("a bug in close_linked")
+
+    def second(site, why):
+        told.append((site.host, why))
+
+    SESSIONS.add_listener(broken)
+    SESSIONS.add_listener(second)
+    try:
+        drive = mount(MemoryDrive("told"))
+        assert SESSIONS.close(drive.site, "lost")
+    finally:
+        SESSIONS.remove_listener(broken)
+        SESSIONS.remove_listener(second)
+    assert told == [("told", "lost")]
+    text = (tmp_path / "errors.log").read_text()
+    assert "a bug in close_linked" in text and "telling a listener" in text

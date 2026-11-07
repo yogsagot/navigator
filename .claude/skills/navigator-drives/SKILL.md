@@ -93,7 +93,11 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   `cd`'d (the shell's cwd changed during it) -- and never into a `UseFile` directory.
 - **No secrets on disk from Navigator.** A typed password lives in the connection (`Answers`) until it closes. *Save
   in keyring* is offered only when `credentials.keyring_available()` (the `keyring` package with a real backend), and
-  every keyring call is on a thread. Host keys are `ssh`'s: unknown → `HostKeyQuery` (Accept once / Save into
+  every keyring call is on a thread. `save_password` answers None or why not; each drive's `connect` puts that on
+  `Answers.keyring_refused` (the hop's for a jump host) and `Shell.reach` toasts it -- connected all the same. **A lost
+  connection says why**: `Drive.lost_reason` (SFTP's reconnect, FTP's remake: `base.reason_of(error)`), kept by
+  `SESSIONS.close(site, "lost")` and handed once by `SESSIONS.reason(site)` to `close_linked`'s *not accessible:
+  {reason}*. A session listener that raises is logged (`errorlog.append`), the rest still told. Host keys are `ssh`'s: unknown → `HostKeyQuery` (Accept once / Save into
   `~/.ssh/known_hosts` as `[host]:port type base64`), changed → refused, no button accepts it.
 - **Closing is DN's `cmCloseLinked`.** `SESSIONS.close(site, why)` unmounts the drive and tells every listener (on the
   closing thread); `Shell._heard_closed` hands it to the loop and `close_linked` sends each panel on the site to its
