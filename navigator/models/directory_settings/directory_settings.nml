@@ -1,0 +1,27 @@
+from navkit.database import Model
+
+#: What a directory is shown with, remembered for it: Panel > *Remember for
+#: this directory*, or any change made in one under File Manager Setup's
+#: *Remember directory settings: Every directory*
+#: (``navigator/lib/config/directory_settings.py``).  A departure: DN's sort,
+#: mask and display belonged to the panel and went wherever it went.
+DirectorySettings(Model):
+    table: "directory_settings"
+    #: The directory, as a bookmark names it (``bookmarks.key_of``).
+    field path: str
+    #: Whether the directories below take these too, the nearest one marked
+    #: winning.
+    field subdirs: bool = False
+    #: ``Panel.VIEW_MODES``' one.
+    field view_mode: str = ""
+    #: ``SORT_MODES``' one.
+    field sort_mode: str = ""
+    field sort_reverse: bool = False
+    field file_mask: str = ""
+    field show_hidden: bool = True
+    #: The detailed mode's columns, comma-separated.
+    field columns: str = ""
+    #: The *Display* boxes, comma-separated; ``*`` while the panel followed
+    #: the *New Manager defaults*.
+    field display: str = "*"
+    unique by_path: path

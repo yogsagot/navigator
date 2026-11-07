@@ -1,0 +1,42 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+
+#: Panel > *Remember for this directory*, on a directory not remembered yet:
+#: whether the directories below take its settings too.
+#:
+#: Not DN's, which remembered nothing per directory
+#: (``navigator/lib/config/directory_settings.py``).
+RememberDirectoryDialog(Dialog):
+    modal_width: 56
+    modal_height: 10
+    title: "Remember directory settings"
+    buttons: "ok-cancel"
+
+    Label:
+        id: prompt_head
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+        text: "Keep the sort order, view and file mask shown for"
+
+    #: The directory; given by the hand-written half.
+    Label:
+        id: prompt_tail
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: 1
+        align: "center"
+
+    #: Bit 1: the directories below take them too.
+    CheckBoxes:
+        id: options
+        x: max(0, (parent.width - 32) // 2)
+        y: 4
+        width: 32
+        height: 1
+        items: ["Also for its ~s~ubdirectories"]
+        tooltips: ["Every directory below shown the same way, unless it is remembered for itself"]

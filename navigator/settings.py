@@ -684,7 +684,7 @@ class FMSetupData(Section):
     BEHAVIOR: ClassVar[tuple[str, ...]] = (
         "auto_change_dir", "drag_drop_columns", "beep_after_copy", "enter_opens_archive",
         "enter_mounts_images", "space_toggles_selection", "del_erases", "use_arrows", "bs_upper_dir", "auto_refresh",
-        "use_trash", "open_unassociated",
+        "use_trash", "open_unassociated", "restore_cursor",
     )
     DISPLAY: ClassVar[tuple[str, ...]] = (
         "column_titles", "info_divider", "tag_character", "link_line", "show_options",
@@ -722,6 +722,19 @@ class FMSetupData(Section):
     #: ``xdg-open`` with neither).
     open_unassociated: bool = Setting(
         True, doc="Enter on a file extensions.ini has no section for opens it in the desktop's application",
+    )
+    #: Not DN's, whose cursor went to the top of every directory but the one
+    #: just climbed out of (navigator.lib.config.directory_settings).
+    restore_cursor: bool = Setting(
+        True, doc="Coming back to a directory puts the cursor where it was left there",
+    )
+    #: Not DN's, whose sort, mask and display went wherever the panel went
+    #: (navigator.lib.config.directory_settings): ``marked`` remembers them
+    #: for the directories Panel > *Remember for this directory* marks,
+    #: ``all`` for any directory they are changed in.
+    remember_directories: str = Setting(
+        "marked", choices=("off", "marked", "all"),
+        doc="Which directories keep their own sort order, view mode, columns and file mask",
     )
     column_titles: bool = Setting(True, doc="Column titles in the detailed and list modes")
     info_divider: bool = Setting(True, doc="A divider over the lines under the listing")

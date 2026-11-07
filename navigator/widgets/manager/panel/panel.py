@@ -29,7 +29,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr, tr_n
-from navkit.reactive import computed, effect, peek, reactive, untracked
+from navkit.reactive import Binding, Reactive, computed, effect, peek, reactive, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -46,7 +46,7 @@ from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_
 # lines apart meaning a module and a keyword is a trap rather than a saving.
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons as icon_glyphs
-from navigator.lib.config import country
+from navigator.lib.config import country, directory_settings
 from navigator.lib.config.bookmarks import bookmarked_paths
 from navigator.lib.drives import Drive, DriveGone, Location, drive_of
 from navigator.lib.file_ops.clip import CLIP
@@ -254,6 +254,21 @@ def human_size(size: int) -> str:
     return f"{value:.1f}{unit}" if value < 9.95 else f"{value:.0f}{unit}"
 
 
+class _Arrival(Reactive):
+    """:attr:`Panel.location`: a reactive whose every write is told to the
+    panel first (``Panel._arriving``), wherever it is made -- Enter, ``..``,
+    a bookmark, the tree, the command line's ``cd`` -- so a remembered
+    directory's settings change in the same step as the place, and the one
+    read that follows is in their order and with their mask."""
+
+    def __set__(self, obj: Any, value: Any) -> None:
+        if not isinstance(value, Binding):
+            arriving = getattr(obj, "_arriving", None)
+            if arriving is not None and "_kept_dir" in vars(obj):
+                arriving(value)
+        super().__set__(obj, value)
+
+
 class Panel(ListViewer):
     """One side of the desktop: a directory, listed.
 
@@ -280,7 +295,12 @@ class Panel(ListViewer):
     #: ``CurDir``), what the panel navigates.  :attr:`path` is the same on
     #: the local disk, as the :class:`~pathlib.Path` the code before drives
     #: knew; it raises for a location elsewhere.
-    location: Location = reactive(Location.of(Path(".")))
+    location: Location = _Arrival(Location.of(Path(".")))
+    #: The record of :mod:`navigator.lib.config.directory_settings` the
+    #: panel shows its directory with, by its key -- the directory's own, or
+    #: one above marked for those below -- or ``""`` for the panel's own
+    #: settings.
+    remembered: str = reactive("")
     #: Bumped to re-read a directory whose path has not changed.
     reload_token: int = reactive(0)
     #: Bumped when entries' sizes change where they stand (Alt+G's count):
@@ -439,6 +459,17 @@ class Panel(ListViewer):
         self._git_watched: Path | None = None
         self._git_refresh: asyncio.TimerHandle | None = None
         self._git_heard = False
+        #: The panel's own settings (``directory_settings.KEPT``), held aside
+        #: while a remembered directory's are shown; None while its own are.
+        self._base: dict[str, Any] | None = None
+        #: The settings the panel came to its directory with, while that has
+        #: no record: what it goes back to when the directory is marked after
+        #: a sort or a mask changed in it -- those are the directory's then.
+        self._arrival: dict[str, Any] | None = None
+        #: What :meth:`_keep_directory_settings` saw last: the place, the
+        #: record and the settings; None until its first look.  Its presence
+        #: is also what tells :class:`_Arrival` the panel is ready.
+        self._kept_dir: tuple[Location, str, dict[str, Any]] | None = None
         # Seeded, not bound: Ctrl+H toggles it per panel.
         self.show_hidden = SETTINGS.system.show_hidden
         self.sort_mode = SETTINGS.panel_defaults.sort_by
@@ -491,6 +522,7 @@ class Panel(ListViewer):
         effect(self, Panel._hold_root)
         effect(self, Panel._follow_git)
         effect(self, Panel._watch_git)
+        effect(self, Panel._keep_directory_settings)
 
     def unmounting(self) -> None:
         self._stop_watching()
@@ -1552,6 +1584,12 @@ class Panel(ListViewer):
             lines.append(whole)
         if self.read_only and self.found is None:
             lines.append(tr("A read-only file system: nothing here can be changed"))
+        if self.remembered and self.found is None:
+            if self.remembers_here:
+                lines.append(tr("This directory keeps its own sort order, view and file mask"))
+            else:
+                lines.append(tr("Shown with the settings remembered for {path} and below").format(
+                    path=self.remembered))
         mask = self.file_mask.strip()
         if mask not in ("", filetypes.ALL_FILES):
             shown = tr("Only files matching {mask} are shown").format(mask=mask)
@@ -1650,6 +1688,126 @@ class Panel(ListViewer):
         if entry is not None:
             self._keep = (self.location, entry.key, self.cursor, self.scroll)
         self.show_hidden = not self.show_hidden
+
+    # -- settings remembered per directory ------------------------------------
+    #
+    # A departure: DN's sort, mask and display went wherever the panel went
+    # (navigator.lib.config.directory_settings has the rules).
+
+    def _arriving(self, location: Location) -> None:
+        """:attr:`location` is about to be *location*: the cursor left on in
+        the directory going is kept, the one left on in *location* is where
+        the read will put it (unless the move says where already), and its
+        record's settings -- or the panel's own -- are what it is read with."""
+        with untracked():
+            old = self.location
+            if location == old:
+                return
+            remembered = bool(self.remembered)
+            restore = SETTINGS.file_manager.restore_cursor
+            entry = self.selected
+            if ((restore or remembered) and entry is not None and self.found is None
+                    and self._listed == old and not self.scanning):
+                directory_settings.keep_cursor(old, entry.name)
+            if remembered and self.found is None:
+                # What it was left showing is its record's, a change made in
+                # the same batch as the move included -- which the effect
+                # keeping them sees only as the move.
+                shown = directory_settings.values(self)
+                if self._kept_dir is None or self._kept_dir[2] != shown:
+                    directory_settings.remember(self.remembered, shown)
+            self.settle_directory(location)
+            if self._return_to is None and (restore or self.remembered):
+                self._return_to = directory_settings.cursor_of(location)
+
+    def settle_directory(self, location: Location | None = None) -> None:
+        """The settings *location* (else the place shown) is to be shown
+        with: its record's, the panel's own put aside first; or, with none,
+        the panel's own back."""
+        with untracked():
+            where = self.location if location is None else location
+            found = directory_settings.find(where)
+            if found is None:
+                self.drop_directory_settings()
+                self._arrival = directory_settings.values(self)
+                return
+            key, kept = found
+            if self._base is None:
+                self._base = directory_settings.values(self)
+            directory_settings.assign(self, kept)
+            self.remembered = key
+
+    def drop_directory_settings(self) -> None:
+        """The panel's own settings back, a record's no longer shown."""
+        with untracked():
+            if self._base is not None:
+                base, self._base = self._base, None
+                directory_settings.assign(self, base)
+            self.remembered = ""
+
+    def own_settings(self) -> dict[str, Any]:
+        """The panel's own settings (``directory_settings.KEPT``): those held
+        aside while a remembered directory's are shown, else those shown --
+        what the side and a saved desktop keep.  Tracked, so an effect asking
+        follows both what is shown and the record coming and going."""
+        shown = directory_settings.values(self)
+        _ = self.remembered
+        return dict(self._base) if self._base is not None else shown
+
+    @property
+    def remembers_here(self) -> bool:
+        """Whether the directory shown has a record of its own (Panel >
+        *Remember for this directory* is ticked) -- not one above's."""
+        return bool(self.remembered) and self.remembered == directory_settings.key_of(self.location)
+
+    def remember_here(self, subdirs: bool) -> None:
+        """Panel > *Remember for this directory*: what the panel shows kept
+        as the directory's own record, *subdirs* saying whether the
+        directories below take it too.  The panel's own become what it came
+        to the directory with: a sort changed here and then remembered is
+        this directory's, and does not follow the panel out of it."""
+        with untracked():
+            key = directory_settings.key_of(self.location)
+            shown = directory_settings.values(self)
+            if self._base is None:
+                self._base = dict(self._arrival) if self._arrival is not None else shown
+            directory_settings.remember(key, shown, subdirs)
+            self.remembered = key
+            # What a change after this one is told from, made in the same
+            # batch or not.
+            self._kept_dir = (self.location, key, shown)
+
+    def forget_here(self) -> None:
+        """The directory's own record forgotten: it is shown with the one
+        above it marked for those below, or else the panel's own."""
+        with untracked():
+            directory_settings.forget(directory_settings.key_of(self.location))
+            entry = self.selected
+            if entry is not None:
+                self._keep = (self.location, entry.key, self.cursor, self.scroll)
+            self.settle_directory()
+
+    def _keep_directory_settings(self) -> None:
+        """A setting changed in a remembered directory -- by any key, menu,
+        dialog or column title -- is written to its record; under *Every
+        directory*, one changed anywhere makes the directory a record.  A
+        change of place or of record only notes what is shown."""
+        kept = directory_settings.values(self)
+        where = self.location
+        key = self.remembered
+        found = self.found
+        last, self._kept_dir = self._kept_dir, (where, key, kept)
+        if last is None or last[0] != where or last[1] != key or kept == last[2] or found is not None:
+            return
+        with untracked():
+            if key:
+                directory_settings.remember(key, kept)
+            elif directory_settings.mode() == "all" and directory_settings.rememberable(where):
+                # What was shown until now was the panel's own.
+                self._base = last[2]
+                key = directory_settings.key_of(where)
+                directory_settings.remember(key, kept, subdirs=False)
+                self.remembered = key
 
     def toggle_info(self) -> None:
         """Alt+I: hide the footer under the listing, or show it again; the
@@ -2372,6 +2530,21 @@ class Panel(ListViewer):
             return icon_glyphs.READ_ONLY
         return f"[{tr('R/O')}]"
 
+    def remembered_mark(self) -> str:
+        """What the title starts with in a remembered directory: ``◆`` for
+        its own record, ``◇`` for one above's (``*`` and ``+`` in ASCII, a
+        pin and a bookmark at the Nerd tier); ``""`` elsewhere.  Without it
+        a sort or a mask coming back with a directory would look like a
+        fault."""
+        if not self.remembered or self.found is not None:
+            return ""
+        own = self.remembers_here
+        if self.glyphs >= GLYPHS_NERD:
+            return icon_glyphs.REMEMBERED if own else icon_glyphs.REMEMBERED_ABOVE
+        if self.glyphs <= glyphs_module.GLYPHS_ASCII:
+            return "*" if own else "+"
+        return "\u25c6" if own else "\u25c7"
+
     def git_text(self) -> str:
         """The branch for the title, with how far it is ahead of and behind
         its upstream (``master ↑2↓1``), or ``""`` outside a work tree."""
@@ -2413,6 +2586,9 @@ class Panel(ListViewer):
         (:meth:`read_only_mark`), ``/media/me/UBUNTU [R/O]``: a disk image
         Enter mounted is never written, and the title says so first.
 
+        **In a remembered directory a mark goes first**
+        (:meth:`remembered_mark`), ``◆ /src``, not DN's either.
+
         **In a git work tree the branch follows** (:meth:`git_text`), also
         not DN's: it is dropped before the path would be cut under
         :data:`MIN_NAME_WIDTH` cells to keep it.
@@ -2432,9 +2608,11 @@ class Panel(ListViewer):
             branch = f"  {branch}"
             if room - len(suffix) - len(branch) < min(len(title), self.MIN_NAME_WIDTH):
                 branch = ""
-        space = room - len(suffix) - len(branch)
+        mark = self.remembered_mark()
+        prefix = f"{mark} " if mark else ""
+        space = room - len(suffix) - len(branch) - len(prefix)
         title = self._cut_start(title, space)
-        return f" {title}{suffix}{branch} "
+        return f" {prefix}{title}{suffix}{branch} "
 
     def footer_text(self) -> str:
         """What a search has typed, while it is searching; else nothing --

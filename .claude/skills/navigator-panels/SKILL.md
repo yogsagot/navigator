@@ -1,6 +1,6 @@
 ---
 name: navigator-panels
-description: The file manager window and its panels -- Manager (manager.nml/manager.py), Panel and DirEntry, view modes (Ctrl+Y simple/detailed/list), name scrolling, tagging (Insert, Space, Gray +/-/*, Select/Unselect group, SelectDialog), Ctrl+S quick search, Ctrl+H hidden files, type marks and icons, Backspace to parent, re-read keeping the cursor, Ctrl+F1/Ctrl+F2/Ctrl+P hiding sides, the draggable divider between the sides (Alt+Left/Alt+Right), switch_view, active/passive panel. Use when changing how files are listed, selected or navigated.
+description: The file manager window and its panels -- Manager (manager.nml/manager.py), Panel and DirEntry, view modes (Ctrl+Y simple/detailed/list), name scrolling, tagging (Insert, Space, Gray +/-/*, Select/Unselect group, SelectDialog), Ctrl+S quick search, Ctrl+H hidden files, type marks and icons, Backspace to parent, re-read keeping the cursor, settings and the cursor remembered per directory (directory_settings), Ctrl+F1/Ctrl+F2/Ctrl+P hiding sides, the draggable divider between the sides (Alt+Left/Alt+Right), switch_view, active/passive panel. Use when changing how files are listed, selected or navigated.
 ---
 
 # The file manager and its panels
@@ -248,6 +248,45 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   is the bookmarks box (`choose_bookmark`). These keys sit in `Manager.keys` (Python) because a terminal without the
   kitty protocol sends Alt with the *shifted* character -- `alt+!`..`alt+(` and `alt+)` are bound beside
   `alt+shift+N` for a US layout. A directory gone is said, not entered (`Manager._go_to`).
+
+## Settings remembered per directory, and the cursor left in one
+
+A departure, asked for: DN's `SortMode`/`FileMask`/`PanelFlags` belonged to the panel and went wherever it went,
+and nothing was kept by path. `navigator/lib/config/directory_settings.py` has the rules; the tables are
+`DirectorySettings` (`navigator/models/directory_settings/`) and `DirectoryCursor` (`navigator/models/directory_cursor/`),
+both keyed by `bookmarks.key_of` of the `root.on_disk` place (a `root:` directory is the disk's).
+- **File Manager Setup's *Remember directory settings*** (`[file_manager] remember_directories`): `off` (DN's
+  behaviour), `marked` (the default: only those Panel > *Remember for this directory* marks) or `all` (any directory a
+  setting is changed in). A record holds `directory_settings.KEPT`: view mode, sort and its direction, mask, hidden
+  files, columns and the *Display* boxes. It does not hold Alt+I's footer, which is the panel's.
+- **Panel > *Remember for this directory*** (`RememberDirectory`, `Manager.remember_directory`) is ticked by
+  `Manager.checks` while `Panel.remembers_here` is true. Unticked, it asks `RememberDirectoryDialog` (*Also for its
+  subdirectories*) and calls `Panel.remember_here`; ticked, it calls `Panel.forget_here`. `refusal` greys it under
+  `off`, over a *Find:* listing and inside an archive. **Panel > *Remembered directory list*** (`RememberedDirectories`)
+  is a `PopupMenu` of the records shaped like the bookmarks box: Enter goes there, Del forgets one.
+- **One choke point**: `Panel.location` is an `_Arrival` reactive whose `__set__` calls `Panel._arriving` before the
+  write. Every move runs through it (Enter, `..`, bookmarks, the tree, `cd`). It keeps the cursor left in the old
+  directory, calls `settle_directory` (a record found by `directory_settings.find`, the directory's own or the nearest
+  ancestor's with `subdirs`, is put over the panel's own, which are held in `Panel._base`; with none, `_base` comes back),
+  and sets `_return_to` from the kept cursor if the move set none. **The settings change in the same call as the place,
+  so `_rescan` reads once, with them**; an effect doing it would read twice or depend on effect order.
+- `Panel.remembered` is the key of the record shown (`""` for none). The title starts with `remembered_mark()`:
+  `◆`/`◇` for own/inherited, `*`/`+` in ASCII, `icons.REMEMBERED`/`REMEMBERED_ABOVE` at the Nerd tier. The title's
+  tooltip says which.
+- **A change inside a remembered directory is the record's**: the effect `_keep_directory_settings` writes it,
+  and an inherited record's change goes to the ancestor. Under `all`, it makes a record of an unremembered directory.
+  Because a change and a move in one batch reach the effect as a move only, `_arriving` also writes what a remembered
+  directory was left showing. `remember_here` sets `_kept_dir` itself for the same reason.
+- **Marking keeps the panel's arrival settings as its own**: `settle_directory` notes `Panel._arrival` (what the
+  panel came to a directory with no record with), and `remember_here` makes that `_base`. So a sort changed in a
+  directory and then remembered stays with the directory, and does not follow the panel out (a reported bug).
+- **The side state and a saved desktop keep the panel's own settings** (`Panel.own_settings()`: `_base` if held), never
+  a record's. `panel_state.recall` and `desktop_state._seed_panel` call `drop_directory_settings()` first and
+  `settle_directory()` after, so the record goes back over what they seed.
+- ***Return to last cursor position*** (`[file_manager] restore_cursor`, on by default, a Behavior box) keeps the
+  entry the cursor was left on in every directory (`DirectoryCursor`), and a remembered directory always keeps it.
+  An explicit `_return_to` (going up, `go_to_file`) wins. Only the newest `CURSORS` (2000) are kept.
+- Tests: `tests/test_directory_settings.py` (mounted `Manager`, `settle()`).
 
 ## Advanced filter (Alt+Del)
 

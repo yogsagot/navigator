@@ -134,6 +134,10 @@ BY_TYPE = {
 #: and 3; every one checked present in JetBrainsMono Nerd Font.
 #: A panel's title on a read-only file system (``Panel.title_text``).
 READ_ONLY = "\uf023"         # nf-fa-lock
+#: A panel's title in a directory remembered for itself, and in one below a
+#: directory remembered for those below (``Panel.remembered_mark``).
+REMEMBERED = "\uf08d"        # nf-fa-thumb_tack
+REMEMBERED_ABOVE = "\uf02e"  # nf-fa-bookmark
 OPTION_STREAM_BLOCKS = "\uf07e"    # nf-fa-arrows_h
 OPTION_COLUMN_BLOCKS = "\uf07d"    # nf-fa-arrows_v
 OPTION_INSERT = "\uf246"     # nf-fa-i_cursor

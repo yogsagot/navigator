@@ -15,6 +15,9 @@ MIN_WIDTH = 12
 #: *Right button*'s choices, in the order the radio buttons list them.
 RIGHT_BUTTON = ("menu", "select")
 
+#: *Remember directory settings*' choices, in the radio buttons' order.
+REMEMBER = ("off", "marked", "all")
+
 
 class FMSetupPage(Widget):
     """DN's ``TFMSetup``: Options, Show and TagChar, and the right button."""
@@ -30,6 +33,7 @@ class FMSetupPage(Widget):
         self.tag_sign.tooltip = self.section.tooltip("tag_sign")
         self.right_button.value = RIGHT_BUTTON.index(self.section.right_button)
         self.right_button.tooltip = self.section.tooltip("right_button")
+        self.remember_directories.value = REMEMBER.index(self.section.remember_directories)
         self.miller_width.value = str(self.section.miller_width)
         self.miller_width.tooltip = self.section.tooltip("miller_width")
 
@@ -40,6 +44,7 @@ class FMSetupPage(Widget):
             # DN's line held one character; an empty one keeps the old sign.
             "tag_sign": self.tag_sign.value.strip()[:1] or self.section.tag_sign,
             "right_button": RIGHT_BUTTON[self.right_button.value],
+            "remember_directories": REMEMBER[self.remember_directories.value],
             "miller_width": self._miller_width(),
         }
 

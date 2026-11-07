@@ -45,16 +45,19 @@ VERSION = 1
 
 
 def _panel_values(panel: Any) -> dict[str, Any]:
-    """A panel's settings, wherever it is."""
+    """A panel's own settings, wherever it is: not those of a remembered
+    directory it shows, which come back with the directory
+    (``directory_settings``)."""
+    own = panel.own_settings()
     return {
-        "view_mode": panel.view_mode,
-        "sort_mode": panel.sort_mode,
-        "sort_reverse": bool(panel.sort_reverse),
-        "show_hidden": bool(panel.show_hidden),
+        "view_mode": own["view_mode"],
+        "sort_mode": own["sort_mode"],
+        "sort_reverse": bool(own["sort_reverse"]),
+        "show_hidden": bool(own["show_hidden"]),
         "show_info": bool(panel.show_info),
-        "file_mask": panel.file_mask,
-        "columns": sorted(panel.columns),
-        "display": sorted(panel.display) if panel.display is not None else None,
+        "file_mask": own["file_mask"],
+        "columns": sorted(own["columns"]),
+        "display": sorted(own["display"]) if own["display"] is not None else None,
     }
 
 
@@ -72,14 +75,7 @@ def _panel(panel: Any) -> dict[str, Any]:
         # Where it falls back to, for a panel on another drive that is not
         # there to go back to.
         "local": str(panel.local_anchor.local) if not panel.location.is_local else None,
-        "view_mode": panel.view_mode,
-        "sort_mode": panel.sort_mode,
-        "sort_reverse": bool(panel.sort_reverse),
-        "show_hidden": bool(panel.show_hidden),
-        "show_info": bool(panel.show_info),
-        "file_mask": panel.file_mask,
-        "columns": sorted(panel.columns),
-        "display": sorted(panel.display) if panel.display is not None else None,
+        **_panel_values(panel),
         "cursor": entry.name if entry is not None and found is None else None,
     }
 
@@ -211,6 +207,8 @@ def _remote(kept: dict[str, Any]) -> Any:
 def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
     from navigator.widgets.manager.panel.panel import SORT_MODES
 
+    # Onto the panel's own settings, and the directory's record over them again.
+    panel.drop_directory_settings()
     if kept.get("view_mode") in ("simple", "detailed", "list"):
         panel.view_mode = kept["view_mode"]
     if kept.get("sort_mode") in SORT_MODES:
@@ -223,6 +221,7 @@ def _seed_panel(panel: Any, kept: dict[str, Any]) -> None:
         panel.columns = frozenset(kept["columns"])
     if isinstance(kept.get("display"), list):
         panel.display = frozenset(kept["display"])
+    panel.settle_directory()
     if kept.get("cursor"):
         panel._return_to = kept["cursor"]
 

@@ -2,6 +2,7 @@ from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Adv
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, ReplaceInFiles, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
+from navigator.widgets.manager.commands import RememberDirectory, RememberedDirectories
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename
 from navigator.widgets.manager.commands import SelectAll, SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
@@ -223,7 +224,7 @@ Manager(Window):
         SubMenu:
             id: panel_display
             text: 'D~i~splay'
-            tooltip: "View mode, hidden files, the footer and the divider"
+            tooltip: "View mode, hidden files, the footer, directory settings and the divider"
             MenuItem:
                 text: 'Vie~w~ mode'
                 command: ToggleShowMode
@@ -236,6 +237,20 @@ Manager(Window):
                 text: 'Show/hide ~f~ooter'
                 command: ToggleInfoLines
                 key: 'Alt-I'
+            #: Not DN's, which remembered nothing per directory
+            #: (``navigator/lib/config/directory_settings.py``).
+            SubMenu:
+                id: panel_remember
+                text: 'Director~y~ settings'
+                tooltip: "Remember the sort order, view and file mask for a directory, and the list of those remembered"
+                MenuItem:
+                    text: 'Remember ~f~or this directory'
+                    tooltip: "Keep the sort order, view, columns and file mask shown for this directory"
+                    command: RememberDirectory
+                MenuItem:
+                    text: 'Remembered director~y~ list...'
+                    tooltip: "The directories with settings of their own: go to one, or forget it"
+                    command: RememberedDirectories
             MenuLine:
             #: Not on DN's menu, where Alt+Left/Right moved the ``TSeparator``
             #: with no ``cm*`` -- a departure, asked for.

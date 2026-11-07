@@ -1,0 +1,18 @@
+from navkit.database import Model
+
+#: The entry the cursor was on when a panel last left a directory, for
+#: coming back to it there: File Manager Setup's *Return to last cursor
+#: position*, and every remembered directory
+#: (``navigator/lib/config/directory_settings.py``).  A departure: DN's
+#: cursor went to the top of every directory but the one just climbed out of.
+#: The newest ``CURSORS`` rows are kept.
+DirectoryCursor(Model):
+    table: "directory_cursors"
+    #: The directory, as a bookmark names it (``bookmarks.key_of``).
+    field path: str
+    #: The entry's name.
+    field name: str
+    #: When, by ``time.time()``: the oldest go first.
+    field used: float = 0.0
+    unique by_path: path
+    index by_used: used

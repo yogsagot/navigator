@@ -19,10 +19,12 @@ SIDES = ("left", "right")
 
 
 def kept_values(panel: Any) -> dict[str, Any]:
-    """What is kept of *panel*."""
-    return {"show_hidden": bool(panel.show_hidden), "show_info": bool(panel.show_info),
-            "view_mode": panel.view_mode, "sort_mode": panel.sort_mode,
-            "sort_reverse": bool(panel.sort_reverse)}
+    """What is kept of *panel*: its own settings, not those of a directory
+    remembered for itself it is showing (``directory_settings``)."""
+    own = panel.own_settings()
+    return {"show_hidden": bool(own["show_hidden"]), "show_info": bool(panel.show_info),
+            "view_mode": own["view_mode"], "sort_mode": own["sort_mode"],
+            "sort_reverse": bool(own["sort_reverse"])}
 
 
 def remember(manager: Any, side: str) -> None:
@@ -44,6 +46,8 @@ def recall(manager: Any) -> None:
         if row is None:
             continue
         panel = getattr(manager, side)
+        # Onto the panel's own settings, and the directory's record over them again.
+        panel.drop_directory_settings()
         panel.show_hidden = bool(row.show_hidden)
         panel.show_info = bool(row.show_info)
         if row.view_mode in panel.VIEW_MODES:
@@ -51,3 +55,4 @@ def recall(manager: Any) -> None:
         if row.sort_mode in SORT_MODES:
             panel.sort_mode = row.sort_mode
             panel.sort_reverse = bool(row.sort_reverse) and row.sort_mode != "unsorted"
+        panel.settle_directory()

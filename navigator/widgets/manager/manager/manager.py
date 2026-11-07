@@ -101,6 +101,8 @@ from navigator.widgets.manager.commands import (
     QuickChange,
     StoreQuickDir,
     PanelSetup,
+    RememberDirectory,
+    RememberedDirectories,
     SortBy,
     SwapPanels,
     EqualizePanels,
@@ -2619,6 +2621,84 @@ class Manager(Window):
             await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
             return False
 
+    async def on_remember_directory(self, event: RememberDirectory) -> bool:
+        self.spawn(self.remember_directory(self.active_panel))
+        return True
+
+    async def remember_directory(self, panel: Panel) -> None:
+        """Panel > *Remember for this directory*: *panel*'s directory keeps
+        what it is shown with, a box asking whether those below do too; or,
+        remembered already, forgets it (``directory_settings``)."""
+        from navigator.widgets.manager.remember_directory_dialog import RememberDirectoryDialog
+
+        if panel.remembers_here:
+            panel.forget_here()
+            return
+        answer = await RememberDirectoryDialog(str(panel.location)).execute(self.application)
+        if answer is not None:
+            panel.remember_here(answer["subdirs"])
+
+    async def on_remembered_directories(self, event: RememberedDirectories) -> bool:
+        self.spawn(self.remembered_directories(self.active_panel))
+        return True
+
+    async def remembered_directories(self, panel: Panel) -> None:
+        """Panel > *Remembered directories*: every directory with a record in
+        a box over *panel*, placed as the bookmarks' is; Enter takes *panel*
+        there, Del forgets one and opens the box again without it."""
+        from navml.widgets.dialog.control.control import escape_caption
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        from navigator.lib.config import directory_settings
+
+        app = self.application
+        if app is None:
+            return
+        keep = 0
+        home = str(Path.home())
+        while True:
+            rows = directory_settings.records()
+            if not rows:
+                await Dialog(title=tr("Remembered directories"),
+                             prompt=tr("No directory has settings of its own"), buttons="ok").execute(app)
+                return
+            menu = SubMenu()
+            for row in rows:
+                shown = row.path
+                if shown == home or shown.startswith(home + "/"):
+                    shown = "~" + shown[len(home):]
+                item = menu.add_item(escape_caption(shown))
+                if row.subdirs:
+                    item.key = tr("and below")
+                item.tooltip = _remembered_tooltip(row)
+            title = tr("Remembered directories")
+            width, _ = PopupMenu.measure(menu, app, self, title)
+            ox, oy = panel.offset()
+            x = ox + panel.x + (panel.width - width) // 2
+            y = oy + panel.y + 1
+            box = PopupMenu(menu, x, y, current=min(keep, len(rows) - 1), behind=self, title=title,
+                            hints=(("Del", tr("Forget")),), keys=(DELETE_BOOKMARK_KEY,))
+            chosen = await box.execute(app)
+            if box.pressed == DELETE_BOOKMARK_KEY:
+                keep = box.selected
+                if 0 <= keep < len(rows):
+                    directory_settings.forget(rows[keep].path)
+                    # A panel shown with it now is shown with what it falls back to.
+                    for side in (self.left, self.right):
+                        if side.remembered == rows[keep].path:
+                            side.settle_directory()
+                continue
+            if chosen is None:
+                return
+            place = rows[menu.entries().index(chosen)].path
+            if "://" in place:
+                await self._go_to(panel, place)
+                return
+            panel.path = Path(place)
+            panel.focus()
+            return
+
     async def on_panel_setup(self, event: PanelSetup) -> bool:
         self.spawn(self.panel_setup(self.active_panel))
         return True
@@ -3120,6 +3200,15 @@ class Manager(Window):
             if command.by_key and self._command_line_has_text():
                 return typed
             return unless(bool(UNDO), tr("Nothing to undo"))
+        if isinstance(command, RememberDirectory):
+            from navigator.lib.config import directory_settings
+
+            if directory_settings.mode() == "off":
+                return tr("File Manager Setup's Remember directory settings is Off")
+            if panel.found is not None:
+                return tr("A Find listing is no directory to remember")
+            return unless(directory_settings.rememberable(panel.location),
+                          tr("A place inside an archive cannot be remembered"))
         if isinstance(command, JumpToDirectory):
             shell = getattr(self.application, "shell", None)
             return shell.fuzzy_refusal() if shell is not None else tr("fzf is not installed, or the shell is not bash or zsh")
@@ -3356,11 +3445,16 @@ class Manager(Window):
 
     def checks(self, command: Any) -> bool | None:
         """Ctrl+H is ticked in the menu while the active panel shows its
-        dot-files, Alt+I while it shows its footer."""
+        dot-files, Alt+I while it shows its footer, *Remember for this
+        directory* while its directory has a record of its own."""
         if isinstance(command, ToggleHidden):
             return self.active_panel.show_hidden
         if isinstance(command, ToggleInfoLines):
             return self.active_panel.show_info
+        if isinstance(command, RememberDirectory):
+            panel = self.active_panel
+            _ = panel.remembered  # read for the dependency
+            return panel.remembers_here
         if isinstance(command, ToggleMiller):
             return self.miller_mode
         return super().checks(command)
@@ -5957,6 +6051,26 @@ def action_caption(action: str) -> str:
         fileerase.TRASHING: tr("Moving to the Trash"),
         fileattr.CHANGING: tr("Changing attributes of"),
     }.get(action, action)
+
+
+def _remembered_tooltip(row: Any) -> str:
+    """What a *Remembered directories* entry keeps, in words."""
+    from navkit.tooltip import lines as tooltip_lines
+
+    lines = [row.path]
+    sorts = dict(zip(SORT_MODES, (caption.replace("~", "") for caption in sort_captions())))
+    mode = sorts.get(row.sort_mode, sorts["name"])
+    lines.append(tr("Sorted by {mode}, reversed").format(mode=mode) if row.sort_reverse
+                 else tr("Sorted by {mode}").format(mode=mode))
+    views = {"simple": tr("Simple"), "detailed": tr("Detailed"), "list": tr("List")}
+    lines.append(tr("View mode: {mode}").format(mode=views.get(row.view_mode, views["simple"])))
+    if row.file_mask and row.file_mask != "*":
+        lines.append(tr("Only files matching {mask} are shown").format(mask=row.file_mask))
+    if not row.show_hidden:
+        lines.append(tr("Hidden files are not shown"))
+    if row.subdirs:
+        lines.append(tr("The directories below are shown the same way"))
+    return tooltip_lines(*lines)
 
 
 def bookmark_menu(rows: list[Any], bookmarked: bool,

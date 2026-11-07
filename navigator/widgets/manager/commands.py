@@ -280,6 +280,22 @@ class PanelSetup(Command):
     title = "Setup"
 
 
+class RememberDirectory(Command):
+    """Panel > *Remember for this directory*: the active panel's directory
+    keeps the sort order, view, columns and file mask it is shown with -- a
+    box asks whether those below do too -- or, ticked, forgets them.
+
+    Not DN's, which remembered nothing per directory
+    (``navigator/lib/config/directory_settings.py``); greyed while File
+    Manager Setup's *Remember directory settings* is *Off*.
+    """
+
+
+class RememberedDirectories(Command):
+    """Panel > *Remembered directories*: every directory with its own
+    settings in a box; Enter goes there, Del forgets one."""
+
+
 class MakeList(Command):
     """Alt+L, ``cmMakeList``."""
 
@@ -924,6 +940,8 @@ __all__ = [
     "ChangeLeft",
     "ChangeRight",
     "PanelSetup",
+    "RememberDirectory",
+    "RememberedDirectories",
     "MakeList",
     "FastRename",
     "QuickRename",

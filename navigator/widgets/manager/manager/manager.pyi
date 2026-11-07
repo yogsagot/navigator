@@ -10,6 +10,7 @@ from navigator.widgets.manager.commands import AlternateEdit, AlternateView, Adv
 from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, ReplaceInFiles, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
+from navigator.widgets.manager.commands import RememberDirectory, RememberedDirectories
 from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename
 from navigator.widgets.manager.commands import SelectAll, SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
 from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
@@ -41,7 +42,7 @@ from navkit.i18n import tr, tr_n
 from navkit.reactive import computed, effect, reactive, untracked
 from navkit.stylesheet import parse_declarations
 from navml.widgets.dialog.dialog import Dialog
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, FindDuplicates, Edit, EditNamed, ExtractArchive, ExtractTo, OpenArchive, GoInto, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MountImage, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, SelectBadNames, ShowHardLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, ReplaceInFiles, MakeList, ReadFileList, Panelize, MultiRename, Undo, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnmountImage, UnselectGroup, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, ConvertText, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, FindDuplicates, Edit, EditNamed, ExtractArchive, ExtractTo, OpenArchive, GoInto, GoParent, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MountImage, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, SelectBadNames, ShowHardLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, ReplaceInFiles, MakeList, ReadFileList, Panelize, MultiRename, Undo, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, RememberDirectory, RememberedDirectories, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnmountImage, UnselectGroup, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, ConvertText, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped, label_for
@@ -68,6 +69,7 @@ class Manager(Window, _Component):
     miller: MillerView
     panel_menu: SubMenu
     panel_display: SubMenu
+    panel_remember: SubMenu
     panel_select: SubMenu
     panel_other: SubMenu
     replaced: Any
@@ -201,6 +203,10 @@ class Manager(Window, _Component):
     async def make_list(self, panel: Panel) -> None: ...
     async def _make_list_elsewhere(self, panel: Panel, entries: list[Any], name: str, action: str, options: int) -> None: ...
     async def _write_list(self, write: Callable[[], None], target: Location, lines: list[str], appending: bool) -> bool: ...
+    async def on_remember_directory(self, event: RememberDirectory) -> bool: ...
+    async def remember_directory(self, panel: Panel) -> None: ...
+    async def on_remembered_directories(self, event: RememberedDirectories) -> bool: ...
+    async def remembered_directories(self, panel: Panel) -> None: ...
     async def on_panel_setup(self, event: PanelSetup) -> bool: ...
     async def panel_setup(self, panel: Panel) -> None: ...
     async def on_compare_dir(self, event: CompareDir) -> bool: ...
