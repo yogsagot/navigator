@@ -89,6 +89,10 @@ class _Connection:
         #: The ``ProxyJump`` hosts' clients, first first, the server's
         #: connection carried by the last's.
         self.chain: list[Any] = []
+        #: The port forwards asked for, opened anew with every connection
+        #: made (:meth:`open`), and how that went (``forwards.Tunnels``).
+        self.forwards: list[Any] = list(answers.forwards or ())
+        self.tunnels: Any = None
         self.hostname = site.host
         self.port = site.port or 22
         self.user = site.user
@@ -141,6 +145,12 @@ class _Connection:
         self.client, self.transport, self.chain = client, transport, chain
         self._pool = queue.LifoQueue()
         self._made = 0
+        if self.forwards:
+            # After every connection made, the silent reconnect's too: the
+            # old ones went with the old transport.
+            from navigator.lib.drives.forwards import Tunnels
+
+            self.tunnels = Tunnels(transport, self.forwards, timeout=max(1, SETTINGS.remote.timeout)).start()
         threading.Thread(target=self._watch, args=(transport,), daemon=True,
                          name=f"nav-sftp-watch-{config.hostname}").start()
 
@@ -293,6 +303,9 @@ class _Connection:
     def close(self, *, meant: bool = True) -> None:
         if meant:
             self._closing = True
+        tunnels, self.tunnels = self.tunnels, None
+        if tunnels is not None:
+            tunnels.stop()
         client, self.client, self.transport = self.client, None, None
         chain, self.chain = self.chain, []
         for each in (client, *reversed(chain)):
@@ -720,6 +733,9 @@ class SftpDrive(Drive):
             cipher = getattr(transport, "remote_cipher", "") or ""
             if cipher:
                 lines.append(("Cipher", cipher))
+        tunnels = self.connection.tunnels
+        if tunnels is not None:
+            lines += tunnels.describe()
         return lines
 
     def close(self) -> None:

@@ -228,6 +228,31 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   try. paramiko's own fallback for a second factor after a key, `auth_interactive_dumb`, reads **stdin** -- the
   screen -- so `connect` is given a `transport_factory` whose `Transport` routes it through `interactive` too.
   Cancelling a prompt is `DriveGone` ("Cancelled"), not a password box.
+  **Port forwards** (a departure, asked for: DN's cable had no ports): `forwards.py`. A connection's are
+  `RemoteProfile.forwards`, one a line in `ssh`'s words (`L [bind:]port:host:hostport`, `R ...`, `D [bind:]port`;
+  `[v6]` bracketed, `/` for `:` too, `#` comments), `Forward`/`parse(strict=)`/`render`/`describe`/`ssh_words`.
+  **Both ends use them**: Remote shell's `ssh` gets `-L/-R/-D` after the connection's options
+  (`remote_shell.command(..., forwards)`), and an SFTP panel's paramiko connection opens them while it is up --
+  `Answers.forwards` → `_Connection.forwards` → `Tunnels(transport, ...)` at the end of **every** `open()` (so the
+  one silent reconnect reopens them; `close()` stops them first). `L`/`D` are a listening socket here
+  (`create_server`, the loopback unless a bind is named, `*` every address; accept loops poll `POLL` for the stop
+  flag -- closing a socket does not wake `accept()` on Linux) and a `direct-tcpip` channel a connection; `D` first
+  reads SOCKS 4/4a/5 (`socks_request`, no auth, CONNECT only). `R` is `transport.request_port_forward` -- paramiko
+  keeps **one handler for all of them**, so `_arrived` tells them apart by the server's port. Each pair is pumped by
+  one thread over a selector. A forward that cannot open (port taken, server refusing) is in `Tunnels.opened`'s
+  `error`, never raised; the info panel's *Forward* lines (`base.DESCRIBED`) show each, with its bound port and any
+  error. Which forwards: `Shell.reach(target, forwards=None)` -- the link manager passes the lines' (`[]` for a
+  one-off), anything else (Link box, saved desktop, `nav sftp://`) `profiles.forwards_for(site)`, the first
+  profile by `seq` for that scheme/user/host/port. Forwards only open with a **new** connection: one already up
+  keeps what it has. `profiles.save`/`replace` take `forwards=None` to keep a row's own, as `options`.
+  `tests/sftp_server.py` answers `tcpip-forward` (`check_port_forward_request`) when `forwarding=True`.
+  **Copy key** (`ssh-copy-id`): the SSH manager's *Copy ~k~ey...* picks `credentials.public_keys()` (`~/.ssh/*.pub`,
+  `DEFAULT_KEYS` first; several: a `PopupMenu`; none: asks to make `id_ed25519` with `ssh-keygen` first), settles a
+  changed connection, then **closes the box** with a `ConnectRequest(copy_key=, generate_key=)` -- a command window
+  is the desktop's and the desktop is under every dialog, so it cannot open over the box -- and
+  `Shell.copy_ssh_key` runs `remote_shell.copy_id_command` in a window that stays (`closes=False`), where `ssh` asks
+  the password. Only `-o`, `-F` and `-J` (as `-o ProxyJump=`) of the options reach `ssh-copy-id`. Needs no paramiko;
+  refused with a note when `ssh-copy-id` is missing (`remote_shell.copy_id_program`).
 - **`credentials.py`** `host_config`, `fingerprint` (`SHA256:...`), `save_host_key`, `keyring_available`,
   `saved_password`/`save_password`/`forget_password` (service `navigator-fm`, account `str(site)`).
 - **`profiles.py`** over `navigator/models/remote_profile/` (`remote_profiles`: name unique, scheme, host, port, user,
@@ -432,6 +457,10 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
     never see them. An empty *Directory* opens on the drive's `home`.
   - The box's state is in `_values()` (so ticking it is a change) and decides the scheme written; histories are
     `{family}_name`... (`gvfs_uri` for the URI). `missing` is `sessions.available` of the family's first scheme.
+  - SSH's adds two buttons under *ssh options*, *~F~orwards...* (`ForwardsDialog`/`ForwardDialog` in
+    `widgets/drives/forwards_dialog/`; the text is `forwards_text`, part of `_values()` so an edit is *changed*;
+    the caption counts them, `~F~orwards ({n})...` set from Python with the markup's letter) and *Copy ~k~ey...*;
+    the status line moves to y=15, one row, for SSH.
   - Captions set from Python (*Sh~a~re/dir*, *End~p~oint*...) are not in `tools/i18n.py check`'s clash check,
     which reads markup: their letters were picked by hand against the box's (N H L o D S w e t C, and each
     language's own). Its method for that is `problem()`, never `refusal()`, which is navkit's command hook.

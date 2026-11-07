@@ -23,6 +23,13 @@ class ConnectRequest:
     keep: bool = False
     #: SSH's: Remote shell's own ``ssh`` words, from the link manager.
     options: str = ""
+    #: SSH's: the port forwards, one a line (:mod:`navigator.lib.drives.forwards`).
+    forwards: str = ""
+    #: SSH's *Copy key*: not a connection but the public key (a ``.pub``
+    #: path) ``ssh-copy-id`` is to put on the server -- made first, with
+    #: *generate_key* (``ssh-keygen``).
+    copy_key: str = ""
+    generate_key: bool = False
 
 
 def split_host(text: str) -> tuple[str, str, int]:

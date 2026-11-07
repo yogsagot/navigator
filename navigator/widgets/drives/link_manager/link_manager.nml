@@ -133,6 +133,29 @@ LinkManagerDialog(Dialog):
         history_id: "ssh_options"
         visible: False
 
+    #: SSH's: the connection's port forwards (``-L``/``-R``/``-D``), edited in
+    #: ``ForwardsDialog``; opened with the panel's connection and passed to
+    #: Remote shell's ``ssh``.  Its caption counts them.
+    Button:
+        id: forwards_button
+        text: "~F~orwards..."
+        x: 28
+        y: 13
+        width: 19
+        height: 2
+        visible: False
+
+    #: SSH's: ``ssh-copy-id`` -- a public key put on the server, so the next
+    #: connection asks no password.
+    Button:
+        id: copy_key
+        text: "Copy ~k~ey..."
+        x: 48
+        y: 13
+        width: 16
+        height: 2
+        visible: False
+
     #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
     CheckBoxes:
         id: secure

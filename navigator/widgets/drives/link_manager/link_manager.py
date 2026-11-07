@@ -183,6 +183,9 @@ class LinkManagerDialog(Dialog):
 
                 self.title = tr("Remote shell: {protocol}").format(protocol=protocol_name(family))
         self.entries: list[Entry] = [replace(entry) for entry in entries or ()]
+        #: SSH's: the lines' port forwards, as kept (``forwards.render``) --
+        #: edited in ``ForwardsDialog``, not typed, so not a line of its own.
+        self.forwards_text = ""
         #: The kept connection the lines are, or None: they are a one-off.
         self.chosen: int | None = None
         #: What the lines said when they were last the chosen connection's:
@@ -230,6 +233,13 @@ class LinkManagerDialog(Dialog):
             self.options.entry.tooltip = tr(
                 "Added to Remote shell's ssh command, after Communications' own (-Y); "
                 "SSH link's panel reads ~/.ssh/config alone")
+            self.forwards_button.visible = True
+            self.forwards_button.tooltip = tr(
+                "Port forwards (-L, -R, -D) opened with the panel's connection and Remote shell's ssh")
+            self.copy_key.visible = True
+            self.copy_key.tooltip = tr("Put your public key on the server (ssh-copy-id), so no password is asked")
+            # Under the two buttons, one line above the box's own.
+            self.missing.y, self.missing.height = 15, 1
         if key == "smb":
             self.directory.label_text = tr("Sh~a~re/dir")
         if key == "s3":
@@ -286,7 +296,7 @@ class LinkManagerDialog(Dialog):
     def _values(self) -> tuple[str, ...]:
         """Every line, the TLS box and the URI: what *changed* compares."""
         return (self.label.value, self.host.value, self.user.value, self.port.value, self.directory.value,
-                str(self.secure.value & 1), self.uri.value, self.options.value)
+                str(self.secure.value & 1), self.uri.value, self.options.value, self.forwards_text)
 
     @property
     def changed(self) -> bool:
@@ -461,6 +471,7 @@ class LinkManagerDialog(Dialog):
             self.secure.value = 1 if entry.scheme == self.family.secure[0] else 0
         self.uri.value = uri_of(entry) if self.family.key == "gvfs" else ""
         self.options.value = entry.options
+        self._set_forwards(entry.forwards)
 
     def _entry(self, fallback: str = "") -> Entry:
         """What the lines say, as a connection, host or none -- named by
@@ -483,8 +494,10 @@ class LinkManagerDialog(Dialog):
         directory = self.directory.value.strip()
         if self.family.rooted and directory and not directory.startswith("/"):
             directory = "/" + directory
-        options = self.options.value.strip() if self.family.key == "sftp" else ""
-        return Entry(name, scheme, host, user or self.user.value.strip(), port, directory, options)
+        sftp = self.family.key == "sftp"
+        options = self.options.value.strip() if sftp else ""
+        return Entry(name, scheme, host, user or self.user.value.strip(), port, directory, options,
+                     self.forwards_text if sftp else "")
 
     def _uri_entry(self, fallback: str) -> Entry:
         """GVfs/KIO's line as a connection: no scheme for an empty or local one."""
@@ -561,7 +574,8 @@ class LinkManagerDialog(Dialog):
         entry = self.lines()
         if entry is None:
             return None
-        return ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path, options=entry.options)
+        return ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path, options=entry.options,
+                              forwards=entry.forwards)
 
     async def on_connect_click(self, event: Event) -> bool:
         self.spawn(self.connect_to())
@@ -629,7 +643,7 @@ class LinkManagerDialog(Dialog):
             entry = replace(self._blank(), name=tr("New connection"))
         entry = replace(entry, name=unique_name(entry.name, taken))
         await asyncio.to_thread(profiles.save, entry.name, entry.scheme, entry.host, entry.user, entry.port,
-                                entry.path, entry.options)
+                                entry.path, entry.options, entry.forwards)
         await self._reread(entry.name)
         if self.chosen is not None:
             self._fill(self.chosen)
@@ -664,12 +678,97 @@ class LinkManagerDialog(Dialog):
             return False
         self.record_history()
         await asyncio.to_thread(profiles.replace, old, entry.name, entry.scheme, entry.host, entry.user,
-                                entry.port, entry.path, entry.options)
+                                entry.port, entry.path, entry.options, entry.forwards)
         await self._reread(entry.name)
         if self.chosen is not None:
             self._fill(self.chosen)
         self._say(tr('"{name}" saved').format(name=escape_caption(entry.name)))
         return True
+
+    # -- SSH's forwards and key ------------------------------------------------------
+
+    def _set_forwards(self, text: str) -> None:
+        """The lines' forwards made *text*, the button counting them."""
+        from navigator.lib.drives import forwards
+
+        self.forwards_text = text
+        count = len(forwards.parse(text, strict=False))
+        self.forwards_button.text = tr("~F~orwards ({n})...").format(n=count) if count else tr("~F~orwards...")
+
+    async def on_forwards_button_click(self, event: Event) -> bool:
+        self.spawn(self.edit_forwards())
+        return True
+
+    async def edit_forwards(self) -> None:
+        """*Forwards...*: the lines' forwards edited in their own box; a
+        chosen connection is then *changed* until saved."""
+        from navigator.lib.drives import forwards
+        from navigator.widgets.drives.forwards_dialog import ForwardsDialog
+
+        answer = await ForwardsDialog(forwards.parse(self.forwards_text, strict=False)).execute(self.application)
+        if answer is not None:
+            self._set_forwards(forwards.render(answer))
+            self._show_state()
+        self.forwards_button.focus()
+
+    async def on_copy_key_click(self, event: Event) -> bool:
+        self.spawn(self.copy_key_to_server())
+        return True
+
+    async def copy_key_to_server(self) -> None:
+        """*Copy key...*: which public key -- the only one, one chosen, or
+        one to make when ``~/.ssh`` has none -- and the box answers a
+        request for ``ssh-copy-id`` to put it on the lines' server, which
+        the caller runs in a command window (a dialog cannot have one over
+        it: windows are the desktop's, under every dialog).  Needs no
+        paramiko; a changed connection is settled first, as for *Connect*."""
+        from navigator.lib.drives import credentials, remote_shell
+
+        problem = self.problem()
+        if problem:
+            self._say(problem)
+            self._first_line().focus()
+            return
+        if remote_shell.copy_id_program() is None:
+            self._say(tr("ssh-copy-id is not installed (it comes with the OpenSSH client)"))
+            return
+        keys = await asyncio.to_thread(credentials.public_keys)
+        generate = False
+        if not keys:
+            made = credentials.ssh_directory() / "id_ed25519.pub"
+            answer = await Dialog(title=tr("Copy key"), prompt=escape_caption(tr(
+                "There is no public key in {directory}. Make {key} (ed25519) and copy it?").format(
+                directory=str(credentials.ssh_directory()), key=made.name[:-4])),
+                buttons="yes-no").execute(self.application)
+            if answer is not True:
+                return
+            key, generate = str(made), True
+        elif len(keys) == 1:
+            key = str(keys[0])
+        else:
+            key = await self._choose_key(keys)
+            if key is None:
+                return
+        if not await self._settle():
+            return
+        entry = self._entry()
+        self.record_history()
+        self.close(ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path,
+                                  options=entry.options, forwards=entry.forwards, copy_key=key,
+                                  generate_key=generate))
+
+    async def _choose_key(self, keys: list[Any]) -> str | None:
+        """One of several public keys, from a menu under *Copy key*."""
+        from navml.widgets.menu.popup_menu import PopupMenu
+        from navml.widgets.menu.sub_menu import SubMenu
+
+        menu = SubMenu()
+        paths = {id(menu.add_item(escape_caption(path.name))): str(path) for path in keys}
+        ox, oy = self.copy_key.offset()
+        chosen = await PopupMenu(menu, ox + self.copy_key.x, oy + self.copy_key.y + self.copy_key.height,
+                                 current=0, behind=self, title=tr("Key to copy")).execute(self.application)
+        self.copy_key.focus()
+        return paths.get(id(chosen))
 
     async def on_delete_click(self, event: Event) -> bool:
         self.spawn(self.delete_link())

@@ -2666,11 +2666,17 @@ class Shell(DockLayout):
                                           missing=missing).execute(self.application)
         if request is None:
             return False
+        if request.copy_key:
+            self.copy_ssh_key(request)
+            return False
         target = location_of(request)
         if family == "gvfs" and target.path == PurePosixPath("."):
             # A desktop place opens at its root: GVfs and KIO have no home there.
             target = Location(target.site, PurePosixPath("/"))
-        if not await self.go_remote(panel, target):
+        from navigator.lib.drives import forwards
+
+        wanted = forwards.parse(request.forwards, strict=False) if family == "sftp" else None
+        if not await self.go_remote(panel, target, wanted):
             return False
         if family != "gvfs":
             # Remembered once it worked, as ``navy_link`` does.
@@ -2686,13 +2692,14 @@ class Shell(DockLayout):
         (:mod:`navigator.lib.drives.kio`).  True once the panel is there."""
         return await self.link_manager(panel, "gvfs")
 
-    async def go_remote(self, panel: Any, target: Location) -> bool:
+    async def go_remote(self, panel: Any, target: Location, forwards: list[Any] | None = None) -> bool:
         """*panel* to *target* on another drive, connected first -- asking
-        what the connection needs.  A *target* whose path is ``.`` opens on
-        the home directory there.  True once the panel is there."""
+        what the connection needs, *forwards* opened with it (:meth:`reach`).
+        A *target* whose path is ``.`` opens on the home directory there.
+        True once the panel is there."""
         from navigator.lib.drives import profiles
 
-        if not await self.reach(target):
+        if not await self.reach(target, forwards):
             return False
         if target.path == profiles.HOME:
             try:
@@ -2706,11 +2713,12 @@ class Shell(DockLayout):
         panel.location = target
         return True
 
-    async def reach(self, target: Location) -> bool:
+    async def reach(self, target: Location, forwards: list[Any] | None = None) -> bool:
         """*target*'s drive connected, if it is not already: the host key, a
         password or a passphrase asked as the connection needs them, and
         tried again with each answer.  False if it could not be, which is
-        said, or was cancelled."""
+        said, or was cancelled.  *forwards* are SSH's port forwards to open
+        with a new connection; None, the ones a profile for the place keeps."""
         from navigator.lib.drives import credentials, sessions
         from navigator.lib.drives.sessions import (
             SESSIONS, Answers, NeedPassphrase, NeedPassword, UnknownHostKey,
@@ -2761,6 +2769,14 @@ class Shell(DockLayout):
             if SESSIONS.is_open(site):
                 return True
             answers = Answers(start=str(target.path), interactive=self._interactive_asker(protocol))
+            if site.scheme == "sftp":
+                # The port forwards to open with it: the link manager's, or
+                # those kept with the place (the Link box, a saved desktop,
+                # the command line) -- read on a thread, from the database.
+                from navigator.lib.drives import profiles
+
+                answers.forwards = (forwards if forwards is not None
+                                    else await asyncio.to_thread(profiles.forwards_for, site))
             while True:
                 job = Job()
                 job.position = job.total = 0
@@ -2923,13 +2939,18 @@ class Shell(DockLayout):
         request = await LinkManagerDialog(entries, family=family, mode="shell").execute(self.application)
         if request is None:
             return None
+        if request.copy_key:
+            return self.copy_ssh_key(request)
         location = location_of(request)
         window = self._running_remote_shell(location.site)
         if window is None:
             # Gone when the shell ends -- Ctrl+D, ``exit`` -- however its last
             # command did; kept to show the program's own failure (refused,
             # unreachable, not let in, no such container).
-            window = self.run_in_window(remote_shell.command(location, request.options),
+            from navigator.lib.drives import forwards
+
+            window = self.run_in_window(remote_shell.command(location, request.options,
+                                                             forwards.parse(request.forwards, strict=False)),
                                         closes=remote_shell.closes(location.site.scheme),
                                         title=remote_shell.title(location.site))
             if window is None:
@@ -2938,6 +2959,18 @@ class Shell(DockLayout):
         await asyncio.to_thread(recent.remember, recent.Recent(
             request.scheme, request.host, request.user, request.port, request.path))
         return window
+
+    def copy_ssh_key(self, request: Any) -> Any:
+        """The SSH link manager's *Copy key...*: ``ssh-copy-id`` putting
+        *request*'s public key on its server, in a command window that stays
+        to show how it went (``ssh`` asks the password there, ``ssh-keygen``
+        a passphrase first when the key is being made).  Returns the window."""
+        from navigator.lib.drives import remote_shell
+
+        site = Site(request.scheme, request.user, request.host, request.port)
+        return self.run_in_window(
+            remote_shell.copy_id_command(site, request.copy_key, request.options, generate=request.generate_key),
+            closes=False, title=f"ssh-copy-id {remote_shell.login(site)}")
 
     async def on_hang_up(self, event: HangUp) -> bool:
         self.spawn(self.hang_up())

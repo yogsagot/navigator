@@ -35,6 +35,8 @@ class Entry:
     path: str = ""
     #: SSH's: Remote shell's own ``ssh`` words (``RemoteProfile.options``).
     options: str = ""
+    #: SSH's: the port forwards, one a line (``RemoteProfile.forwards``).
+    forwards: str = ""
 
 
 def profiles() -> list[RemoteProfile]:
@@ -56,19 +58,23 @@ def location_of(profile: RemoteProfile) -> Location:
 
 
 def save(name: str, scheme: str, host: str, user: str = "", port: int = 0, path: str = "",
-         options: str | None = None) -> RemoteProfile:
+         options: str | None = None, forwards: str | None = None) -> RemoteProfile:
     """*name* kept as the profile for this place, replacing one of that name.
-    *options* None keeps a replaced one's (a box that does not show them)."""
+    *options* and *forwards* None keep a replaced one's (a box that does not
+    show them)."""
     with DATABASE.transaction():
         row = find(name)
         if row is None:
             last = max((each.seq for each in RemoteProfile.all()), default=0)
             row = RemoteProfile.create(name=name, scheme=scheme, host=host, user=user, port=port,
-                                       path=path, options=options or "", seq=last + 1)
+                                       path=path, options=options or "", forwards=forwards or "",
+                                       seq=last + 1)
         else:
             row.scheme, row.host, row.user, row.port, row.path = scheme, host, user, port, path
             if options is not None:
                 row.options = options
+            if forwards is not None:
+                row.forwards = forwards
             row.save()
     return row
 
@@ -82,15 +88,16 @@ def remove(name: str) -> bool:
 
 
 def replace(old: str, name: str, scheme: str, host: str, user: str = "", port: int = 0,
-            path: str = "", options: str | None = None) -> RemoteProfile:
+            path: str = "", options: str | None = None, forwards: str | None = None) -> RemoteProfile:
     """The profile *old*, edited -- renamed to *name* if that differs, in the
     place it had.  A name another profile has already is that one's, and it
-    goes: the one being edited takes its name.  *options* None keeps its own:
-    the Link box's F2 edits in ``ConnectDialog``, which has no such line."""
+    goes: the one being edited takes its name.  *options* and *forwards* None
+    keep its own: the Link box's F2 edits in ``ConnectDialog``, which has no
+    such lines."""
     with DATABASE.transaction():
         row = find(old)
         if row is None:
-            return save(name, scheme, host, user, port, path, options)
+            return save(name, scheme, host, user, port, path, options, forwards)
         if name != old:
             other = find(name)
             if other is not None:
@@ -98,13 +105,30 @@ def replace(old: str, name: str, scheme: str, host: str, user: str = "", port: i
         row.name, row.scheme, row.host, row.user, row.port, row.path = name, scheme, host, user, port, path
         if options is not None:
             row.options = options
+        if forwards is not None:
+            row.forwards = forwards
         row.save()
     return row
 
 
 def entries() -> list[Entry]:
     """Every profile as an :class:`Entry`, in the user's order."""
-    return [Entry(row.name, row.scheme, row.host, row.user, row.port, row.path, row.options) for row in profiles()]
+    return [Entry(row.name, row.scheme, row.host, row.user, row.port, row.path, row.options, row.forwards)
+            for row in profiles()]
+
+
+def forwards_for(site: Site) -> list:
+    """The port forwards kept with *site*: the first profile's, in the
+    user's order, that is this place -- scheme, user, host and port -- so a
+    connection reached from the Link box, a saved desktop or the command line
+    opens them as the link manager's *Connect* does.  None kept: ``[]``.
+    On a thread: it reads the database.  A line that will not parse is left out."""
+    from navigator.lib.drives import forwards
+
+    for row in profiles():
+        if site_of(row) == site and row.forwards.strip():
+            return forwards.parse(row.forwards, strict=False)
+    return []
 
 
 def store(entries: list[Entry]) -> None:
@@ -119,10 +143,11 @@ def store(entries: list[Entry]) -> None:
             row = find(entry.name)
             if row is None:
                 RemoteProfile.create(name=entry.name, scheme=entry.scheme, host=entry.host, user=entry.user,
-                                     port=entry.port, path=entry.path, options=entry.options, seq=seq)
+                                     port=entry.port, path=entry.path, options=entry.options,
+                                     forwards=entry.forwards, seq=seq)
                 continue
-            row.scheme, row.host, row.user, row.port, row.path, row.options, row.seq = (
-                entry.scheme, entry.host, entry.user, entry.port, entry.path, entry.options, seq)
+            row.scheme, row.host, row.user, row.port, row.path, row.options, row.forwards, row.seq = (
+                entry.scheme, entry.host, entry.user, entry.port, entry.path, entry.options, entry.forwards, seq)
             row.save()
 
 
@@ -141,5 +166,5 @@ def move(name: str, by: int) -> bool:
     return True
 
 
-__all__ = ["Entry", "HOME", "entries", "find", "location_of", "move", "profiles", "remove", "replace", "save",
+__all__ = ["Entry", "HOME", "entries", "find", "forwards_for", "location_of", "move", "profiles", "remove", "replace", "save",
            "site_of", "store"]

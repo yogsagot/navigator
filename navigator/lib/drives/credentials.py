@@ -35,6 +35,27 @@ def ssh_directory() -> Path:
     return Path(os.path.expanduser("~/.ssh"))
 
 
+#: The key files ``ssh`` tries by default, in its order: the first of them
+#: there is the one *Copy key* offers first.
+DEFAULT_KEYS = ("id_ed25519", "id_ecdsa", "id_ed25519_sk", "id_ecdsa_sk", "id_rsa")
+
+
+def public_keys() -> list[Path]:
+    """The public keys in ``~/.ssh`` (``*.pub`` beside their private half or
+    not), ``ssh``'s default ones first, then by name.  On a thread: it lists
+    a directory."""
+    try:
+        found = [path for path in ssh_directory().glob("*.pub") if path.is_file()]
+    except OSError:
+        return []
+
+    def order(path: Path) -> tuple[int, str]:
+        stem = path.name[:-4]
+        return (DEFAULT_KEYS.index(stem) if stem in DEFAULT_KEYS else len(DEFAULT_KEYS), path.name)
+
+    return sorted(found, key=order)
+
+
 @dataclass
 class HostConfig:
     """What ``~/.ssh/config`` says of a host, merged with what the site says."""
@@ -188,6 +209,6 @@ def forget_password(site: Site) -> None:
 
 
 __all__ = [
-    "HostConfig", "KEYRING_SERVICE", "account", "fingerprint", "forget_password", "host_config",
-    "keyring_available", "known_name", "save_host_key", "save_password", "saved_password",
+    "DEFAULT_KEYS", "HostConfig", "KEYRING_SERVICE", "account", "fingerprint", "forget_password", "host_config",
+    "keyring_available", "known_name", "public_keys", "save_host_key", "save_password", "saved_password",
 ]

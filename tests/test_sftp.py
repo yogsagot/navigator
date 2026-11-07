@@ -317,3 +317,157 @@ def test_proxyjump_goes_through_two_hosts_and_each_asks_its_own(tmp_path, isolat
         SESSIONS.close_all()
         for each in (first, second, target):
             each.stop()
+
+
+# -- port forwards ------------------------------------------------------------------------------
+
+
+def _echo_server():
+    """A TCP server on the loopback that sends back what it is sent."""
+    import socket
+    import threading
+
+    listener = socket.create_server(("127.0.0.1", 0))
+
+    def serve():
+        while True:
+            try:
+                sock, _ = listener.accept()
+            except OSError:
+                return
+
+            def echo(sock=sock):
+                with sock:
+                    while data := sock.recv(4096):
+                        sock.sendall(data)
+
+            threading.Thread(target=echo, daemon=True).start()
+
+    threading.Thread(target=serve, daemon=True).start()
+    return listener, listener.getsockname()[1]
+
+
+def _round_trip(sock, data=b"hello through the tunnel"):
+    sock.sendall(data)
+    got = b""
+    while len(got) < len(data):
+        part = sock.recv(4096)
+        assert part, "the tunnel closed"
+        got += part
+    return got
+
+
+@pytest.fixture
+def forwarding(tmp_path, isolated):
+    served = SftpServer(tmp_path, forwarding=True)
+    echo, echo_port = _echo_server()
+    yield served, echo_port
+    SESSIONS.close_all()
+    served.stop()
+    echo.close()
+
+
+def _connect_with(server, *forwards):
+    return SESSIONS.connect(site_of(server), Answers(password=PASSWORD, host_key="once", forwards=list(forwards)))
+
+
+def test_a_local_forward_carries_a_connection_to_where_the_server_sees(forwarding):
+    import socket
+
+    from navigator.lib.drives.forwards import Forward
+
+    server, echo_port = forwarding
+    drive = _connect_with(server, Forward("L", 0, "", "127.0.0.1", echo_port))
+    [opened] = drive.connection.tunnels.opened
+    assert opened.error == "" and opened.port
+    with socket.create_connection(("127.0.0.1", opened.port), timeout=5) as sock:
+        assert _round_trip(sock) == b"hello through the tunnel"
+    assert ("Forward", f"L 127.0.0.1:{opened.port} → 127.0.0.1:{echo_port}") in drive.describe()
+
+
+def test_a_dynamic_forward_is_a_socks5_proxy(forwarding):
+    import socket
+    import struct
+
+    from navigator.lib.drives.forwards import Forward
+
+    server, echo_port = forwarding
+    drive = _connect_with(server, Forward("D", 0))
+    [opened] = drive.connection.tunnels.opened
+    with socket.create_connection(("127.0.0.1", opened.port), timeout=5) as sock:
+        sock.sendall(b"\x05\x01\x00")
+        assert sock.recv(2) == b"\x05\x00"
+        name = b"127.0.0.1"
+        sock.sendall(b"\x05\x01\x00\x03" + bytes([len(name)]) + name + struct.pack("!H", echo_port))
+        reply = b""
+        while len(reply) < 10:
+            reply += sock.recv(10 - len(reply))
+        assert reply[:2] == b"\x05\x00"
+        assert _round_trip(sock) == b"hello through the tunnel"
+
+
+def test_a_remote_forward_carries_the_server_s_port_back_here(forwarding):
+    import socket
+
+    from navigator.lib.drives.forwards import Forward
+
+    server, echo_port = forwarding
+    drive = _connect_with(server, Forward("R", 0, "", "127.0.0.1", echo_port))
+    [opened] = drive.connection.tunnels.opened
+    assert opened.error == "" and opened.port
+    # The test server listens on the loopback for its "remote" end.
+    with socket.create_connection(("127.0.0.1", opened.port), timeout=5) as sock:
+        assert _round_trip(sock) == b"hello through the tunnel"
+
+
+def test_a_port_already_taken_is_said_and_the_connection_still_works(forwarding):
+    import socket
+
+    from navigator.lib.drives.forwards import Forward
+
+    server, echo_port = forwarding
+    with socket.create_server(("127.0.0.1", 0)) as taken:
+        port = taken.getsockname()[1]
+        drive = _connect_with(server, Forward("L", port, "", "127.0.0.1", echo_port))
+        [opened] = drive.connection.tunnels.opened
+        assert opened.error
+        assert any(name == "Forward" and value.endswith(opened.error) for name, value in drive.describe())
+        assert drive.names(Location(drive.site, PurePosixPath("/"))) is not None
+
+
+def test_forwards_open_again_after_the_silent_reconnect_and_close_with_the_drive(forwarding):
+    import socket
+
+    from navigator.lib.drives.forwards import Forward
+
+    server, echo_port = forwarding
+    drive = _connect_with(server, Forward("L", 0, "", "127.0.0.1", echo_port))
+    first = drive.connection.tunnels
+    server.drop()
+    for _ in range(100):
+        if drive.connection.tunnels is not first and drive.connection.tunnels is not None:
+            break
+        time.sleep(0.02)
+    again = drive.connection.tunnels
+    assert again is not first
+    [opened] = again.opened
+    with socket.create_connection(("127.0.0.1", opened.port), timeout=5) as sock:
+        assert _round_trip(sock) == b"hello through the tunnel"
+    SESSIONS.close(drive.site)
+    assert drive.connection.tunnels is None
+    time.sleep(0.1)
+    with pytest.raises(OSError):
+        socket.create_connection(("127.0.0.1", opened.port), timeout=1).close()
+
+
+def test_a_profile_s_forwards_are_found_by_its_place(server):
+    from navigator.lib.drives import profiles
+    from navigator.lib.drives.forwards import Forward
+
+    site = site_of(server)
+    profiles.save("other", "sftp", "elsewhere", "tester", server.port, forwards="L 1:a:2")
+    profiles.save("here", "sftp", site.host, site.user, site.port, forwards="D 1080\nnot a forward")
+    assert profiles.forwards_for(site) == [Forward("D", 1080)]
+    assert profiles.forwards_for(Site("sftp", "", "nowhere", 0)) == []
+    profiles.replace("here", "here", "sftp", site.host, site.user, site.port)
+    assert profiles.forwards_for(site) == [Forward("D", 1080)]

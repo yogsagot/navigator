@@ -1,0 +1,39 @@
+# navml: generated
+"""The merged surface of ``navigator.widgets.drives.forwards_dialog.forwards_dialog``."""
+
+from typing import Any as _Any
+
+from navkit.events import Event as _Event
+
+from navml.component import Component as _Component
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+
+from typing import Any
+from navkit.events import Event, KeyEvent
+from navkit.i18n import tr
+from navml.widgets.dialog.control import escape_caption
+from navigator.lib.drives.forwards import Forward, describe
+
+
+class ForwardsDialog(Dialog, _Component):
+    forwards_caption: Label
+    forwards: ListViewer
+    append: Button
+    edit: Button
+    delete: Button
+    def __init__(self, forwards: list[Forward] | None = ..., **kwargs: Any) -> None: ...
+    def mounted(self) -> None: ...
+    def key_hints(self) -> list[tuple[str, str]]: ...
+    def _refresh(self, cursor: int) -> None: ...
+    current: int | None
+    def accept(self) -> list[Forward]: ...
+    async def on_key(self, event: KeyEvent) -> bool: ...
+    async def on_append_click(self, event: Event) -> bool: ...
+    async def on_edit_click(self, event: Event) -> bool: ...
+    async def on_delete_click(self, event: Event) -> bool: ...
+    async def add_forward(self) -> None: ...
+    async def edit_forward(self) -> None: ...
+    async def delete_forward(self) -> None: ...

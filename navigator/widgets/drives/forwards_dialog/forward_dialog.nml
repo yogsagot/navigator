@@ -1,0 +1,92 @@
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.radio_buttons import RadioButtons
+from navml.widgets.dialog.static_text import StaticText
+
+#: One port forward of an SSH connection, as ``ssh``'s ``-L``, ``-R`` or
+#: ``-D`` would take it (``navigator/lib/drives/forwards.py``).  Ours: DN's
+#: link was a cable, with no ports to forward.  The kind down the left with
+#: what it does beside it, the two ends under them; a dynamic forward has
+#: no destination, its SOCKS client says where.
+ForwardDialog(Dialog):
+    modal_width: 62
+    modal_height: 16
+    title: "Port forward"
+
+    Label:
+        id: kind_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "Kind"
+        link: kind
+
+    RadioButtons:
+        id: kind
+        x: 3
+        y: 2
+        width: 24
+        height: 3
+        items: ["~L~ocal (-L)", "~R~emote (-R)", "~D~ynamic, SOCKS (-D)"]
+
+    #: What the kind chosen does, in words.
+    StaticText:
+        id: about
+        x: 29
+        y: 2
+        width: max(0, parent.width - 31)
+        height: 3
+        text: ""
+        wrap: True
+
+    Field:
+        id: bind
+        x: 2
+        y: 6
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Listen ~a~ddress"
+        label_width: 19
+        history_id: "forward_bind"
+
+    Field:
+        id: port
+        x: 2
+        y: 7
+        width: 30
+        height: 1
+        label_text: "Listen ~p~ort"
+        label_width: 19
+        history_id: "forward_port"
+
+    Field:
+        id: host
+        x: 2
+        y: 8
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "Destination ~h~ost"
+        label_width: 19
+        history_id: "forward_host"
+
+    Field:
+        id: host_port
+        x: 2
+        y: 9
+        width: 30
+        height: 1
+        label_text: "Destination p~o~rt"
+        label_width: 19
+        history_id: "forward_host_port"
+
+    #: Why OK will not take the lines.
+    StaticText:
+        id: problem
+        x: 2
+        y: 10
+        width: max(0, parent.width - 4)
+        height: 2
+        text: ""
+        wrap: True

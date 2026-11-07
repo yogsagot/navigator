@@ -1,0 +1,53 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.list_viewer import ListViewer
+
+#: The SSH link manager's *Forwards...*: a connection's port forwards, one a
+#: row, added, edited and deleted here and kept with the connection when the
+#: manager saves it.  Ours: DN's link was a cable.  The list on the left, the
+#: buttons down the right as *Saved links* has them, OK and Cancel under.
+ForwardsDialog(Dialog):
+    modal_width: 66
+    modal_height: 17
+    title: "Port forwards"
+
+    Label:
+        id: forwards_caption
+        x: 2
+        y: 1
+        width: 20
+        height: 1
+        text: "~F~orwards"
+        link: forwards
+
+    ListViewer:
+        id: forwards
+        x: 2
+        y: 2
+        width: 48
+        height: 10
+
+    Button:
+        id: append
+        text: "~A~dd..."
+        x: 52
+        y: 2
+        width: 12
+        height: 2
+
+    Button:
+        id: edit
+        text: "~E~dit..."
+        x: 52
+        y: 4
+        width: 12
+        height: 2
+
+    Button:
+        id: delete
+        text: "~D~elete"
+        x: 52
+        y: 6
+        width: 12
+        height: 2

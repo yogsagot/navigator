@@ -30,6 +30,9 @@ class _Server(paramiko.ServerInterface):
         self.forwarding = forwarding
         #: Where each ``direct-tcpip`` channel asked to go, by its id.
         self.destinations: dict[int, tuple[str, int]] = {}
+        #: The transport this side serves (for ``-R``), and its listeners by port.
+        self.transport: paramiko.Transport | None = None
+        self.listeners: dict[int, socket.socket] = {}
 
     def check_auth_password(self, username: str, password: str) -> int:
         if self.interactive:
@@ -57,6 +60,39 @@ class _Server(paramiko.ServerInterface):
             return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
         self.destinations[chanid] = tuple(destination)
         return paramiko.OPEN_SUCCEEDED
+
+    def check_port_forward_request(self, address: str, port: int) -> Any:
+        """``tcpip-forward`` (``ssh -R``): a port listened on here, each
+        connection to it sent back over a ``forwarded-tcpip`` channel."""
+        if not self.forwarding or self.transport is None:
+            return False
+        listener = socket.create_server(("127.0.0.1", port))
+        bound = listener.getsockname()[1]
+        self.listeners[bound] = listener
+        threading.Thread(target=self._serve_remote, args=(listener, address, bound), daemon=True).start()
+        return bound
+
+    def cancel_port_forward_request(self, address: str, port: int) -> None:
+        listener = self.listeners.pop(port, None)
+        if listener is not None:
+            listener.close()
+
+    def _serve_remote(self, listener: socket.socket, address: str, port: int) -> None:
+        listener.settimeout(0.5)
+        while self.transport is not None and self.transport.is_active() and port in self.listeners:
+            try:
+                sock, peer = listener.accept()
+            except socket.timeout:
+                continue
+            except OSError:
+                return
+            try:
+                channel = self.transport.open_forwarded_tcpip_channel(peer, (address, port))
+            except Exception:
+                sock.close()
+                continue
+            threading.Thread(target=_pump, args=(channel, sock), daemon=True).start()
+            threading.Thread(target=_pump, args=(sock, channel), daemon=True).start()
 
 
 def _pump(source: Any, sink: Any) -> None:
@@ -267,6 +303,7 @@ class SftpServer:
             transport.add_server_key(self.host_key)
             transport.set_subsystem_handler("sftp", SFTPServer, self._interface)
             server = _Server(self.interactive, self.forwarding)
+            server.transport = transport
             try:
                 transport.start_server(server=server)
             except (paramiko.SSHException, EOFError, OSError):

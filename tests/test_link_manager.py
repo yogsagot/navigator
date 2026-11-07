@@ -441,3 +441,112 @@ def test_an_edit_elsewhere_keeps_a_connection_s_ssh_options(saved):
     entries = profiles.entries()
     profiles.store(entries)
     assert profiles.find("web").options == "-A"
+
+
+# -- SSH's port forwards and Copy key -----------------------------------------------------------
+
+
+def test_forwards_are_ssh_s_and_edited_in_their_own_box_then_kept_by_save(desk):
+    from navigator.lib.drives.forwards import Forward
+    from navigator.widgets.drives.forwards_dialog import ForwardDialog, ForwardsDialog
+
+    assert not LinkManagerDialog([], family="ftp").forwards_button.visible
+    assert not LinkManagerDialog([], family="ftp").copy_key.visible
+    seen = {}
+
+    def fill(a):
+        d = a.modal
+        d.port.value, d.host.value, d.host_port.value = "8080", "db", "5432"
+
+    def dynamic(a):
+        d = a.modal
+        d.kind.value = d.kind.sel = 2
+        d.port.value = "1080"
+
+    run_app(desk, [open_manager, Until(is_manager), lambda a: a.modal._choose(0),
+                   lambda a: seen.update(caption=a.modal.forwards_button.text),
+                   lambda a: a.modal.spawn(a.modal.edit_forwards()), Until(modal_is("ForwardsDialog")),
+                   KeyEvent("insert"), Until(modal_is("ForwardDialog")),
+                   # OK with no port: refused, said, still up.
+                   lambda a: a.spawn(a.modal.on_ok_click(None)),
+                   lambda a: seen.update(refused=a.modal.problem.text, still=type(a.modal).__name__),
+                   fill, lambda a: a.spawn(a.modal.on_ok_click(None)), Until(modal_is("ForwardsDialog")),
+                   KeyEvent("insert"), Until(modal_is("ForwardDialog")), dynamic,
+                   lambda a: seen.update(greyed=a.modal.host.disabled),
+                   lambda a: a.spawn(a.modal.on_ok_click(None)), Until(modal_is("ForwardsDialog")),
+                   lambda a: seen.update(rows=list(a.modal.forwards.items)),
+                   lambda a: a.spawn(a.modal.on_ok_click(None)), Until(is_manager),
+                   Until(lambda a: a.modal.links.items[0] == "web *"),
+                   lambda a: seen.update(counted=a.modal.forwards_button.text, request=a.modal.accept()),
+                   KeyEvent("f2"), Until(lambda a: "saved" in a.modal.missing.text), KeyEvent("escape")])
+    assert seen["caption"] == "~F~orwards..."
+    assert seen["refused"] == "Type the port to listen on" and seen["still"] == "ForwardDialog"
+    assert seen["greyed"]
+    assert seen["rows"] == ["L 127.0.0.1:8080 → db:5432", "D 127.0.0.1:1080 (SOCKS)"]
+    assert seen["counted"] == "~F~orwards (2)..."
+    assert seen["request"].forwards == "L 8080:db:5432\nD 1080"
+    assert profiles.find("web").forwards == "L 8080:db:5432\nD 1080"
+    assert profiles.forwards_for(profiles.site_of(profiles.find("web"))) == [
+        Forward("L", 8080, "", "db", 5432), Forward("D", 1080)]
+    assert ForwardDialog and ForwardsDialog
+
+
+def test_connect_hands_a_saved_connection_s_forwards_to_the_panel_s_connection(desk, monkeypatch):
+    from navigator.lib.drives.forwards import Forward
+
+    profiles.save("web", "sftp", "web.example", "deploy", 2222, "/srv", forwards="L 8080:db:5432")
+    asked = {}
+
+    async def go_remote(self, panel, target, forwards=None):
+        asked.update(target=target, forwards=forwards)
+        return False
+
+    monkeypatch.setattr("navigator.widgets.shell.shell.Shell.go_remote", go_remote)
+    monkeypatch.setattr("navigator.lib.drives.sessions.available", lambda scheme: None)
+    run_app(desk, [open_manager, Until(is_manager), lambda a: a.modal._choose(0), KeyEvent("enter"),
+                   Until(lambda a: "forwards" in asked)])
+    assert asked["forwards"] == [Forward("L", 8080, "", "db", 5432)]
+
+
+@pytest.fixture
+def keys_home(tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    (home / ".ssh").mkdir(parents=True)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setattr("navigator.lib.drives.remote_shell.copy_id_program", lambda: "/usr/bin/ssh-copy-id")
+    ran = []
+    monkeypatch.setattr("navigator.widgets.shell.shell.Shell.run_in_window",
+                        lambda self, command, **kwargs: ran.append((command, kwargs)) or object())
+    return home, ran
+
+
+def test_copy_key_runs_ssh_copy_id_with_the_one_key_there(desk, keys_home):
+    home, ran = keys_home
+    (home / ".ssh" / "id_ed25519.pub").write_text("ssh-ed25519 AAAA me@here")
+    run_app(desk, [open_manager, Until(is_manager), lambda a: a.modal._choose(0),
+                   lambda a: a.modal.spawn(a.modal.copy_key_to_server()), Until(lambda a: ran)])
+    command, kwargs = ran[0]
+    assert command == f"ssh-copy-id -i {home}/.ssh/id_ed25519.pub -p 2222 deploy@web.example"
+    assert kwargs["closes"] is False and kwargs["title"] == "ssh-copy-id deploy@web.example:2222"
+
+
+def test_copy_key_with_no_key_offers_to_make_one(desk, keys_home):
+    home, ran = keys_home
+    run_app(desk, [open_manager, Until(is_manager), lambda a: setattr(a.modal.host, "value", "box.lan"),
+                   lambda a: a.modal.spawn(a.modal.copy_key_to_server()), Until(modal_is("Dialog")),
+                   KeyEvent("enter"), Until(lambda a: ran)])
+    assert ran[0][0] == (f"ssh-keygen -t ed25519 -f {home}/.ssh/id_ed25519 && "
+                         f"ssh-copy-id -i {home}/.ssh/id_ed25519.pub box.lan")
+
+
+def test_copy_key_needs_a_host_and_ssh_copy_id(desk, keys_home, monkeypatch):
+    _, ran = keys_home
+    seen = {}
+    run_app(desk, [open_manager, Until(is_manager), lambda a: a.modal.spawn(a.modal.copy_key_to_server()),
+                   lambda a: seen.update(no_host=a.modal.missing.text),
+                   lambda a: setattr(a.modal.host, "value", "box.lan"),
+                   lambda a: monkeypatch.setattr("navigator.lib.drives.remote_shell.copy_id_program", lambda: None),
+                   lambda a: a.modal.spawn(a.modal.copy_key_to_server()),
+                   lambda a: seen.update(no_tool=a.modal.missing.text), KeyEvent("escape")])
+    assert seen["no_host"] == "Type a host to connect to"
+    assert "ssh-copy-id is not installed" in seen["no_tool"] and not ran

@@ -36,21 +36,22 @@ class RemoteProfile(Model):    # remote_profile.nml:9
         _Field("user", str, ''),    # remote_profile.nml:19
         _Field("path", str, ''),    # remote_profile.nml:21
         _Field("options", str, ''),    # remote_profile.nml:25
-        _Field("seq", int, 0),    # remote_profile.nml:27
+        _Field("forwards", str, ''),    # remote_profile.nml:30
+        _Field("seq", int, 0),    # remote_profile.nml:32
     )
     __indexes__ = (
-        _Index("by_name", ('name',), unique=True),    # remote_profile.nml:28
-        _Index("by_seq", ('seq',)),    # remote_profile.nml:29
+        _Index("by_name", ('name',), unique=True),    # remote_profile.nml:33
+        _Index("by_seq", ('seq',)),    # remote_profile.nml:34
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "remote_profiles" ("id" INTEGER PRIMARY KEY, "name" TEXT NOT NULL DEFAULT \'\', "scheme" TEXT NOT NULL DEFAULT \'\', "host" TEXT NOT NULL DEFAULT \'\', "port" INTEGER NOT NULL DEFAULT 0, "user" TEXT NOT NULL DEFAULT \'\', "path" TEXT NOT NULL DEFAULT \'\', "options" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0)',
+        'CREATE TABLE "remote_profiles" ("id" INTEGER PRIMARY KEY, "name" TEXT NOT NULL DEFAULT \'\', "scheme" TEXT NOT NULL DEFAULT \'\', "host" TEXT NOT NULL DEFAULT \'\', "port" INTEGER NOT NULL DEFAULT 0, "user" TEXT NOT NULL DEFAULT \'\', "path" TEXT NOT NULL DEFAULT \'\', "options" TEXT NOT NULL DEFAULT \'\', "forwards" TEXT NOT NULL DEFAULT \'\', "seq" INTEGER NOT NULL DEFAULT 0)',
         'CREATE UNIQUE INDEX "remote_profiles_by_name" ON "remote_profiles" ("name")',
         'CREATE INDEX "remote_profiles_by_seq" ON "remote_profiles" ("seq")',
     )
-    __schema__ = "858255efa890d37c"
+    __schema__ = "c4be37229d001dbc"
 
     id: int | None
 
@@ -75,5 +76,11 @@ class RemoteProfile(Model):    # remote_profile.nml:9
     #: through paramiko, which reads ``~/.ssh/config`` and no flags.
     options: str    # remote_profile.nml:25
 
+    #: SSH's alone: the port forwards kept with the connection, one a line in
+    #: ``ssh``'s own words -- ``L 8080:db:5432``, ``R 9000:localhost:9000``,
+    #: ``D 1080`` (``navigator/lib/drives/forwards.py``).  Opened while a
+    #: panel's connection is up, and passed to Remote shell's ``ssh``.
+    forwards: str    # remote_profile.nml:30
+
     #: Smaller first; a profile added goes after every other.
-    seq: int    # remote_profile.nml:27
+    seq: int    # remote_profile.nml:32

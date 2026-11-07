@@ -99,7 +99,7 @@ def words_of(text: str) -> list[str]:
         return text.split()
 
 
-def command(location: Location, options: str = "") -> str:
+def command(location: Location, options: str = "", forwards: list = ()) -> str:
     """The command line that logs in to *location*'s server and starts a
     login shell in its directory -- or the home directory, if that one has
     gone -- quoted for the local ``sh -c`` and the remote shell both.  With
@@ -108,7 +108,12 @@ def command(location: Location, options: str = "") -> str:
 
     ``[remote] ssh_options`` (``-Y`` unless changed) come first, then the
     connection's own *options*, both before the host -- a later word wins
-    where ``ssh`` lets one."""
+    where ``ssh`` lets one -- and its port *forwards* as ``-L``/``-R``/``-D``
+    (:mod:`navigator.lib.drives.forwards`).  A local port an SFTP panel's
+    connection already holds for the same forward is only warned about by
+    ``ssh`` (*bind: Address already in use*), which carries on without it."""
+    from navigator.lib.drives.forwards import ssh_words
+
     from navigator.settings import SETTINGS
 
     site = location.site
@@ -117,13 +122,72 @@ def command(location: Location, options: str = "") -> str:
     remote = 'exec "${SHELL:-/bin/sh}" -l'
     if str(location.path) not in ("", "."):
         remote = f"cd {shlex.quote(str(location.path))} 2>/dev/null; {remote}"
-    words = ["ssh", "-t", *words_of(SETTINGS.remote.ssh_options), *words_of(options)]
+    words = ["ssh", "-t", *words_of(SETTINGS.remote.ssh_options), *words_of(options), *ssh_words(list(forwards))]
     if site.port:
         words += ["-p", str(site.port)]
     if site.user:
         words += ["-l", site.user]
     words += ["--", site.host, remote]
     return shlex.join(words)
+
+
+#: What puts a public key on a server: OpenSSH's own script.
+COPY_ID = "ssh-copy-id"
+
+#: What makes a key pair when there is none: ``ssh-keygen``.
+KEYGEN = "ssh-keygen"
+
+
+def copy_id_program() -> str | None:
+    """Where ``ssh-copy-id`` is, or None (OpenSSH's client package has it)."""
+    return shutil.which(COPY_ID)
+
+
+def _copy_id_options(words: list[str]) -> list[str]:
+    """Of ``ssh``'s flags, what ``ssh-copy-id`` passes on: ``-o`` options and
+    ``-F``, and ``-J`` as ``-o ProxyJump=``.  The rest -- ``-Y``, ``-A``,
+    forwards -- mean nothing to copying a key and it takes no others."""
+    kept: list[str] = []
+    index = 0
+    while index < len(words):
+        word = words[index]
+        following = words[index + 1] if index + 1 < len(words) else None
+        if word in ("-o", "-F") and following is not None:
+            kept += [word, following]
+            index += 2
+            continue
+        if word == "-J" and following is not None:
+            kept += ["-o", f"ProxyJump={following}"]
+            index += 2
+            continue
+        if word.startswith("-o") and len(word) > 2:
+            kept += ["-o", word[2:]]
+        elif word.startswith("-J") and len(word) > 2:
+            kept += ["-o", f"ProxyJump={word[2:]}"]
+        index += 1
+    return kept
+
+
+def copy_id_command(site: Site, key: str, options: str = "", *, generate: bool = False) -> str:
+    """The command line that puts public key *key* (a ``.pub`` path) into
+    *site*'s ``~/.ssh/authorized_keys`` -- ``ssh-copy-id``, which logs in
+    with ``ssh`` and asks the password in the window it runs in.  With
+    *generate* the key pair is made first (``ssh-keygen -t ed25519``, which
+    asks a passphrase there too) and copied only once it is.  Of
+    Communications' and the connection's *options* only what
+    ``ssh-copy-id`` takes is passed (:func:`_copy_id_options`)."""
+    from navigator.settings import SETTINGS
+
+    words = [COPY_ID, "-i", key]
+    if site.port:
+        words += ["-p", str(site.port)]
+    words += _copy_id_options([*words_of(SETTINGS.remote.ssh_options), *words_of(options)])
+    words.append(f"{site.user}@{site.host}" if site.user else site.host)
+    line = shlex.join(words)
+    if generate:
+        private = key[:-4] if key.endswith(".pub") else key
+        line = f"{shlex.join([KEYGEN, '-t', 'ed25519', '-f', private])} && {line}"
+    return line
 
 
 def _exec_command(location: Location) -> str:

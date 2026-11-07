@@ -171,6 +171,10 @@ class Answers:
     interactive: Any = None
     #: What was said for each ``ProxyJump`` host on the way, by ``(host, port)``.
     hops: dict[tuple[str, int], Answers] = field(default_factory=dict)
+    #: SSH's: the port forwards to open over the connection while it is up
+    #: (:mod:`navigator.lib.drives.forwards`), the link manager's or the
+    #: profile's for the place; None or empty, none.
+    forwards: list[Any] | None = None
 
     def for_hop(self, hop: Hop) -> Answers:
         """The answers for *hop* -- these, for None (the server itself)."""
