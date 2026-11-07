@@ -48,6 +48,22 @@ PREAMBLE = """\
 # `none' for no colours, or `auto' for Pygments' own choice by the file's name
 # and content.  The colours are the theme's: ::token rules.
 #
+# A section may also set the editor's modes for the files it takes, as
+# DN.HGL's did, under navigator.ini's [editor] names: syntax_highlight
+# (DN's HIGHLIGHT), auto_indent (AUTOINDENT), auto_brackets (AUTOBRACKETS),
+# backspace_unindents (BACKUNINDENTS), highlight_line (H_LINE), highlight_column
+# (H_COLUMN), autowrap and justify_on_wrap (DN swapped AUTOWRAP and
+# WRAPJUSTIFY; here each does what it says), left_margin, right_margin and
+# paragraph (LEFTMARGIN, RIGHTMARGIN, PARAGRAPH), on/off or a number, and
+# line_ending = crlf, cr or lf (FORCECRLF, FORCECR, FORCELF): every line is
+# saved with it.  Each key comes from the first section that takes the file
+# and sets it, else from [*] (DN's DEFAULT); a key set nowhere is the Editor
+# setup's, and a file edited before comes back as it was left.  For example:
+#
+#   [*.txt]
+#   autowrap = on
+#   right_margin = 72
+#
 # Every language Pygments {version} knows by a file name is listed below, as
 # Pygments itself would choose; change or delete any.  Written by
 # tools/highlight_ini.py.

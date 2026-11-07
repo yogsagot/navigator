@@ -121,8 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-2. Per-file defaults by mask: autoindent, brackets, unindent, highlight line/column, wrap, justify, margins, line
-   ends (`DN.HGL`'s keys, `MACRO.PAS:655`); `highlight.ini`'s sections name only a lexer.
 5. The column ruler while the right mouse button is held (`DNHELP.HTX`, *MiscCommands*).
 6. The line-format commands `cmLJustify`/`cmLRight`/`cmLLeft`/`cmLCenter` (`EDITOR.PAS:821-828`), DN's for macros.
 7. (Not DN's) a real tab character, a setting and per mask.

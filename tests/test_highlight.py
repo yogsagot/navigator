@@ -129,6 +129,48 @@ def test_a_broken_file_means_the_template():
     assert highlight.read_rules() == highlight.default_rules()
 
 
+# -- the editor keys: DN.HGL's modes by mask ----------------------------------------------
+
+
+def test_a_masks_editor_keys_are_the_files_whatever_its_case():
+    rules = highlight.parse_rules(
+        "[*.txt]\nauto_indent = off\nright_margin = 72\nline_ending = crlf\n")
+    assert rules.editor_defaults("NOTES.TXT") == {
+        "auto_indent": False, "right_margin": 72, "line_ending": "crlf"}
+    assert rules.editor_defaults("a.py") == {}
+
+
+def test_each_key_comes_from_the_first_section_that_sets_it():
+    rules = highlight.parse_rules(
+        "[*.txt]\nlexer = text\n\n[*.txt;*.md]\nautowrap = on\nauto_indent = off\n\n"
+        "[notes*]\nautowrap = off\nparagraph = 3\n")
+    assert rules.editor_defaults("notes.txt") == {"autowrap": True, "auto_indent": False, "paragraph": 3}
+    # The section that sets keys but no lexer does not hide the lexer's.
+    assert rules.by_mask("a.txt") == "text"
+    assert rules.editor_defaults("a.md") == {"autowrap": True, "auto_indent": False}
+
+
+def test_star_is_dn_s_default_and_a_mask_beats_it():
+    rules = highlight.parse_rules(
+        "[*.py]\nauto_indent = on\n\n[*]\nlexer = auto\nauto_indent = off\nhighlight_line = yes\n")
+    assert rules.editor_defaults("a.py") == {"auto_indent": True, "highlight_line": True}
+    assert rules.editor_defaults("a.c") == {"auto_indent": False, "highlight_line": True}
+    assert rules.fallback == highlight.AUTO
+
+
+def test_a_value_that_does_not_read_or_an_unknown_key_is_ignored():
+    rules = highlight.parse_rules(
+        "[*.txt]\nright_margin = -3\nleft_margin = wide\nauto_indent = perhaps\n"
+        "line_ending = crcr\ntabs = 4\nparagraph = 2\nauto_brackets = 1\n")
+    assert rules.editor_defaults("a.txt") == {"paragraph": 2, "auto_brackets": True}
+
+
+def test_a_section_with_editor_keys_and_no_lexer_lexes_nothing():
+    rules = highlight.parse_rules("[*.py]\nautowrap = on\n")
+    assert rules.by_mask("a.py") is None
+    assert rules.editor_defaults("a.py") == {"autowrap": True}
+
+
 # -- tokens ------------------------------------------------------------------------------
 
 
@@ -607,3 +649,86 @@ def test_the_menu_shows_ctrl_shift_h_beside_file_type(files, key, menu_of):
 
     run_app(app, [KeyEvent("end"), KeyEvent(key), Until(lexed), look])
     assert rows["row"].strip(" │").startswith("File type") and rows["row"].strip(" │").endswith("Ctrl-Shift-H ►")
+
+
+# -- the editor keys applied when F4 loads a file --------------------------------------
+
+
+def masked(files, rules, name, data, *actions):
+    """*name* (*data*) opened with F4 under *rules* as ``highlight.ini``, then *actions*: the editor."""
+    path = associations.path_of(associations.HIGHLIGHT)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(rules)
+    (files / name).write_bytes(data)
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24))
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), Until(lambda a: getattr(window(a), "editor", None)),
+                  *actions, lambda a: seen.update(editor=window(a).editor)])
+    return seen["editor"]
+
+
+TEXT_MASK = "[*.txt]\nauto_indent = off\nautowrap = on\nleft_margin = 4\nright_margin = 60\n"
+
+
+def test_f4_gives_a_file_its_masks_modes_and_another_file_the_setups(files):
+    SETTINGS.editor.auto_indent = True
+    editor = masked(files, TEXT_MASK, "notes.txt", b"one\n")
+    assert (editor.auto_indent, editor.autowrap) == (False, True)
+    assert editor.margins[:2] == (4, 60)
+    other = masked(files, TEXT_MASK, "x.py", b"one\n")
+    assert (other.auto_indent, other.autowrap) == (True, SETTINGS.editor.autowrap)
+    assert other.margins == (SETTINGS.editor.left_margin, SETTINGS.editor.right_margin,
+                             SETTINGS.editor.paragraph)
+
+
+def test_the_edit_history_beats_the_mask(files):
+    from navigator.models.edit_record import EditRecord
+
+    EditRecord.store(files / "notes.txt", line=0, col=0, top=0, auto_indent=True)
+    editor = masked(files, TEXT_MASK, "notes.txt", b"one\n")
+    assert editor.auto_indent is True
+    assert editor.autowrap is True  # what the record did not keep, the mask still gives
+
+
+def test_a_forced_line_ending_is_written_on_save_and_opening_changes_nothing(files):
+    from navigator.widgets.editor.commands import SaveText
+
+    data = b"one\ntwo\n"
+    editor = masked(files, "[*.txt]\nline_ending = crlf\n", "notes.txt", data)
+    assert editor.forced_ending == "crlf"
+    assert (files / "notes.txt").read_bytes() == data
+    editor = masked(files, "[*.txt]\nline_ending = crlf\n", "notes.txt", data,
+                    KeyEvent("end"), KeyEvent("enter"), *[KeyEvent(c, c) for c in "x"],
+                    lambda a: a.spawn(a.run_command(SaveText(), window(a).editor)),
+                    Until(lambda a: not window(a).editor.modified))
+    assert (files / "notes.txt").read_bytes() == b"one\r\nx\r\ntwo\r\n"
+
+
+def test_load_text_applies_the_new_files_mask_over_what_the_editor_has(files):
+    rules = TEXT_MASK + "\n[*.md]\nautowrap = off\n"
+    (files / "b.md").write_bytes(b"# b\n")
+    async def asked(*args, **kwargs):
+        return files / "b.md"
+
+    def load(a):
+        window(a)._ask_file = asked
+        a.spawn(window(a).load_text())
+
+    editor = masked(files, rules, "notes.txt", b"one\n", load,
+                    Until(lambda a: window(a).editor.path == files / "b.md"))
+    assert editor.autowrap is False
+    assert editor.auto_indent is False  # the .md mask names no auto_indent: the .txt's stays
+    assert editor.margins[:2] == (4, 60)
+
+
+def test_the_masks_are_read_on_the_reading_thread(files, monkeypatch):
+    threads = []
+    real = highlight.editor_defaults_for
+
+    def recording(path):
+        threads.append(threading.current_thread())
+        return real(path)
+
+    monkeypatch.setattr(highlight, "editor_defaults_for", recording)
+    masked(files, TEXT_MASK, "notes.txt", b"one\n")
+    assert threads and threading.main_thread() not in threads

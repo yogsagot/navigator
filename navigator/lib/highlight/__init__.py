@@ -15,9 +15,9 @@ lists, so a construct running over several lines -- a C comment, a Python
 triple-quoted string -- is coloured whole, where DN saw one line at a time;
 and ``highlight.ini`` (:data:`navigator.lib.config.associations.HIGHLIGHT`) stands for
 ``DN.HGL`` itself, a mask per section naming a Pygments lexer, plus the
-``[#!]`` section for files known by their first line.  The editor options
-``DN.HGL`` carried too (``AUTOINDENT``, the margins) stay in
-``navigator.ini``.
+``[#!]`` section for files known by their first line.  A section carries
+``DN.HGL``'s editor options too (:data:`EDITOR_KEYS`, :meth:`Rules.editor_defaults`),
+under ``navigator.ini``'s ``[editor]`` names.
 
 Nothing here touches anything reactive: the lexing runs on a thread, and
 :func:`read_rules` reads the file.  Pygments itself is imported only when a
@@ -80,6 +80,51 @@ FILE_TYPES: tuple[tuple[str, tuple[tuple[str, str], ...]], ...] = (
 )
 
 
+#: The editor keys a ``highlight.ini`` section may carry, under ``navigator.ini``'s
+#: ``[editor]`` names, and what each reads as: DN.HGL's ``HIGHLIGHT``,
+#: ``AUTOINDENT``, ``AUTOBRACKETS``, ``BACKUNINDENTS``, ``H_LINE``/``H_ROW``,
+#: ``H_COLUMN``, ``AUTOWRAP``, ``WRAPJUSTIFY``, ``LEFTMARGIN``, ``RIGHTMARGIN``,
+#: ``PARAGRAPH`` and ``FORCECRLF``/``FORCECR``/``FORCELF`` as one ``line_ending``
+#: (``InitEditorHighLight``, ``MACRO.PAS``).  A departure: DN's ``AUTOWRAP``
+#: set ``AutoJustify`` and its ``WRAPJUSTIFY`` ``AutoWrap``, the wrong way
+#: round; here each does what its name says.
+EDITOR_KEYS: dict[str, type] = {
+    "syntax_highlight": bool, "auto_indent": bool, "auto_brackets": bool,
+    "backspace_unindents": bool, "highlight_line": bool, "highlight_column": bool,
+    "autowrap": bool, "justify_on_wrap": bool,
+    "left_margin": int, "right_margin": int, "paragraph": int,
+    "line_ending": str,
+}
+
+#: What ``line_ending`` may say: DN's ``ForcedCRLF``, a key of ``NEWLINES``.
+LINE_ENDINGS = ("crlf", "cr", "lf")
+
+_BOOLEANS = configparser.ConfigParser.BOOLEAN_STATES
+
+
+def _editor_value(key: str, text: str) -> Any:
+    """*text* as *key*'s value, or None when it does not read -- ignored, as
+    DN's ``MakeValue`` left a value it could not read."""
+    kind = EDITOR_KEYS[key]
+    text = text.strip().lower()
+    if kind is bool:
+        return _BOOLEANS.get(text)
+    if kind is int:
+        return int(text) if text.isdigit() else None
+    return text if text in LINE_ENDINGS else None
+
+
+def _editor_keys(items: Any) -> dict[str, Any]:
+    """A section's editor keys that read; an unknown key or a bad value is left out."""
+    found = {}
+    for key, text in items:
+        if key in EDITOR_KEYS:
+            value = _editor_value(key, text)
+            if value is not None:
+                found[key] = value
+    return found
+
+
 @dataclass(frozen=True)
 class Rules:
     """``highlight.ini`` as read: what lexes which file."""
@@ -90,6 +135,29 @@ class Rules:
     shebangs: tuple[tuple[str, str], ...] = ()
     #: ``[*]``'s lexer, for a file nothing above names: :data:`AUTO` or :data:`NONE`.
     fallback: str = AUTO
+    #: Each mask section's patterns and the editor keys it sets, in file order.
+    editor: tuple[tuple[tuple[str, ...], tuple[tuple[str, Any], ...]], ...] = ()
+    #: ``[*]``'s editor keys: DN.HGL's ``DEFAULT``.
+    editor_fallback: tuple[tuple[str, Any], ...] = ()
+
+    def editor_defaults(self, file_name: str) -> dict[str, Any]:
+        """The editor keys for *file_name*: each from the first section whose
+        mask takes the name and that sets it, else ``[*]``'s.
+
+        A departure: DN took the first matching ``FILES`` section whole and
+        stopped.  Here a key a section leaves out is looked for further down,
+        as ``lexer`` is, so a user's ``[*.txt;*.md]`` below the template's
+        ``[*.txt]`` (which names only a lexer) is reached.  Where every section sets every key, the two agree.
+        """
+        name = file_name.lower()
+        found: dict[str, Any] = {}
+        for masks, keys in self.editor:
+            if any(fnmatch.fnmatchcase(name, mask.lower()) for mask in masks):
+                for key, value in keys:
+                    found.setdefault(key, value)
+        for key, value in self.editor_fallback:
+            found.setdefault(key, value)
+        return found
 
     def by_mask(self, file_name: str) -> str | None:
         name = file_name.lower()
@@ -123,19 +191,31 @@ def parse_rules(text: str, source: str = "<string>") -> Rules:
     except configparser.Error as error:
         raise ValueError(str(error)) from None
     masks, shebangs, fallback = [], [], AUTO
+    editor: list[tuple[tuple[str, ...], tuple[tuple[str, Any], ...]]] = []
+    editor_fallback: tuple[tuple[str, Any], ...] = ()
     for section in parser.sections():
         if section.strip() == "#!":
             for names, lexer in parser.items(section):
                 shebangs.extend((name, lexer.strip().lower()) for name in patterns(names))
             continue
+        keys = tuple(_editor_keys(parser.items(section)).items())
         lexer = parser.get(section, "lexer", fallback="").strip().lower()
-        if not lexer:
-            continue
         if section.strip() == "*":
-            fallback = NONE if lexer == NONE else AUTO
+            if lexer:
+                fallback = NONE if lexer == NONE else AUTO
+            editor_fallback = keys
             continue
-        masks.append((tuple(patterns(section)), lexer))
-    return Rules(tuple(masks), tuple(shebangs), fallback)
+        if keys:
+            editor.append((tuple(patterns(section)), keys))
+        if lexer:
+            masks.append((tuple(patterns(section)), lexer))
+    return Rules(tuple(masks), tuple(shebangs), fallback, tuple(editor), editor_fallback)
+
+
+def editor_defaults_for(path: Any) -> dict[str, Any]:
+    """``highlight.ini``'s editor keys for the file at *path*
+    (:meth:`Rules.editor_defaults`).  Reads the rules: run it on a thread."""
+    return read_rules().editor_defaults(os.path.basename(str(path)))
 
 
 @lru_cache(maxsize=1)

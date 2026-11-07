@@ -364,7 +364,18 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`navigator/lib/highlight/__init__.py`), where DN had `DoHighlite` and `DN.HGL` -- a departure: multi-line comments and strings
   come out whole. **`highlight.ini`** beside `navigator.ini` is `DN.HGL` (seeded through `associations.TEMPLATES`,
   Options > *Highlight file edit...*, `EditHGL`/`cmEditHGL`): mask sections with `lexer = <Pygments alias>`, `none`,
-  or `auto` (Pygments' guess by name and first line, even under `[*] lexer = none`), first match wins. **Its template
+  or `auto` (Pygments' guess by name and first line, even under `[*] lexer = none`), first match wins. **A section
+  also carries DN.HGL's editor modes** (`InitEditorHighLight`, `MACRO.PAS:655`; `highlight.EDITOR_KEYS`) under
+  `navigator.ini`'s `[editor]` names: `syntax_highlight`, `auto_indent`, `auto_brackets`, `backspace_unindents`,
+  `highlight_line`, `highlight_column`, `autowrap`, `justify_on_wrap`, the three margins, and `line_ending =
+  crlf|cr|lf` (DN's `FORCE*`, `ForcedCRLF`: every line *written* with it in `snapshot()`, new lines take it,
+  opening changes nothing; choosing Line endings by hand clears it). `[*]` is DN's `DEFAULT`. Each key comes from the
+  first section that takes the file and sets it (`Rules.editor_defaults`; a departure: DN stopped at the first
+  matching `FILES`); a bad value or unknown key is ignored. Departure: DN's `AUTOWRAP`/`WRAPJUSTIFY` set each
+  other's flag; here each does what it says. Read on the loading thread (`load_document` →
+  `Document.defaults`) and applied by `FileEditor.apply_defaults` in `use_document`, on every load (open, Load
+  text, SmartPad, a new file), only the keys named. Order: Editor setup, then masks, then the edit history.
+  **Its template
   lists every language Pygments knows** -- `navigator/assets/highlight.ini`, written by `tools/highlight_ini.py`
   (`--check`; rerun after upgrading Pygments): Navigator's own head (`*.nml` -> `nml`, `*.nss` -> `nss`, `*.log` none), then a pattern
   two lexers can claim (case folded: `*.c`/`*.C`) in an `auto` section naming the candidates, then one section per

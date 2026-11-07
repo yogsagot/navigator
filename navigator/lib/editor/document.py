@@ -394,6 +394,10 @@ class Document:
     newline: str = DEFAULT_NEWLINE
     encoding: str = encodings.UTF8
     counts: Counter[str] = field(default=None, repr=False, compare=False)  # type: ignore[assignment]
+    #: What ``highlight.ini``'s masks say for this file, read with it on the
+    #: reading thread (``navigator.widgets.editor.loading``); the editor
+    #: applies it when it takes the text up.  Not part of the text.
+    defaults: dict[str, Any] = field(default_factory=dict, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if self.counts is None:

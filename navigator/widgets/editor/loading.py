@@ -20,6 +20,7 @@ from typing import Any
 
 from navkit.i18n import tr
 
+from navigator.lib import highlight
 from navigator.lib.editor.document import Document, read_document
 from navigator.settings import SETTINGS
 from navigator.lib.system.job import Job, Stopped
@@ -88,20 +89,24 @@ async def load_document(app: Any, path: Path | str, *, new: bool = False,
     """
     def read(job: Any, budget: Any) -> Document:
         try:
-            return read_document(path, job, budget=budget, as_root=as_root,
-                                 fallback=SETTINGS.editor.fallback_encoding)
+            try:
+                document = read_document(path, job, budget=budget, as_root=as_root,
+                                         fallback=SETTINGS.editor.fallback_encoding)
+            except FileNotFoundError:
+                if not new:
+                    raise
+                document = Document()  # a new file: its name's masks all the same
+            if document is not None:
+                # ``LoadFile``'s ``InitHighLight``: the masks read with the text.
+                document.defaults = highlight.editor_defaults_for(path)
+            return document
         finally:
             if as_root:
                 from navigator.lib.system.elevate import ELEVATION
 
                 ELEVATION.release()
 
-    try:
-        return await read_in_background(app, read)
-    except FileNotFoundError:
-        if not new:
-            raise
-        return Document()
+    return await read_in_background(app, read)
 
 
 async def write_in_background(app: Any, write: Any, *, total: int = 0) -> bool:

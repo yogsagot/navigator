@@ -150,6 +150,7 @@ from navigator.lib.editor.document import BREAK, NEWLINES, Document, Pos, encode
 from navigator.lib.editor import lock
 from navigator.lib.editor.save import write_file
 from navigator.lib.editor import search
+from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.search import BREAK_CHARS, SearchData
 from navigator.lib.config import country
 from navigator.lib import highlight
@@ -725,6 +726,9 @@ class FileEditor(ContextMenuHost, Widget):
         self.margins = (
             SETTINGS.editor.left_margin, SETTINGS.editor.right_margin, SETTINGS.editor.paragraph,
         )
+        #: ``ForcedCRLF``: the ``NEWLINES`` key every line is written with, from
+        #: ``highlight.ini``'s ``line_ending`` (:meth:`apply_defaults`), or "".
+        self.forced_ending = ""
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -792,6 +796,7 @@ class FileEditor(ContextMenuHost, Widget):
         path = Path(path)
         if not any(document.endings):
             document.newline = NEWLINES[SETTINGS.editor.line_divisor]
+        self.apply_defaults(document)
         self._use(EditBuffer(document))
         self._unmark()
         self.markers = [None] * 9
@@ -799,6 +804,37 @@ class FileEditor(ContextMenuHost, Widget):
         self.line = self.col = self.top = self.left = 0
         self.revision += 1
         self.lock_file()
+
+    #: ``highlight.ini``'s key for each editor attribute it may set
+    #: (:data:`navigator.lib.highlight.EDITOR_KEYS`), the margins aside.
+    MASK_KEYS = {
+        "syntax_highlight": "syntax_highlight", "auto_indent": "auto_indent",
+        "auto_brackets": "auto_brackets", "backspace_unindents": "back_indent",
+        "highlight_line": "highlight_line", "highlight_column": "highlight_column",
+        "autowrap": "autowrap", "justify_on_wrap": "justify_on_wrap",
+    }
+
+    def apply_defaults(self, document: Document) -> None:
+        """``InitHighLight`` at the end of ``LoadFile``: what ``highlight.ini``'s
+        masks say for this file (``document.defaults``, read with it) over
+        what the editor has.  A key they do not name keeps its value, as DN's
+        did; the edit history, restored after, wins over both.
+
+        ``line_ending`` is DN's ``ForcedCRLF``, reset on every load: every line
+        is *written* with it (:meth:`snapshot`), and new lines take it, but the
+        text is not changed by opening it.
+        """
+        defaults = document.defaults
+        for key, name in self.MASK_KEYS.items():
+            if key in defaults:
+                setattr(self, name, defaults[key])
+        margins = tuple(defaults.get(key, old) for key, old in
+                        zip(("left_margin", "right_margin", "paragraph"), self.margins))
+        if margins != self.margins:
+            self.margins = fix_margins(*margins)
+        self.forced_ending = defaults.get("line_ending", "")
+        if self.forced_ending:
+            document.newline = NEWLINES[self.forced_ending]
 
     def lock_file(self) -> None:
         """``LockFile``: hold :attr:`path` against other programs, if the
@@ -842,7 +878,12 @@ class FileEditor(ContextMenuHost, Widget):
         """
         document = self.buffer.document
         lines = self.filled(document.lines)
-        return lines, list(document.endings), self.buffer.save_point()
+        endings = list(document.endings)
+        if self.forced_ending:
+            # ``WriteBlock``'s ``ForcedCRLF``: every line written with it.
+            forced = NEWLINES[self.forced_ending]
+            endings = [forced if ending else "" for ending in endings]
+        return lines, endings, self.buffer.save_point()
 
     def filled(self, lines: list[str]) -> list[str]:
         """*lines* as they are written: through ``CompressString`` with *Optimal fill*
@@ -2992,6 +3033,8 @@ class FileEditor(ContextMenuHost, Widget):
         one undo step, nothing done when the text has it already."""
         newline = NEWLINES[event.ending]
         document = self.document
+        # Chosen by hand: the text's own endings say it now, over a mask's.
+        self.forced_ending = ""
         if document.newline == newline and set(document.counts) <= {newline}:
             return True
         endings = [newline if ending else "" for ending in document.endings]
