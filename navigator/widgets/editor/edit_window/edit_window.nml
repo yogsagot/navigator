@@ -1,6 +1,6 @@
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
@@ -425,6 +425,30 @@ EditWindow(Window):
                 text: '~C~enter'
                 command: FCenter
                 key: 'Alt-C'
+            #: ``cmLJustify``, ``cmLRight``, ``cmLLeft`` and ``cmLCenter``: the
+            #: cursor's line alone.  DN gave them no key and no entry, only its
+            #: macros' names -- a departure: with the default keys modern, the
+            #: menu is how they are reached.
+            SubMenu:
+                id: edit_menu_line_format
+                text: 'Current li~n~e'
+                tooltip: "Format the cursor's line alone"
+                MenuItem:
+                    text: '~J~ustify'
+                    tooltip: "Justify the cursor's line to both margins"
+                    command: LJustify
+                MenuItem:
+                    text: '~R~ight'
+                    tooltip: "Put the cursor's line against the right margin"
+                    command: LRight
+                MenuItem:
+                    text: '~L~eft'
+                    tooltip: "Put the cursor's line at the left margin"
+                    command: LLeft
+                MenuItem:
+                    text: '~C~enter'
+                    tooltip: "Center the cursor's line between the margins"
+                    command: LCenter
             MenuLine:
             MenuItem:
                 text: '~M~argins...'

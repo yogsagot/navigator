@@ -2298,6 +2298,62 @@ def test_a_column_block_formats_nothing(files):
     assert editor.enables(FJustify()) is False
 
 
+# -- cmLJustify/cmLRight/cmLLeft/cmLCenter: the cursor's line alone ----------------------------------
+
+
+def run_on_editor(command):
+    return lambda a: a.spawn(a.run_command(command, editor_window(a).editor))
+
+
+def test_the_line_commands_format_the_cursors_line_alone(files):
+    from navigator.widgets.editor.commands import LCenter, LLeft, LRight
+
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 20
+    text = b"above\n   hello  \nbelow\n"
+    results = {}
+    for name, command in (("center", LCenter()), ("right", LRight()), ("left", LLeft())):
+        _, editor = text_editor(files, text, KeyEvent("down"), run_on_editor(command), IDLE)
+        results[name] = editor.document.lines
+    # ``(LS - Length) div 2`` from the left margin; against the right one; trimmed to the left.
+    assert results["center"] == ["above", " " * 7 + "hello", "below", ""]
+    assert results["right"] == ["above", " " * 15 + "hello", "below", ""]
+    assert results["left"] == ["above", "hello", "below", ""]
+
+
+def test_line_justify_is_the_block_justify_of_that_one_line(files):
+    from navigator.widgets.editor.commands import LJustify
+
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin, SETTINGS.editor.paragraph = 0, 12, 2
+    _, by_line = text_editor(files, PARAGRAPH, KeyEvent("down"), run_on_editor(LJustify()), IDLE)
+    _, by_block = text_editor(files, PARAGRAPH, KeyEvent("down"), KeyEvent("down", shift=True),
+                              KeyEvent("j", alt=True))
+    assert by_line.document.lines == by_block.document.lines
+    assert by_line.document.lines[0] == "aaa bbb" and by_line.document.lines[-2:] == ["next", ""]
+
+
+def test_a_line_command_replaces_the_block_one_undo_takes_it_back_and_a_long_line_wraps(files):
+    from navigator.widgets.editor.commands import LLeft
+
+    SETTINGS.editor.left_margin, SETTINGS.editor.right_margin = 0, 8
+    text = b"first\naaa bbb ccc ddd\nlast\n"
+    _, editor = text_editor(files, text, KeyEvent("end", shift=True), KeyEvent("down"),
+                            run_on_editor(LLeft()), IDLE)
+    assert editor.document.lines == ["first", "aaa bbb", "ccc ddd", "last", ""]
+    assert editor.block == (Pos(1, 0), Pos(3, 0))  # DN's ``Mark := line``, then what it became
+    _, editor = text_editor(files, text, KeyEvent("down"), run_on_editor(LLeft()), IDLE,
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == text
+
+
+def test_a_line_command_is_refused_under_column_blocks(files):
+    from navigator.widgets.editor.commands import LCenter
+
+    SETTINGS.editor.vertical_blocks = True
+    app, editor = text_editor(files, b"  hi\n", run_on_editor(LCenter()), IDLE)
+    assert editor.refusal(LCenter()) == "Line format works on line blocks"
+    assert editor.document.encode() == b"  hi\n"
+
+
 def test_format_margins_sets_this_editors_margins(files):
     seen = []
 

@@ -50,7 +50,7 @@ direction = "rtl"
 "~A~dd..." = "إ~ض~افة..."
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:41, navigator/widgets/drives/links_dialog/links_dialog.nml:50
 "~E~dit..." = "~ت~حرير..."
-# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:223 ...
+# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/editor/edit_window/edit_window.nml:217 ...
 "~D~elete" = "~ح~ذف"
 # navigator/widgets/drives/host_key_query/host_key_query.nml:11
 "Unknown SSH host" = "خادم SSH غير معروف"
@@ -96,9 +96,9 @@ direction = "rtl"
 "~E~ditor" = "ال~م~حرر"
 # navigator/widgets/editor/edit_window/edit_window.nml:169
 "Editing, the file, search, paragraphs and blocks" = "التحرير والملف والبحث والفقرات والكتل"
-# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3096
+# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3205
 "~U~ndo" = "تر~ا~جع"
-# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3097
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3206
 "R~e~do" = "إ~ع~ادة"
 # navigator/widgets/editor/edit_window/edit_window.nml:197
 "C~o~py to..." = "نسخ ~إ~لى..."
@@ -110,244 +110,257 @@ direction = "rtl"
 "Insert a file's text at the cursor" = "إدراج نص ملف عند المؤشر"
 # navigator/widgets/editor/edit_window/edit_window.nml:207
 "Delete the selection without copying it to the clipboard" = "حذف التحديد دون نسخه إلى الحافظة"
-# navigator/widgets/editor/edit_window/edit_window.nml:212, navigator/widgets/editor/file_editor/file_editor.py:3103
-"~D~elete line" = "~ح~ذف السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:217, navigator/widgets/editor/file_editor/file_editor.py:3104
-"Delete ~w~ord left" = "حذف ال~ك~لمة السابقة"
-# navigator/widgets/editor/edit_window/edit_window.nml:223
-"Delete word ri~g~ht" = "ح~ذ~ف الكلمة إلى اليمين"
-# navigator/widgets/editor/edit_window/edit_window.nml:224
-"Delete from the cursor to the start of the next word" = "حذف من المؤشر إلى بداية الكلمة التالية"
-# navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to e~n~d of line" = "حذف حتى نهاية ~ا~لسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:218
 "Delete a line, a word or the rest of the line" = "حذف سطر أو كلمة أو بقية السطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:220, navigator/widgets/editor/file_editor/file_editor.py:3212
+"~D~elete line" = "~ح~ذف السطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:224, navigator/widgets/editor/file_editor/file_editor.py:3213
+"Delete ~w~ord left" = "حذف ال~ك~لمة السابقة"
+# navigator/widgets/editor/edit_window/edit_window.nml:228
+"Delete word ri~g~ht" = "ح~ذ~ف الكلمة إلى اليمين"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
-"Delete from the cursor to the end of the line" = "حذف من المؤشر إلى نهاية السطر"
+"Delete from the cursor to the start of the next word" = "حذف من المؤشر إلى بداية الكلمة التالية"
 # navigator/widgets/editor/edit_window/edit_window.nml:232
+"Delete to e~n~d of line" = "حذف حتى نهاية ~ا~لسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:233
+"Delete from the cursor to the end of the line" = "حذف من المؤشر إلى نهاية السطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:236
 "Insert l~i~ne" = "إ~د~راج سطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:238, navigator/widgets/shell/main_menu/main_menu.nml:109
+# navigator/widgets/editor/edit_window/edit_window.nml:242, navigator/widgets/shell/main_menu/main_menu.nml:109
 "~F~ile" = "مل~ف~"
-# navigator/widgets/editor/edit_window/edit_window.nml:240, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
+# navigator/widgets/editor/edit_window/edit_window.nml:244, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~O~pen..." = "~ف~تح..."
-# navigator/widgets/editor/edit_window/edit_window.nml:244, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:248, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~ح~فظ"
-# navigator/widgets/editor/edit_window/edit_window.nml:248
-"Save ~a~s..." = "حفظ ~ب~اسم..."
 # navigator/widgets/editor/edit_window/edit_window.nml:252
+"Save ~a~s..." = "حفظ ~ب~اسم..."
+# navigator/widgets/editor/edit_window/edit_window.nml:256
 "Save a~l~l..." = "حفظ ال~ج~ميع..."
-# navigator/widgets/editor/edit_window/edit_window.nml:260
-"Line en~d~ings" = "~ن~هايات الأسطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:264
+"Line en~d~ings" = "~ن~هايات الأسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:268
 "En~c~oding" = "~ت~رميز"
-# navigator/widgets/editor/edit_window/edit_window.nml:268, navigator/widgets/shell/main_menu/main_menu.nml:309
+# navigator/widgets/editor/edit_window/edit_window.nml:272, navigator/widgets/shell/main_menu/main_menu.nml:309
 "~P~rint" = "~ط~باعة"
-# navigator/widgets/editor/edit_window/edit_window.nml:272
+# navigator/widgets/editor/edit_window/edit_window.nml:276
 "Print ~b~lock" = "طباعة ال~ك~تلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:277, navigator/widgets/shell/main_menu/main_menu.nml:396
+# navigator/widgets/editor/edit_window/edit_window.nml:281, navigator/widgets/shell/main_menu/main_menu.nml:396
 "E~x~it" = "خر~و~ج"
-# navigator/widgets/editor/edit_window/edit_window.nml:282, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:286, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ب~حث"
-# navigator/widgets/editor/edit_window/edit_window.nml:285
+# navigator/widgets/editor/edit_window/edit_window.nml:289
 "Find ~b~ar" = "~ش~ريط البحث"
-# navigator/widgets/editor/edit_window/edit_window.nml:286
-"Search as you type, in a bar over the text" = "البحث أثناء الكتابة، في شريط فوق النص"
 # navigator/widgets/editor/edit_window/edit_window.nml:290
+"Search as you type, in a bar over the text" = "البحث أثناء الكتابة، في شريط فوق النص"
+# navigator/widgets/editor/edit_window/edit_window.nml:294
 "Replace b~a~r" = "شريط الاستب~د~ال"
-# navigator/widgets/editor/edit_window/edit_window.nml:295, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3107
+# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3216
 "~F~ind..." = "بح~ث~..."
-# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/editor/file_editor/file_editor.py:3108
+# navigator/widgets/editor/edit_window/edit_window.nml:303, navigator/widgets/editor/file_editor/file_editor.py:3217
 "~R~eplace..." = "~ا~ستبدال..."
-# navigator/widgets/editor/edit_window/edit_window.nml:303
-"~S~earch again" = "~ت~كرار البحث"
 # navigator/widgets/editor/edit_window/edit_window.nml:307
-"Re~v~ersed search" = "بحث ~ع~كسي"
+"~S~earch again" = "~ت~كرار البحث"
 # navigator/widgets/editor/edit_window/edit_window.nml:311
+"Re~v~ersed search" = "بحث ~ع~كسي"
+# navigator/widgets/editor/edit_window/edit_window.nml:315
 "~G~o to line number..." = "الانتقال إلى ~س~طر..."
-# navigator/widgets/editor/edit_window/edit_window.nml:316
+# navigator/widgets/editor/edit_window/edit_window.nml:320
 "~M~atching bracket" = "القوس ال~م~قابل"
-# navigator/widgets/editor/edit_window/edit_window.nml:317
+# navigator/widgets/editor/edit_window/edit_window.nml:321
 "Jump to the bracket that pairs with the one at the cursor" = "الانتقال إلى القوس المقابل للقوس عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:326
-"Pla~c~e marker" = "~و~ضع علامة"
-# navigator/widgets/editor/edit_window/edit_window.nml:327
-"Keep the cursor's place as one of nine markers" = "حفظ موضع المؤشر كإحدى تسع علامات"
-# navigator/widgets/editor/edit_window/edit_window.nml:329, navigator/widgets/editor/edit_window/edit_window.nml:369
-"Marker ~1~" = "العلامة ~1~"
 # navigator/widgets/editor/edit_window/edit_window.nml:330
-"Keep the cursor's place as marker 1" = "حفظ موضع المؤشر كالعلامة 1"
+"Pla~c~e marker" = "~و~ضع علامة"
+# navigator/widgets/editor/edit_window/edit_window.nml:331
+"Keep the cursor's place as one of nine markers" = "حفظ موضع المؤشر كإحدى تسع علامات"
 # navigator/widgets/editor/edit_window/edit_window.nml:333, navigator/widgets/editor/edit_window/edit_window.nml:373
-"Marker ~2~" = "العلامة ~2~"
+"Marker ~1~" = "العلامة ~1~"
 # navigator/widgets/editor/edit_window/edit_window.nml:334
-"Keep the cursor's place as marker 2" = "حفظ موضع المؤشر كالعلامة 2"
+"Keep the cursor's place as marker 1" = "حفظ موضع المؤشر كالعلامة 1"
 # navigator/widgets/editor/edit_window/edit_window.nml:337, navigator/widgets/editor/edit_window/edit_window.nml:377
-"Marker ~3~" = "العلامة ~3~"
+"Marker ~2~" = "العلامة ~2~"
 # navigator/widgets/editor/edit_window/edit_window.nml:338
-"Keep the cursor's place as marker 3" = "حفظ موضع المؤشر كالعلامة 3"
+"Keep the cursor's place as marker 2" = "حفظ موضع المؤشر كالعلامة 2"
 # navigator/widgets/editor/edit_window/edit_window.nml:341, navigator/widgets/editor/edit_window/edit_window.nml:381
-"Marker ~4~" = "العلامة ~4~"
+"Marker ~3~" = "العلامة ~3~"
 # navigator/widgets/editor/edit_window/edit_window.nml:342
-"Keep the cursor's place as marker 4" = "حفظ موضع المؤشر كالعلامة 4"
+"Keep the cursor's place as marker 3" = "حفظ موضع المؤشر كالعلامة 3"
 # navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/editor/edit_window/edit_window.nml:385
-"Marker ~5~" = "العلامة ~5~"
+"Marker ~4~" = "العلامة ~4~"
 # navigator/widgets/editor/edit_window/edit_window.nml:346
-"Keep the cursor's place as marker 5" = "حفظ موضع المؤشر كالعلامة 5"
+"Keep the cursor's place as marker 4" = "حفظ موضع المؤشر كالعلامة 4"
 # navigator/widgets/editor/edit_window/edit_window.nml:349, navigator/widgets/editor/edit_window/edit_window.nml:389
-"Marker ~6~" = "العلامة ~6~"
+"Marker ~5~" = "العلامة ~5~"
 # navigator/widgets/editor/edit_window/edit_window.nml:350
-"Keep the cursor's place as marker 6" = "حفظ موضع المؤشر كالعلامة 6"
+"Keep the cursor's place as marker 5" = "حفظ موضع المؤشر كالعلامة 5"
 # navigator/widgets/editor/edit_window/edit_window.nml:353, navigator/widgets/editor/edit_window/edit_window.nml:393
-"Marker ~7~" = "العلامة ~7~"
+"Marker ~6~" = "العلامة ~6~"
 # navigator/widgets/editor/edit_window/edit_window.nml:354
-"Keep the cursor's place as marker 7" = "حفظ موضع المؤشر كالعلامة 7"
+"Keep the cursor's place as marker 6" = "حفظ موضع المؤشر كالعلامة 6"
 # navigator/widgets/editor/edit_window/edit_window.nml:357, navigator/widgets/editor/edit_window/edit_window.nml:397
-"Marker ~8~" = "العلامة ~8~"
+"Marker ~7~" = "العلامة ~7~"
 # navigator/widgets/editor/edit_window/edit_window.nml:358
-"Keep the cursor's place as marker 8" = "حفظ موضع المؤشر كالعلامة 8"
+"Keep the cursor's place as marker 7" = "حفظ موضع المؤشر كالعلامة 7"
 # navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:401
-"Marker ~9~" = "العلامة ~9~"
+"Marker ~8~" = "العلامة ~8~"
 # navigator/widgets/editor/edit_window/edit_window.nml:362
-"Keep the cursor's place as marker 9" = "حفظ موضع المؤشر كالعلامة 9"
+"Keep the cursor's place as marker 8" = "حفظ موضع المؤشر كالعلامة 8"
+# navigator/widgets/editor/edit_window/edit_window.nml:365, navigator/widgets/editor/edit_window/edit_window.nml:405
+"Marker ~9~" = "العلامة ~9~"
 # navigator/widgets/editor/edit_window/edit_window.nml:366
-"G~o~ to marker" = "ا~ل~انتقال إلى علامة"
-# navigator/widgets/editor/edit_window/edit_window.nml:367
-"Take the cursor back to a place kept as a marker" = "إعادة المؤشر إلى موضع محفوظ كعلامة"
+"Keep the cursor's place as marker 9" = "حفظ موضع المؤشر كالعلامة 9"
 # navigator/widgets/editor/edit_window/edit_window.nml:370
-"Take the cursor back to marker 1" = "إعادة المؤشر إلى العلامة 1"
+"G~o~ to marker" = "ا~ل~انتقال إلى علامة"
+# navigator/widgets/editor/edit_window/edit_window.nml:371
+"Take the cursor back to a place kept as a marker" = "إعادة المؤشر إلى موضع محفوظ كعلامة"
 # navigator/widgets/editor/edit_window/edit_window.nml:374
-"Take the cursor back to marker 2" = "إعادة المؤشر إلى العلامة 2"
+"Take the cursor back to marker 1" = "إعادة المؤشر إلى العلامة 1"
 # navigator/widgets/editor/edit_window/edit_window.nml:378
-"Take the cursor back to marker 3" = "إعادة المؤشر إلى العلامة 3"
+"Take the cursor back to marker 2" = "إعادة المؤشر إلى العلامة 2"
 # navigator/widgets/editor/edit_window/edit_window.nml:382
-"Take the cursor back to marker 4" = "إعادة المؤشر إلى العلامة 4"
+"Take the cursor back to marker 3" = "إعادة المؤشر إلى العلامة 3"
 # navigator/widgets/editor/edit_window/edit_window.nml:386
-"Take the cursor back to marker 5" = "إعادة المؤشر إلى العلامة 5"
+"Take the cursor back to marker 4" = "إعادة المؤشر إلى العلامة 4"
 # navigator/widgets/editor/edit_window/edit_window.nml:390
-"Take the cursor back to marker 6" = "إعادة المؤشر إلى العلامة 6"
+"Take the cursor back to marker 5" = "إعادة المؤشر إلى العلامة 5"
 # navigator/widgets/editor/edit_window/edit_window.nml:394
-"Take the cursor back to marker 7" = "إعادة المؤشر إلى العلامة 7"
+"Take the cursor back to marker 6" = "إعادة المؤشر إلى العلامة 6"
 # navigator/widgets/editor/edit_window/edit_window.nml:398
-"Take the cursor back to marker 8" = "إعادة المؤشر إلى العلامة 8"
+"Take the cursor back to marker 7" = "إعادة المؤشر إلى العلامة 7"
 # navigator/widgets/editor/edit_window/edit_window.nml:402
-"Take the cursor back to marker 9" = "إعادة المؤشر إلى العلامة 9"
+"Take the cursor back to marker 8" = "إعادة المؤشر إلى العلامة 8"
 # navigator/widgets/editor/edit_window/edit_window.nml:406
+"Take the cursor back to marker 9" = "إعادة المؤشر إلى العلامة 9"
+# navigator/widgets/editor/edit_window/edit_window.nml:410
 "Pa~r~agraph" = "فقر~ة~"
-# navigator/widgets/editor/edit_window/edit_window.nml:408
+# navigator/widgets/editor/edit_window/edit_window.nml:412, navigator/widgets/editor/edit_window/edit_window.nml:437
 "~J~ustify" = "~ض~بط الطرفين"
-# navigator/widgets/editor/edit_window/edit_window.nml:409
-"Justify the block's paragraph to both margins" = "ضبط فقرة الكتلة على الهامشين"
 # navigator/widgets/editor/edit_window/edit_window.nml:413
+"Justify the block's paragraph to both margins" = "ضبط فقرة الكتلة على الهامشين"
+# navigator/widgets/editor/edit_window/edit_window.nml:417, navigator/widgets/editor/edit_window/edit_window.nml:441
 "~R~ight" = "~ي~مين"
-# navigator/widgets/editor/edit_window/edit_window.nml:417
+# navigator/widgets/editor/edit_window/edit_window.nml:421, navigator/widgets/editor/edit_window/edit_window.nml:445
 "~L~eft" = "ي~س~ار"
-# navigator/widgets/editor/edit_window/edit_window.nml:421
+# navigator/widgets/editor/edit_window/edit_window.nml:425, navigator/widgets/editor/edit_window/edit_window.nml:449
 "~C~enter" = "~و~سط"
-# navigator/widgets/editor/edit_window/edit_window.nml:426
-"~M~argins..." = "ال~ه~وامش..."
-# navigator/widgets/editor/edit_window/edit_window.nml:430, navigator/widgets/editor/edit_window/edit_window.nml:544, navigator/widgets/editor/edit_window/edit_window.nml:559 ...
-"~B~lock" = "ك~ت~لة"
+# navigator/widgets/editor/edit_window/edit_window.nml:434
+"Current li~n~e" = "~ا~لسطر الحالي"
 # navigator/widgets/editor/edit_window/edit_window.nml:435
+"Format the cursor's line alone" = "تنسيق سطر المؤشر وحده"
+# navigator/widgets/editor/edit_window/edit_window.nml:438
+"Justify the cursor's line to both margins" = "ضبط سطر المؤشر على الهامشين"
+# navigator/widgets/editor/edit_window/edit_window.nml:442
+"Put the cursor's line against the right margin" = "وضع سطر المؤشر عند الهامش الأيمن"
+# navigator/widgets/editor/edit_window/edit_window.nml:446
+"Put the cursor's line at the left margin" = "وضع سطر المؤشر عند الهامش الأيسر"
+# navigator/widgets/editor/edit_window/edit_window.nml:450
+"Center the cursor's line between the margins" = "توسيط سطر المؤشر بين الهامشين"
+# navigator/widgets/editor/edit_window/edit_window.nml:454
+"~M~argins..." = "ال~ه~وامش..."
+# navigator/widgets/editor/edit_window/edit_window.nml:458, navigator/widgets/editor/edit_window/edit_window.nml:572, navigator/widgets/editor/edit_window/edit_window.nml:587 ...
+"~B~lock" = "ك~ت~لة"
+# navigator/widgets/editor/edit_window/edit_window.nml:463
 "Mar~k~ start" = "~ب~داية الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:436
+# navigator/widgets/editor/edit_window/edit_window.nml:464
 "Begin the block at the cursor" = "بدء الكتلة عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:439
+# navigator/widgets/editor/edit_window/edit_window.nml:467
 "Mark ~e~nd" = "~ن~هاية الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:440
+# navigator/widgets/editor/edit_window/edit_window.nml:468
 "End the block at the cursor" = "إنهاء الكتلة عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:443
+# navigator/widgets/editor/edit_window/edit_window.nml:471
 "Mark ~w~ord" = "ت~ح~ديد الكلمة"
-# navigator/widgets/editor/edit_window/edit_window.nml:444
+# navigator/widgets/editor/edit_window/edit_window.nml:472
 "Mark the word at the cursor as the block" = "تحديد الكلمة عند المؤشر ككتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:447
+# navigator/widgets/editor/edit_window/edit_window.nml:475
 "Mark li~n~e" = "تح~د~يد السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:448
+# navigator/widgets/editor/edit_window/edit_window.nml:476
 "Mark the cursor's line as the block" = "تحديد سطر المؤشر ككتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:452
+# navigator/widgets/editor/edit_window/edit_window.nml:480
 "~G~o to block start" = "~ا~لانتقال إلى بداية الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:453
+# navigator/widgets/editor/edit_window/edit_window.nml:481
 "Take the cursor to where the block begins" = "نقل المؤشر إلى حيث تبدأ الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:456
-"Go to block en~d~" = "ا~ل~انتقال إلى نهاية الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:457
-"Take the cursor to where the block ends" = "نقل المؤشر إلى حيث تنتهي الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:461
-"~M~ove" = "ن~ق~ل"
-# navigator/widgets/editor/edit_window/edit_window.nml:469
-"~I~ndent" = "~إ~زاحة"
-# navigator/widgets/editor/edit_window/edit_window.nml:473
-"~U~nindent" = "إزاحة ~ع~كسية"
-# navigator/widgets/editor/edit_window/edit_window.nml:478
-"~H~ide/show block" = "إ~خ~فاء/إظهار الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:479
-"Hide the marked block, or show it again" = "إخفاء الكتلة المعلمة أو إظهارها مجددا"
 # navigator/widgets/editor/edit_window/edit_window.nml:484
-"U~p~percase" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:488, navigator/widgets/editor/edit_window/edit_window.nml:549
-"~L~owercase" = "أحرف ~ص~غيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:492
-"Capi~t~alize" = "~ت~كبير الأول"
+"Go to block en~d~" = "ا~ل~انتقال إلى نهاية الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:485
+"Take the cursor to where the block ends" = "نقل المؤشر إلى حيث تنتهي الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:489
+"~M~ove" = "ن~ق~ل"
 # navigator/widgets/editor/edit_window/edit_window.nml:497
+"~I~ndent" = "~إ~زاحة"
+# navigator/widgets/editor/edit_window/edit_window.nml:501
+"~U~nindent" = "إزاحة ~ع~كسية"
+# navigator/widgets/editor/edit_window/edit_window.nml:506
+"~H~ide/show block" = "إ~خ~فاء/إظهار الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:507
+"Hide the marked block, or show it again" = "إخفاء الكتلة المعلمة أو إظهارها مجددا"
+# navigator/widgets/editor/edit_window/edit_window.nml:512
+"U~p~percase" = "أحرف ~ك~بيرة"
+# navigator/widgets/editor/edit_window/edit_window.nml:516, navigator/widgets/editor/edit_window/edit_window.nml:577
+"~L~owercase" = "أحرف ~ص~غيرة"
+# navigator/widgets/editor/edit_window/edit_window.nml:520
+"Capi~t~alize" = "~ت~كبير الأول"
+# navigator/widgets/editor/edit_window/edit_window.nml:525
 "~S~ort" = "~ف~رز"
-# navigator/widgets/editor/edit_window/edit_window.nml:498
+# navigator/widgets/editor/edit_window/edit_window.nml:526
 "Sort the lines by the column block" = "فرز الأسطر حسب الكتلة العمودية"
-# navigator/widgets/editor/edit_window/edit_window.nml:503
+# navigator/widgets/editor/edit_window/edit_window.nml:531
 "C~a~lculate sum" = "حساب ال~م~جموع"
-# navigator/widgets/editor/edit_window/edit_window.nml:504
+# navigator/widgets/editor/edit_window/edit_window.nml:532
 "Add up the column block's numbers; the sum goes to the clipboard" = "جمع أرقام الكتلة العمودية؛ يذهب المجموع إلى الحافظة"
-# navigator/widgets/editor/edit_window/edit_window.nml:509
+# navigator/widgets/editor/edit_window/edit_window.nml:537
 "~M~isc" = "متف~ر~قات"
-# navigator/widgets/editor/edit_window/edit_window.nml:511
+# navigator/widgets/editor/edit_window/edit_window.nml:539
 "Insert ~d~ate" = "إدراج ال~ت~اريخ"
-# navigator/widgets/editor/edit_window/edit_window.nml:515
+# navigator/widgets/editor/edit_window/edit_window.nml:543
 "Insert ~t~ime" = "إدراج ال~و~قت"
-# navigator/widgets/editor/edit_window/edit_window.nml:519
+# navigator/widgets/editor/edit_window/edit_window.nml:547
 "Du~p~licate line" = "تكرار ال~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:523, navigator/widgets/shell/main_menu/main_menu.nml:474
+# navigator/widgets/editor/edit_window/edit_window.nml:551, navigator/widgets/shell/main_menu/main_menu.nml:474
 "Character ta~b~le" = "جدول ال~ر~موز"
-# navigator/widgets/editor/edit_window/edit_window.nml:527
+# navigator/widgets/editor/edit_window/edit_window.nml:555
 "Line Dra~w~ing" = "رسم ال~خ~طوط"
-# navigator/widgets/editor/edit_window/edit_window.nml:528
+# navigator/widgets/editor/edit_window/edit_window.nml:556
 "Draw lines with the arrow keys: off, single, double" = "رسم خطوط بمفاتيح الأسهم: إيقاف، مفرد، مزدوج"
-# navigator/widgets/editor/edit_window/edit_window.nml:534
+# navigator/widgets/editor/edit_window/edit_window.nml:562
 "~U~ppercase" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:536, navigator/widgets/editor/edit_window/edit_window.nml:551, navigator/widgets/editor/edit_window/edit_window.nml:566
+# navigator/widgets/editor/edit_window/edit_window.nml:564, navigator/widgets/editor/edit_window/edit_window.nml:579, navigator/widgets/editor/edit_window/edit_window.nml:594
 "~W~ord" = "ك~ل~مة"
-# navigator/widgets/editor/edit_window/edit_window.nml:540, navigator/widgets/editor/edit_window/edit_window.nml:555, navigator/widgets/editor/edit_window/edit_window.nml:570
+# navigator/widgets/editor/edit_window/edit_window.nml:568, navigator/widgets/editor/edit_window/edit_window.nml:583, navigator/widgets/editor/edit_window/edit_window.nml:598
 "~L~ine" = "~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:564, navigator/widgets/editor/file_editor/file_editor.py:3116
+# navigator/widgets/editor/edit_window/edit_window.nml:592, navigator/widgets/editor/file_editor/file_editor.py:3225
 "~C~apitalize" = "تكبير ~ا~لأول"
-# navigator/widgets/editor/edit_window/edit_window.nml:579
+# navigator/widgets/editor/edit_window/edit_window.nml:607
 "Optio~n~s" = "~خ~يارات"
-# navigator/widgets/editor/edit_window/edit_window.nml:581
-"~B~ackspace indents" = "Backspace ~ي~زيح"
-# navigator/widgets/editor/edit_window/edit_window.nml:582
-"Backspace at a line's start goes back to an indent above" = "Backspace في بداية السطر يعود إلى إزاحة سطر أعلى"
-# navigator/widgets/editor/edit_window/edit_window.nml:585
-"AutoB~r~ackets" = "أقواس ~ت~لقائية"
-# navigator/widgets/editor/edit_window/edit_window.nml:588
-"Auto~i~ndent" = "إزاحة تل~ق~ائية"
-# navigator/widgets/editor/edit_window/edit_window.nml:591
-"~A~uto wrap" = "~ل~ف تلقائي"
-# navigator/widgets/editor/edit_window/edit_window.nml:594, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~J~ustify on wrap" = "~ض~بط عند اللف"
-# navigator/widgets/editor/edit_window/edit_window.nml:595
-"Widen a wrapped line to the margin" = "مد السطر الملفوف حتى الهامش"
-# navigator/widgets/editor/edit_window/edit_window.nml:598, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~V~ertical blocks" = "~ك~تل عمودية"
-# navigator/widgets/editor/edit_window/edit_window.nml:599
-"Mark column blocks instead of line ones" = "تعليم كتل عمودية بدلا من كتل الأسطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:602, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"Opti~m~al fill" = "ملء ~أ~مثل"
-# navigator/widgets/editor/edit_window/edit_window.nml:603
-"Write blanks as tabs where they reach a tab stop" = "كتابة الفراغات كجدولة حيث تبلغ موضع جدولة"
-# navigator/widgets/editor/edit_window/edit_window.nml:606
-"Current ~l~ine highlight" = "تمييز ال~س~طر الحالي"
 # navigator/widgets/editor/edit_window/edit_window.nml:609
-"Current ~c~olumn highlight" = "تمييز ال~ع~مود الحالي"
-# navigator/widgets/editor/edit_window/edit_window.nml:612
-"Syntax ~h~ighlight" = "تلوين ال~ص~ياغة"
+"~B~ackspace indents" = "Backspace ~ي~زيح"
+# navigator/widgets/editor/edit_window/edit_window.nml:610
+"Backspace at a line's start goes back to an indent above" = "Backspace في بداية السطر يعود إلى إزاحة سطر أعلى"
+# navigator/widgets/editor/edit_window/edit_window.nml:613
+"AutoB~r~ackets" = "أقواس ~ت~لقائية"
 # navigator/widgets/editor/edit_window/edit_window.nml:616
+"Auto~i~ndent" = "إزاحة تل~ق~ائية"
+# navigator/widgets/editor/edit_window/edit_window.nml:619
+"~A~uto wrap" = "~ل~ف تلقائي"
+# navigator/widgets/editor/edit_window/edit_window.nml:622, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~J~ustify on wrap" = "~ض~بط عند اللف"
+# navigator/widgets/editor/edit_window/edit_window.nml:623
+"Widen a wrapped line to the margin" = "مد السطر الملفوف حتى الهامش"
+# navigator/widgets/editor/edit_window/edit_window.nml:626, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~V~ertical blocks" = "~ك~تل عمودية"
+# navigator/widgets/editor/edit_window/edit_window.nml:627
+"Mark column blocks instead of line ones" = "تعليم كتل عمودية بدلا من كتل الأسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:630, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"Opti~m~al fill" = "ملء ~أ~مثل"
+# navigator/widgets/editor/edit_window/edit_window.nml:631
+"Write blanks as tabs where they reach a tab stop" = "كتابة الفراغات كجدولة حيث تبلغ موضع جدولة"
+# navigator/widgets/editor/edit_window/edit_window.nml:634
+"Current ~l~ine highlight" = "تمييز ال~س~طر الحالي"
+# navigator/widgets/editor/edit_window/edit_window.nml:637
+"Current ~c~olumn highlight" = "تمييز ال~ع~مود الحالي"
+# navigator/widgets/editor/edit_window/edit_window.nml:640
+"Syntax ~h~ighlight" = "تلوين ال~ص~ياغة"
+# navigator/widgets/editor/edit_window/edit_window.nml:644
 "Show hi~d~den characters" = "إظهار الرموز ال~م~خفية"
-# navigator/widgets/editor/edit_window/edit_window.nml:624
+# navigator/widgets/editor/edit_window/edit_window.nml:652
 "File t~y~pe" = "~ن~وع الملف"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/file_ops/replace_query/replace_query.nml:17, navigator/widgets/editor/commands.py:282 ...
 "Replace" = "استبدال"
@@ -807,7 +820,7 @@ direction = "rtl"
 "Give this answer for every file that is already there" = "إعطاء هذا الجواب لكل ملف موجود مسبقا"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~ا~ستبدال"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:506, navigator/widgets/manager/manager/manager.py:941 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/manager/manager/manager.py:941 ...
 "A~p~pend" = "إ~ل~حاق"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~ت~سمية"
@@ -2083,7 +2096,7 @@ direction = "rtl"
 "Navigator?" = "Navigator؟"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "الخروج دون سؤال من الآن (خيارات > التأكيدات)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:945, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:967, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~ف~تح"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "حول، حافظة الشاشة، SmartPad، سلة المهملات واللعبة"
@@ -2997,7 +3010,7 @@ direction = "rtl"
 "~K~orean Hangul" = "ال~ك~ورية (الهانغول)"
 # navigator/lib/config/country.py:147
 "Last used {time}" = "آخر استخدام {time}"
-# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:70
+# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:71
 "Reading file" = "قراءة الملف"
 # navigator/lib/config/usermenu.py:401
 "Asks for parameters first" = "يطلب المعاملات أولا"
@@ -3257,9 +3270,9 @@ direction = "rtl"
 "Can not create {name}: {reason}" = "تعذر إنشاء {name}: {reason}"
 # navigator/lib/file_ops/uucode.py:734
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "عدم تطابق CRC للملف {name}، المدرج={listed}، المحسوب={calculated}"
-# navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
+# navigator/lib/highlight/__init__.py:351, navigator/lib/highlight/__init__.py:356
 "plain" = "عادي"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
+# navigator/lib/highlight/__init__.py:355, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "تلقائي"
 # navigator/lib/system/desktop.py:160
 "xdg-open failed ({code})" = "فشل xdg-open ({code})"
@@ -3797,7 +3810,7 @@ direction = "rtl"
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "مثلًا mtp://Phone/ أو dav://host/dir أو google-drive://you@gmail.com/"
 # navigator/widgets/drives/link_manager/link_manager.py:307
 "New" = "جديد"
-# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:684
+# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:710
 "Save" = "حفظ"
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Running" = "قيد التشغيل"
@@ -3879,17 +3892,17 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "تغير {names} هناك منذ جلبه. الكتابة فوقه؟"
 # navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "تغير {name}. رفعه مجددا إلى {place}؟"
-# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:501, navigator/widgets/editor/edit_window/edit_window.py:1049 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:523, navigator/widgets/editor/edit_window/edit_window.py:1071 ...
 "Warning" = "تحذير"
-# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:295 ...
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:317 ...
 "Cannot write {path}: {error}" = "تعذرت كتابة {path}: {error}"
 # navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "رفع"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "تكرار"
-# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:584
+# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:610
 "Block start" = "بداية الكتلة"
-# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:590
+# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:616
 "Block end" = "نهاية الكتلة"
 # navigator/widgets/editor/commands.py:189
 "Hide block" = "إخفاء الكتلة"
@@ -3947,173 +3960,183 @@ direction = "rtl"
 "Left" = "يسار"
 # navigator/widgets/editor/commands.py:384
 "Center" = "توسيط"
-# navigator/widgets/editor/commands.py:391
-"Line Drawing" = "رسم الخطوط"
-# navigator/widgets/editor/commands.py:397
-"Autoindent" = "إزاحة تلقائية"
-# navigator/widgets/editor/commands.py:403
-"Backspace indents" = "إزاحة بـ Backspace"
+# navigator/widgets/editor/commands.py:392
+"Justify line" = "ضبط السطر"
+# navigator/widgets/editor/commands.py:398
+"Line right" = "السطر يمينًا"
+# navigator/widgets/editor/commands.py:404
+"Line left" = "السطر يسارًا"
 # navigator/widgets/editor/commands.py:410
-"Optimal fill" = "تعبئة مثلى"
-# navigator/widgets/editor/commands.py:416
-"Current line highlight" = "تمييز السطر الحالي"
-# navigator/widgets/editor/commands.py:422
-"Current column highlight" = "تمييز العمود الحالي"
-# navigator/widgets/editor/commands.py:428
-"Syntax highlight" = "تلوين الصيغة"
+"Center line" = "توسيط السطر"
+# navigator/widgets/editor/commands.py:417
+"Line Drawing" = "رسم الخطوط"
+# navigator/widgets/editor/commands.py:423
+"Autoindent" = "إزاحة تلقائية"
+# navigator/widgets/editor/commands.py:429
+"Backspace indents" = "إزاحة بـ Backspace"
 # navigator/widgets/editor/commands.py:436
+"Optimal fill" = "تعبئة مثلى"
+# navigator/widgets/editor/commands.py:442
+"Current line highlight" = "تمييز السطر الحالي"
+# navigator/widgets/editor/commands.py:448
+"Current column highlight" = "تمييز العمود الحالي"
+# navigator/widgets/editor/commands.py:454
+"Syntax highlight" = "تلوين الصيغة"
+# navigator/widgets/editor/commands.py:462
 "Hidden characters" = "الأحرف المخفية"
-# navigator/widgets/editor/commands.py:443, navigator/widgets/editor/file_type_menu.py:86
+# navigator/widgets/editor/commands.py:469, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "نوع الملف"
-# navigator/widgets/editor/commands.py:451, navigator/widgets/editor/format_menu.py:88
+# navigator/widgets/editor/commands.py:477, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "نهايات الأسطر"
-# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3020, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:485, navigator/widgets/editor/file_editor/file_editor.py:3129, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "الترميز"
-# navigator/widgets/editor/commands.py:503
+# navigator/widgets/editor/commands.py:529
 "AutoBrackets" = "أقواس تلقائية"
-# navigator/widgets/editor/commands.py:510
-"Auto wrap" = "التفاف تلقائي"
-# navigator/widgets/editor/commands.py:517
-"Justify on wrap" = "ضبط عند الالتفاف"
-# navigator/widgets/editor/commands.py:523
-"Margins" = "الهوامش"
-# navigator/widgets/editor/commands.py:530
-"Go to line" = "الذهاب إلى سطر"
 # navigator/widgets/editor/commands.py:536
+"Auto wrap" = "التفاف تلقائي"
+# navigator/widgets/editor/commands.py:543
+"Justify on wrap" = "ضبط عند الالتفاف"
+# navigator/widgets/editor/commands.py:549
+"Margins" = "الهوامش"
+# navigator/widgets/editor/commands.py:556
+"Go to line" = "الذهاب إلى سطر"
+# navigator/widgets/editor/commands.py:562
 "Uppercase word" = "كلمة بأحرف كبيرة"
-# navigator/widgets/editor/commands.py:542
+# navigator/widgets/editor/commands.py:568
 "Lowercase word" = "كلمة بأحرف صغيرة"
-# navigator/widgets/editor/commands.py:548
+# navigator/widgets/editor/commands.py:574
 "Capitalize word" = "كلمة بحرف أول كبير"
-# navigator/widgets/editor/commands.py:554
+# navigator/widgets/editor/commands.py:580
 "Uppercase line" = "سطر بأحرف كبيرة"
-# navigator/widgets/editor/commands.py:560
+# navigator/widgets/editor/commands.py:586
 "Lowercase line" = "سطر بأحرف صغيرة"
-# navigator/widgets/editor/commands.py:566
+# navigator/widgets/editor/commands.py:592
 "Capitalize line" = "سطر بحرف أول كبير"
-# navigator/widgets/editor/commands.py:572
+# navigator/widgets/editor/commands.py:598
 "Mark word" = "تحديد كلمة"
-# navigator/widgets/editor/commands.py:578
+# navigator/widgets/editor/commands.py:604
 "Mark line" = "تحديد سطر"
-# navigator/widgets/editor/commands.py:597
+# navigator/widgets/editor/commands.py:623
 "Place marker" = "وضع علامة"
-# navigator/widgets/editor/commands.py:606
+# navigator/widgets/editor/commands.py:632
 "Go to marker" = "الذهاب إلى علامة"
-# navigator/widgets/editor/commands.py:616
+# navigator/widgets/editor/commands.py:642
 "Macro" = "ماكرو"
-# navigator/widgets/editor/commands.py:622
+# navigator/widgets/editor/commands.py:648
 "Read block" = "قراءة كتلة"
-# navigator/widgets/editor/commands.py:628
+# navigator/widgets/editor/commands.py:654
 "Write block" = "كتابة كتلة"
-# navigator/widgets/editor/commands.py:634
-"Insert date" = "إدراج التاريخ"
-# navigator/widgets/editor/commands.py:640
-"Insert time" = "إدراج الوقت"
-# navigator/widgets/editor/commands.py:647
-"Vertical blocks" = "كتل عمودية"
 # navigator/widgets/editor/commands.py:660
-"Redo" = "إعادة"
+"Insert date" = "إدراج التاريخ"
 # navigator/widgets/editor/commands.py:666
+"Insert time" = "إدراج الوقت"
+# navigator/widgets/editor/commands.py:673
+"Vertical blocks" = "كتل عمودية"
+# navigator/widgets/editor/commands.py:686
+"Redo" = "إعادة"
+# navigator/widgets/editor/commands.py:692
 "Open" = "فتح"
-# navigator/widgets/editor/commands.py:672, navigator/widgets/viewer/commands.py:115
+# navigator/widgets/editor/commands.py:698, navigator/widgets/viewer/commands.py:115
 "Save as" = "حفظ باسم"
-# navigator/widgets/editor/commands.py:678
+# navigator/widgets/editor/commands.py:704
 "Save all" = "حفظ الكل"
-# navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:3006
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3115
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "لا يمكن كتابة {char} (U+{code:04X}) في السطر {line} بترميز {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:1047
+# navigator/widgets/editor/edit_window/edit_window.py:1069
 "Untitled" = "بلا عنوان"
-# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2875
+# navigator/widgets/editor/edit_window/edit_window.py:467, navigator/widgets/editor/file_editor/file_editor.py:2979
 "No block is marked" = "لا توجد كتلة محددة"
-# navigator/widgets/editor/edit_window/edit_window.py:554
+# navigator/widgets/editor/edit_window/edit_window.py:576
 "Copy block to" = "نسخ الكتلة إلى"
-# navigator/widgets/editor/edit_window/edit_window.py:554
+# navigator/widgets/editor/edit_window/edit_window.py:576
 "File ~N~ame" = "~ا~سم الملف"
-# navigator/widgets/editor/edit_window/edit_window.py:633
+# navigator/widgets/editor/edit_window/edit_window.py:655
 "Paste from File" = "لصق من ملف"
-# navigator/widgets/editor/edit_window/edit_window.py:633
+# navigator/widgets/editor/edit_window/edit_window.py:655
 "~P~aste from" = "~ل~صق من"
-# navigator/widgets/editor/edit_window/edit_window.py:945
+# navigator/widgets/editor/edit_window/edit_window.py:967
 "Open a File" = "فتح ملف"
-# navigator/widgets/editor/edit_window/edit_window.py:989, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "حفظ الملف باسم"
-# navigator/widgets/editor/edit_window/edit_window.py:989, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "~ح~فظ الملف باسم"
-# navigator/widgets/editor/edit_window/edit_window.py:163
+# navigator/widgets/editor/edit_window/edit_window.py:164
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
+# navigator/widgets/editor/edit_window/edit_window.py:166, navigator/widgets/editor/edit_window/edit_window.py:168
 "Edit - {path}" = "تحرير - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:502, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
+# navigator/widgets/editor/edit_window/edit_window.py:524, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "الملف {name}\nموجود بالفعل.\nهل تريد الكتابة فوقه؟"
-# navigator/widgets/editor/edit_window/edit_window.py:889, navigator/widgets/manager/manager/manager.py:3781
+# navigator/widgets/editor/edit_window/edit_window.py:911, navigator/widgets/manager/manager/manager.py:3781
 "Confirmation" = "تأكيد"
-# navigator/widgets/editor/edit_window/edit_window.py:890
+# navigator/widgets/editor/edit_window/edit_window.py:912
 "Print {n} line?" = ["طباعة {n} سطر؟", "طباعة سطر واحد؟", "طباعة سطرين؟", "طباعة {n} أسطر؟", "طباعة {n} سطرا؟", "طباعة {n} سطر؟"]
-# navigator/widgets/editor/edit_window/edit_window.py:898
+# navigator/widgets/editor/edit_window/edit_window.py:920
 "Cannot print: {error}" = "تعذرت الطباعة: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:280
+# navigator/widgets/editor/edit_window/edit_window.py:302
 "Confirm file save" = "تأكيد حفظ الملف"
-# navigator/widgets/editor/edit_window/edit_window.py:792, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
+# navigator/widgets/editor/edit_window/edit_window.py:814, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "لم يعثر على نص البحث"
-# navigator/widgets/editor/edit_window/edit_window.py:798, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:820, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "معلومات"
-# navigator/widgets/editor/edit_window/edit_window.py:798
+# navigator/widgets/editor/edit_window/edit_window.py:820
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:953, navigator/widgets/shell/shell/shell.py:1912
+# navigator/widgets/editor/edit_window/edit_window.py:975, navigator/widgets/shell/shell/shell.py:1912
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1050
+# navigator/widgets/editor/edit_window/edit_window.py:1072
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
-# navigator/widgets/editor/edit_window/edit_window.py:281
+# navigator/widgets/editor/edit_window/edit_window.py:303
 "Save file {name}?" = "حفظ الملف {name}؟"
-# navigator/widgets/editor/edit_window/edit_window.py:517
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "الملف {name}\nمعلم للقراءة فقط.\nتعديله على أي حال؟"
-# navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
+# navigator/widgets/editor/file_editor/file_editor.py:2229, navigator/widgets/editor/file_editor/file_editor.py:2223, navigator/widgets/editor/file_editor/file_editor.py:2240
 "Macros" = "وحدات الماكرو"
-# navigator/widgets/editor/file_editor/file_editor.py:3109
+# navigator/widgets/editor/file_editor/file_editor.py:3218
 "~G~o to line..." = "~ذ~هاب إلى سطر..."
-# navigator/widgets/editor/file_editor/file_editor.py:3111
+# navigator/widgets/editor/file_editor/file_editor.py:3220
 "~I~ndent block" = "~ز~يادة الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:3112
+# navigator/widgets/editor/file_editor/file_editor.py:3221
 "U~n~indent block" = "~ت~قليل الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:3113
+# navigator/widgets/editor/file_editor/file_editor.py:3222
 "Change ca~s~e" = "حالة ~ا~لأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:3114
+# navigator/widgets/editor/file_editor/file_editor.py:3223
 "~U~pper case" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:3115
+# navigator/widgets/editor/file_editor/file_editor.py:3224
 "~L~ower case" = "أحرف ~ص~غيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:3118
+# navigator/widgets/editor/file_editor/file_editor.py:3227
 "Sa~v~e" = "~ح~فظ"
-# navigator/widgets/editor/file_editor/file_editor.py:829
+# navigator/widgets/editor/file_editor/file_editor.py:882
 "no file name" = "لا يوجد اسم ملف"
-# navigator/widgets/editor/file_editor/file_editor.py:2878, navigator/widgets/manager/manager/manager.py:3286
+# navigator/widgets/editor/file_editor/file_editor.py:2982, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "لا شيء للتراجع عنه"
-# navigator/widgets/editor/file_editor/file_editor.py:2881
+# navigator/widgets/editor/file_editor/file_editor.py:2985
 "Nothing to redo" = "لا شيء لإعادته"
-# navigator/widgets/editor/file_editor/file_editor.py:2893
+# navigator/widgets/editor/file_editor/file_editor.py:2997
 "The text is empty" = "النص فارغ"
-# navigator/widgets/editor/file_editor/file_editor.py:3895
+# navigator/widgets/editor/file_editor/file_editor.py:3000
+"Line format works on line blocks" = "تنسيق السطر يعمل على كتل الأسطر"
+# navigator/widgets/editor/file_editor/file_editor.py:4111
 "Line and column: a click goes to a line" = "السطر والعمود: النقر ينتقل إلى سطر"
-# navigator/widgets/editor/file_editor/file_editor.py:3896
+# navigator/widgets/editor/file_editor/file_editor.py:4112
 "The character's code: a click opens the character table" = "رمز الحرف: النقر يفتح جدول الأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:3897
+# navigator/widgets/editor/file_editor/file_editor.py:4113
 "Vertical blocks: a click makes them stream blocks" = "كتل عمودية: النقر يجعلها كتلا متدفقة"
-# navigator/widgets/editor/file_editor/file_editor.py:3898
+# navigator/widgets/editor/file_editor/file_editor.py:4114
 "Stream blocks: a click makes them vertical" = "كتل متدفقة: النقر يجعلها عمودية"
-# navigator/widgets/editor/file_editor/file_editor.py:3953
+# navigator/widgets/editor/file_editor/file_editor.py:4169
 "Line endings: a click makes them the next kind, a right click offers them all" = "نهايات الأسطر: النقر يبدّلها إلى النوع التالي، والنقر الأيمن يعرضها كلها"
-# navigator/widgets/editor/file_editor/file_editor.py:3955
+# navigator/widgets/editor/file_editor/file_editor.py:4171
 "Encoding: a click reopens or saves the text in another" = "الترميز: النقر يعيد فتح النص أو يحفظه بترميز آخر"
-# navigator/widgets/editor/file_editor/file_editor.py:2885
+# navigator/widgets/editor/file_editor/file_editor.py:2989
 "Marker {n} is not placed" = "العلامة {n} غير موضوعة"
-# navigator/widgets/editor/file_editor/file_editor.py:2165
+# navigator/widgets/editor/file_editor/file_editor.py:2223
 "macros.ini has no macro for this file" = "لا يحوي macros.ini ماكرو لهذا الملف"
-# navigator/widgets/editor/file_editor/file_editor.py:2977
+# navigator/widgets/editor/file_editor/file_editor.py:3086
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "في النص محارف لا يستطيع {encoding} كتابتها، فليست له بايتات تُقرأ من جديد."
-# navigator/widgets/editor/file_editor/file_editor.py:2981
+# navigator/widgets/editor/file_editor/file_editor.py:3090
 "The text does not read as {encoding}." = "لا يمكن قراءة النص بترميز {encoding}."
-# navigator/widgets/editor/file_editor/file_editor.py:1867, navigator/widgets/editor/file_editor/file_editor.py:1906
+# navigator/widgets/editor/file_editor/file_editor.py:1925, navigator/widgets/editor/file_editor/file_editor.py:1964
 "Vertical blocks need for this operation" = "هذه العملية تتطلب كتلا عمودية"
-# navigator/widgets/editor/file_editor/file_editor.py:2182
+# navigator/widgets/editor/file_editor/file_editor.py:2240
 "Not an editor command: {names}" = "ليس أمر محرر: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "لغات ~ب~رمجة"
@@ -4141,7 +4164,7 @@ direction = "rtl"
 "~R~eopen with encoding" = "إعادة ~ف~تح بترميز"
 # navigator/widgets/editor/format_menu.py:56
 "~S~ave with encoding" = "~ح~فظ بترميز"
-# navigator/widgets/editor/loading.py:118
+# navigator/widgets/editor/loading.py:123
 "Writing file" = "كتابة الملف"
 # navigator/widgets/editor/option_items.py:110
 "MD" = "MD"

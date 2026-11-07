@@ -76,6 +76,10 @@ from navigator.widgets.editor.commands import (
     SwitchWrap,
     FCenter,
     FJustify,
+    LCenter,
+    LJustify,
+    LLeft,
+    LRight,
     FLeft,
     FRight,
     Replace,
@@ -605,7 +609,9 @@ class FileEditor(ContextMenuHost, Widget):
     #: them, listed so Key bindings -- and the WordStar presets -- can still
     #: bind them, under the names they had (``unindent_block`` beside
     #: ``unindent_block_stop``).  Most are on the Editor menu as well.
-    keyless_commands = tuple(WORDSTAR.values())
+    #: DN's ``cmL*`` had no key in any table, only its macros' names: listed so
+    #: Key bindings offers them, bound by no preset.
+    keyless_commands = (*WORDSTAR.values(), LJustify, LRight, LLeft, LCenter)
 
     #: What typing reaches: the command line's Enter, Home, End and Tab step
     #: aside while this holds the keyboard.  See ``Shell.enables``.
@@ -2989,6 +2995,9 @@ class FileEditor(ContextMenuHost, Widget):
         if isinstance(command, SelectAll):
             self.revision
             return "" if any(self.document.lines) else tr("The text is empty")
+        if isinstance(command, (LJustify, LRight, LLeft, LCenter)):
+            # ``FormatBlock``'s ``VertBlock`` exit, said rather than done silently.
+            return tr("Line format works on line blocks") if self.vertical_blocks else ""
         if isinstance(command, (FJustify, FRight, FLeft, FCenter)):
             # ``not (ValidBlock and BlockVisible) or VertBlock``: a stream block only.
             if self.block is None or self.block_hidden:
@@ -3686,6 +3695,40 @@ class FileEditor(ContextMenuHost, Widget):
 
     async def on_f_center(self, event: FCenter) -> bool:
         self.format_block("center")
+        return True
+
+    def format_line(self, mode: str) -> None:
+        """``cmLJustify``/``cmLRight``/``cmLLeft``/``cmLCenter``: the cursor's
+        line made the block, shown, and formatted as the block is
+        (``EDITOR.PAS``: ``Mark.A.X := 0; Mark.B.X := Length(GetLine(...));
+        BlockVisible := On; FormatBlock``).  The block then covers what the
+        line became, as DN's did.  An empty line is an empty block, which
+        :meth:`format_block` leaves, as ``ValidBlock`` did."""
+        if self.vertical_blocks:
+            return
+        self._unmark()
+        line = self.line
+        self.block = (Pos(line, 0), Pos(line, len(self.document.lines[line])))
+        self.block_hidden = False
+        if self.block[0] == self.block[1]:
+            self.block = None
+            return
+        self.format_block(mode)
+
+    async def on_l_justify(self, event: LJustify) -> bool:
+        self.format_line("justify")
+        return True
+
+    async def on_l_right(self, event: LRight) -> bool:
+        self.format_line("right")
+        return True
+
+    async def on_l_left(self, event: LLeft) -> bool:
+        self.format_line("left")
+        return True
+
+    async def on_l_center(self, event: LCenter) -> bool:
+        self.format_line("center")
         return True
 
     def go_to_line(self, number: int) -> None:

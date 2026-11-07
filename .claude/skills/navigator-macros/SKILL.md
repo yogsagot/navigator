@@ -53,7 +53,8 @@ DOS Navigator had two kinds; Navigator has both (asked for), in `navigator/lib/c
 - **Command names** (`resolve`): `keybindings.ini`'s editor and edit-window names (`editor_entries`), DN's
   `MakeIDs` names (CamelCase, which `snake` turns into those, plus `DN_NAMES` for the irregular ones: `PgUp`,
   `DelChar`, `CtrlHome`, `UpBlock`…), or an editor command class constructible without arguments
-  (`SwitchIndent`). An unknown name is passed over, and the box says which.
+  (`SwitchIndent`; DN's macro-only `LJustify`/`LRight`/`LLeft`/`LCenter` are found this way). An unknown name is
+  passed over, and the box says which.
 - **Playing**: in the editor, **Ctrl+J 0** (`SelectMacro`, DN's `cmSelectMacro`, whose body was empty) lists the
   file's macros in a `PopupMenu`. `play_steps` runs them: a command through `app.run_command(binding, editor)`,
   settling between steps.

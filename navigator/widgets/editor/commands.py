@@ -384,6 +384,32 @@ class FCenter(Command):
     title = "Center"
 
 
+class LJustify(Command):
+    """``cmLJustify``: the cursor's line made the block and justified to the
+    margins, as ``cmFJustify`` justifies one.  No key in DN: its macros'
+    ``LJustify`` (``MACRO.PAS``)."""
+
+    title = "Justify line"
+
+
+class LRight(Command):
+    """``cmLRight``: the cursor's line against the right margin (DN's macros' ``LRight``)."""
+
+    title = "Line right"
+
+
+class LLeft(Command):
+    """``cmLLeft``: the cursor's line from the left margin (DN's macros' ``LLeft``)."""
+
+    title = "Line left"
+
+
+class LCenter(Command):
+    """``cmLCenter``: the cursor's line centred between the margins (DN's macros' ``LCenter``)."""
+
+    title = "Center line"
+
+
 class SwitchDrawMode(Command):
     """``cmSwitchDrawMode``: F4, ^Q^M, Editor > Misc > *Line Drawing* -- off, single
     lines, double lines, and off again."""
@@ -721,6 +747,10 @@ __all__ = [
     "FJustify",
     "FLeft",
     "FRight",
+    "LCenter",
+    "LJustify",
+    "LLeft",
+    "LRight",
     "SetMargins",
     "ContSearch",
     "Replace",

@@ -113,6 +113,11 @@ def test_command_names_dns_and_navigators():
     assert resolve("CtrlHome", entries) == "TS"
     assert resolve("SwitchIndent", entries) == SwitchIndent()
     assert resolve("NoSuchThing", entries) is None
+    # DN's ``cmL*`` had names for macros alone (``MACRO.PAS``).
+    from navigator.widgets.editor.commands import LCenter, LJustify, LLeft, LRight
+
+    assert [resolve(name, entries) for name in ("LJustify", "LRight", "LLeft", "LCenter")] == [
+        LJustify(), LRight(), LLeft(), LCenter()]
 
 
 # -- the recorder -------------------------------------------------------------------

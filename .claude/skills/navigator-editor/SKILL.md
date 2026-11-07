@@ -296,7 +296,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   between `FileEditor.margins` (`LeftSide`, `RightSide`, `InSide`): a line takes a word while `length + word + blank`
   stays under its room; right ends against the right margin, center sits midway, justify widens every line but the
   last gap by gap from the left and indents the first. One undo step; the block then covers the new lines, the cursor
-  at its start. Disabled for a column block. *Margins...* (`SetMargins`, `MarginsDialog`, `dlgEditorFormat` 39 by 11)
+  at its start. Disabled for a column block. **The cursor's line alone**: `LJustify`/`LRight`/`LLeft`/`LCenter`
+  (DN's `cmL*`, `EDITOR.PAS:823`: the line made the block, shown, then `FormatBlock`; `format_line`), DN's for macros
+  with no key -- keyless here too (`keyless_commands`, bound by no preset) and on Paragraph > *Current line* (a
+  departure, as item 4's entries are); refused under column blocks ("Line format works on line blocks") where DN
+  did nothing. *Margins...* (`SetMargins`, `MarginsDialog`, `dlgEditorFormat` 39 by 11)
   changes this editor's margins only, seeded from the Editor setup, a number that does not read kept, then
   `fix_margins` (`SetFormat`'s corrections). DN's line-only `cmL*` had no key in the English resource and are not here.
 - **Auto wrap and Justify on wrap** (`FileEditor.autowrap`/`justify_on_wrap`, DN's `AutoWrap`/`AutoJustify`, seeded from

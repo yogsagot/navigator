@@ -49,7 +49,7 @@ flag = "LV"
 "~A~dd..." = "~P~ievienot..."
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:41, navigator/widgets/drives/links_dialog/links_dialog.nml:50
 "~E~dit..." = "~R~ediģēt..."
-# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:223 ...
+# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/editor/edit_window/edit_window.nml:217 ...
 "~D~elete" = "D~z~ēst"
 # navigator/widgets/drives/host_key_query/host_key_query.nml:11
 "Unknown SSH host" = "Nezināms SSH serveris"
@@ -95,9 +95,9 @@ flag = "LV"
 "~E~ditor" = "~R~edaktors"
 # navigator/widgets/editor/edit_window/edit_window.nml:169
 "Editing, the file, search, paragraphs and blocks" = "Rediģēšana, fails, meklēšana, rindkopas un bloki"
-# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3096
+# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3205
 "~U~ndo" = "~A~tsaukt"
-# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3097
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3206
 "R~e~do" = "Atk~ā~rtot"
 # navigator/widgets/editor/edit_window/edit_window.nml:197
 "C~o~py to..." = "Kopēt ~u~z..."
@@ -109,244 +109,257 @@ flag = "LV"
 "Insert a file's text at the cursor" = "Ievietot faila tekstu pie kursora"
 # navigator/widgets/editor/edit_window/edit_window.nml:207
 "Delete the selection without copying it to the clipboard" = "Dzēst atlasi, nekopējot to starpliktuvē"
-# navigator/widgets/editor/edit_window/edit_window.nml:212, navigator/widgets/editor/file_editor/file_editor.py:3103
-"~D~elete line" = "D~z~ēst rindu"
-# navigator/widgets/editor/edit_window/edit_window.nml:217, navigator/widgets/editor/file_editor/file_editor.py:3104
-"Delete ~w~ord left" = "Dzēst iepriekšē~j~o vārdu"
-# navigator/widgets/editor/edit_window/edit_window.nml:223
-"Delete word ri~g~ht" = "Dz~ē~st vārdu pa labi"
-# navigator/widgets/editor/edit_window/edit_window.nml:224
-"Delete from the cursor to the start of the next word" = "Dzēst no kursora līdz nākamā vārda sākumam"
-# navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to e~n~d of line" = "Dzēst līdz rindas ~b~eigām"
+# navigator/widgets/editor/edit_window/edit_window.nml:218
 "Delete a line, a word or the rest of the line" = "Dzēst rindu, vārdu vai rindas atlikumu"
+# navigator/widgets/editor/edit_window/edit_window.nml:220, navigator/widgets/editor/file_editor/file_editor.py:3212
+"~D~elete line" = "D~z~ēst rindu"
+# navigator/widgets/editor/edit_window/edit_window.nml:224, navigator/widgets/editor/file_editor/file_editor.py:3213
+"Delete ~w~ord left" = "Dzēst iepriekšē~j~o vārdu"
+# navigator/widgets/editor/edit_window/edit_window.nml:228
+"Delete word ri~g~ht" = "Dz~ē~st vārdu pa labi"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
-"Delete from the cursor to the end of the line" = "Dzēst no kursora līdz rindas beigām"
+"Delete from the cursor to the start of the next word" = "Dzēst no kursora līdz nākamā vārda sākumam"
 # navigator/widgets/editor/edit_window/edit_window.nml:232
+"Delete to e~n~d of line" = "Dzēst līdz rindas ~b~eigām"
+# navigator/widgets/editor/edit_window/edit_window.nml:233
+"Delete from the cursor to the end of the line" = "Dzēst no kursora līdz rindas beigām"
+# navigator/widgets/editor/edit_window/edit_window.nml:236
 "Insert l~i~ne" = "Ie~v~ietot rindu"
-# navigator/widgets/editor/edit_window/edit_window.nml:238, navigator/widgets/shell/main_menu/main_menu.nml:109
+# navigator/widgets/editor/edit_window/edit_window.nml:242, navigator/widgets/shell/main_menu/main_menu.nml:109
 "~F~ile" = "~F~ails"
-# navigator/widgets/editor/edit_window/edit_window.nml:240, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
+# navigator/widgets/editor/edit_window/edit_window.nml:244, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~O~pen..." = "~A~tvērt..."
-# navigator/widgets/editor/edit_window/edit_window.nml:244, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:248, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~S~aglabāt"
-# navigator/widgets/editor/edit_window/edit_window.nml:248
-"Save ~a~s..." = "Saglabāt ~k~ā..."
 # navigator/widgets/editor/edit_window/edit_window.nml:252
+"Save ~a~s..." = "Saglabāt ~k~ā..."
+# navigator/widgets/editor/edit_window/edit_window.nml:256
 "Save a~l~l..." = "Saglabāt ~v~isus..."
-# navigator/widgets/editor/edit_window/edit_window.nml:260
-"Line en~d~ings" = "Rindu bei~g~as"
 # navigator/widgets/editor/edit_window/edit_window.nml:264
+"Line en~d~ings" = "Rindu bei~g~as"
+# navigator/widgets/editor/edit_window/edit_window.nml:268
 "En~c~oding" = "Kodē~j~ums"
-# navigator/widgets/editor/edit_window/edit_window.nml:268, navigator/widgets/shell/main_menu/main_menu.nml:309
+# navigator/widgets/editor/edit_window/edit_window.nml:272, navigator/widgets/shell/main_menu/main_menu.nml:309
 "~P~rint" = "~D~rukāt"
-# navigator/widgets/editor/edit_window/edit_window.nml:272
+# navigator/widgets/editor/edit_window/edit_window.nml:276
 "Print ~b~lock" = "Drukāt ~b~loku"
-# navigator/widgets/editor/edit_window/edit_window.nml:277, navigator/widgets/shell/main_menu/main_menu.nml:396
+# navigator/widgets/editor/edit_window/edit_window.nml:281, navigator/widgets/shell/main_menu/main_menu.nml:396
 "E~x~it" = "~I~ziet"
-# navigator/widgets/editor/edit_window/edit_window.nml:282, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:286, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~M~eklēt"
-# navigator/widgets/editor/edit_window/edit_window.nml:285
+# navigator/widgets/editor/edit_window/edit_window.nml:289
 "Find ~b~ar" = "Meklēšanas ~j~osla"
-# navigator/widgets/editor/edit_window/edit_window.nml:286
-"Search as you type, in a bar over the text" = "Meklēt rakstot, joslā virs teksta"
 # navigator/widgets/editor/edit_window/edit_window.nml:290
+"Search as you type, in a bar over the text" = "Meklēt rakstot, joslā virs teksta"
+# navigator/widgets/editor/edit_window/edit_window.nml:294
 "Replace b~a~r" = "Aizstāšanas jos~l~a"
-# navigator/widgets/editor/edit_window/edit_window.nml:295, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3107
+# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3216
 "~F~ind..." = "~M~eklēt..."
-# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/editor/file_editor/file_editor.py:3108
+# navigator/widgets/editor/edit_window/edit_window.nml:303, navigator/widgets/editor/file_editor/file_editor.py:3217
 "~R~eplace..." = "Aizvi~e~tot..."
-# navigator/widgets/editor/edit_window/edit_window.nml:303
-"~S~earch again" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/editor/edit_window/edit_window.nml:307
-"Re~v~ersed search" = "Meklēt a~t~pakaļ"
+"~S~earch again" = "Meklēt ~v~ēlreiz"
 # navigator/widgets/editor/edit_window/edit_window.nml:311
+"Re~v~ersed search" = "Meklēt a~t~pakaļ"
+# navigator/widgets/editor/edit_window/edit_window.nml:315
 "~G~o to line number..." = "~P~āriet uz rindu..."
-# navigator/widgets/editor/edit_window/edit_window.nml:316
+# navigator/widgets/editor/edit_window/edit_window.nml:320
 "~M~atching bracket" = "Atbilstošā ~i~ekava"
-# navigator/widgets/editor/edit_window/edit_window.nml:317
+# navigator/widgets/editor/edit_window/edit_window.nml:321
 "Jump to the bracket that pairs with the one at the cursor" = "Pāriet uz iekavu, kas veido pāri ar to pie kursora"
-# navigator/widgets/editor/edit_window/edit_window.nml:326
-"Pla~c~e marker" = "~N~ovietot marķieri"
-# navigator/widgets/editor/edit_window/edit_window.nml:327
-"Keep the cursor's place as one of nine markers" = "Saglabāt kursora vietu kā vienu no deviņiem marķieriem"
-# navigator/widgets/editor/edit_window/edit_window.nml:329, navigator/widgets/editor/edit_window/edit_window.nml:369
-"Marker ~1~" = "Marķieris ~1~"
 # navigator/widgets/editor/edit_window/edit_window.nml:330
-"Keep the cursor's place as marker 1" = "Saglabāt kursora vietu kā marķieri 1"
+"Pla~c~e marker" = "~N~ovietot marķieri"
+# navigator/widgets/editor/edit_window/edit_window.nml:331
+"Keep the cursor's place as one of nine markers" = "Saglabāt kursora vietu kā vienu no deviņiem marķieriem"
 # navigator/widgets/editor/edit_window/edit_window.nml:333, navigator/widgets/editor/edit_window/edit_window.nml:373
-"Marker ~2~" = "Marķieris ~2~"
+"Marker ~1~" = "Marķieris ~1~"
 # navigator/widgets/editor/edit_window/edit_window.nml:334
-"Keep the cursor's place as marker 2" = "Saglabāt kursora vietu kā marķieri 2"
+"Keep the cursor's place as marker 1" = "Saglabāt kursora vietu kā marķieri 1"
 # navigator/widgets/editor/edit_window/edit_window.nml:337, navigator/widgets/editor/edit_window/edit_window.nml:377
-"Marker ~3~" = "Marķieris ~3~"
+"Marker ~2~" = "Marķieris ~2~"
 # navigator/widgets/editor/edit_window/edit_window.nml:338
-"Keep the cursor's place as marker 3" = "Saglabāt kursora vietu kā marķieri 3"
+"Keep the cursor's place as marker 2" = "Saglabāt kursora vietu kā marķieri 2"
 # navigator/widgets/editor/edit_window/edit_window.nml:341, navigator/widgets/editor/edit_window/edit_window.nml:381
-"Marker ~4~" = "Marķieris ~4~"
+"Marker ~3~" = "Marķieris ~3~"
 # navigator/widgets/editor/edit_window/edit_window.nml:342
-"Keep the cursor's place as marker 4" = "Saglabāt kursora vietu kā marķieri 4"
+"Keep the cursor's place as marker 3" = "Saglabāt kursora vietu kā marķieri 3"
 # navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/editor/edit_window/edit_window.nml:385
-"Marker ~5~" = "Marķieris ~5~"
+"Marker ~4~" = "Marķieris ~4~"
 # navigator/widgets/editor/edit_window/edit_window.nml:346
-"Keep the cursor's place as marker 5" = "Saglabāt kursora vietu kā marķieri 5"
+"Keep the cursor's place as marker 4" = "Saglabāt kursora vietu kā marķieri 4"
 # navigator/widgets/editor/edit_window/edit_window.nml:349, navigator/widgets/editor/edit_window/edit_window.nml:389
-"Marker ~6~" = "Marķieris ~6~"
+"Marker ~5~" = "Marķieris ~5~"
 # navigator/widgets/editor/edit_window/edit_window.nml:350
-"Keep the cursor's place as marker 6" = "Saglabāt kursora vietu kā marķieri 6"
+"Keep the cursor's place as marker 5" = "Saglabāt kursora vietu kā marķieri 5"
 # navigator/widgets/editor/edit_window/edit_window.nml:353, navigator/widgets/editor/edit_window/edit_window.nml:393
-"Marker ~7~" = "Marķieris ~7~"
+"Marker ~6~" = "Marķieris ~6~"
 # navigator/widgets/editor/edit_window/edit_window.nml:354
-"Keep the cursor's place as marker 7" = "Saglabāt kursora vietu kā marķieri 7"
+"Keep the cursor's place as marker 6" = "Saglabāt kursora vietu kā marķieri 6"
 # navigator/widgets/editor/edit_window/edit_window.nml:357, navigator/widgets/editor/edit_window/edit_window.nml:397
-"Marker ~8~" = "Marķieris ~8~"
+"Marker ~7~" = "Marķieris ~7~"
 # navigator/widgets/editor/edit_window/edit_window.nml:358
-"Keep the cursor's place as marker 8" = "Saglabāt kursora vietu kā marķieri 8"
+"Keep the cursor's place as marker 7" = "Saglabāt kursora vietu kā marķieri 7"
 # navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:401
-"Marker ~9~" = "Marķieris ~9~"
+"Marker ~8~" = "Marķieris ~8~"
 # navigator/widgets/editor/edit_window/edit_window.nml:362
-"Keep the cursor's place as marker 9" = "Saglabāt kursora vietu kā marķieri 9"
+"Keep the cursor's place as marker 8" = "Saglabāt kursora vietu kā marķieri 8"
+# navigator/widgets/editor/edit_window/edit_window.nml:365, navigator/widgets/editor/edit_window/edit_window.nml:405
+"Marker ~9~" = "Marķieris ~9~"
 # navigator/widgets/editor/edit_window/edit_window.nml:366
-"G~o~ to marker" = "~D~oties uz marķieri"
-# navigator/widgets/editor/edit_window/edit_window.nml:367
-"Take the cursor back to a place kept as a marker" = "Atgriezt kursoru vietā, kas saglabāta kā marķieris"
+"Keep the cursor's place as marker 9" = "Saglabāt kursora vietu kā marķieri 9"
 # navigator/widgets/editor/edit_window/edit_window.nml:370
-"Take the cursor back to marker 1" = "Atgriezt kursoru pie marķiera 1"
+"G~o~ to marker" = "~D~oties uz marķieri"
+# navigator/widgets/editor/edit_window/edit_window.nml:371
+"Take the cursor back to a place kept as a marker" = "Atgriezt kursoru vietā, kas saglabāta kā marķieris"
 # navigator/widgets/editor/edit_window/edit_window.nml:374
-"Take the cursor back to marker 2" = "Atgriezt kursoru pie marķiera 2"
+"Take the cursor back to marker 1" = "Atgriezt kursoru pie marķiera 1"
 # navigator/widgets/editor/edit_window/edit_window.nml:378
-"Take the cursor back to marker 3" = "Atgriezt kursoru pie marķiera 3"
+"Take the cursor back to marker 2" = "Atgriezt kursoru pie marķiera 2"
 # navigator/widgets/editor/edit_window/edit_window.nml:382
-"Take the cursor back to marker 4" = "Atgriezt kursoru pie marķiera 4"
+"Take the cursor back to marker 3" = "Atgriezt kursoru pie marķiera 3"
 # navigator/widgets/editor/edit_window/edit_window.nml:386
-"Take the cursor back to marker 5" = "Atgriezt kursoru pie marķiera 5"
+"Take the cursor back to marker 4" = "Atgriezt kursoru pie marķiera 4"
 # navigator/widgets/editor/edit_window/edit_window.nml:390
-"Take the cursor back to marker 6" = "Atgriezt kursoru pie marķiera 6"
+"Take the cursor back to marker 5" = "Atgriezt kursoru pie marķiera 5"
 # navigator/widgets/editor/edit_window/edit_window.nml:394
-"Take the cursor back to marker 7" = "Atgriezt kursoru pie marķiera 7"
+"Take the cursor back to marker 6" = "Atgriezt kursoru pie marķiera 6"
 # navigator/widgets/editor/edit_window/edit_window.nml:398
-"Take the cursor back to marker 8" = "Atgriezt kursoru pie marķiera 8"
+"Take the cursor back to marker 7" = "Atgriezt kursoru pie marķiera 7"
 # navigator/widgets/editor/edit_window/edit_window.nml:402
-"Take the cursor back to marker 9" = "Atgriezt kursoru pie marķiera 9"
+"Take the cursor back to marker 8" = "Atgriezt kursoru pie marķiera 8"
 # navigator/widgets/editor/edit_window/edit_window.nml:406
+"Take the cursor back to marker 9" = "Atgriezt kursoru pie marķiera 9"
+# navigator/widgets/editor/edit_window/edit_window.nml:410
 "Pa~r~agraph" = "~R~indkopa"
-# navigator/widgets/editor/edit_window/edit_window.nml:408
+# navigator/widgets/editor/edit_window/edit_window.nml:412, navigator/widgets/editor/edit_window/edit_window.nml:437
 "~J~ustify" = "~I~zlīdzināt"
-# navigator/widgets/editor/edit_window/edit_window.nml:409
-"Justify the block's paragraph to both margins" = "Izlīdzināt bloka rindkopu pie abām malām"
 # navigator/widgets/editor/edit_window/edit_window.nml:413
+"Justify the block's paragraph to both margins" = "Izlīdzināt bloka rindkopu pie abām malām"
+# navigator/widgets/editor/edit_window/edit_window.nml:417, navigator/widgets/editor/edit_window/edit_window.nml:441
 "~R~ight" = "~P~a labi"
-# navigator/widgets/editor/edit_window/edit_window.nml:417
+# navigator/widgets/editor/edit_window/edit_window.nml:421, navigator/widgets/editor/edit_window/edit_window.nml:445
 "~L~eft" = "Pa ~k~reisi"
-# navigator/widgets/editor/edit_window/edit_window.nml:421
+# navigator/widgets/editor/edit_window/edit_window.nml:425, navigator/widgets/editor/edit_window/edit_window.nml:449
 "~C~enter" = "~C~entrēt"
-# navigator/widgets/editor/edit_window/edit_window.nml:426
-"~M~argins..." = "~M~alas..."
-# navigator/widgets/editor/edit_window/edit_window.nml:430, navigator/widgets/editor/edit_window/edit_window.nml:544, navigator/widgets/editor/edit_window/edit_window.nml:559 ...
-"~B~lock" = "~B~loks"
+# navigator/widgets/editor/edit_window/edit_window.nml:434
+"Current li~n~e" = "P~a~šreizējā rinda"
 # navigator/widgets/editor/edit_window/edit_window.nml:435
+"Format the cursor's line alone" = "Formatēt tikai kursora rindu"
+# navigator/widgets/editor/edit_window/edit_window.nml:438
+"Justify the cursor's line to both margins" = "Izlīdzināt kursora rindu pēc abām malām"
+# navigator/widgets/editor/edit_window/edit_window.nml:442
+"Put the cursor's line against the right margin" = "Novietot kursora rindu pie labās malas"
+# navigator/widgets/editor/edit_window/edit_window.nml:446
+"Put the cursor's line at the left margin" = "Novietot kursora rindu pie kreisās malas"
+# navigator/widgets/editor/edit_window/edit_window.nml:450
+"Center the cursor's line between the margins" = "Centrēt kursora rindu starp malām"
+# navigator/widgets/editor/edit_window/edit_window.nml:454
+"~M~argins..." = "~M~alas..."
+# navigator/widgets/editor/edit_window/edit_window.nml:458, navigator/widgets/editor/edit_window/edit_window.nml:572, navigator/widgets/editor/edit_window/edit_window.nml:587 ...
+"~B~lock" = "~B~loks"
+# navigator/widgets/editor/edit_window/edit_window.nml:463
 "Mar~k~ start" = "Bl~o~ka sākums"
-# navigator/widgets/editor/edit_window/edit_window.nml:436
+# navigator/widgets/editor/edit_window/edit_window.nml:464
 "Begin the block at the cursor" = "Sākt bloku pie kursora"
-# navigator/widgets/editor/edit_window/edit_window.nml:439
+# navigator/widgets/editor/edit_window/edit_window.nml:467
 "Mark ~e~nd" = "Bloka b~e~igas"
-# navigator/widgets/editor/edit_window/edit_window.nml:440
+# navigator/widgets/editor/edit_window/edit_window.nml:468
 "End the block at the cursor" = "Beigt bloku pie kursora"
-# navigator/widgets/editor/edit_window/edit_window.nml:443
+# navigator/widgets/editor/edit_window/edit_window.nml:471
 "Mark ~w~ord" = "~I~ezīmēt vārdu"
-# navigator/widgets/editor/edit_window/edit_window.nml:444
+# navigator/widgets/editor/edit_window/edit_window.nml:472
 "Mark the word at the cursor as the block" = "Iezīmēt vārdu pie kursora kā bloku"
-# navigator/widgets/editor/edit_window/edit_window.nml:447
+# navigator/widgets/editor/edit_window/edit_window.nml:475
 "Mark li~n~e" = "Ie~z~īmēt rindu"
-# navigator/widgets/editor/edit_window/edit_window.nml:448
+# navigator/widgets/editor/edit_window/edit_window.nml:476
 "Mark the cursor's line as the block" = "Iezīmēt kursora rindu kā bloku"
-# navigator/widgets/editor/edit_window/edit_window.nml:452
+# navigator/widgets/editor/edit_window/edit_window.nml:480
 "~G~o to block start" = "Uz bloka s~ā~kumu"
-# navigator/widgets/editor/edit_window/edit_window.nml:453
+# navigator/widgets/editor/edit_window/edit_window.nml:481
 "Take the cursor to where the block begins" = "Pārvietot kursoru uz bloka sākumu"
-# navigator/widgets/editor/edit_window/edit_window.nml:456
-"Go to block en~d~" = "Uz bloka bei~g~ām"
-# navigator/widgets/editor/edit_window/edit_window.nml:457
-"Take the cursor to where the block ends" = "Pārvietot kursoru uz bloka beigām"
-# navigator/widgets/editor/edit_window/edit_window.nml:461
-"~M~ove" = "~P~ārvietot"
-# navigator/widgets/editor/edit_window/edit_window.nml:469
-"~I~ndent" = "~A~tkāpe"
-# navigator/widgets/editor/edit_window/edit_window.nml:473
-"~U~nindent" = "~N~oņemt atkāpi"
-# navigator/widgets/editor/edit_window/edit_window.nml:478
-"~H~ide/show block" = "Slēpt/rādīt ~b~loku"
-# navigator/widgets/editor/edit_window/edit_window.nml:479
-"Hide the marked block, or show it again" = "Slēpt iezīmēto bloku vai rādīt to atkal"
 # navigator/widgets/editor/edit_window/edit_window.nml:484
-"U~p~percase" = "~L~ielie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:488, navigator/widgets/editor/edit_window/edit_window.nml:549
-"~L~owercase" = "~M~azie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:492
-"Capi~t~alize" = "~S~ākumburti"
+"Go to block en~d~" = "Uz bloka bei~g~ām"
+# navigator/widgets/editor/edit_window/edit_window.nml:485
+"Take the cursor to where the block ends" = "Pārvietot kursoru uz bloka beigām"
+# navigator/widgets/editor/edit_window/edit_window.nml:489
+"~M~ove" = "~P~ārvietot"
 # navigator/widgets/editor/edit_window/edit_window.nml:497
+"~I~ndent" = "~A~tkāpe"
+# navigator/widgets/editor/edit_window/edit_window.nml:501
+"~U~nindent" = "~N~oņemt atkāpi"
+# navigator/widgets/editor/edit_window/edit_window.nml:506
+"~H~ide/show block" = "Slēpt/rādīt ~b~loku"
+# navigator/widgets/editor/edit_window/edit_window.nml:507
+"Hide the marked block, or show it again" = "Slēpt iezīmēto bloku vai rādīt to atkal"
+# navigator/widgets/editor/edit_window/edit_window.nml:512
+"U~p~percase" = "~L~ielie burti"
+# navigator/widgets/editor/edit_window/edit_window.nml:516, navigator/widgets/editor/edit_window/edit_window.nml:577
+"~L~owercase" = "~M~azie burti"
+# navigator/widgets/editor/edit_window/edit_window.nml:520
+"Capi~t~alize" = "~S~ākumburti"
+# navigator/widgets/editor/edit_window/edit_window.nml:525
 "~S~ort" = "Kār~t~ot"
-# navigator/widgets/editor/edit_window/edit_window.nml:498
+# navigator/widgets/editor/edit_window/edit_window.nml:526
 "Sort the lines by the column block" = "Kārtot rindas pēc kolonnu bloka"
-# navigator/widgets/editor/edit_window/edit_window.nml:503
+# navigator/widgets/editor/edit_window/edit_window.nml:531
 "C~a~lculate sum" = "Aprēķināt s~u~mmu"
-# navigator/widgets/editor/edit_window/edit_window.nml:504
+# navigator/widgets/editor/edit_window/edit_window.nml:532
 "Add up the column block's numbers; the sum goes to the clipboard" = "Saskaitīt kolonnu bloka skaitļus; summa nonāk starpliktuvē"
-# navigator/widgets/editor/edit_window/edit_window.nml:509
+# navigator/widgets/editor/edit_window/edit_window.nml:537
 "~M~isc" = "~D~ažādi"
-# navigator/widgets/editor/edit_window/edit_window.nml:511
+# navigator/widgets/editor/edit_window/edit_window.nml:539
 "Insert ~d~ate" = "Ievietot ~d~atumu"
-# navigator/widgets/editor/edit_window/edit_window.nml:515
+# navigator/widgets/editor/edit_window/edit_window.nml:543
 "Insert ~t~ime" = "Ievietot lai~k~u"
-# navigator/widgets/editor/edit_window/edit_window.nml:519
+# navigator/widgets/editor/edit_window/edit_window.nml:547
 "Du~p~licate line" = "Dublēt ~r~indu"
-# navigator/widgets/editor/edit_window/edit_window.nml:523, navigator/widgets/shell/main_menu/main_menu.nml:474
+# navigator/widgets/editor/edit_window/edit_window.nml:551, navigator/widgets/shell/main_menu/main_menu.nml:474
 "Character ta~b~le" = "Rakstzīmju ~t~abula"
-# navigator/widgets/editor/edit_window/edit_window.nml:527
+# navigator/widgets/editor/edit_window/edit_window.nml:555
 "Line Dra~w~ing" = "Līniju ~z~īmēšana"
-# navigator/widgets/editor/edit_window/edit_window.nml:528
+# navigator/widgets/editor/edit_window/edit_window.nml:556
 "Draw lines with the arrow keys: off, single, double" = "Zīmēt līnijas ar bulttaustiņiem: izslēgts, vienkāršas, dubultas"
-# navigator/widgets/editor/edit_window/edit_window.nml:534
+# navigator/widgets/editor/edit_window/edit_window.nml:562
 "~U~ppercase" = "~L~ielie burti"
-# navigator/widgets/editor/edit_window/edit_window.nml:536, navigator/widgets/editor/edit_window/edit_window.nml:551, navigator/widgets/editor/edit_window/edit_window.nml:566
+# navigator/widgets/editor/edit_window/edit_window.nml:564, navigator/widgets/editor/edit_window/edit_window.nml:579, navigator/widgets/editor/edit_window/edit_window.nml:594
 "~W~ord" = "~V~ārds"
-# navigator/widgets/editor/edit_window/edit_window.nml:540, navigator/widgets/editor/edit_window/edit_window.nml:555, navigator/widgets/editor/edit_window/edit_window.nml:570
+# navigator/widgets/editor/edit_window/edit_window.nml:568, navigator/widgets/editor/edit_window/edit_window.nml:583, navigator/widgets/editor/edit_window/edit_window.nml:598
 "~L~ine" = "~R~inda"
-# navigator/widgets/editor/edit_window/edit_window.nml:564, navigator/widgets/editor/file_editor/file_editor.py:3116
+# navigator/widgets/editor/edit_window/edit_window.nml:592, navigator/widgets/editor/file_editor/file_editor.py:3225
 "~C~apitalize" = "~S~ākumburti"
-# navigator/widgets/editor/edit_window/edit_window.nml:579
+# navigator/widgets/editor/edit_window/edit_window.nml:607
 "Optio~n~s" = "I~e~statījumi"
-# navigator/widgets/editor/edit_window/edit_window.nml:581
-"~B~ackspace indents" = "~B~ackspace atkāpe"
-# navigator/widgets/editor/edit_window/edit_window.nml:582
-"Backspace at a line's start goes back to an indent above" = "Backspace rindas sākumā atgriežas pie atkāpes augstāk"
-# navigator/widgets/editor/edit_window/edit_window.nml:585
-"AutoB~r~ackets" = "Auto~i~ekavas"
-# navigator/widgets/editor/edit_window/edit_window.nml:588
-"Auto~i~ndent" = "Auto~a~tkāpe"
-# navigator/widgets/editor/edit_window/edit_window.nml:591
-"~A~uto wrap" = "Auto~p~ārnese"
-# navigator/widgets/editor/edit_window/edit_window.nml:594, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~J~ustify on wrap" = "~L~īdzināt pārnesot"
-# navigator/widgets/editor/edit_window/edit_window.nml:595
-"Widen a wrapped line to the margin" = "Izplest pārnesto rindu līdz malai"
-# navigator/widgets/editor/edit_window/edit_window.nml:598, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~V~ertical blocks" = "~V~ertikāli bloki"
-# navigator/widgets/editor/edit_window/edit_window.nml:599
-"Mark column blocks instead of line ones" = "Iezīmēt kolonnu blokus, nevis rindu blokus"
-# navigator/widgets/editor/edit_window/edit_window.nml:602, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"Opti~m~al fill" = "~O~ptimāla aizpilde"
-# navigator/widgets/editor/edit_window/edit_window.nml:603
-"Write blanks as tabs where they reach a tab stop" = "Rakstīt atstarpes kā tabulācijas, kur tās sasniedz tabulācijas pozīciju"
-# navigator/widgets/editor/edit_window/edit_window.nml:606
-"Current ~l~ine highlight" = "Izcelt ~r~indu"
 # navigator/widgets/editor/edit_window/edit_window.nml:609
-"Current ~c~olumn highlight" = "Izcelt ~k~olonnu"
-# navigator/widgets/editor/edit_window/edit_window.nml:612
-"Syntax ~h~ighlight" = "~S~intakses izcelšana"
+"~B~ackspace indents" = "~B~ackspace atkāpe"
+# navigator/widgets/editor/edit_window/edit_window.nml:610
+"Backspace at a line's start goes back to an indent above" = "Backspace rindas sākumā atgriežas pie atkāpes augstāk"
+# navigator/widgets/editor/edit_window/edit_window.nml:613
+"AutoB~r~ackets" = "Auto~i~ekavas"
 # navigator/widgets/editor/edit_window/edit_window.nml:616
+"Auto~i~ndent" = "Auto~a~tkāpe"
+# navigator/widgets/editor/edit_window/edit_window.nml:619
+"~A~uto wrap" = "Auto~p~ārnese"
+# navigator/widgets/editor/edit_window/edit_window.nml:622, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~J~ustify on wrap" = "~L~īdzināt pārnesot"
+# navigator/widgets/editor/edit_window/edit_window.nml:623
+"Widen a wrapped line to the margin" = "Izplest pārnesto rindu līdz malai"
+# navigator/widgets/editor/edit_window/edit_window.nml:626, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~V~ertical blocks" = "~V~ertikāli bloki"
+# navigator/widgets/editor/edit_window/edit_window.nml:627
+"Mark column blocks instead of line ones" = "Iezīmēt kolonnu blokus, nevis rindu blokus"
+# navigator/widgets/editor/edit_window/edit_window.nml:630, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"Opti~m~al fill" = "~O~ptimāla aizpilde"
+# navigator/widgets/editor/edit_window/edit_window.nml:631
+"Write blanks as tabs where they reach a tab stop" = "Rakstīt atstarpes kā tabulācijas, kur tās sasniedz tabulācijas pozīciju"
+# navigator/widgets/editor/edit_window/edit_window.nml:634
+"Current ~l~ine highlight" = "Izcelt ~r~indu"
+# navigator/widgets/editor/edit_window/edit_window.nml:637
+"Current ~c~olumn highlight" = "Izcelt ~k~olonnu"
+# navigator/widgets/editor/edit_window/edit_window.nml:640
+"Syntax ~h~ighlight" = "~S~intakses izcelšana"
+# navigator/widgets/editor/edit_window/edit_window.nml:644
 "Show hi~d~den characters" = "Rādīt slēptās ~z~īmes"
-# navigator/widgets/editor/edit_window/edit_window.nml:624
+# navigator/widgets/editor/edit_window/edit_window.nml:652
 "File t~y~pe" = "Faila ti~p~s"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/file_ops/replace_query/replace_query.nml:17, navigator/widgets/editor/commands.py:282 ...
 "Replace" = "Aizstāt"
@@ -806,7 +819,7 @@ flag = "LV"
 "Give this answer for every file that is already there" = "Dot šo atbildi katram failam, kas jau pastāv"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "Pā~r~rakstīt"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:506, navigator/widgets/manager/manager/manager.py:941 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/manager/manager/manager.py:941 ...
 "A~p~pend" = "Pievie~n~ot"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~P~ārdēvēt"
@@ -2082,7 +2095,7 @@ flag = "LV"
 "Navigator?" = "Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "Turpmāk iziet, nejautājot (Iestatījumi > Apstiprinājumi)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:945, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:967, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~A~tvērt"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "Par programmu, ekrānsaudzētājs, SmartPad, miskaste un spēle"
@@ -2996,7 +3009,7 @@ flag = "LV"
 "~K~orean Hangul" = "Korejiešu ~h~angils"
 # navigator/lib/config/country.py:147
 "Last used {time}" = "Pēdējoreiz lietots {time}"
-# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:70
+# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:71
 "Reading file" = "Lasa failu"
 # navigator/lib/config/usermenu.py:401
 "Asks for parameters first" = "Vispirms jautā parametrus"
@@ -3256,9 +3269,9 @@ flag = "LV"
 "Can not create {name}: {reason}" = "Nevar izveidot {name}: {reason}"
 # navigator/lib/file_ops/uucode.py:734
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "Nesakrīt faila {name} CRC, norādīts={listed}, aprēķināts={calculated}"
-# navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
+# navigator/lib/highlight/__init__.py:351, navigator/lib/highlight/__init__.py:356
 "plain" = "teksts"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
+# navigator/lib/highlight/__init__.py:355, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "auto"
 # navigator/lib/system/desktop.py:160
 "xdg-open failed ({code})" = "xdg-open neizdevās ({code})"
@@ -3796,7 +3809,7 @@ flag = "LV"
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "Piemēram mtp://Phone/, dav://host/dir vai google-drive://you@gmail.com/"
 # navigator/widgets/drives/link_manager/link_manager.py:307
 "New" = "Jauns"
-# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:684
+# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:710
 "Save" = "Saglab."
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Running" = "Strādā"
@@ -3878,17 +3891,17 @@ flag = "LV"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} tur mainījies kopš lejupielādes. Pārrakstīt?"
 # navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "{name} ir mainīts. Augšupielādēt to atpakaļ uz {place}?"
-# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:501, navigator/widgets/editor/edit_window/edit_window.py:1049 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:523, navigator/widgets/editor/edit_window/edit_window.py:1071 ...
 "Warning" = "Brīdinājums"
-# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:295 ...
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:317 ...
 "Cannot write {path}: {error}" = "Nevar ierakstīt {path}: {error}"
 # navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "Augšupielāde"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Dublēt"
-# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:584
+# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:610
 "Block start" = "Bl.sāk."
-# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:590
+# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:616
 "Block end" = "Bl.beig"
 # navigator/widgets/editor/commands.py:189
 "Hide block" = "Slēpt"
@@ -3946,173 +3959,183 @@ flag = "LV"
 "Left" = "Pa kr."
 # navigator/widgets/editor/commands.py:384
 "Center" = "Centrēt"
-# navigator/widgets/editor/commands.py:391
-"Line Drawing" = "Līnijas"
-# navigator/widgets/editor/commands.py:397
-"Autoindent" = "Autoatk"
-# navigator/widgets/editor/commands.py:403
-"Backspace indents" = "BS atk."
+# navigator/widgets/editor/commands.py:392
+"Justify line" = "Rindu izlīdz."
+# navigator/widgets/editor/commands.py:398
+"Line right" = "Rindu pa labi"
+# navigator/widgets/editor/commands.py:404
+"Line left" = "Rindu pa kreisi"
 # navigator/widgets/editor/commands.py:410
-"Optimal fill" = "Opt.aiz"
-# navigator/widgets/editor/commands.py:416
-"Current line highlight" = "Izc.rin"
-# navigator/widgets/editor/commands.py:422
-"Current column highlight" = "Izc.kol"
-# navigator/widgets/editor/commands.py:428
-"Syntax highlight" = "Sintakses izcelšana"
+"Center line" = "Rindu centrā"
+# navigator/widgets/editor/commands.py:417
+"Line Drawing" = "Līnijas"
+# navigator/widgets/editor/commands.py:423
+"Autoindent" = "Autoatk"
+# navigator/widgets/editor/commands.py:429
+"Backspace indents" = "BS atk."
 # navigator/widgets/editor/commands.py:436
+"Optimal fill" = "Opt.aiz"
+# navigator/widgets/editor/commands.py:442
+"Current line highlight" = "Izc.rin"
+# navigator/widgets/editor/commands.py:448
+"Current column highlight" = "Izc.kol"
+# navigator/widgets/editor/commands.py:454
+"Syntax highlight" = "Sintakses izcelšana"
+# navigator/widgets/editor/commands.py:462
 "Hidden characters" = "Slēptās zīmes"
-# navigator/widgets/editor/commands.py:443, navigator/widgets/editor/file_type_menu.py:86
+# navigator/widgets/editor/commands.py:469, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "Faila tips"
-# navigator/widgets/editor/commands.py:451, navigator/widgets/editor/format_menu.py:88
+# navigator/widgets/editor/commands.py:477, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "Rindu beigas"
-# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3020, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:485, navigator/widgets/editor/file_editor/file_editor.py:3129, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "Kodējums"
-# navigator/widgets/editor/commands.py:503
+# navigator/widgets/editor/commands.py:529
 "AutoBrackets" = "Autoiek"
-# navigator/widgets/editor/commands.py:510
-"Auto wrap" = "Autopār"
-# navigator/widgets/editor/commands.py:517
-"Justify on wrap" = "Izl.pār"
-# navigator/widgets/editor/commands.py:523
-"Margins" = "Malas"
-# navigator/widgets/editor/commands.py:530
-"Go to line" = "Uz rind"
 # navigator/widgets/editor/commands.py:536
+"Auto wrap" = "Autopār"
+# navigator/widgets/editor/commands.py:543
+"Justify on wrap" = "Izl.pār"
+# navigator/widgets/editor/commands.py:549
+"Margins" = "Malas"
+# navigator/widgets/editor/commands.py:556
+"Go to line" = "Uz rind"
+# navigator/widgets/editor/commands.py:562
 "Uppercase word" = "Liel.v."
-# navigator/widgets/editor/commands.py:542
+# navigator/widgets/editor/commands.py:568
 "Lowercase word" = "Maz.v."
-# navigator/widgets/editor/commands.py:548
+# navigator/widgets/editor/commands.py:574
 "Capitalize word" = "Lsāk.v."
-# navigator/widgets/editor/commands.py:554
+# navigator/widgets/editor/commands.py:580
 "Uppercase line" = "Liel.r."
-# navigator/widgets/editor/commands.py:560
+# navigator/widgets/editor/commands.py:586
 "Lowercase line" = "Maz.r."
-# navigator/widgets/editor/commands.py:566
+# navigator/widgets/editor/commands.py:592
 "Capitalize line" = "Lsāk.r."
-# navigator/widgets/editor/commands.py:572
+# navigator/widgets/editor/commands.py:598
 "Mark word" = "Atl.vār"
-# navigator/widgets/editor/commands.py:578
+# navigator/widgets/editor/commands.py:604
 "Mark line" = "Atl.rin"
-# navigator/widgets/editor/commands.py:597
+# navigator/widgets/editor/commands.py:623
 "Place marker" = "Atzīme"
-# navigator/widgets/editor/commands.py:606
+# navigator/widgets/editor/commands.py:632
 "Go to marker" = "Uz atz."
-# navigator/widgets/editor/commands.py:616
+# navigator/widgets/editor/commands.py:642
 "Macro" = "Makro"
-# navigator/widgets/editor/commands.py:622
+# navigator/widgets/editor/commands.py:648
 "Read block" = "Las.bl."
-# navigator/widgets/editor/commands.py:628
+# navigator/widgets/editor/commands.py:654
 "Write block" = "Rkst.bl"
-# navigator/widgets/editor/commands.py:634
-"Insert date" = "Datums"
-# navigator/widgets/editor/commands.py:640
-"Insert time" = "Laiks"
-# navigator/widgets/editor/commands.py:647
-"Vertical blocks" = "Vert.bl"
 # navigator/widgets/editor/commands.py:660
-"Redo" = "Atkārtot"
+"Insert date" = "Datums"
 # navigator/widgets/editor/commands.py:666
+"Insert time" = "Laiks"
+# navigator/widgets/editor/commands.py:673
+"Vertical blocks" = "Vert.bl"
+# navigator/widgets/editor/commands.py:686
+"Redo" = "Atkārtot"
+# navigator/widgets/editor/commands.py:692
 "Open" = "Atvērt"
-# navigator/widgets/editor/commands.py:672, navigator/widgets/viewer/commands.py:115
+# navigator/widgets/editor/commands.py:698, navigator/widgets/viewer/commands.py:115
 "Save as" = "Sagl.kā"
-# navigator/widgets/editor/commands.py:678
+# navigator/widgets/editor/commands.py:704
 "Save all" = "Sagl.v."
-# navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:3006
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3115
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{char} (U+{code:04X}) {line}. rindā nevar ierakstīt kodējumā {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:1047
+# navigator/widgets/editor/edit_window/edit_window.py:1069
 "Untitled" = "Bez nosaukuma"
-# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2875
+# navigator/widgets/editor/edit_window/edit_window.py:467, navigator/widgets/editor/file_editor/file_editor.py:2979
 "No block is marked" = "Nav atzīmēta bloka"
-# navigator/widgets/editor/edit_window/edit_window.py:554
+# navigator/widgets/editor/edit_window/edit_window.py:576
 "Copy block to" = "Kopēt bloku uz"
-# navigator/widgets/editor/edit_window/edit_window.py:554
+# navigator/widgets/editor/edit_window/edit_window.py:576
 "File ~N~ame" = "Faila ~v~ārds"
-# navigator/widgets/editor/edit_window/edit_window.py:633
+# navigator/widgets/editor/edit_window/edit_window.py:655
 "Paste from File" = "Ielīmēt no faila"
-# navigator/widgets/editor/edit_window/edit_window.py:633
+# navigator/widgets/editor/edit_window/edit_window.py:655
 "~P~aste from" = "~I~elīmēt no"
-# navigator/widgets/editor/edit_window/edit_window.py:945
+# navigator/widgets/editor/edit_window/edit_window.py:967
 "Open a File" = "Atvērt failu"
-# navigator/widgets/editor/edit_window/edit_window.py:989, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "Saglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:989, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "~S~aglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:163
+# navigator/widgets/editor/edit_window/edit_window.py:164
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
+# navigator/widgets/editor/edit_window/edit_window.py:166, navigator/widgets/editor/edit_window/edit_window.py:168
 "Edit - {path}" = "Rediģēt - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:502, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
+# navigator/widgets/editor/edit_window/edit_window.py:524, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Fails {name}\njau eksistē.\nPārrakstīt to?"
-# navigator/widgets/editor/edit_window/edit_window.py:889, navigator/widgets/manager/manager/manager.py:3781
+# navigator/widgets/editor/edit_window/edit_window.py:911, navigator/widgets/manager/manager/manager.py:3781
 "Confirmation" = "Apstiprinājums"
-# navigator/widgets/editor/edit_window/edit_window.py:890
+# navigator/widgets/editor/edit_window/edit_window.py:912
 "Print {n} line?" = ["Drukāt {n} rindu?", "Drukāt {n} rindas?", "Drukāt {n} rindu?"]
-# navigator/widgets/editor/edit_window/edit_window.py:898
+# navigator/widgets/editor/edit_window/edit_window.py:920
 "Cannot print: {error}" = "Nevar drukāt: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:280
+# navigator/widgets/editor/edit_window/edit_window.py:302
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:792, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
+# navigator/widgets/editor/edit_window/edit_window.py:814, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "Meklētā virkne nav atrasta"
-# navigator/widgets/editor/edit_window/edit_window.py:798, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:820, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "Informācija"
-# navigator/widgets/editor/edit_window/edit_window.py:798
+# navigator/widgets/editor/edit_window/edit_window.py:820
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
-# navigator/widgets/editor/edit_window/edit_window.py:953, navigator/widgets/shell/shell/shell.py:1912
+# navigator/widgets/editor/edit_window/edit_window.py:975, navigator/widgets/shell/shell/shell.py:1912
 "Cannot open {path}: {error}" = "Nevar atvērt {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1050
+# navigator/widgets/editor/edit_window/edit_window.py:1072
 "File {name} was modified. Save?" = "Fails {name} ir mainīts. Saglabāt?"
-# navigator/widgets/editor/edit_window/edit_window.py:281
+# navigator/widgets/editor/edit_window/edit_window.py:303
 "Save file {name}?" = "Saglabāt failu {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:517
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Fails {name}\nir tikai lasāms.\nTomēr mainīt?"
-# navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
+# navigator/widgets/editor/file_editor/file_editor.py:2229, navigator/widgets/editor/file_editor/file_editor.py:2223, navigator/widgets/editor/file_editor/file_editor.py:2240
 "Macros" = "Makro"
-# navigator/widgets/editor/file_editor/file_editor.py:3109
+# navigator/widgets/editor/file_editor/file_editor.py:3218
 "~G~o to line..." = "~P~āriet uz rindu..."
-# navigator/widgets/editor/file_editor/file_editor.py:3111
+# navigator/widgets/editor/file_editor/file_editor.py:3220
 "~I~ndent block" = "~B~loks pa labi"
-# navigator/widgets/editor/file_editor/file_editor.py:3112
+# navigator/widgets/editor/file_editor/file_editor.py:3221
 "U~n~indent block" = "Bl~o~ks pa kreisi"
-# navigator/widgets/editor/file_editor/file_editor.py:3113
+# navigator/widgets/editor/file_editor/file_editor.py:3222
 "Change ca~s~e" = "Mainīt ~r~eģistru"
-# navigator/widgets/editor/file_editor/file_editor.py:3114
+# navigator/widgets/editor/file_editor/file_editor.py:3223
 "~U~pper case" = "~L~ielie burti"
-# navigator/widgets/editor/file_editor/file_editor.py:3115
+# navigator/widgets/editor/file_editor/file_editor.py:3224
 "~L~ower case" = "~M~azie burti"
-# navigator/widgets/editor/file_editor/file_editor.py:3118
+# navigator/widgets/editor/file_editor/file_editor.py:3227
 "Sa~v~e" = "~S~aglabāt"
-# navigator/widgets/editor/file_editor/file_editor.py:829
+# navigator/widgets/editor/file_editor/file_editor.py:882
 "no file name" = "nav faila nosaukuma"
-# navigator/widgets/editor/file_editor/file_editor.py:2878, navigator/widgets/manager/manager/manager.py:3286
+# navigator/widgets/editor/file_editor/file_editor.py:2982, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "Nav ko atsaukt"
-# navigator/widgets/editor/file_editor/file_editor.py:2881
+# navigator/widgets/editor/file_editor/file_editor.py:2985
 "Nothing to redo" = "Nav ko atkārtot"
-# navigator/widgets/editor/file_editor/file_editor.py:2893
+# navigator/widgets/editor/file_editor/file_editor.py:2997
 "The text is empty" = "Teksts ir tukšs"
-# navigator/widgets/editor/file_editor/file_editor.py:3895
+# navigator/widgets/editor/file_editor/file_editor.py:3000
+"Line format works on line blocks" = "Rindas formatēšana darbojas ar rindu blokiem"
+# navigator/widgets/editor/file_editor/file_editor.py:4111
 "Line and column: a click goes to a line" = "Rinda un kolonna: klikšķis pāriet uz rindu"
-# navigator/widgets/editor/file_editor/file_editor.py:3896
+# navigator/widgets/editor/file_editor/file_editor.py:4112
 "The character's code: a click opens the character table" = "Rakstzīmes kods: klikšķis atver rakstzīmju tabulu"
-# navigator/widgets/editor/file_editor/file_editor.py:3897
+# navigator/widgets/editor/file_editor/file_editor.py:4113
 "Vertical blocks: a click makes them stream blocks" = "Vertikāli bloki: klikšķis tos padara par plūsmas blokiem"
-# navigator/widgets/editor/file_editor/file_editor.py:3898
+# navigator/widgets/editor/file_editor/file_editor.py:4114
 "Stream blocks: a click makes them vertical" = "Plūsmas bloki: klikšķis tos padara vertikālus"
-# navigator/widgets/editor/file_editor/file_editor.py:3953
+# navigator/widgets/editor/file_editor/file_editor.py:4169
 "Line endings: a click makes them the next kind, a right click offers them all" = "Rindu beigas: klikšķis tās nomaina uz nākamo veidu, labais klikšķis piedāvā visas"
-# navigator/widgets/editor/file_editor/file_editor.py:3955
+# navigator/widgets/editor/file_editor/file_editor.py:4171
 "Encoding: a click reopens or saves the text in another" = "Kodējums: klikšķis atver tekstu no jauna vai saglabā to citā"
-# navigator/widgets/editor/file_editor/file_editor.py:2885
+# navigator/widgets/editor/file_editor/file_editor.py:2989
 "Marker {n} is not placed" = "Marķieris {n} nav novietots"
-# navigator/widgets/editor/file_editor/file_editor.py:2165
+# navigator/widgets/editor/file_editor/file_editor.py:2223
 "macros.ini has no macro for this file" = "macros.ini nav makro šim failam"
-# navigator/widgets/editor/file_editor/file_editor.py:2977
+# navigator/widgets/editor/file_editor/file_editor.py:3086
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "Tekstā ir rakstzīmes, ko {encoding} nevar ierakstīt, tāpēc tam nav baitu, ko nolasīt no jauna."
-# navigator/widgets/editor/file_editor/file_editor.py:2981
+# navigator/widgets/editor/file_editor/file_editor.py:3090
 "The text does not read as {encoding}." = "Tekstu nevar nolasīt kā {encoding}."
-# navigator/widgets/editor/file_editor/file_editor.py:1867, navigator/widgets/editor/file_editor/file_editor.py:1906
+# navigator/widgets/editor/file_editor/file_editor.py:1925, navigator/widgets/editor/file_editor/file_editor.py:1964
 "Vertical blocks need for this operation" = "Šai darbībai vajag vertikālus blokus"
-# navigator/widgets/editor/file_editor/file_editor.py:2182
+# navigator/widgets/editor/file_editor/file_editor.py:2240
 "Not an editor command: {names}" = "Nav redaktora komanda: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "~P~rogrammēšanas valodas"
@@ -4140,7 +4163,7 @@ flag = "LV"
 "~R~eopen with encoding" = "~A~tvērt no jauna kodējumā"
 # navigator/widgets/editor/format_menu.py:56
 "~S~ave with encoding" = "~S~aglabāt kodējumā"
-# navigator/widgets/editor/loading.py:118
+# navigator/widgets/editor/loading.py:123
 "Writing file" = "Raksta failu"
 # navigator/widgets/editor/option_items.py:110
 "MD" = "MD"
