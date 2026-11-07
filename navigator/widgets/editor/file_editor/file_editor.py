@@ -2219,6 +2219,52 @@ class FileEditor(ContextMenuHost, Widget):
                 markers[index] = (int(line), int(col))
         self.markers = markers
 
+    def block_place(self) -> str:
+        """The block as the edit history keeps it, DN's ``fBlockStart``/``fBlockEnd``:
+        ``line:col-line:col`` for a stream block, ``|`` before a column block's
+        two corners, empty for none."""
+        if self.vertical_blocks:
+            if self.column_block is None:
+                return ""
+            (l1, c1), (l2, c2) = self.column_block
+            return f"|{l1}:{c1}-{l2}:{c2}"
+        if self.block is None:
+            return ""
+        start, end = self.block
+        return f"{start.line}:{start.index}-{end.line}:{end.index}"
+
+    def restore_block_place(self, text: str, hidden: bool = False) -> None:
+        """:meth:`block_place`'s form read back, and hidden again if it was.
+
+        A departure: DN put ``Mark.A``/``Mark.B`` back blindly, and here a
+        block that no longer lies in the text -- the file changed since --
+        or is not of the kind :attr:`vertical_blocks` says is dropped, as an
+        unreadable marker is.  A column block's columns may run past a line's
+        end, as a rectangle always may; its lines may not.
+        """
+        column = text.startswith("|")
+        ends = []
+        for part in text.removeprefix("|").split("-"):
+            line, _, col = part.partition(":")
+            if not (line.isdigit() and col.isdigit()):
+                return
+            ends.append((int(line), int(col)))
+        if len(ends) != 2 or column != self.vertical_blocks:
+            return
+        lines = self.document.lines
+        if any(line >= len(lines) for line, _ in ends):
+            return
+        if column:
+            self.column_block = (ends[0], ends[1])
+        else:
+            if any(col > len(lines[line]) for line, col in ends):
+                return
+            start, end = Pos(*ends[0]), Pos(*ends[1])
+            if not start < end:
+                return
+            self.block = (start, end)
+        self.block_hidden = hidden
+
     # -- ^K R and ^K W: the window asks for the file; these are the text ------
 
     def block_file_text(self) -> str:

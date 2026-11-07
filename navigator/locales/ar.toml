@@ -119,7 +119,8 @@ direction = "rtl"
 # navigator/widgets/editor/edit_window/edit_window.nml:224
 "Delete from the cursor to the start of the next word" = "حذف من المؤشر إلى بداية الكلمة التالية"
 # navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to end of line" = "حذف حتى نهاية السطر"
+"Delete to e~n~d of line" = "حذف حتى نهاية ~ا~لسطر"
+"Delete a line, a word or the rest of the line" = "حذف سطر أو كلمة أو بقية السطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete from the cursor to the end of the line" = "حذف من المؤشر إلى نهاية السطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:232

@@ -153,6 +153,119 @@ def test_without_store_editor_position_the_cursor_starts_at_the_top(files):
     assert editor.overwrite is True
 
 
+def reopened(files, *changes):
+    """The editor F4 opens on ``text.txt`` again, after *changes* to the first one and Esc."""
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *changes,
+                  KeyEvent("escape"), lambda a: None,
+                  KeyEvent("f4"), IDLE, lambda a: seen.update(editor=active(a).editor)])
+    return seen["editor"]
+
+
+def test_an_editor_opens_again_with_its_modes_margins_and_block(files):
+    def change(a):
+        editor = active(a).editor
+        editor.auto_indent = False
+        editor.auto_brackets = True
+        editor.highlight_line = True
+        editor.justify_on_wrap = True
+        editor.margins = (5, 60, 8)
+
+    editor = reopened(files, change, KeyEvent("down"),
+                      *[KeyEvent("right", shift=True)] * 4)
+    assert (editor.auto_indent, editor.auto_brackets, editor.highlight_line,
+            editor.justify_on_wrap, editor.highlight_column) == (False, True, True, True, False)
+    assert editor.margins == (5, 60, 8)
+    start, end = editor.block
+    assert ((start.line, start.index), (end.line, end.index)) == ((1, 0), (1, 4))
+    assert editor.block_hidden is False
+    assert EditRecord.find(files / "text.txt").block == "1:0-1:4"
+
+
+def test_a_column_block_comes_back_as_one_and_hidden_if_it_was(files):
+    def mark(a):
+        editor = active(a).editor
+        editor.vertical_blocks = True
+        editor.column_block = ((2, 1), (4, 6))
+        editor.block_hidden = True
+
+    editor = reopened(files, mark)
+    assert editor.vertical_blocks is True
+    assert editor.column_block == ((2, 1), (4, 6))
+    assert editor.block_hidden is True
+    assert editor.block is None
+
+
+def test_a_block_the_shortened_file_no_longer_holds_is_dropped(files):
+    EditRecord.store(files / "text.txt", line=0, col=0, top=0, block="150:0-150:4",
+                     marks="1:2,,,,,,,,")
+    (files / "text.txt").write_text("short\n")
+    editor = reopened(files)
+    assert editor.block is None
+    assert editor.markers[0] == (1, 2)  # the markers' own rule, unchanged
+
+
+def test_a_block_of_the_other_kind_is_dropped(files):
+    EditRecord.store(files / "text.txt", line=0, col=0, top=0, block="|1:0-2:3")
+    editor = reopened(files)
+    assert editor.block is None and editor.column_block is None
+
+
+def test_a_record_from_before_the_modes_were_kept_leaves_the_setup_s(files):
+    SETTINGS.editor.auto_indent = False
+    SETTINGS.editor.auto_brackets = True
+    SETTINGS.editor.right_margin = 70
+    EditRecord.store(files / "text.txt", line=3, col=0, top=0)
+    record = EditRecord.find(files / "text.txt")
+    assert (record.auto_indent, record.auto_brackets, record.right_margin) == (None, None, None)
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: seen.update(editor=active(a).editor)])
+    editor = seen["editor"]
+    assert (editor.auto_indent, editor.auto_brackets, editor.margins[1]) == (False, True, 70)
+    assert editor.line == 3
+
+
+def test_without_store_editor_position_the_modes_and_block_still_come_back(files):
+    SETTINGS.interface.store_editor_position = False
+    EditRecord.store(files / "text.txt", line=120, col=3, top=110, auto_indent=False,
+                     left_margin=2, right_margin=50, paragraph=4, block="0:0-0:4")
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: seen.update(editor=active(a).editor)])
+    editor = seen["editor"]
+    assert (editor.line, editor.col, editor.top) == (0, 0, 0)
+    assert editor.auto_indent is False
+    assert editor.margins == (2, 50, 4)
+    assert editor.block is not None
+
+
+def test_margins_out_of_order_are_put_right_as_format_margins_does(files):
+    EditRecord.store(files / "text.txt", line=0, col=0, top=0,
+                     left_margin=90, right_margin=60, paragraph=70)
+    assert reopened(files).margins == (0, 60, 0)
+
+
+def test_an_old_edit_history_table_gains_the_columns_and_keeps_its_rows():
+    from navkit.database import DATABASE
+
+    kept = ("path", "pinned", "seq", "used", "zoomed", "x", "y", "width", "height",
+            "desk_width", "desk_height", "line", "col", "top", "left",
+            "overwrite", "vertical_blocks", "highlight", "file_type", "marks")
+    columns = ", ".join(field.column() for field in EditRecord.__fields__ if field.name in kept)
+    DATABASE.execute(f'CREATE TABLE "edit_history" (id INTEGER PRIMARY KEY, {columns})')
+    DATABASE.execute('INSERT INTO "edit_history" (path, seq, x, y, width, height, desk_width, '
+                     'desk_height, line, col, top, "left") '
+                     "VALUES ('/old.txt', 1, 0, 0, 80, 24, 80, 24, 7, 0, 0, 0)")
+    record = EditRecord.find("/old.txt")
+    assert record.line == 7
+    assert (record.auto_indent, record.left_margin, record.block, record.block_hidden) == (
+        None, None, "", False)
+
+
 # -- the records -------------------------------------------------------------------
 
 

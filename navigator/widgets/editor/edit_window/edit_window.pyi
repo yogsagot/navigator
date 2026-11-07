@@ -35,6 +35,7 @@ from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navigator.lib.editor import encodings
 from navigator.lib.editor.document import Document, encode_lines, read_text
 from navigator.lib.editor.lock import refuse_if_locked
+from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
@@ -56,6 +57,7 @@ class EditWindow(Window, _Component):
     marks: FormatMarks
     options: OptionStrip
     edit_menu: SubMenu
+    edit_menu_delete: SubMenu
     edit_menu_file: SubMenu
     edit_menu_line_endings: SubMenu
     edit_menu_encoding: SubMenu

@@ -31,6 +31,7 @@ from navml.widgets.window import Window
 from navigator.lib.editor import encodings
 from navigator.lib.editor.document import Document, encode_lines, read_text
 from navigator.lib.editor.lock import refuse_if_locked
+from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
@@ -209,6 +210,16 @@ class EditWindow(Window):
             highlight=editor.syntax_highlight,
             file_type=editor.file_type,
             marks=editor.markers_text(),
+            block=editor.block_place(),
+            block_hidden=editor.block_hidden,
+            highlight_line=editor.highlight_line,
+            highlight_column=editor.highlight_column,
+            auto_indent=editor.auto_indent,
+            justify_on_wrap=editor.justify_on_wrap,
+            auto_brackets=editor.auto_brackets,
+            left_margin=editor.margins[0],
+            right_margin=editor.margins[1],
+            paragraph=editor.margins[2],
         )
 
     def recall_history(self) -> None:
@@ -234,6 +245,17 @@ class EditWindow(Window):
         # The markers are the text's, not the window's place: back whatever
         # *Store editor position* says, as ``fMarks`` came back.
         editor.restore_markers(record.marks)
+        # The modes come back with them, as ``EditFile`` put every one back.
+        # None is a record from before they were kept: the setup's value stays.
+        for name in ("highlight_line", "highlight_column", "auto_indent",
+                     "justify_on_wrap", "auto_brackets"):
+            value = getattr(record, name)
+            if value is not None:
+                setattr(editor, name, value)
+        margins = (record.left_margin, record.right_margin, record.paragraph)
+        if None not in margins:
+            editor.margins = fix_margins(*margins)
+        editor.restore_block_place(record.block, record.block_hidden)
         # *Store editor position*: without it the cursor starts at the top, in
         # the window it was given.
         if not SETTINGS.interface.store_editor_position:

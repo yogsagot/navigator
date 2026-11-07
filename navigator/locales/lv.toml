@@ -118,7 +118,8 @@ flag = "LV"
 # navigator/widgets/editor/edit_window/edit_window.nml:224
 "Delete from the cursor to the start of the next word" = "Dzēst no kursora līdz nākamā vārda sākumam"
 # navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to end of line" = "Dzēst līdz rindas beigām"
+"Delete to e~n~d of line" = "Dzēst līdz rindas ~b~eigām"
+"Delete a line, a word or the rest of the line" = "Dzēst rindu, vārdu vai rindas atlikumu"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete from the cursor to the end of the line" = "Dzēst no kursora līdz rindas beigām"
 # navigator/widgets/editor/edit_window/edit_window.nml:232

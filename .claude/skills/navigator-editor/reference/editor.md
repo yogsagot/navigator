@@ -123,7 +123,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 
 2. Per-file defaults by mask: autoindent, brackets, unindent, highlight line/column, wrap, justify, margins, line
    ends (`DN.HGL`'s keys, `MACRO.PAS:655`); `highlight.ini`'s sections name only a lexer.
-3. The edit history keeping block kind, autoindent, wrap and margins (`StoreEditInfo`, `HISTRIES.PAS:261`).
 5. The column ruler while the right mouse button is held (`DNHELP.HTX`, *MiscCommands*).
 6. The line-format commands `cmLJustify`/`cmLRight`/`cmLLeft`/`cmLCenter` (`EDITOR.PAS:821-828`), DN's for macros.
 7. (Not DN's) a real tab character, a setting and per mask.

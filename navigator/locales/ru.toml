@@ -118,7 +118,8 @@ flag = "RU"
 # navigator/widgets/editor/edit_window/edit_window.nml:224
 "Delete from the cursor to the start of the next word" = "Удалить от курсора до начала следующего слова"
 # navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to end of line" = "Удалить до конца строки"
+"Delete to e~n~d of line" = "Удалить до конца ~с~троки"
+"Delete a line, a word or the rest of the line" = "Удалить строку, слово или остаток строки"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete from the cursor to the end of the line" = "Удалить от курсора до конца строки"
 # navigator/widgets/editor/edit_window/edit_window.nml:232

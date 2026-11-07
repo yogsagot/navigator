@@ -818,6 +818,8 @@ def test_ins_on_the_acl_list_adds_an_entry_picked_from_the_users(two):
         rows = list(dialog.acl_list.items)
         app.spawn(dialog.ok.press())
         await wait_until(lambda: app.modal is None)
+        # The box closes before its thread has written the ACL: wait for it.
+        await wait_until(lambda: acl.ACCESS in os.listxattr(a / "one.txt"))
         return offered, rows
 
     offered, rows = run_shell(a, b, steps)

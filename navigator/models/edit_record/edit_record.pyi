@@ -29,7 +29,17 @@ class EditRecord(FileRecord):
     highlight: bool
     file_type: str
     marks: str
-    def __init__(self, *, id: int | None = ..., path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ...) -> None: ...
+    block: str
+    block_hidden: bool
+    highlight_line: bool | None
+    highlight_column: bool | None
+    auto_indent: bool | None
+    justify_on_wrap: bool | None
+    auto_brackets: bool | None
+    left_margin: int | None
+    right_margin: int | None
+    paragraph: int | None
+    def __init__(self, *, id: int | None = ..., path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ..., block: str = ..., block_hidden: bool = ..., highlight_line: bool | None = ..., highlight_column: bool | None = ..., auto_indent: bool | None = ..., justify_on_wrap: bool | None = ..., auto_brackets: bool | None = ..., left_margin: int | None = ..., right_margin: int | None = ..., paragraph: int | None = ...) -> None: ...
     @classmethod
     def where(cls, **conditions: _Any) -> _Query[EditRecord]: ...
     @classmethod
@@ -43,6 +53,6 @@ class EditRecord(FileRecord):
     @classmethod
     def delete_where(cls, **conditions: _Any) -> int: ...
     @classmethod
-    def create(cls, *, path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ...) -> EditRecord: ...
+    def create(cls, *, path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ..., block: str = ..., block_hidden: bool = ..., highlight_line: bool | None = ..., highlight_column: bool | None = ..., auto_indent: bool | None = ..., justify_on_wrap: bool | None = ..., auto_brackets: bool | None = ..., left_margin: int | None = ..., right_margin: int | None = ..., paragraph: int | None = ...) -> EditRecord: ...
     @classmethod
-    def upsert(cls, *, path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ...) -> EditRecord: ...
+    def upsert(cls, *, path: str = ..., pinned: bool = ..., seq: int = ..., used: float = ..., zoomed: bool = ..., x: int = ..., y: int = ..., width: int = ..., height: int = ..., desk_width: int = ..., desk_height: int = ..., line: int = ..., col: int = ..., top: int = ..., left: int = ..., overwrite: bool = ..., vertical_blocks: bool = ..., highlight: bool = ..., file_type: str = ..., marks: str = ..., block: str = ..., block_hidden: bool = ..., highlight_line: bool | None = ..., highlight_column: bool | None = ..., auto_indent: bool | None = ..., justify_on_wrap: bool | None = ..., auto_brackets: bool | None = ..., left_margin: int | None = ..., right_margin: int | None = ..., paragraph: int | None = ...) -> EditRecord: ...

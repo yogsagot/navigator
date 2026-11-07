@@ -118,7 +118,8 @@ flag = "CN"
 # navigator/widgets/editor/edit_window/edit_window.nml:224
 "Delete from the cursor to the start of the next word" = "从光标删除到下一个单词的开头"
 # navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to end of line" = "删除到行尾"
+"Delete to e~n~d of line" = "删除到行尾(~N~)"
+"Delete a line, a word or the rest of the line" = "删除一行、一个单词或行的其余部分"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete from the cursor to the end of the line" = "从光标删除到行尾"
 # navigator/widgets/editor/edit_window/edit_window.nml:232

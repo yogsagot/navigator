@@ -465,8 +465,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`_record`) empties it. `redo()` replays a group forward through the listeners and returns where its last change
   ended, where `on_redo` puts the cursor. Undoing the saved group no longer loses the save point: redoing back to it
   leaves the text unmodified, and `mark_saved` accepts a point redo still holds. Both keys need the kitty protocol.
-- **Every bound key is on a menu** (departures, asked for): Editor > *Delete line* (Ctrl+Y, also the context menu),
-  *Delete word left* (Ctrl+Backspace, also the context menu), *Insert line* (Ctrl+N), Search > *Matching bracket*
+- **Every bound key is on a menu** (departures, asked for): Editor > Delete > *Delete line* (Ctrl+Y, also the context menu),
+  *Delete word left* (Ctrl+Backspace, also the context menu), Editor > *Insert line* (Ctrl+N), Search > *Matching bracket*
   (Alt+Left/Right), Block > *Hide/show block* (Alt+H). And the commands DN reached by ^K/^Q chords alone have modern
   defaults, so their menu items show a key that works: Alt+Shift+V move, K copy, I indent, O unindent (one blank, ^K U;
   Shift+Tab is the tab-stop `UnindentBlock(stop=True)`, a different command), U/L/C upper/lower/
@@ -482,15 +482,22 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `open_editor(..., new=True)`, so a name that does not exist is an empty text saving creates. A directory or a missing
   parent directory is refused up front. With *Internal editor* off it goes to `$EDITOR`. DN's own dialog was not to
   hand; this one is shaped as F7's.
-- **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
-  (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task. Keeping
-  the block kind, auto-indent, wrap and margins too is editor backlog item 3: add the `field` lines to
-  `edit_record.nml`, rebuild, and the table migrates itself.
+- **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model, every field `StoreEditInfo` wrote.
+  It holds the window rectangle, cursor (`line`, `col`), scroll (`top`, `left`), `overwrite`, `vertical_blocks`,
+  `highlight`, `file_type`, the markers, the block (`block`, as `line:col-line:col`, `|` before a column block's
+  corners; `block_hidden`), Current line/column, Autoindent, Justify on wrap, Auto brackets and the three margins.
+  It is stored and restored as the viewer's is (see `navigator-viewer`): the rectangle, cursor and scroll only under
+  *Store editor position*, everything else whenever *Track editing* is on, as `EditFile` did. The eight modes and
+  margins are nullable: None, a record from before they were kept, leaves the Editor setup's value; margins go
+  through `fix_margins`. A block the text no longer holds, or of the other kind, is dropped (a departure: DN put
+  `Mark.A`/`Mark.B` back blindly). Auto wrap, Backspace unindents, Optimal fill, Hidden characters and the draw mode
+  were not in DN's record and are seeded from the setup each time. **Open editors through
+  `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
   nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`). **What the
-  modern default keys leave unbound is on the menu** (a departure: in DN these were keys alone): Editor > *Delete word
-  right* / *Delete to end of line* (no hot key: every letter is taken there), Block's first group *Mark start/end/word/
+  modern default keys leave unbound is on the menu** (a departure: in DN these were keys alone): Editor > Delete > *Delete word
+  right* / *Delete to end of line* (the four deletes are a submenu because on the Editor menu itself the box would be
+  25 rows, which `test_every_menu_box_fits_an_80_by_25_screen` refuses), Block's first group *Mark start/end/word/
   line* and *Go to block start/end*, Search's *Place marker* / *Go to marker* submenus (*Marker 1*-*9*; an unplaced one
   greyed, "Marker N is not placed"). The key column shows a WordStar set's ^K/^Q chord when it is in use. The default
   set itself stays modern (asked, twice). `test_every_editor_command_the_default_keys_leave_unbound_is_on_the_menu`

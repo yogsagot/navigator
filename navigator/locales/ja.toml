@@ -118,7 +118,8 @@ flag = "JP"
 # navigator/widgets/editor/edit_window/edit_window.nml:224
 "Delete from the cursor to the start of the next word" = "カーソルから次の単語の先頭までを削除"
 # navigator/widgets/editor/edit_window/edit_window.nml:228
-"Delete to end of line" = "行末まで削除"
+"Delete to e~n~d of line" = "行末まで削除(~N~)"
+"Delete a line, a word or the rest of the line" = "行、単語、または行の残りを削除"
 # navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete from the cursor to the end of the line" = "カーソルから行末までを削除"
 # navigator/widgets/editor/edit_window/edit_window.nml:232

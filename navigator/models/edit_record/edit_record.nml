@@ -3,11 +3,18 @@ from navigator.models.file_record import FileRecord
 #: A file once edited, and how its editor was left: DN's ``TEditRecord``.
 #:
 #: ``StoreEditInfo`` (``HISTRIES.PAS``) wrote one when an editor closed and
-#: ``EditFile`` read it back.  ``fPos`` is the cursor (``line``, ``col``),
-#: ``fDelta`` the scroll (``top``, ``left``), ``InsMode`` the opposite of
-#: ``overwrite``, ``VertBlock`` ``vertical_blocks`` and ``fMarks`` ``marks``.
-#: ``HiLite`` is ``highlight``.  The block, auto-indent and the margins have
-#: no column yet.
+#: ``EditFile`` (``DNUTIL.PAS``) read it back.  ``fPos`` is the cursor
+#: (``line``, ``col``), ``fDelta`` the scroll (``top``, ``left``), ``InsMode``
+#: the opposite of ``overwrite``, ``VertBlock`` ``vertical_blocks``, ``fMarks``
+#: ``marks``, ``HiLite`` ``highlight``, ``fBlockStart``/``fBlockEnd`` ``block``
+#: and ``fBlockVisible`` the opposite of ``block_hidden``; ``fHiliteLine``,
+#: ``fHiliteColumn``, ``fAutoIndent``, ``fAutoJustify``, ``fAutoBrackets``,
+#: ``fLeftSide``, ``fRightSide`` and ``fInSide`` are the fields of their names.
+#: Those last eight are None in a record written before they were kept, which
+#: reads as *not recorded*: the editor keeps what the Editor setup gave it.
+#: Auto wrap, Backspace unindents, Optimal fill, Hidden characters and the
+#: draw mode were not in DN's record and are not here: each editor is seeded
+#: with them from the setup.
 EditRecord(FileRecord):
     table: "edit_history"
     #: The absolute path: the record's ``fName`` without its flag.
@@ -39,5 +46,18 @@ EditRecord(FileRecord):
     field file_type: str = ""
     #: ``fMarks``: markers 1 to 9 as ``line:col``, comma-separated, empty where unset.
     field marks: str = ""
+    #: ``fBlockStart``/``fBlockEnd``: the stream block as ``line:col-line:col``,
+    #: a column block's two corners (screen cells) as ``|line:col-line:col``,
+    #: empty for none.
+    field block: str = ""
+    field block_hidden: bool = False
+    field highlight_line: bool | None
+    field highlight_column: bool | None
+    field auto_indent: bool | None
+    field justify_on_wrap: bool | None
+    field auto_brackets: bool | None
+    field left_margin: int | None
+    field right_margin: int | None
+    field paragraph: int | None
     unique by_path: path
     index by_seq: seq

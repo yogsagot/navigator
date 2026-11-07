@@ -617,7 +617,7 @@ def test_the_editor_menu_shows_a_working_key_for_every_block_command(files):
         for path in (("Block", "Move"), ("Block", "Copy"), ("Block", "Indent"),
                      ("Block", "Hide/show block"), ("Block", "Uppercase"),
                      ("Search", "Matching bracket"), ("Misc", "Insert date"),
-                     ("Delete word left",), ("Insert line",)):
+                     ("Delete", "Delete word left"), ("Insert line",)):
             entry = menu
             for caption in path:
                 entry = entry.entry(caption)
@@ -794,7 +794,14 @@ def test_the_buffer_tells_its_listeners_of_undone_edits_too():
 
 
 def marked(files, *keys):
-    """The editor on text.txt after *keys*: Shift+movements mark, the rest act."""
+    """The editor on text.txt after *keys*: Shift+movements mark, the rest act.
+
+    Each open is a fresh one: the edit history would bring the last open's
+    block and modes back, which is not what these tests are about."""
+    from navigator.models.edit_record import EditRecord
+    from navigator.models.file_record import key_of
+
+    EditRecord.where(path=key_of(files / "text.txt")).delete()
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys])
     return app, editor_window(app).editor
@@ -3231,7 +3238,7 @@ def test_a_marker_placed_from_the_menu_is_gone_back_to_and_an_unplaced_one_is_gr
 
 
 def test_delete_word_right_and_to_end_of_line_from_the_menu(files):
-    _, editor = text_editor(files, b"abc def ghi\n", chosen("Delete word right"), IDLE)
+    _, editor = text_editor(files, b"abc def ghi\n", chosen("Delete", "Delete word right"), IDLE)
     assert editor.document.encode() == b"def ghi\n"
-    _, editor = text_editor(files, b"abc def ghi\n", *[KeyEvent("right")] * 4, chosen("Delete to end of line"), IDLE)
+    _, editor = text_editor(files, b"abc def ghi\n", *[KeyEvent("right")] * 4, chosen("Delete", "Delete to end of line"), IDLE)
     assert editor.document.encode() == b"abc \n"
