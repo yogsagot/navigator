@@ -82,9 +82,10 @@ def format_error(error: BaseException) -> str:
     return "".join(traceback.format_exception(error))
 
 
-def append(error: BaseException) -> None:
-    """Add *error* to the log, stamped.  Never raises: it runs on the way
-    down, and a log that cannot be written must not hide the failure."""
+def append(error: BaseException, context: str = "") -> None:
+    """Add *error* to the log, stamped -- *context*, given, says what was
+    being done.  Never raises: it runs on the way down, and a log that
+    cannot be written must not hide the failure."""
     if PATH is None:
         return
     stamp = datetime.datetime.now().astimezone().isoformat(timespec="seconds")
@@ -92,7 +93,8 @@ def append(error: BaseException) -> None:
         f"=== {stamp} nav {__version__} pid {os.getpid()} "
         f"python {sys.version.split()[0]}\n"
         f"argv: {' '.join(sys.argv)}\n"
-        f"{format_error(error)}\n"
+        + (f"while: {context}\n" if context else "")
+        + f"{format_error(error)}\n"
     )
     with contextlib.suppress(OSError):
         with open(PATH, "a", encoding="utf-8") as log:

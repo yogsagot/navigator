@@ -49,6 +49,10 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   returns True, the application carries on. Otherwise the error is kept, `exit()` is called, and **`run_async` raises it
   after `terminal.stop()`**, so the traceback reaches a normal screen. The default `report_error` returns False, which
   keeps tests strict.
+- **`Navigator.on_stop` runs each shutdown step on its own**: autosave, `remember_windows`, the console, terminal
+  views, dirwatch, sessions, archives, root's helper -- a step that raises is `errorlog.append`ed with its name as
+  context and counted in `shutdown_failures`, and the next still runs; `main()` prints the count and the log's path
+  on stderr after `run()`. Only `Exception` is caught, so a cancel or Ctrl+C still goes through.
 - It always stops when `fatal` is true (`on_start`, `on_stop`, the frame machinery in `_paint`), when the loop is not
   running, when a failure occurs inside `report_error`, or after more than `ERROR_STORM_LIMIT` (5) failures in
   `ERROR_STORM_WINDOW` (10 s).

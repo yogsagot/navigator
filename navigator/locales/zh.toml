@@ -1003,7 +1003,7 @@ flag = "CN"
 "~C~ompare directories" = "比较目录(~C~)"
 # navigator/widgets/manager/manager/manager.nml:195
 "Tag what each panel has that the other lacks or has older" = "标记每个面板中另一面板没有或较旧的文件"
-# navigator/widgets/manager/manager/manager.nml:198, navigator/widgets/manager/panel/panel.py:2172
+# navigator/widgets/manager/manager/manager.nml:198, navigator/widgets/manager/panel/panel.py:2184
 "Count directory len~g~th" = "统计目录大小(~G~)"
 # navigator/widgets/manager/manager/manager.nml:199
 "Add up the bytes under the selected directories" = "累计所选目录下的字节数"
@@ -1051,13 +1051,13 @@ flag = "CN"
 "Selectio~n~" = "选择(~N~)"
 # navigator/widgets/manager/manager/manager.nml:268
 "Select or unselect files by a mask, or filter them" = "按掩码选择或取消选择文件，或过滤文件"
-# navigator/widgets/manager/manager/manager.nml:270, navigator/widgets/manager/panel/panel.py:2177
+# navigator/widgets/manager/manager/manager.nml:270, navigator/widgets/manager/panel/panel.py:2189
 "Select grou~p~..." = "选择组(~P~)..."
-# navigator/widgets/manager/manager/manager.nml:274, navigator/widgets/manager/panel/panel.py:2178
+# navigator/widgets/manager/manager/manager.nml:274, navigator/widgets/manager/panel/panel.py:2190
 "~U~nselect group..." = "取消选择组(~U~)..."
-# navigator/widgets/manager/manager/manager.nml:278, navigator/widgets/manager/panel/panel.py:2179
+# navigator/widgets/manager/manager/manager.nml:278, navigator/widgets/manager/panel/panel.py:2191
 "In~v~ert selection" = "反向选择(~V~)"
-# navigator/widgets/manager/manager/manager.nml:282, navigator/widgets/manager/panel/panel.py:2180
+# navigator/widgets/manager/manager/manager.nml:282, navigator/widgets/manager/panel/panel.py:2192
 "Select all files" = "选择所有文件"
 # navigator/widgets/manager/manager/manager.nml:283
 "Select every file and directory in this panel" = "选择此面板中的所有文件和目录"
@@ -1285,7 +1285,7 @@ flag = "CN"
 "R~e~verse" = "反显(~E~)"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "驱动器(~D~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3100
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3112
 "Links" = "链接数"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "所有者"
@@ -2023,9 +2023,9 @@ flag = "CN"
 "Replace in files..." = "在文件中替换..."
 # navigator/widgets/shell/main_menu/main_menu.nml:182
 "Find files holding a text and replace it in them, file by file" = "查找包含文本的文件，并逐个文件替换"
-# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:2129
+# navigator/widgets/shell/main_menu/main_menu.nml:186, navigator/widgets/manager/panel/panel.py:2141
 "~C~opy..." = "复制(~C~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:2130
+# navigator/widgets/shell/main_menu/main_menu.nml:190, navigator/widgets/manager/panel/panel.py:2142
 "~R~ename/Move..." = "重命名/移动(~R~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:197
 "Rename ~t~ools" = "重命名工具(~T~)"
@@ -2059,7 +2059,7 @@ flag = "CN"
 "Create arch~i~ve..." = "创建压缩包(~I~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:248
 "Ex~t~ract archive..." = "解压压缩包(~T~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:255, navigator/widgets/manager/panel/panel.py:2154
+# navigator/widgets/shell/main_menu/main_menu.nml:255, navigator/widgets/manager/panel/panel.py:2166
 "E~x~tract to..." = "解压到(~X~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:259, navigator/widgets/manager/manager/manager.py:1449
 "Test archive" = "测试压缩包"
@@ -2097,13 +2097,13 @@ flag = "CN"
 "Cut the file into parts of a given size, or put a split file back together" = "将文件切分为指定大小的分卷，或将分割的文件合并还原"
 # navigator/widgets/shell/main_menu/main_menu.nml:306
 "Compare fi~l~es..." = "比较文件(~L~)..."
-# navigator/widgets/shell/main_menu/main_menu.nml:313, navigator/widgets/manager/panel/panel.py:2173
+# navigator/widgets/shell/main_menu/main_menu.nml:313, navigator/widgets/manager/panel/panel.py:2185
 "~M~ake directory" = "创建目录(~M~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:326, navigator/widgets/manager/panel/panel.py:2115
+# navigator/widgets/shell/main_menu/main_menu.nml:326, navigator/widgets/manager/panel/panel.py:2127
 "Restore from Tras~h~" = "从回收站还原(~H~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:327
 "Put the selected files back where they were deleted from" = "将选中的文件放回删除前的位置"
-# navigator/widgets/shell/main_menu/main_menu.nml:331, navigator/widgets/manager/panel/panel.py:2141
+# navigator/widgets/shell/main_menu/main_menu.nml:331, navigator/widgets/manager/panel/panel.py:2153
 "File ~A~ttributes..." = "文件属性(~A~)..."
 # navigator/widgets/shell/main_menu/main_menu.nml:332
 "Permissions, owner, group, dates, ACLs and extended attributes" = "权限、所有者、组、日期、ACL 和扩展属性"
@@ -2799,15 +2799,17 @@ flag = "CN"
 "C~h~ar" = "字符(~H~)"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:50
 "~F~irst row is a header" = "首行为标题(~F~)"
-# navigator/__main__.py:606
+# navigator/__main__.py:648
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "无法读取桌面剪贴板，因此 Navigator 粘贴了自己最近复制的内容。安装 xclip 或 xsel (X11)，或 wl-clipboard (Wayland)，即可与其他程序共享剪贴板。"
-# navigator/__main__.py:454, navigator/widgets/shell/shell/shell.py:816, navigator/widgets/shell/shell/shell.py:1177
+# navigator/__main__.py:487, navigator/widgets/shell/shell/shell.py:816, navigator/widgets/shell/shell/shell.py:1177
 "A program in the console has the keys" = "控制台中的程序正在接收按键"
-# navigator/__main__.py:456
+# navigator/__main__.py:489
 "The console is over the windows: Alt-X is the program's" = "控制台位于窗口之上：Alt-X 归该程序所有"
-# navigator/__main__.py:529
+# navigator/__main__.py:564
 "{n} operation is running in the background. Stop it and quit?" = ["{n} 个操作正在后台运行。停止它们并退出?"]
-# navigator/__main__.py:611
+# navigator/__main__.py:1015
+"nav: {n} clean-up step failed on the way out; see {log}" = ["nav: 退出时有 {n} 个清理步骤失败;请查看 {log}"]
+# navigator/__main__.py:653
 "Clipboard" = "剪贴板"
 # navigator/commands.py:30
 "Record" = "录制"
@@ -3045,7 +3047,7 @@ flag = "CN"
 "Size: ~not counted~" = "大小: ~未统计~"
 # navigator/lib/system/diskinfo.py:242
 "Size: ~{n:,}~ byte" = ["大小: ~{n:,}~ 字节"]
-# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2693
+# navigator/lib/system/diskinfo.py:302, navigator/widgets/manager/panel/panel.py:2705
 "~{n:,}~ byte" = ["~{n:,}~ 字节"]
 # navigator/lib/system/diskinfo.py:236
 "Name: ~{name}~" = "名称: ~{name}~"
@@ -3075,7 +3077,7 @@ flag = "CN"
 "Links: ~{links}~, inode ~{inode}~" = "链接: ~{links}~，inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:258
 "Link to: ~{target}~" = "链接到: ~{target}~"
-# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2689
+# navigator/lib/system/diskinfo.py:299, navigator/widgets/manager/panel/panel.py:2701
 "No files in this directory" = "此目录中没有文件"
 # navigator/lib/system/diskinfo.py:303
 "~{n:,}~ file with {total}" = ["~{n:,}~ 个文件，共 {total}"]
@@ -3125,7 +3127,7 @@ flag = "CN"
 "The process has ended" = "进程已结束"
 # navigator/lib/system/processes.py:401
 "Process" = "进程"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3095 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3107 ...
 "Name" = "名称"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:265, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "命令"
@@ -3333,6 +3335,10 @@ flag = "CN"
 "Utilities > System monitor (not DN's)" = "工具 > 系统监视器 (DN 没有)"
 # navigator/settings.py:1200
 "Options > Configuration > Communications (DN's cmSetupModem)" = "选项 > 配置 > 通信（DN 的 cmSetupModem）"
+# navigator/widgets/drives/archive_finish.py:66
+"The changes to {name} could not be written: {error}" = "无法写入对 {name} 的更改: {error}"
+# navigator/widgets/drives/archive_finish.py:71
+"Try again? No drops the changes." = "重试吗? 选择“否”将丢弃这些更改。"
 # navigator/widgets/drives/archives.py:67
 "Wrong password for {name}. Try again:" = "{name} 的密码错误。请重试:"
 # navigator/widgets/drives/archives.py:69
@@ -3919,7 +3925,7 @@ flag = "CN"
 "{n} file" = ["{n} 个文件"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} 个目录"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2715, navigator/widgets/manager/panel/panel.py:2830 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2727, navigator/widgets/manager/panel/panel.py:2842 ...
 "{n:,} byte" = ["{n:,} 字节"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:584
 "<differs>" = "<不同>"
@@ -4159,7 +4165,7 @@ flag = "CN"
 "Ren" = "重命名"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "符号链接"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3099
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3111
 "Attr" = "属性"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "建目录"
@@ -4459,7 +4465,7 @@ flag = "CN"
 "Sorted by {mode}, reversed" = "按{mode}排序，倒序"
 # navigator/widgets/manager/manager/manager.py:6071
 "Sorted by {mode}" = "按{mode}排序"
-# navigator/widgets/manager/manager/manager.py:6075, navigator/widgets/manager/panel/panel.py:1595
+# navigator/widgets/manager/manager/manager.py:6075, navigator/widgets/manager/panel/panel.py:1607
 "Only files matching {mask} are shown" = "仅显示匹配 {mask} 的文件"
 # navigator/widgets/manager/manager/manager.py:6218
 "~E~dit links..." = "编辑链接(~E~)..."
@@ -4587,103 +4593,103 @@ flag = "CN"
 "View mode: simple, detailed or list" = "视图模式: 简单、详细或列表"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "排序方式"
-# navigator/widgets/manager/panel/panel.py:2716
+# navigator/widgets/manager/panel/panel.py:2728
 "~{total} in {n}~ selected file" = ["~{n} 个选中的文件，共 {total}~"]
-# navigator/widgets/manager/panel/panel.py:2148
+# navigator/widgets/manager/panel/panel.py:2160
 "Paste from clip~b~oard" = "从剪贴板粘贴(~B~)"
-# navigator/widgets/manager/panel/panel.py:2184
+# navigator/widgets/manager/panel/panel.py:2196
 "~I~nsert name" = "插入名称(~I~)"
-# navigator/widgets/manager/panel/panel.py:2185
+# navigator/widgets/manager/panel/panel.py:2197
 "Insert pa~t~h" = "插入路径(~T~)"
-# navigator/widgets/manager/panel/panel.py:2713
+# navigator/widgets/manager/panel/panel.py:2725
 "No files selected" = "未选中文件"
-# navigator/widgets/manager/panel/panel.py:2819, navigator/widgets/manager/panel/panel.py:2703
+# navigator/widgets/manager/panel/panel.py:2831, navigator/widgets/manager/panel/panel.py:2715
 "~{n:,}~ free byte on ~{mount}" = ["可用 ~{n:,}~ 字节，位于 ~{mount}"]
-# navigator/widgets/manager/panel/panel.py:1586
+# navigator/widgets/manager/panel/panel.py:1598
 "A read-only file system: nothing here can be changed" = "只读文件系统: 此处无法更改任何内容"
-# navigator/widgets/manager/panel/panel.py:1657
+# navigator/widgets/manager/panel/panel.py:1669
 "The file's name" = "文件名称"
-# navigator/widgets/manager/panel/panel.py:1658
+# navigator/widgets/manager/panel/panel.py:1670
 "The file's size" = "文件大小"
-# navigator/widgets/manager/panel/panel.py:1659
+# navigator/widgets/manager/panel/panel.py:1671
 "The size packed in the archive" = "在压缩包中压缩后的大小"
-# navigator/widgets/manager/panel/panel.py:1660
+# navigator/widgets/manager/panel/panel.py:1672
 "The packed size as a percentage of the original" = "压缩后大小占原始大小的百分比"
-# navigator/widgets/manager/panel/panel.py:1661
+# navigator/widgets/manager/panel/panel.py:1673
 "Permissions: the owner's, the group's and others'" = "权限: 所有者、组和其他用户的"
-# navigator/widgets/manager/panel/panel.py:1662
+# navigator/widgets/manager/panel/panel.py:1674
 "How many names the file has: its hard links" = "文件的名称数：它的硬链接"
-# navigator/widgets/manager/panel/panel.py:1663
+# navigator/widgets/manager/panel/panel.py:1675
 "The owner and group" = "所有者和组"
-# navigator/widgets/manager/panel/panel.py:1664
+# navigator/widgets/manager/panel/panel.py:1676
 "When the file was last modified" = "文件的最后修改时间"
-# navigator/widgets/manager/panel/panel.py:1881
+# navigator/widgets/manager/panel/panel.py:1893
 "Search:" = "搜索:"
-# navigator/widgets/manager/panel/panel.py:2110
+# navigator/widgets/manager/panel/panel.py:2122
 "Go to ~f~ile" = "转到文件(~F~)"
-# navigator/widgets/manager/panel/panel.py:2111
+# navigator/widgets/manager/panel/panel.py:2123
 "Show in ~o~ther panel" = "在另一面板中显示(~O~)"
-# navigator/widgets/manager/panel/panel.py:2119
-"Vie~w~" = "查看(~W~)"
 # navigator/widgets/manager/panel/panel.py:2131
+"Vie~w~" = "查看(~W~)"
+# navigator/widgets/manager/panel/panel.py:2143
 "Create link~s~..." = "创建链接(~S~)..."
-# navigator/widgets/manager/panel/panel.py:2146
-"Cop~y~ to clipboard" = "复制到剪贴板(~Y~)"
-# navigator/widgets/manager/panel/panel.py:2147
-"Cut to c~l~ipboard" = "剪切到剪贴板(~L~)"
-# navigator/widgets/manager/panel/panel.py:2155
-"Test arc~h~ive" = "测试压缩包(~H~)"
-# navigator/widgets/manager/panel/panel.py:2166
-"Unmount image" = "卸载映像"
-# navigator/widgets/manager/panel/panel.py:2531
-"R/O" = "只读"
-# navigator/widgets/manager/panel/panel.py:2682
-"Clipboard: ~{n}~ file to move" = ["剪贴板: ~{n}~ 个文件待移动"]
-# navigator/widgets/manager/panel/panel.py:2684
-"Clipboard: ~{n}~ file to copy" = ["剪贴板: ~{n}~ 个文件待复制"]
-# navigator/widgets/manager/panel/panel.py:2694
-"Total: ~{n:,}~ file with {total}" = ["总计: ~{n:,}~ 个文件，共 {total}"]
-# navigator/widgets/manager/panel/panel.py:2777, navigator/widgets/manager/panel/panel.py:2847
-"From {path}" = "来自 {path}"
-# navigator/widgets/manager/panel/panel.py:2845, navigator/widgets/manager/panel/panel.py:2782
-"an unknown place" = "未知位置"
-# navigator/widgets/manager/panel/panel.py:3066
-"Reading directory..." = "正在读取目录..."
-# navigator/widgets/manager/panel/panel.py:3097, navigator/lib/drives/base.py
-"Packed" = "压缩后"
-# navigator/widgets/manager/panel/panel.py:3098
-"%" = "%"
-# navigator/widgets/manager/panel/panel.py:1589
-"This directory keeps its own sort order, view and file mask" = "此目录保留自己的排序、视图和文件掩码"
-# navigator/widgets/manager/panel/panel.py:1606
-"{n} commit ahead of its upstream" = ["领先上游 {n} 个提交"]
-# navigator/widgets/manager/panel/panel.py:1608
-"{n} commit behind its upstream" = ["落后上游 {n} 个提交"]
-# navigator/widgets/manager/panel/panel.py:2126
-"Ope~n~ with..." = "打开方式(~N~)..."
-# navigator/widgets/manager/panel/panel.py:2134
-"Edit lin~k~ target..." = "编辑链接目标(~K~)..."
-# navigator/widgets/manager/panel/panel.py:2135
-"Make relative" = "改为相对路径"
-# navigator/widgets/manager/panel/panel.py:2136
-"Make absolute" = "改为绝对路径"
-# navigator/widgets/manager/panel/panel.py:2139
-"Show hard links" = "显示硬链接"
 # navigator/widgets/manager/panel/panel.py:2158
+"Cop~y~ to clipboard" = "复制到剪贴板(~Y~)"
+# navigator/widgets/manager/panel/panel.py:2159
+"Cut to c~l~ipboard" = "剪切到剪贴板(~L~)"
+# navigator/widgets/manager/panel/panel.py:2167
+"Test arc~h~ive" = "测试压缩包(~H~)"
+# navigator/widgets/manager/panel/panel.py:2178
+"Unmount image" = "卸载映像"
+# navigator/widgets/manager/panel/panel.py:2543
+"R/O" = "只读"
+# navigator/widgets/manager/panel/panel.py:2694
+"Clipboard: ~{n}~ file to move" = ["剪贴板: ~{n}~ 个文件待移动"]
+# navigator/widgets/manager/panel/panel.py:2696
+"Clipboard: ~{n}~ file to copy" = ["剪贴板: ~{n}~ 个文件待复制"]
+# navigator/widgets/manager/panel/panel.py:2706
+"Total: ~{n:,}~ file with {total}" = ["总计: ~{n:,}~ 个文件，共 {total}"]
+# navigator/widgets/manager/panel/panel.py:2789, navigator/widgets/manager/panel/panel.py:2859
+"From {path}" = "来自 {path}"
+# navigator/widgets/manager/panel/panel.py:2857, navigator/widgets/manager/panel/panel.py:2794
+"an unknown place" = "未知位置"
+# navigator/widgets/manager/panel/panel.py:3078
+"Reading directory..." = "正在读取目录..."
+# navigator/widgets/manager/panel/panel.py:3109, navigator/lib/drives/base.py
+"Packed" = "压缩后"
+# navigator/widgets/manager/panel/panel.py:3110
+"%" = "%"
+# navigator/widgets/manager/panel/panel.py:1601
+"This directory keeps its own sort order, view and file mask" = "此目录保留自己的排序、视图和文件掩码"
+# navigator/widgets/manager/panel/panel.py:1618
+"{n} commit ahead of its upstream" = ["领先上游 {n} 个提交"]
+# navigator/widgets/manager/panel/panel.py:1620
+"{n} commit behind its upstream" = ["落后上游 {n} 个提交"]
+# navigator/widgets/manager/panel/panel.py:2138
+"Ope~n~ with..." = "打开方式(~N~)..."
+# navigator/widgets/manager/panel/panel.py:2146
+"Edit lin~k~ target..." = "编辑链接目标(~K~)..."
+# navigator/widgets/manager/panel/panel.py:2147
+"Make relative" = "改为相对路径"
+# navigator/widgets/manager/panel/panel.py:2148
+"Make absolute" = "改为绝对路径"
+# navigator/widgets/manager/panel/panel.py:2151
+"Show hard links" = "显示硬链接"
+# navigator/widgets/manager/panel/panel.py:2170
 "E~x~tract archive..." = "解压压缩包(~X~)..."
-# navigator/widgets/manager/panel/panel.py:2169, navigator/widgets/shell/volumes_window/volumes_window.py:232
+# navigator/widgets/manager/panel/panel.py:2181, navigator/widgets/shell/volumes_window/volumes_window.py:232
 "Mount image" = "挂载映像"
-# navigator/widgets/manager/panel/panel.py:1574
+# navigator/widgets/manager/panel/panel.py:1586
 "A click sorts by {order}" = "单击按{order}排序"
-# navigator/widgets/manager/panel/panel.py:2705
+# navigator/widgets/manager/panel/panel.py:2717
 "~{size}~ free on ~{mount}" = "可用 ~{size}~，位于 ~{mount}"
-# navigator/widgets/manager/panel/panel.py:2779, navigator/widgets/manager/panel/panel.py:2848
+# navigator/widgets/manager/panel/panel.py:2791, navigator/widgets/manager/panel/panel.py:2860
 "From {path}, deleted {when}" = "来自 {path}，删除于 {when}"
-# navigator/widgets/manager/panel/panel.py:1591
+# navigator/widgets/manager/panel/panel.py:1603
 "Shown with the settings remembered for {path} and below" = "以为 {path} 及以下记住的设置显示"
-# navigator/widgets/manager/panel/panel.py:1602
+# navigator/widgets/manager/panel/panel.py:1614
 "Git work tree, HEAD detached at {commit}" = "Git 工作树，HEAD 分离于 {commit}"
-# navigator/widgets/manager/panel/panel.py:1604
+# navigator/widgets/manager/panel/panel.py:1616
 "Git work tree, on {branch}" = "Git 工作树，位于 {branch}"
 # navigator/widgets/manager/sync_list/sync_list.py:83
 "Left alone" = "保持不变"

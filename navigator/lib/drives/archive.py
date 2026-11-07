@@ -253,6 +253,9 @@ class ArchiveDrive(Drive):
         self._tree = threading.RLock()
         self._staging: Path | None = None
         self._dirty = False
+        #: Rewritten here, but the copy of an archive from another drive not
+        #: put back there yet (its upload failed): still to be finished.
+        self._unsent = False
         #: How a rewrite packs: one of :data:`LEVEL_NAMES`.
         self.level = options.level if options is not None else "normal"
         #: The password it is encrypted with; kept, so a rewrite is too.
@@ -323,8 +326,9 @@ class ArchiveDrive(Drive):
 
     @property
     def dirty(self) -> bool:
-        """Whether there are changes :meth:`finish` has still to write."""
-        return self._dirty
+        """Whether there are changes :meth:`finish` has still to write -- or
+        to put back where the archive came from."""
+        return self._dirty or self._unsent
 
     def _index(self) -> None:
         if self._archive is None:
@@ -622,6 +626,9 @@ class ArchiveDrive(Drive):
         write (:meth:`discard` drops them)."""
         with self._tree:
             if not self._dirty:
+                if self._unsent:
+                    self._put_back()
+                    self._unsent = False
                 return
             if job is not None:
                 job.total_bytes = sum(member.stat().st_size for _, member in self._walk(self.root)
@@ -662,7 +669,10 @@ class ArchiveDrive(Drive):
                 shutil.rmtree(self._staging, ignore_errors=True)
                 self._staging = None
             if self.use is not None:
+                # Owed until it is there: a failed upload is tried again.
+                self._unsent = True
                 self._put_back()
+                self._unsent = False
 
     def discard(self) -> None:
         """Every change since the last :meth:`finish` dropped: the index read
@@ -671,7 +681,7 @@ class ArchiveDrive(Drive):
         with self._tree:
             self.root = _Member("", True)
             self._index()
-            self._dirty = False
+            self._dirty = self._unsent = False
             if self._staging is not None:
                 shutil.rmtree(self._staging, ignore_errors=True)
                 self._staging = None
@@ -935,15 +945,22 @@ class ArchiveDrive(Drive):
         return self.outer.parent, self.outer.name
 
     def close(self) -> None:
+        """Let go of the archive, writing what is still to write.  Whatever
+        fails on the way is logged (``errors.log``) and the rest still done:
+        the loop's side asks before it comes to this with changes pending
+        (``navigator.widgets.drives.archive_finish``), so a failure here is a
+        non-interactive exit's, which has no one to ask."""
+        from navigator.lib.system import errorlog
+
         try:
             self.finish()
-        except Exception:
-            pass
+        except Exception as error:
+            errorlog.append(error, f"writing the changes to {self.outer} as it closed; they are lost")
         try:
             if self._archive is not None:
                 self._archive.close()
-        except Exception:
-            pass
+        except Exception as error:
+            errorlog.append(error, f"closing {self.outer}")
         if self._staging is not None:
             shutil.rmtree(self._staging, ignore_errors=True)
             self._staging = None
@@ -1324,7 +1341,21 @@ def close_all() -> None:
     release_unused(set())
 
 
+def pending() -> list[ArchiveDrive]:
+    """The archives open with changes still to write (:attr:`ArchiveDrive.dirty`)."""
+    with _LOCK:
+        drives = list(_OPEN.values())
+    return [drive for drive in drives if drive.dirty]
+
+
+def keep_open(drive: ArchiveDrive) -> ArchiveDrive:
+    """*drive*, let go of by its last panel with changes kept unwritten, open
+    again among the archives -- held by no one, so :func:`pending` names it
+    and the next visit, or quitting, finds it."""
+    return _register(drive.outer, drive)
+
+
 __all__ = ["ARCHIVE_SITE", "ArchiveDrive", "ArchiveOptions", "FORMATS", "LEVELS", "LEVEL_NAMES", "NEW_KINDS",
            "NeedPassword", "NeedsTool", "NotAnArchive", "READ_ONLY_KINDS", "STREAM", "TOOL_KINDS", "can_encrypt", "close_all", "find",
-           "format_missing", "hold", "leave", "level_of", "new_kind", "open_archive", "release_unheld",
-           "release_unused"]
+           "format_missing", "hold", "leave", "level_of", "new_kind", "keep_open", "open_archive", "pending",
+           "release_unheld", "release_unused"]

@@ -556,6 +556,18 @@ class Panel(ListViewer):
         from navigator.lib.drives import archive
 
         drive = archive.leave(outer, self)
+        if drive is not None and drive.dirty:
+            # Changes a rewrite could not make: written now, or asked about,
+            # before the archive goes (``archive_finish.let_go``) -- with no
+            # loop left to ask on, kept open for quitting's ``close_all``.
+            app = self.application
+            if app is None or not app.is_running:
+                archive.keep_open(drive)
+                return
+            from navigator.widgets.drives.archive_finish import let_go
+
+            app.spawn(let_go(app, drive))
+            return
         if drive is not None:
             try:
                 # A file fetched from a server goes with it: not on the loop.

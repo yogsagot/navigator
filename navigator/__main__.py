@@ -112,6 +112,9 @@ class Navigator(Application):
         #: The last failure written to ``errors.log``, so the one *Quit*
         #: stops on is not written twice.
         self._last_logged: BaseException | None = None
+        #: The steps of :meth:`on_stop` that failed, each logged: ``main()``
+        #: says how many once the terminal is the shell's again.
+        self.shutdown_failures = 0
         self._given = (left, right) if given else None
         #: The directory Navigator started in, DOS's current one at the start.
         self._start = left
@@ -313,39 +316,69 @@ class Navigator(Application):
             self.fail(error, fatal=True)
 
     async def on_stop(self) -> None:
+        """Every way out: each step in turn, **whatever one before it did** --
+        a step that raises is logged (``errors.log``), counted in
+        :attr:`shutdown_failures`, and the next still runs, so a failed
+        autosave does not leave the shell, a connection or root's helper
+        running."""
+        for name, step in (
+            ("stopping the stall watchdog", self._stop_watchdog),
+            ("saving the desktop", self._autosave_desktop),
+            ("recording the open viewers and editors", lambda: remember_windows(self.shell.desktop)),
+            # The shell would otherwise outlive the terminal it was talking
+            # to, and so would a command in a window of its own.
+            ("stopping the console's shell", self.shell.console.stop),
+            ("stopping the terminal windows", self._stop_terminal_views),
+            # Auto refresh's observer: nothing is left to tell of a change.
+            ("stopping the directory watcher", dirwatch.shutdown),
+            ("closing the connections", self._close_sessions),
+            # Every archive a panel was in, with what was fetched to open one.
+            ("closing the archives", self._close_archives),
+            # And root's helper, if *As root* left one open.
+            ("closing root access", self._close_elevation),
+        ):
+            try:
+                result = step()
+                if asyncio.iscoroutine(result):
+                    await result
+            except Exception as error:
+                self.shutdown_failures += 1
+                errorlog.append(error, name)
+
+    def _stop_watchdog(self) -> None:
         if self._watchdog is not None:
             self._watchdog.stop()
+
+    def _autosave_desktop(self) -> None:
         # Startup's *Autosave desktop*: ``SaveRealDsk`` on the way out.
         if SETTINGS.startup.autosave_desktop:
             from navigator.lib.config import desktop_state
             desktop_state.save(self.shell.desktop)
-        # Every viewer and editor still open is recorded, as ``cmQuit`` went
-        # through each window's ``Valid`` -- whatever way Navigator is left.
-        remember_windows(self.shell.desktop)
-        # The shell would otherwise outlive the terminal it was talking to,
-        # and so would a command in a window of its own.
-        self.shell.console.stop()
+
+    def _stop_terminal_views(self) -> None:
         from navigator.widgets.shell.terminal_view import TerminalView
 
         for window in self.shell.desktop.windows():
             view = getattr(window, "view", None)
             if isinstance(view, TerminalView):
                 view.stop()
-        # Auto refresh's observer: nothing is left to tell of a change.
-        dirwatch.shutdown()
-        # Every connection to another drive, closed -- on a thread, as a
-        # server that stopped answering takes its time to be let go of.
+
+    async def _close_sessions(self) -> None:
+        # On a thread, as a server that stopped answering takes its time to
+        # be let go of.
         from navigator.lib.drives import mounted
         from navigator.lib.drives.sessions import SESSIONS
 
         if mounted():
             with contextlib.suppress(asyncio.TimeoutError):
                 await asyncio.wait_for(asyncio.to_thread(SESSIONS.close_all), timeout=5)
-        # And every archive a panel was in, with what was fetched to open one.
+
+    async def _close_archives(self) -> None:
         from navigator.lib.drives import archive
 
         await asyncio.to_thread(archive.close_all)
-        # And root's helper, if *As root* left one open.
+
+    async def _close_elevation(self) -> None:
         from navigator.lib.system.elevate import ELEVATION
 
         await asyncio.to_thread(ELEVATION.close)
@@ -512,8 +545,10 @@ class Navigator(Application):
         window's ``Valid`` as ``cmClose`` did, so one No or Cancel keeps
         Navigator running.  Asked from a task, for the reason every dialog is.
         """
+        from navigator.lib.drives import archive
+
         desktop = self.shell.desktop
-        if (SETTINGS.confirmations.exit or BACKGROUND.jobs
+        if (SETTINGS.confirmations.exit or BACKGROUND.jobs or archive.pending()
                 or any(window.must_ask() for window in desktop.windows())):
             self.spawn(self._quit_asking())
             return True
@@ -551,6 +586,13 @@ class Navigator(Application):
             desktop.activate(window)
             if not await window.ask_to_close():
                 return
+        # And every archive whose changes a rewrite could not make: written
+        # now, or asked about (a departure with the staging itself).
+        from navigator.lib.drives import archive
+        from navigator.widgets.drives.archive_finish import finish_pending
+
+        if not await finish_pending(self, archive.pending()):
+            return
         self.exit()
 
     def _console_over_windows(self) -> bool:
@@ -969,6 +1011,11 @@ def main(argv: list[str] | None = None) -> int:
     app.marks = appearance.marks if args.marks is None else args.marks
     app.direction = args.direction if args.direction is not None else SETTINGS.interface.direction
     app.run()
+    if app.shutdown_failures:
+        print(tr_n("nav: {n} clean-up step failed on the way out; see {log}",
+                   "nav: {n} clean-up steps failed on the way out; see {log}",
+                   app.shutdown_failures).format(n=app.shutdown_failures, log=errorlog.PATH),
+              file=sys.stderr)
     return 0
 
 

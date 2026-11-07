@@ -932,3 +932,146 @@ def test_advanced_filter_inside_an_archive_lists_its_extensions(desk, monkeypatc
         Until(lambda a: made, timeout=5), IDLE,
     ])
     assert made[0] == ["*", "*.py"]
+
+
+# -- changes a rewrite could not make ------------------------------------------------------------------
+
+
+@pytest.fixture
+def logged(tmp_path, monkeypatch):
+    from navigator.lib.system import errorlog
+
+    path = tmp_path / "errors.log"
+    monkeypatch.setattr(errorlog, "PATH", path)
+    return path
+
+
+def full_disk(monkeypatch):
+    """Every zip rewrite refused, as a full disk would; returns a switch back."""
+    import errno
+
+    from navigator.lib.drives.archive import ArchiveDrive
+
+    real = ArchiveDrive._write_zip
+
+    def refuse(self, target, job=None):
+        raise OSError(errno.ENOSPC, "No space left on device")
+
+    monkeypatch.setattr(ArchiveDrive, "_write_zip", refuse)
+    return lambda: monkeypatch.setattr(ArchiveDrive, "_write_zip", real)
+
+
+def test_a_rewrite_that_fails_as_the_archive_closes_is_logged(tmp_path, logged, monkeypatch):
+    drive = archive.open_archive(Location.of(make_zip(tmp_path / "a.zip")))
+    drive.mkdir(drive.at("/made"))
+    full_disk(monkeypatch)
+    assert archive.pending() == [drive]
+    archive.close_all()
+    text = logged.read_text()
+    assert "a.zip" in text and "No space left on device" in text and "they are lost" in text
+    assert archive.pending() == []
+
+
+def test_an_archive_whose_upload_failed_is_still_to_finish(tmp_path, monkeypatch):
+    import errno
+
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    memory = mount(MemoryDrive("arc"))
+    try:
+        memory.make("/a.zip", (make_zip(tmp_path / "a.zip")).read_bytes())
+        drive = archive.open_archive(memory.location("/a.zip"))
+        drive.mkdir(drive.at("/made"))
+
+        def refuse(*_a, **_k):
+            raise OSError(errno.ENOSPC, "No space left on device")
+
+        monkeypatch.setattr(memory, "open_write", refuse)
+        with pytest.raises(OSError):
+            drive.finish()
+        assert drive.dirty
+        monkeypatch.delattr(memory, "open_write")
+        drive.finish()
+        assert not drive.dirty
+        with zipfile.ZipFile(io.BytesIO(memory.read("/a.zip"))) as zipped:
+            assert "made/" in zipped.namelist()
+    finally:
+        archive.close_all()
+        unmount(memory.site)
+
+
+class Answers:
+    """``archive_finish``'s ``Dialog``: questions recorded, answered from a script."""
+
+    def __init__(self, answers):
+        self.answers = list(answers)
+        self.prompts = []
+        outer = self
+
+        class FakeDialog:
+            def __init__(self, *, prompt="", **_kw):
+                self.prompt = prompt
+
+            async def execute(self, app):
+                outer.prompts.append(self.prompt)
+                return outer.answers.pop(0) if outer.answers else None
+
+        self.dialog = FakeDialog
+
+
+def dirty_inside(app, here):
+    """The left panel in a.zip, a directory made in it whose rewrite failed."""
+    def make(a):
+        drive = archive.find(Location.of(here / "a.zip"))
+        drive.mkdir(drive.at("/made"))
+    return [at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)), make]
+
+
+@pytest.mark.parametrize("answer, running, written", [(None, True, False), (True, False, True),
+                                                      (False, False, False)])
+def test_quitting_with_an_archive_not_written_asks(desk, monkeypatch, answer, running, written):
+    from navigator.settings import SETTINGS
+
+    app, here = desk
+    monkeypatch.setattr(SETTINGS.confirmations, "exit", False)
+    recover = full_disk(monkeypatch)
+    asked = Answers([answer])
+    monkeypatch.setattr("navigator.widgets.drives.archive_finish.Dialog", asked.dialog)
+    seen = {}
+
+    def arm(a):
+        if answer is True:
+            # Yes, once there is room again.
+            original = asked.dialog.execute
+
+            async def execute(self, app_):
+                recover()
+                return await original(self, app_)
+            asked.dialog.execute = execute
+
+    run_app(app, [
+        *dirty_inside(app, here), arm, KeyEvent("x", alt=True),
+        Until(lambda a: asked.prompts or not a.is_running, timeout=5), IDLE,
+        lambda a: seen.update(running=a.is_running),
+    ])
+    assert asked.prompts and "a.zip could not be written" in asked.prompts[0]
+    assert seen.get("running", False) is running
+    with zipfile.ZipFile(here / "a.zip") as zipped:
+        assert ("made/" in zipped.namelist()) is written
+
+
+def test_leaving_an_archive_not_written_asks_and_cancel_keeps_it(desk, monkeypatch):
+    app, here = desk
+    full_disk(monkeypatch)
+    asked = Answers([None])
+    monkeypatch.setattr("navigator.widgets.drives.archive_finish.Dialog", asked.dialog)
+    seen = {}
+    run_app(app, [
+        *dirty_inside(app, here),
+        at(".."), KeyEvent("enter"), Until(lambda a: a.manager.left.location.is_local),
+        Until(lambda a: asked.prompts, timeout=5), IDLE,
+        lambda a: seen.update(pending=[d.outer.name for d in archive.pending()]),
+    ])
+    assert "a.zip could not be written" in asked.prompts[0]
+    assert seen["pending"] == ["a.zip"]

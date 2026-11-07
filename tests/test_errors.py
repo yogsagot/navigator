@@ -192,3 +192,31 @@ def test_a_failure_while_reporting_stops_the_application():
     root.focus()
     with pytest.raises(Boom, match="first"):
         run_app(app, [KeyEvent(key="a")])
+
+
+def test_every_step_of_navigator_s_shutdown_runs_whatever_one_does(tmp_path, monkeypatch):
+    from conftest import FakeTerminal, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.config import desktop_state
+    from navigator.lib.drives import archive
+    from navigator.lib.system import errorlog
+    from navigator.lib.system.elevate import ELEVATION
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    monkeypatch.setattr(errorlog, "PATH", tmp_path / "errors.log")
+    monkeypatch.setattr(SETTINGS.startup, "autosave_desktop", True)
+    ran = []
+
+    def broken(desktop):
+        raise RuntimeError("the database is gone")
+
+    monkeypatch.setattr(desktop_state, "save", broken)
+    monkeypatch.setattr(archive, "close_all", lambda: ran.append("archives"))
+    monkeypatch.setattr(ELEVATION, "close", lambda: ran.append("root"))
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    run_app(app, [])
+    assert ran == ["archives", "root"]
+    assert app.shutdown_failures == 1
+    text = (tmp_path / "errors.log").read_text()
+    assert "while: saving the desktop" in text and "the database is gone" in text

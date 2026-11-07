@@ -403,6 +403,14 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   puts it there (`_put_back`). A panel holds the archive it is in (`Panel._hold_archive`;
   `archive.hold`/`leave`), the last one out closes it on a thread (which finishes first); `Navigator.on_stop` closes
   the rest.
+  **Changes a rewrite could not make are never dropped unasked.** `dirty` is `_dirty or _unsent` -- `_unsent` an
+  archive from another drive rewritten here whose `_put_back` failed (a later `finish` only uploads); `discard()`
+  clears both. `archive.pending()` lists the open dirty ones. `navigator/widgets/drives/archive_finish.py`:
+  `finish_pending(app, drives)` writes each under a progress box and on failure asks *Try again?* (Yes again, As root
+  first for a refusal on the disk, No `discard`s, Cancel stops); Alt+X's `_quit_asking` runs it over `pending()`
+  after the windows (Cancel stays), and a panel letting go of a dirty archive spawns `let_go` (Cancel:
+  `archive.keep_open`, held by no one, so quitting asks again; no loop running: kept for `close_all`). `close()`
+  logs a failed `finish` to `errors.log` (`errorlog.append(error, context)`) -- only a non-interactive exit gets there.
 - **Entering**: Enter (`Panel.choose` → `_may_enter_archive`) with File Manager Setup's *Enter opens an archive*
   (`enter_opens_archive`, DN's `fmoEnterArchives`), on a file the *archive* file type names, from a panel not in an
   archive (DN opened none from inside another): `widgets/drives/archives.enter_archive` opens it under *Reading
