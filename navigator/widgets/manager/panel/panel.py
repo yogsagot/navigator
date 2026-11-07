@@ -171,6 +171,37 @@ def _read_location(location: Location, show_hidden: bool, sort: str, *, free: bo
     return entries, error, free_space, error is None and _is_read_only(location)
 
 
+@dataclass(frozen=True)
+class ListingFacts:
+    """What a panel's footer says of its whole listing -- made in one walk
+    when the listing changes (``Panel._listing_facts``), so a cursor move
+    reads them rather than walking a hundred thousand entries again.  A
+    file's size never changes in place (only a counted directory's does, and
+    *Totals* counts files), so the listing alone is what they follow."""
+
+    has_entries: bool = False
+    files: int = 0
+    file_bytes: int = 0
+    any_trashed: bool = False
+    any_link: bool = False
+
+    @classmethod
+    def of(cls, items: Iterable[DirEntry]) -> ListingFacts:
+        has_entries = any_trashed = any_link = False
+        files = file_bytes = 0
+        for item in items:
+            if item.name != "..":
+                has_entries = True
+            if not item.is_dir:
+                files += 1
+                file_bytes += item.size
+            if item.trashed is not None:
+                any_trashed = True
+            if item.is_link:
+                any_link = True
+        return cls(has_entries, files, file_bytes, any_trashed, any_link)
+
+
 def _answers_here(location: Location) -> bool:
     """Whether *location*'s drive lists without a round trip
     (``Drive.quick_listing``), so a read is worth the panel's grace wait."""
@@ -1378,9 +1409,25 @@ class Panel(ListViewer):
 
     @property
     def marked_entries(self) -> list[DirEntry]:
-        """The tagged entries, in listing order."""
+        """The tagged entries, in listing order -- a list of the caller's own,
+        from :attr:`_marked_tuple`, so asking costs what is tagged, not what is
+        listed (the key bar asks every frame)."""
+        return list(self._marked_tuple)
+
+    @computed
+    def _marked_tuple(self) -> tuple[DirEntry, ...]:
+        """The tagged entries, walked out of the listing only when the listing
+        or the tags change -- never on a cursor move."""
         marked = self.marked
-        return [item for item in self.items if item.key in marked]
+        if not marked:
+            return ()
+        return tuple(item for item in self.items if item.key in marked)
+
+    @computed
+    def _listing_facts(self) -> ListingFacts:
+        """What the footer says of the whole listing, in one walk per listing
+        (not per cursor move): :class:`ListingFacts`."""
+        return ListingFacts.of(self.items)
 
     async def choose(self) -> bool:
         """What Enter and a double click mean here: descend, or run.
@@ -2709,7 +2756,7 @@ class Panel(ListViewer):
             return ()
         lines = []
         _ = self.sizes_token  # read for the dependency: a counted directory's bytes
-        marked = self.marked_entries
+        marked = self._marked_tuple
         selected_files = self.shows("selected_files")
         if self.shows("current_file"):
             if marked and not selected_files:
@@ -2730,14 +2777,12 @@ class Panel(ListViewer):
                 text = tr_n("Clipboard: ~{n}~ file to copy", "Clipboard: ~{n}~ files to copy", count)
             lines.append((text, "selected-files"))
         if self.shows("totals"):
-            items = self.items
-            if not any(item.name != ".." for item in items):
+            facts = self._listing_facts
+            if not facts.has_entries:
                 text = tr("No files in this directory")
             else:
-                files = [item for item in items if not item.is_dir]
-                size = sum(item.size for item in files)
-                total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
-                text = tr_n("Total: ~{n:,}~ file with {total}", "Total: ~{n:,}~ files with {total}", len(files),
+                total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", facts.file_bytes)
+                text = tr_n("Total: ~{n:,}~ file with {total}", "Total: ~{n:,}~ files with {total}", facts.files,
                             total=total)
             lines.append((text, "totals"))
         if self.shows("free_space") and self.found is None and self.free_space:
@@ -2814,7 +2859,7 @@ class Panel(ListViewer):
                 return ""
             where = str(entry.directory) if entry.directory is not None else str(self.location)
             return self._cut_start(where, self.inner_width)
-        if any(item.trashed is not None for item in self.items):
+        if self._listing_facts.any_trashed:
             # The Trash (not DN's): where the entry came from, and when.
             if entry is None or entry.trashed is None:
                 return ""
@@ -2827,7 +2872,7 @@ class Panel(ListViewer):
             room = self.inner_width - text_width(template.replace("{path}", ""))
             text = template.replace("{path}", self._cut_start(origin or tr("an unknown place"), max(1, room)))
             return fit_text(text, self.inner_width, self.ellipsis)
-        if not SETTINGS.file_manager.link_line or not any(item.is_link for item in self.items):
+        if not SETTINGS.file_manager.link_line or not self._listing_facts.any_link:
             return None
         if entry is None or entry.link_target is None:
             return ""

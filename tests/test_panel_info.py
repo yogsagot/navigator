@@ -314,3 +314,73 @@ def test_the_setup_page_s_display_boxes_carry_the_link_line():
     assert page.display.value >> 3 & 1
     page.display.value &= ~(1 << 3)
     assert page.accept()["link_line"] is False
+
+
+# -- nothing per entry per cursor move or frame ------------------------------------------------------------
+
+
+class Walked(list):
+    """A listing that counts how often it is walked whole."""
+
+    walks = 0
+
+    def __iter__(self):
+        Walked.walks += 1
+        return super().__iter__()
+
+
+def big_listing(panel: Panel, n: int = 20_000) -> Walked:
+    from navigator.lib.drives.listing import DirEntry
+
+    entries = Walked([DirEntry("..", True, 0, stat.S_IFDIR | 0o755)]
+                     + [DirEntry(f"f{i:05}.txt", False, i, stat.S_IFREG | 0o644, 0.0) for i in range(n)])
+    panel.items = entries
+    settle()
+    Walked.walks = 0
+    return entries
+
+
+def test_moving_the_cursor_walks_no_listing(place):
+    panel = panel_at(place)
+    big_listing(panel)
+    for step in range(50):
+        panel.cursor = step + 1
+        settle()
+        panel.info_lines  # what the footer paints
+    assert Walked.walks <= 2
+
+
+def test_tagging_walks_once_and_moving_after_walks_none(place):
+    panel = panel_at(place)
+    entries = big_listing(panel)
+    panel.marked = frozenset({entries[3].key})
+    settle()
+    texts = [text for text, part in panel.info_lines if part == "selected-files"]
+    assert any("in 1~ selected file" in text for text in texts), texts
+    assert panel.marked_entries == [entries[3]]
+    walked = Walked.walks
+    for step in range(20):
+        panel.cursor = step + 1
+        settle()
+        panel.info_lines
+    assert Walked.walks == walked
+
+
+def test_the_key_bar_s_questions_walk_no_listing(place):
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def ask(a):
+        from navigator.widgets.manager.commands import Copy, Delete, RenameMove
+
+        big_listing(a.manager.left)
+        a.manager.left.cursor = 1
+        a.manager.left.focus()
+        for _ in range(10):
+            for command in (Copy(), RenameMove(), Delete()):
+                seen.setdefault("enabled", []).append(a.command_enabled(command))
+        seen["walks"] = Walked.walks
+
+    run_app(app, [ask])
+    assert all(seen["enabled"])  # asked, and answered by the manager
+    assert seen["walks"] == 0

@@ -30,7 +30,7 @@ from navkit.events import KeyEvent, MouseClickEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import BOX_CHARSETS
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, reactive
+from navkit.reactive import bind, computed, reactive
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget
@@ -189,11 +189,18 @@ class InfoPanel(Widget):
         except OSError:
             self.facts = diskinfo.DiskFacts()
 
+    @computed
+    def _totals(self) -> tuple[int, int] | None:
+        """*Totals*, counted once per listing shown -- not per frame."""
+        return diskinfo.totals(self.entries)
+
     def lines(self) -> list[tuple[str, bool]]:
+        """Not cached: it reads ``SETTINGS.drive_info`` and the language,
+        which are not reactive -- the walk of the listing is what is."""
         if self.directory is None:
             return []
         out = diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info,
-                             self.entry, self.file_facts)
+                             self.entry, self.file_facts, counted=self._totals)
         if self.described:
             if out:
                 out.append(("", True))
@@ -208,17 +215,19 @@ class InfoPanel(Widget):
         """How many lines the frame holds."""
         return max(0, self.height - 2)
 
-    def last_top(self) -> int:
-        """The furthest :attr:`top` goes: the last line at the bottom."""
-        return max(0, len(self.lines()) - self.rows)
+    def last_top(self, lines: list[tuple[str, bool]] | None = None) -> int:
+        """The furthest :attr:`top` goes: the last line at the bottom --
+        of *lines*, when the caller has them already."""
+        return max(0, len(self.lines() if lines is None else lines) - self.rows)
 
     def scroll_to(self, top: int) -> None:
         self.top = max(0, min(top, self.last_top()))
 
     def shown(self) -> list[tuple[str, bool]]:
-        """The lines in the frame, from :attr:`top`."""
-        top = min(self.top, self.last_top())
-        return self.lines()[top: top + self.rows]
+        """The lines in the frame, from :attr:`top` -- worked out once."""
+        lines = self.lines()
+        top = min(self.top, self.last_top(lines))
+        return lines[top: top + self.rows]
 
     async def on_key(self, event: KeyEvent) -> bool:
         if event.ctrl or event.alt or event.shift:

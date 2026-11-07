@@ -280,27 +280,43 @@ def table(rows: list[str]) -> list[str]:
     return [row + " " * (width - display_width(row.replace("~", ""))) for row in rows]
 
 
+def totals(entries: Iterable[Any]) -> tuple[int, int] | None:
+    """*Totals*' figures: how many entries are listed (``..`` not) and their
+    files' bytes -- None when nothing is.  One walk, for a caller to keep
+    while the listing stays (``InfoPanel._totals``)."""
+    count = size = 0
+    for entry in entries:
+        if entry.name == "..":
+            continue
+        count += 1
+        if not entry.is_dir:
+            size += entry.size
+    return (count, size) if count else None
+
+
 def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
-          shows: Any, entry: Any = None, file_facts: FileFacts | None = None) -> list[tuple[str, bool]]:
+          shows: Any, entry: Any = None, file_facts: FileFacts | None = None, *,
+          counted: tuple[int, int] | None | bool = False) -> list[tuple[str, bool]]:
     """The panel's lines, ``(text, centred)``, as ``TDiskInfo.Draw`` laid
     them out: *shows* is the ``drive_info`` section, read box by box.
     *entry* is the one under the cursor, described after the directory's
     lines (:func:`file_lines`) and closed by a rule naming what follows:
     the *Drive*'s lines, else the *Memory*'s.  A blank line comes before
-    each of the two rules."""
+    each of the two rules.  *counted*, given, is :func:`totals` of *entries*
+    worked out already, so the listing is not walked again."""
     out: list[tuple[str, bool]] = []
     current = file_lines(entry, file_facts) if shows.current_file else []
     if shows.directory_title or shows.totals:
         if shows.directory_title:
             out += [(tr("Current directory:"), True), (f"~{directory}~", True)]
         if shows.totals:
-            listed = [entry for entry in entries if entry.name != ".."]
-            if not listed:
+            figures = totals(entries) if counted is False else counted
+            if figures is None:
                 out.append((tr("No files in this directory"), True))
             else:
-                size = sum(entry.size for entry in listed if not entry.is_dir)
+                count, size = figures
                 total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
-                out.append((tr_n("~{n:,}~ file with {total}", "~{n:,}~ files with {total}", len(listed),
+                out.append((tr_n("~{n:,}~ file with {total}", "~{n:,}~ files with {total}", count,
                                  total=total), True))
         out.append(("", True))
     # The rule closing the current file's section, a blank line before it as

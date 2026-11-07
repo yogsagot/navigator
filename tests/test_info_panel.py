@@ -334,3 +334,32 @@ def test_short_information_has_no_scroll_bar(place):
     run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None)])
     info = app.manager.info
     assert info.last_top() == 0 and not info.bar.visible
+
+
+def test_ctrl_l_counts_a_directory_once_not_every_frame(place, monkeypatch):
+    from navkit.screen import ScreenBuffer
+
+    from navigator.lib.system import diskinfo
+
+    app = navigator(place)
+    counted = []
+    real = diskinfo.totals
+
+    def counting(entries):
+        counted.append(1)
+        return real(entries)
+
+    monkeypatch.setattr(diskinfo, "totals", counting)
+    seen = {}
+
+    def frames(a):
+        info = a.manager.info
+        counted.clear()
+        buffer = ScreenBuffer(info.width, info.height)
+        for _ in range(10):
+            info.render(buffer)  # ten frames, and a scroll's questions besides
+            info.last_top()
+        seen["counted"] = len(counted)
+
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), frames])
+    assert seen["counted"] == 0  # counted when the directory was shown, not since

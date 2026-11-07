@@ -215,6 +215,13 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   - *Selected files* (`::selected-files`, `[120]`/`[121]`): `No files selected`, or `~X bytes in N~ selected files`.
     With files tagged and the box off, the selection takes *Current file*'s line, as DN's `Goto 1` did.
   - *Totals* and *Free space* (`navigator-settings`), centred as the selection is.
+  **Nothing per entry per cursor move or frame** (a 100k listing walked ~4 times a keypress, and the key bar's F5/F6/F8
+  questions walked it every frame): `_info_lines` reads `self.selected`, so it reads only `_marked_tuple` (the
+  tagged entries, a computed of `items`+`marked`, `()` without walking when nothing is tagged) and `_listing_facts`
+  (`ListingFacts.of(items)`: entries at all, files and their bytes, any trashed, any link -- one walk per listing).
+  `marked_entries` is `list(_marked_tuple)`, so `Manager.selection` costs what is tagged. Ctrl+L's `InfoPanel._totals`
+  (`diskinfo.totals`, passed as `lines(counted=)`) is counted once per listing, and `shown()` builds `lines()` once.
+  A new per-cursor computed must not walk `items` itself: put the walk on a computed of `items`/`marked`.
   The bottom frame carries only the quick search now. `Panel.rows` is computed less `info_height`, so the list, scroll
   bar and list-mode columns shrink, and the column rules end in `┴` on the divider rather than on the frame. Tests
   that pin a listing down to the frame turn `free_space`, `current_file` and `selected_files` off; anything painting a
