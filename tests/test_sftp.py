@@ -471,3 +471,54 @@ def test_a_profile_s_forwards_are_found_by_its_place(server):
     assert profiles.forwards_for(Site("sftp", "", "nowhere", 0)) == []
     profiles.replace("here", "here", "sftp", site.host, site.user, site.port)
     assert profiles.forwards_for(site) == [Forward("D", 1080)]
+
+
+# -- the channel pool: no thread waits for good ------------------------------------------------------
+
+
+def waiting_for_a_channel(connection):
+    """``connection.take()`` on a thread, every channel held; its answer in the dict."""
+    import threading
+
+    out: dict = {}
+
+    def run():
+        try:
+            out["channel"] = connection.take()
+        except BaseException as error:  # noqa: BLE001 - the test looks at it
+            out["error"] = error
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    time.sleep(0.2)
+    assert thread.is_alive()  # waiting
+    return thread, out
+
+
+def test_a_thread_waiting_for_a_channel_gets_one_after_the_connection_is_made_again(server, monkeypatch):
+    from navigator.lib.drives import sftp
+
+    monkeypatch.setattr(sftp, "CHANNELS", 1)
+    connection = connected(server).connection
+    connection._pool.limit = 1
+    held = connection.take()
+    thread, out = waiting_for_a_channel(connection)
+    connection.close(meant=False)  # the silent reconnect, as ``take`` makes it
+    connection.open()
+    thread.join(5)
+    assert not thread.is_alive()
+    assert "error" not in out, repr(out.get("error"))
+    assert out["channel"].get_channel().get_transport() is connection.transport
+    connection.give(held)  # the old transport's: thrown away, not counted
+    connection.give(out["channel"])
+
+
+def test_closing_the_drive_ends_a_thread_waiting_for_a_channel(server):
+    connection = connected(server).connection
+    connection._pool.limit = 1
+    held = connection.take()
+    thread, out = waiting_for_a_channel(connection)
+    connection.close()
+    thread.join(5)
+    assert not thread.is_alive() and isinstance(out["error"], DriveGone)
+    connection.give(held)

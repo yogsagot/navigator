@@ -24,7 +24,6 @@ import contextlib
 import errno
 import ftplib
 import os
-import queue
 import re
 import socket
 import ssl
@@ -36,6 +35,7 @@ from typing import IO, Any, Iterator
 
 from navigator.lib.drives.base import CHMOD, RENAME, WRITE, Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
+from navigator.lib.drives.pool import Pool, PoolClosed
 from navigator.lib.drives.sessions import Answers, NeedPassword
 
 #: How many control connections one drive may have open at once.
@@ -142,16 +142,15 @@ class _Pool:
         self.host = site.host
         self.port = site.port or 21
         self.user = site.user or "anonymous"
-        self._free: queue.LifoQueue[ftplib.FTP] = queue.LifoQueue()
-        self._made = 0
-        self._lock = threading.Lock()
+        #: The control connections, each one thread's at a time
+        #: (``navigator.lib.drives.pool``).
+        self._pool: Pool[ftplib.FTP] = Pool(CONNECTIONS)
         self.closing = False
         #: Whether the server answers ``MLSD``, and whether its ``LIST`` takes
         #: ``-a``; each learnt at the first listing that asks.
         self.mlsd: bool | None = None
         self.list_a: bool | None = None
-        self._free.put(self._login())
-        self._made = 1
+        self._pool.give(self._pool.adopt(self._login()))
 
     def _login(self) -> ftplib.FTP:
         from navigator.lib.drives import credentials
@@ -193,44 +192,37 @@ class _Pool:
         return client
 
     def take(self) -> ftplib.FTP:
-        if self.closing:
-            raise DriveGone(self.host)
-        try:
-            return self._free.get_nowait()
-        except queue.Empty:
-            pass
-        with self._lock:
-            if self._made < CONNECTIONS:
-                self._made += 1
-                try:
-                    return self._login()
-                except BaseException:
-                    self._made -= 1
-                    raise
-        return self._free.get()
+        """A connection this thread alone may use until :meth:`give` back --
+        waiting for one while all are in use, woken by one given back or
+        thrown away, and by the end."""
+        while True:
+            if self.closing:
+                raise DriveGone(self.host)
+            try:
+                client = self._pool.take(self._login)
+            except PoolClosed:
+                raise DriveGone(self.host) from None
+            if client is not None:
+                return client
 
     def give(self, client: ftplib.FTP, *, broken: bool = False) -> None:
-        if broken or self.closing:
+        discard = broken or self.closing
+        self._pool.give(client, discard=discard)
+        if discard:
             _quietly_close(client)
-            with self._lock:
-                self._made -= 1
-            return
-        self._free.put(client)
 
     def remake(self) -> ftplib.FTP:
-        """A connection in place of one the server dropped: once."""
+        """A connection in place of one the server dropped (given back
+        broken): once, counted in the pool as the dropped one was."""
         try:
-            return self._login()
+            return self._pool.adopt(self._login())
         except Exception as error:
             raise DriveGone(self.host) from error
 
     def close(self) -> None:
         self.closing = True
-        while True:
-            try:
-                client = self._free.get_nowait()
-            except queue.Empty:
-                return
+        # Every thread waiting for a connection woken, to find it closed.
+        for client in self._pool.close():
             try:
                 client.quit()
             except Exception:
@@ -391,8 +383,6 @@ class FtpDrive(Drive):
         except DriveGone:
             self._lost()
             raise
-        with pool._lock:
-            pool._made += 1
         return client
 
     def _lost(self) -> None:

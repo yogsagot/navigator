@@ -27,7 +27,6 @@ import contextlib
 import errno
 import importlib.util
 import os
-import queue
 import socket
 import stat
 import threading
@@ -36,6 +35,7 @@ from typing import IO, Any, Iterator
 
 from navigator.lib.drives.base import CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
+from navigator.lib.drives.pool import Pool, PoolClosed
 from navigator.lib.drives.sessions import (
     Answers, HostKeyChanged, NeedPassphrase, NeedPassword, UnknownHostKey,
 )
@@ -96,8 +96,8 @@ class _Connection:
         self.hostname = site.host
         self.port = site.port or 22
         self.user = site.user
-        self._pool: queue.LifoQueue[Any] = queue.LifoQueue()
-        self._made = 0
+        #: The channels, each one thread's at a time (``navigator.lib.drives.pool``).
+        self._pool: Pool[Any] = Pool(CHANNELS)
         self._lock = threading.Lock()
         #: Set by :meth:`close`: an end that is meant, not one to mend.
         self._closing = False
@@ -143,8 +143,10 @@ class _Connection:
             for each in (*chain, client):
                 each.get_transport().set_keepalive(SETTINGS.remote.keepalive)
         self.client, self.transport, self.chain = client, transport, chain
-        self._pool = queue.LifoQueue()
-        self._made = 0
+        # A new generation: the old transport's channels are no use, and a
+        # thread waiting for one is woken to make one on this transport.
+        for stale in self._pool.reset():
+            _close_quietly(stale)
         if self.forwards:
             # After every connection made, the silent reconnect's too: the
             # old ones went with the old transport.
@@ -303,6 +305,9 @@ class _Connection:
     def close(self, *, meant: bool = True) -> None:
         if meant:
             self._closing = True
+            # Every thread waiting for a channel woken, to find it closed.
+            for free in self._pool.close():
+                _close_quietly(free)
         tunnels, self.tunnels = self.tunnels, None
         if tunnels is not None:
             tunnels.stop()
@@ -318,34 +323,45 @@ class _Connection:
     # -- channels ----------------------------------------------------------------------------------
 
     def take(self) -> Any:
-        """A channel this thread alone may use until :meth:`give` back."""
+        """A channel this thread alone may use until :meth:`give` back --
+        waiting for one while all are in use, and looking each second (or
+        when woken) whether the connection was lost, made again or closed."""
+        while True:
+            with self._lock:
+                if self._closing:
+                    raise DriveGone(self.hostname)
+                if not self.alive:
+                    # Dropped -- the network, a server's timeout: once more,
+                    # with what worked before.
+                    self.close(meant=False)
+                    try:
+                        self.open()
+                    except Exception as error:
+                        raise DriveGone(self.hostname) from error
+            try:
+                channel = self._pool.take(self._new_channel)
+            except PoolClosed:
+                raise DriveGone(self.hostname) from None
+            except _Between:
+                continue  # made again meanwhile, or being: look again
+            if channel is not None:
+                return channel
+
+    def _new_channel(self) -> Any:
+        """A channel on the transport as it is now -- not as it was when the
+        thread began to wait, which a reconnect may have replaced."""
         import paramiko
 
-        with self._lock:
-            if self._closing:
-                raise DriveGone(self.hostname)
-            if not self.alive:
-                # Dropped -- the network, a server's timeout: once more,
-                # with what worked before.
-                self.close(meant=False)
-                try:
-                    self.open()
-                except Exception as error:
-                    raise DriveGone(self.hostname) from error
-            try:
-                return self._pool.get_nowait()
-            except queue.Empty:
-                pass
-            if self._made < CHANNELS:
-                try:
-                    channel = paramiko.SFTPClient.from_transport(self.transport)
-                except (paramiko.SSHException, OSError, EOFError) as error:
-                    raise DriveGone(self.hostname) from error
-                if channel is None:
-                    raise DriveGone(self.hostname)
-                self._made += 1
-                return channel
-        return self._pool.get()
+        transport = self.transport
+        if transport is None or not transport.is_active():
+            raise _Between()
+        try:
+            channel = paramiko.SFTPClient.from_transport(transport)
+        except (paramiko.SSHException, OSError, EOFError, AttributeError) as error:
+            raise DriveGone(self.hostname) from error
+        if channel is None:
+            raise DriveGone(self.hostname)
+        return channel
 
     def give(self, channel: Any, *, broken: bool = False) -> None:
         """*channel* back in the pool -- unless it is broken, or of a
@@ -354,16 +370,21 @@ class _Connection:
             current = channel.get_channel().get_transport() is self.transport
         except Exception:
             current = False
-        if broken or not current:
-            with self._lock:
-                if current:
-                    self._made -= 1
-            try:
-                channel.close()
-            except Exception:
-                pass
-            return
-        self._pool.put(channel)
+        discard = broken or not current
+        self._pool.give(channel, discard=discard)
+        if discard:
+            _close_quietly(channel)
+
+
+class _Between(Exception):
+    """No transport to make a channel on: the connection is between one and the next."""
+
+
+def _close_quietly(channel: Any) -> None:
+    try:
+        channel.close()
+    except Exception:
+        pass
 
 
 class _Refused(Exception):

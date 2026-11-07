@@ -474,7 +474,9 @@ with the list's path. Nothing there: *No files found*. Enabled on a file only.
 **Alt+Y, Panel > Panelize command** (`Panelize`, `Manager.panelize`; a departure, MC's *External panelize*):
 `PanelizeDialog` (history `panelize`, seeded with `Manager.last_panelized`), then `navigator/lib/file_ops/panelize.py`'s
 `capture` runs `$SHELL -c command` in the panel's directory on a thread -- off the console's pty, stdin `/dev/null`,
-its own session so *Cancel* (`FindProgress` retitled, the count row hidden) kills the group -- and
+its own session so *Cancel* (`FindProgress` retitled, the count row hidden) kills the group (`_end`: TERM, then KILL,
+each given `STOP_GRACE` 3 s, then the pipes let go of unread if a `setsid` child still holds them -- Stop never
+waits past that) -- and
 `filefind.list_from_lines` (Alt+V's reading, split out of `read_list`) turns the lines (NUL-split when the output has
 a NUL: `find -print0`) into a `FindListing(command=...)` titled `Panel: <command>`. Nothing listed: *No files found*,
 with the first stderr line when the command failed. **Ctrl+R in such a listing runs the command again** (`on_rescan`),

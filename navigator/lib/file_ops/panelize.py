@@ -48,15 +48,43 @@ def capture(command: str, cwd: Path, job: PanelizeJob) -> None:
             break
         except subprocess.TimeoutExpired:
             if job.stopped:
-                try:
-                    os.killpg(process.pid, signal.SIGTERM)
-                except OSError:
-                    pass
-                process.communicate()
+                _end(process)
                 raise Stopped from None
     job.output = out.decode("utf-8", "surrogateescape")
     job.errors = err.decode("utf-8", "surrogateescape")
     job.status = process.returncode
+
+
+#: How long a stopped command is given, after each signal, to end and let go
+#: of its output -- as long as ``services.common.stop_process`` gives one.
+STOP_GRACE = 3.0
+
+
+def _end(process: subprocess.Popen[bytes]) -> None:
+    """*process*'s whole group ended, whatever it does: TERM, then KILL, each
+    given :data:`STOP_GRACE` -- and if something that left the group (a
+    ``setsid`` child, a daemon) still holds the output open, the pipes are let
+    go of unread: Stop was asked, and nothing is waited for past it."""
+    for sig in (signal.SIGTERM, signal.SIGKILL):
+        try:
+            os.killpg(process.pid, sig)
+        except OSError:
+            pass
+        try:
+            process.communicate(timeout=STOP_GRACE)
+            return
+        except subprocess.TimeoutExpired:
+            continue
+    for pipe in (process.stdout, process.stderr):
+        try:
+            if pipe is not None:
+                pipe.close()
+        except OSError:
+            pass
+    try:
+        process.wait(timeout=1)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 def lines_of(output: str) -> list[str]:

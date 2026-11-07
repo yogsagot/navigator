@@ -127,10 +127,16 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   agent and keys, then the keyring's password, then the answers. A pool of ≤ `CHANNELS` `SFTPClient`s, each checked out
   by one thread (`_channel()`); a file opened keeps its channel until closed (`_HeldFile`). A watcher thread joins the
   paramiko `Transport` and, when it ends unasked, connects again once, else calls `on_lost` → `SESSIONS.close(site,
-  "lost")`. `take()` makes a dropped connection again once too. Reads `prefetch()`, writes `set_pipelined(True)`;
+  "lost")`. `take()` makes a dropped connection again once too. **The channels are a `pool.Pool`, not a queue**
+  (`navigator/lib/drives/pool.py`, FTP's connections too): a thread waiting for one is woken by one given back, a
+  slot freed by one thrown away, a new generation (`open()` calls `reset()`; old-transport channels given back late
+  are discarded uncounted) and `close()` (`PoolClosed` → `DriveGone`) -- a `LifoQueue` left it asleep through each,
+  the progress box up for good. `Pool.take(make, wait=1.0)` answers None after *wait* so `take()` looks again at
+  `alive`/`_closing`; `_new_channel` uses the transport as it is then (`_Between` while there is none). Reads `prefetch()`, writes `set_pipelined(True)`;
   `replace` is `posix-rename@openssh.com`, falling back to remove+rename. `mkdir` turns SFTP v3's bare *Failure* into
   `EEXIST` when the name is there. Owners come from the server's `ls -l` line (`DirEntry.owner`).
-- **`ftp.py`** (`ftp://`, `ftps://`; stdlib `ftplib`, nothing to install). `_Pool`: up to `CONNECTIONS` logged-in
+- **`ftp.py`** (`ftp://`, `ftps://`; stdlib `ftplib`, nothing to install). `_Pool` (over `pool.Pool`; `remake()`
+  `adopt`s the one made in place of a dropped one): up to `CONNECTIONS` logged-in
   control connections, each one thread's (`FtpDrive._client()`); a file read or written (`_Transfer`, `RETR`/`STOR`/
   `APPE` over `transfercmd`) holds its connection until the reply after it. A connection is `NOOP`ed when taken and
   made again once if the server dropped it (servers drop idle ones); failing that, `on_lost`. No user is anonymous

@@ -391,6 +391,14 @@ def test_the_info_band_counts_the_files_with_their_bytes(places):
     assert files_line(2, 12345) == "2 files with 12,345 bytes"
 
 
+def tree_on(places):
+    """Ctrl+T, and the tree's cursor landed on the panel's directory -- its
+    walk down is on a thread."""
+    return [KeyEvent("t", ctrl=True),
+            Until(lambda a: a.manager.tree.visible and a.manager.tree.selected_path == places.resolve(),
+                  timeout=5)]
+
+
 def test_ctrl_t_puts_a_tree_where_the_passive_panel_was(places):
     from test_nav import navigator
 
@@ -412,7 +420,7 @@ def test_ctrl_t_again_restores_the_panel(places):
     from test_nav import navigator
 
     app = navigator(places)
-    run_app(app, [KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("t", ctrl=True)])
+    run_app(app, [*tree_on(places), KeyEvent("tab"), KeyEvent("t", ctrl=True)])
     manager = app.manager
     assert (manager.right.visible, manager.tree.visible) == (True, False)
     assert manager.tree_replaces is None
@@ -425,7 +433,7 @@ def test_the_tree_follows_the_active_panel(places):
     app = navigator(places)
     seen = []
     run_app(app, [
-        KeyEvent("t", ctrl=True),
+        *tree_on(places),
         KeyEvent("down"), KeyEvent("enter"),          # the panel goes into alpha
         Until(lambda a: a.manager.tree.selected_path == (places / "alpha").resolve(), timeout=5),
         lambda a: seen.append(a.manager.tree.selected_path),
@@ -470,7 +478,7 @@ def test_enter_in_the_tree_sends_the_panel_there_now(places):
     # The tree opens the branches *above* the panel's directory, not its own:
     # "+" opens it, and Down reaches its first subdirectory.
     run_app(app, [
-        KeyEvent("t", ctrl=True), KeyEvent("tab"),
+        *tree_on(places), KeyEvent("tab"),
         KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"),
     ])
     assert app.manager.left.path == (places / "alpha").resolve()
@@ -480,7 +488,7 @@ def test_typing_in_the_ctrl_t_tree_goes_to_the_command_line(places):
     from test_nav import navigator
 
     app = navigator(places)
-    run_app(app, [KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("g", "g")])
+    run_app(app, [*tree_on(places), KeyEvent("tab"), KeyEvent("g", "g")])
     assert app.shell.command_line.value == "g"
     assert app.manager.tree.search is None
 
@@ -493,7 +501,7 @@ def test_ctrl_s_in_the_ctrl_t_tree_walks_a_path_and_enter_sends_the_panel(places
     typed = "/" + "/".join(places.resolve().parts[1:]) + "/alpha"
     seen = []
     run_app(app, [
-        KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("s", ctrl=True),
+        *tree_on(places), KeyEvent("tab"), KeyEvent("s", ctrl=True),
         *[KeyEvent(char, char) for char in typed],
         lambda a: seen.append((a.manager.tree.search_path, a.manager.tree.edits_text)),
         KeyEvent("enter"),
@@ -512,7 +520,7 @@ def test_a_cursor_at_rest_in_the_tree_takes_the_panel_with_it(places, monkeypatc
     monkeypatch.setattr(Manager, "LOCATE_DELAY", 0.01)
     app = navigator(places)
     run_app(app, [
-        KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("+", "+"),
+        *tree_on(places), KeyEvent("tab"), KeyEvent("+", "+"),
         KeyEvent("down"), lambda a: None,
     ], settle=0.1)
     assert app.manager.left.path == (places / "alpha").resolve()
@@ -803,9 +811,13 @@ def test_ctrl_h_hides_dot_directories_in_the_ctrl_t_tree(places):
     app = navigator(places)
     seen = []
     run_app(app, [
-        KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("+", "+"),
+        *tree_on(places), KeyEvent("tab"), KeyEvent("+", "+"),
+        Until(lambda a: a.manager.tree.selected_node.loaded, timeout=5),
         lambda a: seen.append(_children_of(a.manager.tree, places)),
-        KeyEvent("h", ctrl=True), KeyEvent("+", "+"),
+        KeyEvent("h", ctrl=True),
+        Until(lambda a: a.manager.tree.selected_path == places.resolve()
+              and a.manager.tree.root.show_hidden is False, timeout=5),
+        KeyEvent("+", "+"), Until(lambda a: a.manager.tree.selected_node.loaded, timeout=5),
         lambda a: seen.append(_children_of(a.manager.tree, places)),
     ])
     assert ".secret" in seen[0]
@@ -1171,3 +1183,24 @@ def test_only_the_last_place_asked_for_moves_the_cursor(tmp_path, monkeypatch):
     ])
     # The first walk landed too, late, and left the cursor where the second put it.
     assert seen["after"] == second.resolve()
+
+
+def test_keys_typed_while_a_slash_waits_on_its_branch_are_played_after_it():
+    root, gate, _ = stalled()
+    app, tree = background_tree(root)
+    seen = {}
+    chosen = []
+
+    async def on_chosen(event):
+        chosen.append(event.node.name)
+        return True
+
+    tree.on_chosen = on_chosen
+    run_app(app, [
+        # "u", "/", then "lo" and Enter before usr's children are in.
+        KeyEvent("u", "u"), KeyEvent("/", "/"), KeyEvent("l", "l"), KeyEvent("o", "o"), KeyEvent("enter"),
+        lambda a: seen.update(before=(tree.selected_node.name, list(chosen))),
+        lambda a: gate.set(), Until(lambda a: chosen, timeout=5),
+    ])
+    assert seen["before"] == ("usr", [])
+    assert chosen == ["local"]

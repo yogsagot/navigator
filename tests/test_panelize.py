@@ -152,3 +152,34 @@ def test_panelize_is_off_away_from_the_disk(place):
     finally:
         unmount(drive.site)
     assert seen == {"disk": True, "memory": False}
+
+
+# -- Stop ends the command, whatever it does --------------------------------------------------------------
+
+
+@pytest.mark.parametrize("command", [
+    "trap '' TERM; sleep 60",                            # deaf to TERM
+    "setsid sh -c 'sleep 8' & sleep 60",                 # a child out of the group, holding the output
+])
+def test_stop_ends_a_command_however_it_holds_on(tmp_path, monkeypatch, command):
+    from navigator.lib.file_ops import panelize
+
+    monkeypatch.setattr(panelize, "STOP_GRACE", 0.5)
+    job = PanelizeJob()
+    out: dict = {}
+
+    def run():
+        try:
+            capture(command, tmp_path, job)
+        except BaseException as error:  # noqa: BLE001 - the test looks at it
+            out["error"] = error
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    time.sleep(0.3)
+    started = time.monotonic()
+    job.stop()
+    thread.join(10)
+    assert not thread.is_alive(), "Stop left the job's thread waiting"
+    assert isinstance(out.get("error"), Stopped)
+    assert time.monotonic() - started < 5

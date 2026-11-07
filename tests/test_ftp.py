@@ -203,3 +203,49 @@ def test_ftp_link_logs_in_and_the_panel_goes_there(tmp_path, isolated, monkeypat
     assert seen["title"] == "FTP link" and seen["tls"]
     assert seen["asked"] == "FTP password for tester@127.0.0.1:"
     assert seen["where"] == "FTP:127.0.0.1:/docs"
+
+
+# -- the connection pool: no thread waits for good ------------------------------------------------------
+
+
+def waiting_for_a_connection(pool):
+    import threading
+    import time
+
+    out: dict = {}
+
+    def run():
+        try:
+            out["client"] = pool.take()
+        except BaseException as error:  # noqa: BLE001 - the test looks at it
+            out["error"] = error
+
+    thread = threading.Thread(target=run, daemon=True)
+    thread.start()
+    time.sleep(0.2)
+    assert thread.is_alive()  # waiting
+    return thread, out
+
+
+def test_a_connection_thrown_away_lets_a_waiting_thread_connect(server):
+    pool = connected(server).pool
+    pool._pool.limit = 1
+    held = pool.take()
+    thread, out = waiting_for_a_connection(pool)
+    pool.give(held, broken=True)
+    thread.join(5)
+    assert not thread.is_alive() and out["client"] is not held
+    pool.give(out["client"])
+
+
+def test_closing_ends_a_thread_waiting_for_a_connection(server):
+    from navigator.lib.drives import DriveGone
+
+    pool = connected(server).pool
+    pool._pool.limit = 1
+    held = pool.take()
+    thread, out = waiting_for_a_connection(pool)
+    pool.close()
+    thread.join(5)
+    assert not thread.is_alive() and isinstance(out["error"], DriveGone)
+    pool.give(held)

@@ -245,6 +245,11 @@ class TreeView(ListViewer):
     _loading: set[TreeNode] | None = None
     #: What to do once a node's children are in: :meth:`when_loaded`.
     _after_load: dict[TreeNode, list[Callable[[], None]]] | None = None
+    #: The node a ``/`` waits on, while its children are read on a thread,
+    #: and the search's keys typed meanwhile -- played once they land, so a
+    #: fast typist on a slow mount loses no letter.
+    _search_wait: TreeNode | None = None
+    _search_keys: list[KeyEvent] | None = None
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
@@ -619,6 +624,7 @@ class TreeView(ListViewer):
         self.search = None
         self.search_scope = None
         self.search_trail = ()
+        self._search_wait = self._search_keys = None
 
     def _end_search_unfocused(self) -> None:
         """The search ends when the keyboard leaves the tree."""
@@ -663,10 +669,14 @@ class TreeView(ListViewer):
         self.search = ""
         opened = node.expanded
         self.expand(node)
+        self._search_wait, self._search_keys = node, []
 
         def then() -> None:
             # Read on a thread meanwhile: a branch that turned out empty
             # takes the ``/`` back; a search ended or moved on is left be.
+            if self._search_wait is not node:
+                return
+            keys, self._search_wait, self._search_keys = self._search_keys or [], None, None
             if self.search_scope is not node or self.search != "":
                 return
             children = node.children()
@@ -679,6 +689,16 @@ class TreeView(ListViewer):
                 self.search_trail, self.search_scope, self.search = trail, scope, text
                 node.expanded = opened
                 self.refresh()
+            for index, key in enumerate(keys):
+                if self.search is not None and self._search_key(key):
+                    continue
+                # Declined -- the search ended on it: this key and those after
+                # go the way any key goes, in order.
+                app = self.application
+                if app is not None and app.is_running:
+                    for rest in keys[index:] if self.search is None else keys[index + 1:]:
+                        app.post_event(rest)
+                break
         self.when_loaded(node, then)
 
     def _search_key(self, event: KeyEvent) -> bool:
@@ -689,6 +709,12 @@ class TreeView(ListViewer):
         always does -- Down moves, Enter chooses.
         """
         text = self.search or ""
+        if self._search_wait is not None and not event.matches("escape"):
+            # A ``/`` still waiting on its branch: every key but Esc kept, and
+            # played after it -- Enter typed straight after a path chooses
+            # where the path leads, not where it was when the key came.
+            self._search_keys = (self._search_keys or []) + [event]
+            return True
         if event.char == "/":
             self._descend_search()
             return True
