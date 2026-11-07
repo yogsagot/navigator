@@ -35,7 +35,7 @@ from typing import Any
 
 from navkit.i18n import tr
 
-from navigator.lib.drives import Location, drive_of
+from navigator.lib.drives import Location
 from navigator.lib.file_ops.uucode import FileExists
 from navigator.lib.system.job import Stopped
 
@@ -168,7 +168,14 @@ class Result:
     crc_checked: bool = False
 
 
-def _resolve(target: str, cwd: Location, name: str) -> tuple[Location, str]:
+def _drive(location: Location, as_root: bool) -> Any:
+    """*location*'s drive -- the root helper's on the disk *as_root* (``root.rooted``)."""
+    from navigator.lib.drives.root import rooted
+
+    return rooted(location, as_root)
+
+
+def _resolve(target: str, cwd: Location, name: str, as_root: bool = False) -> tuple[Location, str]:
     """The target line as ``(directory, name)``, *name* when it is a directory."""
     from navigator.lib.file_ops.filecopy import target_location
 
@@ -176,7 +183,7 @@ def _resolve(target: str, cwd: Location, name: str) -> tuple[Location, str]:
     if not text:
         return cwd, name
     location = target_location(text, cwd)
-    if text.endswith("/") or drive_of(location).is_dir(location):
+    if text.endswith("/") or _drive(location, as_root).is_dir(location):
         return location, name
     return location.parent, location.name
 
@@ -221,17 +228,19 @@ def _remove(drive: Any, locations: list[Location]) -> None:
 # -- split -------------------------------------------------------------------------------------
 
 
-def split(request: SplitRequest, job: Any) -> Result:
+def split(request: SplitRequest, job: Any, *, as_root: bool = False) -> Result:
     """Cut the file into ``base.001``, ``base.002`` ... and write
-    ``base.crc``.  A Stop or a failure removes everything written."""
-    source_drive = drive_of(request.source)
+    ``base.crc``.  A Stop or a failure removes everything written.
+    *as_root*: every step on the disk through the root helper -- *As root*,
+    after a refusal (a departure; ``navigator-elevation``)."""
+    source_drive = _drive(request.source, as_root)
     st = source_drive.stat(request.source)
     total = st.st_size
     if total <= request.size:
         raise SplitError(tr("{name} is no larger than one part").format(name=request.source.name))
     count = -(-total // request.size)
-    directory, base = _resolve(request.target, request.cwd, request.source.name)
-    drive = drive_of(directory)
+    directory, base = _resolve(request.target, request.cwd, request.source.name, as_root)
+    drive = _drive(directory, as_root)
     if drive.exists(directory):
         names = set(drive.names(directory))
     else:
@@ -291,15 +300,16 @@ def split(request: SplitRequest, job: Any) -> Result:
 # -- combine -----------------------------------------------------------------------------------
 
 
-def combine(request: CombineRequest, job: Any) -> Result:
+def combine(request: CombineRequest, job: Any, *, as_root: bool = False) -> Result:
     """Put ``base.001``, ``base.002`` ... back together, checking them
     against ``base.crc`` when it is there.  A Stop or a failure removes the
-    file; a CRC that does not match keeps it and raises :class:`SplitError`."""
+    file; a CRC that does not match keeps it and raises :class:`SplitError`.
+    *as_root* as :func:`split`'s."""
     base = base_of(request.part.name)
     if base is None:
         raise SplitError(tr("{name} is not a part of a split file").format(name=request.part.name))
     here = request.part.parent
-    source_drive = drive_of(here)
+    source_drive = _drive(here, as_root)
     names = set(source_drive.names(here))
     crc_name = base + CRC_SUFFIX
     info = CrcInfo()
@@ -329,11 +339,11 @@ def combine(request: CombineRequest, job: Any) -> Result:
             raise SplitError(tr("The parts of {name} do not add up to the size {crc} says").format(
                 name=base, crc=crc_name))
         parts, total = kept, reached
-    directory, name = _resolve(request.target, request.cwd, info.filename or base)
+    directory, name = _resolve(request.target, request.cwd, info.filename or base, as_root)
     target = directory / name
     if any(target == location for location, _ in parts) or target == here / crc_name:
         raise SplitError(tr("The parts cannot be combined over one of themselves"))
-    drive = drive_of(directory)
+    drive = _drive(directory, as_root)
     if drive.exists(target):
         _ask_over([target], job)
     elif not drive.exists(directory):

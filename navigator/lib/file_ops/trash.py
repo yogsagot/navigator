@@ -264,15 +264,29 @@ def items(mounts: list[str] | None = None) -> list[Item]:
     return found
 
 
-def restore(item: Item, target: Path | None = None) -> Path:
+def restore(item: Item, target: Path | None = None, *, as_root: bool = False) -> Path:
     """*item* put back where it came from (or at *target*); where it went.
 
     Never over anything: a name taken there is ``FileExistsError``.  The
-    directories on the way are made.
+    directories on the way are made.  *as_root*: the directories and the
+    rename through the root helper, where the place it came from is root's
+    (*As root*, a departure); its info file, in the user's trash, stays the
+    user's to remove.
     """
     target = target or item.original
     if target is None:
         raise OSError(errno.ENOENT, "Where it came from is not known", item.name)
+    if as_root:
+        from navigator.lib.drives import Location
+        from navigator.lib.drives.root import ROOT_DRIVE
+
+        where = Location.of(target)
+        if ROOT_DRIVE.lexists(where):
+            raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(target))
+        ROOT_DRIVE.makedirs(where.parent)
+        ROOT_DRIVE.rename(Location.of(item.path), where)
+        forget(item)
+        return target
     if os.path.lexists(target):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(target))
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -290,13 +304,16 @@ class RestoreJob(Job):
         self.count = 0
         self.total = 0
         self.current = ""
+        #: *As root* answered: every restore from then on through the helper.
+        self.as_root = False
 
 
 def restore_all(chosen: list[Item], job: RestoreJob) -> list[Item]:
     """*chosen* restored on a thread, one after another; a failure asks
     (:class:`~navigator.lib.file_ops.filecopy.Failure`) whether to skip it or
     stop.  What was put back, also kept in ``job.done``."""
-    from navigator.lib.file_ops.filecopy import Failure, error_message
+    from navigator.lib.file_ops.filecopy import AS_ROOT, Failure, error_message
+    from navigator.lib.system.elevate import refused
 
     job.total = len(chosen)
     try:
@@ -305,14 +322,21 @@ def restore_all(chosen: list[Item], job: RestoreJob) -> list[Item]:
             if job.stopped:
                 break
             job.current = str(item.original or item.name)
-            try:
-                restore(item)
-            except OSError as error:
-                answer = job.ask(Failure(item.original or item.path, error_message(error)))
-                if answer is None or answer is False:
-                    break
-            else:
-                job.done.append(item)
+            while True:
+                try:
+                    restore(item, as_root=job.as_root)
+                except OSError as error:
+                    # Refused where it came from: *As root* offered beside Skip.
+                    answer = job.ask(Failure(item.original or item.path, error_message(error),
+                                             elevate=refused(error) and not job.as_root))
+                    if answer == AS_ROOT:
+                        job.as_root = True
+                        continue
+                    if answer is None or answer is False:
+                        return list(job.done)
+                else:
+                    job.done.append(item)
+                break
             job.count += 1
     except Stopped:
         pass

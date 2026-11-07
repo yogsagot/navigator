@@ -39,7 +39,8 @@ from typing import Any, Iterable
 
 from navkit.i18n import tr
 
-from navigator.lib.file_ops.filecopy import Failure, error_message
+from navigator.lib.file_ops.filecopy import AS_ROOT, Failure, error_message
+from navigator.lib.system.elevate import refused
 from navigator.lib.file_ops.filefind import FindJob, FindRequest, search
 from navigator.lib.system.job import Stopped
 
@@ -113,6 +114,9 @@ class ReplaceJob(FindJob):
         self.matched = 0
         self.replacements = 0
         self.all = False
+        #: *As root* answered to a refused write: every write on the disk
+        #: through the root helper from then on, unasked (as a copy's).
+        self.as_root = False
 
 
 def printable(line: bytes) -> str:
@@ -219,6 +223,18 @@ def replace(request: ReplaceRequest, start: Any, make_entry: Any, job: ReplaceJo
             return None
         return data, drive, _stamp(info)
 
+    def write_on_disk(place: Any, data: bytes) -> None:
+        """The editor's write -- owner and mode kept, one rename -- or the root
+        helper's, once *As root* was answered (``RootDrive.write_file``)."""
+        if job.as_root:
+            from navigator.lib.drives.root import ROOT_DRIVE
+
+            ROOT_DRIVE.write_file(Path(place), [data], job)
+            return
+        from navigator.lib.editor.save import write_file
+
+        write_file(Path(place), data)
+
     def fail(place: Any, reason: Any, values: dict[str, Any] | None = None) -> bool:
         """A failure put to the user: False skips the file, Cancel stops."""
         shown = Path(place) if isinstance(place, str) else place
@@ -255,14 +271,27 @@ def replace(request: ReplaceRequest, start: Any, make_entry: Any, job: ReplaceJo
                 return fail(place, lambda: tr("File {name}\nchanged while it was asked about; it is left as it is"),
                             {"name": shown_name(place)})
             if drive is None:
-                from navigator.lib.editor.save import write_file
-
-                write_file(Path(place), done.data)
+                write_on_disk(place, done.data)
             else:
                 written[id(drive)] = drive
                 with drive.open_write(place) as file:
                     file.write(done.data)
         except OSError as error:
+            if drive is None and not job.as_root and refused(error):
+                # Refused on the disk: *As root* offered with Skip and Cancel.
+                # As :func:`fail`: True skips the file, anything false stops.
+                answer = job.ask(Failure(Path(place), error_message(error), elevate=True))
+                if answer == AS_ROOT:
+                    job.as_root = True
+                    try:
+                        write_on_disk(place, done.data)
+                    except OSError as again:
+                        return fail(place, error_message(again))
+                    job.replacements += done.count
+                    return True
+                if not answer:
+                    raise Stopped from None
+                return False
             return fail(place, error_message(error))
         job.replacements += done.count
         return True

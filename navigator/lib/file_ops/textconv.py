@@ -136,13 +136,10 @@ def _place(text: str, index: int) -> tuple[int, int]:
 
 
 def _drive(location: Location, as_root: bool) -> Any:
-    """The drive *location* is reached through: the root helper's for one on
-    the disk *as_root*."""
-    if as_root and location.is_local:
-        from navigator.lib.drives.root import ROOT_DRIVE
+    """The drive *location* is reached through (``root.rooted``)."""
+    from navigator.lib.drives.root import rooted
 
-        return ROOT_DRIVE
-    return drive_of(location)
+    return rooted(location, as_root)
 
 
 def _read(location: Location, job: TextJob, drive: Any) -> bytes:

@@ -747,8 +747,11 @@ class Manager(Window):
             if answer is None:
                 return
             combine = splitfile.CombineRequest(place, answer["target"], cwd)
+            # A refusal on the disk offers *As root*, as UU's does.
             await self._run_uucode(panel, lambda job: splitfile.combine(combine, job),
-                                   tr("Combining {name}").format(name=place.name), beep_after=20)
+                                   tr("Combining {name}").format(name=place.name), beep_after=20,
+                                   as_root=(lambda job: splitfile.combine(combine, job, as_root=True))
+                                   if place.is_local else None)
             return
         from navigator.widgets.file_ops.split_dialog import SplitDialog
 
@@ -760,7 +763,9 @@ class Manager(Window):
         split = splitfile.SplitRequest(place, answer["target"], cwd, answer["size"],
                                        checksum=SETTINGS.split.checksum)
         await self._run_uucode(panel, lambda job: splitfile.split(split, job),
-                               tr("Splitting {name}").format(name=place.name), beep_after=20)
+                               tr("Splitting {name}").format(name=place.name), beep_after=20,
+                               as_root=(lambda job: splitfile.split(split, job, as_root=True))
+                               if place.is_local else None)
 
     # -- Checksums (navigator.lib.file_ops.checksum): not DN's, a departure -------------------------
 
@@ -849,15 +854,27 @@ class Manager(Window):
                     if not await Dialog(title=tr("Warning"), prompt=prompt, buttons="yes-no").execute(app):
                         return
                 written = await self._run_checksums(lambda: checksum.write_each(files, algorithm, job), job, title)
+
+                async def as_root(refused: list[Any]) -> None:
+                    again = [(location, size) for location, size, _ in refused]
+                    written.extend(await self._run_checksums(
+                        lambda: checksum.write_each(again, algorithm, job, as_root=True), job, title))
+
+                await self._again_as_root(job, tr("Write their checksum files as root?"), as_root,
+                                          errors=job.write_errors)
         except Stopped:
             return
         finally:
             # One per directory: each re-reads every panel showing it.
             for location in {location.parent: location for location in written}.values():
                 await self.emit(FileSaved(shown(location)))
-        self._untag_done(panel, entries, sources, job.errors)
+        self._untag_done(panel, entries, sources, job.errors + job.write_errors)
         if job.errors:
             await self._say_checksum_errors(job.errors)
+        if job.write_errors:
+            await self._say_checksum_errors(job.write_errors, tr_n(
+                "{n} checksum file could not be written:", "{n} checksum files could not be written:",
+                len(job.write_errors)))
 
     async def verify_checksums(self, panel: Panel) -> None:
         """File > Encoding > Checksums > Verify: every file the tagged lists name hashed
@@ -987,6 +1004,14 @@ class Manager(Window):
             if there and not await self._ask_over_targets(there):
                 return
             done = await self._run_checksums(lambda: encrypt.encrypt(plans, options, job), job, title)
+
+            async def as_root(refused: list[Any]) -> None:
+                # The files the disk refused, encrypted again through the root helper.
+                job.as_root = True
+                again = [job.refused_plans[location] for location, _, _ in refused]
+                done.extend(await self._run_checksums(lambda: encrypt.encrypt(again, options, job), job, title))
+
+            await self._again_as_root(job, tr("Encrypt them as root?"), as_root)
             if answer["delete_originals"] and done:
                 await self._run_checksums(lambda: encrypt.remove_originals(done, job), job, title)
         except Stopped:
@@ -1036,7 +1061,22 @@ class Manager(Window):
             if there and not await self._ask_over_targets(there):
                 return
             await self._run_checksums(lambda: encrypt.decrypt(plans, options, job), job, title)
-            pending = job.needs_passphrase
+            pending = list(job.needs_passphrase)
+
+            async def as_root(refused: list[Any]) -> None:
+                # Refused on the disk -- the head unread, or the write -- planned
+                # and decrypted again through the root helper; what then wants a
+                # passphrase joins those that did already.
+                job.as_root = True
+                unread = [location for location, _, _ in refused if job.refused_plans[location] is None]
+                again = [job.refused_plans[location] for location, _, _ in refused
+                         if job.refused_plans[location] is not None]
+                if unread:
+                    again += await self._run_checksums(lambda: encrypt.plan_decrypt(unread, job), job, title)
+                await self._run_checksums(lambda: encrypt.decrypt(again, options, job), job, title)
+                pending.extend(job.needs_passphrase)
+
+            await self._again_as_root(job, tr("Decrypt them as root?"), as_root, keep=True)
             tries = 0
             while pending and tries < 3:
                 if tries:
@@ -1060,6 +1100,10 @@ class Manager(Window):
             return
         finally:
             options.passphrase = None
+            if job.as_root:
+                from navigator.lib.system.elevate import ELEVATION
+
+                await asyncio.to_thread(ELEVATION.release)
             for each in self.all_panels:
                 each.reload()
         self._untag_done(panel, entries, sources, job.errors)
@@ -1117,33 +1161,50 @@ class Manager(Window):
         await self._say_conversion(job)
 
     async def _convert_as_root(self, job: Any, options: Any, title: str) -> None:
-        """The files the disk refused permission, offered *As root* in one
-        question and converted again through the root helper -- a departure,
-        as everywhere (``navigator-elevation``).  Declined, or with no way to
-        root, they are failures like any other."""
+        """The files the disk refused permission, converted again through the
+        root helper once asked (:meth:`_again_as_root`)."""
         from navigator.lib.file_ops import textconv
+
+        async def rerun(refused: list[Any]) -> None:
+            files = [(location, size) for location, size, _ in refused]
+            job.files_done, job.files_total = 0, len(files)
+            job.position, job.total = 0, sum(size for _, size in files)
+            await self._run_checksums(lambda: textconv.convert(files, options, job, as_root=True), job, title)
+
+        await self._again_as_root(job, tr("Convert them as root?"), rerun)
+
+    async def _again_as_root(self, job: Any, question: str, rerun: Callable[[list[Any]], Awaitable[Any]],
+                             *, keep: bool = False, errors: list[Any] | None = None) -> None:
+        """A batch's files the disk refused permission (``job.refused``:
+        ``(location, size, reason)``), offered *As root* in **one** question
+        -- the names, then *question* -- and done again by *rerun(refused)*
+        through the root helper, which is let go of after.  Declined, or with
+        no way to root, they are ``job.errors`` like any other failure.  A
+        departure, as everywhere (``navigator-elevation``): Convert text's,
+        Encryption's, Checksums'.  *keep*: the caller goes on as root (Decrypt's
+        passphrase questions) and lets the helper go itself; *errors*, where
+        the declined go if not ``job.errors``."""
         from navigator.lib.system.elevate import ELEVATION
         from navigator.widgets.file_ops.as_root import ask_as_root
 
-        refused, job.refused = job.refused, []
+        refused, job.refused = list(job.refused), []
         if not refused:
             return
+        failed = job.errors if errors is None else errors
         names = "\n".join(f"{location}: {reason}" for location, _, reason in refused[:8])
         if len(refused) > 8:
             names += "\n" + tr_n("and {n} more", "and {n} more", len(refused) - 8)
         message = tr_n("{n} file was refused permission:", "{n} files were refused permission:",
                        len(refused)) + "\n" + names
         if (not await asyncio.to_thread(ELEVATION.available)
-                or not await ask_as_root(self.application, message + "\n" + tr("Convert them as root?"))):
-            job.errors.extend((str(location), reason) for location, _, reason in refused)
+                or not await ask_as_root(self.application, message + "\n" + question)):
+            failed.extend((str(location), reason) for location, _, reason in refused)
             return
-        files = [(location, size) for location, size, _ in refused]
-        job.files_done, job.files_total = 0, len(files)
-        job.position, job.total = 0, sum(size for _, size in files)
         try:
-            await self._run_checksums(lambda: textconv.convert(files, options, job, as_root=True), job, title)
+            await rerun(refused)
         finally:
-            await asyncio.to_thread(ELEVATION.release)
+            if not keep:
+                await asyncio.to_thread(ELEVATION.release)
 
     async def _say_conversion(self, job: Any) -> None:
         """How the conversion went, in one box."""
@@ -1667,8 +1728,15 @@ class Manager(Window):
                 return tr("No files found")
             return tr("No files changed")
 
-        await self._search_into(panel, request.find, tr("Replaced: {text}").format(text=request.find.text),
-                                job=job, work=work, answer=answer, nothing=nothing)
+        try:
+            await self._search_into(panel, request.find, tr("Replaced: {text}").format(text=request.find.text),
+                                    job=job, work=work, answer=answer, nothing=nothing)
+        finally:
+            if job.as_root:
+                # *As root* was answered: the helper let go as ``root_timeout`` says.
+                from navigator.lib.system.elevate import ELEVATION
+
+                await asyncio.to_thread(ELEVATION.release)
         if job.found:
             toast = getattr(getattr(app, "root", None), "toast", None)
             if toast is not None and app.is_running:
@@ -2319,7 +2387,7 @@ class Manager(Window):
 
         async def answer(question: Any) -> Any:
             if isinstance(question, filecopy.Failure):
-                return await self._ask_skip(question.message)
+                return await self._ask_skip(question.message, elevate=question.elevate)
             return None
 
         running = asyncio.ensure_future(asyncio.to_thread(trash.restore_all, list(entry.items), job))
@@ -2329,6 +2397,7 @@ class Manager(Window):
         finally:
             if not running.done():
                 job.stop()
+            await self._release_if(job.as_root)
         back = {id(item) for item in job.done}
         rest = tuple(item for item in entry.items if id(item) not in back)
         return undo_history.Trashed(rest) if rest else None
@@ -2418,7 +2487,7 @@ class Manager(Window):
 
         async def answer(question: Any) -> Any:
             if isinstance(question, filecopy.Failure):
-                return await self._ask_skip(question.message)
+                return await self._ask_skip(question.message, elevate=question.elevate)
             return None
 
         running = asyncio.ensure_future(asyncio.to_thread(trash.restore_all, chosen, job))
@@ -2428,6 +2497,7 @@ class Manager(Window):
         finally:
             if not running.done():
                 job.stop()
+            await self._release_if(job.as_root)
             panel.untag_paths([by_item[id(item)] for item in job.done])
             panel.reload()
             (self.right if panel is self.left else self.left).reload()
@@ -3650,72 +3720,14 @@ class Manager(Window):
         A local directory refused permission offers *As root* (a departure;
         :mod:`navigator.lib.system.elevate`).
         """
-        from navigator.lib.system.elevate import ELEVATION, refused
+        from navigator.widgets.file_ops.make_directory import make_directory_in
 
         panel = self.active_panel
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
         try:
-            if panel.location.is_local:
-                try:
-                    (panel.path / name).mkdir()
-                    UNDO.push(undo_history.MadeDirectory(Location.of(panel.path / name)))
-                except OSError as error:
-                    if not refused(error) or not await asyncio.to_thread(ELEVATION.available):
-                        raise
-                    from navigator.widgets.file_ops.as_root import ask_as_root
-
-                    message = tr("Cannot make directory {name}: {error}").format(
-                        name=name, error=error.strerror or error)
-                    if not await ask_as_root(self.application, message):
-                        return
-                    from navigator.lib.drives.root import ROOT_DRIVE
-
-                    place = Location.of(panel.path / name)
-
-                    def make_as_root() -> None:
-                        try:
-                            ROOT_DRIVE.mkdir(place)
-                        finally:
-                            ELEVATION.release()
-
-                    await asyncio.to_thread(make_as_root)
-                    UNDO.push(undo_history.MadeDirectory(place))
-            else:
-                # Another drive is a round trip away: a thread makes it.
-                place = panel.location / name
-
-                def make() -> None:
-                    drive = drive_of(place)
-                    drive.mkdir(place)
-                    drive.finish()
-
-                try:
-                    await asyncio.to_thread(make)
-                    UNDO.push(undo_history.MadeDirectory(place))
-                except OSError as error:
-                    # An archive on the disk whose rewrite was refused:
-                    # *As root*, its rewrite put back through the helper.
-                    drive = drive_of(place)
-                    outer = getattr(drive, "outer", None)
-                    if (getattr(drive, "go_root", None) is None or outer is None or not outer.is_local
-                            or getattr(drive, "as_root", False)):
-                        raise
-                    message = tr("Cannot make directory {name}: {error}").format(
-                        name=name, error=error.strerror or error)
-                    if not await self._may_as_root(error, message):
-                        if self._as_root_declined:
-                            panel.reload()
-                            return
-                        raise
-
-                    def finish_as_root() -> None:
-                        drive.go_root()
-                        drive.finish()
-
-                    await asyncio.to_thread(finish_as_root)
-                    UNDO.push(undo_history.MadeDirectory(place))
+            await make_directory_in(self.application, panel.location, name)
         except OSError as error:
             await Dialog(
                 title=tr("Cannot make directory"),
@@ -5350,6 +5362,15 @@ class Manager(Window):
 
     #: Whether the last :meth:`_may_as_root` put the question and was told no.
     _as_root_declined = False
+
+    @staticmethod
+    async def _release_if(used: bool) -> None:
+        """Root's helper let go as ``root_timeout`` says, if *used* -- the end
+        of an operation that answered *As root* part way."""
+        if used:
+            from navigator.lib.system.elevate import ELEVATION
+
+            await asyncio.to_thread(ELEVATION.release)
 
     async def _may_as_root(self, error: OSError, message: str) -> bool:
         """For a local step refused permission: *As root* asked, True once the

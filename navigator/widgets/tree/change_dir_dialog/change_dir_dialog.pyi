@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr
+from navml.widgets.dialog.control import escape_caption
 from navigator.widgets.tree.directory_tree.directory_tree import directory_root, show_path
 
 

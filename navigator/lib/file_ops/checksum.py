@@ -186,6 +186,12 @@ class ChecksumJob(Job):
         self.files_total = 0
         #: ``(name, reason)`` for every directory or file that could not be read.
         self.errors: list[tuple[str, str]] = []
+        #: ``(name, reason)`` for every file whose checksum file could not be
+        #: written (*Each file its own list*) -- said under a heading of its own.
+        self.write_errors: list[tuple[str, str]] = []
+        #: Checksum files the disk refused permission, ``(file, size, reason)``,
+        #: offered *As root* once after the batch (``Manager._again_as_root``).
+        self.refused: list[tuple[Location, int, str]] = []
 
 
 def _reason(error: OSError) -> str:
@@ -293,10 +299,17 @@ def calculate(files: list[tuple[Location, int]], algorithm: str,
     return done
 
 
-def write_each(files: list[tuple[Location, int]], algorithm: str, job: ChecksumJob) -> list[Location]:
+def write_each(files: list[tuple[Location, int]], algorithm: str, job: ChecksumJob, *,
+               as_root: bool = False) -> list[Location]:
     """*Each file its own list*: ``name.<ext>`` beside each of *files*,
     written as soon as it is hashed, so what was done before a *Stop* stays
-    done.  Returns the lists written."""
+    done.  Returns the lists written.  A file that cannot be read goes in
+    ``job.errors``; a list that cannot be written in ``job.write_errors`` --
+    or, refused permission on the disk, in ``job.refused``, for *As root*;
+    *as_root* writes through the root helper (``root.rooted``)."""
+    from navigator.lib.drives.root import rooted
+    from navigator.lib.system.elevate import refused
+
     written: list[Location] = []
     drives: dict[int, Any] = {}
     try:
@@ -305,14 +318,23 @@ def write_each(files: list[tuple[Location, int]], algorithm: str, job: ChecksumJ
             target = location.parent / (location.name + EXTENSIONS[algorithm])
             try:
                 digest = hash_file(location, algorithm, job)
-                drive = drive_of(target)
+            except OSError as error:
+                job.errors.append((str(location), _reason(error)))
+                job.position = start + size
+                job.files_done += 1
+                continue
+            try:
+                drive = rooted(target, as_root)
                 drives[id(drive)] = drive
                 with drive.open_write(target) as handle:
                     handle.write((format_line(digest, location.name) + "\n").encode("utf-8", "surrogateescape"))
                 written.append(target)
             except OSError as error:
-                job.errors.append((str(location), _reason(error)))
-                job.position = start + size
+                if not as_root and target.is_local and refused(error):
+                    job.refused.append((location, size, _reason(error)))
+                else:
+                    # By the file the list is for, as ``errors`` are: it stays tagged.
+                    job.write_errors.append((str(location), _reason(error)))
             job.files_done += 1
     finally:
         for drive in drives.values():

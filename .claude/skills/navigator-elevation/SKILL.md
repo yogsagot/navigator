@@ -209,9 +209,24 @@ user's own authentication. What the review found and the rules it left:
     fixture in `tests/test_elevate.py` clears it).
 - **File > Encoding > Convert text** (`textconv.convert(..., as_root=)`): not an `Elevated` worker, since
   `run_with_progress` relays no questions -- refusals are gathered in `TextJob.refused` and
-  `Manager._convert_as_root` asks `ask_as_root` once, Encryption's ask-once shape, then converts those again through
-  `ROOT_DRIVE`. A drive with `write_file` (`ROOT_DRIVE`, the `root:` site's) writes through it, so the file keeps its
+  `Manager._convert_as_root` hands them to `Manager._again_as_root`, which asks `ask_as_root` once for the batch, then
+  converts those again through `ROOT_DRIVE`. A drive with `write_file` (`ROOT_DRIVE`, the `root:` site's) writes through it, so the file keeps its
   owner, mode and links; a new file renamed over would be root's.
+- **The ask-once shape, `Manager._again_as_root(job, question, rerun, *, keep=, errors=)`**: `job.refused` (`(location,
+  size, reason)`, the disk only, not root yet) listed in one question, *rerun(refused)* through the helper, then
+  `ELEVATION.release` (*keep*: the caller goes on as root -- Decrypt's passphrase questions -- and releases itself);
+  declined, they go in *errors* (`job.errors`). `root.rooted(location, as_root)` is the one rule every such module
+  reaches the disk by. Users: **Convert text**; **Encryption/Decryption** (`EncryptJob.refuse` → `refused`,
+  `refused_plans`, an unread head planned again as root; `as_root` set on the job); **Checksums' each-file mode**
+  (`write_each(as_root=)`: read failures `errors`, write failures `write_errors` under their own *could not be written*
+  heading).
+- **Asked at the file, as the copier does** (`Failure(elevate=True)` → `ask_skip` → `AS_ROOT`): **Replace in files**
+  (a refused write through `ROOT_DRIVE.write_file`, later ones unasked: `ReplaceJob.as_root`); **Trash > Restore**
+  (`restore(as_root=)`: `ROOT_DRIVE` makes the place and renames into it, the info file the user's;
+  `RestoreJob.as_root`). The manager releases the helper after (`_release_if`).
+- **Split / Combine** (`splitfile.split/combine(as_root=)`) through `_run_uucode`'s `as_root=`, as UU. **Alt+T's Make
+  directory is F7's** (`navigator/widgets/file_ops/make_directory.py`, `make_directory_in`: the disk, *As root*, another
+  drive, an archive's refused rewrite, Undo; `failure_text` names the directory).
 - **Remote drives are deliberately not offered it**: local root cannot get past a server's refusal (FTP, SMB, S3
   have no notion of it; SFTP would need the server's `sftp-server` under its own sudo -- a separate feature,
   declined for now).

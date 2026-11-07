@@ -297,6 +297,17 @@ def root_location(path: Path | str | Location) -> Location:
     return Location(ROOT_SITE, PurePosixPath(str(path)))
 
 
+def rooted(location: Location, as_root: bool) -> Any:
+    """The drive *location* is reached through: the root helper's
+    (:data:`ROOT_DRIVE`) for one on the disk *as_root*, else its own -- the
+    one rule every operation that offers *As root* again uses."""
+    if as_root and location.is_local:
+        return ROOT_DRIVE
+    from navigator.lib.drives import drive_of
+
+    return drive_of(location)
+
+
 def on_disk(location: Location) -> Location:
     """A ``root:`` location's own place on the disk; any other as it is."""
     if location.site == ROOT_SITE and location.outer is None:

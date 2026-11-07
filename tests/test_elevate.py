@@ -2403,3 +2403,229 @@ def test_the_status_line_says_root_while_the_menu_bar_cannot(started, tmp_path, 
     assert seen["panels"][:3] == (True, False, 0)
     width = len(" ROOT ") + 1
     assert seen["console"] == (False, True, width, True, True)
+
+
+# -- the rest of the operations that offer *As root* (E11) ---------------------------------------------
+
+
+def granting(monkeypatch, *directories):
+    """*As root* answered Yes: the helper started, and -- since the test's
+    helper runs as the user -- the refused *directories* made writable first.
+    The questions asked are recorded."""
+    import asyncio
+
+    asked: list = []
+
+    async def yes(app, message, *, title=None):
+        asked.append(message)
+        for directory in directories:
+            os.chmod(directory, 0o700)
+        return await asyncio.to_thread(ELEVATION.begin) == READY_STATE
+
+    async def skip_or_root(app, message, *, elevate=False):
+        asked.append((message, elevate))
+        if not elevate:
+            return True
+        await yes(app, message)
+        return AS_ROOT
+
+    monkeypatch.setattr("navigator.widgets.file_ops.as_root.ask_as_root", yes)
+    monkeypatch.setattr("navigator.widgets.file_ops.as_root.ask_skip", skip_or_root)
+    return asked
+
+
+@pytest.fixture
+def desk(tmp_path, quiet_console, monkeypatch):
+    from conftest import FakeTerminal
+    from navigator.__main__ import Navigator
+
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    shut = tmp_path / "shut"
+    shut.mkdir()
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+    yield app, tmp_path, shut
+    os.chmod(shut, 0o700)
+
+
+def on(name):
+    def action(app):
+        panel = app.manager.left
+        panel.cursor = [entry.name for entry in panel.items].index(name)
+    return action
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_split_into_a_refused_directory_goes_on_as_root(helper, desk, monkeypatch):
+    from conftest import Until, run_app
+
+    app, here, shut = desk
+    (here / "big.bin").write_bytes(b"x" * 5000)
+    os.chmod(shut, 0o500)
+    asked = granting(monkeypatch, shut)
+
+    async def answer(self, app_):
+        return {"target": str(shut) + "/", "size": 2048, "split": {"size": "2048", "checksum": True}}
+
+    monkeypatch.setattr("navigator.widgets.file_ops.split_dialog.SplitDialog.execute", answer)
+    run_app(app, [
+        lambda a: a.manager.left.reload(),
+        Until(lambda a: "big.bin" in [e.name for e in a.manager.left.items]), on("big.bin"),
+        lambda a: a.manager.spawn(a.manager.split_combine(a.manager.left)),
+        Until(lambda a: (shut / "big.bin.crc").exists(), timeout=10),
+    ], timeout=30)
+    assert asked and "Permission denied" in asked[0]
+    assert (shut / "big.bin.001").stat().st_size == 2048 and (shut / "big.bin.003").exists()
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_encrypting_in_a_refused_directory_asks_once_and_goes_on_as_root(helper, desk, monkeypatch):
+    from conftest import Until, run_app
+    from navigator.lib.file_ops import encrypt
+
+    app, here, shut = desk
+    for name in ("a.txt", "b.txt"):
+        (shut / name).write_text(name)
+    os.chmod(shut, 0o500)
+    asked = granting(monkeypatch, shut)
+
+    def fake(plan, options, job):
+        # The tool's place: its output written as the real one's is, through the job's drive.
+        with encrypt._drive(plan.target, job).open_write(plan.target) as out:
+            out.write(b"sealed")
+
+    monkeypatch.setattr(encrypt, "encrypt_one", fake)
+
+    async def answer(self, app_):
+        return {"tool": "gpg", "method": "passphrase", "passphrase": "p", "recipients": [], "armor": False,
+                "delete_originals": False}
+
+    monkeypatch.setattr("navigator.widgets.file_ops.encrypt_dialog.EncryptDialog.execute", answer)
+
+    def tag(a):
+        panel = a.manager.left
+        panel.marked = frozenset({"a.txt", "b.txt"})
+
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "location", Location.of(shut)),
+        Until(lambda a: "a.txt" in [e.name for e in a.manager.left.items]), tag,
+        lambda a: a.manager.spawn(a.manager.encrypt_files(a.manager.left)),
+        Until(lambda a: (shut / "b.txt.gpg").exists(), timeout=10),
+    ])
+    assert len(asked) == 1 and "2 files were refused permission" in asked[0]
+    assert (shut / "a.txt.gpg").read_bytes() == b"sealed"
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_replacing_in_a_read_only_file_goes_on_as_root(helper, tmp_path, monkeypatch):
+    from navigator.lib.file_ops.filefind import FindRequest
+    from navigator.lib.file_ops.filereplace import ReplaceJob, ReplaceRequest, replace
+
+    target = tmp_path / "t.txt"
+    target.write_text("hello world")
+    os.chmod(target, 0o444)    # not writable in place...
+    os.chmod(tmp_path, 0o500)  # ...nor beside it, where the editor's write goes: refused
+    asked: list = []
+
+    def ask(question):
+        if isinstance(question, Failure):
+            asked.append(question.elevate)
+            os.chmod(tmp_path, 0o700)
+            assert ELEVATION.begin() == READY_STATE
+            return AS_ROOT
+        return "all"
+
+    job = ReplaceJob(asker=ask)
+    job.all = True
+    try:
+        request = ReplaceRequest(find=FindRequest(mask="*.txt", text="world", recursive=False), replacement="there")
+        replace(request, tmp_path, lambda *args: args, job)
+    finally:
+        os.chmod(tmp_path, 0o700)
+    assert asked == [True] and job.as_root
+    assert target.read_text() == "hello there"
+    assert target.stat().st_mode & 0o777 == 0o444  # its mode kept, as the editor's write keeps it
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_checksum_lists_refused_are_offered_as_root_and_said_as_not_written(helper, desk, monkeypatch):
+    from conftest import Until, run_app
+
+    app, here, shut = desk
+    (shut / "a.txt").write_text("alpha")
+    os.chmod(shut, 0o500)
+
+    async def answer(self, app_):
+        return {"algorithm": "sha256", "mode": "each", "name": ""}
+
+    monkeypatch.setattr(
+        "navigator.widgets.file_ops.calculate_checksums_dialog.CalculateChecksumsDialog.execute", answer)
+    said: list = []
+
+    async def declined(app_, message, *, title=None):
+        said.append(message)
+        return False
+
+    monkeypatch.setattr("navigator.widgets.file_ops.as_root.ask_as_root", declined)
+
+    def boxes(a):
+        return getattr(a.modal, "prompt", "")
+
+    run_app(app, [
+        lambda a: setattr(a.manager.left, "location", Location.of(shut)),
+        Until(lambda a: "a.txt" in [e.name for e in a.manager.left.items]), on("a.txt"),
+        lambda a: a.manager.spawn(a.manager.calculate_checksums(a.manager.left)),
+        Until(lambda a: "could not be" in boxes(a), timeout=10),
+        lambda a: said.append(boxes(a)),
+    ])
+    assert "Write their checksum files as root?" in said[0]
+    assert said[1].startswith("1 checksum file could not be written")
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_alt_t_make_directory_refused_goes_on_as_root_and_undoes(helper, desk, monkeypatch):
+    import asyncio
+
+    from conftest import Until, run_app
+    from navigator.lib.file_ops.undo import UNDO
+    from navigator.widgets.file_ops.make_directory import make_directory_in
+
+    app, here, shut = desk
+    os.chmod(shut, 0o500)
+    asked = granting(monkeypatch, shut)
+    made: list = []
+
+    async def make(a):
+        made.append(await make_directory_in(a, shut, "inner"))
+
+    run_app(app, [lambda a: a.spawn(make(a)), Until(lambda a: made, timeout=10)])
+    assert asked and "Cannot make directory inner" in asked[0]
+    assert (shut / "inner").is_dir() and made[0] == Location.of(shut / "inner")
+    entry = UNDO.peek()
+    assert entry is not None and "inner" in repr(entry)
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_restoring_into_a_refused_directory_goes_on_as_root(helper, tmp_path, monkeypatch):
+    from navigator.lib.file_ops import trash
+
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / "a.txt").write_text("alpha")
+    trash.move(home / "a.txt")
+    os.chmod(home, 0o500)
+    asked: list = []
+
+    def ask(question):
+        asked.append(question.elevate)
+        os.chmod(home, 0o700)
+        assert ELEVATION.begin() == READY_STATE
+        return AS_ROOT
+
+    job = trash.RestoreJob(asker=ask)
+    try:
+        done = trash.restore_all(trash.items(), job)
+    finally:
+        os.chmod(home, 0o700)
+    assert asked == [True] and len(done) == 1
+    assert (home / "a.txt").read_text() == "alpha"

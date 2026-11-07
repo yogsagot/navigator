@@ -235,6 +235,31 @@ class EncryptJob(Job):
         self.needs_passphrase: list[Plan] = []
         #: ... and those the passphrase given did not open.
         self.bad_passphrase: list[Plan] = []
+        #: Files on the disk refused permission, ``(location, size, reason)``,
+        #: asked about once after the batch (``Manager._again_as_root``), and
+        #: what each was to be (None: not even read, to be planned again).
+        self.refused: list[tuple[Location, int, str]] = []
+        self.refused_plans: dict[Location, Plan | None] = {}
+        #: Every step on the disk through the root helper: *As root*, once asked.
+        self.as_root = False
+
+    def refuse(self, location: Location, size: int, error: OSError, plan: Plan | None) -> bool:
+        """*error* refused *location* permission on the disk, and *As root* may
+        still be offered: kept for that, True; else False, for ``errors``."""
+        from navigator.lib.system.elevate import refused
+
+        if self.as_root or not location.is_local or not refused(error):
+            return False
+        self.refused.append((location, size, _reason(error)))
+        self.refused_plans[location] = plan
+        return True
+
+
+def _drive(location: Location, job: EncryptJob) -> Any:
+    """*location*'s drive -- the root helper's, *As root* (``root.rooted``)."""
+    from navigator.lib.drives.root import rooted
+
+    return rooted(location, job.as_root)
 
 
 @dataclass
@@ -276,8 +301,9 @@ def plan_encrypt(sources: Iterable[Location], options: Options, job: EncryptJob)
                  size, options.tool) for location, size in files]
 
 
-def _head(location: Location) -> bytes:
-    with drive_of(location).open_read(location) as handle:
+def _head(location: Location, job: EncryptJob | None = None) -> bytes:
+    drive = _drive(location, job) if job is not None else drive_of(location)
+    with drive.open_read(location) as handle:
         return handle.read(HEAD)
 
 
@@ -296,9 +322,10 @@ def plan_decrypt(sources: Iterable[Location], job: EncryptJob) -> list[Plan]:
             continue
         job.current = str(location)
         try:
-            head = _head(location)
+            head = _head(location, job)
         except OSError as error:
-            job.errors.append((str(location), _reason(error)))
+            if not job.refuse(location, size, error, None):
+                job.errors.append((str(location), _reason(error)))
             continue
         tool = tool_of(location.name, head)
         if tool is None:
@@ -440,8 +467,8 @@ def run_filter(argv: list[str], plan: Plan, job: EncryptJob, *, pass_fds: tuple[
         master, slave = os.openpty()
         preexec = _controlling(slave)
     job.current = str(plan.source)
-    source_drive = drive_of(plan.source)
-    target_drive = drive_of(plan.target)
+    source_drive = _drive(plan.source, job)
+    target_drive = _drive(plan.target, job)
     start = job.position
     written = False
     try:
@@ -678,7 +705,7 @@ def _each(plans: list[Plan], job: EncryptJob, do: Callable[[Plan], None]) -> lis
                 raise Stopped
             start = job.position
             try:
-                drive = drive_of(plan.target)
+                drive = _drive(plan.target, job)
                 drives[id(drive)] = drive
                 do(plan)
                 done.append(plan)
@@ -689,7 +716,8 @@ def _each(plans: list[Plan], job: EncryptJob, do: Callable[[Plan], None]) -> lis
             except ToolError as error:
                 job.errors.append((str(plan.source), str(error.args[0]) if error.args else ""))
             except OSError as error:
-                job.errors.append((str(plan.source), _reason(error)))
+                if not job.refuse(plan.source, plan.size, error, plan):
+                    job.errors.append((str(plan.source), _reason(error)))
             job.position = start + plan.size
             job.files_done += 1
     finally:
@@ -728,7 +756,7 @@ def remove_originals(done: list[Plan], job: EncryptJob) -> list[Plan]:
     drives: dict[int, Any] = {}
     try:
         for plan in done:
-            drive = drive_of(plan.source)
+            drive = _drive(plan.source, job)
             drives[id(drive)] = drive
             job.current = str(plan.source)
             try:

@@ -14,6 +14,7 @@ from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr
 
+from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.widgets.tree.directory_tree.directory_tree import directory_root, show_path
@@ -89,29 +90,20 @@ class ChangeDirDialog(Dialog):
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
+        # F7's own making: *As root* on a refusal, an archive's rewrite, Undo.
+        from navigator.widgets.file_ops.make_directory import failure_text, make_directory_in
+
         try:
-            from navigator.lib.drives import Location, drive_of
-
-            if isinstance(base, Location) and not base.is_local:
-                import asyncio
-
-                place = base / name
-
-                def make() -> None:
-                    drive = drive_of(place)
-                    drive.mkdir(place)
-                    drive.finish()
-
-                await asyncio.to_thread(make)
-            else:
-                (Path(base.local if isinstance(base, Location) else base) / name).mkdir()
+            made = await make_directory_in(self.application, base, name)
         except OSError as error:
             await Dialog(
                 title=tr("Cannot make directory"),
-                prompt=error.strerror or str(error),
+                prompt=escape_caption(failure_text(name, error)),
                 buttons="ok",
             ).execute(self.application)
             return
+        if made is None:
+            return  # *As root* declined
         self.tree.root = directory_root(self._hidden, at=base)
         self._show(base / name)
         self.tree.focus()
