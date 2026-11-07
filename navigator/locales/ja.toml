@@ -559,7 +559,7 @@ flag = "JP"
 "C~R~ (classic Mac)" = "C~R~ (旧 Mac)"
 # navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:59
 "Keep file ~t~imes" = "ファイル時刻を保持(~T~)"
-# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24, navigator/widgets/manager/manager/manager.py:4093
+# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24, navigator/widgets/manager/manager/manager.py:4101
 "Rename/move" = "名前変更/移動"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:58
 "~O~verwrite all existing files" = "既存のファイルをすべて上書き(~O~)"
@@ -599,7 +599,7 @@ flag = "JP"
 "~R~ecursive delete" = "再帰的に削除(~R~)"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:46
 "Delete directories with everything in them" = "ディレクトリを中身ごと削除します"
-# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18, navigator/widgets/manager/manager/manager.py:4417
+# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18, navigator/widgets/manager/manager/manager.py:4425
 "Erase" = "削除"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:17
 "Encrypt Files" = "ファイルの暗号化"
@@ -875,19 +875,19 @@ flag = "JP"
 "Columns Setup" = "列の設定"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:25, navigator/widgets/editor/option_items.py:93, navigator/widgets/editor/option_items.py:129 ...
 "Show" = "表示"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5987 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5995 ...
 "~S~ize" = "サイズ(~S~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5987
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:5995
 "~A~ttributes" = "属性(~A~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "リンク数(~I~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:5987
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:5995
 "~O~wner" = "所有者(~O~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:39
 "~B~rief" = "簡易(~B~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:48
 "~F~ull" = "詳細(~F~)"
-# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2789
+# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2795
 "Compare directories" = "ディレクトリ比較"
 # navigator/widgets/manager/compare_dialog/compare_dialog.nml:37
 "Compare ~s~ize" = "サイズを比較(~S~)"
@@ -927,7 +927,7 @@ flag = "JP"
 "~G~o to" = "移動(~G~)"
 # navigator/widgets/manager/dir_history_dialog/dir_history_dialog.nml:34, navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:36
 "~D~elete record" = "記録を削除(~D~)"
-# navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:11, navigator/widgets/manager/manager/manager.py:1896
+# navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:11, navigator/widgets/manager/manager/manager.py:1902
 "Find duplicates" = "重複ファイルの検索"
 # navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:20, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:33, navigator/widgets/manager/select_dialog/select_dialog.nml:27 ...
 "~F~ile mask" = "マスク(~F~)"
@@ -1099,7 +1099,7 @@ flag = "JP"
 "~J~ump to directory..." = "ディレクトリへジャンプ(~J~)..."
 # navigator/widgets/manager/manager/manager.nml:337
 "zoxide's directories and the panels' history, searched by fzf" = "zoxide のディレクトリとパネルの履歴を fzf で検索"
-# navigator/widgets/manager/manager/manager.nml:341, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2899 ...
+# navigator/widgets/manager/manager/manager.nml:341, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:2905 ...
 "Quick s~e~arch" = "クイック検索(~E~)"
 # navigator/widgets/manager/manager/manager.nml:345, navigator/widgets/shell/monitor_window/monitor_window.nml:93, navigator/widgets/shell/process_window/process_window.nml:195 ...
 "~R~e-read" = "再読込(~R~)"
@@ -1111,19 +1111,19 @@ flag = "JP"
 "History of directories..." = "ディレクトリ履歴..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "パネルのオプション"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:26, navigator/widgets/manager/manager/manager.py:3577
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:26, navigator/widgets/manager/manager/manager.py:3585
 "Sort by" = "並べ替え"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:35, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:37
 "Re~v~erse order" = "逆順(~V~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "逆の順序にします: 大きい順、新しい順、Z から..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5987, navigator/widgets/manager/manager/manager.py:6008
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5995, navigator/widgets/manager/manager/manager.py:6016
 "~E~xtension" = "拡張子(~E~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49 ...
 "Attributes" = "属性"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6008
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6016
 "Ty~p~e" = "種類(~P~)"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5987, navigator/widgets/manager/manager/manager.py:6009
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:5995, navigator/widgets/manager/manager/manager.py:6017
 "~U~nsorted" = "並べ替えなし(~U~)"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:54, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:67
 "Display" = "表示"
@@ -1191,7 +1191,7 @@ flag = "JP"
 "A daylight-saving change moves a FAT stick's times by an hour" = "夏時間の切り替えで FAT メディアの時刻が 1 時間ずれます"
 # navigator/widgets/manager/sync_options_dialog/sync_options_dialog.nml:63
 "What only the right side has is deleted, and a file that differs is copied right, whichever is newer" = "右側にしかないものは削除し、異なるファイルはどちらが新しくても右へコピーします"
-# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:2819, navigator/widgets/manager/sync_window/sync_window.py:191
+# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:2825, navigator/widgets/manager/sync_window/sync_window.py:191
 "Synchronize" = "同期"
 # navigator/widgets/manager/sync_window/sync_window.nml:81
 "Le~f~t only" = "左のみ(~F~)"
@@ -2173,7 +2173,7 @@ flag = "JP"
 "Directory ~s~izes" = "ディレクトリサイズ(~S~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:424
 "What takes the room under the panel's directory, biggest first" = "パネルのディレクトリで場所を取っているもの、大きい順"
-# navigator/widgets/shell/main_menu/main_menu.nml:430, navigator/widgets/manager/manager/manager.py:3010
+# navigator/widgets/shell/main_menu/main_menu.nml:430, navigator/widgets/manager/manager/manager.py:3016
 "~T~rash" = "ごみ箱(~T~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:433
 "~E~mpty Trash" = "ごみ箱を空にする(~E~)"
@@ -2573,7 +2573,7 @@ flag = "JP"
 "Sort by ~s~ize" = "サイズ順(~S~)"
 # navigator/widgets/shell/usage_window/usage_window.nml:131, navigator/widgets/shell/usage_window/usage_window.py:387
 "Sort by ~e~ntries" = "項目数順(~E~)"
-# navigator/widgets/shell/usage_window/usage_window.nml:141, navigator/widgets/manager/manager/manager.py:2897, navigator/widgets/shell/usage_window/usage_window.py:390
+# navigator/widgets/shell/usage_window/usage_window.nml:141, navigator/widgets/manager/manager/manager.py:2903, navigator/widgets/shell/usage_window/usage_window.py:390
 "~G~o to directory" = "ディレクトリへ移動(~G~)"
 # navigator/widgets/shell/usage_window/usage_window.nml:144, navigator/widgets/shell/usage_window/usage_window.py:391
 "~D~elete..." = "削除(~D~)..."
@@ -2917,9 +2917,9 @@ flag = "JP"
 "[{token}] is not a placeholder" = "[{token}] はプレースホルダではありません"
 # navigator/lib/file_ops/multirename.py:308
 "Not a regular expression: {reason}" = "正規表現ではありません: {reason}"
-# navigator/lib/file_ops/multirename.py:510, navigator/widgets/manager/manager/manager.py:2088
+# navigator/lib/file_ops/multirename.py:510, navigator/widgets/manager/manager/manager.py:2094
 "a file of that name is already there" = "同じ名前のファイルが既にあります"
-# navigator/lib/file_ops/multirename.py:546, navigator/lib/file_ops/multirename.py:521, navigator/widgets/manager/manager/manager.py:2090 ...
+# navigator/lib/file_ops/multirename.py:546, navigator/lib/file_ops/multirename.py:521, navigator/widgets/manager/manager/manager.py:2096 ...
 "Could not rename {old}\nto {new}: {reason}" = "{old} を\n{new} に名前変更できませんでした: {reason}"
 # navigator/lib/file_ops/multirename.py:314
 "Cannot replace with {text}: {reason}" = "{text} で置換できません: {reason}"
@@ -3021,7 +3021,7 @@ flag = "JP"
 "CRC mismatch of file {name}, Listed={listed}, Calculated={calculated}" = "ファイル {name} の CRC 不一致、記載={listed}、計算={calculated}"
 # navigator/lib/highlight/__init__.py:271, navigator/lib/highlight/__init__.py:276
 "plain" = "なし"
-# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:469
+# navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "自動"
 # navigator/lib/system/diskinfo.py:221
 "File" = "ファイル"
@@ -3441,9 +3441,9 @@ flag = "JP"
 "Type the port to go to" = "転送先のポートを入力してください"
 # navigator/widgets/drives/forwards_dialog/forward_dialog.py:81
 "{text} is no port (1 to 65535)" = "{text} はポートではありません(1~65535)"
-# navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:345
+# navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:353
 "Add" = "追加"
-# navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:345 ...
+# navigator/widgets/drives/forwards_dialog/forwards_dialog.py:35, navigator/widgets/drives/links_dialog/links_dialog.py:44, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:353 ...
 "Edit" = "編集"
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:39
 "(none — Add makes one)" = "(なし — 追加で作成)"
@@ -3527,7 +3527,7 @@ flag = "JP"
 "Remote shell: {protocol}" = "リモートシェル: {protocol}"
 # navigator/widgets/drives/link_manager/link_manager.py:354
 "Changed — Save keeps it" = "変更あり — 「保存」で保存されます"
-# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6201
+# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6226
 "Connected" = "接続中"
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Configured" = "設定済み"
@@ -3547,21 +3547,21 @@ flag = "JP"
 "Delete the link \"{name}\"?" = "リンク \"{name}\" を削除しますか?"
 # navigator/widgets/drives/link_manager/link_manager.py:778
 "There is no public key in {directory}. Make {key} (ed25519) and copy it?" = "{directory} に公開鍵がありません。{key}(ed25519)を作成してコピーしますか?"
-# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6227
+# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6252
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "新規 GVfs/KIO リンク(~G~) (MTP、WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6209
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6234
 "~N~ew SSH link (SFTP)..." = "新規 SSH リンク(~N~) (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6209
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6234
 "New ~F~TP link..." = "新規 FTP リンク(~F~)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6210
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6235
 "New S~M~B link (Windows share)..." = "新規 SMB リンク(~M~) (Windows 共有)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6210
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6235
 "New S~3~ link (Amazon S3)..." = "新規 S3 リンク(~3~) (Amazon S3)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6211
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6236
 "New ~D~ocker container link..." = "新規 Docker コンテナリンク(~D~)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6212
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6237
 "New ~P~odman container link..." = "新規 Podman コンテナリンク(~P~)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6213
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6238
 "New ~A~ndroid device link (adb)..." = "新規 Android デバイスリンク(~A~) (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "新規リンク"
@@ -3737,9 +3737,9 @@ flag = "JP"
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
 "Edit - {path}" = "編集 - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:502, navigator/widgets/manager/manager/manager.py:922, navigator/widgets/manager/manager/manager.py:2534 ...
+# navigator/widgets/editor/edit_window/edit_window.py:502, navigator/widgets/manager/manager/manager.py:922, navigator/widgets/manager/manager/manager.py:2540 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "ファイル {name}\nは既に存在します。\n上書きしますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:889, navigator/widgets/manager/manager/manager.py:3761
+# navigator/widgets/editor/edit_window/edit_window.py:889, navigator/widgets/manager/manager/manager.py:3769
 "Confirmation" = "確認"
 # navigator/widgets/editor/edit_window/edit_window.py:890
 "Print {n} line?" = ["{n} 行を印刷しますか?"]
@@ -3777,7 +3777,7 @@ flag = "JP"
 "~L~ower case" = "小文字(~L~)"
 # navigator/widgets/editor/file_editor/file_editor.py:3102
 "Sa~v~e" = "保存(~V~)"
-# navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3210
+# navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3216
 "Nothing to undo" = "元に戻す操作はありません"
 # navigator/widgets/editor/file_editor/file_editor.py:2869
 "Nothing to redo" = "やり直す操作はありません"
@@ -3923,13 +3923,13 @@ flag = "JP"
 "{path}: root access is not available" = "{path}: root アクセスは利用できません"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "ディレクトリ"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2814, navigator/widgets/manager/manager/manager.py:2814
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:2820, navigator/widgets/manager/manager/manager.py:2820
 "{n} file" = ["{n} 個のファイル"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["{n} 個のディレクトリ"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:2842, navigator/widgets/manager/panel/panel.py:2957 ...
 "{n:,} byte" = ["{n:,} バイト"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:584
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:592
 "<differs>" = "<相違>"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:101
 "File ~{name}~" = "ファイル ~{name}~"
@@ -3937,15 +3937,15 @@ flag = "JP"
 "broken link" = "壊れたリンク"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:133
 "link to {target}, {kind}" = "{target} へのリンク、{kind}"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:295, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:312
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:280, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:303, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:320
 "Not on this drive" = "このドライブにはありません"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:296, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:313
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:304, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:321
 "Not supported by this file system" = "このファイルシステムでは未対応"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:100
 "Directory ~{name}~" = "ディレクトリ ~{name}~"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:125
 "named pipe" = "名前付きパイプ"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:343
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:351
 "Read Write Exec" = "読取 書込 実行"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:127
 "socket" = "ソケット"
@@ -3953,7 +3953,7 @@ flag = "JP"
 "device" = "デバイス"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:131
 "special file" = "特殊ファイル"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:686
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:694
 "Changes will be lost. Are you sure?" = "変更は失われます。よろしいですか?"
 # navigator/widgets/file_ops/checksum_progress/checksum_progress.py:37
 "{done} of {n} file, {percent}%" = ["{done} / {n} 個のファイル、{percent}%"]
@@ -4205,8 +4205,10 @@ flag = "JP"
 "{count} byte of memory in all" = ["メモリ合計 {count} バイト"]
 # navigator/widgets/manager/info_panel/info_panel.py:207
 "Connection" = "接続"
-# navigator/widgets/manager/manager/manager.py:6046
+# navigator/widgets/manager/manager/manager.py:6054
 "Copy {n} file to {target}" = ["{n} 個のファイルを {target} にコピー"]
+# navigator/widgets/manager/manager/manager.py:6175
+"Only on the local disk" = "ローカルディスクのみ"
 # navigator/widgets/manager/manager/manager.py:804
 "Calculating checksums" = "チェックサムを計算中"
 # navigator/widgets/manager/manager/manager.py:980
@@ -4217,33 +4219,35 @@ flag = "JP"
 "Converting" = "変換中"
 # navigator/widgets/manager/manager/manager.py:1179
 "{n} file already exists.\nOK to overwrite it?" = ["{n} 個のファイルが既に存在します。\n上書きしますか?"]
-# navigator/widgets/manager/manager/manager.py:2441
+# navigator/widgets/manager/manager/manager.py:2447
 "Do you wish to empty the Trash?\n{n} item will be erased for good." = ["ごみ箱を空にしますか?\n{n} 個の項目が完全に削除されます。"]
-# navigator/widgets/manager/manager/manager.py:3201
+# navigator/widgets/manager/manager/manager.py:3207
 "Only in a file panel, not beside it" = "ファイルパネル内でのみ (その横では不可)"
-# navigator/widgets/manager/manager/manager.py:3202
+# navigator/widgets/manager/manager/manager.py:3208
 "No files are tagged, and the cursor is on none" = "マークされたファイルがなく、カーソルもファイル上にありません"
-# navigator/widgets/manager/manager/manager.py:3203, navigator/widgets/shell/shell/shell.py:1266
+# navigator/widgets/manager/manager/manager.py:3209, navigator/widgets/shell/shell/shell.py:1266
 "The command line holds text: the key edits it" = "コマンドラインに入力中: このキーはそれを編集します"
-# navigator/widgets/manager/manager/manager.py:3204
+# navigator/widgets/manager/manager/manager.py:3210
 "This drive cannot be written to" = "このドライブには書き込めません"
-# navigator/widgets/manager/manager/manager.py:3205
+# navigator/widgets/manager/manager/manager.py:3211
 "Not in a Find listing" = "検索結果の一覧ではありません"
-# navigator/widgets/manager/manager/manager.py:3956
+# navigator/widgets/manager/manager/manager.py:3964
 "To {path}" = "宛先 {path}"
-# navigator/widgets/manager/manager/manager.py:5987
+# navigator/widgets/manager/manager/manager.py:5995
 "T~y~pe" = "種類(~Y~)"
-# navigator/widgets/manager/manager/manager.py:6043
+# navigator/widgets/manager/manager/manager.py:6051
 "Erase {n} file" = ["{n} 個のファイルを削除"]
-# navigator/widgets/manager/manager/manager.py:6045
+# navigator/widgets/manager/manager/manager.py:6053
 "Move {n} file to {target}" = ["{n} 個のファイルを {target} に移動"]
-# navigator/widgets/manager/manager/manager.py:6082, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
+# navigator/widgets/manager/manager/manager.py:6090, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "簡易"
-# navigator/widgets/manager/manager/manager.py:6082, navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/manager/manager.py:6090, navigator/widgets/manager/panel/option_items.py:29
 "Detailed" = "詳細"
-# navigator/widgets/manager/manager/manager.py:6185
+# navigator/widgets/manager/manager/manager.py:6174
+"Not as root: the command runs as you" = "root としてではありません: コマンドはあなたの権限で実行されます"
+# navigator/widgets/manager/manager/manager.py:6210
 "~L~ink" = "リンク(~L~)"
-# navigator/widgets/manager/manager/manager.py:6231
+# navigator/widgets/manager/manager/manager.py:6256
 "Needs the desktop's gio or KDE's kioclient command" = "デスクトップの gio か KDE の kioclient コマンドが必要です"
 # navigator/widgets/manager/manager/manager.py:937
 "{n} file could not be read:" = ["{n} 個のファイルを読み込めませんでした:"]
@@ -4263,51 +4267,49 @@ flag = "JP"
 "Panelize" = "パネル化"
 # navigator/widgets/manager/manager/manager.py:1668
 "No files changed" = "変更されたファイルはありません"
-# navigator/widgets/manager/manager/manager.py:2286
+# navigator/widgets/manager/manager/manager.py:2292
 "{n} entry changed since the copy, kept:" = ["コピー後に変更された {n} 個の項目は残しました:"]
-# navigator/widgets/manager/manager/manager.py:2463
+# navigator/widgets/manager/manager/manager.py:2469
 "Rename" = "名前変更"
-# navigator/widgets/manager/manager/manager.py:2683, navigator/widgets/manager/manager/manager.py:2671
+# navigator/widgets/manager/manager/manager.py:2689, navigator/widgets/manager/manager/manager.py:2677
 "Remembered directories" = "記憶したディレクトリ"
-# navigator/widgets/manager/manager/manager.py:2901
+# navigator/widgets/manager/manager/manager.py:2907
 "~C~lose tree" = "ツリーを閉じる(~C~)"
-# navigator/widgets/manager/manager/manager.py:3029
+# navigator/widgets/manager/manager/manager.py:3035
 "Bookmarks" = "ブックマーク"
-# navigator/widgets/manager/manager/manager.py:3199
+# navigator/widgets/manager/manager/manager.py:3205
 "The connection to this panel's drive is closed" = "このパネルのドライブへの接続は閉じられています"
-# navigator/widgets/manager/manager/manager.py:3250
+# navigator/widgets/manager/manager/manager.py:3256
 "Not in Miller columns (Alt-F12)" = "Miller 列表示 (Alt-F12) では不可"
-# navigator/widgets/manager/manager/manager.py:3252, navigator/widgets/manager/manager/manager.py:3276, navigator/widgets/manager/manager/manager.py:3392 ...
-"Only on the local disk" = "ローカルディスクのみ"
-# navigator/widgets/manager/manager/manager.py:3759
+# navigator/widgets/manager/manager/manager.py:3767
 "Print {n} file?" = ["{n} 個のファイルを印刷しますか?"]
-# navigator/widgets/manager/manager/manager.py:3945
+# navigator/widgets/manager/manager/manager.py:3953
 "~C~opy here" = "ここにコピー(~C~)"
-# navigator/widgets/manager/manager/manager.py:3946
+# navigator/widgets/manager/manager/manager.py:3954
 "~M~ove here" = "ここに移動(~M~)"
-# navigator/widgets/manager/manager/manager.py:3947
+# navigator/widgets/manager/manager/manager.py:3955
 "~S~ymlink here" = "ここにシンボリックリンク(~S~)"
-# navigator/widgets/manager/manager/manager.py:3948
+# navigator/widgets/manager/manager/manager.py:3956
 "~R~elative symlink here" = "ここに相対シンボリックリンク(~R~)"
-# navigator/widgets/manager/manager/manager.py:4633
+# navigator/widgets/manager/manager/manager.py:4641
 "Find hard links" = "ハードリンクを検索"
-# navigator/widgets/manager/manager/manager.py:4764
+# navigator/widgets/manager/manager/manager.py:4772
 "{n} link was left as it was:" = ["{n} 個のリンクはそのままです:"]
-# navigator/widgets/manager/manager/manager.py:5164
+# navigator/widgets/manager/manager/manager.py:5172
 "~I~nternal editor" = "内蔵エディタ(~I~)"
-# navigator/widgets/manager/manager/manager.py:5241, navigator/widgets/manager/manager/manager.py:5275
+# navigator/widgets/manager/manager/manager.py:5249, navigator/widgets/manager/manager/manager.py:5283
 "Is a directory" = "ディレクトリです"
-# navigator/widgets/manager/manager/manager.py:5649
+# navigator/widgets/manager/manager/manager.py:5657
 "Drag to resize the panels" = "ドラッグでパネルの幅を変更"
-# navigator/widgets/manager/manager/manager.py:5655
+# navigator/widgets/manager/manager/manager.py:5663
 "Double-click to split them evenly" = "ダブルクリックで均等に分割"
-# navigator/widgets/manager/manager/manager.py:6087
+# navigator/widgets/manager/manager/manager.py:6095
 "Hidden files are not shown" = "隠しファイルは表示しない"
-# navigator/widgets/manager/manager/manager.py:6089
+# navigator/widgets/manager/manager/manager.py:6097
 "The directories below are shown the same way" = "下のディレクトリも同じように表示する"
-# navigator/widgets/manager/manager/manager.py:6141
+# navigator/widgets/manager/manager/manager.py:6149
 "~R~emove this folder" = "このフォルダを削除(~R~)"
-# navigator/widgets/manager/manager/manager.py:6141
+# navigator/widgets/manager/manager/manager.py:6149
 "~A~dd this folder" = "このフォルダを追加(~A~)"
 # navigator/widgets/manager/manager/manager.py:484
 "Encoding {name}" = "{name} をエンコード中"
@@ -4331,103 +4333,103 @@ flag = "JP"
 "Testing {name}" = "{name} をテスト中"
 # navigator/widgets/manager/manager/manager.py:1763
 "Store this directory\nas bookmark {slot}?" = "このディレクトリを\nブックマーク {slot} に保存しますか?"
-# navigator/widgets/manager/manager/manager.py:2816
+# navigator/widgets/manager/manager/manager.py:2822
 "Copy {n} file?" = ["{n} 個のファイルをコピーしますか?"]
-# navigator/widgets/manager/manager/manager.py:2818
+# navigator/widgets/manager/manager/manager.py:2824
 "Delete {n} file?" = ["{n} 個のファイルを削除しますか?"]
-# navigator/widgets/manager/manager/manager.py:3014
+# navigator/widgets/manager/manager/manager.py:3020
 "A place inside an archive cannot be bookmarked" = "アーカイブ内の場所はブックマークできません"
-# navigator/widgets/manager/manager/manager.py:3215
+# navigator/widgets/manager/manager/manager.py:3221
 "File Manager Setup's Remember directory settings is Off" = "ファイルパネル設定のディレクトリ設定の記憶がオフです"
-# navigator/widgets/manager/manager/manager.py:3217
+# navigator/widgets/manager/manager/manager.py:3223
 "A Find listing is no directory to remember" = "検索結果は記憶できるディレクトリではありません"
-# navigator/widgets/manager/manager/manager.py:3219
+# navigator/widgets/manager/manager/manager.py:3225
 "A place inside an archive cannot be remembered" = "アーカイブ内の場所は記憶できません"
-# navigator/widgets/manager/manager/manager.py:3222, navigator/widgets/shell/shell/shell.py:821
+# navigator/widgets/manager/manager/manager.py:3228, navigator/widgets/shell/shell/shell.py:821
 "fzf is not installed, or the shell is not bash or zsh" = "fzf がインストールされていないか、シェルが bash でも zsh でもありません"
-# navigator/widgets/manager/manager/manager.py:3228, navigator/widgets/manager/manager/manager.py:3410, navigator/widgets/manager/manager/manager.py:3435
+# navigator/widgets/manager/manager/manager.py:3234, navigator/widgets/manager/manager/manager.py:3418, navigator/widgets/manager/manager/manager.py:3443
 "The cursor is not on a file" = "カーソルがファイル上にありません"
-# navigator/widgets/manager/manager/manager.py:3230, navigator/widgets/shell/shell/shell.py:1250
+# navigator/widgets/manager/manager/manager.py:3236, navigator/widgets/shell/shell/shell.py:1250
 "Neither GIO nor KIO is installed" = "GIO も KIO もインストールされていません"
-# navigator/widgets/manager/manager/manager.py:3231
+# navigator/widgets/manager/manager/manager.py:3237
 "No graphical desktop to open it on" = "開くためのグラフィカルデスクトップがありません"
-# navigator/widgets/manager/manager/manager.py:3236
+# navigator/widgets/manager/manager/manager.py:3242
 "Neither gpg nor age is installed" = "gpg も age もインストールされていません"
-# navigator/widgets/manager/manager/manager.py:3268, navigator/widgets/manager/manager/manager.py:3257
+# navigator/widgets/manager/manager/manager.py:3274, navigator/widgets/manager/manager/manager.py:3263
 "This drive cannot hold links" = "このドライブにはリンクを作成できません"
-# navigator/widgets/manager/manager/manager.py:3269
+# navigator/widgets/manager/manager/manager.py:3275
 "No symbolic link is selected" = "シンボリックリンクが選択されていません"
-# navigator/widgets/manager/manager/manager.py:3279, navigator/widgets/manager/manager/manager.py:3305
+# navigator/widgets/manager/manager/manager.py:3285, navigator/widgets/manager/manager/manager.py:3311
 "No file at the cursor" = "カーソル位置にファイルがありません"
-# navigator/widgets/manager/manager/manager.py:3280
+# navigator/widgets/manager/manager/manager.py:3286
 "The file has no other names" = "このファイルには他の名前がありません"
-# navigator/widgets/manager/manager/manager.py:3284
+# navigator/widgets/manager/manager/manager.py:3290
 "No broken links here" = "ここに壊れたリンクはありません"
-# navigator/widgets/manager/manager/manager.py:3288
+# navigator/widgets/manager/manager/manager.py:3294
 "No bad names here" = "不正な名前はありません"
-# navigator/widgets/manager/manager/manager.py:3299
+# navigator/widgets/manager/manager/manager.py:3305
 "Only inside an archive" = "アーカイブ内でのみ"
-# navigator/widgets/manager/manager/manager.py:3304
-"Not from inside an archive" = "アーカイブ内からは不可"
 # navigator/widgets/manager/manager/manager.py:3310
-"No disk image at the cursor" = "カーソル位置にディスクイメージがありません"
-# navigator/widgets/manager/manager/manager.py:3311, navigator/widgets/shell/volumes_window/volumes_window.py:304
-"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) がインストールされていません"
-# navigator/widgets/manager/manager/manager.py:3313
-"Not in a mounted disk image" = "マウントされたディスクイメージ内ではありません"
+"Not from inside an archive" = "アーカイブ内からは不可"
 # navigator/widgets/manager/manager/manager.py:3318
+"No disk image at the cursor" = "カーソル位置にディスクイメージがありません"
+# navigator/widgets/manager/manager/manager.py:3319, navigator/widgets/shell/volumes_window/volumes_window.py:304
+"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) がインストールされていません"
+# navigator/widgets/manager/manager/manager.py:3321
+"Not in a mounted disk image" = "マウントされたディスクイメージ内ではありません"
+# navigator/widgets/manager/manager/manager.py:3326
 "No archive is tagged or at the cursor" = "マーク済みまたはカーソル位置にアーカイブがありません"
-# navigator/widgets/manager/manager/manager.py:3323
+# navigator/widgets/manager/manager/manager.py:3331
 "Neither panel's directory can be written to" = "どちらのパネルのディレクトリにも書き込めません"
-# navigator/widgets/manager/manager/manager.py:3344
+# navigator/widgets/manager/manager/manager.py:3352
 "File Manager Setup's BS upper dir is off" = "ファイルマネージャ設定の「BS で親ディレクトリ」がオフです"
-# navigator/widgets/manager/manager/manager.py:3355
+# navigator/widgets/manager/manager/manager.py:3363
 "The file clipboard is empty" = "ファイルクリップボードは空です"
-# navigator/widgets/manager/manager/manager.py:3368
+# navigator/widgets/manager/manager/manager.py:3376
 "File Manager Setup's Del erases is off" = "ファイルマネージャ設定の「Del で削除」がオフです"
-# navigator/widgets/manager/manager/manager.py:3373, navigator/widgets/manager/manager/manager.py:3418, navigator/widgets/shell/shell/shell.py:1208
+# navigator/widgets/manager/manager/manager.py:3381, navigator/widgets/manager/manager/manager.py:3426, navigator/widgets/shell/shell/shell.py:1208
 "The cursor is on no file" = "カーソルがファイル上にありません"
-# navigator/widgets/manager/manager/manager.py:3385
+# navigator/widgets/manager/manager/manager.py:3393
 "Not inside an archive" = "アーカイブ内ではありません"
-# navigator/widgets/manager/manager/manager.py:3406
+# navigator/widgets/manager/manager/manager.py:3414
 "Only in the Trash" = "ごみ箱内でのみ"
-# navigator/widgets/manager/manager/manager.py:3417
+# navigator/widgets/manager/manager/manager.py:3425
 "Only in a Find listing" = "検索結果の一覧内でのみ"
-# navigator/widgets/manager/manager/manager.py:3422
+# navigator/widgets/manager/manager/manager.py:3430
 "Tag one file, or put the cursor on one" = "ファイルを 1 つマークするか、カーソルを置いてください"
-# navigator/widgets/manager/manager/manager.py:3431
+# navigator/widgets/manager/manager/manager.py:3439
 "No checksum file is tagged or at the cursor" = "マーク済みまたはカーソル位置にチェックサムファイルがありません"
-# navigator/widgets/manager/manager/manager.py:3441
+# navigator/widgets/manager/manager/manager.py:3449
 "Tag two files, or put the cursor on a file with a namesake in the other panel" = "ファイルを 2 つマークするか、反対側のパネルに同名のファイルがあるファイルにカーソルを置いてください"
-# navigator/widgets/manager/manager/manager.py:3444
+# navigator/widgets/manager/manager/manager.py:3452
 "The other panel is hidden" = "反対側のパネルは非表示です"
-# navigator/widgets/manager/manager/manager.py:3451
+# navigator/widgets/manager/manager/manager.py:3459
 "No name is cut to scroll" = "スクロールすべき切り詰められた名前はありません"
-# navigator/widgets/manager/manager/manager.py:3920
+# navigator/widgets/manager/manager/manager.py:3928
 "Do you wish to move {n} file to the Trash?" = ["{n} 個のファイルをごみ箱へ移動しますか?"]
-# navigator/widgets/manager/manager/manager.py:3925
+# navigator/widgets/manager/manager/manager.py:3933
 "Do you wish to delete {n} file?" = ["{n} 個のファイルを削除しますか?"]
-# navigator/widgets/manager/manager/manager.py:5243, navigator/widgets/manager/manager/manager.py:5277
+# navigator/widgets/manager/manager/manager.py:5251, navigator/widgets/manager/manager/manager.py:5285
 "No such directory" = "そのようなディレクトリはありません"
-# navigator/widgets/manager/manager/manager.py:5291
+# navigator/widgets/manager/manager/manager.py:5299
 "$EDITOR edits a file on another drive only once it is there" = "$EDITOR で別ドライブのファイルを編集するには、先にここへ取得する必要があります"
-# navigator/widgets/manager/manager/manager.py:6040
+# navigator/widgets/manager/manager/manager.py:6048
 "Copy {name} to {target}" = "{name} を {target} にコピー"
-# navigator/widgets/manager/manager/manager.py:6066
+# navigator/widgets/manager/manager/manager.py:6074
 "Erasing the file" = "ファイルを削除中"
-# navigator/widgets/manager/manager/manager.py:6067
+# navigator/widgets/manager/manager/manager.py:6075
 "Erasing the directory" = "ディレクトリを削除中"
-# navigator/widgets/manager/manager/manager.py:6068
+# navigator/widgets/manager/manager/manager.py:6076
 "Moving to the Trash" = "ごみ箱へ移動中"
-# navigator/widgets/manager/manager/manager.py:6069
+# navigator/widgets/manager/manager/manager.py:6077
 "Changing attributes of" = "属性を変更中:"
-# navigator/widgets/manager/manager/manager.py:6083
+# navigator/widgets/manager/manager/manager.py:6091
 "View mode: {mode}" = "表示モード: {mode}"
-# navigator/widgets/manager/manager/manager.py:6135
+# navigator/widgets/manager/manager/manager.py:6143
 "Mounted now, not a bookmark" = "現在マウント中 (ブックマークではない)"
-# navigator/widgets/manager/manager/manager.py:6137
+# navigator/widgets/manager/manager/manager.py:6145
 "Not there now" = "現在は存在しません"
-# navigator/widgets/manager/manager/manager.py:6201
+# navigator/widgets/manager/manager/manager.py:6226
 "Not connected" = "未接続"
 # navigator/widgets/manager/manager/manager.py:691
 "The input file is too small to UU-Encode." = "入力ファイルが小さすぎて UU エンコードできません。"
@@ -4449,29 +4451,29 @@ flag = "JP"
 "{n} error found in {name}:" = ["{name} に {n} 件のエラーが見つかりました:"]
 # navigator/widgets/manager/manager/manager.py:1676
 "{count} file changed" = ["{count} 個のファイルを変更しました"]
-# navigator/widgets/manager/manager/manager.py:2681
+# navigator/widgets/manager/manager/manager.py:2687
 "and below" = "以下も"
-# navigator/widgets/manager/manager/manager.py:2813
+# navigator/widgets/manager/manager/manager.py:2819
 "Copy {copies} and delete {deletes}?" = "{copies} をコピーし、{deletes} を削除しますか?"
-# navigator/widgets/manager/manager/manager.py:3242, navigator/widgets/manager/manager/manager.py:1033
+# navigator/widgets/manager/manager/manager.py:3248, navigator/widgets/manager/manager/manager.py:1033
 "No encrypted file is tagged or at the cursor" = "暗号化されたファイルがタグ付けされておらず、カーソル位置にもありません"
-# navigator/widgets/manager/manager/manager.py:3757
+# navigator/widgets/manager/manager/manager.py:3765
 "Print file {name}?" = "ファイル {name} を印刷しますか?"
-# navigator/widgets/manager/manager/manager.py:4054
+# navigator/widgets/manager/manager/manager.py:4062
 "Times, permissions or owner were not kept on {n} file: {path}: {reason}" = ["{n} 個のファイルで時刻・権限・所有者を保持できませんでした。最初は {path}: {reason}"]
-# navigator/widgets/manager/manager/manager.py:5166
+# navigator/widgets/manager/manager/manager.py:5174
 "Choose editor" = "エディタの選択"
-# navigator/widgets/manager/manager/manager.py:6037
+# navigator/widgets/manager/manager/manager.py:6045
 "Erase {name}" = "{name} を削除"
-# navigator/widgets/manager/manager/manager.py:6039
+# navigator/widgets/manager/manager/manager.py:6047
 "Move {name} to {target}" = "{name} を {target} に移動"
-# navigator/widgets/manager/manager/manager.py:6080
+# navigator/widgets/manager/manager/manager.py:6088
 "Sorted by {mode}, reversed" = "ソート: {mode} (逆順)"
-# navigator/widgets/manager/manager/manager.py:6081
+# navigator/widgets/manager/manager/manager.py:6089
 "Sorted by {mode}" = "ソート: {mode}"
-# navigator/widgets/manager/manager/manager.py:6085, navigator/widgets/manager/panel/panel.py:1724
+# navigator/widgets/manager/manager/manager.py:6093, navigator/widgets/manager/panel/panel.py:1724
 "Only files matching {mask} are shown" = "{mask} に一致するファイルのみ表示中"
-# navigator/widgets/manager/manager/manager.py:6236
+# navigator/widgets/manager/manager/manager.py:6261
 "~E~dit links..." = "リンクを編集(~E~)..."
 # navigator/widgets/manager/manager/manager.py:763
 "Splitting {name}" = "{name} を分割中"
@@ -4493,97 +4495,97 @@ flag = "JP"
 "{count} replacement" = ["{count} 件の置換"]
 # navigator/widgets/manager/manager/manager.py:1855
 "Branch: {path}" = "サブツリー: {path}"
-# navigator/widgets/manager/manager/manager.py:1909, navigator/widgets/manager/manager/manager.py:1975, navigator/widgets/manager/manager/manager.py:4646
+# navigator/widgets/manager/manager/manager.py:1915, navigator/widgets/manager/manager/manager.py:1981, navigator/widgets/manager/manager/manager.py:4654
 "Cancel search?" = "検索を中止しますか?"
-# navigator/widgets/manager/manager/manager.py:1921
+# navigator/widgets/manager/manager/manager.py:1927
 "Duplicates: {path}" = "重複: {path}"
-# navigator/widgets/manager/manager/manager.py:2620, navigator/widgets/manager/manager/manager.py:2626
+# navigator/widgets/manager/manager/manager.py:2626, navigator/widgets/manager/manager/manager.py:2632
 "Cannot open {path}: {reason}" = "{path} を開けません: {reason}"
-# navigator/widgets/manager/manager/manager.py:3032
+# navigator/widgets/manager/manager/manager.py:3038
 "Label" = "ラベル"
-# navigator/widgets/manager/manager/manager.py:3918
+# navigator/widgets/manager/manager/manager.py:3926
 "Do you wish to move {name} to the Trash?" = "{name} をごみ箱へ移動しますか?"
-# navigator/widgets/manager/manager/manager.py:3923
+# navigator/widgets/manager/manager/manager.py:3931
 "Do you wish to delete {name}?" = "{name} を削除しますか?"
-# navigator/widgets/manager/manager/manager.py:4155, navigator/lib/appearance/palette.py
+# navigator/widgets/manager/manager/manager.py:4163, navigator/lib/appearance/palette.py
 "Navigator" = "Navigator"
-# navigator/widgets/manager/manager/manager.py:4256, navigator/widgets/manager/manager/manager.py:4266
+# navigator/widgets/manager/manager/manager.py:4264, navigator/widgets/manager/manager/manager.py:4274
 "Finished" = "完了しました"
-# navigator/widgets/manager/manager/manager.py:4266, navigator/widgets/manager/manager/manager.py:4258
+# navigator/widgets/manager/manager/manager.py:4274, navigator/widgets/manager/manager/manager.py:4266
 "Stopped" = "停止しました"
-# navigator/widgets/manager/manager/manager.py:4659, navigator/widgets/manager/manager/manager.py:4665
+# navigator/widgets/manager/manager/manager.py:4667, navigator/widgets/manager/manager/manager.py:4673
 "Links: {name}" = "リンク: {name}"
-# navigator/widgets/manager/manager/manager.py:4664
+# navigator/widgets/manager/manager/manager.py:4672
 "{found} of {count} names found" = "{count} 個中 {found} 個の名前が見つかりました"
-# navigator/widgets/manager/manager/manager.py:4844
+# navigator/widgets/manager/manager/manager.py:4852
 "Reading file attributes" = "ファイル属性を読み込み中"
 # navigator/widgets/manager/manager/manager.py:751
 "Combining {name}" = "{name} を結合中"
 # navigator/widgets/manager/manager/manager.py:1137
 "Convert them as root?" = "root として変換しますか?"
-# navigator/widgets/manager/manager/manager.py:2689
+# navigator/widgets/manager/manager/manager.py:2695
 "Forget" = "忘れる"
-# navigator/widgets/manager/manager/manager.py:2765, navigator/widgets/viewer/diff_window/diff_window.py:145
+# navigator/widgets/manager/manager/manager.py:2771, navigator/widgets/viewer/diff_window/diff_window.py:145
 "Comparing files" = "ファイルを比較中"
-# navigator/widgets/manager/manager/manager.py:4188
+# navigator/widgets/manager/manager/manager.py:4196
 "Waiting for an answer" = "応答待ち"
-# navigator/widgets/manager/manager/manager.py:4260
+# navigator/widgets/manager/manager/manager.py:4268
 "Failed" = "失敗しました"
-# navigator/widgets/manager/manager/manager.py:4750
+# navigator/widgets/manager/manager/manager.py:4758
 "a link on the way would lead elsewhere" = "途中のリンクにより別の場所を指してしまいます"
 # navigator/widgets/manager/manager/manager.py:1548
 "A command's output can be panelized on this machine's disk only" = "コマンドの出力をパネル化できるのは、このマシンのディスク上だけです"
 # navigator/widgets/manager/manager/manager.py:1732
 "Set the interface option\n\"Track directories\" ON first" = "先にインターフェース設定の\n「ディレクトリを追跡」をオンにしてください"
-# navigator/widgets/manager/manager/manager.py:1919
+# navigator/widgets/manager/manager/manager.py:1925
 "No duplicate files found" = "重複ファイルは見つかりませんでした"
-# navigator/widgets/manager/manager/manager.py:2359
+# navigator/widgets/manager/manager/manager.py:2365
 "{name} is not empty any more" = "{name} はもう空ではありません"
-# navigator/widgets/manager/manager/manager.py:2361
+# navigator/widgets/manager/manager/manager.py:2367
 "Cannot remove directory {name}: {error}" = "ディレクトリ {name} を削除できません: {error}"
-# navigator/widgets/manager/manager/manager.py:2439, navigator/widgets/manager/manager/manager.py:2443, navigator/widgets/shell/commands.py:594
+# navigator/widgets/manager/manager/manager.py:2445, navigator/widgets/manager/manager/manager.py:2449, navigator/widgets/shell/commands.py:594
 "Empty Trash" = "ごみ箱を空にする"
-# navigator/widgets/manager/manager/manager.py:2439
+# navigator/widgets/manager/manager/manager.py:2445
 "The Trash is empty" = "ごみ箱は空です"
-# navigator/widgets/manager/manager/manager.py:2789
+# navigator/widgets/manager/manager/manager.py:2795
 "Both panels show the same directory." = "両方のパネルが同じディレクトリを表示しています。"
-# navigator/widgets/manager/manager/manager.py:3661, navigator/widgets/manager/manager/manager.py:3697
+# navigator/widgets/manager/manager/manager.py:3669, navigator/widgets/manager/manager/manager.py:3705
 "Cannot make directory {name}: {error}" = "ディレクトリ {name} を作成できません: {error}"
-# navigator/widgets/manager/manager/manager.py:4256
+# navigator/widgets/manager/manager/manager.py:4264
 "Finished: {what}" = "完了しました: {what}"
-# navigator/widgets/manager/manager/manager.py:4287, navigator/widgets/manager/manager/manager.py:4536
+# navigator/widgets/manager/manager/manager.py:4295, navigator/widgets/manager/manager/manager.py:4544
 "Would you like to create directory {path}?" = "ディレクトリ {path} を作成しますか?"
-# navigator/widgets/manager/manager/manager.py:4292
+# navigator/widgets/manager/manager/manager.py:4300
 "There is not enough room to copy file {name}. Copy other files?" = "ファイル {name} をコピーする空き容量がありません。他のファイルをコピーしますか?"
-# navigator/widgets/manager/manager/manager.py:5256, navigator/widgets/manager/manager/manager.py:5299, navigator/widgets/manager/manager/manager.py:5338 ...
+# navigator/widgets/manager/manager/manager.py:5264, navigator/widgets/manager/manager/manager.py:5307, navigator/widgets/manager/manager/manager.py:5346 ...
 "Cannot edit file" = "ファイルを編集できません"
-# navigator/widgets/manager/manager/manager.py:2672
+# navigator/widgets/manager/manager/manager.py:2678
 "No directory has settings of its own" = "独自の設定を持つディレクトリはありません"
-# navigator/widgets/manager/manager/manager.py:3713, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:110
+# navigator/widgets/manager/manager/manager.py:3721, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:110
 "Cannot make directory" = "ディレクトリを作成できません"
-# navigator/widgets/manager/manager/manager.py:4187
+# navigator/widgets/manager/manager/manager.py:4195
 "Waiting for an answer: {what}" = "応答待ち: {what}"
-# navigator/widgets/manager/manager/manager.py:4258
+# navigator/widgets/manager/manager/manager.py:4266
 "Stopped: {what}" = "停止しました: {what}"
-# navigator/widgets/manager/manager/manager.py:4260
+# navigator/widgets/manager/manager/manager.py:4268
 "Failed: {what}" = "失敗しました: {what}"
-# navigator/widgets/manager/manager/manager.py:5103, navigator/widgets/manager/manager/manager.py:5033, navigator/widgets/manager/manager/manager.py:5051 ...
+# navigator/widgets/manager/manager/manager.py:5111, navigator/widgets/manager/manager/manager.py:5041, navigator/widgets/manager/manager/manager.py:5059 ...
 "Cannot view file" = "ファイルを表示できません"
-# navigator/widgets/manager/manager/manager.py:6222
+# navigator/widgets/manager/manager/manager.py:6247
 "Install {extra}" = "{extra} をインストール"
 # navigator/widgets/manager/manager/manager.py:1702
 "Directory {place} is not there" = "ディレクトリ {place} はありません"
-# navigator/widgets/manager/manager/manager.py:2061
+# navigator/widgets/manager/manager/manager.py:2067
 "a name cannot hold a /" = "名前に / は使えません"
-# navigator/widgets/manager/manager/manager.py:4223
+# navigator/widgets/manager/manager/manager.py:4231
 "Abort operation?" = "操作を中止しますか?"
 # navigator/widgets/manager/manager/manager.py:1512, navigator/widgets/manager/manager/manager.py:1497
 "Cannot read {path}: {reason}" = "{path} を読み込めません: {reason}"
 # navigator/widgets/manager/manager/manager.py:1580
 "Cannot run {command}: {reason}" = "{command} を実行できません: {reason}"
-# navigator/widgets/manager/manager/manager.py:3786
+# navigator/widgets/manager/manager/manager.py:3794
 "Cannot print {name}: {reason}" = "{name} を印刷できません: {reason}"
-# navigator/widgets/manager/manager/manager.py:5052, navigator/widgets/manager/manager/manager.py:5027, navigator/widgets/manager/manager/manager.py:5066
+# navigator/widgets/manager/manager/manager.py:5060, navigator/widgets/manager/manager/manager.py:5035, navigator/widgets/manager/manager/manager.py:5074
 "{name}: not a dBase or SQLite file" = "{name}: dBase または SQLite ファイルではありません"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["選択したファイル {n} 個"]

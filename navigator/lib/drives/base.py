@@ -41,21 +41,16 @@ SYMLINK = "symlink"
 HARDLINK = "hardlink"
 CHMOD = "chmod"
 CHOWN = "chown"
-WATCH = "watch"
+#: A listing answers the free space too (``scan``'s third value): rclone's,
+#: which asks it of the remote only when this says it may.
 FREE_SPACE = "free_space"
-EXEC = "exec"
-TREE = "tree"
-FIND = "find"
-UUCODE = "uucode"
-PRINT = "print"
 #: Extended attributes, and the POSIX ACLs kept in them (Alt+E's *ACL* and *Xattrs*).
 XATTR = "xattr"
 #: Inode flags, ``chattr``'s (Alt+E's *Flags*).
 FSFLAGS = "fsflags"
 
 #: Everything: the local disk's.
-EVERYTHING = frozenset((WRITE, RENAME, SYMLINK, HARDLINK, CHMOD, CHOWN, WATCH, FREE_SPACE, EXEC, TREE, FIND,
-                        UUCODE, PRINT, XATTR, FSFLAGS))
+EVERYTHING = frozenset((WRITE, RENAME, SYMLINK, HARDLINK, CHMOD, CHOWN, FREE_SPACE, XATTR, FSFLAGS))
 
 
 class DriveGone(OSError):
@@ -458,7 +453,7 @@ class PollWatch:
 
 
 __all__ = [
-    "CHMOD", "CHOWN", "Child", "Drive", "DriveGone", "EVERYTHING", "EXEC", "FIND", "FREE_SPACE",
-    "FileStat", "HARDLINK", "PRINT", "PollWatch", "RENAME", "SYMLINK", "TREE", "UUCODE", "WATCH", "WRITE", "XATTR",
+    "CHMOD", "CHOWN", "Child", "Drive", "DriveGone", "EVERYTHING", "FREE_SPACE",
+    "FileStat", "HARDLINK", "PollWatch", "RENAME", "SYMLINK", "WRITE", "XATTR",
     "FSFLAGS", "unsupported",
 ]

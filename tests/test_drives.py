@@ -570,3 +570,30 @@ def test_a_listener_that_fails_is_logged_and_the_rest_are_still_told(tmp_path, m
     assert told == [("told", "lost")]
     text = (tmp_path / "errors.log").read_text()
     assert "a bug in close_linked" in text and "telling a listener" in text
+
+
+def test_a_root_panel_is_told_why_a_disk_only_command_is_greyed(desk):
+    from navigator.lib.drives.root import root_location
+    from navigator.widgets.manager.commands import Panelize, ShowHardLinks
+    from navigator.widgets.manager.manager.manager import _disk_only
+
+    app, drive, there = desk
+
+    class Panel:
+        def __init__(self, location):
+            self.location = location
+
+    assert _disk_only(Panel(root_location(there))) == "Not as root: the command runs as you"
+    assert _disk_only(Panel(drive.location("/files"))) == "Only on the local disk"
+    seen = {}
+
+    def ask(a):
+        a.manager.left.location = drive.location("/files")
+
+    def look(a):
+        seen["panelize"] = a.command_disabled_reason(Panelize(), a.manager.left)
+
+    from conftest import Until, run_app
+
+    run_app(app, [ask, Until(lambda a: len(a.manager.left.items) == 3), look])
+    assert seen["panelize"] == "Only on the local disk"

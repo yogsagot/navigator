@@ -167,6 +167,8 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
             "group": "" if survey.gid is None else str(survey.gid), "groups": [], "can_chown_group": can,
             "all_users": [], "all_groups": [], "names": acl_names(survey, numbers=True),
             "can_xattr": drive.can("xattr"), "can_flags": drive.can("fsflags"), "can_elevate": False,
+            # SMB, S3, rclone, the Trash: no permission bits to set.
+            "can_chmod": drive.can("chmod"),
         }
     return {
         "survey": survey,
@@ -179,7 +181,7 @@ def gather(paths: Sequence[Path]) -> dict[str, Any]:
         "all_users": fileattr.users(),
         "all_groups": fileattr.groups(),
         "names": acl_names(survey),
-        "can_xattr": True, "can_flags": True,
+        "can_xattr": True, "can_flags": True, "can_chmod": True,
         "can_elevate": os.geteuid() != 0 and _elevation().available(),
     }
 
@@ -270,6 +272,12 @@ class AttrDialog(Dialog):
 
         self.recurse.disabled = not survey.dirs
         self.recurse_caption.disabled = not survey.dirs
+        if not facts.get("can_chmod", True):
+            # The drive has no permission bits to set: shown, not offered --
+            # changing one would fail for every file (ENOTSUP).
+            for control in (self.bits, self.octal):
+                control.disabled = True
+                control.tooltip = tr("Not on this drive")
 
         elsewhere = bool(self._paths) and not self._here.is_local
         self._all_users = list(facts.get("all_users", ()))

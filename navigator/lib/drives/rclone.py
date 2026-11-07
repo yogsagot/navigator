@@ -68,12 +68,8 @@ from typing import IO, Any
 from urllib.parse import quote
 
 from navigator.lib.drives.base import (
-    FIND,
     FREE_SPACE,
-    PRINT,
     RENAME,
-    TREE,
-    UUCODE,
     WRITE,
     Child,
     Drive,
@@ -542,7 +538,7 @@ class RcloneDrive(Drive):
         self.home = PurePosixPath("/")
         self.kind = ""
         self.info: dict[str, Any] = {}
-        self.capabilities = frozenset((WRITE, RENAME, TREE, FIND, PRINT, UUCODE))
+        self.capabilities = frozenset((WRITE, RENAME))
         self._lock = threading.Lock()
         self._closed = False
 

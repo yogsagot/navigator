@@ -63,6 +63,10 @@ user's own authentication. What the review found and the rules it left:
   clock while `ELEVATION.running` (polled once a second, `Shell.follow_root`), since a panel or the quick view may
   then go to root unasked. Utilities > *Close root access* (`CloseRootAccess`, enabled while it shows) sends
   `root:` panels back to the disk and closes the helper.
+- **What a `root:` panel offers**: whatever goes through a drive (copy, erase, F7, Alt+E, F3/F4, Find, *Find
+  duplicates*, checksums -- `RootSiteDrive` reads through the helper). **Not** what runs as the user against the
+  place -- Panelize (`$SHELL -c`), Show hard links, Mount image, git status, zoxide -- greyed with *Not as root: the
+  command runs as you* (`manager._disk_only`), not the old, wrong *Only on the local disk*.
 - **Utilities has one root entry** (`root_access` in `main_menu.nml`, command `ToggleRootAccess`): *Elevate root
   access* while closed (`Shell.open_root_access`, `open_root`'s password box), *Close root access* while open
   (`close_root_access`). `Shell._name_root_access`, an effect on `root_mark.open`, sets its caption and tooltip;

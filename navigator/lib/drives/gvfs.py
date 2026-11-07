@@ -36,7 +36,7 @@ from collections.abc import Callable
 from pathlib import Path, PurePosixPath
 from typing import IO, Any
 
-from navigator.lib.drives.base import CHMOD, FIND, FREE_SPACE, RENAME, SYMLINK, TREE, WRITE, Child, Drive
+from navigator.lib.drives.base import CHMOD, FREE_SPACE, RENAME, SYMLINK, WRITE, Child, Drive
 from navigator.lib.drives.local import LOCAL
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.system import gio
@@ -79,7 +79,7 @@ def bridge_top(local: Path) -> Path:
 class GvfsDrive(Drive):
     """A GVfs mount, read and written through its FUSE path."""
 
-    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, FREE_SPACE, TREE, FIND))
+    capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, FREE_SPACE))
     seekable = True
 
     def __init__(self, site: Site, root: Path, prefix: PurePosixPath, *, ours: bool) -> None:

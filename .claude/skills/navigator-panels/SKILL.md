@@ -495,7 +495,8 @@ columns and cursor kept. Enabled only on the local disk. Two more ways in: a com
 **Panel > Find duplicates** (`FindDuplicates`, `Manager.find_duplicates`; a departure, asked for -- DN had none):
 `DuplicatesDialog` (mask, history `find_mask`; minimum size, default 1 so empty files are out, `valid()` refusing a
 non-number; *Search subdirectories*; kept for the session), then `navigator/lib/file_ops/duplicates.py`'s
-`find_duplicates` on a thread: the walk is `filefind.search` (hidden files follow the panel's Ctrl+H), symlinks and
+`find_duplicates` on a thread, **on any drive** (a `Location` start walks the drive and reads through `open_read`; the
+listing is built from the walk's `DirEntry`s, `DuplicatesJob.listed`): the walk is `filefind.search` (hidden files follow the panel's Ctrl+H), symlinks and
 non-regular files dropped, **hard links collapsed to the first name by path** (erasing one frees nothing), then
 narrowed by size, a quick blake2b of the first and last `CHUNK` (a file of at most 2×CHUNK is then read whole and
 skips the next step), and a full blake2b. Stop raises `Stopped`: half a result is no answer. **The listing keeps its

@@ -825,3 +825,24 @@ def test_ins_on_the_acl_list_adds_an_entry_picked_from_the_users(two):
     assert rows[0].split() == ["user", me, "r-x"]
     written = acl.parse(os.getxattr(a / "one.txt", acl.ACCESS))
     assert written.named == {("user", os.getuid()): 5}
+
+
+def test_the_permissions_are_greyed_on_a_drive_that_cannot_set_them(tmp_path):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.base import WRITE
+    from navigator.lib.drives.memory import MemoryDrive
+
+    class NoModes(MemoryDrive):
+        capabilities = frozenset((WRITE,))  # an SMB share's, S3's: no chmod
+
+    drive = mount(NoModes("modes"))
+    try:
+        drive.make("/f", "x")
+        dialog = AttrDialog(entries=[entry("f")], here=drive.location("/"))
+        assert dialog.bits.disabled and dialog.octal.disabled
+        assert dialog.bits.tooltip == "Not on this drive"
+    finally:
+        unmount(drive.site)
+    make(tmp_path / "f", 0o644)
+    on_disk = AttrDialog(entries=[entry("f")], here=tmp_path)
+    assert not on_disk.bits.disabled and not on_disk.octal.disabled

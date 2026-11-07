@@ -151,3 +151,67 @@ def test_off_in_a_find_listing(place):
                   lambda a: a.manager.left.focus(),
                   lambda a: seen.update(after=a.command_enabled(FindDuplicates()))])
     assert seen == {"before": True, "after": False}
+
+
+# -- on any drive ------------------------------------------------------------------------------
+
+
+@pytest.fixture
+def memory():
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    drive = mount(MemoryDrive("dups"))
+    yield drive
+    unmount(drive.site)
+
+
+def test_duplicates_are_found_on_another_drive(memory):
+    memory.make("/files/a.txt", "same")
+    memory.make("/files/sub/b.txt", "same")
+    memory.make("/files/c.txt", "diff")
+    found = find_duplicates(DuplicatesRequest(), memory.location("/files"), DuplicatesJob())
+    assert [[str(place.path) for place in group] for group in found] == [["/files/a.txt", "/files/sub/b.txt"]]
+
+
+def test_a_drive_whose_files_cannot_seek_still_tells_them_apart(memory, monkeypatch):
+    import io
+
+    class Stream(io.BytesIO):
+        def seekable(self):
+            return False
+
+        def seek(self, *args):
+            raise io.UnsupportedOperation("not seekable")
+
+    real = memory.open_read
+    monkeypatch.setattr(memory, "open_read", lambda location: Stream(real(location).read()))
+    big = b"x" * (3 * CHUNK)
+    memory.make("/files/one.bin", big)
+    memory.make("/files/two.bin", big)
+    memory.make("/files/other.bin", big[:-1] + b"y")  # the same head, the tail not
+    found = find_duplicates(DuplicatesRequest(), memory.location("/files"), DuplicatesJob())
+    assert [[place.name for place in group] for group in found] == [["one.bin", "two.bin"]]
+
+
+def test_find_duplicates_lists_another_drive_s_copies(tmp_path, memory, monkeypatch):
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    memory.make("/files/a.txt", "same")
+    memory.make("/files/b.txt", "same")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def go(a):
+        a.manager.left.location = memory.location("/files")
+
+    def look(a):
+        seen["enabled"] = a.command_enabled(FindDuplicates(), a.manager.left)
+
+    run_app(app, [
+        go, Until(lambda a: len(a.manager.left.items) == 3), look,
+        lambda a: a.manager.spawn(a.manager.find_duplicates(a.manager.left, DuplicatesRequest())),
+        Until(lambda a: a.manager.left.found is not None, timeout=5),
+        lambda a: seen.update(rows=[(e.name, str(e.directory)) for e in a.manager.left.items if e.name != ".."]),
+    ])
+    assert seen["enabled"] is True
+    assert seen["rows"] == [("a.txt", "mem://dups/files"), ("b.txt", "mem://dups/files")]

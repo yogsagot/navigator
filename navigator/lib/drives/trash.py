@@ -32,7 +32,7 @@ from collections.abc import Callable
 from pathlib import PurePosixPath
 from typing import IO, Any
 
-from navigator.lib.drives.base import FIND, TREE, WATCH, WRITE, Child, Drive, FileStat
+from navigator.lib.drives.base import WRITE, Child, Drive, FileStat
 from navigator.lib.drives.local import LOCAL
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.file_ops import trash as model
@@ -63,7 +63,7 @@ class TrashDrive(Drive):
     """Every trash directory as one drive."""
 
     site = TRASH_SITE
-    capabilities = frozenset((WRITE, TREE, FIND, WATCH))
+    capabilities = frozenset((WRITE,))
     #: Trash directories on the disk.
     quick_listing = True
     seekable = True

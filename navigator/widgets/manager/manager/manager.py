@@ -1871,13 +1871,16 @@ class Manager(Window):
         from navigator.widgets.manager.panel.panel import entry_at
 
         app = self.application
-        if app is None or panel.found is not None or not panel.location.is_local:
+        if app is None or panel.found is not None:
             return
         if request is None:
             request = await DuplicatesDialog().execute(app)
             if request is None:
                 return
-        here, hidden = Path(panel.path), panel.show_hidden
+        # Any drive: the disk's path, or the place itself -- a server, an
+        # archive, ``root:`` through the root helper.
+        place, hidden = panel.location, panel.show_hidden
+        here = place.local if place.is_local else place
         current = panel.selected
         job = DuplicatesJob()
 
@@ -1886,7 +1889,10 @@ class Manager(Window):
             entries = []
             for group in groups:
                 for path in group:
-                    entry = entry_at(path, path.parent)
+                    if place.is_local:
+                        entry = entry_at(path, path.parent)
+                    else:
+                        entry = job.listed.get(path)  # as the drive's walk listed it
                     if entry is not None:
                         entries.append(entry)
             return entries
@@ -1913,7 +1919,7 @@ class Manager(Window):
         finally:
             if not running.done():
                 job.stop()
-        if panel.location != Location.of(here) or panel.found is not None:
+        if panel.location != place or panel.found is not None:
             return  # the panel went elsewhere meanwhile
         if not entries:
             await Dialog(title=tr("Error"), prompt=tr("No duplicate files found"), buttons="ok").execute(app)
@@ -3249,7 +3255,7 @@ class Manager(Window):
         if self.miller_mode and isinstance(command, _NOT_IN_MILLER):
             return tr("Not in Miller columns (Alt-F12)")
         if isinstance(command, _LOCAL_ONLY) and not panel.location.is_local:
-            return tr("Only on the local disk")
+            return _disk_only(panel)
         if isinstance(command, MakeLink) and not panel.location.is_local:
             # A link on another drive is made there, where it can be.
             try:
@@ -3273,7 +3279,7 @@ class Manager(Window):
             if panel.found is not None:
                 return not_found
             if not panel.location.is_local:
-                return tr("Only on the local disk")
+                return _disk_only(panel)
             entry = panel.selected
             if entry is None or entry.name == ".." or entry.is_dir:
                 return tr("No file at the cursor")
@@ -3306,6 +3312,8 @@ class Manager(Window):
         if isinstance(command, MountImage):
             from navigator.lib.system import udisks
 
+            if _at_root(panel):
+                return _disk_only(panel)
             if panel.image_file() is None:
                 return tr("No disk image at the cursor")
             return unless(udisks.program() is not None, tr("udisksctl (udisks2) is not installed"))
@@ -3387,15 +3395,15 @@ class Manager(Window):
             # ``CM_Branch`` acted on a disk's directory alone.
             return unless(panel.found is None, not_found)
         if isinstance(command, FindDuplicates):
-            if panel.found is not None:
-                return not_found
-            return unless(panel.location.is_local, tr("Only on the local disk"))
+            # Any drive: the walk and the reads go through it (``duplicates``).
+            return unless(panel.found is None, not_found)
         if isinstance(command, MakeDirectory):
             # ``TFindDrive.MakeDir`` made nothing: a *Find:* listing has no
             # directory to make one in.
             return unless(panel.found is None, not_found)
         if isinstance(command, Panelize):
-            return unless(panel.location.is_local, tr("Only on the local disk"))
+            # ``$SHELL -c`` runs as the user: not in a ``root:`` panel's directory.
+            return "" if panel.location.is_local else _disk_only(panel)
         if isinstance(command, MultiRename):
             if self._aside_focused():
                 return aside
@@ -6148,6 +6156,23 @@ def _entry_location(here: Any, entry: Any) -> Location:
     if entry.directory is not None:
         return Location.of(entry.directory) / entry.name
     return Location.of(here) / entry.name
+
+
+def _at_root(panel: Any) -> bool:
+    """Whether *panel* is at ``root:`` -- the disk, read as root."""
+    from navigator.lib.drives.root import ROOT_SITE
+
+    return panel.location.site == ROOT_SITE and panel.location.outer is None
+
+
+def _disk_only(panel: Any) -> str:
+    """Why a command that works on the disk alone is greyed on *panel*: a
+    ``root:`` panel is the disk, but the command would run as the user,
+    against a place only root may read (a departure's limit; the
+    ``navigator-elevation`` skill) -- else it is another drive."""
+    if _at_root(panel):
+        return tr("Not as root: the command runs as you")
+    return tr("Only on the local disk")
 
 
 def _real_place(target: Location) -> Location:
