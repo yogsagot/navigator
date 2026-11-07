@@ -3103,3 +3103,48 @@ def test_the_scroll_bars_show_only_while_there_is_more_than_the_area_holds(files
     # The wide line is still on screen, so the bar stays.
     assert seen["wide, scrolled back"] == (False, True)
     assert seen["long"][0] is True
+
+
+# -- Tab is DN's DoTab: under the next word of the line above ------------------------------------------
+
+
+@pytest.mark.parametrize("above, column, landed", [
+    ("foo bar", 0, 4),       # past the rest of foo and its blank: onto bar
+    ("foo bar", 1, 4),
+    ("foo    bar", 0, 7),    # over a run of blanks
+    ("foo bar", 3, 8),       # DN's repeat moves before it looks: from under a blank, past the next word too
+    ("foo", 0, 4),           # a word to the end of the line above: one past its end, as DoTab's last space
+    ("foo", 3, None),        # past the end of the line above: MakeTab's stop instead
+    ("", 0, None),
+    ("\tx", 0, 8),           # a tab above is the blanks it shows: under the x
+    ("日本 x", 0, 5),         # a wide character's two columns are its word's
+])
+def test_smart_tab_is_dos_navigators_do_tab(above, column, landed):
+    from navigator.lib.editor.columns import smart_tab
+
+    assert smart_tab(above, column, 8) == landed
+
+
+def test_tab_lines_up_under_the_next_word_of_the_line_above(files):
+    _, editor = text_editor(files, b"int  count;\nx\n", KeyEvent("down"), KeyEvent("tab"))
+    assert editor.document.encode() == b"int  count;\n     x\n" and (editor.line, editor.col) == (1, 5)
+
+
+def test_tab_on_the_first_line_or_past_the_end_above_goes_to_the_next_stop(files):
+    _, editor = text_editor(files, b"ab\ncd\n", KeyEvent("tab"))
+    assert editor.document.encode() == b"        ab\ncd\n"
+    _, editor = text_editor(files, b"ab\ncdef\n", KeyEvent("down"), KeyEvent("end"), KeyEvent("tab"))
+    assert editor.document.encode() == b"ab\ncdef    \n"
+
+
+def test_tab_in_overwrite_moves_under_the_next_word_and_inserts_nothing(files):
+    # A line as long as the one above: overwrite keeps the cursor within the text, as it always has.
+    _, editor = text_editor(files, b"int  count;\nabcdefghijk\n", KeyEvent("down"), KeyEvent("insert"),
+                            KeyEvent("tab"))
+    assert editor.document.encode() == b"int  count;\nabcdefghijk\n" and (editor.line, editor.col) == (1, 5)
+
+
+def test_one_undo_takes_a_smart_tab_back_whole(files):
+    _, editor = text_editor(files, b"int  count;\nx\n", KeyEvent("down"), KeyEvent("tab"),
+                            KeyEvent("backspace", alt=True))
+    assert editor.document.encode() == b"int  count;\nx\n"

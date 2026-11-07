@@ -2672,26 +2672,38 @@ class FileEditor(ContextMenuHost, Widget):
         return True
 
     async def on_tab_key(self, event: TabKey) -> bool:
-        """``MakeTab``: blanks to the next stop, or over them in overwrite.
+        """``DoTab``: blanks to under the next word of the line above
+        (:func:`~navigator.lib.editor.columns.smart_tab`) -- or, on the first
+        line or past the end of the one above, ``MakeTab``'s next stop; over
+        them, not in, in overwrite.
 
         With the cursor in the block, ^K I by a tab stop instead
         (:meth:`on_indent_block`) -- a departure, asked for, as Shift+Tab is ^K U.
         """
         if self._cursor_in_block():
             return await self.on_indent_block(IndentBlock(stop=True))
-        stop = (self.col // self.tab_size + 1) * self.tab_size
+        stop = self._tab_stop()
         if self.overwrite:
             self._moved()
             self._move_to(self.line, stop)
             return True
         self._begin("type")
         # Again: a block replaced has moved the cursor to where it began.
-        stop = (self.col // self.tab_size + 1) * self.tab_size
+        stop = self._tab_stop()
         at = self._pad()
         self.buffer.insert(at, " " * (stop - self.col))
         self._go_column(self.line, stop)
         self._end()
         return True
+
+    def _tab_stop(self) -> int:
+        """Where Tab takes the cursor: under the line above as ``DoTab`` reads
+        it, else the next multiple of the tab size (``MakeTab``)."""
+        if self.line > 0:
+            smart = columns.smart_tab(self.document.lines[self.line - 1], self.col, self.tab_size)
+            if smart is not None:
+                return smart
+        return (self.col // self.tab_size + 1) * self.tab_size
 
     def _unindent(self) -> bool:
         """``MakeBack``'s ``BackIndent``: back to the indent of a line above.

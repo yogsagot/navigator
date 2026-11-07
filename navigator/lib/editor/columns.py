@@ -117,6 +117,37 @@ def cells(line: str, tab: int = TAB, limit: int | None = None) -> list[tuple[str
     return out
 
 
+def smart_tab(above: str, column: int, tab: int = TAB) -> int | None:
+    """The column Tab at *column* goes to under the line *above*: DN's ``DoTab``
+    (``MICROED.PAS``), or None where it was ``MakeTab``'s tab stop instead --
+    past the end of the line above, or with none.
+
+    Transcribed loop by loop: past the rest of the word above the cursor (at
+    least one column), on over the blanks after it, then one more -- onto the
+    next word's first column, or one past the end where the word ran to it.
+    A departure in one respect: the line above is read by display column
+    (:func:`cells`), a tab as the blanks it shows and a wide character as its
+    two, where DN's had every tab expanded when it was read.
+    """
+    shown = cells(above, tab)
+    length = len(shown)
+    if column >= length:
+        return None
+
+    def blank(at: int) -> bool:
+        # ``S[at + 1]`` of DN's 1-based string, past its end not a blank.
+        return at < length and shown[at][0] == " "
+
+    at = column
+    while True:  # ``repeat InsertSpace until (S[LastX+1] = ' ') or (LastX >= Length(S))``
+        at += 1
+        if blank(at) or at >= length:
+            break
+    while blank(at + 1) and at < length:  # ``while (S[LastX+2] = ' ') and (LastX < Length(S))``
+        at += 1
+    return at + 1  # the last ``InsertSpace``
+
+
 def span(line: str, left: int, right: int, tab: int = TAB) -> tuple[int, int]:
     """The string indices of the characters that start in columns *left* to *right*.
 

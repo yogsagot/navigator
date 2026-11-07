@@ -121,7 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-1. Smart tab: Tab to the next word start on the line above (`MakeTab`/`DoTab`, `MICROED.PAS:2432-2457`).
 2. Per-file defaults by mask: autoindent, brackets, unindent, highlight line/column, wrap, justify, margins, line
    ends (`DN.HGL`'s keys, `MACRO.PAS:655`); `highlight.ini`'s sections name only a lexer.
 3. The edit history keeping block kind, autoindent, wrap and margins (`StoreEditInfo`, `HISTRIES.PAS:261`).
@@ -142,6 +141,14 @@ is written.
 
 Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is
 indented as the part kept -- as the whole line when that part is blank -- with the cursor at the indent and no blanks
-left behind when nothing follows. Enter in overwrite only moves to the next line. A Tab inserts blanks to the next
-stop, as `MakeTab` did.
+left behind when nothing follows. Enter in overwrite only moves to the next line.
+
+**Tab is DN's `DoTab`** (`MICROED.PAS:2441`), the line *directly* above read: past the rest of the word over the
+cursor (at least one column -- DN's `repeat` moves before it looks, so from under a blank it passes the next word
+too), on over the blanks after it, then one more, onto the next word's start, or one past the end where the word ran
+to it. On the first line, or past the end of the one above, `MakeTab`'s next stop. Blanks always, never a tab
+character, as DN; in overwrite it moves there instead, kept within the line's text as overwrite keeps the cursor.
+`columns.smart_tab(above, column, tab)` is the rule, pure; `FileEditor._tab_stop` applies it. A departure: the line
+above is read by display column (a tab there as the blanks it shows, a wide character as two), where DN had every tab
+expanded on reading. DN had no switch for it, nor has Navigator.
 
