@@ -30,6 +30,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import IO, Any
+from navigator.lib.system.which import which as _which
 
 #: The kinds this module reads, by their first bytes.
 SIGNATURES: tuple[tuple[bytes, str], ...] = (
@@ -67,7 +68,7 @@ def seven_zip(*, rar: bool = False) -> str | None:
     for name in SEVEN_ZIP:
         if rar and name == "7za":
             continue
-        found = shutil.which(name)
+        found = _which(name)
         if found is not None:
             return found
     return None
@@ -84,7 +85,7 @@ def tool_for(kind: str) -> tuple[str, str]:
         return "7z", found
     # unrar first: 7-Zip's codec decrypts no encrypted rar and fails its own
     # test on a rar5 symbolic link -- it is the fallback.
-    found = shutil.which("unrar")
+    found = _which("unrar")
     if found is not None:
         return "unrar", found
     found = seven_zip(rar=True)
@@ -434,7 +435,7 @@ def write_archive(target: Path, tree: Path, *, type_: str = "7z", level: int | N
 
 def rar_program() -> str | None:
     """RARLAB's ``rar``, the one program that writes a rar (not free), or None."""
-    return shutil.which("rar")
+    return _which("rar")
 
 
 def write_rar(target: Path, tree: Path, *, level: int | None = None, password: str = "") -> None:

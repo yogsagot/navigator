@@ -14,6 +14,7 @@ import queue
 import shutil
 import subprocess
 import threading
+from navigator.lib.system.which import which as _which
 
 #: Where each program was found, by name: looked up once, or reported by the
 #: shell, whose rc may put on ``PATH`` what Navigator's environment lacks.
@@ -23,7 +24,7 @@ _found: dict[str, str | None] = {}
 def program(name: str) -> str | None:
     """Where *name* (``"fzf"`` or ``"zoxide"``) is, or None: not installed."""
     if name not in _found:
-        _found[name] = shutil.which(name)
+        _found[name] = _which(name)
     return _found[name]
 
 

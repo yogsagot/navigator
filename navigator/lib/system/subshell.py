@@ -68,6 +68,7 @@ from navkit.process import DEFAULT_TERM, AttachedPty, PtyProcess
 
 from navigator.lib.system import fuzzy
 from navigator.lib.system.tempdir import temp_root as _temp_root
+from navigator.lib.system.which import which as _which
 
 #: The OSC number the marks are carried under.  Private: no terminal assigns it.
 MARK = 6973
@@ -527,7 +528,7 @@ def command_shell(shell: str | None = None) -> str:
     command line's shell, or in a window of its own (``sh -c``)."""
     shell = shell or os.environ.get("SHELL") or "/bin/sh"
     if Path(shell).name not in ("bash", "zsh", "sh", "dash"):
-        shell = shutil.which("bash") or "/bin/sh"
+        shell = _which("bash") or "/bin/sh"
     return shell
 
 

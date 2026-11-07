@@ -15,6 +15,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import Callable
+from navigator.lib.system.which import which as _which
 
 #: How long the spooler may take to accept a job.
 TIMEOUT = 10.0
@@ -30,7 +31,7 @@ def print_command(which: Callable[[str], str | None] | None = None) -> list[str]
     that replacing it -- as the tests do -- reaches this function too.
     """
     if which is None:
-        which = shutil.which
+        which = _which
     for argv in (["lp"], ["lpr"]):
         if which(argv[0]):
             return argv

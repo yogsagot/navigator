@@ -38,6 +38,7 @@ from typing import Any, Callable
 from navkit.i18n import tr, tr_n
 
 from navigator.lib.system import programinfo
+from navigator.lib.system.which import which as _which
 
 #: How long ``ffprobe`` may take over one file.
 TIMEOUT = 5.0
@@ -92,7 +93,7 @@ def kind(mime: str) -> str | None:
 
 def program(which: Callable[[str], str | None] | None = None) -> str | None:
     """The ``ffprobe`` to run, or None: not installed."""
-    return (which or shutil.which)("ffprobe")
+    return (which or _which)("ffprobe")
 
 
 def read(path: Path, mime: str, wanted: Callable[[], bool] = lambda: True) -> Any:

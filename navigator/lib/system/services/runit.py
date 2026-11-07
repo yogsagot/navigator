@@ -41,6 +41,7 @@ from pathlib import Path
 
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import UNKNOWN, Backend, EditPlan, Journal, LogFile, Unit
+from navigator.lib.system.which import which as _which
 
 #: Where services are defined, the first there.
 DEFINITION_DIRS = (Path("/etc/sv"), Path("/etc/runit/sv"))
@@ -87,7 +88,7 @@ def refusal() -> str:
     """Why runit is not this system's service manager, or ""."""
     from navkit.i18n import tr
 
-    if shutil.which("sv") is None:
+    if _which("sv") is None:
         return tr("There is no sv: install runit")
     if common.pid1() != "runit":
         return tr("runit is not the system's service manager")

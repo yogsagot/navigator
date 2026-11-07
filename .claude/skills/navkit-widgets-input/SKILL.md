@@ -166,6 +166,10 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `commands.disabled_reason` / `Application.command_disabled_reason` ask the widget `target()` would. A greyed menu
   row (`MenuBox.hint`), key bar item and option strip item add it to their tooltip; a button has none (buttons do
   not go through commands). A widget overriding only `enables` greys with no reason.
+- **A `refusal` is asked every frame** a menu is open, and the key bar's always: it must cost nothing per frame. In
+  Navigator a program's presence is `navigator.lib.system.which.which` (kept `TTL` 5 s, keyed on `$PATH` and
+  `shutil.which`'s identity, so a patched one and a new install are both seen) -- never bare `shutil.which`, which
+  walks `$PATH` each time; a per-listing walk goes on a computed (`navigator-panels`); nothing stats a path on the loop.
 - **While a menu is open the key bar is its hint line**, TV's `THintStatusLine`: `MenuBar.hint()` (the top box's
   row, its reason, else the bar caption's tooltip) painted across `KeyBar` (`menu_hint()`), the items and their
   tooltips standing aside. The menu session answers for the bar beneath it (`MenuSession.tooltip_at`).

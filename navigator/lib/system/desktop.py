@@ -39,6 +39,7 @@ from typing import Any
 
 from navigator.lib.system import desktop_entry, gio, kio, udisks
 from navigator.lib.system.desktop_entry import App, graphical
+from navigator.lib.system.which import which as _which
 
 
 def kde_session() -> bool:
@@ -110,7 +111,7 @@ XDG_OPEN_WAIT = 2.0
 def xdg_open(which: Callable[[str], str | None] | None = None) -> str | None:
     """The ``xdg-open`` to run, or None: not installed.  Looked up at the call,
     as :func:`navigator.lib.system.gio.program` is."""
-    return (which or shutil.which)("xdg-open")
+    return (which or _which)("xdg-open")
 
 
 def opener() -> str | None:

@@ -482,6 +482,9 @@ class Panel(ListViewer):
         #: The directory being watched (*Auto refresh panels*), and the
         #: re-read a change on it has asked for, waiting out REFRESH_DELAY.
         self._watch: dirwatch.Watch | None = None
+        #: Bumped whenever the watch is dropped: one set up on a thread for
+        #: an earlier place is cancelled as it lands (:meth:`_watch_directory`).
+        self._watch_generation = 0
         self._refresh: asyncio.TimerHandle | None = None
         #: Set on the watcher's thread by the first change after a re-read,
         #: cleared on the loop when the next re-read starts: what keeps a copy
@@ -723,6 +726,12 @@ class Panel(ListViewer):
         Not a *Find:* listing, whose entries are from anywhere.  With no
         application there is no loop to hear a change on, and nothing is
         watched: a test driving the model reads only when it says so.
+
+        **Set up on the scan's pool**, not here on the loop: a drive's watch
+        may look at the place first -- the Trash's reads every ``.trashinfo``,
+        an inotify watch on a dead mount waits -- and the panel has to come
+        up regardless.  A watch that lands after the panel has moved on (or
+        stopped watching) is cancelled at once (``_watch_generation``).
         """
         location = self.location
         wanted = SETTINGS.file_manager.auto_refresh and self.found is None
@@ -735,7 +744,24 @@ class Panel(ListViewer):
                 drive = drive_of(location)
             except DriveGone:
                 return
-            self._watch = drive.watch(location, lambda: self._heard_change(app))
+            generation = self._watch_generation
+            notify = lambda: self._heard_change(app)  # noqa: E731 - handed to the thread
+            if not app.is_running:
+                self._watch = drive.watch(location, notify)
+                return
+            future = _scanner_for(location).submit(drive.watch, location, notify)
+
+            def landed(done: concurrent.futures.Future[Any]) -> None:
+                try:
+                    watch = done.result()
+                except Exception:  # noqa: BLE001 - no watch, as a drive without one
+                    return
+                if generation != self._watch_generation or not app.is_running:
+                    watch.cancel()
+                    return
+                self._watch = watch
+
+            future.add_done_callback(lambda done: app.call_from_thread(lambda: landed(done)))
 
     def _heard_change(self, app: Any) -> None:
         """On the watcher's thread: tell the loop, unless it has been told already."""
@@ -745,6 +771,7 @@ class Panel(ListViewer):
         app.call_from_thread(self._changed_on_disk)
 
     def _stop_watching(self) -> None:
+        self._watch_generation += 1  # a watch still being set up is not wanted
         if self._watch is not None:
             self._watch.cancel()
             self._watch = None
@@ -1186,7 +1213,11 @@ class Panel(ListViewer):
         """The mounts of the disk image this panel is in -- or, with nothing
         tagged, the mounted ``.iso``/``.img`` at its cursor -- for *Unmount
         image*; ``[]`` for none, off the disk, or without ``udisksctl``.
-        ``/proc`` and ``/sys`` only (:func:`navigator.lib.system.udisks.image_at`)."""
+        ``/proc`` and ``/sys`` only (:func:`navigator.lib.system.udisks.image_at`),
+        kept a moment -- a menu asks every frame -- and the cursor's file by
+        the letters and the link the listing read, never ``realpath()`` on
+        the loop (an image through a link to a link is found from inside its
+        mount only)."""
         from navigator.lib.system import udisks
 
         if not self.location.is_local or self.found is not None or udisks.program() is None:
@@ -1194,7 +1225,12 @@ class Panel(ListViewer):
         entry = self.selected
         if (not self.marked and entry is not None and not entry.is_dir and entry.name != ".."
                 and udisks.is_image_name(entry.name)):
-            mounts = udisks.image_at(os.path.realpath(entry.path_in(self.path)))
+            here = self.path
+            if entry.is_link and entry.link_target:
+                where = os.path.normpath(here / entry.link_target)
+            else:
+                where = str(here / entry.name)
+            mounts = udisks.image_at(where)
             if mounts:
                 return mounts
         return udisks.image_at(self.path)

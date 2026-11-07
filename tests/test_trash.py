@@ -324,3 +324,40 @@ def test_a_trash_url_round_trips():
     assert str(trash_drive.location()) == "trash:///"
 
 
+
+
+def test_watching_a_place_in_the_trash_reads_no_trash_info_on_the_loop(place, home, monkeypatch):
+    import threading
+
+    from navigator.lib.drives import trash as trash_drive_module
+
+    SETTINGS.file_manager.use_trash = True
+    monkeypatch.setattr(SETTINGS.file_manager, "auto_refresh", True)
+    trash.move(place / "full")
+    on_loop = []
+    real = trash_drive_module.TrashDrive.items
+
+    def items(self):
+        if threading.current_thread() is threading.main_thread():
+            on_loop.append(1)
+        return real(self)
+
+    monkeypatch.setattr(trash_drive_module.TrashDrive, "items", items)
+
+    def forget_and_enter(a):
+        # The index as a bookmark or a history would find it: nothing known yet.
+        drive = drive_of(a.manager.active_panel.location)
+        drive._index = {}
+        on_loop.clear()
+        on("full")(a)
+        a.manager.active_panel.enter()
+
+    run_app(navigator(place), [
+        lambda a: a.spawn(a.run_command(OpenTrash)),
+        Until(lambda a: trash_drive.is_trash(a.manager.active_panel.location)
+              and "full" in [e.name for e in a.manager.active_panel.items]),
+        forget_and_enter,
+        Until(lambda a: [e.name for e in a.manager.active_panel.items] == ["..", "inside.txt"]),
+        Until(lambda a: a.manager.active_panel._watch is not None, timeout=5),
+    ])
+    assert on_loop == []

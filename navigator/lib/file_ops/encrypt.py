@@ -46,6 +46,7 @@ from typing import IO, Any, Callable, Iterable
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.file_ops import checksum
 from navigator.lib.system.job import Job, Stopped
+from navigator.lib.system.which import which as _which
 
 TOOLS = ("gpg", "age")
 
@@ -75,12 +76,12 @@ GPG_BASE = ("--batch", "--yes", "--no-tty", "--status-fd", "2", "--pinentry-mode
 def program(tool: str, which: Callable[[str], str | None] | None = None) -> str | None:
     """*tool*'s command, or None.  ``shutil.which`` is looked up at the call,
     as :mod:`navigator.lib.system.printing` does, so the tests can replace it."""
-    return (which or shutil.which)(tool)
+    return (which or _which)(tool)
 
 
 def batchpass(which: Callable[[str], str | None] | None = None) -> str | None:
     """``age-plugin-batchpass``, which takes a passphrase from a pipe, or None."""
-    return (which or shutil.which)("age-plugin-batchpass")
+    return (which or _which)("age-plugin-batchpass")
 
 
 def available() -> tuple[str, ...]:

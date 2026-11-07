@@ -77,7 +77,9 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
 
 ## Auto refresh (`[file_manager] auto_refresh`)
 
-- **A panel watches the directory it shows** and re-reads it when that changes on disk. It is on by default, and is the
+- **A panel watches the directory it shows** (the watch set up on the scan's pool, `_watch_directory`: the Trash's
+  `watch` reads `.trashinfo`s, inotify on a dead mount waits; one landing after the panel moved on is cancelled by
+  `_watch_generation`) and re-reads it when that changes on disk. It is on by default, and is the
   ninth Behavior item in Options > File Manager > Setup. **A departure**: DN re-read a panel only on the `cmRereadDir`
   that whatever changed the directory broadcast (`RereadDirectory`), so another program's file waited for Ctrl+R.
 - `navigator/lib/system/dirwatch.py` puts one `watchdog` observer behind the whole process, with one **non-recursive**

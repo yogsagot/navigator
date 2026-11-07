@@ -82,6 +82,7 @@ from navigator.lib.drives.base import (
 )
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.sessions import Answers, NeedPassword
+from navigator.lib.system.which import which as _which
 
 #: The command spoken through.
 PROGRAM = "rclone"
@@ -121,7 +122,7 @@ _KINDS = {errno.ENOENT: FileNotFoundError, errno.EEXIST: FileExistsError, errno.
 
 def program() -> str | None:
     """Where ``rclone`` is, or None."""
-    return shutil.which(PROGRAM)
+    return _which(PROGRAM)
 
 
 def available() -> str | None:

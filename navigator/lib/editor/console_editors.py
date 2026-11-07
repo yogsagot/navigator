@@ -18,6 +18,7 @@ from collections.abc import Callable, Mapping
 
 from navigator.lib.config.associations import Action
 from navigator.lib.config.usermenu import commands_of
+from navigator.lib.system.which import which as _which
 
 #: The editors looked for, in the order offered: caption, and the command
 #: the file's name is put after.
@@ -48,7 +49,7 @@ def installed(which: Callable[[str], str | None] | None = None,
     tests' replacement reaches it.  It looks on the disk: call it on a thread.
     """
     if which is None:
-        which = shutil.which
+        which = _which
     if environ is None:
         environ = os.environ
     offered: list[tuple[str, str]] = []

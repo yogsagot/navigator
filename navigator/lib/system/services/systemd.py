@@ -35,6 +35,7 @@ from typing import Any
 
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import Backend, EditPlan, Journal, LogFile, Unit
+from navigator.lib.system.which import which as _which
 
 #: Where systemd says it is the system's manager (``sd_booted()``).
 RUN_SYSTEMD = Path("/run/systemd/system")
@@ -59,7 +60,7 @@ def refusal() -> str:
     """Why systemd is not this system's service manager, or ""."""
     from navkit.i18n import tr
 
-    if shutil.which("systemctl") is None:
+    if _which("systemctl") is None:
         return tr("There is no systemctl: install systemd")
     if not RUN_SYSTEMD.is_dir():
         return tr("systemd is not the system's service manager")

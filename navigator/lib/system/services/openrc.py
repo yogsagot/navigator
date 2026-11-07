@@ -35,6 +35,7 @@ from pathlib import Path
 
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import Backend, EditPlan, Journal, LogFile, Unit
+from navigator.lib.system.which import which as _which
 
 #: Where OpenRC says it is the system's manager (its run state).
 RUN_OPENRC = Path("/run/openrc")
@@ -80,7 +81,7 @@ def refusal() -> str:
     """Why OpenRC is not this system's service manager, or ""."""
     from navkit.i18n import tr
 
-    if shutil.which("rc-service") is None or shutil.which("rc-update") is None:
+    if _which("rc-service") is None or _which("rc-update") is None:
         return tr("There is no rc-service: install OpenRC")
     if not RUN_OPENRC.is_dir():
         return tr("OpenRC is not the system's service manager")

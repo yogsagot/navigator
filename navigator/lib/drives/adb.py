@@ -31,6 +31,7 @@ from navigator.lib.drives.base import CHMOD, FREE_SPACE, RENAME, WRITE, DriveGon
 from navigator.lib.drives.execdrive import ExecDrive
 from navigator.lib.drives.location import Site
 from navigator.lib.drives.sessions import Answers
+from navigator.lib.system.which import which as _which
 
 #: Where a device's files are, for the user.
 HOME = PurePosixPath("/sdcard")
@@ -57,11 +58,11 @@ SDK_DIRS = sdk_dirs
 
 def program() -> str | None:
     """Where ``adb`` is -- on ``PATH``, else in an Android SDK -- or None."""
-    found = shutil.which("adb")
+    found = _which("adb")
     if found:
         return found
     for place in sdk_dirs():
-        found = shutil.which("adb", path=str(place))
+        found = _which("adb", path=str(place))
         if found:
             return found
     return None
@@ -70,7 +71,7 @@ def program() -> str | None:
 def command() -> str:
     """The word that runs ``adb``: plain ``adb`` when ``PATH`` has it, the
     SDK's full path when only an SDK does."""
-    return "adb" if shutil.which("adb") else (program() or "adb")
+    return "adb" if _which("adb") else (program() or "adb")
 
 
 def available() -> str | None:

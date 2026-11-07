@@ -49,6 +49,7 @@ from pathlib import Path
 
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import UNKNOWN, Backend, EditPlan, Journal, LogFile, Unit
+from navigator.lib.system.which import which as _which
 
 #: Where the scripts are, the first there.
 INIT_DIRS = (Path("/etc/init.d"), Path("/etc/rc.d/init.d"))
@@ -277,7 +278,7 @@ def gather(user: bool = False, all_types: bool = False) -> list[Unit]:
 
 def enabler() -> str | None:
     """What enables a service here: ``update-rc.d``, ``chkconfig``, or None."""
-    return next((tool for tool in ("update-rc.d", "chkconfig") if shutil.which(tool)), None)
+    return next((tool for tool in ("update-rc.d", "chkconfig") if _which(tool)), None)
 
 
 def verbs() -> tuple[str, ...]:

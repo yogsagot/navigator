@@ -871,3 +871,49 @@ def test_the_volumes_window_mounts_an_image_asked_for_and_unmounts_it_whole(tmp_
     assert state["calls"] == [("attach", image), ("eject", "/dev/loop7")]
     assert seen["before"] == ("", "The cursor is on no disk image")
     assert seen["mounted"] == ("", "")
+
+
+# -- asked every frame a menu is open: kept, and never a realpath on the loop -------------------------
+
+
+def test_the_mount_table_is_read_once_within_its_ttl_and_again_after_a_mount(monkeypatch):
+    from pathlib import Path
+
+    reads = []
+    real = Path.read_text
+
+    def read_text(self, *args, **kwargs):
+        if str(self) == "/proc/self/mounts":
+            reads.append(1)
+        return real(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "read_text", read_text)
+    for _ in range(20):
+        udisks.image_mounts()
+    assert len(reads) == 1
+    udisks.forget_mounts()
+    udisks.image_mounts()
+    assert len(reads) == 2
+
+
+def test_unmount_image_is_answered_without_a_realpath(image_desk, monkeypatch):
+    import os.path
+
+    from conftest import run_app
+
+    app, here = image_desk
+    calls = []
+    real = os.path.realpath
+    monkeypatch.setattr(os.path, "realpath", lambda path, *a, **k: (calls.append(path), real(path, *a, **k))[1])
+    monkeypatch.setattr(udisks, "image_mounts", lambda *a, **k: [
+        udisks.ImageMount("/media/me/DISK", "/dev/loop7", str(here / "disk.iso"))])
+    seen = {}
+
+    def ask(a):
+        _at_image(a)
+        calls.clear()
+        seen["mounts"] = [m.point for m in a.manager.left.image_here()]
+        seen["calls"] = list(calls)
+
+    run_app(app, [ask])
+    assert seen == {"mounts": ["/media/me/DISK"], "calls": []}

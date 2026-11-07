@@ -16,6 +16,7 @@ import subprocess
 from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
+from navigator.lib.system.which import which as _which
 
 
 def graphical() -> bool:
@@ -101,7 +102,7 @@ def _shown(entry: dict[str, str], desktops: set[str]) -> bool:
     if entry.get("NoDisplay", "").lower() == "true" or entry.get("Hidden", "").lower() == "true":
         return False
     try_exec = entry.get("TryExec", "")
-    if try_exec and shutil.which(try_exec) is None:
+    if try_exec and _which(try_exec) is None:
         return False
     only = {each for each in entry.get("OnlyShowIn", "").upper().split(";") if each}
     if only and not only & desktops:

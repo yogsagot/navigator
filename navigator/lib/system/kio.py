@@ -39,6 +39,7 @@ from pathlib import Path
 from navigator.lib.system.desktop_entry import (
     App, application_dirs, desktop_file, desktop_name, launch_detached, set_default_in_mimeapps,
 )
+from navigator.lib.system.which import which as _which
 
 #: How long a quick question may take.
 TIMEOUT = 15.0
@@ -82,7 +83,7 @@ def command(name: str, which: Callable[[str], str | None] | None = None) -> str 
     ``shutil.which`` is looked up at the call, as :mod:`printing` does, so
     that replacing it in a test reaches here.
     """
-    which = which or shutil.which
+    which = which or _which
     for each in COMMANDS[name]:
         found = which(each)
         if found:
@@ -406,7 +407,7 @@ def kio_url(uri: str) -> str:
 
 def _vfs(method: str, argument: str, timeout: float) -> str:
     """kio-fuse's ``org.kde.KIOFuse.VFS.<method>(argument)``, its string answer."""
-    send = shutil.which("dbus-send")
+    send = _which("dbus-send")
     if send is None:
         raise OSError(errno.ENOENT, NO_KIO_FUSE)
     out = run([send, "--session", "--print-reply", f"--reply-timeout={int(timeout * 1000)}",

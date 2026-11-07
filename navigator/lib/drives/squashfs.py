@@ -33,6 +33,7 @@ from typing import IO, Any
 from navigator.lib.drives import arctool
 from navigator.lib.drives.arctool import ToolInfo
 from navigator.lib.drives.members import ListedArchive
+from navigator.lib.system.which import which as _which
 
 MAGIC = b"hsqs"
 
@@ -41,7 +42,7 @@ MISSING = "squashfs images need unsquashfs: install squashfs-tools"
 
 
 def program() -> str | None:
-    return shutil.which("unsquashfs")
+    return _which("unsquashfs")
 
 
 @lru_cache(maxsize=4)

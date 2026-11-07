@@ -309,6 +309,19 @@ def _english():
 
 
 @pytest.fixture(autouse=True)
+def _nothing_remembered():
+    """Programs looked up and the mount table read are looked at again in
+    every test: one test's fake ``udisksctl`` is not the next one's answer."""
+    from navigator.lib.system import udisks, which
+
+    which.forget()
+    udisks.forget_mounts()
+    yield
+    which.forget()
+    udisks.forget_mounts()
+
+
+@pytest.fixture(autouse=True)
 def _quiet_scheduler():
     """Keep one test's queued effects out of the next one."""
     SCHEDULER.clear()

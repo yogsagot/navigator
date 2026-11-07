@@ -26,6 +26,7 @@ from navigator.lib.drives.base import CHMOD, CHOWN, FREE_SPACE, RENAME, SYMLINK,
 from navigator.lib.drives.execdrive import ExecDrive
 from navigator.lib.drives.location import Site
 from navigator.lib.drives.sessions import Answers
+from navigator.lib.system.which import which as _which
 
 #: The command spoken through.
 ENGINE = "docker"
@@ -41,7 +42,7 @@ LOST_WORDS = ("is not running", "no such container", "cannot connect to the dock
 
 def program(engine: str = ENGINE) -> str | None:
     """Where *engine*'s command is, or None."""
-    return shutil.which(engine)
+    return _which(engine)
 
 
 def available() -> str | None:

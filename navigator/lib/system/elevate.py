@@ -34,6 +34,7 @@ from typing import Any
 
 from navigator.lib.system.roothelper import READY, receive, send
 from navigator.settings import ELEVATE
+from navigator.lib.system.which import which as _which
 
 #: The tools, in the order ``auto`` tries them.
 TOOLS = ("sudo", "pkexec")
@@ -110,7 +111,7 @@ class Elevation:
         if chosen == "off":
             return None
         for name in TOOLS if chosen == "auto" else (chosen,):
-            if shutil.which(name):
+            if _which(name):
                 return name
         return None
 

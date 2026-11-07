@@ -35,10 +35,13 @@ import os
 import re
 import shutil
 import subprocess
+import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
+
+from navigator.lib.system.which import which as _which
 
 #: How long a quick question may take.
 TIMEOUT = 15.0
@@ -74,7 +77,7 @@ def is_image_name(name: str) -> bool:
 def program(which: Callable[[str], str | None] | None = None) -> str | None:
     """The ``udisksctl`` to run, or None.  ``shutil.which`` is looked up at
     the call, so that replacing it in a test reaches here."""
-    return (which or shutil.which)("udisksctl")
+    return (which or _which)("udisksctl")
 
 
 def _reason(text: str, fallback: str) -> str:
@@ -95,7 +98,16 @@ def _reason(text: str, fallback: str) -> str:
 
 
 def run(argv: list[str], timeout: float = TIMEOUT) -> str:
-    """*argv*'s output; ``OSError`` with its reason when it fails."""
+    """*argv*'s output; ``OSError`` with its reason when it fails.  The
+    mount table remembered is let go of after it (:func:`forget_mounts`):
+    a mount, an unmount or an eject has just changed it, or may have."""
+    try:
+        return _run(argv, timeout)
+    finally:
+        forget_mounts()
+
+
+def _run(argv: list[str], timeout: float) -> str:
     name = Path(argv[0]).name
     try:
         result = subprocess.run(argv, capture_output=True, stdin=subprocess.DEVNULL, timeout=timeout)
@@ -346,7 +358,7 @@ def eject(where: str) -> None:
             run([_udisksctl(), "unmount", "-b", each.device, "--no-user-interaction"], timeout=MOUNT_TIMEOUT)
     drive = parse_dump(text).get(volume.drive, {}).get("Drive", {})
     if _true(drive, "Ejectable"):
-        busctl = shutil.which("busctl")
+        busctl = _which("busctl")
         if busctl is None:
             raise OSError(errno.ENOENT, NO_BUSCTL)
         run([busctl, "--system", "--allow-interactive-authorization=no", "call", "org.freedesktop.UDisks2",
@@ -422,7 +434,7 @@ def _set_autoclear(loop: str) -> None:
     """The loop device at *loop* detached by the kernel once nothing is
     mounted from it -- Volumes' Unmount, or the desktop's.  Without
     ``busctl`` it stays until Eject."""
-    busctl = shutil.which("busctl")
+    busctl = _which("busctl")
     if busctl is None:
         return
     try:
@@ -459,11 +471,43 @@ def _backing_file(name: str, block: Path) -> str:
     return text.removesuffix(_DELETED)
 
 
+#: How long the system's own mount table, read by :func:`image_mounts`, is
+#: kept: *Unmount image*'s menu entry asks it on every frame a menu is open.
+MOUNTS_TTL = 2.0
+
+_mounts_lock = threading.Lock()
+_mounts_read: tuple[float, list[ImageMount]] | None = None
+
+
+def forget_mounts() -> None:
+    """The mount table read again at the next :func:`image_mounts`."""
+    global _mounts_read
+    with _mounts_lock:
+        _mounts_read = None
+
+
 def image_mounts(mounts: str | None = None, block: Path = Path("/sys/class/block")) -> list[ImageMount]:
     """The file systems mounted from disk images where a desktop mounts
     (:data:`USER_MOUNTS`) -- snaps' images under ``/snap`` are not.  Read
     from ``/proc/self/mounts`` and sysfs only, which never wait on a disk,
-    so a menu being built may ask."""
+    so a menu being built may ask -- and kept :data:`MOUNTS_TTL` seconds,
+    since it asks every frame.  Given *mounts* (or another *block*), read
+    from those and kept for nobody."""
+    global _mounts_read
+    if mounts is None and block == Path("/sys/class/block"):
+        now = time.monotonic()
+        with _mounts_lock:
+            kept = _mounts_read
+        if kept is not None and now - kept[0] < MOUNTS_TTL:
+            return list(kept[1])
+        found = _image_mounts(None, block)
+        with _mounts_lock:
+            _mounts_read = (now, found)
+        return list(found)
+    return _image_mounts(mounts, block)
+
+
+def _image_mounts(mounts: str | None, block: Path) -> list[ImageMount]:
     from navigator.lib.system.diskinfo import unescape
 
     if mounts is None:

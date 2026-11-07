@@ -14,6 +14,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
+from navigator.lib.system.which import which as _which
 
 #: A zstd frame's first four bytes.
 MAGIC = b"\x28\xb5\x2f\xfd"
@@ -31,7 +32,7 @@ def _module() -> Any:
 
 
 def _program() -> str | None:
-    return shutil.which("zstd")
+    return _which("zstd")
 
 
 def available() -> bool:

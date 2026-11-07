@@ -22,6 +22,7 @@ import shlex
 import shutil
 
 from navigator.lib.drives.location import Location, Site
+from navigator.lib.system.which import which as _which
 
 #: The schemes a shell can be opened on: SSH's, the containers', a device's.
 SCHEMES = frozenset({"sftp", "docker", "podman", "adb"})
@@ -62,7 +63,7 @@ def program(scheme: str = "sftp") -> str | None:
         from navigator.lib.drives import adb
 
         return adb.program()
-    return shutil.which(PROGRAMS.get(scheme, scheme))
+    return _which(PROGRAMS.get(scheme, scheme))
 
 
 def closes(scheme: str):
@@ -140,7 +141,7 @@ KEYGEN = "ssh-keygen"
 
 def copy_id_program() -> str | None:
     """Where ``ssh-copy-id`` is, or None (OpenSSH's client package has it)."""
-    return shutil.which(COPY_ID)
+    return _which(COPY_ID)
 
 
 def _copy_id_options(words: list[str]) -> list[str]:

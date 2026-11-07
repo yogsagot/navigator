@@ -42,6 +42,7 @@ from urllib.parse import unquote, urlsplit
 from navigator.lib.system.desktop_entry import (
     App, application_dirs, desktop_file, desktop_name, graphical, launch_detached,
 )
+from navigator.lib.system.which import which as _which
 
 #: How long a quick question to ``gio`` may take.
 TIMEOUT = 15.0
@@ -71,7 +72,7 @@ def program(which: Callable[[str], str | None] | None = None) -> str | None:
     ``shutil.which`` is looked up at the call, as :mod:`printing` does, so
     that replacing it in a test reaches here.
     """
-    return (which or shutil.which)("gio")
+    return (which or _which)("gio")
 
 
 def _reason(text: str, fallback: str) -> str:
