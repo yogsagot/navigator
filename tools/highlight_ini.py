@@ -56,7 +56,8 @@ PREAMBLE = """\
 # WRAPJUSTIFY; here each does what it says), left_margin, right_margin and
 # paragraph (LEFTMARGIN, RIGHTMARGIN, PARAGRAPH), on/off or a number, and
 # line_ending = crlf, cr or lf (FORCECRLF, FORCECR, FORCELF): every line is
-# saved with it; and insert_tabs, not DN's, Tab typing tab characters.  Each key comes from the first section that takes the file
+# saved with it; and, not DN's, insert_tabs (Tab typing tab characters) and
+# line_numbers (the editor's line-number gutter).  Each key comes from the first section that takes the file
 # and sets it, else from [*] (DN's DEFAULT); a key set nowhere is the Editor
 # setup's, and a file edited before comes back as it was left.  For example:
 #

@@ -738,3 +738,9 @@ def test_a_mask_turns_tab_characters_on_for_makefiles_alone(files):
     rules = "[Makefile;*.mk]\ninsert_tabs = on\n"
     assert masked(files, rules, "Makefile", b"all:\n").insert_tabs is True
     assert masked(files, rules, "x.py", b"x\n").insert_tabs is False
+
+
+def test_a_mask_turns_line_numbers_on_for_its_files_alone(files):
+    rules = "[*.py]\nline_numbers = on\n"
+    assert masked(files, rules, "x.py", b"x\n").line_numbers is True
+    assert masked(files, rules, "x.txt", b"x\n").line_numbers is False

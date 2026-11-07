@@ -1308,3 +1308,18 @@ def test_the_editor_page_round_trips_tab_key_inserts_tabs(tmp_path, quiet_consol
                   KeyEvent("enter"), lambda a: None])
     assert SETTINGS.editor.insert_tabs is True
     assert "insert_tabs = yes" in config_path().read_text(encoding="utf-8")
+
+
+def test_the_editor_page_round_trips_line_numbers(tmp_path, quiet_console):
+    from navigator.settings import EditorDefaultsData
+
+    bit = 1 << EditorDefaultsData.OPTIONS.index("line_numbers")
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+
+    def tick(a):
+        a.modal.editor_viewer.editor.value |= bit
+
+    run_app(app, [lambda a: a.spawn(a.run_command(EditorDefaults)), lambda a: None, tick,
+                  KeyEvent("enter"), lambda a: None])
+    assert SETTINGS.editor.line_numbers is True
+    assert "line_numbers = yes" in config_path().read_text(encoding="utf-8")

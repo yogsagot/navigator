@@ -130,8 +130,9 @@ note:
 - **What a page does.** Each is a two-half component on a plain `Widget` (`*_page/`, `XPage`), laid out as the dialog
   it was, from `y: 1` (row 0 is the tab rule). `__init__` seeds the controls from its section (an optional section
   argument, else `SETTINGS.<name>`). `accept()` returns `{key: value}`. `EditorDefaultsPage` covers two sections and
-  returns `{"editor": {...}, "viewer": {...}}`; its editor cluster is 15 boxes in 8 rows since *Tab key inserts
-  tabs* (`insert_tabs`, kept before `show_options` so the strip's box stays last). Its tab caption (`title`) is given by `settings_dialog.nml`, where a
+  returns `{"editor": {...}, "viewer": {...}}`; its editor cluster is 16 boxes in 8 rows since *Tab key inserts
+  tabs* and *Line numbers* (`insert_tabs`, `line_numbers`, kept before `show_options` so the strip's box stays last;
+  *Line numbers* has no hot key, every letter of it being taken on the page). Its tab caption (`title`) is given by `settings_dialog.nml`, where a
   literal is translated live.
 - **Pages by id.** `settings_dialog.PAGES` maps each page id (`interface`, `editor_viewer`, ...) to its sections, and
   `SECTIONS` lists them all. Reach a page's controls as `dialog.interface.options` or `dialog.page("interface")`.

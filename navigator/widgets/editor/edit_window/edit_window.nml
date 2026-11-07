@@ -1,7 +1,7 @@
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
-from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine
+from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, SwitchLineNumbers, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine, LineGutter, gutter_width
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
@@ -55,11 +55,23 @@ EditWindow(Window):
         f8: PrintFile
         shift+f8: PrintBlock
 
-    FileEditor:
-        id: editor
+    #: *Line numbers* (a departure: DN numbered no lines), left of the text
+    #: and as wide as the line count's digits and a blank; the editor is
+    #: narrowed by it, so its own columns never change.  Off, it is nothing.
+    LineGutter:
+        id: gutter
+        target: editor
+        visible: editor.line_numbers
         x: 1
         y: 1
-        width: max(0, parent.width - 2)
+        width: min(gutter_width(editor.line_count), max(0, parent.width - 3)) if editor.line_numbers else 0
+        height: max(0, parent.height - 2)
+
+    FileEditor:
+        id: editor
+        x: 1 + gutter.width
+        y: 1
+        width: max(0, parent.width - 2 - gutter.width)
         height: max(0, parent.height - 2)
 
     #: Ctrl+F's Find bar and Ctrl+R's Replace bar (a departure): over the edit
@@ -635,6 +647,11 @@ EditWindow(Window):
                 text: '~T~ab characters'
                 tooltip: "Tab types tab characters, not spaces"
                 command: SwitchTabs
+            #: A departure: DN numbered no lines.
+            MenuItem:
+                text: 'Line ~n~umbers'
+                tooltip: "Number the lines in a gutter beside the text"
+                command: SwitchLineNumbers
             MenuItem:
                 text: 'Current ~l~ine highlight'
                 command: SwitchHiLine

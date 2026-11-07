@@ -523,7 +523,7 @@ class EditorDefaultsData(Section):
         "create_backup", "backspace_unindents", "auto_brackets", "auto_indent",
         "autowrap", "justify_on_wrap", "vertical_blocks", "optimal_fill",
         "highlight_line", "highlight_column", "persistent_blocks",
-        "overwrite_blocks", "lock_file", "insert_tabs", "show_options",
+        "overwrite_blocks", "lock_file", "insert_tabs", "line_numbers", "show_options",
     )
     #: DN's order was CR+LF, CR, LF; POSIX's own ending comes first here.
     LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
@@ -581,6 +581,9 @@ class EditorDefaultsData(Section):
     #: stop, then blanks (``columns.fill``).  Per file by ``highlight.ini``'s
     #: ``insert_tabs``; Editor > Options switches it per editor.
     insert_tabs: bool = Setting(False, doc="Tab inserts tab characters, not spaces")
+    #: Not DN's, which numbered no lines (its info line said the cursor's):
+    #: the gutter beside the text (``LineGutter``), off by default.
+    line_numbers: bool = Setting(False, doc="A new editor numbers its lines in a gutter")
     #: A departure, asked for, with the encodings the editor learnt
     #: (``navigator.lib.editor.encodings``): ``utf-8`` keeps the bytes that
     #: do not decode as they are.

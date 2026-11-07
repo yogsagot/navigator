@@ -121,7 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-8. (Not DN's) a line-number gutter.
 9. (Not DN's) soft wrap.
 10. (Not DN's) two views of one document.
 11. (Not DN's) the find bar's regex across lines.
@@ -155,4 +154,18 @@ While on, the blanks typed are `columns.fill(start, stop, tab)` -- a tab to each
 ends, no `_pad` spaces before the tabs), Backspace's unindent, the virtual columns Enter carries off an all-blank
 line, and a stream block's Tab (one `\t` a line). A column block's Tab keeps blanks (a tab in a rectangle widens by
 where it lands), ^K I keeps DN's one blank, and paragraph format, Auto wrap and Optimal fill are untouched.
+
+**Line numbers** (`line_numbers`; a departure, off by default: DN numbered no lines, its info line said the cursor's):
+`LineGutter` (in `file_editor.py`, beside `InfoLine`) is a widget of its own left of the editor, and the window
+binds the editor's `x`/`width` around it -- so nothing inside `FileEditor` (mouse, ruler, current column, scrolling,
+bidi rows) learns of an offset. Its width is `gutter_width(line_count)`: the digits, two at least so the tenth line
+moves nothing, and a blank; 0 while off. Each row's number is right-aligned, the cursor's in `LineGutter::current`;
+a left press on one takes the cursor to that line's start. It keeps the default `mirrors`, `FileEditor` does not:
+on a right-to-left screen it lands right of the text, where right-aligned Hebrew/Arabic lines start, digits in order.
+Its property is `target`, not `editor`: in the window's markup that name is the editor's id, and `editor: editor`
+binds the property to itself (`CycleError`). Switched like *Tab characters*: `[editor] line_numbers`, the Editor
+defaults page's 16th box (no hot key: the page has none of its letters left), `highlight.ini`'s `line_numbers`,
+Editor > Options > *Line numbers* (`SwitchLineNumbers`), the edit history's nullable field -- and not on the option
+strip, whose width is the horizontal scroll bar's room. Colours: `$gutter`/`$gutter-current`, `DERIVED` aliases of
+[70]/[71]. Soft wrap (item 9), when it comes, leaves a wrapped row's number blank.
 

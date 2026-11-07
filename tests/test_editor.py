@@ -3357,6 +3357,92 @@ def menu_names(menu) -> set[str]:
     return found
 
 
+# -- Line numbers: the gutter (a departure, off by default) ------------------------------------------
+
+
+def numbered(files, count, *keys, width=60, height=16):
+    """A *count*-line text.txt in an editor with *Line numbers* on, then *keys*: the app and its window."""
+    SETTINGS.editor.line_numbers = True
+    SETTINGS.interface.store_editor_position = False
+    (files / "text.txt").write_text("".join(f"line {n}\n" for n in range(count)))
+    app = Navigator(files, files, terminal=FakeTerminal(width, height))
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys])
+    return app, editor_window(app)
+
+
+def test_line_numbers_number_each_row_and_the_editor_is_narrowed_by_the_gutter(files):
+    from navigator.widgets.editor.file_editor import gutter_width
+
+    app, window = numbered(files, 12, KeyEvent("down"), KeyEvent("down"))
+    gutter, editor = window.gutter, window.editor
+    assert gutter.visible and gutter.width == 3 == gutter_width(13)
+    assert editor.x == gutter.x + gutter.width and editor.width == window.width - 2 - gutter.width
+    buffer = screen(app)
+    ox, oy = gutter.offset()
+    rows = ["".join(buffer.get(ox + gutter.x + x, oy + gutter.y + y)[0] for x in range(9)) for y in range(12)]
+    assert rows[0] == " 1 line 0" and rows[9] == "10 line 9" and rows[11] == "12 line 1"[:9]
+    current = buffer.get(ox + gutter.x, oy + gutter.y + 2)[1]
+    other = buffer.get(ox + gutter.x, oy + gutter.y + 1)[1]
+    assert current == gutter.part_style("current") and other == gutter.style and current != other
+
+
+def test_the_gutter_widens_with_the_line_count_and_the_cursors_column_stays(files):
+    _, window = numbered(files, 9)
+    assert window.gutter.width == 3  # two digits at least, so the tenth line moves nothing
+    _, window = numbered(files, 9, KeyEvent("end", ctrl=True), PasteEvent("x\n" * 95),
+                         KeyEvent("up"), KeyEvent("home"), KeyEvent("right"))
+    assert window.gutter.width == 4 and window.editor.col == 1
+
+
+def test_after_scrolling_the_first_rows_number_is_the_top_line(files):
+    app, window = numbered(files, 100, KeyEvent("pagedown"), KeyEvent("pagedown"))
+    editor = window.editor
+    assert editor.top > 0
+    buffer = screen(app)
+    ox, oy = window.gutter.offset()
+    first = "".join(buffer.get(ox + window.gutter.x + x, oy + window.gutter.y)[0] for x in range(3))
+    assert first.strip() == str(editor.top + 1)
+
+
+def test_line_numbers_are_off_by_default_and_the_editor_keeps_its_place(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
+    window = editor_window(app)
+    assert not window.gutter.visible and window.gutter.width == 0
+    assert (window.editor.x, window.editor.width) == (1, window.width - 2)
+
+
+def test_a_click_on_a_number_takes_the_cursor_to_its_line(files):
+    from navkit.events import MouseClickEvent
+
+    _, window = numbered(files, 12, KeyEvent("end"),
+                         lambda a: a.spawn(editor_window(a).gutter.on_mouse_click(
+                             MouseClickEvent(x=1, y=5, button="left", action="press"))), IDLE)
+    assert (window.editor.line, window.editor.col) == (5, 0)
+
+
+def test_editor_options_line_numbers_switches_the_gutter_and_is_ticked(files):
+    from navigator.widgets.editor.commands import SwitchLineNumbers
+
+    seen = {}
+    _, editor = text_editor(files, b"x\n", chosen("Options", "Line numbers"), IDLE,
+                            lambda a: seen.update(ticked=editor_window(a).editor.checks(SwitchLineNumbers()),
+                                                  width=editor_window(a).gutter.width))
+    assert editor.line_numbers is True and seen["ticked"] is True and seen["width"] == 3
+
+
+def test_on_a_mirrored_screen_the_numbers_are_right_of_the_text_and_read_left_to_right(files):
+    SETTINGS.editor.line_numbers = True
+    (files / "text.txt").write_text("".join(f"l{n}\n" for n in range(12)))
+    app = Navigator(files, files, terminal=FakeTerminal(40, 16))
+    app.direction = "rtl"
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: None])
+    rows = ["".join(app._front.get(x, y)[0] or " " for x in range(40)) for y in range(16)]
+    tenth = next(row for row in rows if "10" in row and "l9" in row)
+    # The gutter on the right of the text, its digits in order.
+    assert tenth.index("l9") < tenth.index("10")
+
+
 def test_every_editor_command_the_default_keys_leave_unbound_is_on_the_menu(files):
     import configparser
     import importlib.resources

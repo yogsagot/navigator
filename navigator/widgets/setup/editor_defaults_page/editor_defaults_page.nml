@@ -16,6 +16,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: what a file that is not UTF-8 is read as (``[editor] fallback_encoding``).
 #: So is *Tab key inserts tabs* (``[editor] insert_tabs``; DN's Tab wrote
 #: blanks): the editor cluster is a row taller for it, all below a row down.
+#: *Line numbers* (``[editor] line_numbers``; DN numbered no lines) fills
+#: the cluster's last place, with no hot key: the page has no letter of it left.
 EditorDefaultsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -35,7 +37,7 @@ EditorDefaultsPage:
         y: 2
         width: max(0, parent.width - 4)
         height: 8
-        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Tab ~k~ey inserts tabs", "Option ~s~trip"]
+        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Tab ~k~ey inserts tabs", "Line numbers", "Option ~s~trip"]
 
     Label:
         id: viewer_caption

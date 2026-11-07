@@ -446,6 +446,10 @@ $sync-same-fg: $panel-fg;             /*  Synchronize's rows that are the same -
 $sync-same-bg: $panel-bg;
 $sync-conflict-fg: $highlight-custom-4-fg;/*  Synchronize's conflicts -- on Custom 4 [180] */
 $sync-conflict-bg: $highlight-custom-4-bg;
+$gutter-fg: $editor-frame-passive-fg; /*  a line number in the editor's gutter -- DN numbered no lines; on Frame passive [70] */
+$gutter-bg: $editor-frame-passive-bg;
+$gutter-current-fg: $editor-frame-active-fg;/*  the cursor's line number in the gutter -- on Frame active [71] */
+$gutter-current-bg: $editor-frame-active-bg;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

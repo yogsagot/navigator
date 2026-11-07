@@ -488,6 +488,7 @@ DERIVED_ROLES: dict[str, tuple[str, str]] = {
     "diff-changed": ("number", "ground"),
     "sync-new": ("string", "ground"), "sync-changed": ("number", "ground"),
     "sync-same": ("temp", "ground"), "sync-conflict": ("broken", "ground"),
+    "gutter": ("text_faint", "ground"), "gutter-current": ("text_strong", "ground"),
 }
 
 assert set(SLOT_ROLES) == {slot.name for slot in SLOTS}, set(SLOT_ROLES) ^ {slot.name for slot in SLOTS}

@@ -93,7 +93,7 @@ EDITOR_KEYS: dict[str, type] = {
     "backspace_unindents": bool, "highlight_line": bool, "highlight_column": bool,
     "autowrap": bool, "justify_on_wrap": bool,
     # Not DN.HGL's: *Tab characters*, what Tab types (``[editor] insert_tabs``).
-    "insert_tabs": bool,
+    "insert_tabs": bool, "line_numbers": bool,
     "left_margin": int, "right_margin": int, "paragraph": int,
     "line_ending": str,
 }

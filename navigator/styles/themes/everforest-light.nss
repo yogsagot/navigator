@@ -475,3 +475,7 @@ $sync-same-fg: $color-temp;           /*  Synchronize's rows that are the same -
 $sync-same-bg: $color-ground;
 $sync-conflict-fg: $color-broken;     /*  Synchronize's conflicts -- on Custom 4 */
 $sync-conflict-bg: $color-ground;
+$gutter-fg: $color-text_faint;        /*  a line number in the editor's gutter -- DN numbered no lines; on Frame passive */
+$gutter-bg: $color-ground;
+$gutter-current-fg: $color-text_strong;/*  the cursor's line number in the gutter -- on Frame active */
+$gutter-current-bg: $color-ground;

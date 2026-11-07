@@ -82,6 +82,8 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   in every palette.
   They colour the error box (`ErrorDialog`), which departs from DN, whose `mfError` box kept the grey dialog palette.
   The eleven themes got their four lines by hand, spelled the way each theme spells `root-title`.
+  `gutter` and `gutter-current` (of [70]/[71], the editor's passive and active frame) colour the editor's
+  line-number gutter (`LineGutter`, a departure); themegen gives them faint and strong text on the ground.
 - **The tables live in `navigator/lib/appearance/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because
   Options > Colors reads them too: its groups are `ENTRIES`' runs of one group name (so *Tree* and *Menu* come twice,
   as in DN) and a last *Navigator* group of `DERIVED` (`DERIVED_ITEMS` names them).

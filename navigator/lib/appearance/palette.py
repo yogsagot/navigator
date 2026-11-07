@@ -254,6 +254,8 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "sync-changed": (177, "Synchronize's rows that differ -- on Custom 3"),
     "sync-same": (85, "Synchronize's rows that are the same -- on Normal text"),
     "sync-conflict": (180, "Synchronize's conflicts -- on Custom 4"),
+    "gutter": (70, "a line number in the editor's gutter -- DN numbered no lines; on Frame passive"),
+    "gutter-current": (71, "the cursor's line number in the gutter -- on Frame active"),
 }
 
 
@@ -319,6 +321,8 @@ DERIVED_ITEMS = {
     "sync-changed": "Synchronize: different",
     "sync-same": "Synchronize: identical",
     "sync-conflict": "Synchronize: conflict",
+    "gutter": "Line numbers",
+    "gutter-current": "Current line number",
 }
 
 #: Where the Colors dialog keeps the user's palettes, in the configuration

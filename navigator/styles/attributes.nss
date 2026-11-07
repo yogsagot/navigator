@@ -242,3 +242,5 @@ $sync-new-bold: inherit; $sync-new-dim: inherit; $sync-new-italic: inherit; $syn
 $sync-changed-bold: inherit; $sync-changed-dim: inherit; $sync-changed-italic: inherit; $sync-changed-underline: inherit; $sync-changed-reverse: inherit;
 $sync-same-bold: inherit; $sync-same-dim: inherit; $sync-same-italic: inherit; $sync-same-underline: inherit; $sync-same-reverse: inherit;
 $sync-conflict-bold: inherit; $sync-conflict-dim: inherit; $sync-conflict-italic: inherit; $sync-conflict-underline: inherit; $sync-conflict-reverse: inherit;
+$gutter-bold: inherit; $gutter-dim: inherit; $gutter-italic: inherit; $gutter-underline: inherit; $gutter-reverse: inherit;
+$gutter-current-bold: inherit; $gutter-current-dim: inherit; $gutter-current-italic: inherit; $gutter-current-underline: inherit; $gutter-current-reverse: inherit;

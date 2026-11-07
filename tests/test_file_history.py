@@ -256,6 +256,14 @@ def test_tab_characters_switched_from_the_menu_come_back_and_an_old_record_keeps
     assert seen["editor"].insert_tabs is True
 
 
+def test_line_numbers_switched_from_the_menu_come_back_on_reopening(files):
+    from navigator.widgets.editor.commands import SwitchLineNumbers
+
+    editor = reopened(files, lambda a: a.spawn(a.run_command(SwitchLineNumbers(), active(a).editor)), IDLE)
+    assert editor.line_numbers is True
+    assert EditRecord.find(files / "text.txt").line_numbers is True
+
+
 def test_margins_out_of_order_are_put_right_as_format_margins_does(files):
     EditRecord.store(files / "text.txt", line=0, col=0, top=0,
                      left_margin=90, right_margin=60, paragraph=70)

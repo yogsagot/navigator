@@ -62,6 +62,7 @@ from navigator.widgets.editor.commands import (
     SwitchHiddenChars,
     SwitchFill,
     SwitchTabs,
+    SwitchLineNumbers,
     CapString,
     CapWord,
     LowString,
@@ -684,6 +685,11 @@ class FileEditor(ContextMenuHost, Widget):
     #: Editor > Options.
     insert_tabs: bool = reactive(False)
 
+    #: *Line numbers* (not DN's): the window shows a :class:`LineGutter`
+    #: beside this editor.  Seeded from ``[editor] line_numbers``, set per file
+    #: by ``highlight.ini``, switched by Editor > Options.
+    line_numbers: bool = reactive(False)
+
     #: Spaces, tabs and each line's ending drawn faintly (:data:`HIDDEN_MARKS`):
     #: a departure, DN had no such option.  Seeded from ``[editor] show_hidden``.
     show_hidden: bool = reactive(False)
@@ -742,6 +748,7 @@ class FileEditor(ContextMenuHost, Widget):
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.insert_tabs = SETTINGS.editor.insert_tabs
+        self.line_numbers = SETTINGS.editor.line_numbers
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         self.show_hidden = SETTINGS.editor.show_hidden
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
@@ -838,7 +845,7 @@ class FileEditor(ContextMenuHost, Widget):
         "auto_brackets": "auto_brackets", "backspace_unindents": "back_indent",
         "highlight_line": "highlight_line", "highlight_column": "highlight_column",
         "autowrap": "autowrap", "justify_on_wrap": "justify_on_wrap",
-        "insert_tabs": "insert_tabs",
+        "insert_tabs": "insert_tabs", "line_numbers": "line_numbers",
     }
 
     def apply_defaults(self, document: Document) -> None:
@@ -2432,6 +2439,11 @@ class FileEditor(ContextMenuHost, Widget):
         self.show_hidden = not self.show_hidden
         return True
 
+    async def on_switch_line_numbers(self, event: SwitchLineNumbers) -> bool:
+        """*Line numbers* (not DN's): the gutter shown or hidden for this editor."""
+        self.line_numbers = not self.line_numbers
+        return True
+
     async def on_switch_tabs(self, event: SwitchTabs) -> bool:
         """*Tab characters* (not DN's): ``insert_tabs`` switched for this editor."""
         self.insert_tabs = not self.insert_tabs
@@ -3052,6 +3064,8 @@ class FileEditor(ContextMenuHost, Widget):
             return self.optimal_fill
         if isinstance(command, SwitchTabs):
             return self.insert_tabs
+        if isinstance(command, SwitchLineNumbers):
+            return self.line_numbers
         if isinstance(command, SwitchHiLine):
             return self.highlight_line
         if isinstance(command, SwitchHiColumn):
@@ -4098,6 +4112,61 @@ class FileEditor(ContextMenuHost, Widget):
             for y in range(self.height):
                 char = surface.get(x, y)[0] or " "
                 surface.set_cell(x, y, char, column_style)
+
+
+def gutter_width(line_count: int) -> int:
+    """The columns :class:`LineGutter` takes for *line_count* lines: the
+    digits of the last number, two at least so a text reaching its tenth line
+    does not move, and a blank before the text."""
+    return max(2, len(str(max(1, line_count)))) + 1
+
+
+class LineGutter(Widget):
+    """*Line numbers* (not DN's, which numbered no lines): each row's line
+    number beside the editor's text, the cursor's in ``::current``.
+
+    A widget of its own beside :class:`FileEditor`, which the window narrows
+    by its width, so nothing inside the editor learns of an offset.  It keeps
+    the default ``mirrors``: on a right-to-left screen it lands on the right
+    of the text, where its right-aligned lines start, its blank against them
+    and its digits still read left to right.  A click on a number takes the
+    cursor to that line's start.  (Soft wrap, when it comes, leaves a wrapped
+    row's number blank.)
+    """
+
+    parts = ("current",)
+
+    #: The editor whose lines are numbered.  Not ``editor``: in the window's
+    #: markup that name is the editor's id, and binding it to itself cycles.
+    target: Any = reactive(None)
+
+    def render(self, surface: Surface) -> None:
+        editor = self.target
+        normal = self.style
+        surface.fill(0, 0, self.width, self.height, " ", normal)
+        if editor is None or self.width < 2:
+            return
+        current = self.part_style("current")
+        digits = self.width - 1
+        count, top, cursor = editor.line_count, editor.top, editor.line
+        for y in range(self.height):
+            number = top + y
+            if number >= count:
+                break
+            surface.draw_text(0, y, str(number + 1).rjust(digits)[-digits:],
+                              current if number == cursor else normal)
+
+    async def on_mouse_click(self, event: MouseClickEvent) -> bool:
+        editor = self.target
+        if editor is None or event.button != "left" or event.action != "press":
+            return False
+        number = editor.top + event.y
+        if number >= editor.line_count:
+            return True
+        editor.focus()
+        editor._moved()
+        editor._move_to(number, 0)
+        return True
 
 
 class InfoLine(StaticText):

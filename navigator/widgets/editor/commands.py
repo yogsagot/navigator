@@ -436,6 +436,13 @@ class SwitchTabs(Command):
     title = "Tab characters"
 
 
+class SwitchLineNumbers(Command):
+    """Editor > Options > *Line numbers* (not DN's): the gutter beside the text
+    (``FileEditor.line_numbers``, ``LineGutter``)."""
+
+    title = "Line numbers"
+
+
 class SwitchFill(Command):
     """``cmSwitchFill``: Editor > Options > *Optimal fill* -- blanks written as tabs
     where they reach a tab stop (``OptimalFill``)."""
@@ -738,6 +745,7 @@ __all__ = [
     "SaveWithEncoding",
     "SwitchFill",
     "SwitchTabs",
+    "SwitchLineNumbers",
     "CapString",
     "CapWord",
     "LowString",

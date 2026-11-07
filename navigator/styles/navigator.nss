@@ -729,6 +729,11 @@ EditWindow StaticText#info                     { fg: $editor-frame-active-fg;  b
 /* A departure: (↕) under Vertical blocks, the info line's colours reversed --
    it stands out whatever the theme. */
 EditWindow InfoLine::column_block              { reverse: true }
+/* A departure: the line-number gutter (LineGutter) -- DN numbered no lines.
+   Navigator's `$gutter' and `$gutter-current', aliases of the editor's
+   passive and active frame [70]/[71] in the DOS themes. */
+LineGutter                                     { fg: $gutter-fg;         bg: $gutter-bg;         bold: $gutter-bold;         dim: $gutter-dim;         italic: $gutter-italic;         underline: $gutter-underline;         reverse: $gutter-reverse }
+LineGutter::current                            { fg: $gutter-current-fg; bg: $gutter-current-bg; bold: $gutter-current-bold; dim: $gutter-current-dim; italic: $gutter-current-italic; underline: $gutter-current-underline; reverse: $gutter-current-reverse }
 /* A departure: the option strip (OptionStrip) -- DN had none.  The active
    frame's colours, an option that is on reversed as (↕) is, one that cannot
    run now faint. */
