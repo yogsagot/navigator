@@ -122,8 +122,8 @@ class Setting(Reactive):
     *doc* is the comment above the key.  *choices* limits a string to a set of
     words, and *aliases* maps a word an older file may hold to the choice
     that replaced it, so it is read without a warning and written back new.
-    *honoured* false says nothing reads the setting yet, which the comment
-    then tells whoever edits the file.
+    A setting is added with the code that reads it: there is no "stored,
+    not yet read" state for its comment to own up to.
     """
 
     def __init__(
@@ -133,13 +133,11 @@ class Setting(Reactive):
         doc: str,
         choices: tuple[str, ...] | None = None,
         aliases: Mapping[str, str] | None = None,
-        honoured: bool = True,
     ) -> None:
         super().__init__(default)
         self.doc = doc
         self.choices = choices
         self.aliases = dict(aliases or {})
-        self.honoured = honoured
 
     def parse(self, text: str) -> bool | int | str:
         """*text* as this key's type; ``ValueError`` if it is not one."""
@@ -169,8 +167,6 @@ class Setting(Reactive):
         text = self.doc
         if self.choices is not None:
             text += f" ({' / '.join(self.choices)})"
-        if not self.honoured:
-            text += " -- stored, not yet honoured"
         return text
 
 

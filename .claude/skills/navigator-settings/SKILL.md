@@ -51,13 +51,13 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 ## Declaring a setting
 
 - **Declare it as a field.** A section is a `Section` subclass whose fields are `Setting(default, doc=...,
-  choices=..., honoured=...)`, a `navkit.reactive.Reactive` subclass. The schema comes from the class:
+  choices=..., aliases=...)`, a `navkit.reactive.Reactive` subclass. The schema comes from the class:
   - the attribute name is the ini key
   - the default's type (bool, int or str) is how the value parses
   - `choices` limits a string
   - `doc` is the comment written above the key
-- **A setting nothing reads yet is `honoured=False`.** The ini comment then says "stored, not yet honoured". When you
-  wire one up, drop the flag.
+- **A setting is added with the code that reads it** -- and with a control (*Every setting has a control*, below).
+  There is no "stored, not yet read" state: the `honoured=False` flag that marked one went once every setting was read.
 - **Field order matters.** Fields keep DN's dialog order. Tuples on the class (`OPTIONS`, `BEHAVIOR`, `DISPLAY`, ...)
   list a `CheckBoxes`' items in bit order. `to_bits(names)` and `from_bits(names, value)` convert between those fields
   and `CheckBoxes.value`. A departure's checkbox goes last, so the original options' bits stay put:
@@ -261,8 +261,6 @@ note:
 The `panel_defaults` *Display* boxes above are read live by every panel (`Panel.shows`) **until Alt+S's *Panel
 Options* gives that panel its own** (`Panel.display`), a departure: DN copied *New Manager defaults* into each
 manager it made.
-
-Everything else is `honoured=False`.
 
 ## Tests
 

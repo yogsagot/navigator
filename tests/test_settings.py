@@ -1281,3 +1281,15 @@ def test_the_new_pages_controls_all_say_what_they_set(tmp_path, quiet_console):
     for control in (tools.age_identities.entry, tools.processes_refresh, tools.services_manager,
                     tools.services_refresh, tools.journal_lines, tools.monitor_refresh):
         assert control.tooltip
+
+
+def test_no_setting_is_stored_without_being_read(tmp_path):
+    import inspect
+
+    from navigator.settings import Setting
+
+    # The "stored, not yet honoured" state is gone: a setting comes with the code that reads it.
+    assert "honoured" not in inspect.signature(Setting.__init__).parameters
+    path = tmp_path / "navigator.ini"
+    SETTINGS.save(path)
+    assert "not yet honoured" not in path.read_text(encoding="utf-8")

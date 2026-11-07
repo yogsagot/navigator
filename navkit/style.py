@@ -4,8 +4,8 @@ A :class:`Style` is an immutable description of how a single screen cell looks.
 It knows how to emit itself as an SGR escape sequence; nothing else in navkit
 writes colour codes by hand.
 
-The stylesheet library and its lookup engine will grow on top of this module;
-for now this is only the value type they will resolve to.
+The stylesheet engine (:mod:`navkit.stylesheet`) resolves a widget's rules
+to these values; this module is only the value type.
 """
 
 from __future__ import annotations
