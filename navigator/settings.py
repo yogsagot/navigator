@@ -523,7 +523,7 @@ class EditorDefaultsData(Section):
         "create_backup", "backspace_unindents", "auto_brackets", "auto_indent",
         "autowrap", "justify_on_wrap", "vertical_blocks", "optimal_fill",
         "highlight_line", "highlight_column", "persistent_blocks",
-        "overwrite_blocks", "lock_file", "show_options",
+        "overwrite_blocks", "lock_file", "insert_tabs", "show_options",
     )
     #: DN's order was CR+LF, CR, LF; POSIX's own ending comes first here.
     LINE_DIVISORS: ClassVar[tuple[str, ...]] = ("lf", "crlf", "cr")
@@ -576,6 +576,11 @@ class EditorDefaultsData(Section):
         "lf", choices=LINE_DIVISORS, doc="Line ending of a file with none yet, a new one",
     )
     tab_size: int = Setting(8, doc="Tab size")
+    #: Not DN's, whose Tab always wrote blanks (``MakeTab``/``DoTab``): Tab,
+    #: Backspace's unindent and a block's Tab write tab characters to each
+    #: stop, then blanks (``columns.fill``).  Per file by ``highlight.ini``'s
+    #: ``insert_tabs``; Editor > Options switches it per editor.
+    insert_tabs: bool = Setting(False, doc="Tab inserts tab characters, not spaces")
     #: A departure, asked for, with the encodings the editor learnt
     #: (``navigator.lib.editor.encodings``): ``utf-8`` keeps the bytes that
     #: do not decode as they are.

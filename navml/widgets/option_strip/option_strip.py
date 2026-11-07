@@ -56,7 +56,8 @@ class OptionItem:
     overrides the command's ``checks``: a value such as the file type is never
     lit, and Insert/Overwrite is lit in overwrite.  *tooltip* says what the
     option is, called when the tooltip shows -- a callable so the caller's
-    ``tr("...")`` is a literal the catalogue extraction finds.
+    ``tr("...")`` is a literal the catalogue extraction finds.  A label of
+    ``""`` leaves the item out for now: an option shown only while it is on.
     """
 
     command: Binding
@@ -107,6 +108,8 @@ class OptionStrip(Widget):
         found, column = [], 0
         for item in self.items:
             label = item.label()
+            if not label:
+                continue
             end = column + text_width(label) + 2
             if end > self.room:
                 break

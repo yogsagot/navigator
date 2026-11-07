@@ -142,6 +142,7 @@ OPTION_STREAM_BLOCKS = "\uf07e"    # nf-fa-arrows_h
 OPTION_COLUMN_BLOCKS = "\uf07d"    # nf-fa-arrows_v
 OPTION_INSERT = "\uf246"     # nf-fa-i_cursor
 OPTION_INDENT = "\uf03c"     # nf-fa-indent
+OPTION_TABS = "\U000f0312"   # nf-md-keyboard_tab
 OPTION_WRAP = "\uf149"       # nf-fa-level_down
 OPTION_BRACKETS = "\uf121"   # nf-fa-code
 OPTION_HIGHLIGHT = "\uf1fc"  # nf-fa-paint_brush

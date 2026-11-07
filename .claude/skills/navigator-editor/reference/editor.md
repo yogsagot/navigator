@@ -121,7 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-7. (Not DN's) a real tab character, a setting and per mask.
 8. (Not DN's) a line-number gutter.
 9. (Not DN's) soft wrap.
 10. (Not DN's) two views of one document.
@@ -139,9 +138,21 @@ left behind when nothing follows. Enter in overwrite only moves to the next line
 **Tab is DN's `DoTab`** (`MICROED.PAS:2441`), the line *directly* above read: past the rest of the word over the
 cursor (at least one column -- DN's `repeat` moves before it looks, so from under a blank it passes the next word
 too), on over the blanks after it, then one more, onto the next word's start, or one past the end where the word ran
-to it. On the first line, or past the end of the one above, `MakeTab`'s next stop. Blanks always, never a tab
-character, as DN; in overwrite it moves there instead, kept within the line's text as overwrite keeps the cursor.
+to it. On the first line, or past the end of the one above, `MakeTab`'s next stop. Blanks, as DN -- unless
+*Tab characters* is on (below); in overwrite it moves there instead, kept within the line's text as overwrite keeps the cursor.
 `columns.smart_tab(above, column, tab)` is the rule, pure; `FileEditor._tab_stop` applies it. A departure: the line
 above is read by display column (a tab there as the blanks it shows, a wide character as two), where DN had every tab
 expanded on reading. DN had no switch for it, nor has Navigator.
+
+**Tab characters** (`insert_tabs`; a departure, opt-in: DN's Tab wrote blanks): `[editor] insert_tabs`, the Editor
+defaults page's *Tab key inserts tabs* (the cluster's 15th box, the page a row taller), `highlight.ini`'s
+`insert_tabs` per mask (the template's example `[Makefile;GNUmakefile;*.mk]`, commented out), Editor > Options >
+*Tab characters* (`SwitchTabs`, ticked), the strip's `Tab`/`↹` -- there only while on (an `OptionItem` whose label
+is `""` is left out), since a wider strip squeezes the horizontal scroll bar under 4 columns on an 80-column CRLF
+file -- and the edit history's nullable `insert_tabs`.
+While on, the blanks typed are `columns.fill(start, stop, tab)` -- a tab to each stop on the way, then spaces: Tab
+(the column still `_tab_stop`'s, so Smart tab lines up by width; past the line's end filled from where the text
+ends, no `_pad` spaces before the tabs), Backspace's unindent, the virtual columns Enter carries off an all-blank
+line, and a stream block's Tab (one `\t` a line). A column block's Tab keeps blanks (a tab in a rectangle widens by
+where it lands), ^K I keeps DN's one blank, and paragraph format, Auto wrap and Optimal fill are untouched.
 

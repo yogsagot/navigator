@@ -2895,7 +2895,10 @@ def test_the_strip_spells_each_option_for_the_glyph_tier(files, tier, expected):
     # Wide enough for every item: at 80 columns the ascii words no longer fit
     # beside the line-ending and encoding markers, and the file type goes first.
     app = Navigator(files, files, terminal=FakeTerminal(90, 24, info=replace(FULL, glyphs=tier)))
-    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE])
+    # The file type is "auto" until the lexing thread has said: wait for its answer.
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"),
+                  Until(lambda a: editor_window(a) is not None and editor_window(a).editor.lexer_name is not None),
+                  IDLE])
     labels = [span[3] for span in editor_window(app).options.spans]
     assert labels == expected
 
@@ -3248,6 +3251,68 @@ def test_tab_in_overwrite_moves_under_the_next_word_and_inserts_nothing(files):
     _, editor = text_editor(files, b"int  count;\nabcdefghijk\n", KeyEvent("down"), KeyEvent("insert"),
                             KeyEvent("tab"))
     assert editor.document.encode() == b"int  count;\nabcdefghijk\n" and (editor.line, editor.col) == (1, 5)
+
+
+@pytest.mark.parametrize("start, stop, blanks", [
+    (0, 8, "\t"), (3, 16, "\t\t"), (3, 12, "\t    "), (8, 8, ""), (3, 6, "   "), (9, 7, ""),
+])
+def test_fill_is_tabs_to_each_stop_then_spaces(start, stop, blanks):
+    from navigator.lib.editor.columns import fill
+
+    assert fill(start, stop, 8) == blanks
+
+
+def tabbed(files, text, *keys):
+    """*text* in an editor with *Tab characters* on, then *keys*."""
+    SETTINGS.editor.insert_tabs = True
+    return text_editor(files, text, *keys)
+
+
+def test_with_tab_characters_tab_types_a_tab_and_smart_tab_lines_up_by_width(files):
+    _, editor = tabbed(files, b"x\n", KeyEvent("tab"))
+    assert editor.document.lines[0] == "\tx"
+    # Under ``int  count;``: Smart tab's column, 5, reached with blanks (no stop on the way).
+    _, editor = tabbed(files, b"int  count;\n\n", KeyEvent("down"), KeyEvent("tab"))
+    assert editor.document.lines[1] == "     " and editor.col == 5
+    above = "abcdefghij" + " " * 9 + "next"
+    _, editor = tabbed(files, (above + "\n\n").encode(), KeyEvent("down"), KeyEvent("tab"))
+    assert editor.document.lines[1] == "\t\t   " and editor.col == 19
+
+
+def test_past_the_lines_end_a_tab_fills_from_where_the_text_ends(files):
+    SETTINGS.editor.insert_tabs = True
+    # Five columns along a two-character line: the cursor in the virtual space past its end.
+    _, editor = text_editor(files, b"ab\n", lambda a: editor_window(a).editor._move_to(0, 5),
+                            KeyEvent("tab"))
+    assert editor.document.lines[0] == "ab\t" and editor.col == 8
+
+
+def test_tab_characters_unindent_and_indent_a_stream_block_with_tabs(files):
+    SETTINGS.editor.backspace_unindents = True
+    _, editor = tabbed(files, b"\tone\n\t\ttwo\n", KeyEvent("down"), KeyEvent("end"),
+                       KeyEvent("home"), *[KeyEvent("right")] * 2, KeyEvent("backspace"))
+    assert editor.document.lines[1] == "\ttwo"
+    _, editor = tabbed(files, b"one\ntwo\n", KeyEvent("down", shift=True), KeyEvent("tab"))
+    assert editor.document.lines[:2] == ["\tone", "two"]
+    SETTINGS.editor.vertical_blocks = True
+    _, editor = tabbed(files, b"one\ntwo\n", KeyEvent("right", shift=True), KeyEvent("down", shift=True),
+                       KeyEvent("tab"))
+    assert editor.document.lines[:2] == [" " * 8 + "one", " " * 8 + "two"]  # a rectangle keeps blanks
+
+
+def test_editor_options_tab_characters_switches_it_ticked_and_the_strip_shows_it(files):
+    from navigator.widgets.editor.commands import SwitchTabs
+
+    seen = {}
+    _, editor = text_editor(files, b"x\n", chosen("Options", "Tab characters"), IDLE,
+                            lambda a: seen.update(ticked=editor_window(a).editor.checks(SwitchTabs())))
+    assert editor.insert_tabs is True and seen["ticked"] is True
+    from navigator.widgets.editor.option_items import editor_items
+
+    # On the strip only while on, lit.
+    assert [item.command for item in editor_items(editor) if item.label()].count(SwitchTabs) == 1
+    editor.insert_tabs = False
+    assert all(item.label() == "" for item in editor_items(editor) if item.command is SwitchTabs)
 
 
 def test_one_undo_takes_a_smart_tab_back_whole(files):

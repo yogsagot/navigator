@@ -30,6 +30,7 @@ from navigator.widgets.editor.commands import (
     SwitchIndent,
     SwitchInsert,
     SwitchSave,
+    SwitchTabs,
 )
 from navigator.widgets.viewer.commands import ChooseEncoding, HexMode, SwitchRendered, Unwrap
 
@@ -39,6 +40,7 @@ STREAM_BLOCKS = ("↔", icons.OPTION_STREAM_BLOCKS)
 COLUMN_BLOCKS = ("↕", icons.OPTION_COLUMN_BLOCKS)
 INSERT = ("⌶", icons.OPTION_INSERT)
 INDENT = ("⇥", icons.OPTION_INDENT)
+TABS = ("↹", icons.OPTION_TABS)
 WRAP = ("↩", icons.OPTION_WRAP)
 BRACKETS = ("()", icons.OPTION_BRACKETS)
 HIGHLIGHT = ("§", icons.OPTION_HIGHLIGHT)
@@ -87,6 +89,10 @@ def editor_items(editor: Any) -> tuple[OptionItem, ...]:
                lambda: tr("Insert or overwrite")),
         OptionItem(SwitchBlock, block_label, tooltip=lambda: tr("Line or column blocks")),
         switch(SwitchIndent, lambda: tr("Indent"), INDENT, lambda: tr("Indent new lines automatically")),
+        # Shown only while on: the strip keeps its width, and the scroll bar
+        # beside it its room, for the files that never want a tab.
+        OptionItem(SwitchTabs, lambda: option_label(tr("Tab"), TABS, editor.glyphs) if editor.insert_tabs else "",
+                   tooltip=lambda: tr("Tab types tab characters")),
         switch(SwitchSave, lambda: tr("Wrap"), WRAP, lambda: tr("Wrap lines at the right margin")),
         switch(SwitchBrackets, lambda: tr("Brk"), BRACKETS, lambda: tr("Close brackets automatically")),
         switch(SwitchHighLight, lambda: tr("Hi"), HIGHLIGHT, lambda: tr("Highlight the syntax")),

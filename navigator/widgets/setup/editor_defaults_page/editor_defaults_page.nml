@@ -14,6 +14,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: POSIX's own ending leads.  *Option strip* in each cluster is a departure
 #: too, the strip being one (``OptionStrip``), and so is *Fallback encoding*,
 #: what a file that is not UTF-8 is read as (``[editor] fallback_encoding``).
+#: So is *Tab key inserts tabs* (``[editor] insert_tabs``; DN's Tab wrote
+#: blanks): the editor cluster is a row taller for it, all below a row down.
 EditorDefaultsPage:
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
@@ -32,13 +34,13 @@ EditorDefaultsPage:
         x: 2
         y: 2
         width: max(0, parent.width - 4)
-        height: 7
-        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Option ~s~trip"]
+        height: 8
+        items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Tab ~k~ey inserts tabs", "Option ~s~trip"]
 
     Label:
         id: viewer_caption
         x: 2
-        y: 10
+        y: 11
         width: 16
         height: 1
         text: "Viewer options"
@@ -47,7 +49,7 @@ EditorDefaultsPage:
     CheckBoxes:
         id: viewer
         x: 2
-        y: 11
+        y: 12
         width: 20
         height: 3
         items: ["He~x~ mode", "~W~rap lines", "Optio~n~ strip"]
@@ -55,7 +57,7 @@ EditorDefaultsPage:
     MaskedField:
         id: left_margin
         x: 30
-        y: 10
+        y: 11
         width: 20
         height: 1
         label_text: "~L~eft margin"
@@ -67,7 +69,7 @@ EditorDefaultsPage:
     MaskedField:
         id: right_margin
         x: 30
-        y: 11
+        y: 12
         width: 20
         height: 1
         label_text: "~R~ight margin"
@@ -79,7 +81,7 @@ EditorDefaultsPage:
     MaskedField:
         id: paragraph
         x: 30
-        y: 12
+        y: 13
         width: 20
         height: 1
         label_text: "Para~g~raph"
@@ -91,7 +93,7 @@ EditorDefaultsPage:
     MaskedField:
         id: tab_size
         x: 30
-        y: 14
+        y: 15
         width: 20
         height: 1
         label_text: "Tab si~z~e"
@@ -103,7 +105,7 @@ EditorDefaultsPage:
     Label:
         id: divisor_caption
         x: 2
-        y: 14
+        y: 15
         width: 24
         height: 1
         text: "Line ~d~ivisor (editor)"
@@ -112,7 +114,7 @@ EditorDefaultsPage:
     RadioButtons:
         id: line_divisor
         x: 2
-        y: 15
+        y: 16
         width: 26
         height: 1
         items: ["LF", "CR+LF", "CR"]
@@ -120,7 +122,7 @@ EditorDefaultsPage:
     ChoiceField:
         id: fallback_encoding
         x: 30
-        y: 15
+        y: 16
         width: max(0, parent.width - 32)
         height: 1
         label_text: "Fallback ~e~ncoding"

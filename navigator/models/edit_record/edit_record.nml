@@ -59,5 +59,8 @@ EditRecord(FileRecord):
     field left_margin: int | None
     field right_margin: int | None
     field paragraph: int | None
+    #: *Tab characters* (not DN's, nor in its record): None in a record from
+    #: before it was kept, which leaves the setup's or the mask's value.
+    field insert_tabs: bool | None
     unique by_path: path
     index by_seq: seq

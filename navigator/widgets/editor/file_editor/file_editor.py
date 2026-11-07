@@ -61,6 +61,7 @@ from navigator.widgets.editor.commands import (
     SwitchHighLight,
     SwitchHiddenChars,
     SwitchFill,
+    SwitchTabs,
     CapString,
     CapWord,
     LowString,
@@ -676,6 +677,13 @@ class FileEditor(ContextMenuHost, Widget):
     auto_indent: bool = reactive(True)
     back_indent: bool = reactive(True)
 
+    #: *Tab characters* (not DN's): Tab, Backspace's unindent and a stream
+    #: block's Tab write tab characters to each stop, then blanks
+    #: (:func:`~navigator.lib.editor.columns.fill`).  Seeded from
+    #: ``[editor] insert_tabs``, set per file by ``highlight.ini``, switched by
+    #: Editor > Options.
+    insert_tabs: bool = reactive(False)
+
     #: Spaces, tabs and each line's ending drawn faintly (:data:`HIDDEN_MARKS`):
     #: a departure, DN had no such option.  Seeded from ``[editor] show_hidden``.
     show_hidden: bool = reactive(False)
@@ -733,6 +741,7 @@ class FileEditor(ContextMenuHost, Widget):
         self.syntax_highlight = SETTINGS.editor.syntax_highlight
         self.auto_indent = SETTINGS.editor.auto_indent
         self.back_indent = SETTINGS.editor.backspace_unindents
+        self.insert_tabs = SETTINGS.editor.insert_tabs
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         self.show_hidden = SETTINGS.editor.show_hidden
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
@@ -829,6 +838,7 @@ class FileEditor(ContextMenuHost, Widget):
         "auto_brackets": "auto_brackets", "backspace_unindents": "back_indent",
         "highlight_line": "highlight_line", "highlight_column": "highlight_column",
         "autowrap": "autowrap", "justify_on_wrap": "justify_on_wrap",
+        "insert_tabs": "insert_tabs",
     }
 
     def apply_defaults(self, document: Document) -> None:
@@ -1724,6 +1734,10 @@ class FileEditor(ContextMenuHost, Widget):
         """
         left = self.rectangle[1] if self.column_block is not None else 0
         blanks = " " * (self.tab_size if event.stop else 1)
+        if event.stop and self.insert_tabs and self.column_block is None:
+            # *Tab characters*: a tab before each line.  A rectangle keeps
+            # blanks, a tab in it widening by where it lands.
+            blanks = "\t"
         block = self.block
         self._moved()
         self._begin()
@@ -2418,6 +2432,11 @@ class FileEditor(ContextMenuHost, Widget):
         self.show_hidden = not self.show_hidden
         return True
 
+    async def on_switch_tabs(self, event: SwitchTabs) -> bool:
+        """*Tab characters* (not DN's): ``insert_tabs`` switched for this editor."""
+        self.insert_tabs = not self.insert_tabs
+        return True
+
     async def on_switch_fill(self, event: SwitchFill) -> bool:
         """``cmSwitchFill``: ``OptimalFill := not OptimalFill``."""
         self.optimal_fill = not self.optimal_fill
@@ -2732,7 +2751,9 @@ class FileEditor(ContextMenuHost, Widget):
             lead = len(moved) - len(moved.lstrip(" \t"))
             moved = moved[lead:]
             if not text.strip(" \t"):
-                indent = text[:at] + " " * past
+                start = columns.width(text[:at], self.tab_size)
+                virtual = columns.fill(start, start + past, self.tab_size) if self.insert_tabs else " " * past
+                indent = text[:at] + virtual
             else:
                 source = kept if kept.strip(" \t") else text
                 indent = source[:len(source) - len(source.lstrip(" \t"))]
@@ -2794,8 +2815,13 @@ class FileEditor(ContextMenuHost, Widget):
         self._begin("type")
         # Again: a block replaced has moved the cursor to where it began.
         stop = self._tab_stop()
-        at = self._pad()
-        self.buffer.insert(at, " " * (stop - self.col))
+        if self.insert_tabs:
+            # From where the text really ends, past it: no blanks before the tabs.
+            index, past = self._index()
+            self.buffer.insert(Pos(self.line, index), columns.fill(self.col - past, stop, self.tab_size))
+        else:
+            at = self._pad()
+            self.buffer.insert(at, " " * (stop - self.col))
         self._go_column(self.line, stop)
         self._end()
         return True
@@ -2847,7 +2873,8 @@ class FileEditor(ContextMenuHost, Widget):
         if cut:
             self.buffer.delete(Pos(self.line, 0), Pos(self.line, cut))
         if target and not blank_line:
-            self.buffer.insert(Pos(self.line, 0), " " * target)
+            blanks = columns.fill(0, target, self.tab_size) if self.insert_tabs else " " * target
+            self.buffer.insert(Pos(self.line, 0), blanks)
         self._go_column(self.line, target)
         self._end()
         return True
@@ -3023,6 +3050,8 @@ class FileEditor(ContextMenuHost, Widget):
             return self.auto_brackets
         if isinstance(command, SwitchFill):
             return self.optimal_fill
+        if isinstance(command, SwitchTabs):
+            return self.insert_tabs
         if isinstance(command, SwitchHiLine):
             return self.highlight_line
         if isinstance(command, SwitchHiColumn):

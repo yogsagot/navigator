@@ -217,6 +217,7 @@ class EditWindow(Window):
             auto_indent=editor.auto_indent,
             justify_on_wrap=editor.justify_on_wrap,
             auto_brackets=editor.auto_brackets,
+            insert_tabs=editor.insert_tabs,
             left_margin=editor.margins[0],
             right_margin=editor.margins[1],
             paragraph=editor.margins[2],
@@ -248,7 +249,7 @@ class EditWindow(Window):
         # The modes come back with them, as ``EditFile`` put every one back.
         # None is a record from before they were kept: the setup's value stays.
         for name in ("highlight_line", "highlight_column", "auto_indent",
-                     "justify_on_wrap", "auto_brackets"):
+                     "justify_on_wrap", "auto_brackets", "insert_tabs"):
             value = getattr(record, name)
             if value is not None:
                 setattr(editor, name, value)

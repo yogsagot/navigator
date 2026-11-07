@@ -243,6 +243,19 @@ def test_without_store_editor_position_the_modes_and_block_still_come_back(files
     assert editor.block is not None
 
 
+def test_tab_characters_switched_from_the_menu_come_back_and_an_old_record_keeps_the_setups(files):
+    from navigator.widgets.editor.commands import SwitchTabs
+
+    editor = reopened(files, lambda a: a.spawn(a.run_command(SwitchTabs(), active(a).editor)), IDLE)
+    assert editor.insert_tabs is True
+    EditRecord.store(files / "text.txt", line=0, col=0, top=0)  # insert_tabs None, as an old row
+    SETTINGS.editor.insert_tabs = True
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: seen.update(editor=active(a).editor)])
+    assert seen["editor"].insert_tabs is True
+
+
 def test_margins_out_of_order_are_put_right_as_format_margins_does(files):
     EditRecord.store(files / "text.txt", line=0, col=0, top=0,
                      left_margin=90, right_margin=60, paragraph=70)

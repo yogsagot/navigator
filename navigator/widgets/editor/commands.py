@@ -429,6 +429,13 @@ class SwitchBack(Command):
     title = "Backspace indents"
 
 
+class SwitchTabs(Command):
+    """Editor > Options > *Tab characters* (not DN's): Tab writes tab
+    characters to each stop, then blanks (``FileEditor.insert_tabs``)."""
+
+    title = "Tab characters"
+
+
 class SwitchFill(Command):
     """``cmSwitchFill``: Editor > Options > *Optimal fill* -- blanks written as tabs
     where they reach a tab stop (``OptimalFill``)."""
@@ -730,6 +737,7 @@ __all__ = [
     "ReopenWithEncoding",
     "SaveWithEncoding",
     "SwitchFill",
+    "SwitchTabs",
     "CapString",
     "CapWord",
     "LowString",

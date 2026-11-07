@@ -732,3 +732,9 @@ def test_the_masks_are_read_on_the_reading_thread(files, monkeypatch):
     monkeypatch.setattr(highlight, "editor_defaults_for", recording)
     masked(files, TEXT_MASK, "notes.txt", b"one\n")
     assert threads and threading.main_thread() not in threads
+
+
+def test_a_mask_turns_tab_characters_on_for_makefiles_alone(files):
+    rules = "[Makefile;*.mk]\ninsert_tabs = on\n"
+    assert masked(files, rules, "Makefile", b"all:\n").insert_tabs is True
+    assert masked(files, rules, "x.py", b"x\n").insert_tabs is False

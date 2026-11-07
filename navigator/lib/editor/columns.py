@@ -165,6 +165,20 @@ def span(line: str, left: int, right: int, tab: int = TAB) -> tuple[int, int]:
     return (len(line) if first is None else first), len(line)
 
 
+def fill(start: int, stop: int, tab: int = TAB) -> str:
+    """The blanks from display column *start* to *stop* as tab characters:
+    a tab to each tab stop on the way, then spaces for the rest.  Empty when
+    *stop* is not past *start*.  What *Tab characters* types (not DN's, whose
+    Tab wrote spaces alone)."""
+    out: list[str] = []
+    column = start
+    while (column // tab + 1) * tab <= stop:
+        out.append("\t")
+        column = (column // tab + 1) * tab
+    out.append(" " * max(0, stop - column))
+    return "".join(out)
+
+
 def optimal_fill(line: str, tab: int = TAB) -> str:
     """*line* as DN's ``CompressString`` wrote it under *Optimal fill*.
 
