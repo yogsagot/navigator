@@ -158,9 +158,9 @@ EditWindow(Window):
     #: the menu's own (below).  *Main menu* (F10) is left out: the menu it
     #: would open is the one it is in.
     #:
-    #: An entry names a command once the editor can do it and is greyed until
-    #: then, as in ``main_menu.nml``.  DN showed each option's ``Off``/``On``
-    #: in the key column; a ticked entry will say it once the option exists.
+    #: Every entry names a command the editor does.  DN showed each option's
+    #: ``Off``/``On`` in the key column; here an option's entry is ticked
+    #: while it is on (``FileEditor.checks``).
     #: *ASCII Table* is *Character table*, a departure: DN's was CP437's 256
     #: bytes, and the text here is Unicode.
     SubMenu:

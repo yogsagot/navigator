@@ -42,7 +42,8 @@ connection, `navigator/lib/drives/rclone.py`), anywhere the desktop's GVfs or KD
 `mtp://`, `dav://`, `webdav://`, `google-drive://`..., through the `gio` command or KDE's `kioclient`/kio-fuse, one of them
 by `[system] desktop_vfs` through `navigator/lib/system/desktop.py` -- `navigator-gio` and `navigator-kio` skills, which also
 have Volumes' Mount/Eject, udisks2's `udisksctl` doing it where neither can, and attaching an `.iso`/`.img` Enter mounts (`loop-setup`), and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
-Manager Setup says so, off by default), or in memory (the tests'). Still to come (README sketches it): a plugin system, the rest of the editor's phases.
+Manager Setup says so, off by default), or in memory (the tests'). Still to come: the plugin system README.md sketches, F1 Help, and the editor's few items left (`navigator-editor`,
+its `reference/editor.md`'s last list).
 
 ## Environment and commands
 

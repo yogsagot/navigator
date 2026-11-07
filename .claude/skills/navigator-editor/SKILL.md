@@ -10,7 +10,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   by painted cell (`_step_visually`) and Ctrl+Left/Right by painted word start (`_word_visually`), and a marked block is what is painted between its ends
   (`_block_runs`), a column block's columns painted columns (`_rect_spans`) -- every block command must use those,
   never `columns.span` or `document.text(*self.block)` directly; departures. `navkit-bidi` skill.
-- **F4 is DN's internal editor** (`MICROED.PAS`), being built in phases toward everything DN's editor had.
+- **F4 is DN's internal editor** (`MICROED.PAS`), all of it, with the departures listed below; what is still not
+  there is the reference's last list (*What is still not DN's, or not there*).
   `navigator/lib/editor/` is the model (`Document`, `columns`, `EditBuffer` with undo, `save`); `FileEditor` is `TFileEditor`
   and `EditWindow` is `TEditWindow`, zoomed on the desktop with `TInfoLine` over the bottom frame.
 - **A file round-trips byte for byte** -- tabs, each line's own terminator, non-UTF-8 bytes (`surrogateescape`) -- a
@@ -483,11 +484,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   hand; this one is shaped as F7's.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model. It holds the window rectangle, cursor
   (`line`, `col`), scroll (`top`, `left`), `overwrite` and `vertical_blocks`, and is stored and restored as the
-  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task. DN's
-  block, auto-indent and margins get columns when the editor has them: add the `field` lines to
+  viewer's is (see `navigator-viewer`); the rectangle, cursor and scroll only under *Store editor position*. **Open editors through `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task. Keeping
+  the block kind, auto-indent, wrap and margins too is editor backlog item 3: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
-  nested as submenus, greyed where the feature is still to come.
+  nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`).
 
 ## Tooltips
 
@@ -499,7 +500,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 
 | Reference | Read when |
 |---|---|
-| `reference/editor.md` | the full design and the phases left |
+| `reference/editor.md` | the full design, and what is still not there |
 
 ## Closing hook
 

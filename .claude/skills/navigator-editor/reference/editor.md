@@ -1,8 +1,9 @@
 ## The editor
 
-F4 is DOS Navigator's internal editor: `TEditWindow` holding `TXFileEditor` (`MICROED.PAS`, `EDITOR.PAS`). It is
-built in phases, and everything DN's editor had is the target. This section records what is written and what each
-decision cost. It has the viewer's three layers:
+F4 is DOS Navigator's internal editor: `TEditWindow` holding `TXFileEditor` (`MICROED.PAS`, `EDITOR.PAS`).
+Everything DN's editor had is written, and the departures asked for beside it; the few things still not there are
+listed at the end (*What is still not DN's, or not there*). This section records the design and what each decision
+cost. It has the viewer's three layers:
 
 - **`navigator/lib/editor/`**, the model. It is a package rather than one module, and it imports no widget.
 - **`FileEditor`**, a Python-only widget that paints the text and answers the keys.
@@ -50,7 +51,9 @@ expanded.
   seals the run.
 - *Modified* is a save point, the group on top when last saved, rather than DN's `UndoTimes` count. Undoing back to
   the save point clears it, and undoing past it and then editing makes the saved state unreachable.
-- There is no redo, as there was none in DN.
+- **Redo is a departure** (DN had none; Borland's IDE had it on these keys): Alt+Shift+BkSp and Ctrl+Shift+Z, both
+  needing the kitty protocol, redo what undo took back, group by group, until the next change empties
+  `EditBuffer.redo_stack`. The save point holds while redo can still reach it.
 
 **Every key is a command, named after DN's `cm*`**, bound in `FileEditor.keys` from `DN.DNR`'s `EDITOR COMMANDS`
 (`MoveLeft` for `cmMoveLeft`, `DeleteBack` for `cmDelBackChar`).
@@ -115,16 +118,27 @@ comes from the sheet's `caret`, keyed on the `:overwrite` state.
 The horizontal scroll bar runs from column 24 to the corner, as `ChangeBounds` sized it, over DN's 0 to 255 until
 the cursor goes further. The vertical one's value is the cursor's line, as `VScroll` was `Delta.Y`.
 
-Left for later, by phase:
+**What is still not DN's, or not there** -- the editor backlog's open items (numbered as
+`/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-1. The rest of the `^Q` half of `EDITOR COMMANDS` (key chords and the `^K` block commands are written).
-2. Blocks: written, ^K R/W included, through DN's file dialog.
-3. Written: Find, Replace, Search again, Reversed search, Goto line.
-4. Written: Open, Save as, Save all, the `FileDialog`, SmartPad and the ASCII table. The menu is written (*A window's own menu joins the bar
-   while it is in use*); most of its entries wait on the phases here.
-5. Written: autoindent, backspace unindent, autobrackets, autowrap, paragraph format, line drawing.
-6. Highlighting written (Pygments, `highlight.ini` standing for `DN.HGL`); `DN.HGL`'s macros are left.
-7. Written: editor defaults, persisted, edit history, backups, file locking and printing.
+1. Smart tab: Tab to the next word start on the line above (`MakeTab`/`DoTab`, `MICROED.PAS:2432-2457`).
+2. Per-file defaults by mask: autoindent, brackets, unindent, highlight line/column, wrap, justify, margins, line
+   ends (`DN.HGL`'s keys, `MACRO.PAS:655`); `highlight.ini`'s sections name only a lexer.
+3. The edit history keeping block kind, autoindent, wrap and margins (`StoreEditInfo`, `HISTRIES.PAS:261`).
+4. DN's default keys for ^K B/K/T/L, ^Q B/K, the markers ^K/^Q 1-9, ^T and ^Q Y (`DN.DNR`'s `EDITOR COMMANDS`):
+   bound in the WordStar and DN 1.51 key sets, not the default one, and on no menu.
+5. The column ruler while the right mouse button is held (`DNHELP.HTX`, *MiscCommands*).
+6. The line-format commands `cmLJustify`/`cmLRight`/`cmLLeft`/`cmLCenter` (`EDITOR.PAS:821-828`), DN's for macros.
+7. (Not DN's) a real tab character, a setting and per mask.
+8. (Not DN's) a line-number gutter.
+9. (Not DN's) soft wrap.
+10. (Not DN's) two views of one document.
+11. (Not DN's) the find bar's regex across lines.
+
+Everything else -- blocks with ^K R/W, Find/Replace and the find bar, files and encodings, SmartPad, the character
+table, the menu, autoindent and its kin, paragraph format, line drawing, highlighting (`highlight.ini` for
+`DN.HGL`), its macros (`macros.ini`, Ctrl+J 0), editor defaults, the edit history, backups, locking and printing --
+is written.
 
 Autoindent is DN's `MakeEnter`: the part kept loses its trailing blanks, the part moved its leading ones, and it is
 indented as the part kept -- as the whole line when that part is blank -- with the cursor at the indent and no blanks
