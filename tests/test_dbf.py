@@ -210,3 +210,62 @@ def test_a_right_click_on_a_memo_cell_moves_there_and_offers_memo_view(place):
                                      "Search...", "Search again", "Close"]
     assert seen["enabled"]["Memo view"]
     assert seen["memo"] == ["Hello", "memo"]
+
+
+# -- F4 on each kind of field ---------------------------------------------------------------------
+
+
+def edit_cell(place, field, typed=None, *, wait_box=True):
+    """F4 on record 0's *field*-th cell, *typed* into the box when one comes up."""
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+
+    def to_field(a):
+        window_of(a).viewer.field = field
+
+    def type_it(a):
+        a.modal.line.value = typed
+
+    steps = [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)), to_field,
+             KeyEvent("f4")]
+    if wait_box:
+        steps += [Until(lambda a: getattr(a.modal, "title", "") == "Edit field"), type_it, KeyEvent("enter"),
+                  Until(lambda a: a.modal is None)]
+    else:
+        steps += [lambda a: None]
+    run_app(app, steps)
+    db = dbf.DBFile(place / "people.dbf")
+    return db.raw(db.record(0), db.fields[field])
+
+
+def test_f4_on_a_logical_field_flips_it_unasked(place):
+    assert edit_cell(place, 3, wait_box=False) == "F"   # was T
+
+
+def test_f4_on_a_date_takes_it_day_first_and_stores_it_year_first(place):
+    assert edit_cell(place, 2, "25-12-2001") == "20011225"
+
+
+def test_f4_on_a_number_stores_it_right_aligned(place):
+    assert edit_cell(place, 1, "5") == "  5"
+
+
+def test_f4_leaves_a_memo_as_it_is(place):
+    assert edit_cell(place, 4, wait_box=False) == "         1"
+
+
+def test_f4_on_a_read_only_file_says_it_is_write_protected(place, monkeypatch):
+    import os
+
+    from navigator.settings import SETTINGS
+
+    if os.geteuid() == 0:
+        pytest.skip("root is refused nothing")
+    monkeypatch.setattr(SETTINGS.system, "elevate", "off")
+    os.chmod(place / "people.dbf", 0o444)
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  KeyEvent("f4"), Until(lambda a: a.modal is not None),
+                  lambda a: seen.update(said=a.modal.prompt), KeyEvent("enter")])
+    os.chmod(place / "people.dbf", 0o644)
+    assert seen["said"] == "Could not edit field - file is write-protected"

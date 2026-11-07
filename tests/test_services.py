@@ -443,3 +443,42 @@ def test_the_override_directory_made_for_an_unsaved_override_is_removed(tmp_path
     time.sleep(0.2)  # a removal on its thread would be done by now
     assert directory.is_dir() is kept
     assert override.exists() is saved
+
+
+def test_mask_asks_its_own_question_and_esc_masks_nothing(tmp_path, monkeypatch):
+    from navigator.widgets.shell.commands import MaskService
+
+    done: list[tuple[str, str]] = []
+    asked: list[str] = []
+    monkeypatch.setattr(services, "act", lambda unit, verb: done.append((unit.name, verb)))
+
+    def mask(a):
+        a.spawn(a.run_command(MaskService))
+
+    service_run(tmp_path, monkeypatch,
+                mask, Until(lambda a: a.modal is not None), lambda a: asked.append(a.modal.prompt),
+                KeyEvent("escape"), Until(lambda a: a.modal is None),
+                mask, Until(lambda a: a.modal is not None), KeyEvent("enter"), Until(lambda a: bool(done)))
+    assert asked == ["Mask broken.service? It will not start at all until unmasked."]
+    assert done == [("broken.service", "mask")]  # once: the Esc masked nothing
+
+
+def test_a_verb_the_manager_has_not_is_greyed_and_never_run(tmp_path, monkeypatch):
+    from navigator.lib.system.services import systemd
+    from navigator.widgets.shell.commands import MaskService, StartService
+
+    done: list[tuple[str, str]] = []
+    monkeypatch.setattr(services, "act", lambda unit, verb: done.append((unit.name, verb)))
+    # A manager without *mask* -- as OpenRC, runit and SysVinit are.
+    monkeypatch.setattr(type(systemd.BACKEND), "verbs", tuple(v for v in systemd.VERBS if v != "mask"))
+    seen = {}
+
+    def look(a):
+        window = a.shell.desktop.active_window
+        seen["mask"] = a.command_disabled_reason(MaskService(), window)
+        seen["start"] = a.command_disabled_reason(StartService(), window)
+        a.spawn(a.run_command(MaskService))
+
+    service_run(tmp_path, monkeypatch, look, lambda a: None)
+    assert seen["mask"].startswith("Not something") and seen["start"] == ""
+    assert done == []  # no mask: nothing was asked of the manager

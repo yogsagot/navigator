@@ -473,3 +473,26 @@ def test_left_and_right_scroll_the_command_column_and_its_bar_shows_while_one_is
     assert seen["dragged"][1] == 7
     # Only cron's short command left: nothing cut, nothing scrolled, no bar.
     assert seen["short"][0] is False
+
+
+def test_f7_sends_the_signal_chosen_from_its_box_and_esc_sends_none(tmp_path, monkeypatch):
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    sent = []
+    monkeypatch.setattr(processes, "signal_process", lambda process, sig: sent.append((process.pid, sig)))
+    wanted = processes.SIGNALS.index(signal.SIGUSR1)
+    seen = {}
+
+    def to_cron(a):
+        a.shell.desktop.active_window.processes.cursor = pids(a).index(200)
+
+    def boxed(a):
+        return isinstance(a.modal, PopupMenu)
+
+    process_run(tmp_path, monkeypatch, to_cron,
+                KeyEvent("f7"), Until(boxed), lambda a: seen.update(title=a.modal.title),
+                KeyEvent("escape"), Until(lambda a: not boxed(a)),
+                KeyEvent("f7"), Until(boxed), *[KeyEvent("down")] * wanted, KeyEvent("enter"),
+                Until(lambda a: bool(sent)))
+    assert seen["title"] == "Signal 200"
+    assert sent == [(200, signal.SIGUSR1)]  # the Esc sent nothing
