@@ -134,6 +134,14 @@ note:
   literal is translated live.
 - **Pages by id.** `settings_dialog.PAGES` maps each page id (`interface`, `editor_viewer`, ...) to its sections, and
   `SECTIONS` lists them all. Reach a page's controls as `dialog.interface.options` or `dialog.page("interface")`.
+  **Every setting has a control** (no section is the ini file's alone): *Interface* also answers `[appearance]
+  dim_modal` (*Dim behind dialogs*, applied at once in `Shell.settings`, a flag still winning for its session);
+  *Viewer types* (`viewer_types_page`, `("viewer",)`, merged with *Editor/Viewer*'s half) the seven `render_*`
+  switches and their masks and `database_masks`; *Tools* (`tools_page`, four sections by name) `[encryption]
+  age_identities`, `[processes] refresh`, `[services] manager/refresh/journal_lines` and `[monitor] refresh` (an open
+  window's next tick reads a new interval; a new manager applies at Services' next open). A setting added without
+  a control says why in its section's docstring. A tab's title is short: the left-hand column is as wide as the
+  longest, and the buttons' centring under the pages was shifted by a 17-letter one.
 - **Size.** Its markup is 76 by 24 with boxed tabs (`settings_tabs = top`), so it fits an 80x24 terminal: one
   scrolled row of tabs over the tallest page (*Panel defaults*). With `interface.settings_tabs = left` it is 80 by 24: a column of at most 20 for the tabs, and 57 left
   for a page, which every page fits (*File panels*' second column is the tightest). There the tabs' rule runs the

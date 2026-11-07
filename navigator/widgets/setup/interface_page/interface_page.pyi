@@ -26,6 +26,7 @@ class InterfacePage(_Component):
     language: ChoiceField
     colors: ChoiceField
     glyphs_tier: ChoiceField
+    dim_modal: CheckBoxes
     marks: ChoiceField
     direction: ChoiceField
     settings_tabs_caption: Label

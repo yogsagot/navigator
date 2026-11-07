@@ -19,6 +19,8 @@ from navigator.widgets.setup.interface_page import InterfacePage
 from navigator.widgets.setup.savers_page import SaversPage
 from navigator.widgets.setup.startup_page import StartupPage
 from navigator.widgets.setup.system_setup_page import SystemSetupPage
+from navigator.widgets.setup.tools_page import ToolsPage
+from navigator.widgets.setup.viewer_types_page import ViewerTypesPage
 
 from typing import Any
 from navkit.reactive import bind, unbind
@@ -35,12 +37,14 @@ class SettingsDialog(Dialog, _Component):
     savers: SaversPage
     country: CountryPage
     editor_viewer: EditorDefaultsPage
+    viewer_types: ViewerTypesPage
     file_manager: FMSetupPage
     drive_info: DriveInfoPage
     panel_defaults: FMDefaultsPage
     column_defaults: ColumnDefaultsPage
     highlight_groups: HighlightPage
     remote: CommunicationsPage
+    tools: ToolsPage
     def __init__(self, tab: str = ..., side: str | None = ..., **kwargs: Any) -> None: ...
     def _buttons_under_pages(self) -> None: ...
     def page(self, tab: str) -> Widget: ...

@@ -1527,7 +1527,7 @@ flag = "JP"
 "Conte~x~t menu" = "コンテキストメニュー(~X~)"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:102
 "Se~l~ect files" = "ファイル選択(~L~)"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:157
 "Off" = "オフ"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119
 "Marked directories" = "マークしたディレクトリ"
@@ -1583,23 +1583,25 @@ flag = "JP"
 "Colou~r~s" = "色(~R~)"
 # navigator/widgets/setup/interface_page/interface_page.nml:84
 "Gl~y~phs" = "グリフ(~Y~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:96
+# navigator/widgets/setup/interface_page/interface_page.nml:97
+"Dim behind dialogs" = "ダイアログの背後を暗くする"
+# navigator/widgets/setup/interface_page/interface_page.nml:108
 "Mar~k~s" = "チェック記号(~K~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:107
+# navigator/widgets/setup/interface_page/interface_page.nml:119
 "Te~x~t direction" = "文字の方向(~X~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:118
+# navigator/widgets/setup/interface_page/interface_page.nml:130
 "Settin~g~s tabs" = "設定のタブ(~G~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "~O~n top" = "上(~O~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "On the le~f~t" = "左(~F~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "Sim~p~le" = "簡易(~P~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:136
+# navigator/widgets/setup/interface_page/interface_page.nml:148
 "W~i~ndow strip" = "ウィンドウ帯(~I~)"
-# navigator/widgets/setup/interface_page/interface_page.nml:145, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:157, navigator/lib/appearance/palette.py
 "Numbers" = "番号"
-# navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/interface_page/interface_page.nml:157
 "With titles" = "タイトル付き"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "キー割り当て"
@@ -1647,60 +1649,68 @@ flag = "JP"
 "1~0~ minutes" = "1~0~ 分"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "マウスでセーバー起動(~M~)"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
 "Settings" = "設定"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "内蔵エディタとビューア、クリップボード、一時ファイル、障害、root アクセス"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "What Navigator does when it starts and when it quits" = "Navigator の起動時と終了時の動作"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The clock, the menu and key bars, the command line, histories, language and looks" = "時計、メニューバーとキーバー、コマンドライン、履歴、言語、外観"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Which actions ask before they act" = "実行前に確認する操作"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Screen savers: which, after how long, and the mouse corners" = "スクリーンセーバー: 種類、起動までの時間、マウスの隅"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How dates and times are written, and the first day of the week" = "日付と時刻の書式、週の始まりの曜日"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The editor's and the viewer's defaults" = "エディタとビューアの既定値"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Which files F3 shows rendered: as a page, a picture, a table, a tree or a database" = "F3 が描画して表示するファイル: ページ、画像、表、ツリー、データベースとして"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How the file panels behave and look" = "ファイルパネルの動作と外観"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:691
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:691
 "What the information panel (Ctrl+L) shows" = "情報パネル (Ctrl+L) の表示内容"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:695
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:695
 "How a new file manager's panels start" = "新しいファイルマネージャのパネルの初期状態"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "ディスク上、Find: の一覧、アーカイブ内でパネルが表示する列"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:703
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:703
 "Which files the panels show in which colour" = "パネルがどのファイルをどの色で表示するか"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "リモート接続: キープアライブ、タイムアウト、アイドル接続、変更されたファイル"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Encryption's identity files, and how often Utilities' windows read again" = "暗号化の ID ファイルと、ユーティリティのウィンドウが読み直す間隔"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71
 "System" = "システム"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:729
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74, navigator/widgets/shell/commands.py:729
 "Startup" = "起動"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:735
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77, navigator/widgets/shell/commands.py:735
 "Interface" = "インターフェース"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:749
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80, navigator/widgets/shell/commands.py:749
 "Confirmations" = "確認"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83
 "Savers" = "セーバー"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:607
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86, navigator/widgets/shell/commands.py:607
 "Country" = "地域"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:755
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:89, navigator/widgets/shell/commands.py:755
 "Editor/Viewer" = "エディタ/ビューア"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:88, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:92
+"Viewer types" = "ビューアーの種類"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:95, navigator/lib/config/keybindings.py
 "File panels" = "ファイルパネル"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:91
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:98
 "Info panel" = "情報パネル"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:94
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:101
 "Panel defaults" = "パネル既定値"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:97
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:104
 "Columns" = "列"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:100, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:107, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "強調表示"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:103
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:110
 "Communications" = "通信"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:113
+"Tools" = "ツール"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "起動時のオプション"
 # navigator/widgets/setup/startup_page/startup_page.nml:30
@@ -1755,6 +1765,40 @@ flag = "JP"
 "Keep root open ~w~hile idle" = "待機中も root 保持(~W~)"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:142
 "minutes (0: each time)" = "分 (0: 毎回)"
+# navigator/widgets/setup/tools_page/tools_page.nml:22
+"~A~ge identity files" = "age の ID ファイル(~A~)"
+# navigator/widgets/setup/tools_page/tools_page.nml:32
+"~P~rocess list reads every" = "プロセス一覧の読み込み間隔(~P~)"
+# navigator/widgets/setup/tools_page/tools_page.nml:43, navigator/widgets/setup/tools_page/tools_page.nml:71, navigator/widgets/setup/tools_page/tools_page.nml:101
+"seconds (0: on Ctrl+R alone)" = "秒 (0: Ctrl+R のときだけ)"
+# navigator/widgets/setup/tools_page/tools_page.nml:51
+"Service ~m~anager" = "サービスマネージャー(~M~)"
+# navigator/widgets/setup/tools_page/tools_page.nml:60
+"S~e~rvices read every" = "サービスの読み込み間隔(~E~)"
+# navigator/widgets/setup/tools_page/tools_page.nml:79
+"~J~ournal lines F3 shows first" = "F3 が最初に表示するジャーナル行数(~J~)"
+# navigator/widgets/setup/tools_page/tools_page.nml:90
+"S~y~stem monitor reads every" = "システムモニターの読み込み間隔(~Y~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:23
+"F3 renders" = "F3 が描画"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:31
+"Masks, separated by ;" = "マスク (; で区切る)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:39
+"~M~arkdown" = "Markdown(~M~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:54
+"~r~eStructuredText" = "reStructuredText(~R~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:69
+"~H~TML" = "HTML(~H~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:84
+"~P~DF" = "PDF(~P~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:99
+"P~i~ctures" = "画像(~I~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:114
+"~T~ables (CSV, TSV)" = "表 (CSV, TSV)(~T~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:129
+"~S~tructured, as a tree" = "構造化データ、ツリーで(~S~)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:146
+"SQ~L~ite databases" = "SQLite データベース(~L~)"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "ASCII 表"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
@@ -2249,9 +2293,9 @@ flag = "JP"
 "~D~isconnect" = "切断(~D~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "接続を閉じます。そのパネルはディスクに戻ります"
-# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3212
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3218
 "Elevate ~r~oot access" = "root 権限に昇格(~R~)"
-# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3213
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3219
 "Open root access now: the console's shell and a step refused permission run as root" = "今すぐ root アクセスを開きます: コンソールのシェルと権限で拒否された操作が root として実行されます"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
 "Saved l~i~nks..." = "保存済みリンク(~I~)..."
@@ -2881,7 +2925,7 @@ flag = "JP"
 "{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "{kind} アーカイブには 7-Zip が必要です: 7zip (7zz) か p7zip (7z) をインストールしてください"
 # navigator/lib/drives/arctool.py:467
 "rar exited with {returncode}" = "rar がコード {returncode} で終了しました"
-# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3083
 "Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
 # navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
 "Is a directory" = "ディレクトリです"
@@ -2950,7 +2994,7 @@ flag = "JP"
 # navigator/lib/editor/lock.py:101
 "locked by another program" = "別のプログラムがロックしています"
 # navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "age の ID ファイルがありません: navigator.ini の [encryption] で age_identities を設定してください"
+"no age identity file: set one in Options > Settings > Tools" = "age の ID ファイルがありません: オプション > 設定 > ツール で指定してください"
 # navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
 "{name} is not installed" = "{name} がインストールされていません"
 # navigator/lib/file_ops/fileattr.py:401
@@ -5007,6 +5051,10 @@ flag = "JP"
 "The savers that take turns when the screen rests; Remove takes the one at the cursor out" = "画面休止時に順に表示するセーバー。削除でカーソル位置のものを外します"
 # navigator/widgets/setup/savers_page/savers_page.py:35
 "Every saver there is; Add puts the one at the cursor among the selected" = "利用できる全セーバー。追加でカーソル位置のものを選択済みに加えます"
+# navigator/widgets/setup/tools_page/tools_page.py:22
+"Automatic (the one running)" = "自動 (動作中のもの)"
+# navigator/widgets/setup/tools_page/tools_page.py:44
+"{doc} -- used from the next time Services opens" = "{doc} -- 次にサービスを開いたときから使われます"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "文字: {char} 10進: {decimal:3d} 16進: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:240
@@ -5189,9 +5237,9 @@ flag = "JP"
 "Pinned" = "固定済み"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "クリックでボックスを戻す"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3137
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3143
 "{operation}: waiting for an answer" = "{operation}: 応答待ち"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3139
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3145
 "{operation}: {percent}% done" = "{operation}: {percent}% 完了"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "同じキーをもう一度押すと停止"
@@ -5245,7 +5293,7 @@ flag = "JP"
 "It closes after {n} idle minute" = ["{n} 分間使われないと閉じます"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "クリックまたは {menu} で今すぐ閉じます"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3209
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3215
 "Close ~r~oot access" = "root アクセスを閉じる(~R~)"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "ユニット"
@@ -5297,9 +5345,9 @@ flag = "JP"
 "No file panels are open" = "ファイルパネルが開いていません"
 # navigator/widgets/shell/shell/shell.py:2017
 "Type to filter" = "入力で絞り込み"
-# navigator/widgets/shell/shell/shell.py:3041, navigator/widgets/shell/shell/shell.py:3034
+# navigator/widgets/shell/shell/shell.py:3047, navigator/widgets/shell/shell/shell.py:3040
 "Disconnect" = "切断"
-# navigator/widgets/shell/shell/shell.py:3144
+# navigator/widgets/shell/shell/shell.py:3150
 "Background operations" = "バックグラウンド処理"
 # navigator/widgets/shell/shell/shell.py:1217
 "No connection is open" = "開いている接続はありません"
@@ -5315,11 +5363,11 @@ flag = "JP"
 "~O~ther applications" = "その他のアプリ(~O~)"
 # navigator/widgets/shell/shell/shell.py:2132
 "Choose action" = "動作の選択"
-# navigator/widgets/shell/shell/shell.py:3210
+# navigator/widgets/shell/shell/shell.py:3216
 "End root access now; the console goes back to your own shell" = "今すぐ root アクセスを終了します。コンソールは自分のシェルに戻ります"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File View History" = "ファイル表示履歴"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File Edit History" = "ファイル編集履歴"
 # navigator/widgets/shell/shell/shell.py:1183
 "There is no /proc to read processes from" = "プロセスを読み取る /proc がありません"
@@ -5343,11 +5391,11 @@ flag = "JP"
 "File Manager Setup's Use arrows is off" = "ファイル管理設定の「矢印キーを使う」がオフです"
 # navigator/widgets/shell/shell/shell.py:2046
 "~C~ommand (!.! is the file; else it goes at the end)" = "コマンド(~C~) (!.! がファイル。なければ末尾に付加)"
-# navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:3079
+# navigator/widgets/shell/shell/shell.py:2783, navigator/widgets/shell/shell/shell.py:3085
 "{protocol} link" = "{protocol} リンク"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track viewing history" = "表示履歴を記録"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track editing history" = "編集履歴を記録"
 # navigator/widgets/shell/shell/shell.py:1223
 "The {command} command is not installed" = "{command} コマンドがインストールされていません"
@@ -5365,13 +5413,13 @@ flag = "JP"
 "Open with ({type})" = "アプリで開く ({type})"
 # navigator/widgets/shell/shell/shell.py:1980, navigator/widgets/shell/shell/shell.py:1976
 "Set default" = "既定に設定"
-# navigator/widgets/shell/shell/shell.py:3032
+# navigator/widgets/shell/shell/shell.py:3038
 "Close the {protocol} connection to {host}?" = "{host} への {protocol} 接続を閉じますか?"
 # navigator/widgets/shell/shell/shell.py:1979
 "{name} now opens {type}" = "{type} は今後 {name} で開きます"
 # navigator/widgets/shell/shell/shell.py:2008
 "{name} (default)" = "{name} (既定)"
-# navigator/widgets/shell/shell/shell.py:3074
+# navigator/widgets/shell/shell/shell.py:3080
 "Remote drive {name} is not accessible: {reason}" = "リモートドライブ {name} にアクセスできません: {reason}"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "カラーパレットの保存"
@@ -5387,27 +5435,27 @@ flag = "JP"
 "Not a palette:\n{error}" = "パレットではありません:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "矢印キーで範囲を移動\nShift+矢印キーで範囲のサイズを変更\n\n選択後 Enter で範囲の内容を\nクリップボードに入れます"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "View file" = "ファイルの表示"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "Edit file" = "ファイルの編集"
 # navigator/widgets/shell/shell/shell.py:2339
 "No file manager is open to panelize into" = "パネル化先のファイル管理が開いていません"
-# navigator/widgets/shell/shell/shell.py:2810
+# navigator/widgets/shell/shell/shell.py:2816
 "The password was not saved in the keyring: {reason}" = "パスワードはキーリングに保存されませんでした: {reason}"
-# navigator/widgets/shell/shell/shell.py:2831
+# navigator/widgets/shell/shell/shell.py:2837
 "Wrong password for rclone's configuration. Try again:" = "rclone の設定のパスワードが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2832
+# navigator/widgets/shell/shell/shell.py:2838
 "Password for rclone's configuration:" = "rclone の設定のパスワード:"
-# navigator/widgets/shell/shell/shell.py:2843
+# navigator/widgets/shell/shell/shell.py:2849
 "Wrong passphrase for {key}. Try again:" = "{key} のパスフレーズが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2844
+# navigator/widgets/shell/shell/shell.py:2850
 "Passphrase for {key}:" = "{key} のパスフレーズ:"
-# navigator/widgets/shell/shell/shell.py:2826
+# navigator/widgets/shell/shell/shell.py:2832
 "Wrong secret key for {who}. Try again:" = "{who} のシークレットキーが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2827
+# navigator/widgets/shell/shell/shell.py:2833
 "Secret key for {who}:" = "{who} のシークレットキー:"
-# navigator/widgets/shell/shell/shell.py:3500
+# navigator/widgets/shell/shell/shell.py:3506
 "Set the interface option\n\"{option}\" ON first" = "先にインターフェースのオプション\n\"{option}\" をオンにしてください"
 # navigator/widgets/shell/shell/shell.py:1663
 "Cannot edit {path}: {error}" = "{path} を編集できません: {error}"
@@ -5415,17 +5463,17 @@ flag = "JP"
 "File {name} not found" = "ファイル {name} が見つかりません"
 # navigator/widgets/shell/shell/shell.py:1841
 "Cannot write the menu's script: {error}" = "メニューのスクリプトを書き込めません: {error}"
-# navigator/widgets/shell/shell/shell.py:2802
+# navigator/widgets/shell/shell/shell.py:2808
 "Connecting to {host} over {protocol}" = "{protocol} で {host} に接続中"
-# navigator/widgets/shell/shell/shell.py:2834
+# navigator/widgets/shell/shell/shell.py:2840
 "Wrong {protocol} password for {who}. Try again:" = "{who} の {protocol} パスワードが違います。再入力:"
-# navigator/widgets/shell/shell/shell.py:2835
+# navigator/widgets/shell/shell/shell.py:2841
 "{protocol} password for {who}:" = "{who} の {protocol} パスワード:"
-# navigator/widgets/shell/shell/shell.py:3250
+# navigator/widgets/shell/shell/shell.py:3256
 "The console could not be made root's: {reason}" = "コンソールを root にできませんでした: {reason}"
-# navigator/widgets/shell/shell/shell.py:3308
+# navigator/widgets/shell/shell/shell.py:3314
 "Cannot save the key bindings: {error}" = "キー割り当てを保存できません: {error}"
-# navigator/widgets/shell/shell/shell.py:3464
+# navigator/widgets/shell/shell/shell.py:3470
 "Cannot save the settings: {error}" = "設定を保存できません: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "終了ステータス {status}"
@@ -6613,3 +6661,4 @@ flag = "JP"
 "Open root access now: a step refused permission may then be done as root" = "今すぐ root アクセスを開きます: 権限で拒否された操作を root として行えるようになります"
 "End root access now, rather than after its timeout" = "タイムアウトを待たずに今すぐ root アクセスを終了します"
 "View mode, hidden files, the footer and the divider" = "表示モード、隠しファイル、フッター、仕切り"
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "age の ID ファイルがありません: navigator.ini の [encryption] で age_identities を設定してください"

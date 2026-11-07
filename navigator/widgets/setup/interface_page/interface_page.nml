@@ -84,6 +84,18 @@ InterfacePage:
         label_text: "Gl~y~phs"
         label_width: 15
 
+    #: Not DN's: what lies behind a dialog painted faint, ``[appearance]
+    #: dim_modal``, applied at once (``--no-dim-modal`` still wins for its
+    #: session).  Beside *Colours*, in the page's free right half.  No hot
+    #: key: every letter of its caption is taken on this page.
+    CheckBoxes:
+        id: dim_modal
+        x: 44
+        y: 11
+        width: max(0, parent.width - 46)
+        height: 1
+        items: ["Dim behind dialogs"]
+
     #: Not DN's, whose marks were Turbo Vision's alone: how check boxes and
     #: radio buttons are drawn, ``[appearance] marks``.  Above *Settings
     #: tabs*, as *Colours* is, so its list drops whole inside the box.

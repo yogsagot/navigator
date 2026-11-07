@@ -1528,7 +1528,7 @@ direction = "rtl"
 "Conte~x~t menu" = "תפריט ~ה~קשר"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:102
 "Se~l~ect files" = "~ב~חירת קבצים"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:157
 "Off" = "כבוי"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119
 "Marked directories" = "תיקיות מסומנות"
@@ -1584,23 +1584,25 @@ direction = "rtl"
 "Colou~r~s" = "~צ~בעים"
 # navigator/widgets/setup/interface_page/interface_page.nml:84
 "Gl~y~phs" = "~ג~ליפים"
-# navigator/widgets/setup/interface_page/interface_page.nml:96
+# navigator/widgets/setup/interface_page/interface_page.nml:97
+"Dim behind dialogs" = "עמעום מאחורי תיבות דו־שיח"
+# navigator/widgets/setup/interface_page/interface_page.nml:108
 "Mar~k~s" = "סימו~נ~ים"
-# navigator/widgets/setup/interface_page/interface_page.nml:107
+# navigator/widgets/setup/interface_page/interface_page.nml:119
 "Te~x~t direction" = "~כ~יוון טקסט"
-# navigator/widgets/setup/interface_page/interface_page.nml:118
+# navigator/widgets/setup/interface_page/interface_page.nml:130
 "Settin~g~s tabs" = "~ל~שוניות הגדרות"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "~O~n top" = "עליו~ן~"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "On the le~f~t" = "משמ~א~ל"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "Sim~p~le" = "~פ~שוט"
-# navigator/widgets/setup/interface_page/interface_page.nml:136
+# navigator/widgets/setup/interface_page/interface_page.nml:148
 "W~i~ndow strip" = "רצועת ~ח~לונות"
-# navigator/widgets/setup/interface_page/interface_page.nml:145, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:157, navigator/lib/appearance/palette.py
 "Numbers" = "מספרים"
-# navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/interface_page/interface_page.nml:157
 "With titles" = "עם כותרות"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "קיצורי מקשים"
@@ -1648,60 +1650,68 @@ direction = "rtl"
 "1~0~ minutes" = "1~0~ דקות"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "שימוש ב~ע~כבר להפעלה"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
 "Settings" = "הגדרות"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "העורך והמציג הפנימיים, הלוח, קבצים זמניים, כשלים וגישת root"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "What Navigator does when it starts and when it quits" = "מה Navigator עושה כשהוא מתחיל וכשהוא יוצא"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The clock, the menu and key bars, the command line, histories, language and looks" = "השעון, שורות התפריט והמקשים, שורת הפקודה, היסטוריות, שפה ומראה"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Which actions ask before they act" = "אילו פעולות מבקשות אישור לפני ביצוען"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Screen savers: which, after how long, and the mouse corners" = "שומרי מסך: אילו, אחרי כמה זמן, ופינות העכבר"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How dates and times are written, and the first day of the week" = "איך נכתבים תאריכים ושעות, והיום הראשון בשבוע"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The editor's and the viewer's defaults" = "ברירות המחדל של העורך והמציג"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Which files F3 shows rendered: as a page, a picture, a table, a tree or a database" = "אילו קבצים F3 מציג כשהם מעובדים: כדף, כתמונה, כטבלה, כעץ או כמסד נתונים"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How the file panels behave and look" = "איך פאנלי הקבצים מתנהגים ונראים"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:691
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:691
 "What the information panel (Ctrl+L) shows" = "מה פאנל המידע (Ctrl+L) מציג"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:695
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:695
 "How a new file manager's panels start" = "איך מתחילים הפאנלים של מנהל קבצים חדש"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "העמודות שפאנל מציג בדיסק, ברשימת Find: ובארכיון"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:703
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:703
 "Which files the panels show in which colour" = "אילו קבצים הפאנלים מציגים באיזה צבע"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "חיבורים מרוחקים: keep-alive, זמני המתנה, קישורים לא פעילים וקבצים שהשתנו"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Encryption's identity files, and how often Utilities' windows read again" = "קובצי הזהות של ההצפנה, וכמה פעמים חלונות הכלים קוראים מחדש"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71
 "System" = "מערכת"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:729
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74, navigator/widgets/shell/commands.py:729
 "Startup" = "הפעלה"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:735
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77, navigator/widgets/shell/commands.py:735
 "Interface" = "ממשק"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:749
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80, navigator/widgets/shell/commands.py:749
 "Confirmations" = "אישורים"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83
 "Savers" = "שומרי מסך"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:607
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86, navigator/widgets/shell/commands.py:607
 "Country" = "אזור"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:755
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:89, navigator/widgets/shell/commands.py:755
 "Editor/Viewer" = "עורך/מציג"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:88, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:92
+"Viewer types" = "סוגי מציג"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:95, navigator/lib/config/keybindings.py
 "File panels" = "פאנלי קבצים"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:91
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:98
 "Info panel" = "פאנל מידע"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:94
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:101
 "Panel defaults" = "ברירות מחדל לפאנל"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:97
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:104
 "Columns" = "עמודות"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:100, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:107, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "הדגשה"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:103
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:110
 "Communications" = "תקשורת"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:113
+"Tools" = "כלים"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "אפשרויות הפעלה"
 # navigator/widgets/setup/startup_page/startup_page.nml:30
@@ -1756,6 +1766,40 @@ direction = "rtl"
 "Keep root open ~w~hile idle" = "השאר root פתוח ב~ז~מן סרק"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:142
 "minutes (0: each time)" = "דקות (0: בכל פעם)"
+# navigator/widgets/setup/tools_page/tools_page.nml:22
+"~A~ge identity files" = "קובצי ~ז~הות של age"
+# navigator/widgets/setup/tools_page/tools_page.nml:32
+"~P~rocess list reads every" = "רשימת ~ת~הליכים נקראת כל"
+# navigator/widgets/setup/tools_page/tools_page.nml:43, navigator/widgets/setup/tools_page/tools_page.nml:71, navigator/widgets/setup/tools_page/tools_page.nml:101
+"seconds (0: on Ctrl+R alone)" = "שניות (0: רק ב־Ctrl+R)"
+# navigator/widgets/setup/tools_page/tools_page.nml:51
+"Service ~m~anager" = "~מ~נהל שירותים"
+# navigator/widgets/setup/tools_page/tools_page.nml:60
+"S~e~rvices read every" = "~ש~ירותים נקראים כל"
+# navigator/widgets/setup/tools_page/tools_page.nml:79
+"~J~ournal lines F3 shows first" = "שורות ~י~ומן ש־F3 מציג"
+# navigator/widgets/setup/tools_page/tools_page.nml:90
+"S~y~stem monitor reads every" = "~צ~ג המערכת נקרא כל"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:23
+"F3 renders" = "F3 מעבד"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:31
+"Masks, separated by ;" = "מסכות, מופרדות ב־;"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:39
+"~M~arkdown" = "~M~arkdown"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:54
+"~r~eStructuredText" = "~r~eStructuredText"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:69
+"~H~TML" = "~H~TML"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:84
+"~P~DF" = "~P~DF"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:99
+"P~i~ctures" = "~ת~מונות"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:114
+"~T~ables (CSV, TSV)" = "~ט~בלאות (CSV, TSV)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:129
+"~S~tructured, as a tree" = "~מ~בנים, כעץ"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:146
+"SQ~L~ite databases" = "מסדי נתונים SQ~L~ite"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "טבלת ASCII"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
@@ -2250,9 +2294,9 @@ direction = "rtl"
 "~D~isconnect" = "~נ~תק"
 # navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "סגור חיבור; הפאנלים שלו חוזרים לדיסק"
-# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3212
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3218
 "Elevate ~r~oot access" = "הפעל ~ג~ישת root"
-# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3213
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3219
 "Open root access now: the console's shell and a step refused permission run as root" = "פתח גישת root עכשיו: המעטפת במסוף ופעולה שנדחתה בגלל הרשאות ירוצו כ-root"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
 "Saved l~i~nks..." = "קישורים ~ש~מורים..."
@@ -2882,7 +2926,7 @@ direction = "rtl"
 "{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "ארכיוני {kind} דורשים 7-Zip: התקינו 7zip (7zz) או p7zip (7z)"
 # navigator/lib/drives/arctool.py:467
 "rar exited with {returncode}" = "rar הסתיים בקוד {returncode}"
-# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3083
 "Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
 # navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
 "Is a directory" = "זוהי תיקייה"
@@ -2951,7 +2995,7 @@ direction = "rtl"
 # navigator/lib/editor/lock.py:101
 "locked by another program" = "נעול על ידי תוכנה אחרת"
 # navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "אין קובץ זהות של age: הגדר age_identities בסעיף [encryption] של navigator.ini"
+"no age identity file: set one in Options > Settings > Tools" = "אין קובץ זהות של age: הגדירו אחד באפשרויות > הגדרות > כלים"
 # navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
 "{name} is not installed" = "{name} אינו מותקן"
 # navigator/lib/file_ops/fileattr.py:401
@@ -5008,6 +5052,10 @@ direction = "rtl"
 "The savers that take turns when the screen rests; Remove takes the one at the cursor out" = "שומרי המסך המתחלפים כשהמסך נח; הסר מוציא את זה שבסמן"
 # navigator/widgets/setup/savers_page/savers_page.py:35
 "Every saver there is; Add puts the one at the cursor among the selected" = "כל שומרי המסך הקיימים; הוסף מצרף את זה שבסמן לנבחרים"
+# navigator/widgets/setup/tools_page/tools_page.py:22
+"Automatic (the one running)" = "אוטומטי (זה שפועל)"
+# navigator/widgets/setup/tools_page/tools_page.py:44
+"{doc} -- used from the next time Services opens" = "{doc} -- בתוקף מהפעם הבאה שהשירותים נפתחים"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "תו: {char} עשרוני: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:240
@@ -5190,9 +5238,9 @@ direction = "rtl"
 "Pinned" = "מוצמד"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "לחיצה מחזירה את התיבה"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3137
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3143
 "{operation}: waiting for an answer" = "{operation}: ממתין לתשובה"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3139
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3145
 "{operation}: {percent}% done" = "{operation}: {percent}% הושלמו"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "אותם מקשים שוב יעצרו אותה"
@@ -5246,7 +5294,7 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["נסגרת אחרי דקה אחת ללא פעילות", "נסגרת אחרי שתי דקות ללא פעילות", "נסגרת אחרי {n} דקות ללא פעילות"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "לחץ, או {menu}, כדי לסגור אותה מיד"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3209
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3215
 "Close ~r~oot access" = "סגור ~ג~ישת root"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "יחידה"
@@ -5298,9 +5346,9 @@ direction = "rtl"
 "No file panels are open" = "אין חלוניות קבצים פתוחות"
 # navigator/widgets/shell/shell/shell.py:2017
 "Type to filter" = "הקלד לסינון"
-# navigator/widgets/shell/shell/shell.py:3041, navigator/widgets/shell/shell/shell.py:3034
+# navigator/widgets/shell/shell/shell.py:3047, navigator/widgets/shell/shell/shell.py:3040
 "Disconnect" = "נתק"
-# navigator/widgets/shell/shell/shell.py:3144
+# navigator/widgets/shell/shell/shell.py:3150
 "Background operations" = "פעולות רקע"
 # navigator/widgets/shell/shell/shell.py:1217
 "No connection is open" = "אין חיבור פתוח"
@@ -5316,11 +5364,11 @@ direction = "rtl"
 "~O~ther applications" = "יישומים ~א~חרים"
 # navigator/widgets/shell/shell/shell.py:2132
 "Choose action" = "בחר פעולה"
-# navigator/widgets/shell/shell/shell.py:3210
+# navigator/widgets/shell/shell/shell.py:3216
 "End root access now; the console goes back to your own shell" = "סיים את גישת root עכשיו; המסוף חוזר למעטפת שלך"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File View History" = "היסטוריית הצגת קבצים"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File Edit History" = "היסטוריית עריכת קבצים"
 # navigator/widgets/shell/shell/shell.py:1183
 "There is no /proc to read processes from" = "אין /proc לקרוא ממנו תהליכים"
@@ -5344,11 +5392,11 @@ direction = "rtl"
 "File Manager Setup's Use arrows is off" = "\"השתמש בחצים\" כבוי בהגדרות מנהל הקבצים"
 # navigator/widgets/shell/shell/shell.py:2046
 "~C~ommand (!.! is the file; else it goes at the end)" = "~פ~קודה (!.! הוא הקובץ; אחרת הוא נוסף בסוף)"
-# navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:3079
+# navigator/widgets/shell/shell/shell.py:2783, navigator/widgets/shell/shell/shell.py:3085
 "{protocol} link" = "קישור {protocol}"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track viewing history" = "מעקב היסטוריית הצגה"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track editing history" = "מעקב היסטוריית עריכה"
 # navigator/widgets/shell/shell/shell.py:1223
 "The {command} command is not installed" = "הפקודה {command} אינה מותקנת"
@@ -5366,13 +5414,13 @@ direction = "rtl"
 "Open with ({type})" = "פתח עם ({type})"
 # navigator/widgets/shell/shell/shell.py:1980, navigator/widgets/shell/shell/shell.py:1976
 "Set default" = "קבע ברירת מחדל"
-# navigator/widgets/shell/shell/shell.py:3032
+# navigator/widgets/shell/shell/shell.py:3038
 "Close the {protocol} connection to {host}?" = "לסגור את חיבור {protocol} אל {host}?"
 # navigator/widgets/shell/shell/shell.py:1979
 "{name} now opens {type}" = "{name} פותח כעת {type}"
 # navigator/widgets/shell/shell/shell.py:2008
 "{name} (default)" = "{name} (ברירת מחדל)"
-# navigator/widgets/shell/shell/shell.py:3074
+# navigator/widgets/shell/shell/shell.py:3080
 "Remote drive {name} is not accessible: {reason}" = "הכונן המרוחק {name} אינו נגיש: {reason}"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "שמור ערכת צבעים"
@@ -5388,27 +5436,27 @@ direction = "rtl"
 "Not a palette:\n{error}" = "אינה ערכת צבעים:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "החצים מזיזים את האזור\nShift-חצים משנים את גודל האזור\n\nלאחר הבחירה הקש Enter כדי להעתיק\nאת תמונת האזור ללוח"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "View file" = "הצגת קובץ"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "Edit file" = "עריכת קובץ"
 # navigator/widgets/shell/shell/shell.py:2339
 "No file manager is open to panelize into" = "אין מנהל קבצים פתוח להצגת התוצאות בחלונית"
-# navigator/widgets/shell/shell/shell.py:2810
+# navigator/widgets/shell/shell/shell.py:2816
 "The password was not saved in the keyring: {reason}" = "הסיסמה לא נשמרה במחזיק המפתחות: {reason}"
-# navigator/widgets/shell/shell/shell.py:2831
+# navigator/widgets/shell/shell/shell.py:2837
 "Wrong password for rclone's configuration. Try again:" = "סיסמת התצורה של rclone שגויה. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2832
+# navigator/widgets/shell/shell/shell.py:2838
 "Password for rclone's configuration:" = "סיסמת התצורה של rclone:"
-# navigator/widgets/shell/shell/shell.py:2843
+# navigator/widgets/shell/shell/shell.py:2849
 "Wrong passphrase for {key}. Try again:" = "ביטוי סיסמה שגוי עבור {key}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2844
+# navigator/widgets/shell/shell/shell.py:2850
 "Passphrase for {key}:" = "ביטוי סיסמה עבור {key}:"
-# navigator/widgets/shell/shell/shell.py:2826
+# navigator/widgets/shell/shell/shell.py:2832
 "Wrong secret key for {who}. Try again:" = "מפתח סודי שגוי עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2827
+# navigator/widgets/shell/shell/shell.py:2833
 "Secret key for {who}:" = "מפתח סודי עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:3500
+# navigator/widgets/shell/shell/shell.py:3506
 "Set the interface option\n\"{option}\" ON first" = "תחילה הפעל את אפשרות הממשק\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1663
 "Cannot edit {path}: {error}" = "לא ניתן לערוך את {path}: {error}"
@@ -5416,17 +5464,17 @@ direction = "rtl"
 "File {name} not found" = "הקובץ {name} לא נמצא"
 # navigator/widgets/shell/shell/shell.py:1841
 "Cannot write the menu's script: {error}" = "לא ניתן לכתוב את סקריפט התפריט: {error}"
-# navigator/widgets/shell/shell/shell.py:2802
+# navigator/widgets/shell/shell/shell.py:2808
 "Connecting to {host} over {protocol}" = "מתחבר אל {host} באמצעות {protocol}"
-# navigator/widgets/shell/shell/shell.py:2834
+# navigator/widgets/shell/shell/shell.py:2840
 "Wrong {protocol} password for {who}. Try again:" = "סיסמת {protocol} שגויה עבור {who}. נסה שוב:"
-# navigator/widgets/shell/shell/shell.py:2835
+# navigator/widgets/shell/shell/shell.py:2841
 "{protocol} password for {who}:" = "סיסמת {protocol} עבור {who}:"
-# navigator/widgets/shell/shell/shell.py:3250
+# navigator/widgets/shell/shell/shell.py:3256
 "The console could not be made root's: {reason}" = "לא ניתן היה להפוך את המסוף ל-root: {reason}"
-# navigator/widgets/shell/shell/shell.py:3308
+# navigator/widgets/shell/shell/shell.py:3314
 "Cannot save the key bindings: {error}" = "לא ניתן לשמור את הקצאת המקשים: {error}"
-# navigator/widgets/shell/shell/shell.py:3464
+# navigator/widgets/shell/shell/shell.py:3470
 "Cannot save the settings: {error}" = "לא ניתן לשמור את ההגדרות: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "קוד יציאה {status}"
@@ -6618,3 +6666,4 @@ direction = "rtl"
 "Open root access now: a step refused permission may then be done as root" = "פתח גישת root עכשיו: פעולה שנדחתה בגלל הרשאות תוכל להתבצע אז כ-root"
 "End root access now, rather than after its timeout" = "סיים את גישת root עכשיו, ולא אחרי פסק הזמן שלה"
 "View mode, hidden files, the footer and the divider" = "מצב תצוגה, קבצים מוסתרים, שורת התחתית והמפריד"
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "אין קובץ זהות של age: הגדר age_identities בסעיף [encryption] של navigator.ini"

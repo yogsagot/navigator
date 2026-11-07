@@ -1206,3 +1206,78 @@ def test_a_setting_kept_from_a_window_that_cannot_be_saved_is_said_once(tmp_path
     assert seen["kept"]  # applied for the session all the same
     assert len(seen["toasts"]) == 1 and "could not be saved" in seen["toasts"][0]
     assert "saving [checksum]" in (tmp_path / "errors.log").read_text()
+
+
+# -- what only navigator.ini could change, given pages (E13) ----------------------------------------------
+
+
+def _settings(tab):
+    return lambda a: a.spawn(a.shell.settings(tab))
+
+
+def test_dim_behind_dialogs_is_on_the_interface_page_and_applied_at_once(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30), dim_modal=True)
+    seen = {}
+
+    def untick(a):
+        seen["shown"] = a.modal.interface.dim_modal.value
+        a.modal.interface.dim_modal.value = 0
+
+    run_app(app, [_settings("interface"), lambda a: None, untick, KeyEvent("enter"), lambda a: None,
+                  lambda a: seen.update(now=a.dim_modal)])
+    assert seen == {"shown": 1, "now": False}
+    assert SETTINGS.appearance.dim_modal is False
+    assert "dim_modal = no" in config_path().read_text(encoding="utf-8")
+
+
+def test_viewer_types_sets_the_render_switches_and_masks_and_leaves_the_rest_of_viewer(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+    hex_mode, wrap = SETTINGS.viewer.hex_mode, SETTINGS.viewer.wrap_lines
+    seen = {}
+
+    def change(a):
+        page = a.modal.viewer_types
+        seen["markdown"] = page.markdown_masks.value
+        page.markdown_masks.value = " *.mdx ; *.md "
+        page.pdf.value = 0
+
+    run_app(app, [_settings("viewer_types"), lambda a: None, change, KeyEvent("enter"), lambda a: None])
+    assert seen["markdown"] == "*.md;*.markdown"
+    assert SETTINGS.viewer.markdown_masks == "*.mdx;*.md"
+    assert SETTINGS.viewer.render_pdf is False and SETTINGS.viewer.render_markdown is True
+    # *Editor/Viewer*'s half of [viewer] is as it was: the two pages merge.
+    assert (SETTINGS.viewer.hex_mode, SETTINGS.viewer.wrap_lines) == (hex_mode, wrap)
+    assert "markdown_masks = *.mdx;*.md" in config_path().read_text(encoding="utf-8")
+
+
+def test_tools_sets_encryption_and_the_utilities_windows(tmp_path, quiet_console):
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+
+    def change(a):
+        page = a.modal.tools
+        page.age_identities.value = "~/k.txt  ~/other.txt"
+        page.processes_refresh.value = "05"
+        page.services_manager.value = "OpenRC"
+        page.journal_lines.value = "0500"
+        page.monitor_refresh.value = "03"
+
+    run_app(app, [_settings("tools"), lambda a: None, change, KeyEvent("enter"), lambda a: None])
+    assert SETTINGS.encryption.age_identities == "~/k.txt ~/other.txt"
+    assert SETTINGS.processes.refresh == 5 and SETTINGS.monitor.refresh == 3
+    assert (SETTINGS.services.manager, SETTINGS.services.journal_lines) == ("openrc", 500)
+    text = config_path().read_text(encoding="utf-8")
+    assert "[processes]" in text and "manager = openrc" in text
+
+
+def test_the_new_pages_controls_all_say_what_they_set(tmp_path, quiet_console):
+    from navigator.widgets.setup.tools_page import ToolsPage
+    from navigator.widgets.setup.viewer_types_page import ViewerTypesPage
+
+    viewer = ViewerTypesPage()
+    for name in ("markdown", "rst", "html", "pdf", "images", "tables", "structured"):
+        assert getattr(viewer, name).tooltips[0] and getattr(viewer, f"{name}_masks").tooltip
+    assert viewer.database_masks.tooltip
+    tools = ToolsPage()
+    for control in (tools.age_identities.entry, tools.processes_refresh, tools.services_manager,
+                    tools.services_refresh, tools.journal_lines, tools.monitor_refresh):
+        assert control.tooltip

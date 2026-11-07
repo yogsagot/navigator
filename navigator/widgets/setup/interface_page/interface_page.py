@@ -87,6 +87,8 @@ class InterfacePage(Widget):
         self.direction.tooltip = self.section.tooltip("direction")
         self.language.tooltip = self.section.tooltip("language")
         self.colors.tooltip = self.appearance.tooltip("colors")
+        self.dim_modal.value = 1 if self.appearance.dim_modal else 0
+        self.dim_modal.tooltips = [self.appearance.tooltip("dim_modal")]
         self.glyphs_tier.tooltip = self.appearance.tooltip("glyphs")
         self.marks.tooltip = self.appearance.tooltip("marks")
 
@@ -130,4 +132,5 @@ class InterfacePage(Widget):
         colors = self.depths.get(self.colors.value, self.appearance.colors)
         glyphs = self.tiers.get(self.glyphs_tier.value, self.appearance.glyphs)
         marks = self.looks.get(self.marks.value, self.appearance.marks)
-        return {"interface": values, "appearance": {"colors": colors, "glyphs": glyphs, "marks": marks}}
+        return {"interface": values, "appearance": {"colors": colors, "glyphs": glyphs, "marks": marks,
+                                                    "dim_modal": bool(self.dim_modal.value & 1)}}

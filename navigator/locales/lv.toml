@@ -1527,7 +1527,7 @@ flag = "LV"
 "Conte~x~t menu" = "Kont. izvē~l~ne"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:102
 "Se~l~ect files" = "Atlasīt ~f~ailus"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:157
 "Off" = "Izslēgta"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119
 "Marked directories" = "Atzīmētās direktorijas"
@@ -1583,23 +1583,25 @@ flag = "LV"
 "Colou~r~s" = "Kr~ā~sas"
 # navigator/widgets/setup/interface_page/interface_page.nml:84
 "Gl~y~phs" = "Gli~f~i"
-# navigator/widgets/setup/interface_page/interface_page.nml:96
+# navigator/widgets/setup/interface_page/interface_page.nml:97
+"Dim behind dialogs" = "Aptumšot fonu aiz dialogiem"
+# navigator/widgets/setup/interface_page/interface_page.nml:108
 "Mar~k~s" = "Atzī~m~es"
-# navigator/widgets/setup/interface_page/interface_page.nml:107
+# navigator/widgets/setup/interface_page/interface_page.nml:119
 "Te~x~t direction" = "T~e~ksta virziens"
-# navigator/widgets/setup/interface_page/interface_page.nml:118
+# navigator/widgets/setup/interface_page/interface_page.nml:130
 "Settin~g~s tabs" = "Uzst. ~c~ilnes"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "~O~n top" = "Au~g~šā"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "On the le~f~t" = "~K~reisajā pusē"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "Sim~p~le" = "Vienkār~š~i"
-# navigator/widgets/setup/interface_page/interface_page.nml:136
+# navigator/widgets/setup/interface_page/interface_page.nml:148
 "W~i~ndow strip" = "Logi izvēl~n~ē"
-# navigator/widgets/setup/interface_page/interface_page.nml:145, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:157, navigator/lib/appearance/palette.py
 "Numbers" = "Skaitļi"
-# navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/interface_page/interface_page.nml:157
 "With titles" = "Ar nosaukumiem"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "Taustiņu piesaiste"
@@ -1647,60 +1649,68 @@ flag = "LV"
 "1~0~ minutes" = "1~0~ minūtes"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "Pele ~s~āk saudzētāju"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
 "Settings" = "Uzstādījumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "Iebūvētais redaktors un skatītājs, starpliktuve, pagaidu faili, kļūmes un root piekļuve"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "What Navigator does when it starts and when it quits" = "Ko Navigator dara, startējot un izejot"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The clock, the menu and key bars, the command line, histories, language and looks" = "Pulkstenis, izvēlņu un taustiņu joslas, komandrinda, vēstures, valoda un izskats"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Which actions ask before they act" = "Kuras darbības jautā, pirms tiek veiktas"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Screen savers: which, after how long, and the mouse corners" = "Ekrānsaudzētāji: kuri, pēc cik ilga laika un peles stūri"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How dates and times are written, and the first day of the week" = "Kā tiek rakstīti datumi un laiki, un nedēļas pirmā diena"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The editor's and the viewer's defaults" = "Redaktora un skatītāja noklusējumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Which files F3 shows rendered: as a page, a picture, a table, a tree or a database" = "Kurus failus F3 rāda atveidotus: kā lapu, attēlu, tabulu, koku vai datubāzi"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How the file panels behave and look" = "Kā failu paneļi darbojas un izskatās"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:691
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:691
 "What the information panel (Ctrl+L) shows" = "Ko rāda informācijas panelis (Ctrl+L)"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:695
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:695
 "How a new file manager's panels start" = "Kā sākas jauna failu pārvaldnieka paneļi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "Kolonnas, ko panelis rāda diskā, Find: sarakstā un arhīvā"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:703
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:703
 "Which files the panels show in which colour" = "Kurus failus paneļi rāda kurā krāsā"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "Attālinātie savienojumi: uzturēšana, noildzes, dīkstāves savienojumi un mainītie faili"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Encryption's identity files, and how often Utilities' windows read again" = "Šifrēšanas identitātes faili un cik bieži utilītu logi lasa no jauna"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71
 "System" = "Sistēma"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:729
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74, navigator/widgets/shell/commands.py:729
 "Startup" = "Startēšana"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:735
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77, navigator/widgets/shell/commands.py:735
 "Interface" = "Saskarne"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:749
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80, navigator/widgets/shell/commands.py:749
 "Confirmations" = "Apstiprinājumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83
 "Savers" = "Saudzētāji"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:607
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86, navigator/widgets/shell/commands.py:607
 "Country" = "Valsts"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:755
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:89, navigator/widgets/shell/commands.py:755
 "Editor/Viewer" = "Redaktors/Skatītājs"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:88, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:92
+"Viewer types" = "Skatītāja tipi"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:95, navigator/lib/config/keybindings.py
 "File panels" = "Failu paneļi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:91
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:98
 "Info panel" = "Info panelis"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:94
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:101
 "Panel defaults" = "Paneļu noklusējumi"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:97
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:104
 "Columns" = "Kolonnas"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:100, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:107, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "Izcelšana"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:103
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:110
 "Communications" = "Sakari"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:113
+"Tools" = "Rīki"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "Startējot"
 # navigator/widgets/setup/startup_page/startup_page.nml:30
@@ -1755,6 +1765,40 @@ flag = "LV"
 "Keep root open ~w~hile idle" = "Turēt root ~v~aļā dīkstāvē"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:142
 "minutes (0: each time)" = "minūtes (0: katru reizi)"
+# navigator/widgets/setup/tools_page/tools_page.nml:22
+"~A~ge identity files" = "~A~ge identitātes faili"
+# navigator/widgets/setup/tools_page/tools_page.nml:32
+"~P~rocess list reads every" = "~P~rocesu saraksts lasa ik"
+# navigator/widgets/setup/tools_page/tools_page.nml:43, navigator/widgets/setup/tools_page/tools_page.nml:71, navigator/widgets/setup/tools_page/tools_page.nml:101
+"seconds (0: on Ctrl+R alone)" = "sekundes (0: tikai ar Ctrl+R)"
+# navigator/widgets/setup/tools_page/tools_page.nml:51
+"Service ~m~anager" = "Servisu pā~r~valdnieks"
+# navigator/widgets/setup/tools_page/tools_page.nml:60
+"S~e~rvices read every" = "S~e~rvisi lasa ik"
+# navigator/widgets/setup/tools_page/tools_page.nml:79
+"~J~ournal lines F3 shows first" = "~Ž~urnāla rindas, ko F3 rāda"
+# navigator/widgets/setup/tools_page/tools_page.nml:90
+"S~y~stem monitor reads every" = "Sistēmas ~m~onitors lasa ik"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:23
+"F3 renders" = "F3 atveido"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:31
+"Masks, separated by ;" = "Maskas, atdalītas ar ;"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:39
+"~M~arkdown" = "~M~arkdown"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:54
+"~r~eStructuredText" = "~r~eStructuredText"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:69
+"~H~TML" = "~H~TML"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:84
+"~P~DF" = "~P~DF"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:99
+"P~i~ctures" = "~A~ttēli"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:114
+"~T~ables (CSV, TSV)" = "~T~abulas (CSV, TSV)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:129
+"~S~tructured, as a tree" = "~S~truktūras, kā koks"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:146
+"SQ~L~ite databases" = "SQ~L~ite datubāzes"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "ASCII tabula"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
@@ -2249,9 +2293,9 @@ flag = "LV"
 "~D~isconnect" = "~A~tvienot"
 # navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "Aizvērt savienojumu; tā paneļi atgriežas uz disku"
-# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3212
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3218
 "Elevate ~r~oot access" = "Iegūt ~r~oot piekļuvi"
-# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3213
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3219
 "Open root access now: the console's shell and a step refused permission run as root" = "Atvērt root piekļuvi tūlīt: konsoles čaula un darbība, kurai liegta atļauja, darbojas kā root"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
 "Saved l~i~nks..." = "Sa~g~labātās saites..."
@@ -2881,7 +2925,7 @@ flag = "LV"
 "{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "{kind} arhīviem vajag 7-Zip: instalējiet 7zip (7zz) vai p7zip (7z)"
 # navigator/lib/drives/arctool.py:467
 "rar exited with {returncode}" = "rar beidzās ar kodu {returncode}"
-# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3083
 "Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
 # navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
 "Is a directory" = "Tā ir direktorija"
@@ -2950,7 +2994,7 @@ flag = "LV"
 # navigator/lib/editor/lock.py:101
 "locked by another program" = "to bloķējusi cita programma"
 # navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "nav age identitātes faila: iestatiet age_identities navigator.ini sadaļā [encryption]"
+"no age identity file: set one in Options > Settings > Tools" = "nav age identitātes faila: iestatiet to Opcijas > Iestatījumi > Rīki"
 # navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
 "{name} is not installed" = "{name} nav instalēts"
 # navigator/lib/file_ops/fileattr.py:401
@@ -5007,6 +5051,10 @@ flag = "LV"
 "The savers that take turns when the screen rests; Remove takes the one at the cursor out" = "Ekrānsaudzētāji, kas mainās, kad ekrāns atpūšas; Noņemt izņem to, uz kura ir kursors"
 # navigator/widgets/setup/savers_page/savers_page.py:35
 "Every saver there is; Add puts the one at the cursor among the selected" = "Visi ekrānsaudzētāji; Pievienot ieliek to, uz kura ir kursors, izvēlētajos"
+# navigator/widgets/setup/tools_page/tools_page.py:22
+"Automatic (the one running)" = "Automātiski (tas, kas darbojas)"
+# navigator/widgets/setup/tools_page/tools_page.py:44
+"{doc} -- used from the next time Services opens" = "{doc} -- izmanto no nākamās Servisu atvēršanas"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Simb.: {char} Dec.: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:240
@@ -5189,9 +5237,9 @@ flag = "LV"
 "Pinned" = "Piespraustie"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Noklikšķiniet, lai atgrieztu logu"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3137
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3143
 "{operation}: waiting for an answer" = "{operation}: gaida atbildi"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3139
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3145
 "{operation}: {percent}% done" = "{operation}: {percent}% paveikts"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "Tie paši taustiņi to apturēs"
@@ -5245,7 +5293,7 @@ flag = "LV"
 "It closes after {n} idle minute" = ["Tā aizveras pēc {n} dīkstāves minūtes", "Tā aizveras pēc {n} dīkstāves minūtēm", "Tā aizveras pēc {n} dīkstāves minūtēm"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "Klikšķiniet vai {menu}, lai to aizvērtu tūlīt"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3209
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3215
 "Close ~r~oot access" = "Aizvērt ~r~oot piekļuvi"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Vienība"
@@ -5297,9 +5345,9 @@ flag = "LV"
 "No file panels are open" = "Nav atvērtu failu paneļu"
 # navigator/widgets/shell/shell/shell.py:2017
 "Type to filter" = "Rakstiet, lai filtrētu"
-# navigator/widgets/shell/shell/shell.py:3041, navigator/widgets/shell/shell/shell.py:3034
+# navigator/widgets/shell/shell/shell.py:3047, navigator/widgets/shell/shell/shell.py:3040
 "Disconnect" = "Atvienot"
-# navigator/widgets/shell/shell/shell.py:3144
+# navigator/widgets/shell/shell/shell.py:3150
 "Background operations" = "Fona darbības"
 # navigator/widgets/shell/shell/shell.py:1217
 "No connection is open" = "Nav atvērta savienojuma"
@@ -5315,11 +5363,11 @@ flag = "LV"
 "~O~ther applications" = "Citas ~l~ietotnes"
 # navigator/widgets/shell/shell/shell.py:2132
 "Choose action" = "Izvēlieties darbību"
-# navigator/widgets/shell/shell/shell.py:3210
+# navigator/widgets/shell/shell/shell.py:3216
 "End root access now; the console goes back to your own shell" = "Beigt root piekļuvi tūlīt; konsole atgriežas jūsu čaulā"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File View History" = "Failu skatīšanas vēsture"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File Edit History" = "Failu rediģēšanas vēsture"
 # navigator/widgets/shell/shell/shell.py:1183
 "There is no /proc to read processes from" = "Nav /proc, no kā nolasīt procesus"
@@ -5343,11 +5391,11 @@ flag = "LV"
 "File Manager Setup's Use arrows is off" = "Failu pārvaldnieka iestatījumos Lietot bultas ir izslēgts"
 # navigator/widgets/shell/shell/shell.py:2046
 "~C~ommand (!.! is the file; else it goes at the end)" = "~K~omanda (!.! ir fails; citādi tas nāk beigās)"
-# navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:3079
+# navigator/widgets/shell/shell/shell.py:2783, navigator/widgets/shell/shell/shell.py:3085
 "{protocol} link" = "{protocol} savienojums"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track viewing history" = "Sekot skatīšanas vēsturei"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track editing history" = "Sekot rediģēšanas vēsturei"
 # navigator/widgets/shell/shell/shell.py:1223
 "The {command} command is not installed" = "Komanda {command} nav instalēta"
@@ -5365,13 +5413,13 @@ flag = "LV"
 "Open with ({type})" = "Atvērt ar ({type})"
 # navigator/widgets/shell/shell/shell.py:1980, navigator/widgets/shell/shell/shell.py:1976
 "Set default" = "Iestatīt noklusēto"
-# navigator/widgets/shell/shell/shell.py:3032
+# navigator/widgets/shell/shell/shell.py:3038
 "Close the {protocol} connection to {host}?" = "Aizvērt {protocol} savienojumu ar {host}?"
 # navigator/widgets/shell/shell/shell.py:1979
 "{name} now opens {type}" = "{name} tagad atver {type}"
 # navigator/widgets/shell/shell/shell.py:2008
 "{name} (default)" = "{name} (noklusētā)"
-# navigator/widgets/shell/shell/shell.py:3074
+# navigator/widgets/shell/shell/shell.py:3080
 "Remote drive {name} is not accessible: {reason}" = "Attālais disks {name} nav pieejams: {reason}"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "Saglabāt krāsu paleti"
@@ -5387,27 +5435,27 @@ flag = "LV"
 "Not a palette:\n{error}" = "Nav palete:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Bultas pārvieto apgabalu\nShift-bultas maina apgabala izmēru\n\nPēc atlases nospiediet Enter, lai ievietotu\napgabala attēlu starpliktuvē"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "View file" = "Skatīt failu"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "Edit file" = "Rediģēt failu"
 # navigator/widgets/shell/shell/shell.py:2339
 "No file manager is open to panelize into" = "Nav atvērta failu pārvaldnieka, kur rādīt izvadi"
-# navigator/widgets/shell/shell/shell.py:2810
+# navigator/widgets/shell/shell/shell.py:2816
 "The password was not saved in the keyring: {reason}" = "Parole netika saglabāta atslēgu saišķī: {reason}"
-# navigator/widgets/shell/shell/shell.py:2831
+# navigator/widgets/shell/shell/shell.py:2837
 "Wrong password for rclone's configuration. Try again:" = "Nepareiza rclone konfigurācijas parole. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2832
+# navigator/widgets/shell/shell/shell.py:2838
 "Password for rclone's configuration:" = "rclone konfigurācijas parole:"
-# navigator/widgets/shell/shell/shell.py:2843
+# navigator/widgets/shell/shell/shell.py:2849
 "Wrong passphrase for {key}. Try again:" = "Nepareiza ieejas frāze atslēgai {key}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2844
+# navigator/widgets/shell/shell/shell.py:2850
 "Passphrase for {key}:" = "Ieejas frāze atslēgai {key}:"
-# navigator/widgets/shell/shell/shell.py:2826
+# navigator/widgets/shell/shell/shell.py:2832
 "Wrong secret key for {who}. Try again:" = "Nepareiza slepenā atslēga {who}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2827
+# navigator/widgets/shell/shell/shell.py:2833
 "Secret key for {who}:" = "Slepenā atslēga {who}:"
-# navigator/widgets/shell/shell/shell.py:3500
+# navigator/widgets/shell/shell/shell.py:3506
 "Set the interface option\n\"{option}\" ON first" = "Vispirms ieslēdziet saskarnes\niestatījumu \"{option}\""
 # navigator/widgets/shell/shell/shell.py:1663
 "Cannot edit {path}: {error}" = "Nevar rediģēt {path}: {error}"
@@ -5415,17 +5463,17 @@ flag = "LV"
 "File {name} not found" = "Fails {name} nav atrasts"
 # navigator/widgets/shell/shell/shell.py:1841
 "Cannot write the menu's script: {error}" = "Nevar ierakstīt izvēlnes skriptu: {error}"
-# navigator/widgets/shell/shell/shell.py:2802
+# navigator/widgets/shell/shell/shell.py:2808
 "Connecting to {host} over {protocol}" = "Savienojas ar {host}, izmantojot {protocol}"
-# navigator/widgets/shell/shell/shell.py:2834
+# navigator/widgets/shell/shell/shell.py:2840
 "Wrong {protocol} password for {who}. Try again:" = "Nepareiza {protocol} parole lietotājam {who}. Mēģiniet vēlreiz:"
-# navigator/widgets/shell/shell/shell.py:2835
+# navigator/widgets/shell/shell/shell.py:2841
 "{protocol} password for {who}:" = "{protocol} parole lietotājam {who}:"
-# navigator/widgets/shell/shell/shell.py:3250
+# navigator/widgets/shell/shell/shell.py:3256
 "The console could not be made root's: {reason}" = "Konsoli neizdevās padarīt par root: {reason}"
-# navigator/widgets/shell/shell/shell.py:3308
+# navigator/widgets/shell/shell/shell.py:3314
 "Cannot save the key bindings: {error}" = "Nevar saglabāt taustiņu piesaisti: {error}"
-# navigator/widgets/shell/shell/shell.py:3464
+# navigator/widgets/shell/shell/shell.py:3470
 "Cannot save the settings: {error}" = "Nevar saglabāt iestatījumus: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "izejas statuss {status}"
@@ -6649,3 +6697,4 @@ flag = "LV"
 "Open root access now: a step refused permission may then be done as root" = "Atvērt root piekļuvi tūlīt: darbību, kurai liegta atļauja, tad var veikt kā root"
 "End root access now, rather than after its timeout" = "Beigt root piekļuvi tūlīt, nevis pēc tās noildzes"
 "View mode, hidden files, the footer and the divider" = "Skata režīms, slēptie faili, kājene un atdalītājs"
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "nav age identitātes faila: iestatiet age_identities navigator.ini sadaļā [encryption]"

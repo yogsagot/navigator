@@ -2563,7 +2563,13 @@ class Shell(DockLayout):
         depth = SETTINGS.appearance.colors
         glyphs = SETTINGS.appearance.glyphs
         marks = SETTINGS.appearance.marks
+        dim = SETTINGS.appearance.dim_modal
         await self.setup(SettingsDialog(tab=tab), *SECTIONS)
+        # And *Dim behind dialogs*, over a session's --no-dim-modal: the next
+        # dialog's background is painted as it says.
+        if SETTINGS.appearance.dim_modal != dim:
+            self.application.dim_modal = SETTINGS.appearance.dim_modal
+            self.application.invalidate()
         # The same for the colour depth, over a session's --colors.
         if SETTINGS.appearance.colors != depth:
             self.application.use_color_depth(SETTINGS.appearance.colors)

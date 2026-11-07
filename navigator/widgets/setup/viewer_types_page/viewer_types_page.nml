@@ -1,0 +1,154 @@
+from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.input_line import InputLine
+from navml.widgets.dialog.label import Label
+from navml.widgets.dialog.static_text import StaticText
+
+#: Options > Settings > *Viewer file types*: which files F3 shows rendered --
+#: a Markdown page, a picture, a spreadsheet, a tree, a database -- and by
+#: what masks (``[viewer] render_*``, ``*_masks``).  Not DN's: its viewer
+#: rendered nothing, so these are departures' settings, given a page so that
+#: none is the ini file's alone.  View > *Markup view* still switches one
+#: file; this sets what F3 starts with.
+ViewerTypesPage:
+    #: The caption on its tab, which *Settings* gives it.
+    property title: ""
+
+    #: Over each column, two texts: a translation keeps its own lengths.
+    StaticText:
+        id: heading
+        x: 2
+        y: 1
+        width: 25
+        height: 1
+        text: "F3 renders"
+
+    StaticText:
+        id: masks_heading
+        x: 28
+        y: 1
+        width: max(0, parent.width - 30)
+        height: 1
+        text: "Masks, separated by ;"
+
+    CheckBoxes:
+        id: markdown
+        x: 2
+        y: 2
+        width: 26
+        height: 1
+        items: ["~M~arkdown"]
+
+    InputLine:
+        id: markdown_masks
+        x: 28
+        y: 2
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: rst
+        x: 2
+        y: 3
+        width: 26
+        height: 1
+        items: ["~r~eStructuredText"]
+
+    InputLine:
+        id: rst_masks
+        x: 28
+        y: 3
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: html
+        x: 2
+        y: 4
+        width: 26
+        height: 1
+        items: ["~H~TML"]
+
+    InputLine:
+        id: html_masks
+        x: 28
+        y: 4
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: pdf
+        x: 2
+        y: 5
+        width: 26
+        height: 1
+        items: ["~P~DF"]
+
+    InputLine:
+        id: pdf_masks
+        x: 28
+        y: 5
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: images
+        x: 2
+        y: 6
+        width: 26
+        height: 1
+        items: ["P~i~ctures"]
+
+    InputLine:
+        id: images_masks
+        x: 28
+        y: 6
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: tables
+        x: 2
+        y: 7
+        width: 26
+        height: 1
+        items: ["~T~ables (CSV, TSV)"]
+
+    InputLine:
+        id: tables_masks
+        x: 28
+        y: 7
+        width: max(1, parent.width - 30)
+        height: 1
+
+    CheckBoxes:
+        id: structured
+        x: 2
+        y: 8
+        width: 26
+        height: 1
+        items: ["~S~tructured, as a tree"]
+
+    InputLine:
+        id: structured_masks
+        x: 28
+        y: 8
+        width: max(1, parent.width - 30)
+        height: 1
+
+    #: SQLite has masks alone: a file is opened as a database when its header
+    #: says it is one, whatever a box would say.
+    Label:
+        id: database_caption
+        x: 6
+        y: 9
+        width: 22
+        height: 1
+        text: "SQ~L~ite databases"
+        link: database_masks
+
+    InputLine:
+        id: database_masks
+        x: 28
+        y: 9
+        width: max(1, parent.width - 30)
+        height: 1

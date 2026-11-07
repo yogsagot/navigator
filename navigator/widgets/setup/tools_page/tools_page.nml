@@ -1,0 +1,101 @@
+from navml.widgets.dialog.choice_field import ChoiceField
+from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.masked_field import MaskedField
+from navml.widgets.dialog.static_text import StaticText
+
+#: Options > Settings > *Tools*: Encryption's age identity files, and how
+#: often the Process list, Services and the System monitor read again.  Not
+#: DN's -- each is a departure's setting (``[encryption]``, ``[processes]``,
+#: ``[services]``, ``[monitor]``), given a page so that none is the ini
+#: file's alone.  A window open reads its new interval at its next tick.
+ToolsPage:
+    #: The caption on its tab, which *Settings* gives it.
+    property title: ""
+
+    #: ``[encryption] age_identities``: what Decrypt tries, by spaces.
+    Field:
+        id: age_identities
+        x: 2
+        y: 1
+        width: max(0, parent.width - 4)
+        height: 1
+        label_text: "~A~ge identity files"
+        label_width: 30
+        history_id: "age_identities"
+
+    MaskedField:
+        id: processes_refresh
+        x: 2
+        y: 3
+        width: 34
+        height: 1
+        label_text: "~P~rocess list reads every"
+        label_width: 30
+        mask: "99"
+        page_keys: False
+
+    StaticText:
+        id: processes_unit
+        x: 37
+        y: 3
+        width: max(0, parent.width - 39)
+        height: 1
+        text: "seconds (0: on Ctrl+R alone)"
+
+    ChoiceField:
+        id: services_manager
+        x: 2
+        y: 5
+        width: 50
+        height: 1
+        label_text: "Service ~m~anager"
+        label_width: 30
+
+    MaskedField:
+        id: services_refresh
+        x: 2
+        y: 6
+        width: 34
+        height: 1
+        label_text: "S~e~rvices read every"
+        label_width: 30
+        mask: "99"
+        page_keys: False
+
+    StaticText:
+        id: services_unit
+        x: 37
+        y: 6
+        width: max(0, parent.width - 39)
+        height: 1
+        text: "seconds (0: on Ctrl+R alone)"
+
+    MaskedField:
+        id: journal_lines
+        x: 2
+        y: 7
+        width: 36
+        height: 1
+        label_text: "~J~ournal lines F3 shows first"
+        label_width: 30
+        mask: "9999"
+        page_keys: False
+
+    MaskedField:
+        id: monitor_refresh
+        x: 2
+        y: 9
+        width: 34
+        height: 1
+        label_text: "S~y~stem monitor reads every"
+        label_width: 30
+        mask: "99"
+        page_keys: False
+
+    StaticText:
+        id: monitor_unit
+        x: 37
+        y: 9
+        width: max(0, parent.width - 39)
+        height: 1
+        text: "seconds (0: on Ctrl+R alone)"

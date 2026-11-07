@@ -23,12 +23,14 @@ PAGES: dict[str, tuple[str, ...]] = {
     "savers": ("savers",),
     "country": ("country",),
     "editor_viewer": ("editor", "viewer"),
+    "viewer_types": ("viewer",),
     "file_manager": ("file_manager",),
     "drive_info": ("drive_info",),
     "panel_defaults": ("panel_defaults",),
     "column_defaults": ("column_defaults",),
     "highlight_groups": ("highlight_groups",),
     "remote": ("remote", "system"),
+    "tools": ("encryption", "processes", "services", "monitor"),
 }
 
 #: The dialog's width with its tabs down the left.

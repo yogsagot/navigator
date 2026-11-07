@@ -64,7 +64,7 @@ HEAD = 4096
 
 #: The reasons a decryption gives, translated where they are shown.
 BAD_PASSPHRASE = "wrong passphrase"
-NO_IDENTITY = tr_noop("no age identity file: set age_identities in navigator.ini's [encryption]")
+NO_IDENTITY = tr_noop("no age identity file: set one in Options > Settings > Tools")
 NO_SECRET_KEY = "no secret key for it"
 
 AGE_MAGIC = b"age-encryption.org/v1"

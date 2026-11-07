@@ -1256,7 +1256,7 @@ class Manager(Window):
 
         reasons = {
             encrypt.BAD_PASSPHRASE: tr("wrong passphrase"),
-            encrypt.NO_IDENTITY: tr("no age identity file: set age_identities in navigator.ini's [encryption]"),
+            encrypt.NO_IDENTITY: tr("no age identity file: set one in Options > Settings > Tools"),
             encrypt.NO_SECRET_KEY: tr("no secret key for it"),
         }
         return [(name, reasons.get(reason, reason)) for name, reason in errors]

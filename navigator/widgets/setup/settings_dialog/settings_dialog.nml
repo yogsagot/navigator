@@ -13,6 +13,8 @@ from navigator.widgets.setup.interface_page import InterfacePage
 from navigator.widgets.setup.savers_page import SaversPage
 from navigator.widgets.setup.startup_page import StartupPage
 from navigator.widgets.setup.system_setup_page import SystemSetupPage
+from navigator.widgets.setup.tools_page import ToolsPage
+from navigator.widgets.setup.viewer_types_page import ViewerTypesPage
 
 #: Options > Settings: every ``navigator.ini`` section's setup in one box,
 #: a page to a tab.  **A departure**: DOS Navigator gave each its own
@@ -49,12 +51,14 @@ SettingsDialog(Dialog):
             "Screen savers: which, after how long, and the mouse corners",
             "How dates and times are written, and the first day of the week",
             "The editor's and the viewer's defaults",
+            "Which files F3 shows rendered: as a page, a picture, a table, a tree or a database",
             "How the file panels behave and look",
             "What the information panel (Ctrl+L) shows",
             "How a new file manager's panels start",
             "The columns a panel shows on the disk, in a Find: listing and in an archive",
             "Which files the panels show in which colour",
             "Remote connections: keep-alive, timeouts, idle links and changed files",
+            "Encryption's identity files, and how often Utilities' windows read again",
         ]
         x: 1 if self.side == "left" else 0
         y: 0 if self.side == "left" else 1
@@ -83,6 +87,9 @@ SettingsDialog(Dialog):
         EditorDefaultsPage:
             id: editor_viewer
             title: "Editor/Viewer"
+        ViewerTypesPage:
+            id: viewer_types
+            title: "Viewer types"
         FMSetupPage:
             id: file_manager
             title: "File panels"
@@ -101,3 +108,6 @@ SettingsDialog(Dialog):
         CommunicationsPage:
             id: remote
             title: "Communications"
+        ToolsPage:
+            id: tools
+            title: "Tools"

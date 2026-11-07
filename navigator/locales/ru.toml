@@ -1527,7 +1527,7 @@ flag = "RU"
 "Conte~x~t menu" = "Контекст. м~е~ню"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:102
 "Se~l~ect files" = "Выделять ~ф~айлы"
-# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119, navigator/widgets/setup/interface_page/interface_page.nml:157
 "Off" = "Выкл."
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:119
 "Marked directories" = "Отмеченные каталоги"
@@ -1583,23 +1583,25 @@ flag = "RU"
 "Colou~r~s" = "~Ц~вета"
 # navigator/widgets/setup/interface_page/interface_page.nml:84
 "Gl~y~phs" = "~Г~лифы"
-# navigator/widgets/setup/interface_page/interface_page.nml:96
+# navigator/widgets/setup/interface_page/interface_page.nml:97
+"Dim behind dialogs" = "Затемнять фон диалогов"
+# navigator/widgets/setup/interface_page/interface_page.nml:108
 "Mar~k~s" = "~Ф~лажки"
-# navigator/widgets/setup/interface_page/interface_page.nml:107
+# navigator/widgets/setup/interface_page/interface_page.nml:119
 "Te~x~t direction" = "~Н~аправление"
-# navigator/widgets/setup/interface_page/interface_page.nml:118
+# navigator/widgets/setup/interface_page/interface_page.nml:130
 "Settin~g~s tabs" = "~В~кладки опций"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "~O~n top" = "Свер~х~у"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "On the le~f~t" = "С~л~ева"
-# navigator/widgets/setup/interface_page/interface_page.nml:127
+# navigator/widgets/setup/interface_page/interface_page.nml:139
 "Sim~p~le" = "Прост~ы~е"
-# navigator/widgets/setup/interface_page/interface_page.nml:136
+# navigator/widgets/setup/interface_page/interface_page.nml:148
 "W~i~ndow strip" = "Окна в м~е~ню"
-# navigator/widgets/setup/interface_page/interface_page.nml:145, navigator/lib/appearance/palette.py
+# navigator/widgets/setup/interface_page/interface_page.nml:157, navigator/lib/appearance/palette.py
 "Numbers" = "Числа"
-# navigator/widgets/setup/interface_page/interface_page.nml:145
+# navigator/widgets/setup/interface_page/interface_page.nml:157
 "With titles" = "С заголовками"
 # navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.nml:15
 "Key Bindings" = "Назначение клавиш"
@@ -1647,60 +1649,68 @@ flag = "RU"
 "1~0~ minutes" = "1~0~ минут"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "~М~ышь вызывает заставку"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:34, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
 "Settings" = "Настройки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "Встроенные редактор и просмотрщик, буфер обмена, временные файлы, сбои и доступ root"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "What Navigator does when it starts and when it quits" = "Что Navigator делает при запуске и при выходе"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The clock, the menu and key bars, the command line, histories, language and looks" = "Часы, строки меню и клавиш, командная строка, истории, язык и внешний вид"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Which actions ask before they act" = "Какие действия спрашивают перед выполнением"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Screen savers: which, after how long, and the mouse corners" = "Хранители экрана: какие, через сколько и углы мыши"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How dates and times are written, and the first day of the week" = "Как записываются даты и время, и первый день недели"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The editor's and the viewer's defaults" = "Умолчания редактора и просмотрщика"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Which files F3 shows rendered: as a page, a picture, a table, a tree or a database" = "Какие файлы F3 показывает отрисованными: страницей, картинкой, таблицей, деревом или базой данных"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "How the file panels behave and look" = "Как ведут себя и выглядят файловые панели"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:691
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:691
 "What the information panel (Ctrl+L) shows" = "Что показывает информационная панель (Ctrl+L)"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:695
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:695
 "How a new file manager's panels start" = "С чем открываются панели нового файлового менеджера"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The columns a panel shows on the disk, in a Find: listing and in an archive" = "Столбцы, которые панель показывает на диске, в списке Find: и в архиве"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44, navigator/widgets/shell/main_menu/main_menu.nml:703
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46, navigator/widgets/shell/main_menu/main_menu.nml:703
 "Which files the panels show in which colour" = "Какие файлы панели показывают каким цветом"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:44
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "Remote connections: keep-alive, timeouts, idle links and changed files" = "Удалённые соединения: keep-alive, тайм-ауты, простаивающие соединения и изменённые файлы"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:67
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
+"Encryption's identity files, and how often Utilities' windows read again" = "Файлы ключей шифрования и как часто окна утилит перечитывают данные"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:71
 "System" = "Система"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:70, navigator/widgets/shell/commands.py:729
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:74, navigator/widgets/shell/commands.py:729
 "Startup" = "Загрузка/выгрузка"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:73, navigator/widgets/shell/commands.py:735
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:77, navigator/widgets/shell/commands.py:735
 "Interface" = "Интерф."
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:76, navigator/widgets/shell/commands.py:749
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:80, navigator/widgets/shell/commands.py:749
 "Confirmations" = "Подтверждения"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:79
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:83
 "Savers" = "Заставки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:607
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:86, navigator/widgets/shell/commands.py:607
 "Country" = "Страна"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:755
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:89, navigator/widgets/shell/commands.py:755
 "Editor/Viewer" = "Ред/Пр"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:88, navigator/lib/config/keybindings.py
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:92
+"Viewer types" = "Типы просмотра"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:95, navigator/lib/config/keybindings.py
 "File panels" = "Файловые панели"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:91
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:98
 "Info panel" = "Инфопанель"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:94
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:101
 "Panel defaults" = "Панели по умолчанию"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:97
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:104
 "Columns" = "Колонки"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:100, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:107, navigator/lib/appearance/palette.py, navigator/lib/appearance/palette.py ...
 "Highlight" = "Подсветка"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:103
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:110
 "Communications" = "Связь"
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:113
+"Tools" = "Инструменты"
 # navigator/widgets/setup/startup_page/startup_page.nml:21
 "Startup options" = "Загрузка"
 # navigator/widgets/setup/startup_page/startup_page.nml:30
@@ -1755,6 +1765,40 @@ flag = "RU"
 "Keep root open ~w~hile idle" = "Держать root откр~ы~тым"
 # navigator/widgets/setup/system_setup_page/system_setup_page.nml:142
 "minutes (0: each time)" = "минут (0: каждый раз)"
+# navigator/widgets/setup/tools_page/tools_page.nml:22
+"~A~ge identity files" = "Файлы ~к~лючей age"
+# navigator/widgets/setup/tools_page/tools_page.nml:32
+"~P~rocess list reads every" = "~П~роцессы: читать каждые"
+# navigator/widgets/setup/tools_page/tools_page.nml:43, navigator/widgets/setup/tools_page/tools_page.nml:71, navigator/widgets/setup/tools_page/tools_page.nml:101
+"seconds (0: on Ctrl+R alone)" = "секунд (0: только по Ctrl+R)"
+# navigator/widgets/setup/tools_page/tools_page.nml:51
+"Service ~m~anager" = "~М~енеджер служб"
+# navigator/widgets/setup/tools_page/tools_page.nml:60
+"S~e~rvices read every" = "~С~лужбы: читать каждые"
+# navigator/widgets/setup/tools_page/tools_page.nml:79
+"~J~ournal lines F3 shows first" = "Строк ~ж~урнала в F3"
+# navigator/widgets/setup/tools_page/tools_page.nml:90
+"S~y~stem monitor reads every" = "Мо~н~итор: читать каждые"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:23
+"F3 renders" = "F3 отрисовывает"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:31
+"Masks, separated by ;" = "Маски через ;"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:39
+"~M~arkdown" = "~M~arkdown"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:54
+"~r~eStructuredText" = "~r~eStructuredText"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:69
+"~H~TML" = "~H~TML"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:84
+"~P~DF" = "~P~DF"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:99
+"P~i~ctures" = "~К~артинки"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:114
+"~T~ables (CSV, TSV)" = "~Т~аблицы (CSV, TSV)"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:129
+"~S~tructured, as a tree" = "~С~труктуры, деревом"
+# navigator/widgets/setup/viewer_types_page/viewer_types_page.nml:146
+"SQ~L~ite databases" = "Базы SQ~L~ite"
 # navigator/widgets/shell/ascii_chart/ascii_chart.nml:14
 "ASCII Chart" = "Таблица ASCII"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:37, navigator/lib/config/keybindings.py
@@ -2249,9 +2293,9 @@ flag = "RU"
 "~D~isconnect" = "Ра~з~орвать связь"
 # navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "Закрыть соединение; его панели вернутся на диск"
-# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3212
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3218
 "Elevate ~r~oot access" = "Получить доступ ~r~oot"
-# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3213
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3219
 "Open root access now: the console's shell and a step refused permission run as root" = "Открыть доступ root сейчас: оболочка консоли и действия, в которых отказано в правах, выполняются от имени root"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
 "Saved l~i~nks..." = "Со~х~ранённые ссылки..."
@@ -2881,7 +2925,7 @@ flag = "RU"
 "{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "Для архивов {kind} нужен 7-Zip: установите 7zip (7zz) или p7zip (7z)"
 # navigator/lib/drives/arctool.py:467
 "rar exited with {returncode}" = "rar завершился с кодом {returncode}"
-# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3083
 "Remote drive {name} is not accessible" = "Удалённый диск {name} недоступен"
 # navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
 "Is a directory" = "Это каталог"
@@ -2950,7 +2994,7 @@ flag = "RU"
 # navigator/lib/editor/lock.py:101
 "locked by another program" = "заблокирован другой программой"
 # navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "нет файла идентичности age: укажите age_identities в разделе [encryption] файла navigator.ini"
+"no age identity file: set one in Options > Settings > Tools" = "нет файла ключей age: укажите его в Настройки > Параметры > Инструменты"
 # navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
 "{name} is not installed" = "{name} не установлен"
 # navigator/lib/file_ops/fileattr.py:401
@@ -5007,6 +5051,10 @@ flag = "RU"
 "The savers that take turns when the screen rests; Remove takes the one at the cursor out" = "Заставки, которые сменяют друг друга, пока экран отдыхает; Удалить убирает ту, что под курсором"
 # navigator/widgets/setup/savers_page/savers_page.py:35
 "Every saver there is; Add puts the one at the cursor among the selected" = "Все заставки; Добавить помещает ту, что под курсором, в выбранные"
+# navigator/widgets/setup/tools_page/tools_page.py:22
+"Automatic (the one running)" = "Автоматически (работающий)"
+# navigator/widgets/setup/tools_page/tools_page.py:44
+"{doc} -- used from the next time Services opens" = "{doc} -- действует со следующего открытия Служб"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:58, navigator/widgets/shell/char_table/char_table.py:65
 "Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Десятичный: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:240
@@ -5189,9 +5237,9 @@ flag = "RU"
 "Pinned" = "К закреплённой"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "Щёлкните, чтобы вернуть окно"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3137
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3143
 "{operation}: waiting for an answer" = "{operation}: ждёт ответа"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3139
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3145
 "{operation}: {percent}% done" = "{operation}: выполнено {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "Те же клавиши снова её остановят"
@@ -5245,7 +5293,7 @@ flag = "RU"
 "It closes after {n} idle minute" = ["Закрывается после {n} минуты простоя", "Закрывается после {n} минут простоя", "Закрывается после {n} минут простоя"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "Щелкните или {menu}, чтобы закрыть его сразу"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3209
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3215
 "Close ~r~oot access" = "Закрыть доступ ~r~oot"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "Юнит"
@@ -5297,9 +5345,9 @@ flag = "RU"
 "No file panels are open" = "Нет открытых файловых панелей"
 # navigator/widgets/shell/shell/shell.py:2017
 "Type to filter" = "Введите для фильтра"
-# navigator/widgets/shell/shell/shell.py:3041, navigator/widgets/shell/shell/shell.py:3034
+# navigator/widgets/shell/shell/shell.py:3047, navigator/widgets/shell/shell/shell.py:3040
 "Disconnect" = "Разорвать связь"
-# navigator/widgets/shell/shell/shell.py:3144
+# navigator/widgets/shell/shell/shell.py:3150
 "Background operations" = "Фоновые операции"
 # navigator/widgets/shell/shell/shell.py:1217
 "No connection is open" = "Нет открытых соединений"
@@ -5315,11 +5363,11 @@ flag = "RU"
 "~O~ther applications" = "~Д~ругие приложения"
 # navigator/widgets/shell/shell/shell.py:2132
 "Choose action" = "Выберите действие"
-# navigator/widgets/shell/shell/shell.py:3210
+# navigator/widgets/shell/shell/shell.py:3216
 "End root access now; the console goes back to your own shell" = "Завершить доступ root сейчас; консоль возвращается к вашей оболочке"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File View History" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3507
+# navigator/widgets/shell/shell/shell.py:3513
 "File Edit History" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1183
 "There is no /proc to read processes from" = "Нет /proc, из которого читать процессы"
@@ -5343,11 +5391,11 @@ flag = "RU"
 "File Manager Setup's Use arrows is off" = "В настройке файлового менеджера выключено «Использовать стрелки»"
 # navigator/widgets/shell/shell/shell.py:2046
 "~C~ommand (!.! is the file; else it goes at the end)" = "~К~оманда (!.! — файл; иначе он идёт в конец)"
-# navigator/widgets/shell/shell/shell.py:2777, navigator/widgets/shell/shell/shell.py:3079
+# navigator/widgets/shell/shell/shell.py:2783, navigator/widgets/shell/shell/shell.py:3085
 "{protocol} link" = "Связь {protocol}"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track viewing history" = "История просмотра файлов"
-# navigator/widgets/shell/shell/shell.py:3497
+# navigator/widgets/shell/shell/shell.py:3503
 "Track editing history" = "История редактирования файлов"
 # navigator/widgets/shell/shell/shell.py:1223
 "The {command} command is not installed" = "Команда {command} не установлена"
@@ -5365,13 +5413,13 @@ flag = "RU"
 "Open with ({type})" = "Открыть через ({type})"
 # navigator/widgets/shell/shell/shell.py:1980, navigator/widgets/shell/shell/shell.py:1976
 "Set default" = "Сделать по умолчанию"
-# navigator/widgets/shell/shell/shell.py:3032
+# navigator/widgets/shell/shell/shell.py:3038
 "Close the {protocol} connection to {host}?" = "Закрыть соединение {protocol} с {host}?"
 # navigator/widgets/shell/shell/shell.py:1979
 "{name} now opens {type}" = "{name} теперь открывает {type}"
 # navigator/widgets/shell/shell/shell.py:2008
 "{name} (default)" = "{name} (по умолчанию)"
-# navigator/widgets/shell/shell/shell.py:3074
+# navigator/widgets/shell/shell/shell.py:3080
 "Remote drive {name} is not accessible: {reason}" = "Удалённый диск {name} недоступен: {reason}"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "Запомнить цветовую палитру"
@@ -5387,27 +5435,27 @@ flag = "RU"
 "Not a palette:\n{error}" = "Это не палитра:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "Стрелки перемещают область,\nShift-стрелки меняют её размер.\n\nПосле выбора нажмите Enter, чтобы\nпоместить область в буфер обмена"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "View file" = "Просмотр файла"
-# navigator/widgets/shell/shell/shell.py:3558
+# navigator/widgets/shell/shell/shell.py:3564
 "Edit file" = "Редактирование файла"
 # navigator/widgets/shell/shell/shell.py:2339
 "No file manager is open to panelize into" = "Нет открытой файловой панели для вывода"
-# navigator/widgets/shell/shell/shell.py:2810
+# navigator/widgets/shell/shell/shell.py:2816
 "The password was not saved in the keyring: {reason}" = "Пароль не сохранён в связке ключей: {reason}"
-# navigator/widgets/shell/shell/shell.py:2831
+# navigator/widgets/shell/shell/shell.py:2837
 "Wrong password for rclone's configuration. Try again:" = "Неверный пароль конфигурации rclone. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2832
+# navigator/widgets/shell/shell/shell.py:2838
 "Password for rclone's configuration:" = "Пароль конфигурации rclone:"
-# navigator/widgets/shell/shell/shell.py:2843
+# navigator/widgets/shell/shell/shell.py:2849
 "Wrong passphrase for {key}. Try again:" = "Неверная фраза-пароль для {key}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2844
+# navigator/widgets/shell/shell/shell.py:2850
 "Passphrase for {key}:" = "Фраза-пароль для {key}:"
-# navigator/widgets/shell/shell/shell.py:2826
+# navigator/widgets/shell/shell/shell.py:2832
 "Wrong secret key for {who}. Try again:" = "Неверный секретный ключ для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2827
+# navigator/widgets/shell/shell/shell.py:2833
 "Secret key for {who}:" = "Секретный ключ для {who}:"
-# navigator/widgets/shell/shell/shell.py:3500
+# navigator/widgets/shell/shell/shell.py:3506
 "Set the interface option\n\"{option}\" ON first" = "Должна быть включена установка интерфейса\n\"{option}\""
 # navigator/widgets/shell/shell/shell.py:1663
 "Cannot edit {path}: {error}" = "Невозможно редактировать {path}: {error}"
@@ -5415,17 +5463,17 @@ flag = "RU"
 "File {name} not found" = "Файл {name} не найден"
 # navigator/widgets/shell/shell/shell.py:1841
 "Cannot write the menu's script: {error}" = "Невозможно записать сценарий меню: {error}"
-# navigator/widgets/shell/shell/shell.py:2802
+# navigator/widgets/shell/shell/shell.py:2808
 "Connecting to {host} over {protocol}" = "Соединение с {host} по {protocol}"
-# navigator/widgets/shell/shell/shell.py:2834
+# navigator/widgets/shell/shell/shell.py:2840
 "Wrong {protocol} password for {who}. Try again:" = "Неверный пароль {protocol} для {who}. Попробуйте ещё раз:"
-# navigator/widgets/shell/shell/shell.py:2835
+# navigator/widgets/shell/shell/shell.py:2841
 "{protocol} password for {who}:" = "Пароль {protocol} для {who}:"
-# navigator/widgets/shell/shell/shell.py:3250
+# navigator/widgets/shell/shell/shell.py:3256
 "The console could not be made root's: {reason}" = "Не удалось сделать консоль root: {reason}"
-# navigator/widgets/shell/shell/shell.py:3308
+# navigator/widgets/shell/shell/shell.py:3314
 "Cannot save the key bindings: {error}" = "Невозможно сохранить клавиши: {error}"
-# navigator/widgets/shell/shell/shell.py:3464
+# navigator/widgets/shell/shell/shell.py:3470
 "Cannot save the settings: {error}" = "Невозможно сохранить настройки: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "код выхода {status}"
@@ -6649,3 +6697,4 @@ flag = "RU"
 "Open root access now: a step refused permission may then be done as root" = "Открыть доступ root сейчас: действие, в котором отказано в правах, можно будет выполнить от имени root"
 "End root access now, rather than after its timeout" = "Завершить доступ root сейчас, не дожидаясь тайм-аута"
 "View mode, hidden files, the footer and the divider" = "Режим просмотра, скрытые файлы, нижняя строка и разделитель"
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "нет файла идентичности age: укажите age_identities в разделе [encryption] файла navigator.ini"
