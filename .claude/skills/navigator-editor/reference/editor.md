@@ -124,8 +124,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 2. Per-file defaults by mask: autoindent, brackets, unindent, highlight line/column, wrap, justify, margins, line
    ends (`DN.HGL`'s keys, `MACRO.PAS:655`); `highlight.ini`'s sections name only a lexer.
 3. The edit history keeping block kind, autoindent, wrap and margins (`StoreEditInfo`, `HISTRIES.PAS:261`).
-4. DN's default keys for ^K B/K/T/L, ^Q B/K, the markers ^K/^Q 1-9, ^T and ^Q Y (`DN.DNR`'s `EDITOR COMMANDS`):
-   bound in the WordStar and DN 1.51 key sets, not the default one, and on no menu.
 5. The column ruler while the right mouse button is held (`DNHELP.HTX`, *MiscCommands*).
 6. The line-format commands `cmLJustify`/`cmLRight`/`cmLLeft`/`cmLCenter` (`EDITOR.PAS:821-828`), DN's for macros.
 7. (Not DN's) a real tab character, a setting and per mask.

@@ -2879,6 +2879,10 @@ class FileEditor(ContextMenuHost, Widget):
         if isinstance(command, Redo):
             self.revision
             return "" if self.buffer.can_redo else tr("Nothing to redo")
+        if isinstance(command, GotoMarker):
+            # Greyed on the menu until placed; DN's ^Q N did nothing either.
+            placed = 1 <= command.marker <= len(self.markers) and self.markers[command.marker - 1] is not None
+            return "" if placed else tr("Marker {n} is not placed").format(n=command.marker)
         if isinstance(command, HideBlock):
             return "" if self.marked else no_block
         if isinstance(command, UnindentBlock) and command.stop:

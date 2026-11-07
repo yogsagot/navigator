@@ -488,7 +488,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   the block kind, auto-indent, wrap and margins too is editor backlog item 3: add the `field` lines to
   `edit_record.nml`, rebuild, and the table migrates itself.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
-  nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`).
+  nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`). **What the
+  modern default keys leave unbound is on the menu** (a departure: in DN these were keys alone): Editor > *Delete word
+  right* / *Delete to end of line* (no hot key: every letter is taken there), Block's first group *Mark start/end/word/
+  line* and *Go to block start/end*, Search's *Place marker* / *Go to marker* submenus (*Marker 1*-*9*; an unplaced one
+  greyed, "Marker N is not placed"). The key column shows a WordStar set's ^K/^Q chord when it is in use. The default
+  set itself stays modern (asked, twice). `test_every_editor_command_the_default_keys_leave_unbound_is_on_the_menu`
+  holds it: a new command with no default key needs an entry, or a reason in its allow list.
 
 ## Tooltips
 

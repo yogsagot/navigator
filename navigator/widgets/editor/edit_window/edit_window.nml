@@ -1,6 +1,6 @@
 from navkit.bidi import display_width
 from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
@@ -217,6 +217,17 @@ EditWindow(Window):
             text: 'Delete ~w~ord left'
             command: DeleteWordLeft
             key: 'Ctrl-BkSp'
+        #: ^T and ^Q Y were keys alone in DN; with the default keys modern, the
+        #: menu is how they are reached -- a departure (WordStar's sets bind them).
+        MenuItem:
+            text: 'Delete word ri~g~ht'
+            tooltip: "Delete from the cursor to the start of the next word"
+            command: DeleteWordRight
+        MenuItem:
+            #: No hot key: every letter of the caption is taken in this menu.
+            text: 'Delete to end of line'
+            tooltip: "Delete from the cursor to the end of the line"
+            command: DeleteToEnd
         MenuItem:
             text: 'Insert l~i~ne'
             command: InsertLine
@@ -306,6 +317,90 @@ EditWindow(Window):
                 tooltip: "Jump to the bracket that pairs with the one at the cursor"
                 command: BracketPair
                 key: 'Alt-Left'
+            #: The markers, ^K 1-9 and ^Q 1-9, were keys alone in DN -- a
+            #: departure: with the default keys modern, these are how they are
+            #: reached; the key column shows WordStar's when its set is in use.
+            MenuLine:
+            SubMenu:
+                id: edit_menu_place_marker
+                text: 'Pla~c~e marker'
+                tooltip: "Keep the cursor's place as one of nine markers"
+                MenuItem:
+                    text: 'Marker ~1~'
+                    tooltip: "Keep the cursor's place as marker 1"
+                    command: PlaceMarker(1)
+                MenuItem:
+                    text: 'Marker ~2~'
+                    tooltip: "Keep the cursor's place as marker 2"
+                    command: PlaceMarker(2)
+                MenuItem:
+                    text: 'Marker ~3~'
+                    tooltip: "Keep the cursor's place as marker 3"
+                    command: PlaceMarker(3)
+                MenuItem:
+                    text: 'Marker ~4~'
+                    tooltip: "Keep the cursor's place as marker 4"
+                    command: PlaceMarker(4)
+                MenuItem:
+                    text: 'Marker ~5~'
+                    tooltip: "Keep the cursor's place as marker 5"
+                    command: PlaceMarker(5)
+                MenuItem:
+                    text: 'Marker ~6~'
+                    tooltip: "Keep the cursor's place as marker 6"
+                    command: PlaceMarker(6)
+                MenuItem:
+                    text: 'Marker ~7~'
+                    tooltip: "Keep the cursor's place as marker 7"
+                    command: PlaceMarker(7)
+                MenuItem:
+                    text: 'Marker ~8~'
+                    tooltip: "Keep the cursor's place as marker 8"
+                    command: PlaceMarker(8)
+                MenuItem:
+                    text: 'Marker ~9~'
+                    tooltip: "Keep the cursor's place as marker 9"
+                    command: PlaceMarker(9)
+            SubMenu:
+                id: edit_menu_goto_marker
+                text: 'G~o~ to marker'
+                tooltip: "Take the cursor back to a place kept as a marker"
+                MenuItem:
+                    text: 'Marker ~1~'
+                    tooltip: "Take the cursor back to marker 1"
+                    command: GotoMarker(1)
+                MenuItem:
+                    text: 'Marker ~2~'
+                    tooltip: "Take the cursor back to marker 2"
+                    command: GotoMarker(2)
+                MenuItem:
+                    text: 'Marker ~3~'
+                    tooltip: "Take the cursor back to marker 3"
+                    command: GotoMarker(3)
+                MenuItem:
+                    text: 'Marker ~4~'
+                    tooltip: "Take the cursor back to marker 4"
+                    command: GotoMarker(4)
+                MenuItem:
+                    text: 'Marker ~5~'
+                    tooltip: "Take the cursor back to marker 5"
+                    command: GotoMarker(5)
+                MenuItem:
+                    text: 'Marker ~6~'
+                    tooltip: "Take the cursor back to marker 6"
+                    command: GotoMarker(6)
+                MenuItem:
+                    text: 'Marker ~7~'
+                    tooltip: "Take the cursor back to marker 7"
+                    command: GotoMarker(7)
+                MenuItem:
+                    text: 'Marker ~8~'
+                    tooltip: "Take the cursor back to marker 8"
+                    command: GotoMarker(8)
+                MenuItem:
+                    text: 'Marker ~9~'
+                    tooltip: "Take the cursor back to marker 9"
+                    command: GotoMarker(9)
         SubMenu:
             id: edit_menu_paragraph
             text: 'Pa~r~agraph'
@@ -333,6 +428,35 @@ EditWindow(Window):
         SubMenu:
             id: edit_menu_block
             text: '~B~lock'
+            #: Marking and going to the block's ends, ^K B/K/T/L and ^Q B/K, were
+            #: keys alone in DN -- a departure: with the default keys modern, the
+            #: menu is how they are reached (WordStar's sets bind DN's chords).
+            MenuItem:
+                text: 'Mar~k~ start'
+                tooltip: "Begin the block at the cursor"
+                command: BlockStart
+            MenuItem:
+                text: 'Mark ~e~nd'
+                tooltip: "End the block at the cursor"
+                command: BlockEnd
+            MenuItem:
+                text: 'Mark ~w~ord'
+                tooltip: "Mark the word at the cursor as the block"
+                command: MarkWord
+            MenuItem:
+                text: 'Mark li~n~e'
+                tooltip: "Mark the cursor's line as the block"
+                command: MarkLine
+            MenuLine:
+            MenuItem:
+                text: '~G~o to block start'
+                tooltip: "Take the cursor to where the block begins"
+                command: MoveBlockStart
+            MenuItem:
+                text: 'Go to block en~d~'
+                tooltip: "Take the cursor to where the block ends"
+                command: MoveBlockEnd
+            MenuLine:
             MenuItem:
                 text: '~M~ove'
                 command: MoveBlock

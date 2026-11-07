@@ -3148,3 +3148,90 @@ def test_one_undo_takes_a_smart_tab_back_whole(files):
     _, editor = text_editor(files, b"int  count;\nx\n", KeyEvent("down"), KeyEvent("tab"),
                             KeyEvent("backspace", alt=True))
     assert editor.document.encode() == b"int  count;\nx\n"
+
+
+# -- the commands the default keys leave unbound are on the Editor menu --------------------------------
+
+
+def chosen(*captions):
+    """The Editor menu's entry at *captions*, run as choosing it does."""
+    from test_nav import _entry
+
+    def act(a):
+        entry = _entry(editor_window(a).edit_menu, *captions)
+        a.spawn(a.run_command(entry.command, editor_window(a).editor))
+    return act
+
+
+def menu_names(menu) -> set[str]:
+    """The ``keybindings.ini`` names of every command on *menu*, its submenus' too:
+    the class's, and a variant's field (``place_marker_3``) -- as Key bindings names them."""
+    import dataclasses
+
+    from navigator.lib.config.keybindings import _snake, _suffix
+
+    found = set()
+    for entry in menu.entries():
+        command = getattr(entry, "command", None)
+        if command is not None:
+            # ``command: BlockStart`` in markup is the class; ``PlaceMarker(3)`` an instance.
+            cls = command if isinstance(command, type) else type(command)
+            name = _snake(cls.__name__)
+            if not isinstance(command, type) and dataclasses.is_dataclass(command):
+                for field in dataclasses.fields(command):
+                    name += _suffix(getattr(command, field.name), field.name)
+            found.add(name)
+        if hasattr(entry, "entries"):
+            found |= menu_names(entry)
+    return found
+
+
+def test_every_editor_command_the_default_keys_leave_unbound_is_on_the_menu(files):
+    import configparser
+    import importlib.resources
+
+    text = importlib.resources.files("navigator.assets.keymaps").joinpath("keybindings_default.ini").read_text()
+    parser = configparser.ConfigParser(inline_comment_prefixes=("#",), interpolation=None)
+    parser.read_string(text)
+    unbound = {name for name, value in parser["editor"].items() if not value.strip()}
+    #: What is on the menu by another name, or has a key elsewhere.
+    allowed = {
+        "switch_block": "Options > Vertical blocks ticks it",
+    }
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: seen.update(on_menu=menu_names(editor_window(a).edit_menu))])
+    missing = sorted(unbound - set(allowed) - seen["on_menu"])
+    assert missing == [], missing
+
+
+def test_mark_start_and_end_from_the_menu_mark_the_block_and_go_to_its_start(files):
+    _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"), chosen("Block", "Mark start"), IDLE,
+                            *[KeyEvent("right")] * 3, chosen("Block", "Mark end"), IDLE,
+                            KeyEvent("end"), chosen("Block", "Go to block start"), IDLE)
+    assert editor.block_text == "bcd" and (editor.line, editor.col) == (0, 1)
+
+
+def test_a_marker_placed_from_the_menu_is_gone_back_to_and_an_unplaced_one_is_greyed(files):
+    from navigator.widgets.editor.commands import GotoMarker
+
+    seen = {}
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen["five"] = a.command_disabled_reason(GotoMarker(5), editor)
+
+    _, editor = text_editor(files, b"one\ntwo\nthree\n", KeyEvent("down"), KeyEvent("right"),
+                            chosen("Search", "Place marker", "Marker 3"), IDLE,
+                            KeyEvent("down"), KeyEvent("end"), look,
+                            chosen("Search", "Go to marker", "Marker 3"), IDLE)
+    assert (editor.line, editor.col) == (1, 1)
+    assert seen["five"] == "Marker 5 is not placed"
+
+
+def test_delete_word_right_and_to_end_of_line_from_the_menu(files):
+    _, editor = text_editor(files, b"abc def ghi\n", chosen("Delete word right"), IDLE)
+    assert editor.document.encode() == b"def ghi\n"
+    _, editor = text_editor(files, b"abc def ghi\n", *[KeyEvent("right")] * 4, chosen("Delete to end of line"), IDLE)
+    assert editor.document.encode() == b"abc \n"

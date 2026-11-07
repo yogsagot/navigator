@@ -96,9 +96,9 @@ direction = "rtl"
 "~E~ditor" = "~ע~ורך"
 # navigator/widgets/editor/edit_window/edit_window.nml:169
 "Editing, the file, search, paragraphs and blocks" = "עריכה, הקובץ, חיפוש, פסקאות ובלוקים"
-# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3080
+# navigator/widgets/editor/edit_window/edit_window.nml:176, navigator/widgets/editor/file_editor/file_editor.py:3096
 "~U~ndo" = "ב~ט~ל"
-# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3081
+# navigator/widgets/editor/edit_window/edit_window.nml:180, navigator/widgets/editor/file_editor/file_editor.py:3097
 "R~e~do" = "ח~ז~ור"
 # navigator/widgets/editor/edit_window/edit_window.nml:197
 "C~o~py to..." = "העתק ~ל~קובץ..."
@@ -110,149 +110,243 @@ direction = "rtl"
 "Insert a file's text at the cursor" = "הכנס את טקסט הקובץ במיקום הסמן"
 # navigator/widgets/editor/edit_window/edit_window.nml:207
 "Delete the selection without copying it to the clipboard" = "מחק את הבחירה בלי להעתיק ללוח"
-# navigator/widgets/editor/edit_window/edit_window.nml:212, navigator/widgets/editor/file_editor/file_editor.py:3087
+# navigator/widgets/editor/edit_window/edit_window.nml:212, navigator/widgets/editor/file_editor/file_editor.py:3103
 "~D~elete line" = "מחק ~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:217, navigator/widgets/editor/file_editor/file_editor.py:3088
+# navigator/widgets/editor/edit_window/edit_window.nml:217, navigator/widgets/editor/file_editor/file_editor.py:3104
 "Delete ~w~ord left" = "מחק מ~י~לה משמאל"
-# navigator/widgets/editor/edit_window/edit_window.nml:221
+# navigator/widgets/editor/edit_window/edit_window.nml:223
+"Delete word ri~g~ht" = "מחיקת מילה מימי~ן~"
+# navigator/widgets/editor/edit_window/edit_window.nml:224
+"Delete from the cursor to the start of the next word" = "מחיקה מהסמן עד תחילת המילה הבאה"
+# navigator/widgets/editor/edit_window/edit_window.nml:228
+"Delete to end of line" = "מחיקה עד סוף השורה"
+# navigator/widgets/editor/edit_window/edit_window.nml:229
+"Delete from the cursor to the end of the line" = "מחיקה מהסמן עד סוף השורה"
+# navigator/widgets/editor/edit_window/edit_window.nml:232
 "Insert l~i~ne" = "הוסף ש~ו~רה"
-# navigator/widgets/editor/edit_window/edit_window.nml:227, navigator/widgets/shell/main_menu/main_menu.nml:109
+# navigator/widgets/editor/edit_window/edit_window.nml:238, navigator/widgets/shell/main_menu/main_menu.nml:109
 "~F~ile" = "~ק~ובץ"
-# navigator/widgets/editor/edit_window/edit_window.nml:229, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
+# navigator/widgets/editor/edit_window/edit_window.nml:240, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~O~pen..." = "~פ~תח..."
-# navigator/widgets/editor/edit_window/edit_window.nml:233, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:244, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~ש~מור"
-# navigator/widgets/editor/edit_window/edit_window.nml:237
+# navigator/widgets/editor/edit_window/edit_window.nml:248
 "Save ~a~s..." = "שמור ~ב~שם..."
-# navigator/widgets/editor/edit_window/edit_window.nml:241
+# navigator/widgets/editor/edit_window/edit_window.nml:252
 "Save a~l~l..." = "שמור ~כ~ל..."
-# navigator/widgets/editor/edit_window/edit_window.nml:249
+# navigator/widgets/editor/edit_window/edit_window.nml:260
 "Line en~d~ings" = "~ס~יומי שורות"
-# navigator/widgets/editor/edit_window/edit_window.nml:253
+# navigator/widgets/editor/edit_window/edit_window.nml:264
 "En~c~oding" = "~ק~ידוד"
-# navigator/widgets/editor/edit_window/edit_window.nml:257, navigator/widgets/shell/main_menu/main_menu.nml:309
+# navigator/widgets/editor/edit_window/edit_window.nml:268, navigator/widgets/shell/main_menu/main_menu.nml:309
 "~P~rint" = "~ה~דפס"
-# navigator/widgets/editor/edit_window/edit_window.nml:261
+# navigator/widgets/editor/edit_window/edit_window.nml:272
 "Print ~b~lock" = "הדפס בל~ו~ק"
-# navigator/widgets/editor/edit_window/edit_window.nml:266, navigator/widgets/shell/main_menu/main_menu.nml:396
+# navigator/widgets/editor/edit_window/edit_window.nml:277, navigator/widgets/shell/main_menu/main_menu.nml:396
 "E~x~it" = "יצי~א~ה"
-# navigator/widgets/editor/edit_window/edit_window.nml:271, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:282, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ח~יפוש"
-# navigator/widgets/editor/edit_window/edit_window.nml:274
+# navigator/widgets/editor/edit_window/edit_window.nml:285
 "Find ~b~ar" = "~ס~רגל חיפוש"
-# navigator/widgets/editor/edit_window/edit_window.nml:275
+# navigator/widgets/editor/edit_window/edit_window.nml:286
 "Search as you type, in a bar over the text" = "חיפוש תוך כדי הקלדה, בסרגל מעל הטקסט"
-# navigator/widgets/editor/edit_window/edit_window.nml:279
+# navigator/widgets/editor/edit_window/edit_window.nml:290
 "Replace b~a~r" = "סרגל החל~פ~ה"
-# navigator/widgets/editor/edit_window/edit_window.nml:284, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3091
+# navigator/widgets/editor/edit_window/edit_window.nml:295, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3107
 "~F~ind..." = "~ח~פש..."
-# navigator/widgets/editor/edit_window/edit_window.nml:288, navigator/widgets/editor/file_editor/file_editor.py:3092
+# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/editor/file_editor/file_editor.py:3108
 "~R~eplace..." = "~ה~חלף..."
-# navigator/widgets/editor/edit_window/edit_window.nml:292
+# navigator/widgets/editor/edit_window/edit_window.nml:303
 "~S~earch again" = "חפש ~ש~וב"
-# navigator/widgets/editor/edit_window/edit_window.nml:296
+# navigator/widgets/editor/edit_window/edit_window.nml:307
 "Re~v~ersed search" = "חיפוש ~ל~אחור"
-# navigator/widgets/editor/edit_window/edit_window.nml:300
-"~G~o to line number..." = "~ע~בור לשורה מספר..."
-# navigator/widgets/editor/edit_window/edit_window.nml:305
-"~M~atching bracket" = "סוגר ~ת~ואם"
-# navigator/widgets/editor/edit_window/edit_window.nml:306
-"Jump to the bracket that pairs with the one at the cursor" = "קפוץ לסוגר המתאים לזה שליד הסמן"
 # navigator/widgets/editor/edit_window/edit_window.nml:311
-"Pa~r~agraph" = "~פ~סקה"
-# navigator/widgets/editor/edit_window/edit_window.nml:313
-"~J~ustify" = "יישור ~ד~ו-צדדי"
-# navigator/widgets/editor/edit_window/edit_window.nml:314
-"Justify the block's paragraph to both margins" = "ישר את פסקת הבלוק לשני השוליים"
-# navigator/widgets/editor/edit_window/edit_window.nml:318
-"~R~ight" = "~י~מין"
-# navigator/widgets/editor/edit_window/edit_window.nml:322
-"~L~eft" = "~ש~מאל"
+"~G~o to line number..." = "~ע~בור לשורה מספר..."
+# navigator/widgets/editor/edit_window/edit_window.nml:316
+"~M~atching bracket" = "סוגר ~ת~ואם"
+# navigator/widgets/editor/edit_window/edit_window.nml:317
+"Jump to the bracket that pairs with the one at the cursor" = "קפוץ לסוגר המתאים לזה שליד הסמן"
 # navigator/widgets/editor/edit_window/edit_window.nml:326
-"~C~enter" = "~מ~רכז"
-# navigator/widgets/editor/edit_window/edit_window.nml:331
-"~M~argins..." = "ש~ו~ליים..."
-# navigator/widgets/editor/edit_window/edit_window.nml:335, navigator/widgets/editor/edit_window/edit_window.nml:420, navigator/widgets/editor/edit_window/edit_window.nml:435 ...
-"~B~lock" = "~ב~לוק"
-# navigator/widgets/editor/edit_window/edit_window.nml:337
-"~M~ove" = "ה~ע~בר"
-# navigator/widgets/editor/edit_window/edit_window.nml:345
-"~I~ndent" = "ה~ז~ח"
-# navigator/widgets/editor/edit_window/edit_window.nml:349
-"~U~nindent" = "~ב~טל הזחה"
+"Pla~c~e marker" = "ה~צ~בת סימון"
+# navigator/widgets/editor/edit_window/edit_window.nml:327
+"Keep the cursor's place as one of nine markers" = "שמירת מקום הסמן כאחד מתשעה סימונים"
+# navigator/widgets/editor/edit_window/edit_window.nml:329, navigator/widgets/editor/edit_window/edit_window.nml:369
+"Marker ~1~" = "סימון ~1~"
+# navigator/widgets/editor/edit_window/edit_window.nml:330
+"Keep the cursor's place as marker 1" = "שמירת מקום הסמן כסימון 1"
+# navigator/widgets/editor/edit_window/edit_window.nml:333, navigator/widgets/editor/edit_window/edit_window.nml:373
+"Marker ~2~" = "סימון ~2~"
+# navigator/widgets/editor/edit_window/edit_window.nml:334
+"Keep the cursor's place as marker 2" = "שמירת מקום הסמן כסימון 2"
+# navigator/widgets/editor/edit_window/edit_window.nml:337, navigator/widgets/editor/edit_window/edit_window.nml:377
+"Marker ~3~" = "סימון ~3~"
+# navigator/widgets/editor/edit_window/edit_window.nml:338
+"Keep the cursor's place as marker 3" = "שמירת מקום הסמן כסימון 3"
+# navigator/widgets/editor/edit_window/edit_window.nml:341, navigator/widgets/editor/edit_window/edit_window.nml:381
+"Marker ~4~" = "סימון ~4~"
+# navigator/widgets/editor/edit_window/edit_window.nml:342
+"Keep the cursor's place as marker 4" = "שמירת מקום הסמן כסימון 4"
+# navigator/widgets/editor/edit_window/edit_window.nml:345, navigator/widgets/editor/edit_window/edit_window.nml:385
+"Marker ~5~" = "סימון ~5~"
+# navigator/widgets/editor/edit_window/edit_window.nml:346
+"Keep the cursor's place as marker 5" = "שמירת מקום הסמן כסימון 5"
+# navigator/widgets/editor/edit_window/edit_window.nml:349, navigator/widgets/editor/edit_window/edit_window.nml:389
+"Marker ~6~" = "סימון ~6~"
+# navigator/widgets/editor/edit_window/edit_window.nml:350
+"Keep the cursor's place as marker 6" = "שמירת מקום הסמן כסימון 6"
+# navigator/widgets/editor/edit_window/edit_window.nml:353, navigator/widgets/editor/edit_window/edit_window.nml:393
+"Marker ~7~" = "סימון ~7~"
 # navigator/widgets/editor/edit_window/edit_window.nml:354
-"~H~ide/show block" = "הס~ת~ר/הצג בלוק"
-# navigator/widgets/editor/edit_window/edit_window.nml:355
-"Hide the marked block, or show it again" = "הסתר את הבלוק המסומן, או הצג אותו שוב"
-# navigator/widgets/editor/edit_window/edit_window.nml:360
-"U~p~percase" = "~א~ותיות גדולות"
-# navigator/widgets/editor/edit_window/edit_window.nml:364, navigator/widgets/editor/edit_window/edit_window.nml:425
-"~L~owercase" = "א~ו~תיות קטנות"
-# navigator/widgets/editor/edit_window/edit_window.nml:368
-"Capi~t~alize" = "~ר~אשית גדולה"
-# navigator/widgets/editor/edit_window/edit_window.nml:373
-"~S~ort" = "~מ~יין"
+"Keep the cursor's place as marker 7" = "שמירת מקום הסמן כסימון 7"
+# navigator/widgets/editor/edit_window/edit_window.nml:357, navigator/widgets/editor/edit_window/edit_window.nml:397
+"Marker ~8~" = "סימון ~8~"
+# navigator/widgets/editor/edit_window/edit_window.nml:358
+"Keep the cursor's place as marker 8" = "שמירת מקום הסמן כסימון 8"
+# navigator/widgets/editor/edit_window/edit_window.nml:361, navigator/widgets/editor/edit_window/edit_window.nml:401
+"Marker ~9~" = "סימון ~9~"
+# navigator/widgets/editor/edit_window/edit_window.nml:362
+"Keep the cursor's place as marker 9" = "שמירת מקום הסמן כסימון 9"
+# navigator/widgets/editor/edit_window/edit_window.nml:366
+"G~o~ to marker" = "~מ~עבר לסימון"
+# navigator/widgets/editor/edit_window/edit_window.nml:367
+"Take the cursor back to a place kept as a marker" = "החזרת הסמן למקום שנשמר כסימון"
+# navigator/widgets/editor/edit_window/edit_window.nml:370
+"Take the cursor back to marker 1" = "החזרת הסמן לסימון 1"
 # navigator/widgets/editor/edit_window/edit_window.nml:374
-"Sort the lines by the column block" = "מיין את השורות לפי בלוק העמודה"
-# navigator/widgets/editor/edit_window/edit_window.nml:379
-"C~a~lculate sum" = "~ח~שב סכום"
-# navigator/widgets/editor/edit_window/edit_window.nml:380
-"Add up the column block's numbers; the sum goes to the clipboard" = "חבר את מספרי בלוק העמודה; הסכום עובר ללוח"
-# navigator/widgets/editor/edit_window/edit_window.nml:385
-"~M~isc" = "שונו~ת~"
-# navigator/widgets/editor/edit_window/edit_window.nml:387
-"Insert ~d~ate" = "הוסף ~ת~אריך"
-# navigator/widgets/editor/edit_window/edit_window.nml:391
-"Insert ~t~ime" = "הוסף ~ש~עה"
-# navigator/widgets/editor/edit_window/edit_window.nml:395
-"Du~p~licate line" = "שכ~פ~ל שורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:399, navigator/widgets/shell/main_menu/main_menu.nml:474
-"Character ta~b~le" = "~ט~בלת תווים"
-# navigator/widgets/editor/edit_window/edit_window.nml:403
-"Line Dra~w~ing" = "~צ~יור קווים"
-# navigator/widgets/editor/edit_window/edit_window.nml:404
-"Draw lines with the arrow keys: off, single, double" = "צייר קווים עם מקשי החצים: כבוי, יחיד, כפול"
-# navigator/widgets/editor/edit_window/edit_window.nml:410
-"~U~ppercase" = "~א~ותיות גדולות"
-# navigator/widgets/editor/edit_window/edit_window.nml:412, navigator/widgets/editor/edit_window/edit_window.nml:427, navigator/widgets/editor/edit_window/edit_window.nml:442
-"~W~ord" = "~מ~ילה"
-# navigator/widgets/editor/edit_window/edit_window.nml:416, navigator/widgets/editor/edit_window/edit_window.nml:431, navigator/widgets/editor/edit_window/edit_window.nml:446
-"~L~ine" = "~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:440, navigator/widgets/editor/file_editor/file_editor.py:3100
-"~C~apitalize" = "~ר~אשית גדולה"
-# navigator/widgets/editor/edit_window/edit_window.nml:455
-"Optio~n~s" = "~א~פשרויות"
+"Take the cursor back to marker 2" = "החזרת הסמן לסימון 2"
+# navigator/widgets/editor/edit_window/edit_window.nml:378
+"Take the cursor back to marker 3" = "החזרת הסמן לסימון 3"
+# navigator/widgets/editor/edit_window/edit_window.nml:382
+"Take the cursor back to marker 4" = "החזרת הסמן לסימון 4"
+# navigator/widgets/editor/edit_window/edit_window.nml:386
+"Take the cursor back to marker 5" = "החזרת הסמן לסימון 5"
+# navigator/widgets/editor/edit_window/edit_window.nml:390
+"Take the cursor back to marker 6" = "החזרת הסמן לסימון 6"
+# navigator/widgets/editor/edit_window/edit_window.nml:394
+"Take the cursor back to marker 7" = "החזרת הסמן לסימון 7"
+# navigator/widgets/editor/edit_window/edit_window.nml:398
+"Take the cursor back to marker 8" = "החזרת הסמן לסימון 8"
+# navigator/widgets/editor/edit_window/edit_window.nml:402
+"Take the cursor back to marker 9" = "החזרת הסמן לסימון 9"
+# navigator/widgets/editor/edit_window/edit_window.nml:406
+"Pa~r~agraph" = "~פ~סקה"
+# navigator/widgets/editor/edit_window/edit_window.nml:408
+"~J~ustify" = "יישור ~ד~ו-צדדי"
+# navigator/widgets/editor/edit_window/edit_window.nml:409
+"Justify the block's paragraph to both margins" = "ישר את פסקת הבלוק לשני השוליים"
+# navigator/widgets/editor/edit_window/edit_window.nml:413
+"~R~ight" = "~י~מין"
+# navigator/widgets/editor/edit_window/edit_window.nml:417
+"~L~eft" = "~ש~מאל"
+# navigator/widgets/editor/edit_window/edit_window.nml:421
+"~C~enter" = "~מ~רכז"
+# navigator/widgets/editor/edit_window/edit_window.nml:426
+"~M~argins..." = "ש~ו~ליים..."
+# navigator/widgets/editor/edit_window/edit_window.nml:430, navigator/widgets/editor/edit_window/edit_window.nml:544, navigator/widgets/editor/edit_window/edit_window.nml:559 ...
+"~B~lock" = "~ב~לוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:435
+"Mar~k~ start" = "תח~י~לת בלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:436
+"Begin the block at the cursor" = "התחלת הבלוק בסמן"
+# navigator/widgets/editor/edit_window/edit_window.nml:439
+"Mark ~e~nd" = "~ס~וף בלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:440
+"End the block at the cursor" = "סיום הבלוק בסמן"
+# navigator/widgets/editor/edit_window/edit_window.nml:443
+"Mark ~w~ord" = "סימו~ן~ מילה"
+# navigator/widgets/editor/edit_window/edit_window.nml:444
+"Mark the word at the cursor as the block" = "סימון המילה שבסמן כבלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:447
+"Mark li~n~e" = "סימון ~ש~ורה"
+# navigator/widgets/editor/edit_window/edit_window.nml:448
+"Mark the cursor's line as the block" = "סימון שורת הסמן כבלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:452
+"~G~o to block start" = "מעבר ~ל~תחילת הבלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:453
+"Take the cursor to where the block begins" = "העברת הסמן לתחילת הבלוק"
+# navigator/widgets/editor/edit_window/edit_window.nml:456
+"Go to block en~d~" = "מעבר לסו~ף~ הבלוק"
 # navigator/widgets/editor/edit_window/edit_window.nml:457
-"~B~ackspace indents" = "~ה~זחה ב-Backspace"
-# navigator/widgets/editor/edit_window/edit_window.nml:458
-"Backspace at a line's start goes back to an indent above" = "Backspace בתחילת שורה חוזר להזחה שמעל"
+"Take the cursor to where the block ends" = "העברת הסמן לסוף הבלוק"
 # navigator/widgets/editor/edit_window/edit_window.nml:461
-"AutoB~r~ackets" = "~ס~וגריים אוטומטיים"
-# navigator/widgets/editor/edit_window/edit_window.nml:464
-"Auto~i~ndent" = "הזחה ~א~וטומטית"
-# navigator/widgets/editor/edit_window/edit_window.nml:467
-"~A~uto wrap" = "~ג~לישת שורות אוטומטית"
-# navigator/widgets/editor/edit_window/edit_window.nml:470, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~J~ustify on wrap" = "ייש~ו~ר בגלישה"
-# navigator/widgets/editor/edit_window/edit_window.nml:471
-"Widen a wrapped line to the margin" = "הרחב שורה שנגלשה עד השוליים"
-# navigator/widgets/editor/edit_window/edit_window.nml:474, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"~V~ertical blocks" = "בלוקים אנ~כ~יים"
-# navigator/widgets/editor/edit_window/edit_window.nml:475
-"Mark column blocks instead of line ones" = "סמן בלוקי עמודות במקום בלוקי שורות"
-# navigator/widgets/editor/edit_window/edit_window.nml:478, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
-"Opti~m~al fill" = "מ~י~לוי מיטבי"
+"~M~ove" = "ה~ע~בר"
+# navigator/widgets/editor/edit_window/edit_window.nml:469
+"~I~ndent" = "ה~ז~ח"
+# navigator/widgets/editor/edit_window/edit_window.nml:473
+"~U~nindent" = "~ב~טל הזחה"
+# navigator/widgets/editor/edit_window/edit_window.nml:478
+"~H~ide/show block" = "הס~ת~ר/הצג בלוק"
 # navigator/widgets/editor/edit_window/edit_window.nml:479
-"Write blanks as tabs where they reach a tab stop" = "כתוב רווחים כטאבים היכן שהם מגיעים לעצירת טאב"
-# navigator/widgets/editor/edit_window/edit_window.nml:482
-"Current ~l~ine highlight" = "הדגשת ~ש~ורה נוכחית"
-# navigator/widgets/editor/edit_window/edit_window.nml:485
-"Current ~c~olumn highlight" = "הדגשת ~ע~מודה נוכחית"
-# navigator/widgets/editor/edit_window/edit_window.nml:488
-"Syntax ~h~ighlight" = "הדגשת ~ת~חביר"
+"Hide the marked block, or show it again" = "הסתר את הבלוק המסומן, או הצג אותו שוב"
+# navigator/widgets/editor/edit_window/edit_window.nml:484
+"U~p~percase" = "~א~ותיות גדולות"
+# navigator/widgets/editor/edit_window/edit_window.nml:488, navigator/widgets/editor/edit_window/edit_window.nml:549
+"~L~owercase" = "א~ו~תיות קטנות"
 # navigator/widgets/editor/edit_window/edit_window.nml:492
+"Capi~t~alize" = "~ר~אשית גדולה"
+# navigator/widgets/editor/edit_window/edit_window.nml:497
+"~S~ort" = "~מ~יין"
+# navigator/widgets/editor/edit_window/edit_window.nml:498
+"Sort the lines by the column block" = "מיין את השורות לפי בלוק העמודה"
+# navigator/widgets/editor/edit_window/edit_window.nml:503
+"C~a~lculate sum" = "~ח~שב סכום"
+# navigator/widgets/editor/edit_window/edit_window.nml:504
+"Add up the column block's numbers; the sum goes to the clipboard" = "חבר את מספרי בלוק העמודה; הסכום עובר ללוח"
+# navigator/widgets/editor/edit_window/edit_window.nml:509
+"~M~isc" = "שונו~ת~"
+# navigator/widgets/editor/edit_window/edit_window.nml:511
+"Insert ~d~ate" = "הוסף ~ת~אריך"
+# navigator/widgets/editor/edit_window/edit_window.nml:515
+"Insert ~t~ime" = "הוסף ~ש~עה"
+# navigator/widgets/editor/edit_window/edit_window.nml:519
+"Du~p~licate line" = "שכ~פ~ל שורה"
+# navigator/widgets/editor/edit_window/edit_window.nml:523, navigator/widgets/shell/main_menu/main_menu.nml:474
+"Character ta~b~le" = "~ט~בלת תווים"
+# navigator/widgets/editor/edit_window/edit_window.nml:527
+"Line Dra~w~ing" = "~צ~יור קווים"
+# navigator/widgets/editor/edit_window/edit_window.nml:528
+"Draw lines with the arrow keys: off, single, double" = "צייר קווים עם מקשי החצים: כבוי, יחיד, כפול"
+# navigator/widgets/editor/edit_window/edit_window.nml:534
+"~U~ppercase" = "~א~ותיות גדולות"
+# navigator/widgets/editor/edit_window/edit_window.nml:536, navigator/widgets/editor/edit_window/edit_window.nml:551, navigator/widgets/editor/edit_window/edit_window.nml:566
+"~W~ord" = "~מ~ילה"
+# navigator/widgets/editor/edit_window/edit_window.nml:540, navigator/widgets/editor/edit_window/edit_window.nml:555, navigator/widgets/editor/edit_window/edit_window.nml:570
+"~L~ine" = "~ש~ורה"
+# navigator/widgets/editor/edit_window/edit_window.nml:564, navigator/widgets/editor/file_editor/file_editor.py:3116
+"~C~apitalize" = "~ר~אשית גדולה"
+# navigator/widgets/editor/edit_window/edit_window.nml:579
+"Optio~n~s" = "~א~פשרויות"
+# navigator/widgets/editor/edit_window/edit_window.nml:581
+"~B~ackspace indents" = "~ה~זחה ב-Backspace"
+# navigator/widgets/editor/edit_window/edit_window.nml:582
+"Backspace at a line's start goes back to an indent above" = "Backspace בתחילת שורה חוזר להזחה שמעל"
+# navigator/widgets/editor/edit_window/edit_window.nml:585
+"AutoB~r~ackets" = "~ס~וגריים אוטומטיים"
+# navigator/widgets/editor/edit_window/edit_window.nml:588
+"Auto~i~ndent" = "הזחה ~א~וטומטית"
+# navigator/widgets/editor/edit_window/edit_window.nml:591
+"~A~uto wrap" = "~ג~לישת שורות אוטומטית"
+# navigator/widgets/editor/edit_window/edit_window.nml:594, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~J~ustify on wrap" = "ייש~ו~ר בגלישה"
+# navigator/widgets/editor/edit_window/edit_window.nml:595
+"Widen a wrapped line to the margin" = "הרחב שורה שנגלשה עד השוליים"
+# navigator/widgets/editor/edit_window/edit_window.nml:598, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"~V~ertical blocks" = "בלוקים אנ~כ~יים"
+# navigator/widgets/editor/edit_window/edit_window.nml:599
+"Mark column blocks instead of line ones" = "סמן בלוקי עמודות במקום בלוקי שורות"
+# navigator/widgets/editor/edit_window/edit_window.nml:602, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:36
+"Opti~m~al fill" = "מ~י~לוי מיטבי"
+# navigator/widgets/editor/edit_window/edit_window.nml:603
+"Write blanks as tabs where they reach a tab stop" = "כתוב רווחים כטאבים היכן שהם מגיעים לעצירת טאב"
+# navigator/widgets/editor/edit_window/edit_window.nml:606
+"Current ~l~ine highlight" = "הדגשת ~ש~ורה נוכחית"
+# navigator/widgets/editor/edit_window/edit_window.nml:609
+"Current ~c~olumn highlight" = "הדגשת ~ע~מודה נוכחית"
+# navigator/widgets/editor/edit_window/edit_window.nml:612
+"Syntax ~h~ighlight" = "הדגשת ~ת~חביר"
+# navigator/widgets/editor/edit_window/edit_window.nml:616
 "Show hi~d~den characters" = "הצג תווים ~נ~סתרים"
-# navigator/widgets/editor/edit_window/edit_window.nml:500
+# navigator/widgets/editor/edit_window/edit_window.nml:624
 "File t~y~pe" = "~ס~וג קובץ"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/file_ops/replace_query/replace_query.nml:17, navigator/widgets/editor/commands.py:282 ...
 "Replace" = "החלפה"
@@ -1650,7 +1744,7 @@ direction = "rtl"
 "1~0~ minutes" = "1~0~ דקות"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "שימוש ב~ע~כבר להפעלה"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1445, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1441, navigator/widgets/shell/commands.py:717
 "Settings" = "הגדרות"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "העורך והמציג הפנימיים, הלוח, קבצים זמניים, כשלים וגישת root"
@@ -3494,59 +3588,59 @@ direction = "rtl"
 "Pictures other than PNG need Pillow: pip install {extra}" = "תמונות שאינן PNG דורשות Pillow: pip install {extra}"
 # navigator/lib/viewer/pdf.py:70
 "Page {page} of {pages}" = "עמוד {page} מתוך {pages}"
-# navigator/settings.py:265
+# navigator/settings.py:261
 "Appearance -- the --theme, --palette, --colors, --glyphs, --marks and --dim-modal flags" = "מראה -- הדגלים --theme, --palette, --colors, --glyphs, --marks ו---dim-modal"
-# navigator/settings.py:305
+# navigator/settings.py:301
 "Options > Configuration > System Setup (DN's dlgSystemSetup)" = "אפשרויות > תצורה > הגדרות מערכת (dlgSystemSetup של DN)"
-# navigator/settings.py:385
+# navigator/settings.py:381
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "אפשרויות > תצורה > הפעלה (dlgStartupSetup של DN)"
-# navigator/settings.py:411
+# navigator/settings.py:407
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "אפשרויות > תצורה > ממשק (dlgInterfaceSetup של DN)"
-# navigator/settings.py:496
+# navigator/settings.py:492
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "אפשרויות > תצורה > אישורים (dlgConfirmations של DN)"
-# navigator/settings.py:524
+# navigator/settings.py:520
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "אפשרויות > תצורה > עורך/מציג -- העורך (dlgEditorDefaults של DN)"
-# navigator/settings.py:596
+# navigator/settings.py:592
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "אפשרויות > תצורה > עורך/מציג -- המציג (dlgEditorDefaults של DN)"
-# navigator/settings.py:682
+# navigator/settings.py:678
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "אפשרויות > מנהל קבצים > הגדרות (dlgFMSetup של DN)"
-# navigator/settings.py:770
+# navigator/settings.py:766
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל למנהל חדש (dlgFMDefaults של DN)"
-# navigator/settings.py:824
+# navigator/settings.py:820
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "אפשרויות > מנהל קבצים > לוח מידע (dlgDriveInfoSetup של DN)"
-# navigator/settings.py:863
+# navigator/settings.py:859
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "אפשרויות > מנהל קבצים > ברירות מחדל לעמודות (dlgColumnsDefaults של DN)"
-# navigator/settings.py:911
+# navigator/settings.py:907
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "אפשרויות > מנהל קבצים > קבוצות הדגשה (dlgHighlightGroups של DN)"
-# navigator/settings.py:926
+# navigator/settings.py:922
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "אפשרויות > תצורה > שומרי מסך (TSaversDialog של DN)"
-# navigator/settings.py:958
+# navigator/settings.py:954
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "אפשרויות > תצורה > הגדרות אזוריות (dlgCountrySetup של DN)"
-# navigator/settings.py:1009
+# navigator/settings.py:1005
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > משחק > הגדרות (dlgGameSetup של DN)"
-# navigator/settings.py:1025
+# navigator/settings.py:1021
 "Utilities > Calculator (not DN's)" = "כלים > מחשבון (לא של DN)"
-# navigator/settings.py:1046
+# navigator/settings.py:1042
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "קובץ > קידוד UU / פענוח UU (dlgUUEncode, dlgUUDecode של DN)"
-# navigator/settings.py:1074
+# navigator/settings.py:1070
 "File > Split/combine (DN's dlgSplitFile)" = "קובץ > פיצול/איחוד (dlgSplitFile של DN)"
-# navigator/settings.py:1085
+# navigator/settings.py:1081
 "File > Checksums > Calculate (not DN's)" = "קובץ > סיכומי ביקורת > חישוב (לא מ-DN)"
-# navigator/settings.py:1100
+# navigator/settings.py:1096
 "File > Encoding > Convert text (not DN's)" = "קובץ > קידוד > המרת טקסט (לא של DN)"
-# navigator/settings.py:1122
+# navigator/settings.py:1118
 "File > Encryption (not DN's)" = "קובץ > הצפנה (לא של DN)"
-# navigator/settings.py:1142
+# navigator/settings.py:1138
 "Panel > Compare directories > Synchronize (not DN's)" = "לוח > השוואת תיקיות > סנכרון (לא מ-DN)"
-# navigator/settings.py:1160
+# navigator/settings.py:1156
 "Utilities > Process list (not DN's)" = "כלים > רשימת תהליכים (לא של DN)"
-# navigator/settings.py:1170
+# navigator/settings.py:1166
 "Utilities > Services (not DN's)" = "כלים > שירותים (לא של DN)"
-# navigator/settings.py:1188
+# navigator/settings.py:1184
 "Utilities > System monitor (not DN's)" = "כלים > ניטור מערכת (לא של DN)"
-# navigator/settings.py:1200
+# navigator/settings.py:1196
 "Options > Configuration > Communications (DN's cmSetupModem)" = "אפשרויות > תצורה > תקשורת (cmSetupModem של DN)"
-# navigator/settings.py:1438
+# navigator/settings.py:1434
 "Settings could not be saved to {path}: {error}. They stay for this session." = "לא ניתן היה לשמור את ההגדרות ב־{path}: {error}. הן תקפות עד סוף ההפעלה."
 # navigator/widgets/drives/archive_finish.py:66
 "The changes to {name} could not be written: {error}" = "לא ניתן היה לכתוב את השינויים ב־{name}: {error}"
@@ -3872,7 +3966,7 @@ direction = "rtl"
 "File type" = "סוג קובץ"
 # navigator/widgets/editor/commands.py:451, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "סיומי שורות"
-# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3004, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:459, navigator/widgets/editor/file_editor/file_editor.py:3020, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "קידוד"
 # navigator/widgets/editor/commands.py:503
 "AutoBrackets" = "סוגריים אוטומטיים"
@@ -3924,11 +4018,11 @@ direction = "rtl"
 "Save as" = "שמור בשם"
 # navigator/widgets/editor/commands.py:678
 "Save all" = "שמור הכל"
-# navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:2990
+# navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:3006
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "את {char} (U+{code:04X}) בשורה {line} אי אפשר לכתוב בקידוד {encoding}"
 # navigator/widgets/editor/edit_window/edit_window.py:1047
 "Untitled" = "ללא שם"
-# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2875
 "No block is marked" = "לא סומן בלוק"
 # navigator/widgets/editor/edit_window/edit_window.py:554
 "Copy block to" = "העתק בלוק אל"
@@ -3974,45 +4068,47 @@ direction = "rtl"
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "הקובץ {name}\nמסומן לקריאה בלבד.\nלשנות אותו בכל זאת?"
 # navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
 "Macros" = "מאקרו"
-# navigator/widgets/editor/file_editor/file_editor.py:3093
+# navigator/widgets/editor/file_editor/file_editor.py:3109
 "~G~o to line..." = "~ע~בור לשורה..."
-# navigator/widgets/editor/file_editor/file_editor.py:3095
+# navigator/widgets/editor/file_editor/file_editor.py:3111
 "~I~ndent block" = "~ה~זח בלוק"
-# navigator/widgets/editor/file_editor/file_editor.py:3096
+# navigator/widgets/editor/file_editor/file_editor.py:3112
 "U~n~indent block" = "~ב~טל הזחת בלוק"
-# navigator/widgets/editor/file_editor/file_editor.py:3097
+# navigator/widgets/editor/file_editor/file_editor.py:3113
 "Change ca~s~e" = "שנה ~ר~ישיות"
-# navigator/widgets/editor/file_editor/file_editor.py:3098
+# navigator/widgets/editor/file_editor/file_editor.py:3114
 "~U~pper case" = "אותיות ~ג~דולות"
-# navigator/widgets/editor/file_editor/file_editor.py:3099
+# navigator/widgets/editor/file_editor/file_editor.py:3115
 "~L~ower case" = "אותיות ~ק~טנות"
-# navigator/widgets/editor/file_editor/file_editor.py:3102
+# navigator/widgets/editor/file_editor/file_editor.py:3118
 "Sa~v~e" = "~ש~מור"
 # navigator/widgets/editor/file_editor/file_editor.py:829
 "no file name" = "אין שם קובץ"
-# navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3286
+# navigator/widgets/editor/file_editor/file_editor.py:2878, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "אין מה לבטל"
-# navigator/widgets/editor/file_editor/file_editor.py:2869
+# navigator/widgets/editor/file_editor/file_editor.py:2881
 "Nothing to redo" = "אין מה לבצע שוב"
-# navigator/widgets/editor/file_editor/file_editor.py:2877
+# navigator/widgets/editor/file_editor/file_editor.py:2893
 "The text is empty" = "הטקסט ריק"
-# navigator/widgets/editor/file_editor/file_editor.py:3879
+# navigator/widgets/editor/file_editor/file_editor.py:3895
 "Line and column: a click goes to a line" = "שורה ועמודה: לחיצה עוברת לשורה"
-# navigator/widgets/editor/file_editor/file_editor.py:3880
+# navigator/widgets/editor/file_editor/file_editor.py:3896
 "The character's code: a click opens the character table" = "קוד התו: לחיצה פותחת את טבלת התווים"
-# navigator/widgets/editor/file_editor/file_editor.py:3881
+# navigator/widgets/editor/file_editor/file_editor.py:3897
 "Vertical blocks: a click makes them stream blocks" = "בלוקים אנכיים: לחיצה הופכת אותם לבלוקי זרם"
-# navigator/widgets/editor/file_editor/file_editor.py:3882
+# navigator/widgets/editor/file_editor/file_editor.py:3898
 "Stream blocks: a click makes them vertical" = "בלוקי זרם: לחיצה הופכת אותם לאנכיים"
-# navigator/widgets/editor/file_editor/file_editor.py:3937
+# navigator/widgets/editor/file_editor/file_editor.py:3953
 "Line endings: a click makes them the next kind, a right click offers them all" = "סיומי שורות: לחיצה מחליפה לסוג הבא, לחיצה ימנית מציעה את כולם"
-# navigator/widgets/editor/file_editor/file_editor.py:3939
+# navigator/widgets/editor/file_editor/file_editor.py:3955
 "Encoding: a click reopens or saves the text in another" = "קידוד: לחיצה פותחת מחדש את הטקסט או שומרת אותו בקידוד אחר"
+# navigator/widgets/editor/file_editor/file_editor.py:2885
+"Marker {n} is not placed" = "סימון {n} לא הוצב"
 # navigator/widgets/editor/file_editor/file_editor.py:2165
 "macros.ini has no macro for this file" = "אין ב-macros.ini מאקרו לקובץ זה"
-# navigator/widgets/editor/file_editor/file_editor.py:2961
+# navigator/widgets/editor/file_editor/file_editor.py:2977
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "בטקסט יש תווים ש־{encoding} אינו יכול לכתוב, ולכן אין לו בתים לקרוא מחדש."
-# navigator/widgets/editor/file_editor/file_editor.py:2965
+# navigator/widgets/editor/file_editor/file_editor.py:2981
 "The text does not read as {encoding}." = "אי אפשר לקרוא את הטקסט כ־{encoding}."
 # navigator/widgets/editor/file_editor/file_editor.py:1867, navigator/widgets/editor/file_editor/file_editor.py:1906
 "Vertical blocks need for this operation" = "פעולה זו דורשת בלוקים אנכיים"
