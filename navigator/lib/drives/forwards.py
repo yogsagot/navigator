@@ -31,6 +31,7 @@ import struct
 import threading
 from dataclasses import dataclass, field
 from typing import Any
+from navkit.i18n import tr
 
 #: The three kinds, by the letter ``ssh`` takes them by.
 KINDS = ("L", "R", "D")
@@ -189,7 +190,7 @@ def _exactly(sock: socket.socket, count: int) -> bytes:
     while len(data) < count:
         part = sock.recv(count - len(data))
         if not part:
-            raise ConnectionError("the SOCKS client went away")
+            raise ConnectionError(tr("the SOCKS client went away"))
         data += part
     return data
 

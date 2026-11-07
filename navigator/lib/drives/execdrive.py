@@ -39,6 +39,7 @@ import time
 from pathlib import PurePosixPath
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
 
@@ -409,7 +410,7 @@ class ExecDrive(Drive):
             done = subprocess.run(argv, input=input, capture_output=True, timeout=timeout,
                                   stdin=None if input is not None else subprocess.DEVNULL)
         except FileNotFoundError as error:
-            raise DriveGone(self.name, f"{argv[0]}: command not found") from error
+            raise DriveGone(self.name, tr("{name}: command not found").format(name=argv[0])) from error
         except subprocess.TimeoutExpired as error:
             raise OSError(errno.ETIMEDOUT, os.strerror(errno.ETIMEDOUT),
                           None if where is None else str(where)) from error
@@ -428,7 +429,7 @@ class ExecDrive(Drive):
                                     stdout=subprocess.DEVNULL if stdin else subprocess.PIPE,
                                     stderr=subprocess.PIPE)
         except FileNotFoundError as error:
-            raise DriveGone(self.name, f"{argv[0]}: command not found") from error
+            raise DriveGone(self.name, tr("{name}: command not found").format(name=argv[0])) from error
 
     def _ended(self, process: subprocess.Popen[bytes], where: Location) -> None:
         """A streaming process's end: its failure raised."""

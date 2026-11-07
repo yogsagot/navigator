@@ -39,6 +39,7 @@ import re
 import shutil
 from pathlib import Path
 
+from navkit.i18n import tr
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import UNKNOWN, Backend, EditPlan, Journal, LogFile, Unit
 from navigator.lib.system.which import which as _which
@@ -176,7 +177,7 @@ def states() -> dict[str, tuple[str, str]]:
     result = common.run(["sv", "status", *(str(supervised / name) for name in names)])
     found, refused = parse_status(result.stdout + result.stderr)
     if refused and not found:
-        raise OSError(errno.EPERM, "sv: access denied", "sv")
+        raise OSError(errno.EPERM, tr("sv: access denied"), "sv")
     return found
 
 
@@ -219,7 +220,7 @@ def act(unit: Unit, verb: str) -> None:
 
     name = unit.name
     if verb not in VERBS or not valid_service(name):
-        raise OSError(errno.EINVAL, "Not something Navigator does to a service", name)
+        raise OSError(errno.EINVAL, tr("Not something Navigator does to a service"), name)
     defined, supervised = definitions(), service_dir()
     if supervised is None:
         raise OSError(errno.ENOENT, tr("runit has no service directory here"), name)
@@ -250,7 +251,7 @@ def details(unit: Unit) -> str:
     from navkit.i18n import tr
 
     if not valid_service(unit.name):
-        raise OSError(errno.EINVAL, "Not a service's name", unit.name)
+        raise OSError(errno.EINVAL, tr("Not a service's name"), unit.name)
     supervised = service_dir()
     where = _definition(unit.name)
     lines = [unit.name + (" - " + unit.description if unit.description else "")]

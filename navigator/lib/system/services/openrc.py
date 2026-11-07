@@ -33,6 +33,7 @@ import re
 import shutil
 from pathlib import Path
 
+from navkit.i18n import tr
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import Backend, EditPlan, Journal, LogFile, Unit
 from navigator.lib.system.which import which as _which
@@ -153,7 +154,7 @@ def gather(user: bool = False, all_types: bool = False) -> list[Unit]:
 
 def _checked(unit: Unit, verb: str) -> None:
     if verb not in VERBS or not valid_service(unit.name):
-        raise OSError(errno.EINVAL, "Not something Navigator does to a service", unit.name)
+        raise OSError(errno.EINVAL, tr("Not something Navigator does to a service"), unit.name)
 
 
 def _ran(argv: list[str], name: str) -> None:
@@ -186,7 +187,7 @@ def details(unit: Unit) -> str:
     from navkit.i18n import tr
 
     if not valid_service(unit.name):
-        raise OSError(errno.EINVAL, "Not a service's name", unit.name)
+        raise OSError(errno.EINVAL, tr("Not a service's name"), unit.name)
     result = common.run(["rc-service", unit.name, "status"])
     # A stopped service's status exits non-zero, which is no failure.
     said = (result.stdout + result.stderr).strip() or tr("Status: {state}").format(state=unit.active)
@@ -245,7 +246,7 @@ def conf_text(unit: Unit, script: Path, text: str) -> str:
 
 def edit_plan(unit: Unit) -> EditPlan:
     if not valid_service(unit.name):
-        raise OSError(errno.EINVAL, "Not a service's name", unit.name)
+        raise OSError(errno.EINVAL, tr("Not a service's name"), unit.name)
     path = CONF_D / unit.name
     if path.exists():
         return EditPlan(path)

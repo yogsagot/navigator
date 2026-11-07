@@ -33,6 +33,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import Backend, EditPlan, Journal, LogFile, Unit
 from navigator.lib.system.which import which as _which
@@ -155,7 +156,7 @@ def act(unit: Unit, verb: str) -> None:
     """``systemctl VERB UNIT`` as the user, asking no password.  Raises
     ``OSError`` -- ``EPERM`` when polkit refused it."""
     if verb not in VERBS or not valid_unit(unit.name):
-        raise OSError(errno.EINVAL, "Not something Navigator does to a unit", unit.name)
+        raise OSError(errno.EINVAL, tr("Not something Navigator does to a unit"), unit.name)
     result = common.run([*_systemctl(unit.user), "--no-ask-password", verb, "--", unit.name])
     if result.returncode != 0:
         raise common.failure(result, unit.name)
@@ -164,7 +165,7 @@ def act(unit: Unit, verb: str) -> None:
 def details(unit: Unit) -> str:
     """What ``systemctl status`` says of *unit*, its log lines left to F3."""
     if not valid_unit(unit.name):
-        raise OSError(errno.EINVAL, "Not a unit's name", unit.name)
+        raise OSError(errno.EINVAL, tr("Not a unit's name"), unit.name)
     result = common.run([*_systemctl(unit.user), "status", "--no-pager", "--lines=0", "--full", "--", unit.name])
     # ``status`` exits 3 for a unit that is not running, which is no failure.
     text = (result.stdout or "").rstrip()
@@ -201,7 +202,7 @@ def unit_file(unit: Unit) -> Path:
     from navkit.i18n import tr
 
     if not valid_unit(unit.name):
-        raise OSError(errno.EINVAL, "Not a unit's name", unit.name)
+        raise OSError(errno.EINVAL, tr("Not a unit's name"), unit.name)
     if unit.masked:
         raise OSError(errno.EINVAL, tr("{unit} is masked: unmask it first").format(unit=unit.name), unit.name)
     result = common.run([*_systemctl(unit.user), "show", "--property=FragmentPath", "--value", "--", unit.name])

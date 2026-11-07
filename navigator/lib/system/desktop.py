@@ -37,6 +37,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
+from navkit.i18n import tr
 from navigator.lib.system import desktop_entry, gio, kio, udisks
 from navigator.lib.system.desktop_entry import App, graphical
 from navigator.lib.system.which import which as _which
@@ -156,7 +157,7 @@ def run_xdg_open(xdg: str, path: Path | str, wait: float = XDG_OPEN_WAIT) -> Non
         err = errors.read().decode("utf-8", "replace")
     if code != 0:
         lines = [line.strip() for line in err.splitlines() if line.strip()]
-        raise OSError(errno.EIO, lines[-1] if lines else f"xdg-open failed ({code})")
+        raise OSError(errno.EIO, lines[-1] if lines else tr("xdg-open failed ({code})").format(code=code))
 
 
 def content_type(path: Path | str) -> str:

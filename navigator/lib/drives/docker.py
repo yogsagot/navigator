@@ -22,6 +22,7 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import CHMOD, CHOWN, FREE_SPACE, RENAME, SYMLINK, WRITE, DriveGone
 from navigator.lib.drives.execdrive import ExecDrive
 from navigator.lib.drives.location import Site
@@ -103,18 +104,18 @@ def inspect(engine: str, name: str) -> dict[str, Any]:
         done = subprocess.run([engine, "inspect", "--type", "container", name], capture_output=True,
                               stdin=subprocess.DEVNULL, timeout=30)
     except FileNotFoundError as error:
-        raise DriveGone(name, f"{engine}: command not found") from error
+        raise DriveGone(name, tr("{name}: command not found").format(name=engine)) from error
     except subprocess.TimeoutExpired as error:
-        raise DriveGone(name, f"{engine} did not answer") from error
+        raise DriveGone(name, tr("{name} did not answer").format(name=engine)) from error
     if done.returncode != 0:
         text = " ".join(done.stderr.decode("utf-8", "replace").split())
-        raise DriveGone(name, text or f"No such container: {name}")
+        raise DriveGone(name, text or tr("No such container: {name}").format(name=name))
     try:
         records = json.loads(done.stdout or b"[]")
     except ValueError as error:
-        raise DriveGone(name, f"{engine} inspect said nothing readable") from error
+        raise DriveGone(name, tr("{engine} inspect said nothing readable").format(engine=engine)) from error
     if not records:
-        raise DriveGone(name, f"No such container: {name}")
+        raise DriveGone(name, tr("No such container: {name}").format(name=name))
     return records[0]
 
 
@@ -130,11 +131,11 @@ def _version(engine: str) -> str:
 def connect_engine(engine: str, site: Site, answers: Answers) -> DockerDrive:
     """*site*'s container, there and running: blocks."""
     if not site.host:
-        raise DriveGone(engine, "Name a container: docker://NAME/path")
+        raise DriveGone(engine, tr("Name a container: docker://NAME/path"))
     record = inspect(engine, site.host)
     state = record.get("State") or {}
     if not state.get("Running", False):
-        raise DriveGone(site.host, f"Container {site.host} is not running")
+        raise DriveGone(site.host, tr("Container {host} is not running").format(host=site.host))
     config = record.get("Config") or {}
     drive = DockerDrive(site, engine=engine, image=str(config.get("Image") or ""), version=_version(engine))
     workdir = str(config.get("WorkingDir") or "")
@@ -202,11 +203,11 @@ def list_containers(engine: str = ENGINE) -> list[Container]:
         done = subprocess.run([engine, "ps", "--format", "{{json .}}"], capture_output=True,
                               stdin=subprocess.DEVNULL, timeout=30)
     except FileNotFoundError as error:
-        raise OSError(f"{engine}: command not found") from error
+        raise OSError(tr("{name}: command not found").format(name=engine)) from error
     except subprocess.TimeoutExpired as error:
-        raise OSError(f"{engine} did not answer") from error
+        raise OSError(tr("{name} did not answer").format(name=engine)) from error
     if done.returncode != 0:
-        raise OSError(" ".join(done.stderr.decode("utf-8", "replace").split()) or f"{engine} ps failed")
+        raise OSError(" ".join(done.stderr.decode("utf-8", "replace").split()) or tr("{engine} ps failed").format(engine=engine))
     return parse_ps(done.stdout.decode("utf-8", "replace"))
 
 

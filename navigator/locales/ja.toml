@@ -2865,12 +2865,94 @@ flag = "JP"
 "Its output becomes the active panel's listing" = "出力がアクティブパネルの一覧になります"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "専用のウィンドウで実行します"
+# navigator/lib/drives/adb.py:148, navigator/lib/drives/adb.py:205
+"adb: command not found" = "adb: コマンドが見つかりません"
+# navigator/lib/drives/adb.py:150, navigator/lib/drives/adb.py:207
+"adb did not answer" = "adb が応答しませんでした"
+# navigator/lib/drives/adb.py:209
+"adb devices failed" = "adb devices が失敗しました"
+# navigator/lib/drives/adb.py:153
+"Device {name} is not attached" = "デバイス {name} は接続されていません"
+# navigator/lib/drives/arctool.py:450
+"rar archives are written by rar: install rar" = "rar アーカイブは rar で書き込みます: rar をインストールしてください"
+# navigator/lib/drives/arctool.py:453
+"a rar archive cannot be empty" = "rar アーカイブは空にできません"
+# navigator/lib/drives/arctool.py:411
+"{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "{kind} アーカイブには 7-Zip が必要です: 7zip (7zz) か p7zip (7z) をインストールしてください"
+# navigator/lib/drives/arctool.py:467
+"rar exited with {returncode}" = "rar がコード {returncode} で終了しました"
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+"Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
+# navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
+"Is a directory" = "ディレクトリです"
+# navigator/lib/drives/docker.py:134
+"Name a container: docker://NAME/path" = "コンテナーを指定してください: docker://名前/パス"
+# navigator/lib/drives/docker.py:118, navigator/lib/drives/docker.py:112
+"No such container: {name}" = "そのようなコンテナーはありません: {name}"
+# navigator/lib/drives/docker.py:138
+"Container {host} is not running" = "コンテナー {host} は実行されていません"
+# navigator/lib/drives/docker.py:107, navigator/lib/drives/docker.py:206, navigator/lib/drives/execdrive.py:413 ...
+"{name}: command not found" = "{name}: コマンドが見つかりません"
+# navigator/lib/drives/docker.py:109, navigator/lib/drives/docker.py:208, navigator/lib/system/kio.py:120 ...
+"{name} did not answer" = "{name} が応答しませんでした"
+# navigator/lib/drives/docker.py:116
+"{engine} inspect said nothing readable" = "{engine} inspect から読み取れる応答がありませんでした"
+# navigator/lib/drives/docker.py:210
+"{engine} ps failed" = "{engine} ps が失敗しました"
+# navigator/lib/drives/forwards.py:193
+"the SOCKS client went away" = "SOCKS クライアントが切断しました"
+# navigator/lib/drives/ftp.py:188, navigator/lib/drives/ftp.py:192, navigator/lib/drives/sftp.py:222 ...
+"Cannot connect to {host}: {reason}" = "{host} に接続できません: {reason}"
+# navigator/lib/drives/gvfs.py:46
+"Not on this GVfs mount" = "この GVfs マウント上にはありません"
+# navigator/lib/drives/gvfs.py:48
+"GVfs's FUSE bridge (gvfsd-fuse) is not running" = "GVfs の FUSE ブリッジ (gvfsd-fuse) が動作していません"
 # navigator/lib/drives/listing.py:112, navigator/lib/drives/listing.py:227
 "UP--DIR" = "UP--DIR"
 # navigator/lib/drives/listing.py:112, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "DIR"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "SUB-DIR"
+# navigator/lib/drives/members.py:72
+"The archive ends before this member does" = "このメンバーの終わりより先にアーカイブが終わっています"
+# navigator/lib/drives/rclone.py:213, navigator/lib/drives/rclone.py:375
+"rclone: command not found" = "rclone: コマンドが見つかりません"
+# navigator/lib/drives/rclone.py:948
+"Name a remote: rclone://REMOTE/path" = "リモートを指定してください: rclone://リモート/パス"
+# navigator/lib/drives/rclone.py:218
+"rclone listremotes did not answer" = "rclone listremotes が応答しませんでした"
+# navigator/lib/drives/rclone.py:222
+"rclone's configuration is encrypted: connect to a remote to give its password" = "rclone の設定は暗号化されています: リモートに接続してパスワードを入力してください"
+# navigator/lib/drives/rclone.py:397
+"rclone rcd did not start" = "rclone rcd が起動しませんでした"
+# navigator/lib/drives/rclone.py:814
+"rclone stopped sending: {error}" = "rclone の送信が止まりました: {error}"
+# navigator/lib/drives/rclone.py:974
+"rclone has no remote called {host}" = "rclone に {host} という名前のリモートはありません"
+# navigator/lib/drives/rclone.py:422
+"rclone did not answer {method}" = "rclone が {method} に応答しませんでした"
+# navigator/lib/drives/s3.py:621
+"No AWS credentials: give an access key as the login, or set them up in ~/.aws" = "AWS の認証情報がありません: ログイン名にアクセスキーを指定するか、~/.aws に設定してください"
+# navigator/lib/drives/s3.py:221
+"Cannot reach {host}: {reason}" = "{host} に到達できません: {reason}"
+# navigator/lib/drives/s3.py:628
+"{host} refused the AWS credentials: {strerror}" = "{host} が AWS の認証情報を拒否しました: {strerror}"
+# navigator/lib/drives/sessions.py:220
+"No drive speaks {scheme}://" = "{scheme}:// を扱えるドライブはありません"
+# navigator/lib/drives/sftp.py:243
+"Cannot reach {host} through {via}: {reason}" = "{via} 経由で {host} に到達できません: {reason}"
+# navigator/lib/drives/squashfs.py:135, navigator/lib/drives/squashfs.py:163
+"unsquashfs exited with {returncode}" = "unsquashfs がコード {returncode} で終了しました"
+# navigator/lib/drives/zstd.py:24
+"tar.zst archives need zstd: install zstd" = "tar.zst アーカイブには zstd が必要です: zstd をインストールしてください"
+# navigator/lib/editor/document.py:355, navigator/lib/system/elevate.py:72, navigator/lib/viewer/__init__.py:353 ...
+"Not a regular file" = "通常のファイルではありません"
+# navigator/lib/editor/lock.py:101
+"locked by another program" = "別のプログラムがロックしています"
+# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "age の ID ファイルがありません: navigator.ini の [encryption] で age_identities を設定してください"
+# navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
+"{name} is not installed" = "{name} がインストールされていません"
 # navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "ユーザー {name} は存在しません"
 # navigator/lib/file_ops/fileattr.py:406
@@ -2905,12 +2987,24 @@ flag = "JP"
 "Can not append to {name}: it is a link" = "{name} に追加できません: リンクです"
 # navigator/lib/file_ops/filecopy.py:845
 "Can not overwrite directory {name}" = "ディレクトリ {name} を上書きできません"
+# navigator/lib/file_ops/filelink.py:110, navigator/lib/file_ops/filelink.py:126
+"A hard link cannot cross file systems" = "ハードリンクはファイルシステムをまたげません"
+# navigator/lib/file_ops/filelink.py:119
+"A directory cannot be hard-linked" = "ディレクトリにはハードリンクを作れません"
+# navigator/lib/file_ops/filelink.py:215
+"Not a symbolic link" = "シンボリックリンクではありません"
+# navigator/lib/file_ops/filelink.py:86
+"A link cannot point to another drive" = "リンクは別のドライブを指せません"
+# navigator/lib/file_ops/filelink.py:117
+"This drive cannot hold hard links" = "このドライブはハードリンクを保持できません"
 # navigator/lib/file_ops/filereplace.py:329
 "Invalid regular expression: {reason}" = "正規表現が無効です: {reason}"
 # navigator/lib/file_ops/filereplace.py:271
 "File {name}\nchanged while it was asked about; it is left as it is" = "ファイル {name} は\n確認中に変更されたため、そのままにしました"
 # navigator/lib/file_ops/filereplace.py:334
 "Invalid replacement: {reason}" = "置換文字列が無効です: {reason}"
+# navigator/lib/file_ops/fsflags.py:101
+"The file changed while it was opened" = "開いている間にファイルが変わりました"
 # navigator/lib/file_ops/multirename.py:253
 "A [ is never closed" = "[ が閉じられていません"
 # navigator/lib/file_ops/multirename.py:212, navigator/lib/file_ops/multirename.py:257, navigator/lib/file_ops/multirename.py:259 ...
@@ -2943,6 +3037,10 @@ flag = "JP"
 "The parts of {name} do not add up to the size {crc} says" = "{name} の部分ファイルの合計が {crc} のサイズと一致しません"
 # navigator/lib/file_ops/splitfile.py:277
 "{name} ended before its size said" = "{name} がサイズより早く終わりました"
+# navigator/lib/file_ops/trash.py:182
+"No trash on this file system" = "このファイルシステムにはごみ箱がありません"
+# navigator/lib/file_ops/trash.py:279
+"Where it came from is not known" = "どこから来たかわかりません"
 # navigator/lib/file_ops/undo.py:65
 "Give {n} file its old name back?" = ["{n} 個のファイルの名前を元に戻しますか?"]
 # navigator/lib/file_ops/undo.py:69
@@ -3023,6 +3121,8 @@ flag = "JP"
 "plain" = "なし"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "自動"
+# navigator/lib/system/desktop.py:160
+"xdg-open failed ({code})" = "xdg-open が失敗しました ({code})"
 # navigator/lib/system/diskinfo.py:221
 "File" = "ファイル"
 # navigator/lib/system/diskinfo.py:212
@@ -3087,6 +3187,44 @@ flag = "JP"
 "~{n:,}~K bytes total memory" = "メモリ総量 ~{n:,}~K バイト"
 # navigator/lib/system/diskinfo.py:340
 "Volume label on ~{mount}: {label}~" = "ボリュームラベル ~{mount}: {label}~"
+# navigator/lib/system/elevate.py:65
+"Not an absolute path" = "絶対パスではありません"
+# navigator/lib/system/elevate.py:66, navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
+"Navigator does not signal that process" = "Navigator はこのプロセスにシグナルを送りません"
+# navigator/lib/system/elevate.py:67, navigator/lib/system/services/openrc.py:157, navigator/lib/system/services/runit.py:223 ...
+"Not something Navigator does to a service" = "Navigator がサービスに行う操作ではありません"
+# navigator/lib/system/elevate.py:68
+"That manager's states are everyone's to read" = "そのマネージャーの状態は誰でも読めます"
+# navigator/lib/system/elevate.py:69
+"Not a console's nonce" = "コンソールのノンスではありません"
+# navigator/lib/system/elevate.py:70
+"Not a service manager Navigator knows" = "Navigator が知らないサービスマネージャーです"
+# navigator/lib/system/elevate.py:71, navigator/lib/system/services/openrc.py:190, navigator/lib/system/services/openrc.py:249 ...
+"Not a service's name" = "サービス名ではありません"
+# navigator/lib/system/elevate.py:73
+"Not a file of the user's to write the journal into" = "ジャーナルを書き込むユーザーのファイルではありません"
+# navigator/lib/system/elevate.py:74
+"Not following a symbolic link another user owns" = "別のユーザーが所有するシンボリックリンクはたどりません"
+# navigator/lib/system/elevate.py:325
+"The root helper handed no descriptor back" = "root ヘルパーが記述子を返しませんでした"
+# navigator/lib/system/elevate.py:287, navigator/lib/system/elevate.py:307
+"Root access is not open" = "root アクセスが開かれていません"
+# navigator/lib/system/elevate.py:293, navigator/lib/system/elevate.py:319
+"The root helper ended: {error}" = "root ヘルパーが終了しました: {error}"
+# navigator/lib/system/gio.py:54
+"The gio command (GLib) is not installed" = "gio コマンド (GLib) がインストールされていません"
+# navigator/lib/system/gio.py:180
+"No desktop file for {id}" = "{id} の desktop ファイルがありません"
+# navigator/lib/system/gio.py:100
+"gio {args} did not answer" = "gio {args} が応答しませんでした"
+# navigator/lib/system/gio.py:316
+"{name} cannot be mounted" = "{name} はマウントできません"
+# navigator/lib/system/gio.py:418
+"Mounting {uri} did not finish" = "{uri} のマウントが完了しませんでした"
+# navigator/lib/system/kio.py:55
+"kio-fuse is not running, or dbus-send is not installed" = "kio-fuse が動作していないか、dbus-send がインストールされていません"
+# navigator/lib/system/kio.py:358
+"Solid knows nothing mounted at {where}" = "Solid は {where} にマウントされたものを知りません"
 # navigator/lib/system/mediainfo.py:326
 "mono" = "モノラル"
 # navigator/lib/system/mediainfo.py:328
@@ -3151,8 +3289,6 @@ flag = "JP"
 "Open files" = "開いているファイル"
 # navigator/lib/system/processes.py:415
 "Environment" = "環境変数"
-# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
-"Navigator does not signal that process" = "Navigator はこのプロセスにシグナルを送りません"
 # navigator/lib/system/programinfo.py:420
 "unknown type" = "不明な種類"
 # navigator/lib/system/programinfo.py:435
@@ -3185,75 +3321,85 @@ flag = "JP"
 "none" = "なし"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "Navigator が知っているサービスマネージャーがここでは動いていません: systemd、OpenRC、runit、SysVinit"
-# navigator/lib/system/services/common.py:208
+# navigator/lib/system/services/common.py:209
 "{manager} keeps no log for {unit}, and there is no system log file" = "{manager} は {unit} のログを持たず、システムログのファイルもありません"
-# navigator/lib/system/services/openrc.py:260
+# navigator/lib/system/services/common.py:81
+"{name} did not answer in time" = "{name} が時間内に応答しませんでした"
+# navigator/lib/system/services/openrc.py:261
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:85
+# navigator/lib/system/services/openrc.py:86
 "There is no rc-service: install OpenRC" = "rc-service がありません: OpenRC をインストールしてください"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:88
 "OpenRC is not the system's service manager" = "OpenRC がシステムのサービスマネージャーではありません"
-# navigator/lib/system/services/openrc.py:192, navigator/lib/system/services/runit.py:261, navigator/lib/system/services/sysvinit.py:333 ...
+# navigator/lib/system/services/openrc.py:193, navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:334 ...
 "Status: {state}" = "状態: {state}"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:195
 "Runlevels: {levels}" = "ランレベル: {levels}"
-# navigator/lib/system/services/openrc.py:194, navigator/lib/system/services/sysvinit.py:342
+# navigator/lib/system/services/openrc.py:195, navigator/lib/system/services/sysvinit.py:343
 "Script: {path}" = "スクリプト: {path}"
-# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
-"Settings for {unit}, read by {path} each time it starts." = "{unit} の設定。{path} が起動のたびに読む。"
 # navigator/lib/system/services/openrc.py:236, navigator/lib/system/services/runit.py:314
+"Settings for {unit}, read by {path} each time it starts." = "{unit} の設定。{path} が起動のたびに読む。"
+# navigator/lib/system/services/openrc.py:237, navigator/lib/system/services/runit.py:315
 "A setting made here wins over the script's own; restart {unit} for it to count." = "ここでの設定はスクリプト自身のものより優先される。反映するには {unit} を再起動する。"
-# navigator/lib/system/services/openrc.py:240
+# navigator/lib/system/services/openrc.py:241
 "The settings {path} makes:" = "{path} が行う設定:"
-# navigator/lib/system/services/runit.py:345
+# navigator/lib/system/services/runit.py:346
 "runit" = "runit"
-# navigator/lib/system/services/runit.py:92
+# navigator/lib/system/services/runit.py:93
 "There is no sv: install runit" = "sv がありません: runit をインストールしてください"
-# navigator/lib/system/services/runit.py:94
+# navigator/lib/system/services/runit.py:95
 "runit is not the system's service manager" = "runit がシステムのサービスマネージャーではありません"
-# navigator/lib/system/services/runit.py:96, navigator/lib/system/services/runit.py:225
+# navigator/lib/system/services/runit.py:97, navigator/lib/system/services/runit.py:226
 "runit has no service directory here" = "runit のサービスディレクトリがここにありません"
-# navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:338
+# navigator/lib/system/services/runit.py:180
+"sv: access denied" = "sv: アクセスが拒否されました"
+# navigator/lib/system/services/runit.py:263, navigator/lib/system/services/sysvinit.py:339
 "Start-up: {state}" = "自動起動: {state}"
-# navigator/lib/system/services/runit.py:243
+# navigator/lib/system/services/runit.py:244
 "{unit} is not enabled: enable it first" = "{unit} は有効ではありません: 先に有効化してください"
-# navigator/lib/system/services/runit.py:264
+# navigator/lib/system/services/runit.py:265
 "Defined in {path}" = "{path} で定義"
-# navigator/lib/system/services/runit.py:318, navigator/lib/system/services/systemd.py:240
+# navigator/lib/system/services/runit.py:319, navigator/lib/system/services/systemd.py:241
 "{path} as it is:" = "現在の {path}:"
-# navigator/lib/system/services/runit.py:329
+# navigator/lib/system/services/runit.py:330
 "{unit} has no service directory" = "{unit} にはサービスディレクトリがありません"
-# navigator/lib/system/services/runit.py:337
+# navigator/lib/system/services/runit.py:338
 "{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "{unit} は設定ファイルを読まないので、run スクリプトを編集します: パッケージの更新で置き換えられることがあります。"
-# navigator/lib/system/services/runit.py:230
+# navigator/lib/system/services/runit.py:231
 "{unit} is not defined in {path}" = "{unit} は {path} で定義されていません"
-# navigator/lib/system/services/runit.py:239
+# navigator/lib/system/services/runit.py:240
 "{path} is not a link Navigator removes" = "{path} は Navigator が削除するリンクではありません"
-# navigator/lib/system/services/runit.py:267
+# navigator/lib/system/services/runit.py:268
 "Logs to {path}" = "ログの出力先 {path}"
-# navigator/lib/system/services/systemd.py:285
+# navigator/lib/system/services/systemd.py:286
 "systemd" = "systemd"
-# navigator/lib/system/services/systemd.py:64
+# navigator/lib/system/services/systemd.py:65
 "There is no systemctl: install systemd" = "systemctl がありません: systemd をインストールしてください"
-# navigator/lib/system/services/systemd.py:66
+# navigator/lib/system/services/systemd.py:67
 "systemd is not the system's service manager" = "systemd がシステムのサービスマネージャーではありません"
-# navigator/lib/system/services/systemd.py:237
+# navigator/lib/system/services/systemd.py:159
+"Not something Navigator does to a unit" = "Navigator がユニットに行う操作ではありません"
+# navigator/lib/system/services/systemd.py:168, navigator/lib/system/services/systemd.py:205
+"Not a unit's name" = "ユニット名ではありません"
+# navigator/lib/system/services/systemd.py:238
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "ExecStart= のようなリスト設定は、まず ExecStart= だけの行で空にする。"
-# navigator/lib/system/services/systemd.py:206
+# navigator/lib/system/services/systemd.py:207
 "{unit} is masked: unmask it first" = "{unit} はマスクされています: 先にマスクを解除してください"
-# navigator/lib/system/services/systemd.py:212
+# navigator/lib/system/services/systemd.py:213
 "{unit} has no unit file to edit" = "{unit} には編集するユニットファイルがありません"
-# navigator/lib/system/services/systemd.py:236
+# navigator/lib/system/services/systemd.py:237
 "Override for {unit}: what is set here wins over {path}." = "{unit} のオーバーライド: ここでの設定が {path} より優先される。"
-# navigator/lib/system/services/sysvinit.py:388
+# navigator/lib/system/services/sysvinit.py:389
 "SysVinit" = "SysVinit"
-# navigator/lib/system/services/sysvinit.py:113
+# navigator/lib/system/services/sysvinit.py:114
 "There is no /etc/init.d" = "/etc/init.d がありません"
-# navigator/lib/system/services/sysvinit.py:115
+# navigator/lib/system/services/sysvinit.py:116
 "SysVinit is not the system's service manager" = "SysVinit がシステムのサービスマネージャーではありません"
-# navigator/lib/system/services/sysvinit.py:337
+# navigator/lib/system/services/sysvinit.py:327, navigator/lib/system/services/sysvinit.py:373
+"Not a service's script" = "サービスのスクリプトではありません"
+# navigator/lib/system/services/sysvinit.py:338
 "{path} has no status action" = "{path} には status アクションがありません"
-# navigator/lib/system/services/sysvinit.py:379
+# navigator/lib/system/services/sysvinit.py:380
 "{unit} reads no settings file, so its script is edited: an update of its package may replace it or ask about it." = "{unit} は設定ファイルを読まないので、スクリプトを編集します: パッケージの更新で置き換えられるか、確認を求められることがあります。"
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "マシンの種類"
@@ -3275,10 +3421,30 @@ flag = "JP"
 "Up" = "稼働時間"
 # navigator/lib/system/sysinfo.py:161
 "None" = "なし"
+# navigator/lib/system/tempdir.py:42
+"not a directory of this user's alone" = "このユーザーだけのディレクトリではありません"
+# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
+"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) がインストールされていません"
+# navigator/lib/system/udisks.py:55
+"busctl (systemd) is not installed, which ejecting a disc needs" = "busctl (systemd) がインストールされていません。ディスクの取り出しに必要です"
+# navigator/lib/system/udisks.py:320
+"udisks knows nothing at {where}" = "udisks は {where} について何も知りません"
+# navigator/lib/system/udisks.py:356
+"{name} is on no drive that can be ejected" = "{name} は取り出せるドライブ上にありません"
+# navigator/lib/system/udisks.py:569
+"{name} has no file system udisks can mount" = "{name} には udisks がマウントできるファイルシステムがありません"
+# navigator/lib/system/udisks.py:417
+"udisksctl set no loop device up for {path}" = "udisksctl は {path} のループデバイスを用意しませんでした"
+# navigator/lib/system/udisks.py:565
+"udisks does not know {device}" = "udisks は {device} を知りません"
 # navigator/lib/utilities/about.py:116
 "Version {version}" = "バージョン {version}"
 # navigator/lib/utilities/about.py:118
 "License: {license}" = "ライセンス: {license}"
+# navigator/lib/viewer/__init__.py:883
+"The file is closed" = "ファイルは閉じられています"
+# navigator/lib/viewer/dbf.py:163, navigator/widgets/viewer/db_window/db_window.py:458
+"Could not find MEMO file" = "MEMO ファイルが見つかりません"
 # navigator/lib/viewer/image.py:52
 "Pictures other than PNG need Pillow: pip install {extra}" = "PNG 以外の画像には Pillow が必要です: pip install {extra}"
 # navigator/lib/viewer/pdf.py:70
@@ -3777,6 +3943,8 @@ flag = "JP"
 "~L~ower case" = "小文字(~L~)"
 # navigator/widgets/editor/file_editor/file_editor.py:3102
 "Sa~v~e" = "保存(~V~)"
+# navigator/widgets/editor/file_editor/file_editor.py:829
+"no file name" = "ファイル名がありません"
 # navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "元に戻す操作はありません"
 # navigator/widgets/editor/file_editor/file_editor.py:2869
@@ -4261,8 +4429,6 @@ flag = "JP"
 "Convert text" = "テキストの変換"
 # navigator/widgets/manager/manager/manager.py:1258
 "wrong passphrase" = "パスフレーズが違います"
-# navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "age の ID ファイルがありません: navigator.ini の [encryption] で age_identities を設定してください"
 # navigator/widgets/manager/manager/manager.py:1260
 "no secret key for it" = "秘密鍵がありません"
 # navigator/widgets/manager/manager/manager.py:1623
@@ -4299,8 +4465,6 @@ flag = "JP"
 "{n} link was left as it was:" = ["{n} 個のリンクはそのままです:"]
 # navigator/widgets/manager/manager/manager.py:5184
 "~I~nternal editor" = "内蔵エディタ(~I~)"
-# navigator/widgets/manager/manager/manager.py:5261, navigator/widgets/manager/manager/manager.py:5295
-"Is a directory" = "ディレクトリです"
 # navigator/widgets/manager/manager/manager.py:5678
 "Drag to resize the panels" = "ドラッグでパネルの幅を変更"
 # navigator/widgets/manager/manager/manager.py:5684
@@ -4377,8 +4541,6 @@ flag = "JP"
 "Not from inside an archive" = "アーカイブ内からは不可"
 # navigator/widgets/manager/manager/manager.py:3388
 "No disk image at the cursor" = "カーソル位置にディスクイメージがありません"
-# navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
-"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) がインストールされていません"
 # navigator/widgets/manager/manager/manager.py:3391
 "Not in a mounted disk image" = "マウントされたディスクイメージ内ではありません"
 # navigator/widgets/manager/manager/manager.py:3396
@@ -5211,8 +5373,6 @@ flag = "JP"
 "{name} (default)" = "{name} (既定)"
 # navigator/widgets/shell/shell/shell.py:3074
 "Remote drive {name} is not accessible: {reason}" = "リモートドライブ {name} にアクセスできません: {reason}"
-# navigator/widgets/shell/shell/shell.py:3077
-"Remote drive {name} is not accessible" = "リモートドライブ {name} にアクセスできません"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "カラーパレットの保存"
 # navigator/widgets/shell/shell/shell.py:400
@@ -5459,8 +5619,6 @@ flag = "JP"
 "~V~alue" = "値(~V~)"
 # navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "{name} の構造"
-# navigator/widgets/viewer/db_window/db_window.py:458
-"Could not find MEMO file" = "MEMO ファイルが見つかりません"
 # navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "検索中"
 # navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428

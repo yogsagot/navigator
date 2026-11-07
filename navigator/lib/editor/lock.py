@@ -26,6 +26,7 @@ import errno
 import fcntl
 import os
 from pathlib import Path
+from navkit.i18n import tr
 
 #: The locks this program holds: (device, inode) -> [descriptor, holders].
 _held: dict[tuple[int, int], list[int]] = {}
@@ -97,4 +98,4 @@ def locked_elsewhere(path: Path) -> bool:
 def refuse_if_locked(path: Path) -> None:
     """Raise ``OSError`` if another program holds *path* locked: ``CantWrite``."""
     if locked_elsewhere(path):
-        raise OSError(errno.EAGAIN, "locked by another program", str(path))
+        raise OSError(errno.EAGAIN, tr("locked by another program"), str(path))

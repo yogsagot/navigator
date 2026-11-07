@@ -43,6 +43,7 @@ import threading
 from dataclasses import dataclass, field
 from typing import IO, Any, Callable, Iterable
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.file_ops import checksum
 from navigator.lib.system.job import Job, Stopped
@@ -63,7 +64,7 @@ HEAD = 4096
 
 #: The reasons a decryption gives, translated where they are shown.
 BAD_PASSPHRASE = "wrong passphrase"
-NO_IDENTITY = "no age identity file: set age_identities in navigator.ini's [encryption]"
+NO_IDENTITY = tr_noop("no age identity file: set age_identities in navigator.ini's [encryption]")
 NO_SECRET_KEY = "no secret key for it"
 
 AGE_MAGIC = b"age-encryption.org/v1"
@@ -628,7 +629,7 @@ def _age_bad(message: str) -> bool:
 def encrypt_one(plan: Plan, options: Options, job: EncryptJob) -> None:
     command = program(plan.tool)
     if command is None:
-        raise ToolError(f"{plan.tool} is not installed")
+        raise ToolError(tr("{name} is not installed").format(name=plan.tool))
     secret = options.passphrase if options.method == "passphrase" else None
     if plan.tool == "gpg":
         fds = (_passphrase_pipe(secret),) if secret is not None else ()
@@ -655,7 +656,7 @@ def decrypt_one(plan: Plan, options: Options, job: EncryptJob) -> None:
     :class:`BadPassphrase` for what the loop must ask, :class:`ToolError` else."""
     command = program(plan.tool)
     if command is None:
-        raise ToolError(f"{plan.tool} is not installed")
+        raise ToolError(tr("{name} is not installed").format(name=plan.tool))
     secret = options.passphrase
     if plan.tool == "gpg":
         fds = (_passphrase_pipe(secret),) if secret is not None else ()
@@ -683,7 +684,7 @@ def decrypt_one(plan: Plan, options: Options, job: EncryptJob) -> None:
             raise ToolError(message) from None
         return
     if not options.identities:
-        raise ToolError(NO_IDENTITY)
+        raise ToolError(tr(NO_IDENTITY))
     argv = [command, *age_decrypt_args(options, False, False)]
     try:
         run_filter(argv, plan, job)

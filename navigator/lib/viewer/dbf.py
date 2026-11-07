@@ -22,6 +22,7 @@ import struct
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from navkit.i18n import tr
 
 #: The code page names and values are read in.
 CODEC = "cp437"
@@ -159,7 +160,7 @@ class DBFile:
                         break
                     data += chunk
                 return bytes(data).decode(CODEC, "replace")
-        raise FileNotFoundError("Could not find MEMO file")
+        raise FileNotFoundError(tr("Could not find MEMO file"))
 
     def write_field(self, index: int, field: Field, text: str) -> None:
         """``StoreField``: *text*, padded to the field, written into record *index*."""

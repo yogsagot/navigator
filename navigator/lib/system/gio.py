@@ -39,6 +39,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.system.desktop_entry import (
     App, application_dirs, desktop_file, desktop_name, graphical, launch_detached,
 )
@@ -50,7 +51,7 @@ TIMEOUT = 15.0
 MOUNT_TIMEOUT = 60.0
 
 #: What says there is no ``gio`` to ask.
-NO_GIO = "The gio command (GLib) is not installed"
+NO_GIO = tr_noop("The gio command (GLib) is not installed")
 
 #: The URI schemes GVfs reaches that Navigator does not itself, and the
 #: backend's ``*.mount`` file each needs.  Written out, since a backend's
@@ -92,11 +93,11 @@ def run(*args: str, timeout: float = TIMEOUT) -> str:
     """``gio *args*``'s output; ``OSError`` with its reason when it fails."""
     gio = program()
     if gio is None:
-        raise OSError(errno.ENOENT, NO_GIO)
+        raise OSError(errno.ENOENT, tr(NO_GIO))
     try:
         result = subprocess.run([gio, *args], capture_output=True, stdin=subprocess.DEVNULL, timeout=timeout)
     except subprocess.TimeoutExpired:
-        raise OSError(errno.ETIMEDOUT, f"gio {args[0]} did not answer") from None
+        raise OSError(errno.ETIMEDOUT, tr("gio {args} did not answer").format(args=args[0])) from None
     out = result.stdout.decode("utf-8", "replace")
     if result.returncode != 0:
         err = result.stderr.decode("utf-8", "replace")
@@ -174,9 +175,9 @@ def launch(app: App, path: Path | str) -> None:
     """*path* opened in *app*: ``gio launch``, detached -- it waits for nothing."""
     gio = program()
     if gio is None:
-        raise OSError(errno.ENOENT, NO_GIO)
+        raise OSError(errno.ENOENT, tr(NO_GIO))
     if app.path is None:
-        raise OSError(errno.ENOENT, f"No desktop file for {app.id}")
+        raise OSError(errno.ENOENT, tr("No desktop file for {id}").format(id=app.id))
     launch_detached([gio, "launch", str(app.path), str(path)])
 
 
@@ -312,7 +313,7 @@ def mount_device(volume: GioVolume) -> None:
     elif volume.activation_root:
         mount_uri(volume.activation_root)
     else:
-        raise OSError(errno.EINVAL, f"{volume.name} cannot be mounted")
+        raise OSError(errno.EINVAL, tr("{name} cannot be mounted").format(name=volume.name))
 
 
 def unmount(where: str) -> None:
@@ -396,7 +397,7 @@ def mount_uri(uri: str, answers: dict[str, str] | None = None, *, anonymous: boo
     """
     gio = program()
     if gio is None:
-        raise OSError(errno.ENOENT, NO_GIO)
+        raise OSError(errno.ENOENT, tr(NO_GIO))
     answers = dict(answers or {})
     argv = [gio, "mount", *(["-a"] if anonymous else []), "--", uri]
     process = subprocess.Popen(argv, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -414,7 +415,7 @@ def mount_uri(uri: str, answers: dict[str, str] | None = None, *, anonymous: boo
         while open_streams:
             left = deadline - time.monotonic()
             if left <= 0:
-                raise OSError(errno.ETIMEDOUT, f"Mounting {uri} did not finish")
+                raise OSError(errno.ETIMEDOUT, tr("Mounting {uri} did not finish").format(uri=uri))
             for key, _ in selector.select(left):
                 chunk = os.read(key.fileobj.fileno(), 4096)  # type: ignore[union-attr]
                 if not chunk:

@@ -26,6 +26,7 @@ import os
 import stat
 import struct
 from typing import Any
+from navkit.i18n import tr
 
 #: ``linux/fs.h``'s flags, as ``chattr`` spells them, in ``lsattr``'s order.
 FLAGS: tuple[tuple[str, int], ...] = (
@@ -97,7 +98,7 @@ def _open(path: Any, follow: bool) -> int:
     try:
         held = os.fstat(fd)
         if (held.st_dev, held.st_ino) != (st.st_dev, st.st_ino):
-            raise OSError(errno.EAGAIN, "The file changed while it was opened", str(path))
+            raise OSError(errno.EAGAIN, tr("The file changed while it was opened"), str(path))
     except BaseException:
         os.close(fd)
         raise

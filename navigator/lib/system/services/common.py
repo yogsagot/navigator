@@ -14,6 +14,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from navkit.i18n import tr
 
 #: How long one command may take before it is given up on.
 TIMEOUT = 30.0
@@ -77,7 +78,7 @@ def run(argv: list[str], timeout: float = TIMEOUT) -> subprocess.CompletedProces
         return subprocess.run(argv, capture_output=True, text=True, errors="replace", timeout=timeout,
                               stdin=subprocess.DEVNULL, env=environment, check=False)
     except subprocess.TimeoutExpired as error:
-        raise OSError(errno.ETIMEDOUT, f"{argv[0]} did not answer in time", argv[0]) from error
+        raise OSError(errno.ETIMEDOUT, tr("{name} did not answer in time").format(name=argv[0]), argv[0]) from error
 
 
 def failure(result: subprocess.CompletedProcess[str], name: str) -> OSError:

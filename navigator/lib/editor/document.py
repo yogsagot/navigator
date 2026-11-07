@@ -23,6 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
 from navigator.lib.editor import encodings
 from navigator.lib.system.job import Stopped
 from navigator.lib.system.memory import NotEnoughMemory
@@ -351,7 +352,7 @@ def _read_document(path: Path | str, job: Any, chunk: int, budget: int | None, a
         info = os.stat(path)
     if not stat.S_ISREG(info.st_mode):
         raise OSError(21 if stat.S_ISDIR(info.st_mode) else 22,
-                      "Not a regular file", str(path))
+                      tr("Not a regular file"), str(path))
     size = info.st_size
     if budget is not None and size > budget:
         raise NotEnoughMemory(str(path))

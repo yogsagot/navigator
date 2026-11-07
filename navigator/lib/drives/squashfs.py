@@ -30,6 +30,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives import arctool
 from navigator.lib.drives.arctool import ToolInfo
 from navigator.lib.drives.members import ListedArchive
@@ -131,7 +132,7 @@ class SquashArchive(ListedArchive):
                               capture_output=True, stdin=subprocess.DEVNULL, start_new_session=True)
         if done.returncode != 0:
             raise OSError(errno.EIO, arctool._reason(done.stderr.decode("utf-8", "replace"))
-                          or f"unsquashfs exited with {done.returncode}", str(path))
+                          or tr("unsquashfs exited with {returncode}").format(returncode=done.returncode), str(path))
         super().__init__(parse_lls(done.stdout.decode("utf-8", "surrogateescape")))
 
     def _command(self, *arguments: str) -> list[str]:
@@ -140,7 +141,7 @@ class SquashArchive(ListedArchive):
 
     def open(self, info: ToolInfo) -> IO[bytes]:
         if info.is_dir:
-            raise IsADirectoryError(errno.EISDIR, "Is a directory", info.path)
+            raise IsADirectoryError(errno.EISDIR, tr("Is a directory"), info.path)
         if not _has_cat(self.program):
             return self._extract(info)
         process = subprocess.Popen(self._command("-cat", str(self.path), info.path), stdin=subprocess.DEVNULL,
@@ -159,7 +160,7 @@ class SquashArchive(ListedArchive):
         try:
             if done.returncode != 0:
                 raise OSError(errno.EIO, arctool._reason(done.stderr.decode("utf-8", "replace"))
-                              or f"unsquashfs exited with {done.returncode}", info.path)
+                              or tr("unsquashfs exited with {returncode}").format(returncode=done.returncode), info.path)
             return _Extracted(target / info.path, directory)  # type: ignore[return-value]
         except BaseException:
             shutil.rmtree(directory, ignore_errors=True)

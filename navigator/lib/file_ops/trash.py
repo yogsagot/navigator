@@ -33,6 +33,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import quote, unquote
 
+from navkit.i18n import tr
 from navigator.lib.system.job import Job, Stopped
 
 #: An info file's suffix, and its first line.
@@ -178,7 +179,7 @@ def move(path: Path, mounts: list[str] | None = None) -> Item:
     os.lstat(path)  # gone already is FileNotFoundError, not "no trash"
     found = trash_for(path, mounts)
     if found is None:
-        raise OSError(errno.EXDEV, "No trash on this file system", str(path))
+        raise OSError(errno.EXDEV, tr("No trash on this file system"), str(path))
     trash, top = found
     original = str(path) if top is None else os.path.relpath(path, top)
     deleted = time.time()
@@ -275,7 +276,7 @@ def restore(item: Item, target: Path | None = None, *, as_root: bool = False) ->
     """
     target = target or item.original
     if target is None:
-        raise OSError(errno.ENOENT, "Where it came from is not known", item.name)
+        raise OSError(errno.ENOENT, tr("Where it came from is not known"), item.name)
     if as_root:
         from navigator.lib.drives import Location
         from navigator.lib.drives.root import ROOT_DRIVE

@@ -826,7 +826,7 @@ class FileEditor(ContextMenuHost, Widget):
         :meth:`snapshot` and :meth:`saved`.
         """
         if self.path is None:
-            raise OSError("no file name")
+            raise OSError(tr("no file name"))
         lines, endings, _ = self.snapshot()
         write_file(self.path, encode_lines(lines, endings, encoding=self.document.encoding))
         self.buffer.mark_saved()

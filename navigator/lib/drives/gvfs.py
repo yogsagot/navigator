@@ -36,15 +36,16 @@ from collections.abc import Callable
 from pathlib import Path, PurePosixPath
 from typing import IO, Any
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.drives.base import CHMOD, FREE_SPACE, RENAME, SYMLINK, WRITE, Child, Drive
 from navigator.lib.drives.local import LOCAL
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.system import gio
 
 #: Why a place above where the mount starts cannot be reached.
-OUTSIDE = "Not on this GVfs mount"
+OUTSIDE = tr_noop("Not on this GVfs mount")
 #: Why a mounted place has no directory to read: the FUSE bridge is not running.
-NO_FUSE = "GVfs's FUSE bridge (gvfsd-fuse) is not running"
+NO_FUSE = tr_noop("GVfs's FUSE bridge (gvfsd-fuse) is not running")
 #: Why GVfs is not asked though ``gio`` is there.
 NOT_IN_USE = "GVfs is not in use: [system] desktop_vfs is not gio"
 
@@ -106,7 +107,7 @@ class GvfsDrive(Drive):
         try:
             rest = path.relative_to(self.prefix)
         except ValueError:
-            raise OSError(errno.ENOENT, OUTSIDE, str(location)) from None
+            raise OSError(errno.ENOENT, tr(OUTSIDE), str(location)) from None
         return Location.of(self.root / rest if rest.parts else self.root)
 
     def back(self, local: Path) -> Location:
@@ -252,7 +253,7 @@ def connect(site: Site, answers: Any) -> GvfsDrive:
                 gio.unmount(uri)
             except OSError:
                 pass
-            raise OSError(errno.ENOENT, NO_FUSE)
+            raise OSError(errno.ENOENT, tr(NO_FUSE))
     top = bridge_top(local)
     rest = local.relative_to(top).parts
     prefix = PurePosixPath(*start.parts[:len(start.parts) - len(rest)]) if rest else start

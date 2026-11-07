@@ -37,6 +37,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr
 from navkit.screen import char_width
 
 from navigator.lib import codepages as _codepages
@@ -349,7 +350,7 @@ class ViewSource:
             # A fifo would block the loop on the first read, a device might
             # never end: DN refused anything that was not a file as well.
             raise OSError(21 if stat.S_ISDIR(info.st_mode) else 22,
-                          "Not a regular file", str(self.path))
+                          tr("Not a regular file"), str(self.path))
         self._open()
         self.size = info.st_size
         if self.size == 0:
@@ -879,7 +880,7 @@ class ChunkedSource(ViewSource):
             return b""
         with self._reader_lock:
             if self._reader is None:
-                raise OSError(9, "The file is closed", str(self.origin))
+                raise OSError(9, tr("The file is closed"), str(self.origin))
             return self._reader.read_at(offset, count)
 
     def refresh(self, new_size: int | None = None) -> str:

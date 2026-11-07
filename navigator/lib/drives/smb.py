@@ -30,6 +30,7 @@ import threading
 from pathlib import PurePosixPath
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import RENAME, WRITE, Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.sessions import Answers, NeedPassword
@@ -286,7 +287,7 @@ def connect(site: Site, answers: Answers) -> SmbDrive:
             raise DriveGone(site.host, f"{site.host}: {error.strerror or error}") from error
         if isinstance(error, DriveGone):
             raise
-        raise DriveGone(site.host, f"Cannot connect to {site.host}: {error}") from error
+        raise DriveGone(site.host, tr("Cannot connect to {host}: {reason}").format(host=site.host, reason=error)) from error
     if answers.save_password and answers.password and user:
         answers.keyring_refused = credentials.save_password(site, answers.password) or ""
     return drive

@@ -30,6 +30,7 @@ import time
 from dataclasses import dataclass
 from pathlib import Path
 from typing import IO, Any
+from navkit.i18n import tr
 from navigator.lib.system.which import which as _which
 
 #: The kinds this module reads, by their first bytes.
@@ -407,7 +408,7 @@ def write_archive(target: Path, tree: Path, *, type_: str = "7z", level: int | N
         return
     program = seven_zip()
     if program is None:
-        raise OSError(errno.ENOENT, f"{type_} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)", str(target))
+        raise OSError(errno.ENOENT, tr("{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)").format(kind=type_), str(target))
     with contextlib.suppress(FileNotFoundError):
         target.unlink()  # 7-Zip would take an empty file there for an archive
     switches = [f"-t{type_}", "-y"]
@@ -446,10 +447,10 @@ def write_rar(target: Path, tree: Path, *, level: int | None = None, password: s
     refused rather than made."""
     program = rar_program()
     if program is None:
-        raise OSError(errno.ENOENT, "rar archives are written by rar: install rar", str(target))
+        raise OSError(errno.ENOENT, tr("rar archives are written by rar: install rar"), str(target))
     names = sorted(os.listdir(tree))
     if not names:
-        raise OSError(errno.ENOTSUP, "a rar archive cannot be empty", str(target))
+        raise OSError(errno.ENOTSUP, tr("a rar archive cannot be empty"), str(target))
     with contextlib.suppress(FileNotFoundError):
         target.unlink()  # rar would add to what is there
     switches = ["-r", "-ol", "-y", "-idq"]
@@ -463,7 +464,7 @@ def write_rar(target: Path, tree: Path, *, level: int | None = None, password: s
                           input=secret, start_new_session=True)
     if done.returncode != 0:
         text = done.stderr.decode("utf-8", "replace") or done.stdout.decode("utf-8", "replace")
-        raise OSError(errno.EIO, text.strip() or f"rar exited with {done.returncode}", str(target))
+        raise OSError(errno.EIO, text.strip() or tr("rar exited with {returncode}").format(returncode=done.returncode), str(target))
 
 
 def write_7z(target: Path, tree: Path) -> None:

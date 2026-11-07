@@ -61,15 +61,23 @@ class DriveGone(OSError):
     """
 
     def __init__(self, name: str, reason: str = "") -> None:
-        super().__init__(errno.ENOTCONN, reason or f"Remote drive {name} is not accessible")
+        super().__init__(errno.ENOTCONN, reason or not_accessible(name))
         self.name = name
+
+
+def not_accessible(name: str) -> str:
+    """DN's *Remote drive X is not accessible*, in the user's language: what a
+    bare :class:`DriveGone` says, and what :func:`reason_of` knows it by."""
+    from navkit.i18n import tr
+
+    return tr("Remote drive {name} is not accessible").format(name=name)
 
 
 def reason_of(error: BaseException) -> str:
     """What *error* says of why a connection could not be made again, for
     ``Drive.lost_reason`` -- ``""`` for a bare *not accessible*, which the
     box says already."""
-    if isinstance(error, DriveGone) and error.strerror == f"Remote drive {error.name} is not accessible":
+    if isinstance(error, DriveGone) and error.strerror == not_accessible(error.name):
         cause = error.__cause__
         return reason_of(cause) if cause is not None else ""
     text = getattr(error, "strerror", None) or str(error)

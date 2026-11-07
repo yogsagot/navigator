@@ -27,6 +27,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import CHMOD, FREE_SPACE, RENAME, WRITE, DriveGone
 from navigator.lib.drives.execdrive import ExecDrive
 from navigator.lib.drives.location import Site
@@ -144,12 +145,12 @@ def connect(site: Site, answers: Answers) -> AdbDrive:
         done = subprocess.run(_argv(serial, "get-state"), capture_output=True, stdin=subprocess.DEVNULL,
                               timeout=30)
     except FileNotFoundError as error:
-        raise DriveGone(name, "adb: command not found") from error
+        raise DriveGone(name, tr("adb: command not found")) from error
     except subprocess.TimeoutExpired as error:
-        raise DriveGone(name, "adb did not answer") from error
+        raise DriveGone(name, tr("adb did not answer")) from error
     text = done.stderr.decode("utf-8", "replace") + done.stdout.decode("utf-8", "replace")
     if done.returncode != 0 or done.stdout.decode("utf-8", "replace").strip() != "device":
-        raise DriveGone(name, lost(text) or " ".join(text.split()) or f"Device {name} is not attached")
+        raise DriveGone(name, lost(text) or " ".join(text.split()) or tr("Device {name} is not attached").format(name=name))
     drive = AdbDrive(site)
     try:
         out = drive._run(["sh", "-c", "getprop ro.product.model; getprop ro.build.version.release"], timeout=30)
@@ -201,11 +202,11 @@ def list_devices() -> list[Device]:
     try:
         done = subprocess.run([command(), "devices", "-l"], capture_output=True, stdin=subprocess.DEVNULL, timeout=30)
     except FileNotFoundError as error:
-        raise OSError("adb: command not found") from error
+        raise OSError(tr("adb: command not found")) from error
     except subprocess.TimeoutExpired as error:
-        raise OSError("adb did not answer") from error
+        raise OSError(tr("adb did not answer")) from error
     if done.returncode != 0:
-        raise OSError(" ".join(done.stderr.decode("utf-8", "replace").split()) or "adb devices failed")
+        raise OSError(" ".join(done.stderr.decode("utf-8", "replace").split()) or tr("adb devices failed"))
     return parse_devices(done.stdout.decode("utf-8", "replace"))
 
 

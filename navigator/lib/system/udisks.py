@@ -41,6 +41,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.system.which import which as _which
 
 #: How long a quick question may take.
@@ -49,9 +50,9 @@ TIMEOUT = 15.0
 MOUNT_TIMEOUT = 60.0
 
 #: What says there is no udisks2 to ask.
-NO_UDISKS = "udisksctl (udisks2) is not installed"
+NO_UDISKS = tr_noop("udisksctl (udisks2) is not installed")
 #: What says an optical disc cannot be ejected.
-NO_BUSCTL = "busctl (systemd) is not installed, which ejecting a disc needs"
+NO_BUSCTL = tr_noop("busctl (systemd) is not installed, which ejecting a disc needs")
 
 #: Where every udisks2 object path starts; ``udisksctl -p`` takes the rest.
 ROOT = "/org/freedesktop/UDisks2/"
@@ -112,9 +113,9 @@ def _run(argv: list[str], timeout: float) -> str:
     try:
         result = subprocess.run(argv, capture_output=True, stdin=subprocess.DEVNULL, timeout=timeout)
     except subprocess.TimeoutExpired:
-        raise OSError(errno.ETIMEDOUT, f"{name} did not answer") from None
+        raise OSError(errno.ETIMEDOUT, tr("{name} did not answer").format(name=name)) from None
     except FileNotFoundError:
-        raise OSError(errno.ENOENT, f"{name} is not installed") from None
+        raise OSError(errno.ENOENT, tr("{name} is not installed").format(name=name)) from None
     out = result.stdout.decode("utf-8", "replace")
     if result.returncode != 0:
         err = result.stderr.decode("utf-8", "replace")
@@ -125,7 +126,7 @@ def _run(argv: list[str], timeout: float) -> str:
 def _udisksctl() -> str:
     found = program()
     if found is None:
-        raise OSError(errno.ENOENT, NO_UDISKS)
+        raise OSError(errno.ENOENT, tr(NO_UDISKS))
     return found
 
 
@@ -316,7 +317,7 @@ def _find(where: str, known: list[UdisksVolume]) -> UdisksVolume:
     for each in known:
         if where in (each.device, each.local):
             return each
-    raise OSError(errno.ENOENT, f"udisks knows nothing at {where}")
+    raise OSError(errno.ENOENT, tr("udisks knows nothing at {where}").format(where=where))
 
 
 def mount_device(volume: UdisksVolume) -> None:
@@ -352,7 +353,7 @@ def eject(where: str) -> None:
                 raise
         return
     if not volume.drive:
-        raise OSError(errno.EINVAL, f"{volume.name} is on no drive that can be ejected")
+        raise OSError(errno.EINVAL, tr("{name} is on no drive that can be ejected").format(name=volume.name))
     for each in known:
         if each.drive == volume.drive and each.mounted:
             run([_udisksctl(), "unmount", "-b", each.device, "--no-user-interaction"], timeout=MOUNT_TIMEOUT)
@@ -360,7 +361,7 @@ def eject(where: str) -> None:
     if _true(drive, "Ejectable"):
         busctl = _which("busctl")
         if busctl is None:
-            raise OSError(errno.ENOENT, NO_BUSCTL)
+            raise OSError(errno.ENOENT, tr(NO_BUSCTL))
         run([busctl, "--system", "--allow-interactive-authorization=no", "call", "org.freedesktop.UDisks2",
              volume.drive, "org.freedesktop.UDisks2.Drive", "Eject", "a{sv}", "0"], timeout=MOUNT_TIMEOUT)
     else:
@@ -413,7 +414,7 @@ def loop_setup(path: Path) -> str:
               timeout=MOUNT_TIMEOUT)
     match = _MAPPED.search(out)
     if match is None:
-        raise OSError(errno.EIO, out.strip() or f"udisksctl set no loop device up for {path}")
+        raise OSError(errno.EIO, out.strip() or tr("udisksctl set no loop device up for {path}").format(path=path))
     return match.group(1)
 
 
@@ -561,11 +562,11 @@ def attach_image(path: Path, stop: Callable[[], bool] | None = None,
                 break
             time.sleep(PROBE_INTERVAL)
         if not loop:
-            raise OSError(errno.EIO, f"udisks does not know {device}")
+            raise OSError(errno.EIO, tr("udisks does not know {device}").format(device=device))
     mine = [each for each in _volumes_of(objects, uid) if each.loop == loop]
     if not mine:
         _loop_delete(objects, loop)
-        raise OSError(errno.EINVAL, f"{path.name} has no file system udisks can mount")
+        raise OSError(errno.EINVAL, tr("{name} has no file system udisks can mount").format(name=path.name))
     for each in mine:
         if not each.mounted:
             try:

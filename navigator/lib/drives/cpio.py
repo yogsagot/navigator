@@ -18,6 +18,7 @@ import struct
 from pathlib import Path
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.arctool import ToolInfo
 from navigator.lib.drives.members import ListedArchive, stopped_check, window
 
@@ -146,7 +147,7 @@ class CpioArchive(ListedArchive):
 
     def open(self, info: ToolInfo) -> IO[bytes]:
         if info.is_dir or info.ref is None:
-            raise IsADirectoryError(errno.EISDIR, "Is a directory", info.path)
+            raise IsADirectoryError(errno.EISDIR, tr("Is a directory"), info.path)
         offset, size = info.ref
         return window(self.path, offset, size)
 

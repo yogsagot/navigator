@@ -1135,7 +1135,9 @@ def test_ctrl_h_keeps_the_cursor_and_drops_hidden_tags(tree):
 def test_ctrl_h_changes_only_the_active_panel(tree):
     (tree / ".hidden").write_text("h")
     app = navigator(tree)
-    run_app(app, [KeyEvent("h", ctrl=True)])
+    # A re-read of the same place lands when it is in (no grace wait): waited for.
+    run_app(app, [KeyEvent("h", ctrl=True),
+                  Until(lambda a: ".hidden" not in names(a.manager.left), timeout=5)])
     assert ".hidden" not in names(app.manager.left)
     assert ".hidden" in names(app.manager.right)
 

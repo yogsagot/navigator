@@ -32,6 +32,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.system.roothelper import READY, receive, send
 from navigator.settings import ELEVATE
 from navigator.lib.system.which import which as _which
@@ -54,6 +55,30 @@ REFUSED = frozenset({errno.EACCES, errno.EPERM})
 _ROOT = str(Path(__file__).resolve().parents[3])
 _BOOT = (f"import sys; sys.path.insert(0, {_ROOT!r}); "
          "from navigator.lib.system.roothelper import main; main()")
+
+
+#: What the root helper says in its own words: it is a process of its own,
+#: started ``-I`` as root with no catalogues, so its messages come back in
+#: English and are translated here, as they arrive (``_helper_text``).  Every
+#: sentence ``roothelper.py`` raises is one of these; a test keeps them in step.
+HELPER_TEXTS = (
+    tr_noop("Not an absolute path"),
+    tr_noop("Navigator does not signal that process"),
+    tr_noop("Not something Navigator does to a service"),
+    tr_noop("That manager's states are everyone's to read"),
+    tr_noop("Not a console's nonce"),
+    tr_noop("Not a service manager Navigator knows"),
+    tr_noop("Not a service's name"),
+    tr_noop("Not a regular file"),
+    tr_noop("Not a file of the user's to write the journal into"),
+    tr_noop("Not following a symbolic link another user owns"),
+)
+
+
+def _helper_text(text: Any) -> Any:
+    """The helper's *text* in the user's language, where it is one of
+    :data:`HELPER_TEXTS`; the system's own words (``strerror``) as they came."""
+    return tr(text) if isinstance(text, str) and text in HELPER_TEXTS else text
 
 
 @dataclass
@@ -259,16 +284,17 @@ class Elevation:
     def call_data(self, op: str, payload: bytes = b"", **args: Any) -> tuple[Any, bytes]:
         with self._lock:
             if not self.running or self._channel is None:
-                raise OSError(errno.EACCES, "Root access is not open", args.get("path"))
+                raise OSError(errno.EACCES, tr("Root access is not open"), args.get("path"))
             try:
                 send(self._channel, {"op": op, "args": args}, payload)
                 message, data = receive(self._channel)
             except (OSError, EOFError, ValueError) as error:
                 self._shut()
-                raise OSError(errno.EIO, f"The root helper ended: {error}", args.get("path")) from None
+                raise OSError(errno.EIO, tr("The root helper ended: {error}").format(error=error), args.get("path")) from None
             self._last = time.monotonic()
         if "ok" not in message:
-            raise OSError(message.get("errno") or errno.EIO, message.get("strerror"), message.get("filename"))
+            raise OSError(message.get("errno") or errno.EIO, _helper_text(message.get("strerror")),
+                          message.get("filename"))
         return message["ok"], data
 
     def call_fd(self, op: str, **args: Any) -> tuple[Any, int]:
@@ -278,7 +304,7 @@ class Elevation:
         ahead: ``buffering=0``)."""
         with self._lock:
             if not self.running or self._channel is None or self._socket is None:
-                raise OSError(errno.EACCES, "Root access is not open", args.get("path"))
+                raise OSError(errno.EACCES, tr("Root access is not open"), args.get("path"))
             try:
                 send(self._channel, {"op": op, "args": args})
                 message, _ = receive(self._channel)
@@ -290,12 +316,13 @@ class Elevation:
                     fd = fds[0]
             except (OSError, EOFError, ValueError) as error:
                 self._shut()
-                raise OSError(errno.EIO, f"The root helper ended: {error}", args.get("path")) from None
+                raise OSError(errno.EIO, tr("The root helper ended: {error}").format(error=error), args.get("path")) from None
             self._last = time.monotonic()
         if "ok" not in message:
-            raise OSError(message.get("errno") or errno.EIO, message.get("strerror"), message.get("filename"))
+            raise OSError(message.get("errno") or errno.EIO, _helper_text(message.get("strerror")),
+                          message.get("filename"))
         if fd < 0:
-            raise OSError(errno.EIO, "The root helper handed no descriptor back")
+            raise OSError(errno.EIO, tr("The root helper handed no descriptor back"))
         return message["ok"], fd
 
     # -- ending ------------------------------------------------------------------

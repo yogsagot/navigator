@@ -2866,12 +2866,94 @@ direction = "rtl"
 "Its output becomes the active panel's listing" = "يصبح خرجه قائمة اللوحة النشطة"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "يعمل في نافذة خاصة به"
+# navigator/lib/drives/adb.py:148, navigator/lib/drives/adb.py:205
+"adb: command not found" = "adb: الأمر غير موجود"
+# navigator/lib/drives/adb.py:150, navigator/lib/drives/adb.py:207
+"adb did not answer" = "لم يستجب adb"
+# navigator/lib/drives/adb.py:209
+"adb devices failed" = "فشل adb devices"
+# navigator/lib/drives/adb.py:153
+"Device {name} is not attached" = "الجهاز {name} غير متصل"
+# navigator/lib/drives/arctool.py:450
+"rar archives are written by rar: install rar" = "تُكتب أرشيفات rar بواسطة rar: ثبّت rar"
+# navigator/lib/drives/arctool.py:453
+"a rar archive cannot be empty" = "لا يمكن أن يكون أرشيف rar فارغًا"
+# navigator/lib/drives/arctool.py:411
+"{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "تحتاج أرشيفات {kind} إلى 7-Zip: ثبّت 7zip (7zz) أو p7zip (7z)"
+# navigator/lib/drives/arctool.py:467
+"rar exited with {returncode}" = "انتهى rar بالرمز {returncode}"
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+"Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
+# navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
+"Is a directory" = "هذا مجلد"
+# navigator/lib/drives/docker.py:134
+"Name a container: docker://NAME/path" = "سمِّ حاوية: docker://NAME/path"
+# navigator/lib/drives/docker.py:118, navigator/lib/drives/docker.py:112
+"No such container: {name}" = "لا توجد حاوية بهذا الاسم: {name}"
+# navigator/lib/drives/docker.py:138
+"Container {host} is not running" = "الحاوية {host} لا تعمل"
+# navigator/lib/drives/docker.py:107, navigator/lib/drives/docker.py:206, navigator/lib/drives/execdrive.py:413 ...
+"{name}: command not found" = "{name}: الأمر غير موجود"
+# navigator/lib/drives/docker.py:109, navigator/lib/drives/docker.py:208, navigator/lib/system/kio.py:120 ...
+"{name} did not answer" = "لم يستجب {name}"
+# navigator/lib/drives/docker.py:116
+"{engine} inspect said nothing readable" = "لم يُرجع {engine} inspect شيئًا مقروءًا"
+# navigator/lib/drives/docker.py:210
+"{engine} ps failed" = "فشل {engine} ps"
+# navigator/lib/drives/forwards.py:193
+"the SOCKS client went away" = "انصرف عميل SOCKS"
+# navigator/lib/drives/ftp.py:188, navigator/lib/drives/ftp.py:192, navigator/lib/drives/sftp.py:222 ...
+"Cannot connect to {host}: {reason}" = "تعذّر الاتصال بـ {host}: {reason}"
+# navigator/lib/drives/gvfs.py:46
+"Not on this GVfs mount" = "ليس على تركيب GVfs هذا"
+# navigator/lib/drives/gvfs.py:48
+"GVfs's FUSE bridge (gvfsd-fuse) is not running" = "جسر FUSE الخاص بـ GVfs (gvfsd-fuse) لا يعمل"
 # navigator/lib/drives/listing.py:112, navigator/lib/drives/listing.py:227
 "UP--DIR" = "للأعلى"
 # navigator/lib/drives/listing.py:112, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "مجلد"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "مجلد فرعي"
+# navigator/lib/drives/members.py:72
+"The archive ends before this member does" = "ينتهي الأرشيف قبل أن ينتهي هذا العنصر"
+# navigator/lib/drives/rclone.py:213, navigator/lib/drives/rclone.py:375
+"rclone: command not found" = "rclone: الأمر غير موجود"
+# navigator/lib/drives/rclone.py:948
+"Name a remote: rclone://REMOTE/path" = "سمِّ وجهة بعيدة: rclone://REMOTE/path"
+# navigator/lib/drives/rclone.py:218
+"rclone listremotes did not answer" = "لم يستجب rclone listremotes"
+# navigator/lib/drives/rclone.py:222
+"rclone's configuration is encrypted: connect to a remote to give its password" = "إعدادات rclone مشفرة: اتصل بوجهة بعيدة لإدخال كلمة مرورها"
+# navigator/lib/drives/rclone.py:397
+"rclone rcd did not start" = "لم يبدأ rclone rcd"
+# navigator/lib/drives/rclone.py:814
+"rclone stopped sending: {error}" = "توقّف rclone عن الإرسال: {error}"
+# navigator/lib/drives/rclone.py:974
+"rclone has no remote called {host}" = "لا توجد لدى rclone وجهة بعيدة باسم {host}"
+# navigator/lib/drives/rclone.py:422
+"rclone did not answer {method}" = "لم يستجب rclone لـ {method}"
+# navigator/lib/drives/s3.py:621
+"No AWS credentials: give an access key as the login, or set them up in ~/.aws" = "لا توجد بيانات اعتماد AWS: أدخل مفتاح وصول كاسم الدخول، أو اضبطها في ~/.aws"
+# navigator/lib/drives/s3.py:221
+"Cannot reach {host}: {reason}" = "تعذّر الوصول إلى {host}: {reason}"
+# navigator/lib/drives/s3.py:628
+"{host} refused the AWS credentials: {strerror}" = "رفض {host} بيانات اعتماد AWS: {strerror}"
+# navigator/lib/drives/sessions.py:220
+"No drive speaks {scheme}://" = "لا يوجد قرص يفهم {scheme}://"
+# navigator/lib/drives/sftp.py:243
+"Cannot reach {host} through {via}: {reason}" = "تعذّر الوصول إلى {host} عبر {via}: {reason}"
+# navigator/lib/drives/squashfs.py:135, navigator/lib/drives/squashfs.py:163
+"unsquashfs exited with {returncode}" = "انتهى unsquashfs بالرمز {returncode}"
+# navigator/lib/drives/zstd.py:24
+"tar.zst archives need zstd: install zstd" = "تحتاج أرشيفات tar.zst إلى zstd: ثبّت zstd"
+# navigator/lib/editor/document.py:355, navigator/lib/system/elevate.py:72, navigator/lib/viewer/__init__.py:353 ...
+"Not a regular file" = "ليس ملفًا عاديًا"
+# navigator/lib/editor/lock.py:101
+"locked by another program" = "مقفل من قِبل برنامج آخر"
+# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "لا يوجد ملف هوية age: اضبط age_identities في القسم [encryption] من navigator.ini"
+# navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
+"{name} is not installed" = "{name} غير مثبت"
 # navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "لا يوجد مستخدم {name}"
 # navigator/lib/file_ops/fileattr.py:406
@@ -2906,12 +2988,24 @@ direction = "rtl"
 "Can not append to {name}: it is a link" = "لا يمكن الإلحاق بـ {name}: إنه رابط"
 # navigator/lib/file_ops/filecopy.py:845
 "Can not overwrite directory {name}" = "لا يمكن استبدال المجلد {name}"
+# navigator/lib/file_ops/filelink.py:110, navigator/lib/file_ops/filelink.py:126
+"A hard link cannot cross file systems" = "لا يمكن للرابط الصلب أن يعبر أنظمة الملفات"
+# navigator/lib/file_ops/filelink.py:119
+"A directory cannot be hard-linked" = "لا يمكن إنشاء رابط صلب لمجلد"
+# navigator/lib/file_ops/filelink.py:215
+"Not a symbolic link" = "ليس رابطًا رمزيًا"
+# navigator/lib/file_ops/filelink.py:86
+"A link cannot point to another drive" = "لا يمكن للرابط أن يشير إلى قرص آخر"
+# navigator/lib/file_ops/filelink.py:117
+"This drive cannot hold hard links" = "لا يمكن لهذا القرص أن يحمل روابط صلبة"
 # navigator/lib/file_ops/filereplace.py:329
 "Invalid regular expression: {reason}" = "تعبير نمطي غير صالح: {reason}"
 # navigator/lib/file_ops/filereplace.py:271
 "File {name}\nchanged while it was asked about; it is left as it is" = "تغيّر الملف {name}\nأثناء السؤال عنه؛ تُرك كما هو"
 # navigator/lib/file_ops/filereplace.py:334
 "Invalid replacement: {reason}" = "استبدال غير صالح: {reason}"
+# navigator/lib/file_ops/fsflags.py:101
+"The file changed while it was opened" = "تغيّر الملف أثناء فتحه"
 # navigator/lib/file_ops/multirename.py:253
 "A [ is never closed" = "القوس [ لم يغلق أبدا"
 # navigator/lib/file_ops/multirename.py:212, navigator/lib/file_ops/multirename.py:257, navigator/lib/file_ops/multirename.py:259 ...
@@ -2944,6 +3038,10 @@ direction = "rtl"
 "The parts of {name} do not add up to the size {crc} says" = "مجموع أجزاء {name} لا يساوي الحجم الذي يذكره {crc}"
 # navigator/lib/file_ops/splitfile.py:277
 "{name} ended before its size said" = "انتهى {name} قبل الحجم المذكور"
+# navigator/lib/file_ops/trash.py:182
+"No trash on this file system" = "لا توجد سلة مهملات على نظام الملفات هذا"
+# navigator/lib/file_ops/trash.py:279
+"Where it came from is not known" = "مصدره غير معروف"
 # navigator/lib/file_ops/undo.py:65
 "Give {n} file its old name back?" = ["إعادة الأسماء القديمة إلى {n} ملف؟", "إعادة الاسم القديم إلى الملف؟", "إعادة الاسمين القديمين إلى الملفين؟", "إعادة الأسماء القديمة إلى {n} ملفات؟", "إعادة الأسماء القديمة إلى {n} ملفا؟", "إعادة الأسماء القديمة إلى {n} ملف؟"]
 # navigator/lib/file_ops/undo.py:69
@@ -3024,6 +3122,8 @@ direction = "rtl"
 "plain" = "عادي"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "تلقائي"
+# navigator/lib/system/desktop.py:160
+"xdg-open failed ({code})" = "فشل xdg-open ({code})"
 # navigator/lib/system/diskinfo.py:221
 "File" = "ملف"
 # navigator/lib/system/diskinfo.py:212
@@ -3088,6 +3188,44 @@ direction = "rtl"
 "~{n:,}~K bytes total memory" = "إجمالي الذاكرة: ~{n:,}~ ك.بايت"
 # navigator/lib/system/diskinfo.py:340
 "Volume label on ~{mount}: {label}~" = "تسمية وحدة التخزين على ~{mount}: {label}~"
+# navigator/lib/system/elevate.py:65
+"Not an absolute path" = "ليس مسارًا مطلقًا"
+# navigator/lib/system/elevate.py:66, navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
+"Navigator does not signal that process" = "لا يرسل Navigator إشارات إلى هذه العملية"
+# navigator/lib/system/elevate.py:67, navigator/lib/system/services/openrc.py:157, navigator/lib/system/services/runit.py:223 ...
+"Not something Navigator does to a service" = "ليس شيئًا يفعله Navigator بالخدمة"
+# navigator/lib/system/elevate.py:68
+"That manager's states are everyone's to read" = "حالات هذا المدير متاحة للجميع للقراءة"
+# navigator/lib/system/elevate.py:69
+"Not a console's nonce" = "ليس مفتاحًا لمرة واحدة لوحدة التحكم"
+# navigator/lib/system/elevate.py:70
+"Not a service manager Navigator knows" = "ليس مدير خدمات يعرفه Navigator"
+# navigator/lib/system/elevate.py:71, navigator/lib/system/services/openrc.py:190, navigator/lib/system/services/openrc.py:249 ...
+"Not a service's name" = "ليس اسم خدمة"
+# navigator/lib/system/elevate.py:73
+"Not a file of the user's to write the journal into" = "ليس ملفًا للمستخدم يُكتب فيه السجل"
+# navigator/lib/system/elevate.py:74
+"Not following a symbolic link another user owns" = "لا يُتّبع رابط رمزي يملكه مستخدم آخر"
+# navigator/lib/system/elevate.py:325
+"The root helper handed no descriptor back" = "لم يُعِد مساعد الجذر واصفًا"
+# navigator/lib/system/elevate.py:287, navigator/lib/system/elevate.py:307
+"Root access is not open" = "صلاحيات الجذر غير مفتوحة"
+# navigator/lib/system/elevate.py:293, navigator/lib/system/elevate.py:319
+"The root helper ended: {error}" = "انتهى مساعد الجذر: {error}"
+# navigator/lib/system/gio.py:54
+"The gio command (GLib) is not installed" = "الأمر gio (GLib) غير مثبت"
+# navigator/lib/system/gio.py:180
+"No desktop file for {id}" = "لا يوجد ملف desktop لـ {id}"
+# navigator/lib/system/gio.py:100
+"gio {args} did not answer" = "لم يستجب gio {args}"
+# navigator/lib/system/gio.py:316
+"{name} cannot be mounted" = "لا يمكن تركيب {name}"
+# navigator/lib/system/gio.py:418
+"Mounting {uri} did not finish" = "لم يكتمل تركيب {uri}"
+# navigator/lib/system/kio.py:55
+"kio-fuse is not running, or dbus-send is not installed" = "kio-fuse لا يعمل، أو dbus-send غير مثبت"
+# navigator/lib/system/kio.py:358
+"Solid knows nothing mounted at {where}" = "لا يعرف Solid شيئًا مركّبًا في {where}"
 # navigator/lib/system/mediainfo.py:326
 "mono" = "أحادي"
 # navigator/lib/system/mediainfo.py:328
@@ -3152,8 +3290,6 @@ direction = "rtl"
 "Open files" = "الملفات المفتوحة"
 # navigator/lib/system/processes.py:415
 "Environment" = "البيئة"
-# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
-"Navigator does not signal that process" = "لا يرسل Navigator إشارات إلى هذه العملية"
 # navigator/lib/system/programinfo.py:420
 "unknown type" = "نوع غير معروف"
 # navigator/lib/system/programinfo.py:435
@@ -3186,75 +3322,85 @@ direction = "rtl"
 "none" = "لا يوجد"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "لا يعمل هنا أي مدير خدمات يعرفه Navigator: systemd أو OpenRC أو runit أو SysVinit"
-# navigator/lib/system/services/common.py:208
+# navigator/lib/system/services/common.py:209
 "{manager} keeps no log for {unit}, and there is no system log file" = "لا يحتفظ {manager} بسجل لـ {unit}، ولا يوجد ملف سجل للنظام"
-# navigator/lib/system/services/openrc.py:260
+# navigator/lib/system/services/common.py:81
+"{name} did not answer in time" = "لم يستجب {name} في الوقت المناسب"
+# navigator/lib/system/services/openrc.py:261
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:85
+# navigator/lib/system/services/openrc.py:86
 "There is no rc-service: install OpenRC" = "لا يوجد rc-service: ثبّت OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:88
 "OpenRC is not the system's service manager" = "ليس OpenRC مدير خدمات النظام"
-# navigator/lib/system/services/openrc.py:192, navigator/lib/system/services/runit.py:261, navigator/lib/system/services/sysvinit.py:333 ...
+# navigator/lib/system/services/openrc.py:193, navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:334 ...
 "Status: {state}" = "الحالة: {state}"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:195
 "Runlevels: {levels}" = "مستويات التشغيل: {levels}"
-# navigator/lib/system/services/openrc.py:194, navigator/lib/system/services/sysvinit.py:342
+# navigator/lib/system/services/openrc.py:195, navigator/lib/system/services/sysvinit.py:343
 "Script: {path}" = "البرنامج النصي: {path}"
-# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
-"Settings for {unit}, read by {path} each time it starts." = "إعدادات {unit}، التي يقرؤها {path} في كل تشغيل."
 # navigator/lib/system/services/openrc.py:236, navigator/lib/system/services/runit.py:314
+"Settings for {unit}, read by {path} each time it starts." = "إعدادات {unit}، التي يقرؤها {path} في كل تشغيل."
+# navigator/lib/system/services/openrc.py:237, navigator/lib/system/services/runit.py:315
 "A setting made here wins over the script's own; restart {unit} for it to count." = "ما يُضبط هنا يغلب إعدادات البرنامج النصي نفسه؛ أعد تشغيل {unit} ليسري."
-# navigator/lib/system/services/openrc.py:240
+# navigator/lib/system/services/openrc.py:241
 "The settings {path} makes:" = "الإعدادات التي يضبطها {path}:"
-# navigator/lib/system/services/runit.py:345
+# navigator/lib/system/services/runit.py:346
 "runit" = "runit"
-# navigator/lib/system/services/runit.py:92
+# navigator/lib/system/services/runit.py:93
 "There is no sv: install runit" = "لا يوجد sv: ثبّت runit"
-# navigator/lib/system/services/runit.py:94
+# navigator/lib/system/services/runit.py:95
 "runit is not the system's service manager" = "ليس runit مدير خدمات النظام"
-# navigator/lib/system/services/runit.py:96, navigator/lib/system/services/runit.py:225
+# navigator/lib/system/services/runit.py:97, navigator/lib/system/services/runit.py:226
 "runit has no service directory here" = "ليس لـ runit مجلد خدمات هنا"
-# navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:338
+# navigator/lib/system/services/runit.py:180
+"sv: access denied" = "sv: تم رفض الوصول"
+# navigator/lib/system/services/runit.py:263, navigator/lib/system/services/sysvinit.py:339
 "Start-up: {state}" = "الإقلاع: {state}"
-# navigator/lib/system/services/runit.py:243
+# navigator/lib/system/services/runit.py:244
 "{unit} is not enabled: enable it first" = "{unit} غير ممكّنة: مكّنها أولًا"
-# navigator/lib/system/services/runit.py:264
+# navigator/lib/system/services/runit.py:265
 "Defined in {path}" = "معرّفة في {path}"
-# navigator/lib/system/services/runit.py:318, navigator/lib/system/services/systemd.py:240
+# navigator/lib/system/services/runit.py:319, navigator/lib/system/services/systemd.py:241
 "{path} as it is:" = "{path} كما هو:"
-# navigator/lib/system/services/runit.py:329
+# navigator/lib/system/services/runit.py:330
 "{unit} has no service directory" = "ليس لـ {unit} مجلد خدمة"
-# navigator/lib/system/services/runit.py:337
+# navigator/lib/system/services/runit.py:338
 "{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "لا تقرأ {unit} ملف إعدادات، لذا يُحرَّر برنامج run الخاص بها: قد يستبدله تحديث حزمتها."
-# navigator/lib/system/services/runit.py:230
+# navigator/lib/system/services/runit.py:231
 "{unit} is not defined in {path}" = "{unit} غير معرّفة في {path}"
-# navigator/lib/system/services/runit.py:239
+# navigator/lib/system/services/runit.py:240
 "{path} is not a link Navigator removes" = "{path} ليس رابطًا يزيله Navigator"
-# navigator/lib/system/services/runit.py:267
+# navigator/lib/system/services/runit.py:268
 "Logs to {path}" = "تكتب سجلها في {path}"
-# navigator/lib/system/services/systemd.py:285
+# navigator/lib/system/services/systemd.py:286
 "systemd" = "systemd"
-# navigator/lib/system/services/systemd.py:64
+# navigator/lib/system/services/systemd.py:65
 "There is no systemctl: install systemd" = "لا يوجد systemctl: ثبّت systemd"
-# navigator/lib/system/services/systemd.py:66
+# navigator/lib/system/services/systemd.py:67
 "systemd is not the system's service manager" = "ليس systemd مدير خدمات النظام"
-# navigator/lib/system/services/systemd.py:237
+# navigator/lib/system/services/systemd.py:159
+"Not something Navigator does to a unit" = "ليس شيئًا يفعله Navigator بالوحدة"
+# navigator/lib/system/services/systemd.py:168, navigator/lib/system/services/systemd.py:205
+"Not a unit's name" = "ليس اسم وحدة"
+# navigator/lib/system/services/systemd.py:238
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "إعداد القائمة مثل ExecStart= يُفرَّغ أولًا بسطر خاص به، ExecStart= وحده."
-# navigator/lib/system/services/systemd.py:206
+# navigator/lib/system/services/systemd.py:207
 "{unit} is masked: unmask it first" = "{unit} محجوبة: ارفع الحجب أولًا"
-# navigator/lib/system/services/systemd.py:212
+# navigator/lib/system/services/systemd.py:213
 "{unit} has no unit file to edit" = "ليس لـ {unit} ملف وحدة لتحريره"
-# navigator/lib/system/services/systemd.py:236
+# navigator/lib/system/services/systemd.py:237
 "Override for {unit}: what is set here wins over {path}." = "تجاوز لـ {unit}: ما يُضبط هنا يغلب {path}."
-# navigator/lib/system/services/sysvinit.py:388
+# navigator/lib/system/services/sysvinit.py:389
 "SysVinit" = "SysVinit"
-# navigator/lib/system/services/sysvinit.py:113
+# navigator/lib/system/services/sysvinit.py:114
 "There is no /etc/init.d" = "لا يوجد /etc/init.d"
-# navigator/lib/system/services/sysvinit.py:115
+# navigator/lib/system/services/sysvinit.py:116
 "SysVinit is not the system's service manager" = "ليس SysVinit مدير خدمات النظام"
-# navigator/lib/system/services/sysvinit.py:337
+# navigator/lib/system/services/sysvinit.py:327, navigator/lib/system/services/sysvinit.py:373
+"Not a service's script" = "ليس نص خدمة"
+# navigator/lib/system/services/sysvinit.py:338
 "{path} has no status action" = "ليس لـ {path} إجراء status"
-# navigator/lib/system/services/sysvinit.py:379
+# navigator/lib/system/services/sysvinit.py:380
 "{unit} reads no settings file, so its script is edited: an update of its package may replace it or ask about it." = "لا تقرأ {unit} ملف إعدادات، لذا يُحرَّر برنامجها النصي: قد يستبدله تحديث حزمتها أو يسأل عنه."
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "نوع الجهاز"
@@ -3276,10 +3422,30 @@ direction = "rtl"
 "Up" = "مدة التشغيل"
 # navigator/lib/system/sysinfo.py:161
 "None" = "لا شيء"
+# navigator/lib/system/tempdir.py:42
+"not a directory of this user's alone" = "ليس مجلدًا خاصًا بهذا المستخدم وحده"
+# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
+"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) غير مثبّت"
+# navigator/lib/system/udisks.py:55
+"busctl (systemd) is not installed, which ejecting a disc needs" = "busctl (systemd) غير مثبت، وهو لازم لإخراج القرص"
+# navigator/lib/system/udisks.py:320
+"udisks knows nothing at {where}" = "لا يعرف udisks شيئًا في {where}"
+# navigator/lib/system/udisks.py:356
+"{name} is on no drive that can be ejected" = "لا يقع {name} على قرص يمكن إخراجه"
+# navigator/lib/system/udisks.py:569
+"{name} has no file system udisks can mount" = "لا يحتوي {name} على نظام ملفات يستطيع udisks تركيبه"
+# navigator/lib/system/udisks.py:417
+"udisksctl set no loop device up for {path}" = "لم يُنشئ udisksctl جهاز loop لـ {path}"
+# navigator/lib/system/udisks.py:565
+"udisks does not know {device}" = "لا يعرف udisks الجهاز {device}"
 # navigator/lib/utilities/about.py:116
 "Version {version}" = "الإصدار {version}"
 # navigator/lib/utilities/about.py:118
 "License: {license}" = "الترخيص: {license}"
+# navigator/lib/viewer/__init__.py:883
+"The file is closed" = "الملف مغلق"
+# navigator/lib/viewer/dbf.py:163, navigator/widgets/viewer/db_window/db_window.py:458
+"Could not find MEMO file" = "تعذر العثور على ملف MEMO"
 # navigator/lib/viewer/image.py:52
 "Pictures other than PNG need Pillow: pip install {extra}" = "الصور غير PNG تحتاج إلى Pillow: pip install {extra}"
 # navigator/lib/viewer/pdf.py:70
@@ -3778,6 +3944,8 @@ direction = "rtl"
 "~L~ower case" = "أحرف ~ص~غيرة"
 # navigator/widgets/editor/file_editor/file_editor.py:3102
 "Sa~v~e" = "~ح~فظ"
+# navigator/widgets/editor/file_editor/file_editor.py:829
+"no file name" = "لا يوجد اسم ملف"
 # navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "لا شيء للتراجع عنه"
 # navigator/widgets/editor/file_editor/file_editor.py:2869
@@ -4262,8 +4430,6 @@ direction = "rtl"
 "Convert text" = "تحويل النص"
 # navigator/widgets/manager/manager/manager.py:1258
 "wrong passphrase" = "عبارة مرور خاطئة"
-# navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "لا يوجد ملف هوية age: اضبط age_identities في القسم [encryption] من navigator.ini"
 # navigator/widgets/manager/manager/manager.py:1260
 "no secret key for it" = "لا يوجد مفتاح سري له"
 # navigator/widgets/manager/manager/manager.py:1623
@@ -4300,8 +4466,6 @@ direction = "rtl"
 "{n} link was left as it was:" = ["تُرك {n} رابط كما كان:", "تُرك رابط واحد كما كان:", "تُرك رابطان كما كانا:", "تُركت {n} روابط كما كانت:", "تُرك {n} رابطا كما كان:", "تُرك {n} رابط كما كان:"]
 # navigator/widgets/manager/manager/manager.py:5184
 "~I~nternal editor" = "~م~حرر داخلي"
-# navigator/widgets/manager/manager/manager.py:5261, navigator/widgets/manager/manager/manager.py:5295
-"Is a directory" = "هذا مجلد"
 # navigator/widgets/manager/manager/manager.py:5678
 "Drag to resize the panels" = "اسحب لتغيير حجم اللوحتين"
 # navigator/widgets/manager/manager/manager.py:5684
@@ -4378,8 +4542,6 @@ direction = "rtl"
 "Not from inside an archive" = "ليس من داخل أرشيف"
 # navigator/widgets/manager/manager/manager.py:3388
 "No disk image at the cursor" = "لا توجد صورة قرص تحت المؤشر"
-# navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
-"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) غير مثبّت"
 # navigator/widgets/manager/manager/manager.py:3391
 "Not in a mounted disk image" = "ليس داخل صورة قرص مركّبة"
 # navigator/widgets/manager/manager/manager.py:3396
@@ -5212,8 +5374,6 @@ direction = "rtl"
 "{name} (default)" = "{name} (افتراضي)"
 # navigator/widgets/shell/shell/shell.py:3074
 "Remote drive {name} is not accessible: {reason}" = "القرص البعيد {name} غير متاح: {reason}"
-# navigator/widgets/shell/shell/shell.py:3077
-"Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "حفظ لوحة الألوان"
 # navigator/widgets/shell/shell/shell.py:400
@@ -5460,8 +5620,6 @@ direction = "rtl"
 "~V~alue" = "~ا~لقيمة"
 # navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "بنية {name}"
-# navigator/widgets/viewer/db_window/db_window.py:458
-"Could not find MEMO file" = "تعذر العثور على ملف MEMO"
 # navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "جارٍ البحث"
 # navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428

@@ -59,7 +59,7 @@ def root_source(path: Path) -> Any:
     origin = Location.of(Path(path))
     st = ROOT_DRIVE.stat(origin)
     if not stat.S_ISREG(st.st_mode):
-        raise OSError(21 if stat.S_ISDIR(st.st_mode) else 22, "Not a regular file", str(path))
+        raise OSError(21 if stat.S_ISDIR(st.st_mode) else 22, tr("Not a regular file"), str(path))
     source = ChunkedSource(origin, st.st_size, ROOT_DRIVE.open_random(origin))
     source.path = Path(path)  # its whole name: the quick view compares it
     source.drive = ROOT_DRIVE

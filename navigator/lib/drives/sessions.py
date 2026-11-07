@@ -29,6 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
+from navkit.i18n import tr
 from navigator.lib.drives import Drive, DriveGone, mount, mounted, unmount
 from navigator.lib.drives.location import Site
 
@@ -216,7 +217,7 @@ def is_connection(scheme: str) -> bool:
 def scheme_module(scheme: str) -> Any:
     name = module_name(scheme)
     if name is None:
-        raise DriveGone(scheme, f"No drive speaks {scheme}://")
+        raise DriveGone(scheme, tr("No drive speaks {scheme}://").format(scheme=scheme))
     return importlib.import_module(name)
 
 

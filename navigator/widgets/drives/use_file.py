@@ -127,7 +127,7 @@ async def view_elsewhere(desktop: Any, origin: Location, mode: str | None = None
         drive = drive_of(origin)
         st = drive.stat(origin)
         if not stat.S_ISREG(st.st_mode):
-            raise OSError(21 if stat.S_ISDIR(st.st_mode) else 22, "Not a regular file", str(origin))
+            raise OSError(21 if stat.S_ISDIR(st.st_mode) else 22, tr("Not a regular file"), str(origin))
         reader = drive.open_random(origin)
         return None if reader is None else ChunkedSource(origin, st.st_size, reader)
 

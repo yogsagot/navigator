@@ -47,6 +47,7 @@ import stat
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from navkit.i18n import tr
 from navigator.lib.system.services import common
 from navigator.lib.system.services.common import UNKNOWN, Backend, EditPlan, Journal, LogFile, Unit
 from navigator.lib.system.which import which as _which
@@ -303,7 +304,7 @@ def act(unit: Unit, verb: str) -> None:
     name = unit.name
     script = scripts().get(name) if valid_service(name) else None
     if verb not in verbs() or script is None:
-        raise OSError(errno.EINVAL, "Not something Navigator does to a service", name)
+        raise OSError(errno.EINVAL, tr("Not something Navigator does to a service"), name)
     if verb in SCRIPT_VERBS:
         _ran([str(script), verb], name)
         return
@@ -323,7 +324,7 @@ def details(unit: Unit) -> str:
 
     script = scripts().get(unit.name) if valid_service(unit.name) else None
     if script is None:
-        raise OSError(errno.ENOENT, "Not a service's script", unit.name)
+        raise OSError(errno.ENOENT, tr("Not a service's script"), unit.name)
     text = _read(script)
     fields = header(text)
     lines = [unit.name + (" - " + describe(fields) if describe(fields) else "")]
@@ -369,7 +370,7 @@ def edit_plan(unit: Unit) -> EditPlan:
 
     script = scripts().get(unit.name) if valid_service(unit.name) else None
     if script is None:
-        raise OSError(errno.ENOENT, "Not a service's script", unit.name)
+        raise OSError(errno.ENOENT, tr("Not a service's script"), unit.name)
     text = _read(script)
     settings = settings_file(unit.name, text)
     if settings is not None:

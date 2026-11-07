@@ -14,13 +14,14 @@ import shutil
 import subprocess
 from pathlib import Path
 from typing import Any
+from navkit.i18n import tr, tr_noop
 from navigator.lib.system.which import which as _which
 
 #: A zstd frame's first four bytes.
 MAGIC = b"\x28\xb5\x2f\xfd"
 
 #: What to install when neither is here.
-MISSING = "tar.zst archives need zstd: install zstd"
+MISSING = tr_noop("tar.zst archives need zstd: install zstd")
 
 
 def _module() -> Any:
@@ -53,7 +54,7 @@ def decompress(source: Path, target: Path) -> None:
         return
     program = _program()
     if program is None:
-        raise OSError(errno.ENOENT, MISSING, str(source))
+        raise OSError(errno.ENOENT, tr(MISSING), str(source))
     done = subprocess.run([program, "-d", "-q", "-f", "-o", str(target), "--", str(source)],
                           capture_output=True, stdin=subprocess.DEVNULL)
     if done.returncode != 0:
@@ -70,7 +71,7 @@ def compress(source: Path, target: Path, level: int = 3) -> None:
         return
     program = _program()
     if program is None:
-        raise OSError(errno.ENOENT, MISSING, str(target))
+        raise OSError(errno.ENOENT, tr(MISSING), str(target))
     switches = ["--ultra"] if level > 19 else []
     done = subprocess.run([program, *switches, f"-{level}", "-q", "-f", "-o", str(target), "--", str(source)],
                           capture_output=True, stdin=subprocess.DEVNULL)

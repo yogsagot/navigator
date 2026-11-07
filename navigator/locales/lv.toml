@@ -2865,12 +2865,94 @@ flag = "LV"
 "Its output becomes the active panel's listing" = "Tās izvade kļūst par aktīvā paneļa sarakstu"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "Darbojas savā logā"
+# navigator/lib/drives/adb.py:148, navigator/lib/drives/adb.py:205
+"adb: command not found" = "adb: komanda nav atrasta"
+# navigator/lib/drives/adb.py:150, navigator/lib/drives/adb.py:207
+"adb did not answer" = "adb neatbildēja"
+# navigator/lib/drives/adb.py:209
+"adb devices failed" = "adb devices neizdevās"
+# navigator/lib/drives/adb.py:153
+"Device {name} is not attached" = "Ierīce {name} nav pievienota"
+# navigator/lib/drives/arctool.py:450
+"rar archives are written by rar: install rar" = "rar arhīvus raksta rar: instalējiet rar"
+# navigator/lib/drives/arctool.py:453
+"a rar archive cannot be empty" = "rar arhīvs nevar būt tukšs"
+# navigator/lib/drives/arctool.py:411
+"{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "{kind} arhīviem vajag 7-Zip: instalējiet 7zip (7zz) vai p7zip (7z)"
+# navigator/lib/drives/arctool.py:467
+"rar exited with {returncode}" = "rar beidzās ar kodu {returncode}"
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+"Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
+# navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
+"Is a directory" = "Tā ir direktorija"
+# navigator/lib/drives/docker.py:134
+"Name a container: docker://NAME/path" = "Norādiet konteineru: docker://NOSAUKUMS/ceļš"
+# navigator/lib/drives/docker.py:118, navigator/lib/drives/docker.py:112
+"No such container: {name}" = "Šāda konteinera nav: {name}"
+# navigator/lib/drives/docker.py:138
+"Container {host} is not running" = "Konteiners {host} nedarbojas"
+# navigator/lib/drives/docker.py:107, navigator/lib/drives/docker.py:206, navigator/lib/drives/execdrive.py:413 ...
+"{name}: command not found" = "{name}: komanda nav atrasta"
+# navigator/lib/drives/docker.py:109, navigator/lib/drives/docker.py:208, navigator/lib/system/kio.py:120 ...
+"{name} did not answer" = "{name} neatbildēja"
+# navigator/lib/drives/docker.py:116
+"{engine} inspect said nothing readable" = "{engine} inspect neteica neko saprotamu"
+# navigator/lib/drives/docker.py:210
+"{engine} ps failed" = "{engine} ps neizdevās"
+# navigator/lib/drives/forwards.py:193
+"the SOCKS client went away" = "SOCKS klients atvienojās"
+# navigator/lib/drives/ftp.py:188, navigator/lib/drives/ftp.py:192, navigator/lib/drives/sftp.py:222 ...
+"Cannot connect to {host}: {reason}" = "Nevar savienoties ar {host}: {reason}"
+# navigator/lib/drives/gvfs.py:46
+"Not on this GVfs mount" = "Nav šajā GVfs montējumā"
+# navigator/lib/drives/gvfs.py:48
+"GVfs's FUSE bridge (gvfsd-fuse) is not running" = "GVfs FUSE tilts (gvfsd-fuse) nedarbojas"
 # navigator/lib/drives/listing.py:112, navigator/lib/drives/listing.py:227
 "UP--DIR" = "AUGŠUP"
 # navigator/lib/drives/listing.py:112, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "MAPE"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "APAKŠMAPE"
+# navigator/lib/drives/members.py:72
+"The archive ends before this member does" = "Arhīvs beidzas ātrāk par šo elementu"
+# navigator/lib/drives/rclone.py:213, navigator/lib/drives/rclone.py:375
+"rclone: command not found" = "rclone: komanda nav atrasta"
+# navigator/lib/drives/rclone.py:948
+"Name a remote: rclone://REMOTE/path" = "Norādiet attālo krātuvi: rclone://NOSAUKUMS/ceļš"
+# navigator/lib/drives/rclone.py:218
+"rclone listremotes did not answer" = "rclone listremotes neatbildēja"
+# navigator/lib/drives/rclone.py:222
+"rclone's configuration is encrypted: connect to a remote to give its password" = "rclone konfigurācija ir šifrēta: savienojieties ar attālo krātuvi, lai ievadītu tās paroli"
+# navigator/lib/drives/rclone.py:397
+"rclone rcd did not start" = "rclone rcd nepalaidās"
+# navigator/lib/drives/rclone.py:814
+"rclone stopped sending: {error}" = "rclone pārstāja sūtīt: {error}"
+# navigator/lib/drives/rclone.py:974
+"rclone has no remote called {host}" = "rclone nav attālās krātuves ar nosaukumu {host}"
+# navigator/lib/drives/rclone.py:422
+"rclone did not answer {method}" = "rclone neatbildēja uz {method}"
+# navigator/lib/drives/s3.py:621
+"No AWS credentials: give an access key as the login, or set them up in ~/.aws" = "Nav AWS akreditācijas datu: norādiet piekļuves atslēgu kā lietotājvārdu vai iestatiet tos ~/.aws"
+# navigator/lib/drives/s3.py:221
+"Cannot reach {host}: {reason}" = "Nevar sasniegt {host}: {reason}"
+# navigator/lib/drives/s3.py:628
+"{host} refused the AWS credentials: {strerror}" = "{host} noraidīja AWS akreditācijas datus: {strerror}"
+# navigator/lib/drives/sessions.py:220
+"No drive speaks {scheme}://" = "Neviens disks neprot {scheme}://"
+# navigator/lib/drives/sftp.py:243
+"Cannot reach {host} through {via}: {reason}" = "Nevar sasniegt {host} caur {via}: {reason}"
+# navigator/lib/drives/squashfs.py:135, navigator/lib/drives/squashfs.py:163
+"unsquashfs exited with {returncode}" = "unsquashfs beidzās ar kodu {returncode}"
+# navigator/lib/drives/zstd.py:24
+"tar.zst archives need zstd: install zstd" = "tar.zst arhīviem vajag zstd: instalējiet zstd"
+# navigator/lib/editor/document.py:355, navigator/lib/system/elevate.py:72, navigator/lib/viewer/__init__.py:353 ...
+"Not a regular file" = "Tas nav parasts fails"
+# navigator/lib/editor/lock.py:101
+"locked by another program" = "to bloķējusi cita programma"
+# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "nav age identitātes faila: iestatiet age_identities navigator.ini sadaļā [encryption]"
+# navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
+"{name} is not installed" = "{name} nav instalēts"
 # navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "Nav lietotāja {name}"
 # navigator/lib/file_ops/fileattr.py:406
@@ -2905,12 +2987,24 @@ flag = "LV"
 "Can not append to {name}: it is a link" = "Nevar pievienot {name}: tā ir saite"
 # navigator/lib/file_ops/filecopy.py:845
 "Can not overwrite directory {name}" = "Nevar pārrakstīt direktoriju {name}"
+# navigator/lib/file_ops/filelink.py:110, navigator/lib/file_ops/filelink.py:126
+"A hard link cannot cross file systems" = "Cietā saite nevar šķērsot failu sistēmas"
+# navigator/lib/file_ops/filelink.py:119
+"A directory cannot be hard-linked" = "Direktorijai nevar izveidot cieto saiti"
+# navigator/lib/file_ops/filelink.py:215
+"Not a symbolic link" = "Tā nav simboliskā saite"
+# navigator/lib/file_ops/filelink.py:86
+"A link cannot point to another drive" = "Saite nevar norādīt uz citu disku"
+# navigator/lib/file_ops/filelink.py:117
+"This drive cannot hold hard links" = "Šis disks nevar saturēt cietās saites"
 # navigator/lib/file_ops/filereplace.py:329
 "Invalid regular expression: {reason}" = "Nederīga regulārā izteiksme: {reason}"
 # navigator/lib/file_ops/filereplace.py:271
 "File {name}\nchanged while it was asked about; it is left as it is" = "Fails {name}\nmainījās, kamēr par to jautāja; tas atstāts, kāds bija"
 # navigator/lib/file_ops/filereplace.py:334
 "Invalid replacement: {reason}" = "Nederīgs aizstājējs: {reason}"
+# navigator/lib/file_ops/fsflags.py:101
+"The file changed while it was opened" = "Fails mainījās, kamēr tika atvērts"
 # navigator/lib/file_ops/multirename.py:253
 "A [ is never closed" = "[ nav aizvērta"
 # navigator/lib/file_ops/multirename.py:212, navigator/lib/file_ops/multirename.py:257, navigator/lib/file_ops/multirename.py:259 ...
@@ -2943,6 +3037,10 @@ flag = "LV"
 "The parts of {name} do not add up to the size {crc} says" = "{name} daļu kopējais izmērs neatbilst {crc} norādītajam"
 # navigator/lib/file_ops/splitfile.py:277
 "{name} ended before its size said" = "{name} beidzās agrāk, nekā teica tā izmērs"
+# navigator/lib/file_ops/trash.py:182
+"No trash on this file system" = "Šajā failu sistēmā nav miskastes"
+# navigator/lib/file_ops/trash.py:279
+"Where it came from is not known" = "Nav zināms, no kurienes tas nāca"
 # navigator/lib/file_ops/undo.py:65
 "Give {n} file its old name back?" = ["Atdot {n} failam veco nosaukumu?", "Atdot {n} failiem vecos nosaukumus?", "Atdot {n} failiem vecos nosaukumus?"]
 # navigator/lib/file_ops/undo.py:69
@@ -3023,6 +3121,8 @@ flag = "LV"
 "plain" = "teksts"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "auto"
+# navigator/lib/system/desktop.py:160
+"xdg-open failed ({code})" = "xdg-open neizdevās ({code})"
 # navigator/lib/system/diskinfo.py:221
 "File" = "Fails"
 # navigator/lib/system/diskinfo.py:212
@@ -3087,6 +3187,44 @@ flag = "LV"
 "~{n:,}~K bytes total memory" = "~{n:,}~K baitu kopējā atmiņa"
 # navigator/lib/system/diskinfo.py:340
 "Volume label on ~{mount}: {label}~" = "Sējuma nosaukums ~{mount}: {label}~"
+# navigator/lib/system/elevate.py:65
+"Not an absolute path" = "Tas nav absolūts ceļš"
+# navigator/lib/system/elevate.py:66, navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
+"Navigator does not signal that process" = "Navigator šim procesam signālus nesūta"
+# navigator/lib/system/elevate.py:67, navigator/lib/system/services/openrc.py:157, navigator/lib/system/services/runit.py:223 ...
+"Not something Navigator does to a service" = "Navigator to nedara ar servisiem"
+# navigator/lib/system/elevate.py:68
+"That manager's states are everyone's to read" = "Šī pārvaldnieka stāvokļus var lasīt visi"
+# navigator/lib/system/elevate.py:69
+"Not a console's nonce" = "Tā nav konsoles vienreizējā atslēga"
+# navigator/lib/system/elevate.py:70
+"Not a service manager Navigator knows" = "Navigator nepazīst šādu servisu pārvaldnieku"
+# navigator/lib/system/elevate.py:71, navigator/lib/system/services/openrc.py:190, navigator/lib/system/services/openrc.py:249 ...
+"Not a service's name" = "Tas nav servisa nosaukums"
+# navigator/lib/system/elevate.py:73
+"Not a file of the user's to write the journal into" = "Tas nav lietotāja fails, kurā rakstīt žurnālu"
+# navigator/lib/system/elevate.py:74
+"Not following a symbolic link another user owns" = "Cita lietotāja simboliskajai saitei netiek sekots"
+# navigator/lib/system/elevate.py:325
+"The root helper handed no descriptor back" = "Root palīgs neatdeva deskriptoru"
+# navigator/lib/system/elevate.py:287, navigator/lib/system/elevate.py:307
+"Root access is not open" = "Root piekļuve nav atvērta"
+# navigator/lib/system/elevate.py:293, navigator/lib/system/elevate.py:319
+"The root helper ended: {error}" = "Root palīgs beidza darbu: {error}"
+# navigator/lib/system/gio.py:54
+"The gio command (GLib) is not installed" = "Komanda gio (GLib) nav instalēta"
+# navigator/lib/system/gio.py:180
+"No desktop file for {id}" = "Nav desktop faila priekš {id}"
+# navigator/lib/system/gio.py:100
+"gio {args} did not answer" = "gio {args} neatbildēja"
+# navigator/lib/system/gio.py:316
+"{name} cannot be mounted" = "{name} nevar montēt"
+# navigator/lib/system/gio.py:418
+"Mounting {uri} did not finish" = "{uri} montēšana netika pabeigta"
+# navigator/lib/system/kio.py:55
+"kio-fuse is not running, or dbus-send is not installed" = "kio-fuse nedarbojas vai dbus-send nav instalēts"
+# navigator/lib/system/kio.py:358
+"Solid knows nothing mounted at {where}" = "Solid nezina neko montētu vietā {where}"
 # navigator/lib/system/mediainfo.py:326
 "mono" = "mono"
 # navigator/lib/system/mediainfo.py:328
@@ -3151,8 +3289,6 @@ flag = "LV"
 "Open files" = "Atvērtie faili"
 # navigator/lib/system/processes.py:415
 "Environment" = "Vide"
-# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
-"Navigator does not signal that process" = "Navigator šim procesam signālus nesūta"
 # navigator/lib/system/programinfo.py:420
 "unknown type" = "nezināms tips"
 # navigator/lib/system/programinfo.py:435
@@ -3185,75 +3321,85 @@ flag = "LV"
 "none" = "nav"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "Šeit nedarbojas neviens Navigator zināms pakalpojumu pārvaldnieks: systemd, OpenRC, runit vai SysVinit"
-# navigator/lib/system/services/common.py:208
+# navigator/lib/system/services/common.py:209
 "{manager} keeps no log for {unit}, and there is no system log file" = "{manager} nevada žurnālu vienībai {unit}, un sistēmas žurnāla faila nav"
-# navigator/lib/system/services/openrc.py:260
+# navigator/lib/system/services/common.py:81
+"{name} did not answer in time" = "{name} neatbildēja laikā"
+# navigator/lib/system/services/openrc.py:261
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:85
+# navigator/lib/system/services/openrc.py:86
 "There is no rc-service: install OpenRC" = "Nav rc-service: uzstādiet OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:88
 "OpenRC is not the system's service manager" = "OpenRC nav sistēmas pakalpojumu pārvaldnieks"
-# navigator/lib/system/services/openrc.py:192, navigator/lib/system/services/runit.py:261, navigator/lib/system/services/sysvinit.py:333 ...
+# navigator/lib/system/services/openrc.py:193, navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:334 ...
 "Status: {state}" = "Stāvoklis: {state}"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:195
 "Runlevels: {levels}" = "Izpildlīmeņi: {levels}"
-# navigator/lib/system/services/openrc.py:194, navigator/lib/system/services/sysvinit.py:342
+# navigator/lib/system/services/openrc.py:195, navigator/lib/system/services/sysvinit.py:343
 "Script: {path}" = "Skripts: {path}"
-# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
-"Settings for {unit}, read by {path} each time it starts." = "{unit} iestatījumi, ko {path} nolasa katrā palaišanā."
 # navigator/lib/system/services/openrc.py:236, navigator/lib/system/services/runit.py:314
+"Settings for {unit}, read by {path} each time it starts." = "{unit} iestatījumi, ko {path} nolasa katrā palaišanā."
+# navigator/lib/system/services/openrc.py:237, navigator/lib/system/services/runit.py:315
 "A setting made here wins over the script's own; restart {unit} for it to count." = "Šeit iestatītais ir svarīgāks par paša skripta iestatījumiem; pārstartējiet {unit}, lai tas stātos spēkā."
-# navigator/lib/system/services/openrc.py:240
+# navigator/lib/system/services/openrc.py:241
 "The settings {path} makes:" = "Iestatījumi, ko nosaka {path}:"
-# navigator/lib/system/services/runit.py:345
+# navigator/lib/system/services/runit.py:346
 "runit" = "runit"
-# navigator/lib/system/services/runit.py:92
+# navigator/lib/system/services/runit.py:93
 "There is no sv: install runit" = "Nav sv: uzstādiet runit"
-# navigator/lib/system/services/runit.py:94
+# navigator/lib/system/services/runit.py:95
 "runit is not the system's service manager" = "runit nav sistēmas pakalpojumu pārvaldnieks"
-# navigator/lib/system/services/runit.py:96, navigator/lib/system/services/runit.py:225
+# navigator/lib/system/services/runit.py:97, navigator/lib/system/services/runit.py:226
 "runit has no service directory here" = "runit šeit nav pakalpojumu mapes"
-# navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:338
+# navigator/lib/system/services/runit.py:180
+"sv: access denied" = "sv: piekļuve liegta"
+# navigator/lib/system/services/runit.py:263, navigator/lib/system/services/sysvinit.py:339
 "Start-up: {state}" = "Palaišana: {state}"
-# navigator/lib/system/services/runit.py:243
+# navigator/lib/system/services/runit.py:244
 "{unit} is not enabled: enable it first" = "{unit} nav iespējots: vispirms iespējojiet to"
-# navigator/lib/system/services/runit.py:264
+# navigator/lib/system/services/runit.py:265
 "Defined in {path}" = "Definēts mapē {path}"
-# navigator/lib/system/services/runit.py:318, navigator/lib/system/services/systemd.py:240
+# navigator/lib/system/services/runit.py:319, navigator/lib/system/services/systemd.py:241
 "{path} as it is:" = "{path}, kāds tas ir:"
-# navigator/lib/system/services/runit.py:329
+# navigator/lib/system/services/runit.py:330
 "{unit} has no service directory" = "{unit} nav pakalpojuma mapes"
-# navigator/lib/system/services/runit.py:337
+# navigator/lib/system/services/runit.py:338
 "{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "{unit} nelasa iestatījumu failu, tāpēc tiek rediģēts tā run skripts: pakotnes atjauninājums to var aizstāt."
-# navigator/lib/system/services/runit.py:230
+# navigator/lib/system/services/runit.py:231
 "{unit} is not defined in {path}" = "{unit} nav definēts mapē {path}"
-# navigator/lib/system/services/runit.py:239
+# navigator/lib/system/services/runit.py:240
 "{path} is not a link Navigator removes" = "{path} nav saite, ko Navigator noņem"
-# navigator/lib/system/services/runit.py:267
+# navigator/lib/system/services/runit.py:268
 "Logs to {path}" = "Žurnāls mapē {path}"
-# navigator/lib/system/services/systemd.py:285
+# navigator/lib/system/services/systemd.py:286
 "systemd" = "systemd"
-# navigator/lib/system/services/systemd.py:64
+# navigator/lib/system/services/systemd.py:65
 "There is no systemctl: install systemd" = "Nav systemctl: uzstādiet systemd"
-# navigator/lib/system/services/systemd.py:66
+# navigator/lib/system/services/systemd.py:67
 "systemd is not the system's service manager" = "systemd nav sistēmas pakalpojumu pārvaldnieks"
-# navigator/lib/system/services/systemd.py:237
+# navigator/lib/system/services/systemd.py:159
+"Not something Navigator does to a unit" = "Navigator to nedara ar vienībām"
+# navigator/lib/system/services/systemd.py:168, navigator/lib/system/services/systemd.py:205
+"Not a unit's name" = "Tas nav vienības nosaukums"
+# navigator/lib/system/services/systemd.py:238
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "Saraksta iestatījumu, piemēram, ExecStart=, vispirms iztukšo ar atsevišķu rindu ExecStart= bez vērtības."
-# navigator/lib/system/services/systemd.py:206
+# navigator/lib/system/services/systemd.py:207
 "{unit} is masked: unmask it first" = "{unit} ir maskēta: vispirms noņemiet masku"
-# navigator/lib/system/services/systemd.py:212
+# navigator/lib/system/services/systemd.py:213
 "{unit} has no unit file to edit" = "{unit} nav vienības faila, ko rediģēt"
-# navigator/lib/system/services/systemd.py:236
+# navigator/lib/system/services/systemd.py:237
 "Override for {unit}: what is set here wins over {path}." = "Papildinājums vienībai {unit}: šeit iestatītais ir svarīgāks par {path}."
-# navigator/lib/system/services/sysvinit.py:388
+# navigator/lib/system/services/sysvinit.py:389
 "SysVinit" = "SysVinit"
-# navigator/lib/system/services/sysvinit.py:113
+# navigator/lib/system/services/sysvinit.py:114
 "There is no /etc/init.d" = "Nav /etc/init.d"
-# navigator/lib/system/services/sysvinit.py:115
+# navigator/lib/system/services/sysvinit.py:116
 "SysVinit is not the system's service manager" = "SysVinit nav sistēmas pakalpojumu pārvaldnieks"
-# navigator/lib/system/services/sysvinit.py:337
+# navigator/lib/system/services/sysvinit.py:327, navigator/lib/system/services/sysvinit.py:373
+"Not a service's script" = "Tas nav servisa skripts"
+# navigator/lib/system/services/sysvinit.py:338
 "{path} has no status action" = "{path} nav darbības status"
-# navigator/lib/system/services/sysvinit.py:379
+# navigator/lib/system/services/sysvinit.py:380
 "{unit} reads no settings file, so its script is edited: an update of its package may replace it or ask about it." = "{unit} nelasa iestatījumu failu, tāpēc tiek rediģēts tā skripts: pakotnes atjauninājums to var aizstāt vai par to jautāt."
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "Datora tips"
@@ -3275,10 +3421,30 @@ flag = "LV"
 "Up" = "Darbojas"
 # navigator/lib/system/sysinfo.py:161
 "None" = "Nav"
+# navigator/lib/system/tempdir.py:42
+"not a directory of this user's alone" = "tā nav tikai šī lietotāja direktorija"
+# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
+"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) nav instalēts"
+# navigator/lib/system/udisks.py:55
+"busctl (systemd) is not installed, which ejecting a disc needs" = "busctl (systemd) nav instalēts, bet tas vajadzīgs diska izgrūšanai"
+# navigator/lib/system/udisks.py:320
+"udisks knows nothing at {where}" = "udisks nezina neko vietā {where}"
+# navigator/lib/system/udisks.py:356
+"{name} is on no drive that can be ejected" = "{name} neatrodas diskā, ko var izgrūst"
+# navigator/lib/system/udisks.py:569
+"{name} has no file system udisks can mount" = "{name} nav failu sistēmas, ko udisks var montēt"
+# navigator/lib/system/udisks.py:417
+"udisksctl set no loop device up for {path}" = "udisksctl neizveidoja loop ierīci priekš {path}"
+# navigator/lib/system/udisks.py:565
+"udisks does not know {device}" = "udisks nepazīst {device}"
 # navigator/lib/utilities/about.py:116
 "Version {version}" = "Versija {version}"
 # navigator/lib/utilities/about.py:118
 "License: {license}" = "Licence: {license}"
+# navigator/lib/viewer/__init__.py:883
+"The file is closed" = "Fails ir aizvērts"
+# navigator/lib/viewer/dbf.py:163, navigator/widgets/viewer/db_window/db_window.py:458
+"Could not find MEMO file" = "Neizdevās atrast MEMO failu"
 # navigator/lib/viewer/image.py:52
 "Pictures other than PNG need Pillow: pip install {extra}" = "Attēliem, kas nav PNG, vajag Pillow: pip install {extra}"
 # navigator/lib/viewer/pdf.py:70
@@ -3777,6 +3943,8 @@ flag = "LV"
 "~L~ower case" = "~M~azie burti"
 # navigator/widgets/editor/file_editor/file_editor.py:3102
 "Sa~v~e" = "~S~aglabāt"
+# navigator/widgets/editor/file_editor/file_editor.py:829
+"no file name" = "nav faila nosaukuma"
 # navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "Nav ko atsaukt"
 # navigator/widgets/editor/file_editor/file_editor.py:2869
@@ -4261,8 +4429,6 @@ flag = "LV"
 "Convert text" = "Teksta pārveidošana"
 # navigator/widgets/manager/manager/manager.py:1258
 "wrong passphrase" = "nepareiza paroles frāze"
-# navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "nav age identitātes faila: iestatiet age_identities navigator.ini sadaļā [encryption]"
 # navigator/widgets/manager/manager/manager.py:1260
 "no secret key for it" = "tam nav slepenās atslēgas"
 # navigator/widgets/manager/manager/manager.py:1623
@@ -4299,8 +4465,6 @@ flag = "LV"
 "{n} link was left as it was:" = ["{n} saite atstāta, kā bija:", "{n} saites atstātas, kā bija:", "{n} saišu atstātas, kā bija:"]
 # navigator/widgets/manager/manager/manager.py:5184
 "~I~nternal editor" = "~I~ekšējais redaktors"
-# navigator/widgets/manager/manager/manager.py:5261, navigator/widgets/manager/manager/manager.py:5295
-"Is a directory" = "Tā ir direktorija"
 # navigator/widgets/manager/manager/manager.py:5678
 "Drag to resize the panels" = "Velciet, lai mainītu paneļu izmēru"
 # navigator/widgets/manager/manager/manager.py:5684
@@ -4377,8 +4541,6 @@ flag = "LV"
 "Not from inside an archive" = "Ne no arhīva iekšpuses"
 # navigator/widgets/manager/manager/manager.py:3388
 "No disk image at the cursor" = "Zem kursora nav diska attēla"
-# navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
-"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) nav instalēts"
 # navigator/widgets/manager/manager/manager.py:3391
 "Not in a mounted disk image" = "Nav montētā diska attēlā"
 # navigator/widgets/manager/manager/manager.py:3396
@@ -5211,8 +5373,6 @@ flag = "LV"
 "{name} (default)" = "{name} (noklusētā)"
 # navigator/widgets/shell/shell/shell.py:3074
 "Remote drive {name} is not accessible: {reason}" = "Attālais disks {name} nav pieejams: {reason}"
-# navigator/widgets/shell/shell/shell.py:3077
-"Remote drive {name} is not accessible" = "Attālais disks {name} nav pieejams"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "Saglabāt krāsu paleti"
 # navigator/widgets/shell/shell/shell.py:400
@@ -5459,8 +5619,6 @@ flag = "LV"
 "~V~alue" = "~V~ērtība"
 # navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "{name} struktūra"
-# navigator/widgets/viewer/db_window/db_window.py:458
-"Could not find MEMO file" = "Neizdevās atrast MEMO failu"
 # navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "Meklē"
 # navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428

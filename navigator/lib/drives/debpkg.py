@@ -18,6 +18,7 @@ import tarfile
 from pathlib import Path
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.arctool import ToolInfo
 from navigator.lib.drives.members import ListedArchive, compression_of_bytes, decompress_to, window
 
@@ -172,7 +173,7 @@ class DebArchive(ListedArchive):
         tar, member = info.ref
         handle = tar.extractfile(member)
         if handle is None:
-            raise IsADirectoryError(errno.EISDIR, "Is a directory", info.path)
+            raise IsADirectoryError(errno.EISDIR, tr("Is a directory"), info.path)
         return handle  # type: ignore[return-value]
 
     def details(self) -> list[tuple[str, str]]:

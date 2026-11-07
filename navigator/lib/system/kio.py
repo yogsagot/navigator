@@ -36,6 +36,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
+from navkit.i18n import tr, tr_noop
 from navigator.lib.system.desktop_entry import (
     App, application_dirs, desktop_file, desktop_name, launch_detached, set_default_in_mimeapps,
 )
@@ -51,7 +52,7 @@ NO_KIO = "KDE's kioclient (KIO) is not installed"
 #: What says Solid's command is missing, which volumes need.
 NO_SOLID = "KDE's solid-hardware (Solid) is not installed"
 #: What says kio-fuse cannot be asked, which KIO links need.
-NO_KIO_FUSE = "kio-fuse is not running, or dbus-send is not installed"
+NO_KIO_FUSE = tr_noop("kio-fuse is not running, or dbus-send is not installed")
 
 #: Each command, KDE Frameworks 6's name first, then 5's.
 COMMANDS: dict[str, tuple[str, ...]] = {
@@ -116,9 +117,9 @@ def run(argv: list[str], timeout: float = TIMEOUT) -> str:
     try:
         result = subprocess.run(argv, capture_output=True, stdin=subprocess.DEVNULL, timeout=timeout)
     except subprocess.TimeoutExpired:
-        raise OSError(errno.ETIMEDOUT, f"{name} did not answer") from None
+        raise OSError(errno.ETIMEDOUT, tr("{name} did not answer").format(name=name)) from None
     except FileNotFoundError:
-        raise OSError(errno.ENOENT, f"{name} is not installed") from None
+        raise OSError(errno.ENOENT, tr("{name} is not installed").format(name=name)) from None
     out = result.stdout.decode("utf-8", "replace")
     if result.returncode != 0:
         err = result.stderr.decode("utf-8", "replace")
@@ -354,7 +355,7 @@ def _udi(where: str) -> str:
     for each in volumes():
         if each.local == where:
             return each.udi
-    raise OSError(errno.ENOENT, f"Solid knows nothing mounted at {where}")
+    raise OSError(errno.ENOENT, tr("Solid knows nothing mounted at {where}").format(where=where))
 
 
 def mount_device(volume: KioVolume) -> None:
@@ -409,7 +410,7 @@ def _vfs(method: str, argument: str, timeout: float) -> str:
     """kio-fuse's ``org.kde.KIOFuse.VFS.<method>(argument)``, its string answer."""
     send = _which("dbus-send")
     if send is None:
-        raise OSError(errno.ENOENT, NO_KIO_FUSE)
+        raise OSError(errno.ENOENT, tr(NO_KIO_FUSE))
     out = run([send, "--session", "--print-reply", f"--reply-timeout={int(timeout * 1000)}",
                "--dest=org.kde.KIOFuse", "/org/kde/KIOFuse", f"org.kde.KIOFuse.VFS.{method}",
                f"string:{argument}"], timeout=timeout + 5)
@@ -420,7 +421,7 @@ def parse_reply(text: str) -> str:
     """The string in a ``dbus-send --print-reply`` answer."""
     match = re.search(r'^\s*string "(.*)"\s*$', text, re.MULTILINE)
     if match is None:
-        raise OSError(errno.EIO, NO_KIO_FUSE)
+        raise OSError(errno.EIO, tr(NO_KIO_FUSE))
     return match.group(1).replace('\\"', '"')
 
 

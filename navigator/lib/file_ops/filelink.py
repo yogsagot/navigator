@@ -28,6 +28,7 @@ import posixpath
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
+from navkit.i18n import tr
 
 
 @dataclass
@@ -82,7 +83,7 @@ def make_link(source: Path, dest: Path, relative: bool, as_root: bool = False, h
         # On another drive: there, by its drive, and only to its own files --
         # a link holds a path, which means nothing on any other.
         if (source_place.site, source_place.outer) != (dest_place.site, dest_place.outer):
-            raise OSError(errno.EXDEV, "A link cannot point to another drive", str(dest))
+            raise OSError(errno.EXDEV, tr("A link cannot point to another drive"), str(dest))
         drive = drive_of(dest_place)
         if drive.lexists(dest_place):
             raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(dest))
@@ -106,23 +107,23 @@ def make_hard_link(source: Any, dest: Any, as_root: bool = False) -> None:
     from navigator.lib.drives import drive_of
 
     if (source.site, source.outer) != (dest.site, dest.outer):
-        raise OSError(errno.EXDEV, "A hard link cannot cross file systems", str(dest))
+        raise OSError(errno.EXDEV, tr("A hard link cannot cross file systems"), str(dest))
     drive = drive_of(dest)
     if as_root and dest.is_local:
         from navigator.lib.drives.root import ROOT_DRIVE
 
         drive = ROOT_DRIVE
     elif not drive.can("hardlink"):
-        raise OSError(errno.EOPNOTSUPP, "This drive cannot hold hard links", str(dest))
+        raise OSError(errno.EOPNOTSUPP, tr("This drive cannot hold hard links"), str(dest))
     if stat_module.S_ISDIR(drive.lstat(source).st_mode):
-        raise OSError(errno.EISDIR, "A directory cannot be hard-linked", str(source))
+        raise OSError(errno.EISDIR, tr("A directory cannot be hard-linked"), str(source))
     if drive.lexists(dest):
         raise FileExistsError(errno.EEXIST, os.strerror(errno.EEXIST), str(dest))
     try:
         drive.link(source, dest)
     except OSError as error:
         if error.errno == errno.EXDEV:
-            raise OSError(errno.EXDEV, "A hard link cannot cross file systems", str(dest)) from error
+            raise OSError(errno.EXDEV, tr("A hard link cannot cross file systems"), str(dest)) from error
         raise
     drive.finish()
 
@@ -211,7 +212,7 @@ def retarget(drive: Any, link: Any, target: str) -> None:
 
     link = Location.of(link)
     if not drive.is_link(link):
-        raise OSError(errno.EINVAL, "Not a symbolic link", str(link))
+        raise OSError(errno.EINVAL, tr("Not a symbolic link"), str(link))
     number = 0
     while drive.lexists(temporary := link.parent / f"{TEMPORARY}{number}"):
         number += 1

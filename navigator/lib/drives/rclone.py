@@ -67,6 +67,7 @@ from pathlib import PurePosixPath
 from typing import IO, Any
 from urllib.parse import quote
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import (
     FREE_SPACE,
     RENAME,
@@ -209,17 +210,16 @@ def list_remotes(password: str | None = None) -> list[Remote]:
     ``OSError`` with rclone's words."""
     found = program()
     if found is None:
-        raise OSError(errno.ENOENT, "rclone: command not found")
+        raise OSError(errno.ENOENT, tr("rclone: command not found"))
     try:
         done = subprocess.run([found, "listremotes", "--long", "--ask-password=false"], capture_output=True,
                               stdin=subprocess.DEVNULL, timeout=30, env=config_env(password))
     except subprocess.TimeoutExpired as error:
-        raise OSError(errno.ETIMEDOUT, "rclone listremotes did not answer") from error
+        raise OSError(errno.ETIMEDOUT, tr("rclone listremotes did not answer")) from error
     if done.returncode != 0:
         text = done.stderr.decode("utf-8", "replace")
         if wants_password(text):
-            raise PermissionError(errno.EACCES, "rclone's configuration is encrypted: connect to a remote "
-                                                "to give its password")
+            raise PermissionError(errno.EACCES, tr("rclone's configuration is encrypted: connect to a remote to give its password"))
         raise os_error(text or f"rclone listremotes exited {done.returncode}")
     return parse_listremotes(done.stdout.decode("utf-8", "replace"))
 
@@ -372,7 +372,7 @@ class Daemon:
             self.process = subprocess.Popen(self.argv(), stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
                                             stderr=subprocess.PIPE, env=env, start_new_session=True)
         except FileNotFoundError as error:
-            raise OSError(errno.ENOENT, "rclone: command not found") from error
+            raise OSError(errno.ENOENT, tr("rclone: command not found")) from error
         # Its standard error is read throughout, so a chatty daemon never blocks
         # on it: the start's lines kept (the port, or why it ended), the rest dropped.
         log = _Log()
@@ -394,7 +394,7 @@ class Daemon:
                     pass
             if time.monotonic() > deadline:
                 self.stop()
-                raise OSError(errno.ETIMEDOUT, "rclone rcd did not start")
+                raise OSError(errno.ETIMEDOUT, tr("rclone rcd did not start"))
             time.sleep(0.05)
         log.done()
 
@@ -419,7 +419,7 @@ class Daemon:
                 data = response.read()
             except (ConnectionError, FileNotFoundError, socket.timeout, http.client.HTTPException, OSError) as error:
                 if isinstance(error, socket.timeout) and self.alive:
-                    raise OSError(errno.ETIMEDOUT, f"rclone did not answer {method}") from error
+                    raise OSError(errno.ETIMEDOUT, tr("rclone did not answer {method}").format(method=method)) from error
                 raise _Unreachable(str(error)) from error
         finally:
             connection.close()
@@ -811,7 +811,7 @@ class _Body(io.RawIOBase):
         try:
             return self._response.readinto(buffer)
         except (http.client.IncompleteRead, ConnectionError) as error:
-            raise OSError(errno.EIO, f"rclone stopped sending: {error}") from error
+            raise OSError(errno.EIO, tr("rclone stopped sending: {error}").format(error=error)) from error
 
     def close(self) -> None:
         if not self.closed:
@@ -945,7 +945,7 @@ def connect(site: Site, answers: Answers) -> RcloneDrive:
     from navigator.lib.drives import credentials
 
     if not site.host:
-        raise DriveGone("rclone", "Name a remote: rclone://REMOTE/path")
+        raise DriveGone("rclone", tr("Name a remote: rclone://REMOTE/path"))
     keyring_site = Site("rclone")
     if answers.password is None and not answers.tried_keyring:
         answers.tried_keyring = True
@@ -971,7 +971,7 @@ def connect(site: Site, answers: Answers) -> RcloneDrive:
                 raise NeedPassword(site, "rclone", "rclone's configuration",
                                    wrong=answers.password is not None) from error
             if "find section in config" in words:
-                raise DriveGone(site.host, f"rclone has no remote called {site.host}") from error
+                raise DriveGone(site.host, tr("rclone has no remote called {host}").format(host=site.host)) from error
             raise
         try:
             drive.kind = str(drive.call("config/get", name=site.host).get("type") or "")

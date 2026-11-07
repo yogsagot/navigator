@@ -2866,12 +2866,94 @@ direction = "rtl"
 "Its output becomes the active panel's listing" = "הפלט שלו הופך לרשימה של הפאנל הפעיל"
 # navigator/lib/config/usermenu.py:405
 "Runs in a window of its own" = "רץ בחלון משלו"
+# navigator/lib/drives/adb.py:148, navigator/lib/drives/adb.py:205
+"adb: command not found" = "adb: הפקודה לא נמצאה"
+# navigator/lib/drives/adb.py:150, navigator/lib/drives/adb.py:207
+"adb did not answer" = "adb לא ענה"
+# navigator/lib/drives/adb.py:209
+"adb devices failed" = "adb devices נכשל"
+# navigator/lib/drives/adb.py:153
+"Device {name} is not attached" = "ההתקן {name} אינו מחובר"
+# navigator/lib/drives/arctool.py:450
+"rar archives are written by rar: install rar" = "ארכיוני rar נכתבים על ידי rar: התקינו rar"
+# navigator/lib/drives/arctool.py:453
+"a rar archive cannot be empty" = "ארכיון rar אינו יכול להיות ריק"
+# navigator/lib/drives/arctool.py:411
+"{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "ארכיוני {kind} דורשים 7-Zip: התקינו 7zip (7zz) או p7zip (7z)"
+# navigator/lib/drives/arctool.py:467
+"rar exited with {returncode}" = "rar הסתיים בקוד {returncode}"
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3077
+"Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
+# navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
+"Is a directory" = "זוהי תיקייה"
+# navigator/lib/drives/docker.py:134
+"Name a container: docker://NAME/path" = "ציינו מכל: docker://NAME/path"
+# navigator/lib/drives/docker.py:118, navigator/lib/drives/docker.py:112
+"No such container: {name}" = "אין מכל כזה: {name}"
+# navigator/lib/drives/docker.py:138
+"Container {host} is not running" = "המכל {host} אינו פועל"
+# navigator/lib/drives/docker.py:107, navigator/lib/drives/docker.py:206, navigator/lib/drives/execdrive.py:413 ...
+"{name}: command not found" = "{name}: הפקודה לא נמצאה"
+# navigator/lib/drives/docker.py:109, navigator/lib/drives/docker.py:208, navigator/lib/system/kio.py:120 ...
+"{name} did not answer" = "{name} לא ענה"
+# navigator/lib/drives/docker.py:116
+"{engine} inspect said nothing readable" = "{engine} inspect לא החזיר דבר קריא"
+# navigator/lib/drives/docker.py:210
+"{engine} ps failed" = "{engine} ps נכשל"
+# navigator/lib/drives/forwards.py:193
+"the SOCKS client went away" = "לקוח ה־SOCKS התנתק"
+# navigator/lib/drives/ftp.py:188, navigator/lib/drives/ftp.py:192, navigator/lib/drives/sftp.py:222 ...
+"Cannot connect to {host}: {reason}" = "לא ניתן להתחבר אל {host}: {reason}"
+# navigator/lib/drives/gvfs.py:46
+"Not on this GVfs mount" = "לא בעיגון GVfs זה"
+# navigator/lib/drives/gvfs.py:48
+"GVfs's FUSE bridge (gvfsd-fuse) is not running" = "גשר ה־FUSE של GVfs (gvfsd-fuse) אינו פועל"
 # navigator/lib/drives/listing.py:112, navigator/lib/drives/listing.py:227
 "UP--DIR" = "למעלה"
 # navigator/lib/drives/listing.py:112, navigator/widgets/manager/sync_list/sync_list.py:314
 "DIR" = "תיקייה"
 # navigator/lib/drives/listing.py:227
 "SUB-DIR" = "תת-תיק"
+# navigator/lib/drives/members.py:72
+"The archive ends before this member does" = "הארכיון מסתיים לפני שהפריט הזה מסתיים"
+# navigator/lib/drives/rclone.py:213, navigator/lib/drives/rclone.py:375
+"rclone: command not found" = "rclone: הפקודה לא נמצאה"
+# navigator/lib/drives/rclone.py:948
+"Name a remote: rclone://REMOTE/path" = "ציינו מרוחק: rclone://REMOTE/path"
+# navigator/lib/drives/rclone.py:218
+"rclone listremotes did not answer" = "rclone listremotes לא ענה"
+# navigator/lib/drives/rclone.py:222
+"rclone's configuration is encrypted: connect to a remote to give its password" = "התצורה של rclone מוצפנת: התחברו למרוחק כדי לתת את הסיסמה שלה"
+# navigator/lib/drives/rclone.py:397
+"rclone rcd did not start" = "rclone rcd לא עלה"
+# navigator/lib/drives/rclone.py:814
+"rclone stopped sending: {error}" = "rclone הפסיק לשלוח: {error}"
+# navigator/lib/drives/rclone.py:974
+"rclone has no remote called {host}" = "ל־rclone אין מרוחק בשם {host}"
+# navigator/lib/drives/rclone.py:422
+"rclone did not answer {method}" = "rclone לא ענה ל־{method}"
+# navigator/lib/drives/s3.py:621
+"No AWS credentials: give an access key as the login, or set them up in ~/.aws" = "אין פרטי גישה של AWS: תנו מפתח גישה כשם המשתמש, או הגדירו אותם ב־~/.aws"
+# navigator/lib/drives/s3.py:221
+"Cannot reach {host}: {reason}" = "לא ניתן להגיע אל {host}: {reason}"
+# navigator/lib/drives/s3.py:628
+"{host} refused the AWS credentials: {strerror}" = "{host} דחה את פרטי הגישה של AWS: {strerror}"
+# navigator/lib/drives/sessions.py:220
+"No drive speaks {scheme}://" = "אין כונן שמדבר {scheme}://"
+# navigator/lib/drives/sftp.py:243
+"Cannot reach {host} through {via}: {reason}" = "לא ניתן להגיע אל {host} דרך {via}: {reason}"
+# navigator/lib/drives/squashfs.py:135, navigator/lib/drives/squashfs.py:163
+"unsquashfs exited with {returncode}" = "unsquashfs הסתיים בקוד {returncode}"
+# navigator/lib/drives/zstd.py:24
+"tar.zst archives need zstd: install zstd" = "ארכיוני tar.zst דורשים zstd: התקינו zstd"
+# navigator/lib/editor/document.py:355, navigator/lib/system/elevate.py:72, navigator/lib/viewer/__init__.py:353 ...
+"Not a regular file" = "זה אינו קובץ רגיל"
+# navigator/lib/editor/lock.py:101
+"locked by another program" = "נעול על ידי תוכנה אחרת"
+# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1259
+"no age identity file: set age_identities in navigator.ini's [encryption]" = "אין קובץ זהות של age: הגדר age_identities בסעיף [encryption] של navigator.ini"
+# navigator/lib/file_ops/encrypt.py:632, navigator/lib/file_ops/encrypt.py:659, navigator/lib/system/kio.py:122 ...
+"{name} is not installed" = "{name} אינו מותקן"
 # navigator/lib/file_ops/fileattr.py:401
 "There is no user {name}" = "אין משתמש {name}"
 # navigator/lib/file_ops/fileattr.py:406
@@ -2906,12 +2988,24 @@ direction = "rtl"
 "Can not append to {name}: it is a link" = "לא ניתן להוסיף ל-{name}: זהו קישור"
 # navigator/lib/file_ops/filecopy.py:845
 "Can not overwrite directory {name}" = "לא ניתן לשכתב את התיקייה {name}"
+# navigator/lib/file_ops/filelink.py:110, navigator/lib/file_ops/filelink.py:126
+"A hard link cannot cross file systems" = "קישור קשיח אינו יכול לחצות מערכות קבצים"
+# navigator/lib/file_ops/filelink.py:119
+"A directory cannot be hard-linked" = "לא ניתן ליצור קישור קשיח לתיקייה"
+# navigator/lib/file_ops/filelink.py:215
+"Not a symbolic link" = "זה אינו קישור סמלי"
+# navigator/lib/file_ops/filelink.py:86
+"A link cannot point to another drive" = "קישור אינו יכול להצביע לכונן אחר"
+# navigator/lib/file_ops/filelink.py:117
+"This drive cannot hold hard links" = "כונן זה אינו יכול להכיל קישורים קשיחים"
 # navigator/lib/file_ops/filereplace.py:329
 "Invalid regular expression: {reason}" = "ביטוי רגולרי לא תקין: {reason}"
 # navigator/lib/file_ops/filereplace.py:271
 "File {name}\nchanged while it was asked about; it is left as it is" = "הקובץ {name}\nהשתנה בזמן השאלה עליו; הוא נשאר כפי שהיה"
 # navigator/lib/file_ops/filereplace.py:334
 "Invalid replacement: {reason}" = "החלפה לא תקינה: {reason}"
+# navigator/lib/file_ops/fsflags.py:101
+"The file changed while it was opened" = "הקובץ השתנה בזמן שנפתח"
 # navigator/lib/file_ops/multirename.py:253
 "A [ is never closed" = "סוגר [ שאינו נסגר"
 # navigator/lib/file_ops/multirename.py:212, navigator/lib/file_ops/multirename.py:257, navigator/lib/file_ops/multirename.py:259 ...
@@ -2944,6 +3038,10 @@ direction = "rtl"
 "The parts of {name} do not add up to the size {crc} says" = "סכום החלקים של {name} אינו שווה לגודל שמציין {crc}"
 # navigator/lib/file_ops/splitfile.py:277
 "{name} ended before its size said" = "{name} הסתיים לפני הגודל שצוין"
+# navigator/lib/file_ops/trash.py:182
+"No trash on this file system" = "אין אשפה במערכת קבצים זו"
+# navigator/lib/file_ops/trash.py:279
+"Where it came from is not known" = "לא ידוע מהיכן הוא הגיע"
 # navigator/lib/file_ops/undo.py:65
 "Give {n} file its old name back?" = ["להחזיר לקובץ את שמו הקודם?", "להחזיר לשני קבצים את שמותיהם הקודמים?", "להחזיר ל-{n} קבצים את שמותיהם הקודמים?"]
 # navigator/lib/file_ops/undo.py:69
@@ -3024,6 +3122,8 @@ direction = "rtl"
 "plain" = "רגיל"
 # navigator/lib/highlight/__init__.py:275, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:477
 "auto" = "אוטומטי"
+# navigator/lib/system/desktop.py:160
+"xdg-open failed ({code})" = "xdg-open נכשל ({code})"
 # navigator/lib/system/diskinfo.py:221
 "File" = "קובץ"
 # navigator/lib/system/diskinfo.py:212
@@ -3088,6 +3188,44 @@ direction = "rtl"
 "~{n:,}~K bytes total memory" = "סך הזיכרון: ~{n:,}~K בתים"
 # navigator/lib/system/diskinfo.py:340
 "Volume label on ~{mount}: {label}~" = "תווית אמצעי ב-~{mount}: {label}~"
+# navigator/lib/system/elevate.py:65
+"Not an absolute path" = "זה אינו נתיב מוחלט"
+# navigator/lib/system/elevate.py:66, navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
+"Navigator does not signal that process" = "Navigator אינו שולח אותות לתהליך זה"
+# navigator/lib/system/elevate.py:67, navigator/lib/system/services/openrc.py:157, navigator/lib/system/services/runit.py:223 ...
+"Not something Navigator does to a service" = "Navigator אינו עושה זאת לשירות"
+# navigator/lib/system/elevate.py:68
+"That manager's states are everyone's to read" = "מצבי המנהל הזה גלויים לכולם"
+# navigator/lib/system/elevate.py:69
+"Not a console's nonce" = "זה אינו מפתח חד־פעמי של מסוף"
+# navigator/lib/system/elevate.py:70
+"Not a service manager Navigator knows" = "Navigator אינו מכיר מנהל שירותים זה"
+# navigator/lib/system/elevate.py:71, navigator/lib/system/services/openrc.py:190, navigator/lib/system/services/openrc.py:249 ...
+"Not a service's name" = "זה אינו שם של שירות"
+# navigator/lib/system/elevate.py:73
+"Not a file of the user's to write the journal into" = "זה אינו קובץ של המשתמש לכתוב אליו את היומן"
+# navigator/lib/system/elevate.py:74
+"Not following a symbolic link another user owns" = "לא עוקבים אחר קישור סמלי של משתמש אחר"
+# navigator/lib/system/elevate.py:325
+"The root helper handed no descriptor back" = "עוזר ה־root לא החזיר מתאר"
+# navigator/lib/system/elevate.py:287, navigator/lib/system/elevate.py:307
+"Root access is not open" = "גישת root אינה פתוחה"
+# navigator/lib/system/elevate.py:293, navigator/lib/system/elevate.py:319
+"The root helper ended: {error}" = "עוזר ה־root הסתיים: {error}"
+# navigator/lib/system/gio.py:54
+"The gio command (GLib) is not installed" = "הפקודה gio (GLib) אינה מותקנת"
+# navigator/lib/system/gio.py:180
+"No desktop file for {id}" = "אין קובץ desktop עבור {id}"
+# navigator/lib/system/gio.py:100
+"gio {args} did not answer" = "gio {args} לא ענה"
+# navigator/lib/system/gio.py:316
+"{name} cannot be mounted" = "לא ניתן לעגן את {name}"
+# navigator/lib/system/gio.py:418
+"Mounting {uri} did not finish" = "עיגון {uri} לא הסתיים"
+# navigator/lib/system/kio.py:55
+"kio-fuse is not running, or dbus-send is not installed" = "kio-fuse אינו פועל, או ש־dbus-send אינו מותקן"
+# navigator/lib/system/kio.py:358
+"Solid knows nothing mounted at {where}" = "Solid אינו יודע על דבר מעוגן ב־{where}"
 # navigator/lib/system/mediainfo.py:326
 "mono" = "מונו"
 # navigator/lib/system/mediainfo.py:328
@@ -3152,8 +3290,6 @@ direction = "rtl"
 "Open files" = "קבצים פתוחים"
 # navigator/lib/system/processes.py:415
 "Environment" = "סביבה"
-# navigator/lib/system/processes.py:446, navigator/widgets/shell/process_window/process_window.py:320
-"Navigator does not signal that process" = "Navigator אינו שולח אותות לתהליך זה"
 # navigator/lib/system/programinfo.py:420
 "unknown type" = "סוג לא ידוע"
 # navigator/lib/system/programinfo.py:435
@@ -3186,75 +3322,85 @@ direction = "rtl"
 "none" = "אין"
 # navigator/lib/system/services/__init__.py:77
 "No service manager Navigator knows runs here: systemd, OpenRC, runit or SysVinit" = "לא פועל כאן מנהל שירותים ש-Navigator מכיר: systemd,‏ OpenRC,‏ runit או SysVinit"
-# navigator/lib/system/services/common.py:208
+# navigator/lib/system/services/common.py:209
 "{manager} keeps no log for {unit}, and there is no system log file" = "{manager} אינו שומר יומן עבור {unit}, ואין קובץ יומן מערכת"
-# navigator/lib/system/services/openrc.py:260
+# navigator/lib/system/services/common.py:81
+"{name} did not answer in time" = "{name} לא ענה בזמן"
+# navigator/lib/system/services/openrc.py:261
 "OpenRC" = "OpenRC"
-# navigator/lib/system/services/openrc.py:85
+# navigator/lib/system/services/openrc.py:86
 "There is no rc-service: install OpenRC" = "אין rc-service: התקן את OpenRC"
-# navigator/lib/system/services/openrc.py:87
+# navigator/lib/system/services/openrc.py:88
 "OpenRC is not the system's service manager" = "OpenRC אינו מנהל השירותים של המערכת"
-# navigator/lib/system/services/openrc.py:192, navigator/lib/system/services/runit.py:261, navigator/lib/system/services/sysvinit.py:333 ...
+# navigator/lib/system/services/openrc.py:193, navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:334 ...
 "Status: {state}" = "מצב: {state}"
-# navigator/lib/system/services/openrc.py:194
+# navigator/lib/system/services/openrc.py:195
 "Runlevels: {levels}" = "רמות ריצה: {levels}"
-# navigator/lib/system/services/openrc.py:194, navigator/lib/system/services/sysvinit.py:342
+# navigator/lib/system/services/openrc.py:195, navigator/lib/system/services/sysvinit.py:343
 "Script: {path}" = "סקריפט: {path}"
-# navigator/lib/system/services/openrc.py:235, navigator/lib/system/services/runit.py:313
-"Settings for {unit}, read by {path} each time it starts." = "הגדרות עבור {unit}, ש-{path} קורא בכל הפעלה."
 # navigator/lib/system/services/openrc.py:236, navigator/lib/system/services/runit.py:314
+"Settings for {unit}, read by {path} each time it starts." = "הגדרות עבור {unit}, ש-{path} קורא בכל הפעלה."
+# navigator/lib/system/services/openrc.py:237, navigator/lib/system/services/runit.py:315
 "A setting made here wins over the script's own; restart {unit} for it to count." = "מה שמוגדר כאן גובר על הגדרות הסקריפט; הפעל מחדש את {unit} כדי שייכנס לתוקף."
-# navigator/lib/system/services/openrc.py:240
+# navigator/lib/system/services/openrc.py:241
 "The settings {path} makes:" = "ההגדרות ש-{path} קובע:"
-# navigator/lib/system/services/runit.py:345
+# navigator/lib/system/services/runit.py:346
 "runit" = "runit"
-# navigator/lib/system/services/runit.py:92
+# navigator/lib/system/services/runit.py:93
 "There is no sv: install runit" = "אין sv: התקן את runit"
-# navigator/lib/system/services/runit.py:94
+# navigator/lib/system/services/runit.py:95
 "runit is not the system's service manager" = "runit אינו מנהל השירותים של המערכת"
-# navigator/lib/system/services/runit.py:96, navigator/lib/system/services/runit.py:225
+# navigator/lib/system/services/runit.py:97, navigator/lib/system/services/runit.py:226
 "runit has no service directory here" = "ל-runit אין כאן תיקיית שירותים"
-# navigator/lib/system/services/runit.py:262, navigator/lib/system/services/sysvinit.py:338
+# navigator/lib/system/services/runit.py:180
+"sv: access denied" = "sv: הגישה נדחתה"
+# navigator/lib/system/services/runit.py:263, navigator/lib/system/services/sysvinit.py:339
 "Start-up: {state}" = "אתחול: {state}"
-# navigator/lib/system/services/runit.py:243
+# navigator/lib/system/services/runit.py:244
 "{unit} is not enabled: enable it first" = "{unit} אינו מאופשר: אפשר אותו תחילה"
-# navigator/lib/system/services/runit.py:264
+# navigator/lib/system/services/runit.py:265
 "Defined in {path}" = "מוגדר ב-{path}"
-# navigator/lib/system/services/runit.py:318, navigator/lib/system/services/systemd.py:240
+# navigator/lib/system/services/runit.py:319, navigator/lib/system/services/systemd.py:241
 "{path} as it is:" = "{path} כפי שהוא:"
-# navigator/lib/system/services/runit.py:329
+# navigator/lib/system/services/runit.py:330
 "{unit} has no service directory" = "ל-{unit} אין תיקיית שירות"
-# navigator/lib/system/services/runit.py:337
+# navigator/lib/system/services/runit.py:338
 "{unit} reads no settings file, so its run script is edited: an update of its package may replace it." = "{unit} אינו קורא קובץ הגדרות, ולכן נערך סקריפט ה-run שלו: עדכון של החבילה עלול להחליף אותו."
-# navigator/lib/system/services/runit.py:230
+# navigator/lib/system/services/runit.py:231
 "{unit} is not defined in {path}" = "{unit} אינו מוגדר ב-{path}"
-# navigator/lib/system/services/runit.py:239
+# navigator/lib/system/services/runit.py:240
 "{path} is not a link Navigator removes" = "{path} אינו קישור ש-Navigator מסיר"
-# navigator/lib/system/services/runit.py:267
+# navigator/lib/system/services/runit.py:268
 "Logs to {path}" = "כותב יומן ל-{path}"
-# navigator/lib/system/services/systemd.py:285
+# navigator/lib/system/services/systemd.py:286
 "systemd" = "systemd"
-# navigator/lib/system/services/systemd.py:64
+# navigator/lib/system/services/systemd.py:65
 "There is no systemctl: install systemd" = "אין systemctl: התקן את systemd"
-# navigator/lib/system/services/systemd.py:66
+# navigator/lib/system/services/systemd.py:67
 "systemd is not the system's service manager" = "systemd אינו מנהל השירותים של המערכת"
-# navigator/lib/system/services/systemd.py:237
+# navigator/lib/system/services/systemd.py:159
+"Not something Navigator does to a unit" = "Navigator אינו עושה זאת ליחידה"
+# navigator/lib/system/services/systemd.py:168, navigator/lib/system/services/systemd.py:205
+"Not a unit's name" = "זה אינו שם של יחידה"
+# navigator/lib/system/services/systemd.py:238
 "A list setting such as ExecStart= is emptied first by a line of its own, ExecStart= alone." = "הגדרת רשימה כמו ExecStart= מרוקנת תחילה בשורה משלה, ExecStart= לבדה."
-# navigator/lib/system/services/systemd.py:206
+# navigator/lib/system/services/systemd.py:207
 "{unit} is masked: unmask it first" = "{unit} ממוסכת: הסר תחילה את המיסוך"
-# navigator/lib/system/services/systemd.py:212
+# navigator/lib/system/services/systemd.py:213
 "{unit} has no unit file to edit" = "ל-{unit} אין קובץ יחידה לעריכה"
-# navigator/lib/system/services/systemd.py:236
+# navigator/lib/system/services/systemd.py:237
 "Override for {unit}: what is set here wins over {path}." = "דריסה עבור {unit}: מה שמוגדר כאן גובר על {path}."
-# navigator/lib/system/services/sysvinit.py:388
+# navigator/lib/system/services/sysvinit.py:389
 "SysVinit" = "SysVinit"
-# navigator/lib/system/services/sysvinit.py:113
+# navigator/lib/system/services/sysvinit.py:114
 "There is no /etc/init.d" = "אין /etc/init.d"
-# navigator/lib/system/services/sysvinit.py:115
+# navigator/lib/system/services/sysvinit.py:116
 "SysVinit is not the system's service manager" = "SysVinit אינו מנהל השירותים של המערכת"
-# navigator/lib/system/services/sysvinit.py:337
+# navigator/lib/system/services/sysvinit.py:327, navigator/lib/system/services/sysvinit.py:373
+"Not a service's script" = "זה אינו סקריפט של שירות"
+# navigator/lib/system/services/sysvinit.py:338
 "{path} has no status action" = "ל-{path} אין פעולת status"
-# navigator/lib/system/services/sysvinit.py:379
+# navigator/lib/system/services/sysvinit.py:380
 "{unit} reads no settings file, so its script is edited: an update of its package may replace it or ask about it." = "{unit} אינו קורא קובץ הגדרות, ולכן נערך הסקריפט שלו: עדכון של החבילה עלול להחליף אותו או לשאול עליו."
 # navigator/lib/system/sysinfo.py:144
 "Machine type" = "סוג מחשב"
@@ -3276,10 +3422,30 @@ direction = "rtl"
 "Up" = "פועל"
 # navigator/lib/system/sysinfo.py:161
 "None" = "אין"
+# navigator/lib/system/tempdir.py:42
+"not a directory of this user's alone" = "זו אינה תיקייה של משתמש זה בלבד"
+# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
+"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) אינו מותקן"
+# navigator/lib/system/udisks.py:55
+"busctl (systemd) is not installed, which ejecting a disc needs" = "busctl (systemd) אינו מותקן, והוא נחוץ להוצאת תקליטור"
+# navigator/lib/system/udisks.py:320
+"udisks knows nothing at {where}" = "udisks אינו יודע דבר על {where}"
+# navigator/lib/system/udisks.py:356
+"{name} is on no drive that can be ejected" = "{name} אינו בכונן שניתן להוציא"
+# navigator/lib/system/udisks.py:569
+"{name} has no file system udisks can mount" = "ב־{name} אין מערכת קבצים ש־udisks יכול לעגן"
+# navigator/lib/system/udisks.py:417
+"udisksctl set no loop device up for {path}" = "udisksctl לא הקים התקן loop עבור {path}"
+# navigator/lib/system/udisks.py:565
+"udisks does not know {device}" = "udisks אינו מכיר את {device}"
 # navigator/lib/utilities/about.py:116
 "Version {version}" = "גרסה {version}"
 # navigator/lib/utilities/about.py:118
 "License: {license}" = "רישיון: {license}"
+# navigator/lib/viewer/__init__.py:883
+"The file is closed" = "הקובץ סגור"
+# navigator/lib/viewer/dbf.py:163, navigator/widgets/viewer/db_window/db_window.py:458
+"Could not find MEMO file" = "קובץ MEMO לא נמצא"
 # navigator/lib/viewer/image.py:52
 "Pictures other than PNG need Pillow: pip install {extra}" = "תמונות שאינן PNG דורשות Pillow: pip install {extra}"
 # navigator/lib/viewer/pdf.py:70
@@ -3778,6 +3944,8 @@ direction = "rtl"
 "~L~ower case" = "אותיות ~ק~טנות"
 # navigator/widgets/editor/file_editor/file_editor.py:3102
 "Sa~v~e" = "~ש~מור"
+# navigator/widgets/editor/file_editor/file_editor.py:829
+"no file name" = "אין שם קובץ"
 # navigator/widgets/editor/file_editor/file_editor.py:2866, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "אין מה לבטל"
 # navigator/widgets/editor/file_editor/file_editor.py:2869
@@ -4262,8 +4430,6 @@ direction = "rtl"
 "Convert text" = "המרת טקסט"
 # navigator/widgets/manager/manager/manager.py:1258
 "wrong passphrase" = "סיסמה שגויה"
-# navigator/widgets/manager/manager/manager.py:1259
-"no age identity file: set age_identities in navigator.ini's [encryption]" = "אין קובץ זהות של age: הגדר age_identities בסעיף [encryption] של navigator.ini"
 # navigator/widgets/manager/manager/manager.py:1260
 "no secret key for it" = "אין לו מפתח סודי"
 # navigator/widgets/manager/manager/manager.py:1623
@@ -4300,8 +4466,6 @@ direction = "rtl"
 "{n} link was left as it was:" = ["קישור אחד נותר כפי שהיה:", "שני קישורים נותרו כפי שהיו:", "{n} קישורים נותרו כפי שהיו:"]
 # navigator/widgets/manager/manager/manager.py:5184
 "~I~nternal editor" = "עורך ~פ~נימי"
-# navigator/widgets/manager/manager/manager.py:5261, navigator/widgets/manager/manager/manager.py:5295
-"Is a directory" = "זוהי תיקייה"
 # navigator/widgets/manager/manager/manager.py:5678
 "Drag to resize the panels" = "גרור כדי לשנות את גודל הלוחות"
 # navigator/widgets/manager/manager/manager.py:5684
@@ -4378,8 +4542,6 @@ direction = "rtl"
 "Not from inside an archive" = "לא מתוך ארכיון"
 # navigator/widgets/manager/manager/manager.py:3388
 "No disk image at the cursor" = "אין תמונת דיסק תחת הסמן"
-# navigator/widgets/manager/manager/manager.py:3389, navigator/widgets/shell/volumes_window/volumes_window.py:304
-"udisksctl (udisks2) is not installed" = "udisksctl (udisks2) אינו מותקן"
 # navigator/widgets/manager/manager/manager.py:3391
 "Not in a mounted disk image" = "לא בתוך תמונת דיסק מעוגנת"
 # navigator/widgets/manager/manager/manager.py:3396
@@ -5212,8 +5374,6 @@ direction = "rtl"
 "{name} (default)" = "{name} (ברירת מחדל)"
 # navigator/widgets/shell/shell/shell.py:3074
 "Remote drive {name} is not accessible: {reason}" = "הכונן המרוחק {name} אינו נגיש: {reason}"
-# navigator/widgets/shell/shell/shell.py:3077
-"Remote drive {name} is not accessible" = "הכונן המרוחק {name} אינו נגיש"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "שמור ערכת צבעים"
 # navigator/widgets/shell/shell/shell.py:400
@@ -5460,8 +5620,6 @@ direction = "rtl"
 "~V~alue" = "~ע~רך"
 # navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "המבנה של {name}"
-# navigator/widgets/viewer/db_window/db_window.py:458
-"Could not find MEMO file" = "קובץ MEMO לא נמצא"
 # navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "מחפש"
 # navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428

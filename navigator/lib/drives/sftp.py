@@ -33,6 +33,7 @@ import threading
 from pathlib import PurePosixPath
 from typing import IO, Any, Iterator
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import (
     CHMOD, CHOWN, RENAME, SYMLINK, WRITE, Child, Drive, DriveGone, FileStat, reason_of,
 )
@@ -214,11 +215,11 @@ class _Connection:
                     raise NeedPassword(site, config.user, config.hostname, hop=hop) from error
             else:
                 client.close()
-                raise DriveGone(config.hostname, f"Cannot connect to {config.hostname}: {error}") from error
+                raise DriveGone(config.hostname, tr("Cannot connect to {host}: {reason}").format(host=config.hostname, reason=error)) from error
         except (OSError, EOFError) as error:
             client.close()
             reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
-            raise DriveGone(config.hostname, f"Cannot connect to {config.hostname}: {reason}") from error
+            raise DriveGone(config.hostname, tr("Cannot connect to {host}: {reason}").format(host=config.hostname, reason=reason)) from error
         if answers.save_password and answers.password and hop is not None:
             # A jump host's password is kept once it worked; the server's is
             # kept by :func:`connect`, once the drive answers.
@@ -239,7 +240,7 @@ class _Connection:
         except (paramiko.SSHException, OSError, EOFError) as error:
             client.close()
             reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
-            raise DriveGone(hostname, f"Cannot reach {hostname} through {via}: {reason}") from error
+            raise DriveGone(hostname, tr("Cannot reach {host} through {via}: {reason}").format(host=hostname, via=via, reason=reason)) from error
 
     def _watch(self, transport: Any) -> None:
         """Wait for *transport* to end -- paramiko's is a thread -- and then

@@ -42,6 +42,7 @@ import threading
 from pathlib import PurePosixPath
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import RENAME, WRITE, Child, Drive, DriveGone, FileStat
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.sessions import Answers, NeedPassword
@@ -217,7 +218,7 @@ class S3Drive(Drive):
             raise _os_error(error, where) from error
         except (EndpointConnectionError, ConnectTimeoutError) as error:
             self._lost()
-            raise DriveGone(self.site.host, f"Cannot reach {self.site.host}: {error}") from error
+            raise DriveGone(self.site.host, tr("Cannot reach {host}: {reason}").format(host=self.site.host, reason=error)) from error
         except BotoCoreError as error:
             raise _error(errno.EIO, where, str(error)) from error
 
@@ -617,15 +618,14 @@ def connect(site: Site, answers: Answers) -> S3Drive:
             drive._call(bucket, "head_bucket", Location(site, PurePosixPath(f"/{bucket}")), Bucket=bucket)
     except (NoCredentialsError, PartialCredentialsError) as error:
         drive.close()
-        raise OSError(errno.EACCES, "No AWS credentials: give an access key as the login, "
-                      "or set them up in ~/.aws", site.host) from error
+        raise OSError(errno.EACCES, tr("No AWS credentials: give an access key as the login, or set them up in ~/.aws"), site.host) from error
     except OSError as error:
         drive.close()
         cause = error.__cause__
         if cause is not None and _code(cause) in _BAD_KEYS:
             if user and not profile:
                 raise NeedPassword(site, user, site.host, wrong=True) from error
-            raise OSError(errno.EACCES, f"{site.host} refused the AWS credentials: {error.strerror}",
+            raise OSError(errno.EACCES, tr("{host} refused the AWS credentials: {strerror}").format(host=site.host, strerror=error.strerror),
                           site.host) from error
         raise
     if answers.save_password and answers.password and user and not profile:

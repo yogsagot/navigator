@@ -17,6 +17,7 @@ import os
 from pathlib import Path
 from typing import IO, Any
 
+from navkit.i18n import tr
 from navigator.lib.drives.arctool import ToolInfo
 
 
@@ -68,7 +69,7 @@ class _Window(io.RawIOBase):
             return 0
         data = os.pread(self._fd, count, self._offset)
         if not data:
-            raise OSError(errno.EIO, "The archive ends before this member does")
+            raise OSError(errno.EIO, tr("The archive ends before this member does"))
         self._offset += len(data)
         buffer[: len(data)] = data
         return len(data)

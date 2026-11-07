@@ -13,6 +13,7 @@ import stat
 import tempfile
 from pathlib import Path
 
+from navkit.i18n import tr
 from navigator.settings import SETTINGS
 
 
@@ -38,5 +39,5 @@ def private_dir() -> Path:
         or info.st_uid != os.getuid()
         or info.st_mode & 0o077
     ):
-        raise OSError(errno.EPERM, "not a directory of this user's alone", str(directory))
+        raise OSError(errno.EPERM, tr("not a directory of this user's alone"), str(directory))
     return directory

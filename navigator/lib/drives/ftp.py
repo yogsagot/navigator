@@ -33,6 +33,7 @@ import time
 from pathlib import PurePosixPath
 from typing import IO, Any, Iterator
 
+from navkit.i18n import tr
 from navigator.lib.drives.base import CHMOD, RENAME, WRITE, Child, Drive, DriveGone, FileStat, reason_of
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.pool import Pool, PoolClosed
@@ -184,11 +185,11 @@ class _Pool:
             _quietly_close(client)
             if str(error)[:3] in ("530", "331", "332"):
                 raise NeedPassword(self.site, self.user, self.host, wrong=answers.password is not None) from error
-            raise DriveGone(self.host, f"Cannot connect to {self.host}: {error}") from error
+            raise DriveGone(self.host, tr("Cannot connect to {host}: {reason}").format(host=self.host, reason=error)) from error
         except (ftplib.Error, OSError, EOFError, ssl.SSLError) as error:
             _quietly_close(client)
             reason = getattr(error, "strerror", None) or str(error) or type(error).__name__
-            raise DriveGone(self.host, f"Cannot connect to {self.host}: {reason}") from error
+            raise DriveGone(self.host, tr("Cannot connect to {host}: {reason}").format(host=self.host, reason=reason)) from error
         return client
 
     def take(self) -> ftplib.FTP:

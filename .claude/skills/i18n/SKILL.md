@@ -51,6 +51,16 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
 - **Whole sentences with named placeholders**: `tr("File {name}\nalready exists.").format(name=path.name)`. Never
   glue translated fragments.
 - **Counts**: `tr_n("{n} file", "{n} files", n)`, never `"s" if n != 1`.
+- **An error a user is shown is translated where it is raised**: `raise OSError(errno.ENOENT, tr("Where it came
+  from is not known"))`, `DriveGone(host, tr("Cannot connect to {host}: {reason}").format(...))` -- the raising thread
+  reads the shared `LOCALE`. A module constant raised by name is `tr_noop("...")` and raised as `tr(CONST)`; a
+  marker compared in code (`encrypt.BAD_PASSPHRASE`) stays English and is translated where shown. Text the code
+  compares goes through one helper on both sides (`base.not_accessible`). **The root helper** (a process of its own,
+  no catalogues) raises English; `elevate._helper_text` translates what arrives, every sentence listed in
+  `elevate.HELPER_TEXTS`. `tests/test_i18n_raised.py` walks `navigator/` with `ast` and fails on any sentence raised
+  as `OSError`/`DriveGone`/`ToolError`/`SplitError`... unwrapped (literal, f-string, `or`/`if` branch, or module
+  constant), and on a helper sentence missing from the table -- `tools/i18n.py check` cannot see these, having no key
+  to miss. Reuse a key's placeholder names (`{host}`, `{reason}`, `{name}`) so one sentence is one key.
 - **Live**: text drawn in `render()` is live by itself. Text assigned once to a long-lived widget must be
   `bind(lambda _o: tr("..."), yielding=True)`; a message box built per use can take a plain `tr()`.
 - **The hotkey belongs to the translator**: `"~N~ame" = "~V~ārds"`. Chinese and Japanese (`zh`, `ja`) keep the
