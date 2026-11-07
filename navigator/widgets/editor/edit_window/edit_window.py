@@ -23,7 +23,7 @@ from typing import Any
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, effect
+from navkit.reactive import bind, effect, reactive
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
@@ -105,6 +105,12 @@ class EditWindow(Window):
     #: but listed so Key bindings can give them one.
     keyless_commands = (ChooseLineEnding(), ChooseEncoding())
 
+    #: A copy from another drive written here whose upload failed or was
+    #: declined: the text is saved, but not where it came from.  It counts as
+    #: unsaved -- the title stays marked, and closing asks before the copy is
+    #: deleted (:func:`~navigator.widgets.drives.use_file.offer_upload`).
+    unsent: bool = reactive(False)
+
     def __init__(
         self, path: Path | str, *, document: Document | None = None, new: bool = False,
         smartpad: bool = False, **kwargs: Any,
@@ -142,7 +148,7 @@ class EditWindow(Window):
 
         A departure, asked for: DN marked a changed text on the info line alone.
         """
-        if self.editor.modified:
+        if self.unsaved():
             self.add_class("modified")
         else:
             self.remove_class("modified")
@@ -159,7 +165,7 @@ class EditWindow(Window):
             title = tr("Edit - {path}").format(path=self.use_set.copies[0].origin)
         else:
             title = tr("Edit - {path}").format(path=self.editor.path)
-        if self.editor.modified:
+        if self.unsaved():
             title = ("☼ " if self.editor.glyphs >= GLYPHS_UNICODE else "* ") + title
         return title
 
@@ -177,7 +183,7 @@ class EditWindow(Window):
         """The window strip's: the file's name alone, marked while changed."""
         path = self.use_set.copies[0].origin if self.use_set is not None else self.editor.path
         name = PurePosixPath(str(path)).name if path is not None else ""
-        if self.editor.modified:
+        if self.unsaved():
             name = ("☼ " if self.editor.glyphs >= GLYPHS_UNICODE else "* ") + name
         return name
 
@@ -294,9 +300,13 @@ class EditWindow(Window):
         if written and self.use_set is not None:
             # From another drive: the copy is written, and goes back now --
             # an F2 is the asking.
+            # Only once it is there is it saved: a failed or declined upload
+            # leaves the window unsaved, its copy kept for another F2.
             from navigator.widgets.drives.use_file import put_back
 
-            return await put_back(self.application, self.use_set, ask=False) or written
+            sent = await put_back(self.application, self.use_set, ask=False)
+            self.unsent = not sent
+            return sent
         if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
             await self.emit(FileSaved(path))
@@ -893,7 +903,7 @@ class EditWindow(Window):
             if isinstance(window, EditWindow) and window is not self
         ]
         for window in windows:
-            if window.editor.modified:
+            if window.unsaved():
                 await window.save()
 
     # -- F3 and Shift+F2 ----------------------------------------------------------------
@@ -915,17 +925,8 @@ class EditWindow(Window):
         In SmartPad the pad is left as closing leaves it, saved unasked, and
         the window is an ordinary editor from then on (:meth:`_leave_smartpad`).
         """
-        if self.editor.modified and self.smartpad:
-            if not await self.save():
-                return
-        elif self.editor.modified:
-            name = self.editor.path.name if self.editor.path else tr("Untitled")
-            answer = await Dialog(
-                title=tr("Warning"), prompt=tr("File {name} was modified. Save?").format(name=name),
-                buttons="yes-no-cancel",
-            ).execute(self.application)
-            if answer is None or (answer is True and not await self.save()):
-                return
+        if self.must_ask() and not await self.ask_to_close():
+            return
         path = await self._ask_file(tr("Open a File"), tr("~N~ame"), "edit_open", ok_text=tr("~O~pen"))
         if path is None:
             return
@@ -943,6 +944,14 @@ class EditWindow(Window):
         self._leave_smartpad(path)
         self.find_bar.close()
         self.editor.use_document(path, document)
+        if self.use_set is not None:
+            # The copy from another drive is left with its file: what is open
+            # now is *path*, saved where it is.
+            from navigator.lib.drives import usefile
+
+            use, self.use_set = self.use_set, None
+            self.unsent = False
+            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
         # The menu's choice was the file left's; the record may bring one back.
         self.editor.file_type = ""
         self.title = bind(lambda _o: self._title(), yielding=True)
@@ -1001,13 +1010,25 @@ class EditWindow(Window):
 
     # -- closing -----------------------------------------------------------------
 
+    def unsaved(self) -> bool:
+        """The text changed, or saved here and not yet on its own drive."""
+        return self.editor.modified or self.unsent
+
     def must_ask(self) -> bool:
-        return self.editor.modified
+        return self.unsaved()
 
     async def ask_to_close(self) -> bool:
-        """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked."""
+        """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked.
+
+        A text saved into its copy whose upload failed asks to upload it
+        instead (:func:`~navigator.widgets.drives.use_file.offer_upload`).
+        """
         if self.smartpad:
             return await self.save()
+        if not self.editor.modified and self.use_set is not None:
+            from navigator.widgets.drives.use_file import offer_upload
+
+            return await offer_upload(self.application, self.use_set)
         name = self.editor.path.name if self.editor.path else tr("Untitled")
         answer = await Dialog(
             title=tr("Warning"),

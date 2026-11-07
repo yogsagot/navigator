@@ -43,14 +43,22 @@ async def materialize(app: Any, origins: list[Location]) -> usefile.UseSet | Non
 async def put_back(app: Any, use: usefile.UseSet, *, ask: bool = True) -> bool:
     """What a program changed in *use*, put back where it came from -- asked
     first unless *Upload changed files* says otherwise, or the caller has
-    asked already (*ask* off: the editor's F2).  True if anything went up."""
+    asked already (*ask* off: the editor's F2).
+
+    True when the drive has what *use* holds -- all of it went up, or nothing
+    had changed; False when something changed stays here: refused, declined,
+    stopped, or failed (which is said).  A window that wrote its copy reads
+    False as *not saved*: closing must ask before the copy is deleted.
+    """
     import asyncio
 
     changed = await asyncio.to_thread(usefile.changed, use)
     policy = upload_policy()
     if not ask:
         policy = "always"
-    if not changed or policy == "never" or app is None:
+    if not changed:
+        return True
+    if policy == "never" or app is None:
         return False
     if policy == "ask":
         if len(changed) == 1:
@@ -80,6 +88,26 @@ async def put_back(app: Any, use: usefile.UseSet, *, ask: bool = True) -> bool:
         await _say(app, tr("Cannot write {path}: {error}").format(
             path=escape_caption(str(changed[0].origin)), error=error.strerror or error))
         return False
+
+
+async def offer_upload(app: Any, use: usefile.UseSet) -> bool:
+    """Closing a window whose copy is written here but did not go back (its
+    upload failed or was declined): whether it may close.
+
+    *Yes* tries the upload again, and the window stays if that fails too;
+    *No* lets the window close and the copy go, as the user chose; *Cancel*
+    keeps it open.  A departure with ``UseFile`` itself: DN's copy never had
+    a drive to fail to reach.
+    """
+    origin = use.copies[0].origin
+    prompt = tr("{name} is saved here but not on {place}. Upload it now?").format(
+        name=escape_caption(origin.name), place=escape_caption(str(origin.parent)))
+    answer = await Dialog(title=tr("Warning"), prompt=prompt, buttons="yes-no-cancel").execute(app)
+    if answer is None:
+        return False
+    if answer is True:
+        return await put_back(app, use, ask=False)
+    return True
 
 
 async def view_elsewhere(desktop: Any, origin: Location, mode: str | None = None) -> Any:

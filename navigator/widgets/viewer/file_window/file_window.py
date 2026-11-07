@@ -66,6 +66,9 @@ class FileWindow(Window):
     def __init__(self, path: Path | str, *, mode: str | None = None, source: Any = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        #: Bytes stored into a copy from another drive whose upload failed or
+        #: was declined: closing asks to upload before the copy is deleted.
+        self.unsent = False
         # Seeded, never bound: the viewer navigates both.  No mode asked for
         # is the Editor/Viewer setup's *Hex mode*.
         if mode is None:
@@ -187,11 +190,19 @@ class FileWindow(Window):
 
     def must_ask(self) -> bool:
         """``TFileViewer.Valid(cmClose)`` ran ``WriteModify``: bytes typed over
-        in hex and not stored ask first."""
-        return self.viewer.edited
+        in hex and not stored ask first -- and bytes stored into a copy from
+        another drive that did not go back there."""
+        return self.viewer.edited or self.unsent
 
     async def ask_to_close(self) -> bool:
-        """DN's ``dlViewQuery``: store, lose, or stay open."""
+        """DN's ``dlViewQuery``: store, lose, or stay open.  Bytes stored
+        whose upload failed ask to upload instead
+        (:func:`~navigator.widgets.drives.use_file.offer_upload`)."""
+        use = getattr(self, "use_set", None)
+        if not self.viewer.edited and use is not None:
+            from navigator.widgets.drives.use_file import offer_upload
+
+            return await offer_upload(self.application, use)
         answer = await Dialog(
             title=tr("Warning"),
             prompt=tr("Information was modified. Save changes?"),
@@ -254,9 +265,13 @@ class FileWindow(Window):
             return False
         viewer.edits_stored(edits)
         if use is not None:
+            # Stored only once they are there: a failed or declined upload
+            # keeps the window asking, its copy kept.
             from navigator.widgets.drives.use_file import put_back
 
-            await put_back(app, use, ask=False)
+            self.unsent = not await put_back(app, use, ask=False)
+            if self.unsent:
+                return False
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
 
         await self.emit(FileSaved(place))

@@ -62,6 +62,9 @@ class DBWindow(Window):
         #: fields put back; ``close()`` lets go (a departure;
         #: :mod:`navigator.lib.system.elevate`).
         self.root_held = False
+        #: A field written into *use_set*'s copy whose upload failed or was
+        #: declined: closing asks to upload before the copy is deleted.
+        self.unsent = False
         if db is not None:
             # ``TWindow.Init(R, FName, 0)`` -- ``cmGetName``'s *dBase View - *
             # is the window list's.
@@ -153,6 +156,15 @@ class DBWindow(Window):
     def short_name(self) -> str:
         """The window strip's: the file's name alone."""
         return PurePosixPath(str(self.db.path)).name if self.db is not None else ""
+
+    def must_ask(self) -> bool:
+        """A field edited into a copy from another drive that did not go back."""
+        return self.unsent and self.use_set is not None
+
+    async def ask_to_close(self) -> bool:
+        from navigator.widgets.drives.use_file import offer_upload
+
+        return await offer_upload(self.application, self.use_set)
 
     def close(self) -> None:
         self._stop_ticking()
@@ -304,6 +316,8 @@ class DBWindow(Window):
         take_place(window, self)
         window.title = self.title
         window.use_set, self.use_set = self.use_set, None
+        # An upload still owed goes with the copy, and the viewer asks it.
+        window.unsent, self.unsent = self.unsent, False
         window.viewer.seek(offset)
         self.close()
 
@@ -512,9 +526,10 @@ class DBWindow(Window):
         if self.use_set is not None:
             # From another drive: the field goes back there at once, as it
             # went into the file on the disk.
+            # A failed or declined upload keeps the window asking on close.
             from navigator.widgets.drives.use_file import put_back
 
-            await put_back(self.application, self.use_set, ask=False)
+            self.unsent = not await put_back(self.application, self.use_set, ask=False)
         viewer.invalidate()
 
     async def _edit_as_root(self) -> bool:

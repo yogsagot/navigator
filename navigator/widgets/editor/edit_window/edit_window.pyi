@@ -29,7 +29,7 @@ from typing import Any
 from navkit.capabilities import GLYPHS_UNICODE
 from navkit.events import Event
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, effect
+from navkit.reactive import bind, effect, reactive
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navigator.lib.editor import encodings
@@ -68,6 +68,7 @@ class EditWindow(Window, _Component):
     edit_menu_misc_capitalize: SubMenu
     edit_menu_options: SubMenu
     edit_menu_file_type: SubMenu
+    unsent: bool
     emits: _Any
     keyless_commands: _Any
     _replace_all: _Any
@@ -131,6 +132,7 @@ class EditWindow(Window, _Component):
     async def on_save_text_as(self, event: SaveTextAs) -> bool: ...
     async def save_as(self) -> None: ...
     def _leave_smartpad(self, path: Path) -> None: ...
+    def unsaved(self) -> bool: ...
     def must_ask(self) -> bool: ...
     async def ask_to_close(self) -> bool: ...
     async def on_vbar_scroll(self, event: ScrollEvent) -> bool: ...

@@ -711,7 +711,7 @@ flag = "RU"
 "Give this answer for every file that is already there" = "Дать этот ответ для каждого уже существующего файла"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~П~оверх"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:481, navigator/widgets/manager/manager/manager.py:923 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:491, navigator/widgets/manager/manager/manager.py:923 ...
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
@@ -1943,7 +1943,7 @@ flag = "RU"
 "Navigator?" = "с Навигатором?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "Выходить без вопроса с этого момента (Настройки > Подтверждения)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:929, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:930, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~О~ткрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "О программе, хранитель экрана, SmartPad, корзина и игра"
@@ -2739,7 +2739,7 @@ flag = "RU"
 "Encod~i~ng..." = "~К~одировка..."
 # navigator/widgets/viewer/file_window/file_window.nml:260
 "The code page the file is read in" = "Кодовая страница, в которой читается файл"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:417
 "Filter lines" = "Фильтр строк"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "~П~оказать строки, содержащие"
@@ -2751,7 +2751,7 @@ flag = "RU"
 "Goto Address" = "Переход на адрес"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~А~дрес"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:350 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:364 ...
 "Query" = "Запрос"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
@@ -2783,7 +2783,7 @@ flag = "RU"
 "E~x~pand all" = "~Р~азвернуть всё"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:176
 "Format" = "Формат"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:380
 "Delimiter" = "Разделитель"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "~З~апятая"
@@ -3557,15 +3557,19 @@ flag = "RU"
 "New ~A~ndroid device link (adb)..." = "Новая связь с устройством ~A~ndroid (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "Новая ссылка"
-# navigator/widgets/drives/use_file.py:61
+# navigator/widgets/drives/use_file.py:69
 "{n} file was changed. Upload it back?" = ["{n} файл изменён. Отправить его обратно?", "{n} файла изменены. Отправить их обратно?", "{n} файлов изменены. Отправить их обратно?"]
-# navigator/widgets/drives/use_file.py:73
+# navigator/widgets/drives/use_file.py:103
+"{name} is saved here but not on {place}. Upload it now?" = "{name} сохранён здесь, но не на {place}. Отправить его сейчас?"
+# navigator/widgets/drives/use_file.py:81
 "{names} changed there since it was fetched. Overwrite it?" = "{names} изменился там после загрузки. Перезаписать?"
-# navigator/widgets/drives/use_file.py:57
+# navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "{name} изменён. Отправить его обратно в {place}?"
-# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:289 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:486, navigator/widgets/editor/edit_window/edit_window.py:1034 ...
+"Warning" = "Предупреждение"
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:295 ...
 "Cannot write {path}: {error}" = "Не удаётся записать {path}: {error}"
-# navigator/widgets/drives/use_file.py:63, navigator/widgets/drives/use_file.py:75
+# navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "Отправка"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Дубль"
@@ -3703,53 +3707,51 @@ flag = "RU"
 "Save all" = "Зап.все"
 # navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:2990
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{char} (U+{code:04X}) в строке {line} нельзя записать в кодировке {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/editor/edit_window/edit_window.py:922
+# navigator/widgets/editor/edit_window/edit_window.py:1032
 "Untitled" = "Безымянный"
-# navigator/widgets/editor/edit_window/edit_window.py:435, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2863
 "No block is marked" = "Блок не отмечен"
-# navigator/widgets/editor/edit_window/edit_window.py:476, navigator/widgets/editor/edit_window/edit_window.py:1013, navigator/widgets/editor/edit_window/edit_window.py:491 ...
-"Warning" = "Предупреждение"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "Copy block to" = "Копировать блок в"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "File ~N~ame" = "~И~мя файла"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "Paste from File" = "Вставка текста из файла"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "~P~aste from" = "~В~ставить из"
-# navigator/widgets/editor/edit_window/edit_window.py:929
+# navigator/widgets/editor/edit_window/edit_window.py:930
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "~З~аписать в"
-# navigator/widgets/editor/edit_window/edit_window.py:157
+# navigator/widgets/editor/edit_window/edit_window.py:163
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:159, navigator/widgets/editor/edit_window/edit_window.py:161
+# navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
 "Edit - {path}" = "Редактор - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:477, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
+# navigator/widgets/editor/edit_window/edit_window.py:487, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
-# navigator/widgets/editor/edit_window/edit_window.py:864, navigator/widgets/manager/manager/manager.py:3753
+# navigator/widgets/editor/edit_window/edit_window.py:874, navigator/widgets/manager/manager/manager.py:3753
 "Confirmation" = "Подтверждение"
-# navigator/widgets/editor/edit_window/edit_window.py:865
+# navigator/widgets/editor/edit_window/edit_window.py:875
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
-# navigator/widgets/editor/edit_window/edit_window.py:873
+# navigator/widgets/editor/edit_window/edit_window.py:883
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:274
+# navigator/widgets/editor/edit_window/edit_window.py:280
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:767, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:877 ...
+# navigator/widgets/editor/edit_window/edit_window.py:777, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:773, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
+# navigator/widgets/editor/edit_window/edit_window.py:783, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
 "Information" = "Информация"
-# navigator/widgets/editor/edit_window/edit_window.py:773
+# navigator/widgets/editor/edit_window/edit_window.py:783
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
-# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/shell/shell/shell.py:1904
+# navigator/widgets/editor/edit_window/edit_window.py:938, navigator/widgets/shell/shell/shell.py:1904
 "Cannot open {path}: {error}" = "Не удаётся открыть {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/editor/edit_window/edit_window.py:924
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "File {name} was modified. Save?" = "Файл {name} изменён. Сохранить?"
-# navigator/widgets/editor/edit_window/edit_window.py:275
+# navigator/widgets/editor/edit_window/edit_window.py:281
 "Save file {name}?" = "Сохранить файл {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:492
+# navigator/widgets/editor/edit_window/edit_window.py:502
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
 # navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
 "Macros" = "Макросы"
@@ -5305,7 +5307,7 @@ flag = "RU"
 "Free %" = "Свободно %"
 # navigator/widgets/shell/volume_list/volume_list.py:184
 "Use %" = "Занято %"
-# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
+# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:651, navigator/widgets/viewer/db_window/db_window.py:363 ...
 "Type" = "Тип"
 # navigator/widgets/shell/volume_list/volume_list.py:185
 "Mount point" = "Точка монтирования"
@@ -5357,7 +5359,7 @@ flag = "RU"
 "View Memo" = "Мемо"
 # navigator/widgets/viewer/commands.py:140
 "Edit Field" = "Правка"
-# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:668
+# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:683
 "Tables" = "Таблицы"
 # navigator/widgets/viewer/commands.py:207
 "Prev" = "Пред."
@@ -5369,89 +5371,89 @@ flag = "RU"
 "Expand all" = "Развернуть всё"
 # navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
 "Data tree" = "Дерево данных"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Numeric" = "Число"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Character" = "Символ"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Memo" = "Мемо"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Logical" = "Логический"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Float" = "С запятой"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Picture" = "Picture"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Length" = "Длина"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Decimals" = "Дробные"
-# navigator/widgets/viewer/db_window/db_window.py:190
+# navigator/widgets/viewer/db_window/db_window.py:202
 "The cursor is not on a memo field" = "Курсор не на поле memo"
-# navigator/widgets/viewer/db_window/db_window.py:192
+# navigator/widgets/viewer/db_window/db_window.py:204
 "The database is opened read-only" = "База данных открыта только для чтения"
-# navigator/widgets/viewer/db_window/db_window.py:194
+# navigator/widgets/viewer/db_window/db_window.py:206
 "Only in a SQLite file" = "Только в файле SQLite"
-# navigator/widgets/viewer/db_window/db_window.py:196
+# navigator/widgets/viewer/db_window/db_window.py:208
 "Only in a CSV file" = "Только в файле CSV"
-# navigator/widgets/viewer/db_window/db_window.py:198
+# navigator/widgets/viewer/db_window/db_window.py:210
 "The file has no cells" = "В файле нет ячеек"
-# navigator/widgets/viewer/db_window/db_window.py:349
+# navigator/widgets/viewer/db_window/db_window.py:363
 "Constraints" = "Ограничения"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Comma" = "Запятая"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Semicolon" = "Точка с запятой"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Tab" = "Табуляция"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Pipe" = "Вертикальная черта"
-# navigator/widgets/viewer/db_window/db_window.py:494
+# navigator/widgets/viewer/db_window/db_window.py:508
 "Edit field" = "Редактирование поля"
-# navigator/widgets/viewer/db_window/db_window.py:151
+# navigator/widgets/viewer/db_window/db_window.py:154
 "dBase View - {path}" = "Просмотр dBase - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:189
+# navigator/widgets/viewer/db_window/db_window.py:201
 "The cursor is not on text or a blob" = "Курсор не на тексте и не на BLOB"
-# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
+# navigator/widgets/viewer/db_window/db_window.py:383, navigator/widgets/viewer/db_window/db_window.py:356
 "{count} row" = ["{count} строка", "{count} строки", "{count} строк"]
-# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:755, navigator/widgets/viewer/db_window/db_window.py:717
 "Empty database {name}" = "Пустая база данных {name}"
-# navigator/widgets/viewer/db_window/db_window.py:148
+# navigator/widgets/viewer/db_window/db_window.py:151
 "Spreadsheet - {path}" = "Электронная таблица - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:150
+# navigator/widgets/viewer/db_window/db_window.py:153
 "SQLite View - {path}" = "Просмотр SQLite - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Unique index" = "Уникальный индекс"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Index" = "Индекс"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "First row is a header" = "Первая строка — заголовок"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "No header row" = "Без строки заголовка"
-# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
+# navigator/widgets/viewer/db_window/db_window.py:499, navigator/widgets/viewer/db_window/db_window.py:548
 "Could not edit field - file is write-protected" = "Файл защищён от записи - правка поля невозможна"
-# navigator/widgets/viewer/db_window/db_window.py:493
+# navigator/widgets/viewer/db_window/db_window.py:507
 "~V~alue" = "~З~начение"
-# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+# navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "Структура {name}"
-# navigator/widgets/viewer/db_window/db_window.py:444
+# navigator/widgets/viewer/db_window/db_window.py:458
 "Could not find MEMO file" = "Не найден файл MEMO"
-# navigator/widgets/viewer/db_window/db_window.py:605
+# navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "Поиск"
-# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
+# navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428
 "Reading" = "Чтение"
-# navigator/widgets/viewer/db_window/db_window.py:236
+# navigator/widgets/viewer/db_window/db_window.py:248
 "Sorting" = "Сортировка"
-# navigator/widgets/viewer/db_window/db_window.py:452
+# navigator/widgets/viewer/db_window/db_window.py:466
 "Memo view" = "Просмотр мемо"
-# navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:717
 "No tables" = "Нет таблиц"
-# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
+# navigator/widgets/viewer/db_window/db_window.py:284, navigator/widgets/viewer/db_window/db_window.py:312, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
 "Cannot read the file: {error}" = "Не удаётся прочитать файл: {error}"
-# navigator/widgets/viewer/db_window/db_window.py:510
+# navigator/widgets/viewer/db_window/db_window.py:524
 "Could not edit field - {error}" = "Невозможно изменить поле - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "view" = "представление"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "table" = "таблица"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "Строка {line}, такая же, как строка {other} справа"
@@ -5503,7 +5505,7 @@ flag = "RU"
 "Too big to show as a picture" = "Слишком велико, чтобы показать как изображение"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:918
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:417
 "No lines match" = "Нет совпадающих строк"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:462
 "{percent}% of {size} Bytes" = "{percent}% из {size} байт"
@@ -5519,37 +5521,37 @@ flag = "RU"
 "Character {char}" = "Символ {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:451
 "Lines: {pattern}" = "Строки: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:601
-"Only in the text view" = "Только в текстовом режиме"
-# navigator/widgets/viewer/file_window/file_window.py:294
-"This file has no size to follow" = "У этого файла нет размера, за которым следить"
-# navigator/widgets/viewer/file_window/file_window.py:296
-"Not for a copy fetched from elsewhere" = "Не для копии, полученной извне"
-# navigator/widgets/viewer/file_window/file_window.py:298
-"Not while bytes typed over are not stored" = "Не пока изменённые байты не сохранены"
-# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
-"Not while the markup is rendered" = "Не пока разметка отрисована"
-# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
-"Not while lines are filtered" = "Не пока строки отфильтрованы"
-# navigator/widgets/viewer/file_window/file_window.py:98
-"View - {path}" = "Просмотр - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:600
-"Nothing has been typed over in hex" = "В шестнадцатеричном режиме ничего не изменено"
-# navigator/widgets/viewer/file_window/file_window.py:603
-"Only in the hex and dump views" = "Только в шестнадцатеричном режиме и режиме дампа"
 # navigator/widgets/viewer/file_window/file_window.py:616
+"Only in the text view" = "Только в текстовом режиме"
+# navigator/widgets/viewer/file_window/file_window.py:309
+"This file has no size to follow" = "У этого файла нет размера, за которым следить"
+# navigator/widgets/viewer/file_window/file_window.py:311
+"Not for a copy fetched from elsewhere" = "Не для копии, полученной извне"
+# navigator/widgets/viewer/file_window/file_window.py:313
+"Not while bytes typed over are not stored" = "Не пока изменённые байты не сохранены"
+# navigator/widgets/viewer/file_window/file_window.py:315, navigator/widgets/viewer/file_window/file_window.py:642, navigator/widgets/viewer/file_window/file_window.py:637
+"Not while the markup is rendered" = "Не пока разметка отрисована"
+# navigator/widgets/viewer/file_window/file_window.py:620, navigator/widgets/viewer/file_window/file_window.py:640
+"Not while lines are filtered" = "Не пока строки отфильтрованы"
+# navigator/widgets/viewer/file_window/file_window.py:101
+"View - {path}" = "Просмотр - {path}"
+# navigator/widgets/viewer/file_window/file_window.py:615
+"Nothing has been typed over in hex" = "В шестнадцатеричном режиме ничего не изменено"
+# navigator/widgets/viewer/file_window/file_window.py:618
+"Only in the hex and dump views" = "Только в шестнадцатеричном режиме и режиме дампа"
+# navigator/widgets/viewer/file_window/file_window.py:631
 "Not for a file read across a network" = "Не для файла, читаемого по сети"
-# navigator/widgets/viewer/file_window/file_window.py:617
+# navigator/widgets/viewer/file_window/file_window.py:632
 "Nothing is open" = "Ничего не открыто"
-# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:646, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "Ещё ничего не искали"
-# navigator/widgets/viewer/file_window/file_window.py:197
+# navigator/widgets/viewer/file_window/file_window.py:208
 "Information was modified. Save changes?" = "Информация изменена. Сохранить изменения?"
-# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
+# navigator/widgets/viewer/file_window/file_window.py:250, navigator/widgets/viewer/file_window/file_window.py:262
 "Could not write to file {path}: {error}" = "Не удалось записать в файл {path}: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:482
+# navigator/widgets/viewer/file_window/file_window.py:497
 "Not a tree" = "Не дерево"
-# navigator/widgets/viewer/file_window/file_window.py:246
+# navigator/widgets/viewer/file_window/file_window.py:257
 "{path} has changed since it was opened. Nothing was written." = "{path} изменился после открытия. Ничего не записано."
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "Не регулярное выражение: {error}"

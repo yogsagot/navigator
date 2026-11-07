@@ -463,6 +463,12 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   key bar says *F2 Edit*, *Del Delete*, *Ctrl+↑↓ Move* while the list is open (`SubMenu.hints`; `Up/Down` in the ASCII tier); `_go_to` connects a URL through
   `app.shell.reach`; F3/F4/Alt+F3/Alt+F4/`$PAGER`/`$EDITOR` fetch first. `EditWindow.use_set`: F2 writes the copy and
   `put_back(ask=False)`; the title names the origin; no edit record; closing discards. `FileWindow.use_set` the same.
+  **A copy that did not go back is unsaved.** `put_back` is True only when the drive has the copy (sent, or nothing
+  changed); False -- failed (said), declined, a clash refused, stopped, `never` -- sets the window's `unsent`
+  (`EditWindow` reactive: title marked, `must_ask`, Save all and F3's load ask; `FileWindow`/`DBWindow` plain, hex
+  Shift+F2 and a field edit). Closing then asks `offer_upload` (Yes tries again and stays on failure, No drops the
+  copy, Cancel stays); a retry is sent because `_stamp` moves only on success. F3 loading another file into a
+  remote editor lets its copy go. `Shell._put_back` (programs) still discards after saying a failure.
 - **Commands** `NavyLink` (Utilities > *Link* > *SSH (SFTP)...*, Alt+F11 -- DN's *Navigator Link*, renamed for its
   protocol), `HangUp` (*Disconnect*, Alt+H; greyed with
   nothing mounted), `SetupLink` (Options > Configuration > *Communications...* → `CommunicationsPage`, `[remote]`

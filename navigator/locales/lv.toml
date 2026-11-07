@@ -711,7 +711,7 @@ flag = "LV"
 "Give this answer for every file that is already there" = "Dot šo atbildi katram failam, kas jau pastāv"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "Pā~r~rakstīt"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:481, navigator/widgets/manager/manager/manager.py:923 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:491, navigator/widgets/manager/manager/manager.py:923 ...
 "A~p~pend" = "Pievie~n~ot"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~P~ārdēvēt"
@@ -1943,7 +1943,7 @@ flag = "LV"
 "Navigator?" = "Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "Turpmāk iziet, nejautājot (Iestatījumi > Apstiprinājumi)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:929, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:930, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~A~tvērt"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "Par programmu, ekrānsaudzētājs, SmartPad, miskaste un spēle"
@@ -2739,7 +2739,7 @@ flag = "LV"
 "Encod~i~ng..." = "~K~odējums..."
 # navigator/widgets/viewer/file_window/file_window.nml:260
 "The code page the file is read in" = "Kodu lapa, kurā fails tiek lasīts"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:417
 "Filter lines" = "Filtrēt rindas"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "Rādīt rindas, ~k~as satur"
@@ -2751,7 +2751,7 @@ flag = "LV"
 "Goto Address" = "Iet uz adresi"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "~A~drese"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:350 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:364 ...
 "Query" = "Vaicājums"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
@@ -2783,7 +2783,7 @@ flag = "LV"
 "E~x~pand all" = "~I~zvērst visu"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:176
 "Format" = "Formāts"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:380
 "Delimiter" = "Atdalītājs"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "Ko~m~ats"
@@ -3557,15 +3557,19 @@ flag = "LV"
 "New ~A~ndroid device link (adb)..." = "Jauns ~A~ndroid ierīces savienojums (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "Jauna saite"
-# navigator/widgets/drives/use_file.py:61
+# navigator/widgets/drives/use_file.py:69
 "{n} file was changed. Upload it back?" = ["{n} fails ir mainīts. Augšupielādēt to atpakaļ?", "{n} faili ir mainīti. Augšupielādēt tos atpakaļ?", "{n} failu ir mainīti. Augšupielādēt tos atpakaļ?"]
-# navigator/widgets/drives/use_file.py:73
+# navigator/widgets/drives/use_file.py:103
+"{name} is saved here but not on {place}. Upload it now?" = "{name} ir saglabāts šeit, bet ne vietā {place}. Augšupielādēt to tagad?"
+# navigator/widgets/drives/use_file.py:81
 "{names} changed there since it was fetched. Overwrite it?" = "{names} tur mainījies kopš lejupielādes. Pārrakstīt?"
-# navigator/widgets/drives/use_file.py:57
+# navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "{name} ir mainīts. Augšupielādēt to atpakaļ uz {place}?"
-# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:289 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:486, navigator/widgets/editor/edit_window/edit_window.py:1034 ...
+"Warning" = "Brīdinājums"
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:295 ...
 "Cannot write {path}: {error}" = "Nevar ierakstīt {path}: {error}"
-# navigator/widgets/drives/use_file.py:63, navigator/widgets/drives/use_file.py:75
+# navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "Augšupielāde"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Dublēt"
@@ -3703,53 +3707,51 @@ flag = "LV"
 "Save all" = "Sagl.v."
 # navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:2990
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{char} (U+{code:04X}) {line}. rindā nevar ierakstīt kodējumā {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/editor/edit_window/edit_window.py:922
+# navigator/widgets/editor/edit_window/edit_window.py:1032
 "Untitled" = "Bez nosaukuma"
-# navigator/widgets/editor/edit_window/edit_window.py:435, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2863
 "No block is marked" = "Nav atzīmēta bloka"
-# navigator/widgets/editor/edit_window/edit_window.py:476, navigator/widgets/editor/edit_window/edit_window.py:1013, navigator/widgets/editor/edit_window/edit_window.py:491 ...
-"Warning" = "Brīdinājums"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "Copy block to" = "Kopēt bloku uz"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "File ~N~ame" = "Faila ~v~ārds"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "Paste from File" = "Ielīmēt no faila"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "~P~aste from" = "~I~elīmēt no"
-# navigator/widgets/editor/edit_window/edit_window.py:929
+# navigator/widgets/editor/edit_window/edit_window.py:930
 "Open a File" = "Atvērt failu"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "Saglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "~S~aglabāt failu kā"
-# navigator/widgets/editor/edit_window/edit_window.py:157
+# navigator/widgets/editor/edit_window/edit_window.py:163
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:159, navigator/widgets/editor/edit_window/edit_window.py:161
+# navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
 "Edit - {path}" = "Rediģēt - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:477, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
+# navigator/widgets/editor/edit_window/edit_window.py:487, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Fails {name}\njau eksistē.\nPārrakstīt to?"
-# navigator/widgets/editor/edit_window/edit_window.py:864, navigator/widgets/manager/manager/manager.py:3753
+# navigator/widgets/editor/edit_window/edit_window.py:874, navigator/widgets/manager/manager/manager.py:3753
 "Confirmation" = "Apstiprinājums"
-# navigator/widgets/editor/edit_window/edit_window.py:865
+# navigator/widgets/editor/edit_window/edit_window.py:875
 "Print {n} line?" = ["Drukāt {n} rindu?", "Drukāt {n} rindas?", "Drukāt {n} rindu?"]
-# navigator/widgets/editor/edit_window/edit_window.py:873
+# navigator/widgets/editor/edit_window/edit_window.py:883
 "Cannot print: {error}" = "Nevar drukāt: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:274
+# navigator/widgets/editor/edit_window/edit_window.py:280
 "Confirm file save" = "Apstiprināt saglabāšanu"
-# navigator/widgets/editor/edit_window/edit_window.py:767, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:877 ...
+# navigator/widgets/editor/edit_window/edit_window.py:777, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "Meklētā virkne nav atrasta"
-# navigator/widgets/editor/edit_window/edit_window.py:773, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
+# navigator/widgets/editor/edit_window/edit_window.py:783, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
 "Information" = "Informācija"
-# navigator/widgets/editor/edit_window/edit_window.py:773
+# navigator/widgets/editor/edit_window/edit_window.py:783
 "{n} replace made" = ["Veikta {n} aizvietošana", "Veiktas {n} aizvietošanas", "Veikts {n} aizvietošanu"]
-# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/shell/shell/shell.py:1904
+# navigator/widgets/editor/edit_window/edit_window.py:938, navigator/widgets/shell/shell/shell.py:1904
 "Cannot open {path}: {error}" = "Nevar atvērt {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/editor/edit_window/edit_window.py:924
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "File {name} was modified. Save?" = "Fails {name} ir mainīts. Saglabāt?"
-# navigator/widgets/editor/edit_window/edit_window.py:275
+# navigator/widgets/editor/edit_window/edit_window.py:281
 "Save file {name}?" = "Saglabāt failu {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:492
+# navigator/widgets/editor/edit_window/edit_window.py:502
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Fails {name}\nir tikai lasāms.\nTomēr mainīt?"
 # navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
 "Macros" = "Makro"
@@ -5305,7 +5307,7 @@ flag = "LV"
 "Free %" = "Brīvs %"
 # navigator/widgets/shell/volume_list/volume_list.py:184
 "Use %" = "Aizņemts %"
-# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
+# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:651, navigator/widgets/viewer/db_window/db_window.py:363 ...
 "Type" = "Tips"
 # navigator/widgets/shell/volume_list/volume_list.py:185
 "Mount point" = "Montēšanas punkts"
@@ -5357,7 +5359,7 @@ flag = "LV"
 "View Memo" = "Memo"
 # navigator/widgets/viewer/commands.py:140
 "Edit Field" = "LabLauk"
-# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:668
+# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:683
 "Tables" = "Tabulas"
 # navigator/widgets/viewer/commands.py:207
 "Prev" = "Iepr."
@@ -5369,89 +5371,89 @@ flag = "LV"
 "Expand all" = "Izvērst visu"
 # navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
 "Data tree" = "Datu koks"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Numeric" = "Skaitlis"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Character" = "Rakstzīmes"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Memo" = "Memo"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Logical" = "Loģisks"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Float" = "Peldošs"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Picture" = "Attēls"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Length" = "Garums"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Decimals" = "Decimāldaļas"
-# navigator/widgets/viewer/db_window/db_window.py:190
+# navigator/widgets/viewer/db_window/db_window.py:202
 "The cursor is not on a memo field" = "Kursors nav uz memo lauka"
-# navigator/widgets/viewer/db_window/db_window.py:192
+# navigator/widgets/viewer/db_window/db_window.py:204
 "The database is opened read-only" = "Datubāze atvērta tikai lasīšanai"
-# navigator/widgets/viewer/db_window/db_window.py:194
+# navigator/widgets/viewer/db_window/db_window.py:206
 "Only in a SQLite file" = "Tikai SQLite failā"
-# navigator/widgets/viewer/db_window/db_window.py:196
+# navigator/widgets/viewer/db_window/db_window.py:208
 "Only in a CSV file" = "Tikai CSV failā"
-# navigator/widgets/viewer/db_window/db_window.py:198
+# navigator/widgets/viewer/db_window/db_window.py:210
 "The file has no cells" = "Failā nav šūnu"
-# navigator/widgets/viewer/db_window/db_window.py:349
+# navigator/widgets/viewer/db_window/db_window.py:363
 "Constraints" = "Ierobežojumi"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Comma" = "Komats"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Semicolon" = "Semikols"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Tab" = "Tabulācija"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Pipe" = "Vertikāla svītra"
-# navigator/widgets/viewer/db_window/db_window.py:494
+# navigator/widgets/viewer/db_window/db_window.py:508
 "Edit field" = "Rediģēt lauku"
-# navigator/widgets/viewer/db_window/db_window.py:151
+# navigator/widgets/viewer/db_window/db_window.py:154
 "dBase View - {path}" = "dBase skats - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:189
+# navigator/widgets/viewer/db_window/db_window.py:201
 "The cursor is not on text or a blob" = "Kursors nav uz teksta vai BLOB"
-# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
+# navigator/widgets/viewer/db_window/db_window.py:383, navigator/widgets/viewer/db_window/db_window.py:356
 "{count} row" = ["{count} rinda", "{count} rindas", "{count} rindu"]
-# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:755, navigator/widgets/viewer/db_window/db_window.py:717
 "Empty database {name}" = "Tukša datubāze {name}"
-# navigator/widgets/viewer/db_window/db_window.py:148
+# navigator/widgets/viewer/db_window/db_window.py:151
 "Spreadsheet - {path}" = "Izklājlapa - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:150
+# navigator/widgets/viewer/db_window/db_window.py:153
 "SQLite View - {path}" = "SQLite skats - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Unique index" = "Unikāls indekss"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Index" = "Indekss"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "First row is a header" = "Pirmā rinda ir virsraksts"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "No header row" = "Bez virsraksta rindas"
-# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
+# navigator/widgets/viewer/db_window/db_window.py:499, navigator/widgets/viewer/db_window/db_window.py:548
 "Could not edit field - file is write-protected" = "Neizdevās rediģēt lauku - fails ir aizsargāts pret rakstīšanu"
-# navigator/widgets/viewer/db_window/db_window.py:493
+# navigator/widgets/viewer/db_window/db_window.py:507
 "~V~alue" = "~V~ērtība"
-# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+# navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "{name} struktūra"
-# navigator/widgets/viewer/db_window/db_window.py:444
+# navigator/widgets/viewer/db_window/db_window.py:458
 "Could not find MEMO file" = "Neizdevās atrast MEMO failu"
-# navigator/widgets/viewer/db_window/db_window.py:605
+# navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "Meklē"
-# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
+# navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428
 "Reading" = "Lasa"
-# navigator/widgets/viewer/db_window/db_window.py:236
+# navigator/widgets/viewer/db_window/db_window.py:248
 "Sorting" = "Kārto"
-# navigator/widgets/viewer/db_window/db_window.py:452
+# navigator/widgets/viewer/db_window/db_window.py:466
 "Memo view" = "Memo skats"
-# navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:717
 "No tables" = "Nav tabulu"
-# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
+# navigator/widgets/viewer/db_window/db_window.py:284, navigator/widgets/viewer/db_window/db_window.py:312, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
 "Cannot read the file: {error}" = "Nevar nolasīt failu: {error}"
-# navigator/widgets/viewer/db_window/db_window.py:510
+# navigator/widgets/viewer/db_window/db_window.py:524
 "Could not edit field - {error}" = "Neizdevās rediģēt lauku - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "view" = "skats"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "table" = "tabula"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "Rinda {line}, tāda pati kā rinda {other} labajā pusē"
@@ -5503,7 +5505,7 @@ flag = "LV"
 "Too big to show as a picture" = "Par lielu, lai rādītu kā attēlu"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:918
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:417
 "No lines match" = "Neviena rinda neatbilst"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:462
 "{percent}% of {size} Bytes" = "{percent}% no {size} baitiem"
@@ -5519,37 +5521,37 @@ flag = "LV"
 "Character {char}" = "Rakstzīme {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:451
 "Lines: {pattern}" = "Rindas: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:601
-"Only in the text view" = "Tikai teksta skatā"
-# navigator/widgets/viewer/file_window/file_window.py:294
-"This file has no size to follow" = "Šim failam nav izmēra, kam sekot"
-# navigator/widgets/viewer/file_window/file_window.py:296
-"Not for a copy fetched from elsewhere" = "Ne kopijai, kas atnesta no citurienes"
-# navigator/widgets/viewer/file_window/file_window.py:298
-"Not while bytes typed over are not stored" = "Ne kamēr pārrakstītie baiti nav saglabāti"
-# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
-"Not while the markup is rendered" = "Ne tad, kad marķējums ir atveidots"
-# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
-"Not while lines are filtered" = "Ne kamēr rindas ir filtrētas"
-# navigator/widgets/viewer/file_window/file_window.py:98
-"View - {path}" = "Skatīt - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:600
-"Nothing has been typed over in hex" = "Heksadecimālajā režīmā nekas nav mainīts"
-# navigator/widgets/viewer/file_window/file_window.py:603
-"Only in the hex and dump views" = "Tikai heksadecimālajā un izdrukas skatā"
 # navigator/widgets/viewer/file_window/file_window.py:616
+"Only in the text view" = "Tikai teksta skatā"
+# navigator/widgets/viewer/file_window/file_window.py:309
+"This file has no size to follow" = "Šim failam nav izmēra, kam sekot"
+# navigator/widgets/viewer/file_window/file_window.py:311
+"Not for a copy fetched from elsewhere" = "Ne kopijai, kas atnesta no citurienes"
+# navigator/widgets/viewer/file_window/file_window.py:313
+"Not while bytes typed over are not stored" = "Ne kamēr pārrakstītie baiti nav saglabāti"
+# navigator/widgets/viewer/file_window/file_window.py:315, navigator/widgets/viewer/file_window/file_window.py:642, navigator/widgets/viewer/file_window/file_window.py:637
+"Not while the markup is rendered" = "Ne tad, kad marķējums ir atveidots"
+# navigator/widgets/viewer/file_window/file_window.py:620, navigator/widgets/viewer/file_window/file_window.py:640
+"Not while lines are filtered" = "Ne kamēr rindas ir filtrētas"
+# navigator/widgets/viewer/file_window/file_window.py:101
+"View - {path}" = "Skatīt - {path}"
+# navigator/widgets/viewer/file_window/file_window.py:615
+"Nothing has been typed over in hex" = "Heksadecimālajā režīmā nekas nav mainīts"
+# navigator/widgets/viewer/file_window/file_window.py:618
+"Only in the hex and dump views" = "Tikai heksadecimālajā un izdrukas skatā"
+# navigator/widgets/viewer/file_window/file_window.py:631
 "Not for a file read across a network" = "Ne failam, ko lasa pa tīklu"
-# navigator/widgets/viewer/file_window/file_window.py:617
+# navigator/widgets/viewer/file_window/file_window.py:632
 "Nothing is open" = "Nekas nav atvērts"
-# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:646, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "Vēl nekas nav meklēts"
-# navigator/widgets/viewer/file_window/file_window.py:197
+# navigator/widgets/viewer/file_window/file_window.py:208
 "Information was modified. Save changes?" = "Informācija ir mainīta. Saglabāt izmaiņas?"
-# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
+# navigator/widgets/viewer/file_window/file_window.py:250, navigator/widgets/viewer/file_window/file_window.py:262
 "Could not write to file {path}: {error}" = "Neizdevās ierakstīt failā {path}: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:482
+# navigator/widgets/viewer/file_window/file_window.py:497
 "Not a tree" = "Nav koks"
-# navigator/widgets/viewer/file_window/file_window.py:246
+# navigator/widgets/viewer/file_window/file_window.py:257
 "{path} has changed since it was opened. Nothing was written." = "{path} ir mainījies kopš atvēršanas. Nekas netika ierakstīts."
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "Nav regulārā izteiksme: {error}"

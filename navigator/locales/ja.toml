@@ -711,7 +711,7 @@ flag = "JP"
 "Give this answer for every file that is already there" = "既に存在するすべてのファイルにこの回答を適用します"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "上書き(~O~)"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:481, navigator/widgets/manager/manager/manager.py:923 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:491, navigator/widgets/manager/manager/manager.py:923 ...
 "A~p~pend" = "追加(~P~)"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "改名(~R~)"
@@ -1943,7 +1943,7 @@ flag = "JP"
 "Navigator?" = "Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "今後は確認せずに終了する (設定 > 確認)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:929, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:930, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "開く(~O~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "情報、スクリーンセーバー、SmartPad、ごみ箱、ゲーム"
@@ -2739,7 +2739,7 @@ flag = "JP"
 "Encod~i~ng..." = "エンコーディング(~I~)..."
 # navigator/widgets/viewer/file_window/file_window.nml:260
 "The code page the file is read in" = "ファイルを読み込むコードページ"
-# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:13, navigator/widgets/viewer/file_window/file_window.py:417
 "Filter lines" = "行の絞り込み"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.nml:21
 "~S~how lines containing" = "含む行を表示(~S~)"
@@ -2751,7 +2751,7 @@ flag = "JP"
 "Goto Address" = "アドレスへ移動"
 # navigator/widgets/viewer/goto_dialog/goto_dialog.nml:19
 "~A~ddress" = "番地(~A~)"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:350 ...
+# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:364 ...
 "Query" = "クエリ"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
@@ -2783,7 +2783,7 @@ flag = "JP"
 "E~x~pand all" = "すべて展開(~X~)"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:15, navigator/widgets/viewer/commands.py:176
 "Format" = "形式"
-# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:366
+# navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:24, navigator/widgets/viewer/db_window/db_window.py:380
 "Delimiter" = "区切り文字"
 # navigator/widgets/viewer/table_format_dialog/table_format_dialog.nml:33
 "~C~omma" = "カンマ(~C~)"
@@ -3557,15 +3557,19 @@ flag = "JP"
 "New ~A~ndroid device link (adb)..." = "新規 Android デバイスリンク(~A~) (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "新規リンク"
-# navigator/widgets/drives/use_file.py:61
+# navigator/widgets/drives/use_file.py:69
 "{n} file was changed. Upload it back?" = ["{n} 個のファイルが変更されました。アップロードし直しますか?"]
-# navigator/widgets/drives/use_file.py:73
+# navigator/widgets/drives/use_file.py:103
+"{name} is saved here but not on {place}. Upload it now?" = "{name} はここに保存されましたが、{place} にはありません。今アップロードしますか?"
+# navigator/widgets/drives/use_file.py:81
 "{names} changed there since it was fetched. Overwrite it?" = "{names} は取得後に向こう側で変更されています。上書きしますか?"
-# navigator/widgets/drives/use_file.py:57
+# navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "{name} が変更されました。{place} にアップロードし直しますか?"
-# navigator/widgets/drives/use_file.py:68, navigator/widgets/drives/use_file.py:80, navigator/widgets/editor/edit_window/edit_window.py:289 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:486, navigator/widgets/editor/edit_window/edit_window.py:1034 ...
+"Warning" = "警告"
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:295 ...
 "Cannot write {path}: {error}" = "{path} に書き込めません: {error}"
-# navigator/widgets/drives/use_file.py:63, navigator/widgets/drives/use_file.py:75
+# navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "アップロード"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "行複製"
@@ -3703,53 +3707,51 @@ flag = "JP"
 "Save all" = "すべて保存"
 # navigator/widgets/editor/edit_window/edit_window.py:75, navigator/widgets/editor/file_editor/file_editor.py:2990
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{line} 行目の {char} (U+{code:04X}) は {encoding} では書けません"
-# navigator/widgets/editor/edit_window/edit_window.py:1011, navigator/widgets/editor/edit_window/edit_window.py:922
+# navigator/widgets/editor/edit_window/edit_window.py:1032
 "Untitled" = "無題"
-# navigator/widgets/editor/edit_window/edit_window.py:435, navigator/widgets/editor/file_editor/file_editor.py:2863
+# navigator/widgets/editor/edit_window/edit_window.py:445, navigator/widgets/editor/file_editor/file_editor.py:2863
 "No block is marked" = "ブロックがマークされていません"
-# navigator/widgets/editor/edit_window/edit_window.py:476, navigator/widgets/editor/edit_window/edit_window.py:1013, navigator/widgets/editor/edit_window/edit_window.py:491 ...
-"Warning" = "警告"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "Copy block to" = "ブロックのコピー先"
-# navigator/widgets/editor/edit_window/edit_window.py:529
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "File ~N~ame" = "ファイル名(~N~)"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "Paste from File" = "ファイルから貼り付け"
-# navigator/widgets/editor/edit_window/edit_window.py:608
+# navigator/widgets/editor/edit_window/edit_window.py:618
 "~P~aste from" = "貼り付け元(~P~)"
-# navigator/widgets/editor/edit_window/edit_window.py:929
+# navigator/widgets/editor/edit_window/edit_window.py:930
 "Open a File" = "ファイルを開く"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "名前を付けて保存"
-# navigator/widgets/editor/edit_window/edit_window.py:965, navigator/widgets/viewer/file_window/file_window.py:738
+# navigator/widgets/editor/edit_window/edit_window.py:974, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "名前を付けて保存(~S~)"
-# navigator/widgets/editor/edit_window/edit_window.py:157
+# navigator/widgets/editor/edit_window/edit_window.py:163
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:159, navigator/widgets/editor/edit_window/edit_window.py:161
+# navigator/widgets/editor/edit_window/edit_window.py:165, navigator/widgets/editor/edit_window/edit_window.py:167
 "Edit - {path}" = "編集 - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:477, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
+# navigator/widgets/editor/edit_window/edit_window.py:487, navigator/widgets/manager/manager/manager.py:921, navigator/widgets/manager/manager/manager.py:2526 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "ファイル {name}\nは既に存在します。\n上書きしますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:864, navigator/widgets/manager/manager/manager.py:3753
+# navigator/widgets/editor/edit_window/edit_window.py:874, navigator/widgets/manager/manager/manager.py:3753
 "Confirmation" = "確認"
-# navigator/widgets/editor/edit_window/edit_window.py:865
+# navigator/widgets/editor/edit_window/edit_window.py:875
 "Print {n} line?" = ["{n} 行を印刷しますか?"]
-# navigator/widgets/editor/edit_window/edit_window.py:873
+# navigator/widgets/editor/edit_window/edit_window.py:883
 "Cannot print: {error}" = "印刷できません: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:274
+# navigator/widgets/editor/edit_window/edit_window.py:280
 "Confirm file save" = "ファイル保存の確認"
-# navigator/widgets/editor/edit_window/edit_window.py:767, navigator/widgets/viewer/db_window/db_window.py:609, navigator/widgets/viewer/file_window/file_window.py:877 ...
+# navigator/widgets/editor/edit_window/edit_window.py:777, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "検索文字列が見つかりません"
-# navigator/widgets/editor/edit_window/edit_window.py:773, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
+# navigator/widgets/editor/edit_window/edit_window.py:783, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:270 ...
 "Information" = "情報"
-# navigator/widgets/editor/edit_window/edit_window.py:773
+# navigator/widgets/editor/edit_window/edit_window.py:783
 "{n} replace made" = ["{n} 件置換しました"]
-# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/shell/shell/shell.py:1904
+# navigator/widgets/editor/edit_window/edit_window.py:938, navigator/widgets/shell/shell/shell.py:1904
 "Cannot open {path}: {error}" = "{path} を開けません: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/editor/edit_window/edit_window.py:924
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "File {name} was modified. Save?" = "ファイル {name} は変更されています。保存しますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:275
+# navigator/widgets/editor/edit_window/edit_window.py:281
 "Save file {name}?" = "ファイル {name} を保存しますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:492
+# navigator/widgets/editor/edit_window/edit_window.py:502
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "ファイル {name}\nは読み取り専用です。\nそれでも変更しますか?"
 # navigator/widgets/editor/file_editor/file_editor.py:2171, navigator/widgets/editor/file_editor/file_editor.py:2165, navigator/widgets/editor/file_editor/file_editor.py:2182
 "Macros" = "マクロ"
@@ -5305,7 +5307,7 @@ flag = "JP"
 "Free %" = "空き %"
 # navigator/widgets/shell/volume_list/volume_list.py:184
 "Use %" = "使用 %"
-# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:636, navigator/widgets/viewer/db_window/db_window.py:349 ...
+# navigator/widgets/shell/volume_list/volume_list.py:185, navigator/widgets/viewer/db_window/db_window.py:651, navigator/widgets/viewer/db_window/db_window.py:363 ...
 "Type" = "種類"
 # navigator/widgets/shell/volume_list/volume_list.py:185
 "Mount point" = "マウントポイント"
@@ -5357,7 +5359,7 @@ flag = "JP"
 "View Memo" = "メモ表示"
 # navigator/widgets/viewer/commands.py:140
 "Edit Field" = "フィールド編集"
-# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:668
+# navigator/widgets/viewer/commands.py:147, navigator/widgets/viewer/db_window/db_window.py:683
 "Tables" = "テーブル"
 # navigator/widgets/viewer/commands.py:207
 "Prev" = "前へ"
@@ -5369,89 +5371,89 @@ flag = "JP"
 "Expand all" = "すべて展開"
 # navigator/widgets/viewer/commands.py:277, navigator/lib/config/keybindings.py
 "Data tree" = "データツリー"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Numeric" = "数値"
-# navigator/widgets/viewer/db_window/db_window.py:622, navigator/widgets/viewer/db_window/db_window.py:361
+# navigator/widgets/viewer/db_window/db_window.py:637, navigator/widgets/viewer/db_window/db_window.py:375
 "Character" = "文字"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Memo" = "メモ"
-# navigator/widgets/viewer/db_window/db_window.py:622
+# navigator/widgets/viewer/db_window/db_window.py:637
 "Logical" = "論理"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Float" = "浮動小数"
-# navigator/widgets/viewer/db_window/db_window.py:623
+# navigator/widgets/viewer/db_window/db_window.py:638
 "Picture" = "画像"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Length" = "長さ"
-# navigator/widgets/viewer/db_window/db_window.py:636
+# navigator/widgets/viewer/db_window/db_window.py:651
 "Decimals" = "小数桁"
-# navigator/widgets/viewer/db_window/db_window.py:190
+# navigator/widgets/viewer/db_window/db_window.py:202
 "The cursor is not on a memo field" = "カーソルがメモフィールド上にありません"
-# navigator/widgets/viewer/db_window/db_window.py:192
+# navigator/widgets/viewer/db_window/db_window.py:204
 "The database is opened read-only" = "データベースは読み取り専用で開かれています"
-# navigator/widgets/viewer/db_window/db_window.py:194
+# navigator/widgets/viewer/db_window/db_window.py:206
 "Only in a SQLite file" = "SQLite ファイルでのみ"
-# navigator/widgets/viewer/db_window/db_window.py:196
+# navigator/widgets/viewer/db_window/db_window.py:208
 "Only in a CSV file" = "CSV ファイルでのみ"
-# navigator/widgets/viewer/db_window/db_window.py:198
+# navigator/widgets/viewer/db_window/db_window.py:210
 "The file has no cells" = "ファイルにセルがありません"
-# navigator/widgets/viewer/db_window/db_window.py:349
+# navigator/widgets/viewer/db_window/db_window.py:363
 "Constraints" = "制約"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Comma" = "カンマ"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Semicolon" = "セミコロン"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Tab" = "タブ"
-# navigator/widgets/viewer/db_window/db_window.py:364
+# navigator/widgets/viewer/db_window/db_window.py:378
 "Pipe" = "パイプ"
-# navigator/widgets/viewer/db_window/db_window.py:494
+# navigator/widgets/viewer/db_window/db_window.py:508
 "Edit field" = "フィールド編集"
-# navigator/widgets/viewer/db_window/db_window.py:151
+# navigator/widgets/viewer/db_window/db_window.py:154
 "dBase View - {path}" = "dBase 表示 - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:189
+# navigator/widgets/viewer/db_window/db_window.py:201
 "The cursor is not on text or a blob" = "カーソルがテキストまたは BLOB 上にありません"
-# navigator/widgets/viewer/db_window/db_window.py:369, navigator/widgets/viewer/db_window/db_window.py:342
+# navigator/widgets/viewer/db_window/db_window.py:383, navigator/widgets/viewer/db_window/db_window.py:356
 "{count} row" = ["{count} 行"]
-# navigator/widgets/viewer/db_window/db_window.py:740, navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:755, navigator/widgets/viewer/db_window/db_window.py:717
 "Empty database {name}" = "空のデータベース {name}"
-# navigator/widgets/viewer/db_window/db_window.py:148
+# navigator/widgets/viewer/db_window/db_window.py:151
 "Spreadsheet - {path}" = "スプレッドシート - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:150
+# navigator/widgets/viewer/db_window/db_window.py:153
 "SQLite View - {path}" = "SQLite 表示 - {path}"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Unique index" = "一意インデックス"
-# navigator/widgets/viewer/db_window/db_window.py:344
+# navigator/widgets/viewer/db_window/db_window.py:358
 "Index" = "インデックス"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "First row is a header" = "先頭行は見出し"
-# navigator/widgets/viewer/db_window/db_window.py:367
+# navigator/widgets/viewer/db_window/db_window.py:381
 "No header row" = "見出し行なし"
-# navigator/widgets/viewer/db_window/db_window.py:485, navigator/widgets/viewer/db_window/db_window.py:533
+# navigator/widgets/viewer/db_window/db_window.py:499, navigator/widgets/viewer/db_window/db_window.py:548
 "Could not edit field - file is write-protected" = "フィールドを編集できません - ファイルが書き込み禁止です"
-# navigator/widgets/viewer/db_window/db_window.py:493
+# navigator/widgets/viewer/db_window/db_window.py:507
 "~V~alue" = "値(~V~)"
-# navigator/widgets/viewer/db_window/db_window.py:321, navigator/widgets/viewer/db_window/db_window.py:351, navigator/widgets/viewer/db_window/db_window.py:372
+# navigator/widgets/viewer/db_window/db_window.py:335, navigator/widgets/viewer/db_window/db_window.py:365, navigator/widgets/viewer/db_window/db_window.py:386
 "Structure of {name}" = "{name} の構造"
-# navigator/widgets/viewer/db_window/db_window.py:444
+# navigator/widgets/viewer/db_window/db_window.py:458
 "Could not find MEMO file" = "MEMO ファイルが見つかりません"
-# navigator/widgets/viewer/db_window/db_window.py:605
+# navigator/widgets/viewer/db_window/db_window.py:620
 "Searching" = "検索中"
-# navigator/widgets/viewer/db_window/db_window.py:715, navigator/widgets/viewer/db_window/db_window.py:414
+# navigator/widgets/viewer/db_window/db_window.py:730, navigator/widgets/viewer/db_window/db_window.py:428
 "Reading" = "読み込み中"
-# navigator/widgets/viewer/db_window/db_window.py:236
+# navigator/widgets/viewer/db_window/db_window.py:248
 "Sorting" = "並べ替え中"
-# navigator/widgets/viewer/db_window/db_window.py:452
+# navigator/widgets/viewer/db_window/db_window.py:466
 "Memo view" = "メモ表示"
-# navigator/widgets/viewer/db_window/db_window.py:702
+# navigator/widgets/viewer/db_window/db_window.py:717
 "No tables" = "テーブルがありません"
-# navigator/widgets/viewer/db_window/db_window.py:272, navigator/widgets/viewer/db_window/db_window.py:300, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
+# navigator/widgets/viewer/db_window/db_window.py:284, navigator/widgets/viewer/db_window/db_window.py:312, navigator/widgets/viewer/file_viewer/file_viewer.py:1668 ...
 "Cannot read the file: {error}" = "ファイルを読めません: {error}"
-# navigator/widgets/viewer/db_window/db_window.py:510
+# navigator/widgets/viewer/db_window/db_window.py:524
 "Could not edit field - {error}" = "フィールドを編集できません - {error}"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "view" = "ビュー"
-# navigator/widgets/viewer/db_window/db_window.py:666
+# navigator/widgets/viewer/db_window/db_window.py:681
 "table" = "テーブル"
 # navigator/widgets/viewer/diff_view/diff_view.py:51
 "Line {line}, the same as line {other} on the right" = "{line} 行目: 右の {other} 行目と同じ"
@@ -5503,7 +5505,7 @@ flag = "JP"
 "Too big to show as a picture" = "大きすぎて画像として表示できません"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:918
 "{format} {width}×{height}" = "{format} {width}×{height}"
-# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:402
+# navigator/widgets/viewer/file_viewer/file_viewer.py:1165, navigator/widgets/viewer/file_window/file_window.py:417
 "No lines match" = "一致する行はありません"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:462
 "{percent}% of {size} Bytes" = "{size} バイト中 {percent}%"
@@ -5519,37 +5521,37 @@ flag = "JP"
 "Character {char}" = "文字 {char}"
 # navigator/widgets/viewer/file_viewer/file_viewer.py:451
 "Lines: {pattern}" = "行: {pattern}"
-# navigator/widgets/viewer/file_window/file_window.py:601
-"Only in the text view" = "テキスト表示でのみ"
-# navigator/widgets/viewer/file_window/file_window.py:294
-"This file has no size to follow" = "このファイルには追跡するサイズがありません"
-# navigator/widgets/viewer/file_window/file_window.py:296
-"Not for a copy fetched from elsewhere" = "他所から取得したコピーでは使えません"
-# navigator/widgets/viewer/file_window/file_window.py:298
-"Not while bytes typed over are not stored" = "上書きしたバイトを保存していない間は使えません"
-# navigator/widgets/viewer/file_window/file_window.py:300, navigator/widgets/viewer/file_window/file_window.py:627, navigator/widgets/viewer/file_window/file_window.py:622
-"Not while the markup is rendered" = "マークアップの整形表示中は不可"
-# navigator/widgets/viewer/file_window/file_window.py:605, navigator/widgets/viewer/file_window/file_window.py:625
-"Not while lines are filtered" = "行を絞り込んでいる間は使えません"
-# navigator/widgets/viewer/file_window/file_window.py:98
-"View - {path}" = "表示 - {path}"
-# navigator/widgets/viewer/file_window/file_window.py:600
-"Nothing has been typed over in hex" = "16進表示で上書きされたものはありません"
-# navigator/widgets/viewer/file_window/file_window.py:603
-"Only in the hex and dump views" = "16進表示とダンプ表示でのみ"
 # navigator/widgets/viewer/file_window/file_window.py:616
+"Only in the text view" = "テキスト表示でのみ"
+# navigator/widgets/viewer/file_window/file_window.py:309
+"This file has no size to follow" = "このファイルには追跡するサイズがありません"
+# navigator/widgets/viewer/file_window/file_window.py:311
+"Not for a copy fetched from elsewhere" = "他所から取得したコピーでは使えません"
+# navigator/widgets/viewer/file_window/file_window.py:313
+"Not while bytes typed over are not stored" = "上書きしたバイトを保存していない間は使えません"
+# navigator/widgets/viewer/file_window/file_window.py:315, navigator/widgets/viewer/file_window/file_window.py:642, navigator/widgets/viewer/file_window/file_window.py:637
+"Not while the markup is rendered" = "マークアップの整形表示中は不可"
+# navigator/widgets/viewer/file_window/file_window.py:620, navigator/widgets/viewer/file_window/file_window.py:640
+"Not while lines are filtered" = "行を絞り込んでいる間は使えません"
+# navigator/widgets/viewer/file_window/file_window.py:101
+"View - {path}" = "表示 - {path}"
+# navigator/widgets/viewer/file_window/file_window.py:615
+"Nothing has been typed over in hex" = "16進表示で上書きされたものはありません"
+# navigator/widgets/viewer/file_window/file_window.py:618
+"Only in the hex and dump views" = "16進表示とダンプ表示でのみ"
+# navigator/widgets/viewer/file_window/file_window.py:631
 "Not for a file read across a network" = "ネットワーク越しに読むファイルでは使えません"
-# navigator/widgets/viewer/file_window/file_window.py:617
+# navigator/widgets/viewer/file_window/file_window.py:632
 "Nothing is open" = "何も開いていません"
-# navigator/widgets/viewer/file_window/file_window.py:631, navigator/widgets/viewer/struct_window/struct_window.py:198
+# navigator/widgets/viewer/file_window/file_window.py:646, navigator/widgets/viewer/struct_window/struct_window.py:198
 "Nothing has been searched for yet" = "まだ何も検索していません"
-# navigator/widgets/viewer/file_window/file_window.py:197
+# navigator/widgets/viewer/file_window/file_window.py:208
 "Information was modified. Save changes?" = "内容が変更されています。変更を保存しますか?"
-# navigator/widgets/viewer/file_window/file_window.py:239, navigator/widgets/viewer/file_window/file_window.py:251
+# navigator/widgets/viewer/file_window/file_window.py:250, navigator/widgets/viewer/file_window/file_window.py:262
 "Could not write to file {path}: {error}" = "ファイル {path} に書き込めません: {error}"
-# navigator/widgets/viewer/file_window/file_window.py:482
+# navigator/widgets/viewer/file_window/file_window.py:497
 "Not a tree" = "ツリーではありません"
-# navigator/widgets/viewer/file_window/file_window.py:246
+# navigator/widgets/viewer/file_window/file_window.py:257
 "{path} has changed since it was opened. Nothing was written." = "{path} は開いた後に変更されました。何も書き込まれていません。"
 # navigator/widgets/viewer/filter_lines_dialog/filter_lines_dialog.py:41
 "Not a regular expression: {error}" = "正規表現ではありません: {error}"
