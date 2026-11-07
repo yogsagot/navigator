@@ -36,11 +36,9 @@ class ChangeDirDialog(Dialog):
         self._show(start)
 
     def _show(self, place: Any) -> None:
-        from navigator.lib.drives import Location
-
-        # Another drive's every read is a round trip: on threads.
-        elsewhere = isinstance(place, Location) and not place.is_local
-        self.tree.load_in_background = self.tree.probe_in_background = elsewhere
+        # Every read on a thread, the disk's as well as another drive's: a
+        # dead mount or a huge directory stops nothing but its own rows.
+        self.tree.load_in_background = self.tree.probe_in_background = True
         show_path(self.tree, place)
 
     @property

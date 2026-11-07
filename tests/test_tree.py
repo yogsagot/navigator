@@ -396,7 +396,9 @@ def test_ctrl_t_puts_a_tree_where_the_passive_panel_was(places):
 
     app = navigator(places)
     seen = []
-    run_app(app, [KeyEvent("t", ctrl=True), lambda a: seen.append((
+    run_app(app, [KeyEvent("t", ctrl=True),
+                  Until(lambda a: a.manager.tree.selected_path == places.resolve(), timeout=5),
+                  lambda a: seen.append((
         a.manager.left.visible, a.manager.right.visible, a.manager.tree.visible,
         a.manager.panels.children.index(a.manager.tree)
         < a.manager.panels.children.index(a.manager.right),
@@ -425,9 +427,40 @@ def test_the_tree_follows_the_active_panel(places):
     run_app(app, [
         KeyEvent("t", ctrl=True),
         KeyEvent("down"), KeyEvent("enter"),          # the panel goes into alpha
+        Until(lambda a: a.manager.tree.selected_path == (places / "alpha").resolve(), timeout=5),
         lambda a: seen.append(a.manager.tree.selected_path),
     ])
     assert seen == [(places / "alpha").resolve()]
+
+
+def test_following_the_panel_resolves_nothing_on_the_loop(places, monkeypatch):
+    import threading
+
+    from test_nav import navigator
+
+    app = navigator(places)
+    on_loop = []
+    real = pathlib.Path.resolve
+
+    def resolve(self, *args, **kwargs):
+        import traceback
+
+        # The tree's following only: the panel's own Enter resolves too (B5's).
+        callers = {frame.name for frame in traceback.extract_stack()}
+        if (threading.current_thread() is threading.main_thread() and app.is_running
+                and callers & {"_tree_follows_panel", "show_path", "show", "_walk_down"}):
+            on_loop.append(self)
+        return real(self, *args, **kwargs)
+
+    run_app(app, [
+        KeyEvent("t", ctrl=True),
+        Until(lambda a: a.manager.tree.selected_path == places.resolve(), timeout=5),
+        lambda a: monkeypatch.setattr(pathlib.Path, "resolve", resolve),
+        KeyEvent("down"), KeyEvent("enter"),
+        Until(lambda a: a.manager.tree.selected_path == (places / "alpha").resolve(), timeout=5),
+        lambda a: monkeypatch.setattr(pathlib.Path, "resolve", real),
+    ])
+    assert [p for p in on_loop if "alpha" in str(p)] == []
 
 
 def test_enter_in_the_tree_sends_the_panel_there_now(places):
@@ -964,3 +997,162 @@ def test_a_directory_trees_node_gives_its_whole_path(tmp_path):
     top = tree.inset + tree.header
     at = next(i for i, row in enumerate(tree.items) if row.node.name == "one")
     assert tree.tooltip_at(3, top + at) == str(tmp_path / "one")
+
+
+# -- a tree whose reads wait: nothing waits with them -------------------------------------------------
+
+
+def stalled():
+    """``/`` with ``usr`` (``lib``, ``local`` (``bin``)) and ``var``, read on
+    threads; every read below ``/`` waits for the returned event, as one on a
+    dead mount would, and the threads that read are recorded."""
+    import threading
+
+    gate = threading.Event()
+    threads = []
+    children = {"usr": ["lib", "local"], "local": ["bin"], "/": ["usr", "var"]}
+
+    def leaf(name):
+        return TreeNode(name, loader=load, probe=probe, data=children.get(name, []))
+
+    def load(parent):
+        threads.append(threading.current_thread())
+        if parent.name != "/":
+            gate.wait(5)
+        return [leaf(name) for name in parent.data]
+
+    def probe(node):
+        threads.append(threading.current_thread())
+        gate.wait(5)
+        return bool(node.data)
+
+    root = TreeNode("/", loader=load, data=children["/"], expanded=True)
+    return root, gate, threads
+
+
+def background_tree(root):
+    app, tree = mounted_tree(root)
+    tree.load_in_background = tree.probe_in_background = True
+    return app, tree
+
+
+def by_name(tree, name):
+    return next(row.node for row in tree.items if row.node.name == name)
+
+
+def test_space_on_a_branch_not_read_opens_it_without_waiting():
+    import threading
+
+    root, gate, threads = stalled()
+    app, tree = background_tree(root)
+    seen = {}
+
+    def start(a):
+        threads.clear()  # what the loop reads, not the setup before it
+        tree.cursor = names(tree).index("usr")
+
+    run_app(app, [
+        start, KeyEvent(" ", " "),
+        lambda a: seen.update(open=by_name(tree, "usr").expanded, rows=names(tree)),
+        lambda a: gate.set(), Until(lambda a: "lib" in names(tree), timeout=5),
+    ])
+    assert seen == {"open": True, "rows": ["/", "usr", "var"]}
+    assert threading.main_thread() not in threads
+
+
+def test_right_moves_into_a_branch_once_it_is_read():
+    root, gate, _ = stalled()
+    app, tree = background_tree(root)
+    seen = {}
+    run_app(app, [
+        lambda a: setattr(tree, "cursor", names(tree).index("usr")), KeyEvent("right"),
+        lambda a: seen.update(before=tree.selected_node.name),
+        lambda a: gate.set(), Until(lambda a: tree.selected_node.name == "lib", timeout=5),
+    ])
+    assert seen["before"] == "usr"
+
+
+def test_a_slash_confines_the_search_at_once_and_lands_once_the_branch_is_read():
+    root, gate, _ = stalled()
+    app, tree = background_tree(root)
+    seen = {}
+    run_app(app, [
+        KeyEvent("u", "u"), KeyEvent("/", "/"),
+        lambda a: seen.update(scope=tree.search_scope.name, on=tree.selected_node.name),
+        lambda a: gate.set(), Until(lambda a: tree.selected_node.name == "lib", timeout=5),
+        KeyEvent("l", "l"), KeyEvent("o", "o"),
+        lambda a: seen.update(found=tree.selected_node.name, path=tree.search_path),
+    ])
+    assert seen == {"scope": "usr", "on": "usr", "found": "local", "path": "u/lo"}
+
+
+def test_a_slash_into_a_branch_read_empty_is_taken_back():
+    # var has no probe, so it is taken to have children until it is read.
+    var = TreeNode("var", loader=lambda node: [])
+    root = TreeNode("/", [TreeNode("usr", [TreeNode("lib")]), var], expanded=True)
+    app, tree = background_tree(root)
+    seen = {}
+    run_app(app, [
+        KeyEvent("v", "v"), KeyEvent("/", "/"),
+        Until(lambda a: by_name(tree, "var").loaded, timeout=5),
+        lambda a: seen.update(scope=tree.search_scope, path=tree.search_path, open=by_name(tree, "var").expanded),
+    ])
+    assert seen == {"scope": None, "path": "v", "open": False}
+
+
+# -- the directory tree walks down off the loop --------------------------------------------------------
+
+
+def test_showing_a_directory_walks_down_on_a_thread(tmp_path, monkeypatch):
+    import threading
+
+    from navigator.widgets.tree.directory_tree import directory_tree as module
+
+    deep = tmp_path / "a" / "b" / "c"
+    deep.mkdir(parents=True)
+    threads = []
+    real = module._subdirectories
+
+    def recorded(node):
+        threads.append(threading.current_thread())
+        return real(node)
+
+    monkeypatch.setattr(module, "_subdirectories", recorded)
+    tree = module.DirectoryTree()
+    app = Application(tree, terminal=FakeTerminal(40, 20))
+    run_app(app, [
+        lambda a: (threads.clear(), tree.show(deep)),
+        Until(lambda a: tree.selected_path == deep.resolve(), timeout=5),
+    ])
+    assert threads and threading.main_thread() not in threads
+
+
+def test_only_the_last_place_asked_for_moves_the_cursor(tmp_path, monkeypatch):
+    import threading
+
+    from navigator.widgets.tree.directory_tree import directory_tree as module
+
+    first, second = tmp_path / "first", tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+    gate = threading.Event()
+    real = module._walk_down
+
+    def slow_first(root, place):
+        if place == first:
+            gate.wait(5)  # lands after the second
+        return real(root, place)
+
+    monkeypatch.setattr(module, "_walk_down", slow_first)
+    monkeypatch.setattr(module, "_PATHS", module.Background("test-tree-path", workers=2))
+    tree = module.DirectoryTree()
+    app = Application(tree, terminal=FakeTerminal(40, 20))
+    seen = {}
+    run_app(app, [
+        lambda a: (tree.show(first), tree.show(second)),
+        Until(lambda a: tree.selected_path == second.resolve(), timeout=5),
+        lambda a: gate.set(),
+        lambda a: seen.update(after=tree.selected_path),
+    ])
+    # The first walk landed too, late, and left the cursor where the second put it.
+    assert seen["after"] == second.resolve()

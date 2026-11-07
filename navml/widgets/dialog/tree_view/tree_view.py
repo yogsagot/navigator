@@ -243,6 +243,8 @@ class TreeView(ListViewer):
     load_in_background = False
     #: The nodes whose children are being read on a thread now.
     _loading: set[TreeNode] | None = None
+    #: What to do once a node's children are in: :meth:`when_loaded`.
+    _after_load: dict[TreeNode, list[Callable[[], None]]] | None = None
 
     def mounted(self) -> None:
         # Before ListViewer's two: the rows have to exist before a cursor can
@@ -301,6 +303,30 @@ class TreeView(ListViewer):
         if not node.loaded:
             node.set_children(outcome.result())
             self.refresh()
+        waiting = self._after_load.pop(node, []) if self._after_load is not None else []
+        if waiting:
+            self._flatten()  # the new rows, before what waited for them looks
+        for then in waiting:
+            then()
+
+    def when_loaded(self, node: TreeNode, then: Callable[[], None]) -> None:
+        """*then()* once *node*'s children are in hand: at once if they are,
+        else when their read on a thread lands (:meth:`children_of` starts
+        it) -- how a key that needs a branch's rows waits without the loop
+        waiting with it."""
+        if node.loaded or not self.load_in_background or node.loader is None:
+            node.children()
+            then()
+            return
+        app = self.application
+        if app is None or not app.is_running:
+            node.children()
+            then()
+            return
+        if self._after_load is None:
+            self._after_load = {}
+        self._after_load.setdefault(node, []).append(then)
+        self.children_of(node)
 
     def index_of(self, node: TreeNode) -> int:
         """The row showing *node*, or -1 while a closed branch hides it."""
@@ -338,17 +364,29 @@ class TreeView(ListViewer):
             return
         if node.expanded:
             self.collapse(node)
-        elif node.has_children():
+        elif self.node_has_children(node):
+            # Asked as painting asks: a probe still out answers yes, the
+            # ``[+]`` the row shows, and the branch fills in when it is read.
             self.expand(node)
             if not self.children_of(node) and node.loaded:
                 self.refresh()
 
     def descend(self, node: TreeNode) -> None:
         """Open *node* and put the cursor on its first child, or on the next
-        row when it has none."""
-        if self.load_in_background and not node.loaded:
-            self.expand(node)  # its children read on a thread; the cursor stays
+        row when it has none -- once its children are in, when they are read
+        on a thread (:meth:`when_loaded`); a cursor moved away meanwhile is
+        left where it went."""
+        if self.load_in_background and not node.loaded and node.loader is not None:
+            self.expand(node)
+
+            def then() -> None:
+                if self.selected_node is node:
+                    self._descend_loaded(node)
+            self.when_loaded(node, then)
             return
+        self._descend_loaded(node)
+
+    def _descend_loaded(self, node: TreeNode) -> None:
         children = node.children() if node.has_children() else []
         if children:
             self.select(children[0])
@@ -392,6 +430,10 @@ class TreeView(ListViewer):
 
     def locate(self, names: Iterable[str]) -> TreeNode | None:
         """Find the node at the path *names* from the root and put the cursor on it.
+
+        Reads every branch on the way at once, whatever :attr:`load_in_background`
+        says: for a tree whose reads cannot wait (Navigator's directory
+        trees walk down on a thread of their own).
 
         As far as the path goes: a name that is not there stops the walk, and
         the cursor lands on the deepest node that was found.
@@ -611,13 +653,33 @@ class TreeView(ListViewer):
             node = self.root
         else:
             return
-        if node is None or not node.has_children() or not node.children():
+        if node is None or not self.node_has_children(node):
             return
-        self.search_trail = self.search_trail + ((self.search_scope, text, node),)
+        if node.loaded and not node.children():
+            return
+        trail, scope = self.search_trail, self.search_scope
+        self.search_trail = trail + ((scope, text, node),)
         self.search_scope = node
         self.search = ""
-        # Selecting a child opens its branch, and re-flattens at once.
-        self.select(node.children()[0])
+        opened = node.expanded
+        self.expand(node)
+
+        def then() -> None:
+            # Read on a thread meanwhile: a branch that turned out empty
+            # takes the ``/`` back; a search ended or moved on is left be.
+            if self.search_scope is not node or self.search != "":
+                return
+            children = node.children()
+            if children:
+                # The branch was opened above: its rows, before the cursor
+                # is put on one of them.
+                self._flatten()
+                self.select(children[0])
+            else:
+                self.search_trail, self.search_scope, self.search = trail, scope, text
+                node.expanded = opened
+                self.refresh()
+        self.when_loaded(node, then)
 
     def _search_key(self, event: KeyEvent) -> bool:
         """A key while searching: True if the search took it.

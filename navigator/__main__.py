@@ -1011,10 +1011,11 @@ def main(argv: list[str] | None = None) -> int:
     app.marks = appearance.marks if args.marks is None else args.marks
     app.direction = args.direction if args.direction is not None else SETTINGS.interface.direction
     app.run()
-    if app.shutdown_failures:
+    failures = getattr(app, "shutdown_failures", 0)
+    if failures:
         print(tr_n("nav: {n} clean-up step failed on the way out; see {log}",
                    "nav: {n} clean-up steps failed on the way out; see {log}",
-                   app.shutdown_failures).format(n=app.shutdown_failures, log=errorlog.PATH),
+                   failures).format(n=failures, log=errorlog.PATH),
               file=sys.stderr)
     return 0
 

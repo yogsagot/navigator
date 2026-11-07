@@ -34,7 +34,8 @@ from navml.widgets.menu.context_menu import ContextMenuHost
 #: waiting for it.
 _COUNTS = Background("nav-count", workers=2)
 
-#: Where a place on another drive is walked down to, for :func:`show_elsewhere`.
+#: Where a place is walked down to, for :func:`show_path`: one at a time, the
+#: latest call's landing the only one that moves the cursor.
 _PATHS = Background("nav-tree-path", workers=1)
 
 
@@ -134,78 +135,83 @@ def directory_root(hidden: bool = True, at: Any = None) -> TreeNode:
     return root
 
 
-def show_elsewhere(tree: TreeView, location: Any) -> None:
-    """:func:`show_path` for a place on another drive: every directory on the
-    way down read on a thread, the branches opened once they are in."""
+def _walk_down(root: TreeNode, place: Any) -> tuple[list[str], list[list[TreeNode]], dict[int, TreeNode]]:
+    """On a thread: *place*'s names below *root* (resolved, on the disk), the
+    directories of each level on the way down, and -- for a dot-directory on
+    the way that the tree hides -- the one node to graft in at that level."""
     from navigator.lib.drives import Location
 
-    root = tree.root
-    if root is None:
-        return
-    names = [part for part in location.normalized().path.parts if part != "/"]
     hidden = root.show_hidden
-
-    def read() -> list[list[TreeNode]]:
-        levels, here = [], root.data
-        for name in names:
-            levels.append(_subdirectories(directory_node(here, hidden=hidden)))
-            here = here / name
-        return levels
-
-    def landed(outcome: Outcome) -> None:
-        if tree.root is not root:
-            return  # another tree since
+    if _elsewhere(place):
+        names = [part for part in place.normalized().path.parts if part != "/"]
+    else:
+        if isinstance(place, Location):
+            place = place.local
+        names = list(Path(place).resolve().parts)
+        if names and names[0] == root.name:
+            names = names[1:]
+    levels: list[list[TreeNode]] = []
+    grafts: dict[int, TreeNode] = {}
+    here = root.data
+    for depth, name in enumerate(names):
         try:
-            levels = outcome.result()
+            children = _subdirectories(directory_node(here, hidden=hidden))
         except OSError:
-            levels = []
-        node = root
-        for name, children in zip(names, levels):
-            if not node.loaded:
-                node.set_children(children)
-            child = next((c for c in node.children() if c.name == name), None)
-            if child is None:
+            break
+        levels.append(children)
+        target = here / name
+        if not any(child.name == name for child in children):
+            # A dot-directory the tree hides, on the panel's way: that one
+            # directory grafted in; anything else not there ends the walk.
+            if _listed(name, hidden) or _elsewhere(target) or not Path(target).is_dir():
                 break
-            node = child
-        tree.refresh()
-        tree.select(node)
-
-    _PATHS.run(tree, read, done=landed)
+            grafts[depth] = directory_node(target, name, hidden=hidden)
+        here = target
+    return names, levels, grafts
 
 
-def show_path(tree: TreeView, path: Path) -> None:
+def show_path(tree: TreeView, path: Any) -> None:
     """Put *tree*'s cursor on *path*, opening every branch on the way down.
+
+    **The walk is on a thread**, for the disk as for another drive: resolving
+    the path and reading each directory above it may wait on a dead mount,
+    a huge directory or a server.  The cursor lands when the walk does (at
+    once with no loop running); only the latest call's walk moves it, so a
+    panel moving fast leaves the tree where it stopped.
 
     **A dot-directory on the way is grafted in** when the tree hides them: a
     panel inside ``~/.config`` with its dot-files hidden still has a tree
     that can show where it is.  The graft is that one directory, not its
     dot-siblings, and it stays until the branch is read again.
     """
-    node = tree.root
-    if node is None:
+    root = tree.root
+    if root is None:
         return
-    if _elsewhere(path):
-        show_elsewhere(tree, path)
-        return
-    from navigator.lib.drives import Location
+    generation = getattr(tree, "_show_generation", 0) + 1
+    tree._show_generation = generation
 
-    if isinstance(path, Location):
-        path = path.local
-    names = list(Path(path).resolve().parts)
-    if names and names[0] == node.name:
-        names = names[1:]
-    for name in names:
-        children = node.children()
-        child = next((c for c in children if c.name == name), None)
-        if child is None:
-            target = node.data / name
-            if _listed(name, node.show_hidden) or not target.is_dir():
+    def landed(outcome: Outcome) -> None:
+        if tree.root is not root or tree._show_generation != generation:
+            return  # another tree, or another place asked for, since
+        try:
+            names, levels, grafts = outcome.result()
+        except OSError:
+            names, levels, grafts = [], [], {}
+        node = root
+        for depth, (name, children) in enumerate(zip(names, levels)):
+            if not node.loaded:
+                node.set_children(children)
+            child = next((c for c in node.children() if c.name == name), None)
+            if child is None and depth in grafts:
+                child = grafts[depth]
+                node.set_children(sorted(node.children() + [child], key=lambda c: c.name.lower()))
+            if child is None:
                 break
-            child = directory_node(target, name, hidden=node.show_hidden)
-            node.set_children(sorted(children + [child], key=lambda c: c.name.lower()))
-            tree.refresh()
-        node = child
-    tree.select(node)
+            node = child
+        tree.refresh()
+        tree.select(node)
+
+    _PATHS.run(tree, _walk_down, root, path, done=landed)
 
 
 def count_files(path: Path) -> tuple[int, int]:
@@ -257,6 +263,9 @@ class DirectoryTree(ContextMenuHost, TreeView):
     #: Whether a branch has anything in it is asked on a thread: one stuck
     #: automount under ``/`` would otherwise stop the whole tree painting.
     probe_in_background = True
+    #: And a branch opened is read on one -- on the disk too: a dead mount or
+    #: a directory of a hundred thousand entries stops nothing but its rows.
+    load_in_background = True
 
     #: Rows kept under the tree for the path and the file count.
     INFO_ROWS = 2
@@ -274,6 +283,10 @@ class DirectoryTree(ContextMenuHost, TreeView):
         #: :meth:`set_show_hidden`.
         self.show_hidden = True
         self.root = directory_root()
+        #: The place :meth:`show` was last asked for, as asked -- what
+        #: following a panel compares with, since where it lands is found on
+        #: a thread (:func:`show_path`).
+        self.asked: Any = None
         #: ``count_files`` per path, cleared by :meth:`reload`: counting runs
         #: when the cursor stops on a directory, not on every repaint -- and on
         #: a thread, the line left blank until the count is in.
@@ -309,7 +322,8 @@ class DirectoryTree(ContextMenuHost, TreeView):
 
     def show(self, path: Any) -> None:
         """Put the cursor on *path*, opening every branch on the way down --
-        on another drive, a tree of that drive, read on threads."""
+        on another drive, a tree of that drive; read on threads either way."""
+        self.asked = path
         self.use_drive_of(path)
         show_path(self, path)
 
@@ -318,7 +332,6 @@ class DirectoryTree(ContextMenuHost, TreeView):
         here = self.root.data if self.root is not None else None
         same = (_elsewhere(path) and _elsewhere(here) and here.site == path.site
                 and here.outer == path.outer) or (not _elsewhere(path) and not _elsewhere(here))
-        self.load_in_background = _elsewhere(path)
         if not same:
             self._counts.clear()
             self._counting.clear()

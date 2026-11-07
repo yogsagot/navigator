@@ -74,12 +74,15 @@ Slots `[94-101]`, `[104-110]`.
 - **Nothing a tree paints waits on the disk.** `TreeView.probe_in_background` (on for `DirectoryTree`) asks an
   unopened node's probe on a thread (`navml.background`), drawing `[+]` until it answers and refreshing then; the
   info band's `count_files` runs on its own pool when the cursor stops, the line blank until it is in. Without a
-  running application both answer at once, as before. On the disk, opening a branch (`children()`) and `show_path`
-  still read on the loop: the panel has just listed the same directories, and a branch the user opens is one at a
-  time. **On another drive** (`navigator-drives`) every read is a round trip: the tree is rooted on that drive
-  (`DirectoryTree.use_drive_of`, `directory_root(at=)`), `TreeView.load_in_background` reads an opened branch on a
-  thread (`children_of`: open and empty until it lands), and `show_elsewhere` walks the path on a thread and opens
-  the branches when it is in. Alt+T's box sets the same on its plain `TreeView` (`ChangeDirDialog._show`).
+  running application both answer at once, as before. **Every read is on a thread, the disk's too** (a dead
+  mount or a 100k-entry directory froze the screen before): `DirectoryTree.load_in_background` is on, so an opened
+  branch is read in `children_of` (open and empty until it lands), and **`show_path` is one walk on `_PATHS` for
+  any drive** (`_walk_down`: `resolve()`, each level's `_subdirectories`, the dot-directory graft check), the
+  branches opened and the cursor put when it lands. `tree._show_generation` makes only the latest call's landing
+  move the cursor. `DirectoryTree.show` records `asked`; `Manager._tree_follows_panel` compares the panel's place
+  with that, never `resolve()`s on the loop. Another drive's tree is rooted there (`use_drive_of`,
+  `directory_root(at=)`). Alt+T's box turns both flags on for its plain `TreeView` (`ChangeDirDialog._show`). With
+  the loop running, the cursor lands a moment after `show` -- tests wait with an `Until`.
 - **Hidden files**: Ctrl+T's tree tracks the active panel's `show_hidden` (`DirectoryTree.set_show_hidden`); Alt+T and
   the tree window take it when opened (`hidden=`). Nodes carry it as `TreeNode.show_hidden`, and `show_path` grafts in a
   dot-directory the path goes through, so a panel inside `~/.config` still has a tree that finds it.

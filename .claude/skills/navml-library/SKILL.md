@@ -76,6 +76,11 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 - **`navml/background.py`'s `Background`**: a widget's slow read on a pool of threads, answered on the loop with an
   `Outcome` and the application woken to paint it; with no application running it answers on the spot. One pool per
   kind of read. `TreeView.probe_in_background` and `FileDialog.read_directory` use it.
+- **`TreeView` with `load_in_background`/`probe_in_background` never reads on the loop from a key**: Space/+/-
+  and `[+]` ask `node_has_children` (a probe still out answers yes), Right and `/` open the branch and finish in
+  `when_loaded(node, then)` (the cursor goes in, or the search scope lands on the first child, once the read is in;
+  a `/` into a branch read empty is taken back; a cursor or search moved on meanwhile is left be). `locate()` still
+  reads at once.
 - **`MaskedLine`/`MaskedField`**: digits typed into fixed places; Left/Right, Home/End, Backspace/Delete blank a digit;
   a base-8 `MaskedField` takes 0-7 only. **`DateField`/`TimeField`** are masked lines with a `Calendar` (TVDEMO's
   `TCalendarView` with a cursor; month/year picked from lists by click, `M`/`Y`, or Tab) or a `TimePicker` dropped by

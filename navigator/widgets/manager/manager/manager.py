@@ -5917,17 +5917,13 @@ class Manager(Window):
         if self.tree_replaces is None:
             return
         location, hidden = self.active_panel.location, self.active_panel.show_hidden
-        if not location.is_local:
-            with untracked():
-                self.tree.set_show_hidden(hidden)
-                if self.tree.selected_path != location:
-                    self.tree.show(location)
-            return
-        path = location.local
+        place = location if not location.is_local else location.local
         with untracked():
             self.tree.set_show_hidden(hidden)
-            if self.tree.selected_path != Path(path).resolve():
-                self.tree.show(path)
+            # Compared with what was asked, not where it landed: that is
+            # resolved on a thread (``show_path``), never here on the loop.
+            if self.tree.asked != place:
+                self.tree.show(place)
 
     def _panel_follows_tree(self) -> None:
         """A cursor at rest in a focused tree takes the panel with it.

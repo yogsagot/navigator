@@ -5,6 +5,8 @@ changing attributes."""
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import stat
 import threading
 import time
@@ -130,10 +132,12 @@ def test_the_tree_of_another_drive_is_read_on_threads(desk):
         show, Until(lambda a: tree.selected_path == memory.location("/top/sub/deeper"), timeout=5),
         lambda a: seen.update(rows=[row.node.name for row in tree.items], background=tree.load_in_background),
         lambda a: tree.show(a.manager.left.path),  # back on the disk: a tree of the disk again
-        lambda a: seen.update(local=tree.load_in_background),
+        Until(lambda a: tree.selected_path == a.manager.left.path.resolve(), timeout=5),
+        lambda a: seen.update(local=tree.load_in_background, root=tree.root.data),
     ])
     assert seen["rows"][:5] == ["/", "other", "top", "sub", "deeper"] and seen["background"]
-    assert seen["local"] is False
+    # The disk's tree is read on threads as well: a dead mount waits off the loop.
+    assert seen["local"] is True and seen["root"] == Path("/")
 
 
 def test_quick_view_shows_the_head_of_a_file_on_another_drive(desk):
