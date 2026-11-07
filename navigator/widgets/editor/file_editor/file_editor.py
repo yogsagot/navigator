@@ -37,7 +37,7 @@ from typing import Any, Awaitable, Callable
 from navkit import commands
 from navkit.bidi import has_rtl, order_cells, text_rtl
 from navkit.capabilities import GLYPHS_UNICODE
-from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
+from navkit.events import ContextMenuEvent, DoubleClickEvent, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.i18n import tr
 from navkit.reactive import computed, reactive
 from navkit.screen import Surface
@@ -47,6 +47,7 @@ from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
+from navml.widgets.menu.context_menu.context_menu import open_on_click
 
 from navigator.widgets.editor.commands import (
     ReopenWithEncoding,
@@ -463,6 +464,10 @@ class FileEditor(ContextMenuHost, Widget):
         "current_line_selected",
         "current_column",
         "match",
+        # DN's column ruler (``RulerVisible``): ``GetColor($4240)``, slots [64]
+        # and [66], the digits and the highlighted tens.
+        "ruler",
+        "ruler_tens",
     )
 
     #: ``EDITOR COMMANDS``, the keys that need no second one.  A binding with
@@ -704,6 +709,10 @@ class FileEditor(ContextMenuHost, Widget):
     #: again at a second ^K H or as soon as anything marks.
     block_hidden: bool = reactive(False)
 
+    #: ``RulerVisible``: DN's column ruler, shown on the cursor's row while
+    #: the right button drags (:meth:`_right_button`).
+    ruler: bool = reactive(False)
+
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         self._use(EditBuffer())
@@ -729,6 +738,8 @@ class FileEditor(ContextMenuHost, Widget):
         #: ``ForcedCRLF``: the ``NEWLINES`` key every line is written with, from
         #: ``highlight.ini``'s ``line_ending`` (:meth:`apply_defaults`), or "".
         self.forced_ending = ""
+        #: The right press while its button is down: a click until it moves.
+        self._right_press: MouseClickEvent | None = None
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -3261,6 +3272,11 @@ class FileEditor(ContextMenuHost, Widget):
             if app is not None:
                 app.request_clipboard(primary=True)
             return True
+        if event.button == "right" or self._right_press is not None:
+            if self._right_button(event):
+                return True
+        if event.button == "right":
+            return False
         if event.button != "left":
             return False
         if event.action == "press":
@@ -3305,6 +3321,61 @@ class FileEditor(ContextMenuHost, Widget):
         else:
             return False
         return True
+
+    def _right_button(self, event: MouseClickEvent) -> bool:
+        """The right button: a click is the context menu, a drag DN's column ruler.
+
+        ``MICROED.PAS``'s right press put the cursor at the pointer and set
+        ``RulerVisible``; while it was held the cursor followed the pointer,
+        scrolling past the edges, and the release took the ruler away.  Here
+        the press takes the mouse -- so navkit offers no menu for it -- and
+        waits: the first move to another cell shows the ruler and moves the
+        cursor, and a release that never moved opens the context menu, as a
+        press would have.  Departures (asked for): the menu opens on the
+        release, the ruler on the first move, so a click never flashes it;
+        and the block is kept, where DN's ``BlockOff`` hid it -- a glance at
+        a column should not cost a marked block.
+        """
+        app = self.application
+        if event.action == "press":
+            if event.button != "right":
+                self._end_ruler()  # a release lost: what was left is let go
+                return False
+            self.focus()
+            self._right_press = event
+            if app is not None:
+                app.capture_mouse(self)
+            return True
+        press = self._right_press
+        if press is None:
+            return False
+        if event.action == "move":
+            if not self.ruler and (event.x, event.y) == (press.x, press.y):
+                return True
+            self.ruler = True
+            self._moved()
+            # Past the top or bottom row the text scrolls a line at a time.
+            if event.y < 0 and self.top > 0:
+                self.top -= 1
+            elif event.y >= self.height and self.top < len(self.document) - 1:
+                self.top += 1
+            self._point(event, extending=False)
+            return True
+        if event.action == "release":
+            dragged = self.ruler
+            self._end_ruler()
+            if not dragged:
+                open_on_click(self, ContextMenuEvent.of(press))
+            return True
+        return True
+
+    def _end_ruler(self) -> None:
+        self._right_press = None
+        self.ruler = False
+
+    def unmounting(self) -> None:
+        self._end_ruler()
+        super().unmounting()
 
     def _point(self, event: MouseClickEvent, extending: bool = False) -> None:
         """The cursor to the cell under *event*, held inside the text's rows."""
@@ -3936,6 +4007,19 @@ class FileEditor(ContextMenuHost, Widget):
                 surface.set_cell(x, y, char, cell)
         # The cursor's painted column: on a reordered line its column is elsewhere.
         x = self._visual_column(self.line, self.col) - left
+        y = self.line - self.top
+        if self.ruler and self._right_press is not None and 0 <= x < width and 0 <= y < self.height:
+            # ``RulerVisible``: from the cursor rightwards, laid before the
+            # column as DN laid it; one ``draw_runs``, so a mirrored screen
+            # keeps the digits in order.
+            looks = {False: self.part_style("ruler"), True: self.part_style("ruler_tens")}
+            runs: list[tuple[str, Any]] = []
+            for digit, high in columns.ruler(width - x):
+                if runs and runs[-1][1] is looks[high]:
+                    runs[-1] = (runs[-1][0] + digit, looks[high])
+                else:
+                    runs.append((digit, looks[high]))
+            surface.draw_runs(x, y, runs)
         if self.highlight_column and 0 <= x < width:
             # ``WordRec(B[Delta.X - Pos.X]).Hi := CC[7]``: every row, text or not.
             column_style = self.part_style("current_column")

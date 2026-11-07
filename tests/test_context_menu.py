@@ -284,8 +284,11 @@ def test_the_editor_offers_select_all_and_a_right_click_inside_the_block_keeps_i
                   lambda a: seen.update(captions=captions(a)),
                   KeyEvent("a", "a"), SHUT,
                   lambda a: seen.update(block=editor(a).block),
-                  right(3, 3), OPEN,
-                  lambda a: seen.update(after=editor(a).block, enabled=enabled(a))])
+                  # The editor's menu opens on the release: a press may
+                  # still become a drag, DN's column ruler.
+                  right(3, 3), right(3, 3, "release"), OPEN,
+                  lambda a: seen.update(after=editor(a).block, enabled=enabled(a),
+                                        ruler=editor(a).ruler)])
     assert seen["captions"][:10] == [
         "Undo", "Redo", "Cut", "Copy", "Paste", "Clear", "Delete line", "Delete word left",
         "Select all", "Find...",
@@ -293,6 +296,22 @@ def test_the_editor_offers_select_all_and_a_right_click_inside_the_block_keeps_i
     assert seen["block"] is not None
     assert seen["after"] == seen["block"]
     assert seen["enabled"]["Cut"] and seen["enabled"]["Indent block"]
+    assert seen["ruler"] is False
+
+
+def test_a_right_press_in_the_editor_waits_for_the_release_and_a_drag_opens_no_menu(tree):
+    app = navigator(tree)
+    seen = {}
+    run_app(app, [KeyEvent("down"), KeyEvent("down"), KeyEvent("down"), KeyEvent("f4"),
+                  EDITING, right(3, 3),
+                  lambda a: seen.update(after_press=popup(a)),
+                  right(6, 4, "move"),
+                  lambda a: seen.update(ruler=editor(a).ruler),
+                  right(6, 4, "release"),
+                  lambda a: seen.update(after_drag=popup(a), ruler_after=editor(a).ruler)])
+    assert seen["after_press"] is None
+    assert seen["ruler"] is True
+    assert seen["after_drag"] is None and seen["ruler_after"] is False
 
 
 # -- the menu bar --------------------------------------------------------------------------

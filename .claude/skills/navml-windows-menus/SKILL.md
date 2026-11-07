@@ -110,7 +110,8 @@ greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
 - **A context menu** (right click, Menu key, Shift+F10; a departure, since DN had none) is a `ContextMenu` from a
   `ContextMenuHost`'s `context_menu()`, run in a `PopupMenu` at the pointer. Its choice runs with `start=host`. A
   right press is delivered first, then offered again as navkit's `ContextMenuEvent`, so a widget that uses the right
-  button keeps it. A component (`InputLine`) cannot take the mixin and writes the handlers out. A `ContextMenu` never
+  button keeps it; one that captures the press for a drag (the editor's ruler) opens the menu itself on a release
+  that never moved, `open_on_click(host, ContextMenuEvent.of(press))`. A component (`InputLine`) cannot take the mixin and writes the handlers out. A `ContextMenu` never
   joins the bar. See `reference/menus.md`, *A widget's context menu opens where the user points*.
 - **A `MenuBox` opened shorter than `measure()` scrolls** (a departure; TV boxes never outgrew the screen): `top` is
   the first entry shown, a plain attribute `scroll()` derives from `current` while painting and in `entry_at` -- never

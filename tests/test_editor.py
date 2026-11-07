@@ -937,6 +937,49 @@ def test_a_ctrl_click_extends_as_a_shift_click_does(files):
     assert editor.block == (Pos(0, 2), Pos(1, 3))
 
 
+def right(x, y, action):
+    return (x, y, action, {"button": "right"})
+
+
+def test_a_right_drag_shows_dns_ruler_from_the_cursor_and_the_release_takes_it_away(files):
+    from navigator.lib.editor.columns import ruler
+
+    assert "".join(digit for digit, _ in ruler(25)) == "1234567891123456789212345"
+    assert [at for at, (_, tens) in enumerate(ruler(25)) if tens] == [9, 19]
+    assert ruler(100)[-1] == ("0", True)  # the hundredth: 9 rolls over to 0
+
+    app, editor = mouse(files, right(1, 0, "press"), right(3, 1, "move"))
+    assert editor.ruler and (editor.line, editor.col) == (1, 3)
+    buffer = screen(app)
+    ox, oy = editor.offset()
+    x, y = ox + editor.x + 3, oy + editor.y + 1
+    assert "".join(buffer.get(x + n, y)[0] for n in range(12)) == "123456789112"
+    tens, plain = buffer.get(x + 9, y)[1], buffer.get(x, y)[1]
+    assert tens == editor.part_style("ruler_tens") and plain == editor.part_style("ruler")
+    assert tens != plain
+
+    app, editor = mouse(files, right(1, 0, "press"), right(3, 1, "move"), right(3, 1, "release"))
+    assert not editor.ruler and (editor.line, editor.col) == (1, 3)
+    assert "123456789" not in row_of(screen(app), oy + editor.y + 1)
+
+
+def test_a_right_drag_past_the_bottom_scrolls_and_keeps_the_block(files):
+    (files / "text.txt").write_bytes(b"".join(b"line %03d\n" % n for n in range(100)))
+    app, editor = mouse(files, (0, 0, "press", {}), (4, 0, "move", {}), (4, 0, "release", {}),
+                        right(1, 2, "press"), right(1, 200, "move"), right(1, 200, "move"))
+    assert editor.top == 2 and editor.ruler
+    assert editor.line == editor.top + editor.height - 1
+    assert editor.block == (Pos(0, 0), Pos(0, 4))
+
+
+def test_a_right_click_paints_no_ruler_and_closing_mid_drag_leaves_nothing_set(files):
+    app, editor = mouse(files, right(2, 0, "press"), right(2, 0, "move"))
+    assert not editor.ruler and editor._right_press is not None  # a move inside the cell is no drag
+    app, editor = mouse(files, right(2, 0, "press"), right(5, 1, "move"))
+    editor.unmounting()
+    assert not editor.ruler and editor._right_press is None
+
+
 @pytest.mark.parametrize("vertical", [False, True])
 def test_a_drag_past_a_lines_end_marks_only_to_its_end(files, vertical):
     # Terminals report motion within the pressed cell too: that marks nothing.

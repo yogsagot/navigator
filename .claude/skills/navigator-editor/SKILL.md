@@ -471,6 +471,16 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and
   the input lines do. Ctrl+Ins still copies the block to the clipboard. Checked on a pty with SGR mouse bytes and
   `xclip -o`, not only with posted events.
+- **The right button: a click is the context menu, a drag DN's column ruler** (`RulerVisible`, `MICROED.PAS`;
+  `FileEditor._right_button`). The press captures the mouse, so navkit offers no `ContextMenuEvent`; the first move
+  to another cell sets `ruler` and the cursor follows the pointer (scrolling past the top/bottom as the left drag
+  does); a release after a drag hides it and leaves the cursor, and a release that never moved opens the menu
+  through `open_on_click(self, ContextMenuEvent.of(press))`, so `prepare_context` still decides about the block.
+  Painted on the cursor's row from its column in one `draw_runs`: `columns.ruler()`, `n mod 10` with every tenth
+  the tens digit in `::ruler_tens`; `::ruler`/`::ruler_tens` are DN's `GetColor($4240)`, slots [64]/[66]
+  (`$editor-menu-normal`/`-shortcut`). Departures (asked): the menu opens on release and the ruler on the first
+  move, and the block is kept (DN's `BlockOff` hid it). `unmounting` and any other press clear a ruler whose
+  release was lost.
 - **Redo, Shift+Alt+Backspace / Ctrl+Shift+Z** (`Redo`, a departure: DN had none; Borland's IDE had these keys;
   also Editor > *Redo* and the context menu): `EditBuffer.redo_stack` holds the groups undone, any new change
   (`_record`) empties it. `redo()` replays a group forward through the listeners and returns where its last change

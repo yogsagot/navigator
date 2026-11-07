@@ -191,3 +191,22 @@ def optimal_fill(line: str, tab: int = TAB) -> str:
         column += advance(char, column, tab)
     out.append(" " * blanks)
     return "".join(out)
+
+
+def ruler(width: int) -> list[tuple[str, bool]]:
+    """*width* cells of DN's column ruler, each ``(digit, tens)``: what
+    ``Draw`` laid from the cursor rightwards while the right button was held
+    (``MICROED.PAS``, ``RulerVisible``).
+
+    DN's ``MoveCStr`` string, ``'123456789'`` then ``'~1~'``, ``'123456789'``,
+    ``'~2~'`` and on, ``0`` after ``9``: the cell *n* columns along, the
+    cursor's own being 1, shows ``n mod 10``, and every tenth shows the tens
+    digit, highlighted (*tens* true).
+    """
+    cells = []
+    for n in range(1, width + 1):
+        if n % 10 == 0:
+            cells.append((str(n // 10 % 10), True))
+        else:
+            cells.append((str(n % 10), False))
+    return cells
