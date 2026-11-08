@@ -3,9 +3,9 @@
 A departure, asked for: DOS Navigator's viewer showed bytes and lines only.
 The model is :mod:`navigator.lib.viewer.structured`; the tree is
 :class:`~navigator.widgets.viewer.struct_window.data_tree.DataTree`.  Opened
-by :func:`open_tree` -- Shift+F4 in the text viewer (``FileWindow.as_tree``)
+by :func:`open_tree` -- Shift+F3 in the text viewer (``FileWindow.as_tree``)
 or F3 under ``[viewer] render_structured`` -- and back to the text by
-Shift+F4 here, each in the other's place (``db_window.take_place``).
+Shift+F3 here, each in the other's place (``db_window.take_place``).
 """
 
 from __future__ import annotations
@@ -165,7 +165,7 @@ class StructWindow(Window):
         return True
 
     async def as_text(self) -> None:
-        """Shift+F4: F3's text view of the same file in this window's place,
+        """Shift+F3: F3's text view of the same file in this window's place,
         on the cursor's line when the format said where it is (YAML)."""
         from navigator.lib.config.file_history import open_viewer
         from navigator.widgets.viewer.db_window.db_window import take_place

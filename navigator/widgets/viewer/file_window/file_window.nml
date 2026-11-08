@@ -2,6 +2,7 @@ from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, FilterLines, FollowEnd, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, ViewAsTree, WriteModify
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
+from navigator.widgets.manager.commands import EditNamed
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow
@@ -37,8 +38,12 @@ FileWindow(Window):
         f3: CloseViewer
         f2: Unwrap
         f4: HexMode
-        #: View > *Markdown*: a departure, DN bound nothing there.
-        shift+f4: SwitchRendered
+        #: View > *Markup view*, a departure: Shift+F3 was DN's *Phone Book*
+        #: (``cmPhoneBook``), dropped as having no POSIX meaning -- the key
+        #: beside F3 to view another way.
+        shift+f3: SwitchRendered
+        #: DN's ``kbShiftF4``, ``cmXEditFile``: *Edit...*, as in the panels.
+        shift+f4: EditNamed
         f5: GotoAddress
         f6: AddFilter
         f7: SearchFor
@@ -192,7 +197,7 @@ FileWindow(Window):
             command: SwitchRendered
             key: 'Shift-F4'
         #: A departure, asked for: any file's data as a tree -- HTML too,
-        #: whose Shift+F4 is the Markup view's.  No key.
+        #: whose Shift+F3 is the Markup view's.  No key.
         MenuItem:
             text: 'D~a~ta tree'
             tooltip: "Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree"

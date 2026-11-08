@@ -414,6 +414,10 @@ RETIRED_DEFAULTS: dict[tuple[str, str], tuple[tuple[str, ...], ...]] = {
     # The Find bar took Ctrl+F and Ctrl+R from DN's dialogs (F7, Ctrl+F7 stay).
     ("editor", "start_search"): (("ctrl+f",),),
     ("editor", "replace"): (("ctrl+r",),),
+    # Shift+F4 went back to DN's *Edit...*; the viewers' view switches took Shift+F3.
+    ("viewer", "switch_rendered"): (("shift+f4",),),
+    ("db_viewer", "view_sheet_as_text"): (("shift+f4",),),
+    ("struct_window", "view_tree_as_text"): (("shift+f4",),),
 }
 
 

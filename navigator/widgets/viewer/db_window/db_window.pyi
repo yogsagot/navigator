@@ -8,6 +8,7 @@ from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import ChangeWidth, ChooseTable, ContinueSearch, EditDbField, RunQuery, SearchAgain, SearchFor
 from navigator.widgets.viewer.commands import ShowFields, ShowMemo, SortColumn, TableFormat, ViewSheetAsText
 from navigator.widgets.viewer.db_window.db_viewer import DBViewer
+from navigator.widgets.manager.commands import EditNamed
 from navml.commands import CloseWindow
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.menu_item import MenuItem

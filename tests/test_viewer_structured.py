@@ -134,7 +134,7 @@ def active(app):
     return app.shell.desktop.active_window
 
 
-def test_shift_f4_shows_the_tree_and_back(data_dir):
+def test_shift_f3_shows_the_tree_and_back(data_dir):
     from navigator.widgets.viewer.file_window import FileWindow
     from navigator.widgets.viewer.struct_window import StructWindow
 
@@ -145,13 +145,13 @@ def test_shift_f4_shows_the_tree_and_back(data_dir):
     run_app(app, [
         KeyEvent("end"), KeyEvent("f3"), IDLE,
         lambda a: seen.update(mark=screen_text(a)),
-        KeyEvent("shift+f4"),
+        KeyEvent("shift+f3"),
         Until(lambda a: isinstance(active(a), StructWindow)),
         lambda a: seen.update(tree=screen_text(a)),
         KeyEvent("down"), KeyEvent("right"), KeyEvent("right"),
         KeyEvent("ctrl+insert"),
         lambda a: seen.update(path=screen_text(a)),
-        KeyEvent("shift+f4"),
+        KeyEvent("shift+f3"),
         Until(lambda a: isinstance(active(a), FileWindow)),
     ])
     assert "{Tree}" in seen["mark"]
@@ -168,7 +168,7 @@ def test_a_file_that_is_not_what_it_says_stays_text(data_dir):
     app = Navigator(data_dir, data_dir, terminal=FakeTerminal(80, 24))
     seen = {}
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("shift+f4"),
+        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("shift+f3"),
         Until(lambda a: a.modal is not None),
         lambda a: seen.update(prompt=screen_text(a), window=active(a)),
     ])
@@ -270,7 +270,7 @@ def test_a_long_value_wraps_and_the_cursor_passes_its_rows(data_dir):
     app = Navigator(data_dir, data_dir, terminal=FakeTerminal(80, 24))
     seen = {}
     run_app(app, [
-        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("shift+f4"),
+        KeyEvent("end"), KeyEvent("f3"), IDLE, KeyEvent("shift+f3"),
         Until(lambda a: isinstance(active(a), StructWindow)),
         lambda a: seen.update(screen=screen_text(a)),
         KeyEvent("down"), KeyEvent("down"),
@@ -303,7 +303,7 @@ def test_the_tree_s_scroll_bar_shows_only_while_its_rows_go_past_the_view(data_d
         def open_it(a):
             panel = a.manager.active_panel
             panel.cursor = next(i for i, item in enumerate(panel.items) if item.name == name)
-        return [open_it, KeyEvent("f3"), IDLE, KeyEvent("shift+f4"),
+        return [open_it, KeyEvent("f3"), IDLE, KeyEvent("shift+f3"),
                 Until(lambda a: isinstance(active(a), StructWindow)),
                 lambda a: seen.update({name: active(a).tree.bar.visible}),
                 KeyEvent("escape"), IDLE]

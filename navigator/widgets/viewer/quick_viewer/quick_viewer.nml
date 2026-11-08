@@ -16,9 +16,10 @@ QuickViewer:
     #: as a panel leaves them.
     property title_margin: 0
 
-    #: View > *Markdown*'s key, as in the F3 window, while the keyboard is in here.
+    #: View > *Markup view*'s key, as in the F3 window, while the keyboard is
+    #: in here.  Shift+F4 is the panels' *Edit...* (``cmXEditFile``).
     keys:
-        shift+f4: SwitchRendered
+        shift+f3: SwitchRendered
 
     FileViewer:
         id: viewer

@@ -8,6 +8,7 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.widgets.viewer.commands import ContinueSearch, CopyPath, CopyValue, ExpandAll, SearchAgain, SearchFor, ViewTreeAsText
 from navigator.widgets.viewer.struct_window.data_tree import DataTree
+from navigator.widgets.manager.commands import EditNamed
 from navml.commands import CloseWindow
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine

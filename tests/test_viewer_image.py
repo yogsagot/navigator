@@ -121,7 +121,7 @@ SHOWN = Until(lambda a: opened(a) is not None and opened(a).viewer.showing_pictu
               and bool(a._graphics.shown))
 
 
-def test_f3_shows_a_picture_and_shift_f4_its_source(files):
+def test_f3_shows_a_picture_and_shift_f3_its_source(files):
     terminal = FakeTerminal(80, 24, info=KITTY)
     app = Navigator(files, files, terminal=terminal)
     seen = {}
@@ -129,7 +129,7 @@ def test_f3_shows_a_picture_and_shift_f4_its_source(files):
         KeyEvent("end"), KeyEvent("f3"), IDLE, SHOWN,
         lambda a: seen.update(id=opened(a).viewer.picture.picture.id, frames=len(terminal.frames),
                               shown=dict(a._graphics.shown)),
-        KeyEvent("f4", shift=True), IDLE,
+        KeyEvent("f3", shift=True), IDLE,
         lambda a: seen.update(after=dict(a._graphics.shown), rendered=opened(a).viewer.showing_picture),
     ])
     pid = seen["id"]

@@ -287,16 +287,16 @@ def test_format_reads_the_file_again(files):
     assert seen == [";", ["1;2"]]
 
 
-def test_shift_f4_goes_to_the_text_and_back(files):
+def test_shift_f3_goes_to_the_text_and_back(files):
     data = b"n,square\n" + b"".join(b"%d,%d\n" % (n, n * n) for n in range(100))
     (files / "zz.csv").write_bytes(data)
     app = navigator(files)
     seen = {}
     run_app(app, [
         *opened(), *[KeyEvent("down")] * 10,
-        KeyEvent("f4", shift=True), Until(lambda a: file_window(a) is not None),
+        KeyEvent("f3", shift=True), Until(lambda a: file_window(a) is not None),
         lambda a: seen.update(top=file_window(a).viewer.top),
-        KeyEvent("f4", shift=True),
+        KeyEvent("f3", shift=True),
         # Moved to its row, then the text window closed.
         Until(lambda a: db_window(a) is not None and len(a.shell.desktop.windows()) == 2),
         lambda a: seen.update(row=db_window(a).viewer.record),

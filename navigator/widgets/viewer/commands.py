@@ -27,7 +27,7 @@ class HexMode(Command):
 
 
 class SwitchRendered(Command):
-    """Shift+F4, View > *Markup view*: a Markdown, reST, HTML or PDF file rendered --
+    """Shift+F3, View > *Markup view*: a Markdown, reST, HTML or PDF file rendered --
     headings, lists, tables -- or its source.  A departure: DN's viewer had no
     such reading.  Text mode only."""
 
@@ -177,8 +177,8 @@ class TableFormat(Command):
 
 
 class ViewSheetAsText(Command):
-    """Shift+F4 in the database window on a CSV: the same file in F3's text
-    view, at the cursor's row; Shift+F4 there comes back (a departure, as
+    """Shift+F3 in the database window on a CSV: the same file in F3's text
+    view, at the cursor's row; Shift+F3 there comes back (a departure, as
     *Markup view*)."""
 
     title = "Text"
@@ -238,12 +238,12 @@ __all__ = [
 
 # -- the structured view -------------------------------------------------------
 #
-# Shift+F4 on a JSON, YAML, TOML or XML file: its data as a tree you fold
+# Shift+F3 on a JSON, YAML, TOML or XML file: its data as a tree you fold
 # (``struct_window``).  A departure, asked for -- DN's viewer had no such view.
 
 
 class ViewTreeAsText(Command):
-    """Shift+F4 in the tree: the same file in F3's text view, in its place."""
+    """Shift+F3 in the tree: the same file in F3's text view, in its place."""
 
     title = "Text"
 
@@ -271,7 +271,7 @@ class ExpandAll(Command):
 
 class ViewAsTree(Command):
     """View > *Data tree*: the file's data as a tree -- whatever its name,
-    HTML included, whose Shift+F4 stays the Markup view.  A departure,
+    HTML included, whose Shift+F3 stays the Markup view.  A departure,
     asked for."""
 
     title = "Data tree"

@@ -2,7 +2,7 @@
 as a tree -- keys and indices as branches, scalars shown at their key.
 
 A departure, asked for: DOS Navigator's viewer showed bytes and lines only.
-Shift+F4 switches to it from the text, as it switches a CSV to the
+Shift+F3 switches to it from the text, as it switches a CSV to the
 spreadsheet (``FileWindow.as_tree``); the window is
 ``navigator/widgets/viewer/struct_window``.
 
@@ -106,7 +106,7 @@ _BY_SUFFIX = {".json": "json", ".geojson": "json", ".ipynb": "json", ".jsonl": "
 
 def kind_for(name: str | Path, head: bytes = b"") -> str:
     """What View > *Data tree* reads *name* as: what the masks say, else
-    its extension (``.html`` HTML among them, which Shift+F4 leaves to the
+    its extension (``.html`` HTML among them, which Shift+F3 leaves to the
     Markup view), else its first bytes -- ``{`` or ``[`` JSON, ``<`` XML
     (HTML when it says ``<!doctype html`` or ``<html``), anything else YAML,
     which reads most plain text as something."""

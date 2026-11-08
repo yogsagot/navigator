@@ -168,7 +168,7 @@ def opened(app):
 RENDERED = Until(lambda a: opened(a) is not None and opened(a).viewer.rendering)
 
 
-def test_f3_renders_a_markdown_file_and_shift_f4_shows_its_source(files):
+def test_f3_renders_a_markdown_file_and_shift_f3_shows_its_source(files):
     app = navigator(files)
     seen = {}
     run_app(app, [
@@ -176,7 +176,7 @@ def test_f3_renders_a_markdown_file_and_shift_f4_shows_its_source(files):
         lambda a: seen.update(rendered=screen(a)),
         KeyEvent("pagedown"),
         lambda a: seen.update(top=opened(a).viewer.top, row=opened(a).viewer.render_row),
-        KeyEvent("f4", shift=True), IDLE,
+        KeyEvent("f3", shift=True), IDLE,
         lambda a: seen.update(source=screen(a), source_top=opened(a).viewer.top,
                               rendering=opened(a).viewer.rendering),
     ])
@@ -250,7 +250,7 @@ def test_the_choice_is_kept_in_the_view_history(files):
     seen = []
     run_app(app, [
         KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED,
-        KeyEvent("f4", shift=True), IDLE, KeyEvent("escape"), IDLE,
+        KeyEvent("f3", shift=True), IDLE, KeyEvent("escape"), IDLE,
         KeyEvent("f3"), IDLE,
         lambda a: seen.append(opened(a).viewer.rendered),
     ])

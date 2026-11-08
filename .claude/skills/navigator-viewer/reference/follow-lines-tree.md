@@ -38,7 +38,7 @@ took a file's size once, hid characters (F6) but never lines, and showed bytes a
   it was, and Ctrl+G opens the box on the pattern in force, where an empty line and OK take it off. F7 finds a hit
   among the rows shown, or else leaves the filter for the hit.
 
-## The structured view (Shift+F4 on a JSON, YAML, TOML, XML or plist file)
+## The structured view (Shift+F3 on a JSON, YAML, TOML, XML or plist file)
 
 - **A window of its own** (`StructWindow`, `DataTree(TreeView)`), opened in the text viewer's place
   (`FileWindow.as_tree`, `db_window.take_place`), as a CSV's spreadsheet is. `Markup view`'s `Layout` has no fold
@@ -46,7 +46,7 @@ took a file's size once, hid characters (F6) but never lines, and showed bytes a
 - **Parsers**: `json` (with `object_pairs_hook`, so order and repeated keys survive), `tomllib`, `xml.etree`,
   `plistlib`, and PyYAML's **composer**, never `yaml.load`. Composing runs no constructor, so a tag
   (`!Ref`, `!!python/object`) is shown, never acted on. Its nodes also keep their marks, which gives YAML nodes an
-  offset for Shift+F4 back to the text. The other parsers keep no places, but every parse error's line and column is
+  offset for Shift+F3 back to the text. The other parsers keep no places, but every parse error's line and column is
   kept (`ParseFailed`), and the text goes to that line.
 - **Lazy both ways**: a model `Node` wraps what the parser made and makes its children when first asked
   (under `_MAKING`, so a search on a thread and the tree on the loop get the same nodes), and a `TreeNode` is made
@@ -62,7 +62,7 @@ took a file's size once, hid characters (F6) but never lines, and showed bytes a
 
 ## HTML in the tree (View > *Data tree*)
 
-- **Not on Shift+F4**: that key is the Markup view's for HTML, so the tree is a View menu entry with no key
+- **Not on Shift+F3**: that key is the Markup view's for HTML, so the tree is a View menu entry with no key
   (`ViewAsTree`), which also opens any file the masks do not name. `structured.kind_for` reads the masks, then the
   extension, then the first bytes (`{`/`[` JSON, `<!doctype html`/`<html` HTML, `<` XML, anything else YAML).
 - **Not `xml.etree`'s parser**, which refuses real pages. `_read_html` feeds `html.parser` (no new dependency) into

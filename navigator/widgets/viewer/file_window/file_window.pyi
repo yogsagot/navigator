@@ -10,6 +10,7 @@ from navkit.bidi import display_width
 from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, CloseViewer, ContinueSearch, FilterLines, FollowEnd, GotoAddress, HexMode, SaveViewAs
 from navigator.widgets.viewer.commands import ReverseSearch, SearchAgain, SearchFor, SetViewFilter, SetViewMode, SwitchRendered, Unwrap, ViewAsTree, WriteModify
 from navigator.widgets.editor.commands import ChooseFileType, SwitchHiddenChars, SwitchHighLight
+from navigator.widgets.manager.commands import EditNamed
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.commands import CloseWindow

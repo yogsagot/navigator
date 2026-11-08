@@ -197,7 +197,7 @@ class QuickViewer(Widget):
         return True
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
-        """Shift+F4: a Markdown, reST, HTML or PDF file rendered, or its source, as in F3."""
+        """Shift+F3: a Markdown, reST, HTML or PDF file rendered, or its source, as in F3."""
         if self.viewer.mode == "text" and self.viewer.can_render:
             self.viewer.toggle_rendered()
         return True

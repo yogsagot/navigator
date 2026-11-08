@@ -18,6 +18,11 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   on), then `viewers.ini` (`DN.VWR`), then the viewer. Alt+F3 is `InternalView`: `view(plain=True)`, the viewer on
   the file, never the sheet, database or structured tree, nor `viewers.ini`. *Internal viewer* off: F3 is
   `viewers.ini`, then `$PAGER` (a departure: DN fell back to its own viewer).
+- **Shift+F4 is DN's *Edit...*** (`cmXEditFile`, on every DN status line) in the F3 window, the sheet/database
+  window and the data tree: `EditNamed` bubbles to `Shell.on_edit_named`, which hands it to the manager in front
+  (`Manager.edit_named`; none open, nothing). The quick view binds no Shift+F4, so the panels' table has it. **The
+  view switches are Shift+F3** (*Markup view*, the tree's and the sheet's way back to text), a departure: Shift+F3
+  was DN's *Phone Book*, dropped. `RETIRED_DEFAULTS` moves an old `keybindings.ini`'s `shift+f4` lines over.
 - **Positions are byte offsets and nothing counts lines**, so a gigabyte opens at once. Text is UTF-8; an undecodable byte
   or a control is its CP437 glyph.
 - **A scroll bar on the bottom frame** (`FileWindow.hbar`), a departure, asked for: DN's viewer had the right
@@ -105,7 +110,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   editor skill has the rules), text mode only. A file of 256 KiB or less is lexed whole and exactly; deeper into a bigger one, a comment or string opened more than
   `LEX_BACK` above is not known to be open -- the documented limit. The window is keyed on path, encoding, size and file type
   (Shift+F6 re-lexes) and never asked for twice, so a line longer than it cannot loop.
-- **Markup view: Markdown, reStructuredText, HTML and PDF rendered**, a departure (DN's viewer had none): Shift+F4, View > *Markup view*
+- **Markup view: Markdown, reStructuredText, HTML and PDF rendered**, a departure (DN's viewer had none): Shift+F3, View > *Markup view*
   (`SwitchRendered`, handled by `FileWindow` and by `QuickViewer`, ticked; the strip's last item,
   `MD`, `RST` or `HTML` (`M↓`, `rST`, `</>` as symbols), dropped first from a short frame) renders the file rather than showing its source, in text mode only.
   `FileViewer.rendered` is the switch; `format_by_name` says `html` (`[viewer] render_html` + `html_masks`), `rst`
@@ -252,13 +257,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
     - F2 lists the columns, then the delimiter, header, encoding and rows (`show_columns`).
     - F3 shows a cell whole and F4 is refused.
     - **Shift+F6 *Format*** (`TableFormatDialog`) reads the file again.
-    - **Shift+F4** goes to F3's text view at the record's offset; Shift+F4 there (`FileWindow.as_table`)
+    - **Shift+F3** goes to F3's text view at the record's offset; Shift+F3 there (`FileWindow.as_table`)
       comes back to the row the top is in, in the same place (`db_window.take_place`).
   - **A file on another drive** is fetched by `Manager._view_sheet` (`materialize`, `use_set`, `place`). A
     file that cannot be opened so falls through to the text viewer.
 - **Pictures, shown as pictures**, a departure (DN's viewer had none; asked for): on a terminal that draws them
   (`TerminalInfo.graphics`, kitty's graphics protocol or sixel -- `navkit-terminal`), a file `[viewer] image_masks`
-  names (`render_images`) is *Markup view*'s fifth format, `image` (`{Image}`, `Img` on the strip). Shift+F4 gives the
+  names (`render_images`) is *Markup view*'s fifth format, `image` (`{Image}`, `Img` on the strip). Shift+F3 gives the
   source, hex and dump work as ever; a terminal that draws nothing, tmux/screen, or `--graphics none` shows the bytes
   as before (`can_render` false). `navigator/lib/viewer/image.py`'s `decode` runs on `_RENDERER` (`_picture`, the
   whole file through `read_blocking` when remote, `IMAGE_LIMIT` 64 MiB) and makes a `navkit.graphics.Picture` fitted to
@@ -291,7 +296,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   continues from `scanned_to`, which is how a followed log stays filtered. `FileViewer.lines` with `filtering`
   paints the number gutter and the text itself (`_paint_lines`, `::lines.number/cursor/match`). Enter goes to the
   line in the whole file and Esc goes back. Text mode only; Wrap, ¶ and Markup view are greyed while it filters.
-- **The structured view (Shift+F4 on `[viewer] structured_masks`)**, a departure, asked for: `StructWindow` with
+- **The structured view (Shift+F3 on `[viewer] structured_masks`)**, a departure, asked for: `StructWindow` with
   `DataTree(TreeView)` in the viewer's place (`FileWindow.as_tree`/`shows_tree`, `{Tree}` struck after the info
   line, a click on it opens the tree). The model is `navigator/lib/viewer/structured.py`: lazy `Node`s over
   `json` (order and repeated keys kept), `tomllib`, `xml.etree`, `plistlib`, and PyYAML's **composer** (no
@@ -300,11 +305,11 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   them, `DataTree.move_cursor`, and lands back on the node's row from a click), coloured by kind (`DataTree::string/number/bool/null/date/tagged/count`), with the cursor's path on the last row
   (jq-style, or XPath-style for XML). Ctrl+Ins copies the path, Ctrl+Shift+C the value (a branch as JSON, YAML or the
   element), F7/Shift+F7/Ctrl+L search every key and value on a thread (`structured.find`), `*` and *Expand all* open
-  up to `EXPAND_LIMIT` nodes, Shift+F4 goes back to the text (at a YAML node's line), and Esc closes. A parse error
+  up to `EXPAND_LIMIT` nodes, Shift+F3 goes back to the text (at a YAML node's line), and Esc closes. A parse error
   says *Line N, column M* and puts the text at that line. Local files and fetched copies only; `STRUCT_LIMIT`
   32 MiB. `[viewer] render_structured` (off, no checkbox) makes F3 open the tree. **View > *D~a~ta tree*** (`ViewAsTree`, no key) opens it for any file on the disk, read as
   `structured.kind_for` says: the masks, else the extension, else the first bytes. That includes **HTML**, whose
-  Shift+F4 stays the Markup view: `_read_html` builds `ElementTree` elements through `html.parser` the way a
+  Shift+F3 stays the Markup view: `_read_html` builds `ElementTree` elements through `html.parser` the way a
   browser forgives a page. Unclosed `li`/`p`/`td`/`tr`/`dt`/`dd`/`option` are closed by the next one (`_CLOSED_BY`, and
   a block closes a `p`), empty elements (`_VOID`) hold nothing, and a stray end tag is ignored. The XML tree shows
   the result, with text after a child (a tail) as `#text` in its place. Its own *Data* menu joins the

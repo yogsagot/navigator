@@ -472,7 +472,7 @@ class FileViewer(ContextMenuHost, Widget):
         if self.mode != "text" or self.filtering:
             return ""
         if not self.rendered and not self.remote and self.hex_editing and self.path is not None:
-            # A JSON, YAML, TOML or XML file: Shift+F4 shows its data as a
+            # A JSON, YAML, TOML or XML file: Shift+F3 shows its data as a
             # tree, struck through here as any switch that is off.
             from navigator.lib.viewer.structured import kind_by_name
 

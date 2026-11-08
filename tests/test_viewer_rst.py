@@ -143,13 +143,13 @@ def opened(app):
 RENDERED = Until(lambda a: opened(a) is not None and opened(a).viewer.rendering)
 
 
-def test_f3_renders_a_rst_file_and_shift_f4_shows_its_source(files):
+def test_f3_renders_a_rst_file_and_shift_f3_shows_its_source(files):
     app = navigator(files)
     seen = {}
     run_app(app, [
         KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED,
         lambda a: seen.update(rendered=screen(a), format=opened(a).viewer.render_format),
-        KeyEvent("f4", shift=True), IDLE,
+        KeyEvent("f3", shift=True), IDLE,
         lambda a: seen.update(source=screen(a)),
     ])
     assert seen["format"] == "rst"

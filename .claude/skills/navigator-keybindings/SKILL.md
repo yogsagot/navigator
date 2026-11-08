@@ -82,7 +82,7 @@ names when no key has them. `FileEditor` lists every command of `WORDSTAR` this 
     key both ways;
   - **a line naming exactly a retired default is read as no line** (`RETIRED_DEFAULTS`, section and command to the
     keys they had by default before): the file is seeded whole, so without it a default once written could never
-    change -- an old file's `start_search = ctrl+f` kept Ctrl+F from the Find bar. **Changing a default key means an
+    change -- an old file's `start_search = ctrl+f` kept Ctrl+F from the Find bar, and the viewers' `shift+f4` view switches (now Shift+F3) kept *Edit...* out. **Changing a default key means an
     entry there** for the command that loses it; a line the user changed (other keys, or more) is untouched;
   - an unknown section or name is a warning;
   - a key that will not parse is a warning, and that line keeps its default;

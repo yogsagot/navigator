@@ -432,7 +432,7 @@ class FileWindow(Window):
         return True
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
-        """Shift+F4, View > *Markup view*: a departure, DN's viewer had none.
+        """Shift+F3, View > *Markup view*: a departure, DN's viewer had none.
         On a CSV or TSV, the database window on it in this one's place; on
         a JSON, YAML, TOML or XML file, the tree of its data."""
         if self.shows_table():
@@ -444,13 +444,13 @@ class FileWindow(Window):
         return True
 
     def shows_table(self) -> bool:
-        """Whether Shift+F4 turns this file into a spreadsheet (``[viewer] table_masks``)."""
+        """Whether Shift+F3 turns this file into a spreadsheet (``[viewer] table_masks``)."""
         from navigator.lib.viewer.table import is_table
 
         return self.viewer.path is not None and not self.viewer.remote and is_table(self.viewer.path.name)
 
     def shows_tree(self) -> bool:
-        """Whether Shift+F4 shows this file's data as a tree
+        """Whether Shift+F3 shows this file's data as a tree
         (``[viewer] structured_masks``): a file on the disk, or a copy of one
         fetched from elsewhere."""
         from navigator.lib.viewer.structured import kind_by_name
@@ -461,7 +461,7 @@ class FileWindow(Window):
     async def on_view_as_tree(self, event: ViewAsTree) -> bool:
         """View > *Data tree*: the tree for any file on the disk -- read as
         its name or its first bytes say (``structured.kind_for``), so an HTML
-        page too, whose Shift+F4 is the Markup view's."""
+        page too, whose Shift+F3 is the Markup view's."""
         from navigator.lib.viewer.structured import kind_for
 
         viewer = self.viewer

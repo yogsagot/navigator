@@ -4,7 +4,7 @@
 **It shows a SQLite file too** (a departure; :mod:`navigator.lib.viewer.sqlite`):
 a table at a time, F5 choosing another and F6 a query, read-only -- F4 is
 refused.  **And a CSV or TSV file** (:mod:`navigator.lib.viewer.table`),
-read-only, walked on a thread while shown: Shift+F6 its format, Shift+F4 its
+read-only, walked on a thread while shown: Shift+F6 its format, Shift+F3 its
 text.  F8 sorts any of them (the rows shown, never the file).  The grid asks
 every source the same few questions (``fields``, ``count``, ``record``,
 ``shown``, ``raw``, ``memo``, ``flag``)."""
@@ -256,7 +256,7 @@ class DBWindow(Window):
         self._follow_cursor()
         viewer.invalidate()
 
-    # -- Shift+F6, Shift+F4: a CSV ----------------------------------------------------
+    # -- Shift+F6, Shift+F3: a CSV ----------------------------------------------------
 
     async def on_table_format(self, event: TableFormat) -> bool:
         self.spawn(self.table_format())
@@ -297,7 +297,7 @@ class DBWindow(Window):
         return True
 
     async def as_text(self) -> None:
-        """Shift+F4 (a departure, as *Markup view*'s): the same file in F3's
+        """Shift+F3 (a departure, as *Markup view*'s): the same file in F3's
         text view, at the cursor's record, in this window's place."""
         from navigator.lib.config.file_history import open_viewer
         from navigator.lib.viewer.table import SortedView

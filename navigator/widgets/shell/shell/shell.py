@@ -33,7 +33,7 @@ from navigator.lib.drives import DriveGone, Location, Site, drive_of
 from navigator.lib.system import fuzzy
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
-from navigator.widgets.manager.commands import Calculator, HideLeft, HideRight, ToggleMark, UserMenu
+from navigator.widgets.manager.commands import Calculator, EditNamed, HideLeft, HideRight, ToggleMark, UserMenu
 from navigator.widgets.shell.commands import (
     EditLinks,
     Game,
@@ -3540,6 +3540,17 @@ class Shell(DockLayout):
             ).execute(self.application)
 
     # -- File > View > Open..., File > Edit > Open... ---------------------------
+
+    async def on_edit_named(self, event: EditNamed) -> bool:
+        """Shift+F4 outside the panels -- in a viewer, the sheet or the data
+        tree: DN's ``cmXEditFile``, on every status line.  The file manager
+        in front asks (``Manager.edit_named``): a relative name is its active
+        panel's, and the editor opens on its desktop.  With no manager open
+        there is no panel to name a file from, and nothing is done."""
+        manager = self.active_manager
+        if manager is not None:
+            manager.spawn(manager.edit_named())
+        return True
 
     async def on_open_view(self, event: OpenView) -> bool:
         self.spawn(self.open_chosen("view"))

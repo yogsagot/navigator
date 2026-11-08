@@ -1,5 +1,6 @@
 from navigator.widgets.viewer.commands import ContinueSearch, CopyPath, CopyValue, ExpandAll, SearchAgain, SearchFor, ViewTreeAsText
 from navigator.widgets.viewer.struct_window.data_tree import DataTree
+from navigator.widgets.manager.commands import EditNamed
 from navml.commands import CloseWindow
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
@@ -7,7 +8,7 @@ from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 
 #: F3's structured view: a JSON, YAML, TOML, XML or property-list file's data
-#: as a tree, Shift+F4 from the text and back (``FileWindow.as_tree``).  A
+#: as a tree, Shift+F3 from the text and back (``FileWindow.as_tree``).  A
 #: departure, asked for -- DOS Navigator's viewer had bytes and lines only.
 #:
 #: Dressed as the directory tree window is: the tree fills the frame less a
@@ -18,7 +19,10 @@ StructWindow(Window):
 
     keys:
         escape: CloseWindow
-        shift+f4: ViewTreeAsText
+        #: Back to the text: Shift+F3, the F3 window's view key (a departure:
+        #: DN's *Phone Book*, dropped).  Shift+F4 is DN's ``cmXEditFile``.
+        shift+f3: ViewTreeAsText
+        shift+f4: EditNamed
         ctrl+insert: CopyPath
         ctrl+shift+c: CopyValue
         f7: SearchFor

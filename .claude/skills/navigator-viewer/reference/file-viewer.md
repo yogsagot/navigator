@@ -82,7 +82,7 @@ in the passive panel's place, and it works exactly as Ctrl+T does, because both 
   like a panel, with the file's name as its title. That title is Navigator's: DN's view sat inside the double
   window's frame and had none.
 
-**Markup view (Shift+F4, View > *Markup view*), Markdown, reStructuredText and HTML,** is a departure, and the one mode that does not fit the byte-offset
+**Markup view (Shift+F3, View > *Markup view*), Markdown, reStructuredText and HTML,** is a departure, and the one mode that does not fit the byte-offset
 model. A rendered document reflows its paragraphs and hides its markup, so a screen row no longer is a contiguous
 run of the file's bytes, and nothing can be read a row at a time from `top`. These are the choices made:
 

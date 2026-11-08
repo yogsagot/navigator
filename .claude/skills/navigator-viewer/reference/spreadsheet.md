@@ -29,7 +29,7 @@ F6 *Go to Cell Number* and the spreadsheet's *Find* went with the window. The dB
 - **Sort** (F8). It orders the rows shown and never the file; a numeric column sorts as numbers. It applies
   to dBase and SQLite as well.
 - **Format** (Shift+F6). The delimiter, the header and the encoding, which a CSV leaves to guessing.
-- **Shift+F4.** It goes to the text and back, as *Markup view* goes between rendered and source.
+- **Shift+F3.** It goes to the text and back, as *Markup view* goes between rendered and source.
 
 ## Why a walk, not a parse
 

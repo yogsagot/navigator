@@ -163,7 +163,7 @@ def opened(app):
 RENDERED = Until(lambda a: opened(a) is not None and opened(a).viewer.rendering)
 
 
-def test_f3_renders_an_html_file_and_shift_f4_shows_its_source(files):
+def test_f3_renders_an_html_file_and_shift_f3_shows_its_source(files):
     app = navigator(files)
     seen = {}
 
@@ -178,7 +178,7 @@ def test_f3_renders_an_html_file_and_shift_f4_shows_its_source(files):
 
     run_app(app, [
         KeyEvent("end"), KeyEvent("f3"), IDLE, RENDERED, look("rendered"),
-        KeyEvent("f4", shift=True), IDLE, look("source"),
+        KeyEvent("f3", shift=True), IDLE, look("source"),
     ])
     rendered, struck, format = seen["rendered"]
     assert format == "html" and not struck

@@ -290,6 +290,24 @@ def test_a_line_still_naming_a_retired_default_takes_today_s(tmp_path):
     assert assignments["editor"]["show_find_bar"] == ()
 
 
+@pytest.mark.parametrize("section, option", [
+    ("viewer", "switch_rendered"), ("db_viewer", "view_sheet_as_text"), ("struct_window", "view_tree_as_text"),
+])
+def test_an_old_files_view_switch_on_shift_f4_moves_to_shift_f3(tmp_path, section, option):
+    # Seeded before Shift+F4 went back to DN's *Edit...* in the viewers.
+    file = tmp_path / "keybindings.ini"
+    file.write_text(f"[{section}]\n{option} = shift+f4\n")
+    found = keybindings.sections(Navigator)
+    assignments, warnings = keybindings.read(file, found)
+    assert warnings == []
+    assert assignments[section][option] == ("shift+f3",)
+    assert assignments[section]["edit_named"] == ("shift+f4",)
+    # A key the user chose is still theirs.
+    file.write_text(f"[{section}]\n{option} = f12\n")
+    assignments, warnings = keybindings.read(file, found)
+    assert warnings == [] and assignments[section][option] == ("f12",)
+
+
 # -- the dialog ------------------------------------------------------------------------
 
 

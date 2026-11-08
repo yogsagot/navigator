@@ -973,7 +973,7 @@ def test_the_quick_view_s_own_menu_views_renders_and_closes_only_itself(files):
         Until(lambda a: opened(a) is not None),
         lambda a: seen.update(viewing=opened(a).viewer.path),
     ])
-    assert seen["items"] == [("View", "F3"), ("Markup view", "Shift-F4"), ("Close quick view", "Ctrl-Q")]
+    assert seen["items"] == [("View", "F3"), ("Markup view", "Shift-F3"), ("Close quick view", "Ctrl-Q")]
     assert seen["after"] is None and seen["manager"]  # the panel back, the file manager still open
     assert seen["keys"]  # the right click never took the keyboard, so closing leaves it where it was
     assert seen["viewing"] == files / "text.txt"
