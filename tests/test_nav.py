@@ -1407,8 +1407,15 @@ def test_no_theme_draws_an_unreadable_pair():
                "TraceList", "CalendarView", "TimePicker", "DBViewer", "InfoPanel", "VolumeList", "CharTable",
                "UnicodeGrid"}
 
+    # Text drawn as part of a frame, in the frame's own colours, passive ones
+    # too -- glanced at as the title is, so the frame's 2:1 floor: the dBase
+    # viewer's ``TDBIndicator`` (``GetColor(1 + Byte(sfActive))``).
+    frame_text = {("StaticText", "indicator")}
+
     def ordinary(selector):
         subject = selector.subject
+        if (subject.type_name, subject.name) in frame_text:
+            return False
         return (subject.type_name in reading and subject.part in (None, "row", "node", "item", "day", "value")
                 and not (subject.states or subject.part_states or subject.classes or subject.part_classes)
                 # A button's caption is the button's, which DN drew white on grey.

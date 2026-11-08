@@ -97,7 +97,7 @@ class ContinueSearch(Command):
 
 
 class SearchAgain(Command):
-    """Ctrl+L: ``cmContinueSearch`` again, bound with no caption as DN bound it."""
+    """Ctrl+L and Ctrl+Enter: ``cmContinueSearch`` again, bound with no caption as DN bound them."""
 
 
 class WriteModify(Command):

@@ -847,7 +847,10 @@ class FileWindow(Window):
         await self.search(search, search.backward != reverse)
 
     async def search(self, search: ViewSearch, backward: bool) -> None:
-        """Look for *search* from the hit, or from the view, and show what is found.
+        """Look for *search* from the hit while it shows, else from the view
+        (DN's ``SearchX := FilePos+BufPos`` once scrolled away; hex from its
+        cursor, which is drawn and which a hit puts on it), and show what is
+        found -- or say *Search string not found* in DN's ``mfError`` box.
 
         Run on a thread, because a gigabyte is not searched between two frames;
         the loop keeps painting -- the clock keeps ticking -- while it looks.
@@ -858,7 +861,7 @@ class FileWindow(Window):
         source = viewer.source
         if source is None:
             return
-        if viewer.hit is not None:
+        if viewer.hit_showing():
             start = viewer.hit[0] + (0 if backward else 1)
         elif viewer.mode == "text":
             start = viewer.top
@@ -889,7 +892,7 @@ class FileWindow(Window):
             return
         if found is None:
             await Dialog(
-                title=tr("Search"), prompt=tr("Search string not found"), buttons="ok"
+                title=tr("Error"), prompt=tr("Search string not found"), buttons="ok"
             ).execute(self.application)
             return
         viewer.show_hit(*found)

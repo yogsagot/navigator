@@ -30,6 +30,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
   it in either mode.
+- **Search as DN's `ContinueSearch`** (`FVIEWER.PAS:1160-1195`): Shift+F7, Ctrl+L and Ctrl+Enter (`kbCtrlEnter`)
+  continue, Ctrl+F7 the other way. A hit's row goes to the top (hex and dump: the row holding it, the byte phase
+  kept; hex's cursor onto it), as far as the last screenful; under *Filter lines* the lines cursor goes to it. A
+  continue goes on from the hit while it shows (`FileViewer.hit_showing`), else from the view: text's `top`, dump's
+  `top`, hex's cursor (drawn, so kept over DN's view top). *Showing*, not DN's *on the first row*, is a departure: a
+  hit in the last screenful cannot go to the top, and DN's rule would find it again on every Shift+F7. Not found is
+  DN's `mfError` box, titled *Error*.
 - **Dump has no cursor** (DN's `ViewMode = 2`, `FVIEWER.PAS:1425-1530`; `FileViewer._dump_key`): Up/Down/PgUp/PgDn
   scroll as in text, Ctrl+Home/Ctrl+End go to the file's start and last screenful (`Goto 1/2`), Ctrl+Left/Right shift
   the rows a byte as in hex (`_shift_rows`, shared). Home/End/Left/Right/Tab do nothing but are still the viewer's.

@@ -48,6 +48,8 @@ FileWindow(Window):
         shift+f6: ChooseEncoding
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
+        #: DN's third *Continue search* key (``DN.DNR``'s ``kbCtrlEnter``).
+        ctrl+enter: SearchAgain
         #: The *File type* menu in a box, as in the editor.
         ctrl+shift+h: ChooseFileType
         #: *Hidden characters*, as in the editor.

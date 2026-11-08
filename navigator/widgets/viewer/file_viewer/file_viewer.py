@@ -979,12 +979,34 @@ class FileViewer(ContextMenuHost, Widget):
             offset = piece.next
         return text_rtl("".join(chars))
 
+    def hit_showing(self) -> bool:
+        """Whether the last hit is on screen, which is when a search goes on
+        from it rather than from the view.  DN went on from it only while it
+        was on the first row (``FVIEWER.PAS``'s ``ContinueSearch``) -- a
+        departure: a hit in the last screenful cannot be put on top, and
+        DN's rule would find it again on every Shift+F7.  Everywhere else the
+        hit is on the first row until something scrolls."""
+        if self.hit is None or self.source is None:
+            return False
+        offset = self.hit[0]
+        if self.filtering:
+            index = self._lines_index(offset)
+            return index is not None and index == self.lines_cursor
+        if self.rendering:
+            row = self.render_layout.row_for(offset)
+            return self.render_row <= row < self.render_row + max(1, self.height)
+        if self.mode != "text":
+            return self.top <= offset < self.top + max(1, self.height) * self.row_bytes()
+        return any(r.start <= offset < r.next for r in self._text_rows(self.height, max_cols=1))
+
     def show_hit(self, offset: int, length: int) -> None:
         """Put a search hit on screen and mark it.
 
-        DN's ``ContinueSearch``: the hit's row goes to the top unless it is
-        already showing, and sideways the text is scrolled to centre it when
-        it is off the edge.
+        DN's ``ContinueSearch``: the hit's row goes to the top (``BufPos :=
+        Lines[I].Pos``; in hex and dump the row holding it, the rows' byte
+        phase kept) -- as far as the last screenful, where every scroll here
+        stops -- and sideways the text is scrolled to centre it when it is off
+        the edge.  Under *Filter lines* the lines cursor goes to it instead.
         """
         self.hit = (offset, length)
         if self.source is None:
@@ -997,19 +1019,14 @@ class FileViewer(ContextMenuHost, Widget):
             # Not on a line shown: the whole file again, at the hit.
             self.leave_lines()
         if self.rendering:
-            row = self.render_layout.row_for(offset)
-            if not self.render_row <= row < self.render_row + max(1, self.height):
-                self._render_go(row)
+            self._render_go(self.render_layout.row_for(offset))
             return
         if self.mode != "text":
-            self.cursor = offset
             per = self.row_bytes()
-            if not self.top <= offset < self.top + self.height * per:
-                self.top = max(0, offset - (offset - self.top) % per)
+            self.top = min(max(0, offset - (offset - self.top) % per), self._last_top())
+            self.cursor = offset if self.mode == "hex" else self.top
             return
-        rows = self._text_rows(self.height, max_cols=1)
-        if not any(r.start <= offset < r.next for r in rows):
-            self.top = self.source.line_start(offset, self.wrap_width)
+        self.top = min(self.source.line_start(offset, self.wrap_width), self._last_top())
         if self.wrap_width is None:
             row = self.source.line(self.source.line_start(offset), None,
                                    filter=self.filter, max_cols=WHOLE_LINE)

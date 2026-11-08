@@ -327,6 +327,76 @@ def test_a_search_again_finds_the_next_hit_and_marks_it(files, monkeypatch):
     assert hits == [((9 * 50, 8), 9 * 50)]
 
 
+def search_steps(*steps):
+    """F3 on text.txt, then *steps*; each ``"hit"`` records (hit, top), each
+    ``"modal"`` the box's title (closing it)."""
+    actions = [KeyEvent("end"), KeyEvent("f3"), IDLE]
+    seen = []
+    for step in steps:
+        if step == "hit":
+            actions += [lambda a: None, lambda a: None,
+                        lambda a: seen.append((opened(a).viewer.hit, opened(a).viewer.top))]
+        elif step == "modal":
+            actions += [Until(lambda a: a.modal is not None),
+                        lambda a: seen.append(a.modal.title), lambda a: a.modal.close(None)]
+        else:
+            actions.append(step)
+    return actions, seen
+
+
+def test_a_hit_goes_to_the_top_as_dns_did(files, monkeypatch):
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("LINE 005"))
+    actions, seen = search_steps(KeyEvent("f7", shift=True), "hit")
+    run_app(navigator(files), actions, settle=0.05)
+    assert seen == [((9 * 5, 8), 9 * 5)]
+
+
+def test_hits_in_the_last_screenful_are_each_found_once(files, monkeypatch):
+    # The last screenful cannot go to the top, so the search goes on from a
+    # hit that shows rather than finding it again.
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("LINE 09"))
+    actions, seen = search_steps(*[KeyEvent("f7", shift=True), "hit"] * 10, KeyEvent("f7", shift=True), "modal")
+    run_app(navigator(files), actions, settle=0.05)
+    hits = [hit for hit, _ in seen[:10]]
+    assert hits == [(9 * n, 7) for n in range(90, 100)]
+    assert seen[9][1] == 9 * 100 - 9 * 19  # the last screenful: 19 rows
+    assert seen[10] == "Error"
+
+
+def test_after_scrolling_away_a_search_goes_on_from_the_view(files, monkeypatch):
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("LINE 0"))
+    actions, seen = search_steps(KeyEvent("f7", shift=True), "hit",
+                                 *[KeyEvent("pagedown")] * 2, KeyEvent("f7", shift=True), "hit")
+    run_app(navigator(files), actions, settle=0.05)
+    assert seen[0][0] == (0, 6)
+    # Two pages of 18 rows down: line 036 is on top, and the first hit after it.
+    assert seen[1][0] == (9 * 36, 6)
+
+
+def test_ctrl_enter_continues_the_search(files, monkeypatch):
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("LINE 01"))
+    actions, seen = search_steps(KeyEvent("f7", shift=True), "hit", KeyEvent("enter", ctrl=True), "hit")
+    run_app(navigator(files), actions, settle=0.05)
+    assert [hit for hit, _ in seen] == [(9 * 10, 7), (9 * 11, 7)]
+
+
+def test_nothing_found_is_dns_error_box(files, monkeypatch):
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("no such text"))
+    actions, seen = search_steps(KeyEvent("f7", shift=True), "modal")
+    run_app(navigator(files), actions, settle=0.05)
+    assert seen == ["Error"]
+
+
+def test_in_hex_the_hits_row_goes_to_the_top_and_the_cursor_onto_it(files, monkeypatch):
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("LINE 050"))
+    actions, seen = search_steps(KeyEvent("f4"), KeyEvent("f7", shift=True), "hit",
+                                 lambda a: seen.append(("cursor", opened(a).viewer.cursor,
+                                                        opened(a).viewer.row_bytes())))
+    run_app(navigator(files), actions, settle=0.05)
+    (hit, top), (_, cursor, per) = seen
+    assert hit == (450, 8) and cursor == 450 and top == 450 - 450 % per
+
+
 def test_f7_asks_and_finds(files, monkeypatch):
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
 
