@@ -242,3 +242,20 @@ def test_a_db_that_is_not_sqlite_opens_as_text(files):
     app = navigator(files)
     run_app(app, [KeyEvent("end"), KeyEvent("f3"),
                   Until(lambda a: isinstance(a.shell.desktop.active_window, FileWindow))])
+
+
+def test_a_table_with_no_rows_reads_0_of_0_and_f3_shows_nothing(tmp_path, monkeypatch):
+    # A departure: DN refused an empty .dbf (it still is); a table or a query
+    # with no rows is an answer, so the window opens on its field names.
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    connection = sqlite3.connect(tmp_path / "zz.sqlite")
+    connection.execute("CREATE TABLE blank(a TEXT, b INTEGER)")
+    connection.commit()
+    connection.close()
+    app = navigator(tmp_path)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f3"), Until(lambda a: db_window(a) is not None),
+                  lambda a: seen.update(indicator=db_window(a).indicator.text),
+                  KeyEvent("f3"), KeyEvent("down"), KeyEvent("end", ctrl=True), lambda a: None,
+                  lambda a: seen.update(modal=a.modal, indicator_after=db_window(a).indicator.text)])
+    assert seen == {"indicator": "0/0", "modal": None, "indicator_after": "0/0"}

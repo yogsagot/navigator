@@ -6771,6 +6771,9 @@ flag = "JP"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Not a number" = "数値ではありません"
+"The number does not fit the field" = "数値がフィールドに収まりません"
+"Not a date" = "日付ではありません"
 [unused]
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"

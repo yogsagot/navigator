@@ -128,11 +128,13 @@ class DBWindow(Window):
         self.viewer.invalidate()
 
     def _follow_cursor(self) -> None:
-        """``TDBIndicator``: ``record/records`` -- ``+`` for a SQLite read
-        cut short, ``+ 42%`` while a CSV is still walked, and the sort."""
+        """``TDBIndicator``: ``record/records``, both plain as ``ItoS`` gave
+        them -- ``0/0`` for a table or a query with no rows -- ``+`` for a
+        SQLite read cut short, ``+ 42%`` while a CSV is still walked, and the
+        sort."""
         db = self.db
         count = db.count if db is not None else 0
-        text = f"{self.viewer.record + 1}/{count:,}"
+        text = f"{self.viewer.record + 1 if count else 0}/{count}"
         if getattr(db, "truncated", False):
             # A view or a query read whole, cut at its first ROW_LIMIT rows.
             text += "+"
@@ -504,19 +506,28 @@ class DBWindow(Window):
             stored = "F" if value.strip().upper() == "T" else "T"
         else:
             shown = dbf.date_shown(value) if field.kind == "D" else value if field.kind == "C" else value.lstrip()
-            box = EditLineDialog(shown.rstrip() if field.kind != "C" else shown, history="edit_dbf", caption=tr("~V~alue"))
+            # ``InputBox``'s limit: the field's length, a date's ten.
+            limit = dbf.DATE_WIDTH if field.kind == "D" else field.length
+            box = EditLineDialog(shown.rstrip() if field.kind != "C" else shown, history="edit_dbf",
+                                 caption=tr("~V~alue"), max_length=limit)
             box.title = tr("Edit field")
             answer = await box.execute(self.application)
             viewer.focus()
             if answer is None:
                 return
+            # What will not go in is said, where DN stored a 0 for a number it
+            # could not read (``Val``) -- a departure: that loses the cell.
             if field.kind == "D":
                 stored = dbf.date_stored(answer)
+                refusal = tr("Not a date")
             elif field.kind in ("N", "F"):
                 stored = dbf.number_stored(answer, field)
+                refusal = (tr("The number does not fit the field") if dbf.is_number(answer)
+                           else tr("Not a number"))
             else:
                 stored = answer
             if stored is None:
+                await self._say(refusal)
                 return
         try:
             db.write_field(viewer.record, field, stored)

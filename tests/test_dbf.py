@@ -269,3 +269,93 @@ def test_f4_on_a_read_only_file_says_it_is_write_protected(place, monkeypatch):
                   lambda a: seen.update(said=a.modal.prompt), KeyEvent("enter")])
     os.chmod(place / "people.dbf", 0o644)
     assert seen["said"] == "Could not edit field - file is write-protected"
+
+
+# -- the indicator, F4's limits and refusals, a memo's width ---------------------------------
+
+
+def test_the_indicator_prints_both_numbers_plain(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
+    rows = tuple((f"n{i}", str(i % 999), "", "T", "0") for i in range(1234))
+    write_dbf(tmp_path / "many.dbf", rows=rows)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+
+    def to_1000(a):
+        window_of(a).viewer.go(record=999)
+
+    seen = {}
+    run_app(app, [on("many.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  to_1000, lambda a: None, lambda a: seen.update(text=window_of(a).indicator.text)])
+    assert seen["text"] == "1000/1234"
+
+
+def refused(place, field, typed):
+    """F4 on record 0's *field*-th cell with *typed*: what the box after says,
+    and the cell as it is in the file afterwards."""
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def to_field(a):
+        window_of(a).viewer.field = field
+
+    def type_it(a):
+        seen["limit"] = a.modal.line.entry.max_length
+        a.modal.line.value = typed
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  to_field, KeyEvent("f4"), Until(lambda a: getattr(a.modal, "title", "") == "Edit field"),
+                  type_it, KeyEvent("enter"), Until(lambda a: getattr(a.modal, "title", "") == "Error"),
+                  lambda a: seen.update(said=a.modal.prompt), KeyEvent("enter"), Until(lambda a: a.modal is None)])
+    db = dbf.DBFile(place / "people.dbf")
+    return seen, db.raw(db.record(0), db.fields[field])
+
+
+def test_f4_says_a_number_is_not_one_and_leaves_the_cell(place):
+    seen, cell = refused(place, 1, "abc")
+    assert seen == {"limit": 3, "said": "Not a number"} and cell == " 34"
+
+
+def test_f4_says_a_number_does_not_fit(place):
+    # Three characters, a number, and a billion in a field three wide.
+    seen, cell = refused(place, 1, "1e9")
+    assert seen == {"limit": 3, "said": "The number does not fit the field"} and cell == " 34"
+
+
+def test_f4_says_a_date_is_not_one(place):
+    seen, cell = refused(place, 2, "32-13-2020")
+    assert seen == {"limit": 10, "said": "Not a date"} and cell == "19900102"
+
+
+def test_f4_caps_a_character_field_at_its_length(place):
+    from navigator.widgets.shell.edit_line_dialog import EditLineDialog
+
+    box = EditLineDialog("abcdefghijkl", max_length=10)
+    assert box.line.value == "abcdefghij" and box.line.entry.max_length == 10
+
+
+def test_a_memo_column_is_as_wide_as_its_field():
+    assert dbf.Field("NOTES", "M", 10, 0, 0).width == 10
+    assert dbf.Field("N", "M", 4, 0, 0).width == 4
+
+
+def test_the_indicator_is_the_passive_frames_colour_while_another_window_is_active(place):
+    from navigator.lib.appearance import scheme
+
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def look(name):
+        def step(a):
+            window = next(w for w in a.shell.desktop.windows() if isinstance(w, DBWindow))
+            seen[name] = (window.indicator.style, window.style)
+        return step
+
+    def other(a):
+        window = next(w for w in a.shell.desktop.windows() if not isinstance(w, DBWindow))
+        a.shell.desktop.activate(window)
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  look("active"), other, lambda a: None, look("passive")])
+    assert seen["active"][0] == seen["active"][1]
+    assert seen["passive"][0] == seen["passive"][1]
+    assert seen["active"][0] != seen["passive"][0]

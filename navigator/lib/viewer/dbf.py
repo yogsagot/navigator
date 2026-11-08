@@ -50,7 +50,8 @@ class Field:
 
     @property
     def width(self) -> int:
-        shown = DATE_WIDTH if self.kind == "D" else 8 if self.kind == "M" else self.length
+        # A memo is as wide as its block number, 10 (DBWATCH.PAS: max(name, Len)).
+        shown = DATE_WIDTH if self.kind == "D" else self.length
         return max(len(self.name), shown)
 
 
@@ -193,6 +194,15 @@ def date_stored(text: str) -> str | None:
     if not (1 <= month <= 12 and 1 <= day <= 31):
         return None
     return f"{year % 10000:04d}{month:02d}{day:02d}"
+
+
+def is_number(text: str) -> bool:
+    """Whether *text* reads as a number (an empty one is 0, as ``Val`` read it)."""
+    try:
+        float(text.strip() or "0")
+    except ValueError:
+        return False
+    return True
 
 
 def number_stored(text: str, field: Field) -> str | None:

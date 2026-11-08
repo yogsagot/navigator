@@ -160,11 +160,16 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As
   DataBase says so). `DBWindow`/`DBViewer` (`viewer/db_window/`) are `TDBWindow`/`TDBViewer`: field names over the
   records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates
-  `DD-MM-YYYY` as the panels', `record/records` over the bottom frame; Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn,
-  mouse quadrants. F2 *Structure of*, F3 *Memo view* (`DBListDialog`), F4 edits the cell in place (`EditLineDialog`,
-  history `edit_dbf`; L flips T/F; refused write-protected), F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked
+  `DD-MM-YYYY` as the panels', a memo column `max(name, Len)` wide, `record/records` over the bottom frame (both plain,
+  `ItoS`; in the passive frame colour while another window is active, `GetColor(1 + Byte(sfActive))`);
+  Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn, mouse quadrants. F2 *Structure of*, F3 *Memo view*
+  (`DBListDialog`), F4 edits the cell in place (`EditLineDialog`, history `edit_dbf`, its line held to the field's
+  length and a date's 10 as `InputBox`'s `Limit`; L flips T/F; refused write-protected). A value that will not go in
+  says *Not a number*, *The number does not fit the field* or *Not a date* and leaves the cell (a departure: DN's
+  `Val` stored 0, losing the cell). F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked
   at one field a record by a slip, every one in scope is looked at here), Shift+F7/Ctrl+L again. A file with no
-  records shows *Empty database* and opens nothing. Colours are the dBase group [166]-[171]. Not kept in a desktop.
+  records shows *Empty database* and opens nothing; a SQLite table or query or a CSV with no rows opens on its field
+  names reading `0/0` (a departure: an empty answer is an answer), F3 and F4 doing nothing there. Colours are the dBase group [166]-[171]. Not kept in a desktop.
   Its own *View* menu joins the bar after *File* while it is active (a departure, asked for: DN's had the key bar
   alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
   *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a

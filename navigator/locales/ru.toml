@@ -6771,6 +6771,9 @@ flag = "RU"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Not a number" = "Не число"
+"The number does not fit the field" = "Число не помещается в поле"
+"Not a date" = "Не дата"
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"

@@ -6772,6 +6772,9 @@ direction = "rtl"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "שניות בין בדיקות של תיקיית השרת לרענון אוטומטי; 0 לעולם לא"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Not a number" = "אינו מספר"
+"The number does not fit the field" = "המספר אינו נכנס לשדה"
+"Not a date" = "אינו תאריך"
 [unused]
 "~Name~" = "~שם~"
 "~Start~" = "~התחלה~"
