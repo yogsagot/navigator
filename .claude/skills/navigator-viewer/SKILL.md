@@ -194,6 +194,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   - **A departure:** a key hcView didn't list (F3, F8, the panels' Alt/Ctrl keys) did nothing in DN's quick view.
     Here it still reaches the panels, and the key bar shows it.
   - **While the panel has the keyboard**, every key is the panel's.
+- **Alt+Z with the keyboard in the quick view** hides the panel it follows and zooms, so the view fills the screen.
+  Alt+Z again puts both back (`navigator-panels`, `Manager.on_zoom_window`).
 - **Each Ctrl+Q opens the view as Viewer setup says** (`QuickViewer.fresh`, called from `Manager.switch_view`):
   - DN's `ViewInsert` made a new `THFileViewer` with `ViOpt` each time, and `SwitchView` freed it.
   - The view opens in hex if *Hex mode* is set and wrapped if *Wrap lines* is, with filter 0 and UTF-8.

@@ -455,6 +455,15 @@ directory change and losing the keyboard. While it runs `edits_text` is True. Ma
   share lost). Hiding the only side left shows the console (`cmShowOutput`), and the key from the console brings the
   manager back with that side alone (`cmPostHideLeft`, `Shell.show_manager_side`) -- both keys are on the application's
   table. Tab is disabled while a side is hidden; Ctrl+T/Ctrl+Q show it first.
+- **Alt+Z with the quick view selected is `TDoubleWindow`'s `cmZoom`** (`Manager.on_zoom_window`):
+  - The side the view follows is hidden, then the window zooms (DN's uncleared `cmZoom` went on to `TWindow`'s), so
+    the view fills the desktop. `_view_zoom` notes the rectangle.
+  - Alt+Z again shows the side. `show_side` first undoes that zoom (`_unzoom_view`) while the window is as it left
+    it, so the window gets back the rectangle and zoom it had before. A departure: DN's arithmetic there didn't come
+    back to it.
+  - Every way a side comes back goes through `show_side`, so Ctrl+Q, Ctrl+F1/F2 and Ctrl+P do the same.
+  - Anywhere else, and in the quick view without the keyboard, the command passes on to the desktop's zoom.
+    `Manager.refusal` answers for `ZoomWindow` now that the handler is here.
 - **Ctrl+P is `cmSwitchOther`** (`toggle_inactive_side`, on `manager.nml`'s table): the side without the keyboard; it
   never falls back to the console.
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;

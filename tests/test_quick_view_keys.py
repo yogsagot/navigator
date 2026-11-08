@@ -195,3 +195,82 @@ def test_shift_f5_saves_a_copy_from_the_quick_view(files):
     run_app(app, [*INTO, KeyEvent("f5", shift=True), Until(lambda a: isinstance(a.modal, FileDialog)),
                   name_it, KeyEvent("enter"), Until(lambda a: target.exists())])
     assert target.read_bytes() == (files / "text.txt").read_bytes()
+
+
+# -- Alt+Z with the quick view selected (cmZoom) ---------------------------------------------------
+
+
+def rect(window):
+    return (window.x, window.y, window.width, window.height, window.zoomed)
+
+
+@pytest.mark.parametrize("zoomed", [True, False])
+def test_alt_z_in_the_quick_view_fills_the_window_and_again_puts_the_panel_back(files, zoomed):
+    app = navigator(files)
+    seen = {}
+
+    def unzoom(a):
+        if not zoomed:
+            manager = a.manager
+            manager.toggle_zoom()
+            manager.x, manager.y, manager.width, manager.height = 2, 1, 70, 18
+
+    def before(a):
+        seen["before"] = rect(a.manager)
+
+    def filled(a):
+        manager = a.manager
+        seen["filled"] = (manager.hidden_side, manager.zoomed, manager.quick.width, a.focused is manager.quick.viewer,
+                          manager.width)
+
+    run_app(app, [unzoom, IDLE, *INTO, before, KeyEvent("z", alt=True), filled,
+                  KeyEvent("z", alt=True), lambda a: seen.update(after=rect(a.manager),
+                                                                  hidden=a.manager.hidden_side)])
+    hidden, is_zoomed, view_width, keys, width = seen["filled"]
+    assert hidden == "left" and is_zoomed and keys
+    assert view_width == width
+    assert seen["after"] == seen["before"] and seen["hidden"] is None
+
+
+def test_alt_z_elsewhere_zooms_the_window_as_before(files):
+    app = navigator(files)
+    seen = []
+    run_app(app, [on_text, KeyEvent("q", ctrl=True), lambda a: None,
+                  lambda a: seen.append(a.manager.zoomed), KeyEvent("z", alt=True),
+                  lambda a: seen.append((a.manager.zoomed, a.manager.hidden_side)),
+                  KeyEvent("z", alt=True), KeyEvent("q", ctrl=True), lambda a: None,
+                  # The tree, with the keyboard: a plain zoom too (DN tested dtView only).
+                  KeyEvent("t", ctrl=True), KeyEvent("tab"), lambda a: None, KeyEvent("z", alt=True),
+                  lambda a: seen.append((a.manager.zoomed, a.manager.hidden_side))])
+    assert seen[0] is True
+    assert seen[1] == (False, None)
+    assert seen[2] == (False, None)
+
+
+@pytest.mark.parametrize("back", ["ctrl+q", "ctrl+f1"])
+def test_the_panel_put_back_another_way_gives_the_window_back_too(files, back):
+    app = navigator(files)
+    seen = {}
+    key = KeyEvent("q", ctrl=True) if back == "ctrl+q" else KeyEvent("f1", ctrl=True)
+    run_app(app, [*INTO, lambda a: seen.update(before=rect(a.manager)), KeyEvent("z", alt=True), key,
+                  lambda a: None, lambda a: seen.update(after=rect(a.manager), hidden=a.manager.hidden_side)])
+    assert seen["after"] == seen["before"] and seen["hidden"] is None
+
+
+def test_a_window_moved_in_between_grows_where_it_is(files):
+    app = navigator(files)
+    seen = {}
+
+    def move(a):
+        manager = a.manager
+        manager.toggle_zoom()
+        manager.x, manager.y, manager.width, manager.height = 5, 2, 40, 15
+        seen["moved"] = rect(manager)
+
+    run_app(app, [*INTO, KeyEvent("z", alt=True), move, KeyEvent("z", alt=True),
+                  lambda a: seen.update(after=rect(a.manager), hidden=a.manager.hidden_side)])
+    assert seen["hidden"] is None
+    # The left side comes back: the right edge stays and the window grows left.
+    x, y, width, height, zoomed = seen["after"]
+    assert (y, height, zoomed) == (2, 15, False)
+    assert x + width == 45 and width > 40

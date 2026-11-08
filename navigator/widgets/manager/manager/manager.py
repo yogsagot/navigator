@@ -26,6 +26,7 @@ from navkit.reactive import computed, effect, reactive, untracked
 from navkit.stylesheet import parse_declarations
 
 from navml.widgets.dialog.dialog import Dialog
+from navml.commands import ZoomWindow
 from navml.widgets.window import Window
 
 from navigator.widgets.manager.commands import (
@@ -321,6 +322,9 @@ class Manager(Window):
         #: What hiding a side set aside: the rectangle and ``zoomed`` before,
         #: the rectangle after, and the two sides' widths, for growing back.
         self._collapse: dict[str, Any] | None = None
+        #: The rectangle Alt+Z zoomed the window to after hiding the panel the
+        #: quick view follows (``on_zoom_window``), or None.
+        self._view_zoom: tuple[int, int, int, int] | None = None
         #: While the divider is held: the column the pointer took it at,
         #: counted from the right side's left edge (DN's ``B``).
         self._divider: int | None = None
@@ -3266,6 +3270,11 @@ class Manager(Window):
         are not a listing.  Asked of a menu too, where neither has it and the
         panel is meant.  A refusal of a key that falls through to the command
         line (``by_key``) says so, though no menu asks it that way."""
+        if isinstance(command, ZoomWindow):
+            # The handler is here now, so this answers for the desktop's too.
+            if self._quick_selected() or self.zoomable:
+                return ""
+            return tr("This window cannot be zoomed")
         panel = self.active_panel
 
         def unless(condition: bool, reason: str) -> str:
@@ -3682,6 +3691,45 @@ class Manager(Window):
     async def on_toggle_tree(self, event: ToggleTree) -> bool:
         self.toggle_tree()
         return True
+
+    async def on_zoom_window(self, event: ZoomWindow) -> bool:
+        """Alt+Z with the quick view selected: ``TDoubleWindow``'s ``cmZoom``.
+
+        ``if LSelected and (LType = dtView) then SwitchRight``: the side the
+        view follows is hidden, which shrinks the window to the view, and the
+        command, left uncleared, went on to ``TWindow``'s zoom, so the view
+        fills the desktop.  Again, the panel comes back.
+
+        A departure on the way back: DN's second Alt+Z grew a window that was
+        zoomed already and then unzoomed it to the shrunk rectangle; here the
+        zoom is undone first and the side shown after, so the window gets back
+        the rectangle it had before the first.  Anywhere else -- a panel, the
+        tree, the information panel, the quick view without the keyboard --
+        it goes on to the desktop and zooms the window.
+        """
+        if not self._quick_selected():
+            return False
+        followed = "right" if self.side_view("left") is self.quick else "left"
+        if self.hidden_side == followed:
+            self.show_side(followed)
+            return True
+        if self.hidden_side is not None:
+            return False
+        self.hide_side(followed)
+        self.toggle_zoom()
+        self._view_zoom = (self.x, self.y, self.width, self.height)
+        return True
+
+    def _quick_selected(self) -> bool:
+        """Whether the quick view stands in a panel's place with the keyboard."""
+        return self.replacement is self.quick and self.quick.focus_within
+
+    def _unzoom_view(self) -> None:
+        """Undo the zoom Alt+Z put on top of hiding the followed side, while
+        the window is still as it left it; else leave the window be."""
+        rect, self._view_zoom = self._view_zoom, None
+        if rect is not None and self.zoomed and rect == (self.x, self.y, self.width, self.height):
+            self.toggle_zoom()
 
     async def on_quick_view(self, event: QuickView) -> bool:
         self.toggle_quick_view()
@@ -5869,6 +5917,9 @@ class Manager(Window):
         """
         if self.hidden_side != side:
             return
+        # Alt+Z's zoom over the hide, undone first: the window is then as the
+        # hide left it, and gets back exactly what it had.
+        self._unzoom_view()
         state = self._collapse or {}
         self.side_view(side).visible = True
         self.hidden_side = None

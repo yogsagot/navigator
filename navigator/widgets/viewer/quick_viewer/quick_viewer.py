@@ -46,8 +46,6 @@ from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import SwitchHighLight
-from navigator.widgets.viewer import viewer_host
 from navigator.widgets.viewer.commands import (
     AddFilter,
     ChooseEncoding,
@@ -92,6 +90,13 @@ def _discard_later(use: Any) -> None:
         asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
     except RuntimeError:
         usefile.discard(use)
+
+
+def _host() -> Any:
+    """``navigator.widgets.viewer.viewer_host``, imported at first use."""
+    from navigator.widgets.viewer import viewer_host
+
+    return viewer_host
 
 
 class QuickViewer(Widget):
@@ -160,24 +165,22 @@ class QuickViewer(Widget):
             return tr("Nothing is open")
         if isinstance(command, SaveViewAs) and self._use is not None:
             return tr("Only the start of the file was read")
-        if isinstance(command, viewer_host.COMMANDS):
-            return viewer_host.refusal(self, command) or super().refusal(command)
+        host = _host()
+        if isinstance(command, host.COMMANDS):
+            return host.refusal(self, command) or super().refusal(command)
         return super().refusal(command)
 
     def checks(self, command: Command) -> bool | None:
-        checked = viewer_host.checks(self, command)
+        checked = _host().checks(self, command)
         return checked if checked is not None else super().checks(command)
 
     # -- the view commands (``viewer_host``, written out: one base) ------------
+    #
+    # ``viewer_host`` is imported where it is used: the desktop places a quick
+    # view at start, and its dialogs (and the editor's commands) wait for a key.
 
     async def on_unwrap(self, event: Unwrap) -> bool:
         self.viewer.toggle_wrap()
-        return True
-
-    async def on_switch_high_light(self, event: SwitchHighLight) -> bool:
-        """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
-        DN's viewer did not have."""
-        self.viewer.syntax_highlight = not self.viewer.syntax_highlight
         return True
 
     async def on_hex_mode(self, event: HexMode) -> bool:
@@ -197,31 +200,31 @@ class QuickViewer(Widget):
         return True
 
     async def on_goto_address(self, event: GotoAddress) -> bool:
-        self.spawn(viewer_host.goto_address(self))
+        self.spawn(_host().goto_address(self))
         return True
 
     async def on_save_view_as(self, event: SaveViewAs) -> bool:
-        self.spawn(viewer_host.save_as(self))
+        self.spawn(_host().save_as(self))
         return True
 
     async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
-        self.spawn(viewer_host.choose_encoding(self))
+        self.spawn(_host().choose_encoding(self))
         return True
 
     async def on_search_for(self, event: SearchFor) -> bool:
-        self.spawn(viewer_host.search_for(self))
+        self.spawn(_host().search_for(self))
         return True
 
     async def on_continue_search(self, event: ContinueSearch) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=False))
+        self.spawn(_host().search_again(self, reverse=False))
         return True
 
     async def on_search_again(self, event: SearchAgain) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=False))
+        self.spawn(_host().search_again(self, reverse=False))
         return True
 
     async def on_reverse_search(self, event: ReverseSearch) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=True))
+        self.spawn(_host().search_again(self, reverse=True))
         return True
 
     def show(self, path: Any) -> None:
