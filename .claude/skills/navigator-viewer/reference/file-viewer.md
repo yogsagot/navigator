@@ -121,13 +121,8 @@ What is deliberately not done:
 - **Links are kept as written.** A relative URL is not resolved against the file, because OSC 8 would hand the
   terminal a path it cannot open anyway.
 
-Left for later, in the order DN's status line lists them:
-
-- Shift+F6 *XLat* tables, as an encoding chooser (*View > Encoding...*)
-- the *Find* dialog's linked `He~x~` line
-- view history (Alt+PgDn, and reopening at the last position)
-- external viewers (`dn.vwr`)
-- F3 on a directory, which counted its size (`CountLen`)
-- viewing inside archives
+Left for later: F3 on a directory, which counted its size (`CountLen`). The rest once listed here -- XLat as
+*View > Encoding...*, the *Find* box's `He~x~` line, view history, external viewers (`viewers.ini`) and viewing
+inside archives -- is done.
 
 

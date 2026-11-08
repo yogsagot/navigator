@@ -604,7 +604,7 @@ def test_the_lazy_re_exports_are_transparent():
         "Button", "Calendar", "CalendarView", "CheckBoxes", "ChoiceField", "ChoiceLine", "Cluster", "ColorDisplay", "ColorSelector",
         "ContextMenu", "ContextMenuHost", "Control",
         "DateButton", "DateField", "Desktop", "Dialog",
-        "DockLayout", "DropDown", "Field", "FileDialog", "FileInfoPane", "FileList", "GridLayout", "GroupBox", "History", "HorizontalLayout",
+        "DockLayout", "DropDown", "Field", "FileDialog", "FileInfoPane", "FileList", "GridLayout", "GroupBox", "HexLine", "History", "HorizontalLayout",
         "InputLine",
         "Label", "Layout", "LinearLayout", "ListViewer", "MaskedField", "MaskedLine", "MenuBar", "MenuBox",
         "MenuItem", "MenuLine", "Modal", "OptionItem", "OptionStrip", "PopupMenu", "ProgressBar", "RadioButtons", "ScrollBar",

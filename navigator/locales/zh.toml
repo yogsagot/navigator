@@ -6774,6 +6774,7 @@ flag = "CN"
 "Not a number" = "不是数字"
 "The number does not fit the field" = "数字超出字段长度"
 "Not a date" = "不是日期"
+"He~x~" = "十六进制(~X~)"
 [unused]
 "Year" = "年份"
 "View a dBase file as a table" = "以表格查看 dBase 文件"

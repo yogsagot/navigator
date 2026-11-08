@@ -118,7 +118,9 @@ class StructWindow(Window):
 
     async def search_for(self) -> None:
         """F7: the viewer's *Find* box -- text, case, direction -- over the
-        keys and the values, from the cursor on."""
+        keys and the values, from the cursor on.  The text: a tree has no
+        bytes, so what the *Hex* line made (``ViewSearch.data``) is not
+        looked for here."""
         import navigator.lib.viewer as viewer_model
         from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
 

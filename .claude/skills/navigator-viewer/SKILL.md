@@ -37,6 +37,11 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   `top`, hex's cursor (drawn, so kept over DN's view top). *Showing*, not DN's *on the first row*, is a departure: a
   hit in the last screenful cannot go to the top, and DN's rule would find it again on every Shift+F7. Not found is
   DN's `mfError` box, titled *Error*.
+- **The *Find* box's *He~x~* line** (`StartSearch`'s `THexLine`, two rows under *Search for*; navml's `HexLine`): the
+  text's bytes in the viewer's encoding (`ViewerFindDialog(encoding=)`), edited as hex. Bytes hex made that are no text
+  in it go in `ViewSearch.data` (only when they differ from the text encoded) and are searched as they are in any
+  viewer, an ASCII letter either case with *Case sensitive* off (`compile_search(data=)`); F7 reopens on them, the
+  history keeps the text shown. The structured view and *Filter lines* search text and ignore `data`.
 - **Dump has no cursor** (DN's `ViewMode = 2`, `FVIEWER.PAS:1425-1530`; `FileViewer._dump_key`): Up/Down/PgUp/PgDn
   scroll as in text, Ctrl+Home/Ctrl+End go to the file's start and last screenful (`Goto 1/2`), Ctrl+Left/Right shift
   the rows a byte as in hex (`_shift_rows`, shared). Home/End/Left/Right/Tab do nothing but are still the viewer's.

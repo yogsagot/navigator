@@ -6774,6 +6774,7 @@ flag = "RU"
 "Not a number" = "Не число"
 "The number does not fit the field" = "Число не помещается в поле"
 "Not a date" = "Не дата"
+"He~x~" = "~Ш~естн."
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"

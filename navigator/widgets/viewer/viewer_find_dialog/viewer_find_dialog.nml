@@ -1,13 +1,15 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
+from navml.widgets.dialog.hex_line import HexLine
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: F7 in a viewer: DOS Navigator's ``dlgViewerFind``.
 #:
 #: Laid out where ``DN.DNR`` puts it -- the line under its caption, *Options*
-#: and *Direction* side by side under that -- in the same 50 by 14.  DN's
+#: and *Direction* side by side under that -- in the same 50 by 14, with the
+#: *Hex* line ``StartSearch`` put two rows under the first (``THexLine``).  DN's
 #: Help button goes, as every dialog's does until there is help to show.
 ViewerFindDialog(Dialog):
     modal_width: 50
@@ -34,6 +36,25 @@ ViewerFindDialog(Dialog):
         label_text: ""
         label_width: 0
         history_id: "view_find"
+
+    #: DN's ``dlHexLabel``, on the row between the two lines.
+    Label:
+        id: hex_caption
+        x: 2
+        y: 4
+        width: 14
+        height: 1
+        text: "He~x~"
+        link: hex
+
+    #: ``StartSearch``'s ``R.Move(0, 2)``: the text line's bounds, two down.
+    HexLine:
+        id: hex
+        x: what.x + what.entry.x
+        y: 5
+        width: what.entry.width
+        height: 1
+        link: what.entry
 
     Label:
         id: options_caption

@@ -1121,16 +1121,31 @@ _WORD = rb"0-9A-Za-z_\x80-\xff"
 
 
 def compile_search(text: str, *, case: bool = False, words: bool = False,
-                   encoding: str = "utf-8") -> tuple[re.Pattern[bytes], int]:
+                   encoding: str = "utf-8", data: bytes | None = None) -> tuple[re.Pattern[bytes], int]:
     """A bytes pattern finding *text* in *encoding*, and the longest match it can make.
 
     Each character becomes the alternation of its case variants' encodings, so
     *Case sensitive* off finds ``Ä`` for ``ä`` too -- which ``re.IGNORECASE``
     on bytes would not, knowing only ASCII.  A character *encoding* has no
     byte for can match nothing.
+
+    *data*, the *Hex* line's bytes, is looked for instead, as it is: with
+    *Case sensitive* off an ASCII letter matches either case, and every other
+    byte only itself, a raw byte having no case.
     """
     parts: list[bytes] = []
     span = 0
+    if data is not None:
+        for byte in data:
+            letter = bytes((byte,))
+            if not case and letter.isalpha():
+                parts.append(b"[" + letter.lower() + letter.upper() + b"]")
+            else:
+                parts.append(re.escape(letter))
+        body = b"".join(parts) or rb"(?!)"
+        if words:
+            body = rb"(?<![" + _WORD + rb"])" + body + rb"(?![" + _WORD + rb"])"
+        return re.compile(body, re.DOTALL), max(1, len(data))
     for char in text:
         variants = {char}
         if not case:
@@ -1165,9 +1180,13 @@ class ViewSearch:
     case: bool = False
     words: bool = False
     backward: bool = False
+    #: The bytes the *Hex* line made, when they are not ``what`` in the
+    #: viewer's encoding (``FF`` in UTF-8): searched as they are in any
+    #: viewer.  The structured view and *Filter lines* search text, so ``what``.
+    data: bytes | None = None
 
     def compile(self, encoding: str = "utf-8") -> tuple[re.Pattern[bytes], int]:
-        return compile_search(self.what, case=self.case, words=self.words, encoding=encoding)
+        return compile_search(self.what, case=self.case, words=self.words, encoding=encoding, data=self.data)
 
 
 #: The last search, shared by every viewer as DN's ``SearchString`` was, so

@@ -1405,7 +1405,7 @@ def test_no_theme_draws_an_unreadable_pair():
     reading = {"Panel", "FileEditor", "FileViewer", "StaticText", "Label", "CheckBoxes", "RadioButtons",
                "InputLine", "HistoryList", "ListViewer", "DirectoryTree", "TreeView", "MenuBox", "MenuBar",
                "TraceList", "CalendarView", "TimePicker", "DBViewer", "InfoPanel", "VolumeList", "CharTable",
-               "UnicodeGrid"}
+               "UnicodeGrid", "HexLine"}
 
     # Text drawn as part of a frame, in the frame's own colours, passive ones
     # too -- glanced at as the title is, so the frame's 2:1 floor: the dBase

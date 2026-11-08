@@ -1,6 +1,6 @@
 ---
 name: navml-library
-description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, Spinner, Toast, navml.background, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
+description: navml's widget library outside windows and menus -- Control, Cluster, StaticText, Label, Button, InputLine, HexLine, CheckBoxes, RadioButtons, ScrollBar, ListViewer, Modal, Dialog, Field, Spacer, Timer, ProgressBar, Spinner, Toast, navml.background, MaskedLine/MaskedField, DateField/TimeField/Calendar/TimePicker, ChoiceField, History/HistoryList, the layouts (Horizontal/Vertical/Grid/Dock/Stack), and building a dialog (including Navigator's About dialog). Use when writing or changing a dialog or a control.
 ---
 
 # The widget library: dialogs, controls, layouts, history
@@ -11,7 +11,7 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 
 ## The components
 
-- **First tier** (`navml/widgets/dialog/`): `Control`, `Cluster`, `StaticText`, `Label`, `Button`, `InputLine`,
+- **First tier** (`navml/widgets/dialog/`): `Control`, `Cluster`, `StaticText`, `Label`, `Button`, `InputLine`, `HexLine`,
   `CheckBoxes`, `RadioButtons`, `ScrollBar`, `ListViewer`, `Modal`, `Dialog`, `Field`; plus `Spacer` and `Timer` at the
   top. `Timer` paints nothing and emits `TimerEvent` every `interval` ms; Navigator's `Clock`
   (`navigator/widgets/shell/clock/`, `HH:MM`, blinking colon, *Timer* slot `[1]`) is built on it.
@@ -201,6 +201,13 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   is consulted, so a test driving the view by `on_key` emits these instead. The window shows them on its *~C~alendar*
   bar menu and its right-click menu (a click on a day moves there first), and hands them on to the view when the
   button holds the keyboard (`CalendarWindow._month`); the menu's static `key:`s are for that case.
+- **`HexLine`** (`navml/widgets/dialog/hex_line/`, Python alone) is DN's `THexLine` (`DIALOGS.PAS`): the bytes of the
+  `InputLine` it is `link`ed to (`what.entry`), in its `encoding`, as hex pairs, edited as hex with DN's keys only
+  (`0-9`/`A-F` high nibble then low, Left/Right a nibble, Backspace/Del a byte, Up is Shift+Tab, other letters
+  swallowed). It keeps its own `data`, since a hex edit can make bytes that are no text in the encoding: the linked
+  line shows them decoded (`U+FFFD` for what will not), and typing there makes `data` the text's bytes again (a
+  character the encoding cannot say gives none). The two cursors follow each other; it does not mirror. Styled as
+  `InputLine`. The viewer's *Find* box has one.
 - **`ChoiceField`** is a `ChoiceLine` (an `InputLine` never typed into: every key but Tab/Shift+Tab/Esc/Alt+letter/
   Up/Down drops its list, Enter included; Up/Down step between the dialog's lines) over **`History.choices`**, a fixed
   list that records nothing and that typing quick-searches by the panel's rule.

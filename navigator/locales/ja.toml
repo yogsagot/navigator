@@ -6774,6 +6774,7 @@ flag = "JP"
 "Not a number" = "数値ではありません"
 "The number does not fit the field" = "数値がフィールドに収まりません"
 "Not a date" = "日付ではありません"
+"He~x~" = "16進(~X~)"
 [unused]
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"

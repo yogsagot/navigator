@@ -831,7 +831,8 @@ class FileWindow(Window):
         """F7: ask, remember the answer for every viewer, and look."""
         from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
 
-        search = await ViewerFindDialog(last=viewer_model.last_search).execute(self.application)
+        search = await ViewerFindDialog(last=viewer_model.last_search,
+                                        encoding=self.viewer.encoding).execute(self.application)
         if search is None:
             return
         viewer_model.last_search = search

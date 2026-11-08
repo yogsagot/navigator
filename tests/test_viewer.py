@@ -397,6 +397,48 @@ def test_in_hex_the_hits_row_goes_to_the_top_and_the_cursor_onto_it(files, monke
     assert hit == (450, 8) and cursor == 450 and top == 450 - 450 % per
 
 
+def test_the_hex_lines_bytes_are_searched_as_they_are():
+    pattern, span = compile_search("", data=b"\x00A")
+    assert pattern.search(b"..\x00a..") and not pattern.search(b"\x01a") and span == 2
+    pattern, _ = compile_search("", data=b"\x00A", case=True)
+    assert not pattern.search(b"\x00a") and pattern.search(b"\x00A")
+
+
+def test_f7s_hex_line_finds_bytes_no_text_says_and_comes_back_on_them(files, monkeypatch):
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+
+    monkeypatch.setattr(viewer_model, "last_search", None)
+    (files / "big.bin").write_bytes(b"\x00" * 300 + b"\xff\xfe" + b"\x00" * 300)
+    app = navigator(files)
+    seen = {}
+
+    def look(a):
+        box = a.modal
+        seen.update(caption=box.hex_caption.text, y=(box.what.y, box.hex.y), hex=box.hex.data)
+
+    run_app(app, [
+        KeyEvent("home"), *[KeyEvent("down")] * 2, KeyEvent("f3"), IDLE,
+        KeyEvent("f7"), Until(lambda a: isinstance(a.modal, ViewerFindDialog)),
+        lambda a: a.modal.hex.focus(), *[KeyEvent(c.lower(), c) for c in "FFFE"], look, KeyEvent("enter"),
+        Until(lambda a: a.modal is None and opened(a).viewer.hit is not None),
+        lambda a: seen.update(hit=opened(a).viewer.hit, search=viewer_model.last_search),
+        KeyEvent("f7"), Until(lambda a: isinstance(a.modal, ViewerFindDialog)),
+        lambda a: seen.update(again=a.modal.hex.data), KeyEvent("escape"),
+    ], settle=0.05)
+    assert seen["caption"] == "He~x~" and seen["y"] == (3, 5) and seen["hex"] == b"\xff\xfe"
+    assert seen["hit"] == (300, 2)
+    assert seen["search"].data == b"\xff\xfe" and seen["search"].what == "\ufffd\ufffd"
+    assert seen["again"] == b"\xff\xfe"
+
+
+def test_text_the_hex_line_only_shows_keeps_no_bytes_of_its_own(files):
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+
+    box = ViewerFindDialog(last=ViewSearch("ab"), encoding="cp437")
+    assert box.hex.data == b"ab"
+    assert box.accept() == ViewSearch("ab")
+
+
 def test_f7_asks_and_finds(files, monkeypatch):
     from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
 

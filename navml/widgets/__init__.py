@@ -57,6 +57,7 @@ _COMPONENTS = {
     "FileList": "dialog.file_list",
     "GridLayout": "layout.grid_layout",
     "GroupBox": "dialog.group_box",
+    "HexLine": "dialog.hex_line",
     "History": "dialog.history",
     "HorizontalLayout": "layout.horizontal_layout",
     "InputLine": "dialog.input_line",
@@ -162,6 +163,7 @@ if TYPE_CHECKING:
     from navml.widgets.dialog.masked_line import MaskedLine
     from navml.widgets.layout.grid_layout import GridLayout
     from navml.widgets.dialog.group_box import GroupBox
+    from navml.widgets.dialog.hex_line import HexLine
     from navml.widgets.dialog.history import History
     from navml.widgets.layout.horizontal_layout import HorizontalLayout
     from navml.widgets.dialog.input_line import InputLine
