@@ -38,6 +38,7 @@ from navigator.models.edit_record import EditRecord
 from navigator.commands import PrintFile
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
+    NewView,
     AsciiTable,
     SetMargins,
     ContSearch,
@@ -114,7 +115,7 @@ class EditWindow(Window):
 
     def __init__(
         self, path: Path | str, *, document: Document | None = None, new: bool = False,
-        smartpad: bool = False, **kwargs: Any,
+        smartpad: bool = False, share: Any = None, **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
         #: SmartPad's window (``navigator.lib.utilities.smartpad``): its own title, no edit
@@ -130,7 +131,13 @@ class EditWindow(Window):
         #: One save at a time: a second F2, or *Yes* to *Save?* while one is
         #: still writing, waits for it and then writes what the text is then.
         self._saving = asyncio.Lock()
-        if document is None:
+        if share is not None:
+            # Window > *New view* (not DN's): *share*'s text, its undo history
+            # and its save; the copy from another drive is the text's too.
+            self.editor.share(share.editor)
+            self.use_set = share.use_set
+            self.unsent = share.unsent
+        elif document is None:
             self.editor.open(path, new=new)
         else:
             self.editor.use_document(path, document)
@@ -168,6 +175,11 @@ class EditWindow(Window):
             title = tr("Edit - {path}").format(path=self.editor.path)
         if self.unsaved():
             title = ("☼ " if self.editor.glyphs >= GLYPHS_UNICODE else "* ") + title
+        self.editor.revision
+        views = self.editor.buffer.views
+        if len(views) > 1 and self.editor in views:
+            # Window > *New view*: which of the text's windows this is.
+            title += f" :{views.index(self.editor) + 1}"
         return title
 
     def take_keyboard(self) -> None:
@@ -275,9 +287,22 @@ class EditWindow(Window):
     def close(self) -> None:
         # ``TFileEditor.Valid(cmClose)``: the record is written once closing
         # has been agreed to, which is when this is called.
+        others = self.views_of_text()
+        if others:
+            # Window > *New view*: the text stays in its other windows, and the
+            # last of them to close is the one that records, asks and cleans up.
+            self.editor.unlock_file()
+            self.editor._leave_buffer()
+            for view in others:
+                view.editor.revision += 1
+            if self.after_close is not None and others[0].after_close is None:
+                others[0].after_close, self.after_close = self.after_close, None
+            super().close()
+            return
         if self.parent is not None:
             self.remember_history()
         self.editor.unlock_file()
+        self.editor._leave_buffer()
         super().close()
         if self.use_set is not None:
             from navigator.lib.drives import usefile
@@ -333,7 +358,8 @@ class EditWindow(Window):
             from navigator.widgets.drives.use_file import put_back
 
             sent = await put_back(self.application, self.use_set, ask=False)
-            self.unsent = not sent
+            for window in (self, *self.views_of_text()):
+                window.unsent = not sent
             return sent
         if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
@@ -471,7 +497,37 @@ class EditWindow(Window):
     def refusal(self, command: Any) -> str:
         if isinstance(command, (BlockWrite, PrintBlock)):
             return "" if self.editor.has_block else tr("No block is marked")
+        if isinstance(command, NewView) and self.smartpad:
+            return tr("Not for SmartPad")
         return super().refusal(command)
+
+    # -- Window > New view (not DN's) ---------------------------------------------------
+
+    async def on_new_view(self, event: NewView) -> bool:
+        """Another window on this text: one undo history and one save, its own
+        cursor, scroll and block, opened a step down and right of this one."""
+        if self.smartpad or self.parent is None:
+            return True
+        self.open_view()
+        return True
+
+    def open_view(self) -> EditWindow:
+        """The new view itself, on this window's desktop, in front."""
+        desktop = self.parent
+        window = EditWindow(self.editor.path, share=self)
+        desktop.open(window)
+        if self.zoomed:
+            if not window.zoomed:
+                window.toggle_zoom()
+        else:
+            if window.zoomed:
+                window.toggle_zoom()
+            x = min(self.x + 1, max(0, desktop.width - self.width))
+            y = min(self.y + 1, max(0, desktop.height - self.height))
+            window.locate(x, y, self.width, self.height)
+            window.layout(desktop.width, desktop.height)
+        window.editor.focus()
+        return window
 
     async def _ask_file(
         self, title: str, label: str, history_id: str, ok_text: str | None = None,
@@ -983,11 +1039,16 @@ class EditWindow(Window):
         if document is None:
             # Cancelled, or too large -- said already: the text stays.
             return
-        self.remember_history()
+        shared = bool(self.views_of_text())
+        if not shared:
+            self.remember_history()
         self._leave_smartpad(path)
         self.find_bar.close()
+        # With other windows on the text, this one alone goes to *path*.
         self.editor.use_document(path, document)
-        if self.use_set is not None:
+        if shared:
+            self.use_set, self.unsent = None, False
+        elif self.use_set is not None:
             # The copy from another drive is left with its file: what is open
             # now is *path*, saved where it is.
             from navigator.lib.drives import usefile
@@ -1033,9 +1094,11 @@ class EditWindow(Window):
         if not written:
             return
         self._leave_smartpad(path)
-        self.editor.path = path
-        self.editor.lock_file()
-        self.title = bind(lambda _o: self._title(), yielding=True)
+        # The name is the text's: every window of it takes it.
+        for window in (self, *self.views_of_text()):
+            window.editor.path = path
+            window.editor.lock_file()
+            window.title = bind(lambda _o, w=window: w._title(), yielding=True)
         if self.parent is not None:
             await self.emit(FileSaved(path))
 
@@ -1058,7 +1121,25 @@ class EditWindow(Window):
         return self.editor.modified or self.unsent
 
     def must_ask(self) -> bool:
-        return self.unsaved()
+        """Whether closing would lose a change.  With other windows on the text
+        (Window > *New view*) one of them is asked for all -- the first opened
+        -- so Alt+X and *Close all*, which ask every window before closing
+        any, ask once (and a No there closes the rest, :meth:`ask_to_close`)."""
+        if not self.unsaved():
+            return False
+        return self.editor.buffer.views[0] is self.editor
+
+    def request_close(self) -> None:
+        """One window closed, as Esc and Ctrl+F4 ask: with another on the text
+        it goes quietly, the text staying there; the last one asks."""
+        if self.views_of_text():
+            self.close()
+            return
+        super().request_close()
+
+    def views_of_text(self) -> list[EditWindow]:
+        """The other windows showing this window's text (Window > *New view*)."""
+        return [view.parent for view in self.editor.siblings() if isinstance(view.parent, EditWindow)]
 
     async def ask_to_close(self) -> bool:
         """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked.
@@ -1082,6 +1163,10 @@ class EditWindow(Window):
             return False
         if answer is True:
             return await self.save()
+        # No: the changes are let go, and the text's other windows with them,
+        # so none of them asks again.
+        for window in self.views_of_text():
+            window.close()
         return True
 
     # -- the scroll bars -----------------------------------------------------------

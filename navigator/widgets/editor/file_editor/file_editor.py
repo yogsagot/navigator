@@ -778,6 +778,9 @@ class FileEditor(ContextMenuHost, Widget):
         self.forced_ending = ""
         #: The right press while its button is down: a click until it moves.
         self._right_press: MouseClickEvent | None = None
+        #: Another view's edit in progress: this cursor as a place in the
+        #: text, carried through each step of it (:meth:`_edit_here`).
+        self._anchor: Pos | None = None
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -902,10 +905,64 @@ class FileEditor(ContextMenuHost, Widget):
         self._lock = None
 
     def _use(self, buffer: EditBuffer) -> None:
+        self._leave_buffer()
         self.buffer = buffer
         buffer.listeners.append(self._follow_edit)
         buffer.listeners.append(self._follow_tokens)
+        buffer.views.append(self)
         self.rehighlight()
+
+    def _leave_buffer(self) -> None:
+        """Stop showing the text this editor shows: its other views, if it has
+        any, keep it."""
+        buffer = getattr(self, "buffer", None)
+        if buffer is None:
+            return
+        for listener in (self._follow_edit, self._follow_tokens):
+            if listener in buffer.listeners:
+                buffer.listeners.remove(listener)
+        if self in buffer.views:
+            buffer.views.remove(self)
+            # The views left repaint: a title may no longer say which it is.
+            for view in buffer.views:
+                view.revision += 1
+
+    def siblings(self) -> list[FileEditor]:
+        """The other editors showing this text (Window > *New view*)."""
+        return [view for view in self.buffer.views if view is not self]
+
+    def _edit_here(self) -> None:
+        """About to edit: this view is the one editing, and every other view's
+        cursor is taken as a place in the text before anything changes -- the
+        edits are heard after they are made, when its column no longer says
+        where it was (:meth:`_follow_edit`)."""
+        self.buffer.editing = self
+        for view in self.siblings():
+            view._anchor = view._mark_pos()
+
+    #: What a new view takes over from the one it is opened from, besides the
+    #: text: where it is, and every mode.
+    VIEW_STATE = (
+        "path", "tab_size", "margins", "forced_ending", "file_type",
+        "overwrite", "vertical_blocks", "autowrap", "justify_on_wrap", "auto_brackets", "optimal_fill",
+        "highlight_line", "highlight_column", "syntax_highlight", "auto_indent", "back_indent",
+        "show_hidden", "insert_tabs", "line_numbers", "soft_wrap",
+    )
+
+    def share(self, source: FileEditor) -> None:
+        """Window > *New view* (not DN's): show *source*'s text -- its buffer,
+        so one undo history and one save -- from where *source* is, with its
+        modes, and a cursor, a block and markers of its own from here on."""
+        for name in self.VIEW_STATE:
+            setattr(self, name, getattr(source, name))
+        self._use(source.buffer)
+        self.markers = list(source.markers)
+        self.top, self.top_row, self.left = source.top, source.top_row, source.left
+        self.line, self.col = source.line, source.col
+        # Every view repaints: a title says which of them it is now.
+        for view in self.buffer.views:
+            view.revision += 1
+        self.lock_file()
 
     def save(self) -> None:
         """Write the text to :attr:`path`, here and now.  Raises ``OSError``.
@@ -945,9 +1002,10 @@ class FileEditor(ContextMenuHost, Widget):
         return [columns.optimal_fill(line, self.tab_size) for line in lines]
 
     def saved(self, point: object) -> None:
-        """The text as :meth:`snapshot` took it is on disk now."""
+        """The text as :meth:`snapshot` took it is on disk now -- in every view of it."""
         self.buffer.mark_saved(point)
-        self.revision += 1
+        for view in self.buffer.views:
+            view.revision += 1
 
     @computed
     def modified(self) -> bool:
@@ -1644,6 +1702,17 @@ class FileEditor(ContextMenuHost, Widget):
         an edit adds or takes out line breaks above it.
         """
         self._half_mark = None
+        if self.buffer.editing is not self and self in self.buffer.views:
+            # Another view's edit (Window > *New view*): this one repaints,
+            # and its cursor moves with the text around it, as the block does.
+            self.revision += 1
+            if kind not in ("endings", "replace"):
+                anchor = getattr(self, "_anchor", None)
+                here = shifted(anchor if anchor is not None else self._mark_pos(), kind, start, end)
+                self._anchor = here
+                self.line = min(here.line, len(self.document) - 1)
+                text = self.document.lines[self.line]
+                self.col = columns.column_of(text, min(here.index, len(text)), self.tab_size)
         if kind == "endings":
             return  # every line as it was: only their terminators changed
         if kind == "replace":
@@ -2791,6 +2860,7 @@ class FileEditor(ContextMenuHost, Widget):
     # -- edits -------------------------------------------------------------------
 
     def _begin(self, merge: str | None = None) -> None:
+        self._edit_here()
         self.buffer.begin((self.line, self.col), merge)
 
     @staticmethod
@@ -3375,6 +3445,7 @@ class FileEditor(ContextMenuHost, Widget):
         if document.newline == newline and set(document.counts) <= {newline}:
             return True
         endings = [newline if ending else "" for ending in document.endings]
+        self._edit_here()
         self.buffer.swap(State(list(document.lines), endings, newline, document.encoding),
                          (self.line, self.col))
         self.revision += 1
@@ -3410,6 +3481,8 @@ class FileEditor(ContextMenuHost, Widget):
         if self.document is not document:
             return False  # another file opened meanwhile
         was_modified = self.buffer.modified
+        # The text's decoding, so every view of it takes it (Window > *New view*).
+        self._edit_here()
         self.buffer.swap(State(new.lines, new.endings, new.newline, encoding), (self.line, self.col))
         if not was_modified:
             self.buffer.mark_saved()
@@ -3480,6 +3553,7 @@ class FileEditor(ContextMenuHost, Widget):
         return self._encoding_at
 
     async def on_undo(self, event: Undo) -> bool:
+        self._edit_here()
         before = self.buffer.undo()
         if before is not None:
             self.revision += 1
@@ -3488,6 +3562,7 @@ class FileEditor(ContextMenuHost, Widget):
 
     async def on_redo(self, event: Redo) -> bool:
         """The cursor where the group redone ended, as other editors leave it."""
+        self._edit_here()
         after = self.buffer.redo()
         if after is not None:
             self.revision += 1

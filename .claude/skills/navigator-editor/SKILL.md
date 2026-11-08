@@ -518,6 +518,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `Mark.A`/`Mark.B` back blindly). Auto wrap, Backspace unindents, Optimal fill, Hidden characters and the draw mode
   were not in DN's record and are seeded from the setup each time. **Open editors through
   `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task.
+- **Views** (Window > *New view*, a departure): a second `EditWindow` on the same `EditBuffer`, one undo history
+  and one save, a cursor, block and modes of its own; only the text's first view asks *Save?* when all close at
+  once. Every edit path must call `_edit_here()` before it changes the buffer, or the other views' cursors drift --
+  `reference/editor.md`, *Views*, has the rules.
 - **Three opt-in modes, departures (not DN's), each off by default** and switched alike -- an `[editor]` setting,
   Editor > Options, a `highlight.ini` mask key, a nullable `EditRecord` field: *Tab characters* (`insert_tabs`,
   `columns.fill`), *Line numbers* (`line_numbers`, the `LineGutter` widget beside the editor) and *Soft wrap*

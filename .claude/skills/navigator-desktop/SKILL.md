@@ -12,7 +12,9 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   - `Manager`: per panel `path` (a *Find:* listing's origin), `view_mode`, `sort_mode`, `show_hidden`,
     `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `hidden` side, `view`
     standing in (tree/quick/info, put back through `switch_view` after the active panel is focused);
-  - `EditWindow`: `path` (cursor and scroll are the edit history's), SmartPad as SmartPad; `FileWindow`: `path`,
+  - `EditWindow`: `path` (cursor and scroll are the edit history's), SmartPad as SmartPad, and `view_of` -- the
+    index of the earlier window on the same text, for a Window > *New view* -- which `restore` makes again with that
+    window's `open_view()` rather than a second document (`made_at`); `FileWindow`: `path`,
     `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression; `CalendarWindow`: only that
     it was open (it comes back on today).
   Anything else is not kept. A window that cannot be made again (a file or directory gone) is left out.

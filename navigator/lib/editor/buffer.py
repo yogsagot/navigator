@@ -30,7 +30,7 @@ back.  Listeners hear ``"endings"`` when the lines stayed what they were and
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Any, Callable
 
 from navigator.lib.editor.document import Document, Pos, split_text
 
@@ -91,6 +91,13 @@ class EditBuffer:
         #: delete's end being where the text it took out had ended.  What
         #: holds places in the text (a block) follows the edits through it.
         self.listeners: list[Callable[[str, Pos, Pos], None]] = []
+        #: The editors showing this text, in the order they took it up: more
+        #: than one is Window > *New view* (not DN's).  Plain objects, never
+        #: reactive; each editor joins and leaves it itself.
+        self.views: list[Any] = []
+        #: The view whose edit the listeners are hearing now -- set by it just
+        #: before it edits, so the others know the edit is not theirs.
+        self.editing: Any = None
 
     # -- grouping ----------------------------------------------------------------
 

@@ -142,10 +142,19 @@ def _window(window: Any) -> dict[str, Any] | None:
 def snapshot(desktop: Any) -> dict[str, Any]:
     """*desktop*'s windows, bottom to top, and the one in front."""
     windows, front = [], None
+    #: Each text's first kept window, by its buffer: a later window on the
+    #: same text (Window > *New view*) is kept as a view of it.
+    first_of: dict[int, int] = {}
     for window in desktop.windows():
         kept = _window(window)
         if kept is None:
             continue
+        buffer = getattr(getattr(window, "editor", None), "buffer", None)
+        if kept.get("kind") == "editor" and buffer is not None:
+            if id(buffer) in first_of:
+                kept["view_of"] = first_of[id(buffer)]
+            else:
+                first_of[id(buffer)] = len(windows)
         if window is desktop.active_window:
             front = len(windows)
         windows.append(kept)
@@ -348,13 +357,20 @@ async def restore(desktop: Any, data: dict[str, Any], *,
         side = "right" if top.get("active") == "right" else "left"
         top[side] = {**(top.get(side) or {}), "path": str(here), "cursor": None}
         windows[managers[-1]] = top
+    #: What each kept entry became, by its index: a view comes back on its text's.
+    made_at: dict[int, Any] = {}
     for index, kept in enumerate(windows):
+        source = made_at.get(kept.get("view_of")) if isinstance(kept, dict) else None
         try:
-            window = await _make(desktop, kept, dirs)
+            if source is not None and hasattr(source, "open_view"):
+                window = source.open_view()
+            else:
+                window = await _make(desktop, kept, dirs)
         except (OSError, KeyError, TypeError, ValueError):
             window = None
         if window is None:
             continue
+        made_at[index] = window
         if kept.get("kind") == "manager":
             dirs = None  # the command line's directories are the first manager's alone
         rect = kept.get("rect")

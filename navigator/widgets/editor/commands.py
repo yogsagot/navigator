@@ -450,6 +450,13 @@ class SwitchSoftWrap(Command):
     title = "Soft wrap"
 
 
+class NewView(Command):
+    """Window > *New view* (not DN's): another window on the active editor's
+    text -- one undo history, one save, a cursor, scroll and block of its own."""
+
+    title = "New view"
+
+
 class SwitchFill(Command):
     """``cmSwitchFill``: Editor > Options > *Optimal fill* -- blanks written as tabs
     where they reach a tab stop (``OptimalFill``)."""
@@ -754,6 +761,7 @@ __all__ = [
     "SwitchTabs",
     "SwitchLineNumbers",
     "SwitchSoftWrap",
+    "NewView",
     "CapString",
     "CapWord",
     "LowString",

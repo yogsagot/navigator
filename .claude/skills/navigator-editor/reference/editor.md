@@ -121,7 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-10. (Not DN's) two views of one document.
 11. (Not DN's) the find bar's regex across lines.
 
 Everything else -- blocks with ^K R/W, Find/Replace and the find bar, files and encodings, SmartPad, the character
@@ -197,4 +196,27 @@ decided first because they touch the cursor model:
 Switched by `[editor] soft_wrap` (no box: the Editor defaults page is full), Editor > Options > *Soft wrap*
 (`SwitchSoftWrap`), `highlight.ini`'s `soft_wrap` and the history's nullable field. Rows are cached by
 `(text, width, tab)` in `_wrap_cache`.
+
+**Views** (Window > *New view*, `NewView`; a departure: DN had one window a text). A view is another `EditWindow`
+on the same `EditBuffer` -- `FileEditor.share(source)` takes `source.buffer` and its `VIEW_STATE` (path, modes,
+margins, file type, forced ending) and position -- so one undo history and one save; each view keeps its own cursor,
+scroll, block, markers and token cache. No split: the windows tile and cascade.
+
+- `EditBuffer.views` lists the editors on it in opening order (`_use` joins, `_leave_buffer` leaves and repaints the
+  rest); `EditBuffer.editing` is the view editing now, set by `_edit_here()` in `_begin`, undo, redo and the swaps,
+  which also takes each sibling's cursor as a `Pos` (`_anchor`) before anything changes. A sibling's `_follow_edit`
+  then shifts that `Pos` through each step and repaints -- the listeners hear an edit after it is made, when a
+  column no longer says where the cursor was.
+- `saved()` repaints every view; *Save as* renames every view's path; the remote copy (`use_set`) is shared by
+  reference and `unsent` kept in step. *Load text* detaches its view only. *Reopen with encoding* swaps the shared
+  buffer, so every view takes the new decoding (one undo step) -- the plan had it detach; the decoding is the
+  text's, so all of them is the better rule.
+- Closing: a view with siblings closes quietly (`request_close`, `close`), releasing its lock hold (the lock is
+  counted per holder) and handing `after_close` on. `must_ask()` is true for the text's first view alone, so Alt+X
+  and *Close all*, which ask every window before closing any, ask once; a No there closes the text's other views
+  with it, so none asks again (no flag to go stale if the quit is cancelled later). The last view records the edit
+  history and discards the copy.
+- Titles end ` :n` while there is more than one. *New view* is greyed by the shell's `on_new_view`/`refusal` with no
+  editor in front ("Only an editor has views") and by the window in SmartPad ("Not for SmartPad"). F4 on an open
+  file still opens a separate document. A saved desktop keeps views as views (`navigator-desktop`).
 

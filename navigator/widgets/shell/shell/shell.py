@@ -1166,6 +1166,12 @@ class Shell(DockLayout):
         focused = app.focused if app is not None else None
         return isinstance(focused, TerminalView) and focused.busy
 
+    async def on_new_view(self, event: Any) -> bool:
+        """Window > *New view* with no editor in front: nothing to do -- here
+        only so it is greyed with a reason (:meth:`refusal`); an editor's
+        window, nearer the keyboard, takes it first."""
+        return True
+
     def refusal(self, command: Command) -> str:
         """Enter, Home and End are the command line's only while it has text.
 
@@ -1175,6 +1181,13 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return tr("A program in the console has the keys")
+        from navigator.widgets.editor.commands import NewView
+
+        if isinstance(command, NewView):
+            # Window > *New view*: an editor's own (EditWindow.on_new_view).
+            from navigator.widgets.editor.edit_window import EditWindow
+
+            return "" if isinstance(self.desktop.active_window, EditWindow) else tr("Only an editor has views")
         hidden = tr("Interface Setup hides the command line")
         no_manager = tr("No file panels are open")
         if isinstance(command, OpenProcessWindow):
