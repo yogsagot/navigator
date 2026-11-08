@@ -6777,6 +6777,7 @@ direction = "rtl"
 "Not a date" = "ليس تاريخًا"
 "He~x~" = "~س~ت عشري"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "هل تحفظ الملف محوّلًا\nمن {encoding} إلى UTF-8؟"
+"Only the start of the file was read" = "لم يُقرأ إلا أول الملف"
 [unused]
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"

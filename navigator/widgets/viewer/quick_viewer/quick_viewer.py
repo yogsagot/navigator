@@ -10,8 +10,18 @@ which is what ``ReadFile`` failing left on DN's screen.
 file on a dead mount, or one of ``/proc``'s that is read whole, would stop the
 panel with it.  Only the file the cursor is on when an opening lands is shown.
 
-**The keys that move are the viewer's**; F3, F4 and the rest stay the file
-panel's, whose status line DN kept showing while the quick view was up.
+**With the keyboard in here, the keys are the viewer's**, ``StatusDef
+hcView``'s: F2 wrap, F4 hex and dump, F5 go to, F6 filter, F7 and the
+searches again, Shift+F5 Save as and Shift+F6 the encoding, handled by
+``viewer_host`` as in the F3 window.  A key hcView did not list still reaches
+the panels (a departure; the markup's ``keys:`` says why).  While the panel
+has the keyboard, every key is the panel's, as DN's status line was.
+
+**Viewer setup's *Hex mode* and *Wrap lines* apply each time Ctrl+Q turns the
+view on** (:meth:`QuickViewer.fresh`): ``ViewInsert`` made a new
+``THFileViewer`` then, opened by ``ViOpt``, and ``SwitchView`` freed it when
+it went.  Moving to another file keeps the mode, as one viewer kept its
+``ViewMode`` across ``cmLoadViewFile``.
 
 **A file the user may not read is shown as root only while root access is
 open already** -- from an *As root* answered elsewhere, within ``[system]
@@ -24,6 +34,8 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from navkit.commands import Command
+from navkit.i18n import tr
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.bidi import display_width, reveal
@@ -33,6 +45,23 @@ from navkit.widget import Widget
 from navml.background import Background, Outcome
 from navml.widgets.dialog.scroll_bar import ScrollEvent
 
+from navigator.settings import SETTINGS
+from navigator.widgets.editor.commands import SwitchHighLight
+from navigator.widgets.viewer import viewer_host
+from navigator.widgets.viewer.commands import (
+    AddFilter,
+    ChooseEncoding,
+    ContinueSearch,
+    GotoAddress,
+    HexMode,
+    ReverseSearch,
+    SaveViewAs,
+    SearchAgain,
+    SearchFor,
+    SetViewFilter,
+    SetViewMode,
+    Unwrap,
+)
 from navigator.widgets.viewer.commands import SwitchRendered
 
 from navigator.lib.viewer import ViewSource
@@ -107,6 +136,93 @@ class QuickViewer(Widget):
         menu.add_line()
         menu.add_item(tr("~C~lose quick view"), QuickView)
         return menu
+
+    def fresh(self) -> None:
+        """Ctrl+Q turned the view on: DN's new ``THFileViewer``, in hex if
+        Viewer setup's *Hex mode* says, wrapped if *Wrap lines* does
+        (``ViOpt``), with no filter and no code page (``UseXLat := Off``).
+        Whether the markup is rendered is each file's, as it opens."""
+        viewer = self.viewer
+        viewer.set_mode("hex" if SETTINGS.viewer.hex_mode else "text")
+        viewer.wrap = SETTINGS.viewer.wrap_lines
+        viewer.set_filter(0)
+        if viewer.encoding != "utf-8":
+            viewer.set_encoding("utf-8")
+
+    #: The commands that need a file shown.
+    _VIEW_COMMANDS = (AddFilter, ChooseEncoding, ContinueSearch, GotoAddress, HexMode, ReverseSearch,
+                      SaveViewAs, SearchAgain, SearchFor, Unwrap)
+
+    def refusal(self, command: Command) -> str:
+        """Nothing shown, nothing to act on; and *Save as* of a file from
+        another drive would write only the first megabyte fetched of it."""
+        if isinstance(command, self._VIEW_COMMANDS) and self.viewer.source is None:
+            return tr("Nothing is open")
+        if isinstance(command, SaveViewAs) and self._use is not None:
+            return tr("Only the start of the file was read")
+        if isinstance(command, viewer_host.COMMANDS):
+            return viewer_host.refusal(self, command) or super().refusal(command)
+        return super().refusal(command)
+
+    def checks(self, command: Command) -> bool | None:
+        checked = viewer_host.checks(self, command)
+        return checked if checked is not None else super().checks(command)
+
+    # -- the view commands (``viewer_host``, written out: one base) ------------
+
+    async def on_unwrap(self, event: Unwrap) -> bool:
+        self.viewer.toggle_wrap()
+        return True
+
+    async def on_switch_high_light(self, event: SwitchHighLight) -> bool:
+        """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
+        DN's viewer did not have."""
+        self.viewer.syntax_highlight = not self.viewer.syntax_highlight
+        return True
+
+    async def on_hex_mode(self, event: HexMode) -> bool:
+        self.viewer.cycle_mode()
+        return True
+
+    async def on_add_filter(self, event: AddFilter) -> bool:
+        self.viewer.cycle_filter()
+        return True
+
+    async def on_set_view_mode(self, event: SetViewMode) -> bool:
+        self.viewer.set_mode(event.mode)
+        return True
+
+    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
+        self.viewer.set_filter(event.filter)
+        return True
+
+    async def on_goto_address(self, event: GotoAddress) -> bool:
+        self.spawn(viewer_host.goto_address(self))
+        return True
+
+    async def on_save_view_as(self, event: SaveViewAs) -> bool:
+        self.spawn(viewer_host.save_as(self))
+        return True
+
+    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
+        self.spawn(viewer_host.choose_encoding(self))
+        return True
+
+    async def on_search_for(self, event: SearchFor) -> bool:
+        self.spawn(viewer_host.search_for(self))
+        return True
+
+    async def on_continue_search(self, event: ContinueSearch) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=False))
+        return True
+
+    async def on_search_again(self, event: SearchAgain) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=False))
+        return True
+
+    async def on_reverse_search(self, event: ReverseSearch) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=True))
+        return True
 
     def show(self, path: Any) -> None:
         """Show *path*, unless it is already showing; nothing for anything but a file.

@@ -6776,6 +6776,7 @@ flag = "CN"
 "Not a date" = "不是日期"
 "He~x~" = "十六进制(~X~)"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "将文件从 {encoding}\n转换为 UTF-8 后保存?"
+"Only the start of the file was read" = "只读取了文件的开头"
 [unused]
 "Year" = "年份"
 "View a dBase file as a table" = "以表格查看 dBase 文件"

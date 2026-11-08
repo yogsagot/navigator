@@ -1,8 +1,11 @@
 """The handlers behind ``file_window.nml``: the viewer's commands.
 
 The keys that *move* are ``FileViewer``'s own and reach it first along the
-focus path; what is here is what the key bar names -- the switches, and the
-two dialogs.  Both dialogs are started, never awaited, for the reason
+focus path; what is here is what the key bar names that only the window has
+(Store, Follow end, Filter lines, the markup and the tree, file types).  The
+view commands it shares with the quick view -- wrap, hex, filter, go to, the
+searches, the encoding and Save as -- are ``viewer_host``'s,
+whose functions the handlers here call.  Both dialogs are started, never awaited, for the reason
 ``Manager.on_make_directory`` gives: a handler that waits on a dialog holds the
 only consumer of the queue the dialog's keys arrive on.
 """
@@ -20,23 +23,24 @@ from navml.widgets.dialog.scroll_bar import ScrollEvent
 from navml.widgets.window import Window
 
 import navigator.lib.viewer as viewer_model
+from navigator.widgets.viewer import viewer_host
 from navigator.widgets.viewer.commands import (
     AddFilter,
     ChooseEncoding,
-    SaveViewAs,
-    CloseViewer,
     ContinueSearch,
-    FilterLines,
-    FollowEnd,
     GotoAddress,
     HexMode,
     ReverseSearch,
+    SaveViewAs,
     SearchAgain,
     SearchFor,
     SetViewFilter,
     SetViewMode,
-    SwitchRendered,
     Unwrap,
+    CloseViewer,
+    FilterLines,
+    FollowEnd,
+    SwitchRendered,
     ViewAsTree,
     WriteModify,
 )
@@ -46,7 +50,6 @@ from navigator.widgets.editor.option_items import viewer_items
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.view_record import ViewRecord
 from navigator.lib.system.progress import run_with_progress
-from navigator.lib.viewer import SearchJob, ViewSearch
 from navigator.settings import SETTINGS
 from navigator.widgets.viewer.file_viewer.file_viewer import FILTER_TAGS, MODES
 
@@ -421,6 +424,8 @@ class FileWindow(Window):
 
     # -- the switches ----------------------------------------------------------
 
+    # -- the view commands (``viewer_host``, written out: one base) ------------
+
     async def on_unwrap(self, event: Unwrap) -> bool:
         self.viewer.toggle_wrap()
         return True
@@ -429,6 +434,50 @@ class FileWindow(Window):
         """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
         DN's viewer did not have."""
         self.viewer.syntax_highlight = not self.viewer.syntax_highlight
+        return True
+
+    async def on_hex_mode(self, event: HexMode) -> bool:
+        self.viewer.cycle_mode()
+        return True
+
+    async def on_add_filter(self, event: AddFilter) -> bool:
+        self.viewer.cycle_filter()
+        return True
+
+    async def on_set_view_mode(self, event: SetViewMode) -> bool:
+        self.viewer.set_mode(event.mode)
+        return True
+
+    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
+        self.viewer.set_filter(event.filter)
+        return True
+
+    async def on_goto_address(self, event: GotoAddress) -> bool:
+        self.spawn(viewer_host.goto_address(self))
+        return True
+
+    async def on_save_view_as(self, event: SaveViewAs) -> bool:
+        self.spawn(viewer_host.save_as(self))
+        return True
+
+    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
+        self.spawn(viewer_host.choose_encoding(self))
+        return True
+
+    async def on_search_for(self, event: SearchFor) -> bool:
+        self.spawn(viewer_host.search_for(self))
+        return True
+
+    async def on_continue_search(self, event: ContinueSearch) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=False))
+        return True
+
+    async def on_search_again(self, event: SearchAgain) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=False))
+        return True
+
+    async def on_reverse_search(self, event: ReverseSearch) -> bool:
+        self.spawn(viewer_host.search_again(self, reverse=True))
         return True
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
@@ -566,32 +615,11 @@ class FileWindow(Window):
             viewer.syntax_highlight = True
         self.remember_history()
 
-    async def on_hex_mode(self, event: HexMode) -> bool:
-        self.viewer.cycle_mode()
-        return True
-
-    async def on_add_filter(self, event: AddFilter) -> bool:
-        self.viewer.cycle_filter()
-        return True
-
-    async def on_set_view_mode(self, event: SetViewMode) -> bool:
-        self.viewer.set_mode(event.mode)
-        return True
-
-    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
-        self.viewer.set_filter(event.filter)
-        return True
-
     def checks(self, command: Command) -> bool | None:
         """The *View* menu ticks the mode, the filter and wrapping in force."""
-        if isinstance(command, SetViewMode):
-            return self.viewer.mode == command.mode
-        if isinstance(command, SetViewFilter):
-            return self.viewer.filter == command.filter
-        if isinstance(command, Unwrap):
-            return self.viewer.wrap
-        if isinstance(command, SwitchHighLight):
-            return self.viewer.syntax_highlight
+        checked = viewer_host.checks(self, command)
+        if checked is not None:
+            return checked
         if isinstance(command, SwitchHiddenChars):
             return self.viewer.show_hidden
         if isinstance(command, SwitchRendered):
@@ -613,9 +641,9 @@ class FileWindow(Window):
         byte typed over in hex."""
         if isinstance(command, WriteModify):
             return "" if self.viewer.edited else tr("Nothing has been typed over in hex")
+        if isinstance(command, viewer_host.COMMANDS):
+            return viewer_host.refusal(self, command) or super().refusal(command)
         text_only = tr("Only in the text view")
-        if isinstance(command, GotoAddress):
-            return tr("Only in the hex and dump views") if self.viewer.mode == "text" else ""
         if isinstance(command, SwitchRendered) and self.viewer.filtering:
             return tr("Not while lines are filtered")
         if isinstance(command, SwitchRendered):
@@ -636,14 +664,12 @@ class FileWindow(Window):
             if self.viewer.rendering or self.viewer.showing_picture:
                 return tr("Not while the markup is rendered")
             return ""
-        if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.filtering:
+        if isinstance(command, SwitchHiddenChars) and self.viewer.filtering:
             return tr("Not while lines are filtered")
-        if isinstance(command, (Unwrap, SwitchHiddenChars)) and self.viewer.rendering:
+        if isinstance(command, SwitchHiddenChars) and self.viewer.rendering:
             return tr("Not while the markup is rendered")
-        if isinstance(command, (Unwrap, SwitchHighLight, SwitchHiddenChars, SetFileType, ChooseFileType)):
+        if isinstance(command, (SwitchHiddenChars, SetFileType, ChooseFileType)):
             return "" if self.viewer.mode == "text" else text_only
-        if isinstance(command, (ContinueSearch, ReverseSearch, SearchAgain)):
-            return "" if viewer_model.last_search is not None else tr("Nothing has been searched for yet")
         return super().refusal(command)
 
     async def on_bar_scroll(self, event: ScrollEvent) -> bool:
@@ -679,245 +705,7 @@ class FileWindow(Window):
 
     # -- goto ------------------------------------------------------------------
 
-    async def on_goto_address(self, event: GotoAddress) -> bool:
-        self.spawn(self.goto_address())
-        return True
-
-    async def goto_address(self) -> None:
-        from navigator.widgets.viewer.goto_dialog import GotoDialog
-
-        address = await GotoDialog().execute(self.application)
-        if address is None:
-            return
-        viewer = self.viewer
-        address = min(max(0, address), max(0, viewer.size - 1))
-        viewer.cursor = address
-        viewer.seek(address)
-        viewer.cursor = address
-        viewer.follow_cursor()
-
     # -- searching -------------------------------------------------------------
 
     # -- File > Save as and Encoding -------------------------------------------------
 
-    async def on_save_view_as(self, event: SaveViewAs) -> bool:
-        self.spawn(self.save_as())
-        return True
-
-    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
-        self.spawn(self.choose_encoding())
-        return True
-
-    async def choose_encoding(self) -> None:
-        """Shift+F6: ``LoadXlatTable`` -- the code pages in a box, the one in
-        use marked.  DN offered its ``XLT\\*.XLT`` files and Shift+F6 again
-        put the table away; here *UTF-8* is that, first in the box.  The code
-        pages are a submenu a group (``encoding_menu``), and the box opens with
-        the one in use dropped and selected."""
-        from navml.widgets.menu.popup_menu import PopupMenu
-        from navml.widgets.menu.sub_menu import SubMenu
-
-        from navigator.lib import codepages
-        from navigator.widgets import encoding_menu
-
-        viewer = self.viewer
-        menu = SubMenu()
-        filled = encoding_menu.fill(menu, [viewer_model.ENCODINGS[0]], codepages.ONE_BYTE)
-        title = tr("Encoding")
-        width, height = PopupMenu.measure(menu, self.application, self, title)
-        ox, oy = self.offset()
-        x = ox + self.x + max(0, (self.width - width) // 2)
-        y = oy + self.y + max(0, (self.height - height) // 2)
-        index, at = filled.places.get(viewer.encoding, (0, -1))
-        box = PopupMenu(menu, x, y, current=index, behind=self, title=title,
-                        submenu=(index, at) if at >= 0 else None)
-        chosen = filled.key_of(await box.execute(self.application))
-        if chosen is not None:
-            viewer.set_encoding(chosen)
-
-    async def save_as(self) -> None:
-        """Shift+F5: ``cmSaveAll``, DN's ``SaveFile`` -- *Save File As*.
-
-        A file read in a code page asks first, as DN asked about its ``Xlat``
-        table (``dlViewSaveXlat``): *Yes* writes it in UTF-8, *No* as its
-        bytes are.  Esc there saves nothing, a departure: DN's Yes/No box took
-        Esc for No and went on writing, and a box put away should not write a
-        file.  A file already there is ``dlED_OverQuery``: *Yes* replaces it,
-        *Append* adds to its end, Cancel writes nothing.  At most the size the
-        file had when the save began is copied, as DN read up to its ``Sz``.
-        On a thread, and the panels showing where it went look again
-        (``cmRereadDir``)."""
-        import asyncio
-
-        from navml.widgets.dialog.file_dialog import FileDialog
-
-        viewer = self.viewer
-        source = viewer.source
-        app = self.application
-        if source is None or viewer.path is None:
-            return
-        codec = viewer.encoding
-        if codec != "utf-8":
-            name = dict(viewer_model.ENCODINGS)[codec].split()[0]
-            translate = await Dialog(title=tr("Confirmation"),
-                                     prompt=tr("Save the file translated\nfrom {encoding} to UTF-8?").format(encoding=name),
-                                     buttons="yes-no-cancel").execute(app)
-            if translate is None:
-                return
-            if translate is False:
-                codec = "utf-8"
-        dialog = FileDialog(
-            title=tr("Save File As"), label=tr("~S~ave File As"), history_id="edit_save",
-            directory=viewer.path.parent, hidden=SETTINGS.system.show_hidden,
-        )
-        # A URL, or a place in an archive, goes as typed: to that drive.
-        dialog.raw = lambda text: "://" in text or "#/" in text
-        name = await dialog.execute(app)
-        if not name:
-            return
-        from navigator.lib.drives import Location, drive_of
-
-        place = Location.parse(name)
-        if not place.is_local:
-            reach = getattr(getattr(app, "shell", None), "reach", None)
-            if reach is None or not await reach(place):
-                return
-
-        def there() -> bool:
-            try:
-                return drive_of(place).lexists(place)
-            except OSError:
-                return False
-
-        target: Any = place.local if place.is_local else place
-        append = False
-        if await asyncio.to_thread(there):
-            query = Dialog(title=tr("Warning"),
-                           prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
-                           buttons="yes-no-cancel")
-            query.no.text = tr("A~p~pend")
-            answer = await query.execute(app)
-            if answer is None:
-                return
-            append = answer is False
-        limit = viewer.size
-        try:
-            # A file read across a network is written from its drive, whole.
-            data = source if viewer.remote else source.path
-            try:
-                await asyncio.to_thread(viewer_model.save_as, data, target, codec,
-                                        append=append, limit=limit)
-            except OSError as error:
-                from navigator.lib.system.elevate import ELEVATION, refused
-
-                message = tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error)
-                # Refused permission on the disk: *As root* (a departure;
-                # :mod:`navigator.lib.system.elevate`).
-                if not (place.is_local and refused(error) and await asyncio.to_thread(ELEVATION.available)):
-                    raise
-                from navigator.widgets.file_ops.as_root import ask_as_root
-
-                if not await ask_as_root(app, message):
-                    return
-                await asyncio.to_thread(viewer_model.save_as, data, target, codec, as_root=True,
-                                        append=append, limit=limit)
-        except OSError as error:
-            await Dialog(title=tr("Error"),
-                         prompt=tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error),
-                         buttons="ok").execute(app)
-            return
-        finally:
-            if place.outer is not None:
-                from navigator.lib.drives import archive
-
-                await asyncio.to_thread(archive.release_unheld, place.outer)
-        from navigator.widgets.editor.edit_window.edit_window import FileSaved
-
-        await self.emit(FileSaved(target))
-
-    async def on_search_for(self, event: SearchFor) -> bool:
-        self.spawn(self.search_for())
-        return True
-
-    async def on_continue_search(self, event: ContinueSearch) -> bool:
-        self.spawn(self.search_again(reverse=False))
-        return True
-
-    async def on_search_again(self, event: SearchAgain) -> bool:
-        self.spawn(self.search_again(reverse=False))
-        return True
-
-    async def on_reverse_search(self, event: ReverseSearch) -> bool:
-        self.spawn(self.search_again(reverse=True))
-        return True
-
-    async def search_for(self) -> None:
-        """F7: ask, remember the answer for every viewer, and look."""
-        from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
-
-        search = await ViewerFindDialog(last=viewer_model.last_search,
-                                        encoding=self.viewer.encoding).execute(self.application)
-        if search is None:
-            return
-        viewer_model.last_search = search
-        # A new search starts from the view rather than from the last hit.
-        self.viewer.hit = None
-        await self.search(search, search.backward)
-
-    async def search_again(self, *, reverse: bool) -> None:
-        """Shift+F7 and Ctrl+L the same way, Ctrl+F7 the other: DN's ``ContinueSearch``."""
-        search = viewer_model.last_search
-        if search is None:
-            return
-        await self.search(search, search.backward != reverse)
-
-    async def search(self, search: ViewSearch, backward: bool) -> None:
-        """Look for *search* from the hit while it shows, else from the view
-        (DN's ``SearchX := FilePos+BufPos`` once scrolled away; hex from its
-        cursor, which is drawn and which a hit puts on it), and show what is
-        found -- or say *Search string not found* in DN's ``mfError`` box.
-
-        Run on a thread, because a gigabyte is not searched between two frames;
-        the loop keeps painting -- the clock keeps ticking -- while it looks.
-        A search still going after ``navigator.lib.system.progress.PROGRESS_DELAY`` puts up *Search
-        Progress*, and *Stop* in it ends the search where it is.
-        """
-        viewer = self.viewer
-        source = viewer.source
-        if source is None:
-            return
-        if viewer.hit_showing():
-            start = viewer.hit[0] + (0 if backward else 1)
-        elif viewer.mode == "text":
-            start = viewer.top
-        else:
-            start = viewer.cursor
-        pattern, span = search.compile(viewer.encoding)
-        job = SearchJob()
-        job.position = start
-        total = source.size
-        # The bytes typed over in hex, as they are now: the thread's own copy.
-        edits = dict(source.edits)
-
-        def make_box() -> Any:
-            from navigator.widgets.viewer.search_progress import SearchProgress
-
-            return SearchProgress(total=total, position=job.position)
-
-        def refresh(box: Any) -> None:
-            box.position = job.position
-
-        found = await run_with_progress(
-            self.application,
-            lambda: source.find(pattern, start, backward=backward, span=span, job=job, edits=edits),
-            job, make_box, refresh,
-        )
-        if job.stopped:
-            # DN's -2: stopped, so nothing is said about finding nothing.
-            return
-        if found is None:
-            await Dialog(
-                title=tr("Error"), prompt=tr("Search string not found"), buttons="ok"
-            ).execute(self.application)
-            return
-        viewer.show_hit(*found)

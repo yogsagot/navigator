@@ -179,6 +179,26 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   here, and its *Close* closed the file manager. `context_focus` is off, so the keyboard stays with the panel: closing
   the view while it holds the keyboard gives it to the panel put back (DN's `SwitchView`), and the next Ctrl+Q then
   stands on the other side.
+- **With the keyboard in it, the quick view's keys are the viewer's**, `StatusDef hcView`'s, since DN's was a
+  `THFileViewer`:
+  - **Bound:** F2 wrap, F4 hex/dump, F5 go to, F6 filter, F7, Ctrl+F7, Shift+F7, Ctrl+L and Ctrl+Enter search,
+    Shift+F5 *Save as* and Shift+F6 *Encoding* (`quick_viewer.nml`).
+  - **Shared code:** both hosts handle them through `navigator/widgets/viewer/viewer_host.py`: functions taking the
+    host (`goto_address`, `choose_encoding`, `save_as`, `search_for`, `search_again`, `find`, `checks`, `refusal`,
+    `COMMANDS`). Their thin `on_*` handlers are written out in `FileWindow` and `QuickViewer`, because a
+    component's hand-written half has one base and cannot take a mixin.
+  - **Refused** (`QuickViewer.refusal`): any of them with nothing shown (*Nothing is open*), and *Save as* of a file
+    from another drive, of which only the head was fetched (*Only the start of the file was read*).
+  - **Not bound:** Shift+F2 *Store*, since the quick view never types a byte, and Ctrl+F4, which would close the file
+    manager.
+  - **A departure:** a key hcView didn't list (F3, F8, the panels' Alt/Ctrl keys) did nothing in DN's quick view.
+    Here it still reaches the panels, and the key bar shows it.
+  - **While the panel has the keyboard**, every key is the panel's.
+- **Each Ctrl+Q opens the view as Viewer setup says** (`QuickViewer.fresh`, called from `Manager.switch_view`):
+  - DN's `ViewInsert` made a new `THFileViewer` with `ViOpt` each time, and `SwitchView` freed it.
+  - The view opens in hex if *Hex mode* is set and wrapped if *Wrap lines* is, with filter 0 and UTF-8.
+  - Moving the cursor keeps the mode the user chose, as `cmLoadViewFile` kept `ViewMode`. Markup view is each file's,
+    as it opens.
 - **File View History (Alt+PgDn)**: DN's `TViewRecord`. Each file's window rectangle (scaled to the desktop, as
   `AdjustToDesktopSize` did), mode, wrap, filter, `top`, `x_delta` and hex `cursor` are written to the `ViewRecord`
   model. That happens when a viewer opens on a file with no record, and when it closes by any route, Alt+X included

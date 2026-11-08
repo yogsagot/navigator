@@ -6776,6 +6776,7 @@ flag = "LV"
 "Not a date" = "Nav datums"
 "He~x~" = "~H~eks"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "Saglabāt failu pārkodētu\nno {encoding} uz UTF-8?"
+"Only the start of the file was read" = "Nolasīts tikai faila sākums"
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"

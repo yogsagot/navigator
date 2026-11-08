@@ -6776,6 +6776,7 @@ flag = "JP"
 "Not a date" = "日付ではありません"
 "He~x~" = "16進(~X~)"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "ファイルを{encoding}から\nUTF-8に変換して保存しますか?"
+"Only the start of the file was read" = "ファイルの先頭しか読み込んでいません"
 [unused]
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"

@@ -5955,6 +5955,8 @@ class Manager(Window):
         if had_keys:
             active.focus()
         if view is self.quick:
+            # A new THFileViewer each time, as ViewInsert made: ViOpt's.
+            self.quick.fresh()
             self._quick_view_follows_panel()
         if view is self.info:
             self._info_follows_panel()

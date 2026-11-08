@@ -6777,6 +6777,7 @@ direction = "rtl"
 "Not a date" = "אינו תאריך"
 "He~x~" = "~ה~קס"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "לשמור את הקובץ מתורגם\nמ־{encoding} ל־UTF-8?"
+"Only the start of the file was read" = "נקרא רק תחילת הקובץ"
 [unused]
 "~Name~" = "~שם~"
 "~Start~" = "~התחלה~"

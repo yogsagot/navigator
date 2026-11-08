@@ -1,4 +1,5 @@
-from navigator.widgets.viewer.commands import SwitchRendered
+from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, ContinueSearch, GotoAddress, HexMode, ReverseSearch
+from navigator.widgets.viewer.commands import SaveViewAs, SearchAgain, SearchFor, SwitchRendered, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.widgets.dialog.scroll_bar import ScrollBar
 
@@ -16,10 +17,30 @@ QuickViewer:
     #: as a panel leaves them.
     property title_margin: 0
 
-    #: View > *Markup view*'s key, as in the F3 window, while the keyboard is
-    #: in here.  Shift+F4 is the panels' *Edit...* (``cmXEditFile``).
+    #: ``StatusDef hcView``'s keys while the keyboard is in here: DN's quick
+    #: view was a ``TFileViewer`` (``THFileViewer``, ``HelpCtx := hcView``), and
+    #: handled them as the F3 window's did (``viewer_host``).  Shift+F4 is the
+    #: panels' *Edit...* (``cmXEditFile``), as hcView had it too.
+    #:
+    #: A departure: a key hcView did not list -- F3, F8, the panels' Alt and
+    #: Ctrl keys -- did nothing there; here it still reaches the panels, and
+    #: the key bar says what it does.  Not bound: Shift+F2's *Store*, since the
+    #: quick view never types over a byte, and Ctrl+F4's *Close*, which would
+    #: close the file manager.
     keys:
+        f2: Unwrap
+        f4: HexMode
+        f5: GotoAddress
+        f6: AddFilter
+        f7: SearchFor
+        ctrl+f7: ReverseSearch
+        shift+f7: ContinueSearch
+        ctrl+l: SearchAgain
+        ctrl+enter: SearchAgain
+        #: View > *Markup view*'s key, as in the F3 window.
         shift+f3: SwitchRendered
+        shift+f5: SaveViewAs
+        shift+f6: ChooseEncoding
 
     FileViewer:
         id: viewer

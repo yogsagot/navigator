@@ -6776,6 +6776,7 @@ flag = "RU"
 "Not a date" = "Не дата"
 "He~x~" = "~Ш~естн."
 "Save the file translated\nfrom {encoding} to UTF-8?" = "Сохранить файл в перекодировке\nиз {encoding} в UTF-8?"
+"Only the start of the file was read" = "Прочитано только начало файла"
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"
