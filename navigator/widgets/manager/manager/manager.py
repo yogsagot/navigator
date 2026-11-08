@@ -4921,20 +4921,62 @@ class Manager(Window):
     async def view_file(self, intern: bool) -> None:
         """DN's ``ViewFile(Intern, ...)``: F3 is *intern*, Alt+F3 is not.
 
-        The key that agrees with *Internal viewer* opens the viewer window;
-        the other runs what ``viewers.ini`` says for the file (DN's
-        ``DN.VWR``), and without an entry falls back -- F3 to ``$PAGER``, as
-        it did before there was a ``viewers.ini``, Alt+F3 to the window, as
-        DN's did.
+        A directory, either key, is ``CountLen`` -- Alt+G's count, the tagged
+        ones too -- but not in an archive, DN's ``dtArc`` test.  Alt+F3 is
+        ``InternalView``: the viewer on the file as text, nothing asked.  F3
+        is DN's order: a dBase, SQLite or CSV file its window (``XT =
+        '.DBF'``), an archive into the panel (``ArcViewer``, whatever *Enter
+        opens an archive* says), then what ``viewers.ini`` says (``DN.VWR``),
+        then the viewer.  With *Internal viewer* off, F3 runs ``viewers.ini``
+        and without an entry ``$PAGER`` -- a departure: DN fell back to its
+        own viewer, there being no pager in DOS.
         """
-        if intern == SETTINGS.system.internal_viewer:
-            await self.view()
-        elif await self._run_associated(VIEWERS):
+        panel = self.active_panel
+        entry = panel.selected
+        if entry is None:
             return
-        elif intern:
-            self.run_external("PAGER", "less")
-        else:
+        if entry.is_dir:
+            if panel.location.outer is None:
+                await self.count_length(panel)
+            return
+        if not intern:
+            await self.view(plain=True)
+            return
+        if not SETTINGS.system.internal_viewer:
+            if not await self._run_associated(VIEWERS):
+                self.run_external("PAGER", "less")
+            return
+        if await asyncio.to_thread(self._has_window_of_its_own, panel, entry):
             await self.view()
+            return
+        if panel.archive_on_f3(entry):
+            from navigator.widgets.drives.archives import enter_archive
+
+            if await enter_archive(panel, panel.entry_location(entry)):
+                return
+        if await self._run_associated(VIEWERS):
+            return
+        await self.view()
+
+    @staticmethod
+    def _has_window_of_its_own(panel: Any, entry: Any) -> bool:
+        """Whether F3 opens *entry* in the sheet or database window rather
+        than the viewer: :meth:`view`'s tests, on a thread (an SQLite file on
+        the disk is told by its first bytes)."""
+        from navigator.lib.viewer.sqlite import is_database, is_sqlite
+        from navigator.lib.viewer.table import is_table
+
+        name = entry.name
+        if is_table(name):
+            return True
+        if not panel.location.is_local and entry.directory is None:
+            return name.lower().endswith(".dbf") or is_database(name)
+        if name.lower().endswith(".dbf"):
+            return True
+        try:
+            return is_database(name) and is_sqlite(entry.path_in(panel.path))
+        except OSError:
+            return False
 
     async def _run_associated(self, file_name: str) -> bool:
         """What *file_name* has for the selected file, run; False if nothing."""
@@ -5008,12 +5050,14 @@ class Manager(Window):
         window.place = str(place)
         return True
 
-    async def view(self, mode: str | None = None) -> None:
+    async def view(self, mode: str | None = None, *, plain: bool = False) -> None:
         """Open the selected file in a viewer on this window's desktop.
 
-        A directory is passed over: DN counted its size (``CountLen``), which
-        is not written yet, and ``..`` has nothing to show.  A file that will
-        not open is said so, as a directory that will not be made is.
+        A directory is passed over here: F3 counted it already
+        (:meth:`view_file`).  *plain* is Alt+F3's ``InternalView``: the
+        viewer, never the sheet or database window nor the structured tree.
+        A file that will not open is said so, as a directory that will not be
+        made is.
         """
         panel = self.active_panel
         entry = panel.selected
@@ -5022,7 +5066,7 @@ class Manager(Window):
             return
         from navigator.lib.viewer.table import is_table
 
-        if mode == "sheet" or (mode is None and is_table(entry.name)):
+        if not plain and (mode == "sheet" or (mode is None and is_table(entry.name))):
             local = panel.location.is_local or entry.directory is not None
             place = entry.path_in(panel.path) if local else panel.entry_location(entry)
             if await self._view_sheet(desktop, place):
@@ -5036,7 +5080,7 @@ class Manager(Window):
             try:
                 from navigator.lib.viewer.sqlite import is_database
 
-                if mode == "database" or (mode is None and (origin.name.lower().endswith(".dbf")
+                if mode == "database" or (mode is None and not plain and (origin.name.lower().endswith(".dbf")
                                                             or is_database(origin.name))):
                     try:
                         await database_elsewhere(desktop, origin)
@@ -5056,7 +5100,7 @@ class Manager(Window):
         path = entry.path_in(panel.path)
         from navigator.lib.viewer.sqlite import is_database, is_sqlite
 
-        if mode == "database" or (mode is None and (path.suffix.lower() == ".dbf"
+        if mode == "database" or (mode is None and not plain and (path.suffix.lower() == ".dbf"
                                                     or (is_database(path.name) and is_sqlite(path)))):
             # ``ViewFile``'s ``XT = '.DBF'``, and *As DataBase*: the dBase
             # viewer -- F3 on a ``.dbf`` that is not one falls back to text.
@@ -5097,7 +5141,7 @@ class Manager(Window):
             mode = None
         try:
             window = await open_viewer(desktop, path, mode)
-            if window is not None and mode is None and SETTINGS.viewer.render_structured \
+            if window is not None and mode is None and not plain and SETTINGS.viewer.render_structured \
                     and window.shows_tree():
                 # ``[viewer] render_structured``: the data as a tree straight
                 # away, as F3 shows a CSV as a spreadsheet (a departure).

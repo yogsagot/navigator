@@ -69,9 +69,13 @@ DN's Alt+Enter `[ ]` menu became, since Alt+Enter stays *Insert name*; DN's Shif
 - **F3/F4 and Alt+F3/Alt+F4** (`AlternateView`/`AlternateEdit`, File > Alternate view/edit, DN's `cmIntFileView`/
   `cmIntFileEdit`; Alternate edit has **Ctrl+K** too, bound first so the menu shows it -- a departure, since many
   window managers close the terminal on Alt+F4, and the reason no chord in the panels' table may start with
-  Ctrl+K): `Manager.view_file(intern)`/`edit_file(intern)` are DN's `ViewFile(Intern)`. The key agreeing with
-  *Internal viewer/editor* opens the window; the other tries `viewers.ini`/`editors.ini`, falling back to
-  `$PAGER`/`$EDITOR` for F3/F4 and to the window for Alt+F3/Alt+F4 -- except Alt+F4 with *Internal editor* on
+  Ctrl+K): `Manager.view_file(intern)`/`edit_file(intern)` are DN's `ViewFile(Intern)`. **F3 follows DN's order**
+  (`navigator-viewer`): a database or sheet window, an archive into the panel, then `viewers.ini`, then the
+  window; with *Internal viewer* off `viewers.ini`, then `$PAGER`. **Alt+F3 is always the window**
+  (`InternalView`). The seeded `viewers.ini` has only a commented example, since Navigator reads a PDF's text
+  itself. For the editor, the key agreeing with
+  *Internal editor* opens the window; the other tries `editors.ini`, falling back to
+  `$EDITOR` for F4 and to the window for Alt+F4 -- except Alt+F4 with *Internal editor* on
   (where the window is F4's): `Manager.console_editor` offers the console editors installed
   (`navigator/lib/editor/console_editors.py`: `$VISUAL`, `$EDITOR`, then `KNOWN`, found by `shutil.which` on a
   thread, one per realpath) and *Internal editor* in `Shell.choose_action`'s box, titled *Choose editor*. Each one is

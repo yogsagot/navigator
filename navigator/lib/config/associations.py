@@ -168,13 +168,16 @@ Extract here = tar xvf !.!
 Run = python3 !.!
 """,
     VIEWERS: """\
-# The viewer a file wants: what F3 runs with System Setup's Internal viewer
-# off, and Alt+F3 (Alternate view) with it on.  A file no section takes is
-# viewed as before.  Options > Viewers.  The format is extensions.ini's: a
-# mask, then `Caption = commands', several offered in a menu; !.! is the file.
-
-[*.pdf]
-PDF viewer = xdg-open !.!
+# The viewer a file wants: what F3 runs for it before the internal viewer --
+# after a database or spreadsheet file and an archive, which open in their
+# own windows and in the panel -- and in place of $PAGER with System Setup's
+# Internal viewer off.  Alt+F3 (Alternate view) always opens the internal
+# viewer.  A file no section takes is viewed as before.  Options > Viewers.
+# The format is extensions.ini's: a mask, then `Caption = commands', several
+# offered in a menu; !.! is the file.  For example:
+#
+# [*.pdf]
+# PDF viewer = xdg-open !.!
 """,
     EDITORS: """\
 # The editor a file wants: what F4 runs with System Setup's Internal editor

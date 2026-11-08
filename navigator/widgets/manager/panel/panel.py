@@ -1497,7 +1497,13 @@ class Panel(ListViewer):
         archive already -- DN opened none from inside another.  Whether it
         is one is the file's to say (:func:`navigator.lib.drives.archive.open_archive`),
         by what is in it, as ``ArcViewer`` read the signature."""
-        return (SETTINGS.file_manager.enter_opens_archive and self.location.outer is None
+        return SETTINGS.file_manager.enter_opens_archive and self.archive_on_f3(entry)
+
+    def archive_on_f3(self, entry: DirEntry) -> bool:
+        """Whether F3 opens *entry* in the panel, DN's ``ArcViewer`` in
+        ``ViewFile``: :meth:`_may_enter_archive` without the setting, which
+        DN's F3 never asked."""
+        return (self.found is None and self.location.outer is None
                 and stat.S_ISREG(entry.mode) and filetypes.group_of(entry.name) == "archive")
 
     def _may_mount_image(self, entry: DirEntry) -> bool:

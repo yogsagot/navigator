@@ -121,8 +121,8 @@ What is deliberately not done:
 - **Links are kept as written.** A relative URL is not resolved against the file, because OSC 8 would hand the
   terminal a path it cannot open anyway.
 
-Left for later: F3 on a directory, which counted its size (`CountLen`). The rest once listed here -- XLat as
-*View > Encoding...*, the *Find* box's `He~x~` line, view history, external viewers (`viewers.ini`) and viewing
-inside archives -- is done.
+Nothing is left for later. What was once listed here -- XLat as *View > Encoding...*, the *Find* box's `He~x~`
+line, view history, external viewers (`viewers.ini`), viewing inside archives and F3 on a directory counting its
+size (`CountLen`) -- is done.
 
 

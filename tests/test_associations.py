@@ -66,7 +66,8 @@ def test_seed_all_writes_the_missing_files_and_leaves_the_users_alone():
 
 def test_every_template_reads_as_what_it_says():
     assert for_file(parse(TEMPLATES[EXTENSIONS]), "x.tgz").actions[1].caption == "Extract here"
-    assert for_file(parse(TEMPLATES[VIEWERS]), "a.PDF") is not None
+    # Navigator reads a PDF's text itself: the example is a comment.
+    assert for_file(parse(TEMPLATES[VIEWERS]), "a.PDF") is None
     assert for_file(parse(TEMPLATES[EDITORS]), "a.docx") is not None
     assert for_key(parse(TEMPLATES[QUICK_RUN]), "F1") is not None
 
@@ -153,18 +154,27 @@ def test_a_file_with_no_entry_is_left_alone(place):
     assert ran == [] and app.modal is None
 
 
-def test_f3_and_f4_use_the_ini_only_where_the_internal_one_is_not_chosen(place, monkeypatch):
+def test_f3_runs_viewers_ini_before_the_viewer_and_alt_f3_never_does(place, monkeypatch):
     write(VIEWERS, "[*.pdf]\nPDF = zathura !.!\n")
     write(EDITORS, "[*.odt]\nWriter = lowriter !.!\n")
     ran: list[str] = []
     seen = {}
 
-    # Internal on: F3 opens the window; Alt+F3 runs viewers.ini's entry.
+    # DN's ``ViewFile``: F3 runs ``DN.VWR``'s entry; Alt+F3 is ``InternalView``.
     app = navigator(place)
-    run_app(app, [lambda a: capture(a, ran), to("b.pdf"), KeyEvent("f3"), IDLE,
-                  lambda a: seen.update(windows=len(a.shell.desktop.windows())), KeyEvent("escape"), lambda a: None,
-                  KeyEvent("f3", alt=True), Until(lambda a: ran)])
-    assert seen["windows"] == 2 and script_of(ran) == "zathura b.pdf\n"
+    run_app(app, [lambda a: capture(a, ran), to("b.pdf"), KeyEvent("f3"), Until(lambda a: ran),
+                  lambda a: seen.update(script=script_of(ran)), lambda a: ran.clear(),
+                  KeyEvent("f3", alt=True), IDLE,
+                  lambda a: seen.update(windows=len(a.shell.desktop.windows()), after=list(ran))])
+    assert seen["script"] == "zathura b.pdf\n"
+    assert seen["windows"] == 2 and seen["after"] == []
+
+    # A file no section takes: F3 opens the viewer.
+    ran.clear()
+    app = navigator(place)
+    run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("f3"), IDLE,
+                  lambda a: seen.update(windows=len(a.shell.desktop.windows()))])
+    assert seen["windows"] == 2 and ran == []
 
     # Internal off: F4 runs editors.ini's entry, and $EDITOR without one.
     SETTINGS.system.internal_editor = False
@@ -206,3 +216,86 @@ def test_options_opens_the_file_written_from_its_template_first(place):
                   lambda a: seen.update(title=a.shell.desktop.windows()[-1].title)])
     assert associations.path_of(EXTENSIONS).read_text() == TEMPLATES[EXTENSIONS]
     assert EXTENSIONS in str(seen["title"])
+
+
+def test_f3_opens_a_database_or_sheet_before_viewers_ini_and_alt_f3_shows_its_text(place):
+    from navigator.widgets.viewer.db_window import DBWindow
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    write(VIEWERS, "[*.csv]\nSheet = gnumeric !.!\n")
+    (place / "t.csv").write_text("a,b\n1,2\n")
+    ran: list[str] = []
+    seen = {}
+
+    def kinds(a):
+        return [type(w).__name__ for w in a.shell.desktop.windows()]
+
+    app = navigator(place)
+    run_app(app, [lambda a: capture(a, ran), KeyEvent("r", ctrl=True), IDLE, to("t.csv"), KeyEvent("f3"),
+                  Until(lambda a: len(a.shell.desktop.windows()) == 2), lambda a: seen.update(f3=kinds(a)),
+                  KeyEvent("escape"), IDLE, KeyEvent("f3", alt=True),
+                  Until(lambda a: len(a.shell.desktop.windows()) == 2), lambda a: seen.update(alt=kinds(a))])
+    assert DBWindow.__name__ in seen["f3"] and ran == []
+    assert FileWindow.__name__ in seen["alt"]
+
+
+@pytest.mark.parametrize("enter_opens", [True, False])
+def test_f3_opens_an_archive_in_the_panel_whatever_enter_does(place, monkeypatch, enter_opens):
+    import zipfile
+
+    monkeypatch.setattr(SETTINGS.file_manager, "enter_opens_archive", enter_opens)
+    with zipfile.ZipFile(place / "z.zip", "w") as zipped:
+        zipped.writestr("inner.txt", "inside")
+    seen = {}
+    app = navigator(place)
+    run_app(app, [KeyEvent("r", ctrl=True), IDLE, to("z.zip"), KeyEvent("f3"),
+                  Until(lambda a: a.manager.left.location.outer is not None),
+                  lambda a: seen.update(names=[e.name for e in a.manager.left.items],
+                                        windows=len(a.shell.desktop.windows()))])
+    assert "inner.txt" in seen["names"] and seen["windows"] == 1
+
+
+def test_f3_on_a_zip_that_is_not_one_views_it_and_one_inside_an_archive_is_not_entered(place):
+    import io
+    import zipfile
+
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    (place / "fake.zip").write_text("not a zip at all\n")
+    nested = io.BytesIO()
+    with zipfile.ZipFile(nested, "w") as zipped:
+        zipped.writestr("deep.txt", "deep")
+    with zipfile.ZipFile(place / "outer.zip", "w") as zipped:
+        zipped.writestr("nested.zip", nested.getvalue())
+    seen = {}
+
+    def kinds(a):
+        return [type(w).__name__ for w in a.shell.desktop.windows()]
+
+    app = navigator(place)
+    run_app(app, [KeyEvent("r", ctrl=True), IDLE, to("fake.zip"), KeyEvent("f3"),
+                  Until(lambda a: len(a.shell.desktop.windows()) == 2),
+                  lambda a: seen.update(fake=kinds(a), outer=a.manager.left.location.outer),
+                  KeyEvent("escape"), IDLE, to("outer.zip"), KeyEvent("enter"),
+                  Until(lambda a: a.manager.left.location.outer is not None
+                        and "nested.zip" in [e.name for e in a.manager.left.items]),
+                  to("nested.zip"), KeyEvent("f3"),
+                  Until(lambda a: len(a.shell.desktop.windows()) == 2),
+                  lambda a: seen.update(nested=kinds(a), names=[e.name for e in a.manager.left.items])])
+    assert FileWindow.__name__ in seen["fake"] and seen["outer"] is None
+    assert FileWindow.__name__ in seen["nested"] and "nested.zip" in seen["names"]
+
+
+def test_f3_on_a_directory_in_an_archive_does_nothing(place):
+    import zipfile
+
+    with zipfile.ZipFile(place / "d.zip", "w") as zipped:
+        zipped.writestr("sub/x.txt", "x")
+    seen = {}
+    app = navigator(place)
+    run_app(app, [KeyEvent("r", ctrl=True), IDLE, to("d.zip"), KeyEvent("enter"),
+                  Until(lambda a: "sub" in [e.name for e in a.manager.left.items]),
+                  to("sub"), KeyEvent("f3"), IDLE, IDLE,
+                  lambda a: seen.update(sub=next(e for e in a.manager.left.items if e.name == "sub").counted,
+                                        modal=a.modal, windows=len(a.shell.desktop.windows()))])
+    assert not seen["sub"] and seen["modal"] is None and seen["windows"] == 1

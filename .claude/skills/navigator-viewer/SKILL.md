@@ -11,6 +11,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   cached chunks, **never `mmap`**, so a truncated log cannot `SIGBUS` Navigator. `FileViewer` inside `FileWindow` is
   `TFileViewer` inside `TFileWindow`; it opens zoomed on the desktop with the scroll bar on the frame and `TViewInfo` over
   the bottom edge.
+- **What F3 opens is DN's `ViewFile`** (`Manager.view_file`). A directory (or `..`), F3 or Alt+F3, is Alt+G's
+  `CountLen` (tagged ones too; nothing in an archive, DN's `dtArc`). F3 with *Internal viewer* on: a dBase, SQLite or
+  CSV file its window (`_has_window_of_its_own`, `XT = '.DBF'`), an archive into the panel (`Panel.archive_on_f3`,
+  `ArcViewer`: whatever *Enter opens an archive* says, never one inside an archive, and one that is no archive goes
+  on), then `viewers.ini` (`DN.VWR`), then the viewer. Alt+F3 is `InternalView`: `view(plain=True)`, the viewer on
+  the file, never the sheet, database or structured tree, nor `viewers.ini`. *Internal viewer* off: F3 is
+  `viewers.ini`, then `$PAGER` (a departure: DN fell back to its own viewer).
 - **Positions are byte offsets and nothing counts lines**, so a gigabyte opens at once. Text is UTF-8; an undecodable byte
   or a control is its CP437 glyph.
 - **A scroll bar on the bottom frame** (`FileWindow.hbar`), a departure, asked for: DN's viewer had the right

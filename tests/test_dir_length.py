@@ -240,3 +240,18 @@ def test_a_counted_directory_shows_its_size_where_dir_was():
     up = DirEntry("..", True, 0, 0o040755)
     up.size, up.counted = 12, True
     assert up.display_size.strip() == "12"
+
+
+@pytest.mark.parametrize("alt", [False, True])
+def test_f3_and_alt_f3_on_a_directory_count_it_and_the_tagged_ones(place, alt):
+    # DN's ``cmViewFile``/``cmIntViewFile`` on a directory: ``CountLen``.
+    app = navigator(place)
+    seen = {}
+
+    def tag(a):
+        a.manager.left.marked = frozenset({"small"})
+
+    run_app(app, [to("big"), tag, KeyEvent("f3", alt=alt), lambda a: None, lambda a: None,
+                  lambda a: seen.update(sizes=sizes(a.manager.left), windows=len(a.shell.desktop.windows()))])
+    assert seen["sizes"]["big"] == 3024 and seen["sizes"]["small"] == 7
+    assert seen["windows"] == 1  # no viewer
