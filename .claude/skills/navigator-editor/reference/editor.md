@@ -121,7 +121,6 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-9. (Not DN's) soft wrap.
 10. (Not DN's) two views of one document.
 11. (Not DN's) the find bar's regex across lines.
 
@@ -167,5 +166,35 @@ binds the property to itself (`CycleError`). Switched like *Tab characters*: `[e
 defaults page's 16th box (no hot key: the page has none of its letters left), `highlight.ini`'s `line_numbers`,
 Editor > Options > *Line numbers* (`SwitchLineNumbers`), the edit history's nullable field -- and not on the option
 strip, whose width is the horizontal scroll bar's room. Colours: `$gutter`/`$gutter-current`, `DERIVED` aliases of
-[70]/[71]. Soft wrap (item 9), when it comes, leaves a wrapped row's number blank.
+[70]/[71]. Soft wrapped, it numbers a line's first row alone (`FileEditor.visible_rows`).
+
+**Soft wrap** (`soft_wrap`; a departure, off by default: DN's *Auto wrap* put real breaks in the text). The rules,
+decided first because they touch the cursor model:
+
+1. The text never changes: `line`/`col`, every `Pos`, undo, blocks, markers, the history's cursor and the info line
+   stay logical; only painting and vertical movement know rows.
+2. `navigator/lib/editor/softwrap.py` (pure): `rows(cells, width)` cuts a line's `columns.cells` at the last blank
+   that fits (the blank on the row it ends), a longer word where the row ends, never inside a wide character; an
+   empty line is one row, and a full last row gets an empty one more for the caret at the end. `locate` and
+   `column_at` map a column to `(row, x)` and back.
+3. No sideways scrolling: `left` held at 0, `overflows_across` False, the hbar hidden.
+4. The view's top is `(top, top_row)`; `_step_rows`, `_rows_from` and `_row_offset` walk rows, bounded by the
+   screen. `_follow_rows` keeps the cursor's row on screen; `_scroll_view` serves the wheel, both drags,
+   Ctrl+Up/Down and PgUp/PgDn. Whatever else sets `top` lands a line at row 0 (`top_row` clamped).
+5. Up/Down (`_move_rows`) go by row keeping the screen column in `_goal`; PgUp/PgDn a screen of rows; screen top and
+   bottom the first and last row shown. Home/End stay the line's (DN's `cmHome`/`cmEnd`).
+6. Column blocks and soft wrap exclude each other ("Not with soft wrap" on *Vertical blocks*, "Not with column
+   blocks" on *Soft wrap*); `settle_modes` turns wrap off when both arrive (setup, mask, history).
+7. A right-to-left line is cut on its logical cells, then each row ordered on its own (`_row_layout`: UBA orders
+   after breaking) and right-aligned; `_locate`/`_column_at` map through that order.
+8. `render` paints `_painted_rows()`: each `(line, cells, order, shift, base, last)`, *base* the line's column the
+   row starts at, what lies past the text (the break in a block, the line-end mark, the RTL past-end fill) on the
+   *last* row alone. Unwrapped it is one row a line at base 0, exactly as before. Tokens, matches and the block
+   are told by index or by column less *base*, so the highlight cache is untouched.
+9. The caret, the ruler and *Current column* read `cursor_cell()`; the mouse and the context menu `cell_at(x, y)`;
+   the gutter `visible_rows()`. The vertical bar stays in lines; `overflows` counts rows, no further than the screen.
+
+Switched by `[editor] soft_wrap` (no box: the Editor defaults page is full), Editor > Options > *Soft wrap*
+(`SwitchSoftWrap`), `highlight.ini`'s `soft_wrap` and the history's nullable field. Rows are cached by
+`(text, width, tab)` in `_wrap_cache`.
 

@@ -584,6 +584,10 @@ class EditorDefaultsData(Section):
     #: Not DN's, which numbered no lines (its info line said the cursor's):
     #: the gutter beside the text (``LineGutter``), off by default.
     line_numbers: bool = Setting(False, doc="A new editor numbers its lines in a gutter")
+    #: Not DN's, whose *Auto wrap* put real breaks in the text: a long line is
+    #: shown on as many rows as it needs, the text unchanged.  With no
+    #: checkbox (the page is full): Editor > Options switches it per editor.
+    soft_wrap: bool = Setting(False, doc="A new editor shows long lines wrapped at its edge, the text unchanged")
     #: A departure, asked for, with the encodings the editor learnt
     #: (``navigator.lib.editor.encodings``): ``utf-8`` keeps the bytes that
     #: do not decode as they are.

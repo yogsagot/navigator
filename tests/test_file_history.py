@@ -264,6 +264,18 @@ def test_line_numbers_switched_from_the_menu_come_back_on_reopening(files):
     assert EditRecord.find(files / "text.txt").line_numbers is True
 
 
+def test_soft_wrap_comes_back_and_gives_way_to_column_blocks(files):
+    from navigator.widgets.editor.commands import SwitchSoftWrap
+
+    editor = reopened(files, lambda a: a.spawn(a.run_command(SwitchSoftWrap(), active(a).editor)), IDLE)
+    assert editor.soft_wrap is True
+    EditRecord.store(files / "text.txt", line=0, col=0, top=0, vertical_blocks=True, soft_wrap=True)
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: seen.update(editor=active(a).editor)])
+    assert seen["editor"].vertical_blocks is True and seen["editor"].soft_wrap is False
+
+
 def test_margins_out_of_order_are_put_right_as_format_margins_does(files):
     EditRecord.store(files / "text.txt", line=0, col=0, top=0,
                      left_margin=90, right_margin=60, paragraph=70)

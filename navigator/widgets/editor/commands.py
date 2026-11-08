@@ -443,6 +443,13 @@ class SwitchLineNumbers(Command):
     title = "Line numbers"
 
 
+class SwitchSoftWrap(Command):
+    """Editor > Options > *Soft wrap* (not DN's): long lines shown wrapped at
+    the area's edge, the text unchanged (``FileEditor.soft_wrap``)."""
+
+    title = "Soft wrap"
+
+
 class SwitchFill(Command):
     """``cmSwitchFill``: Editor > Options > *Optimal fill* -- blanks written as tabs
     where they reach a tab stop (``OptimalFill``)."""
@@ -746,6 +753,7 @@ __all__ = [
     "SwitchFill",
     "SwitchTabs",
     "SwitchLineNumbers",
+    "SwitchSoftWrap",
     "CapString",
     "CapWord",
     "LowString",

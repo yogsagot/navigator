@@ -19,7 +19,7 @@ from navkit.reactive import bind as _bind
 from navml.component import Component as _Component
 from navkit.bidi import display_width    # edit_window.nml:1
 from navigator.commands import PrintFile    # edit_window.nml:2
-from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, SwitchLineNumbers, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock    # edit_window.nml:3
+from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, SwitchLineNumbers, SwitchSoftWrap, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock    # edit_window.nml:3
 from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine, LineGutter, gutter_width    # edit_window.nml:4
 from navigator.widgets.editor.find_bar import FindBar    # edit_window.nml:5
 from navigator.settings import SETTINGS    # edit_window.nml:6
@@ -98,7 +98,7 @@ class EditWindow(Window, _Component):
     edit_menu_misc_lowercase: SubMenu    # edit_window.nml:588
     edit_menu_misc_capitalize: SubMenu    # edit_window.nml:603
     edit_menu_options: SubMenu    # edit_window.nml:618
-    edit_menu_file_type: SubMenu    # edit_window.nml:673
+    edit_menu_file_type: SubMenu    # edit_window.nml:678
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -250,11 +250,12 @@ class EditWindow(Window, _Component):
         _w106 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:641
         _w107 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:646
         _w108 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:651
-        _w109 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:655
-        _w110 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:658
-        _w111 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:661
-        _w112 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:665
-        self.edit_menu_file_type = SubMenu(parent=self.edit_menu)    # edit_window.nml:672
+        _w109 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:656
+        _w110 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:660
+        _w111 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:663
+        _w112 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:666
+        _w113 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:670
+        self.edit_menu_file_type = SubMenu(parent=self.edit_menu)    # edit_window.nml:677
 
         self.zoomed = True    # edit_window.nml:26
 
@@ -968,36 +969,43 @@ class EditWindow(Window, _Component):
         )
         _w107.command = SwitchTabs    # edit_window.nml:649
 
-        _w108.text = _bind(lambda _o: _tr('Line ~n~umbers'), yielding=True)    # edit_window.nml:652
+        _w108.text = _bind(lambda _o: _tr('Soft ~w~rap'), yielding=True)    # edit_window.nml:652
         _w108.tooltip = _bind(    # edit_window.nml:653
+            lambda _o: _tr('Show long lines wrapped at the edge, the text unchanged'),
+            yielding=True,
+        )
+        _w108.command = SwitchSoftWrap    # edit_window.nml:654
+
+        _w109.text = _bind(lambda _o: _tr('Line ~n~umbers'), yielding=True)    # edit_window.nml:657
+        _w109.tooltip = _bind(    # edit_window.nml:658
             lambda _o: _tr('Number the lines in a gutter beside the text'),
             yielding=True,
         )
-        _w108.command = SwitchLineNumbers    # edit_window.nml:654
+        _w109.command = SwitchLineNumbers    # edit_window.nml:659
 
-        _w109.text = _bind(    # edit_window.nml:656
+        _w110.text = _bind(    # edit_window.nml:661
             lambda _o: _tr('Current ~l~ine highlight'),
             yielding=True,
         )
-        _w109.command = SwitchHiLine    # edit_window.nml:657
+        _w110.command = SwitchHiLine    # edit_window.nml:662
 
-        _w110.text = _bind(    # edit_window.nml:659
+        _w111.text = _bind(    # edit_window.nml:664
             lambda _o: _tr('Current ~c~olumn highlight'),
             yielding=True,
         )
-        _w110.command = SwitchHiColumn    # edit_window.nml:660
+        _w111.command = SwitchHiColumn    # edit_window.nml:665
 
-        _w111.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:662
-        _w111.command = SwitchHighLight    # edit_window.nml:663
+        _w112.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:667
+        _w112.command = SwitchHighLight    # edit_window.nml:668
 
-        _w112.text = _bind(    # edit_window.nml:666
+        _w113.text = _bind(    # edit_window.nml:671
             lambda _o: _tr('Show hi~d~den characters'),
             yielding=True,
         )
-        _w112.command = SwitchHiddenChars    # edit_window.nml:667
+        _w113.command = SwitchHiddenChars    # edit_window.nml:672
 
-        self.edit_menu_file_type.text = _bind(    # edit_window.nml:674
+        self.edit_menu_file_type.text = _bind(    # edit_window.nml:679
             lambda _o: _tr('File t~y~pe'),
             yielding=True,
         )
-        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:675
+        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:680

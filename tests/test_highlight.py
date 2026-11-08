@@ -744,3 +744,9 @@ def test_a_mask_turns_line_numbers_on_for_its_files_alone(files):
     rules = "[*.py]\nline_numbers = on\n"
     assert masked(files, rules, "x.py", b"x\n").line_numbers is True
     assert masked(files, rules, "x.txt", b"x\n").line_numbers is False
+
+
+def test_a_mask_turns_soft_wrap_on_for_its_files_alone(files):
+    rules = "[*.md]\nsoft_wrap = on\n"
+    assert masked(files, rules, "notes.md", b"x\n").soft_wrap is True
+    assert masked(files, rules, "x.py", b"x\n").soft_wrap is False

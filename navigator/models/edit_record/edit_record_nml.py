@@ -69,20 +69,21 @@ class EditRecord(FileRecord):    # edit_record.nml:18
         _Field("paragraph", int, None, null=True),    # edit_record.nml:61
         _Field("insert_tabs", bool, None, null=True),    # edit_record.nml:64
         _Field("line_numbers", bool, None, null=True),    # edit_record.nml:66
+        _Field("soft_wrap", bool, None, null=True),    # edit_record.nml:68
     )
     __indexes__ = (
-        _Index("by_path", ('path',), unique=True),    # edit_record.nml:67
-        _Index("by_seq", ('seq',)),    # edit_record.nml:68
+        _Index("by_path", ('path',), unique=True),    # edit_record.nml:69
+        _Index("by_seq", ('seq',)),    # edit_record.nml:70
     )
 
     #: What the table is made from, and the fingerprint _navml_schema
     #: keeps of it: a database whose row matches is never examined.
     __ddl__ = (
-        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "used" REAL NOT NULL DEFAULT 0.0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "marks" TEXT NOT NULL DEFAULT \'\', "block" TEXT NOT NULL DEFAULT \'\', "block_hidden" INTEGER NOT NULL DEFAULT 0, "highlight_line" INTEGER, "highlight_column" INTEGER, "auto_indent" INTEGER, "justify_on_wrap" INTEGER, "auto_brackets" INTEGER, "left_margin" INTEGER, "right_margin" INTEGER, "paragraph" INTEGER, "insert_tabs" INTEGER, "line_numbers" INTEGER)',
+        'CREATE TABLE "edit_history" ("id" INTEGER PRIMARY KEY, "path" TEXT NOT NULL DEFAULT \'\', "pinned" INTEGER NOT NULL DEFAULT 0, "seq" INTEGER NOT NULL DEFAULT 0, "used" REAL NOT NULL DEFAULT 0.0, "zoomed" INTEGER NOT NULL DEFAULT 1, "x" INTEGER NOT NULL DEFAULT 0, "y" INTEGER NOT NULL DEFAULT 0, "width" INTEGER NOT NULL DEFAULT 0, "height" INTEGER NOT NULL DEFAULT 0, "desk_width" INTEGER NOT NULL DEFAULT 0, "desk_height" INTEGER NOT NULL DEFAULT 0, "line" INTEGER NOT NULL DEFAULT 0, "col" INTEGER NOT NULL DEFAULT 0, "top" INTEGER NOT NULL DEFAULT 0, "left" INTEGER NOT NULL DEFAULT 0, "overwrite" INTEGER NOT NULL DEFAULT 0, "vertical_blocks" INTEGER NOT NULL DEFAULT 0, "highlight" INTEGER NOT NULL DEFAULT 1, "file_type" TEXT NOT NULL DEFAULT \'\', "marks" TEXT NOT NULL DEFAULT \'\', "block" TEXT NOT NULL DEFAULT \'\', "block_hidden" INTEGER NOT NULL DEFAULT 0, "highlight_line" INTEGER, "highlight_column" INTEGER, "auto_indent" INTEGER, "justify_on_wrap" INTEGER, "auto_brackets" INTEGER, "left_margin" INTEGER, "right_margin" INTEGER, "paragraph" INTEGER, "insert_tabs" INTEGER, "line_numbers" INTEGER, "soft_wrap" INTEGER)',
         'CREATE UNIQUE INDEX "edit_history_by_path" ON "edit_history" ("path")',
         'CREATE INDEX "edit_history_by_seq" ON "edit_history" ("seq")',
     )
-    __schema__ = "688344f857be315d"
+    __schema__ = "84f901c48e0f18c5"
 
     id: int | None
 
@@ -142,3 +143,6 @@ class EditRecord(FileRecord):    # edit_record.nml:18
 
     #: *Line numbers* (not DN's): None in a record from before it was kept.
     line_numbers: bool | None    # edit_record.nml:66
+
+    #: *Soft wrap* (not DN's): None in a record from before it was kept.
+    soft_wrap: bool | None    # edit_record.nml:68

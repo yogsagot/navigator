@@ -64,5 +64,7 @@ EditRecord(FileRecord):
     field insert_tabs: bool | None
     #: *Line numbers* (not DN's): None in a record from before it was kept.
     field line_numbers: bool | None
+    #: *Soft wrap* (not DN's): None in a record from before it was kept.
+    field soft_wrap: bool | None
     unique by_path: path
     index by_seq: seq

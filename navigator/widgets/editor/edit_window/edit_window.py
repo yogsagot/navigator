@@ -219,6 +219,7 @@ class EditWindow(Window):
             auto_brackets=editor.auto_brackets,
             insert_tabs=editor.insert_tabs,
             line_numbers=editor.line_numbers,
+            soft_wrap=editor.soft_wrap,
             left_margin=editor.margins[0],
             right_margin=editor.margins[1],
             paragraph=editor.margins[2],
@@ -251,10 +252,12 @@ class EditWindow(Window):
         # None is a record from before they were kept: the setup's value stays.
         for name in ("highlight_line", "highlight_column", "auto_indent",
                      "justify_on_wrap", "auto_brackets", "insert_tabs",
-                     "line_numbers"):
+                     "line_numbers", "soft_wrap"):
             value = getattr(record, name)
             if value is not None:
                 setattr(editor, name, value)
+        # Column blocks win over soft wrap, as Editor > Options keeps them apart.
+        editor.settle_modes()
         margins = (record.left_margin, record.right_margin, record.paragraph)
         if None not in margins:
             editor.margins = fix_margins(*margins)

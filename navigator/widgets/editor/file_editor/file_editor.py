@@ -63,6 +63,7 @@ from navigator.widgets.editor.commands import (
     SwitchFill,
     SwitchTabs,
     SwitchLineNumbers,
+    SwitchSoftWrap,
     CapString,
     CapWord,
     LowString,
@@ -155,6 +156,7 @@ from navigator.lib.editor import encodings
 from navigator.lib.editor.buffer import EditBuffer, State
 from navigator.lib.editor.document import BREAK, NEWLINES, Document, Pos, encode_lines, shifted
 from navigator.lib.editor import lock
+from navigator.lib.editor import softwrap
 from navigator.lib.editor.save import write_file
 from navigator.lib.editor import search
 from navigator.lib.editor.paragraph import fix_margins
@@ -690,6 +692,16 @@ class FileEditor(ContextMenuHost, Widget):
     #: by ``highlight.ini``, switched by Editor > Options.
     line_numbers: bool = reactive(False)
 
+    #: *Soft wrap* (not DN's, whose *Auto wrap* put real breaks in the text):
+    #: a line too wide for the area is shown on as many rows as it needs, the
+    #: text unchanged (:mod:`navigator.lib.editor.softwrap`).  No sideways
+    #: scrolling meanwhile, and never with column blocks.  Seeded from
+    #: ``[editor] soft_wrap``, set per file by ``highlight.ini``, switched by
+    #: Editor > Options.
+    soft_wrap: bool = reactive(False)
+    #: Soft wrapped, which of line :attr:`top`'s rows is the first on screen.
+    top_row: int = reactive(0)
+
     #: Spaces, tabs and each line's ending drawn faintly (:data:`HIDDEN_MARKS`):
     #: a departure, DN had no such option.  Seeded from ``[editor] show_hidden``.
     show_hidden: bool = reactive(False)
@@ -749,6 +761,10 @@ class FileEditor(ContextMenuHost, Widget):
         self.back_indent = SETTINGS.editor.backspace_unindents
         self.insert_tabs = SETTINGS.editor.insert_tabs
         self.line_numbers = SETTINGS.editor.line_numbers
+        self.soft_wrap = SETTINGS.editor.soft_wrap
+        #: Each line's rows, by its text, the width and the tab size.
+        self._wrap_cache: dict[tuple[str, int, int], list[tuple[int, int]]] = {}
+        self.settle_modes()
         self.justify_on_wrap = SETTINGS.editor.justify_on_wrap
         self.show_hidden = SETTINGS.editor.show_hidden
         #: ``LeftSide``, ``RightSide`` and ``InSide``: this editor's margins and
@@ -846,6 +862,7 @@ class FileEditor(ContextMenuHost, Widget):
         "highlight_line": "highlight_line", "highlight_column": "highlight_column",
         "autowrap": "autowrap", "justify_on_wrap": "justify_on_wrap",
         "insert_tabs": "insert_tabs", "line_numbers": "line_numbers",
+        "soft_wrap": "soft_wrap",
     }
 
     def apply_defaults(self, document: Document) -> None:
@@ -866,6 +883,7 @@ class FileEditor(ContextMenuHost, Widget):
                         zip(("left_margin", "right_margin", "paragraph"), self.margins))
         if margins != self.margins:
             self.margins = fix_margins(*margins)
+        self.settle_modes()
         self.forced_ending = defaults.get("line_ending", "")
         if self.forced_ending:
             document.newline = NEWLINES[self.forced_ending]
@@ -953,6 +971,9 @@ class FileEditor(ContextMenuHost, Widget):
     def overflows(self) -> bool:
         """Whether there are more lines than the area shows, or it is scrolled
         down from the first: what shows the right frame's bar."""
+        if self.soft_wrap:
+            self.revision
+            return self.top > 0 or self.top_row > 0 or self._rows_from(0, 0, max(1, self.height) + 1) > self.height
         return self.top > 0 or self.line_count > max(1, self.height)
 
     @computed
@@ -972,6 +993,8 @@ class FileEditor(ContextMenuHost, Widget):
     def overflows_across(self) -> bool:
         """Whether a line on screen is wider than the area, or it is scrolled
         sideways: what shows the bottom frame's bar."""
+        if self.soft_wrap:
+            return False
         return self.left > 0 or self.row_span > max(1, self.width)
 
     # -- the cursor --------------------------------------------------------------
@@ -1019,6 +1042,16 @@ class FileEditor(ContextMenuHost, Widget):
             col = min(col, self._line_width(line))
         self._go_column(line, col)
 
+    def _move_rows(self, count: int) -> None:
+        """Soft wrapped, Up/Down and the like: *count* rows on, aiming for the
+        screen column the run of them started from, so a short row on the way
+        does not lose it."""
+        row, x = self._locate(self.line, self.col)
+        goal = x if self._goal is None else self._goal
+        line, row = self._step_rows(self.line, row, count)
+        self._move_to(line, self._column_at(line, row, goal))
+        self._goal = goal
+
     def _move_vertically(self, line: int) -> None:
         """Up/Down and the like: to *line*, aiming for the column the run of
         them started from, so a short line on the way does not lose it."""
@@ -1030,6 +1063,9 @@ class FileEditor(ContextMenuHost, Widget):
         """Scroll so the cursor is on screen: DN's ``ScrollTo``.  Sideways by
         where its column is painted, which on a reordered line is elsewhere."""
         rows, cols = max(1, self.height), max(1, self.width)
+        if self.soft_wrap:
+            self._follow_rows(rows)
+            return
         if self.line < self.top:
             self.top = self.line
         elif self.line >= self.top + rows:
@@ -1039,6 +1075,183 @@ class FileEditor(ContextMenuHost, Widget):
             self.left = x
         elif x >= self.left + cols:
             self.left = x - cols + 1
+
+    # -- soft wrap: rows of lines (:mod:`navigator.lib.editor.softwrap`) ---------
+
+    def settle_modes(self) -> None:
+        """Soft wrap gives way to column blocks: a rectangle is columns of
+        lines as written, and over wrapped rows it would be ragged pieces."""
+        if self.soft_wrap and self.vertical_blocks:
+            self.soft_wrap = False
+        if not self.soft_wrap:
+            self.top_row = 0
+
+    def _rows(self, number: int) -> list[tuple[int, int]]:
+        """Line *number*'s rows, each its columns ``(start, stop)``: the whole
+        line, unwrapped."""
+        text = self.document.lines[number]
+        if not self.soft_wrap:
+            return [(0, columns.width(text, self.tab_size))]
+        key = (text, max(1, self.width), self.tab_size)
+        found = self._wrap_cache.get(key)
+        if found is None:
+            if len(self._wrap_cache) > 4096:
+                self._wrap_cache.clear()
+            found = self._wrap_cache[key] = softwrap.rows(columns.cells(text, self.tab_size), key[1])
+        return found
+
+    def _row_layout(self, number: int, row: int) -> tuple[list[tuple[str, int]], list[tuple[int, str]] | None, int, int, bool]:
+        """Row *row* of line *number* as it is painted: its cells, their
+        order when Hebrew or Arabic changes it -- each row ordered on its own,
+        as the bidi algorithm orders after breaking lines -- how far in it
+        sits (a right-to-left line's rows right-aligned), the line's column
+        it starts at, and whether it is the line's last."""
+        text = self.document.lines[number]
+        line_rows = self._rows(number)
+        row = max(0, min(row, len(line_rows) - 1))
+        start, stop = line_rows[row]
+        cells = columns.cells(text, self.tab_size)[start:stop]
+        last = row == len(line_rows) - 1
+        if not has_rtl(text):
+            return cells, None, 0, start, last
+        order = _ordered([char for char, _ in cells])
+        if order is None or not text_rtl(text):
+            return cells, order, 0, start, last
+        width = max(1, self.width)
+        shift = max(width, len(order) + 1) - len(order) if last else max(0, width - len(order))
+        return cells, order, shift, start, last
+
+    def _locate(self, line: int, col: int) -> tuple[int, int]:
+        """The row *col* of *line* is on, and the screen column it is painted at."""
+        line_rows = self._rows(line)
+        row, _ = softwrap.locate(line_rows, col)
+        cells, order, shift, base, last = self._row_layout(line, row)
+        at = col - base
+        if order is None:
+            return row, at
+        if at >= len(cells):
+            beyond = at - len(cells)
+            return row, (max(0, shift - 1 - beyond) if shift else len(order) + beyond)
+        return row, shift + next((x for x, (where, _) in enumerate(order) if where == at), at)
+
+    def _column_at(self, line: int, row: int, x: int) -> int:
+        """The column of *line* painted at screen column *x* on its row *row*."""
+        line_rows = self._rows(line)
+        row = max(0, min(row, len(line_rows) - 1))
+        cells, order, shift, base, last = self._row_layout(line, row)
+        if order is None:
+            return softwrap.column_at(line_rows, row, x)
+        at = x - shift
+        if at < 0:
+            return base + (len(cells) - 1 - at if last else 0)
+        if at >= len(order):
+            return base + (0 if shift else len(cells) + (at - len(order) if last else -1))
+        return base + order[at][0]
+
+    def _step_rows(self, line: int, row: int, count: int) -> tuple[int, int]:
+        """The row *count* rows on from row *row* of *line* (back, when
+        negative), held to the text's first and last rows."""
+        last_line = len(self.document) - 1
+        while count > 0:
+            if row + 1 < len(self._rows(line)):
+                row += 1
+            elif line < last_line:
+                line, row = line + 1, 0
+            else:
+                break
+            count -= 1
+        while count < 0:
+            if row > 0:
+                row -= 1
+            elif line > 0:
+                line -= 1
+                row = len(self._rows(line)) - 1
+            else:
+                break
+            count += 1
+        return line, row
+
+    def _rows_from(self, line: int, row: int, limit: int) -> int:
+        """How many rows there are from row *row* of *line* to the text's end,
+        counted no further than *limit*."""
+        count, lines = 0, len(self.document)
+        while line < lines and count < limit:
+            count += len(self._rows(line)) - row
+            line, row = line + 1, 0
+        return min(count, limit)
+
+    def _row_offset(self, line: int, row: int) -> int:
+        """How many rows below the view's first row *line*'s *row* is (above,
+        negative), told exactly within the screen and as "beyond" outside it."""
+        here = (self.top, min(self.top_row, len(self._rows(self.top)) - 1))
+        if (line, row) < here:
+            if self.top - line > self.height:
+                return -self.height - 1
+            count, at = 0, here
+            while at > (line, row):
+                at = self._step_rows(at[0], at[1], -1)
+                count -= 1
+            return count
+        if line - self.top > self.height:
+            return self.height + 1
+        count, at = 0, here
+        while at < (line, row) and count <= self.height:
+            nxt = self._step_rows(at[0], at[1], 1)
+            if nxt == at:
+                break
+            at = nxt
+            count += 1
+        return count
+
+    def _follow_rows(self, rows: int) -> None:
+        """:meth:`_follow` soft wrapped: the cursor's row kept on screen, rows
+        at a time, and never a sideways scroll."""
+        self.left = 0
+        self.top = max(0, min(self.top, len(self.document) - 1))
+        self.top_row = max(0, min(self.top_row, len(self._rows(self.top)) - 1))
+        row, _ = self._locate(self.line, self.col)
+        offset = self._row_offset(self.line, row)
+        if offset < 0:
+            self.top, self.top_row = self.line, row
+        elif offset >= rows:
+            self.top, self.top_row = self._step_rows(self.line, row, -(rows - 1))
+
+    def _scroll_view(self, count: int) -> None:
+        """The view *count* rows down (up, negative): lines unwrapped."""
+        if self.soft_wrap:
+            self.top, self.top_row = self._step_rows(self.top, self.top_row, count)
+        else:
+            self.top = max(0, min(self.top + count, len(self.document) - 1))
+
+    def visible_rows(self) -> list[tuple[int, int]]:
+        """Each screen row's line and which of its rows it is, top first --
+        what :class:`LineGutter` numbers (a line's first row alone)."""
+        self.revision
+        if not self.soft_wrap:
+            return [(number, 0) for number in range(self.top, min(len(self.document), self.top + self.height))]
+        found, (line, row) = [], (self.top, self.top_row)
+        while len(found) < self.height and line < len(self.document):
+            line_rows = self._rows(line)
+            while row < len(line_rows) and len(found) < self.height:
+                found.append((line, row))
+                row += 1
+            line, row = line + 1, 0
+        return found
+
+    def cell_at(self, x: int, y: int) -> tuple[int, int]:
+        """The text's line and column painted at *x*, *y* of the area."""
+        if self.soft_wrap:
+            line, row = self._step_rows(self.top, self.top_row, max(0, y))
+            return line, self._column_at(line, row, max(0, x))
+        line = max(0, min(self.top + max(y, 0), len(self.document) - 1))
+        return line, self._logical_column(line, self.left + max(0, x))
+
+    def cursor_cell(self) -> tuple[int, int]:
+        """Where the cursor is painted in the area -- off it, outside."""
+        if self.soft_wrap:
+            row, x = self._locate(self.line, self.col)
+            return x, self._row_offset(self.line, row)
+        return self._visual_column(self.line, self.col) - self.left, self.line - self.top
 
     def layout(self, width: int, height: int) -> None:
         super().layout(width, height)
@@ -1179,13 +1392,19 @@ class FileEditor(ContextMenuHost, Widget):
     @_marking
     async def on_move_up(self, event: MoveUp) -> bool:
         self._moved()
-        self._move_vertically(self.line - 1)
+        if self.soft_wrap:
+            self._move_rows(-1)
+        else:
+            self._move_vertically(self.line - 1)
         return True
 
     @_marking
     async def on_move_down(self, event: MoveDown) -> bool:
         self._moved()
-        self._move_vertically(self.line + 1)
+        if self.soft_wrap:
+            self._move_rows(1)
+        else:
+            self._move_vertically(self.line + 1)
         return True
 
     @_marking
@@ -1206,6 +1425,10 @@ class FileEditor(ContextMenuHost, Widget):
     async def on_page_up(self, event: PageUp) -> bool:
         self._moved()
         rows = max(1, self.height)
+        if self.soft_wrap:
+            self._scroll_view(-rows)
+            self._move_rows(-rows)
+            return True
         self.top = max(0, self.top - rows)
         self._move_vertically(self.line - rows)
         return True
@@ -1214,6 +1437,12 @@ class FileEditor(ContextMenuHost, Widget):
     async def on_page_down(self, event: PageDown) -> bool:
         self._moved()
         rows = max(1, self.height)
+        if self.soft_wrap:
+            # No further than leaves the last row at the bottom.
+            left = self._rows_from(self.top, self.top_row, 2 * rows) - rows
+            self._scroll_view(max(0, min(rows, left)))
+            self._move_rows(rows)
+            return True
         last = len(self.document) - 1
         self.top = max(0, min(self.top + rows, last - rows + 1))
         self._move_vertically(self.line + rows)
@@ -1222,12 +1451,20 @@ class FileEditor(ContextMenuHost, Widget):
     @_marking
     async def on_screen_top(self, event: ScreenTop) -> bool:
         self._moved()
+        if self.soft_wrap:
+            row, _ = self._locate(self.line, self.col)
+            self._move_rows(-self._row_offset(self.line, row))
+            return True
         self._move_vertically(self.top)
         return True
 
     @_marking
     async def on_screen_bottom(self, event: ScreenBottom) -> bool:
         self._moved()
+        if self.soft_wrap:
+            row, _ = self._locate(self.line, self.col)
+            self._move_rows(max(1, self.height) - 1 - self._row_offset(self.line, row))
+            return True
         self._move_vertically(self.top + max(1, self.height) - 1)
         return True
 
@@ -1244,7 +1481,16 @@ class FileEditor(ContextMenuHost, Widget):
         return True
 
     async def on_scroll_up(self, event: ScrollUp) -> bool:
-        """``cmScrollUp``: the view a line up; the cursor moves only to stay on it."""
+        """``cmScrollUp``: the view a line up; the cursor moves only to stay on it.
+        Soft wrapped, a row."""
+        if self.soft_wrap:
+            if (self.top, self.top_row) > (0, 0):
+                self._moved()
+                self._scroll_view(-1)
+                row, _ = self._locate(self.line, self.col)
+                if self._row_offset(self.line, row) >= max(1, self.height):
+                    self._move_rows(-1)
+            return True
         if self.top > 0:
             self._moved()
             self.top -= 1
@@ -1253,6 +1499,14 @@ class FileEditor(ContextMenuHost, Widget):
         return True
 
     async def on_scroll_down(self, event: ScrollDown) -> bool:
+        if self.soft_wrap:
+            if self._rows_from(self.top, self.top_row, 2) > 1:
+                self._moved()
+                self._scroll_view(1)
+                row, _ = self._locate(self.line, self.col)
+                if self._row_offset(self.line, row) < 0:
+                    self._move_rows(1)
+            return True
         if self.top < len(self.document) - 1:
             self._moved()
             self.top += 1
@@ -2439,6 +2693,19 @@ class FileEditor(ContextMenuHost, Widget):
         self.show_hidden = not self.show_hidden
         return True
 
+    async def on_switch_soft_wrap(self, event: SwitchSoftWrap) -> bool:
+        """*Soft wrap* (not DN's): long lines on as many rows as they need, or
+        back to one row a line and sideways scrolling.  Refused under column
+        blocks (:meth:`refusal`)."""
+        if self.vertical_blocks:
+            return True
+        self.soft_wrap = not self.soft_wrap
+        self.left = 0
+        self.top_row = 0
+        self._goal = None
+        self._follow()
+        return True
+
     async def on_switch_line_numbers(self, event: SwitchLineNumbers) -> bool:
         """*Line numbers* (not DN's): the gutter shown or hidden for this editor."""
         self.line_numbers = not self.line_numbers
@@ -3034,6 +3301,11 @@ class FileEditor(ContextMenuHost, Widget):
         if isinstance(command, SelectAll):
             self.revision
             return "" if any(self.document.lines) else tr("The text is empty")
+        if isinstance(command, SwitchBlock) and self.soft_wrap:
+            # A rectangle over wrapped rows would be ragged pieces.
+            return tr("Not with soft wrap")
+        if isinstance(command, SwitchSoftWrap) and self.vertical_blocks:
+            return tr("Not with column blocks")
         if isinstance(command, (LJustify, LRight, LLeft, LCenter)):
             # ``FormatBlock``'s ``VertBlock`` exit, said rather than done silently.
             return tr("Line format works on line blocks") if self.vertical_blocks else ""
@@ -3056,6 +3328,8 @@ class FileEditor(ContextMenuHost, Widget):
         *AutoBrackets* while they are on (``SetM``)."""
         if isinstance(command, SwitchBlock):
             return self.vertical_blocks
+        if isinstance(command, SwitchSoftWrap):
+            return self.soft_wrap
         if isinstance(command, SwitchSave):
             return self.autowrap
         if isinstance(command, SwitchBrackets):
@@ -3274,8 +3548,7 @@ class FileEditor(ContextMenuHost, Widget):
         """A right click outside the block puts the cursor there and drops
         the block, as a left click does; one inside keeps both, so Cut and
         Copy act on what was clicked."""
-        line = min(self.top + max(y, 0), len(self.document) - 1)
-        col = self._logical_column(line, self.left + max(0, x))
+        line, col = self.cell_at(x, y)
         picked = self._block_picked(line)
         if picked is not None:
             row = columns.cells(self.document.lines[line], self.tab_size)
@@ -3314,8 +3587,7 @@ class FileEditor(ContextMenuHost, Widget):
         if event.is_wheel:
             if event.button in ("wheel_up", "wheel_down"):
                 step = -WHEEL_ROWS if event.button == "wheel_up" else WHEEL_ROWS
-                last = max(0, len(self.document) - 1)
-                self.top = max(0, min(self.top + step, last))
+                self._scroll_view(step)
                 return True
             return False
         app = self.application
@@ -3357,10 +3629,10 @@ class FileEditor(ContextMenuHost, Widget):
                 return True
             self._press_cell = None
             # Past the top or bottom row the text scrolls a line at a time.
-            if event.y < 0 and self.top > 0:
-                self.top -= 1
-            elif event.y >= self.height and self.top < len(self.document) - 1:
-                self.top += 1
+            if event.y < 0:
+                self._scroll_view(-1)
+            elif event.y >= self.height:
+                self._scroll_view(1)
             self._point(event, extending=True)
             if self._drag_word is not None:
                 self._mark_words_to()
@@ -3407,10 +3679,10 @@ class FileEditor(ContextMenuHost, Widget):
             self.ruler = True
             self._moved()
             # Past the top or bottom row the text scrolls a line at a time.
-            if event.y < 0 and self.top > 0:
-                self.top -= 1
-            elif event.y >= self.height and self.top < len(self.document) - 1:
-                self.top += 1
+            if event.y < 0:
+                self._scroll_view(-1)
+            elif event.y >= self.height:
+                self._scroll_view(1)
             self._point(event, extending=False)
             return True
         if event.action == "release":
@@ -3434,8 +3706,7 @@ class FileEditor(ContextMenuHost, Widget):
         y = min(max(event.y, 0), max(0, self.height - 1))
         self._extending = extending
         try:
-            number = self.top + y
-            self._move_to(number, self._logical_column(number, self.left + max(0, event.x)))
+            self._move_to(*self.cell_at(event.x, y))
         finally:
             self._extending = False
 
@@ -3887,7 +4158,7 @@ class FileEditor(ContextMenuHost, Widget):
     # -- painting ------------------------------------------------------------------
 
     def cursor_position(self) -> tuple[int, int] | None:
-        x, y = self._visual_column(self.line, self.col) - self.left, self.line - self.top
+        x, y = self.cursor_cell()
         if 0 <= x < self.width and 0 <= y < self.height:
             return x, y
         return None
@@ -3976,6 +4247,28 @@ class FileEditor(ContextMenuHost, Widget):
             last = columns.width(text, tab) + 1
         return (first, last) if first < last else None
 
+    def _painted_rows(self) -> list[tuple[int, list[tuple[str, int]], list[tuple[int, str]] | None, int, int, bool]]:
+        """The rows on screen, top first: each ``(line, cells, order, shift,
+        base, last)`` -- the line's number, the cells shown (``_laid_line``'s
+        row), their painted order or None, how far in the first sits, the
+        line's column the cells start at, and whether the row is the line's
+        last, where what is past its text is painted.  Unwrapped, a row is a
+        line from :attr:`left`, at *base* 0 and always its last."""
+        lines = self.document.lines
+        found = []
+        width, left = self.width, self.left
+        if self.soft_wrap:
+            for line, row in self.visible_rows():
+                found.append((line, *self._row_layout(line, row)))
+            return found
+        for y in range(self.height):
+            number = self.top + y
+            if number >= len(lines):
+                break
+            row, order, shift = _laid_line(lines[number], self.tab_size, width, left + width)
+            found.append((number, row, order, shift, 0, True))
+        return found
+
     def render(self, surface: Surface) -> None:
         """The text, the block and the match lit -- and, as DN's ``Draw`` had them,
         the cursor's line in *Current line* (a block or match on it in *Current line
@@ -3993,10 +4286,7 @@ class FileEditor(ContextMenuHost, Widget):
         query = self.highlight_query
         if query is not None and not search.valid(query):
             query = None
-        for y in range(self.height):
-            number = self.top + y
-            if number >= len(lines):
-                break
+        for y, (number, row, order, shift, base, last) in enumerate(self._painted_rows()):
             style, selected = normal, normal_selected
             current = self.highlight_line and number == self.line
             if current:
@@ -4007,8 +4297,10 @@ class FileEditor(ContextMenuHost, Widget):
             # Hebrew or Arabic in the line: its cells in reading order, each
             # keeping the column it has in the text (navkit.bidi.order_cells),
             # which is what the block, a match and the tokens are told by; a
-            # right-to-left line right-aligned, *shift* columns in.
-            row, order, shift = _laid_line(text, self.tab_size, width, left + width)
+            # right-to-left line right-aligned, *shift* columns in.  Soft
+            # wrapped, *row* is one of the line's rows, *base* columns in, and
+            # ordered on its own (:meth:`_painted_rows`); what is past the
+            # line's text is painted on its *last* row alone.
             origin = range(len(row)) if order is None else [at for at, _ in order]
             # A block the cursor marked, on such a line: the characters lit
             # are its runs' (_block_runs), and the line break past the text.
@@ -4017,17 +4309,21 @@ class FileEditor(ContextMenuHost, Widget):
             # A column block's columns are painted columns; a match's, the text's.
             painted = span is not None and self.column_block is not None
             span = span or self._found_columns(number)
+            if span is not None and base:
+                span = (span[0] - base, span[1] - base)
+            if span is not None and not last:
+                span = (span[0], min(span[1], len(row)))
             if order is not None:
                 row = [(shown, row[at][1]) for at, shown in order]
             # Where the line's end is painted: past its text, or left of it.
             end_cell = shift - 1 if shift else len(row)
-            if picked is not None and picked[1] and left <= end_cell < left + width:
+            if last and picked is not None and picked[1] and left <= end_cell < left + width:
                 surface.fill(end_cell - left, y, 1, 1, " ", selected)
             if span is not None and shift and not painted:
                 # Past a right-to-left line's end the columns run leftwards.
-                first, last = max(span[0], len(row)), span[1]
-                if first < last:
-                    start = max(left, shift - (last - len(row)))
+                first, final = max(span[0], len(row)), span[1]
+                if last and first < final:
+                    start = max(left, shift - (final - len(row)))
                     stop = min(left + width, shift - (first - len(row)))
                     if start < stop:
                         surface.fill(start - left, y, stop - start, 1, " ", selected)
@@ -4044,9 +4340,9 @@ class FileEditor(ContextMenuHost, Widget):
             # block and the match found, over the tokens.
             marks = search.line_matches(text, query) if query is not None else ()
             match_style = self.part_style("match", current_line=current) if marks else None
-            if hidden:
+            if hidden and last:
                 # The line's ending, a cell past its text, in the colours there.
-                end = columns.width(text, self.tab_size)
+                end = columns.width(text, self.tab_size) - base
                 ending = self.document.endings[number]
                 if ending in HIDDEN_MARKS and left <= end_cell < left + width:
                     look = selected if span is not None and span[0] <= end < span[1] else style
@@ -4091,9 +4387,9 @@ class FileEditor(ContextMenuHost, Widget):
                     surface.set_cell(x, y, HIDDEN_MARKS[text[index]][tier], cell.derive(dim=True))
                     continue
                 surface.set_cell(x, y, char, cell)
-        # The cursor's painted column: on a reordered line its column is elsewhere.
-        x = self._visual_column(self.line, self.col) - left
-        y = self.line - self.top
+        # The cursor's painted column: on a reordered line its column is
+        # elsewhere, and soft wrapped on one of its line's rows.
+        x, y = self.cursor_cell()
         if self.ruler and self._right_press is not None and 0 <= x < width and 0 <= y < self.height:
             # ``RulerVisible``: from the cursor rightwards, laid before the
             # column as DN laid it; one ``draw_runs``, so a mirrored screen
@@ -4130,8 +4426,8 @@ class LineGutter(Widget):
     the default ``mirrors``: on a right-to-left screen it lands on the right
     of the text, where its right-aligned lines start, its blank against them
     and its digits still read left to right.  A click on a number takes the
-    cursor to that line's start.  (Soft wrap, when it comes, leaves a wrapped
-    row's number blank.)
+    cursor to that line's start.  Soft wrapped, a line's first row alone is
+    numbered (:meth:`FileEditor.visible_rows`), the rows it runs on blank.
     """
 
     parts = ("current",)
@@ -4148,11 +4444,10 @@ class LineGutter(Widget):
             return
         current = self.part_style("current")
         digits = self.width - 1
-        count, top, cursor = editor.line_count, editor.top, editor.line
-        for y in range(self.height):
-            number = top + y
-            if number >= count:
-                break
+        cursor = editor.line
+        for y, (number, row) in enumerate(editor.visible_rows()[:self.height]):
+            if row:
+                continue
             surface.draw_text(0, y, str(number + 1).rjust(digits)[-digits:],
                               current if number == cursor else normal)
 
@@ -4160,12 +4455,12 @@ class LineGutter(Widget):
         editor = self.target
         if editor is None or event.button != "left" or event.action != "press":
             return False
-        number = editor.top + event.y
-        if number >= editor.line_count:
+        rows = editor.visible_rows()
+        if not 0 <= event.y < len(rows):
             return True
         editor.focus()
         editor._moved()
-        editor._move_to(number, 0)
+        editor._move_to(rows[event.y][0], 0)
         return True
 
 

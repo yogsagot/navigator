@@ -95,9 +95,9 @@ flag = "RU"
 "~E~ditor" = "~Р~едактор"
 # navigator/widgets/editor/edit_window/edit_window.nml:181
 "Editing, the file, search, paragraphs and blocks" = "Правка, файл, поиск, абзацы и блоки"
-# navigator/widgets/editor/edit_window/edit_window.nml:188, navigator/widgets/editor/file_editor/file_editor.py:3248
+# navigator/widgets/editor/edit_window/edit_window.nml:188, navigator/widgets/editor/file_editor/file_editor.py:3522
 "~U~ndo" = "~О~тменить"
-# navigator/widgets/editor/edit_window/edit_window.nml:192, navigator/widgets/editor/file_editor/file_editor.py:3249
+# navigator/widgets/editor/edit_window/edit_window.nml:192, navigator/widgets/editor/file_editor/file_editor.py:3523
 "R~e~do" = "В~е~рнуть"
 # navigator/widgets/editor/edit_window/edit_window.nml:209
 "C~o~py to..." = "Копировать в фа~й~л..."
@@ -111,9 +111,9 @@ flag = "RU"
 "Delete the selection without copying it to the clipboard" = "Удалить выделение, не копируя в буфер обмена"
 # navigator/widgets/editor/edit_window/edit_window.nml:230
 "Delete a line, a word or the rest of the line" = "Удалить строку, слово или остаток строки"
-# navigator/widgets/editor/edit_window/edit_window.nml:232, navigator/widgets/editor/file_editor/file_editor.py:3255
+# navigator/widgets/editor/edit_window/edit_window.nml:232, navigator/widgets/editor/file_editor/file_editor.py:3529
 "~D~elete line" = "~У~далить строку"
-# navigator/widgets/editor/edit_window/edit_window.nml:236, navigator/widgets/editor/file_editor/file_editor.py:3256
+# navigator/widgets/editor/edit_window/edit_window.nml:236, navigator/widgets/editor/file_editor/file_editor.py:3530
 "Delete ~w~ord left" = "Удалить слово перед курсоро~м~"
 # navigator/widgets/editor/edit_window/edit_window.nml:240
 "Delete word ri~g~ht" = "У~д~алить слово справа"
@@ -153,9 +153,9 @@ flag = "RU"
 "Search as you type, in a bar over the text" = "Поиск по мере ввода, в панели над текстом"
 # navigator/widgets/editor/edit_window/edit_window.nml:306
 "Replace b~a~r" = "Панель за~м~ены"
-# navigator/widgets/editor/edit_window/edit_window.nml:311, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3259
+# navigator/widgets/editor/edit_window/edit_window.nml:311, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3533
 "~F~ind..." = "~И~скать..."
-# navigator/widgets/editor/edit_window/edit_window.nml:315, navigator/widgets/editor/file_editor/file_editor.py:3260
+# navigator/widgets/editor/edit_window/edit_window.nml:315, navigator/widgets/editor/file_editor/file_editor.py:3534
 "~R~eplace..." = "~З~аменить..."
 # navigator/widgets/editor/edit_window/edit_window.nml:319
 "~S~earch again" = "П~р~одолжить поиск"
@@ -325,7 +325,7 @@ flag = "RU"
 "~W~ord" = "~С~лово"
 # navigator/widgets/editor/edit_window/edit_window.nml:580, navigator/widgets/editor/edit_window/edit_window.nml:595, navigator/widgets/editor/edit_window/edit_window.nml:610
 "~L~ine" = "С~т~рока"
-# navigator/widgets/editor/edit_window/edit_window.nml:604, navigator/widgets/editor/file_editor/file_editor.py:3268
+# navigator/widgets/editor/edit_window/edit_window.nml:604, navigator/widgets/editor/file_editor/file_editor.py:3542
 "~C~apitalize" = "~З~аглавные"
 # navigator/widgets/editor/edit_window/edit_window.nml:619
 "Optio~n~s" = "~Н~астройки"
@@ -356,18 +356,22 @@ flag = "RU"
 # navigator/widgets/editor/edit_window/edit_window.nml:648
 "Tab types tab characters, not spaces" = "Tab вставляет символы табуляции, а не пробелы"
 # navigator/widgets/editor/edit_window/edit_window.nml:652
-"Line ~n~umbers" = "~Н~омера строк"
+"Soft ~w~rap" = "М~я~гкий перенос"
 # navigator/widgets/editor/edit_window/edit_window.nml:653
+"Show long lines wrapped at the edge, the text unchanged" = "Показывать длинные строки с переносом у края, не меняя текст"
+# navigator/widgets/editor/edit_window/edit_window.nml:657
+"Line ~n~umbers" = "~Н~омера строк"
+# navigator/widgets/editor/edit_window/edit_window.nml:658
 "Number the lines in a gutter beside the text" = "Нумеровать строки на полосе рядом с текстом"
-# navigator/widgets/editor/edit_window/edit_window.nml:656
+# navigator/widgets/editor/edit_window/edit_window.nml:661
 "Current ~l~ine highlight" = "Подсветка ~т~екущей строки"
-# navigator/widgets/editor/edit_window/edit_window.nml:659
+# navigator/widgets/editor/edit_window/edit_window.nml:664
 "Current ~c~olumn highlight" = "Подсветка текущей ~к~олонки"
-# navigator/widgets/editor/edit_window/edit_window.nml:662
+# navigator/widgets/editor/edit_window/edit_window.nml:667
 "Syntax ~h~ighlight" = "~П~одсветка синтаксиса"
-# navigator/widgets/editor/edit_window/edit_window.nml:666
+# navigator/widgets/editor/edit_window/edit_window.nml:671
 "Show hi~d~den characters" = "Показывать ск~р~ытые символы"
-# navigator/widgets/editor/edit_window/edit_window.nml:674
+# navigator/widgets/editor/edit_window/edit_window.nml:679
 "File t~y~pe" = "~Т~ип файла"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/file_ops/replace_query/replace_query.nml:17, navigator/widgets/editor/commands.py:282 ...
 "Replace" = "Замена"
@@ -827,7 +831,7 @@ flag = "RU"
 "Give this answer for every file that is already there" = "Дать этот ответ для каждого уже существующего файла"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~П~оверх"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:531, navigator/widgets/manager/manager/manager.py:941 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:534, navigator/widgets/manager/manager/manager.py:941 ...
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~И~мя"
@@ -1769,7 +1773,7 @@ flag = "RU"
 "1~0~ minutes" = "1~0~ минут"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "~М~ышь вызывает заставку"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1449, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1453, navigator/widgets/shell/commands.py:717
 "Settings" = "Настройки"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "Встроенные редактор и просмотрщик, буфер обмена, временные файлы, сбои и доступ root"
@@ -2107,7 +2111,7 @@ flag = "RU"
 "Navigator?" = "с Навигатором?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "Выходить без вопроса с этого момента (Настройки > Подтверждения)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:970, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:973, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~О~ткрыть"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "О программе, хранитель экрана, SmartPad, корзина и игра"
@@ -3625,47 +3629,47 @@ flag = "RU"
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "Параметры > Конфигурация > Подтверждения (dlgConfirmations в DN)"
 # navigator/settings.py:520
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- редактор (dlgEditorDefaults в DN)"
-# navigator/settings.py:600
+# navigator/settings.py:604
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "Параметры > Конфигурация > Редактор/просмотрщик -- просмотрщик (dlgEditorDefaults в DN)"
-# navigator/settings.py:686
+# navigator/settings.py:690
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "Параметры > Файловый менеджер > Настройка (dlgFMSetup в DN)"
-# navigator/settings.py:774
+# navigator/settings.py:778
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "Параметры > Файловый менеджер > Умолчания нового менеджера (dlgFMDefaults в DN)"
-# navigator/settings.py:828
+# navigator/settings.py:832
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "Параметры > Файловый менеджер > Информационная панель (dlgDriveInfoSetup в DN)"
-# navigator/settings.py:867
+# navigator/settings.py:871
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "Параметры > Файловый менеджер > Колонки по умолчанию (dlgColumnsDefaults в DN)"
-# navigator/settings.py:915
+# navigator/settings.py:919
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "Параметры > Файловый менеджер > Группы подсветки (dlgHighlightGroups в DN)"
-# navigator/settings.py:930
+# navigator/settings.py:934
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "Параметры > Конфигурация > Хранители экрана (TSaversDialog в DN)"
-# navigator/settings.py:962
+# navigator/settings.py:966
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "Параметры > Конфигурация > Национальные форматы (dlgCountrySetup в DN)"
-# navigator/settings.py:1013
+# navigator/settings.py:1017
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > Игра > Настройка (dlgGameSetup в DN)"
-# navigator/settings.py:1029
+# navigator/settings.py:1033
 "Utilities > Calculator (not DN's)" = "Утилиты > Калькулятор (не из DN)"
-# navigator/settings.py:1050
+# navigator/settings.py:1054
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "Файл > UU-кодирование / UU-декодирование (dlgUUEncode, dlgUUDecode в DN)"
-# navigator/settings.py:1078
+# navigator/settings.py:1082
 "File > Split/combine (DN's dlgSplitFile)" = "Файл > Разбить/объединить (dlgSplitFile в DN)"
-# navigator/settings.py:1089
+# navigator/settings.py:1093
 "File > Checksums > Calculate (not DN's)" = "Файл > Контрольные суммы > Вычислить (не из DN)"
-# navigator/settings.py:1104
+# navigator/settings.py:1108
 "File > Encoding > Convert text (not DN's)" = "Файл > Кодирование > Преобразовать текст (не из DN)"
-# navigator/settings.py:1126
+# navigator/settings.py:1130
 "File > Encryption (not DN's)" = "Файл > Шифрование (не из DN)"
-# navigator/settings.py:1146
+# navigator/settings.py:1150
 "Panel > Compare directories > Synchronize (not DN's)" = "Панель > Сравнить каталоги > Синхронизация (не из DN)"
-# navigator/settings.py:1164
+# navigator/settings.py:1168
 "Utilities > Process list (not DN's)" = "Утилиты > Список процессов (не из DN)"
-# navigator/settings.py:1174
+# navigator/settings.py:1178
 "Utilities > Services (not DN's)" = "Утилиты > Службы (не из DN)"
-# navigator/settings.py:1192
+# navigator/settings.py:1196
 "Utilities > System monitor (not DN's)" = "Утилиты > Монитор системы (не из DN)"
-# navigator/settings.py:1204
+# navigator/settings.py:1208
 "Options > Configuration > Communications (DN's cmSetupModem)" = "Параметры > Конфигурация > Связь (cmSetupModem в DN)"
-# navigator/settings.py:1442
+# navigator/settings.py:1446
 "Settings could not be saved to {path}: {error}. They stay for this session." = "Не удалось сохранить настройки в {path}: {error}. Они действуют до конца сеанса."
 # navigator/widgets/drives/archive_finish.py:66
 "The changes to {name} could not be written: {error}" = "Изменения в {name} не удалось записать: {error}"
@@ -3821,7 +3825,7 @@ flag = "RU"
 "For example mtp://Phone/, dav://host/dir or google-drive://you@gmail.com/" = "Например mtp://Phone/, dav://host/dir или google-drive://you@gmail.com/"
 # navigator/widgets/drives/link_manager/link_manager.py:307
 "New" = "Новая"
-# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:724
+# navigator/widgets/drives/link_manager/link_manager.py:307, navigator/widgets/editor/commands.py:731
 "Save" = "Запись"
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Running" = "Работают"
@@ -3903,17 +3907,17 @@ flag = "RU"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} изменился там после загрузки. Перезаписать?"
 # navigator/widgets/drives/use_file.py:65
 "{name} was changed. Upload it back to {place}?" = "{name} изменён. Отправить его обратно в {place}?"
-# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:526, navigator/widgets/editor/edit_window/edit_window.py:1074 ...
+# navigator/widgets/drives/use_file.py:105, navigator/widgets/editor/edit_window/edit_window.py:529, navigator/widgets/editor/edit_window/edit_window.py:1077 ...
 "Warning" = "Предупреждение"
-# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:320 ...
+# navigator/widgets/drives/use_file.py:76, navigator/widgets/drives/use_file.py:88, navigator/widgets/editor/edit_window/edit_window.py:323 ...
 "Cannot write {path}: {error}" = "Не удаётся записать {path}: {error}"
 # navigator/widgets/drives/use_file.py:71, navigator/widgets/drives/use_file.py:83
 "Upload" = "Отправка"
 # navigator/widgets/editor/commands.py:139
 "Dupe" = "Дубль"
-# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:624
+# navigator/widgets/editor/commands.py:177, navigator/widgets/editor/commands.py:631
 "Block start" = "Начало блока"
-# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:630
+# navigator/widgets/editor/commands.py:183, navigator/widgets/editor/commands.py:637
 "Block end" = "Конец блока"
 # navigator/widgets/editor/commands.py:189
 "Hide block" = "Скрыть блок"
@@ -3988,168 +3992,174 @@ flag = "RU"
 # navigator/widgets/editor/commands.py:436
 "Tab characters" = "Табуляция"
 # navigator/widgets/editor/commands.py:450
+"Soft wrap" = "Мягкий перенос"
+# navigator/widgets/editor/commands.py:457
 "Optimal fill" = "Оптим. пробелов"
-# navigator/widgets/editor/commands.py:456
+# navigator/widgets/editor/commands.py:463
 "Current line highlight" = "Подсветка строки"
-# navigator/widgets/editor/commands.py:462
+# navigator/widgets/editor/commands.py:469
 "Current column highlight" = "Подсветка колонки"
-# navigator/widgets/editor/commands.py:468
+# navigator/widgets/editor/commands.py:475
 "Syntax highlight" = "Подсветка синтаксиса"
-# navigator/widgets/editor/commands.py:476
+# navigator/widgets/editor/commands.py:483
 "Hidden characters" = "Скрытые символы"
-# navigator/widgets/editor/commands.py:483, navigator/widgets/editor/file_type_menu.py:86
+# navigator/widgets/editor/commands.py:490, navigator/widgets/editor/file_type_menu.py:86
 "File type" = "Тип файла"
-# navigator/widgets/editor/commands.py:491, navigator/widgets/editor/format_menu.py:88
+# navigator/widgets/editor/commands.py:498, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "Концы строк"
-# navigator/widgets/editor/commands.py:499, navigator/widgets/editor/file_editor/file_editor.py:3172, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3446, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "Кодировка"
-# navigator/widgets/editor/commands.py:543
-"AutoBrackets" = "АвтоСкобки"
 # navigator/widgets/editor/commands.py:550
-"Auto wrap" = "Автоперенос"
+"AutoBrackets" = "АвтоСкобки"
 # navigator/widgets/editor/commands.py:557
+"Auto wrap" = "Автоперенос"
+# navigator/widgets/editor/commands.py:564
 "Justify on wrap" = "Выравн. при переносе"
-# navigator/widgets/editor/commands.py:563
-"Margins" = "Отступы"
 # navigator/widgets/editor/commands.py:570
+"Margins" = "Отступы"
+# navigator/widgets/editor/commands.py:577
 "Go to line" = "К строке"
-# navigator/widgets/editor/commands.py:576
+# navigator/widgets/editor/commands.py:583
 "Uppercase word" = "Прописные: слово"
-# navigator/widgets/editor/commands.py:582
+# navigator/widgets/editor/commands.py:589
 "Lowercase word" = "Строчные: слово"
-# navigator/widgets/editor/commands.py:588
+# navigator/widgets/editor/commands.py:595
 "Capitalize word" = "Заглавные: слово"
-# navigator/widgets/editor/commands.py:594
+# navigator/widgets/editor/commands.py:601
 "Uppercase line" = "Прописные: строка"
-# navigator/widgets/editor/commands.py:600
+# navigator/widgets/editor/commands.py:607
 "Lowercase line" = "Строчные: строка"
-# navigator/widgets/editor/commands.py:606
+# navigator/widgets/editor/commands.py:613
 "Capitalize line" = "Заглавные: строка"
-# navigator/widgets/editor/commands.py:612
+# navigator/widgets/editor/commands.py:619
 "Mark word" = "Пометить слово"
-# navigator/widgets/editor/commands.py:618
+# navigator/widgets/editor/commands.py:625
 "Mark line" = "Пометить строку"
-# navigator/widgets/editor/commands.py:637
+# navigator/widgets/editor/commands.py:644
 "Place marker" = "Поставить метку"
-# navigator/widgets/editor/commands.py:646
+# navigator/widgets/editor/commands.py:653
 "Go to marker" = "К метке"
-# navigator/widgets/editor/commands.py:656
+# navigator/widgets/editor/commands.py:663
 "Macro" = "Макрос"
-# navigator/widgets/editor/commands.py:662
+# navigator/widgets/editor/commands.py:669
 "Read block" = "Читать блок"
-# navigator/widgets/editor/commands.py:668
+# navigator/widgets/editor/commands.py:675
 "Write block" = "Записать блок"
-# navigator/widgets/editor/commands.py:674
+# navigator/widgets/editor/commands.py:681
 "Insert date" = "Вставить дату"
-# navigator/widgets/editor/commands.py:680
-"Insert time" = "Вставить время"
 # navigator/widgets/editor/commands.py:687
+"Insert time" = "Вставить время"
+# navigator/widgets/editor/commands.py:694
 "Vertical blocks" = "Верт. блоки"
-# navigator/widgets/editor/commands.py:700
+# navigator/widgets/editor/commands.py:707
 "Redo" = "Вернуть"
-# navigator/widgets/editor/commands.py:706
+# navigator/widgets/editor/commands.py:713
 "Open" = "Открыть"
-# navigator/widgets/editor/commands.py:712, navigator/widgets/viewer/commands.py:115
+# navigator/widgets/editor/commands.py:719, navigator/widgets/viewer/commands.py:115
 "Save as" = "Зап.как"
-# navigator/widgets/editor/commands.py:718
+# navigator/widgets/editor/commands.py:725
 "Save all" = "Зап.все"
-# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3158
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3432
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{char} (U+{code:04X}) в строке {line} нельзя записать в кодировке {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:1072
+# navigator/widgets/editor/edit_window/edit_window.py:1075
 "Untitled" = "Безымянный"
-# navigator/widgets/editor/edit_window/edit_window.py:470, navigator/widgets/editor/file_editor/file_editor.py:3018
+# navigator/widgets/editor/edit_window/edit_window.py:473, navigator/widgets/editor/file_editor/file_editor.py:3285
 "No block is marked" = "Блок не отмечен"
-# navigator/widgets/editor/edit_window/edit_window.py:579
+# navigator/widgets/editor/edit_window/edit_window.py:582
 "Copy block to" = "Копировать блок в"
-# navigator/widgets/editor/edit_window/edit_window.py:579
+# navigator/widgets/editor/edit_window/edit_window.py:582
 "File ~N~ame" = "~И~мя файла"
-# navigator/widgets/editor/edit_window/edit_window.py:658
+# navigator/widgets/editor/edit_window/edit_window.py:661
 "Paste from File" = "Вставка текста из файла"
-# navigator/widgets/editor/edit_window/edit_window.py:658
+# navigator/widgets/editor/edit_window/edit_window.py:661
 "~P~aste from" = "~В~ставить из"
-# navigator/widgets/editor/edit_window/edit_window.py:970
+# navigator/widgets/editor/edit_window/edit_window.py:973
 "Open a File" = "Открыть файл"
-# navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1017, navigator/widgets/viewer/file_window/file_window.py:753
 "Save File As" = "Сохранить файл как"
-# navigator/widgets/editor/edit_window/edit_window.py:1014, navigator/widgets/viewer/file_window/file_window.py:753
+# navigator/widgets/editor/edit_window/edit_window.py:1017, navigator/widgets/viewer/file_window/file_window.py:753
 "~S~ave File As" = "~З~аписать в"
 # navigator/widgets/editor/edit_window/edit_window.py:164
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:166, navigator/widgets/editor/edit_window/edit_window.py:168
 "Edit - {path}" = "Редактор - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:527, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
+# navigator/widgets/editor/edit_window/edit_window.py:530, navigator/widgets/manager/manager/manager.py:939, navigator/widgets/manager/manager/manager.py:2610 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
-# navigator/widgets/editor/edit_window/edit_window.py:914, navigator/widgets/manager/manager/manager.py:3781
+# navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/manager/manager/manager.py:3781
 "Confirmation" = "Подтверждение"
-# navigator/widgets/editor/edit_window/edit_window.py:915
+# navigator/widgets/editor/edit_window/edit_window.py:918
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
-# navigator/widgets/editor/edit_window/edit_window.py:923
+# navigator/widgets/editor/edit_window/edit_window.py:926
 "Cannot print: {error}" = "Не удаётся напечатать: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:305
+# navigator/widgets/editor/edit_window/edit_window.py:308
 "Confirm file save" = "Подтверждение сохранения"
-# navigator/widgets/editor/edit_window/edit_window.py:817, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
+# navigator/widgets/editor/edit_window/edit_window.py:820, navigator/widgets/viewer/db_window/db_window.py:624, navigator/widgets/viewer/file_window/file_window.py:892 ...
 "Search string not found" = "Не могу найти строку"
-# navigator/widgets/editor/edit_window/edit_window.py:823, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:826, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "Информация"
-# navigator/widgets/editor/edit_window/edit_window.py:823
+# navigator/widgets/editor/edit_window/edit_window.py:826
 "{n} replace made" = ["Сделана {n} замена", "Сделано {n} замены", "Сделано {n} замен"]
-# navigator/widgets/editor/edit_window/edit_window.py:978, navigator/widgets/shell/shell/shell.py:1912
+# navigator/widgets/editor/edit_window/edit_window.py:981, navigator/widgets/shell/shell/shell.py:1912
 "Cannot open {path}: {error}" = "Не удаётся открыть {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:1075
+# navigator/widgets/editor/edit_window/edit_window.py:1078
 "File {name} was modified. Save?" = "Файл {name} изменён. Сохранить?"
-# navigator/widgets/editor/edit_window/edit_window.py:306
+# navigator/widgets/editor/edit_window/edit_window.py:309
 "Save file {name}?" = "Сохранить файл {name}?"
-# navigator/widgets/editor/edit_window/edit_window.py:542
+# navigator/widgets/editor/edit_window/edit_window.py:545
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "Файл {name}\nтолько для чтения.\nВсё равно изменить?"
-# navigator/widgets/editor/file_editor/file_editor.py:2250, navigator/widgets/editor/file_editor/file_editor.py:2244, navigator/widgets/editor/file_editor/file_editor.py:2261
+# navigator/widgets/editor/file_editor/file_editor.py:2504, navigator/widgets/editor/file_editor/file_editor.py:2498, navigator/widgets/editor/file_editor/file_editor.py:2515
 "Macros" = "Макросы"
-# navigator/widgets/editor/file_editor/file_editor.py:3261
+# navigator/widgets/editor/file_editor/file_editor.py:3306
+"Not with soft wrap" = "Не при мягком переносе"
+# navigator/widgets/editor/file_editor/file_editor.py:3308
+"Not with column blocks" = "Не с вертикальными блоками"
+# navigator/widgets/editor/file_editor/file_editor.py:3535
 "~G~o to line..." = "~П~ерейти к строке..."
-# navigator/widgets/editor/file_editor/file_editor.py:3263
+# navigator/widgets/editor/file_editor/file_editor.py:3537
 "~I~ndent block" = "~Б~лок вправо"
-# navigator/widgets/editor/file_editor/file_editor.py:3264
+# navigator/widgets/editor/file_editor/file_editor.py:3538
 "U~n~indent block" = "Б~л~ок влево"
-# navigator/widgets/editor/file_editor/file_editor.py:3265
+# navigator/widgets/editor/file_editor/file_editor.py:3539
 "Change ca~s~e" = "~Р~егистр"
-# navigator/widgets/editor/file_editor/file_editor.py:3266
+# navigator/widgets/editor/file_editor/file_editor.py:3540
 "~U~pper case" = "~В~ерхний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:3267
+# navigator/widgets/editor/file_editor/file_editor.py:3541
 "~L~ower case" = "~Н~ижний регистр"
-# navigator/widgets/editor/file_editor/file_editor.py:3270
+# navigator/widgets/editor/file_editor/file_editor.py:3544
 "Sa~v~e" = "~С~охранить"
-# navigator/widgets/editor/file_editor/file_editor.py:899
+# navigator/widgets/editor/file_editor/file_editor.py:917
 "no file name" = "нет имени файла"
-# navigator/widgets/editor/file_editor/file_editor.py:3021, navigator/widgets/manager/manager/manager.py:3286
+# navigator/widgets/editor/file_editor/file_editor.py:3288, navigator/widgets/manager/manager/manager.py:3286
 "Nothing to undo" = "Нечего отменять"
-# navigator/widgets/editor/file_editor/file_editor.py:3024
+# navigator/widgets/editor/file_editor/file_editor.py:3291
 "Nothing to redo" = "Нечего повторять"
-# navigator/widgets/editor/file_editor/file_editor.py:3036
+# navigator/widgets/editor/file_editor/file_editor.py:3303
 "The text is empty" = "Текст пуст"
-# navigator/widgets/editor/file_editor/file_editor.py:3039
+# navigator/widgets/editor/file_editor/file_editor.py:3311
 "Line format works on line blocks" = "Форматирование строки работает со строчными блоками"
-# navigator/widgets/editor/file_editor/file_editor.py:4209
+# navigator/widgets/editor/file_editor/file_editor.py:4504
 "Line and column: a click goes to a line" = "Строка и столбец: щелчок переходит к строке"
-# navigator/widgets/editor/file_editor/file_editor.py:4210
+# navigator/widgets/editor/file_editor/file_editor.py:4505
 "The character's code: a click opens the character table" = "Код символа: щелчок открывает таблицу символов"
-# navigator/widgets/editor/file_editor/file_editor.py:4211
+# navigator/widgets/editor/file_editor/file_editor.py:4506
 "Vertical blocks: a click makes them stream blocks" = "Вертикальные блоки: щелчок делает их потоковыми"
-# navigator/widgets/editor/file_editor/file_editor.py:4212
+# navigator/widgets/editor/file_editor/file_editor.py:4507
 "Stream blocks: a click makes them vertical" = "Потоковые блоки: щелчок делает их вертикальными"
-# navigator/widgets/editor/file_editor/file_editor.py:4267
+# navigator/widgets/editor/file_editor/file_editor.py:4562
 "Line endings: a click makes them the next kind, a right click offers them all" = "Концы строк: щелчок меняет их на следующий вид, правый щелчок предлагает все"
-# navigator/widgets/editor/file_editor/file_editor.py:4269
+# navigator/widgets/editor/file_editor/file_editor.py:4564
 "Encoding: a click reopens or saves the text in another" = "Кодировка: щелчок открывает текст заново или сохраняет его в другой"
-# navigator/widgets/editor/file_editor/file_editor.py:3028
+# navigator/widgets/editor/file_editor/file_editor.py:3295
 "Marker {n} is not placed" = "Метка {n} не поставлена"
-# navigator/widgets/editor/file_editor/file_editor.py:2244
+# navigator/widgets/editor/file_editor/file_editor.py:2498
 "macros.ini has no macro for this file" = "В macros.ini нет макросов для этого файла"
-# navigator/widgets/editor/file_editor/file_editor.py:3129
+# navigator/widgets/editor/file_editor/file_editor.py:3403
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "В тексте есть символы, которые {encoding} не может записать, поэтому у него нет байтов, чтобы прочитать их заново."
-# navigator/widgets/editor/file_editor/file_editor.py:3133
+# navigator/widgets/editor/file_editor/file_editor.py:3407
 "The text does not read as {encoding}." = "Текст не читается как {encoding}."
-# navigator/widgets/editor/file_editor/file_editor.py:1946, navigator/widgets/editor/file_editor/file_editor.py:1985
+# navigator/widgets/editor/file_editor/file_editor.py:2200, navigator/widgets/editor/file_editor/file_editor.py:2239
 "Vertical blocks need for this operation" = "Выберите вертикальный блок для этой операции"
-# navigator/widgets/editor/file_editor/file_editor.py:2261
+# navigator/widgets/editor/file_editor/file_editor.py:2515
 "Not an editor command: {names}" = "Не команда редактора: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "~Я~зыки программирования"
@@ -6469,6 +6479,8 @@ flag = "RU"
 "Tab inserts tab characters, not spaces" = "Tab вставляет символы табуляции, а не пробелы"
 # navigator/settings.py
 "A new editor numbers its lines in a gutter" = "Новый редактор нумерует строки на полосе"
+# navigator/settings.py
+"A new editor shows long lines wrapped at its edge, the text unchanged" = "Новый редактор показывает длинные строки с переносом у края, не меняя текст"
 # navigator/settings.py
 "What a file that is not UTF-8 is read as by the editor: utf-8 keeps its bytes, or a code page" = "Как редактор читает файл не в UTF-8: utf-8 сохраняет его байты, или кодовая страница"
 # navigator/settings.py

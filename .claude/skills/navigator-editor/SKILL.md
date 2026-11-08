@@ -518,6 +518,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `Mark.A`/`Mark.B` back blindly). Auto wrap, Backspace unindents, Optimal fill, Hidden characters and the draw mode
   were not in DN's record and are seeded from the setup each time. **Open editors through
   `navigator.lib.config.file_history.open_editor`**, awaited from a spawned task.
+- **Three opt-in modes, departures (not DN's), each off by default** and switched alike -- an `[editor]` setting,
+  Editor > Options, a `highlight.ini` mask key, a nullable `EditRecord` field: *Tab characters* (`insert_tabs`,
+  `columns.fill`), *Line numbers* (`line_numbers`, the `LineGutter` widget beside the editor) and *Soft wrap*
+  (`soft_wrap`, `navigator/lib/editor/softwrap.py`; the text never changes, rows are only painting and Up/Down,
+  Home/End stay the line's, never with column blocks). None is on the option strip: its width is the horizontal
+  scroll bar's room. `reference/editor.md` has each one's rules -- read soft wrap's before touching `render`,
+  `_follow` or vertical movement.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
   nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`). **What the
   modern default keys leave unbound is on the menu** (a departure: in DN these were keys alone): Editor > Delete > *Delete word
