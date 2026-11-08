@@ -97,6 +97,15 @@ class OpenSmartpad(Command):
     title = "SmartPad"
 
 
+class NewView(Command):
+    """Window > *New view* (not DN's): another window on the active editor's
+    text -- one undo history, one save, a cursor, scroll and block of its own.
+    Here, with the names other screens share, so the main menu that offers it
+    does not import the editor; the editor's window answers it."""
+
+    title = "New view"
+
+
 class PrintFile(Command):
     """``cmPrintFile``: one command, as in DN, answered by whichever window has it --
     the editor's F8 prints its text, the file manager's Ctrl+F9 the file under
@@ -114,6 +123,7 @@ __all__ = [
     "Help",
     "PlayMacro",
     "RecordMacro",
+    "NewView",
     "OpenSmartpad",
     "PrintFile",
     "Quit",

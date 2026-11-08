@@ -7,8 +7,8 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navkit.bidi import display_width
-from navigator.commands import PrintFile
-from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, SwitchLineNumbers, SwitchSoftWrap, NewView, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
+from navigator.commands import NewView, PrintFile
+from navigator.widgets.editor.commands import BlockStart, BlockEnd, MarkWord, MarkLine, MoveBlockStart, MoveBlockEnd, PlaceMarker, GotoMarker, DeleteWordRight, DeleteToEnd, ChooseEncoding, ChooseLineEnding, ChooseFileType, AsciiTable, CalcBlock, SwitchHiColumn, SwitchHiLine, SwitchHighLight, SwitchHiddenChars, SwitchFill, SwitchTabs, SwitchLineNumbers, SwitchSoftWrap, ShowFindBar, ShowReplaceBar, CapString, CapWord, LowString, LowWord, UpString, UpWord, DuplicateLine, DeleteLine, DeleteWordLeft, InsertLine, HideBlock, BracketPair, SwitchDrawMode, SwitchBack, SwitchIndent, SwitchBrackets, SwitchSave, SwitchWrap, FCenter, FJustify, FLeft, FRight, LCenter, LJustify, LLeft, LRight, SetMargins, ContSearch, LoadText, Replace, ReverseSearch, StartSearch, SaveAll, SaveTextAs, CapitalizeBlock, Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, CopyBlock, GotoLineNumber, PrintBlock, IndentBlock, InsertDate, InsertTime, BlockRead, BlockWrite, LowcaseBlock, MoveBlock, SaveText, SortBlock, UnindentBlock, Undo, Redo, UpcaseBlock, SwitchBlock
 from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLine, LineGutter, gutter_width
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
@@ -39,7 +39,7 @@ from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
-from navigator.widgets.editor.commands import NewView, AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseEncoding, ChooseFileType, ChooseLineEnding, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
+from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseEncoding, ChooseFileType, ChooseLineEnding, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
 from navigator.widgets.editor.format_menu import choose_encoding, choose_line_ending, fill_encodings, fill_line_endings
 from navigator.widgets.editor.option_items import editor_items

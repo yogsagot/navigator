@@ -1181,7 +1181,7 @@ class Shell(DockLayout):
         """
         if self.program_has_keys:
             return tr("A program in the console has the keys")
-        from navigator.widgets.editor.commands import NewView
+        from navigator.commands import NewView
 
         if isinstance(command, NewView):
             # Window > *New view*: an editor's own (EditWindow.on_new_view).

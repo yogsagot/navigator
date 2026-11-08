@@ -15,7 +15,8 @@ from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
 from navigator.settings import SETTINGS
-from navigator.widgets.editor.commands import NewView, SaveText
+from navigator.commands import NewView
+from navigator.widgets.editor.commands import SaveText
 
 
 @pytest.fixture

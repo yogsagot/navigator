@@ -35,10 +35,9 @@ from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
-from navigator.commands import PrintFile
+from navigator.commands import NewView, PrintFile
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
-    NewView,
     AsciiTable,
     SetMargins,
     ContSearch,
