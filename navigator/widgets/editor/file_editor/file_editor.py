@@ -781,6 +781,8 @@ class FileEditor(ContextMenuHost, Widget):
         #: Another view's edit in progress: this cursor as a place in the
         #: text, carried through each step of it (:meth:`_edit_here`).
         self._anchor: Pos | None = None
+        #: :meth:`_window_marks`' last answer, and what it was for.
+        self._marks_cache: tuple[Any, dict[int, list[tuple[int, int]]]] | None = None
         # In __init__, not the class body: a plain class attribute would
         # shadow the reactive descriptor, as `Console` learned.
         self.can_focus = True
@@ -3975,9 +3977,15 @@ class FileEditor(ContextMenuHost, Widget):
         return spans[0][0], spans[-1][1]
 
     def find(self, at: Pos, data: SearchData, *, backward: bool) -> tuple[Pos, Pos] | None:
-        """The next match of *data* from *at*: the whole text, or the block's part of it."""
+        """The next match of *data* from *at*: the whole text, or the block's part of it.
+        A pattern reaching across lines finds nothing in a column block, whose
+        pieces are not one text."""
         if not data.selected:
             return search.find(self.document.lines, at, data, backward=backward)
+        if search.crosses(data):
+            if self.column_block is not None:
+                return None
+            return search.find(self.document.lines, at, data, backward=backward, bounds=self._search_bounds)
         while True:
             found = search.find(self.document.lines, at, data, backward=backward, bounds=self._search_bounds)
             if found is None:
@@ -4004,6 +4012,10 @@ class FileEditor(ContextMenuHost, Widget):
             return self._found
         return None
 
+    def replacement(self, found: tuple[Pos, Pos], data: SearchData) -> str:
+        """What *found* is replaced by, a line break in it this text's own."""
+        return search.replacement(self.document.lines, found, data, newline=self.document.newline)
+
     def replace_found(self, found: tuple[Pos, Pos], new: str) -> Pos:
         """One replacement, an undo step of its own as DN's ``udReplace``; where it ends."""
         self._moved()
@@ -4022,21 +4034,39 @@ class FileEditor(ContextMenuHost, Widget):
             return 0
         self._moved()
         self._begin()
-        for number, start, end in reversed(found):
-            place = (Pos(number, start), Pos(number, end))
-            new = search.replacement(self.document.lines, place, data)
+        for number, start, last, end in reversed(found):
+            place = (Pos(number, start), Pos(last, end))
+            new = self.replacement(place, data)
             self.buffer.delete(*place)
             self.buffer.insert(place[0], new)
         self._end()
         self._found = None
         return len(found)
 
+    def _window_marks(self, query: SearchData) -> dict[int, list[tuple[int, int]]]:
+        """:func:`search.window_matches` for the lines on screen, kept until the
+        text, the view or the query changes -- never the whole text a frame."""
+        shown = [line for line, _ in self.visible_rows()] or [self.top]
+        key = (self.revision, shown[0], shown[-1], query.text, query.case, query.whole)
+        if self._marks_cache is None or self._marks_cache[0] != key:
+            self._marks_cache = (key, search.window_matches(self.document.lines, shown[0], shown[-1], query))
+        return self._marks_cache[1]
+
     def _found_columns(self, number: int) -> tuple[int, int] | None:
+        """The columns of line *number* the match lit covers -- a match reaching
+        across lines (the Find bar's) on each of them, the break's cell too
+        where it goes on past a line's end, as a stream block's does."""
         found, mark = self._found, self._found_for
-        if found is None or mark != (self.line, self.col, self.revision) or found[0].line != number:
+        if found is None or mark != (self.line, self.col, self.revision):
+            return None
+        start, end = found
+        if not start.line <= number <= end.line:
             return None
         text, tab = self.document.lines[number], self.tab_size
-        return columns.column_of(text, found[0].index, tab), columns.column_of(text, found[1].index, tab)
+        first = columns.column_of(text, start.index, tab) if number == start.line else 0
+        last = (columns.column_of(text, end.index, tab) if number == end.line
+                else columns.width(text, tab) + 1)
+        return first, last
 
     # -- paragraph formatting -------------------------------------------------------------
 
@@ -4361,6 +4391,9 @@ class FileEditor(ContextMenuHost, Widget):
         query = self.highlight_query
         if query is not None and not search.valid(query):
             query = None
+        # A pattern reaching across lines: its matches in a window round the
+        # lines shown, cut into each line's parts (search.window_matches).
+        crossing = self._window_marks(query) if query is not None and search.crosses(query) else None
         for y, (number, row, order, shift, base, last) in enumerate(self._painted_rows()):
             style, selected = normal, normal_selected
             current = self.highlight_line and number == self.line
@@ -4413,7 +4446,12 @@ class FileEditor(ContextMenuHost, Widget):
             at = 0
             # The Find bar's matches on this line, as indices: lit under the
             # block and the match found, over the tokens.
-            marks = search.line_matches(text, query) if query is not None else ()
+            if query is None:
+                marks = ()
+            elif crossing is not None:
+                marks = crossing.get(number, ())
+            else:
+                marks = search.line_matches(text, query)
             match_style = self.part_style("match", current_line=current) if marks else None
             if hidden and last:
                 # The line's ending, a cell past its text, in the colours there.

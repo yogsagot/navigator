@@ -121,7 +121,7 @@ the cursor goes further. The vertical one's value is the cursor's line, as `VScr
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:
 
-11. (Not DN's) the find bar's regex across lines.
+(none open: the editor backlog is done; a new item goes here, numbered on from 12)
 
 Everything else -- blocks with ^K R/W, Find/Replace and the find bar, files and encodings, SmartPad, the character
 table, the menu, autoindent and its kin, paragraph format, line drawing, highlighting (`highlight.ini` for

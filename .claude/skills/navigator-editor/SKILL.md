@@ -286,9 +286,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   one undo step, and finds the next; *All* is `FileEditor.replace_all`, last first, **one** undo step, and says
   *N replaced* in the count's place. The bar writes text and switches to `search.SEARCH` (whole text, forward,
   `new` None), so Shift+F7/Alt+F7 go on from it; the dialogs set `regex` back off (`FindDialog._store`). **Regular
-  expressions** are the bar's: `SearchData.regex`, `search.pattern_of` (cached), `valid`, still within one line,
-  an empty match never one; `replacement()` expands `\1`/`\g<name>` from the match at the place found, which the
-  dialog path's replacing uses too. F3's *Open* closes the bar. Known limit: the bar can cover a match on the top
+  expressions** are the bar's: `SearchData.regex`, `search.pattern_of` (cached), `valid`, an empty match never one;
+  within one line unless the pattern **crosses** -- a `\n`/`\r` in it or the `s` flag (`search.crosses`; `\s+` and
+  `[^x]*` alone never do, so old searches find the same) -- when the text is searched whole, joined by `"\n"`
+  whatever its endings, under `re.MULTILINE` (`^`/`$` still a line's ends). `all_matches` is
+  `(line, start, end_line, end)` for every pattern; painting a crossing pattern's matches searches only the lines
+  shown and `WINDOW_MARGIN` either side (`window_matches`, cached by `FileEditor._window_marks`); the found match
+  paints over its lines as a stream block (`_found_columns`); a column-block scope refuses a crossing pattern.
+  `replacement()` (through `FileEditor.replacement`) expands `\1`/`\g<name>` from the match at the place found and
+  writes every line break in what goes in as the text's own ending, the dialog path's replacing too. F3's *Open* closes the bar. Known limit: the bar can cover a match on the top
   two or three rows, which is not scrolled clear.
 - **Paragraph formatting, Alt+J/R/L/C** (`FJustify`/`FRight`/`FLeft`/`FCenter`, DN's `cmF*` and `FormatBlock`; also
   ^B^J/R/L/C and Editor > Paragraph): `navigator/lib/editor/paragraph.py`. The stream block's whole lines (one ending at a

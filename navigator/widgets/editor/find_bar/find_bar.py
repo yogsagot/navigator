@@ -91,7 +91,7 @@ class FindBar(Widget):
         #: Where the incremental search starts.
         self._origin = Pos(0, 0)
         #: The last count's matches, and what they were counted for.
-        self._matches: list[tuple[int, int, int]] | None = None
+        self._matches: list[tuple[int, int, int, int]] | None = None
         self._generation = 0
         #: What a click at a cell does: ``(x, width, y, what)``.
         self._hits: list[tuple[int, int, int, Any]] = []
@@ -213,7 +213,7 @@ class FindBar(Widget):
         if shown is None:
             self.step(backward=False)
             return
-        end = editor.replace_found(shown, search.replacement(editor.document.lines, shown, data))
+        end = editor.replace_found(shown, editor.replacement(shown, data))
         found = self._find(end, data, backward=False)
         if found is not None:
             editor.show_found(found, backward=False)
@@ -276,7 +276,7 @@ class FindBar(Widget):
         shown = editor.found_on_display()
         if shown is None:
             return f"?/{total}", False
-        key = (shown[0].line, shown[0].index, shown[1].index)
+        key = (shown[0].line, shown[0].index, shown[1].line, shown[1].index)
         at = bisect.bisect_left(matches, key)
         if at < len(matches) and matches[at] == key:
             return f"{at + 1}/{total}", False

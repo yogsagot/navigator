@@ -862,7 +862,7 @@ class EditWindow(Window):
             if choice is None:
                 return True
             if choice == "yes":
-                end = editor.replace_found(found, search.replacement(editor.document.lines, found, data))
+                end = editor.replace_found(found, editor.replacement(found, data))
                 at = found[0] if backward else end
                 editor._go(at)
                 if not prompt:

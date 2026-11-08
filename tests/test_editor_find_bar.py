@@ -45,14 +45,15 @@ def test_a_bad_pattern_matches_nothing_and_is_not_valid():
 
 def test_an_empty_match_is_no_match():
     assert all_matches(LINES, SearchData(text="x*", regex=True)) == []
-    assert all_matches(["ab"], SearchData(text="b*", regex=True)) == [(0, 1, 2)]
+    assert all_matches(["ab"], SearchData(text="b*", regex=True)) == [(0, 1, 0, 2)]
 
 
 def test_all_matches_counts_in_order_and_stops_at_the_limit():
+    # (line, start, end_line, end): a one-line match ends on its own line.
     data = SearchData(text="cat")
-    assert all_matches(LINES, data) == [(0, 4, 7), (1, 1, 4), (1, 8, 11), (2, 0, 3)]
-    assert all_matches(LINES, data, limit=2) == [(0, 4, 7), (1, 1, 4)]
-    assert all_matches(LINES, SearchData(text="cat", case=True, whole=True)) == [(0, 4, 7), (1, 8, 11)]
+    assert all_matches(LINES, data) == [(0, 4, 0, 7), (1, 1, 1, 4), (1, 8, 1, 11), (2, 0, 2, 3)]
+    assert all_matches(LINES, data, limit=2) == [(0, 4, 0, 7), (1, 1, 1, 4)]
+    assert all_matches(LINES, SearchData(text="cat", case=True, whole=True)) == [(0, 4, 0, 7), (1, 8, 1, 11)]
     assert line_matches("scatter cat", data) == [(1, 4), (8, 11)]
 
 
@@ -221,3 +222,102 @@ def test_f7_still_opens_dn_s_dialog(files):
                 lambda a: seen.update(modal=type(a.modal)), KeyEvent("escape"))
     assert seen["modal"] is FindDialog
 
+
+
+# -- across lines (a departure on a departure: the bar's regex reaching over breaks) -------------
+
+
+CODE = ["int f()", "{", "  return 1;", "}", "int g()", "{", "}"]
+
+
+def test_only_a_pattern_that_says_so_crosses_lines():
+    from navigator.lib.editor.search import crosses
+
+    for text in (r"a\nb", "(?s)a.b", "(?ms)^a", r"x\r", "a\nb"):
+        assert crosses(SearchData(text=text, regex=True)), text
+    for text in (r"\s+", "[^x]*", "a.b", "plain"):
+        assert not crosses(SearchData(text=text, regex=True)), text
+    assert not crosses(SearchData(text=r"a\nb"))            # not a regex: a backslash and an n
+    # \s+ stays within a line: what it found before, it finds now.
+    assert all_matches(["a  ", "  b"], SearchData(text=r"\s+", regex=True)) == [(0, 1, 0, 3), (1, 0, 1, 2)]
+
+
+def test_a_crossing_match_is_found_forward_and_backward():
+    data = SearchData(text=r"\)\n\{", regex=True)
+    assert find(CODE, Pos(0, 0), data, backward=False) == (Pos(0, 6), Pos(1, 1))
+    assert find(CODE, Pos(1, 1), data, backward=False) == (Pos(4, 6), Pos(5, 1))
+    assert find(CODE, Pos(4, 0), data, backward=True) == (Pos(0, 6), Pos(1, 1))
+    assert find(CODE, Pos(0, 7), data, backward=True) is None   # one ending after the cursor is not before it
+
+
+def test_caret_and_dollar_keep_meaning_a_lines_ends_when_crossing():
+    data = SearchData(text=r"\)$\n^\{$", regex=True)
+    assert all_matches(CODE, data) == [(0, 6, 1, 1), (4, 6, 5, 1)]
+    assert all_matches(["ab", "cd"], SearchData(text=r"(?s)^c.", regex=True)) == [(1, 0, 1, 2)]
+
+
+def test_whole_words_and_empty_matches_hold_across_a_break():
+    assert all_matches(["ab", "cd"], SearchData(text=r"b\nc", regex=True, whole=True)) == []
+    assert all_matches(["a", "b"], SearchData(text=r"a\nb", regex=True, whole=True)) == [(0, 0, 1, 1)]
+    assert all_matches(["a", "b"], SearchData(text=r"(?s)x*", regex=True)) == []
+
+
+def test_a_stream_scope_holds_a_crossing_match_only_wholly_inside():
+    data = SearchData(text=r"\)\n\{", regex=True)
+    inside = find(CODE, Pos(0, 0), data, backward=False,
+                  bounds=lambda n: (0, len(CODE[n])) if n <= 2 else None)
+    outside = find(CODE, Pos(0, 0), data, backward=False,
+                   bounds=lambda n: (0, len(CODE[n])) if n == 0 else None)
+    assert inside == (Pos(0, 6), Pos(1, 1)) and outside is None
+
+
+def test_a_crossing_replacement_puts_in_the_texts_own_line_ending():
+    data = SearchData(text=r"(\w+)\(\)\n\{", regex=True, new=r"\1() {\n  //")
+    found = find(CODE, Pos(0, 0), data, backward=False)
+    assert replacement(CODE, found, data, newline="\r\n") == "f() {\r\n  //"
+    assert replacement(CODE, found, data) == "f() {\n  //"
+
+
+def test_window_matches_reads_only_round_the_lines_shown():
+    from navigator.lib.editor import search
+
+    lines = [f"line {n}" for n in range(100_000)]
+    seen = []
+    real = search._joined
+
+    def joined(part):
+        seen.append(len(part))
+        return real(part)
+
+    search._joined = joined
+    try:
+        lit = search.window_matches(lines, 50_000, 50_020, SearchData(text=r"9\nline", regex=True))
+    finally:
+        search._joined = real
+    assert seen == [21 + 2 * search.WINDOW_MARGIN]
+    assert set(lit) <= set(range(50_000, 50_021)) and lit[50_009] == [(9, 11)]  # its "9" and the break after it
+
+
+CROSSING = b"int f()\n{\n}\nint g()\n{\n}\n"
+
+
+def test_the_bar_finds_counts_and_lights_a_match_across_a_break(files):
+    seen = {}
+    _, editor = text_editor(files, CROSSING, ctrl("f"), KeyEvent("r", alt=True), *typed(r"\)\n\{"),
+                            Until(counted),
+                            lambda a: seen.update(count=bar_of(a).count_text(),
+                                                  first=editor_window(a).editor._found_columns(0),
+                                                  second=editor_window(a).editor._found_columns(1)))
+    assert seen["count"] == ("1/2", False)
+    assert seen["first"] == (6, 8) and seen["second"] == (0, 1)   # the break's cell lit on the first line
+    assert (editor.line, editor.col) == (1, 1)
+
+
+def test_replace_and_all_join_lines_each_one_undo_step(files):
+    _, editor = text_editor(files, CROSSING, ctrl("r"), KeyEvent("r", alt=True), *typed(r"\)\n\{"),
+                            KeyEvent("tab"), *typed(") {"), KeyEvent("a", alt=True))
+    assert editor.document.encode() == b"int f() {\n}\nint g() {\n}\n"
+    _, editor = text_editor(files, CROSSING, ctrl("r"), KeyEvent("r", alt=True), *typed(r"\)\n\{"),
+                            KeyEvent("tab"), *typed(") {"), KeyEvent("a", alt=True),
+                            KeyEvent("escape"), KeyEvent("z", ctrl=True))
+    assert editor.document.encode() == CROSSING

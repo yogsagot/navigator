@@ -14,13 +14,22 @@ DN's typed constant was -- ``Options: 4`` (prompt on replace), forward,
 global, from the start.
 
 *Regular expression* is the Find bar's (a departure: DN's search was for a
-string alone): the text is a Python pattern, still matched within one line,
-and the new text may name its groups (``\\1``, ``\\g<name>``).  A match of
-nothing is never one.  :func:`all_matches` is what the bar counts, on a thread.
+string alone): the text is a Python pattern, and the new text may name its
+groups (``\\1``, ``\\g<name>``).  A match of nothing is never one.
+:func:`all_matches` is what the bar counts, on a thread.
+
+A pattern is matched within one line, as DN's string was, unless it says it
+reaches across: a ``\\n`` or ``\\r`` in it, or the ``s`` flag (:func:`crosses`).
+Then the text is searched whole, its lines joined by ``"\\n"`` whatever their
+endings, with ``re.MULTILINE`` so ``^`` and ``$`` still mean a line's ends;
+``\\s+`` or ``[^x]*`` alone never start crossing, so a search that found
+something before finds the same.  In what a regular expression puts in, a
+line break is the text's own ending (:func:`replacement`).
 """
 
 from __future__ import annotations
 
+import bisect
 import functools
 import re
 from dataclasses import dataclass
@@ -64,6 +73,35 @@ def _whole(line: str, start: int, end: int) -> bool:
     return (start == 0 or line[start - 1] in BREAK_CHARS) and (
         end >= len(line) or line[end] in BREAK_CHARS
     )
+
+
+#: What makes a pattern reach across lines: a ``\n`` or ``\r`` -- escaped, or a
+#: real one pasted in -- or the inline ``s`` flag.
+_CROSSING = re.compile(r"\\n|\n|\\r|\r|\(\?[a-zA-Z]*s[a-zA-Z]*[:)]")
+
+
+def crosses(data: SearchData) -> bool:
+    """Whether *data* is a regular expression that may match across lines."""
+    return data.regex and bool(_CROSSING.search(data.text))
+
+
+def _joined(lines: list[str]) -> tuple[str, list[int]]:
+    """The lines as one text, each break a ``"\n"``, and where each line starts in it."""
+    starts, at = [], 0
+    for line in lines:
+        starts.append(at)
+        at += len(line) + 1
+    return "\n".join(lines), starts
+
+
+def _pos(starts: list[int], offset: int) -> Pos:
+    line = bisect.bisect_right(starts, offset) - 1
+    return Pos(line, offset - starts[line])
+
+
+def _crossing_pattern(data: SearchData) -> re.Pattern[str]:
+    flags = re.MULTILINE | (0 if data.case else re.IGNORECASE)
+    return re.compile(data.text, flags)
 
 
 @functools.lru_cache(maxsize=64)
@@ -118,19 +156,25 @@ def find_in_line(
     return found
 
 
-def replacement(lines: list[str], found: tuple[Pos, Pos], data: SearchData) -> str:
+def replacement(lines: list[str], found: tuple[Pos, Pos], data: SearchData, newline: str = "\n") -> str:
     """What *found* is replaced by: *data*'s new text, its groups filled in under
-    *Regular expression* from the match found there."""
+    *Regular expression* from the match found there -- every line break in it,
+    the new text's own ``\\n`` or one a group took, the text's *newline*."""
     new = data.new or ""
     if not data.regex:
         return new
     start, end = found
     try:
-        pattern = pattern_of(data.text, data.case, True)
-        match = pattern.match(lines[start.line], start.index, end.index)
-        return match.expand(new) if match is not None else new
+        if crosses(data):
+            text, starts = _joined(lines)
+            match = _crossing_pattern(data).match(text, starts[start.line] + start.index,
+                                                  starts[end.line] + end.index)
+        else:
+            match = pattern_of(data.text, data.case, True).match(lines[start.line], start.index, end.index)
+        out = match.expand(new) if match is not None else new
     except (re.error, IndexError):
         return new
+    return out.replace("\r\n", "\n").replace("\n", newline) if newline != "\n" else out
 
 
 #: How many matches the Find bar counts before it says "more".
@@ -150,26 +194,66 @@ def _line_matches(line: str, pattern: re.Pattern[str], whole: bool) -> Iterator[
 
 def all_matches(
     lines: list[str], data: SearchData, *, limit: int = MATCH_LIMIT,
-) -> list[tuple[int, int, int]]:
-    """Every match of *data* in the text, ``(line, start, end)`` in order; at
-    most *limit*.  For a thread: it reads *lines* and nothing reactive."""
+) -> list[tuple[int, int, int, int]]:
+    """Every match of *data* in the text, ``(line, start, end_line, end)`` in
+    order -- *end_line* the line, but for one that reaches across; at most
+    *limit*.  For a thread: it reads *lines* and nothing reactive."""
     if not valid(data):
         return []
+    found: list[tuple[int, int, int, int]] = []
+    if crosses(data):
+        text, starts = _joined(lines)
+        for begin, end in _line_matches(text, _crossing_pattern(data), data.whole):
+            first, last = _pos(starts, begin), _pos(starts, end)
+            found.append((first.line, first.index, last.line, last.index))
+            if len(found) >= limit:
+                return found
+        return found
     pattern = pattern_of(data.text, data.case, data.regex)
-    found: list[tuple[int, int, int]] = []
     for number, line in enumerate(lines):
         for start, end in _line_matches(line, pattern, data.whole):
-            found.append((number, start, end))
+            found.append((number, start, number, end))
             if len(found) >= limit:
                 return found
     return found
 
 
 def line_matches(line: str, data: SearchData) -> list[tuple[int, int]]:
-    """The matches :func:`all_matches` gives in one *line*: what the editor lights."""
+    """The matches :func:`all_matches` gives in one *line*: what the editor lights
+    -- a pattern that does not :func:`cross` lines."""
     if not valid(data):
         return []
     return list(_line_matches(line, pattern_of(data.text, data.case, data.regex), data.whole))
+
+
+#: The lines :func:`window_matches` reads past each end of the ones shown.
+WINDOW_MARGIN = 64
+
+
+def window_matches(
+    lines: list[str], first: int, last: int, data: SearchData, margin: int = WINDOW_MARGIN,
+) -> dict[int, list[tuple[int, int]]]:
+    """For a pattern that :func:`crosses` lines: what to light on lines *first*
+    to *last*, each line's part of every match, a match going on past a
+    line's end lighting the break's cell (``len(line)`` to one past it).
+    Searched in those lines and *margin* more each side, never the whole text;
+    a match reaching outside them is not lit."""
+    if not valid(data) or not lines:
+        return {}
+    low, high = max(0, first - margin), min(len(lines), last + margin + 1)
+    text, starts = _joined(lines[low:high])
+    lit: dict[int, list[tuple[int, int]]] = {}
+    for begin, end in _line_matches(text, _crossing_pattern(data), data.whole):
+        a, b = _pos(starts, begin), _pos(starts, end)
+        for number in range(max(a.line + low, first), min(b.line + low, last) + 1):
+            line = lines[number]
+            start = a.index if number == a.line + low else 0
+            stop = b.index if number == b.line + low else len(line) + 1
+            if stop > start:
+                lit.setdefault(number, []).append((start, stop))
+        if b.line + low > last:
+            break
+    return lit
 
 
 def find(
@@ -186,6 +270,8 @@ def find(
     or None for a line outside it; without it every line is searched whole.
     """
     count = len(lines)
+    if crosses(data):
+        return _find_joined(lines, at, data, backward=backward, bounds=bounds)
 
     def part(number: int) -> tuple[int, int] | None:
         if bounds is None:
@@ -216,3 +302,36 @@ def find(
         if line >= 0:
             stop = len(lines[line])
     return None
+
+
+def _find_joined(
+    lines: list[str], at: Pos, data: SearchData, *, backward: bool,
+    bounds: Callable[[int], tuple[int, int] | None] | None,
+) -> tuple[Pos, Pos] | None:
+    """:func:`find` for a pattern that :func:`crosses` lines: the text searched
+    whole, forward from *at* or backward to it.  With *bounds*, the match lies
+    wholly within the scope's first line's part to its last's."""
+    try:
+        pattern = _crossing_pattern(data)
+    except re.error:
+        return None
+    text, starts = _joined(lines)
+    low, high = 0, len(text)
+    if bounds is not None:
+        covered = [(number, bounds(number)) for number in range(len(lines))]
+        covered = [(number, span) for number, span in covered if span is not None]
+        if not covered:
+            return None
+        low = starts[covered[0][0]] + covered[0][1][0]
+        high = starts[covered[-1][0]] + covered[-1][1][1]
+    place = starts[min(at.line, len(starts) - 1)] + at.index
+    found = None
+    if not backward:
+        found = next(_matches(text, pattern, max(low, place), high, data.whole), None)
+    else:
+        for found in _matches(text, pattern, low, min(high, place), data.whole):
+            pass
+    if found is None:
+        return None
+    return _pos(starts, found[0]), _pos(starts, found[1])
+
