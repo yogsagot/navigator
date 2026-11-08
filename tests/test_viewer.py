@@ -590,6 +590,101 @@ def test_set_mode_keeps_the_offset_on_top_and_refuses_a_mode_it_lacks(files):
         viewer.set_filter(3)
 
 
+# -- dump mode's keys (DN's ViewMode = 2: no cursor) --------------------------------------
+
+
+@pytest.fixture
+def dumped(files):
+    """A viewer the F3 window's size on 10,240 bytes, several dump screens, in dump."""
+    from navigator.widgets.viewer.file_viewer import FileViewer
+
+    (files / "big.bin").write_bytes(bytes(range(256)) * 40)
+    viewer = FileViewer()
+    viewer.width, viewer.height = 78, 19
+    viewer.open(files / "big.bin")
+    viewer.set_mode("hex")
+    viewer.set_mode("dump")
+    return viewer
+
+
+def press(viewer, name, **mods):
+    import asyncio
+
+    return asyncio.run(viewer.on_key(KeyEvent(name, **mods)))
+
+
+def test_in_dump_the_arrows_and_pages_scroll_the_view(dumped):
+    per = dumped.row_bytes()
+    assert per == 64
+    press(dumped, "down")
+    assert dumped.top == per and dumped.cursor == dumped.top
+    press(dumped, "up")
+    assert dumped.top == 0
+    press(dumped, "pagedown")
+    assert dumped.top == 18 * per and dumped.cursor == dumped.top
+
+
+def test_in_dump_ctrl_home_and_ctrl_end_go_to_the_files_ends(dumped):
+    press(dumped, "pagedown")
+    press(dumped, "end", ctrl=True)
+    assert dumped.top == dumped._last_top() > 0 and dumped.cursor == dumped.top
+    press(dumped, "home", ctrl=True)
+    assert dumped.top == 0 and dumped.cursor == 0
+
+
+def test_in_dump_ctrl_left_and_right_shift_the_rows_a_byte(dumped):
+    press(dumped, "right", ctrl=True)
+    assert dumped.top == 1
+    press(dumped, "left", ctrl=True)
+    assert dumped.top == 0
+
+
+def test_in_dump_home_end_left_and_right_are_taken_and_do_nothing(dumped):
+    press(dumped, "down")
+    for name in ("home", "end", "left", "right", "tab"):
+        assert press(dumped, name) is True
+    assert dumped.top == dumped.row_bytes() and dumped.cursor == dumped.top
+
+
+def test_hex_keeps_its_cursor_down_moves_it_before_the_view(dumped):
+    dumped.set_mode("hex")
+    press(dumped, "down")
+    assert dumped.top == 0 and dumped.cursor == dumped.row_bytes()
+
+
+def test_a_search_in_dump_starts_where_the_view_does(files, monkeypatch):
+    # A hit above the view is not found first: the search starts at its top.
+    (files / "big.bin").write_bytes(b"needle" + b"." * 5000 + b"needle" + b"." * 5000)
+    monkeypatch.setattr(viewer_model, "last_search", ViewSearch("needle"))
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("home"), *[KeyEvent("down")] * 2, KeyEvent("f3"), IDLE,
+                  KeyEvent("f4"), KeyEvent("f4"), KeyEvent("pagedown"),
+                  lambda a: seen.update(name=opened(a).viewer.path.name, top=opened(a).viewer.top,
+                                        cursor=opened(a).viewer.cursor),
+                  KeyEvent("f7", shift=True), Until(lambda a: opened(a).viewer.hit is not None),
+                  lambda a: seen.update(hit=opened(a).viewer.hit)], settle=0.05)
+    assert seen["name"] == "big.bin" and seen["top"] > 0 and seen["cursor"] == seen["top"]
+    assert seen["hit"] == (5006, 6)
+
+
+def test_dump_in_the_quick_view_scrolls_with_down(files):
+    (files / "big.bin").write_bytes(bytes(range(256)) * 40)
+    app = navigator(files)
+    seen = {}
+
+    def dump(a):
+        a.manager.quick.viewer.set_mode("hex")
+        a.manager.quick.viewer.set_mode("dump")
+
+    run_app(app, [KeyEvent("home"), *[KeyEvent("down")] * 2, KeyEvent("q", ctrl=True),
+                  Until(lambda a: a.manager.quick.viewer.path == files / "big.bin"), KeyEvent("tab"),
+                  dump, KeyEvent("down"),
+                  lambda a: seen.update(top=a.manager.quick.viewer.top,
+                                        per=a.manager.quick.viewer.row_bytes())])
+    assert seen["top"] == seen["per"]
+
+
 # -- the option strip and hidden characters ---------------------------------------------------
 
 

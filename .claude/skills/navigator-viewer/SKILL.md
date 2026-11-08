@@ -30,6 +30,11 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
   it in either mode.
+- **Dump has no cursor** (DN's `ViewMode = 2`, `FVIEWER.PAS:1425-1530`; `FileViewer._dump_key`): Up/Down/PgUp/PgDn
+  scroll as in text, Ctrl+Home/Ctrl+End go to the file's start and last screenful (`Goto 1/2`), Ctrl+Left/Right shift
+  the rows a byte as in hex (`_shift_rows`, shared). Home/End/Left/Right/Tab do nothing but are still the viewer's.
+  `cursor` is kept on `top`, so F7 and *As Spreadsheet* start where the view does (DN's `FilePos+BufPos`); hex keeps
+  its own cursor.
 - **Hex editing** is DN's `HexEdit` (`FVIEWER.PAS`, `ViewMode = 1` only; never dump, text or the Ctrl+Q quick
   view, `FileViewer.hex_editing` set by `FileWindow`). In the pairs 0-9/A-F replace the cursor's nibble
   (`FileViewer.nibble`) and Left/Right/Home/End step nibbles; Tab moves to the characters (`in_chars`), where a

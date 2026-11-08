@@ -637,7 +637,7 @@ class FileViewer(ContextMenuHost, Widget):
             self.top = self._last_top()
         else:
             self.top = self._last_top()
-            self.cursor = max(0, self.size - 1)
+            self.cursor = self.top if self.mode == "dump" else max(0, self.size - 1)
 
     def _keep_cursor(self) -> None:
         """Pull the hex cursor back into the rows that show."""
@@ -1211,6 +1211,8 @@ class FileViewer(ContextMenuHost, Widget):
             return self._rendered_key(name, rows)
         elif self.mode == "text":
             return self._text_key(name, rows)
+        elif self.mode == "dump":
+            return self._dump_key(name, rows)
         elif self.editable and self._edit_key(event):
             return True
         else:
@@ -1268,6 +1270,37 @@ class FileViewer(ContextMenuHost, Widget):
         longest = max((len(r.cells) for r in self._text_rows(self.height)), default=0)
         self.x_delta = max(0, longest - self.width)
 
+    def _dump_key(self, name: str, rows: int) -> bool:
+        """Dump, DN's ``ViewMode = 2``: no cursor, so the arrows scroll as in
+        text, Ctrl+Home/Ctrl+End go to the file's ends (``Goto 1/2``) and
+        Ctrl+Left/Right shift the rows a byte as in hex.  Home, End, Left,
+        Right and Tab only moved DN's ``XDelta`` or hex ``Cur`` there, so they
+        do nothing -- but are still the viewer's.  ``cursor`` stays on the
+        view's first byte, where a search starts (DN's ``FilePos+BufPos``)."""
+        if name in ("up", "down"):
+            self.scroll_rows(-1 if name == "up" else 1)
+        elif name in ("pageup", "pagedown"):
+            self.scroll_rows(-rows if name == "pageup" else rows)
+        elif name == "ctrl+home":
+            self.to_start()
+        elif name == "ctrl+end":
+            self.to_end()
+        elif name in ("ctrl+left", "ctrl+right"):
+            self._shift_rows(-1 if name == "ctrl+left" else 1)
+        elif name not in ("home", "end", "left", "right", "tab"):
+            return False
+        self.cursor = self.top
+        return True
+
+    def _shift_rows(self, step: int) -> None:
+        """Ctrl+Left/Right in hex and dump: the rows' start a byte back or on,
+        as DN's ``Dec(BufPos)``/``Inc(BufPos)``."""
+        if step < 0 and self.top > 0:
+            self.top -= 1
+        elif step > 0 and self.top + 1 < self.size:
+            self.top += 1
+        self._keep_cursor()
+
     def _hex_key(self, name: str, rows: int) -> bool:
         per = self.row_bytes()
         if name == "up":
@@ -1290,14 +1323,9 @@ class FileViewer(ContextMenuHost, Widget):
         elif name == "right":
             self.move_cursor(1)
         elif name == "ctrl+left":
-            # Shift the rows' start by a byte, as DN's did.
-            if self.top > 0:
-                self.top -= 1
-            self._keep_cursor()
+            self._shift_rows(-1)
         elif name == "ctrl+right":
-            if self.top + 1 < self.size:
-                self.top += 1
-            self._keep_cursor()
+            self._shift_rows(1)
         elif name == "home":
             self.cursor = self.cursor - (self.cursor - self.top) % per
         elif name == "end":
