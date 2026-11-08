@@ -89,6 +89,22 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   means belongs to the library.
 - `dispatch_mouse` offers to the topmost child first under `event.handler` (so a refinement reaches its own handler).
   `Application.capture_mouse` gives a dragging widget the mouse.
+- **A held button repeats through `Application.hold_mouse(widget, event, step, *, delay, every, moves, done)`**,
+  Turbo Vision's `evMouseAuto`, which a terminal cannot send (it reports a press, moves and a release, nothing while
+  the pointer rests). It takes the capture. After `REPEAT_DELAY` (8/18.2 s, TV's `RepeatDelay` ticks), it awaits
+  `step(x, y, True)` every `REPEAT_EVERY` (1/18.2 s) at the pointer's last place, in the widget's coordinates. With
+  `moves`, a move awaits `step(x, y, False)` too.
+  - The press is the caller's to act on.
+  - While it holds, the captured moves and the release go to it, not to the handler. A double click still reaches
+    the handler.
+  - `step` returning False stops the ticks but keeps the capture.
+  - It ends, calling `done` once, with whatever ends the capture: the release, `release_mouse`, unmounting, or a
+    modal opening (`_set_capture` is the one place the capture changes).
+  - Users: `ScrollBar`, `ListViewer` (so every list and the panels), the panel's held marking, and F3's and the
+    dBase viewer's quarters.
+  - Tests patch `navkit.application.REPEAT_DELAY`/`REPEAT_EVERY` (`tests/test_mouse_hold.py`).
+  - A departure: where DN zeroed `RepeatDelay` (it then repeated as fast as it polled), the first delay is kept,
+    except for edge scrolling, which starts with the pointer already outside.
 
 ## Lifecycle, modal, cursor
 

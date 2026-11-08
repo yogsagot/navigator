@@ -155,6 +155,10 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   `⁇` (`?` in ASCII) painted reversed out of the row, which reorders nothing -- `photo⁇gpj.exe`, not `photoexe.jpg`.
   Widths, scrolling, list columns, tooltips and the info line measure the shown name; anything that *uses* the name
   (copy, rename, Ctrl+Enter) keeps it whole. A departure: DOS names had no such characters.
+- **The left button held** follows the pointer with the cursor (`ListViewer`'s drag) only while Drag-and-drop is off
+  (`Panel.follows_drag`, DN's `fmoDragAndDrop` branch). Past the top or bottom it scrolls a row a tick from the
+  start (`edge_ticks = 1`, `edge_delay = REPEAT_EVERY`). A press on the column titles sorts, a departure kept: DN
+  moved the cursor up while held there.
 - **Drag-and-drop** (File Manager Setup's box, **on by default** -- a departure, DN's `fmoDragAndDrop` was off;
   `panel/drag.py`): a left press on a row captures the mouse; the first
   move with the button held makes a `DragLabel` overlay (` name ` or ` N selected files `, `$30`, shadow) that follows
@@ -405,7 +409,8 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
 - **The right button** follows File Manager Setup's *Right button* (`[file_manager] right_button`, a departure).
   `menu`, the default, opens the panel's context menu (`Panel.context_menu`, built from DN's `GetSelection`). `select`
   is DN's own (`FLPANELX.PAS`): a press toggles the row's tag and captures the mouse, and a drag gives every row it
-  passes the same tag, scrolling past either end (`Panel._right_marking`). The Menu key and Shift+F10 open the menu
+  passes the same tag, scrolling past either end (`Panel._right_marking`). Held still past an end it goes on, a row a
+  tick (`hold_mouse`, `_right_marking_at`; DN's loop with `RepeatDelay := 0`). The Menu key and Shift+F10 open the menu
   under either setting.
 - **The middle button (the wheel pressed) always tags as DN's right button did** (`on_mouse_click` sends its press
   to `_right_marking`, a departure, asked for: the right button's default is the menu): a press toggles the row's

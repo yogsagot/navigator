@@ -56,6 +56,14 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   cells** in every look and tier: captions sit at `x + 4` and `_column_x` steps by `widest + 6`.
 - `ListViewer` hooks: `capacity`, `index_at`, `render_items`, overridable `_follow_cursor`; `framed = False` drops the
   frame; it claims only a *bare* Enter.
+- **Held buttons repeat** (`Application.hold_mouse`, `navkit-widgets-input`):
+  - **`ScrollBar`:** an arrow or the track steps on every tick while the pointer is over the part pressed (`part_at`,
+    `TScrollBar`'s extent grown by a cell). So paging stops when the thumb reaches the pointer.
+  - **`ListViewer`** (`TListViewer`): a held left button drags the cursor to the row under the pointer. Above or below
+    the rows (beside them with columns), every `edge_ticks`-th tick (4, `MouseAutosToSkip`) moves it on one row, or
+    one column.
+  - **Opting out:** `follows_drag = False` turns this off, as the panel does while drag-and-drop is on. `edge_delay`
+    sets the first tick.
 - `StaticText.links` marks the `http(s)://` runs it paints (OSC 8, see `navkit-terminal`).
 - **`OptionStrip`** (`navml/widgets/option_strip/`, Python only, not DN's): a window's *options* in a row, each an
   `OptionItem(command, label, lit=None)`. Lit is the command's `checks` (or `lit()`), greyed its `enables`, both asked

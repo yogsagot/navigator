@@ -145,19 +145,32 @@ class DBViewer(ContextMenuHost, Widget):
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A press in the left or right quarter moves a field, in the middle
-        half's top or bottom a record -- ``evMouseDown``'s four arrows."""
+        half's top or bottom a record -- ``evMouseDown``'s four arrows -- and
+        holding it repeats (``Application.hold_mouse``)."""
         if event.action != "press" or event.button != "left":
             return event.is_wheel and await self._wheel(event)
         self.focus()
-        if event.x < self.width // 4:
+        self._quarter(event.x, event.y)
+        app = self.application
+        if app is not None:
+            # DBVIEW.PAS's loop on ``evMouseMove+evMouseAuto``: held, the
+            # quarter under the pointer steps again on every move and tick.
+            async def again(x: int, y: int, auto: bool) -> None:
+                if 0 <= x < self.width and 0 <= y < self.height:
+                    self._quarter(x, y)
+
+            app.hold_mouse(self, event, again, moves=True)
+        return True
+
+    def _quarter(self, x: int, y: int) -> None:
+        if x < self.width // 4:
             self.go(field=self.field - 1)
-        elif event.x >= self.width * 3 // 4:
+        elif x >= self.width * 3 // 4:
             self.go(field=self.field + 1)
-        elif event.y < self.height // 2:
+        elif y < self.height // 2:
             self.go(record=self.record - 1)
         else:
             self.go(record=self.record + 1)
-        return True
 
     async def _wheel(self, event: MouseClickEvent) -> bool:
         self.go(record=self.record + (-3 if event.button == "wheel_up" else 3))

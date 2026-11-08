@@ -359,3 +359,26 @@ def test_the_indicator_is_the_passive_frames_colour_while_another_window_is_acti
     assert seen["active"][0] == seen["active"][1]
     assert seen["passive"][0] == seen["passive"][1]
     assert seen["active"][0] != seen["passive"][0]
+
+
+def test_holding_the_right_quarter_moves_on_field_by_field(place, monkeypatch):
+    """DBVIEW.PAS's ``evMouseDown`` loop on ``evMouseMove+evMouseAuto``: held,
+    the quarter steps again on every tick, until the release."""
+    from navkit.events import MouseClickEvent
+
+    monkeypatch.setattr("navkit.application.REPEAT_DELAY", 0.02)
+    monkeypatch.setattr("navkit.application.REPEAT_EVERY", 0.005)
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def hold(a):
+        viewer = seen["viewer"] = window_of(a).viewer
+        ox, oy = viewer.offset()
+        a.post_event(MouseClickEvent(x=ox + viewer.x + viewer.width - 2, y=oy + viewer.y + 2,
+                                     button="left", action="press"))
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  hold, Until(lambda a: seen["viewer"].field == len(seen["viewer"].db.fields) - 1),
+                  MouseClickEvent(x=0, y=0, button="none", action="release"),
+                  lambda a: seen.update(capture=a.mouse_capture)])
+    assert seen["capture"] is None

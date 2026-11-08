@@ -16,6 +16,10 @@ affordance beside a view that already has the keys.
 a press on it takes the mouse capture, and every move until the release asks
 for the value whose thumb sits under the pointer.  The capture is what keeps
 the drag alive once the pointer leaves the bar's one column sideways.
+
+**An arrow or the track repeats while held**, as ``TScrollBar`` stepped on
+every ``evMouseAuto`` (``Application.hold_mouse``): only while the pointer is
+still over the part pressed, so paging stops once the thumb reaches it.
 """
 
 from __future__ import annotations
@@ -116,21 +120,47 @@ class ScrollBar(Widget):
             self._dragging = None
         if event.action != "press" or event.button != "left":
             return False
-        along = event.y if self.vertical else event.x
+        part = self.part_at(event.x, event.y, anywhere=True)
+        app = self.application
+        if part == "thumb":
+            if self.maximum > 0 and app is not None:
+                self._dragging = self.value
+                app.capture_mouse(self)
+            return True
+        await self._step(part)
+        if app is not None:
+            # ``TScrollBar``: the part pressed steps again on every
+            # ``evMouseAuto`` while the pointer is still over it.
+            async def again(x: int, y: int, auto: bool) -> None:
+                if self.part_at(x, y) == part:
+                    await self._step(part)
+
+            app.hold_mouse(self, event, again)
+        return True
+
+    def part_at(self, x: int, y: int, anywhere: bool = False) -> str | None:
+        """``GetPartCode``: ``up``, ``pageup``, ``thumb``, ``pagedown`` or
+        ``down`` at *x*, *y* -- None outside the bar's extent grown by a cell
+        all round, as TV's was, so a hand that slips off the one column keeps
+        it.  *anywhere* takes a point past the ends as the arrow there."""
+        if not anywhere and not (-1 <= x <= self.width and -1 <= y <= self.height):
+            return None
+        along = y if self.vertical else x
         if along <= 0:
-            return await self.scroll_to(self.value - self.step)
+            return "up"
         if along >= self.length - 1:
-            return await self.scroll_to(self.value + self.step)
+            return "down"
         cell = along - 1
         if cell < self.thumb:
-            return await self.scroll_to(self.value - self.page)
+            return "pageup"
         if cell > self.thumb:
-            return await self.scroll_to(self.value + self.page)
-        app = self.application
-        if self.maximum > 0 and app is not None:
-            self._dragging = self.value
-            app.capture_mouse(self)
-        return True
+            return "pagedown"
+        return "thumb"
+
+    async def _step(self, part: str) -> None:
+        step = {"up": -self.step, "down": self.step,
+                "pageup": -self.page, "pagedown": self.page}[part]
+        await self.scroll_to(self.value + step)
 
     async def _drag(self, event: MouseClickEvent) -> bool:
         """A move or the release of a held thumb."""

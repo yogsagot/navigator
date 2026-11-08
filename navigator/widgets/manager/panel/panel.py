@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable
 
+from navkit.application import REPEAT_EVERY
 from navkit.bidi import REVEALED, display_width, fit_cells, reveal, reveal_runs
 from navkit.commands import key_for, key_label
 from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
@@ -323,6 +324,19 @@ class Panel(ListViewer):
 
     #: Enter on an executable, going up to whoever runs commands.
     emits = (ExecuteFile, OpenFile, Dropped)
+
+    #: A held left button past the top or the bottom scrolls a row on every
+    #: tick from the start: FLPANELX.PAS's loop ran with ``RepeatDelay := 0``
+    #: and no ``MouseAutosToSkip``.
+    edge_ticks = 1
+    edge_delay = REPEAT_EVERY
+
+    @property
+    def follows_drag(self) -> bool:
+        """The left button follows the pointer unless File Manager Setup's
+        *Drag-and-drop* is on, which makes the press a drag's start instead
+        (DN's ``fmoDragAndDrop`` branch)."""
+        return not SETTINGS.file_manager.drag_drop_columns
 
     #: Whether a listing shows a Nerd Font glyph beside each name.  ``auto``
     #: means "whenever the terminal can draw one" and ``none`` refuses even
@@ -2100,31 +2114,43 @@ class Panel(ListViewer):
             self._tag_rows(index, index, flag)
             self._right_mark = (flag, index)
             if app is not None:
-                app.capture_mouse(self)
+                # Held, it goes on: every move, and past the top or the bottom
+                # every tick too, as DN's loop on evMouseMove+evMouseAuto did
+                # with ``RepeatDelay := 0``.
+                async def mark(x: int, y: int, auto: bool) -> None:
+                    self._right_marking_at(x, y)
+
+                def done() -> None:
+                    self._right_mark = None
+
+                app.hold_mouse(self, event, mark, delay=REPEAT_EVERY, moves=True, done=done)
+            else:
+                self._right_mark = None
             return True
+        # A press of another button while marking, which the hold does not
+        # take: the marking stays the hold's.
+        return self._right_mark is not None
+
+    def _right_marking_at(self, x: int, y: int) -> None:
+        """The held right button at *x*, *y*: every row from the last one to
+        the one under the pointer gets the flag, or one more past an edge."""
         if self._right_mark is None:
-            return False
+            return
         flag, last = self._right_mark
-        if event.action == "release":
-            self._right_mark = None
-            return True
-        if event.action != "move":
-            return True
-        index = self.index_at(event.x, event.y)
+        index = self.index_at(x, y)
         if index is None:
-            row = event.y - self.inset - self.header
+            row = y - self.inset - self.header
             if row < 0 and last > 0:
                 index = last - 1
             elif row >= self.rows and last < len(self.items) - 1:
                 index = last + 1
             else:
-                return True
+                return
         if index != last:
             step = 1 if index > last else -1
             self._tag_rows(last + step, index, flag)
             self.cursor = index
             self._right_mark = (flag, index)
-        return True
 
     def _shift_select(self, index: int) -> bool:
         """Shift+ or Ctrl+left click: tag every row from the cursor to the one clicked.

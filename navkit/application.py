@@ -83,6 +83,16 @@ DOUBLE_CLICK_TIMEOUT = 0.4
 #: VTE's middle click (see :meth:`Application._hold_paste`).
 MIDDLE_PASTE_WINDOW = 0.5
 
+#: A held button's repetition (:meth:`Application.hold_mouse`): Turbo Vision's
+#: ``evMouseAuto``, which came ``RepeatDelay`` (8) ticks of the 18.2 Hz clock
+#: after the press and then one every tick while the button stayed down
+#: (``DRIVERS.PAS``).  DN zeroed ``RepeatDelay`` around a few of its loops (the
+#: viewer's quarters, the panel, the dBase viewer), which repeated as fast as
+#: the machine polled the mouse; a departure: Navigator waits the same first
+#: delay there too, since on a modern loop no delay turns a click into a page.
+REPEAT_DELAY = 8 / 18.2
+REPEAT_EVERY = 1 / 18.2
+
 #: How long a paste waits for the terminal to answer an OSC 52 query before it
 #: pastes the application's own copy instead.  A terminal that answers does so
 #: in milliseconds; one that is slower is asking its user first (Ghostty's
@@ -186,6 +196,76 @@ class Repeat:
         if self._next <= now:
             self._next += math.floor((now - self._next) / self.seconds + 1) * self.seconds
         self._handle = loop.call_at(self._next, self._fire, loop)
+
+
+class MouseHold:
+    """A held mouse button repeating, :meth:`Application.hold_mouse`'s.
+
+    *step* is awaited as ``step(x, y, auto)`` with the pointer's last place in
+    the widget's coordinates: ``auto`` True for a tick of the clock (TV's
+    ``evMouseAuto``), False for a move when *moves* is set (its
+    ``evMouseMove``).  It returning False stops the ticks; the capture stays
+    until the release, as DN's loop went on waiting for it.  *done*, if
+    given, is called once when the hold ends, however it ends.
+    """
+
+    def __init__(
+        self,
+        app: Application,
+        widget: Widget,
+        step: Callable[[int, int, bool], Awaitable[bool | None]],
+        x: int,
+        y: int,
+        delay: float,
+        every: float,
+        moves: bool,
+        done: Callable[[], Any] | None = None,
+    ) -> None:
+        self.widget = widget
+        self.step = step
+        self.x, self.y = x, y
+        self.moves = moves
+        #: How many ticks have been delivered.
+        self.ticks = 0
+        #: True once the hold has ended.
+        self.cancelled = False
+        self._done = done
+        self._app = app
+        self._every = every
+        self._timer: Repeat | None = app.call_later(delay, self._start)
+
+    def cancel(self) -> None:
+        """End the hold: no more ticks or moves, and *done* called.  Idempotent."""
+        if self.cancelled:
+            return
+        self.cancelled = True
+        self._stop()
+        if self._done is not None:
+            self._done()
+
+    def _stop(self) -> None:
+        if self._timer is not None:
+            self._timer.cancel()
+            self._timer = None
+
+    async def _start(self) -> None:
+        if self.cancelled:
+            return
+        self._timer = self._app.call_every(self._every, self._tick)
+        await self._tick()
+
+    async def _tick(self) -> None:
+        if self.cancelled or self._app._hold is not self:
+            self._stop()
+            return
+        self.ticks += 1
+        if await self.step(self.x, self.y, True) is False:
+            self._stop()
+
+    async def _moved(self, x: int, y: int) -> None:
+        self.x, self.y = x, y
+        if self.moves and not self.cancelled:
+            await self.step(x, y, False)
 
 
 class _ThreadHook:
@@ -454,6 +534,9 @@ class Application:
         #: The widget every mouse action goes to regardless of position, or
         #: None.  See :meth:`capture_mouse`.
         self._capture: Widget | None = None
+        #: The held button repeating for the capture, or None
+        #: (:meth:`hold_mouse`).
+        self._hold: MouseHold | None = None
         self._running = False
         self._dirty = True
         self._events: asyncio.Queue[Event] = asyncio.Queue()
@@ -1008,11 +1091,64 @@ class Application:
         Released by itself after a ``release`` is delivered, when *widget* is
         unmounted, and when a modal opens that does not hold it.
         """
-        self._capture = widget
+        self._set_capture(widget)
+
+    def hold_mouse(
+        self,
+        widget: Widget,
+        event: MouseClickEvent,
+        step: Callable[[int, int, bool], Awaitable[bool | None]],
+        *,
+        delay: float | None = None,
+        every: float | None = None,
+        moves: bool = False,
+        done: Callable[[], Any] | None = None,
+    ) -> MouseHold:
+        """Capture the mouse for *widget* and repeat *step* while the button is held.
+
+        Turbo Vision's ``repeat ... until not MouseEvent(Event, evMouseAuto)``
+        loop, which a terminal cannot give by itself: it reports a press,
+        moves and a release, and nothing while the pointer rests.  So a clock
+        does: *delay* after the press (:data:`REPEAT_DELAY`), then every
+        *every* (:data:`REPEAT_EVERY`), ``step(x, y, True)`` is awaited inside
+        a batch, at the pointer's last place.  With *moves*, a move awaits
+        ``step(x, y, False)`` too.  The press itself is the caller's to act
+        on, from the handler that called this with it (*event*).  *done* is
+        called once when the hold ends.
+
+        While it holds, the captured moves and the release go to it and not
+        to *widget*'s handler; a double click still reaches the handler.  It
+        ends with whatever ends the capture: the release, :meth:`release_mouse`,
+        *widget* unmounted, or a modal opening that does not hold it.
+        """
+        self._set_capture(None)
+        self._set_capture(widget)
+        hold = MouseHold(
+            self, widget, step, event.x, event.y,
+            REPEAT_DELAY if delay is None else delay,
+            REPEAT_EVERY if every is None else every,
+            moves,
+            done,
+        )
+        self._hold = hold
+        return hold
+
+    @property
+    def mouse_hold(self) -> MouseHold | None:
+        """The held button repeating, or None."""
+        return self._hold
 
     def release_mouse(self) -> None:
         """Let the mouse route by position again."""
-        self._capture = None
+        self._set_capture(None)
+
+    def _set_capture(self, widget: Widget | None) -> None:
+        """The one place the capture changes, so a hold never outlives it."""
+        hold = self._hold
+        self._capture = widget
+        if hold is not None and (widget is None or hold.widget is not widget):
+            self._hold = None
+            hold.cancel()
 
     def _push_modal(self, widget: Widget) -> None:
         """Called by the mount walk.  Remembers what had the focus."""
@@ -1021,7 +1157,7 @@ class Application:
         # one after it are not two clicks on one thing.
         self._clicks.reset()
         if self._capture is not None and not widget._holds(self._capture):
-            self._capture = None
+            self._set_capture(None)
         self._modals.append((widget, self.focused))
 
     def _pop_modal(self, widget: Widget) -> None:
@@ -1907,13 +2043,23 @@ class Application:
         if capture is not None:
             dx, dy = capture.offset()
             local = event.translated(-dx - capture.x, -dy - capture.y)
+            hold = self._hold
             try:
-                handler = getattr(capture, event.handler, None)
-                if handler is not None:
-                    await _call(capture, local, handler)
+                if (
+                    hold is not None
+                    and hold.widget is capture
+                    and event.action in ("move", "release")
+                    and not isinstance(event, (DoubleClickEvent, ContextMenuEvent))
+                ):
+                    if event.action == "move":
+                        await hold._moved(local.x, local.y)
+                else:
+                    handler = getattr(capture, event.handler, None)
+                    if handler is not None:
+                        await _call(capture, local, handler)
             finally:
                 if event.action == "release" and self._capture is capture:
-                    self._capture = None
+                    self._set_capture(None)
             return
         modal = self.modal
         if modal is None:

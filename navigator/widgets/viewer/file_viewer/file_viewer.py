@@ -1498,14 +1498,29 @@ class FileViewer(ContextMenuHost, Widget):
             return True
         # DN's viewer had no row to point at: the outer quarters are Left and
         # Right, and the rest is Up above the middle and Down below it.
-        if event.x < self.width // 4:
+        await self._quarter(event.x, event.y)
+        app = self.application
+        if app is not None:
+            # FVIEWER.PAS's ``repeat ... until not MouseEvent(Event,
+            # evMouseMove+evMouseAuto)``: every move and every tick sends the
+            # key of the quarter the pointer is in then, nothing off the view.
+            async def again(x: int, y: int, auto: bool) -> None:
+                if 0 <= x < self.width and 0 <= y < self.height:
+                    await self._quarter(x, y)
+
+            app.hold_mouse(self, event, again, moves=True)
+        return True
+
+    async def _quarter(self, x: int, y: int) -> None:
+        """The key DN's press at *x*, *y* sent: Left or Right in the outer
+        quarters, Up above the middle and Down below it."""
+        if x < self.width // 4:
             key = "left"
-        elif event.x >= self.width - self.width // 4:
+        elif x >= self.width - self.width // 4:
             key = "right"
         else:
-            key = "up" if event.y < self.height // 2 else "down"
+            key = "up" if y < self.height // 2 else "down"
         await self.on_key(KeyEvent(key))
-        return True
 
     def _click_byte(self, x: int, y: int) -> bool:
         """A press on a pair or a character puts the cursor there, in that

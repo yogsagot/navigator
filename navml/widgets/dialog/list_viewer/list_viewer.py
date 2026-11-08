@@ -68,6 +68,16 @@ class ListViewer(Control):
     #: The arrows, Home, End and the wheel still move it.
     page_keys: bool = reactive(True)
 
+    #: Whether a held left button drags the cursor, as ``TListViewer``'s did
+    #: (:meth:`_hold_cursor`).  A subclass whose press means something else
+    #: once the pointer moves -- a panel's drag and drop -- turns it off.
+    follows_drag: bool = True
+    #: Past an edge the cursor moves on every this many ticks of the held
+    #: button: ``MouseAutosToSkip``.
+    edge_ticks: int = 4
+    #: The first tick's delay, or None for ``Application.hold_mouse``'s.
+    edge_delay: float | None = None
+
     @computed
     def inset(self) -> int:
         """Where the rows begin: inside the frame, or at the edge without one."""
@@ -265,10 +275,59 @@ class ListViewer(Control):
         if event.action != "press" or event.button != "left":
             return False
         index = self.index_at(event.x, event.y)
-        if index is not None:
-            self.cursor = index
-            return True
-        return False
+        if index is None:
+            return False
+        self.cursor = index
+        app = self.application
+        if app is not None and self.follows_drag:
+            self._hold_cursor(app, event)
+        return True
+
+    def _hold_cursor(self, app: Any, event: MouseClickEvent) -> None:
+        """``TListViewer.HandleEvent``'s loop on ``evMouseMove+evMouseAuto``.
+
+        Held, the cursor follows the pointer to the row under it.  Above or
+        below the rows (left or right of them, with columns) every
+        :attr:`edge_ticks`-th tick moves it one row (one column) on, which is
+        ``MouseAutosToSkip``; with columns, above and below go to the column's
+        first and last row, as DN's ``NumCols > 1`` branch did.
+        """
+        count = 0
+
+        async def follow(x: int, y: int, auto: bool) -> None:
+            nonlocal count
+            top = self.inset + self.header
+            if 0 <= x < self.width and top <= y < top + self.rows:
+                index = self.index_at(x, y)
+                if index is not None:
+                    self.cursor = index
+                return
+            if not auto or not self.items:
+                return
+            count += 1
+            if count < self.edge_ticks:
+                return
+            count = 0
+            rows = max(1, self.rows)
+            columns = max(1, self.capacity // rows) if self.rows else 1
+            cursor = self.cursor
+            if columns == 1:
+                if y < top:
+                    self.cursor = max(0, cursor - 1)
+                elif y >= top + self.rows:
+                    self.cursor = min(len(self.items) - 1, cursor + 1)
+                return
+            if x < 0:
+                cursor -= rows
+            elif x >= self.width:
+                cursor += rows
+            elif y < top:
+                cursor -= (cursor - self.scroll) % rows
+            else:
+                cursor += rows - 1 - (cursor - self.scroll) % rows
+            self.cursor = min(max(cursor, 0), len(self.items) - 1)
+
+        app.hold_mouse(self, event, follow, delay=self.edge_delay, moves=True)
 
     async def on_double_click(self, event: MouseClickEvent) -> bool:
         """Open the row that was double-clicked.

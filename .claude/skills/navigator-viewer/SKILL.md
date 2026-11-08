@@ -82,6 +82,10 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
     `$diff-changed-*`), and the info line starts with `*`. Ctrl+Z takes back the last byte typed, and
     Backspace steps back and puts the file's own byte there; Store clears what can be undone. A click on a
     pair or a character puts the cursor there.
+- **The mouse in F3 and Ctrl+Q is DN's quarters** (`FileViewer._quarter`). The outer quarters are Left and Right, and
+  the middle is Up above half-way and Down below it. Held, they repeat on every tick and every move, with the quarter
+  under the pointer then and nothing while it is off the view (`FVIEWER.PAS:1569`, `Application.hold_mouse`
+  `moves=True`). The scroll bars repeat as every `ScrollBar` does.
 - **Shift+F6, File > Encoding** is DN's `cmLoadXlatTable`: instead of an `XLT\*.XLT` table, a `PopupMenu` of one-byte
   code pages (`viewer.ENCODINGS`: *UTF-8* first and meaning none, then every one-byte page of
   `navigator/lib/codepages.py` -- DN's dozen and the rest, a departure, asked for -- in a submenu a group through
@@ -191,7 +195,8 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates
   `DD-MM-YYYY` as the panels', a memo column `max(name, Len)` wide, `record/records` over the bottom frame (both plain,
   `ItoS`; in the passive frame colour while another window is active, `GetColor(1 + Byte(sfActive))`);
-  Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn, mouse quadrants. F2 *Structure of*, F3 *Memo view*
+  Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn, mouse quadrants (held, they repeat, `DBVIEW.PAS`'s
+  `evMouseAuto` loop). F2 *Structure of*, F3 *Memo view*
   (`DBListDialog`), F4 edits the cell in place (`EditLineDialog`, history `edit_dbf`, its line held to the field's
   length and a date's 10 as `InputBox`'s `Limit`; L flips T/F; refused write-protected). A value that will not go in
   says *Not a number*, *The number does not fit the field* or *Not a date* and leaves the cell (a departure: DN's
