@@ -736,10 +736,17 @@ class FileWindow(Window):
             viewer.set_encoding(chosen)
 
     async def save_as(self) -> None:
-        """Shift+F5: ``cmSaveAll`` -- *Save File As*, and the file written
-        there through the encoding, as DN wrote it through its ``Xlat``
-        table: a file read in a code page is written in UTF-8.  On a thread,
-        and the panels showing where it went look again (``cmRereadDir``)."""
+        """Shift+F5: ``cmSaveAll``, DN's ``SaveFile`` -- *Save File As*.
+
+        A file read in a code page asks first, as DN asked about its ``Xlat``
+        table (``dlViewSaveXlat``): *Yes* writes it in UTF-8, *No* as its
+        bytes are.  Esc there saves nothing, a departure: DN's Yes/No box took
+        Esc for No and went on writing, and a box put away should not write a
+        file.  A file already there is ``dlED_OverQuery``: *Yes* replaces it,
+        *Append* adds to its end, Cancel writes nothing.  At most the size the
+        file had when the save began is copied, as DN read up to its ``Sz``.
+        On a thread, and the panels showing where it went look again
+        (``cmRereadDir``)."""
         import asyncio
 
         from navml.widgets.dialog.file_dialog import FileDialog
@@ -749,6 +756,16 @@ class FileWindow(Window):
         app = self.application
         if source is None or viewer.path is None:
             return
+        codec = viewer.encoding
+        if codec != "utf-8":
+            name = dict(viewer_model.ENCODINGS)[codec].split()[0]
+            translate = await Dialog(title=tr("Confirmation"),
+                                     prompt=tr("Save the file translated\nfrom {encoding} to UTF-8?").format(encoding=name),
+                                     buttons="yes-no-cancel").execute(app)
+            if translate is None:
+                return
+            if translate is False:
+                codec = "utf-8"
         dialog = FileDialog(
             title=tr("Save File As"), label=tr("~S~ave File As"), history_id="edit_save",
             directory=viewer.path.parent, hidden=SETTINGS.system.show_hidden,
@@ -773,17 +790,23 @@ class FileWindow(Window):
                 return False
 
         target: Any = place.local if place.is_local else place
+        append = False
         if await asyncio.to_thread(there):
-            answer = await Dialog(title=tr("Warning"),
-                                  prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
-                                  buttons="yes-no").execute(app)
-            if answer is not True:
+            query = Dialog(title=tr("Warning"),
+                           prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=target.name),
+                           buttons="yes-no-cancel")
+            query.no.text = tr("A~p~pend")
+            answer = await query.execute(app)
+            if answer is None:
                 return
+            append = answer is False
+        limit = viewer.size
         try:
             # A file read across a network is written from its drive, whole.
             data = source if viewer.remote else source.path
             try:
-                await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding)
+                await asyncio.to_thread(viewer_model.save_as, data, target, codec,
+                                        append=append, limit=limit)
             except OSError as error:
                 from navigator.lib.system.elevate import ELEVATION, refused
 
@@ -796,7 +819,8 @@ class FileWindow(Window):
 
                 if not await ask_as_root(app, message):
                     return
-                await asyncio.to_thread(viewer_model.save_as, data, target, viewer.encoding, as_root=True)
+                await asyncio.to_thread(viewer_model.save_as, data, target, codec, as_root=True,
+                                        append=append, limit=limit)
         except OSError as error:
             await Dialog(title=tr("Error"),
                          prompt=tr("Cannot write {path}: {error}").format(path=target, error=error.strerror or error),

@@ -1351,6 +1351,9 @@ def test_the_viewers_save_as_writes_as_root(started, tmp_path, monkeypatch):
     target.chmod(0o604)
     viewer_model.save_as(tmp_path / "dos.txt", target, "cp437", as_root=True)
     assert target.read_text() == "café\n" and target.stat().st_mode & 0o777 == 0o604
+    started.begin()  # the first save let it go
+    viewer_model.save_as(tmp_path / "dos.txt", target, "cp437", as_root=True, append=True)
+    assert target.read_text() == "café\ncafé\n"
     assert not started.running  # let go after
 
 

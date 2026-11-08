@@ -140,11 +140,18 @@ def byte_table(codec: str) -> tuple[str, ...] | None:
     return tuple(table)
 
 
-def save_as(source: Path, target: Path, codec: str = "utf-8", *, as_root: bool = False) -> None:
+def save_as(source: Path, target: Path, codec: str = "utf-8", *, as_root: bool = False,
+            append: bool = False, limit: int | None = None) -> None:
     """The viewer's *Save as*: *source* written to *target* -- as it is, or
     read in the one-byte *codec* and written in UTF-8, as DN wrote it
     through its ``Xlat`` table.  Through a temporary file beside *target*,
     so a failure leaves nothing half written.  A thread runs it.
+
+    *append* adds to the end of *target* instead (DN's *Append*,
+    ``S.Seek(S.GetSize)``), straight into it: there is nothing to rename
+    over what is to be kept.  *limit* copies at most that many bytes of
+    *source*, the size it had when the save began -- DN's ``Sz`` -- so a
+    file appended to itself does not read its own growing tail forever.
 
     *as_root* writes a target on the disk through the root helper, as the
     editor writes a file there (a departure; :mod:`navigator.lib.system.elevate`)."""
@@ -156,32 +163,62 @@ def save_as(source: Path, target: Path, codec: str = "utf-8", *, as_root: bool =
         from navigator.lib.drives.root import ROOT_DRIVE
 
         local = Path(target.local if isinstance(target, Location) else target)
-
-        def chunks() -> Any:
-            with _opened(source) as data:
-                while block := data.read(1 << 16):
-                    yield block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8")
-
         try:
-            ROOT_DRIVE.write_file(local, chunks())
+            if append:
+                with ROOT_DRIVE.open_write(Location.of(local), append=True) as out:
+                    for block in _blocks(source, codec, limit):
+                        out.write(block)
+            else:
+                ROOT_DRIVE.write_file(local, _blocks(source, codec, limit))
         finally:
             ROOT_DRIVE.release()
         return
 
     if isinstance(target, Location) and not target.is_local:
-        _save_elsewhere(source, target, codec)
+        _save_elsewhere(source, target, codec, append=append, limit=limit)
         return
     target = Path(target.local if isinstance(target, Location) else target)
+    if append:
+        with open(target, "ab") as out:
+            for block in _blocks(source, codec, limit):
+                out.write(block)
+        return
     handle, temp = tempfile.mkstemp(dir=target.parent, prefix=f".{target.name}.")
     try:
-        with os.fdopen(handle, "wb") as out, _opened(source) as data:
-            while block := data.read(1 << 16):
-                out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
+        with os.fdopen(handle, "wb") as out:
+            for block in _blocks(source, codec, limit):
+                out.write(block)
         os.replace(temp, target)
     except BaseException:
         with contextlib.suppress(OSError):
             os.unlink(temp)
         raise
+
+
+def _blocks(source: Any, codec: str, limit: int | None = None,
+            edits: dict[int, int] | None = None) -> Any:
+    """*source*'s bytes as *Save as* writes them: at most *limit* of them,
+    *edits* laid over them (:func:`overlay`), and recoded from *codec* to
+    UTF-8 unless *codec* is UTF-8 -- through one decoder across the blocks,
+    so a boundary splits nothing."""
+    import codecs
+
+    decoder = None if codec == "utf-8" else codecs.getincrementaldecoder(codec)(errors="replace")
+    left = limit
+    at = 0
+    with _opened(source) as data:
+        while left is None or left > 0:
+            block = data.read(1 << 16 if left is None else min(1 << 16, left))
+            if not block:
+                break
+            if left is not None:
+                left -= len(block)
+            if edits:
+                block = overlay(block, at, edits)
+            at += len(block)
+            yield block if decoder is None else decoder.decode(block).encode("utf-8")
+    if decoder is not None and (tail := decoder.decode(b"", final=True)):
+        yield tail.encode("utf-8")
 
 
 def _opened(source: Any) -> Any:
@@ -191,26 +228,24 @@ def _opened(source: Any) -> Any:
     return stream() if stream is not None else open(source, "rb")
 
 
-def _save_elsewhere(source: Path, target: Any, codec: str, edits: dict[int, int] | None = None) -> None:
+def _save_elsewhere(source: Path, target: Any, codec: str, edits: dict[int, int] | None = None, *,
+                   append: bool = False, limit: int | None = None) -> None:
     """:func:`save_as` to another drive: written beside the target under a
-    name of its own and renamed over it, as an upload is.  *edits*, bytes
-    typed in hex, are laid over what is read (:func:`store_edits`)."""
+    name of its own and renamed over it, as an upload is -- or, with
+    *append*, onto its end.  *edits*, bytes typed in hex, are laid over what
+    is read (:func:`store_edits`)."""
     import secrets
 
     from navigator.lib.drives import drive_of
 
     drive = drive_of(target)
     beside = target.parent / f".{target.name}.nav-{secrets.token_hex(3)}"
-    replace = drive.can("rename")
+    replace = not append and drive.can("rename")
     written = beside if replace else target
     try:
-        with drive.open_write(written) as out, _opened(source) as data:
-            at = 0
-            while block := data.read(1 << 16):
-                if edits:
-                    block = overlay(block, at, edits)
-                at += len(block)
-                out.write(block if codec == "utf-8" else block.decode(codec, errors="replace").encode("utf-8"))
+        with drive.open_write(written, append=append) as out:
+            for block in _blocks(source, codec, limit, edits):
+                out.write(block)
         if replace:
             drive.replace(beside, target)
         drive.finish()

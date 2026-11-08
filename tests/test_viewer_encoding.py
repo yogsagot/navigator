@@ -104,11 +104,104 @@ def test_shift_f5_saves_the_file_recoded(place):
     def name_it(a):
         a.modal.target.value = str(place / "utf8.txt")
 
+    seen = {}
     run_app(app, [on_file, KeyEvent("f3"), Until(lambda a: viewer_of(a) is not None),
                   lambda a: viewer_of(a).set_encoding("cp866"), KeyEvent("f5", shift=True),
+                  Until(lambda a: a.modal is not None),
+                  lambda a: seen.update(title=a.modal.title, prompt=a.modal.prompt), KeyEvent("enter"),
                   Until(lambda a: isinstance(a.modal, FileDialog)), name_it, KeyEvent("enter"),
                   Until(lambda a: (place / "utf8.txt").exists())])
+    assert seen["title"] == "Confirmation" and "from CP866 to UTF-8?" in seen["prompt"]
     assert (place / "utf8.txt").read_text(encoding="utf-8") == RUSSIAN
+
+
+def save_steps(place, target, *answers, encoding="cp866"):
+    """Shift+F5 on ``ru.txt`` read in *encoding*, each of *answers* (a key
+    name) given to the box it opens, *target* typed into the file dialog
+    where it comes."""
+    def on_file(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index("ru.txt")
+
+    def name_it(a):
+        a.modal.target.value = str(target)
+
+    steps = [on_file, KeyEvent("f3"), Until(lambda a: viewer_of(a) is not None),
+             lambda a: viewer_of(a).set_encoding(encoding), KeyEvent("f5", shift=True)]
+    for answer in answers:
+        if answer == "name":
+            steps += [Until(lambda a: isinstance(a.modal, FileDialog)), name_it, KeyEvent("enter")]
+        else:
+            steps += [Until(lambda a: a.modal is not None and not isinstance(a.modal, FileDialog)),
+                      KeyEvent(answer) if answer == "escape" else KeyEvent(answer, alt=True)]
+    return steps
+
+
+def test_no_to_the_translation_saves_the_bytes_as_they_are(place):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 24))
+    target = place / "raw.txt"
+    run_app(app, save_steps(place, target, "n", "name") + [Until(lambda a: target.exists())])
+    assert target.read_bytes() == (place / "ru.txt").read_bytes()
+
+
+def test_escape_on_the_translation_saves_nothing(place):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 24))
+    seen = {}
+    run_app(app, save_steps(place, place / "x.txt", "escape")
+            + [lambda a: seen.update(modal=a.modal)])
+    assert seen["modal"] is None and not (place / "x.txt").exists()
+
+
+def test_a_utf8_file_is_not_asked_about_translating(place):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 24))
+    target = place / "plain.txt"
+    run_app(app, save_steps(place, target, "name", encoding="utf-8") + [Until(lambda a: target.exists())])
+    assert target.read_bytes() == (place / "ru.txt").read_bytes()
+
+
+@pytest.mark.parametrize("key, expected", [("p", "old\n" + RUSSIAN), ("y", RUSSIAN), ("escape", "old\n")])
+def test_an_existing_file_is_replaced_appended_to_or_left(place, key, expected):
+    app = Navigator(place, place, terminal=FakeTerminal(80, 24))
+    target = place / "there.txt"
+    target.write_text("old\n", encoding="utf-8")
+    seen = {}
+
+    def buttons(a):
+        seen.update(buttons=[b.text.replace("~", "") for b in a.modal.buttons_row])
+
+    steps = save_steps(place, target, "y", "name")
+    steps += [Until(lambda a: a.modal is not None and not isinstance(a.modal, FileDialog)), buttons,
+              KeyEvent(key) if key == "escape" else KeyEvent(key, alt=True),
+              Until(lambda a: a.modal is None and not a.busy)]
+    if key != "escape":
+        steps.append(Until(lambda a: target.read_text(encoding="utf-8") == expected))
+    run_app(app, steps)
+    assert seen["buttons"][:3] == ["Yes", "Append", "Cancel"]
+    assert target.read_text(encoding="utf-8") == expected
+
+
+def test_save_as_appends_and_stops_at_the_limit(tmp_path):
+    source = tmp_path / "ru.txt"
+    source.write_bytes(RUSSIAN.encode("cp866"))
+    out = tmp_path / "out.txt"
+    out.write_bytes(b"old\n")
+    model.save_as(source, out, "cp866", append=True)
+    assert out.read_text(encoding="utf-8") == "old\n" + RUSSIAN
+    model.save_as(source, tmp_path / "short.txt", limit=6)
+    assert (tmp_path / "short.txt").read_bytes() == RUSSIAN.encode("cp866")[:6]
+    # Appended to itself, it doubles once.
+    size = source.stat().st_size
+    model.save_as(source, source, append=True, limit=size)
+    assert source.read_bytes() == RUSSIAN.encode("cp866") * 2
+
+
+def test_the_recoding_does_not_split_a_character_between_blocks(tmp_path):
+    source = tmp_path / "big.txt"
+    text = "я" * (1 << 16)
+    source.write_bytes(text.encode("utf-16-le"))
+    model.save_as(source, tmp_path / "out.txt", "utf-16-le", limit=(1 << 16) + 1)
+    # The limit cut the last character in half: one replacement, nothing else broken.
+    assert (tmp_path / "out.txt").read_text(encoding="utf-8") == "я" * (1 << 15) + "\ufffd"
 
 
 def test_shift_f6_opens_on_the_group_of_the_encoding_in_use(place):

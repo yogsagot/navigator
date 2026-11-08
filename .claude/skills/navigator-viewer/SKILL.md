@@ -79,7 +79,12 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   encoding=)` all go through; the info line ends `{CP866}`. Controls stay the VGA's glyphs. Not kept in the view record.
 - **Shift+F5, File > Save as** is `cmSaveAll`: DN's *Save File As* file dialog (history `edit_save`, the editor's), and
   `viewer.save_as` writes the file through a temporary beside it -- as it is, or read in the chosen code page and
-  written in UTF-8, as DN wrote through its `Xlat`; `FileSaved` then re-reads the panels.
+  written in UTF-8, as DN wrote through its `Xlat`; `FileSaved` then re-reads the panels. DN's `SaveFile` questions:
+  a code page in use asks *Save the file translated from CP866 to UTF-8?* first (`dlViewSaveXlat`): Yes recodes, No
+  writes the bytes as they are, and Esc saves nothing (a departure: DN's Esc was No). A file already there is
+  `dlED_OverQuery` with Yes / *Append* / Cancel; Append writes onto its end with no temporary. `limit` (the
+  viewer's `size` when the save began, DN's `Sz`) stops a file appended to itself reading its own tail forever. The
+  three write paths (disk, another drive, as root) share `_blocks`, one incremental decoder across the blocks.
 - **Syntax highlight**, a departure (DN's viewer had none): the editor's highlighting (`navigator-editor` has the
   rules, `highlight.ini` and the `::token` part) in text mode only, `FileViewer::token` taking the editor's highlight
   foregrounds over the viewer's own background -- the quick view's too. `viewer.syntax_highlight` (on), View >

@@ -6776,6 +6776,7 @@ direction = "rtl"
 "The number does not fit the field" = "الرقم لا يتسع في الحقل"
 "Not a date" = "ليس تاريخًا"
 "He~x~" = "~س~ت عشري"
+"Save the file translated\nfrom {encoding} to UTF-8?" = "هل تحفظ الملف محوّلًا\nمن {encoding} إلى UTF-8؟"
 [unused]
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"

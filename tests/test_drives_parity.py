@@ -210,6 +210,8 @@ def test_save_as_writes_to_another_drive_and_into_an_archive(memory, tmp_path):
     viewer.save_as(tmp_path / "source.txt", memory.location("/top/saved.txt"))
     assert memory.read("/top/saved.txt") == b"saved"
     assert sorted(memory.names(memory.location("/top"))) == ["a.txt", "saved.txt", "sub"]
+    viewer.save_as(tmp_path / "source.txt", memory.location("/top/saved.txt"), append=True)
+    assert memory.read("/top/saved.txt") == b"savedsaved"
     drive = archive.open_archive(Location.of(tmp_path / "new.zip"), create=True)
     viewer.save_as(tmp_path / "source.txt", drive.at("/saved.txt"))
     archive.close_all()

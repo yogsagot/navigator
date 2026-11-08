@@ -6775,6 +6775,7 @@ flag = "LV"
 "The number does not fit the field" = "Skaitlis neietilpst laukā"
 "Not a date" = "Nav datums"
 "He~x~" = "~H~eks"
+"Save the file translated\nfrom {encoding} to UTF-8?" = "Saglabāt failu pārkodētu\nno {encoding} uz UTF-8?"
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"

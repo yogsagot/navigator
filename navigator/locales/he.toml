@@ -6776,6 +6776,7 @@ direction = "rtl"
 "The number does not fit the field" = "המספר אינו נכנס לשדה"
 "Not a date" = "אינו תאריך"
 "He~x~" = "~ה~קס"
+"Save the file translated\nfrom {encoding} to UTF-8?" = "לשמור את הקובץ מתורגם\nמ־{encoding} ל־UTF-8?"
 [unused]
 "~Name~" = "~שם~"
 "~Start~" = "~התחלה~"

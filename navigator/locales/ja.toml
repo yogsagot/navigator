@@ -6775,6 +6775,7 @@ flag = "JP"
 "The number does not fit the field" = "数値がフィールドに収まりません"
 "Not a date" = "日付ではありません"
 "He~x~" = "16進(~X~)"
+"Save the file translated\nfrom {encoding} to UTF-8?" = "ファイルを{encoding}から\nUTF-8に変換して保存しますか?"
 [unused]
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"
