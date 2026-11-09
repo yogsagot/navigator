@@ -107,6 +107,16 @@ it is not in `STYLE_FIELDS`, so no sheet can declare one. `TerminalInfo.hyperlin
 terminal but `TERM=linux` (whose console prints OSC 8's tail) -- and `NAVKIT_HYPERLINKS=on|off` overrides. Ghostty opens
 them with Ctrl+Shift+click.
 
+## Cursor colour (OSC 12)
+
+DECSCUSR has shapes and no thickness, so a thin bar is made findable by colour. The application sends the caret
+widget's `Widget::caret` `fg` (`Widget.caret_color()`) as `OSC 12 ; rgb:rr/gg/bb` before showing the cursor, only when
+it changes, and `OSC 112` when a caret loses its colour. `TerminalInfo.rgb()` turns the colour into the triple the
+sequence needs: an index below 16 counts only with a pinned palette (`--palette terminal` sends none, as only the
+terminal's theme knows its yellow). `Terminal.cursor_colored` records that one was sent, so `stop()`/`suspend()` reset
+it then and only then: OSC 112 would also undo a colour the user's shell set. `TerminalInfo.cursor_color` gates it --
+off on `TERM=linux`, whose console would print it -- and `NAVKIT_CURSOR_COLOR=on|off` overrides.
+
 ## Clipboard
 
 `navkit/clipboard.py`: OSC 52 plus `wl-copy`/`xclip`/`xsel`; a requested paste arrives as a `PasteEvent`. A paste

@@ -719,6 +719,30 @@ def test_enter_in_an_empty_file_types_the_line_divisor(tmp_path, quiet_console):
     assert editor_window(app).editor.document.encode() == b"a\r\nb"
 
 
+def test_the_caret_is_an_i_beam_inserting_and_a_block_overwriting(files):
+    app = navigator(files)
+    seen = []
+
+    def look(a):
+        seen.append(a._cursor()[2])
+
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, look,
+                  lambda a: setattr(editor_window(a).editor, "overwrite", True), IDLE, look])
+    assert seen == ["bar", "block"]
+
+
+def test_the_caret_takes_the_themes_colour(files):
+    from dataclasses import replace
+
+    from navkit.capabilities import VGA_PALETTE
+
+    app = navigator(files)
+    app.terminal.info = replace(app.terminal.info, palette=VGA_PALETTE)
+    seen = []
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, lambda a: seen.append(a._cursor()[3])])
+    assert seen == [(255, 255, 85)]       # the default theme's $caret: yellow
+
+
 def test_a_file_with_breaks_keeps_its_own(tmp_path):
     from navigator.widgets.editor.file_editor import FileEditor
 

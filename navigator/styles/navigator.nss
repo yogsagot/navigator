@@ -283,6 +283,13 @@ Label::shortcut       { fg: $dialog-label-shortcut-fg;   bg: $dialog-label-short
    shadow in the drop shadow's dark grey on black. */
 Widget::shadow         { fg: $shadow-fg; bg: $shadow-bg }
 
+/* The text cursor's colour, the terminal's own cursor painted with OSC 12
+   (Widget.caret_color): `$caret', yellow in the DOS themes and the accent in
+   the modern ones.  A departure, asked for: DOS's cursor took the colour of
+   the cell under it, and a modern terminal's thin bar is lost in text unless
+   it stands out.  Only `fg' counts; `default' leaves the terminal's colour. */
+Widget::caret          { fg: $caret-fg }
+
 Button                { fg: $dialog-button-normal-fg;    bg: $dialog-button-normal-bg; bold: $dialog-button-normal-bold; dim: $dialog-button-normal-dim; italic: $dialog-button-normal-italic; underline: $dialog-button-normal-underline; reverse: $dialog-button-normal-reverse }
 Button:am_default     { fg: $dialog-button-default-fg;   bg: $dialog-button-default-bg; bold: $dialog-button-default-bold; dim: $dialog-button-default-dim; italic: $dialog-button-default-italic; underline: $dialog-button-default-underline; reverse: $dialog-button-default-reverse }
 Button:focused        { fg: $dialog-button-selected-fg;  bg: $dialog-button-selected-bg; bold: $dialog-button-selected-bold; dim: $dialog-button-selected-dim; italic: $dialog-button-selected-italic; underline: $dialog-button-selected-underline; reverse: $dialog-button-selected-reverse }
@@ -721,8 +728,10 @@ DBViewer::cursor                               { fg: $dbase-cursor-fg; bg: $dbas
 /* The editor: TEditWindow takes CUniWindow, the Editor/Spreadsheet group
    [70] to [77] -- TEditFrame's frame, icons and title, TEditScrollBar's page
    and icons, the text and a block.  TInfoLine draws over the bottom frame in
-   GetColor(8), the active frame's colour.  The caret is DN's NormalCursor
-   while inserting and its BlockCursor while overwriting. */
+   GetColor(8), the active frame's colour.  The caret is DN's BlockCursor
+   while overwriting; while inserting it is an I-beam (a departure, asked
+   for: DN's NormalCursor was an underline, which modern terminals draw thin
+   and hard to find in text). */
 EditWindow                                     { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
 EditWindow:active                              { fg: $editor-frame-active-fg;  bg: $editor-frame-active-bg; bold: $editor-frame-active-bold; dim: $editor-frame-active-dim; italic: $editor-frame-active-italic; underline: $editor-frame-active-underline; reverse: $editor-frame-active-reverse }
 EditWindow::title                              { fg: $editor-frame-passive-fg; bg: $editor-frame-passive-bg; bold: $editor-frame-passive-bold; dim: $editor-frame-passive-dim; italic: $editor-frame-passive-italic; underline: $editor-frame-passive-underline; reverse: $editor-frame-passive-reverse }
@@ -749,7 +758,7 @@ EditWindow OptionStrip::item:disabled          { dim: true }
 EditWindow ScrollBar                           { fg: $editor-scroll-bar-page-fg;  bg: $editor-scroll-bar-page-bg; bold: $editor-scroll-bar-page-bold; dim: $editor-scroll-bar-page-dim; italic: $editor-scroll-bar-page-italic; underline: $editor-scroll-bar-page-underline; reverse: $editor-scroll-bar-page-reverse }
 EditWindow ScrollBar::arrow,
 EditWindow ScrollBar::thumb                    { fg: $editor-scroll-bar-icons-fg; bg: $editor-scroll-bar-icons-bg; bold: $editor-scroll-bar-icons-bold; dim: $editor-scroll-bar-icons-dim; italic: $editor-scroll-bar-icons-italic; underline: $editor-scroll-bar-icons-underline; reverse: $editor-scroll-bar-icons-reverse }
-FileEditor                                     { fg: $editor-normal-text-fg;   bg: $editor-normal-text-bg; caret: underline; bold: $editor-normal-text-bold; dim: $editor-normal-text-dim; italic: $editor-normal-text-italic; underline: $editor-normal-text-underline; reverse: $editor-normal-text-reverse }
+FileEditor                                     { fg: $editor-normal-text-fg;   bg: $editor-normal-text-bg; caret: bar; bold: $editor-normal-text-bold; dim: $editor-normal-text-dim; italic: $editor-normal-text-italic; underline: $editor-normal-text-underline; reverse: $editor-normal-text-reverse }
 FileEditor:overwrite                           { caret: block }
 FileEditor::selected                           { fg: $editor-selected-text-fg; bg: $editor-selected-text-bg; bold: $editor-selected-text-bold; dim: $editor-selected-text-dim; italic: $editor-selected-text-italic; underline: $editor-selected-text-underline; reverse: $editor-selected-text-reverse }
 /* The Find bar (Ctrl+F, a departure): a small box of a dialog's colours over

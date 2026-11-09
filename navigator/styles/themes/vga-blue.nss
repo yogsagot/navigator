@@ -449,6 +449,8 @@ $gutter-fg: $editor-frame-passive-fg; /*  a line number in the editor's gutter -
 $gutter-bg: $editor-frame-passive-bg;
 $gutter-current-fg: $editor-frame-active-fg;/*  the cursor's line number in the gutter -- on Frame active [71] */
 $gutter-current-bg: $editor-frame-active-bg;
+$caret-fg: $dn-yellow;                /*  the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it */
+$caret-bg: $dn-black;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

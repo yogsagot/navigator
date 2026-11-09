@@ -130,7 +130,7 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   `render_tree` into the parent's surface.
 - `Widget.cursor_position()` says where the terminal cursor belongs; the application asks **the whole focus path,
   nearest first**, at the end of each frame, so a caret only shows where keys go. The `caret` property sets DECSCUSR
-  from a sheet.
+  from a sheet, and `::caret`'s `fg` the cursor's colour (OSC 12, `navkit-terminal`).
 
 ## Double-click and timers
 

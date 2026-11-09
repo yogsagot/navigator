@@ -30,7 +30,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.reactive import computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
-from navkit.style import DEFAULT_STYLE, SHADOW, Style
+from navkit.style import DEFAULT_STYLE, SHADOW, Color, Style
 from navkit.stylesheet import Stylesheet
 
 if TYPE_CHECKING:
@@ -746,6 +746,21 @@ class Widget:
         handed a row number where it expected a position.
         """
         return None
+
+    def caret_color(self) -> Color | None:
+        """The colour the sheet gives this widget's caret, ``::caret``'s ``fg``.
+
+        ``None`` -- no rule, ``fg: default`` or ``inherit`` -- leaves the
+        terminal's own cursor colour.  Looked up as the drop shadow is
+        (:meth:`_paint_shadow`), not through :meth:`part_style`, which would
+        fall back to the widget's text colour: a caret nobody coloured has to
+        keep the terminal's, not turn the colour of the text.  The widget's
+        live states match, so ``FileEditor:overwrite::caret`` may differ.
+        """
+        found = self.effective_stylesheet.declarations_for(
+            self, stylesheet.PartRequest("caret", frozenset(), frozenset()))
+        color = found.get("fg")
+        return None if color is stylesheet.INHERIT else color
 
     async def on_key(self, event: KeyEvent) -> bool:
         """Handle a key press.  Return True to stop it propagating."""

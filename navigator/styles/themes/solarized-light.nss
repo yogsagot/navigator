@@ -481,3 +481,5 @@ $gutter-fg: $color-text_faint;        /*  a line number in the editor's gutter -
 $gutter-bg: $color-ground;
 $gutter-current-fg: $color-text_strong;/*  the cursor's line number in the gutter -- on Frame active */
 $gutter-current-bg: $color-ground;
+$caret-fg: $color-accent;             /*  the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it */
+$caret-bg: $color-ground;

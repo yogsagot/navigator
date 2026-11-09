@@ -61,7 +61,7 @@ from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.tooltip import ShowTooltip, Tooltip
 from navkit.terminal import GRAPHICS_QUERY_ID as _GRAPHICS_QUERY_ID
-from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, place_cursor
+from navkit.terminal import HIDE_CURSOR, InputParser, Terminal, cursor_color, place_cursor
 from navkit import clipboard, commands, i18n
 from navkit.widget import Widget, _call, check_handlers
 
@@ -615,7 +615,11 @@ class Application:
         self._last_frame = 0.0
         #: What the last frame left the terminal's cursor doing, so a frame
         #: that changes nothing about it emits nothing about it either.
-        self._cursor_shown: tuple[int, int, str] | None = None
+        self._cursor_shown: tuple[int, int, str, tuple[int, int, int] | None] | None = None
+        #: The cursor colour last sent (OSC 12), ``None`` for the terminal's
+        #: own.  Kept apart from the position: a hidden cursor keeps its
+        #: colour, and a redraw does not change what the terminal holds.
+        self._caret_color: tuple[int, int, int] | None = None
 
         if root is not None:
             self.root = root
@@ -1318,6 +1322,7 @@ class Application:
         self.terminal.write(self._graphics.release(self.terminal.info.graphics))
         self.terminal.suspend()
         self._cursor_shown = None
+        self._caret_color = None  # suspend() gave the terminal its own back
         self.terminal_focused = None
 
     def bell(self) -> None:
@@ -1420,11 +1425,16 @@ class Application:
         )
         output = before + render_diff(self._front, shown, self.terminal.info) + after
         cursor = self._cursor()
+        if cursor is not None and cursor[3] != self._caret_color:
+            # Before the cursor is shown, so it never appears in the old one.
+            output += cursor_color(cursor[3])
+            self._caret_color = cursor[3]
+            self.terminal.cursor_colored = cursor[3] is not None
         if cursor != self._cursor_shown:
             # Emitted after the diff, always: painting moves the terminal's
             # own cursor as a side effect, so anything placed before it would
             # be left wherever the last cell was written.
-            output += place_cursor(*cursor) if cursor is not None else HIDE_CURSOR
+            output += place_cursor(*cursor[:3]) if cursor is not None else HIDE_CURSOR
             self._cursor_shown = cursor
         elif output and cursor is not None:
             # Unchanged, but the paint just moved it.  The position alone --
@@ -1505,8 +1515,13 @@ class Application:
                 later.render_tree(own)
             parent._guarded(parent.render_after, own)
 
-    def _cursor(self) -> tuple[int, int, str] | None:
-        """Screen position and shape of the terminal cursor, or None for none.
+    def _cursor(self) -> tuple[int, int, str, tuple[int, int, int] | None] | None:
+        """Screen position, shape and colour of the terminal cursor, or None.
+
+        The colour is the caret widget's ``::caret`` (:meth:`Widget.caret_color`)
+        as the ``(r, g, b)`` OSC 12 takes, or ``None`` for the terminal's own
+        -- also where the terminal is not to be sent one, or the colour is a
+        palette index only its own theme knows.
 
         **Shown exactly where the keys go.** The widgets asked are the ones
         on the focus path -- the same walk :meth:`Widget.dispatch_key` makes,
@@ -1539,7 +1554,9 @@ class Application:
             return None
         if self._back.rtl:
             x = self._mirror_x(x, widget)
-        return x, y, widget.style_property("caret", "default")
+        info = self.terminal.info
+        color = info.rgb(widget.caret_color()) if info.cursor_color else None
+        return x, y, widget.style_property("caret", "default"), color
 
     @property
     def rtl(self) -> bool:

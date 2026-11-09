@@ -552,6 +552,44 @@ def test_hyperlinks_are_written_to_any_terminal_but_the_linux_console(env, is_tt
     assert TerminalInfo.detect(env, is_tty=is_tty).hyperlinks is expected
 
 
+@pytest.mark.parametrize(
+    ("env", "is_tty", "expected"),
+    [
+        ({"TERM": "xterm-256color"}, True, True),
+        ({"TERM": "linux"}, True, False),
+        ({"TERM": "dumb"}, True, False),
+        ({"TERM": "xterm"}, False, False),
+        ({"TERM": "linux", "NAVKIT_CURSOR_COLOR": "on"}, True, True),
+        ({"TERM": "xterm", "NAVKIT_CURSOR_COLOR": "off"}, True, False),
+    ],
+)
+def test_the_cursor_colour_is_sent_to_any_terminal_but_the_linux_console(env, is_tty, expected):
+    assert TerminalInfo.detect(env, is_tty=is_tty).cursor_color is expected
+
+
+def test_a_colour_is_known_as_rgb_only_where_the_terminal_s_theme_does_not_decide():
+    from navkit.capabilities import VGA_PALETTE
+
+    assert TerminalInfo().rgb((1, 2, 3)) == (1, 2, 3)
+    assert TerminalInfo().rgb(11) is None                       # the terminal's own yellow
+    assert TerminalInfo(palette=VGA_PALETTE).rgb(11) == (255, 255, 85)
+    assert TerminalInfo().rgb(196) == (255, 0, 0)               # the fixed cube
+    assert TerminalInfo().rgb(None) is None
+
+
+def test_the_cursor_colour_is_given_back_at_the_end_only_if_one_was_sent():
+    out = io.StringIO()
+    terminal = Terminal(input_stream=io.StringIO(), output_stream=out, info=TerminalInfo())
+    terminal.start()
+    terminal.stop()
+    assert "\x1b]112" not in out.getvalue()
+    terminal.start()
+    terminal.cursor_colored = True
+    terminal.stop()
+    assert out.getvalue().count("\x1b]112\x1b\\") == 1
+    assert not terminal.cursor_colored
+
+
 def test_a_terminal_without_hyperlinks_is_sent_none():
     buffer = ScreenBuffer(4, 1)
     buffer.draw_text(0, 0, "link", Style(link="https://example.org"))

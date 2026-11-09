@@ -256,6 +256,7 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "sync-conflict": (180, "Synchronize's conflicts -- on Custom 4"),
     "gutter": (70, "a line number in the editor's gutter -- DN numbered no lines; on Frame passive"),
     "gutter-current": (71, "the cursor's line number in the gutter -- on Frame active"),
+    "caret": ((14, 0), "the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it"),
 }
 
 
@@ -323,6 +324,7 @@ DERIVED_ITEMS = {
     "sync-conflict": "Synchronize: conflict",
     "gutter": "Line numbers",
     "gutter-current": "Current line number",
+    "caret": "Text cursor",
 }
 
 #: Where the Colors dialog keeps the user's palettes, in the configuration

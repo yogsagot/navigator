@@ -84,6 +84,9 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
   The eleven themes got their four lines by hand, spelled the way each theme spells `root-title`.
   `gutter` and `gutter-current` (of [70]/[71], the editor's passive and active frame) colour the editor's
   line-number gutter (`LineGutter`, a departure); themegen gives them faint and strong text on the ground.
+  `caret` (yellow on black, `(14, 0)`, a departure) is the text cursor's colour, `Widget::caret`, sent as OSC 12;
+  only its `fg` counts. The eleven DOS themes got it by hand, spelled as each spells `modified-title`; themegen gives
+  the accent.
 - **The tables live in `navigator/lib/appearance/palette.py`** (`DOS_COLORS`, `ENTRIES`, `DERIVED`), which palconv imports, because
   Options > Colors reads them too: its groups are `ENTRIES`' runs of one group name (so *Tree* and *Menu* come twice,
   as in DN) and a last *Navigator* group of `DERIVED` (`DERIVED_ITEMS` names them).

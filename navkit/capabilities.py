@@ -445,6 +445,10 @@ class TerminalInfo:
     #: few bytes, which is why :mod:`navkit.clipboard` offers the copy to the
     #: desktop's own tools as well.
     clipboard: bool = True
+    #: Whether the cursor's colour is set with OSC 12 (and given back with
+    #: OSC 112).  Off where it would be printed rather than swallowed -- the
+    #: Linux console again -- and on a plain terminal.
+    cursor_color: bool = True
     #: Whether the font draws braille (U+2800), which a spinner turns through
     #: at the Unicode tier.  Off on the Linux console, whose fonts have none
     #: and which is otherwise UTF-8 like any terminal.
@@ -496,6 +500,20 @@ class TerminalInfo:
     @property
     def monochrome(self) -> bool:
         return self.colors < ANSI
+
+    def rgb(self, color: Color | None) -> tuple[int, int, int] | None:
+        """*color* as the ``(r, g, b)`` this terminal shows it as, or ``None``.
+
+        For a sequence that takes a colour and no palette index -- OSC 12, the
+        cursor's.  An index below 16 is the pinned palette's when there is one;
+        without, only the terminal's theme knows it, and the answer is
+        ``None``, as it is for no colour and on a monochrome terminal.
+        """
+        if color is None or self.monochrome:
+            return None
+        if self.palette and isinstance(color, int) and 0 <= color < len(self.palette):
+            return self.palette[color]
+        return _known_rgb(color)
 
     @property
     def nerd_font(self) -> bool:
@@ -636,6 +654,13 @@ class TerminalInfo:
         elif choice in ("off", "no", "0", "none"):
             clipboard = False
 
+        cursor_color = not plain and env.get("TERM", "") != "linux"
+        choice = env.get("NAVKIT_CURSOR_COLOR", "").strip().lower()
+        if choice in ("on", "yes", "1"):
+            cursor_color = True
+        elif choice in ("off", "no", "0", "none"):
+            cursor_color = False
+
         braille = env.get("TERM", "") != "linux"
 
         focus_reports = not plain and env.get("TERM", "") != "linux"
@@ -688,6 +713,7 @@ class TerminalInfo:
             keypad=not plain,
             hyperlinks=hyperlinks,
             clipboard=clipboard,
+            cursor_color=cursor_color,
             focus_reports=focus_reports,
             notifications=notifications,
         )

@@ -55,6 +55,8 @@ CURSOR_SHAPES = {
     "bar": 6,
 }
 CURSOR_SHAPE_RESET = "\x1b[0 q"
+#: The cursor's colour back to the terminal's own (OSC 112).
+CURSOR_COLOR_RESET = "\x1b]112\x1b\\"
 AUTOWRAP_OFF = "\x1b[?7l"
 AUTOWRAP_ON = "\x1b[?7h"
 #: Save and restore the window title, icon name included (xterm's window ops).
@@ -73,6 +75,19 @@ def place_cursor(x: int, y: int, shape: str = "default") -> str:
     if code:
         out += f"\x1b[{code} q"
     return out + f"\x1b[{y + 1};{x + 1}H" + SHOW_CURSOR
+
+
+def cursor_color(rgb: tuple[int, int, int] | None) -> str:
+    """OSC 12 painting the terminal's cursor *rgb*, or OSC 112 for its own colour.
+
+    A colour rather than a shape because DECSCUSR has no thickness: a thin
+    bar is found by its colour.  The sequence takes a colour, never a palette
+    index, so the caller resolves one first (:meth:`TerminalInfo.rgb`).
+    """
+    if rgb is None:
+        return CURSOR_COLOR_RESET
+    r, g, b = rgb
+    return f"\x1b]12;rgb:{r:02x}/{g:02x}/{b:02x}\x1b\\"
 
 
 # 1000: report button presses, 1002: also report drags, 1003: also report plain
@@ -1197,6 +1212,10 @@ class Terminal:
         #: was pushed onto the terminal's title stack to be popped at the end.
         self._title: str | None = None
         self._title_pushed = False
+        #: Whether a cursor colour (OSC 12) has been sent and not yet taken
+        #: back.  Set by the application that sends it; giving the screen
+        #: back (:meth:`suspend`, :meth:`stop`) resets the colour and clears it.
+        self.cursor_colored = False
 
     @property
     def input_fd(self) -> int:
@@ -1309,6 +1328,11 @@ class Terminal:
         # widget may have changed it at any point in the run, and the flag
         # that would say so belongs to a frame rather than to the terminal.
         self.write(AUTOWRAP_ON + CURSOR_SHAPE_RESET + SHOW_CURSOR + "\x1b[0m")
+        # The colour only if one was sent: OSC 112 would also undo a colour
+        # the user's shell set before the run, which was never ours to touch.
+        if self.cursor_colored:
+            self.write(CURSOR_COLOR_RESET)
+            self.cursor_colored = False
         if self.info.alt_screen:
             self.write(ALT_SCREEN_OFF)
         if self.info.mouse:

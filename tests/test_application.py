@@ -543,6 +543,50 @@ def test_the_default_shape_leaves_the_terminals_own_alone(terminal):
     assert " q" not in terminal.painted
 
 
+def test_the_caret_colour_comes_from_the_stylesheet(terminal):
+    app, root, field = field_app(terminal, stylesheet=parse("Field::caret { fg: #ff8000 }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate()), lambda a: None])
+    painted = terminal.painted
+    assert painted.count("\x1b]12;rgb:ff/80/00\x1b\\") == 1   # sent once, not every frame
+    assert painted.index("\x1b]12;") < painted.index(SHOW_CURSOR)
+    assert terminal.cursor_colored
+
+
+def test_an_uncoloured_caret_leaves_the_terminals_colour_alone(terminal):
+    app, root, field = field_app(terminal, stylesheet=parse("Field { fg: red }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert "\x1b]12;" not in terminal.painted and "\x1b]112" not in terminal.painted
+
+
+def test_a_caret_that_loses_its_colour_gives_the_terminal_its_own_back(terminal):
+    app, root, field = field_app(
+        terminal, stylesheet=parse("Field::caret { fg: #ff8000 }\nField.plain::caret { fg: default }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate()),
+                  lambda a: (field.add_class("plain"), a.invalidate())])
+    assert terminal.painted.rindex("\x1b]112\x1b\\") > terminal.painted.rindex("\x1b]12;")
+    assert not terminal.cursor_colored
+
+
+def test_a_palette_index_is_sent_as_the_pinned_palettes_colour(terminal):
+    from dataclasses import replace
+
+    from navkit.capabilities import VGA_PALETTE
+
+    terminal.info = replace(terminal.info, palette=VGA_PALETTE)
+    app, root, field = field_app(terminal, stylesheet=parse("Field::caret { fg: yellow }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert "\x1b]12;rgb:ff/ff/55\x1b\\" in terminal.painted
+
+
+def test_a_terminal_that_takes_no_cursor_colour_is_sent_none(terminal):
+    from dataclasses import replace
+
+    terminal.info = replace(terminal.info, cursor_color=False)
+    app, root, field = field_app(terminal, stylesheet=parse("Field::caret { fg: #ff8000 }"))
+    run_app(app, [lambda a: (field.focus(), a.invalidate())])
+    assert "\x1b]12;" not in terminal.painted
+
+
 def test_an_unchanged_cursor_is_not_reemitted(terminal):
     app, root, field = field_app(terminal)
     run_app(app, [lambda a: (field.focus(), a.invalidate()), lambda a: None])
