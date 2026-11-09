@@ -3332,7 +3332,10 @@ def test_the_clock_blinks_every_half_second(tree):
     armed = []
     run_app(app, [lambda a: armed.append(clock.tick._repeat is not None)], settle=0.02)
     assert armed == [True]
-    seen = [True]
+    # Wherever the loop left it: a run longer than one interval has had a
+    # real tick flip it already (CI, both Pythons).
+    start = clock.blink
+    seen = [start]
 
     # One tick of its timer flips it, and the next flips it back.
     async def two_ticks():
@@ -3342,7 +3345,7 @@ def test_the_clock_blinks_every_half_second(tree):
         seen.append(clock.blink)
 
     asyncio.run(two_ticks())
-    assert seen == [True, False, True]
+    assert seen == [start, not start, start]
 
 
 # -- the panel's scrollbar ---------------------------------------------------
