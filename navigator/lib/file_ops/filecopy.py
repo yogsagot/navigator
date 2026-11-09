@@ -200,6 +200,9 @@ class CopyJob(Job):
         self.copied: list[tuple[Location, Any]] = []
         #: How many files a copy overwrote (gone for good).
         self.overwritten = 0
+        #: Where the first source done in full went: what the panel showing
+        #: its directory puts the cursor on after, as F7's on its directory.
+        self.first_target: Location | None = None
         #: *Preserve attributes*: the copies whose times, mode or owner could
         #: not be kept -- ``(shown path, reason)``, the first
         #: :data:`ATTRIBUTES_KEPT` of them -- and how many in all.  The copy
@@ -572,6 +575,8 @@ class _Copier(Elevated):
                 self._checkpoint()
                 if self._transfer(Location.of(source), Location.of(target)):
                     done.append(source)
+                    if job.first_target is None:
+                        job.first_target = Location.of(target)
             if outer is not None:
                 job.packing, job.dest = True, str(shown(outer))
             finish_drives(places, self._fail, self._finish_as_root, job=job if outer is not None else None)

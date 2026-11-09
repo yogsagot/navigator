@@ -4118,12 +4118,19 @@ class Manager(Window):
         if done_into is not None:
             done_into.extend(done)
         # The window may have closed while the copy was in the background.
+        # A panel showing where the first source went lands on it there.
+        first = job.first_target
+
+        def key_in(each: Panel) -> str | None:
+            there = first is not None and each.found is None and Location.of(each.location) == first.parent
+            return first.name if there else None
+
         if panel.application is not None:
             panel.untag_paths(done)
-            panel.reload()
+            panel.reload(key=key_in(panel))
         for other in others:
             if other.application is not None:
-                other.reload()
+                other.reload(key=key_in(other))
         if job.attributes_lost_count:
             # *Preserve attributes* kept what it could: the rest said once, as
             # ``cp -p`` warns -- a FAT stick or a server keeps no owner or mode.

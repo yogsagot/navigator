@@ -224,6 +224,59 @@ def test_f5_copies_what_is_tagged_to_the_other_panel(two):
     assert "one.txt" in right
 
 
+def run_two(a, b, steps):
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await started(app, shell.manager.left, shell.manager.right)
+        try:
+            return await steps(app, shell.manager)
+        finally:
+            app.exit()
+            await task
+
+    return asyncio.run(asyncio.wait_for(main(), 10))
+
+
+def on(panel, name: str) -> bool:
+    return panel.selected is not None and panel.selected.name == name
+
+
+@pytest.mark.parametrize("key", ["f5", "f6"])
+def test_f5_and_f6_put_the_other_panel_s_cursor_on_what_went_there(two, key):
+    """As F7's on its directory: the panel showing where it went lands on it,
+    not left on ``..``."""
+    a, b = two
+
+    async def steps(app, manager):
+        manager.left.cursor = next(i for i, e in enumerate(manager.left.items) if e.name == "two.txt")
+        app.post_event(KeyEvent(key))
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: app.modal is None and on(manager.right, "two.txt"))
+        return manager.right.selected.name
+
+    assert run_two(a, b, steps) == "two.txt"
+    assert (b / "two.txt").exists() and (a / "two.txt").exists() == (key == "f5")
+
+
+def test_f6_renaming_in_place_puts_the_cursor_on_the_new_name(two):
+    a, b = two
+
+    async def steps(app, manager):
+        manager.left.cursor = next(i for i, e in enumerate(manager.left.items) if e.name == "two.txt")
+        app.post_event(KeyEvent("f6"))
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
+        app.modal.target.value = "aaa.txt"
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: app.modal is None and on(manager.left, "aaa.txt"))
+        return manager.left.selected.name, manager.right.selected.name
+
+    assert run_two(a, b, steps) == ("aaa.txt", "..")
+    assert (a / "aaa.txt").exists() and not (a / "two.txt").exists()
+
+
 def test_f5_asks_before_overwriting(two):
     from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
 

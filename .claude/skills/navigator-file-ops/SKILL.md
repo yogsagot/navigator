@@ -25,7 +25,9 @@ a path the user has just named, where a thread hop would only reorder the dialog
 DN's `FILECOPY.PAS`. `navigator/lib/file_ops/filecopy.py` is the model (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy
 modes, `MkName` masks, rename-first moves with an `EXDEV` fallback, `resolve_target`). `CopyDialog` is
 `dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory, F10/*Tree* picking it from
-a tree, mode and options remembered for the session. `Manager.copy_files` puts up `CopyProgress` (*Stop* asks *Abort
+a tree, mode and options remembered for the session. After it, a panel showing where the first source done in full
+went (`CopyJob.first_target`) re-reads with its cursor on it -- the other panel, or a rename's own -- as F7's is on its
+directory; `Manager._run_copy` does it, so drag-and-drop, Undo and Synchronize do too. `Manager.copy_files` puts up `CopyProgress` (*Stop* asks *Abort
 operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as the worker asks. **The check boxes are a
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
 stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows. **What *Preserve attributes* could not
