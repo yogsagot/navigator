@@ -324,13 +324,15 @@ def test_in_a_listing_each_file_is_renamed_in_its_own_directory(place, monkeypat
     def fill(a):
         a.modal.name_mask.value = "[P]_[N]"
 
+    renamed = [str(place / "a" / "a_README"), str(place / "b" / "b_README")]
     run_app(app, [lambda a: a.spawn(a.manager.panelize(a.manager.left, "printf 'a/README\\nb/README\\n'")),
                   Until(lambda a: a.manager.left.found is not None and a.modal is None), tag_all,
                   KeyEvent("a", alt=True), Until(lambda a: a.modal is not None), fill, lambda a: None,
-                  KeyEvent("enter"), Until(lambda a: (place / "b" / "b_README").exists()), lambda a: None,
+                  KeyEvent("enter"), Until(lambda a: (place / "b" / "b_README").exists()),
+                  # The listing is re-read on a thread: the new names are in it once that is back.
+                  Until(lambda a: [e.key for e in a.manager.left.items][1:] == renamed, timeout=5),
                   lambda a: seen.update(items=[e.key for e in a.manager.left.items],
                                         marked=a.manager.left.marked)])
-    renamed = [str(place / "a" / "a_README"), str(place / "b" / "b_README")]
     assert seen["items"] == ["..", *renamed] and seen["marked"] == frozenset(renamed)
 
 
@@ -359,7 +361,10 @@ def test_select_bad_names_then_clean_up_fixes_them(messy):
                   KeyEvent("a", alt=True), Until(lambda a: a.modal is not None), tick, lambda a: None,
                   lambda a: seen.update(preview=sorted((row.item.name, row.new) for row in a.modal.preview.items
                                                        if row.changed)),
-                  KeyEvent("enter"), Until(lambda a: (messy / "café").exists()), lambda a: None,
+                  KeyEvent("enter"), Until(lambda a: (messy / "café").exists()),
+                  # Bad names are told from the panel's listing, re-read on a thread.
+                  Until(lambda a: {"a_b", "café", "readme (2)"} <= {e.name for e in a.manager.left.items}
+                        and "caf\udce9" not in {e.name for e in a.manager.left.items}, timeout=5),
                   lambda a: seen.update(after=a.command_enabled(SelectBadNames()))])
     assert seen["enabled"] is True
     assert seen["marked"] == frozenset({"caf\udce9", "e\u0301t\u00e9", "a\tb", "README", "readme"})

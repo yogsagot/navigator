@@ -266,6 +266,51 @@ def test_f2_again_once_the_drive_is_back_sends_it(desk, asked, monkeypatch):
     assert drive.read("/files/one.txt") == b"xfirst"
 
 
+def held_upload(monkeypatch):
+    """``usefile.upload`` held until the returned *closed* is set; *started*
+    is set once an upload is waiting there."""
+    import threading
+
+    started, closed = threading.Event(), threading.Event()
+    upload = usefile.upload
+
+    def slow(changed, job):
+        started.set()
+        closed.wait(5)
+        return upload(changed, job)
+
+    monkeypatch.setattr(usefile, "upload", slow)
+    return started, closed
+
+
+def test_an_editor_closed_while_its_f2_uploads_lets_the_copy_go_after(desk, asked, monkeypatch):
+    # The upload's box shows only after a second: a window closed inside it
+    # used to delete the copy the upload was about to read.
+    app, drive = desk
+    started, closed = held_upload(monkeypatch)
+    seen: dict = {}
+
+    def close(a):
+        window = editor(a)
+        seen["local"] = window.editor.path
+        window.close()
+        seen["kept"] = seen["local"].exists()
+        closed.set()
+
+    run_app(app, [
+        on_one(drive), Until(lambda a: len(a.manager.left.items) == 2),
+        on_one(drive),
+        KeyEvent("f4"), Until(lambda a: editor(a) is not None, timeout=5),
+        KeyEvent("x", char="x"), KeyEvent("f2"),
+        Until(lambda a: started.is_set(), timeout=5),
+        close,
+        Until(lambda a: not seen["local"].parent.exists(), timeout=5),
+    ])
+    assert seen["kept"]
+    assert asked.prompts == []
+    assert drive.read("/files/one.txt") == b"xfirst"
+
+
 # -- the viewers --------------------------------------------------------------------------------------
 
 
@@ -293,6 +338,38 @@ def test_bytes_stored_in_hex_whose_upload_failed_keep_the_viewer_asking(desk, as
     assert seen["unsent"] and not seen["edited"] and seen["must_ask"]
     assert use.copies[0].local.read_bytes()[:1] == b"J"
     assert drive.read("/files/one.txt") == b"first"
+
+
+def test_a_viewer_closed_while_its_stored_bytes_upload_lets_the_copy_go_after(desk, asked, monkeypatch):
+    from navigator.lib.config.file_history import open_viewer
+
+    app, drive = desk
+    use = fetched(drive)
+    started, closed = held_upload(monkeypatch)
+    seen: dict = {}
+
+    def open_copy(a):
+        async def go():
+            window = await open_viewer(a.shell.desktop, use.copies[0].local, "hex")
+            window.use_set = use
+            seen["window"] = window
+        asyncio.ensure_future(go())
+
+    def close(a):
+        seen["window"].close()
+        seen["kept"] = use.directory.exists()
+        closed.set()
+
+    run_app(app, [
+        open_copy, Until(lambda a: "window" in seen, timeout=5),
+        KeyEvent("4", "4"), KeyEvent("a", "a"), KeyEvent("f2", shift=True),
+        Until(lambda a: started.is_set(), timeout=5),
+        close,
+        Until(lambda a: not use.directory.exists(), timeout=5),
+    ])
+    assert seen["kept"]
+    assert asked.prompts == []
+    assert drive.read("/files/one.txt") == b"Jirst"
 
 
 def test_a_database_window_with_an_upload_owed_asks_before_closing(desk, asked):

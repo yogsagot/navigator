@@ -40,6 +40,11 @@ async def materialize(app: Any, origins: list[Location]) -> usefile.UseSet | Non
         return None
 
 
+#: The puts back still going, by the ``id`` of the set each is of: what
+#: :func:`let_go` waits out before the copies go.
+_UPLOADING: dict[int, set[Any]] = {}
+
+
 async def put_back(app: Any, use: usefile.UseSet, *, ask: bool = True) -> bool:
     """What a program changed in *use*, put back where it came from -- asked
     first unless *Upload changed files* says otherwise, or the caller has
@@ -49,7 +54,70 @@ async def put_back(app: Any, use: usefile.UseSet, *, ask: bool = True) -> bool:
     had changed; False when something changed stays here: refused, declined,
     stopped, or failed (which is said).  A window that wrote its copy reads
     False as *not saved*: closing must ask before the copy is deleted.
+
+    A window closed meanwhile lets its copy go through :func:`let_go`,
+    which waits for this to be over.
     """
+    import asyncio
+
+    task = asyncio.ensure_future(_put_back(app, use, ask))
+    going = _UPLOADING.setdefault(id(use), set())
+    going.add(task)
+    try:
+        return await task
+    finally:
+        going.discard(task)
+        if not going and _UPLOADING.get(id(use)) is going:
+            del _UPLOADING[id(use)]
+
+
+def let_go(app: Any, use: usefile.UseSet | None, *, release_root: bool = False) -> None:
+    """A closing window's *use* deleted -- and, *release_root*, the root
+    helper it was fetched through unheld and released -- without waiting.
+
+    **Not from under an upload**: a field, an F2 or bytes stored a moment
+    before go up on a thread whose box shows only after a second, and a
+    window closed inside it would delete the copy that upload reads (or
+    release the root it writes through, :mod:`navigator.lib.system.elevate`).
+    Then both wait until :func:`put_back` is over.
+    """
+    import asyncio
+
+    if use is None and not release_root:
+        return
+    going = _UPLOADING.get(id(use)) if use is not None else None
+    if going and app is not None and app.is_running:
+        app.spawn(_let_go_after(set(going), use, release_root))
+        return
+    if release_root:
+        from navigator.lib.system.elevate import ELEVATION
+
+        ELEVATION.unhold()
+    asyncio.get_running_loop().run_in_executor(None, _discard_and_release, use, release_root)
+
+
+async def _let_go_after(going: set[Any], use: usefile.UseSet | None, release_root: bool) -> None:
+    import asyncio
+
+    await asyncio.wait(going)
+    if release_root:
+        from navigator.lib.system.elevate import ELEVATION
+
+        ELEVATION.unhold()
+    await asyncio.to_thread(_discard_and_release, use, release_root)
+
+
+def _discard_and_release(use: usefile.UseSet | None, release_root: bool) -> None:
+    """On a thread: both may wait."""
+    if use is not None:
+        usefile.discard(use)
+    if release_root:
+        from navigator.lib.system.elevate import ELEVATION
+
+        ELEVATION.release()
+
+
+async def _put_back(app: Any, use: usefile.UseSet, ask: bool) -> bool:
     import asyncio
 
     changed = await asyncio.to_thread(usefile.changed, use)

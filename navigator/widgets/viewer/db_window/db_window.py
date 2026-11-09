@@ -66,10 +66,6 @@ class DBWindow(Window):
         #: A field written into *use_set*'s copy whose upload failed or was
         #: declined: closing asks to upload before the copy is deleted.
         self.unsent = False
-        #: The field's upload still going (its task), if one is: ``close()``
-        #: waits it out before deleting the copy it reads or releasing the
-        #: root it writes through -- its box only shows after a second.
-        self._upload: Any = None
         self.code_page = isinstance(db, dbf.DBFile)
         if db is not None:
             # ``TWindow.Init(R, FName, 0)`` -- ``cmGetName``'s *dBase View - *
@@ -254,21 +250,10 @@ class DBWindow(Window):
         super().close()
         use, self.use_set = self.use_set, None
         held, self.root_held = self.root_held, False
-        if use is None and not held:
-            return
-        import asyncio
+        from navigator.widgets.drives.use_file import let_go
 
-        pending = self._upload
-        if pending is not None and not pending.done() and app is not None and app.is_running:
-            # Closed within the second before the upload's box: the copy and
-            # root go once it is over, not from under its thread.
-            app.spawn(_let_go(use, held, pending))
-            return
-        if held:
-            from navigator.lib.system.elevate import ELEVATION
-
-            ELEVATION.unhold()
-        asyncio.get_running_loop().run_in_executor(None, _discard_and_release, use, held)
+        # A field's upload still going is waited out first.
+        let_go(app, use, release_root=held)
 
     def refusal(self, command: Any) -> str:
         """*Memo view* only on a memo field -- off one, F3 does nothing; in a
@@ -649,15 +634,9 @@ class DBWindow(Window):
             # From another drive: the field goes back there at once, as it
             # went into the file on the disk.
             # A failed or declined upload keeps the window asking on close.
-            import asyncio
-
             from navigator.widgets.drives.use_file import put_back
 
-            self._upload = asyncio.ensure_future(put_back(self.application, self.use_set, ask=False))
-            try:
-                self.unsent = not await self._upload
-            finally:
-                self._upload = None
+            self.unsent = not await put_back(self.application, self.use_set, ask=False)
         viewer.invalidate()
 
     async def _edit_as_root(self) -> bool:
@@ -872,31 +851,6 @@ async def open_sqlite(desktop: Any, path: Path, *, table: str | None = None, que
     window = desktop.open(DBWindow(db, sqlite=file))
     window.viewer.focus()
     return window
-
-
-def _discard_and_release(use: Any, held: bool) -> None:
-    """A closed window's copy deleted and, if it was fetched as root, the
-    helper released -- on a thread, both may wait."""
-    if use is not None:
-        from navigator.lib.drives import usefile
-
-        usefile.discard(use)
-    if held:
-        from navigator.lib.system.elevate import ELEVATION
-
-        ELEVATION.release()
-
-
-async def _let_go(use: Any, held: bool, upload: Any) -> None:
-    """What :meth:`DBWindow.close` lets go of, once *upload* is over."""
-    import asyncio
-
-    await asyncio.wait({upload})
-    if held:
-        from navigator.lib.system.elevate import ELEVATION
-
-        ELEVATION.unhold()
-    await asyncio.to_thread(_discard_and_release, use, held)
 
 
 async def _reopen_sqlite(desktop: Any, file: Any, table: str | None, query: str | None) -> Any:

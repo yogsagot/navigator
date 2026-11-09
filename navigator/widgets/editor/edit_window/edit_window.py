@@ -302,12 +302,14 @@ class EditWindow(Window):
             self.remember_history()
         self.editor.unlock_file()
         self.editor._leave_buffer()
+        app = self.application
         super().close()
         if self.use_set is not None:
-            from navigator.lib.drives import usefile
+            from navigator.widgets.drives.use_file import let_go
 
+            # An F2's upload still going is waited out first.
             use, self.use_set = self.use_set, None
-            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+            let_go(app, use)
         after, self.after_close = self.after_close, None
         if after is not None:
             after()
@@ -1050,11 +1052,11 @@ class EditWindow(Window):
         elif self.use_set is not None:
             # The copy from another drive is left with its file: what is open
             # now is *path*, saved where it is.
-            from navigator.lib.drives import usefile
+            from navigator.widgets.drives.use_file import let_go
 
             use, self.use_set = self.use_set, None
             self.unsent = False
-            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+            let_go(self.application, use)
         # The menu's choice was the file left's; the record may bring one back.
         self.editor.file_type = ""
         self.title = bind(lambda _o: self._title(), yielding=True)

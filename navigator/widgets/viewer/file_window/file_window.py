@@ -174,15 +174,15 @@ class FileWindow(Window):
         # ``TFileViewer.Valid(cmClose)``: the record is written on the way out.
         if self.parent is not None:
             self.remember_history()
+        app = self.application
         super().close()
         use = getattr(self, "use_set", None)
         if use is not None:
-            import asyncio
+            from navigator.widgets.drives.use_file import let_go
 
-            from navigator.lib.drives import usefile
-
+            # Bytes stored a moment ago whose upload is still going: waited out first.
             self.use_set = None
-            asyncio.get_running_loop().run_in_executor(None, usefile.discard, use)
+            let_go(app, use)
 
     async def on_close_viewer(self, event: CloseViewer) -> bool:
         """F3 again: Midnight Commander's way out, beside DN's Esc."""

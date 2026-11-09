@@ -61,7 +61,8 @@ def test_alt_l_writes_the_tagged_names_untags_them_and_the_panel_shows_the_list(
 
     run_app(app, [tag, KeyEvent("l", alt=True), lambda a: None, look, KeyEvent("enter"),
                   Until(lambda a: (place / "dnlist.txt").exists() and not a.manager.left.marked),
-                  lambda a: None,
+                  # The panel's re-read runs on a thread: the list is in it once that is back.
+                  Until(lambda a: "dnlist.txt" in [e.name for e in a.manager.left.items], timeout=5),
                   lambda a: seen.update(listed="dnlist.txt" in [e.name for e in a.manager.left.items])])
     assert seen["title"] == "Make List File" and seen["name"] == "dnlist.txt" and seen["action"] == "ls -l"
     assert (place / "dnlist.txt").read_text() == "a.txt\nc.c\n"
