@@ -17,6 +17,7 @@ from navigator.widgets.manager.commands import ViewAsDataBase
 from navigator.widgets.viewer.db_list_dialog import DBListDialog
 from navigator.widgets.viewer.db_window import DBWindow
 from navigator.widgets.viewer.file_window import FileWindow
+from navigator.widgets.viewer.memo_dialog import MemoDialog
 
 FIELDS = (("NAME", "C", 10, 0), ("AGE", "N", 3, 0), ("BORN", "D", 8, 0), ("OK", "L", 1, 0),
           ("NOTES", "M", 10, 0))
@@ -93,6 +94,12 @@ def on(name: str):
     return action
 
 
+def memo_of(app) -> bytes:
+    """The bytes *Memo view*'s viewer holds."""
+    source = app.modal.viewer.source
+    return source.read(0, source.size)
+
+
 def window_of(app):
     return app.shell.desktop.active_window
 
@@ -110,13 +117,13 @@ def test_f3_on_a_dbf_opens_the_dbase_viewer_and_its_keys_move_the_cell(place):
                   lambda a: seen.update(fields=list(a.modal.lines.items), what=a.modal.title),
                   KeyEvent("enter"), Until(lambda a: a.modal is None),
                   KeyEvent("pageup", ctrl=True), KeyEvent("end"), KeyEvent("f3"),
-                  Until(lambda a: isinstance(a.modal, DBListDialog)),
-                  lambda a: seen.update(memo=list(a.modal.lines.items))])
+                  Until(lambda a: isinstance(a.modal, MemoDialog)),
+                  lambda a: seen.update(memo=memo_of(a))])
     assert seen["cell"] == (1, 2) and seen["indicator"] == "2/3" and seen["last"] == 2
     assert seen["title"].startswith("dBase View - ")
     assert seen["what"] == "Structure of people.dbf"
     assert seen["fields"][1] == " \u200eAGE         \u200eNumeric      \u200e3          \u200e0"  # held left to right
-    assert seen["memo"] == ["Hello", "memo"]
+    assert seen["memo"] == b"Hello\r\nmemo"
 
 
 def test_f4_edits_a_character_field_in_the_file(place):
@@ -203,13 +210,13 @@ def test_a_right_click_on_a_memo_cell_moves_there_and_offers_memo_view(place):
 
     run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
                   click_memo, Until(lambda a: popup(a) is not None), look,
-                  KeyEvent("m", "m"), Until(lambda a: isinstance(a.modal, DBListDialog)),
-                  lambda a: seen.update(memo=list(a.modal.lines.items))])
+                  KeyEvent("m", "m"), Until(lambda a: isinstance(a.modal, MemoDialog)),
+                  lambda a: seen.update(memo=memo_of(a))])
     assert seen["cell"] == (4, 0)
     assert list(seen["enabled"]) == ["Fields...", "Memo view", "Edit field...", "Sort by column",
                                      "Search...", "Search again", "Close"]
     assert seen["enabled"]["Memo view"]
-    assert seen["memo"] == ["Hello", "memo"]
+    assert seen["memo"] == b"Hello\r\nmemo"
 
 
 # -- F4 on each kind of field ---------------------------------------------------------------------
@@ -382,3 +389,88 @@ def test_holding_the_right_quarter_moves_on_field_by_field(place, monkeypatch):
                   MouseClickEvent(x=0, y=0, button="none", action="release"),
                   lambda a: seen.update(capture=a.mouse_capture)])
     assert seen["capture"] is None
+
+
+# -- Memo view: DN's memo file names, and the memo in a viewer ---------------------------------
+
+
+def write_fpt(path: Path, memo: bytes, block_size: int = 64, block: int = 1) -> Path:
+    """A FoxPro memo file with *memo* in *block*: the block size big-endian at
+    offset 4, and a type and a big-endian length before the text."""
+    header = struct.pack(">IHH", block + 1, 0, block_size).ljust(block * block_size, b"\0")
+    path.write_bytes(header + struct.pack(">II", 1, len(memo)) + memo)
+    return path
+
+
+@pytest.mark.parametrize("table, names", [
+    ("a.dbf", ["a.fpt", "a.FPT", "a.dbt", "a.DBT"]),
+    ("a.scx", ["a.sct", "a.SCT", "a.dbt", "a.DBT"]),
+    ("a.FRX", ["a.FRT", "a.frt", "a.DBT", "a.dbt"]),
+    ("a.db", ["a.fpt", "a.FPT", "a.dbt", "a.DBT"]),
+])
+def test_the_memo_file_is_looked_for_where_dn_looked(table, names):
+    assert [p.name for p in dbf.memo_files(Path(table))] == names
+
+
+def test_a_foxpro_memo_is_read_from_its_own_file_before_the_dbt(tmp_path):
+    db = dbf.DBFile(write_dbf(tmp_path / "people.dbf"))
+    first = db.record(0)
+    assert db.memo_data(first, db.fields[4]) == b"Hello\r\nmemo"           # the .dbt, dBase III's way
+    write_fpt(tmp_path / "people.fpt", b"From the \xfapt")
+    assert db.memo_data(first, db.fields[4]) == b"From the \xfapt"         # the .fpt wins
+    assert db.memo(first, db.fields[4]) == "From the ·pt"                   # decoded in CP437
+
+
+def test_a_screen_files_memo_is_in_its_sct(tmp_path):
+    table = write_dbf(tmp_path / "form.dbf")
+    screen = table.rename(tmp_path / "form.scx")
+    (tmp_path / "form.dbt").unlink()
+    write_fpt(tmp_path / "form.sct", b"on the screen")
+    db = dbf.DBFile(screen)
+    assert db.memo_data(db.record(0), db.fields[4]) == b"on the screen"
+    (tmp_path / "form.sct").unlink()
+    with pytest.raises(FileNotFoundError):
+        db.memo_data(db.record(0), db.fields[4])
+
+
+def test_a_memory_source_reads_and_finds_as_a_file_does():
+    import re
+
+    from navigator.lib.viewer import MemorySource
+
+    source = MemorySource(b"first line\nsecond line\n", "x.memo")
+    assert source.size == 23 and source.read(6, 4) == b"line" and source.peek(0) == ord("f")
+    assert not source.editable
+    assert source.find(re.compile(rb"second"), 0, backward=False, span=6) == (11, 6)
+
+
+def test_memo_view_is_the_memo_in_a_viewer_with_the_viewers_keys(place, monkeypatch):
+    import navigator.lib.viewer as viewer_model
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+
+    monkeypatch.setattr(viewer_model, "last_search", None)
+    long = b"word " * 30 + b"needle at the end"
+    write_fpt(place / "people.fpt", long + b"\r\nsecond line")
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def look(a):
+        box = a.modal
+        viewer = box.viewer
+        seen.update(size=(box.width, box.height), title=box.title, wrap=viewer.wrap, focused=a.focused is viewer,
+                    data=memo_of(a))
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  KeyEvent("end"), KeyEvent("f3"), Until(lambda a: isinstance(a.modal, MemoDialog)), look,
+                  KeyEvent("f2"), lambda a: seen.update(wrapped=a.modal.viewer.wrap),
+                  KeyEvent("f7"), Until(lambda a: isinstance(a.modal, ViewerFindDialog)),
+                  *[KeyEvent(c, c) for c in "needle"], KeyEvent("enter"),
+                  Until(lambda a: isinstance(a.modal, MemoDialog) and a.modal.viewer.hit is not None),
+                  lambda a: seen.update(hit=a.modal.viewer.hit),
+                  KeyEvent("escape"), Until(lambda a: a.modal is None),
+                  lambda a: seen.update(back=a.focused is window_of(a).viewer)])
+    assert seen["size"] == (69, 19) and seen["title"] == "Memo view"
+    assert seen["focused"] and seen["data"] == long + b"\r\nsecond line"
+    assert seen["wrapped"] is not seen["wrap"]
+    assert seen["hit"] == (long.index(b"needle"), 6)
+    assert seen["back"]

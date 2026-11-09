@@ -135,23 +135,33 @@ class DBFile:
         return text
 
     def memo(self, record: bytes, field: Field) -> str | None:
-        """``ViewMemo``: the memo *field* of *record* points at, from the
-        ``.fpt`` or the ``.dbt`` beside the file; None for none."""
+        """:meth:`memo_data` read as text, in the table's code page."""
+        data = self.memo_data(record, field)
+        return None if data is None else data.decode(CODEC, "replace")
+
+    def memo_data(self, record: bytes, field: Field) -> bytes | None:
+        """``ViewMemo``: the bytes of the memo *field* of *record* points at,
+        from the first of :func:`memo_files` there is; None for none.
+
+        Read as DN read them: a ``.dbt`` the dBase III way, from ``block *
+        512`` up to ``0x1A``; any other (``.fpt``, ``.sct``, ``.frt``) the
+        FoxPro way -- the block size big-endian at offset 4, and at ``block *
+        size`` a type and a big-endian length before the text.  Raises
+        ``FileNotFoundError`` (*Could not find MEMO file*) with neither."""
         text = self.raw(record, field).strip()
         if field.kind != "M" or not text.isdigit() or int(text) == 0:
             return None
         block = int(text)
-        for suffix in (".fpt", ".FPT", ".dbt", ".DBT"):
-            memo = self.path.with_suffix(suffix)
+        for memo in memo_files(self.path):
             if not memo.is_file():
                 continue
             with open(memo, "rb") as file:
-                if suffix.lower() == ".fpt":
+                if memo.suffix.lower() != ".dbt":
                     file.seek(4)
                     size = struct.unpack(">I", file.read(4))[0] or 512
                     file.seek(block * size + 4)
                     length = struct.unpack(">I", file.read(4))[0]
-                    return file.read(length).decode(CODEC, "replace")
+                    return file.read(length)
                 file.seek(block * 512)
                 data = bytearray()
                 while chunk := file.read(512):
@@ -160,7 +170,7 @@ class DBFile:
                         data += chunk[:end]
                         break
                     data += chunk
-                return bytes(data).decode(CODEC, "replace")
+                return bytes(data)
         raise FileNotFoundError(tr("Could not find MEMO file"))
 
     def write_field(self, index: int, field: Field, text: str) -> None:
@@ -170,6 +180,27 @@ class DBFile:
             file.seek(self.header_length + index * self.record_length + field.offset)
             file.write(data)
         self._cache = (0, b"")
+
+
+def memo_files(path: Path) -> list[Path]:
+    """Where *path*'s memos may be, in the order ``ViewMemo`` tried them.
+
+    ``if (XT[0] = #4) and (XT <> '.DBF') then XT[4] := 'T' else XT :=
+    '.FPT'``, then ``.dbt``: a four-character extension other than ``.dbf``
+    with its last letter ``T`` (``.scx`` -> ``.sct``, ``.frx`` -> ``.frt``),
+    else ``.fpt``.  DN upper-cased the name, which a POSIX name cannot be:
+    each is tried in the table's own case first, then the other.
+    """
+    suffix = path.suffix
+    first = suffix[:3] + "t" if len(suffix) == 4 and suffix.lower() != ".dbf" else ".fpt"
+    upper = suffix.isupper()
+    found: list[Path] = []
+    for name in (first, ".dbt"):
+        for spelled in ((name.upper(), name.lower()) if upper else (name.lower(), name.upper())):
+            candidate = path.with_suffix(spelled)
+            if candidate not in found:
+                found.append(candidate)
+    return found
 
 
 def date_shown(text: str) -> str:

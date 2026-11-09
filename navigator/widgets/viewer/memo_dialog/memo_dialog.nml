@@ -1,0 +1,53 @@
+from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, ContinueSearch, GotoAddress, HexMode, ReverseSearch
+from navigator.widgets.viewer.commands import SearchAgain, SearchFor, Unwrap
+from navigator.widgets.viewer.file_viewer import FileViewer
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.scroll_bar import ScrollBar
+
+#: F3 in the dBase viewer: DOS Navigator's ``ViewMemo`` (``DBVIEW.PAS``),
+#: *Memo view*.
+#:
+#: ``R.Assign(1,1,70,20)``, centred: a ``TNFileViewer`` on the memo from
+#: ``(2, 2)`` to ``(Size.X-2, Size.Y-4)``, its ``TViewScroll`` in the column
+#: after it, and OK.  The viewer is a ``TFileViewer`` with ``hcView``, so its
+#: keys are the viewer's while it has the keyboard -- handled by
+#: ``viewer_host``, as the F3 window's and the quick view's are.
+#:
+#: Not bound: Shift+F5's *Save as*, since a memo has no file of its own (the
+#: ``.fpt`` holds every record's) for it to be saved from, and Shift+F2's
+#: *Store*, since nothing is typed over.
+MemoDialog(Dialog):
+    modal_width: 69
+    modal_height: 19
+    title: "Memo view"
+    buttons: "ok"
+
+    keys:
+        f2: Unwrap
+        f4: HexMode
+        f5: GotoAddress
+        f6: AddFilter
+        f7: SearchFor
+        ctrl+f7: ReverseSearch
+        shift+f7: ContinueSearch
+        ctrl+l: SearchAgain
+        ctrl+enter: SearchAgain
+        shift+f6: ChooseEncoding
+
+    FileViewer:
+        id: viewer
+        x: 2
+        y: 2
+        width: max(0, parent.width - 4)
+        height: max(0, parent.height - 6)
+
+    #: ``TViewScroll``: its value is the byte offset on top, as the F3 window's.
+    ScrollBar:
+        id: bar
+        x: parent.width - 2
+        y: 2
+        width: 1
+        height: max(0, parent.height - 6)
+        value: viewer.top
+        maximum: viewer.size
+        page: max(1, viewer.width * viewer.height)

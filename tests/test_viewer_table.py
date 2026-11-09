@@ -217,12 +217,14 @@ def test_f2_f3_and_f4_on_a_csv(files):
         *opened(), KeyEvent("down"), KeyEvent("right"),
         lambda a: seen.update(f4=db_window(a).refusal(EditDbField())),
         KeyEvent("f3"), Until(lambda a: a.modal is not None),
-        lambda a: seen.update(memo=list(a.modal.lines.items)), KeyEvent("escape"), Until(lambda a: a.modal is None),
+        lambda a: seen.update(memo=a.modal.viewer.source.read(0, a.modal.viewer.size),
+                              encoding=a.modal.viewer.encoding),
+        KeyEvent("escape"), Until(lambda a: a.modal is None),
         KeyEvent("f2"), Until(lambda a: a.modal is not None),
         lambda a: seen.update(fields="\n".join(a.modal.lines.items)),
     ])
     assert seen["f4"] == "The database is opened read-only"
-    assert seen["memo"] == ["Lon", "don"]
+    assert seen["memo"] == b"Lon\r\ndon" and seen["encoding"] == "utf-8"
     assert "city" in seen["fields"] and "Comma" in seen["fields"] and "4 rows" in seen["fields"]
 
 

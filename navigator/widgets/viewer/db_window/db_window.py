@@ -447,25 +447,40 @@ class DBWindow(Window):
 
     async def show_memo(self) -> None:
         """``ViewMemo``: the memo at the cursor in *Memo view* -- nothing for a
-        field that is not one, or is empty."""
-        from navigator.widgets.viewer.db_list_dialog import DBListDialog
+        field that is not one, or is empty.
+
+        The memo in a viewer, as DN's ``TNFileViewer`` showed it, with the
+        viewer's keys (``MemoDialog``).  A dBase table's memo is its bytes,
+        read in the table's code page; a SQLite or CSV cell is text already,
+        and is shown in UTF-8.  Read on a thread: the memo file is on the
+        disk."""
+        import asyncio
+
+        from navigator.lib.viewer import dbf
+        from navigator.widgets.viewer.memo_dialog import MemoDialog
 
         db, viewer = self.db, self.viewer
         record = db.record(viewer.record) if db is not None else None
         if record is None:
             return
+        field = db.fields[viewer.field]
+        memo_data = getattr(db, "memo_data", None)
         try:
-            text = db.memo(record, db.fields[viewer.field])
+            if memo_data is not None:
+                data, codec = await asyncio.to_thread(memo_data, record, field), dbf.CODEC
+            else:
+                text = await asyncio.to_thread(db.memo, record, field)
+                data, codec = (None if text is None else text.encode("utf-8")), "utf-8"
         except FileNotFoundError:
             await self._say(tr("Could not find MEMO file"))
             return
         except OSError as error:
             await self._say(f"{error.strerror or error}")
             return
-        if text is None:
+        if data is None:
             return
-        lines = [line for chunk in text.replace("\r\n", "\n").split("\n") for line in _wrapped(chunk, 64)]
-        await DBListDialog(lines=lines, title=tr("Memo view"), modal_width=69, modal_height=19).execute(self.application)
+        name = f"{Path(str(db.path)).stem} {viewer.record + 1}.memo"
+        await MemoDialog(data=data, name=name, codec=codec).execute(self.application)
         viewer.focus()
 
     # -- F4 --------------------------------------------------------------------------

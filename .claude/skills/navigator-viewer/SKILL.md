@@ -211,15 +211,20 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   The dialog and the list are `FileHistoryDialog`/`FileRecordList` (`shell/`). The key bar names the list's own keys,
   *Space Pin*, *Shift+↑↓ Move*, *←→ Pinned* (`FileHistoryDialog.key_hints`; a departure, asked for). The Ctrl+Q quick viewer records nothing.
 - **The dBase viewer** (File > View > As DataBase, `ViewAsDataBase`; F3 on a `.dbf`, DN's `ViewFile` `XT = '.DBF'`):
-  `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from `.fpt`/`.dbt`,
+  `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from
+  `memo_files` (DN's names: a four-letter extension other than `.dbf` with its last letter `T`, so `.scx`→`.sct`,
+  else `.fpt`, then `.dbt`; the table's own case first) as bytes (`memo_data`; `memo` decodes them),
   cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As
   DataBase says so). `DBWindow`/`DBViewer` (`viewer/db_window/`) are `TDBWindow`/`TDBViewer`: field names over the
   records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates
   `DD-MM-YYYY` as the panels', a memo column `max(name, Len)` wide, `record/records` over the bottom frame (both plain,
   `ItoS`; in the passive frame colour while another window is active, `GetColor(1 + Byte(sfActive))`);
   Enter/arrows/Home/End/PgUp/PgDn/Ctrl+PgUp/PgDn, mouse quadrants (held, they repeat, `DBVIEW.PAS`'s
-  `evMouseAuto` loop). F2 *Structure of*, F3 *Memo view*
-  (`DBListDialog`), F4 edits the cell in place (`EditLineDialog`, history `edit_dbf`, its line held to the field's
+  `evMouseAuto` loop). F2 *Structure of*
+  (`DBListDialog`), F3 *Memo view* (`MemoDialog`, DN's 69×19 `ViewMemo` box: a `FileViewer` on a `MemorySource`
+  of the memo's bytes, a scroll bar, and OK). It reads the bytes on a thread, in the table's code page (UTF-8 for a
+  SQLite or CSV cell). It is wrapped as *Wrap lines* says, and the viewer's keys work (F2/F4-F7 and the searches
+  again, Shift+F6) through `viewer_host`, with no Save as and no Store. F4 edits the cell in place (`EditLineDialog`, history `edit_dbf`, its line held to the field's
   length and a date's 10 as `InputBox`'s `Limit`; L flips T/F; refused write-protected). A value that will not go in
   says *Not a number*, *The number does not fit the field* or *Not a date* and leaves the cell (a departure: DN's
   `Val` stored 0, losing the cell). F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked

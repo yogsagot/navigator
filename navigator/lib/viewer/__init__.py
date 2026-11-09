@@ -813,6 +813,37 @@ REMOTE_CACHED_CHUNKS = 512
 #: How many chunks past the one asked for are asked for with it.
 READ_AHEAD = 3
 
+class MemorySource(ViewSource):
+    """Bytes held in memory, viewed as a file is: the dBase viewer's memo.
+
+    DN's ``TMemoStream`` under a ``TNFileViewer`` (``DBVIEW.PAS``'s
+    ``ViewMemo``): the memo has no file of its own -- the ``.fpt`` holds every
+    record's -- so its bytes are read once and shown from here.  Every read,
+    the lines and the search already take a source read whole (``_data``, as
+    ``/proc``'s files are); there is no descriptor, nothing grows, and
+    nothing is typed over."""
+
+    def __init__(self, data: bytes, name: str) -> None:
+        self.path = Path(name)
+        self.table = None
+        self._fd = None
+        self._chunks: OrderedDict[int, bytes] = OrderedDict()
+        self._data = bytes(data)
+        self._eol_cache = None
+        self._start_edits()
+        self.size = len(self._data)
+
+    def close(self) -> None:
+        """Nothing to let go."""
+
+    def refresh(self, new_size: int | None = None) -> str:
+        return "same"
+
+    @property
+    def editable(self) -> bool:
+        return False
+
+
 #: The threads chunks are fetched on: few, as every one is a round trip
 #: on one connection.
 _FETCHERS = concurrent.futures.ThreadPoolExecutor(max_workers=2, thread_name_prefix="nav-view-fetch")
