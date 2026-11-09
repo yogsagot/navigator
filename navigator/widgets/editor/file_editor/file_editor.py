@@ -1895,10 +1895,21 @@ class FileEditor(ContextMenuHost, Widget):
             top, left, bottom, right = self.rectangle
             corner = self._logical_column(top, left)
             for number in range(top, min(bottom, len(self.document) - 1) + 1):
+                text = self.document.lines[number]
                 for i, j in reversed(self._rect_spans(number, left, right)[0]):
-                    self.buffer.delete(Pos(number, i), Pos(number, j))
+                    if self.overwrite:
+                        # ``BlockDelete`` in overwrite (``udClearBlock``): the
+                        # rectangle's cells made blanks, the columns kept.
+                        wide = (columns.column_of(text, j, self.tab_size)
+                                - columns.column_of(text, i, self.tab_size))
+                        self.buffer.delete(Pos(number, i), Pos(number, j))
+                        self.buffer.insert(Pos(number, i), " " * wide)
+                    else:
+                        self.buffer.delete(Pos(number, i), Pos(number, j))
             self.column_block = None
-            self._go_column(top, corner)
+            if not self.overwrite:
+                # Only inserting did ``BlockDelete`` move the cursor.
+                self._go_column(top, corner)
             return
         runs = self._block_runs()
         if runs:
@@ -3037,9 +3048,16 @@ class FileEditor(ContextMenuHost, Widget):
         """A paste: line breaks become the file's own.
 
         Text a column block was copied as goes back in as a rectangle
-        (:meth:`_insert_rectangle`).
+        (:meth:`_insert_rectangle`) -- and so does any text while *Vertical
+        blocks* is on, cut at its breaks, as ``InsertBlock`` put every paste
+        in under ``VertBlock``.  In overwrite a rectangle's pieces replace
+        their width of each line.
         """
         pieces = _COLUMN_CLIP.get(BREAK.sub("\n", text))
+        if pieces is None and self.vertical_blocks:
+            pieces = BREAK.sub("\n", text).split("\n")
+            if len(pieces) > 1 and pieces[-1] == "":
+                pieces.pop()  # the break after the last line ends it, it is not a line
         if pieces is not None:
             self._insert_rectangle(pieces)
             return
@@ -3058,18 +3076,25 @@ class FileEditor(ContextMenuHost, Widget):
         """
         self._begin_typed()
         line, col = self.line, self.col
-        self._put_rectangle(pieces, line, col)
+        self._put_rectangle(pieces, line, col, replace=self.overwrite)
         self._go_column(line, col)
         self._end()
 
-    def _put_rectangle(self, pieces: list[str], line: int, col: int) -> None:
-        """:meth:`_insert_rectangle`'s edits, inside a group the caller opened."""
+    def _put_rectangle(self, pieces: list[str], line: int, col: int, *, replace: bool = False) -> None:
+        """:meth:`_insert_rectangle`'s edits, inside a group the caller opened.
+
+        *replace* (overwrite) first takes each piece's width of its line from
+        *col* on, as ``InsertBlock``'s ``Delete(S2, Delta.X+1, Length(S1))``."""
         for offset, piece in enumerate(pieces):
             number = line + offset
             if number >= len(self.document):
                 self.buffer.insert(self.document.end, self.document.newline)
             text = self.document.lines[number]
             index, past = columns.index_at(text, col, self.tab_size)
+            if replace and index < len(text):
+                end, _ = columns.index_at(text, col + columns.width(piece, self.tab_size), self.tab_size)
+                self.buffer.delete(Pos(number, index), Pos(number, end))
+                text = self.document.lines[number]
             if index >= len(text):
                 piece = piece.rstrip(" ")
                 if not piece:
@@ -3118,6 +3143,15 @@ class FileEditor(ContextMenuHost, Widget):
         else:
             self._block_off()
             self._begin()
+        line = self.line
+        indent = self._split_line()
+        self._go_column(line + 1, indent)
+        self._end()
+        return True
+
+    def _split_line(self) -> int:
+        """``MakeEnter``'s split at the cursor, inside a group the caller opened
+        (see :meth:`on_new_line`): the column the moved part's text starts in."""
         index, past = self._index()
         text = self._text()
         line = self.line
@@ -3147,9 +3181,7 @@ class FileEditor(ContextMenuHost, Widget):
         self.buffer.insert(Pos(line, at), self.document.newline + (indent if moved else ""))
         if len(kept) < at:
             self.buffer.delete(Pos(line, len(kept)), Pos(line, at))
-        self._go_column(line + 1, columns.width(indent, self.tab_size))
-        self._end()
-        return True
+        return columns.width(indent, self.tab_size)
 
     async def on_duplicate_line(self, event: DuplicateLine) -> bool:
         """``cmDuplicateLine``: ``FileLines^.AtInsert(LastY+1, GetLine(LastY))``, one undo
@@ -3165,12 +3197,26 @@ class FileEditor(ContextMenuHost, Widget):
         return True
 
     async def on_insert_line(self, event: InsertLine) -> bool:
-        """``cmInsLine``: a break after the cursor, which stays where it was."""
+        """``cmInsLine``: ``BlockOff``, then ``MakeEnter`` with the cursor put back.
+
+        Inserting, Enter's split (:meth:`_split_line`: the part kept losing
+        its trailing blanks, the part moved its indent under *Autoindent*),
+        the cursor staying where it was.  In overwrite ``MakeEnter`` splits
+        nothing: on the last line an empty one is added after it, elsewhere
+        nothing happens.  A block is let go, never taken (``BlockOff``).
+        """
         line, col = self.line, self.col
+        self._block_off()
+        self._moved()
+        if self.overwrite:
+            if line == len(self.document) - 1:
+                self._begin()
+                self.buffer.insert(self.document.end, self.document.newline)
+                self._end()
+            self._go_column(line, col)
+            return True
         self._begin()
-        index, _ = self._index()
-        at = Pos(self.line, min(index, len(self._text())))
-        self.buffer.insert(at, self.document.newline)
+        self._split_line()
         self._end()
         self._go_column(line, col)
         return True
@@ -3188,8 +3234,7 @@ class FileEditor(ContextMenuHost, Widget):
             return await self.on_indent_block(IndentBlock(stop=True))
         stop = self._tab_stop()
         if self.overwrite:
-            self._moved()
-            self._move_to(self.line, stop)
+            self._overwrite_tab(stop)
             return True
         self._begin("type")
         # Again: a block replaced has moved the cursor to where it began.
@@ -3204,6 +3249,30 @@ class FileEditor(ContextMenuHost, Widget):
         self._go_column(self.line, stop)
         self._end()
         return True
+
+    def _overwrite_tab(self, stop: int) -> None:
+        """``InsertSpace`` in overwrite: each column crossed inside the text made
+        a blank -- a character crossed becomes as many blanks as it is wide,
+        so the columns after it stay -- and past the end the cursor just goes
+        on, nothing written, as DN's ``Inc(LastX)`` left it (the next
+        character typed pads to it)."""
+        text = self._text()
+        start, _ = columns.index_at(text, self.col, self.tab_size)
+        end, _ = columns.index_at(text, stop, self.tab_size)
+        # A character straddling the stop is crossed too: its columns before it.
+        if end < len(text) and columns.column_of(text, end, self.tab_size) < stop:
+            end += 1
+        crossed = text[start:end]
+        if crossed and crossed.strip(" "):
+            first = columns.column_of(text, start, self.tab_size)
+            last = columns.column_of(text, end, self.tab_size)
+            self._begin("type")
+            self.buffer.delete(Pos(self.line, start), Pos(self.line, end))
+            self.buffer.insert(Pos(self.line, start), " " * (last - first))
+            self._end()
+        else:
+            self._moved()
+        self._go_column(self.line, stop)
 
     def _tab_stop(self) -> int:
         """Where Tab takes the cursor: under the line above as ``DoTab`` reads
@@ -3279,6 +3348,9 @@ class FileEditor(ContextMenuHost, Widget):
             self._moved()
             self._go_column(self.line, self.col - 1)
             return True
+        if self.overwrite:
+            self._overwrite_back(index)
+            return True
         text = self._text()
         at_boundary = columns.column_of(text, index, self.tab_size) == self.col
         if at_boundary and index == 0:
@@ -3296,6 +3368,28 @@ class FileEditor(ContextMenuHost, Widget):
         self._go(Pos(self.line, start))
         self._end()
         return True
+
+    def _overwrite_back(self, index: int) -> None:
+        """``MakeBack`` in overwrite: at column 0 nothing -- no join -- and
+        otherwise the character before the cursor made blanks as wide as it
+        (``udReplaceChar``), the cursor a column left.  A tab is blank already:
+        the cursor alone moves."""
+        if self.col == 0:
+            return
+        text = self._text()
+        at_boundary = columns.column_of(text, index, self.tab_size) == self.col
+        start = index - 1 if at_boundary else index
+        char = text[start] if 0 <= start < len(text) else " "
+        if char in " \t":
+            self._moved()
+            self._go_column(self.line, self.col - 1)
+            return
+        wide = columns.advance(char, columns.column_of(text, start, self.tab_size), self.tab_size)
+        self._begin("back")
+        self.buffer.delete(Pos(self.line, start), Pos(self.line, start + 1))
+        self.buffer.insert(Pos(self.line, start), " " * wide)
+        self._end()
+        self._go_column(self.line, columns.column_of(self._text(), start, self.tab_size))
 
     async def on_delete_char(self, event: DeleteChar) -> bool:
         """``MakeDel``: the character under the cursor, or join the next line.

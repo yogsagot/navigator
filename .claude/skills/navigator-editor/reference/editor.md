@@ -140,7 +140,9 @@ left behind when nothing follows. Enter in overwrite only moves to the next line
 cursor (at least one column -- DN's `repeat` moves before it looks, so from under a blank it passes the next word
 too), on over the blanks after it, then one more, onto the next word's start, or one past the end where the word ran
 to it. On the first line, or past the end of the one above, `MakeTab`'s next stop. Blanks, as DN -- unless
-*Tab characters* is on (below); in overwrite it moves there instead, kept within the line's text as overwrite keeps the cursor.
+*Tab characters* is on (below); in overwrite (`InsertSpace`) each column it crosses inside the text is made a blank
+-- a character as many blanks as it is wide -- and past the end the cursor goes on to the stop writing nothing, as
+DN's `Inc(LastX)` did; typing there pads to it (`FileEditor._overwrite_tab`).
 `columns.smart_tab(above, column, tab)` is the rule, pure; `FileEditor._tab_stop` applies it. A departure: the line
 above is read by display column (a tab there as the blanks it shows, a wide character as two), where DN had every tab
 expanded on reading. DN had no switch for it, nor has Navigator.

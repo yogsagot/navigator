@@ -1216,6 +1216,47 @@ def test_a_rectangle_pasted_past_short_lines_and_the_end_pads_and_adds(files):
     assert editor.document.encode() == b"abcd\nefghab\n    ef"
 
 
+def test_cutting_a_rectangle_in_overwrite_leaves_blanks_and_the_cursor(files):
+    # ``BlockDelete`` in overwrite: ``Insert(Strg(' ', ...))`` where the columns were (``udClearBlock``).
+    seen = []
+    app, editor = columns_editor(files, b"abcdef\nab\nabcdef\n", KeyEvent("insert"),
+                                 KeyEvent("right"), KeyEvent("right"),
+                                 *[KeyEvent("right", shift=True)] * 3,
+                                 *[KeyEvent("down", shift=True)] * 2,
+                                 lambda a: seen.append((editor_window(a).editor.line, editor_window(a).editor.col)),
+                                 KeyEvent("delete", shift=True))
+    assert editor.document.encode() == b"ab   f\nab\nab   f\n"
+    assert editor.column_block is None and (editor.line, editor.col) == seen[0]
+    _, editor = columns_editor(files, b"abcdef\nab\nabcdef\n", KeyEvent("insert"),
+                               KeyEvent("right"), KeyEvent("right"),
+                               *[KeyEvent("right", shift=True)] * 3, *[KeyEvent("down", shift=True)] * 2,
+                               KeyEvent("delete", shift=True), KeyEvent("z", ctrl=True))
+    assert editor.document.encode() == b"abcdef\nab\nabcdef\n"
+
+
+def test_with_vertical_blocks_any_paste_goes_in_as_a_rectangle(files):
+    from navkit.events import PasteEvent
+
+    _, editor = columns_editor(files, b"abcd\nefgh\n", KeyEvent("right"), PasteEvent("XY\nZW\n"))
+    assert editor.document.encode() == b"aXYbcd\neZWfgh\n" and (editor.line, editor.col) == (0, 1)
+
+
+def test_with_vertical_blocks_a_paste_in_overwrite_replaces_the_columns(files):
+    from navkit.events import PasteEvent
+
+    _, editor = columns_editor(files, b"abcd\nefgh\n", KeyEvent("insert"), KeyEvent("right"),
+                               PasteEvent("XY\nZW"))
+    assert editor.document.encode() == b"aXYd\neZWh\n"
+
+
+def test_without_vertical_blocks_a_paste_is_a_stream(files):
+    from navkit.events import PasteEvent
+
+    SETTINGS.editor.vertical_blocks = False
+    _, editor = text_editor(files, b"abcd\nefgh\n", KeyEvent("right"), PasteEvent("XY\nZW"))
+    assert editor.document.encode() == b"aXY\nZWbcd\nefgh\n"
+
+
 def test_a_tab_belongs_to_the_column_it_starts_in(files):
     # Columns 2 to 9: on "a\tbc" the tab starts at 1, outside; "b" at 8 is in, "c" at 9 is not.
     app, editor = columns_editor(files, b"abcdefghij\na\tbc\n",
@@ -3447,11 +3488,59 @@ def test_tab_on_the_first_line_or_past_the_end_above_goes_to_the_next_stop(files
     assert editor.document.encode() == b"ab\ncdef    \n"
 
 
-def test_tab_in_overwrite_moves_under_the_next_word_and_inserts_nothing(files):
-    # A line as long as the one above: overwrite keeps the cursor within the text, as it always has.
+def test_tab_in_overwrite_goes_under_the_next_word_and_blanks_what_it_crosses(files):
+    # ``InsertSpace`` in overwrite: ``WorkString[LastX + 1] := ' '`` for each column crossed.
     _, editor = text_editor(files, b"int  count;\nabcdefghijk\n", KeyEvent("down"), KeyEvent("insert"),
                             KeyEvent("tab"))
-    assert editor.document.encode() == b"int  count;\nabcdefghijk\n" and (editor.line, editor.col) == (1, 5)
+    assert editor.document.encode() == b"int  count;\n     fghijk\n" and (editor.line, editor.col) == (1, 5)
+
+
+def test_tab_in_overwrite_past_the_end_moves_on_and_writes_nothing_until_typing(files):
+    _, editor = text_editor(files, b"ab\n", KeyEvent("end"), KeyEvent("insert"), KeyEvent("tab"))
+    assert editor.document.encode() == b"ab\n" and editor.col == 8
+    _, editor = text_editor(files, b"ab\n", KeyEvent("end"), KeyEvent("insert"), KeyEvent("tab"), *typed("x"))
+    assert editor.document.encode() == b"ab      x\n"
+
+
+def test_backspace_in_overwrite_makes_a_blank_and_never_joins(files):
+    _, editor = text_editor(files, b"abcd\nef\n", *at(0, 3), KeyEvent("insert"), KeyEvent("backspace"),
+                            KeyEvent("backspace"))
+    assert editor.document.encode() == b"a  d\nef\n" and (editor.line, editor.col) == (0, 1)
+    _, editor = text_editor(files, b"abcd\nef\n", KeyEvent("down"), KeyEvent("insert"), KeyEvent("backspace"))
+    assert editor.document.encode() == b"abcd\nef\n" and (editor.line, editor.col) == (1, 0)
+    assert not editor.modified
+
+
+def test_backspace_in_overwrite_after_a_wide_character_leaves_two_blanks_and_undoes_as_one(files):
+    # Two Rights: over ``a``, then over the wide character, to column 3.
+    _, editor = text_editor(files, "a中b\n".encode(), *at(0, 2), KeyEvent("insert"), KeyEvent("backspace"))
+    assert editor.document.encode() == b"a  b\n" and editor.col == 1
+    _, editor = text_editor(files, "a中b\n".encode(), *at(0, 2), KeyEvent("insert"), KeyEvent("backspace"),
+                            KeyEvent("backspace"), KeyEvent("z", ctrl=True))
+    assert editor.document.encode() == "a中b\n".encode()
+
+
+def test_ctrl_n_splits_as_enter_does_and_keeps_the_cursor(files):
+    from navigator.widgets.editor.commands import InsertLine
+
+    SETTINGS.editor.auto_indent = True
+    try:
+        _, editor = text_editor(files, b"  abc  def\n", *at(0, 7),
+                                lambda a: a.spawn(a.run_command(InsertLine, editor_window(a).editor)), IDLE)
+    finally:
+        SETTINGS.editor.auto_indent = False
+    assert editor.document.encode() == b"  abc\n  def\n" and (editor.line, editor.col) == (0, 7)
+
+
+@pytest.mark.parametrize("line, added", [(1, True), (0, False)])
+def test_ctrl_n_in_overwrite_adds_a_line_on_the_last_only(files, line, added):
+    from navigator.widgets.editor.commands import InsertLine
+
+    # No break after "def": it is the last line.
+    _, editor = text_editor(files, b"abc\ndef", *at(line, 1), KeyEvent("insert"),
+                            lambda a: a.spawn(a.run_command(InsertLine, editor_window(a).editor)), IDLE)
+    assert len(editor.document) == (3 if added else 2) and (editor.line, editor.col) == (line, 1)
+    assert editor.document.lines[:2] == ["abc", "def"]
 
 
 @pytest.mark.parametrize("start, stop, blanks", [

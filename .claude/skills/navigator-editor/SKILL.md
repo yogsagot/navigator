@@ -338,7 +338,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **Autoindent and Backspace indents** are DN's `MakeEnter` and `MakeBack`, per editor (`auto_indent`/`back_indent`,
   seeded from the setup's *Auto indent* and *Backspace unindents*, switched by Editor > Options *Autoindent*
   (`SwitchIndent`, `cmSwitchIndent`) and *Backspace indents* (`SwitchBack`, `cmSwitchBack`), ticked). **Enter**
-  (`on_new_line`): in overwrite only to the next line's start (a line added past the last). Inserting, the part kept
+  (`on_new_line`): in overwrite only to the next line's start (a line added past the last). **Overwrite reaches four
+  more places, as DN's `InsertMode = Off` did:** Backspace (`_overwrite_back`, `MakeBack`) makes the character
+  before the cursor blanks as wide as it and never joins at column 0 (*BackIndent* still first); Tab blanks what it
+  crosses and past the end only moves (`_overwrite_tab`); deleting a column block -- Del, Cut, typing over it --
+  fills the rectangle with blanks and leaves the cursor (`_take_block`, `udClearBlock`); and with *Vertical blocks*
+  any paste goes in as a rectangle (`insert_text`), replacing its width of each line in overwrite
+  (`_put_rectangle(replace=True)`). **Ctrl+N** (`on_insert_line`, `cmInsLine`) is `MakeEnter` with the cursor put
+  back: Enter's split (`_split_line`) inserting, in overwrite a line added only after the last; a block is let go,
+  never taken. Inserting, the part kept
   loses its trailing blanks (tabs too, DN having had only spaces) and the part moved the line's last ones; with
   Autoindent the moved part's leading blanks give way to the indent of the part kept -- the whole line's if that part
   is blank -- the cursor at it, and a new line with nothing after the indent is left empty with the cursor waiting
