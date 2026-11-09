@@ -551,7 +551,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   scroll bar's room. `reference/editor.md` has each one's rules -- read soft wrap's before touching `render`,
   `_follow` or vertical movement.
 - **While an editor window is active the bar has an *Editor* menu after *File***: DN's `dlgEditorMenu`, its seven menus
-  nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`). **What the
+  nested as submenus; every entry is a live command, and an option's is ticked while it is on (`checks`). **F10 and
+  ^K^Q drop it** (`EditWindow.f10_menu`, read by `Shell.on_open_menu`), as `cmMenu` reached DN's in-window bar first,
+  and *File > Main menu* (`MainMenu`, `cmMainMenu`, F10 in its key column) highlights the bar's first entry. **What the
   modern default keys leave unbound is on the menu** (a departure: in DN these were keys alone): Editor > Delete > *Delete word
   right* / *Delete to end of line* (the four deletes are a submenu because on the Editor menu itself the box would be
   25 rows, which `test_every_menu_box_fits_an_80_by_25_screen` refuses), Block's first group *Mark start/end/word/

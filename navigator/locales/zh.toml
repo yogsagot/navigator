@@ -6790,6 +6790,8 @@ flag = "CN"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"~M~ain menu" = "主菜单(~M~)"
+
 [unused]
 "Confirmation" = "确认"
 "Year" = "年份"

@@ -549,6 +549,22 @@ def test_f10_is_the_menu_and_holds_the_keys_after_it(tree):
     assert app.manager.left.cursor == 0
 
 
+def test_f10_in_the_viewer_is_still_the_bars_first_entry(tree):
+    # Only DN's editor had a bar of its own: the viewer's *View* is not F10's.
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    app = navigator(tree)
+    seen = []
+
+    def on_a_file(a):
+        panel = a.manager.left
+        panel.cursor = next(i for i, e in enumerate(panel.items) if not e.is_dir)
+
+    run_app(app, [on_a_file, KeyEvent("f3"), Until(lambda a: isinstance(a.shell.desktop.active_window, FileWindow)),
+                  KeyEvent("f10"), lambda a: seen.append(a.shell.menu.current)])
+    assert seen == [0]
+
+
 def test_unhandled_keys_are_ignored(tree):
     app = navigator(tree)
     run_app(app, [KeyEvent("z", "z")])

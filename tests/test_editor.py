@@ -2769,11 +2769,34 @@ def test_ctrl_k_then_the_ctrl_bracket_keys_change_the_blocks_case(files, key, ex
     assert editor.document.encode() == expected
 
 
+def bar_state(a):
+    """The bar's highlighted entry, and whether a box is dropped from it."""
+    session = a.shell.menu.session
+    return a.shell.menu.entries()[a.shell.menu.current], bool(session is not None and session.boxes)
+
+
 @pytest.mark.usefixtures("wordstar")
 def test_ctrl_k_ctrl_q_opens_the_menu_as_f10_does(files):
     seen = []
-    text_editor(files, b"abc\n", *chord(ctrl("q")), lambda a: seen.append(a.shell.menu.current))
-    assert seen == [0]
+    text_editor(files, b"abc\n", *chord(ctrl("q")), lambda a: seen.append(bar_state(a) + (editor_window(a),)))
+    entry, dropped, window = seen[0]
+    assert entry is window.edit_menu and dropped
+
+
+def test_f10_in_the_editor_drops_the_editor_menu(files):
+    # DN's editor window had ``dlgEditorMenu`` as a bar of its own, which
+    # ``cmMenu`` reached first.
+    seen = []
+    text_editor(files, b"abc\n", KeyEvent("f10"), lambda a: seen.append(bar_state(a) + (editor_window(a),)))
+    entry, dropped, window = seen[0]
+    assert entry is window.edit_menu and dropped
+
+
+def test_file_main_menu_goes_to_the_bars_first_entry(files):
+    seen = []
+    text_editor(files, b"abc\n", chosen("File", "Main menu"), lambda a: None,
+                lambda a: seen.append((a.shell.menu.current, bar_state(a)[1])))
+    assert seen == [(0, False)]
 
 
 def test_a_blank_line_or_no_word_changes_nothing(files):

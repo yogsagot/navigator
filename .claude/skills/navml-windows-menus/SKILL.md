@@ -65,7 +65,9 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
 `navml/widgets/menu/` (slots `[2-7]`): `MenuBar`, `MenuBox`, and `SubMenu`/`MenuItem`/`MenuLine` blocks -- invisible
 data widgets; the tree is markup. An open menu is a modal layer. Navigator's menu is DN 1.51's `dlgMainMenu`,
 transcribed into `navigator/widgets/shell/main_menu/main_menu.nml`, with every entry whose feature does not exist
-greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`).
+greyed. F10 opens it (`OpenMenu`, `navml/widgets/menu/commands.py`): the bar's first entry, unless the active window
+names its own menu as `f10_menu` -- only the editor does, its *Editor* entry dropped, as DN's editor alone had a bar
+of its own. `MainMenu` (`cmMainMenu`) is the way back to the bar's first entry; the Shell handles both.
 
 - **Every submenu has an id** (`app.shell.menu.file`, `menu.file_view`). `MenuBar`/`SubMenu` share `MenuContainer`'s
   Python API for plugins: `add_item`/`add_submenu`/`add_line` with `before=`/`after=` anchors (an entry, a caption, or

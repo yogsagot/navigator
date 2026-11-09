@@ -6,6 +6,7 @@ from navigator.widgets.editor.file_editor import FileEditor, FormatMarks, InfoLi
 from navigator.widgets.editor.find_bar import FindBar
 from navigator.settings import SETTINGS
 from navml.commands import CloseWindow
+from navml.widgets.menu.commands import MainMenu
 from navml.widgets.option_strip import OptionStrip
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.menu.menu_item import MenuItem
@@ -174,8 +175,9 @@ EditWindow(Window):
     #: (``TEditWindow.Init``).  Its seven menus would not fit beside the main
     #: bar's, and *File*, *Options* and four of its letters are the main bar's
     #: already, so they are submenus here -- all but *Edit*, whose entries are
-    #: the menu's own (below).  *Main menu* (F10) is left out: the menu it
-    #: would open is the one it is in.
+    #: the menu's own (below).  F10 and ^K^Q drop this menu
+    #: (``EditWindow.f10_menu``), as ``cmMenu`` reached DN's in-window bar
+    #: first, and *File > Main menu* (``cmMainMenu``) goes to the bar's start.
     #:
     #: Every entry names a command the editor does.  DN showed each option's
     #: ``Off``/``On`` in the key column; here an option's entry is ticked
@@ -301,6 +303,11 @@ EditWindow(Window):
                 command: PrintBlock
                 key: 'Shift-F8'
             MenuLine:
+            #: ``cmMainMenu``: the main bar's first entry, F10 in DN's key column.
+            MenuItem:
+                text: '~M~ain menu'
+                command: MainMenu
+                key: 'F10'
             MenuItem:
                 text: 'E~x~it'
                 command: CloseWindow

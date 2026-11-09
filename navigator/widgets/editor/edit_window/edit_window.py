@@ -1185,6 +1185,14 @@ class EditWindow(Window):
             return
         super().request_close()
 
+    @property
+    def f10_menu(self) -> Any:
+        """What F10 (and ^K^Q) drops while this window is active: the *Editor*
+        menu.  DN's ``TEditWindow`` had ``dlgEditorMenu`` as a bar of its own
+        inside its frame, which ``cmMenu`` reached before the main one
+        (``Shell.on_open_menu``)."""
+        return self.edit_menu
+
     def views_of_text(self) -> list[EditWindow]:
         """The other windows showing this window's text (Window > *New view*)."""
         return [view.parent for view in self.editor.siblings() if isinstance(view.parent, EditWindow)]

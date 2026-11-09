@@ -6791,6 +6791,8 @@ direction = "rtl"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "الثواني بين فحوص مجلد الخادم للتحديث التلقائي؛ 0 أبدا"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"~M~ain menu" = "القائمة ال~ر~ئيسية"
+
 [unused]
 "Confirmation" = "تأكيد"
 "~Name~" = "~لاعب~"

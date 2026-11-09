@@ -6790,6 +6790,8 @@ flag = "JP"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"~M~ain menu" = "メインメニュー(~M~)"
+
 [unused]
 "Confirmation" = "確認"
 "Year" = "年"

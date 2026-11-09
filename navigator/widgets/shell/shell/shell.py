@@ -25,7 +25,7 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet, StylesheetError
 from navml.widgets.dialog.dialog import Dialog
-from navml.widgets.menu.commands import OpenMenu
+from navml.widgets.menu.commands import MainMenu, OpenMenu
 from navml.history import HISTORY
 
 from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
@@ -699,7 +699,23 @@ class Shell(DockLayout):
         The bar is nowhere near the focus -- it is a sibling of the desktop --
         so the command, which starts from the focus and walks up, reaches it
         only through the screen that holds both.
+
+        The active window's own menu, if it names one (``f10_menu``), is
+        dropped instead: the editor's, as DN's editor window had a bar of its
+        own that ``cmMenu`` reached first.  Every other window's F10 is the
+        bar's first entry, as theirs had none.
         """
+        own = getattr(self.desktop.active_window, "f10_menu", None)
+        entries = self.menu.entries()
+        if own is not None and own in entries:
+            self.menu.open(entries.index(own), drop=True)
+        else:
+            self.menu.open(0)
+        return True
+
+    async def on_main_menu(self, event: MainMenu) -> bool:
+        """``cmMainMenu``, Editor > File > *Main menu*: the bar's first entry,
+        highlighted and not dropped, as ``cmMenu`` left the main bar."""
         self.menu.open(0)
         return True
 

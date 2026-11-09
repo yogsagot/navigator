@@ -6790,6 +6790,8 @@ flag = "LV"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Sekundes starp servera direktorijas pārbaudēm automātiskai atsvaidzināšanai; 0 — nekad"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"~M~ain menu" = "Galvenā i~z~vēlne"
+
 [unused]
 "Confirmation" = "Apstiprinājums"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
