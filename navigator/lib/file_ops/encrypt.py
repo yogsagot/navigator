@@ -241,6 +241,9 @@ class EncryptJob(Job):
         #: what each was to be (None: not even read, to be planned again).
         self.refused: list[tuple[Location, int, str]] = []
         self.refused_plans: dict[Location, Plan | None] = {}
+        #: Every target written in full, in order, over every batch of the
+        #: run: the first is what a panel showing it puts its cursor on.
+        self.written: list[Location] = []
         #: Every step on the disk through the root helper: *As root*, once asked.
         self.as_root = False
 
@@ -710,6 +713,7 @@ def _each(plans: list[Plan], job: EncryptJob, do: Callable[[Plan], None]) -> lis
                 drives[id(drive)] = drive
                 do(plan)
                 done.append(plan)
+                job.written.append(plan.target)
             except NeedsPassphrase:
                 job.needs_passphrase.append(plan)
             except BadPassphrase:

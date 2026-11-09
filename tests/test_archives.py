@@ -719,6 +719,43 @@ def test_shift_f2_extracts_an_archive_from_outside_it(desk):
     assert (here / "out" / "empty").is_dir()
 
 
+def right_at(*names):
+    return lambda a: a.manager.right.selected is not None and a.manager.right.selected.name in names
+
+
+def test_shift_f2_puts_the_other_panel_s_cursor_on_what_it_extracted(desk):
+    """As F5 lands on what it made: the target panel's cursor leaves ``..``
+    for the first thing extracted -- whichever the archive lists first."""
+    app, here = desk
+    seen = {}
+    run_app(app, [
+        at("a.zip"), KeyEvent("f2", shift=True), Until(modal_is("ExtractDialog")),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "README").exists(), timeout=5),
+        Until(right_at("empty", "src", "README"), timeout=5),
+        lambda a: seen.update(at=a.manager.right.selected.name),
+    ])
+    assert seen["at"] in {"empty", "src", "README"}
+
+
+def test_extract_to_from_inside_puts_the_other_panel_s_cursor_on_it(desk):
+    """*Extract to* from ``src``: path names are kept from where the panel is
+    in the archive, so ``main.py`` lands in ``out`` itself, and the panel on
+    ``out`` leaves ``..`` for it."""
+    from navigator.widgets.manager.commands import ExtractTo
+
+    app, here = desk
+    seen = {}
+    run_app(app, [
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("src"), KeyEvent("enter"), Until(lambda a: "main.py" in names(a)),
+        at("main.py"), lambda a: a.spawn(a.run_command(ExtractTo)), Until(modal_is("ExtractDialog")),
+        KeyEvent("enter"), Until(lambda a: written(here / "out" / "main.py", "print('hi')\n"), timeout=3),
+        Until(right_at("main.py"), timeout=3),
+        lambda a: seen.update(at=a.manager.right.selected.name),
+    ])
+    assert seen["at"] == "main.py"
+
+
 def test_shift_f2_inside_an_archive_is_extract_to(desk):
     app, here = desk
     run_app(app, [
@@ -745,6 +782,22 @@ def test_shift_f1_packs_the_selection_into_a_new_zip_in_the_other_panel(desk):
     assert seen["target"] == f"{here / 'out' / 'notes.zip'}"
     with zipfile.ZipFile(here / "out" / "notes.zip") as packed:
         assert packed.read("notes.txt") == b"n\n"
+
+
+def test_shift_f1_puts_the_other_panel_s_cursor_on_the_new_archive(desk):
+    """As F5 lands on what it made: what went into ``notes.zip`` is inside
+    it, so the panel showing ``out`` lands on the archive itself."""
+    app, here = desk
+    (here / "notes.txt").write_text("n\n")
+    seen = {}
+    run_app(app, [
+        KeyEvent("r", ctrl=True), Until(lambda a: "notes.txt" in names(a)), at("notes.txt"),
+        KeyEvent("f1", shift=True), Until(modal_is("ArchiveDialog")),
+        KeyEvent("enter"), Until(lambda a: (here / "out" / "notes.zip").exists(), timeout=3),
+        Until(right_at("notes.zip"), timeout=3),
+        lambda a: seen.update(at=a.manager.right.selected.name),
+    ])
+    assert seen["at"] == "notes.zip"
 
 
 @needs_zstd

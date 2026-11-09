@@ -273,6 +273,33 @@ def test_a_part_at_the_cursor_combines(place):
     assert (place / "b" / "blob.bin").read_bytes() == DATA
 
 
+def right_on(name: str):
+    return Until(lambda a: a.manager.right.selected is not None and a.manager.right.selected.name == name)
+
+
+def test_split_puts_the_other_panel_s_cursor_on_the_first_part(place):
+    """As F5 lands on what it made: the panel showing the parts leaves ``..``
+    for the first of them."""
+    app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
+    seen = {}
+    run_app(app, [on("blob.bin"), command, Until(lambda a: isinstance(a.modal, SplitDialog)),
+                  lambda a: setattr(a.modal.size, "value", "1k"), KeyEvent("enter"),
+                  Until(lambda a: (place / "b" / "blob.bin.crc").exists() and a.modal is None),
+                  right_on("blob.bin.001"), lambda a: seen.update(at=a.manager.right.selected.name)])
+    assert seen == {"at": "blob.bin.001"}
+
+
+def test_combine_puts_the_other_panel_s_cursor_on_the_file_made(place):
+    split(SplitRequest(here(place / "a" / "blob.bin"), "", here(place / "a"), 1000), FileJob())
+    (place / "a" / "blob.bin").unlink()
+    app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
+    seen = {}
+    run_app(app, [on("blob.bin.002"), command, Until(lambda a: isinstance(a.modal, CombineDialog)),
+                  KeyEvent("enter"), Until(lambda a: (place / "b" / "blob.bin").exists() and a.modal is None),
+                  right_on("blob.bin"), lambda a: seen.update(at=a.manager.right.selected.name)])
+    assert seen == {"at": "blob.bin"}
+
+
 def test_a_bad_size_keeps_the_dialog_up(place):
     app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
     seen = {}

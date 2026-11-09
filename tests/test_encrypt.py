@@ -336,6 +336,41 @@ def test_encrypt_writes_beside_each_file_keeps_them_and_untags(gnupg, place):
     assert "pw" not in vars(SETTINGS.encryption).values()
 
 
+def left_on(name: str):
+    return Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == name, timeout=10)
+
+
+@needs_gpg
+def test_encrypt_and_decrypt_put_the_cursor_on_what_they_wrote(gnupg, place):
+    """As F5 lands on what it made: ``a.txt.gpg`` after Encrypt, and -- the
+    original moved aside -- ``a.txt`` again after Decrypt."""
+    app = navigator(place)
+    seen = {}
+
+    def on(name):
+        def act(a):
+            panel = a.manager.left
+            panel.cursor = [entry.name for entry in panel.items].index(name)
+        return act
+
+    def answer(a):
+        a.modal.entry.value = "pw"
+
+    run_app(app, [
+        on("a.txt"), lambda a: a.manager.spawn(a.manager.encrypt_files(a.manager.left)),
+        Until(lambda a: a.modal is not None), _fill("pw"), KeyEvent("enter"),
+        Until(lambda a: (place / "a.txt.gpg").exists()), left_on("a.txt.gpg"),
+        lambda a: seen.update(encrypted=a.manager.left.selected.name),
+        lambda a: (place / "a.txt").rename(place / "a.txt.orig"), KeyEvent("r", ctrl=True),
+        Until(lambda a: "a.txt.orig" in [entry.name for entry in a.manager.left.items]),
+        on("a.txt.gpg"), lambda a: a.manager.spawn(a.manager.decrypt_files(a.manager.left)),
+        Until(lambda a: a.modal is not None and a.modal.title == "Passphrase", timeout=10), answer, KeyEvent("enter"),
+        Until(lambda a: (place / "a.txt").exists(), timeout=10), left_on("a.txt"),
+        lambda a: seen.update(decrypted=a.manager.left.selected.name),
+    ])
+    assert seen == {"encrypted": "a.txt.gpg", "decrypted": "a.txt"}
+
+
 @needs_gpg
 def test_mismatched_passphrases_keep_the_dialog_up(gnupg, place):
     app = navigator(place)

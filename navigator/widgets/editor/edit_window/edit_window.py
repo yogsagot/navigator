@@ -85,12 +85,13 @@ class FileSaved(Event):
     """A file was written: the panels showing its directory re-read it.
 
     DN's ``FileChanged``, which broadcast ``cmRereadDir`` for the directory.
-    *created*: the write made the file (Shift+F4's new file, saved the first
-    time), and the re-read puts the cursor on it, as F7's does a directory.
+    *land*: the re-read puts the cursor on it, as F7's on a directory --
+    for a file the write made (Shift+F4's new file, saved the first time) or
+    an operation's result (Checksums' lists).
     """
 
     path: Path
-    created: bool = False
+    land: bool = False
 
 
 class EditWindow(Window):
@@ -370,7 +371,7 @@ class EditWindow(Window):
             return sent
         if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
-            await self.emit(FileSaved(path, created=self._created))
+            await self.emit(FileSaved(path, land=self._created))
         return written
 
     async def _write_or_root(self, path: Path, backup: bool = False) -> bool | None:

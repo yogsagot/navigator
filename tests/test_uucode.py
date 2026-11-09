@@ -241,6 +241,33 @@ def test_ctrl_f8_decodes_into_the_other_panel(place):
     assert (place / "b" / "blob.bin").read_bytes() == DATA
 
 
+def right_on(name: str):
+    return Until(lambda a: a.manager.right.selected is not None and a.manager.right.selected.name == name)
+
+
+def test_ctrl_f7_puts_the_other_panel_s_cursor_on_what_it_wrote(place):
+    """As F5 lands on what it made: the panel showing the encoded file leaves
+    ``..`` for it."""
+    SETTINGS.uucode.lines_per_section = 100_000  # one section: blob.uue
+    app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
+    seen = {}
+    run_app(app, [on("blob.bin"), KeyEvent("f7", ctrl=True), Until(lambda a: isinstance(a.modal, UUEncodeDialog)),
+                  KeyEvent("enter"), Until(lambda a: (place / "b" / "blob.uue").exists() and a.modal is None),
+                  right_on("blob.uue"), lambda a: seen.update(at=a.manager.right.selected.name)])
+    assert seen == {"at": "blob.uue"}
+
+
+def test_ctrl_f8_puts_the_other_panel_s_cursor_on_what_it_decoded(place):
+    encode(EncodeRequest(place / "a" / "blob.bin", "blob.uue", lines=1000), Job(), place / "a")
+    (place / "a" / "blob.bin").unlink()
+    app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
+    seen = {}
+    run_app(app, [on("blob.uue"), KeyEvent("f8", ctrl=True), Until(lambda a: isinstance(a.modal, UUDecodeDialog)),
+                  KeyEvent("enter"), Until(lambda a: (place / "b" / "blob.bin").exists() and a.modal is None),
+                  right_on("blob.bin"), lambda a: seen.update(at=a.manager.right.selected.name)])
+    assert seen == {"at": "blob.bin"}
+
+
 def test_no_to_a_file_there_already_writes_nothing(place):
     SETTINGS.uucode.lines_per_section = 1000  # one section: blob.uue
     encode(EncodeRequest(place / "a" / "blob.bin", "blob.uue", lines=1000), Job(), place / "a")

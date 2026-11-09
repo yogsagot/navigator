@@ -306,7 +306,9 @@ and is untagged once queued (`cmCopyUnselect`); a refusal stops the run, says wh
 
 `navigator/lib/file_ops/uucode.py`, DN's `UUCODE.PAS`/`UUE2INC.ASM`, on the file at the cursor (`UuEncode`/`UuDecode`, enabled on
 a file only); `Manager.uu_encode`/`uu_decode` -> `_run_uucode` (a `FileJob` under `WriteWin`, `_watch_job`, questions
-by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* boxes).
+by `_answer_uu_question`: `ExistsQuery` Yes/No/All/Cancel, errors as *Error* boxes). After it a panel showing the first file
+written (encode's list, decode's `DecodeResult.written`) lands on it, as F5's on what it made; `_staged` says
+those files where they went up, not in its staging directory.
 - **Encode** is transcribed: `plan()` is `CalcLSsize`; one file a section (`NAME.uue`, else `.uu1`.. `.u10`.. `.100`);
   `section N of M of file NAME  < uuencode by Navigator >`; statistics, `filetime` (DOS packed time), `table`,
   `begin 644`; `UUXLT` with a backquote for 0; checksum levels cumulative -- entire `sum -r/size`, per-section
@@ -326,6 +328,8 @@ DN's `cmPanelLongCopy` (`FBB.PAS` `LongCopy`, `dlgSplitFile`/`dlgCombineFile`); 
 is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_commands`), since Shift+F5 is Create symlink's.
 - **One command, the name decides** (DN's `Tuda`, `splitfile.mode_for`): `NAME.NNN` (three digits or more), or a
   `NAME.crc` beside its `NAME.001`, combines; anything else splits. Enabled as UU is: a file at the cursor.
+- **The cursor**: `_run_uucode` takes the worker's `Result.written` and a panel showing the first one written lands
+  on it -- the first part, or the file combined -- as F5's on what it made; UU's the same (*UU Encode* below).
 - **Departures**: split by a size asked for (`parse_size`: `100M`, `1.44M`, `4G`, bytes; powers of 1024) where DN
   filled each floppy; headerless `NAME.001`, `.002`.. (`part_name`, `.1000` past 999) where DN wrote `.D01` behind a
   `Navigator Long Copy` header; and Total Commander's `NAME.crc` (`filename=`/`size=`/`crc32=`, `crc_text`/`read_crc`)
@@ -358,7 +362,8 @@ is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_comman
   through `_write_list` (so *As root* on the disk) after Alt+L's Yes/Append/Cancel (`_ask_over_list`), leaving the list
   itself out; *Each file* writes `name.<ext>` beside each as it goes (`write_each`, a Stop keeps what was written),
   skipping files that are lists, after one *overwrite them?* question. Entries done are untagged; unreadable files are
-  said in one Error box (eight lines, then *and N more*).
+  said in one Error box (eight lines, then *and N more*). One `FileSaved(..., land=True)` per directory, for the first
+  list written there, puts a panel showing it on that list, as F5's on what it made.
 - **Verify** takes the tagged lists (by name), else every tagged file or the cursor's, untags them, tags the failed and
   unreadable files in `all_panels` (`Panel.tag_paths`), and shows `ChecksumReport` (counts, and a `ListViewer` of the
   bad ones). Missing is `FileNotFoundError`; a list with no lines is in `lists_unreadable`.
@@ -383,6 +388,8 @@ alone and why, failures). The encodings are the editor's (`navigator/lib/editor/
   `replace` over it, the temporary unlinked on any failure; a hard-linked file or one reached through a symlink is
   written into instead, so the links stay. *Keep file times* `utime`s the old times back. Every drive written to is
   `finish()`ed once at the end (an archive rewritten once). No Ctrl+Z undo yet.
+- **The cursor**: nothing new is made, so Alt+A's rule (`Manager._converted_landing` over `TextJob.converted`): its
+  own file if converted, else the first converted in the panel's directory, else the first; `_reload_landing` then.
 - **As root** (`navigator-elevation`): a refusal on the disk is not an error but goes in `TextJob.refused`; after the
   pass `Manager._convert_as_root` asks `ask_as_root` once for all of them and runs `convert(..., as_root=True)` over
   those, every step through `ROOT_DRIVE`, releasing after. Declined or with no way to root they become failures.
@@ -405,6 +412,9 @@ passphrase), `ChecksumProgress` through `Manager._run_checksums`, errors through
   in `/tmp`. `_drain` polls Stop with `select` every 0.1 s (age at a prompt writes nothing). Stop or failure kills
   the child's **process group** (each child leads a session: a helper holding the pipes would otherwise block) and
   unlinks the target. `_each` calls each target drive's `finish()` once, at the end (an archive is rewritten once).
+- **The cursor**: `_each` adds each target written in full to `EncryptJob.written`, over every batch of the run (the
+  *As root* one and the passphrase retries too), and `Manager._reload_landing` puts a panel showing the first on it,
+  as F5's on what it made.
 - **A passphrase never goes in argv or the environment**, and no child can reach Navigator's terminal (each is
   started in a new session). gpg: `--batch --no-tty --pinentry-mode loopback --passphrase-fd N` (a pipe in
   `pass_fds`, written and closed before the start), `--no-symkey-cache` so a passphrase typed here does not go on

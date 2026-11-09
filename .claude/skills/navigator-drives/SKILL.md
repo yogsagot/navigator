@@ -442,7 +442,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   Tree) less *Password* (zipfile knows only ZipCrypto); an empty line is the archive's own directory. Extracting is
   the copier (`Manager._extract` → `_run_copy`), the Copy dialog's session mode and options, without paths
   `CopyRequest.flatten` (`_Copier._flattened`: every file under a directory into the target). Shift+F2 opens each
-  archive on a thread, extracts its root's children, then `release_unheld`. Test is **`ArchiveDrive.test(job,
+  archive on a thread, extracts its root's children, then `release_unheld`. Through `_run_copy`, the panel showing
+  the target lands on the first thing extracted, as F5's on what it made (path names are kept from where the panel
+  is in the archive, so that is always right in the target). Test is **`ArchiveDrive.test(job,
   locations)`**: every member read through (zip CRCs, tar reads; 7z `7z t`, rar `unrar t`, whole), `(path, why)` per failure,
   said in a box. **Departure, recorded**: DN put Extract/Test/Password on F4/F6/F7 of an archive panel's key bar
   (`hcArchives`); here F4 and F6 stay Edit and Rename/Move, which work in an archive.
@@ -454,7 +456,9 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
   for; *Compare files* moved to `~l~` to free the `i`) is **`ArchiveDialog`** (`widgets/file_ops/archive_dialog`,
   DN's `dlgArchiveFiles`, 64x18): *Archive to* (Copy's history), *Archive type* (`FORMATS`: ZIP 7Z TAR TAR.GZ
   TAR.BZ2 TAR.XZ TAR.ZST RAR), *Compression* (None/Fastest/Normal/Maximum/Ultra; *None* is `store`), *Password*,
-  *Store pathnames* (off = `CopyRequest.flatten`), *Move files*, *Follow symlinks*, Tree (keeps the name). The type
+  *Store pathnames* (off = `CopyRequest.flatten`), *Move files*, *Follow symlinks*, Tree (keeps the name). After
+  it the panel showing the archive's directory lands on the archive (`_run_copy`'s cursor steps out through
+  `Location.outer` from where the first file went). The type
   and the name's ending follow each other (`_kind_changed`/`_name_changed` effects); levels and password a type
   has not got are greyed (`RadioButtons.enable_mask`, navml's `TCluster.EnableMask`); a type with no tool
   (`archive.format_missing`) is greyed and said on the row above the buttons. OK (`confirm`): a name with no ending

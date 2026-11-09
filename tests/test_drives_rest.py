@@ -149,14 +149,17 @@ def test_uu_encode_and_decode_on_another_drive(desk):
         request = uucode.EncodeRequest(local, str(staging / dest.name), lines=100_000)  # one section
         return uucode.encode(request, job, staging), dest.parent
 
-    Manager._staged(place, encode)(Job())
+    # What was written is said where it went up, not in the staging
+    # directory: what the panel showing it puts its cursor on.
+    assert Manager._staged(place, encode)(Job()) == [memory.location("/work/blob.uue")]
     assert memory.lexists(memory.location("/work/blob.uue"))
     encoded = memory.location("/work/blob.uue")
 
     def decode(job, local, staging):
         return uucode.decode(local, staging, job), memory.location("/work/sub")
 
-    Manager._staged(encoded, decode)(Job())
+    result = Manager._staged(encoded, decode)(Job())
+    assert result.written == [memory.location("/work/sub/blob.bin")]
     assert memory.read("/work/sub/blob.bin") == payload
 
 

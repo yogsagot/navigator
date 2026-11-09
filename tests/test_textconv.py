@@ -5,6 +5,8 @@ from __future__ import annotations
 import codecs
 import os
 
+import pytest
+
 from conftest import Until, run_app
 from navkit.events import KeyEvent
 
@@ -118,6 +120,34 @@ def test_file_encoding_convert_text_runs_over_the_tagged_files(tmp_path, quiet_c
 
 
 from test_editor import quiet_console  # noqa: E402,F401
+
+
+@pytest.mark.parametrize("cursor, lands", [("..", "b.txt"), ("c.txt", "c.txt"), ("a.txt", "b.txt")])
+def test_convert_text_puts_the_cursor_on_what_it_converted(tmp_path, quiet_console, cursor, lands):
+    """Nothing new is made, so Alt+A's rule: the cursor stays on its own file
+    if that was converted, else goes to the first converted -- off ``..``, or
+    off ``a.txt``, tagged but not converted (already LF)."""
+    from navigator.__main__ import Navigator
+    from conftest import FakeTerminal
+
+    (tmp_path / "a.txt").write_bytes(b"one\ntwo\n")
+    for name in ("b.txt", "c.txt"):
+        (tmp_path / name).write_bytes(b"one\r\ntwo\r\n")
+    SETTINGS.text_conversion.ending = "lf"
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = {}
+
+    def start(a):
+        panel = a.manager.left
+        panel.cursor = [entry.name for entry in panel.items].index(cursor)
+        panel.marked = frozenset({"a.txt", "b.txt", "c.txt"})
+        a.manager.spawn(a.manager.convert_text(panel))
+
+    run_app(app, [start, Until(lambda a: a.modal is not None and a.modal.title == "Convert Text Files"),
+                  KeyEvent("enter"), Until(lambda a: a.modal is not None and a.modal.title != "Convert Text Files"),
+                  Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == lands),
+                  lambda a: seen.update(at=a.manager.left.selected.name), KeyEvent("enter")])
+    assert seen == {"at": lands}
 
 
 def test_files_on_another_drive_are_converted_through_it():

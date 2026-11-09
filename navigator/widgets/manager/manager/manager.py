@@ -632,6 +632,11 @@ class Manager(Window):
                     usefile.put_files(files, directory, job,
                                       None if ask is None else lambda existing: ask(existing, job),
                                       drive=drive if directory.is_local else None)
+                    # What was written is where it went up, not the staging.
+                    if isinstance(result, list):
+                        return [directory / Path(path).name for path in result]
+                    if isinstance(getattr(result, "written", None), list):
+                        result.written = [directory / Path(path).name for path in result.written]
                     return result
                 return answer
             finally:
@@ -674,7 +679,10 @@ class Manager(Window):
         *Beep after copy* rings for one that took longer than *beep_after*
         seconds, as DN's timer did.  A failure refused permission offers
         *As root*, and *as_root(job)* -- the same work through the helper --
-        is run instead (a departure; :mod:`navigator.lib.system.elevate`)."""
+        is run instead (a departure; :mod:`navigator.lib.system.elevate`).
+        What was written -- a result that is a list of files (UU encode's)
+        or has ``written`` (UU decode's, Split/combine's) -- puts the cursor
+        of a panel showing the first one on it, as F5's on what it made."""
         from navigator.lib.file_ops import uucode
         from navigator.lib.system.job import Stopped
         from navigator.widgets.editor.loading import FileJob, progress_box, refresh_box
@@ -685,10 +693,14 @@ class Manager(Window):
         started = asyncio.get_running_loop().time()
         work = asyncio.ensure_future(asyncio.to_thread(work_on, job))
         problem = None
+        first: Location | None = None
         try:
             await self._watch_job(work, job, lambda: progress_box(job, notice), refresh_box(job),
                                   self._answer_uu_question)
-            await work
+            result = await work
+            written = result if isinstance(result, list) else getattr(result, "written", None)
+            if written:
+                first = Location.of(written[0])
         except Stopped:
             pass
         except ValueError as error:
@@ -707,7 +719,8 @@ class Manager(Window):
             if not work.done():
                 job.stop()
         for each in self.all_panels:
-            each.reload()
+            there = first is not None and each.found is None and Location.of(each.location) == first.parent
+            each.reload(key=first.name if there else None)
         if problem is not None:
             await Dialog(title=tr("Error"), prompt=problem, buttons="ok").execute(app)
         elif (not job.stopped and SETTINGS.file_manager.beep_after_copy
@@ -871,9 +884,13 @@ class Manager(Window):
         except Stopped:
             return
         finally:
-            # One per directory: each re-reads every panel showing it.
-            for location in {location.parent: location for location in written}.values():
-                await self.emit(FileSaved(shown(location)))
+            # One per directory: each re-reads every panel showing it, the
+            # cursor on the first list written there, as F5's on what it made.
+            first: dict[Any, Location] = {}
+            for location in written:
+                first.setdefault(location.parent, location)
+            for location in first.values():
+                await self.emit(FileSaved(shown(location), land=True))
         self._untag_done(panel, entries, sources, job.errors + job.write_errors)
         if job.errors:
             await self._say_checksum_errors(job.errors)
@@ -1023,13 +1040,19 @@ class Manager(Window):
         except Stopped:
             return
         finally:
-            for each in self.all_panels:
-                each.reload()
+            self._reload_landing(job.written[0] if job.written else None)
         self._untag_done(panel, entries, sources, job.errors)
         if job.errors:
             await self._say_checksum_errors(
                 self._encryption_reasons(job.errors),
                 tr_n("{n} file could not be encrypted:", "{n} files could not be encrypted:", len(job.errors)))
+
+    def _reload_landing(self, landed: Location | None) -> None:
+        """Every panel read again, one showing *landed*'s directory with its
+        cursor on it -- what an operation made, as F5's on its copy."""
+        for each in self.all_panels:
+            there = landed is not None and each.found is None and Location.of(each.location) == landed.parent
+            each.reload(key=landed.name if there else None)
 
     async def decrypt_files(self, panel: Panel) -> None:
         """File > Encoding > Encryption > Decrypt: the tagged encrypted files -- or the
@@ -1110,8 +1133,7 @@ class Manager(Window):
                 from navigator.lib.system.elevate import ELEVATION
 
                 await asyncio.to_thread(ELEVATION.release)
-            for each in self.all_panels:
-                each.reload()
+            self._reload_landing(job.written[0] if job.written else None)
         self._untag_done(panel, entries, sources, job.errors)
         if job.errors:
             await self._say_checksum_errors(
@@ -1161,10 +1183,24 @@ class Manager(Window):
         except Stopped:
             return
         finally:
-            for each in self.all_panels:
-                each.reload()
+            self._reload_landing(self._converted_landing(panel, job.converted))
         self._untag_done(panel, entries, sources, job.errors)
         await self._say_conversion(job)
+
+    @staticmethod
+    def _converted_landing(panel: Panel, converted: list[Location]) -> Location | None:
+        """Where the cursor goes after Convert text, which makes nothing new:
+        on its own file if that was converted, else on the first converted
+        in *panel*'s directory, else the first of all -- Alt+A's rule."""
+        if not converted:
+            return None
+        entry = panel.selected
+        if entry is not None and entry.name != "..":
+            own = panel.entry_location(entry)
+            if own in converted:
+                return own
+        here = Location.of(panel.location)
+        return next((location for location in converted if location.parent == here), converted[0])
 
     async def _convert_as_root(self, job: Any, options: Any, title: str) -> None:
         """The files the disk refused permission, converted again through the
@@ -4145,12 +4181,20 @@ class Manager(Window):
         if done_into is not None:
             done_into.extend(done)
         # The window may have closed while the copy was in the background.
-        # A panel showing where the first source went lands on it there.
+        # A panel showing where the first source went lands on it there --
+        # or, packed into an archive (Shift+F1), on the archive.
         first = job.first_target
 
         def key_in(each: Panel) -> str | None:
-            there = first is not None and each.found is None and Location.of(each.location) == first.parent
-            return first.name if there else None
+            if each.found is not None:
+                return None
+            shows = Location.of(each.location)
+            landed = first
+            while landed is not None:
+                if landed.parent == shows:
+                    return landed.name
+                landed = landed.outer
+            return None
 
         if panel.application is not None:
             panel.untag_paths(done)

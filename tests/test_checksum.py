@@ -211,6 +211,28 @@ def test_calculate_each_file_its_own_list(place):
     assert (place / "a.txt.sha256sum").read_text() == f"{sha(b'a.txt')}  a.txt\n"
 
 
+def left_on(name: str):
+    return Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == name)
+
+
+@pytest.mark.parametrize("mode, lands", [(0, "photos.sha256sum"), (1, "a.txt.sha256sum")])
+def test_calculate_puts_the_cursor_on_the_list_it_wrote(place, mode, lands):
+    """As F5 lands on what it made: the one list, or with *Each file* the
+    first list written, gets the cursor -- off ``..`` where it was."""
+    app = navigator(place)
+    seen = {}
+
+    def start(a):
+        a.manager.left.marked = frozenset({"a.txt", "b.txt"})
+        a.manager.spawn(a.manager.calculate_checksums(a.manager.left))
+
+    run_app(app, [start, Until(lambda a: a.modal is not None),
+                  lambda a: setattr(a.modal.mode, "value", mode), KeyEvent("enter"),
+                  Until(lambda a: (place / lands).exists()), left_on(lands),
+                  lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert seen == {"at": lands}
+
+
 def test_verify_reports_and_tags_what_did_not_match(place):
     (place / "photos.sha256sum").write_text(f"{sha(b'a.txt')}  a.txt\n{sha(b'b.txt')}  b.txt\n"
                                             f"{sha(b'd/c.txt')}  d/c.txt\n")
