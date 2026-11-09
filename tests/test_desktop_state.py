@@ -195,3 +195,234 @@ def test_a_calendar_saved_shorter_comes_back_its_own_size(place):
     run_app(app, [lambda a: a.spawn(round_trip(a)), Until(lambda a: "rect" in seen)])
     # Its own size, which follows the month's weeks.
     assert seen["rect"] == (5, 3, *seen["size"])
+
+
+# -- the database window (``TDBWindow.Store``) ----------------------------------------------------
+
+
+def db_windows(a) -> list:
+    from navigator.widgets.viewer.db_window import DBWindow
+
+    return [w for w in a.shell.desktop.windows() if isinstance(w, DBWindow)]
+
+
+def round_trip(seen, *, then=None):
+    """Snapshot (through JSON, as the database keeps it), every window
+    closed, and the desktop restored; *then* given the windows made."""
+    import json
+
+    async def act(a):
+        data = json.loads(json.dumps(desktop_state.snapshot(a.shell.desktop)))
+        seen["data"] = data
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        seen["made"] = await desktop_state.restore(a.shell.desktop, data)
+        if then is not None:
+            then(a)
+        seen["done"] = True
+
+    return [lambda a: a.spawn(act(a)), Until(lambda a: "done" in seen, timeout=5)]
+
+
+def opened(opener):
+    async def act(a):
+        await opener(a.shell.desktop)
+
+    return [lambda a: a.spawn(act(a)), Until(lambda a: bool(db_windows(a)))]
+
+
+def entry(seen) -> dict:
+    return next(w for w in seen["data"]["windows"] if w.get("kind") == "database")
+
+
+def test_a_dbase_window_comes_back_on_its_cell_widths_search_and_code_page(place):
+    from test_dbf import write_dbf, write_russian
+    from navigator.widgets.viewer.db_window.db_window import open_database
+
+    write_dbf(place / "one" / "people.dbf")
+    write_russian(place / "one" / "ru.dbf", "cp866", 0)
+    app = navigator(place)
+    seen = {}
+
+    def arrange_it(a):
+        window = db_windows(a)[0]
+        window.db.set_codec("cp866")
+        window.viewer.go(record=1, field=1)
+        window.viewer.widths = {0: 4}
+        window._search = {"text": "Анна", "case": False, "all_fields": True, "direction": 1}
+
+    def look(a):
+        window = db_windows(a)[0]
+        seen.update(cell=(window.viewer.record, window.viewer.field), widths=window.viewer.widths,
+                    codec=window.db.codec, search=window._search, name=window.db.fields[0].name)
+
+    run_app(app, [*opened(lambda d: open_database(d, place / "one" / "ru.dbf")), arrange_it,
+                  *round_trip(seen, then=look)])
+    kept = entry(seen)
+    assert kept["source"] == "dbf" and kept["codec"] == "cp866" and kept["path"] == str(place / "one" / "ru.dbf")
+    assert seen["cell"] == (1, 1) and seen["widths"] == {0: 4}
+    assert seen["codec"] == "cp866" and seen["name"] == "ИМЯ"
+    assert seen["search"] == {"text": "Анна", "case": False, "all_fields": True, "direction": 1}
+
+
+def test_a_page_the_file_names_itself_is_not_kept(place):
+    from test_dbf import write_russian
+    from navigator.widgets.viewer.db_window.db_window import open_database
+
+    write_russian(place / "one" / "ru.dbf")  # byte 0x65: CP866 by itself
+    app = navigator(place)
+    seen = {}
+    run_app(app, [*opened(lambda d: open_database(d, place / "one" / "ru.dbf")), *round_trip(seen)])
+    assert "codec" not in entry(seen)
+
+
+def test_a_sorted_table_comes_back_unsorted_on_the_same_record(place):
+    from test_dbf import write_dbf
+    from navigator.lib.viewer.table import SortedView
+    from navigator.widgets.viewer.db_window.db_window import open_database
+
+    write_dbf(place / "one" / "people.dbf")
+    app = navigator(place)
+    seen = {}
+
+    def look(a):
+        window = db_windows(a)[0]
+        seen.update(sorted=isinstance(window.db, SortedView), record=window.viewer.record)
+
+    # AGE (field 1) descending puts Cid (record 2) first: F8 twice.
+    run_app(app, [*opened(lambda d: open_database(d, place / "one" / "people.dbf")),
+                  lambda a: db_windows(a)[0].viewer.go(field=1), KeyEvent("f8"),
+                  Until(lambda a: isinstance(db_windows(a)[0].db, SortedView)), KeyEvent("f8"),
+                  Until(lambda a: db_windows(a)[0].db.sort == (1, True)),
+                  lambda a: db_windows(a)[0].viewer.go(record=0),
+                  *round_trip(seen, then=look)])
+    assert entry(seen)["record"] == 2 and "top" not in entry(seen)
+    assert seen["sorted"] is False and seen["record"] == 2
+
+
+def make_sqlite(path):
+    import sqlite3
+
+    connection = sqlite3.connect(path)
+    connection.execute("CREATE TABLE first(a)")
+    connection.execute("CREATE TABLE second(name, n)")
+    connection.executemany("INSERT INTO second VALUES (?, ?)", [(f"row{n}", n) for n in range(20)])
+    connection.commit()
+    connection.close()
+
+
+@pytest.mark.parametrize("how", ["table", "query"])
+def test_a_sqlite_table_or_query_comes_back_without_the_tables_box(place, how):
+    from navigator.widgets.viewer.db_window.db_window import _reopen_sqlite, open_sqlite
+
+    path = place / "one" / "two.sqlite"
+    make_sqlite(path)
+    app = navigator(place)
+    seen = {}
+
+    async def open_it(desktop):
+        if how == "table":
+            await open_sqlite(desktop, path, table="second")
+        else:
+            await open_sqlite(desktop, path, query="SELECT name FROM second WHERE n >= 10")
+
+    def look(a):
+        window = db_windows(a)[0]
+        seen.update(name=window.db.name, count=window.db.count, record=window.viewer.record, modal=a.modal)
+
+    run_app(app, [*opened(open_it), lambda a: db_windows(a)[0].viewer.go(record=5), *round_trip(seen, then=look)])
+    kept = entry(seen)
+    assert kept["source"] == "sqlite"
+    if how == "table":
+        assert kept["table"] == "second" and seen["name"] == "second" and seen["count"] == 20
+    else:
+        assert kept["query"] == "SELECT name FROM second WHERE n >= 10" and seen["count"] == 10
+    assert seen["record"] == 5 and seen["modal"] is None
+
+
+def test_a_table_gone_is_left_out_and_the_rest_come_back(place):
+    import sqlite3
+
+    from navigator.widgets.viewer.db_window.db_window import open_sqlite
+
+    path = place / "one" / "two.sqlite"
+    make_sqlite(path)
+    app = navigator(place)
+    seen = {}
+
+    def drop(a):
+        connection = sqlite3.connect(path)
+        connection.execute("DROP TABLE second")
+        connection.commit()
+        connection.close()
+
+    async def act(a):
+        data = desktop_state.snapshot(a.shell.desktop)
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        drop(a)
+        await desktop_state.restore(a.shell.desktop, data)
+        seen.update(kinds=kinds(a), modal=a.modal)
+
+    run_app(app, [*opened(lambda d: open_sqlite(d, path, table="second")),
+                  lambda a: a.spawn(act(a)), Until(lambda a: "kinds" in seen, timeout=5)])
+    assert seen["kinds"] == ["Manager"] and seen["modal"] is None
+
+
+def test_a_csv_comes_back_read_as_format_said_on_its_row(place):
+    from navigator.lib.viewer.table import Dialect
+    from navigator.widgets.viewer.db_window.db_window import open_csv
+
+    path = place / "one" / "t.csv"
+    path.write_text("".join(f"{n};x{n}\n" for n in range(30)))
+    app = navigator(place)
+    seen = {}
+
+    def look(a):
+        window = db_windows(a)[0]
+        seen.update(dialect=window.csv.dialect, record=window.viewer.record, count=window.db.count)
+
+    run_app(app, [*opened(lambda d: open_csv(d, path, dialect=Dialect(delimiter=";", header=False))),
+                  lambda a: db_windows(a)[0].viewer.go(record=5), *round_trip(seen, then=look)])
+    assert entry(seen)["dialect"] == {"delimiter": ";", "quotechar": '"', "header": False, "encoding": "utf-8"}
+    assert seen["dialect"].delimiter == ";" and seen["dialect"].header is False
+    assert seen["record"] == 5 and seen["count"] == 30
+
+
+def test_a_window_on_a_fetched_copy_is_not_kept(place):
+    from test_dbf import write_dbf
+    from navigator.widgets.viewer.db_window.db_window import open_database
+
+    write_dbf(place / "one" / "people.dbf")
+    app = navigator(place)
+    seen = {}
+
+    def snap(a):
+        db_windows(a)[0].use_set = object()
+        seen["kinds"] = [w.get("kind") for w in desktop_state.snapshot(a.shell.desktop)["windows"]]
+        db_windows(a)[0].use_set = None
+
+    run_app(app, [*opened(lambda d: open_database(d, place / "one" / "people.dbf")), snap])
+    assert "database" not in seen["kinds"]
+
+
+def test_an_unzoomed_database_window_comes_back_where_it_was(place):
+    from test_dbf import write_dbf
+    from navigator.widgets.viewer.db_window.db_window import open_database
+
+    write_dbf(place / "one" / "people.dbf")
+    app = navigator(place)
+    seen = {}
+
+    def move(a):
+        window = db_windows(a)[0]
+        window.toggle_zoom()
+        window.locate(3, 2, 50, 12)
+
+    def look(a):
+        window = db_windows(a)[0]
+        seen["rect"] = (window.x, window.y, window.width, window.height, window.zoomed)
+
+    run_app(app, [*opened(lambda d: open_database(d, place / "one" / "people.dbf")), move,
+                  *round_trip(seen, then=look)])
+    assert seen["rect"] == (3, 2, 50, 12, False)

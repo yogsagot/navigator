@@ -17,6 +17,11 @@ What a window keeps:
   -- cursor, scroll -- is the file's own history's, which opening restores.
   SmartPad comes back as SmartPad.
 - a **tree window** the directory it was on.
+- a **database window** (dBase, SQLite, CSV) its file, the table or query,
+  the cell, the scroll, the column widths, the F7 search and the code page
+  or *Format* it is read with -- not an F8 sort, so it comes back in the
+  file's order on the same record.  One on a copy fetched from another
+  drive or as root is left out, as DN dropped a ``KillAfterUse`` file.
 - the **calculator** its expression and its face, and the **calendar** that it was open (on today again), the calendar
   system and the view its menu chose.
 
@@ -100,6 +105,7 @@ def _window(window: Any) -> dict[str, Any] | None:
     from navigator.widgets.shell.calendar_window import CalendarWindow
     from navigator.widgets.shell.volumes_window import VolumesWindow
     from navigator.widgets.tree.tree_window import TreeWindow
+    from navigator.widgets.viewer.db_window import DBWindow
     from navigator.widgets.viewer.file_window import FileWindow
 
     kept: dict[str, Any] = {"rect": window_values(window)}
@@ -134,6 +140,11 @@ def _window(window: Any) -> dict[str, Any] | None:
         kept.update(kind="calendar", calendar=window.chosen, view=window.display)
     elif isinstance(window, VolumesWindow):
         kept.update(kind="volumes", all=bool(window.show_all), free=bool(window.show_free))
+    elif isinstance(window, DBWindow):
+        state = window.kept_state()
+        if state is None:
+            return None
+        kept.update(state, kind="database")
     else:
         return None
     return kept
@@ -322,11 +333,43 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
         view = kept.get("view")
         window.display = view if isinstance(view, str) else ""
         return window
+    if kind == "database":
+        return await _database(desktop, kept)
     if kind == "volumes":
         from navigator.widgets.shell.volumes_window import VolumesWindow
 
         return desktop.open(VolumesWindow(show_all=bool(kept.get("all")), show_free=bool(kept.get("free"))))
     return None
+
+
+async def _database(desktop: Any, kept: dict[str, Any]) -> Any:
+    """A database window from *kept*: the file opened as it was read; its
+    cell and the rest are put back once it is placed (``restore_state``)."""
+    from navigator.lib.viewer.table import Dialect
+    from navigator.widgets.viewer.db_window.db_window import open_csv, open_database, open_sqlite
+
+    path = Path(kept["path"])
+    source = kept.get("source")
+    if source == "sqlite":
+        query, table = kept.get("query"), kept.get("table")
+        if isinstance(query, str):
+            return await open_sqlite(desktop, path, query=query)
+        return await open_sqlite(desktop, path, table=table) if isinstance(table, str) else None
+    if source == "csv":
+        dialect = kept.get("dialect")
+        chosen = Dialect(**{key: dialect[key] for key in ("delimiter", "quotechar", "header", "encoding")
+                            if key in dialect}) if isinstance(dialect, dict) else None
+        record = kept.get("record")
+        return await open_csv(desktop, path, dialect=chosen,
+                              row=record if isinstance(record, int) and record >= 0 else 0)
+    window = await open_database(desktop, path)
+    codec = kept.get("codec")
+    if window is not None and isinstance(codec, str):
+        import codecs
+
+        codecs.lookup(codec)  # a name Python does not know: LookupError, left out
+        window.db.set_codec(codec)
+    return window
 
 
 async def restore(desktop: Any, data: dict[str, Any], *,
@@ -366,7 +409,8 @@ async def restore(desktop: Any, data: dict[str, Any], *,
                 window = source.open_view()
             else:
                 window = await _make(desktop, kept, dirs)
-        except (OSError, KeyError, TypeError, ValueError):
+        except (OSError, KeyError, TypeError, ValueError, LookupError):
+            # ``dbf.DBFError`` is a ``ValueError``: a table that is no more.
             window = None
         if window is None:
             continue
@@ -381,6 +425,11 @@ async def restore(desktop: Any, data: dict[str, Any], *,
                 # Navigator saved, so a row added since is not cut off.
                 width, height = window.size()
                 window.locate(window.x, window.y, min(width, desktop.width), min(height, desktop.height))
+        if kept.get("kind") == "database":
+            # Once it has its rectangle, so the scroll is the screen's.
+            if window.parent is not None:
+                window.layout(window.parent.width, window.parent.height)
+            window.restore_state(kept)
         made.append(window)
         if index == front:
             in_front = window

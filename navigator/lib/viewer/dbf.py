@@ -97,6 +97,9 @@ class DBFile:
             self.count, self.header_length, self.record_length = struct.unpack_from("<IHH", header, 4)
             #: The code page the table's text is read and written in.
             self.codec = code_page_of(self.path, header[29])
+            #: What the file says it is in: a desktop keeps a page chosen
+            #: over it, not one the file would give again.
+            self.detected = self.codec
             fields: list[Field] = []
             offset = 1
             for index in range(self.header_length // 32 - 1):

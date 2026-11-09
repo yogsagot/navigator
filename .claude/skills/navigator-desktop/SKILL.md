@@ -16,7 +16,15 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
     index of the earlier window on the same text, for a Window > *New view* -- which `restore` makes again with that
     window's `open_view()` rather than a second document (`made_at`); `FileWindow`: `path`,
     `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression; `CalendarWindow`: only that
-    it was open (it comes back on today).
+    it was open (it comes back on today);
+  - `DBWindow` (`kind="database"`, DN's `TDBViewer.Store`): its own `kept_state()` -- `path`, `source`
+    (`dbf`/`sqlite`/`csv`), `record` in the file's order and `field`, `top`/`first_field` (unsorted only), `widths`,
+    the F7 `search`; dBase's `codec` only when Shift+F6 chose one over the file's (`DBFile.detected`), SQLite's
+    `table` or `query` (`SQLTable.sql`), a CSV's `dialect`. An F8 sort is not kept (re-sorting reads every row at
+    start), and a window on a fetched copy (`use_set`) is left out, as DN dropped `KillAfterUse` files.
+    `_database` reopens through `open_database`/`open_sqlite(table=, query=)`/`open_csv(dialect=)`, with no
+    *Tables* box; `restore_state(kept)` runs after `place_window` and a layout, so the scroll clamps to the real
+    height. A table dropped or a query refused (`DBFError`, a `ValueError`) leaves it out silently.
   Anything else is not kept. A window that cannot be made again (a file or directory gone) is left out.
 - The trash can's showing and place are kept too (`snapshot`'s `trash`), as `SaveDesktop` wrote them.
 - **Save desktop** (`SaveDesktop`) writes over the saved one. **Load desktop** (`LoadDesktop`) says *No desktop has

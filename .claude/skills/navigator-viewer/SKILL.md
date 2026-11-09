@@ -236,11 +236,16 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   `Val` stored 0, losing the cell). F7 *Search* (`DBSearchDialog`, `dlgDbFind`; DN looked
   at one field a record by a slip, every one in scope is looked at here), Shift+F7/Ctrl+L again. A file with no
   records shows *Empty database* and opens nothing; a SQLite table or query or a CSV with no rows opens on its field
-  names reading `0/0` (a departure: an empty answer is an answer), F3 and F4 doing nothing there. Colours are the dBase group [166]-[171]. Not kept in a desktop.
+  names reading `0/0` (a departure: an empty answer is an answer), F3 and F4 doing nothing there. Colours are the dBase group [166]-[171]. Kept with the desktop, SQLite and CSV too (`navigator-desktop`).
   Its own *View* menu joins the bar after *File* while it is active (a departure, asked for: DN's had the key bar
-  alone): *Fields...* F2, *Memo view* F3 (greyed off a memo field, `DBWindow.enables`), *Edit field...* F4,
-  *Search...* F7, *Search again* Shift+F7, *Close*. The grid's right-click menu (`DBViewer.context_menu`) is the same six; a
-  right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
+  alone), twelve items, what does not apply to the source greyed through `DBWindow.refusal`, never removed:
+  *Fields...* F2, *Memo view* F3 (greyed off a memo field), *Edit field...* F4 (greyed on SQLite and CSV, read-only),
+  *Tables...* F5 and *Query...* F6 (SQLite alone); a line; *Sort by column* F8, *Column width...*, Shift+F6 --
+  *Format...* on a CSV, *Encoding...* on a dBase table (the `code_page` property), greyed on SQLite -- and *As text*
+  Shift+F3 (CSV alone); a line; *Search...* F7, *Search again* Shift+F7; a line; *Close*. The grid's right-click
+  menu (`DBViewer.context_menu`) has seven of them: *Fields*, *Memo view*, *Edit field*, *Sort by column*, *Search*,
+  *Search again*, *Close* -- the cell's own and every source's; the SQLite and CSV ones and *Column width* are the
+  bar's alone. A right click on a cell first makes it the cursor's (`cell_at`, `prepare_context`).
 - **SQLite in the dBase window**, a departure (DN read dBase alone). It opens with F3 on a name in
   `[viewer] database_masks` (`*.sqlite;*.sqlite3;*.db;*.db3`) whose file starts with SQLite's header
   (`is_sqlite`; any other `.db` stays text), or with *As DataBase*, which tells the format by that header

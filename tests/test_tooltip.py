@@ -1123,9 +1123,28 @@ def test_every_menu_on_the_bar_says_what_it_holds_and_no_tooltip_repeats_its_cap
                 assert own.get("tooltip"), f"{path}:{line} {own.get('text')}"
                 top += 1
             if "tooltip" in own and "text" in own:
-                caption = ast.literal_eval(own["text"]).replace("~", "").rstrip(".…").strip()
-                assert ast.literal_eval(own["tooltip"]).strip().lower() != caption.lower(), f"{path}:{line}"
+                # A conditional's branches each (``'E~n~coding...' if root.code_page else 'Fo~r~mat...'``).
+                captions = {text.replace("~", "").rstrip(".…").strip().lower() for text in _literals(own["text"])}
+                for tip in _literals(own["tooltip"]):
+                    assert tip.strip().lower() not in captions, f"{path}:{line}"
     assert top >= 15
+
+
+def _literals(expression: str) -> list[str]:
+    """The string literals *expression* chooses between: itself, or each
+    branch of a conditional."""
+    import ast
+
+    node = ast.parse(expression, mode="eval").body
+    found: list[str] = []
+    stack = [node]
+    while stack:
+        node = stack.pop()
+        if isinstance(node, ast.IfExp):
+            stack += [node.body, node.orelse]
+        else:
+            found.append(ast.literal_eval(node))
+    return found
 
 
 def test_every_tab_views_tooltips_are_in_step_with_its_pages(place):

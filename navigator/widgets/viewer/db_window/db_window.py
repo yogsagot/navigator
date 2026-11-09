@@ -41,7 +41,8 @@ TICK = 0.25
 
 
 class DBWindow(Window):
-    """``TDBWindow``: one ``.dbf``, its records a cell at a time."""
+    """``TDBWindow``: a ``.dbf``'s records a cell at a time -- or a SQLite
+    table or query's, or a CSV's (departures; ``sqlite.py``, ``table.py``)."""
 
     def __init__(self, db: Any = None, *, sqlite: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
@@ -109,6 +110,76 @@ class DBWindow(Window):
 
         db = self.db.db if isinstance(self.db, SortedView) else self.db
         return db if isinstance(db, CSVTable) else None
+
+    # -- Options > Save desktop ---------------------------------------------------------
+
+    def kept_state(self) -> dict[str, Any] | None:
+        """What a saved desktop keeps of the window (``TDBViewer.Store``: the
+        file, ``Delta`` the cell, ``Pos`` the scroll, ``SearchString``),
+        and the table, query, code page or format it is read with -- not an
+        F8 sort, so the record is the file's.  None on a copy fetched from
+        another drive or as root, as DN dropped a ``KillAfterUse`` file."""
+        from navigator.lib.viewer.table import SortedView
+
+        db, viewer = self.db, self.viewer
+        if db is None or self.use_set is not None:
+            return None
+        sorted_ = isinstance(db, SortedView)
+        base = db.db if sorted_ else db
+        record = db.source_index(viewer.record) if sorted_ and viewer.record < db.count else viewer.record
+        kept: dict[str, Any] = {"path": str(base.path), "record": record, "field": viewer.field,
+                                "widths": {str(k): v for k, v in viewer.widths.items()}}
+        if not sorted_:
+            kept.update(top=viewer.top, first_field=viewer.first_field)
+        if self._search is not None:
+            kept["search"] = {key: self._search[key] for key in ("text", "case", "all_fields", "direction")
+                              if key in self._search}
+        if self.sqlite is not None:
+            kept["source"] = "sqlite"
+            if getattr(base, "sql", None) is not None:
+                kept["query"] = base.sql
+            else:
+                kept["table"] = base.name
+        elif self.csv is not None:
+            dialect = self.csv.dialect
+            kept.update(source="csv", dialect={"delimiter": dialect.delimiter, "quotechar": dialect.quotechar,
+                                               "header": dialect.header, "encoding": dialect.encoding})
+        else:
+            kept["source"] = "dbf"
+            if getattr(base, "codec", None) != getattr(base, "detected", None):
+                kept["codec"] = base.codec
+        return kept
+
+    def restore_state(self, kept: dict[str, Any]) -> None:
+        """:meth:`kept_state`'s cell, scroll, widths and search put back; a
+        value of the wrong kind or out of range is passed over."""
+        viewer, db = self.viewer, self.db
+        if db is None:
+            return
+
+        def number(name: str) -> int | None:
+            value = kept.get(name)
+            return value if isinstance(value, int) and not isinstance(value, bool) and value >= 0 else None
+
+        widths = kept.get("widths")
+        if isinstance(widths, dict):
+            viewer.widths = {int(k): v for k, v in widths.items()
+                             if str(k).isdigit() and isinstance(v, int) and 0 < v and int(k) < len(db.fields)}
+        record, field = number("record"), number("field")
+        top, first = number("top"), number("first_field")
+        if top is not None:
+            viewer.top = min(top, max(0, db.count - 1))
+        if first is not None:
+            viewer.first_field = min(first, max(0, len(db.fields) - 1))
+        viewer.go(record=min(record or 0, max(0, db.count - 1)),
+                  field=min(field or 0, max(0, len(db.fields) - 1)))
+        search = kept.get("search")
+        if isinstance(search, dict) and isinstance(search.get("text"), str) and search["text"]:
+            self._search = {"text": search["text"], "case": bool(search.get("case")),
+                            "all_fields": bool(search.get("all_fields")),
+                            "direction": search.get("direction") if search.get("direction") in (0, 1, 2) else 0}
+        self._follow_cursor()
+        viewer.invalidate()
 
     def _follow_walk(self) -> None:
         """A CSV still being walked: the count followed until it is all found."""
@@ -737,15 +808,19 @@ async def choose_object(app: Any, file: Any, near: Any, current: str | None = No
     return None if chosen is None else names[items.index(chosen)]
 
 
-async def open_sqlite(desktop: Any, path: Path) -> Any:
+async def open_sqlite(desktop: Any, path: Path, *, table: str | None = None, query: str | None = None) -> Any:
     """*As DataBase* on a SQLite file (a departure): opened read-only on a
     thread; with more than one table or view, *Tables* chooses which; with
     none, *Empty database*.  The window, or None.  ``dbf.DBFError`` for a
-    file SQLite will not open, as for a ``.dbf`` that is not one."""
+    file SQLite will not open, as for a ``.dbf`` that is not one.
+
+    *table* or *query*, given (a desktop restored), is shown with no box:
+    a table not there, or a query SQLite refuses, is ``dbf.DBFError``."""
     import asyncio
 
     from navigator.lib.system.progress import run_with_progress
-    from navigator.lib.viewer import sqlite, table
+    from navigator.lib.viewer import sqlite
+    from navigator.lib.viewer.table import Work
     from navigator.widgets.editor.loading import progress_box, refresh_box
 
     try:
@@ -757,6 +832,8 @@ async def open_sqlite(desktop: Any, path: Path) -> Any:
     except Exception as error:  # noqa: BLE001 - sqlite3.DatabaseError: a damaged file
         file.close()
         raise dbf.DBFError(str(error)) from error
+    if table is not None or query is not None:
+        return await _reopen_sqlite(desktop, file, table, query)
     if not objects:
         file.close()
         name = path.name if len(path.name) <= 20 else "..." + path.name[-17:]
@@ -770,9 +847,31 @@ async def open_sqlite(desktop: Any, path: Path) -> Any:
         if name is None:
             file.close()
             return None
-    work = table.Work()
+    work = Work()
     try:
         db = await run_with_progress(desktop.application, lambda: file.table(name, work), work,
+                                     lambda: progress_box(work, tr("Reading")), refresh_box(work))
+    except sqlite.SQLiteError as error:
+        file.close()
+        if work.stopped:
+            return None
+        raise dbf.DBFError(str(error)) from error
+    window = desktop.open(DBWindow(db, sqlite=file))
+    window.viewer.focus()
+    return window
+
+
+async def _reopen_sqlite(desktop: Any, file: Any, table: str | None, query: str | None) -> Any:
+    """:func:`open_sqlite`'s *table* or *query*, read on a thread, its window."""
+    from navigator.lib.system.progress import run_with_progress
+    from navigator.lib.viewer import sqlite
+    from navigator.lib.viewer.table import Work
+    from navigator.widgets.editor.loading import progress_box, refresh_box
+
+    work = Work()
+    read = (lambda: file.query(query, work)) if query is not None else (lambda: file.table(table, work))
+    try:
+        db = await run_with_progress(desktop.application, read, work,
                                      lambda: progress_box(work, tr("Reading")), refresh_box(work))
     except sqlite.SQLiteError as error:
         file.close()
@@ -831,18 +930,19 @@ def first_screen(source: Any) -> None:
         time.sleep(0.005)
 
 
-async def open_csv(desktop: Any, path: Path, *, row: int = 0) -> Any:
+async def open_csv(desktop: Any, path: Path, *, row: int = 0, dialect: Any = None) -> Any:
     """F3 on a CSV or TSV, *As Spreadsheet*: the database window on it (a
     departure: DN's ``.WKZ`` had a spreadsheet window of its own), zoomed
     and given the keyboard, at *row*.  The file is guessed at and walked
     far enough for a screen on a thread; the rest of the walk goes on while
-    the window is up.  ``OSError`` is the caller's."""
+    the window is up.  *dialect*, given (a desktop restored), is how it is
+    read, not guessed.  ``OSError`` is the caller's."""
     import asyncio
 
     from navigator.lib.viewer.table import CSVTable, TableSource
 
     def opened() -> CSVTable:
-        source = TableSource(path)
+        source = TableSource(path, dialect)
         first_screen(source)
         if row and not source.complete and source.records <= row:
             source.wait()

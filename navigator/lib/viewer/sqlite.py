@@ -224,6 +224,7 @@ class SQLiteFile:
             finally:
                 self.connection.set_authorizer(None)
         table = SQLTable(self, "", _fields(names, {}, rows), rows=rows, truncated=cut)
+        table.sql = text
         table.measure()
         return table
 
@@ -294,6 +295,8 @@ class SQLTable:
                  select: str = "", rows: list[tuple] | None = None, truncated: bool = False) -> None:
         self.file = file
         self.path = file.path
+        #: A query's SQL, which a desktop keeps; None for a table.
+        self.sql: str | None = None
         #: The table's name; "" for a query's result.
         self.name = name
         self.fields = fields

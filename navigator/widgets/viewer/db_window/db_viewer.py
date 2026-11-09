@@ -212,8 +212,8 @@ class DBViewer(ContextMenuHost, Widget):
         return x, min(self.record - self.top + 2, max(0, self.height - 1))
 
     def context_menu(self) -> ContextMenu | None:
-        """The window's *View* menu -- a departure, asked for, as that menu is.
-        ``DBWindow`` runs them, and greys *Memo view* off a memo field.  Built
+        """The cell's part of the window's *View* menu: what applies to every
+        source -- a departure, asked for, as that menu is.  ``DBWindow`` runs them, and greys *Memo view* off a memo field.  Built
         each time, so its captions follow the language."""
         from navml.commands import CloseWindow
 
