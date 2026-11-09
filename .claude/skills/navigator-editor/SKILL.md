@@ -108,7 +108,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   and Shift+Ins for itself.
   The ^K/^Q commands are named after their `cm*` in `DN.DNR`'s `EDITOR COMMANDS` table (`BlockStart`, `Clear`,
   `UpcaseBlock`, `MoveBlockStart`, `BlockRead`...); the clipboard four keep their own names (above). Every ^K/^Q
-  command in the table is here.
+  command in the table is here -- ^K^[ ^K^] ^K^\ in their Ctrl forms (`_wordstar` gives `[ ] \` one, `^Q'['` alone
+  excepted; the plain forms stay too, Ctrl+[ being Esc's byte without the kitty protocol, and `ctrl+k escape` is not
+  bound) and ^K^Q `OpenMenu` -- but two, dropped: `cmMenu`'s double Alt (only a kitty-protocol terminal reports a
+  bare Alt) and ^Q^O/^Q^I/^Q^P/^Q^C, the Windows clipboard's (the clipboard here is the system's). Alt+Shift+/
+  (`alt+?`, `alt+shift+/`) is `CapString`, `kbAltSlash` with Shift.
 - **The defaults are modern, WordStar is a preset (departure, asked for).** `FileEditor.keys` binds no WordStar key:
   not the Ctrl+E/S/D/A/F/R/W/Z diamond, not Ctrl+G/T, not the ^K/^Q/^B chords. The freed keys do what every editor
   since does: Ctrl+F the Find bar, Ctrl+R the Replace bar (F7/Ctrl+F7 keep DN's dialogs), Ctrl+G go to line, Ctrl+Z undo, Ctrl+Up/Down scroll, and Ctrl+S save

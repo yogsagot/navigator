@@ -509,3 +509,14 @@ def test_save_writes_the_edits_and_binds_nothing(app, monkeypatch):
     assert warnings == [] and assignments["manager"]["make_directory"] == ("f12",)
     assert key_table(Manager)["f7"] is MakeDirectory
     assert not keybindings.path().exists()
+
+
+def test_the_1_51_set_has_the_table_s_ctrl_chords_the_menu_and_ctrl_l():
+    from navigator.widgets.editor.commands import ContSearch, LowcaseBlock
+    from navml.widgets.menu.commands import OpenMenu
+
+    keybindings.load(Navigator, keybindings.presets_dir() / "keybindings_dn151.ini")
+    table = key_table(FileEditor)
+    assert table["ctrl+k ctrl+]"] is LowcaseBlock and table["ctrl+k ctrl+q"] is OpenMenu
+    assert "ctrl+q ctrl+[" not in table  # ``^Q'['`` alone, as the table has it
+    assert key_table(EditWindow)["ctrl+l"] is ContSearch

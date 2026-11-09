@@ -2755,6 +2755,27 @@ def test_with_shift_or_the_line_command_the_whole_line_changes_and_loses_its_tra
     assert editor.document.encode() == b"ABC DEF\n"
 
 
+@pytest.mark.parametrize("key", [KeyEvent("?", "?", alt=True), KeyEvent("/", alt=True, shift=True)])
+def test_alt_shift_slash_capitalizes_the_whole_line(files, key):
+    # ``kbAltSlash`` with Shift: ``CapString``, however the terminal sends it.
+    _, editor = text_editor(files, b"abc def\n", *at(0, 3), key)
+    assert editor.document.encode() == b"Abc Def\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+@pytest.mark.parametrize("key, expected", [("[", b"ABC DEF\n"), ("]", b"abc def\n"), ("\\", b"Abc Def\n")])
+def test_ctrl_k_then_the_ctrl_bracket_keys_change_the_blocks_case(files, key, expected):
+    _, editor = text_editor(files, b"aBC dEF\n", KeyEvent("end", shift=True), *chord(KeyEvent(key, ctrl=True)))
+    assert editor.document.encode() == expected
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_ctrl_k_ctrl_q_opens_the_menu_as_f10_does(files):
+    seen = []
+    text_editor(files, b"abc\n", *chord(ctrl("q")), lambda a: seen.append(a.shell.menu.current))
+    assert seen == [0]
+
+
 def test_a_blank_line_or_no_word_changes_nothing(files):
     _, editor = text_editor(files, b"   \n", KeyEvent("[", ctrl=True))
     assert editor.document.encode() == b"   \n" and not editor.modified
@@ -3610,7 +3631,7 @@ def test_every_editor_command_the_default_keys_leave_unbound_is_on_the_menu(file
     unbound = {name for name, value in parser["editor"].items() if not value.strip()}
     #: What is on the menu by another name, or has a key elsewhere.
     allowed = {
-        "switch_block": "Options > Vertical blocks ticks it",
+        "open_menu": "F10, the application's: ^K^Q is the WordStar sets' other key for it",
     }
     app = navigator(files)
     seen = {}

@@ -48,6 +48,7 @@ from navml.background import Background, Outcome
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.menu.context_menu import ContextMenu, ContextMenuHost
 from navml.widgets.menu.context_menu.context_menu import open_on_click
+from navml.widgets.menu.commands import OpenMenu
 
 from navigator.widgets.editor.commands import (
     ReopenWithEncoding,
@@ -198,12 +199,20 @@ def _lex_text(name: str, file_type: str, lines: tuple[str, ...], until: int,
 _COLUMN_CLIP: dict[str, list[str]] = {}
 
 
-def _wordstar(prefix: str, letters: dict[str, Any]) -> dict[str, Any]:
-    """*prefix* then each key, and then each letter with Ctrl held too, as WordStar took them."""
+#: The keys besides letters that have a control byte, so a Ctrl form the
+#: table could name: ``^K^[``, ``^K^]``, ``^K^\``.
+_CONTROL_PUNCTUATION = frozenset("[]\\")
+
+
+def _wordstar(prefix: str, letters: dict[str, Any], *, punctuation: bool = True) -> dict[str, Any]:
+    """*prefix* then each key, and then each letter with Ctrl held too, as WordStar took them.
+
+    So is ``[``, ``]`` and ``\\`` unless *punctuation* is False: the table
+    has ``^K^[``, ``^K^]`` and ``^K^\\``, but ``^Q'['`` alone."""
     table = {}
     for key, command in letters.items():
         table[f"{prefix} {key}"] = command
-        if len(key) == 1 and key.isalpha():
+        if len(key) == 1 and (key.isalpha() or (punctuation and key in _CONTROL_PUNCTUATION)):
             table[f"{prefix} ctrl+{key}"] = command
     return table
 
@@ -421,6 +430,11 @@ WORDSTAR = {
         "y": Clear,
         "i": IndentBlock,
         "u": UnindentBlock,
+        # ``^K^[``, ``^K^]``, ``^K^\``: the Ctrl forms are the table's.  The
+        # plain ones are kept too (a departure: DN let a plain ``[`` after ^K
+        # go): Ctrl+[ is Esc's byte, and arrives as itself only under the kitty
+        # keyboard protocol.  ``ctrl+k escape`` is not bound for it -- Esc
+        # after ^K is "never mind" to anyone now, not *Upper case*.
         "[": UpcaseBlock,
         "]": LowcaseBlock,
         "\\": CapitalizeBlock,
@@ -430,10 +444,15 @@ WORDSTAR = {
         "p": PrintBlock,
         "r": BlockRead,
         "w": BlockWrite,
+        # ``cmMenu``, ``^K^Q`` -- what F10 opens.  Its other key, the double
+        # Alt (``kbDoubleAlt``), is dropped: only a terminal speaking the kitty
+        # keyboard protocol reports a bare Alt, and a stray double tap would
+        # pop the menu.
+        "q": OpenMenu,
         # ``^K'1'`` to ``^K'9'``: the digit alone, as the table has it.
         **{str(n): PlaceMarker(n) for n in range(1, 10)},
     }),
-    **_wordstar("ctrl+q", {
+    **_wordstar("ctrl+q", punctuation=False, letters={
         "b": MoveBlockStart,
         "k": MoveBlockEnd,
         "y": DeleteToEnd,
@@ -449,6 +468,9 @@ WORDSTAR = {
         "m": SwitchDrawMode,
         # ``^Q^M``: Ctrl+M is Enter on a terminal that cannot tell them apart.
         "enter": SwitchDrawMode,
+        # ``^Q^O``, ``^Q^I``, ``^Q^P`` and ``^Q^C`` -- ``cmSyncClipOut``/``In``,
+        # ``cmWindowsPaste``/``Copy`` -- are dropped: they reached the Windows
+        # clipboard beside DN's own, and the clipboard here is the system's.
     }),
     "ctrl+q ctrl+]": BracketPair,
 }
@@ -584,6 +606,10 @@ class FileEditor(ContextMenuHost, Widget):
         "ctrl+]": LowWord,
         "ctrl+\\": CapWord,
         "alt+/": CapWord,
+        # ``kbAltSlash`` with Shift: the line.  ``alt+?`` from a terminal that
+        # sends ``ESC ?``, ``alt+shift+/`` from one reporting the base key.
+        "alt+?": CapString,
+        "alt+shift+/": CapString,
         "ctrl+shift+[": UpString,
         "ctrl+shift+]": LowString,
         "ctrl+shift+\\": CapString,
