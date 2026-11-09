@@ -1570,6 +1570,100 @@ def test_ctrl_k_w_overwrites_on_yes_and_keeps_a_read_only_file_read_only(files):
     assert target.stat().st_mode & 0o777 == 0o444
 
 
+# -- F2 on a file marked read-only (``SaveFile``'s ``dlED_ModifyRO``) --------------------------------
+
+as_root_only = pytest.mark.skipif(os.geteuid() == 0, reason="root writes past the mode bits")
+
+
+def asked(seen):
+    return lambda a: seen.append((a.modal.title, a.modal.prompt) if a.modal is not None else None)
+
+
+@as_root_only
+@pytest.mark.parametrize("ok", [True, False])
+def test_f2_on_a_read_only_file_asks_modify_it_anyway(files, ok):
+    target = files / "text.txt"
+    seen = []
+    app, editor = text_editor(files, b"old\n", *typed("x"), lambda a: target.chmod(0o444),
+                              KeyEvent("f2"), lambda a: None, asked(seen),
+                              KeyEvent("enter" if ok else "escape"), IDLE)
+    assert seen[0][0] == "Confirm" and "is marked as Read-Only" in seen[0][1] and "text.txt" in seen[0][1]
+    assert target.read_bytes() == (b"xold\n" if ok else b"old\n")
+    assert target.stat().st_mode & 0o777 == 0o444
+    assert editor.modified is not ok
+
+
+def test_f2_on_a_writable_file_asks_nothing(files):
+    seen = []
+    text_editor(files, b"old\n", *typed("x"), KeyEvent("f2"), lambda a: None, asked(seen), IDLE)
+    assert seen == [None]
+    assert (files / "text.txt").read_bytes() == b"xold\n"
+
+
+@as_root_only
+def test_a_read_only_file_with_another_link_is_written_in_place_and_stays_read_only(files):
+    target = files / "text.txt"
+
+    def link_and_lock(a):
+        os.link(target, files / "other.txt")
+        target.chmod(0o444)
+
+    text_editor(files, b"old\n", link_and_lock, *typed("x"), KeyEvent("f2"), lambda a: None,
+                KeyEvent("enter"), IDLE)
+    assert target.read_bytes() == (files / "other.txt").read_bytes() == b"xold\n"
+    assert target.stat().st_mode & 0o777 == 0o444
+
+
+@as_root_only
+def test_cancel_on_modify_it_anyway_after_save_keeps_the_window_open(files):
+    target = files / "text.txt"
+    seen = []
+    app, editor = text_editor(files, b"old\n", *typed("x"), lambda a: target.chmod(0o444),
+                              KeyEvent("escape"), lambda a: None,           # was modified. Save?
+                              KeyEvent("y", alt=True), lambda a: None,      # Yes
+                              asked(seen), KeyEvent("escape"), IDLE)        # Modify it anyway? Cancel
+    assert seen[0][0] == "Confirm"
+    assert editor_window(app) is not None and editor.modified
+    assert target.read_bytes() == b"old\n"
+
+
+@as_root_only
+def test_ctrl_f2_asks_for_the_read_only_one_alone_and_saves_the_rest(files):
+    (files / "one.txt").write_bytes(b"one\n")
+    (files / "two.txt").write_bytes(b"two\n")
+    (files / "two.txt").chmod(0o444)
+    SETTINGS.interface.store_editor_position = False
+    app = navigator(files)
+    seen = []
+
+    def open_editor_on(name):
+        def action(a):
+            from navigator.lib.config.file_history import open_editor
+            a.spawn(open_editor(a.shell.desktop, files / name))
+        return action
+
+    run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),
+                  open_editor_on("two.txt"), lambda a: None, *typed("2"),
+                  KeyEvent("f2", ctrl=True), lambda a: None, asked(seen), KeyEvent("escape"), IDLE,
+                  asked(seen)])
+    assert seen[0][0] == "Confirm" and "two.txt" in seen[0][1] and seen[1] is None
+    assert (files / "one.txt").read_bytes() == b"1one\n"
+    assert (files / "two.txt").read_bytes() == b"two\n"
+
+
+def test_marked_read_only_is_the_owners_write_bit(tmp_path):
+    from navigator.lib.editor.save import marked_read_only
+
+    locked, open_ = tmp_path / "locked", tmp_path / "open"
+    locked.write_text("x")
+    open_.write_text("x")
+    locked.chmod(0o444)
+    open_.chmod(0o644)
+    (tmp_path / "link").symlink_to(locked)
+    assert marked_read_only(locked) and marked_read_only(tmp_path / "link")
+    assert not marked_read_only(open_) and not marked_read_only(tmp_path / "missing")
+
+
 def test_ctrl_k_w_waits_for_a_block(files):
     from navigator.widgets.editor.commands import BlockWrite
 

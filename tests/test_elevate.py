@@ -793,6 +793,9 @@ def test_f2_refused_saves_as_root(helper, tmp_path, quiet_console, monkeypatch):
     from navigator.widgets.editor.edit_window import EditWindow
 
     monkeypatch.setattr(SETTINGS.confirmations, "save", False)
+    # Somebody else's file, as far as F2 can tell: not *marked* read-only
+    # (no *Modify it anyway?*), its write refused all the same.
+    monkeypatch.setattr("navigator.widgets.editor.edit_window.edit_window.marked_read_only", lambda path: False)
     locked = tmp_path / "locked"
     locked.mkdir()
     path = locked / "text.txt"

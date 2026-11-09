@@ -32,7 +32,7 @@ from navigator.lib.editor import encodings
 from navigator.lib.editor.document import Document, encode_lines, read_text
 from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.paragraph import fix_margins
-from navigator.lib.editor.save import write_file
+from navigator.lib.editor.save import marked_read_only, write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.models.edit_record import EditRecord
 from navigator.commands import NewView, PrintFile
@@ -349,13 +349,30 @@ class EditWindow(Window):
     async def save(self) -> bool:
         """Write the file; say why not if it cannot be.  True when written.
 
-        A write refused permission offers *As root* (:meth:`_write_or_root`).
+        ``SaveFile``: a file marked read-only asks ``dlED_ModifyRO`` first
+        (:meth:`_modify_read_only`), and Cancel leaves the text unsaved -- a
+        close that asked *Save?* stays open.  Its mode is put back after.  A
+        write refused permission offers *As root* (:meth:`_write_or_root`).
         """
         path = self.editor.path
         if path is None:
             await self._say(tr("Cannot write {path}: {error}").format(path=path, error="no file name"))
             return False
-        written = await self._write_or_root(path, backup=SETTINGS.editor.create_backup)
+        restore: int | None = None
+        if self.use_set is None:
+            # A copy fetched from another drive: its mode is not the original's.
+            answer = await self._modify_read_only(path)
+            if answer is False:
+                return False
+            restore = answer
+        try:
+            written = await self._write_or_root(path, backup=SETTINGS.editor.create_backup)
+        finally:
+            if restore is not None:
+                try:
+                    path.chmod(stat.S_IMODE(restore))
+                except OSError:
+                    pass
         if written is None:
             return False
         if written and self.use_set is not None:
@@ -587,9 +604,10 @@ class EditWindow(Window):
 
         Nothing to ask for a file that is not there.  One that is, is *OK to
         overwrite it?* -- with *Append* beside Yes where *append* allows it --
-        and a read-only one *Modify it anyway?* as well, its mode lifted for
-        the write and handed back to be put back after.  Answers ``(append,
-        mode)``, or None for Cancel.
+        and a read-only one *Modify it anyway?* as well
+        (:meth:`_modify_read_only`, F2's too), its mode lifted for the write
+        and handed back to be put back after.  Answers ``(append, mode)``, or
+        None for Cancel.
         """
         if not path.exists():
             return False, None
@@ -606,29 +624,40 @@ class EditWindow(Window):
         if answer is None or (answer is False and not append):
             return None
         appending = answer is False
-        restore: int | None = None
-        if not os.access(path, os.W_OK):
-            modify = await Dialog(
-                title=tr("Warning"),
-                prompt=tr("File {name}\nis marked as Read-Only.\nModify it anyway?").format(name=path.name),
-                buttons="ok-cancel",
-            ).execute(self.application)
-            if modify is not True:
-                return None
-            try:
-                restore = path.stat().st_mode
-                path.chmod(restore | stat.S_IWUSR)
-            except OSError as error:
-                from navigator.lib.system.elevate import ELEVATION, refused
-
-                restore = None
-                # Somebody else's file: the write is refused in its turn and
-                # offers *As root*, which needs no mode lifted.
-                if not (refused(error) and await asyncio.to_thread(ELEVATION.available)):
-                    await self._say(tr("Cannot write {path}: {error}").format(
-                        path=path, error=error.strerror or error))
-                    return None
+        restore = await self._modify_read_only(path)
+        if restore is False:
+            return None
         return appending, restore
+
+    async def _modify_read_only(self, path: Path) -> int | None | bool:
+        """``dlED_ModifyRO`` (``mfConfirmation``): a file marked read-only
+        (:func:`~navigator.lib.editor.save.marked_read_only`) asks *Modify it
+        anyway?*, and OK lifts its owner's write bit, as ``SaveFile`` lifted
+        the attribute.  Answers the mode to put back after the write, None
+        for nothing to put back (not marked, or left to *As root*), or False
+        for Cancel or a mode that could not be lifted (said)."""
+        if not await asyncio.to_thread(marked_read_only, path):
+            return None
+        modify = await Dialog(
+            title=tr("Confirm"),
+            prompt=tr("File {name}\nis marked as Read-Only.\nModify it anyway?").format(name=path.name),
+            buttons="ok-cancel",
+        ).execute(self.application)
+        if modify is not True:
+            return False
+        try:
+            mode = path.stat().st_mode
+            path.chmod(mode | stat.S_IWUSR)
+        except OSError as error:
+            from navigator.lib.system.elevate import ELEVATION, refused
+
+            # Somebody else's file: the write is refused in its turn and
+            # offers *As root*, which needs no mode lifted.
+            if refused(error) and await asyncio.to_thread(ELEVATION.available):
+                return None
+            await self._say(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
+            return False
+        return mode
 
     async def _say(self, message: str) -> None:
         await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)

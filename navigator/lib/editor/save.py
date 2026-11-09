@@ -51,6 +51,17 @@ def resolve(path: Path) -> Path:
         return path
 
 
+def marked_read_only(path: Path) -> bool:
+    """Whether *path* is marked read-only, DOS's ``ReadOnly`` attribute read
+    on POSIX: its owner's write bit clear.  Somebody else's ``0644`` file is
+    not -- writing it is refused, which offers *As root* -- and a file not
+    there is not.  Links followed, as the write follows them."""
+    try:
+        return not os.stat(path).st_mode & stat.S_IWUSR
+    except OSError:
+        return False
+
+
 def backup_of(path: Path) -> Path:
     """Where *path*'s backup goes: beside it, ``.bak`` after its name."""
     return path.with_name(path.name + ".bak")

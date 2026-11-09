@@ -64,7 +64,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   ^K R and SmartPad go the same way. Saving snapshots the lists (`FileEditor.snapshot`), writes them as chunks on a
   thread (`encode_lines`, `write_file(path, chunks, job)`) under one `EditWindow._saving` lock, and marks the
   snapshot's save point (`EditBuffer.save_point`/`mark_saved(point)`) -- what is typed meanwhile leaves the text
-  changed. **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/lib/system/memory.py`): against 75% of
+  changed. **A file marked read-only** -- its owner's write bit clear (`save.marked_read_only`, DOS's attribute
+  read on POSIX) -- asks `dlED_ModifyRO` first, *Confirm* / *Modify it anyway?* OK/Cancel, as `SaveFile` did
+  (`EditWindow._modify_read_only`, shared by F2, Ctrl+F2, the close query's Yes, Save as and ^K W): OK lifts the
+  bit and the mode is put back after; Cancel leaves the text unsaved and a closing window open. Somebody else's
+  `0644` file is not asked about: its write is refused and offers *As root*. A copy from another drive is not asked
+  about (its mode is not the original's). **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/lib/system/memory.py`): against 75% of
   `MemAvailable` before reading, then after every chunk projected from the lines so far (DN's
   `4*(LCount+50)+FFSize`). Departures: the box (`WriteWin`, `file_ops/write_win`) waits `SLOW_PROGRESS_DELAY` (1 s)
   before it appears, has a spinner, a gauge with a percentage and *Cancel* (DN's was a still message read past by Esc);
