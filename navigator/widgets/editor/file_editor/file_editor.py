@@ -574,6 +574,8 @@ class FileEditor(ContextMenuHost, Widget):
         "alt+insert": CalcBlock,
         "alt+g": GotoLineNumber,
         "f4": SwitchDrawMode,
+        #: ``StatusDef hcEditor``'s *F5 Block*: ``cmSwitchBlock``.
+        "f5": SwitchBlock,
         "f6": DuplicateLine,
         # ``$1A1B``, ``$1B1D``, ``^\\`` and ``kbAltSlash``; with Shift, the line.
         # Ctrl+[ is Esc's byte, so it and the Ctrl+Shift forms need the kitty

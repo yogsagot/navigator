@@ -443,8 +443,9 @@ class Navigator(Application):
         "f10": OpenMenu,
         #: The context menu of whatever holds the keyboard -- the PC's Menu
         #: key and Shift+F10.  Not DN's: it had no context menu, and its
-        #: Shift+F10 was defined (``kbShiftF10``) but bound to nothing.  A
-        #: dialog binds them too, since this table stands aside for one.
+        #: Shift+F10 was ``cmChangeMode``, *Video* (``StatusDef hcEditor`` and
+        #: others), dropped as having no POSIX meaning.  A dialog binds them
+        #: too, since this table stands aside for one.
         "menu": ShowContextMenu,
         "shift+f10": ShowContextMenu,
         #: Utilities > *Character table*, DN's ``kbCtrlB``.  An editor's ^B^V

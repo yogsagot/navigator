@@ -59,7 +59,11 @@ expanded.
 (`MoveLeft` for `cmMoveLeft`, `DeleteBack` for `cmDelBackChar`).
 
 - The table is the editor's, not the window's, because DN's was: `LoadCommands` filled `TFileEditor`'s. The window's
-  `keys:` holds what `StatusDef hcEditor` captions, and Esc/Alt+F3.
+  `keys:` holds what `StatusDef hcEditor` captions -- F2, F3, Shift+F2, Ctrl+F2, F7 and its three, Ctrl+L (the
+  table's other `cmContSearch`), F8, Shift+F8, Ctrl+F6 *Calc* and Shift+F4 *Edit...* (the Shell's `Calculator` and
+  `EditNamed`) -- and Esc/Alt+F3. F5 *Block* (`SwitchBlock`) and F6 *Dupe* are the editor's, beside their other
+  keys. F9/Shift+F9 (`cmNext`/`cmPrev`) are the desktop's; Shift+F10 was *Video* (`cmChangeMode`), dropped, and is
+  the context menu.
 - The movements carry `extend`, which is what Shift makes of them. DN read the shift state off the BIOS
   (`BMarking`); a key table says it with a second binding.
 - Only a printable character is left to `on_key`.

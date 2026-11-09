@@ -2307,6 +2307,15 @@ def test_shift_f7_finds_the_next_and_alt_f7_the_one_before(files, fresh_search):
     assert (editor.line, editor.col) == (0, 4)
 
 
+def test_ctrl_l_finds_the_next_as_shift_f7_does(files, fresh_search):
+    # ``cmContSearch``: Shift+F7 on the status line, Ctrl+L in the editor's table.
+    _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("cat"),
+                            KeyEvent("enter"), lambda a: None,
+                            KeyEvent("l", ctrl=True), lambda a: None,
+                            KeyEvent("l", ctrl=True), lambda a: None)
+    assert (editor.line, editor.col) == (2, 3)
+
+
 def test_case_and_whole_words_and_backward(files, fresh_search):
     _, editor = text_editor(files, TEXT, KeyEvent("f7"), lambda a: None, *typed("Cat"),
                             set_dialog(options=1), KeyEvent("enter"), lambda a: None)
@@ -3640,3 +3649,41 @@ def test_delete_word_right_and_to_end_of_line_from_the_menu(files):
     assert editor.document.encode() == b"def ghi\n"
     _, editor = text_editor(files, b"abc def ghi\n", *[KeyEvent("right")] * 4, chosen("Delete", "Delete to end of line"), IDLE)
     assert editor.document.encode() == b"abc \n"
+
+
+# -- ``StatusDef hcEditor``'s other keys: F5, Ctrl+F6, Shift+F4 -------------------------------------
+
+
+def test_f5_switches_vertical_blocks_and_is_refused_under_soft_wrap(files):
+    seen = []
+    app, editor = text_editor(files, b"abc\n", lambda a: seen.append(editor_window(a).editor.vertical_blocks),
+                              KeyEvent("f5"), lambda a: seen.append(editor_window(a).editor.vertical_blocks),
+                              KeyEvent("f5"), lambda a: seen.append(editor_window(a).editor.vertical_blocks),
+                              lambda a: setattr(editor_window(a).editor, "soft_wrap", True),
+                              KeyEvent("f5"), lambda a: seen.append(editor_window(a).editor.vertical_blocks))
+    assert seen == [False, True, False, False]
+
+
+def test_the_key_bar_names_f5_in_the_editor(files):
+    from navigator.widgets.editor.commands import SwitchBlock
+
+    seen = {}
+    text_editor(files, b"abc\n", lambda a: seen.update(keys={k: type(c) for k, c in a.bindings().items()}))
+    assert seen["keys"]["f5"] is SwitchBlock
+
+
+def test_ctrl_f6_opens_the_calculator_from_the_editor(files):
+    from navigator.widgets.shell.calculator_window import CalculatorWindow
+
+    seen = []
+    app, _ = text_editor(files, b"abc\n", KeyEvent("f6", ctrl=True), lambda a: None,
+                         lambda a: seen.append(type(a.shell.desktop.active_window)),
+                         KeyEvent("escape"), lambda a: None)
+    assert seen == [CalculatorWindow]
+
+
+def test_shift_f4_asks_for_a_file_to_edit_from_the_editor(files):
+    seen = []
+    app, _ = text_editor(files, b"abc\n", KeyEvent("f4", shift=True), lambda a: None,
+                         lambda a: seen.append(type(a.modal).__name__ if a.modal else None), KeyEvent("escape"))
+    assert seen[0] == "EditFileDialog"
