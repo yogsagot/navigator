@@ -130,7 +130,8 @@ I/O: `Renamed`, `Copied`, `Moved`, `Trashed`, `MadeDirectory` (each `question()`
 *File > Links > Create link…*, a departure: DN had no links, and the key was Split/combine's (`cmPanelLongCopy`), which is
 back keyless (*Split / combine* below). `navigator/lib/file_ops/filelink.py` is the model, reading the target with `filecopy.resolve_target`. `LinkDialog` is Copy's
 dialog cut down: a *Symbolic link* / *Hard link* radio (`kind`) beside one *Relative link* box, both remembered for the
-session. `Manager.make_links` works with no worker thread and shares Copy's *Skip* box.
+session. `Manager.make_links` works with no worker thread and shares Copy's *Skip* box. The re-read puts a panel
+showing where the links went on the first one made (`link_entries`, drag-and-drop's too), as F7's is on its directory.
 
 - **Hard links** (`LinkRequest.hard`, `filelink.make_hard_link`): `Drive.link(source, dest)`, `os.link(...,
   follow_symlinks=False)` -- `ln -P`, a symlink named is linked itself. Only where the drive `can("hardlink")`

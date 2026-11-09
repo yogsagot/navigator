@@ -230,6 +230,23 @@ def test_shift_f5_links_into_the_other_panel(two):
     assert "one.txt" in right
 
 
+def test_the_other_panel_s_cursor_goes_to_the_link_made(two):
+    """As F7's on its directory: the panel showing where the link went looks
+    again with its cursor on it, not left on ``..``."""
+    a, b = two
+
+    async def steps(app, manager):
+        put_cursor(manager.left, "one.txt")
+        app.post_event(KeyEvent("f5", shift=True))
+        await until(lambda: isinstance(app.modal, LinkDialog))
+        app.post_event(KeyEvent("enter"))
+        await until(lambda: not app._tasks and manager.right.selected is not None
+                    and manager.right.selected.name == "one.txt")
+        return manager.left.selected.name, manager.right.selected.name
+
+    assert run_shell(a, b, steps) == ("one.txt", "one.txt")
+
+
 def test_tagged_entries_are_each_linked_relatively_and_untagged(two):
     a, b = two
 

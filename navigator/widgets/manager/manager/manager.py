@@ -4554,7 +4554,8 @@ class Manager(Window):
         """Links to *entries* of *panel* made in *target*: the Create symlink
         dialog first when *ask* (its *Relative link* box ticked as *relative*
         says, or as the session left it for None), else at once; then *panel*
-        and *others* look again."""
+        and *others* look again, one showing where the links went with its
+        cursor on the first made, as F7's is on its directory."""
         from navml.widgets.dialog.control import escape_caption
 
         from navigator.lib.file_ops import filecopy, filelink
@@ -4611,6 +4612,7 @@ class Manager(Window):
 
         destination = await step(filecopy.resolve_target, request.target, request.sources, shown(here))
         linked: set[Any] = set()
+        first: Location | None = None  # the first link made
         try:
             if destination.create:
                 if SETTINGS.confirmations.create_dir and await self._ask_yes_no(
@@ -4639,14 +4641,16 @@ class Manager(Window):
                             return
                         break
                     linked.add(source)
+                    if first is None:
+                        first = Location.of(destination.path_for(source))
                     break
         finally:
             if as_root:
                 await asyncio.to_thread(ELEVATION.release)
             panel.untag_paths(linked)
-            panel.reload()
-            for other in others:
-                other.reload()
+            for each in (panel, *others):
+                there = first is not None and each.found is None and Location.of(each.location) == first.parent
+                each.reload(key=first.name if there else None)
 
     # -- changing links ----------------------------------------------------------
 
