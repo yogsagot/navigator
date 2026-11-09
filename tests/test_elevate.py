@@ -66,6 +66,55 @@ def test_the_helper_starts_and_answers(started):
     assert started.begin() == READY_STATE  # already running
 
 
+def test_closing_turns_away_the_steps_queued_behind_the_one_under_way(started, tmp_path, monkeypatch):
+    # A tree on root:/// queues a step per row; quitting used to wait behind
+    # every one of them, as the lock is not first come first served.
+    import threading
+    import time
+
+    sent: list = []
+    first, go_on = threading.Event(), threading.Event()
+    send, receive = elevate.send, elevate.receive
+
+    def counted(channel, message, payload=b""):
+        sent.append(message["op"])
+        return send(channel, message, payload)
+
+    def held(channel):
+        if not first.is_set():
+            first.set()
+            go_on.wait(5)
+        return receive(channel)
+
+    monkeypatch.setattr(elevate, "send", counted)
+    monkeypatch.setattr(elevate, "receive", held)
+    outcomes: list = []
+
+    def step():
+        try:
+            started.call("stat", path=str(tmp_path))
+            outcomes.append("ran")
+        except OSError as error:
+            outcomes.append(error.errno)
+
+    under_way = threading.Thread(target=step)
+    under_way.start()
+    assert first.wait(5)
+    queued = [threading.Thread(target=step) for _ in range(10)]
+    for thread in queued:
+        thread.start()
+    time.sleep(0.2)  # all ten waiting for the lock
+    closing = threading.Thread(target=started.close)
+    closing.start()
+    time.sleep(0.2)  # close() waiting for the lock too
+    go_on.set()
+    for thread in (under_way, *queued, closing):
+        thread.join(10)
+    assert sent == ["stat"]
+    assert sorted(outcomes, key=str) == sorted(["ran", *[errno.EACCES] * 10], key=str)
+    assert not started.running
+
+
 def test_an_unknown_request_is_refused(started):
     with pytest.raises(OSError) as raised:
         started.call("eval", source="1")

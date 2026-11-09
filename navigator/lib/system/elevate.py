@@ -151,6 +151,9 @@ class Elevation:
         return self._process is not None and self._process.poll() is None and self._ready
 
     _ready = False
+    #: Set by :meth:`close` while it waits for the lock: a step that gets
+    #: the lock first refuses rather than goes to the helper.
+    _closing = False
 
     def argv(self, tool: str) -> list[str]:
         # ``-B``: nothing imported as root writes a ``.pyc`` -- it would be
@@ -283,7 +286,7 @@ class Elevation:
 
     def call_data(self, op: str, payload: bytes = b"", **args: Any) -> tuple[Any, bytes]:
         with self._lock:
-            if not self.running or self._channel is None:
+            if self._closing or not self.running or self._channel is None:
                 raise OSError(errno.EACCES, tr("Root access is not open"), args.get("path"))
             try:
                 send(self._channel, {"op": op, "args": args}, payload)
@@ -303,7 +306,7 @@ class Elevation:
         ``SCM_RIGHTS`` right after the reply (the channel reads nothing
         ahead: ``buffering=0``)."""
         with self._lock:
-            if not self.running or self._channel is None or self._socket is None:
+            if self._closing or not self.running or self._channel is None or self._socket is None:
                 raise OSError(errno.EACCES, tr("Root access is not open"), args.get("path"))
             try:
                 send(self._channel, {"op": op, "args": args})
@@ -346,8 +349,19 @@ class Elevation:
                 self._shut()
 
     def close(self) -> None:
-        with self._lock:
-            self._shut()
+        """The helper ended, waiting only for the step under way.
+
+        **Steps queued for the lock are turned away, not run first**: a
+        tree on ``root:///`` asks a directory's children for each row, each
+        on its own thread, and the lock is not first come first served --
+        quitting waited behind all of them (or more, as they kept coming).
+        """
+        self._closing = True
+        try:
+            with self._lock:
+                self._shut()
+        finally:
+            self._closing = False
 
     def _shut(self) -> None:
         self._held = 0
