@@ -143,10 +143,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   DN's table also gave ^K^U to it, but `cmUnindentBlock` had ^K^U first and the menu shows Unindent there, so ^K U
   stays Unindent. A stream block gets `dlED_VertNeed`.
 - **Print block, ^K P / Shift+F8** (`PrintBlock`, DN's `Print(On)` in `EDITOR.PAS`, also Editor > File > *Print
-  block*): *Print N lines?* (`dlED_PrintQuery`), then the block's lines (`FileEditor.block_lines`, DN's
-  `GetSelection`) to `navigator/lib/system/printing.py`, which hands them to `lp` (else `lpr`) in an executor -- the system
-  spooler standing for DN's `.PRN` file and print manager. LF line ends, no closing form feed. A refusal (no
-  printer, no default destination) is shown as the spooler's own words.
+  block*): *Print N lines?* (`dlED_PrintQuery`, titled *Confirm*, DN's `mfYesNoConfirm`), then the block's lines
+  (`FileEditor.block_lines`, DN's `GetSelection`) to `navigator/lib/system/printing.py`, which hands them to `lp`
+  (else `lpr`) in an executor -- the system spooler standing for DN's `.PRN` file and print manager -- as UTF-8: the
+  text is Unicode already, whatever the file's encoding, so a CP1251 file prints its letters. Departures, for the
+  spooler: LF line ends (DN's CR LF), no closing form feed (it ejects the page), no *Printing* box with a gauge and
+  Cancel (one `lp` takes the text at once). A refusal (no printer, no default destination) is shown as the
+  spooler's own words.
 - **Print file, F8** (`PrintFile`, DN's `Print(Off)`, also Editor > File > *Print*): the whole text the editor holds,
   saved or not (DN printed `FileLines`), less the empty line after a final break; same question and spooler as
   Print block (`EditWindow.print_lines`). `PrintFile` is one command, as `cmPrintFile` was: it lives in

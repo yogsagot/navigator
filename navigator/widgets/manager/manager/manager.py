@@ -3902,7 +3902,7 @@ class Manager(Window):
         else:
             prompt = tr_n("Print {n} file?", "Print {n} files?", len(entries))
         answer = await Dialog(
-            title=tr("Confirmation"), prompt=prompt, buttons="yes-no",
+            title=tr("Confirm"), prompt=prompt, buttons="yes-no",
         ).execute(self.application)
         if answer is not True:
             return

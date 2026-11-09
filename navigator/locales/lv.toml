@@ -4104,7 +4104,6 @@ flag = "LV"
 # navigator/widgets/editor/edit_window/edit_window.py:598, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Fails {name}\njau eksistē.\nPārrakstīt to?"
 # navigator/widgets/editor/edit_window/edit_window.py:985, navigator/widgets/manager/manager/manager.py:3905, navigator/widgets/viewer/viewer_host.py:121
-"Confirmation" = "Apstiprinājums"
 # navigator/widgets/editor/edit_window/edit_window.py:986
 "Print {n} line?" = ["Drukāt {n} rindu?", "Drukāt {n} rindas?", "Drukāt {n} rindu?"]
 # navigator/widgets/editor/edit_window/edit_window.py:994
@@ -6792,6 +6791,7 @@ flag = "LV"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Confirmation" = "Apstiprinājums"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"
 "Calc~u~late sum" = "Aprēķināt s~u~mmu"

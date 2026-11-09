@@ -118,7 +118,7 @@ async def save_as(host: Any) -> None:
     codec = viewer.encoding
     if codec != "utf-8":
         name = dict(viewer_model.ENCODINGS)[codec].split()[0]
-        translate = await Dialog(title=tr("Confirmation"),
+        translate = await Dialog(title=tr("Confirm"),
                                  prompt=tr("Save the file translated\nfrom {encoding} to UTF-8?").format(encoding=name),
                                  buttons="yes-no-cancel").execute(app)
         if translate is None:

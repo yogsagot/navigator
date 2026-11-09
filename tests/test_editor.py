@@ -1909,6 +1909,19 @@ def test_f8_prints_the_whole_text_as_it_stands(files, spooler):
     assert jobs == [(["lp"], b"one!\ntwo\n")]
 
 
+def test_f8_prints_a_cp1251_text_as_its_letters_and_asks_confirm(files, spooler, monkeypatch):
+    jobs, _ = spooler
+    monkeypatch.setattr(SETTINGS.editor, "fallback_encoding", "cp1251")
+    asked = []
+    _, editor = text_editor(files, "Привет\n".encode("cp1251"), KeyEvent("f8"), lambda a: None,
+                            lambda a: asked.append(a.modal.title if a.modal else None),
+                            KeyEvent("y", alt=True), lambda a: None, lambda a: None)
+    assert editor.document.encoding == "cp1251"
+    assert asked == ["Confirm"]
+    # The text is Unicode already: the spooler gets UTF-8, not the file's bytes.
+    assert jobs == [(["lp"], "Привет\n".encode("utf-8"))]
+
+
 def test_print_file_is_the_one_command_the_manager_binds_too():
     from navigator.commands import PrintFile
     from navigator.widgets.manager import commands as manager_commands

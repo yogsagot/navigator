@@ -48,17 +48,20 @@ def on(app, name):
 def press_ctrl_f9(tree, *before, answer="y"):
     """Ctrl+F9 after *before*; what was asked, and the panel's tags after."""
     app = Navigator(tree, tree, terminal=FakeTerminal(80, 24))
-    asked = []
+    asked, titles = [], []
     run_app(app, [*before, KeyEvent("f9", ctrl=True), lambda a: None,
                   lambda a: asked.append(a.modal.prompt if a.modal else None),
+                  lambda a: titles.append(a.modal.title if a.modal else None),
                   KeyEvent(answer, alt=True), lambda a: None, lambda a: None])
+    app.titles = titles
     return app, asked
 
 
 def test_ctrl_f9_prints_the_file_under_the_cursor(tree, spooler):
     jobs, _ = spooler
-    _, asked = press_ctrl_f9(tree, lambda a: on(a, "a.txt"))
+    app, asked = press_ctrl_f9(tree, lambda a: on(a, "a.txt"))
     assert asked == ["Print file a.txt?"]
+    assert app.titles == ["Confirm"]  # DN's mfConfirmation
     assert jobs == [["lp", str(tree / "a.txt")]]
 
 

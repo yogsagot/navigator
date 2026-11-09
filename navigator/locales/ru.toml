@@ -4104,7 +4104,6 @@ flag = "RU"
 # navigator/widgets/editor/edit_window/edit_window.py:598, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "Файл {name}\nуже существует.\nПерезаписать его?"
 # navigator/widgets/editor/edit_window/edit_window.py:985, navigator/widgets/manager/manager/manager.py:3905, navigator/widgets/viewer/viewer_host.py:121
-"Confirmation" = "Подтверждение"
 # navigator/widgets/editor/edit_window/edit_window.py:986
 "Print {n} line?" = ["Печатать {n} строку?", "Печатать {n} строки?", "Печатать {n} строк?"]
 # navigator/widgets/editor/edit_window/edit_window.py:994
@@ -6792,6 +6791,7 @@ flag = "RU"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Confirmation" = "Подтверждение"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"
 "Calc~u~late sum" = "В~ы~числить сумму"

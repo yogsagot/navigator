@@ -2799,8 +2799,9 @@ def test_the_console_reports_the_childs_cursor(tree, quiet_console):
     seen = []
     run_app(app, [show, lambda a: seen.append((console.cursor_position(), a._cursor()))])
     # Seven characters in, on the first line of the console's own area; and
-    # the console starts one row down, under the menu bar.
-    assert seen == [((7, 0), (7, 1, "default"))]
+    # the console starts one row down, under the menu bar.  No colour: the
+    # terminal's own cursor colour is left alone.
+    assert seen == [((7, 0), (7, 1, "default", None))]
 
 
 def test_the_terminals_cursor_is_placed_where_the_child_put_it(tree, quiet_console):
@@ -2822,8 +2823,9 @@ def test_the_caret_is_on_the_command_line_while_the_panels_are_up(tree, quiet_co
     app = navigator(tree)
     run_app(app, [KeyEvent("l", "l"), lambda a: None])
     prompt = len(app.shell.command_line.shown_prompt)
-    # "default": the user's own cursor shape, as at any other shell prompt.
-    assert app._cursor() == (prompt + 1, 22, "default")
+    # "default": the user's own cursor shape, as at any other shell prompt,
+    # and None its own colour.
+    assert app._cursor() == (prompt + 1, 22, "default", None)
     assert f"\x1b[23;{prompt + 2}H" + SHOW_CURSOR in app.terminal.painted
 
 

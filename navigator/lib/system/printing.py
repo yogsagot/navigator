@@ -66,7 +66,9 @@ def spool(text: str) -> str | None:
     """Print *text*; None once the spooler has the job, else why not.
 
     Blocks for as long as the spooler takes to answer, so it is run in an
-    executor.  A byte that was not UTF-8 in the file goes out as it was.
+    executor.  UTF-8, which the spooler reads: the text is Unicode already,
+    whatever the file's encoding was (the editor decoded it), so a CP1251
+    file prints its letters.  A byte that did not decode goes out as it was.
     """
     argv = print_command()
     if argv is None:

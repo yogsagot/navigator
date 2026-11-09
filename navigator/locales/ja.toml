@@ -4104,7 +4104,6 @@ flag = "JP"
 # navigator/widgets/editor/edit_window/edit_window.py:598, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "ファイル {name}\nは既に存在します。\n上書きしますか?"
 # navigator/widgets/editor/edit_window/edit_window.py:985, navigator/widgets/manager/manager/manager.py:3905, navigator/widgets/viewer/viewer_host.py:121
-"Confirmation" = "確認"
 # navigator/widgets/editor/edit_window/edit_window.py:986
 "Print {n} line?" = ["{n} 行を印刷しますか?"]
 # navigator/widgets/editor/edit_window/edit_window.py:994
@@ -6792,6 +6791,7 @@ flag = "JP"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Confirmation" = "確認"
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"
 "Fields, memos, editing and search" = "フィールド、メモ、編集、検索"

@@ -991,19 +991,26 @@ class EditWindow(Window):
     async def print_file(self) -> None:
         """``Print(Off)``, F8: the whole text as it stands, saved or not -- what the
         editor holds, ``FileLines``, not what is on disk.  A text ending in a line
-        break has no empty line after it to print."""
+        break has no empty line after it to print: that line is the reader's,
+        not the text's, and DN's ``FileLines`` had none."""
         lines = list(self.editor.document.lines)
         if len(lines) > 1 and lines[-1] == "":
             lines.pop()
         await self.print_lines(lines)
 
     async def print_lines(self, lines: list[str]) -> None:
-        """``Print``: *Print N lines?* (``dlED_PrintQuery``), then *lines* to the printer.
+        """``Print``: *Print N lines?* (``dlED_PrintQuery``, ``mfYesNoConfirm``:
+        *Confirm*), then *lines* to the printer.
 
-        The spooler stands for DN's print manager (:mod:`navigator.lib.system.printing`);
-        a line ends in LF rather than DN's CR LF, which is what it expects.
-        A spooler that refuses -- no printer, no default destination -- says
-        why.
+        The spooler stands for DN's ``.PRN`` file and print manager
+        (:mod:`navigator.lib.system.printing`), given the text as UTF-8 -- it is
+        Unicode already, whatever the file's encoding.  Departures, for the
+        spooler: a line ends in LF, not DN's CR LF, which it would print as a
+        stray character; no form feed at the end (DN's ``#12``), as it ejects
+        the page itself; and no *Printing* box with a gauge and Cancel, as one
+        ``lp`` takes the whole text at once and there is nothing to count or
+        stop part way.  A spooler that refuses -- no printer, no default
+        destination -- says why.
         """
         from navigator.lib.system.printing import spool
 
@@ -1011,7 +1018,7 @@ class EditWindow(Window):
             return
         count = len(lines)
         answer = await Dialog(
-            title=tr("Confirmation"),
+            title=tr("Confirm"),
             prompt=tr_n("Print {n} line?", "Print {n} lines?", count),
             buttons="yes-no",
         ).execute(self.application)

@@ -4105,7 +4105,6 @@ direction = "rtl"
 # navigator/widgets/editor/edit_window/edit_window.py:598, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "الملف {name}\nموجود بالفعل.\nهل تريد الكتابة فوقه؟"
 # navigator/widgets/editor/edit_window/edit_window.py:985, navigator/widgets/manager/manager/manager.py:3905, navigator/widgets/viewer/viewer_host.py:121
-"Confirmation" = "تأكيد"
 # navigator/widgets/editor/edit_window/edit_window.py:986
 "Print {n} line?" = ["طباعة {n} سطر؟", "طباعة سطر واحد؟", "طباعة سطرين؟", "طباعة {n} أسطر؟", "طباعة {n} سطرا؟", "طباعة {n} سطر؟"]
 # navigator/widgets/editor/edit_window/edit_window.py:994
@@ -6793,6 +6792,7 @@ direction = "rtl"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Confirmation" = "تأكيد"
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"
 "~End~" = "~نهاية~"

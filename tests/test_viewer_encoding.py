@@ -111,7 +111,7 @@ def test_shift_f5_saves_the_file_recoded(place):
                   lambda a: seen.update(title=a.modal.title, prompt=a.modal.prompt), KeyEvent("enter"),
                   Until(lambda a: isinstance(a.modal, FileDialog)), name_it, KeyEvent("enter"),
                   Until(lambda a: (place / "utf8.txt").exists())])
-    assert seen["title"] == "Confirmation" and "from CP866 to UTF-8?" in seen["prompt"]
+    assert seen["title"] == "Confirm" and "from CP866 to UTF-8?" in seen["prompt"]
     assert (place / "utf8.txt").read_text(encoding="utf-8") == RUSSIAN
 
 
