@@ -2185,7 +2185,8 @@ class Manager(Window):
         """What *panel* knows of files renamed, ``(place, old, new)`` each: a
         listing's entries and the tags take the new names, an editor holding
         one hears of it, and the panel -- the cursor on *at* if given -- and
-        the other one showing the same place are read again."""
+        the other one showing the same place are read again, the other's
+        cursor on *at* too when it shows *at*'s directory (as F5/F6's)."""
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
 
         names = {(place, old): new for place, old, new in renamed}
@@ -2223,7 +2224,7 @@ class Manager(Window):
         panel.reload(key=cursor_key)
         other = self.passive_panel
         if other is not panel and other.found is None and other.location in {place for place, _, _ in renamed}:
-            other.reload()
+            other.reload(key=at[1] if at is not None and at[0] == other.location else None)
 
     async def on_multi_rename(self, event: MultiRename) -> bool:
         self.spawn(self.multi_rename(self.active_panel))

@@ -72,6 +72,18 @@ def test_enter_renames_and_the_cursor_and_the_tag_go_with_the_file(place):
     assert "z.txt" in seen["right"]
 
 
+def test_the_other_panel_on_the_same_directory_lands_on_the_new_name_too(place):
+    """Both panels show *place*: the passive one's cursor, on ``..``, goes to
+    the renamed file, as F5/F6 put it on what they made."""
+    app = navigator(place)
+    seen = {}
+    run_app(app, [to("b.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("z.txt"),
+                  KeyEvent("enter"),
+                  Until(lambda a: a.manager.right.selected is not None and a.manager.right.selected.name == "z.txt"),
+                  lambda a: seen.update(left=a.manager.left.selected.name, right=a.manager.right.selected.name)])
+    assert seen == {"left": "z.txt", "right": "z.txt"}
+
+
 def test_down_renames_and_then_moves_the_cursor(place):
     app = navigator(place)
     seen = {}

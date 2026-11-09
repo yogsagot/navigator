@@ -92,7 +92,8 @@ has a problem.
   `lexists` before each rename (never replaces), asks `filecopy.Failure` -> Skip/Cancel on an error, puts a stranded
   temporary back **only if its old name is still free**, else leaves it and says so.
 - **Bookkeeping** is `Manager._after_renames(panel, [(place, old, new)], at=)`, shared with `_rename_entry` (Alt+F6,
-  Shift+F6): listing entries renamed, tags follow, `FileSaved`, reload, the other panel re-read if it shows the place.
+  Shift+F6): listing entries renamed, tags follow, `FileSaved`, reload, the other panel re-read if it shows the place
+  -- both with the cursor on `at`, the new name, as F5/F6 land on what they made.
 - **Undo** is File > Undo's (Ctrl+Z, *Undo* below): a batch goes on its history as one `undo.Renamed`, taken back
   through the same `run`. *Undo multi-rename* and `Manager.last_renames` are gone. File > *Rename tools* nests Quick
   rename and Multi-rename so File fits 80x25 with Undo.
