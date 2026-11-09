@@ -6777,6 +6777,10 @@ flag = "LV"
 "He~x~" = "~H~eks"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "Saglabāt failu pārkodētu\nno {encoding} uz UTF-8?"
 "Only the start of the file was read" = "Nolasīts tikai faila sākums"
+"E~n~coding..." = "Kodē~j~ums..."
+"The code page the table is read in" = "Kodu lapa, kurā tabula tiek lasīta"
+"Only in a CSV or dBase file" = "Tikai CSV vai dBase failā"
+
 [unused]
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"

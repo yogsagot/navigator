@@ -214,7 +214,13 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
   `navigator/lib/viewer/dbf.py` is `TDBFile` -- header, fields, records by `pread` through a cache, memos from
   `memo_files` (DN's names: a four-letter extension other than `.dbf` with its last letter `T`, so `.scx`→`.sct`,
   else `.fpt`, then `.dbt`; the table's own case first) as bytes (`memo_data`; `memo` decodes them),
-  cp437 text, a file whose fields do not add up refused (`DBFError`; F3 then falls back to the text viewer, As
+  text in the table's own code page (`DBFile.codec`, `code_page_of`: a `.cpg` beside it -- a shapefile's, a
+  departure; `cpg_codec` reads `UTF-8`, `1251`, `ANSI 1251` -- else the language-driver byte at offset 29 through
+  `LANGUAGE_DRIVERS`, one-byte pages only, else CP437, DN's English screen; DN drew the screen's page). Shift+F6
+  (`TableFormat`, the CSV's *Format*; captioned *Encoding...* by the `code_page` property) opens the text viewer's
+  box (`viewer_host.pick_encoding`) and `set_codec` reads the cells and field names (`Field.raw_name`) again; F4
+  writes in that page, never cutting a character; SQLite refuses it. A copy fetched from another drive or as root
+  brings `dbf.companions` (memo files, `.cpg`) along. A file whose fields do not add up is refused (`DBFError`; F3 then falls back to the text viewer, As
   DataBase says so). `DBWindow`/`DBViewer` (`viewer/db_window/`) are `TDBWindow`/`TDBViewer`: field names over the
   records, the delete flag first, a cell the cursor (`Delta`), whole fields scrolled across (`Pos`), dates
   `DD-MM-YYYY` as the panels', a memo column `max(name, Len)` wide, `record/records` over the bottom frame (both plain,

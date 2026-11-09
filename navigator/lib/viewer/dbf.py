@@ -12,11 +12,18 @@ a file of any size opens at once.
 Memo fields name a block in a ``.dbt`` (dBase III: 512-byte blocks, the text
 ending at ``^Z``) or an ``.fpt`` (FoxPro: the block size big-endian in its
 header, each block a type and a big-endian length), as ``ViewMemo`` looked
-for them.  Text is read in code page 437, DN's.
+for them.
+
+DN drew the bytes in the screen's code page, CP437 in the English DN and
+CP866 in the Russian one.  Here a table says its own (:func:`code_page_of`):
+a ``.cpg`` beside it (a shapefile's, a departure), else the language-driver
+byte at offset 29 (:data:`LANGUAGE_DRIVERS`), else CP437, DN's.  Shift+F6
+chooses another (:meth:`DBFile.set_codec`).
 """
 
 from __future__ import annotations
 
+import codecs
 import os
 import struct
 from dataclasses import dataclass
@@ -24,8 +31,28 @@ from pathlib import Path
 from typing import Any
 from navkit.i18n import tr
 
-#: The code page names and values are read in.
+#: The code page a table is read in when it says none: DN's English screen.
 CODEC = "cp437"
+#: The language-driver byte (header offset 29) to the code page it names,
+#: from dBase's and FoxPro's tables -- the one-byte pages alone, which
+#: Shift+F6's box offers.  The Chinese, Japanese and Korean drivers (0x13,
+#: 0x4D-0x4F, 0x78-0x7B) read as :data:`CODEC`.
+LANGUAGE_DRIVERS: dict[int, str] = {
+    **dict.fromkeys((0x01, 0x09, 0x0B, 0x0D, 0x0F, 0x11, 0x15, 0x18, 0x19, 0x1B), "cp437"),
+    **dict.fromkeys((0x02, 0x0A, 0x0E, 0x10, 0x12, 0x14, 0x16, 0x1A, 0x1D, 0x25, 0x37), "cp850"),
+    **dict.fromkeys((0x1F, 0x22, 0x23, 0x40, 0x64, 0x87), "cp852"),
+    **dict.fromkeys((0x26, 0x65), "cp866"),
+    **dict.fromkeys((0x08, 0x17, 0x66), "cp865"),
+    0x67: "cp861",
+    **dict.fromkeys((0x6A, 0x86), "cp737"),
+    **dict.fromkeys((0x6B, 0x88), "cp857"),
+    **dict.fromkeys((0x1C, 0x6C), "cp863"),
+    0x24: "cp860",
+    **dict.fromkeys((0x03, 0x57, 0x58, 0x59), "cp1252"),
+    0xC8: "cp1250", 0xC9: "cp1251", 0xCA: "cp1254", 0xCB: "cp1253", 0xCC: "cp1257",
+    0x7D: "cp1255", 0x7E: "cp1256", 0x7C: "cp874",
+    0x04: "mac-roman", 0x96: "mac-cyrillic", 0x97: "mac-latin2", 0x98: "mac-greek",
+}
 #: ``TFieldListBox.GetText``'s type names.
 TYPES = {"N": "Numeric", "C": "Character", "M": "Memo", "L": "Logical", "D": "Date", "F": "Float",
          "P": "Picture"}
@@ -47,6 +74,8 @@ class Field:
     length: int
     decimals: int
     offset: int
+    #: The name as stored, decoded again when the code page changes.
+    raw_name: bytes = b""
 
     @property
     def width(self) -> int:
@@ -66,17 +95,20 @@ class DBFile:
             if len(header) < 32:
                 raise DBFError("not a dBase file")
             self.count, self.header_length, self.record_length = struct.unpack_from("<IHH", header, 4)
+            #: The code page the table's text is read and written in.
+            self.codec = code_page_of(self.path, header[29])
             fields: list[Field] = []
             offset = 1
             for index in range(self.header_length // 32 - 1):
                 raw = os.pread(fd, 32, 32 * (index + 1))
                 if len(raw) < 32 or raw[0] == 0x0D:
                     break
-                name = raw[:11].split(b"\0", 1)[0].decode(CODEC, "replace").strip()
+                stored = raw[:11].split(b"\0", 1)[0]
+                name = stored.decode(self.codec, "replace").strip()
                 if not name:
                     raise DBFError("a field without a name")
                 kind, length, decimals = chr(raw[11]), raw[16], raw[17]
-                fields.append(Field(name, kind, length, decimals, offset))
+                fields.append(Field(name, kind, length, decimals, offset, stored))
                 offset += length
             if not fields or offset != self.record_length:
                 raise DBFError("not a dBase file")
@@ -115,14 +147,21 @@ class DBFile:
             os.close(self._fd)
             self._fd = None
 
-    @staticmethod
-    def flag(record: bytes) -> str:
-        """The first column: ``*`` for a deleted record."""
-        return record[:1].decode(CODEC, "replace")
+    def set_codec(self, codec: str) -> None:
+        """Shift+F6: the table read in *codec* from now on -- its cells and
+        its field names."""
+        self.codec = codec
+        self.fields = [Field(field.raw_name.decode(codec, "replace").strip() or field.name, field.kind,
+                             field.length, field.decimals, field.offset, field.raw_name)
+                       for field in self.fields]
+        self._cache = (0, b"")
 
-    @staticmethod
-    def raw(record: bytes, field: Field) -> str:
-        return record[field.offset:field.offset + field.length].decode(CODEC, "replace")
+    def flag(self, record: bytes) -> str:
+        """The first column: ``*`` for a deleted record."""
+        return record[:1].decode(self.codec, "replace")
+
+    def raw(self, record: bytes, field: Field) -> str:
+        return record[field.offset:field.offset + field.length].decode(self.codec, "replace")
 
     def shown(self, record: bytes, field: Field) -> str:
         """What a cell shows (``TDBViewer.Draw``): a memo as ``Memo`` or, empty,
@@ -137,7 +176,7 @@ class DBFile:
     def memo(self, record: bytes, field: Field) -> str | None:
         """:meth:`memo_data` read as text, in the table's code page."""
         data = self.memo_data(record, field)
-        return None if data is None else data.decode(CODEC, "replace")
+        return None if data is None else data.decode(self.codec, "replace")
 
     def memo_data(self, record: bytes, field: Field) -> bytes | None:
         """``ViewMemo``: the bytes of the memo *field* of *record* points at,
@@ -174,8 +213,16 @@ class DBFile:
         raise FileNotFoundError(tr("Could not find MEMO file"))
 
     def write_field(self, index: int, field: Field, text: str) -> None:
-        """``StoreField``: *text*, padded to the field, written into record *index*."""
-        data = text.encode(CODEC, "replace")[:field.length].ljust(field.length)
+        """``StoreField``: *text*, padded to the field, written into record
+        *index*, in the table's code page.  What does not fit is cut, never
+        in the middle of a character."""
+        data = text.encode(self.codec, "replace")
+        if len(data) > field.length:
+            cut = field.length
+            while cut and data[:cut].decode(self.codec, "ignore").encode(self.codec, "replace") != data[:cut]:
+                cut -= 1
+            data = data[:cut]
+        data = data.ljust(field.length)
         with open(self.path, "r+b") as file:
             file.seek(self.header_length + index * self.record_length + field.offset)
             file.write(data)
@@ -201,6 +248,48 @@ def memo_files(path: Path) -> list[Path]:
             if candidate not in found:
                 found.append(candidate)
     return found
+
+
+def cpg_files(path: Path) -> list[Path]:
+    """Where *path*'s ``.cpg`` may be: the table's own case first."""
+    return [path.with_suffix(".CPG"), path.with_suffix(".cpg")] if path.suffix.isupper() else \
+        [path.with_suffix(".cpg"), path.with_suffix(".CPG")]
+
+
+def companions(path: Path) -> list[Path]:
+    """The files read with the table *path*: its memo files and its ``.cpg``,
+    which a copy fetched from another drive or as root brings along."""
+    return [*memo_files(path), *cpg_files(path)]
+
+
+def cpg_codec(text: str) -> str | None:
+    """The code page a ``.cpg`` names (``UTF-8``, ``1251``, ``CP1252``), as
+    Python knows it; None for one it does not."""
+    words = text.split()
+    # ``ANSI 1251`` too: the number, where there is one.
+    name = next((word for word in words if word.isdigit()), words[0] if words else "")
+    if name.isdigit():
+        name = f"cp{name}"
+    try:
+        return codecs.lookup(name).name if name else None
+    except LookupError:
+        return None
+
+
+def code_page_of(path: Path, driver: int) -> str:
+    """The code page the table *path* is in: what its ``.cpg`` says (a
+    departure -- a shapefile's, where the byte is mostly 0), else what its
+    language-driver byte *driver* says, else :data:`CODEC`."""
+    for cpg in cpg_files(path):
+        try:
+            with open(cpg, encoding="ascii", errors="replace") as file:
+                named = cpg_codec(file.read(64))
+        except OSError:
+            continue
+        if named is not None:
+            return named
+        break
+    return LANGUAGE_DRIVERS.get(driver, CODEC)
 
 
 def date_shown(text: str) -> str:

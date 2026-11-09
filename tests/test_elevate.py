@@ -1397,7 +1397,7 @@ def test_a_write_protected_dbf_field_is_edited_as_root(helper, tmp_path, quiet_c
     ])
     reread = dbf.DBFile(people)
     try:
-        assert dbf.DBFile.raw(reread.record(0), reread.fields[3]) == "F"
+        assert reread.raw(reread.record(0), reread.fields[3]) == "F"
     finally:
         reread.close()
     assert seen == {"button": "As ~r~oot", "running": True}

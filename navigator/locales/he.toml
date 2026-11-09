@@ -6778,6 +6778,10 @@ direction = "rtl"
 "He~x~" = "~ה~קס"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "לשמור את הקובץ מתורגם\nמ־{encoding} ל־UTF-8?"
 "Only the start of the file was read" = "נקרא רק תחילת הקובץ"
+"E~n~coding..." = "~ק~ידוד..."
+"The code page the table is read in" = "דף הקוד שבו נקראת הטבלה"
+"Only in a CSV or dBase file" = "רק בקובץ CSV או dBase"
+
 [unused]
 "~Name~" = "~שם~"
 "~Start~" = "~התחלה~"

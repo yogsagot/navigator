@@ -6778,6 +6778,10 @@ direction = "rtl"
 "He~x~" = "~س~ت عشري"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "هل تحفظ الملف محوّلًا\nمن {encoding} إلى UTF-8؟"
 "Only the start of the file was read" = "لم يُقرأ إلا أول الملف"
+"E~n~coding..." = "ترمي~ز~..."
+"The code page the table is read in" = "صفحة الترميز التي يُقرأ بها الجدول"
+"Only in a CSV or dBase file" = "في ملف CSV أو dBase فقط"
+
 [unused]
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"

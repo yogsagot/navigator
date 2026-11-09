@@ -100,7 +100,7 @@ async def database_as_root(desktop: Any, path: Path) -> Any:
 
 
 async def fetch_database(app: Any, path: Path) -> Any:
-    """*path* and its memo file (or SQLite's ``-wal``) fetched through the root helper into the
+    """*path* and its memo file and ``.cpg`` (or SQLite's ``-wal``) fetched through the root helper into the
     private directory (owner only), the helper **held** for the window that
     will put fields back -- its ``close()`` lets go.  None if stopped."""
     from navigator.lib.drives import usefile
@@ -111,11 +111,14 @@ async def fetch_database(app: Any, path: Path) -> Any:
     origin = Location.of(Path(path))
 
     def fetch(job: Any, budget: Any) -> Any:
+        from navigator.lib.viewer.dbf import companions
+
         origins = [origin]
-        for suffix in (".fpt", ".FPT", ".dbt", ".DBT"):
-            memo = Location.of(Path(path).with_suffix(suffix))
-            if memo != origin and ROOT_DRIVE.exists(memo):
-                origins.append(memo)
+        # Its memo files and ``.cpg`` (``dbf.companions``).
+        for name in companions(Path(path)):
+            other = Location.of(name)
+            if other != origin and other not in origins and ROOT_DRIVE.exists(other):
+                origins.append(other)
         # A SQLite file's write-ahead log, which holds what is not checkpointed yet.
         wal = Location.of(Path(f"{path}-wal"))
         if ROOT_DRIVE.exists(wal):

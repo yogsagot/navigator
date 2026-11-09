@@ -6777,6 +6777,10 @@ flag = "JP"
 "He~x~" = "16進(~X~)"
 "Save the file translated\nfrom {encoding} to UTF-8?" = "ファイルを{encoding}から\nUTF-8に変換して保存しますか?"
 "Only the start of the file was read" = "ファイルの先頭しか読み込んでいません"
+"E~n~coding..." = "エンコーディング(~N~)..."
+"The code page the table is read in" = "表を読むコードページ"
+"Only in a CSV or dBase file" = "CSV または dBase ファイルでのみ"
+
 [unused]
 "Year" = "年"
 "View a dBase file as a table" = "dBase ファイルを表として表示します"

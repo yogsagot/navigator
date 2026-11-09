@@ -190,17 +190,27 @@ async def database_elsewhere(desktop: Any, origin: Location) -> Any:
     from navigator.lib.drives import drive_of
     from navigator.widgets.viewer.db_window.db_window import open_database
 
+    from pathlib import Path
+
+    from navigator.lib.viewer.dbf import companions
+
     # A SQLite file's write-ahead log, if there is one, beside it: what was
-    # written since the last checkpoint is in there.
-    wal = origin.parent / f"{origin.name}-wal"
+    # written since the last checkpoint is in there.  A dBase table's memo
+    # files and ``.cpg`` (``dbf.companions``) come along too.
+    wanted = [origin.parent / f"{origin.name}-wal",
+              *(origin.parent / name.name for name in companions(Path(origin.name)))]
 
-    def has_wal() -> bool:
-        try:
-            return drive_of(wal).exists(wal)
-        except OSError:
-            return False
+    def present() -> list[Any]:
+        found = []
+        for other in wanted:
+            try:
+                if other != origin and other not in found and drive_of(other).exists(other):
+                    found.append(other)
+            except OSError:
+                pass
+        return found
 
-    origins = [origin, wal] if await asyncio.to_thread(has_wal) else [origin]
+    origins = [origin, *await asyncio.to_thread(present)]
     use = await materialize(desktop.application, origins)
     if use is None:
         return None

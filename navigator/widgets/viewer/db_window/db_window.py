@@ -65,6 +65,7 @@ class DBWindow(Window):
         #: A field written into *use_set*'s copy whose upload failed or was
         #: declined: closing asks to upload before the copy is deleted.
         self.unsent = False
+        self.code_page = isinstance(db, dbf.DBFile)
         if db is not None:
             # ``TWindow.Init(R, FName, 0)`` -- ``cmGetName``'s *dBase View - *
             # is the window list's.
@@ -206,7 +207,9 @@ class DBWindow(Window):
             return tr("The database is opened read-only")
         if isinstance(command, (ChooseTable, RunQuery)) and self.sqlite is None:
             return tr("Only in a SQLite file")
-        if isinstance(command, (TableFormat, ViewSheetAsText)) and self.csv is None:
+        if isinstance(command, TableFormat) and self.csv is None and not self.code_page:
+            return tr("Only in a CSV or dBase file")
+        if isinstance(command, ViewSheetAsText) and self.csv is None:
             return tr("Only in a CSV file")
         if isinstance(command, (SortColumn, ChangeWidth)) and not (self.db is not None and self.db.fields):
             return tr("The file has no cells")
@@ -259,8 +262,24 @@ class DBWindow(Window):
     # -- Shift+F6, Shift+F3: a CSV ----------------------------------------------------
 
     async def on_table_format(self, event: TableFormat) -> bool:
-        self.spawn(self.table_format())
+        self.spawn(self.choose_code_page() if self.csv is None else self.table_format())
         return True
+
+    async def choose_code_page(self) -> None:
+        """Shift+F6 on a dBase table: the code page it is read in, from the
+        text viewer's box (``viewer_host.pick_encoding``) -- its cells and
+        field names drawn again, the cursor where it was."""
+        from navigator.widgets.viewer import viewer_host
+
+        db = self.db
+        if db is None or not hasattr(db, "set_codec"):
+            return
+        chosen = await viewer_host.pick_encoding(self, db.codec)
+        self.viewer.focus()
+        if chosen is None or chosen == db.codec:
+            return
+        db.set_codec(chosen)
+        self.viewer.invalidate()
 
     async def table_format(self) -> None:
         """*Format*: the file read again with the delimiter, header and
@@ -456,7 +475,6 @@ class DBWindow(Window):
         disk."""
         import asyncio
 
-        from navigator.lib.viewer import dbf
         from navigator.widgets.viewer.memo_dialog import MemoDialog
 
         db, viewer = self.db, self.viewer
@@ -467,7 +485,7 @@ class DBWindow(Window):
         memo_data = getattr(db, "memo_data", None)
         try:
             if memo_data is not None:
-                data, codec = await asyncio.to_thread(memo_data, record, field), dbf.CODEC
+                data, codec = await asyncio.to_thread(memo_data, record, field), db.codec
             else:
                 text = await asyncio.to_thread(db.memo, record, field)
                 data, codec = (None if text is None else text.encode("utf-8")), "utf-8"
@@ -587,6 +605,8 @@ class DBWindow(Window):
             ELEVATION.unhold()
             await asyncio.to_thread(ELEVATION.release)
             raise
+        # The copy is read as the table was, whatever its ``.cpg`` said.
+        db.set_codec(self.db.codec)
         self.db.close()
         self.db = self.viewer.db = db
         self.use_set, self.root_held = use, True

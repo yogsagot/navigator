@@ -24,21 +24,24 @@ FIELDS = (("NAME", "C", 10, 0), ("AGE", "N", 3, 0), ("BORN", "D", 8, 0), ("OK", 
 ROWS = (("Ann", "34", "19900102", "T", "1"), ("Bob", "7", "20170311", "F", "0"), ("Cid", "61", "", "T", "0"))
 
 
-def write_dbf(path: Path, rows=ROWS, fields=FIELDS) -> Path:
-    """A dBase III file of *rows*, and a ``.dbt`` with one memo in block 1."""
+def write_dbf(path: Path, rows=ROWS, fields=FIELDS, *, codec: str = "ascii", driver: int = 0,
+              memo: bytes = b"Hello\r\nmemo") -> Path:
+    """A dBase III file of *rows* in *codec*, its language-driver byte
+    *driver*, and a ``.dbt`` with *memo* in block 1."""
     record_length = 1 + sum(f[2] for f in fields)
     header_length = 32 + 32 * len(fields) + 1
     data = bytearray(struct.pack("<BBBBIHH", 3, 126, 1, 1, len(rows), header_length, record_length) + bytes(20))
+    data[29] = driver
     for name, kind, length, decimals in fields:
-        data += name.encode().ljust(11, b"\0") + kind.encode() + bytes(4) + bytes((length, decimals)) + bytes(14)
+        data += name.encode(codec).ljust(11, b"\0") + kind.encode() + bytes(4) + bytes((length, decimals)) + bytes(14)
     data += b"\r"
     for index, row in enumerate(rows):
         data += b"*" if index == 1 else b" "
         for (name, kind, length, _), value in zip(fields, row):
-            data += (value.rjust(length) if kind in "NM" else value.ljust(length)).encode()[:length]
+            data += (value.rjust(length) if kind in "NM" else value.ljust(length)).encode(codec)[:length]
     data += b"\x1a"
     path.write_bytes(bytes(data))
-    path.with_suffix(".dbt").write_bytes(bytes(512) + b"Hello\r\nmemo\x1a".ljust(512, b"\0"))
+    path.with_suffix(".dbt").write_bytes(bytes(512) + (memo + b"\x1a").ljust(512, b"\0"))
     return path
 
 
@@ -474,3 +477,190 @@ def test_memo_view_is_the_memo_in_a_viewer_with_the_viewers_keys(place, monkeypa
     assert seen["wrapped"] is not seen["wrap"]
     assert seen["hit"] == (long.index(b"needle"), 6)
     assert seen["back"]
+
+
+# -- The table's code page (the language-driver byte, a .cpg, Shift+F6) ---------------------------
+
+RUSSIAN_FIELDS = (("ИМЯ", "C", 10, 0), ("NOTES", "M", 10, 0))
+RUSSIAN_ROWS = (("Анна", "1"), ("Борис", "0"))
+
+
+def write_russian(path: Path, codec: str = "cp866", driver: int = 0x65) -> Path:
+    return write_dbf(path, RUSSIAN_ROWS, RUSSIAN_FIELDS, codec=codec, driver=driver,
+                     memo="Привет".encode(codec))
+
+
+@pytest.mark.parametrize("codec, driver", [("cp866", 0x65), ("cp866", 0x26), ("cp1251", 0xC9)])
+def test_the_language_driver_byte_names_the_code_page(tmp_path, codec, driver):
+    db = dbf.DBFile(write_russian(tmp_path / "ru.dbf", codec, driver))
+    assert db.codec == codec
+    assert db.fields[0].name == "ИМЯ"
+    assert db.raw(db.record(0), db.fields[0]).strip() == "Анна"
+    assert db.memo(db.record(0), db.fields[1]) == "Привет"
+
+
+def test_no_driver_byte_reads_as_dns_cp437(tmp_path):
+    db = dbf.DBFile(write_dbf(tmp_path / "people.dbf"))
+    assert db.codec == "cp437" == dbf.CODEC
+
+
+@pytest.mark.parametrize("text, codec", [("UTF-8\n", "utf-8"), ("1251", "cp1251"), ("ANSI 1251", "cp1251"),
+                                         ("nonsense", "cp866"), ("", "cp866")])
+def test_a_cpg_beside_the_table_wins_over_the_byte(tmp_path, text, codec):
+    path = write_russian(tmp_path / "ru.dbf")
+    (tmp_path / "ru.cpg").write_text(text)
+    assert dbf.DBFile(path).codec == codec
+
+
+def test_a_cpg_in_capitals_beside_a_table_in_capitals(tmp_path):
+    path = write_russian(tmp_path / "RU.DBF", "cp1251", 0)
+    (tmp_path / "RU.CPG").write_text("1251")
+    db = dbf.DBFile(path)
+    assert db.codec == "cp1251" and db.fields[0].name == "ИМЯ"
+
+
+def test_every_language_driver_is_a_page_shift_f6_offers():
+    from navigator.lib import codepages
+
+    offered = {page.key for page in codepages.ONE_BYTE}
+    assert set(dbf.LANGUAGE_DRIVERS.values()) <= offered
+
+
+def test_the_companions_are_the_memo_files_and_the_cpg():
+    names = [p.name for p in dbf.companions(Path("a.dbf"))]
+    assert names == ["a.fpt", "a.FPT", "a.dbt", "a.DBT", "a.cpg", "a.CPG"]
+
+
+def test_set_codec_reads_the_cells_and_names_again_and_f4_writes_in_it(tmp_path):
+    db = dbf.DBFile(write_russian(tmp_path / "ru.dbf", "cp866", 0))
+    assert db.codec == "cp437" and db.fields[0].name != "ИМЯ"
+    db.record(0)
+    db.set_codec("cp866")
+    assert db.fields[0].name == "ИМЯ" and db.fields[0].raw_name == "ИМЯ".encode("cp866")
+    assert db.raw(db.record(0), db.fields[0]).strip() == "Анна"
+    assert dbf.find(db, "борис", case=False, all_fields=False, backward=False, record=-1, field=0) == (1, 0)
+    db.write_field(0, db.fields[0], "Вера")
+    raw = (tmp_path / "ru.dbf").read_bytes()
+    assert "Вера".encode("cp866").ljust(10) in raw
+
+
+def test_f4_in_utf_8_never_cuts_a_character_in_half(tmp_path):
+    path = write_russian(tmp_path / "ru.dbf", "utf-8", 0)
+    (tmp_path / "ru.cpg").write_text("UTF-8")
+    db = dbf.DBFile(path)
+    db.write_field(0, db.fields[0], "Ярослава")  # 16 bytes into 10
+    cell = dbf.DBFile(path).record(0)[1:11]
+    assert cell == "Яросл".encode().ljust(10)
+
+
+def russian_place(place):
+    write_russian(place / "ru.dbf", "cp866", 0)
+    return place
+
+
+def test_shift_f6_on_a_dbase_table_opens_the_encoding_box(place):
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    russian_place(place)
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def popup(a):
+        return next((c for c in a.root.children if isinstance(c, PopupMenu)), None)
+
+    run_app(app, [on("ru.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  KeyEvent("f6", shift=True), Until(lambda a: popup(a) is not None),
+                  lambda a: seen.update(title=popup(a).title),
+                  # CP437 is in a submenu, opened: Esc out of it, then the box.
+                  KeyEvent("escape"), KeyEvent("escape"), Until(lambda a: popup(a) is None),
+                  lambda a: seen.update(codec=window_of(a).db.codec, focused=a.focused is window_of(a).viewer)])
+    assert seen == {"title": "Encoding", "codec": "cp437", "focused": True}
+
+
+def test_the_page_chosen_redraws_the_table_and_the_memo_opens_in_it(place, monkeypatch):
+    from navigator.widgets.viewer import viewer_host
+
+    russian_place(place)
+    asked = []
+
+    async def pick(host, current):
+        asked.append(current)
+        return "cp866"
+
+    monkeypatch.setattr(viewer_host, "pick_encoding", pick)
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def look(a):
+        window = window_of(a)
+        db = window.db
+        seen.update(name=db.fields[0].name, cell=db.shown(db.record(window.viewer.record), db.fields[0]).strip(),
+                    row=window.viewer.record, screen="\n".join(a.terminal.text_lines()) if hasattr(
+                        a.terminal, "text_lines") else "")
+
+    run_app(app, [on("ru.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)),
+                  KeyEvent("down"), KeyEvent("f6", shift=True), Until(lambda a: window_of(a).db.codec == "cp866"),
+                  look, KeyEvent("up"), KeyEvent("end"), KeyEvent("f3"),
+                  Until(lambda a: isinstance(a.modal, MemoDialog)),
+                  lambda a: seen.update(memo=(memo_of(a), a.modal.viewer.encoding))])
+    assert asked == ["cp437"]
+    assert seen["name"] == "ИМЯ" and seen["cell"] == "Борис" and seen["row"] == 1
+    assert seen["memo"] == ("Привет".encode("cp866"), "cp866")
+
+
+def format_entry(window):
+    from navigator.widgets.viewer.commands import TableFormat
+
+    return next(e for e in window.view_menu.entries() if getattr(e, "command", None) is TableFormat)
+
+
+def test_the_view_menu_names_shift_f6_for_the_table(place):
+    from navml.widgets.menu.menu_box.menu_box import key_caption
+
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+
+    def look(a):
+        entry = format_entry(window_of(a))
+        seen.update(entry=(str(entry.text), key_caption(entry, a, a.focused),
+                           a.command_enabled(entry.command, a.focused)))
+
+    run_app(app, [on("people.dbf"), KeyEvent("f3"), Until(lambda a: isinstance(window_of(a), DBWindow)), look])
+    assert seen["entry"] == ("E~n~coding...", "Shift-F6", True)
+    # Not a dBase table (a CSV's): still *Format*.
+    assert str(format_entry(DBWindow(None)).text) == "Fo~r~mat..."
+
+
+def test_shift_f6_is_refused_in_a_sqlite_table(tmp_path):
+    from navigator.widgets.viewer.commands import TableFormat
+
+    window = DBWindow(None, sqlite=object())
+    assert window.code_page is False
+    assert window.refusal(TableFormat()) == "Only in a CSV or dBase file"
+    db = dbf.DBFile(write_dbf(tmp_path / "people.dbf"))
+    assert DBWindow(db).refusal(TableFormat()) == ""
+
+
+def test_a_table_from_another_drive_brings_its_memo_and_cpg(tmp_path, monkeypatch):
+    import asyncio
+
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+    from navigator.widgets.drives import use_file
+
+    drive = mount(MemoryDrive("tables"))
+    try:
+        for name in ("ru.dbf", "ru.fpt", "ru.cpg"):
+            drive.make(f"/t/{name}", "x")
+        asked = []
+
+        async def materialize(app, origins):
+            asked.extend(str(o.path) for o in origins)
+            return None
+
+        monkeypatch.setattr(use_file, "materialize", materialize)
+        desktop = type("Desktop", (), {"application": None})()
+        assert asyncio.run(use_file.database_elsewhere(desktop, drive.location("/t/ru.dbf"))) is None
+        assert asked == ["/t/ru.dbf", "/t/ru.fpt", "/t/ru.cpg"]
+    finally:
+        unmount(drive.site)

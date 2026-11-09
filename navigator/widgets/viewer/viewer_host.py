@@ -65,13 +65,22 @@ async def choose_encoding(host: Any) -> None:
     put the table away; here *UTF-8* is that, first in the box.  The code
     pages are a submenu a group (``encoding_menu``), and the box opens with
     the one in use dropped and selected."""
+    viewer = host.viewer
+    chosen = await pick_encoding(host, viewer.encoding)
+    if chosen is not None:
+        viewer.set_encoding(chosen)
+
+
+async def pick_encoding(host: Any, current: str) -> str | None:
+    """Shift+F6's box, centred on *host*, *current* marked: the code page
+    chosen, or None.  The F3 window's, the quick view's and the dBase
+    table's."""
     from navml.widgets.menu.popup_menu import PopupMenu
     from navml.widgets.menu.sub_menu import SubMenu
 
     from navigator.lib import codepages
     from navigator.widgets import encoding_menu
 
-    viewer = host.viewer
     menu = SubMenu()
     filled = encoding_menu.fill(menu, [viewer_model.ENCODINGS[0]], codepages.ONE_BYTE)
     title = tr("Encoding")
@@ -79,12 +88,10 @@ async def choose_encoding(host: Any) -> None:
     ox, oy = host.offset()
     x = ox + host.x + max(0, (host.width - width) // 2)
     y = oy + host.y + max(0, (host.height - height) // 2)
-    index, at = filled.places.get(viewer.encoding, (0, -1))
+    index, at = filled.places.get(current, (0, -1))
     box = PopupMenu(menu, x, y, current=index, behind=host, title=title,
                     submenu=(index, at) if at >= 0 else None)
-    chosen = filled.key_of(await box.execute(host.application))
-    if chosen is not None:
-        viewer.set_encoding(chosen)
+    return filled.key_of(await box.execute(host.application))
 
 
 async def save_as(host: Any) -> None:

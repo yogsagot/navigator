@@ -21,11 +21,16 @@ from navml.widgets.window import Window
 #: A SQLite file opens here too, a table at a time and read-only (a
 #: departure): F5 *Tables* and F6 *Query* are for it alone, F4 is refused.
 #: So does a CSV or TSV file, read-only, where DN's ``.WKZ`` had a
-#: spreadsheet window of its own: Shift+F6 *Format* and Shift+F3 its text are
-#: for it alone.  F8 sorts any of them, and *Column width* -- the
+#: spreadsheet window of its own: Shift+F3 its text is for it alone.
+#: Shift+F6 is how the table is read: a CSV's *Format*, a dBase table's code
+#: page (*Encoding*, the text viewer's box) -- where ``hcDBView`` had
+#: *Reanimate*, DOS undelete, dropped.  Refused for SQLite, whose engine
+#: decodes its text.  F8 sorts any of them, and *Column width* -- the
 #: spreadsheet's ``cmChangeWidth`` -- and Ctrl+Left/Right resize a field.
 DBWindow(Window):
     zoomed: True
+    #: A dBase table: Shift+F6 chooses its code page.
+    property code_page: False
 
     keys:
         escape: CloseWindow
@@ -99,10 +104,10 @@ DBWindow(Window):
             text: 'Column ~w~idth...'
             tooltip: "Left and Right narrow and widen the column; Enter ends"
             command: ChangeWidth
-        #: A CSV's alone, greyed otherwise.
+        #: A CSV's format, a dBase table's code page; greyed for SQLite.
         MenuItem:
-            text: 'Fo~r~mat...'
-            tooltip: "The delimiter, the header and the encoding"
+            text: 'E~n~coding...' if root.code_page else 'Fo~r~mat...'
+            tooltip: "The code page the table is read in" if root.code_page else "The delimiter, the header and the encoding"
             command: TableFormat
         MenuItem:
             text: 'As te~x~t'
