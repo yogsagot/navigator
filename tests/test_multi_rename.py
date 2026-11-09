@@ -278,6 +278,29 @@ def test_alt_a_previews_renames_and_undo_puts_the_names_back(place):
     assert seen["undone"] is False
 
 
+@pytest.mark.parametrize("cursor, lands", [("..", "file01.txt"), ("two.txt", "file02.txt")])
+def test_the_cursor_follows_its_own_file_else_goes_to_the_first_renamed(place, cursor, lands):
+    """As F5/F6 land on what they made: on ``..`` (not renamed) the cursor goes
+    to the first file renamed; on one renamed it goes with it."""
+    app = navigator(place)
+    seen = {}
+
+    def to(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index(cursor)
+
+    def fill(a):
+        a.modal.name_mask.value = "file[C]"
+        a.modal.digits.value = "2"
+
+    run_app(app, [Until(lambda a: "one.txt" in [e.name for e in a.manager.left.items]),
+                  tag("one.txt", "two.txt"), to, KeyEvent("a", alt=True), Until(lambda a: a.modal is not None),
+                  fill, lambda a: None, KeyEvent("enter"),
+                  Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == lands),
+                  lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert seen["at"] == lands
+
+
 def test_ok_stays_up_while_a_name_is_taken(place):
     app = navigator(place)
     seen = {}

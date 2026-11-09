@@ -2267,8 +2267,15 @@ class Manager(Window):
         done = await self._run_renames(pairs)
         if done:
             UNDO.push(undo_history.Renamed(tuple(done)))
-            place, _old, new = done[0]
-            await self._after_renames(panel, done, at=(place, new) if len(done) == 1 else None)
+            # The cursor follows its own file if that was renamed, else goes
+            # to the first renamed, as F5/F6 land on what they made.
+            at = (done[0][0], done[0][2])
+            selected = panel.selected
+            if selected is not None:
+                where = Location.of(selected.directory) if selected.directory is not None else here
+                at = next(((place, new) for place, old, new in done
+                           if place == where and old == selected.name), at)
+            await self._after_renames(panel, done, at=at)
 
     # -- File > Undo (not DN's: navigator.lib.file_ops.undo) ---------------------
 
