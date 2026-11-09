@@ -261,6 +261,24 @@ def test_the_trash_drive_lists_restores_and_erases(place, home):
     assert not (home / "info" / "a.txt.trashinfo").exists()
 
 
+def test_restore_puts_the_other_panel_s_cursor_on_what_went_back(place, home):
+    """As F5/F6 land on what they made: the panel showing where the item went
+    back -- the other one, the Trash being this one's -- lands on it."""
+    SETTINGS.file_manager.use_trash = True
+    trash.move(place / "a.txt")
+    seen = {}
+    run_app(navigator(place), [
+        lambda a: a.spawn(a.run_command(OpenTrash)),
+        Until(lambda a: trash_drive.is_trash(a.manager.active_panel.location)
+              and len(a.manager.active_panel.items) == 2),
+        on("a.txt"), lambda a: a.spawn(a.run_command(RestoreTrash)),
+        Until(lambda a: (place / "a.txt").exists()),
+        Until(lambda a: a.manager.right.selected is not None and a.manager.right.selected.name == "a.txt"),
+        lambda a: seen.update(at=a.manager.right.selected.name),
+    ])
+    assert seen == {"at": "a.txt"}
+
+
 @pytest.mark.parametrize("leave", ["dotdot", "backspace"])
 def test_dotdot_and_backspace_leave_the_trash_for_where_the_panel_was(place, leave):
     trash.move(place / "a.txt")

@@ -2489,7 +2489,9 @@ class Manager(Window):
 
         On a thread (:func:`navigator.lib.file_ops.trash.restore_all`), a box
         once it takes a moment; a name taken where one goes back asks *Skip*
-        or *Cancel*.  What went back is untagged, and both panels look again.
+        or *Cancel*.  What went back is untagged, and both panels look again:
+        one showing where the first went back lands on it, as F5/F6's on what
+        they made.
         """
         from navigator.lib.file_ops import filecopy, trash
         from navigator.widgets.manager.find_progress import FindProgress
@@ -2526,8 +2528,10 @@ class Manager(Window):
                 job.stop()
             await self._release_if(job.as_root)
             panel.untag_paths([by_item[id(item)] for item in job.done])
-            panel.reload()
-            (self.right if panel is self.left else self.left).reload()
+            first = next((Location.of(item.original) for item in job.done if item.original is not None), None)
+            for side in (panel, self.right if panel is self.left else self.left):
+                there = first is not None and side.found is None and Location.of(side.location) == first.parent
+                side.reload(key=first.name if there else None)
 
     async def empty_trash(self) -> None:
         """Disk > Empty Trash: asked, then everything in it erased through the
