@@ -512,7 +512,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   name (history `editfile`), relative to the active panel, `~` expanded; `Manager.edit_named` opens it with
   `open_editor(..., new=True)`, so a name that does not exist is an empty text saving creates. A directory or a missing
   parent directory is refused up front. With *Internal editor* off it goes to `$EDITOR`. DN's own dialog was not to
-  hand; this one is shaped as F7's.
+  hand; this one is shaped as F7's. The save that creates the file says so (`FileSaved.created`, from
+  `os.path.lexists` on the write's thread just before it writes), and `Shell.on_file_saved` re-reads each panel
+  showing the directory with its cursor on the new file, as F7 does a directory; a save over an existing file leaves
+  the cursor alone.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model, every field `StoreEditInfo` wrote.
   It holds the window rectangle, cursor (`line`, `col`), scroll (`top`, `left`), `overwrite`, `vertical_blocks`,
   `highlight`, `file_type`, the markers, the block (`block`, as `line:col-line:col`, `|` before a column block's

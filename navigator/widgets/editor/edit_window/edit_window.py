@@ -85,9 +85,12 @@ class FileSaved(Event):
     """A file was written: the panels showing its directory re-read it.
 
     DN's ``FileChanged``, which broadcast ``cmRereadDir`` for the directory.
+    *created*: the write made the file (Shift+F4's new file, saved the first
+    time), and the re-read puts the cursor on it, as F7's does a directory.
     """
 
     path: Path
+    created: bool = False
 
 
 class EditWindow(Window):
@@ -130,6 +133,9 @@ class EditWindow(Window):
         #: One save at a time: a second F2, or *Yes* to *Save?* while one is
         #: still writing, waits for it and then writes what the text is then.
         self._saving = asyncio.Lock()
+        #: Whether the last :meth:`_write` made the file, rather than
+        #: writing over one: what :class:`FileSaved` says as ``created``.
+        self._created = False
         if share is not None:
             # Window > *New view* (not DN's): *share*'s text, its undo history
             # and its save; the copy from another drive is the text's too.
@@ -364,7 +370,7 @@ class EditWindow(Window):
             return sent
         if written and not self.smartpad and self.parent is not None:
             # ``FileChanged``, which SmartPad's own file never set off.
-            await self.emit(FileSaved(path))
+            await self.emit(FileSaved(path, created=self._created))
         return written
 
     async def _write_or_root(self, path: Path, backup: bool = False) -> bool | None:
@@ -418,7 +424,11 @@ class EditWindow(Window):
                 if where is not None:
                     raise unencodable(lines, where, encoding)
 
+            self._created = False
+
             def write(job: Any) -> None:
+                # On the thread, before the write: whether it makes the file.
+                self._created = not os.path.lexists(path)
                 if not as_root:
                     write_file(path, encode_lines(lines, endings, job, encoding=encoding), job, backup)
                     return

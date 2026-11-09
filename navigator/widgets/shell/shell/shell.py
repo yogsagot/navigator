@@ -1323,6 +1323,7 @@ class Shell(DockLayout):
         """``FileChanged``: every panel showing the saved file's directory re-reads.
 
         ``highlight.ini`` saved colours every open text again by its new rules.
+        A file the save created gets the cursor (``FileSaved.created``).
         """
         from navigator.lib.config import associations
         from navigator.widgets.editor.file_editor import FileEditor
@@ -1334,7 +1335,7 @@ class Shell(DockLayout):
             if isinstance(window, Manager):
                 for panel in window.all_panels:
                     if panel.location == Location.of(directory):
-                        panel.reload()
+                        panel.reload(key=event.path.name if event.created else None)
         for window in self.desktop.windows():
             # Utilities > Services: a unit file it opened, saved -- daemon-reload.
             saved = getattr(window, "unit_file_saved", None)

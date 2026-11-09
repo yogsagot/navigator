@@ -747,6 +747,23 @@ def test_shift_f4_edits_a_new_file_that_saving_creates(files):
     assert (files / "fresh.txt").read_bytes() == b"hi"
 
 
+def test_saving_a_new_file_puts_the_panel_cursor_on_it(files):
+    """The first F2 creates the file, and the panel showing its directory
+    looks again with the cursor on it -- as F7 does a directory."""
+    def on_it(a):
+        selected = a.manager.left.selected
+        return selected is not None and selected.name == "fresh.txt"
+
+    app, _, _ = edit_named(files, "fresh.txt", *typed("hi"), KeyEvent("f2"), Until(on_it, timeout=5))
+    assert app.manager.left.selected.name == "fresh.txt"
+
+
+def test_saving_a_file_over_itself_leaves_the_panel_cursor(files):
+    app, window, _ = edit_named(files, "text.txt", *typed("x"), KeyEvent("f2"), IDLE)
+    assert (files / "text.txt").read_bytes().startswith(b"x")
+    assert app.manager.left.selected.name == ".."
+
+
 def test_shift_f4_on_an_existing_name_edits_that_file(files):
     _, window, _ = edit_named(files, "text.txt")
     assert window.editor.document.encode() == b"first line\r\nsecond\tline\r\n"
