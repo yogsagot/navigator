@@ -1405,6 +1405,67 @@ def test_a_write_protected_dbf_field_is_edited_as_root(helper, tmp_path, quiet_c
 
 
 @pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
+def test_closing_a_dbf_window_mid_upload_waits_for_it_before_releasing_root(
+        helper, tmp_path, quiet_console, monkeypatch):
+    # The upload's box only shows after a second: a window closed inside it
+    # used to delete the copy and release root from under the upload's thread.
+    import threading
+
+    from test_dbf import write_dbf
+
+    from conftest import FakeTerminal, Until, run_app
+    from navigator.__main__ import Navigator
+    from navigator.lib.drives import usefile
+    from navigator.lib.viewer import dbf
+    from navigator.widgets.viewer.db_window import DBWindow
+    from navkit.events import KeyEvent
+
+    monkeypatch.setattr(SETTINGS.system, "root_timeout", 0)
+    people = write_dbf(tmp_path / "people.dbf")
+    people.chmod(0o444)
+    started, closed = threading.Event(), threading.Event()
+    upload = usefile.upload
+
+    def slow_upload(changed, job):
+        started.set()
+        closed.wait(5)
+        return upload(changed, job)
+
+    monkeypatch.setattr(usefile, "upload", slow_upload)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(100, 30))
+
+    def window(a):
+        found = a.shell.desktop.active_window
+        return found if isinstance(found, DBWindow) else None
+
+    def flip(a):
+        w = window(a)
+        w.viewer.go(record=0, field=3)
+        a.spawn(w.edit_field())
+
+    def close(a):
+        window(a).close()
+        closed.set()
+
+    run_app(app, [
+        Until(lambda a: any(e.name == "people.dbf" for e in manager_of(a).active_panel.items)),
+        put_cursor_on("people.dbf"), KeyEvent("f3"),
+        Until(lambda a: window(a) is not None, timeout=5),
+        flip,
+        Until(lambda a: a.modal is not None, timeout=5),
+        lambda a: a.spawn(a.modal.ok.press()),
+        Until(lambda a: started.is_set(), timeout=10),
+        close,
+        Until(lambda a: not ELEVATION.running, timeout=10),
+    ])
+    reread = dbf.DBFile(people)
+    try:
+        assert reread.raw(reread.record(0), reread.fields[3]) == "F"
+    finally:
+        reread.close()
+
+
+@pytest.mark.skipif(IS_ROOT, reason="root is refused nothing")
 def test_a_multi_rename_in_a_refused_archive_goes_on_as_root(helper, tmp_path, archives_closed):
     from navigator.lib.drives import archive, drive_of
     from navigator.lib.file_ops import multirename
