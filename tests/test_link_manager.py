@@ -289,9 +289,21 @@ def press_on_row(dialog, row):
     return press
 
 
+def double_press_on_row(dialog, row):
+    """Both presses posted at once, so they are one batch apart: as two
+    actions, ``run_app`` paints between them, and a slow runner outlasts
+    ``DOUBLE_CLICK_TIMEOUT`` and sees two single clicks."""
+    first, second = press_on_row(dialog, row), press_on_row(dialog, row)
+
+    def press(a):
+        first(a)
+        second(a)
+    return press
+
+
 def test_a_double_click_on_a_saved_connection_connects(desk):
     dialog = LinkManagerDialog(sftp_entries())
-    answer = answer_of(desk, dialog, [press_on_row(dialog, 1), press_on_row(dialog, 1)])
+    answer = answer_of(desk, dialog, [double_press_on_row(dialog, 1)])
     assert answer == ConnectRequest("sftp", "box.lan", "", 0, "")
 
 
