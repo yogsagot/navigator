@@ -192,6 +192,52 @@ def test_ctrl_z_restores_what_f8_moved_to_the_trash(place, monkeypatch):
     assert (place / "a.txt").read_text() == "a.txt"
 
 
+def at(name: str):
+    return Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == name)
+
+
+def test_undoing_a_rename_puts_the_cursor_on_the_name_put_back(place):
+    def rename(a):
+        a.spawn(a.manager._rename_entry(a.manager.left, a.manager.left.selected, "z.txt"))
+
+    seen = {}
+    run_app(navigator(place), [listed("b.txt"), on("b.txt"), rename, at("z.txt"), on(".."), *ctrl_z(),
+                               Until(lambda a: (place / "b.txt").exists()), at("b.txt"),
+                               lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert seen == {"at": "b.txt"}
+
+
+def test_undoing_a_move_puts_the_cursor_on_what_came_back(place, tmp_path):
+    away = tmp_path / "away"
+
+    def go(a):
+        panel = a.manager.left
+        request = CopyRequest([place / "a.txt"], str(away) + "/", ASK, PRESERVE | MOVE)
+        a.spawn(a.manager._run_copy(panel, request, panel.location, move=True))
+
+    seen = {}
+    run_app(navigator(place), [listed("a.txt"), on("b.txt"), go, Until(lambda a: (away / "a.txt").exists()),
+                               Until(lambda a: len(UNDO) == 1), *ctrl_z(),
+                               Until(lambda a: (place / "a.txt").exists()), at("a.txt"),
+                               lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert seen == {"at": "a.txt"}
+
+
+def test_undoing_a_trash_puts_the_cursor_on_what_was_restored(place, monkeypatch):
+    from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+
+    monkeypatch.setattr(SETTINGS.file_manager, "use_trash", True)
+    seen = {}
+    run_app(navigator(place), [
+        listed("a.txt"), on("a.txt"), KeyEvent("f8"), Until(lambda a: isinstance(a.modal, DeleteDialog)),
+        KeyEvent("enter"), Until(lambda a: not (place / "a.txt").exists()),
+        Until(lambda a: isinstance(UNDO.peek(), Trashed)), on(".."), *ctrl_z(),
+        Until(lambda a: (place / "a.txt").exists()), at("a.txt"),
+        lambda a: seen.update(at=a.manager.left.selected.name),
+    ])
+    assert seen == {"at": "a.txt"}
+
+
 def test_ctrl_z_removes_f7s_directory_but_never_a_full_one(place):
     def fill(name):
         def act(a):

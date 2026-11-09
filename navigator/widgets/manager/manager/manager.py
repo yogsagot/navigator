@@ -328,6 +328,8 @@ class Manager(Window):
         #: While the divider is held: the column the pointer took it at,
         #: counted from the right side's left edge (DN's ``B``).
         self._divider: int | None = None
+        #: File > Undo: where the first thing put back now is (:meth:`undo`).
+        self._undo_landing: Location | None = None
         #: What each side last showed of what ``panel_state`` keeps; None
         #: until the first look, which only records it.
         self._kept_state: dict[str, dict[str, Any]] | None = None
@@ -2298,6 +2300,10 @@ class Manager(Window):
             return  # something else went on the history meanwhile
         UNDO.pop()
         left: Any = None
+        # Where the first thing put back now is, set by the step that put it
+        # back: the panel showing its directory lands on it, as F5/F6's do on
+        # what they made.  Undoing a copy or a directory puts nothing back.
+        self._undo_landing = None
         try:
             if isinstance(entry, undo_history.Renamed):
                 left = await self._undo_renames(panel, entry)
@@ -2310,9 +2316,12 @@ class Manager(Window):
             elif isinstance(entry, undo_history.MadeDirectory):
                 left = await self._undo_mkdir(panel, entry)
         finally:
+            landing = self._undo_landing
             for side in (self.left, self.right):
                 if side.application is not None:
-                    side.reload()
+                    there = (landing is not None and side.found is None
+                             and Location.of(side.location) == landing.parent)
+                    side.reload(key=landing.name if there else None)
         if left is not None:
             UNDO.push(left)
             return
@@ -2324,6 +2333,8 @@ class Manager(Window):
         """The names put back (:meth:`_run_renames`); what was not, as an entry."""
         done = await self._run_renames(entry.undo_pairs())
         if done:
+            place, _now, back_to = done[0]
+            self._undo_landing = Location.of(place) / back_to
             await self._after_renames(panel, done)
         back = {(place, new) for place, new, _old in done}
         rest = tuple(pair for pair in entry.pairs if (pair[0], pair[2]) not in back)
@@ -2352,6 +2363,7 @@ class Manager(Window):
         await self._run_copy(panel, request, panel.location, move=True,
                              others=(self.passive_panel,), record=False, done_into=job_done)
         back = {Location.of(dest) for dest in job_done}
+        self._undo_landing = next((Location.of(source) for dest, source in pairs if Location.of(dest) in back), None)
         rest = tuple(pair for pair in entry.pairs if pair[1] not in back)
         return undo_history.Moved(rest, entry.replaced) if rest else None
 
@@ -2411,6 +2423,9 @@ class Manager(Window):
                 job.stop()
             await self._release_if(job.as_root)
         back = {id(item) for item in job.done}
+        first = next((item.original for item in job.done if item.original is not None), None)
+        if first is not None:
+            self._undo_landing = Location.of(first)
         rest = tuple(item for item in entry.items if id(item) not in back)
         return undo_history.Trashed(rest) if rest else None
 

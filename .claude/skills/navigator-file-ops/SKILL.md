@@ -109,6 +109,9 @@ I/O: `Renamed`, `Copied`, `Moved`, `Trashed`, `MadeDirectory` (each `question()`
   out of an archive, so not Extract either, not Synchronize's `pairs`, not Undo's own copy -- `record=False`); Alt+F6/Shift+F6 in `_rename_entry`; Alt+A's
   batch in `multi_rename`; the Trash in `_run_erase` from `EraseJob.trashed` (the `trash.Item`s `_to_trash` got back);
   F7 in `make_directory`, every branch.
+- **Where the cursor lands**: `Manager.undo` re-reads both sides last, so each step sets `_undo_landing` to the first
+  thing it put back (a rename's old name, a move's source, a Trash item's `original`) and a side showing its directory
+  lands on it, as F5/F6 do on what they made. Undoing a copy or an F7 directory removes, and leaves the cursors be.
 - **`CopyJob.moved` is the largest piece that went whole** (`_Copier._record`): a directory renamed, or made anew across
   devices and emptied (its children's pairs replaced by its own, from `mark`), is one pair; one merged into a
   directory already there leaves its children's. The destination is the one after an overwrite question's *Rename*.
