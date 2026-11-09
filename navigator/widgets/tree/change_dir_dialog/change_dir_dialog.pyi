@@ -12,7 +12,7 @@ from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.dialog.tree_view import TreeView
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 from navkit.events import Event
 from navkit.i18n import tr
 from navml.widgets.dialog.control import escape_caption
@@ -27,7 +27,7 @@ class ChangeDirDialog(Dialog, _Component):
     reread: Button
     mkdir: Button
     abandon: Button
-    def __init__(self, start: Any = ..., hidden: bool = ..., **kwargs: Any) -> None: ...
+    def __init__(self, start: Any = ..., hidden: bool = ..., made: Callable[[Any, str], None] | None = ..., **kwargs: Any) -> None: ...
     async def on_drive_click(self, event: _Event) -> bool: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     def _show(self, place: Any) -> None: ...

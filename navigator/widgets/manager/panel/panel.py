@@ -1130,7 +1130,7 @@ class Panel(ListViewer):
         where the cursor goes instead, if it is there: the entry just renamed.
         """
         entry = self.selected
-        if entry is not None:
+        if entry is not None or key:
             self._keep = (self.location, key or entry.key, self.cursor, self.scroll)
         self.reload_token += 1
 

@@ -280,7 +280,9 @@ removed (flags pressed, `flags_touched`) in the request, so one edit reaches fil
 
 ## Make directory (F7)
 
-The first dialog wired into the application; `Field(history_id="mkdir")`.
+The first dialog wired into the application; `Field(history_id="mkdir")`. The re-read puts the cursor on what
+was made (`panel.reload(key=...)`, the name's first part, so `a/b` lands on `a`); a failure or a declined *As root*
+leaves it where it was.
 
 ## Printing (Ctrl+F9)
 

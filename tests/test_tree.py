@@ -659,6 +659,24 @@ def test_mkdir_makes_the_directory_where_the_tree_points(places):
     assert seen == [("ChangeDirDialog", (places / "alpha" / "new").resolve())]
 
 
+def test_mkdir_puts_the_panel_behind_on_the_directory_too(places):
+    """The panel showing where *MkDir* made it looks again with its cursor on
+    the new directory, as F7's does -- so Cancel leaves it there."""
+    app = chdir_run(
+        places,
+        KeyEvent("m", "m", alt=True), lambda a: None,
+        *[KeyEvent(c, c) for c in "new"], KeyEvent("enter"),
+        Until(lambda a: type(a.modal).__name__ == "ChangeDirDialog"
+              and a.modal.accept() == (places / "new").resolve(), timeout=5),
+        Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "new",
+              timeout=5),
+        KeyEvent("escape"),
+    )
+    assert app.modal is None
+    assert app.manager.left.path == places
+    assert app.manager.left.selected.name == "new"
+
+
 def test_reread_keeps_the_cursor_and_finds_what_appeared(places):
     seen = []
 

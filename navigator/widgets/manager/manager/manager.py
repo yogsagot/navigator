@@ -3256,11 +3256,21 @@ class Manager(Window):
         from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
 
         panel = self.active_panel
-        chosen = await ChangeDirDialog(start=shown(panel.location), hidden=panel.show_hidden).execute(self.application)
+        chosen = await ChangeDirDialog(start=shown(panel.location), hidden=panel.show_hidden,
+                                       made=self._made_in).execute(self.application)
         if chosen is not None:
             # A ``root:`` directory the user may read is the disk's own again.
             panel.location = panel._plain_where_readable(Location.of(chosen))
             panel.focus()
+
+    def _made_in(self, base: Any, name: str) -> None:
+        """Alt+T's *MkDir* made *name* in *base*: a panel showing *base* looks
+        again with its cursor on it, as F7's does (``a/b`` on ``a``)."""
+        where = Location.of(base)
+        key = Path(name).parts[0]
+        for panel in (self.left, self.right):
+            if panel.found is None and Location.of(panel.location) == where:
+                panel.reload(key=key)
 
     def refusal(self, command: Any) -> str:
         """Why the active panel cannot do *command* now, ``""`` when it can.
@@ -3775,14 +3785,17 @@ class Manager(Window):
         if not name:
             return
         try:
-            await make_directory_in(self.application, panel.location, name)
+            made = await make_directory_in(self.application, panel.location, name)
         except OSError as error:
+            made = None
             await Dialog(
                 title=tr("Cannot make directory"),
                 prompt=error.strerror or str(error),
                 buttons="ok",
             ).execute(self.application)
-        panel.reload()
+        # DN's ``MakeDir`` re-read the directory with the cursor on what it
+        # made; ``a/b`` puts it on ``a``, the entry this listing shows.
+        panel.reload(key=Path(name).parts[0] if made is not None else None)
 
     # -- copying and moving ------------------------------------------------------
 

@@ -19,7 +19,9 @@ Slots `[94-101]`, `[104-110]`.
   belongs to the command line.
 - **Alt+T is DN's *Choose Directory*** (`TTreeDialog`, `navigator/widgets/tree/change_dir_dialog/`): the tree frameless
   in a dialog (`ListViewer.framed = False`), the path under it, and OK / Drive (disabled: one root) / Re-read / MkDir /
-  Cancel down the right; OK sends the active panel there.
+  Cancel down the right; OK sends the active panel there. MkDir puts the tree's cursor on what it made, and through
+  the dialog's `made` callback (`Manager._made_in`) a panel showing that directory looks again with its cursor on it,
+  as F7's does; Copy's tree button passes none.
 - **Disk > Directory tree opens `TTreeWindow`** (`navigator/widgets/tree/tree_window/`): a *Directory Tree* window on the
   desktop in the dialog palette; Esc closes it, Enter sends the active panel there (the tree's `ChosenEvent` bubbles to
   `Shell`). DN 1.51 defined that window but never opened it (its menu entry opened a second file manager) -- taking the

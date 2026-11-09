@@ -3223,6 +3223,18 @@ def test_f7_makes_a_directory(tmp_path):
     assert isinstance(back, Panel), "the keyboard did not come back"
 
 
+def test_f7_puts_the_cursor_on_the_directory_it_made(tree):
+    """DN's ``MakeDir``: the re-read lands on the new directory, not where the
+    cursor was -- here ``..``, above ``alpha`` and ``beta``."""
+    app = navigator(tree)
+    run_app(app, [KeyEvent("f7"), Until(lambda a: isinstance(a.modal, MkdirDialog)),
+                  *[KeyEvent(c, c) for c in "gamma"], KeyEvent("enter"),
+                  Until(lambda a: a.modal is None and a.manager.left.selected is not None
+                        and a.manager.left.selected.name == "gamma")])
+    assert (tree / "gamma").is_dir()
+    assert app.manager.left.selected.name == "gamma"
+
+
 def test_escaping_f7_makes_nothing(tmp_path):
     async def main():
         shell = Shell(tmp_path, tmp_path)

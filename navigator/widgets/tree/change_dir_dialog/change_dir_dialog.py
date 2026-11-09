@@ -9,7 +9,7 @@ dismisses for any button nobody claimed.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from navkit.events import Event
 from navkit.i18n import tr
@@ -23,12 +23,16 @@ from navigator.widgets.tree.directory_tree.directory_tree import directory_root,
 class ChangeDirDialog(Dialog):
     """*Choose Directory*: a tree of the filesystem, opened on *start*."""
 
-    def __init__(self, start: Any = None, hidden: bool = True, **kwargs: Any) -> None:
+    def __init__(self, start: Any = None, hidden: bool = True,
+                 made: Callable[[Any, str], None] | None = None, **kwargs: Any) -> None:
         """*hidden* is the panel's ``show_hidden``: whether dot-directories are
         listed.  *start* on another drive (a ``Location``) shows that drive's
-        tree, read on threads."""
+        tree, read on threads.  *made*, when given, is told of each directory
+        *MkDir* makes -- the directory it was made in and the name typed -- so
+        a panel showing that directory can put its cursor on it."""
         super().__init__(**kwargs)
         self._hidden = hidden
+        self._made = made
         # Dialog's bottom row and message are not in this layout.
         self.row.visible = False
         self.message.visible = False
@@ -104,6 +108,8 @@ class ChangeDirDialog(Dialog):
             return
         if made is None:
             return  # *As root* declined
+        if self._made is not None:
+            self._made(base, name)
         self.tree.root = directory_root(self._hidden, at=base)
         self._show(base / name)
         self.tree.focus()
