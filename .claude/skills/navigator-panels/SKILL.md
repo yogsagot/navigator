@@ -213,7 +213,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
     Setup* (Alt+K) shows, at their places and widths, a blank where each divider stands, the name past the rows'
     gutter. DN's `GetDown` was always name, size, date, time; following the columns is Navigator's. The size is
     `DirEntry.info_size` (every digit, or `UP--DIR`/`SUB-DIR`), right-aligned on its column's edge and taking cells
-    from the name where wider. Drawn as it is, never split on `~` (`PLAIN_INFO`).
+    from the name where wider. Drawn as it is, never split on `~` (`PLAIN_INFO`). **Except in the detailed mode**,
+    whose rows show those columns already: there the line is the whole name (`_full_name_text`), under the rows'
+    names past the gutter, or from the panel's left edge where it is longer than that leaves room for.
   - a second line under it: a *Find:* entry's directory (DN's find drive), the panel's whole width -- **there is no path column**: it was
     Navigator's, too narrow for a path, and is gone (`[column_defaults] find_path` is `OBSOLETE`) -- or
     `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes). It is **kept while the listing could need it** -- always on a *Find:*

@@ -251,6 +251,23 @@ def test_a_narrow_panel_drops_the_columns_the_rows_drop_and_cuts_the_name(place)
     assert size == "5" and name.endswith(("…", "...")) and name.startswith("a_rather")
 
 
+def test_the_detailed_mode_s_line_is_the_whole_name(place):
+    # The detailed rows show the columns already: the line gives the name whole.
+    long = "a_rather_long_file_name_that_the_column_cuts.txt"
+    (place / long).write_text("12345")
+    panel = at(panel_at(place, width=60), long)
+    panel.view_mode = "detailed"
+    settle()
+    name_width = next(width for key, _, width in panel.detail_columns if key == "name")
+    assert len(long) > name_width
+    text = panel.info_lines[0][0]
+    assert text.strip() == long and len(text) <= panel.inner_width
+    # A short one stands under the rows' names, past the gutter.
+    panel = at(panel, "a")
+    name_x = next(x for key, x, _ in panel.detail_columns if key == "name") - panel.inset
+    assert panel.info_lines[0][0] == " " * (name_x + panel.gutter) + "a"
+
+
 def test_a_size_wider_than_its_column_takes_cells_from_the_name(place):
     (place / "big").write_bytes(b"\0" * 1_234_567)
     panel = at(panel_at(place, width=80), "big")

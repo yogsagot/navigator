@@ -2875,9 +2875,11 @@ class Panel(ListViewer):
         return tr_n("~{total} in {n}~ selected file", "~{total} in {n}~ selected files", len(marked), total=total)
 
     def _current_file_text(self, entry: DirEntry | None) -> str:
-        """*Current file*: the entry laid out as a detailed row is, in every
-        mode -- :attr:`detail_columns`' columns at their places, a blank
-        where each divider stands.
+        """*Current file*: the entry laid out as a detailed row is, in the
+        simple and list modes -- :attr:`detail_columns`' columns at their
+        places, a blank where each divider stands.  The detailed mode's rows
+        show those already, so there it is the whole name
+        (:meth:`_full_name_text`).
 
         DN's ``GetDown`` was name, size, date and time whatever the columns;
         following *Columns Setup* is Navigator's.  The size has every digit,
@@ -2887,6 +2889,8 @@ class Panel(ListViewer):
         """
         if entry is None:
             return ""
+        if self.view_mode == "detailed":
+            return self._full_name_text(entry)
         inset = self.inset
         pieces = []
         name_x = name_width = 0
@@ -2916,6 +2920,19 @@ class Panel(ListViewer):
         for x, text in pieces:
             line += " " * max(0, x - text_width(line)) + text
         return line
+
+    def _full_name_text(self, entry: DirEntry) -> str:
+        """*Current file* in the detailed mode: the name whole, which the rows
+        above already give the columns of (Navigator's).  It starts under the
+        rows' names, past the gutter, and takes the panel's whole width --
+        the gutter's cells too -- where it is longer than that leaves."""
+        name = self.shown_name(entry)
+        width = self.inner_width
+        name_x = next((x - self.inset for key, x, _ in self.detail_columns if key == "name"), 0)
+        start = max(0, name_x + min(self.gutter, max(0, width - 1)))
+        if text_width(name) > width - start:
+            start = 0
+        return " " * start + fit_text(name, max(1, width - start), self.ellipsis)
 
     def _second_line(self, entry: DirEntry | None) -> str | None:
         """The line under *Current file*, or None where the listing needs
