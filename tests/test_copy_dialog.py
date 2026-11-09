@@ -18,6 +18,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from navigator.lib.file_ops import filecopy
 from navigator.lib.file_ops.filecopy import ASK, CHECK_FREE, MOVE, OVERWRITE, PRESERVE, CopyRequest
+from navigator.lib.file_ops.undo import UNDO
 from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.copy_dialog import CopyDialog
 from navigator.widgets.file_ops.copy_dialog import copy_dialog as copy_dialog_module
@@ -334,7 +335,9 @@ def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
         asked = app.modal
         buttons = [w.text for w in asked.buttons_row if w.visible]
         app.post_event(KeyEvent("y", "y", alt=True))
-        await wait_until(lambda: app.modal is None and (b / "new" / "one.txt").exists())
+        # Done, not just begun: a file there may be half written, and quitting
+        # then stops the copy and takes it away.  Undo records it once done.
+        await wait_until(lambda: app.modal is None and len(UNDO) == 1)
         after = app.modal
         app.exit()
         await task
@@ -364,7 +367,9 @@ def test_f5_to_a_missing_directory_creates_it_unasked_by_default(two):
         await wait_until(lambda: isinstance(app.modal, CopyDialog))
         app.modal.target.value = str(b / "new") + "/"
         app.post_event(KeyEvent("enter"))
-        await wait_until(lambda: app.modal is None and (b / "new" / "one.txt").exists())
+        # Done, not just begun: a file there may be half written, and quitting
+        # then stops the copy and takes it away.  Undo records it once done.
+        await wait_until(lambda: app.modal is None and len(UNDO) == 1)
         after = app.modal
         app.exit()
         await task

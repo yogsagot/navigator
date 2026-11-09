@@ -16,7 +16,7 @@ from navkit.events import KeyEvent
 from navigator.lib.drives import mount, unmount
 from navigator.lib.drives.base import SeekingReader
 from navigator.lib.drives.memory import MemoryDrive
-from navigator.lib.viewer import CHUNK, ChunkedSource, NotYet
+from navigator.lib.viewer import CHUNK, READ_AHEAD, ChunkedSource, NotYet
 
 LINES = 60_000
 TEXT = "".join(f"line {number:06d} of the long file\n" for number in range(LINES))
@@ -54,6 +54,11 @@ def test_a_chunk_not_here_is_asked_for_and_said_when_it_lands(memory):
     try:
         with pytest.raises(NotYet):
             source.read(0, 100)
+        # Read ahead: the chunks after the first were asked for with it --
+        # each still asked, or landed already.
+        with source._lock:
+            wanted = source._asked | set(source._landed)
+        assert set(range(READ_AHEAD + 1)) <= wanted
         assert landed.wait(2)
         # Two fetchers: the read-ahead chunk 1 may land (and say so) before chunk 0.
         for _ in range(100):
@@ -61,13 +66,15 @@ def test_a_chunk_not_here_is_asked_for_and_said_when_it_lands(memory):
                 break
             time.sleep(0.02)
         assert source.read(0, 20) == b"line 000000 of the l"
-        # Read ahead: the chunks after the first were asked for with it.
-        for _ in range(100):
-            if source.ready(3 * CHUNK, 10):
+        # Every one of them lands.  Not in order: the two fetchers take turns
+        # on one reader lock, which need not go to the one that waited
+        # longest, so chunk 3 can be in while chunk 2 is still to be read.
+        for _ in range(250):
+            if all(source.ready(index * CHUNK, 10) for index in range(1, READ_AHEAD + 1)):
                 break
             time.sleep(0.02)
-        assert source.ready(3 * CHUNK, 10)
-        assert Slow.reads >= 4
+        assert all(source.ready(index * CHUNK, 10) for index in range(1, READ_AHEAD + 1))
+        assert Slow.reads >= READ_AHEAD + 1
         line = source.line(0, None)
         assert "".join(char for char, _ in line.cells) == "line 000000 of the long file"
     finally:
