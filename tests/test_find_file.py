@@ -180,8 +180,23 @@ def test_shift_enter_sends_the_other_panel_to_the_file(place):
                   Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
                   KeyEvent("enter", shift=True), lambda a: None, lambda a: None,
                   lambda a: seen.update(path=a.manager.right.path, at=a.manager.right.selected.name,
-                                        left=a.manager.left.found is not None)])
-    assert seen == {"path": place / "b", "at": "big.bin", "left": True}
+                                        left=a.manager.left.found is not None,
+                                        keys=a.focused is a.manager.right),
+                  KeyEvent("tab"), lambda a: seen.update(back=a.focused is a.manager.left
+                                                         and a.manager.left.found is not None)])
+    # ``cmFindGotoFile``: the other panel takes the keyboard; Tab goes back to the listing.
+    assert seen == {"path": place / "b", "at": "big.bin", "left": True, "keys": True, "back": True}
+
+
+def test_shift_enter_puts_the_other_panels_mask_back_to_all_files(place):
+    app = navigator(place)
+    seen = {}
+    run_app(app, [lambda a: a.manager.right.set_file_mask("*.txt"), lambda a: None,
+                  KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
+                  KeyEvent("enter", shift=True), lambda a: None, lambda a: None,
+                  lambda a: seen.update(mask=a.manager.right.file_mask, at=a.manager.right.selected.name)])
+    assert seen == {"mask": "*", "at": "big.bin"}
 
 
 def test_tags_tell_two_files_of_one_name_apart_and_an_erase_takes_the_right_one(place):

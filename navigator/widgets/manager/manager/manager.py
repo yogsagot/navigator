@@ -1559,12 +1559,22 @@ class Manager(Window):
     async def on_change_inactive(self, event: ChangeInactive) -> bool:
         """Shift+Enter in a *Find:* listing: ``cmChangeInactive``, the passive
         panel on the found file's directory, its cursor on the file -- shown,
-        if it was hidden or stood behind the tree or the quick view."""
+        if it was hidden or stood behind the tree or the quick view.
+
+        That panel's ``cmFindGotoFile``: its file mask back to all files
+        (``FileMask := x_x``), so the file is listed whatever it showed, and
+        the keyboard there (``Owner^.Select; Select``); the listing stays in
+        its own panel, Tab away."""
+        from navigator.lib.appearance import filetypes
+
         entry = self.active_panel.selected
         if entry is None or entry.directory is None:
             return True
         side = "right" if self.active_panel is self.left else "left"
-        self.bring_side(side).go_to_entry(entry)
+        panel = self.bring_side(side)
+        panel.file_mask = filetypes.ALL_FILES
+        panel.go_to_entry(entry)
+        panel.focus()
         return True
 
     async def on_go_to_file(self, event: GoToFile) -> bool:
