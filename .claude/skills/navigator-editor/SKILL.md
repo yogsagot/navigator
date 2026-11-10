@@ -79,7 +79,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `_move_to`, which clamps the column unless `_free` (line drawing, or extending a column block -- Shift+movement, Shift+click, a
   drag, flagged by `_extending`; a plain click or move clamps in column mode too, *Vertical blocks* being per file).
   A column block's corner takes `_goal` during Up/Down so Shift+Down across a short line keeps its width; Right/Left cross line ends;
-  vertical moves keep a goal column (`_move_vertically`, `_goal`). `_go_column` itself still places anywhere -- edits
+  vertical moves keep a goal column (`_move_vertically`, `_goal`), Ctrl+PgUp/PgDn too: first and last line, the column kept, as DN's scroll bar set only `Min`/`Max` (`VIEWS.PAS:2350`). `_go_column` itself still places anywhere -- edits
   that leave the cursor on an indent rely on it.
 - **Every key is a command named after DN's `cm*`** in `FileEditor.keys` (`navigator/widgets/editor/commands.py`).
   `Widget.edits_text` makes the command line's Enter/Home/End/Tab and pastes step aside.
@@ -500,11 +500,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   top-left). A column block keeps its columns through edits and moves only by whole lines.
 - **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured, and only once the
   pointer leaves the pressed cell -- terminals report motion inside it, `_press_cell`) marks from the press,
-  scrolling a line at a time past the top or bottom row; Shift+click (or Ctrl+click, for VTE terminals that keep Shift+click, as in panels) extends the block as Shift+movement does; a
+  scrolling a line at a time past the top or bottom row; Shift+click (or Ctrl+click, for VTE terminals that keep Shift+click, as in panels) extends the block as Shift+movement does (a departure: DN's press always began afresh); a Ctrl+drag instead marks whole lines from the pressed one to the pointer's, the break included (DN's `LineMarking`, `_line_from`/`_mark_lines`; not under *Vertical blocks*); a
   double-click marks the word as ^K T does (`cmMarkWord`, DN's `Event.Double`; on a blank, the word before it), the cursor at its start, and a drag with the button still down after it marks whole
   words (`_drag_word`; the press before the double-click already captured the mouse, so `on_double_click` must not
   end the drag). A block marked by the mouse becomes the primary selection on
-  release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and
+  release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection (a departure: DN's other buttons showed the ruler) -- what the console and
   the input lines do. Ctrl+Ins still copies the block to the clipboard. Checked on a pty with SGR mouse bytes and
   `xclip -o`, not only with posted events.
 - **The right button: a click is the context menu, a drag DN's column ruler** (`RulerVisible`, `MICROED.PAS`;

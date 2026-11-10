@@ -826,6 +826,8 @@ class FileEditor(ContextMenuHost, Widget):
         #: The block's fixed end while the left button drags, else None: a
         #: ``Pos``, or a ``(line, col)`` cell for a column block.
         self._drag_from: Any = None
+        #: The line a Ctrl+press was on: a drag from it marks whole lines.
+        self._line_from: int | None = None
         #: The cell the left button went down on, until the drag leaves it:
         #: terminals report motion inside that cell too, which is no drag.
         self._press_cell: tuple[int, int] | None = None
@@ -1558,14 +1560,17 @@ class FileEditor(ContextMenuHost, Widget):
 
     @_marking
     async def on_text_start(self, event: TextStart) -> bool:
+        """Ctrl+PgUp: the first line, the column kept -- DN's scroll bar took
+        ``kbCtrlPgUp`` and set ``Min`` alone (``VIEWS.PAS:2350``)."""
         self._moved()
-        self._go_column(0, 0)
+        self._move_vertically(0)
         return True
 
     @_marking
     async def on_text_end(self, event: TextEnd) -> bool:
+        """Ctrl+PgDn: the last line, the column kept (``kbCtrlPgDn``, ``Max``)."""
         self._moved()
-        self._go(self.document.end)
+        self._move_vertically(len(self.document) - 1)
         return True
 
     async def on_scroll_up(self, event: ScrollUp) -> bool:
@@ -3905,7 +3910,8 @@ class FileEditor(ContextMenuHost, Widget):
             return False
         app = self.application
         if event.button == "middle" and event.action == "press":
-            # The primary selection, as the console and the input lines paste it.
+            # The primary selection, as the console and the input lines paste it
+            # -- an addition: DN's buttons other than the left showed the ruler.
             if app is not None:
                 app.request_clipboard(primary=True)
             return True
@@ -3920,11 +3926,16 @@ class FileEditor(ContextMenuHost, Widget):
             self.focus()
             self._moved()
             before = self._here()
-            # Ctrl+click is Shift+click for terminals that keep Shift+click
-            # for their own selection (VTE's: xfce4-terminal), as in panels.
+            # Shift+click extends the block -- an addition: DN's press always
+            # began afresh (BlockOff).  Ctrl+click is Shift+click too, for
+            # terminals that keep Shift+click for their own selection (VTE's:
+            # xfce4-terminal), as in panels -- unless the pointer then moves:
+            # a Ctrl+drag marks whole lines, DN's LineMarking (MICROED.PAS:3233).
+            # Not under Vertical blocks, where a rectangle has no whole lines.
             extend = event.shift or event.ctrl
             self._point(event, extending=extend)
             here = self._here()
+            self._line_from = self.line if event.ctrl and not event.shift and not self.vertical_blocks else None
             if extend:
                 # Shift+click: the block's far end stays, as Shift+movement keeps it.
                 self._extend_block(before)
@@ -3947,12 +3958,15 @@ class FileEditor(ContextMenuHost, Widget):
             elif event.y >= self.height:
                 self._scroll_view(1)
             self._point(event, extending=True)
-            if self._drag_word is not None:
+            if self._line_from is not None:
+                self._mark_lines(self._line_from, self.line)
+            elif self._drag_word is not None:
                 self._mark_words_to()
             else:
                 self._mark_to(self._drag_from)
         elif event.action == "release" and self._drag_from is not None:
             self._drag_from = None
+            self._line_from = None
             self._drag_word = None
             self._copy_primary()
         else:
@@ -4025,6 +4039,15 @@ class FileEditor(ContextMenuHost, Widget):
 
     def _mark_to(self, anchor: Any) -> None:
         self._set_block(anchor, self._here())
+
+    def _mark_lines(self, first: int, last: int) -> None:
+        """A Ctrl+drag: lines *first* to *last*, either way round, whole -- the
+        break after the last included, as ``LineMarking``'s release rounded it."""
+        top, bottom = min(first, last), max(first, last)
+        if bottom + 1 < len(self.document):
+            self._set_block(Pos(top, 0), Pos(bottom + 1, 0))
+        else:
+            self._set_block(Pos(top, 0), Pos(bottom, len(self._text(bottom))))
 
     def _copy_primary(self) -> None:
         """A block marked by the mouse is the primary selection, as a drag elsewhere is."""

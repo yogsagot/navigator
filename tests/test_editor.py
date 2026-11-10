@@ -978,6 +978,15 @@ def test_a_ctrl_click_extends_as_a_shift_click_does(files):
     assert editor.block == (Pos(0, 2), Pos(1, 3))
 
 
+def test_a_ctrl_drag_marks_whole_lines(files):
+    """DN's LineMarking: the pressed line to the pointer's, each whole, its break included."""
+    _, editor = mouse(files, (3, 0, "press", {"ctrl": True}), (3, 1, "move", {}), (3, 1, "release", {}))
+    assert editor.block == (Pos(0, 0), Pos(2, 0))
+    assert editor.line == 1
+    _, editor = mouse(files, (3, 1, "press", {"ctrl": True}), (5, 0, "move", {}), (5, 0, "release", {}))
+    assert editor.block == (Pos(0, 0), Pos(2, 0))  # upwards too
+
+
 def right(x, y, action):
     return (x, y, action, {"button": "right"})
 
@@ -1566,6 +1575,22 @@ def test_ctrl_k_u_does_nothing_unless_every_line_with_text_starts_with_a_blank(f
     assert not editor.buffer.can_undo
     _, editor = text_editor(files, b" a\n\n\tb\n", *[KeyEvent("down", shift=True)] * 3, *chord("u"))
     assert editor.document.encode() == b"a\n\n" + b" " * (editor.tab_size - 1) + b"b\n"
+
+
+@pytest.mark.parametrize(("text", "keys", "at"), [
+    (b"abcdef\nxy\nlonger line\n", [*[KeyEvent("right")] * 3, KeyEvent("pagedown", ctrl=True)], (3, 0)),
+    (b"abcdef\nxyz12345", [*[KeyEvent("right")] * 3, KeyEvent("pagedown", ctrl=True)], (1, 3)),
+    (b"abcdef\nxyz12345", [KeyEvent("down"), *[KeyEvent("right")] * 2, KeyEvent("pageup", ctrl=True)], (0, 2)),
+])
+def test_ctrl_pgup_and_pgdn_go_to_the_first_and_last_line_keeping_the_column(files, text, keys, at):
+    _, editor = text_editor(files, text, *keys)
+    assert (editor.line, editor.col) == at
+
+
+def test_ctrl_shift_pgdn_marks_from_the_cursor(files):
+    _, editor = text_editor(files, b"abcdef\nxyz12345", *[KeyEvent("right")] * 3,
+                            KeyEvent("pagedown", ctrl=True, shift=True))
+    assert editor.block == (Pos(0, 3), Pos(1, 3))
 
 
 @pytest.mark.usefixtures("wordstar")
