@@ -96,9 +96,9 @@ direction = "rtl"
 "~E~ditor" = "ال~م~حرر"
 # navigator/widgets/editor/edit_window/edit_window.nml:190
 "Editing, the file, search, paragraphs and blocks" = "التحرير والملف والبحث والفقرات والكتل"
-# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3765
+# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3840
 "~U~ndo" = "تر~ا~جع"
-# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3766
+# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3841
 "R~e~do" = "إ~ع~ادة"
 # navigator/widgets/editor/edit_window/edit_window.nml:218
 "C~o~py to..." = "نسخ ~إ~لى..."
@@ -112,9 +112,9 @@ direction = "rtl"
 "Delete the selection without copying it to the clipboard" = "حذف التحديد دون نسخه إلى الحافظة"
 # navigator/widgets/editor/edit_window/edit_window.nml:239
 "Delete a line, a word or the rest of the line" = "حذف سطر أو كلمة أو بقية السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3772
+# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3847
 "~D~elete line" = "~ح~ذف السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3773
+# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3848
 "Delete ~w~ord left" = "حذف ال~ك~لمة السابقة"
 # navigator/widgets/editor/edit_window/edit_window.nml:249
 "Delete word ri~g~ht" = "ح~ذ~ف الكلمة إلى اليمين"
@@ -160,9 +160,9 @@ direction = "rtl"
 "Search as you type, in a bar over the text" = "البحث أثناء الكتابة، في شريط فوق النص"
 # navigator/widgets/editor/edit_window/edit_window.nml:325
 "Replace b~a~r" = "شريط الاستب~د~ال"
-# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3776
+# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3851
 "~F~ind..." = "بح~ث~..."
-# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3777
+# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3852
 "~R~eplace..." = "~ا~ستبدال..."
 # navigator/widgets/editor/edit_window/edit_window.nml:338
 "~S~earch again" = "~ت~كرار البحث"
@@ -332,7 +332,7 @@ direction = "rtl"
 "~W~ord" = "ك~ل~مة"
 # navigator/widgets/editor/edit_window/edit_window.nml:599, navigator/widgets/editor/edit_window/edit_window.nml:614, navigator/widgets/editor/edit_window/edit_window.nml:629
 "~L~ine" = "~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3785
+# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3860
 "~C~apitalize" = "تكبير ~ا~لأول"
 # navigator/widgets/editor/edit_window/edit_window.nml:638
 "Optio~n~s" = "~خ~يارات"
@@ -420,9 +420,9 @@ direction = "rtl"
 "Change ~a~ll" = "~ا~ستبدال الكل"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:140, navigator/widgets/editor/margins_dialog/margins_dialog.nml:60, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:150 ...
 "Help" = "مساعدة"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:12
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "الانتقال إلى سطر"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:20
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
 "~L~ine number" = "~ر~قم السطر"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:11
 "Format Margins" = "الهوامش"
@@ -432,11 +432,11 @@ direction = "rtl"
 "~R~ight margin" = "هامش ي~م~ين"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:37
 "~P~aragraph" = "ال~ف~قرة"
-# navigator/widgets/editor/replace_query/replace_query.nml:8, navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11 ...
-"Confirm" = "تأكيد"
-# navigator/widgets/editor/replace_query/replace_query.nml:9
+# navigator/widgets/editor/replace_query/replace_query.nml:9, navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154 ...
+"Query" = "استعلام"
+# navigator/widgets/editor/replace_query/replace_query.nml:10
 "Replace this occurence?" = "استبدال هذا التطابق؟"
-# navigator/widgets/editor/replace_query/replace_query.nml:23, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
+# navigator/widgets/editor/replace_query/replace_query.nml:32, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
 "~A~ll" = "ال~ك~ل"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:17
 "ACL Entry" = "مدخل ACL"
@@ -758,6 +758,8 @@ direction = "rtl"
 "Write the encrypted files as text (gpg names them .asc)" = "اكتب الملفات المشفرة نصًا (يسميها gpg ‏.asc)"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:103
 "Remove each file once its encrypted copy is written" = "احذف كل ملف بعد كتابة نسخته المشفرة"
+# navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11, navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:16 ...
+"Confirm" = "تأكيد"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:18
 "Extract files" = "استخراج الملفات"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:29
@@ -2118,7 +2120,7 @@ direction = "rtl"
 "Navigator?" = "Navigator؟"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "الخروج دون سؤال من الآن (خيارات > التأكيدات)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1077, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1082, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~ف~تح"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "حول، حافظة الشاشة، SmartPad، سلة المهملات واللعبة"
@@ -2934,8 +2936,6 @@ direction = "rtl"
 "~A~ddress" = "ال~ع~نوان"
 # navigator/widgets/viewer/memo_dialog/memo_dialog.nml:22
 "Memo view" = "عرض المذكرة"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:448 ...
-"Query" = "استعلام"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
@@ -3926,7 +3926,7 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "تغير {names} هناك منذ جلبه. الكتابة فوقه؟"
 # navigator/widgets/drives/use_file.py:133
 "{name} was changed. Upload it back to {place}?" = "تغير {name}. رفعه مجددا إلى {place}؟"
-# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1214 ...
+# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1219 ...
 "Warning" = "تحذير"
 # navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:359 ...
 "Cannot write {path}: {error}" = "تعذرت كتابة {path}: {error}"
@@ -4026,7 +4026,7 @@ direction = "rtl"
 "File type" = "نوع الملف"
 # navigator/widgets/editor/commands.py:498, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "نهايات الأسطر"
-# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3687, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3762, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "الترميز"
 # navigator/widgets/editor/commands.py:550
 "AutoBrackets" = "أقواس تلقائية"
@@ -4078,13 +4078,13 @@ direction = "rtl"
 "Save as" = "حفظ باسم"
 # navigator/widgets/editor/commands.py:725
 "Save all" = "حفظ الكل"
-# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3673
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3748
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "لا يمكن كتابة {char} (U+{code:04X}) في السطر {line} بترميز {encoding}"
 # navigator/widgets/editor/edit_window/edit_window.py:530
 "Not for SmartPad" = "ليس لـ SmartPad"
-# navigator/widgets/editor/edit_window/edit_window.py:1212
+# navigator/widgets/editor/edit_window/edit_window.py:1217
 "Untitled" = "بلا عنوان"
-# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3515
+# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3590
 "No block is marked" = "لا توجد كتلة محددة"
 # navigator/widgets/editor/edit_window/edit_window.py:679
 "Copy block to" = "نسخ الكتلة إلى"
@@ -4094,11 +4094,11 @@ direction = "rtl"
 "Paste from File" = "لصق من ملف"
 # navigator/widgets/editor/edit_window/edit_window.py:758
 "~P~aste from" = "~ل~صق من"
-# navigator/widgets/editor/edit_window/edit_window.py:1077
+# navigator/widgets/editor/edit_window/edit_window.py:1082
 "Open a File" = "فتح ملف"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "Save File As" = "حفظ الملف باسم"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "~S~ave File As" = "~ح~فظ الملف باسم"
 # navigator/widgets/editor/edit_window/edit_window.py:177
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -4106,81 +4106,81 @@ direction = "rtl"
 "Edit - {path}" = "تحرير - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:616, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "الملف {name}\nموجود بالفعل.\nهل تريد الكتابة فوقه؟"
-# navigator/widgets/editor/edit_window/edit_window.py:1022
+# navigator/widgets/editor/edit_window/edit_window.py:1027
 "Print {n} line?" = ["طباعة {n} سطر؟", "طباعة سطر واحد؟", "طباعة سطرين؟", "طباعة {n} أسطر؟", "طباعة {n} سطرا؟", "طباعة {n} سطر؟"]
-# navigator/widgets/editor/edit_window/edit_window.py:1030
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "Cannot print: {error}" = "تعذرت الطباعة: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:341
 "Confirm file save" = "تأكيد حفظ الملف"
-# navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
+# navigator/widgets/editor/edit_window/edit_window.py:922, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
 "Search string not found" = "لم يعثر على نص البحث"
-# navigator/widgets/editor/edit_window/edit_window.py:923, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:928, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "معلومات"
-# navigator/widgets/editor/edit_window/edit_window.py:923
+# navigator/widgets/editor/edit_window/edit_window.py:928
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:1085, navigator/widgets/shell/shell/shell.py:1942
+# navigator/widgets/editor/edit_window/edit_window.py:1090, navigator/widgets/shell/shell/shell.py:1942
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:643
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "الملف {name}\nمعلم للقراءة فقط.\nتعديله على أي حال؟"
-# navigator/widgets/editor/edit_window/edit_window.py:1215
+# navigator/widgets/editor/edit_window/edit_window.py:1220
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
 # navigator/widgets/editor/edit_window/edit_window.py:342
 "Save file {name}?" = "حفظ الملف {name}؟"
-# navigator/widgets/editor/file_editor/file_editor.py:2614, navigator/widgets/editor/file_editor/file_editor.py:2608, navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2689, navigator/widgets/editor/file_editor/file_editor.py:2683, navigator/widgets/editor/file_editor/file_editor.py:2700
 "Macros" = "وحدات الماكرو"
-# navigator/widgets/editor/file_editor/file_editor.py:3544
+# navigator/widgets/editor/file_editor/file_editor.py:3619
 "Not with soft wrap" = "ليس مع التفاف الأسطر"
-# navigator/widgets/editor/file_editor/file_editor.py:3546
+# navigator/widgets/editor/file_editor/file_editor.py:3621
 "Not with column blocks" = "ليس مع كتل الأعمدة"
-# navigator/widgets/editor/file_editor/file_editor.py:3778
+# navigator/widgets/editor/file_editor/file_editor.py:3853
 "~G~o to line..." = "~ذ~هاب إلى سطر..."
-# navigator/widgets/editor/file_editor/file_editor.py:3780
+# navigator/widgets/editor/file_editor/file_editor.py:3855
 "~I~ndent block" = "~ز~يادة الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:3781
+# navigator/widgets/editor/file_editor/file_editor.py:3856
 "U~n~indent block" = "~ت~قليل الإزاحة"
-# navigator/widgets/editor/file_editor/file_editor.py:3782
+# navigator/widgets/editor/file_editor/file_editor.py:3857
 "Change ca~s~e" = "حالة ~ا~لأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:3783
+# navigator/widgets/editor/file_editor/file_editor.py:3858
 "~U~pper case" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:3784
+# navigator/widgets/editor/file_editor/file_editor.py:3859
 "~L~ower case" = "أحرف ~ص~غيرة"
-# navigator/widgets/editor/file_editor/file_editor.py:3787
+# navigator/widgets/editor/file_editor/file_editor.py:3862
 "Sa~v~e" = "~ح~فظ"
-# navigator/widgets/editor/file_editor/file_editor.py:1004
+# navigator/widgets/editor/file_editor/file_editor.py:1006
 "no file name" = "لا يوجد اسم ملف"
-# navigator/widgets/editor/file_editor/file_editor.py:3518, navigator/widgets/manager/manager/manager.py:3368
+# navigator/widgets/editor/file_editor/file_editor.py:3593, navigator/widgets/manager/manager/manager.py:3368
 "Nothing to undo" = "لا شيء للتراجع عنه"
-# navigator/widgets/editor/file_editor/file_editor.py:3521
+# navigator/widgets/editor/file_editor/file_editor.py:3596
 "Nothing to redo" = "لا شيء لإعادته"
-# navigator/widgets/editor/file_editor/file_editor.py:3534
+# navigator/widgets/editor/file_editor/file_editor.py:3609
 "The clipboard is empty" = "الحافظة فارغة"
-# navigator/widgets/editor/file_editor/file_editor.py:3541
+# navigator/widgets/editor/file_editor/file_editor.py:3616
 "The text is empty" = "النص فارغ"
-# navigator/widgets/editor/file_editor/file_editor.py:3549
+# navigator/widgets/editor/file_editor/file_editor.py:3624
 "Line format works on line blocks" = "تنسيق السطر يعمل على كتل الأسطر"
-# navigator/widgets/editor/file_editor/file_editor.py:4817
+# navigator/widgets/editor/file_editor/file_editor.py:4915
 "Line and column: a click goes to a line" = "السطر والعمود: النقر ينتقل إلى سطر"
-# navigator/widgets/editor/file_editor/file_editor.py:4818
+# navigator/widgets/editor/file_editor/file_editor.py:4916
 "The character's code: a click opens the character table" = "رمز الحرف: النقر يفتح جدول الأحرف"
-# navigator/widgets/editor/file_editor/file_editor.py:4819
+# navigator/widgets/editor/file_editor/file_editor.py:4917
 "Vertical blocks: a click makes them stream blocks" = "كتل عمودية: النقر يجعلها كتلا متدفقة"
-# navigator/widgets/editor/file_editor/file_editor.py:4820
+# navigator/widgets/editor/file_editor/file_editor.py:4918
 "Stream blocks: a click makes them vertical" = "كتل متدفقة: النقر يجعلها عمودية"
-# navigator/widgets/editor/file_editor/file_editor.py:4875
+# navigator/widgets/editor/file_editor/file_editor.py:4973
 "Line endings: a click makes them the next kind, a right click offers them all" = "نهايات الأسطر: النقر يبدّلها إلى النوع التالي، والنقر الأيمن يعرضها كلها"
-# navigator/widgets/editor/file_editor/file_editor.py:4877
+# navigator/widgets/editor/file_editor/file_editor.py:4975
 "Encoding: a click reopens or saves the text in another" = "الترميز: النقر يعيد فتح النص أو يحفظه بترميز آخر"
-# navigator/widgets/editor/file_editor/file_editor.py:3525
+# navigator/widgets/editor/file_editor/file_editor.py:3600
 "Marker {n} is not placed" = "العلامة {n} غير موضوعة"
-# navigator/widgets/editor/file_editor/file_editor.py:2608
+# navigator/widgets/editor/file_editor/file_editor.py:2683
 "macros.ini has no macro for this file" = "لا يحوي macros.ini ماكرو لهذا الملف"
-# navigator/widgets/editor/file_editor/file_editor.py:3642
+# navigator/widgets/editor/file_editor/file_editor.py:3717
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "في النص محارف لا يستطيع {encoding} كتابتها، فليست له بايتات تُقرأ من جديد."
-# navigator/widgets/editor/file_editor/file_editor.py:3646
+# navigator/widgets/editor/file_editor/file_editor.py:3721
 "The text does not read as {encoding}." = "لا يمكن قراءة النص بترميز {encoding}."
-# navigator/widgets/editor/file_editor/file_editor.py:2310, navigator/widgets/editor/file_editor/file_editor.py:2349
+# navigator/widgets/editor/file_editor/file_editor.py:2385, navigator/widgets/editor/file_editor/file_editor.py:2424
 "Vertical blocks need for this operation" = "هذه العملية تتطلب كتلا عمودية"
-# navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2700
 "Not an editor command: {names}" = "ليس أمر محرر: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "لغات ~ب~رمجة"

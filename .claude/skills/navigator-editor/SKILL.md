@@ -261,15 +261,15 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   look it up as `search.SEARCH` at call time; `find`/`find_in_line`; `BREAK_CHARS` now lives there). Line by line:
   forward from a place, backward a match ending at or before it; *Case sensitive* off ignores case, *Whole words only*
   wants `BREAK_CHARS` or a line's edge round it, *Selected text* searches only the block's part of each line
-  (`FileEditor._search_bounds`, stream or column). `FindDialog` (`editor/find_dialog`) is both `dlgEditorFind` and
-  `dlgEditorReplace` (property `replace`, every rectangle the resource's), opening on the word at the cursor
-  (`StartSearch`'s guess), history `find_text` for both lines; *Change all* answers `"all"`. *Entire scope* starts at
+  (`FileEditor._search_bounds`, stream or column; a departure: a stream block's first line is clipped at the block's start, where DN clipped only a one-line or column block and searched a longer block's first line whole). `FindDialog` (`editor/find_dialog`) is both `dlgEditorFind` and
+  `dlgEditorReplace` (property `replace`, every rectangle the resource's), opening on a one-line block's text, else the word at the cursor
+  (`StartSearch`'s guess; the block a departure, asked for), history `find_text` for both lines; *Change all* answers `"all"`. Help is shown disabled, and Goto Line has none, until F1 Help exists. *Entire scope* starts at
   the text's start (its end, backward); nothing found says *Search string not found* and puts the cursor back. A
   match puts the cursor after it (before it, backward) and is lit while the cursor and text stay
   (`show_found`/`found_on_display`); a reversed search with it lit starts from its far side (`SearchOnDisplay`).
-  Replacing asks `ReplaceQuery` (`dlQueryReplace`, Yes/All/No/Cancel; *All* stops the asking) while *Prompt on
+  Replacing asks `ReplaceQuery` (`dlQueryReplace`, titled *Query* as `mfQuery`, Yes/No/All/Cancel in the flags' order; *All* stops the asking) while *Prompt on
   replace* is ticked, each replacement its own undo step (`udReplace`); only *Change all* goes on past the first;
-  replacements made unasked end with *N replaces made*. Shift+F7 repeats the last search, replacement included, from
+  *N replaces made* comes only when the loop runs out (*Change all*, or after *All*) and counts the matches found without asking -- not the one *All* was pressed on (`Inc(NumRep)`); one replacement or Cancel says nothing. Shift+F7 repeats the last search, replacement included, from
   the cursor. Departure: the query box is centred, where DN put it clear of the line found.
 - **The Find bar, Ctrl+F / Ctrl+R** (`ShowFindBar`/`ShowReplaceBar`, also Editor > Search > *Find bar*/*Replace
   bar*; a departure, asked for, after IntelliJ IDEA's -- DN had the dialogs alone, which F7/Ctrl+F7 keep):

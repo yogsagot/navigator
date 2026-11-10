@@ -4976,8 +4976,11 @@ class Manager(Window):
         self.spawn(self.change_attributes())
         return True
 
-    async def change_attributes(self) -> None:
+    async def change_attributes(self, entries: list[Any] | None = None) -> None:
         """Ask what to change, change it on a thread, and let both panels look again.
+
+        *entries* instead of the selection: F4 on a directory, DN's
+        ``CM_SetAttributes(..., Single = On, ...)`` -- that one, whatever is tagged.
 
         ``delete_files``'s shape: the dialog, then ``fileattr.run`` through
         ``asyncio.to_thread`` with :meth:`_watch_job` between the two -- the
@@ -4991,7 +4994,8 @@ class Manager(Window):
 
         app = self.application
         panel, other = self.active_panel, self.passive_panel
-        entries = self.selection(panel)
+        if entries is None:
+            entries = self.selection(panel)
         if app is None or not entries:
             return
         from navigator.lib.system.progress import SLOW_PROGRESS_DELAY, run_with_progress
@@ -5335,7 +5339,21 @@ class Manager(Window):
         *Internal editor*, falling back to ``$EDITOR`` for F4 and, for Alt+F4,
         the editor window if F4 runs ``$EDITOR`` -- else a box of the console
         editors installed, each run in a window of its own.  A departure:
-        DN's Alt+F4 fell back to the editor window there too, which is F4."""
+        DN's Alt+F4 fell back to the editor window there too, which is F4.
+
+        Another: with *Internal editor* off and nothing in ``editors.ini``, F4
+        runs ``$EDITOR``, where DN fell back to its own editor -- on POSIX that
+        is the external editor, and turning the setting off is how it is asked for.
+
+        A directory under the cursor, F4 or Alt+F4, is Attributes for it alone,
+        as ``isSelDir`` sent ``cmEditFile`` to ``CM_SetAttributes`` (``FLPANELX.PAS:1486``);
+        ``..`` is passed over (DN's box on the parent, from inside it).
+        """
+        entry = self.active_panel.selected
+        if entry is not None and entry.is_dir:
+            if entry.name != "..":
+                await self.change_attributes(entries=[entry])
+            return
         if intern == SETTINGS.system.internal_editor:
             await self.edit()
         elif await self._run_associated(EDITORS):
@@ -5508,8 +5526,10 @@ class Manager(Window):
     async def edit(self) -> None:
         """Open the selected file in an editor on this window's desktop.
 
-        A directory and ``..`` are passed over, as DN's ``cmEditFile`` passed
-        them; a file that will not open is said so.
+        A directory is :meth:`edit_file`'s; one that will not open is said so --
+        but one gone since the panel listed it is an empty text under its name,
+        which saving creates, as DN's ``ReadBlock`` took DOS errors 2 and 3
+        (``MICROED.PAS:3436``).
         """
         panel = self.active_panel
         entry = panel.selected
@@ -5527,7 +5547,12 @@ class Manager(Window):
             return
         path = entry.path_in(panel.path)
         try:
-            await open_editor(desktop, path)
+            try:
+                await open_editor(desktop, path)
+            except FileNotFoundError:
+                if not path.parent.is_dir():
+                    raise
+                await open_editor(desktop, path, new=True)
         except OSError as error:
             message = f"{entry.name}: {error.strerror or error}"
             # Refused permission: *As root* (a departure;

@@ -30,29 +30,30 @@ class GotoLineDialog(Dialog, _Component):
     The label at column 3, the line from 16 to 28 and its history after it, as
     the resource has them.  A row taller than DN's 34 by 7, for the blank row
     the viewer's *Goto Address* keeps between line and buttons.
+    ``dlgGotoLine``'s Help button is left out until F1 Help exists (a departure).
     """
 
     #: The document this class was generated from.
     __navml_source__ = "goto_line_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    number: Field    # goto_line_dialog.nml:15
+    number: Field    # goto_line_dialog.nml:16
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.number = Field(parent=self)    # goto_line_dialog.nml:14
+        self.number = Field(parent=self)    # goto_line_dialog.nml:15
 
-        self.modal_width = 34    # goto_line_dialog.nml:10
-        self.modal_height = 8    # goto_line_dialog.nml:11
-        self.title = _bind(lambda _o: _tr('Goto Line'), yielding=True)    # goto_line_dialog.nml:12
+        self.modal_width = 34    # goto_line_dialog.nml:11
+        self.modal_height = 8    # goto_line_dialog.nml:12
+        self.title = _bind(lambda _o: _tr('Goto Line'), yielding=True)    # goto_line_dialog.nml:13
 
-        self.number.x = 3    # goto_line_dialog.nml:16
-        self.number.y = 2    # goto_line_dialog.nml:17
-        self.number.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_line_dialog.nml:18
-        self.number.height = 1    # goto_line_dialog.nml:19
-        self.number.label_text = _bind(    # goto_line_dialog.nml:20
+        self.number.x = 3    # goto_line_dialog.nml:17
+        self.number.y = 2    # goto_line_dialog.nml:18
+        self.number.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_line_dialog.nml:19
+        self.number.height = 1    # goto_line_dialog.nml:20
+        self.number.label_text = _bind(    # goto_line_dialog.nml:21
             lambda _o: _tr('~L~ine number'),
             yielding=True,
         )
-        self.number.label_width = 13    # goto_line_dialog.nml:21
-        self.number.history_id = 'goto_line'    # goto_line_dialog.nml:22
+        self.number.label_width = 13    # goto_line_dialog.nml:22
+        self.number.history_id = 'goto_line'    # goto_line_dialog.nml:23

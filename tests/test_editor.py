@@ -288,10 +288,33 @@ def test_f4_opens_the_file_under_the_cursor_zoomed(files):
     assert "═══1:1 [102]" in row_of(buffer, 21) or "===1:1 [102]" in row_of(buffer, 21)
 
 
-def test_f4_on_a_directory_opens_nothing(files):
+def test_f4_on_a_directory_opens_its_attributes_alone(files):
+    """``isSelDir``: ``cmEditFile`` is ``CM_SetAttributes(..., Single = On, ...)``."""
+    from navigator.widgets.file_ops.attr_dialog import AttrDialog
+
+    seen = []
     app = navigator(files)
-    run_app(app, [KeyEvent("down"), KeyEvent("f4"), IDLE])
+    # Tag text.txt, then F4 on dir: the box is dir's, whatever is tagged.
+    run_app(app, [KeyEvent("end"), KeyEvent("insert"), KeyEvent("home"), KeyEvent("down"),
+                  KeyEvent("f4"), Until(lambda a: isinstance(a.modal, AttrDialog)),
+                  lambda a: seen.append([e.name for e in a.modal._entries]), KeyEvent("escape"), IDLE])
     assert editor_window(app) is None
+    assert seen == [["dir"]]
+
+
+def test_f4_on_dot_dot_opens_nothing(files):
+    sub = files / "dir"
+    app = navigator(sub)
+    run_app(app, [KeyEvent("home"), KeyEvent("f4"), IDLE])
+    assert editor_window(app) is None and app.modal is None
+
+
+def test_f4_on_a_file_gone_since_the_listing_opens_an_empty_text_saving_makes(files):
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), lambda a: (files / "text.txt").unlink(), KeyEvent("f4"),
+                  Until(lambda a: editor_window(a) is not None),
+                  *typed("new"), KeyEvent("f2"), Until(lambda a: (files / "text.txt").exists())])
+    assert (files / "text.txt").read_bytes().startswith(b"new")
 
 
 def test_typing_edits_and_f2_writes_the_bytes_back(files):

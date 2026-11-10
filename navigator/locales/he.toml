@@ -96,9 +96,9 @@ direction = "rtl"
 "~E~ditor" = "~ע~ורך"
 # navigator/widgets/editor/edit_window/edit_window.nml:190
 "Editing, the file, search, paragraphs and blocks" = "עריכה, הקובץ, חיפוש, פסקאות ובלוקים"
-# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3765
+# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3840
 "~U~ndo" = "ב~ט~ל"
-# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3766
+# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3841
 "R~e~do" = "ח~ז~ור"
 # navigator/widgets/editor/edit_window/edit_window.nml:218
 "C~o~py to..." = "העתק ~ל~קובץ..."
@@ -112,9 +112,9 @@ direction = "rtl"
 "Delete the selection without copying it to the clipboard" = "מחק את הבחירה בלי להעתיק ללוח"
 # navigator/widgets/editor/edit_window/edit_window.nml:239
 "Delete a line, a word or the rest of the line" = "מחיקת שורה, מילה או שארית השורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3772
+# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3847
 "~D~elete line" = "מחק ~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3773
+# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3848
 "Delete ~w~ord left" = "מחק מ~י~לה משמאל"
 # navigator/widgets/editor/edit_window/edit_window.nml:249
 "Delete word ri~g~ht" = "מחיקת מילה מימי~ן~"
@@ -160,9 +160,9 @@ direction = "rtl"
 "Search as you type, in a bar over the text" = "חיפוש תוך כדי הקלדה, בסרגל מעל הטקסט"
 # navigator/widgets/editor/edit_window/edit_window.nml:325
 "Replace b~a~r" = "סרגל החל~פ~ה"
-# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3776
+# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3851
 "~F~ind..." = "~ח~פש..."
-# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3777
+# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3852
 "~R~eplace..." = "~ה~חלף..."
 # navigator/widgets/editor/edit_window/edit_window.nml:338
 "~S~earch again" = "חפש ~ש~וב"
@@ -332,7 +332,7 @@ direction = "rtl"
 "~W~ord" = "~מ~ילה"
 # navigator/widgets/editor/edit_window/edit_window.nml:599, navigator/widgets/editor/edit_window/edit_window.nml:614, navigator/widgets/editor/edit_window/edit_window.nml:629
 "~L~ine" = "~ש~ורה"
-# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3785
+# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3860
 "~C~apitalize" = "~ר~אשית גדולה"
 # navigator/widgets/editor/edit_window/edit_window.nml:638
 "Optio~n~s" = "~א~פשרויות"
@@ -420,9 +420,9 @@ direction = "rtl"
 "Change ~a~ll" = "החלף ~ה~כל"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:140, navigator/widgets/editor/margins_dialog/margins_dialog.nml:60, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:150 ...
 "Help" = "עזרה"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:12
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "מעבר לשורה"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:20
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
 "~L~ine number" = "~מ~ספר שורה"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:11
 "Format Margins" = "שולי עיצוב"
@@ -432,11 +432,11 @@ direction = "rtl"
 "~R~ight margin" = "~ש~וליים ימניים"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:37
 "~P~aragraph" = "~פ~סקה"
-# navigator/widgets/editor/replace_query/replace_query.nml:8, navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11 ...
-"Confirm" = "אישור"
-# navigator/widgets/editor/replace_query/replace_query.nml:9
+# navigator/widgets/editor/replace_query/replace_query.nml:9, navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154 ...
+"Query" = "שאילתה"
+# navigator/widgets/editor/replace_query/replace_query.nml:10
 "Replace this occurence?" = "להחליף מופע זה?"
-# navigator/widgets/editor/replace_query/replace_query.nml:23, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
+# navigator/widgets/editor/replace_query/replace_query.nml:32, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
 "~A~ll" = "~ה~כל"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:17
 "ACL Entry" = "רשומת ACL"
@@ -758,6 +758,8 @@ direction = "rtl"
 "Write the encrypted files as text (gpg names them .asc)" = "כתוב את הקבצים המוצפנים כטקסט (gpg קורא להם .asc)"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:103
 "Remove each file once its encrypted copy is written" = "מחק כל קובץ לאחר שהעותק המוצפן שלו נכתב"
+# navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11, navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:16 ...
+"Confirm" = "אישור"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:18
 "Extract files" = "חילוץ קבצים"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:29
@@ -2118,7 +2120,7 @@ direction = "rtl"
 "Navigator?" = "מ-Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "צא בלי לשאול מעכשיו (אפשרויות > אישורים)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1077, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1082, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "~פ~תח"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "אודות, שומר המסך, SmartPad, פח האשפה והמשחק"
@@ -2934,8 +2936,6 @@ direction = "rtl"
 "~A~ddress" = "~כ~תובת"
 # navigator/widgets/viewer/memo_dialog/memo_dialog.nml:22
 "Memo view" = "הצגת Memo"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:448 ...
-"Query" = "שאילתה"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
@@ -3926,7 +3926,7 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} השתנה שם מאז שהובא. לדרוס?"
 # navigator/widgets/drives/use_file.py:133
 "{name} was changed. Upload it back to {place}?" = "{name} השתנה. להעלות אותו בחזרה אל {place}?"
-# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1214 ...
+# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1219 ...
 "Warning" = "אזהרה"
 # navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:359 ...
 "Cannot write {path}: {error}" = "לא ניתן לכתוב את {path}: {error}"
@@ -4026,7 +4026,7 @@ direction = "rtl"
 "File type" = "סוג קובץ"
 # navigator/widgets/editor/commands.py:498, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "סיומי שורות"
-# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3687, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3762, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "קידוד"
 # navigator/widgets/editor/commands.py:550
 "AutoBrackets" = "סוגריים אוטומטיים"
@@ -4078,13 +4078,13 @@ direction = "rtl"
 "Save as" = "שמור בשם"
 # navigator/widgets/editor/commands.py:725
 "Save all" = "שמור הכל"
-# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3673
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3748
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "את {char} (U+{code:04X}) בשורה {line} אי אפשר לכתוב בקידוד {encoding}"
 # navigator/widgets/editor/edit_window/edit_window.py:530
 "Not for SmartPad" = "לא עבור SmartPad"
-# navigator/widgets/editor/edit_window/edit_window.py:1212
+# navigator/widgets/editor/edit_window/edit_window.py:1217
 "Untitled" = "ללא שם"
-# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3515
+# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3590
 "No block is marked" = "לא סומן בלוק"
 # navigator/widgets/editor/edit_window/edit_window.py:679
 "Copy block to" = "העתק בלוק אל"
@@ -4094,11 +4094,11 @@ direction = "rtl"
 "Paste from File" = "הדבקה מקובץ"
 # navigator/widgets/editor/edit_window/edit_window.py:758
 "~P~aste from" = "~ה~דבק מתוך"
-# navigator/widgets/editor/edit_window/edit_window.py:1077
+# navigator/widgets/editor/edit_window/edit_window.py:1082
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "~S~ave File As" = "~ש~מור קובץ בשם"
 # navigator/widgets/editor/edit_window/edit_window.py:177
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -4106,81 +4106,81 @@ direction = "rtl"
 "Edit - {path}" = "עריכה - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:616, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "הקובץ {name}\nכבר קיים.\nלדרוס אותו?"
-# navigator/widgets/editor/edit_window/edit_window.py:1022
+# navigator/widgets/editor/edit_window/edit_window.py:1027
 "Print {n} line?" = ["להדפיס שורה אחת?", "להדפיס שתי שורות?", "להדפיס {n} שורות?"]
-# navigator/widgets/editor/edit_window/edit_window.py:1030
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:341
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
+# navigator/widgets/editor/edit_window/edit_window.py:922, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
-# navigator/widgets/editor/edit_window/edit_window.py:923, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:928, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "מידע"
-# navigator/widgets/editor/edit_window/edit_window.py:923
+# navigator/widgets/editor/edit_window/edit_window.py:928
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:1085, navigator/widgets/shell/shell/shell.py:1942
+# navigator/widgets/editor/edit_window/edit_window.py:1090, navigator/widgets/shell/shell/shell.py:1942
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:643
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "הקובץ {name}\nמסומן לקריאה בלבד.\nלשנות אותו בכל זאת?"
-# navigator/widgets/editor/edit_window/edit_window.py:1215
+# navigator/widgets/editor/edit_window/edit_window.py:1220
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
 # navigator/widgets/editor/edit_window/edit_window.py:342
 "Save file {name}?" = "לשמור את הקובץ {name}?"
-# navigator/widgets/editor/file_editor/file_editor.py:2614, navigator/widgets/editor/file_editor/file_editor.py:2608, navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2689, navigator/widgets/editor/file_editor/file_editor.py:2683, navigator/widgets/editor/file_editor/file_editor.py:2700
 "Macros" = "מאקרו"
-# navigator/widgets/editor/file_editor/file_editor.py:3544
+# navigator/widgets/editor/file_editor/file_editor.py:3619
 "Not with soft wrap" = "לא עם גלישת שורות"
-# navigator/widgets/editor/file_editor/file_editor.py:3546
+# navigator/widgets/editor/file_editor/file_editor.py:3621
 "Not with column blocks" = "לא עם בלוקי עמודות"
-# navigator/widgets/editor/file_editor/file_editor.py:3778
+# navigator/widgets/editor/file_editor/file_editor.py:3853
 "~G~o to line..." = "~ע~בור לשורה..."
-# navigator/widgets/editor/file_editor/file_editor.py:3780
+# navigator/widgets/editor/file_editor/file_editor.py:3855
 "~I~ndent block" = "~ה~זח בלוק"
-# navigator/widgets/editor/file_editor/file_editor.py:3781
+# navigator/widgets/editor/file_editor/file_editor.py:3856
 "U~n~indent block" = "~ב~טל הזחת בלוק"
-# navigator/widgets/editor/file_editor/file_editor.py:3782
+# navigator/widgets/editor/file_editor/file_editor.py:3857
 "Change ca~s~e" = "שנה ~ר~ישיות"
-# navigator/widgets/editor/file_editor/file_editor.py:3783
+# navigator/widgets/editor/file_editor/file_editor.py:3858
 "~U~pper case" = "אותיות ~ג~דולות"
-# navigator/widgets/editor/file_editor/file_editor.py:3784
+# navigator/widgets/editor/file_editor/file_editor.py:3859
 "~L~ower case" = "אותיות ~ק~טנות"
-# navigator/widgets/editor/file_editor/file_editor.py:3787
+# navigator/widgets/editor/file_editor/file_editor.py:3862
 "Sa~v~e" = "~ש~מור"
-# navigator/widgets/editor/file_editor/file_editor.py:1004
+# navigator/widgets/editor/file_editor/file_editor.py:1006
 "no file name" = "אין שם קובץ"
-# navigator/widgets/editor/file_editor/file_editor.py:3518, navigator/widgets/manager/manager/manager.py:3368
+# navigator/widgets/editor/file_editor/file_editor.py:3593, navigator/widgets/manager/manager/manager.py:3368
 "Nothing to undo" = "אין מה לבטל"
-# navigator/widgets/editor/file_editor/file_editor.py:3521
+# navigator/widgets/editor/file_editor/file_editor.py:3596
 "Nothing to redo" = "אין מה לבצע שוב"
-# navigator/widgets/editor/file_editor/file_editor.py:3534
+# navigator/widgets/editor/file_editor/file_editor.py:3609
 "The clipboard is empty" = "הלוח ריק"
-# navigator/widgets/editor/file_editor/file_editor.py:3541
+# navigator/widgets/editor/file_editor/file_editor.py:3616
 "The text is empty" = "הטקסט ריק"
-# navigator/widgets/editor/file_editor/file_editor.py:3549
+# navigator/widgets/editor/file_editor/file_editor.py:3624
 "Line format works on line blocks" = "עיצוב שורה פועל על בלוקי שורות"
-# navigator/widgets/editor/file_editor/file_editor.py:4817
+# navigator/widgets/editor/file_editor/file_editor.py:4915
 "Line and column: a click goes to a line" = "שורה ועמודה: לחיצה עוברת לשורה"
-# navigator/widgets/editor/file_editor/file_editor.py:4818
+# navigator/widgets/editor/file_editor/file_editor.py:4916
 "The character's code: a click opens the character table" = "קוד התו: לחיצה פותחת את טבלת התווים"
-# navigator/widgets/editor/file_editor/file_editor.py:4819
+# navigator/widgets/editor/file_editor/file_editor.py:4917
 "Vertical blocks: a click makes them stream blocks" = "בלוקים אנכיים: לחיצה הופכת אותם לבלוקי זרם"
-# navigator/widgets/editor/file_editor/file_editor.py:4820
+# navigator/widgets/editor/file_editor/file_editor.py:4918
 "Stream blocks: a click makes them vertical" = "בלוקי זרם: לחיצה הופכת אותם לאנכיים"
-# navigator/widgets/editor/file_editor/file_editor.py:4875
+# navigator/widgets/editor/file_editor/file_editor.py:4973
 "Line endings: a click makes them the next kind, a right click offers them all" = "סיומי שורות: לחיצה מחליפה לסוג הבא, לחיצה ימנית מציעה את כולם"
-# navigator/widgets/editor/file_editor/file_editor.py:4877
+# navigator/widgets/editor/file_editor/file_editor.py:4975
 "Encoding: a click reopens or saves the text in another" = "קידוד: לחיצה פותחת מחדש את הטקסט או שומרת אותו בקידוד אחר"
-# navigator/widgets/editor/file_editor/file_editor.py:3525
+# navigator/widgets/editor/file_editor/file_editor.py:3600
 "Marker {n} is not placed" = "סימון {n} לא הוצב"
-# navigator/widgets/editor/file_editor/file_editor.py:2608
+# navigator/widgets/editor/file_editor/file_editor.py:2683
 "macros.ini has no macro for this file" = "אין ב-macros.ini מאקרו לקובץ זה"
-# navigator/widgets/editor/file_editor/file_editor.py:3642
+# navigator/widgets/editor/file_editor/file_editor.py:3717
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "בטקסט יש תווים ש־{encoding} אינו יכול לכתוב, ולכן אין לו בתים לקרוא מחדש."
-# navigator/widgets/editor/file_editor/file_editor.py:3646
+# navigator/widgets/editor/file_editor/file_editor.py:3721
 "The text does not read as {encoding}." = "אי אפשר לקרוא את הטקסט כ־{encoding}."
-# navigator/widgets/editor/file_editor/file_editor.py:2310, navigator/widgets/editor/file_editor/file_editor.py:2349
+# navigator/widgets/editor/file_editor/file_editor.py:2385, navigator/widgets/editor/file_editor/file_editor.py:2424
 "Vertical blocks need for this operation" = "פעולה זו דורשת בלוקים אנכיים"
-# navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2700
 "Not an editor command: {names}" = "אינה פקודת עורך: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "שפות ~ת~כנות"

@@ -98,7 +98,7 @@ def navigator(path: Path) -> Navigator:
 
 
 def capture(app, ran: list[str]):
-    app.shell.run_command = lambda command, typed=True: ran.append(command)
+    app.shell.run_command = lambda command, typed=True, **kw: ran.append(command)
 
 
 def to(name):
@@ -187,6 +187,28 @@ def test_f3_runs_viewers_ini_before_the_viewer_and_alt_f3_never_does(place, monk
     app = navigator(place)
     run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("f4"), Until(lambda a: ran)])
     assert ran == [f"ed {place}/a.txt"]
+
+
+def test_options_file_edits_follow_internal_editor_and_editors_ini(place, tmp_path, monkeypatch):
+    """DN's ``EditFile(True, ...)`` for the Options edits: editors.ini's entry for the
+    file named, its macros naming that file and not the panel's, else ``$EDITOR``."""
+    conf = tmp_path / "conf"
+    conf.mkdir()
+    target = conf / "menu.ini"
+    SETTINGS.system.internal_editor = False
+    monkeypatch.setenv("EDITOR", "ed")
+    ran: list[str] = []
+    app = navigator(place)
+    run_app(app, [lambda a: capture(a, ran), to("a.txt"),
+                  lambda a: a.spawn(a.shell.edit_menu_file(target)), Until(lambda a: ran)])
+    assert ran == [f"ed {target}"]
+
+    write(EDITORS, "[*.ini]\nEdit = myed !\\!.!\n")
+    ran.clear()
+    app = navigator(place)
+    run_app(app, [lambda a: capture(a, ran), to("a.txt"),
+                  lambda a: a.spawn(a.shell.edit_menu_file(target)), Until(lambda a: ran)])
+    assert script_of(ran) == f"myed {target}\n"
 
 
 def test_quick_run_runs_its_keys_section(place):

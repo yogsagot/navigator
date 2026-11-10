@@ -95,9 +95,9 @@ flag = "JP"
 "~E~ditor" = "エディタ(~E~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:190
 "Editing, the file, search, paragraphs and blocks" = "編集、ファイル、検索、段落、ブロック"
-# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3765
+# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3840
 "~U~ndo" = "元に戻す(~U~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3766
+# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3841
 "R~e~do" = "やり直し(~E~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:218
 "C~o~py to..." = "ファイルへ書き出し(~O~)..."
@@ -111,9 +111,9 @@ flag = "JP"
 "Delete the selection without copying it to the clipboard" = "選択範囲をクリップボードにコピーせずに削除します"
 # navigator/widgets/editor/edit_window/edit_window.nml:239
 "Delete a line, a word or the rest of the line" = "行、単語、または行の残りを削除"
-# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3772
+# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3847
 "~D~elete line" = "行を削除(~D~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3773
+# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3848
 "Delete ~w~ord left" = "左の単語を削除(~W~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:249
 "Delete word ri~g~ht" = "右の単語を削除(~G~)"
@@ -159,9 +159,9 @@ flag = "JP"
 "Search as you type, in a bar over the text" = "入力しながら検索（テキスト上のバー）"
 # navigator/widgets/editor/edit_window/edit_window.nml:325
 "Replace b~a~r" = "置換バー(~A~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3776
+# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3851
 "~F~ind..." = "検索(~F~)..."
-# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3777
+# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3852
 "~R~eplace..." = "置換(~R~)..."
 # navigator/widgets/editor/edit_window/edit_window.nml:338
 "~S~earch again" = "再検索(~S~)"
@@ -331,7 +331,7 @@ flag = "JP"
 "~W~ord" = "単語(~W~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:599, navigator/widgets/editor/edit_window/edit_window.nml:614, navigator/widgets/editor/edit_window/edit_window.nml:629
 "~L~ine" = "行(~L~)"
-# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3785
+# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3860
 "~C~apitalize" = "先頭を大文字に(~C~)"
 # navigator/widgets/editor/edit_window/edit_window.nml:638
 "Optio~n~s" = "オプション(~N~)"
@@ -419,9 +419,9 @@ flag = "JP"
 "Change ~a~ll" = "すべて置換(~A~)"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:140, navigator/widgets/editor/margins_dialog/margins_dialog.nml:60, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:150 ...
 "Help" = "ヘルプ"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:12
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "行へ移動"
-# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:20
+# navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
 "~L~ine number" = "行番号(~L~)"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:11
 "Format Margins" = "余白の設定"
@@ -431,11 +431,11 @@ flag = "JP"
 "~R~ight margin" = "右余白(~R~)"
 # navigator/widgets/editor/margins_dialog/margins_dialog.nml:37
 "~P~aragraph" = "段落(~P~)"
-# navigator/widgets/editor/replace_query/replace_query.nml:8, navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11 ...
-"Confirm" = "確認"
-# navigator/widgets/editor/replace_query/replace_query.nml:9
+# navigator/widgets/editor/replace_query/replace_query.nml:9, navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154 ...
+"Query" = "クエリ"
+# navigator/widgets/editor/replace_query/replace_query.nml:10
 "Replace this occurence?" = "ここを置換しますか?"
-# navigator/widgets/editor/replace_query/replace_query.nml:23, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
+# navigator/widgets/editor/replace_query/replace_query.nml:32, navigator/widgets/file_ops/erase_query/erase_query.nml:48, navigator/widgets/file_ops/exists_query/exists_query.nml:40 ...
 "~A~ll" = "すべて(~A~)"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:17
 "ACL Entry" = "ACL エントリ"
@@ -757,6 +757,8 @@ flag = "JP"
 "Write the encrypted files as text (gpg names them .asc)" = "暗号化したファイルをテキストで書き出す (gpg は .asc と名付ける)"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:103
 "Remove each file once its encrypted copy is written" = "暗号化したコピーを書き終えたら各ファイルを削除する"
+# navigator/widgets/file_ops/erase_query/erase_query.nml:15, navigator/widgets/file_ops/exists_query/exists_query.nml:11, navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:16 ...
+"Confirm" = "確認"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:18
 "Extract files" = "ファイルの展開"
 # navigator/widgets/file_ops/extract_dialog/extract_dialog.nml:29
@@ -2117,7 +2119,7 @@ flag = "JP"
 "Navigator?" = "Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "今後は確認せずに終了する (設定 > 確認)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1077, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1082, navigator/widgets/setup/key_bindings_dialog/key_bindings_dialog.py:278 ...
 "~O~pen" = "開く(~O~)"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "情報、スクリーンセーバー、SmartPad、ごみ箱、ゲーム"
@@ -2933,8 +2935,6 @@ flag = "JP"
 "~A~ddress" = "番地(~A~)"
 # navigator/widgets/viewer/memo_dialog/memo_dialog.nml:22
 "Memo view" = "メモ表示"
-# navigator/widgets/viewer/query_dialog/query_dialog.nml:10, navigator/widgets/viewer/commands.py:154, navigator/widgets/viewer/db_window/db_window.py:448 ...
-"Query" = "クエリ"
 # navigator/widgets/viewer/query_dialog/query_dialog.nml:18
 "~S~ELECT" = "~S~ELECT"
 # navigator/widgets/viewer/search_progress/search_progress.nml:16
@@ -3925,7 +3925,7 @@ flag = "JP"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} は取得後に向こう側で変更されています。上書きしますか?"
 # navigator/widgets/drives/use_file.py:133
 "{name} was changed. Upload it back to {place}?" = "{name} が変更されました。{place} にアップロードし直しますか?"
-# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1214 ...
+# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1219 ...
 "Warning" = "警告"
 # navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:359 ...
 "Cannot write {path}: {error}" = "{path} に書き込めません: {error}"
@@ -4025,7 +4025,7 @@ flag = "JP"
 "File type" = "ファイルの種類"
 # navigator/widgets/editor/commands.py:498, navigator/widgets/editor/format_menu.py:88
 "Line endings" = "改行コード"
-# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3687, navigator/widgets/editor/format_menu.py:95 ...
+# navigator/widgets/editor/commands.py:506, navigator/widgets/editor/file_editor/file_editor.py:3762, navigator/widgets/editor/format_menu.py:95 ...
 "Encoding" = "エンコーディング"
 # navigator/widgets/editor/commands.py:550
 "AutoBrackets" = "括弧の自動補完"
@@ -4077,13 +4077,13 @@ flag = "JP"
 "Save as" = "名前を付けて保存"
 # navigator/widgets/editor/commands.py:725
 "Save all" = "すべて保存"
-# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3673
+# navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3748
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "{line} 行目の {char} (U+{code:04X}) は {encoding} では書けません"
 # navigator/widgets/editor/edit_window/edit_window.py:530
 "Not for SmartPad" = "SmartPad では使えません"
-# navigator/widgets/editor/edit_window/edit_window.py:1212
+# navigator/widgets/editor/edit_window/edit_window.py:1217
 "Untitled" = "無題"
-# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3515
+# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3590
 "No block is marked" = "ブロックがマークされていません"
 # navigator/widgets/editor/edit_window/edit_window.py:679
 "Copy block to" = "ブロックのコピー先"
@@ -4093,11 +4093,11 @@ flag = "JP"
 "Paste from File" = "ファイルから貼り付け"
 # navigator/widgets/editor/edit_window/edit_window.py:758
 "~P~aste from" = "貼り付け元(~P~)"
-# navigator/widgets/editor/edit_window/edit_window.py:1077
+# navigator/widgets/editor/edit_window/edit_window.py:1082
 "Open a File" = "ファイルを開く"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "Save File As" = "名前を付けて保存"
-# navigator/widgets/editor/edit_window/edit_window.py:1126, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
 "~S~ave File As" = "名前を付けて保存(~S~)"
 # navigator/widgets/editor/edit_window/edit_window.py:177
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
@@ -4105,81 +4105,81 @@ flag = "JP"
 "Edit - {path}" = "編集 - {path}"
 # navigator/widgets/editor/edit_window/edit_window.py:616, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "ファイル {name}\nは既に存在します。\n上書きしますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:1022
+# navigator/widgets/editor/edit_window/edit_window.py:1027
 "Print {n} line?" = ["{n} 行を印刷しますか?"]
-# navigator/widgets/editor/edit_window/edit_window.py:1030
+# navigator/widgets/editor/edit_window/edit_window.py:1035
 "Cannot print: {error}" = "印刷できません: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:341
 "Confirm file save" = "ファイル保存の確認"
-# navigator/widgets/editor/edit_window/edit_window.py:917, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
+# navigator/widgets/editor/edit_window/edit_window.py:922, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
 "Search string not found" = "検索文字列が見つかりません"
-# navigator/widgets/editor/edit_window/edit_window.py:923, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:928, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "情報"
-# navigator/widgets/editor/edit_window/edit_window.py:923
+# navigator/widgets/editor/edit_window/edit_window.py:928
 "{n} replace made" = ["{n} 件置換しました"]
-# navigator/widgets/editor/edit_window/edit_window.py:1085, navigator/widgets/shell/shell/shell.py:1942
+# navigator/widgets/editor/edit_window/edit_window.py:1090, navigator/widgets/shell/shell/shell.py:1942
 "Cannot open {path}: {error}" = "{path} を開けません: {error}"
 # navigator/widgets/editor/edit_window/edit_window.py:643
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "ファイル {name}\nは読み取り専用です。\nそれでも変更しますか?"
-# navigator/widgets/editor/edit_window/edit_window.py:1215
+# navigator/widgets/editor/edit_window/edit_window.py:1220
 "File {name} was modified. Save?" = "ファイル {name} は変更されています。保存しますか?"
 # navigator/widgets/editor/edit_window/edit_window.py:342
 "Save file {name}?" = "ファイル {name} を保存しますか?"
-# navigator/widgets/editor/file_editor/file_editor.py:2614, navigator/widgets/editor/file_editor/file_editor.py:2608, navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2689, navigator/widgets/editor/file_editor/file_editor.py:2683, navigator/widgets/editor/file_editor/file_editor.py:2700
 "Macros" = "マクロ"
-# navigator/widgets/editor/file_editor/file_editor.py:3544
+# navigator/widgets/editor/file_editor/file_editor.py:3619
 "Not with soft wrap" = "折り返し表示中は使えません"
-# navigator/widgets/editor/file_editor/file_editor.py:3546
+# navigator/widgets/editor/file_editor/file_editor.py:3621
 "Not with column blocks" = "矩形ブロックでは使えません"
-# navigator/widgets/editor/file_editor/file_editor.py:3778
+# navigator/widgets/editor/file_editor/file_editor.py:3853
 "~G~o to line..." = "行へ移動(~G~)..."
-# navigator/widgets/editor/file_editor/file_editor.py:3780
+# navigator/widgets/editor/file_editor/file_editor.py:3855
 "~I~ndent block" = "ブロックをインデント(~I~)"
-# navigator/widgets/editor/file_editor/file_editor.py:3781
+# navigator/widgets/editor/file_editor/file_editor.py:3856
 "U~n~indent block" = "ブロックのインデント解除(~N~)"
-# navigator/widgets/editor/file_editor/file_editor.py:3782
+# navigator/widgets/editor/file_editor/file_editor.py:3857
 "Change ca~s~e" = "大文字/小文字の変換(~S~)"
-# navigator/widgets/editor/file_editor/file_editor.py:3783
+# navigator/widgets/editor/file_editor/file_editor.py:3858
 "~U~pper case" = "大文字(~U~)"
-# navigator/widgets/editor/file_editor/file_editor.py:3784
+# navigator/widgets/editor/file_editor/file_editor.py:3859
 "~L~ower case" = "小文字(~L~)"
-# navigator/widgets/editor/file_editor/file_editor.py:3787
+# navigator/widgets/editor/file_editor/file_editor.py:3862
 "Sa~v~e" = "保存(~V~)"
-# navigator/widgets/editor/file_editor/file_editor.py:1004
+# navigator/widgets/editor/file_editor/file_editor.py:1006
 "no file name" = "ファイル名がありません"
-# navigator/widgets/editor/file_editor/file_editor.py:3518, navigator/widgets/manager/manager/manager.py:3368
+# navigator/widgets/editor/file_editor/file_editor.py:3593, navigator/widgets/manager/manager/manager.py:3368
 "Nothing to undo" = "元に戻す操作はありません"
-# navigator/widgets/editor/file_editor/file_editor.py:3521
+# navigator/widgets/editor/file_editor/file_editor.py:3596
 "Nothing to redo" = "やり直す操作はありません"
-# navigator/widgets/editor/file_editor/file_editor.py:3534
+# navigator/widgets/editor/file_editor/file_editor.py:3609
 "The clipboard is empty" = "クリップボードは空です"
-# navigator/widgets/editor/file_editor/file_editor.py:3541
+# navigator/widgets/editor/file_editor/file_editor.py:3616
 "The text is empty" = "テキストが空です"
-# navigator/widgets/editor/file_editor/file_editor.py:3549
+# navigator/widgets/editor/file_editor/file_editor.py:3624
 "Line format works on line blocks" = "行の整形は行ブロックで使えます"
-# navigator/widgets/editor/file_editor/file_editor.py:4817
+# navigator/widgets/editor/file_editor/file_editor.py:4915
 "Line and column: a click goes to a line" = "行と列: クリックで行へ移動"
-# navigator/widgets/editor/file_editor/file_editor.py:4818
+# navigator/widgets/editor/file_editor/file_editor.py:4916
 "The character's code: a click opens the character table" = "文字コード: クリックで文字表を開く"
-# navigator/widgets/editor/file_editor/file_editor.py:4819
+# navigator/widgets/editor/file_editor/file_editor.py:4917
 "Vertical blocks: a click makes them stream blocks" = "矩形ブロック: クリックで通常ブロックに"
-# navigator/widgets/editor/file_editor/file_editor.py:4820
+# navigator/widgets/editor/file_editor/file_editor.py:4918
 "Stream blocks: a click makes them vertical" = "通常ブロック: クリックで矩形ブロックに"
-# navigator/widgets/editor/file_editor/file_editor.py:4875
+# navigator/widgets/editor/file_editor/file_editor.py:4973
 "Line endings: a click makes them the next kind, a right click offers them all" = "改行コード: クリックで次の種類に、右クリックで一覧を表示"
-# navigator/widgets/editor/file_editor/file_editor.py:4877
+# navigator/widgets/editor/file_editor/file_editor.py:4975
 "Encoding: a click reopens or saves the text in another" = "エンコーディング: クリックで別のエンコーディングで再読み込みまたは保存"
-# navigator/widgets/editor/file_editor/file_editor.py:3525
+# navigator/widgets/editor/file_editor/file_editor.py:3600
 "Marker {n} is not placed" = "マーカー {n} は置かれていません"
-# navigator/widgets/editor/file_editor/file_editor.py:2608
+# navigator/widgets/editor/file_editor/file_editor.py:2683
 "macros.ini has no macro for this file" = "macros.ini にこのファイル用のマクロがありません"
-# navigator/widgets/editor/file_editor/file_editor.py:3642
+# navigator/widgets/editor/file_editor/file_editor.py:3717
 "The text has characters {encoding} cannot write, so it has no bytes to read again." = "テキストに {encoding} で書けない文字があるため、読み直すバイト列がありません。"
-# navigator/widgets/editor/file_editor/file_editor.py:3646
+# navigator/widgets/editor/file_editor/file_editor.py:3721
 "The text does not read as {encoding}." = "このテキストは {encoding} として読めません。"
-# navigator/widgets/editor/file_editor/file_editor.py:2310, navigator/widgets/editor/file_editor/file_editor.py:2349
+# navigator/widgets/editor/file_editor/file_editor.py:2385, navigator/widgets/editor/file_editor/file_editor.py:2424
 "Vertical blocks need for this operation" = "この操作には矩形ブロックが必要です"
-# navigator/widgets/editor/file_editor/file_editor.py:2625
+# navigator/widgets/editor/file_editor/file_editor.py:2700
 "Not an editor command: {names}" = "エディタのコマンドではありません: {names}"
 # navigator/widgets/editor/file_type_menu.py:28
 "~P~rogramming languages" = "プログラミング言語(~P~)"

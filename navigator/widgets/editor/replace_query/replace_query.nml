@@ -1,18 +1,27 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 
-#: ``dlQueryReplace``, a 50 by 8 ``mfQuery`` box: Yes, All, No and Cancel.
+#: ``dlQueryReplace``, a 50 by 8 ``mfQuery`` box, *Query*: Yes, No, All and Cancel,
+#: the buttons in their flags' order, 10 wide and 2 apart, centred (``MessageBoxRect``).
 ReplaceQuery(Dialog):
     modal_width: 50
     modal_height: 8
-    title: "Confirm"
+    title: "Query"
     prompt: "Replace this occurence?"
 
     Button:
         id: pick
         text: "~Y~es"
         default: True
-        x: 3
+        x: 2
+        y: max(0, parent.height - 4)
+        width: 10
+        height: 2
+
+    Button:
+        id: skip
+        text: "~N~o"
+        x: 14
         y: max(0, parent.height - 4)
         width: 10
         height: 2
@@ -21,15 +30,7 @@ ReplaceQuery(Dialog):
     Button:
         id: every
         text: "~A~ll"
-        x: 14
-        y: max(0, parent.height - 4)
-        width: 10
-        height: 2
-
-    Button:
-        id: skip
-        text: "~N~o"
-        x: 25
+        x: 26
         y: max(0, parent.height - 4)
         width: 10
         height: 2
@@ -37,7 +38,7 @@ ReplaceQuery(Dialog):
     Button:
         id: abandon
         text: "Cancel"
-        x: 36
+        x: 38
         y: max(0, parent.height - 4)
         width: 10
         height: 2

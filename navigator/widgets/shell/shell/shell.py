@@ -1682,9 +1682,26 @@ class Shell(DockLayout):
         return Side.of(path.parent, entry.name, list_file)
 
     async def edit_menu_file(self, path: Path) -> None:
-        """A menu or ``.ini`` file in an editor, made by saving if it is not there yet."""
+        """A menu or ``.ini`` file in an editor, made by saving if it is not there yet.
+
+        DN's ``EditFile(True, ...)`` for ``cmMenuFileEdit``, ``cmEditHGL``,
+        ``cmExternalEditors``... (``DNUTIL.PAS:1952``): as F4 does, with
+        *Internal editor* off ``editors.ini`` decides by the file's name, its
+        macros naming this file, else ``$EDITOR`` (``vi``) on the console.
+        """
         from navigator.lib.config.file_history import open_editor
 
+        if not SETTINGS.system.internal_editor:
+            import shlex
+
+            from navigator.lib.config.usermenu import Side
+
+            side = Side.of(path.parent, path.name, "-")
+            if await self.run_associated(EDITORS, path.name, cwd=path.parent, side=side):
+                return
+            program = os.environ.get("EDITOR", "").strip() or "vi"
+            self.run_command(f"{program} {shlex.quote(str(path))}")
+            return
         if self.console_visible:
             self.toggle_console()
         try:
@@ -1785,7 +1802,8 @@ class Shell(DockLayout):
         """An item's lines, run as :meth:`run_commands` runs them."""
         await self.run_commands(menu.commands(entry))
 
-    async def run_commands(self, commands: Any, *, cwd: Path | None = None, uses: list[Any] = ()) -> None:
+    async def run_commands(self, commands: Any, *, cwd: Path | None = None, uses: list[Any] = (),
+                           side: Any = None) -> None:
         """A user menu item's lines -- or an ``.ini`` entry's
         (:mod:`navigator.lib.config.associations`) -- its parameters asked first if it
         wants them, run in the console as a script the shell sources.
@@ -1795,6 +1813,9 @@ class Shell(DockLayout):
         under fixed names in Navigator's own temporary directory
         (:func:`navigator.lib.system.tempdir.private_dir`), as DN's ``$DN$.BAT`` and
         ``$$$DN$$.LST`` were in its swap directory.
+
+        *side* stands for the active panel in the macros (``!.!`` and the
+        like): the file an Options edit names, which is not the panel's.
         """
         import asyncio
         import shlex
@@ -1858,7 +1879,7 @@ class Shell(DockLayout):
                 files.append(str(target))
             script = directory / f"usermenu{suffix}.sh"
             written.append(script)
-            active = self._menu_side(active_panel, files[0], uses[0])
+            active = side if side is not None else self._menu_side(active_panel, files[0], uses[0])
             passive = self._menu_side(passive_panel, files[1], uses[1])
             text = script_text(commands, active, passive, str(script), params)
             shown.append("; ".join(text.splitlines()))
@@ -2109,7 +2130,7 @@ class Shell(DockLayout):
 
     async def run_associated(self, file_name: str, name: str | None = None, *,
                              key: str | None = None, cwd: Path | None = None,
-                             uses: list[Any] = ()) -> bool:
+                             uses: list[Any] = (), side: Any = None) -> bool:
         """Run what *file_name* (one of :mod:`navigator.lib.config.associations`' four)
         has for the file called *name*, or for *key*; False when it has
         nothing, so the caller does what it did without one.
@@ -2142,6 +2163,8 @@ class Shell(DockLayout):
             if action is None:
                 return True
         elsewhere = {"cwd": cwd, "uses": uses} if cwd is not None or uses else {}
+        if side is not None:
+            elsewhere["side"] = side
         await self.run_commands(action.commands, **elsewhere)
         return True
 

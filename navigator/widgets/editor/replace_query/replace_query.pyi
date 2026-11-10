@@ -15,8 +15,8 @@ from navkit.events import Event
 
 class ReplaceQuery(Dialog, _Component):
     pick: Button
-    every: Button
     skip: Button
+    every: Button
     abandon: Button
     dims_behind: _Any
     def __init__(self, **kwargs: Any) -> None: ...

@@ -6,6 +6,7 @@ from navml.widgets.dialog.field import Field
 #: The label at column 3, the line from 16 to 28 and its history after it, as
 #: the resource has them.  A row taller than DN's 34 by 7, for the blank row
 #: the viewer's *Goto Address* keeps between line and buttons.
+#: ``dlgGotoLine``'s Help button is left out until F1 Help exists (a departure).
 GotoLineDialog(Dialog):
     modal_width: 34
     modal_height: 8
