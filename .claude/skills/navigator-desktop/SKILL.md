@@ -12,7 +12,11 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   - `Manager`: per panel `path` (a *Find:* listing's origin), `view_mode`, `sort_mode`, `show_hidden`,
     `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `hidden` side, `view`
     standing in (tree/quick/info, put back through `switch_view` after the active panel is focused);
-  - `EditWindow`: `path` (cursor and scroll are the edit history's), SmartPad as SmartPad, and `view_of` -- the
+  - `EditWindow`: `path` and `state` -- `EditWindow.desktop_state()`, DN's `TFileEditor.Store`: cursor, scroll,
+    markers, margins and every mode (`DESKTOP_MODES`; not insert mode, not the block), whatever *Track editing* says,
+    put back over the file's record by `restore_desktop_state` (`Awaken`); an older entry without `state` opens on its
+    path alone. SmartPad as SmartPad, not stamped again (`open_smartpad(stamp=False)`). A file gone is left out (a
+    departure: DN reopened it empty under its name, which F2 would save over a deleted file's name). And `view_of` -- the
     index of the earlier window on the same text, for a Window > *New view* -- which `restore` makes again with that
     window's `open_view()` rather than a second document (`made_at`); `FileWindow`: `path`,
     `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression; `CalendarWindow`: only that

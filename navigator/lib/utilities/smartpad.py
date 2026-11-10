@@ -31,8 +31,10 @@ def stamp_text(when: time.struct_time | None = None) -> str:
 _opening = False
 
 
-async def open_smartpad(desktop: Any) -> Any:
-    """SmartPad on *desktop*: the one open brought up, or a new one; stamped either way.
+async def open_smartpad(desktop: Any, *, stamp: bool = True) -> Any:
+    """SmartPad on *desktop*: the one open brought up, or a new one; stamped either way
+    -- unless *stamp* is False, a saved desktop's pad coming back (``Awaken`` only
+    loaded the file).
 
     The pad is read on a thread like any file the editor opens, so a large
     one puts up *Reading file*; None if that was cancelled.
@@ -44,7 +46,8 @@ async def open_smartpad(desktop: Any) -> Any:
     for window in desktop.windows():
         if isinstance(window, EditWindow) and window.smartpad:
             desktop.activate(window)
-            window.editor.stamp(stamp_text())
+            if stamp:
+                window.editor.stamp(stamp_text())
             return window
     if _opening:
         return None
@@ -62,5 +65,6 @@ async def open_smartpad(desktop: Any) -> Any:
     # ``Desktop^.GetExtent(R); R.Grow(-2, -2)``.
     window.locate(2, 2, max(1, desktop.width - 4), max(1, desktop.height - 4))
     window.layout(desktop.width, desktop.height)
-    window.editor.stamp(stamp_text())
+    if stamp:
+        window.editor.stamp(stamp_text())
     return window

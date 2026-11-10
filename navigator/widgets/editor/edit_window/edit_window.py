@@ -294,10 +294,56 @@ class EditWindow(Window):
             editor.margins = fix_margins(*margins)
         editor.restore_block_place(record.block, record.block_hidden)
         place_window(self, record)
+        self._put_place(record.line, record.col, record.top, record.left)
+
+    def _put_place(self, line: int, col: int, top: int, left: int) -> None:
+        """The scroll and cursor put back, a line past a shorter text's end on
+        its last, as ``ScrollTo`` and ``Pos`` clamped them."""
+        editor = self.editor
         last = max(0, editor.line_count - 1)
-        editor.top = min(max(0, record.top), last)
-        editor.left = max(0, record.left)
-        editor._move_to(record.line, record.col)
+        editor.top = min(max(0, top), last)
+        editor.left = max(0, left)
+        editor._move_to(line, col)
+
+    #: What a saved desktop keeps of an editor beside its place, markers and
+    #: margins: ``TFileEditor.Store``'s modes, then Navigator's own switches.
+    #: Insert mode is not, ``LoadFile`` setting it again; nor the block.
+    DESKTOP_MODES = (
+        "syntax_highlight", "highlight_line", "highlight_column", "auto_indent", "vertical_blocks",
+        "back_indent", "justify_on_wrap", "optimal_fill", "autowrap", "auto_brackets",
+        "insert_tabs", "line_numbers", "soft_wrap",
+    )
+
+    def desktop_state(self) -> dict[str, Any]:
+        """``TFileEditor.Store`` (``MICROED.PAS:540``): what a saved desktop keeps of
+        this editor, whatever *Track editing* says."""
+        editor = self.editor
+        state: dict[str, Any] = {
+            "line": editor.line, "col": editor.col, "top": editor.top, "left": editor.left,
+            "marks": editor.markers_text(), "margins": list(editor.margins),
+            "file_type": editor.file_type,
+        }
+        state.update({name: bool(getattr(editor, name)) for name in self.DESKTOP_MODES})
+        return state
+
+    def restore_desktop_state(self, state: dict[str, Any]) -> None:
+        """``TFileEditor.Awaken``: *state* back, after the file's own record --
+        each key that is there and of the right type, the rest left as they are."""
+        editor = self.editor
+        for name in self.DESKTOP_MODES:
+            if isinstance(state.get(name), bool):
+                setattr(editor, name, state[name])
+        if isinstance(state.get("file_type"), str):
+            editor.file_type = state["file_type"]
+        editor.settle_modes()
+        margins = state.get("margins")
+        if isinstance(margins, list) and len(margins) == 3 and all(isinstance(m, int) for m in margins):
+            editor.margins = fix_margins(*margins)
+        if isinstance(state.get("marks"), str):
+            editor.restore_markers(state["marks"])
+        place = [state.get(key) for key in ("line", "col", "top", "left")]
+        if all(isinstance(value, int) for value in place):
+            self._put_place(*place)
 
     def close(self) -> None:
         # ``TFileEditor.Valid(cmClose)``: the record is written once closing

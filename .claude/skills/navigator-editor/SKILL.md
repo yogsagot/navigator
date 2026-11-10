@@ -247,7 +247,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (Hide right) is disabled with no console showing a file manager, so the key reaches the editor window.
 - **SmartPad, Alt+Q** (`OpenSmartpad`, DN's `cmOpenSmartpad`, ≡ > *SmartPad (TM)*; `navigator/lib/utilities/smartpad.py`): one
   editor window on `settings.smartpad_path()` -- `SmartPad.DN` in `$SMARTPAD`, else beside the database (DN's fell
-  back to its own directory). Each opening stamps the end, `InsertInfo`'s `──────< date time >──…` (`FileEditor.stamp`)
+  back to its own directory). Each opening stamps the end (not a restored desktop's, `open_smartpad(stamp=False)`, as `Awaken` only loaded), `InsertInfo`'s `──────< date time >──…` (`FileEditor.stamp`)
   with the cursor on an empty line under it; a stamp alone is not a change (a text already changed stays so). A second
   Alt+Q brings the one pad up and stamps again. The window is the desktop less two cells all round (not zoomed),
   titled *SmartPad(TM) - path*; `EditWindow(smartpad=True)` keeps no edit history, saves unasked on closing (Esc,

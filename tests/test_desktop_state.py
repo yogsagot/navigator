@@ -108,6 +108,89 @@ def test_an_editor_comes_back_on_its_file(place):
     assert seen == {"path": place / "one" / "a.txt", "front": True}
 
 
+def _editor_round_trip(place, path, change, *, smartpad=False):
+    """An editor on *path* (SmartPad if *smartpad*), *change* made to it, the
+    desktop kept and every window closed, then the desktop restored: the
+    editor that came back, looked at by the caller through ``seen``."""
+    from navigator.widgets.editor.edit_window import EditWindow
+
+    async def open_one(a):
+        if smartpad:
+            from navigator.lib.utilities.smartpad import open_smartpad
+
+            await open_smartpad(a.shell.desktop)
+        else:
+            from navigator.lib.config.file_history import open_editor
+
+            await open_editor(a.shell.desktop, path)
+
+    app = navigator(place)
+    seen = {}
+
+    async def round_trip(a):
+        editor = next(w for w in a.shell.desktop.windows() if isinstance(w, EditWindow))
+        change(editor)
+        if smartpad:
+            await editor.save()  # as closing it would, unasked
+        seen["before"] = editor.editor.document.encode()
+        data = desktop_state.snapshot(a.shell.desktop)
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        from navigator.models.edit_record import EditRecord
+
+        EditRecord.delete_where()
+        await desktop_state.restore(a.shell.desktop, data)
+        seen["window"] = next(w for w in a.shell.desktop.windows() if isinstance(w, EditWindow))
+
+    run_app(app, [lambda a: a.spawn(open_one(a)), Until(lambda a: "EditWindow" in kinds(a)),
+                  lambda a: a.spawn(round_trip(a)), Until(lambda a: "window" in seen)])
+    return seen
+
+
+def test_an_editor_comes_back_with_its_place_markers_margins_and_modes_untracked(place):
+    """``TFileEditor.Store``/``Awaken``: kept whatever *Track editing* says."""
+    path = place / "one" / "long.txt"
+    path.write_text("".join(f"line {n} of the text\n" for n in range(40)))
+    SETTINGS.interface.track_editing = False
+
+    def change(window):
+        editor = window.editor
+        editor._move_to(2, 3)
+        editor.markers = [(5, 1)] + [None] * 8
+        editor.margins = (2, 60, 4)
+        editor.autowrap, editor.optimal_fill, editor.back_indent = True, True, False
+
+    seen = _editor_round_trip(place, path, change)
+    editor = seen["window"].editor
+    assert (editor.line, editor.col) == (2, 3)
+    assert editor.markers[0] == (5, 1)
+    assert editor.margins == (2, 60, 4)
+    assert (editor.autowrap, editor.optimal_fill, editor.back_indent) == (True, True, False)
+
+
+def test_an_editor_kept_before_its_state_was_still_opens(place):
+    from navigator.widgets.editor.edit_window import EditWindow
+
+    seen = {}
+    data = {"version": desktop_state.VERSION, "front": 0,
+            "windows": [{"kind": "editor", "path": str(place / "one" / "a.txt"), "smartpad": False}]}
+    app = navigator(place)
+
+    async def restore(a):
+        await desktop_state.restore(a.shell.desktop, data)
+        seen["path"] = next(w for w in a.shell.desktop.windows() if isinstance(w, EditWindow)).editor.path
+
+    run_app(app, [lambda a: a.spawn(restore(a)), Until(lambda a: "path" in seen)])
+    assert seen["path"] == place / "one" / "a.txt"
+
+
+def test_a_restored_smartpad_is_not_stamped_again(place, monkeypatch):
+    monkeypatch.setenv("SMARTPAD", str(place / "notes"))
+    seen = _editor_round_trip(place, None, lambda window: None, smartpad=True)
+    window = seen["window"]
+    assert window.smartpad and window.editor.document.encode() == seen["before"]
+
+
 def test_load_with_nothing_saved_says_so(place):
     from navigator.widgets.shell.commands import LoadDesktop
 

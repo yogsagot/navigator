@@ -13,9 +13,12 @@ What a window keeps:
   panel was active, a side hidden, and a tree, quick view or information
   panel standing in for one.  A *Find:* listing is not kept: the panel comes
   back on the directory it was found from.
-- an **editor** or a **viewer** its file (and the viewer its mode); the rest
-  -- cursor, scroll -- is the file's own history's, which opening restores.
-  SmartPad comes back as SmartPad.
+- an **editor** its file, and -- whatever *Track editing* says, as
+  ``TFileEditor.Store`` wrote it -- its cursor, scroll, markers, margins and
+  modes (``EditWindow.desktop_state``), put back over the file's own record.
+  SmartPad comes back as SmartPad, without a new stamp (``Awaken`` only
+  loaded the file).  A **viewer** its file and mode; the rest is the file's own
+  history's, which opening restores.
 - a **tree window** the directory it was on.
 - a **database window** (dBase, SQLite, CSV) its file, the table or query,
   the cell, the scroll, the column widths, the F7 search and the code page
@@ -28,7 +31,9 @@ What a window keeps:
 And whether the trash can shows, and where (``TTrashCan``).
 
 A window that cannot be made again -- a file gone, a directory gone -- is
-left out, and the rest come back.  Startup's *Autosave desktop* saves one on
+left out, and the rest come back.  A departure for an editor's file: DN
+reopened it empty under its name, which F2 would then save over a deleted
+file's name.  Startup's *Autosave desktop* saves one on
 the way out and restores it at the next start (``Navigator``).
 """
 
@@ -125,7 +130,8 @@ def _window(window: Any) -> dict[str, Any] | None:
     elif isinstance(window, EditWindow):
         if window.editor.path is None:
             return None
-        kept.update(kind="editor", path=str(window.editor.path), smartpad=bool(window.smartpad))
+        kept.update(kind="editor", path=str(window.editor.path), smartpad=bool(window.smartpad),
+                    state=window.desktop_state())
     elif isinstance(window, FileWindow):
         if window.viewer.path is None:
             return None
@@ -302,10 +308,15 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
         if kept.get("smartpad"):
             from navigator.lib.utilities.smartpad import open_smartpad
 
-            return await open_smartpad(desktop)
-        from navigator.lib.config.file_history import open_editor
+            window = await open_smartpad(desktop, stamp=False)
+        else:
+            from navigator.lib.config.file_history import open_editor
 
-        return await open_editor(desktop, kept["path"])
+            window = await open_editor(desktop, kept["path"])
+        # ``Awaken``: the editor as it was kept, over the file's own record.
+        if window is not None and isinstance(kept.get("state"), dict):
+            window.restore_desktop_state(kept["state"])
+        return window
     if kind == "viewer":
         from navigator.lib.config.file_history import open_viewer
 
@@ -407,6 +418,9 @@ async def restore(desktop: Any, data: dict[str, Any], *,
         try:
             if source is not None and hasattr(source, "open_view"):
                 window = source.open_view()
+                # A view keeps a place and modes of its own, as each was stored.
+                if window is not None and isinstance(kept.get("state"), dict):
+                    window.restore_desktop_state(kept["state"])
             else:
                 window = await _make(desktop, kept, dirs)
         except (OSError, KeyError, TypeError, ValueError, LookupError):
