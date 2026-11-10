@@ -29,7 +29,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.commands import ZoomWindow
 from navml.widgets.window import Window
 
-from navigator.widgets.shell.commands import InsertSideDirectory
+from navigator.widgets.shell.commands import CopyCommandLine, InsertSideDirectory, NextCommand, PreviousCommand
 from navigator.widgets.manager.commands import (
     AlternateEdit,
     AlternateView,
@@ -238,6 +238,12 @@ class Manager(Window):
         # command line (the Shell's).  Here, not in the markup, which cannot
         # name a bracket key.  Ctrl+[ is Esc's byte, and arrives as itself
         # only under the kitty keyboard protocol; Ctrl+] arrives anywhere.
+        # DN's panel handed these to the command line with Shift held: its
+        # history, and the whole line onto the clipboard.  A terminal that
+        # keeps the Insert keys for itself (VTE, Ghostty) never sends the last.
+        "shift+up": PreviousCommand,
+        "shift+down": NextCommand,
+        "ctrl+shift+insert": CopyCommandLine(),
         "ctrl+[": InsertSideDirectory(side="left"),
         "ctrl+]": InsertSideDirectory(side="right"),
         #: DN's ``_CtrlPgDn``; on a file it opens it as an archive (a departure).
@@ -3557,7 +3563,7 @@ class Manager(Window):
                 # Disabled, so the key falls through and types its character.
                 return typed
             return unless(not self._aside_focused(), aside)
-        if isinstance(command, GoRoot):
+        if isinstance(command, (GoRoot, PreviousCommand, NextCommand, CopyCommandLine)):
             return unless(not self._aside_focused(), aside)
         if isinstance(command, GoParent):
             if command.by_key and self._command_line_has_text():

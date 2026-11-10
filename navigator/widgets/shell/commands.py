@@ -67,6 +67,27 @@ class InsertPath(Command):
     """
 
 
+class PreviousCommand(Command):
+    """Shift+Up from the panels: the previous (older) command onto the line,
+    as Ctrl+E.
+
+    DN's panel handed ``kbUp``/``kbDown`` held with Shift to the command
+    line (``FLPANEL.PAS``), whose ``kbUp``/``kbDown`` walked its history.
+    Untitled, as no status line captioned them.
+    """
+
+
+class NextCommand(Command):
+    """Shift+Down from the panels: the next (newer) command, as Ctrl+X; past
+    the newest, an empty line.  See :class:`PreviousCommand`."""
+
+
+class CopyCommandLine(Command):
+    """Ctrl+Shift+Ins from the panels: the whole command line onto the
+    clipboard -- DN's ``kbCtrlIns`` handed to the line with Shift held, its
+    ``cmPutInClipboard``.  Untitled."""
+
+
 @dataclass(frozen=True, slots=True)
 class InsertSideDirectory(Command):
     """Ctrl+[ and Ctrl+]: the left (or right) side's directory, ending in
@@ -630,6 +651,9 @@ class ScreenRest(Command):
 __all__ = [
     "About",
     "InsertSideDirectory",
+    "PreviousCommand",
+    "NextCommand",
+    "CopyCommandLine",
     "EditLinks",
     "S3Link",
     "GvfsLink",

@@ -175,9 +175,9 @@ class CommandLine(InputLine):
             self.clear()
             return True
         if event.matches("ctrl+e"):
-            return self._recall(+1)
+            return self.recall(+1)
         if event.matches("ctrl+x"):
-            return self._recall(-1)
+            return self.recall(-1)
         if event.key in ("up", "down", "enter", "tab"):
             return False
         taken = await super().on_key(event)
@@ -201,8 +201,9 @@ class CommandLine(InputLine):
         self._backspaced_at = now
         return True
 
-    def _recall(self, step: int) -> bool:
-        """Ctrl+E goes back a command, Ctrl+X forward, and past the newest clears."""
+    def recall(self, step: int) -> bool:
+        """Ctrl+E goes back a command, Ctrl+X forward, and past the newest
+        clears -- and Shift+Up/Down from the panels (``RecallCommand``)."""
         entries = HISTORY.entries(HISTORY_ID)
         index = self._recalled + step
         if index < -1 or index >= len(entries):

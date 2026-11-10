@@ -2460,6 +2460,10 @@ class Panel(ListViewer):
             return True
         if self.arrows_to_line(event):
             return False
+        if event.shift and not (event.ctrl or event.alt) and event.key in ("up", "down"):
+            # DN's panel handed Shift+Up/Down to the command line, its history:
+            # declined here for the manager's key table (``PreviousCommand``).
+            return False
         if self.view_mode == "list" and not self.inert and self.rows and not event.alt:
             if event.key == "left":
                 self.move_cursor(-min(self.rows, self.cursor))

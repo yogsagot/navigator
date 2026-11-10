@@ -2281,6 +2281,28 @@ class Shell(DockLayout):
         self._insert_entry(whole=True)
         return True
 
+    async def on_previous_command(self, event: Any) -> bool:
+        """Shift+Up from the panels: the command history, as the line's own
+        Ctrl+E -- DN's Shift test handing ``kbUp`` to the line.  A hidden line
+        takes nothing."""
+        if self.command_line.visible:
+            self.command_line.recall(+1)
+        return True
+
+    async def on_next_command(self, event: Any) -> bool:
+        """Shift+Down from the panels: as :meth:`on_previous_command`, Ctrl+X's way."""
+        if self.command_line.visible:
+            self.command_line.recall(-1)
+        return True
+
+    async def on_copy_command_line(self, event: Any) -> bool:
+        """Ctrl+Shift+Ins from the panels: the whole line onto the clipboard
+        (``kbCtrlIns`` with Shift, the line's ``cmPutInClipboard``)."""
+        text = self.command_line.value
+        if text and self.command_line.visible and self.application is not None:
+            self.application.copy_to_clipboard(text)
+        return True
+
     async def on_insert_side_directory(self, event: Any) -> bool:
         """Ctrl+[ / Ctrl+]: ``cmGetName`` asked of the left (or right) side, the
         answer ending in ``/`` onto the line (``cmInsertName``).
