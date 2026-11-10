@@ -3158,7 +3158,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     of ``alpha``, made as the test runs, are pinned here.  And once more when
     each panel's bottom frame took its option strip: the frame's characters
     before the right corner became ``[.]═[.]═[Simple]═[Name↑]``, in the
-    frame's own colours, and nothing else moved.
+    frame's own colours, and nothing else moved.  And once more when
+    *Current file*'s line took DN's ``<SUB-DIR>`` whole: the two cells
+    before its word became its brackets, and nothing else moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     monkeypatch.setattr(DirEntry, "display_date", property(lambda self: "01-01-2026 12:00"))

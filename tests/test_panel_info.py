@@ -218,8 +218,8 @@ def test_the_current_file_line_holds_the_detailed_columns_places(place):
 
 def test_a_directory_s_size_is_dn_s_sub_dir_and_dot_dot_up_dir(place):
     panel = at(panel_at(place), "sub")
-    assert panel.info_lines[0][0].split()[1] == "SUB-DIR"
-    assert at(panel, "..").info_lines[0][0].split()[1] == "UP--DIR"
+    assert panel.info_lines[0][0].split()[1] == "<SUB-DIR>"
+    assert at(panel, "..").info_lines[0][0].split()[1] == "<UP--DIR>"
     SETTINGS.panel_defaults.directory_length = True
     panel = at(panel_at(place), "sub")
     assert panel.info_lines[0][0].split()[1] == "15"

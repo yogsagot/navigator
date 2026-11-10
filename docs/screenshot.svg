@@ -154,6 +154,7 @@
 <text x="390" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">K</text>
 <text x="430" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">◀</text>
 <text x="20" y="375" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#55ffff">bin</text>
+<text x="130" y="375" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">&lt;</text>
 <text x="660" y="375" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">12</text>
 <text x="680" y="375" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#55ffff">-1999</text>
 <text x="740" y="375" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#55ffff">23:59</text>

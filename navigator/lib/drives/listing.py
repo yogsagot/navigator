@@ -116,6 +116,10 @@ class DirEntry:
         compact column leaves the names their room, and today's files are
         gigabytes, which DN's ``K`` would spell in ten digits.  The exact
         bytes are in the *Current file* line's tooltip (``_entry_details``).
+        A directory not counted is ``DIR`` (``UP--DIR`` for ``..``) -- a
+        departure, asked for: DN's column said ``<SUB-DIR>``, which *Current
+        file*'s line still does (:attr:`info_size`); the short word reads
+        better in a column of sizes.
         """
         if self.is_dir and not self.counted:
             mark = tr("UP--DIR") if self.name == ".." else tr("DIR")
@@ -231,9 +235,10 @@ class DirEntry:
     def info_size(self) -> str:
         """The size as the *Current file* info line gives it (DN's
         ``GetDown``): every digit -- a departure, where the column shortens
-        it -- or ``UP--DIR``/``SUB-DIR`` for a directory not counted."""
+        it -- or DN's ``<UP--DIR>``/``<SUB-DIR>`` (``dlUpDir``/``dlSubDir``),
+        brackets and all, for a directory not counted."""
         if self.is_dir and not self.counted:
-            return tr("UP--DIR") if self.name == ".." else tr("SUB-DIR")
+            return f"<{tr('UP--DIR')}>" if self.name == ".." else f"<{tr('SUB-DIR')}>"
         return f"{self.size:,}"
 
 

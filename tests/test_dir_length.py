@@ -255,3 +255,15 @@ def test_f3_and_alt_f3_on_a_directory_count_it_and_the_tagged_ones(place, alt):
                   lambda a: seen.update(sizes=sizes(a.manager.left), windows=len(a.shell.desktop.windows()))])
     assert seen["sizes"]["big"] == 3024 and seen["sizes"]["small"] == 7
     assert seen["windows"] == 1  # no viewer
+
+
+def test_dns_directory_markers_in_the_column_and_on_the_info_line(tmp_path):
+    # ``dlSubDir``/``dlUpDir``: ``<SUB-DIR>`` and ``<UP--DIR>`` on the info
+    # line; the column says ``DIR`` (a departure, asked for).
+    from navigator.lib.drives.listing import entry_at
+
+    (tmp_path / "sub").mkdir()
+    entry = entry_at(tmp_path / "sub")
+    assert entry.display_size == "     DIR" and entry.info_size == "<SUB-DIR>"
+    up = type(entry)("..", True, 0, entry.mode, entry.mtime, False, None, 0, 0, None, 1)
+    assert up.display_size == " UP--DIR" and up.info_size == "<UP--DIR>"

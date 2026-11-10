@@ -48,7 +48,8 @@ assumes whenever it has no terminal to ask.
 ### Icons in the file manager are a departure, and a deliberate one
 
 DOS Navigator had no icons and could not have had them — CP437 has no such glyphs, and the original distinguished a
-directory by colour and by the word `DIR` in the size column, which Navigator still does. Showing a Nerd Font icon
+directory by colour, by `<SUB-DIR>` in the size column and by upper-casing its name; Navigator keeps the colour,
+writes `DIR` in the size column (a departure, asked for) and `<SUB-DIR>` on *Current file*'s line. Showing a Nerd Font icon
 beside each name therefore cuts against the project's standing rule of preferring the original's behaviour to a modern
 alternative. It was taken anyway, on the grounds that a terminal shipping the font makes it free, and it is reversible
 in two ways rather than one: `icons: none` in a sheet, or `--glyphs unicode` on the command line.
