@@ -875,7 +875,10 @@ class FileEditor(ContextMenuHost, Widget):
         """Edit *document*, already read from *path*, from its start.
 
         What :meth:`open` does once the file is read -- for a caller that read
-        it on a thread (``navigator.widgets.editor.loading``).
+        it on a thread (``navigator.widgets.editor.loading``).  DN's
+        ``LoadFile`` (``MICROED.PAS:1197``): insert mode, line drawing off and
+        the pen lifted, whatever the text before had (``InsertMode := On``,
+        ``DrawMode := 0``, ``LastDir := -1``).
         """
         path = Path(path)
         if not any(document.endings):
@@ -884,6 +887,9 @@ class FileEditor(ContextMenuHost, Widget):
         self._use(EditBuffer(document))
         self._unmark()
         self.markers = [None] * 9
+        self.overwrite = False
+        self.draw_mode = 0
+        self._pen = None
         self.path = path
         self.line = self.col = self.top = self.left = 0
         self.revision += 1

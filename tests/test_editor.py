@@ -2393,6 +2393,34 @@ def test_f3_opens_another_file_into_the_window(files):
     assert editor_window(app).title == f"Edit - {files / 'other.txt'}"
 
 
+def test_f3_open_takes_the_text_in_insert_mode_with_line_drawing_off(files):
+    """``LoadFile``: ``InsertMode := On``, ``DrawMode := 0``."""
+    (files / "other.txt").write_bytes(b"other text\n")
+    seen = {}
+    _, editor = text_editor(files, b"first\n", KeyEvent("insert"), KeyEvent("f4"),
+                            lambda a: seen.update(before=(editor_window(a).editor.overwrite,
+                                                          editor_window(a).editor.draw_mode)),
+                            KeyEvent("f3"), Until(lambda a: a.modal is not None),
+                            *typed("other.txt"), KeyEvent("enter"),
+                            Until(lambda a: editor_window(a).editor.path == files / "other.txt"))
+    assert seen["before"] == (True, 1)
+    assert editor.overwrite is False and editor.draw_mode == 0
+
+
+def test_f3_open_brings_the_file_s_record_back_a_departure(files):
+    from navigator.models.edit_record import EditRecord
+
+    (files / "other.txt").write_bytes(b"other text\n")
+
+    def recorded(a):
+        EditRecord.store(files / "other.txt", line=0, col=2, top=0, overwrite=True)
+
+    _, editor = text_editor(files, b"first\n", recorded, KeyEvent("f3"), Until(lambda a: a.modal is not None),
+                            *typed("other.txt"), KeyEvent("enter"),
+                            Until(lambda a: editor_window(a).editor.path == files / "other.txt"))
+    assert editor.overwrite is True
+
+
 def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
     asked = []
     _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f3"), Until(lambda a: a.modal is not None),

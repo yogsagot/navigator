@@ -226,7 +226,9 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `SaveFileAs`; also Editor > File): the name from navml's `FileDialog` via `EditWindow._ask_file` -- *Open a File*,
   *~N~ame*, an *~O~pen* button (`fdOpenButton`), history `edit_open` (Shift+F4's too, as `hsEditOpen` was); *Save File As*, *~S~ave File As*, OK,
   `edit_save` -- listing the active panel's directory. Open offers a changed text a save first (Cancel keeps all),
-  records the file being left, loads the new one into the same window and brings its record back; a file that will
+  records the file being left, loads the new one into the same window -- insert mode, line drawing off, as `LoadFile`
+  reset them (`use_document`) -- and brings its record back (a departure: DN's `OpenFile` neither stored nor restored
+  the history); a file that will
   not open is said and the text stays (DN closed the window). Save as asks `_check_for_over`'s question without
   *Append* (a departure: appending the whole text elsewhere and then editing that file under its name lost what was on
   disk at the next F2), puts a read-only file's mode back, and the window takes the new name; `FileSaved` re-reads

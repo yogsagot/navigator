@@ -1078,10 +1078,15 @@ class EditWindow(Window):
 
         A changed text is offered a save first (``AskSave``: Cancel keeps
         everything as it is).  Then *Open a File*, with *Open* for its OK, in
-        the ``hsEditOpen`` history.  The file being left has its record kept,
-        and the one opened comes back as it was last left.  A departure: a
-        file that will not open is said and the window keeps its text, where
-        DN closed the window.
+        the ``hsEditOpen`` history.  The text is taken in afresh, insert mode and
+        no line drawing (``LoadFile``, :meth:`FileEditor.use_document`).
+
+        Departures: the file being left has its record kept, and the one
+        opened comes back as it was last left -- DN's ``OpenFile`` did neither
+        (``MICROED.PAS:1262``), so a file came back only from F4; here the
+        history is the same whichever way it is opened.  And a file that will
+        not open is said and the window keeps its text, where DN closed the
+        window.
 
         In SmartPad the pad is left as closing leaves it, saved unasked, and
         the window is an ordinary editor from then on (:meth:`_leave_smartpad`).
