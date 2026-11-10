@@ -169,8 +169,11 @@ EditWindow(Window):
         y: max(0, parent.height - 1)
         height: 1
 
-    #: DOS Navigator's ``dlgEditorMenu`` (``DN.DNR``), every entry in the
-    #: original's order with the original's captions and keys -- but as one
+    #: DOS Navigator's ``dlgEditorMenu`` (``DN.DNR``): its entries in the
+    #: original's order and with its captions, the keys what the key table
+    #: binds now, and Navigator's additions (the clipboard four at the top,
+    #: *Delete*, *Redo*, *Find bar*/*Replace bar*, *Line endings*/*Encoding*,
+    #: *File type*... -- the ``navigator-editor`` skill lists them) -- but as one
     #: *Editor* entry on the main bar, after *File*, while this window is the
     #: active one, rather than as a bar of its own inside the window
     #: (``TEditWindow.Init``).  Its seven menus would not fit beside the main

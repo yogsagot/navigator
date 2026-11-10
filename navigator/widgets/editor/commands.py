@@ -88,12 +88,12 @@ class ScreenBottom(EditorMovement):
 
 @dataclass(frozen=True, slots=True)
 class TextStart(EditorMovement):
-    """Ctrl+PgUp: the vertical scroll bar's minimum in DN, the first line."""
+    """Ctrl+PgUp: the first line, the column kept -- DN's vertical scroll bar set only its minimum."""
 
 
 @dataclass(frozen=True, slots=True)
 class TextEnd(EditorMovement):
-    """Ctrl+PgDn: the last line."""
+    """Ctrl+PgDn: the last line, the column kept."""
 
 
 class ScrollUp(Command):

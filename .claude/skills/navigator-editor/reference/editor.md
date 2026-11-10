@@ -12,9 +12,10 @@ cost. It has the viewer's three layers:
 **A file round-trips byte for byte, and that is the one departure underneath everything.** DN rewrote what it
 edited:
 
-- `ReadBlock` expanded tabs.
-- `ModifyLine` trimmed trailing blanks from every line it touched.
-- `WriteBlock` wrote one line ending for the whole file (CRLF unless `DN.HGL` forced another).
+- `ReadBlock` expanded tabs, and trimmed trailing blanks from every line as it loaded it (`MICROED.PAS:3420, 3525`).
+- `ModifyLine` trimmed those of every line it touched.
+- `WriteBlock` wrote one line ending for the whole file: Editor setup's *Line divisor*, unless `DN.HGL` forced another
+  (`ForcedCRLF`, `MICROED.PAS:735-741`).
 - The loader split a line at 254 characters.
 
 Here none of that happens:
@@ -69,7 +70,7 @@ expanded.
 - Only a printable character is left to `on_key`.
 - Home is the line's first column (DN reached it through the horizontal scroll bar's `kbHome`). End is after the
   last non-blank (`cmEnd`). Ctrl+Home and Ctrl+End are the screen's top and bottom rows, and Ctrl+PgUp and Ctrl+PgDn
-  are the text's first and last lines.
+  are the text's first and last lines, the column kept, as DN's scroll bar set only `Min`/`Max` (`VIEWS.PAS:2350`).
 
 **An editor holding the keyboard takes Enter, Home, End, Tab and pastes from the command line.** The application's
 key table is asked before the tree, and the command line binds those keys whenever it has text. `Widget.edits_text`
@@ -117,10 +118,14 @@ comes from the sheet's `caret`, keyed on the `:overwrite` state.
 - Then `line:column`, both counted from 1, and `[nnn]`, the code of the character under the cursor (0 past the
   end). The code is a code point here, where DN's was a byte, and it grows past three digits when it needs to; a
   byte that was not UTF-8 gives the byte.
-- Then `(↔)` for stream blocks, `(↕)` for column blocks.
+- Then `(↔)` for stream blocks, `(↕)` for column blocks -- only while the option strip is off; with it on, the
+  block's kind is the strip's `[↔]`/`[↕]` item and `block_indicator()` is empty.
 
-The horizontal scroll bar runs from column 24 to the corner, as `ChangeBounds` sized it, over DN's 0 to 255 until
-the cursor goes further. The vertical one's value is the cursor's line, as `VScroll` was `Delta.Y`.
+The horizontal scroll bar starts at `max(24, the format markers' end + 1)` -- column 24 as `ChangeBounds` sized it --
+and ends a cell before the option strip; it runs to `row_span - 1`, the widest line shown or the cursor's column, and
+shows only while something is wider than the edit area or the area is scrolled sideways (a departure: DN's was always
+there, 0 to 255). The vertical one's value is the cursor's line, as `VScroll` was `Delta.Y`, shown only while
+`overflows`.
 
 **What is still not DN's, or not there** -- the editor backlog's open items (numbered as
 `/home/juris/.claude/plans/editor-backlog.md`), each with where DN had it; an item's line goes when it is done:

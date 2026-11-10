@@ -320,11 +320,11 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   last gap by gap from the left and indents the first. One undo step; the block then covers the new lines, the cursor
   at its start. Disabled for a column block. **The cursor's line alone**: `LJustify`/`LRight`/`LLeft`/`LCenter`
   (DN's `cmL*`, `EDITOR.PAS:823`: the line made the block, shown, then `FormatBlock`; `format_line`), DN's for macros
-  with no key -- keyless here too (`keyless_commands`, bound by no preset) and on Paragraph > *Current line* (a
+  with no key in the English resource -- keyless here too (`keyless_commands`, bound by no preset) and on Paragraph > *Current line* (a
   departure, as item 4's entries are); refused under column blocks ("Line format works on line blocks") where DN
   did nothing. *Margins...* (`SetMargins`, `MarginsDialog`, `dlgEditorFormat` 39 by 11)
   changes this editor's margins only, seeded from the Editor setup, a number that does not read kept, then
-  `fix_margins` (`SetFormat`'s corrections). DN's line-only `cmL*` had no key in the English resource and are not here.
+  `fix_margins` (`SetFormat`'s corrections).
 - **Auto wrap and Justify on wrap** (`FileEditor.autowrap`/`justify_on_wrap`, DN's `AutoWrap`/`AutoJustify`, seeded from
   the Editor setup, switched per editor by Editor > Options -- `SwitchSave` is DN's own name, `cmSwitchSave`, for
   *Auto wrap*, `SwitchWrap` (`cmSwitchWrap`) for *Justify on wrap* -- and ticked through `checks`): a character typed
@@ -486,8 +486,10 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`Pos := Delta - Size div 2`) and, being a movement, unmarks under *Persistent blocks* off; an unset one does
   nothing. Kept in the edit history as `EditRecord.marks` (`fMarks`), `line:col` nine times comma-separated, and
   brought back whatever *Store editor position* says. The digit is bound alone, as the table has it.
-- **^Q D/T** insert the date/time (`fileattr.DATE_FORMAT`/`TIME_FORMAT`, DN's D-M-Y and H:M:S, as the attributes
-  dialog writes them; inserted even in overwrite; `_now` is the test hook). Column blocks take all the ^K commands.
+- **^Q D/T** insert the date/time in Country support's format (`country.format_date`/`format_time` with seconds), as
+  DN's `GetDateTime` (`ADVANCE.PAS:371-409`) followed the country's order and 12/24 hours; inserted even in overwrite;
+  `_now` is the test hook. A departure: DN's `MakeDate` took the year `mod 100` and wrote am/pm straight after the
+  seconds; here year and am/pm are as Country support writes them everywhere else. Column blocks take all the ^K commands.
   A pending chord shows as `^K` at the info line's end (a departure).
 - **Column blocks** under `vertical_blocks` (Editor setup's *Vertical blocks*, seeded per editor and kept in the edit
   history; `SwitchBlock`, DN's `cmSwitchBlock`, switches it -- ^B^V and Editor > Options > *Vertical blocks*,
