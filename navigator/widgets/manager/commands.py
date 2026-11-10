@@ -388,6 +388,14 @@ class GoParent(Command):
     by_key: bool = False
 
 
+class GoRoot(Command):
+    """Ctrl+\\, DN's ``kbCtrlBSlsh``: ``Drive^.ChangeRoot`` -- the root of
+    the drive the panel is on (an archive's own, staying inside it; a *Find:*
+    listing's disk, leaving it), the cursor on the first entry
+    (``ScrollBar^.SetValue(0)``).  Untitled: no status line captioned it.
+    """
+
+
 class GoInto(Command):
     """Ctrl+PgDn, DN's ``_CtrlPgDn``: the counterpart of :class:`GoParent`
     -- into the directory at the cursor, up from ``..``, to a *Find:*
@@ -963,6 +971,7 @@ __all__ = [
     "QuickView",
     "ToggleMark",
     "GoParent",
+    "GoRoot",
     "GoInto",
     "OpenArchive",
     "ScrollNames",

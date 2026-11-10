@@ -54,6 +54,7 @@ from navigator.widgets.manager.commands import (
     OpenArchive,
     GoInto,
     GoParent,
+    GoRoot,
     GoToTreeDirectory,
     HideInactive,
     HideLeft,
@@ -221,6 +222,8 @@ class Manager(Window):
         "backspace": GoParent(by_key=True),
         "shift+backspace": GoParent(),
         "ctrl+pageup": GoParent(),
+        # ``kbCtrlBSlsh``: ``ChangeRoot``.
+        "ctrl+\\": GoRoot,
         #: DN's ``_CtrlPgDn``; on a file it opens it as an archive (a departure).
         "ctrl+pagedown": GoInto(),
         #: DN's quick directories: Alt+1 .. Alt+9 go, Alt+Shift+1 .. 9 store,
@@ -3537,6 +3540,8 @@ class Manager(Window):
                 # Disabled, so the key falls through and types its character.
                 return typed
             return unless(not self._aside_focused(), aside)
+        if isinstance(command, GoRoot):
+            return unless(not self._aside_focused(), aside)
         if isinstance(command, GoParent):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so Backspace falls through and edits the line.
@@ -3747,6 +3752,10 @@ class Manager(Window):
             # not a climb up the tree with every repeat.
             return True
         self.active_panel.go_up()
+        return True
+
+    async def on_go_root(self, event: GoRoot) -> bool:
+        self.active_panel.go_root()
         return True
 
     async def on_toggle_mark(self, event: ToggleMark) -> bool:

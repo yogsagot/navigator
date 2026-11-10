@@ -1346,6 +1346,27 @@ class Panel(ListViewer):
         self._return_to = self.path.name
         self.path = parent
 
+    def go_root(self) -> None:
+        """Ctrl+\\: ``Drive^.ChangeRoot``, the cursor on the first entry
+        whatever was remembered there (``ScrollBar^.SetValue(0)``).
+
+        The root of the drive the panel is on: the disk's ``/``; an
+        archive's own root, staying inside it (``TArcDrive.ChangeRoot``'s
+        ``CurDir := ''``); another drive's ``/`` on the same site.  A *Find:*
+        listing is left for the root of where it was found, as ``TFindDrive``
+        had ``TDrive``'s.  At the root already, it is read again.
+        """
+        if self.found is not None:
+            self.leave_found()
+        location = self.location
+        root = Location(location.site, type(location.path)("/"), location.outer)
+        # A name no entry has: the first one, and no remembered cursor.
+        self._return_to = ""
+        if root == location:
+            self.reload_token += 1
+            return
+        self.location = root
+
     def _go_up_elsewhere(self) -> None:
         """:meth:`go_up` on a drive other than the disk: the parent by name,
         and at the drive's root wherever its ``ChangeUp`` says -- an archive's

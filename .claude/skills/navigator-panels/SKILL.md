@@ -39,7 +39,10 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   the desktop (activating the other panel on a press, the wheel, console scrollback) stays on
   `Navigator.on_mouse_click`, which returns False while `app.modal` is set.
 - **Backspace goes to the parent** (`GoParent(by_key=True)`, DN's `kbBack` under `fmoBackGoesBack`, `Panel.go_up`,
-  cursor on the directory left) while the line is empty; Ctrl+PgUp (`_CtrlPgUp`) and Shift+Backspace whatever it holds. Ctrl+PgDn (`GoInto`, `_CtrlPgDn`) is Enter on a directory, `..` or a *Find:* entry, and on a file opens it as an
+  cursor on the directory left) while the line is empty; Ctrl+PgUp (`_CtrlPgUp`) and Shift+Backspace whatever it holds. Ctrl+\\ (`GoRoot`, `kbCtrlBSlsh`, `Panel.go_root`) is
+  `ChangeRoot`: the disk's `/`, an archive's own root (staying in it), another drive's `/`, a *Find:* listing left
+  for `/`; the cursor on the first entry whatever was remembered (`_return_to = ""`), re-read when already there.
+  Ctrl+PgDn (`GoInto`, `_CtrlPgDn`) is Enter on a directory, `..` or a *Find:* entry, and on a file opens it as an
   archive whatever its name (`navigator-drives`).
   A departure: at the root, where DN did nothing, all three move the cursor to the top, as Home does.
   A departure: the Backspace held or tapped to clear the line does not go on climbing once it is empty --
