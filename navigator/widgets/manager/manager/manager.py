@@ -85,6 +85,7 @@ from navigator.widgets.manager.commands import (
     UnselectSimilar,
     SwitchPanel,
     ChangeInactive,
+    EnterWithoutArchive,
     GoToFile,
     CompareDir,
     DiffFiles,
@@ -228,9 +229,10 @@ class Manager(Window):
         #: A departure, asked for: every file and directory at once.
         "ctrl+a": SelectAll(),
         #: DN's ``fmoBackGoesBack``: Backspace goes up while the command line
-        #: is empty, and Shift+Backspace and Ctrl+PgUp whatever it holds.
+        #: is empty, Shift+Backspace whatever it holds -- both only under that
+        #: setting -- and Ctrl+PgUp always.
         "backspace": GoParent(by_key=True),
-        "shift+backspace": GoParent(),
+        "shift+backspace": GoParent(backspace=True),
         "ctrl+pageup": GoParent(),
         # ``kbCtrlBSlsh``: ``ChangeRoot``.
         "ctrl+\\": GoRoot,
@@ -248,6 +250,8 @@ class Manager(Window):
         "ctrl+]": InsertSideDirectory(side="right"),
         #: DN's ``_CtrlPgDn``; on a file it opens it as an archive (a departure).
         "ctrl+pagedown": GoInto(),
+        #: ``_CtrlPgDn`` with Shift in a *Find:* listing: ``cmChangeInactive``.
+        "ctrl+shift+pagedown": ChangeInactive(),
         #: DN's quick directories: Alt+1 .. Alt+9 go, Alt+Shift+1 .. 9 store,
         #: Alt+Shift+0 lists them.  A terminal without the kitty protocol
         #: sends Alt with the shifted character, so a US layout's ``!`` ..
@@ -1580,6 +1584,14 @@ class Manager(Window):
     @staticmethod
     async def _no_question(question: Any) -> Any:
         return None
+
+    async def on_enter_without_archive(self, event: EnterWithoutArchive) -> bool:
+        """Shift+Enter: in a *Find:* listing ``cmChangeInactive``; elsewhere
+        Enter without the archive (and disk image) test."""
+        if self.active_panel.found is not None:
+            return await self.on_change_inactive(ChangeInactive())
+        await self.active_panel.choose(archives=False)
+        return True
 
     async def on_change_inactive(self, event: ChangeInactive) -> bool:
         """Shift+Enter in a *Find:* listing: ``cmChangeInactive``, the passive
@@ -3563,15 +3575,20 @@ class Manager(Window):
                 # Disabled, so the key falls through and types its character.
                 return typed
             return unless(not self._aside_focused(), aside)
+        if isinstance(command, EnterWithoutArchive):
+            if self._command_line_has_text():
+                # Falls through to the line run in a window, as DN's Enter ran the line first.
+                return typed
+            return unless(not self._aside_focused(), aside)
         if isinstance(command, (GoRoot, PreviousCommand, NextCommand, CopyCommandLine)):
             return unless(not self._aside_focused(), aside)
         if isinstance(command, GoParent):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so Backspace falls through and edits the line.
                 return typed
-            if command.by_key and not SETTINGS.file_manager.bs_upper_dir:
-                # File Manager Setup's *BS upper dir* off: Shift+Backspace
-                # and Ctrl+PgUp still go up.
+            if (command.by_key or command.backspace) and not SETTINGS.file_manager.bs_upper_dir:
+                # File Manager Setup's *BS upper dir* off: neither Backspace
+                # goes up (DN's Shift test sat inside it); Ctrl+PgUp still does.
                 return tr("File Manager Setup's BS upper dir is off")
             return unless(not self._aside_focused(), aside)
         if isinstance(command, (PutInClipboard, CutToClipboard, PasteFromClipboard, ClearClipboard)):

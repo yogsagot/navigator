@@ -7,7 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
+from navigator.widgets.manager.commands import EnterWithoutArchive, ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, ReplaceInFiles, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import RememberDirectory, RememberedDirectories
@@ -44,7 +44,7 @@ from navkit.stylesheet import parse_declarations
 from navml.widgets.dialog.dialog import Dialog
 from navml.commands import ZoomWindow
 from navigator.widgets.shell.commands import CopyCommandLine, InsertSideDirectory, NextCommand, PreviousCommand
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, FindDuplicates, Edit, EditNamed, ExtractArchive, ExtractTo, OpenArchive, GoInto, GoParent, GoRoot, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MountImage, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, SelectBadNames, ShowHardLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SelectSimilar, UnselectSimilar, SwitchPanel, ChangeInactive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, ReplaceInFiles, MakeList, ReadFileList, Panelize, MultiRename, Undo, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, RememberDirectory, RememberedDirectories, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnmountImage, UnselectGroup, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, ConvertText, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
+from navigator.widgets.manager.commands import AlternateEdit, AlternateView, ArchiveFiles, ArcTest, ChangeAttributes, ChangeDirectory, ChangeDrive, ChangeLeft, ChangeRight, ClearClipboard, Copy, CutToClipboard, Delete, DeleteSingle, DirBranch, DiskInfo, FindDuplicates, Edit, EditNamed, ExtractArchive, ExtractTo, OpenArchive, GoInto, GoParent, GoRoot, GoToTreeDirectory, HideInactive, HideLeft, HideRight, InvertSelection, SelectAll, MakeDirectory, MakeLink, MountImage, EditLinkTarget, LinkAbsolute, LinkRelative, SelectBrokenLinks, SelectBadNames, ShowHardLinks, MoveSeparator, PasteFromClipboard, PrintFile, PutInClipboard, QuickRename, QuickView, RenameMove, Rescan, ScrollNames, SelectGroup, SelectSimilar, UnselectSimilar, SwitchPanel, ChangeInactive, EnterWithoutArchive, GoToFile, CompareDir, DiffFiles, CountLength, FastRename, FindFile, ReplaceInFiles, MakeList, ReadFileList, Panelize, MultiRename, Undo, RestoreTrash, SetupColumns, AdvancedFilter, DirHistory, JumpToDirectory, ListOfDirs, QuickChange, StoreQuickDir, PanelSetup, RememberDirectory, RememberedDirectories, SortBy, SwapPanels, EqualizePanels, ToggleHidden, ToggleInfoLines, ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, UnmountImage, UnselectGroup, UuDecode, UuEncode, SplitCombine, CalculateChecksums, VerifyChecksums, EncryptFiles, DecryptFiles, ConvertText, View, OpenWith, ViewAsDataBase, ViewAsSpreadsheet, ViewAsHex, ViewAsText
 from navigator.commands import ToggleConsole
 from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel.drag import Dropped, label_for
@@ -157,6 +157,7 @@ class Manager(Window, _Component):
     async def test_archive(self, panel: Panel, sources: list[Location] | None = ...) -> None: ...
     async def _test(self, drive: Any, outer: Location, sources: list[Location] | None) -> None: ...
     async def _no_question(question: Any) -> Any: ...
+    async def on_enter_without_archive(self, event: EnterWithoutArchive) -> bool: ...
     async def on_change_inactive(self, event: ChangeInactive) -> bool: ...
     async def on_go_to_file(self, event: GoToFile) -> bool: ...
     async def on_read_file_list(self, event: ReadFileList) -> bool: ...

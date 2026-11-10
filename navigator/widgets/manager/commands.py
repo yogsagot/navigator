@@ -382,10 +382,22 @@ class GoParent(Command):
     (``ShiftState and 3 <> 0``) and otherwise left the key to the command
     line.  *by_key* is that Backspace, as it is for :class:`SelectGroup`:
     with text on the line it steps aside.  Ctrl+PgUp and Shift+Backspace never
-    do.
+    do.  *backspace* is Shift+Backspace: File Manager Setup's *BS upper dir*
+    gates it as it gates Backspace (``fmoBackGoesBack``, which DN's Shift test
+    sat inside); Ctrl+PgUp alone goes up whatever that says.
     """
 
     by_key: bool = False
+    backspace: bool = False
+
+
+class EnterWithoutArchive(Command):
+    """Shift+Enter in a panel: Enter on a file without the archive test --
+    DN's ``(Event.KeyCode = kbEnter) and (ShiftState and 3 = 0)`` before
+    ``ArcViewer`` -- so an archive (or a disk image) is run or opened as a
+    file, never entered.  In a *Find:* listing, ``cmChangeInactive``.
+    Untitled, as no status line captioned it.
+    """
 
 
 class GoRoot(Command):
@@ -1000,6 +1012,7 @@ __all__ = [
     "ToggleMark",
     "GoParent",
     "GoRoot",
+    "EnterWithoutArchive",
     "GoInto",
     "OpenArchive",
     "ScrollNames",

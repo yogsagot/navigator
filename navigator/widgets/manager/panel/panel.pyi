@@ -25,7 +25,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr, tr_n
-from navkit.reactive import Binding, Reactive, computed, effect, peek, reactive, untracked
+from navkit.reactive import Binding, Reactive, bind, computed, effect, peek, reactive, unbind, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -174,7 +174,7 @@ class Panel(ListViewer, _Component):
     marked_entries: list[DirEntry]
     _marked_tuple: tuple[DirEntry, ...]
     _listing_facts: ListingFacts
-    async def choose(self) -> bool: ...
+    async def choose(self, *, archives: bool = ...) -> bool: ...
     def _may_enter_archive(self, entry: DirEntry) -> bool: ...
     def archive_on_f3(self, entry: DirEntry) -> bool: ...
     def _may_mount_image(self, entry: DirEntry) -> bool: ...

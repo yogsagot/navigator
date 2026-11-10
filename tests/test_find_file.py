@@ -188,6 +188,17 @@ def test_shift_enter_sends_the_other_panel_to_the_file(place):
     assert seen == {"path": place / "b", "at": "big.bin", "left": True, "keys": True, "back": True}
 
 
+def test_ctrl_shift_pgdn_sends_the_other_panel_to_the_file_too(place):
+    # ``_CtrlPgDn`` with Shift in a listing: ``cmChangeInactive``.
+    app = navigator(place)
+    seen = {}
+    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
+                  KeyEvent("pagedown", ctrl=True, shift=True), lambda a: None, lambda a: None,
+                  lambda a: seen.update(path=a.manager.right.path, at=a.manager.right.selected.name)])
+    assert seen == {"path": place / "b", "at": "big.bin"}
+
+
 def test_shift_enter_puts_the_other_panels_mask_back_to_all_files(place):
     app = navigator(place)
     seen = {}
@@ -373,8 +384,8 @@ def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place)
                   lambda a: a.spawn(a.manager.left.emit(ShowContextMenu())), Until(lambda a: popup(a) is not None),
                   KeyEvent("f", "f"), Until(lambda a: popup(a) is None), lambda a: None, lambda a: None,
                   lambda a: seen.update(left=a.manager.left.path, found=a.manager.left.found)])
-    assert seen["plain"] == ("Shift-Enter", False)
-    assert seen["listing"] == ("Shift-Enter", True)
+    assert seen["plain"] == ("Ctrl-Shift-PgDn", False)
+    assert seen["listing"] == ("Ctrl-Shift-PgDn", True)
     assert seen["items"] == ["Go to file", "Show in other panel"]
     assert seen["right"] == place / "b"
     assert seen["left"] == place / "b" and seen["found"] is None

@@ -418,6 +418,12 @@ RETIRED_DEFAULTS: dict[tuple[str, str], tuple[tuple[str, ...], ...]] = {
     ("viewer", "switch_rendered"): (("shift+f4",),),
     ("db_viewer", "view_sheet_as_text"): (("shift+f4",),),
     ("struct_window", "view_tree_as_text"): (("shift+f4",),),
+    # Shift+Backspace left plain ``go_parent`` for ``go_parent_backspace``,
+    # under *BS upper dir* as DN's was.
+    ("manager", "go_parent"): (("shift+backspace", "ctrl+pageup"),),
+    # Shift+Enter is ``enter_without_archive`` (a *Find:* listing's ChangeInactive
+    # within it); ChangeInactive's own key is DN's Ctrl+Shift+PgDn.
+    ("manager", "change_inactive"): (("shift+enter",),),
 }
 
 

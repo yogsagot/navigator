@@ -1,5 +1,5 @@
 from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
-from navigator.widgets.manager.commands import ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
+from navigator.widgets.manager.commands import EnterWithoutArchive, ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
 from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, ReplaceInFiles, HideInactive, MoveSeparator
 from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
 from navigator.widgets.manager.commands import RememberDirectory, RememberedDirectories
@@ -100,7 +100,9 @@ Manager(Window):
         alt+f12: ToggleMiller
         alt+=: EqualizePanels
         alt+g: CountLength
-        shift+enter: ChangeInactive
+        #: Enter without the archive test (DN's Shift); in a *Find:* listing,
+        #: ``cmChangeInactive``, which Ctrl+Shift+PgDn is too.
+        shift+enter: EnterWithoutArchive
         alt+v: ReadFileList
         alt+y: Panelize
         alt+a: MultiRename

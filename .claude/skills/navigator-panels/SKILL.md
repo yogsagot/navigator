@@ -39,7 +39,12 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   the desktop (activating the other panel on a press, the wheel, console scrollback) stays on
   `Navigator.on_mouse_click`, which returns False while `app.modal` is set.
 - **Backspace goes to the parent** (`GoParent(by_key=True)`, DN's `kbBack` under `fmoBackGoesBack`, `Panel.go_up`,
-  cursor on the directory left) while the line is empty; Ctrl+PgUp (`_CtrlPgUp`) and Shift+Backspace whatever it holds. Ctrl+\\ (`GoRoot`, `kbCtrlBSlsh`, `Panel.go_root`) is
+  cursor on the directory left) while the line is empty; Ctrl+PgUp (`_CtrlPgUp`) and Shift+Backspace whatever it holds, both under *BS upper dir*. Shift+Backspace goes up under *BS upper dir* too (`GoParent(backspace=True)`: DN's Shift
+  test sat inside `fmoBackGoesBack`); only Ctrl+PgUp ignores the setting. Home also scrolls the names back (`DeltaX :=
+  0`); PgUp/PgDn step the whole view, every row of every column (`Panel.page`, DN's scroll bar page). Shift+Enter
+  (`EnterWithoutArchive`) is Enter on a file without the archive or disk-image test (DN's `ShiftState and 3 = 0`),
+  in a *Find:* listing `ChangeInactive`, which Ctrl+Shift+PgDn is too (`_CtrlPgDn` with Shift); with text on the
+  line it falls to the line run in a window. Ctrl+\\ (`GoRoot`, `kbCtrlBSlsh`, `Panel.go_root`) is
   `ChangeRoot`: the disk's `/`, an archive's own root (staying in it), another drive's `/`, a *Find:* listing left
   for `/`; the cursor on the first entry whatever was remembered (`_return_to = ""`), re-read when already there.
   Ctrl+PgDn (`GoInto`, `_CtrlPgDn`) is Enter on a directory, `..` or a *Find:* entry, and on a file opens it as an
@@ -763,7 +768,7 @@ divider. Alt+Left and Alt+Right (`MoveSeparator(step)`, DN's `kbAltLeft`/`kbAltR
   Alt+Left/Right; no hotkeys, `j` being the only free letter), and the panel's right-click menu ends with *Insert name*
   / *Insert path* (`InsertName`/`InsertPath`, Ctrl+Enter / Ctrl+Shift+Enter, answered by the shell). Left off on
   purpose: Alt+1..9 / Alt+Shift+1..9 (the bookmarks box has them), Alt+F6 (*Quick rename* is its menu form),
-  Shift+Enter (a *Find:* listing's), Ctrl+Shift+F1..F10 (user-defined), and navigation. F1 (`Help`) is bound but has no
+  Shift+Enter (Enter without the archive test, a *Find:* listing's *Show in other panel*), Ctrl+Shift+F1..F10 (user-defined), and navigation. F1 (`Help`) is bound but has no
   handler yet. In an archive the right-click menu adds *Extract to...*/*Test archive* (`navigator-drives`).
   In a *Find:* listing it starts with *Go to ~f~ile* (`GoToFile`, Enter's `go_to_entry`, a command only for the menu --
   Enter stays `Panel.choose`) and *Show in ~o~ther panel* (`ChangeInactive`, Shift+Enter), which is also Panel >

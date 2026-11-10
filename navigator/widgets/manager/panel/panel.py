@@ -30,7 +30,7 @@ from navkit.events import Event, KeyEvent, MouseClickEvent, WakeEvent
 from navkit import glyphs as glyphs_module
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import tr, tr_n
-from navkit.reactive import Binding, Reactive, computed, effect, peek, reactive, untracked
+from navkit.reactive import Binding, Reactive, bind, computed, effect, peek, reactive, unbind, untracked
 from navkit.screen import Surface, char_width
 from navkit.style import Style
 from navkit.stylesheet import StyleProperty
@@ -457,6 +457,10 @@ class Panel(ListViewer):
         attribute carrying a binding is read-only until something unbinds it.
         """
         super().__init__(**kwargs)
+        # The scroll bar's page is the whole view, as PgUp/PgDn's (``page``):
+        # DN's panel gave its bar ``Size.Y * columns``, navml's list a row less.
+        unbind(self.bar, type(self.bar).page)
+        self.bar.page = bind(lambda bar: max(1, bar.parent.capacity))
         #: Set by :meth:`enter` for the rescan that is about to happen, so the
         #: cursor can land on the directory we just climbed out of.
         self._return_to: str | None = None
@@ -1528,23 +1532,25 @@ class Panel(ListViewer):
         (not per cursor move): :class:`ListingFacts`."""
         return ListingFacts.of(self.items)
 
-    async def choose(self) -> bool:
+    async def choose(self, *, archives: bool = True) -> bool:
         """What Enter and a double click mean here: descend, or run.
 
         A directory is descended into.  A file the user may execute is run --
         :class:`ExecuteFile`, emitted up to whoever runs commands -- and any
         other file is :class:`OpenFile`, for whoever knows what its name runs.
+        Without *archives* (Shift+Enter, DN's ``ShiftState and 3 = 0`` test)
+        an archive or a disk image is a file like any other, never entered.
         """
         entry = self.selected
         if self.found is not None:
             self.enter()
             return True
-        if entry is not None and not entry.is_dir and self._may_mount_image(entry):
+        if archives and entry is not None and not entry.is_dir and self._may_mount_image(entry):
             # Attached and mounted on a thread; without udisks it is entered
             # or run below, as before.
             self.spawn(self._mount_or_enter(entry))
             return True
-        if entry is not None and not entry.is_dir and self._may_enter_archive(entry):
+        if archives and entry is not None and not entry.is_dir and self._may_enter_archive(entry):
             # Read on a thread: one that is no archive after all runs below.
             self.spawn(self._enter_or_run(entry))
             return True
@@ -2460,6 +2466,9 @@ class Panel(ListViewer):
             return True
         if self.arrows_to_line(event):
             return False
+        if event.key == "home" and not (event.ctrl or event.alt or event.shift):
+            # ``kbHome``: ``DeltaX := 0`` too -- the names scrolled back.
+            self.name_scroll = 0
         if event.shift and not (event.ctrl or event.alt) and event.key in ("up", "down"):
             # DN's panel handed Shift+Up/Down to the command line, its history:
             # declined here for the manager's key table (``PreviousCommand``).
@@ -2627,9 +2636,10 @@ class Panel(ListViewer):
             scroll += rows
 
     def page(self) -> int:
-        if self.view_mode == "list":
-            return max(1, self.capacity)
-        return super().page()
+        """PgUp/PgDn: the whole view, every row of every column -- DN's scroll
+        bar page (``Size.Y * (Size.X+1) div LineLength``), where navml's list
+        keeps a row back.  Every mode, not the list mode alone."""
+        return max(1, self.capacity)
 
     def tooltip_anchor(self) -> tuple[int, int]:
         """The cursor's name: in the list mode, in the column it is in."""
