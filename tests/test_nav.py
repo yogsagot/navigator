@@ -3314,12 +3314,14 @@ def test_dragging_the_restored_file_manager_moves_both_panels(tree, quiet_consol
     start: list[tuple[int, int]] = []
 
     def drag(a):
-        # Restored now: take hold of the left panel's title and pull.
+        # Restored now: take hold of the top row past the left panel's title
+        # and pull -- a press on the title itself is the panel's (``TTopView``).
         x, y = manager.x, manager.y
         start.append((x, y))
-        grab = MouseClickEvent(x + 10, 1 + y, "left", "press")
-        for event in (grab, replace(grab, x=x + 13, y=1 + y + 2, action="move"),
-                      replace(grab, x=x + 13, y=1 + y + 2, action="release")):
+        grab_x = x + manager.left.x + manager.left.width - 3
+        grab = MouseClickEvent(grab_x, 1 + y, "left", "press")
+        for event in (grab, replace(grab, x=grab_x + 3, y=1 + y + 2, action="move"),
+                      replace(grab, x=grab_x + 3, y=1 + y + 2, action="release")):
             a.post_event(event)
 
     run_app(app, [zoom, replace(zoom, action="release"), lambda a: None,

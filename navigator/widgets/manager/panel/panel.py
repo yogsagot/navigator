@@ -57,7 +57,7 @@ from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see lis
 )
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
-from navigator.widgets.manager.commands import AdvancedFilter, ChangeDirectory
+from navigator.widgets.manager.commands import AdvancedFilter, ChangeDirectory, ChangeDrive
 from navigator.widgets.manager.panel.drag import Dropped
 
 
@@ -1777,6 +1777,32 @@ class Panel(ListViewer):
         order = f"{caption} {self.direction_arrow(mode, reverse)}".rstrip()
         return f"{text}\n{tr('A click sorts by {order}').format(order=order)}"
 
+    def title_part_at(self, x: int, y: int) -> str | None:
+        """What a press at *x*, *y* on the title means (``TTopView.HandleEvent``):
+        ``"drive"`` on its drive part, ``"directory"`` on the rest, None off it.
+
+        DN's drive part was ``C:``, up to the first colon.  A POSIX path has
+        none: the drive part is the path up to its first ``/`` -- a local
+        path's root, ``~/``, or a drive's ``ZIP:a.zip:/`` as ``get_dir`` writes
+        it, as DN's ``C:\\`` was.  A title cut at its start, or a *Find:*
+        listing's, has only its first cell, as DN's ``I := 0`` left it."""
+        if not self.framed or y != 0 or self.error is not None or self.quick_search is not None:
+            return None
+        text = self.title_text()
+        start = self.label_x(text)
+        if not start <= x < start + len(text):
+            return None
+        mark = self.remembered_mark()
+        first = start + 1 + (len(mark) + 1 if mark else 0)
+        if x < first:
+            return "directory"
+        whole = self.found.title if self.found is not None else self.title_location
+        shown = text[first - start:]
+        cut = not whole or not shown.startswith(whole[:1]) or shown.startswith(("…", "..."))
+        slash = whole.find("/")
+        end = first if self.found is not None or cut or slash < 0 else first + slash
+        return "drive" if x <= end else "directory"
+
     def _title_tooltip(self) -> str:
         """What the title leaves out: the whole path where its start was cut,
         the file mask in words, and the git branch with its counts spelled
@@ -2124,6 +2150,14 @@ class Panel(ListViewer):
                 return self._right_marking(event)
         if event.action == "press" and not event.is_wheel:
             self.quick_search = None
+        if (event.action == "press" and event.button == "left" and not event.is_wheel
+                and not (event.shift or event.ctrl or event.alt) and not self.inert):
+            part = self.title_part_at(event.x, event.y)
+            if part is not None:
+                # ``TTopView``: this panel's, so it takes the keyboard first.
+                self.focus()
+                self.spawn(self.emit(ChangeDrive() if part == "drive" else ChangeDirectory()))
+                return True
         if (event.action == "press" and event.button == "left" and (event.shift or event.ctrl)
                 and not event.is_wheel and not self.inert):
             index = self.index_at(event.x, event.y)

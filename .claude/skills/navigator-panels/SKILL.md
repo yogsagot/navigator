@@ -206,6 +206,12 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - **The title's tooltip** (`_title_tooltip`, over the title's own cells): the whole path where its start was cut,
   the mask in words with Alt+Del's key, the git branch (or detached HEAD) and ahead/behind spelled out -- even where
   a narrow title dropped the branch. A title that says it all has none.
+- **A press on the title** (`Panel.title_part_at`, DN's `TTopView.HandleEvent`): the panel takes the keyboard, then
+  its drive part opens the bookmarks (`ChangeDrive`, DN's `cmChangeDrive`) and the rest *Change directory*
+  (`ChangeDirectory`, `cmChangeDir`). DN's drive part was `C:`; here it is the path up to its first `/` (`/`, `~/`,
+  `ZIP:a.zip:/`), only the first cell when the title is cut at its start or is a *Find:* listing's. The titles sit
+  on the window's top row, so `Manager.chrome_hit` gives up its "move" over a title's text: the rest of the row
+  still drags the window.
 - **The divider's tooltip** is `Manager.tooltip_at`, over exactly what `divider_hit` grabs: drag, Alt+Left/Right (read
   off the key table) and the double click that evens the split. A panel's frame has none, so the lookup climbs to it.
 - **Shift+F11 on a panel** shows its cursor row's tooltip (`Panel.tooltip_anchor`: the name, the list mode's

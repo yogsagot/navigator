@@ -6199,6 +6199,18 @@ class Manager(Window):
             return True
         return await super().dispatch_mouse(event)
 
+    def chrome_hit(self, x: int, y: int) -> str | None:
+        """The window's chrome -- but not a panel's title on the top row:
+        a press there is the panel's (``TTopView``: *Change drive* or
+        *Change directory*), and the rest of the row still moves the window."""
+        hit = super().chrome_hit(x, y)
+        if hit == "move" and y == 0:
+            for side in self._sides():
+                part = getattr(side, "title_part_at", None)
+                if part is not None and part(x - side.x - self.panels.x, y - side.y - self.panels.y) is not None:
+                    return None
+        return hit
+
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         """A divider drag in progress, else the window's own."""
         if self._divider is None:
