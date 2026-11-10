@@ -74,8 +74,12 @@ Manager(Window):
         f8: Delete
         alt+b: SortBy
         alt+c: ChangeDrive
+        #: The keyboard stays where it was; with Shift it goes to the side
+        #: changed (``ChangeDrvLeft``'s ``ShiftState and 3``).
         alt+f1: ChangeLeft
         alt+f2: ChangeRight
+        alt+shift+f1: ChangeLeft(focus=True)
+        alt+shift+f2: ChangeRight(focus=True)
         alt+s: PanelSetup
         alt+l: MakeList
         alt+f6: FastRename

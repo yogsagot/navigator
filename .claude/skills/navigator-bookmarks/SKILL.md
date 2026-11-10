@@ -34,12 +34,16 @@ selected. POSIX has no drives, so the same box lists bookmarked directories. Its
   where a label or `~` stands for it, *Not there now* on a greyed one, *Mounted now, not a bookmark* below the line; a
   link's whole address and whether it is connected (and why it is greyed); a greyed *New ... link*'s reason and the
   extra to install; the toggle's folder, or why it is greyed in an archive.
-- **`Manager`**: `on_change_left/right` call `bring_side(side)` first -- a side hidden by Ctrl+F1/F2 is shown, and the
-  tree or quick view standing in its place gives way (`switch_view`) -- then spawn `choose_bookmark(panel)`.
+- **`Manager`**: `on_change_left/right` spawn `_change_side(side, focus)` -> `choose_bookmark(panel, side=, focus=)`,
+  DN's `ChangeDrvLeft`/`ChangeDrvRight`: a side hidden by Ctrl+F1/F2, or behind the tree, quick view or info, is
+  asked first -- the box over the window, or over the view -- and shown or given back (`bring_side`) only once the
+  box chose somewhere to go (`if S = '' then Exit`): Esc, the box's keys and *Add/Remove this folder* leave it as it
+  was. **The keyboard stays where it was**; Alt+Shift+F1/F2 (`ChangeLeft(focus=True)`, `change_left_focus`) take it
+  to the side, as DN selected the side only with Shift held. The menu's *Bookmarks left/right* do not focus.
   `on_change_drive` uses `active_panel`. `bookmark_menu(rows, bookmarked)` builds the entries: keys `1`-`9`, `0`, then
   letters skipping `a`/`r` (`BOOKMARK_KEYS`); the home directory shown as `~` and tildes escaped (`escape_caption`);
   a directory that no longer exists greyed.
-- **Choosing** sets `panel.path` and focuses the panel. *Add* adds and closes; *Remove* removes and opens the box again.
+- **Choosing** sets `panel.path` (focusing it only with *focus*; `_go_to(..., focus=)`, `open_trash(..., focus=)`). *Add* adds and closes; *Remove* removes and opens the box again.
 - **Reordering**: Ctrl+Up/Ctrl+Down (`MOVE_BOOKMARK_KEYS`) move the selected bookmark one place -- `move_bookmark`
   swaps its `seq` with its neighbour's -- and the box opens again with it still selected. A greyed one moves too; on
   *Add*/*Remove* the keys do nothing. It works through `PopupMenu(keys=...)`: such a key closes the box on the selected

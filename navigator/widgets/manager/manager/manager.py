@@ -1789,7 +1789,7 @@ class Manager(Window):
 
     # -- where the panels have been, and the quick directories ----------------------
 
-    async def _go_to(self, panel: Panel, place: str) -> None:
+    async def _go_to(self, panel: Panel, place: str, *, focus: bool = True) -> None:
         """*panel* to *place* (``cmChangeDirectory``), or why not.
 
         *place* is a directory's text as the histories keep it: a path, or a
@@ -1813,7 +1813,8 @@ class Manager(Window):
                          ).execute(self.application)
             return
         panel.location = target
-        panel.focus()
+        if focus:
+            panel.focus()
 
     async def on_jump_to_directory(self, event: JumpToDirectory) -> bool:
         """Alt+J: fzf over zoxide's directories and the panels' history (a
@@ -2516,9 +2517,9 @@ class Manager(Window):
         self.spawn(self.restore_trash(self.active_panel))
         return True
 
-    async def open_trash(self, panel: Panel | None = None) -> None:
-        """*panel* (the active one) on the Trash, and the keyboard with it."""
-        await self._go_to(panel or self.active_panel, str(trash_drive.location()))
+    async def open_trash(self, panel: Panel | None = None, *, focus: bool = True) -> None:
+        """*panel* (the active one) on the Trash, and the keyboard with it unless not *focus*."""
+        await self._go_to(panel or self.active_panel, str(trash_drive.location()), focus=focus)
 
     async def restore_trash(self, panel: Panel) -> None:
         """File > Restore from Trash: the selection put back where each came from.
@@ -3065,12 +3066,23 @@ class Manager(Window):
         return True
 
     async def on_change_left(self, event: ChangeLeft) -> bool:
-        self.spawn(self.choose_bookmark(self.bring_side("left")))
+        self.spawn(self._change_side("left", event.focus))
         return True
 
     async def on_change_right(self, event: ChangeRight) -> bool:
-        self.spawn(self.choose_bookmark(self.bring_side("right")))
+        self.spawn(self._change_side("right", event.focus))
         return True
+
+    async def _change_side(self, side: str, focus: bool) -> None:
+        """``ChangeDrvLeft``/``ChangeDrvRight``: the box for *side*'s panel --
+        hidden or behind a view, it is asked first and the side changes only
+        on a choice (``if S = '' then Exit``); the keyboard goes there only
+        with *focus* (Shift held).  In Miller columns, the column browsed."""
+        if self.miller_mode:
+            await self.choose_bookmark(self.active_panel, focus=focus)
+            return
+        panel = self.left if side == "left" else self.right
+        await self.choose_bookmark(panel, side=side, focus=focus)
 
     async def on_change_drive(self, event: ChangeDrive) -> bool:
         self.spawn(self.choose_bookmark(self.active_panel))
@@ -3090,7 +3102,7 @@ class Manager(Window):
             self.switch_view(self.replacement)
         return panel
 
-    async def choose_bookmark(self, panel: Panel) -> None:
+    async def choose_bookmark(self, panel: Panel, *, side: str | None = None, focus: bool = True) -> None:
         """The bookmarks in a box over *panel*, and *panel* goes where it says.
 
         DOS Navigator's ``SelectDrive``, placed as ``_ChangeDrive`` placed it:
@@ -3111,6 +3123,11 @@ class Manager(Window):
         Below the bookmarks, what is mounted now and not bookmarked
         (``mounted_places``), read each time the box opens; those entries are
         only places to go, and the three keys pass them by.
+
+        *side* (Alt+F1/F2) is the side *panel* is on: hidden, or standing
+        behind a view, it is shown or given back only once the box chose
+        somewhere to go (``bring_side``), the box opening over the window
+        meanwhile.  *focus* gives *panel* the keyboard when it moves.
         """
         from navml.widgets.menu.popup_menu import PopupMenu
         from navml.widgets.menu.sub_menu import SubMenu
@@ -3126,6 +3143,12 @@ class Manager(Window):
         app = self.application
         if app is None:
             return
+
+        def bring() -> None:
+            # The box chose somewhere to go: the side shown, its panel back.
+            if side is not None:
+                self.bring_side(side)
+
         keep: int | None = None
         #: Where in the *Link* list to open again, after a key acted on it.
         reopen: int | None = None
@@ -3174,9 +3197,12 @@ class Manager(Window):
             # *Link* list gives its own -- a departure, asked for.
             hints = (("F2", tr("Label")), ("Del", tr("Delete")), (_move_keys(self.glyphs), tr("Move"))) if rows else ()
             width, _ = PopupMenu.measure(menu, app, self, title)
-            ox, oy = panel.offset()
-            x = ox + panel.x + (panel.width - width) // 2
-            y = oy + panel.y + 1
+            anchor = panel
+            if side is not None:
+                anchor = self if self.hidden_side == side else self.side_view(side)
+            ox, oy = anchor.offset()
+            x = ox + anchor.x + (anchor.width - width) // 2
+            y = oy + anchor.y + 1
             submenu = None
             if reopen is not None:
                 submenu = (menu.entries().index(link_menu), min(reopen, max(0, len(link_menu.entries()) - 1)))
@@ -3216,9 +3242,11 @@ class Manager(Window):
             if chosen is None:
                 return
             if chosen is trash_item:
-                await self.open_trash(panel)
+                bring()
+                await self.open_trash(panel, focus=focus)
                 return
             if id(chosen) in links:
+                bring()
                 profile = links[id(chosen)]
                 shell = getattr(self.application, "shell", None)
                 if shell is not None:
@@ -3237,11 +3265,13 @@ class Manager(Window):
                 keep = min(current, max(0, len(rows) - 2))
                 continue
             place = places[menu.entries().index(chosen)]
+            bring()
             if "://" in place:
-                await self._go_to(panel, place)
+                await self._go_to(panel, place, focus=focus)
                 return
             panel.path = Path(place)
-            panel.focus()
+            if focus:
+                panel.focus()
             return
 
     async def _confirm_delete_bookmark(self, row: Any) -> bool:

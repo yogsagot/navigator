@@ -263,15 +263,24 @@ class ChangeDrive(Command):
     title = "Drive"
 
 
+@dataclass(frozen=True, slots=True)
 class ChangeLeft(Command):
     """Alt+F1, ``cmChangeLeft``: the bookmarks, for the left panel.
 
     Untitled, as ``StatusDef hcFilePanel`` left Alt-F1 off its Alt row.
+    *focus*: the keyboard goes to the side changed -- Alt+Shift+F1, as
+    ``ChangeDrvLeft`` selected it only with Shift held.
     """
 
+    focus: bool = False
 
+
+@dataclass(frozen=True, slots=True)
 class ChangeRight(Command):
-    """Alt+F2, ``cmChangeRight``: the bookmarks, for the right panel."""
+    """Alt+F2, ``cmChangeRight``: the bookmarks, for the right panel; *focus*
+    as :class:`ChangeLeft`'s (Alt+Shift+F2)."""
+
+    focus: bool = False
 
 
 class PanelSetup(Command):

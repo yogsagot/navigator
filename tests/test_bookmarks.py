@@ -221,7 +221,8 @@ def test_alt_f1_sends_the_left_panel_where_the_bookmark_says(places):
     assert seen["captions"][-1] == "Add this folder"
     assert manager.left.path == places / "second"
     assert manager.right.path == places / "start"
-    assert app.focused is manager.left
+    # ``ChangeDrvLeft``: the keyboard stays where it was (Tab put it on the right).
+    assert app.focused is manager.right
     assert popup(app) is None
 
 
@@ -284,7 +285,7 @@ def test_alt_f1_brings_a_hidden_left_side_back(places):
     manager = app.manager
     assert manager.hidden_side is None and manager.left.visible
     assert manager.left.path == places / "first"
-    assert app.focused is manager.left
+    assert app.focused is manager.right
 
 
 def test_alt_f2_puts_the_panel_back_in_place_of_the_tree(places):
@@ -298,6 +299,67 @@ def test_alt_f2_puts_the_panel_back_in_place_of_the_tree(places):
     manager = app.manager
     assert manager.replacement is None and manager.right.visible
     assert manager.right.path == places / "first"
+
+
+def test_alt_shift_f1_takes_the_keyboard_to_the_side(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    run_app(app, [KeyEvent("tab"), KeyEvent("f1", alt=True, shift=True), BOX,
+                  KeyEvent("1", char="1"), lambda a: None])
+    manager = app.manager
+    assert manager.left.path == places / "first" and app.focused is manager.left
+
+
+def test_alt_f1_on_the_active_side_keeps_the_keyboard(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    run_app(app, [KeyEvent("f1", alt=True), BOX, KeyEvent("1", char="1"), lambda a: None])
+    assert app.manager.left.path == places / "first" and app.focused is app.manager.left
+
+
+def test_escape_on_a_hidden_side_leaves_it_hidden(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    seen = {}
+
+    def rect(a):
+        m = a.manager
+        return (m.x, m.y, m.width, m.height, m.hidden_side)
+
+    run_app(app, [KeyEvent("f1", ctrl=True), lambda a: None, lambda a: seen.update(before=rect(a)),
+                  KeyEvent("f1", alt=True), BOX, KeyEvent("escape"), lambda a: None,
+                  lambda a: seen.update(after=rect(a))])
+    assert seen["after"] == seen["before"] and seen["after"][-1] == "left"
+
+
+def test_escape_with_the_tree_standing_in_leaves_the_tree(places):
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    run_app(app, [KeyEvent("t", ctrl=True), lambda a: None, KeyEvent("f2", alt=True), BOX,
+                  KeyEvent("escape"), lambda a: None])
+    manager = app.manager
+    assert manager.replacement is manager.tree and manager.right.path == places / "start"
+
+
+def test_adding_a_bookmark_for_a_hidden_side_keeps_it_hidden(places):
+    from navigator.lib.config.bookmarks import bookmarks
+
+    app = navigator(places / "start")
+
+    run_app(app, [KeyEvent("f1", ctrl=True), lambda a: None, KeyEvent("f1", alt=True), BOX,
+                  KeyEvent("end"), KeyEvent("enter"), lambda a: None])
+    assert app.manager.hidden_side == "left"
+    assert str(places / "start") in [row.path for row in bookmarks()]
+
+
+def test_the_menus_bookmarks_left_keeps_the_keyboard(places):
+    from navigator.widgets.manager.commands import ChangeLeft
+
+    add_bookmark(places / "first")
+    app = navigator(places / "start")
+    run_app(app, [KeyEvent("tab"), lambda a: a.spawn(a.run_command(ChangeLeft)), BOX,
+                  KeyEvent("1", char="1"), lambda a: None])
+    assert app.manager.left.path == places / "first" and app.focused is app.manager.right
 
 
 def test_a_greyed_bookmark_cannot_be_chosen(places):
