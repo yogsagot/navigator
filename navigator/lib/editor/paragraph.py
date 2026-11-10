@@ -2,9 +2,11 @@
 
 The lines of a block are one paragraph: their words, gathered with every run
 of blanks between them made one (``DelDoubles``), are laid out afresh between
-the margins.  A line takes another word while ``length + word + blank`` stays
-*under* the room it has -- ``right - left``, or ``right - indent`` for a
-justified paragraph's first line -- and is then placed:
+the margins.  A line takes another word while ``length + word`` stays *under*
+the room it has -- the blank between them not counted, DN's
+``Length(Left)+Length(W)+J < LS``, so a line may reach the room exactly --
+``right - left``, or ``right - indent`` for a justified paragraph's first line --
+and is then placed:
 
 * ``left``: at the left margin;
 * ``right``: so that it ends against the right margin (``RightSide - Length``),
@@ -16,6 +18,11 @@ justified paragraph's first line -- and is then placed:
 
 A blank line in the block is no break: DN reflowed the whole block, so a block
 is one paragraph.  Words are what blanks separate; a tab is part of a word.
+
+A departure: DN's ``J`` was 1 for the first word taken from a new line of the
+block, ``Left`` carrying that line break's blank, so such a word fitted two
+columns tighter -- a layout that depended on where the old lines broke.  Here
+every word is measured alike.
 """
 
 from __future__ import annotations
@@ -55,8 +62,7 @@ def format_lines(
     current = ""
     pending: list[tuple[str, int]] = []
     for word in found:
-        joiner = 1 if current else 0
-        if len(current) + len(word) + joiner < room:
+        if len(current) + len(word) < room:
             current = f"{current} {word}" if current else word
             continue
         if current:

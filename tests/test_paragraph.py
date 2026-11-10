@@ -27,9 +27,15 @@ def test_center_puts_each_line_midway_from_the_left_margin():
 
 def test_justify_widens_every_line_but_the_last_and_indents_the_first():
     lines = lay("justify")
-    assert lines[0] == "     The   quick   brown"  # the indent, then the full width
+    assert lines[0] == "     The quick brown fox"  # the indent; 19 of its 19 columns, no widening left
+    assert lines[1] == "  jumps  over  the  lazy"
     assert all(len(line) == 24 for line in lines[:-1])
-    assert lines[-1] == "  running far away."
+    assert lines[-1] == "  far away."
+
+
+def test_a_line_may_fill_its_room_exactly_the_blank_not_counted():
+    # FormatBlock's Length(Left)+Length(W)+J < LS, J = 0: "aaaa bbbb cc" is 12 of 12.
+    assert format_lines(["aaaa bbbb cc dd"], "left", left=0, right=12, indent=0) == ["aaaa bbbb cc", "dd"]
 
 
 def test_a_block_with_no_words_lays_out_as_nothing():

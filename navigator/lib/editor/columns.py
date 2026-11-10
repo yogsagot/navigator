@@ -186,7 +186,10 @@ def optimal_fill(line: str, tab: int = TAB) -> str:
     two blanks or more has that run made one tab; a lone blank, and a last
     chunk the line ends inside, are left as they are.  A tab already there is
     kept, and a wide character counts two columns -- DN met neither, having
-    expanded tabs on loading and had no wide characters.
+    expanded tabs on loading and had no wide characters.  Another departure:
+    DN's chunks were 8 columns whatever ``TabSize`` said; here they are *tab*,
+    the width a tab is shown at, so a saved file reopens looking the same.  At
+    the default of 8 the two are one.
     """
     out: list[str] = []
     blanks = 0

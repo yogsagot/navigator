@@ -311,8 +311,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **Paragraph formatting, Alt+J/R/L/C** (`FJustify`/`FRight`/`FLeft`/`FCenter`, DN's `cmF*` and `FormatBlock`; also
   ^B^J/R/L/C and Editor > Paragraph): `navigator/lib/editor/paragraph.py`. The stream block's whole lines (one ending at a
   line's start leaves that line out) are one paragraph -- blank lines are no break, runs of blanks one -- laid out
-  between `FileEditor.margins` (`LeftSide`, `RightSide`, `InSide`): a line takes a word while `length + word + blank`
-  stays under its room; right ends against the right margin, center sits midway, justify widens every line but the
+  between `FileEditor.margins` (`LeftSide`, `RightSide`, `InSide`): a line takes a word while `length + word`
+  stays under its room (the blank not counted, DN's `+ J`, so a line may reach it); right ends against the right margin, center sits midway, justify widens every line but the
   last gap by gap from the left and indents the first. One undo step; the block then covers the new lines, the cursor
   at its start. Disabled for a column block. **The cursor's line alone**: `LJustify`/`LRight`/`LLeft`/`LCenter`
   (DN's `cmL*`, `EDITOR.PAS:823`: the line made the block, shown, then `FormatBlock`; `format_line`), DN's for macros
@@ -388,7 +388,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   has that run made one tab; a lone blank and a last partial chunk stay. Applied in `FileEditor.snapshot` (every save
   path) and `block_file_text` (^K W); the text in the editor keeps its blanks. With it on, saving rewrites blanks in
   lines nobody touched -- the option's point, and the one exception to byte-for-byte, off by default. Departure: chunks
-  are measured in columns, keeping a tab already there, where DN met only spaces (tabs expanded on loading).
+  are measured in columns, keeping a tab already there, where DN met only spaces (tabs expanded on loading); and a chunk is the tab size wide, where DN's were 8 whatever the tab size (a tab is shown at the tab size, so a saved file must reopen the same; at 8 the two are one).
 - **Current line and column highlight** (`FileEditor.highlight_line`/`highlight_column`, DN's `HiliteLine`/
   `HiliteColumn`, seeded from the setup, switched by Editor > Options -- `SwitchHiLine`/`SwitchHiColumn`,
   `cmSwitchHiLine`/`cmSwitchHiColumn` -- and ticked): `render` paints the cursor's row in `FileEditor::current_line`
