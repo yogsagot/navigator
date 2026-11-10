@@ -220,6 +220,12 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - **Miller columns inherit both** -- a `MillerColumn` is a `Panel`: a row's whole name while cut (`_name_room`
   reads the column's own `name_width`), and the title, its directory's name alone, gives the whole path. No code of
   their own; `tests/test_miller.py` holds it.
+- **The mouse on the info lines is `TInfoView.HandleEvent`'s** (`Panel.info_part_at`, `_info_press`): a press on the
+  divider row scrolls down while held (`hold_mouse`, the first row on the press; the tagging button -- middle, or right
+  under *Right button* select -- tags each row passed with the first row's flag; on the inactive panel the press only
+  selects it); a left press on *Current file*, *Selected* or *Totals* starts the row drag with its files given
+  (`_drag["entries"]`: the cursor's, the tagged, every one but `..`, labelled `N files` for *Totals*), under
+  *Drag-and-drop* as a row drag is. *Free space* and the clipboard line take nothing.
 - **The info lines are DN's `TInfoView`**, between the listing and the bottom frame under the *Info divider*, in its
   order, each behind its *Display* box (`Panel.info_lines`, `(text, part)`: the computed `_info_lines` with the
   current file's text filled in as it is read, because the gutter it follows is not reactive):

@@ -2138,6 +2138,10 @@ class Panel(ListViewer):
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if self._drag is not None and event.action in ("move", "release"):
             return self._dragging(event)
+        if event.action == "press" and not event.is_wheel and not self.inert:
+            part = self.info_part_at(event.x, event.y)
+            if part is not None and self._info_press(event, part):
+                return True
         if event.button == "middle" and event.action == "press":
             # The middle button (the wheel pressed) tags as DN's right button
             # did, whatever *Right button* says: with the right one opening
@@ -2464,13 +2468,14 @@ class Panel(ListViewer):
             if app is None:
                 return True
             if label is None:
-                entries = self._drag_entries(drag["index"])
+                # Given by an info line (``DragCurrent``...), else the row's.
+                entries = drag["entries"] or self._drag_entries(drag["index"])
                 if not entries:
                     self._drag = None
                     app.release_mouse()
                     return True
                 drag["entries"] = entries
-                label = drag["label"] = app.overlay(DragLabel(label_for(entries)))
+                label = drag["label"] = app.overlay(DragLabel(drag.get("text") or label_for(entries)))
             root = app.root
             label.place(x, y, root.width, root.height)
             return True
@@ -2486,6 +2491,69 @@ class Panel(ListViewer):
             target, panel = where
             self.spawn(self.emit(Dropped(self, tuple(drag["entries"]), target, event.shift, panel,
                                            x=x, y=y)))
+        return True
+
+    def info_part_at(self, x: int, y: int) -> str | None:
+        """The info line part under *x*, *y* (``current-file``,
+        ``selected-files``, ``totals``, ``free-space``), ``"divider"`` for the
+        divider row over them, or None."""
+        index = self.info_line_at(x, y)
+        if index is not None:
+            return self._info_lines[index][1]
+        if (self.info_height and SETTINGS.file_manager.info_divider
+                and self.inset <= x < self.inset + self.inner_width
+                and y == self.height - self.inset - self.info_height):
+            return "divider"
+        return None
+
+    def _info_press(self, event: MouseClickEvent, part: str) -> bool:
+        """``TInfoView.HandleEvent``: a press on the divider scrolls down while
+        held -- tagging each row with the tagging button, DN's right one -- and
+        one on *Current file*, *Selected* or *Totals* drags the cursor's file,
+        the tagged ones or every one (``DragCurrent``/``DragSelected``/
+        ``DragTotals``).  True when the press was the info lines'."""
+        from navkit.application import REPEAT_EVERY
+
+        app = self.application
+        tagging = event.button == "middle" or (event.button == "right" and self._right_selects())
+        if part == "divider":
+            if event.button != "left" and not tagging:
+                return False
+            if not self.focus_within:
+                # DN's ``GetState(sfActive+sfSelected)``: the press only selects.
+                self.focus()
+                return True
+            if not self.items or app is None:
+                return True
+            current = self.selected
+            flag = current is not None and not self.is_marked(current)
+
+            async def step(x: int, y: int, auto: bool) -> None:
+                if tagging:
+                    self._tag_rows(self.cursor, self.cursor, flag)
+                self.move_cursor(1)
+
+            app.hold_mouse(self, event, step, delay=REPEAT_EVERY)
+            if tagging:
+                self._tag_rows(self.cursor, self.cursor, flag)
+            self.move_cursor(1)
+            return True
+        if part not in ("current-file", "selected-files", "totals") or event.button != "left":
+            return False
+        if not SETTINGS.file_manager.drag_drop_columns or app is None:
+            return False
+        if part == "current-file":
+            entry = self.selected
+            entries = [] if entry is None or entry.name == ".." else [entry]
+            text = None
+        elif part == "selected-files":
+            entries, text = list(self.marked_entries), None
+        else:
+            entries = [entry for entry in self.items if entry.name != ".."]
+            text = tr_n("{n} file", "{n} files", len(entries))
+        if entries:
+            self._drag = {"index": None, "label": None, "entries": entries, "text": text}
+            app.capture_mouse(self)
         return True
 
     def _drag_entries(self, index: int) -> list[DirEntry]:
