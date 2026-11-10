@@ -108,6 +108,15 @@ class DirEntry:
 
     @property
     def display_size(self) -> str:
+        """The size column: 8 cells, the bytes under 1 KiB, then 1024-based
+        ``K``/``M``/``G``/``T`` rounded, as ``ls -h`` shows them.
+
+        A departure: DN's ``FileSizeStr`` gave every digit with thousands
+        separators under 10,000,000, then ``N,NNNK``, in 10-11 cells.  The
+        compact column leaves the names their room, and today's files are
+        gigabytes, which DN's ``K`` would spell in ten digits.  The exact
+        bytes are in the *Current file* line's tooltip (``_entry_details``).
+        """
         if self.is_dir and not self.counted:
             mark = tr("UP--DIR") if self.name == ".." else tr("DIR")
             return pad_cells(fit_cells(mark, 8), 8, "right")

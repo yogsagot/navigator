@@ -143,7 +143,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - *detailed*: Name taking the rest │ Size │ Attr `rwxr-xr-x` │ Owner `user:group` │ Date (**modification** time,
   `DD-MM-YYYY hh:mm`, since Linux has no portable creation time; the four-digit year is a departure). Owner is a departure, 5-17 cells as the longest listed
   (`DirEntry.display_owner`, names cached, a number where there is none). Links, then Owner, then Attr, then Date drop when the name
-  would fall under 12 cells.
+  would fall under 12 cells. **Size is 8 cells, K/M/G/T 1024-based** (`DirEntry.display_size`), a departure: DN's
+  `FileSizeStr` gave every digit with separators under 10,000,000 then `N,NNNK`, in 10-11 cells; the exact bytes are
+  in *Current file*'s tooltip.
 - **Links** (`ls -l`'s second column, a departure, asked for; **off by default**): `DirEntry.nlink`, the hard link
   count, between Attr and Owner, right-aligned, at least 5 cells and as wide as its translated heading. It comes from the
   stat the row already has (the target's for a symlink, as `mode` and the size are): `make_entry`, `entry_at`, the

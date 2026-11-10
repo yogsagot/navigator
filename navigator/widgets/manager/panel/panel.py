@@ -2623,6 +2623,7 @@ class Panel(ListViewer):
     #: off the listing (:meth:`_owner_width`), or off *Country support*'s
     #: format for the date (``country.stamp_width``).
     DETAIL_COLUMNS = {
+        # 8 cells, K/M/G/T: a departure from DN's 11 (``DirEntry.display_size``).
         "size": ("Size", 8, "display_size"),
         "packed": ("Packed", 8, "display_packed"),
         "ratio": ("%", 4, "display_ratio"),
