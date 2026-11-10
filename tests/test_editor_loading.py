@@ -484,5 +484,7 @@ def test_closing_with_yes_during_a_save_waits_for_it_and_closes(files, slow_writ
                   lambda a: seen.append(a.modal.prompt),
                   KeyEvent("enter"), lambda a: None, lambda a: slow_write.set(),
                   Until(lambda a: not editor_windows(a)), lambda a: None])
-    assert seen == ["File text.txt was modified. Save?"]
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert seen == [f"File {cut_path(str(files / 'text.txt'))} was modified. Save?"]
     assert (files / "text.txt").read_bytes() == b"zfirst line\nsecond line\n"

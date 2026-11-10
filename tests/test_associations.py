@@ -351,7 +351,9 @@ def _changed_then_f4_outside(place, monkeypatch, answer, name="a.txt"):
 
 def test_an_external_editor_asks_to_save_a_changed_window_on_its_file_first(place, monkeypatch):
     ran, seen = _changed_then_f4_outside(place, monkeypatch, lambda ran: [KeyEvent("y", alt=True), Until(lambda a: ran)])
-    assert seen["modal"] == "File a.txt was modified. Save?"
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert seen["modal"] == f"File {cut_path(str(place / 'a.txt'))} was modified. Save?"
     assert (place / "a.txt").read_text().startswith("x")
     assert ran == [f"ed {place}/a.txt"]
 
@@ -386,4 +388,6 @@ def test_an_options_edit_outside_asks_about_a_changed_window_on_that_file(place,
                   Until(lambda a: len(a.shell.desktop.windows()) == 2), KeyEvent("x", char="x"), outside,
                   Until(lambda a: a.modal is not None), lambda a: seen.update(prompt=a.modal.prompt),
                   KeyEvent("escape"), lambda a: None])
-    assert seen["prompt"] == "File menu.ini was modified. Save?" and ran == []
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert seen["prompt"] == f"File {cut_path(str(target))} was modified. Save?" and ran == []

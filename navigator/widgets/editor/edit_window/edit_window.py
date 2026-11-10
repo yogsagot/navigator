@@ -4,7 +4,9 @@ The keys that *edit* are ``FileEditor``'s own and reach it first along the
 focus path; what is here is what concerns the file as a whole.
 
 **Closing asks about a changed text**, as ``TFileEditor.Valid`` did on
-``cmClose``: *File %s was modified. Save?* with Yes, No and Cancel.  The
+``cmClose``: *File %s was modified. Save?* with Yes, No and Cancel -- the file
+named by its path cut to 30 characters, ``Cut(EditName, 30)`` (:func:`cut_path`),
+as the overwrite and read-only questions name it too.  The
 question is asked from :meth:`ask_to_close`, which the window's close runs as a
 task -- a handler that waited on the dialog would hold the loop the dialog's
 keys arrive on -- so Esc, Alt+F3, the close icon, Window > Close all and
@@ -65,6 +67,15 @@ from navigator.widgets.editor.format_menu import (
     choose_encoding, choose_line_ending, fill_encodings, fill_line_endings,
 )
 from navigator.widgets.editor.option_items import editor_items
+
+
+def cut_path(text: str, width: int = 30) -> str:
+    """DN's ``Cut(S, Len)`` (``ADVANCE.PAS:901``): *text* whole if it fits, else its
+    first two characters, ``...`` and its end -- ``Len - 1`` characters in all,
+    as ``Delete(p, 3, L - Len + 4); Insert('...', p, 3)`` left it."""
+    if len(text) <= width:
+        return text
+    return text[:2] + "..." + text[len(text) - (width - 6):]
 
 
 def unencodable(lines: list[str], where: tuple[int, int], encoding: str) -> OSError:
@@ -668,7 +679,7 @@ class EditWindow(Window):
             return False, None
         query = Dialog(
             title=tr("Warning"),
-            prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=path.name),
+            prompt=tr("File {name}\nalready exists.\nOK to overwrite it?").format(name=cut_path(str(path))),
             buttons="yes-no-cancel" if append else "yes-no",
         )
         if append:
@@ -695,7 +706,7 @@ class EditWindow(Window):
             return None
         modify = await Dialog(
             title=tr("Confirm"),
-            prompt=tr("File {name}\nis marked as Read-Only.\nModify it anyway?").format(name=path.name),
+            prompt=tr("File {name}\nis marked as Read-Only.\nModify it anyway?").format(name=cut_path(str(path))),
             buttons="ok-cancel",
         ).execute(self.application)
         if modify is not True:
@@ -1268,8 +1279,11 @@ class EditWindow(Window):
         return [view.parent for view in self.editor.siblings() if isinstance(view.parent, EditWindow)]
 
     async def ask_save(self) -> bool | None:
-        """``dlQueryModified``'s question alone: True save, False don't, None cancel."""
-        name = self.editor.path.name if self.editor.path else tr("Untitled")
+        """``dlQueryModified``'s question alone: True save, False don't, None cancel.
+
+        The path cut to 30 (``Cut(EditName, 30)``) -- ``AskSave``, F3's, cut it
+        and then passed the whole name, a slip not kept: both are cut here."""
+        name = cut_path(str(self.editor.path)) if self.editor.path else tr("Untitled")
         return await Dialog(
             title=tr("Warning"),
             prompt=tr("File {name} was modified. Save?").format(name=name),

@@ -9,6 +9,10 @@ whole process, or swap takes the machine.  So the editor asks first, here.
 What is asked is Linux's ``MemAvailable`` -- what can be allocated without
 swapping -- and the system's free pages where there is no ``/proc``.  Nothing
 known is no guard: a refusal on a guess would be worse than DN's silence.
+
+A departure: DN refused a text over 25000 lines too (``LCount > 25000``,
+``MICROED.PAS:3480``), a limit of its 64 KB collections; here the memory is
+the only limit.
 """
 
 from __future__ import annotations

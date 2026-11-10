@@ -69,7 +69,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`EditWindow._modify_read_only`, shared by F2, Ctrl+F2, the close query's Yes, Save as and ^K W): OK lifts the
   bit and the mode is put back after; Cancel leaves the text unsaved and a closing window open. Somebody else's
   `0644` file is not asked about: its write is refused and offers *As root*. A copy from another drive is not asked
-  about (its mode is not the original's). **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/lib/system/memory.py`): against 75% of
+  about (its mode is not the original's). **Too large is refused** with DN's `erNotEnoughMemory` (`navigator/lib/system/memory.py`; no line cap -- DN's
+  `LCount > 25000`, `MICROED.PAS:3480`, a limit of its 64 KB collections, is a departure dropped): against 75% of
   `MemAvailable` before reading, then after every chunk projected from the lines so far (DN's
   `4*(LCount+50)+FFSize`). Departures: the box (`WriteWin`, `file_ops/write_win`) waits `SLOW_PROGRESS_DELAY` (1 s)
   before it appears, has a spinner, a gauge with a percentage and *Cancel* (DN's was a still message read past by Esc);
@@ -542,6 +543,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   `editors.ini` entry (`run_associated(before=)`, once an entry is found) and `$EDITOR`, the console editors' box,
   Shift+F4's `$EDITOR`, the Options edits' outside branch and `--edit`'s. A departure: only windows on those files,
   where DN asked every changed one; a file on another drive is not asked about (its window edits a copy of its own).
+- **The questions name the file by its path cut to 30** (`cut_path`, DN's `Cut(Name, 30)`: two characters, `...`,
+  the end): *was modified. Save?*, *already exists. OK to overwrite it?*, *is marked as Read-Only*.
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): DN's `OpenEditor`

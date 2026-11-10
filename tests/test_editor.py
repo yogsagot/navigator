@@ -1825,7 +1825,10 @@ def test_f2_on_a_read_only_file_asks_modify_it_anyway(files, ok):
     app, editor = text_editor(files, b"old\n", *typed("x"), lambda a: target.chmod(0o444),
                               KeyEvent("f2"), lambda a: None, asked(seen),
                               KeyEvent("enter" if ok else "escape"), IDLE)
-    assert seen[0][0] == "Confirm" and "is marked as Read-Only" in seen[0][1] and "text.txt" in seen[0][1]
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert seen[0][0] == "Confirm" and "is marked as Read-Only" in seen[0][1]
+    assert cut_path(str(target)) in seen[0][1]
     assert target.read_bytes() == (b"xold\n" if ok else b"old\n")
     assert target.stat().st_mode & 0o777 == 0o444
     assert editor.modified is not ok
@@ -2426,7 +2429,9 @@ def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
     _, editor = text_editor(files, b"first\n", *typed("x"), KeyEvent("f3"), Until(lambda a: a.modal is not None),
                             lambda a: asked.append(a.modal.prompt if a.modal else None),
                             KeyEvent("escape"), lambda a: None)
-    assert asked == ["File text.txt was modified. Save?"]
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert asked == [f"File {cut_path(str(files / 'text.txt'))} was modified. Save?"]
     assert editor.document.encode() == b"xfirst\n" and editor.path == files / "text.txt"
 
 
@@ -4141,3 +4146,13 @@ def test_a_save_rereads_the_information_panel_and_the_trees_count(files, monkeyp
                                lambda a: None])
     assert shown, "the information panel read again"
     assert elsewhere not in seen["tree"]._counts
+
+
+def test_the_queries_cut_the_path_as_dn_s_cut_did():
+    """``Cut(S, Len)``: two characters, ``...``, the end -- ``Len - 1`` in all."""
+    from navigator.widgets.editor.edit_window.edit_window import cut_path
+
+    assert cut_path("short") == "short"
+    path = "/home/someone/projects/navigator/text.txt"  # 41 characters
+    cut = cut_path(path)
+    assert len(cut) == 29 and cut.startswith("/h...") and cut.endswith(path[-24:])
