@@ -67,6 +67,19 @@ class InsertPath(Command):
     """
 
 
+@dataclass(frozen=True, slots=True)
+class InsertSideDirectory(Command):
+    """Ctrl+[ and Ctrl+]: the left (or right) side's directory, ending in
+    ``/``, typed onto the command line.
+
+    DN's ``TDoubleWindow`` keys ``$1A1B`` and ``$1B1D``: ``cmGetName`` asked
+    of ``LeftView``/``RightView`` -- the side, not the active or passive panel
+    -- then ``cmInsertName``.  Untitled, as no status line captioned them.
+    """
+
+    side: str = "left"
+
+
 class CommandLineHome(Command):
     """Home with something on the command line: to its start, not the list's top."""
 
@@ -616,6 +629,7 @@ class ScreenRest(Command):
 
 __all__ = [
     "About",
+    "InsertSideDirectory",
     "EditLinks",
     "S3Link",
     "GvfsLink",

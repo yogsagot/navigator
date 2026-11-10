@@ -29,6 +29,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.commands import ZoomWindow
 from navml.widgets.window import Window
 
+from navigator.widgets.shell.commands import InsertSideDirectory
 from navigator.widgets.manager.commands import (
     AlternateEdit,
     AlternateView,
@@ -224,6 +225,12 @@ class Manager(Window):
         "ctrl+pageup": GoParent(),
         # ``kbCtrlBSlsh``: ``ChangeRoot``.
         "ctrl+\\": GoRoot,
+        # ``$1A1B``/``$1B1D``: the left and right sides' directories onto the
+        # command line (the Shell's).  Here, not in the markup, which cannot
+        # name a bracket key.  Ctrl+[ is Esc's byte, and arrives as itself
+        # only under the kitty keyboard protocol; Ctrl+] arrives anywhere.
+        "ctrl+[": InsertSideDirectory(side="left"),
+        "ctrl+]": InsertSideDirectory(side="right"),
         #: DN's ``_CtrlPgDn``; on a file it opens it as an archive (a departure).
         "ctrl+pagedown": GoInto(),
         #: DN's quick directories: Alt+1 .. Alt+9 go, Alt+Shift+1 .. 9 store,

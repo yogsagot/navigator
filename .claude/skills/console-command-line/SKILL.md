@@ -172,6 +172,11 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
 - **Ctrl+Enter puts the entry's name on the line** (`InsertName`, DN's `cmInsertName`: a space after, one before if the
   caret follows a word, `..` giving the directory); Ctrl+Shift+Enter the whole path, Ctrl+double-click the same (DN's `_CtrlEnter`); Alt+Enter
   bound beside it (mc's key) for terminals that send Ctrl+Enter as Enter.
+- **Ctrl+[ / Ctrl+] put the left / right side's directory on the line**, ending in `/` (`InsertSideDirectory(side=)`,
+  DN's `$1A1B`/`$1B1D`: `cmGetName` of `LeftView`/`RightView`, then `cmInsertName`), bound in `Manager.keys` (markup
+  cannot name a bracket key), handled by `Shell.on_insert_side_directory`. The side, not the active panel; the Ctrl+T
+  tree there answers its cursor's directory, anything else that side's panel (hidden, or behind the quick view or
+  info -- a departure: DN's quick view answered nothing). Ctrl+[ needs the kitty protocol (Esc's byte otherwise).
 - **Space tags while the line is empty** (`ToggleMarkBySpace`, bound in `manager.nml`, handled and gated by `Shell`).
 
 ## Commands in a window (a departure)

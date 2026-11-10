@@ -2281,6 +2281,31 @@ class Shell(DockLayout):
         self._insert_entry(whole=True)
         return True
 
+    async def on_insert_side_directory(self, event: Any) -> bool:
+        """Ctrl+[ / Ctrl+]: ``cmGetName`` asked of the left (or right) side, the
+        answer ending in ``/`` onto the line (``cmInsertName``).
+
+        The Ctrl+T tree standing there answers the directory under its
+        cursor, as a panel tree did; anything else -- the panel, hidden or
+        not, or the quick view or information panel in its place -- the
+        side's panel's directory.  A departure there: DN's quick view
+        answered nothing, an empty name.
+        """
+        manager = self.active_manager
+        if manager is None:
+            return True
+        from navigator.lib.drives.location import shown
+
+        side = "right" if event.side == "right" else "left"
+        view = manager.side_view(side)
+        if view is manager.tree and manager.tree.selected_path is not None:
+            where = manager.tree.selected_path
+        else:
+            where = (manager.left if side == "left" else manager.right).location
+        text = str(shown(where)).rstrip("/")
+        self.command_line.insert_name(_escape(text) + "/" if text else "/")
+        return True
+
     async def on_execute_file(self, event: Any) -> bool:
         """Enter on an executable in a panel: run it, as though typed.
 
