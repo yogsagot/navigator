@@ -822,6 +822,10 @@ class Application:
 
     # -- the clipboard -------------------------------------------------------
 
+    def private_clipboard(self, primary: bool = False) -> str:
+        """The application's own last copy (or primary selection), "" when none."""
+        return self._private_clipboard[primary]
+
     def copy_to_clipboard(self, text: str, *, primary: bool = False) -> None:
         """Put *text* on the clipboard, or on the primary selection.
 

@@ -1038,7 +1038,13 @@ def test_a_drag_past_a_lines_end_marks_only_to_its_end(files, vertical):
 def test_a_double_click_marks_the_word(files):
     app, editor = mouse(files, (8, 0, "double", {}))
     assert editor.block_text == "line"
+    assert editor.col == 6  # cmMarkWord leaves the cursor at the word's start
     assert app.terminal.clipboard == [("line", True)]
+
+
+def test_a_double_click_on_a_blank_marks_the_word_before_it(files):
+    _, editor = mouse(files, (5, 0, "double", {}))
+    assert editor.block_text == "first" and editor.col == 0
 
 
 def test_a_drag_after_a_double_click_marks_whole_words(files):
@@ -1353,6 +1359,42 @@ def test_ctrl_k_t_and_l_mark_a_word_and_a_line(files):
     assert editor.block_text == "two"
     _, editor = text_editor(files, b"one two\nthree\n", *chord("l"))
     assert editor.block_text == "one two\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+@pytest.mark.parametrize(("text", "rights", "word", "at"), [
+    (b"foo bar\n", 2, "foo", (0, 0)),     # mid-word: back to its start
+    (b"foo bar\n", 3, "foo", (0, 0)),     # on the blank: the word before it
+    (b"foo bar\n", 4, "bar", (0, 4)),     # on a word's first character: that word
+    (b"  foo\n", 1, "foo", (0, 2)),       # no word before on the line: the next one
+    (b"\nx\n", 0, "x", (1, 0)),          # an empty line: the next line's word
+])
+def test_ctrl_k_t_marks_cm_mark_word_s_word_with_the_cursor_at_its_start(files, text, rights, word, at):
+    _, editor = text_editor(files, text, *[KeyEvent("right")] * rights, *chord("t"))
+    assert editor.block_text == word
+    assert (editor.line, editor.col) == at
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_ctrl_k_t_with_no_word_after_the_cursor_marks_nothing(files):
+    _, editor = text_editor(files, b"  \n", *chord("t"))
+    assert editor.block is None
+
+
+def test_paste_is_greyed_only_when_the_application_s_own_empty_copy_is_all_there_is(files):
+    from navigator.widgets.editor.commands import ClipboardPaste
+    seen = []
+
+    def look(a):
+        editor = editor_window(a).editor
+        seen.append(editor.refusal(ClipboardPaste()))
+        a.system_clipboard = False
+        seen.append(editor.refusal(ClipboardPaste()))
+        a.copy_to_clipboard("x")
+        seen.append(editor.refusal(ClipboardPaste()))
+
+    text_editor(files, b"abc\n", look)
+    assert seen == ["", "The clipboard is empty", ""]
 
 
 @pytest.mark.usefixtures("wordstar")

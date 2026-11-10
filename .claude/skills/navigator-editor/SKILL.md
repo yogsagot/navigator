@@ -101,7 +101,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   departures too; ^K I/U keep DN's one blank. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins/Ctrl+C/Ctrl+Alt+C (`ClipboardCopy`, `cmCopy`), Shift+Del/Ctrl+X/Ctrl+Alt+X (`ClipboardCut`),
-  Shift+Ins/Ctrl+V/Ctrl+Alt+V (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back), Ctrl+Del (`Clear`,
+  Shift+Ins/Ctrl+V/Ctrl+Alt+V (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back; the cursor ends after it with nothing marked -- a departure, asked for: DN's `InsertBlock` marked the paste, cursor at its start -- and it is greyed, *The clipboard is empty*, only with the system clipboard off and no copy made, since the desktop's cannot be looked at without a process: DN greyed `cmPaste` on an empty clipboard), Ctrl+Del (`Clear`,
   `cmClear`); also at the top of the Editor menu itself (DN's *Edit* submenu, flattened: a departure, asked for -- *Paragraph*, *Options* and *File type* gave up P, O and T for it). Copies hand out plain `\n` breaks, pastes take the file's own. Not `Cut`/`Copy`/`Paste`:
   F5's `Copy` and `on_paste` (the paste event) already own those handler names. **Departure:** Ctrl+X/C/V are the clipboard's, not WordStar's cursor down/PgDn/insert toggle as in DN (the user asked for
   the keys every other editor uses; ^X still draws down in drawing mode). Ctrl+Alt+X/C/V exist because VTE keeps Ctrl+Ins
@@ -125,7 +125,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
   indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
-  `]` `\` upper/lower/capitalise it, T marks the word, L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
+  `]` `\` upper/lower/capitalise it, T marks the word (`cmMarkWord`, `_dn_word`: on a word's first character that word, else the start of this word or the one before it on the line -- a blank gives the word before it -- else the next word, on a later line too; the cursor at the word's start; a double-click is the same command where it was pressed), L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
   end, ^Q L undoes.
 - **^K R / ^K W are DN's `BlockRead`/`BlockWrite`** (`MICROED.PAS`), also the Editor menu's *Paste from...*/*Copy
   to...*, handled by `EditWindow` (dialogs and I/O; `FileEditor.block_file_text`/`read_block` are the text). The name
@@ -501,7 +501,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **The mouse marks too.** A left press puts the cursor there and unmarks; a drag (captured, and only once the
   pointer leaves the pressed cell -- terminals report motion inside it, `_press_cell`) marks from the press,
   scrolling a line at a time past the top or bottom row; Shift+click (or Ctrl+click, for VTE terminals that keep Shift+click, as in panels) extends the block as Shift+movement does; a
-  double-click marks the word between `BREAK_CHARS`, and a drag with the button still down after it marks whole
+  double-click marks the word as ^K T does (`cmMarkWord`, DN's `Event.Double`; on a blank, the word before it), the cursor at its start, and a drag with the button still down after it marks whole
   words (`_drag_word`; the press before the double-click already captured the mouse, so `on_double_click` must not
   end the drag). A block marked by the mouse becomes the primary selection on
   release (`copy_to_clipboard(primary=True)`), and a middle click pastes the primary selection -- what the console and

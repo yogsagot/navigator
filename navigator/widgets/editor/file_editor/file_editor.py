@@ -3045,7 +3045,10 @@ class FileEditor(ContextMenuHost, Widget):
         self._go(Pos(line + down, index))
 
     def insert_text(self, text: str) -> None:
-        """A paste: line breaks become the file's own.
+        """A paste: line breaks become the file's own, the cursor after what went in.
+
+        A departure, asked for: DN's ``InsertBlock(..., On)`` marked the paste and
+        left the cursor at its start; here nothing is marked, as in a modern editor.
 
         Text a column block was copied as goes back in as a rectangle
         (:meth:`_insert_rectangle`) -- and so does any text while *Vertical
@@ -3522,6 +3525,14 @@ class FileEditor(ContextMenuHost, Widget):
             return "" if placed else tr("Marker {n} is not placed").format(n=command.marker)
         if isinstance(command, HideBlock):
             return "" if self.marked else no_block
+        if isinstance(command, ClipboardPaste):
+            # DN greyed cmPaste on an empty clipboard.  Only the application's own
+            # copy can be looked at without a process or a terminal round trip, so
+            # with the system clipboard on, Paste stays enabled (a departure).
+            app = self.application
+            if app is not None and not app.system_clipboard and not app.private_clipboard():
+                return tr("The clipboard is empty")
+            return ""
         if isinstance(command, UnindentBlock) and command.stop:
             # Shift+Tab: the cursor's line, when no block is there to take it.
             return ""
@@ -3959,7 +3970,8 @@ class FileEditor(ContextMenuHost, Widget):
             return False
         self._point(event)
         at = self._mark_pos()
-        self._drag_word = self._word_at(at)
+        word = self._dn_word(at)
+        self._drag_word = word if word is not None else (at, at)
         self._drag_from = at
         if self._mark_word():
             self._copy_primary()
@@ -3977,13 +3989,46 @@ class FileEditor(ContextMenuHost, Widget):
             stop += 1
         return Pos(at.line, start), Pos(at.line, stop)
 
+    def _dn_word(self, at: Pos) -> tuple[Pos, Pos] | None:
+        """``cmMarkWord``'s word (``MICROED.PAS:2933``), ``(start, stop)``, or None.
+
+        On a word's first character, that word; else ``WordLeft`` -- the start of
+        this word or the one before it on the line -- and, when there is none
+        before *at* on the line, ``WordRight``'s next word, on this line or a later
+        one.  So a blank between two words gives the one before it.
+        """
+        text = self._text(at.line)
+        index = min(at.index, len(text))
+        on_start = (index < len(text) and text[index] not in BREAK_CHARS
+                    and (index == 0 or text[index - 1] in BREAK_CHARS))
+        start: Pos | None = Pos(at.line, index) if on_start else None
+        if start is None:
+            back = index
+            while back > 0 and text[back - 1] in BREAK_CHARS:
+                back -= 1
+            while back > 0 and text[back - 1] not in BREAK_CHARS:
+                back -= 1
+            if back < len(text) and text[back] not in BREAK_CHARS:
+                start = Pos(at.line, back)
+        if start is None:
+            start = self._word_right(Pos(at.line, index))
+            text = self._text(start.line)
+            if start.index >= len(text) or text[start.index] in BREAK_CHARS:
+                return None
+        text = self._text(start.line)
+        stop = start.index
+        while stop < len(text) and text[stop] not in BREAK_CHARS:
+            stop += 1
+        return start, Pos(start.line, stop)
+
     def _mark_word(self) -> bool:
-        """Mark the word at the cursor, the run between two ``BREAK_CHARS``; False on none."""
-        start, stop = self._word_at(self._mark_pos())
-        if start == stop:
+        """``cmMarkWord``: :meth:`_dn_word` marked, the cursor at its start; False on none."""
+        word = self._dn_word(self._mark_pos())
+        if word is None:
             return False
+        start, stop = word
         self._mark_span(start, stop)
-        self._go(stop)
+        self._go(start)
         return True
 
     def _mark_span(self, start: Pos, stop: Pos) -> None:
