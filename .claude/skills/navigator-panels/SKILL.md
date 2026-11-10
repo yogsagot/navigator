@@ -399,6 +399,11 @@ dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those
 - **Gray `*` inverts** (`InvertSelection`, `cmPanelInvertSel`, `Panel.invert_marks`): files flip, directories keep their
   tag; Ctrl+Gray `*` (`kbCtrlGAst`) flips directories too -- bound as `ctrl+*` as well, which is how a terminal
   may report it with Num Lock on.
+- **Alt/Ctrl + Gray ± tag entries like the cursor's** (`SelectSimilar`/`UnselectSimilar(by=, invert=)`,
+  `Panel.select_similar`, DN's `SelectExt`/`SelecType`): Alt the same name, any extension (`os.path.splitext`'s
+  stem), Alt+Shift those with another name, Ctrl the same type (`filetypes.category_of`, DN's `TType`: on a directory,
+  the directories), Ctrl+Shift the same extension. Directories count, as DN's `Sel` passed none over (Gray+ does);
+  `..` never, nor the cursor on it. Bound on `kp_plus`/`kp_minus` and the bare `plus`/`-` with the modifiers.
 - **Ctrl+A selects all** (`SelectAll`, `Panel.select_all`, Panel > *Select all files* and the context menu, no hot key --
   only `j` is free there): every file and directory, never `..`, whatever was tagged. A departure, asked for: DN had
   none, and Ctrl+Gray `*` inverts (untagging what was tagged) and needs a terminal that reports the keypad.

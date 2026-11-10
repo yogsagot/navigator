@@ -81,6 +81,8 @@ from navigator.widgets.manager.commands import (
     Rescan,
     ScrollNames,
     SelectGroup,
+    SelectSimilar,
+    UnselectSimilar,
     SwitchPanel,
     ChangeInactive,
     GoToFile,
@@ -213,6 +215,13 @@ class Manager(Window):
         "shift+kp_plus": SelectGroup(invert=True, by_key=True),
         "shift+kp_minus": UnselectGroup(invert=True, by_key=True),
         "ctrl+kp_multiply": InvertSelection(directories=True, by_key=True),
+        #: DN's ``SelectExt``/``SelecType``: entries like the cursor's, by name
+        #: (Alt; Alt+Shift those not), type (Ctrl) or extension (Ctrl+Shift).
+        #: The bare characters too, for the terminals above that send them.
+        **{f"{mods}{key}": (SelectSimilar if key in ("kp_plus", "plus") else UnselectSimilar)(by=by, invert=invert)
+           for mods, by, invert in (("alt+", "name", False), ("alt+shift+", "name", True),
+                                    ("ctrl+", "type", False), ("ctrl+shift+", "extension", False))
+           for key in ("kp_plus", "kp_minus", "plus", "-")},
         #: With Num Lock on, a terminal may report Ctrl+Gray ``*`` as the
         #: plain ``*`` with Ctrl (kitty's ``CSI 42;5u``), as the bare keys above.
         "ctrl+*": InvertSelection(directories=True, by_key=True),
@@ -3541,7 +3550,8 @@ class Manager(Window):
             except DriveGone:
                 return gone()
         if isinstance(
-            command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, SelectAll, QuickSearch)
+            command, (ToggleMark, SelectGroup, UnselectGroup, InvertSelection, SelectAll, QuickSearch,
+                      SelectSimilar, UnselectSimilar)
         ):
             if getattr(command, "by_key", False) and self._command_line_has_text():
                 # Disabled, so the key falls through and types its character.
@@ -3759,6 +3769,14 @@ class Manager(Window):
             # not a climb up the tree with every repeat.
             return True
         self.active_panel.go_up()
+        return True
+
+    async def on_select_similar(self, event: SelectSimilar) -> bool:
+        self.active_panel.select_similar(event.by, invert=event.invert)
+        return True
+
+    async def on_unselect_similar(self, event: UnselectSimilar) -> bool:
+        self.active_panel.select_similar(event.by, select=False, invert=event.invert)
         return True
 
     async def on_go_root(self, event: GoRoot) -> bool:

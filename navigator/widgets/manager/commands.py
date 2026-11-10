@@ -446,6 +446,32 @@ class SelectGroup(Command):
 
 
 @dataclass(frozen=True, slots=True)
+class SelectSimilar(Command):
+    """Alt/Ctrl + Gray ``+``: tag every entry like the one at the cursor --
+    DN's ``SelectExt`` and ``SelecType``; :class:`UnselectSimilar` is Gray ``-``.
+
+    *by* is ``"name"`` (Alt+Gray±, ``SelectExt(S, 1, 8)``: the same name, any
+    extension; *invert*, Alt+Shift, a different one), ``"type"`` (Ctrl+Gray±,
+    ``SelecType``: the same highlight group, a directory's every directory)
+    or ``"extension"`` (Ctrl+Shift+Gray±, ``SelectExt(S, 10, 3)``).
+    Directories count, as DN's ``Sel`` passed none over; ``..`` never does.
+    Untitled: no status line captioned them.
+    """
+
+    by: str = "name"
+    invert: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class UnselectSimilar(Command):
+    """Alt/Ctrl + Gray ``-``: untag every entry like the one at the cursor;
+    the fields are :class:`SelectSimilar`'s."""
+
+    by: str = "name"
+    invert: bool = False
+
+
+@dataclass(frozen=True, slots=True)
 class UnselectGroup(Command):
     """Gray ``-``, ``cmPanelUnselect``: untag everything a mask matches.
 
@@ -977,6 +1003,8 @@ __all__ = [
     "ScrollNames",
     "MoveSeparator",
     "SelectGroup",
+    "SelectSimilar",
+    "UnselectSimilar",
     "UnselectGroup",
     "InvertSelection",
     "SelectAll",

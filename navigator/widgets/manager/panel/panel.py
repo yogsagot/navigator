@@ -1460,6 +1460,34 @@ class Panel(ListViewer):
         }
         self.marked = (self.marked | matched) if select else (self.marked - matched)
 
+    def select_similar(self, by: str, *, select: bool = True, invert: bool = False) -> None:
+        """Alt/Ctrl + Gray ``+``/``-``: DN's ``SelectExt`` and ``SelecType`` --
+        tag (or untag) every entry like the one at the cursor.
+
+        *by* ``"name"`` compares the stem (``os.path.splitext``: one extension,
+        as DN's 8.3 name had one; *invert*, those that differ), ``"extension"``
+        the extension as it is, ``"type"`` the highlight group
+        (:func:`filetypes.category_of`, DN's ``TType``).  Directories count, as
+        ``Sel`` passed none over; ``..`` never does, nor does the cursor on it.
+        """
+        entry = self.selected
+        if entry is None or entry.name == "..":
+            return
+
+        def key_of(item: DirEntry) -> Any:
+            if by == "type":
+                return filetypes.category_of(item.name, item.is_dir, item.type_mark)
+            stem, extension = os.path.splitext(item.name)
+            return extension if by == "extension" else stem
+
+        wanted = key_of(entry)
+        matched = {
+            item.key
+            for item in self.items
+            if item.name != ".." and (key_of(item) == wanted) != invert
+        }
+        self.marked = (self.marked | matched) if select else (self.marked - matched)
+
     def invert_marks(self, *, directories: bool = False) -> None:
         """Gray ``*``: DN's ``InvertSelection``.
 
