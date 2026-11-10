@@ -253,7 +253,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   titled *SmartPad(TM) - path*; `EditWindow(smartpad=True)` keeps no edit history, saves unasked on closing (Esc,
   Close all, Alt+X) and sends no `FileSaved`. Alt+Q is on `Navigator.keys`; the Shell answers it, putting the console
   away first.
-  **Open (F3) and Save as (Shift+F2) end SmartPad** (`EditWindow._leave_smartpad`): the window takes the other file
+  **Open (F3) and Save as (Shift+F2) end SmartPad** (`EditWindow._leave_smartpad`; a departure -- DN's window stayed
+  SmartPad with the other file in it, and its F3 asked `AskSave` where here the pad is saved unasked): the window takes the other file
   and is an ordinary editor from then on -- its title, history, *Save?* on closing and `FileSaved` -- and the next
   Alt+Q opens a fresh pad, which `open_smartpad` finds by the `smartpad` flag (else it brought up that file and
   stamped it). Open saves the pad unasked first, as closing does; Save as leaves the pad's file as it was on disk.
@@ -553,7 +554,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   and the file's edit record comes back (DN opened on the whole desktop at the top). The save that creates the file says so (`FileSaved.land`, from
   `os.path.lexists` on the write's thread just before it writes), and `Shell.on_file_saved` re-reads each panel
   showing the directory with its cursor on the new file, as F7 does a directory; a save over an existing file leaves
-  the cursor alone.
+  the cursor alone. Every save also re-reads each information panel (`Manager.reread_info`, `cmRereadInfo`) and
+  drops every tree's file count for that directory (`DirectoryTree.file_changed`, `cmRereadTree`), as `FileChanged` did.
 - **`nav --edit FILE`** (`-e`, repeatable; DN's files named on its command line, each `EditFile(On, ...)`,
   `DNUTIL.PAS:733`): checked in `main()` before anything starts (a directory, a missing parent or a URL is an argparse
   error), then `Navigator._edit_files` from `on_start`, after the desktop is restored: an editor window each, in order,

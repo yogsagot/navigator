@@ -1336,13 +1336,17 @@ class Shell(DockLayout):
         return False
 
     async def on_file_saved(self, event: FileSaved) -> bool:
-        """``FileChanged``: every panel showing the saved file's directory re-reads.
+        """``FileChanged`` (``MICROED.PAS:1298``): every panel showing the saved
+        file's directory re-reads, and so does every information panel
+        (``cmRereadInfo``) and every tree's count for that directory
+        (``cmRereadTree``).
 
         ``highlight.ini`` saved colours every open text again by its new rules.
         A file to land on gets the cursor (``FileSaved.land``).
         """
         from navigator.lib.config import associations
         from navigator.widgets.editor.file_editor import FileEditor
+        from navigator.widgets.tree.directory_tree import DirectoryTree
         from navigator.widgets.viewer.file_viewer import FileViewer
 
         directory = event.path.parent
@@ -1352,6 +1356,13 @@ class Shell(DockLayout):
                 for panel in window.all_panels:
                     if panel.location == Location.of(directory):
                         panel.reload(key=event.path.name if event.land else None)
+                window.reread_info()
+        pending = [self.desktop]
+        while pending:
+            widget = pending.pop()
+            if isinstance(widget, DirectoryTree):
+                widget.file_changed(directory)
+            pending.extend(widget.children)
         for window in self.desktop.windows():
             # Utilities > Services: a unit file it opened, saved -- daemon-reload.
             saved = getattr(window, "unit_file_saved", None)

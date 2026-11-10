@@ -346,6 +346,14 @@ class DirectoryTree(ContextMenuHost, TreeView):
         if here is not None:
             self.show(here)
 
+    def file_changed(self, directory: Any) -> None:
+        """A file in *directory* written (``cmRereadTree`` from ``FileChanged``):
+        what that can change of a tree is the count shown for the directory,
+        so that is read again; the directories, and what is open, stay."""
+        self._counts.pop(directory, None)
+        self._counting.discard(directory)
+        self.invalidate()
+
     def set_show_hidden(self, shown: bool) -> None:
         """List dot-directories or not, re-reading the tree if that changes it."""
         if shown != self.show_hidden:

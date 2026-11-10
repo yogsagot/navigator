@@ -4118,3 +4118,26 @@ def test_shift_f4_asks_for_a_file_to_edit_from_the_editor(files):
     app, _ = text_editor(files, b"abc\n", KeyEvent("f4", shift=True), lambda a: None,
                          lambda a: seen.append(type(a.modal).__name__ if a.modal else None), KeyEvent("escape"))
     assert seen[0] == "FileDialog"
+
+
+def test_a_save_rereads_the_information_panel_and_the_trees_count(files, monkeypatch):
+    """``FileChanged``: ``cmRereadInfo`` and ``cmRereadTree`` beside ``cmRereadDir``."""
+    from navigator.widgets.editor.edit_window.edit_window import FileSaved
+    from navigator.widgets.tree.tree_window import TreeWindow
+
+    elsewhere = files / "dir"
+    shown = []
+    seen = {}
+
+    def arrange(a):
+        a.manager.switch_view(a.manager.info)
+        monkeypatch.setattr(a.manager.info, "show", lambda *args, **kw: shown.append(args))
+        tree = a.shell.desktop.open(TreeWindow(start=files)).tree
+        tree._counts[elsewhere] = (1, 1)
+        seen["tree"] = tree
+
+    run_app(navigator(files), [arrange, lambda a: shown.clear(),
+                               lambda a: a.spawn(a.shell.on_file_saved(FileSaved(elsewhere / "new.txt"))),
+                               lambda a: None])
+    assert shown, "the information panel read again"
+    assert elsewhere not in seen["tree"]._counts

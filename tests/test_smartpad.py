@@ -44,6 +44,11 @@ def front(app):
     return app.shell.desktop.active_window
 
 
+def pad_up():
+    """Until the pad is the window in front: it is read on a thread."""
+    return Until(lambda a: getattr(front(a), "smartpad", False))
+
+
 def run(tmp_path, *actions):
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     run_app(app, [*actions, lambda a: None])
@@ -61,7 +66,8 @@ def test_alt_q_opens_the_pad_stamped_with_the_cursor_under_the_stamp(pad):
                     desk=(desktop.width, desktop.height), text=window.editor.document.encode(),
                     at=(window.editor.line, window.editor.col), modified=window.editor.modified)
 
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, look)
+    # The pad is read on a thread: wait for its window, not a bare step.
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), look)
     assert seen["title"] == f"SmartPad(TM) - {path}"
     w, h = seen["desk"]
     assert seen["box"] == (2, 2, w - 4, h - 4)
@@ -73,7 +79,7 @@ def test_alt_q_opens_the_pad_stamped_with_the_cursor_under_the_stamp(pad):
 def test_what_is_typed_is_saved_on_closing_without_a_question(pad):
     tmp_path, path = pad
     asked = []
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), *[KeyEvent(c, c) for c in "hi"],
         KeyEvent("escape"), IDLE, lambda a: asked.append(a.modal))
     assert asked == [None]
     assert path.read_text() == f"{STAMP}\nhi"
@@ -81,7 +87,7 @@ def test_what_is_typed_is_saved_on_closing_without_a_question(pad):
 
 def test_a_pad_opened_and_closed_untouched_writes_nothing(pad):
     tmp_path, path = pad
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, KeyEvent("escape"), lambda a: None)
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), KeyEvent("escape"), lambda a: None)
     assert not path.exists()
 
 
@@ -90,7 +96,7 @@ def test_old_notes_stay_and_the_stamp_goes_under_them(pad):
     path.parent.mkdir()
     path.write_text("old note\n")
     seen = []
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None,
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(),
         lambda a: seen.append(front(a).editor.document.encode()))
     assert seen == [f"old note\n{STAMP}\n".encode()]
 
@@ -103,16 +109,16 @@ def test_a_second_alt_q_brings_the_same_pad_up_stamped_again(pad):
         windows = [w for w in a.shell.desktop.windows() if getattr(w, "smartpad", False)]
         seen.append((len(windows), windows[0].editor.document.encode().count(STAMP.encode())))
 
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "x"],
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), *[KeyEvent(c, c) for c in "x"],
         KeyEvent("f3", ctrl=True), lambda a: None,  # a new file manager in front
-        KeyEvent("q", alt=True), lambda a: None, count,
+        KeyEvent("q", alt=True), pad_up(), count,
         lambda a: seen.append(front(a).smartpad))
     assert seen == [(1, 2), True]
 
 
 def test_the_pad_keeps_no_edit_history(pad):
     tmp_path, path = pad
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, KeyEvent("x", "x"),
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), KeyEvent("x", "x"),
         KeyEvent("escape"), IDLE)
     assert path.exists() and EditRecord.find(path) is None
 
@@ -137,9 +143,9 @@ def test_save_as_makes_the_pad_an_ordinary_editor_and_alt_q_opens_a_fresh_pad(pa
         seen.update(flag=window.smartpad, title=window.title, path=window.editor.path)
         seen["was"] = window
 
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), *[KeyEvent(c, c) for c in "hi"],
         KeyEvent("f2", shift=True), Until(lambda a: other.exists()), lambda a: None, look,
-        KeyEvent("q", alt=True), lambda a: None,
+        KeyEvent("q", alt=True), pad_up(),
         lambda a: seen.update(pad=front(a) is not seen["was"] and front(a).smartpad,
                               stamps=seen["was"].editor.document.encode().count(STAMP.encode())))
     assert seen["flag"] is False and seen["path"] == other
@@ -157,7 +163,7 @@ def test_open_saves_the_pad_unasked_and_the_window_is_an_ordinary_editor(pad, mo
     other.write_text("other\n")
     answer_file(monkeypatch, other)
     seen = {}
-    run(tmp_path, KeyEvent("q", alt=True), lambda a: None, *[KeyEvent(c, c) for c in "hi"],
+    run(tmp_path, KeyEvent("q", alt=True), pad_up(), *[KeyEvent(c, c) for c in "hi"],
         KeyEvent("f3"), Until(lambda a: front(a).editor.path == other), lambda a: None,
         lambda a: seen.update(flag=front(a).smartpad, modal=a.modal, title=front(a).title))
     assert seen["modal"] is None  # no *Save?* for the pad

@@ -6201,6 +6201,11 @@ class Manager(Window):
             if found is None:
                 self.info.show(location, entries)
 
+    def reread_info(self) -> None:
+        """``cmRereadInfo``: the information panel, if it is up, reads its
+        directory and disk again -- a save elsewhere still changed the free space."""
+        self._info_follows_panel()
+
     def _info_follows_cursor(self) -> None:
         """The information panel's *Current file* is whatever the active
         panel's cursor is on -- apart from :meth:`_info_follows_panel`, so a

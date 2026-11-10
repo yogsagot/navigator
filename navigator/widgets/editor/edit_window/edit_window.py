@@ -1223,6 +1223,11 @@ class EditWindow(Window):
         finds its window by this flag, and would otherwise bring up *path* and
         stamp it.  The pad's file keeps what it had on disk.  The pad's own
         file chosen again changes nothing.
+
+        A departure: DN's window stayed SmartPad after Open or Save as -- the
+        other file then took the pad's place, saved unasked on closing and
+        stamped by the next Alt+Q -- and its F3 asked ``AskSave`` first, where
+        here the pad is saved unasked, as closing it is.
         """
         if self.smartpad and path != self.editor.path:
             self.smartpad = False
