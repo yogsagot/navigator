@@ -5441,17 +5441,30 @@ class Manager(Window):
         return True
 
     async def edit_named(self) -> None:
-        """Ask for a name and edit that file, which saving creates if it is new.
+        """Shift+F4, *Edit...*: DN's ``OpenEditor`` (``MICROED.PAS:1284``) -- the name
+        asked in the file dialog *Open a File*, with *~O~pen*, in the history the
+        editor's F3 shares (``hsEditOpen``, ``edit_open``), listing the active
+        panel's directory; that file edited, which saving creates if it is new.
 
-        A relative name is the active panel's; ``~`` is the home directory.
-        A directory, or a name whose directory does not exist, is said so
-        rather than left for the save to fail on.  With *Internal editor* off
-        the name goes to ``$EDITOR``, as F4's file does.
+        The dialog lists a directory typed rather than answering it and refuses
+        a name whose directory does not exist; a URL or an archive place is
+        taken as typed and reaches its drive (:meth:`_edit_named_elsewhere`).
+
+        Departures: with *Internal editor* off the name goes to ``$EDITOR``, as
+        F4's file does, where ``OpenEditor`` always used its own editor; the
+        file's edit record is brought back, where DN opened on the whole desktop
+        at the top; and a relative name is the directory listed -- one on the
+        disk -- not a remote active panel's.
         """
-        from navigator.widgets.editor.edit_file_dialog import EditFileDialog
+        from navml.widgets.dialog.file_dialog import FileDialog
 
         panel = self.active_panel
-        name = await EditFileDialog().execute(self.application)
+        dialog = FileDialog(title=tr("Open a File"), label=tr("~N~ame"), ok_text=tr("~O~pen"),
+                            history_id="edit_open", directory=self._disk_directory(),
+                            hidden=SETTINGS.system.show_hidden)
+        # A URL, or a place in an archive, goes as typed: to that drive.
+        dialog.raw = lambda text: "://" in text or "#/" in text
+        name = await dialog.execute(self.application)
         if not name:
             return
         from navigator.lib.file_ops.filecopy import target_location
@@ -5482,6 +5495,18 @@ class Manager(Window):
                 prompt=f"{name}: {problem}",
                 buttons="ok",
             ).execute(self.application)
+
+    def _disk_directory(self) -> Path:
+        """Where a file dialog opened from the panels starts: the active panel's
+        directory if it is on the disk, else the passive one's, else home --
+        the box browses the disk alone (``EditWindow._start_directory``'s rule)."""
+        from navigator.lib.drives.root import on_disk
+
+        for side in (self.active_panel, self.passive_panel):
+            place = on_disk(side.location) if side is not None else None
+            if place is not None and place.is_local:
+                return place.local
+        return Path.home()
 
     async def _edit_named_elsewhere(self, name: str, place: Location) -> None:
         """Shift+F4 on a name on another drive: connected to (or the archive

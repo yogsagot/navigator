@@ -9,7 +9,7 @@ from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
-from navigator.widgets.editor.edit_file_dialog import EditFileDialog
+from navml.widgets.dialog.file_dialog import FileDialog
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def kinds(app):
 
 
 def asked(app):
-    return isinstance(app.modal, EditFileDialog)
+    return isinstance(app.modal, FileDialog)
 
 
 @pytest.mark.parametrize("name, opens, view", [
@@ -46,7 +46,7 @@ def test_shift_f4_in_a_viewer_asks_for_a_file_to_edit(place, name, opens, view):
     seen = {}
 
     def name_it(a):
-        a.modal.entry.value = "new.txt"
+        a.modal.target.value = "new.txt"
 
     run_app(app, [to(name), KeyEvent("f3"), Until(lambda a: len(a.shell.desktop.windows()) == 2), *view, IDLE,
                   lambda a: seen.update(kinds=kinds(a)),

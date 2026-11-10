@@ -820,13 +820,40 @@ def test_shift_f4_takes_a_name_under_a_directory_and_refuses_a_missing_one(files
     _, window, _ = edit_named(files, "dir/inner.txt")
     assert window.editor.path == files / "dir" / "inner.txt"
     _, window, modal = edit_named(files, "nowhere/inner.txt")
-    assert window is None and modal is not None and modal.title == "Cannot edit file"
+    # The file dialog's own Valid(cmFileOpen): erInvalidFileName.
+    assert window is None and modal is not None and modal.prompt == "Invalid file name."
     assert not (files / "nowhere").exists()
 
 
-def test_shift_f4_on_a_directory_is_refused(files):
+def test_shift_f4_on_a_directory_lists_it_and_stays(files):
     _, window, modal = edit_named(files, "dir")
-    assert window is None and modal.title == "Cannot edit file"
+    assert window is None and type(modal).__name__ == "FileDialog"
+    assert modal.directory == files / "dir"
+
+
+def test_shift_f4_is_open_editor_s_file_dialog_sharing_f3_s_history(files):
+    from navml.history import HISTORY
+
+    seen = []
+    app = navigator(files)
+    run_app(app, [KeyEvent("f4", shift=True), lambda a: None,
+                  lambda a: seen.append((a.modal.title, a.modal.pick.text, a.modal.directory)),
+                  *typed("text.txt"), KeyEvent("enter"), Until(lambda a: editor_window(a) is not None)])
+    assert seen == [("Open a File", "~O~pen", files)]
+    assert str(files / "text.txt") in HISTORY.entries("edit_open")
+
+
+def test_shift_f4_takes_a_url_as_typed_to_its_drive(files, monkeypatch):
+    from navigator.widgets.manager.manager.manager import Manager
+
+    reached = []
+
+    async def elsewhere(self, name, place):
+        reached.append((name, str(place)))
+
+    monkeypatch.setattr(Manager, "_edit_named_elsewhere", elsewhere)
+    edit_named(files, "sftp://me@host/etc/motd")
+    assert reached and reached[0][0] == "sftp://me@host/etc/motd"
 
 
 # -- blocks and the clipboard -----------------------------------------------------------------
@@ -4021,4 +4048,4 @@ def test_shift_f4_asks_for_a_file_to_edit_from_the_editor(files):
     seen = []
     app, _ = text_editor(files, b"abc\n", KeyEvent("f4", shift=True), lambda a: None,
                          lambda a: seen.append(type(a.modal).__name__ if a.modal else None), KeyEvent("escape"))
-    assert seen[0] == "EditFileDialog"
+    assert seen[0] == "FileDialog"

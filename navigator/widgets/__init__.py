@@ -65,7 +65,6 @@ _WIDGETS = {
     "DirEntry": "manager.panel",
     "DirectoryTree": "tree.directory_tree",
     "EditorDefaultsPage": "setup.editor_defaults_page",
-    "EditFileDialog": "editor.edit_file_dialog",
     "EditWindow": "editor.edit_window",
     "FindBar": "editor.find_bar",
     "EraseQuery": "file_ops.erase_query",
@@ -149,7 +148,6 @@ if TYPE_CHECKING:
     from navigator.widgets.file_ops.delete_progress import DeleteProgress
     from navigator.widgets.file_ops.write_win import WriteWin
     from navigator.widgets.tree.directory_tree import DirectoryTree
-    from navigator.widgets.editor.edit_file_dialog import EditFileDialog
     from navigator.widgets.editor.edit_window import EditWindow
     from navigator.widgets.editor.find_bar import FindBar
     from navigator.widgets.file_ops.erase_query import EraseQuery
