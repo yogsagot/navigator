@@ -6791,6 +6791,10 @@ flag = "JP"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"No DirInfo or File_ID.DIZ here" = "ここには DirInfo も File_ID.DIZ もありません"
+"Not the tree's root" = "ツリーのルートではできません"
+"The cursor is on no directory" = "カーソルがディレクトリ上にありません"
+
 [unused]
 "Confirmation" = "確認"
 "Year" = "年"

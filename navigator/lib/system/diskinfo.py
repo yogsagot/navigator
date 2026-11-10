@@ -66,6 +66,9 @@ class DiskFacts:
     memory_navigator: int | None = None
     info_name: str = ""
     info_lines: list[str] = field(default_factory=list)
+    #: The information file's own name on the disk (``Info.InfoFile``'s), in
+    #: its own case: what F4 in the panel edits.  "" for none.
+    info_file: str = ""
 
 
 @dataclass
@@ -139,11 +142,11 @@ def _resident() -> int | None:
         return None
 
 
-def _info_file(directory: Path) -> tuple[str, list[str]]:
+def _info_file(directory: Path) -> tuple[str, list[str], str]:
     try:
         names = {name.lower(): name for name in os.listdir(directory)}
     except OSError:
-        return "", []
+        return "", [], ""
     for wanted in INFO_FILES:
         found = names.get(wanted.lower())
         if found is None:
@@ -153,8 +156,8 @@ def _info_file(directory: Path) -> tuple[str, list[str]]:
                 lines = [line.rstrip("\r\n") for _, line in zip(range(INFO_LINES), file)]
         except OSError:
             continue
-        return wanted, lines
-    return "", []
+        return wanted, lines, found
+    return "", [], ""
 
 
 def gather(directory: Path, *, mounts: Path = Path("/proc/self/mounts"),
@@ -178,7 +181,7 @@ def gather(directory: Path, *, mounts: Path = Path("/proc/self/mounts"),
     except OSError:
         pass
     facts.memory_navigator = _resident()
-    facts.info_name, facts.info_lines = _info_file(Path(directory))
+    facts.info_name, facts.info_lines, facts.info_file = _info_file(Path(directory))
     return facts
 
 

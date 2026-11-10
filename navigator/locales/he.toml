@@ -6792,6 +6792,10 @@ direction = "rtl"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "שניות בין בדיקות של תיקיית השרת לרענון אוטומטי; 0 לעולם לא"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"No DirInfo or File_ID.DIZ here" = "אין כאן DirInfo או File_ID.DIZ"
+"Not the tree's root" = "לא שורש העץ"
+"The cursor is on no directory" = "הסמן אינו על תיקייה"
+
 [unused]
 "Confirmation" = "אישור"
 "~Name~" = "~שם~"

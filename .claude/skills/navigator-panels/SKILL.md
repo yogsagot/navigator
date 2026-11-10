@@ -609,7 +609,11 @@ directory at each read, `fmiDirLen`) is not written yet.
 
 `DiskInfo`, `Manager.on_disk_info`, DN's `cmDiskInfo` -> `SwitchView(dtInfo)` (also Panel > Other panel > Info): `InfoPanel`
 (`manager/info_panel`, Python-only, framed like the quick view, `::highlight` for DN's `~` runs) takes the passive
-panel's place as the tree and quick view do. `Manager._info_follows_panel` (an effect on the active panel's path,
+panel's place as the tree and quick view do. **With the keyboard in it** (`TDiskInfo.HandleEvent`): F4 is *Edit
+DirInfo*, the `DirInfo`/`File_ID.DIZ` it shows (`InfoPanel.info_path`, from `DiskFacts.info_file`) in the editor
+(`Manager.edit_info_file`), greyed with none (*No DirInfo or File_ID.DIZ here*); F5/F6/F8 and the panel's other file
+commands are refused (`_aside_focused` counts it), as DN's info view did nothing with them.
+`Manager._info_follows_panel` (an effect on the active panel's path,
 items and `reload_token`; not while it shows a *Find:* listing) calls `InfoPanel.show`, which reads the disk and the
 machine on a thread (`navigator/lib/system/diskinfo.py`'s `gather`: `disk_usage`, the longest mount in `/proc/self/mounts`, a
 `/dev/disk/by-label` label, `/proc/meminfo`, the resident set, `DirInfo` else `File_ID.DIZ` in any case) and keeps

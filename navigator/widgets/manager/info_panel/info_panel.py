@@ -87,6 +87,15 @@ class InfoPanel(Widget):
         self.bar.page = bind(lambda bar: max(1, bar.parent.rows))
         self.bar.visible = bind(lambda bar: bar.parent.last_top() > 0 and bar.height >= 3)
 
+    @property
+    def info_path(self) -> Path | None:
+        """The information file shown -- ``DirInfo``, else ``File_ID.DIZ`` --
+        on the disk, for F4's *Edit DirInfo*; None when there is none."""
+        facts, directory = self.facts, self.directory
+        if facts is None or not getattr(facts, "info_file", "") or not isinstance(directory, Path):
+            return None
+        return directory / facts.info_file
+
     #: For a place on another drive: what its drive says of itself
     #: (``Drive.describe``), shown in place of the disk's and the memory's.
     described: Any = reactive(None)

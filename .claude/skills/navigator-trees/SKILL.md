@@ -100,6 +100,12 @@ Slots `[94-101]`, `[104-110]`.
 
 - **While a tree searches, the key bar says *Ctrl+S Next*** (`TreeView.key_hints`); its search label is the search alone.
 
+- **The Ctrl+T tree's own file commands** (`TTreePanel.HandleEvent`, hcDirTree): with the keyboard in it, F5/F6
+  copy or move the directory under its cursor (`Manager.tree_copy`, `CopyDir`; the Copy box offers the active
+  panel's directory, empty or the bare name when that is the directory's own parent), F7 makes a directory under it
+  (`tree_make_directory`, the tree then on it), F8/Del erase it (`tree_erase` through `erase_located`; Del only under
+  *Del erases*). The tree, both panels and the info panel read again after. Refused on the tree's root (*Not the
+  tree's root*); every other file command stays refused there (`_TREE_OWN`, `_tree_takes`, `_tree_refusal`).
 - **The Ctrl+T tree's right-click menu** (a departure, asked for): `DirectoryTree` is a `ContextMenuHost` whose
   `menu` its holder sets -- `Manager._tree_menu` for Ctrl+T's: *~G~o to directory* (Enter, `GoToTreeDirectory` ->
   `tree.choose()`), *~R~e-read* (Alt-R, `Rescan`, which reloads the tree while it has the keyboard), *Quick s~e~arch*

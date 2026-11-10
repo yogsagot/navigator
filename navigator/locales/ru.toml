@@ -6791,6 +6791,10 @@ flag = "RU"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"No DirInfo or File_ID.DIZ here" = "Здесь нет DirInfo или File_ID.DIZ"
+"Not the tree's root" = "Не для корня дерева"
+"The cursor is on no directory" = "Курсор не на каталоге"
+
 [unused]
 "Confirmation" = "Подтверждение"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"

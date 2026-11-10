@@ -32,9 +32,9 @@ def test_the_file_system_is_the_longest_mount_holding_the_directory():
 def test_memory_and_the_information_file(tmp_path):
     assert _meminfo("MemTotal: 2048 kB\nMemAvailable: 1024 kB\n") == (2048 * 1024, 1024 * 1024)
     (tmp_path / "file_id.diz").write_text("diz")
-    assert _info_file(tmp_path) == ("File_ID.DIZ", ["diz"])
+    assert _info_file(tmp_path) == ("File_ID.DIZ", ["diz"], "file_id.diz")
     (tmp_path / "DIRINFO").write_text("one\ntwo\n")
-    assert _info_file(tmp_path) == ("DirInfo", ["one", "two"])
+    assert _info_file(tmp_path) == ("DirInfo", ["one", "two"], "DIRINFO")
 
 
 def test_gather_reads_a_directory(tmp_path):

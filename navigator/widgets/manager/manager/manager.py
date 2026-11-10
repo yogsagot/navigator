@@ -3361,6 +3361,9 @@ class Manager(Window):
         typed = tr("The command line holds text: the key edits it")
         read_only = tr("This drive cannot be written to")
         not_found = tr("Not in a Find listing")
+        if isinstance(command, Edit) and self.info.focus_within:
+            # ``TDiskInfo``'s ``cmEditFile``: the information file it shows, or nothing.
+            return unless(self.info.info_path is not None, tr("No DirInfo or File_ID.DIZ here"))
         # The history is the session's, whatever the panel shows.
         if isinstance(command, Undo):
             if command.by_key and self._command_line_has_text():
@@ -3526,6 +3529,8 @@ class Manager(Window):
             if isinstance(command, Delete) and not SETTINGS.file_manager.del_erases:
                 # File Manager Setup's *Del erases* off: F8 still does.
                 return tr("File Manager Setup's Del erases is off")
+        if self._tree_takes(command):
+            return self._tree_refusal(command)
         if isinstance(command, DeleteSingle):
             entry = panel.selected
             if self._aside_focused():
@@ -3629,8 +3634,51 @@ class Manager(Window):
 
     def _aside_focused(self) -> bool:
         """Whether the keyboard is in something beside the listing -- the tree,
-        the quick view, or the file Miller columns preview -- not a panel."""
-        return self.tree.focused or self.quick.focused or self.miller.preview_file.focus_within
+        the quick view, the information panel, or the file Miller columns
+        preview -- not a panel.  DN's ``TDiskInfo`` handled none of a panel's
+        commands, so F5/F6/F8 there did nothing."""
+        return (self.tree.focused or self.quick.focused or self.info.focus_within
+                or self.miller.preview_file.focus_within)
+
+    #: What DN's panel tree (``TTreePanel.HandleEvent``) did itself, on the
+    #: directory under its cursor: F5/F6 ``CopyDir``, F7 ``MkDirectory``,
+    #: F8/Del ``EraseDir``.
+    _TREE_OWN = (Copy, RenameMove, MakeDirectory, Delete)
+
+    def _tree_takes(self, command: Any) -> bool:
+        """Whether *command* is one the Ctrl+T tree, holding the keyboard, does itself."""
+        return self.tree.focused and isinstance(command, self._TREE_OWN)
+
+    def _tree_refusal(self, command: Any) -> str:
+        """Why the tree cannot do *command* now: its root is not copied, moved
+        or erased (``if ScrollBar^.Value < 1 then Exit``)."""
+        tree = self.tree
+        if tree.selected_path is None:
+            return tr("The cursor is on no directory")
+        if not isinstance(command, MakeDirectory) and tree.selected_node is tree.root:
+            return tr("Not the tree's root")
+        return ""
+
+    def _tree_entry(self) -> tuple[Any, Any] | None:
+        """The directory under the tree's cursor as a file operation takes it:
+        ``(where it is listed, its entry)``, or None if it is gone."""
+        from navigator.lib.drives.listing import DirEntry, entry_at
+
+        path = self.tree.selected_path
+        if path is None:
+            return None
+        if isinstance(path, Location) and not path.is_local:
+            try:
+                info = drive_of(path).stat(path)
+            except (OSError, DriveGone):
+                return None
+            entry = DirEntry(path.name, True, 0, info.st_mode, info.st_mtime, False, None,
+                             getattr(info, "st_uid", 0), getattr(info, "st_gid", 0), None,
+                             getattr(info, "st_nlink", 1))
+            return path.parent, entry
+        local = path.local if isinstance(path, Location) else Path(path)
+        entry = entry_at(local)
+        return (Location.of(local.parent), entry) if entry is not None else None
 
     def _command_line(self) -> Any:
         """The command line of the screen this window is on, or None."""
@@ -3826,8 +3874,31 @@ class Manager(Window):
         # the key that would dismiss it is never dispatched.  `spawn' lets
         # this handler return, the batch finish and the frame appear -- see
         # `Dialog.execute', which refuses the mistake.
-        self.spawn(self.make_directory())
+        self.spawn(self.tree_make_directory() if self.tree.focused else self.make_directory())
         return True
+
+    async def tree_make_directory(self) -> None:
+        """F7 in the Ctrl+T tree: ``MkDirectory``, a directory made under the
+        one at the tree's cursor, which the tree then shows and goes to."""
+        from navigator.widgets.file_ops.make_directory import make_directory_in
+
+        base = self.tree.selected_path
+        if base is None:
+            return
+        name = await MkdirDialog().execute(self.application)
+        if not name:
+            return
+        try:
+            made = await make_directory_in(self.application, base, name)
+        except OSError as error:
+            made = None
+            await Dialog(title=tr("Cannot make directory"), prompt=error.strerror or str(error),
+                         buttons="ok").execute(self.application)
+        self.tree.reload()
+        if made is not None:
+            self.tree.show(made.local if made.is_local else made)
+        for panel in self.all_panels:
+            panel.reload()
 
     async def make_directory(self) -> None:
         """F7: ask for a name, and make it in the active panel.
@@ -3936,13 +4007,31 @@ class Manager(Window):
 
     async def on_copy(self, event: Copy) -> bool:
         """F5: ``cmCopyFiles``."""
-        self.spawn(self.copy_files(move=False))
+        self.spawn(self.tree_copy(move=False) if self.tree.focused else self.copy_files(move=False))
         return True
 
     async def on_rename_move(self, event: RenameMove) -> bool:
         """F6: ``cmMoveFiles``, the same dialog with *Remove source* ticked."""
-        self.spawn(self.copy_files(move=True))
+        self.spawn(self.tree_copy(move=True) if self.tree.focused else self.copy_files(move=True))
         return True
+
+    async def tree_copy(self, *, move: bool) -> None:
+        """F5/F6 in the Ctrl+T tree: ``TTreePanel.CopyDir``, the directory under
+        its cursor copied (or moved), the Copy box offering the active panel's
+        directory -- the other side; then the tree and the panels look again."""
+        found = await asyncio.to_thread(self._tree_entry)
+        if found is None:
+            return
+        here, entry = found
+        panel = self.active_panel
+        try:
+            target = shown(panel.location) if panel.drive.can("write") else None
+        except DriveGone:
+            target = None
+        others = tuple(other for other in self.all_panels if other is not panel)
+        await self.copy_entries(panel, [entry], target, move=move, others=others, here=here)
+        self.tree.reload()
+        self.reread_info()
 
     async def copy_files(self, *, move: bool) -> None:
         """Ask where, copy on a thread, and let both panels look again.
@@ -4466,9 +4555,23 @@ class Manager(Window):
     # -- deleting ----------------------------------------------------------------
 
     async def on_delete(self, event: Delete) -> bool:
-        """F8 and Del: ``cmPanelErase``."""
-        self.spawn(self.delete_files(single=False))
+        """F8 and Del: ``cmPanelErase`` -- in the Ctrl+T tree, ``EraseDir``."""
+        self.spawn(self.tree_erase() if self.tree.focused else self.delete_files(single=False))
         return True
+
+    async def tree_erase(self) -> None:
+        """F8/Del in the Ctrl+T tree: ``EraseDir``, the directory under its
+        cursor erased as F8 erases (the Delete box, the Trash, the questions);
+        then the tree and the panels look again."""
+        found = await asyncio.to_thread(self._tree_entry)
+        if found is None:
+            return
+        here, entry = found
+        await self.erase_located(here, [entry])
+        self.tree.reload()
+        for panel in self.all_panels:
+            panel.reload()
+        self.reread_info()
 
     async def on_delete_single(self, event: DeleteSingle) -> bool:
         """Shift+F8 and Shift+Del: ``cmSingleDel``, the cursor's entry whatever is tagged."""
@@ -5325,8 +5428,26 @@ class Manager(Window):
         (Options > Editors) says for it, else ``$EDITOR`` on the console
         (:meth:`edit_file`).
         """
-        self.spawn(self.edit_file(True))
+        if self.info.focus_within:
+            self.spawn(self.edit_info_file())
+        else:
+            self.spawn(self.edit_file(True))
         return True
+
+    async def edit_info_file(self) -> None:
+        """F4 in the information panel: ``TDiskInfo``'s *Edit DirInfo* -- the
+        ``DirInfo`` or ``File_ID.DIZ`` it shows, in the editor; the panel reads
+        it again once saved (``cmRereadInfo`` from ``FileChanged``)."""
+        from navigator.lib.config.file_history import open_editor
+
+        path = self.info.info_path
+        if path is None or self.parent is None:
+            return
+        try:
+            await open_editor(self.parent, path)
+        except OSError as error:
+            await Dialog(title=tr("Cannot edit file"), prompt=f"{path.name}: {error.strerror or error}",
+                         buttons="ok").execute(self.application)
 
     async def on_alternate_edit(self, event: AlternateEdit) -> bool:
         """Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round
