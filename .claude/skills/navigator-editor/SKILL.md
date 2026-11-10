@@ -98,7 +98,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   (`UnindentBlock(stop=True)`, `unindent_block_stop` in `keybindings.ini`, always enabled): with the cursor in the
   block it unindents the block, otherwise the cursor's line alone, the cursor moving left with its text; nothing indented, no edit at all
   (the typing run before it goes on, `_blank_at`) --
-  departures too; ^K I/U keep DN's one blank. Either way it follows every edit, undo's included, through
+  departures too, and only Tab and Shift+Tab work at a column block's left edge (painted, `_painted_insert`); ^K I/U keep DN's one blank at column 0. Either way it follows every edit, undo's included, through
   `EditBuffer.listeners` and `document.shifted` -- text inserted at the block's end stays outside it. Painted with
   `FileEditor::selected`. Ctrl+Ins/Ctrl+C/Ctrl+Alt+C (`ClipboardCopy`, `cmCopy`), Shift+Del/Ctrl+X/Ctrl+Alt+X (`ClipboardCut`),
   Shift+Ins/Ctrl+V/Ctrl+Alt+V (`ClipboardPaste`, which asks the application and types the `PasteEvent` that comes back; the cursor ends after it with nothing marked -- a departure, asked for: DN's `InsertBlock` marked the paste, cursor at its start -- and it is greyed, *The clipboard is empty*, only with the system clipboard off and no copy made, since the desktop's cannot be looked at without a process: DN greyed `cmPaste` on an empty clipboard), Ctrl+Del (`Clear`,
@@ -124,8 +124,8 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **WordStar's ^K and ^Q** (with the preset) are navkit chords, each letter bound plain and with Ctrl (`_wordstar`): ^K B/K mark the
   start/end (with no block, the first waits for the other -- `_half_mark`, dropped by any edit), H (and Alt+H) hides the block or shows it again, C copies
   the block to the cursor and marks the copy, V moves it (refused with the cursor inside it), Y deletes it, I/U
-  indent/unindent its lines by one blank (a column block at its left column; a leading tab gives way to spaces), `[`
-  `]` `\` upper/lower/capitalise it, T marks the word (`cmMarkWord`, `_dn_word`: on a word's first character that word, else the start of this word or the one before it on the line -- a blank gives the word before it -- else the next word, on a later line too; the cursor at the word's start; a double-click is the same command where it was pressed), L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
+  indent/unindent its lines by one blank at column 0, whatever the block's kind (`IndentBlock`/`UnIndentBlock`, `EDITOR.PAS:280-313`): I gives empty lines a blank too, U does nothing at all unless every line with text starts with a blank, a leading tab giving way to spaces; a column block's corners stay put. `[`
+  `]` `\` upper/lower/capitalise it, widened to whole words (`ChangeBlockCase`, `_word_span`): a stream block keeps the widened extent, a column block its corners; a reordered Hebrew/Arabic line's lit runs are not widened, T marks the word (`cmMarkWord`, `_dn_word`: on a word's first character that word, else the start of this word or the one before it on the line -- a blank gives the word before it -- else the next word, on a later line too; the cursor at the word's start; a double-click is the same command where it was pressed), L the line; ^Q B/K go to its ends, ^Q Y deletes to the line's
   end, ^Q L undoes.
 - **^K R / ^K W are DN's `BlockRead`/`BlockWrite`** (`MICROED.PAS`), also the Editor menu's *Paste from...*/*Copy
   to...*, handled by `EditWindow` (dialogs and I/O; `FileEditor.block_file_text`/`read_block` are the text). The name

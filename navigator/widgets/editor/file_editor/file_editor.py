@@ -2099,10 +2099,26 @@ class FileEditor(ContextMenuHost, Widget):
         return range(start.line, last + 1)
 
     async def on_indent_block(self, event: IndentBlock) -> bool:
-        """^K I: a blank before each line of the block -- at its left column, for a column block.
+        """^K I (``IndentBlock``, ``EDITOR.PAS:299``): a blank at column 0 of every line
+        of the block, an empty one too, whatever kind of block it is; a column
+        block's corners stay where they were, as DN put ``Mark`` back.
 
-        Tab's (*stop*) puts a tab stop's width of blanks there instead.
+        Tab's (*stop*, a departure) puts a tab stop's width of blanks at a column
+        block's left column instead, and leaves empty lines alone.
         """
+        if not event.stop:
+            block = self.block
+            corners = self.column_block
+            self._moved()
+            self._begin()
+            for number in self._block_lines():
+                self.buffer.insert(Pos(number, 0), " ")
+            if block is not None and block[0].index == 0 and self.block is not None:
+                self.block = (Pos(block[0].line, 0), self.block[1])
+            if corners is not None:
+                self.column_block = corners
+            self._end()
+            return True
         left = self.rectangle[1] if self.column_block is not None else 0
         blanks = " " * (self.tab_size if event.stop else 1)
         if event.stop and self.insert_tabs and self.column_block is None:
@@ -2196,14 +2212,33 @@ class FileEditor(ContextMenuHost, Widget):
         return order[at][0]
 
     async def on_unindent_block(self, event: UnindentBlock) -> bool:
-        """^K U: one blank out of each line of the block where one stands there; a
-        leading tab gives way to one column fewer of spaces.
+        """^K U (``UnIndentBlock``, ``EDITOR.PAS:280``): column 0 out of every line of
+        the block, whatever kind of block it is -- or nothing at all unless every
+        line with text starts with a blank.  A leading tab gives way to one
+        column fewer of spaces.
 
         Shift+Tab's (*stop*) takes out up to a tab stop's width of columns,
         one at a time the same way, so a line with fewer blanks loses those it has.
         With the cursor outside the block, or no block, it unindents the
         cursor's line instead, the cursor moving left with its text.
         """
+        if not event.stop:
+            lines = [n for n in self._block_lines() if self.document.lines[n]]
+            if not lines or any(self.document.lines[n][0] not in " \t" for n in lines):
+                return True
+            corners = self.column_block
+            self._moved()
+            self._begin()
+            for number in lines:
+                text = self.document.lines[number]
+                width = columns.advance(text[0], 0, self.tab_size)
+                self.buffer.delete(Pos(number, 0), Pos(number, 1))
+                if width > 1:
+                    self.buffer.insert(Pos(number, 0), " " * (width - 1))
+            if corners is not None:
+                self.column_block = corners
+            self._end()
+            return True
         alone = event.stop and not self._cursor_in_block()
         if alone:
             lines, left = range(self.line, min(self.line + 1, len(self.document))), 0
@@ -2241,30 +2276,65 @@ class FileEditor(ContextMenuHost, Widget):
         self._end()
         return True
 
+    @staticmethod
+    def _word_span(text: str, i: int, j: int) -> tuple[int, int]:
+        """``ChangeBlockCase``'s widening (``EDITOR.PAS:741-752``): *i* back to its
+        word's start when it stands in a word, *j* on to its word's end unless
+        it is a line's start.  DN's start stopped on the break before the word;
+        here on the word, which changes nothing a case change can see and keeps
+        a block from starting on a blank."""
+        if i < len(text) and text[i] not in BREAK_CHARS:
+            while i > 0 and text[i - 1] not in BREAK_CHARS:
+                i -= 1
+        if j > 0:
+            while j < len(text) and text[j] not in BREAK_CHARS:
+                j += 1
+        return i, j
+
     def _recase(self, change: Callable[[str], str]) -> None:
-        """The block's text through *change*, the block kept where it is."""
+        """The block's text through *change*, widened to whole words as
+        ``ChangeBlockCase`` did: a stream block keeps the widened extent, a column
+        block its corners (``ChangeVertBlockCase`` put ``Mark`` back)."""
         self._moved()
         self._begin()
         if self.column_block is not None:
             top, left, bottom, right = self.rectangle
             corners = self.column_block
             for number in self._block_lines():
-                for i, j in reversed(self._rect_spans(number, left, right)[0]):
+                spans = sorted(self._rect_spans(number, left, right)[0])
+                if spans:
+                    text = self.document.lines[number]
+                    first, _ = self._word_span(text, spans[0][0], spans[0][0])
+                    _, last = self._word_span(text, spans[-1][1], spans[-1][1])
+                    spans[0] = (first, spans[0][1])
+                    spans[-1] = (spans[-1][0], last)
+                for i, j in reversed(spans):
                     text = self.document.lines[number]
                     new = change(text[i:j])
                     if new != text[i:j]:
                         self.buffer.delete(Pos(number, i), Pos(number, j))
                         self.buffer.insert(Pos(number, i), new)
             self.column_block = corners
-        elif self.block is not self._painted_block:
+        elif self.block is not self._painted_block or self._block_runs() == [tuple(self.block)]:
+            # The block as one stretch of text: no line it crosses is reordered.
+            painted = self.block is self._painted_block
             start, end = self.block
+            index, _ = self._word_span(self._text(start.line), start.index, start.index)
+            start = Pos(start.line, index)
+            if end.index > 0:
+                _, index = self._word_span(self._text(end.line), end.index, end.index)
+                end = Pos(end.line, index)
             old = self.document.text(start, end)
             new = change(old)
             if new != old:
                 self.buffer.delete(start, end)
                 end = self.buffer.insert(start, new)
-                self.block = (start, end)
+            self.block = (start, end)
+            if painted:
+                self._painted_block = self.block  # still the cursor's, as it was
         else:
+            # A reordered line's lit runs are no one span of text, so they are
+            # not widened to whole words (a departure from ChangeBlockCase).
             # What is lit, each stretch on its own, and the block still marked
             # between its ends -- moved where a stretch grew or shrank (``ß``
             # to ``SS``): after one by the difference, inside one (a caret on a

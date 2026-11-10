@@ -263,7 +263,10 @@ def test_finding_in_a_painted_block_passes_over_what_lies_between_its_stretches(
 def _indent(editor, *, undo: bool = False) -> None:
     from navigator.widgets.editor.commands import IndentBlock, UnindentBlock
 
-    command = (UnindentBlock if undo else IndentBlock)(stop=False)
+    # Tab's and Shift+Tab's indent (stop) is the one that works at a column block's
+    # painted edge -- ^K I/U work at column 0 -- so a tab stop of one blank.
+    editor.tab_size = 1
+    command = (UnindentBlock if undo else IndentBlock)(stop=True)
     asyncio.run((editor.on_unindent_block if undo else editor.on_indent_block)(command))
 
 

@@ -1530,6 +1530,45 @@ def test_ctrl_k_brackets_change_the_case_of_the_block(files):
 
 
 @pytest.mark.usefixtures("wordstar")
+def test_a_block_case_change_takes_whole_words_and_keeps_the_widened_block(files):
+    _, editor = text_editor(files, b"foo bar baz\n", KeyEvent("right"),
+                            *[KeyEvent("right", shift=True)] * 4, *chord("["))
+    assert editor.document.encode() == b"FOO BAR baz\n"
+    assert editor.block == (Pos(0, 0), Pos(0, 7))
+    # A block ending at a line's start does not reach into that line.
+    _, editor = text_editor(files, b"ab cd\nef\n", KeyEvent("right"), KeyEvent("down", shift=True),
+                            KeyEvent("home", shift=True), *chord("["))
+    assert editor.document.encode() == b"AB CD\nef\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_ctrl_k_i_puts_a_blank_at_column_0_of_every_line_empty_ones_too(files):
+    _, editor = text_editor(files, b"a\n\nb\nc\n", *[KeyEvent("down", shift=True)] * 3, *chord("i"))
+    assert editor.document.encode() == b" a\n \n b\nc\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_ctrl_k_i_and_u_on_a_column_block_work_at_column_0(files):
+    SETTINGS.editor.vertical_blocks = True
+    _, editor = text_editor(files, b"ab\ncd\n", KeyEvent("right"), KeyEvent("right", shift=True),
+                            KeyEvent("down", shift=True), *chord("i"))
+    assert editor.document.encode() == b" ab\n cd\n"
+    assert editor.rectangle == (0, 1, 1, 2)
+    _, editor = text_editor(files, b" ab\n cd\n", KeyEvent("right"), KeyEvent("right", shift=True),
+                            KeyEvent("down", shift=True), *chord("u"))
+    assert editor.document.encode() == b"ab\ncd\n"
+
+
+@pytest.mark.usefixtures("wordstar")
+def test_ctrl_k_u_does_nothing_unless_every_line_with_text_starts_with_a_blank(files):
+    _, editor = text_editor(files, b" a\nb\n", *[KeyEvent("down", shift=True)] * 2, *chord("u"))
+    assert editor.document.encode() == b" a\nb\n"
+    assert not editor.buffer.can_undo
+    _, editor = text_editor(files, b" a\n\n\tb\n", *[KeyEvent("down", shift=True)] * 3, *chord("u"))
+    assert editor.document.encode() == b"a\n\n" + b" " * (editor.tab_size - 1) + b"b\n"
+
+
+@pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_b_and_k_go_to_the_blocks_ends(files):
     _, editor = text_editor(files, b"abcdef\n", KeyEvent("right"),
                             *[KeyEvent("right", shift=True)] * 3, ctrl("q"), KeyEvent("b", "b"))
@@ -1554,7 +1593,7 @@ def test_column_blocks_take_the_k_commands_too(files):
                             KeyEvent("down"), KeyEvent("right"), KeyEvent("right"), *chord("k"),
                             *chord("["))
     assert editor.rectangle == (0, 1, 1, 3)
-    assert editor.document.encode() == b"aBCd\neFGh\n"
+    assert editor.document.encode() == b"ABCD\nEFGH\n"  # whole words, the corners kept
     _, editor = text_editor(files, b"abcd\nefgh\n", KeyEvent("right"),
                             KeyEvent("right", shift=True), KeyEvent("down", shift=True),
                             KeyEvent("end"), *chord("v"))
