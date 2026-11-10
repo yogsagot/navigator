@@ -156,6 +156,17 @@ class EditWindow(Window):
     def mounted(self) -> None:
         super().mounted()
         effect(self, EditWindow._follow_modified)
+        effect(self, EditWindow._follow_bounds)
+
+    def _follow_bounds(self) -> None:
+        """``TEditWindow.ChangeBounds``: unless SmartPad or modal, this rectangle is
+        where *Store editor position* opens the next new editor (``TempBounds``)."""
+        from navigator.lib.config import file_history
+
+        _ = (self.x, self.y, self.width, self.height, self.zoomed)
+        if self.smartpad or self.parent is None:
+            return
+        file_history.remember_edit_bounds(self)
 
     def _follow_modified(self) -> None:
         """``.modified`` while the text is changed, which ``EditWindow.modified::title`` turns yellow.
@@ -247,8 +258,10 @@ class EditWindow(Window):
         """``EditFile``: put the window and the editor back as the record says.
 
         Called once the window is on its desktop.  A file with no record gets
-        one now.  The rectangle, scroll and cursor come back only under
-        *Store editor position*.  A cursor past the end of a text that has
+        one now.  The rectangle, scroll and cursor come back with the rest
+        whenever *Track editing* is on, as ``EditFile`` put them back
+        (``DNUTIL.PAS:1337``); *Store editor position* is where a *new* editor
+        opens (``file_history.place_last_edit``).  A cursor past the end of a text that has
         since got shorter lands on its last line, which ``ScrollTo`` and
         ``Pos`` clamped too.
         """
@@ -280,10 +293,6 @@ class EditWindow(Window):
         if None not in margins:
             editor.margins = fix_margins(*margins)
         editor.restore_block_place(record.block, record.block_hidden)
-        # *Store editor position*: without it the cursor starts at the top, in
-        # the window it was given.
-        if not SETTINGS.interface.store_editor_position:
-            return
         place_window(self, record)
         last = max(0, editor.line_count - 1)
         editor.top = min(max(0, record.top), last)

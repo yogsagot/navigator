@@ -561,8 +561,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   It holds the window rectangle, cursor (`line`, `col`), scroll (`top`, `left`), `overwrite`, `vertical_blocks`,
   `highlight`, `file_type`, the markers, the block (`block`, as `line:col-line:col`, `|` before a column block's
   corners; `block_hidden`), Current line/column, Autoindent, Justify on wrap, Auto brackets and the three margins.
-  It is stored and restored as the viewer's is (see `navigator-viewer`): the rectangle, cursor and scroll only under
-  *Store editor position*, everything else whenever *Track editing* is on, as `EditFile` did. The eight modes and
+  It comes back whole -- the rectangle, cursor and scroll with the rest -- whenever *Track editing* is on, as
+  `EditFile` put it back (`DNUTIL.PAS:1337`). *Store editor position* is DN's other rule: a **new** editor opens at
+  the last editor window's rectangle (`TempBounds`, `file_history.LAST_EDIT`, written by `EditWindow._follow_bounds`
+  as any editor but SmartPad moves, kept between runs in the `window_bounds` table, `WindowBounds`), scaled to the
+  desktop; off, or before any, the whole desktop (zoomed). The record then wins over it. `open_editor` takes
+  `LAST_EDIT` before `desktop.open`, since the new window's own effect writes it on mounting. (The viewer still keeps
+  its place only under *Store viewer position*; see `navigator-viewer`.) The eight modes and
   margins are nullable: None, a record from before they were kept, leaves the Editor setup's value; margins go
   through `fix_margins`. A block the text no longer holds, or of the other kind, is dropped (a departure: DN put
   `Mark.A`/`Mark.B` back blindly). Auto wrap, Backspace unindents, Optimal fill, Hidden characters and the draw mode

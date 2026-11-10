@@ -45,6 +45,10 @@ def blank(tmp_path, monkeypatch):
 
 
 def draw(path, *keys):
+    """text.txt in an editor, fresh: the last open's record would bring its place back."""
+    from navigator.models.edit_record import EditRecord
+
+    EditRecord.delete_where()
     app = Navigator(path, path, terminal=FakeTerminal(80, 24))
     seen = []
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, *keys,

@@ -141,7 +141,9 @@ def test_an_editor_opens_again_with_its_cursor_and_insert_mode(files):
     assert EditRecord.find(files / "text.txt").overwrite is True
 
 
-def test_without_store_editor_position_the_cursor_starts_at_the_top(files):
+def test_without_store_editor_position_the_record_s_cursor_still_comes_back(files):
+    """``EditFile`` put a tracked file's place back under *Track editing* alone
+    (``DNUTIL.PAS:1337``); *Store editor position* is where a new editor opens."""
     SETTINGS.interface.store_editor_position = False
     EditRecord.store(files / "text.txt", line=120, col=3, top=110, overwrite=True)
     app = navigator(files)
@@ -149,8 +151,62 @@ def test_without_store_editor_position_the_cursor_starts_at_the_top(files):
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: seen.update(editor=active(a).editor)])
     editor = seen["editor"]
-    assert (editor.line, editor.col, editor.top) == (0, 0, 0)
+    assert (editor.line, editor.col, editor.top) == (120, 3, 110)
     assert editor.overwrite is True
+
+
+def test_without_track_editing_the_cursor_starts_at_the_top(files):
+    SETTINGS.interface.track_editing = False
+    EditRecord.store(files / "text.txt", line=120, col=3, top=110, overwrite=True)
+    app = navigator(files)
+    seen = {}
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
+                  lambda a: seen.update(editor=active(a).editor)])
+    editor = seen["editor"]
+    assert (editor.line, editor.col, editor.top) == (0, 0, 0)
+    assert editor.overwrite is False
+
+
+def test_store_editor_position_opens_a_new_editor_where_the_last_one_was(files):
+    """``TempBounds``: the last editor's rectangle, for the next new one; off, the whole desktop."""
+    (files / "other.txt").write_text("x\n")
+    seen = {}
+
+    def move(a):
+        window = active(a)
+        window.toggle_zoom()
+        window.locate(5, 2, 40, 12)
+        window.layout(a.shell.desktop.width, a.shell.desktop.height)
+
+    def to_other(a):
+        panel = a.manager.left
+        panel.cursor = [e.name for e in panel.items].index("other.txt")
+
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, move, IDLE, KeyEvent("escape"), IDLE,
+                  to_other, KeyEvent("f4"), IDLE,
+                  lambda a: seen.update(at=(active(a).x, active(a).y, active(a).width, active(a).height),
+                                        zoomed=active(a).zoomed)])
+    assert seen["zoomed"] is False and seen["at"] == (5, 2, 40, 12)
+
+    SETTINGS.interface.store_editor_position = False
+    EditRecord.delete_where()
+    app = navigator(files)
+    run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE, move, IDLE, KeyEvent("escape"), IDLE,
+                  to_other, KeyEvent("f4"), IDLE, lambda a: seen.update(zoomed=active(a).zoomed)])
+    assert seen["zoomed"] is True
+
+
+def test_the_last_editor_rectangle_is_kept_between_runs():
+    from navigator.lib.config import file_history
+
+    file_history.LAST_EDIT = {"zoomed": False, "x": 3, "y": 1, "width": 50, "height": 15,
+                              "desk_width": 80, "desk_height": 23}
+    file_history.save_edit_bounds()
+    file_history.LAST_EDIT = None
+    file_history.load_edit_bounds()
+    assert file_history.LAST_EDIT == {"zoomed": False, "x": 3, "y": 1, "width": 50, "height": 15,
+                                      "desk_width": 80, "desk_height": 23}
 
 
 def reopened(files, *changes):
@@ -237,7 +293,7 @@ def test_without_store_editor_position_the_modes_and_block_still_come_back(files
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), IDLE,
                   lambda a: seen.update(editor=active(a).editor)])
     editor = seen["editor"]
-    assert (editor.line, editor.col, editor.top) == (0, 0, 0)
+    assert (editor.line, editor.col, editor.top) == (120, 3, 110)
     assert editor.auto_indent is False
     assert editor.margins == (2, 50, 4)
     assert editor.block is not None

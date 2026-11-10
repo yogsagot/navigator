@@ -364,6 +364,10 @@ def _fresh_database():
     DATABASE.open()
     # Navigator sizes the shared store from its settings; put it back.
     HISTORY.limit = MAX_ENTRIES
+    # The last editor rectangle is a plain module value, like DN's TempBounds.
+    from navigator.lib.config import file_history
+
+    file_history.LAST_EDIT = None
     yield
     DATABASE.close()
     HISTORY.limit = MAX_ENTRIES

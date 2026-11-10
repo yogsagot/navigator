@@ -1,0 +1,18 @@
+from navkit.database import Model
+
+#: The last rectangle a kind of window had: DOS Navigator's ``TempBounds`` and
+#: ``LastEditDeskSize`` for the editor (``MICROED.PAS:483``), which it kept in
+#: its configuration and where *Store editor position* opened every new editor,
+#: scaled to the desktop (``navigator.lib.config.file_history.place_last_edit``).
+#: One row a kind -- ``editor``.
+WindowBounds(Model):
+    table: "window_bounds"
+    field kind: str
+    field zoomed: bool = False
+    field x: int = 0
+    field y: int = 0
+    field width: int = 0
+    field height: int = 0
+    field desk_width: int = 0
+    field desk_height: int = 0
+    unique by_kind: kind

@@ -6,7 +6,7 @@ import time
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.utilities import smartpad
@@ -163,3 +163,14 @@ def test_open_saves_the_pad_unasked_and_the_window_is_an_ordinary_editor(pad, mo
     assert seen["modal"] is None  # no *Save?* for the pad
     assert path.read_text() == f"{STAMP}\nhi"
     assert seen["flag"] is False and seen["title"] == f"Edit - {other}"
+
+
+def test_the_pad_s_window_is_not_the_next_editor_s_rectangle(pad):
+    """``ChangeBounds`` left ``TempBounds`` alone for SmartPad."""
+    from navigator.lib.config import file_history
+
+    tmp_path, path = pad
+    seen = {}
+    run(tmp_path, KeyEvent("q", alt=True), Until(lambda a: front(a) is not None and front(a).smartpad),
+        lambda a: seen.update(last=file_history.LAST_EDIT))
+    assert seen["last"] is None

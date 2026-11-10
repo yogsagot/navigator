@@ -15,7 +15,7 @@ flag = "LV"
 "~H~elp" = "~P~alīdzība"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "Atvērt failu"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
 "~N~ame" = "~V~ārds"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "~D~irektorijas"
@@ -741,11 +741,11 @@ flag = "LV"
 "{n} day ago" = ["pirms {n} dienas", "pirms {n} dienām", "pirms {n} dienām"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter apstiprina, Escape atceļ."
-# navml/widgets/dialog/file_dialog/file_dialog.py:202
+# navml/widgets/dialog/file_dialog/file_dialog.py:213
 "Invalid file name." = "Nederīgs faila vārds."
-# navml/widgets/dialog/file_dialog/file_dialog.py:193
+# navml/widgets/dialog/file_dialog/file_dialog.py:204
 "Invalid drive or directory." = "Nederīgs disks vai direktorija."
-# navml/widgets/dialog/file_dialog/file_dialog.py:228
+# navml/widgets/dialog/file_dialog/file_dialog.py:239
 "Error" = "Kļūda"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "Direktorija"

@@ -421,11 +421,14 @@ class InterfaceData(Section):
     hide_command_line: bool = Setting(False, doc="Hide the command line, and type nothing on it")
     auto_hide_command_line: bool = Setting(False, doc="Hide the command line while it is empty")
     block_insert_cursor: bool = Setting(False, doc="Block cursor on the command line")
-    #: Track records a file and lists it; these put a tracked file's window,
-    #: scroll and cursor back when it opens again.  On by default, as the
+    #: Track records a file and lists it; the viewer's puts a tracked file's
+    #: window, scroll and cursor back when it opens again.  The editor's is
+    #: DN's ``ouiStoreEditorPosition``: a new editor opens where the last one
+    #: was (``TempBounds``) -- its file's record comes back under *Track
+    #: editing* alone, as ``EditFile`` put it back.  On by default, as the
     #: Track pair is, for the same reason.
     store_editor_position: bool = Setting(
-        True, doc="Reopen a tracked file in the editor at its window, scroll and cursor",
+        True, doc="Open a new editor where the last one was",
     )
     store_viewer_position: bool = Setting(
         True, doc="Reopen a tracked file in the viewer at its window, scroll and cursor",

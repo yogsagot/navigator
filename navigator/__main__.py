@@ -52,7 +52,7 @@ from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
 from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
-from navigator.lib.config.file_history import remember_windows
+from navigator.lib.config.file_history import remember_windows, save_edit_bounds
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.system.background import BACKGROUND
 from navigator.lib.system import dirwatch, errorlog
@@ -167,6 +167,9 @@ class Navigator(Application):
         # Headless, nobody is, and the first command starts it as before.
         if self.terminal.is_tty:
             self.shell.console.start()
+        from navigator.lib.config.file_history import load_edit_bounds
+
+        load_edit_bounds()
         await self._restore_desktop()
         if self.manager.parent is not None:
             # The start's own file manager, not one a desktop brought back.
@@ -362,6 +365,7 @@ class Navigator(Application):
             ("stopping the stall watchdog", self._stop_watchdog),
             ("saving the desktop", self._autosave_desktop),
             ("recording the open viewers and editors", lambda: remember_windows(self.shell.desktop)),
+            ("keeping the last editor rectangle", save_edit_bounds),
             # The shell would otherwise outlive the terminal it was talking
             # to, and so would a command in a window of its own.
             ("stopping the console's shell", self.shell.console.stop),

@@ -15,7 +15,7 @@ flag = "JP"
 "~H~elp" = "ヘルプ(~H~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "ファイルを開く"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
 "~N~ame" = "名前(~N~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "ディレクトリ(~D~)"
@@ -741,11 +741,11 @@ flag = "JP"
 "{n} day ago" = ["{n} 日前"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter で確定、Escape で取り消し。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:202
+# navml/widgets/dialog/file_dialog/file_dialog.py:213
 "Invalid file name." = "無効なファイル名です。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:193
+# navml/widgets/dialog/file_dialog/file_dialog.py:204
 "Invalid drive or directory." = "無効なドライブまたはディレクトリです。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:228
+# navml/widgets/dialog/file_dialog/file_dialog.py:239
 "Error" = "エラー"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "ディレクトリ"

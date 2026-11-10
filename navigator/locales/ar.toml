@@ -50,7 +50,7 @@ direction = "rtl"
 "~A~dd..." = "إ~ض~افة..."
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:41, navigator/widgets/drives/links_dialog/links_dialog.nml:50
 "~E~dit..." = "~ت~حرير..."
-# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/editor/edit_window/edit_window.nml:238 ...
+# navigator/widgets/drives/forwards_dialog/forwards_dialog.nml:49, navigator/widgets/drives/links_dialog/links_dialog.nml:66, navigator/widgets/editor/edit_window/edit_window.nml:239 ...
 "~D~elete" = "~ح~ذف"
 # navigator/widgets/drives/host_key_query/host_key_query.nml:11
 "Unknown SSH host" = "خادم SSH غير معروف"
@@ -88,293 +88,293 @@ direction = "rtl"
 "~S~ave in keyring" = "~ح~فظ في حلقة المفاتيح"
 # navigator/widgets/drives/password_dialog/password_dialog.nml:32
 "Remember the password in the desktop's keyring, so it is not asked again" = "تذكر كلمة المرور في حلقة مفاتيح سطح المكتب كي لا تطلب مجددا"
-# navigator/widgets/editor/edit_window/edit_window.nml:189
-"~E~ditor" = "ال~م~حرر"
 # navigator/widgets/editor/edit_window/edit_window.nml:190
+"~E~ditor" = "ال~م~حرر"
+# navigator/widgets/editor/edit_window/edit_window.nml:191
 "Editing, the file, search, paragraphs and blocks" = "التحرير والملف والبحث والفقرات والكتل"
-# navigator/widgets/editor/edit_window/edit_window.nml:197, navigator/widgets/editor/file_editor/file_editor.py:3840
+# navigator/widgets/editor/edit_window/edit_window.nml:198, navigator/widgets/editor/file_editor/file_editor.py:3840
 "~U~ndo" = "تر~ا~جع"
-# navigator/widgets/editor/edit_window/edit_window.nml:201, navigator/widgets/editor/file_editor/file_editor.py:3841
+# navigator/widgets/editor/edit_window/edit_window.nml:202, navigator/widgets/editor/file_editor/file_editor.py:3841
 "R~e~do" = "إ~ع~ادة"
-# navigator/widgets/editor/edit_window/edit_window.nml:218
-"C~o~py to..." = "نسخ ~إ~لى..."
 # navigator/widgets/editor/edit_window/edit_window.nml:219
+"C~o~py to..." = "نسخ ~إ~لى..."
+# navigator/widgets/editor/edit_window/edit_window.nml:220
 "Write the block to a file" = "كتابة الكتلة إلى ملف"
-# navigator/widgets/editor/edit_window/edit_window.nml:222
-"P~a~ste from..." = "~ل~صق من..."
 # navigator/widgets/editor/edit_window/edit_window.nml:223
+"P~a~ste from..." = "~ل~صق من..."
+# navigator/widgets/editor/edit_window/edit_window.nml:224
 "Insert a file's text at the cursor" = "إدراج نص ملف عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:228
+# navigator/widgets/editor/edit_window/edit_window.nml:229
 "Delete the selection without copying it to the clipboard" = "حذف التحديد دون نسخه إلى الحافظة"
-# navigator/widgets/editor/edit_window/edit_window.nml:239
+# navigator/widgets/editor/edit_window/edit_window.nml:240
 "Delete a line, a word or the rest of the line" = "حذف سطر أو كلمة أو بقية السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:241, navigator/widgets/editor/file_editor/file_editor.py:3847
+# navigator/widgets/editor/edit_window/edit_window.nml:242, navigator/widgets/editor/file_editor/file_editor.py:3847
 "~D~elete line" = "~ح~ذف السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:245, navigator/widgets/editor/file_editor/file_editor.py:3848
+# navigator/widgets/editor/edit_window/edit_window.nml:246, navigator/widgets/editor/file_editor/file_editor.py:3848
 "Delete ~w~ord left" = "حذف ال~ك~لمة السابقة"
-# navigator/widgets/editor/edit_window/edit_window.nml:249
-"Delete word ri~g~ht" = "ح~ذ~ف الكلمة إلى اليمين"
 # navigator/widgets/editor/edit_window/edit_window.nml:250
+"Delete word ri~g~ht" = "ح~ذ~ف الكلمة إلى اليمين"
+# navigator/widgets/editor/edit_window/edit_window.nml:251
 "Delete from the cursor to the start of the next word" = "حذف من المؤشر إلى بداية الكلمة التالية"
-# navigator/widgets/editor/edit_window/edit_window.nml:253
-"Delete to e~n~d of line" = "حذف حتى نهاية ~ا~لسطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:254
+"Delete to e~n~d of line" = "حذف حتى نهاية ~ا~لسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:255
 "Delete from the cursor to the end of the line" = "حذف من المؤشر إلى نهاية السطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:257
+# navigator/widgets/editor/edit_window/edit_window.nml:258
 "Insert l~i~ne" = "إ~د~راج سطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:263, navigator/widgets/shell/main_menu/main_menu.nml:109
+# navigator/widgets/editor/edit_window/edit_window.nml:264, navigator/widgets/shell/main_menu/main_menu.nml:109
 "~F~ile" = "مل~ف~"
-# navigator/widgets/editor/edit_window/edit_window.nml:265, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
+# navigator/widgets/editor/edit_window/edit_window.nml:266, navigator/widgets/shell/main_menu/main_menu.nml:144, navigator/widgets/shell/main_menu/main_menu.nml:166
 "~O~pen..." = "~ف~تح..."
-# navigator/widgets/editor/edit_window/edit_window.nml:269, navigator/widgets/drives/host_key_query/host_key_query.py:26
+# navigator/widgets/editor/edit_window/edit_window.nml:270, navigator/widgets/drives/host_key_query/host_key_query.py:26
 "~S~ave" = "~ح~فظ"
-# navigator/widgets/editor/edit_window/edit_window.nml:273
+# navigator/widgets/editor/edit_window/edit_window.nml:274
 "Save ~a~s..." = "حفظ ~ب~اسم..."
-# navigator/widgets/editor/edit_window/edit_window.nml:277
+# navigator/widgets/editor/edit_window/edit_window.nml:278
 "Save a~l~l..." = "حفظ ال~ج~ميع..."
-# navigator/widgets/editor/edit_window/edit_window.nml:282, navigator/widgets/shell/main_menu/main_menu.nml:778
+# navigator/widgets/editor/edit_window/edit_window.nml:283, navigator/widgets/shell/main_menu/main_menu.nml:778
 "New ~v~iew" = "~ع~رض جديد"
-# navigator/widgets/editor/edit_window/edit_window.nml:283
+# navigator/widgets/editor/edit_window/edit_window.nml:284
 "Open another window on this text" = "فتح نافذة أخرى على هذا النص"
-# navigator/widgets/editor/edit_window/edit_window.nml:290
+# navigator/widgets/editor/edit_window/edit_window.nml:291
 "Line en~d~ings" = "~ن~هايات الأسطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:294
+# navigator/widgets/editor/edit_window/edit_window.nml:295
 "En~c~oding" = "~ت~رميز"
-# navigator/widgets/editor/edit_window/edit_window.nml:298, navigator/widgets/shell/main_menu/main_menu.nml:309
+# navigator/widgets/editor/edit_window/edit_window.nml:299, navigator/widgets/shell/main_menu/main_menu.nml:309
 "~P~rint" = "~ط~باعة"
-# navigator/widgets/editor/edit_window/edit_window.nml:302
+# navigator/widgets/editor/edit_window/edit_window.nml:303
 "Print ~b~lock" = "طباعة ال~ك~تلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:308
+# navigator/widgets/editor/edit_window/edit_window.nml:309
 "~M~ain menu" = "القائمة ال~ر~ئيسية"
-# navigator/widgets/editor/edit_window/edit_window.nml:312, navigator/widgets/shell/main_menu/main_menu.nml:396
+# navigator/widgets/editor/edit_window/edit_window.nml:313, navigator/widgets/shell/main_menu/main_menu.nml:396
 "E~x~it" = "خر~و~ج"
-# navigator/widgets/editor/edit_window/edit_window.nml:317, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
+# navigator/widgets/editor/edit_window/edit_window.nml:318, navigator/widgets/shell/unicode_chart/unicode_chart.nml:35
 "~S~earch" = "~ب~حث"
-# navigator/widgets/editor/edit_window/edit_window.nml:320
-"Find ~b~ar" = "~ش~ريط البحث"
 # navigator/widgets/editor/edit_window/edit_window.nml:321
+"Find ~b~ar" = "~ش~ريط البحث"
+# navigator/widgets/editor/edit_window/edit_window.nml:322
 "Search as you type, in a bar over the text" = "البحث أثناء الكتابة، في شريط فوق النص"
-# navigator/widgets/editor/edit_window/edit_window.nml:325
+# navigator/widgets/editor/edit_window/edit_window.nml:326
 "Replace b~a~r" = "شريط الاستب~د~ال"
-# navigator/widgets/editor/edit_window/edit_window.nml:330, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3851
+# navigator/widgets/editor/edit_window/edit_window.nml:331, navigator/widgets/shell/main_menu/main_menu.nml:175, navigator/widgets/editor/file_editor/file_editor.py:3851
 "~F~ind..." = "بح~ث~..."
-# navigator/widgets/editor/edit_window/edit_window.nml:334, navigator/widgets/editor/file_editor/file_editor.py:3852
+# navigator/widgets/editor/edit_window/edit_window.nml:335, navigator/widgets/editor/file_editor/file_editor.py:3852
 "~R~eplace..." = "~ا~ستبدال..."
-# navigator/widgets/editor/edit_window/edit_window.nml:338
+# navigator/widgets/editor/edit_window/edit_window.nml:339
 "~S~earch again" = "~ت~كرار البحث"
-# navigator/widgets/editor/edit_window/edit_window.nml:342
+# navigator/widgets/editor/edit_window/edit_window.nml:343
 "Re~v~ersed search" = "بحث ~ع~كسي"
-# navigator/widgets/editor/edit_window/edit_window.nml:346
+# navigator/widgets/editor/edit_window/edit_window.nml:347
 "~G~o to line number..." = "الانتقال إلى ~س~طر..."
-# navigator/widgets/editor/edit_window/edit_window.nml:351
-"~M~atching bracket" = "القوس ال~م~قابل"
 # navigator/widgets/editor/edit_window/edit_window.nml:352
+"~M~atching bracket" = "القوس ال~م~قابل"
+# navigator/widgets/editor/edit_window/edit_window.nml:353
 "Jump to the bracket that pairs with the one at the cursor" = "الانتقال إلى القوس المقابل للقوس عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:361
-"Pla~c~e marker" = "~و~ضع علامة"
 # navigator/widgets/editor/edit_window/edit_window.nml:362
+"Pla~c~e marker" = "~و~ضع علامة"
+# navigator/widgets/editor/edit_window/edit_window.nml:363
 "Keep the cursor's place as one of nine markers" = "حفظ موضع المؤشر كإحدى تسع علامات"
-# navigator/widgets/editor/edit_window/edit_window.nml:364, navigator/widgets/editor/edit_window/edit_window.nml:404
+# navigator/widgets/editor/edit_window/edit_window.nml:365, navigator/widgets/editor/edit_window/edit_window.nml:405
 "Marker ~1~" = "العلامة ~1~"
-# navigator/widgets/editor/edit_window/edit_window.nml:365
+# navigator/widgets/editor/edit_window/edit_window.nml:366
 "Keep the cursor's place as marker 1" = "حفظ موضع المؤشر كالعلامة 1"
-# navigator/widgets/editor/edit_window/edit_window.nml:368, navigator/widgets/editor/edit_window/edit_window.nml:408
+# navigator/widgets/editor/edit_window/edit_window.nml:369, navigator/widgets/editor/edit_window/edit_window.nml:409
 "Marker ~2~" = "العلامة ~2~"
-# navigator/widgets/editor/edit_window/edit_window.nml:369
+# navigator/widgets/editor/edit_window/edit_window.nml:370
 "Keep the cursor's place as marker 2" = "حفظ موضع المؤشر كالعلامة 2"
-# navigator/widgets/editor/edit_window/edit_window.nml:372, navigator/widgets/editor/edit_window/edit_window.nml:412
+# navigator/widgets/editor/edit_window/edit_window.nml:373, navigator/widgets/editor/edit_window/edit_window.nml:413
 "Marker ~3~" = "العلامة ~3~"
-# navigator/widgets/editor/edit_window/edit_window.nml:373
+# navigator/widgets/editor/edit_window/edit_window.nml:374
 "Keep the cursor's place as marker 3" = "حفظ موضع المؤشر كالعلامة 3"
-# navigator/widgets/editor/edit_window/edit_window.nml:376, navigator/widgets/editor/edit_window/edit_window.nml:416
+# navigator/widgets/editor/edit_window/edit_window.nml:377, navigator/widgets/editor/edit_window/edit_window.nml:417
 "Marker ~4~" = "العلامة ~4~"
-# navigator/widgets/editor/edit_window/edit_window.nml:377
+# navigator/widgets/editor/edit_window/edit_window.nml:378
 "Keep the cursor's place as marker 4" = "حفظ موضع المؤشر كالعلامة 4"
-# navigator/widgets/editor/edit_window/edit_window.nml:380, navigator/widgets/editor/edit_window/edit_window.nml:420
+# navigator/widgets/editor/edit_window/edit_window.nml:381, navigator/widgets/editor/edit_window/edit_window.nml:421
 "Marker ~5~" = "العلامة ~5~"
-# navigator/widgets/editor/edit_window/edit_window.nml:381
+# navigator/widgets/editor/edit_window/edit_window.nml:382
 "Keep the cursor's place as marker 5" = "حفظ موضع المؤشر كالعلامة 5"
-# navigator/widgets/editor/edit_window/edit_window.nml:384, navigator/widgets/editor/edit_window/edit_window.nml:424
+# navigator/widgets/editor/edit_window/edit_window.nml:385, navigator/widgets/editor/edit_window/edit_window.nml:425
 "Marker ~6~" = "العلامة ~6~"
-# navigator/widgets/editor/edit_window/edit_window.nml:385
+# navigator/widgets/editor/edit_window/edit_window.nml:386
 "Keep the cursor's place as marker 6" = "حفظ موضع المؤشر كالعلامة 6"
-# navigator/widgets/editor/edit_window/edit_window.nml:388, navigator/widgets/editor/edit_window/edit_window.nml:428
+# navigator/widgets/editor/edit_window/edit_window.nml:389, navigator/widgets/editor/edit_window/edit_window.nml:429
 "Marker ~7~" = "العلامة ~7~"
-# navigator/widgets/editor/edit_window/edit_window.nml:389
+# navigator/widgets/editor/edit_window/edit_window.nml:390
 "Keep the cursor's place as marker 7" = "حفظ موضع المؤشر كالعلامة 7"
-# navigator/widgets/editor/edit_window/edit_window.nml:392, navigator/widgets/editor/edit_window/edit_window.nml:432
+# navigator/widgets/editor/edit_window/edit_window.nml:393, navigator/widgets/editor/edit_window/edit_window.nml:433
 "Marker ~8~" = "العلامة ~8~"
-# navigator/widgets/editor/edit_window/edit_window.nml:393
+# navigator/widgets/editor/edit_window/edit_window.nml:394
 "Keep the cursor's place as marker 8" = "حفظ موضع المؤشر كالعلامة 8"
-# navigator/widgets/editor/edit_window/edit_window.nml:396, navigator/widgets/editor/edit_window/edit_window.nml:436
+# navigator/widgets/editor/edit_window/edit_window.nml:397, navigator/widgets/editor/edit_window/edit_window.nml:437
 "Marker ~9~" = "العلامة ~9~"
-# navigator/widgets/editor/edit_window/edit_window.nml:397
+# navigator/widgets/editor/edit_window/edit_window.nml:398
 "Keep the cursor's place as marker 9" = "حفظ موضع المؤشر كالعلامة 9"
-# navigator/widgets/editor/edit_window/edit_window.nml:401
-"G~o~ to marker" = "ا~ل~انتقال إلى علامة"
 # navigator/widgets/editor/edit_window/edit_window.nml:402
+"G~o~ to marker" = "ا~ل~انتقال إلى علامة"
+# navigator/widgets/editor/edit_window/edit_window.nml:403
 "Take the cursor back to a place kept as a marker" = "إعادة المؤشر إلى موضع محفوظ كعلامة"
-# navigator/widgets/editor/edit_window/edit_window.nml:405
+# navigator/widgets/editor/edit_window/edit_window.nml:406
 "Take the cursor back to marker 1" = "إعادة المؤشر إلى العلامة 1"
-# navigator/widgets/editor/edit_window/edit_window.nml:409
+# navigator/widgets/editor/edit_window/edit_window.nml:410
 "Take the cursor back to marker 2" = "إعادة المؤشر إلى العلامة 2"
-# navigator/widgets/editor/edit_window/edit_window.nml:413
+# navigator/widgets/editor/edit_window/edit_window.nml:414
 "Take the cursor back to marker 3" = "إعادة المؤشر إلى العلامة 3"
-# navigator/widgets/editor/edit_window/edit_window.nml:417
+# navigator/widgets/editor/edit_window/edit_window.nml:418
 "Take the cursor back to marker 4" = "إعادة المؤشر إلى العلامة 4"
-# navigator/widgets/editor/edit_window/edit_window.nml:421
+# navigator/widgets/editor/edit_window/edit_window.nml:422
 "Take the cursor back to marker 5" = "إعادة المؤشر إلى العلامة 5"
-# navigator/widgets/editor/edit_window/edit_window.nml:425
+# navigator/widgets/editor/edit_window/edit_window.nml:426
 "Take the cursor back to marker 6" = "إعادة المؤشر إلى العلامة 6"
-# navigator/widgets/editor/edit_window/edit_window.nml:429
+# navigator/widgets/editor/edit_window/edit_window.nml:430
 "Take the cursor back to marker 7" = "إعادة المؤشر إلى العلامة 7"
-# navigator/widgets/editor/edit_window/edit_window.nml:433
+# navigator/widgets/editor/edit_window/edit_window.nml:434
 "Take the cursor back to marker 8" = "إعادة المؤشر إلى العلامة 8"
-# navigator/widgets/editor/edit_window/edit_window.nml:437
+# navigator/widgets/editor/edit_window/edit_window.nml:438
 "Take the cursor back to marker 9" = "إعادة المؤشر إلى العلامة 9"
-# navigator/widgets/editor/edit_window/edit_window.nml:441
+# navigator/widgets/editor/edit_window/edit_window.nml:442
 "Pa~r~agraph" = "فقر~ة~"
-# navigator/widgets/editor/edit_window/edit_window.nml:443, navigator/widgets/editor/edit_window/edit_window.nml:468
+# navigator/widgets/editor/edit_window/edit_window.nml:444, navigator/widgets/editor/edit_window/edit_window.nml:469
 "~J~ustify" = "~ض~بط الطرفين"
-# navigator/widgets/editor/edit_window/edit_window.nml:444
+# navigator/widgets/editor/edit_window/edit_window.nml:445
 "Justify the block's paragraph to both margins" = "ضبط فقرة الكتلة على الهامشين"
-# navigator/widgets/editor/edit_window/edit_window.nml:448, navigator/widgets/editor/edit_window/edit_window.nml:472
+# navigator/widgets/editor/edit_window/edit_window.nml:449, navigator/widgets/editor/edit_window/edit_window.nml:473
 "~R~ight" = "~ي~مين"
-# navigator/widgets/editor/edit_window/edit_window.nml:452, navigator/widgets/editor/edit_window/edit_window.nml:476
+# navigator/widgets/editor/edit_window/edit_window.nml:453, navigator/widgets/editor/edit_window/edit_window.nml:477
 "~L~eft" = "ي~س~ار"
-# navigator/widgets/editor/edit_window/edit_window.nml:456, navigator/widgets/editor/edit_window/edit_window.nml:480
+# navigator/widgets/editor/edit_window/edit_window.nml:457, navigator/widgets/editor/edit_window/edit_window.nml:481
 "~C~enter" = "~و~سط"
-# navigator/widgets/editor/edit_window/edit_window.nml:465
-"Current li~n~e" = "~ا~لسطر الحالي"
 # navigator/widgets/editor/edit_window/edit_window.nml:466
+"Current li~n~e" = "~ا~لسطر الحالي"
+# navigator/widgets/editor/edit_window/edit_window.nml:467
 "Format the cursor's line alone" = "تنسيق سطر المؤشر وحده"
-# navigator/widgets/editor/edit_window/edit_window.nml:469
+# navigator/widgets/editor/edit_window/edit_window.nml:470
 "Justify the cursor's line to both margins" = "ضبط سطر المؤشر على الهامشين"
-# navigator/widgets/editor/edit_window/edit_window.nml:473
+# navigator/widgets/editor/edit_window/edit_window.nml:474
 "Put the cursor's line against the right margin" = "وضع سطر المؤشر عند الهامش الأيمن"
-# navigator/widgets/editor/edit_window/edit_window.nml:477
+# navigator/widgets/editor/edit_window/edit_window.nml:478
 "Put the cursor's line at the left margin" = "وضع سطر المؤشر عند الهامش الأيسر"
-# navigator/widgets/editor/edit_window/edit_window.nml:481
+# navigator/widgets/editor/edit_window/edit_window.nml:482
 "Center the cursor's line between the margins" = "توسيط سطر المؤشر بين الهامشين"
-# navigator/widgets/editor/edit_window/edit_window.nml:485
+# navigator/widgets/editor/edit_window/edit_window.nml:486
 "~M~argins..." = "ال~ه~وامش..."
-# navigator/widgets/editor/edit_window/edit_window.nml:489, navigator/widgets/editor/edit_window/edit_window.nml:603, navigator/widgets/editor/edit_window/edit_window.nml:618 ...
+# navigator/widgets/editor/edit_window/edit_window.nml:490, navigator/widgets/editor/edit_window/edit_window.nml:604, navigator/widgets/editor/edit_window/edit_window.nml:619 ...
 "~B~lock" = "ك~ت~لة"
-# navigator/widgets/editor/edit_window/edit_window.nml:494
-"Mar~k~ start" = "~ب~داية الكتلة"
 # navigator/widgets/editor/edit_window/edit_window.nml:495
+"Mar~k~ start" = "~ب~داية الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:496
 "Begin the block at the cursor" = "بدء الكتلة عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:498
-"Mark ~e~nd" = "~ن~هاية الكتلة"
 # navigator/widgets/editor/edit_window/edit_window.nml:499
+"Mark ~e~nd" = "~ن~هاية الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:500
 "End the block at the cursor" = "إنهاء الكتلة عند المؤشر"
-# navigator/widgets/editor/edit_window/edit_window.nml:502
-"Mark ~w~ord" = "ت~ح~ديد الكلمة"
 # navigator/widgets/editor/edit_window/edit_window.nml:503
+"Mark ~w~ord" = "ت~ح~ديد الكلمة"
+# navigator/widgets/editor/edit_window/edit_window.nml:504
 "Mark the word at the cursor as the block" = "تحديد الكلمة عند المؤشر ككتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:506
-"Mark li~n~e" = "تح~د~يد السطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:507
+"Mark li~n~e" = "تح~د~يد السطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:508
 "Mark the cursor's line as the block" = "تحديد سطر المؤشر ككتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:511
-"~G~o to block start" = "~ا~لانتقال إلى بداية الكتلة"
 # navigator/widgets/editor/edit_window/edit_window.nml:512
+"~G~o to block start" = "~ا~لانتقال إلى بداية الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:513
 "Take the cursor to where the block begins" = "نقل المؤشر إلى حيث تبدأ الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:515
-"Go to block en~d~" = "ا~ل~انتقال إلى نهاية الكتلة"
 # navigator/widgets/editor/edit_window/edit_window.nml:516
+"Go to block en~d~" = "ا~ل~انتقال إلى نهاية الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:517
 "Take the cursor to where the block ends" = "نقل المؤشر إلى حيث تنتهي الكتلة"
-# navigator/widgets/editor/edit_window/edit_window.nml:520
+# navigator/widgets/editor/edit_window/edit_window.nml:521
 "~M~ove" = "ن~ق~ل"
-# navigator/widgets/editor/edit_window/edit_window.nml:528
+# navigator/widgets/editor/edit_window/edit_window.nml:529
 "~I~ndent" = "~إ~زاحة"
-# navigator/widgets/editor/edit_window/edit_window.nml:532
+# navigator/widgets/editor/edit_window/edit_window.nml:533
 "~U~nindent" = "إزاحة ~ع~كسية"
-# navigator/widgets/editor/edit_window/edit_window.nml:537
-"~H~ide/show block" = "إ~خ~فاء/إظهار الكتلة"
 # navigator/widgets/editor/edit_window/edit_window.nml:538
+"~H~ide/show block" = "إ~خ~فاء/إظهار الكتلة"
+# navigator/widgets/editor/edit_window/edit_window.nml:539
 "Hide the marked block, or show it again" = "إخفاء الكتلة المعلمة أو إظهارها مجددا"
-# navigator/widgets/editor/edit_window/edit_window.nml:543
+# navigator/widgets/editor/edit_window/edit_window.nml:544
 "U~p~percase" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:547, navigator/widgets/editor/edit_window/edit_window.nml:608
+# navigator/widgets/editor/edit_window/edit_window.nml:548, navigator/widgets/editor/edit_window/edit_window.nml:609
 "~L~owercase" = "أحرف ~ص~غيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:551
+# navigator/widgets/editor/edit_window/edit_window.nml:552
 "Capi~t~alize" = "~ت~كبير الأول"
-# navigator/widgets/editor/edit_window/edit_window.nml:556
-"~S~ort" = "~ف~رز"
 # navigator/widgets/editor/edit_window/edit_window.nml:557
+"~S~ort" = "~ف~رز"
+# navigator/widgets/editor/edit_window/edit_window.nml:558
 "Sort the lines by the column block" = "فرز الأسطر حسب الكتلة العمودية"
-# navigator/widgets/editor/edit_window/edit_window.nml:562
-"C~a~lculate sum" = "حساب ال~م~جموع"
 # navigator/widgets/editor/edit_window/edit_window.nml:563
+"C~a~lculate sum" = "حساب ال~م~جموع"
+# navigator/widgets/editor/edit_window/edit_window.nml:564
 "Add up the column block's numbers; the sum goes to the clipboard" = "جمع أرقام الكتلة العمودية؛ يذهب المجموع إلى الحافظة"
-# navigator/widgets/editor/edit_window/edit_window.nml:568
+# navigator/widgets/editor/edit_window/edit_window.nml:569
 "~M~isc" = "متف~ر~قات"
-# navigator/widgets/editor/edit_window/edit_window.nml:570
+# navigator/widgets/editor/edit_window/edit_window.nml:571
 "Insert ~d~ate" = "إدراج ال~ت~اريخ"
-# navigator/widgets/editor/edit_window/edit_window.nml:574
+# navigator/widgets/editor/edit_window/edit_window.nml:575
 "Insert ~t~ime" = "إدراج ال~و~قت"
-# navigator/widgets/editor/edit_window/edit_window.nml:578
+# navigator/widgets/editor/edit_window/edit_window.nml:579
 "Du~p~licate line" = "تكرار ال~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:582, navigator/widgets/shell/main_menu/main_menu.nml:474
+# navigator/widgets/editor/edit_window/edit_window.nml:583, navigator/widgets/shell/main_menu/main_menu.nml:474
 "Character ta~b~le" = "جدول ال~ر~موز"
-# navigator/widgets/editor/edit_window/edit_window.nml:586
-"Line Dra~w~ing" = "رسم ال~خ~طوط"
 # navigator/widgets/editor/edit_window/edit_window.nml:587
+"Line Dra~w~ing" = "رسم ال~خ~طوط"
+# navigator/widgets/editor/edit_window/edit_window.nml:588
 "Draw lines with the arrow keys: off, single, double" = "رسم خطوط بمفاتيح الأسهم: إيقاف، مفرد، مزدوج"
-# navigator/widgets/editor/edit_window/edit_window.nml:593
+# navigator/widgets/editor/edit_window/edit_window.nml:594
 "~U~ppercase" = "أحرف ~ك~بيرة"
-# navigator/widgets/editor/edit_window/edit_window.nml:595, navigator/widgets/editor/edit_window/edit_window.nml:610, navigator/widgets/editor/edit_window/edit_window.nml:625
+# navigator/widgets/editor/edit_window/edit_window.nml:596, navigator/widgets/editor/edit_window/edit_window.nml:611, navigator/widgets/editor/edit_window/edit_window.nml:626
 "~W~ord" = "ك~ل~مة"
-# navigator/widgets/editor/edit_window/edit_window.nml:599, navigator/widgets/editor/edit_window/edit_window.nml:614, navigator/widgets/editor/edit_window/edit_window.nml:629
+# navigator/widgets/editor/edit_window/edit_window.nml:600, navigator/widgets/editor/edit_window/edit_window.nml:615, navigator/widgets/editor/edit_window/edit_window.nml:630
 "~L~ine" = "~س~طر"
-# navigator/widgets/editor/edit_window/edit_window.nml:623, navigator/widgets/editor/file_editor/file_editor.py:3860
+# navigator/widgets/editor/edit_window/edit_window.nml:624, navigator/widgets/editor/file_editor/file_editor.py:3860
 "~C~apitalize" = "تكبير ~ا~لأول"
-# navigator/widgets/editor/edit_window/edit_window.nml:638
+# navigator/widgets/editor/edit_window/edit_window.nml:639
 "Optio~n~s" = "~خ~يارات"
-# navigator/widgets/editor/edit_window/edit_window.nml:640
-"~B~ackspace indents" = "Backspace ~ي~زيح"
 # navigator/widgets/editor/edit_window/edit_window.nml:641
+"~B~ackspace indents" = "Backspace ~ي~زيح"
+# navigator/widgets/editor/edit_window/edit_window.nml:642
 "Backspace at a line's start goes back to an indent above" = "Backspace في بداية السطر يعود إلى إزاحة سطر أعلى"
-# navigator/widgets/editor/edit_window/edit_window.nml:644
+# navigator/widgets/editor/edit_window/edit_window.nml:645
 "AutoB~r~ackets" = "أقواس ~ت~لقائية"
-# navigator/widgets/editor/edit_window/edit_window.nml:647
+# navigator/widgets/editor/edit_window/edit_window.nml:648
 "Auto~i~ndent" = "إزاحة تل~ق~ائية"
-# navigator/widgets/editor/edit_window/edit_window.nml:650
+# navigator/widgets/editor/edit_window/edit_window.nml:651
 "~A~uto wrap" = "~ل~ف تلقائي"
-# navigator/widgets/editor/edit_window/edit_window.nml:653, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
+# navigator/widgets/editor/edit_window/edit_window.nml:654, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
 "~J~ustify on wrap" = "~ض~بط عند اللف"
-# navigator/widgets/editor/edit_window/edit_window.nml:654
+# navigator/widgets/editor/edit_window/edit_window.nml:655
 "Widen a wrapped line to the margin" = "مد السطر الملفوف حتى الهامش"
-# navigator/widgets/editor/edit_window/edit_window.nml:657, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
+# navigator/widgets/editor/edit_window/edit_window.nml:658, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
 "~V~ertical blocks" = "~ك~تل عمودية"
-# navigator/widgets/editor/edit_window/edit_window.nml:658
+# navigator/widgets/editor/edit_window/edit_window.nml:659
 "Mark column blocks instead of line ones" = "تعليم كتل عمودية بدلا من كتل الأسطر"
-# navigator/widgets/editor/edit_window/edit_window.nml:661, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
+# navigator/widgets/editor/edit_window/edit_window.nml:662, navigator/widgets/setup/editor_defaults_page/editor_defaults_page.nml:40
 "Opti~m~al fill" = "ملء ~أ~مثل"
-# navigator/widgets/editor/edit_window/edit_window.nml:662
+# navigator/widgets/editor/edit_window/edit_window.nml:663
 "Write blanks as tabs where they reach a tab stop" = "كتابة الفراغات كجدولة حيث تبلغ موضع جدولة"
-# navigator/widgets/editor/edit_window/edit_window.nml:666
-"~T~ab characters" = "أ~ح~رف الجدولة"
 # navigator/widgets/editor/edit_window/edit_window.nml:667
+"~T~ab characters" = "أ~ح~رف الجدولة"
+# navigator/widgets/editor/edit_window/edit_window.nml:668
 "Tab types tab characters, not spaces" = "يكتب Tab أحرف جدولة لا مسافات"
-# navigator/widgets/editor/edit_window/edit_window.nml:671
-"Soft ~w~rap" = "~ا~لتفاف الأسطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:672
+"Soft ~w~rap" = "~ا~لتفاف الأسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:673
 "Show long lines wrapped at the edge, the text unchanged" = "عرض الأسطر الطويلة ملتفّة عند الحافة دون تغيير النص"
-# navigator/widgets/editor/edit_window/edit_window.nml:676
-"Line ~n~umbers" = "أ~ر~قام الأسطر"
 # navigator/widgets/editor/edit_window/edit_window.nml:677
+"Line ~n~umbers" = "أ~ر~قام الأسطر"
+# navigator/widgets/editor/edit_window/edit_window.nml:678
 "Number the lines in a gutter beside the text" = "ترقيم الأسطر في هامش بجانب النص"
-# navigator/widgets/editor/edit_window/edit_window.nml:680
+# navigator/widgets/editor/edit_window/edit_window.nml:681
 "Current ~l~ine highlight" = "تمييز ال~س~طر الحالي"
-# navigator/widgets/editor/edit_window/edit_window.nml:683
+# navigator/widgets/editor/edit_window/edit_window.nml:684
 "Current ~c~olumn highlight" = "تمييز ال~ع~مود الحالي"
-# navigator/widgets/editor/edit_window/edit_window.nml:686
+# navigator/widgets/editor/edit_window/edit_window.nml:687
 "Syntax ~h~ighlight" = "تلوين ال~ص~ياغة"
-# navigator/widgets/editor/edit_window/edit_window.nml:690
+# navigator/widgets/editor/edit_window/edit_window.nml:691
 "Show hi~d~den characters" = "إظهار الرموز ال~م~خفية"
-# navigator/widgets/editor/edit_window/edit_window.nml:698
+# navigator/widgets/editor/edit_window/edit_window.nml:699
 "File t~y~pe" = "~ن~وع الملف"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:18, navigator/widgets/file_ops/replace_query/replace_query.nml:17, navigator/widgets/editor/commands.py:282 ...
 "Replace" = "استبدال"
@@ -836,7 +836,7 @@ direction = "rtl"
 "Give this answer for every file that is already there" = "إعطاء هذا الجواب لكل ملف موجود مسبقا"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~ا~ستبدال"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:620, navigator/widgets/manager/manager/manager.py:964 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:629, navigator/widgets/manager/manager/manager.py:964 ...
 "A~p~pend" = "إ~ل~حاق"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~ت~سمية"
@@ -1000,13 +1000,13 @@ direction = "rtl"
 "Columns Setup" = "إعداد الأعمدة"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:25, navigator/widgets/editor/option_items.py:99, navigator/widgets/editor/option_items.py:135 ...
 "Show" = "إظهار"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6258 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6284 ...
 "~S~ize" = "ال~ح~جم"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6258
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6284
 "~A~ttributes" = "~س~مات"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "ال~ر~وابط"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:6258
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:6284
 "~O~wner" = "مال~ك~"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:39
 "~B~rief" = "م~خ~تصر"
@@ -1244,13 +1244,13 @@ direction = "rtl"
 "Re~v~erse order" = "ت~ر~تيب عكسي"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "الترتيب معكوس: الأكبر، الأحدث، Z أولا..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6258, navigator/widgets/manager/manager/manager.py:6279
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6284, navigator/widgets/manager/manager/manager.py:6305
 "~E~xtension" = "اللاحق~ة~"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49 ...
 "Attributes" = "السمات"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6279
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6305
 "Ty~p~e" = "ال~ن~وع"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6258, navigator/widgets/manager/manager/manager.py:6280
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6284, navigator/widgets/manager/manager/manager.py:6306
 "~U~nsorted" = "~ب~لا ترتيب"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:54, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:67
 "Display" = "العرض"
@@ -1780,7 +1780,7 @@ direction = "rtl"
 "1~0~ minutes" = "1~0~ دقائق"
 # navigator/widgets/setup/savers_page/savers_page.nml:99
 "Use ~m~ouse to call saver" = "استخدام ال~ف~أرة لاستدعاء الحافظة"
-# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1453, navigator/widgets/shell/commands.py:717
+# navigator/widgets/setup/settings_dialog/settings_dialog.nml:36, navigator/settings.py:1456, navigator/widgets/shell/commands.py:717
 "Settings" = "الإعدادات"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:46
 "The internal editor and viewer, the clipboard, temporary files, failures and root access" = "المحرر والعارض الداخليان، الحافظة، الملفات المؤقتة، الأعطال وصلاحيات الجذر"
@@ -2118,7 +2118,7 @@ direction = "rtl"
 "Navigator?" = "Navigator؟"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "الخروج دون سؤال من الآن (خيارات > التأكيدات)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1082, navigator/widgets/manager/manager/manager.py:5462 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1091, navigator/widgets/manager/manager/manager.py:5482 ...
 "~O~pen" = "~ف~تح"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "حول، حافظة الشاشة، SmartPad، سلة المهملات واللعبة"
@@ -2424,9 +2424,9 @@ direction = "rtl"
 "~D~isconnect" = "~ق~طع الاتصال"
 # navigator/widgets/shell/main_menu/main_menu.nml:554
 "Close a connection; its panels go back to the disk" = "إغلاق اتصال؛ تعود لوحاته إلى القرص"
-# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3271
+# navigator/widgets/shell/main_menu/main_menu.nml:561, navigator/widgets/shell/shell/shell.py:3280
 "Elevate ~r~oot access" = "رفع صلاحيات ال~ج~ذر"
-# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3272
+# navigator/widgets/shell/main_menu/main_menu.nml:562, navigator/widgets/shell/shell/shell.py:3281
 "Open root access now: the console's shell and a step refused permission run as root" = "فتح صلاحيات الجذر الآن: تعمل صدفة الطرفية وكل خطوة رُفض إذنها بصلاحيات الجذر"
 # navigator/widgets/shell/main_menu/main_menu.nml:565
 "Saved l~i~nks..." = "الرواب~ط~ المحفوظة..."
@@ -2982,18 +2982,20 @@ direction = "rtl"
 "~F~irst row is a header" = "ال~ص~ف الأول عنوان"
 # navigator/widgets/viewer/viewer_find_dialog/viewer_find_dialog.nml:47
 "He~x~" = "~س~ت عشري"
-# navigator/__main__.py:649
+# navigator/__main__.py:690
 "The desktop's clipboard could not be read, so Navigator pasted its own last copy. Install xclip or xsel (X11), or wl-clipboard (Wayland), to share the clipboard with other programs." = "تعذرت قراءة حافظة سطح المكتب، فلصق Navigator آخر نسخة لديه. ثبت xclip أو xsel (X11)، أو wl-clipboard (Wayland)، لمشاركة الحافظة مع البرامج الأخرى."
-# navigator/__main__.py:488, navigator/widgets/shell/shell/shell.py:832, navigator/widgets/shell/shell/shell.py:1199
+# navigator/__main__.py:529, navigator/widgets/shell/shell/shell.py:832, navigator/widgets/shell/shell/shell.py:1199
 "A program in the console has the keys" = "برنامج في وحدة التحكم يملك المفاتيح"
-# navigator/__main__.py:490
+# navigator/__main__.py:531
 "The console is over the windows: Alt-X is the program's" = "وحدة التحكم فوق النوافذ: Alt-X للبرنامج"
-# navigator/__main__.py:565
+# navigator/__main__.py:606
 "{n} operation is running in the background. Stop it and quit?" = ["لا عمليات تعمل في الخلفية. إيقافها والخروج؟", "عملية واحدة تعمل في الخلفية. إيقافها والخروج؟", "عمليتان تعملان في الخلفية. إيقافهما والخروج؟", "{n} عمليات تعمل في الخلفية. إيقافها والخروج؟", "{n} عملية تعمل في الخلفية. إيقافها والخروج؟", "{n} عملية تعمل في الخلفية. إيقافها والخروج؟"]
-# navigator/__main__.py:1017
+# navigator/__main__.py:1073
 "nav: {n} clean-up step failed on the way out; see {log}" = ["nav: لم تفشل أي خطوة تنظيف عند الخروج؛ راجع {log}", "nav: فشلت خطوة تنظيف واحدة عند الخروج؛ راجع {log}", "nav: فشلت خطوتا تنظيف عند الخروج؛ راجع {log}", "nav: فشلت {n} خطوات تنظيف عند الخروج؛ راجع {log}", "nav: فشلت {n} خطوة تنظيف عند الخروج؛ راجع {log}", "nav: فشلت {n} خطوة تنظيف عند الخروج؛ راجع {log}"]
-# navigator/__main__.py:654
+# navigator/__main__.py:695
 "Clipboard" = "الحافظة"
+# navigator/__main__.py:232, navigator/widgets/manager/manager/manager.py:5520, navigator/widgets/manager/manager/manager.py:5575 ...
+"Cannot edit file" = "تعذر تحرير الملف"
 # navigator/commands.py:30
 "Record" = "تسجيل"
 # navigator/commands.py:41
@@ -3042,7 +3044,7 @@ direction = "rtl"
 "~K~orean Hangul" = "ال~ك~ورية (الهانغول)"
 # navigator/lib/config/country.py:147
 "Last used {time}" = "آخر استخدام {time}"
-# navigator/lib/config/file_history.py:118, navigator/widgets/editor/loading.py:71
+# navigator/lib/config/file_history.py:166, navigator/widgets/editor/loading.py:71
 "Reading file" = "قراءة الملف"
 # navigator/lib/config/usermenu.py:401
 "Asks for parameters first" = "يطلب المعاملات أولا"
@@ -3066,7 +3068,7 @@ direction = "rtl"
 "{kind} archives need 7-Zip: install 7zip (7zz) or p7zip (7z)" = "تحتاج أرشيفات {kind} إلى 7-Zip: ثبّت 7zip (7zz) أو p7zip (7z)"
 # navigator/lib/drives/arctool.py:467
 "rar exited with {returncode}" = "انتهى rar بالرمز {returncode}"
-# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3136
+# navigator/lib/drives/base.py:73, navigator/widgets/shell/shell/shell.py:3145
 "Remote drive {name} is not accessible" = "القرص البعيد {name} غير متاح"
 # navigator/lib/drives/cpio.py:150, navigator/lib/drives/debpkg.py:176, navigator/lib/drives/squashfs.py:144 ...
 "Is a directory" = "هذا مجلد"
@@ -3642,51 +3644,51 @@ direction = "rtl"
 "Options > Configuration > Startup (DN's dlgStartupSetup)" = "خيارات > التكوين > بدء التشغيل (dlgStartupSetup في DN)"
 # navigator/settings.py:407
 "Options > Configuration > Interface (DN's dlgInterfaceSetup)" = "خيارات > التكوين > الواجهة (dlgInterfaceSetup في DN)"
-# navigator/settings.py:492
+# navigator/settings.py:495
 "Options > Configuration > Confirmations (DN's dlgConfirmations)" = "خيارات > التكوين > التأكيدات (dlgConfirmations في DN)"
-# navigator/settings.py:520
+# navigator/settings.py:523
 "Options > Configuration > Editor/Viewer -- the editor (DN's dlgEditorDefaults)" = "خيارات > التكوين > المحرر/العارض -- المحرر (dlgEditorDefaults في DN)"
-# navigator/settings.py:604
+# navigator/settings.py:607
 "Options > Configuration > Editor/Viewer -- the viewer (DN's dlgEditorDefaults)" = "خيارات > التكوين > المحرر/العارض -- العارض (dlgEditorDefaults في DN)"
-# navigator/settings.py:690
+# navigator/settings.py:693
 "Options > File Manager > Setup (DN's dlgFMSetup)" = "خيارات > مدير الملفات > الإعداد (dlgFMSetup في DN)"
-# navigator/settings.py:778
+# navigator/settings.py:781
 "Options > File Manager > New Manager defaults (DN's dlgFMDefaults)" = "خيارات > مدير الملفات > افتراضيات المدير الجديد (dlgFMDefaults في DN)"
-# navigator/settings.py:832
+# navigator/settings.py:835
 "Options > File Manager > Information panel (DN's dlgDriveInfoSetup)" = "خيارات > مدير الملفات > لوحة المعلومات (dlgDriveInfoSetup في DN)"
-# navigator/settings.py:871
+# navigator/settings.py:874
 "Options > File Manager > Column defaults (DN's dlgColumnsDefaults)" = "خيارات > مدير الملفات > الأعمدة الافتراضية (dlgColumnsDefaults في DN)"
-# navigator/settings.py:919
+# navigator/settings.py:922
 "Options > File Manager > Highlight groups (DN's dlgHighlightGroups)" = "خيارات > مدير الملفات > مجموعات التلوين (dlgHighlightGroups في DN)"
-# navigator/settings.py:934
+# navigator/settings.py:937
 "Options > Configuration > Screen savers (DN's TSaversDialog)" = "خيارات > التكوين > شاشات التوقف (TSaversDialog في DN)"
-# navigator/settings.py:966
+# navigator/settings.py:969
 "Options > Configuration > Country support (DN's dlgCountrySetup)" = "خيارات > التكوين > الإعدادات الإقليمية (dlgCountrySetup في DN)"
-# navigator/settings.py:1017
+# navigator/settings.py:1020
 "≡ > Game > Setup (DN's dlgGameSetup)" = "≡ > اللعبة > الإعداد (dlgGameSetup في DN)"
-# navigator/settings.py:1033
+# navigator/settings.py:1036
 "Utilities > Calculator (not DN's)" = "الأدوات > الحاسبة (ليست من DN)"
-# navigator/settings.py:1054
+# navigator/settings.py:1057
 "File > UU Encode / UU Decode (DN's dlgUUEncode, dlgUUDecode)" = "ملف > ترميز UU / فك ترميز UU (dlgUUEncode وdlgUUDecode في DN)"
-# navigator/settings.py:1082
+# navigator/settings.py:1085
 "File > Split/combine (DN's dlgSplitFile)" = "ملف > تقسيم/دمج (dlgSplitFile في DN)"
-# navigator/settings.py:1093
+# navigator/settings.py:1096
 "File > Checksums > Calculate (not DN's)" = "ملف > المجاميع الاختبارية > حساب (ليس من DN)"
-# navigator/settings.py:1108
+# navigator/settings.py:1111
 "File > Encoding > Convert text (not DN's)" = "ملف > ترميز > تحويل النص (ليس من DN)"
-# navigator/settings.py:1130
+# navigator/settings.py:1133
 "File > Encryption (not DN's)" = "ملف > التشفير (ليس من DN)"
-# navigator/settings.py:1150
+# navigator/settings.py:1153
 "Panel > Compare directories > Synchronize (not DN's)" = "لوحة > مقارنة المجلدات > مزامنة (ليس من DN)"
-# navigator/settings.py:1168
+# navigator/settings.py:1171
 "Utilities > Process list (not DN's)" = "أدوات > قائمة العمليات (ليست من DN)"
-# navigator/settings.py:1178
+# navigator/settings.py:1181
 "Utilities > Services (not DN's)" = "أدوات > الخدمات (ليست من DN)"
-# navigator/settings.py:1196
+# navigator/settings.py:1199
 "Utilities > System monitor (not DN's)" = "الأدوات > مراقب النظام (ليس من DN)"
-# navigator/settings.py:1208
+# navigator/settings.py:1211
 "Options > Configuration > Communications (DN's cmSetupModem)" = "خيارات > التكوين > الاتصالات (cmSetupModem في DN)"
-# navigator/settings.py:1446
+# navigator/settings.py:1449
 "Settings could not be saved to {path}: {error}. They stay for this session." = "تعذّر حفظ الإعدادات في {path}: {error}. ستبقى سارية حتى نهاية الجلسة."
 # navigator/widgets/drives/archive_finish.py:66
 "The changes to {name} could not be written: {error}" = "تعذّرت كتابة التغييرات في {name}: {error}"
@@ -3878,7 +3880,7 @@ direction = "rtl"
 "Remote shell: {protocol}" = "صدفة بعيدة: {protocol}"
 # navigator/widgets/drives/link_manager/link_manager.py:354
 "Changed — Save keeps it" = "تغيّر — «حفظ» يحفظه"
-# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6489
+# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6515
 "Connected" = "متصل"
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Configured" = "المُعدّة"
@@ -3898,21 +3900,21 @@ direction = "rtl"
 "Delete the link \"{name}\"?" = "حذف الرابط \"{name}\"؟"
 # navigator/widgets/drives/link_manager/link_manager.py:778
 "There is no public key in {directory}. Make {key} (ed25519) and copy it?" = "لا يوجد مفتاح عام في {directory}. هل تُنشئ {key} (ed25519) وتنسخه؟"
-# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6515
+# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6541
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "رابط GVfs/KIO جديد (MTP, WebDAV ~و~غيرها)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6497
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6523
 "~N~ew SSH link (SFTP)..." = "رابط SSH ~ج~ديد (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6497
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6523
 "New ~F~TP link..." = "رابط ~ب~روتوكول FTP جديد..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6498
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6524
 "New S~M~B link (Windows share)..." = "رابط SMB جديد (~م~شاركة Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6498
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6524
 "New S~3~ link (Amazon S3)..." = "رابط S~3~ جديد (Amazon S3)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6499
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6525
 "New ~D~ocker container link..." = "رابط حاوية ~D~ocker جديد..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6500
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6526
 "New ~P~odman container link..." = "رابط حاوية ~P~odman جديد..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6501
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6527
 "New ~A~ndroid device link (adb)..." = "رابط جهاز ~A~ndroid جديد (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "رابط جديد"
@@ -3924,9 +3926,9 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "تغير {names} هناك منذ جلبه. الكتابة فوقه؟"
 # navigator/widgets/drives/use_file.py:133
 "{name} was changed. Upload it back to {place}?" = "تغير {name}. رفعه مجددا إلى {place}؟"
-# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:615, navigator/widgets/editor/edit_window/edit_window.py:1219 ...
+# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:624, navigator/widgets/editor/edit_window/edit_window.py:1218 ...
 "Warning" = "تحذير"
-# navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:359 ...
+# navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:368 ...
 "Cannot write {path}: {error}" = "تعذرت كتابة {path}: {error}"
 # navigator/widgets/drives/use_file.py:139, navigator/widgets/drives/use_file.py:151
 "Upload" = "رفع"
@@ -4078,51 +4080,51 @@ direction = "rtl"
 "Save all" = "حفظ الكل"
 # navigator/widgets/editor/edit_window/edit_window.py:76, navigator/widgets/editor/file_editor/file_editor.py:3748
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "لا يمكن كتابة {char} (U+{code:04X}) في السطر {line} بترميز {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:530
+# navigator/widgets/editor/edit_window/edit_window.py:539
 "Not for SmartPad" = "ليس لـ SmartPad"
-# navigator/widgets/editor/edit_window/edit_window.py:1217
+# navigator/widgets/editor/edit_window/edit_window.py:1216
 "Untitled" = "بلا عنوان"
-# navigator/widgets/editor/edit_window/edit_window.py:528, navigator/widgets/editor/file_editor/file_editor.py:3590
+# navigator/widgets/editor/edit_window/edit_window.py:537, navigator/widgets/editor/file_editor/file_editor.py:3590
 "No block is marked" = "لا توجد كتلة محددة"
-# navigator/widgets/editor/edit_window/edit_window.py:679
+# navigator/widgets/editor/edit_window/edit_window.py:688
 "Copy block to" = "نسخ الكتلة إلى"
-# navigator/widgets/editor/edit_window/edit_window.py:679
+# navigator/widgets/editor/edit_window/edit_window.py:688
 "File ~N~ame" = "~ا~سم الملف"
-# navigator/widgets/editor/edit_window/edit_window.py:758
+# navigator/widgets/editor/edit_window/edit_window.py:767
 "Paste from File" = "لصق من ملف"
-# navigator/widgets/editor/edit_window/edit_window.py:758
+# navigator/widgets/editor/edit_window/edit_window.py:767
 "~P~aste from" = "~ل~صق من"
-# navigator/widgets/editor/edit_window/edit_window.py:1082, navigator/widgets/manager/manager/manager.py:5462
+# navigator/widgets/editor/edit_window/edit_window.py:1091, navigator/widgets/manager/manager/manager.py:5482
 "Open a File" = "فتح ملف"
-# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1140, navigator/widgets/viewer/viewer_host.py:129
 "Save File As" = "حفظ الملف باسم"
-# navigator/widgets/editor/edit_window/edit_window.py:1131, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1140, navigator/widgets/viewer/viewer_host.py:129
 "~S~ave File As" = "~ح~فظ الملف باسم"
-# navigator/widgets/editor/edit_window/edit_window.py:177
+# navigator/widgets/editor/edit_window/edit_window.py:188
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:179, navigator/widgets/editor/edit_window/edit_window.py:181
+# navigator/widgets/editor/edit_window/edit_window.py:190, navigator/widgets/editor/edit_window/edit_window.py:192
 "Edit - {path}" = "تحرير - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:616, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
+# navigator/widgets/editor/edit_window/edit_window.py:625, navigator/widgets/manager/manager/manager.py:962, navigator/widgets/manager/manager/manager.py:2677 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "الملف {name}\nموجود بالفعل.\nهل تريد الكتابة فوقه؟"
-# navigator/widgets/editor/edit_window/edit_window.py:1027
+# navigator/widgets/editor/edit_window/edit_window.py:1036
 "Print {n} line?" = ["طباعة {n} سطر؟", "طباعة سطر واحد؟", "طباعة سطرين؟", "طباعة {n} أسطر؟", "طباعة {n} سطرا؟", "طباعة {n} سطر؟"]
-# navigator/widgets/editor/edit_window/edit_window.py:1035
+# navigator/widgets/editor/edit_window/edit_window.py:1044
 "Cannot print: {error}" = "تعذرت الطباعة: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:341
+# navigator/widgets/editor/edit_window/edit_window.py:350
 "Confirm file save" = "تأكيد حفظ الملف"
-# navigator/widgets/editor/edit_window/edit_window.py:922, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
+# navigator/widgets/editor/edit_window/edit_window.py:931, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
 "Search string not found" = "لم يعثر على نص البحث"
-# navigator/widgets/editor/edit_window/edit_window.py:928, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
+# navigator/widgets/editor/edit_window/edit_window.py:937, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:279 ...
 "Information" = "معلومات"
-# navigator/widgets/editor/edit_window/edit_window.py:928
+# navigator/widgets/editor/edit_window/edit_window.py:937
 "{n} replace made" = ["تم {n} استبدال", "تم استبدال واحد", "تم استبدالان", "تمت {n} استبدالات", "تم {n} استبدالا", "تم {n} استبدال"]
-# navigator/widgets/editor/edit_window/edit_window.py:1090, navigator/widgets/shell/shell/shell.py:1963
+# navigator/widgets/editor/edit_window/edit_window.py:1099, navigator/widgets/shell/shell/shell.py:1969
 "Cannot open {path}: {error}" = "تعذر فتح {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:643
+# navigator/widgets/editor/edit_window/edit_window.py:652
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "الملف {name}\nمعلم للقراءة فقط.\nتعديله على أي حال؟"
-# navigator/widgets/editor/edit_window/edit_window.py:1220
+# navigator/widgets/editor/edit_window/edit_window.py:1219
 "File {name} was modified. Save?" = "تم تعديل الملف {name}. حفظه؟"
-# navigator/widgets/editor/edit_window/edit_window.py:342
+# navigator/widgets/editor/edit_window/edit_window.py:351
 "Save file {name}?" = "حفظ الملف {name}؟"
 # navigator/widgets/editor/file_editor/file_editor.py:2689, navigator/widgets/editor/file_editor/file_editor.py:2683, navigator/widgets/editor/file_editor/file_editor.py:2700
 "Macros" = "وحدات الماكرو"
@@ -4542,7 +4544,7 @@ direction = "rtl"
 "~R~atio" = "~ن~سبة الضغط"
 # navigator/widgets/manager/commands.py:29
 "View" = "عرض"
-# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:2099, navigator/widgets/shell/shell/shell.py:2012 ...
+# navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/shell.py:2105, navigator/widgets/shell/shell/shell.py:2018 ...
 "Open with" = "فتح بواسطة"
 # navigator/widgets/manager/commands.py:80, navigator/widgets/manager/commands.py:308, navigator/widgets/manager/commands.py:319
 "Ren" = "تسمية"
@@ -4586,9 +4588,9 @@ direction = "rtl"
 "{count} byte of memory in all" = ["إجمالي الذاكرة {count} بايت", "إجمالي الذاكرة {count} بايت", "إجمالي الذاكرة {count} بايت", "إجمالي الذاكرة {count} بايت", "إجمالي الذاكرة {count} بايت", "إجمالي الذاكرة {count} بايت"]
 # navigator/widgets/manager/info_panel/info_panel.py:207
 "Connection" = "الاتصال"
-# navigator/widgets/manager/manager/manager.py:6317
+# navigator/widgets/manager/manager/manager.py:6343
 "Copy {n} file to {target}" = ["نسخ {n} ملف إلى {target}", "نسخ ملف واحد إلى {target}", "نسخ ملفين إلى {target}", "نسخ {n} ملفات إلى {target}", "نسخ {n} ملفا إلى {target}", "نسخ {n} ملف إلى {target}"]
-# navigator/widgets/manager/manager/manager.py:6438
+# navigator/widgets/manager/manager/manager.py:6464
 "Only on the local disk" = "على القرص المحلي فقط"
 # navigator/widgets/manager/manager/manager.py:828
 "Calculating checksums" = "حساب المجاميع الاختبارية"
@@ -4614,21 +4616,21 @@ direction = "rtl"
 "Not in a Find listing" = "ليس في قائمة بحث"
 # navigator/widgets/manager/manager/manager.py:4100
 "To {path}" = "إلى {path}"
-# navigator/widgets/manager/manager/manager.py:6258
+# navigator/widgets/manager/manager/manager.py:6284
 "T~y~pe" = "~ن~وع"
-# navigator/widgets/manager/manager/manager.py:6314
+# navigator/widgets/manager/manager/manager.py:6340
 "Erase {n} file" = ["حذف {n} ملف", "حذف ملف واحد", "حذف ملفين", "حذف {n} ملفات", "حذف {n} ملفا", "حذف {n} ملف"]
-# navigator/widgets/manager/manager/manager.py:6316
+# navigator/widgets/manager/manager/manager.py:6342
 "Move {n} file to {target}" = ["نقل {n} ملف إلى {target}", "نقل ملف واحد إلى {target}", "نقل ملفين إلى {target}", "نقل {n} ملفات إلى {target}", "نقل {n} ملفا إلى {target}", "نقل {n} ملف إلى {target}"]
-# navigator/widgets/manager/manager/manager.py:6353, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
+# navigator/widgets/manager/manager/manager.py:6379, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "بسيط"
-# navigator/widgets/manager/manager/manager.py:6353, navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/manager/manager.py:6379, navigator/widgets/manager/panel/option_items.py:29
 "Detailed" = "مفصل"
-# navigator/widgets/manager/manager/manager.py:6437
+# navigator/widgets/manager/manager/manager.py:6463
 "Not as root: the command runs as you" = "ليس بصلاحيات الجذر: يعمل الأمر باسمك"
-# navigator/widgets/manager/manager/manager.py:6473
+# navigator/widgets/manager/manager/manager.py:6499
 "~L~ink" = "~ر~ابط"
-# navigator/widgets/manager/manager/manager.py:6519
+# navigator/widgets/manager/manager/manager.py:6545
 "Needs the desktop's gio or KDE's kioclient command" = "يتطلب أمر gio لسطح المكتب أو kioclient من KDE"
 # navigator/widgets/manager/manager/manager.py:977
 "{n} file could not be read:" = ["تعذرت قراءة {n} ملف:", "تعذرت قراءة ملف واحد:", "تعذرت قراءة ملفين:", "تعذرت قراءة {n} ملفات:", "تعذرت قراءة {n} ملفا:", "تعذرت قراءة {n} ملف:"]
@@ -4674,19 +4676,19 @@ direction = "rtl"
 "Find hard links" = "البحث عن الروابط الصلبة"
 # navigator/widgets/manager/manager/manager.py:4927
 "{n} link was left as it was:" = ["تُرك {n} رابط كما كان:", "تُرك رابط واحد كما كان:", "تُرك رابطان كما كانا:", "تُركت {n} روابط كما كانت:", "تُرك {n} رابطا كما كان:", "تُرك {n} رابط كما كان:"]
-# navigator/widgets/manager/manager/manager.py:5389
+# navigator/widgets/manager/manager/manager.py:5404
 "~I~nternal editor" = "~م~حرر داخلي"
-# navigator/widgets/manager/manager/manager.py:5915
+# navigator/widgets/manager/manager/manager.py:5941
 "Drag to resize the panels" = "اسحب لتغيير حجم اللوحتين"
-# navigator/widgets/manager/manager/manager.py:5921
+# navigator/widgets/manager/manager/manager.py:5947
 "Double-click to split them evenly" = "انقر مزدوجا لتقسيمهما بالتساوي"
-# navigator/widgets/manager/manager/manager.py:6358
+# navigator/widgets/manager/manager/manager.py:6384
 "Hidden files are not shown" = "الملفات المخفية لا تُعرض"
-# navigator/widgets/manager/manager/manager.py:6360
+# navigator/widgets/manager/manager/manager.py:6386
 "The directories below are shown the same way" = "المجلدات التي تحته تُعرض بالطريقة نفسها"
-# navigator/widgets/manager/manager/manager.py:6412
+# navigator/widgets/manager/manager/manager.py:6438
 "~R~emove this folder" = "~إ~زالة هذا المجلد"
-# navigator/widgets/manager/manager/manager.py:6412
+# navigator/widgets/manager/manager/manager.py:6438
 "~A~dd this folder" = "~إ~ضافة هذا المجلد"
 # navigator/widgets/manager/manager/manager.py:490
 "Encoding {name}" = "ترميز {name}"
@@ -4786,27 +4788,27 @@ direction = "rtl"
 "Do you wish to move {n} file to the Trash?" = ["هل تريد نقل {n} ملف إلى سلة المهملات؟", "هل تريد نقل ملف واحد إلى سلة المهملات؟", "هل تريد نقل ملفين إلى سلة المهملات؟", "هل تريد نقل {n} ملفات إلى سلة المهملات؟", "هل تريد نقل {n} ملفا إلى سلة المهملات؟", "هل تريد نقل {n} ملف إلى سلة المهملات؟"]
 # navigator/widgets/manager/manager/manager.py:4069
 "Do you wish to delete {n} file?" = ["هل تريد حذف {n} ملف؟", "هل تريد حذف ملف واحد؟", "هل تريد حذف ملفين؟", "هل تريد حذف {n} ملفات؟", "هل تريد حذف {n} ملفا؟", "هل تريد حذف {n} ملف؟"]
-# navigator/widgets/manager/manager/manager.py:5481, navigator/widgets/manager/manager/manager.py:5527
+# navigator/widgets/manager/manager/manager.py:5504, navigator/widgets/manager/manager/manager.py:5553
 "No such directory" = "لا يوجد مجلد كهذا"
-# navigator/widgets/manager/manager/manager.py:5541
+# navigator/widgets/manager/manager/manager.py:5567
 "$EDITOR edits a file on another drive only once it is there" = "يحرر $EDITOR ملفا على قرص آخر فقط بعد وجوده هناك"
-# navigator/widgets/manager/manager/manager.py:6311
-"Copy {name} to {target}" = "نسخ {name} إلى {target}"
 # navigator/widgets/manager/manager/manager.py:6337
+"Copy {name} to {target}" = "نسخ {name} إلى {target}"
+# navigator/widgets/manager/manager/manager.py:6363
 "Erasing the file" = "حذف الملف"
-# navigator/widgets/manager/manager/manager.py:6338
+# navigator/widgets/manager/manager/manager.py:6364
 "Erasing the directory" = "حذف المجلد"
-# navigator/widgets/manager/manager/manager.py:6339
+# navigator/widgets/manager/manager/manager.py:6365
 "Moving to the Trash" = "النقل إلى سلة المهملات"
-# navigator/widgets/manager/manager/manager.py:6340
+# navigator/widgets/manager/manager/manager.py:6366
 "Changing attributes of" = "تغيير سمات"
-# navigator/widgets/manager/manager/manager.py:6354
+# navigator/widgets/manager/manager/manager.py:6380
 "View mode: {mode}" = "نمط العرض: {mode}"
-# navigator/widgets/manager/manager/manager.py:6406
+# navigator/widgets/manager/manager/manager.py:6432
 "Mounted now, not a bookmark" = "مركب الآن، ليس إشارة مرجعية"
-# navigator/widgets/manager/manager/manager.py:6408
+# navigator/widgets/manager/manager/manager.py:6434
 "Not there now" = "غير موجود الآن"
-# navigator/widgets/manager/manager/manager.py:6489
+# navigator/widgets/manager/manager/manager.py:6515
 "Not connected" = "غير متصل"
 # navigator/widgets/manager/manager/manager.py:709
 "The input file is too small to UU-Encode." = "ملف الإدخال أصغر من أن يرمز بـ UU."
@@ -4844,19 +4846,19 @@ direction = "rtl"
 "Print file {name}?" = "طباعة الملف {name}؟"
 # navigator/widgets/manager/manager/manager.py:4213
 "Times, permissions or owner were not kept on {n} file: {path}: {reason}" = ["لم تُحفظ الأوقات أو الأذونات أو المالك لأي ملف: {path}: {reason}", "لم تُحفظ الأوقات أو الأذونات أو المالك لملف واحد: {path}: {reason}", "لم تُحفظ الأوقات أو الأذونات أو المالك لملفين، أولهما {path}: {reason}", "لم تُحفظ الأوقات أو الأذونات أو المالك لـ{n} ملفات، أولها {path}: {reason}", "لم تُحفظ الأوقات أو الأذونات أو المالك لـ{n} ملفًا، أولها {path}: {reason}", "لم تُحفظ الأوقات أو الأذونات أو المالك لـ{n} ملف، أولها {path}: {reason}"]
-# navigator/widgets/manager/manager/manager.py:5391
+# navigator/widgets/manager/manager/manager.py:5406
 "Choose editor" = "اختر المحرر"
-# navigator/widgets/manager/manager/manager.py:6308
+# navigator/widgets/manager/manager/manager.py:6334
 "Erase {name}" = "حذف {name}"
-# navigator/widgets/manager/manager/manager.py:6310
+# navigator/widgets/manager/manager/manager.py:6336
 "Move {name} to {target}" = "نقل {name} إلى {target}"
-# navigator/widgets/manager/manager/manager.py:6351
+# navigator/widgets/manager/manager/manager.py:6377
 "Sorted by {mode}, reversed" = "مرتب حسب {mode}، معكوسًا"
-# navigator/widgets/manager/manager/manager.py:6352
+# navigator/widgets/manager/manager/manager.py:6378
 "Sorted by {mode}" = "مرتب حسب {mode}"
-# navigator/widgets/manager/manager/manager.py:6356, navigator/widgets/manager/panel/panel.py:1744
+# navigator/widgets/manager/manager/manager.py:6382, navigator/widgets/manager/panel/panel.py:1744
 "Only files matching {mask} are shown" = "تعرض فقط الملفات المطابقة لـ {mask}"
-# navigator/widgets/manager/manager/manager.py:6524
+# navigator/widgets/manager/manager/manager.py:6550
 "~E~dit links..." = "~ت~عديل الروابط..."
 # navigator/widgets/manager/manager/manager.py:785
 "Splitting {name}" = "تقسيم {name}"
@@ -4938,8 +4940,6 @@ direction = "rtl"
 "Would you like to create directory {path}?" = "هل تريد إنشاء المجلد {path}؟"
 # navigator/widgets/manager/manager/manager.py:4451
 "There is not enough room to copy file {name}. Copy other files?" = "لا توجد مساحة كافية لنسخ الملف {name}. نسخ الملفات الأخرى؟"
-# navigator/widgets/manager/manager/manager.py:5494, navigator/widgets/manager/manager/manager.py:5549, navigator/widgets/manager/manager/manager.py:5595 ...
-"Cannot edit file" = "تعذر تحرير الملف"
 # navigator/widgets/manager/manager/manager.py:2815
 "No directory has settings of its own" = "لا يوجد مجلد له إعدادات خاصة"
 # navigator/widgets/manager/manager/manager.py:3855, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:104
@@ -4950,9 +4950,9 @@ direction = "rtl"
 "Stopped: {what}" = "توقفت: {what}"
 # navigator/widgets/manager/manager/manager.py:4419
 "Failed: {what}" = "فشلت: {what}"
-# navigator/widgets/manager/manager/manager.py:5314, navigator/widgets/manager/manager/manager.py:5244, navigator/widgets/manager/manager/manager.py:5262 ...
+# navigator/widgets/manager/manager/manager.py:5316, navigator/widgets/manager/manager/manager.py:5246, navigator/widgets/manager/manager/manager.py:5264 ...
 "Cannot view file" = "تعذر عرض الملف"
-# navigator/widgets/manager/manager/manager.py:6510
+# navigator/widgets/manager/manager/manager.py:6536
 "Install {extra}" = "ثبت {extra}"
 # navigator/widgets/manager/manager/manager.py:1812
 "Directory {place} is not there" = "المجلد {place} غير موجود"
@@ -4966,7 +4966,7 @@ direction = "rtl"
 "Cannot run {command}: {reason}" = "تعذر تشغيل {command}: {reason}"
 # navigator/widgets/manager/manager/manager.py:3930
 "Cannot print {name}: {reason}" = "تعذرت طباعة {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:5263, navigator/widgets/manager/manager/manager.py:5238, navigator/widgets/manager/manager/manager.py:5277
+# navigator/widgets/manager/manager/manager.py:5265, navigator/widgets/manager/manager/manager.py:5240, navigator/widgets/manager/manager/manager.py:5279
 "{name}: not a dBase or SQLite file" = "{name}: ليس ملف dBase أو SQLite"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["{n} ملف محدد", "ملف واحد محدد", "ملفان محددان", "{n} ملفات محددة", "{n} ملفا محددا", "{n} ملف محدد"]
@@ -5404,9 +5404,9 @@ direction = "rtl"
 "Pinned" = "المثبتة"
 # navigator/widgets/shell/job_mark.py:100
 "Click to bring the box back" = "انقر لإعادة المربع"
-# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3196
+# navigator/widgets/shell/job_mark.py:93, navigator/widgets/shell/shell/shell.py:3205
 "{operation}: waiting for an answer" = "{operation}: بانتظار إجابة"
-# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3198
+# navigator/widgets/shell/job_mark.py:95, navigator/widgets/shell/shell/shell.py:3207
 "{operation}: {percent}% done" = "{operation}: اكتمل {percent}%"
 # navigator/widgets/shell/macro_mark.py:50
 "The same keys again stop it" = "المفاتيح نفسها مجددًا توقفه"
@@ -5460,7 +5460,7 @@ direction = "rtl"
 "It closes after {n} idle minute" = ["يغلق بعد {n} دقيقة خمول", "يغلق بعد دقيقة خمول واحدة", "يغلق بعد دقيقتي خمول", "يغلق بعد {n} دقائق خمول", "يغلق بعد {n} دقيقة خمول", "يغلق بعد {n} دقيقة خمول"]
 # navigator/widgets/shell/root_mark.py:60
 "Click, or {menu}, to close it now" = "انقر، أو {menu}، لإغلاقه الآن"
-# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3268
+# navigator/widgets/shell/root_mark.py:59, navigator/widgets/shell/shell/shell.py:3277
 "Close ~r~oot access" = "إغلاق صلاحيات ال~ج~ذر"
 # navigator/widgets/shell/service_list/service_list.py:46
 "Unit" = "الوحدة"
@@ -5510,11 +5510,11 @@ direction = "rtl"
 "Interface Setup hides the command line" = "إعدادات الواجهة تخفي سطر الأوامر"
 # navigator/widgets/shell/shell/shell.py:1208
 "No file panels are open" = "لا توجد لوحات ملفات مفتوحة"
-# navigator/widgets/shell/shell/shell.py:2068
+# navigator/widgets/shell/shell/shell.py:2074
 "Type to filter" = "اكتب للتصفية"
-# navigator/widgets/shell/shell/shell.py:3100, navigator/widgets/shell/shell/shell.py:3093
+# navigator/widgets/shell/shell/shell.py:3109, navigator/widgets/shell/shell/shell.py:3102
 "Disconnect" = "قطع الاتصال"
-# navigator/widgets/shell/shell/shell.py:3203
+# navigator/widgets/shell/shell/shell.py:3212
 "Background operations" = "العمليات في الخلفية"
 # navigator/widgets/shell/shell/shell.py:1246
 "No connection is open" = "لا يوجد اتصال مفتوح"
@@ -5522,19 +5522,19 @@ direction = "rtl"
 "No way to root: System Setup's Root access says Never offer, or there is no sudo or pkexec" = "لا سبيل إلى الجذر: صلاحيات الجذر في إعداد النظام على «عدم العرض أبدا»، أو لا يوجد sudo ولا pkexec"
 # navigator/widgets/shell/shell/shell.py:1310
 "A command is still running" = "ما زال أمر قيد التشغيل"
-# navigator/widgets/shell/shell/shell.py:2008
+# navigator/widgets/shell/shell/shell.py:2014
 "Set ~d~efault" = "تعيين ~ا~لافتراضي"
-# navigator/widgets/shell/shell/shell.py:2011
+# navigator/widgets/shell/shell/shell.py:2017
 "~C~ommand..." = "~أ~مر..."
-# navigator/widgets/shell/shell/shell.py:2065
+# navigator/widgets/shell/shell/shell.py:2071
 "~O~ther applications" = "تطبيقات ~ب~ديلة"
-# navigator/widgets/shell/shell/shell.py:2185
+# navigator/widgets/shell/shell/shell.py:2194
 "Choose action" = "اختر إجراء"
-# navigator/widgets/shell/shell/shell.py:3269
+# navigator/widgets/shell/shell/shell.py:3278
 "End root access now; the console goes back to your own shell" = "إنهاء صلاحيات الجذر الآن؛ تعود الطرفية إلى صدفتك"
-# navigator/widgets/shell/shell/shell.py:3566
+# navigator/widgets/shell/shell/shell.py:3575
 "File View History" = "سجل عرض الملفات"
-# navigator/widgets/shell/shell/shell.py:3566
+# navigator/widgets/shell/shell/shell.py:3575
 "File Edit History" = "سجل تحرير الملفات"
 # navigator/widgets/shell/shell/shell.py:1206
 "Only an editor has views" = "العروض للمحرر وحده"
@@ -5558,37 +5558,37 @@ direction = "rtl"
 "The command line is empty" = "سطر الأوامر فارغ"
 # navigator/widgets/shell/shell/shell.py:1309
 "File Manager Setup's Use arrows is off" = "خيار استخدام الأسهم في إعدادات مدير الملفات مطفأ"
-# navigator/widgets/shell/shell/shell.py:2097
+# navigator/widgets/shell/shell/shell.py:2103
 "~C~ommand (!.! is the file; else it goes at the end)" = "~أ~مر (!.! هو الملف؛ وإلا يضاف في النهاية)"
-# navigator/widgets/shell/shell/shell.py:2836, navigator/widgets/shell/shell/shell.py:3138
+# navigator/widgets/shell/shell/shell.py:2845, navigator/widgets/shell/shell/shell.py:3147
 "{protocol} link" = "رابط {protocol}"
-# navigator/widgets/shell/shell/shell.py:3556
+# navigator/widgets/shell/shell/shell.py:3565
 "Track viewing history" = "تتبع سجل العرض"
-# navigator/widgets/shell/shell/shell.py:3556
+# navigator/widgets/shell/shell/shell.py:3565
 "Track editing history" = "تتبع سجل التحرير"
 # navigator/widgets/shell/shell/shell.py:1252
 "The {command} command is not installed" = "الأمر {command} غير مثبت"
 # navigator/widgets/shell/shell/shell.py:1316
 "The shell cannot complete" = "لا تستطيع الصدفة الإكمال"
-# navigator/widgets/shell/shell/shell.py:1775
+# navigator/widgets/shell/shell/shell.py:1781
 "User menu (global)" = "قائمة المستخدم (عامة)"
-# navigator/widgets/shell/shell/shell.py:1775
+# navigator/widgets/shell/shell/shell.py:1781
 "Local menu" = "القائمة المحلية"
-# navigator/widgets/shell/shell/shell.py:1777
+# navigator/widgets/shell/shell/shell.py:1783
 "User menu (local)" = "قائمة المستخدم (محلية)"
-# navigator/widgets/shell/shell/shell.py:1777
+# navigator/widgets/shell/shell/shell.py:1783
 "Global menu" = "القائمة العامة"
-# navigator/widgets/shell/shell/shell.py:2012
+# navigator/widgets/shell/shell/shell.py:2018
 "Open with ({type})" = "فتح بواسطة ({type})"
-# navigator/widgets/shell/shell/shell.py:2031, navigator/widgets/shell/shell/shell.py:2027
+# navigator/widgets/shell/shell/shell.py:2037, navigator/widgets/shell/shell/shell.py:2033
 "Set default" = "تعيين الافتراضي"
-# navigator/widgets/shell/shell/shell.py:3091
+# navigator/widgets/shell/shell/shell.py:3100
 "Close the {protocol} connection to {host}?" = "إغلاق اتصال {protocol} مع {host}؟"
-# navigator/widgets/shell/shell/shell.py:2030
+# navigator/widgets/shell/shell/shell.py:2036
 "{name} now opens {type}" = "{name} يفتح الآن {type}"
-# navigator/widgets/shell/shell/shell.py:2059
+# navigator/widgets/shell/shell/shell.py:2065
 "{name} (default)" = "{name} (افتراضي)"
-# navigator/widgets/shell/shell/shell.py:3133
+# navigator/widgets/shell/shell/shell.py:3142
 "Remote drive {name} is not accessible: {reason}" = "القرص البعيد {name} غير متاح: {reason}"
 # navigator/widgets/shell/shell/shell.py:342
 "Store Color Palette" = "حفظ لوحة الألوان"
@@ -5604,45 +5604,45 @@ direction = "rtl"
 "Not a palette:\n{error}" = "ليست لوحة ألوان:\n{error}"
 # navigator/widgets/shell/shell/shell.py:553
 "Use arrows to move area\nUse Shift-Arrows to change area size\n\nAfter selecting press Enter to place\narea image into the clipboard" = "استخدم الأسهم لتحريك المنطقة\nاستخدم Shift مع الأسهم لتغيير حجمها\n\nبعد التحديد اضغط Enter لوضع\nصورة المنطقة في الحافظة"
-# navigator/widgets/shell/shell/shell.py:3628
+# navigator/widgets/shell/shell/shell.py:3637
 "View file" = "عرض ملف"
-# navigator/widgets/shell/shell/shell.py:3628
+# navigator/widgets/shell/shell/shell.py:3637
 "Edit file" = "تحرير ملف"
-# navigator/widgets/shell/shell/shell.py:2392
+# navigator/widgets/shell/shell/shell.py:2401
 "No file manager is open to panelize into" = "لا يوجد مدير ملفات مفتوح لعرض النتائج فيه"
-# navigator/widgets/shell/shell/shell.py:2869
+# navigator/widgets/shell/shell/shell.py:2878
 "The password was not saved in the keyring: {reason}" = "لم تُحفظ كلمة المرور في حلقة المفاتيح: {reason}"
-# navigator/widgets/shell/shell/shell.py:2890
+# navigator/widgets/shell/shell/shell.py:2899
 "Wrong password for rclone's configuration. Try again:" = "كلمة مرور إعدادات rclone خاطئة. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2891
+# navigator/widgets/shell/shell/shell.py:2900
 "Password for rclone's configuration:" = "كلمة مرور إعدادات rclone:"
-# navigator/widgets/shell/shell/shell.py:2902
+# navigator/widgets/shell/shell/shell.py:2911
 "Wrong passphrase for {key}. Try again:" = "عبارة مرور خاطئة لـ {key}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2903
+# navigator/widgets/shell/shell/shell.py:2912
 "Passphrase for {key}:" = "عبارة المرور لـ {key}:"
-# navigator/widgets/shell/shell/shell.py:2885
-"Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
-# navigator/widgets/shell/shell/shell.py:2886
-"Secret key for {who}:" = "المفتاح السري لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:3559
-"Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
-# navigator/widgets/shell/shell/shell.py:1710
-"Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
-# navigator/widgets/shell/shell/shell.py:1737
-"File {name} not found" = "الملف {name} غير موجود"
-# navigator/widgets/shell/shell/shell.py:1892
-"Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
-# navigator/widgets/shell/shell/shell.py:2861
-"Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
-# navigator/widgets/shell/shell/shell.py:2893
-"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
 # navigator/widgets/shell/shell/shell.py:2894
+"Wrong secret key for {who}. Try again:" = "مفتاح سري خاطئ لـ {who}. حاول مجددا:"
+# navigator/widgets/shell/shell/shell.py:2895
+"Secret key for {who}:" = "المفتاح السري لـ {who}:"
+# navigator/widgets/shell/shell/shell.py:3568
+"Set the interface option\n\"{option}\" ON first" = "فعل أولا خيار الواجهة\n\"{option}\""
+# navigator/widgets/shell/shell/shell.py:1716
+"Cannot edit {path}: {error}" = "لا يمكن تحرير {path}: {error}"
+# navigator/widgets/shell/shell/shell.py:1743
+"File {name} not found" = "الملف {name} غير موجود"
+# navigator/widgets/shell/shell/shell.py:1898
+"Cannot write the menu's script: {error}" = "لا يمكن كتابة سكربت القائمة: {error}"
+# navigator/widgets/shell/shell/shell.py:2870
+"Connecting to {host} over {protocol}" = "جار الاتصال بـ {host} عبر {protocol}"
+# navigator/widgets/shell/shell/shell.py:2902
+"Wrong {protocol} password for {who}. Try again:" = "كلمة مرور {protocol} خاطئة لـ {who}. حاول مجددا:"
+# navigator/widgets/shell/shell/shell.py:2903
 "{protocol} password for {who}:" = "كلمة مرور {protocol} لـ {who}:"
-# navigator/widgets/shell/shell/shell.py:3309
+# navigator/widgets/shell/shell/shell.py:3318
 "The console could not be made root's: {reason}" = "تعذّر جعل الطرفية بصلاحيات الجذر: {reason}"
-# navigator/widgets/shell/shell/shell.py:3367
+# navigator/widgets/shell/shell/shell.py:3376
 "Cannot save the key bindings: {error}" = "لا يمكن حفظ ربط المفاتيح: {error}"
-# navigator/widgets/shell/shell/shell.py:3523
+# navigator/widgets/shell/shell/shell.py:3532
 "Cannot save the settings: {error}" = "لا يمكن حفظ الإعدادات: {error}"
 # navigator/widgets/shell/terminal_window/terminal_window.py:30
 "exit status {status}" = "رمز الخروج {status}"
@@ -6423,7 +6423,7 @@ direction = "rtl"
 # navigator/settings.py
 "Block cursor on the command line" = "مؤشر كتلي في سطر الأوامر"
 # navigator/settings.py
-"Reopen a tracked file in the editor at its window, scroll and cursor" = "إعادة فتح الملف المتتبع في المحرر بنافذته وتمريره ومؤشره"
+"Open a new editor where the last one was" = "افتح محررًا جديدًا حيث كان الأخير"
 # navigator/settings.py
 "Reopen a tracked file in the viewer at its window, scroll and cursor" = "إعادة فتح الملف المتتبع في العارض بنافذته وتمريره ومؤشره"
 # navigator/settings.py
@@ -6855,3 +6855,4 @@ direction = "rtl"
 "View mode, hidden files, the footer and the divider" = "وضع العرض والملفات المخفية والتذييل والفاصل"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "لا يوجد ملف هوية age: اضبط age_identities في القسم [encryption] من navigator.ini"
 "Edit new file" = "تحرير ملف جديد"
+"Reopen a tracked file in the editor at its window, scroll and cursor" = "إعادة فتح الملف المتتبع في المحرر بنافذته وتمريره ومؤشره"

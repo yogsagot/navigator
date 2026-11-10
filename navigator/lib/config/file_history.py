@@ -28,8 +28,56 @@ from typing import Any
 
 from navkit.i18n import tr
 
+from navigator.settings import SETTINGS
+
 #: ``MinWinSize``: a rectangle smaller than this, once scaled, is not used.
 MIN_WIDTH, MIN_HEIGHT = 16, 6
+
+#: DN's ``TempBounds`` and ``LastEditDeskSize``: the last rectangle an editor
+#: window that was neither SmartPad nor modal had (``TEditWindow.ChangeBounds``,
+#: ``MICROED.PAS:483``), :func:`window_values`' shape, or None before any.  A
+#: plain value the windows write as they move; kept in the ``window_bounds``
+#: table between runs (:func:`load_edit_bounds`, :func:`save_edit_bounds`), as DN
+#: kept it in its configuration.
+LAST_EDIT: dict[str, Any] | None = None
+
+
+def remember_edit_bounds(window: Any) -> None:
+    """``ChangeBounds``: *window*'s rectangle is the next new editor's."""
+    global LAST_EDIT
+    LAST_EDIT = window_values(window)
+
+
+def place_last_edit(window: Any, bounds: dict[str, Any] | None) -> None:
+    """*Store editor position*: a new editor where the last one was, scaled to the
+    desktop (``AdjustToDesktopSize``) -- ``EditFile``'s ``R := TempBounds``; with
+    none yet it stays as it opened, the whole desktop.  *bounds* is
+    :data:`LAST_EDIT` as it was before *window* opened: mounting, the window
+    records its own first rectangle there."""
+    from types import SimpleNamespace
+
+    if bounds is not None:
+        place_window(window, SimpleNamespace(**bounds))
+
+
+def load_edit_bounds() -> None:
+    """The last editor rectangle, back from the database at the start."""
+    from navigator.models.window_bounds import WindowBounds
+
+    global LAST_EDIT
+    row = WindowBounds.get(kind="editor")
+    LAST_EDIT = None if row is None else {
+        name: getattr(row, name)
+        for name in ("zoomed", "x", "y", "width", "height", "desk_width", "desk_height")
+    }
+
+
+def save_edit_bounds() -> None:
+    """The last editor rectangle, into the database on the way out."""
+    from navigator.models.window_bounds import WindowBounds
+
+    if LAST_EDIT is not None:
+        WindowBounds.upsert(kind="editor", **LAST_EDIT)
 
 
 def window_values(window: Any) -> dict[str, Any]:
@@ -158,7 +206,10 @@ async def open_editor(desktop: Any, path: Path | str, *, new: bool = False, as_r
     # Opened and focused in the same step that follows the read: nothing the
     # user did meanwhile is undone by a window jumping up later.
     window = EditWindow(path, document=document, new=new)
+    last = LAST_EDIT
     desktop.open(window)
+    if SETTINGS.interface.store_editor_position and not window.smartpad:
+        place_last_edit(window, last)
     window.recall_history()
     return window
 

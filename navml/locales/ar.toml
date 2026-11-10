@@ -16,7 +16,7 @@ direction = "rtl"
 "~H~elp" = "م~س~اعدة"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "فتح ملف"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
 "~N~ame" = "~ا~سم"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "م~ج~لدات"
@@ -742,11 +742,11 @@ direction = "rtl"
 "{n} day ago" = ["قبل {n} يوم", "قبل يوم واحد", "قبل يومين", "قبل {n} أيام", "قبل {n} يوما", "قبل {n} يوم"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter للقبول، Escape للإلغاء."
-# navml/widgets/dialog/file_dialog/file_dialog.py:202
+# navml/widgets/dialog/file_dialog/file_dialog.py:213
 "Invalid file name." = "اسم ملف غير صالح."
-# navml/widgets/dialog/file_dialog/file_dialog.py:193
+# navml/widgets/dialog/file_dialog/file_dialog.py:204
 "Invalid drive or directory." = "قرص أو مجلد غير صالح."
-# navml/widgets/dialog/file_dialog/file_dialog.py:228
+# navml/widgets/dialog/file_dialog/file_dialog.py:239
 "Error" = "خطأ"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "مجلد"

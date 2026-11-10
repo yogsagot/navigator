@@ -15,7 +15,7 @@ flag = "RU"
 "~H~elp" = "~П~омощь"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "Открыть файл"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:85
+# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
 "~N~ame" = "~И~мя"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:50
 "~D~irectories" = "~К~аталоги"
@@ -741,11 +741,11 @@ flag = "RU"
 "{n} day ago" = ["{n} день назад", "{n} дня назад", "{n} дней назад"]
 # navml/widgets/dialog/dialog/dialog.py:312
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."
-# navml/widgets/dialog/file_dialog/file_dialog.py:202
+# navml/widgets/dialog/file_dialog/file_dialog.py:213
 "Invalid file name." = "Неверное имя файла."
-# navml/widgets/dialog/file_dialog/file_dialog.py:193
+# navml/widgets/dialog/file_dialog/file_dialog.py:204
 "Invalid drive or directory." = "Неверный диск или каталог."
-# navml/widgets/dialog/file_dialog/file_dialog.py:228
+# navml/widgets/dialog/file_dialog/file_dialog.py:239
 "Error" = "Ошибка"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "Каталог"

@@ -1418,7 +1418,10 @@ def chord(*keys):
 
 def text_editor(files, text: bytes, *keys):
     """*text* in an editor, then *keys*; each open starts at the top, not where the last left off."""
+    from navigator.models.edit_record import EditRecord
+
     SETTINGS.interface.store_editor_position = False
+    EditRecord.delete_where()  # the record would bring the last open's place back
     (files / "text.txt").write_bytes(text)
     return marked(files, *keys)
 

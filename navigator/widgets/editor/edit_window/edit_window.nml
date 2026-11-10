@@ -20,7 +20,8 @@ from navml.widgets.window import Window
 #: the inside of its frame, a vertical scroll bar on the right frame column, a
 #: horizontal one along the bottom frame, and ``TInfoLine`` over the bottom
 #: frame's left end -- the views ``TEditWindow.Init`` inserts, in the places it
-#: puts them.  **It opens zoomed**, as the viewer does.
+#: puts them.  **It opens zoomed**, as the viewer does -- unless *Store editor
+#: position* has a last editor rectangle (``file_history.place_last_edit``).
 #:
 #: Both scroll bars and the info line show only while the window is active, as
 #: ``TFileEditor.SetState`` hid the bars and ``TInfoLine.Draw`` drew nothing.
