@@ -2,9 +2,15 @@
 
 DN read ``CountryInfo.DateFmt`` and ``TimeFmt`` wherever it put a file's
 date on the screen -- the panels' columns, the overwrite query, the clock --
-and so do these.  A 12-hour time is DN's: the hour with its leading zero and
-``am``/``pm`` after it (``TClockView.FormatTimeStr``), spelled here rather
-than by ``%p``, whose words are the C locale's and may be empty.
+and so do these.  DN wrote two kinds of time, and so do these:
+
+- **a file's** (``MakeDate``, :func:`stamp`): a blank, not a zero, before a
+  one-digit hour (`` 9:05``), and in 12 hours one letter, ``a`` or ``p``.
+  DN blanked the day's leading zero too in the day-first order; here the day
+  keeps it, so dates stay aligned as numbers (a departure, asked for);
+- **the clock's** (``TClockView.FormatTimeStr``, :func:`time_text`): the hour
+  with its leading zero and ``am``/``pm`` after it -- spelled here rather than
+  by ``%p``, whose words are the C locale's and may be empty.
 """
 
 from __future__ import annotations
@@ -107,12 +113,18 @@ def _date(when: time.struct_time, format: str) -> str:
         return time.strftime(PRESETS["european"], when)
 
 
-def _time(when: time.struct_time, twelve: bool, separator: str = ":", seconds: bool = False) -> str:
+def _time(when: time.struct_time, twelve: bool, separator: str = ":", seconds: bool = False,
+          file: bool = False) -> str:
+    """``hh:mm`` -- or, *file*, ``MakeDate``'s: the hour blank-padded and,
+    in 12 hours, ``a``/``p`` for ``am``/``pm``."""
     hour, minute = when.tm_hour, when.tm_min
     tail = f"{separator}{when.tm_sec:02d}" if seconds else ""
+    shown = hour if not twelve else (hour - 1) % 12 + 1
+    hours = f"{shown:>2}" if file else f"{shown:02d}"
     if not twelve:
-        return f"{hour:02d}{separator}{minute:02d}{tail}"
-    return f"{(hour - 1) % 12 + 1:02d}{separator}{minute:02d}{tail}{'am' if hour < 12 else 'pm'}"
+        return f"{hours}{separator}{minute:02d}{tail}"
+    suffix = ("a" if hour < 12 else "p") if file else ("am" if hour < 12 else "pm")
+    return f"{hours}{separator}{minute:02d}{tail}{suffix}"
 
 
 def format_date(when: time.struct_time) -> str:
@@ -131,13 +143,16 @@ def date_text(mtime: float, section: CountryData | None = None) -> str:
     return _date(time.localtime(mtime), date_format(section))
 
 
-def time_text(mtime: float, section: CountryData | None = None, *, separator: str = ":") -> str:
-    """*mtime*'s ``hh:mm`` in 24 hours, or ``hh:mmam``/``hh:mmpm`` in 12."""
-    return _time(time.localtime(mtime), twelve_hours(section), separator)
+def time_text(mtime: float, section: CountryData | None = None, *, separator: str = ":",
+              file: bool = False) -> str:
+    """*mtime*'s ``hh:mm`` in 24 hours, or ``hh:mmam``/``hh:mmpm`` in 12 --
+    the clock's; *file*, a file's (``MakeDate``: `` 9:05``, `` 9:05p``)."""
+    return _time(time.localtime(mtime), twelve_hours(section), separator, file=file)
 
 
 def stamp(mtime: float, section: CountryData | None = None) -> str:
-    """*mtime*'s date and time, a blank between: the panels' *Date* column."""
+    """*mtime*'s date and time, a blank between: the panels' *Date* column,
+    and every file's stamp -- ``MakeDate``'s blank hour and ``a``/``p``."""
     return stamp_in(mtime, date_format(section), twelve_hours(section))
 
 
@@ -150,7 +165,7 @@ def last_used(when: float) -> str:
 def stamp_in(mtime: float, format: str, twelve: bool) -> str:
     """:func:`stamp` in a date *format* and hours not (yet) the settings'."""
     when = time.localtime(mtime)
-    return f"{_date(when, format or PRESETS['european'])} {_time(when, twelve)}"
+    return f"{_date(when, format or PRESETS['european'])} {_time(when, twelve, file=True)}"
 
 
 def stamp_width(section: CountryData | None = None) -> int:
@@ -170,7 +185,7 @@ def _stamp_width(format: str, twelve: bool) -> int:
     for month in range(1, 13):
         for day in range(22, 29):
             when = datetime.datetime(2000, month, day, 23, 59).timetuple()
-            text = f"{_date(when, format)} {_time(when, twelve)}"
+            text = f"{_date(when, format)} {_time(when, twelve, file=True)}"
             widest = max(widest, sum(char_width(char) for char in text))
     return widest
 

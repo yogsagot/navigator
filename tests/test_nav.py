@@ -717,7 +717,7 @@ def test_a_dir_entry_carries_permissions_and_a_date(panel, tree):
     settle()
     entry = next(e for e in panel.items if e.name == "one.txt")
     assert entry.display_attributes == "rw-r-----"
-    assert entry.display_date == "04-03-2021 05:06"
+    assert entry.display_date == "04-03-2021  5:06"
 
 
 def test_the_detailed_mode_draws_its_columns(tree, monkeypatch):

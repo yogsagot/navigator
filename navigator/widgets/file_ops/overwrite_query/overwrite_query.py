@@ -25,7 +25,7 @@ def stamp(mtime: float) -> str:
     """``MakeDate`` as the query showed it, ``DATE (hh:mm)``, in *Country
     support*'s format -- with the four-digit year the panels have, where
     DN's was ``YY``."""
-    return f"{country.date_text(mtime)} ({country.time_text(mtime)})"
+    return f"{country.date_text(mtime)} ({country.time_text(mtime, file=True)})"
 
 
 def describe(question: Overwrite, width: int = 40) -> str:

@@ -61,16 +61,26 @@ def test_twelve_hours_are_dn_s_with_am_and_pm(hour, minute, text):
     assert country.time_text(datetime(2026, 3, 4, hour, minute).timestamp()) == text
 
 
+@pytest.mark.parametrize("hours, hour, minute, text", [
+    ("24h", 9, 5, "04-03-2026  9:05"), ("24h", 17, 5, "04-03-2026 17:05"),
+    ("12h", 17, 5, "04-03-2026  5:05p"), ("12h", 0, 5, "04-03-2026 12:05a"), ("12h", 12, 0, "04-03-2026 12:00p"),
+])
+def test_a_files_stamp_is_dn_s_makedate_a_blank_hour_and_one_letter(hours, hour, minute, text):
+    # The day keeps its zero (a departure); the clock keeps ``09:05am``.
+    SETTINGS.country.time_format = hours
+    assert country.stamp(datetime(2026, 3, 4, hour, minute).timestamp()) == text
+
+
 def test_the_stamp_s_width_follows_the_format():
     assert country.stamp_width() == 16
     SETTINGS.country.time_format = "12h"
-    assert country.stamp_width() == 18
+    assert country.stamp_width() == 17  # ``MakeDate``'s one letter: ``11:59p``
     SETTINGS.country.date_format = "custom"
     SETTINGS.country.custom_date = "%A %d %B %Y"
     # The longest weekday and month names are what it is measured by.
     widest = max(len(time.strftime("%A %d %B %Y", datetime(2000, m, d).timetuple()))
                  for m in range(1, 13) for d in range(22, 29))
-    assert country.stamp_width() == widest + len(" 11:59pm")
+    assert country.stamp_width() == widest + len(" 11:59p")
 
 
 def test_the_panel_s_date_column_is_as_wide_as_the_format(tmp_path):
@@ -87,16 +97,16 @@ def test_the_panel_s_date_column_is_as_wide_as_the_format(tmp_path):
     SETTINGS.country.time_format = "12h"
     settle()
     widths = {key: width for key, _, width in panel.detail_columns}
-    assert widths["date"] == 18
+    assert widths["date"] == 17
     entry = next(item for item in panel.items if item.name == "a")
-    assert entry.display_date == "03/04/2026 05:05pm"
+    assert entry.display_date == "03/04/2026  5:05p"
 
 
 def test_the_overwrite_query_writes_its_dates_the_same_way():
     assert query_stamp(AFTERNOON) == "04-03-2026 (17:05)"
     SETTINGS.country.date_format = "iso"
     SETTINGS.country.time_format = "12h"
-    assert query_stamp(AFTERNOON) == "2026-03-04 (05:05pm)"
+    assert query_stamp(AFTERNOON) == "2026-03-04 ( 5:05p)"
 
 
 def test_the_clock_takes_am_and_pm_in_twelve_hours(monkeypatch):
@@ -183,7 +193,7 @@ def test_navml_s_file_dialogs_write_dn_s_form_unless_told(tmp_path, quiet_consol
     SETTINGS.country.time_format = "12h"
     pane = FileInfoPane()
     pane.item = FileItem("a.txt", False, 3, AFTERNOON)
-    assert pane.lines()[1].endswith("2026-03-04 05:05pm")
+    assert pane.lines()[1].endswith("2026-03-04  5:05p")
 
 
 
