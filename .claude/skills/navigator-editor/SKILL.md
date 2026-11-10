@@ -370,6 +370,12 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **Duplicate line, F6** (`DuplicateLine`, DN's `cmDuplicateLine`, also Editor > Misc): a copy of the cursor's line
   under it, put after the line's own text so the line keeps its ending and the copy takes the file's usual break; the
   cursor stays; one undo step.
+- **Line and word deletes are DN's** (`MICROED.PAS`): Ctrl+Y (`DeleteLine`, `DeleteLine`) takes the line and its
+  break, the cursor to column 0; on the last line it only empties it. Presses on one line merge into one undo step
+  (`merge="delline:N"`, `udDelLine`); a move between seals. ^T at a line's end (`DeleteWordRight`) joins the next line
+  and eats its leading blanks, joining on through empty lines (`_join_next`). Ctrl+Backspace (`DeleteWordLeft`) stays
+  on its line: blanks, then the word before them; at column 0, on an empty line, or after punctuation it is Backspace
+  (`foo. |` keeps `foo.`). `_word_left` is Ctrl+Left's alone.
 - **Word and line case** (`UpWord`/`LowWord`/`CapWord`, DN's `cmUpWord`.., and `UpString`/`LowString`/`CapString`;
   Editor > Misc > Uppercase/Lowercase/Capitalize > *Word*/*Line*): Ctrl+[ / Ctrl+] / Ctrl+\ (and Alt+/ for Capitalize)
   change the word the cursor is in or just after -- back to a `BREAK_CHARS` character and on to the next -- and with

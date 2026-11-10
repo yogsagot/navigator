@@ -3408,30 +3408,64 @@ class FileEditor(ContextMenuHost, Widget):
         if self.line + 1 >= len(self.document):
             return True
         self._begin("del")
-        at = self._pad()
-        self.buffer.delete(at, Pos(self.line + 1, 0))
+        self._join_next()
         self._end()
         return True
 
+    def _join_next(self) -> None:
+        """``MakeDel`` at a line's end: the next line joined on, blanks written up to the cursor first."""
+        at = self._pad()
+        self.buffer.delete(at, Pos(self.line + 1, 0))
+
     async def on_delete_word_left(self, event: DeleteWordLeft) -> bool:
+        """``cmDelWordLeft`` (``MICROED.PAS:3160``): blanks, then the word before them, on this line alone.
+
+        At column 0, after punctuation, or on an empty line it is Backspace (``MakeBack``), so it joins
+        only at the line's start and takes one ``.`` at a time: ``foo. |`` keeps ``foo.``.
+        """
         index, past = self._index()
+        text = self._text()
         if past:
-            index = len(self._text())
-        start = self._word_left(Pos(self.line, index))
-        if start == Pos(self.line, index):
+            if not text:
+                return await self.on_delete_back(DeleteBack())
+            index = len(text)
+        if index == 0 or (text[index - 1] in BREAK_CHARS and text[index - 1] != " "):
             return await self.on_delete_back(DeleteBack())
+        start = index
+        while start > 0 and text[start - 1] == " ":
+            start -= 1
+        while start > 0 and text[start - 1] not in BREAK_CHARS:
+            start -= 1
         self._begin()
-        self.buffer.delete(start, Pos(self.line, index))
-        self._go(start)
+        self.buffer.delete(Pos(self.line, start), Pos(self.line, index))
+        self._go(Pos(self.line, start))
         self._end()
         return True
 
     async def on_delete_word_right(self, event: DeleteWordRight) -> bool:
-        """``cmDelWordRight``: the word and the blanks after it, or the line break."""
+        """``cmDelWordRight``: the word and the blanks after it, or the line break.
+
+        At a line's end (``MICROED.PAS:3140``) the next line is joined on and its leading blanks
+        go with the break -- and an empty line joined leaves the end there, so the next is joined too.
+        """
         index, past = self._index()
         text = self._text()
         if past or index >= len(text):
-            return await self.on_delete_char(DeleteChar())
+            if self.line + 1 >= len(self.document):
+                return True
+            self._begin()
+            self._join_next()
+            while True:
+                index, _ = self._index()
+                text = self._text()
+                if index >= len(text) and self.line + 1 < len(self.document):
+                    self._join_next()
+                elif index < len(text) and text[index] == " ":
+                    self.buffer.delete(Pos(self.line, index), Pos(self.line, index + 1))
+                else:
+                    break
+            self._end()
+            return True
         stop = index
         if text[stop] in BREAK_CHARS and text[stop] != " ":
             stop += 1
@@ -3446,17 +3480,16 @@ class FileEditor(ContextMenuHost, Widget):
         return True
 
     async def on_delete_line(self, event: DeleteLine) -> bool:
-        """``cmDeleteLine``: the whole line, and the cursor to its start."""
-        self._begin()
+        """``cmDeleteLine`` (DN's ``DeleteLine``, ``MICROED.PAS:2389``): the line and its break, the
+        cursor to its start; the last line is only emptied.  Presses on one line are one undo step,
+        as ``udDelLine`` gathered them."""
         last = len(self.document) - 1
         if self.line < last:
+            self._begin(f"delline:{self.line}")
             self.buffer.delete(Pos(self.line, 0), Pos(self.line + 1, 0))
-        elif self.line > 0:
-            self.buffer.delete(Pos(self.line - 1, len(self._text(self.line - 1))),
-                               Pos(self.line, len(self._text())))
-            self.line -= 1
         else:
-            self.buffer.delete(Pos(0, 0), Pos(0, len(self._text())))
+            self._begin()
+            self.buffer.delete(Pos(self.line, 0), Pos(self.line, len(self._text())))
         self._go_column(self.line, 0)
         self._end()
         return True

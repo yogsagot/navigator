@@ -3784,6 +3784,41 @@ def test_delete_word_right_and_to_end_of_line_from_the_menu(files):
     assert editor.document.encode() == b"abc \n"
 
 
+
+def test_ctrl_y_on_the_last_line_empties_it_and_stays(files):
+    _, editor = text_editor(files, b"a\nbc", KeyEvent("down"), KeyEvent("end"), KeyEvent("y", ctrl=True))
+    assert editor.document.lines == ["a", ""]
+    assert (editor.line, editor.col) == (1, 0)
+
+
+def test_repeated_ctrl_y_on_one_line_is_one_undo_step(files):
+    _, editor = text_editor(files, b"1\n2\n3\n4\n", *[KeyEvent("y", ctrl=True)] * 3, KeyEvent("z", ctrl=True))
+    assert editor.document.encode() == b"1\n2\n3\n4\n"
+    _, editor = text_editor(files, b"1\n2\n3\n4\n", KeyEvent("y", ctrl=True), KeyEvent("down"), KeyEvent("up"),
+                            KeyEvent("y", ctrl=True), KeyEvent("z", ctrl=True))
+    assert editor.document.encode() == b"2\n3\n4\n"  # a move between: the second press undone alone
+
+
+@pytest.mark.parametrize(("text", "after"), [(b"ab\n   cd\n", b"abcd\n"), (b"ab\n\n  x\n", b"abx\n"),
+                                             (b"ab\n", b"ab")])  # the empty last line joined, as Del
+def test_ctrl_t_at_a_line_s_end_joins_and_eats_the_leading_blanks(files, text, after):
+    _, editor = text_editor(files, text, KeyEvent("end"), chosen("Delete", "Delete word right"), IDLE,
+                            KeyEvent("z", ctrl=True), KeyEvent("end"), chosen("Delete", "Delete word right"), IDLE)
+    assert editor.document.encode() == after  # one undo step took it all back
+
+
+@pytest.mark.parametrize(("text", "after"), [(b"foo. \n", b"foo.\n"), (b"foo.\n", b"foo\n"),
+                                             (b"foo bar\n", b"foo \n"), (b"foo   \n", b"\n")])
+def test_ctrl_backspace_stops_at_punctuation(files, text, after):
+    _, editor = text_editor(files, text, *[KeyEvent("right")] * (len(text) - 1), KeyEvent("backspace", ctrl=True))
+    assert editor.document.encode() == after
+
+
+def test_ctrl_backspace_at_column_0_only_joins(files):
+    _, editor = text_editor(files, b"foo. \nbar\n", KeyEvent("down"), KeyEvent("backspace", ctrl=True))
+    assert editor.document.encode() == b"foo. bar\n"
+    assert (editor.line, editor.col) == (0, 5)
+
 # -- ``StatusDef hcEditor``'s other keys: F5, Ctrl+F6, Shift+F4 -------------------------------------
 
 
