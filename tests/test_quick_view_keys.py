@@ -247,13 +247,26 @@ def test_alt_z_elsewhere_zooms_the_window_as_before(files):
     assert seen[2] == (False, None)
 
 
-@pytest.mark.parametrize("back", ["ctrl+q", "ctrl+f1"])
-def test_the_panel_put_back_another_way_gives_the_window_back_too(files, back):
+def test_the_panel_put_back_another_way_gives_the_window_back_too(files):
     app = navigator(files)
     seen = {}
-    key = KeyEvent("q", ctrl=True) if back == "ctrl+q" else KeyEvent("f1", ctrl=True)
-    run_app(app, [*INTO, lambda a: seen.update(before=rect(a.manager)), KeyEvent("z", alt=True), key,
-                  lambda a: None, lambda a: seen.update(after=rect(a.manager), hidden=a.manager.hidden_side)])
+    run_app(app, [*INTO, lambda a: seen.update(before=rect(a.manager)), KeyEvent("z", alt=True),
+                  KeyEvent("f1", ctrl=True), lambda a: None,
+                  lambda a: seen.update(after=rect(a.manager), hidden=a.manager.hidden_side)])
+    assert seen["after"] == seen["before"] and seen["hidden"] is None
+
+
+def test_ctrl_q_after_alt_z_puts_the_panel_back_and_the_other_side_stays_hidden(files):
+    # ``SwitchView``: the view showing is put away, a hidden other side left hidden;
+    # Ctrl+F1 then brings that side and the window back.
+    app = navigator(files)
+    seen = {}
+    run_app(app, [*INTO, lambda a: seen.update(before=rect(a.manager)), KeyEvent("z", alt=True),
+                  KeyEvent("q", ctrl=True), lambda a: None,
+                  lambda a: seen.update(off=(a.manager.replacement, a.manager.hidden_side)),
+                  KeyEvent("f1", ctrl=True), lambda a: None,
+                  lambda a: seen.update(after=rect(a.manager), hidden=a.manager.hidden_side)])
+    assert seen["off"] == (None, "left")
     assert seen["after"] == seen["before"] and seen["hidden"] is None
 
 

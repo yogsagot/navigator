@@ -122,3 +122,36 @@ def test_hide_left_hides_whatever_is_on_the_left_now(sides):
     run_app(app, [KeyEvent("u", ctrl=True), lambda a: None, KeyEvent("f1", ctrl=True), lambda a: None])
     m = app.manager
     assert m.hidden_side == "left" and m.left.path == sides / "east" and not m.left.visible
+
+
+# -- Ctrl+T/Q/L with a side hidden: ``SwitchView``'s order ---------------------------------------
+
+
+@pytest.mark.parametrize("key, view", [("t", "tree"), ("q", "quick"), ("l", "info")])
+def test_a_view_on_the_hidden_side_comes_back_with_it(sides, key, view):
+    app = navigator(sides)
+    seen = {}
+    run_app(app, [KeyEvent(key, ctrl=True), lambda a: None, KeyEvent("f2", ctrl=True), lambda a: None,
+                  KeyEvent(key, ctrl=True), lambda a: None,
+                  lambda a: seen.update(state=(a.manager.hidden_side, a.manager.replacement,
+                                               a.focused is a.manager.left))])
+    m = app.manager
+    assert seen["state"] == (None, getattr(m, view), True)
+    assert getattr(m, view).visible
+
+
+def test_a_view_put_away_leaves_the_other_hidden_side_hidden(sides):
+    app = navigator(sides)
+    run_app(app, [KeyEvent("t", ctrl=True), lambda a: None, KeyEvent("tab"), lambda a: None,
+                  KeyEvent("f1", ctrl=True), lambda a: None, KeyEvent("t", ctrl=True), lambda a: None])
+    m = app.manager
+    assert m.replacement is None and m.hidden_side == "left"
+    assert m.right.visible and app.focused is m.right
+
+
+def test_a_view_into_a_hidden_passive_side_shows_it(sides):
+    app = navigator(sides)
+    run_app(app, [KeyEvent("f2", ctrl=True), lambda a: None, KeyEvent("t", ctrl=True), lambda a: None])
+    m = app.manager
+    assert m.hidden_side is None and m.replacement is m.tree and m.tree.visible
+    assert app.focused is m.left

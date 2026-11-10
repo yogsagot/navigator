@@ -456,14 +456,17 @@ directory change and losing the keyboard. While it runs `edits_text` is True. Ma
   console shows through (`SwitchLeft`'s `Locate`). Again restores the old rectangle (zoomed if it was, or grows by the
   share lost). Hiding the only side left shows the console (`cmShowOutput`), and the key from the console brings the
   manager back with that side alone (`cmPostHideLeft`, `Shell.show_manager_side`) -- both keys are on the application's
-  table. Tab is disabled while a side is hidden; Ctrl+T/Ctrl+Q show it first.
+  table. Tab is disabled while a side is hidden. Ctrl+T/Q/L follow `SwitchView`'s order (`switch_view`): the view on
+  the hidden side shows that side with the view kept, the keyboard unmoved; the view showing is put away and a hidden
+  other side stays hidden; otherwise the hidden side is shown first and the view goes in.
 - **Alt+Z with the quick view selected is `TDoubleWindow`'s `cmZoom`** (`Manager.on_zoom_window`):
   - The side the view follows is hidden, then the window zooms (DN's uncleared `cmZoom` went on to `TWindow`'s), so
     the view fills the desktop. `_view_zoom` notes the rectangle.
   - Alt+Z again shows the side. `show_side` first undoes that zoom (`_unzoom_view`) while the window is as it left
     it, so the window gets back the rectangle and zoom it had before. A departure: DN's arithmetic there didn't come
     back to it.
-  - Every way a side comes back goes through `show_side`, so Ctrl+Q, Ctrl+F1/F2 and Ctrl+P do the same.
+  - Every way a side comes back goes through `show_side`, so Ctrl+F1/F2 and Ctrl+P do the same. Ctrl+Q there puts the
+    view away and leaves the side hidden (`SwitchView`'s rule); Ctrl+F1/F2 then brings it and the window back.
   - Anywhere else, and in the quick view without the keyboard, the command passes on to the desktop's zoom.
     `Manager.refusal` answers for `ZoomWindow` now that the handler is here.
 - **Ctrl+P is `cmSwitchOther`** (`toggle_inactive_side`, on `manager.nml`'s table): the side without the keyboard; it

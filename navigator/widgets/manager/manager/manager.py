@@ -6151,11 +6151,21 @@ class Manager(Window):
         had it, as the original re-selected the panel it restored.  Asking for
         the *other* view swaps it in where the first one stood, and the
         keyboard goes back to the active panel, as ``SwitchView`` selected it.
+
+        **With a side hidden**, ``SwitchView``'s order: *view* on the hidden
+        side shows that side, the view still in it, the keyboard unmoved
+        (``SwitchRight``/``SwitchLeft``); *view* showing is put away, and the
+        hidden other side stays hidden; anything else shows the hidden side
+        first, then puts *view* in the passive place as ever.
         """
-        if self.hidden_side is not None:
+        hidden = self.hidden_side
+        if hidden is not None and self.side_view(hidden) is view:
+            self.show_side(hidden)
+            return
+        if hidden is not None and self.replacement is not view:
             # The view takes the passive side's place, which may be the
             # hidden one: both sides come back first.
-            self.show_side(self.hidden_side)
+            self.show_side(hidden)
         current, replaced = self.replacement, self.replaced
         if current is view:
             had_keys = view.focus_within
