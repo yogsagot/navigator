@@ -240,7 +240,8 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   changing where it stands (Alt+G) bumps `Panel.sizes_token`: the same list of the same entries is no change to
   `items`.
   **Alt+I hides that footer** -- divider and lines -- per panel (`ToggleInfoLines`, `Panel.show_info`/`toggle_info`,
-  *Panel > Display > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes.
+  *Panel > Display > Show/hide footer*, ticked while shown, kept with the desktop); a departure, DN had only the *Display* boxes,
+  and its Alt+I was a second, uncaptioned *Info* (`cmDiskInfo`, Ctrl+L's) key, taken for this.
   The command has no `title`, so the Alt key bar keeps *Z Zoom*.
 - **The option strip** (a departure, as the editor's and viewer's): each panel's bottom frame carries navml's
   `OptionStrip` (`Panel.options`, added in Python in `Panel.__init__` -- Panel has no markup), right-aligned 3 cells

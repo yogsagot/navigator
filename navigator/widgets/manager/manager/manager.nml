@@ -51,7 +51,8 @@ Manager(Window):
     #: ``StatusDef hcFilePanel``'s order, which is the order the bar shows the
     #: letters in.  Three of DN's are not here, a departure: Ctrl+K's ``descript.ion``
     #: descriptions, Shift+F3's modem phone book and Shift+F6's FAT undelete
-    #: (*Reanimator*) can never mean anything on POSIX.
+    #: (*Reanimator*) can never mean anything on POSIX.  Alt+I, DN's second
+    #: (uncaptioned) ``cmDiskInfo``, is the footer toggle here (below).
     keys:
         tab: SwitchPanel
         insert: ToggleMark
@@ -111,6 +112,10 @@ Manager(Window):
         ctrl+q: QuickView
         ctrl+y: ToggleShowMode
         ctrl+h: ToggleHidden
+        #: The footer toggle, a departure: DN's ``StatusDef hcFilePanel`` had
+        #: Alt+I as a second, uncaptioned ``cmDiskInfo`` -- the information
+        #: panel's key, which Ctrl+L still is.  The toggle needs a key of its
+        #: own, and the option strip's ``[Info]`` names this one.
         alt+i: ToggleInfoLines
         ctrl+r: Rescan
         ctrl+s: QuickSearch

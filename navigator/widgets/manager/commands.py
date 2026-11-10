@@ -803,7 +803,9 @@ class ToggleInfoLines(Command):
     and the *Totals* and *Free space* lines under the listing.
 
     Ours, per panel as Ctrl+H is: DN changed them only through the
-    *Display* boxes of Panel Options and New Manager defaults.  No title,
+    *Display* boxes of Panel Options and New Manager defaults.  The key was
+    DN's second (uncaptioned) ``cmDiskInfo``, the information panel's, which
+    Ctrl+L still is -- taken for this, a departure.  No title,
     so the Alt key bar keeps its room for the keys DN put there.
     """
 
