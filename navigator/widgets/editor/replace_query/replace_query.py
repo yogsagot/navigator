@@ -15,7 +15,8 @@ from navml.widgets.dialog.dialog import Dialog
 
 
 class ReplaceQuery(Dialog):
-    """``MessageBoxRect(dlQueryReplace, mfYesButton + mfAllButton + mfNoButton + mfCancelButton)``."""
+    """``MessageBoxRect(dlQueryReplace, mfQuery + mfYesButton + mfAllButton + mfNoButton + mfCancelButton)``:
+    *Query*, the buttons in their flags' order -- Yes, No, All, Cancel."""
 
     #: The match it asks about stays at full strength.
     dims_behind = False
@@ -26,7 +27,7 @@ class ReplaceQuery(Dialog):
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.every, self.skip, self.abandon)
+        return (self.pick, self.skip, self.every, self.abandon)
 
     async def on_pick_click(self, event: Event) -> bool:
         self.close("yes")

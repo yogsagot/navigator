@@ -4263,7 +4263,12 @@ class FileEditor(ContextMenuHost, Widget):
     def _search_bounds(self, number: int) -> tuple[int, int] | None:
         """The part of line *number* the block covers, as indices -- *Selected text*:
         from its first stretch's start to its last's end; :meth:`find` passes
-        over a match that is not wholly inside one stretch."""
+        over a match that is not wholly inside one stretch.
+
+        A departure: a stream block over several lines is clipped at its start on
+        its first line too, where DN clipped the start column only for a block
+        within one line or a column block (``MICROED.PAS:1468``), searching that
+        first line from its beginning."""
         spans = self._line_spans(number)
         if spans is None:
             return None

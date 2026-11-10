@@ -2552,6 +2552,44 @@ def test_change_all_without_prompting_counts_what_it_made(files, fresh_search):
     assert editor.document.encode() == b"one dog\ntwo dog\ndog three\n"
 
 
+def test_the_replace_query_is_dn_s_query_yes_no_all_cancel(files, fresh_search):
+    seen = []
+
+    def look(a):
+        buttons = sorted((a.modal.pick, a.modal.skip, a.modal.every, a.modal.abandon), key=lambda b: b.x)
+        seen.append((a.modal.title, [b.text for b in buttons]))
+
+    text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                *typed("cat"), KeyEvent("tab"), *typed("dog"), KeyEvent("enter"), lambda a: None, look,
+                KeyEvent("escape"), lambda a: None)
+    assert seen == [("Query", ["~Y~es", "~N~o", "~A~ll", "Cancel"])]
+
+
+def test_after_yes_then_all_only_the_matches_found_unasked_are_counted(files, fresh_search):
+    said = []
+
+    def change_all(a):
+        a.spawn(a.modal.on_all_click(None))
+
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            replace_cat_with_dog, change_all, lambda a: None,
+                            KeyEvent("y", alt=True), lambda a: None,
+                            KeyEvent("a", alt=True), lambda a: None, lambda a: None, modal_text(said))
+    assert editor.document.encode() == b"one dog\ntwo dog\ndog three\n"
+    assert said == ["1 replace made"]  # the third: All was pressed on the second
+
+
+def test_one_replacement_unasked_says_nothing(files, fresh_search):
+    seen = []
+
+    _, editor = text_editor(files, TEXT, KeyEvent("f7", ctrl=True), lambda a: None,
+                            replace_cat_with_dog, lambda a: setattr(a.modal.options, "value", 0),
+                            KeyEvent("enter"), lambda a: None, lambda a: None,
+                            lambda a: seen.append(a.modal))
+    assert editor.document.encode() == b"one dog\ntwo Cat\ncat three\n"
+    assert seen == [None]
+
+
 @pytest.mark.usefixtures("wordstar")
 def test_ctrl_q_f_and_a_open_find_and_replace(files, fresh_search):
     seen = []

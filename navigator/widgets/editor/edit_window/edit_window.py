@@ -867,8 +867,11 @@ class EditWindow(Window):
 
         A plain search stops at the first match.  A replacement asks each time
         while *Prompt on replace* is ticked -- *All* stops the asking -- and
-        goes on only for *Change all*.  Nothing found says so; replacements made
-        unasked are counted.  True when something was found.
+        goes on only for *Change all*.  Nothing found says so.  *N replaces
+        made* comes only when the loop runs out of matches -- *Change all*, or
+        after *All* -- and counts the matches found without asking, as DN's
+        ``Inc(NumRep)`` did: not the one *All* was pressed on.  One replacement,
+        or Cancel, says nothing (DN's ``goto LExit``).  True when something was found.
         """
         from navigator.lib.editor import search
         from navigator.widgets.editor.replace_query import ReplaceQuery
@@ -886,16 +889,18 @@ class EditWindow(Window):
             if shown is not None:
                 at = shown[0] if backward else shown[1]
         replace_all, prompt = self._replace_all, data.prompt
-        found_any, made = False, 0
+        found_any, made, ran_out = False, 0, False
         while True:
             found = editor.find(at, data, backward=backward)
             if found is None:
+                ran_out = True
                 break
             found_any = True
             editor.show_found(found, backward=backward)
             if data.new is None:
                 return True
             choice = "yes"
+            unasked = not prompt
             if prompt:
                 choice = await ReplaceQuery().execute(self.application)
                 if choice == "all":
@@ -906,7 +911,7 @@ class EditWindow(Window):
                 end = editor.replace_found(found, editor.replacement(found, data))
                 at = found[0] if backward else end
                 editor._go(at)
-                if not prompt:
+                if unasked:
                     made += 1
             else:
                 at = found[0] if backward else found[1]
@@ -918,7 +923,7 @@ class EditWindow(Window):
                 self.application,
             )
             return False
-        if made:
+        if ran_out and made:
             await Dialog(
                 title=tr("Information"), prompt=tr_n("{n} replace made", "{n} replaces made", made), buttons="ok",
             ).execute(self.application)
