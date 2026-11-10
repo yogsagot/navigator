@@ -735,9 +735,10 @@ class Shell(DockLayout):
         if self.console.copy_key(event):
             return True
         # ``ouiHideCmdline``: a hidden line takes no keys at all, as
-        # ``TCommandLine.HandleEvent`` took none.
+        # ``TCommandLine.HandleEvent`` took none -- but a character typed with
+        # Shift starts the panel's quick search, as ``TFilePanel`` did then.
         if SETTINGS.interface.hide_command_line:
-            return False
+            return self._search_with_the_line_hidden(event)
         if self._console_is_the_terminal() and await self._terminal_key(event):
             return True
         if self._panel_keeps(event):
@@ -2279,6 +2280,26 @@ class Shell(DockLayout):
 
     async def on_insert_path(self, event: InsertPath) -> bool:
         self._insert_entry(whole=True)
+        return True
+
+    def _search_with_the_line_hidden(self, event: KeyEvent) -> bool:
+        """With the command line hidden, a character (not ``\\``) typed with
+        Shift and without Ctrl starts the active panel's quick search with it
+        -- DN's ``TFilePanel`` test ``ShiftState and 3 <> 0`` and ``not
+        CommandLine^.GetState(sfVisible)``.  Anything else is still taken by
+        nobody."""
+        if not (event.is_printable and event.shift) or event.ctrl or event.alt or event.super_:
+            return False
+        if event.char == "\\":
+            return False
+        manager = self.active_manager
+        if manager is None or manager._aside_focused():
+            return False
+        panel = manager.active_panel
+        if not panel.focus_within:
+            return False
+        panel.start_quick_search()
+        panel._search_key(event)
         return True
 
     async def on_previous_command(self, event: Any) -> bool:

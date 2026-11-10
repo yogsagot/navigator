@@ -458,7 +458,9 @@ kept). DN's panel Ctrl+Del (take entries off the listing) was never ported, so i
 
 mc's quick search (`QuickSearch`, `Panel.quick_search`, *Panel > Quick search*): typing moves the cursor to the first
 name from it that begins so (case folded, `*`/`?`, `..` never found); a character naming nothing is refused, Backspace
-drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret; with text
+drops one, Ctrl+S again finds the next, wrapping. Shows as ` Search: … ` on the footer with the caret (a departure:
+DN's caret sat in the cursor row's name, over what matched); with the command line hidden, a character typed with
+Shift starts it (`Shell._search_with_the_line_hidden`, DN's `ouiHideCmdLine` path; not `\`); with text
 typed the key bar leads with *Ctrl+S Next* (`Panel.key_hints`; a departure, asked for). Esc ends it;
 any other key ends it and does its job -- Enter descends into (or runs) what was found in one press -- as do a click, a
 directory change and losing the keyboard. While it runs `edits_text` is True. Matching rules: `navml/quick_search.py`.

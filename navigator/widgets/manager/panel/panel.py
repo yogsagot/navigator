@@ -2097,7 +2097,11 @@ class Panel(ListViewer):
         return f" {tr('Search:')} "
 
     def cursor_position(self) -> tuple[int, int] | None:
-        """While searching, the caret after what has been typed, on the footer."""
+        """While searching, the caret after what has been typed, on the footer.
+
+        A departure: DN's caret sat in the cursor row's name, over the letters
+        matched (``FLPANEL.PAS``); the footer leaves the name its columns, and
+        mc shows its search there."""
         text = self.quick_search
         if text is None or not self.framed:
             return None

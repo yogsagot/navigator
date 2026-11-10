@@ -104,3 +104,45 @@ def test_ctrl_enter_still_ends_the_search_and_inserts_the_name(place):
     app = Navigator(place, place, terminal=FakeTerminal(100, 30))
     run_app(app, [*search("box"), lambda a: None, KeyEvent("enter", ctrl=True), lambda a: None])
     assert panel(app).quick_search is None and app.shell.command_line.value == "box "
+
+
+# -- with the command line hidden: Shift+character starts the search (DN's ``ouiHideCmdLine`` path) --
+
+
+@pytest.fixture
+def hidden_line(monkeypatch):
+    from navigator.settings import SETTINGS
+
+    monkeypatch.setattr(SETTINGS.interface, "hide_command_line", True)
+
+
+@pytest.mark.usefixtures("hidden_line")
+def test_shift_letter_with_the_line_hidden_starts_the_search(place):
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    seen = {}
+    run_app(app, [KeyEvent("b", "B", shift=True), lambda a: None,
+                  lambda a: seen.update(search=panel(a).quick_search, at=panel(a).selected.name),
+                  KeyEvent("o", "o"), lambda a: None, lambda a: seen.update(then=panel(a).selected.name)])
+    assert seen == {"search": "B", "at": "bat", "then": "box"}
+
+
+@pytest.mark.usefixtures("hidden_line")
+@pytest.mark.parametrize("event", [KeyEvent("b", "b"), KeyEvent("\\", "\\", shift=True)])
+def test_a_plain_letter_or_shift_backslash_with_the_line_hidden_does_nothing(place, event):
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    run_app(app, [event, lambda a: None])
+    assert panel(app).quick_search is None and app.shell.command_line.value == ""
+
+
+def test_shift_letter_with_the_line_shown_types_on_it(place):
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    run_app(app, [KeyEvent("b", "B", shift=True), lambda a: None])
+    assert panel(app).quick_search is None and app.shell.command_line.value == "B"
+
+
+@pytest.mark.usefixtures("hidden_line")
+def test_with_the_tree_holding_the_keyboard_no_search_starts(place):
+    app = Navigator(place, place, terminal=FakeTerminal(100, 30))
+    run_app(app, [KeyEvent("t", ctrl=True), lambda a: None, KeyEvent("tab"), lambda a: None,
+                  KeyEvent("b", "B", shift=True), lambda a: None])
+    assert panel(app).quick_search is None

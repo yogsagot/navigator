@@ -196,7 +196,7 @@ note:
 | `system.notifications` | `auto` (default: the terminal's guessed way, `TerminalInfo.notifications`), `terminal` (that OSC, else OSC 9), `notify-send`, `off`: how a long `_watch_job` operation's end, or its waiting question, is told to the desktop -- only while the terminal has reported it lost the focus (`Shell.notify_away`; `navigator-file-ops`, *In the background*). A departure, not DN's. On *Communications*' page beside *Desktop integration*, which answers `system` too |
 | `interface.clock`, `interface.hide_status_line` | Clock and key bar visibility |
 | `interface.hide_menu_bar` | The desktop takes the top row; the bar floats over it only while a menu is open |
-| `interface.hide_command_line` | The desktop takes its row; it takes no keys, and its commands (Enter, Home, End, Tab, Ctrl+Enter) are disabled so those keys go to the panel |
+| `interface.hide_command_line` | The desktop takes its row; it takes no keys (but a Shift+character starts the panel's quick search, as DN's did), and its commands (Enter, Home, End, Tab, Ctrl+Enter) are disabled so those keys go to the panel |
 | `interface.auto_hide_command_line` | The line shows only while it holds text; typing still goes to it and brings it back (DN 1.51 never read this bit -- transcribed from `CheckSize`/`ToggleCmdLine`) |
 | `interface.esc_user_screen` | Esc with an empty command line toggles the console (Ctrl+O), DN's `cmShowUserScreen`; Esc on a line with text clears it, and does nothing with the line hidden |
 | `interface.block_insert_cursor` | The command line's caret is a block (`Shell:block_insert { caret: block }` in `navigator.nss`; on `Shell` because it answers `cursor_position` for the line). Unticked, the terminal's own shape |
