@@ -24,13 +24,16 @@ class ChangeDirDialog(Dialog):
     """*Choose Directory*: a tree of the filesystem, opened on *start*."""
 
     def __init__(self, start: Any = None, hidden: bool = True,
-                 made: Callable[[Any, str], None] | None = None, **kwargs: Any) -> None:
+                 made: Callable[[Any, str], None] | None = None, search: str = "", **kwargs: Any) -> None:
         """*hidden* is the panel's ``show_hidden``: whether dot-directories are
         listed.  *start* on another drive (a ``Location``) shows that drive's
         tree, read on threads.  *made*, when given, is told of each directory
         *MkDir* makes -- the directory it was made in and the name typed -- so
-        a panel showing that directory can put its cursor on it."""
+        a panel showing that directory can put its cursor on it.  *search* is
+        typed into the tree's quick search once the box is up, as DN replayed
+        a panel search's letters after ``\\`` (``PutEvent``)."""
         super().__init__(**kwargs)
+        self._search = search
         self._hidden = hidden
         self._made = made
         # Dialog's bottom row and message are not in this layout.
@@ -39,6 +42,30 @@ class ChangeDirDialog(Dialog):
         start = start if start is not None else Path.cwd()
         self.tree.root = directory_root(self._hidden, at=start)
         self._show(start)
+
+    def mounted(self) -> None:
+        super().mounted()
+        if self._search:
+            # After the box has given the tree the keyboard: a search ends
+            # when its widget does not have it.
+            self.spawn(self._replay_search())
+
+    async def _replay_search(self) -> None:
+        """The letters typed into the tree's search -- once the directory it
+        opened on has its rows (``when_loaded``), read on a thread."""
+        from navkit.events import KeyEvent
+
+        def replay() -> None:
+            self.tree.focus()
+            self.tree.start_search()
+            for char in self._search:
+                self.tree._search_key(KeyEvent(char, char))
+
+        node = self.tree.selected_node
+        if node is None:
+            replay()
+        else:
+            self.tree.when_loaded(node, replay)
 
     def _show(self, place: Any) -> None:
         # Every read on a thread, the disk's as well as another drive's: a

@@ -57,7 +57,7 @@ from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see lis
 )
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
-from navigator.widgets.manager.commands import AdvancedFilter
+from navigator.widgets.manager.commands import AdvancedFilter, ChangeDirectory
 from navigator.widgets.manager.panel.drag import Dropped
 
 
@@ -2056,6 +2056,18 @@ class Panel(ListViewer):
         views.
         """
         text = self.quick_search or ""
+        if event.key in ("insert", "kp_plus", "kp_minus", "kp_multiply") and not (event.ctrl or event.alt):
+            # DN's ``GotoKb``: Ins and the Gray keys tag as ever, and the
+            # search stays on -- unless the key's box (Gray ±'s *Select*)
+            # takes the keyboard, which ends a search as anything does.  The
+            # keypad's alone: a bare ``+``, ``-`` or ``*`` is searched, as a
+            # name may hold one and some terminals send the Gray keys so.
+            return False
+        if event.char == "\\" and event.is_printable:
+            # ``cmChangeDir`` with the letters typed (DN's ``PutEvent`` replay).
+            self.quick_search = None
+            self.spawn(self.emit(ChangeDirectory(search=text)))
+            return True
         if event.is_printable:
             found = self._find(text + event.char, self.cursor)
             if found is not None:

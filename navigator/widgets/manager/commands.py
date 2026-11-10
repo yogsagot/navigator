@@ -169,12 +169,17 @@ class Rescan(Command):
     title = "Re-read"
 
 
+@dataclass(frozen=True, slots=True)
 class ChangeDirectory(Command):
     """Alt+T: choose a directory from a tree, and send the active panel there.
 
     DOS Navigator's ``cmChangeDir``, Panel > Change directory.  Untitled, as
-    ``StatusDef hcFilePanel`` left Alt-T off its Alt row.
+    ``StatusDef hcFilePanel`` left Alt-T off its Alt row.  *search* is what a
+    panel's quick search had typed when ``\\`` sent it here: the tree's own
+    search starts from it, as DN replayed the letters into the box.
     """
+
+    search: str = ""
 
 
 class HideLeft(Command):

@@ -3109,7 +3109,7 @@ class Manager(Window):
 
     async def on_change_directory(self, event: ChangeDirectory) -> bool:
         # Started, not awaited, for the reason ``on_make_directory`` gives.
-        self.spawn(self.change_directory())
+        self.spawn(self.change_directory(search=event.search))
         return True
 
     async def on_change_left(self, event: ChangeLeft) -> bool:
@@ -3386,7 +3386,7 @@ class Manager(Window):
         other.location = panel.location
         panel.focus()
 
-    async def change_directory(self) -> None:
+    async def change_directory(self, *, search: str = "") -> None:
         """Alt+T: *Choose Directory*, and the active panel goes where it says.
 
         The panel that asked, remembered before the dialog takes the keyboard:
@@ -3397,7 +3397,7 @@ class Manager(Window):
 
         panel = self.active_panel
         chosen = await ChangeDirDialog(start=shown(panel.location), hidden=panel.show_hidden,
-                                       made=self._made_in).execute(self.application)
+                                       made=self._made_in, search=search).execute(self.application)
         if chosen is not None:
             # A ``root:`` directory the user may read is the disk's own again.
             panel.location = panel._plain_where_readable(Location.of(chosen))

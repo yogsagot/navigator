@@ -463,6 +463,15 @@ typed the key bar leads with *Ctrl+S Next* (`Panel.key_hints`; a departure, aske
 any other key ends it and does its job -- Enter descends into (or runs) what was found in one press -- as do a click, a
 directory change and losing the keyboard. While it runs `edits_text` is True. Matching rules: `navml/quick_search.py`.
 
+DN's keys while searching (`FLPANEL.PAS:1268-1330`, `Panel._search_key`): **Ins and the keypad Gray +/−/\*** tag as
+ever and the search stays on (`GotoKb`) -- unless the key's box (Gray ±'s *Select*) takes the keyboard, which ends
+it; a bare `+`/`-`/`*` character is searched (names hold them; some terminals send the Gray keys so). **`\`** ends the
+search and opens *Change directory* with the letters typed into its tree's search (`ChangeDirectory(search=)`,
+`ChangeDirDialog` replaying them once its start directory has its rows -- as typing them there would; DN's
+`PutEvent` replay). Departures: **Ctrl+Enter** ends the search and inserts the name (DN: next match -- Ctrl+S is
+that), **Space** is searched (DN ended the search and tagged; POSIX names hold spaces), **`.`** is a character (DN
+jumped to the 8.3 extension).
+
 ## Hiding sides and replacing a side
 
 - **Ctrl+F1/Ctrl+F2 are `cmHideLeft`/`cmHideRight`** (`Manager.toggle_side`, `hidden_side`): a side (`side_view` -- the

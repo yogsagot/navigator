@@ -43,7 +43,7 @@ from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.drives.listing import DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries, read_listing, restat_found, scan_directory
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
-from navigator.widgets.manager.commands import AdvancedFilter
+from navigator.widgets.manager.commands import AdvancedFilter, ChangeDirectory
 from navigator.widgets.manager.panel.drag import Dropped
 
 
