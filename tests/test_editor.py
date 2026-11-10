@@ -856,6 +856,44 @@ def test_shift_f4_takes_a_url_as_typed_to_its_drive(files, monkeypatch):
     assert reached and reached[0][0] == "sftp://me@host/etc/motd"
 
 
+def test_edit_on_the_command_line_opens_each_file_in_order(files):
+    """DN's ``EditFile(On, ...)`` for each name on its command line."""
+    from navigator.widgets.editor.edit_window import EditWindow
+
+    seen = {}
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24), edit=[files / "text.txt", files / "new.txt"])
+
+    def windows(a):
+        return [w for w in a.shell.desktop.windows() if isinstance(w, EditWindow)]
+
+    run_app(app, [Until(lambda a: len(windows(a)) == 2, timeout=5),
+                  lambda a: seen.update(paths=[w.editor.path for w in windows(a)],
+                                        top=editor_window(a).editor.path,
+                                        empty=editor_window(a).editor.document.encode())])
+    assert sorted(seen["paths"]) == sorted([files / "text.txt", files / "new.txt"])
+    assert seen["top"] == files / "new.txt" and seen["empty"] == b""
+
+
+def test_edit_with_internal_editor_off_runs_editor_on_them_all(files, monkeypatch):
+    SETTINGS.system.internal_editor = False
+    monkeypatch.setenv("EDITOR", "ed")
+    ran = []
+    app = Navigator(files, files, terminal=FakeTerminal(80, 24), edit=[files / "text.txt", files / "new.txt"])
+    app.shell.run_command = lambda command, typed=True, **kw: ran.append(command)
+    run_app(app, [Until(lambda a: ran)])
+    assert ran == [f"ed {files / 'text.txt'} {files / 'new.txt'}"]
+
+
+@pytest.mark.parametrize("name", ["dir", "nowhere/x.txt", "sftp://host/x"])
+def test_edit_refuses_a_directory_a_missing_one_and_a_url_before_starting(files, name):
+    from navigator.__main__ import main
+
+    target = name if "://" in name else str(files / name)
+    with pytest.raises(SystemExit) as stopped:
+        main(["--edit", target])
+    assert stopped.value.code == 2
+
+
 # -- blocks and the clipboard -----------------------------------------------------------------
 
 

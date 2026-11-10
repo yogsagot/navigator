@@ -1695,9 +1695,15 @@ class Shell(DockLayout):
             import shlex
 
             from navigator.lib.config.usermenu import Side
+            from navigator.widgets.editor.external import save_before_external
+
+            async def ask() -> bool:
+                return await save_before_external(self.application, [path])
 
             side = Side.of(path.parent, path.name, "-")
-            if await self.run_associated(EDITORS, path.name, cwd=path.parent, side=side):
+            if await self.run_associated(EDITORS, path.name, cwd=path.parent, side=side, before=ask):
+                return
+            if not await ask():
                 return
             program = os.environ.get("EDITOR", "").strip() or "vi"
             self.run_command(f"{program} {shlex.quote(str(path))}")
@@ -2130,7 +2136,7 @@ class Shell(DockLayout):
 
     async def run_associated(self, file_name: str, name: str | None = None, *,
                              key: str | None = None, cwd: Path | None = None,
-                             uses: list[Any] = (), side: Any = None) -> bool:
+                             uses: list[Any] = (), side: Any = None, before: Any = None) -> bool:
         """Run what *file_name* (one of :mod:`navigator.lib.config.associations`' four)
         has for the file called *name*, or for *key*; False when it has
         nothing, so the caller does what it did without one.
@@ -2157,6 +2163,9 @@ class Shell(DockLayout):
                  else associations.for_file(groups, name or ""))
         if group is None:
             return False
+        if before is not None and not await before():
+            # *before* said no (a changed editor window kept): nothing runs.
+            return True
         action = group.actions[0]
         if len(group.actions) > 1:
             action = await self.choose_action(group.actions)

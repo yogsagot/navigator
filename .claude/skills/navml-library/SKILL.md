@@ -222,7 +222,9 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
 - **Every `InputLine`** selects with a drag or double click (a finished selection is the primary selection) and takes
   Ctrl+Ins (copy; the whole line with no selection), Shift+Del, Shift+Ins, Ctrl+C (only with a selection), Ctrl+V;
   middle click pastes the primary selection. A paste walks the focus path when `Application.on_paste` declines it.
-  `FileDialog.raw`, a test for a name line to hand back as typed (a place the dialog cannot list -- a URL).
+  `FileDialog.raw`, a test for a name line to hand back as typed (a place the dialog cannot list -- a URL), and
+  recorded in the history as typed; `FileDialog(unlisted=PLACE)` lists nothing, shows PLACE and answers every name as
+  typed, for a caller on another drive (Shift+F4) -- set no `raw` over it.
   `password: True` paints every character as `*` and copies nothing -- not to the clipboard, not to the primary
   selection (a `Field`'s line is `field.entry`: set `field.entry.password` from the Python half).
 

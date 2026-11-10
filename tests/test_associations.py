@@ -321,3 +321,69 @@ def test_f3_on_a_directory_in_an_archive_does_nothing(place):
                   lambda a: seen.update(sub=next(e for e in a.manager.left.items if e.name == "sub").counted,
                                         modal=a.modal, windows=len(a.shell.desktop.windows()))])
     assert not seen["sub"] and seen["modal"] is None and seen["windows"] == 1
+
+
+def _changed_then_f4_outside(place, monkeypatch, answer, name="a.txt"):
+    """a.txt in an editor window with a character typed, then F4 with *Internal
+    editor* off: ``Valid(cmQuit)``'s question, answered by the steps *answer*
+    makes of the list the commands run land in."""
+    from navigator.widgets.editor.edit_window import EditWindow
+
+    monkeypatch.setenv("EDITOR", "ed")
+    SETTINGS.system.internal_editor = True  # F4 opens the window first
+    app = navigator(place)
+    ran: list[str] = []
+    seen = {}
+
+    def outside(a):
+        SETTINGS.system.internal_editor = False
+        a.manager.spawn(a.manager.edit_file(True))
+
+    def look(a):
+        seen["modal"] = getattr(a.modal, "prompt", None)
+
+    run_app(app, [lambda a: capture(a, ran), to("a.txt"), KeyEvent("f4"),
+                  Until(lambda a: any(isinstance(w, EditWindow) for w in a.shell.desktop.windows())),
+                  KeyEvent("x", char="x"), lambda a: a.manager.focus(), to(name), outside,
+                  Until(lambda a: a.modal is not None or ran), look, *answer(ran), lambda a: None])
+    return ran, seen
+
+
+def test_an_external_editor_asks_to_save_a_changed_window_on_its_file_first(place, monkeypatch):
+    ran, seen = _changed_then_f4_outside(place, monkeypatch, lambda ran: [KeyEvent("y", alt=True), Until(lambda a: ran)])
+    assert seen["modal"] == "File a.txt was modified. Save?"
+    assert (place / "a.txt").read_text().startswith("x")
+    assert ran == [f"ed {place}/a.txt"]
+
+
+def test_cancel_runs_nothing_and_no_runs_it_unsaved(place, monkeypatch):
+    ran, _ = _changed_then_f4_outside(place, monkeypatch, lambda ran: [KeyEvent("escape")])
+    assert ran == [] and (place / "a.txt").read_text() == "a.txt"
+    ran, _ = _changed_then_f4_outside(place, monkeypatch, lambda ran: [KeyEvent("n", alt=True), Until(lambda a: ran)])
+    assert ran == [f"ed {place}/a.txt"] and (place / "a.txt").read_text() == "a.txt"
+
+
+def test_a_changed_window_on_another_file_is_not_asked_about(place, monkeypatch):
+    ran, seen = _changed_then_f4_outside(place, monkeypatch, lambda ran: [], name="b.pdf")
+    assert seen["modal"] is None and ran == [f"ed {place}/b.pdf"]
+
+
+def test_an_options_edit_outside_asks_about_a_changed_window_on_that_file(place, tmp_path, monkeypatch):
+    from navigator.lib.config.file_history import open_editor
+
+    target = tmp_path / "menu.ini"
+    target.write_text("[x]\n")
+    monkeypatch.setenv("EDITOR", "ed")
+    app = navigator(place)
+    ran: list[str] = []
+    seen = {}
+
+    def outside(a):
+        SETTINGS.system.internal_editor = False
+        a.spawn(a.shell.edit_menu_file(target))
+
+    run_app(app, [lambda a: capture(a, ran), lambda a: a.spawn(open_editor(a.shell.desktop, target)),
+                  Until(lambda a: len(a.shell.desktop.windows()) == 2), KeyEvent("x", char="x"), outside,
+                  Until(lambda a: a.modal is not None), lambda a: seen.update(prompt=a.modal.prompt),
+                  KeyEvent("escape"), lambda a: None])
+    assert seen["prompt"] == "File menu.ini was modified. Save?" and ran == []

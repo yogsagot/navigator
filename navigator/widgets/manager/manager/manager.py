@@ -5125,8 +5125,10 @@ class Manager(Window):
         except OSError:
             return False
 
-    async def _run_associated(self, file_name: str) -> bool:
-        """What *file_name* has for the selected file, run; False if nothing."""
+    async def _run_associated(self, file_name: str, before: Any = None) -> bool:
+        """What *file_name* has for the selected file, run; False if nothing.
+        *before* (a local file only) is awaited once an entry is found, and
+        a False from it runs nothing."""
         shell = getattr(self.application, "shell", None)
         panel = self.active_panel
         entry = panel.selected
@@ -5151,7 +5153,7 @@ class Manager(Window):
             if not await shell.run_associated(file_name, entry.name, cwd=use.directory, uses=[use]):
                 await asyncio.to_thread(usefile.discard, use)
             return True
-        return await shell.run_associated(file_name, entry.name)
+        return await shell.run_associated(file_name, entry.name, before=before)
 
     async def on_view_as_text(self, event: ViewAsText) -> bool:
         self.spawn(self.view("text"))
@@ -5356,14 +5358,27 @@ class Manager(Window):
             return
         if intern == SETTINGS.system.internal_editor:
             await self.edit()
-        elif await self._run_associated(EDITORS):
+        elif await self._run_associated(EDITORS, before=self._save_before_external):
             return
         elif intern:
-            self.run_external("EDITOR", "vi")
+            if await self._save_before_external():
+                self.run_external("EDITOR", "vi")
         elif SETTINGS.system.internal_editor:
             await self.console_editor()
         else:
             await self.edit()
+
+    async def _save_before_external(self) -> bool:
+        """The selected file about to be edited outside: a changed editor window
+        on it asks to save first (:func:`~navigator.widgets.editor.external.save_before_external`);
+        False is Cancel.  A file on another drive is not asked about."""
+        from navigator.widgets.editor.external import save_before_external
+
+        panel = self.active_panel
+        entry = panel.selected
+        if entry is None or entry.is_dir or (not panel.location.is_local and entry.directory is None):
+            return True
+        return await save_before_external(self.application, [entry.path_in(panel.path)])
 
     async def console_editor(self) -> None:
         """Alt+F4 with nothing in ``editors.ini``: a box of the console editors
@@ -5395,7 +5410,8 @@ class Manager(Window):
             await self.edit()
             return
         if panel.location.is_local or entry.directory is not None:
-            await shell.run_commands(action.commands)
+            if await self._save_before_external():
+                await shell.run_commands(action.commands)
             return
         from navigator.widgets.drives.use_file import materialize
 
@@ -5487,7 +5503,10 @@ class Manager(Window):
         elif not path.parent.is_dir():
             problem = tr("No such directory")
         if problem is None and not SETTINGS.system.internal_editor:
-            self.run_external("EDITOR", "vi", path)
+            from navigator.widgets.editor.external import save_before_external
+
+            if await save_before_external(self.application, [path]):
+                self.run_external("EDITOR", "vi", path)
             return
         desktop = self.desktop
         if problem is None and desktop is not None:

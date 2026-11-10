@@ -77,6 +77,8 @@ Run `nav --help` for the options; `--theme NAME` picks one of the twenty-five co
 names them: eleven from DOS Navigator's own palettes, and fourteen modern ones -- `ember`, `nord`, `gruvbox`,
 `tokyo-night`, `one-dark`, `kanagawa` and `phosphor` dark, `paper`, `solarized-light`, `gruvbox-light`,
 `everforest-light`, `catppuccin-latte`, `one-light` and `sepia` light.
+`nav --edit FILE` (`-e`, repeatable) opens files in the editor at the start, as DOS Navigator did with the
+files named on its command line.
 
 Copy and paste depend on your terminal and on a small clipboard tool being installed; [docs/clipboard.md](docs/clipboard.md)
 explains the keys and how to set them up.

@@ -228,3 +228,22 @@ def test_a_name_too_long_for_the_pane_is_cut_and_the_date_kept():
     pane.width, pane.name_width = 45, 3
     _, line = pane.lines()
     assert line.startswith(" " + "x" * 12 + " 5")  # never narrower than DN's twelve
+
+
+def test_a_place_it_cannot_list_lists_nothing_and_answers_names_as_typed():
+    """``unlisted``: a directory on another drive -- the caller resolves the name there."""
+    dialog = FileDialog(title="Open", history_id="unlisted_test", unlisted="mem://memory/work")
+    assert dialog.files.items == [] and dialog.dirs.items == []
+    assert dialog.info.path == "mem://memory/work" and dialog.target.value == ""
+    dialog.target.value = "sub/x"
+    assert dialog.valid() and dialog.accept() == "sub/x"
+    dialog.record_history()
+    assert HISTORY.entries("unlisted_test")[0] == "sub/x"
+
+
+def test_a_raw_line_is_recorded_as_typed(tmp_path):
+    dialog = FileDialog(title="Save", history_id="raw_test", directory=tmp_path)
+    dialog.raw = lambda text: "://" in text
+    dialog.target.value = "sftp://host/dir/f.txt"
+    dialog.record_history()
+    assert HISTORY.entries("raw_test")[0] == "sftp://host/dir/f.txt"

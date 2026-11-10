@@ -87,14 +87,18 @@ class Navigator(Application):
     def __init__(
         self, left: Path, right: Path, scheme: Stylesheet | None = None, *,
         given: bool = False, theme: str = DEFAULT_THEME, on_error: str | None = None,
+        edit: tuple[Path, ...] | list[Path] = (),
         **kwargs
     ):
         """*given*: *left* and *right* came from the command line, so a desktop
         restored at the start puts its first file manager there.  *theme*
         names the theme *scheme* was loaded from, which Options > Colors
         loads again under the palette it edits.  *on_error* is
-        ``--on-error``'s word, winning over System Setup's for the session."""
+        ``--on-error``'s word, winning over System Setup's for the session.
+        *edit* are ``--edit``'s files, opened once the desktop is up."""
         scheme = scheme or default_scheme()
+        #: ``--edit``: DN's command-line files, each ``EditFile(On, ...)``.
+        self._edit_at_start = [Path(path) for path in edit]
         #: A side given on the command line as a place on another drive: it
         #: opens on the disk, and goes there once the shell has connected.
         self._remote_start: dict[str, Location] = {}
@@ -171,6 +175,8 @@ class Navigator(Application):
         if go_remote is not None:
             for side, place in self._remote_start.items():
                 self.shell.spawn(go_remote(getattr(self.manager, side), place))
+        if self._edit_at_start:
+            self.shell.spawn(self._edit_files(self._edit_at_start))
         # What a Navigator that is gone left of files fetched from other drives.
         from navigator.lib.drives import usefile
 
@@ -191,6 +197,37 @@ class Navigator(Application):
         # once its desktop was in place (``RunMenu``).
         if SETTINGS.startup.auto_user_menu:
             self.shell.spawn(self.shell.user_menu())
+
+    async def _edit_files(self, paths: list[Path]) -> None:
+        """``--edit``: DN's files named on its command line, each ``EditFile(On,
+        ...)`` once its desktop was up (``DNUTIL.PAS:733``) -- an editor window
+        each, in order, so the last named is on top; a new name is an empty
+        text saving creates.  With *Internal editor* off, one ``$EDITOR`` on
+        the console with them all, a departure: ``editors.ini`` is not asked
+        for a handful of files at once."""
+        import shlex
+
+        from navml.widgets.dialog.dialog import Dialog
+
+        from navigator.lib.config.file_history import open_editor
+
+        shell = self.shell
+        if not SETTINGS.system.internal_editor:
+            from navigator.widgets.editor.external import save_before_external
+
+            if not await save_before_external(self, paths):
+                return
+            program = os.environ.get("EDITOR", "").strip() or "vi"
+            shell.run_command(" ".join([program, *(shlex.quote(str(path)) for path in paths)]))
+            return
+        if shell.console_visible:
+            shell.toggle_console()
+        for path in paths:
+            try:
+                await open_editor(shell.desktop, path, new=not path.exists())
+            except OSError as error:
+                await Dialog(title=tr("Cannot edit file"), prompt=f"{path}: {error.strerror or error}",
+                             buttons="ok").execute(self)
 
     def _follow_stall_report(self, _shell: Shell) -> None:
         """System Setup's *Report a stall after* in force at once: the
@@ -899,7 +936,22 @@ def main(argv: list[str] | None = None) -> int:
         "--database", metavar="PATH", type=Path, default=None,
         help=f"the database histories are kept in (default: {database_path()})",
     )
+    parser.add_argument(
+        "-e", "--edit", action="append", default=[], metavar="FILE",
+        help="open FILE in the editor at the start, as F4 does (repeatable; "
+             "a new name is created by saving)",
+    )
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
+    edit = []
+    for text in args.edit:
+        if "://" in text:
+            parser.error(f"--edit: {text}: only a file on this computer")
+        path = Path(text).expanduser().resolve()
+        if path.is_dir():
+            parser.error(f"--edit: {text} is a directory")
+        if not path.parent.is_dir():
+            parser.error(f"--edit: no directory {path.parent}")
+        edit.append(path)
 
     if args.list_themes:
         print("\n".join(theme_names()))
@@ -1008,7 +1060,7 @@ def main(argv: list[str] | None = None) -> int:
     right = _start_directory(args.right) if args.right else left
     dim_modal = appearance.dim_modal if args.dim_modal is None else args.dim_modal
     app = Navigator(left, right, scheme, terminal=terminal, dim_modal=dim_modal,
-                    given=bool(args.left), theme=theme, on_error=args.on_error)
+                    given=bool(args.left), theme=theme, on_error=args.on_error, edit=edit)
     app.marks = appearance.marks if args.marks is None else args.marks
     app.direction = args.direction if args.direction is not None else SETTINGS.interface.direction
     app.run()

@@ -83,6 +83,8 @@ DN's Alt+Enter `[ ]` menu became, since Alt+Enter stays *Insert name*; DN's Shif
   *Command windows* says, and closes as soon as the editor quits with status 0 (a `<& close` line, `WindowMode.closes`; a failed one stays). A file on another drive is fetched first (`materialize`) and offered back up when the window
   closes. With none installed, Alt+F4 opens the window. A departure: DN's Alt+F4 fell back to the window there too.
   Any `editors.ini` command can start with `&` to get a window.
+  Before any of these runs on a local file, a changed editor window on it asks to save first
+  (`save_before_external`, `navigator-editor`; `Shell.run_associated(before=)`).
   F4's `$EDITOR` fallback is a departure: DN fell back to its own editor with nothing in `DN.EDT`; on POSIX
   turning *Internal editor* off asks for the external one. **F4 and Alt+F4 on a directory** are Attributes for it
   alone (`change_attributes(entries=[entry])`, DN's `isSelDir` → `CM_SetAttributes(..., Single = On, ...)`); `..`

@@ -73,7 +73,7 @@ its `reference/editor.md`'s last list).
   `tests/test_sftp.py`, `tests/test_ftp.py` and `tests/test_s3.py` run (else they are skipped). `nav
   sftp://user@host/dir` (or `ftp://`, `smb://host/share`, `s3://s3.amazonaws.com/bucket`) opens a side there
   (`navigator-drives` skill)
-- Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR]` (Tab switches panels,
+- Run the file manager: `./venv/bin/python -m navigator [LEFT_DIR] [RIGHT_DIR] [--edit FILE]...` (`--edit`/`-e` opens a file in the editor at the start; Tab switches panels,
   arrows/PgUp/PgDn/Home/End move, Enter descends, typing goes to the command line and Enter runs it there, Ctrl+E/Ctrl+X
   recall commands, Ctrl+R rescans, Ctrl+O shows the console and Shift+PgUp/PgDn (Shift+Up/Down a line; idle, PgUp/PgDn and Home/End) scroll
   it back, F10 opens DOS Navigator's menu, Alt+X quits). `--theme NAME` picks a colour scheme, `--list-themes` names them, `--palette terminal`

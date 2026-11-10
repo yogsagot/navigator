@@ -1202,6 +1202,15 @@ class EditWindow(Window):
         """The other windows showing this window's text (Window > *New view*)."""
         return [view.parent for view in self.editor.siblings() if isinstance(view.parent, EditWindow)]
 
+    async def ask_save(self) -> bool | None:
+        """``dlQueryModified``'s question alone: True save, False don't, None cancel."""
+        name = self.editor.path.name if self.editor.path else tr("Untitled")
+        return await Dialog(
+            title=tr("Warning"),
+            prompt=tr("File {name} was modified. Save?").format(name=name),
+            buttons="yes-no-cancel",
+        ).execute(self.application)
+
     async def ask_to_close(self) -> bool:
         """``dlQueryModified``: save, lose, or stay open -- SmartPad saves unasked.
 
@@ -1214,12 +1223,7 @@ class EditWindow(Window):
             from navigator.widgets.drives.use_file import offer_upload
 
             return await offer_upload(self.application, self.use_set)
-        name = self.editor.path.name if self.editor.path else tr("Untitled")
-        answer = await Dialog(
-            title=tr("Warning"),
-            prompt=tr("File {name} was modified. Save?").format(name=name),
-            buttons="yes-no-cancel",
-        ).execute(self.application)
+        answer = await self.ask_save()
         if answer is None:
             return False
         if answer is True:

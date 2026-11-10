@@ -532,6 +532,13 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   take it back with an empty `select_all =`). `menu_box.key_caption` shows the live binding and falls back to the `.nml`'s static `key:`,
   so a static key must be one the default set binds. Left off the menus on purpose: movement, Enter/Tab/Backspace/
   Del, Ctrl+Up/Down scrolling, Insert (the option strip shows it).
+- **An external editor asks first** (DN's `Valid(cmQuit)` in `ExecExtFile`, `RUNCMD.INC:273`):
+  `navigator/widgets/editor/external.py`'s `save_before_external(app, paths)` -- each changed editor window on one of
+  the files (`must_ask`, once per text) asks `EditWindow.ask_save`'s *File X was modified. Save?*: Yes saves (a failed
+  save runs nothing), No runs the program on the bytes on disk, Cancel runs nothing. Called by F4/Alt+F4's
+  `editors.ini` entry (`run_associated(before=)`, once an entry is found) and `$EDITOR`, the console editors' box,
+  Shift+F4's `$EDITOR`, the Options edits' outside branch and `--edit`'s. A departure: only windows on those files,
+  where DN asked every changed one; a file on another drive is not asked about (its window edits a copy of its own).
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
 - **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): DN's `OpenEditor`
