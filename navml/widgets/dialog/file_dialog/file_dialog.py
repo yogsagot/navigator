@@ -28,6 +28,10 @@ Departures: no drives, no DOS name-and-extension completion from the
 wildcard, and ``*`` rather than ``*.*`` for "everything", which on POSIX
 would ask for a dot.  The directory listed first is the caller's, where DN's
 was its current one.
+
+**A place it cannot list** (``unlisted``, a directory on another drive the
+caller names): the lists stay empty, the info pane shows the place, and the
+name line is answered as typed, for the caller to resolve there.
 """
 
 from __future__ import annotations
@@ -72,6 +76,7 @@ class FileDialog(Dialog):
         wildcard: str = EVERYTHING,
         hidden: bool = False,
         ok_text: str | None = None,
+        unlisted: str | None = None,
         **kwargs: Any,
     ) -> None:
         #: Counts the reads asked for, so one overtaken by another is dropped.
@@ -96,6 +101,12 @@ class FileDialog(Dialog):
         self.wildcard = wildcard
         # ``FileName^.Data^ := WildCard``, selected as a focused line's text
         # is, so a name typed replaces it.
+        if unlisted is not None:
+            # A directory on another drive: nothing to list, every name as typed.
+            self.raw = lambda text: True
+            self.info.path = unlisted
+            self.target.value = ""
+            return
         self.target.value = wildcard
         self.target.entry.select_all()
         self.read_directory()
@@ -228,9 +239,11 @@ class FileDialog(Dialog):
             self.spawn(Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(app))
 
     def record_history(self) -> None:
-        """``HistoryAdd(HistoryID, FExpand(S))``: the full path, not what was typed."""
+        """``HistoryAdd(HistoryID, FExpand(S))``: the full path, not what was typed --
+        except a line answered as typed (:attr:`raw`), recorded as it is, which
+        joined onto the directory listed would be no place at all."""
         if self.history_id:
-            HISTORY.add(self.history_id, str(self.file_name()))
+            HISTORY.add(self.history_id, self.target.value.strip() if self._raw() else str(self.file_name()))
 
     def accept(self) -> str:
         if self._raw():

@@ -5451,19 +5451,26 @@ class Manager(Window):
         taken as typed and reaches its drive (:meth:`_edit_named_elsewhere`).
 
         Departures: with *Internal editor* off the name goes to ``$EDITOR``, as
-        F4's file does, where ``OpenEditor`` always used its own editor; the
+        F4's file does, where ``OpenEditor`` always used its own editor; and the
         file's edit record is brought back, where DN opened on the whole desktop
-        at the top; and a relative name is the directory listed -- one on the
-        disk -- not a remote active panel's.
+        at the top.  With the active panel on another drive the box lists
+        nothing (``unlisted``) and a name typed is that panel's.
         """
         from navml.widgets.dialog.file_dialog import FileDialog
 
+        from navigator.lib.drives.root import on_disk
+
         panel = self.active_panel
+        here = on_disk(panel.location)
+        remote = here is None or not here.is_local
         dialog = FileDialog(title=tr("Open a File"), label=tr("~N~ame"), ok_text=tr("~O~pen"),
                             history_id="edit_open", directory=self._disk_directory(),
-                            hidden=SETTINGS.system.show_hidden)
-        # A URL, or a place in an archive, goes as typed: to that drive.
-        dialog.raw = lambda text: "://" in text or "#/" in text
+                            hidden=SETTINGS.system.show_hidden,
+                            unlisted=str(panel.location) if remote else None)
+        if not remote:
+            # A URL, or a place in an archive, goes as typed: to that drive.
+            # (Unlisted, every name already does.)
+            dialog.raw = lambda text: "://" in text or "#/" in text
         name = await dialog.execute(self.application)
         if not name:
             return

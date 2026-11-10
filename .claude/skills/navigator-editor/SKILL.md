@@ -224,7 +224,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   names are the standards' and stay English.
 - **Open, F3, and Save as, Shift+F2** (`LoadText`/`SaveTextAs`, DN's `cmLoadText`/`cmSaveTextAs`, `OpenFile` and
   `SaveFileAs`; also Editor > File): the name from navml's `FileDialog` via `EditWindow._ask_file` -- *Open a File*,
-  *~N~ame*, an *~O~pen* button (`fdOpenButton`), history `edit_open`; *Save File As*, *~S~ave File As*, OK,
+  *~N~ame*, an *~O~pen* button (`fdOpenButton`), history `edit_open` (Shift+F4's too, as `hsEditOpen` was); *Save File As*, *~S~ave File As*, OK,
   `edit_save` -- listing the active panel's directory. Open offers a changed text a save first (Cancel keeps all),
   records the file being left, loads the new one into the same window and brings its record back; a file that will
   not open is said and the text stays (DN closed the window). Save as asks `_check_for_over`'s question without
@@ -534,14 +534,22 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
   Del, Ctrl+Up/Down scrolling, Insert (the option strip shows it).
 - **Closing asks** through `Window.must_ask`/`ask_to_close` (`Valid(cmClose)`), which `request_close`, Close all and
   Alt+X all go through; `Dialog.buttons` has `yes-no-cancel`.
-- **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): `EditFileDialog` asks for a
-  name (history `editfile`), relative to the active panel, `~` expanded; `Manager.edit_named` opens it with
-  `open_editor(..., new=True)`, so a name that does not exist is an empty text saving creates. A directory or a missing
-  parent directory is refused up front. With *Internal editor* off it goes to `$EDITOR`. DN's own dialog was not to
-  hand; this one is shaped as F7's. The save that creates the file says so (`FileSaved.land`, from
+- **Shift+F4, *Edit new file*** (`cmXEditFile`, `EditNamed`, also File > Edit > Edit new file): DN's `OpenEditor`
+  (`MICROED.PAS:1284`): navml's `FileDialog`, *Open a File* with *~O~pen*, history `edit_open` shared with the
+  editor's F3, listing the active panel's directory if it is on the disk (`Manager._disk_directory`); a directory
+  typed is listed, a missing parent is *Invalid file name.*, a URL or `#/` archive place is taken as typed (`raw`) and
+  reaches its drive. `Manager.edit_named` opens it with `open_editor(..., new=True)`, so a name that does not exist is
+  an empty text saving creates. With the active panel on another drive the box lists nothing (`FileDialog(unlisted=...)`) and a
+  name typed is that panel's. Departures: with *Internal editor* off it goes to `$EDITOR` (DN always used its own),
+  and the file's edit record comes back (DN opened on the whole desktop at the top). The save that creates the file says so (`FileSaved.land`, from
   `os.path.lexists` on the write's thread just before it writes), and `Shell.on_file_saved` re-reads each panel
   showing the directory with its cursor on the new file, as F7 does a directory; a save over an existing file leaves
   the cursor alone.
+- **`nav --edit FILE`** (`-e`, repeatable; DN's files named on its command line, each `EditFile(On, ...)`,
+  `DNUTIL.PAS:733`): checked in `main()` before anything starts (a directory, a missing parent or a URL is an argparse
+  error), then `Navigator._edit_files` from `on_start`, after the desktop is restored: an editor window each, in order,
+  a new name an empty text saving creates. With *Internal editor* off, one `$EDITOR` on the console with them all (a
+  departure: `editors.ini` is not asked). The positionals stay the panels' directories.
 - **File Edit History (Alt+PgUp)**: DN's `TEditRecord`, the `EditRecord` model, every field `StoreEditInfo` wrote.
   It holds the window rectangle, cursor (`line`, `col`), scroll (`top`, `left`), `overwrite`, `vertical_blocks`,
   `highlight`, `file_type`, the markers, the block (`block`, as `line:col-line:col`, `|` before a column block's

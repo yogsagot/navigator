@@ -78,7 +78,7 @@ def test_shift_f4_makes_a_new_file_on_another_drive_with_f2(desk):
     run_app(app, [
         *at_work(memory),
         KeyEvent("f4", shift=True), Until(lambda a: a.modal is not None),
-        lambda a: setattr(a.modal.entry, "value", "sub/new.txt"), KeyEvent("enter"),
+        lambda a: setattr(a.modal.target, "value", "sub/new.txt"), KeyEvent("enter"),
         Until(lambda a: editor(a) is not None, timeout=5),
         KeyEvent("n", char="n"), KeyEvent("f2"),
         Until(lambda a: memory.lexists(memory.location("/work/sub/new.txt")), timeout=5),
