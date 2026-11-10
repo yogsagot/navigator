@@ -5849,12 +5849,17 @@ class Manager(Window):
         changed places and the selected view stayed selected.  ``left`` and
         ``right`` are names for the sides, so they change places too.
 
-        A hidden side is shown first, as DN's ``cmHideRight``/``cmHideLeft``
-        before the swap showed it; the two after it, meant to hide a side
-        again, found both showing by then and did nothing.
+        **A side hidden stays hidden, the visible panel going across.**  DN's
+        ``HandleEvent`` read ``LVisible``/``RVisible`` once, at its top: the
+        ``cmHideRight``/``cmHideLeft`` before the swap showed the hidden side,
+        and the one after it, chosen by those first flags, found both showing
+        and so hid the other side.  With the right side hidden, the left panel
+        ends on the right, the window shrunk to it, and the left side hidden;
+        Ctrl+U again puts everything back.
         """
-        if self.hidden_side is not None:
-            self.show_side(self.hidden_side)
+        hidden = self.hidden_side
+        if hidden is not None:
+            self.show_side(hidden)
         left, right = self.left, self.right
         row = self.panels.children
         i, j = row.index(left), row.index(right)
@@ -5871,6 +5876,10 @@ class Manager(Window):
         self.place_divider()
         self.panels.arrange()
         self.panels.invalidate()
+        if hidden is not None:
+            # DN's trailing ``cmHideLeft`` after a right side hidden, and
+            # ``cmHideRight`` after a left: the side the other panel is now on.
+            self.hide_side("left" if hidden == "right" else "right")
 
     # -- the divider -------------------------------------------------------
     #

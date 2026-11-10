@@ -64,13 +64,57 @@ def test_a_tree_standing_in_for_a_panel_goes_with_it(sides):
     assert app.focused is m.right and m.right.path == sides / "west"
 
 
-def test_a_hidden_side_is_shown_and_the_panels_swap(sides):
+def rect(window):
+    return (window.x, window.y, window.width, window.height, window.zoomed)
+
+
+@pytest.mark.parametrize("hide, stays", [("f2", "left"), ("f1", "right")])
+def test_with_a_side_hidden_the_visible_panel_goes_across_and_one_side_stays_hidden(sides, hide, stays):
+    # DN read LVisible/RVisible once at the top of HandleEvent: the cmHide* after
+    # the swap, chosen by those flags, found both showing and hid the other side.
     app = navigator(sides)
-    run_app(app, [KeyEvent("f2", ctrl=True), lambda a: None, KeyEvent("u", ctrl=True), lambda a: None])
+    seen = {}
+
+    def before(a):
+        m = a.manager
+        seen["shown"] = m.left if hide == "f2" else m.right
+        seen["rect"] = rect(m)
+
+    run_app(app, [KeyEvent(hide, ctrl=True), lambda a: None, before, KeyEvent("u", ctrl=True), lambda a: None])
     m = app.manager
-    assert m.hidden_side is None and m.left.visible and m.right.visible
-    assert m.left.path == sides / "east" and m.right.path == sides / "west"
-    assert m.zoomed
+    shown = seen["shown"]
+    assert m.hidden_side == stays
+    other = "right" if stays == "left" else "left"
+    assert getattr(m, other) is shown and shown.visible and app.focused is shown
+    # The window moved to the half the panel now stands on.
+    x, _, width, _, _ = seen["rect"]
+    assert (m.x > x) if stays == "left" else (m.x < x)
+
+
+def test_ctrl_u_twice_with_a_side_hidden_puts_everything_back(sides):
+    app = navigator(sides)
+    seen = {}
+
+    def look(name):
+        def act(a):
+            m = a.manager
+            seen[name] = (rect(m), m.hidden_side, m.left.path, a.focused is m.left)
+        return act
+
+    run_app(app, [KeyEvent("f2", ctrl=True), lambda a: None, look("before"),
+                  KeyEvent("u", ctrl=True), lambda a: None, KeyEvent("u", ctrl=True), lambda a: None,
+                  look("after")])
+    assert seen["after"] == seen["before"]
+
+
+def test_a_quick_view_on_the_hidden_side_moves_with_it(sides):
+    app = navigator(sides)
+    run_app(app, [KeyEvent("q", ctrl=True), lambda a: None, KeyEvent("f2", ctrl=True), lambda a: None,
+                  KeyEvent("u", ctrl=True), lambda a: None])
+    m = app.manager
+    # The view stood in for the right side, hidden: now the left one, still hidden.
+    assert m.hidden_side == "left" and m.replacement is m.quick and not m.quick.visible
+    assert m.right.path == sides / "west" and m.right.visible
 
 
 def test_hide_left_hides_whatever_is_on_the_left_now(sides):

@@ -707,7 +707,10 @@ DN had two panels and nothing else; this is Finder's column browser. `navigator/
 `SwapPanels`, `Manager.swap_panels`, DN's `cmSwapPanels` (also Manager > Swap panels): the two panel objects change
 places in the `panels` row, whole, and **`Manager.left`/`right` are swapped with them** -- they name sides, not panels,
 so Alt+F1, Ctrl+F1 and the rest act on whatever is on that side now. A tree or quick view goes beside the panel it
-stands in for; the keyboard stays with its panel. A hidden side is shown first (DN's code ended that way too). The row
+stands in for; the keyboard stays with its panel. **With a side hidden, one side stays hidden and the visible panel
+goes across**: DN's `HandleEvent` read `LVisible`/`RVisible` once at its top, so the `cmHide*` after the swap -- chosen
+by those flags -- found both showing and hid the other side. `swap_panels` shows the hidden side, swaps, then
+`hide_side`s the opposite one; Ctrl+U again restores the start exactly (`_collapse`). The row
 is re-`arrange()`d by hand: reordering `children` in place is not something its layout follows.
 
 ## The divider between the sides
