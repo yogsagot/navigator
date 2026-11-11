@@ -64,7 +64,9 @@ def test_enter_renames_and_the_cursor_and_the_tag_go_with_the_file(place):
         a.manager.left.marked = frozenset({"b.txt"})
 
     run_app(app, [tag, to("b.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("z.txt"),
-                  KeyEvent("enter"), Until(lambda a: (place / "z.txt").exists()), lambda a: None,
+                  KeyEvent("enter"), Until(lambda a: (place / "z.txt").exists()),
+                  # The panel's re-read runs on a thread: its cursor is right once that is back.
+                  Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "z.txt"),
                   lambda a: seen.update(at=a.manager.left.selected.name, marked=set(a.manager.left.marked),
                                         right=[e.name for e in a.manager.right.items])])
     assert not (place / "b.txt").exists() and (place / "z.txt").read_text() == "b.txt"
@@ -79,7 +81,9 @@ def test_the_other_panel_on_the_same_directory_lands_on_the_new_name_too(place):
     seen = {}
     run_app(app, [to("b.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("z.txt"),
                   KeyEvent("enter"),
-                  Until(lambda a: a.manager.right.selected is not None and a.manager.right.selected.name == "z.txt"),
+                  # Each panel re-reads on its own thread: wait for both, not the first back.
+                  Until(lambda a: all(side.selected is not None and side.selected.name == "z.txt"
+                                      for side in (a.manager.left, a.manager.right))),
                   lambda a: seen.update(left=a.manager.left.selected.name, right=a.manager.right.selected.name)])
     assert seen == {"left": "z.txt", "right": "z.txt"}
 
@@ -89,7 +93,8 @@ def test_down_renames_and_then_moves_the_cursor(place):
     seen = {}
     run_app(app, [to("a.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("x.txt"),
                   KeyEvent("down"), Until(lambda a: (place / "x.txt").exists() and not editing(a)),
-                  lambda a: None, lambda a: None, lambda a: seen.update(at=a.manager.left.selected.name)])
+                  Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "x.txt"),
+                  lambda a: seen.update(at=a.manager.left.selected.name)])
     # x.txt sorts last; Down from it stays there, on the last row.
     names = sorted(p.name for p in place.iterdir())
     assert names == ["b.txt", "c.txt", "x.txt"] and seen["at"] == "x.txt"

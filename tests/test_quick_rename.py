@@ -54,7 +54,9 @@ def test_the_box_holds_the_name_with_its_stem_selected_and_enter_renames(place):
         seen.update(value=a.modal.line.value, selected=a.modal.line.entry.selected_text)
 
     run_app(app, [to("b.txt"), rename, Until(asking), look, *typed("z"), KeyEvent("enter"),
-                  Until(lambda a: (place / "z.txt").exists()), lambda a: None,
+                  Until(lambda a: (place / "z.txt").exists()),
+                  # The panel's re-read runs on a thread: its cursor is right once that is back.
+                  Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "z.txt"),
                   lambda a: seen.update(at=a.manager.left.selected.name)])
     assert seen["value"] == "b.txt" and seen["selected"] == "b"
     assert not (place / "b.txt").exists() and (place / "z.txt").read_text() == "b.txt"
