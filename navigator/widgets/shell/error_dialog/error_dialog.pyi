@@ -7,6 +7,7 @@ from navkit.events import Event as _Event
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.shell.error_dialog.trace_list import TraceList

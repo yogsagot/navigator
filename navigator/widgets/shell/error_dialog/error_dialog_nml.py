@@ -18,9 +18,10 @@ from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.button import Button    # error_dialog.nml:1
-from navml.widgets.dialog.dialog import Dialog    # error_dialog.nml:2
-from navml.widgets.dialog.static_text import StaticText    # error_dialog.nml:3
-from navigator.widgets.shell.error_dialog.trace_list import TraceList    # error_dialog.nml:4
+from navml.widgets.dialog.button_row import ButtonRow    # error_dialog.nml:2
+from navml.widgets.dialog.dialog import Dialog    # error_dialog.nml:3
+from navml.widgets.dialog.static_text import StaticText    # error_dialog.nml:4
+from navigator.widgets.shell.error_dialog.trace_list import TraceList    # error_dialog.nml:5
 
 __navml_component__ = "ErrorDialog"
 
@@ -43,11 +44,11 @@ class ErrorDialog(Dialog, _Component):
     __navml_source__ = "error_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    summary: StaticText    # error_dialog.nml:23
-    trace: TraceList    # error_dialog.nml:36
-    logged: StaticText    # error_dialog.nml:44
-    resume: Button    # error_dialog.nml:53
-    copy: Button    # error_dialog.nml:63
+    summary: StaticText    # error_dialog.nml:24
+    trace: TraceList    # error_dialog.nml:37
+    logged: StaticText    # error_dialog.nml:45
+    resume: Button    # error_dialog.nml:63
+    copy: Button    # error_dialog.nml:68
     quit: Button    # error_dialog.nml:72
 
     # One stub per (id, emitted event), each wired in ``__init__``
@@ -58,11 +59,11 @@ class ErrorDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_resume_click(self, event: _Event) -> bool:    # error_dialog.nml:53
+    async def on_resume_click(self, event: _Event) -> bool:    # error_dialog.nml:63
         """``resume`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_copy_click(self, event: _Event) -> bool:    # error_dialog.nml:63
+    async def on_copy_click(self, event: _Event) -> bool:    # error_dialog.nml:68
         """``copy`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -72,65 +73,54 @@ class ErrorDialog(Dialog, _Component):
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.summary = StaticText(parent=self)    # error_dialog.nml:22
-        self.trace = TraceList(parent=self)    # error_dialog.nml:35
-        self.logged = StaticText(parent=self)    # error_dialog.nml:43
-        self.resume = Button(parent=self)    # error_dialog.nml:52
-        self.copy = Button(parent=self)    # error_dialog.nml:62
-        self.quit = Button(parent=self)    # error_dialog.nml:71
+        self.summary = StaticText(parent=self)    # error_dialog.nml:23
+        self.trace = TraceList(parent=self)    # error_dialog.nml:36
+        self.logged = StaticText(parent=self)    # error_dialog.nml:44
+        _w1 = ButtonRow(parent=self)    # error_dialog.nml:54
+        self.resume = Button(parent=_w1)    # error_dialog.nml:62
+        self.copy = Button(parent=_w1)    # error_dialog.nml:67
+        self.quit = Button(parent=_w1)    # error_dialog.nml:71
 
-        self.modal_width = _bind(    # error_dialog.nml:18
+        self.modal_width = _bind(    # error_dialog.nml:19
             lambda _o: max(60, _o.parent.width - 4) if _o.parent is not None else 76
         )
-        self.modal_height = _bind(    # error_dialog.nml:19
+        self.modal_height = _bind(    # error_dialog.nml:20
             lambda _o: max(16, _o.parent.height - 2) if _o.parent is not None else 20
         )
-        self.title = _bind(lambda _o: _tr('Error'), yielding=True)    # error_dialog.nml:20
+        self.title = _bind(lambda _o: _tr('Error'), yielding=True)    # error_dialog.nml:21
 
-        self.summary.name = 'summary'    # error_dialog.nml:24
-        self.summary.y = 1    # error_dialog.nml:25
-        self.summary.height = 2    # error_dialog.nml:26
-        self.summary.wrap = True    # error_dialog.nml:30
-        self.summary.x = 2    # error_dialog.nml:28
-        self.summary.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:29
+        self.summary.name = 'summary'    # error_dialog.nml:25
+        self.summary.y = 1    # error_dialog.nml:26
+        self.summary.height = 2    # error_dialog.nml:27
+        self.summary.wrap = True    # error_dialog.nml:31
+        self.summary.x = 2    # error_dialog.nml:29
+        self.summary.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:30
 
-        self.trace.y = 3    # error_dialog.nml:37
-        self.trace.height = _bind(lambda _o: max(1, _o.parent.height - 9))    # error_dialog.nml:38
-        self.trace.x = 2    # error_dialog.nml:40
-        self.trace.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:41
+        self.trace.y = 3    # error_dialog.nml:38
+        self.trace.height = _bind(lambda _o: max(1, _o.parent.height - 9))    # error_dialog.nml:39
+        self.trace.x = 2    # error_dialog.nml:41
+        self.trace.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:42
 
-        self.logged.name = 'logged'    # error_dialog.nml:45
-        self.logged.height = 1    # error_dialog.nml:46
-        self.logged.x = 2    # error_dialog.nml:48
-        self.logged.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:49
-        self.logged.y = _bind(    # error_dialog.nml:50
+        self.logged.name = 'logged'    # error_dialog.nml:46
+        self.logged.height = 1    # error_dialog.nml:47
+        self.logged.x = 2    # error_dialog.nml:49
+        self.logged.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:50
+        self.logged.y = _bind(    # error_dialog.nml:51
             lambda _o: max(0, _o.parent.height - 5 - _o.height)
         )
 
-        self.resume.text = _bind(lambda _o: _tr('~C~ontinue'), yielding=True)    # error_dialog.nml:54
-        self.resume.default = True    # error_dialog.nml:55
-        self.resume.x = _bind(lambda _o: max(0, _o.parent.width // 2 - 22))    # error_dialog.nml:56
-        self.resume.width = 14    # error_dialog.nml:57
-        self.resume.height = 2    # error_dialog.nml:58
-        self.resume.y = _bind(    # error_dialog.nml:60
-            lambda _o: max(0, _o.parent.height - 2 - _o.height)
-        )
-        self.resume.on_click = self.on_resume_click    # error_dialog.nml:53
+        _w1.button_width = 14    # error_dialog.nml:55
+        _w1.spacing = 1    # error_dialog.nml:56
+        _w1.x = 0# error_dialog.nml:58
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # error_dialog.nml:59
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # error_dialog.nml:60
 
-        self.copy.text = _bind(lambda _o: _tr('C~o~py'), yielding=True)    # error_dialog.nml:64
-        self.copy.x = _bind(lambda _o: max(0, _o.parent.width // 2 - 7))    # error_dialog.nml:65
-        self.copy.width = 14    # error_dialog.nml:66
-        self.copy.height = 2    # error_dialog.nml:67
-        self.copy.y = _bind(    # error_dialog.nml:69
-            lambda _o: max(0, _o.parent.height - 2 - _o.height)
-        )
-        self.copy.on_click = self.on_copy_click    # error_dialog.nml:63
+        self.resume.text = _bind(lambda _o: _tr('~C~ontinue'), yielding=True)    # error_dialog.nml:64
+        self.resume.default = True    # error_dialog.nml:65
+        self.resume.on_click = self.on_resume_click    # error_dialog.nml:63
+
+        self.copy.text = _bind(lambda _o: _tr('C~o~py'), yielding=True)    # error_dialog.nml:69
+        self.copy.on_click = self.on_copy_click    # error_dialog.nml:68
 
         self.quit.text = _bind(lambda _o: _tr('~Q~uit'), yielding=True)    # error_dialog.nml:73
-        self.quit.x = _bind(lambda _o: max(0, _o.parent.width // 2 + 8))    # error_dialog.nml:74
-        self.quit.width = 14    # error_dialog.nml:75
-        self.quit.height = 2    # error_dialog.nml:76
-        self.quit.y = _bind(    # error_dialog.nml:78
-            lambda _o: max(0, _o.parent.height - 2 - _o.height)
-        )
         self.quit.on_click = self.on_quit_click    # error_dialog.nml:72

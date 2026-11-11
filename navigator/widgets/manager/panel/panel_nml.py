@@ -72,16 +72,16 @@ class Panel(ListViewer, _Component):
         self.options.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # panel.nml:25
 
         self.hbar.orientation = 'horizontal'    # panel.nml:36
-        self.hbar.x = 1    # panel.nml:37
-        self.hbar.width = _bind(    # panel.nml:38
-            lambda _o: max(0, (self.options.x - 1 if self.options.visible and self.options.width else _o.parent.width - 1) - _o.x)
-        )
-        self.hbar.height = 1    # panel.nml:39
-        self.hbar.value = _bind(lambda _o: _o.parent.name_offset)    # panel.nml:42
-        self.hbar.maximum = _bind(lambda _o: _o.parent.max_name_scroll)    # panel.nml:43
-        self.hbar.page = _bind(lambda _o: max(1, _o.parent.name_room))    # panel.nml:44
-        self.hbar.visible = _bind(    # panel.nml:45
+        self.hbar.height = 1    # panel.nml:37
+        self.hbar.value = _bind(lambda _o: _o.parent.name_offset)    # panel.nml:43
+        self.hbar.maximum = _bind(lambda _o: _o.parent.max_name_scroll)    # panel.nml:44
+        self.hbar.page = _bind(lambda _o: max(1, _o.parent.name_room))    # panel.nml:45
+        self.hbar.visible = _bind(    # panel.nml:46
             lambda _o: _o.parent.framed and _o.parent.error is None and (_o.parent.quick_search is None) and (_o.parent.view_mode != 'list') and (_o.parent.max_name_scroll > 0 or _o.parent.name_offset > 0) and (_o.width >= 4)
         )
-        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # panel.nml:41
+        self.hbar.x = 1    # panel.nml:39
+        self.hbar.width = _bind(    # panel.nml:40
+            lambda _o: max(0, (self.options.x - 1 if self.options.visible and self.options.width else _o.parent.width - 1) - 1)
+        )
+        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # panel.nml:42
         self.hbar.on_scroll = self.on_hbar_scroll    # panel.nml:35

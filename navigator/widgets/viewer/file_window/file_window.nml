@@ -124,10 +124,11 @@ FileWindow(Window):
         id: hbar
         orientation: "horizontal"
         visible: root.active and viewer.row_span > viewer.width and self.width >= 4
-        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - self.x)
         height: 1
         anchors:
             after: md_mark + 1
+            before: options + 1
+            right: 2
             bottom: 0
         value: viewer.x_delta
         maximum: max(0, viewer.row_span - viewer.width)

@@ -34,10 +34,11 @@ Panel(ListViewer):
     ScrollBar:
         id: hbar
         orientation: "horizontal"
-        x: 1
-        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 1) - self.x)
         height: 1
         anchors:
+            left: 1
+            before: options + 1
+            right: 1
             bottom: 0
         value: parent.name_offset
         maximum: parent.max_name_scroll

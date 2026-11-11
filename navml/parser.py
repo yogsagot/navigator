@@ -238,15 +238,17 @@ class StyleBlock:
 class AnchorDeclaration:
     """One line of an ``anchors:`` block.
 
-    ``value`` is the expression source of an edge (``left: 2``), the inset
-    after a sibling (``after: label + 1`` keeps ``"1"``, ``target`` is
-    ``"label"``), or the axis ``center`` names.
+    ``value`` is the expression source of an edge (``left: 2``), the gap
+    after a sibling (``after: label + 1`` keeps ``"1"``), or the axis
+    ``center`` names.  ``targets`` are the siblings a sibling form names, in
+    order -- ``before: macro_mark, clock + 1`` names two, and the first one
+    shown is the one sat against.
     """
 
     name: str
     value: str
     line: int
-    target: str | None = None
+    targets: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True, slots=True)
@@ -934,7 +936,7 @@ def _read_anchors(lines: Sequence[_Line], index: int, filename: str
                     filename,
                 )
             seen[name] = line.line
-            target = None
+            targets: tuple[str, ...] = ()
             if name == "center":
                 if value not in ANCHOR_CENTRES:
                     raise MarkupError(
@@ -944,10 +946,10 @@ def _read_anchors(lines: Sequence[_Line], index: int, filename: str
                         filename,
                     )
             elif name in ANCHOR_SIBLINGS:
-                target, value = _sibling_anchor(name, value, line, filename)
+                targets, value = _sibling_anchor(name, value, line, filename)
             else:
                 _expression(value, f"the {name} anchor", line.line, filename)
-            declarations.append(AnchorDeclaration(name, value, line.line, target))
+            declarations.append(AnchorDeclaration(name, value, line.line, targets))
             index += 1
     if not declarations:
         raise MarkupError("an anchors block says nothing", head.line, filename)
@@ -955,21 +957,30 @@ def _read_anchors(lines: Sequence[_Line], index: int, filename: str
 
 
 def _sibling_anchor(name: str, value: str, line: _Line, filename: str
-                    ) -> tuple[str, str]:
-    """``label`` or ``label + 1``: the sibling's id, and the gap's source."""
+                    ) -> tuple[tuple[str, ...], str]:
+    """``label``, ``label + 1`` or ``mark, clock + 1``: the ids, and the gap."""
     _expression(value, f"the {name} anchor", line.line, filename)
     tree = ast.parse(value, mode="eval").body
-    if isinstance(tree, ast.Name):
-        return tree.id, "0"
-    if (isinstance(tree, ast.BinOp) and isinstance(tree.op, ast.Add)
-            and isinstance(tree.left, ast.Name)):
-        return tree.left.id, ast.get_source_segment(value, tree.right) or "0"
-    raise MarkupError(
-        f"{name} names a sibling by its id, with a gap after a '+': "
-        f"'{name}: label' or '{name}: label + 1'",
-        line.line,
-        filename,
-    )
+    items = list(tree.elts) if isinstance(tree, ast.Tuple) else [tree]
+    gap = "0"
+    last = items[-1]
+    if (isinstance(last, ast.BinOp) and isinstance(last.op, ast.Add)
+            and isinstance(last.left, ast.Name)):
+        gap = ast.get_source_segment(value, last.right) or "0"
+        items[-1] = last.left
+    if not items or not all(isinstance(item, ast.Name) for item in items):
+        raise MarkupError(
+            f"{name} names siblings by their ids, with one gap after a '+': "
+            f"'{name}: label', '{name}: label + 1' or '{name}: mark, clock + 1'",
+            line.line,
+            filename,
+        )
+    ids = tuple(item.id for item in items)  # type: ignore[attr-defined]
+    if len(set(ids)) != len(ids):
+        raise MarkupError(
+            f"{name} names one sibling twice", line.line, filename
+        )
+    return ids, gap
 
 
 def _read_keys(lines: Sequence[_Line], index: int, filename: str

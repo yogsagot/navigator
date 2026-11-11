@@ -42,11 +42,18 @@ The cost is that an anchor cannot express anything a property line could not.
 - **Everything clamps at 0**, which is the `max(0, ...)` the hand-written lines carried.
 - **Two literal insets are folded**: `left: 2` and `right: 2` write `max(0, parent.width - 4)`, the line they replace.
 
-## Not offered yet
+## Sibling lists and fallbacks
 
-- **A visibility-aware sibling list** such as `before: macro_mark, root_mark, clock`, meaning "the first visible one".
-  The Shell's status-line chains need it (`x: macro_mark.x if macro_mark.visible else root_mark.x if ...`). It is worth
-  adding when those are converted, not before.
+The Shell's status line puts each mark before the next one that is showing: `>MACRO<` before *ROOT* before the
+clock, falling back to the bar's end. Written by hand, that was a three-deep conditional repeated per mark.
+
+- `before: macro_mark, root_mark, clock + 1` expands to the same conditional.
+- `right: 1` beside it is the last `else`, the fallback when no listed sibling is shown.
+
+"Shown" is `visible` **and** a non-zero size along the axis, which is what the info lines' `options.visible and
+options.width` already said. A zero-width sibling has no edge to sit against.
+
+A lone sibling with no fallback stays unconditional, so every anchor written before lists existed generates unchanged.
 
 ## The conversion
 
@@ -57,17 +64,15 @@ could prove equal: a literal start with `max(0, parent.width - K)`, an end edge 
 - 417 blocks are anchored.
 - Every markup-built widget that constructs without arguments was laid out at 80x25 and at 120x40 before and after the
   rewrite. Its absolute rectangles came out identical.
-- **Every hand-placed row of equal buttons is a `ButtonRow`, 25 in all.**
-  - Six are centred: Dialog's, Copy's and Link's rows, the editor's Replace query, and the two queries whose Python
-    `slot()` did the same sum (UU's *Exists*, Replace in files'). Their DN x values are exactly centred at two cells
-    apart.
+- **Every hand-placed row of equal buttons is a `ButtonRow`, 26 in all.**
+  - Seven are centred: Dialog's, Copy's and Link's rows, the editor's Replace query, the two queries whose Python
+    `slot()` did the same sum (UU's *Exists*, Replace in files'), and the Error box. The Error box's buttons are 14
+    wide and a cell apart: `parent.width // 2 - 22` is `(W - 44) // 2` for every width.
   - **Nineteen are `justify: "start"` with `anchors: left: X`** at the first button's DN column. DOS Navigator rounded
     their centring differently, or did not centre them at all (among them Find, Margins, Archive, the UU, Split and
     Combine boxes, Overwrite, the game, the calculator, Command history). Re-centring would move a button by a cell or
     more, so fidelity wins. Their `spacing` and `button_width` are DN's: 0 and 1 occur, as do 10 and 12.
-- **Left as expressions, about 70 lines**:
+- **Left as expressions, about 60 lines**:
   - width breakpoints (`35 if parent.width >= 67 else 30`);
   - floors other than 0 (`max(1, parent.width - 30)`);
-  - visibility chains (`options.x - 1 if options.visible ...`);
-  - hand-centred rows against `parent.width // 2`, which are not equal-width rows (Error box);
   - Erase query's order, which changes with `kind`.

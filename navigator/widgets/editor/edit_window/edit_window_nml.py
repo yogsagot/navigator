@@ -85,26 +85,26 @@ class EditWindow(Window, _Component):
     find_bar: FindBar    # edit_window.nml:92
     vbar: ScrollBar    # edit_window.nml:102
     hbar: ScrollBar    # edit_window.nml:123
-    info: InfoLine    # edit_window.nml:137
-    marks: FormatMarks    # edit_window.nml:153
-    options: OptionStrip    # edit_window.nml:169
-    edit_menu: SubMenu    # edit_window.nml:199
-    edit_menu_delete: SubMenu    # edit_window.nml:248
-    edit_menu_file: SubMenu    # edit_window.nml:273
-    edit_menu_line_endings: SubMenu    # edit_window.nml:300
-    edit_menu_encoding: SubMenu    # edit_window.nml:304
-    edit_menu_search: SubMenu    # edit_window.nml:327
-    edit_menu_place_marker: SubMenu    # edit_window.nml:371
-    edit_menu_goto_marker: SubMenu    # edit_window.nml:411
-    edit_menu_paragraph: SubMenu    # edit_window.nml:451
-    edit_menu_line_format: SubMenu    # edit_window.nml:475
-    edit_menu_block: SubMenu    # edit_window.nml:499
-    edit_menu_misc: SubMenu    # edit_window.nml:578
-    edit_menu_misc_uppercase: SubMenu    # edit_window.nml:603
-    edit_menu_misc_lowercase: SubMenu    # edit_window.nml:618
-    edit_menu_misc_capitalize: SubMenu    # edit_window.nml:633
-    edit_menu_options: SubMenu    # edit_window.nml:648
-    edit_menu_file_type: SubMenu    # edit_window.nml:708
+    info: InfoLine    # edit_window.nml:138
+    marks: FormatMarks    # edit_window.nml:154
+    options: OptionStrip    # edit_window.nml:170
+    edit_menu: SubMenu    # edit_window.nml:200
+    edit_menu_delete: SubMenu    # edit_window.nml:249
+    edit_menu_file: SubMenu    # edit_window.nml:274
+    edit_menu_line_endings: SubMenu    # edit_window.nml:301
+    edit_menu_encoding: SubMenu    # edit_window.nml:305
+    edit_menu_search: SubMenu    # edit_window.nml:328
+    edit_menu_place_marker: SubMenu    # edit_window.nml:372
+    edit_menu_goto_marker: SubMenu    # edit_window.nml:412
+    edit_menu_paragraph: SubMenu    # edit_window.nml:452
+    edit_menu_line_format: SubMenu    # edit_window.nml:476
+    edit_menu_block: SubMenu    # edit_window.nml:500
+    edit_menu_misc: SubMenu    # edit_window.nml:579
+    edit_menu_misc_uppercase: SubMenu    # edit_window.nml:604
+    edit_menu_misc_lowercase: SubMenu    # edit_window.nml:619
+    edit_menu_misc_capitalize: SubMenu    # edit_window.nml:634
+    edit_menu_options: SubMenu    # edit_window.nml:649
+    edit_menu_file_type: SubMenu    # edit_window.nml:709
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -129,141 +129,141 @@ class EditWindow(Window, _Component):
         self.find_bar = FindBar(parent=self)    # edit_window.nml:91
         self.vbar = ScrollBar(parent=self)    # edit_window.nml:101
         self.hbar = ScrollBar(parent=self)    # edit_window.nml:122
-        self.info = InfoLine(parent=self)    # edit_window.nml:136
-        self.marks = FormatMarks(parent=self)    # edit_window.nml:152
-        self.options = OptionStrip(parent=self)    # edit_window.nml:168
-        self.edit_menu = SubMenu(parent=self)    # edit_window.nml:198
-        _w1 = MenuItem(parent=self.edit_menu)    # edit_window.nml:207
-        _w2 = MenuItem(parent=self.edit_menu)    # edit_window.nml:211
-        _w3 = MenuLine(parent=self.edit_menu)    # edit_window.nml:215
-        _w4 = MenuItem(parent=self.edit_menu)    # edit_window.nml:216
-        _w5 = MenuItem(parent=self.edit_menu)    # edit_window.nml:220
-        _w6 = MenuItem(parent=self.edit_menu)    # edit_window.nml:224
-        _w7 = MenuItem(parent=self.edit_menu)    # edit_window.nml:228
-        _w8 = MenuItem(parent=self.edit_menu)    # edit_window.nml:232
-        _w9 = MenuLine(parent=self.edit_menu)    # edit_window.nml:236
-        _w10 = MenuItem(parent=self.edit_menu)    # edit_window.nml:237
-        self.edit_menu_delete = SubMenu(parent=self.edit_menu)    # edit_window.nml:247
-        _w11 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:251
-        _w12 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:255
-        _w13 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:259
-        _w14 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:263
-        _w15 = MenuItem(parent=self.edit_menu)    # edit_window.nml:267
-        _w16 = MenuLine(parent=self.edit_menu)    # edit_window.nml:271
-        self.edit_menu_file = SubMenu(parent=self.edit_menu)    # edit_window.nml:272
-        _w17 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:275
-        _w18 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:279
-        _w19 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:283
-        _w20 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:287
-        _w21 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:292
-        _w22 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:296
-        self.edit_menu_line_endings = SubMenu(parent=self.edit_menu_file)    # edit_window.nml:299
-        self.edit_menu_encoding = SubMenu(parent=self.edit_menu_file)    # edit_window.nml:303
-        _w23 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:307
-        _w24 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:308
-        _w25 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:312
-        _w26 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:316
-        _w27 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:318
-        _w28 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:322
-        self.edit_menu_search = SubMenu(parent=self.edit_menu)    # edit_window.nml:326
-        _w29 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:330
-        _w30 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:335
-        _w31 = MenuLine(parent=self.edit_menu_search)    # edit_window.nml:339
-        _w32 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:340
-        _w33 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:344
-        _w34 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:348
-        _w35 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:352
-        _w36 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:356
-        _w37 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:361
-        _w38 = MenuLine(parent=self.edit_menu_search)    # edit_window.nml:369
-        self.edit_menu_place_marker = SubMenu(parent=self.edit_menu_search)    # edit_window.nml:370
-        _w39 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:374
-        _w40 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:378
-        _w41 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:382
-        _w42 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:386
-        _w43 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:390
-        _w44 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:394
-        _w45 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:398
-        _w46 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:402
-        _w47 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:406
-        self.edit_menu_goto_marker = SubMenu(parent=self.edit_menu_search)    # edit_window.nml:410
-        _w48 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:414
-        _w49 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:418
-        _w50 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:422
-        _w51 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:426
-        _w52 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:430
-        _w53 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:434
-        _w54 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:438
-        _w55 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:442
-        _w56 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:446
-        self.edit_menu_paragraph = SubMenu(parent=self.edit_menu)    # edit_window.nml:450
-        _w57 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:453
-        _w58 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:458
-        _w59 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:462
-        _w60 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:466
-        self.edit_menu_line_format = SubMenu(parent=self.edit_menu_paragraph)    # edit_window.nml:474
-        _w61 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:478
-        _w62 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:482
-        _w63 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:486
-        _w64 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:490
-        _w65 = MenuLine(parent=self.edit_menu_paragraph)    # edit_window.nml:494
-        _w66 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:495
-        self.edit_menu_block = SubMenu(parent=self.edit_menu)    # edit_window.nml:498
-        _w67 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:504
-        _w68 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:508
-        _w69 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:512
-        _w70 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:516
-        _w71 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:520
-        _w72 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:521
-        _w73 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:525
-        _w74 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:529
-        _w75 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:530
-        _w76 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:534
-        _w77 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:538
-        _w78 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:542
-        _w79 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:547
-        _w80 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:552
-        _w81 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:553
-        _w82 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:557
-        _w83 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:561
-        _w84 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:565
-        _w85 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:566
-        _w86 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:572
-        self.edit_menu_misc = SubMenu(parent=self.edit_menu)    # edit_window.nml:577
-        _w87 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:580
-        _w88 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:584
-        _w89 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:588
-        _w90 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:592
-        _w91 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:596
-        _w92 = MenuLine(parent=self.edit_menu_misc)    # edit_window.nml:601
-        self.edit_menu_misc_uppercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:602
-        _w93 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:605
-        _w94 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:609
-        _w95 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:613
-        self.edit_menu_misc_lowercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:617
-        _w96 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:620
-        _w97 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:624
-        _w98 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:628
-        self.edit_menu_misc_capitalize = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:632
-        _w99 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:635
-        _w100 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:639
-        _w101 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:643
-        self.edit_menu_options = SubMenu(parent=self.edit_menu)    # edit_window.nml:647
-        _w102 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:650
-        _w103 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:654
-        _w104 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:657
-        _w105 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:660
-        _w106 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:663
-        _w107 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:667
-        _w108 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:671
-        _w109 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:676
-        _w110 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:681
-        _w111 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:686
-        _w112 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:690
-        _w113 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:693
-        _w114 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:696
-        _w115 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:700
-        self.edit_menu_file_type = SubMenu(parent=self.edit_menu)    # edit_window.nml:707
+        self.info = InfoLine(parent=self)    # edit_window.nml:137
+        self.marks = FormatMarks(parent=self)    # edit_window.nml:153
+        self.options = OptionStrip(parent=self)    # edit_window.nml:169
+        self.edit_menu = SubMenu(parent=self)    # edit_window.nml:199
+        _w1 = MenuItem(parent=self.edit_menu)    # edit_window.nml:208
+        _w2 = MenuItem(parent=self.edit_menu)    # edit_window.nml:212
+        _w3 = MenuLine(parent=self.edit_menu)    # edit_window.nml:216
+        _w4 = MenuItem(parent=self.edit_menu)    # edit_window.nml:217
+        _w5 = MenuItem(parent=self.edit_menu)    # edit_window.nml:221
+        _w6 = MenuItem(parent=self.edit_menu)    # edit_window.nml:225
+        _w7 = MenuItem(parent=self.edit_menu)    # edit_window.nml:229
+        _w8 = MenuItem(parent=self.edit_menu)    # edit_window.nml:233
+        _w9 = MenuLine(parent=self.edit_menu)    # edit_window.nml:237
+        _w10 = MenuItem(parent=self.edit_menu)    # edit_window.nml:238
+        self.edit_menu_delete = SubMenu(parent=self.edit_menu)    # edit_window.nml:248
+        _w11 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:252
+        _w12 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:256
+        _w13 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:260
+        _w14 = MenuItem(parent=self.edit_menu_delete)    # edit_window.nml:264
+        _w15 = MenuItem(parent=self.edit_menu)    # edit_window.nml:268
+        _w16 = MenuLine(parent=self.edit_menu)    # edit_window.nml:272
+        self.edit_menu_file = SubMenu(parent=self.edit_menu)    # edit_window.nml:273
+        _w17 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:276
+        _w18 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:280
+        _w19 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:284
+        _w20 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:288
+        _w21 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:293
+        _w22 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:297
+        self.edit_menu_line_endings = SubMenu(parent=self.edit_menu_file)    # edit_window.nml:300
+        self.edit_menu_encoding = SubMenu(parent=self.edit_menu_file)    # edit_window.nml:304
+        _w23 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:308
+        _w24 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:309
+        _w25 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:313
+        _w26 = MenuLine(parent=self.edit_menu_file)    # edit_window.nml:317
+        _w27 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:319
+        _w28 = MenuItem(parent=self.edit_menu_file)    # edit_window.nml:323
+        self.edit_menu_search = SubMenu(parent=self.edit_menu)    # edit_window.nml:327
+        _w29 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:331
+        _w30 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:336
+        _w31 = MenuLine(parent=self.edit_menu_search)    # edit_window.nml:340
+        _w32 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:341
+        _w33 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:345
+        _w34 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:349
+        _w35 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:353
+        _w36 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:357
+        _w37 = MenuItem(parent=self.edit_menu_search)    # edit_window.nml:362
+        _w38 = MenuLine(parent=self.edit_menu_search)    # edit_window.nml:370
+        self.edit_menu_place_marker = SubMenu(parent=self.edit_menu_search)    # edit_window.nml:371
+        _w39 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:375
+        _w40 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:379
+        _w41 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:383
+        _w42 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:387
+        _w43 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:391
+        _w44 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:395
+        _w45 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:399
+        _w46 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:403
+        _w47 = MenuItem(parent=self.edit_menu_place_marker)    # edit_window.nml:407
+        self.edit_menu_goto_marker = SubMenu(parent=self.edit_menu_search)    # edit_window.nml:411
+        _w48 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:415
+        _w49 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:419
+        _w50 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:423
+        _w51 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:427
+        _w52 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:431
+        _w53 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:435
+        _w54 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:439
+        _w55 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:443
+        _w56 = MenuItem(parent=self.edit_menu_goto_marker)    # edit_window.nml:447
+        self.edit_menu_paragraph = SubMenu(parent=self.edit_menu)    # edit_window.nml:451
+        _w57 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:454
+        _w58 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:459
+        _w59 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:463
+        _w60 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:467
+        self.edit_menu_line_format = SubMenu(parent=self.edit_menu_paragraph)    # edit_window.nml:475
+        _w61 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:479
+        _w62 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:483
+        _w63 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:487
+        _w64 = MenuItem(parent=self.edit_menu_line_format)    # edit_window.nml:491
+        _w65 = MenuLine(parent=self.edit_menu_paragraph)    # edit_window.nml:495
+        _w66 = MenuItem(parent=self.edit_menu_paragraph)    # edit_window.nml:496
+        self.edit_menu_block = SubMenu(parent=self.edit_menu)    # edit_window.nml:499
+        _w67 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:505
+        _w68 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:509
+        _w69 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:513
+        _w70 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:517
+        _w71 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:521
+        _w72 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:522
+        _w73 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:526
+        _w74 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:530
+        _w75 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:531
+        _w76 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:535
+        _w77 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:539
+        _w78 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:543
+        _w79 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:548
+        _w80 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:553
+        _w81 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:554
+        _w82 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:558
+        _w83 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:562
+        _w84 = MenuLine(parent=self.edit_menu_block)    # edit_window.nml:566
+        _w85 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:567
+        _w86 = MenuItem(parent=self.edit_menu_block)    # edit_window.nml:573
+        self.edit_menu_misc = SubMenu(parent=self.edit_menu)    # edit_window.nml:578
+        _w87 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:581
+        _w88 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:585
+        _w89 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:589
+        _w90 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:593
+        _w91 = MenuItem(parent=self.edit_menu_misc)    # edit_window.nml:597
+        _w92 = MenuLine(parent=self.edit_menu_misc)    # edit_window.nml:602
+        self.edit_menu_misc_uppercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:603
+        _w93 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:606
+        _w94 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:610
+        _w95 = MenuItem(parent=self.edit_menu_misc_uppercase)    # edit_window.nml:614
+        self.edit_menu_misc_lowercase = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:618
+        _w96 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:621
+        _w97 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:625
+        _w98 = MenuItem(parent=self.edit_menu_misc_lowercase)    # edit_window.nml:629
+        self.edit_menu_misc_capitalize = SubMenu(parent=self.edit_menu_misc)    # edit_window.nml:633
+        _w99 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:636
+        _w100 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:640
+        _w101 = MenuItem(parent=self.edit_menu_misc_capitalize)    # edit_window.nml:644
+        self.edit_menu_options = SubMenu(parent=self.edit_menu)    # edit_window.nml:648
+        _w102 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:651
+        _w103 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:655
+        _w104 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:658
+        _w105 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:661
+        _w106 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:664
+        _w107 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:668
+        _w108 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:672
+        _w109 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:677
+        _w110 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:682
+        _w111 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:687
+        _w112 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:691
+        _w113 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:694
+        _w114 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:697
+        _w115 = MenuItem(parent=self.edit_menu_options)    # edit_window.nml:701
+        self.edit_menu_file_type = SubMenu(parent=self.edit_menu)    # edit_window.nml:708
 
         self.zoomed = True    # edit_window.nml:29
 
@@ -313,718 +313,718 @@ class EditWindow(Window, _Component):
         self.hbar.x = _bind(    # edit_window.nml:126
             lambda _o: max(24, self.marks.x + self.marks.width + 1) if self.marks.visible and self.marks.width else 24
         )
-        self.hbar.width = _bind(    # edit_window.nml:127
+        self.hbar.height = 1    # edit_window.nml:127
+        self.hbar.value = _bind(lambda _o: self.editor.col)    # edit_window.nml:132
+        self.hbar.maximum = _bind(lambda _o: max(0, self.editor.row_span - 1))    # edit_window.nml:133
+        self.hbar.page = _bind(lambda _o: max(1, self.editor.width))    # edit_window.nml:134
+        self.hbar.width = _bind(    # edit_window.nml:129
             lambda _o: max(0, (self.options.x - 1 if self.options.visible and self.options.width else _o.parent.width - 2) - _o.x)
         )
-        self.hbar.height = 1    # edit_window.nml:128
-        self.hbar.value = _bind(lambda _o: self.editor.col)    # edit_window.nml:131
-        self.hbar.maximum = _bind(lambda _o: max(0, self.editor.row_span - 1))    # edit_window.nml:132
-        self.hbar.page = _bind(lambda _o: max(1, self.editor.width))    # edit_window.nml:133
-        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:130
+        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:131
         self.hbar.on_scroll = self.on_hbar_scroll    # edit_window.nml:123
 
-        self.info.name = 'info'    # edit_window.nml:139
-        self.info.visible = _bind(lambda _o: self.active)    # edit_window.nml:140
-        self.info.x = 2    # edit_window.nml:141
-        self.info.width = _bind(    # edit_window.nml:142
+        self.info.name = 'info'    # edit_window.nml:140
+        self.info.visible = _bind(lambda _o: self.active)    # edit_window.nml:141
+        self.info.x = 2    # edit_window.nml:142
+        self.info.width = _bind(    # edit_window.nml:143
             lambda _o: min(display_width(self.editor.info_text), max(0, _o.parent.width - 4))
         )
-        self.info.height = 1    # edit_window.nml:143
-        self.info.text = _bind(lambda _o: self.editor.info_text)    # edit_window.nml:146
-        self.info.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:145
+        self.info.height = 1    # edit_window.nml:144
+        self.info.text = _bind(lambda _o: self.editor.info_text)    # edit_window.nml:147
+        self.info.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:146
 
-        self.marks.name = 'info'    # edit_window.nml:154
-        self.marks.visible = _bind(lambda _o: self.active)    # edit_window.nml:155
-        self.marks.width = _bind(    # edit_window.nml:156
+        self.marks.name = 'info'    # edit_window.nml:155
+        self.marks.visible = _bind(lambda _o: self.active)    # edit_window.nml:156
+        self.marks.width = _bind(    # edit_window.nml:157
             lambda _o: min(display_width(self.editor.format_text), max(0, _o.parent.width - 3 - _o.x))
         )
-        self.marks.height = 1    # edit_window.nml:157
-        self.marks.text = _bind(lambda _o: self.editor.format_text)    # edit_window.nml:161
-        self.marks.x = _bind(lambda _o: self.info.x + self.info.width + 1)    # edit_window.nml:159
-        self.marks.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:160
+        self.marks.height = 1    # edit_window.nml:158
+        self.marks.text = _bind(lambda _o: self.editor.format_text)    # edit_window.nml:162
+        self.marks.x = _bind(lambda _o: self.info.x + self.info.width + 1)    # edit_window.nml:160
+        self.marks.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:161
 
-        self.options.visible = _bind(    # edit_window.nml:170
+        self.options.visible = _bind(    # edit_window.nml:171
             lambda _o: self.active and SETTINGS.editor.show_options
         )
-        self.options.target = _bind(lambda _o: self.editor)    # edit_window.nml:171
-        self.options.room = _bind(    # edit_window.nml:172
+        self.options.target = _bind(lambda _o: self.editor)    # edit_window.nml:172
+        self.options.room = _bind(    # edit_window.nml:173
             lambda _o: max(0, _o.parent.width - 3 - (self.marks.x + self.marks.width if self.marks.visible and self.marks.width else self.info.x + self.info.width) - 1)
         )
-        self.options.width = _bind(lambda _o: _o.used_width)    # edit_window.nml:173
-        self.options.height = 1    # edit_window.nml:174
-        self.options.x = _bind(    # edit_window.nml:176
+        self.options.width = _bind(lambda _o: _o.used_width)    # edit_window.nml:174
+        self.options.height = 1    # edit_window.nml:175
+        self.options.x = _bind(    # edit_window.nml:177
             lambda _o: max(0, _o.parent.width - 3 - _o.width)
         )
-        self.options.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:177
+        self.options.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # edit_window.nml:178
 
-        self.edit_menu.text = _bind(lambda _o: _tr('~E~ditor'), yielding=True)    # edit_window.nml:200
-        self.edit_menu.tooltip = _bind(    # edit_window.nml:201
+        self.edit_menu.text = _bind(lambda _o: _tr('~E~ditor'), yielding=True)    # edit_window.nml:201
+        self.edit_menu.tooltip = _bind(    # edit_window.nml:202
             lambda _o: _tr('Editing, the file, search, paragraphs and blocks'),
             yielding=True,
         )
-        self.edit_menu.after = 'File'    # edit_window.nml:202
+        self.edit_menu.after = 'File'    # edit_window.nml:203
 
-        _w1.text = _bind(lambda _o: _tr('~U~ndo'), yielding=True)    # edit_window.nml:208
-        _w1.command = Undo    # edit_window.nml:209
-        _w1.key = 'Alt-BkSp'    # edit_window.nml:210
+        _w1.text = _bind(lambda _o: _tr('~U~ndo'), yielding=True)    # edit_window.nml:209
+        _w1.command = Undo    # edit_window.nml:210
+        _w1.key = 'Alt-BkSp'    # edit_window.nml:211
 
-        _w2.text = _bind(lambda _o: _tr('R~e~do'), yielding=True)    # edit_window.nml:212
-        _w2.command = Redo    # edit_window.nml:213
-        _w2.key = 'Alt-Shift-BkSp'    # edit_window.nml:214
+        _w2.text = _bind(lambda _o: _tr('R~e~do'), yielding=True)    # edit_window.nml:213
+        _w2.command = Redo    # edit_window.nml:214
+        _w2.key = 'Alt-Shift-BkSp'    # edit_window.nml:215
 
-        _w4.text = _bind(lambda _o: _tr('Cu~t~'), yielding=True)    # edit_window.nml:217
-        _w4.command = ClipboardCut    # edit_window.nml:218
-        _w4.key = 'Shift-Del'    # edit_window.nml:219
+        _w4.text = _bind(lambda _o: _tr('Cu~t~'), yielding=True)    # edit_window.nml:218
+        _w4.command = ClipboardCut    # edit_window.nml:219
+        _w4.key = 'Shift-Del'    # edit_window.nml:220
 
-        _w5.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:221
-        _w5.command = ClipboardCopy    # edit_window.nml:222
-        _w5.key = 'Ctrl-Ins'    # edit_window.nml:223
+        _w5.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:222
+        _w5.command = ClipboardCopy    # edit_window.nml:223
+        _w5.key = 'Ctrl-Ins'    # edit_window.nml:224
 
-        _w6.text = _bind(lambda _o: _tr('~P~aste'), yielding=True)    # edit_window.nml:225
-        _w6.command = ClipboardPaste    # edit_window.nml:226
-        _w6.key = 'Shift-Ins'    # edit_window.nml:227
+        _w6.text = _bind(lambda _o: _tr('~P~aste'), yielding=True)    # edit_window.nml:226
+        _w6.command = ClipboardPaste    # edit_window.nml:227
+        _w6.key = 'Shift-Ins'    # edit_window.nml:228
 
-        _w7.text = _bind(lambda _o: _tr('C~o~py to...'), yielding=True)    # edit_window.nml:229
-        _w7.tooltip = _bind(    # edit_window.nml:230
+        _w7.text = _bind(lambda _o: _tr('C~o~py to...'), yielding=True)    # edit_window.nml:230
+        _w7.tooltip = _bind(    # edit_window.nml:231
             lambda _o: _tr('Write the block to a file'),
             yielding=True,
         )
-        _w7.command = BlockWrite    # edit_window.nml:231
+        _w7.command = BlockWrite    # edit_window.nml:232
 
-        _w8.text = _bind(lambda _o: _tr('P~a~ste from...'), yielding=True)    # edit_window.nml:233
-        _w8.tooltip = _bind(    # edit_window.nml:234
+        _w8.text = _bind(lambda _o: _tr('P~a~ste from...'), yielding=True)    # edit_window.nml:234
+        _w8.tooltip = _bind(    # edit_window.nml:235
             lambda _o: _tr("Insert a file's text at the cursor"),
             yielding=True,
         )
-        _w8.command = BlockRead    # edit_window.nml:235
+        _w8.command = BlockRead    # edit_window.nml:236
 
-        _w10.text = _bind(lambda _o: _tr('C~l~ear'), yielding=True)    # edit_window.nml:238
-        _w10.tooltip = _bind(    # edit_window.nml:239
+        _w10.text = _bind(lambda _o: _tr('C~l~ear'), yielding=True)    # edit_window.nml:239
+        _w10.tooltip = _bind(    # edit_window.nml:240
             lambda _o: _tr('Delete the selection without copying it to the clipboard'),
             yielding=True,
         )
-        _w10.command = Clear    # edit_window.nml:240
-        _w10.key = 'Ctrl-Del'    # edit_window.nml:241
+        _w10.command = Clear    # edit_window.nml:241
+        _w10.key = 'Ctrl-Del'    # edit_window.nml:242
 
-        self.edit_menu_delete.text = _bind(    # edit_window.nml:249
+        self.edit_menu_delete.text = _bind(    # edit_window.nml:250
             lambda _o: _tr('~D~elete'),
             yielding=True,
         )
-        self.edit_menu_delete.tooltip = _bind(    # edit_window.nml:250
+        self.edit_menu_delete.tooltip = _bind(    # edit_window.nml:251
             lambda _o: _tr('Delete a line, a word or the rest of the line'),
             yielding=True,
         )
 
-        _w11.text = _bind(lambda _o: _tr('~D~elete line'), yielding=True)    # edit_window.nml:252
-        _w11.command = DeleteLine    # edit_window.nml:253
-        _w11.key = 'Ctrl-Y'    # edit_window.nml:254
+        _w11.text = _bind(lambda _o: _tr('~D~elete line'), yielding=True)    # edit_window.nml:253
+        _w11.command = DeleteLine    # edit_window.nml:254
+        _w11.key = 'Ctrl-Y'    # edit_window.nml:255
 
-        _w12.text = _bind(lambda _o: _tr('Delete ~w~ord left'), yielding=True)    # edit_window.nml:256
-        _w12.command = DeleteWordLeft    # edit_window.nml:257
-        _w12.key = 'Ctrl-BkSp'    # edit_window.nml:258
+        _w12.text = _bind(lambda _o: _tr('Delete ~w~ord left'), yielding=True)    # edit_window.nml:257
+        _w12.command = DeleteWordLeft    # edit_window.nml:258
+        _w12.key = 'Ctrl-BkSp'    # edit_window.nml:259
 
-        _w13.text = _bind(lambda _o: _tr('Delete word ri~g~ht'), yielding=True)    # edit_window.nml:260
-        _w13.tooltip = _bind(    # edit_window.nml:261
+        _w13.text = _bind(lambda _o: _tr('Delete word ri~g~ht'), yielding=True)    # edit_window.nml:261
+        _w13.tooltip = _bind(    # edit_window.nml:262
             lambda _o: _tr('Delete from the cursor to the start of the next word'),
             yielding=True,
         )
-        _w13.command = DeleteWordRight    # edit_window.nml:262
+        _w13.command = DeleteWordRight    # edit_window.nml:263
 
-        _w14.text = _bind(    # edit_window.nml:264
+        _w14.text = _bind(    # edit_window.nml:265
             lambda _o: _tr('Delete to e~n~d of line'),
             yielding=True,
         )
-        _w14.tooltip = _bind(    # edit_window.nml:265
+        _w14.tooltip = _bind(    # edit_window.nml:266
             lambda _o: _tr('Delete from the cursor to the end of the line'),
             yielding=True,
         )
-        _w14.command = DeleteToEnd    # edit_window.nml:266
+        _w14.command = DeleteToEnd    # edit_window.nml:267
 
-        _w15.text = _bind(lambda _o: _tr('Insert l~i~ne'), yielding=True)    # edit_window.nml:268
-        _w15.command = InsertLine    # edit_window.nml:269
-        _w15.key = 'Ctrl-N'    # edit_window.nml:270
+        _w15.text = _bind(lambda _o: _tr('Insert l~i~ne'), yielding=True)    # edit_window.nml:269
+        _w15.command = InsertLine    # edit_window.nml:270
+        _w15.key = 'Ctrl-N'    # edit_window.nml:271
 
-        self.edit_menu_file.text = _bind(    # edit_window.nml:274
+        self.edit_menu_file.text = _bind(    # edit_window.nml:275
             lambda _o: _tr('~F~ile'),
             yielding=True,
         )
 
-        _w17.text = _bind(lambda _o: _tr('~O~pen...'), yielding=True)    # edit_window.nml:276
-        _w17.command = LoadText    # edit_window.nml:277
-        _w17.key = 'F3'    # edit_window.nml:278
+        _w17.text = _bind(lambda _o: _tr('~O~pen...'), yielding=True)    # edit_window.nml:277
+        _w17.command = LoadText    # edit_window.nml:278
+        _w17.key = 'F3'    # edit_window.nml:279
 
-        _w18.text = _bind(lambda _o: _tr('~S~ave'), yielding=True)    # edit_window.nml:280
-        _w18.command = SaveText    # edit_window.nml:281
-        _w18.key = 'F2'    # edit_window.nml:282
+        _w18.text = _bind(lambda _o: _tr('~S~ave'), yielding=True)    # edit_window.nml:281
+        _w18.command = SaveText    # edit_window.nml:282
+        _w18.key = 'F2'    # edit_window.nml:283
 
-        _w19.text = _bind(lambda _o: _tr('Save ~a~s...'), yielding=True)    # edit_window.nml:284
-        _w19.command = SaveTextAs    # edit_window.nml:285
-        _w19.key = 'Shift-F2'    # edit_window.nml:286
+        _w19.text = _bind(lambda _o: _tr('Save ~a~s...'), yielding=True)    # edit_window.nml:285
+        _w19.command = SaveTextAs    # edit_window.nml:286
+        _w19.key = 'Shift-F2'    # edit_window.nml:287
 
-        _w20.text = _bind(lambda _o: _tr('Save a~l~l...'), yielding=True)    # edit_window.nml:288
-        _w20.command = SaveAll    # edit_window.nml:289
-        _w20.key = 'Ctrl-F2'    # edit_window.nml:290
+        _w20.text = _bind(lambda _o: _tr('Save a~l~l...'), yielding=True)    # edit_window.nml:289
+        _w20.command = SaveAll    # edit_window.nml:290
+        _w20.key = 'Ctrl-F2'    # edit_window.nml:291
 
-        _w21.text = _bind(lambda _o: _tr('New ~v~iew'), yielding=True)    # edit_window.nml:293
-        _w21.tooltip = _bind(    # edit_window.nml:294
+        _w21.text = _bind(lambda _o: _tr('New ~v~iew'), yielding=True)    # edit_window.nml:294
+        _w21.tooltip = _bind(    # edit_window.nml:295
             lambda _o: _tr('Open another window on this text'),
             yielding=True,
         )
-        _w21.command = NewView    # edit_window.nml:295
+        _w21.command = NewView    # edit_window.nml:296
 
-        self.edit_menu_line_endings.text = _bind(    # edit_window.nml:301
+        self.edit_menu_line_endings.text = _bind(    # edit_window.nml:302
             lambda _o: _tr('Line en~d~ings'),
             yielding=True,
         )
-        self.edit_menu_line_endings.key_command = ChooseLineEnding    # edit_window.nml:302
+        self.edit_menu_line_endings.key_command = ChooseLineEnding    # edit_window.nml:303
 
-        self.edit_menu_encoding.text = _bind(    # edit_window.nml:305
+        self.edit_menu_encoding.text = _bind(    # edit_window.nml:306
             lambda _o: _tr('En~c~oding'),
             yielding=True,
         )
-        self.edit_menu_encoding.key_command = ChooseEncoding    # edit_window.nml:306
+        self.edit_menu_encoding.key_command = ChooseEncoding    # edit_window.nml:307
 
-        _w24.text = _bind(lambda _o: _tr('~P~rint'), yielding=True)    # edit_window.nml:309
-        _w24.command = PrintFile    # edit_window.nml:310
-        _w24.key = 'F8'    # edit_window.nml:311
+        _w24.text = _bind(lambda _o: _tr('~P~rint'), yielding=True)    # edit_window.nml:310
+        _w24.command = PrintFile    # edit_window.nml:311
+        _w24.key = 'F8'    # edit_window.nml:312
 
-        _w25.text = _bind(lambda _o: _tr('Print ~b~lock'), yielding=True)    # edit_window.nml:313
-        _w25.command = PrintBlock    # edit_window.nml:314
-        _w25.key = 'Shift-F8'    # edit_window.nml:315
+        _w25.text = _bind(lambda _o: _tr('Print ~b~lock'), yielding=True)    # edit_window.nml:314
+        _w25.command = PrintBlock    # edit_window.nml:315
+        _w25.key = 'Shift-F8'    # edit_window.nml:316
 
-        _w27.text = _bind(lambda _o: _tr('~M~ain menu'), yielding=True)    # edit_window.nml:319
-        _w27.command = MainMenu    # edit_window.nml:320
-        _w27.key = 'F10'    # edit_window.nml:321
+        _w27.text = _bind(lambda _o: _tr('~M~ain menu'), yielding=True)    # edit_window.nml:320
+        _w27.command = MainMenu    # edit_window.nml:321
+        _w27.key = 'F10'    # edit_window.nml:322
 
-        _w28.text = _bind(lambda _o: _tr('E~x~it'), yielding=True)    # edit_window.nml:323
-        _w28.command = CloseWindow    # edit_window.nml:324
-        _w28.key = 'Ctrl-F4'    # edit_window.nml:325
+        _w28.text = _bind(lambda _o: _tr('E~x~it'), yielding=True)    # edit_window.nml:324
+        _w28.command = CloseWindow    # edit_window.nml:325
+        _w28.key = 'Ctrl-F4'    # edit_window.nml:326
 
-        self.edit_menu_search.text = _bind(    # edit_window.nml:328
+        self.edit_menu_search.text = _bind(    # edit_window.nml:329
             lambda _o: _tr('~S~earch'),
             yielding=True,
         )
 
-        _w29.text = _bind(lambda _o: _tr('Find ~b~ar'), yielding=True)    # edit_window.nml:331
-        _w29.tooltip = _bind(    # edit_window.nml:332
+        _w29.text = _bind(lambda _o: _tr('Find ~b~ar'), yielding=True)    # edit_window.nml:332
+        _w29.tooltip = _bind(    # edit_window.nml:333
             lambda _o: _tr('Search as you type, in a bar over the text'),
             yielding=True,
         )
-        _w29.command = ShowFindBar    # edit_window.nml:333
-        _w29.key = 'Ctrl-F'    # edit_window.nml:334
+        _w29.command = ShowFindBar    # edit_window.nml:334
+        _w29.key = 'Ctrl-F'    # edit_window.nml:335
 
-        _w30.text = _bind(lambda _o: _tr('Replace b~a~r'), yielding=True)    # edit_window.nml:336
-        _w30.command = ShowReplaceBar    # edit_window.nml:337
-        _w30.key = 'Ctrl-R'    # edit_window.nml:338
+        _w30.text = _bind(lambda _o: _tr('Replace b~a~r'), yielding=True)    # edit_window.nml:337
+        _w30.command = ShowReplaceBar    # edit_window.nml:338
+        _w30.key = 'Ctrl-R'    # edit_window.nml:339
 
-        _w32.text = _bind(lambda _o: _tr('~F~ind...'), yielding=True)    # edit_window.nml:341
-        _w32.command = StartSearch    # edit_window.nml:342
-        _w32.key = 'F7'    # edit_window.nml:343
+        _w32.text = _bind(lambda _o: _tr('~F~ind...'), yielding=True)    # edit_window.nml:342
+        _w32.command = StartSearch    # edit_window.nml:343
+        _w32.key = 'F7'    # edit_window.nml:344
 
-        _w33.text = _bind(lambda _o: _tr('~R~eplace...'), yielding=True)    # edit_window.nml:345
-        _w33.command = Replace    # edit_window.nml:346
-        _w33.key = 'Ctrl-F7'    # edit_window.nml:347
+        _w33.text = _bind(lambda _o: _tr('~R~eplace...'), yielding=True)    # edit_window.nml:346
+        _w33.command = Replace    # edit_window.nml:347
+        _w33.key = 'Ctrl-F7'    # edit_window.nml:348
 
-        _w34.text = _bind(lambda _o: _tr('~S~earch again'), yielding=True)    # edit_window.nml:349
-        _w34.command = ContSearch    # edit_window.nml:350
-        _w34.key = 'Shift-F7'    # edit_window.nml:351
+        _w34.text = _bind(lambda _o: _tr('~S~earch again'), yielding=True)    # edit_window.nml:350
+        _w34.command = ContSearch    # edit_window.nml:351
+        _w34.key = 'Shift-F7'    # edit_window.nml:352
 
-        _w35.text = _bind(lambda _o: _tr('Re~v~ersed search'), yielding=True)    # edit_window.nml:353
-        _w35.command = ReverseSearch    # edit_window.nml:354
-        _w35.key = 'Alt-F7'    # edit_window.nml:355
+        _w35.text = _bind(lambda _o: _tr('Re~v~ersed search'), yielding=True)    # edit_window.nml:354
+        _w35.command = ReverseSearch    # edit_window.nml:355
+        _w35.key = 'Alt-F7'    # edit_window.nml:356
 
-        _w36.text = _bind(    # edit_window.nml:357
+        _w36.text = _bind(    # edit_window.nml:358
             lambda _o: _tr('~G~o to line number...'),
             yielding=True,
         )
-        _w36.command = GotoLineNumber    # edit_window.nml:358
-        _w36.key = 'Alt-G'    # edit_window.nml:359
+        _w36.command = GotoLineNumber    # edit_window.nml:359
+        _w36.key = 'Alt-G'    # edit_window.nml:360
 
-        _w37.text = _bind(lambda _o: _tr('~M~atching bracket'), yielding=True)    # edit_window.nml:362
-        _w37.tooltip = _bind(    # edit_window.nml:363
+        _w37.text = _bind(lambda _o: _tr('~M~atching bracket'), yielding=True)    # edit_window.nml:363
+        _w37.tooltip = _bind(    # edit_window.nml:364
             lambda _o: _tr('Jump to the bracket that pairs with the one at the cursor'),
             yielding=True,
         )
-        _w37.command = BracketPair    # edit_window.nml:364
-        _w37.key = 'Alt-Left'    # edit_window.nml:365
+        _w37.command = BracketPair    # edit_window.nml:365
+        _w37.key = 'Alt-Left'    # edit_window.nml:366
 
-        self.edit_menu_place_marker.text = _bind(    # edit_window.nml:372
+        self.edit_menu_place_marker.text = _bind(    # edit_window.nml:373
             lambda _o: _tr('Pla~c~e marker'),
             yielding=True,
         )
-        self.edit_menu_place_marker.tooltip = _bind(    # edit_window.nml:373
+        self.edit_menu_place_marker.tooltip = _bind(    # edit_window.nml:374
             lambda _o: _tr("Keep the cursor's place as one of nine markers"),
             yielding=True,
         )
 
-        _w39.text = _bind(lambda _o: _tr('Marker ~1~'), yielding=True)    # edit_window.nml:375
-        _w39.tooltip = _bind(    # edit_window.nml:376
+        _w39.text = _bind(lambda _o: _tr('Marker ~1~'), yielding=True)    # edit_window.nml:376
+        _w39.tooltip = _bind(    # edit_window.nml:377
             lambda _o: _tr("Keep the cursor's place as marker 1"),
             yielding=True,
         )
-        _w39.command = PlaceMarker(1)    # edit_window.nml:377
+        _w39.command = PlaceMarker(1)    # edit_window.nml:378
 
-        _w40.text = _bind(lambda _o: _tr('Marker ~2~'), yielding=True)    # edit_window.nml:379
-        _w40.tooltip = _bind(    # edit_window.nml:380
+        _w40.text = _bind(lambda _o: _tr('Marker ~2~'), yielding=True)    # edit_window.nml:380
+        _w40.tooltip = _bind(    # edit_window.nml:381
             lambda _o: _tr("Keep the cursor's place as marker 2"),
             yielding=True,
         )
-        _w40.command = PlaceMarker(2)    # edit_window.nml:381
+        _w40.command = PlaceMarker(2)    # edit_window.nml:382
 
-        _w41.text = _bind(lambda _o: _tr('Marker ~3~'), yielding=True)    # edit_window.nml:383
-        _w41.tooltip = _bind(    # edit_window.nml:384
+        _w41.text = _bind(lambda _o: _tr('Marker ~3~'), yielding=True)    # edit_window.nml:384
+        _w41.tooltip = _bind(    # edit_window.nml:385
             lambda _o: _tr("Keep the cursor's place as marker 3"),
             yielding=True,
         )
-        _w41.command = PlaceMarker(3)    # edit_window.nml:385
+        _w41.command = PlaceMarker(3)    # edit_window.nml:386
 
-        _w42.text = _bind(lambda _o: _tr('Marker ~4~'), yielding=True)    # edit_window.nml:387
-        _w42.tooltip = _bind(    # edit_window.nml:388
+        _w42.text = _bind(lambda _o: _tr('Marker ~4~'), yielding=True)    # edit_window.nml:388
+        _w42.tooltip = _bind(    # edit_window.nml:389
             lambda _o: _tr("Keep the cursor's place as marker 4"),
             yielding=True,
         )
-        _w42.command = PlaceMarker(4)    # edit_window.nml:389
+        _w42.command = PlaceMarker(4)    # edit_window.nml:390
 
-        _w43.text = _bind(lambda _o: _tr('Marker ~5~'), yielding=True)    # edit_window.nml:391
-        _w43.tooltip = _bind(    # edit_window.nml:392
+        _w43.text = _bind(lambda _o: _tr('Marker ~5~'), yielding=True)    # edit_window.nml:392
+        _w43.tooltip = _bind(    # edit_window.nml:393
             lambda _o: _tr("Keep the cursor's place as marker 5"),
             yielding=True,
         )
-        _w43.command = PlaceMarker(5)    # edit_window.nml:393
+        _w43.command = PlaceMarker(5)    # edit_window.nml:394
 
-        _w44.text = _bind(lambda _o: _tr('Marker ~6~'), yielding=True)    # edit_window.nml:395
-        _w44.tooltip = _bind(    # edit_window.nml:396
+        _w44.text = _bind(lambda _o: _tr('Marker ~6~'), yielding=True)    # edit_window.nml:396
+        _w44.tooltip = _bind(    # edit_window.nml:397
             lambda _o: _tr("Keep the cursor's place as marker 6"),
             yielding=True,
         )
-        _w44.command = PlaceMarker(6)    # edit_window.nml:397
+        _w44.command = PlaceMarker(6)    # edit_window.nml:398
 
-        _w45.text = _bind(lambda _o: _tr('Marker ~7~'), yielding=True)    # edit_window.nml:399
-        _w45.tooltip = _bind(    # edit_window.nml:400
+        _w45.text = _bind(lambda _o: _tr('Marker ~7~'), yielding=True)    # edit_window.nml:400
+        _w45.tooltip = _bind(    # edit_window.nml:401
             lambda _o: _tr("Keep the cursor's place as marker 7"),
             yielding=True,
         )
-        _w45.command = PlaceMarker(7)    # edit_window.nml:401
+        _w45.command = PlaceMarker(7)    # edit_window.nml:402
 
-        _w46.text = _bind(lambda _o: _tr('Marker ~8~'), yielding=True)    # edit_window.nml:403
-        _w46.tooltip = _bind(    # edit_window.nml:404
+        _w46.text = _bind(lambda _o: _tr('Marker ~8~'), yielding=True)    # edit_window.nml:404
+        _w46.tooltip = _bind(    # edit_window.nml:405
             lambda _o: _tr("Keep the cursor's place as marker 8"),
             yielding=True,
         )
-        _w46.command = PlaceMarker(8)    # edit_window.nml:405
+        _w46.command = PlaceMarker(8)    # edit_window.nml:406
 
-        _w47.text = _bind(lambda _o: _tr('Marker ~9~'), yielding=True)    # edit_window.nml:407
-        _w47.tooltip = _bind(    # edit_window.nml:408
+        _w47.text = _bind(lambda _o: _tr('Marker ~9~'), yielding=True)    # edit_window.nml:408
+        _w47.tooltip = _bind(    # edit_window.nml:409
             lambda _o: _tr("Keep the cursor's place as marker 9"),
             yielding=True,
         )
-        _w47.command = PlaceMarker(9)    # edit_window.nml:409
+        _w47.command = PlaceMarker(9)    # edit_window.nml:410
 
-        self.edit_menu_goto_marker.text = _bind(    # edit_window.nml:412
+        self.edit_menu_goto_marker.text = _bind(    # edit_window.nml:413
             lambda _o: _tr('G~o~ to marker'),
             yielding=True,
         )
-        self.edit_menu_goto_marker.tooltip = _bind(    # edit_window.nml:413
+        self.edit_menu_goto_marker.tooltip = _bind(    # edit_window.nml:414
             lambda _o: _tr('Take the cursor back to a place kept as a marker'),
             yielding=True,
         )
 
-        _w48.text = _bind(lambda _o: _tr('Marker ~1~'), yielding=True)    # edit_window.nml:415
-        _w48.tooltip = _bind(    # edit_window.nml:416
+        _w48.text = _bind(lambda _o: _tr('Marker ~1~'), yielding=True)    # edit_window.nml:416
+        _w48.tooltip = _bind(    # edit_window.nml:417
             lambda _o: _tr('Take the cursor back to marker 1'),
             yielding=True,
         )
-        _w48.command = GotoMarker(1)    # edit_window.nml:417
+        _w48.command = GotoMarker(1)    # edit_window.nml:418
 
-        _w49.text = _bind(lambda _o: _tr('Marker ~2~'), yielding=True)    # edit_window.nml:419
-        _w49.tooltip = _bind(    # edit_window.nml:420
+        _w49.text = _bind(lambda _o: _tr('Marker ~2~'), yielding=True)    # edit_window.nml:420
+        _w49.tooltip = _bind(    # edit_window.nml:421
             lambda _o: _tr('Take the cursor back to marker 2'),
             yielding=True,
         )
-        _w49.command = GotoMarker(2)    # edit_window.nml:421
+        _w49.command = GotoMarker(2)    # edit_window.nml:422
 
-        _w50.text = _bind(lambda _o: _tr('Marker ~3~'), yielding=True)    # edit_window.nml:423
-        _w50.tooltip = _bind(    # edit_window.nml:424
+        _w50.text = _bind(lambda _o: _tr('Marker ~3~'), yielding=True)    # edit_window.nml:424
+        _w50.tooltip = _bind(    # edit_window.nml:425
             lambda _o: _tr('Take the cursor back to marker 3'),
             yielding=True,
         )
-        _w50.command = GotoMarker(3)    # edit_window.nml:425
+        _w50.command = GotoMarker(3)    # edit_window.nml:426
 
-        _w51.text = _bind(lambda _o: _tr('Marker ~4~'), yielding=True)    # edit_window.nml:427
-        _w51.tooltip = _bind(    # edit_window.nml:428
+        _w51.text = _bind(lambda _o: _tr('Marker ~4~'), yielding=True)    # edit_window.nml:428
+        _w51.tooltip = _bind(    # edit_window.nml:429
             lambda _o: _tr('Take the cursor back to marker 4'),
             yielding=True,
         )
-        _w51.command = GotoMarker(4)    # edit_window.nml:429
+        _w51.command = GotoMarker(4)    # edit_window.nml:430
 
-        _w52.text = _bind(lambda _o: _tr('Marker ~5~'), yielding=True)    # edit_window.nml:431
-        _w52.tooltip = _bind(    # edit_window.nml:432
+        _w52.text = _bind(lambda _o: _tr('Marker ~5~'), yielding=True)    # edit_window.nml:432
+        _w52.tooltip = _bind(    # edit_window.nml:433
             lambda _o: _tr('Take the cursor back to marker 5'),
             yielding=True,
         )
-        _w52.command = GotoMarker(5)    # edit_window.nml:433
+        _w52.command = GotoMarker(5)    # edit_window.nml:434
 
-        _w53.text = _bind(lambda _o: _tr('Marker ~6~'), yielding=True)    # edit_window.nml:435
-        _w53.tooltip = _bind(    # edit_window.nml:436
+        _w53.text = _bind(lambda _o: _tr('Marker ~6~'), yielding=True)    # edit_window.nml:436
+        _w53.tooltip = _bind(    # edit_window.nml:437
             lambda _o: _tr('Take the cursor back to marker 6'),
             yielding=True,
         )
-        _w53.command = GotoMarker(6)    # edit_window.nml:437
+        _w53.command = GotoMarker(6)    # edit_window.nml:438
 
-        _w54.text = _bind(lambda _o: _tr('Marker ~7~'), yielding=True)    # edit_window.nml:439
-        _w54.tooltip = _bind(    # edit_window.nml:440
+        _w54.text = _bind(lambda _o: _tr('Marker ~7~'), yielding=True)    # edit_window.nml:440
+        _w54.tooltip = _bind(    # edit_window.nml:441
             lambda _o: _tr('Take the cursor back to marker 7'),
             yielding=True,
         )
-        _w54.command = GotoMarker(7)    # edit_window.nml:441
+        _w54.command = GotoMarker(7)    # edit_window.nml:442
 
-        _w55.text = _bind(lambda _o: _tr('Marker ~8~'), yielding=True)    # edit_window.nml:443
-        _w55.tooltip = _bind(    # edit_window.nml:444
+        _w55.text = _bind(lambda _o: _tr('Marker ~8~'), yielding=True)    # edit_window.nml:444
+        _w55.tooltip = _bind(    # edit_window.nml:445
             lambda _o: _tr('Take the cursor back to marker 8'),
             yielding=True,
         )
-        _w55.command = GotoMarker(8)    # edit_window.nml:445
+        _w55.command = GotoMarker(8)    # edit_window.nml:446
 
-        _w56.text = _bind(lambda _o: _tr('Marker ~9~'), yielding=True)    # edit_window.nml:447
-        _w56.tooltip = _bind(    # edit_window.nml:448
+        _w56.text = _bind(lambda _o: _tr('Marker ~9~'), yielding=True)    # edit_window.nml:448
+        _w56.tooltip = _bind(    # edit_window.nml:449
             lambda _o: _tr('Take the cursor back to marker 9'),
             yielding=True,
         )
-        _w56.command = GotoMarker(9)    # edit_window.nml:449
+        _w56.command = GotoMarker(9)    # edit_window.nml:450
 
-        self.edit_menu_paragraph.text = _bind(    # edit_window.nml:452
+        self.edit_menu_paragraph.text = _bind(    # edit_window.nml:453
             lambda _o: _tr('Pa~r~agraph'),
             yielding=True,
         )
 
-        _w57.text = _bind(lambda _o: _tr('~J~ustify'), yielding=True)    # edit_window.nml:454
-        _w57.tooltip = _bind(    # edit_window.nml:455
+        _w57.text = _bind(lambda _o: _tr('~J~ustify'), yielding=True)    # edit_window.nml:455
+        _w57.tooltip = _bind(    # edit_window.nml:456
             lambda _o: _tr("Justify the block's paragraph to both margins"),
             yielding=True,
         )
-        _w57.command = FJustify    # edit_window.nml:456
-        _w57.key = 'Alt-J'    # edit_window.nml:457
+        _w57.command = FJustify    # edit_window.nml:457
+        _w57.key = 'Alt-J'    # edit_window.nml:458
 
-        _w58.text = _bind(lambda _o: _tr('~R~ight'), yielding=True)    # edit_window.nml:459
-        _w58.command = FRight    # edit_window.nml:460
-        _w58.key = 'Alt-R'    # edit_window.nml:461
+        _w58.text = _bind(lambda _o: _tr('~R~ight'), yielding=True)    # edit_window.nml:460
+        _w58.command = FRight    # edit_window.nml:461
+        _w58.key = 'Alt-R'    # edit_window.nml:462
 
-        _w59.text = _bind(lambda _o: _tr('~L~eft'), yielding=True)    # edit_window.nml:463
-        _w59.command = FLeft    # edit_window.nml:464
-        _w59.key = 'Alt-L'    # edit_window.nml:465
+        _w59.text = _bind(lambda _o: _tr('~L~eft'), yielding=True)    # edit_window.nml:464
+        _w59.command = FLeft    # edit_window.nml:465
+        _w59.key = 'Alt-L'    # edit_window.nml:466
 
-        _w60.text = _bind(lambda _o: _tr('~C~enter'), yielding=True)    # edit_window.nml:467
-        _w60.command = FCenter    # edit_window.nml:468
-        _w60.key = 'Alt-C'    # edit_window.nml:469
+        _w60.text = _bind(lambda _o: _tr('~C~enter'), yielding=True)    # edit_window.nml:468
+        _w60.command = FCenter    # edit_window.nml:469
+        _w60.key = 'Alt-C'    # edit_window.nml:470
 
-        self.edit_menu_line_format.text = _bind(    # edit_window.nml:476
+        self.edit_menu_line_format.text = _bind(    # edit_window.nml:477
             lambda _o: _tr('Current li~n~e'),
             yielding=True,
         )
-        self.edit_menu_line_format.tooltip = _bind(    # edit_window.nml:477
+        self.edit_menu_line_format.tooltip = _bind(    # edit_window.nml:478
             lambda _o: _tr("Format the cursor's line alone"),
             yielding=True,
         )
 
-        _w61.text = _bind(lambda _o: _tr('~J~ustify'), yielding=True)    # edit_window.nml:479
-        _w61.tooltip = _bind(    # edit_window.nml:480
+        _w61.text = _bind(lambda _o: _tr('~J~ustify'), yielding=True)    # edit_window.nml:480
+        _w61.tooltip = _bind(    # edit_window.nml:481
             lambda _o: _tr("Justify the cursor's line to both margins"),
             yielding=True,
         )
-        _w61.command = LJustify    # edit_window.nml:481
+        _w61.command = LJustify    # edit_window.nml:482
 
-        _w62.text = _bind(lambda _o: _tr('~R~ight'), yielding=True)    # edit_window.nml:483
-        _w62.tooltip = _bind(    # edit_window.nml:484
+        _w62.text = _bind(lambda _o: _tr('~R~ight'), yielding=True)    # edit_window.nml:484
+        _w62.tooltip = _bind(    # edit_window.nml:485
             lambda _o: _tr("Put the cursor's line against the right margin"),
             yielding=True,
         )
-        _w62.command = LRight    # edit_window.nml:485
+        _w62.command = LRight    # edit_window.nml:486
 
-        _w63.text = _bind(lambda _o: _tr('~L~eft'), yielding=True)    # edit_window.nml:487
-        _w63.tooltip = _bind(    # edit_window.nml:488
+        _w63.text = _bind(lambda _o: _tr('~L~eft'), yielding=True)    # edit_window.nml:488
+        _w63.tooltip = _bind(    # edit_window.nml:489
             lambda _o: _tr("Put the cursor's line at the left margin"),
             yielding=True,
         )
-        _w63.command = LLeft    # edit_window.nml:489
+        _w63.command = LLeft    # edit_window.nml:490
 
-        _w64.text = _bind(lambda _o: _tr('~C~enter'), yielding=True)    # edit_window.nml:491
-        _w64.tooltip = _bind(    # edit_window.nml:492
+        _w64.text = _bind(lambda _o: _tr('~C~enter'), yielding=True)    # edit_window.nml:492
+        _w64.tooltip = _bind(    # edit_window.nml:493
             lambda _o: _tr("Center the cursor's line between the margins"),
             yielding=True,
         )
-        _w64.command = LCenter    # edit_window.nml:493
+        _w64.command = LCenter    # edit_window.nml:494
 
-        _w66.text = _bind(lambda _o: _tr('~M~argins...'), yielding=True)    # edit_window.nml:496
-        _w66.command = SetMargins    # edit_window.nml:497
+        _w66.text = _bind(lambda _o: _tr('~M~argins...'), yielding=True)    # edit_window.nml:497
+        _w66.command = SetMargins    # edit_window.nml:498
 
-        self.edit_menu_block.text = _bind(    # edit_window.nml:500
+        self.edit_menu_block.text = _bind(    # edit_window.nml:501
             lambda _o: _tr('~B~lock'),
             yielding=True,
         )
 
-        _w67.text = _bind(lambda _o: _tr('Mar~k~ start'), yielding=True)    # edit_window.nml:505
-        _w67.tooltip = _bind(    # edit_window.nml:506
+        _w67.text = _bind(lambda _o: _tr('Mar~k~ start'), yielding=True)    # edit_window.nml:506
+        _w67.tooltip = _bind(    # edit_window.nml:507
             lambda _o: _tr('Begin the block at the cursor'),
             yielding=True,
         )
-        _w67.command = BlockStart    # edit_window.nml:507
+        _w67.command = BlockStart    # edit_window.nml:508
 
-        _w68.text = _bind(lambda _o: _tr('Mark ~e~nd'), yielding=True)    # edit_window.nml:509
-        _w68.tooltip = _bind(    # edit_window.nml:510
+        _w68.text = _bind(lambda _o: _tr('Mark ~e~nd'), yielding=True)    # edit_window.nml:510
+        _w68.tooltip = _bind(    # edit_window.nml:511
             lambda _o: _tr('End the block at the cursor'),
             yielding=True,
         )
-        _w68.command = BlockEnd    # edit_window.nml:511
+        _w68.command = BlockEnd    # edit_window.nml:512
 
-        _w69.text = _bind(lambda _o: _tr('Mark ~w~ord'), yielding=True)    # edit_window.nml:513
-        _w69.tooltip = _bind(    # edit_window.nml:514
+        _w69.text = _bind(lambda _o: _tr('Mark ~w~ord'), yielding=True)    # edit_window.nml:514
+        _w69.tooltip = _bind(    # edit_window.nml:515
             lambda _o: _tr('Mark the word at the cursor as the block'),
             yielding=True,
         )
-        _w69.command = MarkWord    # edit_window.nml:515
+        _w69.command = MarkWord    # edit_window.nml:516
 
-        _w70.text = _bind(lambda _o: _tr('Mark li~n~e'), yielding=True)    # edit_window.nml:517
-        _w70.tooltip = _bind(    # edit_window.nml:518
+        _w70.text = _bind(lambda _o: _tr('Mark li~n~e'), yielding=True)    # edit_window.nml:518
+        _w70.tooltip = _bind(    # edit_window.nml:519
             lambda _o: _tr("Mark the cursor's line as the block"),
             yielding=True,
         )
-        _w70.command = MarkLine    # edit_window.nml:519
+        _w70.command = MarkLine    # edit_window.nml:520
 
-        _w72.text = _bind(lambda _o: _tr('~G~o to block start'), yielding=True)    # edit_window.nml:522
-        _w72.tooltip = _bind(    # edit_window.nml:523
+        _w72.text = _bind(lambda _o: _tr('~G~o to block start'), yielding=True)    # edit_window.nml:523
+        _w72.tooltip = _bind(    # edit_window.nml:524
             lambda _o: _tr('Take the cursor to where the block begins'),
             yielding=True,
         )
-        _w72.command = MoveBlockStart    # edit_window.nml:524
+        _w72.command = MoveBlockStart    # edit_window.nml:525
 
-        _w73.text = _bind(lambda _o: _tr('Go to block en~d~'), yielding=True)    # edit_window.nml:526
-        _w73.tooltip = _bind(    # edit_window.nml:527
+        _w73.text = _bind(lambda _o: _tr('Go to block en~d~'), yielding=True)    # edit_window.nml:527
+        _w73.tooltip = _bind(    # edit_window.nml:528
             lambda _o: _tr('Take the cursor to where the block ends'),
             yielding=True,
         )
-        _w73.command = MoveBlockEnd    # edit_window.nml:528
+        _w73.command = MoveBlockEnd    # edit_window.nml:529
 
-        _w75.text = _bind(lambda _o: _tr('~M~ove'), yielding=True)    # edit_window.nml:531
-        _w75.command = MoveBlock    # edit_window.nml:532
-        _w75.key = 'Alt-Shift-V'    # edit_window.nml:533
+        _w75.text = _bind(lambda _o: _tr('~M~ove'), yielding=True)    # edit_window.nml:532
+        _w75.command = MoveBlock    # edit_window.nml:533
+        _w75.key = 'Alt-Shift-V'    # edit_window.nml:534
 
-        _w76.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:535
-        _w76.command = CopyBlock    # edit_window.nml:536
-        _w76.key = 'Alt-Shift-K'    # edit_window.nml:537
+        _w76.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # edit_window.nml:536
+        _w76.command = CopyBlock    # edit_window.nml:537
+        _w76.key = 'Alt-Shift-K'    # edit_window.nml:538
 
-        _w77.text = _bind(lambda _o: _tr('~I~ndent'), yielding=True)    # edit_window.nml:539
-        _w77.command = IndentBlock    # edit_window.nml:540
-        _w77.key = 'Alt-Shift-I'    # edit_window.nml:541
+        _w77.text = _bind(lambda _o: _tr('~I~ndent'), yielding=True)    # edit_window.nml:540
+        _w77.command = IndentBlock    # edit_window.nml:541
+        _w77.key = 'Alt-Shift-I'    # edit_window.nml:542
 
-        _w78.text = _bind(lambda _o: _tr('~U~nindent'), yielding=True)    # edit_window.nml:543
-        _w78.command = UnindentBlock    # edit_window.nml:544
-        _w78.key = 'Alt-Shift-O'    # edit_window.nml:545
+        _w78.text = _bind(lambda _o: _tr('~U~nindent'), yielding=True)    # edit_window.nml:544
+        _w78.command = UnindentBlock    # edit_window.nml:545
+        _w78.key = 'Alt-Shift-O'    # edit_window.nml:546
 
-        _w79.text = _bind(lambda _o: _tr('~H~ide/show block'), yielding=True)    # edit_window.nml:548
-        _w79.tooltip = _bind(    # edit_window.nml:549
+        _w79.text = _bind(lambda _o: _tr('~H~ide/show block'), yielding=True)    # edit_window.nml:549
+        _w79.tooltip = _bind(    # edit_window.nml:550
             lambda _o: _tr('Hide the marked block, or show it again'),
             yielding=True,
         )
-        _w79.command = HideBlock    # edit_window.nml:550
-        _w79.key = 'Alt-H'    # edit_window.nml:551
+        _w79.command = HideBlock    # edit_window.nml:551
+        _w79.key = 'Alt-H'    # edit_window.nml:552
 
-        _w81.text = _bind(lambda _o: _tr('U~p~percase'), yielding=True)    # edit_window.nml:554
-        _w81.command = UpcaseBlock    # edit_window.nml:555
-        _w81.key = 'Alt-Shift-U'    # edit_window.nml:556
+        _w81.text = _bind(lambda _o: _tr('U~p~percase'), yielding=True)    # edit_window.nml:555
+        _w81.command = UpcaseBlock    # edit_window.nml:556
+        _w81.key = 'Alt-Shift-U'    # edit_window.nml:557
 
-        _w82.text = _bind(lambda _o: _tr('~L~owercase'), yielding=True)    # edit_window.nml:558
-        _w82.command = LowcaseBlock    # edit_window.nml:559
-        _w82.key = 'Alt-Shift-L'    # edit_window.nml:560
+        _w82.text = _bind(lambda _o: _tr('~L~owercase'), yielding=True)    # edit_window.nml:559
+        _w82.command = LowcaseBlock    # edit_window.nml:560
+        _w82.key = 'Alt-Shift-L'    # edit_window.nml:561
 
-        _w83.text = _bind(lambda _o: _tr('Capi~t~alize'), yielding=True)    # edit_window.nml:562
-        _w83.command = CapitalizeBlock    # edit_window.nml:563
-        _w83.key = 'Alt-Shift-C'    # edit_window.nml:564
+        _w83.text = _bind(lambda _o: _tr('Capi~t~alize'), yielding=True)    # edit_window.nml:563
+        _w83.command = CapitalizeBlock    # edit_window.nml:564
+        _w83.key = 'Alt-Shift-C'    # edit_window.nml:565
 
-        _w85.text = _bind(lambda _o: _tr('~S~ort'), yielding=True)    # edit_window.nml:567
-        _w85.tooltip = _bind(    # edit_window.nml:568
+        _w85.text = _bind(lambda _o: _tr('~S~ort'), yielding=True)    # edit_window.nml:568
+        _w85.tooltip = _bind(    # edit_window.nml:569
             lambda _o: _tr('Sort the lines by the column block'),
             yielding=True,
         )
-        _w85.command = SortBlock    # edit_window.nml:569
-        _w85.key = 'Alt-T'    # edit_window.nml:570
+        _w85.command = SortBlock    # edit_window.nml:570
+        _w85.key = 'Alt-T'    # edit_window.nml:571
 
-        _w86.text = _bind(lambda _o: _tr('C~a~lculate sum'), yielding=True)    # edit_window.nml:573
-        _w86.tooltip = _bind(    # edit_window.nml:574
+        _w86.text = _bind(lambda _o: _tr('C~a~lculate sum'), yielding=True)    # edit_window.nml:574
+        _w86.tooltip = _bind(    # edit_window.nml:575
             lambda _o: _tr("Add up the column block's numbers; the sum goes to the clipboard"),
             yielding=True,
         )
-        _w86.command = CalcBlock    # edit_window.nml:575
-        _w86.key = 'Alt-Ins'    # edit_window.nml:576
+        _w86.command = CalcBlock    # edit_window.nml:576
+        _w86.key = 'Alt-Ins'    # edit_window.nml:577
 
-        self.edit_menu_misc.text = _bind(    # edit_window.nml:579
+        self.edit_menu_misc.text = _bind(    # edit_window.nml:580
             lambda _o: _tr('~M~isc'),
             yielding=True,
         )
 
-        _w87.text = _bind(lambda _o: _tr('Insert ~d~ate'), yielding=True)    # edit_window.nml:581
-        _w87.command = InsertDate    # edit_window.nml:582
-        _w87.key = 'Alt-Shift-D'    # edit_window.nml:583
+        _w87.text = _bind(lambda _o: _tr('Insert ~d~ate'), yielding=True)    # edit_window.nml:582
+        _w87.command = InsertDate    # edit_window.nml:583
+        _w87.key = 'Alt-Shift-D'    # edit_window.nml:584
 
-        _w88.text = _bind(lambda _o: _tr('Insert ~t~ime'), yielding=True)    # edit_window.nml:585
-        _w88.command = InsertTime    # edit_window.nml:586
-        _w88.key = 'Alt-Shift-T'    # edit_window.nml:587
+        _w88.text = _bind(lambda _o: _tr('Insert ~t~ime'), yielding=True)    # edit_window.nml:586
+        _w88.command = InsertTime    # edit_window.nml:587
+        _w88.key = 'Alt-Shift-T'    # edit_window.nml:588
 
-        _w89.text = _bind(lambda _o: _tr('Du~p~licate line'), yielding=True)    # edit_window.nml:589
-        _w89.command = DuplicateLine    # edit_window.nml:590
-        _w89.key = 'F6'    # edit_window.nml:591
+        _w89.text = _bind(lambda _o: _tr('Du~p~licate line'), yielding=True)    # edit_window.nml:590
+        _w89.command = DuplicateLine    # edit_window.nml:591
+        _w89.key = 'F6'    # edit_window.nml:592
 
-        _w90.text = _bind(lambda _o: _tr('Character ta~b~le'), yielding=True)    # edit_window.nml:593
-        _w90.command = AsciiTable    # edit_window.nml:594
-        _w90.key = 'Ctrl P'    # edit_window.nml:595
+        _w90.text = _bind(lambda _o: _tr('Character ta~b~le'), yielding=True)    # edit_window.nml:594
+        _w90.command = AsciiTable    # edit_window.nml:595
+        _w90.key = 'Ctrl P'    # edit_window.nml:596
 
-        _w91.text = _bind(lambda _o: _tr('Line Dra~w~ing'), yielding=True)    # edit_window.nml:597
-        _w91.tooltip = _bind(    # edit_window.nml:598
+        _w91.text = _bind(lambda _o: _tr('Line Dra~w~ing'), yielding=True)    # edit_window.nml:598
+        _w91.tooltip = _bind(    # edit_window.nml:599
             lambda _o: _tr('Draw lines with the arrow keys: off, single, double'),
             yielding=True,
         )
-        _w91.command = SwitchDrawMode    # edit_window.nml:599
-        _w91.key = 'F4'    # edit_window.nml:600
+        _w91.command = SwitchDrawMode    # edit_window.nml:600
+        _w91.key = 'F4'    # edit_window.nml:601
 
-        self.edit_menu_misc_uppercase.text = _bind(    # edit_window.nml:604
+        self.edit_menu_misc_uppercase.text = _bind(    # edit_window.nml:605
             lambda _o: _tr('~U~ppercase'),
             yielding=True,
         )
 
-        _w93.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:606
-        _w93.command = UpWord    # edit_window.nml:607
-        _w93.key = 'Ctrl ['    # edit_window.nml:608
+        _w93.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:607
+        _w93.command = UpWord    # edit_window.nml:608
+        _w93.key = 'Ctrl ['    # edit_window.nml:609
 
-        _w94.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:610
-        _w94.command = UpString    # edit_window.nml:611
-        _w94.key = 'Ctrl+Shift ['    # edit_window.nml:612
+        _w94.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:611
+        _w94.command = UpString    # edit_window.nml:612
+        _w94.key = 'Ctrl+Shift ['    # edit_window.nml:613
 
-        _w95.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:614
-        _w95.command = UpcaseBlock    # edit_window.nml:615
-        _w95.key = 'Alt-Shift-U'    # edit_window.nml:616
+        _w95.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:615
+        _w95.command = UpcaseBlock    # edit_window.nml:616
+        _w95.key = 'Alt-Shift-U'    # edit_window.nml:617
 
-        self.edit_menu_misc_lowercase.text = _bind(    # edit_window.nml:619
+        self.edit_menu_misc_lowercase.text = _bind(    # edit_window.nml:620
             lambda _o: _tr('~L~owercase'),
             yielding=True,
         )
 
-        _w96.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:621
-        _w96.command = LowWord    # edit_window.nml:622
-        _w96.key = 'Ctrl ]'    # edit_window.nml:623
+        _w96.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:622
+        _w96.command = LowWord    # edit_window.nml:623
+        _w96.key = 'Ctrl ]'    # edit_window.nml:624
 
-        _w97.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:625
-        _w97.command = LowString    # edit_window.nml:626
-        _w97.key = 'Ctrl+Shift ]'    # edit_window.nml:627
+        _w97.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:626
+        _w97.command = LowString    # edit_window.nml:627
+        _w97.key = 'Ctrl+Shift ]'    # edit_window.nml:628
 
-        _w98.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:629
-        _w98.command = LowcaseBlock    # edit_window.nml:630
-        _w98.key = 'Alt-Shift-L'    # edit_window.nml:631
+        _w98.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:630
+        _w98.command = LowcaseBlock    # edit_window.nml:631
+        _w98.key = 'Alt-Shift-L'    # edit_window.nml:632
 
-        self.edit_menu_misc_capitalize.text = _bind(    # edit_window.nml:634
+        self.edit_menu_misc_capitalize.text = _bind(    # edit_window.nml:635
             lambda _o: _tr('~C~apitalize'),
             yielding=True,
         )
 
-        _w99.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:636
-        _w99.command = CapWord    # edit_window.nml:637
-        _w99.key = 'Ctrl \\'    # edit_window.nml:638
+        _w99.text = _bind(lambda _o: _tr('~W~ord'), yielding=True)    # edit_window.nml:637
+        _w99.command = CapWord    # edit_window.nml:638
+        _w99.key = 'Ctrl \\'    # edit_window.nml:639
 
-        _w100.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:640
-        _w100.command = CapString    # edit_window.nml:641
-        _w100.key = 'Ctrl+Shift \\'    # edit_window.nml:642
+        _w100.text = _bind(lambda _o: _tr('~L~ine'), yielding=True)    # edit_window.nml:641
+        _w100.command = CapString    # edit_window.nml:642
+        _w100.key = 'Ctrl+Shift \\'    # edit_window.nml:643
 
-        _w101.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:644
-        _w101.command = CapitalizeBlock    # edit_window.nml:645
-        _w101.key = 'Alt-Shift-C'    # edit_window.nml:646
+        _w101.text = _bind(lambda _o: _tr('~B~lock'), yielding=True)    # edit_window.nml:645
+        _w101.command = CapitalizeBlock    # edit_window.nml:646
+        _w101.key = 'Alt-Shift-C'    # edit_window.nml:647
 
-        self.edit_menu_options.text = _bind(    # edit_window.nml:649
+        self.edit_menu_options.text = _bind(    # edit_window.nml:650
             lambda _o: _tr('Optio~n~s'),
             yielding=True,
         )
 
-        _w102.text = _bind(    # edit_window.nml:651
+        _w102.text = _bind(    # edit_window.nml:652
             lambda _o: _tr('~B~ackspace indents'),
             yielding=True,
         )
-        _w102.tooltip = _bind(    # edit_window.nml:652
+        _w102.tooltip = _bind(    # edit_window.nml:653
             lambda _o: _tr("Backspace at a line's start goes back to an indent above"),
             yielding=True,
         )
-        _w102.command = SwitchBack    # edit_window.nml:653
+        _w102.command = SwitchBack    # edit_window.nml:654
 
-        _w103.text = _bind(lambda _o: _tr('AutoB~r~ackets'), yielding=True)    # edit_window.nml:655
-        _w103.command = SwitchBrackets    # edit_window.nml:656
+        _w103.text = _bind(lambda _o: _tr('AutoB~r~ackets'), yielding=True)    # edit_window.nml:656
+        _w103.command = SwitchBrackets    # edit_window.nml:657
 
-        _w104.text = _bind(lambda _o: _tr('Auto~i~ndent'), yielding=True)    # edit_window.nml:658
-        _w104.command = SwitchIndent    # edit_window.nml:659
+        _w104.text = _bind(lambda _o: _tr('Auto~i~ndent'), yielding=True)    # edit_window.nml:659
+        _w104.command = SwitchIndent    # edit_window.nml:660
 
-        _w105.text = _bind(lambda _o: _tr('~A~uto wrap'), yielding=True)    # edit_window.nml:661
-        _w105.command = SwitchSave    # edit_window.nml:662
+        _w105.text = _bind(lambda _o: _tr('~A~uto wrap'), yielding=True)    # edit_window.nml:662
+        _w105.command = SwitchSave    # edit_window.nml:663
 
-        _w106.text = _bind(lambda _o: _tr('~J~ustify on wrap'), yielding=True)    # edit_window.nml:664
-        _w106.tooltip = _bind(    # edit_window.nml:665
+        _w106.text = _bind(lambda _o: _tr('~J~ustify on wrap'), yielding=True)    # edit_window.nml:665
+        _w106.tooltip = _bind(    # edit_window.nml:666
             lambda _o: _tr('Widen a wrapped line to the margin'),
             yielding=True,
         )
-        _w106.command = SwitchWrap    # edit_window.nml:666
+        _w106.command = SwitchWrap    # edit_window.nml:667
 
-        _w107.text = _bind(lambda _o: _tr('~V~ertical blocks'), yielding=True)    # edit_window.nml:668
-        _w107.tooltip = _bind(    # edit_window.nml:669
+        _w107.text = _bind(lambda _o: _tr('~V~ertical blocks'), yielding=True)    # edit_window.nml:669
+        _w107.tooltip = _bind(    # edit_window.nml:670
             lambda _o: _tr('Mark column blocks instead of line ones'),
             yielding=True,
         )
-        _w107.command = SwitchBlock    # edit_window.nml:670
+        _w107.command = SwitchBlock    # edit_window.nml:671
 
-        _w108.text = _bind(lambda _o: _tr('Opti~m~al fill'), yielding=True)    # edit_window.nml:672
-        _w108.tooltip = _bind(    # edit_window.nml:673
+        _w108.text = _bind(lambda _o: _tr('Opti~m~al fill'), yielding=True)    # edit_window.nml:673
+        _w108.tooltip = _bind(    # edit_window.nml:674
             lambda _o: _tr('Write blanks as tabs where they reach a tab stop'),
             yielding=True,
         )
-        _w108.command = SwitchFill    # edit_window.nml:674
+        _w108.command = SwitchFill    # edit_window.nml:675
 
-        _w109.text = _bind(lambda _o: _tr('~T~ab characters'), yielding=True)    # edit_window.nml:677
-        _w109.tooltip = _bind(    # edit_window.nml:678
+        _w109.text = _bind(lambda _o: _tr('~T~ab characters'), yielding=True)    # edit_window.nml:678
+        _w109.tooltip = _bind(    # edit_window.nml:679
             lambda _o: _tr('Tab types tab characters, not spaces'),
             yielding=True,
         )
-        _w109.command = SwitchTabs    # edit_window.nml:679
+        _w109.command = SwitchTabs    # edit_window.nml:680
 
-        _w110.text = _bind(lambda _o: _tr('Soft ~w~rap'), yielding=True)    # edit_window.nml:682
-        _w110.tooltip = _bind(    # edit_window.nml:683
+        _w110.text = _bind(lambda _o: _tr('Soft ~w~rap'), yielding=True)    # edit_window.nml:683
+        _w110.tooltip = _bind(    # edit_window.nml:684
             lambda _o: _tr('Show long lines wrapped at the edge, the text unchanged'),
             yielding=True,
         )
-        _w110.command = SwitchSoftWrap    # edit_window.nml:684
+        _w110.command = SwitchSoftWrap    # edit_window.nml:685
 
-        _w111.text = _bind(lambda _o: _tr('Line ~n~umbers'), yielding=True)    # edit_window.nml:687
-        _w111.tooltip = _bind(    # edit_window.nml:688
+        _w111.text = _bind(lambda _o: _tr('Line ~n~umbers'), yielding=True)    # edit_window.nml:688
+        _w111.tooltip = _bind(    # edit_window.nml:689
             lambda _o: _tr('Number the lines in a gutter beside the text'),
             yielding=True,
         )
-        _w111.command = SwitchLineNumbers    # edit_window.nml:689
+        _w111.command = SwitchLineNumbers    # edit_window.nml:690
 
-        _w112.text = _bind(    # edit_window.nml:691
+        _w112.text = _bind(    # edit_window.nml:692
             lambda _o: _tr('Current ~l~ine highlight'),
             yielding=True,
         )
-        _w112.command = SwitchHiLine    # edit_window.nml:692
+        _w112.command = SwitchHiLine    # edit_window.nml:693
 
-        _w113.text = _bind(    # edit_window.nml:694
+        _w113.text = _bind(    # edit_window.nml:695
             lambda _o: _tr('Current ~c~olumn highlight'),
             yielding=True,
         )
-        _w113.command = SwitchHiColumn    # edit_window.nml:695
+        _w113.command = SwitchHiColumn    # edit_window.nml:696
 
-        _w114.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:697
-        _w114.command = SwitchHighLight    # edit_window.nml:698
+        _w114.text = _bind(lambda _o: _tr('Syntax ~h~ighlight'), yielding=True)    # edit_window.nml:698
+        _w114.command = SwitchHighLight    # edit_window.nml:699
 
-        _w115.text = _bind(    # edit_window.nml:701
+        _w115.text = _bind(    # edit_window.nml:702
             lambda _o: _tr('Show hi~d~den characters'),
             yielding=True,
         )
-        _w115.command = SwitchHiddenChars    # edit_window.nml:702
+        _w115.command = SwitchHiddenChars    # edit_window.nml:703
 
-        self.edit_menu_file_type.text = _bind(    # edit_window.nml:709
+        self.edit_menu_file_type.text = _bind(    # edit_window.nml:710
             lambda _o: _tr('File t~y~pe'),
             yielding=True,
         )
-        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:710
+        self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:711

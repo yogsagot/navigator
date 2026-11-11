@@ -100,11 +100,18 @@ code is the familiar `max(0, parent.width - 12)`. Prefer it to hand arithmetic f
 | `center: horizontal` / `vertical` / `both` | centre in the parent | `max(0, (parent.width - self.width) // 2)` |
 
 - An end edge alone **keeps the widget's own size** and pins against it, so a content-sized widget (the clock) works.
+- **A sibling form may list ids**: `before: macro_mark, root_mark, clock + 1` sits against the first one *shown*
+  (`visible` and a non-zero size on that axis), with one gap for all.
+- **A sibling form plus a parent edge on the same side makes the parent edge its fallback**, used when no listed
+  sibling is shown: `before: options + 1` with `right: 1`. Without a fallback, the last id is sat against
+  unconditionally. A lone id with no fallback is the plain `a.x + a.width + G`, with no visibility test.
+- **A written `x:` plus an end edge stretches the width from it.** This is for a start no edge can say
+  (`x: menu.item_span(...)[0] + 1` in the Shell's window strip).
 - Values are ordinary expressions (`right: 2 + root.gap`). A sibling form is an id, optionally `+ gap`.
 - **Refused at build time**, with the line:
   - an anchor plus an explicit `x:`/`y:` line on that axis;
   - a stretching pair plus an explicit `width:`/`height:` line;
-  - two start edges or two end edges on one axis;
+  - two parent edges, or two sibling forms, on one side of an axis; one id named twice in a list;
   - `center` (or `fill`) together with an edge on a centred axis;
   - a sibling form naming an id that is not under the same parent, or used on the root block;
   - anchors on a child of a `Layout`, which owns its children's geometry (`checks._check_anchors`).

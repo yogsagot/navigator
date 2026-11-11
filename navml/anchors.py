@@ -25,6 +25,13 @@ Per axis (horizontal; vertical is the same with ``top``/``bottom``/
 * ``center: horizontal`` (``vertical``, ``both``) centres it, clamped at 0,
   with the very text :class:`~navml.widgets.dialog.modal.Modal` binds.
 
+**A sibling form may name several ids, and take a parent edge as fallback.**
+``before: macro_mark, clock + 1`` sits against the first of them that is
+*shown* -- visible, and not empty along the axis -- and ``right: 0`` beside it
+says where to sit when none is.  Without a fallback the last id is sat against
+whatever it shows; a single id with no fallback is the plain, unconditional
+form.
+
 ``fill: N`` is all four insets at once; a named edge wins over it.  Every
 position and size is clamped at 0, which is the ``max(0, ...)`` the
 hand-written lines carry.  Read *Anchors* in ``navml/DESIGN.md`` for why the
@@ -33,7 +40,7 @@ design is this and not QML's.
 
 from __future__ import annotations
 
-from dataclasses import replace
+from dataclasses import dataclass, replace
 
 from navml.errors import MarkupError
 from navml.parser import AnchorBlock, AnchorDeclaration, Block, Property
@@ -44,6 +51,29 @@ _AXES = (
     ("horizontal", "left", "right", "after", "before", "x", "width"),
     ("vertical", "top", "bottom", "below", "above", "y", "height"),
 )
+
+
+@dataclass(frozen=True, slots=True)
+class _Side:
+    """One side of one axis: a sibling form, a parent edge, or both."""
+
+    sibling: AnchorDeclaration | None
+    parent: AnchorDeclaration | None
+
+    @property
+    def line(self) -> int:
+        return (self.sibling or self.parent).line  # type: ignore[union-attr]
+
+    @property
+    def name(self) -> str:
+        return (self.sibling or self.parent).name  # type: ignore[union-attr]
+
+    @property
+    def literal(self) -> str | None:
+        """The parent inset, when this side is nothing but an integer one."""
+        if self.sibling is None and self.parent is not None and _is_int(self.parent.value):
+            return self.parent.value.strip()
+        return None
 
 
 def expand(root: Block, filename: str) -> Block:
@@ -71,11 +101,13 @@ def _properties(block: Block, parent: Block | None, filename: str
         if child.id is not None and child is not block
     }
     for declaration in anchors.declarations:
-        if declaration.target is not None and declaration.target not in siblings:
+        for target in declaration.targets:
+            if target in siblings:
+                continue
             where = (
                 "the root block has no siblings" if parent is None
-                else f"{declaration.target!r} is not an id beside this widget "
-                     f"under the same parent"
+                else f"{target!r} is not an id beside this widget under the "
+                     f"same parent"
             )
             raise MarkupError(
                 f"{declaration.name} anchors to a sibling, and {where}: its "
@@ -88,18 +120,8 @@ def _properties(block: Block, parent: Block | None, filename: str
     out: list[Property] = []
     for axis, start, end, after, before, position, size in _AXES:
         centred = centre is not None and centre.value in (axis, "both")
-        starts = [named[k] for k in (start, after) if k in named]
-        ends = [named[k] for k in (end, before) if k in named]
-        for pair in (starts, ends):
-            if len(pair) == 2:
-                raise MarkupError(
-                    f"{pair[0].name} and {pair[1].name} are both one edge; "
-                    f"a widget's edge sits one place",
-                    pair[1].line,
-                    filename,
-                )
-        first = starts[0] if starts else None
-        last = ends[0] if ends else None
+        first = _side(named.get(after), named.get(start))
+        last = _side(named.get(before), named.get(end))
         if fill is not None:
             if centred:
                 raise MarkupError(
@@ -108,23 +130,33 @@ def _properties(block: Block, parent: Block | None, filename: str
                     fill.line,
                     filename,
                 )
-            first = first or AnchorDeclaration(start, fill.value, fill.line)
-            last = last or AnchorDeclaration(end, fill.value, fill.line)
+            first = first or _Side(None, AnchorDeclaration(start, fill.value, fill.line))
+            last = last or _Side(None, AnchorDeclaration(end, fill.value, fill.line))
         if centred and (first or last):
+            side = first or last
             raise MarkupError(
-                f"center {centre.value} and {(first or last).name} both place "  # type: ignore[union-attr]
+                f"center {centre.value} and {side.name} both place "  # type: ignore[union-attr]
                 f"the widget {axis}ly; say one",
-                (first or last).line,  # type: ignore[union-attr]
+                side.line,  # type: ignore[union-attr]
                 filename,
             )
         if not (centred or first or last):
             continue
-        anchor = centre if centred else (first or last)
+        line = centre.line if centred else (first or last).line  # type: ignore[union-attr]
+        if (position in written and not centred and first is None
+                and last is not None and size not in written):
+            # A start no edge can say (``x: menu.item_span(...)[0] + 1``),
+            # written, stretched to an anchored end.
+            end_at = _end(last, position, size)
+            out.append(Property(
+                size, f"max(0, {_minus(_wrap(end_at), f'self.{position}')})", last.line
+            ))
+            continue
         if position in written:
             raise MarkupError(
                 f"{position} is written on line {written[position].line} and "
                 f"anchored here; say one",
-                anchor.line,  # type: ignore[union-attr]
+                line,
                 filename,
             )
         if first and last and size in written:
@@ -134,7 +166,6 @@ def _properties(block: Block, parent: Block | None, filename: str
                 last.line,
                 filename,
             )
-        line = anchor.line  # type: ignore[union-attr]
         if centred:
             out.append(Property(
                 position,
@@ -149,41 +180,80 @@ def _properties(block: Block, parent: Block | None, filename: str
         end_at = _end(last, position, size)
         if first is None:
             out.append(Property(
-                position, f"max(0, {end_at} - self.{size})", last.line
+                position, f"max(0, {_minus(_wrap(end_at), f'self.{size}')})", last.line
             ))
-        elif first.target is None:
-            if last.target is None and _is_int(first.value) and _is_int(last.value):
+        elif first.literal is not None:
+            if last.literal is not None:
                 # ``left: 2`` and ``right: 2`` read as the line they replace,
                 # ``max(0, parent.width - 4)``.
-                inset = str(int(first.value) + int(last.value))
+                inset = str(int(first.literal) + int(last.literal))
                 end_at = _minus(f"parent.{size}", inset)
             else:
-                end_at = _minus(end_at, first.value)
+                end_at = _minus(_wrap(end_at), first.literal)
             out.append(Property(size, f"max(0, {end_at})", last.line))
         else:
             out.append(Property(
-                size, f"max(0, {end_at} - self.{position})", last.line
+                size, f"max(0, {_minus(_wrap(end_at), f'self.{position}')})", last.line
             ))
     return tuple(out)
 
 
-def _start(anchor: AnchorDeclaration, position: str, size: str) -> str:
+def _side(sibling: AnchorDeclaration | None, parent: AnchorDeclaration | None
+          ) -> _Side | None:
+    if sibling is None and parent is None:
+        return None
+    return _Side(sibling, parent)
+
+
+def _start(side: _Side, position: str, size: str) -> str:
     """Where the start edge sits, in the parent's coordinates."""
-    if anchor.target is None:
-        return anchor.value
-    edge = f"{anchor.target}.{position} + {anchor.target}.{size}"
-    return edge if _is_zero(anchor.value) else f"{edge} + {_operand(anchor.value)}"
+    fallback = side.parent.value if side.parent is not None else None
+    if side.sibling is None:
+        return fallback  # type: ignore[return-value]
+
+    def edge(target: str) -> str:
+        at = f"{target}.{position} + {target}.{size}"
+        gap = side.sibling.value  # type: ignore[union-attr]
+        return at if _is_zero(gap) else f"{at} + {_operand(gap)}"
+
+    return _chain(side.sibling.targets, edge, size, fallback)
 
 
-def _end(anchor: AnchorDeclaration, position: str, size: str) -> str:
+def _end(side: _Side, position: str, size: str) -> str:
     """Where the end edge sits: the first cell past the widget."""
-    if anchor.target is not None:
-        return _minus(f"{anchor.target}.{position}", anchor.value)
-    return _minus(f"parent.{size}", anchor.value)
+    fallback = (
+        _minus(f"parent.{size}", side.parent.value) if side.parent is not None else None
+    )
+    if side.sibling is None:
+        return fallback  # type: ignore[return-value]
+    gap = side.sibling.value
+    return _chain(
+        side.sibling.targets, lambda t: _minus(f"{t}.{position}", gap), size, fallback
+    )
+
+
+def _chain(targets: tuple[str, ...], edge, size: str, fallback: str | None) -> str:
+    """The first shown target's edge, else the next's, else *fallback*.
+
+    With no fallback the last target is sat against unconditionally, which
+    keeps a lone ``after: label`` the plain ``label.x + label.width``.
+    """
+    if fallback is None:
+        targets, result = targets[:-1], edge(targets[-1])
+    else:
+        result = fallback
+    for target in reversed(targets):
+        result = f"{edge(target)} if {target}.visible and {target}.{size} else {result}"
+    return result
+
+
+def _wrap(expression: str) -> str:
+    """*expression* bracketed when it is a conditional, so it can be an operand."""
+    return f"({expression})" if " if " in expression else expression
 
 
 def _minus(base: str, value: str) -> str:
-    """``base - (value)``, or *base* alone when the value is a literal 0."""
+    """``base - value``, or *base* alone when the value is a literal 0."""
     return base if _is_zero(value) else f"{base} - {_operand(value)}"
 
 
@@ -198,7 +268,11 @@ def _is_int(value: str) -> bool:
 def _operand(value: str) -> str:
     """*value* as the right of a ``-``: bracketed unless it is one token."""
     value = value.strip()
-    return value if _is_int(value) or value.isidentifier() else f"({value})"
+    return value if _is_int(value) or value.isidentifier() or _dotted(value) else f"({value})"
+
+
+def _dotted(value: str) -> bool:
+    return all(part.isidentifier() for part in value.split("."))
 
 
 __all__ = ["expand"]

@@ -121,6 +121,52 @@ def test_a_sibling_start_and_a_parent_end_stretch_between_them():
     assert got["width"] == "max(0, parent.width - 2 - self.x)"
 
 
+def test_a_list_of_siblings_takes_the_first_one_shown():
+    got = lines("""Widget_:
+    Label:
+        id: mark
+    Label:
+        id: clock
+    Label:
+        id: a
+        anchors:
+            before: mark, clock + 1
+""")["a"]
+    assert got["x"] == (
+        "max(0, (mark.x - 1 if mark.visible and mark.width else clock.x - 1) - self.width)"
+    )
+
+
+def test_a_parent_edge_beside_a_sibling_is_the_fallback():
+    got = lines("""Widget_:
+    Label:
+        id: options
+    Label:
+        id: a
+        anchors:
+            left: 2
+            before: options + 1
+            right: 1
+""")["a"]
+    assert got["x"] == "2"
+    assert got["width"] == (
+        "max(0, (options.x - 1 if options.visible and options.width "
+        "else parent.width - 1) - 2)"
+    )
+
+
+def test_a_lone_sibling_stays_unconditional():
+    got = lines("""Widget_:
+    Label:
+        id: a
+    Label:
+        id: b
+        anchors:
+            after: a + 1
+""")["b"]
+    assert got["x"] == "a.x + a.width + 1"
+
+
 # -- what is refused -----------------------------------------------------------
 
 
@@ -130,13 +176,14 @@ def test_a_sibling_start_and_a_parent_end_stretch_between_them():
         ("x: 1\n        anchors:\n            left: 2\n", 11, "x is written"),
         ("width: 5\n        anchors:\n            left: 2\n            right: 2\n",
          12, "width is written"),
-        ("anchors:\n            left: 2\n            after: other\n", 11, "both one edge"),
+        ("anchors:\n            after: other, other\n", 10, "one sibling twice"),
         ("anchors:\n            center: horizontal\n            right: 2\n", 11,
          "center horizontal and right"),
         ("anchors:\n            center: both\n            fill: 1\n", 11, "fill"),
         ("anchors:\n            after: nobody\n", 10, "not an id beside"),
         ("anchors:\n            middle: 2\n", 10, "no anchor"),
-        ("anchors:\n            after: other * 2\n", 10, "names a sibling"),
+        ("anchors:\n            after: other * 2\n", 10, "names siblings"),
+        ("anchors:\n            after: other + 1, other\n", 10, "names siblings"),
         ("anchors:\n            center: diagonal\n", 10, "it takes"),
         ("anchors:\n            left: 1\n            left: 2\n", 11, "already anchored"),
     ],
@@ -224,6 +271,49 @@ DOCUMENT = """Widget_:
             before: pinned + 1
             top: 3
 """
+
+
+CHAIN = """Widget_:
+    Label:
+        id: clock
+        width: 5
+        height: 1
+        anchors:
+            right: 0
+    Label:
+        id: mark
+        width: 3
+        height: 1
+        anchors:
+            before: clock + 1
+            right: 0
+    Label:
+        id: strip
+        height: 1
+        anchors:
+            left: 10
+            before: mark, clock + 1
+            right: 1
+"""
+
+
+def test_a_chain_steps_past_what_is_hidden():
+    root = built(CHAIN, width=80, height=25)
+    assert root.mark.x == 71
+    assert (root.strip.x, root.strip.width) == (10, 60)
+    root.mark.visible = False
+    assert (root.strip.x, root.strip.width) == (10, 64)
+    root.clock.visible = False
+    assert root.mark.x == 77
+    assert (root.strip.x, root.strip.width) == (10, 69)
+    root.mark.visible = True
+    assert (root.strip.x, root.strip.width) == (10, 66)
+
+
+def test_an_empty_sibling_counts_as_not_shown():
+    root = built(CHAIN, width=80, height=25)
+    root.mark.width = 0
+    assert root.strip.width == 64
 
 
 def test_anchored_geometry_follows_a_resize():

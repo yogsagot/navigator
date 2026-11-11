@@ -124,9 +124,10 @@ EditWindow(Window):
         orientation: "horizontal"
         visible: root.active and editor.overflows_across and self.width >= 4
         x: max(24, marks.x + marks.width + 1) if marks.visible and marks.width else 24
-        width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - self.x)
         height: 1
         anchors:
+            before: options + 1
+            right: 2
             bottom: 0
         value: editor.col
         maximum: max(0, editor.row_span - 1)
