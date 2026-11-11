@@ -31,7 +31,7 @@ from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.reactive import bind, reactive
+from navkit.reactive import reactive
 from navkit.screen import Surface
 
 from navml.component import take_declared
@@ -270,10 +270,7 @@ class TimeButton(History):
         popup = TimePicker(self, self.parse(link.value), seconds=seconds, twelve=twelve)
         width = TimePicker.width_for(seconds, twelve)
         x, y = self.popup_origin(width, TimePicker.HEIGHT)
-        popup.x = bind(lambda o, v=x: v)
-        popup.y = bind(lambda o, v=y: v)
-        popup.width = bind(lambda o, v=width: v)
-        popup.height = bind(lambda o: TimePicker.HEIGHT)
+        popup.pin_rect(x, y, width, TimePicker.HEIGHT)
         app.overlay(popup)
         return popup
 

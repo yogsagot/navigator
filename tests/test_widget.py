@@ -1375,3 +1375,52 @@ def test_widget_at_answers_the_innermost_visible_widget():
     assert root.widget_at(6, 1) is lower
     lower.disabled = True
     assert root.widget_at(6, 1) is root
+
+
+# -- placing from Python ----------------------------------------------------------
+
+
+def _rect(widget: Widget) -> tuple[int, int, int, int]:
+    return widget.x, widget.y, widget.width, widget.height
+
+
+def test_pin_rect_survives_being_added():
+    """Assigned, the rectangle would be laid out to the parent's size by add()."""
+    parent = Widget(width=80, height=25)
+    parent.mounted()
+    popup = Widget()
+    popup.pin_rect(5, 3, 20, 6)
+    parent.add(popup)
+    assert _rect(popup) == (5, 3, 20, 6)
+
+
+def test_fill_parent_follows_a_resize_and_survives_no_parent():
+    child = Widget()
+    child.fill_parent()
+    assert _rect(child) == (0, 0, 0, 0)
+    parent = Widget(width=80, height=25)
+    parent.add(child)
+    assert _rect(child) == (0, 0, 80, 25)
+    parent.width, parent.height = 60, 20
+    assert _rect(child) == (0, 0, 60, 20)
+
+
+def test_pin_edges_keeps_markups_rules():
+    parent = Widget(width=80, height=25)
+    bar = Widget(parent=parent, width=1)
+    bar.pin_edges(right=0, top=1, bottom=1)
+    assert _rect(bar) == (79, 1, 1, 23)
+    row = Widget(parent=parent, height=2)
+    row.pin_edges(left=2, right=3, bottom=1)
+    assert _rect(row) == (2, 22, 75, 2)
+    parent.width, parent.height = 3, 2
+    assert _rect(bar) == (2, 1, 1, 0)
+    assert (row.y, row.width) == (0, 0)
+
+
+def test_pin_edges_replaces_a_binding():
+    parent = Widget(width=80, height=25)
+    row = Widget(parent=parent, height=2)
+    row.y = bind(lambda o: 7)
+    row.pin_edges(bottom=2)
+    assert row.y == 21

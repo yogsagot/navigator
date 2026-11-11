@@ -28,7 +28,7 @@ from navkit import stylesheet
 from navkit import terminal as terminal_module
 from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.reactive import computed, dispose_effects, is_bound, reactive
+from navkit.reactive import bind, computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, SHADOW, Color, Style
 from navkit.stylesheet import Stylesheet
@@ -610,6 +610,74 @@ class Widget:
             self.height = height
         for child in self.children:
             child.layout(self.width, self.height)
+
+    # -- placing from Python -----------------------------------------------------
+    #
+    # A widget placed from code -- a popup at the caret, an overlay over the
+    # screen -- has to *bind* its sides rather than assign them: ``add()`` lays a
+    # new child out into its parent and steps around only a bound side, so an
+    # assigned rectangle would be blown up to the parent's size the moment the
+    # widget is added.  These say the three shapes that took four ``bind()``
+    # lines each.  Each binds every side it is given, replacing a binding there.
+
+    def pin_rect(self, x: int, y: int, width: int, height: int) -> None:
+        """Bind this widget to the rectangle *x*, *y*, *width*, *height*.
+
+        The values are taken now: a popup worked out from the caret stays
+        where it was put.
+        """
+        self.x = bind(lambda o, v=x: v)
+        self.y = bind(lambda o, v=y: v)
+        self.width = bind(lambda o, v=width: v)
+        self.height = bind(lambda o, v=height: v)
+
+    def fill_parent(self) -> None:
+        """Bind this widget to its parent's whole area, following a resize --
+        and to nothing while it has no parent."""
+        self.x = bind(lambda o: 0)
+        self.y = bind(lambda o: 0)
+        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
+        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+
+    def pin_edges(
+        self,
+        *,
+        left: int | None = None,
+        right: int | None = None,
+        top: int | None = None,
+        bottom: int | None = None,
+    ) -> None:
+        """Bind sides as insets from the parent's edges, as markup's ``anchors:`` does.
+
+        Per axis: a start inset alone sets the position; an end inset alone
+        pins the widget's own size against the far edge; both stretch it
+        between them.  Everything is clamped at 0.  Sibling forms and
+        ``center`` are markup's alone -- a Python half that needs them has a
+        binding of its own to write.
+        """
+        for start, end, position, size in (
+            (left, right, "x", "width"),
+            (top, bottom, "y", "height"),
+        ):
+            if start is None and end is None:
+                continue
+            if end is None:
+                setattr(self, position, bind(lambda o, s=start: s))
+                continue
+
+            def far(o: Widget, e: int = end, size: str = size) -> int:
+                parent = o.parent
+                return (getattr(parent, size) if parent is not None else 0) - e
+
+            if start is None:
+                setattr(self, position, bind(
+                    lambda o, far=far, size=size: max(0, far(o) - getattr(o, size))
+                ))
+            else:
+                setattr(self, position, bind(lambda o, s=start: s))
+                setattr(self, size, bind(
+                    lambda o, far=far, s=start: max(0, far(o) - s)
+                ))
 
     # -- painting -----------------------------------------------------------
 

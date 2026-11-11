@@ -18,6 +18,16 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   (`x`/`y`, `contains()`, a `MouseClickEvent`'s position, shifted by `dispatch_mouse`); the root sits at the origin.
   `render(surface)` paints; `layout(width, height)` is called on the root at every resize and steps around any size
   that carries a binding (no `self.x +` arithmetic anywhere).
+- **Placing a widget from Python binds its sides**, because `add()` lays a new child out into its parent and steps
+  around only a bound side: an assigned rectangle becomes the parent's whole area. Three `Widget` methods say the
+  common shapes; each binds every side it is given, replacing a binding there:
+  - `pin_rect(x, y, w, h)`: a popup at a computed spot (history, date/time pickers, completion list, fast rename);
+  - `fill_parent()`: an overlay over its parent, following a resize, 0x0 with no parent (menus, grabber, savers);
+  - `pin_edges(left=, right=, top=, bottom=)`: parent insets with markup's `anchors:` rules (Info panel's bar,
+    Settings' and Attributes' row). Siblings and `center` are markup's alone.
+
+  The names avoid `anchor` and `inset`, which `Tooltip`, `InputLine` and `ListViewer` already use. Real layout
+  arithmetic stays hand-written: windows, the Miller columns, toasts on the desktop's corner.
 
 ## Pictures (kitty graphics, sixel)
 

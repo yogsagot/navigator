@@ -66,7 +66,6 @@ from navkit import keyboard
 from navkit.bidi import display_width, fit_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.reactive import bind
 from navkit.screen import Surface
 from navkit.widget import Widget
 
@@ -218,10 +217,7 @@ class PopupMenu(Widget):
         self.modal = True
         self.can_focus = True
         # The layer covers its parent, all four sides bound, as a menu's does.
-        self.x = bind(lambda o: 0)
-        self.y = bind(lambda o: 0)
-        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
-        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self.fill_parent()
 
     def layout(self, width: int, height: int) -> None:
         """The boxes are placed by :meth:`_drop`, never by a cascade."""

@@ -1505,10 +1505,7 @@ class Shell(DockLayout):
         y = max(0, line.y - height)
         window.items = candidates
         window.cursor = 0
-        window.x = bind(lambda o, v=x: v)
-        window.y = bind(lambda o, v=y: v)
-        window.width = bind(lambda o, v=width: v)
-        window.height = bind(lambda o, v=height: v)
+        window.pin_rect(x, y, width, height)
 
     def _close_completions(self) -> None:
         window = self.completion_list
@@ -3854,10 +3851,7 @@ class UserScreenPeek(Widget):
         self.modal = True
         self.can_focus = True
         self.dims_behind = False
-        self.x = bind(lambda o: 0)
-        self.y = bind(lambda o: 0)
-        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
-        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self.fill_parent()
         self._done: Any = None
 
     async def execute(self, app: Any) -> None:

@@ -23,7 +23,6 @@ import time
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent, PasteEvent
-from navkit.reactive import bind
 from navkit.screen import Surface
 from navkit.style import Style
 from navkit.widget import Widget
@@ -60,10 +59,7 @@ class ScreenSaver(Widget):
         self.modal = True
         self.can_focus = True
         self.dims_behind = False
-        self.x = bind(lambda o: 0)
-        self.y = bind(lambda o: 0)
-        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
-        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self.fill_parent()
         self._random = rng or random.Random()
         self._done: asyncio.Future[Any] | None = None
         self._stars: list[dict[str, Any] | None] = []

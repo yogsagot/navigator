@@ -78,10 +78,8 @@ class InfoPanel(Widget):
         self._wanted_file: Any = None
         #: Where the lines are, on the right frame while they overflow.
         self.bar = self.add(ScrollBar())
-        self.bar.x = bind(lambda bar: max(0, bar.parent.width - 1))
-        self.bar.y = 1
         self.bar.width = 1
-        self.bar.height = bind(lambda bar: max(0, bar.parent.height - 2))
+        self.bar.pin_edges(right=0, top=1, bottom=1)
         self.bar.maximum = bind(lambda bar: bar.parent.last_top())
         self.bar.value = bind(lambda bar: min(bar.parent.top, bar.parent.last_top()))
         self.bar.page = bind(lambda bar: max(1, bar.parent.rows))

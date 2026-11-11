@@ -48,7 +48,7 @@ from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
-from navkit.reactive import bind, effect, peek, reactive, untracked
+from navkit.reactive import effect, peek, reactive, untracked
 from navkit.screen import Surface
 from navkit.widget import Widget
 
@@ -150,10 +150,7 @@ class History(Widget):
         window.items = entries
         window.cursor = cursor
         window.type_to_search = bool(self.choices)
-        window.x = bind(lambda o, v=x: v)
-        window.y = bind(lambda o, v=y: v)
-        window.width = bind(lambda o, v=width: v)
-        window.height = bind(lambda o, v=height: v)
+        window.pin_rect(x, y, width, height)
         app.overlay(window)
         return window
 

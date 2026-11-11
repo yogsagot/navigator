@@ -60,7 +60,7 @@ from navkit.bidi import display_width, fit_cells
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, reactive
+from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.tooltip import with_keys
 from navkit.widget import Widget
@@ -323,10 +323,7 @@ class CalendarView(Widget):
         y = oy + self.y + self.inset - 1
         x = max(0, min(x, root.width - width))
         y = max(0, min(y, root.height - height))
-        window.x = bind(lambda o, v=x: v)
-        window.y = bind(lambda o, v=y: v)
-        window.width = bind(lambda o, v=width: v)
-        window.height = bind(lambda o, v=height: v)
+        window.pin_rect(x, y, width, height)
         app.overlay(window)
         return window
 
@@ -649,10 +646,7 @@ class DateButton(History):
         popup.date_format = self.date_format
         height = Calendar.SPELLED_HEIGHT
         x, y = self.popup_origin(Calendar.WIDTH, height)
-        popup.x = bind(lambda o, v=x: v)
-        popup.y = bind(lambda o, v=y: v)
-        popup.width = bind(lambda o: Calendar.WIDTH)
-        popup.height = bind(lambda o, v=height: v)
+        popup.pin_rect(x, y, Calendar.WIDTH, height)
         app.overlay(popup)
         return popup
 

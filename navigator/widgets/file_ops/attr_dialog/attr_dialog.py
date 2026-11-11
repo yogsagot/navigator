@@ -66,7 +66,7 @@ from typing import Any, Sequence
 
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
-from navkit.reactive import bind, effect, unbind, untracked
+from navkit.reactive import effect, untracked
 from navkit.widget import Widget
 
 from navml.widgets.dialog.control import escape_caption
@@ -222,8 +222,7 @@ class AttrDialog(Dialog):
         super().__init__(**kwargs)
         # OK and Cancel a row lower than a dialog's, their shadow on the row
         # above the frame, as *Settings* has them: a blank row under *Recurse*.
-        unbind(self.row, Widget.y)
-        self.row.y = bind(lambda r: max(0, self.height - 3))
+        self.row.pin_edges(bottom=1)
         self._entries = list(entries)
         from navigator.lib.drives import Location
         from navigator.lib.file_ops.filecopy import shown

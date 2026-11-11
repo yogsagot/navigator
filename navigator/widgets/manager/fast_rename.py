@@ -19,7 +19,6 @@ import asyncio
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.reactive import bind
 
 from navml.widgets.dialog.input_line import InputLine
 
@@ -38,10 +37,7 @@ class FastRenameLine(InputLine):
         x, width = max(0, x - 1), width + 1
         self.modal = True
         self.dims_behind = False
-        self.x = bind(lambda o: x)
-        self.y = bind(lambda o: y)
-        self.width = bind(lambda o: width)
-        self.height = bind(lambda o: 1)
+        self.pin_rect(x, y, width, 1)
         self.value = name
         # ``SetData`` selected it all, the cursor at the end.
         self.select_all()

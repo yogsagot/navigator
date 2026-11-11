@@ -25,7 +25,7 @@ import asyncio
 from typing import Any
 
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.reactive import bind, reactive
+from navkit.reactive import reactive
 from navkit.screen import Surface
 from navkit.widget import Widget
 
@@ -45,10 +45,7 @@ class ScreenGrabber(Widget):
         self.modal = True
         self.can_focus = True
         self.dims_behind = False
-        self.x = bind(lambda o: 0)
-        self.y = bind(lambda o: 0)
-        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
-        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self.fill_parent()
         self.area = tuple(_last)
         #: The text the rectangle covered when last painted, a string a row.
         self.text: list[str] = []

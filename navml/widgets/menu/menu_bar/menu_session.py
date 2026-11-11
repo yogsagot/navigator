@@ -29,7 +29,6 @@ from typing import Any
 
 from navkit import keyboard
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.reactive import bind
 from navkit.screen import Surface
 from navkit.style import SHADOW  # noqa: F401 -- re-exported; tests read it here
 from navkit.widget import Widget
@@ -54,10 +53,7 @@ class MenuSession(Widget):
         # Bound, all four sides, so that a layout parent steps around it --
         # which is also why it asks for no ``dock``: that hint is a
         # ``DockLayout``'s, and a menu must not need one to be imported.
-        self.x = bind(lambda o: 0)
-        self.y = bind(lambda o: 0)
-        self.width = bind(lambda o: o.parent.width if o.parent is not None else 0)
-        self.height = bind(lambda o: o.parent.height if o.parent is not None else 0)
+        self.fill_parent()
 
     def layout(self, width: int, height: int) -> None:
         """The boxes are placed by :meth:`_drop`, never by a cascade."""
