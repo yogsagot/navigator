@@ -900,7 +900,10 @@ class _Copier(Elevated):
             return False
         if not self._copy_bytes(source, dest, st, append=action == "append"):
             return False
-        if self.preserve:
+        # An appended file is the target's, written to now: DN's ``$FD``/``$FE``
+        # skipped ``SetFTime`` and the source's attributes, so *Preserve
+        # attributes* leaves its time, mode and owner alone.
+        if self.preserve and action != "append":
             self._attributes(source, dest, st)
         if self.move:
             if not self._remove_source(source):

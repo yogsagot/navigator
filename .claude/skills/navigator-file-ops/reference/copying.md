@@ -79,6 +79,8 @@ progress box appears after DN's two ticks.
   source's mode (DN's `$FF`). The overwrite question, or the mode chosen, is the confirmation. Somebody else's file
   cannot be changed, so its open is refused and *As root* is offered. A move renames over the file, which POSIX
   allows anyway.
+- **An Append keeps the target's own time, mode and owner** (DN's `$FD`/`$FE`, which skipped `SetFTime` and the
+  source's attributes), *Preserve attributes* or not: the file is the target's, written to now.
 - **A failure removes only what that attempt wrote** (`_copy_bytes`' `wrote`): a half-written copy, as DN did. An
   open that failed leaves the target alone, so Skip never deletes the user's file.
 - **A copy onto itself and a directory into itself are refused.** So is a file over a directory

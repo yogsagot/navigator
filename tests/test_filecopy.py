@@ -428,6 +428,41 @@ def test_append_lifts_a_read_only_target_and_puts_its_mode_back(clash, tmp_path)
     assert mode_of(dst / "a.txt") == 0o444
 
 
+def _aged(src, dst):
+    """The source ``0o640`` and dated 2001; the target ``0o600`` and today's."""
+    (src / "a.txt").chmod(0o640)
+    os.utime(src / "a.txt", (978307200, 978307200))
+    (dst / "a.txt").chmod(0o600)
+
+
+def test_append_keeps_the_target_s_own_time_and_mode(clash, tmp_path):
+    # DN's ``$FD``: no ``SetFTime``, no source attributes, Preserve or not.
+    src, dst = clash
+    _aged(src, dst)
+    before = (dst / "a.txt").stat().st_mtime
+    copy([src / "a.txt"], dst, cwd=tmp_path, mode=APPEND, options=PRESERVE)
+    assert (dst / "a.txt").read_text() == "oldalpha"
+    assert mode_of(dst / "a.txt") == 0o600
+    assert (dst / "a.txt").stat().st_mtime >= before
+
+
+def test_overwrite_with_preserve_still_takes_the_source_s_time_and_mode(clash, tmp_path):
+    src, dst = clash
+    _aged(src, dst)
+    copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, options=PRESERVE)
+    assert mode_of(dst / "a.txt") == 0o640
+    assert (dst / "a.txt").stat().st_mtime == 978307200
+
+
+@as_root
+def test_append_with_preserve_keeps_a_read_only_target_read_only(clash, tmp_path):
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+    copy([src / "a.txt"], dst, cwd=tmp_path, mode=APPEND, options=PRESERVE)
+    assert (dst / "a.txt").read_text() == "oldalpha"
+    assert mode_of(dst / "a.txt") == 0o444
+
+
 @as_root
 def test_the_overwrite_question_is_the_only_one_for_a_read_only_target(clash, tmp_path):
     src, dst = clash
