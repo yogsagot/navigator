@@ -2539,6 +2539,13 @@ class Manager(Window):
                 drive = drive_of(place)
             try:
                 drive.rmdir(place)
+                # The new ones above it, while each is empty still: one with
+                # something in it now is left, and so is all above it.
+                for each in entry.above:
+                    try:
+                        drive.rmdir(each)
+                    except OSError:
+                        break
                 drive.finish()
             finally:
                 if as_root:
@@ -3986,27 +3993,37 @@ class Manager(Window):
         return True
 
     async def tree_make_directory(self) -> None:
-        """F7 in the Ctrl+T tree: ``MkDirectory``, a directory made under the
-        one at the tree's cursor, which the tree then shows and goes to."""
-        from navigator.widgets.file_ops.make_directory import make_directory_in
-
+        """F7 in the Ctrl+T tree: ``MkDirectory``, DN's ``MakeDirectory`` (a
+        ``;`` list, parents made) under the one at the tree's cursor, which
+        the tree then shows and goes to -- the first part."""
         base = self.tree.selected_path
         if base is None:
             return
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
-        try:
-            made = await make_directory_in(self.application, base, name)
-        except OSError as error:
-            made = None
-            await Dialog(title=tr("Cannot make directory"), prompt=error.strerror or str(error),
-                         buttons="ok").execute(self.application)
+        results = await self._make_directories(base, name)
         reread_trees(self.application)
-        if made is not None:
-            self.tree.show(made.local if made.is_local else made)
+        if results:
+            place = results[0].place
+            self.tree.show(place.local if place.is_local else place)
         for panel in self.all_panels:
             panel.reload()
+        self.reread_info()
+
+    async def _make_directories(self, base: Any, text: str) -> list[Any]:
+        """``make_directories`` in *base*, its failure said in DN's
+        ``dlFCNoCreateDir`` box; what was made."""
+        from navml.widgets.dialog.control import escape_caption
+
+        from navigator.widgets.file_ops.make_directory import failure_text, make_directories
+
+        results, failure = await make_directories(self.application, base, text)
+        if failure is not None:
+            path, error = failure
+            await Dialog(title=tr("Error"), prompt=escape_caption(failure_text(path, error)),
+                         buttons="ok").execute(self.application)
+        return results
 
     async def make_directory(self) -> None:
         """F7: ask for a name, and make it in the active panel.
@@ -4020,26 +4037,26 @@ class Manager(Window):
         A local directory refused permission offers *As root* (a departure;
         :mod:`navigator.lib.system.elevate`).
         """
-        from navigator.widgets.file_ops.make_directory import make_directory_in
-
         panel = self.active_panel
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
-        try:
-            made = await make_directory_in(self.application, panel.location, name)
-        except OSError as error:
-            made = None
-            await Dialog(
-                title=tr("Cannot make directory"),
-                prompt=error.strerror or str(error),
-                buttons="ok",
-            ).execute(self.application)
-        # DN's ``MakeDir`` re-read the directory with the cursor on what it
-        # made; ``a/b`` puts it on ``a``, the entry this listing shows.
-        panel.reload(key=Path(name).parts[0] if made is not None else None)
-        if made is not None:
+        here = Location.of(panel.location)
+        results = await self._make_directories(here, name)
+        # ``RereadDirectory(Dr)`` for each part: every panel showing where
+        # its first new directory went.
+        changed = {made.top.parent for made in results if made.top is not None}
+        for other in self.all_panels:
+            if other is not panel and other.application is not None and Location.of(other.location) in changed:
+                other.reload()
+        # ``CM_MakeDir``: the cursor on the first part only when it is made
+        # right here (DN's ``if Dr <> P^.DirectoryName then Exit``) -- one
+        # there already included, ``a/b`` leaving the cursor be.
+        first = results[0].place if results else None
+        panel.reload(key=first.name if first is not None and first.parent == here else None)
+        if results:
             reread_trees(self.application)  # DN's ``cmRereadTree``
+            self.reread_info()
 
     # -- copying and moving ------------------------------------------------------
 

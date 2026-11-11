@@ -118,22 +118,24 @@ class ChangeDirDialog(Dialog):
         name = await MkdirDialog().execute(self.application)
         if not name:
             return
-        # F7's own making: *As root* on a refusal, an archive's rewrite, Undo.
-        from navigator.widgets.file_ops.make_directory import failure_text, make_directory_in
+        # F7's own making, DN's ``MakeDirectory`` the tree's ``MkDirectory``
+        # called: a ``;`` list, parents, *As root* on a refusal, an archive's
+        # rewrite, Undo.
+        from navigator.widgets.file_ops.make_directory import failure_text, make_directories
 
-        try:
-            made = await make_directory_in(self.application, base, name)
-        except OSError as error:
+        results, failure = await make_directories(self.application, base, name)
+        if failure is not None:
+            path, error = failure
             await Dialog(
-                title=tr("Cannot make directory"),
-                prompt=escape_caption(failure_text(name, error)),
+                title=tr("Error"),
+                prompt=escape_caption(failure_text(path, error)),
                 buttons="ok",
             ).execute(self.application)
-            return
-        if made is None:
-            return  # *As root* declined
+        if not results:
+            return  # failed, or *As root* declined
+        first = results[0].place
         if self._made is not None:
-            self._made(base, name)
+            self._made(first.parent.local if first.is_local else first.parent, first.name)
         self.tree.root = directory_root(self._hidden, at=base)
-        self._show(base / name)
+        self._show(first.local if first.is_local else first)
         self.tree.focus()

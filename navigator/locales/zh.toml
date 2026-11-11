@@ -4439,8 +4439,6 @@ flag = "CN"
 "Create ~s~ymlink to Directory ~{name}~ in" = "创建符号链接(~S~)，指向目录 ~{name}~，位于"
 # navigator/widgets/file_ops/link_target_dialog/link_target_dialog.py:27
 "~L~ink {name} points to" = "链接 {name} 指向(~L~)"
-# navigator/widgets/file_ops/make_directory.py:29
-"Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:90
 "{n} name cannot be given" = ["{n} 个名称无法使用"]
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:92
@@ -4947,8 +4945,6 @@ flag = "CN"
 "Would you like to create directory {path}?" = "是否创建目录 {path}？"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "没有目录有自己的设置"
-# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
-"Cannot make directory" = "无法创建目录"
 # navigator/widgets/manager/manager/manager.py:4533
 "Waiting for an answer: {what}" = "等待回答：{what}"
 # navigator/widgets/manager/manager/manager.py:4604
@@ -6835,9 +6831,13 @@ flag = "CN"
 "Deleting source file..." = "正在删除源文件..."
 # navigator/widgets/file_ops/copy_progress/copy_progress.py
 "Total {n:,} byte" = ["共 {n:,} 字节"]
+# navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
+"~D~irectory name" = "目录名(~D~)"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"
+"Cannot make directory" = "无法创建目录"
 "Give both a date and a time" = "请同时给出日期和时间"
 "There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
 "Confirmation" = "确认"

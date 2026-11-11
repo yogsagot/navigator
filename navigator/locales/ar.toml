@@ -4440,8 +4440,6 @@ direction = "rtl"
 "Create ~s~ymlink to Directory ~{name}~ in" = "~إ~نشاء رابط رمزي إلى المجلد ~{name}~ في"
 # navigator/widgets/file_ops/link_target_dialog/link_target_dialog.py:27
 "~L~ink {name} points to" = "~ا~لرابط {name} يشير إلى"
-# navigator/widgets/file_ops/make_directory.py:29
-"Cannot make directory {name}: {error}" = "تعذر إنشاء المجلد {name}: {error}"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:90
 "{n} name cannot be given" = ["تعذر إعطاء {n} اسم", "تعذر إعطاء اسم واحد", "تعذر إعطاء اسمين", "تعذر إعطاء {n} أسماء", "تعذر إعطاء {n} اسما", "تعذر إعطاء {n} اسم"]
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:92
@@ -4948,8 +4946,6 @@ direction = "rtl"
 "Would you like to create directory {path}?" = "هل تريد إنشاء المجلد {path}؟"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "لا يوجد مجلد له إعدادات خاصة"
-# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
-"Cannot make directory" = "تعذر إنشاء المجلد"
 # navigator/widgets/manager/manager/manager.py:4533
 "Waiting for an answer: {what}" = "بانتظار إجابة: {what}"
 # navigator/widgets/manager/manager/manager.py:4604
@@ -6836,9 +6832,13 @@ direction = "rtl"
 "Deleting source file..." = "جارٍ حذف الملف المصدر..."
 # navigator/widgets/file_ops/copy_progress/copy_progress.py
 "Total {n:,} byte" = ["المجموع {n:,} بايت", "المجموع بايت واحد", "المجموع بايتان", "المجموع {n:,} بايتات", "المجموع {n:,} بايتًا", "المجموع {n:,} بايت"]
+# navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
+"~D~irectory name" = "ا~س~م المجلد"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Cannot make directory {name}: {error}" = "تعذر إنشاء المجلد {name}: {error}"
+"Cannot make directory" = "تعذر إنشاء المجلد"
 "Give both a date and a time" = "حدد التاريخ والوقت معا"
 "There is not enough room to copy file {name}. Copy other files?" = "لا توجد مساحة كافية لنسخ الملف {name}. نسخ الملفات الأخرى؟"
 "Confirmation" = "تأكيد"

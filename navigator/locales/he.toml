@@ -4440,8 +4440,6 @@ direction = "rtl"
 "Create ~s~ymlink to Directory ~{name}~ in" = "צור ~ק~ישור סמלי לתיקייה ~{name}~ בתוך"
 # navigator/widgets/file_ops/link_target_dialog/link_target_dialog.py:27
 "~L~ink {name} points to" = "~ה~קישור {name} מצביע אל"
-# navigator/widgets/file_ops/make_directory.py:29
-"Cannot make directory {name}: {error}" = "לא ניתן ליצור את התיקייה {name}: {error}"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:90
 "{n} name cannot be given" = ["לא ניתן לתת שם אחד", "לא ניתן לתת שני שמות", "לא ניתן לתת {n} שמות"]
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:92
@@ -4948,8 +4946,6 @@ direction = "rtl"
 "Would you like to create directory {path}?" = "האם ליצור את התיקייה {path}?"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "לאף תיקייה אין הגדרות משלה"
-# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
-"Cannot make directory" = "לא ניתן ליצור תיקייה"
 # navigator/widgets/manager/manager/manager.py:4533
 "Waiting for an answer: {what}" = "ממתין לתשובה: {what}"
 # navigator/widgets/manager/manager/manager.py:4604
@@ -6836,9 +6832,13 @@ direction = "rtl"
 "Deleting source file..." = "מוחק את קובץ המקור..."
 # navigator/widgets/file_ops/copy_progress/copy_progress.py
 "Total {n:,} byte" = ["סך הכול בית אחד", "סך הכול שני בתים", "סך הכול {n:,} בתים"]
+# navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
+"~D~irectory name" = "~ש~ם התיקייה"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Cannot make directory {name}: {error}" = "לא ניתן ליצור את התיקייה {name}: {error}"
+"Cannot make directory" = "לא ניתן ליצור תיקייה"
 "Give both a date and a time" = "יש לתת גם תאריך וגם שעה"
 "There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
 "Confirmation" = "אישור"

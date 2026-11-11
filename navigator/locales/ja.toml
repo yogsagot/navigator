@@ -4439,8 +4439,6 @@ flag = "JP"
 "Create ~s~ymlink to Directory ~{name}~ in" = "シンボリックリンク作成(~S~): ディレクトリ ~{name}~ の作成先"
 # navigator/widgets/file_ops/link_target_dialog/link_target_dialog.py:27
 "~L~ink {name} points to" = "リンク {name} の指す先(~L~)"
-# navigator/widgets/file_ops/make_directory.py:29
-"Cannot make directory {name}: {error}" = "ディレクトリ {name} を作成できません: {error}"
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:90
 "{n} name cannot be given" = ["{n} 個の名前を付けられません"]
 # navigator/widgets/file_ops/multi_rename_dialog/multi_rename_dialog.py:92
@@ -4947,8 +4945,6 @@ flag = "JP"
 "Would you like to create directory {path}?" = "ディレクトリ {path} を作成しますか?"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "独自の設定を持つディレクトリはありません"
-# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
-"Cannot make directory" = "ディレクトリを作成できません"
 # navigator/widgets/manager/manager/manager.py:4533
 "Waiting for an answer: {what}" = "応答待ち: {what}"
 # navigator/widgets/manager/manager/manager.py:4604
@@ -6835,9 +6831,13 @@ flag = "JP"
 "Deleting source file..." = "元のファイルを削除しています..."
 # navigator/widgets/file_ops/copy_progress/copy_progress.py
 "Total {n:,} byte" = ["合計 {n:,} バイト"]
+# navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
+"~D~irectory name" = "ディレクトリ名(~D~)"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Cannot make directory {name}: {error}" = "ディレクトリ {name} を作成できません: {error}"
+"Cannot make directory" = "ディレクトリを作成できません"
 "Give both a date and a time" = "日付と時刻の両方を指定してください"
 "There is not enough room to copy file {name}. Copy other files?" = "ファイル {name} をコピーする空き容量がありません。他のファイルをコピーしますか?"
 "Confirmation" = "確認"

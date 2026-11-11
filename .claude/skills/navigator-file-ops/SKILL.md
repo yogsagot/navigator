@@ -296,9 +296,19 @@ removed (flags pressed, `flags_touched`) in the request, so one edit reaches fil
 
 ## Make directory (F7)
 
-The first dialog wired into the application; `Field(history_id="mkdir")`. The re-read puts the cursor on what
-was made (`panel.reload(key=...)`, the name's first part, so `a/b` lands on `a`); a failure or a declined *As root*
-leaves it where it was.
+DN's `MakeDirectory` (`TREE.PAS:727`) and `CreateDirInheritance` (`FILECOPY.PAS:615`), in
+`navigator/widgets/file_ops/make_directory.py`, shared by F7, F7 in the Ctrl+T tree and Alt+T's *MkDir*:
+- **A `;` list** (`parts_of`), each part made in turn (`make_directories`), stopping at the first failure, which is
+  DN's `dlFCNoCreateDir` in an *Error* box: *Could not create the directory PATH* and the reason (`failure_text`,
+  the *As root* question's words too).
+- **Every directory on the way that is missing is made** (`make_directory_in`, a `mkdir` each, so the new ones are
+  known); one there already is accepted without a word; a file in the way is `EEXIST`. It answers a `Made`: the
+  `place` asked for, and `made`, the new ones outermost first (`top`, the first). Undo's `MadeDirectory` carries the
+  new ones above as `above` and removes them after it, each only while empty.
+- **The cursor** (`CM_MakeDir`): on the first part only when it is made right in the panel's directory -- one there
+  already included; `a/b` leaves the cursor be (`if Dr <> P^.DirectoryName then Exit`). Every panel showing where a
+  part's first new directory went re-reads (`RereadDirectory(Dr)`), then the trees (`reread_trees`) and the info.
+- The box is `dlgMkDir`'s, `~D~irectory name`, with `Field(history_id="mkdir")` (DN's `hsMakeDir`).
 
 ## Printing (Ctrl+F9)
 

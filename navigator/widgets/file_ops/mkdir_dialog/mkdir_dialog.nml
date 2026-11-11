@@ -28,7 +28,8 @@ MkdirDialog(Dialog):
         anchors:
             left: 2
             right: 2
-        label_text: "~N~ame"
-        label_width: 7
+        #: ``dlgMkDir``'s label (``DN.DNR:1679``).
+        label_text: "~D~irectory name"
+        label_width: 17
         #: DOS Navigator's ``hsMakeDir``: the names made before, a Down away.
         history_id: "mkdir"

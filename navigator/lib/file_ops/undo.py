@@ -166,12 +166,15 @@ class Trashed:
 
 @dataclass(frozen=True)
 class MadeDirectory:
-    """F7's new directory."""
+    """F7's new directory -- and *above*, the new ones F7 made on the way to
+    it (DN's ``CreateDirInheritance``), deepest first, removed after it."""
 
     location: Any
+    above: tuple[Any, ...] = ()
 
     def question(self) -> str:
-        return tr("Remove the new directory {name}?").format(name=self.location.name)
+        top = self.above[-1] if self.above else self.location
+        return tr("Remove the new directory {name}?").format(name=top.name)
 
     def undone(self) -> str:
         return tr("Directory removed")

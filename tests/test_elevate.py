@@ -2714,8 +2714,8 @@ def test_alt_t_make_directory_refused_goes_on_as_root_and_undoes(helper, desk, m
         made.append(await make_directory_in(a, shut, "inner"))
 
     run_app(app, [lambda a: a.spawn(make(a)), Until(lambda a: made, timeout=10)])
-    assert asked and "Cannot make directory inner" in asked[0]
-    assert (shut / "inner").is_dir() and made[0] == Location.of(shut / "inner")
+    assert asked and asked[0].startswith(f"Could not create the directory {shut / 'inner'}")
+    assert (shut / "inner").is_dir() and made[0].place == Location.of(shut / "inner")
     entry = UNDO.peek()
     assert entry is not None and "inner" in repr(entry)
 

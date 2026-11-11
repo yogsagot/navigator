@@ -54,8 +54,11 @@ class MkdirDialog(Dialog, _Component):
 
         self.entry.y = 2    # mkdir_dialog.nml:26
         self.entry.height = 1    # mkdir_dialog.nml:27
-        self.entry.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # mkdir_dialog.nml:31
-        self.entry.label_width = 7    # mkdir_dialog.nml:32
-        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:34
+        self.entry.label_text = _bind(    # mkdir_dialog.nml:32
+            lambda _o: _tr('~D~irectory name'),
+            yielding=True,
+        )
+        self.entry.label_width = 17    # mkdir_dialog.nml:33
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:35
         self.entry.x = 2    # mkdir_dialog.nml:29
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:30
