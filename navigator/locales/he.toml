@@ -6804,6 +6804,10 @@ direction = "rtl"
 "Words added to every Remote shell's ssh command, before a connection's own" = "מילים שנוספות לכל פקודת ssh של מעטפת מרוחקת, לפני אלה של החיבור"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "שניות בין בדיקות של תיקיית השרת לרענון אוטומטי; 0 לעולם לא"
+# navigator/widgets/manager/manager/manager.py
+"OK to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
+# navigator/widgets/manager/manager/manager.py
+"OK to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

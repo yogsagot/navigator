@@ -215,7 +215,8 @@ note:
 | `appearance.colors` | The colour depth sent, replacing detection's guess (precedence above). Interface Setup's *Colours* (a departure: DN's was the video mode); a change applies at once, over a session's `--colors` as *Language* does over `--language` (`Navigator.use_color_depth`: re-detected with the new depth, `NAVKIT_COLORS` still winning, then `redraw()`). `InterfacePage` is two-section: it answers `{"interface": ..., "appearance": {"colors": ..., "marks": ...}}` |
 | `appearance.marks` | How check boxes and radio buttons are drawn (`MARK_LOOKS`: `dos`, `brackets` -- the default --, `boxes`), a departure. `main()` sets `Navigator.marks` from it or `--marks`; Interface Setup's *Marks* applies a change at once (`Shell.settings`: `application.marks`, then `invalidate()`). A `Navigator` built without `main()` -- the tests' -- keeps navkit's `dos` |
 | `interface.history_size` | 50 (a departure: DN fixed 20): entries kept per history list -- `HISTORY.limit` (set by `Shell._size_histories`) and `FileRecord.store`. A `MaskedField` under Interface Setup's boxes |
-| `confirmations.erase_single` / `erase_multiple` | Off: no Delete dialog, and so no *Recursive delete* |
+| `confirmations.erase_single` | Off: one entry goes with no Delete dialog, and so no *Recursive delete* (`cfSingleErase`) |
+| `confirmations.erase_multiple` | On: DN's second box, *OK to delete N files?* (or *to the Trash*), after the Delete dialog's Yes (`cfMultiErase`). The dialog for several is always shown, as DN's `ValidErase` always asked *these files?* |
 | `confirmations.erase_non_empty_dir` / `erase_read_only` | Off: the eraser's question is answered Yes |
 | `confirmations.create_dir` | Off: copy and link create a missing target directory without asking |
 | `confirmations.exit` | On: Alt+X asks DN's `dlQueryExit` first |

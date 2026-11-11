@@ -28,8 +28,10 @@ three layers are Copy's.
 
 Departures:
 
-- **One dialog, not two boxes.** DN asked `these files?` and then `OK to delete N files ?` (under
-  `cfMultiErase`). The dialog carries the count, and it holds what a message box could not hold:
+- **A dialog for DN's first box.** DN asked `these files?` in a message box, always for several files, and then
+  `OK to delete N files ?` under `cfMultiErase`. The Delete dialog stands for the first box and carries the count;
+  the second is DN's own box, asked after the dialog's Yes while *Erase multiple files* is ticked
+  (`Manager.erase_located`). The dialog holds what a message box could not hold:
 - **the *Recursive delete* check box.** It answers *All* to every *not empty* question before one is asked, but
   not the read-only question. It is off at the start and remembered for the session, as Copy's options are.
 - **Read-only means the user cannot write the file**, since Linux has no attribute. This is also what makes `rm`
@@ -39,6 +41,6 @@ Departures:
   run for a directory. A directory with something kept inside it is left alone without a second complaint.
 - **The progress box has a gauge**, `N of M (P%)` over the counted entries, and its button says *Cancel*
   where DN's said *Stop*. It still asks *Abort operation?* before anything stops.
-- **Not ported:** the direct FAT path, `.DIZ` descriptions, *Flush disk buffers*, and the `Confirms` word itself.
-  Every confirmation is always on, which was DN's default.
+- **Not ported:** the direct FAT path, `.DIZ` descriptions and *Flush disk buffers*. DN's `Confirms` bits are
+  Confirmations' four `erase_*` settings, all on by default as DN's were.
 

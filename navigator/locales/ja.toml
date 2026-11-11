@@ -6803,6 +6803,10 @@ flag = "JP"
 "Words added to every Remote shell's ssh command, before a connection's own" = "すべてのリモートシェルの ssh コマンドに、接続ごとのオプションの前に追加される語"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
+# navigator/widgets/manager/manager/manager.py
+"OK to delete {n} file?" = ["{n} 個のファイルを削除してよろしいですか?"]
+# navigator/widgets/manager/manager/manager.py
+"OK to move {n} file to the Trash?" = ["{n} 個のファイルをごみ箱へ移動してよろしいですか?"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

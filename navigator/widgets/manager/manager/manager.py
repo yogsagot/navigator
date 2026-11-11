@@ -4730,15 +4730,26 @@ class Manager(Window):
         app = self.application
         if app is None or not entries:
             return []
-        # *Erase single file* and *Erase multiple files* in Confirmations
-        # (``cfSingleErase``, ``cfMultiErase``): unticked, there is no dialog,
-        # and so no *Recursive delete* either -- a non-empty directory is
-        # then asked about below, if that is ticked.
+        # DN's ``ValidErase``: *Erase single file* (``cfSingleErase``)
+        # unticked, one entry goes with no dialog, and so no *Recursive
+        # delete* either -- a non-empty directory is then asked about below,
+        # if that is ticked.  Several are always asked about; *Erase multiple
+        # files* (``cfMultiErase``) adds DN's second box, ``OK to delete N
+        # files ?``, after the dialog's Yes.
         confirms = SETTINGS.confirmations
         trash = SETTINGS.file_manager.use_trash and all(
             Location.of(entry.path_in(here)).is_local for entry in entries)
-        if dialog and not quiet and (confirms.erase_single if len(entries) == 1 else confirms.erase_multiple):
+        several = len(entries) > 1
+        if dialog and not quiet and (several or confirms.erase_single):
             request = await DeleteDialog(entries=entries, here=here, trash=trash).execute(app)
+            if request is not None and several and confirms.erase_multiple:
+                n = len(entries)
+                if getattr(request, "trash", False):
+                    prompt = tr_n("OK to move {n} file to the Trash?", "OK to move {n} files to the Trash?", n)
+                else:
+                    prompt = tr_n("OK to delete {n} file?", "OK to delete {n} files?", n)
+                if await self._ask_yes_no(prompt, tr("Delete")) is not True:
+                    return []
         else:
             request = fileerase.EraseRequest(
                 sources=[shown(entry.path_in(here)) for entry in entries], trash=trash,

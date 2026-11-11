@@ -184,6 +184,9 @@ def test_f8_deletes_what_is_tagged_and_untags_it(two):
         asked = app.modal
         painted = screen_text(app)
         app.post_event(KeyEvent("enter"))
+        # *Erase multiple files*, on by default: DN's second box.
+        await wait_until(lambda: app.modal is not None and app.modal is not asked)
+        app.post_event(KeyEvent("enter"))
         await wait_until(lambda: app.modal is None and not panel.marked)
         return asked, painted, app.modal, panel.marked
 
@@ -194,6 +197,85 @@ def test_f8_deletes_what_is_tagged_and_untags_it(two):
     assert after is None
     assert not (a / "one.txt").exists() and not (a / "two.txt").exists()
     assert marked == frozenset()
+
+
+def erase_two(a, b, *, answer=None):
+    """F8 on ``one.txt`` and ``two.txt`` tagged, Yes to the Delete dialog;
+    what the box after it said (``None`` for no box), *answer* given to it."""
+    async def steps(app, shell):
+        panel = shell.manager.left
+        panel.marked = frozenset({"one.txt", "two.txt"})
+        app.post_event(KeyEvent("f8"))
+        await wait_until(lambda: isinstance(app.modal, DeleteDialog))
+        dialog = app.modal
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: app.modal is not dialog and not isinstance(app.modal, DeleteProgress))
+        if app.modal is None:
+            await wait_until(lambda: not panel.marked or not (a / "one.txt").exists())
+            return None, panel.marked
+        said = screen_text(app)
+        app.post_event(answer)
+        if answer.key == "enter":  # the erase runs on a thread
+            await wait_until(lambda: app.modal is None and not panel.marked)
+        else:
+            await wait_until(lambda: app.modal is None)
+            await handled(app)
+        return said, panel.marked
+
+    return run_shell(a, b, steps)
+
+
+def test_several_files_are_asked_about_with_erase_multiple_off(two, monkeypatch):
+    # DN's ``ValidErase`` always asked ``these files?``; ``cfMultiErase``
+    # only added the second box.
+    from navigator.settings import SETTINGS
+
+    a, b = two
+    monkeypatch.setattr(SETTINGS.confirmations, "erase_multiple", False)
+    said, marked = erase_two(a, b)
+    assert said is None
+    assert not (a / "one.txt").exists() and not (a / "two.txt").exists()
+
+
+def test_erase_multiple_asks_dn_s_second_box(two):
+    a, b = two
+    said, marked = erase_two(a, b, answer=KeyEvent("enter"))
+    assert "OK to delete 2 files?" in said
+    assert not (a / "one.txt").exists() and not (a / "two.txt").exists()
+    assert marked == frozenset()
+
+
+def test_no_to_the_second_box_erases_nothing(two):
+    a, b = two
+    said, marked = erase_two(a, b, answer=KeyEvent("escape"))
+    assert "OK to delete 2 files?" in said
+    assert (a / "one.txt").exists() and (a / "two.txt").exists()
+    assert marked == frozenset({"one.txt", "two.txt"})
+
+
+def test_the_second_box_says_trash_when_they_go_there(two, monkeypatch):
+    from navigator.settings import SETTINGS
+
+    a, b = two
+    monkeypatch.setattr(SETTINGS.file_manager, "use_trash", True)
+    said, _ = erase_two(a, b, answer=KeyEvent("escape"))
+    assert "OK to move 2 files to the Trash?" in said
+    assert (a / "one.txt").exists() and (a / "two.txt").exists()
+
+
+def test_one_file_with_erase_single_off_asks_nothing(two, monkeypatch):
+    from navigator.settings import SETTINGS
+
+    a, b = two
+    monkeypatch.setattr(SETTINGS.confirmations, "erase_single", False)
+
+    async def steps(app, shell):
+        put_cursor(shell.manager.left, "one.txt")
+        app.post_event(KeyEvent("f8"))
+        await wait_until(lambda: not (a / "one.txt").exists())
+        return app.modal
+
+    assert run_shell(a, b, steps) is None
 
 
 def test_no_deletes_nothing(two):

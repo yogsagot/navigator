@@ -6803,6 +6803,10 @@ flag = "RU"
 "Words added to every Remote shell's ssh command, before a connection's own" = "Слова, добавляемые к каждой команде ssh удалённой оболочки перед параметрами связи"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
+# navigator/widgets/manager/manager/manager.py
+"OK to delete {n} file?" = ["Точно удалить {n} файл?", "Точно удалить {n} файла?", "Точно удалить {n} файлов?"]
+# navigator/widgets/manager/manager/manager.py
+"OK to move {n} file to the Trash?" = ["Точно переместить {n} файл в корзину?", "Точно переместить {n} файла в корзину?", "Точно переместить {n} файлов в корзину?"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

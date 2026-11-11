@@ -6803,6 +6803,10 @@ flag = "CN"
 "Words added to every Remote shell's ssh command, before a connection's own" = "添加到每个远程 Shell 的 ssh 命令中、位于连接自身选项之前的参数"
 # navigator/settings.py
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
+# navigator/widgets/manager/manager/manager.py
+"OK to delete {n} file?" = ["确定删除 {n} 个文件吗？"]
+# navigator/widgets/manager/manager/manager.py
+"OK to move {n} file to the Trash?" = ["确定将 {n} 个文件移到回收站吗？"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
