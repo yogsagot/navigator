@@ -910,8 +910,11 @@ class _Copier(Elevated):
                 shown(source), shown(dest), st.st_size, st.st_mtime, existing.st_size, existing.st_mtime,
             ))
             if answer.action == "rename":
+                # DN's ``InputBox`` held the whole destination (``P^.NewName``),
+                # so the file may go elsewhere: read as the Copy dialog's line,
+                # a bare name staying beside the old one.  Taken too, asked again.
                 if answer.name:
-                    dest = dest.parent / answer.name
+                    dest = target_location(answer.name, dest.parent)
                 continue
             if answer.all:
                 self.mode = {"overwrite": OVERWRITE, "append": APPEND, "skip": SKIP}[answer.action]

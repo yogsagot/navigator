@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, mounted, settle, started, wait_until
+from conftest import FakeTerminal, handled, mounted, settle, started, wait_until
 
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
@@ -311,6 +311,69 @@ def test_f5_asks_before_overwriting(two):
     assert "already exists" in painted
     assert after is None
     assert (b / "one.txt").read_text() == "old"
+
+
+def test_the_query_names_the_whole_destination_its_middle_cut():
+    from navigator.lib.file_ops.filecopy import Overwrite
+    from navigator.widgets.file_ops.overwrite_query.overwrite_query import describe
+
+    dest = Path("/home/somebody/a/rather/long/directory/path/to/the/file.txt")
+    line = describe(Overwrite(Path("/src/file.txt"), dest, 1, 0.0, 2, 0.0)).splitlines()[0]
+    name = line[len("File "):]
+    assert len(name) == 40 and name.startswith("/home/some") and name.endswith("/to/the/file.txt")
+    assert "..." in name
+
+
+def _rename_box(two, keys):
+    """F5 onto ``one.txt`` there already, Rename in the query, then *keys* in
+    the rename box: what the box opened with, and what the file holds after."""
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+    from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
+
+    a, b = two
+    (b / "one.txt").write_text("old")
+
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await started(app, shell.manager.left, shell.manager.right)
+        manager = shell.manager
+        manager.left.cursor = next(i for i, e in enumerate(manager.left.items) if e.name == "one.txt")
+        app.post_event(KeyEvent("f5"))
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: isinstance(app.modal, OverwriteQuery))
+        app.post_event(KeyEvent("r", "r", alt=True))
+        await wait_until(lambda: isinstance(app.modal, MkdirDialog))
+        opened = app.modal.entry.value
+        for key in keys:
+            app.post_event(key)
+            await handled(app)
+        await wait_until(lambda: app.modal is None)
+        await handled(app)
+        app.exit()
+        await task
+        return opened
+
+    opened = asyncio.run(main())
+    return opened, (b / "one.txt").read_text()
+
+
+def test_rename_opens_on_the_whole_destination(two):
+    a, b = two
+    opened, _ = _rename_box(two, [KeyEvent("escape")])
+    assert opened == str(b / "one.txt")
+
+
+def test_escape_in_the_rename_box_skips_the_file(two):
+    _, held = _rename_box(two, [KeyEvent("escape")])
+    assert held == "old"
+
+
+def test_an_empty_rename_skips_the_file(two):
+    _, held = _rename_box(two, [KeyEvent("delete"), KeyEvent("enter")])
+    assert held == "old"
 
 
 def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):

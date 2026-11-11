@@ -72,7 +72,10 @@ progress box appears after DN's two ticks.
 - **The five modes** are the radio buttons' order: Overwrite, Append, Ask, Skip, and Refresh, which copies only
   over something older.
 - ***Ask*'s answer can stand for every later file** for Overwrite, Append or Skip, and never for Rename. Rename asks
-  for the name in DN's `InputBox` and asks again if that name is taken too.
+  in DN's `InputBox`, opened on the whole destination path (`P^.NewName`): a path typed there sends the file
+  elsewhere, a bare name keeps it in the same directory, and a taken one asks again. Abandoned or left empty, the
+  file is skipped (DN's `DoSkip`). The query's *File* line is that whole path, its middle cut to 40 (`Cut(NName,
+  40)`).
 - **A read-only target is written anyway** (DN's `TrySetArch`). For an Overwrite or an Append onto the user's own
   file whose owner write bit is clear, `_lift_read_only` sets the bit, the write goes ahead, and the old mode is put
   back: always for an Append (DN's `$FE`), and for an Overwrite unless *Preserve attributes* then gives the file the

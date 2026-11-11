@@ -195,6 +195,22 @@ def test_overwrite_mode(clash, tmp_path):
     assert (dst / "a.txt").read_text() == "alpha"
 
 
+def test_rename_to_a_whole_path_sends_the_file_elsewhere(clash, tmp_path):
+    # DN's ``InputBox`` held the whole destination: the file may go elsewhere.
+    src, dst = clash
+    other = tmp_path / "other"
+    other.mkdir()
+    copy([src / "a.txt"], dst, cwd=tmp_path, answers=[OverwriteAnswer("rename", name=str(other / "x.txt"))])
+    assert (other / "x.txt").read_text() == "alpha" and (dst / "a.txt").read_text() == "old"
+
+
+def test_rename_to_a_relative_path_is_beside_the_old_name(clash, tmp_path):
+    src, dst = clash
+    (dst / "sub").mkdir()
+    copy([src / "a.txt"], dst, cwd=tmp_path, answers=[OverwriteAnswer("rename", name="sub/x.txt")])
+    assert (dst / "sub" / "x.txt").read_text() == "alpha" and (dst / "a.txt").read_text() == "old"
+
+
 def test_append_mode(clash, tmp_path):
     src, dst = clash
     copy([src / "a.txt"], dst, cwd=tmp_path, mode=APPEND)
