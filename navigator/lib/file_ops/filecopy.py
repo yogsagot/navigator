@@ -930,27 +930,62 @@ class _Copier(Elevated):
         while True:
             source_drive, dest_drive = self._drive_of(source), self._drive_of(dest)
             job.done_bytes = start_done
-            created = False
+            # What a failure removes: only a file this attempt wrote to -- a
+            # half-written copy is worse than none, and nothing of a file
+            # appended to can be told apart from what was there.  An open
+            # that failed has touched nothing, and the file is the user's.
+            existed = wrote = False
+            lifted = None
             try:
                 with source_drive.open_read(source) as reader:
-                    created = not dest_drive.lexists(dest) or not append
+                    existed = dest_drive.lexists(dest)
+                    if existed:
+                        lifted = self._lift_read_only(dest)
                     with dest_drive.open_write(dest, append=append, mode=st.st_mode & 0o777) as writer:
+                        wrote = True
                         stream(reader, writer, job)
                         if self.flush:
                             dest_drive.sync(writer)
                 return True
             except Stopped:
-                # A half-written copy is worse than none, and nothing of a file
-                # appended to can be told apart from what was there.
-                if created:
+                if wrote and (not append or not existed):
                     _remove_quietly(dest, dest_drive)
                 raise
             except OSError as error:
-                if created:
+                if wrote and (not append or not existed):
                     _remove_quietly(dest, dest_drive)
                 job.done_bytes = start_done + st.st_size
                 if not self._failed(source, error):
                     return False
+            finally:
+                if lifted is not None and dest_drive.lexists(dest):
+                    try:
+                        dest_drive.chmod(dest, lifted)
+                    except (OSError, NotImplementedError) as error:
+                        if isinstance(error, OSError) and error.errno not in UNSUPPORTED:
+                            job.lost_attributes(dest, error)
+
+    def _lift_read_only(self, dest: Location) -> int | None:
+        """DN's ``TrySetArch``: a target marked read-only made writable for an
+        overwrite or an append, the overwrite question (or the mode chosen)
+        being the confirmation, as it was in DN.  Its old mode, to put back
+        after (DN's ``$FE``; an overwrite with *Preserve attributes* then
+        takes the source's, DN's ``$FF``); None when nothing was lifted.
+
+        Read-only on POSIX is the owner's write bit clear (as the editor's
+        ``marked_read_only`` reads it).  Somebody else's file cannot be
+        changed: nothing is lifted, the open is refused and *As root*
+        offered.  *Hidden* and *System* have no POSIX meaning."""
+        drive = self._drive_of(dest)
+        try:
+            info = drive.stat(dest)
+            if not stat.S_ISREG(info.st_mode) or info.st_mode & stat.S_IWUSR:
+                return None
+            mode = stat.S_IMODE(info.st_mode)
+            drive.chmod(dest, mode | stat.S_IWUSR)
+        except (OSError, NotImplementedError):
+            return None
+        return mode
 
     def _attributes(self, source: Location, dest: Location, st: Any) -> None:
         """*Preserve attributes*: mode, times and, as root, the owner -- what

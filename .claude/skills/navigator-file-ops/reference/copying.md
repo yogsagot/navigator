@@ -73,6 +73,14 @@ progress box appears after DN's two ticks.
   over something older.
 - ***Ask*'s answer can stand for every later file** for Overwrite, Append or Skip, and never for Rename. Rename asks
   for the name in DN's `InputBox` and asks again if that name is taken too.
+- **A read-only target is written anyway** (DN's `TrySetArch`). For an Overwrite or an Append onto the user's own
+  file whose owner write bit is clear, `_lift_read_only` sets the bit, the write goes ahead, and the old mode is put
+  back: always for an Append (DN's `$FE`), and for an Overwrite unless *Preserve attributes* then gives the file the
+  source's mode (DN's `$FF`). The overwrite question, or the mode chosen, is the confirmation. Somebody else's file
+  cannot be changed, so its open is refused and *As root* is offered. A move renames over the file, which POSIX
+  allows anyway.
+- **A failure removes only what that attempt wrote** (`_copy_bytes`' `wrote`): a half-written copy, as DN did. An
+  open that failed leaves the target alone, so Skip never deletes the user's file.
 - **A copy onto itself and a directory into itself are refused.** So is a file over a directory
   (`dlFCNotOverDir`).
 - **A move renames first.** On `EXDEV` it copies and then deletes, and stops trying to rename the directories

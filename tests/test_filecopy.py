@@ -389,6 +389,104 @@ def test_a_move_to_another_drive_is_still_checked(tree, tmp_path, monkeypatch):
         unmount(drive.site)
 
 
+# -- a read-only target: DN's ``TrySetArch`` --------------------------------------------
+
+as_root = pytest.mark.skipif(os.geteuid() == 0, reason="root writes a read-only file anyway")
+
+
+def mode_of(path: Path) -> int:
+    return path.stat().st_mode & 0o777
+
+
+@as_root
+def test_overwrite_lifts_a_read_only_target_and_puts_its_mode_back(clash, tmp_path):
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, options=0)
+    assert asked == [] and (dst / "a.txt").read_text() == "alpha"
+    assert mode_of(dst / "a.txt") == 0o444
+
+
+@as_root
+def test_overwrite_with_preserve_takes_the_source_s_mode(clash, tmp_path):
+    # DN's ``$FF``: the overwritten file gets the source's attributes.
+    src, dst = clash
+    (src / "a.txt").chmod(0o640)
+    (dst / "a.txt").chmod(0o444)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, options=PRESERVE)
+    assert asked == [] and (dst / "a.txt").read_text() == "alpha"
+    assert mode_of(dst / "a.txt") == 0o640
+
+
+@as_root
+def test_append_lifts_a_read_only_target_and_puts_its_mode_back(clash, tmp_path):
+    # DN's ``$FE``: the target's own attributes back.
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=APPEND, options=0)
+    assert asked == [] and (dst / "a.txt").read_text() == "oldalpha"
+    assert mode_of(dst / "a.txt") == 0o444
+
+
+@as_root
+def test_the_overwrite_question_is_the_only_one_for_a_read_only_target(clash, tmp_path):
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, answers=[OverwriteAnswer("overwrite")])
+    assert [type(q) for q in asked] == [Overwrite]
+    assert (dst / "a.txt").read_text() == "alpha"
+
+
+@as_root
+def test_skip_after_a_refused_open_keeps_the_target(clash, tmp_path, monkeypatch):
+    # Somebody else's file: the mode cannot be changed, the open is refused --
+    # and Skip leaves the file as it was, never removed.
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+
+    def refuse(self, location, mode):
+        raise PermissionError(errno.EPERM, "Operation not permitted")
+
+    monkeypatch.setattr(LocalDrive, "chmod", refuse)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, answers=["skip"])
+    assert [type(q) for q in asked] == [Failure]
+    assert done == [] and (dst / "a.txt").read_text() == "old"
+    assert mode_of(dst / "a.txt") == 0o444
+
+
+@as_root
+def test_a_move_renames_over_a_read_only_target(clash, tmp_path):
+    src, dst = clash
+    (dst / "a.txt").chmod(0o444)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, options=MOVE)
+    assert asked == [] and (dst / "a.txt").read_text() == "alpha" and not (src / "a.txt").exists()
+
+
+def test_a_write_that_fails_halfway_removes_the_half_written_copy(clash, tmp_path, monkeypatch):
+    src, dst = clash
+    real_open_write = LocalDrive.open_write
+
+    class Failing:
+        def __init__(self, f):
+            self.f = f
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            self.f.close()
+
+        def write(self, data):
+            self.f.write(data[:1])
+            raise OSError(errno.EIO, "Input/output error")
+
+    monkeypatch.setattr(LocalDrive, "open_write",
+                        lambda self, p, **k: Failing(real_open_write(self, p, **k)))
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, answers=["skip"])
+    assert [type(q) for q in asked] == [Failure]
+    assert not (dst / "a.txt").exists()
+
+
 def test_stop_leaves_no_partial_file(tree, tmp_path, monkeypatch):
     src, dst = tree
     write(src / "big", "x" * 64)
