@@ -75,13 +75,13 @@ class Shell(DockLayout, _Component):
     menu: MainMenu    # shell.nml:60
     window_strip: WindowStrip    # shell.nml:75
     clock: Clock    # shell.nml:92
-    root_mark: RootMark    # shell.nml:104
-    macro_mark: MacroMark    # shell.nml:115
-    job_mark: JobMark    # shell.nml:128
-    trash: TrashCan    # shell.nml:139
-    keybar: KeyBar    # shell.nml:147
-    key_root_mark: RootMark    # shell.nml:160
-    command_line: CommandLine    # shell.nml:177
+    root_mark: RootMark    # shell.nml:105
+    macro_mark: MacroMark    # shell.nml:116
+    job_mark: JobMark    # shell.nml:129
+    trash: TrashCan    # shell.nml:140
+    keybar: KeyBar    # shell.nml:148
+    key_root_mark: RootMark    # shell.nml:161
+    command_line: CommandLine    # shell.nml:179
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -106,13 +106,13 @@ class Shell(DockLayout, _Component):
         self.menu = MainMenu(parent=self)    # shell.nml:59
         self.window_strip = WindowStrip(parent=self)    # shell.nml:74
         self.clock = Clock(parent=self)    # shell.nml:91
-        self.root_mark = RootMark(parent=self)    # shell.nml:103
-        self.macro_mark = MacroMark(parent=self)    # shell.nml:114
-        self.job_mark = JobMark(parent=self)    # shell.nml:127
-        self.trash = TrashCan(parent=self)    # shell.nml:138
-        self.keybar = KeyBar(parent=self)    # shell.nml:146
-        self.key_root_mark = RootMark(parent=self)    # shell.nml:159
-        self.command_line = CommandLine(parent=self)    # shell.nml:176
+        self.root_mark = RootMark(parent=self)    # shell.nml:104
+        self.macro_mark = MacroMark(parent=self)    # shell.nml:115
+        self.job_mark = JobMark(parent=self)    # shell.nml:128
+        self.trash = TrashCan(parent=self)    # shell.nml:139
+        self.keybar = KeyBar(parent=self)    # shell.nml:147
+        self.key_root_mark = RootMark(parent=self)    # shell.nml:160
+        self.command_line = CommandLine(parent=self)    # shell.nml:178
 
         self.desktop.visible = _bind(lambda _o: not _o.parent.console_visible)    # shell.nml:47
         self.desktop.on_emptied = self.on_desktop_emptied    # shell.nml:46
@@ -152,66 +152,66 @@ class Shell(DockLayout, _Component):
         self.window_strip.inline_style = 'dock: none'    # shell.nml:84
 
         self.clock.visible = _bind(lambda _o: SETTINGS.interface.clock)    # shell.nml:93
-        self.clock.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # shell.nml:94
-        self.clock.width = _bind(lambda _o: 7 if country.twelve_hours() else 5)    # shell.nml:95
-        self.clock.y = 0    # shell.nml:96
-        self.clock.inline_style = 'dock: none'    # shell.nml:97
+        self.clock.width = _bind(lambda _o: 7 if country.twelve_hours() else 5)    # shell.nml:94
+        self.clock.y = 0    # shell.nml:95
+        self.clock.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # shell.nml:97
+        self.clock.inline_style = 'dock: none'    # shell.nml:98
 
-        self.root_mark.x = _bind(    # shell.nml:105
+        self.root_mark.x = _bind(    # shell.nml:106
             lambda _o: max(0, (self.clock.x - 1 if self.clock.visible else self.menu.width) - _o.width)
         )
-        self.root_mark.y = 0    # shell.nml:106
-        self.root_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:107
-        self.root_mark.visible = _bind(    # shell.nml:108
+        self.root_mark.y = 0    # shell.nml:107
+        self.root_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:108
+        self.root_mark.visible = _bind(    # shell.nml:109
             lambda _o: _o.open and (not SETTINGS.interface.hide_menu_bar) and (not _o.parent.console_visible)
         )
-        self.root_mark.inline_style = 'dock: none'    # shell.nml:109
+        self.root_mark.inline_style = 'dock: none'    # shell.nml:110
 
-        self.macro_mark.x = _bind(    # shell.nml:116
+        self.macro_mark.x = _bind(    # shell.nml:117
             lambda _o: max(0, (self.root_mark.x if self.root_mark.visible else self.clock.x if self.clock.visible else self.menu.width) - 1 - _o.width)
         )
-        self.macro_mark.y = 0    # shell.nml:117
-        self.macro_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:118
-        self.macro_mark.visible = _bind(    # shell.nml:119
+        self.macro_mark.y = 0    # shell.nml:118
+        self.macro_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:119
+        self.macro_mark.visible = _bind(    # shell.nml:120
             lambda _o: _o.slot > 0 and (not SETTINGS.interface.hide_menu_bar) and (not _o.parent.console_visible)
         )
-        self.macro_mark.inline_style = 'dock: none'    # shell.nml:120
+        self.macro_mark.inline_style = 'dock: none'    # shell.nml:121
 
-        self.job_mark.x = _bind(lambda _o: self.strip_start() - _o.width)    # shell.nml:129
-        self.job_mark.y = 0    # shell.nml:130
-        self.job_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:131
-        self.job_mark.visible = _bind(    # shell.nml:132
+        self.job_mark.x = _bind(lambda _o: self.strip_start() - _o.width)    # shell.nml:130
+        self.job_mark.y = 0    # shell.nml:131
+        self.job_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:132
+        self.job_mark.visible = _bind(    # shell.nml:133
             lambda _o: _o.busy and (not SETTINGS.interface.hide_menu_bar) and (not _o.parent.console_visible)
         )
-        self.job_mark.inline_style = 'dock: none'    # shell.nml:133
+        self.job_mark.inline_style = 'dock: none'    # shell.nml:134
 
-        self.trash.desktop = _bind(lambda _o: _o.parent.desktop)    # shell.nml:140
-        self.trash.inline_style = 'dock: none'    # shell.nml:141
+        self.trash.desktop = _bind(lambda _o: _o.parent.desktop)    # shell.nml:141
+        self.trash.inline_style = 'dock: none'    # shell.nml:142
 
-        self.keybar.visible = _bind(    # shell.nml:148
+        self.keybar.visible = _bind(    # shell.nml:149
             lambda _o: not SETTINGS.interface.hide_status_line
         )
-        self.keybar.reserve = _bind(    # shell.nml:150
+        self.keybar.reserve = _bind(    # shell.nml:151
             lambda _o: self.key_root_mark.width + 1 if self.key_root_mark.visible else 0
         )
-        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:151
+        self.keybar.inline_style = 'dock: bottom; basis: 1'    # shell.nml:152
 
-        self.key_root_mark.open = _bind(lambda _o: self.root_mark.open)    # shell.nml:161
-        self.key_root_mark.x = _bind(    # shell.nml:162
-            lambda _o: max(0, _o.parent.width - _o.width)
-        )
+        self.key_root_mark.open = _bind(lambda _o: self.root_mark.open)    # shell.nml:162
         self.key_root_mark.y = _bind(lambda _o: self.keybar.y)    # shell.nml:163
         self.key_root_mark.width = _bind(lambda _o: _o.natural_width)    # shell.nml:164
-        self.key_root_mark.visible = _bind(    # shell.nml:165
+        self.key_root_mark.visible = _bind(    # shell.nml:167
             lambda _o: _o.open and self.keybar.visible and (SETTINGS.interface.hide_menu_bar or _o.parent.console_visible)
         )
-        self.key_root_mark.inline_style = 'dock: none'    # shell.nml:166
+        self.key_root_mark.x = _bind(    # shell.nml:166
+            lambda _o: max(0, _o.parent.width - _o.width)
+        )
+        self.key_root_mark.inline_style = 'dock: none'    # shell.nml:168
 
-        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:178
-        self.command_line.prompt_cells = _bind(    # shell.nml:179
+        self.command_line.prompt = _bind(lambda _o: _o.parent.command_prompt)    # shell.nml:180
+        self.command_line.prompt_cells = _bind(    # shell.nml:181
             lambda _o: _o.parent.command_prompt_cells
         )
-        self.command_line.visible = _bind(    # shell.nml:180
+        self.command_line.visible = _bind(    # shell.nml:182
             lambda _o: not SETTINGS.interface.hide_command_line and (not SETTINGS.interface.auto_hide_command_line or _o.value != '')
         )
-        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:181
+        self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:183

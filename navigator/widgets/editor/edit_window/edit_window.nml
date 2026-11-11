@@ -72,16 +72,18 @@ EditWindow(Window):
         target: editor
         visible: editor.line_numbers
         x: 1
-        y: 1
         width: min(gutter_width(editor.line_count), max(0, parent.width - 3)) if editor.line_numbers else 0
-        height: max(0, parent.height - 2)
+        anchors:
+            top: 1
+            bottom: 1
 
     FileEditor:
         id: editor
         x: 1 + gutter.width
-        y: 1
         width: max(0, parent.width - 2 - gutter.width)
-        height: max(0, parent.height - 2)
+        anchors:
+            top: 1
+            bottom: 1
 
     #: Ctrl+F's Find bar and Ctrl+R's Replace bar (a departure): over the edit
     #: area's top-right corner, a cell short of the scroll bar, and hidden
@@ -99,10 +101,11 @@ EditWindow(Window):
     ScrollBar:
         id: vbar
         visible: root.active and editor.overflows
-        x: parent.width - 1
-        y: 1
         width: 1
-        height: max(0, parent.height - 2)
+        anchors:
+            right: 0
+            top: 1
+            bottom: 1
         value: editor.line
         maximum: max(0, editor.line_count - 1)
         page: max(1, editor.height)
@@ -121,9 +124,10 @@ EditWindow(Window):
         orientation: "horizontal"
         visible: root.active and editor.overflows_across and self.width >= 4
         x: max(24, marks.x + marks.width + 1) if marks.visible and marks.width else 24
-        y: max(0, parent.height - 1)
         width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 2) - self.x)
         height: 1
+        anchors:
+            bottom: 0
         value: editor.col
         maximum: max(0, editor.row_span - 1)
         page: max(1, editor.width)
@@ -135,9 +139,10 @@ EditWindow(Window):
         name: "info"
         visible: root.active
         x: 2
-        y: max(0, parent.height - 1)
         width: min(display_width(editor.info_text), max(0, parent.width - 4))
         height: 1
+        anchors:
+            bottom: 0
         text: editor.info_text
 
     #: A departure, asked for: the line ending and the encoding, ``[LF]═[UTF-8]``,
@@ -148,10 +153,11 @@ EditWindow(Window):
         id: marks
         name: "info"
         visible: root.active
-        x: info.x + info.width + 1
-        y: max(0, parent.height - 1)
         width: min(display_width(editor.format_text), max(0, parent.width - 3 - self.x))
         height: 1
+        anchors:
+            after: info + 1
+            bottom: 0
         text: editor.format_text
 
     #: A departure: DN had no such strip.  The editor's options on the bottom
@@ -165,9 +171,10 @@ EditWindow(Window):
         target: editor
         room: max(0, parent.width - 3 - (marks.x + marks.width if marks.visible and marks.width else info.x + info.width) - 1)
         width: self.used_width
-        x: max(0, parent.width - 3 - self.width)
-        y: max(0, parent.height - 1)
         height: 1
+        anchors:
+            right: 3
+            bottom: 0
 
     #: DOS Navigator's ``dlgEditorMenu`` (``DN.DNR``): its entries in the
     #: original's order and with its captions, the keys what the key table

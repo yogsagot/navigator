@@ -46,13 +46,13 @@ class SelectDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     mask_caption: Label    # select_dialog.nml:22
     mask: Field    # select_dialog.nml:32
-    options: CheckBoxes    # select_dialog.nml:42
+    options: CheckBoxes    # select_dialog.nml:43
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.mask_caption = Label(parent=self)    # select_dialog.nml:21
         self.mask = Field(parent=self)    # select_dialog.nml:31
-        self.options = CheckBoxes(parent=self)    # select_dialog.nml:41
+        self.options = CheckBoxes(parent=self)    # select_dialog.nml:42
 
         self.modal_width = 30    # select_dialog.nml:17
         self.modal_height = 10    # select_dialog.nml:18
@@ -71,23 +71,23 @@ class SelectDialog(Dialog, _Component):
         )
         self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # select_dialog.nml:28
 
-        self.mask.x = 2    # select_dialog.nml:33
-        self.mask.y = 2    # select_dialog.nml:34
-        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:35
-        self.mask.height = 1    # select_dialog.nml:36
-        self.mask.label_text = ''    # select_dialog.nml:37
-        self.mask.label_width = 0    # select_dialog.nml:38
-        self.mask.history_id = 'select'    # select_dialog.nml:39
+        self.mask.y = 2    # select_dialog.nml:33
+        self.mask.height = 1    # select_dialog.nml:34
+        self.mask.label_text = ''    # select_dialog.nml:38
+        self.mask.label_width = 0    # select_dialog.nml:39
+        self.mask.history_id = 'select'    # select_dialog.nml:40
+        self.mask.x = 2    # select_dialog.nml:36
+        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:37
 
-        self.options.x = 2    # select_dialog.nml:43
         self.options.y = 4    # select_dialog.nml:44
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:45
-        self.options.height = 1    # select_dialog.nml:46
-        self.options.items = _bind(    # select_dialog.nml:47
+        self.options.height = 1    # select_dialog.nml:45
+        self.options.items = _bind(    # select_dialog.nml:49
             lambda _o: [_tr('~E~xcept mask')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # select_dialog.nml:48
+        self.options.tooltips = _bind(    # select_dialog.nml:50
             lambda _o: [_tr('Select what the mask does not match')],
             yielding=True,
         )
+        self.options.x = 2    # select_dialog.nml:47
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:48

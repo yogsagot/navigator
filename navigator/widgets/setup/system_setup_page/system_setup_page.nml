@@ -41,10 +41,11 @@ SystemSetupPage:
 
     CheckBoxes:
         id: options
-        x: 3
         y: 2
-        width: max(0, parent.width - 6)
         height: 4
+        anchors:
+            left: 3
+            right: 3
         items: ["Internal ~e~ditor", "Internal ~v~iewer", "~U~se system clipboard", "~S~how hidden files", "S~y~nc after copying", "Use internal te~r~minal", "Command windows ~z~oomed", "Command windows moda~l~"]
 
     Label:
@@ -58,10 +59,11 @@ SystemSetupPage:
 
     Field:
         id: temp_dir
-        x: 3
         y: 7
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: ""
         label_width: 0
 
@@ -76,10 +78,11 @@ SystemSetupPage:
 
     RadioButtons:
         id: on_error
-        x: 3
         y: 10
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         items: ["Show a ~m~essage", "~Q~uit with a traceback"]
 
     MaskedField:

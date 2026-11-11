@@ -43,19 +43,19 @@ class AclEntryDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     kind_caption: Label    # acl_entry_dialog.nml:21
     kind: RadioButtons    # acl_entry_dialog.nml:30
-    who: ChoiceField    # acl_entry_dialog.nml:38
-    perms_caption: Label    # acl_entry_dialog.nml:47
-    perms: CheckBoxes    # acl_entry_dialog.nml:56
-    default_box: CheckBoxes    # acl_entry_dialog.nml:64
+    who: ChoiceField    # acl_entry_dialog.nml:39
+    perms_caption: Label    # acl_entry_dialog.nml:49
+    perms: CheckBoxes    # acl_entry_dialog.nml:58
+    default_box: CheckBoxes    # acl_entry_dialog.nml:67
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.kind_caption = Label(parent=self)    # acl_entry_dialog.nml:20
         self.kind = RadioButtons(parent=self)    # acl_entry_dialog.nml:29
-        self.who = ChoiceField(parent=self)    # acl_entry_dialog.nml:37
-        self.perms_caption = Label(parent=self)    # acl_entry_dialog.nml:46
-        self.perms = CheckBoxes(parent=self)    # acl_entry_dialog.nml:55
-        self.default_box = CheckBoxes(parent=self)    # acl_entry_dialog.nml:63
+        self.who = ChoiceField(parent=self)    # acl_entry_dialog.nml:38
+        self.perms_caption = Label(parent=self)    # acl_entry_dialog.nml:48
+        self.perms = CheckBoxes(parent=self)    # acl_entry_dialog.nml:57
+        self.default_box = CheckBoxes(parent=self)    # acl_entry_dialog.nml:66
 
         self.modal_width = 56    # acl_entry_dialog.nml:15
         self.modal_height = 13    # acl_entry_dialog.nml:16
@@ -69,50 +69,50 @@ class AclEntryDialog(Dialog, _Component):
         self.kind_caption.text = _bind(lambda _o: _tr('~T~ype'), yielding=True)    # acl_entry_dialog.nml:26
         self.kind_caption.link = _bind(lambda _o: self.kind)    # acl_entry_dialog.nml:27
 
-        self.kind.x = 14    # acl_entry_dialog.nml:31
-        self.kind.y = 1    # acl_entry_dialog.nml:32
-        self.kind.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:33
-        self.kind.height = 1    # acl_entry_dialog.nml:34
-        self.kind.items = _bind(    # acl_entry_dialog.nml:35
+        self.kind.y = 1    # acl_entry_dialog.nml:31
+        self.kind.height = 1    # acl_entry_dialog.nml:32
+        self.kind.items = _bind(    # acl_entry_dialog.nml:36
             lambda _o: [_tr('User'), _tr('Group')],
             yielding=True,
         )
+        self.kind.x = 14    # acl_entry_dialog.nml:34
+        self.kind.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:35
 
-        self.who.x = 2    # acl_entry_dialog.nml:39
         self.who.y = 3    # acl_entry_dialog.nml:40
-        self.who.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # acl_entry_dialog.nml:41
-        self.who.height = 1    # acl_entry_dialog.nml:42
-        self.who.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # acl_entry_dialog.nml:43
-        self.who.label_width = 12    # acl_entry_dialog.nml:44
+        self.who.height = 1    # acl_entry_dialog.nml:41
+        self.who.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # acl_entry_dialog.nml:45
+        self.who.label_width = 12    # acl_entry_dialog.nml:46
+        self.who.x = 2    # acl_entry_dialog.nml:43
+        self.who.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # acl_entry_dialog.nml:44
 
-        self.perms_caption.x = 2    # acl_entry_dialog.nml:48
-        self.perms_caption.y = 5    # acl_entry_dialog.nml:49
-        self.perms_caption.width = 12    # acl_entry_dialog.nml:50
-        self.perms_caption.height = 1    # acl_entry_dialog.nml:51
-        self.perms_caption.text = _bind(    # acl_entry_dialog.nml:52
+        self.perms_caption.x = 2    # acl_entry_dialog.nml:50
+        self.perms_caption.y = 5    # acl_entry_dialog.nml:51
+        self.perms_caption.width = 12    # acl_entry_dialog.nml:52
+        self.perms_caption.height = 1    # acl_entry_dialog.nml:53
+        self.perms_caption.text = _bind(    # acl_entry_dialog.nml:54
             lambda _o: _tr('~P~ermissions'),
             yielding=True,
         )
-        self.perms_caption.link = _bind(lambda _o: self.perms)    # acl_entry_dialog.nml:53
+        self.perms_caption.link = _bind(lambda _o: self.perms)    # acl_entry_dialog.nml:55
 
-        self.perms.x = 14    # acl_entry_dialog.nml:57
-        self.perms.y = 5    # acl_entry_dialog.nml:58
-        self.perms.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:59
+        self.perms.y = 5    # acl_entry_dialog.nml:59
         self.perms.height = 1    # acl_entry_dialog.nml:60
-        self.perms.items = _bind(    # acl_entry_dialog.nml:61
+        self.perms.items = _bind(    # acl_entry_dialog.nml:64
             lambda _o: [_tr('Read'), _tr('Write'), _tr('Exec')],
             yielding=True,
         )
+        self.perms.x = 14    # acl_entry_dialog.nml:62
+        self.perms.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:63
 
-        self.default_box.x = 14    # acl_entry_dialog.nml:65
-        self.default_box.y = 7    # acl_entry_dialog.nml:66
-        self.default_box.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:67
-        self.default_box.height = 1    # acl_entry_dialog.nml:68
-        self.default_box.items = _bind(    # acl_entry_dialog.nml:69
+        self.default_box.y = 7    # acl_entry_dialog.nml:68
+        self.default_box.height = 1    # acl_entry_dialog.nml:69
+        self.default_box.items = _bind(    # acl_entry_dialog.nml:73
             lambda _o: [_tr('~D~efault, inherited by new files')],
             yielding=True,
         )
-        self.default_box.tooltips = _bind(    # acl_entry_dialog.nml:70
+        self.default_box.tooltips = _bind(    # acl_entry_dialog.nml:74
             lambda _o: [_tr('A default entry: what new files and directories made inside inherit')],
             yielding=True,
         )
+        self.default_box.x = 14    # acl_entry_dialog.nml:71
+        self.default_box.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:72

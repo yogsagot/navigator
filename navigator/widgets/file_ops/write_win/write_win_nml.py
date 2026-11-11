@@ -57,15 +57,15 @@ class WriteWin(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     spinner: Spinner    # write_win.nml:33
     notice_row: StaticText    # write_win.nml:40
-    bar: ProgressBar    # write_win.nml:49
-    percent_row: StaticText    # write_win.nml:59
+    bar: ProgressBar    # write_win.nml:50
+    percent_row: StaticText    # write_win.nml:61
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.spinner = Spinner(parent=self)    # write_win.nml:32
         self.notice_row = StaticText(parent=self)    # write_win.nml:39
-        self.bar = ProgressBar(parent=self)    # write_win.nml:48
-        self.percent_row = StaticText(parent=self)    # write_win.nml:58
+        self.bar = ProgressBar(parent=self)    # write_win.nml:49
+        self.percent_row = StaticText(parent=self)    # write_win.nml:60
 
         self.modal_width = 34    # write_win.nml:17
         self.modal_height = 9    # write_win.nml:18
@@ -80,25 +80,25 @@ class WriteWin(Dialog, _Component):
         self.spinner.width = 1    # write_win.nml:36
         self.spinner.height = 1    # write_win.nml:37
 
-        self.notice_row.x = 2    # write_win.nml:41
-        self.notice_row.y = 1    # write_win.nml:42
-        self.notice_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:43
-        self.notice_row.height = 1    # write_win.nml:44
-        self.notice_row.align = 'center'    # write_win.nml:45
-        self.notice_row.text = _bind(lambda _o: self.notice)    # write_win.nml:46
+        self.notice_row.y = 1    # write_win.nml:41
+        self.notice_row.height = 1    # write_win.nml:42
+        self.notice_row.align = 'center'    # write_win.nml:46
+        self.notice_row.text = _bind(lambda _o: self.notice)    # write_win.nml:47
+        self.notice_row.x = 2    # write_win.nml:44
+        self.notice_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:45
 
-        self.bar.x = 2    # write_win.nml:50
         self.bar.y = 3    # write_win.nml:51
-        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:52
-        self.bar.height = 1    # write_win.nml:53
-        self.bar.visible = _bind(lambda _o: self.total > 0)    # write_win.nml:54
-        self.bar.value = _bind(lambda _o: self.position)    # write_win.nml:55
-        self.bar.total = _bind(lambda _o: self.total)    # write_win.nml:56
+        self.bar.height = 1    # write_win.nml:52
+        self.bar.visible = _bind(lambda _o: self.total > 0)    # write_win.nml:56
+        self.bar.value = _bind(lambda _o: self.position)    # write_win.nml:57
+        self.bar.total = _bind(lambda _o: self.total)    # write_win.nml:58
+        self.bar.x = 2    # write_win.nml:54
+        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:55
 
-        self.percent_row.x = 2    # write_win.nml:60
-        self.percent_row.y = 4    # write_win.nml:61
-        self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:62
+        self.percent_row.y = 4    # write_win.nml:62
         self.percent_row.height = 1    # write_win.nml:63
-        self.percent_row.align = 'center'    # write_win.nml:64
-        self.percent_row.visible = _bind(lambda _o: self.total > 0)    # write_win.nml:65
-        self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # write_win.nml:66
+        self.percent_row.align = 'center'    # write_win.nml:67
+        self.percent_row.visible = _bind(lambda _o: self.total > 0)    # write_win.nml:68
+        self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # write_win.nml:69
+        self.percent_row.x = 2    # write_win.nml:65
+        self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:66

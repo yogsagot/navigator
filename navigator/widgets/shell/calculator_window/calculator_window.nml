@@ -70,10 +70,11 @@ CalculatorWindow(Window):
     #: narrow, in a row where it is wide.
     RadioButtons:
         id: mode_strip
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 2 if root.mode in ("simple", "classic") else 1
+        anchors:
+            left: 2
+            right: 2
         items: ["~S~imple", "C~l~assic", "Sc~i~entific", "Pro~g~ramming"]
         tooltips: ["A pocket calculator", "DOS Navigator's calculator: the expression in five forms", "Functions, angles, memory and the last answer", "A word of 8 to 64 bits in four bases"]
 
@@ -100,19 +101,21 @@ CalculatorWindow(Window):
         id: history
         link: line
         history_id: "calc"
-        x: max(0, parent.width - 5)
         y: line.y
         width: 3
         height: 1
+        anchors:
+            right: 2
 
     #: The pads' value, under the line.
     StaticText:
         id: result_row
         visible: root.mode in ("simple", "scientific")
-        x: 2
         y: line.y + 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "right"
         text: root.result
         tooltip: "The line's value; Enter or = puts it in the line"
@@ -130,10 +133,11 @@ CalculatorWindow(Window):
     StaticText:
         id: marks_row
         visible: root.mode == "scientific"
-        x: 34
         y: 5
-        width: max(0, parent.width - 36)
         height: 1
+        anchors:
+            left: 34
+            right: 2
         align: "right"
         text: root.marks
         tooltip: "M: a value in memory; 2nd and hyp: the keys' other functions"
@@ -142,10 +146,11 @@ CalculatorWindow(Window):
     Widget:
         id: classic
         visible: root.mode == "classic"
-        x: 0
         y: 7
-        width: parent.width
         height: 9
+        anchors:
+            left: 0
+            right: 0
 
         Label:
             id: copy_caption
@@ -167,50 +172,55 @@ CalculatorWindow(Window):
 
         StaticText:
             id: row0
-            x: 12
             y: 1
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.rows[0]
             tooltip: "The value in decimal"
 
         StaticText:
             id: row1
-            x: 12
             y: 2
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.rows[1]
             tooltip: "The whole part in hexadecimal, two's complement in 64 bits"
 
         StaticText:
             id: row2
-            x: 12
             y: 3
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.rows[2]
             tooltip: "The whole part in binary, two's complement in 64 bits"
 
         StaticText:
             id: row3
-            x: 12
             y: 4
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.rows[3]
             tooltip: "The whole part in octal, two's complement in 64 bits"
 
         StaticText:
             id: row4
-            x: 12
             y: 5
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.rows[4]
             tooltip: "The value in scientific notation"
@@ -247,10 +257,11 @@ CalculatorWindow(Window):
     Widget:
         id: programming
         visible: root.mode == "programming"
-        x: 0
         y: 4
-        width: parent.width
         height: 5
+        anchors:
+            left: 0
+            right: 0
 
         RadioButtons:
             id: base
@@ -263,40 +274,44 @@ CalculatorWindow(Window):
 
         StaticText:
             id: hex_row
-            x: 12
             y: 0
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.forms[0]
             tooltip: "The value in hexadecimal, two's complement in the word"
 
         StaticText:
             id: dec_row
-            x: 12
             y: 1
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.forms[1]
             tooltip: "The value in decimal"
 
         StaticText:
             id: oct_row
-            x: 12
             y: 2
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.forms[2]
             tooltip: "The value in octal, two's complement in the word"
 
         StaticText:
             id: bin_row
-            x: 12
             y: 3
-            width: max(0, parent.width - 14)
             height: 1
+            anchors:
+                left: 12
+                right: 2
             align: "right"
             text: root.forms[3]
             tooltip: "The value in binary, two's complement in the word"
@@ -312,10 +327,11 @@ CalculatorWindow(Window):
 
         CheckBoxes:
             id: signed
-            x: 46
             y: 4
-            width: max(0, parent.width - 48)
             height: 1
+            anchors:
+                left: 46
+                right: 2
             items: ["Sig~n~ed"]
             tooltips: ["The word read as two's complement; unticked, unsigned"]
 
@@ -323,19 +339,21 @@ CalculatorWindow(Window):
     Keypad:
         id: pad
         visible: root.mode != "classic" and not (root.mode == "programming" and root.bit_keypad)
-        x: 2
         y: 10 if root.mode == "programming" else 7
-        width: max(0, parent.width - 4)
         height: 10 if root.mode == "programming" else 12
+        anchors:
+            left: 2
+            right: 2
 
     #: Programming's bits, in its keys' place.
     BitGrid:
         id: bit_grid
         visible: root.mode == "programming" and root.bit_keypad
-        x: 2
         y: 10
-        width: max(0, parent.width - 4)
         height: 10
+        anchors:
+            left: 2
+            right: 2
         tooltip: "Click a bit, or Space on it, to flip it"
 
     #: The window's own menu on the bar after *File* while it is active, as

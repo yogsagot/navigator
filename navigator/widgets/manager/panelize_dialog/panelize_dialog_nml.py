@@ -37,34 +37,34 @@ class PanelizeDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     caption_label: Label    # panelize_dialog.nml:15
-    line: Field    # panelize_dialog.nml:24
+    line: Field    # panelize_dialog.nml:25
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.caption_label = Label(parent=self)    # panelize_dialog.nml:14
-        self.line = Field(parent=self)    # panelize_dialog.nml:23
+        self.line = Field(parent=self)    # panelize_dialog.nml:24
 
         self.modal_width = 64    # panelize_dialog.nml:9
         self.modal_height = 9    # panelize_dialog.nml:10
         self.title = _bind(lambda _o: _tr('Panelize command'), yielding=True)    # panelize_dialog.nml:11
         self.close_on_outside_click = True    # panelize_dialog.nml:12
 
-        self.caption_label.x = 2    # panelize_dialog.nml:16
-        self.caption_label.y = 1    # panelize_dialog.nml:17
-        self.caption_label.width = _bind(    # panelize_dialog.nml:18
-            lambda _o: max(0, _o.parent.width - 4)
-        )
-        self.caption_label.height = 1    # panelize_dialog.nml:19
-        self.caption_label.text = _bind(    # panelize_dialog.nml:20
+        self.caption_label.y = 1    # panelize_dialog.nml:16
+        self.caption_label.height = 1    # panelize_dialog.nml:17
+        self.caption_label.text = _bind(    # panelize_dialog.nml:21
             lambda _o: _tr('~C~ommand (one file name a line)'),
             yielding=True,
         )
-        self.caption_label.link = _bind(lambda _o: self.line.entry)    # panelize_dialog.nml:21
+        self.caption_label.link = _bind(lambda _o: self.line.entry)    # panelize_dialog.nml:22
+        self.caption_label.x = 2    # panelize_dialog.nml:19
+        self.caption_label.width = _bind(    # panelize_dialog.nml:20
+            lambda _o: max(0, _o.parent.width - 4)
+        )
 
-        self.line.x = 2    # panelize_dialog.nml:25
         self.line.y = 2    # panelize_dialog.nml:26
-        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panelize_dialog.nml:27
-        self.line.height = 1    # panelize_dialog.nml:28
-        self.line.label_text = ''    # panelize_dialog.nml:29
-        self.line.label_width = 0    # panelize_dialog.nml:30
-        self.line.history_id = 'panelize'    # panelize_dialog.nml:31
+        self.line.height = 1    # panelize_dialog.nml:27
+        self.line.label_text = ''    # panelize_dialog.nml:31
+        self.line.label_width = 0    # panelize_dialog.nml:32
+        self.line.history_id = 'panelize'    # panelize_dialog.nml:33
+        self.line.x = 2    # panelize_dialog.nml:29
+        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panelize_dialog.nml:30

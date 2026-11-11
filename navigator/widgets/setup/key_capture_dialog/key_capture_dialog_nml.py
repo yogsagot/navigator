@@ -37,27 +37,27 @@ class KeyCaptureDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     hint: StaticText    # key_capture_dialog.nml:14
-    catcher: KeyCatcher    # key_capture_dialog.nml:22
+    catcher: KeyCatcher    # key_capture_dialog.nml:23
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.hint = StaticText(parent=self)    # key_capture_dialog.nml:13
-        self.catcher = KeyCatcher(parent=self)    # key_capture_dialog.nml:21
+        self.catcher = KeyCatcher(parent=self)    # key_capture_dialog.nml:22
 
         self.modal_width = 44    # key_capture_dialog.nml:9
         self.modal_height = 9    # key_capture_dialog.nml:10
         self.title = _bind(lambda _o: _tr('Press a key'), yielding=True)    # key_capture_dialog.nml:11
 
-        self.hint.x = 2    # key_capture_dialog.nml:15
-        self.hint.y = 2    # key_capture_dialog.nml:16
-        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # key_capture_dialog.nml:17
-        self.hint.height = 2    # key_capture_dialog.nml:18
-        self.hint.text = _bind(    # key_capture_dialog.nml:19
+        self.hint.y = 2    # key_capture_dialog.nml:15
+        self.hint.height = 2    # key_capture_dialog.nml:16
+        self.hint.text = _bind(    # key_capture_dialog.nml:20
             lambda _o: _tr('Press the key, or two for a chord.\nEnter takes it, Esc cancels.'),
             yielding=True,
         )
+        self.hint.x = 2    # key_capture_dialog.nml:18
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # key_capture_dialog.nml:19
 
-        self.catcher.x = 3    # key_capture_dialog.nml:23
         self.catcher.y = 5    # key_capture_dialog.nml:24
-        self.catcher.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # key_capture_dialog.nml:25
-        self.catcher.height = 1    # key_capture_dialog.nml:26
+        self.catcher.height = 1    # key_capture_dialog.nml:25
+        self.catcher.x = 3    # key_capture_dialog.nml:27
+        self.catcher.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # key_capture_dialog.nml:28

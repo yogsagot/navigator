@@ -34,19 +34,21 @@ ForwardDialog(Dialog):
     #: What the kind chosen does, in words.
     StaticText:
         id: about
-        x: 29
         y: 2
-        width: max(0, parent.width - 31)
         height: 3
+        anchors:
+            left: 29
+            right: 2
         text: ""
         wrap: True
 
     Field:
         id: bind
-        x: 2
         y: 6
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Listen ~a~ddress"
         label_width: 19
         history_id: "forward_bind"
@@ -63,10 +65,11 @@ ForwardDialog(Dialog):
 
     Field:
         id: host
-        x: 2
         y: 8
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Destination ~h~ost"
         label_width: 19
         history_id: "forward_host"
@@ -84,9 +87,10 @@ ForwardDialog(Dialog):
     #: Why OK will not take the lines.
     StaticText:
         id: problem
-        x: 2
         y: 10
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         text: ""
         wrap: True

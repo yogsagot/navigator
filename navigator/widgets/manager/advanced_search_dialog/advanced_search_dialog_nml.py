@@ -48,9 +48,9 @@ class AdvancedSearchDialog(Dialog, _Component):
     less: Field    # advanced_search_dialog.nml:51
     kinds_caption: Label    # advanced_search_dialog.nml:60
     kinds: CheckBoxes    # advanced_search_dialog.nml:69
-    pick: Button    # advanced_search_dialog.nml:77
-    clear: Button    # advanced_search_dialog.nml:87
-    abandon: Button    # advanced_search_dialog.nml:95
+    pick: Button    # advanced_search_dialog.nml:78
+    clear: Button    # advanced_search_dialog.nml:89
+    abandon: Button    # advanced_search_dialog.nml:98
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -60,15 +60,15 @@ class AdvancedSearchDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:77
+    async def on_pick_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:78
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_clear_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:87
+    async def on_clear_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:89
         """``clear`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:95
+    async def on_abandon_click(self, event: _Event) -> bool:    # advanced_search_dialog.nml:98
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -80,9 +80,9 @@ class AdvancedSearchDialog(Dialog, _Component):
         self.less = Field(parent=self)    # advanced_search_dialog.nml:50
         self.kinds_caption = Label(parent=self)    # advanced_search_dialog.nml:59
         self.kinds = CheckBoxes(parent=self)    # advanced_search_dialog.nml:68
-        self.pick = Button(parent=self)    # advanced_search_dialog.nml:76
-        self.clear = Button(parent=self)    # advanced_search_dialog.nml:86
-        self.abandon = Button(parent=self)    # advanced_search_dialog.nml:94
+        self.pick = Button(parent=self)    # advanced_search_dialog.nml:77
+        self.clear = Button(parent=self)    # advanced_search_dialog.nml:88
+        self.abandon = Button(parent=self)    # advanced_search_dialog.nml:97
 
         self.modal_width = 52    # advanced_search_dialog.nml:15
         self.modal_height = 17    # advanced_search_dialog.nml:16
@@ -137,33 +137,39 @@ class AdvancedSearchDialog(Dialog, _Component):
         self.kinds_caption.text = _bind(lambda _o: _tr('Kind'), yielding=True)    # advanced_search_dialog.nml:65
         self.kinds_caption.link = _bind(lambda _o: self.kinds)    # advanced_search_dialog.nml:66
 
-        self.kinds.x = 3    # advanced_search_dialog.nml:70
-        self.kinds.y = 9    # advanced_search_dialog.nml:71
-        self.kinds.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # advanced_search_dialog.nml:72
-        self.kinds.height = 3    # advanced_search_dialog.nml:73
-        self.kinds.items = _bind(    # advanced_search_dialog.nml:74
+        self.kinds.y = 9    # advanced_search_dialog.nml:70
+        self.kinds.height = 3    # advanced_search_dialog.nml:71
+        self.kinds.items = _bind(    # advanced_search_dialog.nml:75
             lambda _o: [_tr('E~x~ecutable'), _tr('S~y~mbolic link'), _tr('H~i~dden'), _tr('R~e~ad-only'), _tr('Broke~n~ link')],
             yielding=True,
         )
+        self.kinds.x = 3    # advanced_search_dialog.nml:73
+        self.kinds.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # advanced_search_dialog.nml:74
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # advanced_search_dialog.nml:78
-        self.pick.default = True    # advanced_search_dialog.nml:79
-        self.pick.x = 3    # advanced_search_dialog.nml:80
-        self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:81
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # advanced_search_dialog.nml:79
+        self.pick.default = True    # advanced_search_dialog.nml:80
+        self.pick.x = 3    # advanced_search_dialog.nml:81
         self.pick.width = 11    # advanced_search_dialog.nml:82
         self.pick.height = 2    # advanced_search_dialog.nml:83
-        self.pick.on_click = self.on_pick_click    # advanced_search_dialog.nml:77
+        self.pick.y = _bind(    # advanced_search_dialog.nml:85
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.pick.on_click = self.on_pick_click    # advanced_search_dialog.nml:78
 
-        self.clear.text = _bind(lambda _o: _tr('~C~lear all'), yielding=True)    # advanced_search_dialog.nml:88
-        self.clear.x = 16    # advanced_search_dialog.nml:89
-        self.clear.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:90
-        self.clear.width = 14    # advanced_search_dialog.nml:91
-        self.clear.height = 2    # advanced_search_dialog.nml:92
-        self.clear.on_click = self.on_clear_click    # advanced_search_dialog.nml:87
+        self.clear.text = _bind(lambda _o: _tr('~C~lear all'), yielding=True)    # advanced_search_dialog.nml:90
+        self.clear.x = 16    # advanced_search_dialog.nml:91
+        self.clear.width = 14    # advanced_search_dialog.nml:92
+        self.clear.height = 2    # advanced_search_dialog.nml:93
+        self.clear.y = _bind(    # advanced_search_dialog.nml:95
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.clear.on_click = self.on_clear_click    # advanced_search_dialog.nml:89
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # advanced_search_dialog.nml:96
-        self.abandon.x = 32    # advanced_search_dialog.nml:97
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # advanced_search_dialog.nml:98
-        self.abandon.width = 11    # advanced_search_dialog.nml:99
-        self.abandon.height = 2    # advanced_search_dialog.nml:100
-        self.abandon.on_click = self.on_abandon_click    # advanced_search_dialog.nml:95
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # advanced_search_dialog.nml:99
+        self.abandon.x = 32    # advanced_search_dialog.nml:100
+        self.abandon.width = 11    # advanced_search_dialog.nml:101
+        self.abandon.height = 2    # advanced_search_dialog.nml:102
+        self.abandon.y = _bind(    # advanced_search_dialog.nml:104
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.abandon.on_click = self.on_abandon_click    # advanced_search_dialog.nml:98

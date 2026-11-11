@@ -63,7 +63,7 @@ class MemoDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     viewer: FileViewer    # memo_dialog.nml:38
-    bar: ScrollBar    # memo_dialog.nml:46
+    bar: ScrollBar    # memo_dialog.nml:47
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -73,32 +73,32 @@ class MemoDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # memo_dialog.nml:46
+    async def on_bar_scroll(self, event: _Event) -> bool:    # memo_dialog.nml:47
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.viewer = FileViewer(parent=self)    # memo_dialog.nml:37
-        self.bar = ScrollBar(parent=self)    # memo_dialog.nml:45
+        self.bar = ScrollBar(parent=self)    # memo_dialog.nml:46
 
         self.modal_width = 69    # memo_dialog.nml:20
         self.modal_height = 19    # memo_dialog.nml:21
         self.title = _bind(lambda _o: _tr('Memo view'), yielding=True)    # memo_dialog.nml:22
         self.buttons = 'ok'    # memo_dialog.nml:23
 
-        self.viewer.x = 2    # memo_dialog.nml:39
-        self.viewer.y = 2    # memo_dialog.nml:40
+        self.viewer.x = 2    # memo_dialog.nml:40
         self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # memo_dialog.nml:41
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:42
+        self.viewer.y = 2    # memo_dialog.nml:42
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:43
 
-        self.bar.x = _bind(lambda _o: _o.parent.width - 2)    # memo_dialog.nml:47
-        self.bar.y = 2    # memo_dialog.nml:48
-        self.bar.width = 1    # memo_dialog.nml:49
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:50
-        self.bar.value = _bind(lambda _o: self.viewer.top)    # memo_dialog.nml:51
-        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # memo_dialog.nml:52
-        self.bar.page = _bind(    # memo_dialog.nml:53
+        self.bar.width = 1    # memo_dialog.nml:48
+        self.bar.value = _bind(lambda _o: self.viewer.top)    # memo_dialog.nml:53
+        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # memo_dialog.nml:54
+        self.bar.page = _bind(    # memo_dialog.nml:55
             lambda _o: max(1, self.viewer.width * self.viewer.height)
         )
-        self.bar.on_scroll = self.on_bar_scroll    # memo_dialog.nml:46
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - 1 - _o.width))    # memo_dialog.nml:50
+        self.bar.y = 2    # memo_dialog.nml:51
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:52
+        self.bar.on_scroll = self.on_bar_scroll    # memo_dialog.nml:47

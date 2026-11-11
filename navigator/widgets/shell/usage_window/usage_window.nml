@@ -53,10 +53,11 @@ UsageWindow(Window):
     UsageList:
         id: entries
         framed: False
-        x: 1
-        y: 1
-        width: max(0, parent.width - 1)
-        height: max(0, parent.height - 4)
+        anchors:
+            left: 1
+            right: 0
+            top: 1
+            bottom: 3
 
     #: A departure, asked for, as the process list's: on the bottom frame
     #: under the *Name* column, how far Shift+Left/Right (Ctrl, twenty) have
@@ -66,26 +67,29 @@ UsageWindow(Window):
         orientation: "horizontal"
         visible: entries.overflows_across and self.width >= 4
         x: entries.x + entries.name_x
-        y: max(0, parent.height - 1)
         width: max(0, parent.width - 2 - self.x)
         height: 1
+        anchors:
+            bottom: 0
         value: entries.x_delta
         maximum: max(0, entries.name_span - entries.name_room, entries.x_delta)
         page: entries.name_room
 
     StaticText:
         id: status
-        x: 2
-        y: max(0, parent.height - 3)
-        width: max(0, parent.width - 28)
         height: 1
+        anchors:
+            left: 2
+            right: 26
+            bottom: 2
 
     CheckBoxes:
         id: apparent_box
         x: 2
-        y: max(0, parent.height - 2)
         width: 22
         height: 1
+        anchors:
+            bottom: 1
         items: ["~A~pparent size"]
         tooltips: ["The bytes files hold rather than the room they take on the disk"]
 
@@ -93,18 +97,20 @@ UsageWindow(Window):
         id: go_button
         text: "~G~o"
         default: True
-        x: max(0, parent.width - 23)
-        y: max(0, parent.height - 3)
         width: 10
         height: 2
+        anchors:
+            right: 13
+            bottom: 1
 
     Button:
         id: close_button
         text: "Close"
-        x: max(0, parent.width - 12)
-        y: max(0, parent.height - 3)
         width: 10
         height: 2
+        anchors:
+            right: 2
+            bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort it is in and *Apparent size* ticked.  Also

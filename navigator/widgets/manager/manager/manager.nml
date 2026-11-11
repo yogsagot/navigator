@@ -132,10 +132,11 @@ Manager(Window):
 
     HorizontalLayout:
         id: panels
-        x: 0
-        y: 0
-        width: parent.width
-        height: parent.height
+        anchors:
+            left: 0
+            right: 0
+            top: 0
+            bottom: 0
 
         Panel:
             id: left

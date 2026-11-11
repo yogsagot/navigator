@@ -42,19 +42,21 @@ CalculateChecksumsDialog(Dialog):
 
     RadioButtons:
         id: mode
-        x: 24
         y: 2
-        width: max(0, parent.width - 26)
         height: 2
+        anchors:
+            left: 24
+            right: 2
         items: ["~O~ne list for all files", "~E~ach file its own list"]
 
     #: The combined list, from the panel's directory.
     Field:
         id: list_name
-        x: 2
         y: 8
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~L~ist file"
         label_width: 11
         history_id: "checksum"
@@ -65,14 +67,16 @@ CalculateChecksumsDialog(Dialog):
         text: "O~K~"
         default: True
         x: 17
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 30
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

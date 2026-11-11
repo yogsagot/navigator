@@ -16,10 +16,11 @@ ChecksumReport(Dialog):
 
     StaticText:
         id: summary
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 4
+        anchors:
+            left: 2
+            right: 2
         wrap: False
 
     Label:
@@ -34,8 +35,9 @@ ChecksumReport(Dialog):
 
     ListViewer:
         id: bad
-        x: 2
         y: 7
-        width: max(0, parent.width - 4)
         height: max(1, parent.height - 12)
+        anchors:
+            left: 2
+            right: 2
         visible: len(self.items) > 0

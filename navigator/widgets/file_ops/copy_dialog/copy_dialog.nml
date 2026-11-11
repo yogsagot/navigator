@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -31,19 +32,21 @@ CopyDialog(Dialog):
     #: depends on what was selected and a document cannot see that.
     Label:
         id: prompt_caption
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         link: target.entry
 
     #: DN's ``hsFileCopyName``, one history for Copy and Rename/move as it was.
     Field:
         id: target
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "copy"
@@ -51,10 +54,11 @@ CopyDialog(Dialog):
     #: ``cpmOverwrite`` .. ``cpmRefresh``, so the value is the copy mode.
     RadioButtons:
         id: mode
-        x: 3
         y: 4
-        width: max(0, parent.width - 6)
         height: 5
+        anchors:
+            left: 3
+            right: 3
         items: ["~O~verwrite all existing files", "A~p~pend to all existing files", "~A~sk for overwrite", "~S~kip all existing files", "Refresh o~l~d files"]
 
     #: DN's four ``cpo`` bits in DN's places.  *Preserve attributes* and
@@ -62,47 +66,38 @@ CopyDialog(Dialog):
     #: descriptions* stood -- a departure, recorded in ``navml/DESIGN.md``.
     CheckBoxes:
         id: options
-        x: 3
         y: 10
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 3
+            right: 3
         items: ["Check ~f~ree disk space", "Pr~e~serve attributes", "Follow symli~n~ks", "Remove so~u~rce files"]
         tooltips: ["Stop before copying when the target has too little room", "Keep permissions, owner and times on the copies", "Copy what a link points to, not the link itself", "Delete the originals once copied: a move"]
 
     #: DN's own row rather than ``Dialog``'s, which has no Tree in it.  Cancel
     #: carries no letter, as the resource's did: ``~C~`` is the prompt's.
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 5
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 18
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    Button:
-        id: tree
-        text: "~T~ree"
-        x: 31
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: abandon
+            text: "Cancel"
 
-    #: There is no help to show yet.  Shown, as the original's was, and
-    #: disabled, as Choose Directory's *Drive* is.
-    Button:
-        id: help
-        text: "Help"
-        disabled: True
-        x: 44
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: tree
+            text: "~T~ree"
+
+        #: There is no help to show yet.  Shown, as the original's was, and
+        #: disabled, as Choose Directory's *Drive* is.
+        Button:
+            id: help
+            text: "Help"
+            disabled: True

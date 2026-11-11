@@ -47,6 +47,25 @@ The cost is that an anchor cannot express anything a property line could not.
 - **A visibility-aware sibling list** such as `before: macro_mark, root_mark, clock`, meaning "the first visible one".
   The Shell's status-line chains need it (`x: macro_mark.x if macro_mark.visible else root_mark.x if ...`). It is worth
   adding when those are converted, not before.
-- **Converting Navigator's documents.** This round converted navml's library: Modal, Dialog, FileDialog, ListViewer.
-  Navigator's files follow file by file. A hand-placed row of buttons whose DOS Navigator x values are centred becomes
-  a `ButtonRow` (`navml-library`); one that is not centred keeps its literals, for fidelity.
+
+## The conversion
+
+Navigator's documents were converted after navml's library, by a one-off rewrite. The rewrite only touched forms it
+could prove equal: a literal start with `max(0, parent.width - K)`, an end edge with a literal or `self` width,
+`A.x + A.width + G`, `max(0, A.x - G - self.width)`, and centring.
+
+- 417 blocks are anchored.
+- Every markup-built widget that constructs without arguments was laid out at 80x25 and at 120x40 before and after the
+  rewrite. Its absolute rectangles came out identical.
+- **Six `ButtonRow`s**: Dialog's, Copy's and Link's rows, the editor's Replace query, and the two queries whose
+  Python `slot()` did the same sum (UU's *Exists*, Replace in files'). These are the rows whose DN x values are exactly
+  centred at two cells apart.
+- **Nineteen rows keep their literal x values.** DOS Navigator rounded their centring differently, or did not centre
+  them at all (among them Find, Margins, Archive, the UU, Split and Combine boxes, Overwrite, the game, the calculator). A
+  `ButtonRow` there moves a button by a cell, so fidelity wins. Their buttons still anchor `bottom`.
+- **Left as expressions, about 70 lines**:
+  - width breakpoints (`35 if parent.width >= 67 else 30`);
+  - floors other than 0 (`max(1, parent.width - 30)`);
+  - visibility chains (`options.x - 1 if options.visible ...`);
+  - hand-centred rows against `parent.width // 2`, which are not equal-width rows (Error box);
+  - Erase query's order, which changes with `kind`.

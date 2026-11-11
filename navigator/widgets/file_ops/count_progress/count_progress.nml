@@ -38,10 +38,11 @@ CountProgress(Dialog):
 
     StaticText:
         id: directory_row
-        x: 6
         y: 1
-        width: max(0, parent.width - 8)
         height: 1
+        anchors:
+            left: 6
+            right: 2
         visible: root.several
         text: root.fit(root.directory)
 
@@ -51,9 +52,10 @@ CountProgress(Dialog):
     #: Never wrapped: a row too long still loses its label, not its end.
     StaticText:
         id: table
-        x: 4
         y: 3
-        width: max(0, parent.width - 6)
         height: 4
+        anchors:
+            left: 4
+            right: 2
         wrap: False
         text: root.counts(self.width, root.several, root.here_size, root.size, root.here_files, root.files, root.here_directories, root.directories)

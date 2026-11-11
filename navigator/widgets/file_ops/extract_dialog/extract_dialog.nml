@@ -32,20 +32,22 @@ ExtractDialog(Dialog):
     #: DN's ``hsFileCopyName``: the Copy dialog's history.
     Field:
         id: target
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "copy"
 
     CheckBoxes:
         id: options
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         items: ["Extract with ~p~ath names", "T~e~st only"]
         tooltips: ["Make the archive's directories; off, every file goes straight into the target", "Check the archive for errors, writing nothing"]
 
@@ -54,22 +56,25 @@ ExtractDialog(Dialog):
         text: "O~K~"
         default: True
         x: 5
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 18
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: tree
         text: "~T~ree"
         x: 31
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

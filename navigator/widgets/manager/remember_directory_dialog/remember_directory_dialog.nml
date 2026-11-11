@@ -15,28 +15,31 @@ RememberDirectoryDialog(Dialog):
 
     Label:
         id: prompt_head
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: "Keep the sort order, view and file mask shown for"
 
     #: The directory; given by the hand-written half.
     Label:
         id: prompt_tail
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
 
     #: Bit 1: the directories below take them too.
     CheckBoxes:
         id: options
-        x: max(0, (parent.width - 32) // 2)
         y: 4
         width: 32
         height: 1
+        anchors:
+            center: horizontal
         items: ["Also for its ~s~ubdirectories"]
         tooltips: ["Every directory below shown the same way, unless it is remembered for itself"]

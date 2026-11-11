@@ -41,12 +41,12 @@ class FindProgress(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     directory_row: StaticText    # find_progress.nml:19
-    count_row: StaticText    # find_progress.nml:28
+    count_row: StaticText    # find_progress.nml:29
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.directory_row = StaticText(parent=self)    # find_progress.nml:18
-        self.count_row = StaticText(parent=self)    # find_progress.nml:27
+        self.count_row = StaticText(parent=self)    # find_progress.nml:28
 
         self.modal_width = 56    # find_progress.nml:9
         self.modal_height = 8    # find_progress.nml:10
@@ -54,20 +54,20 @@ class FindProgress(Dialog, _Component):
         self.buttons = 'ok'    # find_progress.nml:12
         self.closable = False    # find_progress.nml:13
 
-        self.directory_row.x = 2    # find_progress.nml:20
-        self.directory_row.y = 1    # find_progress.nml:21
-        self.directory_row.width = _bind(    # find_progress.nml:22
+        self.directory_row.y = 1    # find_progress.nml:20
+        self.directory_row.height = 1    # find_progress.nml:21
+        self.directory_row.align = 'center'    # find_progress.nml:25
+        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # find_progress.nml:26
+        self.directory_row.x = 2    # find_progress.nml:23
+        self.directory_row.width = _bind(    # find_progress.nml:24
             lambda _o: max(0, _o.parent.width - 4)
         )
-        self.directory_row.height = 1    # find_progress.nml:23
-        self.directory_row.align = 'center'    # find_progress.nml:24
-        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # find_progress.nml:25
 
-        self.count_row.x = 2    # find_progress.nml:29
         self.count_row.y = 2    # find_progress.nml:30
-        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_progress.nml:31
-        self.count_row.height = 1    # find_progress.nml:32
-        self.count_row.align = 'center'    # find_progress.nml:33
-        self.count_row.text = _bind(    # find_progress.nml:34
+        self.count_row.height = 1    # find_progress.nml:31
+        self.count_row.align = 'center'    # find_progress.nml:35
+        self.count_row.text = _bind(    # find_progress.nml:36
             lambda _o: str(self.count) + ' files found' if self.count else _tr('No files found')
         )
+        self.count_row.x = 2    # find_progress.nml:33
+        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_progress.nml:34

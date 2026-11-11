@@ -18,10 +18,11 @@ Panel(ListViewer):
         target: root
         items: panel_items(root)
         room: parent._options_room()
-        x: max(0, parent.width - 3 - self.width)
-        y: max(0, parent.height - 1)
         width: self.used_width
         height: 1
+        anchors:
+            right: 3
+            bottom: 0
         visible: parent.framed and parent.error is None and SETTINGS.file_manager.show_options
 
     #: A departure, asked for, as the editor's: on the bottom frame from a
@@ -34,9 +35,10 @@ Panel(ListViewer):
         id: hbar
         orientation: "horizontal"
         x: 1
-        y: max(0, parent.height - 1)
         width: max(0, (options.x - 1 if options.visible and options.width else parent.width - 1) - self.x)
         height: 1
+        anchors:
+            bottom: 0
         value: parent.name_offset
         maximum: parent.max_name_scroll
         page: max(1, parent.name_room)

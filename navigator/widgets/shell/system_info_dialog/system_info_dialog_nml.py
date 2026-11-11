@@ -40,23 +40,23 @@ class SystemInfoDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     board_box: GroupBox    # system_info_dialog.nml:18
     board: StaticText    # system_info_dialog.nml:26
-    disks_box: GroupBox    # system_info_dialog.nml:33
-    disks: StaticText    # system_info_dialog.nml:41
-    memory_box: GroupBox    # system_info_dialog.nml:48
-    memory: StaticText    # system_info_dialog.nml:56
-    other_box: GroupBox    # system_info_dialog.nml:63
-    other: StaticText    # system_info_dialog.nml:71
+    disks_box: GroupBox    # system_info_dialog.nml:34
+    disks: StaticText    # system_info_dialog.nml:42
+    memory_box: GroupBox    # system_info_dialog.nml:50
+    memory: StaticText    # system_info_dialog.nml:58
+    other_box: GroupBox    # system_info_dialog.nml:66
+    other: StaticText    # system_info_dialog.nml:74
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.board_box = GroupBox(parent=self)    # system_info_dialog.nml:17
         self.board = StaticText(parent=self.board_box)    # system_info_dialog.nml:25
-        self.disks_box = GroupBox(parent=self)    # system_info_dialog.nml:32
-        self.disks = StaticText(parent=self.disks_box)    # system_info_dialog.nml:40
-        self.memory_box = GroupBox(parent=self)    # system_info_dialog.nml:47
-        self.memory = StaticText(parent=self.memory_box)    # system_info_dialog.nml:55
-        self.other_box = GroupBox(parent=self)    # system_info_dialog.nml:62
-        self.other = StaticText(parent=self.other_box)    # system_info_dialog.nml:70
+        self.disks_box = GroupBox(parent=self)    # system_info_dialog.nml:33
+        self.disks = StaticText(parent=self.disks_box)    # system_info_dialog.nml:41
+        self.memory_box = GroupBox(parent=self)    # system_info_dialog.nml:49
+        self.memory = StaticText(parent=self.memory_box)    # system_info_dialog.nml:57
+        self.other_box = GroupBox(parent=self)    # system_info_dialog.nml:65
+        self.other = StaticText(parent=self.other_box)    # system_info_dialog.nml:73
 
         self.modal_width = 70    # system_info_dialog.nml:12
         self.modal_height = 22    # system_info_dialog.nml:13
@@ -72,43 +72,43 @@ class SystemInfoDialog(Dialog, _Component):
             yielding=True,
         )
 
-        self.board.x = 2    # system_info_dialog.nml:27
-        self.board.y = 1    # system_info_dialog.nml:28
+        self.board.x = 2    # system_info_dialog.nml:28
         self.board.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:29
-        self.board.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:30
+        self.board.y = 1    # system_info_dialog.nml:30
+        self.board.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:31
 
-        self.disks_box.x = 3    # system_info_dialog.nml:34
-        self.disks_box.y = 6    # system_info_dialog.nml:35
-        self.disks_box.width = 64    # system_info_dialog.nml:36
-        self.disks_box.height = 6    # system_info_dialog.nml:37
-        self.disks_box.title = _bind(    # system_info_dialog.nml:38
+        self.disks_box.x = 3    # system_info_dialog.nml:35
+        self.disks_box.y = 6    # system_info_dialog.nml:36
+        self.disks_box.width = 64    # system_info_dialog.nml:37
+        self.disks_box.height = 6    # system_info_dialog.nml:38
+        self.disks_box.title = _bind(    # system_info_dialog.nml:39
             lambda _o: _tr('Disk drives'),
             yielding=True,
         )
 
-        self.disks.x = 2    # system_info_dialog.nml:42
-        self.disks.y = 1    # system_info_dialog.nml:43
-        self.disks.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:44
-        self.disks.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:45
+        self.disks.x = 2    # system_info_dialog.nml:44
+        self.disks.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:45
+        self.disks.y = 1    # system_info_dialog.nml:46
+        self.disks.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:47
 
-        self.memory_box.x = 3    # system_info_dialog.nml:49
-        self.memory_box.y = 12    # system_info_dialog.nml:50
-        self.memory_box.width = 26    # system_info_dialog.nml:51
-        self.memory_box.height = 6    # system_info_dialog.nml:52
-        self.memory_box.title = _bind(lambda _o: _tr('Memory'), yielding=True)    # system_info_dialog.nml:53
+        self.memory_box.x = 3    # system_info_dialog.nml:51
+        self.memory_box.y = 12    # system_info_dialog.nml:52
+        self.memory_box.width = 26    # system_info_dialog.nml:53
+        self.memory_box.height = 6    # system_info_dialog.nml:54
+        self.memory_box.title = _bind(lambda _o: _tr('Memory'), yielding=True)    # system_info_dialog.nml:55
 
-        self.memory.x = 2    # system_info_dialog.nml:57
-        self.memory.y = 1    # system_info_dialog.nml:58
-        self.memory.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:59
-        self.memory.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:60
+        self.memory.x = 2    # system_info_dialog.nml:60
+        self.memory.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:61
+        self.memory.y = 1    # system_info_dialog.nml:62
+        self.memory.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:63
 
-        self.other_box.x = 30    # system_info_dialog.nml:64
-        self.other_box.y = 12    # system_info_dialog.nml:65
-        self.other_box.width = 37    # system_info_dialog.nml:66
-        self.other_box.height = 6    # system_info_dialog.nml:67
-        self.other_box.title = _bind(lambda _o: _tr('Other'), yielding=True)    # system_info_dialog.nml:68
+        self.other_box.x = 30    # system_info_dialog.nml:67
+        self.other_box.y = 12    # system_info_dialog.nml:68
+        self.other_box.width = 37    # system_info_dialog.nml:69
+        self.other_box.height = 6    # system_info_dialog.nml:70
+        self.other_box.title = _bind(lambda _o: _tr('Other'), yielding=True)    # system_info_dialog.nml:71
 
-        self.other.x = 2    # system_info_dialog.nml:72
-        self.other.y = 1    # system_info_dialog.nml:73
-        self.other.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:74
-        self.other.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:75
+        self.other.x = 2    # system_info_dialog.nml:76
+        self.other.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:77
+        self.other.y = 1    # system_info_dialog.nml:78
+        self.other.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:79

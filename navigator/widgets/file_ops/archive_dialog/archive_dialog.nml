@@ -40,10 +40,11 @@ ArchiveDialog(Dialog):
     #: DN's ``hsFileCopyName``: the Copy dialog's history.
     Field:
         id: target
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "copy"
@@ -95,54 +96,60 @@ ArchiveDialog(Dialog):
 
     Field:
         id: password
-        x: 39
         y: 5
-        width: max(0, parent.width - 41)
         height: 1
+        anchors:
+            left: 39
+            right: 2
         label_text: ""
         label_width: 0
 
     CheckBoxes:
         id: options
-        x: 40
         y: 7
-        width: max(0, parent.width - 42)
         height: 3
+        anchors:
+            left: 40
+            right: 2
         items: ["Store path~n~ames", "Mo~v~e files", "Follow s~y~mlinks"]
         tooltips: ["Keep each file's directories inside the archive, not its name alone", "Delete the files once they are in the archive", "Pack what a link points to, not the link itself"]
 
     #: Which types are greyed, and what to install for them.
     StaticText:
         id: note
-        x: 2
         y: 13
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
 
     Button:
         id: pick
         text: "O~K~"
         default: True
         x: 6
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 19
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: tree
         text: "~T~ree"
         x: 32
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     #: There is no help to show yet: shown, and disabled, as Copy's is.
     Button:
@@ -150,6 +157,7 @@ ArchiveDialog(Dialog):
         text: "Help"
         disabled: True
         x: 45
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

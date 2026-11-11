@@ -74,8 +74,8 @@ class QuickViewer(_Component):
 
     #: Ids, annotated so the hand-written half completes them.
     viewer: FileViewer    # quick_viewer.nml:46
-    bar: ScrollBar    # quick_viewer.nml:53
-    hbar: ScrollBar    # quick_viewer.nml:70
+    bar: ScrollBar    # quick_viewer.nml:54
+    hbar: ScrollBar    # quick_viewer.nml:72
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -85,50 +85,50 @@ class QuickViewer(_Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:53
+    async def on_bar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:54
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
-    async def on_hbar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:70
+    async def on_hbar_scroll(self, event: _Event) -> bool:    # quick_viewer.nml:72
         """``hbar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.viewer = FileViewer(parent=self)    # quick_viewer.nml:45
-        self.bar = ScrollBar(parent=self)    # quick_viewer.nml:52
-        self.hbar = ScrollBar(parent=self)    # quick_viewer.nml:69
+        self.bar = ScrollBar(parent=self)    # quick_viewer.nml:53
+        self.hbar = ScrollBar(parent=self)    # quick_viewer.nml:71
 
-        self.viewer.x = 1    # quick_viewer.nml:47
-        self.viewer.y = 1    # quick_viewer.nml:48
+        self.viewer.x = 1    # quick_viewer.nml:48
         self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # quick_viewer.nml:49
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:50
+        self.viewer.y = 1    # quick_viewer.nml:50
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:51
 
-        self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # quick_viewer.nml:54
-        self.bar.y = 1    # quick_viewer.nml:55
-        self.bar.width = 1    # quick_viewer.nml:56
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:57
-        self.bar.value = _bind(lambda _o: self.viewer.top)    # quick_viewer.nml:58
-        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # quick_viewer.nml:59
-        self.bar.page = _bind(    # quick_viewer.nml:60
+        self.bar.width = 1    # quick_viewer.nml:55
+        self.bar.value = _bind(lambda _o: self.viewer.top)    # quick_viewer.nml:60
+        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # quick_viewer.nml:61
+        self.bar.page = _bind(    # quick_viewer.nml:62
             lambda _o: max(1, self.viewer.width * self.viewer.height)
         )
-        self.bar.visible = _bind(    # quick_viewer.nml:63
+        self.bar.visible = _bind(    # quick_viewer.nml:65
             lambda _o: self.viewer.focused and self.viewer.overflows
         )
-        self.bar.on_scroll = self.on_bar_scroll    # quick_viewer.nml:53
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # quick_viewer.nml:57
+        self.bar.y = 1    # quick_viewer.nml:58
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # quick_viewer.nml:59
+        self.bar.on_scroll = self.on_bar_scroll    # quick_viewer.nml:54
 
-        self.hbar.orientation = 'horizontal'    # quick_viewer.nml:71
-        self.hbar.x = 2    # quick_viewer.nml:72
-        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - 1))    # quick_viewer.nml:73
-        self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # quick_viewer.nml:74
-        self.hbar.height = 1    # quick_viewer.nml:75
-        self.hbar.value = _bind(lambda _o: self.viewer.x_delta)    # quick_viewer.nml:76
-        self.hbar.maximum = _bind(    # quick_viewer.nml:77
+        self.hbar.orientation = 'horizontal'    # quick_viewer.nml:73
+        self.hbar.height = 1    # quick_viewer.nml:74
+        self.hbar.value = _bind(lambda _o: self.viewer.x_delta)    # quick_viewer.nml:79
+        self.hbar.maximum = _bind(    # quick_viewer.nml:80
             lambda _o: max(0, self.viewer.row_span - self.viewer.width)
         )
-        self.hbar.page = _bind(lambda _o: max(1, self.viewer.width))    # quick_viewer.nml:78
-        self.hbar.visible = _bind(    # quick_viewer.nml:79
+        self.hbar.page = _bind(lambda _o: max(1, self.viewer.width))    # quick_viewer.nml:81
+        self.hbar.visible = _bind(    # quick_viewer.nml:82
             lambda _o: self.viewer.focused and self.viewer.row_span > self.viewer.width and (_o.width >= 4)
         )
-        self.hbar.on_scroll = self.on_hbar_scroll    # quick_viewer.nml:70
+        self.hbar.x = 2    # quick_viewer.nml:76
+        self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # quick_viewer.nml:77
+        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # quick_viewer.nml:78
+        self.hbar.on_scroll = self.on_hbar_scroll    # quick_viewer.nml:72

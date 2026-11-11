@@ -31,10 +31,11 @@ TreeWindow(Window):
     DirectoryTree:
         id: tree
         framed: False
-        x: 1
-        y: 1
-        width: max(0, parent.width - 1)
-        height: max(0, parent.height - 2)
+        anchors:
+            left: 1
+            right: 0
+            top: 1
+            bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: the file viewer's *View* is -- a departure, asked for: DN's window had

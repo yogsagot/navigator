@@ -24,10 +24,11 @@ SystemInfoDialog(Dialog):
 
         StaticText:
             id: board
-            x: 2
-            y: 1
-            width: max(0, parent.width - 4)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 2
+                top: 1
+                bottom: 1
 
     GroupBox:
         id: disks_box
@@ -39,10 +40,11 @@ SystemInfoDialog(Dialog):
 
         StaticText:
             id: disks
-            x: 2
-            y: 1
-            width: max(0, parent.width - 4)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 2
+                top: 1
+                bottom: 1
 
     GroupBox:
         id: memory_box
@@ -54,10 +56,11 @@ SystemInfoDialog(Dialog):
 
         StaticText:
             id: memory
-            x: 2
-            y: 1
-            width: max(0, parent.width - 4)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 2
+                top: 1
+                bottom: 1
 
     GroupBox:
         id: other_box
@@ -69,7 +72,8 @@ SystemInfoDialog(Dialog):
 
         StaticText:
             id: other
-            x: 2
-            y: 1
-            width: max(0, parent.width - 4)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 2
+                top: 1
+                bottom: 1

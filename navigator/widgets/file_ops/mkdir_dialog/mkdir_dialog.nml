@@ -23,10 +23,11 @@ MkdirDialog(Dialog):
         #: Not ``name``: ``Widget.name`` is what a ``#name`` selector
         #: matches, and the generator refuses an id that shadows it.
         id: entry
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~N~ame"
         label_width: 7
         #: DOS Navigator's ``hsMakeDir``: the names made before, a Down away.

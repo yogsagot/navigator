@@ -26,10 +26,11 @@ UUEncodeDialog(Dialog):
     #: DN's ``hsUUEncode``.
     Field:
         id: target
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~E~ncode to"
         label_width: 12
         history_id: "uuencode"
@@ -64,10 +65,11 @@ UUEncodeDialog(Dialog):
     #: ``ckNone`` .. ``ck64``: each includes those above it.
     RadioButtons:
         id: checksum
-        x: 32
         y: 5
-        width: max(0, parent.width - 34)
         height: 5
+        anchors:
+            left: 32
+            right: 2
         items: ["~N~one", "of Entire ~i~nput file", "of Each ~s~ection", "of Eac~h~ line", "Advanced ~6~4-bit"]
 
     MaskedField:
@@ -102,22 +104,25 @@ UUEncodeDialog(Dialog):
         text: "O~K~"
         default: True
         x: 12
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 25
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: tree
         text: "T~r~ee"
         x: 38
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

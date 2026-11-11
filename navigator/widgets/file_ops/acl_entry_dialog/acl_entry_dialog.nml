@@ -28,18 +28,20 @@ AclEntryDialog(Dialog):
 
     RadioButtons:
         id: kind
-        x: 14
         y: 1
-        width: max(0, parent.width - 16)
         height: 1
+        anchors:
+            left: 14
+            right: 2
         items: ["User", "Group"]
 
     ChoiceField:
         id: who
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~N~ame"
         label_width: 12
 
@@ -54,17 +56,19 @@ AclEntryDialog(Dialog):
 
     CheckBoxes:
         id: perms
-        x: 14
         y: 5
-        width: max(0, parent.width - 16)
         height: 1
+        anchors:
+            left: 14
+            right: 2
         items: ["Read", "Write", "Exec"]
 
     CheckBoxes:
         id: default_box
-        x: 14
         y: 7
-        width: max(0, parent.width - 16)
         height: 1
+        anchors:
+            left: 14
+            right: 2
         items: ["~D~efault, inherited by new files"]
         tooltips: ["A default entry: what new files and directories made inside inherit"]

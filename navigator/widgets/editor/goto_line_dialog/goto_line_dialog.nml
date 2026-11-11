@@ -14,10 +14,11 @@ GotoLineDialog(Dialog):
 
     Field:
         id: number
-        x: 3
         y: 2
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "~L~ine number"
         label_width: 13
         history_id: "goto_line"

@@ -58,18 +58,18 @@ class ArchiveDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     target_caption: Label    # archive_dialog.nml:32
     target: Field    # archive_dialog.nml:42
-    kind_caption: Label    # archive_dialog.nml:52
-    kind: RadioButtons    # archive_dialog.nml:62
-    level_caption: Label    # archive_dialog.nml:70
-    level: RadioButtons    # archive_dialog.nml:80
-    password_caption: Label    # archive_dialog.nml:88
-    password: Field    # archive_dialog.nml:97
-    options: CheckBoxes    # archive_dialog.nml:106
-    note: StaticText    # archive_dialog.nml:116
-    pick: Button    # archive_dialog.nml:123
-    abandon: Button    # archive_dialog.nml:132
-    tree: Button    # archive_dialog.nml:140
-    help: Button    # archive_dialog.nml:149
+    kind_caption: Label    # archive_dialog.nml:53
+    kind: RadioButtons    # archive_dialog.nml:63
+    level_caption: Label    # archive_dialog.nml:71
+    level: RadioButtons    # archive_dialog.nml:81
+    password_caption: Label    # archive_dialog.nml:89
+    password: Field    # archive_dialog.nml:98
+    options: CheckBoxes    # archive_dialog.nml:108
+    note: StaticText    # archive_dialog.nml:119
+    pick: Button    # archive_dialog.nml:127
+    abandon: Button    # archive_dialog.nml:137
+    tree: Button    # archive_dialog.nml:146
+    help: Button    # archive_dialog.nml:156
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -79,19 +79,19 @@ class ArchiveDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # archive_dialog.nml:123
+    async def on_pick_click(self, event: _Event) -> bool:    # archive_dialog.nml:127
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # archive_dialog.nml:132
+    async def on_abandon_click(self, event: _Event) -> bool:    # archive_dialog.nml:137
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # archive_dialog.nml:140
+    async def on_tree_click(self, event: _Event) -> bool:    # archive_dialog.nml:146
         """``tree`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_help_click(self, event: _Event) -> bool:    # archive_dialog.nml:149
+    async def on_help_click(self, event: _Event) -> bool:    # archive_dialog.nml:156
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -99,18 +99,18 @@ class ArchiveDialog(Dialog, _Component):
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # archive_dialog.nml:31
         self.target = Field(parent=self)    # archive_dialog.nml:41
-        self.kind_caption = Label(parent=self)    # archive_dialog.nml:51
-        self.kind = RadioButtons(parent=self)    # archive_dialog.nml:61
-        self.level_caption = Label(parent=self)    # archive_dialog.nml:69
-        self.level = RadioButtons(parent=self)    # archive_dialog.nml:79
-        self.password_caption = Label(parent=self)    # archive_dialog.nml:87
-        self.password = Field(parent=self)    # archive_dialog.nml:96
-        self.options = CheckBoxes(parent=self)    # archive_dialog.nml:105
-        self.note = StaticText(parent=self)    # archive_dialog.nml:115
-        self.pick = Button(parent=self)    # archive_dialog.nml:122
-        self.abandon = Button(parent=self)    # archive_dialog.nml:131
-        self.tree = Button(parent=self)    # archive_dialog.nml:139
-        self.help = Button(parent=self)    # archive_dialog.nml:148
+        self.kind_caption = Label(parent=self)    # archive_dialog.nml:52
+        self.kind = RadioButtons(parent=self)    # archive_dialog.nml:62
+        self.level_caption = Label(parent=self)    # archive_dialog.nml:70
+        self.level = RadioButtons(parent=self)    # archive_dialog.nml:80
+        self.password_caption = Label(parent=self)    # archive_dialog.nml:88
+        self.password = Field(parent=self)    # archive_dialog.nml:97
+        self.options = CheckBoxes(parent=self)    # archive_dialog.nml:107
+        self.note = StaticText(parent=self)    # archive_dialog.nml:118
+        self.pick = Button(parent=self)    # archive_dialog.nml:126
+        self.abandon = Button(parent=self)    # archive_dialog.nml:136
+        self.tree = Button(parent=self)    # archive_dialog.nml:145
+        self.help = Button(parent=self)    # archive_dialog.nml:155
 
         self.modal_width = 64    # archive_dialog.nml:23
         self.modal_height = 18    # archive_dialog.nml:24
@@ -126,113 +126,121 @@ class ArchiveDialog(Dialog, _Component):
         )
         self.target_caption.link = _bind(lambda _o: self.target.entry)    # archive_dialog.nml:38
 
-        self.target.x = 2    # archive_dialog.nml:43
-        self.target.y = 2    # archive_dialog.nml:44
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # archive_dialog.nml:45
-        self.target.height = 1    # archive_dialog.nml:46
-        self.target.label_text = ''    # archive_dialog.nml:47
-        self.target.label_width = 0    # archive_dialog.nml:48
-        self.target.history_id = 'copy'    # archive_dialog.nml:49
+        self.target.y = 2    # archive_dialog.nml:43
+        self.target.height = 1    # archive_dialog.nml:44
+        self.target.label_text = ''    # archive_dialog.nml:48
+        self.target.label_width = 0    # archive_dialog.nml:49
+        self.target.history_id = 'copy'    # archive_dialog.nml:50
+        self.target.x = 2    # archive_dialog.nml:46
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # archive_dialog.nml:47
 
-        self.kind_caption.x = 2    # archive_dialog.nml:53
-        self.kind_caption.y = 4    # archive_dialog.nml:54
-        self.kind_caption.width = 16    # archive_dialog.nml:55
-        self.kind_caption.height = 1    # archive_dialog.nml:56
-        self.kind_caption.text = _bind(    # archive_dialog.nml:57
+        self.kind_caption.x = 2    # archive_dialog.nml:54
+        self.kind_caption.y = 4    # archive_dialog.nml:55
+        self.kind_caption.width = 16    # archive_dialog.nml:56
+        self.kind_caption.height = 1    # archive_dialog.nml:57
+        self.kind_caption.text = _bind(    # archive_dialog.nml:58
             lambda _o: _tr('Archive type'),
             yielding=True,
         )
-        self.kind_caption.link = _bind(lambda _o: self.kind)    # archive_dialog.nml:58
+        self.kind_caption.link = _bind(lambda _o: self.kind)    # archive_dialog.nml:59
 
-        self.kind.x = 3    # archive_dialog.nml:63
-        self.kind.y = 5    # archive_dialog.nml:64
-        self.kind.width = 16    # archive_dialog.nml:65
-        self.kind.height = 8    # archive_dialog.nml:66
-        self.kind.items = _bind(    # archive_dialog.nml:67
+        self.kind.x = 3    # archive_dialog.nml:64
+        self.kind.y = 5    # archive_dialog.nml:65
+        self.kind.width = 16    # archive_dialog.nml:66
+        self.kind.height = 8    # archive_dialog.nml:67
+        self.kind.items = _bind(    # archive_dialog.nml:68
             lambda _o: [_tr('~Z~IP'), _tr('~7~Z'), _tr('T~A~R'), _tr('TAR.~G~Z'), _tr('TAR.~B~Z2'), _tr('TAR.~X~Z'), _tr('TAR.Z~S~T'), _tr('~R~AR')],
             yielding=True,
         )
 
-        self.level_caption.x = 21    # archive_dialog.nml:71
-        self.level_caption.y = 4    # archive_dialog.nml:72
-        self.level_caption.width = 16    # archive_dialog.nml:73
-        self.level_caption.height = 1    # archive_dialog.nml:74
-        self.level_caption.text = _bind(    # archive_dialog.nml:75
+        self.level_caption.x = 21    # archive_dialog.nml:72
+        self.level_caption.y = 4    # archive_dialog.nml:73
+        self.level_caption.width = 16    # archive_dialog.nml:74
+        self.level_caption.height = 1    # archive_dialog.nml:75
+        self.level_caption.text = _bind(    # archive_dialog.nml:76
             lambda _o: _tr('Compression'),
             yielding=True,
         )
-        self.level_caption.link = _bind(lambda _o: self.level)    # archive_dialog.nml:76
+        self.level_caption.link = _bind(lambda _o: self.level)    # archive_dialog.nml:77
 
-        self.level.x = 22    # archive_dialog.nml:81
-        self.level.y = 5    # archive_dialog.nml:82
-        self.level.width = 15    # archive_dialog.nml:83
-        self.level.height = 5    # archive_dialog.nml:84
-        self.level.items = _bind(    # archive_dialog.nml:85
+        self.level.x = 22    # archive_dialog.nml:82
+        self.level.y = 5    # archive_dialog.nml:83
+        self.level.width = 15    # archive_dialog.nml:84
+        self.level.height = 5    # archive_dialog.nml:85
+        self.level.items = _bind(    # archive_dialog.nml:86
             lambda _o: [_tr('N~o~ne'), _tr('~F~astest'), _tr('Nor~m~al'), _tr('Max~i~mum'), _tr('~U~ltra')],
             yielding=True,
         )
 
-        self.password_caption.x = 39    # archive_dialog.nml:89
-        self.password_caption.y = 4    # archive_dialog.nml:90
-        self.password_caption.width = 20    # archive_dialog.nml:91
-        self.password_caption.height = 1    # archive_dialog.nml:92
-        self.password_caption.text = _bind(    # archive_dialog.nml:93
+        self.password_caption.x = 39    # archive_dialog.nml:90
+        self.password_caption.y = 4    # archive_dialog.nml:91
+        self.password_caption.width = 20    # archive_dialog.nml:92
+        self.password_caption.height = 1    # archive_dialog.nml:93
+        self.password_caption.text = _bind(    # archive_dialog.nml:94
             lambda _o: _tr('Pass~w~ord'),
             yielding=True,
         )
-        self.password_caption.link = _bind(lambda _o: self.password.entry)    # archive_dialog.nml:94
+        self.password_caption.link = _bind(lambda _o: self.password.entry)    # archive_dialog.nml:95
 
-        self.password.x = 39    # archive_dialog.nml:98
         self.password.y = 5    # archive_dialog.nml:99
-        self.password.width = _bind(lambda _o: max(0, _o.parent.width - 41))    # archive_dialog.nml:100
-        self.password.height = 1    # archive_dialog.nml:101
-        self.password.label_text = ''    # archive_dialog.nml:102
-        self.password.label_width = 0    # archive_dialog.nml:103
+        self.password.height = 1    # archive_dialog.nml:100
+        self.password.label_text = ''    # archive_dialog.nml:104
+        self.password.label_width = 0    # archive_dialog.nml:105
+        self.password.x = 39    # archive_dialog.nml:102
+        self.password.width = _bind(lambda _o: max(0, _o.parent.width - 41))    # archive_dialog.nml:103
 
-        self.options.x = 40    # archive_dialog.nml:107
-        self.options.y = 7    # archive_dialog.nml:108
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 42))    # archive_dialog.nml:109
+        self.options.y = 7    # archive_dialog.nml:109
         self.options.height = 3    # archive_dialog.nml:110
-        self.options.items = _bind(    # archive_dialog.nml:111
+        self.options.items = _bind(    # archive_dialog.nml:114
             lambda _o: [_tr('Store path~n~ames'), _tr('Mo~v~e files'), _tr('Follow s~y~mlinks')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # archive_dialog.nml:112
+        self.options.tooltips = _bind(    # archive_dialog.nml:115
             lambda _o: [_tr("Keep each file's directories inside the archive, not its name alone"), _tr('Delete the files once they are in the archive'), _tr('Pack what a link points to, not the link itself')],
             yielding=True,
         )
+        self.options.x = 40    # archive_dialog.nml:112
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 42))    # archive_dialog.nml:113
 
-        self.note.x = 2    # archive_dialog.nml:117
-        self.note.y = 13    # archive_dialog.nml:118
-        self.note.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # archive_dialog.nml:119
-        self.note.height = 1    # archive_dialog.nml:120
+        self.note.y = 13    # archive_dialog.nml:120
+        self.note.height = 1    # archive_dialog.nml:121
+        self.note.x = 2    # archive_dialog.nml:123
+        self.note.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # archive_dialog.nml:124
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # archive_dialog.nml:124
-        self.pick.default = True    # archive_dialog.nml:125
-        self.pick.x = 6    # archive_dialog.nml:126
-        self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # archive_dialog.nml:127
-        self.pick.width = 11    # archive_dialog.nml:128
-        self.pick.height = 2    # archive_dialog.nml:129
-        self.pick.on_click = self.on_pick_click    # archive_dialog.nml:123
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # archive_dialog.nml:128
+        self.pick.default = True    # archive_dialog.nml:129
+        self.pick.x = 6    # archive_dialog.nml:130
+        self.pick.width = 11    # archive_dialog.nml:131
+        self.pick.height = 2    # archive_dialog.nml:132
+        self.pick.y = _bind(    # archive_dialog.nml:134
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.pick.on_click = self.on_pick_click    # archive_dialog.nml:127
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # archive_dialog.nml:133
-        self.abandon.x = 19    # archive_dialog.nml:134
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # archive_dialog.nml:135
-        self.abandon.width = 11    # archive_dialog.nml:136
-        self.abandon.height = 2    # archive_dialog.nml:137
-        self.abandon.on_click = self.on_abandon_click    # archive_dialog.nml:132
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # archive_dialog.nml:138
+        self.abandon.x = 19    # archive_dialog.nml:139
+        self.abandon.width = 11    # archive_dialog.nml:140
+        self.abandon.height = 2    # archive_dialog.nml:141
+        self.abandon.y = _bind(    # archive_dialog.nml:143
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.abandon.on_click = self.on_abandon_click    # archive_dialog.nml:137
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # archive_dialog.nml:141
-        self.tree.x = 32    # archive_dialog.nml:142
-        self.tree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # archive_dialog.nml:143
-        self.tree.width = 11    # archive_dialog.nml:144
-        self.tree.height = 2    # archive_dialog.nml:145
-        self.tree.on_click = self.on_tree_click    # archive_dialog.nml:140
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # archive_dialog.nml:147
+        self.tree.x = 32    # archive_dialog.nml:148
+        self.tree.width = 11    # archive_dialog.nml:149
+        self.tree.height = 2    # archive_dialog.nml:150
+        self.tree.y = _bind(    # archive_dialog.nml:152
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.tree.on_click = self.on_tree_click    # archive_dialog.nml:146
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # archive_dialog.nml:150
-        self.help.disabled = True    # archive_dialog.nml:151
-        self.help.x = 45    # archive_dialog.nml:152
-        self.help.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # archive_dialog.nml:153
-        self.help.width = 11    # archive_dialog.nml:154
-        self.help.height = 2    # archive_dialog.nml:155
-        self.help.on_click = self.on_help_click    # archive_dialog.nml:149
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # archive_dialog.nml:157
+        self.help.disabled = True    # archive_dialog.nml:158
+        self.help.x = 45    # archive_dialog.nml:159
+        self.help.width = 11    # archive_dialog.nml:160
+        self.help.height = 2    # archive_dialog.nml:161
+        self.help.y = _bind(    # archive_dialog.nml:163
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.help.on_click = self.on_help_click    # archive_dialog.nml:156

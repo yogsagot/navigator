@@ -37,18 +37,20 @@ AttrDialog(Dialog):
     #: The entry's kind and name, or how many of each were tagged.
     StaticText:
         id: name_row
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
 
     #: A lone entry's size and where a link points.
     StaticText:
         id: info_row
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
 
     #: The rule under the captions is each page's first row; it meets the
     #: frame at both ends.
@@ -61,10 +63,11 @@ AttrDialog(Dialog):
             "Extended attributes: names and values kept with the file",
             "File system flags, such as immutable and append-only",
         ]
-        x: 0
         y: 3
-        width: parent.width
         height: 12
+        anchors:
+            left: 0
+            right: 0
         side: "simple"
         joins_frame: True
 
@@ -107,10 +110,11 @@ AttrDialog(Dialog):
 
             CheckBoxes:
                 id: bits
-                x: 3
                 y: 2
-                width: max(0, parent.width - 6)
                 height: 3
+                anchors:
+                    left: 3
+                    right: 3
                 items: ["Read", "Write", "Exec", "Read", "Write", "Exec", "Read", "Write", "Exec", "Set UID", "Set GID", "Sticky"]
                 tooltips: ["", "", "", "", "", "", "", "", "", "Run with the file owner's rights", "Run with the group's rights; in a directory, new files take its group", "In a directory, only a file's owner may delete or rename it"]
 
@@ -139,19 +143,21 @@ AttrDialog(Dialog):
             #: key on either drops its list, and typing there searches it.
             ChoiceField:
                 id: user
-                x: 2
                 y: 7
-                width: max(0, parent.width - 4)
                 height: 1
+                anchors:
+                    left: 2
+                    right: 2
                 label_text: "~U~ser"
                 label_width: 11
 
             ChoiceField:
                 id: group
-                x: 2
                 y: 8
-                width: max(0, parent.width - 4)
                 height: 1
+                anchors:
+                    left: 2
+                    right: 2
                 label_text: "~G~roup"
                 label_width: 11
 
@@ -197,51 +203,57 @@ AttrDialog(Dialog):
 
             ListViewer:
                 id: acl_list
-                x: 2
                 y: 2
-                width: max(0, parent.width - 18)
                 height: 8
+                anchors:
+                    left: 2
+                    right: 16
 
             Button:
                 id: acl_add
                 text: "~A~dd"
-                x: max(0, parent.width - 14)
                 y: 2
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             Button:
                 id: acl_edit
                 text: "~E~dit"
-                x: max(0, parent.width - 14)
                 y: 4
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             Button:
                 id: acl_delete
                 text: "~D~elete"
-                x: max(0, parent.width - 14)
                 y: 6
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             #: ``setfacl -b``: every named entry and the mask, access and default.
             Button:
                 id: acl_clear
                 text: "~C~lear"
-                x: max(0, parent.width - 14)
                 y: 8
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             #: Why the page cannot be used, where it cannot.
             StaticText:
                 id: acl_note
-                x: 2
                 y: 10
-                width: max(0, parent.width - 4)
                 height: 1
+                anchors:
+                    left: 2
+                    right: 2
 
         TabPage:
             id: xattr_page
@@ -258,41 +270,46 @@ AttrDialog(Dialog):
 
             ListViewer:
                 id: xattr_list
-                x: 2
                 y: 2
-                width: max(0, parent.width - 18)
                 height: 8
+                anchors:
+                    left: 2
+                    right: 16
 
             Button:
                 id: xattr_add
                 text: "~A~dd"
-                x: max(0, parent.width - 14)
                 y: 2
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             Button:
                 id: xattr_edit
                 text: "~E~dit"
-                x: max(0, parent.width - 14)
                 y: 4
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             Button:
                 id: xattr_delete
                 text: "~D~elete"
-                x: max(0, parent.width - 14)
                 y: 6
                 width: 12
                 height: 2
+                anchors:
+                    right: 2
 
             StaticText:
                 id: xattr_note
-                x: 2
                 y: 10
-                width: max(0, parent.width - 4)
                 height: 1
+                anchors:
+                    left: 2
+                    right: 2
 
         #: ``chattr``'s flags a user may ask for, tri-state as the mode's grid,
         #: four columns of three; the ``lsattr`` line has the rest too.
@@ -311,26 +328,29 @@ AttrDialog(Dialog):
 
             CheckBoxes:
                 id: flags
-                x: 3
                 y: 2
-                width: max(0, parent.width - 6)
                 height: 3
+                anchors:
+                    left: 3
+                    right: 3
                 items: ["Immutable", "Append", "No dump", "No atime", "Sync", "Dir sync", "No COW", "Compress", "Journal", "Top dir", "Secure rm", "Undelete"]
                 tooltips: ["No one may change, rename or delete it, root included", "It can only be added to", "Left out of backups made with dump", "Its access time is never updated", "Its changes are written to the disk at once", "Changes to this directory are written to the disk at once", "Rewritten in place rather than copied on write (btrfs)", "Compressed by the file system", "Its data goes through the file system's journal", "The top of a directory tree, for where the file system places blocks", "Its blocks are cleared when it is deleted, where the file system can", "Its contents are kept when it is deleted, where the file system can"]
 
             StaticText:
                 id: lsattr
-                x: 3
                 y: 6
-                width: max(0, parent.width - 6)
                 height: 1
+                anchors:
+                    left: 3
+                    right: 3
 
             StaticText:
                 id: flags_note
-                x: 3
                 y: 8
-                width: max(0, parent.width - 6)
                 height: 1
+                anchors:
+                    left: 3
+                    right: 3
 
     #: What to change under a tagged directory, on every page; inert with
     #: none tagged.
@@ -345,10 +365,11 @@ AttrDialog(Dialog):
 
     RadioButtons:
         id: recurse
-        x: 12
         y: 16
-        width: max(0, parent.width - 14)
         height: 1
+        anchors:
+            left: 12
+            right: 2
         items: ["No", "Files", "Dirs", "All"]
         tooltips: ["Only the tagged directories themselves change", "The files under a tagged directory change too, the directories in it not", "The directories under a tagged directory change too, the files in it not", "Everything under a tagged directory changes too"]
 

@@ -17,19 +17,21 @@ ConvertTextDialog(Dialog):
 
     ChoiceField:
         id: encoding
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~E~ncoding"
         label_width: 22
 
     ChoiceField:
         id: fallback
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Read ~n~on-UTF-8 as"
         label_width: 22
 
@@ -52,10 +54,11 @@ ConvertTextDialog(Dialog):
 
     CheckBoxes:
         id: options
-        x: 32
         y: 5
-        width: max(0, parent.width - 34)
         height: 1
+        anchors:
+            left: 32
+            right: 2
         items: ["Keep file ~t~imes"]
 
     Button:
@@ -63,14 +66,16 @@ ConvertTextDialog(Dialog):
         text: "O~K~"
         default: True
         x: 17
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 30
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

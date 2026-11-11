@@ -67,10 +67,11 @@ AdvancedSearchDialog(Dialog):
 
     CheckBoxes:
         id: kinds
-        x: 3
         y: 9
-        width: max(0, parent.width - 6)
         height: 3
+        anchors:
+            left: 3
+            right: 3
         items: ["E~x~ecutable", "S~y~mbolic link", "H~i~dden", "R~e~ad-only", "Broke~n~ link"]
 
     Button:
@@ -78,23 +79,26 @@ AdvancedSearchDialog(Dialog):
         text: "O~K~"
         default: True
         x: 3
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     #: DN's command 3222.
     Button:
         id: clear
         text: "~C~lear all"
         x: 16
-        y: max(0, parent.height - 4)
         width: 14
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 32
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

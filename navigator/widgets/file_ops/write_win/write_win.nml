@@ -38,29 +38,32 @@ WriteWin(Dialog):
 
     StaticText:
         id: notice_row
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: root.notice
 
     ProgressBar:
         id: bar
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         visible: root.total > 0
         value: root.position
         total: root.total
 
     StaticText:
         id: percent_row
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         visible: root.total > 0
         text: "%d%%" % bar.percent

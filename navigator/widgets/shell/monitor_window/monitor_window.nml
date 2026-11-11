@@ -38,49 +38,55 @@ MonitorWindow(Window):
 
     GroupBox:
         id: cpu_box
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: root.heights[0]
+        anchors:
+            left: 2
+            right: 2
         title: "CPU"
 
         CpuMeters:
             id: cpu
-            x: 2
-            y: 1
-            width: max(0, parent.width - 3)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 1
+                top: 1
+                bottom: 1
 
     GroupBox:
         id: memory_box
-        x: 2
-        y: cpu_box.y + cpu_box.height
-        width: max(0, parent.width - 4)
         height: root.heights[1]
+        anchors:
+            left: 2
+            right: 2
+            below: cpu_box
         title: "Memory"
 
         MemoryMeters:
             id: memory
-            x: 2
-            y: 1
-            width: max(0, parent.width - 4)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 2
+                top: 1
+                bottom: 1
 
     GroupBox:
         id: sensor_box
-        x: 2
-        y: memory_box.y + memory_box.height
-        width: max(0, parent.width - 4)
         height: root.heights[2]
+        anchors:
+            left: 2
+            right: 2
+            below: memory_box
         visible: root.heights[2] >= 3
         title: "Sensors"
 
         SensorList:
             id: sensors
-            x: 2
-            y: 1
-            width: max(0, parent.width - 3)
-            height: max(0, parent.height - 2)
+            anchors:
+                left: 2
+                right: 1
+                top: 1
+                bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Process list's is.  Also its right-click menu.

@@ -28,28 +28,31 @@ ChecksumProgress(Dialog):
 
     StaticText:
         id: current_row
-        x: 4
         y: 1
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 4
+            right: 2
         wrap: False
         text: root.fit(root.current)
         tooltip: root.whole(root.current)
 
     ProgressBar:
         id: bar
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         value: root.position
         total: root.total
 
     StaticText:
         id: count_row
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: root.counted(root.files_done, root.files_total, bar.percent)

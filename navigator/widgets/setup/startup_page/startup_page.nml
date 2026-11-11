@@ -23,10 +23,11 @@ StartupPage:
 
     CheckBoxes:
         id: startup
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         items: ["Auto run ~U~ser Menu", "Clear ~H~istory"]
 
     Label:
@@ -40,8 +41,9 @@ StartupPage:
 
     CheckBoxes:
         id: shutdown
-        x: 2
         y: 5
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         items: ["~I~nactivity hour exit", "Autosave ~D~esktop", "~P~reserve directory"]

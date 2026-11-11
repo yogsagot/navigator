@@ -22,10 +22,11 @@ ErrorDialog(Dialog):
     StaticText:
         id: summary
         name: "summary"
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         wrap: True
 
     #: The traceback as Python prints it, innermost call last, each line
@@ -33,40 +34,45 @@ ErrorDialog(Dialog):
     #: Pygments' traceback lexer as the editor colours code.
     TraceList:
         id: trace
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: max(1, parent.height - 9)
+        anchors:
+            left: 2
+            right: 2
 
     StaticText:
         id: logged
         name: "logged"
-        x: 2
-        y: max(0, parent.height - 6)
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 5
 
     Button:
         id: resume
         text: "~C~ontinue"
         default: True
         x: max(0, parent.width // 2 - 22)
-        y: max(0, parent.height - 4)
         width: 14
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: copy
         text: "C~o~py"
         x: max(0, parent.width // 2 - 7)
-        y: max(0, parent.height - 4)
         width: 14
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: quit
         text: "~Q~uit"
         x: max(0, parent.width // 2 + 8)
-        y: max(0, parent.height - 4)
         width: 14
         height: 2
+        anchors:
+            bottom: 2

@@ -56,14 +56,16 @@ ColumnsDialog(Dialog):
         text: "O~K~"
         default: True
         x: 7
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 20
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

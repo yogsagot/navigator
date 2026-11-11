@@ -24,10 +24,11 @@ ViewerTypesPage:
 
     StaticText:
         id: masks_heading
-        x: 28
         y: 1
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         text: "Masks, separated by ;"
 
     CheckBoxes:

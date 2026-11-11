@@ -12,10 +12,11 @@ WinnerDialog(Dialog):
 
     Field:
         id: player
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Enter your name:"
         label_width: 18
         history_id: "tetris"

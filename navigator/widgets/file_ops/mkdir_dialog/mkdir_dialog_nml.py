@@ -52,10 +52,10 @@ class MkdirDialog(Dialog, _Component):
         self.title = _bind(lambda _o: _tr('Make directory'), yielding=True)    # mkdir_dialog.nml:17
         self.close_on_outside_click = True    # mkdir_dialog.nml:20
 
-        self.entry.x = 2    # mkdir_dialog.nml:26
-        self.entry.y = 2    # mkdir_dialog.nml:27
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:28
-        self.entry.height = 1    # mkdir_dialog.nml:29
-        self.entry.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # mkdir_dialog.nml:30
-        self.entry.label_width = 7    # mkdir_dialog.nml:31
-        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:33
+        self.entry.y = 2    # mkdir_dialog.nml:26
+        self.entry.height = 1    # mkdir_dialog.nml:27
+        self.entry.label_text = _bind(lambda _o: _tr('~N~ame'), yielding=True)    # mkdir_dialog.nml:31
+        self.entry.label_width = 7    # mkdir_dialog.nml:32
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:34
+        self.entry.x = 2    # mkdir_dialog.nml:29
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:30

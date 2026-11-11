@@ -48,10 +48,10 @@ class UUDecodeDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     target_caption: Label    # uu_decode_dialog.nml:22
     target: Field    # uu_decode_dialog.nml:32
-    options: CheckBoxes    # uu_decode_dialog.nml:42
-    pick: Button    # uu_decode_dialog.nml:50
-    abandon: Button    # uu_decode_dialog.nml:59
-    tree: Button    # uu_decode_dialog.nml:67
+    options: CheckBoxes    # uu_decode_dialog.nml:43
+    pick: Button    # uu_decode_dialog.nml:52
+    abandon: Button    # uu_decode_dialog.nml:62
+    tree: Button    # uu_decode_dialog.nml:71
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -61,15 +61,15 @@ class UUDecodeDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:50
+    async def on_pick_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:52
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:59
+    async def on_abandon_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:62
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:67
+    async def on_tree_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:71
         """``tree`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -77,10 +77,10 @@ class UUDecodeDialog(Dialog, _Component):
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # uu_decode_dialog.nml:21
         self.target = Field(parent=self)    # uu_decode_dialog.nml:31
-        self.options = CheckBoxes(parent=self)    # uu_decode_dialog.nml:41
-        self.pick = Button(parent=self)    # uu_decode_dialog.nml:49
-        self.abandon = Button(parent=self)    # uu_decode_dialog.nml:58
-        self.tree = Button(parent=self)    # uu_decode_dialog.nml:66
+        self.options = CheckBoxes(parent=self)    # uu_decode_dialog.nml:42
+        self.pick = Button(parent=self)    # uu_decode_dialog.nml:51
+        self.abandon = Button(parent=self)    # uu_decode_dialog.nml:61
+        self.tree = Button(parent=self)    # uu_decode_dialog.nml:70
 
         self.modal_width = 49    # uu_decode_dialog.nml:14
         self.modal_height = 12    # uu_decode_dialog.nml:15
@@ -96,41 +96,47 @@ class UUDecodeDialog(Dialog, _Component):
         )
         self.target_caption.link = _bind(lambda _o: self.target.entry)    # uu_decode_dialog.nml:28
 
-        self.target.x = 2    # uu_decode_dialog.nml:33
-        self.target.y = 2    # uu_decode_dialog.nml:34
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_decode_dialog.nml:35
-        self.target.height = 1    # uu_decode_dialog.nml:36
-        self.target.label_text = ''    # uu_decode_dialog.nml:37
-        self.target.label_width = 0    # uu_decode_dialog.nml:38
-        self.target.history_id = 'uudecode'    # uu_decode_dialog.nml:39
+        self.target.y = 2    # uu_decode_dialog.nml:33
+        self.target.height = 1    # uu_decode_dialog.nml:34
+        self.target.label_text = ''    # uu_decode_dialog.nml:38
+        self.target.label_width = 0    # uu_decode_dialog.nml:39
+        self.target.history_id = 'uudecode'    # uu_decode_dialog.nml:40
+        self.target.x = 2    # uu_decode_dialog.nml:36
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_decode_dialog.nml:37
 
-        self.options.x = 2    # uu_decode_dialog.nml:43
         self.options.y = 4    # uu_decode_dialog.nml:44
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_decode_dialog.nml:45
-        self.options.height = 3    # uu_decode_dialog.nml:46
-        self.options.items = _bind(    # uu_decode_dialog.nml:47
+        self.options.height = 3    # uu_decode_dialog.nml:45
+        self.options.items = _bind(    # uu_decode_dialog.nml:49
             lambda _o: [_tr('~C~heck existing files'), _tr('Display ~e~rror messages'), _tr('~S~ave broken files')],
             yielding=True,
         )
+        self.options.x = 2    # uu_decode_dialog.nml:47
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_decode_dialog.nml:48
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # uu_decode_dialog.nml:51
-        self.pick.default = True    # uu_decode_dialog.nml:52
-        self.pick.x = 5    # uu_decode_dialog.nml:53
-        self.pick.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:54
-        self.pick.width = 11    # uu_decode_dialog.nml:55
-        self.pick.height = 2    # uu_decode_dialog.nml:56
-        self.pick.on_click = self.on_pick_click    # uu_decode_dialog.nml:50
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # uu_decode_dialog.nml:53
+        self.pick.default = True    # uu_decode_dialog.nml:54
+        self.pick.x = 5    # uu_decode_dialog.nml:55
+        self.pick.width = 11    # uu_decode_dialog.nml:56
+        self.pick.height = 2    # uu_decode_dialog.nml:57
+        self.pick.y = _bind(    # uu_decode_dialog.nml:59
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.pick.on_click = self.on_pick_click    # uu_decode_dialog.nml:52
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_decode_dialog.nml:60
-        self.abandon.x = 18    # uu_decode_dialog.nml:61
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:62
-        self.abandon.width = 11    # uu_decode_dialog.nml:63
-        self.abandon.height = 2    # uu_decode_dialog.nml:64
-        self.abandon.on_click = self.on_abandon_click    # uu_decode_dialog.nml:59
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_decode_dialog.nml:63
+        self.abandon.x = 18    # uu_decode_dialog.nml:64
+        self.abandon.width = 11    # uu_decode_dialog.nml:65
+        self.abandon.height = 2    # uu_decode_dialog.nml:66
+        self.abandon.y = _bind(    # uu_decode_dialog.nml:68
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.abandon.on_click = self.on_abandon_click    # uu_decode_dialog.nml:62
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # uu_decode_dialog.nml:68
-        self.tree.x = 31    # uu_decode_dialog.nml:69
-        self.tree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # uu_decode_dialog.nml:70
-        self.tree.width = 11    # uu_decode_dialog.nml:71
-        self.tree.height = 2    # uu_decode_dialog.nml:72
-        self.tree.on_click = self.on_tree_click    # uu_decode_dialog.nml:67
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # uu_decode_dialog.nml:72
+        self.tree.x = 31    # uu_decode_dialog.nml:73
+        self.tree.width = 11    # uu_decode_dialog.nml:74
+        self.tree.height = 2    # uu_decode_dialog.nml:75
+        self.tree.y = _bind(    # uu_decode_dialog.nml:77
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.tree.on_click = self.on_tree_click    # uu_decode_dialog.nml:71

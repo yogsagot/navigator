@@ -36,10 +36,11 @@ EnvironmentDialog(Dialog):
     #: moves on, as ``FocusItem`` kept it.
     Field:
         id: value
-        x: 2
         y: 16
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Val~u~e"
         label_width: 7
 

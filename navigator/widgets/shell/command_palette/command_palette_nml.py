@@ -72,7 +72,9 @@ class CommandPalette(Dialog, _Component):
         self.results.width = _bind(lambda _o: max(1, _o.parent.width - 4))    # command_palette.nml:32
         self.results.height = _bind(lambda _o: max(3, _o.parent.height - 6))    # command_palette.nml:33
 
-        self.hint.x = 2    # command_palette.nml:39
-        self.hint.y = _bind(lambda _o: max(0, _o.parent.height - 3))    # command_palette.nml:40
-        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # command_palette.nml:41
-        self.hint.height = 1    # command_palette.nml:42
+        self.hint.height = 1    # command_palette.nml:39
+        self.hint.x = 2    # command_palette.nml:41
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # command_palette.nml:42
+        self.hint.y = _bind(    # command_palette.nml:43
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )

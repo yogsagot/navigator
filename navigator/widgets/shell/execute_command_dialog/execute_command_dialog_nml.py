@@ -44,45 +44,45 @@ class ExecuteCommandDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     caption_label: Label    # execute_command_dialog.nml:20
-    line: Field    # execute_command_dialog.nml:29
-    options: CheckBoxes    # execute_command_dialog.nml:39
+    line: Field    # execute_command_dialog.nml:30
+    options: CheckBoxes    # execute_command_dialog.nml:41
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.caption_label = Label(parent=self)    # execute_command_dialog.nml:19
-        self.line = Field(parent=self)    # execute_command_dialog.nml:28
-        self.options = CheckBoxes(parent=self)    # execute_command_dialog.nml:38
+        self.line = Field(parent=self)    # execute_command_dialog.nml:29
+        self.options = CheckBoxes(parent=self)    # execute_command_dialog.nml:40
 
         self.modal_width = 60    # execute_command_dialog.nml:15
         self.modal_height = 10    # execute_command_dialog.nml:16
         self.title = _bind(lambda _o: _tr('Execute OS Command'), yielding=True)    # execute_command_dialog.nml:17
 
-        self.caption_label.x = 2    # execute_command_dialog.nml:21
-        self.caption_label.y = 1    # execute_command_dialog.nml:22
-        self.caption_label.width = _bind(    # execute_command_dialog.nml:23
+        self.caption_label.y = 1    # execute_command_dialog.nml:21
+        self.caption_label.height = 1    # execute_command_dialog.nml:22
+        self.caption_label.text = _bind(lambda _o: self.caption)    # execute_command_dialog.nml:26
+        self.caption_label.link = _bind(lambda _o: self.line.entry)    # execute_command_dialog.nml:27
+        self.caption_label.x = 2    # execute_command_dialog.nml:24
+        self.caption_label.width = _bind(    # execute_command_dialog.nml:25
             lambda _o: max(0, _o.parent.width - 4)
         )
-        self.caption_label.height = 1    # execute_command_dialog.nml:24
-        self.caption_label.text = _bind(lambda _o: self.caption)    # execute_command_dialog.nml:25
-        self.caption_label.link = _bind(lambda _o: self.line.entry)    # execute_command_dialog.nml:26
 
-        self.line.x = 2    # execute_command_dialog.nml:30
         self.line.y = 2    # execute_command_dialog.nml:31
-        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # execute_command_dialog.nml:32
-        self.line.height = 1    # execute_command_dialog.nml:33
-        self.line.label_text = ''    # execute_command_dialog.nml:34
-        self.line.label_width = 0    # execute_command_dialog.nml:35
-        self.line.history_id = 'command'    # execute_command_dialog.nml:36
+        self.line.height = 1    # execute_command_dialog.nml:32
+        self.line.label_text = ''    # execute_command_dialog.nml:36
+        self.line.label_width = 0    # execute_command_dialog.nml:37
+        self.line.history_id = 'command'    # execute_command_dialog.nml:38
+        self.line.x = 2    # execute_command_dialog.nml:34
+        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # execute_command_dialog.nml:35
 
-        self.options.x = 2    # execute_command_dialog.nml:40
-        self.options.y = 4    # execute_command_dialog.nml:41
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # execute_command_dialog.nml:42
+        self.options.y = 4    # execute_command_dialog.nml:42
         self.options.height = 1    # execute_command_dialog.nml:43
-        self.options.items = _bind(    # execute_command_dialog.nml:44
+        self.options.items = _bind(    # execute_command_dialog.nml:47
             lambda _o: [_tr('In a ~w~indow'), _tr('~Z~oomed'), _tr('~M~odal')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # execute_command_dialog.nml:45
+        self.options.tooltips = _bind(    # execute_command_dialog.nml:48
             lambda _o: [_tr('Run it in a window of its own rather than the console'), _tr('A command run in a window opens it zoomed'), _tr('A command run in a window holds every key until the window is closed')],
             yielding=True,
         )
+        self.options.x = 2    # execute_command_dialog.nml:45
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # execute_command_dialog.nml:46

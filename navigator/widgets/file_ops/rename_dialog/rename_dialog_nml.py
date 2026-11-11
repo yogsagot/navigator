@@ -42,30 +42,30 @@ class RenameDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     caption_label: Label    # rename_dialog.nml:19
-    line: Field    # rename_dialog.nml:28
+    line: Field    # rename_dialog.nml:29
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.caption_label = Label(parent=self)    # rename_dialog.nml:18
-        self.line = Field(parent=self)    # rename_dialog.nml:27
+        self.line = Field(parent=self)    # rename_dialog.nml:28
 
         self.modal_width = 60    # rename_dialog.nml:13
         self.modal_height = 9    # rename_dialog.nml:14
         self.title = _bind(lambda _o: _tr('Quick rename'), yielding=True)    # rename_dialog.nml:15
         self.close_on_outside_click = True    # rename_dialog.nml:16
 
-        self.caption_label.x = 2    # rename_dialog.nml:20
-        self.caption_label.y = 1    # rename_dialog.nml:21
-        self.caption_label.width = _bind(    # rename_dialog.nml:22
+        self.caption_label.y = 1    # rename_dialog.nml:20
+        self.caption_label.height = 1    # rename_dialog.nml:21
+        self.caption_label.text = _bind(lambda _o: self.caption)    # rename_dialog.nml:25
+        self.caption_label.link = _bind(lambda _o: self.line.entry)    # rename_dialog.nml:26
+        self.caption_label.x = 2    # rename_dialog.nml:23
+        self.caption_label.width = _bind(    # rename_dialog.nml:24
             lambda _o: max(0, _o.parent.width - 4)
         )
-        self.caption_label.height = 1    # rename_dialog.nml:23
-        self.caption_label.text = _bind(lambda _o: self.caption)    # rename_dialog.nml:24
-        self.caption_label.link = _bind(lambda _o: self.line.entry)    # rename_dialog.nml:25
 
-        self.line.x = 2    # rename_dialog.nml:29
         self.line.y = 2    # rename_dialog.nml:30
-        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # rename_dialog.nml:31
-        self.line.height = 1    # rename_dialog.nml:32
-        self.line.label_text = ''    # rename_dialog.nml:33
-        self.line.label_width = 0    # rename_dialog.nml:34
+        self.line.height = 1    # rename_dialog.nml:31
+        self.line.label_text = ''    # rename_dialog.nml:35
+        self.line.label_width = 0    # rename_dialog.nml:36
+        self.line.x = 2    # rename_dialog.nml:33
+        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # rename_dialog.nml:34

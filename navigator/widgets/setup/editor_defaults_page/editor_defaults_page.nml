@@ -33,10 +33,11 @@ EditorDefaultsPage:
 
     CheckBoxes:
         id: editor
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 8
+        anchors:
+            left: 2
+            right: 2
         items: ["~C~reate backup files", "~B~ackspace unindents", "Au~t~oBrackets", "~A~uto indent", "A~u~towrap", "~J~ustify on wrap", "~V~ertical blocks", "Opti~m~al fill", "~H~ighlight line", "H~i~ghlight column", "~P~ersistent blocks", "~O~verwrite blocks", "Lock ~f~ile", "Tab ~k~ey inserts tabs", "Line numbers", "Option ~s~trip"]
 
     Label:
@@ -123,9 +124,10 @@ EditorDefaultsPage:
 
     ChoiceField:
         id: fallback_encoding
-        x: 30
         y: 16
-        width: max(0, parent.width - 32)
         height: 1
+        anchors:
+            left: 30
+            right: 2
         label_text: "Fallback ~e~ncoding"
         label_width: 17

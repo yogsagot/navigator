@@ -12,15 +12,17 @@ KeyCaptureDialog(Dialog):
 
     StaticText:
         id: hint
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         text: "Press the key, or two for a chord.\nEnter takes it, Esc cancels."
 
     KeyCatcher:
         id: catcher
-        x: 3
         y: 5
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3

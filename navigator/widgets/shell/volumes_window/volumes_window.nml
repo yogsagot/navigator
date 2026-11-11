@@ -64,10 +64,11 @@ VolumesWindow(Window):
     VolumeList:
         id: volumes
         framed: False
-        x: 1
         y: 1
-        width: max(0, parent.width - 1)
         height: max(0, parent.height - (5 if parent.width >= 82 else 7))
+        anchors:
+            left: 1
+            right: 0
 
     #: A departure, asked for, as the process list's: on the bottom frame
     #: under the *Mount point* column, how far Left and Right have scrolled
@@ -78,9 +79,10 @@ VolumesWindow(Window):
         orientation: "horizontal"
         visible: volumes.overflows_across and self.width >= 4
         x: volumes.x + volumes.mount_x
-        y: max(0, parent.height - 1)
         width: volumes.mount_width
         height: 1
+        anchors:
+            bottom: 0
         value: max(0, volumes.mount_reach - volumes.back)
         maximum: max(volumes.mount_reach, volumes.back)
         page: volumes.mount_room
@@ -88,18 +90,20 @@ VolumesWindow(Window):
     CheckBoxes:
         id: everything
         x: 2
-        y: max(0, parent.height - 3)
         width: 22
         height: 1
+        anchors:
+            bottom: 2
         items: ["~S~how all mounts"]
         tooltips: ["Show the kernel's own file systems too"]
 
     CheckBoxes:
         id: free_box
         x: 2
-        y: max(0, parent.height - 2)
         width: 22
         height: 1
+        anchors:
+            bottom: 1
         items: ["Show ~f~ree %"]
         tooltips: ["Show the share that is free rather than the share used"]
 
@@ -137,18 +141,20 @@ VolumesWindow(Window):
         id: go_button
         text: "~G~o"
         default: True
-        x: max(0, parent.width - 23)
-        y: max(0, parent.height - 3)
         width: 10
         height: 2
+        anchors:
+            right: 13
+            bottom: 1
 
     Button:
         id: close_button
         text: "Close"
-        x: max(0, parent.width - 12)
-        y: max(0, parent.height - 3)
         width: 10
         height: 2
+        anchors:
+            right: 2
+            bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: the Directory Tree window's -- a departure, asked for, so Ctrl+R and

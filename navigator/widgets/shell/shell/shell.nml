@@ -91,9 +91,10 @@ Shell(DockLayout):
     Clock:
         id: clock
         visible: SETTINGS.interface.clock
-        x: max(0, parent.width - self.width)
         width: 7 if country.twelve_hours() else 5
         y: 0
+        anchors:
+            right: 0
         style:
             dock: none
 
@@ -159,9 +160,10 @@ Shell(DockLayout):
     RootMark:
         id: key_root_mark
         open: root_mark.open
-        x: max(0, parent.width - self.width)
         y: keybar.y
         width: self.natural_width
+        anchors:
+            right: 0
         visible: self.open and keybar.visible and (SETTINGS.interface.hide_menu_bar or parent.console_visible)
         style:
             dock: none

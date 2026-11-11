@@ -17,20 +17,22 @@ OverwriteQuery(Dialog):
 
     StaticText:
         id: details
-        x: 1
         y: 2
-        width: max(0, parent.width - 2)
         height: 5
+        anchors:
+            left: 1
+            right: 1
         align: "center"
 
     #: Makes Overwrite, Append or Skip the answer for every file after this
     #: one.  Not Rename: a new name is only ever this file's.
     CheckBoxes:
         id: for_all
-        x: 4
         y: 8
-        width: max(0, parent.width - 8)
         height: 1
+        anchors:
+            left: 4
+            right: 4
         items: ["Accept choice for ~a~ll files"]
         tooltips: ["Give this answer for every file that is already there"]
 
@@ -39,38 +41,43 @@ OverwriteQuery(Dialog):
         text: "~O~verwrite"
         default: True
         x: 2
-        y: max(0, parent.height - 4)
         width: 13
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: append
         text: "A~p~pend"
         x: 16
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: rename
         text: "~R~ename"
         x: 28
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: skip
         text: "~S~kip"
         x: 40
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 52
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

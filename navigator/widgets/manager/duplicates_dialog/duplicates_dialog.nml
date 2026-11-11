@@ -13,29 +13,32 @@ DuplicatesDialog(Dialog):
 
     Field:
         id: mask
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~F~ile mask"
         label_width: 16
         history_id: "find_mask"
 
     Field:
         id: min_size
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~M~inimum size"
         label_width: 16
         history_id: "duplicates_size"
 
     CheckBoxes:
         id: options
-        x: 3
         y: 5
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         items: ["Search ~s~ubdirectories"]
 

@@ -26,10 +26,11 @@ FindFileDialog(Dialog):
     #: DN's ``hsFindMask``.
     Field:
         id: mask
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~F~ile mask"
         label_width: 14
         history_id: "find_mask"
@@ -37,10 +38,11 @@ FindFileDialog(Dialog):
     #: DN's ``hsFindText``.
     Field:
         id: text
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~T~ext to find"
         label_width: 14
         history_id: "find_text"
@@ -49,10 +51,11 @@ FindFileDialog(Dialog):
     Field:
         id: replacement
         visible: root.replacing
-        x: 2
         y: 6
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Rep~l~ace with"
         label_width: 14
         history_id: "replace_text"
@@ -68,10 +71,11 @@ FindFileDialog(Dialog):
 
     CheckBoxes:
         id: options
-        x: 3
         y: 9 if root.replacing else 7
-        width: max(0, parent.width - 6)
         height: 3
+        anchors:
+            left: 3
+            right: 3
         items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words", "Regular e~x~pression"]
         tooltips: ["Also match the size, date and kind set by Advanced...", "", "Search the subdirectories too", "", "The text is a Python regular expression, matched across lines"]
 
@@ -86,10 +90,11 @@ FindFileDialog(Dialog):
 
     RadioButtons:
         id: scope
-        x: 3
         y: 14 if root.replacing else 12
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 3
+            right: 3
         items: ["~E~ntire disk", "Current ~d~irectory", "~A~ll drives"]
 
     Button:
@@ -97,23 +102,26 @@ FindFileDialog(Dialog):
         text: "O~K~"
         default: True
         x: 3
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     #: DN's command 3223: *Advanced search*'s own dialog.
     Button:
         id: advanced
         text: "Ad~v~anced..."
         x: 16
-        y: max(0, parent.height - 4)
         width: 15
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 33
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

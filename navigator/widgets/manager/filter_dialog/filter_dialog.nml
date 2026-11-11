@@ -13,10 +13,11 @@ FilterDialog(Dialog):
 
     FilterList:
         id: masks
-        x: 3
-        y: 2
-        width: max(0, parent.width - 6)
-        height: max(0, parent.height - 7)
+        anchors:
+            left: 3
+            right: 3
+            top: 2
+            bottom: 5
 
     #: DN's ``cmOK``: what is marked, shown.
     Button:
@@ -24,23 +25,26 @@ FilterDialog(Dialog):
         text: "~S~how"
         default: True
         x: 2
-        y: max(0, parent.height - 4)
         width: 10
         height: 2
+        anchors:
+            bottom: 2
 
     #: DN's ``cmNo``: what is marked, hidden.
     Button:
         id: hide
         text: "~H~ide"
         x: 13
-        y: max(0, parent.height - 4)
         width: 10
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Close"
         x: 24
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

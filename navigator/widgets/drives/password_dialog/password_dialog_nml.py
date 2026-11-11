@@ -39,36 +39,36 @@ class PasswordDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     entry: Field    # password_dialog.nml:16
-    keep: CheckBoxes    # password_dialog.nml:26
+    keep: CheckBoxes    # password_dialog.nml:27
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.entry = Field(parent=self)    # password_dialog.nml:15
-        self.keep = CheckBoxes(parent=self)    # password_dialog.nml:25
+        self.keep = CheckBoxes(parent=self)    # password_dialog.nml:26
 
         self.modal_width = 58    # password_dialog.nml:11
         self.modal_height = 10    # password_dialog.nml:12
         self.title = _bind(lambda _o: _tr('Password'), yielding=True)    # password_dialog.nml:13
 
-        self.entry.x = 2    # password_dialog.nml:17
-        self.entry.y = 3    # password_dialog.nml:18
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # password_dialog.nml:19
-        self.entry.height = 1    # password_dialog.nml:20
-        self.entry.label_text = _bind(    # password_dialog.nml:21
+        self.entry.y = 3    # password_dialog.nml:17
+        self.entry.height = 1    # password_dialog.nml:18
+        self.entry.label_text = _bind(    # password_dialog.nml:22
             lambda _o: _tr('~P~assword'),
             yielding=True,
         )
-        self.entry.label_width = 13    # password_dialog.nml:22
+        self.entry.label_width = 13    # password_dialog.nml:23
+        self.entry.x = 2    # password_dialog.nml:20
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # password_dialog.nml:21
 
-        self.keep.x = 3    # password_dialog.nml:27
         self.keep.y = 5    # password_dialog.nml:28
-        self.keep.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # password_dialog.nml:29
-        self.keep.height = 1    # password_dialog.nml:30
-        self.keep.items = _bind(    # password_dialog.nml:31
+        self.keep.height = 1    # password_dialog.nml:29
+        self.keep.items = _bind(    # password_dialog.nml:33
             lambda _o: [_tr('~S~ave in keyring')],
             yielding=True,
         )
-        self.keep.tooltips = _bind(    # password_dialog.nml:32
+        self.keep.tooltips = _bind(    # password_dialog.nml:34
             lambda _o: [_tr("Remember the password in the desktop's keyring, so it is not asked again")],
             yielding=True,
         )
+        self.keep.x = 3    # password_dialog.nml:31
+        self.keep.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # password_dialog.nml:32

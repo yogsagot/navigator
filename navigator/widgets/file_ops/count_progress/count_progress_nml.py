@@ -55,13 +55,13 @@ class CountProgress(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     spinner: Spinner    # count_progress.nml:33
     directory_row: StaticText    # count_progress.nml:40
-    table: StaticText    # count_progress.nml:53
+    table: StaticText    # count_progress.nml:54
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.spinner = Spinner(parent=self)    # count_progress.nml:32
         self.directory_row = StaticText(parent=self)    # count_progress.nml:39
-        self.table = StaticText(parent=self)    # count_progress.nml:52
+        self.table = StaticText(parent=self)    # count_progress.nml:53
 
         self.modal_width = _bind(    # count_progress.nml:13
             lambda _o: self.box_width(_o.parent.width if _o.parent is not None else 0, self.several, self.here_size, self.size, self.here_files, self.files, self.here_directories, self.directories)
@@ -79,20 +79,20 @@ class CountProgress(Dialog, _Component):
         self.spinner.width = 1    # count_progress.nml:36
         self.spinner.height = 1    # count_progress.nml:37
 
-        self.directory_row.x = 6    # count_progress.nml:41
-        self.directory_row.y = 1    # count_progress.nml:42
-        self.directory_row.width = _bind(    # count_progress.nml:43
+        self.directory_row.y = 1    # count_progress.nml:41
+        self.directory_row.height = 1    # count_progress.nml:42
+        self.directory_row.visible = _bind(lambda _o: self.several)    # count_progress.nml:46
+        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # count_progress.nml:47
+        self.directory_row.x = 6    # count_progress.nml:44
+        self.directory_row.width = _bind(    # count_progress.nml:45
             lambda _o: max(0, _o.parent.width - 8)
         )
-        self.directory_row.height = 1    # count_progress.nml:44
-        self.directory_row.visible = _bind(lambda _o: self.several)    # count_progress.nml:45
-        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # count_progress.nml:46
 
-        self.table.x = 4    # count_progress.nml:54
         self.table.y = 3    # count_progress.nml:55
-        self.table.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # count_progress.nml:56
-        self.table.height = 4    # count_progress.nml:57
-        self.table.wrap = False    # count_progress.nml:58
-        self.table.text = _bind(    # count_progress.nml:59
+        self.table.height = 4    # count_progress.nml:56
+        self.table.wrap = False    # count_progress.nml:60
+        self.table.text = _bind(    # count_progress.nml:61
             lambda _o: self.counts(_o.width, self.several, self.here_size, self.size, self.here_files, self.files, self.here_directories, self.directories)
         )
+        self.table.x = 4    # count_progress.nml:58
+        self.table.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # count_progress.nml:59

@@ -57,9 +57,9 @@ class ColorsDialog(Dialog, _Component):
     background: ColorSelector    # colors_dialog.nml:82
     sample: ColorDisplay    # colors_dialog.nml:90
     hint: StaticText    # colors_dialog.nml:97
-    foreground_value: Field    # colors_dialog.nml:105
-    background_value: Field    # colors_dialog.nml:114
-    attributes: CheckBoxes    # colors_dialog.nml:124
+    foreground_value: Field    # colors_dialog.nml:106
+    background_value: Field    # colors_dialog.nml:115
+    attributes: CheckBoxes    # colors_dialog.nml:125
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -73,9 +73,9 @@ class ColorsDialog(Dialog, _Component):
         self.background = ColorSelector(parent=self)    # colors_dialog.nml:81
         self.sample = ColorDisplay(parent=self)    # colors_dialog.nml:89
         self.hint = StaticText(parent=self)    # colors_dialog.nml:96
-        self.foreground_value = Field(parent=self)    # colors_dialog.nml:104
-        self.background_value = Field(parent=self)    # colors_dialog.nml:113
-        self.attributes = CheckBoxes(parent=self)    # colors_dialog.nml:123
+        self.foreground_value = Field(parent=self)    # colors_dialog.nml:105
+        self.background_value = Field(parent=self)    # colors_dialog.nml:114
+        self.attributes = CheckBoxes(parent=self)    # colors_dialog.nml:124
 
         self.modal_width = 70    # colors_dialog.nml:20
         self.modal_height = 24    # colors_dialog.nml:21
@@ -143,40 +143,40 @@ class ColorsDialog(Dialog, _Component):
         self.sample.width = 12    # colors_dialog.nml:93
         self.sample.height = 1    # colors_dialog.nml:94
 
-        self.hint.x = 3    # colors_dialog.nml:98
-        self.hint.y = 15    # colors_dialog.nml:99
-        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:100
-        self.hint.height = 1    # colors_dialog.nml:101
-        self.hint.text = _bind(    # colors_dialog.nml:102
+        self.hint.y = 15    # colors_dialog.nml:98
+        self.hint.height = 1    # colors_dialog.nml:99
+        self.hint.text = _bind(    # colors_dialog.nml:103
             lambda _o: _tr("Any colour: a name, #rrggbb, or default for the terminal's own"),
             yielding=True,
         )
+        self.hint.x = 3    # colors_dialog.nml:101
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:102
 
-        self.foreground_value.x = 2    # colors_dialog.nml:106
-        self.foreground_value.y = 16    # colors_dialog.nml:107
-        self.foreground_value.width = 31    # colors_dialog.nml:108
-        self.foreground_value.height = 1    # colors_dialog.nml:109
-        self.foreground_value.label_text = _bind(    # colors_dialog.nml:110
+        self.foreground_value.x = 2    # colors_dialog.nml:107
+        self.foreground_value.y = 16    # colors_dialog.nml:108
+        self.foreground_value.width = 31    # colors_dialog.nml:109
+        self.foreground_value.height = 1    # colors_dialog.nml:110
+        self.foreground_value.label_text = _bind(    # colors_dialog.nml:111
             lambda _o: _tr('Fo~r~eground'),
             yielding=True,
         )
-        self.foreground_value.label_width = 12    # colors_dialog.nml:111
+        self.foreground_value.label_width = 12    # colors_dialog.nml:112
 
-        self.background_value.x = 35    # colors_dialog.nml:115
-        self.background_value.y = 16    # colors_dialog.nml:116
-        self.background_value.width = 31    # colors_dialog.nml:117
-        self.background_value.height = 1    # colors_dialog.nml:118
-        self.background_value.label_text = _bind(    # colors_dialog.nml:119
+        self.background_value.x = 35    # colors_dialog.nml:116
+        self.background_value.y = 16    # colors_dialog.nml:117
+        self.background_value.width = 31    # colors_dialog.nml:118
+        self.background_value.height = 1    # colors_dialog.nml:119
+        self.background_value.label_text = _bind(    # colors_dialog.nml:120
             lambda _o: _tr('Bac~k~ground'),
             yielding=True,
         )
-        self.background_value.label_width = 12    # colors_dialog.nml:120
+        self.background_value.label_width = 12    # colors_dialog.nml:121
 
-        self.attributes.x = 3    # colors_dialog.nml:125
         self.attributes.y = 18    # colors_dialog.nml:126
-        self.attributes.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:127
-        self.attributes.height = 1    # colors_dialog.nml:128
-        self.attributes.items = _bind(    # colors_dialog.nml:129
+        self.attributes.height = 1    # colors_dialog.nml:127
+        self.attributes.items = _bind(    # colors_dialog.nml:131
             lambda _o: [_tr('Bo~l~d'), _tr('~D~im'), _tr('I~t~alic'), _tr('~U~nderline'), _tr('R~e~verse')],
             yielding=True,
         )
+        self.attributes.x = 3    # colors_dialog.nml:129
+        self.attributes.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:130

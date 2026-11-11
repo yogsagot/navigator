@@ -57,10 +57,10 @@ class CountryPage(_Component):
     week_caption: Label    # country_page.nml:58
     first_day: RadioButtons    # country_page.nml:67
     calendar: ChoiceField    # country_page.nml:77
-    calendar_view: ChoiceField    # country_page.nml:89
-    custom_date: Field    # country_page.nml:98
-    custom_hint: StaticText    # country_page.nml:107
-    example: StaticText    # country_page.nml:118
+    calendar_view: ChoiceField    # country_page.nml:90
+    custom_date: Field    # country_page.nml:100
+    custom_hint: StaticText    # country_page.nml:110
+    example: StaticText    # country_page.nml:122
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -71,10 +71,10 @@ class CountryPage(_Component):
         self.week_caption = Label(parent=self)    # country_page.nml:57
         self.first_day = RadioButtons(parent=self)    # country_page.nml:66
         self.calendar = ChoiceField(parent=self)    # country_page.nml:76
-        self.calendar_view = ChoiceField(parent=self)    # country_page.nml:88
-        self.custom_date = Field(parent=self)    # country_page.nml:97
-        self.custom_hint = StaticText(parent=self)    # country_page.nml:106
-        self.example = StaticText(parent=self)    # country_page.nml:117
+        self.calendar_view = ChoiceField(parent=self)    # country_page.nml:89
+        self.custom_date = Field(parent=self)    # country_page.nml:99
+        self.custom_hint = StaticText(parent=self)    # country_page.nml:109
+        self.example = StaticText(parent=self)    # country_page.nml:121
 
         self.date_caption.x = 3    # country_page.nml:24
         self.date_caption.y = 1    # country_page.nml:25
@@ -130,50 +130,50 @@ class CountryPage(_Component):
             yielding=True,
         )
 
-        self.calendar.x = 3    # country_page.nml:78
-        self.calendar.y = 8    # country_page.nml:79
-        self.calendar.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:80
-        self.calendar.height = 1    # country_page.nml:81
-        self.calendar.label_text = _bind(    # country_page.nml:82
+        self.calendar.y = 8    # country_page.nml:78
+        self.calendar.height = 1    # country_page.nml:79
+        self.calendar.label_text = _bind(    # country_page.nml:83
             lambda _o: _tr('Ca~l~endar system'),
             yielding=True,
         )
-        self.calendar.label_width = 18    # country_page.nml:85
+        self.calendar.label_width = 18    # country_page.nml:86
+        self.calendar.x = 3    # country_page.nml:81
+        self.calendar.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:82
 
-        self.calendar_view.x = 3    # country_page.nml:90
         self.calendar_view.y = 9    # country_page.nml:91
-        self.calendar_view.width = _bind(    # country_page.nml:92
-            lambda _o: max(0, _o.parent.width - 6)
-        )
-        self.calendar_view.height = 1    # country_page.nml:93
-        self.calendar_view.label_text = _bind(    # country_page.nml:94
+        self.calendar_view.height = 1    # country_page.nml:92
+        self.calendar_view.label_text = _bind(    # country_page.nml:96
             lambda _o: _tr('Calendar ~v~iew'),
             yielding=True,
         )
-        self.calendar_view.label_width = 18    # country_page.nml:95
+        self.calendar_view.label_width = 18    # country_page.nml:97
+        self.calendar_view.x = 3    # country_page.nml:94
+        self.calendar_view.width = _bind(    # country_page.nml:95
+            lambda _o: max(0, _o.parent.width - 6)
+        )
 
-        self.custom_date.x = 3    # country_page.nml:99
-        self.custom_date.y = 10    # country_page.nml:100
-        self.custom_date.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:101
+        self.custom_date.y = 10    # country_page.nml:101
         self.custom_date.height = 1    # country_page.nml:102
-        self.custom_date.label_text = _bind(    # country_page.nml:103
+        self.custom_date.label_text = _bind(    # country_page.nml:106
             lambda _o: _tr('Custom ~f~ormat'),
             yielding=True,
         )
-        self.custom_date.label_width = 18    # country_page.nml:104
+        self.custom_date.label_width = 18    # country_page.nml:107
+        self.custom_date.x = 3    # country_page.nml:104
+        self.custom_date.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:105
 
-        self.custom_hint.x = 3    # country_page.nml:108
-        self.custom_hint.y = 11    # country_page.nml:109
-        self.custom_hint.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:110
-        self.custom_hint.height = 3    # country_page.nml:113
-        self.custom_hint.wrap = True    # country_page.nml:114
-        self.custom_hint.text = _bind(    # country_page.nml:115
+        self.custom_hint.y = 11    # country_page.nml:111
+        self.custom_hint.height = 3    # country_page.nml:114
+        self.custom_hint.wrap = True    # country_page.nml:118
+        self.custom_hint.text = _bind(    # country_page.nml:119
             lambda _o: _tr("strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's"),
             yielding=True,
         )
+        self.custom_hint.x = 3    # country_page.nml:116
+        self.custom_hint.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:117
 
-        self.example.x = 3    # country_page.nml:119
-        self.example.y = 14    # country_page.nml:120
-        self.example.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:121
-        self.example.height = 1    # country_page.nml:122
-        self.example.text = _bind(lambda _o: self.example_text())    # country_page.nml:123
+        self.example.y = 14    # country_page.nml:123
+        self.example.height = 1    # country_page.nml:124
+        self.example.text = _bind(lambda _o: self.example_text())    # country_page.nml:128
+        self.example.x = 3    # country_page.nml:126
+        self.example.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # country_page.nml:127

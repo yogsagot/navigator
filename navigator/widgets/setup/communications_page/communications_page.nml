@@ -32,10 +32,11 @@ CommunicationsPage:
 
     StaticText:
         id: keepalive_unit
-        x: 37
         y: 1
-        width: max(0, parent.width - 40)
         height: 1
+        anchors:
+            left: 37
+            right: 3
         text: "seconds (0: never)"
 
     MaskedField:
@@ -51,10 +52,11 @@ CommunicationsPage:
 
     StaticText:
         id: timeout_unit
-        x: 37
         y: 2
-        width: max(0, parent.width - 40)
         height: 1
+        anchors:
+            left: 37
+            right: 3
         text: "seconds"
 
     MaskedField:
@@ -70,10 +72,11 @@ CommunicationsPage:
 
     StaticText:
         id: idle_unit
-        x: 37
         y: 3
-        width: max(0, parent.width - 40)
         height: 1
+        anchors:
+            left: 37
+            right: 3
         text: "minutes (0: never)"
 
     MaskedField:
@@ -89,10 +92,11 @@ CommunicationsPage:
 
     StaticText:
         id: refresh_unit
-        x: 37
         y: 4
-        width: max(0, parent.width - 40)
         height: 1
+        anchors:
+            left: 37
+            right: 3
         text: "seconds (0: never)"
 
     Label:
@@ -106,37 +110,41 @@ CommunicationsPage:
 
     RadioButtons:
         id: upload_changed
-        x: 3
         y: 7
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         items: ["~A~sk first", "Alwa~y~s", "Ne~v~er"]
 
     Label:
         id: desktop_vfs_caption
-        x: 3
         y: 9
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         text: "~D~esktop integration: volumes, links, opening files"
         link: desktop_vfs
 
     #: Two rows, two columns: one row is wider than the page with the tabs down the left.
     RadioButtons:
         id: desktop_vfs
-        x: 3
         y: 10
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 3
+            right: 3
         items: ["Au~t~o", "~G~IO (GNOME, Xfce...)", "K~I~O (KDE)", "~O~ff"]
 
     #: Not DN's: what every Remote shell's ``ssh`` gets (``[remote] ssh_options``).
     Field:
         id: ssh_options
-        x: 3
         y: 13
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "Remote shell's ss~h~ options"
         label_width: 28
 
@@ -144,17 +152,19 @@ CommunicationsPage:
     #: the page's last two rows are all a box with the tabs on top shows.
     Label:
         id: notifications_caption
-        x: 3
         y: 14
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         text: "~N~otify when a long operation ends unwatched"
         link: notifications
 
     RadioButtons:
         id: notifications
-        x: 3
         y: 15
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 3
+            right: 3
         items: ["A~u~to", "Te~r~minal (OSC 9/777)", "notify-~s~end", "O~f~f"]

@@ -29,10 +29,11 @@ ViewerFindDialog(Dialog):
     #: is empty and takes no columns.
     Field:
         id: what
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "view_find"

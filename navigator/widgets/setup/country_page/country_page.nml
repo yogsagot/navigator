@@ -75,10 +75,11 @@ CountryPage:
     #: in, ``[country] calendar``.
     ChoiceField:
         id: calendar
-        x: 3
         y: 8
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "Ca~l~endar system"
         #: As *Custom format*'s, under it: the longest of the two in any catalogue
         #: (Latvian's *Kalendāra sistēma*, 17 cells) and a blank.
@@ -87,37 +88,41 @@ CountryPage:
     #: And what of it beside the Gregorian, ``[country] calendar_view``.
     ChoiceField:
         id: calendar_view
-        x: 3
         y: 9
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "Calendar ~v~iew"
         label_width: 18
 
     Field:
         id: custom_date
-        x: 3
         y: 10
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "Custom ~f~ormat"
         label_width: 18
 
     StaticText:
         id: custom_hint
-        x: 3
         y: 11
-        width: max(0, parent.width - 6)
         #: Three rows, wrapped: two at the page's full width, a third when
         #: Settings' tabs down the left narrow it.
         height: 3
+        anchors:
+            left: 3
+            right: 3
         wrap: True
         text: "strftime's directives: %d day, %m month, %y or %Y year,\n%b or %B the month's name, %a or %A the weekday's"
 
     StaticText:
         id: example
-        x: 3
         y: 14
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         text: root.example_text()

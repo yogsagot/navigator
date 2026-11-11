@@ -13,35 +13,39 @@ RelinkDialog(Dialog):
 
     Field:
         id: search
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~S~earch for"
         label_width: 14
         history_id: "relink_search"
 
     Field:
         id: replace
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Re~p~lace with"
         label_width: 14
         history_id: "relink_replace"
 
     RelinkPreview:
         id: preview
-        x: 2
-        y: 4
-        width: max(0, parent.width - 4)
-        height: max(0, parent.height - 9)
+        anchors:
+            left: 2
+            right: 2
+            top: 4
+            bottom: 5
 
     StaticText:
         id: status
-        x: 2
-        y: max(0, parent.height - 5)
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 4
         align: "center"

@@ -36,7 +36,8 @@ CommandPalette(Dialog):
     #: run here.
     StaticText:
         id: hint
-        x: 2
-        y: max(0, parent.height - 3)
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 2

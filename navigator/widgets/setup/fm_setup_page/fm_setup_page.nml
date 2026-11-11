@@ -69,10 +69,11 @@ FMSetupPage:
 
     CheckBoxes:
         id: display
-        x: 37
         y: 2
-        width: max(0, parent.width - 39)
         height: 6
+        anchors:
+            left: 37
+            right: 2
         items: ["Colu~m~n titles", "~I~nfo divider", "~T~ag character", "Li~n~k target line", "Option ~f~lags", "Git st~a~tus"]
 
     Field:
@@ -95,27 +96,30 @@ FMSetupPage:
 
     RadioButtons:
         id: right_button
-        x: 37
         y: 11
-        width: max(0, parent.width - 39)
         height: 2
+        anchors:
+            left: 37
+            right: 2
         items: ["Conte~x~t menu", "Se~l~ect files"]
 
     Label:
         id: remember_caption
-        x: 37
         y: 13
-        width: max(0, parent.width - 39)
         height: 1
+        anchors:
+            left: 37
+            right: 2
         text: "Remember directory settings"
         link: remember_directories
 
     RadioButtons:
         id: remember_directories
-        x: 37
         y: 14
-        width: max(0, parent.width - 39)
         height: 3
+        anchors:
+            left: 37
+            right: 2
         items: ["Off", "Marked directories", "Every directory"]
         tooltips: ["Every directory is shown with the panel's own sort order, view and file mask", "Those Panel > Remember for this directory marks keep their own", "Any directory a setting is changed in keeps its own"]
 

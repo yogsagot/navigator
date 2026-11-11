@@ -81,29 +81,32 @@ ProcessWindow(Window):
     #: number holds what is typed, as it is typed.
     ProcessFilter:
         id: filter
-        x: filter_caption.x + filter_caption.width
         y: 1
         width: max(1, parent.width - 6 - self.x)
         height: 1
+        anchors:
+            after: filter_caption
         tooltip: "Show only the processes whose command, name, user or PID holds this"
 
     #: Empties the filter.
     Button:
         id: clear_filter
         flat: True
-        x: max(0, parent.width - 5)
         y: 1
         width: 3
         height: 1
+        anchors:
+            right: 2
         tooltip: "Clear the filter"
 
     ProcessList:
         id: processes
         framed: False
-        x: 1
-        y: 2
-        width: max(0, parent.width - 1)
-        height: max(0, parent.height - 6)
+        anchors:
+            left: 1
+            right: 0
+            top: 2
+            bottom: 4
 
     #: A departure, asked for, as the viewer's: on the bottom frame under the
     #: *Command* column, how far Left and Right have scrolled it, while a
@@ -114,74 +117,82 @@ ProcessWindow(Window):
         orientation: "horizontal"
         visible: processes.overflows_across and self.width >= 4
         x: processes.x + processes.command_x
-        y: max(0, parent.height - 1)
         width: max(0, parent.width - 2 - self.x)
         height: 1
+        anchors:
+            bottom: 0
         value: processes.x_delta
         maximum: max(0, processes.command_span - processes.command_room, processes.x_delta)
         page: processes.command_room
 
     StaticText:
         id: status
-        x: 2
-        y: max(0, parent.height - 4)
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 3
 
     #: As wide as its caption and the gap after it, whatever the language.
     CheckBoxes:
         id: mine_box
         x: 2
-        y: max(0, parent.height - 3)
         width: self.column_x(1)
         height: 1
+        anchors:
+            bottom: 2
         items: ["~M~ine only"]
         tooltips: ["Only your own processes"]
 
     CheckBoxes:
         id: tree_box
         x: 2
-        y: max(0, parent.height - 2)
         width: self.column_x(1)
         height: 1
+        anchors:
+            bottom: 1
         items: ["~T~ree"]
         tooltips: ["Each process under its parent"]
 
     Button:
         id: signal_button
         text: "~S~ignal"
-        x: max(0, kill_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: kill_button + 1
+            bottom: 1
         disabled: not root.allows("signal")
 
     Button:
         id: kill_button
         text: "~K~ill"
-        x: max(0, details_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: details_button + 1
+            bottom: 1
         disabled: not root.allows("signal")
 
     Button:
         id: details_button
         text: "~D~etails"
         default: True
-        x: max(0, close_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: close_button + 1
+            bottom: 1
         disabled: not root.allows("details")
 
     Button:
         id: close_button
         text: "Close"
-        x: max(0, parent.width - 2 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            right: 2
+            bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort in force, *Tree* and *Mine only* ticked.

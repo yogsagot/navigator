@@ -19,28 +19,31 @@ DeleteDialog(Dialog):
     #: ``dlEraseConfirm1``'s first line; *Move to Trash* ticked says so.
     Label:
         id: prompt_head
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: "Do you wish to move to the Trash" if root.trashing() else "Do you wish to delete"
 
     #: ``file NAME?``, ``directory NAME?`` or ``3 files?``: the hand-written half's.
     Label:
         id: prompt_caption
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
 
     #: Bit 1: a non-empty directory goes without being asked about.
     CheckBoxes:
         id: options
-        x: max(0, (parent.width - 24) // 2)
         y: 4
         width: 24
         height: 1
+        anchors:
+            center: horizontal
         items: ["~R~ecursive delete"]
         tooltips: ["Delete directories with everything in them"]

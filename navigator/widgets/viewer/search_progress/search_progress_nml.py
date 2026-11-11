@@ -48,12 +48,12 @@ class SearchProgress(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     bar: ProgressBar    # search_progress.nml:29
-    percent_row: StaticText    # search_progress.nml:38
+    percent_row: StaticText    # search_progress.nml:39
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.bar = ProgressBar(parent=self)    # search_progress.nml:28
-        self.percent_row = StaticText(parent=self)    # search_progress.nml:37
+        self.percent_row = StaticText(parent=self)    # search_progress.nml:38
 
         self.modal_width = 34    # search_progress.nml:14
         self.modal_height = 8    # search_progress.nml:15
@@ -61,16 +61,16 @@ class SearchProgress(Dialog, _Component):
         self.buttons = 'ok'    # search_progress.nml:17
         self.closable = False    # search_progress.nml:19
 
-        self.bar.x = 2    # search_progress.nml:30
-        self.bar.y = 1    # search_progress.nml:31
-        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # search_progress.nml:32
-        self.bar.height = 1    # search_progress.nml:33
-        self.bar.value = _bind(lambda _o: self.position)    # search_progress.nml:34
-        self.bar.total = _bind(lambda _o: self.total)    # search_progress.nml:35
+        self.bar.y = 1    # search_progress.nml:30
+        self.bar.height = 1    # search_progress.nml:31
+        self.bar.value = _bind(lambda _o: self.position)    # search_progress.nml:35
+        self.bar.total = _bind(lambda _o: self.total)    # search_progress.nml:36
+        self.bar.x = 2    # search_progress.nml:33
+        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # search_progress.nml:34
 
-        self.percent_row.x = 2    # search_progress.nml:39
         self.percent_row.y = 2    # search_progress.nml:40
-        self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # search_progress.nml:41
-        self.percent_row.height = 1    # search_progress.nml:42
-        self.percent_row.align = 'center'    # search_progress.nml:43
-        self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # search_progress.nml:44
+        self.percent_row.height = 1    # search_progress.nml:41
+        self.percent_row.align = 'center'    # search_progress.nml:45
+        self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # search_progress.nml:46
+        self.percent_row.x = 2    # search_progress.nml:43
+        self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # search_progress.nml:44

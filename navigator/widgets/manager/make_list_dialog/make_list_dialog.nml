@@ -15,29 +15,32 @@ MakeListDialog(Dialog):
     #: DN's ``hsMakeList``.
     Field:
         id: file_name
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~F~ile name"
         label_width: 11
         history_id: "make_list"
 
     Field:
         id: action
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~A~ction"
         label_width: 11
         history_id: "command"
 
     CheckBoxes:
         id: options
-        x: 4
         y: 6
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 4
+            right: 2
         items: ["~S~tore path names to list file", "A~u~todetermine necessity of path names"]
         tooltips: ["Write each file's whole path, not its name alone", "Write a file's path only where it is not in the list file's own directory"]

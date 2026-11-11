@@ -26,10 +26,11 @@ SyncOptionsDialog(Dialog):
 
     Field:
         id: mask
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "sync_mask"
@@ -46,18 +47,20 @@ SyncOptionsDialog(Dialog):
 
     RadioButtons:
         id: times
-        x: 2
         y: 5
-        width: max(0, parent.width - 4)
         height: 3
+        anchors:
+            left: 2
+            right: 2
         items: ["~E~xactly, to the second", "Within ~2~ seconds (FAT)", "Within a ~m~inute (FTP)"]
         tooltips: ["Any difference of a second or more makes two files different", "FAT and exFAT keep times in steps of two seconds", "An FTP server's listing may give times to the minute"]
 
     CheckBoxes:
         id: options
-        x: 2
         y: 9
-        width: max(0, parent.width - 4)
         height: 2
+        anchors:
+            left: 2
+            right: 2
         items: ["Or an exact ~h~our apart", "~A~symmetric: right becomes a copy of left"]
         tooltips: ["A daylight-saving change moves a FAT stick's times by an hour", "What only the right side has is deleted, and a file that differs is copied right, whichever is newer"]

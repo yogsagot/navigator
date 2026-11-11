@@ -181,13 +181,21 @@ def _check_anchors(resolved: Resolved) -> None:
     there would quietly half-work -- a bound ``x`` kept, the width the
     layout's -- instead of failing.
     """
+    from navml.widgets.layout.dock_layout import DockLayout
     from navml.widgets.layout.layout import Layout
 
     for parent in resolved.document.root.walk():
-        if not issubclass(resolved.class_of(parent), Layout):
+        cls = resolved.class_of(parent)
+        if not issubclass(cls, Layout):
             continue
         for block in parent.children:
-            if block.anchors is not None:
+            if block.anchors is None:
+                continue
+            # ``dock: none`` is the one child a layout leaves where it is.
+            undocked = block.style is not None and any(
+                d.name == "dock" and d.value == "none" for d in block.style.declarations
+            )
+            if not (issubclass(cls, DockLayout) and undocked):
                 _refuse(
                     resolved,
                     block.anchors.line,

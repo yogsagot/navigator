@@ -36,24 +36,24 @@ class DBListDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     heading: StaticText    # db_list_dialog.nml:14
-    lines: ListViewer    # db_list_dialog.nml:21
+    lines: ListViewer    # db_list_dialog.nml:22
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.heading = StaticText(parent=self)    # db_list_dialog.nml:13
-        self.lines = ListViewer(parent=self)    # db_list_dialog.nml:20
+        self.lines = ListViewer(parent=self)    # db_list_dialog.nml:21
 
         self.modal_width = 50    # db_list_dialog.nml:9
         self.modal_height = 18    # db_list_dialog.nml:10
         self.buttons = 'ok'    # db_list_dialog.nml:11
 
-        self.heading.x = 2    # db_list_dialog.nml:15
-        self.heading.y = 1    # db_list_dialog.nml:16
-        self.heading.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_list_dialog.nml:17
-        self.heading.height = 1    # db_list_dialog.nml:18
+        self.heading.y = 1    # db_list_dialog.nml:15
+        self.heading.height = 1    # db_list_dialog.nml:16
+        self.heading.x = 2    # db_list_dialog.nml:18
+        self.heading.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_list_dialog.nml:19
 
-        self.lines.framed = False    # db_list_dialog.nml:22
-        self.lines.x = 2    # db_list_dialog.nml:23
-        self.lines.y = 2    # db_list_dialog.nml:24
-        self.lines.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_list_dialog.nml:25
-        self.lines.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # db_list_dialog.nml:26
+        self.lines.framed = False    # db_list_dialog.nml:23
+        self.lines.x = 2    # db_list_dialog.nml:25
+        self.lines.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_list_dialog.nml:26
+        self.lines.y = 2    # db_list_dialog.nml:27
+        self.lines.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # db_list_dialog.nml:28

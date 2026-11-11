@@ -15,10 +15,11 @@ ToolsPage:
     #: ``[encryption] age_identities``: what Decrypt tries, by spaces.
     Field:
         id: age_identities
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~A~ge identity files"
         label_width: 30
         history_id: "age_identities"
@@ -36,10 +37,11 @@ ToolsPage:
 
     StaticText:
         id: processes_unit
-        x: 37
         y: 3
-        width: max(0, parent.width - 39)
         height: 1
+        anchors:
+            left: 37
+            right: 2
         text: "seconds (0: on Ctrl+R alone)"
 
     ChoiceField:
@@ -64,10 +66,11 @@ ToolsPage:
 
     StaticText:
         id: services_unit
-        x: 37
         y: 6
-        width: max(0, parent.width - 39)
         height: 1
+        anchors:
+            left: 37
+            right: 2
         text: "seconds (0: on Ctrl+R alone)"
 
     MaskedField:
@@ -94,8 +97,9 @@ ToolsPage:
 
     StaticText:
         id: monitor_unit
-        x: 37
         y: 9
-        width: max(0, parent.width - 39)
         height: 1
+        anchors:
+            left: 37
+            right: 2
         text: "seconds (0: on Ctrl+R alone)"

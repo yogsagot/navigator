@@ -18,28 +18,31 @@ ExecuteCommandDialog(Dialog):
 
     Label:
         id: caption_label
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         text: root.caption
         link: line.entry
 
     Field:
         id: line
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "command"
 
     CheckBoxes:
         id: options
-        x: 2
         y: 4
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         items: ["In a ~w~indow", "~Z~oomed", "~M~odal"]
         tooltips: ["Run it in a window of its own rather than the console", "A command run in a window opens it zoomed", "A command run in a window holds every key until the window is closed"]

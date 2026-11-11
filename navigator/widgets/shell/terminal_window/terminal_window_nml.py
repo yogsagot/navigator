@@ -74,11 +74,11 @@ class TerminalWindow(Window, _Component):
         self.view.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # terminal_window.nml:26
 
         self.bar.visible = _bind(lambda _o: self.view.overflows)    # terminal_window.nml:34
-        self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # terminal_window.nml:35
-        self.bar.y = 1    # terminal_window.nml:36
-        self.bar.width = 1    # terminal_window.nml:37
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # terminal_window.nml:38
-        self.bar.value = _bind(lambda _o: self.view.scroll_above)    # terminal_window.nml:39
-        self.bar.maximum = _bind(lambda _o: self.view.scroll_total)    # terminal_window.nml:40
-        self.bar.page = _bind(lambda _o: max(1, self.view.height))    # terminal_window.nml:41
+        self.bar.width = 1    # terminal_window.nml:35
+        self.bar.value = _bind(lambda _o: self.view.scroll_above)    # terminal_window.nml:40
+        self.bar.maximum = _bind(lambda _o: self.view.scroll_total)    # terminal_window.nml:41
+        self.bar.page = _bind(lambda _o: max(1, self.view.height))    # terminal_window.nml:42
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # terminal_window.nml:37
+        self.bar.y = 1    # terminal_window.nml:38
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # terminal_window.nml:39
         self.bar.on_scroll = self.on_bar_scroll    # terminal_window.nml:33

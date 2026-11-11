@@ -18,9 +18,6 @@ from navigator.lib.file_ops.filereplace import ALL, SKIP, YES, ReplaceQuestion
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
 from navigator.widgets.file_ops.replace_query.change_list import rows_of
 
-#: Each button's width, and the columns between two.
-BUTTON, GAP = 11, 2
-
 
 def describe(question: ReplaceQuestion) -> str:
     """The file's name, and how many replacements -- and changed lines past
@@ -43,11 +40,6 @@ class ReplaceQuery(Dialog):
         if question is not None:
             self.details.text = describe(question)
             self.changes.items = rows_of(question.changes)
-
-    def slot(self, index: int) -> int:
-        """The column of the *index*-th button of the row, which is centred."""
-        wide = 4 * BUTTON + 3 * GAP
-        return max(0, (self.width - wide) // 2) + index * (BUTTON + GAP)
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

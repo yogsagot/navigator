@@ -17,28 +17,31 @@ DeleteBookmarkDialog(Dialog):
 
     Label:
         id: prompt_head
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: "Do you wish to delete the bookmark"
 
     #: The bookmark's label, or its path; given by the hand-written half.
     Label:
         id: prompt_tail
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
 
     #: Bit 1: stop asking -- saved, so it lasts.
     CheckBoxes:
         id: options
-        x: max(0, (parent.width - 22) // 2)
         y: 4
         width: 22
         height: 1
+        anchors:
+            center: horizontal
         items: ["~D~on't ask again"]
         tooltips: ["Delete bookmarks without asking from now on (Options > Confirmations)"]

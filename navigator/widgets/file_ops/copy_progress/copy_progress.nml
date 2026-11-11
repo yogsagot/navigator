@@ -41,64 +41,71 @@ CopyProgress(Dialog):
 
     StaticText:
         id: source_row
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         text: root.fit(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
         tooltip: root.whole(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
 
     StaticText:
         id: dest_row
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         text: root.fit(" into " if root.packing else " to ", root.dest)
         tooltip: root.whole(" into " if root.packing else " to ", root.dest)
 
     #: Both gauges are as wide as the box less four columns a side.
     ProgressBar:
         id: file_bar
-        x: 4
         y: 4
-        width: max(0, parent.width - 8)
         height: 1
+        anchors:
+            left: 4
+            right: 4
         value: root.file_done
         total: root.file_bytes
 
     StaticText:
         id: file_count
-        x: 2
         y: 5
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: root.count(root.file_done, file_bar.percent)
 
     ProgressBar:
         id: total_bar
-        x: 4
         y: 6
-        width: max(0, parent.width - 8)
         height: 1
+        anchors:
+            left: 4
+            right: 4
         value: root.done
         total: root.total
 
     StaticText:
         id: total_count
-        x: 2
         y: 7
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: "Total " + root.count(root.done, total_bar.percent)
 
     StaticText:
         id: pace_row
-        x: 2
         y: 8
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: root.pace(root.speed, root.left)

@@ -12,27 +12,30 @@ XattrEntryDialog(Dialog):
 
     Field:
         id: attr_name
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~N~ame"
         label_width: 8
 
     Field:
         id: data
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Va~l~ue"
         label_width: 8
 
     #: How a value may be written.
     StaticText:
         id: hint
-        x: 10
         y: 5
-        width: max(0, parent.width - 12)
         height: 2
+        anchors:
+            left: 10
+            right: 2
         text: "Text, or 0x and hex digits, or 0s and base64; quotes round text keep it text"

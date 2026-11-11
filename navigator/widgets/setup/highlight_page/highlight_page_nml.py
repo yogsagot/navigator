@@ -42,70 +42,70 @@ class HighlightPage(_Component):
 
     #: Ids, annotated so the hand-written half completes them.
     image: Field    # highlight_page.nml:15
-    media: Field    # highlight_page.nml:25
-    document: Field    # highlight_page.nml:35
-    source: Field    # highlight_page.nml:45
-    temp: Field    # highlight_page.nml:55
+    media: Field    # highlight_page.nml:26
+    document: Field    # highlight_page.nml:37
+    source: Field    # highlight_page.nml:48
+    temp: Field    # highlight_page.nml:59
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.image = Field(parent=self)    # highlight_page.nml:14
-        self.media = Field(parent=self)    # highlight_page.nml:24
-        self.document = Field(parent=self)    # highlight_page.nml:34
-        self.source = Field(parent=self)    # highlight_page.nml:44
-        self.temp = Field(parent=self)    # highlight_page.nml:54
+        self.media = Field(parent=self)    # highlight_page.nml:25
+        self.document = Field(parent=self)    # highlight_page.nml:36
+        self.source = Field(parent=self)    # highlight_page.nml:47
+        self.temp = Field(parent=self)    # highlight_page.nml:58
 
-        self.image.x = 2    # highlight_page.nml:16
-        self.image.y = 2    # highlight_page.nml:17
-        self.image.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:18
-        self.image.height = 1    # highlight_page.nml:19
-        self.image.label_text = _bind(    # highlight_page.nml:20
+        self.image.y = 2    # highlight_page.nml:16
+        self.image.height = 1    # highlight_page.nml:17
+        self.image.label_text = _bind(    # highlight_page.nml:21
             lambda _o: _tr('~I~mages'),
             yielding=True,
         )
-        self.image.label_width = 18    # highlight_page.nml:21
-        self.image.history_id = 'customs'    # highlight_page.nml:22
+        self.image.label_width = 18    # highlight_page.nml:22
+        self.image.history_id = 'customs'    # highlight_page.nml:23
+        self.image.x = 2    # highlight_page.nml:19
+        self.image.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:20
 
-        self.media.x = 2    # highlight_page.nml:26
         self.media.y = 4    # highlight_page.nml:27
-        self.media.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:28
-        self.media.height = 1    # highlight_page.nml:29
-        self.media.label_text = _bind(    # highlight_page.nml:30
+        self.media.height = 1    # highlight_page.nml:28
+        self.media.label_text = _bind(    # highlight_page.nml:32
             lambda _o: _tr('~A~udio and video'),
             yielding=True,
         )
-        self.media.label_width = 18    # highlight_page.nml:31
-        self.media.history_id = 'customs'    # highlight_page.nml:32
+        self.media.label_width = 18    # highlight_page.nml:33
+        self.media.history_id = 'customs'    # highlight_page.nml:34
+        self.media.x = 2    # highlight_page.nml:30
+        self.media.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:31
 
-        self.document.x = 2    # highlight_page.nml:36
-        self.document.y = 6    # highlight_page.nml:37
-        self.document.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:38
+        self.document.y = 6    # highlight_page.nml:38
         self.document.height = 1    # highlight_page.nml:39
-        self.document.label_text = _bind(    # highlight_page.nml:40
+        self.document.label_text = _bind(    # highlight_page.nml:43
             lambda _o: _tr('~D~ocuments'),
             yielding=True,
         )
-        self.document.label_width = 18    # highlight_page.nml:41
-        self.document.history_id = 'customs'    # highlight_page.nml:42
+        self.document.label_width = 18    # highlight_page.nml:44
+        self.document.history_id = 'customs'    # highlight_page.nml:45
+        self.document.x = 2    # highlight_page.nml:41
+        self.document.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:42
 
-        self.source.x = 2    # highlight_page.nml:46
-        self.source.y = 8    # highlight_page.nml:47
-        self.source.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:48
-        self.source.height = 1    # highlight_page.nml:49
-        self.source.label_text = _bind(    # highlight_page.nml:50
+        self.source.y = 8    # highlight_page.nml:49
+        self.source.height = 1    # highlight_page.nml:50
+        self.source.label_text = _bind(    # highlight_page.nml:54
             lambda _o: _tr('~S~ource code'),
             yielding=True,
         )
-        self.source.label_width = 18    # highlight_page.nml:51
-        self.source.history_id = 'customs'    # highlight_page.nml:52
+        self.source.label_width = 18    # highlight_page.nml:55
+        self.source.history_id = 'customs'    # highlight_page.nml:56
+        self.source.x = 2    # highlight_page.nml:52
+        self.source.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:53
 
-        self.temp.x = 2    # highlight_page.nml:56
-        self.temp.y = 10    # highlight_page.nml:57
-        self.temp.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:58
-        self.temp.height = 1    # highlight_page.nml:59
-        self.temp.label_text = _bind(    # highlight_page.nml:60
+        self.temp.y = 10    # highlight_page.nml:60
+        self.temp.height = 1    # highlight_page.nml:61
+        self.temp.label_text = _bind(    # highlight_page.nml:65
             lambda _o: _tr('~T~emporary files'),
             yielding=True,
         )
-        self.temp.label_width = 18    # highlight_page.nml:61
-        self.temp.history_id = 'customs'    # highlight_page.nml:62
+        self.temp.label_width = 18    # highlight_page.nml:66
+        self.temp.history_id = 'customs'    # highlight_page.nml:67
+        self.temp.x = 2    # highlight_page.nml:63
+        self.temp.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:64

@@ -13,19 +13,21 @@ PanelizeDialog(Dialog):
 
     Label:
         id: caption_label
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         text: "~C~ommand (one file name a line)"
         link: line.entry
 
     Field:
         id: line
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "panelize"

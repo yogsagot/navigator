@@ -57,10 +57,11 @@ LinkManagerDialog(Dialog):
 
     Field:
         id: label
-        x: 28
         y: 2
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "~N~ame"
         label_width: 12
         history_id: "ssh_name"
@@ -68,10 +69,11 @@ LinkManagerDialog(Dialog):
     #: GVfs/KIO's one line, in place of Host, Login, Port and Directory.
     Field:
         id: uri
-        x: 28
         y: 4
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "~U~RI"
         label_width: 12
         history_id: "gvfs_uri"
@@ -79,10 +81,11 @@ LinkManagerDialog(Dialog):
 
     Field:
         id: host
-        x: 28
         y: 4
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "~H~ost"
         label_width: 12
         #: The hosts typed, as every line here remembers its own: not
@@ -91,10 +94,11 @@ LinkManagerDialog(Dialog):
 
     Field:
         id: user
-        x: 28
         y: 6
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "~L~ogin"
         label_width: 12
         history_id: "ssh_login"
@@ -111,10 +115,11 @@ LinkManagerDialog(Dialog):
 
     Field:
         id: directory
-        x: 28
         y: 10
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "~D~irectory"
         label_width: 12
         history_id: "ssh_directory"
@@ -124,10 +129,11 @@ LinkManagerDialog(Dialog):
     #: ``~/.ssh/config``, and no flags.
     Field:
         id: options
-        x: 28
         y: 12
-        width: max(0, parent.width - 30)
         height: 1
+        anchors:
+            left: 28
+            right: 2
         label_text: "ssh opt~i~ons"
         label_width: 12
         history_id: "ssh_options"
@@ -169,10 +175,11 @@ LinkManagerDialog(Dialog):
     #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
     CheckBoxes:
         id: secure
-        x: 29
         y: 12
-        width: max(0, parent.width - 32)
         height: 1
+        anchors:
+            left: 29
+            right: 3
         items: ["Encr~y~pt with TLS"]
         visible: False
 
@@ -180,10 +187,11 @@ LinkManagerDialog(Dialog):
     #: what a button just did.
     StaticText:
         id: missing
-        x: 28
         y: 13
-        width: max(0, parent.width - 30)
         height: 2
+        anchors:
+            left: 28
+            right: 2
         text: ""
         wrap: True
 

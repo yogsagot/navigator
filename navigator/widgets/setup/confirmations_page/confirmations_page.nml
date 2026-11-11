@@ -13,8 +13,9 @@ ConfirmationsPage:
 
     CheckBoxes:
         id: options
-        x: 3
         y: 1
-        width: max(0, parent.width - 6)
         height: 10
+        anchors:
+            left: 3
+            right: 3
         items: ["Erase ~s~ingle file", "Erase ~m~ultiple files", "Erase ~n~on-empty sub-dir", "Erase ~r~ead-only files", "~C~reate non-existing dir", "Drag~-~and~-~drop operations", "E~x~it confirmation", "Editor file sa~v~e", "Delete ~b~ookmark", "Close command ~w~indow"]

@@ -95,10 +95,11 @@ ColorsDialog(Dialog):
 
     StaticText:
         id: hint
-        x: 3
         y: 15
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         text: "Any colour: a name, #rrggbb, or default for the terminal's own"
 
     Field:
@@ -122,8 +123,9 @@ ColorsDialog(Dialog):
     #: The attributes, ``[?]`` for ``inherit``.
     CheckBoxes:
         id: attributes
-        x: 3
         y: 18
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         items: ["Bo~l~d", "~D~im", "I~t~alic", "~U~nderline", "R~e~verse"]

@@ -12,10 +12,11 @@ GotoDialog(Dialog):
 
     Field:
         id: address
-        x: 3
         y: 2
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "~A~ddress"
         label_width: 9
         history_id: "goto_address"

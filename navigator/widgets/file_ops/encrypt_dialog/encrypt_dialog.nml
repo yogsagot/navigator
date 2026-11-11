@@ -45,28 +45,31 @@ EncryptDialog(Dialog):
 
     RadioButtons:
         id: method
-        x: 26
         y: 2
-        width: max(0, parent.width - 28)
         height: 2
+        anchors:
+            left: 26
+            right: 2
         items: ["~P~assphrase", "~R~ecipients' keys"]
 
     Field:
         id: passphrase
-        x: 2
         y: 5
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "Pa~s~sphrase"
         label_width: 13
         disabled: method.value != 0
 
     Field:
         id: confirm
-        x: 2
         y: 6
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~C~onfirm"
         label_width: 13
         disabled: method.value != 0
@@ -74,10 +77,11 @@ EncryptDialog(Dialog):
     #: gpg key IDs or fingerprints; age keys or files of them; by spaces.
     Field:
         id: recipients
-        x: 2
         y: 8
-        width: max(0, parent.width - 16)
         height: 1
+        anchors:
+            left: 2
+            right: 14
         label_text: "Rec~i~pients"
         label_width: 13
         history_id: "encrypt-recipients"
@@ -87,18 +91,20 @@ EncryptDialog(Dialog):
     Button:
         id: choose_keys
         text: "Ke~y~s..."
-        x: max(0, parent.width - 13)
         y: 8
         width: 11
         height: 2
+        anchors:
+            right: 2
         disabled: method.value != 1 or tool.value != 0
 
     CheckBoxes:
         id: options
-        x: 3
         y: 10
-        width: max(0, parent.width - 6)
         height: 2
+        anchors:
+            left: 3
+            right: 3
         items: ["~A~SCII armor", "~D~elete originals"]
         tooltips: ["Write the encrypted files as text (gpg names them .asc)", "Remove each file once its encrypted copy is written"]
 
@@ -107,14 +113,16 @@ EncryptDialog(Dialog):
         text: "O~K~"
         default: True
         x: 19
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2
 
     Button:
         id: abandon
         text: "Cancel"
         x: 32
-        y: max(0, parent.height - 4)
         width: 11
         height: 2
+        anchors:
+            bottom: 2

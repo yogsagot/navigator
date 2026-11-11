@@ -94,12 +94,12 @@ class TableFormatDialog(Dialog, _Component):
             yielding=True,
         )
 
-        self.encoding.x = 3    # table_format_dialog.nml:54
-        self.encoding.y = 9    # table_format_dialog.nml:55
-        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:56
-        self.encoding.height = 1    # table_format_dialog.nml:57
-        self.encoding.label_text = _bind(    # table_format_dialog.nml:58
+        self.encoding.y = 9    # table_format_dialog.nml:54
+        self.encoding.height = 1    # table_format_dialog.nml:55
+        self.encoding.label_text = _bind(    # table_format_dialog.nml:59
             lambda _o: _tr('~E~ncoding'),
             yielding=True,
         )
-        self.encoding.label_width = 10    # table_format_dialog.nml:59
+        self.encoding.label_width = 10    # table_format_dialog.nml:60
+        self.encoding.x = 3    # table_format_dialog.nml:57
+        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:58

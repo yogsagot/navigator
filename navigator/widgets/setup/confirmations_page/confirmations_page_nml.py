@@ -47,11 +47,11 @@ class ConfirmationsPage(_Component):
         super().__init__(**kwargs)
         self.options = CheckBoxes(parent=self)    # confirmations_page.nml:14
 
-        self.options.x = 3    # confirmations_page.nml:16
-        self.options.y = 1    # confirmations_page.nml:17
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:18
-        self.options.height = 10    # confirmations_page.nml:19
-        self.options.items = _bind(    # confirmations_page.nml:20
+        self.options.y = 1    # confirmations_page.nml:16
+        self.options.height = 10    # confirmations_page.nml:17
+        self.options.items = _bind(    # confirmations_page.nml:21
             lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark'), _tr('Close command ~w~indow')],
             yielding=True,
         )
+        self.options.x = 3    # confirmations_page.nml:19
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:20

@@ -49,25 +49,25 @@ class FMDefaultsPage(_Component):
     #: Ids, annotated so the hand-written half completes them.
     sort_caption: Label    # fm_defaults_page.nml:21
     reverse: CheckBoxes    # fm_defaults_page.nml:32
-    sort_by: RadioButtons    # fm_defaults_page.nml:40
-    display_caption: Label    # fm_defaults_page.nml:49
-    display: CheckBoxes    # fm_defaults_page.nml:58
-    left_caption: Label    # fm_defaults_page.nml:66
-    left_panel: RadioButtons    # fm_defaults_page.nml:75
-    mode_caption: Label    # fm_defaults_page.nml:83
-    view_mode: RadioButtons    # fm_defaults_page.nml:92
+    sort_by: RadioButtons    # fm_defaults_page.nml:41
+    display_caption: Label    # fm_defaults_page.nml:51
+    display: CheckBoxes    # fm_defaults_page.nml:60
+    left_caption: Label    # fm_defaults_page.nml:69
+    left_panel: RadioButtons    # fm_defaults_page.nml:78
+    mode_caption: Label    # fm_defaults_page.nml:87
+    view_mode: RadioButtons    # fm_defaults_page.nml:96
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.sort_caption = Label(parent=self)    # fm_defaults_page.nml:20
         self.reverse = CheckBoxes(parent=self)    # fm_defaults_page.nml:31
-        self.sort_by = RadioButtons(parent=self)    # fm_defaults_page.nml:39
-        self.display_caption = Label(parent=self)    # fm_defaults_page.nml:48
-        self.display = CheckBoxes(parent=self)    # fm_defaults_page.nml:57
-        self.left_caption = Label(parent=self)    # fm_defaults_page.nml:65
-        self.left_panel = RadioButtons(parent=self)    # fm_defaults_page.nml:74
-        self.mode_caption = Label(parent=self)    # fm_defaults_page.nml:82
-        self.view_mode = RadioButtons(parent=self)    # fm_defaults_page.nml:91
+        self.sort_by = RadioButtons(parent=self)    # fm_defaults_page.nml:40
+        self.display_caption = Label(parent=self)    # fm_defaults_page.nml:50
+        self.display = CheckBoxes(parent=self)    # fm_defaults_page.nml:59
+        self.left_caption = Label(parent=self)    # fm_defaults_page.nml:68
+        self.left_panel = RadioButtons(parent=self)    # fm_defaults_page.nml:77
+        self.mode_caption = Label(parent=self)    # fm_defaults_page.nml:86
+        self.view_mode = RadioButtons(parent=self)    # fm_defaults_page.nml:95
 
         self.sort_caption.x = 2    # fm_defaults_page.nml:22
         self.sort_caption.y = 1    # fm_defaults_page.nml:23
@@ -79,76 +79,78 @@ class FMDefaultsPage(_Component):
         )
         self.sort_caption.link = _bind(lambda _o: self.sort_by)    # fm_defaults_page.nml:27
 
-        self.reverse.x = _bind(lambda _o: max(0, _o.parent.width - 24))    # fm_defaults_page.nml:33
-        self.reverse.y = 1    # fm_defaults_page.nml:34
-        self.reverse.width = 22    # fm_defaults_page.nml:35
-        self.reverse.height = 1    # fm_defaults_page.nml:36
-        self.reverse.items = _bind(    # fm_defaults_page.nml:37
+        self.reverse.y = 1    # fm_defaults_page.nml:33
+        self.reverse.width = 22    # fm_defaults_page.nml:34
+        self.reverse.height = 1    # fm_defaults_page.nml:35
+        self.reverse.items = _bind(    # fm_defaults_page.nml:38
             lambda _o: [_tr('Re~v~erse order')],
             yielding=True,
         )
-
-        self.sort_by.x = 2    # fm_defaults_page.nml:41
-        self.sort_by.y = 2    # fm_defaults_page.nml:42
-        self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:43
-        self.sort_by.height = 3    # fm_defaults_page.nml:44
-        self.sort_by.items = _bind(    # fm_defaults_page.nml:46
-            lambda _o: sort_radio_captions(bool(self.reverse.value), self.glyphs)
+        self.reverse.x = _bind(    # fm_defaults_page.nml:37
+            lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
 
-        self.display_caption.x = 2    # fm_defaults_page.nml:50
-        self.display_caption.y = 6    # fm_defaults_page.nml:51
-        self.display_caption.width = 12    # fm_defaults_page.nml:52
-        self.display_caption.height = 1    # fm_defaults_page.nml:53
-        self.display_caption.text = _bind(    # fm_defaults_page.nml:54
+        self.sort_by.y = 2    # fm_defaults_page.nml:42
+        self.sort_by.height = 3    # fm_defaults_page.nml:43
+        self.sort_by.items = _bind(    # fm_defaults_page.nml:48
+            lambda _o: sort_radio_captions(bool(self.reverse.value), self.glyphs)
+        )
+        self.sort_by.x = 2    # fm_defaults_page.nml:45
+        self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:46
+
+        self.display_caption.x = 2    # fm_defaults_page.nml:52
+        self.display_caption.y = 6    # fm_defaults_page.nml:53
+        self.display_caption.width = 12    # fm_defaults_page.nml:54
+        self.display_caption.height = 1    # fm_defaults_page.nml:55
+        self.display_caption.text = _bind(    # fm_defaults_page.nml:56
             lambda _o: _tr('Display'),
             yielding=True,
         )
-        self.display_caption.link = _bind(lambda _o: self.display)    # fm_defaults_page.nml:55
+        self.display_caption.link = _bind(lambda _o: self.display)    # fm_defaults_page.nml:57
 
-        self.display.x = 2    # fm_defaults_page.nml:59
-        self.display.y = 7    # fm_defaults_page.nml:60
-        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:61
+        self.display.y = 7    # fm_defaults_page.nml:61
         self.display.height = 4    # fm_defaults_page.nml:62
-        self.display.items = _bind(    # fm_defaults_page.nml:63
+        self.display.items = _bind(    # fm_defaults_page.nml:66
             lambda _o: [_tr('Director~y~ length'), _tr('~C~urrent file'), _tr('Se~l~ected files'), _tr('T~o~tals'), _tr('~F~ree space'), _tr('Files ~h~ighlight'), _tr('E~x~ecutable first'), _tr('~A~rchives first')],
             yielding=True,
         )
+        self.display.x = 2    # fm_defaults_page.nml:64
+        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:65
 
-        self.left_caption.x = 2    # fm_defaults_page.nml:67
-        self.left_caption.y = 12    # fm_defaults_page.nml:68
-        self.left_caption.width = 40    # fm_defaults_page.nml:69
-        self.left_caption.height = 1    # fm_defaults_page.nml:70
-        self.left_caption.text = _bind(    # fm_defaults_page.nml:71
+        self.left_caption.x = 2    # fm_defaults_page.nml:70
+        self.left_caption.y = 12    # fm_defaults_page.nml:71
+        self.left_caption.width = 40    # fm_defaults_page.nml:72
+        self.left_caption.height = 1    # fm_defaults_page.nml:73
+        self.left_caption.text = _bind(    # fm_defaults_page.nml:74
             lambda _o: _tr('Left panel in new Manager will be...'),
             yielding=True,
         )
-        self.left_caption.link = _bind(lambda _o: self.left_panel)    # fm_defaults_page.nml:72
+        self.left_caption.link = _bind(lambda _o: self.left_panel)    # fm_defaults_page.nml:75
 
-        self.left_panel.x = 2    # fm_defaults_page.nml:76
-        self.left_panel.y = 13    # fm_defaults_page.nml:77
-        self.left_panel.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:78
-        self.left_panel.height = 1    # fm_defaults_page.nml:79
-        self.left_panel.items = _bind(    # fm_defaults_page.nml:80
+        self.left_panel.y = 13    # fm_defaults_page.nml:79
+        self.left_panel.height = 1    # fm_defaults_page.nml:80
+        self.left_panel.items = _bind(    # fm_defaults_page.nml:84
             lambda _o: [_tr('File ~p~anel'), _tr('~I~nfo'), _tr('T~r~ee'), _tr('A~b~sent')],
             yielding=True,
         )
+        self.left_panel.x = 2    # fm_defaults_page.nml:82
+        self.left_panel.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:83
 
-        self.mode_caption.x = 2    # fm_defaults_page.nml:84
-        self.mode_caption.y = 15    # fm_defaults_page.nml:85
-        self.mode_caption.width = 12    # fm_defaults_page.nml:86
-        self.mode_caption.height = 1    # fm_defaults_page.nml:87
-        self.mode_caption.text = _bind(    # fm_defaults_page.nml:88
+        self.mode_caption.x = 2    # fm_defaults_page.nml:88
+        self.mode_caption.y = 15    # fm_defaults_page.nml:89
+        self.mode_caption.width = 12    # fm_defaults_page.nml:90
+        self.mode_caption.height = 1    # fm_defaults_page.nml:91
+        self.mode_caption.text = _bind(    # fm_defaults_page.nml:92
             lambda _o: _tr('Panel mode'),
             yielding=True,
         )
-        self.mode_caption.link = _bind(lambda _o: self.view_mode)    # fm_defaults_page.nml:89
+        self.mode_caption.link = _bind(lambda _o: self.view_mode)    # fm_defaults_page.nml:93
 
-        self.view_mode.x = 2    # fm_defaults_page.nml:93
-        self.view_mode.y = 16    # fm_defaults_page.nml:94
-        self.view_mode.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:95
-        self.view_mode.height = 1    # fm_defaults_page.nml:96
-        self.view_mode.items = _bind(    # fm_defaults_page.nml:97
+        self.view_mode.y = 16    # fm_defaults_page.nml:97
+        self.view_mode.height = 1    # fm_defaults_page.nml:98
+        self.view_mode.items = _bind(    # fm_defaults_page.nml:102
             lambda _o: [_tr('Si~m~ple'), _tr('~D~etailed'), _tr('List')],
             yielding=True,
         )
+        self.view_mode.x = 2    # fm_defaults_page.nml:100
+        self.view_mode.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:101

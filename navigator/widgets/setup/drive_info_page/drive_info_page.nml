@@ -22,8 +22,9 @@ DriveInfoPage:
 
     CheckBoxes:
         id: options
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 11
+        anchors:
+            left: 2
+            right: 2
         items: ["~D~irectory Title", "~T~otals", "File under the ~c~ursor", "Med~a~ information", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]

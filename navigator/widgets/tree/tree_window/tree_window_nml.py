@@ -58,7 +58,7 @@ class TreeWindow(Window, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     tree: DirectoryTree    # tree_window.nml:32
-    tree_menu: SubMenu    # tree_window.nml:44
+    tree_menu: SubMenu    # tree_window.nml:45
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -75,33 +75,33 @@ class TreeWindow(Window, _Component):
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.tree = DirectoryTree(parent=self)    # tree_window.nml:31
-        self.tree_menu = SubMenu(parent=self)    # tree_window.nml:43
-        _w1 = MenuItem(parent=self.tree_menu)    # tree_window.nml:48
-        _w2 = MenuItem(parent=self.tree_menu)    # tree_window.nml:51
-        _w3 = MenuLine(parent=self.tree_menu)    # tree_window.nml:54
-        _w4 = MenuItem(parent=self.tree_menu)    # tree_window.nml:55
+        self.tree_menu = SubMenu(parent=self)    # tree_window.nml:44
+        _w1 = MenuItem(parent=self.tree_menu)    # tree_window.nml:49
+        _w2 = MenuItem(parent=self.tree_menu)    # tree_window.nml:52
+        _w3 = MenuLine(parent=self.tree_menu)    # tree_window.nml:55
+        _w4 = MenuItem(parent=self.tree_menu)    # tree_window.nml:56
 
         self.title = _bind(lambda _o: _tr('Directory Tree'), yielding=True)    # tree_window.nml:22
 
         self.tree.framed = False    # tree_window.nml:33
-        self.tree.x = 1    # tree_window.nml:34
-        self.tree.y = 1    # tree_window.nml:35
+        self.tree.x = 1    # tree_window.nml:35
         self.tree.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # tree_window.nml:36
-        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # tree_window.nml:37
+        self.tree.y = 1    # tree_window.nml:37
+        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # tree_window.nml:38
         self.tree.on_chosen = self.on_tree_chosen    # tree_window.nml:32
 
-        self.tree_menu.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # tree_window.nml:45
-        self.tree_menu.tooltip = _bind(    # tree_window.nml:46
+        self.tree_menu.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # tree_window.nml:46
+        self.tree_menu.tooltip = _bind(    # tree_window.nml:47
             lambda _o: _tr('Re-read and search the tree'),
             yielding=True,
         )
-        self.tree_menu.after = 'File'    # tree_window.nml:47
+        self.tree_menu.after = 'File'    # tree_window.nml:48
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # tree_window.nml:49
-        _w1.command = Rescan    # tree_window.nml:50
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # tree_window.nml:50
+        _w1.command = Rescan    # tree_window.nml:51
 
-        _w2.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # tree_window.nml:52
-        _w2.command = QuickSearch    # tree_window.nml:53
+        _w2.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # tree_window.nml:53
+        _w2.command = QuickSearch    # tree_window.nml:54
 
-        _w4.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # tree_window.nml:56
-        _w4.command = CloseWindow    # tree_window.nml:57
+        _w4.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # tree_window.nml:57
+        _w4.command = CloseWindow    # tree_window.nml:58

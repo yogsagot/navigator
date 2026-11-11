@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.file_ops.replace_query.change_list import ChangeList
@@ -18,48 +19,41 @@ ReplaceQuery(Dialog):
 
     StaticText:
         id: details
-        x: 1
         y: 1
-        width: max(0, parent.width - 2)
         height: 2
+        anchors:
+            left: 1
+            right: 1
         align: "center"
 
     ChangeList:
         id: changes
-        x: 2
         y: 3
-        width: max(0, parent.width - 4)
         height: max(1, parent.height - 8)
+        anchors:
+            left: 2
+            right: 2
 
-    Button:
-        id: agree
-        text: "~Y~es"
-        default: True
-        x: root.slot(0)
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+    #: The answers, centred in a row as the message box's were.
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
 
-    Button:
-        id: every
-        text: "~A~ll"
-        x: root.slot(1)
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: agree
+            text: "~Y~es"
+            default: True
 
-    Button:
-        id: skip
-        text: "~S~kip"
-        x: root.slot(2)
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: every
+            text: "~A~ll"
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: root.slot(3)
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: skip
+            text: "~S~kip"
+
+        Button:
+            id: abandon
+            text: "Cancel"

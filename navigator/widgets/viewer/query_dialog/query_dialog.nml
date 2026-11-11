@@ -11,10 +11,11 @@ QueryDialog(Dialog):
 
     Field:
         id: sql
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~S~ELECT"
         label_width: 8
         history_id: "sql_query"

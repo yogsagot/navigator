@@ -38,14 +38,14 @@ class DeleteBookmarkDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     prompt_head: Label    # delete_bookmark_dialog.nml:19
-    prompt_tail: Label    # delete_bookmark_dialog.nml:29
-    options: CheckBoxes    # delete_bookmark_dialog.nml:38
+    prompt_tail: Label    # delete_bookmark_dialog.nml:30
+    options: CheckBoxes    # delete_bookmark_dialog.nml:40
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.prompt_head = Label(parent=self)    # delete_bookmark_dialog.nml:18
-        self.prompt_tail = Label(parent=self)    # delete_bookmark_dialog.nml:28
-        self.options = CheckBoxes(parent=self)    # delete_bookmark_dialog.nml:37
+        self.prompt_tail = Label(parent=self)    # delete_bookmark_dialog.nml:29
+        self.options = CheckBoxes(parent=self)    # delete_bookmark_dialog.nml:39
 
         self.modal_width = 50    # delete_bookmark_dialog.nml:11
         self.modal_height = 10    # delete_bookmark_dialog.nml:12
@@ -53,31 +53,33 @@ class DeleteBookmarkDialog(Dialog, _Component):
         self.buttons = 'yes-no'    # delete_bookmark_dialog.nml:14
         self.close_on_outside_click = True    # delete_bookmark_dialog.nml:16
 
-        self.prompt_head.x = 2    # delete_bookmark_dialog.nml:20
-        self.prompt_head.y = 1    # delete_bookmark_dialog.nml:21
-        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_bookmark_dialog.nml:22
-        self.prompt_head.height = 1    # delete_bookmark_dialog.nml:23
-        self.prompt_head.align = 'center'    # delete_bookmark_dialog.nml:24
-        self.prompt_head.text = _bind(    # delete_bookmark_dialog.nml:25
+        self.prompt_head.y = 1    # delete_bookmark_dialog.nml:20
+        self.prompt_head.height = 1    # delete_bookmark_dialog.nml:21
+        self.prompt_head.align = 'center'    # delete_bookmark_dialog.nml:25
+        self.prompt_head.text = _bind(    # delete_bookmark_dialog.nml:26
             lambda _o: _tr('Do you wish to delete the bookmark'),
             yielding=True,
         )
+        self.prompt_head.x = 2    # delete_bookmark_dialog.nml:23
+        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_bookmark_dialog.nml:24
 
-        self.prompt_tail.x = 2    # delete_bookmark_dialog.nml:30
         self.prompt_tail.y = 2    # delete_bookmark_dialog.nml:31
-        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_bookmark_dialog.nml:32
-        self.prompt_tail.height = 1    # delete_bookmark_dialog.nml:33
-        self.prompt_tail.align = 'center'    # delete_bookmark_dialog.nml:34
+        self.prompt_tail.height = 1    # delete_bookmark_dialog.nml:32
+        self.prompt_tail.align = 'center'    # delete_bookmark_dialog.nml:36
+        self.prompt_tail.x = 2    # delete_bookmark_dialog.nml:34
+        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_bookmark_dialog.nml:35
 
-        self.options.x = _bind(lambda _o: max(0, (_o.parent.width - 22) // 2))    # delete_bookmark_dialog.nml:39
-        self.options.y = 4    # delete_bookmark_dialog.nml:40
-        self.options.width = 22    # delete_bookmark_dialog.nml:41
-        self.options.height = 1    # delete_bookmark_dialog.nml:42
-        self.options.items = _bind(    # delete_bookmark_dialog.nml:43
+        self.options.y = 4    # delete_bookmark_dialog.nml:41
+        self.options.width = 22    # delete_bookmark_dialog.nml:42
+        self.options.height = 1    # delete_bookmark_dialog.nml:43
+        self.options.items = _bind(    # delete_bookmark_dialog.nml:46
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # delete_bookmark_dialog.nml:44
+        self.options.tooltips = _bind(    # delete_bookmark_dialog.nml:47
             lambda _o: [_tr('Delete bookmarks without asking from now on (Options > Confirmations)')],
             yielding=True,
+        )
+        self.options.x = _bind(    # delete_bookmark_dialog.nml:45
+            lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )

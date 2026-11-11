@@ -77,100 +77,111 @@ ServiceWindow(Window):
     #: typed, as it is typed.
     ProcessFilter:
         id: filter
-        x: filter_caption.x + filter_caption.width
         y: 1
         width: max(1, parent.width - 6 - self.x)
         height: 1
+        anchors:
+            after: filter_caption
         tooltip: "Show only the units whose name or description holds this"
 
     #: Empties the filter.
     Button:
         id: clear_filter
         flat: True
-        x: max(0, parent.width - 5)
         y: 1
         width: 3
         height: 1
+        anchors:
+            right: 2
         tooltip: "Clear the filter"
 
     ServiceList:
         id: units
         framed: False
-        x: 1
-        y: 2
-        width: max(0, parent.width - 1)
-        height: max(0, parent.height - 6)
+        anchors:
+            left: 1
+            right: 0
+            top: 2
+            bottom: 4
 
     StaticText:
         id: status
-        x: 2
-        y: max(0, parent.height - 4)
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 3
 
     #: As wide as its caption and the gap after it, whatever the language.
     CheckBoxes:
         id: user_box
         x: 2
-        y: max(0, parent.height - 3)
         width: self.column_x(1)
         height: 1
+        anchors:
+            bottom: 2
         items: ["~U~ser units"]
         tooltips: ["Your own service manager's units (systemctl --user), not the system's"]
 
     CheckBoxes:
         id: types_box
         x: 2
-        y: max(0, parent.height - 2)
         width: self.column_x(1)
         height: 1
+        anchors:
+            bottom: 1
         items: ["~A~ll types"]
         tooltips: ["Timers, sockets, mounts and the rest too, not only services"]
 
     Button:
         id: start_button
         text: "S~t~art"
-        x: max(0, stop_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: stop_button + 1
+            bottom: 1
         disabled: not root.allows()
 
     Button:
         id: stop_button
         text: "St~o~p"
-        x: max(0, journal_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: journal_button + 1
+            bottom: 1
         disabled: not root.allows()
 
     Button:
         id: journal_button
         text: "~J~ournal"
         default: True
-        x: max(0, edit_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: edit_button + 1
+            bottom: 1
         disabled: not root.allows()
 
     Button:
         id: edit_button
         text: "~E~dit"
-        x: max(0, close_button.x - 1 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            before: close_button + 1
+            bottom: 1
         disabled: not root.allows()
 
     Button:
         id: close_button
         text: "Close"
-        x: max(0, parent.width - 2 - self.width)
-        y: max(0, parent.height - 3)
         width: root.caption_width(self.text) + 5
         height: 2
+        anchors:
+            right: 2
+            bottom: 1
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Process list's is; the sort in force and the two boxes ticked.  Also

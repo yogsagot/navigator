@@ -14,9 +14,6 @@ from navml.widgets.dialog.dialog import Dialog
 
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
 
-#: Each button's width, and the columns between two.
-BUTTON, GAP = 11, 2
-
 
 class ExistsQuery(Dialog):
     """*Confirm*: File NAME already exists.  Overwrite?"""
@@ -28,11 +25,6 @@ class ExistsQuery(Dialog):
         if path is not None:
             self.details.text = tr("File {name} already exists.\nOverwrite?").format(
                 name=escape_caption(cut(str(path))))
-
-    def slot(self, index: int) -> int:
-        """The column of the *index*-th button of the centred row."""
-        wide = 4 * BUTTON + 3 * GAP
-        return max(0, (self.width - wide) // 2) + index * (BUTTON + GAP)
 
     @property
     def buttons_row(self) -> tuple[Any, ...]:

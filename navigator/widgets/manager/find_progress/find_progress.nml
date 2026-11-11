@@ -17,18 +17,20 @@ FindProgress(Dialog):
 
     StaticText:
         id: directory_row
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: root.fit(root.directory)
 
     StaticText:
         id: count_row
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: (str(root.count) + " files found") if root.count else "No files found"

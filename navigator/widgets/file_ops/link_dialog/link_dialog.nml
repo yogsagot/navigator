@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -25,18 +26,20 @@ LinkDialog(Dialog):
     #: half's, as Copy's is.
     Label:
         id: prompt_caption
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         link: target.entry
 
     Field:
         id: target
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "link"
@@ -55,43 +58,34 @@ LinkDialog(Dialog):
     #: for a hard link, which holds no path.
     CheckBoxes:
         id: options
-        x: 29
         y: 4
-        width: max(0, parent.width - 32)
         height: 1
+        anchors:
+            left: 29
+            right: 3
         items: ["~R~elative link"]
         tooltips: ["Point the link at a path relative to it, so the two can be moved together"]
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 5
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 18
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    Button:
-        id: tree
-        text: "~T~ree"
-        x: 31
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: abandon
+            text: "Cancel"
 
-    Button:
-        id: help
-        text: "Help"
-        disabled: True
-        x: 44
-        y: max(0, parent.height - 4)
-        width: 11
-        height: 2
+        Button:
+            id: tree
+            text: "~T~ree"
+
+        Button:
+            id: help
+            text: "Help"
+            disabled: True

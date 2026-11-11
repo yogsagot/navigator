@@ -45,10 +45,10 @@ class EraseQuery(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     details: StaticText    # erase_query.nml:21
-    refuse: Button    # erase_query.nml:29
-    agree: Button    # erase_query.nml:38
-    every: Button    # erase_query.nml:47
-    abandon: Button    # erase_query.nml:55
+    refuse: Button    # erase_query.nml:30
+    agree: Button    # erase_query.nml:40
+    every: Button    # erase_query.nml:50
+    abandon: Button    # erase_query.nml:59
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -58,71 +58,79 @@ class EraseQuery(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_refuse_click(self, event: _Event) -> bool:    # erase_query.nml:29
+    async def on_refuse_click(self, event: _Event) -> bool:    # erase_query.nml:30
         """``refuse`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_agree_click(self, event: _Event) -> bool:    # erase_query.nml:38
+    async def on_agree_click(self, event: _Event) -> bool:    # erase_query.nml:40
         """``agree`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_every_click(self, event: _Event) -> bool:    # erase_query.nml:47
+    async def on_every_click(self, event: _Event) -> bool:    # erase_query.nml:50
         """``every`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # erase_query.nml:55
+    async def on_abandon_click(self, event: _Event) -> bool:    # erase_query.nml:59
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.details = StaticText(parent=self)    # erase_query.nml:20
-        self.refuse = Button(parent=self)    # erase_query.nml:28
-        self.agree = Button(parent=self)    # erase_query.nml:37
-        self.every = Button(parent=self)    # erase_query.nml:46
-        self.abandon = Button(parent=self)    # erase_query.nml:54
+        self.refuse = Button(parent=self)    # erase_query.nml:29
+        self.agree = Button(parent=self)    # erase_query.nml:39
+        self.every = Button(parent=self)    # erase_query.nml:49
+        self.abandon = Button(parent=self)    # erase_query.nml:58
 
         self.modal_width = 54    # erase_query.nml:13
         self.modal_height = 10    # erase_query.nml:14
         self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # erase_query.nml:15
 
-        self.details.x = 1    # erase_query.nml:22
-        self.details.y = 1    # erase_query.nml:23
-        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # erase_query.nml:24
-        self.details.height = 3    # erase_query.nml:25
-        self.details.align = 'center'    # erase_query.nml:26
+        self.details.y = 1    # erase_query.nml:22
+        self.details.height = 3    # erase_query.nml:23
+        self.details.align = 'center'    # erase_query.nml:27
+        self.details.x = 1    # erase_query.nml:25
+        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # erase_query.nml:26
 
-        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # erase_query.nml:30
-        self.refuse.default = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:31
-        self.refuse.x = _bind(    # erase_query.nml:32
+        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # erase_query.nml:31
+        self.refuse.default = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:32
+        self.refuse.x = _bind(    # erase_query.nml:33
             lambda _o: self.slot(0 if self.kind == 'not-empty' else 1)
         )
-        self.refuse.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:33
         self.refuse.width = 11    # erase_query.nml:34
         self.refuse.height = 2    # erase_query.nml:35
-        self.refuse.on_click = self.on_refuse_click    # erase_query.nml:29
+        self.refuse.y = _bind(    # erase_query.nml:37
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.refuse.on_click = self.on_refuse_click    # erase_query.nml:30
 
-        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # erase_query.nml:39
-        self.agree.default = _bind(lambda _o: self.kind != 'not-empty')    # erase_query.nml:40
-        self.agree.x = _bind(    # erase_query.nml:41
+        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # erase_query.nml:41
+        self.agree.default = _bind(lambda _o: self.kind != 'not-empty')    # erase_query.nml:42
+        self.agree.x = _bind(    # erase_query.nml:43
             lambda _o: self.slot(1 if self.kind == 'not-empty' else 0)
         )
-        self.agree.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:42
-        self.agree.width = 11    # erase_query.nml:43
-        self.agree.height = 2    # erase_query.nml:44
-        self.agree.on_click = self.on_agree_click    # erase_query.nml:38
+        self.agree.width = 11    # erase_query.nml:44
+        self.agree.height = 2    # erase_query.nml:45
+        self.agree.y = _bind(    # erase_query.nml:47
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.agree.on_click = self.on_agree_click    # erase_query.nml:40
 
-        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # erase_query.nml:48
-        self.every.x = _bind(lambda _o: self.slot(2))    # erase_query.nml:49
-        self.every.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:50
-        self.every.width = 11    # erase_query.nml:51
-        self.every.height = 2    # erase_query.nml:52
-        self.every.on_click = self.on_every_click    # erase_query.nml:47
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # erase_query.nml:51
+        self.every.x = _bind(lambda _o: self.slot(2))    # erase_query.nml:52
+        self.every.width = 11    # erase_query.nml:53
+        self.every.height = 2    # erase_query.nml:54
+        self.every.y = _bind(    # erase_query.nml:56
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.every.on_click = self.on_every_click    # erase_query.nml:50
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # erase_query.nml:56
-        self.abandon.visible = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:57
-        self.abandon.x = _bind(lambda _o: self.slot(3))    # erase_query.nml:58
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # erase_query.nml:59
-        self.abandon.width = 11    # erase_query.nml:60
-        self.abandon.height = 2    # erase_query.nml:61
-        self.abandon.on_click = self.on_abandon_click    # erase_query.nml:55
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # erase_query.nml:60
+        self.abandon.visible = _bind(lambda _o: self.kind == 'not-empty')    # erase_query.nml:61
+        self.abandon.x = _bind(lambda _o: self.slot(3))    # erase_query.nml:62
+        self.abandon.width = 11    # erase_query.nml:63
+        self.abandon.height = 2    # erase_query.nml:64
+        self.abandon.y = _bind(    # erase_query.nml:66
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.abandon.on_click = self.on_abandon_click    # erase_query.nml:59

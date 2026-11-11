@@ -52,19 +52,21 @@ DBWindow(Window):
 
     DBViewer:
         id: viewer
-        x: 1
-        y: 1
-        width: max(0, parent.width - 2)
-        height: max(0, parent.height - 2)
+        anchors:
+            left: 1
+            right: 1
+            top: 1
+            bottom: 1
 
     StaticText:
         id: indicator
         #: Named, so the sheet can give it the frame's colours.
         name: "indicator"
         x: 10
-        y: max(0, parent.height - 1)
         width: min(display_width(self.text), max(0, parent.width - 12))
         height: 1
+        anchors:
+            bottom: 0
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: the file viewer's *View* is -- a departure, asked for: DN's dBase

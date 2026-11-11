@@ -12,15 +12,17 @@ DBListDialog(Dialog):
 
     StaticText:
         id: heading
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
 
     ListViewer:
         id: lines
         framed: False
-        x: 2
-        y: 2
-        width: max(0, parent.width - 4)
-        height: max(0, parent.height - 7)
+        anchors:
+            left: 2
+            right: 2
+            top: 2
+            bottom: 5

@@ -14,20 +14,22 @@ EditLineDialog(Dialog):
 
     Label:
         id: caption_label
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         text: root.caption
         link: line.entry
 
     #: DN's ``hsEditHistory``.
     Field:
         id: line
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: ""
         label_width: 0
         history_id: "edit_history"

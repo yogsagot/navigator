@@ -27,18 +27,20 @@ SearchProgress(Dialog):
     #: DN's 34.
     ProgressBar:
         id: bar
-        x: 2
         y: 1
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         value: root.position
         total: root.total
 
     StaticText:
         id: percent_row
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         align: "center"
         text: "%d%%" % bar.percent

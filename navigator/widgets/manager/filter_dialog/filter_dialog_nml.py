@@ -38,9 +38,9 @@ class FilterDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     masks: FilterList    # filter_dialog.nml:15
-    show: Button    # filter_dialog.nml:23
-    hide: Button    # filter_dialog.nml:33
-    abandon: Button    # filter_dialog.nml:41
+    show: Button    # filter_dialog.nml:24
+    hide: Button    # filter_dialog.nml:35
+    abandon: Button    # filter_dialog.nml:44
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -50,52 +50,58 @@ class FilterDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_show_click(self, event: _Event) -> bool:    # filter_dialog.nml:23
+    async def on_show_click(self, event: _Event) -> bool:    # filter_dialog.nml:24
         """``show`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_hide_click(self, event: _Event) -> bool:    # filter_dialog.nml:33
+    async def on_hide_click(self, event: _Event) -> bool:    # filter_dialog.nml:35
         """``hide`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # filter_dialog.nml:41
+    async def on_abandon_click(self, event: _Event) -> bool:    # filter_dialog.nml:44
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.masks = FilterList(parent=self)    # filter_dialog.nml:14
-        self.show = Button(parent=self)    # filter_dialog.nml:22
-        self.hide = Button(parent=self)    # filter_dialog.nml:32
-        self.abandon = Button(parent=self)    # filter_dialog.nml:40
+        self.show = Button(parent=self)    # filter_dialog.nml:23
+        self.hide = Button(parent=self)    # filter_dialog.nml:34
+        self.abandon = Button(parent=self)    # filter_dialog.nml:43
 
         self.modal_width = 38    # filter_dialog.nml:10
         self.modal_height = 16    # filter_dialog.nml:11
         self.title = _bind(lambda _o: _tr('Filter'), yielding=True)    # filter_dialog.nml:12
 
-        self.masks.x = 3    # filter_dialog.nml:16
-        self.masks.y = 2    # filter_dialog.nml:17
+        self.masks.x = 3    # filter_dialog.nml:17
         self.masks.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # filter_dialog.nml:18
-        self.masks.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # filter_dialog.nml:19
+        self.masks.y = 2    # filter_dialog.nml:19
+        self.masks.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # filter_dialog.nml:20
 
-        self.show.text = _bind(lambda _o: _tr('~S~how'), yielding=True)    # filter_dialog.nml:24
-        self.show.default = True    # filter_dialog.nml:25
-        self.show.x = 2    # filter_dialog.nml:26
-        self.show.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:27
+        self.show.text = _bind(lambda _o: _tr('~S~how'), yielding=True)    # filter_dialog.nml:25
+        self.show.default = True    # filter_dialog.nml:26
+        self.show.x = 2    # filter_dialog.nml:27
         self.show.width = 10    # filter_dialog.nml:28
         self.show.height = 2    # filter_dialog.nml:29
-        self.show.on_click = self.on_show_click    # filter_dialog.nml:23
+        self.show.y = _bind(    # filter_dialog.nml:31
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.show.on_click = self.on_show_click    # filter_dialog.nml:24
 
-        self.hide.text = _bind(lambda _o: _tr('~H~ide'), yielding=True)    # filter_dialog.nml:34
-        self.hide.x = 13    # filter_dialog.nml:35
-        self.hide.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:36
-        self.hide.width = 10    # filter_dialog.nml:37
-        self.hide.height = 2    # filter_dialog.nml:38
-        self.hide.on_click = self.on_hide_click    # filter_dialog.nml:33
+        self.hide.text = _bind(lambda _o: _tr('~H~ide'), yielding=True)    # filter_dialog.nml:36
+        self.hide.x = 13    # filter_dialog.nml:37
+        self.hide.width = 10    # filter_dialog.nml:38
+        self.hide.height = 2    # filter_dialog.nml:39
+        self.hide.y = _bind(    # filter_dialog.nml:41
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.hide.on_click = self.on_hide_click    # filter_dialog.nml:35
 
-        self.abandon.text = _bind(lambda _o: _tr('Close'), yielding=True)    # filter_dialog.nml:42
-        self.abandon.x = 24    # filter_dialog.nml:43
-        self.abandon.y = _bind(lambda _o: max(0, _o.parent.height - 4))    # filter_dialog.nml:44
-        self.abandon.width = 11    # filter_dialog.nml:45
-        self.abandon.height = 2    # filter_dialog.nml:46
-        self.abandon.on_click = self.on_abandon_click    # filter_dialog.nml:41
+        self.abandon.text = _bind(lambda _o: _tr('Close'), yielding=True)    # filter_dialog.nml:45
+        self.abandon.x = 24    # filter_dialog.nml:46
+        self.abandon.width = 11    # filter_dialog.nml:47
+        self.abandon.height = 2    # filter_dialog.nml:48
+        self.abandon.y = _bind(    # filter_dialog.nml:50
+            lambda _o: max(0, _o.parent.height - 2 - _o.height)
+        )
+        self.abandon.on_click = self.on_abandon_click    # filter_dialog.nml:44

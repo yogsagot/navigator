@@ -16,10 +16,11 @@ DBSearchDialog(Dialog):
     #: DN's ``hsdbSearch``.
     Field:
         id: text
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: 1
+        anchors:
+            left: 2
+            right: 2
         label_text: "~T~ext to search"
         label_width: 16
         history_id: "dbsearch"

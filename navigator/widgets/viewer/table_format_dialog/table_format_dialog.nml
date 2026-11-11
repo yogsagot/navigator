@@ -51,9 +51,10 @@ TableFormatDialog(Dialog):
 
     ChoiceField:
         id: encoding
-        x: 3
         y: 9
-        width: max(0, parent.width - 6)
         height: 1
+        anchors:
+            left: 3
+            right: 3
         label_text: "~E~ncoding"
         label_width: 10
