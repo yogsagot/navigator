@@ -342,12 +342,26 @@ def _nothing_in_background():
 
 
 #: ``NAVIGATOR_SLOW_THREADS=0.05 pytest`` delays every piece of work sent to a
-#: thread -- a ``Background`` pool's job, an ``asyncio.to_thread`` call -- by
-#: that many seconds before it starts.  A test that waits for the result with
-#: ``Until`` still passes; one that counts on a fixed number of ``lambda a:
-#: None`` steps fails every time instead of once a hundred runs under load.
-#: The race detector for the rule in CLAUDE.md's *Testing*; off by default.
+#: thread by that many seconds before it starts: anything submitted to a
+#: ``ThreadPoolExecutor`` -- a ``Background`` pool's job, ``asyncio.to_thread``,
+#: ``loop.run_in_executor``, the viewer's fetchers -- and every
+#: ``threading.Thread`` whose target is navkit's, navml's or Navigator's own.
+#: A test that waits for the result with ``Until`` still passes; one that counts
+#: on a fixed number of ``lambda a: None`` steps fails every time instead of once
+#: a hundred runs under load.  The race detector for the rule in CLAUDE.md's
+#: *Testing*; off by default.
+#:
+#: The panel's directory scans (the ``nav-scan`` pools) are left out unless
+#: ``NAVIGATOR_SLOW_SCANS=1`` is set too: a listing waits ``SCAN_GRACE`` on the
+#: loop, so a local directory shows in the step that opened it, and a delay past
+#: that grace flags every test reading a panel just moved -- races that bite only
+#: on a very loaded machine, kept for a pass of their own.
 SLOW_THREADS = float(__import__("os").environ.get("NAVIGATOR_SLOW_THREADS") or 0)
+SLOW_SCANS = bool(__import__("os").environ.get("NAVIGATOR_SLOW_SCANS"))
+
+#: Whose threads are delayed: a third party's -- paramiko's, a test's FTP
+#: server's -- start at once, so a server a test runs is listening in time.
+_OWN_MODULES = ("navkit.", "navml.", "navigator.")
 
 
 @pytest.fixture(autouse=True)
@@ -355,25 +369,37 @@ def _slow_threads(monkeypatch):
     if not SLOW_THREADS:
         yield
         return
+    import concurrent.futures
+    import functools
     import threading
 
-    from navml import background
+    real_submit = concurrent.futures.ThreadPoolExecutor.submit
+    real_run = threading.Thread.run
 
-    real_run, real_to_thread = background._run, asyncio.to_thread
+    def submit(self, fn, /, *args, **kwargs):
+        prefix = getattr(self, "_thread_name_prefix", "") or ""
+        if prefix.startswith("nav-scan") and not SLOW_SCANS:
+            return real_submit(self, fn, *args, **kwargs)
 
-    def run(func, args):
-        if threading.current_thread() is not threading.main_thread():
+        def late(*a, **k):
             time.sleep(SLOW_THREADS)
-        return real_run(func, args)
+            return fn(*a, **k)
+        return real_submit(self, late, *args, **kwargs)
 
-    async def to_thread(func, /, *args, **kwargs):
-        def late():
+    def owner(target) -> str:
+        if isinstance(target, functools.partial):
+            target = target.func
+        return getattr(target, "__module__", None) or ""
+
+    def run(self):
+        # An executor's workers run ``concurrent.futures.thread._worker``, not
+        # ours: what they run is delayed once, at ``submit``.
+        if owner(getattr(self, "_target", None)).startswith(_OWN_MODULES):
             time.sleep(SLOW_THREADS)
-            return func(*args, **kwargs)
-        return await real_to_thread(late)
+        return real_run(self)
 
-    monkeypatch.setattr(background, "_run", run)
-    monkeypatch.setattr(asyncio, "to_thread", to_thread)
+    monkeypatch.setattr(concurrent.futures.ThreadPoolExecutor, "submit", submit)
+    monkeypatch.setattr(threading.Thread, "run", run)
     yield
 
 

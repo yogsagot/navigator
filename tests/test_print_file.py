@@ -6,7 +6,7 @@ import subprocess
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.system import printing
@@ -52,7 +52,10 @@ def press_ctrl_f9(tree, *before, answer="y"):
     run_app(app, [*before, KeyEvent("f9", ctrl=True), lambda a: None,
                   lambda a: asked.append(a.modal.prompt if a.modal else None),
                   lambda a: titles.append(a.modal.title if a.modal else None),
-                  KeyEvent(answer, alt=True), lambda a: None, lambda a: None])
+                  # Each file is spooled on a thread and untagged once it is: done is
+                  # no task left, not a number of steps -- or, with no question
+                  # asked, whatever the stray key itself put up.
+                  KeyEvent(answer, alt=True), Until(lambda a: not a._tasks or a.modal is not None)])
     app.titles = titles
     return app, asked
 
