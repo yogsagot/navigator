@@ -445,7 +445,7 @@ class Panel(ListViewer):
 
     #: ``heading`` is the column-titles row the detailed and list modes draw.
     parts = ListViewer.parts + (
-        "heading", "current-file", "selected-files", "selected-files-numbers",
+        "heading", "current-file", "selected-files", "selected-files-numbers", "packed", "packed-numbers",
         "totals", "totals-numbers", "free-space", "free-space-numbers", "git",
     )
 
@@ -2973,6 +2973,8 @@ class Panel(ListViewer):
 
     #: The parts drawn as they are, from the left: a name may hold a ``~``.
     PLAIN_INFO = frozenset({"current-file"})
+    #: The parts drawn from the left, ``~`` around what is bright; the rest are centred.
+    LEFT_INFO = frozenset({"packed"})
 
     @property
     def info_lines(self) -> tuple[tuple[str, str], ...]:
@@ -3014,9 +3016,12 @@ class Panel(ListViewer):
                 lines.append((self._selection_text(marked), "selected-files"))
             else:
                 lines.append((None, "current-file"))
-            second = self._second_line(self.selected)
-            if second is not None:
-                lines.append((second, "current-file"))
+            if self.in_archive:
+                lines.append((self._packed_line(self.selected), "packed"))
+            else:
+                second = self._second_line(self.selected)
+                if second is not None:
+                    lines.append((second, "current-file"))
         if selected_files:
             lines.append((self._selection_text(marked), "selected-files"))
         if CLIP:
@@ -3051,11 +3056,18 @@ class Panel(ListViewer):
     def _selection_text(self, marked: list[DirEntry]) -> str:
         """*Selected files*: DN's ``dlBytesIn`` and ``dlSelectedFiles``, or
         its ``No files selected``.  Only the two numbers are bright, as DN's
-        ``'~'+bytes+' ~bytes in ~'+N+'~ selected files'`` had them."""
+        ``'~'+bytes+' ~bytes in ~'+N+'~ selected files'`` had them.  In an
+        archive the packed bytes follow in brackets where they differ, those
+        a member does not say left out."""
         if not marked:
             return tr("No files selected")
         size = sum(item.size for item in marked)
-        total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
+        packed = sum(item.packed for item in marked if item.packed is not None)
+        if self.in_archive and packed != size:
+            # DN's ``SelectedLen <> PackedLen``: ``1,234(567) bytes in 2``.
+            total = tr_n("~{n:,}({packed:,})~ byte", "~{n:,}({packed:,})~ bytes", size, packed=packed)
+        else:
+            total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
         return tr_n("{total} in ~{n}~ selected file", "{total} in ~{n}~ selected files", len(marked), total=total)
 
     def _current_file_text(self, entry: DirEntry | None) -> str:
@@ -3117,6 +3129,21 @@ class Panel(ListViewer):
         if text_width(name) > width - start:
             start = 0
         return " " * start + fit_text(name, max(1, width - start), self.ellipsis)
+
+    @property
+    def in_archive(self) -> bool:
+        """Listing an archive's members, not a *Find:* listing of them."""
+        return self.location.outer is not None and self.found is None
+
+    def _packed_line(self, entry: DirEntry | None) -> str:
+        """The line under *Current file* in an archive, DN's ``dtArc`` one:
+        ``~Packed:~ 1,234     ~Ratio:~ 56%``, the labels bright and from the
+        left (FLPANEL.PAS:845-852).  Blank on a directory, ``..`` or a member
+        that does not say, and kept, so the panel does not change height."""
+        if entry is None or entry.is_dir or entry.packed is None:
+            return ""
+        packed = f"{entry.packed:,}".ljust(13)
+        return tr("~Packed:~ {packed} ~Ratio:~ {ratio}").format(packed=packed, ratio=entry.display_ratio.strip())
 
     def _second_line(self, entry: DirEntry | None) -> str | None:
         """The line under *Current file*, or None where the listing needs
@@ -3257,7 +3284,7 @@ class Panel(ListViewer):
                 y += 1
                 continue
             plain = text.replace("~", "")
-            x = left + max(0, (width - text_width(plain)) // 2)
+            x = left if part in self.LEFT_INFO else left + max(0, (width - text_width(plain)) // 2)
             bright = False
             for piece in text.split("~"):
                 room = left + width - x

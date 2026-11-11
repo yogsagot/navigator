@@ -244,7 +244,11 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
     Navigator's, too narrow for a path, and is gone (`[column_defaults] find_path` is `OBSOLETE`) -- or
     `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes). It is **kept while the listing could need it** -- always on a *Find:*
     listing, while the listing holds a symlink otherwise -- so the listing never changes height as the cursor moves.
-  - *Selected files* (`::selected-files`, `[120]`/`[121]`): `No files selected`, or `~X bytes in N~ selected files`.
+    **Inside an archive** it is DN's `dtArc` line instead (`Panel._packed_line`, part `::packed`, the selection's
+    colours): `~Packed:~ 1,234      ~Ratio:~ 56%`, from the left, the labels bright; always kept there, blank on a
+    directory or a member that does not say its packed size.
+  - *Selected files* (`::selected-files`, `[120]`/`[121]`): `No files selected`, or `~X~ bytes in ~N~ selected files`,
+    only the numbers bright as DN's were; in an archive `~X(P)~ bytes in ~N~ ...` where the packed total differs.
     With files tagged and the box off, the selection takes *Current file*'s line, as DN's `Goto 1` did.
   - *Totals* and *Free space* (`navigator-settings`), centred as the selection is.
   **Nothing per entry per cursor move or frame** (a 100k listing walked ~4 times a keypress, and the key bar's F5/F6/F8

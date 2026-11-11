@@ -12,6 +12,8 @@ from pathlib import Path
 
 import pytest
 
+from navigator.lib.drives.listing import DirEntry
+
 from conftest import FakeTerminal, IDLE, Until, run_app
 from navkit.events import KeyEvent
 from navigator.lib.drives import DriveGone, Location, drive_of
@@ -1128,3 +1130,31 @@ def test_leaving_an_archive_not_written_asks_and_cancel_keeps_it(desk, monkeypat
     ])
     assert "a.zip could not be written" in asked.prompts[0]
     assert seen["pending"] == ["a.zip"]
+
+
+def test_inside_an_archive_the_current_file_says_packed_and_ratio(desk):
+    """DN's ``dtArc`` second line, ``~Packed:~ N  ~Ratio:~ X%``, and the
+    selection line's packed total (FLPANEL.PAS:845-852, 867)."""
+    app, here = desk
+    seen = {}
+
+    def look(key):
+        def go(a):
+            seen[key] = a.manager.left.info_lines
+        return go
+
+    run_app(app, [
+        at("a.zip"), KeyEvent("enter"), Until(lambda a: "README" in names(a)),
+        at("README"), look("file"), at(".."), look("up"),
+        at("README"), KeyEvent("insert"), look("tagged"),
+    ])
+    entry = next(e for e in app.manager.left.items if e.name == "README")
+    lines = dict((part, text) for text, part in seen["file"])
+    assert lines["packed"].startswith("~Packed:~ ") and f"~Ratio:~ {entry.display_ratio.strip()}" in lines["packed"]
+    assert f"{entry.packed:,}" in lines["packed"]
+    assert ("", "packed") in seen["up"]  # kept, blank, so the panel keeps its height
+    selected = dict((part, text) for text, part in seen["tagged"])["selected-files"]
+    assert entry.packed == entry.size and selected == "~7~ bytes in ~1~ selected file"  # stored: no packed total
+    big = DirEntry("big", False, 3000)
+    big.packed = 1200
+    assert app.manager.left._selection_text([big]) == "~3,000(1,200)~ bytes in ~1~ selected file"
