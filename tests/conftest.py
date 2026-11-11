@@ -341,6 +341,42 @@ def _nothing_in_background():
     BACKGROUND.listener = None
 
 
+#: ``NAVIGATOR_SLOW_THREADS=0.05 pytest`` delays every piece of work sent to a
+#: thread -- a ``Background`` pool's job, an ``asyncio.to_thread`` call -- by
+#: that many seconds before it starts.  A test that waits for the result with
+#: ``Until`` still passes; one that counts on a fixed number of ``lambda a:
+#: None`` steps fails every time instead of once a hundred runs under load.
+#: The race detector for the rule in CLAUDE.md's *Testing*; off by default.
+SLOW_THREADS = float(__import__("os").environ.get("NAVIGATOR_SLOW_THREADS") or 0)
+
+
+@pytest.fixture(autouse=True)
+def _slow_threads(monkeypatch):
+    if not SLOW_THREADS:
+        yield
+        return
+    import threading
+
+    from navml import background
+
+    real_run, real_to_thread = background._run, asyncio.to_thread
+
+    def run(func, args):
+        if threading.current_thread() is not threading.main_thread():
+            time.sleep(SLOW_THREADS)
+        return real_run(func, args)
+
+    async def to_thread(func, /, *args, **kwargs):
+        def late():
+            time.sleep(SLOW_THREADS)
+            return func(*args, **kwargs)
+        return await real_to_thread(late)
+
+    monkeypatch.setattr(background, "_run", run)
+    monkeypatch.setattr(asyncio, "to_thread", to_thread)
+    yield
+
+
 @pytest.fixture(autouse=True)
 def _nothing_to_undo():
     """File > Undo's history is the session's: empty around every test."""
