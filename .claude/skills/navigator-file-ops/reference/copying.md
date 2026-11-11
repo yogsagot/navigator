@@ -114,6 +114,9 @@ progress box appears after DN's two ticks.
 
 **Departures:**
 
+- ***Flush buffers* `fsync`s each file as it is written** (`CopyRequest.flush`), before it counts and before a move
+  across drives deletes its source. DN flushed once, at the end (`int 21h` `0Dh` under *Flushing buffers...*,
+  `FILECOPY.PAS:2395-2424`), after `__Remove` had already deleted the sources.
 - **A failure asks Skip / Cancel (and *As root*), and the copy goes on.** Every error ended DN's operation with one
   OK box.
 - **The overwrite question comes before the room check**, and the check is made only where bytes will be written

@@ -314,7 +314,10 @@ class SystemData(Section):
     )
     #: DN's default was off; Navigator's panels have always shown them.
     show_hidden: bool = Setting(True, doc="A new panel shows hidden files (Ctrl+H toggles one)")
-    #: DN flushed DOS's disk caches; on POSIX that is an fsync of what was written.
+    #: DN flushed DOS's disk buffers once, at the end of a copy (``int 21h``
+    #: ``0Dh`` under *Flushing buffers...*).  A departure: each file is
+    #: fsynced as it is written, before it counts and before a move deletes
+    #: its source.
     flush_buffers: bool = Setting(True, doc="Sync each file to disk as it is copied")
     #: Not DN's: Midnight Commander's Ctrl+O, for whoever prefers it.
     internal_terminal: bool = Setting(

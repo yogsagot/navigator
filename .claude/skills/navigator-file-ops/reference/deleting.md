@@ -41,6 +41,7 @@ Departures:
   run for a directory. A directory with something kept inside it is left alone without a second complaint.
 - **The progress box has a gauge**, `N of M (P%)` over the counted entries, and its button says *Cancel*
   where DN's said *Stop*. It still asks *Abort operation?* before anything stops.
-- **Not ported:** the direct FAT path, `.DIZ` descriptions and *Flush disk buffers*. DN's `Confirms` bits are
+- **Not ported:** the direct FAT path, `.DIZ` descriptions and *Flush disk buffers* (DN's eraser flushed once at
+  the end, `ERASER.PAS:471`; an erase writes no file data to sync). DN's `Confirms` bits are
   Confirmations' four `erase_*` settings, all on by default as DN's were.
 

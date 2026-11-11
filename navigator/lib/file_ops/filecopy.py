@@ -68,6 +68,7 @@ class CopyRequest:
     options: int = PRESERVE
     #: System Setup's *Flush buffers*: each file written is synced to disk
     #: before it counts as copied -- and before a move deletes its source.
+    #: A departure: DN flushed once, at the end, after the sources had gone.
     flush: bool = False
     #: *Extract* without path names (``dlgExtract``'s box unticked): every
     #: file under a directory copied goes into the target itself, no

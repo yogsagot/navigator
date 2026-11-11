@@ -12,7 +12,8 @@ from navml.widgets.dialog.static_text import StaticText
 #: *Clear read-only from CD*, *"Fast" command execution* (DN's INT 2Fh reload
 #: trick), *Advanced copy* (XMS/EMS buffers), the two video modes and the
 #: per-drive list -- so it is nine rows shorter.  *Flush disk buffers* is
-#: kept as what it means on POSIX: syncing what a copy wrote.  Help is left out, having nothing to show yet.
+#: kept as what it means on POSIX: syncing what a copy wrote, file by file
+#: as it is written, where DN flushed once at the end -- a departure.  Help is left out, having nothing to show yet.
 #: *Use internal terminal* is not DN's but a departure: whether Ctrl+O shows
 #: the console in Navigator, or hands the real terminal over as mc does.
 #: *Unexpected errors* is another: DN had Turbo Pascal's ``Runtime error``
