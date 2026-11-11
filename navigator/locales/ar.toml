@@ -6834,6 +6834,12 @@ direction = "rtl"
 "Total {n:,} byte" = ["المجموع {n:,} بايت", "المجموع بايت واحد", "المجموع بايتان", "المجموع {n:,} بايتات", "المجموع {n:,} بايتًا", "المجموع {n:,} بايت"]
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
 "~D~irectory name" = "ا~س~م المجلد"
+# navigator/settings.py
+"Make list file, Alt+L (DN's dlgMakeList)" = "إنشاء قائمة ملفات، Alt+L (‏dlgMakeList في DN)"
+# navigator/settings.py
+"Write each file's directory with its name" = "كتابة مجلد كل ملف مع اسمه"
+# navigator/settings.py
+"Write the directory only where it is not the list's own" = "كتابة المجلد فقط حين لا يكون مجلد القائمة"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

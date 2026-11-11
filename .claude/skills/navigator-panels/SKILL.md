@@ -619,8 +619,11 @@ its path -- never `here / entry.name` -- and **`DirEntry.key`** (name, or whole 
 `MakeList`, `Manager.make_list`, DN's `CM_MakeList` -> `MakeListFile` (also Panel > Make list file): nothing tagged,
 `SelectDialog` first; then `MakeListDialog` (`dlgMakeList`: file name, history `make_list`, opened on its last entry
 or `makelist.DEFAULT_NAME` `dnlist.txt` -- DN's `DNLIST.BAT` -- and *Action*, history `command`, opened on the last
-command run; *Store path names* / *Autodetermine*, kept for the session in `Manager.make_list_options`, where DN kept
-them in its configuration). `navigator/lib/file_ops/makelist.py`: one line per file, or per file per `;` template (`;;` a `;`) with
+command run; *Store path names* / *Autodetermine*, kept in `[make_list]` (`store_paths`, `auto_paths`,
+`_keep_section`) as DN kept `MakeListFileOptions` in its configuration; a *Store path names* left ticked opens
+unticked when every file is from one directory, ticked only for a *Find:* listing that spans several -- DN's
+`cmlPathNames` check -- and OK keeps the untick). DN's FidoNet file requests (a name starting `+`, `%` or `/`,
+`FILECOPY.PAS:488`) are dropped: no POSIX meaning. `navigator/lib/file_ops/makelist.py`: one line per file, or per file per `;` template (`;;` a `;`) with
 `! .! !\ !/ !: !!`, values shell-quoted, a template without macros followed by the quoted file; *Autodetermine* adds
 paths for files outside the list's directory and puts `!\` before a bare name macro. An existing file asks Yes /
 A~p~pend / Cancel. Written files are untagged and `FileSaved` re-reads the panels showing the list's directory.

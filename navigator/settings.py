@@ -1091,6 +1091,17 @@ class SplitData(Section):
     checksum: bool = Setting(True, doc="Split writes the set's NAME.crc, which Combine checks")
 
 
+class MakeListData(Section):
+    """Alt+L's two boxes, DN's ``MakeListFileOptions``, which it kept in its
+    configuration (``cfgMakeListFile``).  Off, as DN's zeroed record was."""
+
+    name = "make_list"
+    title = "Make list file, Alt+L (DN's dlgMakeList)"
+
+    store_paths: bool = Setting(False, doc="Write each file's directory with its name")
+    auto_paths: bool = Setting(False, doc="Write the directory only where it is not the list's own")
+
+
 class ChecksumData(Section):
     """File > Encoding > Checksums > *Calculate*'s last choices.  Not DN's: a departure,
     asked for -- DOS Navigator had no checksums to keep anything of."""
@@ -1238,7 +1249,7 @@ SECTIONS: tuple[type[Section], ...] = (
     AppearanceData, SystemData, StartupData, InterfaceData, ConfirmsData,
     EditorDefaultsData, ViewerDefaultsData, FMSetupData, PanelDefaultsData,
     DriveInfoData, ColumnDefaultsData, HighlightGroupsData, SaversData, CountryData, TetrisData,
-    CalculatorData, UUCodeData, SplitData, ChecksumData, TextConversionData, EncryptionData, SynchronizeData, ProcessesData, ServicesData, MonitorData, RemoteData,
+    CalculatorData, UUCodeData, SplitData, MakeListData, ChecksumData, TextConversionData, EncryptionData, SynchronizeData, ProcessesData, ServicesData, MonitorData, RemoteData,
 )
 
 #: ``{section: keys}`` an older ``navigator.ini`` may hold for DN options that
@@ -1278,6 +1289,7 @@ class Settings:
     calculator: CalculatorData
     uucode: UUCodeData
     split: SplitData
+    make_list: MakeListData
     checksum: ChecksumData
     text_conversion: TextConversionData
     encryption: EncryptionData

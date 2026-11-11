@@ -6833,6 +6833,12 @@ flag = "LV"
 "Total {n:,} byte" = ["Kopā {n:,} baits", "Kopā {n:,} baiti", "Kopā {n:,} baitu"]
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
 "~D~irectory name" = "~D~irektorija nosaukums"
+# navigator/settings.py
+"Make list file, Alt+L (DN's dlgMakeList)" = "Failu saraksts, Alt+L (DN dlgMakeList)"
+# navigator/settings.py
+"Write each file's directory with its name" = "Rakstīt katra faila direktoriju kopā ar nosaukumu"
+# navigator/settings.py
+"Write the directory only where it is not the list's own" = "Rakstīt direktoriju tikai tad, ja tā nav saraksta direktorija"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

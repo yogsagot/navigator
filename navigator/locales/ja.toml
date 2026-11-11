@@ -6833,6 +6833,12 @@ flag = "JP"
 "Total {n:,} byte" = ["合計 {n:,} バイト"]
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
 "~D~irectory name" = "ディレクトリ名(~D~)"
+# navigator/settings.py
+"Make list file, Alt+L (DN's dlgMakeList)" = "ファイルリスト作成、Alt+L(DN の dlgMakeList)"
+# navigator/settings.py
+"Write each file's directory with its name" = "各ファイルのディレクトリを名前と一緒に書く"
+# navigator/settings.py
+"Write the directory only where it is not the list's own" = "リストのディレクトリと異なる場合のみディレクトリを書く"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

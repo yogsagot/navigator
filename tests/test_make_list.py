@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 import pytest
@@ -67,6 +68,79 @@ def test_alt_l_writes_the_tagged_names_untags_them_and_the_panel_shows_the_list(
     assert seen["title"] == "Make List File" and seen["name"] == "dnlist.txt" and seen["action"] == "ls -l"
     assert (place / "dnlist.txt").read_text() == "a.txt\nc.c\n"
     assert seen["listed"]
+
+
+def _boxes(app, setup, *, ticking=None):
+    """Alt+L over what *setup* tags: the boxes as the dialog opens, then
+    *ticking* (a value for them) and OK with no action."""
+    seen = {}
+
+    def look(a):
+        seen["opened"] = a.modal.options.value
+        a.modal.action.value = ""
+        if ticking is not None:
+            a.modal.options.value = ticking
+
+    run_app(app, [setup, KeyEvent("l", alt=True),
+                  Until(lambda a: type(a.modal).__name__ == "MakeListDialog"), look, KeyEvent("enter"),
+                  Until(lambda a: a.modal is None)])
+    return seen["opened"]
+
+
+def test_the_boxes_are_kept_in_the_settings(place):
+    # DN's ``MakeListFileOptions``, kept in ``cfgMakeListFile``.
+    from navigator.settings import SETTINGS
+
+    def tag(a):
+        a.manager.left.marked = frozenset({"a.txt"})
+
+    _boxes(navigator(place), tag, ticking=AUTO_PATHS)
+    assert (SETTINGS.make_list.store_paths, SETTINGS.make_list.auto_paths) == (False, True)
+    assert re.search(r"^auto_paths\s*=\s*yes\b", SETTINGS.path.read_text(), re.M)
+
+
+def test_one_directory_unticks_a_remembered_store_path_names(place):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.make_list.store_paths = True
+
+    def tag(a):
+        a.manager.left.marked = frozenset({"a.txt", "b.txt"})
+
+    assert _boxes(navigator(place), tag) & STORE_PATHS == 0
+    assert SETTINGS.make_list.store_paths is False  # OK keeps the untick, as DN's did
+
+
+def test_a_listing_of_two_directories_keeps_store_path_names(place):
+    from navigator.lib.drives.listing import DirEntry
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.settings import SETTINGS
+
+    (place / "one").mkdir()
+    (place / "two").mkdir()
+    (place / "one" / "x.txt").write_text("x")
+    (place / "two" / "y.txt").write_text("y")
+    SETTINGS.make_list.store_paths = True
+    found = FindListing(title="*.txt", origin=place, entries=[
+        DirEntry("x.txt", False, 1, directory=place / "one"), DirEntry("y.txt", False, 1, directory=place / "two")])
+
+    def setup(a):
+        panel = a.manager.left
+        panel.show_found(found)
+
+    def tag(a):
+        panel = a.manager.left
+        panel.marked = frozenset(e.key for e in panel.items if e.name != "..")
+
+    app = navigator(place)
+    seen = {}
+
+    def look(a):
+        seen["opened"] = a.modal.options.value
+
+    run_app(app, [setup, Until(lambda a: len(a.manager.left.items) == 3), tag, KeyEvent("l", alt=True),
+                  Until(lambda a: type(a.modal).__name__ == "MakeListDialog"), look, KeyEvent("escape")])
+    assert seen["opened"] & STORE_PATHS
 
 
 def test_with_nothing_tagged_select_comes_first(place):

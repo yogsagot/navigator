@@ -2697,8 +2697,6 @@ class Manager(Window):
 
     #: *Make List File*'s boxes as last left, for the session (DN kept
     #: ``MakeListFileOptions`` in its configuration).
-    make_list_options = 0
-
     async def on_make_list(self, event: MakeList) -> bool:
         self.spawn(self.make_list(self.active_panel))
         return True
@@ -2712,8 +2710,12 @@ class Manager(Window):
         is untagged, file by file as DN's ``cmCopyUnselect`` did, and every
         panel showing the list's directory re-reads (``RereadDirectory``).
         The relative name is the active panel's directory's, DN's current one.
+
+        The boxes are ``[make_list]``'s, DN's ``MakeListFileOptions``; a
+        *Store path names* left ticked stays so only for files from more than
+        one directory (a *Find:* listing), as ``MakeListFile`` unticked it.
         """
-        from navigator.lib.file_ops.makelist import make_lines
+        from navigator.lib.file_ops.makelist import AUTO_PATHS, STORE_PATHS, make_lines
         from navigator.widgets.editor.edit_window.edit_window import FileSaved
         from navigator.widgets.manager.make_list_dialog import MakeListDialog
         from navigator.widgets.manager.select_dialog import SelectDialog
@@ -2730,11 +2732,16 @@ class Manager(Window):
         entries = panel.marked_entries
         if not entries:
             return
-        answer = await MakeListDialog(type(self).make_list_options).execute(app)
+        kept = SETTINGS.make_list
+        options = (STORE_PATHS if kept.store_paths else 0) | (AUTO_PATHS if kept.auto_paths else 0)
+        if options & STORE_PATHS and len({panel.entry_location(entry).parent for entry in entries}) < 2:
+            options &= ~STORE_PATHS  # ``cmlPathNames`` dropped: one directory needs no paths
+        answer = await MakeListDialog(options).execute(app)
         if answer is None:
             return
         name, action, options = answer
-        type(self).make_list_options = options
+        self._keep_section("make_list", {"store_paths": bool(options & STORE_PATHS),
+                                         "auto_paths": bool(options & AUTO_PATHS)}, app)
         if not panel.location.is_local:
             await self._make_list_elsewhere(panel, entries, name, action, options)
             return

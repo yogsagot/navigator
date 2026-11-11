@@ -87,7 +87,6 @@ class Manager(Window, _Component):
     LOCATE_DELAY: _Any
     MIN_SIDE: _Any
     last_panelized: _Any
-    make_list_options: _Any
     _TREE_OWN: _Any
     _as_root_declined: _Any
     def __init__(self, left: Path, right: Path, **kwargs): ...

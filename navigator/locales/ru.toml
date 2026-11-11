@@ -6833,6 +6833,12 @@ flag = "RU"
 "Total {n:,} byte" = ["Всего {n:,} байт", "Всего {n:,} байта", "Всего {n:,} байт"]
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
 "~D~irectory name" = "~И~мя каталога"
+# navigator/settings.py
+"Make list file, Alt+L (DN's dlgMakeList)" = "Список файлов, Alt+L (dlgMakeList в DN)"
+# navigator/settings.py
+"Write each file's directory with its name" = "Записывать каталог каждого файла вместе с именем"
+# navigator/settings.py
+"Write the directory only where it is not the list's own" = "Записывать каталог, только если он не каталог списка"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

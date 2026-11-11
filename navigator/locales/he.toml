@@ -6834,6 +6834,12 @@ direction = "rtl"
 "Total {n:,} byte" = ["סך הכול בית אחד", "סך הכול שני בתים", "סך הכול {n:,} בתים"]
 # navigator/widgets/file_ops/mkdir_dialog/mkdir_dialog.nml
 "~D~irectory name" = "~ש~ם התיקייה"
+# navigator/settings.py
+"Make list file, Alt+L (DN's dlgMakeList)" = "יצירת רשימת קבצים, Alt+L (‏dlgMakeList של DN)"
+# navigator/settings.py
+"Write each file's directory with its name" = "לכתוב את התיקייה של כל קובץ עם שמו"
+# navigator/settings.py
+"Write the directory only where it is not the list's own" = "לכתוב את התיקייה רק כשאינה התיקייה של הרשימה"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
