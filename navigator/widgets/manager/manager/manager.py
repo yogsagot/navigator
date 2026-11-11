@@ -141,6 +141,7 @@ from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
 from navigator.widgets.manager.panel import Panel
 from navigator.widgets.manager.panel.drag import Dropped, label_for
 from navigator.widgets.manager.panel.panel import SORT_MODES, DirEntry
+from navigator.widgets.tree.directory_tree.directory_tree import reread_trees
 from navigator.lib.config.file_history import open_editor, open_viewer
 from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.lib.config import panel_state
@@ -806,6 +807,7 @@ class Manager(Window):
                                    tr("Combining {name}").format(name=place.name), beep_after=20,
                                    as_root=(lambda job: splitfile.combine(combine, job, as_root=True))
                                    if place.is_local else None)
+            reread_trees(app)  # DN's ``cmRereadTree`` (``FBB.PAS:553``)
             return
         from navigator.widgets.file_ops.split_dialog import SplitDialog
 
@@ -820,6 +822,7 @@ class Manager(Window):
                                tr("Splitting {name}").format(name=place.name), beep_after=20,
                                as_root=(lambda job: splitfile.split(split, job, as_root=True))
                                if place.is_local else None)
+        reread_trees(app)
 
     # -- Checksums (navigator.lib.file_ops.checksum): not DN's, a departure -------------------------
 
@@ -2747,6 +2750,7 @@ class Manager(Window):
             return
         panel.untag(entries)
         await self.emit(FileSaved(target))
+        reread_trees(self.application)  # DN's ``cmRereadTree`` (``FILECOPY.PAS:574``)
 
     async def _make_list_elsewhere(self, panel: Panel, entries: list[Any], name: str, action: str,
                                    options: int) -> None:
@@ -2794,6 +2798,7 @@ class Manager(Window):
             return
         panel.untag(entries)
         await self.emit(FileSaved(local if local is not None else target))
+        reread_trees(self.application)
 
     async def _write_list(self, write: Callable[[], None], target: Location, lines: list[str],
                           appending: bool) -> bool:
@@ -3997,7 +4002,7 @@ class Manager(Window):
             made = None
             await Dialog(title=tr("Cannot make directory"), prompt=error.strerror or str(error),
                          buttons="ok").execute(self.application)
-        self.tree.reload()
+        reread_trees(self.application)
         if made is not None:
             self.tree.show(made.local if made.is_local else made)
         for panel in self.all_panels:
@@ -4033,6 +4038,8 @@ class Manager(Window):
         # DN's ``MakeDir`` re-read the directory with the cursor on what it
         # made; ``a/b`` puts it on ``a``, the entry this listing shows.
         panel.reload(key=Path(name).parts[0] if made is not None else None)
+        if made is not None:
+            reread_trees(self.application)  # DN's ``cmRereadTree``
 
     # -- copying and moving ------------------------------------------------------
 
@@ -4133,8 +4140,7 @@ class Manager(Window):
             target = None
         others = tuple(other for other in self.all_panels if other is not panel)
         await self.copy_entries(panel, [entry], target, move=move, others=others, here=here)
-        self.tree.reload()
-        self.reread_info()
+        self.reread_info()  # the trees re-read in ``_run_copy``
 
     async def copy_files(self, *, move: bool) -> None:
         """Ask where, copy on a thread, and let both panels look again.
@@ -4411,6 +4417,8 @@ class Manager(Window):
         for other in others:
             if other.application is not None:
                 other.reload(key=key_in(other))
+        # DN's ``cmRereadTree`` for the drives the copy touched (``FILECOPY.PAS:2416``).
+        reread_trees(app)
         if job.attributes_lost_count:
             # *Preserve attributes* kept what it could: the rest said once, as
             # ``cp -p`` warns -- a FAT stick or a server keeps no owner or mode.
@@ -4689,8 +4697,7 @@ class Manager(Window):
         if found is None:
             return
         here, entry = found
-        await self.erase_located(here, [entry])
-        self.tree.reload()
+        await self.erase_located(here, [entry])  # every tree re-read there
         for panel in self.all_panels:
             panel.reload()
         self.reread_info()
@@ -4775,7 +4782,10 @@ class Manager(Window):
             )
         if request is None:
             return []
-        return await self._run_erase(request, quiet=quiet)
+        try:
+            return await self._run_erase(request, quiet=quiet)
+        finally:
+            reread_trees(app)  # DN's ``cmRereadTree`` (``ERASER.PAS:485``)
 
     @staticmethod
     def _trashes(panel: Panel, entries: list[Any]) -> bool:

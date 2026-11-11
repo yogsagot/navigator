@@ -106,6 +106,12 @@ Slots `[94-101]`, `[104-110]`.
   (`tree_make_directory`, the tree then on it), F8/Del erase it (`tree_erase` through `erase_located`; Del only under
   *Del erases*). The tree, both panels and the info panel read again after. Refused on the tree's root (*Not the
   tree's root*); every other file command stays refused there (`_TREE_OWN`, `_tree_takes`, `_tree_refusal`).
+- **Every tree re-reads after a copy, move, erase, F7, make list or split/combine**, from a panel or from a tree:
+  `reread_trees(app)` (`directory_tree.py`), DN's `GlobalMessage(cmRereadTree)` (`FILECOPY.PAS:2416, 574`,
+  `ERASER.PAS:485`, `FBB.PAS:553`). It reloads every mounted `DirectoryTree` under `app.root`, keeping each cursor:
+  each manager's Ctrl+T tree, shown or not, and Disk > *Directory tree* windows. Called from `erase_located`,
+  `_run_copy`, `make_directory`/`tree_make_directory`, `make_list` and `split_combine`. Renames, links and
+  attributes don't send it, as DN's didn't. The trees that answered it aren't in the 1.51 source.
 - **The Ctrl+T tree's right-click menu** (a departure, asked for): `DirectoryTree` is a `ContextMenuHost` whose
   `menu` its holder sets -- `Manager._tree_menu` for Ctrl+T's: *~G~o to directory* (Enter, `GoToTreeDirectory` ->
   `tree.choose()`), *~R~e-read* (Alt-R, `Rescan`, which reloads the tree while it has the keyboard), *Quick s~e~arch*

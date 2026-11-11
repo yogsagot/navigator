@@ -254,6 +254,29 @@ def files_line(files: int, size: int) -> str:
     return tr_n("{n} file with {total}", "{n} files with {total}", files, total=total)
 
 
+def reread_trees(app: Any) -> None:
+    """DN's ``GlobalMessage(evCommand, cmRereadTree, ...)``, sent once a copy,
+    an erase, a new directory, a list file or a split had changed the
+    directories (``FILECOPY.PAS:2416``, ``ERASER.PAS:485``, ``:574``,
+    ``FBB.PAS:553``): every tree on the screen -- each manager's Ctrl+T one,
+    shown or not, and Disk > *Directory tree* windows -- read again, its
+    cursor kept (:meth:`DirectoryTree.reload`).  The trees that answered it
+    are not in the 1.51 source; ``Reread`` is taken as what they did."""
+    root = getattr(app, "root", None)
+    if root is None:
+        return
+    found: list[DirectoryTree] = []
+    waiting = [root]
+    while waiting:
+        widget = waiting.pop()
+        if isinstance(widget, DirectoryTree):
+            found.append(widget)
+        waiting.extend(widget.children)
+    for tree in found:
+        if tree.application is not None:
+            tree.reload()
+
+
 class DirectoryTree(ContextMenuHost, TreeView):
     """The filesystem as a tree, with the directory under the cursor described."""
 
