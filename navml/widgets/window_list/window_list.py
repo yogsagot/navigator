@@ -10,10 +10,10 @@ A digit typed in the list chooses that window outright, as Enter would --
 Alt+0 then 2 is Win+2 for a terminal that sends neither Super nor
 Alt+Shift+F2.
 
-**The names are read once, when a window enters the list.**  A file manager
-names itself after its active panel, and which panel is active is a question
-the focus answers -- and while this list is up the focus is in the dialog.
-Asked while painting, every file manager would answer with its left panel.
+**The names are read once, when a window enters the list.**  A window may
+name itself after whatever has its keyboard, a question the focus answers --
+and while this list is up the focus is in the dialog, so a name asked while
+painting could be another than the window had.
 """
 
 from __future__ import annotations

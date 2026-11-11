@@ -37,7 +37,7 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
   Alt+X all go through.
 - **Window > List (Alt+0) is DN's *Windows Manager*** (`cmWindowManager`, `dlgWindowManager`;
   `navml/widgets/window_manager/` and `window_list/`): windows top first, named by `Window.list_name()` (`cmGetName`; a
-  file manager is its active panel's directory); OK switches, Close closes while the dialog stays up.
+  file manager is `File Manager left,right`, each cut to 20, as DN's was); OK switches, Close closes while the dialog stays up.
 - **Tile, Cascade, Close all** are DN's `TDesktop.Tile`/`Cascade` and `cmClearDesktop` from `DNAPP.PAS`; every window is
   arranged unless it says `tileable: False` (on by default, where DN's `ofTileable` was opt-in).
 - `Desktop.keys` holds the window keys; `navml/commands.py` holds the window command set `Desktop` runs.

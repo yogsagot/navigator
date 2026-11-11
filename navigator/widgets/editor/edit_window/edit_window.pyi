@@ -40,6 +40,7 @@ from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import marked_read_only, write_file
 from navigator.lib.config.file_history import place_window, window_values
+from navigator.lib.cut import cut_path
 from navigator.models.edit_record import EditRecord
 from navigator.widgets.editor.commands import AsciiTable, SetMargins, ContSearch, Replace, ReverseSearch, StartSearch, BlockRead, BlockWrite, GotoLineNumber, LoadText, PrintBlock, SaveAll, SaveText, SaveTextAs, ChooseEncoding, ChooseFileType, ChooseLineEnding, CloseFindBar, SetFileType, ShowFindBar, ShowReplaceBar
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types

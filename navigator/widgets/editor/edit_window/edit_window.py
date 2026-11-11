@@ -36,6 +36,7 @@ from navigator.lib.editor.lock import refuse_if_locked
 from navigator.lib.editor.paragraph import fix_margins
 from navigator.lib.editor.save import marked_read_only, write_file
 from navigator.lib.config.file_history import place_window, window_values
+from navigator.lib.cut import cut_path
 from navigator.models.edit_record import EditRecord
 from navigator.commands import NewView, PrintFile
 from navigator.settings import SETTINGS
@@ -67,15 +68,6 @@ from navigator.widgets.editor.format_menu import (
     choose_encoding, choose_line_ending, fill_encodings, fill_line_endings,
 )
 from navigator.widgets.editor.option_items import editor_items
-
-
-def cut_path(text: str, width: int = 30) -> str:
-    """DN's ``Cut(S, Len)`` (``ADVANCE.PAS:901``): *text* whole if it fits, else its
-    first two characters, ``...`` and its end -- ``Len - 1`` characters in all,
-    as ``Delete(p, 3, L - Len + 4); Insert('...', p, 3)`` left it."""
-    if len(text) <= width:
-        return text
-    return text[:2] + "..." + text[len(text) - (width - 6):]
 
 
 def unencodable(lines: list[str], where: tuple[int, int], encoding: str) -> OSError:

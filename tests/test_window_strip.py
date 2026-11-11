@@ -114,7 +114,7 @@ def test_the_window_list_shows_the_numbers(tree):
                   lambda a: seen.append([a.modal.windows.row_text(i, w)
                                          for i, w in enumerate(a.modal.windows.items)]),
                   KeyEvent("escape")])
-    assert seen == [[" 2 Notes", f" 1 {tree}"]]
+    assert seen == [[" 2 Notes", f" 1 {app.manager.list_name()}"]]
 
 
 # -- the strip ---------------------------------------------------------------

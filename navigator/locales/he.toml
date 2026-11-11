@@ -682,7 +682,7 @@ direction = "rtl"
 "C~R~ (classic Mac)" = "C~R~ (Mac הישן)"
 # navigator/widgets/file_ops/convert_text_dialog/convert_text_dialog.nml:59
 "Keep file ~t~imes" = "שמור ~ז~מני קבצים"
-# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24, navigator/widgets/manager/manager/manager.py:4438
+# navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:24, navigator/widgets/file_ops/copy_progress/copy_progress.nml:24, navigator/widgets/manager/manager/manager.py:4439
 "Rename/move" = "שינוי שם/העברה"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:58
 "~O~verwrite all existing files" = "~ד~רוס את כל הקבצים הקיימים"
@@ -722,7 +722,7 @@ direction = "rtl"
 "~R~ecursive delete" = "מחיקה ~ר~קורסיבית"
 # navigator/widgets/file_ops/delete_dialog/delete_dialog.nml:46
 "Delete directories with everything in them" = "מחק תיקיות עם כל מה שבתוכן"
-# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18, navigator/widgets/manager/manager/manager.py:4776
+# navigator/widgets/file_ops/delete_progress/delete_progress.nml:18, navigator/widgets/manager/manager/manager.py:4777
 "Erase" = "מחיקה"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:17
 "Encrypt Files" = "הצפנת קבצים"
@@ -734,7 +734,7 @@ direction = "rtl"
 "ag~e~" = "ag~e~"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:43
 "Encrypt ~t~o" = "הצפן ~ב~אמצעות"
-# navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:52, navigator/widgets/manager/manager/manager.py:1146
+# navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:52, navigator/widgets/manager/manager/manager.py:1147
 "~P~assphrase" = "~ס~יסמה"
 # navigator/widgets/file_ops/encrypt_dialog/encrypt_dialog.nml:52
 "~R~ecipients' keys" = "~מ~פתחות נמענים"
@@ -836,7 +836,7 @@ direction = "rtl"
 "Give this answer for every file that is already there" = "תן תשובה זו לכל קובץ שכבר קיים שם"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:39
 "~O~verwrite" = "~ד~רוס"
-# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:686, navigator/widgets/manager/manager/manager.py:993 ...
+# navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:48, navigator/widgets/editor/edit_window/edit_window.py:678, navigator/widgets/manager/manager/manager.py:994 ...
 "A~p~pend" = "~ה~וסף"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:56, navigator/widgets/shell/environment_dialog/environment_dialog.nml:58
 "~R~ename" = "~ש~נה שם"
@@ -1000,19 +1000,19 @@ direction = "rtl"
 "Columns Setup" = "הגדרת עמודות"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:25, navigator/widgets/editor/option_items.py:99, navigator/widgets/editor/option_items.py:135 ...
 "Show" = "הצג"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538 ...
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6542 ...
 "~S~ize" = "גו~ד~ל"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6542
 "~A~ttributes" = "~מ~אפיינים"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "~ק~ישורים"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/manager/manager.py:6542
 "~O~wner" = "~ב~עלים"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:39
 "~B~rief" = "תמ~צ~יתי"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:48
 "~F~ull" = "~ש~לם"
-# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2980
+# navigator/widgets/manager/compare_dialog/compare_dialog.nml:19, navigator/widgets/manager/compare_progress/compare_progress.nml:11, navigator/widgets/manager/manager/manager.py:2981
 "Compare directories" = "השוואת תיקיות"
 # navigator/widgets/manager/compare_dialog/compare_dialog.nml:37
 "Compare ~s~ize" = "השווה ~ג~ודל"
@@ -1052,7 +1052,7 @@ direction = "rtl"
 "~G~o to" = "~ע~בור אל"
 # navigator/widgets/manager/dir_history_dialog/dir_history_dialog.nml:34, navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:36
 "~D~elete record" = "~מ~חק רשומה"
-# navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:11, navigator/widgets/manager/manager/manager.py:2060
+# navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:11, navigator/widgets/manager/manager/manager.py:2061
 "Find duplicates" = "חיפוש כפילויות"
 # navigator/widgets/manager/duplicates_dialog/duplicates_dialog.nml:20, navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:33, navigator/widgets/manager/select_dialog/select_dialog.nml:27 ...
 "~F~ile mask" = "~מ~סכת קבצים"
@@ -1094,7 +1094,7 @@ direction = "rtl"
 "~A~ll drives" = "כל הכו~נ~נים"
 # navigator/widgets/manager/find_file_dialog/find_file_dialog.nml:107
 "Ad~v~anced..." = "מתק~ד~ם..."
-# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1740, navigator/widgets/manager/manager/manager.py:1817 ...
+# navigator/widgets/manager/find_progress/find_progress.nml:34, navigator/widgets/manager/manager/manager.py:1741, navigator/widgets/manager/manager/manager.py:1818 ...
 "No files found" = "לא נמצאו קבצים"
 # navigator/widgets/manager/make_list_dialog/make_list_dialog.nml:13
 "Make List File" = "יצירת קובץ רשימה"
@@ -1226,7 +1226,7 @@ direction = "rtl"
 "~J~ump to directory..." = "~ז~ינוק לתיקייה..."
 # navigator/widgets/manager/manager/manager.nml:348
 "zoxide's directories and the panels' history, searched by fzf" = "התיקיות של zoxide והיסטוריית הלוחות, בחיפוש fzf"
-# navigator/widgets/manager/manager/manager.nml:352, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:3090 ...
+# navigator/widgets/manager/manager/manager.nml:352, navigator/widgets/tree/tree_window/tree_window.nml:52, navigator/widgets/manager/manager/manager.py:3091 ...
 "Quick s~e~arch" = "~ח~יפוש מהיר"
 # navigator/widgets/manager/manager/manager.nml:356, navigator/widgets/shell/monitor_window/monitor_window.nml:93, navigator/widgets/shell/process_window/process_window.nml:195 ...
 "~R~e-read" = "רענ~ן~"
@@ -1238,19 +1238,19 @@ direction = "rtl"
 "History of directories..." = "היסטוריית תיקיות..."
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:16
 "Panel Options" = "אפשרויות לוח"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:26, navigator/widgets/manager/manager/manager.py:3882
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:24, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:26, navigator/widgets/manager/manager/manager.py:3883
 "Sort by" = "מיין לפי"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:35, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:37
 "Re~v~erse order" = "סדר ~ה~פוך"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:36
 "The order runs the other way: largest, newest, Z first..." = "הסדר מתהפך: הגדול, החדש, Z תחילה..."
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538, navigator/widgets/manager/manager/manager.py:6559
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6542, navigator/widgets/manager/manager/manager.py:6563
 "~E~xtension" = "סי~ו~מת"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49 ...
 "Attributes" = "מאפיינים"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6559
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6563
 "Ty~p~e" = "סו~ג~"
-# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538, navigator/widgets/manager/manager/manager.py:6560
+# navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6542, navigator/widgets/manager/manager/manager.py:6564
 "~U~nsorted" = "~ל~א ממוין"
 # navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:52, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:54, navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:67
 "Display" = "תצוגה"
@@ -1318,7 +1318,7 @@ direction = "rtl"
 "A daylight-saving change moves a FAT stick's times by an hour" = "מעבר לשעון קיץ מזיז את זמני הקבצים בהתקן FAT בשעה"
 # navigator/widgets/manager/sync_options_dialog/sync_options_dialog.nml:63
 "What only the right side has is deleted, and a file that differs is copied right, whichever is newer" = "מה שיש רק בצד הימני נמחק, וקובץ שונה מועתק ימינה, לא משנה איזה חדש יותר"
-# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:3010, navigator/widgets/manager/sync_window/sync_window.py:191
+# navigator/widgets/manager/sync_window/sync_window.nml:40, navigator/widgets/manager/manager/manager.py:3011, navigator/widgets/manager/sync_window/sync_window.py:191
 "Synchronize" = "סנכרון"
 # navigator/widgets/manager/sync_window/sync_window.nml:81
 "Le~f~t only" = "שמא~ל~ בלבד"
@@ -1412,7 +1412,7 @@ direction = "rtl"
 "R~e~verse" = "~ה~יפוך"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "~כ~ונן דיסק"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3515
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3519
 "Links" = "קישורים"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "בעלים"
@@ -2120,7 +2120,7 @@ direction = "rtl"
 "Navigator?" = "מ-Navigator?"
 # navigator/widgets/shell/exit_dialog/exit_dialog.nml:43
 "Quit without asking from now on (Options > Confirmations)" = "צא בלי לשאול מעכשיו (אפשרויות > אישורים)"
-# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1153, navigator/widgets/manager/manager/manager.py:5700 ...
+# navigator/widgets/shell/file_history_dialog/file_history_dialog.nml:26, navigator/widgets/editor/edit_window/edit_window.py:1145, navigator/widgets/manager/manager/manager.py:5701 ...
 "~O~pen" = "~פ~תח"
 # navigator/widgets/shell/main_menu/main_menu.nml:60
 "About, the screen saver, SmartPad, the Trashcan and the game" = "אודות, שומר המסך, SmartPad, פח האשפה והמשחק"
@@ -2238,7 +2238,7 @@ direction = "rtl"
 "Ex~t~ract archive..." = "ח~ל~ץ ארכיון..."
 # navigator/widgets/shell/main_menu/main_menu.nml:255, navigator/widgets/manager/panel/panel.py:2425
 "E~x~tract to..." = "חלץ ~א~ל..."
-# navigator/widgets/shell/main_menu/main_menu.nml:259, navigator/widgets/manager/manager/manager.py:1582
+# navigator/widgets/shell/main_menu/main_menu.nml:259, navigator/widgets/manager/manager/manager.py:1583
 "Test archive" = "בדוק ארכיון"
 # navigator/widgets/shell/main_menu/main_menu.nml:260
 "Read the archive through and check it for errors" = "קרא את הארכיון עד הסוף ובדוק אותו לשגיאות"
@@ -2350,7 +2350,7 @@ direction = "rtl"
 "Directory ~s~izes" = "גדלי ~ת~יקיות"
 # navigator/widgets/shell/main_menu/main_menu.nml:424
 "What takes the room under the panel's directory, biggest first" = "מה תופס מקום בתיקיית הלוח, הגדול ראשון"
-# navigator/widgets/shell/main_menu/main_menu.nml:430, navigator/widgets/manager/manager/manager.py:3223
+# navigator/widgets/shell/main_menu/main_menu.nml:430, navigator/widgets/manager/manager/manager.py:3224
 "~T~rash" = "~א~שפה"
 # navigator/widgets/shell/main_menu/main_menu.nml:433
 "~E~mpty Trash" = "~ר~וקן אשפה"
@@ -2752,7 +2752,7 @@ direction = "rtl"
 "Sort by ~s~ize" = "מיין לפי ~ג~ודל"
 # navigator/widgets/shell/usage_window/usage_window.nml:131, navigator/widgets/shell/usage_window/usage_window.py:387
 "Sort by ~e~ntries" = "מיין לפי מספר ~פ~ריטים"
-# navigator/widgets/shell/usage_window/usage_window.nml:141, navigator/widgets/manager/manager/manager.py:3088, navigator/widgets/shell/usage_window/usage_window.py:390
+# navigator/widgets/shell/usage_window/usage_window.nml:141, navigator/widgets/manager/manager/manager.py:3089, navigator/widgets/shell/usage_window/usage_window.py:390
 "~G~o to directory" = "~ע~בור לתיקייה"
 # navigator/widgets/shell/usage_window/usage_window.nml:144, navigator/widgets/shell/usage_window/usage_window.py:391
 "~D~elete..." = "~מ~חק..."
@@ -2996,7 +2996,7 @@ direction = "rtl"
 "nav: {n} clean-up step failed on the way out; see {log}" = ["nav: שלב סיום אחד נכשל ביציאה; ראו {log}", "nav: שני שלבי סיום נכשלו ביציאה; ראו {log}", "nav: {n} שלבי סיום נכשלו ביציאה; ראו {log}"]
 # navigator/__main__.py:695
 "Clipboard" = "לוח"
-# navigator/__main__.py:232, navigator/widgets/manager/manager/manager.py:5738, navigator/widgets/manager/manager/manager.py:5793 ...
+# navigator/__main__.py:232, navigator/widgets/manager/manager/manager.py:5739, navigator/widgets/manager/manager/manager.py:5794 ...
 "Cannot edit file" = "לא ניתן לערוך את הקובץ"
 # navigator/commands.py:30
 "Record" = "הקלט"
@@ -3138,7 +3138,7 @@ direction = "rtl"
 "Not a regular file" = "זה אינו קובץ רגיל"
 # navigator/lib/editor/lock.py:101
 "locked by another program" = "נעול על ידי תוכנה אחרת"
-# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1330
+# navigator/lib/file_ops/encrypt.py:67, navigator/widgets/manager/manager/manager.py:1331
 "no age identity file: set one in Options > Settings > Tools" = "אין קובץ זהות של age: הגדירו אחד באפשרויות > הגדרות > כלים"
 # navigator/lib/file_ops/encrypt.py:635, navigator/lib/file_ops/encrypt.py:662, navigator/lib/system/kio.py:122 ...
 "{name} is not installed" = "{name} אינו מותקן"
@@ -3200,9 +3200,9 @@ direction = "rtl"
 "[{token}] is not a placeholder" = "[{token}] אינו ממלא מקום"
 # navigator/lib/file_ops/multirename.py:308
 "Not a regular expression: {reason}" = "לא ביטוי רגולרי: {reason}"
-# navigator/lib/file_ops/multirename.py:510, navigator/widgets/manager/manager/manager.py:2252
+# navigator/lib/file_ops/multirename.py:510, navigator/widgets/manager/manager/manager.py:2253
 "a file of that name is already there" = "קובץ בשם זה כבר קיים שם"
-# navigator/lib/file_ops/multirename.py:546, navigator/lib/file_ops/multirename.py:521, navigator/widgets/manager/manager/manager.py:2254 ...
+# navigator/lib/file_ops/multirename.py:546, navigator/lib/file_ops/multirename.py:521, navigator/widgets/manager/manager/manager.py:2255 ...
 "Could not rename {old}\nto {new}: {reason}" = "לא ניתן לשנות את שם {old}\nל-{new}: {reason}"
 # navigator/lib/file_ops/multirename.py:314
 "Cannot replace with {text}: {reason}" = "לא ניתן להחליף ב-{text}: {reason}"
@@ -3336,7 +3336,7 @@ direction = "rtl"
 "Size: ~not counted~" = "גודל: ~לא נספר~"
 # navigator/lib/system/diskinfo.py:245
 "Size: ~{n:,}~ byte" = ["גודל: ~{n:,}~ בית", "גודל: ~{n:,}~ בתים", "גודל: ~{n:,}~ בתים"]
-# navigator/lib/system/diskinfo.py:321, navigator/widgets/manager/panel/panel.py:3070, navigator/widgets/manager/panel/panel.py:3040
+# navigator/lib/system/diskinfo.py:321, navigator/widgets/manager/panel/panel.py:3074, navigator/widgets/manager/panel/panel.py:3044
 "~{n:,}~ byte" = ["~{n:,}~ בית", "~{n:,}~ בתים", "~{n:,}~ בתים"]
 # navigator/lib/system/diskinfo.py:239
 "Name: ~{name}~" = "שם: ~{name}~"
@@ -3366,7 +3366,7 @@ direction = "rtl"
 "Links: ~{links}~, inode ~{inode}~" = "קישורים: ~{links}~, inode ~{inode}~"
 # navigator/lib/system/diskinfo.py:261
 "Link to: ~{target}~" = "קישור אל: ~{target}~"
-# navigator/lib/system/diskinfo.py:318, navigator/widgets/manager/panel/panel.py:3038
+# navigator/lib/system/diskinfo.py:318, navigator/widgets/manager/panel/panel.py:3042
 "No files in this directory" = "אין קבצים בתיקייה זו"
 # navigator/lib/system/diskinfo.py:322
 "~{n:,}~ file with {total}" = ["~{n:,}~ קובץ, {total}", "~{n:,}~ קבצים, {total}", "~{n:,}~ קבצים, {total}"]
@@ -3454,7 +3454,7 @@ direction = "rtl"
 "The process has ended" = "התהליך הסתיים"
 # navigator/lib/system/processes.py:401
 "Process" = "תהליך"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3510 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3514 ...
 "Name" = "שם"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:299, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "פקודה"
@@ -3612,7 +3612,7 @@ direction = "rtl"
 "None" = "אין"
 # navigator/lib/system/tempdir.py:42
 "not a directory of this user's alone" = "זו אינה תיקייה של משתמש זה בלבד"
-# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3551, navigator/widgets/shell/volumes_window/volumes_window.py:304
+# navigator/lib/system/udisks.py:53, navigator/widgets/manager/manager/manager.py:3552, navigator/widgets/shell/volumes_window/volumes_window.py:304
 "udisksctl (udisks2) is not installed" = "udisksctl (udisks2) אינו מותקן"
 # navigator/lib/system/udisks.py:55
 "busctl (systemd) is not installed, which ejecting a disc needs" = "busctl (systemd) אינו מותקן, והוא נחוץ להוצאת תקליטור"
@@ -3882,7 +3882,7 @@ direction = "rtl"
 "Remote shell: {protocol}" = "מעטפת מרוחקת: {protocol}"
 # navigator/widgets/drives/link_manager/link_manager.py:354
 "Changed — Save keeps it" = "שונה — „שמור” ישמור"
-# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6769
+# navigator/widgets/drives/link_manager/link_manager.py:372, navigator/widgets/manager/manager/manager.py:6773
 "Connected" = "מחובר"
 # navigator/widgets/drives/link_manager/link_manager.py:372
 "Configured" = "מוגדרים"
@@ -3902,21 +3902,21 @@ direction = "rtl"
 "Delete the link \"{name}\"?" = "למחוק את הקישור \"{name}\"?"
 # navigator/widgets/drives/link_manager/link_manager.py:778
 "There is no public key in {directory}. Make {key} (ed25519) and copy it?" = "אין מפתח ציבורי ב-{directory}. ליצור את {key} (ed25519) ולהעתיק אותו?"
-# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6795
+# navigator/widgets/drives/links_dialog/links_dialog.py:144, navigator/widgets/manager/manager/manager.py:6799
 "New ~G~Vfs/KIO link (MTP, WebDAV...)..." = "קישור ~G~Vfs/KIO חדש (MTP, WebDAV...)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6777
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6781
 "~N~ew SSH link (SFTP)..." = "קישור SSH ~ח~דש (SFTP)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6777
+# navigator/widgets/drives/links_dialog/links_dialog.py:139, navigator/widgets/manager/manager/manager.py:6781
 "New ~F~TP link..." = "קישור ~F~TP חדש..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6778
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6782
 "New S~M~B link (Windows share)..." = "קישור S~M~B חדש (שיתוף Windows)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6778
+# navigator/widgets/drives/links_dialog/links_dialog.py:140, navigator/widgets/manager/manager/manager.py:6782
 "New S~3~ link (Amazon S3)..." = "קישור S~3~ חדש (Amazon S3)..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6779
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6783
 "New ~D~ocker container link..." = "קישור חדש למכולת ~D~ocker..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6780
+# navigator/widgets/drives/links_dialog/links_dialog.py:141, navigator/widgets/manager/manager/manager.py:6784
 "New ~P~odman container link..." = "קישור חדש למכולת ~P~odman..."
-# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6781
+# navigator/widgets/drives/links_dialog/links_dialog.py:142, navigator/widgets/manager/manager/manager.py:6785
 "New ~A~ndroid device link (adb)..." = "קישור חדש למכשיר ~A~ndroid (adb)..."
 # navigator/widgets/drives/links_dialog/links_dialog.py:151
 "New link" = "קישור חדש"
@@ -3928,9 +3928,9 @@ direction = "rtl"
 "{names} changed there since it was fetched. Overwrite it?" = "{names} השתנה שם מאז שהובא. לדרוס?"
 # navigator/widgets/drives/use_file.py:133
 "{name} was changed. Upload it back to {place}?" = "{name} השתנה. להעלות אותו בחזרה אל {place}?"
-# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:681, navigator/widgets/editor/edit_window/edit_window.py:1288 ...
+# navigator/widgets/drives/use_file.py:173, navigator/widgets/editor/edit_window/edit_window.py:673, navigator/widgets/editor/edit_window/edit_window.py:1280 ...
 "Warning" = "אזהרה"
-# navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:425 ...
+# navigator/widgets/drives/use_file.py:144, navigator/widgets/drives/use_file.py:156, navigator/widgets/editor/edit_window/edit_window.py:417 ...
 "Cannot write {path}: {error}" = "לא ניתן לכתוב את {path}: {error}"
 # navigator/widgets/drives/use_file.py:139, navigator/widgets/drives/use_file.py:151
 "Upload" = "העלאה"
@@ -4080,53 +4080,53 @@ direction = "rtl"
 "Save as" = "שמור בשם"
 # navigator/widgets/editor/commands.py:725
 "Save all" = "שמור הכל"
-# navigator/widgets/editor/edit_window/edit_window.py:87, navigator/widgets/editor/file_editor/file_editor.py:3754
+# navigator/widgets/editor/edit_window/edit_window.py:79, navigator/widgets/editor/file_editor/file_editor.py:3754
 "{char} (U+{code:04X}) on line {line} cannot be written in {encoding}" = "את {char} (U+{code:04X}) בשורה {line} אי אפשר לכתוב בקידוד {encoding}"
-# navigator/widgets/editor/edit_window/edit_window.py:596
+# navigator/widgets/editor/edit_window/edit_window.py:588
 "Not for SmartPad" = "לא עבור SmartPad"
-# navigator/widgets/editor/edit_window/edit_window.py:1286
+# navigator/widgets/editor/edit_window/edit_window.py:1278
 "Untitled" = "ללא שם"
-# navigator/widgets/editor/edit_window/edit_window.py:594, navigator/widgets/editor/file_editor/file_editor.py:3596
+# navigator/widgets/editor/edit_window/edit_window.py:586, navigator/widgets/editor/file_editor/file_editor.py:3596
 "No block is marked" = "לא סומן בלוק"
-# navigator/widgets/editor/edit_window/edit_window.py:745
+# navigator/widgets/editor/edit_window/edit_window.py:737
 "Copy block to" = "העתק בלוק אל"
-# navigator/widgets/editor/edit_window/edit_window.py:745
+# navigator/widgets/editor/edit_window/edit_window.py:737
 "File ~N~ame" = "~ש~ם קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:824
+# navigator/widgets/editor/edit_window/edit_window.py:816
 "Paste from File" = "הדבקה מקובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:824
+# navigator/widgets/editor/edit_window/edit_window.py:816
 "~P~aste from" = "~ה~דבק מתוך"
-# navigator/widgets/editor/edit_window/edit_window.py:1153, navigator/widgets/manager/manager/manager.py:5700
+# navigator/widgets/editor/edit_window/edit_window.py:1145, navigator/widgets/manager/manager/manager.py:5701
 "Open a File" = "פתיחת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:1202, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1194, navigator/widgets/viewer/viewer_host.py:129
 "Save File As" = "שמירת קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:1202, navigator/widgets/viewer/viewer_host.py:129
+# navigator/widgets/editor/edit_window/edit_window.py:1194, navigator/widgets/viewer/viewer_host.py:129
 "~S~ave File As" = "~ש~מור קובץ בשם"
-# navigator/widgets/editor/edit_window/edit_window.py:199
+# navigator/widgets/editor/edit_window/edit_window.py:191
 "SmartPad(TM) - {path}" = "SmartPad(TM) - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:201, navigator/widgets/editor/edit_window/edit_window.py:203
+# navigator/widgets/editor/edit_window/edit_window.py:193, navigator/widgets/editor/edit_window/edit_window.py:195
 "Edit - {path}" = "עריכה - {path}"
-# navigator/widgets/editor/edit_window/edit_window.py:682, navigator/widgets/manager/manager/manager.py:991, navigator/widgets/manager/manager/manager.py:2725 ...
+# navigator/widgets/editor/edit_window/edit_window.py:674, navigator/widgets/manager/manager/manager.py:992, navigator/widgets/manager/manager/manager.py:2726 ...
 "File {name}\nalready exists.\nOK to overwrite it?" = "הקובץ {name}\nכבר קיים.\nלדרוס אותו?"
-# navigator/widgets/editor/edit_window/edit_window.py:1093
+# navigator/widgets/editor/edit_window/edit_window.py:1085
 "Print {n} line?" = ["להדפיס שורה אחת?", "להדפיס שתי שורות?", "להדפיס {n} שורות?"]
-# navigator/widgets/editor/edit_window/edit_window.py:1101
+# navigator/widgets/editor/edit_window/edit_window.py:1093
 "Cannot print: {error}" = "לא ניתן להדפיס: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:407
+# navigator/widgets/editor/edit_window/edit_window.py:399
 "Confirm file save" = "אישור שמירת קובץ"
-# navigator/widgets/editor/edit_window/edit_window.py:988, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
+# navigator/widgets/editor/edit_window/edit_window.py:980, navigator/widgets/viewer/db_window/db_window.py:733, navigator/widgets/viewer/struct_window/struct_window.py:153 ...
 "Search string not found" = "מחרוזת החיפוש לא נמצאה"
-# navigator/widgets/editor/edit_window/edit_window.py:994, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:288 ...
+# navigator/widgets/editor/edit_window/edit_window.py:986, navigator/widgets/game/game_window/game_window.py:99, navigator/widgets/manager/info_panel/info_panel.py:288 ...
 "Information" = "מידע"
-# navigator/widgets/editor/edit_window/edit_window.py:994
+# navigator/widgets/editor/edit_window/edit_window.py:986
 "{n} replace made" = ["בוצעה החלפה אחת", "בוצעו שתי החלפות", "בוצעו {n} החלפות"]
-# navigator/widgets/editor/edit_window/edit_window.py:1161, navigator/widgets/shell/shell/shell.py:1981
+# navigator/widgets/editor/edit_window/edit_window.py:1153, navigator/widgets/shell/shell/shell.py:1981
 "Cannot open {path}: {error}" = "לא ניתן לפתוח את {path}: {error}"
-# navigator/widgets/editor/edit_window/edit_window.py:709
+# navigator/widgets/editor/edit_window/edit_window.py:701
 "File {name}\nis marked as Read-Only.\nModify it anyway?" = "הקובץ {name}\nמסומן לקריאה בלבד.\nלשנות אותו בכל זאת?"
-# navigator/widgets/editor/edit_window/edit_window.py:1289
+# navigator/widgets/editor/edit_window/edit_window.py:1281
 "File {name} was modified. Save?" = "הקובץ {name} שונה. לשמור?"
-# navigator/widgets/editor/edit_window/edit_window.py:408
+# navigator/widgets/editor/edit_window/edit_window.py:400
 "Save file {name}?" = "לשמור את הקובץ {name}?"
 # navigator/widgets/editor/file_editor/file_editor.py:2695, navigator/widgets/editor/file_editor/file_editor.py:2689, navigator/widgets/editor/file_editor/file_editor.py:2706
 "Macros" = "מאקרו"
@@ -4150,7 +4150,7 @@ direction = "rtl"
 "Sa~v~e" = "~ש~מור"
 # navigator/widgets/editor/file_editor/file_editor.py:1012
 "no file name" = "אין שם קובץ"
-# navigator/widgets/editor/file_editor/file_editor.py:3599, navigator/widgets/manager/manager/manager.py:3448
+# navigator/widgets/editor/file_editor/file_editor.py:3599, navigator/widgets/manager/manager/manager.py:3449
 "Nothing to undo" = "אין מה לבטל"
 # navigator/widgets/editor/file_editor/file_editor.py:3602
 "Nothing to redo" = "אין מה לבצע שוב"
@@ -4306,11 +4306,11 @@ direction = "rtl"
 "{path}: root access is not available" = "{path}: גישת root אינה זמינה"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:119
 "directory" = "תיקייה"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:3005, navigator/widgets/manager/manager/manager.py:3005 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:106, navigator/widgets/manager/manager/manager.py:3006, navigator/widgets/manager/manager/manager.py:3006 ...
 "{n} file" = ["קובץ אחד", "שני קבצים", "{n} קבצים"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:108
 "{n} directory" = ["תיקייה אחת", "שתי תיקיות", "{n} תיקיות"]
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:3217, navigator/widgets/tree/directory_tree/directory_tree.py:253
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.py:121, navigator/widgets/manager/panel/panel.py:3221, navigator/widgets/tree/directory_tree/directory_tree.py:253
 "{n:,} byte" = ["{n:,} בית", "{n:,} בתים", "{n:,} בתים"]
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.py:592
 "<differs>" = "<שונה>"
@@ -4552,7 +4552,7 @@ direction = "rtl"
 "Ren" = "שנה שם"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "קישור"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3514
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3518
 "Attr" = "מאפיין"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "תיקייה"
@@ -4590,391 +4590,393 @@ direction = "rtl"
 "{count} byte of memory in all" = ["{count} בית זיכרון בסך הכל", "{count} בתים זיכרון בסך הכל", "{count} בתים זיכרון בסך הכל"]
 # navigator/widgets/manager/info_panel/info_panel.py:216
 "Connection" = "חיבור"
-# navigator/widgets/manager/manager/manager.py:6597
+# navigator/widgets/manager/manager/manager.py:6601
 "Copy {n} file to {target}" = ["העתקת קובץ אחד אל {target}", "העתקת שני קבצים אל {target}", "העתקת {n} קבצים אל {target}"]
-# navigator/widgets/manager/manager/manager.py:6718
+# navigator/widgets/manager/manager/manager.py:6722
 "Only on the local disk" = "רק בדיסק המקומי"
-# navigator/widgets/manager/manager/manager.py:857
+# navigator/widgets/manager/manager/manager.py:858
 "Calculating checksums" = "מחשב סיכומי ביקורת"
-# navigator/widgets/manager/manager/manager.py:1049
+# navigator/widgets/manager/manager/manager.py:1050
 "Encrypting" = "מצפין"
-# navigator/widgets/manager/manager/manager.py:1108
+# navigator/widgets/manager/manager/manager.py:1109
 "Decrypting" = "מפענח"
-# navigator/widgets/manager/manager/manager.py:1206
+# navigator/widgets/manager/manager/manager.py:1207
 "Converting" = "ממיר"
-# navigator/widgets/manager/manager/manager.py:1311
+# navigator/widgets/manager/manager/manager.py:1312
 "{n} file already exists.\nOK to overwrite it?" = ["קובץ אחד כבר קיים.\nלשכתב אותו?", "שני קבצים כבר קיימים.\nלשכתב אותם?", "{n} קבצים כבר קיימים.\nלשכתב אותם?"]
-# navigator/widgets/manager/manager/manager.py:2632
+# navigator/widgets/manager/manager/manager.py:2633
 "Do you wish to empty the Trash?\n{n} item will be erased for good." = ["לרוקן את האשפה?\nפריט אחד יימחק לצמיתות.", "לרוקן את האשפה?\nשני פריטים יימחקו לצמיתות.", "לרוקן את האשפה?\n{n} פריטים יימחקו לצמיתות."]
-# navigator/widgets/manager/manager/manager.py:3436
-"Only in a file panel, not beside it" = "רק בלוח קבצים, לא לצדו"
 # navigator/widgets/manager/manager/manager.py:3437
+"Only in a file panel, not beside it" = "רק בלוח קבצים, לא לצדו"
+# navigator/widgets/manager/manager/manager.py:3438
 "No files are tagged, and the cursor is on none" = "אין קבצים מתויגים, והסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:3438, navigator/widgets/shell/shell/shell.py:1296
+# navigator/widgets/manager/manager/manager.py:3439, navigator/widgets/shell/shell/shell.py:1296
 "The command line holds text: the key edits it" = "בשורת הפקודה יש טקסט: המקש עורך אותו"
-# navigator/widgets/manager/manager/manager.py:3439
-"This drive cannot be written to" = "לא ניתן לכתוב לכונן זה"
 # navigator/widgets/manager/manager/manager.py:3440
+"This drive cannot be written to" = "לא ניתן לכתוב לכונן זה"
+# navigator/widgets/manager/manager/manager.py:3441
 "Not in a Find listing" = "לא ברשימת חיפוש"
-# navigator/widgets/manager/manager/manager.py:4286
+# navigator/widgets/manager/manager/manager.py:4287
 "To {path}" = "אל {path}"
-# navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/manager/manager.py:6542
 "T~y~pe" = "~ס~וג"
-# navigator/widgets/manager/manager/manager.py:6594
+# navigator/widgets/manager/manager/manager.py:6598
 "Erase {n} file" = ["מחיקת קובץ אחד", "מחיקת שני קבצים", "מחיקת {n} קבצים"]
-# navigator/widgets/manager/manager/manager.py:6596
+# navigator/widgets/manager/manager/manager.py:6600
 "Move {n} file to {target}" = ["העברת קובץ אחד אל {target}", "העברת שני קבצים אל {target}", "העברת {n} קבצים אל {target}"]
-# navigator/widgets/manager/manager/manager.py:6633, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
+# navigator/widgets/manager/manager/manager.py:6637, navigator/widgets/manager/panel/option_items.py:29, navigator/widgets/shell/calculator_window/commands.py:14
 "Simple" = "פשוט"
-# navigator/widgets/manager/manager/manager.py:6633, navigator/widgets/manager/panel/option_items.py:29
+# navigator/widgets/manager/manager/manager.py:6637, navigator/widgets/manager/panel/option_items.py:29
 "Detailed" = "מפורט"
-# navigator/widgets/manager/manager/manager.py:6717
+# navigator/widgets/manager/manager/manager.py:6721
 "Not as root: the command runs as you" = "לא כ־root: הפקודה רצה בשמך"
-# navigator/widgets/manager/manager/manager.py:6753
+# navigator/widgets/manager/manager/manager.py:6757
 "~L~ink" = "~ק~ישור"
-# navigator/widgets/manager/manager/manager.py:6799
+# navigator/widgets/manager/manager/manager.py:6803
 "Needs the desktop's gio or KDE's kioclient command" = "נדרשת הפקודה gio של שולחן העבודה או kioclient של KDE"
-# navigator/widgets/manager/manager/manager.py:1006
+# navigator/widgets/manager/manager/manager.py:1007
 "{n} file could not be read:" = ["לא ניתן היה לקרוא קובץ אחד:", "לא ניתן היה לקרוא שני קבצים:", "לא ניתן היה לקרוא {n} קבצים:"]
-# navigator/widgets/manager/manager/manager.py:1293
-"{n} file converted" = ["קובץ אחד הומר", "שני קבצים הומרו", "{n} קבצים הומרו"]
 # navigator/widgets/manager/manager/manager.py:1294
+"{n} file converted" = ["קובץ אחד הומר", "שני קבצים הומרו", "{n} קבצים הומרו"]
+# navigator/widgets/manager/manager/manager.py:1295
 "{n} file already so" = ["קובץ אחד כבר כזה", "שני קבצים כבר כאלה", "{n} קבצים כבר כאלה"]
-# navigator/widgets/manager/manager/manager.py:1306
+# navigator/widgets/manager/manager/manager.py:1307
 "Convert text" = "המרת טקסט"
-# navigator/widgets/manager/manager/manager.py:1329
+# navigator/widgets/manager/manager/manager.py:1330
 "wrong passphrase" = "סיסמה שגויה"
-# navigator/widgets/manager/manager/manager.py:1331
+# navigator/widgets/manager/manager/manager.py:1332
 "no secret key for it" = "אין לו מפתח סודי"
-# navigator/widgets/manager/manager/manager.py:1712
+# navigator/widgets/manager/manager/manager.py:1713
 "Panelize" = "הצג בלוח"
-# navigator/widgets/manager/manager/manager.py:1818
+# navigator/widgets/manager/manager/manager.py:1819
 "No files changed" = "לא שונו קבצים"
-# navigator/widgets/manager/manager/manager.py:2468
+# navigator/widgets/manager/manager/manager.py:2469
 "{n} entry changed since the copy, kept:" = ["פריט אחד השתנה מאז ההעתקה ונשמר:", "שני פריטים השתנו מאז ההעתקה ונשמרו:", "{n} פריטים השתנו מאז ההעתקה ונשמרו:"]
-# navigator/widgets/manager/manager/manager.py:2654
+# navigator/widgets/manager/manager/manager.py:2655
 "Rename" = "שינוי שם"
-# navigator/widgets/manager/manager/manager.py:2874, navigator/widgets/manager/manager/manager.py:2862
+# navigator/widgets/manager/manager/manager.py:2875, navigator/widgets/manager/manager/manager.py:2863
 "Remembered directories" = "תיקיות שמורות"
-# navigator/widgets/manager/manager/manager.py:3092
+# navigator/widgets/manager/manager/manager.py:3093
 "~C~lose tree" = "~ס~גור עץ"
-# navigator/widgets/manager/manager/manager.py:3242
+# navigator/widgets/manager/manager/manager.py:3243
 "Bookmarks" = "סימניות"
-# navigator/widgets/manager/manager/manager.py:3434
+# navigator/widgets/manager/manager/manager.py:3435
 "The connection to this panel's drive is closed" = "החיבור לכונן של לוח זה נסגר"
-# navigator/widgets/manager/manager/manager.py:3488
+# navigator/widgets/manager/manager/manager.py:3489
 "Not in Miller columns (Alt-F12)" = "לא בעמודות Miller (Alt-F12)"
-# navigator/widgets/manager/manager/manager.py:3742
+# navigator/widgets/manager/manager/manager.py:3743
 "The cursor is on no directory" = "הסמן אינו על תיקייה"
-# navigator/widgets/manager/manager/manager.py:3744
+# navigator/widgets/manager/manager/manager.py:3745
 "Not the tree's root" = "לא שורש העץ"
-# navigator/widgets/manager/manager/manager.py:4071
+# navigator/widgets/manager/manager/manager.py:4072
 "Print {n} file?" = ["להדפיס קובץ אחד?", "להדפיס שני קבצים?", "להדפיס {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:4275
-"~C~opy here" = "~ה~עתק לכאן"
 # navigator/widgets/manager/manager/manager.py:4276
-"~M~ove here" = "הע~ב~ר לכאן"
+"~C~opy here" = "~ה~עתק לכאן"
 # navigator/widgets/manager/manager/manager.py:4277
-"~S~ymlink here" = "~ק~ישור סמלי לכאן"
+"~M~ove here" = "הע~ב~ר לכאן"
 # navigator/widgets/manager/manager/manager.py:4278
+"~S~ymlink here" = "~ק~ישור סמלי לכאן"
+# navigator/widgets/manager/manager/manager.py:4279
 "~R~elative symlink here" = "קישור סמלי ~י~חסי לכאן"
-# navigator/widgets/manager/manager/manager.py:4996
+# navigator/widgets/manager/manager/manager.py:4997
 "Find hard links" = "חפש קישורים קשיחים"
-# navigator/widgets/manager/manager/manager.py:5127
+# navigator/widgets/manager/manager/manager.py:5128
 "{n} link was left as it was:" = ["קישור אחד נותר כפי שהיה:", "שני קישורים נותרו כפי שהיו:", "{n} קישורים נותרו כפי שהיו:"]
-# navigator/widgets/manager/manager/manager.py:5622
+# navigator/widgets/manager/manager/manager.py:5623
 "~I~nternal editor" = "עורך ~פ~נימי"
-# navigator/widgets/manager/manager/manager.py:6168
+# navigator/widgets/manager/manager/manager.py:6172
 "Drag to resize the panels" = "גרור כדי לשנות את גודל הלוחות"
-# navigator/widgets/manager/manager/manager.py:6174
+# navigator/widgets/manager/manager/manager.py:6178
 "Double-click to split them evenly" = "לחיצה כפולה מחלקת אותם שווה בשווה"
-# navigator/widgets/manager/manager/manager.py:6638
+# navigator/widgets/manager/manager/manager.py:6642
 "Hidden files are not shown" = "קבצים מוסתרים אינם מוצגים"
-# navigator/widgets/manager/manager/manager.py:6640
+# navigator/widgets/manager/manager/manager.py:6644
 "The directories below are shown the same way" = "התיקיות שמתחת מוצגות באותו אופן"
-# navigator/widgets/manager/manager/manager.py:6692
+# navigator/widgets/manager/manager/manager.py:6696
 "~R~emove this folder" = "~ה~סר תיקייה זו"
-# navigator/widgets/manager/manager/manager.py:6692
+# navigator/widgets/manager/manager/manager.py:6696
 "~A~dd this folder" = "~ה~וסף תיקייה זו"
-# navigator/widgets/manager/manager/manager.py:519
+# navigator/widgets/manager/manager/manager.py:520
 "Encoding {name}" = "מקודד את {name}"
-# navigator/widgets/manager/manager/manager.py:572
+# navigator/widgets/manager/manager/manager.py:573
 "Decoding {name}" = "מפענח את {name}"
-# navigator/widgets/manager/manager/manager.py:1004, navigator/widgets/manager/manager/manager.py:1267, navigator/widgets/manager/manager/manager.py:1305 ...
+# navigator/widgets/manager/manager/manager.py:1005, navigator/widgets/manager/manager/manager.py:1268, navigator/widgets/manager/manager/manager.py:1306 ...
 "and {n} more" = ["ועוד אחד", "ועוד שניים", "ועוד {n}"]
-# navigator/widgets/manager/manager/manager.py:1245
+# navigator/widgets/manager/manager/manager.py:1246
 "Convert them as root?" = "להמיר אותם כ־root?"
-# navigator/widgets/manager/manager/manager.py:1268
+# navigator/widgets/manager/manager/manager.py:1269
 "{n} file was refused permission:" = ["הגישה לקובץ אחד נדחתה:", "הגישה לשני קבצים נדחתה:", "הגישה ל־{n} קבצים נדחתה:"]
-# navigator/widgets/manager/manager/manager.py:1287
-"looks binary" = "נראה בינארי"
 # navigator/widgets/manager/manager/manager.py:1288
-"not UTF-8, and no encoding was chosen to read it as" = "אינו UTF-8, ולא נבחר קידוד לקרוא אותו בו"
-# navigator/widgets/manager/manager/manager.py:1291
-"too large" = "גדול מדי"
-# navigator/widgets/manager/manager/manager.py:1297
-"{n} file left alone:" = ["קובץ אחד לא שונה:", "שני קבצים לא שונו:", "{n} קבצים לא שונו:"]
-# navigator/widgets/manager/manager/manager.py:1298
-"{n} file could not be converted:" = ["לא ניתן היה להמיר קובץ אחד:", "לא ניתן היה להמיר שני קבצים:", "לא ניתן היה להמיר {n} קבצים:"]
-# navigator/widgets/manager/manager/manager.py:1558
-"Testing {name}" = "בודק את {name}"
-# navigator/widgets/manager/manager/manager.py:1921
-"Store this directory\nas bookmark {slot}?" = "לשמור תיקייה זו\nכסימנייה {slot}?"
-# navigator/widgets/manager/manager/manager.py:3007
-"Copy {n} file?" = ["להעתיק קובץ אחד?", "להעתיק שני קבצים?", "להעתיק {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:3009
-"Delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:3227
-"A place inside an archive cannot be bookmarked" = "לא ניתן ליצור סימנייה למקום בתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:3443
-"No DirInfo or File_ID.DIZ here" = "אין כאן DirInfo או File_ID.DIZ"
-# navigator/widgets/manager/manager/manager.py:3453
-"File Manager Setup's Remember directory settings is Off" = "זכירת הגדרות תיקייה כבויה בהגדרות לוחות הקבצים"
-# navigator/widgets/manager/manager/manager.py:3455
-"A Find listing is no directory to remember" = "רשימת חיפוש אינה תיקייה שאפשר לזכור"
-# navigator/widgets/manager/manager/manager.py:3457
-"A place inside an archive cannot be remembered" = "אי אפשר לזכור מקום בתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:3460, navigator/widgets/shell/shell/shell.py:838
-"fzf is not installed, or the shell is not bash or zsh" = "fzf אינו מותקן, או שהמעטפת אינה bash או zsh"
-# navigator/widgets/manager/manager/manager.py:3466, navigator/widgets/manager/manager/manager.py:3660, navigator/widgets/manager/manager/manager.py:3685
-"The cursor is not on a file" = "הסמן אינו על קובץ"
-# navigator/widgets/manager/manager/manager.py:3468, navigator/widgets/shell/shell/shell.py:1280
-"Neither GIO nor KIO is installed" = "לא GIO ולא KIO מותקנים"
-# navigator/widgets/manager/manager/manager.py:3469
-"No graphical desktop to open it on" = "אין שולחן עבודה גרפי לפתוח בו"
-# navigator/widgets/manager/manager/manager.py:3474
-"Neither gpg nor age is installed" = "לא gpg ולא age מותקנים"
-# navigator/widgets/manager/manager/manager.py:3506, navigator/widgets/manager/manager/manager.py:3495
-"This drive cannot hold links" = "כונן זה אינו יכול להכיל קישורים"
-# navigator/widgets/manager/manager/manager.py:3507
-"No symbolic link is selected" = "לא נבחר קישור סמלי"
-# navigator/widgets/manager/manager/manager.py:3517, navigator/widgets/manager/manager/manager.py:3543
-"No file at the cursor" = "אין קובץ בסמן"
-# navigator/widgets/manager/manager/manager.py:3518
-"The file has no other names" = "לקובץ אין שמות אחרים"
-# navigator/widgets/manager/manager/manager.py:3522
-"No broken links here" = "אין כאן קישורים שבורים"
-# navigator/widgets/manager/manager/manager.py:3526
-"No bad names here" = "אין כאן שמות פגומים"
-# navigator/widgets/manager/manager/manager.py:3537
-"Only inside an archive" = "רק בתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:3542
-"Not from inside an archive" = "לא מתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:3550
-"No disk image at the cursor" = "אין תמונת דיסק תחת הסמן"
-# navigator/widgets/manager/manager/manager.py:3553
-"Not in a mounted disk image" = "לא בתוך תמונת דיסק מעוגנת"
-# navigator/widgets/manager/manager/manager.py:3558
-"No archive is tagged or at the cursor" = "אין ארכיון מתויג או תחת הסמן"
-# navigator/widgets/manager/manager/manager.py:3563
-"Neither panel's directory can be written to" = "לא ניתן לכתוב לתיקייה של אף אחד מהלוחות"
-# navigator/widgets/manager/manager/manager.py:3592
-"File Manager Setup's BS upper dir is off" = "האפשרות «BS - לתיקייה העליונה» בהגדרות מנהל הקבצים כבויה"
-# navigator/widgets/manager/manager/manager.py:3603
-"The file clipboard is empty" = "לוח הגזירים של הקבצים ריק"
-# navigator/widgets/manager/manager/manager.py:3616
-"File Manager Setup's Del erases is off" = "האפשרות «DEL מוחק קבצים» בהגדרות מנהל הקבצים כבויה"
-# navigator/widgets/manager/manager/manager.py:3623, navigator/widgets/manager/manager/manager.py:3668, navigator/widgets/shell/shell/shell.py:1238
-"The cursor is on no file" = "הסמן אינו על אף קובץ"
-# navigator/widgets/manager/manager/manager.py:3635
-"Not inside an archive" = "לא בתוך ארכיון"
-# navigator/widgets/manager/manager/manager.py:3656
-"Only in the Trash" = "רק באשפה"
-# navigator/widgets/manager/manager/manager.py:3667
-"Only in a Find listing" = "רק ברשימת חיפוש"
-# navigator/widgets/manager/manager/manager.py:3672
-"Tag one file, or put the cursor on one" = "תייג קובץ אחד, או הצב עליו את הסמן"
-# navigator/widgets/manager/manager/manager.py:3681
-"No checksum file is tagged or at the cursor" = "אין קובץ סיכומי ביקורת מתויג או תחת הסמן"
-# navigator/widgets/manager/manager/manager.py:3691
-"Tag two files, or put the cursor on a file with a namesake in the other panel" = "תייג שני קבצים, או הצב את הסמן על קובץ שיש לו שם זהה בלוח השני"
-# navigator/widgets/manager/manager/manager.py:3694
-"The other panel is hidden" = "הלוח השני מוסתר"
-# navigator/widgets/manager/manager/manager.py:3701
-"No name is cut to scroll" = "אין שם קטוע לגלילה"
-# navigator/widgets/manager/manager/manager.py:4250
-"Do you wish to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
-# navigator/widgets/manager/manager/manager.py:4255
-"Do you wish to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
-# navigator/widgets/manager/manager/manager.py:5722, navigator/widgets/manager/manager/manager.py:5771
-"No such directory" = "אין תיקייה כזו"
-# navigator/widgets/manager/manager/manager.py:5785
-"$EDITOR edits a file on another drive only once it is there" = "$EDITOR עורך קובץ בכונן אחר רק לאחר שהוא נמצא שם"
-# navigator/widgets/manager/manager/manager.py:6591
-"Copy {name} to {target}" = "העתקת {name} אל {target}"
-# navigator/widgets/manager/manager/manager.py:6617
-"Erasing the file" = "מוחק את הקובץ"
-# navigator/widgets/manager/manager/manager.py:6618
-"Erasing the directory" = "מוחק את התיקייה"
-# navigator/widgets/manager/manager/manager.py:6619
-"Moving to the Trash" = "מעביר לאשפה"
-# navigator/widgets/manager/manager/manager.py:6620
-"Changing attributes of" = "משנה מאפיינים של"
-# navigator/widgets/manager/manager/manager.py:6634
-"View mode: {mode}" = "מצב תצוגה: {mode}"
-# navigator/widgets/manager/manager/manager.py:6686
-"Mounted now, not a bookmark" = "מעוגן כעת, לא סימנייה"
-# navigator/widgets/manager/manager/manager.py:6688
-"Not there now" = "לא קיים כעת"
-# navigator/widgets/manager/manager/manager.py:6769
-"Not connected" = "לא מחובר"
-# navigator/widgets/manager/manager/manager.py:738
-"The input file is too small to UU-Encode." = "קובץ הקלט קטן מדי לקידוד UU."
-# navigator/widgets/manager/manager/manager.py:900
-"{n} checksum file already exists.\nOK to overwrite it?" = ["קובץ סיכומי ביקורת אחד כבר קיים.\nלדרוס אותו?", "שני קבצי סיכומי ביקורת כבר קיימים.\nלדרוס אותם?", "{n} קבצי סיכומי ביקורת כבר קיימים.\nלדרוס אותם?"]
-# navigator/widgets/manager/manager/manager.py:927
-"{n} checksum file could not be written:" = ["לא ניתן היה לכתוב קובץ סכום בדיקה אחד:", "לא ניתן היה לכתוב שני קובצי סכומי בדיקה:", "לא ניתן היה לכתוב {n} קובצי סכומי בדיקה:"]
-# navigator/widgets/manager/manager/manager.py:955
-"Verifying checksums" = "מאמת סיכומי ביקורת"
-# navigator/widgets/manager/manager/manager.py:1066
-"Encrypt them as root?" = "להצפין אותם כ־root?"
-# navigator/widgets/manager/manager/manager.py:1077
-"{n} file could not be encrypted:" = ["לא ניתן היה להצפין קובץ אחד:", "לא ניתן היה להצפין שני קבצים:", "לא ניתן היה להצפין {n} קבצים:"]
-# navigator/widgets/manager/manager/manager.py:1137
-"Decrypt them as root?" = "לפענח אותם כ־root?"
-# navigator/widgets/manager/manager/manager.py:1141
-"The passphrase is wrong. Type it again:" = "הסיסמה שגויה. הקלד אותה שוב:"
-# navigator/widgets/manager/manager/manager.py:1143
-"{n} file needs a passphrase:" = ["קובץ אחד דורש סיסמה:", "שני קבצים דורשים סיסמה:", "{n} קבצים דורשים סיסמה:"]
-# navigator/widgets/manager/manager/manager.py:1170
-"{n} file could not be decrypted:" = ["לא ניתן היה לפענח קובץ אחד:", "לא ניתן היה לפענח שני קבצים:", "לא ניתן היה לפענח {n} קבצים:"]
-# navigator/widgets/manager/manager/manager.py:1575
-"No errors found in {name}" = "לא נמצאו שגיאות ב-{name}"
-# navigator/widgets/manager/manager/manager.py:1580
-"{n} error found in {name}:" = ["נמצאה שגיאה אחת ב-{name}:", "נמצאו שתי שגיאות ב-{name}:", "נמצאו {n} שגיאות ב-{name}:"]
-# navigator/widgets/manager/manager/manager.py:1833
-"{count} file changed" = ["שונה קובץ אחד", "שונו שני קבצים", "שונו {count} קבצים"]
-# navigator/widgets/manager/manager/manager.py:2872
-"and below" = "ומטה"
-# navigator/widgets/manager/manager/manager.py:3004
-"Copy {copies} and delete {deletes}?" = "להעתיק {copies} ולמחוק {deletes}?"
-# navigator/widgets/manager/manager/manager.py:3480, navigator/widgets/manager/manager/manager.py:1116
-"No encrypted file is tagged or at the cursor" = "לא סומן קובץ מוצפן, וגם הסמן אינו על קובץ כזה"
-# navigator/widgets/manager/manager/manager.py:4069
-"Print file {name}?" = "להדפיס את הקובץ {name}?"
-# navigator/widgets/manager/manager/manager.py:4399
-"Times, permissions or owner were not kept on {n} file: {path}: {reason}" = ["הזמנים, ההרשאות או הבעלים לא נשמרו בקובץ אחד: {path}: {reason}", "הזמנים, ההרשאות או הבעלים לא נשמרו בשני קבצים, הראשון {path}: {reason}", "הזמנים, ההרשאות או הבעלים לא נשמרו ב־{n} קבצים, הראשון {path}: {reason}"]
-# navigator/widgets/manager/manager/manager.py:5624
-"Choose editor" = "בחר עורך"
-# navigator/widgets/manager/manager/manager.py:6588
-"Erase {name}" = "מחיקת {name}"
-# navigator/widgets/manager/manager/manager.py:6590
-"Move {name} to {target}" = "העברת {name} אל {target}"
-# navigator/widgets/manager/manager/manager.py:6631
-"Sorted by {mode}, reversed" = "ממוין לפי {mode}, בסדר הפוך"
-# navigator/widgets/manager/manager/manager.py:6632
-"Sorted by {mode}" = "ממוין לפי {mode}"
-# navigator/widgets/manager/manager/manager.py:6636, navigator/widgets/manager/panel/panel.py:1826
-"Only files matching {mask} are shown" = "מוצגים רק קבצים התואמים ל-{mask}"
-# navigator/widgets/manager/manager/manager.py:6804
-"~E~dit links..." = "~ע~רוך קישורים..."
-# navigator/widgets/manager/manager/manager.py:814
-"Splitting {name}" = "מפצל את {name}"
-# navigator/widgets/manager/manager/manager.py:911
-"Write their checksum files as root?" = "לכתוב את קובצי סכומי הבדיקה שלהם כ־root?"
-# navigator/widgets/manager/manager/manager.py:1144
-"Passphrase" = "סיסמה"
+"looks binary" = "נראה בינארי"
 # navigator/widgets/manager/manager/manager.py:1289
-"the encoding cannot write a character at {place}" = "הקידוד אינו יכול לכתוב תו במקום {place}"
-# navigator/widgets/manager/manager/manager.py:1725
-"Stop the command?" = "לעצור את הפקודה?"
-# navigator/widgets/manager/manager/manager.py:1740
-"No files found\n{reason}" = "לא נמצאו קבצים\n{reason}"
-# navigator/widgets/manager/manager/manager.py:1749
-"Panel: {command}" = "לוח: {command}"
-# navigator/widgets/manager/manager/manager.py:1778
-"Find: {mask}" = "חיפוש: {mask}"
+"not UTF-8, and no encoding was chosen to read it as" = "אינו UTF-8, ולא נבחר קידוד לקרוא אותו בו"
+# navigator/widgets/manager/manager/manager.py:1292
+"too large" = "גדול מדי"
+# navigator/widgets/manager/manager/manager.py:1298
+"{n} file left alone:" = ["קובץ אחד לא שונה:", "שני קבצים לא שונו:", "{n} קבצים לא שונו:"]
+# navigator/widgets/manager/manager/manager.py:1299
+"{n} file could not be converted:" = ["לא ניתן היה להמיר קובץ אחד:", "לא ניתן היה להמיר שני קבצים:", "לא ניתן היה להמיר {n} קבצים:"]
+# navigator/widgets/manager/manager/manager.py:1559
+"Testing {name}" = "בודק את {name}"
+# navigator/widgets/manager/manager/manager.py:1922
+"Store this directory\nas bookmark {slot}?" = "לשמור תיקייה זו\nכסימנייה {slot}?"
+# navigator/widgets/manager/manager/manager.py:3008
+"Copy {n} file?" = ["להעתיק קובץ אחד?", "להעתיק שני קבצים?", "להעתיק {n} קבצים?"]
+# navigator/widgets/manager/manager/manager.py:3010
+"Delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
+# navigator/widgets/manager/manager/manager.py:3228
+"A place inside an archive cannot be bookmarked" = "לא ניתן ליצור סימנייה למקום בתוך ארכיון"
+# navigator/widgets/manager/manager/manager.py:3444
+"No DirInfo or File_ID.DIZ here" = "אין כאן DirInfo או File_ID.DIZ"
+# navigator/widgets/manager/manager/manager.py:3454
+"File Manager Setup's Remember directory settings is Off" = "זכירת הגדרות תיקייה כבויה בהגדרות לוחות הקבצים"
+# navigator/widgets/manager/manager/manager.py:3456
+"A Find listing is no directory to remember" = "רשימת חיפוש אינה תיקייה שאפשר לזכור"
+# navigator/widgets/manager/manager/manager.py:3458
+"A place inside an archive cannot be remembered" = "אי אפשר לזכור מקום בתוך ארכיון"
+# navigator/widgets/manager/manager/manager.py:3461, navigator/widgets/shell/shell/shell.py:838
+"fzf is not installed, or the shell is not bash or zsh" = "fzf אינו מותקן, או שהמעטפת אינה bash או zsh"
+# navigator/widgets/manager/manager/manager.py:3467, navigator/widgets/manager/manager/manager.py:3661, navigator/widgets/manager/manager/manager.py:3686
+"The cursor is not on a file" = "הסמן אינו על קובץ"
+# navigator/widgets/manager/manager/manager.py:3469, navigator/widgets/shell/shell/shell.py:1280
+"Neither GIO nor KIO is installed" = "לא GIO ולא KIO מותקנים"
+# navigator/widgets/manager/manager/manager.py:3470
+"No graphical desktop to open it on" = "אין שולחן עבודה גרפי לפתוח בו"
+# navigator/widgets/manager/manager/manager.py:3475
+"Neither gpg nor age is installed" = "לא gpg ולא age מותקנים"
+# navigator/widgets/manager/manager/manager.py:3507, navigator/widgets/manager/manager/manager.py:3496
+"This drive cannot hold links" = "כונן זה אינו יכול להכיל קישורים"
+# navigator/widgets/manager/manager/manager.py:3508
+"No symbolic link is selected" = "לא נבחר קישור סמלי"
+# navigator/widgets/manager/manager/manager.py:3518, navigator/widgets/manager/manager/manager.py:3544
+"No file at the cursor" = "אין קובץ בסמן"
+# navigator/widgets/manager/manager/manager.py:3519
+"The file has no other names" = "לקובץ אין שמות אחרים"
+# navigator/widgets/manager/manager/manager.py:3523
+"No broken links here" = "אין כאן קישורים שבורים"
+# navigator/widgets/manager/manager/manager.py:3527
+"No bad names here" = "אין כאן שמות פגומים"
+# navigator/widgets/manager/manager/manager.py:3538
+"Only inside an archive" = "רק בתוך ארכיון"
+# navigator/widgets/manager/manager/manager.py:3543
+"Not from inside an archive" = "לא מתוך ארכיון"
+# navigator/widgets/manager/manager/manager.py:3551
+"No disk image at the cursor" = "אין תמונת דיסק תחת הסמן"
+# navigator/widgets/manager/manager/manager.py:3554
+"Not in a mounted disk image" = "לא בתוך תמונת דיסק מעוגנת"
+# navigator/widgets/manager/manager/manager.py:3559
+"No archive is tagged or at the cursor" = "אין ארכיון מתויג או תחת הסמן"
+# navigator/widgets/manager/manager/manager.py:3564
+"Neither panel's directory can be written to" = "לא ניתן לכתוב לתיקייה של אף אחד מהלוחות"
+# navigator/widgets/manager/manager/manager.py:3593
+"File Manager Setup's BS upper dir is off" = "האפשרות «BS - לתיקייה העליונה» בהגדרות מנהל הקבצים כבויה"
+# navigator/widgets/manager/manager/manager.py:3604
+"The file clipboard is empty" = "לוח הגזירים של הקבצים ריק"
+# navigator/widgets/manager/manager/manager.py:3617
+"File Manager Setup's Del erases is off" = "האפשרות «DEL מוחק קבצים» בהגדרות מנהל הקבצים כבויה"
+# navigator/widgets/manager/manager/manager.py:3624, navigator/widgets/manager/manager/manager.py:3669, navigator/widgets/shell/shell/shell.py:1238
+"The cursor is on no file" = "הסמן אינו על אף קובץ"
+# navigator/widgets/manager/manager/manager.py:3636
+"Not inside an archive" = "לא בתוך ארכיון"
+# navigator/widgets/manager/manager/manager.py:3657
+"Only in the Trash" = "רק באשפה"
+# navigator/widgets/manager/manager/manager.py:3668
+"Only in a Find listing" = "רק ברשימת חיפוש"
+# navigator/widgets/manager/manager/manager.py:3673
+"Tag one file, or put the cursor on one" = "תייג קובץ אחד, או הצב עליו את הסמן"
+# navigator/widgets/manager/manager/manager.py:3682
+"No checksum file is tagged or at the cursor" = "אין קובץ סיכומי ביקורת מתויג או תחת הסמן"
+# navigator/widgets/manager/manager/manager.py:3692
+"Tag two files, or put the cursor on a file with a namesake in the other panel" = "תייג שני קבצים, או הצב את הסמן על קובץ שיש לו שם זהה בלוח השני"
+# navigator/widgets/manager/manager/manager.py:3695
+"The other panel is hidden" = "הלוח השני מוסתר"
+# navigator/widgets/manager/manager/manager.py:3702
+"No name is cut to scroll" = "אין שם קטוע לגלילה"
+# navigator/widgets/manager/manager/manager.py:4251
+"Do you wish to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
+# navigator/widgets/manager/manager/manager.py:4256
+"Do you wish to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
+# navigator/widgets/manager/manager/manager.py:5723, navigator/widgets/manager/manager/manager.py:5772
+"No such directory" = "אין תיקייה כזו"
+# navigator/widgets/manager/manager/manager.py:5786
+"$EDITOR edits a file on another drive only once it is there" = "$EDITOR עורך קובץ בכונן אחר רק לאחר שהוא נמצא שם"
+# navigator/widgets/manager/manager/manager.py:5990
+"File Manager {left},{right}" = "מנהל קבצים {left},{right}"
+# navigator/widgets/manager/manager/manager.py:6595
+"Copy {name} to {target}" = "העתקת {name} אל {target}"
+# navigator/widgets/manager/manager/manager.py:6621
+"Erasing the file" = "מוחק את הקובץ"
+# navigator/widgets/manager/manager/manager.py:6622
+"Erasing the directory" = "מוחק את התיקייה"
+# navigator/widgets/manager/manager/manager.py:6623
+"Moving to the Trash" = "מעביר לאשפה"
+# navigator/widgets/manager/manager/manager.py:6624
+"Changing attributes of" = "משנה מאפיינים של"
+# navigator/widgets/manager/manager/manager.py:6638
+"View mode: {mode}" = "מצב תצוגה: {mode}"
+# navigator/widgets/manager/manager/manager.py:6690
+"Mounted now, not a bookmark" = "מעוגן כעת, לא סימנייה"
+# navigator/widgets/manager/manager/manager.py:6692
+"Not there now" = "לא קיים כעת"
+# navigator/widgets/manager/manager/manager.py:6773
+"Not connected" = "לא מחובר"
+# navigator/widgets/manager/manager/manager.py:739
+"The input file is too small to UU-Encode." = "קובץ הקלט קטן מדי לקידוד UU."
+# navigator/widgets/manager/manager/manager.py:901
+"{n} checksum file already exists.\nOK to overwrite it?" = ["קובץ סיכומי ביקורת אחד כבר קיים.\nלדרוס אותו?", "שני קבצי סיכומי ביקורת כבר קיימים.\nלדרוס אותם?", "{n} קבצי סיכומי ביקורת כבר קיימים.\nלדרוס אותם?"]
+# navigator/widgets/manager/manager/manager.py:928
+"{n} checksum file could not be written:" = ["לא ניתן היה לכתוב קובץ סכום בדיקה אחד:", "לא ניתן היה לכתוב שני קובצי סכומי בדיקה:", "לא ניתן היה לכתוב {n} קובצי סכומי בדיקה:"]
+# navigator/widgets/manager/manager/manager.py:956
+"Verifying checksums" = "מאמת סיכומי ביקורת"
+# navigator/widgets/manager/manager/manager.py:1067
+"Encrypt them as root?" = "להצפין אותם כ־root?"
+# navigator/widgets/manager/manager/manager.py:1078
+"{n} file could not be encrypted:" = ["לא ניתן היה להצפין קובץ אחד:", "לא ניתן היה להצפין שני קבצים:", "לא ניתן היה להצפין {n} קבצים:"]
+# navigator/widgets/manager/manager/manager.py:1138
+"Decrypt them as root?" = "לפענח אותם כ־root?"
+# navigator/widgets/manager/manager/manager.py:1142
+"The passphrase is wrong. Type it again:" = "הסיסמה שגויה. הקלד אותה שוב:"
+# navigator/widgets/manager/manager/manager.py:1144
+"{n} file needs a passphrase:" = ["קובץ אחד דורש סיסמה:", "שני קבצים דורשים סיסמה:", "{n} קבצים דורשים סיסמה:"]
+# navigator/widgets/manager/manager/manager.py:1171
+"{n} file could not be decrypted:" = ["לא ניתן היה לפענח קובץ אחד:", "לא ניתן היה לפענח שני קבצים:", "לא ניתן היה לפענח {n} קבצים:"]
+# navigator/widgets/manager/manager/manager.py:1576
+"No errors found in {name}" = "לא נמצאו שגיאות ב-{name}"
+# navigator/widgets/manager/manager/manager.py:1581
+"{n} error found in {name}:" = ["נמצאה שגיאה אחת ב-{name}:", "נמצאו שתי שגיאות ב-{name}:", "נמצאו {n} שגיאות ב-{name}:"]
 # navigator/widgets/manager/manager/manager.py:1834
+"{count} file changed" = ["שונה קובץ אחד", "שונו שני קבצים", "שונו {count} קבצים"]
+# navigator/widgets/manager/manager/manager.py:2873
+"and below" = "ומטה"
+# navigator/widgets/manager/manager/manager.py:3005
+"Copy {copies} and delete {deletes}?" = "להעתיק {copies} ולמחוק {deletes}?"
+# navigator/widgets/manager/manager/manager.py:3481, navigator/widgets/manager/manager/manager.py:1117
+"No encrypted file is tagged or at the cursor" = "לא סומן קובץ מוצפן, וגם הסמן אינו על קובץ כזה"
+# navigator/widgets/manager/manager/manager.py:4070
+"Print file {name}?" = "להדפיס את הקובץ {name}?"
+# navigator/widgets/manager/manager/manager.py:4400
+"Times, permissions or owner were not kept on {n} file: {path}: {reason}" = ["הזמנים, ההרשאות או הבעלים לא נשמרו בקובץ אחד: {path}: {reason}", "הזמנים, ההרשאות או הבעלים לא נשמרו בשני קבצים, הראשון {path}: {reason}", "הזמנים, ההרשאות או הבעלים לא נשמרו ב־{n} קבצים, הראשון {path}: {reason}"]
+# navigator/widgets/manager/manager/manager.py:5625
+"Choose editor" = "בחר עורך"
+# navigator/widgets/manager/manager/manager.py:6592
+"Erase {name}" = "מחיקת {name}"
+# navigator/widgets/manager/manager/manager.py:6594
+"Move {name} to {target}" = "העברת {name} אל {target}"
+# navigator/widgets/manager/manager/manager.py:6635
+"Sorted by {mode}, reversed" = "ממוין לפי {mode}, בסדר הפוך"
+# navigator/widgets/manager/manager/manager.py:6636
+"Sorted by {mode}" = "ממוין לפי {mode}"
+# navigator/widgets/manager/manager/manager.py:6640, navigator/widgets/manager/panel/panel.py:1826
+"Only files matching {mask} are shown" = "מוצגים רק קבצים התואמים ל-{mask}"
+# navigator/widgets/manager/manager/manager.py:6808
+"~E~dit links..." = "~ע~רוך קישורים..."
+# navigator/widgets/manager/manager/manager.py:815
+"Splitting {name}" = "מפצל את {name}"
+# navigator/widgets/manager/manager/manager.py:912
+"Write their checksum files as root?" = "לכתוב את קובצי סכומי הבדיקה שלהם כ־root?"
+# navigator/widgets/manager/manager/manager.py:1145
+"Passphrase" = "סיסמה"
+# navigator/widgets/manager/manager/manager.py:1290
+"the encoding cannot write a character at {place}" = "הקידוד אינו יכול לכתוב תו במקום {place}"
+# navigator/widgets/manager/manager/manager.py:1726
+"Stop the command?" = "לעצור את הפקודה?"
+# navigator/widgets/manager/manager/manager.py:1741
+"No files found\n{reason}" = "לא נמצאו קבצים\n{reason}"
+# navigator/widgets/manager/manager/manager.py:1750
+"Panel: {command}" = "לוח: {command}"
+# navigator/widgets/manager/manager/manager.py:1779
+"Find: {mask}" = "חיפוש: {mask}"
+# navigator/widgets/manager/manager/manager.py:1835
 "{count} replacement" = ["החלפה אחת", "שתי החלפות", "{count} החלפות"]
-# navigator/widgets/manager/manager/manager.py:2013
+# navigator/widgets/manager/manager/manager.py:2014
 "Branch: {path}" = "ענף: {path}"
-# navigator/widgets/manager/manager/manager.py:2073, navigator/widgets/manager/manager/manager.py:2139, navigator/widgets/manager/manager/manager.py:5009
+# navigator/widgets/manager/manager/manager.py:2074, navigator/widgets/manager/manager/manager.py:2140, navigator/widgets/manager/manager/manager.py:5010
 "Cancel search?" = "לבטל את החיפוש?"
-# navigator/widgets/manager/manager/manager.py:2085
+# navigator/widgets/manager/manager/manager.py:2086
 "Duplicates: {path}" = "כפילויות: {path}"
-# navigator/widgets/manager/manager/manager.py:2811, navigator/widgets/manager/manager/manager.py:2817
+# navigator/widgets/manager/manager/manager.py:2812, navigator/widgets/manager/manager/manager.py:2818
 "Cannot open {path}: {reason}" = "לא ניתן לפתוח את {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:3245
+# navigator/widgets/manager/manager/manager.py:3246
 "Label" = "תווית"
-# navigator/widgets/manager/manager/manager.py:4248
+# navigator/widgets/manager/manager/manager.py:4249
 "Do you wish to move {name} to the Trash?" = "להעביר את {name} לאשפה?"
-# navigator/widgets/manager/manager/manager.py:4253
+# navigator/widgets/manager/manager/manager.py:4254
 "Do you wish to delete {name}?" = "למחוק את {name}?"
-# navigator/widgets/manager/manager/manager.py:4500, navigator/lib/appearance/palette.py
+# navigator/widgets/manager/manager/manager.py:4501, navigator/lib/appearance/palette.py
 "Navigator" = "Navigator"
-# navigator/widgets/manager/manager/manager.py:4601, navigator/widgets/manager/manager/manager.py:4611
+# navigator/widgets/manager/manager/manager.py:4602, navigator/widgets/manager/manager/manager.py:4612
 "Finished" = "הסתיים"
-# navigator/widgets/manager/manager/manager.py:4611, navigator/widgets/manager/manager/manager.py:4603
+# navigator/widgets/manager/manager/manager.py:4612, navigator/widgets/manager/manager/manager.py:4604
 "Stopped" = "נעצר"
-# navigator/widgets/manager/manager/manager.py:5022, navigator/widgets/manager/manager/manager.py:5028
+# navigator/widgets/manager/manager/manager.py:5023, navigator/widgets/manager/manager/manager.py:5029
 "Links: {name}" = "קישורים: {name}"
-# navigator/widgets/manager/manager/manager.py:5027
+# navigator/widgets/manager/manager/manager.py:5028
 "{found} of {count} names found" = "נמצאו {found} מתוך {count} שמות"
-# navigator/widgets/manager/manager/manager.py:5211
+# navigator/widgets/manager/manager/manager.py:5212
 "Reading file attributes" = "קורא מאפייני קבצים"
-# navigator/widgets/manager/manager/manager.py:800
+# navigator/widgets/manager/manager/manager.py:801
 "Combining {name}" = "מאחד את {name}"
-# navigator/widgets/manager/manager/manager.py:1821
+# navigator/widgets/manager/manager/manager.py:1822
 "Replaced: {text}" = "הוחלף: {text}"
-# navigator/widgets/manager/manager/manager.py:2880
+# navigator/widgets/manager/manager/manager.py:2881
 "Forget" = "שכח"
-# navigator/widgets/manager/manager/manager.py:2956, navigator/widgets/viewer/diff_window/diff_window.py:145
+# navigator/widgets/manager/manager/manager.py:2957, navigator/widgets/viewer/diff_window/diff_window.py:145
 "Comparing files" = "משווה קבצים"
-# navigator/widgets/manager/manager/manager.py:4533
+# navigator/widgets/manager/manager/manager.py:4534
 "Waiting for an answer" = "ממתין לתשובה"
-# navigator/widgets/manager/manager/manager.py:4605
+# navigator/widgets/manager/manager/manager.py:4606
 "Failed" = "נכשל"
-# navigator/widgets/manager/manager/manager.py:5113
+# navigator/widgets/manager/manager/manager.py:5114
 "a link on the way would lead elsewhere" = "קישור בדרך היה מוביל למקום אחר"
-# navigator/widgets/manager/manager/manager.py:1698
+# navigator/widgets/manager/manager/manager.py:1699
 "A command's output can be panelized on this machine's disk only" = "ניתן להציג פלט של פקודה בלוח רק בדיסק של מחשב זה"
-# navigator/widgets/manager/manager/manager.py:1890
+# navigator/widgets/manager/manager/manager.py:1891
 "Set the interface option\n\"Track directories\" ON first" = "יש להפעיל תחילה את אפשרות הממשק\n\"מעקב אחר תיקיות\""
-# navigator/widgets/manager/manager/manager.py:2083
+# navigator/widgets/manager/manager/manager.py:2084
 "No duplicate files found" = "לא נמצאו קבצים כפולים"
-# navigator/widgets/manager/manager/manager.py:2545
+# navigator/widgets/manager/manager/manager.py:2546
 "{name} is not empty any more" = "{name} כבר אינה ריקה"
-# navigator/widgets/manager/manager/manager.py:2547
+# navigator/widgets/manager/manager/manager.py:2548
 "Cannot remove directory {name}: {error}" = "לא ניתן להסיר את התיקייה {name}: {error}"
-# navigator/widgets/manager/manager/manager.py:2630, navigator/widgets/manager/manager/manager.py:2634, navigator/widgets/shell/commands.py:628
+# navigator/widgets/manager/manager/manager.py:2631, navigator/widgets/manager/manager/manager.py:2635, navigator/widgets/shell/commands.py:628
 "Empty Trash" = "רוקן אשפה"
-# navigator/widgets/manager/manager/manager.py:2630
+# navigator/widgets/manager/manager/manager.py:2631
 "The Trash is empty" = "האשפה ריקה"
-# navigator/widgets/manager/manager/manager.py:2980
+# navigator/widgets/manager/manager/manager.py:2981
 "Both panels show the same directory." = "שני הלוחות מציגים את אותה תיקייה."
-# navigator/widgets/manager/manager/manager.py:4601
+# navigator/widgets/manager/manager/manager.py:4602
 "Finished: {what}" = "הסתיים: {what}"
-# navigator/widgets/manager/manager/manager.py:4632, navigator/widgets/manager/manager/manager.py:4897
+# navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "האם ליצור את התיקייה {path}?"
-# navigator/widgets/manager/manager/manager.py:4637
+# navigator/widgets/manager/manager/manager.py:4638
 "There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
-# navigator/widgets/manager/manager/manager.py:2863
+# navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "לאף תיקייה אין הגדרות משלה"
-# navigator/widgets/manager/manager/manager.py:3992, navigator/widgets/manager/manager/manager.py:4023, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
+# navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
 "Cannot make directory" = "לא ניתן ליצור תיקייה"
-# navigator/widgets/manager/manager/manager.py:4532
+# navigator/widgets/manager/manager/manager.py:4533
 "Waiting for an answer: {what}" = "ממתין לתשובה: {what}"
-# navigator/widgets/manager/manager/manager.py:4603
+# navigator/widgets/manager/manager/manager.py:4604
 "Stopped: {what}" = "נעצר: {what}"
-# navigator/widgets/manager/manager/manager.py:4605
+# navigator/widgets/manager/manager/manager.py:4606
 "Failed: {what}" = "נכשל: {what}"
-# navigator/widgets/manager/manager/manager.py:5516, navigator/widgets/manager/manager/manager.py:5446, navigator/widgets/manager/manager/manager.py:5464 ...
+# navigator/widgets/manager/manager/manager.py:5517, navigator/widgets/manager/manager/manager.py:5447, navigator/widgets/manager/manager/manager.py:5465 ...
 "Cannot view file" = "לא ניתן להציג את הקובץ"
-# navigator/widgets/manager/manager/manager.py:6790
+# navigator/widgets/manager/manager/manager.py:6794
 "Install {extra}" = "התקן את {extra}"
-# navigator/widgets/manager/manager/manager.py:1859
+# navigator/widgets/manager/manager/manager.py:1860
 "Directory {place} is not there" = "התיקייה {place} אינה קיימת"
-# navigator/widgets/manager/manager/manager.py:2225
+# navigator/widgets/manager/manager/manager.py:2226
 "a name cannot hold a /" = "שם אינו יכול להכיל /"
-# navigator/widgets/manager/manager/manager.py:4568
+# navigator/widgets/manager/manager/manager.py:4569
 "Abort operation?" = "לבטל את הפעולה?"
-# navigator/widgets/manager/manager/manager.py:1662, navigator/widgets/manager/manager/manager.py:1647
+# navigator/widgets/manager/manager/manager.py:1663, navigator/widgets/manager/manager/manager.py:1648
 "Cannot read {path}: {reason}" = "לא ניתן לקרוא את {path}: {reason}"
-# navigator/widgets/manager/manager/manager.py:1730
+# navigator/widgets/manager/manager/manager.py:1731
 "Cannot run {command}: {reason}" = "לא ניתן להריץ את {command}: {reason}"
-# navigator/widgets/manager/manager/manager.py:4098
+# navigator/widgets/manager/manager/manager.py:4099
 "Cannot print {name}: {reason}" = "לא ניתן להדפיס את {name}: {reason}"
-# navigator/widgets/manager/manager/manager.py:5465, navigator/widgets/manager/manager/manager.py:5440, navigator/widgets/manager/manager/manager.py:5479
+# navigator/widgets/manager/manager/manager.py:5466, navigator/widgets/manager/manager/manager.py:5441, navigator/widgets/manager/manager/manager.py:5480
 "{name}: not a dBase or SQLite file" = "{name}: אינו קובץ dBase או SQLite"
 # navigator/widgets/manager/panel/drag.py:80
 "{n} selected file" = ["קובץ מסומן אחד", "שני קבצים מסומנים", "{n} קבצים מסומנים"]
@@ -4988,7 +4990,7 @@ direction = "rtl"
 "View mode: simple, detailed or list" = "מצב תצוגה: פשוט, מפורט או רשימה"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "סדר מיון"
-# navigator/widgets/manager/panel/panel.py:3071
+# navigator/widgets/manager/panel/panel.py:3075
 "{total} in ~{n}~ selected file" = ["{total} בקובץ מסומן אחד", "{total} בשני קבצים מסומנים", "{total} ב-~{n}~ קבצים מסומנים"]
 # navigator/widgets/manager/panel/panel.py:2419
 "Paste from clip~b~oard" = "ה~ד~בק מלוח הגזירים"
@@ -4996,11 +4998,11 @@ direction = "rtl"
 "~I~nsert name" = "~ה~וסף שם"
 # navigator/widgets/manager/panel/panel.py:2456
 "Insert pa~t~h" = "הוסף ~נ~תיב"
-# navigator/widgets/manager/panel/panel.py:3063
+# navigator/widgets/manager/panel/panel.py:3067
 "No files selected" = "לא נבחרו קבצים"
-# navigator/widgets/manager/panel/panel.py:3068
+# navigator/widgets/manager/panel/panel.py:3072
 "~{n:,}({packed:,})~ byte" = ["~{n:,}({packed:,})~ בית", "~{n:,}({packed:,})~ בתים", "~{n:,}({packed:,})~ בתים"]
-# navigator/widgets/manager/panel/panel.py:3206, navigator/widgets/manager/panel/panel.py:3050
+# navigator/widgets/manager/panel/panel.py:3210, navigator/widgets/manager/panel/panel.py:3054
 "~{n:,}~ free byte on ~{mount}" = ["~{n:,}~ בית פנוי ב-~{mount}", "~{n:,}~ בתים פנויים ב-~{mount}", "~{n:,}~ בתים פנויים ב-~{mount}"]
 # navigator/widgets/manager/panel/panel.py:1817
 "A read-only file system: nothing here can be changed" = "מערכת קבצים לקריאה בלבד: לא ניתן לשנות כאן דבר"
@@ -5038,25 +5040,25 @@ direction = "rtl"
 "Test arc~h~ive" = "בדוק ~א~רכיון"
 # navigator/widgets/manager/panel/panel.py:2437
 "Unmount image" = "בטל עיגון תמונה"
-# navigator/widgets/manager/panel/panel.py:2875
+# navigator/widgets/manager/panel/panel.py:2879
 "R/O" = "קריאה בלבד"
-# navigator/widgets/manager/panel/panel.py:3031
+# navigator/widgets/manager/panel/panel.py:3035
 "Clipboard: ~{n}~ file to move" = ["לוח הגזירים: ~קובץ אחד~ להעברה", "לוח הגזירים: ~שני קבצים~ להעברה", "לוח הגזירים: ~{n}~ קבצים להעברה"]
-# navigator/widgets/manager/panel/panel.py:3033
+# navigator/widgets/manager/panel/panel.py:3037
 "Clipboard: ~{n}~ file to copy" = ["לוח הגזירים: ~קובץ אחד~ להעתקה", "לוח הגזירים: ~שני קבצים~ להעתקה", "לוח הגזירים: ~{n}~ קבצים להעתקה"]
-# navigator/widgets/manager/panel/panel.py:3041
+# navigator/widgets/manager/panel/panel.py:3045
 "Total: ~{n:,}~ file with {total}" = ["סה״כ: ~{n:,}~ קובץ, {total}", "סה״כ: ~{n:,}~ קבצים, {total}", "סה״כ: ~{n:,}~ קבצים, {total}"]
-# navigator/widgets/manager/panel/panel.py:3146
+# navigator/widgets/manager/panel/panel.py:3150
 "~Packed:~ {packed} ~Ratio:~ {ratio}" = "~ארוז:~ {packed} ~יחס:~ {ratio}"
-# navigator/widgets/manager/panel/panel.py:3164, navigator/widgets/manager/panel/panel.py:3234
+# navigator/widgets/manager/panel/panel.py:3168, navigator/widgets/manager/panel/panel.py:3238
 "From {path}" = "מתוך {path}"
-# navigator/widgets/manager/panel/panel.py:3232, navigator/widgets/manager/panel/panel.py:3169
+# navigator/widgets/manager/panel/panel.py:3236, navigator/widgets/manager/panel/panel.py:3173
 "an unknown place" = "מקום לא ידוע"
-# navigator/widgets/manager/panel/panel.py:3481
+# navigator/widgets/manager/panel/panel.py:3485
 "Reading directory..." = "קורא תיקייה..."
-# navigator/widgets/manager/panel/panel.py:3512, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:3516, navigator/lib/drives/base.py
 "Packed" = "דחוס"
-# navigator/widgets/manager/panel/panel.py:3513
+# navigator/widgets/manager/panel/panel.py:3517
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1820
 "This directory keeps its own sort order, view and file mask" = "תיקייה זו שומרת מיון, תצוגה ומסכת קבצים משלה"
@@ -5080,9 +5082,9 @@ direction = "rtl"
 "Mount image" = "עגן תמונה"
 # navigator/widgets/manager/panel/panel.py:1778
 "A click sorts by {order}" = "לחיצה ממיינת לפי {order}"
-# navigator/widgets/manager/panel/panel.py:3052
+# navigator/widgets/manager/panel/panel.py:3056
 "~{size}~ free on ~{mount}" = "~{size}~ פנויים ב-~{mount}"
-# navigator/widgets/manager/panel/panel.py:3166, navigator/widgets/manager/panel/panel.py:3235
+# navigator/widgets/manager/panel/panel.py:3170, navigator/widgets/manager/panel/panel.py:3239
 "From {path}, deleted {when}" = "מתוך {path}, נמחק {when}"
 # navigator/widgets/manager/panel/panel.py:1822
 "Shown with the settings remembered for {path} and below" = "מוצגת עם ההגדרות שנזכרו עבור {path} ומטה"

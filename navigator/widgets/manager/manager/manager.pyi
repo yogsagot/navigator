@@ -54,6 +54,7 @@ from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.drives import trash as trash_drive
+from navigator.lib.cut import cut_path
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.file_ops import undo as undo_history
 from navigator.lib.file_ops.undo import UNDO

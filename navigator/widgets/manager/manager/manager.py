@@ -146,6 +146,7 @@ from navigator.lib.config.associations import EDITORS, VIEWERS
 from navigator.lib.config import panel_state
 from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.lib.drives import trash as trash_drive
+from navigator.lib.cut import cut_path
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.file_ops import undo as undo_history
 from navigator.lib.file_ops.undo import UNDO
@@ -5981,25 +5982,28 @@ class Manager(Window):
         self.panels.invalidate()
 
     def list_name(self) -> str:
-        """The active panel's directory: what the window list shows for this window.
+        """What the window list shows for this window: DN's ``cmGetName``
+        (DBLWND.PAS:670-671), answered by the double window itself --
+        ``File Manager``, the left panel's directory and the right's, each
+        ``Cut`` to 20, whichever has the keyboard or a view stands in."""
+        left, right = (cut_path(str(panel.location), 20) for panel in (self.left, self.right))
+        return tr("File Manager {left},{right}").format(left=left, right=right)
 
-        DOS Navigator's double window passed ``cmGetName`` on to its panel.
-        A window in the background has lost the keyboard, so which panel was
-        active is read off what it will get back, not off the focus.
-        """
+    def short_name(self) -> str:
+        """The window strip's chip: the last part of the active panel's
+        directory.  A window in the background has lost the keyboard, so
+        which panel was active is read off what it will get back, not off
+        the focus."""
         app = self.application
         saved = self._saved_focus
+        panel = self.active_panel
         if (
             self.replaced is None
             and not (app is not None and self._holds(app.focused))
             and saved in (self.left, self.right)
         ):
-            return str(saved.location)
-        return str(self.active_panel.location)
-
-    def short_name(self) -> str:
-        """The window strip's: the last part of :meth:`list_name`'s directory."""
-        name = self.list_name()
+            panel = saved
+        name = str(panel.location)
         return PurePosixPath(name).name or name
 
     def switch_panel(self) -> None:

@@ -67,10 +67,11 @@ forward. The two differ in **where they live**, and every other difference follo
   is `TWindowList`, a `ListViewer` whose items are the windows themselves, top first.
   - **A row is `Window.list_name()`**, which stands in for `cmGetName`. It defaults to the title, and an empty
     name keeps a window out of the list, which is what the original did.
-  - `Manager` names itself after its active panel's directory, because the double window forwarded `cmGetName` to
-    its panel. **The names are read when a window enters the list, not while painting**, because while the dialog
-    is up the focus is in the dialog, and "which panel is active" is a question the focus answers. A background
-    manager answers from `_saved_focus`, which is what it will get back.
+  - `Manager` answers as DN's double window did itself (DBLWND.PAS:670-671): `File Manager`, the left directory
+    and the right, each `Cut` to 20 (`navigator.lib.cut.cut_path`). **The names are read when a window enters the
+    list, not while painting**, because while the dialog is up the focus is in the dialog, and a name may depend on
+    what has the keyboard. The strip's chip (`short_name`) is still the active panel's last part, a background
+    manager answering from `_saved_focus`, which is what it will get back.
   - **Close stays in the dialog.** The original looped: it freed the window, listed the desktop again and ran the
     dialog again. The last window closing ends it.
   - **OK activates only once the modal is down**, so the keyboard goes to the chosen window. `Desktop.activate`

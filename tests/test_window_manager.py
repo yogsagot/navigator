@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from conftest import run_app
 from navkit.events import KeyEvent
+from navigator.lib.cut import cut_path
 from test_nav import _entry, navigator, quiet_console, tree  # noqa: F401 - fixtures
 
 ALT_0 = KeyEvent("0", "0", alt=True)
@@ -52,21 +53,25 @@ def test_alt_0_lists_the_windows_top_first_on_the_active_one(tree):
               CTRL_F3, lambda a: None, ALT_0, lambda a: None, look)
     first, second = managers(app)
     assert seen == [("WindowManagerDialog", [second, first], second, True,
-                     [f" 2 {tree / 'alpha'}", f" 1 {tree / 'alpha'}"])]
+                     [f" 2 {named(second)}", f" 1 {named(first)}"])]
+    assert named(first) == f"File Manager {cut_path(str(tree / 'alpha'), 20)},{cut_path(str(tree), 20)}"
 
 
-def test_a_background_manager_is_named_after_the_panel_it_had(tree):
-    # The first manager's right panel had the keyboard, and its left one is
-    # somewhere else: the list has to say where the right one is, although
-    # the focus is in the dialog and the first manager is behind the second.
+def named(manager):
+    return f"File Manager {cut_path(str(manager.left.location), 20)},{cut_path(str(manager.right.location), 20)}"
+
+
+def test_a_manager_is_named_after_both_its_panels_whichever_has_the_keyboard(tree):
+    """DN's ``cmGetName`` (DBLWND.PAS:670-671): ``File Manager``, the left
+    directory and the right, each ``Cut`` to 20 -- the double window's own
+    answer, not its panel's."""
     seen = []
-    run(tree, KeyEvent("tab"), KeyEvent("down"), KeyEvent("enter"),   # right into alpha
-        CTRL_F3, lambda a: None,                                       # both of its panels in alpha
-        KeyEvent("enter"), lambda a: None,                             # its left back up, on ..
-        ALT_0, lambda a: None,
-        lambda a: seen.append([a.modal.windows.row_text(i, w)
-                               for i, w in enumerate(a.modal.windows.items)]))
-    assert seen == [[f" 2 {tree}", f" 1 {tree / 'alpha'}"]]
+    app = run(tree, KeyEvent("tab"), KeyEvent("down"), KeyEvent("enter"),   # right into alpha
+              lambda a: seen.append(a.manager.list_name()),
+              KeyEvent("tab"), lambda a: seen.append(a.manager.list_name()))
+    whole = f"File Manager {cut_path(str(tree), 20)},{cut_path(str(tree / 'alpha'), 20)}"
+    assert seen == [whole, whole]
+    assert app.manager.short_name() == tree.name  # the strip's chip: the active panel's last part
 
 
 def test_enter_switches_to_the_window_under_the_cursor(tree):
