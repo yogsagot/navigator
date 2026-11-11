@@ -882,13 +882,10 @@ class _Copier(Elevated):
         if action == "skip":
             job.done_bytes += st.st_size
             return False
-        if self.check_free:
-            free = dest_drive.free_bytes(dest.parent)
-            if free is not None and free < st.st_size:
-                self._ask(NoRoom(shown(dest), st.st_size, free))
-                job.done_bytes += st.st_size
-                return False
         if self.move and action != "append":
+            # A rename first, and no free-space question for it: it writes no
+            # bytes, as DN's ``DoRename`` never reached ``MaxWrite``.  Only
+            # when it cannot (``EXDEV``) is the file copied -- and checked.
             try:
                 renamed = self._try(source, lambda: self._rename(source, dest, replace=True),
                                     passing=(errno.EXDEV,))
@@ -899,6 +896,8 @@ class _Copier(Elevated):
                 return renamed
             except OSError:
                 pass  # across drives: copied and deleted
+        if not self._room_for(dest, st):
+            return False
         if not self._copy_bytes(source, dest, st, append=action == "append"):
             return False
         if self.preserve:
@@ -910,6 +909,19 @@ class _Copier(Elevated):
                 self._record(source, dest, replaced=action == "overwrite")
         else:
             self._made(dest, action)
+        return True
+
+    def _room_for(self, dest: Location, st: Any) -> bool:
+        """*Check free space*: room on *dest*'s drive for *st*'s bytes, else
+        ``NoRoom`` asked and the file passed over.  Only where bytes are
+        written -- a copy, an append, a move across drives."""
+        if not self.check_free:
+            return True
+        free = self._drive_of(dest).free_bytes(dest.parent)
+        if free is not None and free < st.st_size:
+            self._ask(NoRoom(shown(dest), st.st_size, free))
+            self.job.done_bytes += st.st_size
+            return False
         return True
 
     def _copy_bytes(self, source: Location, dest: Location, st: Any, *, append: bool) -> bool:

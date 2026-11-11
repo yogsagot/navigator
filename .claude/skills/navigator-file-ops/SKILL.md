@@ -23,7 +23,9 @@ a path the user has just named, where a thread hop would only reorder the dialog
 ## Copy and move (F5, F6)
 
 DN's `FILECOPY.PAS`. `navigator/lib/file_ops/filecopy.py` is the model (`CopyRequest`, `CopyJob`, `run` on a thread; DN's five copy
-modes, `MkName` masks, rename-first moves with an `EXDEV` fallback, `resolve_target`). `CopyDialog` is
+modes, `MkName` masks, rename-first moves with an `EXDEV` fallback, `resolve_target`). *Check free space*
+(`Copier._room_for`, `NoRoom`) is asked only where bytes are written -- a copy, an append, a move across drives --
+never before a rename, which takes no room (DN's `DoRename` never reached `MaxWrite`). `CopyDialog` is
 `dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory, F10/*Tree* picking it from
 a tree, mode and options remembered for the session. After it, a panel showing where the first source done in full
 went (`CopyJob.first_target`) re-reads with its cursor on it -- the other panel, or a rename's own -- as F7's is on its

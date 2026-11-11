@@ -356,6 +356,39 @@ def test_not_enough_room_asks(tree, tmp_path, monkeypatch):
     assert done == [] and not list(dst.iterdir())
 
 
+def test_a_move_within_one_filesystem_never_asks_about_room(tree, tmp_path, monkeypatch):
+    # DN's ``DoRename`` never reached ``MaxWrite``: a rename writes no bytes.
+    src, dst = tree
+    monkeypatch.setattr(LocalDrive, "free_bytes", lambda self, directory: 0)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, options=CHECK_FREE | MOVE)
+    assert asked == [] and (dst / "a.txt").exists() and not (src / "a.txt").exists()
+
+
+def test_a_move_over_a_file_within_one_filesystem_never_asks_about_room(tree, tmp_path, monkeypatch):
+    src, dst = tree
+    (dst / "a.txt").write_text("old")
+    monkeypatch.setattr(LocalDrive, "free_bytes", lambda self, directory: 0)
+    done, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, mode=OVERWRITE, options=CHECK_FREE | MOVE)
+    assert asked == [] and not (src / "a.txt").exists() and (dst / "a.txt").read_text() != "old"
+
+
+def test_a_move_to_another_drive_is_still_checked(tree, tmp_path, monkeypatch):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    src, _ = tree
+    drive = mount(MemoryDrive("room"))
+    try:
+        drive.make("/in/x", "")
+        monkeypatch.setattr(MemoryDrive, "free_bytes", lambda self, directory: 0)
+        done, asked, _ = copy([src / "a.txt"], drive.location("/in"), cwd=tmp_path,
+                              options=CHECK_FREE | MOVE, answers=[True])
+        assert [type(q) for q in asked] == [NoRoom]
+        assert (src / "a.txt").exists() and not drive.lexists(drive.location("/in/a.txt"))
+    finally:
+        unmount(drive.site)
+
+
 def test_stop_leaves_no_partial_file(tree, tmp_path, monkeypatch):
     src, dst = tree
     write(src / "big", "x" * 64)
