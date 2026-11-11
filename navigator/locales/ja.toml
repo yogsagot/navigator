@@ -3147,8 +3147,6 @@ flag = "JP"
 "There is no group {name}" = "グループ {name} は存在しません"
 # navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} は有効な時刻ではありません"
-# navigator/lib/file_ops/fileattr.py:510
-"Give both a date and a time" = "日付と時刻の両方を指定してください"
 # navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} は有効な日付ではありません"
 # navigator/lib/file_ops/fileattr.py:127
@@ -6840,6 +6838,7 @@ flag = "JP"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Give both a date and a time" = "日付と時刻の両方を指定してください"
 "There is not enough room to copy file {name}. Copy other files?" = "ファイル {name} をコピーする空き容量がありません。他のファイルをコピーしますか?"
 "Confirmation" = "確認"
 "Year" = "年"

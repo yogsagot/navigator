@@ -118,6 +118,55 @@ def test_the_time_is_dns_date_and_time_and_blank_is_leave_it():
     assert fileattr.parse_mtime("", "11:20", base) == base + 3600 - 30
 
 
+def _two_days(tmp_path):
+    """Two files, on 5 March and 9 July, at different times of day."""
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.write_text("a")
+    b.write_text("b")
+    os.utime(a, (0, time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))))
+    os.utime(b, (0, time.mktime((2023, 7, 9, 18, 5, 0, 0, 0, -1))))
+    return a, b
+
+
+def _when(path):
+    t = time.localtime(path.stat().st_mtime)
+    return (t.tm_year, t.tm_mon, t.tm_mday), (t.tm_hour, t.tm_min, t.tm_sec)
+
+
+def test_a_time_alone_is_set_on_each_file_s_own_day(tmp_path):
+    # DN's ``CM_SetAttributes``: ``if TimeSet then DT.Hour := ...``, the date kept.
+    a, b = _two_days(tmp_path)
+    when = fileattr.parse_when("", "11:20", None)
+    fileattr.run(AttrRequest([a, b], when=when), AttrJob())
+    assert _when(a) == ((2024, 3, 5), (11, 20, 0)) and _when(b) == ((2023, 7, 9), (11, 20, 0))
+
+
+def test_a_date_alone_keeps_each_file_s_own_time(tmp_path):
+    a, b = _two_days(tmp_path)
+    when = fileattr.parse_when("01-02-2025", "", None)
+    fileattr.run(AttrRequest([a, b], when=when), AttrJob())
+    assert _when(a) == ((2025, 2, 1), (10, 20, 30)) and _when(b) == ((2025, 2, 1), (18, 5, 0))
+
+
+def test_a_date_and_a_time_stamp_every_file_alike(tmp_path):
+    a, b = _two_days(tmp_path)
+    when = fileattr.parse_when("01-02-2025", "08:00:00", None)
+    fileattr.run(AttrRequest([a, b], when=when), AttrJob())
+    assert _when(a) == _when(b) == ((2025, 2, 1), (8, 0, 0))
+
+
+def test_parse_when_reads_halves_and_leaves_what_is_unchanged():
+    base = time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))
+    assert fileattr.parse_when("", "", None) is None
+    assert fileattr.parse_when("05-03-2024", "10:20:30", base) is None
+    assert fileattr.parse_when("", "11:20", None) == fileattr.MtimeChange(None, (11, 20, 0))
+    assert fileattr.parse_when("06-03-24", "", None) == fileattr.MtimeChange((2024, 3, 6), None)
+    with pytest.raises(ValueError):
+        fileattr.parse_when("31-02-2024", "", None)
+    with pytest.raises(ValueError):
+        fileattr.parse_when("", "25:00", None)
+
+
 @pytest.mark.parametrize("text, year", [("06-03-79", 2079), ("06-03-80", 1980), ("06-03-69", 2069),
                                         ("06-03-00", 2000), ("06-03-99", 1999)])
 def test_two_digit_years_pivot_at_dn_s_80(text, year):

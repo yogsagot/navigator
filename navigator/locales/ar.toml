@@ -3148,8 +3148,6 @@ direction = "rtl"
 "There is no group {name}" = "لا توجد مجموعة {name}"
 # navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} ليس وقتا صالحا"
-# navigator/lib/file_ops/fileattr.py:510
-"Give both a date and a time" = "حدد التاريخ والوقت معا"
 # navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} ليس تاريخا صالحا"
 # navigator/lib/file_ops/fileattr.py:127
@@ -6841,6 +6839,7 @@ direction = "rtl"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Give both a date and a time" = "حدد التاريخ والوقت معا"
 "There is not enough room to copy file {name}. Copy other files?" = "لا توجد مساحة كافية لنسخ الملف {name}. نسخ الملفات الأخرى؟"
 "Confirmation" = "تأكيد"
 "~Name~" = "~لاعب~"

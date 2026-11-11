@@ -3147,8 +3147,6 @@ flag = "LV"
 "There is no group {name}" = "Nav grupas {name}"
 # navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} nav derīgs laiks"
-# navigator/lib/file_ops/fileattr.py:510
-"Give both a date and a time" = "Norādiet gan datumu, gan laiku"
 # navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} nav derīgs datums"
 # navigator/lib/file_ops/fileattr.py:127
@@ -6840,6 +6838,7 @@ flag = "LV"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Give both a date and a time" = "Norādiet gan datumu, gan laiku"
 "There is not enough room to copy file {name}. Copy other files?" = "Nepietiek vietas faila {name} kopēšanai. Kopēt citus failus?"
 "Confirmation" = "Apstiprinājums"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"

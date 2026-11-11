@@ -486,36 +486,62 @@ def time_text(mtime: float | None, format: str = TIME_FORMAT) -> str:
     return spell_time(datetime.datetime.fromtimestamp(mtime), format)
 
 
-def parse_mtime(
+@dataclass(frozen=True)
+class MtimeChange:
+    """What the dialog's *Date* and *Time* say to set: either half, or both.
+    Each file takes them on its own stamp, as DN's ``CM_SetAttributes`` did
+    (``FLTOOLS.PAS:648-655``: ``UnPackTime``, the halves given put in,
+    ``PackTime``) -- so a time alone keeps every file's own date, and a date
+    alone its own time."""
+
+    #: ``(year, month, day)``, or ``None`` to keep each file's.
+    date: tuple[int, int, int] | None = None
+    #: ``(hour, minute, second)``, or ``None`` to keep each file's.
+    clock: tuple[int, int, int] | None = None
+
+    def stamp(self, own: float) -> float:
+        """*own* with the halves given put in, as a stamp."""
+        when = time.localtime(own)
+        year, month, day = self.date or (when.tm_year, when.tm_mon, when.tm_mday)
+        hour, minute, second = self.clock or (when.tm_hour, when.tm_min, when.tm_sec)
+        return time.mktime((year, month, day, hour, minute, second, 0, 0, -1))
+
+
+def parse_when(
     date: str, clock: str, base: float | None,
     date_format: str = DATE_FORMAT, time_format: str = TIME_FORMAT,
-) -> float | None:
-    """The modification time *date* and *clock* name, or ``None`` to leave it.
+) -> MtimeChange | None:
+    """What *date* and *clock* say to set (:class:`MtimeChange`), or ``None``
+    to leave every file's time.
 
     *date* is read in *date_format*, numbers only (``%d``, ``%m``, ``%y``,
     ``%Y`` and literals): *Country support*'s order, as the dialog's mask
     spells it.  *clock* is ``H:M[:S]``, or with *time_format* holding ``%p``
     ``h:M[:S]`` and ``am``/``pm`` after it, the hour 1 to 12.
 
-    Both blank is *leave it*.  One blank takes that half from *base*, the
-    time every file has now -- and with none to take it from, the whole is
-    needed.  A time that comes to *base* again is *leave it* too, so that
-    opening the dialog and pressing OK does not round a nanosecond stamp to
-    the second.  ``ValueError`` for anything unreadable.
+    Both blank is *leave it*; either alone is set on each file's own stamp.
+    *base*, the time every file has now (None when they differ): a change
+    that comes to it again is *leave it* too, so that opening the dialog and
+    pressing OK does not round a nanosecond stamp to the second.
+    ``ValueError`` for anything unreadable.
     """
     date, clock = date.strip(), clock.strip()
     if not date and not clock:
         return None
-    if base is None and not (date and clock):
-        raise ValueError(tr("Give both a date and a time"))
-    when = time.localtime(base) if base is not None else None
+    day_parts = clock_parts = None
     if date:
-        day, month, year = _date_numbers(date, date_format, tr("{text} is not a valid date"))
+        invalid = tr("{text} is not a valid date")
+        day, month, year = _date_numbers(date, date_format, invalid)
         if year < 100:
             # DN's pivot (``FLTOOLS.PAS:607``): 00-79 are 2000-2079, 80-99 the 1980s and 90s.
             year += 2000 if year < 80 else 1900
-    else:
-        day, month, year = when.tm_mday, when.tm_mon, when.tm_year
+        try:
+            check = time.localtime(time.mktime((year, month, day, 12, 0, 0, 0, 0, -1)))
+        except (OverflowError, ValueError):
+            raise ValueError(invalid.format(text=date)) from None
+        if (check.tm_year, check.tm_mon, check.tm_mday) != (year, month, day):
+            raise ValueError(invalid.format(text=date))
+        day_parts = (year, month, day)
     if clock:
         invalid = tr("{text} is not a valid time")
         half = None
@@ -530,18 +556,31 @@ def parse_mtime(
             if not 1 <= hour <= 12:
                 raise ValueError(invalid.format(text=clock + half))
             hour = hour % 12 + (12 if half == "pm" else 0)
-    else:
-        hour, minute, second = when.tm_hour, when.tm_min, when.tm_sec
-    try:
-        stamp = time.mktime((year, month, day, hour, minute, second, 0, 0, -1))
-        check = time.localtime(stamp)
-    except (OverflowError, ValueError):
-        raise ValueError(tr("{text} is not a valid date").format(text=date or clock)) from None
-    if (check.tm_mday, check.tm_mon) != (day, month) or not (0 <= hour < 24 and 0 <= minute < 60 and 0 <= second < 62):
-        raise ValueError(tr("{text} is not a valid date").format(text=f"{date} {clock}".strip()))
-    if base is not None and int(stamp) == int(base):
+        if not (0 <= hour < 24 and 0 <= minute < 60 and 0 <= second < 62):
+            raise ValueError(invalid.format(text=clock if half is None else clock + half))
+        clock_parts = (hour, minute, second)
+    change = MtimeChange(day_parts, clock_parts)
+    if base is not None:
+        try:
+            if int(change.stamp(base)) == int(base):
+                return None
+        except (OverflowError, ValueError):
+            raise ValueError(tr("{text} is not a valid date").format(text=f"{date} {clock}".strip())) from None
+    return change
+
+
+def parse_mtime(
+    date: str, clock: str, base: float | None,
+    date_format: str = DATE_FORMAT, time_format: str = TIME_FORMAT,
+) -> float | None:
+    """:func:`parse_when` as one stamp, the halves left blank taken from
+    *base* (which a lone half then needs); ``None`` to leave it."""
+    change = parse_when(date, clock, base, date_format, time_format)
+    if change is None:
         return None
-    return stamp
+    if base is None and (change.date is None or change.clock is None):
+        raise ValueError(tr("{text} is not a valid date").format(text=f"{date} {clock}".strip()))
+    return change.stamp(base if base is not None else 0.0)
 
 
 def _date_numbers(text: str, format: str, invalid: str) -> tuple[int, int, int]:
@@ -592,6 +631,8 @@ class AttrRequest:
     gid: int | None = None
     #: The new modification time, or ``None`` to leave it.
     mtime: float | None = None
+    #: Or the halves of it to set on each file's own (:class:`MtimeChange`).
+    when: MtimeChange | None = None
     #: What to change under a tagged directory: one of :data:`RECURSE`.
     recurse: str = NONE
     #: Access-ACL entries to set and to remove, keyed as
@@ -623,7 +664,7 @@ class AttrRequest:
     def changes_nothing(self) -> bool:
         return not (
             self.set_bits or self.clear_bits or self.uid is not None
-            or self.gid is not None or self.mtime is not None
+            or self.gid is not None or self.mtime is not None or self.when is not None
             or self.changes_acl or self.xattr_set or self.xattr_remove or self.changes_flags
         )
 
@@ -699,8 +740,9 @@ def apply_one(path: Path, request: AttrRequest, *, follow: bool = True, as_root:
         for name, value in sorted(request.xattr_set.items()):
             drive.setxattr(where, name, value, follow=follow)
 
-    if request.mtime is not None:
-        drive.utime(where, st.st_atime_ns, int(request.mtime * 1e9), follow=follow)
+    if request.mtime is not None or request.when is not None:
+        stamp = request.mtime if request.mtime is not None else request.when.stamp(st.st_mtime)
+        drive.utime(where, st.st_atime_ns, int(stamp * 1e9), follow=follow)
 
     if flags is not None:
         drive.set_flags(where, flags, follow=follow)
@@ -924,6 +966,6 @@ __all__ = [
     "XATTR_NAMESPACES", "check_xattr_name", "parse_value", "spell_value", "read_acl", "read_xattrs",
     "ALL", "AttrJob", "AttrRequest", "BITS", "CHANGING", "DIRS", "FILES", "MODE_MASK", "NONE",
     "RECURSE", "Survey", "apply_one", "assignable_groups", "can_chown_user", "date_text",
-    "from_items", "group_name", "groups", "octal", "parse_group", "parse_mtime", "parse_octal",
+    "from_items", "group_name", "groups", "octal", "parse_group", "parse_mtime", "parse_octal", "parse_when", "MtimeChange",
     "parse_user", "run", "survey", "symbolic", "time_text", "to_items", "user_name", "users",
 ]

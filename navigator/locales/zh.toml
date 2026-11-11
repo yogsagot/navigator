@@ -3147,8 +3147,6 @@ flag = "CN"
 "There is no group {name}" = "没有组 {name}"
 # navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} 不是有效的时间"
-# navigator/lib/file_ops/fileattr.py:510
-"Give both a date and a time" = "请同时给出日期和时间"
 # navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} 不是有效的日期"
 # navigator/lib/file_ops/fileattr.py:127
@@ -6840,6 +6838,7 @@ flag = "CN"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Give both a date and a time" = "请同时给出日期和时间"
 "There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
 "Confirmation" = "确认"
 "Year" = "年份"

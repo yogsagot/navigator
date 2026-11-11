@@ -106,7 +106,7 @@ def test_the_date_is_in_country_support_s_order_and_read_back_in_it(tmp_path):
     assert (dialog.date.value, dialog.date.entry.mask) == ("03/05/2024", "99/99/9999")
     assert dialog.accept() is None
     dialog.date.value = "03/06/2024"
-    assert dialog.accept().mtime == stamp + 86400
+    assert dialog.accept().when.stamp(stamp) == stamp + 86400
 
 
 def test_the_time_is_in_twelve_hours_when_country_support_says_so(tmp_path):
@@ -118,7 +118,7 @@ def test_the_time_is_in_twelve_hours_when_country_support_says_so(tmp_path):
     assert (dialog.clock.value, dialog.clock.entry.mask) == ("09:20:30pm", "99:99:99Am")
     assert dialog.accept() is None
     dialog.clock.value = "09:20:30am"
-    assert dialog.accept().mtime == stamp - 12 * 3600
+    assert dialog.accept().when.stamp(stamp) == stamp - 12 * 3600
 
 
 def test_a_custom_date_with_names_is_typed_in_the_european_order(tmp_path):
@@ -361,6 +361,30 @@ def test_f4_on_a_tagged_directory_changes_it_and_leaves_its_tag(two):
     names, marked = run_shell(a, b, steps)
     assert names == ["dir"] and mode_of(a / "dir") == 0o775
     assert marked == frozenset({"dir", "one.txt"})
+
+
+def test_a_time_alone_on_files_of_different_days_sets_each_on_its_own_day(two):
+    # Was refused (*Give both a date and a time*); DN set each file's time.
+    a, b = two
+    os.utime(a / "one.txt", (0, time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))))
+    os.utime(a / "two.txt", (0, time.mktime((2023, 7, 9, 18, 5, 0, 0, 0, -1))))
+
+    async def steps(app, shell):
+        panel = shell.manager.left
+        panel.marked = frozenset({"one.txt", "two.txt"})
+        await open_attributes(app)
+        dialog = app.modal
+        shown = (dialog.date.value, dialog.clock.value)
+        dialog.clock.value = "09:00:00"
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: app.modal is None and not panel.marked)
+        return shown
+
+    shown = run_shell(a, b, steps)
+    assert shown == ("", "")
+    days = [time.localtime((a / name).stat().st_mtime) for name in ("one.txt", "two.txt")]
+    assert [(t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min) for t in days] == [
+        (2024, 3, 5, 9, 0), (2023, 7, 9, 9, 0)]
 
 
 def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):

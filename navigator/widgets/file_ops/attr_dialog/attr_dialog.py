@@ -733,8 +733,9 @@ class AttrDialog(Dialog):
         clear_bits = fileattr.from_items(changed & ~value)
         uid = fileattr.parse_user(self.user.value) if not self.user.disabled else None
         gid = fileattr.parse_group(self.group.value)
-        mtime = fileattr.parse_mtime(self.date.value, self.clock.value, survey.mtime,
-                                     self.date.date_format, self.clock.time_format)
+        # DN's: a lone date or time is set on each file's own stamp.
+        when = fileattr.parse_when(self.date.value, self.clock.value, survey.mtime,
+                                   self.date.date_format, self.clock.time_format)
         recurse = fileattr.RECURSE[self.recurse.value] if survey.dirs else fileattr.NONE
         request = fileattr.AttrRequest(
             sources=list(self._paths),
@@ -742,7 +743,7 @@ class AttrDialog(Dialog):
             clear_bits=clear_bits,
             uid=None if uid == survey.uid else uid,
             gid=None if gid == survey.gid else gid,
-            mtime=mtime,
+            when=when,
             recurse=recurse,
             as_root=self.as_root,
         )

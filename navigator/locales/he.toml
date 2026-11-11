@@ -3148,8 +3148,6 @@ direction = "rtl"
 "There is no group {name}" = "אין קבוצה {name}"
 # navigator/lib/file_ops/fileattr.py:519
 "{text} is not a valid time" = "{text} אינו זמן תקין"
-# navigator/lib/file_ops/fileattr.py:510
-"Give both a date and a time" = "יש לתת גם תאריך וגם שעה"
 # navigator/lib/file_ops/fileattr.py:513, navigator/lib/file_ops/fileattr.py:540, navigator/lib/file_ops/fileattr.py:538
 "{text} is not a valid date" = "{text} אינו תאריך תקין"
 # navigator/lib/file_ops/fileattr.py:127
@@ -6841,6 +6839,7 @@ direction = "rtl"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Give both a date and a time" = "יש לתת גם תאריך וגם שעה"
 "There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
 "Confirmation" = "אישור"
 "~Name~" = "~שם~"

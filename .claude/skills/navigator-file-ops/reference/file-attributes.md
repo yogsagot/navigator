@@ -10,7 +10,10 @@ dump, so what DN's loop did is read off its two dialogs and their help.
   - `survey(paths)` works out what a selection has in common: the bits every file has, the bits they disagree on
     (`mixed`), and the owner, group and mtime where they agree.
   - `AttrRequest` holds `set_bits`/`clear_bits`, where a bit in neither is left alone. The owner, group and mtime
-    are `None` to leave them, and `recurse` is `none`/`files`/`dirs`/`all`.
+    are `None` to leave them, and `recurse` is `none`/`files`/`dirs`/`all`. The dialog's *Date* and *Time* arrive
+    as `when`, an `MtimeChange` (`parse_when`): the halves given, put into each file's own stamp as DN's
+    `UnPackTime`/`PackTime` did (`FLTOOLS.PAS:648-655`), so a time alone keeps every file's date, a date alone its
+    time. Either half may be given alone, whether or not the files share a time.
   - `AttrJob` and `run` work on a thread through `Manager._watch_job`. Failures go to Copy's *Skip*/*Cancel*, and
     the progress box is `DeleteProgress` retitled *Attributes*, which shows only for a long recursion.
 - **One dialog over every tagged file**, as `dlgFilesAttr` was. DN gave each bit a *Set* column and a *Clear*
@@ -73,6 +76,12 @@ dump, so what DN's loop did is read off its two dialogs and their help.
   - A two-digit year is DN's: 00-79 are 2000-2079 and 80-99 the 1980s and 90s (`FLTOOLS.PAS:607`).
   - F4 on a directory (DN's `Single`) changes that one and leaves the tags alone, as DN's `if not Single then
     PF^.Selected := Off` did. Alt+E untags what it changed.
+- **Departures in what many files get:**
+  - **Only a file changed without a failure is untagged**; a skipped or failed one keeps its tag to try again. DN
+    untagged every file it processed (`:669`).
+  - **The progress box shows only for a long run** (`SLOW_PROGRESS_DELAY`), as every job's here. DN always put up
+    *Setting Attributes* naming each file (`:612-620`).
+  - ***Recurse*** into tagged directories is Navigator's own: DN changed the tagged entries alone.
 - **Departures in the date and time:**
   - **A directory's date and time are shown and set.** DN's dialog had no date or time for a directory (DOS gave a
     directory no time to set, `FLTOOLS.PAS:535-539, 650`); a POSIX directory has an mtime worth setting.
