@@ -1784,8 +1784,9 @@ class Panel(ListViewer):
         DN's drive part was ``C:``, up to the first colon.  A POSIX path has
         none: the drive part is the path up to its first ``/`` -- a local
         path's root, ``~/``, or a drive's ``ZIP:a.zip:/`` as ``get_dir`` writes
-        it, as DN's ``C:\\`` was.  A title cut at its start, or a *Find:*
-        listing's, has only its first cell, as DN's ``I := 0`` left it."""
+        it, as DN's ``C:\\`` was; a title cut in its middle keeps it
+        (:meth:`_cut_title`).  One too narrow for that, cut at its start, or a
+        *Find:* listing's, has only its first cell, as DN's ``I := 0`` left it."""
         if not self.framed or y != 0 or self.error is not None or self.quick_search is not None:
             return None
         text = self.title_text()
@@ -2954,7 +2955,7 @@ class Panel(ListViewer):
         mark = self.remembered_mark()
         prefix = f"{mark} " if mark else ""
         space = room - len(suffix) - len(branch) - len(prefix)
-        title = self._cut_start(title, space)
+        title = self._cut_start(title, space) if self.found is not None else self._cut_title(title, space)
         return f" {prefix}{title}{suffix}{branch} "
 
     def footer_text(self) -> str:
@@ -3344,6 +3345,25 @@ class Panel(ListViewer):
         reorders nothing, so ``photo`` + U+202E + ``gpj.exe`` cannot pass for
         a picture.  A departure: DOS names had no such characters."""
         return reveal(item.name, glyphs_module.hidden_mark(self.glyphs))
+
+    def _cut_title(self, text: str, room: int) -> str:
+        """The title's path in *room* characters, cut in its middle: the drive
+        part kept, then the ellipsis, then as much of the end as fits.
+
+        DN's ``TTopView.Draw`` wrote ``C:\\...\\tail``, deleting after the
+        first colon and the character beyond it.  The drive part here is the
+        path up to its first ``/`` (:meth:`title_part_at`'s): a local path's
+        root, or a drive's ``ZIP:a.zip:/``.  Where even that would not fit,
+        the start is cut as :meth:`_cut_start` cuts it."""
+        if len(text) <= room:
+            return text
+        slash = text.find("/")
+        marker = self.ellipsis
+        head = text[:slash + 1] if slash >= 0 else ""
+        tail = room - len(head) - len(marker)
+        if not head or tail < 1:
+            return self._cut_start(text, room)
+        return head + marker + text[-tail:]
 
     def _cut_start(self, text: str, room: int) -> str:
         """*text* in *room* characters, its start cut and marked if it must be."""

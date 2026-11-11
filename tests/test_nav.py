@@ -332,6 +332,19 @@ def test_the_panel_title_and_footer_follow_the_width(panel, tree):
     assert len(panel.title_text()) <= panel.width
 
 
+def test_a_cut_title_keeps_its_drive_part(panel, tree):
+    """DN's ``TTopView.Draw``: ``C:\\...\\tail`` -- the drive and its root
+    kept, the middle cut, the end shown; here ``/…tail``."""
+    panel.width = 20
+    title = panel.title_text().strip()
+    assert title.startswith("/" + panel.ellipsis)
+    assert str(panel.title_location).endswith(title[1 + len(panel.ellipsis):])
+    assert len(panel.title_text()) <= panel.width - 2
+    start = panel.label_x(panel.title_text())
+    assert panel.title_part_at(start + 1, 0) == "drive"
+    assert panel.title_part_at(start + 3, 0) == "directory"
+
+
 def test_the_left_panel_starts_active():
     """And "active" is now "holds the keyboard", not a flag of its own.
 

@@ -153,8 +153,9 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   is `..`. Never in an archive. No sort mode. File > Links > *Show hard links* lists the names (`navigator-file-ops`).
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
 - A too-long name ends in `…` (`fit_text`, in cells) and starts with one while scrolled (`window_text`); `...` at the
-  ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`), and the title and footer path cut their start with the
-  same marker. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
+  ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`). The title's path is cut in its middle with the same marker,
+  its drive part kept (`Panel._cut_title`, DN's `TTopView.Draw` writing `C:\...\tail`): `/…/deep/dir`,
+  `ZIP:a.zip:/…src`; only one too narrow for that, and the footer's and a *Find:* title, cut their start. In simple and detailed, Left/Right scroll every name a cell (`ScrollNames`, `Panel.name_scroll`, clamped, reset by directory or mode
   change) -- disabled while the command line has text, so the caret moves.
   **The names' scroll has a bar** (`Panel.hbar`, a departure, asked for, as the editor's). It runs on the bottom frame
   from a cell in to a cell short of the option strip, with value `name_offset` and range `max_name_scroll`, the
@@ -211,7 +212,8 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - **A press on the title** (`Panel.title_part_at`, DN's `TTopView.HandleEvent`): the panel takes the keyboard, then
   its drive part opens the bookmarks (`ChangeDrive`, DN's `cmChangeDrive`) and the rest *Change directory*
   (`ChangeDirectory`, `cmChangeDir`). DN's drive part was `C:`; here it is the path up to its first `/` (`/`, `~/`,
-  `ZIP:a.zip:/`), only the first cell when the title is cut at its start or is a *Find:* listing's. The titles sit
+  `ZIP:a.zip:/`), kept by a title cut in its middle; only the first cell when the title is cut at its start or is a *Find:*
+  listing's. The titles sit
   on the window's top row, so `Manager.chrome_hit` gives up its "move" over a title's text: the rest of the row
   still drags the window.
 - **The divider's tooltip** is `Manager.tooltip_at`, over exactly what `divider_hit` grabs: drag, Alt+Left/Right (read
