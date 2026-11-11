@@ -579,14 +579,15 @@ def test_the_dialog_is_laid_out_as_ttreedialog_lays_it_out(places):
 
 @pytest.mark.parametrize("size, expected", [
     # The original's 49 by 17 is the floor ...
-    ((80, 24), (60, 19, 3)),
-    # ... and the dialog grows with the screen, and its controls with it.
-    ((120, 40), (90, 32, 6)),
+    ((80, 24), (60, 19)),
+    # ... and the dialog grows with the screen, its tree with it; the buttons
+    # stay in a compact column at the top, three rows apart.
+    ((120, 40), (90, 32)),
 ])
 def test_the_dialog_takes_its_size_from_the_screen(places, size, expected):
     from test_nav import navigator
 
-    width, height, step = expected
+    width, height = expected
     seen = []
     app = navigator(places, size=size)
 
@@ -604,7 +605,7 @@ def test_the_dialog_takes_its_size_from_the_screen(places, size, expected):
         (width, height),
         (1, 1, width - 15, height - 3),
         (height - 2, width - 16),
-        [(width - 13, 2 + i * step, 11) for i in range(5)],
+        [(width - 13, 2 + i * 3, 11) for i in range(5)],
     )]
 
 

@@ -17,8 +17,9 @@ from navml.widgets.dialog.tree_view import TreeView
 #: fixed 49 by 17, which on a modern terminal shows a sliver of a deep tree;
 #: this one takes three quarters of the width and four fifths of the height,
 #: never less than the original's, and every control inside is placed against
-#: the dialog's edges, so they grow with it.  The buttons spread down the
-#: column, three rows apart at the original size and wider apart as it grows.
+#: the dialog's edges, so they grow with it.  The buttons stay three rows
+#: apart from the top of the column, as the original's were, however tall it
+#: grows.
 ChangeDirDialog(Dialog):
     modal_width: max(49, min(parent.width - 4, parent.width * 3 // 4)) if parent is not None else 49
     modal_height: max(17, min(parent.height - 2, parent.height * 4 // 5)) if parent is not None else 17
@@ -62,7 +63,7 @@ ChangeDirDialog(Dialog):
         text: "~D~rive..."
         disabled: True
         x: max(0, parent.width - 13)
-        y: 2 + max(3, (parent.height - 2) // 5)
+        y: 5
         width: 11
         height: 2
 
@@ -70,7 +71,7 @@ ChangeDirDialog(Dialog):
         id: reread
         text: "~R~e-read"
         x: max(0, parent.width - 13)
-        y: 2 + 2 * max(3, (parent.height - 2) // 5)
+        y: 8
         width: 11
         height: 2
 
@@ -78,7 +79,7 @@ ChangeDirDialog(Dialog):
         id: mkdir
         text: "~M~kDir"
         x: max(0, parent.width - 13)
-        y: 2 + 3 * max(3, (parent.height - 2) // 5)
+        y: 11
         width: 11
         height: 2
 
@@ -86,6 +87,6 @@ ChangeDirDialog(Dialog):
         id: abandon
         text: "Cancel"
         x: max(0, parent.width - 13)
-        y: 2 + 4 * max(3, (parent.height - 2) // 5)
+        y: 14
         width: 11
         height: 2

@@ -99,8 +99,8 @@ through them.
 - The path under the cursor is the one row below it: `TDTreeInfoView`, one row tall, so only its first line shows.
   It uses the information pane's colours, [61].
 - The buttons stand in a column on the right, 11 wide, 13 cells in from the right edge: `O~K~`, `~D~rive...`,
-  `~R~e-read`, `~M~kDir` and `Cancel`. They start at row 2 and are spread down the column, `max(3, (height - 2) // 5)`
-  rows apart -- the original's rows 2, 5, 8, 11 and 14 at its own size.
+  `~R~e-read`, `~M~kDir` and `Cancel`. They sit at the original's rows 2, 5, 8, 11 and 14 however tall the dialog
+  grows: spreading them down a taller column left them scattered, so the column stays compact at the top.
 - `Dialog`'s own bottom row of buttons is hidden, since this layout is not that one.
 
 Behaviour:
