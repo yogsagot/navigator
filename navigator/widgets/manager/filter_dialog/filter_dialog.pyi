@@ -8,6 +8,7 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.widgets.manager.filter_dialog.filter_list import FilterList
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 
 from typing import Any

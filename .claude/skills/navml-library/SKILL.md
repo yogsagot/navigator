@@ -348,8 +348,9 @@ Python-only `Layout` that paints nothing, replaced every container's placement a
   `style:` `basis` wins. `button_width: 0` sizes each `Button` by its caption plus `BUTTON_CHROME` (5). A hidden button
   gives up its slot, so the rest stay centred.
 - **A dialog that needs other buttons declares its own `ButtonRow`** under `anchors: left: 0 / right: 0 / bottom: 2`
-  and hides `row`. It does not hand-place x values, unless DN's own x values are not centred: transcribed literals win
-  where fidelity needs them.
+  and hides `row`, rather than hand-placing x values. Where DN's columns are not exactly centred, keep them:
+  `justify: "start"` with `anchors: left: X` at the first button's column, and DN's `spacing`/`button_width` (Overwrite
+  query, the UU boxes).
 - Geometry outside a layout is better said with an `anchors:` block (`navml-markup`) than with
   `parent.width - K` arithmetic.
 

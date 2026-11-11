@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -126,20 +127,21 @@ FindDialog(Dialog):
         width: 16
         height: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 32
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 0
         y: 15 if root.replace else 12
-        width: 10
-        height: 2
+        anchors:
+            left: 32
+            right: 0
 
-    #: No help is written yet: shown, and disabled.
-    Button:
-        id: helper
-        text: "Help"
-        disabled: True
-        x: 42
-        y: 15 if root.replace else 12
-        width: 10
-        height: 2
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: No help is written yet: shown, and disabled.
+        Button:
+            id: helper
+            text: "Help"
+            disabled: True

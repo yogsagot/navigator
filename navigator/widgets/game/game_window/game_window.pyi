@@ -11,6 +11,7 @@ from navigator.widgets.game.game_window.glass import Glass
 from navigator.widgets.game.game_window.info import GameInfo
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu

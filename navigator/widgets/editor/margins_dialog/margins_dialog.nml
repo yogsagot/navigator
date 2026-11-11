@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
@@ -37,29 +38,26 @@ MarginsDialog(Dialog):
         label_text: "~P~aragraph"
         label_width: 18
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 7
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 0
         y: 8
-        width: 10
-        height: 2
+        anchors:
+            left: 7
+            right: 0
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 17
-        y: 8
-        width: 10
-        height: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    #: No help is written yet: shown, and disabled.
-    Button:
-        id: helper
-        text: "Help"
-        disabled: True
-        x: 27
-        y: 8
-        width: 10
-        height: 2
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: No help is written yet: shown, and disabled.
+        Button:
+            id: helper
+            text: "Help"
+            disabled: True

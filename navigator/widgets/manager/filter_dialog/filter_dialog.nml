@@ -1,5 +1,6 @@
 from navigator.widgets.manager.filter_dialog.filter_list import FilterList
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 
 #: Alt+Del, Panel > Selection > Advanced filter: DOS Navigator's ``dlgAdvancedFilter``.
@@ -20,25 +21,24 @@ FilterDialog(Dialog):
             bottom: 5
 
     #: DN's ``cmOK``: what is marked, shown.
-    Button:
-        id: show
-        text: "~S~how"
-        default: True
-        x: 2
-        width: 10
-        height: 2
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 1
         anchors:
+            left: 2
+            right: 0
             bottom: 2
 
-    #: DN's ``cmNo``: what is marked, hidden.
-    Button:
-        id: hide
-        text: "~H~ide"
-        x: 13
-        width: 10
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: show
+            text: "~S~how"
+            default: True
+
+        #: DN's ``cmNo``: what is marked, hidden.
+        Button:
+            id: hide
+            text: "~H~ide"
 
     Button:
         id: abandon

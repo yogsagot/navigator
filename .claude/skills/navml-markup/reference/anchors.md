@@ -57,12 +57,14 @@ could prove equal: a literal start with `max(0, parent.width - K)`, an end edge 
 - 417 blocks are anchored.
 - Every markup-built widget that constructs without arguments was laid out at 80x25 and at 120x40 before and after the
   rewrite. Its absolute rectangles came out identical.
-- **Six `ButtonRow`s**: Dialog's, Copy's and Link's rows, the editor's Replace query, and the two queries whose
-  Python `slot()` did the same sum (UU's *Exists*, Replace in files'). These are the rows whose DN x values are exactly
-  centred at two cells apart.
-- **Nineteen rows keep their literal x values.** DOS Navigator rounded their centring differently, or did not centre
-  them at all (among them Find, Margins, Archive, the UU, Split and Combine boxes, Overwrite, the game, the calculator). A
-  `ButtonRow` there moves a button by a cell, so fidelity wins. Their buttons still anchor `bottom`.
+- **Every hand-placed row of equal buttons is a `ButtonRow`, 25 in all.**
+  - Six are centred: Dialog's, Copy's and Link's rows, the editor's Replace query, and the two queries whose Python
+    `slot()` did the same sum (UU's *Exists*, Replace in files'). Their DN x values are exactly centred at two cells
+    apart.
+  - **Nineteen are `justify: "start"` with `anchors: left: X`** at the first button's DN column. DOS Navigator rounded
+    their centring differently, or did not centre them at all (among them Find, Margins, Archive, the UU, Split and
+    Combine boxes, Overwrite, the game, the calculator, Command history). Re-centring would move a button by a cell or
+    more, so fidelity wins. Their `spacing` and `button_width` are DN's: 0 and 1 occur, as do 10 and 12.
 - **Left as expressions, about 70 lines**:
   - width breakpoints (`35 if parent.width >= 67 else 30`);
   - floors other than 0 (`max(1, parent.width - 30)`);

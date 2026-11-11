@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
@@ -46,38 +47,26 @@ OverwriteQuery(Dialog):
         anchors:
             bottom: 2
 
-    Button:
-        id: append
-        text: "A~p~pend"
-        x: 16
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
+        spacing: 1
         anchors:
+            left: 16
+            right: 0
             bottom: 2
 
-    Button:
-        id: rename
-        text: "~R~ename"
-        x: 28
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: append
+            text: "A~p~pend"
 
-    Button:
-        id: skip
-        text: "~S~kip"
-        x: 40
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: rename
+            text: "~R~ename"
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 52
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: skip
+            text: "~S~kip"
+
+        Button:
+            id: abandon
+            text: "Cancel"

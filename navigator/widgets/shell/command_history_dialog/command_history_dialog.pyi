@@ -8,6 +8,7 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navigator.widgets.shell.command_history_dialog.history_list import HistoryList
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 
 from typing import Any

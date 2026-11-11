@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -62,21 +63,18 @@ CalculateChecksumsDialog(Dialog):
         history_id: "checksum"
         disabled: mode.value != 0
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 17
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 17
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 30
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"

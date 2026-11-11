@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -67,30 +68,22 @@ SplitDialog(Dialog):
             right: 2
         items: ["~W~rite checksum file (.crc)"]
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 5
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 5
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 18
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    Button:
-        id: tree
-        text: "~T~ree"
-        x: 31
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        Button:
+            id: tree
+            text: "~T~ree"

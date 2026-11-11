@@ -3,6 +3,7 @@ from navigator.widgets.game.game_window.glass import Glass
 from navigator.widgets.game.game_window.info import GameInfo
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
@@ -47,37 +48,37 @@ GameWindow(Window):
         width: 23
         height: 15
 
-    Button:
-        id: new_button
-        text: "~N~ew"
-        x: 28
+    ButtonRow:
+        justify: "start"
+        spacing: 0
         y: 17
-        width: 11
-        height: 2
+        anchors:
+            left: 28
+            right: 0
 
-    Button:
-        id: setup_button
-        text: "~S~etup"
-        x: 39
-        y: 17
-        width: 11
-        height: 2
+        Button:
+            id: new_button
+            text: "~N~ew"
 
-    Button:
-        id: top_button
-        text: "~T~op 10"
-        x: 28
+        Button:
+            id: setup_button
+            text: "~S~etup"
+
+    ButtonRow:
+        justify: "start"
+        spacing: 0
         y: 19
-        width: 11
-        height: 2
+        anchors:
+            left: 28
+            right: 0
 
-    Button:
-        id: pause_button
-        text: "~P~ause"
-        x: 39
-        y: 19
-        width: 11
-        height: 2
+        Button:
+            id: top_button
+            text: "~T~op 10"
+
+        Button:
+            id: pause_button
+            text: "~P~ause"
 
     #: The window's own menu on the bar after *File* while it is active -- a
     #: departure, asked for: DN had its status line, whose ``~+~ Level`` and

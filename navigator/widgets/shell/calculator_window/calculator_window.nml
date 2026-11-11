@@ -6,6 +6,7 @@ from navigator.widgets.shell.calculator_window.keypad import Keypad
 from navkit.widget import Widget
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History
@@ -236,21 +237,22 @@ CalculatorWindow(Window):
             height: 2
 
         #: DN's ``cmCopyClip``: the value, in *Copy As*'s form, on the clipboard.
-        Button:
-            id: copy_button
-            text: "~C~opy"
-            x: 16
+        ButtonRow:
+            justify: "start"
+            button_width: 10
+            spacing: 1
             y: 7
-            width: 10
-            height: 2
+            anchors:
+                left: 16
+                right: 0
 
-        Button:
-            id: close_button
-            text: "Close"
-            x: 27
-            y: 7
-            width: 10
-            height: 2
+            Button:
+                id: copy_button
+                text: "~C~opy"
+
+            Button:
+                id: close_button
+                text: "Close"
 
     #: Programming's forms, the base the line is typed in chosen beside them,
     #: and the word.

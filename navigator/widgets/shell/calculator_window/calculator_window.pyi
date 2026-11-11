@@ -14,6 +14,7 @@ from navigator.widgets.shell.calculator_window.keypad import Keypad
 from navkit.widget import Widget
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History

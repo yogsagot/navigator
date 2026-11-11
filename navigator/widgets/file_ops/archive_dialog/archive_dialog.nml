@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -123,41 +124,28 @@ ArchiveDialog(Dialog):
             left: 2
             right: 2
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 6
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 6
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 19
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    Button:
-        id: tree
-        text: "~T~ree"
-        x: 32
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: abandon
+            text: "Cancel"
 
-    #: There is no help to show yet: shown, and disabled, as Copy's is.
-    Button:
-        id: help
-        text: "Help"
-        disabled: True
-        x: 45
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: tree
+            text: "~T~ree"
+
+        #: There is no help to show yet: shown, and disabled, as Copy's is.
+        Button:
+            id: help
+            text: "Help"
+            disabled: True

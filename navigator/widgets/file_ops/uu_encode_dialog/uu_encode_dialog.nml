@@ -1,5 +1,6 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -99,30 +100,22 @@ UUEncodeDialog(Dialog):
         height: 1
         items: ["~D~OS <CR>+<LF>", "~U~NIX"]
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 12
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 12
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 25
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
 
-    Button:
-        id: tree
-        text: "T~r~ee"
-        x: 38
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        Button:
+            id: tree
+            text: "T~r~ee"

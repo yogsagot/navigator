@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
@@ -51,21 +52,18 @@ ColumnsDialog(Dialog):
         width: 11
         height: 2
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 7
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 7
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 20
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"

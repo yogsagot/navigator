@@ -1,5 +1,6 @@
 from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, ReadLiveLinks, SaveLinkEntry
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -203,21 +204,22 @@ LinkManagerDialog(Dialog):
         width: 13
         height: 2
 
-    Button:
-        id: save
-        text: "Sav~e~"
-        x: 16
+    ButtonRow:
+        justify: "start"
+        button_width: 12
+        spacing: 1
         y: 16
-        width: 12
-        height: 2
+        anchors:
+            left: 16
+            right: 0
 
-    Button:
-        id: delete
-        text: "Dele~t~e"
-        x: 29
-        y: 16
-        width: 12
-        height: 2
+        Button:
+            id: save
+            text: "Sav~e~"
+
+        Button:
+            id: delete
+            text: "Dele~t~e"
 
     Button:
         id: connect

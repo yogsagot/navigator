@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -108,21 +109,18 @@ EncryptDialog(Dialog):
         items: ["~A~SCII armor", "~D~elete originals"]
         tooltips: ["Write the encrypted files as text (gpg names them .asc)", "Remove each file once its encrypted copy is written"]
 
-    Button:
-        id: pick
-        text: "O~K~"
-        default: True
-        x: 19
-        width: 11
-        height: 2
+    ButtonRow:
+        justify: "start"
         anchors:
+            left: 19
+            right: 0
             bottom: 2
 
-    Button:
-        id: abandon
-        text: "Cancel"
-        x: 32
-        width: 11
-        height: 2
-        anchors:
-            bottom: 2
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
