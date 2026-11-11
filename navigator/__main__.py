@@ -739,6 +739,11 @@ class Navigator(Application):
         if console.tracks_mouse:
             # The program turned the mouse on: the wheel is its to scroll.
             return False
+        if console.busy and console.screen.alternate:
+            # A full-screen program's alternate screen keeps no history to
+            # scroll.  (Turning the wheel into arrow keys there, as xterm's
+            # *alternateScroll* does, is not done.)
+            return False
         if not console.contains(event.x, event.y):
             return False
         console.scroll_lines(-WHEEL_LINES if event.button == "wheel_up" else WHEEL_LINES)

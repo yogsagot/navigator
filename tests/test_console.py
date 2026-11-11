@@ -276,6 +276,20 @@ def test_the_alternate_screen_keeps_nothing_in_the_scrollback():
     assert len(console.screen.history.top) == 0
 
 
+def test_the_alternate_screen_is_never_scrolled():
+    # Paging pyte's history there moved a full-screen program's display and
+    # dragged the shell's lines into it.
+    console = ConsoleScreen(20, 5, history=50)
+    console.feed(b"".join(b"line%d\r\n" % n for n in range(12)))
+    console.feed(b"\x1b[?1049h\x1b[2J\x1b[HALT0\r\nALT1")
+    console.scroll(-2)
+    console.scroll_to_top()
+    assert [row.rstrip() for row in console.screen.display] == ["ALT0", "ALT1", "", "", ""]
+    console.feed(b"\x1b[?1049l")
+    console.scroll(-2)
+    assert console.scrolled_back  # the main screen's history scrolls as before
+
+
 def test_a_query_is_answered_down_the_pty():
     console = feed(b"abc")
     answers = []

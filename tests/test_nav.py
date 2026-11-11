@@ -1970,6 +1970,52 @@ def test_the_wheel_scrolls_the_console_rather_than_a_panel(tree, quiet_console):
     assert app.manager.left.cursor == 0
 
 
+def _full_screen(a):
+    """A program running on the console's alternate screen, over some history."""
+    running(a)
+    a.shell.console._on_output(b"".join(b"line%d\r\n" % n for n in range(60)))
+    a.shell.console._on_output(b"\x1b[?1049h\x1b[2J\x1b[HFULL")
+
+
+def test_shift_pageup_goes_to_a_full_screen_program(tree, quiet_console):
+    app = navigator(tree)
+    sent = []
+    seen = {}
+
+    def record(a):
+        a.shell.console.send = lambda event: sent.append(event.key) or True
+
+    run_app(app, [KeyEvent("o", ctrl=True), _full_screen, record,
+                  KeyEvent("pageup", shift=True), KeyEvent("pagedown", shift=True),
+                  lambda a: seen.update(back=a.shell.console.screen.scrolled_back,
+                                        top=a.shell.console.screen.screen.display[0].rstrip())])
+    assert sent == ["pageup", "pagedown"]
+    assert seen == {"back": False, "top": "FULL"}
+
+
+def test_the_wheel_leaves_a_full_screen_program_alone(tree, quiet_console):
+    app = navigator(tree)
+    seen = {}
+    run_app(app, [KeyEvent("o", ctrl=True), _full_screen,
+                  MouseClickEvent(x=10, y=10, button="wheel_up", action="press"),
+                  lambda a: seen.update(back=a.shell.console.screen.scrolled_back,
+                                        top=a.shell.console.screen.screen.display[0].rstrip())])
+    assert seen == {"back": False, "top": "FULL"}
+
+
+def test_shift_pageup_still_scrolls_a_busy_main_screen(tree, quiet_console):
+    app = navigator(tree)
+    seen = {}
+
+    def output(a):
+        running(a)
+        a.shell.console._on_output(b"".join(b"line%d\r\n" % n for n in range(60)))
+
+    run_app(app, [KeyEvent("o", ctrl=True), output, KeyEvent("pageup", shift=True),
+                  lambda a: seen.update(back=a.shell.console.screen.scrolled_back)])
+    assert seen["back"] is True
+
+
 def test_the_console_runs_a_real_child(tree, monkeypatch):
     """End to end: a command line's output really does end up behind the panels.
 

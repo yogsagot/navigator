@@ -246,7 +246,7 @@ class ScreenView(ContextMenuHost, Widget):
         terminal leaves them), and while nothing runs the bare PgUp/PgDn a page
         and Home/End all the way.  A full-screen program on the alternate
         screen has no scrollback and gets Shift+Up/Down, which editors select
-        with.
+        with, and Shift+PgUp/PgDn, which ``less`` and ``mc`` page with.
 
         **While a program runs the rest is the program's**, swallowed whether
         or not there is a child to send it to, so a keystroke aimed at ``vim``
@@ -255,17 +255,18 @@ class ScreenView(ContextMenuHost, Widget):
         page = self.screen.lines
         idle = not self.busy
         half = (page + 1) // 2
-        if event.matches("shift+pageup"):
+        full_screen = self.busy and self.screen.alternate
+        if event.matches("shift+pageup") and not full_screen:
             self.scroll_lines(-half)
-        elif event.matches("shift+pagedown"):
+        elif event.matches("shift+pagedown") and not full_screen:
             self.scroll_lines(half)
         elif idle and event.matches("pageup"):
             self.scroll_lines(-page)
         elif idle and event.matches("pagedown"):
             self.scroll_lines(page)
-        elif event.matches("shift+up") and not (self.busy and self.screen.alternate):
+        elif event.matches("shift+up") and not full_screen:
             self.scroll_lines(-1)
-        elif event.matches("shift+down") and not (self.busy and self.screen.alternate):
+        elif event.matches("shift+down") and not full_screen:
             self.scroll_lines(1)
         elif idle and event.matches("home"):
             self.screen.scroll_to_top()

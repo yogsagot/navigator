@@ -495,7 +495,13 @@ class ConsoleScreen:
         pyte only pages, by ``history.ratio`` of the screen, so the ratio is
         set for the one step to a fraction that rounds up to exactly *lines*
         (pyte takes the ceiling) and put back afterwards.
+
+        Nothing on the alternate screen: it keeps no history
+        (:attr:`scroll_extent`), and paging pyte's would move a full-screen
+        program's display and drag the shell's lines into it.
         """
+        if self.alternate:
+            return
         count = min(abs(lines), self.lines)
         if not count:
             return
