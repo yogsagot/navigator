@@ -26,7 +26,8 @@ navkit grew `raise_child`/`lower_child`, `Application.capture_mouse` and `Widget
 
 - **A window's title keeps clear of its icons** (`Window._title_span`): between `[■]` and `[↑]`/`[↕]`, a blank from
   each, cut by painted width with `…` (`_fit`), centred on the whole top edge where it fits and slid clear where it does
-  not; the title tooltip names the whole title when it was cut.
+  not; the title tooltip names the whole title when it was cut. A `Modal`'s `[■]` is at the same column (`CLOSE_X`, 2:
+  Turbo Vision's `TFrame` drew a dialog's close icon at the left like any window's), its centred title slid clear of it.
 - Closing the last window (`Desktop` raises `EmptiedEvent`) leaves the console showing and focused; opening any window
   (`OpenedEvent`) hides the console again -- no command that opens one checks `console_visible` itself.
 - **Size/Move (Ctrl+F5) is `Window.begin_move`**, TV's `dmDragMove`: the window takes the keyboard, arrows move,

@@ -39,6 +39,11 @@ from navml.widgets.dialog.control import Control
 CLOSE_ICON = "[■]"
 ASCII_CLOSE_ICON = "[x]"
 
+#: Where the close icon starts, counted from the left edge: Turbo Vision's
+#: ``TFrame`` drew it there for a dialog as for any window, and a navml
+#: ``Window`` puts it in the same place.
+CLOSE_X = 2
+
 
 class Modal(Widget):
     """A fixed, centred box that holds all input until it closes."""
@@ -94,7 +99,7 @@ class Modal(Widget):
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
         if not self.closable or event.action != "press" or event.button != "left":
             return False
-        if event.y == 0 and self.width - 5 <= event.x < self.width - 2:
+        if event.y == 0 and self._shows_close() and CLOSE_X <= event.x < CLOSE_X + 3:
             self.request_close()
             return True
         return False
@@ -108,6 +113,10 @@ class Modal(Widget):
         if self.parent is not None:
             self.parent.remove(self)
 
+    def _shows_close(self) -> bool:
+        """Whether the close icon is painted: closable, and room for it."""
+        return self.closable and self.width >= CLOSE_X + 6
+
     def render(self, surface: Surface) -> None:
         if self.width < 2 or self.height < 2:
             return
@@ -116,11 +125,14 @@ class Modal(Widget):
             charset=self.box_charset(), fill=" ",
         )
         if self.title:
-            label = f" {self.title} "[: max(0, self.width - 2)]
+            # Centred on the whole edge, slid clear of the icon (and a blank
+            # past it) where it would cover it.
+            left = CLOSE_X + 4 if self._shows_close() else 1
+            label = f" {self.title} "[: max(0, self.width - 1 - left)]
             surface.draw_text(
-                max(1, (self.width - display_width(label)) // 2), 0, label,
+                max(left, (self.width - display_width(label)) // 2), 0, label,
                 self.part_style("title"),
             )
-        if self.closable and self.width >= 8:
+        if self._shows_close():
             icon = CLOSE_ICON if self.glyphs > 1 else ASCII_CLOSE_ICON
-            surface.draw_text(self.width - 5, 0, icon, self.part_style("icon"))
+            surface.draw_text(CLOSE_X, 0, icon, self.part_style("icon"))
