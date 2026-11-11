@@ -64,7 +64,7 @@ CopyDialog(Dialog):
 
     #: DN's four ``cpo`` bits in DN's places.  *Preserve attributes* and
     #: *Follow symlinks* stand where *Verify disk writes* and *Copy
-    #: descriptions* stood -- a departure, recorded in ``navml/DESIGN.md``.
+    #: descriptions* stood -- a departure, recorded in ``navigator-file-ops/reference/copying.md``.
     CheckBoxes:
         id: options
         y: 10

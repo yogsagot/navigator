@@ -62,7 +62,7 @@ one column and on into the next. That is how DN's four check boxes sat in two ro
   `stopped` so that a Navigator quitting with a question up does not leave a thread waiting.
 
 The loop side polls in a spawned task and paints through a `call_every` tick, as `FileWindow`'s search does. The
-progress box appears after DN's two ticks.
+progress box appears after DN's two ticks (`PROGRESS_DELAY`, 2/18.2 s, `navigator/lib/system/progress.py`).
 
 - **A box is cancelled, not closed.** A copy that ends between creating the box and its `execute` starting would
   otherwise mount the box afterwards and wait for ever. Found by a test, not by reasoning.
@@ -146,8 +146,11 @@ progress box appears after DN's two ticks.
   file - skipped* and *Deleting source file...* over the speed row while they apply (`CopyJob.note`), and
   `dlFC_Total`, *Total N bytes*, on the bottom frame (`StaticText#frame-total`, the frame's colours). The row under
   the total gauge is the bytes done. A rename reads *Moving FROM / to TO*, DN's `DoRename` three lines in two.
-- Not ported: `TEMP:`, `LINK:`, archive and device targets; the drag-and-drop route; and *Beep after copy*.
-- **Split/combine is dropped**, not deferred. It was `FBB.PAS`'s `LongCopy` (`cmPanelLongCopy`), which spread a file
-  too big for one floppy across several diskettes and asked for each one. Linux has `split` and `cat` for what is
-  left of that job. Its key, Shift+F5, and its File menu slot went to *Create symlink*.
+- Not ported: `TEMP:` and `LINK:` targets, and DOS devices (`PRN`, `NUL`...). Ported: drag-and-drop
+  (`Manager.on_dropped`, `_drop_menu`, *Drag-and-drop* in Confirmations), *Beep after copy*
+  (`[file_manager] beep_after_copy`, rung by `_run_copy`), and a target inside an archive (`_open_target_archive`,
+  the archive packed at the end, `job.packing`).
+- **Split/combine is back**, keyless, as File > *Split/combine* (SKILL.md *Split / combine*), splitting by a size
+  asked for. DN's `FBB.PAS` `LongCopy` (`cmPanelLongCopy`) spread a file too big for one floppy across diskettes;
+  its key, Shift+F5, and its old menu slot are *Create symlink*'s.
 

@@ -32,8 +32,9 @@ renames each file in its own directory (DN's SoftMode, `CopyRequest.from_listing
 `dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory, F10/*Tree* picking it from
 a tree, mode and options remembered for the session. After it, a panel showing where the first source done in full
 went (`CopyJob.first_target`) re-reads with its cursor on it -- the other panel, or a rename's own -- as F7's is on its
-directory; `Manager._run_copy` does it, so drag-and-drop, Undo and Synchronize do too. `Manager.copy_files` puts up `CopyProgress` (*Stop* asks *Abort
-operation?* with the copy paused) and `OverwriteQuery` (`dlgOverwriteQuery`) as the worker asks. **The check boxes are a
+directory; `Manager._run_copy` does it, so drag-and-drop, Undo and Synchronize do too. `Manager.copy_files` -> `copy_entries` -> `_run_copy`;
+`_watch_copy` puts up `CopyProgress` (*Stop* asks *Abort operation?* with the copy paused) and
+`_answer_copy_question` puts `OverwriteQuery` (`dlgOverwriteQuery`) and the rest as the worker asks. **The check boxes are a
 departure**: *Preserve attributes* and *Follow symlinks* stand where DN's *Verify disk writes* and *Copy descriptions*
 stood, in the same bits. `Cluster`'s columns fit the four boxes in two rows. **What *Preserve attributes* could not
 keep is said, the copy never failed over it** (as `cp -p` warns): `Drive.copy_attributes` tries mode and times and
@@ -365,7 +366,8 @@ is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_comman
   file** and says so; without a `.crc` nothing is checked.
 - Stop or a failure removes what that run wrote (DN's `Erase(f2)`). Every read and write is `drive_of(...)`'s, so any
   drive works; `finish()` once. Run by `Manager._run_uucode` (`FileJob` under `WriteWin`, *Beep after copy* past
-  20 s). *As root* is not offered yet. Tests: `tests/test_splitfile.py`.
+  20 s). *As root* is offered for a file on the disk refused permission (`_run_uucode`'s `as_root`, as UU's;
+`tests/test_elevate.py::test_split_into_a_refused_directory_goes_on_as_root`). Tests: `tests/test_splitfile.py`.
 
 ## Checksums (File > Encoding > Checksums)
 

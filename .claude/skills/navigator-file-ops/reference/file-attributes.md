@@ -3,8 +3,8 @@
 Alt+E, *File > File Attributes…*, is DOS Navigator's `cmSetFAttr`, and **a departure in what it edits**. DN's
 `dlgFileAttr`/`dlgFilesAttr` set the four DOS bits (Archive, Hidden, Read-Only, System) and a date and time. None of
 the four bits means anything on Linux. Here it edits the twelve mode bits, the owner and the group (in the spirit of
-Midnight Commander's *Advanced chown*), and DN's own modification time. `CM_SetAttributes` itself is not in the 1.51
-dump, so what DN's loop did is read off its two dialogs and their help.
+Midnight Commander's *Advanced chown*), and DN's own modification time. `CM_SetAttributes` is `FLTOOLS.PAS:497-683`;
+what it settled is recorded below (the date and time set on each file's own stamp, the year pivot, `Single`).
 
 - **`navigator/lib/file_ops/fileattr.py`** is the model:
   - `survey(paths)` works out what a selection has in common: the bits every file has, the bits they disagree on
@@ -112,6 +112,7 @@ the first being everything above as *Mode*:
 - **Who an ACL may name**: anyone, so the entry box offers every user and group, where the *Mode* page's *Group* offers
   a non-root user only their own.
 
-Not ported: `cmSingleAttr` (no key reached it in 1.51), F4 on a directory opening the dialog, and DN's single-file
-`dlgFileAttr` as a separate shape. With one entry, the same dialog simply has nothing mixed in it.
+Not ported: `cmSingleAttr` (no key reached it in 1.51), and DN's single-file `dlgFileAttr` as a separate shape. With
+one entry, the same dialog simply has nothing mixed in it. F4 on a directory opens it on that one (DN's `Single`,
+`Manager.change_attributes(entries=[entry])`), its tag left.
 
