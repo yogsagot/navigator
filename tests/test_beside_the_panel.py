@@ -80,12 +80,34 @@ def test_copy_and_erase_do_nothing_from_the_info_panel(place, key):
 # -- the Ctrl+T tree -----------------------------------------------------------------------------
 
 
+def tree_lands_on(target_of):
+    """An ``Until`` predicate: the tree's cursor on ``target_of(app)``.
+
+    ``show`` walks on a thread, and a later walk (Ctrl+T's own, to the
+    panel's directory) may land after it and take the cursor back: asked
+    again then -- but not more than every 0.3 s, as each ``show`` drops the
+    walk before it."""
+    import time
+
+    asked = [0.0]
+
+    def there(a):
+        tree = a.manager.tree
+        target = target_of(a)
+        if tree.selected_path == target:
+            return True
+        if time.monotonic() - asked[0] > 0.3:
+            asked[0] = time.monotonic()
+            tree.show(target)
+        return False
+    return there
+
+
 def tree_on(name):
     """Ctrl+T, Tab into the tree, its cursor on *name* (a directory of west)."""
-    def go(a):
-        tree = a.manager.tree
-        tree.show(a.manager.left.location.local / name)
-    return [KeyEvent("t", ctrl=True), lambda a: None, KeyEvent("tab"), lambda a: None, go, lambda a: None]
+    return [KeyEvent("t", ctrl=True), Until(lambda a: a.manager.tree.selected_path is not None),
+            KeyEvent("tab"), lambda a: None,
+            Until(tree_lands_on(lambda a: a.manager.left.location.local / name), timeout=5)]
 
 
 def test_f5_in_the_tree_copies_its_directory(place):

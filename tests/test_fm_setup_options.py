@@ -83,7 +83,11 @@ def test_auto_change_directory_says_whether_the_panel_follows_the_tree(place, mo
     SETTINGS.file_manager.auto_change_dir = follow
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("t", ctrl=True), KeyEvent("tab"), KeyEvent("down"), lambda a: None,
+    # The tree walks to the panel's directory on a thread: Down before it
+    # lands would be taken back by the landing (a race a slow runner loses).
+    run_app(app, [KeyEvent("t", ctrl=True), Until(lambda a: a.manager.tree.selected_path == place / "a"),
+                  KeyEvent("tab"), KeyEvent("down"),
+                  Until(lambda a: a.manager.tree.selected_path != place / "a"), lambda a: None,
                   lambda a: seen.update(tree=a.manager.tree.selected_path, panel=a.manager.left.path)],
             settle=0.1)
     assert seen["tree"] != place / "a"
