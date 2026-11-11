@@ -16,6 +16,7 @@ EncryptDialog(Dialog):
     modal_width: 64
     modal_height: 17
     title: "Encrypt Files"
+    buttons: "none"
 
     Label:
         id: tool_caption

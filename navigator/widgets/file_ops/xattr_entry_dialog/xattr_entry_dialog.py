@@ -24,7 +24,6 @@ class XattrEntryDialog(Dialog):
     def __init__(self, name: str = "user.", value: bytes | None = b"", *, editing: bool = False,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.attr_name.value = name
         self.data.value = "" if value is None else fileattr.spell_value(value)
         if editing:

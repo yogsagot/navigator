@@ -11,6 +11,7 @@ CommandHistoryDialog(Dialog):
     modal_width: 59
     modal_height: 17
     title: "Commands history"
+    buttons: "none"
 
     HistoryList:
         id: commands

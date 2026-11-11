@@ -11,6 +11,7 @@ FilterDialog(Dialog):
     modal_width: 38
     modal_height: 16
     title: "Filter"
+    buttons: "none"
 
     FilterList:
         id: masks

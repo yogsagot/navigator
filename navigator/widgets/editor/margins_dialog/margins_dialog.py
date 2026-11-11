@@ -22,8 +22,6 @@ class MarginsDialog(Dialog):
 
     def __init__(self, margins: tuple[int, int, int] = (0, 78, 5), **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.margins = margins
         for field, value in zip((self.left, self.right, self.indent), margins):
             field.value = str(value)

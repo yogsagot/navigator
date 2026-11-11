@@ -24,8 +24,6 @@ class FileHistoryDialog(Dialog):
 
     def __init__(self, model: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.records.show(model)
 
     def key_hints(self) -> list[tuple[str, str]]:

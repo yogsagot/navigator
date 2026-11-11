@@ -16,7 +16,6 @@ class SystemInfoDialog(Dialog):
 
     def __init__(self, facts: SystemFacts | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.facts = facts or SystemFacts()
 
     def mounted(self) -> None:

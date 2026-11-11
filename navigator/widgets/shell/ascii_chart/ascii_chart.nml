@@ -12,6 +12,7 @@ AsciiChart(Dialog):
     modal_width: 34
     modal_height: 12
     title: "ASCII Chart"
+    buttons: "none"
 
     CharTable:
         id: table

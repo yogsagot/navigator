@@ -17,8 +17,6 @@ class GameSetupDialog(Dialog):
 
     def __init__(self, level: int | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         setup = SETTINGS.tetris
         self.level.value = self.level.sel = max(1, min(10, level or setup.level)) - 1
         self.game_style.value = self.game_style.sel = TetrisData.STYLES.index(setup.style)

@@ -220,7 +220,6 @@ class AttrDialog(Dialog):
         """*entries* are the panel's selection in *here*; *facts* is what
         :func:`gather` found of them, asked for here if not given."""
         super().__init__(**kwargs)
-        self.message.visible = False
         # OK and Cancel a row lower than a dialog's, their shadow on the row
         # above the frame, as *Settings* has them: a blank row under *Recurse*.
         unbind(self.row, Widget.y)

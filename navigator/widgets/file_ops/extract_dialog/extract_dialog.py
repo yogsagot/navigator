@@ -29,8 +29,6 @@ class ExtractDialog(Dialog):
     def __init__(self, here: Path | Location | None = None, other: str | None = None,
                  hidden: bool = True, test_only: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._here = here if here is not None else Path.cwd()
         self._hidden = hidden
         if other:

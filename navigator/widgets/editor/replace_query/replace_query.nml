@@ -8,6 +8,7 @@ ReplaceQuery(Dialog):
     modal_width: 50
     modal_height: 8
     title: "Query"
+    buttons: "none"
     prompt: "Replace this occurence?"
 
     ButtonRow:

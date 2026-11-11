@@ -17,6 +17,7 @@ FindDialog(Dialog):
     modal_width: 55
     modal_height: 18 if root.replace else 15
     title: "Replace" if root.replace else "Find"
+    buttons: "none"
 
     Field:
         id: text

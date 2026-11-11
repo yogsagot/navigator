@@ -24,8 +24,6 @@ class ConvertTextDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         section = SETTINGS.text_conversion
         #: Each choice's caption and the key it stands for.
         self.encodings = {tr("Keep each file's"): "keep",

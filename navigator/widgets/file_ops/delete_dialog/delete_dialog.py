@@ -69,7 +69,6 @@ class DeleteDialog(Dialog):
         super().__init__(**kwargs)
         self._entries = list(entries)
         self._here = Location.of(here if here is not None else Path.cwd())
-        self.message.visible = False
         # ``mfYesNoConfirm``: Yes and No, where No is Cancel's answer.
         unbind(self.ok, Button.text)
         self.ok.text = tr("~Y~es")

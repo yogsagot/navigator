@@ -161,8 +161,6 @@ class CommandPalette(Dialog):
 
     def __init__(self, behind: Widget | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         #: Where the keyboard was: what every question is asked from.
         self.behind = behind
         self.entries: list[Entry] = []

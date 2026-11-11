@@ -16,6 +16,7 @@ WindowManagerDialog(Dialog):
     modal_width: 70
     modal_height: 14
     title: "Windows Manager"
+    buttons: "none"
 
     Label:
         id: caption

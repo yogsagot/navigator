@@ -69,8 +69,6 @@ class LinkDialog(Dialog):
         leaves either as the session had it.  *can_hard* false greys *Hard
         link*: the drive cannot hold one."""
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._entries = list(entries)
         from navigator.lib.drives import Location
 

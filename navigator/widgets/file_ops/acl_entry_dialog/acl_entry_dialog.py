@@ -45,7 +45,6 @@ class AclEntryDialog(Dialog):
         **kwargs: Any,
     ) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self._users = list(users)
         self._groups = list(groups)
         self._mask = mask

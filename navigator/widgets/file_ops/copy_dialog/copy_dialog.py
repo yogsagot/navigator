@@ -91,8 +91,6 @@ class CopyDialog(Dialog):
         directory tree follows as Alt+T's does.
         """
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._entries = list(entries)
         self._here = Location.of(here if here is not None else Path.cwd())
         self._hidden = hidden

@@ -27,6 +27,7 @@ ChangeDirDialog(Dialog):
     #: Also opened from another dialog (Alt+T's MkDir, Copy's Tree), and holds
     #: nothing a click could lose.
     close_on_outside_click: True
+    buttons: "none"
 
     TreeView:
         id: tree

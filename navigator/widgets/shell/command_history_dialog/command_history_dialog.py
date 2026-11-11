@@ -26,8 +26,6 @@ class CommandHistoryDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._load(None)
 
     def key_hints(self) -> list[tuple[str, str]]:

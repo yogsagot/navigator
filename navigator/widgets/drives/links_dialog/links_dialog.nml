@@ -12,6 +12,7 @@ LinksDialog(Dialog):
     modal_width: 70
     modal_height: 18
     title: "Saved links"
+    buttons: "none"
 
     keys:
         insert: AddLink

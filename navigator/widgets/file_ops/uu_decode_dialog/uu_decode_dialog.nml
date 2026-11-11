@@ -15,6 +15,7 @@ UUDecodeDialog(Dialog):
     modal_width: 49
     modal_height: 12
     title: "UU Decode"
+    buttons: "none"
 
     keys:
         f10: ChooseTarget

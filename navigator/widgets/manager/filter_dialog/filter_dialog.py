@@ -13,8 +13,6 @@ class FilterDialog(Dialog):
 
     def __init__(self, masks: list[str] | None = None, cursor: int = 0, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.masks.items = list(masks or [])
         self.masks.cursor = min(cursor, max(0, len(self.masks.items) - 1))
 

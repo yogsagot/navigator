@@ -25,6 +25,7 @@ FileDialog(Dialog):
     modal_width: max(47, parent.width - 6) if parent is not None else 47
     modal_height: max(19, parent.height - 4) if parent is not None else 19
     title: "Open file"
+    buttons: "none"
 
     #: ``InputName``: what the caller calls the name -- *File Name*, *Paste from*.
     Label:

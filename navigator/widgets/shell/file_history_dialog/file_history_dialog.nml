@@ -12,6 +12,7 @@ from navml.widgets.dialog.dialog import Dialog
 FileHistoryDialog(Dialog):
     modal_width: 59
     modal_height: 17
+    buttons: "none"
 
     FileRecordList:
         id: records

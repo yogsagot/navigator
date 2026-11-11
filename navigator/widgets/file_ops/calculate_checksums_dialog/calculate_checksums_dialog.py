@@ -25,8 +25,6 @@ class CalculateChecksumsDialog(Dialog):
 
     def __init__(self, directory_name: str = "", **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         section = SETTINGS.checksum
         self.algorithm.value = self.algorithm.sel = ChecksumData.ALGORITHMS.index(section.algorithm)
         self.mode.value = self.mode.sel = ChecksumData.MODES.index(section.mode)

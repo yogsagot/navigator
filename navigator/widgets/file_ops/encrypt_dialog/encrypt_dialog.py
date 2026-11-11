@@ -27,8 +27,6 @@ class EncryptDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         section = SETTINGS.encryption
         installed = encrypt.available()
         self.tool.enable_mask = sum(1 << index for index, tool in enumerate(EncryptionData.TOOLS)

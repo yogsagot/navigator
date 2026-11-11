@@ -17,7 +17,9 @@ from navml.widgets.menu.commands import ShowContextMenu
 Dialog(Modal):
     #: ``ok``, ``ok-cancel``, ``ok-cancel-help``, ``yes-no-cancel``
     #: (``mfYesNoCancel``, OK captioned *Yes*) or ``yes-no`` (``mfYesButton +
-    #: mfNoButton``, the same without Cancel; Esc still answers ``None``).  Which buttons is a
+    #: mfNoButton``, the same without Cancel; Esc still answers ``None``) --
+    #: or ``none``, for a dialog that places buttons of its own, in a
+    #: ``ButtonRow`` or by hand, and wants no row of this one's.  Which buttons is a
     #: *visibility* question, because markup has no conditional and needs
     #: none: all four are declared and a hidden one is already out of the
     #: tab order, out of the shortcut walk and out of the paint.
@@ -54,12 +56,16 @@ Dialog(Modal):
             right: 2
         text: parent.prompt
         wrap: True
+        #: Only while there is something to say: a dialog of controls says
+        #: nothing here, and its controls take the space.
+        visible: root.prompt != ""
 
     #: The buttons, centred as a row.  Each is 11 columns -- nine of face, two
     #: of bracket, one of shadow -- with two between, and a hidden one gives
     #: up its slot, so two stay centred as well as three do.
     ButtonRow:
         id: row
+        visible: root.buttons != "none"
         anchors:
             left: 0
             right: 0

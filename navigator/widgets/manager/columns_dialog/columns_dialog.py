@@ -28,8 +28,6 @@ class ColumnsDialog(Dialog):
     def __init__(self, columns: frozenset[str] = frozenset(COLUMNS), listing: bool = False,
                  archive: bool = False, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         # In an archive the boxes are ``dlgArcParms``'.  A *Find:* listing's
         # are a directory's: DN's last box, the path, is a footer line here.
         if archive and not listing:

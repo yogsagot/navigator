@@ -15,6 +15,7 @@ ConvertTextDialog(Dialog):
     modal_width: 60
     modal_height: 14
     title: "Convert Text Files"
+    buttons: "none"
 
     ChoiceField:
         id: encoding

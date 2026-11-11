@@ -20,8 +20,6 @@ class ExistsQuery(Dialog):
 
     def __init__(self, path: Path | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         if path is not None:
             self.details.text = tr("File {name} already exists.\nOverwrite?").format(
                 name=escape_caption(cut(str(path))))

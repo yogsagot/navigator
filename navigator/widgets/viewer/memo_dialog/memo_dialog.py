@@ -41,7 +41,6 @@ class MemoDialog(Dialog):
 
     def __init__(self, data: bytes = b"", name: str = "memo", codec: str = "utf-8", **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         viewer = self.viewer
         viewer.set_encoding(codec)
         viewer.open(name, source=MemorySource(data, name))

@@ -50,8 +50,6 @@ class OverwriteQuery(Dialog):
 
     def __init__(self, question: Overwrite | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._question = question
         if question is not None:
             self.details.text = describe(question)

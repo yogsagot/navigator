@@ -15,7 +15,6 @@ class WinnerDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.player.value = tr("Anonymous")
         self.player.entry.select_all()
 

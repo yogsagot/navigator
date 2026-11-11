@@ -13,6 +13,7 @@ EraseQuery(Dialog):
     modal_width: 54
     modal_height: 10
     title: "Confirm"
+    buttons: "none"
 
     #: ``not-empty`` or ``read-only``.
     property kind: "not-empty"

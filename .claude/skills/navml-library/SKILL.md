@@ -348,9 +348,12 @@ Python-only `Layout` that paints nothing, replaced every container's placement a
   `style:` `basis` wins. `button_width: 0` sizes each `Button` by its caption plus `BUTTON_CHROME` (5). A hidden button
   gives up its slot, so the rest stay centred.
 - **A dialog that needs other buttons declares its own `ButtonRow`** under `anchors: left: 0 / right: 0 / bottom: 2`
-  and hides `row`, rather than hand-placing x values. Where DN's columns are not exactly centred, keep them:
+  and says `buttons: "none"`, rather than hand-placing x values. Where DN's columns are not exactly centred, keep them:
   `justify: "start"` with `anchors: left: X` at the first button's column, and DN's `spacing`/`button_width` (Overwrite
   query, the UU boxes).
+- **`buttons: "none"` is Dialog's "no row of mine"**: `row` is bound `visible: root.buttons != "none"`, so
+  `self.row.visible = False` in a Python half now raises (a value over a binding). **The message shows only while
+  `prompt` is non-empty**: an empty one paints nothing, so a dialog of controls needs no line hiding it.
 - Geometry outside a layout is better said with an `anchors:` block (`navml-markup`) than with
   `parent.width - K` arithmetic.
 

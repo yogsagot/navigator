@@ -23,6 +23,7 @@ CopyDialog(Dialog):
     modal_width: 61
     modal_height: 17
     title: "Rename/move" if root.move else "Copy"
+    buttons: "none"
 
     #: ``StatusDef hcCopyDialog``'s ``F10 Tree``.
     keys:

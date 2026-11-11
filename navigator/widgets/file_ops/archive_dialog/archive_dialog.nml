@@ -24,6 +24,7 @@ ArchiveDialog(Dialog):
     modal_width: 64
     modal_height: 18
     title: "Create archive"
+    buttons: "none"
 
     #: ``StatusDef hcArchiveFiles``' ``F10 Tree``, as Copy's.
     keys:

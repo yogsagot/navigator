@@ -15,8 +15,6 @@ class AdvancedSearchDialog(Dialog):
 
     def __init__(self, limits: dict[str, Any] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         limits = limits or {}
         for name in LINES:
             getattr(self, name).value = limits.get(name, "")

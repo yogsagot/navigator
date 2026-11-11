@@ -17,7 +17,6 @@ class ChecksumReport(Dialog):
 
     def __init__(self, result: VerifyResult | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         result = result or VerifyResult()
         self.summary.text = summary(result)
         self.bad.items = rows(result)

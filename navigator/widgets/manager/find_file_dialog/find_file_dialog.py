@@ -33,8 +33,6 @@ class FindFileDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         session = self.session
         self.options.value = session["options"]
         self.scope.value = session["scope"]

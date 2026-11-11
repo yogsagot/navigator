@@ -14,6 +14,7 @@ EnvironmentDialog(Dialog):
     modal_width: 62
     modal_height: 20
     title: "Environment Variables Editor"
+    buttons: "none"
 
     Label:
         id: names_caption

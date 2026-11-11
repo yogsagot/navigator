@@ -15,6 +15,7 @@ OverwriteQuery(Dialog):
     modal_width: 66
     modal_height: 13
     title: "Confirm"
+    buttons: "none"
 
     StaticText:
         id: details

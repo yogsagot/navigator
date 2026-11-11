@@ -43,8 +43,6 @@ class EraseQuery(Dialog):
         if isinstance(question, ReadOnly):
             kwargs.setdefault("kind", "read-only")
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         if question is not None:
             self.details.text = describe(question)
 

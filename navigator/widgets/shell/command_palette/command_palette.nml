@@ -17,6 +17,7 @@ CommandPalette(Dialog):
     modal_height: max(10, min(parent.height - 2, 22)) if parent is not None else 22
     title: "Commands"
     close_on_outside_click: True
+    buttons: "none"
 
     InputLine:
         id: filter

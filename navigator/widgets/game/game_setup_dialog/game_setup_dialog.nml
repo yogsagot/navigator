@@ -11,6 +11,7 @@ GameSetupDialog(Dialog):
     modal_width: 53
     modal_height: 15
     title: "Setup game"
+    buttons: "none"
 
     Label:
         id: level_caption

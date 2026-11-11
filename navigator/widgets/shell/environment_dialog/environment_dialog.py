@@ -17,8 +17,6 @@ class EnvironmentDialog(Dialog):
 
     def __init__(self, variables: Mapping[str, str] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         #: ``[name, value]`` pairs, the list's order.
         self.pairs: list[list[str]] = [[name, value] for name, value in sorted((variables or {}).items())]
         self._shown: int | None = None

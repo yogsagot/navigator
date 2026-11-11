@@ -28,8 +28,6 @@ class UUEncodeDialog(Dialog):
         """*source* is the file; *other* the passive panel's directory, where
         the line puts the encoded file when it is somewhere else."""
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._source = Path(source) if source is not None else Path.cwd() / "file"
         self._here = self._source.parent
         self._hidden = hidden

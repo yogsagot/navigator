@@ -32,8 +32,6 @@ class LinksDialog(Dialog):
 
     def __init__(self, entries: list[Entry] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         #: The links as they stand in the box, the list's order.
         self.entries: list[Entry] = [replace(entry) for entry in entries or ()]
         self._refresh(0)

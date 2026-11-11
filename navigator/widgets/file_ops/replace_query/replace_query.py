@@ -35,8 +35,6 @@ class ReplaceQuery(Dialog):
 
     def __init__(self, question: ReplaceQuestion | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         if question is not None:
             self.details.text = describe(question)
             self.changes.items = rows_of(question.changes)

@@ -16,7 +16,6 @@ class DBSearchDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.text.value = LAST["text"]
         self.text.entry.select_all()
         self.options.value = 1 if LAST["case"] else 0

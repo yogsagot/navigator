@@ -23,7 +23,6 @@ class ForwardsDialog(Dialog):
 
     def __init__(self, forwards: list[Forward] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.items: list[Forward] = list(forwards or ())
         self._refresh(0)
 

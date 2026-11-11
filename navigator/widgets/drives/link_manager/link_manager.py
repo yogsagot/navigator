@@ -176,8 +176,6 @@ class LinkManagerDialog(Dialog):
         cannot be used) stops *Connect* only in ``"panel"``.  The box opens
         on a one-off: nothing is taken from where the panel is."""
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.family = FAMILIES[family]
         #: The schemes this family's lines may name (GVfs/KIO's the backend's).
         self.schemes = schemes_of(family)

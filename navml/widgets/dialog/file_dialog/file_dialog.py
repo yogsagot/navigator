@@ -82,9 +82,6 @@ class FileDialog(Dialog):
         #: Counts the reads asked for, so one overtaken by another is dropped.
         self._reading = 0
         super().__init__(**kwargs)
-        # Dialog's bottom row and message are not in this layout.
-        self.row.visible = False
-        self.message.visible = False
         if title is not None:
             self.title = title
         self.caption.text = label if label is not None else tr("~N~ame")

@@ -12,8 +12,6 @@ class KeyCaptureDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.catcher.done = self.close
 
     def accept(self) -> str | None:

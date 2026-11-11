@@ -47,8 +47,6 @@ class ErrorDialog(Dialog):
     def __init__(self, error: BaseException | None = None, log: Path | None = None,
                  **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         error = error if error is not None else RuntimeError()
         #: Everything *Copy* puts on the clipboard: the whole traceback.
         self.text = format_error(error)

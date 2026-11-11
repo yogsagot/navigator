@@ -19,6 +19,7 @@ UUEncodeDialog(Dialog):
     modal_width: 60
     modal_height: 18
     title: "UU Encode"
+    buttons: "none"
 
     #: ``StatusDef``'s ``F10 Tree``, as the Copy dialog's.
     keys:

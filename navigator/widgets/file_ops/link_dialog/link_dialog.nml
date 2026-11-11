@@ -17,6 +17,7 @@ LinkDialog(Dialog):
     modal_width: 61
     modal_height: 11
     title: "Create link"
+    buttons: "none"
 
     #: F10 opens the tree, as it does in the Copy dialog.
     keys:

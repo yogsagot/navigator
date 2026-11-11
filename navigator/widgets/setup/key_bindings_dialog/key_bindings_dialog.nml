@@ -13,6 +13,7 @@ KeyBindingsDialog(Dialog):
     modal_width: 78
     modal_height: 23
     title: "Key Bindings"
+    buttons: "none"
 
     Label:
         id: groups_caption

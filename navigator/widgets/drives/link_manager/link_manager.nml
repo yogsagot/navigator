@@ -33,6 +33,7 @@ LinkManagerDialog(Dialog):
     modal_height: 20
     #: The protocol's, always: ``LinkManagerDialog`` puts it in.
     title: "SSH link (SFTP)"
+    buttons: "none"
 
     keys:
         insert: NewLinkEntry

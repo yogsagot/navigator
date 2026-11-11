@@ -26,8 +26,6 @@ class UUDecodeDialog(Dialog):
     def __init__(self, here: Path | None = None, other: Path | None = None,
                  hidden: bool = True, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._here = Path(here) if here is not None else Path.cwd()
         self._hidden = hidden
         if other is not None and Path(other) != self._here:

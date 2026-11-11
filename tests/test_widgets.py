@@ -288,6 +288,23 @@ def test_yes_no_is_yes_and_no_with_no_cancel():
     assert dialog.focusable()[-2:] == [dialog.ok, dialog.no]
 
 
+def test_buttons_none_leaves_no_row_and_nothing_of_it_to_reach():
+    """A dialog placing buttons of its own says so, rather than hiding ours."""
+    dialog = Dialog(buttons="none")
+    assert not dialog.row.visible
+    assert not any(b in dialog.focusable() for b in dialog.buttons_row)
+    dialog.buttons = "ok"
+    assert dialog.row.visible
+
+
+def test_the_message_shows_only_while_there_is_a_prompt():
+    """An empty one would take the place a dialog's controls want."""
+    dialog = Dialog()
+    assert not dialog.message.visible
+    dialog.prompt = "Save?"
+    assert dialog.message.visible
+
+
 # -- Timer --------------------------------------------------------------------
 
 

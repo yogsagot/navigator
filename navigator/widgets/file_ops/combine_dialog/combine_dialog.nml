@@ -15,6 +15,7 @@ CombineDialog(Dialog):
     modal_width: 50
     modal_height: 9
     title: "Combine file"
+    buttons: "none"
 
     keys:
         f10: ChooseTarget

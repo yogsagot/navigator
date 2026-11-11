@@ -10,6 +10,7 @@ ExistsQuery(Dialog):
     modal_width: 58
     modal_height: 9
     title: "Confirm"
+    buttons: "none"
 
     StaticText:
         id: details

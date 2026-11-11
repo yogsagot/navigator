@@ -16,6 +16,7 @@ ColumnsDialog(Dialog):
     modal_width: 40
     modal_height: 13
     title: "Columns Setup"
+    buttons: "none"
 
     Label:
         id: show_caption

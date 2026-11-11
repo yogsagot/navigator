@@ -22,6 +22,7 @@ FindFileDialog(Dialog):
     modal_width: 52
     modal_height: 21 if root.replacing else 19
     title: "Replace in Files" if root.replacing else "Find File"
+    buttons: "none"
 
     #: DN's ``hsFindMask``.
     Field:

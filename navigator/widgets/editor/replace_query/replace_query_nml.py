@@ -36,10 +36,10 @@ class ReplaceQuery(Dialog, _Component):
     __navml_source__ = "replace_query.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    pick: Button    # replace_query.nml:21
-    skip: Button    # replace_query.nml:26
-    every: Button    # replace_query.nml:31
-    abandon: Button    # replace_query.nml:35
+    pick: Button    # replace_query.nml:22
+    skip: Button    # replace_query.nml:27
+    every: Button    # replace_query.nml:32
+    abandon: Button    # replace_query.nml:36
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -49,52 +49,53 @@ class ReplaceQuery(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # replace_query.nml:21
+    async def on_pick_click(self, event: _Event) -> bool:    # replace_query.nml:22
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_skip_click(self, event: _Event) -> bool:    # replace_query.nml:26
+    async def on_skip_click(self, event: _Event) -> bool:    # replace_query.nml:27
         """``skip`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_every_click(self, event: _Event) -> bool:    # replace_query.nml:31
+    async def on_every_click(self, event: _Event) -> bool:    # replace_query.nml:32
         """``every`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # replace_query.nml:35
+    async def on_abandon_click(self, event: _Event) -> bool:    # replace_query.nml:36
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        _w1 = ButtonRow(parent=self)    # replace_query.nml:13
-        self.pick = Button(parent=_w1)    # replace_query.nml:20
-        self.skip = Button(parent=_w1)    # replace_query.nml:25
-        self.every = Button(parent=_w1)    # replace_query.nml:30
-        self.abandon = Button(parent=_w1)    # replace_query.nml:34
+        _w1 = ButtonRow(parent=self)    # replace_query.nml:14
+        self.pick = Button(parent=_w1)    # replace_query.nml:21
+        self.skip = Button(parent=_w1)    # replace_query.nml:26
+        self.every = Button(parent=_w1)    # replace_query.nml:31
+        self.abandon = Button(parent=_w1)    # replace_query.nml:35
 
         self.modal_width = 50    # replace_query.nml:8
         self.modal_height = 8    # replace_query.nml:9
         self.title = _bind(lambda _o: _tr('Query'), yielding=True)    # replace_query.nml:10
-        self.prompt = _bind(    # replace_query.nml:11
+        self.buttons = 'none'    # replace_query.nml:11
+        self.prompt = _bind(    # replace_query.nml:12
             lambda _o: _tr('Replace this occurence?'),
             yielding=True,
         )
 
-        _w1.button_width = 10    # replace_query.nml:14
-        _w1.x = 0# replace_query.nml:16
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # replace_query.nml:17
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # replace_query.nml:18
+        _w1.button_width = 10    # replace_query.nml:15
+        _w1.x = 0# replace_query.nml:17
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # replace_query.nml:18
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # replace_query.nml:19
 
-        self.pick.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # replace_query.nml:22
-        self.pick.default = True    # replace_query.nml:23
-        self.pick.on_click = self.on_pick_click    # replace_query.nml:21
+        self.pick.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # replace_query.nml:23
+        self.pick.default = True    # replace_query.nml:24
+        self.pick.on_click = self.on_pick_click    # replace_query.nml:22
 
-        self.skip.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # replace_query.nml:27
-        self.skip.on_click = self.on_skip_click    # replace_query.nml:26
+        self.skip.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # replace_query.nml:28
+        self.skip.on_click = self.on_skip_click    # replace_query.nml:27
 
-        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # replace_query.nml:32
-        self.every.on_click = self.on_every_click    # replace_query.nml:31
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # replace_query.nml:33
+        self.every.on_click = self.on_every_click    # replace_query.nml:32
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # replace_query.nml:36
-        self.abandon.on_click = self.on_abandon_click    # replace_query.nml:35
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # replace_query.nml:37
+        self.abandon.on_click = self.on_abandon_click    # replace_query.nml:36

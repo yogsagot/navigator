@@ -21,10 +21,6 @@ class ReplaceQuery(Dialog):
     #: The match it asks about stays at full strength.
     dims_behind = False
 
-    def __init__(self, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.row.visible = False
-
     @property
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.pick, self.skip, self.every, self.abandon)

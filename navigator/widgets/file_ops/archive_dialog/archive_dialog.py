@@ -74,8 +74,6 @@ class ArchiveDialog(Dialog):
         *directory* -- the other panel's, when it can be written -- and *stem*
         with the type's ending.  *hidden* is what the Tree follows."""
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._entries = list(entries)
         self._here = Location.of(here if here is not None else Path.cwd())
         self._hidden = hidden

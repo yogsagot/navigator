@@ -16,6 +16,7 @@ ReplaceQuery(Dialog):
     modal_width: max(40, min(76, parent.width - 4)) if parent is not None else 76
     modal_height: max(12, min(22, parent.height - 2)) if parent is not None else 22
     title: "Replace"
+    buttons: "none"
 
     StaticText:
         id: details

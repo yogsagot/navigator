@@ -40,8 +40,6 @@ class KeyBindingsDialog(Dialog):
     def __init__(self, sections: Sequence[Section] = (),
                  assignments: Mapping[str, Assignment] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.sections = list(sections)
         #: Every section's keys, as edited so far.
         self.assignments: dict[str, Assignment] = {

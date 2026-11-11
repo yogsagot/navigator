@@ -39,8 +39,8 @@ class AsciiChart(Dialog, _Component):
     __navml_source__ = "ascii_chart.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    table: CharTable    # ascii_chart.nml:17
-    report: StaticText    # ascii_chart.nml:24
+    table: CharTable    # ascii_chart.nml:18
+    report: StaticText    # ascii_chart.nml:25
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -50,26 +50,27 @@ class AsciiChart(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_table_chosen(self, event: _Event) -> bool:    # ascii_chart.nml:17
+    async def on_table_chosen(self, event: _Event) -> bool:    # ascii_chart.nml:18
         """``table`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.table = CharTable(parent=self)    # ascii_chart.nml:16
-        self.report = StaticText(parent=self)    # ascii_chart.nml:23
+        self.table = CharTable(parent=self)    # ascii_chart.nml:17
+        self.report = StaticText(parent=self)    # ascii_chart.nml:24
 
         self.modal_width = 34    # ascii_chart.nml:12
         self.modal_height = 12    # ascii_chart.nml:13
         self.title = _bind(lambda _o: _tr('ASCII Chart'), yielding=True)    # ascii_chart.nml:14
+        self.buttons = 'none'    # ascii_chart.nml:15
 
-        self.table.x = 1    # ascii_chart.nml:18
-        self.table.y = 1    # ascii_chart.nml:19
-        self.table.width = 32    # ascii_chart.nml:20
-        self.table.height = 8    # ascii_chart.nml:21
-        self.table.on_chosen = self.on_table_chosen    # ascii_chart.nml:17
+        self.table.x = 1    # ascii_chart.nml:19
+        self.table.y = 1    # ascii_chart.nml:20
+        self.table.width = 32    # ascii_chart.nml:21
+        self.table.height = 8    # ascii_chart.nml:22
+        self.table.on_chosen = self.on_table_chosen    # ascii_chart.nml:18
 
-        self.report.x = 1    # ascii_chart.nml:25
-        self.report.y = 10    # ascii_chart.nml:26
-        self.report.width = 32    # ascii_chart.nml:27
-        self.report.height = 1    # ascii_chart.nml:28
+        self.report.x = 1    # ascii_chart.nml:26
+        self.report.y = 10    # ascii_chart.nml:27
+        self.report.width = 32    # ascii_chart.nml:28
+        self.report.height = 1    # ascii_chart.nml:29

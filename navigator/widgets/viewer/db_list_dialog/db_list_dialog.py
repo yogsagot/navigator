@@ -12,6 +12,5 @@ class DBListDialog(Dialog):
 
     def __init__(self, heading: str = "", lines: list[str] | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         self.heading.text = heading
         self.lines.items = list(lines or [])

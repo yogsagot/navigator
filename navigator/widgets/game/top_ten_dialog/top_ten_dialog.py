@@ -16,7 +16,6 @@ class TopTenDialog(Dialog):
 
     def __init__(self, highlight: int | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.message.visible = False
         # The headings, a label a column (``tetris.SCORE_COLUMNS``) as the
         # lines are, so a translation lines up over its column and a mirrored
         # screen moves both; bright as DN's one heading was.  A number's

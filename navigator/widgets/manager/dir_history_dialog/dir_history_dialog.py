@@ -21,8 +21,6 @@ class DirHistoryDialog(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self.places.items = HISTORY.entries(HISTORY_ID)
 
     @property

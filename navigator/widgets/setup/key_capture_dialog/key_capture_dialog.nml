@@ -9,6 +9,7 @@ KeyCaptureDialog(Dialog):
     modal_width: 44
     modal_height: 9
     title: "Press a key"
+    buttons: "none"
 
     StaticText:
         id: hint

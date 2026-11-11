@@ -45,17 +45,17 @@ class ExtractDialog(Dialog, _Component):
     __navml_source__ = "extract_dialog.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # extract_dialog.nml:21
-        'f10': ChooseTarget,    # extract_dialog.nml:22
+    keys = {    # extract_dialog.nml:22
+        'f10': ChooseTarget,    # extract_dialog.nml:23
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    target_caption: Label    # extract_dialog.nml:25
-    target: Field    # extract_dialog.nml:35
-    options: CheckBoxes    # extract_dialog.nml:46
-    pick: Button    # extract_dialog.nml:63
-    abandon: Button    # extract_dialog.nml:68
-    tree: Button    # extract_dialog.nml:72
+    target_caption: Label    # extract_dialog.nml:26
+    target: Field    # extract_dialog.nml:36
+    options: CheckBoxes    # extract_dialog.nml:47
+    pick: Button    # extract_dialog.nml:64
+    abandon: Button    # extract_dialog.nml:69
+    tree: Button    # extract_dialog.nml:73
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -65,74 +65,75 @@ class ExtractDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # extract_dialog.nml:63
+    async def on_pick_click(self, event: _Event) -> bool:    # extract_dialog.nml:64
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # extract_dialog.nml:68
+    async def on_abandon_click(self, event: _Event) -> bool:    # extract_dialog.nml:69
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # extract_dialog.nml:72
+    async def on_tree_click(self, event: _Event) -> bool:    # extract_dialog.nml:73
         """``tree`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.target_caption = Label(parent=self)    # extract_dialog.nml:24
-        self.target = Field(parent=self)    # extract_dialog.nml:34
-        self.options = CheckBoxes(parent=self)    # extract_dialog.nml:45
-        _w1 = ButtonRow(parent=self)    # extract_dialog.nml:55
-        self.pick = Button(parent=_w1)    # extract_dialog.nml:62
-        self.abandon = Button(parent=_w1)    # extract_dialog.nml:67
-        self.tree = Button(parent=_w1)    # extract_dialog.nml:71
+        self.target_caption = Label(parent=self)    # extract_dialog.nml:25
+        self.target = Field(parent=self)    # extract_dialog.nml:35
+        self.options = CheckBoxes(parent=self)    # extract_dialog.nml:46
+        _w1 = ButtonRow(parent=self)    # extract_dialog.nml:56
+        self.pick = Button(parent=_w1)    # extract_dialog.nml:63
+        self.abandon = Button(parent=_w1)    # extract_dialog.nml:68
+        self.tree = Button(parent=_w1)    # extract_dialog.nml:72
 
         self.modal_width = 49    # extract_dialog.nml:17
         self.modal_height = 11    # extract_dialog.nml:18
         self.title = _bind(lambda _o: _tr('Extract files'), yielding=True)    # extract_dialog.nml:19
+        self.buttons = 'none'    # extract_dialog.nml:20
 
-        self.target_caption.x = 2    # extract_dialog.nml:26
-        self.target_caption.y = 1    # extract_dialog.nml:27
-        self.target_caption.width = 20    # extract_dialog.nml:28
-        self.target_caption.height = 1    # extract_dialog.nml:29
-        self.target_caption.text = _bind(    # extract_dialog.nml:30
+        self.target_caption.x = 2    # extract_dialog.nml:27
+        self.target_caption.y = 1    # extract_dialog.nml:28
+        self.target_caption.width = 20    # extract_dialog.nml:29
+        self.target_caption.height = 1    # extract_dialog.nml:30
+        self.target_caption.text = _bind(    # extract_dialog.nml:31
             lambda _o: _tr('E~x~tract to'),
             yielding=True,
         )
-        self.target_caption.link = _bind(lambda _o: self.target.entry)    # extract_dialog.nml:31
+        self.target_caption.link = _bind(lambda _o: self.target.entry)    # extract_dialog.nml:32
 
-        self.target.y = 2    # extract_dialog.nml:36
-        self.target.height = 1    # extract_dialog.nml:37
-        self.target.label_text = ''    # extract_dialog.nml:41
-        self.target.label_width = 0    # extract_dialog.nml:42
-        self.target.history_id = 'copy'    # extract_dialog.nml:43
-        self.target.x = 2    # extract_dialog.nml:39
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # extract_dialog.nml:40
+        self.target.y = 2    # extract_dialog.nml:37
+        self.target.height = 1    # extract_dialog.nml:38
+        self.target.label_text = ''    # extract_dialog.nml:42
+        self.target.label_width = 0    # extract_dialog.nml:43
+        self.target.history_id = 'copy'    # extract_dialog.nml:44
+        self.target.x = 2    # extract_dialog.nml:40
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # extract_dialog.nml:41
 
-        self.options.y = 4    # extract_dialog.nml:47
-        self.options.height = 2    # extract_dialog.nml:48
-        self.options.items = _bind(    # extract_dialog.nml:52
+        self.options.y = 4    # extract_dialog.nml:48
+        self.options.height = 2    # extract_dialog.nml:49
+        self.options.items = _bind(    # extract_dialog.nml:53
             lambda _o: [_tr('Extract with ~p~ath names'), _tr('T~e~st only')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # extract_dialog.nml:53
+        self.options.tooltips = _bind(    # extract_dialog.nml:54
             lambda _o: [_tr("Make the archive's directories; off, every file goes straight into the target"), _tr('Check the archive for errors, writing nothing')],
             yielding=True,
         )
-        self.options.x = 2    # extract_dialog.nml:50
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # extract_dialog.nml:51
+        self.options.x = 2    # extract_dialog.nml:51
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # extract_dialog.nml:52
 
-        _w1.justify = 'start'    # extract_dialog.nml:56
-        _w1.x = 5# extract_dialog.nml:58
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 5))    # extract_dialog.nml:59
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # extract_dialog.nml:60
+        _w1.justify = 'start'    # extract_dialog.nml:57
+        _w1.x = 5# extract_dialog.nml:59
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 5))    # extract_dialog.nml:60
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # extract_dialog.nml:61
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # extract_dialog.nml:64
-        self.pick.default = True    # extract_dialog.nml:65
-        self.pick.on_click = self.on_pick_click    # extract_dialog.nml:63
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # extract_dialog.nml:65
+        self.pick.default = True    # extract_dialog.nml:66
+        self.pick.on_click = self.on_pick_click    # extract_dialog.nml:64
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # extract_dialog.nml:69
-        self.abandon.on_click = self.on_abandon_click    # extract_dialog.nml:68
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # extract_dialog.nml:70
+        self.abandon.on_click = self.on_abandon_click    # extract_dialog.nml:69
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # extract_dialog.nml:73
-        self.tree.on_click = self.on_tree_click    # extract_dialog.nml:72
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # extract_dialog.nml:74
+        self.tree.on_click = self.on_tree_click    # extract_dialog.nml:73

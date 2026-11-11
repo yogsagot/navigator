@@ -24,7 +24,6 @@ class ForwardDialog(Dialog):
     def __init__(self, forward: Forward | None = None, **kwargs: Any) -> None:
         """*forward* to edit, or None for a new local one."""
         super().__init__(**kwargs)
-        self.message.visible = False
         if forward is not None:
             self.kind.value = self.kind.sel = KINDS.index(forward.kind)
             self.bind.value = forward.bind

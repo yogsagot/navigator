@@ -17,6 +17,7 @@ ExtractDialog(Dialog):
     modal_width: 49
     modal_height: 11
     title: "Extract files"
+    buttons: "none"
 
     keys:
         f10: ChooseTarget

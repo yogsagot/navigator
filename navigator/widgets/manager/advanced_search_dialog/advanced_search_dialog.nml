@@ -15,6 +15,7 @@ AdvancedSearchDialog(Dialog):
     modal_width: 52
     modal_height: 17
     title: "Advanced search"
+    buttons: "none"
 
     #: DN's ``hsFindAfter``.
     Field:

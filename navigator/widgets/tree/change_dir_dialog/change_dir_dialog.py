@@ -36,9 +36,6 @@ class ChangeDirDialog(Dialog):
         self._search = search
         self._hidden = hidden
         self._made = made
-        # Dialog's bottom row and message are not in this layout.
-        self.row.visible = False
-        self.message.visible = False
         start = start if start is not None else Path.cwd()
         self.tree.root = directory_root(self._hidden, at=start)
         self._show(start)

@@ -33,8 +33,6 @@ class SplitDialog(Dialog):
         """*name* is the file's; *here* its directory; *other* the passive
         panel's directory, which the line opens on when it is somewhere else."""
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         self._here = here if here is not None else Path.cwd()
         self._hidden = hidden
         if name:

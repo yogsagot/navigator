@@ -27,9 +27,6 @@ class WindowManagerDialog(Dialog):
 
     def __init__(self, desktop: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        # Dialog's bottom row and message are not in this layout.
-        self.row.visible = False
-        self.message.visible = False
         #: The desktop whose windows are listed.
         self.desktop = desktop
         self.refresh()

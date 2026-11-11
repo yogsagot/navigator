@@ -23,6 +23,7 @@ SplitDialog(Dialog):
     modal_width: 50
     modal_height: 12
     title: "Split file"
+    buttons: "none"
 
     keys:
         f10: ChooseTarget

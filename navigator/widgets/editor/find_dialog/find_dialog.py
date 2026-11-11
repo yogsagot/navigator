@@ -23,8 +23,6 @@ class FindDialog(Dialog):
 
     def __init__(self, *, word: str = "", data: SearchData | None = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.row.visible = False
-        self.message.visible = False
         #: The record written back on OK: :data:`search.SEARCH` unless told
         #: otherwise, looked up now rather than bound when the class was made.
         self.data = data if data is not None else search.SEARCH

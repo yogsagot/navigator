@@ -114,6 +114,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         "height": "max(1, parent.height - 6)",
         "text": "parent.prompt",
         "wrap": "True",
+        "visible": 'root.prompt != ""',
     }
     # Only ``info`` carries a handler: the other three reach the hand-written
     # half through the ``on_<id>_<event>`` convention, which is the generator's
