@@ -70,6 +70,14 @@ dump, so what DN's loop did is read off its two dialogs and their help.
     the change is presumably what lets it be read.
   - Untouched values mean *leave it*. A time equal to the one shown also means *leave it*, so OK on an untouched
     dialog does not round a nanosecond stamp to the second.
+  - A two-digit year is DN's: 00-79 are 2000-2079 and 80-99 the 1980s and 90s (`FLTOOLS.PAS:607`).
+  - F4 on a directory (DN's `Single`) changes that one and leaves the tags alone, as DN's `if not Single then
+    PF^.Selected := Off` did. Alt+E untags what it changed.
+- **Departures in the date and time:**
+  - **A directory's date and time are shown and set.** DN's dialog had no date or time for a directory (DOS gave a
+    directory no time to set, `FLTOOLS.PAS:535-539, 650`); a POSIX directory has an mtime worth setting.
+  - **A date or time that cannot be read is said, and OK is refused.** DN dropped it without a word (`DateSet := ok
+    and not (Day > 31 ...)`, `:589-605`), leaving the user to think it was set.
 - **Only root may give a file to another user**, so *User* is disabled for anyone else, and greyed. DN's palette has
   no disabled slot for a label, a line or a cluster, so `navigator.nss` greys every disabled one in [44] *Button
   disabled*, the dialog's grey with dark text. *Group* offers all groups to

@@ -5226,7 +5226,9 @@ class Manager(Window):
         """Ask what to change, change it on a thread, and let both panels look again.
 
         *entries* instead of the selection: F4 on a directory, DN's
-        ``CM_SetAttributes(..., Single = On, ...)`` -- that one, whatever is tagged.
+        ``CM_SetAttributes(..., Single = On, ...)`` -- that one, whatever is
+        tagged, and its tag left alone (``if not Single then PF^.Selected :=
+        Off``, ``FLTOOLS.PAS:669``).
 
         ``delete_files``'s shape: the dialog, then ``fileattr.run`` through
         ``asyncio.to_thread`` with :meth:`_watch_job` between the two -- the
@@ -5240,6 +5242,7 @@ class Manager(Window):
 
         app = self.application
         panel, other = self.active_panel, self.passive_panel
+        single = entries is not None
         if entries is None:
             entries = self.selection(panel)
         if app is None or not entries:
@@ -5283,7 +5286,8 @@ class Manager(Window):
         finally:
             if not work.done():
                 job.stop()
-            panel.untag_paths(done)
+            if not single:
+                panel.untag_paths(done)
             panel.reload()
             other.reload()
 

@@ -337,6 +337,32 @@ def test_alt_e_changes_the_tagged_files_and_untags_them(two):
     assert marked == frozenset()
 
 
+def test_f4_on_a_tagged_directory_changes_it_and_leaves_its_tag(two):
+    # DN's ``Single``: ``if not Single then PF^.Selected := Off`` never ran.
+    a, b = two
+    (a / "dir").mkdir()
+    (a / "dir").chmod(0o755)
+
+    async def steps(app, shell):
+        panel = shell.manager.left
+        panel.marked = frozenset({"dir", "one.txt"})
+        put_cursor(panel, "dir")
+        app.post_event(KeyEvent("f4"))
+        await wait_until(lambda: isinstance(app.modal, AttrDialog))
+        names = [e.name for e in app.modal._entries]
+        for key in (KeyEvent("right"), KeyEvent("down"), KeyEvent(" ", " ")):
+            app.post_event(key)
+        await handled(app)
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: app.modal is None and mode_of(a / "dir") != 0o755)
+        await handled(app)
+        return names, panel.marked
+
+    names, marked = run_shell(a, b, steps)
+    assert names == ["dir"] and mode_of(a / "dir") == 0o775
+    assert marked == frozenset({"dir", "one.txt"})
+
+
 def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
     a, b = two
 

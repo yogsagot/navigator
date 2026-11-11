@@ -118,6 +118,14 @@ def test_the_time_is_dns_date_and_time_and_blank_is_leave_it():
     assert fileattr.parse_mtime("", "11:20", base) == base + 3600 - 30
 
 
+@pytest.mark.parametrize("text, year", [("06-03-79", 2079), ("06-03-80", 1980), ("06-03-69", 2069),
+                                        ("06-03-00", 2000), ("06-03-99", 1999)])
+def test_two_digit_years_pivot_at_dn_s_80(text, year):
+    # ``FLTOOLS.PAS:607``: ``if Year < 80 then Inc(Year, 2000) else ... Inc(Year, 1900)``.
+    base = time.mktime((2024, 3, 5, 10, 20, 30, 0, 0, -1))
+    assert time.localtime(fileattr.parse_mtime(text, "", base)).tm_year == year
+
+
 @pytest.mark.parametrize("format, text", [
     ("%m/%d/%Y", "03/06/2024"), ("%Y-%m-%d", "2024-03-06"), ("%d.%m.%y", "06.03.24"),
 ])

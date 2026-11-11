@@ -512,7 +512,8 @@ def parse_mtime(
     if date:
         day, month, year = _date_numbers(date, date_format, tr("{text} is not a valid date"))
         if year < 100:
-            year += 2000 if year < 70 else 1900
+            # DN's pivot (``FLTOOLS.PAS:607``): 00-79 are 2000-2079, 80-99 the 1980s and 90s.
+            year += 2000 if year < 80 else 1900
     else:
         day, month, year = when.tm_mday, when.tm_mon, when.tm_year
     if clock:
