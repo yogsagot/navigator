@@ -86,6 +86,10 @@ class CopyRequest:
     #: File > Archive > *Create archive...*'s: how the new archive the target names is
     #: packed (``archive.ArchiveOptions``); None packs as an F5 into one does.
     archive: Any = None
+    #: The sources are a *Find:* listing's, from many directories (DN's
+    #: ``cpoFromTemp``): a move to a mask with no directory renames each
+    #: where it is (:func:`in_place_name`).
+    from_listing: bool = False
 
     @property
     def move(self) -> bool:
@@ -342,6 +346,31 @@ def resolve_target(target: str, sources: list[Path | Location], cwd: Path | Loca
     return Destination(shown(location), create=True)
 
 
+def in_place_name(target: str, sources: list[Path | Location],
+                  cwd: Path | Location) -> Callable[[Any], str] | None:
+    """DN's SoftMode: for a move out of a *Find:* listing, how each source is
+    renamed beside itself -- or None when the line says somewhere else.
+
+    DN set ``cpoDirEmpty`` for a line with no directory part, one naming a
+    directory having become one first, and a move from its temporary or
+    find drive with it renamed each file in its own directory
+    (``FILECOPY.PAS:2333``, ``:1799``).  So: no ``/``, not ``~``, not an
+    existing directory; then a mask, or a plain name for one source.  Several
+    to a plain name stay a directory to create (:func:`resolve_target`'s
+    departure).  Asks the drive, so a thread runs it."""
+    text = target.strip()
+    if not text or "/" in text or text.startswith("~") or "://" in text:
+        return None
+    location = target_location(text, cwd)
+    if drive_of(location).is_dir(location):
+        return None
+    if has_wildcards(text):
+        return lambda source: apply_mask(source.name, text) or source.name
+    if len(sources) == 1:
+        return lambda source: text
+    return None
+
+
 # -- the work --------------------------------------------------------------------
 
 
@@ -568,6 +597,12 @@ class _Copier(Elevated):
                     self._checkpoint()
                     directory = Location.of(each)
                     self._try(directory, lambda: self._drive_of(directory).makedirs(directory))
+            elif self.move and request.from_listing and (
+                    namer := in_place_name(request.target, request.sources, self.cwd)) is not None:
+                # DN's SoftMode: each renamed where it is.
+                pairs = [(source, Location.of(source).parent / namer(Location.of(source)))
+                         for source in request.sources]
+                places = list(request.sources)
             else:
                 target = target_location(request.target, self.cwd)
                 opened = _open_target_archive(target, request.archive)
@@ -1138,5 +1173,5 @@ __all__ = [
     "APPEND", "ASK", "CHECK_FREE", "CopyJob", "CopyRequest", "CreateDirectory", "Destination",
     "AS_ROOT", "Elevated", "FOLLOW_LINKS", "Failure", "MOVE", "NoRoom", "OVERWRITE", "Overwrite", "OverwriteAnswer",
     "POLL", "PRESERVE", "REFRESH", "SKIP", "Stopped", "apply_mask", "resolve_target", "run", "shown",
-    "stream", "target_location",
+    "in_place_name", "stream", "target_location",
 ]

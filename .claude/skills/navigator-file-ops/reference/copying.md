@@ -85,6 +85,11 @@ progress box appears after DN's two ticks.
   open that failed leaves the target alone, so Skip never deletes the user's file.
 - **A copy onto itself and a directory into itself are refused.** So is a file over a directory
   (`dlFCNotOverDir`).
+- **F6 to a bare mask in a *Find:* listing renames each file where it is** (DN's SoftMode, `cpoDirEmpty` with
+  `cpoMove+cpoFromTemp`, `FILECOPY.PAS:2333, 1799`). `copy_entries` sets `CopyRequest.from_listing`, and
+  `in_place_name` decides: no `/`, not an existing directory, a mask, or a plain name for one file. The listing takes
+  the new names (`_rename_found`, as DN's `PFileRec(Own)^.Name`). F5 still copies into the origin, as DN's did.
+  Undo puts the files back, but the listing drops them on its next re-read.
 - **A move renames first.** On `EXDEV` it copies and then deletes, and stops trying to rename the directories
   beneath.
 - **The target is read as `CopyDialog` read it:**

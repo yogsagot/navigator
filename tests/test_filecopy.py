@@ -86,6 +86,57 @@ def test_target_directory_name_and_mask(tree, tmp_path):
     assert resolve_target(str(dst / "slash") + "/", one, tmp_path).create
 
 
+# -- DN's SoftMode: a move out of a *Find:* listing -------------------------------------
+
+
+def listing_move(sources, target, cwd, *, move=True, listing=True):
+    job = CopyJob(asker=lambda question: True)
+    request = CopyRequest(list(sources), target, OVERWRITE, MOVE if move else 0, from_listing=listing)
+    return run(request, job, cwd), job
+
+
+def test_a_mask_renames_each_found_file_where_it_is(tree, tmp_path):
+    src, _ = tree
+    done, job = listing_move([src / "a.txt", src / "sub" / "c.txt"], "*.bak", src)
+    assert (src / "a.bak").read_text() == "alpha" and (src / "sub" / "c.bak").read_text() == "gamma"
+    assert not (src / "a.txt").exists() and not (src / "sub" / "c.txt").exists()
+    assert not (src / "c.bak").exists()
+    assert [(s.name, d.name) for s, d in job.moved] == [("a.txt", "a.bak"), ("c.txt", "c.bak")]
+
+
+def test_out_of_a_listing_only_a_move_renames_in_place(tree, tmp_path):
+    src, _ = tree
+    listing_move([src / "sub" / "c.txt"], "*.bak", src, move=False)
+    assert (src / "c.bak").exists() and (src / "sub" / "c.txt").exists()
+
+
+def test_a_normal_panel_s_mask_moves_into_its_directory(tree, tmp_path):
+    src, _ = tree
+    listing_move([src / "sub" / "c.txt"], "*.bak", src, listing=False)
+    assert (src / "c.bak").exists() and not (src / "sub" / "c.bak").exists()
+
+
+def test_one_found_file_to_a_plain_name_is_renamed_beside_itself(tree, tmp_path):
+    src, _ = tree
+    listing_move([src / "sub" / "c.txt"], "renamed.txt", src)
+    assert (src / "sub" / "renamed.txt").read_text() == "gamma" and not (src / "renamed.txt").exists()
+
+
+def test_several_found_files_to_a_plain_name_go_into_a_new_directory(tree, tmp_path):
+    src, _ = tree
+    listing_move([src / "a.txt", src / "sub" / "c.txt"], "fresh", src)
+    assert sorted(p.name for p in (src / "fresh").iterdir()) == ["a.txt", "c.txt"]
+
+
+def test_a_directory_part_or_an_existing_directory_is_the_usual_target(tree, tmp_path):
+    src, dst = tree
+    listing_move([src / "sub" / "c.txt"], str(dst) + "/*.bak", src)
+    assert (dst / "c.bak").exists()
+    (src / "there").mkdir()
+    listing_move([src / "a.txt"], "there", src)
+    assert (src / "there" / "a.txt").exists()
+
+
 # -- copying ---------------------------------------------------------------------------
 
 

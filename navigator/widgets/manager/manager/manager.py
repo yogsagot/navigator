@@ -4338,6 +4338,9 @@ class Manager(Window):
             )
         if request is None:
             return False
+        # DN's ``cpoFromTemp``: a move to a bare mask renames each found file
+        # where it is (``filecopy.in_place_name``).
+        request.from_listing = panel.found is not None and here == panel.location
         return await self._run_copy(panel, request, here, move=move, others=others)
 
     async def _run_copy(self, panel: Panel, request: Any, here: Any, *, move: bool,
@@ -4390,6 +4393,8 @@ class Manager(Window):
 
         if panel.application is not None:
             panel.untag_paths(done)
+            if move and panel.found is not None and job.moved:
+                _rename_found(panel.found, job.moved)
             panel.reload(key=key_in(panel))
         for other in others:
             if other.application is not None:
@@ -6719,6 +6724,26 @@ def _entry_location(here: Any, entry: Any) -> Location:
     if entry.directory is not None:
         return Location.of(entry.directory) / entry.name
     return Location.of(here) / entry.name
+
+
+def _rename_found(found: Any, moved: list[tuple[Any, Any]]) -> None:
+    """A *Find:* listing's entries renamed where they are, as DN's record took
+    the new name (``PFileRec(Own)^.Name``): each moved beside itself is
+    listed by its new name.  One moved elsewhere is left to drop out on the
+    re-read.  The list is replaced, so the change counts."""
+    renamed = {Location.of(source): Location.of(dest) for source, dest in moved
+               if Location.of(dest).parent == Location.of(source).parent}
+    if not renamed:
+        return
+    entries = []
+    for entry in found.entries:
+        directory = entry.directory
+        dest = renamed.get(Location.of(directory) / entry.name) if directory is not None else None
+        if dest is not None:
+            entry = DirEntry(dest.name, entry.is_dir, entry.size, entry.mode, entry.mtime,
+                             entry.is_link, entry.link_target, entry.uid, entry.gid, directory=directory)
+        entries.append(entry)
+    found.entries = entries
 
 
 def _at_root(panel: Any) -> bool:
