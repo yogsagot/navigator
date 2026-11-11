@@ -629,8 +629,11 @@ A~p~pend / Cancel. Written files are untagged and `FileSaved` re-reads the panel
 
 `FastRename`, `Manager.fast_rename`, DN's `CM_RenameSingle`: `fast_rename.FastRenameLine`, an `InputLine` run as a
 modal overlay over `Panel.name_cell()` (one cell further left, for its scroll arrow), the name all selected. Enter
-renames; Up, Down, Left at the start and Right at the end rename and then are posted to the panel (DN's `PutEvent`);
-Esc cancels (a departure: DN's renamed); a click outside cancels; `/` is not typed. Never `..`. A name already taken
+renames; Up, Down, Left at the start and Right at the end rename and then are posted to the panel (DN's `PutEvent`,
+after the rename was tried, gone or refused); Esc cancels, as DN's `cmCancel`; a name left as it was is cancelled too
+and its key dropped (`FLTOOLS.PAS:982`); a click outside cancels; `/` is not typed. Departures: the whole name
+selected at the start (DN: none, overwrite mode); a change of case alone renames (DN compared upper-cased); any
+writable drive (DN: disk, temp, find and list panels). Never `..`. A name already taken
 is refused (DOS's rename refused it, POSIX's replaces). The tag follows the file; `Panel.reload(name=new)` keeps the
 cursor on it; `FileSaved` re-reads the other panels.
 

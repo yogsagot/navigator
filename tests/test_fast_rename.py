@@ -95,6 +95,38 @@ def test_down_renames_and_then_moves_the_cursor(place):
     assert names == ["b.txt", "c.txt", "x.txt"] and seen["at"] == "x.txt"
 
 
+def test_down_on_an_unchanged_name_renames_nothing_and_stays(place):
+    # DN's ``cmCancel`` for the name as it was: the Down is not the panel's.
+    app = navigator(place)
+    seen = {}
+    run_app(app, [to("a.txt"), KeyEvent("f6", alt=True), Until(editing), KeyEvent("down"),
+                  Until(lambda a: not editing(a)), lambda a: None, lambda a: None,
+                  lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert seen["at"] == "a.txt"
+    assert sorted(p.name for p in place.iterdir()) == ["a.txt", "b.txt", "c.txt"]
+
+
+def test_a_change_of_case_alone_renames(place):
+    # A departure: DN compared the names upper-cased.
+    app = navigator(place)
+    run_app(app, [to("a.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("A.txt"), KeyEvent("enter"),
+                  Until(lambda a: not editing(a) and "A.txt" in {p.name for p in place.iterdir()})])
+    names = {p.name for p in place.iterdir()}
+    assert "A.txt" in names and "a.txt" not in names
+
+
+def test_a_refused_rename_ended_by_down_still_moves_the_cursor(place):
+    # DN posted the key after the rename was tried, whether or not it went.
+    app = navigator(place)
+    seen = {}
+    run_app(app, [to("a.txt"), KeyEvent("f6", alt=True), Until(editing), *typed("c.txt"), KeyEvent("down"),
+                  Until(lambda a: a.modal is not None and not editing(a)), KeyEvent("enter"),
+                  Until(lambda a: a.modal is None), lambda a: None, lambda a: None,
+                  lambda a: seen.update(at=a.manager.left.selected.name)])
+    assert (place / "a.txt").read_text() == "a.txt"
+    assert seen["at"] == "b.txt"
+
+
 def test_escape_renames_nothing_and_a_taken_name_is_refused(place):
     app = navigator(place)
     seen = {}

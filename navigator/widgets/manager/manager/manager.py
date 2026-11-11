@@ -2172,7 +2172,8 @@ class Manager(Window):
         with another name; a name already taken is refused, as DOS's rename
         refused it where POSIX's would replace it.  The cursor stays on the
         file under its new name, a tag goes with it, and Up or Down ending
-        the line is then the panel's (``PutEvent``).
+        the line is then the panel's (``PutEvent``) -- when the name changed:
+        an unchanged one is DN's ``cmCancel``, its key dropped.
         """
         from navigator.widgets.manager.fast_rename import FastRenameLine
 
@@ -2184,9 +2185,13 @@ class Manager(Window):
         x, y, width = cell
         old = entry.name
         new, key = await FastRenameLine(old, ox + panel.x + x, oy + panel.y + y, width).execute(app)
-        if new and new != old:
-            await self._rename_entry(panel, entry, new)
+        if not new or new == old:
+            # DN's ``cmCancel`` (Esc, or the name as it was): nothing renamed,
+            # and the key that ended the line is not the panel's.
+            return
+        await self._rename_entry(panel, entry, new)
         if key is not None:
+            # Posted after the rename was tried, gone or not, as DN's ``PutEvent``.
             app.post_event(key)
 
     async def on_quick_rename(self, event: QuickRename) -> bool:

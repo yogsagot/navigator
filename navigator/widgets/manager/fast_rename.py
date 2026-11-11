@@ -3,9 +3,16 @@
 DOS Navigator laid a ``TInputFName`` (SWE.PAS) over the name in the panel
 and renamed the file when it ended.  ``TInputString`` ended on Enter, Esc,
 Up, Down, Left at the line's start and Right at its end; whatever ended it
-other than Enter was handed back to the panel afterwards, so Down renames
-and moves on.  Here Esc cancels: DN renamed even then, which a key that
-reads as *never mind* everywhere else should not do.
+other than Enter or Esc was handed back to the panel after the rename was
+tried, so Down renames and moves on.  Esc is ``cmCancel``, and so is a name
+left as it was (``FLTOOLS.PAS:982``): nothing renamed, and no key handed
+back.
+
+Departures: the line opens with the whole name selected, so the first key
+replaces it (DN's had no selection and started in overwrite mode); a
+change of case alone renames, POSIX names being case-sensitive (DN
+compared them upper-cased); and it works on any drive that can be written
+to, archives and servers too (DN's on disk, temp, find and list panels).
 
 ``TInputFName`` was laid out as an 8.3 name, its dot fixed in the ninth
 cell; a POSIX name has no such shape, and the line is as wide as the name
