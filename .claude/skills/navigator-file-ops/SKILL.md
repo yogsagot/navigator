@@ -345,8 +345,11 @@ DN's `cmPanelLongCopy` (`FBB.PAS` `LongCopy`, `dlgSplitFile`/`dlgCombineFile`); 
 is the model, `SplitCombine` the command -- **keyless** (`Manager.keyless_commands`), since Shift+F5 is Create symlink's.
 - **One command, the name decides** (DN's `Tuda`, `splitfile.mode_for`): `NAME.NNN` (three digits or more), or a
   `NAME.crc` beside its `NAME.001`, combines; anything else splits. Enabled as UU is: a file at the cursor.
+- **The line** opens on the other panel's directory, else the history's last (DN's `HistoryStr(hsFBBCopy, 1)`),
+  else empty, the file's own directory (`split_dialog.opening_target`, Combine's too).
 - **The cursor**: `_run_uucode` takes the worker's `Result.written` and a panel showing the first one written lands
-  on it -- the first part, or the file combined -- as F5's on what it made; UU's the same (*UU Encode* below).
+  on it -- the first part, or the file combined -- as F5's on what it made; UU's the same (*UU Encode* below). A
+  departure: DN's `LongCopy` only re-read, the cursor left on the source.
 - **Departures**: split by a size asked for (`parse_size`: `100M`, `1.44M`, `4G`, bytes; powers of 1024) where DN
   filled each floppy; headerless `NAME.001`, `.002`.. (`part_name`, `.1000` past 999) where DN wrote `.D01` behind a
   `Navigator Long Copy` header; and Total Commander's `NAME.crc` (`filename=`/`size=`/`crc32=`, `crc_text`/`read_crc`)

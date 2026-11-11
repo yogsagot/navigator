@@ -18,7 +18,6 @@ from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr
 from navkit.text import escape_caption
-from navml.history import HISTORY
 from navigator.lib.drives import Location
 
 

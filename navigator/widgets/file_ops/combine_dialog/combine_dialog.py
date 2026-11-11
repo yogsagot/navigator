@@ -2,7 +2,8 @@
 
 ``LongCopy``'s ``CopyDialog`` for a combine: the label names the part, and
 the line opens on the other panel's directory when there is one
-(``cmPushFirstName``), else empty -- the parts' own directory.
+(``cmPushFirstName``), else on the history's last (DN's ``HistoryStr(hsFBBCopy,
+1)``), else empty -- the parts' own directory.
 """
 
 from __future__ import annotations
@@ -14,7 +15,6 @@ from navkit.events import Event
 from navkit.i18n import tr
 from navkit.text import escape_caption
 
-from navml.history import HISTORY
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.drives import Location
@@ -31,9 +31,9 @@ class CombineDialog(Dialog):
         self._hidden = hidden
         if name:
             self.target_caption.text = tr("~C~ombine {name} to").format(name=escape_caption(name))
-        if other is not None and Path(other) != self._here:
-            HISTORY.add("splitfile", str(other).rstrip("/") + "/")
-            self.target.value = str(other).rstrip("/") + "/"
+        from navigator.widgets.file_ops.split_dialog.split_dialog import opening_target
+
+        self.target.value = opening_target(other, self._here)
         self.target.entry.select_all()
 
     @property

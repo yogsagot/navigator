@@ -25,6 +25,19 @@ from navigator.settings import SETTINGS
 from navigator.widgets.file_ops.commands import ChooseTarget
 
 
+def opening_target(other: Path | None, here: Path | Location) -> str:
+    """What Split's and Combine's line opens on, as DN's ``LongCopy``: the
+    other panel's directory (``cmPushFirstName``), put in the history --
+    else the history's last (``HistoryStr(hsFBBCopy, 1)``), else empty, the
+    file's own directory."""
+    if other is not None and Path(other) != here:
+        text = str(other).rstrip("/") + "/"
+        HISTORY.add("splitfile", text)
+        return text
+    used = HISTORY.entries("splitfile")
+    return used[0] if used else ""
+
+
 class SplitDialog(Dialog):
     """*Split file*: where to, and in parts how large."""
 
@@ -37,9 +50,7 @@ class SplitDialog(Dialog):
         self._hidden = hidden
         if name:
             self.target_caption.text = tr("~S~plit {name} to").format(name=escape_caption(name))
-        if other is not None and Path(other) != self._here:
-            HISTORY.add("splitfile", str(other).rstrip("/") + "/")
-            self.target.value = str(other).rstrip("/") + "/"
+        self.target.value = opening_target(other, self._here)
         self.target.entry.select_all()
         self.size.value = SETTINGS.split.size
         self.options.value = 1 if SETTINGS.split.checksum else 0

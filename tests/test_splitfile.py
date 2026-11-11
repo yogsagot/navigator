@@ -302,6 +302,18 @@ def test_combine_puts_the_other_panel_s_cursor_on_the_file_made(place):
     assert seen == {"at": "blob.bin"}
 
 
+@pytest.mark.parametrize("box", [SplitDialog, CombineDialog])
+def test_with_nowhere_else_the_line_opens_on_the_history_s_last(box, tmp_path):
+    # DN's ``if S = '' then S := HistoryStr(hsFBBCopy, 1)``.
+    from navml.history import HISTORY
+
+    assert box(name="f", here=tmp_path, other=None).target.value == ""
+    HISTORY.add("splitfile", "/some/where/")
+    assert box(name="f", here=tmp_path, other=None).target.value == "/some/where/"
+    assert box(name="f", here=tmp_path, other=tmp_path).target.value == "/some/where/"
+    assert box(name="f", here=tmp_path, other=tmp_path / "b").target.value == f"{tmp_path / 'b'}/"
+
+
 def test_a_bad_size_keeps_the_dialog_up(place):
     app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
     seen = {}
