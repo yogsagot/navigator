@@ -518,7 +518,8 @@ class Shell(DockLayout):
 
     async def command_history(self) -> None:
         """Alt+F8: ``CmdHistory`` -- *Run* puts the command on the line and runs
-        it, *Drop* puts it there alone, the cursor at its end."""
+        it, *Drop* puts it there alone, the cursor at its end -- but not on a
+        hidden line (``ouiHideCmdline``), which takes nothing."""
         from navigator.widgets.shell.command_history_dialog import CommandHistoryDialog
 
         answer = await CommandHistoryDialog().execute(self.application)
@@ -527,7 +528,7 @@ class Shell(DockLayout):
         how, command = answer
         if how == "run":
             self.run_command(command)
-        else:
+        elif not SETTINGS.interface.hide_command_line:
             self.command_line.set_text(command)
 
     #: Whether the grabber has said how it works this session (DN's ``NotMessage``).
@@ -1292,7 +1293,8 @@ class Shell(DockLayout):
             manager = self.active_manager
             if not SETTINGS.file_manager.space_toggles_selection:
                 return tr("File Manager Setup's Space toggles is off")
-            if self.command_line.value:
+            if self.command_line.value and not SETTINGS.interface.hide_command_line:
+                # A hidden line's text takes nothing: DN's hidden line took no keys.
                 return tr("The command line holds text: the key edits it")
             if manager is None:
                 return no_manager

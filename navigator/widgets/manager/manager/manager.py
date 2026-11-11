@@ -3807,9 +3807,11 @@ class Manager(Window):
 
     def _command_line_has_text(self) -> bool:
         """Whether the command line of the screen this window is on holds
-        anything -- a blank included, as for Space.  ``False`` with none."""
+        anything -- a blank included, as for Space.  ``False`` with none, and
+        for a hidden one (``ouiHideCmdline``): DN's took no keys, so the
+        panel had them all, whatever the line held."""
         line = self._command_line()
-        return line is not None and bool(line.value)
+        return line is not None and not SETTINGS.interface.hide_command_line and bool(line.value)
 
     async def on_scroll_names(self, event: ScrollNames) -> bool:
         self.active_panel.scroll_names(event.step)

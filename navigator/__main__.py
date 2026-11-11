@@ -708,6 +708,10 @@ class Navigator(Application):
             return True
         if self.shell._editor_has_keys():
             return False  # an editor takes it, line breaks and all
+        if SETTINGS.interface.hide_command_line:
+            # ``ouiHideCmdline``: DN's hidden line took no keys, Shift+Ins's
+            # paste among them -- nothing goes onto it.
+            return True
         text = " ".join(event.text.splitlines())
         if text:
             self.shell.command_line.insert(text)
