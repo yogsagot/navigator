@@ -109,11 +109,15 @@ progress box appears after DN's two ticks.
     masks the whole name, a departure below);
   - otherwise it is a single file's new name, or for several a directory to create (a departure, below), asked about
     first (`dlQueryCreateDir`) only when Confirmations' *Create non-existing dir* is ticked, off by default.
-- **What went is untagged; what was skipped keeps its tag.** Both panels re-read afterwards.
+- **What went is untagged; what was skipped keeps its tag.** Once the copy ends, and after Stop for what went
+  whole; a directory only when all of it went. Both panels re-read afterwards.
 - **A stopped file is removed** rather than left half-written.
 
 **Departures:**
 
+- **Tags clear when the copy ends, not one by one** as DN's `cmCopyUnselect` cleared them (`FILECOPY.PAS:1373,
+  1635, 1769, 2174`). The end state is DN's, and a directory with a file skipped inside stays tagged, to be copied
+  again.
 - ***Flush buffers* `fsync`s each file as it is written** (`CopyRequest.flush`), before it counts and before a move
   across drives deletes its source. DN flushed once, at the end (`int 21h` `0Dh` under *Flushing buffers...*,
   `FILECOPY.PAS:2395-2424`), after `__Remove` had already deleted the sources.

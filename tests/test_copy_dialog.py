@@ -403,6 +403,34 @@ def test_an_empty_rename_skips_the_file(two):
     assert held == "old"
 
 
+def test_f5_untags_what_went_and_leaves_the_skipped_tagged(two):
+    from navigator.widgets.file_ops.overwrite_query import OverwriteQuery
+
+    a, b = two
+    (b / "one.txt").write_text("old")
+
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await started(app, shell.manager.left, shell.manager.right)
+        panel = shell.manager.left
+        panel.marked = frozenset({"one.txt", "two.txt"})
+        app.post_event(KeyEvent("f5"))
+        await wait_until(lambda: isinstance(app.modal, CopyDialog))
+        app.post_event(KeyEvent("enter"))
+        await wait_until(lambda: isinstance(app.modal, OverwriteQuery))
+        app.post_event(KeyEvent("s", "s", alt=True))
+        await wait_until(lambda: app.modal is None and (b / "two.txt").exists() and panel.marked != {"one.txt", "two.txt"})
+        marked = panel.marked
+        app.exit()
+        await task
+        return marked
+
+    assert asyncio.run(main()) == frozenset({"one.txt"})
+    assert (b / "one.txt").read_text() == "old"
+
+
 def test_f5_to_a_missing_directory_asks_yes_or_no_to_create_it(two):
     """With *Create non-existing dir* ticked in Confirmations -- not DN's default."""
     a, b = two

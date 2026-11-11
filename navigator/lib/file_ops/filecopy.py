@@ -394,7 +394,10 @@ def run(request: CopyRequest, job: CopyJob, cwd: Path | Location) -> list[Path |
     """Copy (or move) what *request* says; answer the sources done in full.
 
     A source skipped, or one that failed in part, is not in the answer -- the
-    file manager untags only what went, as DN deselected a file as it copied.
+    file manager untags only what went, once the copy ends: a departure, DN
+    deselected each as it finished (``cmCopyUnselect``).  The end is DN's, and
+    a directory with anything skipped inside keeps its tag to try again.
+    Stopped, what went whole is still answered.
     The sources and the target may be on any drives
     (:mod:`navigator.lib.drives`): the work is the same steps, asked of each
     end's drive.

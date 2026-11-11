@@ -4143,8 +4143,9 @@ class Manager(Window):
         through ``asyncio.to_thread`` so the loop keeps painting, and
         :meth:`_watch_copy` stands between the two -- the progress box once
         the copy has taken a moment, and every question the worker puts, one
-        at a time.  What was copied in full is untagged, as DN deselected each
-        file as it went; what was skipped keeps its tag.
+        at a time.  What was copied in full is untagged once the copy ends --
+        after Stop too -- where DN deselected each as it finished (a departure,
+        ``filecopy.run``); what was skipped keeps its tag.
         """
         panel, other = self.active_panel, self.passive_panel
         entries = self.selection(panel)

@@ -282,6 +282,20 @@ def test_cancel_stops_everything(clash, tmp_path):
     assert done == [] and not (dst / "b.txt").exists()
 
 
+def test_a_directory_with_a_file_skipped_inside_is_not_done(tree, tmp_path):
+    # It keeps its tag, to be copied again; its siblings that went are done.
+    src, dst = tree
+    write(dst / "sub" / "c.txt", "old")
+    done, _, _ = copy([src / "a.txt", src / "sub"], dst, cwd=tmp_path, answers=[OverwriteAnswer("skip")])
+    assert done == [src / "a.txt"]
+
+
+def test_stopped_on_the_second_source_the_first_is_still_done(clash, tmp_path):
+    src, dst = clash
+    done, asked, _ = copy([src / "b.txt", src / "a.txt"], dst, cwd=tmp_path, answers=[None])
+    assert [type(q) for q in asked] == [Overwrite] and done == [src / "b.txt"]
+
+
 def test_a_directory_in_the_way_is_refused(tree, tmp_path):
     src, dst = tree
     (dst / "a.txt").mkdir()
