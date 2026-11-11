@@ -54,12 +54,12 @@ class FindFileDialog(Dialog, _Component):
     text: Field    # find_file_dialog.nml:41
     replacement: Field    # find_file_dialog.nml:53
     options_caption: Label    # find_file_dialog.nml:65
-    options: CheckBoxes    # find_file_dialog.nml:74
-    scope_caption: Label    # find_file_dialog.nml:84
-    scope: RadioButtons    # find_file_dialog.nml:93
-    pick: Button    # find_file_dialog.nml:102
-    advanced: Button    # find_file_dialog.nml:113
-    abandon: Button    # find_file_dialog.nml:122
+    options: CheckBoxes    # find_file_dialog.nml:75
+    scope_caption: Label    # find_file_dialog.nml:85
+    scope: RadioButtons    # find_file_dialog.nml:95
+    pick: Button    # find_file_dialog.nml:104
+    advanced: Button    # find_file_dialog.nml:115
+    abandon: Button    # find_file_dialog.nml:124
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -69,15 +69,15 @@ class FindFileDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # find_file_dialog.nml:102
+    async def on_pick_click(self, event: _Event) -> bool:    # find_file_dialog.nml:104
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_advanced_click(self, event: _Event) -> bool:    # find_file_dialog.nml:113
+    async def on_advanced_click(self, event: _Event) -> bool:    # find_file_dialog.nml:115
         """``advanced`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # find_file_dialog.nml:122
+    async def on_abandon_click(self, event: _Event) -> bool:    # find_file_dialog.nml:124
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -87,12 +87,12 @@ class FindFileDialog(Dialog, _Component):
         self.text = Field(parent=self)    # find_file_dialog.nml:40
         self.replacement = Field(parent=self)    # find_file_dialog.nml:52
         self.options_caption = Label(parent=self)    # find_file_dialog.nml:64
-        self.options = CheckBoxes(parent=self)    # find_file_dialog.nml:73
-        self.scope_caption = Label(parent=self)    # find_file_dialog.nml:83
-        self.scope = RadioButtons(parent=self)    # find_file_dialog.nml:92
-        self.pick = Button(parent=self)    # find_file_dialog.nml:101
-        self.advanced = Button(parent=self)    # find_file_dialog.nml:112
-        self.abandon = Button(parent=self)    # find_file_dialog.nml:121
+        self.options = CheckBoxes(parent=self)    # find_file_dialog.nml:74
+        self.scope_caption = Label(parent=self)    # find_file_dialog.nml:84
+        self.scope = RadioButtons(parent=self)    # find_file_dialog.nml:94
+        self.pick = Button(parent=self)    # find_file_dialog.nml:103
+        self.advanced = Button(parent=self)    # find_file_dialog.nml:114
+        self.abandon = Button(parent=self)    # find_file_dialog.nml:123
 
         self.modal_width = 52    # find_file_dialog.nml:22
         self.modal_height = _bind(lambda _o: 21 if self.replacing else 19)    # find_file_dialog.nml:23
@@ -137,71 +137,79 @@ class FindFileDialog(Dialog, _Component):
         self.replacement.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_file_dialog.nml:59
 
         self.options_caption.x = 3    # find_file_dialog.nml:66
-        self.options_caption.y = _bind(lambda _o: 8 if self.replacing else 6)    # find_file_dialog.nml:67
-        self.options_caption.width = 12    # find_file_dialog.nml:68
-        self.options_caption.height = 1    # find_file_dialog.nml:69
-        self.options_caption.text = _bind(    # find_file_dialog.nml:70
+        self.options_caption.width = 12    # find_file_dialog.nml:67
+        self.options_caption.height = 1    # find_file_dialog.nml:68
+        self.options_caption.text = _bind(    # find_file_dialog.nml:71
             lambda _o: _tr('Options'),
             yielding=True,
         )
-        self.options_caption.link = _bind(lambda _o: self.options)    # find_file_dialog.nml:71
+        self.options_caption.link = _bind(lambda _o: self.options)    # find_file_dialog.nml:72
+        self.options_caption.y = _bind(    # find_file_dialog.nml:70
+            lambda _o: self.replacement.y + self.replacement.height + 1 if self.replacement.visible and self.replacement.height else self.text.y + self.text.height + 1
+        )
 
-        self.options.y = _bind(lambda _o: 9 if self.replacing else 7)    # find_file_dialog.nml:75
         self.options.height = 3    # find_file_dialog.nml:76
-        self.options.items = _bind(    # find_file_dialog.nml:80
+        self.options.items = _bind(    # find_file_dialog.nml:81
             lambda _o: [_tr('Adva~n~ced search'), _tr('~C~ase sensitive'), _tr('~R~ecursive search'), _tr('~W~hole words'), _tr('Regular e~x~pression')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # find_file_dialog.nml:81
+        self.options.tooltips = _bind(    # find_file_dialog.nml:82
             lambda _o: [_tr('Also match the size, date and kind set by Advanced...'), '', _tr('Search the subdirectories too'), '', _tr('The text is a Python regular expression, matched across lines')],
             yielding=True,
         )
         self.options.x = 3    # find_file_dialog.nml:78
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # find_file_dialog.nml:79
+        self.options.y = _bind(    # find_file_dialog.nml:80
+            lambda _o: self.options_caption.y + self.options_caption.height
+        )
 
-        self.scope_caption.x = 3    # find_file_dialog.nml:85
-        self.scope_caption.y = _bind(lambda _o: 13 if self.replacing else 11)    # find_file_dialog.nml:86
+        self.scope_caption.x = 3    # find_file_dialog.nml:86
         self.scope_caption.width = 10    # find_file_dialog.nml:87
         self.scope_caption.height = 1    # find_file_dialog.nml:88
-        self.scope_caption.text = _bind(lambda _o: _tr('Scope'), yielding=True)    # find_file_dialog.nml:89
-        self.scope_caption.link = _bind(lambda _o: self.scope)    # find_file_dialog.nml:90
+        self.scope_caption.text = _bind(lambda _o: _tr('Scope'), yielding=True)    # find_file_dialog.nml:91
+        self.scope_caption.link = _bind(lambda _o: self.scope)    # find_file_dialog.nml:92
+        self.scope_caption.y = _bind(    # find_file_dialog.nml:90
+            lambda _o: self.options.y + self.options.height + 1
+        )
 
-        self.scope.y = _bind(lambda _o: 14 if self.replacing else 12)    # find_file_dialog.nml:94
-        self.scope.height = 2    # find_file_dialog.nml:95
-        self.scope.items = _bind(    # find_file_dialog.nml:99
+        self.scope.height = 2    # find_file_dialog.nml:96
+        self.scope.items = _bind(    # find_file_dialog.nml:101
             lambda _o: [_tr('~E~ntire disk'), _tr('Current ~d~irectory'), _tr('~A~ll drives')],
             yielding=True,
         )
-        self.scope.x = 3    # find_file_dialog.nml:97
-        self.scope.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # find_file_dialog.nml:98
+        self.scope.x = 3    # find_file_dialog.nml:98
+        self.scope.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # find_file_dialog.nml:99
+        self.scope.y = _bind(    # find_file_dialog.nml:100
+            lambda _o: self.scope_caption.y + self.scope_caption.height
+        )
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # find_file_dialog.nml:103
-        self.pick.default = True    # find_file_dialog.nml:104
-        self.pick.x = 3    # find_file_dialog.nml:105
-        self.pick.width = 11    # find_file_dialog.nml:106
-        self.pick.height = 2    # find_file_dialog.nml:107
-        self.pick.y = _bind(    # find_file_dialog.nml:109
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # find_file_dialog.nml:105
+        self.pick.default = True    # find_file_dialog.nml:106
+        self.pick.x = 3    # find_file_dialog.nml:107
+        self.pick.width = 11    # find_file_dialog.nml:108
+        self.pick.height = 2    # find_file_dialog.nml:109
+        self.pick.y = _bind(    # find_file_dialog.nml:111
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
-        self.pick.on_click = self.on_pick_click    # find_file_dialog.nml:102
+        self.pick.on_click = self.on_pick_click    # find_file_dialog.nml:104
 
-        self.advanced.text = _bind(    # find_file_dialog.nml:114
+        self.advanced.text = _bind(    # find_file_dialog.nml:116
             lambda _o: _tr('Ad~v~anced...'),
             yielding=True,
         )
-        self.advanced.x = 16    # find_file_dialog.nml:115
-        self.advanced.width = 15    # find_file_dialog.nml:116
-        self.advanced.height = 2    # find_file_dialog.nml:117
-        self.advanced.y = _bind(    # find_file_dialog.nml:119
+        self.advanced.x = 16    # find_file_dialog.nml:117
+        self.advanced.width = 15    # find_file_dialog.nml:118
+        self.advanced.height = 2    # find_file_dialog.nml:119
+        self.advanced.y = _bind(    # find_file_dialog.nml:121
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
-        self.advanced.on_click = self.on_advanced_click    # find_file_dialog.nml:113
+        self.advanced.on_click = self.on_advanced_click    # find_file_dialog.nml:115
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_file_dialog.nml:123
-        self.abandon.x = 33    # find_file_dialog.nml:124
-        self.abandon.width = 11    # find_file_dialog.nml:125
-        self.abandon.height = 2    # find_file_dialog.nml:126
-        self.abandon.y = _bind(    # find_file_dialog.nml:128
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_file_dialog.nml:125
+        self.abandon.x = 33    # find_file_dialog.nml:126
+        self.abandon.width = 11    # find_file_dialog.nml:127
+        self.abandon.height = 2    # find_file_dialog.nml:128
+        self.abandon.y = _bind(    # find_file_dialog.nml:130
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
-        self.abandon.on_click = self.on_abandon_click    # find_file_dialog.nml:122
+        self.abandon.on_click = self.on_abandon_click    # find_file_dialog.nml:124

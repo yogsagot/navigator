@@ -102,6 +102,8 @@ code is the familiar `max(0, parent.width - 12)`. Prefer it to hand arithmetic f
 - An end edge alone **keeps the widget's own size** and pins against it, so a content-sized widget (the clock) works.
 - **A sibling form may list ids**: `before: macro_mark, root_mark, clock + 1` sits against the first one *shown*
   (`visible` and a non-zero size on that axis), with one gap for all.
+- **A bare id in an expression loses to the widget's own property of that name**: under a `Label`, `text` is its
+  caption even with a sibling `id: text`. Write `root.text` there. Anchors always do (`root.<id>`).
 - **A sibling form plus a parent edge on the same side makes the parent edge its fallback**, used when no listed
   sibling is shown: `before: options + 1` with `right: 1`. Without a fallback, the last id is sat against
   unconditionally. A lone id with no fallback is the plain `a.x + a.width + G`, with no visibility test.

@@ -64,38 +64,40 @@ FindFileDialog(Dialog):
     Label:
         id: options_caption
         x: 3
-        y: 8 if root.replacing else 6
         width: 12
         height: 1
+        anchors:
+            below: replacement, text + 1
         text: "Options"
         link: options
 
     CheckBoxes:
         id: options
-        y: 9 if root.replacing else 7
         height: 3
         anchors:
             left: 3
             right: 3
+            below: options_caption
         items: ["Adva~n~ced search", "~C~ase sensitive", "~R~ecursive search", "~W~hole words", "Regular e~x~pression"]
         tooltips: ["Also match the size, date and kind set by Advanced...", "", "Search the subdirectories too", "", "The text is a Python regular expression, matched across lines"]
 
     Label:
         id: scope_caption
         x: 3
-        y: 13 if root.replacing else 11
         width: 10
         height: 1
+        anchors:
+            below: options + 1
         text: "Scope"
         link: scope
 
     RadioButtons:
         id: scope
-        y: 14 if root.replacing else 12
         height: 2
         anchors:
             left: 3
             right: 3
+            below: scope_caption
         items: ["~E~ntire disk", "Current ~d~irectory", "~A~ll drives"]
 
     Button:

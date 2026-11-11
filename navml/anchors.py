@@ -212,7 +212,7 @@ def _start(side: _Side, position: str, size: str) -> str:
         return fallback  # type: ignore[return-value]
 
     def edge(target: str) -> str:
-        at = f"{target}.{position} + {target}.{size}"
+        at = f"{_ref(target)}.{position} + {_ref(target)}.{size}"
         gap = side.sibling.value  # type: ignore[union-attr]
         return at if _is_zero(gap) else f"{at} + {_operand(gap)}"
 
@@ -228,7 +228,7 @@ def _end(side: _Side, position: str, size: str) -> str:
         return fallback  # type: ignore[return-value]
     gap = side.sibling.value
     return _chain(
-        side.sibling.targets, lambda t: _minus(f"{t}.{position}", gap), size, fallback
+        side.sibling.targets, lambda t: _minus(f"{_ref(t)}.{position}", gap), size, fallback
     )
 
 
@@ -243,8 +243,17 @@ def _chain(targets: tuple[str, ...], edge, size: str, fallback: str | None) -> s
     else:
         result = fallback
     for target in reversed(targets):
-        result = f"{edge(target)} if {target}.visible and {target}.{size} else {result}"
+        result = f"{edge(target)} if {_ref(target)}.visible and {_ref(target)}.{size} else {result}"
     return result
+
+
+def _ref(target: str) -> str:
+    """A sibling by id, through ``root``: a bare id loses to the widget's own
+    property of that name (a field ``id: text`` under a ``Label``, whose
+    ``text`` is its caption), where ``root.<id>`` cannot -- ids are unique in
+    a document and never one of the root's names.  It compiles to the same
+    ``self.<id>`` an unshadowed bare id does."""
+    return f"root.{target}"
 
 
 def _wrap(expression: str) -> str:

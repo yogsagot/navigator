@@ -143,6 +143,21 @@ def test_alt_f7_fills_the_panel_with_a_find_listing(place):
     assert seen["title_text"] == " Find: README " and seen["right"] is None
 
 
+
+def test_the_dialog_s_own_keys_reach_their_commands(place):
+    """Tab and Shift+Tab are the dialog table's ``SelectNext``/``SelectPrevious``,
+    asked through ``enables()`` -- which the dialog's reason for refusing OK,
+    once also called ``refusal``, used to shadow and crash."""
+    app = navigator(place)
+    seen = []
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None),
+                  lambda a: seen.append(a.focused is a.modal.mask.entry),
+                  KeyEvent("tab"), lambda a: seen.append(a.focused is a.modal.mask.entry),
+                  KeyEvent("tab", shift=True), lambda a: seen.append(a.focused is a.modal.mask.entry),
+                  KeyEvent("escape"), IDLE])
+    assert seen == [True, False, True]
+    assert app.modal is None
+
 def test_enter_goes_to_the_file_and_up_comes_back(place):
     app = navigator(place)
     seen = {}

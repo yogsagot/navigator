@@ -45,78 +45,87 @@ FindDialog(Dialog):
         text: "Options"
         link: options
         x: 3
-        y: 6 if root.replace else 4
         width: 24
         height: 1
+        anchors:
+            below: new, text + 1
 
     CheckBoxes:
         id: options
         x: 3
-        y: 7 if root.replace else 5
         width: 24
         height: 3 if root.replace else 2
         items: ["~C~ase sensitive", "~W~hole words only", "~P~rompt on replace"] if root.replace else ["~C~ase sensitive", "~W~hole words only"]
         tooltips: ["", "", "Ask before each replacement"]
+        anchors:
+            below: options_caption
 
     Label:
         id: direction_caption
         text: "Direction"
         link: direction
         x: 30
-        y: 6 if root.replace else 4
         width: 22
         height: 1
+        anchors:
+            below: new, text + 1
 
     RadioButtons:
         id: direction
         x: 30
-        y: 7 if root.replace else 5
         width: 22
         height: 2
         items: ["Forwar~d~", "~B~ackward"]
+        anchors:
+            below: direction_caption
 
     Label:
         id: scope_caption
         text: "Scope"
         link: scope
         x: 3
-        y: 11 if root.replace else 8
         width: 24
         height: 1
+        anchors:
+            below: options + 1
 
     RadioButtons:
         id: scope
         x: 3
-        y: 12 if root.replace else 9
         width: 24
         height: 2
         items: ["~G~lobal", "~S~elected text"]
+        anchors:
+            below: scope_caption
 
     Label:
         id: origin_caption
         text: "Origin"
         link: origin
         x: 30
-        y: 11 if root.replace else 8
         width: 22
         height: 1
+        anchors:
+            below: options + 1
 
     RadioButtons:
         id: origin
         x: 30
-        y: 12 if root.replace else 9
         width: 22
         height: 2
         items: ["~E~ntire scope", "~F~rom cursor"]
+        anchors:
+            below: origin_caption
 
     Button:
         id: pick
         text: "O~K~"
         default: True
-        x: 6 if root.replace else 22
-        y: 15 if root.replace else 12
         width: 10
         height: 2
+        anchors:
+            before: all, rest_row
+            below: scope + 1
 
     #: ``cmYes``: every occurrence, not the first.
     Button:
@@ -124,18 +133,20 @@ FindDialog(Dialog):
         text: "Change ~a~ll"
         visible: root.replace
         x: 16
-        y: 15
         width: 16
         height: 2
+        anchors:
+            below: scope + 1
 
     ButtonRow:
+        id: rest_row
         justify: "start"
         button_width: 10
         spacing: 0
-        y: 15 if root.replace else 12
         anchors:
             left: 32
             right: 0
+            below: scope + 1
 
         Button:
             id: abandon

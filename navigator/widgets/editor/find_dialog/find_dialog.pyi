@@ -34,6 +34,7 @@ class FindDialog(Dialog, _Component):
     origin: RadioButtons
     pick: Button
     all: Button
+    rest_row: ButtonRow
     abandon: Button
     helper: Button
     def __init__(self, *, word: str = ..., data: SearchData | None = ..., **kwargs: Any) -> None: ...

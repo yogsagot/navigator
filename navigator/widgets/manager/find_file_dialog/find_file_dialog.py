@@ -79,9 +79,12 @@ class FindFileDialog(Dialog):
 
         return ReplaceRequest(request, self.replacement.value)
 
-    def refusal(self) -> str | None:
+    def close_refusal(self) -> str | None:
         """Why OK cannot close the dialog: no text to replace, a pattern or
-        a replacement that does not compile -- or None."""
+        a replacement that does not compile -- or None.
+
+        Not ``refusal``: that is navkit's ``Widget.refusal(command)``, which
+        ``enables()`` asks for every command a key here runs."""
         from navigator.lib.file_ops import filereplace
 
         if self.replacing and not self.text.value:
@@ -91,7 +94,7 @@ class FindFileDialog(Dialog):
         return filereplace.check(filereplace.ReplaceRequest(request, self.replacement.value if self.replacing else ""))
 
     async def on_pick_click(self, event: Event) -> bool:
-        reason = self.refusal()
+        reason = self.close_refusal()
         if reason is not None:
             self.spawn(self.refuse(reason))
             return True

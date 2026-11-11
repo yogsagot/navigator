@@ -117,7 +117,7 @@ def test_a_sibling_start_and_a_parent_end_stretch_between_them():
             after: a + 1
             right: 2
 """)["b"]
-    assert got["x"] == "a.x + a.width + 1"
+    assert got["x"] == "root.a.x + root.a.width + 1"
     assert got["width"] == "max(0, parent.width - 2 - self.x)"
 
 
@@ -133,7 +133,7 @@ def test_a_list_of_siblings_takes_the_first_one_shown():
             before: mark, clock + 1
 """)["a"]
     assert got["x"] == (
-        "max(0, (mark.x - 1 if mark.visible and mark.width else clock.x - 1) - self.width)"
+        "max(0, (root.mark.x - 1 if root.mark.visible and root.mark.width else root.clock.x - 1) - self.width)"
     )
 
 
@@ -150,7 +150,7 @@ def test_a_parent_edge_beside_a_sibling_is_the_fallback():
 """)["a"]
     assert got["x"] == "2"
     assert got["width"] == (
-        "max(0, (options.x - 1 if options.visible and options.width "
+        "max(0, (root.options.x - 1 if root.options.visible and root.options.width "
         "else parent.width - 1) - 2)"
     )
 
@@ -164,7 +164,24 @@ def test_a_lone_sibling_stays_unconditional():
         anchors:
             after: a + 1
 """)["b"]
-    assert got["x"] == "a.x + a.width + 1"
+    assert got["x"] == "root.a.x + root.a.width + 1"
+
+
+def test_a_sibling_named_like_one_of_the_widget_s_own_properties_is_still_the_sibling():
+    """A field ``id: text`` beside a ``Label``, whose own ``text`` is its caption:
+    bare, ``text`` would be the caption string -- the Find dialog met this."""
+    root = built("""Widget_:
+    Label:
+        id: text
+        y: 2
+        height: 1
+    Label:
+        id: below_it
+        height: 1
+        anchors:
+            below: text + 1
+""", width=40, height=10)
+    assert root.below_it.y == 4
 
 
 # -- what is refused -----------------------------------------------------------

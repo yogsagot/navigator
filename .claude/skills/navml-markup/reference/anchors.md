@@ -53,6 +53,10 @@ clock, falling back to the bar's end. Written by hand, that was a three-deep con
 "Shown" is `visible` **and** a non-zero size along the axis, which is what the info lines' `options.visible and
 options.width` already said. A zero-width sibling has no edge to sit against.
 
+**Siblings are referenced as `root.<id>`** in what an anchor writes. A bare id loses to the anchored widget's own
+property of the same name: a field `id: text` under a `Label` read as the Label's caption, which the Find dialog's
+conversion caught. `root.<id>` compiles to the same `self.<id>`.
+
 A lone sibling with no fallback stays unconditional, so every anchor written before lists existed generates unchanged.
 
 ## The conversion
@@ -72,7 +76,14 @@ could prove equal: a literal start with `max(0, parent.width - K)`, an end edge 
     their centring differently, or did not centre them at all (among them Find, Margins, Archive, the UU, Split and
     Combine boxes, Overwrite, the game, the calculator, Command history). Re-centring would move a button by a cell or
     more, so fidelity wins. Their `spacing` and `button_width` are DN's: 0 and 1 occur, as do 10 and 12.
-- **Left as expressions, about 60 lines**:
-  - width breakpoints (`35 if parent.width >= 67 else 30`);
+- **Rows that move with a mode are chains.** The editor's Find (`root.replace`) and Find File (`root.replacing`)
+  hang each row below the one above: `below: new, text + 1` is "under New text while it is shown, else under Text".
+  The mode test now lives once, in the field's `visible`, instead of in every row below it. Both modes, built and
+  toggled live, lay out cell for cell as before. The one exception is Change all, hidden in Find, which now waits
+  under Scope instead of row 15.
+- **Left as expressions, about 45 lines**:
+  - width breakpoints (System setup's `35 if parent.width >= 67 else 30`, Volumes' `>= 82`): reflow, not siblings;
+  - the calculator's faces: its line is 0 below the Expression caption in Classic and 1 below the mode strip
+    otherwise, and a sibling list has one gap (per-id gaps would make `before: a, b, clock + 1` ambiguous);
   - floors other than 0 (`max(1, parent.width - 30)`);
   - Erase query's order, which changes with `kind`.
