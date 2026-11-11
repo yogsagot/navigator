@@ -4981,7 +4981,7 @@ direction = "rtl"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "ترتيب الفرز"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{total} في {n}~ ملف محدد", "~{total} في {n}~ ملف محدد", "~{total} في {n}~ ملف محدد", "~{total} في {n}~ ملفات محددة", "~{total} في {n}~ ملفا محددا", "~{total} في {n}~ ملف محدد"]
+"{total} in ~{n}~ selected file" = ["{total} في ~{n}~ ملف محدد", "{total} في ~{n}~ ملف محدد", "{total} في ~{n}~ ملف محدد", "{total} في ~{n}~ ملفات محددة", "{total} في ~{n}~ ملفا محددا", "{total} في ~{n}~ ملف محدد"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "~ل~صق من الحافظة"
 # navigator/widgets/manager/panel/panel.py:2345

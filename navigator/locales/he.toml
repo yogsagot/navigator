@@ -4981,7 +4981,7 @@ direction = "rtl"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "סדר מיון"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{total} בקובץ מסומן אחד~", "~{total} בשני קבצים מסומנים~", "~{total} ב-{n}~ קבצים מסומנים"]
+"{total} in ~{n}~ selected file" = ["{total} בקובץ מסומן אחד", "{total} בשני קבצים מסומנים", "{total} ב-~{n}~ קבצים מסומנים"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "ה~ד~בק מלוח הגזירים"
 # navigator/widgets/manager/panel/panel.py:2345

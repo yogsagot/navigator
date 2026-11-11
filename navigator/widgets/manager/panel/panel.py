@@ -3050,12 +3050,13 @@ class Panel(ListViewer):
 
     def _selection_text(self, marked: list[DirEntry]) -> str:
         """*Selected files*: DN's ``dlBytesIn`` and ``dlSelectedFiles``, or
-        its ``No files selected``."""
+        its ``No files selected``.  Only the two numbers are bright, as DN's
+        ``'~'+bytes+' ~bytes in ~'+N+'~ selected files'`` had them."""
         if not marked:
             return tr("No files selected")
         size = sum(item.size for item in marked)
-        total = tr_n("{n:,} byte", "{n:,} bytes", size)
-        return tr_n("~{total} in {n}~ selected file", "~{total} in {n}~ selected files", len(marked), total=total)
+        total = tr_n("~{n:,}~ byte", "~{n:,}~ bytes", size)
+        return tr_n("{total} in ~{n}~ selected file", "{total} in ~{n}~ selected files", len(marked), total=total)
 
     def _current_file_text(self, entry: DirEntry | None) -> str:
         """*Current file*: the entry laid out as a detailed row is, in the

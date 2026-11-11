@@ -2172,7 +2172,7 @@ def test_tags_survive_a_reread_but_not_a_move(panel, tree):
 
 def test_the_info_lines_sum_the_tagged_files(panel):
     panel.marked = frozenset({"one.txt", "two.txt"})
-    assert ("~2,058 bytes in 2~ selected files", "selected-files") in panel.info_lines
+    assert ("~2,058~ bytes in ~2~ selected files", "selected-files") in panel.info_lines
 
 
 def test_the_info_lines_name_a_symlinks_target(panel, tree):

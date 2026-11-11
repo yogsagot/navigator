@@ -4980,7 +4980,7 @@ flag = "LV"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "Kārtošanas secība"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{total} {n}~ atlasītā failā", "~{total} {n}~ atlasītos failos", "~{total} {n}~ atlasītos failos"]
+"{total} in ~{n}~ selected file" = ["{total} ~{n}~ atlasītā failā", "{total} ~{n}~ atlasītos failos", "{total} ~{n}~ atlasītos failos"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "Ielīmēt no starpliktu~v~es"
 # navigator/widgets/manager/panel/panel.py:2345

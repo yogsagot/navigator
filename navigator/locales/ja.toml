@@ -4980,7 +4980,7 @@ flag = "JP"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "並べ替え順"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{n} 個の選択ファイルに {total}~"]
+"{total} in ~{n}~ selected file" = ["~{n}~ 個の選択ファイルに {total}"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "クリップボードから貼り付け(~B~)"
 # navigator/widgets/manager/panel/panel.py:2345

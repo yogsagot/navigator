@@ -4980,7 +4980,7 @@ flag = "CN"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "排序方式"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{n} 个选中的文件，共 {total}~"]
+"{total} in ~{n}~ selected file" = ["~{n}~ 个选中的文件，共 {total}"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "从剪贴板粘贴(~B~)"
 # navigator/widgets/manager/panel/panel.py:2345

@@ -4980,7 +4980,7 @@ flag = "RU"
 # navigator/widgets/manager/panel/option_items.py:57
 "Sort order" = "Порядок сортировки"
 # navigator/widgets/manager/panel/panel.py:2875
-"~{total} in {n}~ selected file" = ["~{total} в {n}~ отмеченном файле", "~{total} в {n}~ отмеченных файлах", "~{total} в {n}~ отмеченных файлах"]
+"{total} in ~{n}~ selected file" = ["{total} в ~{n}~ отмеченном файле", "{total} в ~{n}~ отмеченных файлах", "{total} в ~{n}~ отмеченных файлах"]
 # navigator/widgets/manager/panel/panel.py:2309
 "Paste from clip~b~oard" = "Вст~а~вить из буфера"
 # navigator/widgets/manager/panel/panel.py:2345

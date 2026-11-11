@@ -286,7 +286,7 @@ def test_the_selected_line_says_none_then_totals_the_tagged(place):
     assert ("No files selected", "selected-files") in info_texts(panel)
     panel.marked = frozenset({"a", "b"})
     settle()
-    assert ("~5 bytes in 2~ selected files", "selected-files") in info_texts(panel)
+    assert ("~5~ bytes in ~2~ selected files", "selected-files") in info_texts(panel)
 
 
 def test_without_selected_files_the_selection_takes_the_current_file_s_line(place):
@@ -295,7 +295,7 @@ def test_without_selected_files_the_selection_takes_the_current_file_s_line(plac
     assert [part for _, part in panel.info_lines] == ["current-file", "free-space"]
     panel.marked = frozenset({"b"})
     settle()
-    assert info_texts(panel)[0] == ("~2 bytes in 1~ selected file", "selected-files")
+    assert info_texts(panel)[0] == ("~2~ bytes in ~1~ selected file", "selected-files")
 
 
 def test_a_symlink_gets_a_target_line_and_the_listing_keeps_its_height(place):
@@ -376,7 +376,7 @@ def test_tagging_walks_once_and_moving_after_walks_none(place):
     panel.marked = frozenset({entries[3].key})
     settle()
     texts = [text for text, part in panel.info_lines if part == "selected-files"]
-    assert any("in 1~ selected file" in text for text in texts), texts
+    assert any("in ~1~ selected file" in text for text in texts), texts
     assert panel.marked_entries == [entries[3]]
     walked = Walked.walks
     for step in range(20):
