@@ -155,18 +155,24 @@ class ScreenView(ContextMenuHost, Widget):
         return True
 
     async def on_double_click(self, event: DoubleClickEvent) -> bool:
-        """The word under the pointer: the run of non-blank cells around it."""
+        """The word under the pointer: the run of non-blank cells around it --
+        a double-width character's second half, which the screen holds as an
+        empty cell, part of it, so either half finds the whole word."""
         if event.button != "left" or (self.tracks_mouse and self.alive):
             return False
         x, y = self._cell(event)
         surface = self.screen.surface
-        if not surface.get(x, y)[0].strip():
+
+        def blank(column: int) -> bool:
+            return surface.get(column, y)[0].isspace()
+
+        if blank(x):
             return True
         start = x
-        while start and surface.get(start - 1, y)[0].strip():
+        while start and not blank(start - 1):
             start -= 1
         stop = x
-        while stop + 1 < self.screen.columns and surface.get(stop + 1, y)[0] != " ":
+        while stop + 1 < self.screen.columns and not blank(stop + 1):
             stop += 1
         self._drag_from = None
         self.selection = ((start, y), (stop, y))

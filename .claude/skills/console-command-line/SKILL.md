@@ -53,7 +53,9 @@ screen. **The alternate screen is never scrolled** (`ConsoleScreen.scroll` retur
   (`encode_mouse`, modes 9/1000/1002/1003, SGR 1006). Alt+X is `Quit(desktop=True)`, vetoed by `Navigator.enables`
   while a running command's console is over the windows.
 - The console selects output with a drag or double click unless a program tracks the mouse (reversed, cleared by new
-  output or a scroll); Ctrl+Ins copies it -- `Shell.on_key` asks the console before the command line.
+  output or a scroll); Ctrl+Ins copies it -- `Shell.on_key` asks the console before the command line. A double click
+  takes the run of non-whitespace cells, a double-width character's second half (an empty cell) part of it, so either
+  half finds the whole word.
 
 ### Without the internal terminal (mc's Ctrl+O)
 

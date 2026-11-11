@@ -4252,6 +4252,15 @@ def test_a_double_click_selects_a_word_of_output(tree, quiet_console):
     assert console.selected_text == "/etc/hosts"
 
 
+@pytest.mark.parametrize("column, word", [(4, "日本語x"), (3, "日本語x"), (2, "日本語x"), (10, "yz"), (1, "")])
+def test_a_double_click_takes_double_width_characters_whole(tree, quiet_console, column, word):
+    # ``a 日本語x yz``: each wide character's second half is an empty cell.
+    app = navigator(tree)
+    console = console_with(app, "a 日本語x yz".encode())
+    awaited(console.on_double_click(DoubleClickEvent.of(MouseClickEvent(column, 0, "left", "press"))))
+    assert console.selected_text == word
+
+
 def test_new_output_clears_the_selection(tree, quiet_console):
     app = navigator(tree)
     console = console_with(app, b"old")
