@@ -293,9 +293,14 @@ class Manager(Window):
 
     #: The panel something else stands in for -- the directory tree (Ctrl+T)
     #: or the quick view (Ctrl+Q) -- and that something, or None for both
-    #: while the two panels are showing.  DOS Navigator's ``LType``/``RType``:
-    #: one side at a time is ever not a panel.  Reactive, so ``active_panel``
-    #: and the follow effects move with them.
+    #: while the two panels are showing.  One side at a time is ever not a
+    #: panel -- a departure: DN's ``LType``/``RType`` were a side each, and a
+    #: view taking a side while another view held the keyboard took the
+    #: opposite one's place (DBLWND.PAS:541-556), so a tree and a quick view
+    #: could stand together with no panel showing.  Kept to one, asked about:
+    #: ``active_panel`` and every command reaching it need a panel showing,
+    #: and one pair is what the saved desktop and the follow effects read.
+    #: Reactive, so ``active_panel`` and the follow effects move with them.
     replaced: Any = reactive(None)
     replacement: Any = reactive(None)
 
