@@ -11,7 +11,7 @@ Navigator (or nav) is a faithful recreation of the iconic DOS Navigator two-pane
   ≡  File  Disk  Utilities  Panel  Manager  Options  Window                12:34
 ┌─[■]───────────── . ──────────────────┐┌──────────────── src ─────────────[↕]─┐
 │/bin                               DIR││/..                            UP--DIR│
-│/docs        ╔═════════════════════ About ══════════════════[■]═╗          DIR│
+│/docs        ╔═[■]═════════════════ About ══════════════════════╗          DIR│
 │/src         ║                                                  ║          DIR│
 │/tests       ║                    Navigator                     ║          DIR│
 │ .gitignore  ║                  Version 0.0.4                   ║            0│
