@@ -35,7 +35,8 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   starts). Meanwhile a re-read of the same directory keeps its rows; a new directory shows *Reading directory...*
   (`scanning`) with no rows, so nothing acts on the last directory's entries. Departure: DN blocked until the read was
   done, so keys typed meanwhile acted on the new listing; here they act on the empty one.
-- `Panel.on_double_click` enters the clicked row (a directory or `..`) -- the press already moved the cursor. What needs
+- `Panel.on_double_click` chooses the clicked row as Enter does -- a directory or `..` is entered, a file run or
+  opened (`Panel.choose`: `ExecuteFile`/`OpenFile`) -- the press already moved the cursor. What needs
   the desktop (activating the other panel on a press, the wheel, console scrollback) stays on
   `Navigator.on_mouse_click`, which returns False while `app.modal` is set.
 - **Backspace goes to the parent** (`GoParent(by_key=True)`, DN's `kbBack` under `fmoBackGoesBack`, `Panel.go_up`,
@@ -49,7 +50,9 @@ after `super().__init__()` -- see `navml-markup`). `Panel` assigns `path` and le
   for `/`; the cursor on the first entry whatever was remembered (`_return_to = ""`), re-read when already there.
   Ctrl+PgDn (`GoInto`, `_CtrlPgDn`) is Enter on a directory, `..` or a *Find:* entry, and on a file opens it as an
   archive whatever its name (`navigator-drives`).
-  A departure: at the root, where DN did nothing, all three move the cursor to the top, as Home does.
+  At the disk's root all three read it again with the cursor on top, as DN's `_CtrlPgUp` did
+  (`GotoFile(DirectoryName)`); at another drive's root with nowhere to go they only move the cursor to the top,
+  a departure: DN did nothing there.
   A departure: the Backspace held or tapped to clear the line does not go on climbing once it is empty --
   `Manager.on_go_parent` swallows it while `CommandLine.holds_backspace()` says it is within `BACKSPACE_RUN` (0.6 s)
   of the last one the line took or swallowed; each swallowed one restarts the wait, so a held key never gets through.
@@ -243,14 +246,16 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   - *Current file* (`::current-file`, `[119]`): **laid out on `detail_columns` in every mode** -- the columns *Columns
     Setup* (Alt+K) shows, at their places and widths, a blank where each divider stands, the name past the rows'
     gutter. DN's `GetDown` was always name, size, date, time; following the columns is Navigator's. The size is
-    `DirEntry.info_size` (every digit, or `UP--DIR`/`SUB-DIR`), right-aligned on its column's edge and taking cells
+    `DirEntry.info_size` (every digit, or DN's `<UP--DIR>`/`<SUB-DIR>`), right-aligned on its column's edge and taking cells
     from the name where wider. Drawn as it is, never split on `~` (`PLAIN_INFO`). **Except in the detailed mode**,
     whose rows show those columns already: there the line is the whole name (`_full_name_text`), under the rows'
     names past the gutter, or from the panel's left edge where it is longer than that leaves room for.
   - a second line under it: a *Find:* entry's directory (DN's find drive), the panel's whole width -- **there is no path column**: it was
     Navigator's, too narrow for a path, and is gone (`[column_defaults] find_path` is `OBSOLETE`) -- or
-    `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes). It is **kept while the listing could need it** -- always on a *Find:*
-    listing, while the listing holds a symlink otherwise -- so the listing never changes height as the cursor moves.
+    `-> target` on a symlink under `[file_manager] link_line` (Navigator's; File Manager Setup's *Display* boxes), or in
+    the Trash (`trash:///`, Navigator's) `From {path}, deleted {when}`, the path giving up its start, the date kept. It
+    is **kept while the listing could need it** -- always on a *Find:* listing, while the listing holds a symlink or a
+    trashed entry otherwise -- so the listing never changes height as the cursor moves.
     **Inside an archive** it is DN's `dtArc` line instead (`Panel._packed_line`, part `::packed`, the selection's
     colours): `~Packed:~ 1,234      ~Ratio:~ 56%`, from the left, the labels bright; always kept there, blank on a
     directory or a member that does not say its packed size.
@@ -265,7 +270,8 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   `marked_entries` is `list(_marked_tuple)`, so `Manager.selection` costs what is tagged. Ctrl+L's `InfoPanel._totals`
   (`diskinfo.totals`, passed as `lines(counted=)`) is counted once per listing, and `shown()` builds `lines()` once.
   A new per-cursor computed must not walk `items` itself: put the walk on a computed of `items`/`marked`.
-  The bottom frame carries only the quick search now. `Panel.rows` is computed less `info_height`, so the list, scroll
+  The bottom frame carries the quick search's label, the names' scroll bar (`hbar`) and the option strip -- no info
+  line any more. `Panel.rows` is computed less `info_height`, so the list, scroll
   bar and list-mode columns shrink, and the column rules end in `┴` on the divider rather than on the frame. Tests
   that pin a listing down to the frame turn `free_space`, `current_file` and `selected_files` off; anything painting a
   real directory headless pins `free_space_of` and the date and time (the golden test, screenshot). An entry's size
@@ -364,14 +370,15 @@ on the same mask after each, until *Close*.
 `ColumnsDialog` (`dlgDiskParms`; `dlgFindParms` less its *Path* box, the directory being the footer's line) over
 **`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, links, owner, date. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
 list mode; *Full* every column but *Links* (`columns_dialog.ALL_COLUMNS`) -- DN's `GetFullFlags` was size, date
-and time (packed and ratio in an archive), the attributes and owner kept as the POSIX facts, a departure. `DROP_ORDER` still drops columns (links, owner, attributes, date) to keep the name
+and time (packed and ratio in an archive), the attributes and owner kept as the POSIX facts, a departure. `DROP_ORDER` still drops columns (links, owner, attributes, ratio, packed, date) to keep the name
 `MIN_NAME_WIDTH`.
 
-A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, so a panel holds two sets:
-`Panel.columns` over a directory and `Panel.find_columns` over a listing; `shown_columns` reads and writes whichever
-is showing. **Options > File Manager > Column defaults** (`ColumnDefaults`, `dlgColumnsDefaults`,
+A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, and so was an archive (`dlgArcParms`), so
+a panel holds three sets: `Panel.columns` over a directory, `Panel.find_columns` over a listing and
+`Panel.archive_columns` inside an archive; `shown_columns` reads and writes whichever is showing. **Options > File Manager > Column defaults** (`ColumnDefaults`, `dlgColumnsDefaults`,
 `[column_defaults]`) seeds them: `columns` when a panel is made, `find_columns` by every `show_found` (DN's
-`TFindDrive.Init`). Only `columns` goes into the saved desktop.
+`TFindDrive.Init`), `archive_columns` from its *Archives* set when a panel is made and on entering each archive
+(`TArcDrive.Init`). Only `columns` goes into the saved desktop.
 
 ## Hidden files (Ctrl+H)
 
@@ -636,7 +643,8 @@ while the panel follows the *New Manager defaults* live and a frozenset of `Pane
 ask `Panel.shows(option)`, never `SETTINGS.panel_defaults` directly. **`Panel.file_mask`** (DN's `FileMask`, `*` for
 all) filters files, never directories, in `scan_directory` through `filetypes.in_filter` (`InFilter`: `;` patterns,
 `-` excludes, the last match decides, nothing matching is out; case counts). A mask other than `*` follows the path in the
-title, `/src [*;-*.bak]` (`title_text`; the path is cut first) -- a departure: DN's panel said nothing of it. *Directory length*, *Totals* and *Free space* are stored but not drawn yet.
+title, `/src [*;-*.bak]` (`title_text`; the path is cut first) -- a departure: DN's panel said nothing of it. *Directory length* drives Alt+G's counting and *Totals* and *Free
+space* are info lines (*The info lines* above).
 
 ## Directory length (Alt+G)
 

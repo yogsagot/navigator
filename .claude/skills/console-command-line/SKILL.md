@@ -167,8 +167,9 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
 - **A line starting `|` is panelized, not run** (a departure): `Shell.run_command` (typed) records it in the history,
   clears the line and hands the rest to `Shell._panelize` -> `Manager.panelize`, whose capture runs off the pty
   (`navigator-panels`, *Panelize command*). A leading pipe is a shell syntax error, so no command is lost to it.
-- **Enter on an executable runs it** (`Panel.choose` emits `ExecuteFile`; `Shell.on_execute_file` runs `./name`); a plain
-  file is left alone.
+- **Enter on an executable runs it** (`Panel.choose` emits `ExecuteFile`; `Shell.on_execute_file` runs `./name`); any
+  other file is opened (`OpenFile`, DN's: `extensions.ini`'s command, an archive entered, else the desktop's
+  application -- `navigator-user-menu`, `navigator-gio`).
 - **Ctrl+Enter puts the entry's name on the line** (`InsertName`, DN's `cmInsertName`: a space after, one before if the
   caret follows a word, `..` giving the directory); Ctrl+Shift+Enter the whole path, Ctrl+double-click the same (DN's `_CtrlEnter`); Alt+Enter
   bound beside it (mc's key) for terminals that send Ctrl+Enter as Enter.

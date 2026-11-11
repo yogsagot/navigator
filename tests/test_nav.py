@@ -2218,14 +2218,18 @@ def test_go_up_lands_on_the_directory_it_left(panel, tree):
 
 
 def test_go_up_at_the_root_stays_and_goes_to_the_top(panel):
+    """DN's ``_CtrlPgUp`` at a disk's root: ``GotoFile(DirectoryName)``, the
+    root read again with the cursor on top."""
     panel.path = pathlib.Path("/")
     settle()
     panel.cursor = len(panel.items) - 1
     settle()
+    token = panel.reload_token
     panel.go_up()
     settle()
     assert panel.path == pathlib.Path("/")
     assert panel.cursor == 0
+    assert panel.reload_token == token + 1
 
 
 def test_backspace_goes_up_while_the_command_line_is_empty(tree):

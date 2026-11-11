@@ -174,8 +174,9 @@ class DirEntry:
         """``user:group``, as ``ls -l`` names them, a number where no name is
         known, and blank for an entry that could not be read.
 
-        DOS had no owners, so DN had no such column; this is the detailed
-        mode's one addition beyond reading DN's columns for POSIX.
+        DOS had no owners, so DN had no such column; this and *Links*
+        (:attr:`display_links`) are the detailed mode's two additions beyond
+        reading DN's columns for POSIX.
         """
         if self.owner is not None:
             return self.owner

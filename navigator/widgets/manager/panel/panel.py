@@ -439,8 +439,10 @@ class Panel(ListViewer):
     #: Manager Setup's *Git status* off.  A departure: DN knew no git.
     git: Any = reactive(None)
 
-    #: ``simple``: name and size.  ``detailed``: name, size, permissions and
-    #: date in columns.  ``list``: names alone, in as many columns as fit.
+    #: ``simple``: name and size.  ``detailed``: name and *Columns Setup*'s
+    #: choice of size, permissions, links, owner and date -- and the packed
+    #: size and ratio in an archive -- in columns.  ``list``: names alone, in
+    #: as many columns as fit.
     VIEW_MODES = ("simple", "detailed", "list")
 
     #: ``heading`` is the column-titles row the detailed and list modes draw.
@@ -1333,8 +1335,10 @@ class Panel(ListViewer):
         """Go to the parent directory, the cursor on the one just left.
 
         DN's ``_CtrlPgUp``: what choosing ``..`` does, from anywhere in the
-        listing.  At the root there is nowhere to go, so the cursor goes to
-        the top as Home would -- a departure: DN did nothing there.
+        listing.  At the disk's root there is nowhere to go, and it is read
+        again with the cursor on top, as DN's ``GotoFile(DirectoryName)`` did.
+        At another drive's root with nowhere to go the cursor goes to the top
+        -- a departure there: DN did nothing.
         """
         if self.found is not None:
             self.leave_found()
@@ -1346,6 +1350,8 @@ class Panel(ListViewer):
         parent = Path(os.path.normpath(self.path / ".."))
         if parent == self.path:
             self.move_cursor(-len(self.items))
+            self._return_to = ""
+            self.reload_token += 1
             return
         self._return_to = self.path.name
         self.path = parent
@@ -2050,7 +2056,8 @@ class Panel(ListViewer):
     @property
     def edits_text(self) -> bool:
         """True while searching, so the command line's Enter, Home, End and
-        Tab step aside -- Enter ends the search rather than running the line."""
+        Tab step aside -- Enter ends the search and then chooses the entry
+        found, rather than running the line."""
         return self.quick_search is not None
 
     def start_quick_search(self) -> None:
