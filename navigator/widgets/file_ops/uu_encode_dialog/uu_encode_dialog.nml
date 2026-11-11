@@ -117,6 +117,9 @@ UUEncodeDialog(Dialog):
             id: abandon
             text: "Cancel"
 
+        #: DN's ``~T~ree`` clashed with ``~T~arget file format`` (``DN.DNR:2031,
+        #: 2035``); ``T~r~ee`` takes the next free letter -- a departure, as the
+        #: hotkey check refuses a clash.
         Button:
             id: tree
             text: "T~r~ee"

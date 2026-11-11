@@ -61,7 +61,7 @@ class UUEncodeDialog(Dialog, _Component):
     format: RadioButtons    # uu_encode_dialog.nml:97
     pick: Button    # uu_encode_dialog.nml:112
     abandon: Button    # uu_encode_dialog.nml:117
-    tree: Button    # uu_encode_dialog.nml:121
+    tree: Button    # uu_encode_dialog.nml:124
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -79,7 +79,7 @@ class UUEncodeDialog(Dialog, _Component):
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:121
+    async def on_tree_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:124
         """``tree`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -96,7 +96,7 @@ class UUEncodeDialog(Dialog, _Component):
         _w1 = ButtonRow(parent=self)    # uu_encode_dialog.nml:104
         self.pick = Button(parent=_w1)    # uu_encode_dialog.nml:111
         self.abandon = Button(parent=_w1)    # uu_encode_dialog.nml:116
-        self.tree = Button(parent=_w1)    # uu_encode_dialog.nml:120
+        self.tree = Button(parent=_w1)    # uu_encode_dialog.nml:123
 
         self.modal_width = 60    # uu_encode_dialog.nml:19
         self.modal_height = 18    # uu_encode_dialog.nml:20
@@ -194,5 +194,5 @@ class UUEncodeDialog(Dialog, _Component):
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_encode_dialog.nml:118
         self.abandon.on_click = self.on_abandon_click    # uu_encode_dialog.nml:117
 
-        self.tree.text = _bind(lambda _o: _tr('T~r~ee'), yielding=True)    # uu_encode_dialog.nml:122
-        self.tree.on_click = self.on_tree_click    # uu_encode_dialog.nml:121
+        self.tree.text = _bind(lambda _o: _tr('T~r~ee'), yielding=True)    # uu_encode_dialog.nml:125
+        self.tree.on_click = self.on_tree_click    # uu_encode_dialog.nml:124

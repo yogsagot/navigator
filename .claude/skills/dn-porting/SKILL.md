@@ -19,6 +19,12 @@ over inventing modern alternatives when the two conflict** -- fidelity is the po
 
 ## How a port is written
 
+- **DN's Help buttons, while F1 Help does not exist** (CLAUDE.md, *still to come*): a dialog either shows its
+  `Help` disabled, where the button row would otherwise look unlike DN's (Copy, Link, Archive, the editor's Find and
+  Margins), or leaves it out where that keeps the box to DN's size (Split, Combine, UU Encode, Make list, the setup
+  pages, ...). Either way its `#:` header or the button's comment says which. When F1 Help comes, every dialog whose
+  DN resource has `cmHelp` gets it back, enabled, with its `HELPCTX`: `grep -rn '"Help"\|Help is left out' navigator
+  navml --include=*.nml` finds both kinds.
 - **Name things after the original.** A command class is named for DN's `cm*` (and its docstring says so); a widget is
   the `T*` it recreates (`FileViewer` is `TFileViewer`, `EditWindow` is `TEditWindow`); a dialog document transcribes
   the `dlg*` resource's layout and captions; key handlers say which DN key constant they took (`kbIns`, `kbBack`).

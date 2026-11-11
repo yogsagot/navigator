@@ -37,7 +37,7 @@ class SplitDialog(Dialog, _Component):
 
     *Split NAME to* over the target line, as ``LongCopy``'s ``CopyDialog``
     inserted the name into the label, and OK / Cancel / Tree along the bottom;
-    Help is left out, having nothing to show yet.  A row taller than DN's 50
+    Help is left out, having nothing to show yet (the rule: ``dn-porting``).  A row taller than DN's 50
     by 11, for this library's buttons.
 
     **A departure**: *Part size* is new -- DN split where each floppy filled,

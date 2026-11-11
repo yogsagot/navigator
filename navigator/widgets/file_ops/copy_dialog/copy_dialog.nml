@@ -97,7 +97,7 @@ CopyDialog(Dialog):
             text: "~T~ree"
 
         #: There is no help to show yet.  Shown, as the original's was, and
-        #: disabled, as Choose Directory's *Drive* is.
+        #: disabled, as Choose Directory's *Drive* is (the rule: ``dn-porting``).
         Button:
             id: help
             text: "Help"
