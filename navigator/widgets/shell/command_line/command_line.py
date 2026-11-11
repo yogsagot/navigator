@@ -81,6 +81,11 @@ class CommandLine(InputLine):
         #: Where Ctrl+E / Ctrl+X have got to in the history, or -1 for the
         #: line the user is typing.
         self._recalled = -1
+        #: The line as it was typed before the walk, given back past the
+        #: newest entry -- and the text the walk last put there, to tell an
+        #: edit (DN's ``StrModified``); None while not walking.
+        self._draft = ""
+        self._walked: str | None = None
         #: When the line last took a plain Backspace, by ``monotonic()``.
         self._backspaced_at = float("-inf")
 
@@ -134,6 +139,7 @@ class CommandLine(InputLine):
         self.cursor = self.first = 0
         self.anchor = None
         self._recalled = -1
+        self._draft, self._walked = "", None
 
     def set_text(self, text: str) -> None:
         self.value = text
@@ -154,7 +160,6 @@ class CommandLine(InputLine):
             text = " " + text
         self.anchor = None
         self._replace_selection(text)
-        self._recalled = -1
 
     def home(self) -> None:
         self._move(0, False)
@@ -181,10 +186,8 @@ class CommandLine(InputLine):
         if event.key in ("up", "down", "enter", "tab"):
             return False
         taken = await super().on_key(event)
-        if taken:
-            self._recalled = -1
-            if event.matches("backspace"):
-                self._backspaced_at = monotonic()
+        if taken and event.matches("backspace"):
+            self._backspaced_at = monotonic()
         return taken
 
     def holds_backspace(self) -> bool:
@@ -203,13 +206,26 @@ class CommandLine(InputLine):
 
     def recall(self, step: int) -> bool:
         """Ctrl+E goes back a command, Ctrl+X forward, and past the newest
-        clears -- and Shift+Up/Down from the panels (``RecallCommand``)."""
+        gives back what was being typed -- and Shift+Up/Down from the panels
+        (``RecallCommand``).
+
+        DN's ``TCommandLine`` kept an edited line (``StrModified``) by adding
+        it to the history (``AddCommand``) before stepping, the walk then
+        starting again from the newest.  Here it is kept aside instead -- a
+        departure: a line never run does not enter the history.  An edit
+        since the last step (the text no longer what the walk put there)
+        makes the line the draft and starts the walk again; moving the caret
+        is no edit, and the walk goes on, as DN's did."""
         entries = HISTORY.entries(HISTORY_ID)
+        if self._walked is None or self.value != self._walked:
+            self._draft, self._recalled = self.value, -1
         index = self._recalled + step
         if index < -1 or index >= len(entries):
             return True
         self._recalled = index
-        self.set_text(entries[index] if index >= 0 else "")
+        text = entries[index] if index >= 0 else self._draft
+        self.set_text(text)
+        self._walked = text
         return True
 
     @property

@@ -131,7 +131,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
 - Enter, Home, End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the application's table, **disabled
   while the line is empty** so the key falls through to the panel. A widget whose `edits_text` is True (quick search,
   the editor) makes Enter/Home/End/Tab and pastes step aside. Esc clears, Ctrl+E/Ctrl+X walk `HISTORY["command"]`, a
-  paste lands on it.
+  paste lands on it. The walk keeps what was being typed aside (`_draft`) and gives it back past the newest; an edit
+  since the last step (DN's `StrModified`: the text no longer what the walk put there) makes the line the draft and
+  starts again from the newest, a caret move does not. A departure: DN's `AddCommand` put that line into the history;
+  here a line never run never enters it.
 - **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,
