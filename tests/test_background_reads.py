@@ -56,6 +56,15 @@ def writewin(app):
     return isinstance(app.modal, WriteWin)
 
 
+def landed(path):
+    """Ctrl+T's tree has walked down to *path*: the walk runs on a thread, and the
+    cursor sits on the root until it lands."""
+    def check(app):
+        tree = getattr(app.manager, "tree", None)
+        return tree is not None and tree.selected_path == path
+    return check
+
+
 # -- F3 ---------------------------------------------------------------------------------
 
 
@@ -114,6 +123,7 @@ def test_a_slow_count_leaves_the_line_blank_and_the_tree_moving(files, monkeypat
 
     run_app(app, [KeyEvent("t", ctrl=True), lambda a: None, lambda a: None, look,
                   lambda a: release.set(),
+                  Until(landed(files)),
                   Until(lambda a: a.manager.tree.selected_path in a.manager.tree._counts),
                   lambda a: seen.update(after=a.manager.tree._counts[a.manager.tree.selected_path])])
     assert seen["counted"] == {}  # nothing counted while the count waited
@@ -136,7 +146,12 @@ def test_a_slow_probe_shows_a_branch_until_it_answers(files, monkeypatch):
         tree = a.manager.tree
         tree.expand(tree.selected_node)
 
-    run_app(app, [KeyEvent("t", ctrl=True), lambda a: None, open_here, lambda a: None,
+    def listed(a):
+        # The branch's children are read on a thread: alpha's row is there
+        # once that read is in, not a fixed number of steps after expanding.
+        return any(row.node.name == "alpha" for row in a.manager.tree.items)
+
+    run_app(app, [KeyEvent("t", ctrl=True), Until(landed(files)), open_here, Until(listed),
                   lambda a: seen.append(a.manager.tree.branch(alpha(a))[-4:]),
                   lambda a: release.set(),
                   Until(lambda a: alpha(a).node._has_children is not None), lambda a: None,
