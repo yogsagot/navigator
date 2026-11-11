@@ -19,6 +19,7 @@ from navkit.screen import ScreenBuffer
 
 from navigator.__main__ import Navigator
 from navigator.lib.appearance.scheme import default_scheme
+from navigator.lib.config import country
 from navigator.settings import SETTINGS
 from navigator.widgets import Panel
 from navigator.lib.drives import listing as listing_module
@@ -213,7 +214,8 @@ def test_the_current_file_line_holds_the_detailed_columns_places(place):
             assert cells.rstrip() == getattr(entry, Panel.DETAIL_COLUMNS[key][2])
         # A blank where the divider stands.
         assert x - panel.inset - 1 < 0 or text[x - panel.inset - 1] == " "
-    assert stamp(place / "a", "%d-%m-%Y %H:%M") in text
+    # The panels' stamp: ``MakeDate``'s blank before a one-digit hour.
+    assert country.stamp((place / "a").stat().st_mtime) in text
 
 
 def test_a_directory_s_size_is_dn_s_sub_dir_and_dot_dot_up_dir(place):
@@ -235,7 +237,8 @@ def test_the_line_follows_columns_setup_in_every_mode(place):
     settle()
     mode = os.stat(place / "a").st_mode
     assert info_texts(panel)[0][0].split() == [
-        "a", stat.filemode(mode)[1:], stamp(place / "a", "%d-%m-%Y"), stamp(place / "a", "%H:%M")]
+        "a", stat.filemode(mode)[1:], stamp(place / "a", "%d-%m-%Y"),
+        country.time_text((place / "a").stat().st_mtime, file=True).strip()]
     panel.columns = frozenset()
     settle()
     assert info_texts(panel)[0][0].strip() == "a"
