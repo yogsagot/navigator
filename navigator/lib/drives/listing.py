@@ -271,8 +271,9 @@ def order_entries(
     by ``user:group`` as the column shows it, then by name; so does
     *Attributes* (Navigator's too), by the permission bits, fewest first.  *Type* is DN's *Group*: directories, executables,
     archives, the custom groups, then the rest, each by name.  Names compare
-    without regard to case, as DOS's upper-cased ones did, the exact name
-    breaking a tie.
+    stem first, then extension, as DN's ``NAME    .EXT`` records did (so
+    ``a.b`` before ``a-b.c``), without regard to case, as DOS's upper-cased
+    ones did, the exact name breaking a tie.
 
     *executables_first* and *archives_first* are the panel flags
     (``fmiExeFirst``, ``fmiArchivesFirst``): among the files, those kinds
@@ -300,8 +301,11 @@ def order_entries(
             archives_first and filetypes.group_of(entry.name) != "archive",
         )
 
-    def by_name(entry: DirEntry) -> tuple[str, str]:
-        return (entry.name.lower(), entry.name)
+    def by_name(entry: DirEntry) -> tuple[str, str, str]:
+        name = entry.name
+        extension = _extension(name)
+        stem = name[:-len(extension) - 1] if extension else name
+        return (stem.lower(), extension, name)
 
     # Each mode is a group (what stays put) and a value (what *reverse*
     # turns): two stable sorts, the value's first.

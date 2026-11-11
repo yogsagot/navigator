@@ -516,7 +516,7 @@ direction = "rtl"
 "File system flags, such as immutable and append-only" = "أعلام نظام الملفات، مثل غير قابل للتغيير وللإلحاق فقط"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
 "Mode" = "الوضع"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:38 ...
 "O~w~ner" = "المال~ك~"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:99
 "Others" = "الآخرون"
@@ -540,7 +540,7 @@ direction = "rtl"
 "~U~ser" = "م~س~تخدم"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "م~ج~موعة"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:38
 "~D~ate" = "ال~ت~اريخ"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "ال~و~قت"
@@ -614,7 +614,7 @@ direction = "rtl"
 "~R~ecurse" = "~ت~كراري"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "لا"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80, navigator/widgets/file_ops/count_progress/count_progress.py:81 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/file_ops/count_progress/count_progress.py:81, navigator/lib/drives/base.py
 "Files" = "ملفات"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "مجلدات"
@@ -1002,7 +1002,7 @@ direction = "rtl"
 "Show" = "إظهار"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538 ...
 "~S~ize" = "ال~ح~جم"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6538
 "~A~ttributes" = "~س~مات"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "ال~ر~وابط"
@@ -1412,7 +1412,7 @@ direction = "rtl"
 "R~e~verse" = "ع~ك~س"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "~ا~لقرص"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3506
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3515
 "Links" = "الروابط"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "المالك"
@@ -1598,6 +1598,8 @@ direction = "rtl"
 "Fallback ~e~ncoding" = "ترميز احتيا~ط~ي"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:71
 "Left panel in new Manager will be..." = "اللوحة اليسرى في المدير الجديد ستكون..."
+# navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
+"File ~p~anel" = "~ق~ائمة الملفات"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
 "~I~nfo" = "م~ع~لومات"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
@@ -3452,7 +3454,7 @@ direction = "rtl"
 "The process has ended" = "انتهت العملية"
 # navigator/lib/system/processes.py:401
 "Process" = "العملية"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3501 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3510 ...
 "Name" = "الاسم"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:299, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "الأمر"
@@ -4536,11 +4538,11 @@ direction = "rtl"
 "End" = "نهاية"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Score" = "حصيلة"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~O~riginal size" = "~ا~لحجم الأصلي"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "Pa~c~ked size" = "الحجم ال~م~ضغوط"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~R~atio" = "~ن~سبة الضغط"
 # navigator/widgets/manager/commands.py:29
 "View" = "عرض"
@@ -4550,7 +4552,7 @@ direction = "rtl"
 "Ren" = "تسمية"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "رابط"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3505
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3514
 "Attr" = "سمات"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "مجلد"
@@ -5050,11 +5052,11 @@ direction = "rtl"
 "From {path}" = "من {path}"
 # navigator/widgets/manager/panel/panel.py:3232, navigator/widgets/manager/panel/panel.py:3169
 "an unknown place" = "مكان غير معروف"
-# navigator/widgets/manager/panel/panel.py:3472
+# navigator/widgets/manager/panel/panel.py:3481
 "Reading directory..." = "قراءة المجلد..."
-# navigator/widgets/manager/panel/panel.py:3503, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:3512, navigator/lib/drives/base.py
 "Packed" = "مضغوط"
-# navigator/widgets/manager/panel/panel.py:3504
+# navigator/widgets/manager/panel/panel.py:3513
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1820
 "This directory keeps its own sort order, view and file mask" = "يحتفظ هذا المجلد بترتيبه وعرضه وقناع ملفاته"

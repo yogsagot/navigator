@@ -152,6 +152,13 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
   root helper's `listing` (an 11th field) and `ExecDrive.scan`. A drive that does not say leaves 0, shown blank, as
   is `..`. Never in an archive. No sort mode. File > Links > *Show hard links* lists the names (`navigator-file-ops`).
 - *list*: names alone in columns, each as wide as its longest name capped at half the panel; Left/Right move a column as DN's `kbLeft`/`kbRight` did.
+- **Departures in the modes**, each kept:
+  - Ctrl+Y cycles simple → detailed → list; DN's `CM_ToggleShowMode` toggled Full and Brief, a custom set going to Full.
+  - A wide panel widens the name; DN repeated the whole line across it (`Size.X div LineLength`, FLPANEL.PAS:603,
+    635: two Full sets in an 80-cell panel). Asked about and kept: one set reads wider names whole.
+  - A narrow panel drops columns (`DROP_ORDER`); DN scrolled the whole line sideways (`DeltaX`).
+  - No hidden/system mark between name and extension (DN's `▒`/`▓` in the name's ninth cell, FILESCOL.PAS:478-479):
+    a POSIX name has no 8.3 split to put one in, and a dot-file says it is hidden by its name.
 - A too-long name ends in `…` (`fit_text`, in cells) and starts with one while scrolled (`window_text`); `...` at the
   ASCII tier (`Panel.ellipsis`, `glyphs.ellipsis`). The title's path is cut in its middle with the same marker,
   its drive part kept (`Panel._cut_title`, DN's `TTopView.Draw` writing `C:\...\tail`): `/…/deep/dir`,
@@ -356,7 +363,8 @@ on the same mask after each, until *Close*.
 `SetupColumns`, `Manager.setup_columns`, DN's `cmSetupColumns` -> `CM_SetShowParms` (also Panel > Setup columns):
 `ColumnsDialog` (`dlgDiskParms`; `dlgFindParms` less its *Path* box, the directory being the footer's line) over
 **`Panel.shown_columns`**, the detailed mode's columns per panel (DN's `ShowFlags`): size, attributes, links, owner, date. OK shows the detailed mode with those -- none ticked is the list mode, DN's brief; *Brief* is the
-list mode; *Full* every column. `DROP_ORDER` still drops columns (links, owner, attributes, date) to keep the name
+list mode; *Full* every column but *Links* (`columns_dialog.ALL_COLUMNS`) -- DN's `GetFullFlags` was size, date
+and time (packed and ratio in an archive), the attributes and owner kept as the POSIX facts, a departure. `DROP_ORDER` still drops columns (links, owner, attributes, date) to keep the name
 `MIN_NAME_WIDTH`.
 
 A *Find:* listing was a drive of its own in DN, with its own `ShowFlags`, so a panel holds two sets:

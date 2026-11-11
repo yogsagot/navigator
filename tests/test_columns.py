@@ -61,7 +61,8 @@ def test_brief_and_full(place):
                   KeyEvent("k", alt=True), lambda a: None, KeyEvent("f", alt=True), lambda a: None,
                   lambda a: seen.update(full=(a.manager.left.view_mode, keys(a.manager.left)))])
     assert seen["brief"] == "list"
-    assert seen["full"] == ("detailed", ["name", "size", "attributes", "links", "owner", "date"])
+    # Full leaves Links out: DN's ``GetFullFlags`` was size, date and time.
+    assert seen["full"] == ("detailed", ["name", "size", "attributes", "owner", "date"])
 
 
 def test_a_find_listing_gives_the_directory_a_footer_line_not_a_column(place):

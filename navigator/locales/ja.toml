@@ -515,7 +515,7 @@ flag = "JP"
 "File system flags, such as immutable and append-only" = "変更不可や追加のみなどのファイルシステムフラグ"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
 "Mode" = "モード"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:38 ...
 "O~w~ner" = "所有者(~W~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:99
 "Others" = "その他"
@@ -539,7 +539,7 @@ flag = "JP"
 "~U~ser" = "ユーザー(~U~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "グループ(~G~)"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:38
 "~D~ate" = "日付(~D~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "時刻(~T~)"
@@ -613,7 +613,7 @@ flag = "JP"
 "~R~ecurse" = "再帰(~R~)"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "なし"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80, navigator/widgets/file_ops/count_progress/count_progress.py:81 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/file_ops/count_progress/count_progress.py:81, navigator/lib/drives/base.py
 "Files" = "ファイル"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "ディレクトリ"
@@ -1001,7 +1001,7 @@ flag = "JP"
 "Show" = "表示"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538 ...
 "~S~ize" = "サイズ(~S~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6538
 "~A~ttributes" = "属性(~A~)"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "リンク数(~I~)"
@@ -1411,7 +1411,7 @@ flag = "JP"
 "R~e~verse" = "反転(~E~)"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "ドライブ(~D~)"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3506
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3515
 "Links" = "リンク数"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "所有者"
@@ -1597,6 +1597,8 @@ flag = "JP"
 "Fallback ~e~ncoding" = "代替エンコーディング(~E~)"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:71
 "Left panel in new Manager will be..." = "新しいマネージャの左パネル..."
+# navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
+"File ~p~anel" = "ファイルパネル(~P~)"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
 "~I~nfo" = "情報(~I~)"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
@@ -3451,7 +3453,7 @@ flag = "JP"
 "The process has ended" = "プロセスは終了しました"
 # navigator/lib/system/processes.py:401
 "Process" = "プロセス"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3501 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3510 ...
 "Name" = "名前"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:299, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "コマンド"
@@ -4535,11 +4537,11 @@ flag = "JP"
 "End" = "終了"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Score" = "スコア"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~O~riginal size" = "元のサイズ(~O~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "Pa~c~ked size" = "圧縮サイズ(~C~)"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~R~atio" = "圧縮率(~R~)"
 # navigator/widgets/manager/commands.py:29
 "View" = "表示"
@@ -4549,7 +4551,7 @@ flag = "JP"
 "Ren" = "改名"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "リンク"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3505
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3514
 "Attr" = "属性"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "作成"
@@ -5049,11 +5051,11 @@ flag = "JP"
 "From {path}" = "元の場所 {path}"
 # navigator/widgets/manager/panel/panel.py:3232, navigator/widgets/manager/panel/panel.py:3169
 "an unknown place" = "不明な場所"
-# navigator/widgets/manager/panel/panel.py:3472
+# navigator/widgets/manager/panel/panel.py:3481
 "Reading directory..." = "ディレクトリを読み込み中..."
-# navigator/widgets/manager/panel/panel.py:3503, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:3512, navigator/lib/drives/base.py
 "Packed" = "圧縮"
-# navigator/widgets/manager/panel/panel.py:3504
+# navigator/widgets/manager/panel/panel.py:3513
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1820
 "This directory keeps its own sort order, view and file mask" = "このディレクトリは独自のソート順・表示・ファイルマスクを持ちます"

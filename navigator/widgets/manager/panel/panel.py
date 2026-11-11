@@ -2652,6 +2652,10 @@ class Panel(ListViewer):
         name takes whatever is left; when that is under
         :data:`MIN_NAME_WIDTH`, the link count goes, the owner, then the attributes, and then
         the date.  The owner column is as wide as the longest owner listed.
+
+        Two departures: a wide panel widens the name, where DN repeated the
+        whole line across it (``Size.X div LineLength``), and a narrow one
+        drops columns, where DN scrolled the line sideways.
         """
         inset, inner = self.inset, self.inner_width
         # *Columns Setup*'s choice, the packed size and ratio only in an

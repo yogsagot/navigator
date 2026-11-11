@@ -77,7 +77,7 @@ FMDefaultsPage:
         y: 13
         width: max(0, parent.width - 4)
         height: 1
-        items: ["Files", "~I~nfo", "T~r~ee", "A~b~sent"]
+        items: ["File ~p~anel", "~I~nfo", "T~r~ee", "A~b~sent"]
 
     Label:
         id: mode_caption

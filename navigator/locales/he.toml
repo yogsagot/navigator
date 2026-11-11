@@ -516,7 +516,7 @@ direction = "rtl"
 "File system flags, such as immutable and append-only" = "דגלי מערכת קבצים, כגון בלתי ניתן לשינוי והוספה בלבד"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
 "Mode" = "מצב"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:38 ...
 "O~w~ner" = "~ב~עלים"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:99
 "Others" = "אחרים"
@@ -540,7 +540,7 @@ direction = "rtl"
 "~U~ser" = "~מ~שתמש"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "קב~ו~צה"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:38
 "~D~ate" = "~ת~אריך"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "~ש~עה"
@@ -614,7 +614,7 @@ direction = "rtl"
 "~R~ecurse" = "~ר~קורסיבי"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "לא"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80, navigator/widgets/file_ops/count_progress/count_progress.py:81 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/file_ops/count_progress/count_progress.py:81, navigator/lib/drives/base.py
 "Files" = "קבצים"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "תיקיות"
@@ -1002,7 +1002,7 @@ direction = "rtl"
 "Show" = "הצג"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538 ...
 "~S~ize" = "גו~ד~ל"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6538
 "~A~ttributes" = "~מ~אפיינים"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "~ק~ישורים"
@@ -1412,7 +1412,7 @@ direction = "rtl"
 "R~e~verse" = "~ה~יפוך"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "~כ~ונן דיסק"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3506
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3515
 "Links" = "קישורים"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "בעלים"
@@ -1598,6 +1598,8 @@ direction = "rtl"
 "Fallback ~e~ncoding" = "קידוד ~ח~לופי"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:71
 "Left panel in new Manager will be..." = "הפאנל השמאלי במנהל חדש יהיה..."
+# navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
+"File ~p~anel" = "~ל~וח קבצים"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
 "~I~nfo" = "~מ~ידע"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
@@ -3452,7 +3454,7 @@ direction = "rtl"
 "The process has ended" = "התהליך הסתיים"
 # navigator/lib/system/processes.py:401
 "Process" = "תהליך"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3501 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3510 ...
 "Name" = "שם"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:299, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "פקודה"
@@ -4536,11 +4538,11 @@ direction = "rtl"
 "End" = "סוף"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Score" = "ניקוד"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~O~riginal size" = "גודל ~מ~קורי"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "Pa~c~ked size" = "גודל ~ד~חוס"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~R~atio" = "~י~חס דחיסה"
 # navigator/widgets/manager/commands.py:29
 "View" = "הצג"
@@ -4550,7 +4552,7 @@ direction = "rtl"
 "Ren" = "שנה שם"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "קישור"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3505
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3514
 "Attr" = "מאפיין"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "תיקייה"
@@ -5050,11 +5052,11 @@ direction = "rtl"
 "From {path}" = "מתוך {path}"
 # navigator/widgets/manager/panel/panel.py:3232, navigator/widgets/manager/panel/panel.py:3169
 "an unknown place" = "מקום לא ידוע"
-# navigator/widgets/manager/panel/panel.py:3472
+# navigator/widgets/manager/panel/panel.py:3481
 "Reading directory..." = "קורא תיקייה..."
-# navigator/widgets/manager/panel/panel.py:3503, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:3512, navigator/lib/drives/base.py
 "Packed" = "דחוס"
-# navigator/widgets/manager/panel/panel.py:3504
+# navigator/widgets/manager/panel/panel.py:3513
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1820
 "This directory keeps its own sort order, view and file mask" = "תיקייה זו שומרת מיון, תצוגה ומסכת קבצים משלה"

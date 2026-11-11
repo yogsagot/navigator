@@ -38,6 +38,13 @@ def test_name_puts_up_and_the_directories_first_and_ignores_case():
     assert names(order_entries(ENTRIES, "name")) == ["..", "adir", "zdir", "A.zip", "b.txt", "c.png", "run"]
 
 
+def test_name_compares_the_stem_before_the_extension():
+    """DN compared ``NAME    .EXT`` records: ``a.b`` before ``a-b.c``, which
+    the whole name (``-`` before ``.``) would have the other way round."""
+    ordered = order_entries([entry("a-b.c"), entry("a.b"), entry("a"), entry("A.b")], "name")
+    assert names(ordered) == ["a", "A.b", "a.b", "a-b.c"]
+
+
 def test_executables_and_archives_first_lead_the_files():
     ordered = order_entries(ENTRIES, "name", executables_first=True, archives_first=True)
     assert names(ordered) == ["..", "adir", "zdir", "run", "A.zip", "b.txt", "c.png"]

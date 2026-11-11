@@ -515,7 +515,7 @@ flag = "RU"
 "File system flags, such as immutable and append-only" = "Флаги файловой системы, например неизменяемый и только для добавления"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:73
 "Mode" = "Режим"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:35 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:84, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/columns_dialog/columns_dialog.py:38 ...
 "O~w~ner" = "В~л~аделец"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:99
 "Others" = "Прочие"
@@ -539,7 +539,7 @@ flag = "RU"
 "~U~ser" = "~Х~озяин"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:155, navigator/widgets/setup/colors_dialog/colors_dialog.nml:30
 "~G~roup" = "~Г~руппа"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:35
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:171, navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:38
 "~D~ate" = "~Д~ата"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:180, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/setup/country_page/country_page.nml:45 ...
 "~T~ime" = "~В~ремя"
@@ -613,7 +613,7 @@ flag = "RU"
 "~R~ecurse" = "~Р~екурсия"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "No" = "Нет"
-# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80, navigator/widgets/file_ops/count_progress/count_progress.py:81 ...
+# navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352, navigator/widgets/file_ops/count_progress/count_progress.py:81, navigator/lib/drives/base.py
 "Files" = "Файлы"
 # navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:352
 "Dirs" = "Каталоги"
@@ -1001,7 +1001,7 @@ flag = "RU"
 "Show" = "Показ"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/panel_setup_dialog/panel_setup_dialog.nml:44, navigator/widgets/manager/manager/manager.py:6538 ...
 "~S~ize" = "Ра~з~мер"
-# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:34, navigator/widgets/manager/manager/manager.py:6538
+# navigator/widgets/manager/columns_dialog/columns_dialog.nml:34, navigator/widgets/manager/columns_dialog/columns_dialog.py:37, navigator/widgets/manager/manager/manager.py:6538
 "~A~ttributes" = "~А~трибуты"
 # navigator/widgets/manager/columns_dialog/columns_dialog.nml:34
 "L~i~nks" = "~С~сылки"
@@ -1411,7 +1411,7 @@ flag = "RU"
 "R~e~verse" = "~И~нверсия"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:23
 "~D~isk Drive" = "~Д~иск"
-# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3506
+# navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/manager/panel/panel.py:3515
 "Links" = "Ссылки"
 # navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:32, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:49, navigator/widgets/setup/column_defaults_page/column_defaults_page.nml:66 ...
 "Owner" = "Владелец"
@@ -1597,6 +1597,8 @@ flag = "RU"
 "Fallback ~e~ncoding" = "Резервная ~к~одировка"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:71
 "Left panel in new Manager will be..." = "Левая панель в новом Менеджере..."
+# navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
+"File ~p~anel" = "Файлова~я~ панель"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
 "~I~nfo" = "Инфор~м~ация"
 # navigator/widgets/setup/fm_defaults_page/fm_defaults_page.nml:80
@@ -3451,7 +3453,7 @@ flag = "RU"
 "The process has ended" = "Процесс завершился"
 # navigator/lib/system/processes.py:401
 "Process" = "Процесс"
-# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3501 ...
+# navigator/lib/system/processes.py:402, navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25, navigator/widgets/manager/panel/panel.py:3510 ...
 "Name" = "Имя"
 # navigator/lib/system/processes.py:403, navigator/widgets/shell/commands.py:299, navigator/widgets/shell/process_list/process_list.py:236
 "Command" = "Команда"
@@ -4535,11 +4537,11 @@ flag = "RU"
 "End" = "Конец"
 # navigator/widgets/game/top_ten_dialog/top_ten_dialog.py:25
 "Score" = "Очки"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~O~riginal size" = "~И~сходный размер"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "Pa~c~ked size" = "~С~жатый размер"
-# navigator/widgets/manager/columns_dialog/columns_dialog.py:34
+# navigator/widgets/manager/columns_dialog/columns_dialog.py:37
 "~R~atio" = "Сте~п~ень сжатия"
 # navigator/widgets/manager/commands.py:29
 "View" = "Смотр"
@@ -4549,7 +4551,7 @@ flag = "RU"
 "Ren" = "Перем"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "Ссылка"
-# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3505
+# navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/panel.py:3514
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:145
 "MkDir" = "Каталог"
@@ -5049,11 +5051,11 @@ flag = "RU"
 "From {path}" = "Из {path}"
 # navigator/widgets/manager/panel/panel.py:3232, navigator/widgets/manager/panel/panel.py:3169
 "an unknown place" = "неизвестного места"
-# navigator/widgets/manager/panel/panel.py:3472
+# navigator/widgets/manager/panel/panel.py:3481
 "Reading directory..." = "Читается каталог..."
-# navigator/widgets/manager/panel/panel.py:3503, navigator/lib/drives/base.py
+# navigator/widgets/manager/panel/panel.py:3512, navigator/lib/drives/base.py
 "Packed" = "Сжато"
-# navigator/widgets/manager/panel/panel.py:3504
+# navigator/widgets/manager/panel/panel.py:3513
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1820
 "This directory keeps its own sort order, view and file mask" = "Этот каталог хранит свои сортировку, вид и маску файлов"

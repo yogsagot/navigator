@@ -130,7 +130,7 @@ class FMDefaultsPage(_Component):
         self.left_panel.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # fm_defaults_page.nml:78
         self.left_panel.height = 1    # fm_defaults_page.nml:79
         self.left_panel.items = _bind(    # fm_defaults_page.nml:80
-            lambda _o: [_tr('Files'), _tr('~I~nfo'), _tr('T~r~ee'), _tr('A~b~sent')],
+            lambda _o: [_tr('File ~p~anel'), _tr('~I~nfo'), _tr('T~r~ee'), _tr('A~b~sent')],
             yielding=True,
         )
 

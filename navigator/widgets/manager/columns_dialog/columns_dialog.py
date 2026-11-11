@@ -13,9 +13,12 @@ COLUMNS = ("size", "attributes", "links", "owner", "date")
 #: An archive's boxes: DN's ``dlgArcParms``, its original and packed sizes
 #: and ratio, then the rest.
 ARCHIVE_COLUMNS = ("size", "packed", "ratio", "attributes", "owner", "date")
-#: Every column there is: what *Full* shows, each panel showing those of
-#: them its listing has.
-ALL_COLUMNS = frozenset(COLUMNS) | frozenset(ARCHIVE_COLUMNS)
+#: What *Full* shows, each panel showing those of them its listing has:
+#: every column but *Links*.  DN's ``GetFullFlags`` was size, date and time
+#: (and packed and ratio in an archive); attributes and the owner stay as the
+#: POSIX facts a full listing gives, and the link count, ``ls -l``'s least
+#: read figure, is left for its box -- a departure only in what it adds.
+ALL_COLUMNS = (frozenset(COLUMNS) | frozenset(ARCHIVE_COLUMNS)) - {"links"}
 
 
 class ColumnsDialog(Dialog):

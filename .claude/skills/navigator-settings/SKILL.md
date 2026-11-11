@@ -101,7 +101,8 @@ For `[appearance]`, the order is **flag > `NAVKIT_*` environment variable > ini 
 The keys an older `navigator.ini` may still hold are listed in `settings.OBSOLETE`. `Settings.load()` drops them
 without a warning, so the next save leaves them out of the file. Unknown keys, by contrast, are kept as extras. A
 choice that was renamed (`sort_by = group`, `left_panel = drive`) is mapped by `Setting(aliases=...)` and written
-back under its new word.
+back under its new word. DN's *~D~rive* is *File ~p~anel* on *New Manager defaults*: `d` is *~D~etailed*'s there,
+and every letter of *Files* is taken on the page.
 - *Restore screen mode*
 - the VGA palette boxes
 - *OS-dependent disk access*
