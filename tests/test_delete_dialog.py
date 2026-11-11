@@ -68,15 +68,24 @@ def test_the_dialog_opens_with_the_focus_on_yes(tmp_path):
     assert dialog.focusable()[0] is dialog.ok
 
 
+def test_a_long_directory_path_loses_its_middle_in_the_not_empty_question():
+    path = Path("/home/somebody/a/rather/long/directory/path/to/build")
+    text = EraseQuery(question=NotEmpty(path)).details.text
+    shown = text.splitlines()[0][len("Directory "):]
+    assert len(shown) == 40 and shown.startswith("/home/some") and shown.endswith("/to/build") and "..." in shown
+
+
 def test_the_query_orders_its_buttons_by_kind(tmp_path):
     directory = EraseQuery(question=NotEmpty(tmp_path / "d"))
     assert directory.buttons_row == (
         directory.refuse, directory.agree, directory.every, directory.abandon
     )
     assert directory.default_button is directory.refuse
-    assert "Directory d\nis not empty." in directory.details.text
+    # DN's ``Cut(FExpand(Dir), 40)``: the whole path; the read-only one, the name.
+    assert f"Directory {cut(str(tmp_path / 'd'))}\nis not empty." in directory.details.text
 
     readonly = EraseQuery(question=ReadOnly(tmp_path / "f"))
+    assert "File f\nis write-protected." in readonly.details.text
     assert readonly.kind == "read-only"
     assert readonly.buttons_row == (readonly.agree, readonly.refuse, readonly.every)
     assert readonly.default_button is readonly.agree

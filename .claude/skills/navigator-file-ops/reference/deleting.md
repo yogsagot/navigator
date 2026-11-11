@@ -13,8 +13,9 @@ three layers are Copy's.
   directory is unlinked.
 - **DN's rules are kept.**
   - An empty directory goes unasked.
-  - A non-empty one asks `dlEraseDirNotEmpty` with **No / Yes / All / Cancel**, focus on No.
-  - A file asks `dlEraseRO` with **Yes / No / All**.
+  - A non-empty one asks `dlEraseDirNotEmpty` with **No / Yes / All / Cancel**, focus on No, naming the directory's
+    whole path with its middle cut to 40 (DN's `Cut(FExpand(Dir), 40)`; `erase_query.describe`).
+  - A file asks `dlEraseRO` with **Yes / No / All**, naming the file alone, as DN's `Over` did.
   - *All* is one flag (`DeleteAllFiles`), so it silences both questions.
   - Cancel, or Esc on either question, stops the run.
   - What went is untagged and what was kept keeps its tag. Both panels re-read.

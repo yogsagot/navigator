@@ -25,9 +25,14 @@ BUTTON, GAP = 11, 2
 
 
 def describe(question: NotEmpty | ReadOnly | NoTrash) -> str:
-    """``dlEraseDirNotEmpty`` or ``dlEraseRO``, after the name -- or, not
-    DN's, why it cannot go to the Trash."""
-    name = escape_caption(cut(question.path.name))
+    """``dlEraseDirNotEmpty`` after the directory's whole path, its middle
+    given up to fit 40 (DN's ``Cut(FExpand(Dir), 40)``), or ``dlEraseRO``
+    after the file's name (DN's ``Over(MakeFileName(Name))``) -- or, not
+    DN's, why it cannot go to the Trash, after the name."""
+    if isinstance(question, NotEmpty):
+        name = escape_caption(cut(str(question.path)))
+    else:
+        name = escape_caption(cut(question.path.name))
     if isinstance(question, NoTrash):
         return tr("Cannot move {name} to the Trash:\n{reason}\nDelete it permanently?").format(
             name=name, reason=escape_caption(cut(question.message, 50)))
