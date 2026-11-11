@@ -8,18 +8,23 @@ database (:class:`~navigator.models.saved_desktop.SavedDesktop`).
 
 What a window keeps:
 
-- a **file manager** each panel's directory, view mode, order, hidden files,
-  file mask, columns, *Display* boxes and the entry at its cursor; which
-  panel was active, a side hidden, and a tree, quick view or information
-  panel standing in for one.  A *Find:* listing is not kept: the panel comes
-  back on the directory it was found from.
+- a **file manager** each panel's directory (and the local one it falls
+  back to, on another drive), view mode, order and its direction, hidden
+  files, file mask, columns, *Display* boxes, the info lines shown and the
+  entry at its cursor; which panel was active, where the divider stands, a
+  side hidden with the rectangle it had before (DN's ``OldBounds``) and
+  Alt+Z's zoom over that, a tree, quick view or information panel standing
+  in for one and whether it had the keyboard, and Miller columns' place.  A
+  *Find:* listing is not kept: the panel comes back on the directory it was
+  found from.
 - an **editor** its file, and -- whatever *Track editing* says, as
   ``TFileEditor.Store`` wrote it -- its cursor, scroll, markers, margins and
   modes (``EditWindow.desktop_state``), put back over the file's own record.
   SmartPad comes back as SmartPad, without a new stamp (``Awaken`` only
   loaded the file).  A **viewer** its file and mode; the rest is the file's own
   history's, which opening restores.
-- a **tree window** the directory it was on.
+- a **tree window** the directory it was on; a **Volumes** window whether
+  it lists every volume and the free column.
 - a **database window** (dBase, SQLite, CSV) its file, the table or query,
   the cell, the scroll, the column widths, the F7 search and the code page
   or *Format* it is read with -- not an F8 sort, so it comes back in the
@@ -101,6 +106,66 @@ def _miller(window: Any) -> dict[str, Any] | None:
             "side": window._miller_side}
 
 
+def _manager_extras(manager: Any) -> dict[str, Any]:
+    """What a manager keeps beyond its panels: ``view_focused``, whether the
+    view in a panel's place had the keyboard; ``collapse``, the rectangle it
+    had before a side was hidden (DN's ``OldBounds``, DBLWND.PAS:289, 311);
+    and ``view_zoom``, whether Alt+Z zoomed the quick view over that hide."""
+    extras: dict[str, Any] = {}
+    replacement = manager.replacement
+    if replacement is not None:
+        app = manager.application
+        target = app.focused if app is not None and manager._holds(app.focused) else manager._saved_focus
+        extras["view_focused"] = target is not None and replacement._holds(target)
+    state = manager._collapse
+    if manager.hidden_side is not None and state:
+        rect = (manager.x, manager.y, manager.width, manager.height)
+        zoomed_view = manager._view_zoom is not None and manager.zoomed and manager._view_zoom == rect
+        shrunk = manager._restore if zoomed_view else rect
+        x, y, width, height = state["before"]
+        extras["collapse"] = {
+            "x": x, "y": y, "width": width, "height": height, "zoomed": bool(state["zoomed"]),
+            "hidden_width": state["hidden_width"], "kept_width": state["kept_width"],
+            # Untouched since the hide: showing the side gives back exactly ``before``.
+            "exact": state.get("after") == shrunk,
+        }
+        extras["view_zoom"] = zoomed_view
+    return extras
+
+
+def _manager_placed(manager: Any, kept: dict[str, Any]) -> None:
+    """:func:`_manager_extras` put back, once the manager has its rectangle:
+    the hide's, so a side shown again gets back the one it had."""
+    from types import SimpleNamespace
+
+    from navigator.lib.config.file_history import scaled
+
+    rect, collapse = kept.get("rect"), kept.get("collapse")
+    if isinstance(collapse, dict) and manager.hidden_side is not None and isinstance(rect, dict):
+        desktop = manager.parent
+        try:
+            before = scaled(SimpleNamespace(**{**rect, **{k: collapse[k] for k in ("x", "y", "width", "height")}}),
+                            desktop.width, desktop.height)
+            view_zoom = bool(kept.get("view_zoom")) and manager.zoomed
+            shrunk = manager._restore if view_zoom else (manager.x, manager.y, manager.width, manager.height)
+            manager._collapse = {
+                "before": before or (manager.x, manager.y, manager.width, manager.height),
+                "zoomed": bool(collapse.get("zoomed")),
+                "hidden_width": int(collapse["hidden_width"]),
+                "kept_width": int(collapse["kept_width"]),
+                "after": tuple(shrunk) if collapse.get("exact") and before is not None else None,
+            }
+            if view_zoom:
+                manager._view_zoom = (manager.x, manager.y, manager.width, manager.height)
+        except (KeyError, TypeError, ValueError, AttributeError):
+            pass
+    replaced = manager.replaced
+    if kept.get("view_focused") and replaced is not None:
+        view_side = "left" if replaced is manager.left else "right"
+        if manager.hidden_side != view_side:
+            manager._focus_replacement()
+
+
 def _window(window: Any) -> dict[str, Any] | None:
     """*window*'s entry, or None for one that is not kept."""
     from navigator.lib.config.file_history import window_values
@@ -126,6 +191,7 @@ def _window(window: Any) -> dict[str, Any] | None:
             view={window.tree: "tree", window.quick: "quick", window.info: "info"}.get(replacement)
             if replacement is not None else None,
             miller=_miller(window),
+            **_manager_extras(window),
         )
     elif isinstance(window, EditWindow):
         if window.editor.path is None:
@@ -439,6 +505,8 @@ async def restore(desktop: Any, data: dict[str, Any], *,
                 # Navigator saved, so a row added since is not cut off.
                 width, height = window.size()
                 window.locate(window.x, window.y, min(width, desktop.width), min(height, desktop.height))
+        if kept.get("kind") == "manager":
+            _manager_placed(window, kept)
         if kept.get("kind") == "database":
             # Once it has its rectangle, so the scroll is the screen's.
             if window.parent is not None:

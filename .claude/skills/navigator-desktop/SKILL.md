@@ -9,9 +9,17 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   `{"version", "windows": [...bottom to top], "front": index}` -- kept as JSON in the `SavedDesktop` model
   (`desktops` table, one row a name, `default`). A `version` other than `VERSION` is not read.
 - **What a window keeps** (`_window`): its rectangle (`file_history.window_values`, put back by `place_window`), and
-  - `Manager`: per panel `path` (a *Find:* listing's origin), `view_mode`, `sort_mode`, `show_hidden`,
-    `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `hidden` side, `view`
-    standing in (tree/quick/info, put back through `switch_view` after the active panel is focused);
+  - `Manager`: per panel `path` (a *Find:* listing's origin; an archive's own directory, the cursor on it), `local`
+    (where a panel on another drive falls back to), `view_mode`, `sort_mode`, `sort_reverse`, `show_hidden`,
+    `show_info`, `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `split`
+    (the divider), `hidden` side, `view` standing in (tree/quick/info, put back through `switch_view` after the
+    active panel is focused), `miller` (path, cursor, side); and from `_manager_extras`: `view_focused` (the view had
+    the keyboard, read off `_saved_focus` for a manager behind another), `collapse` (DN's `OldBounds`: `_collapse`'s
+    `before` rectangle, widths and `exact` -- untouched since the hide) and `view_zoom` (Alt+Z's zoom over the hide).
+    **These three go back after `place_window`** (`_manager_placed`): the hide in `_manager` ran on the unplaced
+    window, so `_collapse` is stamped again on the placed one, `before` scaled as the rectangle is, and `after` the
+    placed (unzoomed) rectangle only when `exact`. `place_window` zooms first and then sets `_restore`, since zooming
+    sets aside the rectangle the window has;
   - `EditWindow`: `path` and `state` -- `EditWindow.desktop_state()`, DN's `TFileEditor.Store`: cursor, scroll,
     markers, margins and every mode (`DESKTOP_MODES`; not insert mode, not the block), whatever *Track editing* says,
     put back over the file's record by `restore_desktop_state` (`Awaken`); an older entry without `state` opens on its
@@ -19,7 +27,7 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
     departure: DN reopened it empty under its name, which F2 would save over a deleted file's name). And `view_of` -- the
     index of the earlier window on the same text, for a Window > *New view* -- which `restore` makes again with that
     window's `open_view()` rather than a second document (`made_at`); `FileWindow`: `path`,
-    `mode`; `TreeWindow`: the directory and hidden; `CalculatorWindow`: the expression; `CalendarWindow`: only that
+    `mode`; `TreeWindow`: the directory and hidden; `VolumesWindow` (`kind="volumes"`): `all` and `free`; `CalculatorWindow`: the expression; `CalendarWindow`: only that
     it was open (it comes back on today);
   - `DBWindow` (`kind="database"`, DN's `TDBViewer.Store`): its own `kept_state()` -- `path`, `source`
     (`dbf`/`sqlite`/`csv`), `record` in the file's order and `field`, `top`/`first_field` (unsorted only), `widths`,

@@ -509,3 +509,79 @@ def test_an_unzoomed_database_window_comes_back_where_it_was(place):
     run_app(app, [*opened(lambda d: open_database(d, place / "one" / "people.dbf")), move,
                   *round_trip(seen, then=look)])
     assert seen["rect"] == (3, 2, 50, 12, False)
+
+
+def _manager_round_trip(place, arrange_it, after):
+    """The manager arranged by *arrange_it*, the desktop kept (through JSON)
+    and every window closed, then the desktop restored and *after* called on
+    the manager that came back; what both put in ``seen``."""
+    import json
+
+    app = navigator(place)
+    seen = {}
+
+    async def round_trip(a):
+        data = json.loads(json.dumps(desktop_state.snapshot(a.shell.desktop)))
+        for window in list(a.shell.desktop.windows()):
+            window.close()
+        await desktop_state.restore(a.shell.desktop, data)
+        manager = next(w for w in a.shell.desktop.windows() if isinstance(w, Manager))
+        await after(a, manager, seen)
+        seen["done"] = True
+
+    run_app(app, [lambda a: arrange_it(a, seen), lambda a: None,
+                  lambda a: a.spawn(round_trip(a)), Until(lambda a: "done" in seen)])
+    return seen
+
+
+def _placed(a):
+    manager = a.manager
+    if manager.zoomed:
+        manager.toggle_zoom()
+    manager.locate(4, 2, 80, 20)
+    return manager
+
+
+def test_a_hidden_side_comes_back_to_the_rectangle_it_had(place):
+    """DN stored ``OldBounds`` with the double window (DBLWND.PAS:289, 311)."""
+    def arrange_it(a, seen):
+        manager = _placed(a)
+        seen["before"] = (manager.x, manager.y, manager.width, manager.height)
+        manager.hide_side("right")
+
+    async def after(a, manager, seen):
+        seen["hidden"] = manager.hidden_side
+        manager.show_side("right")
+        seen["after"] = (manager.x, manager.y, manager.width, manager.height)
+
+    seen = _manager_round_trip(place, arrange_it, after)
+    assert seen["hidden"] == "right" and seen["after"] == seen["before"]
+
+
+def test_the_view_that_had_the_keyboard_has_it_again(place):
+    def arrange_it(a, seen):
+        a.manager.switch_view(a.manager.quick)
+        a.manager._focus_replacement()
+
+    async def after(a, manager, seen):
+        seen["focused"] = manager.replacement is manager.quick and manager.quick.focus_within
+
+    assert _manager_round_trip(place, arrange_it, after)["focused"]
+
+
+def test_alt_z_on_the_quick_view_is_undone_after_a_load(place):
+    def arrange_it(a, seen):
+        manager = _placed(a)
+        seen["before"] = (manager.x, manager.y, manager.width, manager.height)
+        manager.switch_view(manager.quick)
+        manager._focus_replacement()
+        a.spawn(manager.on_zoom_window(None))
+
+    async def after(a, manager, seen):
+        seen["zoomed"] = (manager.zoomed, manager.hidden_side is not None)
+        await manager.on_zoom_window(None)
+        seen["after"] = (manager.x, manager.y, manager.width, manager.height, manager.zoomed, manager.hidden_side)
+
+    seen = _manager_round_trip(place, arrange_it, after)
+    assert seen["zoomed"] == (True, True)
+    assert seen["after"] == (*seen["before"], False, None)

@@ -134,9 +134,11 @@ def place_window(window: Any, record: Any) -> None:
         return
     rectangle = scaled(record, desktop.width, desktop.height)
     if record.zoomed:
-        window._restore = rectangle
+        # Zoomed first: zooming sets aside the rectangle the window has now,
+        # which is not the one recorded to unzoom to.
         if not window.zoomed:
             window.toggle_zoom()
+        window._restore = rectangle
         return
     if rectangle is None:
         if not window.zoomed:
