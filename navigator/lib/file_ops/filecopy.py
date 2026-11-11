@@ -23,8 +23,10 @@ What is DN's and what is not:
 * **The target is read as DN read it**: an existing directory, or a name
   ending in ``/``, is where the files go; a name with ``*`` or ``?`` in it is
   a mask each name is renamed by (DN's ``MkName``); anything else is the new
-  name of a single file, or a directory to create for several.  ``TEMP:``,
-  ``LINK:``, archives and DOS devices are not ported.
+  name of a single file.  For several, a plain name not there is **a
+  directory to create** -- a departure: DN made it the mask (``Mask :=
+  Nm+Xt``), so every file went to that one name and all but the last were
+  lost.  ``TEMP:``, ``LINK:``, archives and DOS devices are not ported.
 """
 
 from __future__ import annotations
@@ -312,7 +314,10 @@ def target_location(target: str, cwd: Path | Location) -> Location:
 
 
 def resolve_target(target: str, sources: list[Path | Location], cwd: Path | Location) -> Destination:
-    """Read the dialog's target line as DN's ``CopyDialog`` read it.
+    """Read the dialog's target line as DN's ``CopyDialog`` read it -- but
+    for several sources and a plain name not there, which is a directory to
+    create, where DN made it the mask every file was renamed to (a
+    departure: that kept one file of N).
 
     Asks the drive whether directories are there, so a thread runs it once
     the target may be remote.
@@ -326,6 +331,7 @@ def resolve_target(target: str, sources: list[Path | Location], cwd: Path | Loca
         return Destination(shown(parent), mask=location.name, create=not drive.is_dir(parent))
     if len(sources) == 1:
         return Destination(shown(parent), name=location.name, create=not drive.is_dir(parent))
+    # A departure: DN's ``Mask := Nm+Xt`` sent every file to this one name.
     return Destination(shown(location), create=True)
 
 

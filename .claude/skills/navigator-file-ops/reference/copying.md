@@ -90,13 +90,16 @@ progress box appears after DN's two ticks.
 - **The target is read as `CopyDialog` read it:**
   - an existing directory, or a name ending in `/`, is where the files go;
   - a name with `*` or `?` is a rename mask (`MkName`, name and extension masked separately);
-  - otherwise it is a single file's new name, or a directory to create for several (`dlQueryCreateDir`, always
-    asked).
+  - otherwise it is a single file's new name, or for several a directory to create (a departure, below), asked about
+    first (`dlQueryCreateDir`) only when Confirmations' *Create non-existing dir* is ticked, off by default.
 - **What went is untagged; what was skipped keeps its tag.** Both panels re-read afterwards.
 - **A stopped file is removed** rather than left half-written.
 
 **Departures:**
 
+- **Several files to a plain name that is not there make a directory of it.** DN split the line (`FSplit`,
+  `FILECOPY.PAS:2509`) and kept a name that was no existing directory as the mask (`Mask := Nm+Xt`), so every file
+  was copied to that one name, each over the last, and a copy of N files left one.
 - *Verify disk writes* is *Preserve attributes*, and *Copy descriptions* is *Follow symlinks*. The bits keep DN's
   positions, so *Remove source* is still `$08`. This was the user's call:
   - the kernel verifies writes, and `descript.ion` is not a Linux convention;
