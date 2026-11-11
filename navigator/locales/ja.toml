@@ -6420,8 +6420,6 @@ flag = "JP"
 # navigator/settings.py
 "Hide the key bar" = "キーバーを隠す"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "空のコマンドラインで Esc を押すとコンソールを切り替え"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "コマンドラインを隠し、入力も受け付けない"
 # navigator/settings.py
 "Hide the command line while it is empty" = "空の間はコマンドラインを隠す"
@@ -6839,9 +6837,12 @@ flag = "JP"
 "Write each file's directory with its name" = "各ファイルのディレクトリを名前と一緒に書く"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "リストのディレクトリと異なる場合のみディレクトリを書く"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "空のコマンドラインで Esc を押すと、キーを押すまでユーザー画面を表示します (Alt+F5 と同じ)"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "空のコマンドラインで Esc を押すとコンソールを切り替え"
 "Cannot make directory {name}: {error}" = "ディレクトリ {name} を作成できません: {error}"
 "Cannot make directory" = "ディレクトリを作成できません"
 "Give both a date and a time" = "日付と時刻の両方を指定してください"

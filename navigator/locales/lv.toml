@@ -6420,8 +6420,6 @@ flag = "LV"
 # navigator/settings.py
 "Hide the key bar" = "Slēpt taustiņu joslu"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "Esc tukšā komandrindā pārslēdz konsoli"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "Slēpt komandrindu un neko tajā nerakstīt"
 # navigator/settings.py
 "Hide the command line while it is empty" = "Slēpt komandrindu, kamēr tā ir tukša"
@@ -6839,9 +6837,12 @@ flag = "LV"
 "Write each file's directory with its name" = "Rakstīt katra faila direktoriju kopā ar nosaukumu"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "Rakstīt direktoriju tikai tad, ja tā nav saraksta direktorija"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "Esc tukšā komandrindā rāda lietotāja ekrānu līdz taustiņam, kā Alt+F5"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "Esc tukšā komandrindā pārslēdz konsoli"
 "Cannot make directory {name}: {error}" = "Nevar izveidot direktoriju {name}: {error}"
 "Cannot make directory" = "Nevar izveidot direktoriju"
 "Give both a date and a time" = "Norādiet gan datumu, gan laiku"

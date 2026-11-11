@@ -6420,8 +6420,6 @@ flag = "RU"
 # navigator/settings.py
 "Hide the key bar" = "Скрывать строку клавиш"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "Esc в пустой командной строке переключает консоль"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "Скрывать командную строку и ничего в неё не вводить"
 # navigator/settings.py
 "Hide the command line while it is empty" = "Скрывать командную строку, пока она пуста"
@@ -6839,9 +6837,12 @@ flag = "RU"
 "Write each file's directory with its name" = "Записывать каталог каждого файла вместе с именем"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "Записывать каталог, только если он не каталог списка"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "Esc на пустой командной строке показывает экран пользователя до нажатия клавиши, как Alt+F5"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "Esc в пустой командной строке переключает консоль"
 "Cannot make directory {name}: {error}" = "Невозможно создать каталог {name}: {error}"
 "Cannot make directory" = "Невозможно создать каталог"
 "Give both a date and a time" = "Укажите и дату, и время"

@@ -6420,8 +6420,6 @@ flag = "CN"
 # navigator/settings.py
 "Hide the key bar" = "隐藏按键栏"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "在空命令行上按 Esc 切换控制台"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "隐藏命令行，且不向其输入"
 # navigator/settings.py
 "Hide the command line while it is empty" = "命令行为空时隐藏"
@@ -6839,9 +6837,12 @@ flag = "CN"
 "Write each file's directory with its name" = "写入每个文件的目录及其名称"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "仅当目录不是列表所在目录时才写入目录"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "在空命令行上按 Esc 显示用户屏幕，直到按下任意键，与 Alt+F5 相同"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "在空命令行上按 Esc 切换控制台"
 "Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"
 "Cannot make directory" = "无法创建目录"
 "Give both a date and a time" = "请同时给出日期和时间"

@@ -777,6 +777,29 @@ def test_esc_on_an_empty_line_shows_the_user_screen_only_when_ticked(tmp_path, q
     assert seen == ([True, False] if ticked else [False, False])
 
 
+def test_esc_s_user_screen_is_alt_f5_s_peek_and_any_key_ends_it(tmp_path, quiet_console):
+    # DN's ``cmShowUserScreen``: until any key, which goes nowhere else.
+    SETTINGS.interface.esc_user_screen = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def look(a):
+        seen.append((type(a.modal).__name__ if a.modal is not None else None, a.shell.console_visible,
+                     a.shell.command_line.value))
+
+    run_app(app, [KeyEvent("escape"), lambda a: None, look, KeyEvent("a", "a"), lambda a: None, look])
+    assert seen == [("UserScreenPeek", True, ""), (None, False, "")]
+
+
+def test_esc_leaves_ctrl_o_s_console_up(tmp_path, quiet_console):
+    SETTINGS.interface.esc_user_screen = True
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [KeyEvent("o", ctrl=True), lambda a: None, KeyEvent("escape"), lambda a: None,
+                  lambda a: seen.append((a.modal, a.shell.console_visible))])
+    assert seen == [(None, True)]
+
+
 def test_esc_on_a_line_with_text_clears_it_instead(tmp_path, quiet_console):
     SETTINGS.interface.esc_user_screen = True
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))

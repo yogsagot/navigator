@@ -6421,8 +6421,6 @@ direction = "rtl"
 # navigator/settings.py
 "Hide the key bar" = "הסתר את שורת המקשים"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "Esc בשורת פקודה ריקה מחליף את המסוף"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "הסתר את שורת הפקודה, ואל תקליד בה דבר"
 # navigator/settings.py
 "Hide the command line while it is empty" = "הסתר את שורת הפקודה כל עוד היא ריקה"
@@ -6840,9 +6838,12 @@ direction = "rtl"
 "Write each file's directory with its name" = "לכתוב את התיקייה של כל קובץ עם שמו"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "לכתוב את התיקייה רק כשאינה התיקייה של הרשימה"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "Esc בשורת פקודה ריקה מציג את מסך המשתמש עד לחיצת מקש, כמו Alt+F5"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "Esc בשורת פקודה ריקה מחליף את המסוף"
 "Cannot make directory {name}: {error}" = "לא ניתן ליצור את התיקייה {name}: {error}"
 "Cannot make directory" = "לא ניתן ליצור תיקייה"
 "Give both a date and a time" = "יש לתת גם תאריך וגם שעה"

@@ -404,7 +404,7 @@ def test_the_setup_pages_check_boxes_say_their_settings_docs_in_step(place):
     # One doc an item, never more: a longer list would put a doc on the wrong box.
     for cluster in seen["clusters"]:
         assert len(cluster.tooltips) == len(cluster.items), (type(cluster.parent).__name__, cluster.items)
-    assert seen["esc"] == "Esc on an empty command line toggles the console"
+    assert seen["esc"] == "Esc on an empty command line shows the user screen until a key, as Alt+F5"
     assert seen["tabs"].startswith("Where Options > Settings shows its tabs")
 
 

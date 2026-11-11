@@ -420,7 +420,7 @@ class InterfaceData(Section):
     #: DN's default hid it; Navigator has always shown it.
     hide_menu_bar: bool = Setting(False, doc="Hide the menu bar until F10")
     hide_status_line: bool = Setting(False, doc="Hide the key bar")
-    esc_user_screen: bool = Setting(False, doc="Esc on an empty command line toggles the console")
+    esc_user_screen: bool = Setting(False, doc="Esc on an empty command line shows the user screen until a key, as Alt+F5")
     hide_command_line: bool = Setting(False, doc="Hide the command line, and type nothing on it")
     auto_hide_command_line: bool = Setting(False, doc="Hide the command line while it is empty")
     block_insert_cursor: bool = Setting(False, doc="Block cursor on the command line")

@@ -6421,8 +6421,6 @@ direction = "rtl"
 # navigator/settings.py
 "Hide the key bar" = "إخفاء شريط المفاتيح"
 # navigator/settings.py
-"Esc on an empty command line toggles the console" = "Esc في سطر أوامر فارغ يبدل الطرفية"
-# navigator/settings.py
 "Hide the command line, and type nothing on it" = "إخفاء سطر الأوامر، وعدم الكتابة فيه"
 # navigator/settings.py
 "Hide the command line while it is empty" = "إخفاء سطر الأوامر ما دام فارغا"
@@ -6840,9 +6838,12 @@ direction = "rtl"
 "Write each file's directory with its name" = "كتابة مجلد كل ملف مع اسمه"
 # navigator/settings.py
 "Write the directory only where it is not the list's own" = "كتابة المجلد فقط حين لا يكون مجلد القائمة"
+# navigator/settings.py
+"Esc on an empty command line shows the user screen until a key, as Alt+F5" = "يعرض Esc في سطر أوامر فارغ شاشة المستخدم حتى ضغط مفتاح، مثل Alt+F5"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"Esc on an empty command line toggles the console" = "Esc في سطر أوامر فارغ يبدل الطرفية"
 "Cannot make directory {name}: {error}" = "تعذر إنشاء المجلد {name}: {error}"
 "Cannot make directory" = "تعذر إنشاء المجلد"
 "Give both a date and a time" = "حدد التاريخ والوقت معا"

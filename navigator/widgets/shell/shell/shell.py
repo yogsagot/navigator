@@ -560,23 +560,29 @@ class Shell(DockLayout):
             app.copy_to_clipboard("\n".join(rows))
 
     async def on_show_user_screen(self, event: ShowUserScreen) -> bool:
-        """Alt+F5, ≡ > *User screen*: ``ShowUserScreen`` -- the console, until
-        any key or click, which then goes nowhere else and the windows come
-        back.  Already showing, it stays; with *Use internal terminal* off it
-        is Ctrl+O's handing over of the real terminal."""
+        """Alt+F5, ≡ > *User screen*: :meth:`show_user_screen`."""
+        self.show_user_screen()
+        return True
+
+    def show_user_screen(self) -> None:
+        """DN's ``cmShowUserScreen`` (Alt+F5, and Esc on an empty line under
+        *ESC for user screen*): the console, until any key or click, which
+        then goes nowhere else and the windows come back.  Already showing
+        (Ctrl+O's), it stays -- DN's never closed the Output window either;
+        with *Use internal terminal* off it is Ctrl+O's handing over of the
+        real terminal."""
         if self.console_visible:
-            return True
+            return
         if not SETTINGS.system.internal_terminal:
             self.toggle_console()
-            return True
+            return
         app = self.application
         if app is None:
-            return True
+            return
         self.toggle_console()
         if not self.console_visible:
-            return True
+            return
         self.spawn(self._peek(app))
-        return True
 
     async def _peek(self, app: Any) -> None:
         await UserScreenPeek().execute(app)
@@ -747,11 +753,10 @@ class Shell(DockLayout):
         if await self.command_line.on_key(event):
             return True
         # *ESC for user screen* (``ouiEsc``): Esc with nothing on the line
-        # sends ``cmShowUserScreen`` -- here Ctrl+O's console, which Esc
-        # puts away again as any key closed DN's user screen.  A line with
-        # text was cleared by the Esc above instead.
+        # sends ``cmShowUserScreen`` -- Alt+F5's peek, until any key.  A line
+        # with text was cleared by the Esc above instead.
         if event.matches("escape") and SETTINGS.interface.esc_user_screen:
-            self.toggle_console()
+            self.show_user_screen()
             return True
         return False
 
