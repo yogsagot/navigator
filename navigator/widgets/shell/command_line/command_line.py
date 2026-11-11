@@ -68,6 +68,10 @@ class CommandLine(InputLine):
     #: What is painted before the text -- the active panel's directory and
     #: ``>``.  Bound by ``Shell``.
     prompt: str = reactive("")
+    #: DN's ``Overwrite`` (``CMDLINE.PAS:302, 389``): typing replaces the
+    #: character at the caret.  Ins toggles it while the line holds text (an
+    #: empty line's Ins is the panel's, tagging); the session keeps it.
+    overwrite: bool = reactive(False)
 
     #: The shell's prompt as cells, each in the style the shell asked for.
     #: Painted instead of ``prompt`` whenever it holds any.  Bound by ``Shell``.
@@ -185,6 +189,18 @@ class CommandLine(InputLine):
             return self.recall(-1)
         if event.key in ("up", "down", "enter", "tab"):
             return False
+        if event.matches("insert"):
+            # Only here with text on the line: the panel steps aside then.
+            self.overwrite = not self.overwrite
+            return True
+        if (self.overwrite and event.is_printable and event.char and len(event.char) == 1
+                and not (event.ctrl or event.alt) and self.selection[0] == self.selection[1]
+                and self.cursor < len(self.value)):
+            # DN's overwrite: the character at the caret replaced, the caret on.
+            at = self.cursor
+            self.value = self.value[:at] + event.char + self.value[at + 1:]
+            self.cursor = at + 1
+            return True
         taken = await super().on_key(event)
         if taken and event.matches("backspace"):
             self._backspaced_at = monotonic()

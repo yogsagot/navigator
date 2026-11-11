@@ -369,12 +369,18 @@ class QuickView(Command):
     title = "Preview"
 
 
+@dataclass(frozen=True, slots=True)
 class ToggleMark(Command):
     """Insert: tag the file under the cursor, or untag it, and step down.
 
     DN handled ``kbIns`` in ``TFilePanel.HandleEvent`` rather than through a
     command; it is one here so the key lives in a key table like the rest.
+    *by_key* says the Ins key sent it: with text on the command line the key
+    is the line's, toggling its overwrite mode (DN's ``kbIns`` in
+    ``TCommandLine``; DN's panel took Ins first, so there ^V did it).
     """
+
+    by_key: bool = False
 
 
 @dataclass(frozen=True, slots=True)

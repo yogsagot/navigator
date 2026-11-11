@@ -138,7 +138,11 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   paste lands on it. The walk keeps what was being typed aside (`_draft`) and gives it back past the newest; an edit
   since the last step (DN's `StrModified`: the text no longer what the walk put there) makes the line the draft and
   starts again from the newest, a caret move does not. A departure: DN's `AddCommand` put that line into the history;
-  here a line never run never enters it.
+  here a line never run never enters it. **Ins with text on the line toggles overwrite** (`CommandLine.overwrite`, DN's `Overwrite`/`kbIns`,
+  `CMDLINE.PAS:302, 389`): typing replaces the character at the caret (a paste and `insert_name` still insert), the
+  mode lasting the session; the caret is a block when `overwrite` differs from *Block Insert Cursor* (`Shell.block_insert`,
+  DN's `xor`). Ins is `ToggleMark(by_key=True)` in `Manager.keys`, stepping aside while the line holds text as the Gray
+  keys do -- a departure: DN's panel always took Ins, and ^V toggled; Ctrl+V is paste here.
 - **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,

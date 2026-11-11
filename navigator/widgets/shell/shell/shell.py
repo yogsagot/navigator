@@ -2591,14 +2591,14 @@ class Shell(DockLayout):
     def block_insert(self) -> bool:
         """The ``:block_insert`` state: Interface's *Block Insert Cursor*.
 
-        ``ouiBlockInsertCursor`` swapped ``TCommandLine``'s two cursors, so
-        inserting showed DN's block.  The line only inserts -- it has no
-        overwrite mode for the other half of the swap -- so the state is the
-        setting.  It is this screen's rather than the line's because the caret
-        is answered from here (:meth:`cursor_position`), and the application
-        takes its shape from whoever answers.
+        ``ouiBlockInsertCursor`` swapped ``TCommandLine``'s two cursors:
+        ``Overwrite xor ouiBlockInsertCursor`` is the block (``CMDLINE.PAS:234``),
+        so overwrite shows the block unless the setting swaps it.  It is this
+        screen's rather than the line's because the caret is answered from here
+        (:meth:`cursor_position`), and the application takes its shape from
+        whoever answers.
         """
-        return SETTINGS.interface.block_insert_cursor
+        return SETTINGS.interface.block_insert_cursor != self.command_line.overwrite
 
     def cursor_position(self) -> tuple[int, int] | None:
         """The command line's caret, when the keys that fell this far go there.

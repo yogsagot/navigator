@@ -209,6 +209,8 @@ class Manager(Window):
     #: with one of the three from the panel, and after any other character
     #: they type as usual.
     keys = {
+        # Ins, the line's overwrite toggle while the line holds text (``by_key``).
+        "insert": ToggleMark(by_key=True),
         "plus": SelectGroup(by_key=True),
         "-": UnselectGroup(by_key=True),
         "*": InvertSelection(by_key=True),

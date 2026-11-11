@@ -58,7 +58,6 @@ Manager(Window):
     #: ``cmDiskInfo``, the footer toggle (below).
     keys:
         tab: SwitchPanel
-        insert: ToggleMark
         space: ToggleMarkBySpace
         ctrl+enter: InsertName
         alt+enter: InsertName
