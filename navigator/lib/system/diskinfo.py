@@ -18,8 +18,12 @@ the panel lists, ``..`` aside, files and directories alike as
 
 Below the directory's lines, a *Current file* section describes the entry
 under the panel's cursor: its type, size, times, attributes, owner, links
-and inode (:func:`file_lines`).  A departure: ``TDiskInfo`` described the
-directory alone.  The listing's entry gives most of it; a local entry's
+and inode (:func:`file_lines`).  A departure: of the current file,
+``TDiskInfo`` said only its description -- ``ReadInfoBBS`` (DISKINFO.PAS:
+267-339) took the entry's lines from the directory's ``FMSetup.DIZ`` files
+(``descript.ion``, ``files.bbs``) as the cursor moved.  That went with
+``descript.ion`` (``dn-porting``), which has no POSIX meaning: the panel
+names no description.  The listing's entry gives most of it; a local entry's
 access and change times, links and inode are one ``lstat`` on a thread
 (:func:`stat_file`), which a remote one goes without; a media file's or a
 PDF's or a program's details are a second read (:mod:`navigator.lib.system.mediainfo`,

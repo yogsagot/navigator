@@ -24,7 +24,8 @@ over inventing modern alternatives when the two conflict** -- fidelity is the po
   the `dlg*` resource's layout and captions; key handlers say which DN key constant they took (`kbIns`, `kbBack`).
 - **Menus transcribe DN's**: `main_menu.nml` is `dlgMainMenu`, with every entry whose feature does not exist greyed rather
   than removed. **The exception is an entry that can never have a POSIX meaning** (video modes, Format disk, the modem,
-  the CD player, FAT undelete, DOS archivers, `descript.ion`): it is dropped, and the document's `#:` header lists it as
+  the CD player, FAT undelete, DOS archivers, `descript.ion` -- with it Ctrl+K's descriptions and the information
+  panel's per-file one, `ReadInfoBBS`): it is dropped, and the document's `#:` header lists it as
   a departure. The same applies to settings and key-bar commands. An entry with a POSIX reading is kept or relabelled
   instead: *Edit environment*, *Character table*, *Encoding...*, and *Change drive left/right*, which are *Bookmarks left/right* (`navigator-bookmarks`).
 - **Colours come from DN's slots** (see `colours-themes-glyphs`); a new colour is a `DERIVED` alias, not an invented value.

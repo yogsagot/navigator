@@ -525,7 +525,10 @@ jumped to the 8.3 extension).
 - **Ctrl+P is `cmSwitchOther`** (`toggle_inactive_side`, on `manager.nml`'s table): the side without the keyboard; it
   never falls back to the console.
 - `Manager.switch_view` is DN's `SwitchView`, shared by Ctrl+T (tree) and Ctrl+Q (quick view): `replaced`/`replacement`;
-  `tree_replaces` is a computed over them.
+  `tree_replaces` is a computed over them. **One view at a time**, a departure (asked about and kept): DN kept a type
+  per side (`LType`/`RType`), and a view opened while another held the keyboard took the opposite panel's place
+  (DBLWND.PAS:541-556), so a tree and a quick view could stand together with no panel showing. Here the new view
+  puts the old one away; `active_panel` and every panel command need a panel showing.
 
 ## Find file (Alt+F7) and the *Find:* listing
 
@@ -684,7 +687,9 @@ lines overflow, emits `ScrollEvent` to `on_scroll` (drag, arrows, page). It is p
 Ctrl+Q's is. `tooltip_at` reads `shown()`, so a tooltip names the scrolled row.
 
 **A departure**: a *Current file* section (rule, then `Label: ~value~` lines, left-aligned) follows the directory
-block, behind the `current_file` box (*File under the cursor*). DN's `TDiskInfo` described the directory alone.
+block, behind the `current_file` box (*File under the cursor*). Of the file under the cursor DN's `TDiskInfo` said
+only its description, `ReadInfoBBS` (DISKINFO.PAS:267-339) reading the entry's lines from `descript.ion`/`files.bbs`
+on each `cmLoadViewFile`; that went with `descript.ion` (`dn-porting`), so no description is shown -- a departure.
 `Manager._info_follows_cursor` is a separate effect on the active panel's `selected` and calls `InfoPanel.show_file`,
 so a cursor move never re-runs `gather`. Name, type, size, mtime, attributes (+ octal), owner and link target come
 from the `DirEntry`. `diskinfo.stat_file` on the same thread adds the MIME guess (stdlib `mimetypes`, whose table is
