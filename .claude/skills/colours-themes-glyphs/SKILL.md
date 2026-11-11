@@ -130,7 +130,12 @@ after it (`load_scheme("norton")`, `--theme norton`, `--list-themes`). `navigato
 `temp`), one class on `Panel::row` beside `.directory`, **the type winning** as it does for the icon; a directory takes no
 category. The rules sit between `.directory` and the cursor/tag rules in `navigator.nss`, so the cursor and a tag
 still win. Executables [173] and Archives [174] are DN's slots; the rest are `DERIVED` aliases of DN's Custom 1-5
-[175-181]. `filetypes.matches` is also what *Select group* reads masks with.
+[175-181]. `filetypes.matches` is also what *Select group* reads masks with. `archive` takes DN's multi-volume
+parts too, `*.[aArR][0-9][0-9]` (FILESCOL.PAS's `.[ar][0-9][0-9]`).
+
+`Panel.type_classes` gives a row's `.directory` and category; with *Files highlight* off it gives none, so
+**directories go plain as well**, as DN's `HLC[1..8] := C1` made `ttDirectory` too. **The tag sign** (`√`) is drawn
+in the type's foreground over the row's colours (DN's `CC and $0F`), unless that foreground is the row's background.
 
 The five custom masks (`filetypes.CUSTOM`, everything but `archive`) are DN's `CustomMask1`..`5`: **Options > File
 Manager > Highlight groups** (`HighlightGroups`, `HighlightPage` in *Settings*, `[highlight_groups]`) edits them, and

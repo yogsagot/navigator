@@ -2137,8 +2137,11 @@ def test_a_tagged_row_shows_the_tag_char_and_its_own_colours(tree):
     assert panel.marked == {"alpha"}
     char, style = buffer.get(1, 3)  # "alpha", the second row
     assert char == "√"
-    assert style == panel.part_style("row", classes=("directory", "marked"))
-    assert style.fg != panel.part_style("row", classes=("directory",)).fg
+    tagged = panel.part_style("row", classes=("directory", "marked"))
+    # The sign in the type's colour over the tagged row's (DN's ``CC and $0F``).
+    assert style == tagged.derive(fg=panel.part_style("row", classes=("directory",)).fg)
+    assert buffer.get(2, 3)[1] == tagged
+    assert tagged.fg != panel.part_style("row", classes=("directory",)).fg
     assert buffer.get(1, 4)[0] == "/"  # "beta", untagged, keeps its type mark
     # Under the cursor a tagged row is [89], not the plain cursor.
     panel.cursor = 1
@@ -2679,6 +2682,9 @@ def test_the_nerd_gutter_shows_each_type_as_a_glyph(tmp_path):
         ("README", False, " ", None),
         (".bashrc", False, " ", None),  # a leading dot is not an extension
         ("archive.tar.gz", False, " ", "archive"),
+        ("backup.r01", False, " ", "archive"),  # DN's multi-volume parts, ``.[ar][0-9][0-9]``
+        ("BACKUP.A12", False, " ", "archive"),
+        ("take.a1", False, " ", None),
         ("PHOTO.JPG", False, " ", "image"),  # masks fold case, as DN's did
         ("song.flac", False, " ", "media"),
         ("report.pdf", False, " ", "document"),

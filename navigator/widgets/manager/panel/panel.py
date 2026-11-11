@@ -3296,15 +3296,18 @@ class Panel(ListViewer):
                 bright = not bright
             y += 1
 
-    def row_style(self, index: int, item: DirEntry) -> Style:
+    def type_classes(self, item: DirEntry) -> tuple[str, ...]:
+        """*item*'s file-type classes on ``Panel::row``: ``.directory`` and its
+        category.  *Files highlight* off, none -- directories as plain as
+        files, as DN's ``HLC[1..8] := C1`` made ``ttDirectory`` too."""
+        if not self.shows("files_highlight"):
+            return ()
         classes = ("directory",) if item.is_dir else ()
-        # *Files highlight*: off, every file is coloured alike.
-        category = (
-            filetypes.category_of(item.name, item.is_dir, item.type_mark)
-            if self.shows("files_highlight") else None
-        )
-        if category:
-            classes += (category,)
+        category = filetypes.category_of(item.name, item.is_dir, item.type_mark)
+        return classes + (category,) if category else classes
+
+    def row_style(self, index: int, item: DirEntry) -> Style:
+        classes = self.type_classes(item)
         if self.is_marked(item):
             classes += ("marked",)
         if CLIP and CLIP.holds(self.entry_location(item)):
@@ -3414,8 +3417,14 @@ class Panel(ListViewer):
         """
         gutter = min(self.gutter, width)
         if gutter:
+            sign = style
             if self.is_marked(item) and self.tag_char:
                 mark = self.tag_char
+                # The sign in the type's colour over the row's, as DN's
+                # ``CC and $0F`` was -- unless that would hide it.
+                fg = self.part_style("row", classes=self.type_classes(item)).fg
+                if fg != style.bg:
+                    sign = style.derive(fg=fg)
             elif CLIP and CLIP.holds(self.entry_location(item)):
                 mark = self.clip_mark(CLIP.move)
             elif self.show_icons:
@@ -3425,7 +3434,7 @@ class Panel(ListViewer):
                 mark = self.BOOKMARK_MARK
             else:
                 mark = item.type_mark
-            surface.draw_text(x, y, mark, style, gutter)
+            surface.draw_text(x, y, mark, sign, gutter)
         git = self.git_cells if width > gutter + self.git_cells else 0
         if git:
             mark = self.git_mark(item)

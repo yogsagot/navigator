@@ -1034,9 +1034,12 @@ def test_without_files_highlight_every_file_is_plain(listing):
         panel = _left(a)
         index = next(i for i, e in enumerate(panel.items) if e.name == "pack.zip")
         seen.append(panel.row_style(index, panel.items[index]) == panel.part_style("row"))
+        # Directories too: DN's ``HLC[1..8] := C1`` took ``ttDirectory`` with the rest.
+        index = next(i for i, e in enumerate(panel.items) if e.is_dir and e.name != "..")
+        seen.append(panel.row_style(index, panel.items[index]) == panel.part_style("row"))
 
     run_app(app, [lambda a: None, look])
-    assert seen == [True]
+    assert seen == [True, True]
 
 
 def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
@@ -1057,7 +1060,7 @@ def test_the_info_line_shows_only_what_the_defaults_ask_for(listing):
         lambda a: setattr(SETTINGS.panel_defaults, "current_file", False), look,
     ])
     # DN's: with *Selected files* off the selection takes *Current file*'s line.
-    assert seen[0][:2] == [("plain", "current-file"), ("~1", "selected-files")]
+    assert seen[0][:2] == [("plain", "current-file"), ("~1~", "selected-files")]
     assert seen[1][0][1] == "selected-files" and all(part != "current-file" for _, part in seen[1][1:])
     assert all(part not in ("current-file", "selected-files") for _, part in seen[2])
 
