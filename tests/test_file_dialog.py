@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import FakeTerminal, Until, run_app
 from navkit.application import Application
 from navkit.events import KeyEvent
 from navkit.widget import Widget
@@ -126,7 +126,9 @@ def test_enter_on_a_directory_lists_it_and_stays_up(tree):
 
 def test_a_typed_wildcard_lists_through_it(tree):
     seen = []
+    # The list is read again on a thread, and the focus goes to it once it is in.
     answer, dialog = run(tree, *typed("*.txt"), KeyEvent("enter"),
+                         Until(lambda a: a.modal is not None and a.modal.files.focused),
                          look(seen, lambda d: d.files.focused))
     assert answer == "open" and dialog.wildcard == "*.txt"
     assert names(dialog.files.items) == ["beta.txt", "gamma.txt"]

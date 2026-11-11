@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from conftest import FakeTerminal, run_app, key_bar_hints
+from conftest import IDLE, FakeTerminal, run_app, key_bar_hints
 from navkit.events import KeyEvent
 from navigator import __main__ as entry
 from navigator.__main__ import Navigator, load_settings
@@ -1075,7 +1075,7 @@ def test_without_auto_indent_enter_starts_the_new_line_at_the_margin(listing):
         panel.cursor = next(i for i, e in enumerate(panel.items) if e.name == "plain")
         a.post_event(KeyEvent("f4"))
 
-    run_app(app, [open_plain, lambda a: None, KeyEvent("end"), KeyEvent("enter"),
+    run_app(app, [open_plain, IDLE, KeyEvent("end"), KeyEvent("enter"),
                   KeyEvent("x", "x"),
                   lambda a: seen.update(text=a.shell.desktop.active_window.editor.document.encode())])
     assert seen["text"] == b"    indented\nx\n"

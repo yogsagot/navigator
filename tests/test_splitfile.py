@@ -8,7 +8,7 @@ import zlib
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -269,7 +269,9 @@ def test_a_part_at_the_cursor_combines(place):
     (place / "a" / "blob.bin").unlink()
     app = Navigator(place / "a", place / "b", terminal=FakeTerminal(80, 25))
     run_app(app, [on("blob.bin.002"), command, Until(lambda a: isinstance(a.modal, CombineDialog)),
-                  KeyEvent("enter"), Until(lambda a: (place / "b" / "blob.bin").exists() and a.modal is None)])
+                  # The file is there while it is still being written: done is no task left.
+                  KeyEvent("enter"), Until(lambda a: (place / "b" / "blob.bin").exists() and a.modal is None),
+                  IDLE])
     assert (place / "b" / "blob.bin").read_bytes() == DATA
 
 

@@ -218,6 +218,10 @@ def window_of(a):
     return a.shell.desktop.active_window
 
 
+#: Ctrl+R's read is on a thread: done once its answer is shown and painted.
+READ = Until(lambda a: not window_of(a)._reading and not a.busy)
+
+
 def screen(a, width=100, height=40) -> list[str]:
     buffer = ScreenBuffer(width, height)
     a.root.render_tree(buffer)
@@ -248,7 +252,7 @@ def test_more_processors_take_columns_and_a_new_sensor_grows_the_window(tmp_path
     seen = []
     look = lambda a: seen.append((window_of(a).width, window_of(a).height, window_of(a).cpu.layout[:2]))  # noqa: E731
     monitor_run(tmp_path, monkeypatch, [snapshot(16, (CHIP,)), snapshot(16, (CHIP, NVME))], look,
-                KeyEvent("r", ctrl=True), look)
+                KeyEvent("r", ctrl=True), READ, look)
     (w1, h1, layout), (w2, h2, _) = seen
     assert layout == (2, 8)
     assert w2 >= w1
@@ -260,7 +264,7 @@ def test_once_the_user_has_resized_the_window_it_is_no_longer_refitted(tmp_path,
 
     look = lambda a: seen.append((window_of(a).width, window_of(a).height))  # noqa: E731
     monitor_run(tmp_path, monkeypatch, [snapshot(4, (CHIP,)), snapshot(4, (CHIP, NVME))],
-                lambda a: window_of(a).resize_to(70, 18), look, KeyEvent("r", ctrl=True), look)
+                lambda a: window_of(a).resize_to(70, 18), look, KeyEvent("r", ctrl=True), READ, look)
     assert seen == [(70, 18), (70, 18)]
 
 

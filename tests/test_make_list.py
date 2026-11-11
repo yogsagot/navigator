@@ -96,6 +96,8 @@ def test_a_list_already_there_can_be_appended_to(place):
     def make(a):
         a.modal.action.value = ""
 
-    run_app(app, [tag, KeyEvent("l", alt=True), lambda a: None, make, KeyEvent("enter"), lambda a: None,
+    # Whether the list is there is asked on a thread; the question comes after.
+    asking = Until(lambda a: a.modal is not None and type(a.modal).__name__ != "MakeListDialog")
+    run_app(app, [tag, KeyEvent("l", alt=True), lambda a: None, make, KeyEvent("enter"), asking,
                   KeyEvent("p", alt=True), Until(lambda a: (place / "dnlist.txt").read_text() != "old\n")])
     assert (place / "dnlist.txt").read_text() == "old\nb.txt\n"

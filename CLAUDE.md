@@ -176,7 +176,10 @@ Tests drive the loop through `Application.post_event()` and read `Application.is
 (events queued or a batch being handled); they exist so tests never have to reach into the private queue. `run_app`
 waits out `busy` after every action, so the next step sees what the last one posted -- but not work an event only
 started (a file F4 reads on a thread): wait for that with an `Until` on its result, never a bare `lambda a: None`. Actions posted in a single callback land in one batch, which is how the "one frame
-per batch" behaviour is asserted.
+per batch" behaviour is asserted. **`NAVIGATOR_SLOW_THREADS=0.05 ./venv/bin/python -m pytest`** delays every
+`Background` job and `asyncio.to_thread` call by that long (`tests/conftest.py`), so a test counting on a fixed number
+of steps fails every time rather than once in a hundred runs under load: run it after writing tests that open, read,
+save or list anything.
 
 For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `python -m navigator` on a
 pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints).

@@ -420,7 +420,9 @@ def test_typing_during_a_save_is_not_saved_and_leaves_the_text_changed(
                     modified=editor_windows(a)[0].editor.modified)
 
     run_app(app, [KeyEvent("end"), KeyEvent("f4"), Until(lambda a: editor_windows(a)),
-                  KeyEvent("a", "a"), KeyEvent("f2"), lambda a: None,
+                  # "b" once the write has its text and is held: typed before,
+                  # it would be in what is written, which is no race at all.
+                  KeyEvent("a", "a"), KeyEvent("f2"), Until(lambda a: slow_write.jobs),
                   KeyEvent("b", "b"), lambda a: slow_write.set(),
                   Until(lambda a: (files / "text.txt").read_bytes().startswith(b"a")),
                   lambda a: None, look,

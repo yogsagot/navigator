@@ -190,6 +190,10 @@ def runit_run(where, monkeypatch, *actions):
     return service_run(where, monkeypatch, *actions, units=runit_units, manager="runit")
 
 
+#: A reload is read on a thread: done once its answer is in and painted.
+READ = Until(lambda a: not a.shell.desktop.active_window._reading and not a.busy)
+
+
 def test_unknown_states_are_said_and_read_as_root_when_root_access_is_open(tmp_path, monkeypatch):
     from navigator.lib.system import elevate
 
@@ -218,7 +222,7 @@ def test_unknown_states_are_said_and_read_as_root_when_root_access_is_open(tmp_p
         running["open"] = True
 
     runit_run(tmp_path, monkeypatch, look, open_root, KeyEvent("r", ctrl=True), Until(lambda a: bool(root_calls)),
-              lambda a: None, look, lambda a: a.shell.desktop.active_window.reload(explicit=False), lambda a: None,
+              READ, look, lambda a: a.shell.desktop.active_window.reload(explicit=False), READ,
               look)
     assert seen[0][0] == [UNKNOWN, "down", UNKNOWN]
     assert seen[0][1].endswith("states need root: Ctrl+R reads them as root")

@@ -177,6 +177,6 @@ def test_the_pad_s_window_is_not_the_next_editor_s_rectangle(pad):
 
     tmp_path, path = pad
     seen = {}
-    run(tmp_path, KeyEvent("q", alt=True), Until(lambda a: front(a) is not None and front(a).smartpad),
+    run(tmp_path, KeyEvent("q", alt=True), Until(lambda a: getattr(front(a), "smartpad", False)),
         lambda a: seen.update(last=file_history.LAST_EDIT))
     assert seen["last"] is None

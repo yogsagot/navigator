@@ -513,7 +513,8 @@ def test_f5_copies_out_and_everything_that_writes_is_there_inside(desk):
         at("README"), enabled,
         KeyEvent("f5"), Until(lambda a: isinstance(a.modal, CopyDialog)),
         lambda a: seen.update(target=a.modal.target.value), KeyEvent("enter"),
-        Until(lambda a: (here / "out" / "README").exists(), timeout=5),
+        # There as soon as the copy starts writing it; done is no task left.
+        Until(lambda a: (here / "out" / "README").exists(), timeout=5), IDLE,
     ])
     assert seen["enabled"] == {"Delete": True, "Edit": True, "MakeDirectory": True, "RenameMove": True,
                                "View": True}

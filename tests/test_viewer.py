@@ -563,10 +563,14 @@ def test_ctrl_q_shows_the_file_under_the_cursor_in_the_passive_panel(files):
                      manager.right.visible, manager.quick.viewer.path,
                      a.focused is manager.left))
 
+    def showing(path):
+        # The quick view opens its file on a thread.
+        return Until(lambda a: a.manager.quick.viewer.path == path and not a.busy)
+
     run_app(app, [
-        KeyEvent("down"), KeyEvent("down"), KeyEvent("q", ctrl=True), lambda a: None, look,
-        KeyEvent("down"), lambda a: None, look,
-        KeyEvent("up"), KeyEvent("up"), lambda a: None, look,
+        KeyEvent("down"), KeyEvent("down"), KeyEvent("q", ctrl=True), showing(files / "text.txt"), look,
+        KeyEvent("down"), showing(files / "zz.txt"), look,
+        KeyEvent("up"), KeyEvent("up"), showing(None), look,
         KeyEvent("q", ctrl=True), lambda a: None,
         lambda a: seen.append((a.manager.replaced, a.manager.quick.visible,
                                a.manager.right.visible)),
@@ -582,7 +586,8 @@ def test_tab_takes_the_keyboard_into_the_quick_view_and_the_keys_scroll_it(files
     app = navigator(files)
     seen = []
     run_app(app, [
-        KeyEvent("end"), KeyEvent("q", ctrl=True), lambda a: None,
+        KeyEvent("end"), KeyEvent("q", ctrl=True),
+        Until(lambda a: a.manager.quick.viewer.path is not None and not a.busy),  # read on a thread
         KeyEvent("tab"), KeyEvent("pagedown"), lambda a: None,
         lambda a: seen.append((a.focused is a.manager.quick.viewer,
                                a.manager.quick.viewer.top, a.manager.quick.bar.visible)),

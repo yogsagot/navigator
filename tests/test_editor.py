@@ -269,6 +269,22 @@ def editor_window(app):
     return window if isinstance(window, EditWindow) else None
 
 
+def settled(app) -> bool:
+    """What a file dialog's OK led to has happened: a box asks or says
+    something, or the command is over -- a file read or written on a thread,
+    so never a fixed number of steps after Enter."""
+    from navml.widgets.dialog.file_dialog import FileDialog
+    from navigator.widgets.file_ops.write_win import WriteWin
+
+    modal = app.modal
+    if modal is not None:
+        return not isinstance(modal, (FileDialog, WriteWin))
+    return not app._tasks
+
+
+SETTLED = Until(settled)
+
+
 def typed(text: str) -> list[KeyEvent]:
     return [KeyEvent(c, c) for c in text]
 
@@ -779,11 +795,11 @@ def test_a_file_with_breaks_keeps_its_own(tmp_path):
 # -- Shift+F4: Edit new file ----------------------------------------------------------------
 
 
-def edit_named(tmp_path, name: str, *after):
+def edit_named(tmp_path, name: str, *after, wait=SETTLED):
     app = navigator(tmp_path)
     seen = {}
     run_app(app, [KeyEvent("f4", shift=True), lambda a: None, *typed(name), KeyEvent("enter"),
-                  lambda a: None, *after,
+                  wait, *after,
                   lambda a: seen.update(window=editor_window(a), modal=a.modal)])
     return app, seen["window"], seen["modal"]
 
@@ -826,7 +842,8 @@ def test_shift_f4_takes_a_name_under_a_directory_and_refuses_a_missing_one(files
 
 
 def test_shift_f4_on_a_directory_lists_it_and_stays(files):
-    _, window, modal = edit_named(files, "dir")
+    # The dialog lists the directory and stays: the command is still asking.
+    _, window, modal = edit_named(files, "dir", wait=lambda a: None)
     assert window is None and type(modal).__name__ == "FileDialog"
     assert modal.directory == files / "dir"
 
@@ -1774,7 +1791,7 @@ def block_file(files, text: bytes, *keys, divisor="lf"):
 
 def answer(name):
     """Type *name* in the file dialog's name line, and OK."""
-    return [lambda a: None, *typed(name), KeyEvent("enter"), lambda a: None]
+    return [lambda a: None, *typed(name), KeyEvent("enter"), SETTLED]
 
 
 @pytest.mark.usefixtures("wordstar")
@@ -1802,7 +1819,7 @@ def test_ctrl_k_w_overwrites_on_yes_and_keeps_a_read_only_file_read_only(files):
     target.write_bytes(b"old")
     target.chmod(0o444)
     block_file(files, b"new\n", KeyEvent("end", shift=True), *chord("w"), *answer("part.txt"),
-               KeyEvent("y", alt=True), lambda a: None,
+               KeyEvent("y", alt=True), SETTLED,
                KeyEvent("enter"), IDLE)  # "Modify it anyway?" -- OK
     assert target.read_bytes() == b"new"
     assert target.stat().st_mode & 0o777 == 0o444
@@ -1823,7 +1840,7 @@ def test_f2_on_a_read_only_file_asks_modify_it_anyway(files, ok):
     target = files / "text.txt"
     seen = []
     app, editor = text_editor(files, b"old\n", *typed("x"), lambda a: target.chmod(0o444),
-                              KeyEvent("f2"), lambda a: None, asked(seen),
+                              KeyEvent("f2"), SETTLED, asked(seen),
                               KeyEvent("enter" if ok else "escape"), IDLE)
     from navigator.widgets.editor.edit_window.edit_window import cut_path
 
@@ -1836,7 +1853,7 @@ def test_f2_on_a_read_only_file_asks_modify_it_anyway(files, ok):
 
 def test_f2_on_a_writable_file_asks_nothing(files):
     seen = []
-    text_editor(files, b"old\n", *typed("x"), KeyEvent("f2"), lambda a: None, asked(seen), IDLE)
+    text_editor(files, b"old\n", *typed("x"), KeyEvent("f2"), SETTLED, asked(seen), IDLE)
     assert seen == [None]
     assert (files / "text.txt").read_bytes() == b"xold\n"
 
@@ -1849,7 +1866,7 @@ def test_a_read_only_file_with_another_link_is_written_in_place_and_stays_read_o
         os.link(target, files / "other.txt")
         target.chmod(0o444)
 
-    text_editor(files, b"old\n", link_and_lock, *typed("x"), KeyEvent("f2"), lambda a: None,
+    text_editor(files, b"old\n", link_and_lock, *typed("x"), KeyEvent("f2"), SETTLED,
                 KeyEvent("enter"), IDLE)
     assert target.read_bytes() == (files / "other.txt").read_bytes() == b"xold\n"
     assert target.stat().st_mode & 0o777 == 0o444
@@ -1860,8 +1877,8 @@ def test_cancel_on_modify_it_anyway_after_save_keeps_the_window_open(files):
     target = files / "text.txt"
     seen = []
     app, editor = text_editor(files, b"old\n", *typed("x"), lambda a: target.chmod(0o444),
-                              KeyEvent("escape"), lambda a: None,           # was modified. Save?
-                              KeyEvent("y", alt=True), lambda a: None,      # Yes
+                              KeyEvent("escape"), SETTLED,                  # was modified. Save?
+                              KeyEvent("y", alt=True), SETTLED,             # Yes
                               asked(seen), KeyEvent("escape"), IDLE)        # Modify it anyway? Cancel
     assert seen[0][0] == "Confirm"
     assert editor_window(app) is not None and editor.modified
@@ -1883,9 +1900,9 @@ def test_ctrl_f2_asks_for_the_read_only_one_alone_and_saves_the_rest(files):
             a.spawn(open_editor(a.shell.desktop, files / name))
         return action
 
-    run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),
-                  open_editor_on("two.txt"), lambda a: None, *typed("2"),
-                  KeyEvent("f2", ctrl=True), lambda a: None, asked(seen), KeyEvent("escape"), IDLE,
+    run_app(app, [open_editor_on("one.txt"), SETTLED, *typed("1"),
+                  open_editor_on("two.txt"), SETTLED, *typed("2"),
+                  KeyEvent("f2", ctrl=True), SETTLED, asked(seen), KeyEvent("escape"), IDLE,
                   asked(seen)])
     assert seen[0][0] == "Confirm" and "two.txt" in seen[0][1] and seen[1] is None
     assert (files / "one.txt").read_bytes() == b"1one\n"
@@ -2389,7 +2406,7 @@ def test_f3_opens_another_file_into_the_window(files):
     seen = []
     app, editor = text_editor(files, b"first\n", KeyEvent("f3"), Until(lambda a: a.modal is not None),
                               lambda a: seen.append((a.modal.title, a.modal.pick.text) if a.modal else None),
-                              *typed("other.txt"), KeyEvent("enter"), lambda a: None)
+                              *typed("other.txt"), KeyEvent("enter"), SETTLED)
     assert seen == [("Open a File", "~O~pen")]
     assert editor.path == files / "other.txt"
     assert editor.document.encode() == b"other text\n"
@@ -2438,7 +2455,7 @@ def test_f3_on_a_changed_text_asks_first_and_cancel_keeps_it(files):
 def test_a_file_that_will_not_open_is_said_and_the_text_stays(files):
     said = []
     _, editor = text_editor(files, b"first\n", KeyEvent("f3"), Until(lambda a: a.modal is not None),
-                            *typed("missing.txt"), KeyEvent("enter"), lambda a: None,
+                            *typed("missing.txt"), KeyEvent("enter"), SETTLED,
                             lambda a: said.append(a.modal.prompt if a.modal else None))
     assert said and said[0].startswith("Cannot open")
     assert editor.document.encode() == b"first\n"
@@ -2485,9 +2502,9 @@ def test_ctrl_f2_saves_every_changed_editor_and_leaves_the_rest(files):
             a.spawn(open_editor(a.shell.desktop, files / name))
         return action
 
-    run_app(app, [open_editor_on("one.txt"), lambda a: None, *typed("1"),
-                  open_editor_on("two.txt"), lambda a: None, *typed("2"),
-                  open_editor_on("three.txt"), lambda a: None,
+    run_app(app, [open_editor_on("one.txt"), SETTLED, *typed("1"),
+                  open_editor_on("two.txt"), SETTLED, *typed("2"),
+                  open_editor_on("three.txt"), SETTLED,
                   KeyEvent("f2", ctrl=True), IDLE])
     assert (files / "one.txt").read_bytes() == b"1one\n"
     assert (files / "two.txt").read_bytes() == b"2two\n"

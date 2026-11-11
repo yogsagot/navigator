@@ -3811,11 +3811,22 @@ def test_a_tree_window_opened_behind_the_console_brings_the_desktop_back(tree, q
 def test_the_tree_window_steers_the_file_manager_in_front(tree):
     from navigator.widgets.shell.commands import OpenTreeWindow
 
+    def landed(a):
+        # The window walks down to the directory on a thread; the keys are
+        # for the tree once it has landed there.
+        window = a.shell.desktop.active_window
+        return getattr(window, "tree", None) is not None and window.tree.selected_path == tree
+
+    def opened(a):
+        return any(row.node.name == "alpha" for row in a.shell.desktop.active_window.tree.items)
+
     app = navigator(tree)
     run_app(app, [
         KeyEvent("f3", ctrl=True), lambda a: None,
-        lambda a: a.spawn(a.run_command(OpenTreeWindow)), lambda a: None,
-        KeyEvent("+", "+"), KeyEvent("down"), KeyEvent("enter"),
+        lambda a: a.spawn(a.run_command(OpenTreeWindow)), Until(landed),
+        # "+" opens the branch, read on a thread too: Down before its rows are
+        # in would step to the directory's next sibling instead.
+        KeyEvent("+", "+"), Until(opened), KeyEvent("down"), KeyEvent("enter"),
     ])
     first, second = managers(app)
     assert second.left.path == (tree / "alpha").resolve()

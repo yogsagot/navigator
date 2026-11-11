@@ -72,7 +72,7 @@ def test_the_mode_comes_back_unless_as_text_asks_for_one(files):
         KeyEvent("escape"), lambda a: None,
         KeyEvent("f3"), IDLE, lambda a: modes.append(active(a).viewer.mode),
         KeyEvent("escape"), lambda a: None,
-        lambda a: a.manager.spawn(a.manager.view("text")), lambda a: None,
+        lambda a: a.manager.spawn(a.manager.view("text")), IDLE,
         lambda a: modes.append(active(a).viewer.mode),
     ])
     # File > View > As Text passes its mode, which wins over the record's.
@@ -407,7 +407,7 @@ def test_alt_pgdn_lists_the_files_viewed_and_opens_the_one_chosen(files):
     run_app(app, [
         KeyEvent("pagedown", alt=True), lambda a: None,
         lambda a: seen.update(rows=[r.path for r in a.modal.records.items]),
-        KeyEvent("down"), KeyEvent("space"), KeyEvent("enter"), lambda a: None,
+        KeyEvent("down"), KeyEvent("space"), KeyEvent("enter"), IDLE,
         lambda a: seen.update(window=active(a)),
     ])
     assert seen["rows"] == [str(files / "other.txt"), str(files / "text.txt")]

@@ -143,7 +143,9 @@ def test_f7_in_the_tree_makes_a_directory_under_its_cursor(place):
     seen = {}
     run_app(app, [*tree_on("sub"), KeyEvent("f7"), Until(lambda a: isinstance(a.modal, Dialog)),
                   *[KeyEvent(c, c) for c in "new"], KeyEvent("enter"),
-                  Until(lambda a: (place / "west" / "sub" / "new").is_dir()), lambda a: None,
+                  Until(lambda a: (place / "west" / "sub" / "new").is_dir()),
+                  # The tree reads the branch again on a thread, then goes onto it.
+                  Until(lambda a: Path(str(a.manager.tree.selected_path)) == place / "west" / "sub" / "new"),
                   lambda a: seen.update(at=a.manager.tree.selected_path)])
     assert not (place / "west" / "new").exists()
     assert Path(str(seen["at"])) == place / "west" / "sub" / "new"
