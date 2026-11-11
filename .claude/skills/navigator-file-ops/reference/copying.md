@@ -137,7 +137,11 @@ progress box appears after DN's two ticks.
 - *Preserve attributes* starts ticked. A Linux copy that loses its time stamps surprises, and DN's default of
   nothing ticked never had that option to weigh.
 - `CopyProgress` shows the file and where it goes, the file's gauge, and the whole copy's gauge. DN's box read and
-  then wrote in two passes and had a gauge for each; one pass needs one per file.
+  then wrote in two passes and had a gauge for each; one pass needs one per file. DN's lines are kept: *Checking
+  directories...* in the first row while the sources are counted (`job.measuring`), *File exists - skipped*, *Older
+  file - skipped* and *Deleting source file...* over the speed row while they apply (`CopyJob.note`), and
+  `dlFC_Total`, *Total N bytes*, on the bottom frame (`StaticText#frame-total`, the frame's colours). The row under
+  the total gauge is the bytes done. A rename reads *Moving FROM / to TO*, DN's `DoRename` three lines in two.
 - Not ported: `TEMP:`, `LINK:`, archive and device targets; the drag-and-drop route; and *Beep after copy*.
 - **Split/combine is dropped**, not deferred. It was `FBB.PAS`'s `LongCopy` (`cmPanelLongCopy`), which spread a file
   too big for one floppy across several diskettes and asked for each one. Linux has `split` and `cat` for what is

@@ -4443,6 +4443,7 @@ class Manager(Window):
                 # The packing counts again from nought: the speed with it.
                 packing, rate = job.packing, Rate()
             box.packing = job.packing
+            box.measuring, box.note = job.measuring, job.note
             box.source, box.dest = job.source, job.dest
             box.file_done, box.file_bytes = job.file_done, job.file_bytes
             box.done, box.total = job.done_bytes, job.total_bytes

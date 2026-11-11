@@ -403,6 +403,44 @@ def test_a_directory_moved_onto_itself_is_passed_over_without_a_word(tree, tmp_p
     assert asked == [] and done == [] and (src / "sub" / "c.txt").exists()
 
 
+# -- what the box says about the entry in hand ------------------------------------------
+
+
+def test_skip_mode_notes_dn_s_file_exists(clash, tmp_path):
+    _, _, job = copy([clash[0] / "a.txt"], clash[1], cwd=tmp_path, mode=SKIP)
+    assert job.note == filecopy.NOTE_EXISTS
+
+
+def test_refresh_notes_dn_s_older_file(clash, tmp_path):
+    src, dst = clash
+    os.utime(src / "a.txt", (1, 1))
+    _, _, job = copy([src / "a.txt"], dst, cwd=tmp_path, mode=REFRESH)
+    assert job.note == filecopy.NOTE_OLDER
+
+
+def test_a_move_notes_deleting_the_source(tree, tmp_path, monkeypatch):
+    from navigator.lib.drives.memory import MemoryDrive
+    from navigator.lib.drives import mount, unmount
+
+    src, _ = tree
+    seen = []
+    real_unlink = LocalDrive.unlink
+
+    def unlink(self, location):
+        seen.append(job.note)
+        real_unlink(self, location)
+
+    monkeypatch.setattr(LocalDrive, "unlink", unlink)
+    drive = mount(MemoryDrive("notes"))
+    try:
+        drive.make("/in/x", "")
+        job = CopyJob(asker=lambda question: True)
+        run(CopyRequest([src / "a.txt"], str(drive.location("/in")), OVERWRITE, MOVE), job, tmp_path)
+    finally:
+        unmount(drive.site)
+    assert seen == [filecopy.NOTE_DELETING]
+
+
 # -- moving ----------------------------------------------------------------------------
 
 

@@ -1438,8 +1438,9 @@ def test_no_theme_draws_an_unreadable_pair():
 
     # Text drawn as part of a frame, in the frame's own colours, passive ones
     # too -- glanced at as the title is, so the frame's 2:1 floor: the dBase
-    # viewer's ``TDBIndicator`` (``GetColor(1 + Byte(sfActive))``).
-    frame_text = {("StaticText", "indicator")}
+    # viewer's ``TDBIndicator`` (``GetColor(1 + Byte(sfActive))``), and the
+    # copy box's ``dlFC_Total`` on its bottom frame.
+    frame_text = {("StaticText", "indicator"), ("StaticText", "frame-total")}
 
     def ordinary(selector):
         subject = selector.subject

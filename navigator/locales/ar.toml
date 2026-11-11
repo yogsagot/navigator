@@ -6828,6 +6828,16 @@ direction = "rtl"
 "Could not read the directory {path}\n{reason}" = "تعذرت قراءة المجلد {path}\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "لا توجد مساحة كافية\nعلى {drive} لنسخ\nالملف {name}. نسخ الملفات الأخرى؟"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "جارٍ فحص المجلدات..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "الملف موجود - تم تخطيه"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "ملف أقدم - تم تخطيه"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "جارٍ حذف الملف المصدر..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["المجموع {n:,} بايت", "المجموع بايت واحد", "المجموع بايتان", "المجموع {n:,} بايتات", "المجموع {n:,} بايتًا", "المجموع {n:,} بايت"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

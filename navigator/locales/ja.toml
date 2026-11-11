@@ -6827,6 +6827,16 @@ flag = "JP"
 "Could not read the directory {path}\n{reason}" = "ディレクトリ {path} を読めませんでした\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "{drive} に\nファイル {name} をコピーする\n空き容量がありません。他のファイルをコピーしますか?"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "ディレクトリを確認しています..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "ファイルが存在します - スキップ"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "古いファイル - スキップ"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "元のファイルを削除しています..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["合計 {n:,} バイト"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

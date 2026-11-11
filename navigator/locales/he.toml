@@ -6828,6 +6828,16 @@ direction = "rtl"
 "Could not read the directory {path}\n{reason}" = "לא ניתן לקרוא את התיקייה {path}\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "אין די מקום\nב־{drive} להעתקת\nהקובץ {name}. להעתיק קבצים אחרים?"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "בודק תיקיות..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "הקובץ קיים - דולג"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "קובץ ישן יותר - דולג"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "מוחק את קובץ המקור..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["סך הכול בית אחד", "סך הכול שני בתים", "סך הכול {n:,} בתים"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

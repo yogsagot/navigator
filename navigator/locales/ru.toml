@@ -6827,6 +6827,16 @@ flag = "RU"
 "Could not read the directory {path}\n{reason}" = "Не удалось прочитать каталог {path}\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "Недостаточно места\nна {drive} для копирования\nфайла {name}. Копировать остальные?"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "Проверка каталогов..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "Файл существует - пропущен"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "Файл старее - пропущен"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "Удаление исходного файла..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["Всего {n:,} байт", "Всего {n:,} байта", "Всего {n:,} байт"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

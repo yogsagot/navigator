@@ -177,6 +177,14 @@ class CreateDirectory:
 # -- the shared state ------------------------------------------------------------
 
 
+#: What the copy box says beside the file (``CopyJob.note``), set on the
+#: thread and put into words on the loop: DN's ``dlFC_Exists`` (*Skip*),
+#: ``dlFC_Older`` (*Refresh*) and ``dlDeletingSource`` (a move).
+NOTE_EXISTS = "exists"
+NOTE_OLDER = "older"
+NOTE_DELETING = "deleting"
+
+
 class CopyJob(Job):
     """A running copy, as the thread doing it and the loop watching it see it."""
 
@@ -190,8 +198,12 @@ class CopyJob(Job):
         self.dest = ""
         self.file_bytes = 0
         self.file_done = 0
-        #: True while the sources are being measured.
+        #: True while the sources are being measured (DN's *Checking
+        #: directories...*).
         self.measuring = True
+        #: One of the ``NOTE_*`` words, or ``""``: what the box says about
+        #: the entry in hand.  Cleared as each entry begins.
+        self.note = ""
         #: True while an archive written into is packed (``ArchiveDrive.finish``):
         #: ``source`` is the member, ``dest`` the archive.
         self.packing = False
@@ -576,6 +588,7 @@ class _Copier(Elevated):
         if self._held is not None:
             self._held.append((source, directory))
             return True
+        self.job.note = NOTE_DELETING
         if directory:
             return self._try(source, lambda: self._drive_of(source).rmdir(source), what="erase-directory")
         return self._try(source, lambda: self._drive_of(source).unlink(source), what="erase")
@@ -695,6 +708,7 @@ class _Copier(Elevated):
 
     def _transfer(self, source: Location, dest: Location) -> bool:
         self._checkpoint()
+        self.job.note = ""
         while True:
             try:
                 st = self._stat(source)
@@ -923,9 +937,13 @@ class _Copier(Elevated):
             if mode == APPEND:
                 return "append", dest
             if mode == SKIP:
+                self.job.note = NOTE_EXISTS
                 return "skip", dest
             if mode == REFRESH:
-                return ("skip" if existing.st_mtime >= st.st_mtime else "overwrite"), dest
+                if existing.st_mtime >= st.st_mtime:
+                    self.job.note = NOTE_OLDER
+                    return "skip", dest
+                return "overwrite", dest
             answer = self._ask(Overwrite(
                 shown(source), shown(dest), st.st_size, st.st_mtime, existing.st_size, existing.st_mtime,
             ))
@@ -1271,7 +1289,7 @@ _UMASK = _read_umask()
 
 __all__ = [
     "APPEND", "ASK", "CHECK_FREE", "CopyJob", "CopyRequest", "CreateDirectory", "Destination",
-    "AS_ROOT", "Elevated", "FOLLOW_LINKS", "Failure", "MOVE", "NoRoom", "OVERWRITE", "Overwrite", "OverwriteAnswer",
+    "AS_ROOT", "Elevated", "FOLLOW_LINKS", "Failure", "MOVE", "NOTE_DELETING", "NOTE_EXISTS", "NOTE_OLDER", "NoRoom", "OVERWRITE", "Overwrite", "OverwriteAnswer",
     "POLL", "PRESERVE", "REFRESH", "SKIP", "Stopped", "apply_mask", "resolve_target", "run", "shown",
     "in_place_name", "step_failure", "stream", "target_location",
 ]

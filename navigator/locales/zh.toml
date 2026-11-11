@@ -6827,6 +6827,16 @@ flag = "CN"
 "Could not read the directory {path}\n{reason}" = "无法读取目录 {path}\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "{drive} 上\n空间不足，无法复制\n文件 {name}。是否复制其他文件？"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "正在检查目录..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "文件已存在 - 已跳过"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "文件较旧 - 已跳过"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "正在删除源文件..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["共 {n:,} 字节"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

@@ -241,6 +241,8 @@ Tooltip::key { fg: $bar-key-fg; bg: $bar-key-bg; bold: $bar-key-bold; dim: $bar-
 
 Modal                 { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 Modal::title          { fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
+/* DN's ``dlFC_Total`` on the copy box's bottom frame: the frame's own colours, as its title. */
+Modal StaticText#frame-total {  fg: $dialog-frame-background-fg; bg: $dialog-frame-background-bg; bold: $dialog-frame-background-bold; dim: $dialog-frame-background-dim; italic: $dialog-frame-background-italic; underline: $dialog-frame-background-underline; reverse: $dialog-frame-background-reverse }
 Modal::icon           { fg: $dialog-frame-icons-fg;      bg: $dialog-frame-icons-bg; bold: $dialog-frame-icons-bold; dim: $dialog-frame-icons-dim; italic: $dialog-frame-icons-italic; underline: $dialog-frame-icons-underline; reverse: $dialog-frame-icons-reverse }
 
 StaticText            { fg: $dialog-static-text-fg;      bg: $dialog-static-text-bg; bold: $dialog-static-text-bold; dim: $dialog-static-text-dim; italic: $dialog-static-text-italic; underline: $dialog-static-text-underline; reverse: $dialog-static-text-reverse }

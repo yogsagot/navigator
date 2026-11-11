@@ -17,9 +17,10 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.dialog.dialog import Dialog    # copy_progress.nml:1
-from navml.widgets.dialog.static_text import StaticText    # copy_progress.nml:2
-from navml.widgets.progress_bar import ProgressBar    # copy_progress.nml:3
+from navkit.bidi import display_width    # copy_progress.nml:1
+from navml.widgets.dialog.dialog import Dialog    # copy_progress.nml:2
+from navml.widgets.dialog.static_text import StaticText    # copy_progress.nml:3
+from navml.widgets.progress_bar import ProgressBar    # copy_progress.nml:4
 
 __navml_component__ = "CopyProgress"
 
@@ -32,12 +33,18 @@ class CopyProgress(Dialog, _Component):
     DN's rows were the file being read and its gauge, then the file being
     written and its; a copy here reads and writes in one pass, so the rows are
     the file and where it goes, the file's gauge, and the whole copy's gauge
-    with its count -- DN's ``Total N bytes``, which it wrote on the frame.
+    with the bytes done.  DN's ``dlFC_Total``, *Total N bytes*, is on the
+    bottom frame where it wrote it.  While the sources are counted the first
+    row says DN's *Checking directories...* (``measuring``).  A rename reads
+    *Moving FROM / to TO*, DN's three lines (``DoRename``) in two.
     One *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
 
     The row under the total gauge, the speed and the time left, is a
     departure: DN never said how fast a copy went.  ``speed`` is bytes a
-    second and ``left`` seconds, each negative while not known yet.
+    second and ``left`` seconds, each negative while not known yet.  DN's
+    own lines take it over while they have something to say (``note``):
+    *File exists - skipped*, *Older file - skipped*, *Deleting source
+    file...*.
 
     ``packing`` is a copy into an archive being written at the end
     (``ArchiveDrive.finish``), which DN's archivers did with their own
@@ -48,103 +55,124 @@ class CopyProgress(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "copy_progress.nml"
 
-    background: bool = _reactive(False)    # copy_progress.nml:30
-    move: bool = _reactive(False)    # copy_progress.nml:31
-    packing: bool = _reactive(False)    # copy_progress.nml:32
-    source: str = _reactive('')    # copy_progress.nml:33
-    dest: str = _reactive('')    # copy_progress.nml:34
-    file_done: int = _reactive(0)    # copy_progress.nml:35
-    file_bytes: int = _reactive(0)    # copy_progress.nml:36
-    done: int = _reactive(0)    # copy_progress.nml:37
-    total: int = _reactive(0)    # copy_progress.nml:38
-    speed = _reactive(factory=lambda: -1.0)    # copy_progress.nml:39
-    left = _reactive(factory=lambda: -1.0)    # copy_progress.nml:40
+    background: bool = _reactive(False)    # copy_progress.nml:37
+    move: bool = _reactive(False)    # copy_progress.nml:38
+    packing: bool = _reactive(False)    # copy_progress.nml:39
+    source: str = _reactive('')    # copy_progress.nml:40
+    dest: str = _reactive('')    # copy_progress.nml:41
+    file_done: int = _reactive(0)    # copy_progress.nml:42
+    file_bytes: int = _reactive(0)    # copy_progress.nml:43
+    done: int = _reactive(0)    # copy_progress.nml:44
+    total: int = _reactive(0)    # copy_progress.nml:45
+    speed = _reactive(factory=lambda: -1.0)    # copy_progress.nml:46
+    measuring: bool = _reactive(False)    # copy_progress.nml:47
+    note: str = _reactive('')    # copy_progress.nml:48
+    left = _reactive(factory=lambda: -1.0)    # copy_progress.nml:49
 
     #: Ids, annotated so the hand-written half completes them.
-    source_row: StaticText    # copy_progress.nml:43
-    dest_row: StaticText    # copy_progress.nml:53
-    file_bar: ProgressBar    # copy_progress.nml:64
-    file_count: StaticText    # copy_progress.nml:74
-    total_bar: ProgressBar    # copy_progress.nml:84
-    total_count: StaticText    # copy_progress.nml:94
-    pace_row: StaticText    # copy_progress.nml:104
+    source_row: StaticText    # copy_progress.nml:52
+    dest_row: StaticText    # copy_progress.nml:62
+    file_bar: ProgressBar    # copy_progress.nml:73
+    file_count: StaticText    # copy_progress.nml:83
+    total_bar: ProgressBar    # copy_progress.nml:93
+    total_count: StaticText    # copy_progress.nml:103
+    pace_row: StaticText    # copy_progress.nml:113
+    frame_total: StaticText    # copy_progress.nml:124
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.source_row = StaticText(parent=self)    # copy_progress.nml:42
-        self.dest_row = StaticText(parent=self)    # copy_progress.nml:52
-        self.file_bar = ProgressBar(parent=self)    # copy_progress.nml:63
-        self.file_count = StaticText(parent=self)    # copy_progress.nml:73
-        self.total_bar = ProgressBar(parent=self)    # copy_progress.nml:83
-        self.total_count = StaticText(parent=self)    # copy_progress.nml:93
-        self.pace_row = StaticText(parent=self)    # copy_progress.nml:103
+        self.source_row = StaticText(parent=self)    # copy_progress.nml:51
+        self.dest_row = StaticText(parent=self)    # copy_progress.nml:61
+        self.file_bar = ProgressBar(parent=self)    # copy_progress.nml:72
+        self.file_count = StaticText(parent=self)    # copy_progress.nml:82
+        self.total_bar = ProgressBar(parent=self)    # copy_progress.nml:92
+        self.total_count = StaticText(parent=self)    # copy_progress.nml:102
+        self.pace_row = StaticText(parent=self)    # copy_progress.nml:112
+        self.frame_total = StaticText(parent=self)    # copy_progress.nml:123
 
-        self.modal_width = 60    # copy_progress.nml:22
-        self.modal_height = 14    # copy_progress.nml:23
-        self.title = _bind(    # copy_progress.nml:24
+        self.modal_width = 60    # copy_progress.nml:29
+        self.modal_height = 14    # copy_progress.nml:30
+        self.title = _bind(    # copy_progress.nml:31
             lambda _o: _tr('Rename/move') if self.move else _tr('Copy'),
             yielding=True,
         )
-        self.buttons = _bind(lambda _o: 'yes-no' if self.background else 'ok')    # copy_progress.nml:27
-        self.closable = False    # copy_progress.nml:28
+        self.buttons = _bind(lambda _o: 'yes-no' if self.background else 'ok')    # copy_progress.nml:34
+        self.closable = False    # copy_progress.nml:35
 
-        self.source_row.y = 1    # copy_progress.nml:44
-        self.source_row.height = 1    # copy_progress.nml:45
-        self.source_row.text = _bind(    # copy_progress.nml:49
-            lambda _o: self.fit(' Packing ' if self.packing else ' Moving ' if self.move else ' Copying ', self.source)
+        self.source_row.y = 1    # copy_progress.nml:53
+        self.source_row.height = 1    # copy_progress.nml:54
+        self.source_row.text = _bind(    # copy_progress.nml:58
+            lambda _o: self.checking() if self.measuring else self.fit(' Packing ' if self.packing else ' Moving ' if self.move else ' Copying ', self.source)
         )
-        self.source_row.tooltip = _bind(    # copy_progress.nml:50
+        self.source_row.tooltip = _bind(    # copy_progress.nml:59
             lambda _o: self.whole(' Packing ' if self.packing else ' Moving ' if self.move else ' Copying ', self.source)
         )
-        self.source_row.x = 2    # copy_progress.nml:47
-        self.source_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:48
+        self.source_row.x = 2    # copy_progress.nml:56
+        self.source_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:57
 
-        self.dest_row.y = 2    # copy_progress.nml:54
-        self.dest_row.height = 1    # copy_progress.nml:55
-        self.dest_row.text = _bind(    # copy_progress.nml:59
-            lambda _o: self.fit(' into ' if self.packing else ' to ', self.dest)
+        self.dest_row.y = 2    # copy_progress.nml:63
+        self.dest_row.height = 1    # copy_progress.nml:64
+        self.dest_row.text = _bind(    # copy_progress.nml:68
+            lambda _o: '' if self.measuring else self.fit(' into ' if self.packing else ' to ', self.dest)
         )
-        self.dest_row.tooltip = _bind(    # copy_progress.nml:60
+        self.dest_row.tooltip = _bind(    # copy_progress.nml:69
             lambda _o: self.whole(' into ' if self.packing else ' to ', self.dest)
         )
-        self.dest_row.x = 2    # copy_progress.nml:57
-        self.dest_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:58
+        self.dest_row.x = 2    # copy_progress.nml:66
+        self.dest_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:67
 
-        self.file_bar.y = 4    # copy_progress.nml:65
-        self.file_bar.height = 1    # copy_progress.nml:66
-        self.file_bar.value = _bind(lambda _o: self.file_done)    # copy_progress.nml:70
-        self.file_bar.total = _bind(lambda _o: self.file_bytes)    # copy_progress.nml:71
-        self.file_bar.x = 4    # copy_progress.nml:68
-        self.file_bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # copy_progress.nml:69
+        self.file_bar.y = 4    # copy_progress.nml:74
+        self.file_bar.height = 1    # copy_progress.nml:75
+        self.file_bar.value = _bind(lambda _o: self.file_done)    # copy_progress.nml:79
+        self.file_bar.total = _bind(lambda _o: self.file_bytes)    # copy_progress.nml:80
+        self.file_bar.x = 4    # copy_progress.nml:77
+        self.file_bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # copy_progress.nml:78
 
-        self.file_count.y = 5    # copy_progress.nml:75
-        self.file_count.height = 1    # copy_progress.nml:76
-        self.file_count.align = 'center'    # copy_progress.nml:80
-        self.file_count.text = _bind(    # copy_progress.nml:81
-            lambda _o: self.count(self.file_done, self.file_bar.percent)
+        self.file_count.y = 5    # copy_progress.nml:84
+        self.file_count.height = 1    # copy_progress.nml:85
+        self.file_count.align = 'center'    # copy_progress.nml:89
+        self.file_count.text = _bind(    # copy_progress.nml:90
+            lambda _o: '' if self.measuring else self.count(self.file_done, self.file_bar.percent)
         )
-        self.file_count.x = 2    # copy_progress.nml:78
-        self.file_count.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:79
+        self.file_count.x = 2    # copy_progress.nml:87
+        self.file_count.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:88
 
-        self.total_bar.y = 6    # copy_progress.nml:85
-        self.total_bar.height = 1    # copy_progress.nml:86
-        self.total_bar.value = _bind(lambda _o: self.done)    # copy_progress.nml:90
-        self.total_bar.total = _bind(lambda _o: self.total)    # copy_progress.nml:91
-        self.total_bar.x = 4    # copy_progress.nml:88
-        self.total_bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # copy_progress.nml:89
+        self.total_bar.y = 6    # copy_progress.nml:94
+        self.total_bar.height = 1    # copy_progress.nml:95
+        self.total_bar.value = _bind(lambda _o: self.done)    # copy_progress.nml:99
+        self.total_bar.total = _bind(lambda _o: self.total)    # copy_progress.nml:100
+        self.total_bar.x = 4    # copy_progress.nml:97
+        self.total_bar.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # copy_progress.nml:98
 
-        self.total_count.y = 7    # copy_progress.nml:95
-        self.total_count.height = 1    # copy_progress.nml:96
-        self.total_count.align = 'center'    # copy_progress.nml:100
-        self.total_count.text = _bind(    # copy_progress.nml:101
-            lambda _o: 'Total ' + self.count(self.done, self.total_bar.percent)
+        self.total_count.y = 7    # copy_progress.nml:104
+        self.total_count.height = 1    # copy_progress.nml:105
+        self.total_count.align = 'center'    # copy_progress.nml:109
+        self.total_count.text = _bind(    # copy_progress.nml:110
+            lambda _o: '' if self.measuring else self.count(self.done, self.total_bar.percent)
         )
-        self.total_count.x = 2    # copy_progress.nml:98
-        self.total_count.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:99
+        self.total_count.x = 2    # copy_progress.nml:107
+        self.total_count.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:108
 
-        self.pace_row.y = 8    # copy_progress.nml:105
-        self.pace_row.height = 1    # copy_progress.nml:106
-        self.pace_row.align = 'center'    # copy_progress.nml:110
-        self.pace_row.text = _bind(lambda _o: self.pace(self.speed, self.left))    # copy_progress.nml:111
-        self.pace_row.x = 2    # copy_progress.nml:108
-        self.pace_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:109
+        self.pace_row.y = 8    # copy_progress.nml:114
+        self.pace_row.height = 1    # copy_progress.nml:115
+        self.pace_row.align = 'center'    # copy_progress.nml:119
+        self.pace_row.text = _bind(    # copy_progress.nml:120
+            lambda _o: self.status(self.note, self.speed, self.left)
+        )
+        self.pace_row.x = 2    # copy_progress.nml:117
+        self.pace_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_progress.nml:118
+
+        self.frame_total.name = 'frame-total'    # copy_progress.nml:125
+        self.frame_total.width = _bind(    # copy_progress.nml:126
+            lambda _o: min(display_width(_o.text), max(0, _o.parent.width - 4))
+        )
+        self.frame_total.height = 1    # copy_progress.nml:127
+        self.frame_total.text = _bind(    # copy_progress.nml:131
+            lambda _o: '' if self.measuring else self.total_text(self.total)
+        )
+        self.frame_total.x = _bind(    # copy_progress.nml:129
+            lambda _o: max(0, (_o.parent.width - _o.width) // 2)
+        )
+        self.frame_total.y = _bind(    # copy_progress.nml:130
+            lambda _o: max(0, _o.parent.height - _o.height)
+        )

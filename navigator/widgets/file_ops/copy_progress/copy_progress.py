@@ -76,6 +76,28 @@ class CopyProgress(Dialog):
             return tr("Speed {speed}/s").format(speed=rate)
         return tr("Speed {speed}/s, {time} left").format(speed=rate, time=duration_text(left))
 
+    def checking(self) -> str:
+        """DN's ``dlFCCheckingDirs``, the first row while the sources are counted."""
+        return escape_caption(" " + tr("Checking directories..."))
+
+    def status(self, note: str, speed: float, left: float) -> str:
+        """The pace row: DN's line about the entry in hand while there is one
+        (``CopyJob.note``), else the speed and the time left."""
+        from navigator.lib.file_ops import filecopy
+
+        said = {
+            filecopy.NOTE_EXISTS: lambda: tr("File exists - skipped"),
+            filecopy.NOTE_OLDER: lambda: tr("Older file - skipped"),
+            filecopy.NOTE_DELETING: lambda: tr("Deleting source file..."),
+        }.get(note)
+        return escape_caption(said()) if said is not None else self.pace(speed, left)
+
+    def total_text(self, total: int) -> str:
+        """``dlFC_Total``, *Total N bytes*, for the bottom frame; nothing for none."""
+        if total <= 0:
+            return ""
+        return escape_caption(" " + tr_n("Total {n:,} byte", "Total {n:,} bytes", total) + " ")
+
     def accept(self) -> Any:
         """*Stop* answers what Esc does; *Background* sends the box away."""
         return background_button.answer(self)

@@ -6827,6 +6827,16 @@ flag = "LV"
 "Could not read the directory {path}\n{reason}" = "Neizdevās nolasīt direktoriju {path}\n{reason}"
 # navigator/widgets/manager/manager/manager.py
 "There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "Nepietiek vietas\nuz {drive}, lai kopētu\nfailu {name}. Kopēt citus failus?"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Checking directories..." = "Pārbauda direktorijus..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"File exists - skipped" = "Fails jau ir - izlaists"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Older file - skipped" = "Vecāks fails - izlaists"
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Deleting source file..." = "Dzēš avota failu..."
+# navigator/widgets/file_ops/copy_progress/copy_progress.py
+"Total {n:,} byte" = ["Kopā {n:,} baits", "Kopā {n:,} baiti", "Kopā {n:,} baitu"]
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

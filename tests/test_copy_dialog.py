@@ -10,6 +10,7 @@ import pytest
 from conftest import FakeTerminal, handled, mounted, settle, started, wait_until
 
 from navkit.application import Application
+from navkit.screen import ScreenBuffer
 from navkit.events import KeyEvent, MouseClickEvent
 
 from navml.widgets.dialog.check_boxes import CheckBoxes
@@ -530,6 +531,57 @@ def test_the_copy_gauges_follow_the_box():
     assert bar_row(box.total_bar).count("█") == 26
 
 
+def _painted_box(**values):
+    """A :class:`CopyProgress` with *values*, shown over a shell: its rows, top to bottom frame."""
+    import tempfile
+
+    from navigator.widgets.file_ops.copy_progress import CopyProgress
+
+    with tempfile.TemporaryDirectory() as where:
+        a, b = Path(where) / "a", Path(where) / "b"
+        a.mkdir()
+        b.mkdir()
+
+        async def main():
+            shell = Shell(a, b)
+            app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+            task = asyncio.create_task(app.run_async())
+            await started(app, shell.manager.left, shell.manager.right)
+            box = CopyProgress(**values)
+            asyncio.ensure_future(box.execute(app))
+            await wait_until(lambda: app.modal is box)
+            await handled(app)
+            buffer = ScreenBuffer(80, 24)
+            app.root.render_tree(buffer)
+            rows = ["".join(buffer.get(x, y)[0] or " " for x in range(box.x, box.x + box.width))
+                    for y in range(box.y, box.y + box.height)]
+            box.close(None)
+            app.exit()
+            await task
+            return rows
+
+        return asyncio.run(main())
+
+
+def test_the_copy_box_says_dn_s_total_on_its_bottom_frame():
+    rows = _painted_box(total=1234567, done=50, source="/a/b.txt", dest="/c")
+    assert " Total 1,234,567 bytes " in rows[-1]
+    assert rows[7].strip(" ║").startswith("50 bytes")  # the bytes done, under the total gauge
+
+
+def test_while_measuring_the_copy_box_is_checking_directories():
+    rows = _painted_box(measuring=True)
+    assert "Checking directories..." in rows[1]
+    assert not any("bytes" in row for row in rows)
+
+
+@pytest.mark.parametrize("note, said", [("exists", "File exists - skipped"), ("older", "Older file - skipped"),
+                                        ("deleting", "Deleting source file...")])
+def test_dn_s_lines_take_the_speed_row(note, said):
+    rows = _painted_box(total=10, done=5, note=note, speed=1000.0)
+    assert said in rows[8] and "Speed" not in rows[8]
+
+
 def test_rate_follows_the_last_seconds():
     from navigator.lib.system.progress import Rate, duration_text
 
@@ -557,7 +609,7 @@ def test_the_copy_box_says_speed_and_time_left():
     assert box.pace_row.text == ""
     assert box.count(512, 50) == "512 bytes (50%)"
     assert box.count(372_244_480, 8) == "372,244,480 bytes (355MB, 8%)"
-    assert box.total_count.text == "Total 50 bytes (50%)"
+    assert box.total_count.text == "50 bytes (50%)"  # DN's Total is on the frame
     box.speed, box.left = 9.5 * 1024 * 1024, 42.0
     settle()
     assert box.pace_row.text == "Speed 9.5MB/s, 0:42 left"

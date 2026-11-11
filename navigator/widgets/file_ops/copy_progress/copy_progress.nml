@@ -1,3 +1,4 @@
+from navkit.bidi import display_width
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.progress_bar import ProgressBar
@@ -7,12 +8,18 @@ from navml.widgets.progress_bar import ProgressBar
 #: DN's rows were the file being read and its gauge, then the file being
 #: written and its; a copy here reads and writes in one pass, so the rows are
 #: the file and where it goes, the file's gauge, and the whole copy's gauge
-#: with its count -- DN's ``Total N bytes``, which it wrote on the frame.
+#: with the bytes done.  DN's ``dlFC_Total``, *Total N bytes*, is on the
+#: bottom frame where it wrote it.  While the sources are counted the first
+#: row says DN's *Checking directories...* (``measuring``).  A rename reads
+#: *Moving FROM / to TO*, DN's three lines (``DoRename``) in two.
 #: One *Stop*, which asks before it stops, as ``dlQueryAbort`` did.
 #:
 #: The row under the total gauge, the speed and the time left, is a
 #: departure: DN never said how fast a copy went.  ``speed`` is bytes a
-#: second and ``left`` seconds, each negative while not known yet.
+#: second and ``left`` seconds, each negative while not known yet.  DN's
+#: own lines take it over while they have something to say (``note``):
+#: *File exists - skipped*, *Older file - skipped*, *Deleting source
+#: file...*.
 #:
 #: ``packing`` is a copy into an archive being written at the end
 #: (``ArchiveDrive.finish``), which DN's archivers did with their own
@@ -37,6 +44,8 @@ CopyProgress(Dialog):
     property done: 0
     property total: 0
     property speed: -1.0
+    property measuring: False
+    property note: ""
     property left: -1.0
 
     StaticText:
@@ -46,7 +55,7 @@ CopyProgress(Dialog):
         anchors:
             left: 2
             right: 2
-        text: root.fit(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
+        text: root.checking() if root.measuring else root.fit(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
         tooltip: root.whole(" Packing " if root.packing else " Moving " if root.move else " Copying ", root.source)
 
     StaticText:
@@ -56,7 +65,7 @@ CopyProgress(Dialog):
         anchors:
             left: 2
             right: 2
-        text: root.fit(" into " if root.packing else " to ", root.dest)
+        text: "" if root.measuring else root.fit(" into " if root.packing else " to ", root.dest)
         tooltip: root.whole(" into " if root.packing else " to ", root.dest)
 
     #: Both gauges are as wide as the box less four columns a side.
@@ -78,7 +87,7 @@ CopyProgress(Dialog):
             left: 2
             right: 2
         align: "center"
-        text: root.count(root.file_done, file_bar.percent)
+        text: "" if root.measuring else root.count(root.file_done, file_bar.percent)
 
     ProgressBar:
         id: total_bar
@@ -98,7 +107,7 @@ CopyProgress(Dialog):
             left: 2
             right: 2
         align: "center"
-        text: "Total " + root.count(root.done, total_bar.percent)
+        text: "" if root.measuring else root.count(root.done, total_bar.percent)
 
     StaticText:
         id: pace_row
@@ -108,4 +117,15 @@ CopyProgress(Dialog):
             left: 2
             right: 2
         align: "center"
-        text: root.pace(root.speed, root.left)
+        text: root.status(root.note, root.speed, root.left)
+
+    #: DN's ``dlFC_Total``: the whole copy's size, on the bottom frame.
+    StaticText:
+        id: frame_total
+        name: "frame-total"
+        width: min(display_width(self.text), max(0, parent.width - 4))
+        height: 1
+        anchors:
+            center: horizontal
+            bottom: 0
+        text: "" if root.measuring else root.total_text(root.total)
