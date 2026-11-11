@@ -313,6 +313,32 @@ def test_f5_asks_before_overwriting(two):
     assert (b / "one.txt").read_text() == "old"
 
 
+def test_not_enough_room_is_dn_s_error_box_naming_the_drive(two):
+    # ``erNotDiskSpace1``, ``mfError``: the mount point for DN's drive letter.
+    from navigator.lib.file_ops.filecopy import NoRoom
+
+    a, b = two
+
+    async def main():
+        shell = Shell(a, b)
+        app = Application(shell, terminal=FakeTerminal(width=80, height=24))
+        task = asyncio.create_task(app.run_async())
+        await started(app, shell.manager.left, shell.manager.right)
+        asked = asyncio.ensure_future(shell.manager._answer_copy_question(NoRoom(b / "one.txt", 9, 1, "/mnt/x")))
+        await wait_until(lambda: app.modal is not None)
+        seen = app.modal.title, app.modal.prompt
+        app.post_event(KeyEvent("escape"))
+        answer = await asked
+        app.exit()
+        await task
+        return seen, answer
+
+    (title, prompt), answer = asyncio.run(main())
+    assert title == "Error"
+    assert prompt == "There is not enough room\non /mnt/x to copy\nfile one.txt. Copy other files?"
+    assert answer is False
+
+
 def test_the_query_names_the_whole_destination_its_middle_cut():
     from navigator.lib.file_ops.filecopy import Overwrite
     from navigator.widgets.file_ops.overwrite_query.overwrite_query import describe

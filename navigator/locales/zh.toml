@@ -4947,8 +4947,6 @@ flag = "CN"
 "Finished: {what}" = "已完成：{what}"
 # navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "是否创建目录 {path}？"
-# navigator/widgets/manager/manager/manager.py:4638
-"There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "没有目录有自己的设置"
 # navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
@@ -6807,9 +6805,32 @@ flag = "CN"
 "OK to delete {n} file?" = ["确定删除 {n} 个文件吗？"]
 # navigator/widgets/manager/manager/manager.py
 "OK to move {n} file to the Trash?" = ["确定将 {n} 个文件移到回收站吗？"]
+# navigator/lib/file_ops/filecopy.py
+"Could not open the file {path}\n{reason}" = "无法打开文件 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read source file {path}\n{reason}" = "无法读取源文件 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the file {path}\n{reason}" = "无法创建文件 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not write to file {path}\n{reason}" = "无法写入文件 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Disk full\n{path}" = "磁盘已满\n{path}"
+# navigator/lib/file_ops/filecopy.py
+"Could not rename file {path}\nto {to}\n{reason}" = "无法将文件 {path}\n重命名为 {to}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the directory {path}\n{reason}" = "无法创建目录 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not erase the file {path}\n{reason}" = "无法删除文件 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not delete the directory {path}\n{reason}" = "无法删除目录 {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read the directory {path}\n{reason}" = "无法读取目录 {path}\n{reason}"
+# navigator/widgets/manager/manager/manager.py
+"There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "{drive} 上\n空间不足，无法复制\n文件 {name}。是否复制其他文件？"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"There is not enough room to copy file {name}. Copy other files?" = "空间不足，无法复制文件 {name}。是否复制其他文件？"
 "Confirmation" = "确认"
 "Year" = "年份"
 "View a dBase file as a table" = "以表格查看 dBase 文件"

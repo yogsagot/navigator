@@ -131,6 +131,9 @@ class NoRoom:
     dest: Path | Location
     size: int
     free: int
+    #: Where the target's file system is: DN's drive letter, here the
+    #: mount point (or the server, for a remote drive).
+    drive: str = ""
 
 
 #: The answer to a :class:`Failure` that may be tried as root: do the step
@@ -407,10 +410,12 @@ class Elevated:
         local = not isinstance(location, Location) or location.is_local
         return local and not self.elevated and refused(error)
 
-    def _try(self, path: Location, step: Callable[[], Any], *, passing: tuple[int, ...] = ()) -> bool:
+    def _try(self, path: Location, step: Callable[[], Any], *, passing: tuple[int, ...] = (),
+             what: str | None = None, to: Any = None) -> bool:
         """*step*, done again as root if the user answers so: True once it
         went, False when it failed and was skipped.  An error whose errno is
-        in *passing* is raised for the caller."""
+        in *passing* is raised for the caller.  *what* names the step for the
+        box (:func:`step_failure`), *to* a rename's other end."""
         while True:
             try:
                 step()
@@ -418,7 +423,7 @@ class Elevated:
             except OSError as error:
                 if error.errno in passing:
                     raise
-                if not self._failed(path, error):
+                if not self._failed(path, error, what=what, to=to):
                     return False
 
     def _finish_as_root(self, place: Location, error: OSError, drive: Any) -> bool | None:
@@ -450,9 +455,15 @@ class Elevated:
 
             ELEVATION.release()
 
-    def _failed(self, path: Location, error: OSError) -> bool:
-        """Say *error* at *path*: True to try it again (now as root), False skipped."""
-        answer = self._ask(Failure(shown(path), error_message(error), elevate=self._offer(path, error)))
+    def _failed(self, path: Location, error: OSError, *, what: str | None = None, to: Any = None,
+                at: Any = None) -> bool:
+        """Say *error* at *path*: True to try it again (now as root), False
+        skipped.  *what* names the step (:func:`step_failure`), said of *at*
+        when the box names another place than the one *As root* is offered
+        for."""
+        failure = step_failure(what, path if at is None else at, error, to=to)
+        failure.elevate = self._offer(path, error)
+        answer = self._ask(failure)
         if answer == AS_ROOT:
             self.elevated = True
             return True
@@ -565,8 +576,8 @@ class _Copier(Elevated):
             self._held.append((source, directory))
             return True
         if directory:
-            return self._try(source, lambda: self._drive_of(source).rmdir(source))
-        return self._try(source, lambda: self._drive_of(source).unlink(source))
+            return self._try(source, lambda: self._drive_of(source).rmdir(source), what="erase-directory")
+        return self._try(source, lambda: self._drive_of(source).unlink(source), what="erase")
 
     def _remove_held(self, outer: Location) -> None:
         """The held removals made, once the archive at *outer* is written --
@@ -596,7 +607,7 @@ class _Copier(Elevated):
                 for each in request.directories or ():
                     self._checkpoint()
                     directory = Location.of(each)
-                    self._try(directory, lambda: self._drive_of(directory).makedirs(directory))
+                    self._try(directory, lambda: self._drive_of(directory).makedirs(directory), what="mkdir")
             elif self.move and request.from_listing and (
                     namer := in_place_name(request.target, request.sources, self.cwd)) is not None:
                 # DN's SoftMode: each renamed where it is.
@@ -613,7 +624,8 @@ class _Copier(Elevated):
                 if destination.create:
                     directory = Location.of(destination.directory)
                     self._ask(CreateDirectory(destination.directory))
-                    if not self._try(directory, lambda: self._drive_of(directory).makedirs(directory)):
+                    if not self._try(directory, lambda: self._drive_of(directory).makedirs(directory),
+                                     what="mkdir"):
                         return done
                 pairs = [(source, destination.path_for(source)) for source in request.sources]
                 places = [*request.sources, destination.directory]
@@ -710,6 +722,11 @@ class _Copier(Elevated):
             real_source = source_drive.realpath(source)
             real_dest = (dest_drive.realpath(dest) if dest_drive.exists(dest)
                          else dest_drive.realpath(dest.parent) / dest.name)
+            if real_dest == real_source and self.move:
+                # Moved onto itself: passed over without a word, as DN's
+                # ``Exit`` for ``S1 = S2`` in a move (``FILECOPY.PAS:1809``).
+                self.job.done_bytes += self._measure(source)
+                return False
             if real_dest == real_source or real_source.path in real_dest.path.parents:
                 return self._fail(source, lambda: tr("Cannot copy directory {name} into itself"),
                                   name=source.name)
@@ -724,7 +741,7 @@ class _Copier(Elevated):
             size = self._measure(source)
             try:
                 if not self._try(source, lambda: self._rename(source, dest, replace=False),
-                                 passing=(errno.EXDEV,)):
+                                 passing=(errno.EXDEV,), what="rename", to=dest):
                     return False
                 self.job.done_bytes += size
                 self._record(source, dest)
@@ -746,14 +763,14 @@ class _Copier(Elevated):
                     drive.mkdir(dest, (st.st_mode & 0o7777) | 0o700)
                     made = True
 
-            if not self._try(dest, make):
+            if not self._try(dest, make, what="mkdir"):
                 return False
             children: list[str] = []
 
             def listing() -> None:
                 children[:] = sorted(self._drive_of(source).names(source))
 
-            if not self._try(source, listing):
+            if not self._try(source, listing, what="list"):
                 return False
             complete = True
             for name in children:
@@ -794,7 +811,7 @@ class _Copier(Elevated):
             def listing() -> None:
                 children[:] = sorted(self._drive_of(source).names(source))
 
-            if not self._try(source, listing):
+            if not self._try(source, listing, what="list"):
                 return False
             complete = True
             for name in children:
@@ -815,6 +832,8 @@ class _Copier(Elevated):
         action = "new"
         if dest_drive.lexists(dest):
             if self._same_link(source, dest):
+                if self.move:
+                    return False  # DN's ``Exit``: a move onto itself, said nothing of
                 return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
             action, dest = self._resolve_existing(source, dest, st)
             if action == "skip":
@@ -825,7 +844,7 @@ class _Copier(Elevated):
         if self.move:
             try:
                 renamed = self._try(source, lambda: self._rename(source, dest, replace=True),
-                                    passing=(errno.EXDEV,))
+                                    passing=(errno.EXDEV,), what="rename", to=dest)
                 if renamed:
                     self._record(source, dest, replaced=replaced)
                 return renamed
@@ -839,7 +858,7 @@ class _Copier(Elevated):
                 dest_drive.unlink(dest)
             dest_drive.symlink(target, dest)
 
-        if not self._try(source, relink):
+        if not self._try(source, relink, what="create"):
             return False
         dest_drive = self._drive_of(dest)
         if self.preserve:
@@ -927,6 +946,10 @@ class _Copier(Elevated):
         job.file_bytes, job.file_done = st.st_size, 0
         if dest_drive.lexists(dest) and self._same(source, dest):
             job.done_bytes += st.st_size
+            if self.move:
+                # Passed over without a word, as DN's ``Exit`` for ``S1 = S2``
+                # in a move (``FILECOPY.PAS:1809``); a copy is told.
+                return False
             return self._fail(source, lambda: tr("{name} can not be copied to itself"), name=source.name)
         action, dest = self._resolve_existing(source, dest, st)
         job.dest = str(dest)
@@ -939,7 +962,7 @@ class _Copier(Elevated):
             # when it cannot (``EXDEV``) is the file copied -- and checked.
             try:
                 renamed = self._try(source, lambda: self._rename(source, dest, replace=True),
-                                    passing=(errno.EXDEV,))
+                                    passing=(errno.EXDEV,), what="rename", to=dest)
                 job.done_bytes += st.st_size
                 if renamed:
                     job.file_done = st.st_size
@@ -973,7 +996,7 @@ class _Copier(Elevated):
             return True
         free = self._drive_of(dest).free_bytes(dest.parent)
         if free is not None and free < st.st_size:
-            self._ask(NoRoom(shown(dest), st.st_size, free))
+            self._ask(NoRoom(shown(dest), st.st_size, free, _drive_name(dest)))
             self.job.done_bytes += st.st_size
             return False
         return True
@@ -990,14 +1013,18 @@ class _Copier(Elevated):
             # that failed has touched nothing, and the file is the user's.
             existed = wrote = False
             lifted = None
+            # Which step a failure is said of (DN's boxes named it).
+            stage = _Stage("open")
             try:
                 with source_drive.open_read(source) as reader:
+                    stage.now = "create"
                     existed = dest_drive.lexists(dest)
                     if existed:
                         lifted = self._lift_read_only(dest)
                     with dest_drive.open_write(dest, append=append, mode=st.st_mode & 0o777) as writer:
                         wrote = True
-                        stream(reader, writer, job)
+                        stream(stage.reading(reader), writer, job)
+                        stage.now = "write"
                         if self.flush:
                             dest_drive.sync(writer)
                 return True
@@ -1009,7 +1036,8 @@ class _Copier(Elevated):
                 if wrote and (not append or not existed):
                     _remove_quietly(dest, dest_drive)
                 job.done_bytes = start_done + st.st_size
-                if not self._failed(source, error):
+                said_of = source if stage.now in ("open", "read") else dest
+                if not self._failed(source, error, what=stage.now, at=said_of):
                     return False
             finally:
                 if lifted is not None and dest_drive.lexists(dest):
@@ -1153,6 +1181,74 @@ def error_message(error: OSError) -> str:
     return f"{name}: {reason}" if name else reason
 
 
+class _Stage:
+    """The step of a copy a failure is said of: ``open``, ``create``,
+    ``read`` or ``write``; :meth:`reading` tells the last two apart."""
+
+    def __init__(self, now: str) -> None:
+        self.now = now
+
+    def reading(self, reader: Any) -> Any:
+        stage = self
+
+        class Reading:
+            def read(self, size: int = -1) -> bytes:
+                stage.now = "read"
+                data = reader.read(size)
+                stage.now = "write"
+                return data
+
+        return Reading()
+
+
+#: What each step's box says (DN's ``dlFBBNoOpen``, ``dlFBBNotReadSource``,
+#: ``erCantCreateFile``, ``dlFBBNoWrite``, ``dlFBBDiskFull2``,
+#: ``dlFCNoRename1/2``, ``dlFCNoCreateDir``, ``dlErasingNoFile``,
+#: ``dlEraseCantDelDir``; ``list`` is Navigator's own), the system's reason
+#: on the last line.  Templates, put into words on the loop.
+_STEP_TEXT: dict[str, Callable[[], str]] = {
+    "open": lambda: tr("Could not open the file {path}\n{reason}"),
+    "read": lambda: tr("Could not read source file {path}\n{reason}"),
+    "create": lambda: tr("Could not create the file {path}\n{reason}"),
+    "write": lambda: tr("Could not write to file {path}\n{reason}"),
+    "full": lambda: tr("Disk full\n{path}"),
+    "rename": lambda: tr("Could not rename file {path}\nto {to}\n{reason}"),
+    "mkdir": lambda: tr("Could not create the directory {path}\n{reason}"),
+    "erase": lambda: tr("Could not erase the file {path}\n{reason}"),
+    "erase-directory": lambda: tr("Could not delete the directory {path}\n{reason}"),
+    "list": lambda: tr("Could not read the directory {path}\n{reason}"),
+}
+
+
+def step_failure(what: str | None, path: Any, error: OSError, *, to: Any = None) -> Failure:
+    """The :class:`Failure` for *error* at *path* in the step *what*: DN's
+    sentence naming the step and the place, then the system's reason.  A
+    write the disk had no room for is DN's *Disk full*.  No step (a
+    ``stat``, an archive's finish): :func:`error_message`'s ``name: reason``."""
+    if what is None or what not in _STEP_TEXT:
+        return Failure(shown(path), error_message(error))
+    if what == "write" and error.errno in (errno.ENOSPC, errno.EDQUOT):
+        what = "full"
+    return Failure(shown(path), _STEP_TEXT[what], {
+        "path": str(shown(path)), "to": "" if to is None else str(shown(to)),
+        "reason": error.strerror or str(error),
+    })
+
+
+def _drive_name(dest: Location) -> str:
+    """*dest*'s file system, as DN named the drive: the mount point on the
+    disk, the server's root anywhere else."""
+    dest = Location.of(dest)
+    if dest.is_local:
+        from navigator.lib.file_ops.filefind import mount_point
+
+        return str(mount_point(dest.parent.local))
+    root = dest
+    while not root.is_root:
+        root = root.parent
+    return str(shown(root))
+
+
 def _remove_quietly(location: Location, drive: Any = None) -> None:
     try:
         (drive or drive_of(location)).unlink(location)
@@ -1176,5 +1272,5 @@ __all__ = [
     "APPEND", "ASK", "CHECK_FREE", "CopyJob", "CopyRequest", "CreateDirectory", "Destination",
     "AS_ROOT", "Elevated", "FOLLOW_LINKS", "Failure", "MOVE", "NoRoom", "OVERWRITE", "Overwrite", "OverwriteAnswer",
     "POLL", "PRESERVE", "REFRESH", "SKIP", "Stopped", "apply_mask", "resolve_target", "run", "shown",
-    "in_place_name", "stream", "target_location",
+    "in_place_name", "step_failure", "stream", "target_location",
 ]

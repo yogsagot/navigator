@@ -142,8 +142,12 @@ def test_a_directory_is_not_pasted_into_itself(place):
     def into(a):
         a.manager.right.path = place / "a" / "sub"
 
-    run_app(app, [to("sub"), key("ctrl+x"), into, key("tab"), key("ctrl+v"), lambda a: None])
-    assert app.modal is None or not isinstance(app.modal, CopyDialog)
+    seen = {}
+    run_app(app, [to("sub"), key("ctrl+x"), into, key("tab"), key("ctrl+v"),
+                  Until(lambda a: "into itself" in getattr(a.modal, "prompt", "")),
+                  lambda a: seen.update(prompt=a.modal.prompt), key("enter"),
+                  Until(lambda a: a.modal is None)])
+    assert seen["prompt"] == "Cannot copy directory sub into itself"  # DN's ``erIntoItself``
     assert (place / "a" / "sub").is_dir()
 
 

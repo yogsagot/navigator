@@ -4948,8 +4948,6 @@ direction = "rtl"
 "Finished: {what}" = "انتهت: {what}"
 # navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "هل تريد إنشاء المجلد {path}؟"
-# navigator/widgets/manager/manager/manager.py:4638
-"There is not enough room to copy file {name}. Copy other files?" = "لا توجد مساحة كافية لنسخ الملف {name}. نسخ الملفات الأخرى؟"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "لا يوجد مجلد له إعدادات خاصة"
 # navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
@@ -6808,9 +6806,32 @@ direction = "rtl"
 "OK to delete {n} file?" = ["هل تريد حذف {n} ملف؟", "هل تريد حذف ملف واحد؟", "هل تريد حذف ملفين؟", "هل تريد حذف {n} ملفات؟", "هل تريد حذف {n} ملفا؟", "هل تريد حذف {n} ملف؟"]
 # navigator/widgets/manager/manager/manager.py
 "OK to move {n} file to the Trash?" = ["هل تريد نقل {n} ملف إلى سلة المهملات؟", "هل تريد نقل ملف واحد إلى سلة المهملات؟", "هل تريد نقل ملفين إلى سلة المهملات؟", "هل تريد نقل {n} ملفات إلى سلة المهملات؟", "هل تريد نقل {n} ملفا إلى سلة المهملات؟", "هل تريد نقل {n} ملف إلى سلة المهملات؟"]
+# navigator/lib/file_ops/filecopy.py
+"Could not open the file {path}\n{reason}" = "تعذر فتح الملف {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read source file {path}\n{reason}" = "تعذرت قراءة الملف المصدر {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the file {path}\n{reason}" = "تعذر إنشاء الملف {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not write to file {path}\n{reason}" = "تعذرت الكتابة في الملف {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Disk full\n{path}" = "القرص ممتلئ\n{path}"
+# navigator/lib/file_ops/filecopy.py
+"Could not rename file {path}\nto {to}\n{reason}" = "تعذرت إعادة تسمية الملف {path}\nإلى {to}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the directory {path}\n{reason}" = "تعذر إنشاء المجلد {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not erase the file {path}\n{reason}" = "تعذر حذف الملف {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not delete the directory {path}\n{reason}" = "تعذر حذف المجلد {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read the directory {path}\n{reason}" = "تعذرت قراءة المجلد {path}\n{reason}"
+# navigator/widgets/manager/manager/manager.py
+"There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "لا توجد مساحة كافية\nعلى {drive} لنسخ\nالملف {name}. نسخ الملفات الأخرى؟"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"There is not enough room to copy file {name}. Copy other files?" = "لا توجد مساحة كافية لنسخ الملف {name}. نسخ الملفات الأخرى؟"
 "Confirmation" = "تأكيد"
 "~Name~" = "~لاعب~"
 "~Start~" = "~بدء~"

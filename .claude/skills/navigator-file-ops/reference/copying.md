@@ -87,7 +87,15 @@ progress box appears after DN's two ticks.
 - **A failure removes only what that attempt wrote** (`_copy_bytes`' `wrote`): a half-written copy, as DN did. An
   open that failed leaves the target alone, so Skip never deletes the user's file.
 - **A copy onto itself and a directory into itself are refused.** So is a file over a directory
-  (`dlFCNotOverDir`).
+  (`dlFCNotOverDir`). **A move onto itself is passed over without a word** (DN's `Exit` for `S1 = S2`,
+  `FILECOPY.PAS:1809`), a file or a directory. A directory pasted or dropped into itself says so in an *Error* box
+  (`erIntoItself`, `Manager._say_into_itself`).
+- **A failure names its step**, as DN's boxes did, with the place and then the system's reason
+  (`filecopy.step_failure`): *Could not open the file*, *read source file*, *create the file*, *write to file*,
+  *Disk full* (`ENOSPC`/`EDQUOT`), *Could not rename file A / to B*, *create the directory*, *erase the file*,
+  *delete the directory*, and Navigator's own *Could not read the directory*. A `stat` or an archive's finish
+  keeps `name: reason`. *Not enough room* is DN's `erNotDiskSpace1`, titled *Error*, naming the target's mount
+  point (or server) where DN named the drive letter (`NoRoom.drive`).
 - **F6 to a bare mask in a *Find:* listing renames each file where it is** (DN's SoftMode, `cpoDirEmpty` with
   `cpoMove+cpoFromTemp`, `FILECOPY.PAS:2333, 1799`). `copy_entries` sets `CopyRequest.from_listing`, and
   `in_place_name` decides: no `/`, not an existing directory, a mask, or a plain name for one file. The listing takes
@@ -106,6 +114,11 @@ progress box appears after DN's two ticks.
 
 **Departures:**
 
+- **A failure asks Skip / Cancel (and *As root*), and the copy goes on.** Every error ended DN's operation with one
+  OK box.
+- **The overwrite question comes before the room check**, and the check is made only where bytes will be written
+  (item 1's rule). DN's `MaxWrite` ran first (`FILECOPY.PAS:1407-1418`), so a file then skipped had already been
+  asked about.
 - **A mask with no dot masks the whole name** (`apply_mask`), so `*` keeps `report.txt`. DN's `MkName` worked on
   `Norm12`'s 8.3 form, where a dotless mask had a blank extension: `*` stripped every extension and cut the stem to
   8. The `*` stays DN's positional one: it takes the source from its own position and ignores what follows it

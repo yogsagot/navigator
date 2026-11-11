@@ -4947,8 +4947,6 @@ flag = "LV"
 "Finished: {what}" = "Pabeigts: {what}"
 # navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "Vai izveidot direktoriju {path}?"
-# navigator/widgets/manager/manager/manager.py:4638
-"There is not enough room to copy file {name}. Copy other files?" = "Nepietiek vietas faila {name} kopēšanai. Kopēt citus failus?"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "Nevienai direktorijai nav savu iestatījumu"
 # navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
@@ -6807,9 +6805,32 @@ flag = "LV"
 "OK to delete {n} file?" = ["Tiešām dzēst {n} failu?", "Tiešām dzēst {n} failus?", "Tiešām dzēst {n} failu?"]
 # navigator/widgets/manager/manager/manager.py
 "OK to move {n} file to the Trash?" = ["Tiešām pārvietot {n} failu uz atkritni?", "Tiešām pārvietot {n} failus uz atkritni?", "Tiešām pārvietot {n} failu uz atkritni?"]
+# navigator/lib/file_ops/filecopy.py
+"Could not open the file {path}\n{reason}" = "Neizdevās atvērt failu {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read source file {path}\n{reason}" = "Neizdevās nolasīt avota failu {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the file {path}\n{reason}" = "Neizdevās izveidot failu {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not write to file {path}\n{reason}" = "Neizdevās ierakstīt failā {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Disk full\n{path}" = "Disks ir pilns\n{path}"
+# navigator/lib/file_ops/filecopy.py
+"Could not rename file {path}\nto {to}\n{reason}" = "Neizdevās pārdēvēt failu {path}\npar {to}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the directory {path}\n{reason}" = "Neizdevās izveidot direktoriju {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not erase the file {path}\n{reason}" = "Neizdevās izdzēst failu {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not delete the directory {path}\n{reason}" = "Neizdevās izdzēst direktoriju {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read the directory {path}\n{reason}" = "Neizdevās nolasīt direktoriju {path}\n{reason}"
+# navigator/widgets/manager/manager/manager.py
+"There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "Nepietiek vietas\nuz {drive}, lai kopētu\nfailu {name}. Kopēt citus failus?"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"There is not enough room to copy file {name}. Copy other files?" = "Nepietiek vietas faila {name} kopēšanai. Kopēt citus failus?"
 "Confirmation" = "Apstiprinājums"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Izskats -- karogi --theme, --palette, --glyphs un --dim-modal"
 "User menu" = "Lietotāja izvēlne"

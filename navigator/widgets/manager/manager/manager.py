@@ -4201,7 +4201,8 @@ class Manager(Window):
             return
         target = await asyncio.to_thread(_real_place, self.active_panel.location)
         entries, here, move = list(CLIP.entries), CLIP.here, CLIP.move
-        if _into_itself(target, entries, here):
+        if (itself := _into_itself(target, entries, here)) is not None:
+            await self._say_into_itself(itself)
             return
         if move and target == here:
             return
@@ -4233,11 +4234,21 @@ class Manager(Window):
         """The rest of :meth:`on_dropped`, in a task: where it was dropped is
         resolved on a thread (a hung mount waits there, not on the loop)."""
         target = await asyncio.to_thread(_real_place, Location.of(event.target))
-        if _into_itself(target, event.entries, source.location):
+        if (itself := _into_itself(target, event.entries, source.location)) is not None:
+            await self._say_into_itself(itself)
             return
         target = shown(target)
         others = (event.panel,) if event.panel is not None and event.panel is not source else ()
         await self._drop_menu(event, target, others)
+
+    async def _say_into_itself(self, entry: Any) -> None:
+        """DN's ``erIntoItself``: a directory pasted or dropped into itself, said
+        in an error box, and nothing copied."""
+        from navml.widgets.dialog.control import escape_caption
+
+        if self.application is not None:
+            await Dialog(title=tr("Error"), buttons="ok", prompt=tr("Cannot copy directory {name} into itself").format(
+                name=escape_caption(entry.name))).execute(self.application)
 
     async def _drop_on_trash(self, source: Panel, entries: list[Any]) -> None:
         """``TTrashCan``: ``cmEraseGroup`` once a Yes/No box agrees.
@@ -4643,11 +4654,12 @@ class Manager(Window):
                 tr("Would you like to create directory {path}?").format(path=escape_caption(str(question.path)))
             ) is True
         if isinstance(question, filecopy.NoRoom):
-            # DN's ``erNotDiskSpace1``: Yes goes on without this file.
+            # DN's ``erNotDiskSpace1`` (``mfError``), the mount point for its
+            # drive letter: Yes goes on without this file.
             return await self._ask_yes_no(
-                tr("There is not enough room to copy file {name}. Copy other files?").format(
-                    name=escape_caption(question.dest.name)),
-                title=tr("Warning"),
+                tr("There is not enough room\non {drive} to copy\nfile {name}. Copy other files?").format(
+                    drive=escape_caption(question.drive), name=escape_caption(question.dest.name)),
+                title=tr("Error"),
             ) is True
         if isinstance(question, filecopy.Failure):
             return await self._ask_skip(question.message, elevate=question.elevate)
@@ -6771,10 +6783,11 @@ def _real_place(target: Location) -> Location:
     return target
 
 
-def _into_itself(target: Location, entries: Iterable[Any], here: Any) -> bool:
-    """Whether a directory among *entries* of *here* is *target* or above it."""
+def _into_itself(target: Location, entries: Iterable[Any], here: Any) -> Any:
+    """The first directory among *entries* of *here* that is *target* or
+    above it, or None."""
     above = (target, *(Location(target.site, parent, target.outer) for parent in target.path.parents))
-    return any(entry.is_dir and _entry_location(here, entry) in above for entry in entries)
+    return next((entry for entry in entries if entry.is_dir and _entry_location(here, entry) in above), None)
 
 
 def _move_keys(glyphs: int) -> str:

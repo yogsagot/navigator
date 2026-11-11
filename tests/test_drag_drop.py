@@ -110,7 +110,13 @@ def test_on_its_own_panel_only_a_directory_row_takes_a_drop(place):
 
 
 def test_a_directory_is_not_dropped_into_itself(place):
-    run_app(navigator(place), [*drag(at("left", "sub"), at("left", "sub")), lambda a: None])
+    # DN's ``erIntoItself``: said in an error box, nothing copied.
+    seen = {}
+    run_app(navigator(place), [*drag(at("left", "sub"), at("left", "sub")),
+                               Until(lambda a: "into itself" in getattr(a.modal, "prompt", "")),
+                               lambda a: seen.update(prompt=a.modal.prompt, title=a.modal.title),
+                               KeyEvent("enter"), Until(lambda a: a.modal is None)])
+    assert seen == {"prompt": "Cannot copy directory sub into itself", "title": "Error"}
     assert list((place / "a" / "sub").iterdir()) == []
 
 

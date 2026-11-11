@@ -4948,8 +4948,6 @@ direction = "rtl"
 "Finished: {what}" = "הסתיים: {what}"
 # navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "האם ליצור את התיקייה {path}?"
-# navigator/widgets/manager/manager/manager.py:4638
-"There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "לאף תיקייה אין הגדרות משלה"
 # navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
@@ -6808,9 +6806,32 @@ direction = "rtl"
 "OK to delete {n} file?" = ["למחוק קובץ אחד?", "למחוק שני קבצים?", "למחוק {n} קבצים?"]
 # navigator/widgets/manager/manager/manager.py
 "OK to move {n} file to the Trash?" = ["להעביר קובץ אחד לאשפה?", "להעביר שני קבצים לאשפה?", "להעביר {n} קבצים לאשפה?"]
+# navigator/lib/file_ops/filecopy.py
+"Could not open the file {path}\n{reason}" = "לא ניתן לפתוח את הקובץ {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read source file {path}\n{reason}" = "לא ניתן לקרוא את קובץ המקור {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the file {path}\n{reason}" = "לא ניתן ליצור את הקובץ {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not write to file {path}\n{reason}" = "לא ניתן לכתוב לקובץ {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Disk full\n{path}" = "הדיסק מלא\n{path}"
+# navigator/lib/file_ops/filecopy.py
+"Could not rename file {path}\nto {to}\n{reason}" = "לא ניתן לשנות את שם הקובץ {path}\nל־{to}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the directory {path}\n{reason}" = "לא ניתן ליצור את התיקייה {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not erase the file {path}\n{reason}" = "לא ניתן למחוק את הקובץ {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not delete the directory {path}\n{reason}" = "לא ניתן למחוק את התיקייה {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read the directory {path}\n{reason}" = "לא ניתן לקרוא את התיקייה {path}\n{reason}"
+# navigator/widgets/manager/manager/manager.py
+"There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "אין די מקום\nב־{drive} להעתקת\nהקובץ {name}. להעתיק קבצים אחרים?"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"There is not enough room to copy file {name}. Copy other files?" = "אין די מקום להעתקת הקובץ {name}. להעתיק קבצים אחרים?"
 "Confirmation" = "אישור"
 "~Name~" = "~שם~"
 "~Start~" = "~התחלה~"

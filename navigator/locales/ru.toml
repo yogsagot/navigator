@@ -4947,8 +4947,6 @@ flag = "RU"
 "Finished: {what}" = "Завершено: {what}"
 # navigator/widgets/manager/manager/manager.py:4633, navigator/widgets/manager/manager/manager.py:4898
 "Would you like to create directory {path}?" = "Хотите создать каталог {path}?"
-# navigator/widgets/manager/manager/manager.py:4638
-"There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
 # navigator/widgets/manager/manager/manager.py:2864
 "No directory has settings of its own" = "Ни у одного каталога нет своих настроек"
 # navigator/widgets/manager/manager/manager.py:3993, navigator/widgets/manager/manager/manager.py:4024, navigator/widgets/tree/change_dir_dialog/change_dir_dialog.py:131
@@ -6807,9 +6805,32 @@ flag = "RU"
 "OK to delete {n} file?" = ["Точно удалить {n} файл?", "Точно удалить {n} файла?", "Точно удалить {n} файлов?"]
 # navigator/widgets/manager/manager/manager.py
 "OK to move {n} file to the Trash?" = ["Точно переместить {n} файл в корзину?", "Точно переместить {n} файла в корзину?", "Точно переместить {n} файлов в корзину?"]
+# navigator/lib/file_ops/filecopy.py
+"Could not open the file {path}\n{reason}" = "Не удалось открыть файл {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read source file {path}\n{reason}" = "Не удалось прочитать исходный файл {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the file {path}\n{reason}" = "Не удалось создать файл {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not write to file {path}\n{reason}" = "Не удалось записать в файл {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Disk full\n{path}" = "Диск переполнен\n{path}"
+# navigator/lib/file_ops/filecopy.py
+"Could not rename file {path}\nto {to}\n{reason}" = "Не удалось переименовать файл {path}\nв {to}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not create the directory {path}\n{reason}" = "Не удалось создать каталог {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not erase the file {path}\n{reason}" = "Не удалось удалить файл {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not delete the directory {path}\n{reason}" = "Не удалось удалить каталог {path}\n{reason}"
+# navigator/lib/file_ops/filecopy.py
+"Could not read the directory {path}\n{reason}" = "Не удалось прочитать каталог {path}\n{reason}"
+# navigator/widgets/manager/manager/manager.py
+"There is not enough room\non {drive} to copy\nfile {name}. Copy other files?" = "Недостаточно места\nна {drive} для копирования\nфайла {name}. Копировать остальные?"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
+"There is not enough room to copy file {name}. Copy other files?" = "Нет места для копирования файла {name}. Копировать остальные?"
 "Confirmation" = "Подтверждение"
 "Appearance -- the --theme, --palette, --glyphs and --dim-modal flags" = "Внешний вид -- флаги --theme, --palette, --glyphs и --dim-modal"
 "User menu" = "Меню пользователя"

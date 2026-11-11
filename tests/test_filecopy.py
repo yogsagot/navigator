@@ -29,6 +29,9 @@ def write(path: Path, text: str) -> Path:
     return path
 
 
+as_root = pytest.mark.skipif(os.geteuid() == 0, reason="root reads and writes anything")
+
+
 def copy(sources, target, *, cwd, mode=ASK, options=PRESERVE, answers=None, flush=False):
     """Run a copy; *answers* is a callable or a list consumed in order."""
     asked: list = []
@@ -302,6 +305,104 @@ def test_a_directory_into_itself(tree, tmp_path):
     assert "into itself" in asked[0].message and done == []
 
 
+# -- what a failure says: DN's sentence naming the step ----------------------------------
+
+
+def _failing_writer(errno_value):
+    real_open_write = LocalDrive.open_write
+
+    class Failing:
+        def __init__(self, f):
+            self.f = f
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *a):
+            self.f.close()
+
+        def write(self, data):
+            raise OSError(errno_value, os.strerror(errno_value))
+
+    return lambda self, p, **k: Failing(real_open_write(self, p, **k))
+
+
+@as_root
+def test_a_source_that_cannot_be_opened_says_so(tree, tmp_path):
+    src, dst = tree
+    (src / "a.txt").chmod(0)
+    try:
+        _, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, answers=["skip"])
+    finally:
+        (src / "a.txt").chmod(0o644)
+    lines = asked[0].message.splitlines()
+    assert lines == [f"Could not open the file {src / 'a.txt'}", "Permission denied"]
+
+
+@as_root
+def test_a_target_that_cannot_be_made_says_so(tree, tmp_path):
+    src, dst = tree
+    dst.chmod(0o555)
+    try:
+        _, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, answers=["skip"])
+    finally:
+        dst.chmod(0o755)
+    assert asked[0].message.splitlines()[0] == f"Could not create the file {dst / 'a.txt'}"
+
+
+def test_a_full_disk_is_dn_s_disk_full(tree, tmp_path, monkeypatch):
+    src, dst = tree
+    monkeypatch.setattr(LocalDrive, "open_write", _failing_writer(errno.ENOSPC))
+    _, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, answers=["skip"])
+    assert asked[0].message.splitlines() == ["Disk full", str(dst / "a.txt")]
+
+
+def test_another_write_error_names_the_target(tree, tmp_path, monkeypatch):
+    src, dst = tree
+    monkeypatch.setattr(LocalDrive, "open_write", _failing_writer(errno.EIO))
+    _, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, answers=["skip"])
+    assert asked[0].message.splitlines() == [f"Could not write to file {dst / 'a.txt'}",
+                                             os.strerror(errno.EIO)]
+
+
+def test_a_refused_rename_names_both_ends(tree, tmp_path, monkeypatch):
+    src, dst = tree
+
+    def refuse(self, source, dest):
+        raise PermissionError(errno.EACCES, "Permission denied")
+
+    monkeypatch.setattr(LocalDrive, "replace", refuse)
+    _, asked, _ = copy([src / "a.txt"], dst, cwd=tmp_path, options=MOVE, answers=["skip"])
+    assert asked[0].message.splitlines() == [f"Could not rename file {src / 'a.txt'}",
+                                             f"to {dst / 'a.txt'}", "Permission denied"]
+
+
+def test_a_directory_that_cannot_be_made_says_so(tree, tmp_path, monkeypatch):
+    src, dst = tree
+
+    def refuse(self, location, mode=0o777):
+        raise PermissionError(errno.EACCES, "Permission denied")
+
+    monkeypatch.setattr(LocalDrive, "mkdir", refuse)
+    _, asked, _ = copy([src / "sub"], dst, cwd=tmp_path, answers=["skip"])
+    assert asked[0].message.splitlines()[0] == f"Could not create the directory {dst / 'sub'}"
+
+
+def test_a_file_moved_onto_itself_is_passed_over_without_a_word(tree, tmp_path):
+    # DN's ``Exit`` for ``S1 = S2`` in a move; a copy is told.
+    src, _ = tree
+    done, asked, _ = copy([src / "a.txt"], src, cwd=tmp_path, options=MOVE)
+    assert asked == [] and done == [] and (src / "a.txt").read_text() == "alpha"
+    done, asked, _ = copy([src / "a.txt"], src, cwd=tmp_path, answers=["skip"])
+    assert "can not be copied to itself" in asked[0].message
+
+
+def test_a_directory_moved_onto_itself_is_passed_over_without_a_word(tree, tmp_path):
+    src, _ = tree
+    done, asked, _ = copy([src / "sub"], src, cwd=tmp_path, options=MOVE)
+    assert asked == [] and done == [] and (src / "sub" / "c.txt").exists()
+
+
 # -- moving ----------------------------------------------------------------------------
 
 
@@ -426,6 +527,10 @@ def test_not_enough_room_asks(tree, tmp_path, monkeypatch):
     )
     assert [type(q) for q in asked] == [NoRoom, NoRoom]
     assert done == [] and not list(dst.iterdir())
+    # DN's drive letter, here where the target's file system is mounted.
+    from navigator.lib.file_ops.filefind import mount_point
+
+    assert asked[0].drive == str(mount_point(dst))
 
 
 def test_a_move_within_one_filesystem_never_asks_about_room(tree, tmp_path, monkeypatch):
@@ -462,9 +567,6 @@ def test_a_move_to_another_drive_is_still_checked(tree, tmp_path, monkeypatch):
 
 
 # -- a read-only target: DN's ``TrySetArch`` --------------------------------------------
-
-as_root = pytest.mark.skipif(os.geteuid() == 0, reason="root writes a read-only file anyway")
-
 
 def mode_of(path: Path) -> int:
     return path.stat().st_mode & 0o777
