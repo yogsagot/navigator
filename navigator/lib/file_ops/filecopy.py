@@ -257,8 +257,15 @@ def apply_mask(name: str, mask: str) -> str:
 
     ``*`` takes the rest of the source's part from where it stands, ``?`` the
     source's character in its place, and anything else is itself; the name
-    and the extension are masked separately, as DOS did.  A mask with no dot
-    masks the whole name, which ``*`` alone therefore keeps.
+    and the extension are masked separately, as DOS did.
+
+    A mask with no dot masks the whole name, which ``*`` alone therefore
+    keeps -- a departure: DN padded the mask to 8.3 (``Norm12``), so a
+    dotless one had a blank extension and ``*`` stripped every file's.  A
+    POSIX name has no 8.3 split.  The ``*`` itself stays DN's positional
+    one, over the whole name: it takes the source from its own position and
+    ignores what follows it (``bak_*`` on ``report.txt`` is ``bak_rt.txt``,
+    ``*_old`` changes nothing).
     """
     mask_stem, mask_ext = _split_ext(mask)
     if mask_ext is None:

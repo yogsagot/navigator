@@ -89,7 +89,8 @@ progress box appears after DN's two ticks.
   beneath.
 - **The target is read as `CopyDialog` read it:**
   - an existing directory, or a name ending in `/`, is where the files go;
-  - a name with `*` or `?` is a rename mask (`MkName`, name and extension masked separately);
+  - a name with `*` or `?` is a rename mask (`MkName`, name and extension masked separately; a mask with no dot
+    masks the whole name, a departure below);
   - otherwise it is a single file's new name, or for several a directory to create (a departure, below), asked about
     first (`dlQueryCreateDir`) only when Confirmations' *Create non-existing dir* is ticked, off by default.
 - **What went is untagged; what was skipped keeps its tag.** Both panels re-read afterwards.
@@ -97,6 +98,10 @@ progress box appears after DN's two ticks.
 
 **Departures:**
 
+- **A mask with no dot masks the whole name** (`apply_mask`), so `*` keeps `report.txt`. DN's `MkName` worked on
+  `Norm12`'s 8.3 form, where a dotless mask had a blank extension: `*` stripped every extension and cut the stem to
+  8. The `*` stays DN's positional one: it takes the source from its own position and ignores what follows it
+  (`bak_*` on `report.txt` is `bak_rt.txt`).
 - **Several files to a plain name that is not there make a directory of it.** DN split the line (`FSplit`,
   `FILECOPY.PAS:2509`) and kept a name that was no existing directory as the mask (`Mask := Nm+Xt`), so every file
   was copied to that one name, each over the last, and a copy of N files left one.

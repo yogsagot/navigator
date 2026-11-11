@@ -64,6 +64,11 @@ def test_mask_renames_part_by_part():
     assert apply_mask("abc.txt", "x?*.*") == "xbc.txt"
     assert apply_mask("abc.txt", "*") == "abc.txt"
     assert apply_mask("a.tar.gz", "*.*") == "a.tar.gz"
+    # A dotless mask covers the whole name (a departure: DN's blanked the
+    # extension); its ``*`` is still DN's positional one.
+    assert apply_mask("a.tar.gz", "*") == "a.tar.gz"
+    assert apply_mask("report.txt", "bak_*") == "bak_rt.txt"
+    assert apply_mask("report.txt", "*_old") == "report.txt"
 
 
 def test_target_directory_name_and_mask(tree, tmp_path):
