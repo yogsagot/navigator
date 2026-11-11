@@ -241,6 +241,17 @@ def marks(name: str, tier: int = GLYPHS_UNICODE) -> tuple[str, ...]:
     return MARKS.get(name, MARKS[DEFAULT_MARKS])
 
 
+#: A frame's close icon: Turbo Vision's ``[■]``, ``[x]`` in ASCII.  A Nerd
+#: Font changes nothing: its progress-bar pieces (U+EE03-EE05) were tried and
+#: draw a long pill, not a square.
+CLOSE_ICONS = ("[x]", "[\u25a0]")
+
+
+def close_icon(tier: int = GLYPHS_UNICODE) -> str:
+    """The three-cell close icon a frame draws at the glyph *tier*."""
+    return CLOSE_ICONS[1] if tier >= GLYPHS_UNICODE else CLOSE_ICONS[0]
+
+
 def ellipsis(tier: int = GLYPHS_UNICODE) -> str:
     """What ends text cut short: ``…`` (U+2026, one cell), three dots in ASCII."""
     return "..." if tier < GLYPHS_UNICODE else "\u2026"

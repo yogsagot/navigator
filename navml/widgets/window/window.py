@@ -36,7 +36,7 @@ from typing import Any
 from navkit.bidi import display_width
 from navkit import commands
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
-from navkit.glyphs import BOX_CHARSETS, ellipsis
+from navkit.glyphs import BOX_CHARSETS, close_icon, ellipsis
 from navkit.i18n import tr
 from navkit.reactive import computed
 from navkit.screen import Surface
@@ -342,7 +342,7 @@ class Window(Widget):
         style = self.part_style("icon")
         for name, start in self._icons().items():
             if name == "close":
-                icon = CLOSE_ICON if unicode else ASCII_CLOSE_ICON
+                icon = close_icon(self.glyphs)
             elif self.zoomed:
                 icon = UNZOOM_ICON if unicode else ASCII_UNZOOM_ICON
             else:

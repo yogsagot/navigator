@@ -27,7 +27,7 @@ from typing import Iterator
 
 from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.glyphs import BOX_CHARSETS
+from navkit.glyphs import BOX_CHARSETS, close_icon
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget
@@ -134,5 +134,4 @@ class Modal(Widget):
                 self.part_style("title"),
             )
         if self._shows_close():
-            icon = CLOSE_ICON if self.glyphs > 1 else ASCII_CLOSE_ICON
-            surface.draw_text(CLOSE_X, 0, icon, self.part_style("icon"))
+            surface.draw_text(CLOSE_X, 0, close_icon(self.glyphs), self.part_style("icon"))

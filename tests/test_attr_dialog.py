@@ -375,7 +375,7 @@ def test_dismissing_unchanged_closes_at_once_and_changed_asks_first(two):
         seen["esc"] = app.modal is dialog
 
         # The close icon asks as Esc does, and Yes lets it go.
-        app.post_event(MouseClickEvent(dialog.x + dialog.width - 4, dialog.y, "left", "press"))
+        app.post_event(MouseClickEvent(dialog.x + 3, dialog.y, "left", "press"))
         await wait_until(lambda: app.modal is not None and app.modal is not dialog)
         seen["icon"] = type(app.modal).__name__
         app.post_event(KeyEvent("y", alt=True))

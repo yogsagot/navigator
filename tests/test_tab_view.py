@@ -5,6 +5,7 @@ from __future__ import annotations
 from conftest import FakeTerminal, run_app
 from navkit.application import Application
 from navkit.events import KeyEvent, MouseClickEvent
+from navkit.glyphs import close_icon
 from navkit.screen import ScreenBuffer
 from navkit.widget import Widget
 
@@ -303,13 +304,15 @@ def test_down_the_left_over_the_frame_the_rule_meets_it_and_the_buttons_keep_the
         b.application.post_event(MouseClickEvent(x, y, "left", action="release"))
 
     seen = run(box, look(lambda b: [(y, t) for y, _, t in tabs.tabs()]),
-               look(lambda b: (first.y, first.height)), look(painted), click_ok, lambda a: None,
+               look(lambda b: (first.y, first.height)), look(painted),
+               look(lambda b: close_icon(b.glyphs)), click_ok, lambda a: None,
                look(lambda b: b.parent is None))
     assert seen[0] == [(1, "One"), (2, "Two")]
     assert seen[1] == (1, 8)
-    assert [row[:8] for row in seen[2]][:3] == ["╔══════╤", "║► One │", "║  Two │"]
+    # The close icon at the left of the top edge, the rule's tee clear of it.
+    assert [row[:8] for row in seen[2]][:3] == ["╔═" + seen[3] + "══╤", "║► One │", "║  Two │"]
     assert seen[2][-1][:8] == "╚══════╧"
-    assert seen[3] is True
+    assert seen[4] is True
 
 
 def test_on_top_across_the_frame_the_baseline_meets_it_and_the_frame_stays_whole():

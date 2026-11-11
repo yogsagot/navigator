@@ -8,7 +8,7 @@ from navml.component import Component as _Component
 from typing import Iterator
 from navkit.bidi import display_width
 from navkit.events import KeyEvent, MouseClickEvent
-from navkit.glyphs import BOX_CHARSETS
+from navkit.glyphs import BOX_CHARSETS, close_icon
 from navkit.screen import Surface
 from navkit.stylesheet import StyleProperty
 from navkit.widget import Widget

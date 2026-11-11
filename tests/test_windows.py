@@ -8,6 +8,7 @@ import pytest
 
 from navkit.application import Application
 from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
+from navkit.glyphs import close_icon
 from navkit.screen import ScreenBuffer
 from navkit.widget import Widget
 
@@ -415,8 +416,8 @@ def test_a_modal_sits_above_every_window_and_blocks_what_is_outside(desk):
     # A click on the background window reaches nothing: it is not raised.
     handle(app, press(5, 6), release(5, 6))
     assert desktop.active_window is front and back.inner.clicks == 0
-    # A drag on the modal's title does not move it.
-    handle(app, press(dialog.x + 3, dialog.y), move(0, 0), release(0, 0))
+    # A drag on the modal's title (clear of the close icon) does not move it.
+    handle(app, press(dialog.x + 10, dialog.y), move(0, 0), release(0, 0))
     assert (dialog.x, dialog.y) == (30, 9)
     # Raising a window under a modal leaves the modal on top.
     desktop.activate(back)
@@ -587,6 +588,6 @@ def test_a_long_title_stays_between_the_frame_icons(desk):
     win.render(buffer)
     top = "".join(buffer.get(x, 0)[0] for x in range(30))
     # Both icons whole, the title between them, a cell clear of each, cut.
-    assert top[2:5] == "[■]" and top[25:28] == "[↑]"
+    assert top[2:5] == close_icon(win.glyphs) and top[25:28] == "[↑]"
     assert top[5] == top[24] == top[1]  # frame, not title
     assert "A rather" in top and "…" in top
