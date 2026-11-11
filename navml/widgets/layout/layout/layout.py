@@ -187,6 +187,14 @@ class LinearLayout(Layout):
     #: not fill the axis, which is only ever when none of them grows.
     justify: str = reactive("start")
 
+    def hints(self, child: Widget) -> tuple[int, int]:
+        """*child*'s ``basis`` and ``grow``: its own declarations by default.
+
+        A layout that knows what its children are -- a row of buttons, all
+        one width -- answers for a child that says nothing.
+        """
+        return child.style_property("basis", 0), child.style_property("grow", 1)
+
     def plan(self, children: list[Widget]) -> dict[Widget, Rect]:
         if self.justify not in JUSTIFY:
             raise ValueError(
@@ -195,10 +203,11 @@ class LinearLayout(Layout):
         along = self.width if self.horizontal else self.height
         across = self.height if self.horizontal else self.width
         spacing = max(0, self.spacing)
+        hints = [self.hints(child) for child in children]
         sizes = distribute(
             along,
-            (child.style_property("basis", 0) for child in children),
-            (child.style_property("grow", 1) for child in children),
+            (basis for basis, _ in hints),
+            (grow for _, grow in hints),
             spacing,
         )
         used = sum(sizes) + spacing * max(0, len(sizes) - 1)

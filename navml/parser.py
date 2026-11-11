@@ -78,6 +78,11 @@ STYLE = "style"
 #: declares, and a child is an instance of a class that already exists.
 KEYS = "keys"
 
+#: The third: where the widget sits, said as edges rather than arithmetic.
+#: Its lines become ``x``/``y``/``width``/``height`` property lines before the
+#: generator sees the document (:mod:`navml.anchors`).
+ANCHORS = "anchors"
+
 _HEAD = re.compile(r"(\w+)\s*(?:\(\s*([\w.]+)\s*\))?\s*:\Z")
 _NAMES = re.compile(r"[A-Za-z_]\w*\Z")
 
@@ -230,6 +235,29 @@ class StyleBlock:
 
 
 @dataclass(frozen=True, slots=True)
+class AnchorDeclaration:
+    """One line of an ``anchors:`` block.
+
+    ``value`` is the expression source of an edge (``left: 2``), the inset
+    after a sibling (``after: label + 1`` keeps ``"1"``, ``target`` is
+    ``"label"``), or the axis ``center`` names.
+    """
+
+    name: str
+    value: str
+    line: int
+    target: str | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class AnchorBlock:
+    """An ``anchors:`` block, which becomes geometry property lines."""
+
+    declarations: tuple[AnchorDeclaration, ...]
+    line: int
+
+
+@dataclass(frozen=True, slots=True)
 class KeyBinding:
     """One line of a ``keys:`` block: a key, and the command it asks for.
 
@@ -273,6 +301,7 @@ class Block:
     keys: KeyTable | None = None
     children: tuple[Block, ...] = ()
     doc: tuple[str, ...] = ()
+    anchors: AnchorBlock | None = None
 
     def walk(self) -> Iterator[Block]:
         """This block and every block under it, in document order."""
@@ -860,6 +889,89 @@ def _read_style(lines: Sequence[_Line], index: int, filename: str
     return StyleBlock(tuple(declarations), head.line), index
 
 
+#: Every key an ``anchors:`` block takes: edges inset from the parent's,
+#: edges against a sibling, ``fill`` for all four insets and ``center``.
+ANCHOR_EDGES = ("left", "right", "top", "bottom")
+ANCHOR_SIBLINGS = ("after", "before", "below", "above")
+ANCHOR_CENTRES = ("horizontal", "vertical", "both")
+ANCHOR_KEYS = ANCHOR_EDGES + ANCHOR_SIBLINGS + ("fill", "center")
+
+
+def _read_anchors(lines: Sequence[_Line], index: int, filename: str
+                  ) -> tuple[AnchorBlock, int]:
+    """An ``anchors:`` block: ``edge: expression`` a line."""
+    head = lines[index]
+    index += 1
+    declarations: list[AnchorDeclaration] = []
+    seen: dict[str, int] = {}
+    if index < len(lines) and lines[index].indent > head.indent:
+        indent = lines[index].indent
+        while index < len(lines) and lines[index].indent >= indent:
+            line = lines[index]
+            if line.indent > indent:
+                raise MarkupError(
+                    "unexpected indent inside an anchors block", line.line, filename
+                )
+            name, colon, value = line.text.partition(":")
+            name, value = name.strip(), value.strip()
+            if not colon or not value:
+                raise MarkupError(
+                    f"{line.text!r} is not an anchor; expected 'edge: value'",
+                    line.line,
+                    filename,
+                )
+            if name not in ANCHOR_KEYS:
+                raise MarkupError(
+                    f"{name!r} is no anchor; an anchors block takes "
+                    f"{', '.join(ANCHOR_KEYS)}",
+                    line.line,
+                    filename,
+                )
+            if name in seen:
+                raise MarkupError(
+                    f"{name!r} is already anchored on line {seen[name]}",
+                    line.line,
+                    filename,
+                )
+            seen[name] = line.line
+            target = None
+            if name == "center":
+                if value not in ANCHOR_CENTRES:
+                    raise MarkupError(
+                        f"center is {value!r}; it takes "
+                        f"{', '.join(ANCHOR_CENTRES)}",
+                        line.line,
+                        filename,
+                    )
+            elif name in ANCHOR_SIBLINGS:
+                target, value = _sibling_anchor(name, value, line, filename)
+            else:
+                _expression(value, f"the {name} anchor", line.line, filename)
+            declarations.append(AnchorDeclaration(name, value, line.line, target))
+            index += 1
+    if not declarations:
+        raise MarkupError("an anchors block says nothing", head.line, filename)
+    return AnchorBlock(tuple(declarations), head.line), index
+
+
+def _sibling_anchor(name: str, value: str, line: _Line, filename: str
+                    ) -> tuple[str, str]:
+    """``label`` or ``label + 1``: the sibling's id, and the gap's source."""
+    _expression(value, f"the {name} anchor", line.line, filename)
+    tree = ast.parse(value, mode="eval").body
+    if isinstance(tree, ast.Name):
+        return tree.id, "0"
+    if (isinstance(tree, ast.BinOp) and isinstance(tree.op, ast.Add)
+            and isinstance(tree.left, ast.Name)):
+        return tree.left.id, ast.get_source_segment(value, tree.right) or "0"
+    raise MarkupError(
+        f"{name} names a sibling by its id, with a gap after a '+': "
+        f"'{name}: label' or '{name}: label + 1'",
+        line.line,
+        filename,
+    )
+
+
 def _read_keys(lines: Sequence[_Line], index: int, filename: str
                ) -> tuple[KeyTable, int]:
     """A ``keys:`` block: a key spec, a colon, and a Python expression."""
@@ -918,6 +1030,7 @@ def _read_block(
     children: list[Block] = []
     style: StyleBlock | None = None
     keys: KeyTable | None = None
+    anchors: AnchorBlock | None = None
     if index < len(lines) and lines[index].indent > head.indent:
         indent = lines[index].indent
         while index < len(lines) and lines[index].indent >= indent:
@@ -945,6 +1058,14 @@ def _read_block(
                             filename,
                         )
                     keys, index = _read_keys(lines, index, filename)
+                elif line.text.rstrip(":").strip() == ANCHORS:
+                    if anchors is not None:
+                        raise MarkupError(
+                            "a second anchors block; one widget sits one place",
+                            line.line,
+                            filename,
+                        )
+                    anchors, index = _read_anchors(lines, index, filename)
                 else:
                     child, index = _read_block(lines, index, filename, root=False)
                     children.append(child)
@@ -996,6 +1117,7 @@ def _read_block(
             keys=keys,
             children=tuple(children),
             doc=head.doc,
+            anchors=anchors,
         ),
         index,
     )
@@ -1128,7 +1250,9 @@ def parse(text: str, *, filename: str = "<markup>") -> Document:
             line.line,
             filename,
         )
-    document = Document(filename, tuple(imports), root)
+    from navml.anchors import expand
+
+    document = Document(filename, tuple(imports), expand(root, filename))
     _check_document(document)
     return document
 

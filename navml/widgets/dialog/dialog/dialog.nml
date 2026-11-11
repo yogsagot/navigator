@@ -1,6 +1,6 @@
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.button import Button
-from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.dialog.modal import Modal
 from navml.widgets.menu.commands import ShowContextMenu
@@ -47,49 +47,39 @@ Dialog(Modal):
 
     StaticText:
         id: message
-        x: 2
         y: 2
-        width: max(0, parent.width - 4)
         height: max(1, parent.height - 6)
+        anchors:
+            left: 2
+            right: 2
         text: parent.prompt
         wrap: True
 
     #: The buttons, centred as a row.  Each is 11 columns -- nine of face, two
     #: of bracket, one of shadow -- with two between, and a hidden one gives
     #: up its slot, so two stay centred as well as three do.
-    HorizontalLayout:
+    ButtonRow:
         id: row
-        x: 0
-        y: max(0, parent.height - 4)
-        width: parent.width
-        height: 2
-        spacing: 2
-        justify: "center"
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
 
         Button:
             id: ok
             text: "~Y~es" if root.buttons in ("yes-no-cancel", "yes-no") else "O~K~"
             default: True
-            style:
-                basis: 11
-                grow: 0
 
         #: *No* answers False, where Cancel answers None.
         Button:
             id: no
             text: "~N~o"
             visible: root.buttons in ("yes-no-cancel", "yes-no")
-            style:
-                basis: 11
-                grow: 0
 
         Button:
             id: cancel
             text: "~C~ancel"
             visible: root.buttons not in ("ok", "yes-no")
-            style:
-                basis: 11
-                grow: 0
 
         #: Routed by an explicit line, because :meth:`show_info` is named for
         #: what the dialog *does* rather than for what happened to it -- the
@@ -100,7 +90,4 @@ Dialog(Modal):
             id: info
             text: "~H~elp"
             visible: root.buttons == "ok-cancel-help"
-            style:
-                basis: 11
-                grow: 0
             on_click: await root.show_info(event)

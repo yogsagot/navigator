@@ -77,16 +77,16 @@ class ListViewer(Control, _Component):
         super().__init__(**kwargs)
         self.bar = ScrollBar(parent=self)    # list_viewer.nml:37
 
-        self.bar.x = _bind(lambda _o: _o.parent.width - 1)    # list_viewer.nml:39
-        self.bar.y = _bind(lambda _o: _o.parent.inset)    # list_viewer.nml:40
-        self.bar.width = 1    # list_viewer.nml:41
-        self.bar.height = _bind(    # list_viewer.nml:42
+        self.bar.y = _bind(lambda _o: _o.parent.inset)    # list_viewer.nml:39
+        self.bar.width = 1    # list_viewer.nml:40
+        self.bar.height = _bind(    # list_viewer.nml:43
             lambda _o: max(0, _o.parent.rows + _o.parent.header)
         )
-        self.bar.value = _bind(lambda _o: _o.parent.cursor)    # list_viewer.nml:43
-        self.bar.maximum = _bind(lambda _o: max(0, len(_o.parent.items) - 1))    # list_viewer.nml:44
-        self.bar.page = _bind(lambda _o: max(1, _o.parent.rows - 1))    # list_viewer.nml:45
-        self.bar.visible = _bind(    # list_viewer.nml:46
+        self.bar.value = _bind(lambda _o: _o.parent.cursor)    # list_viewer.nml:44
+        self.bar.maximum = _bind(lambda _o: max(0, len(_o.parent.items) - 1))    # list_viewer.nml:45
+        self.bar.page = _bind(lambda _o: max(1, _o.parent.rows - 1))    # list_viewer.nml:46
+        self.bar.visible = _bind(    # list_viewer.nml:47
             lambda _o: _o.parent.error is None and len(_o.parent.items) > _o.parent.capacity
         )
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # list_viewer.nml:42
         self.bar.on_scroll = self.on_bar_scroll    # list_viewer.nml:38

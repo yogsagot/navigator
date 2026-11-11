@@ -34,6 +34,7 @@ navml.register(__name__)
 #: read from a zip or a wheel.
 _COMPONENTS = {
     "Button": "dialog.button",
+    "ButtonRow": "dialog.button_row",
     "Calendar": "dialog.date_button",
     "CalendarView": "dialog.date_button",
     "CheckBoxes": "dialog.check_boxes",
@@ -142,6 +143,7 @@ if TYPE_CHECKING:
     # every component untyped at every call site.  These are the real types;
     # they are never imported at run time, so the laziness above is intact.
     from navml.widgets.dialog.button import Button
+    from navml.widgets.dialog.button_row import ButtonRow
     from navml.widgets.dialog.check_boxes import CheckBoxes
     from navml.widgets.dialog.cluster import Cluster
     from navml.widgets.dialog.color_selector import ColorDisplay, ColorSelector

@@ -8,7 +8,7 @@ from navkit.events import Event as _Event
 from navml.component import Component as _Component
 from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.button import Button
-from navml.widgets.layout.horizontal_layout import HorizontalLayout
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.static_text import StaticText
 from navml.widgets.dialog.modal import Modal
 from navml.widgets.menu.commands import ShowContextMenu
@@ -29,7 +29,7 @@ class Dialog(Modal, _Component):
     prompt: str
     close_on_outside_click: bool
     message: StaticText
-    row: HorizontalLayout
+    row: ButtonRow
     ok: Button
     no: Button
     cancel: Button

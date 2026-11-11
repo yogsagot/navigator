@@ -50,6 +50,7 @@ def check(resolved: Resolved) -> None:
     _check_ids(resolved)
     _check_aliases(resolved)
     _check_children(resolved)
+    _check_anchors(resolved)
     _check_properties(resolved)
     _check_styles(resolved)
     _check_keys(resolved)
@@ -171,6 +172,29 @@ def _check_children(resolved: Resolved) -> None:
                 f"{cls.__name__} requires {', '.join(required)} at "
                 f"construction; markup constructs a child with parent alone",
             )
+
+
+def _check_anchors(resolved: Resolved) -> None:
+    """An ``anchors:`` block under a layout, which owns its children's places.
+
+    Arranging steps around a bound side rather than fighting it, so anchors
+    there would quietly half-work -- a bound ``x`` kept, the width the
+    layout's -- instead of failing.
+    """
+    from navml.widgets.layout.layout import Layout
+
+    for parent in resolved.document.root.walk():
+        if not issubclass(resolved.class_of(parent), Layout):
+            continue
+        for block in parent.children:
+            if block.anchors is not None:
+                _refuse(
+                    resolved,
+                    block.anchors.line,
+                    f"{block.type} sits in a {resolved.class_of(parent).__name__}, "
+                    f"which places its children itself; anchors place a widget "
+                    f"that nothing else does",
+                )
 
 
 def _required(cls: type) -> list[str]:

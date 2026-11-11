@@ -338,8 +338,20 @@ Python-only `Layout` that paints nothing, replaced every container's placement a
 **style hints the layout reads off the child** -- `basis`, `grow` (default 1, so silent siblings share evenly), `dock`
 -- so a `style:` block or a sheet rule says it. A layout re-arranges from an effect on its own size, its children's
 `visible` and hints, so a child's geometry is navigated and its markup says nothing about it. `Field` is
-`Field(HorizontalLayout)`, `Shell` is `Shell(DockLayout)`, and `Dialog`'s buttons and `Manager`'s panels sit in an id'd
-`HorizontalLayout`. All conversions paint `cmp`-identically on a pty.
+`Field(HorizontalLayout)`, `Shell` is `Shell(DockLayout)`, `Manager`'s panels sit in an id'd `HorizontalLayout`, and
+`Dialog`'s buttons in a `ButtonRow`. All conversions paint `cmp`-identically on a pty.
+
+- **A layout can answer for a child that says nothing**: `LinearLayout.hints(child)` returns `(basis, grow)`, by
+  default the child's own style hints. Override it rather than writing hints onto every child.
+- **`ButtonRow`** (`navml/widgets/dialog/button_row/`, Python only) is a `HorizontalLayout` with `spacing` 2,
+  `justify: "center"` and `height` 2. Every child takes `button_width` (11, DN's usual) and `grow` 0. A child's own
+  `style:` `basis` wins. `button_width: 0` sizes each `Button` by its caption plus `BUTTON_CHROME` (5). A hidden button
+  gives up its slot, so the rest stay centred.
+- **A dialog that needs other buttons declares its own `ButtonRow`** under `anchors: left: 0 / right: 0 / bottom: 2`
+  and hides `row`. It does not hand-place x values, unless DN's own x values are not centred: transcribed literals win
+  where fidelity needs them.
+- Geometry outside a layout is better said with an `anchors:` block (`navml-markup`) than with
+  `parent.width - K` arithmetic.
 
 ## The About dialog
 

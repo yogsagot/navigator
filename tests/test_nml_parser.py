@@ -86,7 +86,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [
         ("Cancel", "Default", "SelectNext", "SelectPrevious"),
-        ("Button",), ("HorizontalLayout",), ("StaticText",), ("Modal",),
+        ("Button",), ("ButtonRow",), ("StaticText",), ("Modal",),
         ("ShowContextMenu",),
     ]
     assert [d.name for d in document.root.declarations] == ["buttons", "prompt", "close_on_outside_click"]
@@ -102,7 +102,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
 
     blocks = {block.id: block for block in document.root.walk() if block.id}
     assert [b.type for b in document.root.children] == [
-        "StaticText", "HorizontalLayout",
+        "StaticText", "ButtonRow",
     ]
     assert [b.type for b in blocks["row"].children] == ["Button"] * 4
     assert dict(
@@ -118,6 +118,9 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     # Only ``info`` carries a handler: the other three reach the hand-written
     # half through the ``on_<id>_<event>`` convention, which is the generator's
     # to emit and says nothing in the markup.
+    # The message's place is an ``anchors:`` block, read as the lines it
+    # replaced.
+    assert blocks["message"].anchors is not None
     assert [h.name for h in blocks["info"].handlers] == ["on_click"]
     assert blocks["info"].handlers[0].body == "await root.show_info(event)"
     assert all(not b.handlers for b in (blocks["ok"], blocks["no"], blocks["cancel"]))
@@ -171,7 +174,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     assert [line.modules for line in lines] == [
         ("navml.widgets.dialog.commands",),
         ("navml.widgets.dialog.button",),
-        ("navml.widgets.layout.horizontal_layout",),
+        ("navml.widgets.dialog.button_row",),
         ("navml.widgets.dialog.static_text",),
         ("navml.widgets.dialog.modal",),
         ("navml.widgets.menu.commands",),
@@ -179,7 +182,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
     assert [line.source for line in lines] == [
         "from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious",
         "from navml.widgets.dialog.button import Button",
-        "from navml.widgets.layout.horizontal_layout import HorizontalLayout",
+        "from navml.widgets.dialog.button_row import ButtonRow",
         "from navml.widgets.dialog.static_text import StaticText",
         "from navml.widgets.dialog.modal import Modal",
         "from navml.widgets.menu.commands import ShowContextMenu",

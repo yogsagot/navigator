@@ -116,6 +116,7 @@ its heading is added here.
   - Two things that fall out of the rule -- [`navml-markup/expressions.md`](../.claude/skills/navml-markup/reference/expressions.md)
   - The `style` block -- [`navml-markup/blocks-and-handlers.md`](../.claude/skills/navml-markup/reference/blocks-and-handlers.md)
   - The `keys` block -- [`navml-markup/blocks-and-handlers.md`](../.claude/skills/navml-markup/reference/blocks-and-handlers.md)
+  - Anchors -- [`navml-markup/anchors.md`](../.claude/skills/navml-markup/reference/anchors.md)
   - A handler body is one line -- [`navml-markup/blocks-and-handlers.md`](../.claude/skills/navml-markup/reference/blocks-and-handlers.md)
   - The handler's one argument is `event` -- [`navml-markup/blocks-and-handlers.md`](../.claude/skills/navml-markup/reference/blocks-and-handlers.md)
   - What the generator emits, and what writes it -- [`navml-components/generator.md`](../.claude/skills/navml-components/reference/generator.md)

@@ -1,6 +1,6 @@
 ---
 name: navml-markup
-description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property and style-property declarations, aliases, `event` lines, property expressions, `style:` and `keys:` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
+description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property and style-property declarations, aliases, `event` lines, property expressions, `style:`, `keys:` and `anchors:` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
 ---
 
 # Writing navml markup
@@ -81,6 +81,39 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
 - `style:` -- a `.nss` declaration set, checked at build time (`stylesheet.check_declarations`), `$variables` left for
   run time.
 - `keys:` -- the component's key table (root block only), as a class attribute `keys = {...}` would be.
+- `anchors:` -- where the widget sits, as edges. See *Anchors* below.
+
+## Anchors
+
+An `anchors:` block is build-time sugar (`navml/anchors.py`, called from `parse()`). It becomes the `x`/`y`/`width`/
+`height` property lines you would otherwise write by hand, so nothing at run time knows anchors exist and the generated
+code is the familiar `max(0, parent.width - 12)`. Prefer it to hand arithmetic for the common idioms.
+
+| Key | Means | Writes |
+|---|---|---|
+| `left: L` / `top: T` | inset from the parent's start edge | `x = L` |
+| `right: R` / `bottom: B` | inset from the parent's end edge | alone: `x = max(0, parent.width - R - self.width)` |
+| `after: id + G` / `below: id + G` | G cells past a sibling's end edge | `x = id.x + id.width + G` |
+| `before: id + G` / `above: id + G` | G cells short of a sibling's start edge | alone: `x = max(0, id.x - G - self.width)` |
+| a start and an end edge on one axis | stretch between them | `x` from the start, `width = max(0, END - ...)` |
+| `fill: N` | all four insets; a named edge on a side wins | |
+| `center: horizontal` / `vertical` / `both` | centre in the parent | `max(0, (parent.width - self.width) // 2)` |
+
+- An end edge alone **keeps the widget's own size** and pins against it, so a content-sized widget (the clock) works.
+- Values are ordinary expressions (`right: 2 + root.gap`). A sibling form is an id, optionally `+ gap`.
+- **Refused at build time**, with the line:
+  - an anchor plus an explicit `x:`/`y:` line on that axis;
+  - a stretching pair plus an explicit `width:`/`height:` line;
+  - two start edges or two end edges on one axis;
+  - `center` (or `fill`) together with an edge on a centred axis;
+  - a sibling form naming an id that is not under the same parent, or used on the root block;
+  - anchors on a child of a `Layout`, which owns its children's geometry (`checks._check_anchors`).
+- **Mixing is fine.** Anchor one axis and write the other (`dialog.nml`'s message anchors `left`/`right` and keeps
+  `height: max(1, ...)`).
+- **Anchoring makes a side a binding.** A Python half that re-places an anchored widget must `unbind()` first, exactly
+  as before.
+- **Convert only where the generated value is unchanged.** Every anchor clamps at 0; a line with another floor
+  (`max(1, ...)`) stays an expression.
 
 ## Model documents
 
@@ -101,3 +134,4 @@ rules.
 | `reference/events.md` | `event` lines, `on_<id>_<event>` stubs, what a handler line is checked for |
 | `reference/expressions.md` | how a property expression compiles, name resolution, the worked example |
 | `reference/blocks-and-handlers.md` | `style:` / `keys:` blocks, handler bodies, the `event` argument |
+| `reference/anchors.md` | why anchors are sugar and not QML's run-time anchors, what is not offered yet |

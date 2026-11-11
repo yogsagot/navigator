@@ -31,17 +31,19 @@ FileDialog(Dialog):
         id: caption
         text: "~N~ame"
         link: target.entry
-        x: 2
         y: 2
-        width: max(0, parent.width - 18)
         height: 1
+        anchors:
+            left: 2
+            right: 16
 
     Field:
         id: target
-        x: 3
         y: 3
-        width: max(0, parent.width - 16)
         height: 1
+        anchors:
+            left: 3
+            right: 13
         label_text: ""
         label_width: 0
 
@@ -58,9 +60,10 @@ FileDialog(Dialog):
         id: dirs
         framed: False
         x: 3
-        y: 6
         width: max(0, parent.width - 17) * 2 // 5
-        height: max(0, parent.height - 10)
+        anchors:
+            top: 6
+            bottom: 4
 
     Label:
         id: files_caption
@@ -74,10 +77,11 @@ FileDialog(Dialog):
     FileList:
         id: files
         framed: False
-        x: dirs.x + dirs.width + 2
-        y: 6
-        width: max(0, parent.width - 17 - dirs.width)
-        height: max(0, parent.height - 10)
+        anchors:
+            after: dirs + 2
+            right: 12
+            top: 6
+            bottom: 4
 
     #: ``cmFileOpen``, the default: whatever the name line says, a directory or a
     #: wildcard changing what is listed and a file name closing the dialog.
@@ -85,32 +89,36 @@ FileDialog(Dialog):
         id: pick
         text: "O~K~"
         default: True
-        x: max(0, parent.width - 12)
         y: 3
         width: 10
         height: 2
+        anchors:
+            right: 2
 
     Button:
         id: abandon
         text: "Cancel"
-        x: max(0, parent.width - 12)
         y: 6
         width: 10
         height: 2
+        anchors:
+            right: 2
 
     #: No help is written yet, so the button is shown and disabled.
     Button:
         id: helper
         text: "~H~elp"
         disabled: True
-        x: max(0, parent.width - 12)
         y: 9
         width: 10
         height: 2
+        anchors:
+            right: 2
 
     FileInfoPane:
         id: info
-        x: 1
-        y: max(0, parent.height - 3)
-        width: max(0, parent.width - 2)
         height: 2
+        anchors:
+            left: 1
+            right: 1
+            bottom: 1
