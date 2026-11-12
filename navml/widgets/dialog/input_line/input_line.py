@@ -243,19 +243,24 @@ class InputLine(Control):
         towards_end = (end >= start) == rightwards
         return self.cursor + (1 if towards_end else -1)
 
+    def _breaks_word(self, char: str) -> bool:
+        """Whether *char* ends a word for Ctrl+Left/Right: a blank here; a
+        line with words of its own (a shell's) says otherwise."""
+        return char.isspace()
+
     def _word_left(self) -> int:
-        index = self.cursor
-        while index and self.value[index - 1].isspace():
+        index, breaks = self.cursor, self._breaks_word
+        while index and breaks(self.value[index - 1]):
             index -= 1
-        while index and not self.value[index - 1].isspace():
+        while index and not breaks(self.value[index - 1]):
             index -= 1
         return index
 
     def _word_right(self) -> int:
-        index, end = self.cursor, len(self.value)
-        while index < end and not self.value[index].isspace():
+        index, end, breaks = self.cursor, len(self.value), self._breaks_word
+        while index < end and not breaks(self.value[index]):
             index += 1
-        while index < end and self.value[index].isspace():
+        while index < end and breaks(self.value[index]):
             index += 1
         return index
 

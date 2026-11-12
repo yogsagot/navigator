@@ -69,3 +69,41 @@ def test_the_mode_outlives_a_cleared_line(app):
 def test_a_paste_still_inserts_in_overwrite(app):
     seen = line(app, [*typed("ab"), KeyEvent("home"), KeyEvent("insert"), PasteEvent("XY")])
     assert seen["value"] == "XYab"
+
+
+def stops(app, text, start_key, key):
+    """The caret after each press of *key* (Ctrl+Left or Right) on *text*, from *start_key*."""
+    seen = []
+    actions = [*typed(text), KeyEvent(start_key)]
+    for _ in range(4):
+        actions += [key, lambda a: seen.append(a.shell.command_line.cursor)]
+    run_app(app, actions)
+    return seen
+
+
+def test_ctrl_left_stops_at_dn_s_separators(app):
+    # ``kbCtrlLeft`` over ``Separators``: each ``/`` and the blank, not only blanks.
+    assert stops(app, "cd /usr/local/bin", "end", KeyEvent("left", ctrl=True)) == [14, 8, 4, 0]
+
+
+def test_ctrl_right_stops_at_dn_s_separators(app):
+    assert stops(app, "cd /usr/local/bin", "home", KeyEvent("right", ctrl=True)) == [4, 8, 14, 17]
+
+
+def test_dots_and_commas_end_words_too(app):
+    assert stops(app, "a.b,c", "end", KeyEvent("left", ctrl=True))[:3] == [4, 2, 0]
+
+
+def test_another_input_line_still_stops_only_at_blanks():
+    from navkit.application import Application
+    from navkit.widget import Widget
+    from navml.widgets.dialog.input_line import InputLine
+
+    root = Widget()
+    field = InputLine(parent=root)
+    app = Application(root, terminal=FakeTerminal())
+    field.focus()
+    seen = []
+    run_app(app, [lambda a: setattr(field, "value", "cd /usr/local"), lambda a: setattr(field, "cursor", 13),
+                  KeyEvent("left", ctrl=True), lambda a: seen.append(field.cursor)])
+    assert seen == [3]

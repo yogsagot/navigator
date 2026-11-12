@@ -44,8 +44,9 @@ from navml.widgets.dialog.input_line import InputLine
 #: The history list the command line keeps, in :data:`~navml.history.HISTORY`.
 HISTORY_ID = "command"
 
-#: What ends a word for ``cmInsertName``: ``CMDLINE.PAS``'s ``Separators``,
-#: less ``\\``, DOS's path separator and a POSIX shell's escape.
+#: What ends a word for ``cmInsertName`` and for Ctrl+Left/Right
+#: (``kbCtrlLeft``/``kbCtrlRight``): ``CMDLINE.PAS``'s ``Separators``, less
+#: ``\\``, DOS's path separator and a POSIX shell's escape.
 _SEPARATORS = set(":.,/[]+><|; ")
 
 #: How long after the line took a Backspace another one still counts as the
@@ -164,6 +165,10 @@ class CommandLine(InputLine):
             text = " " + text
         self.anchor = None
         self._replace_selection(text)
+
+    def _breaks_word(self, char: str) -> bool:
+        """DN's ``Separators``: Ctrl+Left/Right stop at each ``/``, ``.``, ``;``..."""
+        return char in _SEPARATORS
 
     def home(self) -> None:
         self._move(0, False)

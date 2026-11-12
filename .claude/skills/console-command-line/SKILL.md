@@ -142,7 +142,9 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   `CMDLINE.PAS:302, 389`): typing replaces the character at the caret (a paste and `insert_name` still insert), the
   mode lasting the session; the caret is a block when `overwrite` differs from *Block Insert Cursor* (`Shell.block_insert`,
   DN's `xor`). Ins is `ToggleMark(by_key=True)` in `Manager.keys`, stepping aside while the line holds text as the Gray
-  keys do -- a departure: DN's panel always took Ins, and ^V toggled; Ctrl+V is paste here.
+  keys do -- a departure: DN's panel always took Ins, and ^V toggled; Ctrl+V is paste here. **Ctrl+Left/Right stop at DN's
+  `Separators`** (`kbCtrlLeft`/`kbCtrlRight`, `CMDLINE.PAS:393-414`): `CommandLine._breaks_word` is `_SEPARATORS`
+  (`: . , / [ ] + > < | ;` and blank, less `\`, the shell's escape), over navml `InputLine`'s blank-only default.
 - **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,
