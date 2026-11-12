@@ -306,7 +306,9 @@ class Console(ScreenView):
         command line -- which is the prompt the user is looking at.
 
         The way out is not here.  Ctrl+O and quit are the application's, and
-        the application sees every key before the tree does.
+        the application sees every key before the tree does -- except while
+        a command runs, when the program gets them (``Shell.program_has_keys``
+        disables every command).
         """
         return await super().on_key(event)
 

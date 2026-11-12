@@ -105,8 +105,8 @@ choice), `O` (reveal output).
   when the command finishes (`CommandFinished`, posted from the pty reader to `Navigator.on_command_finished`) --
   not a *Find:* listing, which keeps its place as DN's find drive did, and a remote panel only when the command
   `cd`'d (`Shell._follow_shell`; `navigator-drives`).
-- While a command runs the console is up and holds the keys; afterwards the windows return and both panels re-read --
-  unless Ctrl+O had put the console up.
+- While a command runs the console is up and holds the keys; afterwards the windows return (not when Ctrl+O had put the
+  console up, which stays), and the panels re-read either way (`command_finished` always calls `_follow_shell`).
 - `Navigator.on_start` starts the shell at once on a real tty (headless, the first command does).
 - **Every child carries `NAVIGATOR=1`** (`navkit.process.MARKER`, set by `PtyProcess.environment()`), and `main()`
   refuses to start under it -- so `nav` typed inside Navigator says so and exits 1, while another terminal is
