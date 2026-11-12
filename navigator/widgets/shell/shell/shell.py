@@ -32,7 +32,9 @@ from navml.history import HISTORY
 from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
 from navigator.lib.drives import DriveGone, Location, Site, drive_of
 from navigator.lib.system import fuzzy
-from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
+from navigator.lib.system.subshell import (
+    CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen, shell_word,
+)
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import (
     Calculator,
@@ -1351,7 +1353,9 @@ class Shell(DockLayout):
         line = self.command_line
         if line.value != event.line or line.cursor != event.point:
             return
-        word = event.line[event.start : event.point]
+        # The word as the shell reads it -- escapes and quotes off -- which is
+        # what the candidates are spelled like.
+        word = shell_word(event.line, event.point)[1]
         candidates = list(dict.fromkeys(event.candidates))[:MAX_COMPLETIONS]
         if self.completion_list is not None:
             if candidates:
@@ -1443,7 +1447,7 @@ class Shell(DockLayout):
         if state is None or line.cursor < state.start or (event.char or "x").isspace():
             self._close_completions()
             return
-        word = line.value[state.start : line.cursor]
+        word = shell_word(line.value, line.cursor)[1]
         narrowed = [c for c in self._candidates if c.startswith(word)]
         self._completing = CompletionsReady(line.value, line.cursor, state.start, tuple(narrowed))
         self._show_completions(state.start, narrowed)

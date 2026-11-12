@@ -4359,8 +4359,11 @@ def completing(monkeypatch):
         candidates: list[str] = []
 
     def complete(self, line, point, cwd, callback):
+        from navigator.lib.system.subshell import shell_word
+
         asked.append((line, point, cwd))
-        word = line[Answer.start : point]
+        # The word as the shell is now asked for it: escapes and quotes off.
+        word = shell_word(line, point)[1]
         callback(Answer.start, [c for c in Answer.candidates if c.startswith(word)])
         return True
 
@@ -4462,6 +4465,20 @@ def test_typing_with_the_list_open_narrows_it_and_edits_the_line(tree, quiet_con
     ]
     assert app.shell.command_line.value == "ls alpha/"
     assert app.modal is None
+
+
+def test_an_escaped_blank_is_part_of_the_word_the_list_narrows_by(tree, quiet_console, completing):
+    # ``my\\ d`` is the word ``my d``: the list narrows by that, not by the escape.
+    completing.start, completing.candidates = 3, ["my dir/", "my docs/", "other"]
+    app = navigator(tree)
+    seen = []
+    run_app(app, [
+        *typed("ls my\\ "), KeyEvent("tab"), lambda a: seen.append(a.shell.command_line.value),
+        KeyEvent("tab"), *typed("i"),
+        lambda a: seen.append((a.shell.command_line.value, list(getattr(a.modal, "items", [])))),
+        KeyEvent("escape"),
+    ])
+    assert seen == ["ls my\\ d", ("ls my\\ di", ["my dir/"])]
 
 
 def test_a_blank_or_backspacing_past_the_word_closes_the_list(tree, quiet_console, completing):

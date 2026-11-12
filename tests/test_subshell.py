@@ -367,6 +367,26 @@ def test_a_later_word_completes_to_a_file_where_the_command_would_run(shell, tmp
     assert not any("__nav_complete" in line for line in text(screen))
 
 
+@pytest.mark.parametrize("shell", HOOKED)
+@pytest.mark.parametrize("line", ["ls my\\ dir/", "ls 'my dir/"])
+def test_a_word_with_a_blank_escaped_or_quoted_completes_whole(shell, line, tmp_path):
+    # Split at the blank, it was ``dir/`` and nothing was found.
+    (tmp_path / "my dir").mkdir()
+    (tmp_path / "my dir" / "inner.txt").write_text("")
+    (start, found), _ = run(completion(shell, line, len(line), tmp_path))
+    assert start == 3 and found == ["my dir/inner.txt"]
+
+
+@pytest.mark.parametrize("line, word", [
+    ("ls my\\ dir/", (3, "my dir/", 1)), ("ls 'my dir/", (3, "my dir/", 1)), ("ls sub", (3, "sub", 1)),
+    ("ls ", (3, "", 1)), ("ech", (0, "ech", 0)), ("", (0, "", 0)), ('cp a\\ b "c d/x', (8, "c d/x", 2)),
+])
+def test_the_word_at_the_caret_is_read_as_a_shell_reads_it(line, word):
+    from navigator.lib.system.subshell import shell_word
+
+    assert shell_word(line, len(line)) == word
+
+
 def test_a_complete_function_is_asked_for_its_command(home, tmp_path):
     if shutil.which("bash") is None:
         pytest.skip("bash is not installed")

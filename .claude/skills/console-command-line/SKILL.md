@@ -173,12 +173,15 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   on and Ctrl+F a word on, always; Ctrl+Home/End as Home/End while the line holds text (`Panel.arrows_to_line` hands
   them over). A departure: DN's ^S and ^A (a character and a word back) are Quick search and Select all here, Left
   and Ctrl+Left doing those moves.
-- **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
+- **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point> '<base64 word>' <index>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,
   specials backslashed), several that agree extend it, the rest drop a `CompletionList` (a `HistoryList`,
   `dims_behind = False`). Typing with it open goes on into the line; the list narrows and is refilled (so `/`
-  descends); a blank or Backspace past the word closes it.
+  descends); a blank or Backspace past the word closes it. **The word at the caret is read in Python** (`subshell.shell_word`): `\` escapes
+  and quotes are a shell's, so `my\ dir/` and `'my dir/` are one word; the shell gets it unquoted with its index (its
+  own blank-splitting would cut it), and the replacement starts where Navigator's reading says, the escapes counted.
+  Candidates are compared with the unquoted word.
 - **With the console up and idle it stands for the terminal** (`Shell._console_is_the_terminal`): Up/Down walk the
   shell's history (` __nav_history`, `H` mark, `fc -lnr`); where the rc binds Up or Ctrl+R to atuin (detected once by
   `__nav_keys`, `U` mark) those keys run `atuin search -i` on the console as atuin's binding does (descriptors swapped,

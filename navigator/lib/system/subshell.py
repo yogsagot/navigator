@@ -163,6 +163,12 @@ __nav_complete() {
     [[ -z $left || $left =~ [[:space:]]$ ]] && words+=("")
     local cword=$(( ${#words[@]} - 1 ))
     cur=${words[cword]}
+    if (( $# >= 4 )); then
+        # The word at the caret as Navigator read it, its escapes and quotes
+        # taken off, and where it falls: a blank in it is no word break.
+        cur=$(printf '%s' "$3" | base64 -d 2>/dev/null) cword=$4
+        words=("${words[@]:0:cword}" "$cur")
+    fi
     if (( cword == 0 )) && [[ $cur != */* ]]; then
         mapfile -t reply < <(compgen -c -- "$cur" 2>/dev/null | sort -u)
     else
@@ -209,6 +215,11 @@ __nav_complete() {
     words=(${=left})
     [[ -z $left || $left == *[[:space:]] ]] && words+=('')
     local cur=${words[-1]}
+    if (( $# >= 4 )); then
+        # The word at the caret as Navigator read it (see bash's).
+        cur=$(print -rn -- $3 | base64 -d 2>/dev/null)
+        words=(${words[1,$4]} $cur)
+    fi
     local pat=${(b)cur}
     if (( ${#words} == 1 )) && [[ $cur != */* ]]; then
         reply=(${(M)${(k)aliases}:#${~pat}*} ${(M)${(k)functions}:#${~pat}*}
@@ -558,6 +569,46 @@ def shell_argv(shell: str, directory: Path, nonce: str,
     return [shell, "-i"], {"ENV": str(rc)}
 
 
+def shell_word(line: str, point: int) -> tuple[int, str, int]:
+    """The word at *point* in *line* as a POSIX shell reads it: where it
+    starts in *line*, its text with ``\\`` escapes and quotes taken off, and
+    its index among the words before *point*.  A blank escaped or quoted is
+    part of the word (``my\\ dir/``, ``'my dir/``); an unclosed quote runs to
+    *point*, as a word being typed does.  After a blank the word is empty,
+    starting at *point*."""
+    text = line[:point]
+    count, value, start, in_word, quote = 0, [], point, False, None
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if quote is not None:
+            if char == quote:
+                quote = None
+            elif quote == '"' and char == "\\" and index + 1 < len(text) and text[index + 1] in '"\\$`':
+                index += 1
+                value.append(text[index])
+            else:
+                value.append(char)
+        elif char.isspace():
+            if in_word:
+                count, value, in_word = count + 1, [], False
+            start = index + 1
+        else:
+            if not in_word:
+                in_word, start = True, index
+            if char == "\\" and index + 1 < len(text):
+                index += 1
+                value.append(text[index])
+            elif char in "'\"":
+                quote = char
+            else:
+                value.append(char)
+        index += 1
+    if not in_word:
+        start = point
+    return start, "".join(value), count
+
+
 class Subshell:
     """The user's shell on a pty, driven by the command line.
 
@@ -804,8 +855,12 @@ class Subshell:
         if cwd is not None and cwd != self.cwd:
             self._queue.append((f" cd -- {shlex.quote(str(cwd))}", "silent"))
         encoded = base64.b64encode(line.encode()).decode("ascii")
-        self._queue.append((f" __nav_complete {encoded} {point}", "silent"))
-        self._completions.append(callback)
+        start, word, index = shell_word(line, point)
+        current = base64.b64encode(word.encode()).decode("ascii")
+        self._queue.append((f" __nav_complete {encoded} {point} '{current}' {index}", "silent"))
+        # The word starts where Navigator's reading says, its escapes counted:
+        # the shell's own count is of the word with them taken off.
+        self._completions.append(lambda _shell_start, found: callback(start, found))
         self._send_next()
         return True
 

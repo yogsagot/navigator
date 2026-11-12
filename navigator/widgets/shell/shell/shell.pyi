@@ -55,7 +55,7 @@ from navml.history import HISTORY
 from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
 from navigator.lib.drives import DriveGone, Location, Site, drive_of
 from navigator.lib.system import fuzzy
-from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
+from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen, shell_word
 from navigator.lib.system.title import window_title
 from navigator.widgets.manager.commands import Calculator, EditNamed, HideLeft, HideRight, ToggleMark
 from navigator.widgets.shell.commands import EditLinks, Game, S3Link, GvfsLink, DockerLink, PodmanLink, AdbLink, RcloneLink, DockerShell, PodmanShell, AdbShell, FtpLink, HangUp, Terminal, CloseRootAccess, ToggleRootAccess, ShowBackground, NavyLink, SmbLink, OpenCalendar, ToggleTrashCan, OpenTrash, EmptyTrash, About, ChangeColors, EditHGL, EditMacros, QuickRun, CommandLineEnd, CommandLineHome, CompleteCommandLine, ExecuteCommandLine, ExecuteCommandLineInWindow, LoadColors, SaveDesktop, StoreColors, FuzzyHistory, InsertName, InsertPath, LocalMenuFileEdit, MenuFileEdit, NewManager, OpenTreeWindow, OpenUsageWindow, OpenVolumesWindow, OpenProcessWindow, OpenServiceWindow, OpenMonitorWindow, Settings, ToggleMarkBySpace
