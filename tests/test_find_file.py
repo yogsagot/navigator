@@ -863,3 +863,31 @@ def test_alt_f7_hands_its_text_on(place, searches):
     run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*.txt", "hello"),
                   KeyEvent("enter"), Until(finding), LISTED])
     assert viewer.last_search.what == "hello" and editor_search.SEARCH.text == "hello"
+
+
+def test_a_bare_name_in_the_mask_is_a_prefix():
+    from navigator.lib.file_ops.filefind import find_mask
+
+    assert find_mask("readme") == "readme*"
+    for unchanged in ("*.py", "a.c", "read?", "[ab]x", "", "*"):
+        assert find_mask(unchanged) == unchanged
+    assert find_mask("readme;-tmp;*.c") == "readme*;-tmp*;*.c"
+    assert find_mask(" readme ; tmp") == "readme*;tmp*"
+
+
+def test_a_search_for_a_bare_name_finds_its_prefix_case_kept(tmp_path):
+    for name in ("readme.txt", "readme-dev.md", "README.TXT", "areadme"):
+        (tmp_path / name).write_text("x")
+    assert found(FindRequest(mask="readme"), tmp_path) == ["readme-dev.md", "readme.txt"]
+    assert found(FindRequest(mask="readme.txt"), tmp_path) == ["readme.txt"]
+    assert found(FindRequest(mask="*;-readme"), tmp_path) == ["README.TXT", "areadme"]
+
+
+def test_the_listing_is_titled_with_the_mask_as_typed(place):
+    app = navigator(place)
+    seen = {}
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("READ"), KeyEvent("enter"),
+                  Until(finding), LISTED,
+                  lambda a: seen.update(title=a.manager.left.title_text(), items=keys(a.manager.left))])
+    assert seen["title"] == " Find: READ "
+    assert seen["items"] == ["..", str(place / "a" / "README"), str(place / "b" / "README")]

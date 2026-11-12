@@ -5,7 +5,9 @@ What is found goes into the active panel as a *Find:* listing
 anywhere, each knowing its own directory, sorted and masked as the panel
 sorts and masks, under ``..`` that goes back to where the panel was.
 
-**What matches** (``SearchData``): a name the *file mask* lets through
+**What matches** (``SearchData``): a name the *file mask* lets through --
+a bare name, without wildcards or a dot, as its prefix (:func:`find_mask`,
+DN's ``MaskSearch``) --
 (:func:`navigator.lib.appearance.filetypes.in_filter`, so ``*.c;*.h`` and ``-`` work as in a
 panel), passing *Advanced search*'s dates, sizes and kinds if it is ticked,
 and holding the *text to find* if there is one -- a directory then never
@@ -56,7 +58,7 @@ from __future__ import annotations
 import os
 import re
 import stat
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Iterable
@@ -147,6 +149,26 @@ def text_pattern(text: str, *, case: bool, words: bool, regex: bool = False) -> 
     if words:
         body = rb"(?<![" + WORD_BYTES + rb"])" + body + rb"(?![" + WORD_BYTES + rb"])"
     return re.compile(body, (0 if case else re.IGNORECASE) | re.MULTILINE)
+
+
+def find_mask(mask: str) -> str:
+    """Find's *mask* as the panel's filter reads it: a bare item -- no
+    wildcard (``*``, ``?``, ``[``) and no dot -- is a prefix, ``readme``
+    meaning ``readme*``, in a ``;`` list and after a ``-`` too.  DN's
+    ``MaskSearch`` padded the mask to 8.3 and made the blanks ``?``, so
+    ``readme`` was ``README??.???``.
+
+    Departures: an item with a dot stays exact, as DN's single mask did --
+    its ``;`` lists made every item a prefix of the extension as well, so
+    ``a.c`` was ``a*.c*``, too surprising to copy; and case counts, as in
+    the panel's mask, so ``readme`` does not find ``README.TXT``."""
+    items = []
+    for item in filetypes.patterns(mask.replace(" ", "")):
+        sign, body = ("-", item[1:]) if item.startswith("-") else ("", item)
+        if body and not any(char in body for char in "*?[."):
+            body += "*"
+        items.append(sign + body)
+    return ";".join(items)
 
 
 def hand_on(request: FindRequest) -> None:
@@ -450,6 +472,8 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
     :func:`holds`.
     """
     pattern = request_pattern(request)
+    # Matched as the panel's mask from here on; the title keeps it as typed.
+    request = replace(request, mask=find_mask(request.mask))
     limits = request.limits if request.advanced else Advanced()
     if match is None:
         def match(place: Any, wanted: re.Pattern[bytes]) -> bool:
