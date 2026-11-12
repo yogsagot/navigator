@@ -383,7 +383,8 @@ class Shell(DockLayout):
     async def execute_os_command(self) -> None:
         """File > Execute OS command: ``ExecDOSCmd`` -- DN's ``InputBox``, opened
         on the file at the active panel's cursor if it is one to run (followed
-        by a blank, for its arguments), in the command line's history; OK runs
+        by a blank, for its arguments), in the command line's history (DN's
+        ``hsExecDOSCmd`` was apart from it: a departure); OK runs
         it as though it had been typed there.  *OS* where DN's title said *DOS*.
         *In a window* (not DN's) runs it in a window of its own instead, opened
         *Zoomed* and *Modal* as ticked."""

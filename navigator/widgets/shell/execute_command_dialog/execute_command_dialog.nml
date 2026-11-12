@@ -4,7 +4,10 @@ from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 
 #: File > Execute OS command: DOS Navigator's ``InputBox`` as ``ExecDOSCmd``
-#: opened it -- a caption over one line, in the command line's history --
+#: opened it -- a caption over one line, in the command line's history (a
+#: departure: DN kept *Execute*'s and Make list's *Action* in ``hsExecDOSCmd``,
+#: apart from the line's, and never added to Alt+F8; here one history serves
+#: all three, so a command run from here is Ctrl+E's too) --
 #: with a row of check boxes that are not DN's: *In a window* runs the command
 #: in a window of its own (``TerminalWindow``) rather than on the console,
 #: *Zoomed* and *Modal* say how that window opens, seeded from System Setup.
