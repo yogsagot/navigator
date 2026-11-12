@@ -185,6 +185,16 @@ class Surface:
         """Fill a rectangle with *char*."""
         raise NotImplementedError
 
+    def touches(self, x: int, y: int, width: int, height: int) -> bool:
+        """Whether painting the rectangle could change anything: False only
+        through a :class:`Clip` it lies wholly outside, which is how a frame
+        repainting a few cells skips the widgets elsewhere."""
+        return True
+
+    def origin(self) -> tuple[int, int]:
+        """Where this surface's ``0, 0`` is on the screen."""
+        return (0, 0)
+
     def view(
         self, x: int, y: int, width: int, height: int, rtl: bool | None = None
     ) -> Surface:
@@ -412,6 +422,13 @@ class _View(Surface):
         self.width = max(0, width)
         self.height = max(0, height)
 
+    def touches(self, x: int, y: int, width: int, height: int) -> bool:
+        return self._target.touches(self._x + x, self._y + y, width, height)
+
+    def origin(self) -> tuple[int, int]:
+        x, y = self._target.origin()
+        return (x + self._x, y + self._y)
+
     def get(self, x: int, y: int) -> Cell:
         if not (0 <= x < self.width and 0 <= y < self.height):
             return (" ", DEFAULT_STYLE)
@@ -476,6 +493,81 @@ class _View(Surface):
             right - left,
             bottom - top,
         )
+
+
+class Clip(Surface):
+    """*target* as it is, with painting kept inside one rectangle of it.
+
+    What a frame that repaints a few cells paints through: it starts from the
+    last frame's cells, and painting the whole tree through this changes only
+    the rectangle -- while :meth:`touches` lets every widget wholly outside it
+    be skipped, children and all.  Reading is not clipped: what lies outside
+    is the last frame, still true.
+
+    Where clipping could make a cell differ from painting the whole frame --
+    a double-width character, or a copy, cut by the rectangle's edge, or a
+    picture placed -- it paints nothing more and sets :attr:`spoiled`, and
+    the frame is painted whole after all.
+    """
+
+    __slots__ = ("_target", "_left", "_top", "_right", "_bottom", "width", "height", "rtl", "spoiled")
+
+    def __init__(self, target: Surface, x: int, y: int, width: int, height: int):
+        self._target = target
+        self._left, self._top = x, y
+        self._right, self._bottom = x + width, y + height
+        self.width, self.height, self.rtl = target.width, target.height, target.rtl
+        #: Clipping would have made a difference: paint the frame whole.
+        self.spoiled = False
+
+    def touches(self, x: int, y: int, width: int, height: int) -> bool:
+        return (x < self._right and x + width > self._left
+                and y < self._bottom and y + height > self._top)
+
+    def get(self, x: int, y: int) -> Cell:
+        return self._target.get(x, y)
+
+    def set_cell(self, x: int, y: int, char: str, style: Style = DEFAULT_STYLE) -> int:
+        if not (self._left <= x < self._right and self._top <= y < self._bottom):
+            return max(1, char_width(char))
+        if x + 1 == self._right and not (" " <= char < "\x7f") and char_width(char) == 2:
+            self.spoiled = True  # its trailing half is outside
+            return 2
+        return self._target.set_cell(x, y, char, style)
+
+    def fill(
+        self, x: int, y: int, width: int, height: int, char: str = " ", style: Style = DEFAULT_STYLE,
+    ) -> None:
+        left, top = max(x, self._left), max(y, self._top)
+        right, bottom = min(x + width, self._right), min(y + height, self._bottom)
+        if right > left and bottom > top:
+            self._target.fill(left, top, right - left, bottom - top, char, style)
+
+    def blit(
+        self,
+        source: Surface,
+        x: int = 0,
+        y: int = 0,
+        src_x: int = 0,
+        src_y: int = 0,
+        width: int | None = None,
+        height: int | None = None,
+    ) -> None:
+        span = (source.width - src_x) if width is None else width
+        rows = (source.height - src_y) if height is None else height
+        left, top = max(x, self._left), max(y, self._top)
+        right, bottom = min(x + span, self._right), min(y + rows, self._bottom)
+        if right <= left or bottom <= top:
+            return
+        if left != x or right != x + span:
+            # A cut copy blanks a wide character at its edge, which the whole
+            # frame would not have.
+            self.spoiled = True
+            return
+        self._target.blit(source, left, top, src_x, src_y + top - y, right - left, bottom - top)
+
+    def _register(self, picture: Picture, x: int, y: int) -> None:
+        self.spoiled = True
 
 
 class ScreenBuffer(Surface):

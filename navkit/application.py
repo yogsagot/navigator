@@ -56,7 +56,7 @@ from navkit.glyphs import DEFAULT_MARKS
 from navkit.reactive import SCHEDULER, flush_effects, reactive
 from navkit.capabilities import BIDI_WORDS
 from navkit.graphics import GraphicsLayer
-from navkit.screen import ScreenBuffer, Surface, for_words, render_diff
+from navkit.screen import Clip, ScreenBuffer, Surface, for_words, render_diff
 from navkit.style import DEFAULT_STYLE, Style
 from navkit.stylesheet import Stylesheet
 from navkit.tooltip import ShowTooltip, Tooltip
@@ -505,6 +505,11 @@ class Application:
         #: Whether anything outside the top modal may have changed since the
         #: last frame, which is what :attr:`_underlay` cannot be used across.
         self._below_dirty = True
+        #: What the next frame has to repaint: the widgets that asked, when
+        #: every one of them ``paints_alone`` (:meth:`_render` then repaints
+        #: only their cells), or None for the whole frame -- anything else
+        #: asking, input, a modal coming or going, a resize.
+        self._damage: set[Widget] | None = None
         #: Set while :meth:`_render` paints the whole tree, which is the only
         #: time :meth:`_painting_modal` may take an underlay.
         self._composing = False
@@ -1164,6 +1169,7 @@ class Application:
     def _push_modal(self, widget: Widget) -> None:
         """Called by the mount walk.  Remembers what had the focus."""
         self._below_dirty = True
+        self._damage = None
         # Something else is under the pointer now, so a press before this and
         # one after it are not two clicks on one thing.
         self._clicks.reset()
@@ -1180,6 +1186,7 @@ class Application:
         """
         self._clicks.reset()  # as `_push_modal': the cell changed meaning
         self._below_dirty = True
+        self._damage = None
         for index, (held, restore) in enumerate(self._modals):
             if held is not widget:
                 continue
@@ -1285,6 +1292,11 @@ class Application:
             widget is None or (modal := self.modal) is None or not modal._holds(widget)
         ):
             self._below_dirty = True
+        if widget is not None and widget.paints_alone:
+            if self._damage is not None:
+                self._damage.add(widget)
+        else:
+            self._damage = None
         if not self._dirty:
             self._dirty = True
             self._wake()
@@ -1411,7 +1423,7 @@ class Application:
                 self._render_above(modal)
             finally:
                 self._reusing = False
-        else:
+        elif not self._render_damage(modal, rtl):
             self._underlay = None
             self._back.clear(self.background)
             if self._root is not None:
@@ -1421,6 +1433,7 @@ class Application:
                 finally:
                     self._composing = False
         self._below_dirty = False
+        self._damage = set()
 
         shown = self._back.mirrored() if rtl else self._back
         if self.terminal.info.bidi == BIDI_WORDS:
@@ -1456,6 +1469,70 @@ class Application:
         self._front.copy_from(shown)
         self._dirty = False
         self._last_frame = self._loop.time() if self._loop is not None else 0.0
+
+    def _render_damage(self, modal: Widget | None, rtl: bool) -> bool:
+        """Repaint only what the widgets that asked for this frame cover,
+        over the last frame still in :attr:`_back`; False when the whole
+        frame has to be painted instead.
+
+        Every widget that asked ``paints_alone``, so what changed is inside
+        their rectangles -- where they are now and where they were last
+        painted.  The tree is painted as always, through a :class:`Clip` of
+        the rectangles' bounds: a widget wholly outside is skipped with its
+        children, and one inside, or partly, paints in its usual order, so
+        what lies over the clock -- a tooltip, an open menu -- is painted over
+        it again.  Not under a modal (whose dimming is applied to everything
+        painted before it), on a mirrored screen, with a picture shown, or
+        when clipping would have changed a cell (:attr:`Clip.spoiled`).
+        """
+        damage = self._damage
+        root = self._root
+        if (
+            not damage or modal is not None or rtl or root is None
+            or self._front is None or self._back.placements
+            or (self._front.width, self._front.height) != (self._back.width, self._back.height)
+        ):
+            return False
+        rects = []
+        for widget in damage:
+            painted = widget.__dict__.get("_painted_at")
+            if painted is not None:
+                rects.append(painted)
+            place = self._place_of(widget)
+            if place is not None:
+                rects.append(place)
+        if not rects:
+            return False
+        left = min(x for x, _, _, _ in rects)
+        top = min(y for _, y, _, _ in rects)
+        right = max(x + width for x, _, width, _ in rects)
+        bottom = max(y + height for _, y, _, height in rects)
+        clip = Clip(self._back, left, top, right - left, bottom - top)
+        # What the clip lets through is painted from scratch, as the whole
+        # frame would be: the background first.
+        clip.fill(left, top, right - left, bottom - top, " ", self.background)
+        self._composing = True
+        try:
+            root.render_tree(clip)
+        finally:
+            self._composing = False
+        if clip.spoiled:
+            return False
+        return True
+
+    def _place_of(self, widget: Widget) -> tuple[int, int, int, int] | None:
+        """*widget*'s rectangle on the screen, or None when it is not shown --
+        detached, or itself or an ancestor hidden."""
+        x, y = 0, 0
+        node: Widget | None = widget
+        while node is not None:
+            if not node.visible:
+                return None
+            x, y = x + node.x, y + node.y
+            if node is self._root:
+                return (x, y, widget.width, widget.height)
+            node = node.parent
+        return None
 
     def _painting_modal(self, widget: Widget) -> None:
         """*widget*, a modal, is about to paint: dim what is already painted.
@@ -1620,6 +1697,7 @@ class Application:
         self._asked_size = (width, height)
         self._clicks.reset()  # the layout moved out from under the pointer
         self._below_dirty = True
+        self._damage = None
         self._back.resize(width, height, self.background)
         self._front = None  # sizes differ -- force a full repaint
         if self._root is not None:
@@ -1695,6 +1773,7 @@ class Application:
             # a command enabled by a field.  Only a timer's tick is trusted to
             # say through invalidate() what it changed.
             self._below_dirty = True
+            self._damage = None
         if not isinstance(event, _Tick | ModifiersEvent) and not (
             isinstance(event, MouseClickEvent) and _is_plain_motion(event)
         ):

@@ -136,6 +136,21 @@ description: navkit's widget tree and input routing (navkit/widget.py, applicati
   reading a field); a tick says through `invalidate` what it changed. What it buys: a progress box over the desktop
   costs its own subtree per tick, not the whole tree. A widget beneath a modal that changes **plain** state on a tick
   must call `invalidate()` itself -- nothing else repaints it now.
+- **A frame only `paints_alone` widgets asked for repaints only their cells** (`Application._render_damage`).
+  - **Opting in:** a widget class sets `paints_alone = True` to promise that a change to its own reactive state
+    changes only its own cells: nothing else reads that state and it paints nothing outside itself. The clock does.
+  - **Tracking:** `Application._damage` holds the widgets that asked. It becomes None (paint the whole frame) on the
+    same triggers as `_below_dirty`, and whenever any other widget, or no widget, invalidates.
+  - **Painting:** the tree is painted as always, through a `screen.Clip` covering the bounds of each damaged widget's
+    rectangle now and where it was last painted (`_painted_at`, recorded in `render_tree`). `Surface.touches` lets
+    `render_tree` skip widgets wholly outside the clip; one overlapping it paints in its usual order, so a tooltip or
+    menu over the clock stays on top.
+  - **Falls back to a full repaint:** under a modal (the dim would be applied twice), on a mirrored screen, with a
+    picture shown, or when `Clip.spoiled` is set (a wide character or a copy cut by the clip's edge, or a picture
+    placed).
+  - **What it buys:** the clock's colon costs ~2 ms twice a second instead of ~26 ms.
+  - **The cost of opting in:** a widget that shows something time-based and relied on the clock's whole-frame
+    repaints to refresh would now freeze. It needs a timer of its own (none did when this was added).
 - **Raising is a reorder**: `raise_child`/`lower_child`, never re-`add()` (that unmounts). `Widget.shadow` is painted by
   `render_tree` into the parent's surface.
 - `Widget.cursor_position()` says where the terminal cursor belongs; the application asks **the whole focus path,

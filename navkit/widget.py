@@ -140,6 +140,13 @@ class Widget:
     #: that is mirrored with everything else.  Its descendants keep its
     #: direction.
     mirrors = True
+    #: Whether a change to this widget's own reactive attributes changes
+    #: nothing but its own cells -- no other widget reads them, and it paints
+    #: nothing outside itself.  Then a frame that only it asked for repaints
+    #: just its rectangle (``Application._render``): a clock's blinking colon
+    #: is otherwise the whole tree, twice a second, for one cell.  Its
+    #: geometry may still change; where it was last painted is kept too.
+    paints_alone = False
     #: Whether this widget casts Turbo Vision's drop shadow (``sfShadow``):
     #: two columns down its right and one row along its bottom, offset one row
     #: and two columns, painted over whatever is already there in the
@@ -697,6 +704,9 @@ class Widget:
         """
         if not self.visible:
             return
+        shadow = 2 if self.shadow else 0
+        if not surface.touches(self.x, self.y, self.width + shadow, self.height + shadow // 2):
+            return  # wholly outside what this frame repaints
         # Kept left to right inside a mirrored screen: painted as it would be
         # anywhere else, then reversed in place, so that the screen's mirror
         # puts it back the way it was painted.
@@ -704,6 +714,10 @@ class Widget:
         own = surface.view(
             self.x, self.y, self.width, self.height, False if unmirrored else None
         )
+        if self.paints_alone:
+            # Where it lies on the screen, for a frame that repaints it alone
+            # after it has moved: the old cells are repainted too.
+            self._painted_at = (*own.origin(), self.width, self.height)
         if self.modal and (app := self.application) is not None:
             app._painting_modal(self)
         if self.shadow:

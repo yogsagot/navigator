@@ -36,6 +36,9 @@ class Clock(Widget):
     #: the colon blinked away, hours and minutes are two numbers, which a
     #: right-to-left line puts in the other order every other second.
     mirrors = False
+    #: Its blink is read by nothing else, and it paints only its own five or
+    #: seven cells: the colon's frame repaints those, not the desktop.
+    paints_alone = True
 
     def text(self) -> str:
         """What the clock shows this second."""

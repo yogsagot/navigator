@@ -1011,3 +1011,133 @@ def test_hovered_is_a_stylesheet_state_and_repaints(terminal):
     assert right.style.bg is None
     # The frame after the motion carries the colour: no second event needed.
     assert "41m" in terminal.frames[-1]
+
+
+# -- a frame that repaints only what asked for it --------------------------------------
+
+
+class _Digit(Widget):
+    """A widget that changes nothing but its own cells: a clock's colon."""
+
+    paints_alone = True
+    n = reactive(0)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.renders = 0
+
+    def render(self, surface):
+        self.renders += 1
+        surface.fill(0, 0, self.width, self.height, str(self.n % 10))
+
+
+def _alone_scene(terminal):
+    root = RecordingWidget(fill=".")
+    digit = root.add(_Digit())
+    digit.pin_rect(2, 1, 3, 1)
+    # Over the digit's middle cell, painted after it: still on top afterwards.
+    cover = root.add(RecordingWidget(fill="#"))
+    cover.pin_rect(3, 1, 1, 1)
+    far = root.add(RecordingWidget(fill="f"))
+    far.pin_rect(20, 6, 4, 2)
+    return Application(root, terminal=terminal), root, digit, far
+
+
+def _row(app, y):
+    return "".join(app._back.get(x, y)[0] for x in range(app._back.width))
+
+
+def _whole(app):
+    """The frame as painting every widget would make it."""
+    from navkit.screen import ScreenBuffer
+
+    whole = ScreenBuffer(app._back.width, app._back.height, app.background)
+    app.root.render_tree(whole)
+    return [[whole.get(x, y) for x in range(whole.width)] for y in range(whole.height)]
+
+
+def _cells(app):
+    back = app._back
+    return [[back.get(x, y) for x in range(back.width)] for y in range(back.height)]
+
+
+def test_a_widget_that_paints_alone_repaints_only_its_cells(terminal):
+    app, root, digit, far = _alone_scene(terminal)
+    seen = {}
+
+    def tick(a):
+        seen["far"], seen["frames"] = far.renders, len(terminal.frames)
+        digit.n = 7
+
+    def look(a):
+        seen["after"], seen["row"] = far.renders, _row(a, 1)
+        seen["same"] = _cells(a) == _whole(a)
+
+    run_app(app, [tick, look])
+    assert seen["after"] == seen["far"]  # elsewhere: not painted again
+    assert seen["same"]  # and the frame is what painting everything makes
+    assert seen["row"][2:5] == "7#7"  # the cover stays on top
+    assert len(terminal.frames) == seen["frames"] + 1
+    assert "\x1b[2J" not in terminal.frames[-1] and len(terminal.frames[-1]) < 40
+
+
+def test_a_widget_that_moved_repaints_where_it_was(terminal):
+    app, root, digit, far = _alone_scene(terminal)
+    seen = {}
+
+    def move(a):
+        seen["far"] = far.renders
+        digit.pin_rect(10, 1, 3, 1)  # its own geometry: still a frame of its own
+
+    def look(a):
+        seen["after"], seen["row"] = far.renders, _row(a, 1)
+        seen["same"] = _cells(a) == _whole(a)
+
+    run_app(app, [move, look])
+    assert seen["after"] == seen["far"]
+    assert seen["same"]
+    assert seen["row"][2] == "." and seen["row"][10:13] == "000"  # the old cells cleared
+
+
+def test_anything_else_asking_paints_the_whole_frame(terminal):
+    app, root, digit, far = _alone_scene(terminal)
+    seen = {}
+
+    def both(a):
+        seen["far"] = far.renders
+        digit.n = 3
+        far.invalidate()  # not paints_alone
+
+    run_app(app, [both, lambda a: seen.setdefault("after", far.renders)])
+    assert seen["after"] == seen["far"] + 1
+
+
+def test_a_cut_wide_character_paints_the_whole_frame(terminal):
+    """A double-width character at the rectangle's edge: the frame still
+    comes out as painting everything makes it."""
+
+    class Wide(Widget):
+        paints_alone = True
+        n = reactive(0)
+
+        def render(self, surface):
+            surface.draw_text(0, 0, "x" * self.n, None)
+
+    class Spill(RecordingWidget):
+        def render(self, surface):
+            super().render(surface)
+            # Straddles the right edge of the Wide widget's rectangle.
+            surface.set_cell(3, 1, "漢")
+
+    root = Spill(fill=".")
+    wide = root.add(Wide())
+    wide.pin_rect(2, 1, 2, 1)
+    app = Application(root, terminal=terminal)
+    seen = {}
+
+    def tick(a):
+        seen["renders"] = root.renders
+        wide.n = 1
+
+    run_app(app, [tick, lambda a: seen.setdefault("same", _cells(a) == _whole(a))])
+    assert seen["same"]
