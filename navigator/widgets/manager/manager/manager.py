@@ -1668,7 +1668,7 @@ class Manager(Window):
         """Alt+F7: ``FindFile``, what *Find File* asks for found into *panel*.
 
         The search runs on a thread (:func:`navigator.lib.file_ops.filefind.search`) under
-        *Search* -- the directory it is in and the count -- whose Cancel asks
+        *Search* -- the directory it is in and the count -- whose *Stop* asks
         DN's *Cancel search?*.  The panel becomes a *Find:* listing with the
         first file found and fills as the rest are (``cmInsertFile``); nothing
         found leaves it as it was and says *No files found*.

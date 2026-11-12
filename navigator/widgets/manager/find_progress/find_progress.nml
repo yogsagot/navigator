@@ -3,8 +3,8 @@ from navml.widgets.dialog.static_text import StaticText
 
 #: A search under way: the ``TWhileView`` ``FindFile`` put on the desktop,
 #: titled ``dlDBViewSearch`` -- the directory being looked in, and how many
-#: have been found (``dlFilesFound``).  Its *Cancel* asks *Cancel search?*
-#: before anything stops, as ``dlQueryCancelSearch`` did.
+#: have been found (``dlFilesFound``).  Its *Stop* (DN's ``dlStop``) asks
+#: *Cancel search?* before anything stops, as ``dlQueryCancelSearch`` did.
 FindProgress(Dialog):
     modal_width: 56
     modal_height: 8

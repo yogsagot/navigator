@@ -788,3 +788,34 @@ def test_advanced_cancelled_keeps_nothing(place):
     run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*.bin"),
                   *_advanced(None), KeyEvent("escape"), IDLE, *_reopened(seen)])
     assert seen == {"mask": "*", "options": 4, "greater": ""}
+
+
+def test_the_search_box_s_stop_asks_and_keeps_what_was_found(place, monkeypatch):
+    # DN's ``TWhileView``: ``~S~top``, then ``dlQueryCancelSearch``.
+    import threading
+    import time
+
+    from navigator.lib.file_ops import filefind
+    from navigator.widgets.manager.find_progress import FindProgress
+
+    def slow_search(request, start, make_entry, job, **kwargs):
+        with os.scandir(start) as scan:
+            first = next(item for item in scan if item.name == "top.txt")
+        job.found.append(make_entry(start, first, first.stat()))
+        deadline = time.monotonic() + 10
+        while not job.stopped and time.monotonic() < deadline:
+            threading.Event().wait(0.01)
+        return job.found
+
+    monkeypatch.setattr(filefind, "search", slow_search)
+    app = navigator(place)
+    seen = {}
+    box = Until(lambda a: isinstance(a.modal, FindProgress), timeout=8)
+    asked = Until(lambda a: a.modal is not None and "Cancel search?" in str(getattr(a.modal, "prompt", "")),
+                  timeout=8)
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*"), KeyEvent("enter"),
+                  box, lambda a: seen.update(button=a.modal.ok.text), KeyEvent("enter"), asked,
+                  KeyEvent("enter"), Until(finding, timeout=8), LISTED,
+                  lambda a: seen.update(items=keys(a.manager.left))], timeout=20)
+    assert seen["button"] == "~S~top"
+    assert seen["items"] == ["..", str(place / "top.txt")]

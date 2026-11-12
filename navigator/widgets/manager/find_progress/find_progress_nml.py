@@ -29,8 +29,8 @@ class FindProgress(Dialog, _Component):
     """A search under way: the ``TWhileView`` ``FindFile`` put on the desktop,
 
     titled ``dlDBViewSearch`` -- the directory being looked in, and how many
-    have been found (``dlFilesFound``).  Its *Cancel* asks *Cancel search?*
-    before anything stops, as ``dlQueryCancelSearch`` did.
+    have been found (``dlFilesFound``).  Its *Stop* (DN's ``dlStop``) asks
+    *Cancel search?* before anything stops, as ``dlQueryCancelSearch`` did.
     """
 
     #: The document this class was generated from.

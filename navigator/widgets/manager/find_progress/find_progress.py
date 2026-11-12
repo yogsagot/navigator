@@ -15,7 +15,9 @@ class FindProgress(Dialog):
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.ok.text = tr("Cancel")
+        # DN's ``dlStop`` (``TWhileView.InsBut``): the dialog's own button,
+        # renamed -- over a yielding binding, so no unbind is needed.
+        self.ok.text = tr("~S~top")
 
     def fit(self, path: str) -> str:
         """*path*, its start cut to ``…`` (``...`` in ASCII) if the line is too
