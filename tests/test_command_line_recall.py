@@ -93,3 +93,22 @@ def test_after_drop_ctrl_x_goes_on_to_the_newer_and_then_the_draft(app):
 def test_a_draft_typed_before_drop_comes_back(app):
     seen = walk(app, [typed("ech"), dropped(1), X, X])
     assert [v for v, _ in seen] == ["ech", "pwd", "make", "ech"]
+
+
+def test_shift_up_recalls_onto_an_auto_hidden_empty_line_and_shows_it(app):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.interface.auto_hide_command_line = True
+    seen = {}
+    run_app(app, [lambda a: seen.update(before=a.shell.command_line.visible), KeyEvent("up", shift=True),
+                  lambda a: seen.update(value=a.shell.command_line.value, after=a.shell.command_line.visible)])
+    assert seen == {"before": False, "value": "make", "after": True}
+
+
+def test_shift_up_puts_nothing_on_a_hidden_line(app):
+    from navigator.settings import SETTINGS
+
+    SETTINGS.interface.hide_command_line = True
+    seen = {}
+    run_app(app, [KeyEvent("up", shift=True), lambda a: seen.update(value=a.shell.command_line.value)])
+    assert seen["value"] == ""

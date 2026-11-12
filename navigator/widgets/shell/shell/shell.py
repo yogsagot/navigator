@@ -2187,14 +2187,15 @@ class Shell(DockLayout):
     async def on_previous_command(self, event: Any) -> bool:
         """Shift+Up from the panels: the command history, as the line's own
         Ctrl+E -- DN's Shift test handing ``kbUp`` to the line.  A hidden line
-        takes nothing."""
-        if self.command_line.visible:
+        takes nothing (``ouiHideCmdline``); an auto-hidden empty one shows with
+        the command recalled, as typing would show it."""
+        if not SETTINGS.interface.hide_command_line:
             self.command_line.recall(+1)
         return True
 
     async def on_next_command(self, event: Any) -> bool:
         """Shift+Down from the panels: as :meth:`on_previous_command`, Ctrl+X's way."""
-        if self.command_line.visible:
+        if not SETTINGS.interface.hide_command_line:
             self.command_line.recall(-1)
         return True
 
