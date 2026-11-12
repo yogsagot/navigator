@@ -50,7 +50,12 @@ letter, and decoding would cost Replace in files its byte-exact rewrite);
 *Advanced search*'s dates are ``YYYY-MM-DD [HH:MM]`` rather than the
 country's format, and its kinds are POSIX's -- executable, symbolic
 link, hidden (a dot-file), read-only, and a link pointing nowhere -- where
-DN's were the DOS attributes; names are matched case and all, as everywhere in a panel.
+DN's were the DOS attributes; names are matched case and all, as everywhere in a panel;
+with hidden files not shown, a hidden directory is not searched, where
+DN's *Security* only kept hidden entries out of the results -- on POSIX a
+dot-directory hides what it holds (``~/.cache``, ``.git``), as ``fd`` and
+``rg`` read it -- though the *hidden* kind still finds the dot-files in
+the directories walked (:func:`_hidden_skipped`).
 """
 
 from __future__ import annotations
@@ -475,6 +480,7 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
     # Matched as the panel's mask from here on; the title keeps it as typed.
     request = replace(request, mask=find_mask(request.mask))
     limits = request.limits if request.advanced else Advanced()
+    wants_hidden = "hidden" in limits.kinds
     if match is None:
         def match(place: Any, wanted: re.Pattern[bytes]) -> bool:
             if isinstance(place, str):
@@ -514,7 +520,8 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                 for item in _listed(scan):
                     if job.stopped:
                         return job.found
-                    if not show_hidden and item.name.startswith("."):
+                    if _hidden_skipped(item.name, lambda: item.is_dir(follow_symlinks=False),
+                                       show_hidden, wants_hidden):
                         continue
                     try:
                         is_link = item.is_symlink()
@@ -548,6 +555,21 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
     return job.found
 
 
+def _hidden_skipped(name: str, is_dir: Callable[[], bool], show_hidden: bool, wants_hidden: bool) -> bool:
+    """Whether a dot-entry is passed over with hidden files not shown: a
+    directory always, so what it holds stays hidden; a file unless the
+    *hidden* kind is asked for, which would otherwise find nothing.  An
+    entry whose kind cannot be told is passed over."""
+    if show_hidden or not name.startswith("."):
+        return False
+    if not wants_hidden:
+        return True
+    try:
+        return is_dir()
+    except OSError:
+        return True
+
+
 def _listed(scan: Iterable[os.DirEntry[str]]) -> Iterable[os.DirEntry[str]]:
     """*scan*'s entries, ending quietly when reading the directory fails
     halfway (``EIO``, a stale NFS handle, a FUSE daemon gone): DN's
@@ -579,6 +601,7 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
     from navigator.lib.drives import Location, drive_of
     from navigator.lib.drives.listing import DirEntry
 
+    wants_hidden = "hidden" in limits.kinds
     if request.scope != "directory":
         start = Location(start.site, PurePosixPath("/"), start.outer)
     pending = [start]
@@ -596,7 +619,8 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
         for name, info in children:
             if job.stopped:
                 return job.found
-            if isinstance(info, OSError) or (not show_hidden and name.startswith(".")):
+            if isinstance(info, OSError) or _hidden_skipped(
+                    name, lambda: stat.S_ISDIR(info.st_mode), show_hidden, wants_hidden):
                 continue
             is_link = stat.S_ISLNK(info.st_mode)
             is_dir = stat.S_ISDIR(info.st_mode)

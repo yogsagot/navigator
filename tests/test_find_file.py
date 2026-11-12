@@ -891,3 +891,39 @@ def test_the_listing_is_titled_with_the_mask_as_typed(place):
                   lambda a: seen.update(title=a.manager.left.title_text(), items=keys(a.manager.left))])
     assert seen["title"] == " Find: READ "
     assert seen["items"] == ["..", str(place / "a" / "README"), str(place / "b" / "README")]
+
+
+def test_a_hidden_directory_is_not_searched_with_hidden_files_not_shown(tree):
+    (tree / ".cfg").mkdir()
+    (tree / ".cfg" / "inside.txt").write_text("x")
+    shown = found(FindRequest(mask="*.txt"), tree, show_hidden=True)
+    assert ".hidden.txt" in shown and ".cfg/inside.txt" in shown
+    hidden = found(FindRequest(mask="*.txt"), tree, show_hidden=False)
+    assert ".hidden.txt" not in hidden and ".cfg/inside.txt" not in hidden
+
+
+def test_the_hidden_kind_finds_dot_files_though_they_are_not_shown(tree):
+    (tree / ".cfg").mkdir()
+    (tree / ".cfg" / "inside.txt").write_text("x")
+    request = FindRequest(mask="*", advanced=True, limits=Advanced(kinds=frozenset({"hidden"})))
+    assert found(request, tree, show_hidden=False) == [".hidden.txt"]
+
+
+def test_the_hidden_rule_on_another_drive():
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    drive = mount(MemoryDrive("dots"))
+    try:
+        drive.make("/d/.hidden.txt", "x")
+        drive.make("/d/.cfg/inside.txt", "x")
+        drive.make("/d/plain.txt", "x")
+        job = FindJob()
+        search(FindRequest(mask="*.txt"), drive.location("/d"), None, job, show_hidden=False)
+        assert [e.name for e in job.found] == ["plain.txt"]
+        job = FindJob()
+        search(FindRequest(mask="*", advanced=True, limits=Advanced(kinds=frozenset({"hidden"}))),
+               drive.location("/d"), None, job, show_hidden=False)
+        assert [e.name for e in job.found] == [".hidden.txt"]
+    finally:
+        unmount(drive.site)
