@@ -188,8 +188,8 @@ def _window(window: Any) -> dict[str, Any] | None:
             active="right" if window.active_panel is window.right else "left",
             hidden=window.hidden_side,
             split=window.split,
-            view={window.tree: "tree", window.quick: "quick", window.info: "info"}.get(replacement)
-            if replacement is not None else None,
+            view=None if replacement is None else "quick" if window.is_quick(replacement)
+            else {window.tree: "tree", window.info: "info"}.get(replacement),
             miller=_miller(window),
             **_manager_extras(window),
         )
@@ -346,7 +346,9 @@ def _manager(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | None)
     desktop.open(manager)
     active = manager.right if kept.get("active") == "right" else manager.left
     active.focus()
-    view = {"tree": manager.tree, "quick": manager.quick, "info": manager.info}.get(kept.get("view"))
+    # By name, so a quick view is made only when one was saved.
+    view = {"tree": lambda: manager.tree, "quick": lambda: manager.quick,
+            "info": lambda: manager.info}.get(kept.get("view"), lambda: None)()
     if view is not None:
         manager.switch_view(view)
     if kept.get("hidden") in ("left", "right"):

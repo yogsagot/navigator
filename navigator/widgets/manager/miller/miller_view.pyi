@@ -4,7 +4,6 @@
 from typing import Any as _Any
 
 from navml.component import Component as _Component
-from navigator.widgets.viewer.quick_viewer import QuickViewer
 
 from pathlib import Path
 from typing import Any
@@ -23,11 +22,12 @@ class MillerColumn(Panel): ...
 
 
 class MillerView(_Component):
-    preview_file: QuickViewer
     chain: tuple[MillerColumn, ...]
     preview: str
     def __init__(self, **kwargs: Any) -> None: ...
     def mounted(self) -> None: ...
+    preview_file: Any
+    def file_preview_focused(self) -> bool: ...
     def columns(self) -> list[MillerColumn]: ...
     current: MillerColumn | None
     def open_at(self, location: Location, cursor: str | None = ..., like: Panel | None = ...) -> None: ...

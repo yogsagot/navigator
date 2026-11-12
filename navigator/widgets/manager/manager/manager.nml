@@ -10,7 +10,6 @@ from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
-from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.info_panel import InfoPanel
 from navigator.widgets.manager.miller import MillerView
 from navigator.widgets.manager.panel import Panel
@@ -154,11 +153,8 @@ Manager(Window):
             id: tree
             type_to_search: False
 
-        #: The quick view Ctrl+Q puts there instead, placed the same way.
-        #: Its title keeps clear of the window icons, as a panel's does.
-        QuickViewer:
-            id: quick
-            title_margin: 5
+        #: The quick view Ctrl+Q puts there instead is not here: made the
+        #: first time it is wanted and added last, hidden (``Manager.quick``).
 
         #: The information panel Ctrl+L puts there instead (DN's ``TDiskInfo``).
         InfoPanel:

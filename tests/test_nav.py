@@ -1796,13 +1796,8 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.tree",
         "navigator.widgets.tree.directory_tree",   # Ctrl+T, placed by the manager",
         "navigator.widgets.tree.directory_tree.directory_tree",
-        "navigator.widgets.viewer",
-        "navigator.widgets.viewer.commands",   # what its context menu offers
-        "navigator.widgets.viewer.file_viewer",
-        "navigator.widgets.viewer.file_viewer.file_viewer",
-        "navigator.widgets.viewer.quick_viewer",
-        "navigator.widgets.viewer.quick_viewer.quick_viewer",
-        "navigator.widgets.viewer.quick_viewer.quick_viewer_nml",
+        # No viewer: Ctrl+Q's quick view and Miller columns' file preview are
+        # made the first time each is wanted (``Manager.quick``).
     ]
 
 

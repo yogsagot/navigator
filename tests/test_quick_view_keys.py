@@ -287,3 +287,31 @@ def test_a_window_moved_in_between_grows_where_it_is(files):
     x, y, width, height, zoomed = seen["after"]
     assert (y, height, zoomed) == (2, 15, False)
     assert x + width == 45 and width > 40
+
+
+def test_no_quick_view_is_made_or_imported_until_one_is_wanted():
+    """Ctrl+Q's viewer and Miller columns' file preview are made the first
+    time each is wanted, so a start loads no viewer code: a guard against an
+    import that brings it back.  A fresh interpreter, since this one has
+    imported everything."""
+    import json
+    import os
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    script = (
+        "import json, sys; from pathlib import Path\n"
+        "from conftest import FakeTerminal\n"
+        "from navigator.__main__ import Navigator\n"
+        "app = Navigator(Path.cwd(), Path.cwd(), terminal=FakeTerminal(80, 24))\n"
+        "before = 'navigator.widgets.viewer.quick_viewer' in sys.modules\n"
+        "made = app.manager._quick is not None or app.manager.miller._preview_file is not None\n"
+        "quick = app.manager.quick\n"
+        "print(json.dumps([before, made, quick.parent is app.manager.panels, quick.visible,\n"
+        "                  app.manager.quick is quick]))\n"
+    )
+    tests = Path(__file__).parent
+    run = subprocess.run([sys.executable, "-c", script], capture_output=True, text=True, check=True,
+                         cwd=tests.parent, env={**os.environ, "PYTHONPATH": f"{tests}:."})
+    assert json.loads(run.stdout.strip().splitlines()[-1]) == [False, False, True, False, True]

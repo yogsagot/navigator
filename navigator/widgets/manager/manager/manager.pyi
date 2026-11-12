@@ -18,7 +18,6 @@ from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
-from navigator.widgets.viewer.quick_viewer import QuickViewer
 from navigator.widgets.manager.info_panel import InfoPanel
 from navigator.widgets.manager.miller import MillerView
 from navigator.widgets.manager.panel import Panel
@@ -68,7 +67,6 @@ class Manager(Window, _Component):
     left: Panel
     right: Panel
     tree: DirectoryTree
-    quick: QuickViewer
     info: InfoPanel
     miller: MillerView
     panel_menu: SubMenu
@@ -390,6 +388,8 @@ class Manager(Window, _Component):
     def show_side(self, side: str) -> None: ...
     tree_replaces: Any
     def toggle_tree(self) -> None: ...
+    quick: Any
+    def is_quick(self, view: Any) -> bool: ...
     def toggle_quick_view(self) -> None: ...
     def switch_view(self, view: Any) -> None: ...
     def _focus_replacement(self) -> None: ...

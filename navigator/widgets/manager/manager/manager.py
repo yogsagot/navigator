@@ -349,7 +349,8 @@ class Manager(Window):
         panel_state.recall(self)
         self.tree.visible = False
         self.tree.menu = self._tree_menu
-        self.quick.visible = False
+        #: Ctrl+Q's quick view, made the first time it is wanted (:attr:`quick`).
+        self._quick: Any = None
         self.info.visible = False
         self.miller.visible = False
         #: The side that was active when Miller columns took the panels'
@@ -3757,8 +3758,9 @@ class Manager(Window):
         the quick view, the information panel, or the file Miller columns
         preview -- not a panel.  DN's ``TDiskInfo`` handled none of a panel's
         commands, so F5/F6/F8 there did nothing."""
-        return (self.tree.focused or self.quick.focused or self.info.focus_within
-                or self.miller.preview_file.focus_within)
+        return (self.tree.focused or (self._quick is not None and self._quick.focused)
+                or self.info.focus_within
+                or self.miller.file_preview_focused())
 
     #: What DN's panel tree (``TTreePanel.HandleEvent``) did itself, on the
     #: directory under its cursor: F5/F6 ``CopyDir``, F7 ``MkDirectory``,
@@ -3964,7 +3966,7 @@ class Manager(Window):
         """
         if not self._quick_selected():
             return False
-        followed = "right" if self.side_view("left") is self.quick else "left"
+        followed = "right" if self.is_quick(self.side_view("left")) else "left"
         if self.hidden_side == followed:
             self.show_side(followed)
             return True
@@ -3977,7 +3979,7 @@ class Manager(Window):
 
     def _quick_selected(self) -> bool:
         """Whether the quick view stands in a panel's place with the keyboard."""
-        return self.replacement is self.quick and self.quick.focus_within
+        return self.is_quick(self.replacement) and self._quick.focus_within
 
     def _unzoom_view(self) -> None:
         """Undo the zoom Alt+Z put on top of hiding the followed side, while
@@ -6457,6 +6459,28 @@ class Manager(Window):
         """Ctrl+T: ``SwitchView(dtTree)``."""
         self.switch_view(self.tree)
 
+    @property
+    def quick(self) -> Any:
+        """Ctrl+Q's quick view (``QuickViewer``), hidden at the end of the
+        panels' row until :meth:`switch_view` moves it beside the panel it
+        replaces -- made the first time it is wanted.  The viewer behind it is
+        a tenth of the modules Navigator loads, and most sessions never press
+        Ctrl+Q.  :meth:`is_quick` asks about it without making it."""
+        if self._quick is None:
+            from navigator.widgets.viewer.quick_viewer import QuickViewer
+
+            quick = QuickViewer()
+            # Its title keeps clear of the window icons, as a panel's does.
+            quick.title_margin = 5
+            quick.visible = False
+            self.panels.add(quick)
+            self._quick = quick
+        return self._quick
+
+    def is_quick(self, view: Any) -> bool:
+        """Whether *view* is the quick view -- never making one to compare."""
+        return view is not None and view is self._quick
+
     def toggle_quick_view(self) -> None:
         """Ctrl+Q: ``SwitchView(dtView)``, and the view loads the file under the cursor."""
         self.switch_view(self.quick)
@@ -6514,7 +6538,7 @@ class Manager(Window):
         self.replaced, self.replacement = passive, view
         if had_keys:
             active.focus()
-        if view is self.quick:
+        if self.is_quick(view):
             # A new THFileViewer each time, as ViewInsert made: ViOpt's.
             self.quick.fresh()
             self._quick_view_follows_panel()
@@ -6525,7 +6549,7 @@ class Manager(Window):
 
     def _focus_replacement(self) -> None:
         replacement = self.replacement
-        (self.quick.viewer if replacement is self.quick else replacement).focus()
+        (self._quick.viewer if self.is_quick(replacement) else replacement).focus()
 
     def _info_follows_panel(self) -> None:
         """The information panel describes the active panel's directory, read
@@ -6558,7 +6582,7 @@ class Manager(Window):
 
     def _quick_view_follows_panel(self) -> None:
         """The quick view shows whatever the active panel's cursor is on: ``SendLocated``."""
-        if self.replacement is not self.quick:
+        if not self.is_quick(self.replacement):
             return
         panel = self.active_panel
         entry = panel.selected

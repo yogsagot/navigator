@@ -33,7 +33,6 @@ from navigator.lib.drives import DriveGone, Location, drive_of
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.panel import Panel
 from navigator.widgets.manager.panel.panel import DirEntry
-from navigator.widgets.viewer.quick_viewer import QuickViewer
 
 #: The narrowest a column is made, whatever the setting says: a gutter, a few
 #: letters of a name and the directory sign between two frame edges.
@@ -243,12 +242,33 @@ class MillerView(Widget):
         #: The column after the chain, listing the directory at the cursor;
         #: made by :meth:`open_at`, and becoming the chain's last on a step in.
         self.preview_dir: MillerColumn | None = None
+        #: :attr:`preview_file`, once made.
+        self._preview_file: Any = None
 
     def mounted(self) -> None:
         super().mounted()
         effect(self, MillerView._follow_moves)
         effect(self, MillerView._follow_cursor)
         effect(self, MillerView._place)
+
+    @property
+    def preview_file(self) -> Any:
+        """The preview of a file under the cursor: the Ctrl+Q quick view
+        (``QuickViewer``), shown while :attr:`preview` is ``"file"``.  Made
+        the first time the columns open (:meth:`open_at`): the viewer behind
+        it is a tenth of the modules Navigator loads, for a view most
+        sessions never open."""
+        if self._preview_file is None:
+            from navigator.widgets.viewer.quick_viewer import QuickViewer
+
+            preview = QuickViewer()
+            preview.visible = False
+            self._preview_file = self.add(preview)
+        return self._preview_file
+
+    def file_preview_focused(self) -> bool:
+        """Whether the file preview holds the keyboard -- never making one to ask."""
+        return self._preview_file is not None and self._preview_file.focus_within
 
     def columns(self) -> list[MillerColumn]:
         """Every column there is: the chain's and the preview's."""
@@ -265,6 +285,7 @@ class MillerView(Widget):
         """Columns from the root down to *location*, its cursor on *cursor*;
         each takes *like*'s hidden files and order.  The keyboard goes to it."""
         location = _absolute(location)
+        self.preview_file  # made now, before the layout places it
         column = self.add(self._column(location, cursor, like))
         if self.preview_dir is None:
             self.preview_dir = self.add(self._column(location, None, column))
@@ -454,7 +475,7 @@ class MillerView(Widget):
                 x += span
             if visible:
                 visible[0].title_margin = ICON_MARGIN
-            for kind, widget in (("directory", self.preview_dir), ("file", self.preview_file)):
+            for kind, widget in (("directory", self.preview_dir), ("file", self._preview_file)):
                 if widget is None:
                     continue
                 on = bool(chain) and (preview == kind or (kind == "file" and preview == "none"))

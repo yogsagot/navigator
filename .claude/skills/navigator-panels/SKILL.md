@@ -523,7 +523,12 @@ jumped to the 8.3 extension).
   table. Tab is disabled while a side is hidden. Ctrl+T/Q/L follow `SwitchView`'s order (`switch_view`): the view on
   the hidden side shows that side with the view kept, the keyboard unmoved; the view showing is put away and a hidden
   other side stays hidden; otherwise the hidden side is shown first and the view goes in.
-- **Alt+Z with the quick view selected is `TDoubleWindow`'s `cmZoom`** (`Manager.on_zoom_window`):
+- **The quick view is made on first use, not in the markup.** `Manager.quick` builds it and adds it, hidden, last in
+  the `panels` row. `MillerView.preview_file` is built the same way, in `open_at`. So a start loads no viewer code
+  (~6 ms); `test_no_quick_view_is_made_or_imported_until_one_is_wanted` guards it in a fresh interpreter.
+  - **To ask whether a view is the quick view without building it**, use `Manager.is_quick(view)` and
+    `MillerView.file_preview_focused()`, never `x is self.quick`. An effect or a comparison would otherwise build it
+    at mount, and `replacement is self._quick` is true while both are None. is `TDoubleWindow`'s `cmZoom`** (`Manager.on_zoom_window`):
   - The side the view follows is hidden, then the window zooms (DN's uncleared `cmZoom` went on to `TWindow`'s), so
     the view fills the desktop. `_view_zoom` notes the rectangle.
   - Alt+Z again shows the side. `show_side` first undoes that zoom (`_unzoom_view`) while the window is as it left
