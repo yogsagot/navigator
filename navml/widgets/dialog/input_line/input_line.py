@@ -80,6 +80,9 @@ class InputLine(Control):
     #: the keyboard and the button is not on the way up from it.
     history: Any = None
 
+    #: One line, by name.
+    default_height = 1
+
     #: Where the caret is, as an index into ``value``.
     cursor: int = reactive(0)
 

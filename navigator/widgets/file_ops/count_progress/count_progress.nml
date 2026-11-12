@@ -39,7 +39,6 @@ CountProgress(Dialog):
     StaticText:
         id: directory_row
         y: 1
-        height: 1
         anchors:
             left: 6
             right: 2

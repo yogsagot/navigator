@@ -23,9 +23,10 @@ from typing import Iterable, Iterator
 
 from navkit.commands import Command
 from navkit.events import Event, emitted, handler_name
-from navkit.reactive import Computed
+from navkit.reactive import Computed, Declaration
 from navkit.stylesheet import (
     PropertySpec,
+    StyleProperty,
     StylesheetError,
     check_declarations,
     declared_property,
@@ -37,6 +38,7 @@ from navml.expression import compile_expression
 from navml.parser import (
     AliasDecl,
     Block,
+    ClassAttrDecl,
     Document,
     EventDecl,
     StylePropertyDecl,
@@ -79,6 +81,9 @@ def _check_declarations(resolved: Resolved) -> None:
     for declaration in resolved.document.root.declarations:
         if isinstance(declaration, EventDecl):
             continue
+        if isinstance(declaration, ClassAttrDecl):
+            _check_class_attribute(resolved, declaration)
+            continue
         redeclared = isinstance(declaration, StylePropertyDecl) and (
             style_property(resolved.base, declaration.name) is not None
         )
@@ -91,6 +96,70 @@ def _check_declarations(resolved: Resolved) -> None:
             )
         if isinstance(declaration, StylePropertyDecl):
             _check_style_property(resolved, declaration)
+
+
+def _check_class_attribute(
+    resolved: Resolved, declaration: ClassAttrDecl
+) -> None:
+    """A ``class`` line overrides a plain class attribute the base has.
+
+    Only one the base already has, so a misspelt name is refused rather than
+    left to be read by nothing; and only a plain one, because a reactive or a
+    style property replaced by a bare value would stop being one for every
+    instance -- ``is_bound(w, Widget.height)`` would refuse the class.  The
+    value is a class-level expression, like a key table's.
+    """
+    base = resolved.base
+    name = declaration.name
+    try:
+        existing = inspect.getattr_static(base, name)
+    except AttributeError:
+        _refuse(
+            resolved,
+            declaration.line,
+            f"{base.__name__} has no class attribute {name}; a class line "
+            f"overrides one the base already has",
+        )
+    if (
+        isinstance(existing, (Declaration, StyleProperty, property))
+        or inspect.isfunction(existing)
+        or name.startswith("_")
+    ):
+        _refuse(
+            resolved,
+            declaration.line,
+            f"{base.__name__}.{name} is not a plain class attribute, so a "
+            f"class line cannot replace it",
+        )
+    _class_level(
+        resolved,
+        declaration.expression,
+        declaration.line,
+        f"the value of {name!r} failed to evaluate",
+        "a class attribute",
+    )
+
+
+def _class_level(
+    resolved: Resolved, source: str, line: int, failed: str, what: str
+) -> object:
+    """Evaluate *source* as the class body will: reading only the imports."""
+    tree = ast.parse(source, mode="eval")
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and node.id not in resolved.namespace:
+            _refuse(
+                resolved,
+                line,
+                f"{node.id!r} is not imported; {what} belongs to the class and "
+                f"is made before any instance, so it can name only what the "
+                f"import block brings in",
+            )
+    try:
+        return eval(  # noqa: S307 - the document's own expression
+            compile(tree, resolved.filename, "eval"), dict(resolved.namespace)
+        )
+    except Exception as error:  # noqa: BLE001 - reported with its line
+        _refuse(resolved, line, f"{failed}: {error}")
 
 
 def _check_style_property(
@@ -325,26 +394,13 @@ def _check_keys(resolved: Resolved) -> None:
     if table is None:
         return
     for binding in table.bindings:
-        tree = ast.parse(binding.command, mode="eval")
-        for node in ast.walk(tree):
-            if isinstance(node, ast.Name) and node.id not in resolved.namespace:
-                _refuse(
-                    resolved,
-                    binding.line,
-                    f"{node.id!r} is not imported; a key table belongs to the "
-                    f"class and is made before any instance, so it can name "
-                    f"only what the import block brings in",
-                )
-        try:
-            value = eval(  # noqa: S307 - the document's own expression
-                compile(tree, resolved.filename, "eval"), dict(resolved.namespace)
-            )
-        except Exception as error:  # noqa: BLE001 - reported with its line
-            _refuse(
-                resolved,
-                binding.line,
-                f"the command for {binding.key!r} failed to evaluate: {error}",
-            )
+        value = _class_level(
+            resolved,
+            binding.command,
+            binding.line,
+            f"the command for {binding.key!r} failed to evaluate",
+            "a key table",
+        )
         is_class = isinstance(value, type) and issubclass(value, Command)
         if not is_class and not isinstance(value, Command):
             _refuse(

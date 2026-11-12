@@ -28,6 +28,7 @@ class InputLine(Control, _Component):
     cursor: int
     first: int
     anchor: int | None
+    default_height: _Any
     caret: _Any
     chars: _Any
     parts: _Any

@@ -42,30 +42,28 @@ class MenuParamsDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     caption_label: Label    # menu_params_dialog.nml:18
-    entry: Field    # menu_params_dialog.nml:29
+    entry: Field    # menu_params_dialog.nml:28
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.caption_label = Label(parent=self)    # menu_params_dialog.nml:17
-        self.entry = Field(parent=self)    # menu_params_dialog.nml:28
+        self.entry = Field(parent=self)    # menu_params_dialog.nml:27
 
         self.modal_width = 60    # menu_params_dialog.nml:13
         self.modal_height = 9    # menu_params_dialog.nml:14
         self.title = _bind(lambda _o: _tr('Menu Parameters'), yielding=True)    # menu_params_dialog.nml:15
 
         self.caption_label.y = 1    # menu_params_dialog.nml:19
-        self.caption_label.height = 1    # menu_params_dialog.nml:20
-        self.caption_label.text = _bind(lambda _o: self.caption)    # menu_params_dialog.nml:24
-        self.caption_label.link = _bind(lambda _o: self.entry.entry)    # menu_params_dialog.nml:25
-        self.caption_label.x = 2    # menu_params_dialog.nml:22
-        self.caption_label.width = _bind(    # menu_params_dialog.nml:23
+        self.caption_label.text = _bind(lambda _o: self.caption)    # menu_params_dialog.nml:23
+        self.caption_label.link = _bind(lambda _o: self.entry.entry)    # menu_params_dialog.nml:24
+        self.caption_label.x = 2    # menu_params_dialog.nml:21
+        self.caption_label.width = _bind(    # menu_params_dialog.nml:22
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.entry.y = 2    # menu_params_dialog.nml:30
-        self.entry.height = 1    # menu_params_dialog.nml:31
-        self.entry.label_text = ''    # menu_params_dialog.nml:35
-        self.entry.label_width = 0    # menu_params_dialog.nml:36
-        self.entry.history_id = 'menu_params'    # menu_params_dialog.nml:37
-        self.entry.x = 2    # menu_params_dialog.nml:33
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # menu_params_dialog.nml:34
+        self.entry.y = 2    # menu_params_dialog.nml:29
+        self.entry.label_text = ''    # menu_params_dialog.nml:33
+        self.entry.label_width = 0    # menu_params_dialog.nml:34
+        self.entry.history_id = 'menu_params'    # menu_params_dialog.nml:35
+        self.entry.x = 2    # menu_params_dialog.nml:31
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # menu_params_dialog.nml:32

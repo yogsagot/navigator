@@ -20,7 +20,6 @@ ConnectDialog(Dialog):
     Field:
         id: host
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -33,7 +32,6 @@ ConnectDialog(Dialog):
     Field:
         id: user
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -45,14 +43,12 @@ ConnectDialog(Dialog):
         x: 2
         y: 4
         width: 20
-        height: 1
         label_text: "P~o~rt"
         label_width: 12
 
     Field:
         id: directory
         y: 5
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -62,7 +58,6 @@ ConnectDialog(Dialog):
     Field:
         id: label
         y: 7
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -95,7 +90,6 @@ ConnectDialog(Dialog):
     StaticText:
         id: missing
         y: 11
-        height: 1
         anchors:
             left: 2
             right: 2

@@ -23,7 +23,13 @@ from navkit.reactive import UNKNOWN
 
 from navml.coder import Coder
 from navml.generator import MARKER
-from navml.parser import AliasDecl, EventDecl, PropertyDecl, StylePropertyDecl
+from navml.parser import (
+    AliasDecl,
+    ClassAttrDecl,
+    EventDecl,
+    PropertyDecl,
+    StylePropertyDecl,
+)
 from navml.resolve import Resolved
 from navml.sibling import SiblingClass
 
@@ -68,7 +74,9 @@ def stub(resolved: Resolved) -> str:
     coder.add(0, f"class {root.type}({_bases(resolved)}):")
 
     for declaration in root.declarations:
-        if isinstance(declaration, EventDecl):
+        # An event is a class of the module; a ``class`` line overrides what
+        # the base's own stub already declares.
+        if isinstance(declaration, (EventDecl, ClassAttrDecl)):
             continue
         coder.add(1, f"{declaration.name}{_annotation(build, declaration)}")
     for block in root.walk():

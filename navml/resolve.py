@@ -32,7 +32,7 @@ from navkit.widget import Widget
 
 from navml.component import Component
 from navml.errors import MarkupError
-from navml.parser import Block, Directive, Document
+from navml.parser import Block, ClassAttrDecl, Directive, Document
 from navml.sibling import Sibling
 
 
@@ -98,7 +98,12 @@ def resolve(
         namespace=namespace,
         base=base,
         sibling=sibling,
-        declared={d.name: d for d in root.declarations},
+        # A ``class`` line overrides an attribute the base has: nothing an
+        # expression follows or a property line may bind.
+        declared={
+            d.name: d for d in root.declarations
+            if not isinstance(d, ClassAttrDecl)
+        },
     )
     resolved._classes[id(root)] = base
     resolved._own[id(root)] = frozenset(

@@ -125,3 +125,29 @@ answering.
 
 This asks navkit for nothing: `reactive()` is callable in a class body, and that is the whole requirement.
 
+
+## Overriding a class attribute
+
+`class NAME: VALUE` is the fifth directive. It does not declare anything new. It overrides a plain class attribute
+the base already has, and lands in the generated class body as `NAME = VALUE`:
+
+```
+Field(HorizontalLayout):
+    class default_height: 1
+```
+
+It exists because a markup-only component had no way to say what a hand-written half says with a class attribute.
+The first need was `Widget.default_height`, the height a widget starts with when its constructor is given none. It is
+1 for the single-row controls, which removed about 350 `height: 1` lines. `Field`, `MaskedField` and `ChoiceField`
+are markup-only, and giving each a `.py` half just for one line would have undone what `field.nml` demonstrates.
+
+- **Overriding only.** A name the base lacks is refused, so a misspelling cannot leave a value that nothing reads.
+  Adding a brand-new class attribute is a `.py` half's job.
+- **Plain attributes only.** A reactive, a style property, a Python `property` or a method replaced by a bare value
+  would stop being what it was, for every instance. That is also why `default_height` exists at all instead of
+  `height = reactive(1)` on `Label`: `navkit.reactive._declaration` checks `getattr(type(obj), name) is attribute`,
+  so a redeclared `height` would make every `is_bound(w, Widget.height)` (which the layouts call) refuse the class.
+- **Class-level, like a key table.** It is evaluated with the class body, so it may name the imports and nothing
+  else, builtins included. `checks._class_level` does that check and evaluates the value for both.
+- **Not a declaration for expressions.** `resolve` leaves it out of `resolved.declared`, so `_followable` never
+  treats it as reactive and a root property line cannot bind it. The `.pyi` stub leaves it to the base's.

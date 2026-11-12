@@ -24,7 +24,6 @@ MkdirDialog(Dialog):
         #: matches, and the generator refuses an id that shadows it.
         id: entry
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2

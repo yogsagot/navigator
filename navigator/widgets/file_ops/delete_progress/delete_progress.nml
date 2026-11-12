@@ -32,7 +32,6 @@ DeleteProgress(Dialog):
     StaticText:
         id: action_row
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -42,7 +41,6 @@ DeleteProgress(Dialog):
     StaticText:
         id: path_row
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -53,7 +51,6 @@ DeleteProgress(Dialog):
     ProgressBar:
         id: bar
         y: 4
-        height: 1
         anchors:
             left: 4
             right: 4
@@ -64,7 +61,6 @@ DeleteProgress(Dialog):
     StaticText:
         id: count_row
         y: 5
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -74,7 +70,6 @@ DeleteProgress(Dialog):
     StaticText:
         id: pace_row
         y: 6
-        height: 1
         anchors:
             left: 2
             right: 2

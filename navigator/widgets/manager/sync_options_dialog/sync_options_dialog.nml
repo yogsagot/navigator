@@ -20,14 +20,12 @@ SyncOptionsDialog(Dialog):
         x: 2
         y: 1
         width: 12
-        height: 1
         text: "~F~ile mask"
         link: mask.entry
 
     Field:
         id: mask
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -41,7 +39,6 @@ SyncOptionsDialog(Dialog):
         x: 2
         y: 4
         width: 30
-        height: 1
         text: "Times are the same"
         link: times
 

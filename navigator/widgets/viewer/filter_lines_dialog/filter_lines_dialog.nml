@@ -17,14 +17,12 @@ FilterLinesDialog(Dialog):
         x: 2
         y: 2
         width: 24
-        height: 1
         text: "~S~how lines containing"
         link: what.entry
 
     Field:
         id: what
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -37,7 +35,6 @@ FilterLinesDialog(Dialog):
         x: 2
         y: 5
         width: 12
-        height: 1
         text: "Options"
         link: options
 

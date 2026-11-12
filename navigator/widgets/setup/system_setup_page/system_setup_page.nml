@@ -36,7 +36,6 @@ SystemSetupPage:
         x: 3
         y: 1
         width: 12
-        height: 1
         text: "~O~ptions"
         link: options
 
@@ -54,14 +53,12 @@ SystemSetupPage:
         x: 3
         y: 6
         width: 24
-        height: 1
         text: "~T~emporary directory"
         link: temp_dir.entry
 
     Field:
         id: temp_dir
         y: 7
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -73,7 +70,6 @@ SystemSetupPage:
         x: 3
         y: 9
         width: 24
-        height: 1
         text: "Unexpected ~f~ailures"
         link: on_error
 
@@ -91,7 +87,6 @@ SystemSetupPage:
         x: 3
         y: 12
         width: 31
-        height: 1
         label_text: "Re~p~ort a stall after"
         label_width: 26
         mask: "999"
@@ -105,7 +100,6 @@ SystemSetupPage:
         x: 35
         y: 12
         width: max(0, parent.width - 38)
-        height: 1
         when parent.width < 67:
             x: 30
             y: 13
@@ -117,7 +111,6 @@ SystemSetupPage:
         x: 3
         y: 14
         width: 14
-        height: 1
         when parent.width < 67:
             y: 15
         text: "Root a~c~cess"
@@ -141,7 +134,6 @@ SystemSetupPage:
         x: 3
         y: 16
         width: 31
-        height: 1
         when parent.width < 67:
             y: 17
         label_text: "Keep root open ~w~hile idle"
@@ -154,7 +146,6 @@ SystemSetupPage:
         x: 35
         y: 16
         width: max(0, parent.width - 38)
-        height: 1
         when parent.width < 67:
             x: 30
             y: 18

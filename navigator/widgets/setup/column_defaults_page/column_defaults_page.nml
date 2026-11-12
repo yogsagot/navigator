@@ -19,7 +19,6 @@ ColumnDefaultsPage:
         x: 3
         y: 1
         width: 12
-        height: 1
         text: "~D~isk Drive"
         link: disk
 
@@ -36,7 +35,6 @@ ColumnDefaultsPage:
         x: 21
         y: 1
         width: 10
-        height: 1
         text: "~F~ile find"
         link: find
 
@@ -53,7 +51,6 @@ ColumnDefaultsPage:
         x: 39
         y: 1
         width: 10
-        height: 1
         text: "~A~rchives"
         link: arc
 

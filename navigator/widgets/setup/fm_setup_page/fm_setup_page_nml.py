@@ -63,133 +63,127 @@ class FMSetupPage(_Component):
 
     #: Ids, annotated so the hand-written half completes them.
     behavior_caption: Label    # fm_setup_page.nml:36
-    behavior: CheckBoxes    # fm_setup_page.nml:45
-    miller_width: Field    # fm_setup_page.nml:53
-    display_caption: Label    # fm_setup_page.nml:62
-    display: CheckBoxes    # fm_setup_page.nml:71
-    tag_sign: Field    # fm_setup_page.nml:80
-    right_button_caption: Label    # fm_setup_page.nml:89
-    right_button: RadioButtons    # fm_setup_page.nml:98
-    remember_caption: Label    # fm_setup_page.nml:107
-    remember_directories: RadioButtons    # fm_setup_page.nml:117
+    behavior: CheckBoxes    # fm_setup_page.nml:44
+    miller_width: Field    # fm_setup_page.nml:52
+    display_caption: Label    # fm_setup_page.nml:60
+    display: CheckBoxes    # fm_setup_page.nml:68
+    tag_sign: Field    # fm_setup_page.nml:77
+    right_button_caption: Label    # fm_setup_page.nml:85
+    right_button: RadioButtons    # fm_setup_page.nml:93
+    remember_caption: Label    # fm_setup_page.nml:102
+    remember_directories: RadioButtons    # fm_setup_page.nml:111
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.behavior_caption = Label(parent=self)    # fm_setup_page.nml:35
-        self.behavior = CheckBoxes(parent=self)    # fm_setup_page.nml:44
-        self.miller_width = Field(parent=self)    # fm_setup_page.nml:52
-        self.display_caption = Label(parent=self)    # fm_setup_page.nml:61
-        self.display = CheckBoxes(parent=self)    # fm_setup_page.nml:70
-        self.tag_sign = Field(parent=self)    # fm_setup_page.nml:79
-        self.right_button_caption = Label(parent=self)    # fm_setup_page.nml:88
-        self.right_button = RadioButtons(parent=self)    # fm_setup_page.nml:97
-        self.remember_caption = Label(parent=self)    # fm_setup_page.nml:106
-        self.remember_directories = RadioButtons(parent=self)    # fm_setup_page.nml:116
+        self.behavior = CheckBoxes(parent=self)    # fm_setup_page.nml:43
+        self.miller_width = Field(parent=self)    # fm_setup_page.nml:51
+        self.display_caption = Label(parent=self)    # fm_setup_page.nml:59
+        self.display = CheckBoxes(parent=self)    # fm_setup_page.nml:67
+        self.tag_sign = Field(parent=self)    # fm_setup_page.nml:76
+        self.right_button_caption = Label(parent=self)    # fm_setup_page.nml:84
+        self.right_button = RadioButtons(parent=self)    # fm_setup_page.nml:92
+        self.remember_caption = Label(parent=self)    # fm_setup_page.nml:101
+        self.remember_directories = RadioButtons(parent=self)    # fm_setup_page.nml:110
 
         self.behavior_caption.x = 2    # fm_setup_page.nml:37
         self.behavior_caption.y = 1    # fm_setup_page.nml:38
         self.behavior_caption.width = 12    # fm_setup_page.nml:39
-        self.behavior_caption.height = 1    # fm_setup_page.nml:40
-        self.behavior_caption.text = _bind(    # fm_setup_page.nml:41
+        self.behavior_caption.text = _bind(    # fm_setup_page.nml:40
             lambda _o: _tr('Behavior'),
             yielding=True,
         )
-        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_page.nml:42
+        self.behavior_caption.link = _bind(lambda _o: self.behavior)    # fm_setup_page.nml:41
 
-        self.behavior.x = 2    # fm_setup_page.nml:46
-        self.behavior.y = 2    # fm_setup_page.nml:47
-        self.behavior.width = 33    # fm_setup_page.nml:48
-        self.behavior.height = 13    # fm_setup_page.nml:49
-        self.behavior.items = _bind(    # fm_setup_page.nml:50
+        self.behavior.x = 2    # fm_setup_page.nml:45
+        self.behavior.y = 2    # fm_setup_page.nml:46
+        self.behavior.width = 33    # fm_setup_page.nml:47
+        self.behavior.height = 13    # fm_setup_page.nml:48
+        self.behavior.items = _bind(    # fm_setup_page.nml:49
             lambda _o: [_tr('Auto c~h~ange directory'), _tr('Drag~-~and~-~drop from columns'), _tr('~B~eep after copy'), _tr('~E~NTER opens archive'), _tr('ENTER mounts dis~c~ images'), _tr('~S~PACE toggles selection'), _tr('~D~EL erases file(s)'), _tr('Use ←/→ ~k~eys'), _tr('BS - go to ~u~pper directory'), _tr('Auto ~r~efresh panels'), _tr('F8 m~o~ves to Trash'), _tr('~P~ass other files to desktop'), _tr('Return to last cursor position')],
             yielding=True,
         )
 
-        self.miller_width.x = 2    # fm_setup_page.nml:54
-        self.miller_width.y = 16    # fm_setup_page.nml:55
-        self.miller_width.width = 31    # fm_setup_page.nml:56
-        self.miller_width.height = 1    # fm_setup_page.nml:57
-        self.miller_width.label_text = _bind(    # fm_setup_page.nml:58
+        self.miller_width.x = 2    # fm_setup_page.nml:53
+        self.miller_width.y = 16    # fm_setup_page.nml:54
+        self.miller_width.width = 31    # fm_setup_page.nml:55
+        self.miller_width.label_text = _bind(    # fm_setup_page.nml:56
             lambda _o: _tr('Miller column ~w~idth:'),
             yielding=True,
         )
-        self.miller_width.label_width = 25    # fm_setup_page.nml:59
+        self.miller_width.label_width = 25    # fm_setup_page.nml:57
 
-        self.display_caption.x = 37    # fm_setup_page.nml:63
-        self.display_caption.y = 1    # fm_setup_page.nml:64
-        self.display_caption.width = 12    # fm_setup_page.nml:65
-        self.display_caption.height = 1    # fm_setup_page.nml:66
-        self.display_caption.text = _bind(    # fm_setup_page.nml:67
+        self.display_caption.x = 37    # fm_setup_page.nml:61
+        self.display_caption.y = 1    # fm_setup_page.nml:62
+        self.display_caption.width = 12    # fm_setup_page.nml:63
+        self.display_caption.text = _bind(    # fm_setup_page.nml:64
             lambda _o: _tr('Display'),
             yielding=True,
         )
-        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_page.nml:68
+        self.display_caption.link = _bind(lambda _o: self.display)    # fm_setup_page.nml:65
 
-        self.display.y = 2    # fm_setup_page.nml:72
-        self.display.height = 6    # fm_setup_page.nml:73
-        self.display.items = _bind(    # fm_setup_page.nml:77
+        self.display.y = 2    # fm_setup_page.nml:69
+        self.display.height = 6    # fm_setup_page.nml:70
+        self.display.items = _bind(    # fm_setup_page.nml:74
             lambda _o: [_tr('Colu~m~n titles'), _tr('~I~nfo divider'), _tr('~T~ag character'), _tr('Li~n~k target line'), _tr('Option ~f~lags'), _tr('Git st~a~tus')],
             yielding=True,
         )
-        self.display.x = 37    # fm_setup_page.nml:75
-        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_page.nml:76
+        self.display.x = 37    # fm_setup_page.nml:72
+        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 39))    # fm_setup_page.nml:73
 
-        self.tag_sign.x = 37    # fm_setup_page.nml:81
-        self.tag_sign.y = 8    # fm_setup_page.nml:82
-        self.tag_sign.width = 16    # fm_setup_page.nml:83
-        self.tag_sign.height = 1    # fm_setup_page.nml:84
-        self.tag_sign.label_text = _bind(    # fm_setup_page.nml:85
+        self.tag_sign.x = 37    # fm_setup_page.nml:78
+        self.tag_sign.y = 8    # fm_setup_page.nml:79
+        self.tag_sign.width = 16    # fm_setup_page.nml:80
+        self.tag_sign.label_text = _bind(    # fm_setup_page.nml:81
             lambda _o: _tr('Ta~g~ sign:'),
             yielding=True,
         )
-        self.tag_sign.label_width = 12    # fm_setup_page.nml:86
+        self.tag_sign.label_width = 12    # fm_setup_page.nml:82
 
-        self.right_button_caption.x = 37    # fm_setup_page.nml:90
-        self.right_button_caption.y = 10    # fm_setup_page.nml:91
-        self.right_button_caption.width = 14    # fm_setup_page.nml:92
-        self.right_button_caption.height = 1    # fm_setup_page.nml:93
-        self.right_button_caption.text = _bind(    # fm_setup_page.nml:94
+        self.right_button_caption.x = 37    # fm_setup_page.nml:86
+        self.right_button_caption.y = 10    # fm_setup_page.nml:87
+        self.right_button_caption.width = 14    # fm_setup_page.nml:88
+        self.right_button_caption.text = _bind(    # fm_setup_page.nml:89
             lambda _o: _tr('Right button'),
             yielding=True,
         )
-        self.right_button_caption.link = _bind(lambda _o: self.right_button)    # fm_setup_page.nml:95
+        self.right_button_caption.link = _bind(lambda _o: self.right_button)    # fm_setup_page.nml:90
 
-        self.right_button.y = 11    # fm_setup_page.nml:99
-        self.right_button.height = 2    # fm_setup_page.nml:100
-        self.right_button.items = _bind(    # fm_setup_page.nml:104
+        self.right_button.y = 11    # fm_setup_page.nml:94
+        self.right_button.height = 2    # fm_setup_page.nml:95
+        self.right_button.items = _bind(    # fm_setup_page.nml:99
             lambda _o: [_tr('Conte~x~t menu'), _tr('Se~l~ect files')],
             yielding=True,
         )
-        self.right_button.x = 37    # fm_setup_page.nml:102
-        self.right_button.width = _bind(    # fm_setup_page.nml:103
+        self.right_button.x = 37    # fm_setup_page.nml:97
+        self.right_button.width = _bind(    # fm_setup_page.nml:98
             lambda _o: max(0, _o.parent.width - 39)
         )
 
-        self.remember_caption.y = 13    # fm_setup_page.nml:108
-        self.remember_caption.height = 1    # fm_setup_page.nml:109
-        self.remember_caption.text = _bind(    # fm_setup_page.nml:113
+        self.remember_caption.y = 13    # fm_setup_page.nml:103
+        self.remember_caption.text = _bind(    # fm_setup_page.nml:107
             lambda _o: _tr('Remember directory settings'),
             yielding=True,
         )
-        self.remember_caption.link = _bind(    # fm_setup_page.nml:114
+        self.remember_caption.link = _bind(    # fm_setup_page.nml:108
             lambda _o: self.remember_directories
         )
-        self.remember_caption.x = 37    # fm_setup_page.nml:111
-        self.remember_caption.width = _bind(    # fm_setup_page.nml:112
+        self.remember_caption.x = 37    # fm_setup_page.nml:105
+        self.remember_caption.width = _bind(    # fm_setup_page.nml:106
             lambda _o: max(0, _o.parent.width - 39)
         )
 
-        self.remember_directories.y = 14    # fm_setup_page.nml:118
-        self.remember_directories.height = 3    # fm_setup_page.nml:119
-        self.remember_directories.items = _bind(    # fm_setup_page.nml:123
+        self.remember_directories.y = 14    # fm_setup_page.nml:112
+        self.remember_directories.height = 3    # fm_setup_page.nml:113
+        self.remember_directories.items = _bind(    # fm_setup_page.nml:117
             lambda _o: [_tr('Off'), _tr('Marked directories'), _tr('Every directory')],
             yielding=True,
         )
-        self.remember_directories.tooltips = _bind(    # fm_setup_page.nml:124
+        self.remember_directories.tooltips = _bind(    # fm_setup_page.nml:118
             lambda _o: [_tr("Every directory is shown with the panel's own sort order, view and file mask"), _tr('Those Panel > Remember for this directory marks keep their own'), _tr('Any directory a setting is changed in keeps its own')],
             yielding=True,
         )
-        self.remember_directories.x = 37    # fm_setup_page.nml:121
-        self.remember_directories.width = _bind(    # fm_setup_page.nml:122
+        self.remember_directories.x = 37    # fm_setup_page.nml:115
+        self.remember_directories.width = _bind(    # fm_setup_page.nml:116
             lambda _o: max(0, _o.parent.width - 39)
         )

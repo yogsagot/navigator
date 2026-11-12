@@ -21,7 +21,6 @@ EnvironmentDialog(Dialog):
         x: 2
         y: 1
         width: 12
-        height: 1
         text: "~V~ariables"
         link: names
 
@@ -38,7 +37,6 @@ EnvironmentDialog(Dialog):
     Field:
         id: value
         y: 16
-        height: 1
         anchors:
             left: 2
             right: 2

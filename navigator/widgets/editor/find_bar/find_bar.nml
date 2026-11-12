@@ -38,7 +38,6 @@ FindBar:
         x: 1
         y: 1
         width: max(4, parent.width - 29)
-        height: 1
         label_width: 0
         history_id: "find_text"
 
@@ -49,6 +48,5 @@ FindBar:
         x: 1
         y: 2
         width: max(4, parent.width - 29)
-        height: 1
         label_width: 0
         history_id: "find_text"

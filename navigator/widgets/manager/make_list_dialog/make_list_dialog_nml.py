@@ -38,50 +38,48 @@ class MakeListDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     file_name: Field    # make_list_dialog.nml:17
-    action: Field    # make_list_dialog.nml:28
-    options: CheckBoxes    # make_list_dialog.nml:39
+    action: Field    # make_list_dialog.nml:27
+    options: CheckBoxes    # make_list_dialog.nml:37
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.file_name = Field(parent=self)    # make_list_dialog.nml:16
-        self.action = Field(parent=self)    # make_list_dialog.nml:27
-        self.options = CheckBoxes(parent=self)    # make_list_dialog.nml:38
+        self.action = Field(parent=self)    # make_list_dialog.nml:26
+        self.options = CheckBoxes(parent=self)    # make_list_dialog.nml:36
 
         self.modal_width = 52    # make_list_dialog.nml:11
         self.modal_height = 12    # make_list_dialog.nml:12
         self.title = _bind(lambda _o: _tr('Make List File'), yielding=True)    # make_list_dialog.nml:13
 
         self.file_name.y = 2    # make_list_dialog.nml:18
-        self.file_name.height = 1    # make_list_dialog.nml:19
-        self.file_name.label_text = _bind(    # make_list_dialog.nml:23
+        self.file_name.label_text = _bind(    # make_list_dialog.nml:22
             lambda _o: _tr('~F~ile name'),
             yielding=True,
         )
-        self.file_name.label_width = 11    # make_list_dialog.nml:24
-        self.file_name.history_id = 'make_list'    # make_list_dialog.nml:25
-        self.file_name.x = 2    # make_list_dialog.nml:21
-        self.file_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:22
+        self.file_name.label_width = 11    # make_list_dialog.nml:23
+        self.file_name.history_id = 'make_list'    # make_list_dialog.nml:24
+        self.file_name.x = 2    # make_list_dialog.nml:20
+        self.file_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:21
 
-        self.action.y = 4    # make_list_dialog.nml:29
-        self.action.height = 1    # make_list_dialog.nml:30
-        self.action.label_text = _bind(    # make_list_dialog.nml:34
+        self.action.y = 4    # make_list_dialog.nml:28
+        self.action.label_text = _bind(    # make_list_dialog.nml:32
             lambda _o: _tr('~A~ction'),
             yielding=True,
         )
-        self.action.label_width = 11    # make_list_dialog.nml:35
-        self.action.history_id = 'command'    # make_list_dialog.nml:36
-        self.action.x = 2    # make_list_dialog.nml:32
-        self.action.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:33
+        self.action.label_width = 11    # make_list_dialog.nml:33
+        self.action.history_id = 'command'    # make_list_dialog.nml:34
+        self.action.x = 2    # make_list_dialog.nml:30
+        self.action.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # make_list_dialog.nml:31
 
-        self.options.y = 6    # make_list_dialog.nml:40
-        self.options.height = 2    # make_list_dialog.nml:41
-        self.options.items = _bind(    # make_list_dialog.nml:45
+        self.options.y = 6    # make_list_dialog.nml:38
+        self.options.height = 2    # make_list_dialog.nml:39
+        self.options.items = _bind(    # make_list_dialog.nml:43
             lambda _o: [_tr('~S~tore path names to list file'), _tr('A~u~todetermine necessity of path names')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # make_list_dialog.nml:46
+        self.options.tooltips = _bind(    # make_list_dialog.nml:44
             lambda _o: [_tr("Write each file's whole path, not its name alone"), _tr("Write a file's path only where it is not in the list file's own directory")],
             yielding=True,
         )
-        self.options.x = 4    # make_list_dialog.nml:43
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # make_list_dialog.nml:44
+        self.options.x = 4    # make_list_dialog.nml:41
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # make_list_dialog.nml:42

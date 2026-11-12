@@ -32,6 +32,9 @@ class Label(Control):
     #: anything is a stop the user has to press past.
     accepts_focus = False
 
+    #: One row, unless a caller or a document says otherwise.
+    default_height = 1
+
     @computed
     def selected(self) -> bool:
         """Whether the control this caption names holds the keyboard.

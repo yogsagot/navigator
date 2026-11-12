@@ -77,6 +77,7 @@ its heading is added here.
   - Where it may appear -- [`navml-markup/properties.md`](../.claude/skills/navml-markup/reference/properties.md)
   - Naming rules -- [`navml-markup/properties.md`](../.claude/skills/navml-markup/reference/properties.md)
   - What the generator has to do about it -- [`navml-markup/properties.md`](../.claude/skills/navml-markup/reference/properties.md)
+- Overriding a class attribute -- [`navml-markup/properties.md`](../.claude/skills/navml-markup/reference/properties.md)
 - Declaring a style property -- [`navml-markup/style-properties.md`](../.claude/skills/navml-markup/reference/style-properties.md)
   - The right-hand side is a `.nss` value, not a Python expression -- [`navml-markup/style-properties.md`](../.claude/skills/navml-markup/reference/style-properties.md)
   - Where it may appear, and what it may be called -- [`navml-markup/style-properties.md`](../.claude/skills/navml-markup/reference/style-properties.md)

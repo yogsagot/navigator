@@ -19,5 +19,6 @@ class StaticText(_Component):
     wrap: bool
     links: bool
     parts: _Any
+    default_height: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
     def render(self, surface: Surface) -> None: ...

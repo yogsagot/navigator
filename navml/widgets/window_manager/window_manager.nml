@@ -25,7 +25,6 @@ WindowManagerDialog(Dialog):
         x: 2
         y: 2
         width: 43
-        height: 1
 
     WindowList:
         id: windows

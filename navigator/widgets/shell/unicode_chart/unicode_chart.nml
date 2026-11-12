@@ -32,7 +32,6 @@ UnicodeChart(Dialog):
         x: 2
         y: 2
         width: 8
-        height: 1
         text: "~S~earch"
         link: search
 
@@ -41,7 +40,6 @@ UnicodeChart(Dialog):
         x: 10
         y: 2
         width: max(1, parent.width - 16)
-        height: 1
 
     History:
         id: history
@@ -74,7 +72,6 @@ UnicodeChart(Dialog):
         id: filter
         x: 2
         width: 20
-        height: 1
         anchors:
             below: groups
 

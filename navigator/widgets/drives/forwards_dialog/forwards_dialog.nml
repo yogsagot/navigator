@@ -17,7 +17,6 @@ ForwardsDialog(Dialog):
         x: 2
         y: 1
         width: 20
-        height: 1
         text: "~F~orwards"
         link: forwards
 

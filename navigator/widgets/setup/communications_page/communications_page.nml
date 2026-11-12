@@ -24,7 +24,6 @@ CommunicationsPage:
         x: 3
         y: 1
         width: 33
-        height: 1
         label_text: "~K~eep-alive every"
         label_width: 28
         mask: "999"
@@ -33,7 +32,6 @@ CommunicationsPage:
     StaticText:
         id: keepalive_unit
         y: 1
-        height: 1
         anchors:
             left: 37
             right: 3
@@ -44,7 +42,6 @@ CommunicationsPage:
         x: 3
         y: 2
         width: 33
-        height: 1
         label_text: "Connecting ~w~aits"
         label_width: 28
         mask: "999"
@@ -53,7 +50,6 @@ CommunicationsPage:
     StaticText:
         id: timeout_unit
         y: 2
-        height: 1
         anchors:
             left: 37
             right: 3
@@ -64,7 +60,6 @@ CommunicationsPage:
         x: 3
         y: 3
         width: 33
-        height: 1
         label_text: "~C~lose an idle connection"
         label_width: 28
         mask: "999"
@@ -73,7 +68,6 @@ CommunicationsPage:
     StaticText:
         id: idle_unit
         y: 3
-        height: 1
         anchors:
             left: 37
             right: 3
@@ -84,7 +78,6 @@ CommunicationsPage:
         x: 3
         y: 4
         width: 33
-        height: 1
         label_text: "~L~ook for changes every"
         label_width: 28
         mask: "999"
@@ -93,7 +86,6 @@ CommunicationsPage:
     StaticText:
         id: refresh_unit
         y: 4
-        height: 1
         anchors:
             left: 37
             right: 3
@@ -104,7 +96,6 @@ CommunicationsPage:
         x: 3
         y: 6
         width: 50
-        height: 1
         text: "A fetched file a program changed goes ~b~ack"
         link: upload_changed
 
@@ -120,7 +111,6 @@ CommunicationsPage:
     Label:
         id: desktop_vfs_caption
         y: 9
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -141,7 +131,6 @@ CommunicationsPage:
     Field:
         id: ssh_options
         y: 13
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -153,7 +142,6 @@ CommunicationsPage:
     Label:
         id: notifications_caption
         y: 14
-        height: 1
         anchors:
             left: 3
             right: 3

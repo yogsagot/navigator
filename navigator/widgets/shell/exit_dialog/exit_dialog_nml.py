@@ -40,14 +40,14 @@ class ExitDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     prompt_head: Label    # exit_dialog.nml:18
-    prompt_tail: Label    # exit_dialog.nml:28
-    options: CheckBoxes    # exit_dialog.nml:39
+    prompt_tail: Label    # exit_dialog.nml:27
+    options: CheckBoxes    # exit_dialog.nml:37
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.prompt_head = Label(parent=self)    # exit_dialog.nml:17
-        self.prompt_tail = Label(parent=self)    # exit_dialog.nml:27
-        self.options = CheckBoxes(parent=self)    # exit_dialog.nml:38
+        self.prompt_tail = Label(parent=self)    # exit_dialog.nml:26
+        self.options = CheckBoxes(parent=self)    # exit_dialog.nml:36
 
         self.modal_width = 40    # exit_dialog.nml:12
         self.modal_height = 10    # exit_dialog.nml:13
@@ -55,36 +55,34 @@ class ExitDialog(Dialog, _Component):
         self.buttons = 'yes-no'    # exit_dialog.nml:15
 
         self.prompt_head.y = 1    # exit_dialog.nml:19
-        self.prompt_head.height = 1    # exit_dialog.nml:20
-        self.prompt_head.align = 'center'    # exit_dialog.nml:24
-        self.prompt_head.text = _bind(    # exit_dialog.nml:25
+        self.prompt_head.align = 'center'    # exit_dialog.nml:23
+        self.prompt_head.text = _bind(    # exit_dialog.nml:24
             lambda _o: _tr('Do you wish to quit'),
             yielding=True,
         )
-        self.prompt_head.x = 2    # exit_dialog.nml:22
-        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:23
+        self.prompt_head.x = 2    # exit_dialog.nml:21
+        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:22
 
-        self.prompt_tail.y = 2    # exit_dialog.nml:29
-        self.prompt_tail.height = 1    # exit_dialog.nml:30
-        self.prompt_tail.align = 'center'    # exit_dialog.nml:34
-        self.prompt_tail.text = _bind(    # exit_dialog.nml:35
+        self.prompt_tail.y = 2    # exit_dialog.nml:28
+        self.prompt_tail.align = 'center'    # exit_dialog.nml:32
+        self.prompt_tail.text = _bind(    # exit_dialog.nml:33
             lambda _o: _tr('Navigator?'),
             yielding=True,
         )
-        self.prompt_tail.x = 2    # exit_dialog.nml:32
-        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:33
+        self.prompt_tail.x = 2    # exit_dialog.nml:30
+        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:31
 
-        self.options.y = 4    # exit_dialog.nml:40
-        self.options.width = 22    # exit_dialog.nml:41
-        self.options.height = 1    # exit_dialog.nml:42
-        self.options.items = _bind(    # exit_dialog.nml:45
+        self.options.y = 4    # exit_dialog.nml:38
+        self.options.width = 22    # exit_dialog.nml:39
+        self.options.height = 1    # exit_dialog.nml:40
+        self.options.items = _bind(    # exit_dialog.nml:43
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # exit_dialog.nml:46
+        self.options.tooltips = _bind(    # exit_dialog.nml:44
             lambda _o: [_tr('Quit without asking from now on (Options > Confirmations)')],
             yielding=True,
         )
-        self.options.x = _bind(    # exit_dialog.nml:44
+        self.options.x = _bind(    # exit_dialog.nml:42
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )

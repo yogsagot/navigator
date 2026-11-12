@@ -36,14 +36,14 @@ class XattrEntryDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     attr_name: Field    # xattr_entry_dialog.nml:14
-    data: Field    # xattr_entry_dialog.nml:24
-    hint: StaticText    # xattr_entry_dialog.nml:35
+    data: Field    # xattr_entry_dialog.nml:23
+    hint: StaticText    # xattr_entry_dialog.nml:33
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.attr_name = Field(parent=self)    # xattr_entry_dialog.nml:13
-        self.data = Field(parent=self)    # xattr_entry_dialog.nml:23
-        self.hint = StaticText(parent=self)    # xattr_entry_dialog.nml:34
+        self.data = Field(parent=self)    # xattr_entry_dialog.nml:22
+        self.hint = StaticText(parent=self)    # xattr_entry_dialog.nml:32
 
         self.modal_width = 60    # xattr_entry_dialog.nml:8
         self.modal_height = 11    # xattr_entry_dialog.nml:9
@@ -51,27 +51,25 @@ class XattrEntryDialog(Dialog, _Component):
         self.buttons = 'ok-cancel'    # xattr_entry_dialog.nml:11
 
         self.attr_name.y = 1    # xattr_entry_dialog.nml:15
-        self.attr_name.height = 1    # xattr_entry_dialog.nml:16
-        self.attr_name.label_text = _bind(    # xattr_entry_dialog.nml:20
+        self.attr_name.label_text = _bind(    # xattr_entry_dialog.nml:19
             lambda _o: _tr('~N~ame'),
             yielding=True,
         )
-        self.attr_name.label_width = 8    # xattr_entry_dialog.nml:21
-        self.attr_name.x = 2    # xattr_entry_dialog.nml:18
-        self.attr_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # xattr_entry_dialog.nml:19
+        self.attr_name.label_width = 8    # xattr_entry_dialog.nml:20
+        self.attr_name.x = 2    # xattr_entry_dialog.nml:17
+        self.attr_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # xattr_entry_dialog.nml:18
 
-        self.data.y = 3    # xattr_entry_dialog.nml:25
-        self.data.height = 1    # xattr_entry_dialog.nml:26
-        self.data.label_text = _bind(lambda _o: _tr('Va~l~ue'), yielding=True)    # xattr_entry_dialog.nml:30
-        self.data.label_width = 8    # xattr_entry_dialog.nml:31
-        self.data.x = 2    # xattr_entry_dialog.nml:28
-        self.data.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # xattr_entry_dialog.nml:29
+        self.data.y = 3    # xattr_entry_dialog.nml:24
+        self.data.label_text = _bind(lambda _o: _tr('Va~l~ue'), yielding=True)    # xattr_entry_dialog.nml:28
+        self.data.label_width = 8    # xattr_entry_dialog.nml:29
+        self.data.x = 2    # xattr_entry_dialog.nml:26
+        self.data.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # xattr_entry_dialog.nml:27
 
-        self.hint.y = 5    # xattr_entry_dialog.nml:36
-        self.hint.height = 2    # xattr_entry_dialog.nml:37
-        self.hint.text = _bind(    # xattr_entry_dialog.nml:41
+        self.hint.y = 5    # xattr_entry_dialog.nml:34
+        self.hint.height = 2    # xattr_entry_dialog.nml:35
+        self.hint.text = _bind(    # xattr_entry_dialog.nml:39
             lambda _o: _tr('Text, or 0x and hex digits, or 0s and base64; quotes round text keep it text'),
             yielding=True,
         )
-        self.hint.x = 10    # xattr_entry_dialog.nml:39
-        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 12))    # xattr_entry_dialog.nml:40
+        self.hint.x = 10    # xattr_entry_dialog.nml:37
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 12))    # xattr_entry_dialog.nml:38

@@ -41,18 +41,18 @@ class TableFormatDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     delimiter_caption: Label    # table_format_dialog.nml:19
-    delimiter: RadioButtons    # table_format_dialog.nml:28
-    other: Field    # table_format_dialog.nml:36
-    options: CheckBoxes    # table_format_dialog.nml:45
-    encoding: ChoiceField    # table_format_dialog.nml:53
+    delimiter: RadioButtons    # table_format_dialog.nml:27
+    other: Field    # table_format_dialog.nml:35
+    options: CheckBoxes    # table_format_dialog.nml:43
+    encoding: ChoiceField    # table_format_dialog.nml:51
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.delimiter_caption = Label(parent=self)    # table_format_dialog.nml:18
-        self.delimiter = RadioButtons(parent=self)    # table_format_dialog.nml:27
-        self.other = Field(parent=self)    # table_format_dialog.nml:35
-        self.options = CheckBoxes(parent=self)    # table_format_dialog.nml:44
-        self.encoding = ChoiceField(parent=self)    # table_format_dialog.nml:52
+        self.delimiter = RadioButtons(parent=self)    # table_format_dialog.nml:26
+        self.other = Field(parent=self)    # table_format_dialog.nml:34
+        self.options = CheckBoxes(parent=self)    # table_format_dialog.nml:42
+        self.encoding = ChoiceField(parent=self)    # table_format_dialog.nml:50
 
         self.modal_width = 50    # table_format_dialog.nml:13
         self.modal_height = 14    # table_format_dialog.nml:14
@@ -62,44 +62,41 @@ class TableFormatDialog(Dialog, _Component):
         self.delimiter_caption.x = 3    # table_format_dialog.nml:20
         self.delimiter_caption.y = 2    # table_format_dialog.nml:21
         self.delimiter_caption.width = 20    # table_format_dialog.nml:22
-        self.delimiter_caption.height = 1    # table_format_dialog.nml:23
-        self.delimiter_caption.text = _bind(    # table_format_dialog.nml:24
+        self.delimiter_caption.text = _bind(    # table_format_dialog.nml:23
             lambda _o: _tr('Delimiter'),
             yielding=True,
         )
-        self.delimiter_caption.link = _bind(lambda _o: self.delimiter)    # table_format_dialog.nml:25
+        self.delimiter_caption.link = _bind(lambda _o: self.delimiter)    # table_format_dialog.nml:24
 
-        self.delimiter.x = 3    # table_format_dialog.nml:29
-        self.delimiter.y = 3    # table_format_dialog.nml:30
-        self.delimiter.width = 18    # table_format_dialog.nml:31
-        self.delimiter.height = 5    # table_format_dialog.nml:32
-        self.delimiter.items = _bind(    # table_format_dialog.nml:33
+        self.delimiter.x = 3    # table_format_dialog.nml:28
+        self.delimiter.y = 3    # table_format_dialog.nml:29
+        self.delimiter.width = 18    # table_format_dialog.nml:30
+        self.delimiter.height = 5    # table_format_dialog.nml:31
+        self.delimiter.items = _bind(    # table_format_dialog.nml:32
             lambda _o: [_tr('~C~omma'), _tr('~S~emicolon'), _tr('~T~ab'), _tr('~P~ipe'), _tr('~O~ther')],
             yielding=True,
         )
 
-        self.other.x = 23    # table_format_dialog.nml:37
-        self.other.y = 7    # table_format_dialog.nml:38
-        self.other.width = 12    # table_format_dialog.nml:39
-        self.other.height = 1    # table_format_dialog.nml:40
-        self.other.label_text = _bind(lambda _o: _tr('C~h~ar'), yielding=True)    # table_format_dialog.nml:41
-        self.other.label_width = 6    # table_format_dialog.nml:42
+        self.other.x = 23    # table_format_dialog.nml:36
+        self.other.y = 7    # table_format_dialog.nml:37
+        self.other.width = 12    # table_format_dialog.nml:38
+        self.other.label_text = _bind(lambda _o: _tr('C~h~ar'), yielding=True)    # table_format_dialog.nml:39
+        self.other.label_width = 6    # table_format_dialog.nml:40
 
-        self.options.x = 23    # table_format_dialog.nml:46
-        self.options.y = 3    # table_format_dialog.nml:47
-        self.options.width = 25    # table_format_dialog.nml:48
-        self.options.height = 1    # table_format_dialog.nml:49
-        self.options.items = _bind(    # table_format_dialog.nml:50
+        self.options.x = 23    # table_format_dialog.nml:44
+        self.options.y = 3    # table_format_dialog.nml:45
+        self.options.width = 25    # table_format_dialog.nml:46
+        self.options.height = 1    # table_format_dialog.nml:47
+        self.options.items = _bind(    # table_format_dialog.nml:48
             lambda _o: [_tr('~F~irst row is a header')],
             yielding=True,
         )
 
-        self.encoding.y = 9    # table_format_dialog.nml:54
-        self.encoding.height = 1    # table_format_dialog.nml:55
-        self.encoding.label_text = _bind(    # table_format_dialog.nml:59
+        self.encoding.y = 9    # table_format_dialog.nml:52
+        self.encoding.label_text = _bind(    # table_format_dialog.nml:56
             lambda _o: _tr('~E~ncoding'),
             yielding=True,
         )
-        self.encoding.label_width = 10    # table_format_dialog.nml:60
-        self.encoding.x = 3    # table_format_dialog.nml:57
-        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:58
+        self.encoding.label_width = 10    # table_format_dialog.nml:57
+        self.encoding.x = 3    # table_format_dialog.nml:54
+        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:55

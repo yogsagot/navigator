@@ -38,6 +38,9 @@ class ProgressBar(Widget):
     #: Navigator drew both halves in one colour; the characters told them apart.
     parts = ("done",)
 
+    #: One row, the bar.
+    default_height = 1
+
     @computed
     def fraction(self) -> float:
         """How much is done, from 0 to 1."""

@@ -24,7 +24,6 @@ CommandPalette(Dialog):
         x: 2
         y: 2
         width: max(1, parent.width - 4)
-        height: 1
 
     CommandList:
         id: results
@@ -37,7 +36,6 @@ CommandPalette(Dialog):
     #: run here.
     StaticText:
         id: hint
-        height: 1
         anchors:
             left: 2
             right: 2

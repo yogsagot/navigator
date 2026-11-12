@@ -49,10 +49,10 @@ class CombineDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     target_caption: Label    # combine_dialog.nml:24
-    target: Field    # combine_dialog.nml:35
-    pick: Button    # combine_dialog.nml:53
-    abandon: Button    # combine_dialog.nml:58
-    tree: Button    # combine_dialog.nml:62
+    target: Field    # combine_dialog.nml:34
+    pick: Button    # combine_dialog.nml:51
+    abandon: Button    # combine_dialog.nml:56
+    tree: Button    # combine_dialog.nml:60
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -62,26 +62,26 @@ class CombineDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # combine_dialog.nml:53
+    async def on_pick_click(self, event: _Event) -> bool:    # combine_dialog.nml:51
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # combine_dialog.nml:58
+    async def on_abandon_click(self, event: _Event) -> bool:    # combine_dialog.nml:56
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # combine_dialog.nml:62
+    async def on_tree_click(self, event: _Event) -> bool:    # combine_dialog.nml:60
         """``tree`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # combine_dialog.nml:23
-        self.target = Field(parent=self)    # combine_dialog.nml:34
-        _w1 = ButtonRow(parent=self)    # combine_dialog.nml:45
-        self.pick = Button(parent=_w1)    # combine_dialog.nml:52
-        self.abandon = Button(parent=_w1)    # combine_dialog.nml:57
-        self.tree = Button(parent=_w1)    # combine_dialog.nml:61
+        self.target = Field(parent=self)    # combine_dialog.nml:33
+        _w1 = ButtonRow(parent=self)    # combine_dialog.nml:43
+        self.pick = Button(parent=_w1)    # combine_dialog.nml:50
+        self.abandon = Button(parent=_w1)    # combine_dialog.nml:55
+        self.tree = Button(parent=_w1)    # combine_dialog.nml:59
 
         self.modal_width = 50    # combine_dialog.nml:15
         self.modal_height = 9    # combine_dialog.nml:16
@@ -89,36 +89,34 @@ class CombineDialog(Dialog, _Component):
         self.buttons = 'none'    # combine_dialog.nml:18
 
         self.target_caption.y = 1    # combine_dialog.nml:25
-        self.target_caption.height = 1    # combine_dialog.nml:26
-        self.target_caption.text = _bind(    # combine_dialog.nml:30
+        self.target_caption.text = _bind(    # combine_dialog.nml:29
             lambda _o: _tr('~C~ombine to'),
             yielding=True,
         )
-        self.target_caption.link = _bind(lambda _o: self.target.entry)    # combine_dialog.nml:31
-        self.target_caption.x = 2    # combine_dialog.nml:28
-        self.target_caption.width = _bind(    # combine_dialog.nml:29
+        self.target_caption.link = _bind(lambda _o: self.target.entry)    # combine_dialog.nml:30
+        self.target_caption.x = 2    # combine_dialog.nml:27
+        self.target_caption.width = _bind(    # combine_dialog.nml:28
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.target.y = 2    # combine_dialog.nml:36
-        self.target.height = 1    # combine_dialog.nml:37
-        self.target.label_text = ''    # combine_dialog.nml:41
-        self.target.label_width = 0    # combine_dialog.nml:42
-        self.target.history_id = 'splitfile'    # combine_dialog.nml:43
-        self.target.x = 2    # combine_dialog.nml:39
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # combine_dialog.nml:40
+        self.target.y = 2    # combine_dialog.nml:35
+        self.target.label_text = ''    # combine_dialog.nml:39
+        self.target.label_width = 0    # combine_dialog.nml:40
+        self.target.history_id = 'splitfile'    # combine_dialog.nml:41
+        self.target.x = 2    # combine_dialog.nml:37
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # combine_dialog.nml:38
 
-        _w1.justify = 'start'    # combine_dialog.nml:46
-        _w1.x = 5# combine_dialog.nml:48
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 5))    # combine_dialog.nml:49
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # combine_dialog.nml:50
+        _w1.justify = 'start'    # combine_dialog.nml:44
+        _w1.x = 5# combine_dialog.nml:46
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 5))    # combine_dialog.nml:47
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # combine_dialog.nml:48
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # combine_dialog.nml:54
-        self.pick.default = True    # combine_dialog.nml:55
-        self.pick.on_click = self.on_pick_click    # combine_dialog.nml:53
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # combine_dialog.nml:52
+        self.pick.default = True    # combine_dialog.nml:53
+        self.pick.on_click = self.on_pick_click    # combine_dialog.nml:51
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # combine_dialog.nml:59
-        self.abandon.on_click = self.on_abandon_click    # combine_dialog.nml:58
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # combine_dialog.nml:57
+        self.abandon.on_click = self.on_abandon_click    # combine_dialog.nml:56
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # combine_dialog.nml:63
-        self.tree.on_click = self.on_tree_click    # combine_dialog.nml:62
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # combine_dialog.nml:61
+        self.tree.on_click = self.on_tree_click    # combine_dialog.nml:60

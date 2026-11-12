@@ -50,6 +50,7 @@ from navml.expression import (
 from navml.parser import (
     AliasDecl,
     Block,
+    ClassAttrDecl,
     EventDecl,
     PropertyDecl,
     StylePropertyDecl,
@@ -341,6 +342,13 @@ def _collect_declaration(
                 f"({declaration.default!r}{values})",
                 declaration.line,
             )
+        )
+        return
+
+    if isinstance(declaration, ClassAttrDecl):
+        value = ast.unparse(ast.parse(declaration.expression, mode="eval"))
+        build.declarations.append(
+            _Line(f"{declaration.name} = {value}", declaration.line)
         )
         return
 

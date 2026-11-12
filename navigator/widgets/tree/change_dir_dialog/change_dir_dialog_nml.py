@@ -54,11 +54,11 @@ class ChangeDirDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     tree: TreeView    # change_dir_dialog.nml:33
     where: StaticText    # change_dir_dialog.nml:44
-    pick: Button    # change_dir_dialog.nml:54
-    drive: Button    # change_dir_dialog.nml:66
-    reread: Button    # change_dir_dialog.nml:76
-    mkdir: Button    # change_dir_dialog.nml:85
-    abandon: Button    # change_dir_dialog.nml:94
+    pick: Button    # change_dir_dialog.nml:53
+    drive: Button    # change_dir_dialog.nml:65
+    reread: Button    # change_dir_dialog.nml:75
+    mkdir: Button    # change_dir_dialog.nml:84
+    abandon: Button    # change_dir_dialog.nml:93
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -72,23 +72,23 @@ class ChangeDirDialog(Dialog, _Component):
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
-    async def on_pick_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:54
+    async def on_pick_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:53
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_drive_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:66
+    async def on_drive_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:65
         """``drive`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_reread_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:76
+    async def on_reread_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:75
         """``reread`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_mkdir_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:85
+    async def on_mkdir_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:84
         """``mkdir`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:94
+    async def on_abandon_click(self, event: _Event) -> bool:    # change_dir_dialog.nml:93
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -96,11 +96,11 @@ class ChangeDirDialog(Dialog, _Component):
         super().__init__(**kwargs)
         self.tree = TreeView(parent=self)    # change_dir_dialog.nml:32
         self.where = StaticText(parent=self)    # change_dir_dialog.nml:43
-        self.pick = Button(parent=self)    # change_dir_dialog.nml:53
-        self.drive = Button(parent=self)    # change_dir_dialog.nml:65
-        self.reread = Button(parent=self)    # change_dir_dialog.nml:75
-        self.mkdir = Button(parent=self)    # change_dir_dialog.nml:84
-        self.abandon = Button(parent=self)    # change_dir_dialog.nml:93
+        self.pick = Button(parent=self)    # change_dir_dialog.nml:52
+        self.drive = Button(parent=self)    # change_dir_dialog.nml:64
+        self.reread = Button(parent=self)    # change_dir_dialog.nml:74
+        self.mkdir = Button(parent=self)    # change_dir_dialog.nml:83
+        self.abandon = Button(parent=self)    # change_dir_dialog.nml:92
 
         self.modal_width = _bind(    # change_dir_dialog.nml:24
             lambda _o: max(49, min(_o.parent.width - 4, _o.parent.width * 3 // 4)) if _o.parent is not None else 49
@@ -120,53 +120,52 @@ class ChangeDirDialog(Dialog, _Component):
         self.tree.on_chosen = self.on_tree_chosen    # change_dir_dialog.nml:33
 
         self.where.name = 'info'    # change_dir_dialog.nml:45
-        self.where.height = 1    # change_dir_dialog.nml:46
-        self.where.text = _bind(    # change_dir_dialog.nml:51
+        self.where.text = _bind(    # change_dir_dialog.nml:50
             lambda _o: ' ' + str(self.tree.selected_node.data) if self.tree.selected_node is not None else ''
         )
-        self.where.x = 1    # change_dir_dialog.nml:48
-        self.where.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # change_dir_dialog.nml:49
-        self.where.y = _bind(    # change_dir_dialog.nml:50
+        self.where.x = 1    # change_dir_dialog.nml:47
+        self.where.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # change_dir_dialog.nml:48
+        self.where.y = _bind(    # change_dir_dialog.nml:49
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # change_dir_dialog.nml:55
-        self.pick.default = True    # change_dir_dialog.nml:56
-        self.pick.y = 2    # change_dir_dialog.nml:57
-        self.pick.width = 11    # change_dir_dialog.nml:58
-        self.pick.height = 2    # change_dir_dialog.nml:59
-        self.pick.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:61
-        self.pick.on_click = self.on_pick_click    # change_dir_dialog.nml:54
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # change_dir_dialog.nml:54
+        self.pick.default = True    # change_dir_dialog.nml:55
+        self.pick.y = 2    # change_dir_dialog.nml:56
+        self.pick.width = 11    # change_dir_dialog.nml:57
+        self.pick.height = 2    # change_dir_dialog.nml:58
+        self.pick.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:60
+        self.pick.on_click = self.on_pick_click    # change_dir_dialog.nml:53
 
-        self.drive.text = _bind(lambda _o: _tr('~D~rive...'), yielding=True)    # change_dir_dialog.nml:67
-        self.drive.disabled = True    # change_dir_dialog.nml:68
-        self.drive.y = 5    # change_dir_dialog.nml:69
-        self.drive.width = 11    # change_dir_dialog.nml:70
-        self.drive.height = 2    # change_dir_dialog.nml:71
-        self.drive.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:73
-        self.drive.on_click = self.on_drive_click    # change_dir_dialog.nml:66
+        self.drive.text = _bind(lambda _o: _tr('~D~rive...'), yielding=True)    # change_dir_dialog.nml:66
+        self.drive.disabled = True    # change_dir_dialog.nml:67
+        self.drive.y = 5    # change_dir_dialog.nml:68
+        self.drive.width = 11    # change_dir_dialog.nml:69
+        self.drive.height = 2    # change_dir_dialog.nml:70
+        self.drive.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:72
+        self.drive.on_click = self.on_drive_click    # change_dir_dialog.nml:65
 
-        self.reread.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # change_dir_dialog.nml:77
-        self.reread.y = 8    # change_dir_dialog.nml:78
-        self.reread.width = 11    # change_dir_dialog.nml:79
-        self.reread.height = 2    # change_dir_dialog.nml:80
-        self.reread.x = _bind(    # change_dir_dialog.nml:82
+        self.reread.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # change_dir_dialog.nml:76
+        self.reread.y = 8    # change_dir_dialog.nml:77
+        self.reread.width = 11    # change_dir_dialog.nml:78
+        self.reread.height = 2    # change_dir_dialog.nml:79
+        self.reread.x = _bind(    # change_dir_dialog.nml:81
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.reread.on_click = self.on_reread_click    # change_dir_dialog.nml:76
+        self.reread.on_click = self.on_reread_click    # change_dir_dialog.nml:75
 
-        self.mkdir.text = _bind(lambda _o: _tr('~M~kDir'), yielding=True)    # change_dir_dialog.nml:86
-        self.mkdir.y = 11    # change_dir_dialog.nml:87
-        self.mkdir.width = 11    # change_dir_dialog.nml:88
-        self.mkdir.height = 2    # change_dir_dialog.nml:89
-        self.mkdir.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:91
-        self.mkdir.on_click = self.on_mkdir_click    # change_dir_dialog.nml:85
+        self.mkdir.text = _bind(lambda _o: _tr('~M~kDir'), yielding=True)    # change_dir_dialog.nml:85
+        self.mkdir.y = 11    # change_dir_dialog.nml:86
+        self.mkdir.width = 11    # change_dir_dialog.nml:87
+        self.mkdir.height = 2    # change_dir_dialog.nml:88
+        self.mkdir.x = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.width))    # change_dir_dialog.nml:90
+        self.mkdir.on_click = self.on_mkdir_click    # change_dir_dialog.nml:84
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # change_dir_dialog.nml:95
-        self.abandon.y = 14    # change_dir_dialog.nml:96
-        self.abandon.width = 11    # change_dir_dialog.nml:97
-        self.abandon.height = 2    # change_dir_dialog.nml:98
-        self.abandon.x = _bind(    # change_dir_dialog.nml:100
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # change_dir_dialog.nml:94
+        self.abandon.y = 14    # change_dir_dialog.nml:95
+        self.abandon.width = 11    # change_dir_dialog.nml:96
+        self.abandon.height = 2    # change_dir_dialog.nml:97
+        self.abandon.x = _bind(    # change_dir_dialog.nml:99
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.abandon.on_click = self.on_abandon_click    # change_dir_dialog.nml:94
+        self.abandon.on_click = self.on_abandon_click    # change_dir_dialog.nml:93

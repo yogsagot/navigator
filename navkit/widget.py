@@ -99,6 +99,14 @@ class Widget:
     #: navkit itself only carries it.
     edits_text: bool = False
 
+    #: The height a widget starts with when its constructor is given none:
+    #: 1 for a control that is one row by nature (a label, an input line), so
+    #: neither markup nor a caller has to say so.  A class attribute rather
+    #: than a redeclared ``height``, which would make ``Widget.height`` name a
+    #: different declaration on that class and ``is_bound(w, Widget.height)``
+    #: refuse it.  Markup overrides it with ``class default_height: 1``.
+    default_height: int = 0
+
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         check_handlers(cls)
@@ -217,7 +225,7 @@ class Widget:
         x: int = 0,
         y: int = 0,
         width: int = 0,
-        height: int = 0,
+        height: int | None = None,
         name: str = "",
         classes: Iterable[str] = (),
         inline_style: Any = None,
@@ -226,7 +234,7 @@ class Widget:
         self.x = x
         self.y = y
         self.width = width
-        self.height = height
+        self.height = self.default_height if height is None else height
         self.name = name
         self.classes = frozenset(classes)
         self.inline_style = inline_style

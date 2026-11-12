@@ -13,7 +13,6 @@ XattrEntryDialog(Dialog):
     Field:
         id: attr_name
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -23,7 +22,6 @@ XattrEntryDialog(Dialog):
     Field:
         id: data
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2

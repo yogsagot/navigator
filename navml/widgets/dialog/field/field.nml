@@ -18,6 +18,9 @@ from navml.widgets.dialog.label import Label
 #: And it is a row, so it *is* a ``HorizontalLayout``: the caption asks for
 #: ``label_width`` columns and no more, and the line takes the rest.
 Field(HorizontalLayout):
+    #: A row: one line high unless a document says otherwise.
+    class default_height: 1
+
     #: The caption, with one ``~A~`` run.
     property label_text: ""
 

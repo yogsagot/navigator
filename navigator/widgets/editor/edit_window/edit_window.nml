@@ -141,7 +141,6 @@ EditWindow(Window):
         visible: root.active
         x: 2
         width: min(display_width(editor.info_text), max(0, parent.width - 4))
-        height: 1
         anchors:
             bottom: 0
         text: editor.info_text
@@ -155,7 +154,6 @@ EditWindow(Window):
         name: "info"
         visible: root.active
         width: min(display_width(editor.format_text), max(0, parent.width - 3 - self.x))
-        height: 1
         anchors:
             after: info + 1
             bottom: 0

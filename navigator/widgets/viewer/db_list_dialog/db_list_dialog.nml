@@ -13,7 +13,6 @@ DBListDialog(Dialog):
     StaticText:
         id: heading
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2

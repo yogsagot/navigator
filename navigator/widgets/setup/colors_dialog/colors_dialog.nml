@@ -26,7 +26,6 @@ ColorsDialog(Dialog):
         x: 2
         y: 2
         width: 21
-        height: 1
         text: "~G~roup"
         link: groups
 
@@ -42,7 +41,6 @@ ColorsDialog(Dialog):
         x: 25
         y: 2
         width: 7
-        height: 1
         text: "~I~tem"
         link: items
 
@@ -58,7 +56,6 @@ ColorsDialog(Dialog):
         x: 54
         y: 2
         width: 12
-        height: 1
         text: "~F~oreground"
         link: foreground
 
@@ -74,7 +71,6 @@ ColorsDialog(Dialog):
         x: 54
         y: 8
         width: 12
-        height: 1
         text: "~B~ackground"
         link: background
 
@@ -96,7 +92,6 @@ ColorsDialog(Dialog):
     StaticText:
         id: hint
         y: 15
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -107,7 +102,6 @@ ColorsDialog(Dialog):
         x: 2
         y: 16
         width: 31
-        height: 1
         label_text: "Fo~r~eground"
         label_width: 12
 
@@ -116,7 +110,6 @@ ColorsDialog(Dialog):
         x: 35
         y: 16
         width: 31
-        height: 1
         label_text: "Bac~k~ground"
         label_width: 12
 

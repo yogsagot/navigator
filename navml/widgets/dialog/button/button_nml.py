@@ -71,6 +71,5 @@ class Button(Control, _Component):
         self.caption.width = _bind(    # button.nml:41
             lambda _o: max(0, _o.parent.width - (2 if _o.parent.flat else 3) + (2 if display_width(parse_shortcut(_o.parent.text)[0]) > _o.parent.width - (2 if _o.parent.flat else 3) else 0))
         )
-        self.caption.height = 1    # button.nml:42
-        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:43
-        self.caption.align = 'center'    # button.nml:44
+        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:42
+        self.caption.align = 'center'    # button.nml:43

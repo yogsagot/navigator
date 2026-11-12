@@ -154,6 +154,10 @@ class StaticText(Widget):
     #: case *Parts* exists for.
     parts = ("shortcut",)
 
+    #: One row: most text is a single line, and a block that wraps says how
+    #: many rows it takes.
+    default_height = 1
+
     def render(self, surface: Surface) -> None:
         style, shortcut = self.style, self.part_style("shortcut")
         caption, _, _ = parse_shortcut(self.text)

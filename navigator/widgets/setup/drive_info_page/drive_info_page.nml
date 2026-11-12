@@ -16,7 +16,6 @@ DriveInfoPage:
         x: 2
         y: 1
         width: 20
-        height: 1
         text: "Items to display"
         link: options
 

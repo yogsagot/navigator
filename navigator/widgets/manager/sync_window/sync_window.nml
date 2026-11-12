@@ -69,7 +69,6 @@ SyncWindow(Window):
         name: "info"
         x: 1
         width: min(display_width(self.text), max(0, parent.width - 3))
-        height: 1
         anchors:
             bottom: 0
 
@@ -97,7 +96,6 @@ SyncWindow(Window):
 
     StaticText:
         id: summary
-        height: 1
         anchors:
             left: 2
             right: 2

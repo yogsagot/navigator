@@ -10,6 +10,9 @@ from navml.widgets.dialog.label import Label
 #: shown -- it is the one way in that a mouse has -- and ``choices`` is what
 #: it drops; there is no history.
 ChoiceField(HorizontalLayout):
+    #: A row: one line high unless a document says otherwise.
+    class default_height: 1
+
     #: The caption, with one ``~A~`` run.
     property label_text: ""
 

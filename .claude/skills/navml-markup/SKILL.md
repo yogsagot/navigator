@@ -55,6 +55,17 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
   `_bind(lambda _o: _tr('...'), yielding=True)` -- live on a language change, and replaced (not refused) by a later
   assignment from Python. Other properties' strings (`key:`, `history_id:`, `after:`) are names, never translated
   (`i18n` skill).
+- **`class NAME: VALUE` overrides a plain class attribute the base already has** (root only): it lands in the
+  generated class body as `NAME = VALUE`. The value is class-level, like a `keys:` line: it may name the imports and
+  nothing else (no `self`, ids or builtins). Refused, with the line: a name the base lacks (a typo), and a reactive,
+  style property, `property` or method, which a bare value would stop being for every instance. `field.nml`'s
+  `class default_height: 1` is the example. It is not in `resolved.declared`, so no expression follows it and no
+  property line binds it.
+- **Single-row controls are one row high by default** (`Widget.default_height`, which the constructor uses when given
+  no height): Label, InputLine and its subclasses, StaticText, ProgressBar, Field, MaskedField and ChoiceField. **Do
+  not write `height: 1` under them.** Write a height only when it differs, or when a `when` block varies it (a
+  variant needs a line of the widget's to fall back on). `default_height` is a class attribute, not a redeclared
+  `height`, because `is_bound(w, Widget.height)` refuses a class that redeclares the name.
 - `equal=` is not expressible in markup (a comparator is a function); declare such a property in the hand-written half.
 - markup assigns a component's own `stylesheet` like any other property (`stylesheet` is what an object brings,
   `effective_stylesheet` what it resolves against).

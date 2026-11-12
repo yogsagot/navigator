@@ -53,12 +53,11 @@ class MkdirDialog(Dialog, _Component):
         self.close_on_outside_click = True    # mkdir_dialog.nml:20
 
         self.entry.y = 2    # mkdir_dialog.nml:26
-        self.entry.height = 1    # mkdir_dialog.nml:27
-        self.entry.label_text = _bind(    # mkdir_dialog.nml:32
+        self.entry.label_text = _bind(    # mkdir_dialog.nml:31
             lambda _o: _tr('~D~irectory name'),
             yielding=True,
         )
-        self.entry.label_width = 17    # mkdir_dialog.nml:33
-        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:35
-        self.entry.x = 2    # mkdir_dialog.nml:29
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:30
+        self.entry.label_width = 17    # mkdir_dialog.nml:32
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:34
+        self.entry.x = 2    # mkdir_dialog.nml:28
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:29

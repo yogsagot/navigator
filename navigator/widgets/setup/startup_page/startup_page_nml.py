@@ -43,51 +43,49 @@ class StartupPage(_Component):
 
     #: Ids, annotated so the hand-written half completes them.
     startup_caption: Label    # startup_page.nml:16
-    startup: CheckBoxes    # startup_page.nml:25
-    shutdown_caption: Label    # startup_page.nml:34
-    shutdown: CheckBoxes    # startup_page.nml:43
+    startup: CheckBoxes    # startup_page.nml:24
+    shutdown_caption: Label    # startup_page.nml:33
+    shutdown: CheckBoxes    # startup_page.nml:41
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.startup_caption = Label(parent=self)    # startup_page.nml:15
-        self.startup = CheckBoxes(parent=self)    # startup_page.nml:24
-        self.shutdown_caption = Label(parent=self)    # startup_page.nml:33
-        self.shutdown = CheckBoxes(parent=self)    # startup_page.nml:42
+        self.startup = CheckBoxes(parent=self)    # startup_page.nml:23
+        self.shutdown_caption = Label(parent=self)    # startup_page.nml:32
+        self.shutdown = CheckBoxes(parent=self)    # startup_page.nml:40
 
         self.startup_caption.x = 2    # startup_page.nml:17
         self.startup_caption.y = 1    # startup_page.nml:18
         self.startup_caption.width = 20    # startup_page.nml:19
-        self.startup_caption.height = 1    # startup_page.nml:20
-        self.startup_caption.text = _bind(    # startup_page.nml:21
+        self.startup_caption.text = _bind(    # startup_page.nml:20
             lambda _o: _tr('Startup options'),
             yielding=True,
         )
-        self.startup_caption.link = _bind(lambda _o: self.startup)    # startup_page.nml:22
+        self.startup_caption.link = _bind(lambda _o: self.startup)    # startup_page.nml:21
 
-        self.startup.y = 2    # startup_page.nml:26
-        self.startup.height = 1    # startup_page.nml:27
-        self.startup.items = _bind(    # startup_page.nml:31
+        self.startup.y = 2    # startup_page.nml:25
+        self.startup.height = 1    # startup_page.nml:26
+        self.startup.items = _bind(    # startup_page.nml:30
             lambda _o: [_tr('Auto run ~U~ser Menu'), _tr('Clear ~H~istory')],
             yielding=True,
         )
-        self.startup.x = 2    # startup_page.nml:29
-        self.startup.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:30
+        self.startup.x = 2    # startup_page.nml:28
+        self.startup.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:29
 
-        self.shutdown_caption.x = 2    # startup_page.nml:35
-        self.shutdown_caption.y = 4    # startup_page.nml:36
-        self.shutdown_caption.width = 20    # startup_page.nml:37
-        self.shutdown_caption.height = 1    # startup_page.nml:38
-        self.shutdown_caption.text = _bind(    # startup_page.nml:39
+        self.shutdown_caption.x = 2    # startup_page.nml:34
+        self.shutdown_caption.y = 4    # startup_page.nml:35
+        self.shutdown_caption.width = 20    # startup_page.nml:36
+        self.shutdown_caption.text = _bind(    # startup_page.nml:37
             lambda _o: _tr('Shutdown options'),
             yielding=True,
         )
-        self.shutdown_caption.link = _bind(lambda _o: self.shutdown)    # startup_page.nml:40
+        self.shutdown_caption.link = _bind(lambda _o: self.shutdown)    # startup_page.nml:38
 
-        self.shutdown.y = 5    # startup_page.nml:44
-        self.shutdown.height = 2    # startup_page.nml:45
-        self.shutdown.items = _bind(    # startup_page.nml:49
+        self.shutdown.y = 5    # startup_page.nml:42
+        self.shutdown.height = 2    # startup_page.nml:43
+        self.shutdown.items = _bind(    # startup_page.nml:47
             lambda _o: [_tr('~I~nactivity hour exit'), _tr('Autosave ~D~esktop'), _tr('~P~reserve directory')],
             yielding=True,
         )
-        self.shutdown.x = 2    # startup_page.nml:47
-        self.shutdown.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:48
+        self.shutdown.x = 2    # startup_page.nml:45
+        self.shutdown.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:46

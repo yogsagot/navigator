@@ -77,7 +77,6 @@ UsageWindow(Window):
 
     StaticText:
         id: status
-        height: 1
         anchors:
             left: 2
             right: 26

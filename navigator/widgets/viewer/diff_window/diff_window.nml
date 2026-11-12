@@ -65,7 +65,6 @@ DiffWindow(Window):
         name: "info"
         x: 1
         width: min(display_width(view.info_text), max(0, parent.width - 3))
-        height: 1
         anchors:
             bottom: 0
         text: view.info_text

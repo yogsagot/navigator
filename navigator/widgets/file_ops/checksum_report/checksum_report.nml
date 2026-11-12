@@ -28,7 +28,6 @@ ChecksumReport(Dialog):
         x: 2
         y: 6
         width: 12
-        height: 1
         text: "~P~roblems"
         link: bad
         visible: len(bad.items) > 0

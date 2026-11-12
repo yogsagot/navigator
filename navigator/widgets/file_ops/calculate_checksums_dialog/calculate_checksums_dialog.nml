@@ -21,7 +21,6 @@ CalculateChecksumsDialog(Dialog):
         x: 2
         y: 1
         width: 12
-        height: 1
         text: "~A~lgorithm"
         link: algorithm
 
@@ -38,7 +37,6 @@ CalculateChecksumsDialog(Dialog):
         x: 24
         y: 1
         width: 12
-        height: 1
         text: "~W~rite"
         link: mode
 
@@ -55,7 +53,6 @@ CalculateChecksumsDialog(Dialog):
     Field:
         id: list_name
         y: 8
-        height: 1
         anchors:
             left: 2
             right: 2

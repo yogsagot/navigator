@@ -23,7 +23,6 @@ ColumnsDialog(Dialog):
         x: 3
         y: 1
         width: 6
-        height: 1
         text: "Show"
         link: show
 

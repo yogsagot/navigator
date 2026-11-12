@@ -50,12 +50,11 @@ class WinnerDialog(Dialog, _Component):
         self.buttons = 'ok-cancel'    # winner_dialog.nml:11
 
         self.player.y = 2    # winner_dialog.nml:15
-        self.player.height = 1    # winner_dialog.nml:16
-        self.player.label_text = _bind(    # winner_dialog.nml:20
+        self.player.label_text = _bind(    # winner_dialog.nml:19
             lambda _o: _tr('Enter your name:'),
             yielding=True,
         )
-        self.player.label_width = 18    # winner_dialog.nml:21
-        self.player.history_id = 'tetris'    # winner_dialog.nml:22
-        self.player.x = 2    # winner_dialog.nml:18
-        self.player.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # winner_dialog.nml:19
+        self.player.label_width = 18    # winner_dialog.nml:20
+        self.player.history_id = 'tetris'    # winner_dialog.nml:21
+        self.player.x = 2    # winner_dialog.nml:17
+        self.player.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # winner_dialog.nml:18

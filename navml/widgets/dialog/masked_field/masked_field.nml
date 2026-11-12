@@ -5,6 +5,9 @@ from navml.widgets.dialog.label import Label
 #: A caption and a :class:`MaskedLine`: digits in fixed places, and nothing
 #: else.  :class:`Field`'s shape without the history button, markup alone.
 MaskedField(HorizontalLayout):
+    #: A row: one line high unless a document says otherwise.
+    class default_height: 1
+
     #: The caption, with one ``~A~`` run.
     property label_text: ""
 

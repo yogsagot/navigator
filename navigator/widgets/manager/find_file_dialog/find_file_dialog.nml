@@ -28,7 +28,6 @@ FindFileDialog(Dialog):
     Field:
         id: mask
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -40,7 +39,6 @@ FindFileDialog(Dialog):
     Field:
         id: text
         y: 4
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -53,7 +51,6 @@ FindFileDialog(Dialog):
         id: replacement
         visible: root.replacing
         y: 6
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -65,7 +62,6 @@ FindFileDialog(Dialog):
         id: options_caption
         x: 3
         width: 12
-        height: 1
         anchors:
             below: replacement, text + 1
         text: "Options"
@@ -85,7 +81,6 @@ FindFileDialog(Dialog):
         id: scope_caption
         x: 3
         width: 10
-        height: 1
         anchors:
             below: options + 1
         text: "Scope"

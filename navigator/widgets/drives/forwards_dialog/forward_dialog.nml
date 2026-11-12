@@ -19,7 +19,6 @@ ForwardDialog(Dialog):
         x: 2
         y: 1
         width: 20
-        height: 1
         text: "Kind"
         link: kind
 
@@ -45,7 +44,6 @@ ForwardDialog(Dialog):
     Field:
         id: bind
         y: 6
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -58,7 +56,6 @@ ForwardDialog(Dialog):
         x: 2
         y: 7
         width: 30
-        height: 1
         label_text: "Listen ~p~ort"
         label_width: 19
         history_id: "forward_port"
@@ -66,7 +63,6 @@ ForwardDialog(Dialog):
     Field:
         id: host
         y: 8
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -79,7 +75,6 @@ ForwardDialog(Dialog):
         x: 2
         y: 9
         width: 30
-        height: 1
         label_text: "Destination p~o~rt"
         label_width: 19
         history_id: "forward_host_port"

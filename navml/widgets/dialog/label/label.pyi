@@ -20,6 +20,7 @@ class Label(Control, _Component):
     link: _Any
     parts: _Any
     accepts_focus: _Any
+    default_height: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
     selected: bool
     async def activate(self, letter: str = ...) -> bool: ...

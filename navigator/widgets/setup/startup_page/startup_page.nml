@@ -17,7 +17,6 @@ StartupPage:
         x: 2
         y: 1
         width: 20
-        height: 1
         text: "Startup options"
         link: startup
 
@@ -35,7 +34,6 @@ StartupPage:
         x: 2
         y: 4
         width: 20
-        height: 1
         text: "Shutdown options"
         link: shutdown
 

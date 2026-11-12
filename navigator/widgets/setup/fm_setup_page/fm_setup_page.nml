@@ -37,7 +37,6 @@ FMSetupPage:
         x: 2
         y: 1
         width: 12
-        height: 1
         text: "Behavior"
         link: behavior
 
@@ -54,7 +53,6 @@ FMSetupPage:
         x: 2
         y: 16
         width: 31
-        height: 1
         label_text: "Miller column ~w~idth:"
         label_width: 25
 
@@ -63,7 +61,6 @@ FMSetupPage:
         x: 37
         y: 1
         width: 12
-        height: 1
         text: "Display"
         link: display
 
@@ -81,7 +78,6 @@ FMSetupPage:
         x: 37
         y: 8
         width: 16
-        height: 1
         label_text: "Ta~g~ sign:"
         label_width: 12
 
@@ -90,7 +86,6 @@ FMSetupPage:
         x: 37
         y: 10
         width: 14
-        height: 1
         text: "Right button"
         link: right_button
 
@@ -106,7 +101,6 @@ FMSetupPage:
     Label:
         id: remember_caption
         y: 13
-        height: 1
         anchors:
             left: 37
             right: 2

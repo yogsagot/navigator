@@ -69,7 +69,6 @@ ServiceWindow(Window):
         x: 2
         y: 1
         width: root.caption_width(self.text) + 1
-        height: 1
         text: "~F~ilter"
         link: filter
 
@@ -79,7 +78,6 @@ ServiceWindow(Window):
         id: filter
         y: 1
         width: max(1, parent.width - 6 - self.x)
-        height: 1
         anchors:
             after: filter_caption
         tooltip: "Show only the units whose name or description holds this"
@@ -106,7 +104,6 @@ ServiceWindow(Window):
 
     StaticText:
         id: status
-        height: 1
         anchors:
             left: 2
             right: 2

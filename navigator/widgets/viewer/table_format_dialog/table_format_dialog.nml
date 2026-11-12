@@ -20,7 +20,6 @@ TableFormatDialog(Dialog):
         x: 3
         y: 2
         width: 20
-        height: 1
         text: "Delimiter"
         link: delimiter
 
@@ -37,7 +36,6 @@ TableFormatDialog(Dialog):
         x: 23
         y: 7
         width: 12
-        height: 1
         label_text: "C~h~ar"
         label_width: 6
 
@@ -52,7 +50,6 @@ TableFormatDialog(Dialog):
     ChoiceField:
         id: encoding
         y: 9
-        height: 1
         anchors:
             left: 3
             right: 3

@@ -13,7 +13,6 @@ GotoDialog(Dialog):
     Field:
         id: address
         y: 2
-        height: 1
         anchors:
             left: 3
             right: 3

@@ -19,7 +19,6 @@ MultiRenameDialog(Dialog):
     Field:
         id: name_mask
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -30,7 +29,6 @@ MultiRenameDialog(Dialog):
     Field:
         id: ext_mask
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -41,7 +39,6 @@ MultiRenameDialog(Dialog):
     Field:
         id: search
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -52,7 +49,6 @@ MultiRenameDialog(Dialog):
     Field:
         id: replace
         y: 4
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -76,7 +72,6 @@ MultiRenameDialog(Dialog):
         x: 2
         y: 11
         width: 47
-        height: 1
         label_text: "C~o~de page"
         label_width: 11
         disabled: not (options.value & 8)
@@ -86,7 +81,6 @@ MultiRenameDialog(Dialog):
         x: 31
         y: 5
         width: 10
-        height: 1
         text: "Case"
         link: case
 
@@ -103,7 +97,6 @@ MultiRenameDialog(Dialog):
         x: 51
         y: 6
         width: 22
-        height: 1
         label_text: "Coun~t~er"
         label_width: 9
 
@@ -112,7 +105,6 @@ MultiRenameDialog(Dialog):
         x: 51
         y: 7
         width: 22
-        height: 1
         label_text: "Step"
         label_width: 9
 
@@ -121,7 +113,6 @@ MultiRenameDialog(Dialog):
         x: 51
         y: 8
         width: 22
-        height: 1
         label_text: "~D~igits"
         label_width: 9
 
@@ -135,7 +126,6 @@ MultiRenameDialog(Dialog):
 
     StaticText:
         id: status
-        height: 1
         anchors:
             left: 2
             right: 2

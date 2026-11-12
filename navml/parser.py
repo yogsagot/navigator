@@ -58,9 +58,10 @@ from navml.errors import MarkupError
 RESERVED = frozenset({"self", "root", "parent", "event"})
 
 #: Directive keywords with a two-token head: ``property text: ""``.  ``event``
-#: is the fourth directive and is not here, because it is the one line in the
-#: language that carries no colon at all.
-DIRECTIVES = frozenset({"property", "style_property", "alias"})
+#: is the fifth directive and is not here, because it is the one line in the
+#: language that carries no colon at all.  ``class default_height: 1``
+#: overrides a plain class attribute the base already has.
+DIRECTIVES = frozenset({"property", "style_property", "alias", "class"})
 
 #: The directives of a *model* document, whose root extends
 #: :class:`navkit.database.Model` and declares a table rather than a widget:
@@ -171,6 +172,21 @@ class AliasDecl:
 
 
 @dataclass(frozen=True, slots=True)
+class ClassAttrDecl:
+    """``class default_height: 1`` -- a class attribute the base already has.
+
+    Not reactive and not per instance: the value is a class-level expression,
+    evaluated once with the class body, so like a ``keys:`` line it may name
+    nothing but the imports.
+    """
+
+    name: str
+    expression: str
+    line: int
+    doc: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class EventDecl:
     """``event ClickEvent`` -- the class, not the handler name."""
 
@@ -213,7 +229,8 @@ class IndexDecl:
 #: same breath and which is a different thing entirely: a descriptor on a
 #: class, rather than a line in a document.
 Directive = (
-    PropertyDecl | StylePropertyDecl | AliasDecl | EventDecl | FieldDecl | IndexDecl
+    PropertyDecl | StylePropertyDecl | AliasDecl | ClassAttrDecl | EventDecl
+    | FieldDecl | IndexDecl
 )
 
 
@@ -733,6 +750,9 @@ def _leaf(
         if keyword_ == "property":
             _expression(rest, f"the value of {name!r}", line.line, filename)
             return "declaration", PropertyDecl(name, rest, line.line, line.doc)
+        if keyword_ == "class":
+            _expression(rest, f"the value of {name!r}", line.line, filename)
+            return "declaration", ClassAttrDecl(name, rest, line.line, line.doc)
         if keyword_ == "style_property":
             default, values = _style_property(name, rest, line.line, filename)
             return "declaration", StylePropertyDecl(

@@ -31,7 +31,6 @@ InterfacePage:
         x: 2
         y: 8
         width: 20
-        height: 1
         label_text: "~H~istory size"
         label_width: 15
         mask: "999"
@@ -45,7 +44,6 @@ InterfacePage:
         x: 26
         y: 8
         width: 26
-        height: 1
         label_text: "Tooltip delay (ms)"
         label_width: 20
         mask: "9999"
@@ -59,7 +57,6 @@ InterfacePage:
         x: 2
         y: 10
         width: 40
-        height: 1
         label_text: "La~n~guage"
         label_width: 15
 
@@ -70,7 +67,6 @@ InterfacePage:
         x: 2
         y: 11
         width: 40
-        height: 1
         label_text: "Colou~r~s"
         label_width: 15
 
@@ -81,7 +77,6 @@ InterfacePage:
         x: 2
         y: 12
         width: 40
-        height: 1
         label_text: "Gl~y~phs"
         label_width: 15
 
@@ -106,7 +101,6 @@ InterfacePage:
         x: 2
         y: 13
         width: 40
-        height: 1
         label_text: "Mar~k~s"
         label_width: 15
 
@@ -117,7 +111,6 @@ InterfacePage:
         x: 2
         y: 14
         width: 40
-        height: 1
         label_text: "Te~x~t direction"
         label_width: 15
 
@@ -128,7 +121,6 @@ InterfacePage:
         x: 2
         y: 15
         width: 15
-        height: 1
         text: "Settin~g~s tabs"
         link: settings_tabs
 
@@ -146,7 +138,6 @@ InterfacePage:
         x: 2
         y: 16
         width: 15
-        height: 1
         text: "W~i~ndow strip"
         link: window_strip
 

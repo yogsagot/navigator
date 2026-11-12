@@ -24,7 +24,6 @@ FindDialog(Dialog):
         x: 3
         y: 2
         width: 49
-        height: 1
         label_text: "~T~ext to find"
         label_width: 14
         history_id: "find_text"
@@ -35,7 +34,6 @@ FindDialog(Dialog):
         x: 7
         y: 4
         width: 45
-        height: 1
         label_text: "~N~ew text"
         label_width: 10
         history_id: "find_text"
@@ -46,7 +44,6 @@ FindDialog(Dialog):
         link: options
         x: 3
         width: 24
-        height: 1
         anchors:
             below: new, text + 1
 
@@ -66,7 +63,6 @@ FindDialog(Dialog):
         link: direction
         x: 30
         width: 22
-        height: 1
         anchors:
             below: new, text + 1
 
@@ -85,7 +81,6 @@ FindDialog(Dialog):
         link: scope
         x: 3
         width: 24
-        height: 1
         anchors:
             below: options + 1
 
@@ -104,7 +99,6 @@ FindDialog(Dialog):
         link: origin
         x: 30
         width: 22
-        height: 1
         anchors:
             below: options + 1
 

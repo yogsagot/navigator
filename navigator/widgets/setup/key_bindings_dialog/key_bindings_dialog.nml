@@ -20,7 +20,6 @@ KeyBindingsDialog(Dialog):
         x: 2
         y: 2
         width: 12
-        height: 1
         text: "C~a~tegory"
         link: groups
 
@@ -36,7 +35,6 @@ KeyBindingsDialog(Dialog):
         x: 22
         y: 2
         width: 12
-        height: 1
         text: "Co~m~mands"
         link: bindings
 

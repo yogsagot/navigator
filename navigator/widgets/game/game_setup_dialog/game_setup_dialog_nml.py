@@ -40,13 +40,13 @@ class GameSetupDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     level_caption: Label    # game_setup_dialog.nml:17
-    level: RadioButtons    # game_setup_dialog.nml:26
-    style_caption: Label    # game_setup_dialog.nml:34
-    game_style: RadioButtons    # game_setup_dialog.nml:43
-    options_caption: Label    # game_setup_dialog.nml:51
-    options: CheckBoxes    # game_setup_dialog.nml:60
-    pick: Button    # game_setup_dialog.nml:69
-    abandon: Button    # game_setup_dialog.nml:78
+    level: RadioButtons    # game_setup_dialog.nml:25
+    style_caption: Label    # game_setup_dialog.nml:33
+    game_style: RadioButtons    # game_setup_dialog.nml:41
+    options_caption: Label    # game_setup_dialog.nml:49
+    options: CheckBoxes    # game_setup_dialog.nml:57
+    pick: Button    # game_setup_dialog.nml:66
+    abandon: Button    # game_setup_dialog.nml:75
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -56,24 +56,24 @@ class GameSetupDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:69
+    async def on_pick_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:66
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:78
+    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:75
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.level_caption = Label(parent=self)    # game_setup_dialog.nml:16
-        self.level = RadioButtons(parent=self)    # game_setup_dialog.nml:25
-        self.style_caption = Label(parent=self)    # game_setup_dialog.nml:33
-        self.game_style = RadioButtons(parent=self)    # game_setup_dialog.nml:42
-        self.options_caption = Label(parent=self)    # game_setup_dialog.nml:50
-        self.options = CheckBoxes(parent=self)    # game_setup_dialog.nml:59
-        self.pick = Button(parent=self)    # game_setup_dialog.nml:68
-        self.abandon = Button(parent=self)    # game_setup_dialog.nml:77
+        self.level = RadioButtons(parent=self)    # game_setup_dialog.nml:24
+        self.style_caption = Label(parent=self)    # game_setup_dialog.nml:32
+        self.game_style = RadioButtons(parent=self)    # game_setup_dialog.nml:40
+        self.options_caption = Label(parent=self)    # game_setup_dialog.nml:48
+        self.options = CheckBoxes(parent=self)    # game_setup_dialog.nml:56
+        self.pick = Button(parent=self)    # game_setup_dialog.nml:65
+        self.abandon = Button(parent=self)    # game_setup_dialog.nml:74
 
         self.modal_width = 53    # game_setup_dialog.nml:11
         self.modal_height = 15    # game_setup_dialog.nml:12
@@ -83,72 +83,69 @@ class GameSetupDialog(Dialog, _Component):
         self.level_caption.x = 3    # game_setup_dialog.nml:18
         self.level_caption.y = 2    # game_setup_dialog.nml:19
         self.level_caption.width = 8    # game_setup_dialog.nml:20
-        self.level_caption.height = 1    # game_setup_dialog.nml:21
-        self.level_caption.text = _bind(lambda _o: _tr('Level'), yielding=True)    # game_setup_dialog.nml:22
-        self.level_caption.link = _bind(lambda _o: self.level)    # game_setup_dialog.nml:23
+        self.level_caption.text = _bind(lambda _o: _tr('Level'), yielding=True)    # game_setup_dialog.nml:21
+        self.level_caption.link = _bind(lambda _o: self.level)    # game_setup_dialog.nml:22
 
-        self.level.x = 3    # game_setup_dialog.nml:27
-        self.level.y = 3    # game_setup_dialog.nml:28
-        self.level.width = 25    # game_setup_dialog.nml:29
-        self.level.height = 10    # game_setup_dialog.nml:30
-        self.level.items = _bind(    # game_setup_dialog.nml:31
+        self.level.x = 3    # game_setup_dialog.nml:26
+        self.level.y = 3    # game_setup_dialog.nml:27
+        self.level.width = 25    # game_setup_dialog.nml:28
+        self.level.height = 10    # game_setup_dialog.nml:29
+        self.level.items = _bind(    # game_setup_dialog.nml:30
             lambda _o: [_tr('~1~ - Baby'), _tr('~2~ - Little fella'), _tr('~3~ - Big child'), _tr("~4~ - It's easy"), _tr('~5~ - Never mind'), _tr("~6~ - I'm powerful !"), _tr('~7~ - Insanity coming'), _tr('~8~ - So what ?..'), _tr('~9~ - Madness'), _tr('1~0~ - Sanitarium')],
             yielding=True,
         )
 
-        self.style_caption.x = 30    # game_setup_dialog.nml:35
-        self.style_caption.y = 2    # game_setup_dialog.nml:36
-        self.style_caption.width = 12    # game_setup_dialog.nml:37
-        self.style_caption.height = 1    # game_setup_dialog.nml:38
-        self.style_caption.text = _bind(    # game_setup_dialog.nml:39
+        self.style_caption.x = 30    # game_setup_dialog.nml:34
+        self.style_caption.y = 2    # game_setup_dialog.nml:35
+        self.style_caption.width = 12    # game_setup_dialog.nml:36
+        self.style_caption.text = _bind(    # game_setup_dialog.nml:37
             lambda _o: _tr('~G~ame style'),
             yielding=True,
         )
-        self.style_caption.link = _bind(lambda _o: self.game_style)    # game_setup_dialog.nml:40
+        self.style_caption.link = _bind(lambda _o: self.game_style)    # game_setup_dialog.nml:38
 
-        self.game_style.x = 30    # game_setup_dialog.nml:44
-        self.game_style.y = 3    # game_setup_dialog.nml:45
-        self.game_style.width = 20    # game_setup_dialog.nml:46
-        self.game_style.height = 2    # game_setup_dialog.nml:47
-        self.game_style.items = _bind(    # game_setup_dialog.nml:48
+        self.game_style.x = 30    # game_setup_dialog.nml:42
+        self.game_style.y = 3    # game_setup_dialog.nml:43
+        self.game_style.width = 20    # game_setup_dialog.nml:44
+        self.game_style.height = 2    # game_setup_dialog.nml:45
+        self.game_style.items = _bind(    # game_setup_dialog.nml:46
             lambda _o: [_tr('Classic ~t~etris'), _tr('Penti~x~')],
             yielding=True,
         )
 
-        self.options_caption.x = 30    # game_setup_dialog.nml:52
-        self.options_caption.y = 6    # game_setup_dialog.nml:53
-        self.options_caption.width = 10    # game_setup_dialog.nml:54
-        self.options_caption.height = 1    # game_setup_dialog.nml:55
-        self.options_caption.text = _bind(    # game_setup_dialog.nml:56
+        self.options_caption.x = 30    # game_setup_dialog.nml:50
+        self.options_caption.y = 6    # game_setup_dialog.nml:51
+        self.options_caption.width = 10    # game_setup_dialog.nml:52
+        self.options_caption.text = _bind(    # game_setup_dialog.nml:53
             lambda _o: _tr('~O~ptions'),
             yielding=True,
         )
-        self.options_caption.link = _bind(lambda _o: self.options)    # game_setup_dialog.nml:57
+        self.options_caption.link = _bind(lambda _o: self.options)    # game_setup_dialog.nml:54
 
-        self.options.x = 30    # game_setup_dialog.nml:61
-        self.options.y = 7    # game_setup_dialog.nml:62
-        self.options.width = 19    # game_setup_dialog.nml:63
-        self.options.height = 1    # game_setup_dialog.nml:64
-        self.options.items = _bind(    # game_setup_dialog.nml:65
+        self.options.x = 30    # game_setup_dialog.nml:58
+        self.options.y = 7    # game_setup_dialog.nml:59
+        self.options.width = 19    # game_setup_dialog.nml:60
+        self.options.height = 1    # game_setup_dialog.nml:61
+        self.options.items = _bind(    # game_setup_dialog.nml:62
             lambda _o: [_tr('~P~iece preview')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # game_setup_dialog.nml:66
+        self.options.tooltips = _bind(    # game_setup_dialog.nml:63
             lambda _o: [_tr('Show the next piece (it scores less)')],
             yielding=True,
         )
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # game_setup_dialog.nml:70
-        self.pick.default = True    # game_setup_dialog.nml:71
-        self.pick.x = 40    # game_setup_dialog.nml:72
-        self.pick.y = 9    # game_setup_dialog.nml:73
-        self.pick.width = 11    # game_setup_dialog.nml:74
-        self.pick.height = 2    # game_setup_dialog.nml:75
-        self.pick.on_click = self.on_pick_click    # game_setup_dialog.nml:69
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # game_setup_dialog.nml:67
+        self.pick.default = True    # game_setup_dialog.nml:68
+        self.pick.x = 40    # game_setup_dialog.nml:69
+        self.pick.y = 9    # game_setup_dialog.nml:70
+        self.pick.width = 11    # game_setup_dialog.nml:71
+        self.pick.height = 2    # game_setup_dialog.nml:72
+        self.pick.on_click = self.on_pick_click    # game_setup_dialog.nml:66
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:79
-        self.abandon.x = 40    # game_setup_dialog.nml:80
-        self.abandon.y = 11    # game_setup_dialog.nml:81
-        self.abandon.width = 11    # game_setup_dialog.nml:82
-        self.abandon.height = 2    # game_setup_dialog.nml:83
-        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:78
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:76
+        self.abandon.x = 40    # game_setup_dialog.nml:77
+        self.abandon.y = 11    # game_setup_dialog.nml:78
+        self.abandon.width = 11    # game_setup_dialog.nml:79
+        self.abandon.height = 2    # game_setup_dialog.nml:80
+        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:75

@@ -16,7 +16,6 @@ ToolsPage:
     Field:
         id: age_identities
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -29,7 +28,6 @@ ToolsPage:
         x: 2
         y: 3
         width: 34
-        height: 1
         label_text: "~P~rocess list reads every"
         label_width: 30
         mask: "99"
@@ -38,7 +36,6 @@ ToolsPage:
     StaticText:
         id: processes_unit
         y: 3
-        height: 1
         anchors:
             left: 37
             right: 2
@@ -49,7 +46,6 @@ ToolsPage:
         x: 2
         y: 5
         width: 50
-        height: 1
         label_text: "Service ~m~anager"
         label_width: 30
 
@@ -58,7 +54,6 @@ ToolsPage:
         x: 2
         y: 6
         width: 34
-        height: 1
         label_text: "S~e~rvices read every"
         label_width: 30
         mask: "99"
@@ -67,7 +62,6 @@ ToolsPage:
     StaticText:
         id: services_unit
         y: 6
-        height: 1
         anchors:
             left: 37
             right: 2
@@ -78,7 +72,6 @@ ToolsPage:
         x: 2
         y: 7
         width: 36
-        height: 1
         label_text: "~J~ournal lines F3 shows first"
         label_width: 30
         mask: "9999"
@@ -89,7 +82,6 @@ ToolsPage:
         x: 2
         y: 9
         width: 34
-        height: 1
         label_text: "S~y~stem monitor reads every"
         label_width: 30
         mask: "99"
@@ -98,7 +90,6 @@ ToolsPage:
     StaticText:
         id: monitor_unit
         y: 9
-        height: 1
         anchors:
             left: 37
             right: 2

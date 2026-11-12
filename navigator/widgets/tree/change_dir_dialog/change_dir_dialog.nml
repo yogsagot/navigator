@@ -43,7 +43,6 @@ ChangeDirDialog(Dialog):
     StaticText:
         id: where
         name: "info"
-        height: 1
         anchors:
             left: 1
             right: 15

@@ -28,7 +28,6 @@ SearchProgress(Dialog):
     ProgressBar:
         id: bar
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -38,7 +37,6 @@ SearchProgress(Dialog):
     StaticText:
         id: percent_row
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2

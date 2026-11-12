@@ -19,13 +19,11 @@ ViewerTypesPage:
         x: 2
         y: 1
         width: 25
-        height: 1
         text: "F3 renders"
 
     StaticText:
         id: masks_heading
         y: 1
-        height: 1
         anchors:
             left: 28
             right: 2
@@ -44,7 +42,6 @@ ViewerTypesPage:
         x: 28
         y: 2
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: rst
@@ -59,7 +56,6 @@ ViewerTypesPage:
         x: 28
         y: 3
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: html
@@ -74,7 +70,6 @@ ViewerTypesPage:
         x: 28
         y: 4
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: pdf
@@ -89,7 +84,6 @@ ViewerTypesPage:
         x: 28
         y: 5
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: images
@@ -104,7 +98,6 @@ ViewerTypesPage:
         x: 28
         y: 6
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: tables
@@ -119,7 +112,6 @@ ViewerTypesPage:
         x: 28
         y: 7
         width: max(1, parent.width - 30)
-        height: 1
 
     CheckBoxes:
         id: structured
@@ -134,7 +126,6 @@ ViewerTypesPage:
         x: 28
         y: 8
         width: max(1, parent.width - 30)
-        height: 1
 
     #: SQLite has masks alone: a file is opened as a database when its header
     #: says it is one, whatever a box would say.
@@ -143,7 +134,6 @@ ViewerTypesPage:
         x: 6
         y: 9
         width: 22
-        height: 1
         text: "SQ~L~ite databases"
         link: database_masks
 
@@ -152,4 +142,3 @@ ViewerTypesPage:
         x: 28
         y: 9
         width: max(1, parent.width - 30)
-        height: 1

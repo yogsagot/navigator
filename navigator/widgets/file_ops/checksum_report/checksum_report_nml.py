@@ -40,13 +40,13 @@ class ChecksumReport(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     summary: StaticText    # checksum_report.nml:18
     bad_caption: Label    # checksum_report.nml:27
-    bad: ListViewer    # checksum_report.nml:37
+    bad: ListViewer    # checksum_report.nml:36
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.summary = StaticText(parent=self)    # checksum_report.nml:17
         self.bad_caption = Label(parent=self)    # checksum_report.nml:26
-        self.bad = ListViewer(parent=self)    # checksum_report.nml:36
+        self.bad = ListViewer(parent=self)    # checksum_report.nml:35
 
         self.modal_width = _bind(    # checksum_report.nml:12
             lambda _o: min(70, _o.parent.width) if _o.parent is not None else 70
@@ -66,16 +66,15 @@ class ChecksumReport(Dialog, _Component):
         self.bad_caption.x = 2    # checksum_report.nml:28
         self.bad_caption.y = 6    # checksum_report.nml:29
         self.bad_caption.width = 12    # checksum_report.nml:30
-        self.bad_caption.height = 1    # checksum_report.nml:31
-        self.bad_caption.text = _bind(    # checksum_report.nml:32
+        self.bad_caption.text = _bind(    # checksum_report.nml:31
             lambda _o: _tr('~P~roblems'),
             yielding=True,
         )
-        self.bad_caption.link = _bind(lambda _o: self.bad)    # checksum_report.nml:33
-        self.bad_caption.visible = _bind(lambda _o: len(self.bad.items) > 0)    # checksum_report.nml:34
+        self.bad_caption.link = _bind(lambda _o: self.bad)    # checksum_report.nml:32
+        self.bad_caption.visible = _bind(lambda _o: len(self.bad.items) > 0)    # checksum_report.nml:33
 
-        self.bad.y = 7    # checksum_report.nml:38
-        self.bad.height = _bind(lambda _o: max(1, _o.parent.height - 12))    # checksum_report.nml:39
-        self.bad.visible = _bind(lambda _o: len(_o.items) > 0)    # checksum_report.nml:43
-        self.bad.x = 2    # checksum_report.nml:41
-        self.bad.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_report.nml:42
+        self.bad.y = 7    # checksum_report.nml:37
+        self.bad.height = _bind(lambda _o: max(1, _o.parent.height - 12))    # checksum_report.nml:38
+        self.bad.visible = _bind(lambda _o: len(_o.items) > 0)    # checksum_report.nml:42
+        self.bad.x = 2    # checksum_report.nml:40
+        self.bad.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_report.nml:41

@@ -46,9 +46,8 @@ class QueryDialog(Dialog, _Component):
         self.title = _bind(lambda _o: _tr('Query'), yielding=True)    # query_dialog.nml:10
 
         self.sql.y = 2    # query_dialog.nml:14
-        self.sql.height = 1    # query_dialog.nml:15
-        self.sql.label_text = _bind(lambda _o: _tr('~S~ELECT'), yielding=True)    # query_dialog.nml:19
-        self.sql.label_width = 8    # query_dialog.nml:20
-        self.sql.history_id = 'sql_query'    # query_dialog.nml:21
-        self.sql.x = 2    # query_dialog.nml:17
-        self.sql.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # query_dialog.nml:18
+        self.sql.label_text = _bind(lambda _o: _tr('~S~ELECT'), yielding=True)    # query_dialog.nml:18
+        self.sql.label_width = 8    # query_dialog.nml:19
+        self.sql.history_id = 'sql_query'    # query_dialog.nml:20
+        self.sql.x = 2    # query_dialog.nml:16
+        self.sql.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # query_dialog.nml:17

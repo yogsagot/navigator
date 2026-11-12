@@ -97,7 +97,6 @@ FileWindow(Window):
         name: "info"
         x: 1
         width: min(display_width(viewer.info_text), max(0, parent.width - 3))
-        height: 1
         anchors:
             bottom: 0
         text: viewer.info_text
@@ -107,7 +106,6 @@ FileWindow(Window):
     StaticText:
         id: md_mark
         width: min(display_width(viewer.render_mark), max(0, parent.width - 3 - info.width))
-        height: 1
         anchors:
             after: info
             bottom: 0

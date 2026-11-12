@@ -39,7 +39,6 @@ WriteWin(Dialog):
     StaticText:
         id: notice_row
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -49,7 +48,6 @@ WriteWin(Dialog):
     ProgressBar:
         id: bar
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -60,7 +58,6 @@ WriteWin(Dialog):
     StaticText:
         id: percent_row
         y: 4
-        height: 1
         anchors:
             left: 2
             right: 2

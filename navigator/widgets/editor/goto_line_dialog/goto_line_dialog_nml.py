@@ -48,12 +48,11 @@ class GotoLineDialog(Dialog, _Component):
         self.title = _bind(lambda _o: _tr('Goto Line'), yielding=True)    # goto_line_dialog.nml:13
 
         self.number.y = 2    # goto_line_dialog.nml:17
-        self.number.height = 1    # goto_line_dialog.nml:18
-        self.number.label_text = _bind(    # goto_line_dialog.nml:22
+        self.number.label_text = _bind(    # goto_line_dialog.nml:21
             lambda _o: _tr('~L~ine number'),
             yielding=True,
         )
-        self.number.label_width = 13    # goto_line_dialog.nml:23
-        self.number.history_id = 'goto_line'    # goto_line_dialog.nml:24
-        self.number.x = 3    # goto_line_dialog.nml:20
-        self.number.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_line_dialog.nml:21
+        self.number.label_width = 13    # goto_line_dialog.nml:22
+        self.number.history_id = 'goto_line'    # goto_line_dialog.nml:23
+        self.number.x = 3    # goto_line_dialog.nml:19
+        self.number.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_line_dialog.nml:20

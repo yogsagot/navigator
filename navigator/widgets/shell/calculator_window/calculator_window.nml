@@ -87,7 +87,6 @@ CalculatorWindow(Window):
         x: 2
         y: 4
         width: 12
-        height: 1
         text: "Ex~p~ression"
         link: line
 
@@ -98,7 +97,6 @@ CalculatorWindow(Window):
         x: 2
         y: 3
         width: max(1, parent.width - 7)
-        height: 1
         #: Below the strip, and Classic's under its *Expression* caption.
         when root.mode == "classic":
             y: 5
@@ -120,7 +118,6 @@ CalculatorWindow(Window):
         id: result_row
         visible: root.mode in ("simple", "scientific")
         y: line.y + 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -142,7 +139,6 @@ CalculatorWindow(Window):
         id: marks_row
         visible: root.mode == "scientific"
         y: 5
-        height: 1
         anchors:
             left: 34
             right: 2
@@ -165,7 +161,6 @@ CalculatorWindow(Window):
             x: 2
             y: 0
             width: 10
-            height: 1
             text: "Copy ~A~s"
             link: copy_as
 
@@ -181,7 +176,6 @@ CalculatorWindow(Window):
         StaticText:
             id: row0
             y: 1
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -192,7 +186,6 @@ CalculatorWindow(Window):
         StaticText:
             id: row1
             y: 2
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -203,7 +196,6 @@ CalculatorWindow(Window):
         StaticText:
             id: row2
             y: 3
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -214,7 +206,6 @@ CalculatorWindow(Window):
         StaticText:
             id: row3
             y: 4
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -225,7 +216,6 @@ CalculatorWindow(Window):
         StaticText:
             id: row4
             y: 5
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -284,7 +274,6 @@ CalculatorWindow(Window):
         StaticText:
             id: hex_row
             y: 0
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -295,7 +284,6 @@ CalculatorWindow(Window):
         StaticText:
             id: dec_row
             y: 1
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -306,7 +294,6 @@ CalculatorWindow(Window):
         StaticText:
             id: oct_row
             y: 2
-            height: 1
             anchors:
                 left: 12
                 right: 2
@@ -317,7 +304,6 @@ CalculatorWindow(Window):
         StaticText:
             id: bin_row
             y: 3
-            height: 1
             anchors:
                 left: 12
                 right: 2

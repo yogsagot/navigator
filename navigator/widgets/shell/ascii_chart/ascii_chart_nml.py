@@ -73,4 +73,3 @@ class AsciiChart(Dialog, _Component):
         self.report.x = 1    # ascii_chart.nml:26
         self.report.y = 10    # ascii_chart.nml:27
         self.report.width = 32    # ascii_chart.nml:28
-        self.report.height = 1    # ascii_chart.nml:29

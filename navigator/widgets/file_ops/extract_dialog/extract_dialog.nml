@@ -27,7 +27,6 @@ ExtractDialog(Dialog):
         x: 2
         y: 1
         width: 20
-        height: 1
         text: "E~x~tract to"
         link: target.entry
 
@@ -35,7 +34,6 @@ ExtractDialog(Dialog):
     Field:
         id: target
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2

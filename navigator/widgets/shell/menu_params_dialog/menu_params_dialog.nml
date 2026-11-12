@@ -17,7 +17,6 @@ MenuParamsDialog(Dialog):
     Label:
         id: caption_label
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -28,7 +27,6 @@ MenuParamsDialog(Dialog):
     Field:
         id: entry
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2

@@ -17,7 +17,6 @@ MarginsDialog(Dialog):
         x: 2
         y: 2
         width: 35
-        height: 1
         label_text: "~L~eft margin"
         label_width: 18
 
@@ -26,7 +25,6 @@ MarginsDialog(Dialog):
         x: 2
         y: 4
         width: 35
-        height: 1
         label_text: "~R~ight margin"
         label_width: 18
 
@@ -35,7 +33,6 @@ MarginsDialog(Dialog):
         x: 2
         y: 6
         width: 35
-        height: 1
         label_text: "~P~aragraph"
         label_width: 18
 

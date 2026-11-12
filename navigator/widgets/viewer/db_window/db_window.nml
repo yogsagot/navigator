@@ -64,7 +64,6 @@ DBWindow(Window):
         name: "indicator"
         x: 10
         width: min(display_width(self.text), max(0, parent.width - 12))
-        height: 1
         anchors:
             bottom: 0
 

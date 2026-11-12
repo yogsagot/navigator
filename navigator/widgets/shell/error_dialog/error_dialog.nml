@@ -45,7 +45,6 @@ ErrorDialog(Dialog):
     StaticText:
         id: logged
         name: "logged"
-        height: 1
         anchors:
             left: 2
             right: 2

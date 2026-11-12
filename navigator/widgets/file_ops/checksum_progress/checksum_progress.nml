@@ -29,7 +29,6 @@ ChecksumProgress(Dialog):
     StaticText:
         id: current_row
         y: 1
-        height: 1
         anchors:
             left: 4
             right: 2
@@ -40,7 +39,6 @@ ChecksumProgress(Dialog):
     ProgressBar:
         id: bar
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -50,7 +48,6 @@ ChecksumProgress(Dialog):
     StaticText:
         id: count_row
         y: 4
-        height: 1
         anchors:
             left: 2
             right: 2

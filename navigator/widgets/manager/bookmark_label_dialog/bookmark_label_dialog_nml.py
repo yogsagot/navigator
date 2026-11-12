@@ -47,8 +47,7 @@ class BookmarkLabelDialog(Dialog, _Component):
         self.close_on_outside_click = True    # bookmark_label_dialog.nml:13
 
         self.entry.y = 2    # bookmark_label_dialog.nml:17
-        self.entry.height = 1    # bookmark_label_dialog.nml:18
-        self.entry.label_text = _bind(lambda _o: _tr('~L~abel'), yielding=True)    # bookmark_label_dialog.nml:22
-        self.entry.label_width = 8    # bookmark_label_dialog.nml:23
-        self.entry.x = 2    # bookmark_label_dialog.nml:20
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:21
+        self.entry.label_text = _bind(lambda _o: _tr('~L~abel'), yielding=True)    # bookmark_label_dialog.nml:21
+        self.entry.label_width = 8    # bookmark_label_dialog.nml:22
+        self.entry.x = 2    # bookmark_label_dialog.nml:19
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:20

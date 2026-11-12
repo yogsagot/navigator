@@ -14,7 +14,6 @@ DuplicatesDialog(Dialog):
     Field:
         id: mask
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -25,7 +24,6 @@ DuplicatesDialog(Dialog):
     Field:
         id: min_size
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2

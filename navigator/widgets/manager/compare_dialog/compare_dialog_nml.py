@@ -44,16 +44,16 @@ class CompareDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     options_caption: Label    # compare_dialog.nml:22
-    options: CheckBoxes    # compare_dialog.nml:32
-    mode_caption: Label    # compare_dialog.nml:42
-    mode: RadioButtons    # compare_dialog.nml:51
+    options: CheckBoxes    # compare_dialog.nml:31
+    mode_caption: Label    # compare_dialog.nml:41
+    mode: RadioButtons    # compare_dialog.nml:49
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.options_caption = Label(parent=self)    # compare_dialog.nml:21
-        self.options = CheckBoxes(parent=self)    # compare_dialog.nml:31
-        self.mode_caption = Label(parent=self)    # compare_dialog.nml:41
-        self.mode = RadioButtons(parent=self)    # compare_dialog.nml:50
+        self.options = CheckBoxes(parent=self)    # compare_dialog.nml:30
+        self.mode_caption = Label(parent=self)    # compare_dialog.nml:40
+        self.mode = RadioButtons(parent=self)    # compare_dialog.nml:48
 
         self.modal_width = 34    # compare_dialog.nml:17
         self.modal_height = 16    # compare_dialog.nml:18
@@ -65,42 +65,40 @@ class CompareDialog(Dialog, _Component):
         self.options_caption.x = 2    # compare_dialog.nml:23
         self.options_caption.y = 1    # compare_dialog.nml:24
         self.options_caption.width = 12    # compare_dialog.nml:25
-        self.options_caption.height = 1    # compare_dialog.nml:26
-        self.options_caption.text = _bind(    # compare_dialog.nml:27
+        self.options_caption.text = _bind(    # compare_dialog.nml:26
             lambda _o: _tr('Options'),
             yielding=True,
         )
-        self.options_caption.link = _bind(lambda _o: self.options)    # compare_dialog.nml:28
+        self.options_caption.link = _bind(lambda _o: self.options)    # compare_dialog.nml:27
 
-        self.options.x = 2    # compare_dialog.nml:33
-        self.options.y = 2    # compare_dialog.nml:34
-        self.options.width = 26    # compare_dialog.nml:35
-        self.options.height = 4    # compare_dialog.nml:36
-        self.options.items = _bind(    # compare_dialog.nml:37
+        self.options.x = 2    # compare_dialog.nml:32
+        self.options.y = 2    # compare_dialog.nml:33
+        self.options.width = 26    # compare_dialog.nml:34
+        self.options.height = 4    # compare_dialog.nml:35
+        self.options.items = _bind(    # compare_dialog.nml:36
             lambda _o: [_tr('Compare ~s~ize'), _tr('Compare ~t~ime'), _tr('Compare ~a~ttributes'), _tr('Compare ~c~ontents')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # compare_dialog.nml:38
+        self.options.tooltips = _bind(    # compare_dialog.nml:37
             lambda _o: [_tr('Files of different sizes are different'), _tr('A newer file is different from an older one'), _tr('Files with different permissions are different'), _tr('Read files of the same size through and compare them: slow, but certain')],
             yielding=True,
         )
-        self.options.value = 3    # compare_dialog.nml:39
+        self.options.value = 3    # compare_dialog.nml:38
 
-        self.mode_caption.x = 2    # compare_dialog.nml:43
-        self.mode_caption.y = 7    # compare_dialog.nml:44
-        self.mode_caption.width = 16    # compare_dialog.nml:45
-        self.mode_caption.height = 1    # compare_dialog.nml:46
-        self.mode_caption.text = _bind(    # compare_dialog.nml:47
+        self.mode_caption.x = 2    # compare_dialog.nml:42
+        self.mode_caption.y = 7    # compare_dialog.nml:43
+        self.mode_caption.width = 16    # compare_dialog.nml:44
+        self.mode_caption.text = _bind(    # compare_dialog.nml:45
             lambda _o: _tr('Selection mode'),
             yielding=True,
         )
-        self.mode_caption.link = _bind(lambda _o: self.mode)    # compare_dialog.nml:48
+        self.mode_caption.link = _bind(lambda _o: self.mode)    # compare_dialog.nml:46
 
-        self.mode.x = 2    # compare_dialog.nml:52
-        self.mode.y = 8    # compare_dialog.nml:53
-        self.mode.width = 26    # compare_dialog.nml:54
-        self.mode.height = 3    # compare_dialog.nml:55
-        self.mode.items = _bind(    # compare_dialog.nml:56
+        self.mode.x = 2    # compare_dialog.nml:50
+        self.mode.y = 8    # compare_dialog.nml:51
+        self.mode.width = 26    # compare_dialog.nml:52
+        self.mode.height = 3    # compare_dialog.nml:53
+        self.mode.items = _bind(    # compare_dialog.nml:54
             lambda _o: [_tr('S~e~lect'), _tr('~U~nselect'), _tr('~W~indow, recursive')],
             yielding=True,
         )

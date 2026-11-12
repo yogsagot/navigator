@@ -24,7 +24,6 @@ CountryPage:
         x: 3
         y: 1
         width: 14
-        height: 1
         text: "~D~ate format"
         link: date_format
 
@@ -41,7 +40,6 @@ CountryPage:
         x: 40
         y: 1
         width: 8
-        height: 1
         text: "~T~ime"
         link: time_format
 
@@ -59,7 +57,6 @@ CountryPage:
         x: 40
         y: 4
         width: 14
-        height: 1
         text: "~W~eek starts"
         link: first_day
 
@@ -76,7 +73,6 @@ CountryPage:
     ChoiceField:
         id: calendar
         y: 8
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -89,7 +85,6 @@ CountryPage:
     ChoiceField:
         id: calendar_view
         y: 9
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -99,7 +94,6 @@ CountryPage:
     Field:
         id: custom_date
         y: 10
-        height: 1
         anchors:
             left: 3
             right: 3
@@ -121,7 +115,6 @@ CountryPage:
     StaticText:
         id: example
         y: 14
-        height: 1
         anchors:
             left: 3
             right: 3

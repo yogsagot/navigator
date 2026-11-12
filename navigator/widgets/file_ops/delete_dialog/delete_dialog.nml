@@ -20,7 +20,6 @@ DeleteDialog(Dialog):
     Label:
         id: prompt_head
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -31,7 +30,6 @@ DeleteDialog(Dialog):
     Label:
         id: prompt_caption
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2

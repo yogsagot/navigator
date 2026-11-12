@@ -38,7 +38,6 @@ AttrDialog(Dialog):
     StaticText:
         id: name_row
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -47,7 +46,6 @@ AttrDialog(Dialog):
     StaticText:
         id: info_row
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -83,7 +81,6 @@ AttrDialog(Dialog):
                 x: 3
                 y: 1
                 width: max(1, bits.column_x(1) - bits.column_x(0))
-                height: 1
                 text: "O~w~ner"
                 link: bits
 
@@ -91,21 +88,18 @@ AttrDialog(Dialog):
                 x: 3 + bits.column_x(1)
                 y: 1
                 width: max(1, bits.column_x(2) - bits.column_x(1))
-                height: 1
                 text: "Group"
 
             Label:
                 x: 3 + bits.column_x(2)
                 y: 1
                 width: max(1, bits.column_x(3) - bits.column_x(2))
-                height: 1
                 text: "Others"
 
             Label:
                 x: 3 + bits.column_x(3)
                 y: 1
                 width: max(1, parent.width - 6 - bits.column_x(3))
-                height: 1
                 text: "Special"
 
             CheckBoxes:
@@ -125,7 +119,6 @@ AttrDialog(Dialog):
                 x: 2
                 y: 6
                 width: 17
-                height: 1
                 label_text: "~O~ctal"
                 label_width: 11
                 mask: "9999"
@@ -137,14 +130,12 @@ AttrDialog(Dialog):
                 x: 20
                 y: 6
                 width: 12
-                height: 1
 
             #: Chosen from the passwd and group databases, never typed: any
             #: key on either drops its list, and typing there searches it.
             ChoiceField:
                 id: user
                 y: 7
-                height: 1
                 anchors:
                     left: 2
                     right: 2
@@ -154,7 +145,6 @@ AttrDialog(Dialog):
             ChoiceField:
                 id: group
                 y: 8
-                height: 1
                 anchors:
                     left: 2
                     right: 2
@@ -197,7 +187,6 @@ AttrDialog(Dialog):
                 x: 2
                 y: 1
                 width: 20
-                height: 1
                 text: "E~n~tries"
                 link: acl_list
 
@@ -250,7 +239,6 @@ AttrDialog(Dialog):
             StaticText:
                 id: acl_note
                 y: 10
-                height: 1
                 anchors:
                     left: 2
                     right: 2
@@ -264,7 +252,6 @@ AttrDialog(Dialog):
                 x: 2
                 y: 1
                 width: 20
-                height: 1
                 text: "Na~m~es"
                 link: xattr_list
 
@@ -306,7 +293,6 @@ AttrDialog(Dialog):
             StaticText:
                 id: xattr_note
                 y: 10
-                height: 1
                 anchors:
                     left: 2
                     right: 2
@@ -322,7 +308,6 @@ AttrDialog(Dialog):
                 x: 3
                 y: 1
                 width: 20
-                height: 1
                 text: "~F~lags"
                 link: flags
 
@@ -339,7 +324,6 @@ AttrDialog(Dialog):
             StaticText:
                 id: lsattr
                 y: 6
-                height: 1
                 anchors:
                     left: 3
                     right: 3
@@ -347,7 +331,6 @@ AttrDialog(Dialog):
             StaticText:
                 id: flags_note
                 y: 8
-                height: 1
                 anchors:
                     left: 3
                     right: 3
@@ -359,7 +342,6 @@ AttrDialog(Dialog):
         x: 2
         y: 16
         width: 10
-        height: 1
         text: "~R~ecurse"
         link: recurse
 

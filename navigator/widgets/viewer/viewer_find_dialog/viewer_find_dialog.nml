@@ -21,7 +21,6 @@ ViewerFindDialog(Dialog):
         x: 2
         y: 2
         width: 14
-        height: 1
         text: "~S~earch for"
         link: what.entry
 
@@ -30,7 +29,6 @@ ViewerFindDialog(Dialog):
     Field:
         id: what
         y: 3
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -44,7 +42,6 @@ ViewerFindDialog(Dialog):
         x: 2
         y: 4
         width: 14
-        height: 1
         text: "He~x~"
         link: hex
 
@@ -62,7 +59,6 @@ ViewerFindDialog(Dialog):
         x: 2
         y: 7
         width: 12
-        height: 1
         text: "Options"
         link: options
 
@@ -79,7 +75,6 @@ ViewerFindDialog(Dialog):
         x: 26
         y: 7
         width: 12
-        height: 1
         text: "Direction"
         link: direction
 

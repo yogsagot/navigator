@@ -14,7 +14,6 @@ RelinkDialog(Dialog):
     Field:
         id: search
         y: 1
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -25,7 +24,6 @@ RelinkDialog(Dialog):
     Field:
         id: replace
         y: 2
-        height: 1
         anchors:
             left: 2
             right: 2
@@ -43,7 +41,6 @@ RelinkDialog(Dialog):
 
     StaticText:
         id: status
-        height: 1
         anchors:
             left: 2
             right: 2
