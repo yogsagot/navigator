@@ -28,4 +28,29 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install -r requirements.txt -r requirements-dev.txt
-      - run: python -m pytest
+      # A crash of the interpreter itself (exit 139) left no trace: a test name
+      # per line says which test was running, and a core dump read by gdb
+      # says where in native code it died.  ``addopts`` is ``-q``, which
+      # ``-v`` alone only cancels out, so it is cleared here.
+      - name: Allow core dumps
+        run: |
+          sudo sysctl -w kernel.core_pattern=/tmp/core.%e.%p
+          sudo sysctl -w kernel.core_uses_pid=1
+      - name: Run the tests
+        run: |
+          ulimit -c unlimited
+          python -m pytest -o addopts="" -v
+      - name: Native stacks of a crash
+        if: failure()
+        run: |
+          shopt -s nullglob
+          cores=(/tmp/core.*)
+          if [ ${#cores[@]} -eq 0 ]; then
+            echo "No core dump: the tests failed without crashing the interpreter."
+            exit 0
+          fi
+          sudo apt-get update -qq && sudo apt-get install -y -qq gdb
+          for core in "${cores[@]}"; do
+            echo "=== $core"
+            gdb -batch -nx -ex "info threads" -ex "thread apply all bt 30" "$(command -v python)" "$core"
+          done
