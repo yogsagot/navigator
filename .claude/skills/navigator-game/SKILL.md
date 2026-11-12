@@ -15,7 +15,7 @@ description: ≡ > Game (Alt+F9), DOS Navigator's TETRIS.PAS "Navigator's game" 
   centred (`Shell.on_game`), DN's 53 by 22 -- the glass's frame on the window's bottom edge, as its rectangles put
   it. `Glass` draws `█` twice a cell on black (`Style(fg=colour, bg=0)`, the game's own colours) and takes Left/Home,
   Right/PgUp, Up, Down/Space; `GameInfo` is *Info*, *Next* and *Best* (parts `info`, `best` and their `-bright`). A
-  `call_every(0.05)` clock; the game pauses when the window loses the keyboard (having had it). Keys are `StatusDef
+  `Timer` clock (`clock`, `tetris.TICK`, 0.05 s); the game pauses when the window loses the keyboard (having had it). Keys are `StatusDef
   hcTetris`'s: F2 new, F3 pause, F4 Top 10, F5 setup, Gray +/* level and preview, Alt+N/P/T/S, Esc closes.
 - **The end**: *Game over / Final score*, then for a place in the Top Ten `WinnerDialog` (history `tetris`,
   *Anonymous*), `tetris.enter` and `TopTenDialog` with the line bright. The Top Ten is the `TetrisScore` model (ten a

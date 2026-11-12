@@ -69,8 +69,9 @@ These are Python only, as `ProcessList` is. Every line is one `draw_runs` call.
 
 - **Reading.** `Background("nav-monitor", workers=1)` with a read counter: only the newest read is shown.
   - The first read starts in `mounted()`.
-  - A `call_every([monitor] refresh)` timer (default 1, and 0 turns it off) skips a tick while a read is in flight or
-    `app.modal` is set. It is cancelled in `unmounting()`.
+  - A `Timer` child (`ticker`, `interval: root.refresh_ms()` from `[monitor] refresh`, default 1, 0 turning it off)
+    skips a tick while a read is in flight or `app.modal` is set. It follows the setting at once and stops with the
+    window.
 - **The size is the content's.**
   - `natural_size(w, h)` adds up the processors at `BAR_NATURAL`-cell bars, `memory_width()`, the longest sensor
     line, `MARGIN` (8: the frames, margins and scroll bar), the CPU rows plus the *All* row, the memory box (5) and

@@ -156,7 +156,6 @@ class ServiceWindow(Window):
         self._error = ""
         self._reads = 0
         self._reading = False
-        self._ticker: Any = None
         #: The unit files F4 opened, by path: saving one runs daemon-reload.
         self._editing: dict[str, services.Unit] = {}
         #: The states last read as root (runit's), and when: a timer's read,
@@ -201,19 +200,15 @@ class ServiceWindow(Window):
         self.user_box.disabled = backend is None or not backend.user_scope
         self.types_box.disabled = backend is None or not backend.all_types
         effect(self, ServiceWindow._follow_view)
-        app = self.application
+
+    def refresh_ms(self) -> int:
+        """The ticker's interval: ``[services] refresh``, 0 for none."""
         seconds = _refresh()
+        backend = self.backend
         if seconds > 0 and backend is not None:
             # A manager whose every read costs a process per service is read less often.
             seconds = max(seconds, backend.refresh_floor)
-        if app is not None and seconds > 0:
-            self._ticker = app.call_every(seconds, self._tick)
-
-    def unmounting(self) -> None:
-        if self._ticker is not None:
-            self._ticker.cancel()
-            self._ticker = None
-        super().unmounting()
+        return round(seconds * 1000)
 
     def _follow_view(self) -> None:
         """*User units* or *All types* changed -- a read for them -- or the

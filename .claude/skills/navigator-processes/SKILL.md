@@ -67,8 +67,9 @@ re-raises a plain `OSError`, so test `.errno`, not the subclass.
     cursor on a hidden or context row moves to the first match.
   - The status line says `N of M processes match the filter` while there is text in it.
 - `ProcessWindow` reads through `Background("nav-processes", workers=1)` with a read counter, so only the newest read
-  is shown. It starts in `mounted()`. A `call_every([processes] refresh)` timer (0 turns it off) skips a tick while a
-  read is in flight or `app.modal` is set. It is cancelled in `unmounting()`. `_show()` peeks the items, the cursor and
+  is shown. It starts in `mounted()`. A `Timer` child (`ticker`, `interval: root.refresh_ms()`, from
+  `[processes] refresh`, 0 turning it off) skips a tick while a read is in flight or `app.modal` is set. It is bound to
+  the setting, so a new value is taken at once. It stops with the window, as a `Timer` does. `_show()` peeks the items, the cursor and
   the filter's text, and puts the cursor back **by pid**. `_follow_view` is the effect that follows the two boxes and
   the filter.
 - Sorting keys: Ctrl+P (pid), Ctrl+U (user), Ctrl+E (state), Ctrl+L (CPU load), Ctrl+Z (memory size) and Ctrl+N

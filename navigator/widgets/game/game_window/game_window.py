@@ -17,8 +17,6 @@ from navigator.widgets.game.commands import LevelUp, NewGame, PauseGame, ToggleP
 #: The window's size: ``TGameWindow``'s, which fits an 80 by 25 screen's
 #: desktop exactly.
 WIDTH, HEIGHT = 53, 22
-#: How often the clock looks: a hundredth of DN's ``Update`` is too fine to matter.
-TICK = 0.05
 
 
 class GameWindow(Window):
@@ -30,7 +28,6 @@ class GameWindow(Window):
         self.game = tetris.Game(start_level=max(1, min(10, setup.level)), pentix=setup.style == "pentix",
                                 preview=setup.preview)
         self.glass.game = self.info.game = self.game
-        self._clock: Any = None
         self._asking = False
         #: Whether the keyboard has been here: the pause is for losing it.
         self._held = False
@@ -43,15 +40,6 @@ class GameWindow(Window):
     def mounted(self) -> None:
         super().mounted()
         effect(self, GameWindow._pause_when_left)
-        app = self.application
-        if app is not None and self._clock is None:
-            self._clock = app.call_every(TICK, self._tick)
-
-    def unmounting(self) -> None:
-        if self._clock is not None:
-            self._clock.cancel()
-            self._clock = None
-        super().unmounting()
 
     def _pause_when_left(self) -> None:
         """``SetState``: the game stops whenever the window loses the keyboard
@@ -65,7 +53,7 @@ class GameWindow(Window):
 
     async def _tick(self) -> None:
         game = self.game
-        if game.tick(round(TICK * 100)):
+        if game.tick(round(tetris.TICK * 100)):
             self.glass.invalidate()
             self.info.invalidate()
             if game.over and not self._asking:

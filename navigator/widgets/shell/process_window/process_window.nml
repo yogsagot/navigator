@@ -13,6 +13,7 @@ from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
 from navkit.i18n import verbatim
+from navml.widgets.timer import Timer
 
 #: Utilities > Process list: every running process -- its number, owner,
 #: state, CPU share, resident memory and command -- a row each, read again
@@ -241,3 +242,9 @@ ProcessWindow(Window):
         MenuItem: text='~K~ill...', command=KillProcess, key='F8'
         MenuLine:
         MenuItem: text='~C~lose', command=CloseWindow
+
+    #: A read every ``[processes] refresh`` seconds, none while it is 0; a new value is taken at once.
+    Timer:
+        id: ticker
+        interval: root.refresh_ms()
+        on_timer: await root._tick()

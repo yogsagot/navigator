@@ -7,6 +7,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navml.widgets.timer import Timer
 
 #: Utilities > System monitor: every processor's load, the memory and the
 #: sensors, read again every ``[monitor] refresh`` seconds.  **Not DOS
@@ -106,3 +107,9 @@ MonitorWindow(Window):
         MenuItem: text='~R~e-read', command=Rescan, key='Ctrl-R'
         MenuLine:
         MenuItem: text='~C~lose', command=CloseWindow
+
+    #: A read every ``[monitor] refresh`` seconds, none while it is 0; a new value is taken at once.
+    Timer:
+        id: ticker
+        interval: root.refresh_ms()
+        on_timer: await root._tick()

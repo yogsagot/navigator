@@ -58,6 +58,9 @@ TURNS = (4, 4, 4, 4, 3, 4, 4, 1, 2, 3, 2, 5, 3, 4, 4, 3, 3, 4, 4, 3, 3, 3, 3, 3,
 TETRIS_FIGURES, PENTIX_FIGURES = 7, len(FIGURES)
 #: ``LevelDelay``: hundredths of a second between one row's fall and the next.
 DELAYS = {1: 80, 2: 60, 3: 50, 4: 30, 5: 25, 6: 20, 7: 15, 8: 10, 9: 5, 10: 4}
+#: How often the window's clock looks, in seconds: a hundredth of DN's
+#: ``Update`` is too fine to matter.
+TICK = 0.05
 #: The levels' names in *Setup game*.
 LEVEL_NAMES = ("Baby", "Little fella", "Big child", "It's easy", "Never mind", "I'm powerful !",
                "Insanity coming", "So what ?..", "Madness", "Sanitarium")

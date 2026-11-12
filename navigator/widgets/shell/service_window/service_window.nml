@@ -13,6 +13,7 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
 from navkit.i18n import verbatim
+from navml.widgets.timer import Timer
 
 #: Utilities > Services: the system's services -- systemd's units, OpenRC's,
 #: runit's or SysVinit's services: name, whether it runs, how it starts, what it is -- a row each,
@@ -240,3 +241,9 @@ ServiceWindow(Window):
         MenuItem: text='Unmas~k~', command=UnmaskService
         MenuLine:
         MenuItem: text='~C~lose', command=CloseWindow
+
+    #: A read every ``[services] refresh`` seconds (at least the manager's floor), none while it is 0.
+    Timer:
+        id: ticker
+        interval: root.refresh_ms()
+        on_timer: await root._tick()

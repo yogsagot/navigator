@@ -115,6 +115,8 @@ the docstring of `navigator/lib/system/services/__init__.py`, the `#:` comment a
   insufficient privilege) is `EPERM`. `verbs` is a property: enable/disable only with `enabler()`'s `update-rc.d`
   (`defaults` first when it has no links at all, then `enable`/`disable`) or `chkconfig` (`--add`, then `on`/`off`).
 - `refresh_floor = 15`: each read is a process per script.
+  The window's `Timer` child (`ticker`, `interval: root.refresh_ms()`) is `[services] refresh` raised to the
+  backend's floor, 0 turning it off; it follows the setting at once and stops with the window.
 - F3: `/var/log/<name>.log` (`guessed`), else `common.system_log`. F4: `settings_file()` -- the `/etc/default` or
   `/etc/sysconfig` directory the script names -- seeded with OpenRC's `conf_text` when new; else the script with a
   warning.

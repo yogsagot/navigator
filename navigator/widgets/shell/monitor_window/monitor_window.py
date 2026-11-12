@@ -60,7 +60,6 @@ class MonitorWindow(Window):
         self._fitted: tuple[int, int, int, int] | None = None
         self._reads = 0
         self._reading = False
-        self._ticker: Any = None
 
     def mounted(self) -> None:
         super().mounted()
@@ -71,16 +70,10 @@ class MonitorWindow(Window):
         # Not from ``__init__``: until the window is on the desktop it has no
         # application, and ``Background`` would read on the loop instead.
         self.reload()
-        app = self.application
-        seconds = _refresh()
-        if app is not None and seconds > 0:
-            self._ticker = app.call_every(seconds, self._tick)
 
-    def unmounting(self) -> None:
-        if self._ticker is not None:
-            self._ticker.cancel()
-            self._ticker = None
-        super().unmounting()
+    def refresh_ms(self) -> int:
+        """The ticker's interval: ``[monitor] refresh``, 0 for none."""
+        return round(_refresh() * 1000)
 
     # -- the size ---------------------------------------------------------------------
 
