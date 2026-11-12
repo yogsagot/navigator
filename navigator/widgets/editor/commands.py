@@ -151,6 +151,19 @@ class SwitchInsert(Command):
     """``cmSwitchIns``: Ins -- insert and overwrite (DN's ^V is Paste here)."""
 
 
+# DN's ``cmInsertOn``/``cmInsertOff`` and ``cmIndentOn``/``cmIndentOff`` set a
+# mode rather than flip it (``MICROED.PAS:2966``, ``:3069``), and had names for
+# macros alone (``MACRO.PAS``): no key, no menu, as there.
+
+
+class InsertOn(Command):
+    """``cmInsertOn``: insert mode, whatever it was."""
+
+
+class InsertOff(Command):
+    """``cmInsertOff``: overwrite mode, whatever it was."""
+
+
 # ``cmCut``, ``cmCopy``, ``cmPaste`` and ``cmClear`` are the library's -- an
 # input line answers them too -- and are named here for the key table and the
 # menus that bind them.  ``SelectAll`` with them: a departure, since DN's
@@ -421,6 +434,14 @@ class SwitchIndent(Command):
     """``cmSwitchIndent``: Editor > Options > *Autoindent* (``AutoIndent``)."""
 
     title = "Autoindent"
+
+
+class IndentOn(Command):
+    """``cmIndentOn``: autoindent on, whatever it was (macros alone)."""
+
+
+class IndentOff(Command):
+    """``cmIndentOff``: autoindent off, whatever it was (macros alone)."""
 
 
 class SwitchBack(Command):
@@ -764,6 +785,8 @@ __all__ = [
     "SwitchDrawMode",
     "SwitchBack",
     "SwitchIndent",
+    "IndentOn",
+    "IndentOff",
     "SwitchBrackets",
     "SwitchSave",
     "SwitchWrap",
@@ -846,6 +869,8 @@ __all__ = [
     "DeleteLine",
     "DeleteToEnd",
     "SwitchInsert",
+    "InsertOn",
+    "InsertOff",
     "Undo",
     "Redo",
     "SaveText",

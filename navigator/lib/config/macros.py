@@ -403,6 +403,12 @@ DN_NAMES = {
 }
 
 
+#: DN's ``MakeIDs`` names that are another command class's name here.
+DN_COMMANDS = {
+    "specchar": "AsciiTable",  # ``cmSpecChar`` was handled as ``cmAsciiTable`` (``MICROED.PAS:3050``)
+}
+
+
 def snake(name: str) -> str:
     """``WordLeft`` as ``word_left``; ``word_left`` as itself."""
     return re.sub(r"(?<=[a-z0-9])(?=[A-Z])", "_", name).lower()
@@ -418,7 +424,7 @@ def resolve(name: str, entries: dict[str, Any]) -> Any:
         return entries[key]
     from navigator.widgets.editor import commands
 
-    command = getattr(commands, plain, None)
+    command = getattr(commands, DN_COMMANDS.get(plain.lower(), plain), None)
     from navkit.commands import Command
 
     if isinstance(command, type) and issubclass(command, Command):

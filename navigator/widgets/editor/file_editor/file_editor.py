@@ -75,6 +75,8 @@ from navigator.widgets.editor.commands import (
     SwitchDrawMode,
     SwitchBack,
     SwitchIndent,
+    IndentOn,
+    IndentOff,
     SwitchBrackets,
     SwitchSave,
     SwitchWrap,
@@ -143,6 +145,8 @@ from navigator.widgets.editor.commands import (
     ScrollDown,
     ScrollUp,
     SwitchInsert,
+    InsertOn,
+    InsertOff,
     TabKey,
     TextEnd,
     TextStart,
@@ -2859,6 +2863,16 @@ class FileEditor(ContextMenuHost, Widget):
         self.auto_indent = not self.auto_indent
         return True
 
+    async def on_indent_on(self, event: IndentOn) -> bool:
+        """``cmIndentOn``: ``AutoIndent := On`` -- a macro's, set whatever it was."""
+        self.auto_indent = True
+        return True
+
+    async def on_indent_off(self, event: IndentOff) -> bool:
+        """``cmIndentOff``: ``AutoIndent := Off``."""
+        self.auto_indent = False
+        return True
+
     async def on_switch_back(self, event: SwitchBack) -> bool:
         """``cmSwitchBack``: ``BackIndent := not BackIndent``."""
         self.back_indent = not self.back_indent
@@ -3590,6 +3604,16 @@ class FileEditor(ContextMenuHost, Widget):
 
     async def on_switch_insert(self, event: SwitchInsert) -> bool:
         self.overwrite = not self.overwrite
+        return True
+
+    async def on_insert_on(self, event: InsertOn) -> bool:
+        """``cmInsertOn``: ``InsertMode := On`` -- a macro's, set whatever it was."""
+        self.overwrite = False
+        return True
+
+    async def on_insert_off(self, event: InsertOff) -> bool:
+        """``cmInsertOff``: ``InsertMode := Off``."""
+        self.overwrite = True
         return True
 
     def refusal(self, command: Any) -> str:

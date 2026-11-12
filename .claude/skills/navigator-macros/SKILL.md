@@ -53,8 +53,11 @@ DOS Navigator had two kinds; Navigator has both (asked for), in `navigator/lib/c
 - **Command names** (`resolve`): `keybindings.ini`'s editor and edit-window names (`editor_entries`), DN's
   `MakeIDs` names (CamelCase, which `snake` turns into those, plus `DN_NAMES` for the irregular ones: `PgUp`,
   `DelChar`, `CtrlHome`, `UpBlock`…), or an editor command class constructible without arguments
-  (`SwitchIndent`; DN's macro-only `LJustify`/`LRight`/`LLeft`/`LCenter` are found this way). An unknown name is
-  passed over, and the box says which.
+  (`SwitchIndent`; DN's macro-only `LJustify`/`LRight`/`LLeft`/`LCenter` and the setters
+  `InsertOn`/`InsertOff`/`IndentOn`/`IndentOff` are found this way), or `DN_COMMANDS`' other class name
+  (`SpecChar` is `AsciiTable`). An unknown name is passed over, and the box says which.
+  - Every one of `MACRO.PAS`'s 78 names resolves except `GoToMarker` (DN's macros passed no marker number) and
+    `Center` (nothing in DN handled it); `tests/test_macros.py` holds the list.
 - **Playing**: in the editor, **Ctrl+J 0** (`SelectMacro`, DN's `cmSelectMacro`, whose body was empty) lists the
   file's macros in a `PopupMenu`. `play_steps` runs them: a command through `app.run_command(binding, editor)`,
   settling between steps.

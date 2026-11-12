@@ -118,6 +118,40 @@ def test_command_names_dns_and_navigators():
 
     assert [resolve(name, entries) for name in ("LJustify", "LRight", "LLeft", "LCenter")] == [
         LJustify(), LRight(), LLeft(), LCenter()]
+    # And ``cmInsertOn``/``cmInsertOff``/``cmIndentOn``/``cmIndentOff``, which set a mode
+    # rather than flip it; ``SpecChar`` was DN's other name for the character table.
+    from navigator.commands import AsciiTable
+    from navigator.widgets.editor.commands import IndentOff, IndentOn, InsertOff, InsertOn
+
+    assert [resolve(name, entries) for name in ("InsertOn", "InsertOff", "IndentOn", "IndentOff", "SpecChar")] == [
+        InsertOn(), InsertOff(), IndentOn(), IndentOff(), AsciiTable()]
+
+
+#: Every command name DN's editor macros took (``MACRO.PAS``, its ``Add`` lines).
+DN_MACRO_NAMES = """
+BlockEnd BlockPrint BlockRead BlockStart BlockWrite CalcBlock CapBlock CapString Center ContSearch
+CopyBlock CtrlEnd CtrlHome DelBackChar DelChar DeltoEOLN DelWordLeft DelWordRight End Enter FCenter
+FJustify FLeft FRight GotoLineNumber GoToMarker HideBlock IndentBlock IndentOff IndentOn InsertDate
+InsertOff InsertOn InsertTime InsLine LCenter LJustify LLeft LoadText LowBlock LowString LRight
+MarkLine MarkWord MoveBlock MoveBlockEnd MoveBlockStart MoveLeft MoveRight MoveUp PgDn PgUp
+PlaceMarker Replace SaveTextAs SaveText ScrollDn ScrollUp SetMargins SortBlock SpecChar StartSearch
+SwitchBack SwitchBlock SwitchFill SwitchHiColumn SwitchHighLight SwitchHiLine SwitchIndent
+SwitchIns SwitchSave SwitchWrap Tab UnIndentBlock UpBlock UpString WordLeft WordRight
+""".split()
+
+
+def test_every_name_dns_macros_took_is_a_command_here_but_two_dn_never_ran():
+    """``GoToMarker`` needs a marker number, which DN's macros never passed, and
+    ``Center`` was declared (``COMMANDS.PAS``) but handled by nothing."""
+    from navigator.lib.config.keybindings import TABLES, sections
+
+    # What ``macros.editor_entries`` looks a name up among: the editor tables' names.
+    wanted = {"editor", "edit_window"}
+    entries = {entry.name: entry.binding
+               for section in sections(Navigator, skip=[name for name, _, _ in TABLES if name not in wanted])
+               if section.name in wanted for entry in section.entries}
+    unresolved = [name for name in DN_MACRO_NAMES if resolve(name, entries) is None]
+    assert unresolved == ["Center", "GoToMarker"]
 
 
 # -- the recorder -------------------------------------------------------------------
@@ -189,6 +223,40 @@ def editor_window(app):
 
     window = app.shell.desktop.active_window
     return window if isinstance(window, EditWindow) else None
+
+
+def test_a_macro_sets_overwrite_and_autoindent_whatever_they_were(files):
+    """``InsertOff`` then a character overwrites; ``InsertOn`` puts insert back;
+    ``IndentOff`` twice leaves autoindent off -- each a set, not a flip.  ``Y``
+    is the macro's last step, so it is played out once ``Y`` is in the text."""
+    from navigator.lib.config import associations
+
+    path = associations.path_of(associations.MACROS)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("""\
+[*.txt]
+MACRO modes
+  InsertOff
+  PRINT 'X'
+  InsertOn
+  IndentOff
+  IndentOff
+  PRINT 'Y'
+ENDMACRO
+""")
+    app = navigator(files)
+    seen = {}
+    run_app(app, [
+        KeyEvent("end"), KeyEvent("f4"), Until(lambda a: editor_window(a) is not None),
+        ctrl("j"), KeyEvent("0", "0"), Until(lambda a: a.modal is not None),
+        KeyEvent("enter"), Until(lambda a: a.modal is None and "Y" in editor_window(a).editor.document.encode().decode()),
+        lambda a: seen.update(text=editor_window(a).editor.document.encode().decode(),
+                              overwrite=editor_window(a).editor.overwrite,
+                              indent=editor_window(a).editor.auto_indent),
+    ], timeout=10)
+    # X over the "o" of "one", Y inserted before "ne".
+    assert seen["text"].startswith("XYne two three\n")
+    assert seen["overwrite"] is False and seen["indent"] is False
 
 
 def test_ctrl_j_0_offers_the_files_macros_and_plays_one(files):

@@ -132,6 +132,16 @@ there, 0 to 255). The vertical one's value is the cursor's line, as `VScroll` wa
 
 (none open: the editor backlog is done; a new item goes here, numbered on from 12)
 
+Checked against DN's own sources (`MICROED.PAS`, `EDITOR.PAS`: 117 `cm*` commands, and `MACRO.PAS`'s 78 macro
+names). Every command has its counterpart here except Turbo Vision's plumbing (`cmNoCommand`, `cmScrollBarChanged`)
+and the Windows clipboard's (`cmSyncClipIn`, `cmWindowsCopy`: the system clipboard is ours). The last ones found
+were the macros' explicit setters, `InsertOn`/`InsertOff`/`IndentOn`/`IndentOff` (DN set a mode where the keys flip
+it), and `SpecChar`, DN's other name for `AsciiTable`. Two macro names are absent on purpose:
+- `GoToMarker`: it needs a marker number, which DN's macros never passed;
+- `Center`: declared in `COMMANDS.PAS`, but nothing in DN's editor handled it.
+
+`tests/test_macros.py` holds DN's list and fails if any other name stops resolving.
+
 Everything else -- blocks with ^K R/W, Find/Replace and the find bar, files and encodings, SmartPad, the character
 table, the menu, autoindent and its kin, paragraph format, line drawing, highlighting (`highlight.ini` for
 `DN.HGL`), its macros (`macros.ini`, Ctrl+J 0), editor defaults, the edit history, backups, locking and printing --
