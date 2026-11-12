@@ -13,6 +13,13 @@ keeps a `ScreenBuffer` mirror in step with pyte's sparse grid, converting only d
 pre-start screen from tmux, kitty or `/dev/vcsa` and usually fails, which is expected. `pyte` is the one run-time
 dependency and it is load-bearing.
 
+- **The copy is taken on a thread** (`capture_host`, from `Console.start_seeded`, which `Navigator.on_start` calls). The
+  shell starts once it returns, so its rc output lands below the copy. `Console.start()`/`run()` meanwhile start the
+  shell at once and drop the copy: callers rely on `start()` leaving a running shell.
+- **kitty is asked only over its socket** (`KITTY_LISTEN_ON`). Without one, `kitty @` talks through the tty, which
+  races Navigator's input reader. And where `KITTY_WINDOW_ID` was merely inherited (a terminal or an IDE started from a
+  kitty shell), it waited out its 2-second timeout on the loop: the first frame came at 2.3 s instead of 0.27 s.
+
 - `_Screen` adds what pyte lacks: the **alternate screen** (47/1047/1049), **answers to queries**
   (`ConsoleScreen.respond`: cursor position, device attributes), dropping a private CSI pyte would crash on (`mc`'s
   `CSI ? Pm r`) or misread (`CSI > 4;2 m`), and a parser rebuilt if pyte raises anyway (its parser is a generator one

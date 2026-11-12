@@ -668,20 +668,32 @@ def seed_from_host(console: ConsoleScreen) -> str | None:
     belongs to the terminal, and no escape sequence asks for it back.  Where a
     host does keep it and will say so, this is the closest thing to what DOS
     Navigator got for free by reading video memory.  Returns the name of the
-    route that worked, or ``None``.
+    route that worked, or ``None``.  It waits on other programs: a caller on
+    an event loop runs :func:`capture_host` on a thread and feeds the result.
     """
+    found = capture_host(console.lines)
+    if found is None:
+        return None
+    name, data = found
+    console.feed(data)
+    return name
+
+
+def capture_host(lines: int) -> tuple[str, bytes] | None:
+    """What the host kept of the real screen, *lines* rows of it, and the
+    name of the route that had it: :func:`seed_from_host` without the
+    feeding, so it can run on a thread -- it runs other programs."""
     for name, capture in (
         ("tmux", _capture_tmux),
         ("kitty", _capture_kitty),
         ("vcsa", _capture_vcsa),
     ):
         try:
-            data = capture(console.lines)
+            data = capture(lines)
         except (OSError, ValueError, subprocess.SubprocessError):
             continue
         if data:
-            console.feed(data)
-            return name
+            return name, data
     return None
 
 
@@ -701,7 +713,17 @@ def _capture_tmux(lines: int) -> bytes | None:
 
 
 def _capture_kitty(lines: int) -> bytes | None:
-    if not os.environ.get("KITTY_WINDOW_ID"):
+    """kitty's copy, over its remote-control socket only.
+
+    Without ``KITTY_LISTEN_ON`` ``kitty @`` talks through the terminal itself
+    -- an escape sequence out, its answer read back from the tty -- which
+    races whoever else reads the tty (Navigator's input, once it runs) and,
+    where ``KITTY_WINDOW_ID`` was only inherited (a terminal or an IDE
+    started from a kitty shell), waits out its whole timeout for an answer
+    that never comes: two seconds of a start.  kitty refuses either way unless
+    remote control is on, and a socket is what ``listen_on`` gives it.
+    """
+    if not os.environ.get("KITTY_WINDOW_ID") or not os.environ.get("KITTY_LISTEN_ON"):
         return None
     return _run(["kitty", "@", "get-text", "--extent", "screen", "--ansi"])
 

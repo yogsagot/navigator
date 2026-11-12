@@ -10,7 +10,7 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
-from navkit.console import ConsoleScreen, seed_from_host
+from navkit.console import ConsoleScreen, capture_host
 from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, reactive
@@ -99,7 +99,11 @@ class Console(ScreenView):
         #: Called when a root shell ends by itself (``exit`` typed at it),
         #: once the user's shell is back.
         self.on_root_ended = None
+        #: Whether the host's screen was asked for (:meth:`start_seeded`), or
+        #: it is too late to: the shell has printed.  Asked once.
         self.seeded = False
+        #: A copy of the host's screen is on its way and still wanted.
+        self._seeding = False
         # The pty is told how big it is whenever this widget is, which is the
         # whole of the resize handling: the kernel raises SIGWINCH on the
         # child itself once the size is set.
@@ -128,22 +132,51 @@ class Console(ScreenView):
         return self.subshell.busy
 
     def start(self) -> None:
-        """Start the shell behind the command line, if it is not running."""
+        """Start the shell behind the command line now, if it is not running.
+
+        A copy of the host's screen still on its way (:meth:`start_seeded`)
+        is dropped: what the shell prints comes first now.
+        """
+        self.seeded, self._seeding = True, False
         if self.subshell.is_running:
             return
-        if not self.seeded:
-            # Whatever was on the real screen before Navigator ran, if this
-            # host happens to keep it.  Once only, and before the shell's
-            # rc files print anything on top of it.
-            self.seeded = True
-            seed_from_host(self.screen)
         self.subshell.start(self.cwd, *self._size())
 
+    def start_seeded(self) -> None:
+        """:meth:`start`, with whatever was on the real screen before
+        Navigator ran fed in first, if this host keeps it (tmux, kitty with a
+        remote-control socket, a Linux console: ``navkit.console``).
+
+        Asked for on a thread and the shell started once it answers, so that
+        the shell's rc files print below it: the hosts are other programs, and
+        nothing that waits on one runs on the loop.  Anything starting the
+        shell meanwhile wins.  Once only; after that it is :meth:`start`.
+        """
+        if self.seeded or self.subshell.is_running:
+            self.start()
+            return
+        self.seeded = self._seeding = True
+        self.spawn(self._seed_then_start(self.screen.lines))
+
+    async def _seed_then_start(self, lines: int) -> None:
+        found = None
+        try:
+            found = await asyncio.to_thread(capture_host, lines)
+        except asyncio.CancelledError:
+            self._seeding = False  # stopping: no shell to start
+            raise
+        finally:
+            if self._seeding:
+                self._seeding = False
+                if found is not None:
+                    self.screen.feed(found[1])
+                    self._changed()
+                self.subshell.start(self.cwd, *self._size())
+
     def run(self, command: str, cwd: Path | None = None) -> None:
-        """Run *command* in the shell, in *cwd*."""
-        if not self.seeded:
-            self.seeded = True
-            seed_from_host(self.screen)
+        """Run *command* in the shell, in *cwd*; a copy of the host's screen
+        still on its way is dropped, as :meth:`start` drops it."""
+        self.seeded, self._seeding = True, False
         self.subshell.run(command, cwd)
 
     def stop(self) -> None:

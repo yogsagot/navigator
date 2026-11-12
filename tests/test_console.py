@@ -7,6 +7,8 @@ become cells.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
 from navkit.console import ConsoleScreen, color_of, style_of
@@ -380,3 +382,88 @@ def test_a_program_that_lays_out_its_own_text_is_left_alone():
     assert _shown_row(console) == "ab אבג"
     console.feed(b"\x1b[8h\x1b[2J\x1b[H" + "ab אבג".encode())
     assert _shown_row(console) == "ab גבא"
+
+
+def test_kitty_is_asked_only_over_its_socket(monkeypatch):
+    """Without ``KITTY_LISTEN_ON`` ``kitty @`` talks through the terminal and,
+    where ``KITTY_WINDOW_ID`` was only inherited, waits out its timeout: two
+    seconds of every start.  Not asked at all then."""
+    from navkit import console as console_module
+
+    ran = []
+    monkeypatch.setattr(console_module, "_run", lambda argv: ran.append(argv) or b"kept\r\n")
+    monkeypatch.setenv("KITTY_WINDOW_ID", "1")
+    monkeypatch.delenv("KITTY_LISTEN_ON", raising=False)
+    assert console_module._capture_kitty(4) is None and ran == []
+    monkeypatch.setenv("KITTY_LISTEN_ON", "unix:/tmp/kitty-socket")
+    assert console_module._capture_kitty(4) == b"kept\r\n" and ran
+
+
+def test_the_capture_is_named_and_not_fed(monkeypatch):
+    from navkit import console as console_module
+
+    monkeypatch.setattr(console_module, "_capture_tmux", lambda lines: b"old\r\n")
+    assert console_module.capture_host(4) == ("tmux", b"old\r\n")
+
+
+def _seeding_app(monkeypatch, capture):
+    """A Navigator whose host capture is *capture* and whose shell start is
+    recorded, with what the console showed when it started."""
+    from conftest import FakeTerminal
+    from navigator.__main__ import Navigator
+    from navigator.lib.system.subshell import Subshell
+    from navigator.widgets.shell.console import console as widget_module
+
+    events = []
+    monkeypatch.setattr(widget_module, "capture_host", capture)
+
+    def start(self, cwd=None, columns=80, lines=24):
+        events.append(("shell", text_of(self.screen, 0)))
+
+    monkeypatch.setattr(Subshell, "start", start)
+    monkeypatch.setattr(Subshell, "is_running", property(lambda self: bool(events)))
+    return Navigator(Path.cwd(), Path.cwd(), terminal=FakeTerminal(80, 24)), events
+
+
+def test_the_host_screen_is_fed_on_a_thread_before_the_shell_starts(monkeypatch):
+    import threading
+
+    from conftest import Until, run_app
+
+    threads = []
+
+    def capture(lines):
+        threads.append(threading.current_thread() is threading.main_thread())
+        return ("tmux", b"before navigator\r\n")
+
+    app, events = _seeding_app(monkeypatch, capture)
+    run_app(app, [lambda a: a.shell.console.start_seeded(), Until(lambda a: events)])
+    assert threads == [False]  # not on the loop
+    assert events == [("shell", "before navigator")]  # fed first, then the shell
+
+
+def test_starting_the_shell_meanwhile_drops_the_copy(monkeypatch):
+    import threading
+    import time
+
+    from conftest import Until, run_app
+
+    release = threading.Event()
+    returned = []
+
+    def capture(lines):
+        release.wait(5)
+        returned.append(time.monotonic())
+        return ("tmux", b"too late\r\n")
+
+    app, events = _seeding_app(monkeypatch, capture)
+
+    def both(a):
+        a.shell.console.start_seeded()
+        a.shell.console.start()  # Ctrl+O before the copy came
+        release.set()
+
+    # Long enough after the copy came back for it to have been fed, had it been.
+    run_app(app, [both, Until(lambda a: returned and time.monotonic() - returned[0] > 0.2)])
+    assert events == [("shell", "")]  # started once, and nothing fed after
+    assert "too late" not in text_of(app.shell.console.screen, 0)

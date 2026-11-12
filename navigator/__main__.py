@@ -167,7 +167,8 @@ class Navigator(Application):
         # is what the command line shows -- to somebody looking at a terminal.
         # Headless, nobody is, and the first command starts it as before.
         if self.terminal.is_tty:
-            self.shell.console.start()
+            # The host's screen copied in on a thread first, then the shell.
+            self.shell.console.start_seeded()
         from navigator.lib.config.file_history import load_edit_bounds
 
         load_edit_bounds()
