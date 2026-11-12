@@ -13,7 +13,9 @@ matches.  With *Regular expression* ticked (not DN's: a departure, asked
 for) the text is Python's ``re`` pattern, matched against the file's bytes
 whole -- up to :data:`WHOLE_LARGEST`, a larger file passed over, as
 *Replace in files* does -- so it may span lines; without, it is the text itself, looked for a
-chunk at a time.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
+chunk at a time as the viewer's search looks (DN's Find called
+``SearchFileStr``): each letter in either case, whatever its alphabet, and
+*Whole words* breaking at blanks and punctuation, never inside a letter.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
 walks the same way, through :func:`search`'s *match*.  A directory is walked into with *Recursive search*, whatever its
 name; never through a symbolic link, and never onto another file system
 when the scope is a disk.  *Current directory* crosses into what is mounted
@@ -37,6 +39,10 @@ internet, read whole by a text search.
 
 Departures: the dialog opens on *Recursive search* and *Current directory*,
 where DN's record started all zeros -- a one-level look at the root;
+*Regular expression* with *Case sensitive* off folds ASCII letters only,
+as Python's ``re`` does on bytes (plain text folds any alphabet's, through
+the viewer's pattern: a user's pattern cannot be rewritten letter by
+letter, and decoding would cost Replace in files its byte-exact rewrite);
 *Advanced search*'s dates are ``YYYY-MM-DD [HH:MM]`` rather than the
 country's format, and its kinds are POSIX's -- executable, symbolic
 link, hidden (a dot-file), read-only, and a link pointing nowhere -- where
@@ -122,16 +128,23 @@ def parse_size(text: str) -> int | None:
 def text_pattern(text: str, *, case: bool, words: bool, regex: bool = False) -> re.Pattern[bytes] | None:
     """What a file has to hold, as ``SearchFileStr`` looked for it; None for no text.
 
+    Plain text is the viewer's own pattern
+    (:func:`navigator.lib.viewer.compile_search`), as DN's Find called the
+    viewer's search: each letter in either case, whatever its alphabet.
     With *regex*, *text* is a pattern (``^`` and ``$`` at each line), and
-    an invalid one raises ``re.error``."""
+    an invalid one raises ``re.error``; *Case sensitive* off folds its ASCII
+    letters only, as ``re`` does on bytes.  *Whole words* breaks where the
+    viewer's does (``WORD_BYTES``) either way."""
+    from navigator.lib.viewer import WORD_BYTES, compile_search
+
     if not text:
         return None
-    raw = text.encode("utf-8", "surrogateescape")
-    body = b"(?:" + raw + b")" if regex else re.escape(raw)
+    if not regex:
+        return compile_search(text, case=case, words=words, encoding="utf-8")[0]
+    body = b"(?:" + text.encode("utf-8", "surrogateescape") + b")"
     if words:
-        body = rb"(?<![\w])" + body + rb"(?![\w])"
-    flags = (0 if case else re.IGNORECASE) | (re.MULTILINE if regex else 0)
-    return re.compile(body, flags)
+        body = rb"(?<![" + WORD_BYTES + rb"])" + body + rb"(?![" + WORD_BYTES + rb"])"
+    return re.compile(body, (0 if case else re.IGNORECASE) | re.MULTILINE)
 
 
 def request_pattern(request: FindRequest) -> re.Pattern[bytes] | None:

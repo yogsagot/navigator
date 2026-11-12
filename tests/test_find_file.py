@@ -661,3 +661,25 @@ def test_a_directory_failing_halfway_ends_only_itself(tree, monkeypatch):
     assert {"top.txt", "b/README", "b/big.bin"} <= set(names)
     assert len(given) == 1  # ``a`` gave one entry, then failed
     assert len([n for n in names if n.startswith("a/")]) <= 1
+
+
+def test_case_folds_any_alphabet_as_the_viewer_does(tmp_path):
+    (tmp_path / "de.txt").write_text("Ärger", encoding="utf-8")
+    (tmp_path / "ru.txt").write_text("ПРИВЕТ", encoding="utf-8")
+    assert found(FindRequest(mask="*", text="ärger"), tmp_path) == ["de.txt"]
+    assert found(FindRequest(mask="*", text="ärger", case=True), tmp_path) == []
+    assert found(FindRequest(mask="*", text="привет"), tmp_path) == ["ru.txt"]
+
+
+def test_whole_words_never_break_inside_a_letter(tmp_path):
+    (tmp_path / "inside.txt").write_text("über", encoding="utf-8")
+    (tmp_path / "first.txt").write_text("ber über", encoding="utf-8")
+    assert found(FindRequest(mask="*", text="ber", words=True), tmp_path) == ["first.txt"]
+    assert found(FindRequest(mask="*", text="b.r", words=True, regex=True), tmp_path) == ["first.txt"]
+
+
+def test_a_regular_expression_folds_ascii_only(tmp_path):
+    # A recorded departure: ``re`` on bytes knows no other alphabet's case.
+    (tmp_path / "de.txt").write_text("ärger", encoding="utf-8")
+    assert found(FindRequest(mask="*", text="ÄRGER", regex=True), tmp_path) == []
+    assert found(FindRequest(mask="*", text="äRGER", regex=True), tmp_path) == ["de.txt"]

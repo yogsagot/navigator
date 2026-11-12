@@ -69,6 +69,11 @@ def test_a_regular_expression_is_a_pattern_and_the_plain_text_is_itself():
         text_pattern("(", case=True, words=False, regex=True)
 
 
+def test_plain_text_folds_any_alphabet_when_replaced():
+    pattern = text_pattern("ä", case=False, words=False)
+    assert pattern.sub(b"x", "Ä ä".encode()) == b"x x"
+
+
 def test_find_with_a_regular_expression_matches_across_lines(tree):
     job = FindJob()
     search(FindRequest(text=r"and foo2\s+nothing", regex=True), tree, make, job)

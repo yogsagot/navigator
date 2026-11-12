@@ -1183,7 +1183,10 @@ DUMP_CHARS_AT = 9
 
 #: What is not part of a word, for *Whole words*: every byte that is not an
 #: ASCII letter, digit or underscore, and not part of a UTF-8 sequence.
-_WORD = rb"0-9A-Za-z_\x80-\xff"
+#: A word's bytes for *Whole words*: DN's ``BreakChars`` were blanks and
+#: punctuation only, so a byte of another alphabet's letter (>= 0x80) is part
+#: of a word.  Find's search uses it too (``filefind.text_pattern``).
+WORD_BYTES = rb"0-9A-Za-z_\x80-\xff"
 
 
 def compile_search(text: str, *, case: bool = False, words: bool = False,
@@ -1210,7 +1213,7 @@ def compile_search(text: str, *, case: bool = False, words: bool = False,
                 parts.append(re.escape(letter))
         body = b"".join(parts) or rb"(?!)"
         if words:
-            body = rb"(?<![" + _WORD + rb"])" + body + rb"(?![" + _WORD + rb"])"
+            body = rb"(?<![" + WORD_BYTES + rb"])" + body + rb"(?![" + WORD_BYTES + rb"])"
         return re.compile(body, re.DOTALL), max(1, len(data))
     for char in text:
         variants = {char}
@@ -1226,7 +1229,7 @@ def compile_search(text: str, *, case: bool = False, words: bool = False,
             parts.append(b"(?:" + b"|".join(re.escape(e) for e in encoded) + b")")
     body = b"".join(parts)
     if words:
-        body = rb"(?<![" + _WORD + rb"])" + body + rb"(?![" + _WORD + rb"])"
+        body = rb"(?<![" + WORD_BYTES + rb"])" + body + rb"(?![" + WORD_BYTES + rb"])"
     return re.compile(body, re.DOTALL), max(1, span)
 
 
