@@ -37,6 +37,15 @@ appearance that knows its own SGR sequence; nothing else writes colour codes. Th
   is the default's own. `stylesheet.register_property()` is the bare form.
 - **A sheet cannot be parsed before the widgets it styles are imported** -- which is why `load_scheme()` imports
   `navigator.widgets.manager.panel` before it parses.
+- **The start reads the parsed sheet back from a cache** (`stylesheet.load_cached`, ~5 ms against ~15 ms to parse).
+  It is in `$XDG_CACHE_HOME/navigator/stylesheets/`, holds the 8 most recently used, and is used only when
+  `scheme.CACHE_DIR` is set. Only `main()` sets it, so tests, tools and Options > Colors always parse.
+  - The key is everything a parse depends on: the sheets' names and text, the registered properties, the Python
+    version, and `navkit/stylesheet.py`'s and `navkit/style.py`'s code. **A new input to parsing must join the key**,
+    or a stale sheet is used.
+  - The key must be the same in every process. A `frozenset`'s `repr()` follows the per-process hash seed, so specs
+    are spelt out sorted; `test_the_cache_s_key_is_the_same_in_every_process` runs two seeds.
+  - A sheet that fails to parse is never kept, so its error and line come back at every start.
 - Listing rows are **parts** (`Panel::row`, `Panel::heading`, `Panel::divider`), never widgets. So are syntax
   tokens (`FileEditor::token`, `FileViewer::token`): their classes are the Pygments type's pieces, so
   `::token.keyword.constant` outranks `::token.keyword` by plain specificity. Resolve a part once per frame per

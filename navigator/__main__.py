@@ -49,6 +49,7 @@ from navigator.commands import ShowUserScreen, ToggleConsole, ToggleTimerLine
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
+from navigator.lib.appearance import scheme as scheme_module
 from navigator.lib.appearance.scheme import (
     DEFAULT_THEME, default_scheme, theme_names, theme_path, user_scheme,
 )
@@ -56,7 +57,7 @@ from navigator.lib.config.file_history import remember_windows, save_edit_bounds
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.system.background import BACKGROUND
 from navigator.lib.system import dirwatch, errorlog
-from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, config_path, database_path
+from navigator.settings import COLOR_DEPTHS, MARK_LOOKS, SETTINGS, cache_dir, config_path, database_path
 from navigator.widgets.manager.commands import HideLeft, HideRight
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import (
@@ -1043,6 +1044,8 @@ def main(argv: list[str] | None = None) -> int:
             theme = DEFAULT_THEME
     # The user's palette (Options > Colors) goes over the theme it was made
     # over, and only that one.
+    # The parsed sheet is kept for the next start: ~11 ms of ~0.3 s.
+    scheme_module.CACHE_DIR = cache_dir() / "stylesheets"
     scheme, problem = user_scheme(theme, unmarked=appearance.theme)
     if problem is not None:
         print(f"nav: {problem}; the palette is left out", file=sys.stderr)

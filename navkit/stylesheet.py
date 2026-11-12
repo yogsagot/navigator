@@ -907,6 +907,97 @@ def load(sheets: Iterable[tuple[str, str]]) -> Stylesheet:
     return Stylesheet(tuple(rules), merged)
 
 
+#: Bumped when what :func:`load_cached` stores changes shape.
+_CACHE_FORMAT = 1
+#: How many parsed sheets a cache directory keeps, the most recently used.
+_CACHE_KEEP = 8
+
+
+def load_cached(sheets: Iterable[tuple[str, str]], directory: Path | None) -> Stylesheet:
+    """:func:`load`, its result kept in *directory* for the next start.
+
+    Parsing Navigator's three sheets is ~15 ms of a ~0.3 s start; reading the
+    result back is ~4.  The key is everything a parse depends on: the sheets'
+    names and text, the declared properties (:func:`register_property`, so
+    the widgets must be imported first, as for :func:`load`), the Python
+    version and this module's and :mod:`navkit.style`'s code.  Only a sheet
+    that parsed is kept, so a broken one fails each time with its line.  A
+    cache that cannot be read or written is parsed past, never an error.
+    *directory* None is :func:`load`.
+    """
+    texts = list(sheets)
+    if directory is None:
+        return load(texts)
+    import hashlib
+    import pickle
+    import sys
+
+    from navkit import style
+
+    digest = hashlib.sha256()
+    for part in (
+        str(_CACHE_FORMAT), sys.version,
+        # Spelt out rather than repr()'d: a frozenset's order follows the
+        # process's string hash seed, which would make every start a miss.
+        repr(sorted(
+            (name, _kind_named(spec.kind) if spec.kind is not None else "",
+             None if spec.values is None else sorted(repr(value) for value in spec.values))
+            for name, spec in _PROPERTIES.items()
+        )),
+    ):
+        digest.update(part.encode() + b"\0")
+    for module in (__file__, style.__file__):
+        try:
+            digest.update(Path(module).read_bytes() + b"\0")
+        except OSError:
+            return load(texts)
+    for name, text in texts:
+        digest.update(name.encode() + b"\0" + text.encode() + b"\0")
+    path = directory / f"{digest.hexdigest()[:32]}.pickle"
+    try:
+        rules, variables = pickle.loads(path.read_bytes())
+        cached = Stylesheet(rules, variables)
+    except Exception:  # missing, unreadable, truncated, from a changed class
+        cached = None
+    if cached is None:
+        # Outside the handler, so a sheet's own error is not shown as
+        # happening while a missing cache file was being dealt with.
+        sheet = load(texts)
+        _store(path, (sheet.rules, dict(sheet.variables)))
+        return sheet
+    try:
+        path.touch()  # most recently used
+    except OSError:
+        pass
+    return cached
+
+
+def _store(path: Path, value: Any) -> None:
+    """Write *value* to *path* whole or not at all, and keep the directory
+    to the :data:`_CACHE_KEEP` most recently used."""
+    import contextlib
+    import os
+    import pickle
+    import tempfile
+
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        handle, temporary = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
+        try:
+            with os.fdopen(handle, "wb") as stream:
+                pickle.dump(value, stream, protocol=pickle.HIGHEST_PROTOCOL)
+            os.replace(temporary, path)
+        except BaseException:
+            with contextlib.suppress(OSError):
+                os.unlink(temporary)
+            raise
+        kept = sorted(path.parent.glob("*.pickle"), key=lambda p: p.stat().st_mtime, reverse=True)
+        for old in kept[_CACHE_KEEP:]:
+            old.unlink(missing_ok=True)
+    except Exception:
+        pass  # a cache that cannot be written is only slower
+
+
 def read(*sources: str | Path | tuple[str, str]) -> Stylesheet:
     """Load sheets from disk, in order, and merge them.
 

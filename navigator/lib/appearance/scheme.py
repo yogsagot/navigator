@@ -17,7 +17,7 @@ from functools import cache
 from importlib.resources import files
 from pathlib import Path
 
-from navkit.stylesheet import Stylesheet, StylesheetError, load, read
+from navkit.stylesheet import Stylesheet, StylesheetError, load, load_cached, read
 
 
 #: Where sheets live.  A directory rather than a single file because a theme is
@@ -98,7 +98,28 @@ def load_scheme(theme: str = DEFAULT_THEME, *extra) -> Stylesheet:
     catching a misspelled property at its ``.nss`` line.
     """
     _import_widgets()
-    return read(SCHEME_PATH, ATTRIBUTES_PATH, theme_path(theme), *extra)
+    if CACHE_DIR is None:
+        return read(SCHEME_PATH, ATTRIBUTES_PATH, theme_path(theme), *extra)
+    # The sheets are read either way: they are the cache's key.
+    sources = [_source(item) for item in (SCHEME_PATH, ATTRIBUTES_PATH, theme_path(theme), *extra)]
+    return load_cached(sources, CACHE_DIR)
+
+
+#: Where :func:`load_scheme` keeps the sheet it parsed for the next start
+#: (``navkit.stylesheet.load_cached``), or None to parse every time.  Set by
+#: ``main()`` alone, so a test or a tool never reads a cache.
+CACHE_DIR: Path | None = None
+
+
+def _source(item: str | Path | tuple[str, str]) -> tuple[str, str]:
+    """An *extra* sheet as a ``(name, text)`` pair; ``StylesheetError`` for a
+    file that cannot be read, as :func:`~navkit.stylesheet.read` raises."""
+    if isinstance(item, tuple):
+        return item
+    try:
+        return (str(item), Path(item).read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise StylesheetError(f"cannot read {item}: {exc.strerror or exc}", 0, str(item)) from exc
 
 
 def _import_widgets() -> None:

@@ -100,6 +100,16 @@ def state_dir() -> Path:
     return root / "navigator"
 
 
+def cache_dir() -> Path:
+    """``$XDG_CACHE_HOME/navigator``, or ``~/.cache/navigator`` without one:
+    what can be deleted at any time and is only made again, slower -- the
+    parsed stylesheet.  The same rule as :func:`config_dir` for an unset or
+    relative variable."""
+    base = os.environ.get("XDG_CACHE_HOME", "")
+    root = Path(base) if base and os.path.isabs(base) else Path.home() / ".cache"
+    return root / "navigator"
+
+
 def database_path() -> Path:
     """Where the database lives unless ``--database`` says otherwise."""
     return state_dir() / DATABASE_NAME

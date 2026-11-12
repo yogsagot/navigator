@@ -689,3 +689,108 @@ def test_a_sheet_cannot_declare_a_link():
     from navkit.stylesheet import STYLE_FIELDS
 
     assert "link" not in STYLE_FIELDS
+
+
+# -- the parsed sheet kept for the next start ------------------------------------------
+
+
+def _counting_load(monkeypatch):
+    """navkit.stylesheet.load, counting its calls: a parse, not a cache read."""
+    from navkit import stylesheet
+
+    calls = []
+    real = stylesheet.load
+
+    def load(sheets):
+        calls.append(1)
+        return real(sheets)
+
+    monkeypatch.setattr(stylesheet, "load", load)
+    return calls
+
+
+SHEET = [("a.nss", "$fg: red;\nRecordingWidget { fg: $fg; }\n")]
+
+
+def test_a_cached_sheet_is_read_back_equal_without_a_parse(tmp_path, monkeypatch):
+    from navkit.stylesheet import load, load_cached
+
+    calls = _counting_load(monkeypatch)
+    first = load_cached(SHEET, tmp_path)
+    second = load_cached(SHEET, tmp_path)
+    assert len(calls) == 1
+    assert first == second == load(SHEET)
+    assert len(list(tmp_path.glob("*.pickle"))) == 1
+
+
+def test_what_a_parse_depends_on_is_the_cache_s_key(tmp_path, monkeypatch):
+    from navkit import stylesheet
+
+    calls = _counting_load(monkeypatch)
+    stylesheet.load_cached(SHEET, tmp_path)
+    stylesheet.load_cached([("a.nss", SHEET[0][1].replace("red", "blue"))], tmp_path)
+    stylesheet.load_cached([("b.nss", SHEET[0][1])], tmp_path)
+    # A property declared since can make a sheet that failed parse, or mean
+    # something else: a new key.
+    monkeypatch.setitem(stylesheet._PROPERTIES, "cache_test_only", stylesheet.PropertySpec.of(None, None))
+    stylesheet.load_cached(SHEET, tmp_path)
+    assert len(calls) == 4
+
+
+def test_a_broken_cache_file_is_parsed_past_and_replaced(tmp_path, monkeypatch):
+    from navkit.stylesheet import load_cached
+
+    load_cached(SHEET, tmp_path)
+    (cached,) = tmp_path.glob("*.pickle")
+    cached.write_bytes(b"not a pickle")
+    calls = _counting_load(monkeypatch)
+    assert load_cached(SHEET, tmp_path).rules
+    load_cached(SHEET, tmp_path)
+    assert len(calls) == 1
+
+
+def test_a_sheet_that_fails_is_never_kept(tmp_path):
+    from navkit.stylesheet import StylesheetError, load_cached
+
+    for _ in range(2):
+        with pytest.raises(StylesheetError, match="b.nss:1") as raised:
+            load_cached([("b.nss", "RecordingWidget { no_such_property: 1; }\n")], tmp_path)
+        assert raised.value.__context__ is None
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_the_cache_keeps_the_most_recently_used(tmp_path, monkeypatch):
+    from navkit import stylesheet
+
+    monkeypatch.setattr(stylesheet, "_CACHE_KEEP", 2)
+    for colour in ("red", "blue", "green"):
+        stylesheet.load_cached([("a.nss", f"RecordingWidget {{ fg: {colour}; }}\n")], tmp_path)
+    assert len(list(tmp_path.glob("*.pickle"))) == 2
+
+
+def test_no_directory_is_a_plain_load(tmp_path, monkeypatch):
+    from navkit.stylesheet import load_cached
+
+    calls = _counting_load(monkeypatch)
+    load_cached(SHEET, None)
+    load_cached(SHEET, None)
+    assert len(calls) == 2
+
+
+def test_the_cache_s_key_is_the_same_in_every_process(tmp_path):
+    """Python seeds string hashing per process, so a frozenset of property
+    values iterates in a different order each start: a key built from it
+    would never be found again."""
+    import os
+    import subprocess
+    import sys
+
+    script = (
+        "import sys; from pathlib import Path\n"
+        "from navigator.lib.appearance import scheme\n"
+        "scheme.CACHE_DIR = Path(sys.argv[1]); scheme.load_scheme()\n"
+    )
+    for seed in ("1", "2"):
+        subprocess.run([sys.executable, "-c", script, str(tmp_path)], check=True,
+                       env=dict(os.environ, PYTHONHASHSEED=seed))
+    assert len(list(tmp_path.glob("*.pickle"))) == 1
