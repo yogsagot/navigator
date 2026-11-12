@@ -38,25 +38,15 @@ from navigator.lib.editor.save import marked_read_only, write_file
 from navigator.lib.config.file_history import place_window, window_values
 from navigator.lib.cut import cut_path
 from navigator.models.edit_record import EditRecord
-from navigator.commands import NewView, PrintFile
+from navigator.commands import NewView
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.commands import (
-    AsciiTable,
-    SetMargins,
-    ContSearch,
     Replace,
-    ReverseSearch,
     StartSearch,
     BlockRead,
     BlockWrite,
-    GotoLineNumber,
-    LoadText,
     PrintBlock,
-    SaveAll,
-    SaveText,
-    SaveTextAs,
     ChooseEncoding,
-    ChooseFileType,
     ChooseLineEnding,
     CloseFindBar,
     SetFileType,
@@ -64,9 +54,7 @@ from navigator.widgets.editor.commands import (
     ShowReplaceBar,
 )
 from navigator.widgets.editor.file_type_menu import choose_file_type, fill_file_types
-from navigator.widgets.editor.format_menu import (
-    choose_encoding, choose_line_ending, fill_encodings, fill_line_endings,
-)
+from navigator.widgets.editor.format_menu import fill_encodings, fill_line_endings
 from navigator.widgets.editor.option_items import editor_items
 
 
@@ -375,11 +363,6 @@ class EditWindow(Window):
 
     # -- saving ------------------------------------------------------------------
 
-    async def on_save_text(self, event: SaveText) -> bool:
-        """F2: ``cmSaveText``.  A failure is said, and the text stays changed."""
-        self.spawn(self._confirm_save())
-        return True
-
     async def _confirm_save(self) -> None:
         """*Confirm file save* first, under Confirmations' *Editor file save*.
 
@@ -527,20 +510,7 @@ class EditWindow(Window):
         self.set_file_type(event.file_type)
         return True
 
-    async def on_choose_file_type(self, event: ChooseFileType) -> bool:
-        """Ctrl+Shift+H: the same menu in a box of its own."""
-        self.spawn(self._choose_file_type())
-        return True
-
     # -- line endings and encoding (a departure, asked for: ``format_menu``) ----
-
-    async def on_choose_line_ending(self, event: ChooseLineEnding) -> bool:
-        self.spawn(self._choose_format(choose_line_ending, self.editor.ending_indicator()))
-        return True
-
-    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
-        self.spawn(self._choose_format(choose_encoding, self.editor.encoding_indicator()))
-        return True
 
     async def _choose_format(self, choose: Any, zone: tuple[int, int]) -> None:
         """The box over the marker clicked -- centred on the window while the
@@ -714,10 +684,6 @@ class EditWindow(Window):
     async def _say(self, message: str) -> None:
         await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
 
-    async def on_block_write(self, event: BlockWrite) -> bool:
-        self.spawn(self.write_block())
-        return True
-
     async def write_block(self) -> None:
         """^K W, ``BlockWrite``: the block to a file.
 
@@ -801,10 +767,6 @@ class EditWindow(Window):
             return
         await self.emit(FileSaved(path))
 
-    async def on_block_read(self, event: BlockRead) -> bool:
-        self.spawn(self.read_block())
-        return True
-
     async def read_block(self) -> None:
         """^K R, ``BlockRead``: a file's text at the cursor, which the editor marks."""
         path = await self._block_file(tr("Paste from File"), tr("~P~aste from"))
@@ -846,18 +808,6 @@ class EditWindow(Window):
 
     # -- Ctrl+F and Ctrl+R: the Find bar ---------------------------------------------------
 
-    async def on_show_find_bar(self, event: ShowFindBar) -> bool:
-        self.find_bar.open(replace=False)
-        return True
-
-    async def on_show_replace_bar(self, event: ShowReplaceBar) -> bool:
-        self.find_bar.open(replace=True)
-        return True
-
-    async def on_close_find_bar(self, event: CloseFindBar) -> bool:
-        self.find_bar.close()
-        return True
-
     def enables(self, command: Any) -> bool:
         # Esc in the editor closes the bar while it shows, and the window else.
         if isinstance(command, CloseFindBar):
@@ -870,22 +820,6 @@ class EditWindow(Window):
 
     #: ``ReplaceAll``: whether the last Replace was *Change all*, which Shift+F7 keeps.
     _replace_all = False
-
-    async def on_start_search(self, event: StartSearch) -> bool:
-        self.spawn(self.start_search(replace=False))
-        return True
-
-    async def on_replace(self, event: Replace) -> bool:
-        self.spawn(self.start_search(replace=True))
-        return True
-
-    async def on_cont_search(self, event: ContSearch) -> bool:
-        self.spawn(self.search())
-        return True
-
-    async def on_reverse_search(self, event: ReverseSearch) -> bool:
-        self.spawn(self.search(reverse=True))
-        return True
 
     async def start_search(self, *, replace: bool) -> None:
         """``StartSearch``: *Find* or *Replace*, then the search from where *Origin* says.
@@ -983,10 +917,6 @@ class EditWindow(Window):
 
     # -- Paragraph > Margins -------------------------------------------------------------
 
-    async def on_set_margins(self, event: SetMargins) -> bool:
-        self.spawn(self.set_margins())
-        return True
-
     async def set_margins(self) -> None:
         """``SetFormat``: *Format Margins* for this editor's margins and indent."""
         from navigator.widgets.editor.margins_dialog import MarginsDialog
@@ -997,10 +927,6 @@ class EditWindow(Window):
 
     # -- Alt+G -------------------------------------------------------------------------
 
-    async def on_goto_line_number(self, event: GotoLineNumber) -> bool:
-        self.spawn(self.goto_line())
-        return True
-
     async def goto_line(self) -> None:
         """``GotoLine``: *Goto Line*, then the cursor to the line given, if one was."""
         from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
@@ -1010,10 +936,6 @@ class EditWindow(Window):
             self.editor.go_to_line(number)
 
     # -- Ctrl+P: the character table --------------------------------------------------
-
-    async def on_ascii_table(self, event: AsciiTable) -> bool:
-        self.spawn(self.ascii_table())
-        return True
 
     async def ascii_table(self) -> None:
         """``ASCIITable``, then ``InputChar``: the character picked typed at the cursor.
@@ -1033,17 +955,9 @@ class EditWindow(Window):
 
     # -- ^K P / Shift+F8 ------------------------------------------------------------
 
-    async def on_print_block(self, event: PrintBlock) -> bool:
-        self.spawn(self.print_block())
-        return True
-
     async def print_block(self) -> None:
         """``Print(On)`` (``EDITOR.PAS``): the block, as ``GetSelection`` gave it."""
         await self.print_lines(self.editor.block_lines())
-
-    async def on_print_file(self, event: PrintFile) -> bool:
-        self.spawn(self.print_file())
-        return True
 
     async def print_file(self) -> None:
         """``Print(Off)``, F8: the whole text as it stands, saved or not -- what the
@@ -1088,10 +1002,6 @@ class EditWindow(Window):
 
     # -- Ctrl+F2 ------------------------------------------------------------------------
 
-    async def on_save_all(self, event: SaveAll) -> bool:
-        self.spawn(self.save_all())
-        return True
-
     async def save_all(self) -> None:
         """``cmSaveAll``: ``GlobalMessage(evCommand, cmSaveText)``, every editor saving.
 
@@ -1111,10 +1021,6 @@ class EditWindow(Window):
                 await window.save()
 
     # -- F3 and Shift+F2 ----------------------------------------------------------------
-
-    async def on_load_text(self, event: LoadText) -> bool:
-        self.spawn(self.load_text())
-        return True
 
     async def load_text(self) -> None:
         """``cmLoadText``: another file into this window, DN's ``OpenFile``.
@@ -1171,10 +1077,6 @@ class EditWindow(Window):
         self.title = bind(lambda _o: self._title(), yielding=True)
         self.recall_history()
         self.editor.focus()
-
-    async def on_save_text_as(self, event: SaveTextAs) -> bool:
-        self.spawn(self.save_as())
-        return True
 
     async def save_as(self) -> None:
         """``SaveFileAs``: the text under a name asked in *Save File As*, ``hsEditSave``.

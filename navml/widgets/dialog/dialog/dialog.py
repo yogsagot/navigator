@@ -32,7 +32,7 @@ from navkit.i18n import tr
 from navkit.reactive import reactive
 from navkit.widget import Widget
 
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import Cancel, Default
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.modal import Modal
 
@@ -237,14 +237,6 @@ class Dialog(Modal):
 
     async def on_default(self, event: Default) -> bool:
         return await self.default_button.press()
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._application_or_raise().focus_next()
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._application_or_raise().focus_next(reverse=True)
-        return True
 
     def _application_or_raise(self) -> Application:
         app = self.application

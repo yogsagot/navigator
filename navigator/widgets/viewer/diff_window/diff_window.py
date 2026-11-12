@@ -25,7 +25,7 @@ from navml.widgets.window import Window
 from navigator.lib.file_ops import filediff
 from navigator.lib.system.job import Stopped
 from navigator.widgets.manager.commands import Rescan
-from navigator.widgets.viewer.commands import CloseViewer, NextDifference, PreviousDifference
+from navigator.widgets.viewer.commands import NextDifference, PreviousDifference
 
 
 class DiffWindow(Window):
@@ -57,14 +57,6 @@ class DiffWindow(Window):
     async def on_previous_difference(self, event: PreviousDifference) -> bool:
         if not self.view.previous_difference() and self.application is not None:
             self.application.bell()
-        return True
-
-    async def on_close_viewer(self, event: CloseViewer) -> bool:
-        self.request_close()
-        return True
-
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.spawn(self.compare_again())
         return True
 
     async def compare_again(self) -> None:

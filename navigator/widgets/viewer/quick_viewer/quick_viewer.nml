@@ -2,6 +2,7 @@ from navigator.widgets.viewer.commands import AddFilter, ChooseEncoding, Continu
 from navigator.widgets.viewer.commands import SaveViewAs, SearchAgain, SearchFor, SwitchRendered, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.widgets.dialog.scroll_bar import ScrollBar
+from navigator.widgets.viewer.commands import SetViewFilter, SetViewMode
 
 #: Ctrl+Q: the file under the active panel's cursor, shown in the passive
 #: panel's place -- DOS Navigator's ``THFileViewer``, which ``SwitchView(dtView)``
@@ -41,6 +42,14 @@ QuickViewer:
         shift+f3: SwitchRendered
         shift+f5: SaveViewAs
         shift+f6: ChooseEncoding
+
+    #: The commands this component handles itself.
+    commands:
+        Unwrap: root.viewer.toggle_wrap()
+        HexMode: root.viewer.cycle_mode()
+        AddFilter: root.viewer.cycle_filter()
+        SetViewMode: root.viewer.set_mode(event.mode)
+        SetViewFilter: root.viewer.set_filter(event.filter)
 
     FileViewer:
         id: viewer

@@ -49,14 +49,40 @@ class LinksDialog(Dialog, _Component):
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    links_caption: Label    # links_dialog.nml:25
-    links: LinkList    # links_dialog.nml:33
-    connect: Button    # links_dialog.nml:40
-    edit: Button    # links_dialog.nml:49
-    append: Button    # links_dialog.nml:58
-    delete: Button    # links_dialog.nml:67
-    pick: Button    # links_dialog.nml:76
-    abandon: Button    # links_dialog.nml:85
+    links_caption: Label    # links_dialog.nml:33
+    links: LinkList    # links_dialog.nml:41
+    connect: Button    # links_dialog.nml:48
+    edit: Button    # links_dialog.nml:57
+    append: Button    # links_dialog.nml:66
+    delete: Button    # links_dialog.nml:75
+    pick: Button    # links_dialog.nml:84
+    abandon: Button    # links_dialog.nml:93
+
+    #: The commands this component handles itself.
+    async def on_edit_link(self, event: _Any) -> bool:    # links_dialog.nml:26
+        """``EditLink``."""
+        self.spawn(self.edit_link())
+        return True
+
+    async def on_add_link(self, event: _Any) -> bool:    # links_dialog.nml:27
+        """``AddLink``."""
+        self.spawn(self.add_link())
+        return True
+
+    async def on_delete_link(self, event: _Any) -> bool:    # links_dialog.nml:28
+        """``DeleteLink``."""
+        self.spawn(self.delete_link())
+        return True
+
+    async def on_move_link_up(self, event: _Any) -> bool:    # links_dialog.nml:29
+        """``MoveLinkUp``."""
+        self.move(-1)
+        return True
+
+    async def on_move_link_down(self, event: _Any) -> bool:    # links_dialog.nml:30
+        """``MoveLinkDown``."""
+        self.move(1)
+        return True
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -66,99 +92,99 @@ class LinksDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_connect_click(self, event: _Event) -> bool:    # links_dialog.nml:40
+    async def on_connect_click(self, event: _Event) -> bool:    # links_dialog.nml:48
         """``connect`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # links_dialog.nml:85
+    async def on_abandon_click(self, event: _Event) -> bool:    # links_dialog.nml:93
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.links_caption = Label(parent=self)    # links_dialog.nml:24
-        self.links = LinkList(parent=self)    # links_dialog.nml:32
-        self.connect = Button(parent=self)    # links_dialog.nml:39
-        self.edit = Button(parent=self)    # links_dialog.nml:48
-        self.append = Button(parent=self)    # links_dialog.nml:57
-        self.delete = Button(parent=self)    # links_dialog.nml:66
-        self.pick = Button(parent=self)    # links_dialog.nml:75
-        self.abandon = Button(parent=self)    # links_dialog.nml:84
+        self.links_caption = Label(parent=self)    # links_dialog.nml:32
+        self.links = LinkList(parent=self)    # links_dialog.nml:40
+        self.connect = Button(parent=self)    # links_dialog.nml:47
+        self.edit = Button(parent=self)    # links_dialog.nml:56
+        self.append = Button(parent=self)    # links_dialog.nml:65
+        self.delete = Button(parent=self)    # links_dialog.nml:74
+        self.pick = Button(parent=self)    # links_dialog.nml:83
+        self.abandon = Button(parent=self)    # links_dialog.nml:92
 
         self.modal_width = 70    # links_dialog.nml:12
         self.modal_height = 18    # links_dialog.nml:13
         self.title = _bind(lambda _o: _tr('Saved links'), yielding=True)    # links_dialog.nml:14
         self.buttons = 'none'    # links_dialog.nml:15
 
-        self.links_caption.x = 2    # links_dialog.nml:26
-        self.links_caption.y = 1    # links_dialog.nml:27
-        self.links_caption.width = 12    # links_dialog.nml:28
-        self.links_caption.text = _bind(    # links_dialog.nml:29
+        self.links_caption.x = 2    # links_dialog.nml:34
+        self.links_caption.y = 1    # links_dialog.nml:35
+        self.links_caption.width = 12    # links_dialog.nml:36
+        self.links_caption.text = _bind(    # links_dialog.nml:37
             lambda _o: _tr('~L~inks'),
             yielding=True,
         )
-        self.links_caption.link = _bind(lambda _o: self.links)    # links_dialog.nml:30
+        self.links_caption.link = _bind(lambda _o: self.links)    # links_dialog.nml:38
 
-        self.links.x = 2    # links_dialog.nml:34
-        self.links.y = 2    # links_dialog.nml:35
-        self.links.width = 52    # links_dialog.nml:36
-        self.links.height = 13    # links_dialog.nml:37
+        self.links.x = 2    # links_dialog.nml:42
+        self.links.y = 2    # links_dialog.nml:43
+        self.links.width = 52    # links_dialog.nml:44
+        self.links.height = 13    # links_dialog.nml:45
 
-        self.connect.text = _bind(lambda _o: _tr('~C~onnect'), yielding=True)    # links_dialog.nml:41
-        self.connect.default = True    # links_dialog.nml:42
-        self.connect.x = 56    # links_dialog.nml:43
-        self.connect.y = 2    # links_dialog.nml:44
-        self.connect.width = 12    # links_dialog.nml:45
-        self.connect.height = 2    # links_dialog.nml:46
-        self.connect.on_click = self.on_connect_click    # links_dialog.nml:40
+        self.connect.text = _bind(lambda _o: _tr('~C~onnect'), yielding=True)    # links_dialog.nml:49
+        self.connect.default = True    # links_dialog.nml:50
+        self.connect.x = 56    # links_dialog.nml:51
+        self.connect.y = 2    # links_dialog.nml:52
+        self.connect.width = 12    # links_dialog.nml:53
+        self.connect.height = 2    # links_dialog.nml:54
+        self.connect.on_click = self.on_connect_click    # links_dialog.nml:48
 
-        self.edit.text = _bind(lambda _o: _tr('~E~dit...'), yielding=True)    # links_dialog.nml:50
-        self.edit.x = 56    # links_dialog.nml:51
-        self.edit.y = 4    # links_dialog.nml:52
-        self.edit.width = 12    # links_dialog.nml:53
-        self.edit.height = 2    # links_dialog.nml:54
+        self.edit.text = _bind(lambda _o: _tr('~E~dit...'), yielding=True)    # links_dialog.nml:58
+        self.edit.x = 56    # links_dialog.nml:59
+        self.edit.y = 4    # links_dialog.nml:60
+        self.edit.width = 12    # links_dialog.nml:61
+        self.edit.height = 2    # links_dialog.nml:62
 
-        async def _on_click(event):    # links_dialog.nml:55
+        async def _on_click(event):    # links_dialog.nml:63
             self.spawn(self.edit_link())
             return True
         self.edit.on_click = _on_click
 
-        self.append.text = _bind(lambda _o: _tr('~A~dd...'), yielding=True)    # links_dialog.nml:59
-        self.append.x = 56    # links_dialog.nml:60
-        self.append.y = 6    # links_dialog.nml:61
-        self.append.width = 12    # links_dialog.nml:62
-        self.append.height = 2    # links_dialog.nml:63
+        self.append.text = _bind(lambda _o: _tr('~A~dd...'), yielding=True)    # links_dialog.nml:67
+        self.append.x = 56    # links_dialog.nml:68
+        self.append.y = 6    # links_dialog.nml:69
+        self.append.width = 12    # links_dialog.nml:70
+        self.append.height = 2    # links_dialog.nml:71
 
-        async def _on_click(event):    # links_dialog.nml:64
+        async def _on_click(event):    # links_dialog.nml:72
             self.spawn(self.add_link())
             return True
         self.append.on_click = _on_click
 
-        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # links_dialog.nml:68
-        self.delete.x = 56    # links_dialog.nml:69
-        self.delete.y = 8    # links_dialog.nml:70
-        self.delete.width = 12    # links_dialog.nml:71
-        self.delete.height = 2    # links_dialog.nml:72
+        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # links_dialog.nml:76
+        self.delete.x = 56    # links_dialog.nml:77
+        self.delete.y = 8    # links_dialog.nml:78
+        self.delete.width = 12    # links_dialog.nml:79
+        self.delete.height = 2    # links_dialog.nml:80
 
-        async def _on_click(event):    # links_dialog.nml:73
+        async def _on_click(event):    # links_dialog.nml:81
             self.spawn(self.delete_link())
             return True
         self.delete.on_click = _on_click
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # links_dialog.nml:77
-        self.pick.x = 56    # links_dialog.nml:78
-        self.pick.y = 11    # links_dialog.nml:79
-        self.pick.width = 12    # links_dialog.nml:80
-        self.pick.height = 2    # links_dialog.nml:81
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # links_dialog.nml:85
+        self.pick.x = 56    # links_dialog.nml:86
+        self.pick.y = 11    # links_dialog.nml:87
+        self.pick.width = 12    # links_dialog.nml:88
+        self.pick.height = 2    # links_dialog.nml:89
 
-        async def _on_click(event):    # links_dialog.nml:82
+        async def _on_click(event):    # links_dialog.nml:90
             self.close(self.accept())
             return True
         self.pick.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # links_dialog.nml:86
-        self.abandon.x = 56    # links_dialog.nml:87
-        self.abandon.y = 13    # links_dialog.nml:88
-        self.abandon.width = 12    # links_dialog.nml:89
-        self.abandon.height = 2    # links_dialog.nml:90
-        self.abandon.on_click = self.on_abandon_click    # links_dialog.nml:85
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # links_dialog.nml:94
+        self.abandon.x = 56    # links_dialog.nml:95
+        self.abandon.y = 13    # links_dialog.nml:96
+        self.abandon.width = 12    # links_dialog.nml:97
+        self.abandon.height = 2    # links_dialog.nml:98
+        self.abandon.on_click = self.on_abandon_click    # links_dialog.nml:93

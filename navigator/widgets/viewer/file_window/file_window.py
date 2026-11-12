@@ -25,19 +25,6 @@ from navml.widgets.window import Window
 import navigator.lib.viewer as viewer_model
 from navigator.widgets.viewer import viewer_host
 from navigator.widgets.viewer.commands import (
-    AddFilter,
-    ChooseEncoding,
-    ContinueSearch,
-    GotoAddress,
-    HexMode,
-    ReverseSearch,
-    SaveViewAs,
-    SearchAgain,
-    SearchFor,
-    SetViewFilter,
-    SetViewMode,
-    Unwrap,
-    CloseViewer,
     FilterLines,
     FollowEnd,
     SwitchRendered,
@@ -178,11 +165,6 @@ class FileWindow(Window):
             self.use_set = None
             let_go(app, use)
 
-    async def on_close_viewer(self, event: CloseViewer) -> bool:
-        """F3 again: Midnight Commander's way out, beside DN's Esc."""
-        self.request_close()
-        return True
-
     # -- hex editing ---------------------------------------------------------------
 
     def must_ask(self) -> bool:
@@ -209,10 +191,6 @@ class FileWindow(Window):
             return False
         if answer is True:
             return await self.store()
-        return True
-
-    async def on_write_modify(self, event: WriteModify) -> bool:
-        self.spawn(self.store())
         return True
 
     async def store(self) -> bool:
@@ -359,10 +337,6 @@ class FileWindow(Window):
         finally:
             self._follow_busy = False
 
-    async def on_filter_lines(self, event: FilterLines) -> bool:
-        self.spawn(self.filter_lines())
-        return True
-
     async def filter_lines(self) -> None:
         """Ctrl+G: ask for the pattern, opened on the last one, and show the
         lines matching it.  An empty line puts the whole file back."""
@@ -420,58 +394,10 @@ class FileWindow(Window):
 
     # -- the view commands (``viewer_host``, written out: one base) ------------
 
-    async def on_unwrap(self, event: Unwrap) -> bool:
-        self.viewer.toggle_wrap()
-        return True
-
     async def on_switch_high_light(self, event: SwitchHighLight) -> bool:
         """View > *Syntax highlight*: the editor's ``cmSwitchHighLight``, which
         DN's viewer did not have."""
         self.viewer.syntax_highlight = not self.viewer.syntax_highlight
-        return True
-
-    async def on_hex_mode(self, event: HexMode) -> bool:
-        self.viewer.cycle_mode()
-        return True
-
-    async def on_add_filter(self, event: AddFilter) -> bool:
-        self.viewer.cycle_filter()
-        return True
-
-    async def on_set_view_mode(self, event: SetViewMode) -> bool:
-        self.viewer.set_mode(event.mode)
-        return True
-
-    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
-        self.viewer.set_filter(event.filter)
-        return True
-
-    async def on_goto_address(self, event: GotoAddress) -> bool:
-        self.spawn(viewer_host.goto_address(self))
-        return True
-
-    async def on_save_view_as(self, event: SaveViewAs) -> bool:
-        self.spawn(viewer_host.save_as(self))
-        return True
-
-    async def on_choose_encoding(self, event: ChooseEncoding) -> bool:
-        self.spawn(viewer_host.choose_encoding(self))
-        return True
-
-    async def on_search_for(self, event: SearchFor) -> bool:
-        self.spawn(viewer_host.search_for(self))
-        return True
-
-    async def on_continue_search(self, event: ContinueSearch) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=False))
-        return True
-
-    async def on_search_again(self, event: SearchAgain) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=False))
-        return True
-
-    async def on_reverse_search(self, event: ReverseSearch) -> bool:
-        self.spawn(viewer_host.search_again(self, reverse=True))
         return True
 
     async def on_switch_rendered(self, event: SwitchRendered) -> bool:
@@ -580,19 +506,9 @@ class FileWindow(Window):
         viewer.edited = False
         self.close()
 
-    async def on_switch_hidden_chars(self, event: SwitchHiddenChars) -> bool:
-        """View > *Hidden characters*: a departure, as the editor's."""
-        self.viewer.show_hidden = not self.viewer.show_hidden
-        return True
-
     async def on_set_file_type(self, event: SetFileType) -> bool:
         """View > *File type*."""
         self.set_file_type(event.file_type)
-        return True
-
-    async def on_choose_file_type(self, event: ChooseFileType) -> bool:
-        """Ctrl+Shift+H: the same menu in a box of its own."""
-        self.spawn(self._choose_file_type())
         return True
 
     async def _choose_file_type(self) -> None:
@@ -702,4 +618,3 @@ class FileWindow(Window):
     # -- searching -------------------------------------------------------------
 
     # -- File > Save as and Encoding -------------------------------------------------
-

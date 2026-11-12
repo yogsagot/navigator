@@ -56,6 +56,10 @@ CalendarWindow(Window):
         c: SwapCalendars
         shift+c: SwapCalendars
 
+    #: The commands this component handles itself.
+    commands:
+        GoToToday: root.go_to_today()
+
     #: The month in the menu's calendar, else *Country support*'s, and the
     #: day spelled in the Gregorian -- or as *View* says: in the calendar
     #: under the Gregorian month, and not at all under one month alone or two

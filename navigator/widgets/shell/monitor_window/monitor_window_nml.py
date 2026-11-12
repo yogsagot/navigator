@@ -64,83 +64,99 @@ class MonitorWindow(Window, _Component):
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    cpu_box: GroupBox    # monitor_window.nml:42
-    cpu: CpuMeters    # monitor_window.nml:51
-    memory_box: GroupBox    # monitor_window.nml:59
-    memory: MemoryMeters    # monitor_window.nml:68
-    sensor_box: GroupBox    # monitor_window.nml:76
-    sensors: SensorList    # monitor_window.nml:86
-    monitor_menu: SubMenu    # monitor_window.nml:96
+    cpu_box: GroupBox    # monitor_window.nml:48
+    cpu: CpuMeters    # monitor_window.nml:57
+    memory_box: GroupBox    # monitor_window.nml:65
+    memory: MemoryMeters    # monitor_window.nml:74
+    sensor_box: GroupBox    # monitor_window.nml:82
+    sensors: SensorList    # monitor_window.nml:92
+    monitor_menu: SubMenu    # monitor_window.nml:102
+
+    #: The commands this component handles itself.
+    async def on_rescan(self, event: _Any) -> bool:    # monitor_window.nml:41
+        """``Rescan``."""
+        self.reload()
+        return True
+
+    async def on_select_next(self, event: _Any) -> bool:    # monitor_window.nml:42
+        """``SelectNext``."""
+        self._step(1)
+        return True
+
+    async def on_select_previous(self, event: _Any) -> bool:    # monitor_window.nml:43
+        """``SelectPrevious``."""
+        self._step(-1)
+        return True
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.cpu_box = GroupBox(parent=self)    # monitor_window.nml:41
-        self.cpu = CpuMeters(parent=self.cpu_box)    # monitor_window.nml:50
-        self.memory_box = GroupBox(parent=self)    # monitor_window.nml:58
-        self.memory = MemoryMeters(parent=self.memory_box)    # monitor_window.nml:67
-        self.sensor_box = GroupBox(parent=self)    # monitor_window.nml:75
-        self.sensors = SensorList(parent=self.sensor_box)    # monitor_window.nml:85
-        self.monitor_menu = SubMenu(parent=self)    # monitor_window.nml:95
-        _w1 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:98
-        _w2 = MenuLine(parent=self.monitor_menu)    # monitor_window.nml:99
-        _w3 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:100
+        self.cpu_box = GroupBox(parent=self)    # monitor_window.nml:47
+        self.cpu = CpuMeters(parent=self.cpu_box)    # monitor_window.nml:56
+        self.memory_box = GroupBox(parent=self)    # monitor_window.nml:64
+        self.memory = MemoryMeters(parent=self.memory_box)    # monitor_window.nml:73
+        self.sensor_box = GroupBox(parent=self)    # monitor_window.nml:81
+        self.sensors = SensorList(parent=self.sensor_box)    # monitor_window.nml:91
+        self.monitor_menu = SubMenu(parent=self)    # monitor_window.nml:101
+        _w1 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:104
+        _w2 = MenuLine(parent=self.monitor_menu)    # monitor_window.nml:105
+        _w3 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:106
 
         self.title = _bind(lambda _o: _tr('System monitor'), yielding=True)    # monitor_window.nml:28
         self.min_width = 40    # monitor_window.nml:29
         self.min_height = 11    # monitor_window.nml:30
-        self.first_focus = _bind(lambda _o: self.cpu)    # monitor_window.nml:39
+        self.first_focus = _bind(lambda _o: self.cpu)    # monitor_window.nml:45
 
-        self.cpu_box.y = 1    # monitor_window.nml:43
-        self.cpu_box.height = _bind(lambda _o: self.heights[0])    # monitor_window.nml:44
-        self.cpu_box.title = _bind(lambda _o: _tr('CPU'), yielding=True)    # monitor_window.nml:48
-        self.cpu_box.x = 2    # monitor_window.nml:46
-        self.cpu_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:47
+        self.cpu_box.y = 1    # monitor_window.nml:49
+        self.cpu_box.height = _bind(lambda _o: self.heights[0])    # monitor_window.nml:50
+        self.cpu_box.title = _bind(lambda _o: _tr('CPU'), yielding=True)    # monitor_window.nml:54
+        self.cpu_box.x = 2    # monitor_window.nml:52
+        self.cpu_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:53
 
-        self.cpu.x = 2    # monitor_window.nml:53
-        self.cpu.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # monitor_window.nml:54
-        self.cpu.y = 1    # monitor_window.nml:55
-        self.cpu.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:56
+        self.cpu.x = 2    # monitor_window.nml:59
+        self.cpu.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # monitor_window.nml:60
+        self.cpu.y = 1    # monitor_window.nml:61
+        self.cpu.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:62
 
-        self.memory_box.height = _bind(lambda _o: self.heights[1])    # monitor_window.nml:60
-        self.memory_box.title = _bind(lambda _o: _tr('Memory'), yielding=True)    # monitor_window.nml:65
-        self.memory_box.x = 2    # monitor_window.nml:62
-        self.memory_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:63
-        self.memory_box.y = _bind(    # monitor_window.nml:64
+        self.memory_box.height = _bind(lambda _o: self.heights[1])    # monitor_window.nml:66
+        self.memory_box.title = _bind(lambda _o: _tr('Memory'), yielding=True)    # monitor_window.nml:71
+        self.memory_box.x = 2    # monitor_window.nml:68
+        self.memory_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:69
+        self.memory_box.y = _bind(    # monitor_window.nml:70
             lambda _o: self.cpu_box.y + self.cpu_box.height
         )
 
-        self.memory.x = 2    # monitor_window.nml:70
-        self.memory.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:71
-        self.memory.y = 1    # monitor_window.nml:72
-        self.memory.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:73
+        self.memory.x = 2    # monitor_window.nml:76
+        self.memory.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:77
+        self.memory.y = 1    # monitor_window.nml:78
+        self.memory.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:79
 
-        self.sensor_box.height = _bind(lambda _o: self.heights[2])    # monitor_window.nml:77
-        self.sensor_box.visible = _bind(lambda _o: self.heights[2] >= 3)    # monitor_window.nml:82
-        self.sensor_box.title = _bind(lambda _o: _tr('Sensors'), yielding=True)    # monitor_window.nml:83
-        self.sensor_box.x = 2    # monitor_window.nml:79
-        self.sensor_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:80
-        self.sensor_box.y = _bind(    # monitor_window.nml:81
+        self.sensor_box.height = _bind(lambda _o: self.heights[2])    # monitor_window.nml:83
+        self.sensor_box.visible = _bind(lambda _o: self.heights[2] >= 3)    # monitor_window.nml:88
+        self.sensor_box.title = _bind(lambda _o: _tr('Sensors'), yielding=True)    # monitor_window.nml:89
+        self.sensor_box.x = 2    # monitor_window.nml:85
+        self.sensor_box.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # monitor_window.nml:86
+        self.sensor_box.y = _bind(    # monitor_window.nml:87
             lambda _o: self.memory_box.y + self.memory_box.height
         )
 
-        self.sensors.x = 2    # monitor_window.nml:88
-        self.sensors.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # monitor_window.nml:89
-        self.sensors.y = 1    # monitor_window.nml:90
-        self.sensors.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:91
+        self.sensors.x = 2    # monitor_window.nml:94
+        self.sensors.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # monitor_window.nml:95
+        self.sensors.y = 1    # monitor_window.nml:96
+        self.sensors.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:97
 
-        self.monitor_menu.text = _bind(    # monitor_window.nml:95
+        self.monitor_menu.text = _bind(    # monitor_window.nml:101
             lambda _o: _tr('Mo~n~itor'),
             yielding=True,
         )
-        self.monitor_menu.after = 'File'    # monitor_window.nml:95
-        self.monitor_menu.tooltip = _bind(    # monitor_window.nml:97
+        self.monitor_menu.after = 'File'    # monitor_window.nml:101
+        self.monitor_menu.tooltip = _bind(    # monitor_window.nml:103
             lambda _o: _tr('The processors, the memory and the sensors'),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # monitor_window.nml:98
-        _w1.command = Rescan    # monitor_window.nml:98
-        _w1.key = 'Ctrl-R'    # monitor_window.nml:98
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # monitor_window.nml:104
+        _w1.command = Rescan    # monitor_window.nml:104
+        _w1.key = 'Ctrl-R'    # monitor_window.nml:104
 
-        _w3.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # monitor_window.nml:100
-        _w3.command = CloseWindow    # monitor_window.nml:100
+        _w3.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # monitor_window.nml:106
+        _w3.command = CloseWindow    # monitor_window.nml:106

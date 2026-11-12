@@ -154,14 +154,6 @@ class GameWindow(Window):
         self._redraw()
         return True
 
-    async def on_show_top_ten(self, event: ShowTopTen) -> bool:
-        self.spawn(self.show_scores())
-        return True
-
-    async def on_game_setup(self, event: GameSetup) -> bool:
-        self.spawn(self.setup())
-        return True
-
     async def on_level_up(self, event: LevelUp) -> bool:
         self.game.level_up()
         self._redraw()
@@ -208,4 +200,3 @@ class GameWindow(Window):
 
     async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
         return open_on_key(self)
-

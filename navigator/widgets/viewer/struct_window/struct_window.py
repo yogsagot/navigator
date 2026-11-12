@@ -28,8 +28,6 @@ from navigator.widgets.viewer.commands import (
     CopyValue,
     ExpandAll,
     SearchAgain,
-    SearchFor,
-    ViewTreeAsText,
 )
 from navigator.widgets.viewer.struct_window.data_tree import root_node
 
@@ -101,18 +99,6 @@ class StructWindow(Window):
 
     # -- searching ----------------------------------------------------------------------
 
-    async def on_search_for(self, event: SearchFor) -> bool:
-        self.spawn(self.search_for())
-        return True
-
-    async def on_continue_search(self, event: ContinueSearch) -> bool:
-        self.spawn(self.search_again())
-        return True
-
-    async def on_search_again(self, event: SearchAgain) -> bool:
-        self.spawn(self.search_again())
-        return True
-
     async def search_for(self) -> None:
         """F7: the viewer's *Find* box -- text, case, direction -- over the
         keys and the values, from the cursor on.  The text: a tree has no
@@ -156,10 +142,6 @@ class StructWindow(Window):
                      buttons="ok").execute(self.application)
 
     # -- back to the text -----------------------------------------------------------------
-
-    async def on_view_tree_as_text(self, event: ViewTreeAsText) -> bool:
-        self.spawn(self.as_text())
-        return True
 
     async def as_text(self) -> None:
         """Shift+F3: F3's text view of the same file in this window's place,

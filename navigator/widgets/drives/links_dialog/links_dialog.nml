@@ -21,6 +21,14 @@ LinksDialog(Dialog):
         ctrl+up: MoveLinkUp
         ctrl+down: MoveLinkDown
 
+    #: The commands this component handles itself.
+    commands:
+        EditLink: root.spawn(root.edit_link())
+        AddLink: root.spawn(root.add_link())
+        DeleteLink: root.spawn(root.delete_link())
+        MoveLinkUp: root.move(-1)
+        MoveLinkDown: root.move(1)
+
     Label:
         id: links_caption
         x: 2

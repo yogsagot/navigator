@@ -50,6 +50,16 @@ UsageWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    #: The commands this component handles itself.
+    commands:
+        Rescan: root.rescan()
+        ToggleApparentSize: root.apparent = not root.apparent
+        UsageSortName: root._sort_by('name')
+        UsageSortSize: root._sort_by('size')
+        UsageSortItems: root._sort_by('items')
+        SelectNext: root._step(1)
+        SelectPrevious: root._step(-1)
+
     first_focus: entries
 
     UsageList:

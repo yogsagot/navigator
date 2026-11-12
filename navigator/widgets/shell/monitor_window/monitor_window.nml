@@ -36,6 +36,12 @@ MonitorWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    #: The commands this component handles itself.
+    commands:
+        Rescan: root.reload()
+        SelectNext: root._step(1)
+        SelectPrevious: root._step(-1)
+
     first_focus: cpu
 
     GroupBox:

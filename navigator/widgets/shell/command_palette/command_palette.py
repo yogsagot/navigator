@@ -216,10 +216,6 @@ class CommandPalette(Dialog):
             return True
         return super().enables(command)
 
-    async def on_default(self, event: Default) -> bool:
-        self.take()
-        return True
-
     async def on_cancel(self, event: Cancel) -> bool:
         """Esc with something typed empties the line, and the next one closes."""
         if self.filter.value:

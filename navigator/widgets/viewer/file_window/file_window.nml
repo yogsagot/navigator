@@ -13,6 +13,7 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.option_strip import OptionStrip
 from navml.widgets.window import Window
+from navigator.widgets.viewer import viewer_host
 
 #: F3: DOS Navigator's ``TFileWindow`` (``FVIEWER.PAS``).
 #:
@@ -63,6 +64,29 @@ FileWindow(Window):
         #: -f`` and ``grep``, which DN's viewer had neither of.
         ctrl+t: FollowEnd
         ctrl+g: FilterLines
+
+    #: The commands this component handles itself.
+    commands:
+        #: F3 again: Midnight Commander's way out, beside DN's Esc.
+        CloseViewer: root.request_close()
+        WriteModify: root.spawn(root.store())
+        FilterLines: root.spawn(root.filter_lines())
+        Unwrap: root.viewer.toggle_wrap()
+        HexMode: root.viewer.cycle_mode()
+        AddFilter: root.viewer.cycle_filter()
+        SetViewMode: root.viewer.set_mode(event.mode)
+        SetViewFilter: root.viewer.set_filter(event.filter)
+        GotoAddress: root.spawn(viewer_host.goto_address(root))
+        SaveViewAs: root.spawn(viewer_host.save_as(root))
+        ChooseEncoding: root.spawn(viewer_host.choose_encoding(root))
+        SearchFor: root.spawn(viewer_host.search_for(root))
+        ContinueSearch: root.spawn(viewer_host.search_again(root, reverse=False))
+        SearchAgain: root.spawn(viewer_host.search_again(root, reverse=False))
+        ReverseSearch: root.spawn(viewer_host.search_again(root, reverse=True))
+        #: View > *Hidden characters*: a departure, as the editor's.
+        SwitchHiddenChars: root.viewer.show_hidden = not root.viewer.show_hidden
+        #: Ctrl+Shift+H: the same menu in a box of its own.
+        ChooseFileType: root.spawn(root._choose_file_type())
 
     first_focus: viewer
 

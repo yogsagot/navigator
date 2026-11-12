@@ -427,26 +427,6 @@ class InputLine(Control):
             return "" if self.selection != (0, len(self.value)) else tr("All of it is selected")
         return super().refusal(command)
 
-    async def on_clipboard_cut(self, command: ClipboardCut) -> bool:
-        self.cut()
-        return True
-
-    async def on_clipboard_copy(self, command: ClipboardCopy) -> bool:
-        self.copy(self.selected_text or self.value)
-        return True
-
-    async def on_clipboard_paste(self, command: ClipboardPaste) -> bool:
-        self.request_paste()
-        return True
-
-    async def on_clear(self, command: Clear) -> bool:
-        self._replace_selection("")
-        return True
-
-    async def on_select_all(self, command: SelectAll) -> bool:
-        self.select_all()
-        return True
-
     # -- the context menu ---------------------------------------------------------
     #
     # ``ContextMenuHost``'s hooks and handlers, written out: a component's

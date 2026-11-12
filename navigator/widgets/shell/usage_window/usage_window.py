@@ -23,7 +23,6 @@ from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
-from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -277,14 +276,6 @@ class UsageWindow(Window):
         self.go(self.here if selected is UP else selected, close=True)
         return True
 
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.rescan()
-        return True
-
-    async def on_toggle_apparent_size(self, command: ToggleApparentSize) -> bool:
-        self.apparent = not self.apparent
-        return True
-
     def _sort_by(self, by: str) -> None:
         """Sort *by* that; already so, the other way round."""
         if self.sort == by:
@@ -292,18 +283,6 @@ class UsageWindow(Window):
         else:
             self.sort, self.descending = by, True
         self._show()
-
-    async def on_usage_sort_name(self, command: UsageSortName) -> bool:
-        self._sort_by("name")
-        return True
-
-    async def on_usage_sort_size(self, command: UsageSortSize) -> bool:
-        self._sort_by("size")
-        return True
-
-    async def on_usage_sort_items(self, command: UsageSortItems) -> bool:
-        self._sort_by("items")
-        return True
 
     def checks(self, command: Any) -> bool | None:
         """The *Sizes* menu ticks the sort in force and *Apparent size*."""
@@ -392,14 +371,6 @@ class UsageWindow(Window):
 
     async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
         return open_on_key(self)
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

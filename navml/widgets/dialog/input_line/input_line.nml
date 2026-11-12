@@ -1,3 +1,4 @@
+from navml.widgets.dialog.commands import Clear, ClipboardCopy, ClipboardCut, ClipboardPaste, SelectAll
 from navml.widgets.dialog.control import Control
 
 #: One line of editable text, with a caret.
@@ -20,3 +21,11 @@ InputLine(Control):
     #: A secret: every character painted as ``*``, and nothing of it copied --
     #: not to the clipboard, not to the primary selection.  For a password.
     property password: False
+
+    #: The clipboard and the selection, by key or from the context menu.
+    commands:
+        ClipboardCut: root.cut()
+        ClipboardCopy: root.copy(root.selected_text or root.value)
+        ClipboardPaste: root.request_paste()
+        Clear: root._replace_selection('')
+        SelectAll: root.select_all()

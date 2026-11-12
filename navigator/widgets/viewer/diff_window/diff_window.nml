@@ -36,6 +36,11 @@ DiffWindow(Window):
         ctrl+r: Rescan
         alt+r: Rescan
 
+    #: The commands this component handles itself.
+    commands:
+        CloseViewer: root.request_close()
+        Rescan: root.spawn(root.compare_again())
+
     first_focus: view
 
     DiffView:

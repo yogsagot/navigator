@@ -43,7 +43,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navigator.lib.drives import profiles
 from navigator.lib.drives.location import Location, Site
 from navigator.lib.drives.profiles import Entry
-from navigator.widgets.drives.commands import DeleteLinkEntry, NewLinkEntry, ReadLiveLinks, SaveLinkEntry
+from navigator.widgets.drives.commands import ReadLiveLinks
 from navigator.widgets.drives.connect_dialog.connect_dialog import ConnectRequest, split_host, titles
 
 
@@ -621,10 +621,6 @@ class LinkManagerDialog(Dialog):
         if await self._settle():
             self.close(None)
 
-    async def on_new_link_entry(self, event: NewLinkEntry) -> bool:
-        self.spawn(self.new_link())
-        return True
-
     async def new_link(self) -> None:
         """*New*: a connection made and kept at once, chosen, its name ready
         to be typed over -- the one-off lines, if a host is typed there, else
@@ -656,10 +652,6 @@ class LinkManagerDialog(Dialog):
             self._fill(self.chosen)
         self.label.entry.focus()
         self.label.entry.select_all()
-
-    async def on_save_link_entry(self, event: SaveLinkEntry) -> bool:
-        self.spawn(self.save_link())
-        return True
 
     async def save_link(self) -> bool:
         """*Save*: the chosen connection made what the lines say, renamed in
@@ -772,10 +764,6 @@ class LinkManagerDialog(Dialog):
                                  current=0, behind=self, title=tr("Key to copy")).execute(self.application)
         self.copy_key.focus()
         return paths.get(id(chosen))
-
-    async def on_delete_link_entry(self, event: DeleteLinkEntry) -> bool:
-        self.spawn(self.delete_link())
-        return True
 
     async def delete_link(self) -> None:
         """The chosen connection gone, once asked; the lines then empty, a

@@ -20,6 +20,10 @@ CombineDialog(Dialog):
     keys:
         f10: ChooseTarget
 
+    #: The commands this component handles itself.
+    commands:
+        ChooseTarget: root.spawn(root.choose_target())
+
     Label:
         id: target_caption
         y: 1

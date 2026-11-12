@@ -47,6 +47,11 @@ Dialog(Modal):
         menu: ShowContextMenu
         shift+f10: ShowContextMenu
 
+    #: The commands this component handles itself.
+    commands:
+        SelectNext: root._application_or_raise().focus_next()
+        SelectPrevious: root._application_or_raise().focus_next(reverse=True)
+
     StaticText:
         id: message
         y: 2

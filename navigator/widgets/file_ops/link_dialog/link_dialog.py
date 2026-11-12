@@ -20,10 +20,9 @@ from navml.history import HISTORY
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
-from navigator.widgets.file_ops.commands import ChooseTarget
 from navigator.lib.file_ops.filecopy import shown
 from navigator.lib.file_ops.filelink import LinkRequest
-from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line, target_for
+from navigator.widgets.file_ops.copy_dialog.copy_dialog import target_for
 
 #: The *Relative link* box as the last accepted dialog left it.
 _session = {"relative": False, "hard": False}
@@ -126,8 +125,4 @@ class LinkDialog(Dialog):
     async def on_pick_click(self, event: Event) -> bool:
         self.record_history()
         self.close(self.accept())
-        return True
-
-    async def on_choose_target(self, event: ChooseTarget) -> bool:
-        self.spawn(choose_target_line(self, self._here, self._hidden))
         return True

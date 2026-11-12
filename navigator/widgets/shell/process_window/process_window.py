@@ -38,7 +38,7 @@ from navkit.reactive import effect, peek
 from navkit.text import caption_runs
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
-from navml.widgets.dialog.commands import QuickSearch, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import QuickSearch
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -227,38 +227,6 @@ class ProcessWindow(Window):
         self._sort_by(event.by)
         return True
 
-    async def on_process_sort_pid(self, command: ProcessSortPid) -> bool:
-        self._sort_by("pid")
-        return True
-
-    async def on_process_sort_user(self, command: ProcessSortUser) -> bool:
-        self._sort_by("user")
-        return True
-
-    async def on_process_sort_state(self, command: ProcessSortState) -> bool:
-        self._sort_by("state")
-        return True
-
-    async def on_process_sort_cpu(self, command: ProcessSortCpu) -> bool:
-        self._sort_by("cpu")
-        return True
-
-    async def on_process_sort_memory(self, command: ProcessSortMemory) -> bool:
-        self._sort_by("memory")
-        return True
-
-    async def on_process_sort_command(self, command: ProcessSortCommand) -> bool:
-        self._sort_by("command")
-        return True
-
-    async def on_process_tree(self, command: ProcessTree) -> bool:
-        self.tree = not self.tree
-        return True
-
-    async def on_process_mine_only(self, command: ProcessMineOnly) -> bool:
-        self.mine_only = not self.mine_only
-        return True
-
     async def on_filter_processes(self, command: FilterProcesses) -> bool:
         """F4, Ctrl+S or the menu's *Filter*: the keyboard to the filter line, its text picked."""
         self.filter.focus()
@@ -273,10 +241,6 @@ class ProcessWindow(Window):
         self.filter.value = ""
         self.filter.cursor = 0
         self.filter.focus()
-        return True
-
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.reload()
         return True
 
     def checks(self, command: Any) -> bool | None:
@@ -478,14 +442,6 @@ class ProcessWindow(Window):
         return open_on_key(self)
 
     # -- Tab and Alt+letter ---------------------------------------------------------------
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

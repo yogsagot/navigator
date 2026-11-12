@@ -50,6 +50,19 @@ DBWindow(Window):
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
 
+    #: The commands this component handles itself.
+    commands:
+        SortColumn: root.spawn(root.sort())
+        TableFormat: root.spawn(root.choose_code_page() if root.csv is None else root.table_format())
+        ViewSheetAsText: root.spawn(root.as_text())
+        ChooseTable: root.spawn(root.choose_table())
+        RunQuery: root.spawn(root.run_query())
+        ShowMemo: root.spawn(root.show_memo())
+        EditDbField: root.spawn(root.edit_field())
+        SearchFor: root.spawn(root.search_for())
+        ContinueSearch: root.spawn(root.search_again())
+        SearchAgain: root.spawn(root.search_again())
+
     first_focus: viewer
 
     DBViewer:

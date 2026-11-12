@@ -56,8 +56,6 @@ from navigator.widgets.viewer.commands import (
     SaveViewAs,
     SearchAgain,
     SearchFor,
-    SetViewFilter,
-    SetViewMode,
     Unwrap,
 )
 from navigator.widgets.viewer.commands import SwitchRendered
@@ -178,26 +176,6 @@ class QuickViewer(Widget):
     #
     # ``viewer_host`` is imported where it is used: the desktop places a quick
     # view at start, and its dialogs (and the editor's commands) wait for a key.
-
-    async def on_unwrap(self, event: Unwrap) -> bool:
-        self.viewer.toggle_wrap()
-        return True
-
-    async def on_hex_mode(self, event: HexMode) -> bool:
-        self.viewer.cycle_mode()
-        return True
-
-    async def on_add_filter(self, event: AddFilter) -> bool:
-        self.viewer.cycle_filter()
-        return True
-
-    async def on_set_view_mode(self, event: SetViewMode) -> bool:
-        self.viewer.set_mode(event.mode)
-        return True
-
-    async def on_set_view_filter(self, event: SetViewFilter) -> bool:
-        self.viewer.set_filter(event.filter)
-        return True
 
     async def on_goto_address(self, event: GotoAddress) -> bool:
         self.spawn(_host().goto_address(self))

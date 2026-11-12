@@ -24,11 +24,8 @@ from navigator.lib.viewer import dbf
 from navigator.widgets.viewer.commands import (
     ChangeWidth,
     ChooseTable,
-    ContinueSearch,
     EditDbField,
     RunQuery,
-    SearchAgain,
-    SearchFor,
     ShowFields,
     ShowMemo,
     SortColumn,
@@ -285,10 +282,6 @@ class DBWindow(Window):
         self.viewer.focus()
         return True
 
-    async def on_sort_column(self, event: SortColumn) -> bool:
-        self.spawn(self.sort())
-        return True
-
     async def sort(self) -> None:
         """F8 (a departure): the cursor's field ascending, then descending,
         then the file's order again -- the rows shown, never the file.  On a
@@ -322,10 +315,6 @@ class DBWindow(Window):
         viewer.invalidate()
 
     # -- Shift+F6, Shift+F3: a CSV ----------------------------------------------------
-
-    async def on_table_format(self, event: TableFormat) -> bool:
-        self.spawn(self.choose_code_page() if self.csv is None else self.table_format())
-        return True
 
     async def choose_code_page(self) -> None:
         """Shift+F6 on a dBase table: the code page it is read in, from the
@@ -372,10 +361,6 @@ class DBWindow(Window):
         self._follow_cursor()
         self._follow_walk()
         self.viewer.invalidate()
-
-    async def on_view_sheet_as_text(self, event: ViewSheetAsText) -> bool:
-        self.spawn(self.as_text())
-        return True
 
     async def as_text(self) -> None:
         """Shift+F3 (a departure, as *Markup view*'s): the same file in F3's
@@ -471,10 +456,6 @@ class DBWindow(Window):
 
     # -- F5, F6: SQLite -----------------------------------------------------------------
 
-    async def on_choose_table(self, event: ChooseTable) -> bool:
-        self.spawn(self.choose_table())
-        return True
-
     async def choose_table(self) -> None:
         """F5: the tables and views in a box; the one chosen shown."""
         current = self.db.name if self.db is not None else None
@@ -483,10 +464,6 @@ class DBWindow(Window):
             self.viewer.focus()
             return
         await self._show_table(lambda work: self.sqlite.table(name, work))
-
-    async def on_run_query(self, event: RunQuery) -> bool:
-        self.spawn(self.run_query())
-        return True
 
     async def run_query(self) -> None:
         """F6: a query typed, its result shown -- or what SQLite said of it."""
@@ -521,10 +498,6 @@ class DBWindow(Window):
         self.title = self._title_of(db)
         self.viewer.invalidate()
         self.viewer.focus()
-
-    async def on_show_memo(self, event: ShowMemo) -> bool:
-        self.spawn(self.show_memo())
-        return True
 
     async def show_memo(self) -> None:
         """``ViewMemo``: the memo at the cursor in *Memo view* -- nothing for a
@@ -564,10 +537,6 @@ class DBWindow(Window):
         viewer.focus()
 
     # -- F4 --------------------------------------------------------------------------
-
-    async def on_edit_db_field(self, event: EditDbField) -> bool:
-        self.spawn(self.edit_field())
-        return True
 
     async def edit_field(self) -> None:
         """``EditField``: the cell at the cursor changed and written back --
@@ -675,18 +644,6 @@ class DBWindow(Window):
         return True
 
     # -- F7, Shift+F7 ----------------------------------------------------------------
-
-    async def on_search_for(self, event: SearchFor) -> bool:
-        self.spawn(self.search_for())
-        return True
-
-    async def on_continue_search(self, event: ContinueSearch) -> bool:
-        self.spawn(self.search_again())
-        return True
-
-    async def on_search_again(self, event: SearchAgain) -> bool:
-        self.spawn(self.search_again())
-        return True
 
     async def search_for(self) -> None:
         """``StartSearch``: *Search*, then forward from the next record,

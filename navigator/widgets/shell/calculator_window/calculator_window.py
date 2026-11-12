@@ -18,7 +18,6 @@ from navkit.i18n import tr
 from navkit.reactive import effect, peek, untracked
 from navml.commands import CloseWindow
 from navml.history import HISTORY
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
 from navml.widgets.dialog.control.control import Control
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
@@ -422,34 +421,6 @@ class CalculatorWindow(Window):
         self.flip_bit(event.bit)
         return True
 
-    async def on_default(self, event: Default) -> bool:
-        self.evaluate()
-        return True
-
-    async def on_cancel(self, event: Cancel) -> bool:
-        self.leave()
-        return True
-
-    async def on_calculator_simple(self, event: CalculatorSimple) -> bool:
-        self.set_mode("simple")
-        return True
-
-    async def on_calculator_classic(self, event: CalculatorClassic) -> bool:
-        self.set_mode("classic")
-        return True
-
-    async def on_calculator_scientific(self, event: CalculatorScientific) -> bool:
-        self.set_mode("scientific")
-        return True
-
-    async def on_calculator_programming(self, event: CalculatorProgramming) -> bool:
-        self.set_mode("programming")
-        return True
-
-    async def on_calculator_copy(self, event: CalculatorCopy) -> bool:
-        self.copy_value()
-        return True
-
     async def on_toggle_bit_keypad(self, event: ToggleBitKeypad) -> bool:
         self.bit_keypad = not self.bit_keypad
         self._keep(bit_keypad=self.bit_keypad)
@@ -473,14 +444,6 @@ class CalculatorWindow(Window):
         if isinstance(command, ToggleBitKeypad):
             return self.bit_keypad
         return super().checks(command)
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

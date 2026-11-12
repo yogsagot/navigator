@@ -41,6 +41,12 @@ LinkManagerDialog(Dialog):
         delete: DeleteLinkEntry
         ctrl+r: ReadLiveLinks
 
+    #: The commands this component handles itself.
+    commands:
+        NewLinkEntry: root.spawn(root.new_link())
+        SaveLinkEntry: root.spawn(root.save_link())
+        DeleteLinkEntry: root.spawn(root.delete_link())
+
     #: The list shows its cursor only while it has the keyboard, so with
     #: nothing chosen the keyboard starts on the top line, Name: no row
     #: looks chosen while the lines are a one-off.  A chosen one starts on

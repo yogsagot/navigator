@@ -28,6 +28,10 @@ TreeWindow(Window):
         ctrl+r: Rescan
         alt+r: Rescan
 
+    #: The commands this component handles itself.
+    commands:
+        Rescan: root.tree.reload()
+
     first_focus: tree
 
     DirectoryTree:

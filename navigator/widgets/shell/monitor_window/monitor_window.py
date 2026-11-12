@@ -26,7 +26,6 @@ from navkit.i18n import tr
 from navkit.reactive import computed
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
-from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
@@ -167,10 +166,6 @@ class MonitorWindow(Window):
             self._shape = shape
             self.fit()
 
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.reload()
-        return True
-
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
     # ``ProcessWindow``'s are.
 
@@ -195,14 +190,6 @@ class MonitorWindow(Window):
         return open_on_key(self)
 
     # -- Tab ----------------------------------------------------------------------------
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """From one list to the other, wrapping."""

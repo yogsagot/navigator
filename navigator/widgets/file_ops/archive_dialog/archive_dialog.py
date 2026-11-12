@@ -30,7 +30,6 @@ from navigator.lib.file_ops.filecopy import (
     ASK, FOLLOW_LINKS, MOVE, PRESERVE, CopyRequest, shown, target_location,
 )
 from navigator.settings import SETTINGS
-from navigator.widgets.file_ops.commands import ChooseTarget
 
 #: The boxes' bits.
 PATHNAMES, MOVE_FILES, FOLLOW = 1, 2, 4
@@ -213,10 +212,6 @@ class ArchiveDialog(Dialog):
         return True
 
     # -- Tree ----------------------------------------------------------------------
-
-    async def on_choose_target(self, event: ChooseTarget) -> bool:
-        self.spawn(self.choose_target())
-        return True
 
     async def choose_target(self) -> None:
         """*Choose Directory*, and the archive's name kept after it."""

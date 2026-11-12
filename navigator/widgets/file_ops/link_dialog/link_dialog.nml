@@ -24,6 +24,10 @@ LinkDialog(Dialog):
     keys:
         f10: ChooseTarget
 
+    #: The commands this component handles itself.
+    commands:
+        ChooseTarget: root.spawn(choose_target_line(root, root._here, root._hidden))
+
     #: ``Create symlink to file NAME in`` (or ``hard link``): the hand-written
     #: half's, as Copy's is.
     Label:

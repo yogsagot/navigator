@@ -13,6 +13,8 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navigator.widgets.editor.format_menu import choose_encoding, choose_line_ending
+from navigator.widgets.editor.commands import CloseFindBar
 
 #: F4: DOS Navigator's ``TEditWindow`` (``MICROED.PAS``).
 #:
@@ -63,6 +65,32 @@ EditWindow(Window):
         #: ``~F8~ Print``: the text the editor holds.
         f8: PrintFile
         shift+f8: PrintBlock
+
+    #: The commands this component handles itself.
+    commands:
+        #: F2: ``cmSaveText``.  A failure is said, and the text stays changed.
+        SaveText: root.spawn(root._confirm_save())
+        #: Ctrl+Shift+H: the same menu in a box of its own.
+        ChooseFileType: root.spawn(root._choose_file_type())
+        ChooseLineEnding: root.spawn(root._choose_format(choose_line_ending, root.editor.ending_indicator()))
+        ChooseEncoding: root.spawn(root._choose_format(choose_encoding, root.editor.encoding_indicator()))
+        BlockWrite: root.spawn(root.write_block())
+        BlockRead: root.spawn(root.read_block())
+        ShowFindBar: root.find_bar.open(replace=False)
+        ShowReplaceBar: root.find_bar.open(replace=True)
+        CloseFindBar: root.find_bar.close()
+        StartSearch: root.spawn(root.start_search(replace=False))
+        Replace: root.spawn(root.start_search(replace=True))
+        ContSearch: root.spawn(root.search())
+        ReverseSearch: root.spawn(root.search(reverse=True))
+        SetMargins: root.spawn(root.set_margins())
+        GotoLineNumber: root.spawn(root.goto_line())
+        AsciiTable: root.spawn(root.ascii_table())
+        PrintBlock: root.spawn(root.print_block())
+        PrintFile: root.spawn(root.print_file())
+        SaveAll: root.spawn(root.save_all())
+        LoadText: root.spawn(root.load_text())
+        SaveTextAs: root.spawn(root.save_as())
 
     first_focus: editor
 

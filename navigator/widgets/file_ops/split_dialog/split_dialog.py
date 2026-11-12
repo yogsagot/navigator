@@ -22,7 +22,6 @@ from navml.widgets.dialog.dialog import Dialog
 from navigator.lib.drives import Location
 from navigator.lib.file_ops.splitfile import SplitError, parse_size
 from navigator.settings import SETTINGS
-from navigator.widgets.file_ops.commands import ChooseTarget
 
 
 def opening_target(other: Path | None, here: Path | Location) -> str:
@@ -84,10 +83,6 @@ class SplitDialog(Dialog):
             return True
         self.record_history()
         self.close(self.accept())
-        return True
-
-    async def on_choose_target(self, event: ChooseTarget) -> bool:
-        self.spawn(self.choose_target())
         return True
 
     async def choose_target(self) -> None:

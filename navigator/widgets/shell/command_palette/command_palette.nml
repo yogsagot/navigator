@@ -2,6 +2,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.input_line import InputLine
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.shell.command_palette.command_list import CommandList
+from navml.widgets.dialog.commands import Default
 
 #: ≡ > *Command palette* (Alt+Shift+P): every command that applies where the
 #: keyboard was -- the menus' items, the active window's own menus among
@@ -20,6 +21,10 @@ CommandPalette(Dialog):
     buttons: "none"
 
     first_focus: filter
+    #: The commands this component handles itself.
+    commands:
+        Default: root.take()
+
 
     InputLine:
         id: filter

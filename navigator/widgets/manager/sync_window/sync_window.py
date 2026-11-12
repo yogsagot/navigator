@@ -21,7 +21,6 @@ from navkit.events import ContextMenuEvent, Event, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.commands import CloseWindow
-from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -34,7 +33,6 @@ from navigator.lib.file_ops import dirsync
 from navigator.lib.system.job import Stopped
 from navigator.widgets.manager.commands import (
     DiffFiles,
-    Rescan,
     SetAllSyncActions,
     SetSyncAction,
     Synchronize,
@@ -285,20 +283,6 @@ class SyncWindow(Window):
             return self.rows.tree
         return super().checks(command)
 
-    async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
-        self.show_identical = not self.show_identical
-        return True
-
-    async def on_toggle_sync_show(self, command: ToggleSyncShow) -> bool:
-        self.show.value = self.show.value ^ (1 << command.group)
-        return True
-
-    async def on_toggle_tree(self, event: ToggleTree) -> bool:
-        """Ctrl+T: *Tree view* ticked or cleared -- the box's effect lists again,
-        the cursor on the same path."""
-        self.tree_box.value = 0 if self.tree_box.value & 1 else 1
-        return True
-
     async def on_diff_files(self, event: DiffFiles) -> bool:
         """Enter, F3: the two files side by side; the same two said to be so."""
         row = self._comparable()
@@ -311,10 +295,6 @@ class SyncWindow(Window):
             self.spawn(open_diff(desktop, left, right))
         return True
 
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.spawn(self.rescan())
-        return True
-
     async def rescan(self) -> None:
         """Ctrl+R: both trees walked again, the actions back to their defaults."""
         rows = await walk_trees(self.application, self.left_place, self.right_place, self.request,
@@ -323,10 +303,6 @@ class SyncWindow(Window):
             self.all_rows = rows
             self._tree = None
             self._show()
-
-    async def on_sync_setup(self, event: SyncSetup) -> bool:
-        self.spawn(self.setup())
-        return True
 
     async def setup(self) -> None:
         """*Options*: asked, kept in ``[synchronize]``, and both trees compared again with them."""
@@ -341,10 +317,6 @@ class SyncWindow(Window):
         keep_sync_options(options, app)
         self.options = options
         await self.rescan()
-
-    async def on_synchronize(self, event: Synchronize) -> bool:
-        self.spawn(self.synchronize())
-        return True
 
     async def synchronize(self) -> None:
         """F5: the rows' copies and deletes done by the file manager, then both trees compared again."""
@@ -397,14 +369,6 @@ class SyncWindow(Window):
         return open_on_key(self)
 
     # -- a dialog's row: Tab and Alt+letter ------------------------------------------
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

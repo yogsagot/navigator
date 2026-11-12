@@ -46,7 +46,7 @@ from navkit.reactive import effect, peek
 from navkit.text import caption_runs
 from navml.background import Background, Outcome
 from navml.commands import CloseWindow
-from navml.widgets.dialog.commands import QuickSearch, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import QuickSearch
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -318,22 +318,6 @@ class ServiceWindow(Window):
         self._sort_by(event.by)
         return True
 
-    async def on_service_sort_name(self, command: ServiceSortName) -> bool:
-        self._sort_by("name")
-        return True
-
-    async def on_service_sort_active(self, command: ServiceSortActive) -> bool:
-        self._sort_by("active")
-        return True
-
-    async def on_service_sort_file_state(self, command: ServiceSortFileState) -> bool:
-        self._sort_by("startup")
-        return True
-
-    async def on_service_sort_description(self, command: ServiceSortDescription) -> bool:
-        self._sort_by("description")
-        return True
-
     async def on_service_user_units(self, command: ServiceUserUnits) -> bool:
         if not self.user_box.disabled:
             self.user = not self.user
@@ -358,10 +342,6 @@ class ServiceWindow(Window):
         self.filter.value = ""
         self.filter.cursor = 0
         self.filter.focus()
-        return True
-
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.spawn(self._rescan())
         return True
 
     async def _rescan(self) -> None:
@@ -677,14 +657,6 @@ class ServiceWindow(Window):
         return open_on_key(self)
 
     # -- Tab and Alt+letter ---------------------------------------------------------------
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

@@ -172,10 +172,6 @@ class CalendarWindow(Window):
     async def on_choose_year(self, command: ChooseYear) -> bool:
         return await self._month(command)
 
-    async def on_go_to_today(self, command: GoToToday) -> bool:
-        self.go_to_today()
-        return True
-
     async def on_set_calendar_system(self, command: SetCalendarSystem) -> bool:
         self.chosen = command.calendar
         if not self.both():

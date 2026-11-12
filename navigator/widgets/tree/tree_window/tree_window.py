@@ -39,10 +39,6 @@ class TreeWindow(Window):
         self.tree.set_show_hidden(hidden)
         self.tree.show(start if start is not None else Path.cwd())
 
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.tree.reload()
-        return True
-
     async def on_quick_search(self, event: QuickSearch) -> bool:
         """The *Tree* menu's, or the right-click menu's: the tree's own Ctrl+S."""
         return await self.tree.on_quick_search(event)

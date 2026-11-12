@@ -29,6 +29,10 @@ CopyDialog(Dialog):
     keys:
         f10: ChooseTarget
 
+    #: The commands this component handles itself.
+    commands:
+        ChooseTarget: root.spawn(root.choose_target())
+
     #: ``Copy file NAME to``: the text is the hand-written half's, because it
     #: depends on what was selected and a document cannot see that.
     Label:

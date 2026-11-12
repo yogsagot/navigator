@@ -67,6 +67,18 @@ CalculatorWindow(Window):
         #: The manager's Ctrl+F6 again, here: the shell turns it into the next face.
         ctrl+f6: Calculator
 
+    #: The commands this component handles itself.
+    commands:
+        Default: root.evaluate()
+        Cancel: root.leave()
+        CalculatorSimple: root.set_mode('simple')
+        CalculatorClassic: root.set_mode('classic')
+        CalculatorScientific: root.set_mode('scientific')
+        CalculatorProgramming: root.set_mode('programming')
+        CalculatorCopy: root.copy_value()
+        SelectNext: root._step(1)
+        SelectPrevious: root._step(-1)
+
     #: The four faces, a strip along the top: two by two where the window is
     #: narrow, in a row where it is wide.
     RadioButtons:

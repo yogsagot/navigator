@@ -29,6 +29,13 @@ StructWindow(Window):
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
 
+    #: The commands this component handles itself.
+    commands:
+        SearchFor: root.spawn(root.search_for())
+        ContinueSearch: root.spawn(root.search_again())
+        SearchAgain: root.spawn(root.search_again())
+        ViewTreeAsText: root.spawn(root.as_text())
+
     first_focus: tree
 
     DataTree:

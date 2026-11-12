@@ -53,6 +53,19 @@ SyncWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    #: The commands this component handles itself.
+    commands:
+        ToggleHidden: root.show_identical = not root.show_identical
+        ToggleSyncShow: root.show.value = root.show.value ^ 1 << event.group
+        #: Ctrl+T: *Tree view* ticked or cleared -- the box's effect lists again,
+        #: the cursor on the same path.
+        ToggleTree: root.tree_box.value = 0 if root.tree_box.value & 1 else 1
+        Rescan: root.spawn(root.rescan())
+        SyncSetup: root.spawn(root.setup())
+        Synchronize: root.spawn(root.synchronize())
+        SelectNext: root._step(1)
+        SelectPrevious: root._step(-1)
+
     SyncList:
         id: rows
         framed: False

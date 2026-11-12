@@ -38,7 +38,6 @@ from navml.commands import CloseWindow
 from navml.widgets.menu.commands import ShowContextMenu
 from navml.widgets.menu.context_menu import ContextMenu
 from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
-from navml.widgets.dialog.commands import SelectNext, SelectPrevious
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
@@ -212,10 +211,6 @@ class VolumesWindow(Window):
 
     # -- Mount image, Unmount image -----------------------------------------------------
 
-    async def on_mount_image(self, command: MountImage) -> bool:
-        self.spawn(self._mount_image())
-        return True
-
     async def _mount_image(self) -> None:
         """A disk image file asked for -- listed from the active panel's
         directory, its cursor's image named -- mounted, read again, and the
@@ -306,14 +301,6 @@ class VolumesWindow(Window):
 
     # -- what the buttons and keys do ---------------------------------------------------
 
-    async def on_rescan(self, event: Rescan) -> bool:
-        self.reload()
-        return True
-
-    async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
-        self.show_all = not self.show_all
-        return True
-
     def checks(self, command: Any) -> bool | None:
         """The *Volumes* menu ticks *Show all mounts* while it is on."""
         if isinstance(command, ToggleHidden):
@@ -355,14 +342,6 @@ class VolumesWindow(Window):
 
     async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
         return open_on_key(self)
-
-    async def on_select_next(self, event: SelectNext) -> bool:
-        self._step(1)
-        return True
-
-    async def on_select_previous(self, event: SelectPrevious) -> bool:
-        self._step(-1)
-        return True
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

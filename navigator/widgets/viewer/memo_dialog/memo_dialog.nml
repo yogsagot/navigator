@@ -3,6 +3,8 @@ from navigator.widgets.viewer.commands import SearchAgain, SearchFor, Unwrap
 from navigator.widgets.viewer.file_viewer import FileViewer
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollBar
+from navigator.widgets.viewer.commands import SetViewFilter, SetViewMode
+from navigator.widgets.viewer import viewer_host
 
 #: F3 in the dBase viewer: DOS Navigator's ``ViewMemo`` (``DBVIEW.PAS``),
 #: *Memo view*.
@@ -33,6 +35,20 @@ MemoDialog(Dialog):
         ctrl+l: SearchAgain
         ctrl+enter: SearchAgain
         shift+f6: ChooseEncoding
+
+    #: The commands this component handles itself.
+    commands:
+        Unwrap: root.viewer.toggle_wrap()
+        HexMode: root.viewer.cycle_mode()
+        AddFilter: root.viewer.cycle_filter()
+        SetViewMode: root.viewer.set_mode(event.mode)
+        SetViewFilter: root.viewer.set_filter(event.filter)
+        GotoAddress: root.spawn(viewer_host.goto_address(root))
+        ChooseEncoding: root.spawn(viewer_host.choose_encoding(root))
+        SearchFor: root.spawn(viewer_host.search_for(root))
+        ContinueSearch: root.spawn(viewer_host.search_again(root, reverse=False))
+        SearchAgain: root.spawn(viewer_host.search_again(root, reverse=False))
+        ReverseSearch: root.spawn(viewer_host.search_again(root, reverse=True))
 
     FileViewer:
         id: viewer

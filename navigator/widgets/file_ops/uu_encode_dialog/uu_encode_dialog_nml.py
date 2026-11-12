@@ -51,17 +51,23 @@ class UUEncodeDialog(Dialog, _Component):
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    target: Field    # uu_encode_dialog.nml:30
-    prefixes_caption: Label    # uu_encode_dialog.nml:40
-    prefixes: CheckBoxes    # uu_encode_dialog.nml:49
-    checksum_caption: Label    # uu_encode_dialog.nml:57
-    checksum: RadioButtons    # uu_encode_dialog.nml:66
-    lines: MaskedField    # uu_encode_dialog.nml:75
-    format_caption: Label    # uu_encode_dialog.nml:84
-    format: RadioButtons    # uu_encode_dialog.nml:92
-    pick: Button    # uu_encode_dialog.nml:107
-    abandon: Button    # uu_encode_dialog.nml:112
-    tree: Button    # uu_encode_dialog.nml:119
+    target: Field    # uu_encode_dialog.nml:34
+    prefixes_caption: Label    # uu_encode_dialog.nml:44
+    prefixes: CheckBoxes    # uu_encode_dialog.nml:53
+    checksum_caption: Label    # uu_encode_dialog.nml:61
+    checksum: RadioButtons    # uu_encode_dialog.nml:70
+    lines: MaskedField    # uu_encode_dialog.nml:79
+    format_caption: Label    # uu_encode_dialog.nml:88
+    format: RadioButtons    # uu_encode_dialog.nml:96
+    pick: Button    # uu_encode_dialog.nml:111
+    abandon: Button    # uu_encode_dialog.nml:116
+    tree: Button    # uu_encode_dialog.nml:123
+
+    #: The commands this component handles itself.
+    async def on_choose_target(self, event: _Any) -> bool:    # uu_encode_dialog.nml:30
+        """``ChooseTarget``."""
+        self.spawn(self.choose_target())
+        return True
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -71,123 +77,123 @@ class UUEncodeDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:107
+    async def on_pick_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:111
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:112
+    async def on_abandon_click(self, event: _Event) -> bool:    # uu_encode_dialog.nml:116
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.target = Field(parent=self)    # uu_encode_dialog.nml:29
-        self.prefixes_caption = Label(parent=self)    # uu_encode_dialog.nml:39
-        self.prefixes = CheckBoxes(parent=self)    # uu_encode_dialog.nml:48
-        self.checksum_caption = Label(parent=self)    # uu_encode_dialog.nml:56
-        self.checksum = RadioButtons(parent=self)    # uu_encode_dialog.nml:65
-        self.lines = MaskedField(parent=self)    # uu_encode_dialog.nml:74
-        self.format_caption = Label(parent=self)    # uu_encode_dialog.nml:83
-        self.format = RadioButtons(parent=self)    # uu_encode_dialog.nml:91
-        _w1 = ButtonRow(parent=self)    # uu_encode_dialog.nml:99
-        self.pick = Button(parent=_w1)    # uu_encode_dialog.nml:106
-        self.abandon = Button(parent=_w1)    # uu_encode_dialog.nml:111
-        self.tree = Button(parent=_w1)    # uu_encode_dialog.nml:118
+        self.target = Field(parent=self)    # uu_encode_dialog.nml:33
+        self.prefixes_caption = Label(parent=self)    # uu_encode_dialog.nml:43
+        self.prefixes = CheckBoxes(parent=self)    # uu_encode_dialog.nml:52
+        self.checksum_caption = Label(parent=self)    # uu_encode_dialog.nml:60
+        self.checksum = RadioButtons(parent=self)    # uu_encode_dialog.nml:69
+        self.lines = MaskedField(parent=self)    # uu_encode_dialog.nml:78
+        self.format_caption = Label(parent=self)    # uu_encode_dialog.nml:87
+        self.format = RadioButtons(parent=self)    # uu_encode_dialog.nml:95
+        _w1 = ButtonRow(parent=self)    # uu_encode_dialog.nml:103
+        self.pick = Button(parent=_w1)    # uu_encode_dialog.nml:110
+        self.abandon = Button(parent=_w1)    # uu_encode_dialog.nml:115
+        self.tree = Button(parent=_w1)    # uu_encode_dialog.nml:122
 
         self.modal_width = 60    # uu_encode_dialog.nml:19
         self.modal_height = 18    # uu_encode_dialog.nml:20
         self.title = _bind(lambda _o: _tr('UU Encode'), yielding=True)    # uu_encode_dialog.nml:21
         self.buttons = 'none'    # uu_encode_dialog.nml:22
 
-        self.target.y = 2    # uu_encode_dialog.nml:31
-        self.target.label_text = _bind(    # uu_encode_dialog.nml:35
+        self.target.y = 2    # uu_encode_dialog.nml:35
+        self.target.label_text = _bind(    # uu_encode_dialog.nml:39
             lambda _o: _tr('~E~ncode to'),
             yielding=True,
         )
-        self.target.label_width = 12    # uu_encode_dialog.nml:36
-        self.target.history_id = 'uuencode'    # uu_encode_dialog.nml:37
-        self.target.x = 2    # uu_encode_dialog.nml:33
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_encode_dialog.nml:34
+        self.target.label_width = 12    # uu_encode_dialog.nml:40
+        self.target.history_id = 'uuencode'    # uu_encode_dialog.nml:41
+        self.target.x = 2    # uu_encode_dialog.nml:37
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # uu_encode_dialog.nml:38
 
-        self.prefixes_caption.x = 2    # uu_encode_dialog.nml:41
-        self.prefixes_caption.y = 4    # uu_encode_dialog.nml:42
-        self.prefixes_caption.width = 12    # uu_encode_dialog.nml:43
-        self.prefixes_caption.text = _bind(    # uu_encode_dialog.nml:44
+        self.prefixes_caption.x = 2    # uu_encode_dialog.nml:45
+        self.prefixes_caption.y = 4    # uu_encode_dialog.nml:46
+        self.prefixes_caption.width = 12    # uu_encode_dialog.nml:47
+        self.prefixes_caption.text = _bind(    # uu_encode_dialog.nml:48
             lambda _o: _tr('~P~refixes'),
             yielding=True,
         )
-        self.prefixes_caption.link = _bind(lambda _o: self.prefixes)    # uu_encode_dialog.nml:45
+        self.prefixes_caption.link = _bind(lambda _o: self.prefixes)    # uu_encode_dialog.nml:49
 
-        self.prefixes.x = 2    # uu_encode_dialog.nml:50
-        self.prefixes.y = 5    # uu_encode_dialog.nml:51
-        self.prefixes.width = 29    # uu_encode_dialog.nml:52
-        self.prefixes.height = 3    # uu_encode_dialog.nml:53
-        self.prefixes.items = _bind(    # uu_encode_dialog.nml:54
+        self.prefixes.x = 2    # uu_encode_dialog.nml:54
+        self.prefixes.y = 5    # uu_encode_dialog.nml:55
+        self.prefixes.width = 29    # uu_encode_dialog.nml:56
+        self.prefixes.height = 3    # uu_encode_dialog.nml:57
+        self.prefixes.items = _bind(    # uu_encode_dialog.nml:58
             lambda _o: [_tr('~F~ile creation date&time'), _tr('Char ~m~apping table'), _tr('St~a~tistics')],
             yielding=True,
         )
 
-        self.checksum_caption.x = 32    # uu_encode_dialog.nml:58
-        self.checksum_caption.y = 4    # uu_encode_dialog.nml:59
-        self.checksum_caption.width = 18    # uu_encode_dialog.nml:60
-        self.checksum_caption.text = _bind(    # uu_encode_dialog.nml:61
+        self.checksum_caption.x = 32    # uu_encode_dialog.nml:62
+        self.checksum_caption.y = 4    # uu_encode_dialog.nml:63
+        self.checksum_caption.width = 18    # uu_encode_dialog.nml:64
+        self.checksum_caption.text = _bind(    # uu_encode_dialog.nml:65
             lambda _o: _tr('~C~hecksum level'),
             yielding=True,
         )
-        self.checksum_caption.link = _bind(lambda _o: self.checksum)    # uu_encode_dialog.nml:62
+        self.checksum_caption.link = _bind(lambda _o: self.checksum)    # uu_encode_dialog.nml:66
 
-        self.checksum.y = 5    # uu_encode_dialog.nml:67
-        self.checksum.height = 5    # uu_encode_dialog.nml:68
-        self.checksum.items = _bind(    # uu_encode_dialog.nml:72
+        self.checksum.y = 5    # uu_encode_dialog.nml:71
+        self.checksum.height = 5    # uu_encode_dialog.nml:72
+        self.checksum.items = _bind(    # uu_encode_dialog.nml:76
             lambda _o: [_tr('~N~one'), _tr('of Entire ~i~nput file'), _tr('of Each ~s~ection'), _tr('of Eac~h~ line'), _tr('Advanced ~6~4-bit')],
             yielding=True,
         )
-        self.checksum.x = 32    # uu_encode_dialog.nml:70
-        self.checksum.width = _bind(lambda _o: max(0, _o.parent.width - 34))    # uu_encode_dialog.nml:71
+        self.checksum.x = 32    # uu_encode_dialog.nml:74
+        self.checksum.width = _bind(lambda _o: max(0, _o.parent.width - 34))    # uu_encode_dialog.nml:75
 
-        self.lines.x = 2    # uu_encode_dialog.nml:76
-        self.lines.y = 9    # uu_encode_dialog.nml:77
-        self.lines.width = 26    # uu_encode_dialog.nml:78
-        self.lines.label_text = _bind(    # uu_encode_dialog.nml:79
+        self.lines.x = 2    # uu_encode_dialog.nml:80
+        self.lines.y = 9    # uu_encode_dialog.nml:81
+        self.lines.width = 26    # uu_encode_dialog.nml:82
+        self.lines.label_text = _bind(    # uu_encode_dialog.nml:83
             lambda _o: _tr('~L~ines per section'),
             yielding=True,
         )
-        self.lines.label_width = 20    # uu_encode_dialog.nml:80
-        self.lines.mask = '9999'    # uu_encode_dialog.nml:81
+        self.lines.label_width = 20    # uu_encode_dialog.nml:84
+        self.lines.mask = '9999'    # uu_encode_dialog.nml:85
 
-        self.format_caption.x = 2    # uu_encode_dialog.nml:85
-        self.format_caption.y = 11    # uu_encode_dialog.nml:86
-        self.format_caption.width = 20    # uu_encode_dialog.nml:87
-        self.format_caption.text = _bind(    # uu_encode_dialog.nml:88
+        self.format_caption.x = 2    # uu_encode_dialog.nml:89
+        self.format_caption.y = 11    # uu_encode_dialog.nml:90
+        self.format_caption.width = 20    # uu_encode_dialog.nml:91
+        self.format_caption.text = _bind(    # uu_encode_dialog.nml:92
             lambda _o: _tr('~T~arget file format'),
             yielding=True,
         )
-        self.format_caption.link = _bind(lambda _o: self.format)    # uu_encode_dialog.nml:89
+        self.format_caption.link = _bind(lambda _o: self.format)    # uu_encode_dialog.nml:93
 
-        self.format.x = 2    # uu_encode_dialog.nml:93
-        self.format.y = 12    # uu_encode_dialog.nml:94
-        self.format.width = 29    # uu_encode_dialog.nml:95
-        self.format.height = 1    # uu_encode_dialog.nml:96
-        self.format.items = _bind(    # uu_encode_dialog.nml:97
+        self.format.x = 2    # uu_encode_dialog.nml:97
+        self.format.y = 12    # uu_encode_dialog.nml:98
+        self.format.width = 29    # uu_encode_dialog.nml:99
+        self.format.height = 1    # uu_encode_dialog.nml:100
+        self.format.items = _bind(    # uu_encode_dialog.nml:101
             lambda _o: [_tr('~D~OS <CR>+<LF>'), _tr('~U~NIX')],
             yielding=True,
         )
 
-        _w1.justify = 'start'    # uu_encode_dialog.nml:100
-        _w1.x = 12# uu_encode_dialog.nml:102
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 12))    # uu_encode_dialog.nml:103
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # uu_encode_dialog.nml:104
+        _w1.justify = 'start'    # uu_encode_dialog.nml:104
+        _w1.x = 12# uu_encode_dialog.nml:106
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 12))    # uu_encode_dialog.nml:107
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # uu_encode_dialog.nml:108
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # uu_encode_dialog.nml:108
-        self.pick.default = True    # uu_encode_dialog.nml:109
-        self.pick.on_click = self.on_pick_click    # uu_encode_dialog.nml:107
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # uu_encode_dialog.nml:112
+        self.pick.default = True    # uu_encode_dialog.nml:113
+        self.pick.on_click = self.on_pick_click    # uu_encode_dialog.nml:111
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_encode_dialog.nml:113
-        self.abandon.on_click = self.on_abandon_click    # uu_encode_dialog.nml:112
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # uu_encode_dialog.nml:117
+        self.abandon.on_click = self.on_abandon_click    # uu_encode_dialog.nml:116
 
-        self.tree.text = _bind(lambda _o: _tr('T~r~ee'), yielding=True)    # uu_encode_dialog.nml:120
+        self.tree.text = _bind(lambda _o: _tr('T~r~ee'), yielding=True)    # uu_encode_dialog.nml:124
 
-        async def _on_click(event):    # uu_encode_dialog.nml:121
+        async def _on_click(event):    # uu_encode_dialog.nml:125
             self.spawn(self.choose_target())
             return True
         self.tree.on_click = _on_click

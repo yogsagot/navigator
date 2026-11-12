@@ -18,7 +18,6 @@ from navkit.text import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.drives import Location
-from navigator.widgets.file_ops.commands import ChooseTarget
 
 
 class CombineDialog(Dialog):
@@ -47,10 +46,6 @@ class CombineDialog(Dialog):
     async def on_pick_click(self, event: Event) -> bool:
         self.record_history()
         self.close(self.accept())
-        return True
-
-    async def on_choose_target(self, event: ChooseTarget) -> bool:
-        self.spawn(self.choose_target())
         return True
 
     async def choose_target(self) -> None:

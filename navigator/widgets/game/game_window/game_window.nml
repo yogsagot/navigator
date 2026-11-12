@@ -34,6 +34,11 @@ GameWindow(Window):
         alt+t: ShowTopTen
         alt+s: GameSetup
 
+    #: The commands this component handles itself.
+    commands:
+        ShowTopTen: root.spawn(root.show_scores())
+        GameSetup: root.spawn(root.setup())
+
     Glass:
         id: glass
         x: 1

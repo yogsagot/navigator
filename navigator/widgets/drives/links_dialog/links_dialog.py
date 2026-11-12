@@ -21,7 +21,6 @@ from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.drives.profiles import Entry
-from navigator.widgets.drives.commands import AddLink, DeleteLink, EditLink, MoveLinkDown, MoveLinkUp
 
 #: The name column's width in a row.
 NAME_WIDTH = 24
@@ -91,10 +90,6 @@ class LinksDialog(Dialog):
         self.close(("connect", list(self.entries), index))
         return True
 
-    async def on_edit_link(self, event: EditLink) -> bool:
-        self.spawn(self.edit_link())
-        return True
-
     async def edit_link(self) -> None:
         """The focused link in its protocol's box; its answer in its place."""
         index = self.current
@@ -105,10 +100,6 @@ class LinksDialog(Dialog):
         if answer is not None:
             self._refresh(self._put(answer, index, replacing=index))
         self.links.focus()
-
-    async def on_add_link(self, event: AddLink) -> bool:
-        self.spawn(self.add_link())
-        return True
 
     async def add_link(self) -> None:
         """Which protocol, from a menu at *Add*, then its box: the new link
@@ -168,10 +159,6 @@ class LinksDialog(Dialog):
         return Entry(answer.name or answer.host, answer.scheme, answer.host, answer.user, answer.port, answer.path,
                      entry.options if entry is not None else "", entry.forwards if entry is not None else "")
 
-    async def on_delete_link(self, event: DeleteLink) -> bool:
-        self.spawn(self.delete_link())
-        return True
-
     async def delete_link(self) -> None:
         """The focused link gone, once asked."""
         index = self.current
@@ -185,14 +172,6 @@ class LinksDialog(Dialog):
             del self.entries[index]
             self._refresh(index)
         self.links.focus()
-
-    async def on_move_link_up(self, event: MoveLinkUp) -> bool:
-        self.move(-1)
-        return True
-
-    async def on_move_link_down(self, event: MoveLinkDown) -> bool:
-        self.move(1)
-        return True
 
     def move(self, by: int) -> None:
         """The focused link *by* places along, the cursor with it."""

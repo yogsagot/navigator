@@ -632,13 +632,22 @@ def _calls(body: str, root: bool) -> Iterator[tuple[str, bool]]:
     awaited = {
         id(node.value) for node in ast.walk(tree) if isinstance(node, ast.Await)
     }
+    def handed(node):
+        """An argument, or each branch of a conditional one."""
+        if isinstance(node, ast.IfExp):
+            yield from handed(node.body)
+            yield from handed(node.orelse)
+        else:
+            yield node
+
     awaited |= {
-        id(argument)
+        id(handed_over)
         for node in ast.walk(tree)
         if isinstance(node, ast.Call)
         and isinstance(node.func, ast.Attribute)
         and node.func.attr == "spawn"
         for argument in node.args
+        for handed_over in handed(argument)
     }
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):
