@@ -336,6 +336,9 @@ class FtpDrive(Drive):
     capabilities = frozenset((WRITE, RENAME, CHMOD))
     #: No server says when a directory changed: *Auto refresh* looks again.
     polled = True
+    #: A server not chrooted shows the machine's ``/``; a chrooted one has
+    #: no ``/proc`` to lose.
+    system_root = True
 
     def __init__(self, site: Site, pool: _Pool) -> None:
         self.site = site

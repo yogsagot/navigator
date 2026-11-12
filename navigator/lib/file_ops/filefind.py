@@ -29,7 +29,8 @@ every disk file system mounted (:func:`searchable_mounts`, by kind from
 ``/proc/self/mounts``), each one alone.  Kernel and memory file systems,
 images (``squashfs``, CDs) and network mounts are left out unless the panel
 is on one: DN skipped its slow drives (floppies and CDs) but never the
-current one.  Leaving network mounts out is a departure -- DN searched a
+current one.  On a server, container or device the two are its ``/``,
+less its ``/proc``, ``/sys``, ``/dev`` and ``/run`` (:data:`SYSTEM_PLACES`).  Leaving network mounts out is a departure -- DN searched a
 LAN's drives, where here a mount may be a server or a bucket across the
 internet, read whole by a text search.
 
@@ -219,6 +220,13 @@ VIRTUAL_KINDS = frozenset({
     "bpf", "mqueue", "hugetlbfs", "configfs", "fusectl", "binfmt_misc", "efivarfs", "nsfs", "rpc_pipefs",
     "selinuxfs", "autofs",
 })
+
+#: A running system's kernel places, by name: what a search keeps out of on a
+#: drive whose ``/`` is a server's, container's or device's
+#: (``Drive.system_root``) -- :data:`VIRTUAL_KINDS`' rule where the mounts
+#: cannot be asked.  ``/run`` is memory full of sockets, which a remote
+#: drive cannot tell from a disk; ``/acct`` and ``/config`` are Android's.
+SYSTEM_PLACES = frozenset({"/proc", "/sys", "/dev", "/run", "/acct", "/config"})
 
 #: Where the mounts are read from (a test points it elsewhere).
 MOUNTS_TABLE = Path("/proc/self/mounts")
@@ -444,7 +452,11 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
     """:func:`search` on a drive other than the disk: the same walk, each
     directory listed by its drive (``Drive.children``), a file's text read
     through it.  Only *start* and below -- or the drive's top, for *disk*
-    and *all drives*: it has no mounts of its own.  Links are not followed."""
+    and *all drives*: it has no mounts of its own.  Links are not followed.
+    On a server, container or device (``Drive.system_root``) the walk never
+    goes into its kernel's places (:data:`SYSTEM_PLACES`, by name), though
+    a search started inside one walks it -- a departure, as DN had no such
+    drives."""
     from pathlib import PurePosixPath
 
     from navigator.lib.drives import Location, drive_of
@@ -471,7 +483,8 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
                 continue
             is_link = stat.S_ISLNK(info.st_mode)
             is_dir = stat.S_ISDIR(info.st_mode)
-            if is_dir and request.recursive:
+            if is_dir and request.recursive and not (
+                    drive.system_root and str((directory / name).path) in SYSTEM_PLACES):
                 subdirectories.append(directory / name)
             if is_dir and not request.directories:
                 continue

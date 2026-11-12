@@ -348,6 +348,7 @@ class ExecDrive(Drive):
 
     polled = True
     seekable = False
+    system_root = True
 
     def __init__(self, site: Site) -> None:
         self.site = site

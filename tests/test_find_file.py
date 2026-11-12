@@ -517,3 +517,54 @@ def test_only_a_crossing_is_tested_so_a_start_is_walked(tree, monkeypatch):
     table.write_text(f"proc {tree / 'a'} proc rw 0 0\nproc {tree} proc rw 0 0\n")
     monkeypatch.setattr("navigator.lib.file_ops.filefind.MOUNTS_TABLE", table)
     assert "a/deep/note.txt" in found(FindRequest(mask="*.txt", recursive=True), tree)
+
+
+@pytest.fixture
+def system():
+    """A drive whose ``/`` is a running system's, as a server's is."""
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    drive = MemoryDrive("system")
+    drive.system_root = True
+    for path in ("/proc/1/status", "/sys/x", "/dev/null", "/run/x", "/home/me/a.txt"):
+        drive.make(path, "hello")
+    mount(drive)
+    yield drive
+    unmount(drive.site)
+
+
+def _remote(request, start):
+    job = FindJob()
+    search(request, start, None, job)
+    return sorted(str(entry.directory / entry.name) for entry in job.found)
+
+
+def test_a_system_drive_is_searched_without_its_kernel_places(system):
+    whole = _remote(FindRequest(mask="*", text="hello", scope="disk"), system.location("/home/me"))
+    assert len(whole) == 1 and whole[0].endswith("/home/me/a.txt")
+    here = _remote(FindRequest(mask="*", recursive=True), system.location("/"))
+    assert not [name for name in here if any(f"/{top}/" in name for top in ("proc", "sys", "dev", "run"))]
+    assert any(name.endswith("/home/me/a.txt") for name in here)
+
+
+def test_a_search_started_in_a_kernel_place_walks_it(system):
+    assert any(name.endswith("/proc/1/status")
+               for name in _remote(FindRequest(mask="*", recursive=True), system.location("/proc")))
+
+
+def test_on_a_drive_that_is_no_system_the_names_count_for_nothing(system):
+    system.system_root = False
+    assert any(name.endswith("/proc/1/status")
+               for name in _remote(FindRequest(mask="*", recursive=True), system.location("/")))
+
+
+def test_which_drives_are_a_systems_root():
+    from navigator.lib.drives.archive import ArchiveDrive
+    from navigator.lib.drives.execdrive import ExecDrive
+    from navigator.lib.drives.ftp import FtpDrive
+    from navigator.lib.drives.s3 import S3Drive
+    from navigator.lib.drives.sftp import SftpDrive
+
+    assert SftpDrive.system_root and FtpDrive.system_root and ExecDrive.system_root
+    assert not ArchiveDrive.system_root and not S3Drive.system_root

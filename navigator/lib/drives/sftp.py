@@ -484,6 +484,7 @@ class SftpDrive(Drive):
     capabilities = frozenset((WRITE, RENAME, SYMLINK, CHMOD, CHOWN))
     #: No server says when a directory changed: *Auto refresh* looks again.
     polled = True
+    system_root = True
 
     def __init__(self, site: Site, connection: _Connection) -> None:
         self.site = site

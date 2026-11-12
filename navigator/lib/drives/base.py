@@ -140,6 +140,11 @@ class Drive:
     #: that long for one to spare a flash of empty rows; for a drive that
     #: is a round trip away it would only be a pause on every step.
     quick_listing: bool = False
+    #: Whether its ``/`` is a running system's root -- a server's, a
+    #: container's, a device's -- so its kernel's places (``/proc``, ``/sys``
+    #: ...) are at their usual names and a search keeps out of them
+    #: (``filefind.SYSTEM_PLACES``); not an archive's, a bucket's or a share's.
+    system_root: bool = False
     #: Why the connection went, once it has and could not be made again --
     #: the reconnect's own failure, said with *Remote drive ... is not
     #: accessible* (``SESSIONS.reason``); ``""`` while it is up, or unsaid.
