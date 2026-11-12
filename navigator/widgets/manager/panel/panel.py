@@ -962,15 +962,20 @@ class Panel(ListViewer):
         if found is not None and found.keep_order:
             sort = "unsorted"  # *Find duplicates*' groups stay together
         if found is not None and found.live:
-            # Still being searched: the entries as found, only ordered --
-            # and masked as the settled listing is (DN's ``GetDirectory``).
+            # Still being searched: the entries as found, only ordered, and
+            # not counted -- redrawn at every batch found, it would walk the
+            # same directories over and over; the settled read counts once
+            # (DN's ``GetDirectory`` counted at each redraw) -- and masked as
+            # the settled listing is (DN's ``GetDirectory``).
             entries = [DirEntry("..", True, 0)] + [e for e in found.entries
                                                    if shown_in_listing(e, show_hidden, mask)]
             self._apply(request, order_entries(entries, sort, executables_first=flags["executables_first"],
                                                archives_first=flags["archives_first"], reverse=reverse), None)
             return
         if found is not None:
-            future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort, **flags)
+            job = self._scan_job = ScanJob() if dir_length else None
+            future = _SCANNER.submit(restat_found, list(found.entries), show_hidden, sort,
+                                     dir_length=dir_length, job=job, **flags)
         else:
             job = self._scan_job = ScanJob() if dir_length else None
             future = _scanner_for(path).submit(_read_location, path, show_hidden, sort, free=free,

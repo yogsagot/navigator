@@ -397,9 +397,15 @@ def shown_in_listing(entry: DirEntry, show_hidden: bool, mask: str = filetypes.A
 
 def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,
                  executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
-                 mask: str = filetypes.ALL_FILES) -> tuple[list[DirEntry], str | None]:
+                 mask: str = filetypes.ALL_FILES, dir_length: bool = False,
+                 job: Any = None) -> tuple[list[DirEntry], str | None]:
     """A *Find:* listing re-read (``DosReread``): each entry as it is now, the
-    gone ones dropped, under a ``..`` that leads back.  A thread runs it."""
+    gone ones dropped, under a ``..`` that leads back.  A thread runs it.
+
+    *dir_length* counts each directory found on the disk into its size, as
+    DN's ``GetDirectory`` did under ``fmiDirLen`` -- never ``..``, no
+    directory of the listing's own, nor one on another drive, which a walk
+    per directory found would crawl; *job*'s ``stopped`` ends it."""
     found: list[DirEntry] = [DirEntry("..", True, 0)]
     for entry in entries:
         if entry.name == ".." or (not show_hidden and entry.name.startswith(".")):
@@ -413,8 +419,24 @@ def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name",
         if not shown_in_listing(fresh, show_hidden, mask):
             continue
         found.append(fresh)
+    if dir_length:
+        _count_found(found, job)
     return order_entries(found, sort, executables_first=executables_first,
                          archives_first=archives_first, reverse=reverse), None
+
+
+def _count_found(entries: list[DirEntry], job: Any) -> None:
+    """:func:`restat_found`'s *dir_length*: each directory on the disk given
+    its bytes, until *job* is stopped."""
+    from navigator.lib.file_ops.dirlength import count_dir_length
+
+    for entry in entries:
+        if not entry.is_dir or entry.name == ".." or not isinstance(entry.directory, (str, os.PathLike)):
+            continue
+        size = count_dir_length(entry.path_in(Path("/")), job)
+        if size is None:
+            return
+        entry.size, entry.counted = size, True
 
 
 def _entry_elsewhere(entry: DirEntry) -> DirEntry | None:

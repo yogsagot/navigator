@@ -1065,3 +1065,50 @@ def test_a_listing_being_filled_is_masked_as_it_will_stay(place):
     run_app(app, [show, LISTED, LISTED, lambda a: seen.update(live=names(a)), settle_it, LISTED, LISTED,
                   lambda a: seen.update(settled=names(a))])
     assert seen == {"live": ["..", "a", "top.txt"], "settled": ["..", "a", "top.txt"]}
+
+
+def test_directory_length_counts_a_listing_s_directories(place, monkeypatch):
+    # DN's ``GetDirectory`` under ``fmiDirLen``: ``GetDirLen`` for each directory found.
+    from navigator.lib.file_ops.dirlength import count_dir_length
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.settings import SETTINGS
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    app = navigator(place)
+    seen = {}
+
+    def show(on):
+        def action(a):
+            monkeypatch.setattr(SETTINGS.panel_defaults, "directory_length", on)
+            entries = [entry_at(place / "b", place), entry_at(place / "top.txt", place)]
+            a.manager.left.show_found(FindListing(f"Find: {on}", place, entries))
+        return action
+
+    def look(key):
+        return lambda a: seen.update({key: {e.name: (e.size, e.counted) for e in a.manager.left.items}})
+
+    run_app(app, [show(True), LISTED, LISTED, look("on"), show(False), LISTED, LISTED, look("off")])
+    assert seen["on"]["b"] == (count_dir_length(place / "b"), True)
+    assert seen["on"][".."] == (0, False)
+    assert seen["off"]["b"][1] is False
+
+
+def test_restat_found_counts_nothing_stopped_or_elsewhere(place):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.listing import ScanJob, restat_found
+    from navigator.lib.drives.memory import MemoryDrive
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    job = ScanJob()
+    job.stop()
+    entries, _ = restat_found([entry_at(place / "b", place)], True, dir_length=True, job=job)
+    assert not any(e.counted for e in entries)
+    drive = mount(MemoryDrive("counted"))
+    try:
+        drive.make("/d/x", "12345")
+        job = FindJob()
+        search(FindRequest(mask="*", recursive=False), drive.location("/"), None, job)
+        entries, _ = restat_found(job.found, True, dir_length=True)
+        assert [(e.name, e.counted) for e in entries if e.name == "d"] == [("d", False)]
+    finally:
+        unmount(drive.site)

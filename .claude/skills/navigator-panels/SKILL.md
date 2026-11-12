@@ -669,7 +669,7 @@ cursor (`..` counts the one listed) and every tagged directory get the bytes ben
 directories count as nothing) under `run_with_progress`'s *Counting directory length* box; Esc keeps what was counted.
 That box is `navigator/widgets/file_ops/count_progress/` (`CountProgress`, a departure from DN's bare wait box): bytes,
 files and directories met so far, summed over every target through one `CountJob` that `count_dir_length` adds to
-(any other job, such as the panel scan's, only stops it). With more than one target it also names the directory being
+(any other job, such as the panel scan's, only stops it). The *Display* box's *Directory length* counts a *Find:* listing's directories too, on its settled re-read (`restat_found(dir_length=)`, DN's `GetDirectory`; never while it fills, nor `..`, nor an entry on another drive; Esc's `Abort` as in a directory). With more than one target it also names the directory being
 counted and shows a *This directory* column (`CountJob.here_*`, restarted per target) beside *Total*. The counts are
 one unwrapped `StaticText` (`CountProgress.counts`): columns as wide as their longest entry, the total against the right
 edge, so a size gaining a digit (99G -> 100G) widens its column instead of pushing past the frame. `modal_width` is
