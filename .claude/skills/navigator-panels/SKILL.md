@@ -551,7 +551,7 @@ jumped to the 8.3 extension).
 `FindFile`, `Manager.find_file`, DN's `FindFile`/`FindFiles` (also Disk > Find...): `FindFileDialog` (`dlgFileFind`,
 own OK / *Advanced...* / Cancel row, session-kept answers, opening on *Recursive* + *Current directory*) and
 `AdvancedSearchDialog` (`dlgAdvanceSearch`: ISO dates, sizes, POSIX kinds, *Clear all*) give a `FindRequest`;
-`navigator/lib/file_ops/filefind.py`'s `search` walks on a thread (mask via `in_filter`, text by chunked regex, never through a symlink,
+`navigator/lib/file_ops/filefind.py`'s `search` walks on a thread (mask via `in_filter`, text by chunked regex in regular files only -- a FIFO, socket or device never opened, `holds` opening `O_NONBLOCK` and re-checking against a swap -- never through a symlink,
 one file system for *Entire disk* / *All drives*) under `FindProgress` through `_watch_job(..., abort="Cancel
 search?")`. **Results are a `FindListing` in `Panel.found`** (DN's `TFindDrive`): the panel lists its entries -- live
 while searching, re-`stat`ed by `restat_found` on a re-read, gone ones dropped -- under a `..` that leads back

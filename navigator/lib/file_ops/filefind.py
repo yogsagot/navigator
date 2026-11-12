@@ -126,9 +126,21 @@ def request_pattern(request: FindRequest) -> re.Pattern[bytes] | None:
 def holds(path: str, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool = False) -> bool:
     """Whether the file at *path* holds *pattern*: read a chunk at a time,
     each overlapping the last by as much as a match could span -- or, for a
-    regular expression (*whole*), whose span nothing bounds, all at once."""
+    regular expression (*whole*), whose span nothing bounds, all at once.
+
+    Only a regular file is read: opened without blocking (a FIFO with no
+    writer would wait for one for good) and checked by what was opened, so
+    one swapped for a FIFO or a device since the walk saw it is passed over.
+    DN's search never met anything but files."""
     try:
-        with open(path, "rb") as file:
+        descriptor = os.open(path, os.O_RDONLY | os.O_NONBLOCK)
+    except OSError:
+        return False
+    try:
+        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+            os.close(descriptor)
+            return False
+        with os.fdopen(descriptor, "rb") as file:
             return _holds(file, pattern, job, whole)
     except OSError:
         return False
@@ -311,7 +323,9 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     if not _passes(item.name, info, is_link, limits, lambda: stat.S_ISLNK(info.st_mode)):
                         continue
                     if pattern is not None:
-                        if stat.S_ISDIR(info.st_mode) or not match(item.path, pattern):
+                        # Only a regular file (directly or through a link) is read
+                        # for text: a FIFO, socket or device would block it.
+                        if not stat.S_ISREG(info.st_mode) or not match(item.path, pattern):
                             continue
                     job.found.append(make_entry(directory, item, info))
             pending.extend(reversed(sorted(subdirectories)))
@@ -360,7 +374,7 @@ def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, 
             if not _passes(name, info, is_link, limits, lambda: not drive.exists(directory / name)):
                 continue
             if pattern is not None:
-                if is_dir or not match(directory / name, pattern):
+                if not _regular_on_drive(drive, directory / name, info) or not match(directory / name, pattern):
                     continue
             job.found.append(DirEntry(name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
                                       is_link, directory=directory))
@@ -425,6 +439,20 @@ def read_list_on_drive(list_file: Any, here: Any) -> list[Any]:
             found.append(DirEntry(each.name, is_dir, 0 if is_dir else info.st_size, info.st_mode, info.st_mtime,
                                   stat.S_ISLNK(own.st_mode), directory=each.parent))
     return found
+
+
+def _regular_on_drive(drive: Any, place: Any, info: Any) -> bool:
+    """Whether *place*, which *drive*'s ``children`` answered with *info* (an
+    ``lstat``), is a regular file to read for text -- a link one more
+    question, its target's.  Anything else could block a read."""
+    if stat.S_ISREG(info.st_mode):
+        return True
+    if not stat.S_ISLNK(info.st_mode):
+        return False
+    try:
+        return stat.S_ISREG(drive.stat(place).st_mode)
+    except (OSError, NotImplementedError):
+        return False
 
 
 def _stat_or_lstat(item: os.DirEntry[str]) -> os.stat_result:

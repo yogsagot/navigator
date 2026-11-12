@@ -54,6 +54,40 @@ def test_text_is_looked_for_in_files_only_with_case_and_whole_words(tree):
     assert found(FindRequest(text="hello", words=True), tree, show_hidden=False) == ["a/README", "top.txt"]
 
 
+def _finishes(work, timeout=5.0):
+    """Run *work* on a thread: what it answered, or a failure if it hangs."""
+    import threading
+
+    result = []
+    worker = threading.Thread(target=lambda: result.append(work()), daemon=True)
+    worker.start()
+    worker.join(timeout)
+    assert not worker.is_alive(), "the search hung"
+    return result[0]
+
+
+def test_a_text_search_never_opens_a_fifo_and_ends(tree):
+    # A FIFO with no writer blocked ``open()`` for good, past Stop.
+    os.mkfifo(tree / "pipe.txt")
+    os.symlink(tree / "pipe.txt", tree / "link.txt")
+    names = _finishes(lambda: found(FindRequest(mask="*.txt", text="hello", recursive=True), tree,
+                                    show_hidden=True))
+    assert "pipe.txt" not in names and "link.txt" not in names and "top.txt" in names
+
+
+def test_a_fifo_is_still_found_by_its_name(tree):
+    os.mkfifo(tree / "pipe.txt")
+    names = _finishes(lambda: found(FindRequest(mask="pipe.txt"), tree))
+    assert names == ["pipe.txt"]
+
+
+def test_holds_passes_a_fifo_over_at_once(tree):
+    # The walk saw a file; it is a FIFO by the time it is opened.
+    os.mkfifo(tree / "swapped")
+    pattern = text_pattern("x", case=True, words=False)
+    assert _finishes(lambda: holds(str(tree / "swapped"), pattern)) is False
+
+
 def test_a_match_spanning_two_chunks_is_found(tmp_path, monkeypatch):
     import navigator.lib.file_ops.filefind as filefind
 
