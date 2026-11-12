@@ -41,14 +41,14 @@ from navkit.i18n import tr
 
 from navigator.lib.file_ops.filecopy import AS_ROOT, Failure, error_message
 from navigator.lib.system.elevate import refused
-from navigator.lib.file_ops.filefind import FindJob, FindRequest, search
+from navigator.lib.file_ops.filefind import WHOLE_LARGEST, FindJob, FindRequest, search
 from navigator.lib.system.job import Stopped
 
 #: How much of a file's head is looked at for a NUL byte.
 BINARY_PROBE = 8192
 
 #: The largest file replaced in, in bytes.
-LARGEST = 64 << 20
+LARGEST = WHOLE_LARGEST  # one number with Find's *Regular expression*
 
 #: How many changes a question shows; the rest are counted.
 SHOWN = 500

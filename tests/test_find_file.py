@@ -568,3 +568,65 @@ def test_which_drives_are_a_systems_root():
 
     assert SftpDrive.system_root and FtpDrive.system_root and ExecDrive.system_root
     assert not ArchiveDrive.system_root and not S3Drive.system_root
+
+
+def test_a_regular_expression_still_matches_across_chunks(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.CHUNK", 8)
+    (tmp_path / "f").write_text("begin" + "." * 30 + "end")
+    assert holds(str(tmp_path / "f"), text_pattern(r"begin.*end", case=True, words=False, regex=True), whole=True)
+
+
+def test_a_regular_expression_passes_over_a_file_past_the_cap(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.WHOLE_LARGEST", 16)
+    (tmp_path / "big.txt").write_text("needle" + "." * 26)
+    (tmp_path / "small.txt").write_text("needle")
+    assert found(FindRequest(mask="*", text="need+le", regex=True), tmp_path) == ["small.txt"]
+
+
+def test_the_cap_holds_whatever_size_the_file_said(monkeypatch):
+    import io
+
+    from navigator.lib.file_ops.filefind import _holds
+
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.WHOLE_LARGEST", 16)
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.CHUNK", 8)
+    pattern = text_pattern("needle", case=True, words=False, regex=True)
+    assert not _holds(io.BytesIO(b"needle" + b"." * 26), pattern, None, True)
+    assert _holds(io.BytesIO(b"needle"), pattern, None, True)
+
+
+def test_stop_ends_a_regular_expression_between_chunks():
+    from navigator.lib.file_ops.filefind import _holds
+
+    job = FindJob()
+    reads = []
+
+    class Reader:
+        def read(self, size):
+            reads.append(size)
+            job.stop()
+            return b"x" * size
+
+    assert not _holds(Reader(), text_pattern("x", case=True, words=False, regex=True), job, True)
+    assert len(reads) == 1
+
+
+def test_a_regular_expression_on_another_drive_keeps_to_the_cap(monkeypatch):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.WHOLE_LARGEST", 16)
+    drive = mount(MemoryDrive("capped"))
+    try:
+        drive.make("/d/big.txt", "needle" + "." * 26)
+        drive.make("/d/small.txt", "needle")
+        assert [n.rsplit("/", 1)[-1] for n in _remote(FindRequest(mask="*", text="needle", regex=True),
+                                                      drive.location("/d"))] == ["small.txt"]
+    finally:
+        unmount(drive.site)
+
+
+def test_replace_in_files_keeps_to_the_same_cap():
+    from navigator.lib.file_ops import filefind, filereplace
+
+    assert filereplace.LARGEST == filefind.WHOLE_LARGEST == 64 << 20

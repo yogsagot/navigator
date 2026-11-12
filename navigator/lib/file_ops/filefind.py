@@ -11,7 +11,8 @@ panel), passing *Advanced search*'s dates, sizes and kinds if it is ticked,
 and holding the *text to find* if there is one -- a directory then never
 matches.  With *Regular expression* ticked (not DN's: a departure, asked
 for) the text is Python's ``re`` pattern, matched against the file's bytes
-whole, so it may span lines; without, it is the text itself, looked for a
+whole -- up to :data:`WHOLE_LARGEST`, a larger file passed over, as
+*Replace in files* does -- so it may span lines; without, it is the text itself, looked for a
 chunk at a time.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
 walks the same way, through :func:`search`'s *match*.  A directory is walked into with *Recursive search*, whatever its
 name; never through a symbolic link, and never onto another file system
@@ -63,6 +64,11 @@ KINDS = ("executable", "symlink", "hidden", "read_only", "broken_link")
 
 #: How much of a file is read at a time looking for the text.
 CHUNK = 1 << 16
+
+#: The largest file a *Regular expression* looks through: it is held whole,
+#: as nothing bounds how far a match may span.  A larger one is passed over,
+#: as *Replace in files* passes it (``filereplace.LARGEST`` is this).
+WHOLE_LARGEST = 64 << 20
 
 
 @dataclass(frozen=True)
@@ -136,7 +142,9 @@ def request_pattern(request: FindRequest) -> re.Pattern[bytes] | None:
 def holds(path: str, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool = False) -> bool:
     """Whether the file at *path* holds *pattern*: read a chunk at a time,
     each overlapping the last by as much as a match could span -- or, for a
-    regular expression (*whole*), whose span nothing bounds, all at once.
+    regular expression (*whole*), whose span nothing bounds, gathered whole
+    (:func:`_holds`), a file larger than :data:`WHOLE_LARGEST` passed over
+    unread.
 
     Only a regular file is read: opened without blocking (a FIFO with no
     writer would wait for one for good) and checked by what was opened, so
@@ -147,7 +155,8 @@ def holds(path: str, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool
     except OSError:
         return False
     try:
-        if not stat.S_ISREG(os.fstat(descriptor).st_mode):
+        info = os.fstat(descriptor)
+        if not stat.S_ISREG(info.st_mode) or (whole and info.st_size > WHOLE_LARGEST):
             os.close(descriptor)
             return False
         with os.fdopen(descriptor, "rb") as file:
@@ -157,9 +166,25 @@ def holds(path: str, pattern: re.Pattern[bytes], job: Any = None, *, whole: bool
 
 
 def _holds(file: Any, pattern: re.Pattern[bytes], job: Any, whole: bool) -> bool:
-    """:func:`holds` on an open *file*."""
+    """:func:`holds` on an open *file*.
+
+    *whole* gathers the file a chunk at a time, looking at *job* between
+    them, and gives up past :data:`WHOLE_LARGEST` however large the file
+    said it was (``/proc``'s say 0); then one search.  That search itself
+    cannot be stopped -- Python's ``re`` takes no interruption -- so a
+    pattern that backtracks badly runs until it ends, over at most that."""
     if whole:
-        return pattern.search(file.read()) is not None
+        data = bytearray()
+        while True:
+            if job is not None and job.stopped:
+                return False
+            chunk = file.read(CHUNK)
+            if not chunk:
+                break
+            data += chunk
+            if len(data) > WHOLE_LARGEST:
+                return False
+        return pattern.search(data) is not None
     overlap = max(0, len(pattern.pattern) * 4)
     tail = b""
     while True:
