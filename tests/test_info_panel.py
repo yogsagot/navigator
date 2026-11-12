@@ -363,3 +363,53 @@ def test_ctrl_l_counts_a_directory_once_not_every_frame(place, monkeypatch):
 
     run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None), frames])
     assert seen["counted"] == 0  # counted when the directory was shown, not since
+
+
+def test_a_find_listing_is_described_as_dn_s_find_drive(place):
+    # ``TFindDrive.GetDirInfo``: *File Find results*, the mask, the files -- no drive's lines.
+    from conftest import LISTED
+
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    (place / "one.txt").write_text("12345")
+    (place / "two.txt").write_text("123")
+    app = navigator(place)
+    seen = {}
+
+    def show(title):
+        def action(a):
+            entries = [entry_at(place / name, place) for name in ("one.txt", "two.txt")]
+            a.manager.left.show_found(FindListing(title, place, entries))
+        return action
+
+    def leave(a):
+        a.manager.left.leave_found()
+
+    run_app(app, [KeyEvent("l", ctrl=True), Until(lambda a: a.manager.info.facts is not None),
+                  show("Find: *.txt"), LISTED, Until(lambda a: "File Find results" in described(a)),
+                  lambda a: seen.update(find=described(a)),
+                  show("Panel: ls"), LISTED, Until(lambda a: "~Panel: ls~" in described(a)),
+                  lambda a: seen.update(panel=described(a)),
+                  leave, LISTED, leave, LISTED, Until(lambda a: "Current directory:" in described(a)),
+                  lambda a: seen.update(back=described(a))], timeout=10)
+    find = [line.replace("~", "") for line in seen["find"]]
+    assert find[:3] == ["File Find results", "Mask: *.txt", "2 files with 8 bytes"]
+    assert "Current directory:" not in find and not any("total bytes on" in line for line in find)
+    assert seen["panel"][:2] == ["File Find results", "~Panel: ls~"]
+    assert "Current directory:" in seen["back"]
+
+
+def test_a_heading_takes_the_directory_s_lines():
+    from types import SimpleNamespace
+
+    from navigator.lib.system import diskinfo
+
+    shows = SimpleNamespace(**{name: True for name in (
+        "current_file", "directory_title", "totals", "volume_size", "volume_free", "volume_label",
+        "total_memory", "user_memory", "navigator_memory", "information_file")})
+    facts = DiskFacts(total=10, free=5, mount="/")
+    out = [text for text, _ in diskinfo.lines(Path("/x"), [DirEntry("a", False, 3)], facts, shows,
+                                               heading=("A", "~B~"))]
+    assert out[:3] == ["A", "~B~", "~1~ file with ~3~ bytes"]
+    assert not any("total bytes on" in text for text in out)

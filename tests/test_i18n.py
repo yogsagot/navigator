@@ -218,7 +218,7 @@ def test_a_choice_between_captions_yields_but_a_property_in_the_value_does_not()
 
 
 @pytest.mark.parametrize("module, name, caption", [
-    ("navigator.widgets.manager.find_progress.find_progress", "FindProgress", "Cancel"),
+    ("navigator.widgets.manager.find_progress.find_progress", "FindProgress", "~S~top"),
     ("navigator.widgets.viewer.search_progress.search_progress", "SearchProgress", "~S~top"),
     ("navigator.widgets.file_ops.write_win.write_win", "WriteWin", "~C~ancel"),
     ("navigator.widgets.file_ops.delete_dialog.delete_dialog", "DeleteDialog", "~Y~es"),

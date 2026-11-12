@@ -3342,6 +3342,10 @@ direction = "rtl"
 "Type: ~{kind}~" = "סוג: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "התיקייה הנוכחית:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "תוצאות חיפוש קבצים"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "מסכה: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ בית בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~", "~{n:,}~ בתים בסך הכול ב-~{mount}~"]
 # navigator/lib/system/diskinfo.py:339

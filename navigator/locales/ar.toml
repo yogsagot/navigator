@@ -3342,6 +3342,10 @@ direction = "rtl"
 "Type: ~{kind}~" = "النوع: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "المجلد الحالي:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "نتائج البحث عن الملفات"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "القناع: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايتات إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~", "~{n:,}~ بايت إجمالا على ~{mount}~"]
 # navigator/lib/system/diskinfo.py:339

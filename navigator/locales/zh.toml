@@ -3341,6 +3341,10 @@ flag = "CN"
 "Type: ~{kind}~" = "类型: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "当前目录:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "文件查找结果"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "掩码: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ 共 ~{n:,}~ 字节"]
 # navigator/lib/system/diskinfo.py:339

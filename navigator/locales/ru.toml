@@ -3341,6 +3341,10 @@ flag = "RU"
 "Type: ~{kind}~" = "Тип: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "Текущий каталог:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "Результат поиска"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "Маска: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["Всего ~{n:,}~ байт на ~{mount}~", "Всего ~{n:,}~ байта на ~{mount}~", "Всего ~{n:,}~ байт на ~{mount}~"]
 # navigator/lib/system/diskinfo.py:339

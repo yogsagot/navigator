@@ -3341,6 +3341,10 @@ flag = "JP"
 "Type: ~{kind}~" = "種類: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "現在のディレクトリ:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "ファイル検索の結果"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "マスク: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["~{mount}~ の総容量 ~{n:,}~ バイト"]
 # navigator/lib/system/diskinfo.py:339

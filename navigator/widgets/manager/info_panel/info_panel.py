@@ -66,6 +66,9 @@ class InfoPanel(Widget):
     #: (:class:`navigator.lib.system.diskinfo.FileFacts`, None until read).
     entry: Any = reactive(None)
     file_facts: Any = reactive(None)
+    #: A *Find:* listing's two lines in place of the directory's, or None
+    #: (:meth:`show_listing`).
+    heading: Any = reactive(None)
     #: The first line shown, kept within :meth:`last_top` when drawn.
     top: int = reactive(0)
 
@@ -90,7 +93,7 @@ class InfoPanel(Widget):
         """The information file shown -- ``DirInfo``, else ``File_ID.DIZ`` --
         on the disk, for F4's *Edit DirInfo*; None when there is none."""
         facts, directory = self.facts, self.directory
-        if facts is None or not getattr(facts, "info_file", "") or not isinstance(directory, Path):
+        if self.heading is not None or facts is None or not getattr(facts, "info_file", "") or not isinstance(directory, Path):
             return None
         return directory / facts.info_file
 
@@ -105,6 +108,7 @@ class InfoPanel(Widget):
         by its drive, on a thread."""
         from navigator.lib.drives import Location
 
+        self.heading = None
         if isinstance(directory, Location) and not directory.is_local:
             self._show_elsewhere(directory, entries)
             return
@@ -122,6 +126,23 @@ class InfoPanel(Widget):
         self._wanted = directory
         _READER.run(self, diskinfo.gather, directory,
                     done=lambda outcome, d=directory: self._read(d, outcome))
+
+    def show_listing(self, listing: Any, entries: Any) -> None:
+        """Describe a *Find:* listing as DN's ``TFindDrive.GetDirInfo`` did:
+        *File Find results*, the mask -- another listing's title where it
+        has none -- and its files, with no drive's lines.  The memory's are
+        read as for its origin.
+
+        A departure: the files are counted.  DN 1.51's count was commented
+        out (``{!!!...ForEach(@DoCount)}``), so it always said *No files*."""
+        title = listing.title
+        # The listing's own title, as *Find File* made it in this language.
+        before, _, after = tr("Find: {mask}").partition("{mask}")
+        found = title.startswith(before) and title.endswith(after) and len(title) >= len(before) + len(after)
+        mask = title[len(before):len(title) - len(after)] if found else None
+        place = tr("Mask: ~{mask}~").format(mask=mask) if mask is not None else f"~{title}~"
+        self.show(listing.origin, entries)
+        self.heading = (tr("File Find results"), place)
 
     def show_file(self, entry: Any, location: Any) -> None:
         """Describe *entry*, the file under the cursor, found at *location*
@@ -207,7 +228,7 @@ class InfoPanel(Widget):
         if self.directory is None:
             return []
         out = diskinfo.lines(self.directory, self.entries, self.facts, SETTINGS.drive_info,
-                             self.entry, self.file_facts, counted=self._totals)
+                             self.entry, self.file_facts, counted=self._totals, heading=self.heading)
         if self.described:
             if out:
                 out.append(("", True))

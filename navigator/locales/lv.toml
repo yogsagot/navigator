@@ -3341,6 +3341,10 @@ flag = "LV"
 "Type: ~{kind}~" = "Tips: ~{kind}~"
 # navigator/lib/system/diskinfo.py:314
 "Current directory:" = "Pašreizējā direktorija:"
+# navigator/widgets/manager/info_panel/info_panel.py
+"File Find results" = "Failu meklēšanas rezultāti"
+# navigator/widgets/manager/info_panel/info_panel.py
+"Mask: ~{mask}~" = "Maska: ~{mask}~"
 # navigator/lib/system/diskinfo.py:336
 "~{n:,}~ total byte on ~{mount}~" = ["Kopā: ~{n:,}~ baits uz ~{mount}~", "Kopā: ~{n:,}~ baiti uz ~{mount}~", "Kopā: ~{n:,}~ baitu uz ~{mount}~"]
 # navigator/lib/system/diskinfo.py:339

@@ -6185,6 +6185,8 @@ class Manager(Window):
         with untracked():
             if found is None:
                 self.info.show(location, entries)
+            else:
+                self.info.show_listing(found, entries)
 
     def reread_info(self) -> None:
         """``cmRereadInfo``: the information panel, if it is up, reads its

@@ -303,19 +303,24 @@ def totals(entries: Iterable[Any]) -> tuple[int, int] | None:
 
 def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
           shows: Any, entry: Any = None, file_facts: FileFacts | None = None, *,
-          counted: tuple[int, int] | None | bool = False) -> list[tuple[str, bool]]:
+          counted: tuple[int, int] | None | bool = False,
+          heading: tuple[str, str] | None = None) -> list[tuple[str, bool]]:
     """The panel's lines, ``(text, centred)``, as ``TDiskInfo.Draw`` laid
     them out: *shows* is the ``drive_info`` section, read box by box.
     *entry* is the one under the cursor, described after the directory's
     lines (:func:`file_lines`) and closed by a rule naming what follows:
     the *Drive*'s lines, else the *Memory*'s.  A blank line comes before
     each of the two rules.  *counted*, given, is :func:`totals` of *entries*
-    worked out already, so the listing is not walked again."""
+    worked out already, so the listing is not walked again.  *heading*,
+    given, is a *Find:* listing's two lines in place of the directory's
+    (``TFindDrive.GetDirInfo``), and no drive's lines nor information file
+    follow: the find drive's record held none."""
     out: list[tuple[str, bool]] = []
     current = file_lines(entry, file_facts) if shows.current_file else []
     if shows.directory_title or shows.totals:
         if shows.directory_title:
-            out += [(tr("Current directory:"), True), (f"~{directory}~", True)]
+            title, place = heading if heading is not None else (tr("Current directory:"), f"~{directory}~")
+            out += [(title, True), (place, True)]
         if shows.totals:
             figures = totals(entries) if counted is False else counted
             if figures is None:
@@ -335,7 +340,7 @@ def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
         close = len(out)
         out.append(("\0", True))
     volume = len(out)
-    if facts is not None and (shows.volume_size or shows.volume_free or shows.volume_label):
+    if facts is not None and heading is None and (shows.volume_size or shows.volume_free or shows.volume_label):
         if shows.volume_size and facts.total is not None:
             out.append((tr_n("~{n:,}~ total byte on ~{mount}~", "~{n:,}~ total bytes on ~{mount}~",
                              facts.total, mount=facts.mount), True))
@@ -365,7 +370,7 @@ def lines(directory: Path, entries: Iterable[Any], facts: DiskFacts | None,
                 out[close] = ("\0" + tr("Drive"), True)
             elif len(out) > memory:
                 out[close] = ("\0" + tr("Memory"), True)
-        if out and shows.information_file and facts.info_lines:
+        if out and heading is None and shows.information_file and facts.info_lines:
             out.append((f"\0{facts.info_name}", True))  # the rule, drawn by the panel
             out += [(text, False) for text in facts.info_lines]
     # The closing rule, and the blank line before it, give way to a rule
