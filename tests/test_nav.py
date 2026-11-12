@@ -2042,6 +2042,27 @@ def test_without_the_timer_no_box(tree, quiet_console):
     assert _timed_run(navigator(tree), tree, timer=False)["title"] is None
 
 
+def test_alt_f5_paints_the_user_screen_over_every_row(tree, quiet_console):
+    # DN's ``ShowUserScreen``: a ``TBackground`` the size of the application,
+    # over the menu bar and status line too.
+    app = navigator(tree)
+    seen = {}
+
+    def output(a):
+        a.shell.console._on_output(b"".join(b"line%d\r\n" % n for n in range(60)) + b"last")
+
+    def look(a):
+        buffer = desktop(a)
+        rows = ["".join(buffer.get(x, y)[0] or " " for x in range(80)).rstrip() for y in range(24)]
+        seen.update(first=rows[0], last=rows[-1], peek=type(a.modal).__name__)
+
+    run_app(app, [output, KeyEvent("f5", alt=True), lambda a: None, look, KeyEvent("a", "a"), lambda a: None,
+                  lambda a: seen.update(after=a.modal, visible=a.shell.console_visible)])
+    assert seen["peek"] == "UserScreenPeek"
+    assert seen["first"].startswith("line") and seen["last"] == "last"
+    assert seen["after"] is None and seen["visible"] is False
+
+
 def test_the_console_runs_a_real_child(tree, monkeypatch):
     """End to end: a command line's output really does end up behind the panels.
 

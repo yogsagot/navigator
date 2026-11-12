@@ -281,6 +281,16 @@ def test_the_alternate_screen_is_never_scrolled():
     assert console.scrolled_back  # the main screen's history scrolls as before
 
 
+def test_history_rows_are_the_rows_above_the_live_screen():
+    console = ConsoleScreen(20, 5, history=50)
+    console.feed(b"\r\n".join(b"line%d" % n for n in range(30)))
+    rows = ["".join(char for char, _ in row).rstrip() for row in console.history_rows(3)]
+    assert rows == ["line22", "line23", "line24"]  # line25..29 are the live screen
+    assert len(console.history_rows(500)) == 25
+    console.feed(b"\x1b[?1049h")
+    assert console.history_rows(3) == []  # the alternate screen keeps none
+
+
 def test_a_query_is_answered_down_the_pty():
     console = feed(b"abc")
     answers = []

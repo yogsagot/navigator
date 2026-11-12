@@ -620,7 +620,6 @@ class ConsoleScreen:
         if not dirty:
             return False
         mirror, laid, columns = self._mirror, self._laid, self.screen.columns
-        implicit = self.screen.implicit_bidi
         for y in sorted(dirty):
             if not 0 <= y < mirror.height:
                 continue
@@ -630,17 +629,43 @@ class ConsoleScreen:
                 # A cell holding "" is the trailing half of a wide character,
                 # and set_cell wrote it when it wrote the character itself.
                 mirror.set_cell(x, y, data, style)
-            order = order_cells([data for data, _ in cells], detect=False) if implicit else None
+            order, shown = self._lay_row(cells)
             self._orders[y] = order
             if order is None:
                 laid.blit(mirror, 0, y, src_x=0, src_y=y, width=columns, height=1)
                 continue
-            for x, (column, shown) in enumerate(order):
-                laid.set_cell(x, y, shown, cells[column][1])
-            for x in range(len(order), columns):  # what a lam-alef saved
-                laid.set_cell(x, y, " ", cells[-1][1])
+            for x, (data, style) in enumerate(shown):
+                laid.set_cell(x, y, data, style)
         dirty.clear()
         return True
+
+    def _lay_row(self, cells: list[tuple[str, Style]]) -> tuple[Any, list[tuple[str, Style]]]:
+        """One row's written *cells* as painted: the bidi order (None when the
+        row reads left to right) and the cells in it -- a row of history
+        laid out exactly as a live one."""
+        if not self.screen.implicit_bidi:
+            return None, cells
+        order = order_cells([data for data, _ in cells], detect=False)
+        if order is None:
+            return None, cells
+        shown = [(char, cells[column][1]) for column, char in order]
+        shown += [(" ", cells[-1][1])] * (len(cells) - len(order))  # what a lam-alef saved
+        return order, shown
+
+    def history_rows(self, count: int) -> list[list[tuple[str, Style]]]:
+        """The last *count* rows of history above the live screen, oldest
+        first, each laid out as a live row -- fewer when there are fewer, and
+        none on the alternate screen, which keeps no history.  What a peek
+        over the whole screen shows above the console's own rows."""
+        if count <= 0 or self.alternate:
+            return []
+        columns = self.screen.columns
+        top = list(self.screen.history.top)[-count:]
+        rows = []
+        for line in top:
+            cells = [(line[x].data, style_of(line[x])) for x in range(columns)]
+            rows.append(self._lay_row(cells)[1])
+        return rows
 
     @property
     def surface(self) -> Surface:

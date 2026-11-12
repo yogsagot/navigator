@@ -520,7 +520,9 @@ class Shell(DockLayout):
         self.spawn(self._peek(app))
 
     async def _peek(self, app: Any) -> None:
-        await UserScreenPeek().execute(app)
+        # The user screen, not a page of history the view was scrolled back to.
+        self.console.screen.scroll_to_bottom()
+        await UserScreenPeek(console=self.console).execute(app)
         if self.console_visible:
             self.toggle_console()
 
@@ -3614,12 +3616,16 @@ def _escape(text: str) -> str:
 
 
 class UserScreenPeek(Widget):
-    """A layer over the whole screen that paints nothing and takes the next
-    key or click: what DN's ``ShowUserScreen`` waited for.  Modal, so the
-    console under it is shown and not typed into."""
+    """The user screen over the whole screen until the next key or click: DN's
+    ``ShowUserScreen``, a ``TBackground`` the size of the application
+    (``DNAPP.PAS:1027-1046``), the menu bar and status line covered too.
+    Modal, so the console is shown and not typed into.  The live console's
+    rows are at the bottom, its history filling the rows above, as a
+    terminal's last screenful reads."""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(self, console: Any = None, **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        self._console = console
         self.modal = True
         self.can_focus = True
         self.dims_behind = False
@@ -3652,4 +3658,18 @@ class UserScreenPeek(Widget):
         return True
 
     def render(self, surface: Surface) -> None:
-        """Nothing: the console under it is the point."""
+        """The console's last screenful over every row: its live rows at the
+        bottom, history above them, blanks where there is none."""
+        console = self._console
+        if console is None:
+            return
+        screen = console.screen
+        surface.fill(0, 0, self.width, self.height, " ", console.style)
+        top = max(0, self.height - screen.lines)
+        rows = screen.history_rows(top)
+        for offset, row in enumerate(rows):
+            y = top - len(rows) + offset
+            for x, (char, style) in enumerate(row[: self.width]):
+                if char:
+                    surface.set_cell(x, y, char, style)
+        screen.blit_into(surface, 0, top)
