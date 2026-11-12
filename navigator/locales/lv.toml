@@ -6839,6 +6839,12 @@ flag = "LV"
 "Write the directory only where it is not the list's own" = "Rakstīt direktoriju tikai tad, ja tā nav saraksta direktorija"
 # navigator/settings.py
 "Esc on an empty command line shows the user screen until a key, as Alt+F5" = "Esc tukšā komandrindā rāda lietotāja ekrānu līdz taustiņam, kā Alt+F5"
+# navigator/commands.py
+"Timer line" = "Rinda ar taimeri"
+# navigator/widgets/shell/shell/shell.py
+"Elapsed time: {time}" = "Pagājušais laiks: {time}"
+# navigator/__main__.py
+"The command line is hidden" = "Komandrinda ir paslēpta"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

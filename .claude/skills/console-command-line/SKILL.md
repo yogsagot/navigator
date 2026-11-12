@@ -140,7 +140,14 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   caret, a drag a selection, a double click a word, a right click Cut/Copy/Paste) -- a departure: DN's double click
   opened Commands history, its right click stepped the caret by the half clicked, and its prompt ignored clicks. The
   text has every column after the prompt, the last included, as DN's (`CommandLine.room`); there's no length limit --
-  a departure: DN's held 127 characters (`String[127]`). The walk keeps what was being typed aside (`_draft`) and gives it back past the newest; an edit
+  a departure: DN's held 127 characters (`String[127]`).
+- **The Timer line, Alt+/** (`ToggleTimerLine`, DN's `kbAltSlash`/`ltTimer`, `CMDLINE.PAS:155-166, 322-342`):
+  `CommandLine.timer`, off at the start and kept for the session, wraps the prompt in `{ }` (`shown_prompt` /
+  `shown_cells`, cut first so the braces show), and `run_command` stamps each command it hands the console; at
+  `command_finished` an *Information* box says *Elapsed time: hh:mm:ss.cc* (`elapsed_text`, DN's `ShowTimeInfo`).
+  In the application's key table, so refused while an editor has the keys (its Alt+/ is *CapWord*) or the line is
+  hidden. DN's two OS/2 types are dropped, so cycling is a toggle; a command run in a window isn't timed; under
+  *Auto-hide* an empty line stays hidden (DN's put a blank in to show it). The walk keeps what was being typed aside (`_draft`) and gives it back past the newest; an edit
   since the last step (DN's `StrModified`: the text no longer what the walk put there) makes the line the draft and
   starts again from the newest, a caret move does not. A departure: DN's `AddCommand` put that line into the history;
   here a line never run never enters it. **Ins with text on the line toggles overwrite** (`CommandLine.overwrite`, DN's `Overwrite`/`kbIns`,

@@ -73,6 +73,9 @@ class CommandLine(InputLine):
     #: character at the caret.  Ins toggles it while the line holds text (an
     #: empty line's Ins is the panel's, tagging); the session keeps it.
     overwrite: bool = reactive(False)
+    #: DN's ``ltTimer`` (Alt+/): the prompt shown in ``{ }``, and how long each
+    #: command took said once it is done (``Shell.command_finished``).
+    timer: bool = reactive(False)
 
     #: The shell's prompt as cells, each in the style the shell asked for.
     #: Painted instead of ``prompt`` whenever it holds any.  Bound by ``Shell``.
@@ -101,21 +104,33 @@ class CommandLine(InputLine):
 
     @property
     def shown_prompt(self) -> str:
-        """The prompt, cut from the left so a third of the row stays for text."""
-        prompt, keep = self.prompt, self._keep
+        """The prompt, cut from the left so a third of the row stays for text --
+        in ``{ }`` for the Timer type (DN's ``SetDirShape``), cut first so the
+        braces always show."""
+        prompt, keep = self.prompt, self._keep - (2 if self.timer else 0)
         if len(prompt) > keep:
-            prompt = prompt[len(prompt) - keep :]
+            prompt = prompt[len(prompt) - max(0, keep) :]
+        if self.timer:
+            inner = prompt.rstrip()
+            prompt = "{" + inner + "}" + prompt[len(inner):]
         return prompt
 
     @property
     def shown_cells(self) -> tuple[Cell, ...]:
-        """The shell's prompt, cut from the left the same way."""
-        cells, keep = self.prompt_cells, self._keep
+        """The shell's prompt, cut from the left the same way, and in ``{ }``
+        for the Timer type, the braces in the prompt's first colour."""
+        cells, keep = self.prompt_cells, self._keep - (2 if self.timer else 0)
         if len(cells) > keep:
-            cells = cells[len(cells) - keep :]
+            cells = cells[len(cells) - max(0, keep) :]
             if cells and cells[0][0] == "":
                 # The cut took the left half of a wide character.
                 cells = ((" ", cells[0][1]),) + cells[1:]
+        if self.timer and cells:
+            end = len(cells)
+            while end and cells[end - 1][0] == " ":
+                end -= 1
+            brace = cells[0][1]
+            cells = (("{", brace),) + cells[:end] + (("}", brace),) + cells[end:]
         return cells
 
     def tooltip_at(self, x: int, y: int) -> str:

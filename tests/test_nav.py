@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import re
 import pathlib
 import subprocess
 import sys
@@ -2025,6 +2026,27 @@ def test_a_typed_line_goes_to_the_shell_as_typed(tree, quiet_console):
     assert ran == ["echo %1 %% || true"]
 
 
+def _timed_run(app, tree, *, timer):
+    seen = {}
+    app.shell.console.run = lambda command, cwd: None
+    keys = [KeyEvent("/", "/", alt=True)] if timer else []
+    run_app(app, [*keys, *[KeyEvent(c, c) for c in "make"], KeyEvent("enter"),
+                  lambda a: a.shell.command_finished(0, tree), lambda a: None,
+                  lambda a: seen.update(title=getattr(a.modal, "title", None), prompt=getattr(a.modal, "prompt", ""))])
+    return seen
+
+
+def test_the_timer_line_says_how_long_a_command_took(tree, quiet_console):
+    # DN's ``ShowTimeInfo``: an information box, *Elapsed time: hh:mm:ss.cc*.
+    seen = _timed_run(navigator(tree), tree, timer=True)
+    assert seen["title"] == "Information"
+    assert re.fullmatch(r"Elapsed time: \d\d:\d\d:\d\d\.\d\d", seen["prompt"])
+
+
+def test_without_the_timer_no_box(tree, quiet_console):
+    assert _timed_run(navigator(tree), tree, timer=False)["title"] is None
+
+
 def test_the_console_runs_a_real_child(tree, monkeypatch):
     """End to end: a command line's output really does end up behind the panels.
 
@@ -3085,6 +3107,8 @@ def test_the_application_keeps_only_what_is_global():
         "alt+f5", "alt+shift+insert",
         # Utilities > Commands History, the command line's; and fzf's search of it.
         "alt+f8", "alt+shift+f8",
+        # The command line's Timer type (DN's Alt+/), refused while an editor has the keys.
+        "alt+/",
         # ≡ > Command palette: every command, found by name, from anywhere.
         "alt+shift+p",
         # The command line's, while it has text; the panel's otherwise.

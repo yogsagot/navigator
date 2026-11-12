@@ -6839,6 +6839,12 @@ flag = "RU"
 "Write the directory only where it is not the list's own" = "Записывать каталог, только если он не каталог списка"
 # navigator/settings.py
 "Esc on an empty command line shows the user screen until a key, as Alt+F5" = "Esc на пустой командной строке показывает экран пользователя до нажатия клавиши, как Alt+F5"
+# navigator/commands.py
+"Timer line" = "Строка с таймером"
+# navigator/widgets/shell/shell/shell.py
+"Elapsed time: {time}" = "Прошло времени: {time}"
+# navigator/__main__.py
+"The command line is hidden" = "Командная строка скрыта"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

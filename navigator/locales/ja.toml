@@ -6839,6 +6839,12 @@ flag = "JP"
 "Write the directory only where it is not the list's own" = "リストのディレクトリと異なる場合のみディレクトリを書く"
 # navigator/settings.py
 "Esc on an empty command line shows the user screen until a key, as Alt+F5" = "空のコマンドラインで Esc を押すと、キーを押すまでユーザー画面を表示します (Alt+F5 と同じ)"
+# navigator/commands.py
+"Timer line" = "タイマー付きコマンドライン"
+# navigator/widgets/shell/shell/shell.py
+"Elapsed time: {time}" = "経過時間: {time}"
+# navigator/__main__.py
+"The command line is hidden" = "コマンドラインは非表示です"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

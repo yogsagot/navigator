@@ -260,3 +260,34 @@ def test_the_caret_at_the_end_of_a_long_line_is_in_the_last_column(app):
     run_app(app, [fill, lambda a: None,
                   lambda a: seen.update(column=a.shell.command_line.caret_column(), width=a.shell.command_line.width)])
     assert seen["column"] == seen["width"] - 1
+
+
+@pytest.mark.parametrize("seconds, text", [(0.0, "00:00:00.00"), (83.456, "00:01:23.45"), (3725.5, "01:02:05.50"),
+                                           (360000.0, "100:00:00.00")])
+def test_elapsed_time_is_dn_s_hh_mm_ss_cc(seconds, text):
+    from navigator.widgets.shell.shell.shell import elapsed_text
+
+    assert elapsed_text(seconds) == text
+
+
+def test_alt_slash_wraps_the_prompt_in_braces_and_back(app):
+    # DN's ``SetDirShape``: ``{Dir}`` for ``ltTimer``.
+    seen = []
+
+    def look(a):
+        seen.append((a.shell.command_line.timer, a.shell.command_line.shown_prompt))
+
+    run_app(app, [look, KeyEvent("/", "/", alt=True), look, KeyEvent("/", "/", alt=True), look])
+    (off, plain), (on, braced), (back, again) = seen
+    assert (off, on, back) == (False, True, False) and plain == again
+    # Cut first so the braces always show: the inner text is the prompt's tail.
+    inner = braced.rstrip()
+    assert inner[0] == "{" and inner[-1] == "}" and plain.rstrip().endswith(inner[1:-1])
+    assert len(braced) == len(plain) or len(braced) == len(plain) + 2
+
+
+def test_a_hidden_line_keeps_its_type(app):
+    SETTINGS.interface.hide_command_line = True
+    seen = {}
+    run_app(app, [KeyEvent("/", "/", alt=True), lambda a: seen.update(timer=a.shell.command_line.timer)])
+    assert seen["timer"] is False

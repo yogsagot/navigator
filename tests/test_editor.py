@@ -304,6 +304,14 @@ def test_f4_opens_the_file_under_the_cursor_zoomed(files):
     assert "═══1:1 [102]" in row_of(buffer, 21) or "===1:1 [102]" in row_of(buffer, 21)
 
 
+def test_alt_slash_is_the_editor_s_not_the_command_line_s(files):
+    # The editor's Alt+/ (*CapWord*) is nearer the focus than the global Timer line.
+    app, window, _ = edit_named(files, "text.txt", KeyEvent("/", "/", alt=True), lambda a: None)
+    assert window is not None
+    assert app.shell.command_line.timer is False
+    assert window.editor.document.lines[0].startswith("First")  # CapWord ran
+
+
 def test_f4_on_a_directory_opens_its_attributes_alone(files):
     """``isSelDir``: ``cmEditFile`` is ``CM_SetAttributes(..., Single = On, ...)``."""
     from navigator.widgets.file_ops.attr_dialog import AttrDialog

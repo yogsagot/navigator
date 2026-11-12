@@ -6840,6 +6840,12 @@ direction = "rtl"
 "Write the directory only where it is not the list's own" = "كتابة المجلد فقط حين لا يكون مجلد القائمة"
 # navigator/settings.py
 "Esc on an empty command line shows the user screen until a key, as Alt+F5" = "يعرض Esc في سطر أوامر فارغ شاشة المستخدم حتى ضغط مفتاح، مثل Alt+F5"
+# navigator/commands.py
+"Timer line" = "سطر الأوامر بمؤقت"
+# navigator/widgets/shell/shell/shell.py
+"Elapsed time: {time}" = "الوقت المنقضي: {time}"
+# navigator/__main__.py
+"The command line is hidden" = "سطر الأوامر مخفي"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]

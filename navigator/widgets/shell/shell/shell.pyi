@@ -24,6 +24,7 @@ from navml.widgets.window_strip import WindowStrip
 import asyncio
 import os
 import random
+from time import monotonic
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Callable
 from navkit.commands import Command

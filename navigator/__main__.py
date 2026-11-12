@@ -45,7 +45,7 @@ from navigator.lib.config import keybindings, language
 from navigator.lib.config.associations import seed_all as seed_associations
 from navigator.lib.config.bookmarks import seed_bookmarks
 from navigator.commands import AsciiTable, Help, OpenSmartpad, PlayMacro, Quit, RecordMacro, Refresh, ScreenGrab
-from navigator.commands import ShowUserScreen, ToggleConsole
+from navigator.commands import ShowUserScreen, ToggleConsole, ToggleTimerLine
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
 from navml.widgets.menu.commands import OpenMenu, ShowContextMenu
@@ -467,6 +467,9 @@ class Navigator(Application):
     #: Shift+F11's ``ShowTooltip``, which navkit looks up there itself.
     keys = {
         "ctrl+o": ToggleConsole,
+        #: DN's ``kbAltSlash``; refused while an editor has the keys, so its
+        #: own Alt+/ (*CapWord*) gets them.
+        "alt+/": ToggleTimerLine,
         "alt+f5": ShowUserScreen,
         "alt+shift+insert": ScreenGrab,
         "alt+f8": HistoryList,
@@ -529,6 +532,12 @@ class Navigator(Application):
             return tr("A program in the console has the keys")
         if isinstance(command, Quit) and command.desktop and self._console_over_windows():
             return tr("The console is over the windows: Alt-X is the program's")
+        if isinstance(command, ToggleTimerLine):
+            if SETTINGS.interface.hide_command_line:
+                return tr("The command line is hidden")
+            if self.shell._editor_has_keys():
+                # Refused, so the key goes on to the editor's Alt+/ (*CapWord*).
+                return tr("The editor has the keys")
         return ""
 
     # -- key macros --------------------------------------------------------------
@@ -572,6 +581,12 @@ class Navigator(Application):
 
     async def on_toggle_console(self, event: ToggleConsole) -> bool:
         self.shell.toggle_console()
+        return True
+
+    async def on_toggle_timer_line(self, event: ToggleTimerLine) -> bool:
+        """Alt+/: the command line's Timer type on or off (DN's ``LineType``)."""
+        line = self.shell.command_line
+        line.timer = not line.timer
         return True
 
     async def on_refresh(self, event: Refresh) -> bool:

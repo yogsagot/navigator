@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import os
 import random
+from time import monotonic
 from pathlib import Path, PurePosixPath
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -214,6 +215,8 @@ class Shell(DockLayout):
         #: Whether the real terminal was handed to the shell for a command
         #: rather than by Ctrl+O, and so is to be taken back when it is done.
         self._relayed_for_command = False
+        #: When a command run on the Timer line started (``monotonic``), or None.
+        self._timer_started: float | None = None
         #: Files fetched from another drive for the command running
         #: (``UseFile``), offered back once it is done; and the shell's
         #: directory when it started, which tells a ``cd`` in it.
@@ -2426,6 +2429,8 @@ class Shell(DockLayout):
             cwd = self._command_directory()
         self._command_uses = [*self._command_uses, *uses]
         self._command_started_in = self.console.subshell.cwd
+        # DN's ``TimerMark``: ``ExecString`` stamped whatever it ran.
+        self._timer_started = monotonic() if self.command_line.timer else None
         if not self.console_visible and not SETTINGS.system.internal_terminal:
             # mc's way: the command runs on the real terminal, and Navigator
             # comes back when it is done.
@@ -2526,6 +2531,12 @@ class Shell(DockLayout):
         if self._command_uses:
             uses, self._command_uses = self._command_uses, []
             self.spawn(self._put_back(uses))
+        started, self._timer_started = self._timer_started, None
+        if started is not None and self.application is not None:
+            # DN's ``ShowTimeInfo``, the Timer line's: how long it took.
+            box = Dialog(title=tr("Information"), buttons="ok",
+                         prompt=tr("Elapsed time: {time}").format(time=elapsed_text(monotonic() - started)))
+            self.spawn(box.execute(self.application))
 
     async def _put_back(self, uses: list[Any]) -> None:
         """What a command changed of the files fetched for it, offered back to
@@ -3850,6 +3861,16 @@ class Shell(DockLayout):
 
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)
+
+
+def elapsed_text(seconds: float) -> str:
+    """``hh:mm:ss.cc``, DN's ``ShowTimeInfo``: hours as many as there are,
+    then minutes, seconds and hundredths, each truncated as DN's ``div``."""
+    hundredths = int(seconds * 100)
+    hours, hundredths = divmod(hundredths, 360000)
+    minutes, hundredths = divmod(hundredths, 6000)
+    whole, hundredths = divmod(hundredths, 100)
+    return f"{hours:02d}:{minutes:02d}:{whole:02d}.{hundredths:02d}"
 
 
 def _escape(text: str) -> str:

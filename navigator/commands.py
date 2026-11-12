@@ -118,6 +118,15 @@ class ToggleConsole(Command):
     """Ctrl+O: put the windows away to show the console, or bring them back."""
 
 
+class ToggleTimerLine(Command):
+    """Alt+/: DN's ``kbAltSlash``, the command line's ``LineType`` cycled --
+    with OS/2's two types dropped, Normal and Timer alternate.  Timer wraps
+    the prompt in ``{ }`` and says how long each command took
+    (``ShowTimeInfo``)."""
+
+    title = "Timer line"
+
+
 __all__ = [
     "AsciiTable",
     "Help",
@@ -131,4 +140,5 @@ __all__ = [
     "ScreenGrab",
     "ShowUserScreen",
     "ToggleConsole",
+    "ToggleTimerLine",
 ]

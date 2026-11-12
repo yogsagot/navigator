@@ -6839,6 +6839,12 @@ flag = "CN"
 "Write the directory only where it is not the list's own" = "仅当目录不是列表所在目录时才写入目录"
 # navigator/settings.py
 "Esc on an empty command line shows the user screen until a key, as Alt+F5" = "在空命令行上按 Esc 显示用户屏幕，直到按下任意键，与 Alt+F5 相同"
+# navigator/commands.py
+"Timer line" = "计时命令行"
+# navigator/widgets/shell/shell/shell.py
+"Elapsed time: {time}" = "用时：{time}"
+# navigator/__main__.py
+"The command line is hidden" = "命令行已隐藏"
 
 # No longer shown anywhere; kept so nothing written is lost.
 [unused]
