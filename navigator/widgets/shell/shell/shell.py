@@ -2430,7 +2430,11 @@ class Shell(DockLayout):
 
         Not with Startup's *Preserve directory*: DN stored the active panel's
         drive across a command only then (``TFilePanelRoot.Store``), and
-        otherwise let it take the directory DOS came back with.
+        otherwise let it take the directory DOS came back with.  A *Find:*
+        listing keeps its place, as DN's find drive did (``Store`` kept every
+        non-disk drive).  A remote panel goes back to the disk when the
+        command ``cd``'d -- a departure: DN's non-disk drives always stayed;
+        a ``cd`` typed on a server's panel here means the disk is wanted.
         """
         manager = self.active_manager
         if manager is None:
@@ -2443,8 +2447,8 @@ class Shell(DockLayout):
             moved = cwd is not None and started is not None and cwd != started
             if moved and not SETTINGS.startup.preserve_directory and not self._is_use_directory(cwd):
                 self._panel_to_shell(panel, cwd)
-        elif (cwd is not None and cwd != panel.path and not SETTINGS.startup.preserve_directory
-                and not self._is_use_directory(cwd)):
+        elif (cwd is not None and cwd != panel.path and panel.found is None
+              and not SETTINGS.startup.preserve_directory and not self._is_use_directory(cwd)):
             self._panel_to_shell(panel, cwd)
         for each in manager.all_panels:
             each.reload()

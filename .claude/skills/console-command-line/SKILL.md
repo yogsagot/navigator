@@ -99,7 +99,9 @@ choice), `O` (reveal output).
   prefix (dash and busybox ash expand command substitution in PS1).
 - The panel's directory reaches the shell by a **silent `cd`** (leading space, output swallowed) only when they differ;
   `Subshell.sync` sends it whenever the active panel moves while idle. A `cd` typed on the line moves the active panel
-  when the command finishes (`CommandFinished`, posted from the pty reader to `Navigator.on_command_finished`).
+  when the command finishes (`CommandFinished`, posted from the pty reader to `Navigator.on_command_finished`) --
+  not a *Find:* listing, which keeps its place as DN's find drive did, and a remote panel only when the command
+  `cd`'d (`Shell._follow_shell`; `navigator-drives`).
 - While a command runs the console is up and holds the keys; afterwards the windows return and both panels re-read --
   unless Ctrl+O had put the console up.
 - `Navigator.on_start` starts the shell at once on a real tty (headless, the first command does).

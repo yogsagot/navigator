@@ -4105,6 +4105,45 @@ def test_a_cd_in_the_shell_moves_the_active_panel(tree, quiet_console):
     assert app.manager.left.path == tree / "alpha"
 
 
+def test_a_find_listing_keeps_its_place_after_a_cd(tree, quiet_console):
+    # DN's ``TFilePanelRoot.Store`` kept a non-disk drive (``dtFind``) across a command.
+    from navigator.lib.drives.listing import DirEntry
+    from navigator.lib.file_ops.filefind import FindListing
+
+    app = navigator(tree)
+    app.shell.console.run = lambda command, cwd: None
+    found = FindListing(title="*.txt", origin=tree, entries=[DirEntry("nested.txt", False, 1, directory=tree / "alpha")])
+    seen = {}
+    run_app(app, [lambda a: a.manager.left.show_found(found), LISTED, *typed("cd alpha"), KeyEvent("enter"),
+                  lambda a: a.shell.command_finished(0, tree / "alpha"), LISTED,
+                  lambda a: seen.update(found=a.manager.left.found, path=a.manager.left.path)])
+    assert seen == {"found": found, "path": tree}
+
+
+def test_a_remote_panel_goes_back_to_the_disk_when_the_command_cd_d(tree, quiet_console):
+    # A departure: DN's non-disk drives always kept their place.
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+
+    drive = mount(MemoryDrive("away"))
+    try:
+        drive.make("/in/x", "")
+        app = navigator(tree)
+        app.shell.console.run = lambda command, cwd: None
+        seen = {}
+
+        def finish(a):
+            a.shell._command_started_in = tree
+            a.shell.command_finished(0, tree / "alpha")
+
+        run_app(app, [lambda a: setattr(a.manager.left, "location", drive.location("/in")), LISTED,
+                      *typed("cd alpha"), KeyEvent("enter"), finish, LISTED,
+                      lambda a: seen.update(where=a.manager.left.location)])
+        assert seen["where"].is_local and seen["where"].local == tree / "alpha"
+    finally:
+        unmount(drive.site)
+
+
 def test_a_command_run_from_ctrl_o_leaves_the_console_up(tree, quiet_console):
     app = navigator(tree)
     app.shell.console.run = lambda command, cwd: None

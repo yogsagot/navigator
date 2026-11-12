@@ -96,7 +96,8 @@ ever a kernel mount, which Disk > Volumes already lists. `reference/design.md` h
 - **The shell never follows a panel off the disk.** `_front_directory()` is None for a remote panel, so the subshell
   stays in its last local directory; the prompt stand-in names the panel's place (`drive.get_dir`, `SFTP:host:/path$`) and
   the shell's own prompt is hidden. `_follow_shell` moves a remote panel back to the disk only when the command
-  `cd`'d (the shell's cwd changed during it) -- and never into a `UseFile` directory.
+  `cd`'d (the shell's cwd changed during it) -- and never into a `UseFile` directory. A departure: DN's non-disk
+  drives always kept their place across a command (`TFilePanelRoot.Store`).
 - **No secrets on disk from Navigator.** A typed password lives in the connection (`Answers`) until it closes. *Save
   in keyring* is offered only when `credentials.keyring_available()` (the `keyring` package with a real backend), and
   every keyring call is on a thread. `save_password` answers None or why not; each drive's `connect` puts that on

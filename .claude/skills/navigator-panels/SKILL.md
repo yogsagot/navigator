@@ -558,7 +558,7 @@ while searching, re-`stat`ed by `restat_found` on a re-read, gone ones dropped -
 (`leave_found`, cursor where it was); title `Find: mask`, the info line under *Current file* the entry's directory. Enter / Ctrl+PgUp on `..`
 leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Enter `ChangeInactive` sends the other
 panel there -- DN's `cmFindGotoFile`: its file mask back to all files (`FileMask := x_x`) so the file is listed, and
-the keyboard with it (`Owner^.Select; Select`), the listing kept in its own panel. A listing belongs to the path it was shown at: going elsewhere drops it. Nothing found: *No files found*,
+the keyboard with it (`Owner^.Select; Select`), the listing kept in its own panel. A listing belongs to the path it was shown at: going elsewhere drops it -- but a command's `cd` doesn't move it (`Shell._follow_shell`), as DN's find drive kept its place. Nothing found: *No files found*,
 the panel untouched. F7 and Compare are disabled in a listing.
 
 **Panel > Directory Branch** (`DirBranch`, `Manager.directory_branch`, DN's `CM_Branch`/`OpenDirectory`): every
