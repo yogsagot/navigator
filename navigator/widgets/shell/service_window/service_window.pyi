@@ -20,6 +20,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navkit.i18n import verbatim
 
 import asyncio
 import time

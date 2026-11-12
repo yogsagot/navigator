@@ -19,6 +19,7 @@ from navkit.reactive import reactive as _reactive
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog    # compare_progress.nml:1
 from navml.widgets.dialog.static_text import StaticText    # compare_progress.nml:2
+from navkit.i18n import tr, tr_n    # compare_progress.nml:3
 
 __navml_component__ = "CompareProgress"
 
@@ -36,39 +37,41 @@ class CompareProgress(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "compare_progress.nml"
 
-    directory: str = _reactive('')    # compare_progress.nml:15
-    count: int = _reactive(0)    # compare_progress.nml:16
+    directory: str = _reactive('')    # compare_progress.nml:16
+    count: int = _reactive(0)    # compare_progress.nml:17
 
     #: Ids, annotated so the hand-written half completes them.
-    directory_row: StaticText    # compare_progress.nml:19
-    count_row: StaticText    # compare_progress.nml:28
+    directory_row: StaticText    # compare_progress.nml:20
+    count_row: StaticText    # compare_progress.nml:29
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.directory_row = StaticText(parent=self)    # compare_progress.nml:18
-        self.count_row = StaticText(parent=self)    # compare_progress.nml:27
+        self.directory_row = StaticText(parent=self)    # compare_progress.nml:19
+        self.count_row = StaticText(parent=self)    # compare_progress.nml:28
 
-        self.modal_width = 56    # compare_progress.nml:9
-        self.modal_height = 8    # compare_progress.nml:10
-        self.title = _bind(    # compare_progress.nml:11
+        self.modal_width = 56    # compare_progress.nml:10
+        self.modal_height = 8    # compare_progress.nml:11
+        self.title = _bind(    # compare_progress.nml:12
             lambda _o: _tr('Compare directories'),
             yielding=True,
         )
-        self.buttons = 'ok'    # compare_progress.nml:12
-        self.closable = False    # compare_progress.nml:13
+        self.buttons = 'ok'    # compare_progress.nml:13
+        self.closable = False    # compare_progress.nml:14
 
-        self.directory_row.y = 1    # compare_progress.nml:20
-        self.directory_row.align = 'center'    # compare_progress.nml:24
-        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # compare_progress.nml:25
-        self.directory_row.x = 2    # compare_progress.nml:22
-        self.directory_row.width = _bind(    # compare_progress.nml:23
+        self.directory_row.y = 1    # compare_progress.nml:21
+        self.directory_row.align = 'center'    # compare_progress.nml:25
+        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # compare_progress.nml:26
+        self.directory_row.x = 2    # compare_progress.nml:23
+        self.directory_row.width = _bind(    # compare_progress.nml:24
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.count_row.y = 2    # compare_progress.nml:29
-        self.count_row.align = 'center'    # compare_progress.nml:33
-        self.count_row.text = _bind(lambda _o: self.count_text(self.count))    # compare_progress.nml:34
-        self.count_row.x = 2    # compare_progress.nml:31
-        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # compare_progress.nml:32
+        self.count_row.y = 2    # compare_progress.nml:30
+        self.count_row.align = 'center'    # compare_progress.nml:34
+        self.count_row.text = _bind(    # compare_progress.nml:35
+            lambda _o: tr_n('{n} difference found', '{n} differences found', self.count) if self.count else tr('No differences found')
+        )
+        self.count_row.x = 2    # compare_progress.nml:32
+        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # compare_progress.nml:33
 
         self._navml_built(__class__)

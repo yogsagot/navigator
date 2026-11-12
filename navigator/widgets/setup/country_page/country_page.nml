@@ -4,6 +4,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.setup.settings_page import SettingsPage
+from navkit.i18n import tr
 
 #: Options > Configuration > Country support: DOS Navigator's
 #: ``dlgCountrySetup``, *Country information* (``[country]``, ``CountryData``).
@@ -123,4 +124,4 @@ CountryPage(SettingsPage):
         anchors:
             left: 3
             right: 3
-        text: root.example_text()
+        text: tr("Example: {stamp}").format(stamp=root.sample())

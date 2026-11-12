@@ -54,10 +54,6 @@ class CountryPage(SettingsPage):
         """Now, as a panel's *Date* column would show it with these choices."""
         return country.stamp_in(time.time(), self.chosen_format(), HOURS[self.time_format.value] == "12h")
 
-    def example_text(self) -> str:
-        """The line under the choices: :meth:`sample`, said as an example."""
-        return tr("Example: {stamp}").format(stamp=self.sample())
-
     def accept(self) -> dict[str, Any]:
         return {
             **super().accept(),

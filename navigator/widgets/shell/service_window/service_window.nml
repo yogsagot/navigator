@@ -12,6 +12,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navkit.i18n import verbatim
 
 #: Utilities > Services: the system's services -- systemd's units, OpenRC's,
 #: runit's or SysVinit's services: name, whether it runs, how it starts, what it is -- a row each,
@@ -97,6 +98,8 @@ ServiceWindow(Window):
     #: Empties the filter.
     Button:
         id: clear_filter
+        #: A symbol, not a word: shown as written in every language.
+        text: verbatim("X")
         flat: True
         y: 1
         width: 3

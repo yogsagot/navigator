@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import glyphs
-from navkit.i18n import tr, tr_n
+from navkit.i18n import tr
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -25,7 +25,3 @@ class CompareProgress(Dialog):
         marker = glyphs.ellipsis(self.glyphs)
         return marker + path[-(room - len(marker)):]
 
-    def count_text(self, count: int) -> str:
-        if not count:
-            return tr("No differences found")
-        return tr_n("{n} difference found", "{n} differences found", count)

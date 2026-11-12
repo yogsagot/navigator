@@ -7,6 +7,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.shell.unicode_grid import UnicodeGrid
+from navkit.i18n import verbatim
 
 #: Utilities > *Character table* (Ctrl+B) and the editor's Ctrl+P on a
 #: Unicode terminal: every character, found by name or by group.  Not DOS
@@ -80,6 +81,8 @@ UnicodeChart(Dialog):
     #: Empties the filter.
     Button:
         id: clear_filter
+        #: A symbol, not a word: shown as written in every language.
+        text: verbatim("X")
         flat: True
         x: 23
         y: filter.y

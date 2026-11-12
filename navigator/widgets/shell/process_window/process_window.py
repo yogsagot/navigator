@@ -123,8 +123,6 @@ class ProcessWindow(Window):
         self.processes.uid = self.uid
         self.processes.filter_line = self.filter
         self.filter.rows = self.processes
-        # A symbol, not a word: set here because a markup literal is translated.
-        self.clear_filter.text = "X"
         effect(self, ProcessWindow._follow_view)
         # Not from ``__init__``: until the window is on the desktop it has no
         # application, and ``Background`` would read on the loop instead.

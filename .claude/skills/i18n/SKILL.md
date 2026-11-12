@@ -45,6 +45,13 @@ ordinary binding still refuses.
 
 An explicit `tr(...)` in a markup expression makes the line a binding too (it reads the language).
 
+- **Extraction:** `tr()`/`tr_n()`/`tr_plain()`/`tr_noop()` calls with a literal first argument in any markup line are
+  extracted like Python's. That covers property, set-once, `when`, declaration, handler and `commands:` lines.
+- **No helper method needed:** a caption with a placeholder no longer needs a method in the `.py` half just to be
+  seen (`compare_progress.nml`, `country_page.nml`).
+- **`verbatim("X")`** keeps a symbol that has a letter in it (`"X"`, `"Aa"`) out of both translation and the
+  catalogue.
+
 ## Rules for new text
 
 - **Wrap every user-visible literal** in Python: `tr("Error")`. The key must be a literal so `tools/i18n.py` sees it.

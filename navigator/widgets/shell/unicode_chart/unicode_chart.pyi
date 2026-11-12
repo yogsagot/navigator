@@ -15,6 +15,7 @@ from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.shell.unicode_grid import UnicodeGrid
+from navkit.i18n import verbatim
 
 from typing import Any
 from navkit.events import KeyEvent

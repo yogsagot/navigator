@@ -194,8 +194,6 @@ class ServiceWindow(Window):
         super().mounted()
         self.units.filter_line = self.filter
         self.filter.rows = self.units
-        # A symbol, not a word: set here because a markup literal is translated.
-        self.clear_filter.text = "X"
         backend = self.backend
         if backend is not None and backend.name != "systemd":
             self.title = tr("Services ({manager})").format(manager=backend.title)

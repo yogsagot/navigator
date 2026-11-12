@@ -300,6 +300,15 @@ def tr_plain(text: str) -> str:
     return plain.get(bare, bare)
 
 
+def verbatim(text: str) -> str:
+    """*text* unchanged, and never a key: a caption that is a symbol rather
+    than a word (``"X"``, ``"Aa"``).  Markup translates a caption literal of
+    ``text``/``title``/...; a call is not a literal, so
+    ``text: verbatim("X")`` is shown as written in every language.
+    """
+    return text
+
+
 def tr_noop(text: str) -> str:
     """*text* unchanged, marked for ``tools/i18n.py`` as a key.
 

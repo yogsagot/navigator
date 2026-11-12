@@ -10,10 +10,10 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.setup.settings_page import SettingsPage
+from navkit.i18n import tr
 
 import time
 from typing import Any
-from navkit.i18n import tr
 from navml.calendars import SYSTEMS, plain
 from navigator.lib.config import country
 from navigator.settings import CountryData
@@ -36,5 +36,4 @@ class CountryPage(SettingsPage, _Component):
     def __init__(self, **kwargs: Any) -> None: ...
     def chosen_format(self) -> str: ...
     def sample(self) -> str: ...
-    def example_text(self) -> str: ...
     def accept(self) -> dict[str, Any]: ...

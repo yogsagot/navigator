@@ -74,8 +74,13 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
   followed (`command: RestoreTrash`, `height: LIMIT` stay plain), nor is a root `property` declaration (still a
   factory) or a plain attribute that cannot follow a binding.
 - **Markup cannot import from its own hand-written half** (a circular import); give the `.py` a method the line calls
-  (`text: ... if root.trashing() else ...` in `delete_dialog.nml`). `tr()` in a markup line is not seen by
-  `tools/i18n.py extract`: put the call in a method too (`CountryPage.example_text`).
+  (`text: ... if root.trashing() else ...` in `delete_dialog.nml`).
+- **`tr()`/`tr_n()` may be called in any markup line**, and `tools/i18n.py extract` sees it
+  (`navml/translate.py`'s `_markup_calls`). The line is a binding, since it reads the language.
+  - Import them: `from navkit.i18n import tr`.
+  - Example: `text: tr("Example: {stamp}").format(stamp=root.sample())` in `country_page.nml`.
+- **`verbatim("X")`** (`navkit.i18n`) is a caption that is a symbol, not a word: never wrapped in `_tr`, never
+  extracted. A caption literal with a letter in it otherwise is both.
 - **A property a widget *navigates* cannot be bound.** A bound attribute is read-only until unbound, so
   `path: root.left_path` paints and then raises the first time `Panel.enter()` assigns `path`.
 - **`name = expression` sets a starting value once** (`Property.once`). It is evaluated as the widget is built and

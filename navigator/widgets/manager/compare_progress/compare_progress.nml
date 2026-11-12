@@ -1,5 +1,6 @@
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
+from navkit.i18n import tr, tr_n
 
 #: *Compare directories*' *Window, recursive* under way: the directory being
 #: compared, and how many differences so far.  Shaped as the search's box
@@ -31,4 +32,4 @@ CompareProgress(Dialog):
             left: 2
             right: 2
         align: "center"
-        text: root.count_text(root.count)
+        text: tr_n("{n} difference found", "{n} differences found", root.count) if root.count else tr("No differences found")

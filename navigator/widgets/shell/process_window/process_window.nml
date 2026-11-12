@@ -12,6 +12,7 @@ from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.dialog.scroll_bar import ScrollBar
 from navml.widgets.window import Window
+from navkit.i18n import verbatim
 
 #: Utilities > Process list: every running process -- its number, owner,
 #: state, CPU share, resident memory and command -- a row each, read again
@@ -105,6 +106,8 @@ ProcessWindow(Window):
     #: Empties the filter.
     Button:
         id: clear_filter
+        #: A symbol, not a word: shown as written in every language.
+        text: verbatim("X")
         flat: True
         y: 1
         width: 3

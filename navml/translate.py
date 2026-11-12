@@ -4,7 +4,10 @@
 
 - in markup, the caption literals of ``text``/``title``/``label_text``/
   ``items``/``prompt``/``tooltip``/``tooltips`` -- found by compiling each line exactly as
-  ``navml build`` does, so the two can never disagree;
+  ``navml build`` does, so the two can never disagree -- and, in any line at
+  all (a property, a set-once value, a declaration, a handler, a
+  ``commands:`` line), the literal first argument of a ``tr()`` call, as in
+  Python (``text: tr("Example: {stamp}").format(stamp=root.sample())``);
 - in Python, the literal first argument of ``tr()``, ``tr_n()`` (keyed by the
   singular), ``tr_plain()`` and ``tr_noop()`` (a table's entry, translated
   where it is shown);
@@ -93,9 +96,49 @@ def _captions(expression: str, line: int, filename: str) -> list[str]:
     ]
 
 
+def _calls(source: str, where: str, found: Found) -> None:
+    """The ``tr()`` family's literal keys in one markup line's Python."""
+    try:
+        tree = ast.parse(source, mode="exec")
+    except SyntaxError:
+        return
+    for node in ast.walk(tree):
+        if not (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)):
+            continue
+        if node.func.id not in FUNCTIONS or not node.args:
+            continue
+        first = node.args[0]
+        if isinstance(first, ast.Constant) and isinstance(first.value, str):
+            found.add(first.value, where)
+            if node.func.id == "tr_n":
+                found.plurals.add(first.value)
+
+
+def _markup_calls(document, where: str, found: Found) -> None:
+    """Every ``tr()`` a document's lines call, whatever the line."""
+    root = document.root
+    for declaration in root.declarations:
+        expression = getattr(declaration, "expression", None)
+        if isinstance(expression, str):
+            _calls(expression, f"{where}:{declaration.line}", found)
+    if root.commands is not None:
+        for handler in root.commands.handlers:
+            _calls(handler.body, f"{where}:{handler.line}", found)
+            for value, line in ((handler.enabled, handler.enabled_line),
+                                (handler.checked, handler.checked_line)):
+                if value is not None:
+                    _calls(value, f"{where}:{line}", found)
+    for block in root.walk():
+        for prop in block.properties:
+            _calls(prop.expression, f"{where}:{prop.line}", found)
+        for handler in block.handlers:
+            _calls(handler.body, f"{where}:{handler.line}", found)
+
+
 def _markup(path: Path, root: Path, found: Found) -> None:
     document = parse_file(path)
     where = str(path.relative_to(root))
+    _markup_calls(document, where, found)
 
     def visit(block: Block) -> list[str]:
         mine: list[str] = []
