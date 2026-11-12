@@ -12,7 +12,7 @@ from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
 from navigator.lib.file_ops.filefind import (
-    Advanced, FindJob, FindRequest, holds, mount_point, parse_size, parse_time, roots, search,
+    Advanced, FindJob, FindRequest, disk_mounts, holds, mount_point, searchable_mounts, parse_size, parse_time, roots, search,
     text_pattern,
 )
 from navigator.widgets.manager.panel.panel import make_entry
@@ -115,7 +115,44 @@ def test_the_parsers_and_the_scopes(tree):
     assert parse_size("12") == 12 and parse_size("") is None and parse_size("x") is None
     assert roots(tree, "directory") == [tree]
     assert roots(tree, "disk") == [mount_point(tree)]
-    assert roots(tree, "drives", [Path("/mnt/usb")]) == [Path("/"), Path("/mnt/usb")]
+    own = mount_point(tree)
+    expected = [own] + ([Path("/")] if own != Path("/") else []) + [Path("/mnt/usb")]
+    # DN's ``C = FN[1]``: the panel's own file system first, then ``/``, each once.
+    assert roots(tree, "drives", [Path("/mnt/usb"), Path("/")]) == expected
+
+
+MOUNTS = """\
+/dev/sda2 / ext4 rw,relatime 0 0
+proc /proc proc rw 0 0
+sysfs /sys sysfs rw 0 0
+tmpfs /run tmpfs rw 0 0
+/dev/sda3 /home ext4 rw 0 0
+/dev/sda1 /boot/efi vfat rw 0 0
+/dev/loop1 /snap/core/1 squashfs ro 0 0
+me@host:/ /mnt/net fuse.sshfs rw 0 0
+/dev/sdb1 /media/me/My\\040Disk exfat rw 0 0
+/dev/sda3 /home ext4 rw 0 0
+"""
+
+
+def test_all_drives_keeps_the_disk_file_systems_only():
+    assert disk_mounts(MOUNTS) == [Path("/"), Path("/home"), Path("/boot/efi"), Path("/media/me/My Disk")]
+
+
+def test_searchable_mounts_drops_what_cannot_be_entered_and_a_second_mount(tmp_path):
+    good, shut = tmp_path / "good", tmp_path / "shut"
+    good.mkdir(), shut.mkdir()
+    table = tmp_path / "mounts"
+    table.write_text(f"/dev/a {good} ext4 rw 0 0\n/dev/a {tmp_path} ext4 rw 0 0\n/dev/b {shut} xfs rw 0 0\n"
+                     f"/dev/c {tmp_path / 'gone'} ext4 rw 0 0\n")
+    shut.chmod(0)
+    try:
+        expected = [good] if os.geteuid() != 0 else [good, shut]
+        # *tmp_path* is *good*'s file system again: a bind mount, kept once.
+        assert searchable_mounts(table) == expected
+    finally:
+        shut.chmod(0o755)
+    assert searchable_mounts(tmp_path / "no-such") == []
 
 
 def test_a_stopped_search_ends(tree):

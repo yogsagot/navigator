@@ -1970,8 +1970,7 @@ class Manager(Window):
         given the start, the entry maker, whether hidden files count and the
         mounts -- the *answer* to its questions, and what *nothing* found
         says."""
-        from navigator.lib.config.bookmarks import mounted_places
-        from navigator.lib.file_ops.filefind import FindJob, FindListing, search
+        from navigator.lib.file_ops.filefind import FindJob, FindListing, search, searchable_mounts
         from navigator.widgets.manager.find_progress import FindProgress
         from navigator.widgets.manager.panel.panel import make_entry
 
@@ -1987,7 +1986,7 @@ class Manager(Window):
         walk = work
 
         def work() -> list[Any]:
-            mounts = mounted_places() if request.scope == "drives" and isinstance(start, Path) else ()
+            mounts = searchable_mounts() if request.scope == "drives" and isinstance(start, Path) else ()
             make = lambda directory, item, info: make_entry(item, directory)  # noqa: E731
             if walk is not None:
                 return walk(start, make, hidden, mounts)

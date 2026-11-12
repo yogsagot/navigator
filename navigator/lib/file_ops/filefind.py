@@ -20,9 +20,14 @@ when the scope is a disk.
 **The scope**, read for POSIX: *Current directory* is the active panel's;
 *Entire disk* is the file system it is on, from where that is mounted -- as
 DN's was the current drive's root -- not crossing into what is mounted
-inside it; *All drives* is every file system ``/`` and the drives under
-``/mnt``, ``/media`` and ``/run/media`` hold, each one alone, so ``/proc``
-and ``/sys`` are never walked.
+inside it; *All drives* is the panel's own file system, then ``/``, then
+every disk file system mounted (:func:`searchable_mounts`, by kind from
+``/proc/self/mounts``), each one alone.  Kernel and memory file systems,
+images (``squashfs``, CDs) and network mounts are left out unless the panel
+is on one: DN skipped its slow drives (floppies and CDs) but never the
+current one.  Leaving network mounts out is a departure -- DN searched a
+LAN's drives, where here a mount may be a server or a bucket across the
+internet, read whole by a text search.
 
 Departures: the dialog opens on *Recursive search* and *Current directory*,
 where DN's record started all zeros -- a one-level look at the root;
@@ -192,13 +197,67 @@ class FindListing:
     keep_order: bool = False
 
 
+#: The file systems *All drives* walks: those on a disk.  An unknown kind is
+#: left out rather than walked, so ``proc``, ``sysfs``, ``tmpfs``, ``overlay``
+#: and the like need no list; ``squashfs``, ``iso9660`` and ``udf`` are DN's
+#: ``SlowDrive`` CD, and network kinds the departure the docstring records.
+DISK_KINDS = frozenset({
+    "ext2", "ext3", "ext4", "xfs", "btrfs", "zfs", "f2fs", "jfs", "reiserfs", "bcachefs", "nilfs2",
+    "vfat", "exfat", "ntfs", "ntfs3", "fuseblk", "hfsplus", "apfs",
+})
+
+
+def disk_mounts(text: str) -> list[Path]:
+    """The mount points in ``/proc/self/mounts`` *text* that are on a disk
+    (:data:`DISK_KINDS`), in mounting order, each once."""
+    from navigator.lib.config.bookmarks import unescape_mount
+
+    found: list[Path] = []
+    for line in text.splitlines():
+        fields = line.split()
+        if len(fields) < 3 or fields[2] not in DISK_KINDS:
+            continue
+        point = Path(unescape_mount(fields[1]))
+        if point not in found:
+            found.append(point)
+    return found
+
+
+def searchable_mounts(table: Path = Path("/proc/self/mounts")) -> list[Path]:
+    """*All drives*' mounts now: :func:`disk_mounts` of *table*, less what
+    the user cannot enter and a second mount of one file system (a bind
+    mount).  Reads the disk, so it runs on the search's thread."""
+    try:
+        text = table.read_text(encoding="utf-8", errors="surrogateescape")
+    except OSError:
+        return []
+    found: list[Path] = []
+    devices: set[int] = set()
+    for point in disk_mounts(text):
+        try:
+            device = point.stat().st_dev
+        except OSError:
+            continue
+        if device in devices or not os.access(point, os.R_OK | os.X_OK):
+            continue
+        devices.add(device)
+        found.append(point)
+    return found
+
+
 def roots(start: Path, scope: str, mounts: Iterable[Path] = ()) -> list[Path]:
-    """Where a search of *scope* begins, from *start*."""
+    """Where a search of *scope* begins, from *start*.
+
+    *All drives* begins on *start*'s own file system, as DN's always
+    searched the current drive (``C = FN[1]``) however slow, then ``/`` and
+    *mounts*."""
     if scope == "directory":
         return [start]
     if scope == "disk":
         return [mount_point(start)]
-    found = [Path("/")]
+    found = [mount_point(start)]
+    if Path("/") not in found:
+        found.append(Path("/"))
     for place in mounts:
         if place not in found:
             found.append(place)

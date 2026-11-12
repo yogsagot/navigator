@@ -134,7 +134,7 @@ def _mount_directories(mnt: Path, media: Path, run_media: Path, user: str) -> li
     return found
 
 
-def _unescape_mount(field: str) -> str:
+def unescape_mount(field: str) -> str:
     r"""A ``/proc/self/mounts`` path with its octal escapes (``\040`` for a space) undone."""
     return re.sub(r"\\([0-7]{3})", lambda match: chr(int(match.group(1), 8)), field)
 
@@ -164,7 +164,7 @@ def mounted_places(
         fields = line.split()
         if len(fields) < 2:
             continue
-        point = Path(_unescape_mount(fields[1]))
+        point = Path(unescape_mount(fields[1]))
         if point.parent in parents and point != media / user:
             found.add(point)
     return sorted(found)
