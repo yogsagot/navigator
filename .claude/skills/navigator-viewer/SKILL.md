@@ -42,6 +42,7 @@ description: The internal file viewer (F3, DN's FVIEWER.PAS) -- navigator/lib/vi
 - Keys: F4 cycles text/hex/dump, F2 wraps, F6 filters, F7/Shift+F7/Ctrl+F7 search (a bytes regex, on a thread), F5 goes
   to a hex address. Esc closes, and so does F3, uncaptioned (mc's key, a departure). File > View > As Text / As Hex open
   it in either mode.
+- **`last_search`** is shared by every viewer (DN's `SearchString`); Alt+F7 with plain text sets it too (`filefind.hand_on`).
 - **Search as DN's `ContinueSearch`** (`FVIEWER.PAS:1160-1195`): Shift+F7, Ctrl+L and Ctrl+Enter (`kbCtrlEnter`)
   continue, Ctrl+F7 the other way. A hit's row goes to the top (hex and dump: the row holding it, the byte phase
   kept; hex's cursor onto it), as far as the last screenful; under *Filter lines* the lines cursor goes to it. A

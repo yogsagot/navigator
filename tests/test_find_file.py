@@ -819,3 +819,47 @@ def test_the_search_box_s_stop_asks_and_keeps_what_was_found(place, monkeypatch)
                   lambda a: seen.update(items=keys(a.manager.left))], timeout=20)
     assert seen["button"] == "~S~top"
     assert seen["items"] == ["..", str(place / "top.txt")]
+
+
+@pytest.fixture
+def searches(monkeypatch):
+    """The viewer's and the editor's last search, fresh."""
+    from navigator.lib import viewer
+    from navigator.lib.editor import search as editor_search
+
+    monkeypatch.setattr(viewer, "last_search", None)
+    monkeypatch.setattr(editor_search, "SEARCH", editor_search.SearchData())
+    return viewer, editor_search
+
+
+def test_find_s_text_becomes_the_viewer_s_and_the_editor_s_search(searches):
+    from navigator.lib.file_ops.filefind import hand_on
+
+    viewer, editor_search = searches
+    editor_search.SEARCH.backward = True
+    editor_search.SEARCH.new = "was a replace"
+    hand_on(FindRequest(text="needle", case=True, words=True))
+    assert viewer.last_search == viewer.ViewSearch("needle", case=True, words=True)
+    record = editor_search.SEARCH
+    assert (record.text, record.case, record.whole, record.regex, record.new, record.selected) == (
+        "needle", True, True, False, None, False)
+    assert record.backward  # DN's ``Dir`` was not touched
+
+
+def test_a_regular_expression_goes_to_the_editor_only_and_no_text_to_neither(searches):
+    from navigator.lib.file_ops.filefind import hand_on
+
+    viewer, editor_search = searches
+    hand_on(FindRequest(text="ne+dle", regex=True))
+    assert viewer.last_search is None
+    assert editor_search.SEARCH.text == "ne+dle" and editor_search.SEARCH.regex
+    hand_on(FindRequest(mask="*.c"))
+    assert editor_search.SEARCH.text == "ne+dle" and viewer.last_search is None
+
+
+def test_alt_f7_hands_its_text_on(place, searches):
+    viewer, editor_search = searches
+    app = navigator(place)
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*.txt", "hello"),
+                  KeyEvent("enter"), Until(finding), LISTED])
+    assert viewer.last_search.what == "hello" and editor_search.SEARCH.text == "hello"

@@ -1681,6 +1681,9 @@ class Manager(Window):
         request = await FindFileDialog().execute(app)
         if request is None:
             return
+        from navigator.lib.file_ops.filefind import hand_on
+
+        hand_on(request)
         await self._search_into(panel, request, tr("Find: {mask}").format(mask=request.mask))
 
     async def replace_in_files(self, panel: Panel) -> None:

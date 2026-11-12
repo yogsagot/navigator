@@ -221,8 +221,12 @@ def is_query(app) -> bool:
     return app.modal is not None and type(app.modal).__name__ == "ReplaceQuery"
 
 
-def test_alt_shift_f7_asks_file_by_file_and_lists_the_files_changed(place):
+def test_alt_shift_f7_asks_file_by_file_and_lists_the_files_changed(place, monkeypatch):
+    from navigator.lib.editor import search as editor_search
     from navigator.widgets.file_ops.replace_query.change_list import rows_of
+
+    # Only Find File hands its text on (``filefind.hand_on``); this is no find.
+    monkeypatch.setattr(editor_search, "SEARCH", editor_search.SearchData())
 
     app = Navigator(place, place, terminal=FakeTerminal(80, 24))
     seen: dict[str, object] = {}
@@ -258,6 +262,7 @@ def test_alt_shift_f7_asks_file_by_file_and_lists_the_files_changed(place):
     assert (place / "sub" / "c.txt").read_bytes() == b"line\r\nfoo3\r\n"
     assert seen["items"] == ["..", str(place / "a.txt")]
     assert seen["title_text"].strip().startswith("Replaced:")
+    assert editor_search.SEARCH.text == ""
 
 
 def test_find_file_keeps_its_own_rows_and_a_bad_pattern_is_refused(place):
@@ -340,3 +345,4 @@ def test_advanced_ok_in_replace_keeps_its_own(monkeypatch):
     assert find_file_dialog._replace_session["advanced"]["greater"] == "10"
     assert find_file_dialog._replace_session["mask"] == "*.py"
     assert find_file_dialog._session["advanced"]["greater"] == "" and find_file_dialog._session["mask"] == "*"
+

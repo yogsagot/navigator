@@ -262,7 +262,7 @@ description: The internal editor (F4, DN's MICROED.PAS) -- navigator/lib/editor/
 - **Find and Replace** (`StartSearch` F7 / ^Q F, `Replace` Ctrl+F7 / ^Q A, `ContSearch` Shift+F7, `ReverseSearch`
   Alt+F7 / ^Q R; DN's `StartSearch` in `EDITOR.PAS` and `TFileEditor.Search` in `MICROED.PAS`). The model is
   `navigator/lib/editor/search.py` (`SearchData`, the record `SEARCH` kept between searches as DN's typed constant was --
-  look it up as `search.SEARCH` at call time; `find`/`find_in_line`; `BREAK_CHARS` now lives there). Line by line:
+  look it up as `search.SEARCH` at call time; Alt+F7 with text fills it too, `filefind.hand_on`, as DN's `FindFiles` did; `find`/`find_in_line`; `BREAK_CHARS` now lives there). Line by line:
   forward from a place, backward a match ending at or before it; *Case sensitive* off ignores case, *Whole words only*
   wants `BREAK_CHARS` or a line's edge round it, *Selected text* searches only the block's part of each line
   (`FileEditor._search_bounds`, stream or column; a departure: a stream block's first line is clipped at the block's start, where DN clipped only a one-line or column block and searched a longer block's first line whole). `FindDialog` (`editor/find_dialog`) is both `dlgEditorFind` and

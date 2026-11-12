@@ -15,7 +15,9 @@ whole -- up to :data:`WHOLE_LARGEST`, a larger file passed over, as
 *Replace in files* does -- so it may span lines; without, it is the text itself, looked for a
 chunk at a time as the viewer's search looks (DN's Find called
 ``SearchFileStr``): each letter in either case, whatever its alphabet, and
-*Whole words* breaking at blanks and punctuation, never inside a letter.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
+*Whole words* breaking at blanks and punctuation, never inside a letter.  The text then becomes the viewer's and
+the editor's last search (:func:`hand_on`), as DN's ``SearchString`` and
+``SearchData``.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
 walks the same way, through :func:`search`'s *match*.  A directory is walked into with *Recursive search*, whatever its
 name; never through a symbolic link, and never onto another file system
 when the scope is a disk.  *Current directory* crosses into what is mounted
@@ -145,6 +147,31 @@ def text_pattern(text: str, *, case: bool, words: bool, regex: bool = False) -> 
     if words:
         body = rb"(?<![" + WORD_BYTES + rb"])" + body + rb"(?![" + WORD_BYTES + rb"])"
     return re.compile(body, (0 if case else re.IGNORECASE) | re.MULTILINE)
+
+
+def hand_on(request: FindRequest) -> None:
+    """The text becomes the viewer's and the editor's last search, so F3 or
+    F4 on what was found and Shift+F7 goes to it: DN's ``FindFiles`` set
+    ``SearchString`` and ``Microed.SearchData`` before walking -- the text,
+    *Case sensitive* and *Whole words*, a plain find (``What := #0``) over
+    the whole text (``Scope := 0``); the editor's direction and origin as
+    they were.
+
+    Two departures: a search with no text leaves both alone (DN's wiped
+    them for a mask-only Find, losing what F3 or F4 had asked for); and a
+    *Regular expression* goes to the editor, which has them, but not to
+    the viewer, which would look for the pattern's characters as they are."""
+    from navigator.lib import viewer
+    from navigator.lib.editor import search as editor_search
+
+    if not request.text:
+        return
+    if not request.regex:
+        viewer.last_search = viewer.ViewSearch(request.text, case=request.case, words=request.words)
+    record = editor_search.SEARCH
+    record.text, record.new = request.text, None
+    record.case, record.whole, record.regex = request.case, request.words, request.regex
+    record.selected = False
 
 
 def request_pattern(request: FindRequest) -> re.Pattern[bytes] | None:
