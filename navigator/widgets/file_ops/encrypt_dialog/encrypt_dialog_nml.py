@@ -203,3 +203,5 @@ class EncryptDialog(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # encrypt_dialog.nml:125
         self.abandon.on_click = self.on_abandon_click    # encrypt_dialog.nml:124
+
+        self._navml_built(__class__)

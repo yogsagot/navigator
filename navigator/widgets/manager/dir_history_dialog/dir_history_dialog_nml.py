@@ -116,3 +116,5 @@ class DirHistoryDialog(Dialog, _Component):
         self.abandon.width = 11    # dir_history_dialog.nml:50
         self.abandon.height = 2    # dir_history_dialog.nml:51
         self.abandon.on_click = self.on_abandon_click    # dir_history_dialog.nml:46
+
+        self._navml_built(__class__)

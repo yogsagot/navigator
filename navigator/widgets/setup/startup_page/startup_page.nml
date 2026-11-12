@@ -1,5 +1,6 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > Startup: DOS Navigator's ``dlgStartupSetup``.
 #:
@@ -8,7 +9,9 @@ from navml.widgets.dialog.label import Label
 #: palette*, *Enable blinking* (VGA attribute bit 7), and the whole
 #: *Timeslicing* group (*Sleep when inactive*, *DOS Idle (Int28)*): an event
 #: loop already sleeps while nothing happens.
-StartupPage:
+StartupPage(SettingsPage):
+    class section_name: "startup"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -22,6 +25,7 @@ StartupPage:
 
     CheckBoxes:
         id: startup
+        key: "STARTUP"
         y: 2
         height: 1
         anchors:
@@ -39,6 +43,7 @@ StartupPage:
 
     CheckBoxes:
         id: shutdown
+        key: "SHUTDOWN"
         y: 5
         height: 2
         anchors:

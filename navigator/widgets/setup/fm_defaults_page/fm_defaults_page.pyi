@@ -8,13 +8,10 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navigator.widgets.manager.manager.manager import sort_radio_captions
-
-from typing import Any
-from navkit.widget import Widget
-from navigator.settings import SETTINGS, PanelDefaultsData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-class FMDefaultsPage(_Component):
+class FMDefaultsPage(SettingsPage, _Component):
     title: str
     sort_caption: Label
     reverse: CheckBoxes
@@ -25,5 +22,4 @@ class FMDefaultsPage(_Component):
     left_panel: RadioButtons
     mode_caption: Label
     view_mode: RadioButtons
-    def __init__(self, section: PanelDefaultsData | None = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> dict[str, Any]: ...
+    def __init__(self, **kwargs: _Any) -> None: ...

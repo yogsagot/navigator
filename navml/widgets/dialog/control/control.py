@@ -25,7 +25,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit.events import MouseClickEvent
-from navkit.reactive import bind, computed
+from navkit.reactive import bind, computed, reactive
 from navkit.style import Style
 from navkit.text import caption_runs, escape_caption  # noqa: F401 -- escape_caption re-exported
 from navkit.widget import Widget
@@ -74,6 +74,11 @@ class Control(Widget):
     #: class fact rather than an instance one, so plain: a `Label' is never
     #: focusable and a `Button' always is, and neither changes its mind.
     accepts_focus: bool = True
+
+    #: What this control edits, by name -- a form field's name in HTML terms:
+    #: ``key: "temp_dir"``.  navml reads nothing into it; a page that seeds
+    #: and collects its controls by it does (Navigator's setup pages).
+    key: str = reactive("")
 
     def __init__(self, **kwargs: Any) -> None:
         # The same keywords a markup-built component takes, so that a control

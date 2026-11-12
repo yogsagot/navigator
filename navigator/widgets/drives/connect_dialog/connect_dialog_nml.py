@@ -130,3 +130,5 @@ class ConnectDialog(Dialog, _Component):
         self.missing.text = ''    # connect_dialog.nml:96
         self.missing.x = 2    # connect_dialog.nml:94
         self.missing.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # connect_dialog.nml:95
+
+        self._navml_built(__class__)

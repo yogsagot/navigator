@@ -486,3 +486,5 @@ class ProcessWindow(Window, _Component):
 
         _w18.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # process_window.nml:240
         _w18.command = CloseWindow    # process_window.nml:240
+
+        self._navml_built(__class__)

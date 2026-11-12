@@ -51,3 +51,5 @@ class BookmarkLabelDialog(Dialog, _Component):
         self.entry.label_width = 8    # bookmark_label_dialog.nml:22
         self.entry.x = 2    # bookmark_label_dialog.nml:19
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:20
+
+        self._navml_built(__class__)

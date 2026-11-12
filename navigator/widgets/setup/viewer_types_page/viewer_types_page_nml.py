@@ -206,3 +206,5 @@ class ViewerTypesPage(_Component):
         self.database_masks.width = _bind(    # viewer_types_page.nml:144
             lambda _o: max(1, _o.parent.width - 30)
         )
+
+        self._navml_built(__class__)

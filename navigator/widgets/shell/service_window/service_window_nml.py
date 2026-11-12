@@ -510,3 +510,5 @@ class ServiceWindow(Window, _Component):
 
         _w26.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # service_window.nml:239
         _w26.command = CloseWindow    # service_window.nml:239
+
+        self._navml_built(__class__)

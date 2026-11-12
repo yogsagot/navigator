@@ -128,3 +128,5 @@ class ViewerFindDialog(Dialog, _Component):
             lambda _o: [_tr('~F~orward'), _tr('~B~ackward')],
             yielding=True,
         )
+
+        self._navml_built(__class__)

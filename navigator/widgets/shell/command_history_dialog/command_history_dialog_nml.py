@@ -129,3 +129,5 @@ class CommandHistoryDialog(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # command_history_dialog.nml:64
         self.abandon.on_click = self.on_abandon_click    # command_history_dialog.nml:63
+
+        self._navml_built(__class__)

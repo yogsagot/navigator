@@ -166,3 +166,5 @@ class LinkDialog(Dialog, _Component):
         self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # link_dialog.nml:97
         self.help.disabled = True    # link_dialog.nml:98
         self.help.on_click = self.on_help_click    # link_dialog.nml:96
+
+        self._navml_built(__class__)

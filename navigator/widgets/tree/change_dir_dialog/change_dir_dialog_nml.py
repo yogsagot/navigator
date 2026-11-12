@@ -172,3 +172,5 @@ class ChangeDirDialog(Dialog, _Component):
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
         self.abandon.on_click = self.on_abandon_click    # change_dir_dialog.nml:97
+
+        self._navml_built(__class__)

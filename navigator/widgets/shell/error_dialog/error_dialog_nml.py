@@ -128,3 +128,5 @@ class ErrorDialog(Dialog, _Component):
 
         self.quit.text = _bind(lambda _o: _tr('~Q~uit'), yielding=True)    # error_dialog.nml:78
         self.quit.on_click = self.on_quit_click    # error_dialog.nml:77
+
+        self._navml_built(__class__)

@@ -133,3 +133,5 @@ class ForwardDialog(Dialog, _Component):
         self.problem.wrap = True    # forward_dialog.nml:93
         self.problem.x = 2    # forward_dialog.nml:90
         self.problem.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:91
+
+        self._navml_built(__class__)

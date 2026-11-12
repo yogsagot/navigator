@@ -6,11 +6,11 @@ import time
 from typing import Any
 
 from navkit.i18n import tr
-from navkit.widget import Widget
 from navml.calendars import SYSTEMS, plain
 
 from navigator.lib.config import country
-from navigator.settings import SETTINGS, CountryData
+from navigator.settings import CountryData
+from navigator.widgets.setup.settings_page import SettingsPage
 from navigator.widgets.shell.calendar_window.calendar_window import view_captions
 
 #: The *Time* buttons in DN's order, 12 hours first.
@@ -22,22 +22,20 @@ def calendar_names() -> dict[str, str]:
     return {tr("Language's own") if key == "auto" else SYSTEMS[key].name(): key for key in CountryData.CALENDARS}
 
 
-class CountryPage(Widget):
+class CountryPage(SettingsPage):
     """``[country]``: the order a date is written in, or a format of one's
     own, 12 or 24 hours, the day a calendar's week starts on, and the
     calendar Utilities > Calendar shows its month in, and how."""
 
-    def __init__(self, section: CountryData | None = None, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        # *Date format* and *First day* say what they edit (``key:``); the
+        # rest are read here: *Time* lists 12 hours first, as DN did, where
+        # the setting's choices put 24 first.
         super().__init__(**kwargs)
-        self.section = section or SETTINGS.country
-        self.date_format.value = CountryData.DATES.index(self.section.date_format)
-        self.date_format.tooltip = self.section.tooltip("date_format")
         self.time_format.value = HOURS.index(self.section.time_format)
         self.time_format.tooltip = self.section.tooltip("time_format")
         self.custom_date.value = self.section.custom_date
         self.custom_date.tooltip = self.section.tooltip("custom_date")
-        self.first_day.value = CountryData.WEEKS.index(self.section.first_day)
-        self.first_day.tooltip = self.section.tooltip("first_day")
         self.calendars = calendar_names()
         self.calendar.choices = list(self.calendars)
         self.calendar.value = next(name for name, key in self.calendars.items() if key == self.section.calendar)
@@ -62,11 +60,10 @@ class CountryPage(Widget):
 
     def accept(self) -> dict[str, Any]:
         return {
-            "date_format": CountryData.DATES[self.date_format.value],
+            **super().accept(),
             # Kept whichever order is chosen, so *Custom* comes back to it.
             "custom_date": self.custom_date.value.strip() or self.section.custom_date,
             "time_format": HOURS[self.time_format.value],
-            "first_day": CountryData.WEEKS[self.first_day.value],
             "calendar": self.calendars.get(self.calendar.value, self.section.calendar),
             "calendar_view": self.views.get(self.calendar_view.value, self.section.calendar_view),
         }

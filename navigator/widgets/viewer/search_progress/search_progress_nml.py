@@ -72,3 +72,5 @@ class SearchProgress(Dialog, _Component):
         self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # search_progress.nml:44
         self.percent_row.x = 2    # search_progress.nml:41
         self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # search_progress.nml:42
+
+        self._navml_built(__class__)

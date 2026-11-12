@@ -511,3 +511,5 @@ class Shell(DockLayout, _Component):
             lambda _o: not SETTINGS.interface.hide_command_line and (not SETTINGS.interface.auto_hide_command_line or _o.value != '')
         )
         self.command_line.inline_style = 'dock: bottom; basis: 1'    # shell.nml:282
+
+        self._navml_built(__class__)

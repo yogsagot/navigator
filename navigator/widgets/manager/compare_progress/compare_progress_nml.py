@@ -70,3 +70,5 @@ class CompareProgress(Dialog, _Component):
         self.count_row.text = _bind(lambda _o: self.count_text(self.count))    # compare_progress.nml:34
         self.count_row.x = 2    # compare_progress.nml:31
         self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # compare_progress.nml:32
+
+        self._navml_built(__class__)

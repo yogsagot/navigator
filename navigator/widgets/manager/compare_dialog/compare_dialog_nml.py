@@ -102,3 +102,5 @@ class CompareDialog(Dialog, _Component):
             lambda _o: [_tr('S~e~lect'), _tr('~U~nselect'), _tr('~W~indow, recursive')],
             yielding=True,
         )
+
+        self._navml_built(__class__)

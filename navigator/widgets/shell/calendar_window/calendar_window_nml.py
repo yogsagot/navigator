@@ -227,3 +227,5 @@ class CalendarWindow(Window, _Component):
 
         _w13.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # calendar_window.nml:133
         _w13.command = CloseWindow    # calendar_window.nml:133
+
+        self._navml_built(__class__)

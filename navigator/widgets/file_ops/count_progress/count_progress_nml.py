@@ -95,3 +95,5 @@ class CountProgress(Dialog, _Component):
         )
         self.table.x = 4    # count_progress.nml:57
         self.table.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # count_progress.nml:58
+
+        self._navml_built(__class__)

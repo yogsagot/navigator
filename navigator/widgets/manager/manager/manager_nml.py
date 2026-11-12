@@ -997,3 +997,5 @@ class Manager(Window, _Component):
         )
         _w39.command = DirHistory    # manager.nml:400
         _w39.key = 'Alt-BkSp'    # manager.nml:400
+
+        self._navml_built(__class__)

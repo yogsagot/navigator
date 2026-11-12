@@ -73,3 +73,5 @@ class XattrEntryDialog(Dialog, _Component):
         )
         self.hint.x = 10    # xattr_entry_dialog.nml:37
         self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 12))    # xattr_entry_dialog.nml:38
+
+        self._navml_built(__class__)

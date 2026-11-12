@@ -107,3 +107,5 @@ class ExistsQuery(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # exists_query.nml:51
         self.abandon.on_click = self.on_abandon_click    # exists_query.nml:50
+
+        self._navml_built(__class__)

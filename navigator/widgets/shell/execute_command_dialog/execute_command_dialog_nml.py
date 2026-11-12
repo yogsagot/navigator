@@ -84,3 +84,5 @@ class ExecuteCommandDialog(Dialog, _Component):
         )
         self.options.x = 2    # execute_command_dialog.nml:43
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # execute_command_dialog.nml:44
+
+        self._navml_built(__class__)

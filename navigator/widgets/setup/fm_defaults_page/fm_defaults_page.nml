@@ -2,6 +2,7 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navigator.widgets.manager.manager.manager import sort_radio_captions
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > New Manager defaults: DOS Navigator's ``dlgFMDefaults``.
 #:
@@ -13,7 +14,9 @@ from navigator.widgets.manager.manager.manager import sort_radio_captions
 #: Two captions depart from DN's: *Group* is *Type*, since on POSIX a group
 #: is the file's owner group, and the left panel's *Drive* is *Files*.
 #: *Panel mode* is not DN's: Ctrl+Y's three modes, for a new panel.
-FMDefaultsPage:
+FMDefaultsPage(SettingsPage):
+    class section_name: "panel_defaults"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -29,6 +32,7 @@ FMDefaultsPage:
     #: on the caption's row as in *Panel Options*.
     CheckBoxes:
         id: reverse
+        key: "sort_reverse"
         y: 1
         width: 22
         height: 1
@@ -38,6 +42,7 @@ FMDefaultsPage:
 
     RadioButtons:
         id: sort_by
+        key: "sort_by"
         y: 2
         height: 3
         anchors:
@@ -56,6 +61,7 @@ FMDefaultsPage:
 
     CheckBoxes:
         id: display
+        key: "DISPLAY"
         y: 7
         height: 4
         anchors:
@@ -73,6 +79,7 @@ FMDefaultsPage:
 
     RadioButtons:
         id: left_panel
+        key: "left_panel"
         y: 13
         height: 1
         anchors:
@@ -90,6 +97,7 @@ FMDefaultsPage:
 
     RadioButtons:
         id: view_mode
+        key: "view_mode"
         y: 16
         height: 1
         anchors:

@@ -257,3 +257,5 @@ class FindDialog(Dialog, _Component):
         self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # find_dialog.nml:154
         self.helper.disabled = True    # find_dialog.nml:155
         self.helper.on_click = self.on_helper_click    # find_dialog.nml:153
+
+        self._navml_built(__class__)

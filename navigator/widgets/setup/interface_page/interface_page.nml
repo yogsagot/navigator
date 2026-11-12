@@ -3,6 +3,7 @@ from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > Interface: DOS Navigator's ``dlgInterfaceSetup``.
 #:
@@ -13,12 +14,15 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: the resource set it was installed with, *Colours*, ``[appearance]``'s
 #: depth, where DN's was the video mode a DOS adapter was put in, *Glyphs*
 #: and *Marks*.
-InterfacePage:
+InterfacePage(SettingsPage):
+    class section_name: "interface"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
     CheckBoxes:
         id: options
+        key: "OPTIONS"
         y: 1
         height: 6
         anchors:
@@ -28,6 +32,7 @@ InterfacePage:
 
     MaskedField:
         id: history_size
+        key: "history_size"
         x: 2
         y: 8
         width: 20
@@ -41,6 +46,7 @@ InterfacePage:
     #: every letter of its caption is taken on this page.
     MaskedField:
         id: tooltip_delay
+        key: "tooltip_delay"
         x: 26
         y: 8
         width: 26

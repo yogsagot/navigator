@@ -7,30 +7,20 @@ from typing import Any
 
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import flag_emoji, flags, languages, tr
-from navkit.widget import Widget
 
 from navigator.lib.config.language import AUTOMATIC
 from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-class InterfacePage(Widget):
+class InterfacePage(SettingsPage):
     """The screen's furniture: DN's ``TInterfaceData.Options``, one box a bit."""
 
-    def __init__(
-        self,
-        section: InterfaceData | None = None,
-        appearance: AppearanceData | None = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, appearance: AppearanceData | None = None, **kwargs: Any) -> None:
+        # *Options*, *History size* and *Tooltip delay* say what they edit
+        # (``key:``); the choices made of lists at run time are read here.
         super().__init__(**kwargs)
-        self.section = section or SETTINGS.interface
         self.appearance = appearance or SETTINGS.appearance
-        self.options.value = self.section.to_bits(InterfaceData.OPTIONS)
-        self.options.tooltips = InterfaceData.tooltips(InterfaceData.OPTIONS)
-        self.history_size.value = f"{self.section.history_size:03d}"
-        self.history_size.tooltip = self.section.tooltip("history_size")
-        self.tooltip_delay.value = f"{min(9999, max(0, self.section.tooltip_delay)):04d}"
-        self.tooltip_delay.tooltip = self.section.tooltip("tooltip_delay")
         #: ``{shown name: code}``, automatic first; each language by its own
         #: name, as a person who cannot read the current one looks for it.
         self.languages = {tr("Automatic"): AUTOMATIC}
@@ -119,12 +109,9 @@ class InterfacePage(Widget):
             self.language.value = next(name for name, code in shown.items() if code == chosen)
 
     def accept(self) -> dict[str, dict[str, Any]]:
-        values = InterfaceData.from_bits(InterfaceData.OPTIONS, self.options.value)
-        # A blank place counts as nought; a list kept to nothing keeps one.
-        text = self.history_size.value.replace(" ", "0")
-        values["history_size"] = max(1, int(text)) if text.isdigit() else self.section.history_size
-        delay = self.tooltip_delay.value.replace(" ", "0")
-        values["tooltip_delay"] = int(delay) if delay.isdigit() else self.section.tooltip_delay
+        values = super().accept()
+        # A list kept to nothing keeps one.
+        values["history_size"] = max(1, values["history_size"])
         values["language"] = self.languages.get(self.language.value, self.section.language)
         values["direction"] = self.directions.get(self.direction.value, self.section.direction)
         values["settings_tabs"] = InterfaceData.field("settings_tabs").choices[self.settings_tabs.value]

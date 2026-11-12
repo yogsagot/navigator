@@ -4,6 +4,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > System Setup: DOS Navigator's ``dlgSystemSetup``.
 #:
@@ -27,7 +28,9 @@ from navml.widgets.dialog.static_text import StaticText
 #: *Command windows zoomed* and *modal* are a fifth: how a command run in a
 #: window of its own opens (``TerminalWindow``), filling the row that was
 #: spare under *Options*.
-SystemSetupPage:
+SystemSetupPage(SettingsPage):
+    class section_name: "system"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -41,6 +44,7 @@ SystemSetupPage:
 
     CheckBoxes:
         id: options
+        key: "OPTIONS"
         y: 2
         height: 4
         anchors:
@@ -58,6 +62,7 @@ SystemSetupPage:
 
     Field:
         id: temp_dir
+        key: "temp_dir"
         y: 7
         anchors:
             left: 3
@@ -75,6 +80,7 @@ SystemSetupPage:
 
     RadioButtons:
         id: on_error
+        key: "on_error"
         y: 10
         height: 1
         anchors:
@@ -84,6 +90,7 @@ SystemSetupPage:
 
     MaskedField:
         id: stall_report
+        key: "stall_report"
         x: 3
         y: 12
         width: 31
@@ -119,6 +126,7 @@ SystemSetupPage:
     #: Beside its caption on a wide page, on its own row under it on a narrow one.
     RadioButtons:
         id: elevate
+        key: "elevate"
         x: 17
         y: 14
         width: max(0, parent.width - 20)
@@ -131,6 +139,7 @@ SystemSetupPage:
 
     MaskedField:
         id: root_timeout
+        key: "root_timeout"
         x: 3
         y: 16
         width: 31

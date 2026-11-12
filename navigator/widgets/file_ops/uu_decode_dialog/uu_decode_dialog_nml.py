@@ -137,3 +137,5 @@ class UUDecodeDialog(Dialog, _Component):
             self.spawn(self.choose_target())
             return True
         self.tree.on_click = _on_click
+
+        self._navml_built(__class__)

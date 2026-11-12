@@ -104,3 +104,5 @@ class HighlightPage(_Component):
         self.temp.history_id = 'customs'    # highlight_page.nml:62
         self.temp.x = 2    # highlight_page.nml:58
         self.temp.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # highlight_page.nml:59
+
+        self._navml_built(__class__)

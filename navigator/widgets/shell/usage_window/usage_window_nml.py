@@ -281,3 +281,5 @@ class UsageWindow(Window, _Component):
 
         _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # usage_window.nml:147
         _w11.command = CloseWindow    # usage_window.nml:147
+
+        self._navml_built(__class__)

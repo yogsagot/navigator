@@ -191,3 +191,5 @@ class LinksDialog(Dialog, _Component):
         self.abandon.width = 12    # links_dialog.nml:99
         self.abandon.height = 2    # links_dialog.nml:100
         self.abandon.on_click = self.on_abandon_click    # links_dialog.nml:95
+
+        self._navml_built(__class__)

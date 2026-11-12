@@ -90,3 +90,5 @@ class ListViewer(Control, _Component):
         )
         self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # list_viewer.nml:42
         self.bar.on_scroll = self.on_bar_scroll    # list_viewer.nml:38
+
+        self._navml_built(__class__)

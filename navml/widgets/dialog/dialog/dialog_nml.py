@@ -170,3 +170,5 @@ class Dialog(Modal, _Component):
             await self.show_info(event)
             return True
         self.info.on_click = _on_click
+
+        self._navml_built(__class__)

@@ -76,3 +76,5 @@ class DateField(HorizontalLayout, _Component):
         self.picker.link = _bind(lambda _o: self.entry)    # date_field.nml:40
         self.picker.date_format = _bind(lambda _o: _o.parent.date_format)    # date_field.nml:41
         self.picker.inline_style = 'basis: 3; grow: 0'    # date_field.nml:42
+
+        self._navml_built(__class__)

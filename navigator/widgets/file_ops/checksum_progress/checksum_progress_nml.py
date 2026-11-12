@@ -89,3 +89,5 @@ class ChecksumProgress(Dialog, _Component):
         )
         self.count_row.x = 2    # checksum_progress.nml:52
         self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_progress.nml:53
+
+        self._navml_built(__class__)

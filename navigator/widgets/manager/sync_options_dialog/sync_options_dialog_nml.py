@@ -116,3 +116,5 @@ class SyncOptionsDialog(Dialog, _Component):
         )
         self.options.x = 2    # sync_options_dialog.nml:60
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # sync_options_dialog.nml:61
+
+        self._navml_built(__class__)

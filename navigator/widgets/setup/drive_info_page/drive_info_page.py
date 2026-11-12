@@ -2,22 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-from navkit.widget import Widget
-
-from navigator.settings import SETTINGS, DriveInfoData
-
-
-class DriveInfoPage(Widget):
+class DriveInfoPage(SettingsPage):
     """What Ctrl+L's panel shows: DN's ``DriveInfoData`` word, one box a bit."""
-
-    def __init__(self, section: DriveInfoData | None = None, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.section = section or SETTINGS.drive_info
-        self.options.value = self.section.to_bits(DriveInfoData.OPTIONS)
-        self.options.tooltips = DriveInfoData.tooltips(DriveInfoData.OPTIONS)
-
-    def accept(self) -> dict[str, Any]:
-        return DriveInfoData.from_bits(DriveInfoData.OPTIONS, self.options.value)

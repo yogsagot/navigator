@@ -83,3 +83,5 @@ class LinkTargetDialog(Dialog, _Component):
         )
         self.options.x = 3    # link_target_dialog.nml:43
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # link_target_dialog.nml:44
+
+        self._navml_built(__class__)

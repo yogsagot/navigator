@@ -1,60 +1,21 @@
 """What OK means in *Communications*: the ``[remote]`` section's new values,
-and ``[system] desktop_vfs`` and ``notifications``."""
+and ``[system] desktop_vfs`` and ``notifications`` -- each control says which
+it edits (``key:``), and :class:`SettingsPage` seeds and collects them."""
 
 from __future__ import annotations
 
 from typing import Any
 
-from navkit.widget import Widget
-
-from navigator.settings import DESKTOP_VFS, NOTIFICATIONS, SETTINGS, RemoteData, SystemData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-def _number(text: str, keep: int) -> int:
-    text = text.replace(" ", "0")
-    return int(text) if text.isdigit() else keep
-
-
-class CommunicationsPage(Widget):
+class CommunicationsPage(SettingsPage):
     """``[remote]``: keep-alives, how long to wait, idle connections, and
     what a changed file fetched from a server does; and ``[system]``'s
     *Desktop integration* and *Notify*.  Answers both sections by name."""
 
-    def __init__(self, section: RemoteData | None = None, system: SystemData | None = None,
-                 **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.section = section or SETTINGS.remote
-        self.system = system or SETTINGS.system
-        self.desktop_vfs.value = DESKTOP_VFS.index(self.system.desktop_vfs)
-        self.desktop_vfs.tooltip = self.system.tooltip("desktop_vfs")
-        self.notifications.value = NOTIFICATIONS.index(self.system.notifications)
-        self.notifications.tooltip = self.system.tooltip("notifications")
-        self.keepalive.value = f"{self.section.keepalive:03d}"
-        self.keepalive.tooltip = self.section.tooltip("keepalive")
-        self.timeout.value = f"{self.section.timeout:03d}"
-        self.timeout.tooltip = self.section.tooltip("timeout")
-        self.idle_disconnect.value = f"{self.section.idle_disconnect:03d}"
-        self.idle_disconnect.tooltip = self.section.tooltip("idle_disconnect")
-        self.refresh.value = f"{self.section.refresh:03d}"
-        self.refresh.tooltip = self.section.tooltip("refresh")
-        self.upload_changed.value = RemoteData.UPLOAD.index(self.section.upload_changed)
-        self.upload_changed.tooltip = self.section.tooltip("upload_changed")
-        self.ssh_options.value = self.section.ssh_options
-        self.ssh_options.entry.tooltip = self.section.tooltip("ssh_options")
-
-    def accept(self) -> dict[str, dict[str, Any]]:
-        section = self.section
-        return {
-            "remote": {
-                "keepalive": _number(self.keepalive.value, section.keepalive),
-                "timeout": max(1, _number(self.timeout.value, section.timeout)),
-                "idle_disconnect": _number(self.idle_disconnect.value, section.idle_disconnect),
-                "refresh": _number(self.refresh.value, section.refresh),
-                "upload_changed": RemoteData.UPLOAD[self.upload_changed.value],
-                "ssh_options": self.ssh_options.value.strip(),
-            },
-            "system": {
-                "desktop_vfs": DESKTOP_VFS[self.desktop_vfs.value],
-                "notifications": NOTIFICATIONS[self.notifications.value],
-            },
-        }
+    def accept(self) -> dict[str, Any]:
+        values = super().accept()
+        # A connection that may wait no time at all could never be made.
+        values["remote"]["timeout"] = max(1, values["remote"]["timeout"])
+        return values

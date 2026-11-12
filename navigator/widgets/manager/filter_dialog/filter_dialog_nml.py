@@ -106,3 +106,5 @@ class FilterDialog(Dialog, _Component):
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
         self.abandon.on_click = self.on_abandon_click    # filter_dialog.nml:49
+
+        self._navml_built(__class__)

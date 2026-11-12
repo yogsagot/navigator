@@ -210,3 +210,5 @@ class GameWindow(Window, _Component):
 
         _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # game_window.nml:111
         _w11.command = CloseWindow    # game_window.nml:111
+
+        self._navml_built(__class__)

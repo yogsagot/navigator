@@ -67,3 +67,5 @@ class MenuParamsDialog(Dialog, _Component):
         self.entry.history_id = 'menu_params'    # menu_params_dialog.nml:35
         self.entry.x = 2    # menu_params_dialog.nml:31
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # menu_params_dialog.nml:32
+
+        self._navml_built(__class__)

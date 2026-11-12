@@ -95,6 +95,26 @@ class Component(Widget):
         take_declared(self, kwargs)
         super().__init__(**kwargs)
 
+    def built(self) -> None:
+        """Called once the whole tree the markup declares exists.
+
+        At the end of the most-derived generated ``__init__``, so a derived
+        document's children are there too -- and before the hand-written
+        half's ``__init__`` goes on past its ``super().__init__()``.  The
+        declared properties a caller passed are set by then (they are set
+        first of all).  For work that needs every child but must not wait for
+        mounting, as a page seeding its controls from the settings does.
+        """
+
+    def _navml_built(self, cls: type) -> None:
+        """Each generated ``__init__`` ends here: :meth:`built`, once, from
+        the generated class nearest the instance's own."""
+        for klass in type(self).__mro__:
+            if "__navml_source__" in vars(klass):
+                if klass is cls:
+                    self.built()
+                return
+
     def layout(self, width: int, height: int) -> None:
         """Size only this widget: its children are placed by the markup.
 

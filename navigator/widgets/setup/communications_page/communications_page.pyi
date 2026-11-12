@@ -9,13 +9,12 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 from typing import Any
-from navkit.widget import Widget
-from navigator.settings import DESKTOP_VFS, NOTIFICATIONS, SETTINGS, RemoteData, SystemData
 
 
-class CommunicationsPage(_Component):
+class CommunicationsPage(SettingsPage, _Component):
     title: str
     keepalive: MaskedField
     keepalive_unit: StaticText
@@ -32,5 +31,5 @@ class CommunicationsPage(_Component):
     ssh_options: Field
     notifications_caption: Label
     notifications: RadioButtons
-    def __init__(self, section: RemoteData | None = ..., system: SystemData | None = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> dict[str, dict[str, Any]]: ...
+    def __init__(self, **kwargs: _Any) -> None: ...
+    def accept(self) -> dict[str, Any]: ...

@@ -160,3 +160,5 @@ class MemoDialog(Dialog, _Component):
         self.bar.y = 2    # memo_dialog.nml:67
         self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:68
         self.bar.on_scroll = self.on_bar_scroll    # memo_dialog.nml:63
+
+        self._navml_built(__class__)

@@ -168,3 +168,5 @@ class CopyProgress(Dialog, _Component):
         self.frame_total.y = _bind(    # copy_progress.nml:122
             lambda _o: max(0, _o.parent.height - _o.height)
         )
+
+        self._navml_built(__class__)

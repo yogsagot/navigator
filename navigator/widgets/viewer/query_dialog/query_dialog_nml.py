@@ -51,3 +51,5 @@ class QueryDialog(Dialog, _Component):
         self.sql.history_id = 'sql_query'    # query_dialog.nml:20
         self.sql.x = 2    # query_dialog.nml:16
         self.sql.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # query_dialog.nml:17
+
+        self._navml_built(__class__)

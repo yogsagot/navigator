@@ -114,6 +114,8 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
   default, not a Python `@property`: a derived document's line is a binding over the base's, which is allowed. A
   literal (`()`) would be a plain assignment over a live binding and is refused at run time; a dialog that hides
   `Dialog`'s buttons needs no line at all, since hidden buttons are not in the tab order.
+- **`key: "name"`** on a control (`Control`, `Field`, `MaskedField`, `ChoiceField`) names what it edits, a form
+  field's name. navml reads nothing into it; Navigator's setup pages seed and collect by it (`navigator-settings`).
 - **`local_menu: <SubMenu id>`** on a `Window` root makes that menu its right-click and Shift+F10 menu
   (`navml-windows-menus`).
 - `equal=` is not expressible in markup (a comparator is a function); declare such a property in the hand-written half.

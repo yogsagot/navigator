@@ -604,6 +604,8 @@ def _write(build: _Build) -> str:
         if group:
             coder.new_line()
             _write_lines(coder, build, 2, group)
+    coder.new_line()
+    coder.add(2, "self._navml_built(__class__)")
     return coder.render()
 
 

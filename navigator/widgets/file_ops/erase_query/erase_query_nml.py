@@ -139,3 +139,5 @@ class EraseQuery(Dialog, _Component):
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
         self.abandon.on_click = self.on_abandon_click    # erase_query.nml:66
+
+        self._navml_built(__class__)

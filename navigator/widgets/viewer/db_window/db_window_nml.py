@@ -249,3 +249,5 @@ class DBWindow(Window, _Component):
 
         _w15.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:116
         _w15.command = CloseWindow    # db_window.nml:116
+
+        self._navml_built(__class__)

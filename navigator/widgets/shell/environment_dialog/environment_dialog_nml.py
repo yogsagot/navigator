@@ -155,3 +155,5 @@ class EnvironmentDialog(Dialog, _Component):
         self.abandon.width = 11    # environment_dialog.nml:93
         self.abandon.height = 2    # environment_dialog.nml:94
         self.abandon.on_click = self.on_abandon_click    # environment_dialog.nml:89
+
+        self._navml_built(__class__)

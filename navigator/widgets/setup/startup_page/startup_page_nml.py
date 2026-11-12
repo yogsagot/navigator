@@ -19,13 +19,14 @@ from navkit.reactive import reactive as _reactive
 from navml.component import Component as _Component
 from navml.widgets.dialog.check_boxes import CheckBoxes    # startup_page.nml:1
 from navml.widgets.dialog.label import Label    # startup_page.nml:2
+from navigator.widgets.setup.settings_page import SettingsPage    # startup_page.nml:3
 
 __navml_component__ = "StartupPage"
 
 __all__ = ["StartupPage"]
 
 
-class StartupPage(_Component):
+class StartupPage(SettingsPage, _Component):
     """Options > Configuration > Startup: DOS Navigator's ``dlgStartupSetup``.
 
     The resource's groups, less what only meant something on DOS --
@@ -38,54 +39,60 @@ class StartupPage(_Component):
     #: The document this class was generated from.
     __navml_source__ = "startup_page.nml"
 
+    section_name = 'startup'    # startup_page.nml:13
+
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # startup_page.nml:13
+    title: str = _reactive('')    # startup_page.nml:16
 
     #: Ids, annotated so the hand-written half completes them.
-    startup_caption: Label    # startup_page.nml:16
-    startup: CheckBoxes    # startup_page.nml:24
-    shutdown_caption: Label    # startup_page.nml:33
-    shutdown: CheckBoxes    # startup_page.nml:41
+    startup_caption: Label    # startup_page.nml:19
+    startup: CheckBoxes    # startup_page.nml:27
+    shutdown_caption: Label    # startup_page.nml:37
+    shutdown: CheckBoxes    # startup_page.nml:45
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.startup_caption = Label(parent=self)    # startup_page.nml:15
-        self.startup = CheckBoxes(parent=self)    # startup_page.nml:23
-        self.shutdown_caption = Label(parent=self)    # startup_page.nml:32
-        self.shutdown = CheckBoxes(parent=self)    # startup_page.nml:40
+        self.startup_caption = Label(parent=self)    # startup_page.nml:18
+        self.startup = CheckBoxes(parent=self)    # startup_page.nml:26
+        self.shutdown_caption = Label(parent=self)    # startup_page.nml:36
+        self.shutdown = CheckBoxes(parent=self)    # startup_page.nml:44
 
-        self.startup_caption.x = 2    # startup_page.nml:17
-        self.startup_caption.y = 1    # startup_page.nml:18
-        self.startup_caption.width = 20    # startup_page.nml:19
-        self.startup_caption.text = _bind(    # startup_page.nml:20
+        self.startup_caption.x = 2    # startup_page.nml:20
+        self.startup_caption.y = 1    # startup_page.nml:21
+        self.startup_caption.width = 20    # startup_page.nml:22
+        self.startup_caption.text = _bind(    # startup_page.nml:23
             lambda _o: _tr('Startup options'),
             yielding=True,
         )
-        self.startup_caption.link = _bind(lambda _o: self.startup)    # startup_page.nml:21
+        self.startup_caption.link = _bind(lambda _o: self.startup)    # startup_page.nml:24
 
-        self.startup.y = 2    # startup_page.nml:25
-        self.startup.height = 1    # startup_page.nml:26
-        self.startup.items = _bind(    # startup_page.nml:30
+        self.startup.key = 'STARTUP'    # startup_page.nml:28
+        self.startup.y = 2    # startup_page.nml:29
+        self.startup.height = 1    # startup_page.nml:30
+        self.startup.items = _bind(    # startup_page.nml:34
             lambda _o: [_tr('Auto run ~U~ser Menu'), _tr('Clear ~H~istory')],
             yielding=True,
         )
-        self.startup.x = 2    # startup_page.nml:28
-        self.startup.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:29
+        self.startup.x = 2    # startup_page.nml:32
+        self.startup.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:33
 
-        self.shutdown_caption.x = 2    # startup_page.nml:34
-        self.shutdown_caption.y = 4    # startup_page.nml:35
-        self.shutdown_caption.width = 20    # startup_page.nml:36
-        self.shutdown_caption.text = _bind(    # startup_page.nml:37
+        self.shutdown_caption.x = 2    # startup_page.nml:38
+        self.shutdown_caption.y = 4    # startup_page.nml:39
+        self.shutdown_caption.width = 20    # startup_page.nml:40
+        self.shutdown_caption.text = _bind(    # startup_page.nml:41
             lambda _o: _tr('Shutdown options'),
             yielding=True,
         )
-        self.shutdown_caption.link = _bind(lambda _o: self.shutdown)    # startup_page.nml:38
+        self.shutdown_caption.link = _bind(lambda _o: self.shutdown)    # startup_page.nml:42
 
-        self.shutdown.y = 5    # startup_page.nml:42
-        self.shutdown.height = 2    # startup_page.nml:43
-        self.shutdown.items = _bind(    # startup_page.nml:47
+        self.shutdown.key = 'SHUTDOWN'    # startup_page.nml:46
+        self.shutdown.y = 5    # startup_page.nml:47
+        self.shutdown.height = 2    # startup_page.nml:48
+        self.shutdown.items = _bind(    # startup_page.nml:52
             lambda _o: [_tr('~I~nactivity hour exit'), _tr('Autosave ~D~esktop'), _tr('~P~reserve directory')],
             yielding=True,
         )
-        self.shutdown.x = 2    # startup_page.nml:45
-        self.shutdown.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:46
+        self.shutdown.x = 2    # startup_page.nml:50
+        self.shutdown.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # startup_page.nml:51
+
+        self._navml_built(__class__)

@@ -87,3 +87,5 @@ class RelinkDialog(Dialog, _Component):
         self.status.y = _bind(    # relink_dialog.nml:47
             lambda _o: max(0, _o.parent.height - 4 - _o.height)
         )
+
+        self._navml_built(__class__)

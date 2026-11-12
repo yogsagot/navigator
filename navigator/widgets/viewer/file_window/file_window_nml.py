@@ -455,3 +455,5 @@ class FileWindow(Window, _Component):
 
         _w29.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # file_window.nml:248
         _w29.command = CloseWindow    # file_window.nml:248
+
+        self._navml_built(__class__)

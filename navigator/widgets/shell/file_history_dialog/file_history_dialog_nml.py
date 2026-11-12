@@ -115,3 +115,5 @@ class FileHistoryDialog(Dialog, _Component):
         self.abandon.width = 10    # file_history_dialog.nml:53
         self.abandon.height = 2    # file_history_dialog.nml:54
         self.abandon.on_click = self.on_abandon_click    # file_history_dialog.nml:49
+
+        self._navml_built(__class__)

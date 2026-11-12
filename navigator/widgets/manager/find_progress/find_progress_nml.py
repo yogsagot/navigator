@@ -69,3 +69,5 @@ class FindProgress(Dialog, _Component):
         )
         self.count_row.x = 2    # find_progress.nml:31
         self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_progress.nml:32
+
+        self._navml_built(__class__)

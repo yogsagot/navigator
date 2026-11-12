@@ -62,3 +62,5 @@ class KeyCaptureDialog(Dialog, _Component):
         self.catcher.height = 1    # key_capture_dialog.nml:26
         self.catcher.x = 3    # key_capture_dialog.nml:28
         self.catcher.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # key_capture_dialog.nml:29
+
+        self._navml_built(__class__)

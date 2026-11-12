@@ -9,18 +9,18 @@ from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 import time
 from typing import Any
 from navkit.i18n import tr
-from navkit.widget import Widget
 from navml.calendars import SYSTEMS, plain
 from navigator.lib.config import country
-from navigator.settings import SETTINGS, CountryData
+from navigator.settings import CountryData
 from navigator.widgets.shell.calendar_window.calendar_window import view_captions
 
 
-class CountryPage(_Component):
+class CountryPage(SettingsPage, _Component):
     title: str
     date_caption: Label
     date_format: RadioButtons
@@ -33,7 +33,7 @@ class CountryPage(_Component):
     custom_date: Field
     custom_hint: StaticText
     example: StaticText
-    def __init__(self, section: CountryData | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, **kwargs: Any) -> None: ...
     def chosen_format(self) -> str: ...
     def sample(self) -> str: ...
     def example_text(self) -> str: ...

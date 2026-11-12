@@ -186,3 +186,5 @@ class EditorDefaultsPage(_Component):
         self.fallback_encoding.width = _bind(    # editor_defaults_page.nml:123
             lambda _o: max(0, _o.parent.width - 32)
         )
+
+        self._navml_built(__class__)

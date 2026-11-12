@@ -73,3 +73,5 @@ class Modal(_Component):
         self.height = _bind(lambda _o: _o.modal_height)    # modal.nml:41
         self.x = _bind(lambda _o: max(0, (_o.parent.width - _o.width) // 2))    # modal.nml:43
         self.y = _bind(lambda _o: max(0, (_o.parent.height - _o.height) // 2))    # modal.nml:43
+
+        self._navml_built(__class__)

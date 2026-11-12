@@ -1,56 +1,36 @@
-"""What OK means in *File Manager Setup*: the ``[file_manager]`` section's new values."""
+"""What OK means in *File Manager Setup*: the ``[file_manager]`` section's new
+values.  Its check boxes and radio buttons say what they edit (``key:``);
+the tag character and the Miller column width are read here."""
 
 from __future__ import annotations
 
 from typing import Any
 
-
-from navkit.widget import Widget
-
-from navigator.settings import SETTINGS, FMSetupData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: The narrowest *Miller column width* takes: ``miller_view.MIN_WIDTH``.
 MIN_WIDTH = 12
 
-#: *Right button*'s choices, in the order the radio buttons list them.
-RIGHT_BUTTON = ("menu", "select")
 
-#: *Remember directory settings*' choices, in the radio buttons' order.
-REMEMBER = ("off", "marked", "all")
-
-
-class FMSetupPage(Widget):
+class FMSetupPage(SettingsPage):
     """DN's ``TFMSetup``: Options, Show and TagChar, and the right button."""
 
-    def __init__(self, section: FMSetupData | None = None, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
-        self.section = section or SETTINGS.file_manager
-        self.behavior.value = self.section.to_bits(FMSetupData.BEHAVIOR)
-        self.behavior.tooltips = FMSetupData.tooltips(FMSetupData.BEHAVIOR)
-        self.display.value = self.section.to_bits(FMSetupData.DISPLAY)
-        self.display.tooltips = FMSetupData.tooltips(FMSetupData.DISPLAY)
         self.tag_sign.value = self.section.tag_sign
         self.tag_sign.tooltip = self.section.tooltip("tag_sign")
-        self.right_button.value = RIGHT_BUTTON.index(self.section.right_button)
-        self.right_button.tooltip = self.section.tooltip("right_button")
-        self.remember_directories.value = REMEMBER.index(self.section.remember_directories)
         self.miller_width.value = str(self.section.miller_width)
         self.miller_width.tooltip = self.section.tooltip("miller_width")
 
     def accept(self) -> dict[str, Any]:
         return {
-            **FMSetupData.from_bits(FMSetupData.BEHAVIOR, self.behavior.value),
-            **FMSetupData.from_bits(FMSetupData.DISPLAY, self.display.value),
-            # DN's line held one character; an empty one keeps the old sign.
+            **super().accept(),
+            # One character, or the one it had.
             "tag_sign": self.tag_sign.value.strip()[:1] or self.section.tag_sign,
-            "right_button": RIGHT_BUTTON[self.right_button.value],
-            "remember_directories": REMEMBER[self.remember_directories.value],
             "miller_width": self._miller_width(),
         }
 
     def _miller_width(self) -> int:
-        """The width typed, at least :data:`MIN_WIDTH`; what it was, for
-        anything that is not a number."""
         try:
             return max(MIN_WIDTH, int(self.miller_width.value.strip()))
         except ValueError:

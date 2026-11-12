@@ -100,3 +100,5 @@ class TableFormatDialog(Dialog, _Component):
         self.encoding.label_width = 10    # table_format_dialog.nml:57
         self.encoding.x = 3    # table_format_dialog.nml:54
         self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:55
+
+        self._navml_built(__class__)

@@ -1,4 +1,5 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > Confirmations: DOS Navigator's ``dlgConfirmations``.
 #:
@@ -7,12 +8,15 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 #: *Close command window* added (departures, asked for: DN's F2 never asked,
 #: its drive box had no Del, and it had no command windows).  Four columns wider than DN's 36, for this library's
 #: eleven-column buttons; Help is left out, having nothing to show yet.
-ConfirmationsPage:
+ConfirmationsPage(SettingsPage):
+    class section_name: "confirmations"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
     CheckBoxes:
         id: options
+        key: "OPTIONS"
         y: 1
         height: 10
         anchors:

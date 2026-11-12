@@ -9,16 +9,16 @@ from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.setup.settings_page import SettingsPage
 
 from typing import Any
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import flag_emoji, flags, languages, tr
-from navkit.widget import Widget
 from navigator.lib.config.language import AUTOMATIC
 from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
 
 
-class InterfacePage(_Component):
+class InterfacePage(SettingsPage, _Component):
     title: str
     options: CheckBoxes
     history_size: MaskedField
@@ -33,7 +33,7 @@ class InterfacePage(_Component):
     settings_tabs: RadioButtons
     window_strip_caption: Label
     window_strip: RadioButtons
-    def __init__(self, section: InterfaceData | None = ..., appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, appearance: AppearanceData | None = ..., **kwargs: Any) -> None: ...
     def mounted(self) -> None: ...
     def _flag_languages(self) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...

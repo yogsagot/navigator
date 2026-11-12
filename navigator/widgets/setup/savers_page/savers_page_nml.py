@@ -158,3 +158,5 @@ class SaversPage(_Component):
             lambda _o: [_tr('Use ~m~ouse to call saver')],
             yielding=True,
         )
+
+        self._navml_built(__class__)

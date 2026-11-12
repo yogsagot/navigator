@@ -388,3 +388,5 @@ class SyncWindow(Window, _Component):
 
         _w22.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # sync_window.nml:186
         _w22.command = CloseWindow    # sync_window.nml:186
+
+        self._navml_built(__class__)

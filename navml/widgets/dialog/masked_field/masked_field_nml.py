@@ -41,37 +41,43 @@ class MaskedField(HorizontalLayout, _Component):
     #: The caption, with one ``~A~`` run.
     label_text: str = _reactive('')    # masked_field.nml:12
 
+    #: What this field edits, by name, as ``Control.key`` says: navml reads
+    #: nothing into it, a page that seeds and collects its fields does.
+    key: str = _reactive('')    # masked_field.nml:16
+
     #: How many columns the caption takes before the line begins.
-    label_width: int = _reactive(12)    # masked_field.nml:15
+    label_width: int = _reactive(12)    # masked_field.nml:19
 
     #: The shape: ``9`` a digit's place, anything else a literal.
-    mask: str = _reactive('')    # masked_field.nml:18
+    mask: str = _reactive('')    # masked_field.nml:22
 
     #: Which digits a place takes, ``0`` to ``base - 1``.
-    base: int = _reactive(10)    # masked_field.nml:21
+    base: int = _reactive(10)    # masked_field.nml:25
 
     #: Whether PgUp and PgDn step the line by ten, or pass on outward.
-    page_keys: bool = _reactive(True)    # masked_field.nml:24
+    page_keys: bool = _reactive(True)    # masked_field.nml:28
 
     #: The text in the line.
-    value: str = _Alias("entry", "value")    # masked_field.nml:27
+    value: str = _Alias("entry", "value")    # masked_field.nml:31
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # masked_field.nml:30
-    entry: MaskedLine    # masked_field.nml:37
+    caption: Label    # masked_field.nml:34
+    entry: MaskedLine    # masked_field.nml:41
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # masked_field.nml:29
-        self.entry = MaskedLine(parent=self)    # masked_field.nml:36
+        self.caption = Label(parent=self)    # masked_field.nml:33
+        self.entry = MaskedLine(parent=self)    # masked_field.nml:40
 
-        self.caption.inline_style = _bind(    # masked_field.nml:31
+        self.caption.inline_style = _bind(    # masked_field.nml:35
             lambda _o: 'basis: %d; grow: 0' % _o.parent.label_width
         )
-        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # masked_field.nml:32
-        self.caption.link = _bind(lambda _o: self.entry)    # masked_field.nml:33
-        self.caption.align = 'left'    # masked_field.nml:34
+        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # masked_field.nml:36
+        self.caption.link = _bind(lambda _o: self.entry)    # masked_field.nml:37
+        self.caption.align = 'left'    # masked_field.nml:38
 
-        self.entry.mask = _bind(lambda _o: _o.parent.mask)    # masked_field.nml:38
-        self.entry.base = _bind(lambda _o: _o.parent.base)    # masked_field.nml:39
-        self.entry.page_keys = _bind(lambda _o: _o.parent.page_keys)    # masked_field.nml:40
+        self.entry.mask = _bind(lambda _o: _o.parent.mask)    # masked_field.nml:42
+        self.entry.base = _bind(lambda _o: _o.parent.base)    # masked_field.nml:43
+        self.entry.page_keys = _bind(lambda _o: _o.parent.page_keys)    # masked_field.nml:44
+
+        self._navml_built(__class__)

@@ -8,13 +8,12 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.setup.settings_page import SettingsPage
 
 from typing import Any
-from navkit.widget import Widget
-from navigator.settings import SETTINGS, FMSetupData
 
 
-class FMSetupPage(_Component):
+class FMSetupPage(SettingsPage, _Component):
     title: str
     behavior_caption: Label
     behavior: CheckBoxes
@@ -26,6 +25,6 @@ class FMSetupPage(_Component):
     right_button: RadioButtons
     remember_caption: Label
     remember_directories: RadioButtons
-    def __init__(self, section: FMSetupData | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...
     def _miller_width(self) -> int: ...

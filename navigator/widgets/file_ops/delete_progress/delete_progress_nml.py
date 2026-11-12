@@ -103,3 +103,5 @@ class DeleteProgress(Dialog, _Component):
         self.pace_row.text = _bind(lambda _o: self.pace(self.speed, self.left))    # delete_progress.nml:77
         self.pace_row.x = 2    # delete_progress.nml:74
         self.pace_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_progress.nml:75
+
+        self._navml_built(__class__)

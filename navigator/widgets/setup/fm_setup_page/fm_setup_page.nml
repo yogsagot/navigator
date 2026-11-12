@@ -2,6 +2,7 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > Setup: DOS Navigator's ``dlgFMSetup``.
 #:
@@ -28,7 +29,9 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: position* and *Remember directory settings* (``[file_manager]
 #: restore_cursor``, ``remember_directories``): DN remembered nothing per
 #: directory (``navigator/lib/config/directory_settings.py``).
-FMSetupPage:
+FMSetupPage(SettingsPage):
+    class section_name: "file_manager"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -42,6 +45,7 @@ FMSetupPage:
 
     CheckBoxes:
         id: behavior
+        key: "BEHAVIOR"
         x: 2
         y: 2
         width: 33
@@ -66,6 +70,7 @@ FMSetupPage:
 
     CheckBoxes:
         id: display
+        key: "DISPLAY"
         y: 2
         height: 6
         anchors:
@@ -91,6 +96,7 @@ FMSetupPage:
 
     RadioButtons:
         id: right_button
+        key: "right_button"
         y: 11
         height: 2
         anchors:
@@ -109,6 +115,7 @@ FMSetupPage:
 
     RadioButtons:
         id: remember_directories
+        key: "remember_directories"
         y: 14
         height: 3
         anchors:

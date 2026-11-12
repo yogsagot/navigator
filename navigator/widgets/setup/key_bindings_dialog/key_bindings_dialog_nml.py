@@ -221,3 +221,5 @@ class KeyBindingsDialog(Dialog, _Component):
         self.abandon.width = 11    # key_bindings_dialog.nml:145
         self.abandon.height = 2    # key_bindings_dialog.nml:146
         self.abandon.on_click = self.on_abandon_click    # key_bindings_dialog.nml:141
+
+        self._navml_built(__class__)

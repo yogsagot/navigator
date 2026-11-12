@@ -83,3 +83,5 @@ class TerminalWindow(Window, _Component):
         self.bar.y = 1    # terminal_window.nml:40
         self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # terminal_window.nml:41
         self.bar.on_scroll = self.on_bar_scroll    # terminal_window.nml:35
+
+        self._navml_built(__class__)

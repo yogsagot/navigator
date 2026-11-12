@@ -3,6 +3,7 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > *Communications*: where DOS Navigator set up the
 #: modem and the cable its Navigator Link ran over (``cmSetupModem``) --
@@ -15,12 +16,15 @@ from navml.widgets.dialog.static_text import StaticText
 #: *Notify when a long operation ends* is not DN's either: a desktop
 #: notification once the terminal is in the background (``[system]
 #: notifications``, ``Shell.notify_away``).
-CommunicationsPage:
+CommunicationsPage(SettingsPage):
+    class section_name: "remote"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
     MaskedField:
         id: keepalive
+        key: "keepalive"
         x: 3
         y: 1
         width: 33
@@ -39,6 +43,7 @@ CommunicationsPage:
 
     MaskedField:
         id: timeout
+        key: "timeout"
         x: 3
         y: 2
         width: 33
@@ -57,6 +62,7 @@ CommunicationsPage:
 
     MaskedField:
         id: idle_disconnect
+        key: "idle_disconnect"
         x: 3
         y: 3
         width: 33
@@ -75,6 +81,7 @@ CommunicationsPage:
 
     MaskedField:
         id: refresh
+        key: "refresh"
         x: 3
         y: 4
         width: 33
@@ -101,6 +108,7 @@ CommunicationsPage:
 
     RadioButtons:
         id: upload_changed
+        key: "upload_changed"
         y: 7
         height: 1
         anchors:
@@ -120,6 +128,7 @@ CommunicationsPage:
     #: Two rows, two columns: one row is wider than the page with the tabs down the left.
     RadioButtons:
         id: desktop_vfs
+        key: "system.desktop_vfs"
         y: 10
         height: 2
         anchors:
@@ -130,6 +139,7 @@ CommunicationsPage:
     #: Not DN's: what every Remote shell's ``ssh`` gets (``[remote] ssh_options``).
     Field:
         id: ssh_options
+        key: "ssh_options"
         y: 13
         anchors:
             left: 3
@@ -150,6 +160,7 @@ CommunicationsPage:
 
     RadioButtons:
         id: notifications
+        key: "system.notifications"
         y: 15
         height: 2
         anchors:

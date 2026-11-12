@@ -163,3 +163,5 @@ class StructWindow(Window, _Component):
 
         _w10.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # struct_window.nml:68
         _w10.command = CloseWindow    # struct_window.nml:68
+
+        self._navml_built(__class__)

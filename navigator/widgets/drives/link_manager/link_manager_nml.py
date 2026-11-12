@@ -324,3 +324,5 @@ class LinkManagerDialog(Dialog, _Component):
             self.spawn(self._cancel())
             return True
         self.abandon.on_click = _on_click
+
+        self._navml_built(__class__)

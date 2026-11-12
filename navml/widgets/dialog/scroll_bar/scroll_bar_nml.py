@@ -53,3 +53,5 @@ class ScrollBar(_Component):
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
+
+        self._navml_built(__class__)

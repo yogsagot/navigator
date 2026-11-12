@@ -216,3 +216,5 @@ class UnicodeChart(Dialog, _Component):
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
         self.abandon.on_click = self.on_abandon_click    # unicode_chart.nml:132
+
+        self._navml_built(__class__)

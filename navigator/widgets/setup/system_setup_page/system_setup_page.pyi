@@ -10,14 +10,10 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
-
-from typing import Any
-from navkit.widget import Widget
-from navigator.lib.system.elevate import CHOICES as ELEVATE
-from navigator.settings import ON_ERROR, SETTINGS, SystemData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-class SystemSetupPage(_Component):
+class SystemSetupPage(SettingsPage, _Component):
     title: str
     options_caption: Label
     options: CheckBoxes
@@ -31,5 +27,4 @@ class SystemSetupPage(_Component):
     elevate: RadioButtons
     root_timeout: MaskedField
     root_timeout_unit: StaticText
-    def __init__(self, section: SystemData | None = ..., **kwargs: Any) -> None: ...
-    def accept(self) -> dict[str, Any]: ...
+    def __init__(self, **kwargs: _Any) -> None: ...

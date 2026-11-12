@@ -76,3 +76,5 @@ class TimeField(HorizontalLayout, _Component):
         self.picker.link = _bind(lambda _o: self.entry)    # time_field.nml:40
         self.picker.time_format = _bind(lambda _o: _o.parent.time_format)    # time_field.nml:41
         self.picker.inline_style = 'basis: 3; grow: 0'    # time_field.nml:42
+
+        self._navml_built(__class__)

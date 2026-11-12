@@ -3,6 +3,7 @@ from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > Country support: DOS Navigator's
 #: ``dlgCountrySetup``, *Country information* (``[country]``, ``CountryData``).
@@ -15,7 +16,9 @@ from navml.widgets.dialog.static_text import StaticText
 #: writes money, and case is Unicode's.  *Example* is not DN's: the stamp a
 #: panel's *Date* column would show now, following the choices as they are
 #: made.  Help is left out, having nothing to show yet.
-CountryPage:
+CountryPage(SettingsPage):
+    class section_name: "country"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -29,6 +32,7 @@ CountryPage:
 
     RadioButtons:
         id: date_format
+        key: "date_format"
         x: 3
         y: 2
         width: 34
@@ -62,6 +66,7 @@ CountryPage:
 
     RadioButtons:
         id: first_day
+        key: "first_day"
         x: 40
         y: 5
         width: 20

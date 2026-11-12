@@ -112,3 +112,5 @@ class SystemInfoDialog(Dialog, _Component):
         self.other.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # system_info_dialog.nml:77
         self.other.y = 1    # system_info_dialog.nml:78
         self.other.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # system_info_dialog.nml:79
+
+        self._navml_built(__class__)

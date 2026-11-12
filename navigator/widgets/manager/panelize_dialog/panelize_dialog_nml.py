@@ -66,3 +66,5 @@ class PanelizeDialog(Dialog, _Component):
         self.line.history_id = 'panelize'    # panelize_dialog.nml:31
         self.line.x = 2    # panelize_dialog.nml:27
         self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panelize_dialog.nml:28
+
+        self._navml_built(__class__)

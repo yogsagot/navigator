@@ -67,3 +67,5 @@ class RenameDialog(Dialog, _Component):
         self.line.label_width = 0    # rename_dialog.nml:34
         self.line.x = 2    # rename_dialog.nml:31
         self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # rename_dialog.nml:32
+
+        self._navml_built(__class__)

@@ -127,3 +127,5 @@ class MarginsDialog(Dialog, _Component):
         self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # margins_dialog.nml:63
         self.helper.disabled = True    # margins_dialog.nml:64
         self.helper.on_click = self.on_helper_click    # margins_dialog.nml:62
+
+        self._navml_built(__class__)

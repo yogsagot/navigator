@@ -56,3 +56,5 @@ class GotoLineDialog(Dialog, _Component):
         self.number.history_id = 'goto_line'    # goto_line_dialog.nml:23
         self.number.x = 3    # goto_line_dialog.nml:19
         self.number.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_line_dialog.nml:20
+
+        self._navml_built(__class__)

@@ -26,6 +26,12 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
 - **The generated class constructs children inline in `__init__`**, not a `_build()` method (a derived component's would
   override it). **A derived component's own children land after its base's** -- `Dialog.focusable()` moves its buttons
   to the end for this.
+- **`Component.built()` runs once the whole tree exists.**
+  - Every generated `__init__` ends with `self._navml_built(__class__)`, which calls `built()` only from the
+    generated class nearest the instance's own. A derived document's children are there too.
+  - It runs before the hand-written half's `__init__` goes on past `super().__init__()`.
+  - Declared properties a caller passed are already set.
+  - Use it for work that needs every child but must not wait for mounting (`SettingsPage` seeds its controls there).
 
 ## A component is a directory; components come in groups
 

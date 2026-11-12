@@ -58,3 +58,5 @@ class WinnerDialog(Dialog, _Component):
         self.player.history_id = 'tetris'    # winner_dialog.nml:21
         self.player.x = 2    # winner_dialog.nml:17
         self.player.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # winner_dialog.nml:18
+
+        self._navml_built(__class__)

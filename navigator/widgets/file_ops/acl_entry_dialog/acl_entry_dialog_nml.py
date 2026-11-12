@@ -113,3 +113,5 @@ class AclEntryDialog(Dialog, _Component):
         )
         self.default_box.x = 14    # acl_entry_dialog.nml:68
         self.default_box.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # acl_entry_dialog.nml:69
+
+        self._navml_built(__class__)

@@ -78,3 +78,5 @@ class ChecksumReport(Dialog, _Component):
         self.bad.visible = _bind(lambda _o: len(_o.items) > 0)    # checksum_report.nml:42
         self.bad.x = 2    # checksum_report.nml:40
         self.bad.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_report.nml:41
+
+        self._navml_built(__class__)

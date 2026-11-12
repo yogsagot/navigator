@@ -141,3 +141,5 @@ class ConvertTextDialog(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # convert_text_dialog.nml:84
         self.abandon.on_click = self.on_abandon_click    # convert_text_dialog.nml:83
+
+        self._navml_built(__class__)

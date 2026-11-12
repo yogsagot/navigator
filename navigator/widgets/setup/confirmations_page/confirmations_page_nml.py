@@ -18,13 +18,14 @@ from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
 from navml.widgets.dialog.check_boxes import CheckBoxes    # confirmations_page.nml:1
+from navigator.widgets.setup.settings_page import SettingsPage    # confirmations_page.nml:2
 
 __navml_component__ = "ConfirmationsPage"
 
 __all__ = ["ConfirmationsPage"]
 
 
-class ConfirmationsPage(_Component):
+class ConfirmationsPage(SettingsPage, _Component):
     """Options > Configuration > Confirmations: DOS Navigator's ``dlgConfirmations``.
 
     The resource's one column of boxes, less *Close CD player*, which has no
@@ -37,21 +38,26 @@ class ConfirmationsPage(_Component):
     #: The document this class was generated from.
     __navml_source__ = "confirmations_page.nml"
 
+    section_name = 'confirmations'    # confirmations_page.nml:12
+
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # confirmations_page.nml:12
+    title: str = _reactive('')    # confirmations_page.nml:15
 
     #: Ids, annotated so the hand-written half completes them.
-    options: CheckBoxes    # confirmations_page.nml:15
+    options: CheckBoxes    # confirmations_page.nml:18
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:14
+        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:17
 
-        self.options.y = 1    # confirmations_page.nml:16
-        self.options.height = 10    # confirmations_page.nml:17
-        self.options.items = _bind(    # confirmations_page.nml:21
+        self.options.key = 'OPTIONS'    # confirmations_page.nml:19
+        self.options.y = 1    # confirmations_page.nml:20
+        self.options.height = 10    # confirmations_page.nml:21
+        self.options.items = _bind(    # confirmations_page.nml:25
             lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark'), _tr('Close command ~w~indow')],
             yielding=True,
         )
-        self.options.x = 3    # confirmations_page.nml:19
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:20
+        self.options.x = 3    # confirmations_page.nml:23
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:24
+
+        self._navml_built(__class__)

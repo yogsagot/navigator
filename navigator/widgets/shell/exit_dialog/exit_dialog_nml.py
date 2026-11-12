@@ -86,3 +86,5 @@ class ExitDialog(Dialog, _Component):
         self.options.x = _bind(    # exit_dialog.nml:42
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
+
+        self._navml_built(__class__)

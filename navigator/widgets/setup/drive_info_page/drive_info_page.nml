@@ -1,5 +1,6 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > Information panel: DOS Navigator's ``dlgDriveInfoSetup``.
 #:
@@ -7,7 +8,9 @@ from navml.widgets.dialog.label import Label
 #: meant something on DOS; *Conventional Memory* is the machine's.  *File
 #: under the cursor* and *Media information* are Navigator's own.  Help is
 #: left out, having nothing to show yet.
-DriveInfoPage:
+DriveInfoPage(SettingsPage):
+    class section_name: "drive_info"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -21,6 +24,7 @@ DriveInfoPage:
 
     CheckBoxes:
         id: options
+        key: "OPTIONS"
         y: 2
         height: 11
         anchors:

@@ -71,3 +71,5 @@ class PasswordDialog(Dialog, _Component):
         )
         self.keep.x = 3    # password_dialog.nml:30
         self.keep.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # password_dialog.nml:31
+
+        self._navml_built(__class__)

@@ -87,3 +87,5 @@ class FilterLinesDialog(Dialog, _Component):
         )
         self.options.x = 2    # filter_lines_dialog.nml:46
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # filter_lines_dialog.nml:47
+
+        self._navml_built(__class__)

@@ -171,3 +171,5 @@ class CopyDialog(Dialog, _Component):
         self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:108
         self.help.disabled = True    # copy_dialog.nml:109
         self.help.on_click = self.on_help_click    # copy_dialog.nml:107
+
+        self._navml_built(__class__)

@@ -2,35 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
-
-from navkit.widget import Widget
-
-from navigator.settings import SETTINGS, PanelDefaultsData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-class FMDefaultsPage(Widget):
+class FMDefaultsPage(SettingsPage):
     """DN's ``TPanelDefaultsData``: Sort, Show and LeftPanel, and the panel mode."""
-
-    def __init__(self, section: PanelDefaultsData | None = None, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.section = section or SETTINGS.panel_defaults
-        self.sort_by.value = PanelDefaultsData.SORT_BY.index(self.section.sort_by)
-        self.sort_by.tooltip = self.section.tooltip("sort_by")
-        self.reverse.value = 1 if self.section.sort_reverse else 0
-        self.reverse.tooltip = self.section.tooltip("sort_reverse")
-        self.display.value = self.section.to_bits(PanelDefaultsData.DISPLAY)
-        self.display.tooltips = PanelDefaultsData.tooltips(PanelDefaultsData.DISPLAY)
-        self.left_panel.value = PanelDefaultsData.LEFT_PANEL.index(self.section.left_panel)
-        self.left_panel.tooltip = self.section.tooltip("left_panel")
-        self.view_mode.value = PanelDefaultsData.VIEW_MODE.index(self.section.view_mode)
-        self.view_mode.tooltip = self.section.tooltip("view_mode")
-
-    def accept(self) -> dict[str, Any]:
-        return {
-            "sort_by": PanelDefaultsData.SORT_BY[self.sort_by.value],
-            "sort_reverse": bool(self.reverse.value),
-            **PanelDefaultsData.from_bits(PanelDefaultsData.DISPLAY, self.display.value),
-            "left_panel": PanelDefaultsData.LEFT_PANEL[self.left_panel.value],
-            "view_mode": PanelDefaultsData.VIEW_MODE[self.view_mode.value],
-        }

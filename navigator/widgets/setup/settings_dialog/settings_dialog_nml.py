@@ -174,3 +174,5 @@ class SettingsDialog(Dialog, _Component):
         )
 
         self.tools.title = _bind(lambda _o: _tr('Tools'), yielding=True)    # settings_dialog.nml:113
+
+        self._navml_built(__class__)

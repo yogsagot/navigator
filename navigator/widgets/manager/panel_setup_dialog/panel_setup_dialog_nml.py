@@ -128,3 +128,5 @@ class PanelSetupDialog(Dialog, _Component):
         self.mask.history_id = 'file_mask'    # panel_setup_dialog.nml:81
         self.mask.x = 2    # panel_setup_dialog.nml:77
         self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:78
+
+        self._navml_built(__class__)

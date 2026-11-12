@@ -144,3 +144,5 @@ class CalculateChecksumsDialog(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # calculate_checksums_dialog.nml:80
         self.abandon.on_click = self.on_abandon_click    # calculate_checksums_dialog.nml:79
+
+        self._navml_built(__class__)

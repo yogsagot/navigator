@@ -114,3 +114,5 @@ class FindBar(_Component):
         self.new.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # find_bar.nml:60
         self.new.label_width = 0    # find_bar.nml:61
         self.new.history_id = 'find_text'    # find_bar.nml:62
+
+        self._navml_built(__class__)

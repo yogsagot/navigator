@@ -47,3 +47,5 @@ class TopTenDialog(Dialog, _Component):
             yielding=True,
         )
         self.buttons = 'ok'    # top_ten_dialog.nml:11
+
+        self._navml_built(__class__)

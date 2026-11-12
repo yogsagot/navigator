@@ -16,6 +16,10 @@ ChoiceField(HorizontalLayout):
     #: The caption, with one ``~A~`` run.
     property label_text: ""
 
+    #: What this field edits, by name, as ``Control.key`` says: navml reads
+    #: nothing into it, a page that seeds and collects its fields does.
+    property key: ""
+
     #: How many columns the caption takes before the line begins.
     property label_width: 12
 

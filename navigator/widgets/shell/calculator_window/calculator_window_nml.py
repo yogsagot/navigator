@@ -557,3 +557,5 @@ class CalculatorWindow(Window, _Component):
 
         _w10.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # calculator_window.nml:388
         _w10.command = CloseWindow    # calculator_window.nml:388
+
+        self._navml_built(__class__)

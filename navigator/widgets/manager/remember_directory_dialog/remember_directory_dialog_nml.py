@@ -84,3 +84,5 @@ class RememberDirectoryDialog(Dialog, _Component):
         self.options.x = _bind(    # remember_directory_dialog.nml:41
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
+
+        self._navml_built(__class__)

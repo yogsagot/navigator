@@ -45,32 +45,38 @@ class ChoiceField(HorizontalLayout, _Component):
     #: The caption, with one ``~A~`` run.
     label_text: str = _reactive('')    # choice_field.nml:17
 
+    #: What this field edits, by name, as ``Control.key`` says: navml reads
+    #: nothing into it, a page that seeds and collects its fields does.
+    key: str = _reactive('')    # choice_field.nml:21
+
     #: How many columns the caption takes before the line begins.
-    label_width: int = _reactive(12)    # choice_field.nml:20
+    label_width: int = _reactive(12)    # choice_field.nml:24
 
     #: The text in the line: one of ``choices``, or what it was seeded with.
-    value: str = _Alias("entry", "value")    # choice_field.nml:23
+    value: str = _Alias("entry", "value")    # choice_field.nml:27
 
     #: What the button drops.
-    choices: _Any = _Alias("history", "choices")    # choice_field.nml:26
+    choices: _Any = _Alias("history", "choices")    # choice_field.nml:30
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # choice_field.nml:29
-    entry: ChoiceLine    # choice_field.nml:36
-    history: History    # choice_field.nml:39
+    caption: Label    # choice_field.nml:33
+    entry: ChoiceLine    # choice_field.nml:40
+    history: History    # choice_field.nml:43
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # choice_field.nml:28
-        self.entry = ChoiceLine(parent=self)    # choice_field.nml:35
-        self.history = History(parent=self)    # choice_field.nml:38
+        self.caption = Label(parent=self)    # choice_field.nml:32
+        self.entry = ChoiceLine(parent=self)    # choice_field.nml:39
+        self.history = History(parent=self)    # choice_field.nml:42
 
-        self.caption.inline_style = _bind(    # choice_field.nml:30
+        self.caption.inline_style = _bind(    # choice_field.nml:34
             lambda _o: 'basis: %d; grow: 0' % _o.parent.label_width
         )
-        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # choice_field.nml:31
-        self.caption.link = _bind(lambda _o: self.entry)    # choice_field.nml:32
-        self.caption.align = 'left'    # choice_field.nml:33
+        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # choice_field.nml:35
+        self.caption.link = _bind(lambda _o: self.entry)    # choice_field.nml:36
+        self.caption.align = 'left'    # choice_field.nml:37
 
-        self.history.link = _bind(lambda _o: self.entry)    # choice_field.nml:40
-        self.history.inline_style = 'basis: 3; grow: 0'    # choice_field.nml:41
+        self.history.link = _bind(lambda _o: self.entry)    # choice_field.nml:44
+        self.history.inline_style = 'basis: 3; grow: 0'    # choice_field.nml:45
+
+        self._navml_built(__class__)

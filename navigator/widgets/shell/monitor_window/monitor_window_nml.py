@@ -161,3 +161,5 @@ class MonitorWindow(Window, _Component):
 
         _w3.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # monitor_window.nml:108
         _w3.command = CloseWindow    # monitor_window.nml:108
+
+        self._navml_built(__class__)

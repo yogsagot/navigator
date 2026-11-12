@@ -1373,3 +1373,5 @@ class MainMenu(MenuBar, _Component):
             lambda _o: _tr('Bring back the progress box of a copy or an erase running in the background'),
             yielding=True,
         )
+
+        self._navml_built(__class__)

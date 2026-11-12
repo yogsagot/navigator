@@ -211,3 +211,5 @@ class FindFileDialog(Dialog, _Component):
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
         self.abandon.on_click = self.on_abandon_click    # find_file_dialog.nml:122
+
+        self._navml_built(__class__)

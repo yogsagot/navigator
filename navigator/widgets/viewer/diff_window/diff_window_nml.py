@@ -179,3 +179,5 @@ class DiffWindow(Window, _Component):
 
         _w6.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # diff_window.nml:108
         _w6.command = CloseWindow    # diff_window.nml:108
+
+        self._navml_built(__class__)

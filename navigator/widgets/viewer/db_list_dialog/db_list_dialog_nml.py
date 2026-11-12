@@ -56,3 +56,5 @@ class DBListDialog(Dialog, _Component):
         self.lines.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # db_list_dialog.nml:25
         self.lines.y = 2    # db_list_dialog.nml:26
         self.lines.height = _bind(lambda _o: max(0, _o.parent.height - 7))    # db_list_dialog.nml:27
+
+        self._navml_built(__class__)

@@ -137,3 +137,5 @@ class WindowManagerDialog(Dialog, _Component):
         self.helper.width = 10    # window_manager.nml:76
         self.helper.height = 2    # window_manager.nml:77
         self.helper.on_click = self.on_helper_click    # window_manager.nml:71
+
+        self._navml_built(__class__)

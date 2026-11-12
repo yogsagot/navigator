@@ -12,6 +12,7 @@ from navml.widgets.dialog.label import Label
 
 class Field(HorizontalLayout, _Component):
     label_text: str
+    key: str
     label_width: int
     history_id: str
     choices: _Any

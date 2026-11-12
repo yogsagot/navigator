@@ -189,3 +189,5 @@ class MultiRenameDialog(Dialog, _Component):
         self.status.y = _bind(    # multi_rename_dialog.nml:132
             lambda _o: max(0, _o.parent.height - 4 - _o.height)
         )
+
+        self._navml_built(__class__)

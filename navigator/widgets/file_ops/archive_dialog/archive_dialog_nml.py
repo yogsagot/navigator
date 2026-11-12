@@ -230,3 +230,5 @@ class ArchiveDialog(Dialog, _Component):
         self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # archive_dialog.nml:152
         self.help.disabled = True    # archive_dialog.nml:153
         self.help.on_click = self.on_help_click    # archive_dialog.nml:151
+
+        self._navml_built(__class__)

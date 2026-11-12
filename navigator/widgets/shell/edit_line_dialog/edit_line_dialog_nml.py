@@ -65,3 +65,5 @@ class EditLineDialog(Dialog, _Component):
         self.line.history_id = 'edit_history'    # edit_line_dialog.nml:33
         self.line.x = 2    # edit_line_dialog.nml:29
         self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # edit_line_dialog.nml:30
+
+        self._navml_built(__class__)

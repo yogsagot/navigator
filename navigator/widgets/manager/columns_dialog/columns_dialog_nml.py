@@ -133,3 +133,5 @@ class ColumnsDialog(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # columns_dialog.nml:74
         self.abandon.on_click = self.on_abandon_click    # columns_dialog.nml:73
+
+        self._navml_built(__class__)

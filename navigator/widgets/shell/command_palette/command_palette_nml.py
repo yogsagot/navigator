@@ -85,3 +85,5 @@ class CommandPalette(Dialog, _Component):
         self.hint.y = _bind(    # command_palette.nml:48
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
+
+        self._navml_built(__class__)

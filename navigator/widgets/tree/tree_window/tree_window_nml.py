@@ -113,3 +113,5 @@ class TreeWindow(Window, _Component):
 
         _w4.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # tree_window.nml:58
         _w4.command = CloseWindow    # tree_window.nml:58
+
+        self._navml_built(__class__)

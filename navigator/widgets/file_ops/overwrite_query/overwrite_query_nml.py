@@ -146,3 +146,5 @@ class OverwriteQuery(Dialog, _Component):
 
         self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # overwrite_query.nml:79
         self.abandon.on_click = self.on_abandon_click    # overwrite_query.nml:78
+
+        self._navml_built(__class__)

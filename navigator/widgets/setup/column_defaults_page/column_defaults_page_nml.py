@@ -19,13 +19,14 @@ from navkit.reactive import reactive as _reactive
 from navml.component import Component as _Component
 from navml.widgets.dialog.check_boxes import CheckBoxes    # column_defaults_page.nml:1
 from navml.widgets.dialog.label import Label    # column_defaults_page.nml:2
+from navigator.widgets.setup.settings_page import SettingsPage    # column_defaults_page.nml:3
 
 __navml_component__ = "ColumnDefaultsPage"
 
 __all__ = ["ColumnDefaultsPage"]
 
 
-class ColumnDefaultsPage(_Component):
+class ColumnDefaultsPage(SettingsPage, _Component):
     """Options > File Manager > Column defaults: DOS Navigator's ``dlgColumnsDefaults``.
 
     Its *Disk Drive*, *File find* and *Archives* groups, side by side as DN had
@@ -40,76 +41,83 @@ class ColumnDefaultsPage(_Component):
     #: The document this class was generated from.
     __navml_source__ = "column_defaults_page.nml"
 
+    section_name = 'column_defaults'    # column_defaults_page.nml:15
+
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # column_defaults_page.nml:15
+    title: str = _reactive('')    # column_defaults_page.nml:18
 
     #: Ids, annotated so the hand-written half completes them.
-    disk_caption: Label    # column_defaults_page.nml:18
-    disk: CheckBoxes    # column_defaults_page.nml:26
-    find_caption: Label    # column_defaults_page.nml:34
-    find: CheckBoxes    # column_defaults_page.nml:42
-    arc_caption: Label    # column_defaults_page.nml:50
-    arc: CheckBoxes    # column_defaults_page.nml:58
+    disk_caption: Label    # column_defaults_page.nml:21
+    disk: CheckBoxes    # column_defaults_page.nml:29
+    find_caption: Label    # column_defaults_page.nml:38
+    find: CheckBoxes    # column_defaults_page.nml:46
+    arc_caption: Label    # column_defaults_page.nml:55
+    arc: CheckBoxes    # column_defaults_page.nml:63
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.disk_caption = Label(parent=self)    # column_defaults_page.nml:17
-        self.disk = CheckBoxes(parent=self)    # column_defaults_page.nml:25
-        self.find_caption = Label(parent=self)    # column_defaults_page.nml:33
-        self.find = CheckBoxes(parent=self)    # column_defaults_page.nml:41
-        self.arc_caption = Label(parent=self)    # column_defaults_page.nml:49
-        self.arc = CheckBoxes(parent=self)    # column_defaults_page.nml:57
+        self.disk_caption = Label(parent=self)    # column_defaults_page.nml:20
+        self.disk = CheckBoxes(parent=self)    # column_defaults_page.nml:28
+        self.find_caption = Label(parent=self)    # column_defaults_page.nml:37
+        self.find = CheckBoxes(parent=self)    # column_defaults_page.nml:45
+        self.arc_caption = Label(parent=self)    # column_defaults_page.nml:54
+        self.arc = CheckBoxes(parent=self)    # column_defaults_page.nml:62
 
-        self.disk_caption.x = 3    # column_defaults_page.nml:19
-        self.disk_caption.y = 1    # column_defaults_page.nml:20
-        self.disk_caption.width = 12    # column_defaults_page.nml:21
-        self.disk_caption.text = _bind(    # column_defaults_page.nml:22
+        self.disk_caption.x = 3    # column_defaults_page.nml:22
+        self.disk_caption.y = 1    # column_defaults_page.nml:23
+        self.disk_caption.width = 12    # column_defaults_page.nml:24
+        self.disk_caption.text = _bind(    # column_defaults_page.nml:25
             lambda _o: _tr('~D~isk Drive'),
             yielding=True,
         )
-        self.disk_caption.link = _bind(lambda _o: self.disk)    # column_defaults_page.nml:23
+        self.disk_caption.link = _bind(lambda _o: self.disk)    # column_defaults_page.nml:26
 
-        self.disk.x = 3    # column_defaults_page.nml:27
-        self.disk.y = 2    # column_defaults_page.nml:28
-        self.disk.width = 17    # column_defaults_page.nml:29
-        self.disk.height = 5    # column_defaults_page.nml:30
-        self.disk.items = _bind(    # column_defaults_page.nml:31
+        self.disk.key = 'DISK'    # column_defaults_page.nml:30
+        self.disk.x = 3    # column_defaults_page.nml:31
+        self.disk.y = 2    # column_defaults_page.nml:32
+        self.disk.width = 17    # column_defaults_page.nml:33
+        self.disk.height = 5    # column_defaults_page.nml:34
+        self.disk.items = _bind(    # column_defaults_page.nml:35
             lambda _o: [_tr('Size'), _tr('Attributes'), _tr('Links'), _tr('Owner'), _tr('Date')],
             yielding=True,
         )
 
-        self.find_caption.x = 21    # column_defaults_page.nml:35
-        self.find_caption.y = 1    # column_defaults_page.nml:36
-        self.find_caption.width = 10    # column_defaults_page.nml:37
-        self.find_caption.text = _bind(    # column_defaults_page.nml:38
+        self.find_caption.x = 21    # column_defaults_page.nml:39
+        self.find_caption.y = 1    # column_defaults_page.nml:40
+        self.find_caption.width = 10    # column_defaults_page.nml:41
+        self.find_caption.text = _bind(    # column_defaults_page.nml:42
             lambda _o: _tr('~F~ile find'),
             yielding=True,
         )
-        self.find_caption.link = _bind(lambda _o: self.find)    # column_defaults_page.nml:39
+        self.find_caption.link = _bind(lambda _o: self.find)    # column_defaults_page.nml:43
 
-        self.find.x = 21    # column_defaults_page.nml:43
-        self.find.y = 2    # column_defaults_page.nml:44
-        self.find.width = 17    # column_defaults_page.nml:45
-        self.find.height = 5    # column_defaults_page.nml:46
-        self.find.items = _bind(    # column_defaults_page.nml:47
+        self.find.key = 'FIND'    # column_defaults_page.nml:47
+        self.find.x = 21    # column_defaults_page.nml:48
+        self.find.y = 2    # column_defaults_page.nml:49
+        self.find.width = 17    # column_defaults_page.nml:50
+        self.find.height = 5    # column_defaults_page.nml:51
+        self.find.items = _bind(    # column_defaults_page.nml:52
             lambda _o: [_tr('Size'), _tr('Attributes'), _tr('Links'), _tr('Owner'), _tr('Date')],
             yielding=True,
         )
 
-        self.arc_caption.x = 39    # column_defaults_page.nml:51
-        self.arc_caption.y = 1    # column_defaults_page.nml:52
-        self.arc_caption.width = 10    # column_defaults_page.nml:53
-        self.arc_caption.text = _bind(    # column_defaults_page.nml:54
+        self.arc_caption.x = 39    # column_defaults_page.nml:56
+        self.arc_caption.y = 1    # column_defaults_page.nml:57
+        self.arc_caption.width = 10    # column_defaults_page.nml:58
+        self.arc_caption.text = _bind(    # column_defaults_page.nml:59
             lambda _o: _tr('~A~rchives'),
             yielding=True,
         )
-        self.arc_caption.link = _bind(lambda _o: self.arc)    # column_defaults_page.nml:55
+        self.arc_caption.link = _bind(lambda _o: self.arc)    # column_defaults_page.nml:60
 
-        self.arc.x = 39    # column_defaults_page.nml:59
-        self.arc.y = 2    # column_defaults_page.nml:60
-        self.arc.width = 20    # column_defaults_page.nml:61
-        self.arc.height = 6    # column_defaults_page.nml:62
-        self.arc.items = _bind(    # column_defaults_page.nml:63
+        self.arc.key = 'ARC'    # column_defaults_page.nml:64
+        self.arc.x = 39    # column_defaults_page.nml:65
+        self.arc.y = 2    # column_defaults_page.nml:66
+        self.arc.width = 20    # column_defaults_page.nml:67
+        self.arc.height = 6    # column_defaults_page.nml:68
+        self.arc.items = _bind(    # column_defaults_page.nml:69
             lambda _o: [_tr('Original size'), _tr('Packed size'), _tr('Ratio'), _tr('Attributes'), _tr('Owner'), _tr('Date')],
             yielding=True,
         )
+
+        self._navml_built(__class__)

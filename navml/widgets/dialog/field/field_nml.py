@@ -53,43 +53,49 @@ class Field(HorizontalLayout, _Component):
     #: The caption, with one ``~A~`` run.
     label_text: str = _reactive('')    # field.nml:25
 
+    #: What this field edits, by name, as ``Control.key`` says: navml reads
+    #: nothing into it, a page that seeds and collects its fields does.
+    key: str = _reactive('')    # field.nml:29
+
     #: How many columns the caption takes before the line begins.
-    label_width: int = _reactive(12)    # field.nml:28
+    label_width: int = _reactive(12)    # field.nml:32
 
     #: The history the line remembers into, or ``""`` for none.  Naming one
     #: puts the ``▐↓▌`` button after the line, which gives up three columns.
-    history_id: str = _reactive('')    # field.nml:32
+    history_id: str = _reactive('')    # field.nml:36
 
     #: A fixed list the ``▐↓▌`` button drops instead of a history -- user
     #: names, say.  Either this or ``history_id`` shows the button.
-    choices: _Any = _Alias("history", "choices")    # field.nml:36
+    choices: _Any = _Alias("history", "choices")    # field.nml:40
 
     #: The text in the line.  An alias, so a read and a write both reach the
     #: ``InputLine``'s own reactive one property deep, and a binding assigned
     #: through it is re-owned by whoever wrote it.
-    value: str = _Alias("entry", "value")    # field.nml:41
+    value: str = _Alias("entry", "value")    # field.nml:45
 
     #: Ids, annotated so the hand-written half completes them.
-    caption: Label    # field.nml:44
-    entry: InputLine    # field.nml:51
-    history: History    # field.nml:54
+    caption: Label    # field.nml:48
+    entry: InputLine    # field.nml:55
+    history: History    # field.nml:58
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = Label(parent=self)    # field.nml:43
-        self.entry = InputLine(parent=self)    # field.nml:50
-        self.history = History(parent=self)    # field.nml:53
+        self.caption = Label(parent=self)    # field.nml:47
+        self.entry = InputLine(parent=self)    # field.nml:54
+        self.history = History(parent=self)    # field.nml:57
 
-        self.caption.inline_style = _bind(    # field.nml:45
+        self.caption.inline_style = _bind(    # field.nml:49
             lambda _o: 'basis: %d; grow: 0' % _o.parent.label_width
         )
-        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # field.nml:46
-        self.caption.link = _bind(lambda _o: self.entry)    # field.nml:47
-        self.caption.align = 'left'    # field.nml:48
+        self.caption.text = _bind(lambda _o: _o.parent.label_text)    # field.nml:50
+        self.caption.link = _bind(lambda _o: self.entry)    # field.nml:51
+        self.caption.align = 'left'    # field.nml:52
 
-        self.history.link = _bind(lambda _o: self.entry)    # field.nml:55
-        self.history.history_id = _bind(lambda _o: _o.parent.history_id)    # field.nml:56
-        self.history.visible = _bind(    # field.nml:57
+        self.history.link = _bind(lambda _o: self.entry)    # field.nml:59
+        self.history.history_id = _bind(lambda _o: _o.parent.history_id)    # field.nml:60
+        self.history.visible = _bind(    # field.nml:61
             lambda _o: _o.parent.history_id != '' or bool(_o.choices)
         )
-        self.history.inline_style = 'basis: 3; grow: 0'    # field.nml:58
+        self.history.inline_style = 'basis: 3; grow: 0'    # field.nml:62
+
+        self._navml_built(__class__)

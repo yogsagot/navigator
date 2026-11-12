@@ -61,3 +61,5 @@ class PaletteFileDialog(FileDialog, _Component):
             lambda _o: [_tr('Paint the palette under the cursor in the box beside the list')],
             yielding=True,
         )
+
+        self._navml_built(__class__)

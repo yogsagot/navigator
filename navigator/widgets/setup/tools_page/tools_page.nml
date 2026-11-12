@@ -2,13 +2,16 @@ from navml.widgets.dialog.choice_field import ChoiceField
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.masked_field import MaskedField
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Settings > *Tools*: Encryption's age identity files, and how
 #: often the Process list, Services and the System monitor read again.  Not
 #: DN's -- each is a departure's setting (``[encryption]``, ``[processes]``,
 #: ``[services]``, ``[monitor]``), given a page so that none is the ini
 #: file's alone.  A window open reads its new interval at its next tick.
-ToolsPage:
+ToolsPage(SettingsPage):
+    class section_name: ""
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -25,6 +28,7 @@ ToolsPage:
 
     MaskedField:
         id: processes_refresh
+        key: "processes.refresh"
         x: 2
         y: 3
         width: 34
@@ -51,6 +55,7 @@ ToolsPage:
 
     MaskedField:
         id: services_refresh
+        key: "services.refresh"
         x: 2
         y: 6
         width: 34
@@ -69,6 +74,7 @@ ToolsPage:
 
     MaskedField:
         id: journal_lines
+        key: "services.journal_lines"
         x: 2
         y: 7
         width: 36
@@ -79,6 +85,7 @@ ToolsPage:
 
     MaskedField:
         id: monitor_refresh
+        key: "monitor.refresh"
         x: 2
         y: 9
         width: 34

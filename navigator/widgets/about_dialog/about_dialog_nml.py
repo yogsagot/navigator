@@ -45,3 +45,5 @@ class AboutDialog(Dialog, _Component):
         self.title = _bind(lambda _o: _tr('About'), yielding=True)    # about_dialog.nml:15
         self.buttons = 'ok'    # about_dialog.nml:16
         self.prompt = about_text(project_info())    # about_dialog.nml:17
+
+        self._navml_built(__class__)

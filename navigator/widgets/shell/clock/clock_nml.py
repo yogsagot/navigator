@@ -55,3 +55,5 @@ class Clock(_Component):
             self.blink = not self.blink
             return True
         self.tick.on_timer = _on_timer
+
+        self._navml_built(__class__)

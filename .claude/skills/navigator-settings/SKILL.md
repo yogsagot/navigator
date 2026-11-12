@@ -128,6 +128,22 @@ note:
   Configuration and Options > File Manager, and its command, still exists and opens it on its own page
   (`Shell.settings(tab)`). This is a departure: DN had a resource to each. Colors and Key bindings stay dialogs of
   their own.
+- **A page's controls say which setting each edits: `key: "temp_dir"`** (`"remote.upload_changed"` for another
+  section), on a page whose root is `XPage(SettingsPage):` with `class section_name: "system"`
+  (`navigator/widgets/setup/settings_page.py`).
+  - In `built()`, `SettingsPage` seeds each keyed control's value and tooltip.
+  - `accept()` reads them back: flat for one section, `{section: {...}}` for several.
+  - The conversion comes from the control's kind and the setting's declaration:
+    - `CheckBoxes` ↔ a bit group (`OPTIONS`) or one `bool`;
+    - `RadioButtons` ↔ `choices`, by index (the page must list them in the setting's order: *Time* does not, so it
+      stays manual);
+    - `MaskedField` ↔ `int`, padded to the mask's 9s, a blank place counting as nought;
+    - `Field` ↔ `str`, stripped.
+  - A control needing more (a list made at run time, a floor, a value kept when blank) is seeded in the page's
+    `__init__` after `super().__init__()` and added in an `accept()` override that starts from `super().accept()`.
+  - Converted: System, Startup, Confirmations, Drive info, Panel defaults, Column defaults, wholly; Communications,
+    File Manager Setup, Country, Tools, Interface, in part.
+  - Still by hand: Editor/Viewer, Savers, Highlight, Viewer types.
 - **What a page does.** Each is a two-half component on a plain `Widget` (`*_page/`, `XPage`), laid out as the dialog
   it was, from `y: 1` (row 0 is the tab rule). `__init__` seeds the controls from its section (an optional section
   argument, else `SETTINGS.<name>`). `accept()` returns `{key: value}`. `EditorDefaultsPage` covers two sections and

@@ -89,3 +89,5 @@ class SelectDialog(Dialog, _Component):
         )
         self.options.x = 2    # select_dialog.nml:45
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:46
+
+        self._navml_built(__class__)

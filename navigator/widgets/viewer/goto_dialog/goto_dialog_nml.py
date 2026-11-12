@@ -54,3 +54,5 @@ class GotoDialog(Dialog, _Component):
         self.address.history_id = 'goto_address'    # goto_dialog.nml:21
         self.address.x = 3    # goto_dialog.nml:17
         self.address.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_dialog.nml:18
+
+        self._navml_built(__class__)

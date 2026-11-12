@@ -1135,3 +1135,5 @@ class EditWindow(Window, _Component):
             yielding=True,
         )
         self.edit_menu_file_type.key_command = ChooseFileType    # edit_window.nml:462
+
+        self._navml_built(__class__)

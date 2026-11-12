@@ -2,27 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-from navkit.widget import Widget
-
-from navigator.settings import SETTINGS, StartupData
-
-
-class StartupPage(Widget):
+class StartupPage(SettingsPage):
     """DN's ``TStartupData``: its Load and Unload words, a cluster each."""
-
-    def __init__(self, section: StartupData | None = None, **kwargs: Any) -> None:
-        super().__init__(**kwargs)
-        self.section = section or SETTINGS.startup
-        self.startup.value = self.section.to_bits(StartupData.STARTUP)
-        self.startup.tooltips = StartupData.tooltips(StartupData.STARTUP)
-        self.shutdown.value = self.section.to_bits(StartupData.SHUTDOWN)
-        self.shutdown.tooltips = StartupData.tooltips(StartupData.SHUTDOWN)
-
-    def accept(self) -> dict[str, Any]:
-        return {
-            **StartupData.from_bits(StartupData.STARTUP, self.startup.value),
-            **StartupData.from_bits(StartupData.SHUTDOWN, self.shutdown.value),
-        }

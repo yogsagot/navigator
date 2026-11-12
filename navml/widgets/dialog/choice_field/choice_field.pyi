@@ -12,6 +12,7 @@ from navml.widgets.dialog.label import Label
 
 class ChoiceField(HorizontalLayout, _Component):
     label_text: str
+    key: str
     label_width: int
     value: str
     choices: _Any

@@ -61,3 +61,5 @@ class MkdirDialog(Dialog, _Component):
         self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:34
         self.entry.x = 2    # mkdir_dialog.nml:28
         self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:29
+
+        self._navml_built(__class__)

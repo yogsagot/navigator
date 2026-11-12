@@ -11,6 +11,7 @@ from navml.widgets.dialog.label import Label
 
 class MaskedField(HorizontalLayout, _Component):
     label_text: str
+    key: str
     label_width: int
     mask: str
     base: int

@@ -1,5 +1,6 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > Column defaults: DOS Navigator's ``dlgColumnsDefaults``.
 #:
@@ -10,7 +11,9 @@ from navml.widgets.dialog.label import Label
 #: DN's.  *TEMP:* and *TDR View* are left
 #: out, having only meant something on DOS.  Help is left out, having
 #: nothing to show yet.
-ColumnDefaultsPage:
+ColumnDefaultsPage(SettingsPage):
+    class section_name: "column_defaults"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -24,6 +27,7 @@ ColumnDefaultsPage:
 
     CheckBoxes:
         id: disk
+        key: "DISK"
         x: 3
         y: 2
         width: 17
@@ -40,6 +44,7 @@ ColumnDefaultsPage:
 
     CheckBoxes:
         id: find
+        key: "FIND"
         x: 21
         y: 2
         width: 17
@@ -56,6 +61,7 @@ ColumnDefaultsPage:
 
     CheckBoxes:
         id: arc
+        key: "ARC"
         x: 39
         y: 2
         width: 20

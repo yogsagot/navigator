@@ -105,3 +105,5 @@ class ForwardsDialog(Dialog, _Component):
             self.spawn(self.delete_forward())
             return True
         self.delete.on_click = _on_click
+
+        self._navml_built(__class__)

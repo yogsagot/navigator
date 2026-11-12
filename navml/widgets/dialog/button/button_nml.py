@@ -78,3 +78,5 @@ class Button(Control, _Component):
         )
         self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:47
         self.caption.align = 'center'    # button.nml:48
+
+        self._navml_built(__class__)

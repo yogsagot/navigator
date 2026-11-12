@@ -99,3 +99,5 @@ class WriteWin(Dialog, _Component):
         self.percent_row.text = _bind(lambda _o: '%d%%' % self.bar.percent)    # write_win.nml:66
         self.percent_row.x = 2    # write_win.nml:62
         self.percent_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # write_win.nml:63
+
+        self._navml_built(__class__)

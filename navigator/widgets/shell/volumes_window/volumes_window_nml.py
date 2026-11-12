@@ -370,3 +370,5 @@ class VolumesWindow(Window, _Component):
 
         _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # volumes_window.nml:215
         _w11.command = CloseWindow    # volumes_window.nml:215
+
+        self._navml_built(__class__)

@@ -150,3 +150,5 @@ class GameSetupDialog(Dialog, _Component):
         self.abandon.width = 11    # game_setup_dialog.nml:82
         self.abandon.height = 2    # game_setup_dialog.nml:83
         self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:78
+
+        self._navml_built(__class__)

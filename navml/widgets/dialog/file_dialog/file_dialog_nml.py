@@ -198,3 +198,5 @@ class FileDialog(Dialog, _Component):
         self.info.y = _bind(    # file_dialog.nml:123
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
+
+        self._navml_built(__class__)

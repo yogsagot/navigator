@@ -83,3 +83,5 @@ class MakeListDialog(Dialog, _Component):
         )
         self.options.x = 4    # make_list_dialog.nml:41
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # make_list_dialog.nml:42
+
+        self._navml_built(__class__)

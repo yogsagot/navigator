@@ -159,3 +159,5 @@ class QuickViewer(_Component):
         self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # quick_viewer.nml:86
         self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # quick_viewer.nml:87
         self.hbar.on_scroll = self.on_hbar_scroll    # quick_viewer.nml:81
+
+        self._navml_built(__class__)

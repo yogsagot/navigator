@@ -64,3 +64,5 @@ class AsciiChart(Dialog, _Component):
         self.report.x = 1    # ascii_chart.nml:28
         self.report.y = 10    # ascii_chart.nml:29
         self.report.width = 32    # ascii_chart.nml:30
+
+        self._navml_built(__class__)

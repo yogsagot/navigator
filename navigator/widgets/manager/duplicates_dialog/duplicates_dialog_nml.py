@@ -79,3 +79,5 @@ class DuplicatesDialog(Dialog, _Component):
         )
         self.options.x = 3    # duplicates_dialog.nml:39
         self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # duplicates_dialog.nml:40
+
+        self._navml_built(__class__)

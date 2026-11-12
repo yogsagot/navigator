@@ -173,3 +173,5 @@ class ColorsDialog(Dialog, _Component):
         )
         self.attributes.x = 3    # colors_dialog.nml:122
         self.attributes.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:123
+
+        self._navml_built(__class__)

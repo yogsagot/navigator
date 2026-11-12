@@ -92,3 +92,5 @@ class Panel(ListViewer, _Component):
         )
         self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # panel.nml:51
         self.hbar.on_scroll = self.on_hbar_scroll    # panel.nml:44
+
+        self._navml_built(__class__)
