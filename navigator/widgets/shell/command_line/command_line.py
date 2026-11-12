@@ -136,8 +136,12 @@ class CommandLine(InputLine):
 
     @property
     def room(self) -> int:
-        """The row, less the prompt and the column the caret sits in at the end."""
-        return max(0, self.width - self.prompt_width - 1)
+        """The row less the prompt: every column, the last one included, as
+        DN's (``CMDLINE.PAS:226-232``) -- the caret's room at the end of a long
+        line is ``_follow_cursor``'s, which keeps it within this.  There is no
+        length limit, a departure: DN's held 127 characters (``String[127]``),
+        and a shell's command lines run longer."""
+        return max(0, self.width - self.prompt_width)
 
     def clear(self) -> None:
         self.value = ""

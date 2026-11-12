@@ -223,3 +223,40 @@ def test_a_double_click_on_the_line_selects_a_word(app):
     run_app(app, [*typed("hello world"), double, lambda a: None,
                   lambda a: seen.update(selected=a.shell.command_line.selected_text, modal=a.modal)])
     assert seen == {"selected": "world", "modal": None}
+
+
+def painted_row(line):
+    from navkit.screen import ScreenBuffer
+
+    buffer = ScreenBuffer(line.width, 1)
+    line.render(buffer)
+    return "".join(buffer.get(x, 0)[0] or " " for x in range(line.width))
+
+
+def test_the_text_reaches_the_last_column(app):
+    # DN painted to the row's end; the last column was never the line's here.
+    seen = {}
+
+    def fill(a):
+        line = a.shell.command_line
+        line.set_text("x" * (line.width - line.prompt_width))
+        line.home()
+
+    def look(a):
+        line = a.shell.command_line
+        seen.update(row=painted_row(line), first=line.first)
+
+    run_app(app, [fill, lambda a: None, look])
+    assert seen["row"][-1] == "x" and seen["first"] == 0
+
+
+def test_the_caret_at_the_end_of_a_long_line_is_in_the_last_column(app):
+    seen = {}
+
+    def fill(a):
+        line = a.shell.command_line
+        line.set_text("x" * (line.width - line.prompt_width + 5))
+
+    run_app(app, [fill, lambda a: None,
+                  lambda a: seen.update(column=a.shell.command_line.caret_column(), width=a.shell.command_line.width)])
+    assert seen["column"] == seen["width"] - 1
