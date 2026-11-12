@@ -41,8 +41,10 @@ less its ``/proc``, ``/sys``, ``/dev`` and ``/run`` (:data:`SYSTEM_PLACES`).  Le
 LAN's drives, where here a mount may be a server or a bucket across the
 internet, read whole by a text search.
 
-Departures: the dialog opens on *Recursive search* and *Current directory*,
-where DN's record started all zeros -- a one-level look at the root;
+Departures: the dialog opens on *Current directory*, where DN's
+``FindRec`` started on *Entire disk* (``Where : 0``, the current drive's
+root) -- both *Recursive search* -- so a first Alt+F7 does not walk the
+whole file system;
 *Regular expression* with *Case sensitive* off folds ASCII letters only,
 as Python's ``re`` does on bytes (plain text folds any alphabet's, through
 the viewer's pattern: a user's pattern cannot be rewritten letter by

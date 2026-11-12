@@ -9,7 +9,7 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
   `{"version", "windows": [...bottom to top], "front": index}` -- kept as JSON in the `SavedDesktop` model
   (`desktops` table, one row a name, `default`). A `version` other than `VERSION` is not read.
 - **What a window keeps** (`_window`): its rectangle (`file_history.window_values`, put back by `place_window`), and
-  - `Manager`: per panel `path` (a *Find:* listing's origin; an archive's own directory, the cursor on it), `local`
+  - `Manager`: per panel `path` (a *Find:* listing's origin -- a departure: DN's `TFindDrive.Store` kept the listing whole; an archive's own directory, the cursor on it), `local`
     (where a panel on another drive falls back to), `view_mode`, `sort_mode`, `sort_reverse`, `show_hidden`,
     `show_info`, `file_mask`, `columns`, `display`, `cursor` (entry name, via `_return_to`); `active` side, `split`
     (the divider), `hidden` side, `view` standing in (tree/quick/info, put back through `switch_view` after the

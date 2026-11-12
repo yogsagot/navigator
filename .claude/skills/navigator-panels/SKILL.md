@@ -548,7 +548,7 @@ jumped to the 8.3 extension).
 
 ## Find file (Alt+F7) and the *Find:* listing
 
-`FindFile`, `Manager.find_file`, DN's `FindFile`/`FindFiles` (also Disk > Find...): `FindFileDialog` (`dlgFileFind`,
+`FindFile`, `Manager.find_file`, DN's `FindFile`/`FindFiles` (also File > Find...): `FindFileDialog` (`dlgFileFind`,
 own OK / *Advanced...* / Cancel row, mask, text, options, scope and limits kept for the session (DN's `FindRec`, written back on OK only, first `*`; OK in *Advanced search* writes it all at once, Find cancelled or not -- DN's `RSearchAdvance`, `_remember`), opening on *Recursive* + *Current directory*) and
 `AdvancedSearchDialog` (`dlgAdvanceSearch`: ISO dates, sizes, POSIX kinds, *Clear all*) give a `FindRequest`;
 `navigator/lib/file_ops/filefind.py`'s `search` walks on a thread (with Ctrl+H off a dot-directory never entered -- a departure from DN's *Security*, which still recursed -- and a dot-file found only by the *hidden* kind, `_hidden_skipped`; mask via `in_filter`, a bare item -- no wildcard, no dot -- made a prefix by `find_mask`, DN's `MaskSearch`, case kept and a dotted item exact as departures, text by chunked regex in regular files only -- plain text through the viewer's `compile_search` (any alphabet's case, `WORD_BYTES` word breaks: DN's Find called `SearchFileStr`), a *Regular expression* folding ASCII only (a departure) -- the text then handed to the viewer's `last_search` and the editor's `SEARCH` by `hand_on` (DN's `SearchString`/`SearchData`; not when empty, not a regex to the viewer) -- (*Regular expression* gathers the file chunked, Stop between chunks, up to `WHOLE_LARGEST`, 64 MiB shared with Replace in files' `LARGEST`, larger ones passed over; the one `re.search` can't be stopped) -- a FIFO, socket or device never opened, `holds` opening `O_NONBLOCK` and re-checking against a swap -- never through a symlink, an error listing a directory halfway ending only that directory (`_listed`, DN's `FindNext` loop),
@@ -559,7 +559,9 @@ while searching, re-`stat`ed by `restat_found` on a re-read (the info panel, Ctr
 leave; Enter on an entry `go_to_entry` (its directory, cursor on it); Shift+Enter `ChangeInactive` sends the other
 panel there -- DN's `cmFindGotoFile`: its file mask back to all files (`FileMask := x_x`) so the file is listed, and
 the keyboard with it (`Owner^.Select; Select`), the listing kept in its own panel. A listing belongs to the path it was shown at: going elsewhere drops it -- but a command's `cd` doesn't move it (`Shell._follow_shell`), as DN's find drive kept its place. Nothing found: *No files found*,
-the panel untouched. F7 and Compare are disabled in a listing.
+the panel untouched. F7 is disabled in a listing, as DN's `TFindDrive.MakeDir` made nothing; Compare directories too -- a departure: DN's
+`CM_CompareDirs` compared whatever two panels held, a find drive's included, where here the comparison (and its
+recursive *Window*) reads directories, and a listing is none.
 
 **Panel > Directory Branch** (`DirBranch`, `Manager.directory_branch`, DN's `CM_Branch`/`OpenDirectory`): every
 file below the panel's directory, directories left out (`FindRequest(directories=False)`), searched through the same
@@ -575,7 +577,7 @@ with the list's path. Nothing there: *No files found*. Enabled on a file only.
 **Alt+Y, Panel > Panelize command** (`Panelize`, `Manager.panelize`; a departure, MC's *External panelize*):
 `PanelizeDialog` (history `panelize`, seeded with `Manager.last_panelized`), then `navigator/lib/file_ops/panelize.py`'s
 `capture` runs `$SHELL -c command` in the panel's directory on a thread -- off the console's pty, stdin `/dev/null`,
-its own session so *Cancel* (`FindProgress` retitled, the count row hidden) kills the group (`_end`: TERM, then KILL,
+its own session so *Stop* (`FindProgress` retitled, the count row hidden) kills the group (`_end`: TERM, then KILL,
 each given `STOP_GRACE` 3 s, then the pipes let go of unread if a `setsid` child still holds them -- Stop never
 waits past that) -- and
 `filefind.list_from_lines` (Alt+V's reading, split out of `read_list`) turns the lines (NUL-split when the output has

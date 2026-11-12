@@ -31,7 +31,7 @@ __all__ = ["FindFileDialog"]
 
 
 class FindFileDialog(Dialog, _Component):
-    """Alt+F7, Disk > Find file: DOS Navigator's ``dlgFileFind``.
+    """Alt+F7, File > Find...: DOS Navigator's ``dlgFileFind``.
 
     Its rows as ``DN.DNR`` lays them, two columns wider and a row taller for
     this library's buttons; DN's own row of OK, *Advanced...* and Cancel,

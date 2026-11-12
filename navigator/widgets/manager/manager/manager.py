@@ -3537,7 +3537,10 @@ class Manager(Window):
             entry = panel.selected
             return unless(entry is not None and not entry.is_dir, tr("The cursor is not on a file"))
         if isinstance(command, CompareDir):
-            # Two directories, compared: a *Find:* listing is not one.
+            # Two directories, compared: a *Find:* listing is not one -- a
+            # departure: DN's ``CM_CompareDirs`` compared any two panels'
+            # files, a find drive's too; here ``dircompare`` (and the
+            # recursive *Window*) reads directories.
             return unless(self.left.found is None and self.right.found is None, not_found)
         if isinstance(command, DiffFiles):
             return unless(self._diff_pair() is not None,

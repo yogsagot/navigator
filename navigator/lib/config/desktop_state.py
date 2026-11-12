@@ -16,7 +16,9 @@ What a window keeps:
   Alt+Z's zoom over that, a tree, quick view or information panel standing
   in for one and whether it had the keyboard, and Miller columns' place.  A
   *Find:* listing is not kept: the panel comes back on the directory it was
-  found from.
+  found from -- a departure: DN's ``TFindDrive.Store`` kept the listing
+  whole, but its entries may be gone or changed by the next start, and the
+  search is a keystroke away.
 - an **editor** its file, and -- whatever *Track editing* says, as
   ``TFileEditor.Store`` wrote it -- its cursor, scroll, markers, margins and
   modes (``EditWindow.desktop_state``), put back over the file's own record.
