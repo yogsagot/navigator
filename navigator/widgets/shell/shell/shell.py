@@ -26,15 +26,21 @@ from navkit.screen import Surface
 from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet, StylesheetError
 from navml.widgets.dialog.dialog import Dialog
-from navml.widgets.menu.commands import MainMenu, OpenMenu
+from navml.widgets.menu.commands import OpenMenu
 from navml.history import HISTORY
 
-from navigator.commands import AsciiTable, OpenSmartpad, ScreenGrab, ShowUserScreen
+from navigator.commands import AsciiTable, OpenSmartpad, ShowUserScreen
 from navigator.lib.drives import DriveGone, Location, Site, drive_of
 from navigator.lib.system import fuzzy
 from navigator.lib.system.subshell import CommandFinished, CompletionsReady, HistoryChosen, HistoryReady, PickChosen
 from navigator.lib.system.title import window_title
-from navigator.widgets.manager.commands import Calculator, EditNamed, HideLeft, HideRight, ToggleMark, UserMenu
+from navigator.widgets.manager.commands import (
+    Calculator,
+    EditNamed,
+    HideLeft,
+    HideRight,
+    ToggleMark,
+)
 from navigator.widgets.shell.commands import (
     EditLinks,
     Game,
@@ -55,66 +61,37 @@ from navigator.widgets.shell.commands import (
     ShowBackground,
     NavyLink,
     SmbLink,
-    SetupLink,
     OpenCalendar,
     ToggleTrashCan,
     OpenTrash,
     EmptyTrash,
-    SaversSetup,
-    CountrySetup,
-    ScreenRest,
     About,
     ChangeColors,
-    DriveInfoSetup,
-    ColumnDefaults,
-    HighlightGroups,
-    EditQuickRun,
-    ExtFileEdit,
     EditHGL,
     EditMacros,
-    ExternalViewers,
-    ExternalEditors,
     QuickRun,
     CommandLineEnd,
     CommandLineHome,
     CompleteCommandLine,
-    EditHistory,
-    EditorDefaults,
     ExecuteCommandLine,
     ExecuteCommandLineInWindow,
-    FileManagerDefaults,
-    EnvEdit,
-    ExecuteOsCommand,
     LoadColors,
-    LoadDesktop,
     SaveDesktop,
     StoreColors,
-    SystemInfo,
-    FileManagerSetup,
-    HistoryList,
     FuzzyHistory,
     InsertName,
-    OpenCommandPalette,
     InsertPath,
-    InterfaceSetup,
-    KeyBindingsSetup,
     LocalMenuFileEdit,
     MenuFileEdit,
     NewManager,
-    OpenEdit,
     OpenTreeWindow,
-    OpenView,
     OpenUsageWindow,
     OpenVolumesWindow,
     OpenProcessWindow,
     OpenServiceWindow,
     OpenMonitorWindow,
-    SetupConfirmation,
     Settings,
-    StartupSetup,
-    SystemSetup,
     ToggleMarkBySpace,
-    ViewHistory,
 )
 from navigator.widgets.shell.command_line.command_line import HISTORY_ID
 from navml.widgets.dialog.date_button import CalendarView
@@ -123,7 +100,7 @@ from navml.widgets.layout.dock_layout import DockLayout
 
 from navigator.lib.appearance import filetypes
 from navigator.lib.config import country
-from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN, VIEWERS
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, HIGHLIGHT, QUICK_RUN
 from navigator.lib.appearance.scheme import DEFAULT_THEME, default_scheme
 from navigator.settings import SETTINGS
 from navigator.widgets.manager.manager import Manager
@@ -236,10 +213,6 @@ class Shell(DockLayout):
         desktop_state.save(self.desktop)
         return True
 
-    async def on_load_desktop(self, event: LoadDesktop) -> bool:
-        self.spawn(self.load_desktop())
-        return True
-
     async def load_desktop(self) -> None:
         """Options > Load desktop: ``RetrieveDesktop`` -- every window closed,
         asked as Close all asks, and the saved ones put in their place.  A
@@ -290,10 +263,6 @@ class Shell(DockLayout):
         except OSError as error:
             await self._palette_failed(tr("Cannot save the palette: {error}").format(error=error.strerror or error))
 
-    async def on_change_colors(self, event: ChangeColors) -> bool:
-        self.spawn(self.change_colors())
-        return True
-
     async def change_colors(self) -> None:
         """Options > Colors: ``ChangeColors`` -- the dialog over the palette as
         it is, every change painted as it is made; OK keeps it, Cancel puts
@@ -320,10 +289,6 @@ class Shell(DockLayout):
             self.stylesheet = before
             return
         await self._keep_palette(sources, differences(theme, answer))
-
-    async def on_store_colors(self, event: StoreColors) -> bool:
-        self.spawn(self.store_colors())
-        return True
 
     async def store_colors(self) -> None:
         """Options > Store palette: ``StoreColors`` -- every entry's colours
@@ -360,10 +325,6 @@ class Shell(DockLayout):
             await asyncio.to_thread(write_sheet, path, text)
         except OSError as error:
             await self._palette_failed(tr("Cannot write {path}: {error}").format(path=path, error=error.strerror or error))
-
-    async def on_load_colors(self, event: LoadColors) -> bool:
-        self.spawn(self.load_colors())
-        return True
 
     async def load_colors(self) -> None:
         """Options > Load palette: ``LoadColors`` -- a sheet picked in a file
@@ -419,10 +380,6 @@ class Shell(DockLayout):
             return
         await self._keep_palette(sources, differences(theme, entry_values(loaded.variables)))
 
-    async def on_execute_os_command(self, event: ExecuteOsCommand) -> bool:
-        self.spawn(self.execute_os_command())
-        return True
-
     async def execute_os_command(self) -> None:
         """File > Execute OS command: ``ExecDOSCmd`` -- DN's ``InputBox``, opened
         on the file at the active panel's cursor if it is one to run (followed
@@ -457,10 +414,6 @@ class Shell(DockLayout):
         else:
             self.run_command(choice.command)
 
-    async def on_system_info(self, event: SystemInfo) -> bool:
-        self.spawn(self.system_info())
-        return True
-
     async def system_info(self) -> None:
         """Utilities > System Information: the machine read on a thread
         (:func:`navigator.lib.system.sysinfo.gather`), then DN's dialog."""
@@ -471,10 +424,6 @@ class Shell(DockLayout):
 
         facts = await asyncio.to_thread(gather)
         await SystemInfoDialog(facts).execute(self.application)
-
-    async def on_env_edit(self, event: EnvEdit) -> bool:
-        self.spawn(self.edit_environment())
-        return True
 
     async def edit_environment(self) -> None:
         """Utilities > Edit environment: ``EditDOSEvironment`` over Navigator's
@@ -493,14 +442,6 @@ class Shell(DockLayout):
         apply(found)
         self.console.subshell.set_environment(found)
 
-    async def on_fuzzy_history(self, event: FuzzyHistory) -> bool:
-        self.fuzzy_history()
-        return True
-
-    async def on_open_command_palette(self, event: OpenCommandPalette) -> bool:
-        self.spawn(self.command_palette())
-        return True
-
     async def command_palette(self) -> None:
         """Alt+Shift+P: the command chosen in ``CommandPalette``, run from
         where the keyboard was before the box opened -- its enabled state and
@@ -514,10 +455,6 @@ class Shell(DockLayout):
         chosen = await CommandPalette(behind=behind).execute(app)
         if chosen is not None:
             await app.run_command(chosen, start=behind)
-
-    async def on_history_list(self, event: HistoryList) -> bool:
-        self.spawn(self.command_history())
-        return True
 
     async def command_history(self) -> None:
         """Alt+F8: ``CmdHistory`` -- *Run* puts the command on the line and runs
@@ -536,10 +473,6 @@ class Shell(DockLayout):
 
     #: Whether the grabber has said how it works this session (DN's ``NotMessage``).
     _grabber_told = False
-
-    async def on_screen_grab(self, event: ScreenGrab) -> bool:
-        self.spawn(self.screen_grab())
-        return True
 
     async def screen_grab(self) -> None:
         """Shift+Alt+Ins: ``ScreenGrabber`` -- DN's ``dlGrabWelcome`` the first
@@ -561,11 +494,6 @@ class Shell(DockLayout):
         rows = await ScreenGrabber().execute(app)
         if rows:
             app.copy_to_clipboard("\n".join(rows))
-
-    async def on_show_user_screen(self, event: ShowUserScreen) -> bool:
-        """Alt+F5, ≡ > *User screen*: :meth:`show_user_screen`."""
-        self.show_user_screen()
-        return True
 
     def show_user_screen(self) -> None:
         """DN's ``cmShowUserScreen`` (Alt+F5, and Esc on an empty line under
@@ -721,12 +649,6 @@ class Shell(DockLayout):
             self.menu.open(entries.index(own), drop=True)
         else:
             self.menu.open(0)
-        return True
-
-    async def on_main_menu(self, event: MainMenu) -> bool:
-        """``cmMainMenu``, Editor > File > *Main menu*: the bar's first entry,
-        highlighted and not dropped, as ``cmMenu`` left the main bar."""
-        self.menu.open(0)
         return True
 
     async def on_key(self, event: KeyEvent) -> bool:
@@ -1389,25 +1311,7 @@ class Shell(DockLayout):
                 pending.extend(widget.children)
         return True
 
-    async def on_command_line_home(self, event: CommandLineHome) -> bool:
-        self.command_line.home()
-        return True
-
-    async def on_command_line_end(self, event: CommandLineEnd) -> bool:
-        self.command_line.end()
-        return True
-
     # -- completion ------------------------------------------------------------
-
-    async def on_complete_command_line(self, event: CompleteCommandLine) -> bool:
-        """Tab: ask the shell what the word at the caret could become.
-
-        The answer comes back later, posted from the pty's reader, and is
-        applied by :meth:`completions_ready` -- only if the line is still what
-        it was asked about.
-        """
-        self._ask_completions()
-        return True
 
     def _ask_completions(self) -> None:
         """Ask the shell about the word at the caret; the answer is posted back."""
@@ -1572,10 +1476,6 @@ class Shell(DockLayout):
             text = _escape(entry.name)
         self.command_line.insert_name(text)
 
-    async def on_toggle_mark_by_space(self, event: ToggleMarkBySpace) -> bool:
-        self.active_manager.active_panel.toggle_mark()
-        return True
-
     async def on_open_smartpad(self, event: OpenSmartpad) -> bool:
         """Alt+Q, ≡ > *SmartPad (TM)*: ``OpenSmartpad`` (``navigator.lib.utilities.smartpad``)."""
         from navigator.lib.utilities.smartpad import open_smartpad
@@ -1649,11 +1549,6 @@ class Shell(DockLayout):
         return True
 
     # -- F2: the user menu (navigator.lib.config.usermenu) ------------------------------------
-
-    async def on_user_menu(self, event: UserMenu) -> bool:
-        """F2, Utilities > *User menu*: ``cmUserMenu``, DN's ``ExecUserMenu``."""
-        self.spawn(self.user_menu())
-        return True
 
     async def on_menu_file_edit(self, event: MenuFileEdit) -> bool:
         from navigator.lib.config.associations import MENU
@@ -2218,14 +2113,6 @@ class Shell(DockLayout):
         chosen = await box.execute(app)
         return chosen_of.get(id(chosen)) if chosen is not None else None
 
-    async def on_edit_quick_run(self, event: EditQuickRun) -> bool:
-        self.spawn(self.edit_associations(QUICK_RUN))
-        return True
-
-    async def on_ext_file_edit(self, event: ExtFileEdit) -> bool:
-        self.spawn(self.edit_associations(EXTENSIONS))
-        return True
-
     async def on_edit_hgl(self, event: EditHGL) -> bool:
         self.spawn(self.edit_associations(HIGHLIGHT))
         return True
@@ -2234,14 +2121,6 @@ class Shell(DockLayout):
         from navigator.lib.config.associations import MACROS
 
         self.spawn(self.edit_associations(MACROS))
-        return True
-
-    async def on_external_viewers(self, event: ExternalViewers) -> bool:
-        self.spawn(self.edit_associations(VIEWERS))
-        return True
-
-    async def on_external_editors(self, event: ExternalEditors) -> bool:
-        self.spawn(self.edit_associations(EDITORS))
         return True
 
     async def edit_associations(self, file_name: str) -> None:
@@ -2261,11 +2140,6 @@ class Shell(DockLayout):
             return
         await self.edit_menu_file(path)
 
-    async def on_ascii_table(self, event: AsciiTable) -> bool:
-        """Ctrl+B, Utilities > *Character table*: DN's ``ASCIITable``."""
-        self.spawn(self.ascii_table())
-        return True
-
     async def ascii_table(self) -> None:
         """The character table, then the character picked on the command line.
 
@@ -2281,14 +2155,6 @@ class Shell(DockLayout):
         char = await pick_character(self.application, self.glyphs)
         if char and char != "\x00":
             self.command_line.insert(char)
-
-    async def on_insert_name(self, event: InsertName) -> bool:
-        self._insert_entry(whole=False)
-        return True
-
-    async def on_insert_path(self, event: InsertPath) -> bool:
-        self._insert_entry(whole=True)
-        return True
 
     def _search_with_the_line_hidden(self, event: KeyEvent) -> bool:
         """With the command line hidden, a character (not ``\\``) typed with
@@ -2368,17 +2234,6 @@ class Shell(DockLayout):
         if self.console.busy:
             return True
         self.run_command("./" + _escape(event.path.name))
-        return True
-
-    async def on_execute_command_line(self, event: ExecuteCommandLine) -> bool:
-        """Enter: run the line in the shell, with the console up while it runs.
-
-        The console takes the keyboard for the length of the command, so a
-        program that reads the terminal -- an editor, a pager, a password
-        prompt -- gets what is typed.  The windows come back when the shell
-        reports its prompt, in :meth:`command_finished`.
-        """
-        self.run_command(self.command_line.value)
         return True
 
     async def on_execute_command_line_in_window(self, event: ExecuteCommandLineInWindow) -> bool:
@@ -2669,14 +2524,6 @@ class Shell(DockLayout):
         self.desktop.open(Manager(start, start)).apply_left_panel()
         return True
 
-    async def on_hide_left(self, event: HideLeft) -> bool:
-        self.show_manager_side("left")
-        return True
-
-    async def on_hide_right(self, event: HideRight) -> bool:
-        self.show_manager_side("right")
-        return True
-
     def show_manager_side(self, side: str) -> None:
         """Ctrl+F1 / Ctrl+F2 from the console: the file manager back, *side* alone.
 
@@ -2699,22 +2546,6 @@ class Shell(DockLayout):
         return True
 
     # -- Options: the setup dialogs ------------------------------------------------
-
-    async def on_settings(self, event: Settings) -> bool:
-        self.spawn(self.settings())
-        return True
-
-    async def on_system_setup(self, event: SystemSetup) -> bool:
-        self.spawn(self.settings("system"))
-        return True
-
-    async def on_startup_setup(self, event: StartupSetup) -> bool:
-        self.spawn(self.settings("startup"))
-        return True
-
-    async def on_interface_setup(self, event: InterfaceSetup) -> bool:
-        self.spawn(self.settings("interface"))
-        return True
 
     async def settings(self, tab: str = "system") -> None:
         """Options > Settings, opened on page *tab*: every section it shows
@@ -2756,10 +2587,6 @@ class Shell(DockLayout):
         # or stops mirroring on the next frame.
         if SETTINGS.interface.direction != direction:
             self.application.direction = SETTINGS.interface.direction
-
-    async def on_setup_link(self, event: SetupLink) -> bool:
-        self.spawn(self.settings("remote"))
-        return True
 
     # -- other drives: Navigator Link ------------------------------------------
 
@@ -3091,22 +2918,6 @@ class Shell(DockLayout):
             if row is not None:
                 await self.go_remote(panel, profiles.location_of(row))
 
-    async def on_terminal(self, event: Terminal) -> bool:
-        self.spawn(self.open_remote_shell("sftp"))
-        return True
-
-    async def on_docker_shell(self, event: DockerShell) -> bool:
-        self.spawn(self.open_remote_shell("docker"))
-        return True
-
-    async def on_podman_shell(self, event: PodmanShell) -> bool:
-        self.spawn(self.open_remote_shell("podman"))
-        return True
-
-    async def on_adb_shell(self, event: AdbShell) -> bool:
-        self.spawn(self.open_remote_shell("adb"))
-        return True
-
     def _running_remote_shell(self, site: Site) -> Any:
         """The command window still logged in to *site* by Remote shell, brought
         forward -- DN's ``OpenTerminal`` selecting its one terminal -- or None."""
@@ -3178,10 +2989,6 @@ class Shell(DockLayout):
         from navigator.lib.drives import rclone
 
         return self.run_in_window(shlex.join(rclone.configure_command()), closes=False, title="rclone config")
-
-    async def on_hang_up(self, event: HangUp) -> bool:
-        self.spawn(self.hang_up())
-        return True
 
     async def hang_up(self) -> None:
         """Utilities > *Disconnect*: ``cmHangUp`` -- the one connection closed
@@ -3368,10 +3175,6 @@ class Shell(DockLayout):
         way = notify.method(SETTINGS.system.notifications, app.terminal.info.notifications)
         return bool(app.notify(title, text, way, app_name="Navigator"))
 
-    async def on_close_root_access(self, event: CloseRootAccess) -> bool:
-        self.spawn(self.close_root_access())
-        return True
-
     def _name_root_access(self) -> None:
         """Utilities' one root entry says what it would do: *Elevate root
         access* while root access is closed, *Close root access* while open."""
@@ -3396,10 +3199,6 @@ class Shell(DockLayout):
         if chosen not in Shell._reachable:
             Shell._reachable[chosen] = ELEVATION.available()
         return Shell._reachable[chosen]
-
-    async def on_toggle_root_access(self, event: ToggleRootAccess) -> bool:
-        self.spawn(self.close_root_access() if self.root_mark.open else self.open_root_access())
-        return True
 
     async def open_root_access(self) -> None:
         """Utilities > *Elevate root access*: the root helper started, asking
@@ -3449,10 +3248,6 @@ class Shell(DockLayout):
         if idle > 0:
             await asyncio.to_thread(SESSIONS.reap, self.connections_in_use(), idle)
 
-    async def on_key_bindings_setup(self, event: KeyBindingsSetup) -> bool:
-        self.spawn(self.key_bindings())
-        return True
-
     async def key_bindings(self) -> None:
         """Options > Configuration > Key bindings: the dialog over every key
         table as bound now; OK binds what it answers and writes
@@ -3480,26 +3275,6 @@ class Shell(DockLayout):
                 buttons="ok",
             ).execute(app)
 
-    async def on_setup_confirmation(self, event: SetupConfirmation) -> bool:
-        self.spawn(self.settings("confirmations"))
-        return True
-
-    async def on_editor_defaults(self, event: EditorDefaults) -> bool:
-        self.spawn(self.settings("editor_viewer"))
-        return True
-
-    async def on_file_manager_setup(self, event: FileManagerSetup) -> bool:
-        self.spawn(self.settings("file_manager"))
-        return True
-
-    async def on_drive_info_setup(self, event: DriveInfoSetup) -> bool:
-        self.spawn(self.settings("drive_info"))
-        return True
-
-    async def on_column_defaults(self, event: ColumnDefaults) -> bool:
-        self.spawn(self.settings("column_defaults"))
-        return True
-
     def checks(self, command: Command) -> bool | None:
         """≡ > Trashcan on/off is ticked while the trash can shows."""
         if isinstance(command, ToggleTrashCan):
@@ -3525,11 +3300,6 @@ class Shell(DockLayout):
         window.glass.focus()
         return True
 
-    async def on_toggle_trash_can(self, event: ToggleTrashCan) -> bool:
-        """≡ > Trashcan on/off: ``cmHideShowTools``."""
-        self.trash.shown = not self.trash.shown
-        return True
-
     async def on_open_trash(self, event: OpenTrash) -> bool:
         """Disk > Trash, and the trash can's double click: the file manager's
         active panel on the Trash (not DN's -- ``OpenTrash``'s docstring)."""
@@ -3547,18 +3317,6 @@ class Shell(DockLayout):
         if manager is None:
             return False
         self.spawn(manager.empty_trash())
-        return True
-
-    async def on_savers_setup(self, event: SaversSetup) -> bool:
-        self.spawn(self.settings("savers"))
-        return True
-
-    async def on_country_setup(self, event: CountrySetup) -> bool:
-        self.spawn(self.settings("country"))
-        return True
-
-    async def on_screen_rest(self, event: ScreenRest) -> bool:
-        self.spawn(self.rest(asked=True))
         return True
 
     async def rest(self, *, asked: bool = False) -> None:
@@ -3592,14 +3350,6 @@ class Shell(DockLayout):
                     self.run_command(shlex.quote(str(path)), typed=False)
         finally:
             self.resting = False
-
-    async def on_highlight_groups(self, event: HighlightGroups) -> bool:
-        self.spawn(self.settings("highlight_groups"))
-        return True
-
-    async def on_file_manager_defaults(self, event: FileManagerDefaults) -> bool:
-        self.spawn(self.settings("panel_defaults"))
-        return True
 
     async def setup(self, dialog: Any, *sections: str) -> None:
         """Run a setup *dialog*, then apply what it accepted and save it.
@@ -3639,14 +3389,6 @@ class Shell(DockLayout):
     # -- the directory tree window --------------------------------------------
 
     # -- File View History, File Edit History ---------------------------------
-
-    async def on_view_history(self, event: ViewHistory) -> bool:
-        self.spawn(self.file_history("view"))
-        return True
-
-    async def on_edit_history(self, event: EditHistory) -> bool:
-        self.spawn(self.file_history("edit"))
-        return True
 
     async def file_history(self, kind: str) -> None:
         """``ViewHistoryMenu``/``EditHistoryMenu``: pick a file, open it as it was left.
@@ -3702,14 +3444,6 @@ class Shell(DockLayout):
         manager = self.active_manager
         if manager is not None:
             manager.spawn(manager.edit_named())
-        return True
-
-    async def on_open_view(self, event: OpenView) -> bool:
-        self.spawn(self.open_chosen("view"))
-        return True
-
-    async def on_open_edit(self, event: OpenEdit) -> bool:
-        self.spawn(self.open_chosen("edit"))
         return True
 
     async def open_chosen(self, kind: str) -> None:
@@ -3909,4 +3643,3 @@ class UserScreenPeek(Widget):
 
     def render(self, surface: Surface) -> None:
         """Nothing: the console under it is the point."""
-

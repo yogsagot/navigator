@@ -5,6 +5,7 @@ from navigator.widgets.shell.keybar import KeyBar
 from navigator.widgets.shell.job_mark import JobMark
 from navigator.widgets.shell.macro_mark import MacroMark
 from navigator.widgets.shell.main_menu import MainMenu
+from navml.widgets.menu.commands import MainMenu as MainMenuCommand
 from navigator.widgets.shell.root_mark import RootMark
 from navigator.widgets.shell.trash_can import TrashCan
 from navigator.lib.config import country
@@ -12,6 +13,20 @@ from navigator.settings import SETTINGS
 from navml.widgets.desktop import Desktop
 from navml.widgets.layout.dock_layout import DockLayout
 from navml.widgets.window_strip import WindowStrip
+from navigator.widgets.shell.commands import AdbShell, ChangeColors, CloseRootAccess, ColumnDefaults, CommandLineEnd
+from navigator.widgets.shell.commands import CommandLineHome, CompleteCommandLine, CountrySetup, DockerShell
+from navigator.widgets.shell.commands import DriveInfoSetup, EditHistory, EditQuickRun, EditorDefaults, EnvEdit
+from navigator.widgets.shell.commands import ExecuteCommandLine, ExecuteOsCommand, ExtFileEdit, ExternalEditors
+from navigator.widgets.shell.commands import ExternalViewers, FileManagerDefaults, FileManagerSetup, FuzzyHistory
+from navigator.widgets.shell.commands import HangUp, HighlightGroups, HistoryList, InsertName, InsertPath
+from navigator.widgets.shell.commands import InterfaceSetup, KeyBindingsSetup, LoadColors, LoadDesktop
+from navigator.widgets.shell.commands import OpenCommandPalette, OpenEdit, OpenView, PodmanShell, SaversSetup
+from navigator.widgets.shell.commands import ScreenRest, Settings, SetupConfirmation, SetupLink, StartupSetup
+from navigator.widgets.shell.commands import StoreColors, SystemInfo, SystemSetup, Terminal, ToggleMarkBySpace
+from navigator.widgets.shell.commands import ToggleRootAccess, ToggleTrashCan, ViewHistory
+from navigator.commands import AsciiTable, ScreenGrab, ShowUserScreen
+from navigator.widgets.manager.commands import HideLeft, HideRight, UserMenu
+from navigator.lib.config.associations import EDITORS, EXTENSIONS, QUICK_RUN, VIEWERS
 
 #: The Navigator screen: the console, the desktop over it, the menu bar and
 #: clock over that, the command line, key bar.
@@ -38,6 +53,82 @@ Shell(DockLayout):
     #: Whether Ctrl+O has put the windows away.  One flag that the desktop's
     #: ``visible`` line reads, which is the whole of Ctrl+O.
     property console_visible: False
+    #: The commands this component handles itself.
+    commands:
+        LoadDesktop: root.spawn(root.load_desktop())
+        ChangeColors: root.spawn(root.change_colors())
+        StoreColors: root.spawn(root.store_colors())
+        LoadColors: root.spawn(root.load_colors())
+        ExecuteOsCommand: root.spawn(root.execute_os_command())
+        SystemInfo: root.spawn(root.system_info())
+        EnvEdit: root.spawn(root.edit_environment())
+        FuzzyHistory: root.fuzzy_history()
+        OpenCommandPalette: root.spawn(root.command_palette())
+        HistoryList: root.spawn(root.command_history())
+        ScreenGrab: root.spawn(root.screen_grab())
+        #: Alt+F5, ≡ > *User screen*: :meth:`show_user_screen`.
+        ShowUserScreen: root.show_user_screen()
+        #: ``cmMainMenu``, Editor > File > *Main menu*: the bar's first entry,
+        #: highlighted and not dropped, as ``cmMenu`` left the main bar.
+        MainMenuCommand: root.menu.open(0)
+        CommandLineHome: root.command_line.home()
+        CommandLineEnd: root.command_line.end()
+        #: Tab: ask the shell what the word at the caret could become.
+        #:
+        #: The answer comes back later, posted from the pty's reader, and is
+        #: applied by :meth:`completions_ready` -- only if the line is still what
+        #: it was asked about.
+        CompleteCommandLine: root._ask_completions()
+        ToggleMarkBySpace: root.active_manager.active_panel.toggle_mark()
+        #: F2, Utilities > *User menu*: ``cmUserMenu``, DN's ``ExecUserMenu``.
+        UserMenu: root.spawn(root.user_menu())
+        EditQuickRun: root.spawn(root.edit_associations(QUICK_RUN))
+        ExtFileEdit: root.spawn(root.edit_associations(EXTENSIONS))
+        ExternalViewers: root.spawn(root.edit_associations(VIEWERS))
+        ExternalEditors: root.spawn(root.edit_associations(EDITORS))
+        #: Ctrl+B, Utilities > *Character table*: DN's ``ASCIITable``.
+        AsciiTable: root.spawn(root.ascii_table())
+        InsertName: root._insert_entry(whole=False)
+        InsertPath: root._insert_entry(whole=True)
+        #: Enter: run the line in the shell, with the console up while it runs.
+        #:
+        #: The console takes the keyboard for the length of the command, so a
+        #: program that reads the terminal -- an editor, a pager, a password
+        #: prompt -- gets what is typed.  The windows come back when the shell
+        #: reports its prompt, in :meth:`command_finished`.
+        ExecuteCommandLine: root.run_command(root.command_line.value)
+        HideLeft: root.show_manager_side('left')
+        HideRight: root.show_manager_side('right')
+        Settings: root.spawn(root.settings())
+        SystemSetup: root.spawn(root.settings('system'))
+        StartupSetup: root.spawn(root.settings('startup'))
+        InterfaceSetup: root.spawn(root.settings('interface'))
+        SetupLink: root.spawn(root.settings('remote'))
+        Terminal: root.spawn(root.open_remote_shell('sftp'))
+        DockerShell: root.spawn(root.open_remote_shell('docker'))
+        PodmanShell: root.spawn(root.open_remote_shell('podman'))
+        AdbShell: root.spawn(root.open_remote_shell('adb'))
+        HangUp: root.spawn(root.hang_up())
+        CloseRootAccess: root.spawn(root.close_root_access())
+        ToggleRootAccess: root.spawn(root.close_root_access() if root.root_mark.open else root.open_root_access())
+        KeyBindingsSetup: root.spawn(root.key_bindings())
+        SetupConfirmation: root.spawn(root.settings('confirmations'))
+        EditorDefaults: root.spawn(root.settings('editor_viewer'))
+        FileManagerSetup: root.spawn(root.settings('file_manager'))
+        DriveInfoSetup: root.spawn(root.settings('drive_info'))
+        ColumnDefaults: root.spawn(root.settings('column_defaults'))
+        #: ≡ > Trashcan on/off: ``cmHideShowTools``.
+        ToggleTrashCan: root.trash.shown = not root.trash.shown
+        SaversSetup: root.spawn(root.settings('savers'))
+        CountrySetup: root.spawn(root.settings('country'))
+        ScreenRest: root.spawn(root.rest(asked=True))
+        HighlightGroups: root.spawn(root.settings('highlight_groups'))
+        FileManagerDefaults: root.spawn(root.settings('panel_defaults'))
+        ViewHistory: root.spawn(root.file_history('view'))
+        EditHistory: root.spawn(root.file_history('edit'))
+        OpenView: root.spawn(root.open_chosen('view'))
+        OpenEdit: root.spawn(root.open_chosen('edit'))
+
 
     Console:
         id: console
