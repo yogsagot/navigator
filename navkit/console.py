@@ -661,28 +661,17 @@ class ConsoleScreen:
         surface.blit(self._laid, x, y)
 
 
-def seed_from_host(console: ConsoleScreen) -> str | None:
-    """Fill *console* with whatever was on the real screen before we started.
+def capture_host(lines: int) -> tuple[str, bytes] | None:
+    """What the host kept of the real screen before we started, *lines* rows
+    of it, and the name of the route that had it; None when no host offers it.
 
     Best effort, and usually impossible: output printed before Navigator ran
     belongs to the terminal, and no escape sequence asks for it back.  Where a
     host does keep it and will say so, this is the closest thing to what DOS
-    Navigator got for free by reading video memory.  Returns the name of the
-    route that worked, or ``None``.  It waits on other programs: a caller on
-    an event loop runs :func:`capture_host` on a thread and feeds the result.
+    Navigator got for free by reading video memory.  It runs other programs,
+    so a caller on an event loop runs it on a thread and feeds what it returns
+    (``Console.start_seeded``).
     """
-    found = capture_host(console.lines)
-    if found is None:
-        return None
-    name, data = found
-    console.feed(data)
-    return name
-
-
-def capture_host(lines: int) -> tuple[str, bytes] | None:
-    """What the host kept of the real screen, *lines* rows of it, and the
-    name of the route that had it: :func:`seed_from_host` without the
-    feeding, so it can run on a thread -- it runs other programs."""
     for name, capture in (
         ("tmux", _capture_tmux),
         ("kitty", _capture_kitty),

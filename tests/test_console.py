@@ -244,18 +244,7 @@ def test_seeding_gives_up_quietly_when_no_host_offers_the_screen(monkeypatch):
     monkeypatch.delenv("TMUX", raising=False)
     monkeypatch.delenv("KITTY_WINDOW_ID", raising=False)
     monkeypatch.setattr(console_module, "_capture_vcsa", lambda lines: None)
-    assert console_module.seed_from_host(ConsoleScreen(20, 4)) is None
-
-
-def test_seeding_feeds_what_a_host_did_offer(monkeypatch):
-    from navkit import console as console_module
-
-    monkeypatch.setattr(
-        console_module, "_capture_tmux", lambda lines: b"old output\r\n"
-    )
-    console = ConsoleScreen(20, 4)
-    assert console_module.seed_from_host(console) == "tmux"
-    assert text_of(console, 0) == "old output"
+    assert console_module.capture_host(4) is None
 
 
 # -- what a full-screen program needs --------------------------------------------

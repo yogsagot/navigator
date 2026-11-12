@@ -17,10 +17,10 @@ portable to a terminal, where the grid lives in another process and the protocol
   Nothing in the protocol reports content.
 - `/dev/vcsa<N>` on a Linux virtual console *is* the exact analogue — four header bytes, then one character byte and one
   attribute byte per cell, the layout DN read. It works only on a real VT, never inside a terminal emulator or over ssh,
-  and needs group `tty`. It survives as one branch of `seed_from_host`, which is the honest scope for it.
+  and needs group `tty`. It survives as one branch of `capture_host`, which is the honest scope for it.
 - `tmux capture-pane -p -e`, `screen -X hardcopy -h` and `kitty @ get-text` return real text with attributes, but each
   only inside its own host and each needs opt-in. Also
-  `seed_from_host` branches.
+  `capture_host` branches.
 
 **Midnight Commander is the control experiment.** It owns a pty for its subshell and still cannot do this, because it
 pipes the child's output straight through to the real terminal and so never holds the cells either. All it can do is

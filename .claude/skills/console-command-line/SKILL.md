@@ -9,7 +9,7 @@ description: The console and the command line -- navkit/console.py (pyte, Consol
 
 **A terminal will not give its cells back** -- no escape returns screen contents -- so the only way to show a program's
 output behind the panels, as DOS did from video memory, is to have received it. `navkit/console.py`: `ConsoleScreen`
-keeps a `ScreenBuffer` mirror in step with pyte's sparse grid, converting only dirty rows; `seed_from_host` grabs the
+keeps a `ScreenBuffer` mirror in step with pyte's sparse grid, converting only dirty rows; `capture_host` grabs the
 pre-start screen from tmux, kitty or `/dev/vcsa` and usually fails, which is expected. `pyte` is the one run-time
 dependency and it is load-bearing.
 
