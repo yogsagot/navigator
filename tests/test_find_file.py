@@ -1030,3 +1030,38 @@ def test_change_inactive_is_refused_off_a_listing_and_go_to_file_on_dot_dot(plac
                   lambda a: seen.update(change=a.manager.refusal(ChangeInactive()),
                                         go=a.manager.refusal(GoToFile()))])
     assert seen == {"off": "Only in a Find listing", "change": "", "go": "The cursor is on no file"}
+
+
+def test_shown_in_listing_is_dn_s_get_directory_line():
+    from navigator.lib.drives.listing import DirEntry, shown_in_listing
+
+    text, binary, folder = DirEntry("x.txt", False, 1), DirEntry("x.bin", False, 1), DirEntry("d", True, 0)
+    assert [shown_in_listing(e, True, "*.txt") for e in (text, binary, folder)] == [True, False, True]
+    assert all(shown_in_listing(binary, True, mask) for mask in ("*", ""))
+    assert not shown_in_listing(DirEntry(".x.txt", False, 1), False, "*") and shown_in_listing(
+        DirEntry(".x.txt", False, 1), True, "*")
+    assert not shown_in_listing(DirEntry("..", True, 0), True, "*")
+
+
+def test_a_listing_being_filled_is_masked_as_it_will_stay(place):
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    app = navigator(place)
+    seen = {}
+    entries = [entry_at(place / "top.txt", place), entry_at(place / "b" / "big.bin", place / "b"),
+               entry_at(place / "a", place)]
+    listing = FindListing("Find: *", place, entries, live=True)
+
+    def show(a):
+        a.manager.left.file_mask = "*.txt"
+        a.manager.left.show_found(listing)
+
+    def settle_it(a):
+        listing.live = False
+        a.manager.left.reload()
+
+    names = lambda a: sorted(e.name for e in a.manager.left.items)  # noqa: E731
+    run_app(app, [show, LISTED, LISTED, lambda a: seen.update(live=names(a)), settle_it, LISTED, LISTED,
+                  lambda a: seen.update(settled=names(a))])
+    assert seen == {"live": ["..", "a", "top.txt"], "settled": ["..", "a", "top.txt"]}

@@ -40,7 +40,7 @@ from navigator.lib.config import country, directory_settings
 from navigator.lib.config.bookmarks import bookmarked_paths
 from navigator.lib.drives import Drive, DriveGone, Location, drive_of
 from navigator.lib.file_ops.clip import CLIP
-from navigator.lib.drives.listing import DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries, read_listing, restat_found, scan_directory
+from navigator.lib.drives.listing import DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries, read_listing, restat_found, scan_directory, shown_in_listing
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.commands import AdvancedFilter, ChangeDirectory, ChangeDrive

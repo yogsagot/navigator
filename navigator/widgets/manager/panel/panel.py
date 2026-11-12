@@ -53,7 +53,7 @@ from navigator.lib.drives import Drive, DriveGone, Location, drive_of
 from navigator.lib.file_ops.clip import CLIP
 from navigator.lib.drives.listing import (  # noqa: F401 -- re-exported, see listing's docstring
     DirEntry, ScanJob, count_lengths, entry_at, free_space_of, make_entry, order_entries,
-    read_listing, restat_found, scan_directory,
+    read_listing, restat_found, scan_directory, shown_in_listing,
 )
 from navigator.lib.system import dirwatch, gitstatus
 from navigator.settings import SETTINGS, PanelDefaultsData
@@ -962,9 +962,10 @@ class Panel(ListViewer):
         if found is not None and found.keep_order:
             sort = "unsorted"  # *Find duplicates*' groups stay together
         if found is not None and found.live:
-            # Still being searched: the entries as found, only ordered.
+            # Still being searched: the entries as found, only ordered --
+            # and masked as the settled listing is (DN's ``GetDirectory``).
             entries = [DirEntry("..", True, 0)] + [e for e in found.entries
-                                                   if show_hidden or not e.name.startswith(".")]
+                                                   if shown_in_listing(e, show_hidden, mask)]
             self._apply(request, order_entries(entries, sort, executables_first=flags["executables_first"],
                                                archives_first=flags["archives_first"], reverse=reverse), None)
             return

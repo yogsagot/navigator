@@ -384,17 +384,25 @@ def entry_at(path: Path, directory: Path | None = None) -> DirEntry | None:
                     is_link, target, info.st_uid, info.st_gid, directory, info.st_nlink)
 
 
+def shown_in_listing(entry: DirEntry, show_hidden: bool, mask: str = filetypes.ALL_FILES) -> bool:
+    """Whether a *Find:* listing shows *entry*: DN's ``GetDirectory`` line --
+    not ``..``, a hidden one only when they are shown, and a file only if the
+    panel's *mask* lets it through (a directory always)."""
+    if entry.name == ".." or (not show_hidden and entry.name.startswith(".")):
+        return False
+    if entry.is_dir or mask.strip() in ("", filetypes.ALL_FILES):
+        return True
+    return filetypes.in_filter(entry.name, mask)
+
+
 def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name", *,
                  executables_first: bool = False, archives_first: bool = False, reverse: bool = False,
                  mask: str = filetypes.ALL_FILES) -> tuple[list[DirEntry], str | None]:
     """A *Find:* listing re-read (``DosReread``): each entry as it is now, the
     gone ones dropped, under a ``..`` that leads back.  A thread runs it."""
-    filtered = mask.strip() not in ("", filetypes.ALL_FILES)
     found: list[DirEntry] = [DirEntry("..", True, 0)]
     for entry in entries:
-        if entry.name == "..":
-            continue
-        if not show_hidden and entry.name.startswith("."):
+        if entry.name == ".." or (not show_hidden and entry.name.startswith(".")):
             continue
         if entry.directory is not None and not isinstance(entry.directory, (str, os.PathLike)):
             fresh = _entry_elsewhere(entry)
@@ -402,7 +410,7 @@ def restat_found(entries: list[DirEntry], show_hidden: bool, sort: str = "name",
             fresh = entry_at(entry.path_in(Path("/")), entry.directory)
         if fresh is None:
             continue
-        if filtered and not fresh.is_dir and not filetypes.in_filter(fresh.name, mask):
+        if not shown_in_listing(fresh, show_hidden, mask):
             continue
         found.append(fresh)
     return order_entries(found, sort, executables_first=executables_first,
