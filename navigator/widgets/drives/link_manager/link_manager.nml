@@ -41,6 +41,12 @@ LinkManagerDialog(Dialog):
         delete: DeleteLinkEntry
         ctrl+r: ReadLiveLinks
 
+    #: The list shows its cursor only while it has the keyboard, so with
+    #: nothing chosen the keyboard starts on the top line, Name: no row
+    #: looks chosen while the lines are a one-off.  A chosen one starts on
+    #: the list, on it.
+    first_focus: links if root.chosen is not None else label.entry
+
     Label:
         id: links_caption
         x: 2

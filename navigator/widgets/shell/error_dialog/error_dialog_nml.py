@@ -44,12 +44,12 @@ class ErrorDialog(Dialog, _Component):
     __navml_source__ = "error_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    summary: StaticText    # error_dialog.nml:25
-    trace: TraceList    # error_dialog.nml:38
-    logged: StaticText    # error_dialog.nml:46
-    resume: Button    # error_dialog.nml:63
-    copy: Button    # error_dialog.nml:69
-    quit: Button    # error_dialog.nml:73
+    summary: StaticText    # error_dialog.nml:27
+    trace: TraceList    # error_dialog.nml:40
+    logged: StaticText    # error_dialog.nml:48
+    resume: Button    # error_dialog.nml:65
+    copy: Button    # error_dialog.nml:71
+    quit: Button    # error_dialog.nml:75
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -59,23 +59,23 @@ class ErrorDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_copy_click(self, event: _Event) -> bool:    # error_dialog.nml:69
+    async def on_copy_click(self, event: _Event) -> bool:    # error_dialog.nml:71
         """``copy`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_quit_click(self, event: _Event) -> bool:    # error_dialog.nml:73
+    async def on_quit_click(self, event: _Event) -> bool:    # error_dialog.nml:75
         """``quit`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.summary = StaticText(parent=self)    # error_dialog.nml:24
-        self.trace = TraceList(parent=self)    # error_dialog.nml:37
-        self.logged = StaticText(parent=self)    # error_dialog.nml:45
-        _w1 = ButtonRow(parent=self)    # error_dialog.nml:54
-        self.resume = Button(parent=_w1)    # error_dialog.nml:62
-        self.copy = Button(parent=_w1)    # error_dialog.nml:68
-        self.quit = Button(parent=_w1)    # error_dialog.nml:72
+        self.summary = StaticText(parent=self)    # error_dialog.nml:26
+        self.trace = TraceList(parent=self)    # error_dialog.nml:39
+        self.logged = StaticText(parent=self)    # error_dialog.nml:47
+        _w1 = ButtonRow(parent=self)    # error_dialog.nml:56
+        self.resume = Button(parent=_w1)    # error_dialog.nml:64
+        self.copy = Button(parent=_w1)    # error_dialog.nml:70
+        self.quit = Button(parent=_w1)    # error_dialog.nml:74
 
         self.modal_width = _bind(    # error_dialog.nml:19
             lambda _o: max(60, _o.parent.width - 4) if _o.parent is not None else 76
@@ -85,42 +85,43 @@ class ErrorDialog(Dialog, _Component):
         )
         self.title = _bind(lambda _o: _tr('Error'), yielding=True)    # error_dialog.nml:21
         self.buttons = 'none'    # error_dialog.nml:22
+        self.first_focus = _bind(lambda _o: self.resume)    # error_dialog.nml:24
 
-        self.summary.name = 'summary'    # error_dialog.nml:26
-        self.summary.y = 1    # error_dialog.nml:27
-        self.summary.height = 2    # error_dialog.nml:28
-        self.summary.wrap = True    # error_dialog.nml:32
-        self.summary.x = 2    # error_dialog.nml:30
-        self.summary.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:31
+        self.summary.name = 'summary'    # error_dialog.nml:28
+        self.summary.y = 1    # error_dialog.nml:29
+        self.summary.height = 2    # error_dialog.nml:30
+        self.summary.wrap = True    # error_dialog.nml:34
+        self.summary.x = 2    # error_dialog.nml:32
+        self.summary.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:33
 
-        self.trace.y = 3    # error_dialog.nml:39
-        self.trace.height = _bind(lambda _o: max(1, _o.parent.height - 9))    # error_dialog.nml:40
-        self.trace.x = 2    # error_dialog.nml:42
-        self.trace.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:43
+        self.trace.y = 3    # error_dialog.nml:41
+        self.trace.height = _bind(lambda _o: max(1, _o.parent.height - 9))    # error_dialog.nml:42
+        self.trace.x = 2    # error_dialog.nml:44
+        self.trace.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:45
 
-        self.logged.name = 'logged'    # error_dialog.nml:47
-        self.logged.x = 2    # error_dialog.nml:49
-        self.logged.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:50
-        self.logged.y = _bind(    # error_dialog.nml:51
+        self.logged.name = 'logged'    # error_dialog.nml:49
+        self.logged.x = 2    # error_dialog.nml:51
+        self.logged.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # error_dialog.nml:52
+        self.logged.y = _bind(    # error_dialog.nml:53
             lambda _o: max(0, _o.parent.height - 5 - _o.height)
         )
 
-        _w1.button_width = 14    # error_dialog.nml:55
-        _w1.spacing = 1    # error_dialog.nml:56
-        _w1.x = 0# error_dialog.nml:58
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # error_dialog.nml:59
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # error_dialog.nml:60
+        _w1.button_width = 14    # error_dialog.nml:57
+        _w1.spacing = 1    # error_dialog.nml:58
+        _w1.x = 0# error_dialog.nml:60
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # error_dialog.nml:61
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # error_dialog.nml:62
 
-        self.resume.text = _bind(lambda _o: _tr('~C~ontinue'), yielding=True)    # error_dialog.nml:64
-        self.resume.default = True    # error_dialog.nml:65
+        self.resume.text = _bind(lambda _o: _tr('~C~ontinue'), yielding=True)    # error_dialog.nml:66
+        self.resume.default = True    # error_dialog.nml:67
 
-        async def _on_click(event):    # error_dialog.nml:66
+        async def _on_click(event):    # error_dialog.nml:68
             self.close('continue')
             return True
         self.resume.on_click = _on_click
 
-        self.copy.text = _bind(lambda _o: _tr('C~o~py'), yielding=True)    # error_dialog.nml:70
-        self.copy.on_click = self.on_copy_click    # error_dialog.nml:69
+        self.copy.text = _bind(lambda _o: _tr('C~o~py'), yielding=True)    # error_dialog.nml:72
+        self.copy.on_click = self.on_copy_click    # error_dialog.nml:71
 
-        self.quit.text = _bind(lambda _o: _tr('~Q~uit'), yielding=True)    # error_dialog.nml:74
-        self.quit.on_click = self.on_quit_click    # error_dialog.nml:73
+        self.quit.text = _bind(lambda _o: _tr('~Q~uit'), yielding=True)    # error_dialog.nml:76
+        self.quit.on_click = self.on_quit_click    # error_dialog.nml:75

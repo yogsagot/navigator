@@ -90,10 +90,6 @@ class MonitorWindow(Window):
             self._ticker = None
         super().unmounting()
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
-        self.cpu.focus()
-
     # -- the size ---------------------------------------------------------------------
 
     def natural_size(self, width: int, height: int) -> tuple[int, int]:

@@ -187,6 +187,9 @@ def _collect_lines(
     resolved = build.resolved
     followed = followed_imports(resolved.namespace)
     for prop in block.properties:
+        if prop.once:
+            _collect_once(build, block, owner, prop, lines)
+            continue
         compiled = compile_expression(
             prop.expression,
             own=resolved.own(block),
@@ -221,6 +224,31 @@ def _collect_lines(
         )
     for handler in block.handlers:
         _collect_handler(build, block, owner, handler, lines)
+
+
+def _collect_once(
+    build: _Build, block: Block, owner: str, prop, lines: list[_Line]
+) -> None:
+    """``name = expression``: evaluated once, here, and assigned unbound.
+
+    Compiled the way a handler body is, with the widget's own names read
+    through *owner* itself rather than a lambda's argument, so the line is a
+    plain assignment a later write from Python is free to replace.  A caption
+    is translated into the language of the moment the widget was built.
+    """
+    resolved = build.resolved
+    compiled = compile_expression(
+        prop.expression,
+        own=resolved.own(block),
+        ids=resolved.ids,
+        owner=owner,
+        line=prop.line,
+        filename=resolved.filename,
+        translate=prop.name in TRANSLATED,
+    )
+    if compiled.translated:
+        build.needing("_tr")
+    lines.append(_Line(f"{owner}.{prop.name} = {compiled.expression}", prop.line))
 
 
 def _followable(resolved: Resolved, block: Block, name: str) -> bool:

@@ -29,6 +29,8 @@ StructWindow(Window):
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
 
+    first_focus: tree
+
     DataTree:
         id: tree
         framed: False

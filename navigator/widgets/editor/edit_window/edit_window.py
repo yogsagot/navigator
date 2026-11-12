@@ -202,12 +202,6 @@ class EditWindow(Window):
             title += f" :{views.index(self.editor) + 1}"
         return title
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
-        # before ``activate`` has saved which panel the window below had, so
-        # closing this one would hand the keyboard to the left panel.
-        self.editor.focus()
-
     def list_name(self) -> str:
         """Window > List's line: the title, which already says ``Edit - ``."""
         return self._title()

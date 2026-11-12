@@ -64,6 +64,8 @@ EditWindow(Window):
         f8: PrintFile
         shift+f8: PrintBlock
 
+    first_focus: editor
+
     #: *Line numbers* (a departure: DN numbered no lines), left of the text
     #: and as wide as the line count's digits and a blank; the editor is
     #: narrowed by it, so its own columns never change.  Off, it is nothing.

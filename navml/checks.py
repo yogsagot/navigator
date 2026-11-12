@@ -296,7 +296,8 @@ def _check_properties(resolved: Resolved) -> None:
         cls = resolved.class_of(block)
         for line in block.properties:
             _check_property(
-                resolved, block, cls, line.name, line.expression, line.line
+                resolved, block, cls, line.name, line.expression, line.line,
+                once=line.once,
             )
 
 
@@ -307,6 +308,8 @@ def _check_property(
     name: str,
     expression: str,
     line: int,
+    *,
+    once: bool = False,
 ) -> None:
     root = block is resolved.document.root
     found = declared(cls, name) if not root else _root_declaration(resolved, name, cls)
@@ -323,13 +326,46 @@ def _check_property(
             f"{name} is a style property of {cls.__name__}; it is authored in "
             f"a sheet, in a style: block here, and never assigned",
         )
-    if found is None and _is_binding(resolved, expression, block, line):
+    if once:
+        _check_once_names(resolved, block, expression, line)
+    if found is None and not once and _is_binding(resolved, expression, block, line):
         _refuse(
             resolved,
             line,
             f"{cls.__name__} does not declare {name}, so the expression would "
             f"be stored rather than followed",
         )
+
+
+def _check_once_names(
+    resolved: Resolved, block: Block, expression: str, line: int
+) -> None:
+    """A ``name = ...`` line runs as the widget is built: every bare name in
+    it must mean something then.  One the hand-written half declares is not
+    seen from markup (``root.sort_mode`` reaches it), and would otherwise be
+    a ``NameError`` the first time the component is made."""
+    import builtins
+
+    tree = ast.parse(expression, mode="eval")
+    local: set[str] = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.arg):
+            local.add(node.arg)
+        elif isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            local.add(node.id)
+    known = (
+        set(resolved.own(block)) | set(resolved.ids) | set(resolved.namespace)
+        | set(dir(builtins)) | {"self", "root", "parent"} | local
+    )
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Load) and node.id not in known:
+            _refuse(
+                resolved,
+                line,
+                f"{node.id!r} means nothing here: it is not an id, an import or "
+                f"a property this document can see (one the .py half declares "
+                f"is reached as root.{node.id})",
+            )
 
 
 def _root_declaration(resolved: Resolved, name: str, cls: type):

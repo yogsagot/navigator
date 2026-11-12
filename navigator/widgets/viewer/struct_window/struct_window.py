@@ -53,9 +53,6 @@ class StructWindow(Window):
         self._looked_for: tuple[str, bool] | None = None
         self._searching: asyncio.Task | None = None
 
-    def take_keyboard(self) -> None:
-        self.tree.focus()
-
     def list_name(self) -> str:
         """Window > List's line: ``Data - `` and the name, as a viewer's is ``View - ``."""
         return tr("{format} View - {path}").format(format=FORMAT_NAMES.get(self.kind, ""), path=self.path)

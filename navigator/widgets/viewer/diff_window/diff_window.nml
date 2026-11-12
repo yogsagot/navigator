@@ -36,6 +36,8 @@ DiffWindow(Window):
         ctrl+r: Rescan
         alt+r: Rescan
 
+    first_focus: view
+
     DiffView:
         id: view
         anchors:

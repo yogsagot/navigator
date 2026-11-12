@@ -21,6 +21,8 @@ ErrorDialog(Dialog):
     title: "Error"
     buttons: "none"
 
+    first_focus: resume
+
     StaticText:
         id: summary
         name: "summary"

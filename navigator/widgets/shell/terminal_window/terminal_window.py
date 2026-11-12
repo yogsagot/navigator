@@ -79,9 +79,6 @@ class TerminalWindow(Window):
         self.view.scroll_to(event.value)
         return True
 
-    def take_keyboard(self) -> None:
-        self.view.focus()
-
     def list_name(self) -> str:
         return self.caption()
 

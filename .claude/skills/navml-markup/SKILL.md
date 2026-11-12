@@ -77,9 +77,19 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
   (`text: ... if root.trashing() else ...` in `delete_dialog.nml`). `tr()` in a markup line is not seen by
   `tools/i18n.py extract`: put the call in a method too (`CountryPage.example_text`).
 - **A property a widget *navigates* cannot be bound.** A bound attribute is read-only until unbound, so
-  `path: root.left_path` paints and then raises the first time `Panel.enter()` assigns `path`. Markup cannot say a
-  starting value: seed it in the hand-written `__init__` after `super().__init__()` (`manager.py` seeds `left.path`,
-  `right.path`, `console.cwd`).
+  `path: root.left_path` paints and then raises the first time `Panel.enter()` assigns `path`.
+- **`name = expression` sets a starting value once** (`Property.once`). It is evaluated as the widget is built and
+  assigned, never bound, so whatever navigates the property may write it later. `panel.nml`'s
+  `show_hidden = SETTINGS.system.show_hidden` is the example.
+  - It compiles the way a handler body does: the widget's names are read through the widget itself
+    (`generator._collect_once`). A caption is translated once, into the language of that moment.
+  - It may set a plain attribute, since being stored rather than followed is what `=` says.
+  - A bare name must mean something at build time (`checks._check_once_names`). A name the `.py` half declares is
+    invisible to markup: write `root.sort_mode`.
+  - Refused: `id`, `on_*` and directives with `=`; a `when` block's `=` line; a `when` variant replacing a widget's
+    `=` line, since nothing would follow the condition.
+  - A value only an `__init__` parameter knows (`Manager(left, right)`) is still seeded in the `.py` after
+    `super().__init__()`.
 - **Captions are translated**: a string literal of `text`/`title`/`label_text`/`items`/`prompt` compiles to
   `_bind(lambda _o: _tr('...'), yielding=True)` -- live on a language change, and replaced (not refused) by a later
   assignment from Python. Other properties' strings (`key:`, `history_id:`, `after:`) are names, never translated
@@ -95,6 +105,10 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
   not write `height: 1` under them.** Write a height only when it differs, or when a `when` block varies it (a
   variant needs a line of the widget's to fall back on). `default_height` is a class attribute, not a redeclared
   `height`, because `is_bound(w, Widget.height)` refuses a class that redeclares the name.
+- **`first_focus: <id or expression>`** on a `Modal` or a `Window` root says which control the keyboard goes to
+  first: `first_focus: tree`, `first_focus: links if root.chosen is not None else label.entry`. A `take_keyboard()`
+  override or a `.focus()` at the end of `mounted()` is what it replaces. One that is hidden or cannot take the
+  keyboard falls back to the tab order (`Application._claim_focus`, `Window.take_keyboard`).
 - `equal=` is not expressible in markup (a comparator is a function); declare such a property in the hand-written half.
 - markup assigns a component's own `stylesheet` like any other property (`stylesheet` is what an object brings,
   `effective_stylesheet` what it resolves against).

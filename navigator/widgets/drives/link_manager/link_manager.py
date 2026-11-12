@@ -219,11 +219,6 @@ class LinkManagerDialog(Dialog):
         effect(self, LinkManagerDialog._follow_lines)
         if self.family.live:
             self.spawn(self.read_live())
-        # The list shows its cursor only while it has the keyboard, so with
-        # nothing chosen the keyboard starts on the top line, Name: no row
-        # looks chosen while the lines are a one-off.  A chosen one starts on
-        # the list, on it.
-        (self.links if self.chosen is not None else self.label.entry).focus()
 
     def _dress(self) -> None:
         """The protocol's title, captions, histories and TLS box."""

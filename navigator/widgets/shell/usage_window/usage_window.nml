@@ -50,6 +50,8 @@ UsageWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    first_focus: entries
+
     UsageList:
         id: entries
         framed: False

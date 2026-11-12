@@ -97,7 +97,6 @@ class DBWindow(Window):
         super().mounted()
         effect(self, DBWindow._follow_cursor)
         self._follow_walk()
-        self.viewer.focus()
 
     def unmounting(self) -> None:
         self._stop_ticking()

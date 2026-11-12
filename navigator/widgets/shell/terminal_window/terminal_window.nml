@@ -18,6 +18,8 @@ TerminalWindow(Window):
     min_width: 20
     min_height: 5
 
+    first_focus: view
+
     TerminalView:
         id: view
         x: 1

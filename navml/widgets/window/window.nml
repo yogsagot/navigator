@@ -26,6 +26,15 @@ Window:
     #: Whether the ``[■]`` icon is painted, and answers a click.
     property closable: True
 
+    #: The control the keyboard goes to first, or None for the first one in
+    #: the tab order -- ``first_focus: tree``.  Asked whenever the keyboard is
+    #: handed in; one that is hidden or cannot take it is passed over.
+    #: Read by :meth:`take_keyboard` on every activation, never from
+    #: ``mounted()``: that runs inside ``Desktop.open``'s ``add()``, before
+    #: ``activate`` has saved which panel the window below had, so closing
+    #: this one would hand the keyboard to the left panel.
+    property first_focus: None
+
     #: Whether the ``[↑]`` icon is painted, and the title answers a double
     #: click.
     property zoomable: True

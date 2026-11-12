@@ -40,9 +40,6 @@ class DiffWindow(Window):
         self.view.model = model
         self.title = tr("Compare {left} with {right}").format(left=_name(left), right=_name(right))
 
-    def take_keyboard(self) -> None:
-        self.view.focus()
-
     def list_name(self) -> str:
         """Window > List's line."""
         return tr("Compare - {left}, {right}").format(left=self.left_path, right=self.right_path)

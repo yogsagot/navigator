@@ -28,6 +28,8 @@ TreeWindow(Window):
         ctrl+r: Rescan
         alt+r: Rescan
 
+    first_focus: tree
+
     DirectoryTree:
         id: tree
         framed: False

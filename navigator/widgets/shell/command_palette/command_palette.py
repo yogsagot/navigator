@@ -176,7 +176,6 @@ class CommandPalette(Dialog):
             self.entries = gather(app, self.behind)
         effect(self, CommandPalette._follow_filter)
         effect(self, CommandPalette._describe)
-        self.filter.focus()
 
     def _follow_filter(self) -> None:
         found = narrow(self.entries, self.filter.value)

@@ -40,12 +40,6 @@ class ConvertTextDialog(Dialog):
         self.ending.tooltip = section.tooltip("ending")
         self.options.tooltip = section.tooltip("keep_times")
 
-    def mounted(self) -> None:
-        super().mounted()
-        # The line endings first: what is changed most, and Enter on a choice
-        # line drops its list rather than answering the box.
-        self.ending.focus()
-
     @property
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.pick, self.abandon)

@@ -26,10 +26,6 @@ class ForwardsDialog(Dialog):
         self.items: list[Forward] = list(forwards or ())
         self._refresh(0)
 
-    def mounted(self) -> None:
-        super().mounted()
-        (self.forwards if self.items else self.append).focus()
-
     def key_hints(self) -> list[tuple[str, str]]:
         return [("Ins", tr("Add")), ("F4", tr("Edit")), ("Del", tr("Delete"))]
 

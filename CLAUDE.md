@@ -199,7 +199,8 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **Effects belong in `mounted()`, not `__init__`**, for any widget that can be removed and put back; `remove()` disposes
   a subtree's effects.
 - **A dialog's geometry must be bound, not assigned**, or `overlay()` makes it full-screen.
-- **A property a widget navigates cannot be bound** (`Panel.path`): seed it after `super().__init__()`.
+- **A property a widget navigates cannot be bound** (`Panel.path`): give it a starting value with `name = expr` in
+  markup, or seed it after `super().__init__()` when only a constructor argument knows it.
 - **Assigning a value over a live binding raises**; `unbind()` first. **A collection must be replaced** to count as
   changed. **A computed may not write.** A widget's `style` is computed -- author `inline_style`/`merge_style()`.
 - **The application's own `on_key`/`on_mouse_click` step aside while `app.modal` is set.**

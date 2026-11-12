@@ -133,7 +133,8 @@ class Window(Widget):
             self.can_focus = False
         order = self.focusable()
         if order:
-            order[0].focus()
+            wanted = self.first_focus
+            (wanted if wanted in order else order[0]).focus()
             return
         self._holds_keyboard = True
         self.can_focus = True

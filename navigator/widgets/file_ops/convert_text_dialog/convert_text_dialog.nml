@@ -17,6 +17,10 @@ ConvertTextDialog(Dialog):
     title: "Convert Text Files"
     buttons: "none"
 
+    #: The line endings first: what is changed most, and Enter on a choice
+    #: line drops its list rather than answering the box.
+    first_focus: ending
+
     ChoiceField:
         id: encoding
         y: 1

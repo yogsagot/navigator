@@ -23,6 +23,7 @@ class Window(_Component):
     title: str
     number: int
     closable: bool
+    first_focus: _Any
     zoomable: bool
     resizable: bool
     tileable: bool

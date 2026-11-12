@@ -1209,7 +1209,10 @@ class Application:
         if modal is None or (self.focused is not None and modal._holds(self.focused)):
             return
         order = modal.focusable()
-        self.focused = order[0] if order else None
+        # A modal may name where the keyboard goes first (navml's
+        # ``first_focus``); one it cannot reach falls back to the tab order.
+        wanted = getattr(modal, "first_focus", None)
+        self.focused = wanted if wanted in order else order[0] if order else None
 
     def focus_next(self, reverse: bool = False) -> Widget | None:
         """Move focus along the tab order, wrapping.  The new holder, or None.

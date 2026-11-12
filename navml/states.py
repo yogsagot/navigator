@@ -81,6 +81,13 @@ def _lines(block: Block, parent: Block | None, filename: str) -> tuple[Property,
         variant = _variant(block, when)
         lines = _expanded(variant, parent, filename)
         for name, line in lines.items():
+            if base.get(name) is not None and base[name].once and line is not base[name]:
+                raise MarkupError(
+                    f"{name} is set once ('{name} = ...'), so nothing would follow "
+                    f"'{when.condition}': write the widget's line as '{name}: ...'",
+                    _line_of(when, name, line),
+                    filename,
+                )
             if name not in base:
                 raise MarkupError(
                     f"this when block gives {name} a value the widget has no line for "

@@ -19,6 +19,8 @@ CommandPalette(Dialog):
     close_on_outside_click: True
     buttons: "none"
 
+    first_focus: filter
+
     InputLine:
         id: filter
         x: 2

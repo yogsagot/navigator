@@ -61,6 +61,8 @@ VolumesWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    first_focus: volumes
+
     VolumeList:
         id: volumes
         framed: False

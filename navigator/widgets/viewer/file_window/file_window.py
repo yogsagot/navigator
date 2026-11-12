@@ -93,12 +93,6 @@ class FileWindow(Window):
         self._follow_timer: Any = None
         self._follow_busy = False
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
-        # before ``activate`` has saved which panel the window below had, so
-        # closing this one would hand the keyboard to the left panel.
-        self.viewer.focus()
-
     def list_name(self) -> str:
         """Window > List's line: DN's ``dlViewFile``, ``View - `` and the name."""
         return tr("View - {path}").format(path=self.viewer.path)

@@ -67,6 +67,8 @@ ProcessWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    first_focus: processes
+
     #: As wide as its caption and a blank, whatever the language.
     Label:
         id: filter_caption

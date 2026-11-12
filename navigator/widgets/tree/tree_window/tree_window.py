@@ -39,12 +39,6 @@ class TreeWindow(Window):
         self.tree.set_show_hidden(hidden)
         self.tree.show(start if start is not None else Path.cwd())
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``: that runs inside ``Desktop.open``'s ``add()``,
-        # before ``activate`` has saved which panel the window below had, so
-        # closing this one would hand the keyboard to the left panel.
-        self.tree.focus()
-
     async def on_rescan(self, event: Rescan) -> bool:
         self.tree.reload()
         return True

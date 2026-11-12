@@ -101,10 +101,6 @@ class UsageWindow(Window):
         self.entries.apparent = self.apparent
         self._show()
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
-        self.entries.focus()
-
     # -- reading ----------------------------------------------------------------------
 
     def rescan(self) -> None:

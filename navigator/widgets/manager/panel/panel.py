@@ -533,13 +533,6 @@ class Panel(ListViewer):
         #: record and the settings; None until its first look.  Its presence
         #: is also what tells :class:`_Arrival` the panel is ready.
         self._kept_dir: tuple[Location, str, dict[str, Any]] | None = None
-        # Seeded, not bound: Ctrl+H toggles it per panel.
-        self.show_hidden = SETTINGS.system.show_hidden
-        self.sort_mode = SETTINGS.panel_defaults.sort_by
-        self.sort_reverse = SETTINGS.panel_defaults.sort_reverse and self.sort_mode != "unsorted"
-        self.view_mode = SETTINGS.panel_defaults.view_mode
-        self.columns = SETTINGS.column_defaults.columns(False)
-        self.archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
         if path is not None:
             self.location = Location.of(path)
 

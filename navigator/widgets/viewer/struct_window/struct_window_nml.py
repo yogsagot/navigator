@@ -58,8 +58,8 @@ class StructWindow(Window, _Component):
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    tree: DataTree    # struct_window.nml:33
-    data_menu: SubMenu    # struct_window.nml:44
+    tree: DataTree    # struct_window.nml:35
+    data_menu: SubMenu    # struct_window.nml:46
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -69,75 +69,76 @@ class StructWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_tree_chosen(self, event: _Event) -> bool:    # struct_window.nml:33
+    async def on_tree_chosen(self, event: _Event) -> bool:    # struct_window.nml:35
         """``tree`` raised an event whose handler is ``on_chosen``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.tree = DataTree(parent=self)    # struct_window.nml:32
-        self.data_menu = SubMenu(parent=self)    # struct_window.nml:43
-        _w1 = MenuItem(parent=self.data_menu)    # struct_window.nml:46
-        _w2 = MenuLine(parent=self.data_menu)    # struct_window.nml:48
-        _w3 = MenuItem(parent=self.data_menu)    # struct_window.nml:49
-        _w4 = MenuItem(parent=self.data_menu)    # struct_window.nml:51
-        _w5 = MenuLine(parent=self.data_menu)    # struct_window.nml:53
-        _w6 = MenuItem(parent=self.data_menu)    # struct_window.nml:54
-        _w7 = MenuItem(parent=self.data_menu)    # struct_window.nml:56
-        _w8 = MenuItem(parent=self.data_menu)    # struct_window.nml:57
-        _w9 = MenuLine(parent=self.data_menu)    # struct_window.nml:58
-        _w10 = MenuItem(parent=self.data_menu)    # struct_window.nml:59
+        self.tree = DataTree(parent=self)    # struct_window.nml:34
+        self.data_menu = SubMenu(parent=self)    # struct_window.nml:45
+        _w1 = MenuItem(parent=self.data_menu)    # struct_window.nml:48
+        _w2 = MenuLine(parent=self.data_menu)    # struct_window.nml:50
+        _w3 = MenuItem(parent=self.data_menu)    # struct_window.nml:51
+        _w4 = MenuItem(parent=self.data_menu)    # struct_window.nml:53
+        _w5 = MenuLine(parent=self.data_menu)    # struct_window.nml:55
+        _w6 = MenuItem(parent=self.data_menu)    # struct_window.nml:56
+        _w7 = MenuItem(parent=self.data_menu)    # struct_window.nml:58
+        _w8 = MenuItem(parent=self.data_menu)    # struct_window.nml:59
+        _w9 = MenuLine(parent=self.data_menu)    # struct_window.nml:60
+        _w10 = MenuItem(parent=self.data_menu)    # struct_window.nml:61
 
         self.title = _bind(lambda _o: _tr('Data'), yielding=True)    # struct_window.nml:18
+        self.first_focus = _bind(lambda _o: self.tree)    # struct_window.nml:32
 
-        self.tree.framed = False    # struct_window.nml:34
-        self.tree.x = 1    # struct_window.nml:36
-        self.tree.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # struct_window.nml:37
-        self.tree.y = 1    # struct_window.nml:38
-        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # struct_window.nml:39
-        self.tree.on_chosen = self.on_tree_chosen    # struct_window.nml:33
+        self.tree.framed = False    # struct_window.nml:36
+        self.tree.x = 1    # struct_window.nml:38
+        self.tree.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # struct_window.nml:39
+        self.tree.y = 1    # struct_window.nml:40
+        self.tree.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # struct_window.nml:41
+        self.tree.on_chosen = self.on_tree_chosen    # struct_window.nml:35
 
-        self.data_menu.text = _bind(lambda _o: _tr('~D~ata'), yielding=True)    # struct_window.nml:43
-        self.data_menu.after = 'File'    # struct_window.nml:43
-        self.data_menu.tooltip = _bind(    # struct_window.nml:45
+        self.data_menu.text = _bind(lambda _o: _tr('~D~ata'), yielding=True)    # struct_window.nml:45
+        self.data_menu.after = 'File'    # struct_window.nml:45
+        self.data_menu.tooltip = _bind(    # struct_window.nml:47
             lambda _o: _tr('Copy, search and fold the tree'),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~T~ext view'), yielding=True)    # struct_window.nml:46
-        _w1.command = ViewTreeAsText    # struct_window.nml:46
-        _w1.key = 'Shift-F4'    # struct_window.nml:46
-        _w1.tooltip = _bind(    # struct_window.nml:47
+        _w1.text = _bind(lambda _o: _tr('~T~ext view'), yielding=True)    # struct_window.nml:48
+        _w1.command = ViewTreeAsText    # struct_window.nml:48
+        _w1.key = 'Shift-F4'    # struct_window.nml:48
+        _w1.tooltip = _bind(    # struct_window.nml:49
             lambda _o: _tr("The file's text, where the cursor's node is when that is known"),
             yielding=True,
         )
 
-        _w3.text = _bind(lambda _o: _tr('Copy ~p~ath'), yielding=True)    # struct_window.nml:49
-        _w3.command = CopyPath    # struct_window.nml:49
-        _w3.tooltip = _bind(    # struct_window.nml:50
+        _w3.text = _bind(lambda _o: _tr('Copy ~p~ath'), yielding=True)    # struct_window.nml:51
+        _w3.command = CopyPath    # struct_window.nml:51
+        _w3.tooltip = _bind(    # struct_window.nml:52
             lambda _o: _tr('The path of the node under the cursor, to the clipboard'),
             yielding=True,
         )
 
-        _w4.text = _bind(lambda _o: _tr('Copy ~v~alue'), yielding=True)    # struct_window.nml:51
-        _w4.command = CopyValue    # struct_window.nml:51
-        _w4.tooltip = _bind(    # struct_window.nml:52
+        _w4.text = _bind(lambda _o: _tr('Copy ~v~alue'), yielding=True)    # struct_window.nml:53
+        _w4.command = CopyValue    # struct_window.nml:53
+        _w4.tooltip = _bind(    # struct_window.nml:54
             lambda _o: _tr("The node's value -- a branch as text -- to the clipboard"),
             yielding=True,
         )
 
-        _w6.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # struct_window.nml:54
-        _w6.command = SearchFor    # struct_window.nml:54
-        _w6.tooltip = _bind(    # struct_window.nml:55
+        _w6.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # struct_window.nml:56
+        _w6.command = SearchFor    # struct_window.nml:56
+        _w6.tooltip = _bind(    # struct_window.nml:57
             lambda _o: _tr('Find text in the keys and values; Ctrl+S finds a key as it is typed'),
             yielding=True,
         )
 
-        _w7.text = _bind(lambda _o: _tr('Search ~a~gain'), yielding=True)    # struct_window.nml:56
-        _w7.command = ContinueSearch    # struct_window.nml:56
+        _w7.text = _bind(lambda _o: _tr('Search ~a~gain'), yielding=True)    # struct_window.nml:58
+        _w7.command = ContinueSearch    # struct_window.nml:58
 
-        _w8.text = _bind(lambda _o: _tr('E~x~pand all'), yielding=True)    # struct_window.nml:57
-        _w8.command = ExpandAll    # struct_window.nml:57
+        _w8.text = _bind(lambda _o: _tr('E~x~pand all'), yielding=True)    # struct_window.nml:59
+        _w8.command = ExpandAll    # struct_window.nml:59
 
-        _w10.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # struct_window.nml:59
-        _w10.command = CloseWindow    # struct_window.nml:59
+        _w10.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # struct_window.nml:61
+        _w10.command = CloseWindow    # struct_window.nml:61

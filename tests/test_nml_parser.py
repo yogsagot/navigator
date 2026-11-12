@@ -124,7 +124,8 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     assert blocks["message"].anchors is not None
     assert [h.name for h in blocks["info"].handlers] == ["on_click"]
     assert blocks["info"].handlers[0].body == "await root.show_info(event)"
-    assert all(not b.handlers for b in (blocks["ok"], blocks["no"], blocks["cancel"]))
+    assert all(not b.handlers for b in (blocks["ok"], blocks["cancel"]))
+    assert [(h.name, h.body) for h in blocks["no"].handlers] == [("on_click", "root.close(False)")]
 
 
 @pytest.mark.parametrize("component", SHIPPED)

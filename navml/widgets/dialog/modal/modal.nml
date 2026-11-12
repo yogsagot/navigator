@@ -28,6 +28,11 @@ Modal:
     #: Whether the ``[■]`` icon is painted, and the corner answers a click.
     property closable: True
 
+    #: The control the keyboard goes to first, or None for the first one in
+    #: the tab order -- ``first_focus: tree``.  Asked whenever the keyboard is
+    #: handed in; one that is hidden or cannot take it is passed over.
+    property first_focus: None
+
     #: The size the modal asks for.  Overridden by a derived document.
     property modal_width: 50
     property modal_height: 10

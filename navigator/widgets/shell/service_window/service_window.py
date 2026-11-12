@@ -217,10 +217,6 @@ class ServiceWindow(Window):
             self._ticker = None
         super().unmounting()
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
-        self.units.focus()
-
     def _follow_view(self) -> None:
         """*User units* or *All types* changed -- a read for them -- or the
         filter typed: list again."""

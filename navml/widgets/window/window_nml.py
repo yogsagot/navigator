@@ -54,28 +54,37 @@ class Window(_Component):
     #: Whether the ``[■]`` icon is painted, and answers a click.
     closable: bool = _reactive(True)    # window.nml:27
 
+    #: The control the keyboard goes to first, or None for the first one in
+    #: the tab order -- ``first_focus: tree``.  Asked whenever the keyboard is
+    #: handed in; one that is hidden or cannot take it is passed over.
+    #: Read by :meth:`take_keyboard` on every activation, never from
+    #: ``mounted()``: that runs inside ``Desktop.open``'s ``add()``, before
+    #: ``activate`` has saved which panel the window below had, so closing
+    #: this one would hand the keyboard to the left panel.
+    first_focus = _reactive(None)    # window.nml:36
+
     #: Whether the ``[↑]`` icon is painted, and the title answers a double
     #: click.
-    zoomable: bool = _reactive(True)    # window.nml:31
+    zoomable: bool = _reactive(True)    # window.nml:40
 
     #: Whether the bottom-right corner is a grip.
-    resizable: bool = _reactive(True)    # window.nml:34
+    resizable: bool = _reactive(True)    # window.nml:43
 
     #: Whether Window > Tile and Cascade arrange it.  Turbo Vision's
     #: ``ofTileable``, but **on by default**, where Turbo Vision had it off and
     #: DOS Navigator set it on only some of its windows (not the tree window):
     #: every window on a desktop is free-floating and takes part.  Kept as the
     #: way out for a window that must stay where it is.
-    tileable: bool = _reactive(True)    # window.nml:41
+    tileable: bool = _reactive(True)    # window.nml:50
 
     #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
-    min_width: int = _reactive(16)    # window.nml:44
-    min_height: int = _reactive(6)    # window.nml:45
+    min_width: int = _reactive(16)    # window.nml:53
+    min_height: int = _reactive(6)    # window.nml:54
 
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.
-    zoomed: bool = _reactive(False)    # window.nml:50
+    zoomed: bool = _reactive(False)    # window.nml:59
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

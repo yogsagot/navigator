@@ -93,6 +93,11 @@ _HEAD = re.compile(r"(\w+)\s*(?:\(\s*([\w.]+)\s*\))?\s*:\Z")
 #: A child with its properties on its head line: ``MenuItem: text='~A~bout',
 #: command=About``.  A type is capitalised and a property is not, which is
 #: what keeps ``text: f(a=1)`` a property line.
+#: ``path = root.start``: a value set once, never bound.  One name, then an
+#: ``=`` that is not ``==``; tried before the ``:`` split, since the value may
+#: hold a colon (``{"a": 1}``, a lambda, a slice).
+_ONCE = re.compile(r"([A-Za-z_]\w*)\s*=(?!=)\s*(\S.*)\Z")
+
 _INLINE = re.compile(r"([A-Z]\w*)\s*:\s*(\S.*)\Z")
 _NAMES = re.compile(r"[A-Za-z_]\w*\Z")
 
@@ -120,12 +125,18 @@ class Import:
 
 @dataclass(frozen=True, slots=True)
 class Property:
-    """An ordinary ``name: expression`` line.  The expression is source text."""
+    """An ordinary ``name: expression`` line.  The expression is source text.
+
+    ``once`` is the ``name = expression`` form: evaluated once, when the
+    widget is built, and assigned -- never bound, so whatever navigates the
+    property later (``Panel.path``) may write it.
+    """
 
     name: str
     expression: str
     line: int
     doc: tuple[str, ...] = ()
+    once: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -722,6 +733,19 @@ def _leaf(
             line.line,
             filename,
         )
+    once = _ONCE.match(text)
+    if once is not None:
+        name, rest = once.group(1), once.group(2).strip()
+        if name == "id" or name.startswith("on_") or name in DIRECTIVES:
+            raise MarkupError(
+                f"'{name} = ...' sets a property once; an id, a handler and a "
+                f"directive are written with ':'",
+                line.line,
+                filename,
+            )
+        _identifier(name, "a property", line.line, filename)
+        _expression(rest, f"the value of {name!r}", line.line, filename)
+        return "property", Property(name, rest, line.line, line.doc, once=True)
     head, colon, rest = text.partition(":")
     head, rest = head.strip(), rest.strip()
     words = head.split()
@@ -1099,6 +1123,13 @@ def _read_when(lines: Sequence[_Line], index: int, filename: str
                 anchors, index = _read_anchors(lines, index, filename)
                 continue
             kind, node = _leaf(line, filename, root=False)
+            if kind == "property" and node.once:  # type: ignore[union-attr]
+                raise MarkupError(
+                    "a when block's lines replace the widget's while it holds, "
+                    "so each is followed: write 'name: value', not 'name = value'",
+                    line.line,
+                    filename,
+                )
             if kind != "property":
                 raise MarkupError(
                     "a when block holds property lines alone: an id, a handler or "

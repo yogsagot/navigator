@@ -7,6 +7,15 @@ from navml.widgets.dialog.scroll_bar import ScrollBar
 #: its model and its painting are the hand-written half's; the markup holds
 #: the one child a panel has of its own.
 Panel(ListViewer):
+    #: Where a new panel starts, from the settings: set once, not bound,
+    #: because Ctrl+H, the sort keys and Ctrl+Y change them per panel.
+    show_hidden = SETTINGS.system.show_hidden
+    sort_mode = SETTINGS.panel_defaults.sort_by
+    sort_reverse = SETTINGS.panel_defaults.sort_reverse and root.sort_mode != "unsorted"
+    view_mode = SETTINGS.panel_defaults.view_mode
+    columns = SETTINGS.column_defaults.columns(False)
+    archive_columns = SETTINGS.column_defaults.columns(False, archive=True)
+
     #: A departure: the panel's options on its bottom frame, right-aligned
     #: before the corner as the editor's are, each lit while on and switched
     #: by a click (``option_items.panel_items``); File Manager Setup's *Option

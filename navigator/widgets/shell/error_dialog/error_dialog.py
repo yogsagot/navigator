@@ -66,7 +66,6 @@ class ErrorDialog(Dialog):
     def mounted(self) -> None:
         super().mounted()
         effect(self, ErrorDialog._wrap)
-        self.resume.focus()
 
     def _wrap(self) -> None:
         """The traceback folded to the list's width, again whenever it changes.

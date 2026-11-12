@@ -99,10 +99,6 @@ class VolumesWindow(Window):
         """*Show free %* ticked or cleared: the share column follows."""
         self.volumes.show_free = self.show_free
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
-        self.volumes.focus()
-
     def reload(self) -> None:
         """Read the mounts again, on a thread; only the newest read is listed."""
         self._reads += 1

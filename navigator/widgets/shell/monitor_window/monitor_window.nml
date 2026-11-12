@@ -36,6 +36,8 @@ MonitorWindow(Window):
         tab: SelectNext
         shift+tab: SelectPrevious
 
+    first_focus: cpu
+
     GroupBox:
         id: cpu_box
         y: 1

@@ -50,6 +50,8 @@ DBWindow(Window):
         shift+f7: ContinueSearch
         ctrl+l: SearchAgain
 
+    first_focus: viewer
+
     DBViewer:
         id: viewer
         anchors:

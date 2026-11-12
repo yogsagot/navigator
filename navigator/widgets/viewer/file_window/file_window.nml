@@ -64,6 +64,8 @@ FileWindow(Window):
         ctrl+t: FollowEnd
         ctrl+g: FilterLines
 
+    first_focus: viewer
+
     FileViewer:
         id: viewer
         anchors:

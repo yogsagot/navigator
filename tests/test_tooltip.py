@@ -1090,25 +1090,21 @@ def test_shift_f11_shows_the_tooltip_of_where_the_keyboard_is_until_the_next_key
 
 def _nml_blocks(kind):
     """``(path, line number, indent, {key: value})`` for every *kind* element of
-    every component's markup, its own lines only."""
-    import re
+    every component's markup, its own lines only.  Read through the parser, so
+    a head carrying its properties (``MenuItem: text=..., command=...``) is
+    read like a block."""
     from pathlib import Path
+
+    from navml.parser import parse_file
 
     for path in sorted(Path("navigator").rglob("*.nml")) + sorted(Path("navml").rglob("*.nml")):
         lines = path.read_text(encoding="utf-8").split("\n")
-        for index, line in enumerate(lines):
-            if not re.match(rf"^\s*{kind}:\s*$", line):
+        for block in parse_file(path).root.walk():
+            if block.type != kind:
                 continue
-            indent = len(line) - len(line.lstrip())
-            own = {}
-            for following in lines[index + 1:]:
-                depth = len(following) - len(following.lstrip())
-                if following.strip() and depth <= indent:
-                    break
-                if depth == indent + 4 and ":" in following and not following.strip().startswith("#"):
-                    key, _, value = following.strip().partition(":")
-                    own[key.strip()] = value.strip()
-            yield path, index + 1, indent, own
+            head = lines[block.line - 1]
+            indent = len(head) - len(head.lstrip())
+            yield path, block.line, indent, {p.name: p.expression for p in block.properties}
 
 
 def test_every_menu_on_the_bar_says_what_it_holds_and_no_tooltip_repeats_its_caption():

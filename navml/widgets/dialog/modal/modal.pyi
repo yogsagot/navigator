@@ -18,6 +18,7 @@ from navml.widgets.dialog.control import Control
 class Modal(_Component):
     title: str
     closable: bool
+    first_focus: _Any
     modal_width: int
     modal_height: int
     modal: bool

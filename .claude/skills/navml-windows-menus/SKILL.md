@@ -16,6 +16,10 @@ geometry, `modal = True`); `Dialog` derives from it.
 Four rules from building it:
 - **A window's rectangle is state, never bound** -- drag, resize and zoom assign it.
 - **Raising is `Widget.raise_child`, a reorder** -- `add()` would unmount.
+- **Which control a window or a dialog starts on is `first_focus`** (a property of `Window` and `Modal`), set in the
+  root of its markup. `Window.take_keyboard` reads it on every activation, never from `mounted()`: that runs inside
+  `Desktop.open`'s `add()`, before `activate` has saved which panel the window below had, so closing the window
+  would hand the keyboard to the left panel. Do not override `take_keyboard` just to focus one child.
 - **A shadow is `Widget.shadow`**, painted by `render_tree` into the parent's surface before the widget, after a
   modal's dim (on for `Window`, `Modal`, `MenuBox`, `HistoryList`).
 - **The application's own `on_key`/`on_mouse_click` must step aside while `app.modal` is set**, because they run before

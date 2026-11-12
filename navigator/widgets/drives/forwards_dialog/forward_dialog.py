@@ -35,7 +35,6 @@ class ForwardDialog(Dialog):
     def mounted(self) -> None:
         super().mounted()
         effect(self, ForwardDialog._kind_changed)
-        self.kind.focus()
 
     def _kind_changed(self) -> None:
         """Another kind: what it does said, a dynamic one's destination greyed."""

@@ -140,10 +140,6 @@ class ProcessWindow(Window):
             self._ticker = None
         super().unmounting()
 
-    def take_keyboard(self) -> None:
-        # Not from ``mounted()``, for the reason ``TreeWindow`` gives.
-        self.processes.focus()
-
     def _follow_view(self) -> None:
         """*Mine only* or *Tree* ticked or cleared, by a key, a click or the
         menu, or the filter typed: list again."""

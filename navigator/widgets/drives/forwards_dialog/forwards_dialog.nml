@@ -12,6 +12,8 @@ ForwardsDialog(Dialog):
     modal_height: 17
     title: "Port forwards"
 
+    first_focus: forwards if root.items else append
+
     Label:
         id: forwards_caption
         x: 2
