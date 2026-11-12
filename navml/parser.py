@@ -89,6 +89,11 @@ ANCHORS = "anchors"
 WHEN = "when"
 
 _HEAD = re.compile(r"(\w+)\s*(?:\(\s*([\w.]+)\s*\))?\s*:\Z")
+
+#: A child with its properties on its head line: ``MenuItem: text='~A~bout',
+#: command=About``.  A type is capitalised and a property is not, which is
+#: what keeps ``text: f(a=1)`` a property line.
+_INLINE = re.compile(r"([A-Z]\w*)\s*:\s*(\S.*)\Z")
 _NAMES = re.compile(r"[A-Za-z_]\w*\Z")
 
 
@@ -546,6 +551,32 @@ def _statement(source: str, line: int, filename: str) -> str:
 def _is_head(text: str) -> bool:
     """Does this line open a block?  It ends with a ``:`` and says no more."""
     return text.endswith(":") and not text[:-1].rstrip().endswith(":")
+
+
+def _inline_head(text: str) -> tuple[str, list[ast.keyword], str] | None:
+    """``Type: name=value, ...`` -- the type, its keywords and their source.
+
+    The value must read as keyword arguments and nothing else: a positional
+    one, ``**`` or a value that is an expression on its own leaves the line to
+    be what it was.
+    """
+    match = _INLINE.match(text)
+    if match is None:
+        return None
+    source = f"_({match.group(2)})"
+    try:
+        tree = ast.parse(source, mode="eval")
+    except SyntaxError:
+        return None
+    call = tree.body
+    if (
+        not isinstance(call, ast.Call)
+        or call.args
+        or not call.keywords
+        or any(k.arg is None for k in call.keywords)
+    ):
+        return None
+    return match.group(1), call.keywords, source
 
 
 def _is_import(text: str) -> bool:
@@ -1138,12 +1169,18 @@ def _read_block(
 ) -> tuple[Block, int]:
     """One block and everything indented under it."""
     head = lines[index]
-    type_name, base = _head(head, filename, root=root)
+    inline = None if root else _inline_head(head.text)
+    if inline is None:
+        type_name, base = _head(head, filename, root=root)
+    else:
+        type_name, base = inline[0], None
     index += 1
     identifier: str | None = None
     identifier_line: int | None = None
     declarations: list[Directive] = []
-    properties: list[Property] = []
+    properties: list[Property] = (
+        [] if inline is None else _inline_properties(head, inline, filename)
+    )
     handlers: list[Handler] = []
     children: list[Block] = []
     style: StyleBlock | None = None
@@ -1161,6 +1198,10 @@ def _read_block(
             if _is_when(line.text):
                 when, index = _read_when(lines, index, filename)
                 whens.append(when)
+                continue
+            if _inline_head(line.text) is not None:
+                child, index = _read_block(lines, index, filename, root=False)
+                children.append(child)
                 continue
             if _is_head(line.text):
                 if line.text.rstrip(":").strip() == STYLE:
@@ -1245,6 +1286,54 @@ def _read_block(
         ),
         index,
     )
+
+
+def _inline_properties(
+    head: _Line, inline: tuple[str, list[ast.keyword], str], filename: str
+) -> list[Property]:
+    """The property lines an inline head carries, each at the head's line.
+
+    Only property lines: an id stays a line of its own, where a reader looks
+    for it, and a handler is a statement, which a keyword's value is not.
+    """
+    type_name, keywords, source = inline
+    found: list[Property] = []
+    for keyword in keywords:
+        name = keyword.arg
+        assert name is not None
+        if name == "id":
+            raise MarkupError(
+                f"an id is a line of its own, under '{type_name}:' -- "
+                f"not one of the properties on its head",
+                head.line,
+                filename,
+            )
+        if name.startswith("on_"):
+            raise MarkupError(
+                f"{name} is a handler, a statement on a line of its own; the "
+                f"head of '{type_name}:' carries property values only",
+                head.line,
+                filename,
+            )
+        if name in (STYLE, KEYS, ANCHORS, WHEN):
+            raise MarkupError(
+                f"{name!r} is a block, written under '{type_name}:', not a "
+                f"property on its head",
+                head.line,
+                filename,
+            )
+        if any(p.name == name for p in found):
+            raise MarkupError(
+                f"a second {name!r} on one widget; the first would be lost",
+                head.line,
+                filename,
+            )
+        _identifier(name, "a property", head.line, filename)
+        value = ast.get_source_segment(source, keyword.value)
+        assert value is not None
+        _expression(value, f"the value of {name!r}", head.line, filename)
+        found.append(Property(name, value, head.line))
+    return found
 
 
 def _too_long(kind: str, line: _Line, filename: str) -> MarkupError:

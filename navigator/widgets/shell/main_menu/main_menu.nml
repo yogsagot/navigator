@@ -54,427 +54,239 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: *Volumes* is not DN's: it stands where *Volume label* stood, under its
 #: letter, and lists every mounted volume (``navigator/lib/system/volumes.py``).
 MainMenu(MenuBar):
-    SubMenu:
+    SubMenu: text='~≡~'
         id: system
-        text: '~≡~'
         tooltip: "About, the screen saver, SmartPad, the Trashcan and the game"
-        MenuItem:
-            text: '~A~bout...'
-            command: About
+        MenuItem: text='~A~bout...', command=About
         #: Not DN's (a departure, asked for): every command, found by name.
-        MenuItem:
-            text: '~C~ommand palette...'
+        MenuItem: text='~C~ommand palette...', command=OpenCommandPalette
             tooltip: "Find any command by a few of its letters, and run it"
-            command: OpenCommandPalette
-        MenuItem:
-            text: '~R~efresh display'
+        MenuItem: text='~R~efresh display', command=Refresh
             tooltip: "Paint the whole screen again, over what another program left on it"
-            command: Refresh
-        MenuItem:
-            text: '~S~creen rest'
+        MenuItem: text='~S~creen rest', command=ScreenRest
             tooltip: "Start the screen saver now"
-            command: ScreenRest
         MenuLine:
-        MenuItem:
-            text: 'Screen gra~b~ber'
+        MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
             tooltip: "Copy a rectangle of the screen to the clipboard"
-            command: ScreenGrab
-            key: 'Shift-Alt-Ins'
-        MenuItem:
-            text: '~U~ser screen'
+        MenuItem: text='~U~ser screen', command=ShowUserScreen, key='Alt-F5'
             tooltip: "Look at the console until a key is pressed"
-            command: ShowUserScreen
-            key: 'Alt-F5'
-        MenuItem:
-            text: '~O~utput window'
+        MenuItem: text='~O~utput window', command=ToggleConsole, key='Ctrl-O'
             tooltip: "Put the windows away to type in the console, or bring them back"
-            command: ToggleConsole
-            key: 'Ctrl-O'
-        MenuItem:
-            text: 'S~m~artPad (TM)'
+        MenuItem: text='S~m~artPad (TM)', command=OpenSmartpad, key='Alt-Q'
             tooltip: "A notepad kept from one session to the next"
-            command: OpenSmartpad
-            key: 'Alt-Q'
-        MenuItem:
-            text: '~T~rashcan on/off'
+        MenuItem: text='~T~rashcan on/off', command=ToggleTrashCan
             tooltip: "Show or hide the trash can that files are dropped on to delete them"
-            command: ToggleTrashCan
         MenuLine:
-        MenuItem:
-            text: '~G~ame'
-            command: Game
-            key: 'Alt-F9'
-    SubMenu:
+        MenuItem: text='~G~ame', command=Game, key='Alt-F9'
+    SubMenu: text='~F~ile'
         id: file
-        text: '~F~ile'
         tooltip: "View, edit, copy, move, archive and delete files"
-        SubMenu:
+        SubMenu: text='~V~iew'
             id: file_view
-            text: '~V~iew'
-            MenuItem:
-                text: '~A~s is'
+            MenuItem: text='~A~s is', command=View, key='F3'
                 tooltip: "View the file as F3 does"
-                command: View
-                key: 'F3'
-            MenuItem:
-                text: 'As ~T~ext'
-                command: ViewAsText
-            MenuItem:
-                text: 'As He~x~'
-                command: ViewAsHex
-            MenuItem:
-                text: 'As ~D~ataBase'
+            MenuItem: text='As ~T~ext', command=ViewAsText
+            MenuItem: text='As He~x~', command=ViewAsHex
+            MenuItem: text='As ~D~ataBase', command=ViewAsDataBase
                 tooltip: "View a dBase or SQLite file as a table"
-                command: ViewAsDataBase
             #: DN's *View as Spreadsheet* opened its own ``.WKZ``; here a CSV
             #: or TSV file, view-only, as F3 on one does.
-            MenuItem:
-                text: 'As ~S~preadsheet'
+            MenuItem: text='As ~S~preadsheet', command=ViewAsSpreadsheet
                 tooltip: "View a CSV or TSV file as a spreadsheet"
-                command: ViewAsSpreadsheet
             MenuLine:
-            MenuItem:
-                text: 'Alternate vie~w~'
+            MenuItem: text='Alternate vie~w~', command=AlternateView, key='Alt-F3'
                 tooltip: "View with the viewer F3 does not use: the external one, or the internal"
-                command: AlternateView
-                key: 'Alt-F3'
             MenuLine:
             #: Not DN's: a file anywhere, chosen in a file box.
-            MenuItem:
-                text: '~O~pen...'
+            MenuItem: text='~O~pen...', command=OpenView
                 tooltip: "View a file chosen in a file box"
-                command: OpenView
-        SubMenu:
+        SubMenu: text='~E~dit'
             id: file_edit
-            text: '~E~dit'
-            MenuItem:
-                text: '~E~dit'
-                command: Edit
-                key: 'F4'
-            MenuItem:
-                text: '~A~lternate edit'
+            MenuItem: text='~E~dit', command=Edit, key='F4'
+            MenuItem: text='~A~lternate edit', command=AlternateEdit, key='Alt-F4'
                 tooltip: "Edit with the editor F4 does not use: the external one, or the internal"
-                command: AlternateEdit
-                key: 'Alt-F4'
             MenuLine:
-            MenuItem:
-                text: 'Edit ~n~ew file...'
-                command: EditNamed
-                key: 'Shift-F4'
+            MenuItem: text='Edit ~n~ew file...', command=EditNamed, key='Shift-F4'
             #: Not DN's: a file anywhere, chosen in a file box.
-            MenuItem:
-                text: '~O~pen...'
+            MenuItem: text='~O~pen...', command=OpenEdit
                 tooltip: "Edit a file chosen in a file box"
-                command: OpenEdit
         #: Not DN's: one of the desktop's applications for the file, through ``gio`` or KIO.
-        MenuItem:
-            text: 'Open ~w~ith...'
+        MenuItem: text='Open ~w~ith...', command=OpenWith
             tooltip: "Open the file in a desktop application chosen from a list"
-            command: OpenWith
-        MenuItem:
-            text: '~F~ind...'
-            command: FindFile
-            key: 'Alt-F7'
+        MenuItem: text='~F~ind...', command=FindFile, key='Alt-F7'
         #: A departure, asked for (ReplaceInFiles' docstring); every letter
         #: of the name is another item's, so it has none.
-        MenuItem:
-            text: 'Replace in files...'
+        MenuItem: text='Replace in files...', command=ReplaceInFiles, key='Alt-Shift-F7'
             tooltip: "Find files holding a text and replace it in them, file by file"
-            command: ReplaceInFiles
-            key: 'Alt-Shift-F7'
-        MenuItem:
-            text: '~C~opy...'
-            command: Copy
-            key: 'F5'
-        MenuItem:
-            text: '~R~ename/Move...'
-            command: RenameMove
-            key: 'F6'
+        MenuItem: text='~C~opy...', command=Copy, key='F5'
+        MenuItem: text='~R~ename/Move...', command=RenameMove, key='F6'
         #: The two renames that are not DN's, nested so File fits an 80x25
         #: screen with Undo -- a departure.
-        SubMenu:
+        SubMenu: text='Rename ~t~ools'
             id: file_rename_tools
-            text: 'Rename ~t~ools'
             tooltip: "Quick rename and multi-rename"
             #: Not in ``dlgMainMenu``: a departure, asked for -- one entry
             #: renamed in a box, without *Rename/Move*'s targets and modes.
-            MenuItem:
-                text: '~Q~uick rename...'
+            MenuItem: text='~Q~uick rename...', command=QuickRename, key='Shift-F6'
                 tooltip: "Rename the file at the cursor in a small box"
-                command: QuickRename
-                key: 'Shift-F6'
             #: A departure: Total Commander's *Multi-Rename Tool* (MultiRename's
             #: docstring), moved here from Panel.  Its batch is undone by Undo.
-            MenuItem:
-                text: 'M~u~lti-rename...'
+            MenuItem: text='M~u~lti-rename...', command=MultiRename, key='Alt-A'
                 tooltip: "Rename the tagged files by a pattern"
-                command: MultiRename
-                key: 'Alt-A'
             #: A departure, asked for: what Multi-rename's *Clean up names*
             #: fixes, tagged first (SelectBadNames' docstring).
-            MenuItem:
-                text: 'Select ~b~ad names'
+            MenuItem: text='Select ~b~ad names', command=SelectBadNames
                 tooltip: "Tag names that are not UTF-8 or NFC, hold control characters or differ only by case"
-                command: SelectBadNames
         #: Not DN's (navigator.lib.file_ops.undo).
-        MenuItem:
-            text: '~U~ndo file operation'
+        MenuItem: text='~U~ndo file operation', command=Undo, key='Ctrl-Z'
             tooltip: "Take back the last copy, move, rename, delete to Trash or new directory"
-            command: Undo
-            key: 'Ctrl-Z'
         #: DN's two archive entries, nested with the archive panel's *Extract
         #: to* and *Test archive* (DN's ``hcArchives`` key bar, once on Panel)
         #: -- a departure, so File fits an 80x25 screen.
-        SubMenu:
+        SubMenu: text='Arch~i~ve'
             id: file_archive
-            text: 'Arch~i~ve'
             tooltip: "Open, create, extract and test archives"
             #: Not DN's: the file at the cursor opened as an archive whatever
             #: its name -- an AppImage, which Enter runs.  Ctrl+PgDn is
             #: GoInto's binding, which does this on a file.
-            MenuItem:
-                text: '~O~pen archive'
+            MenuItem: text='~O~pen archive', command=OpenArchive, key='Ctrl-PgDn'
                 tooltip: "Open the file at the cursor as an archive, whatever its name"
-                command: OpenArchive
-                key: 'Ctrl-PgDn'
             MenuLine:
             #: DN's ``Cop~y~ to archive``, renamed -- a departure, asked for: it
             #: makes a new archive, in its own box (``dlgArchiveFiles``).
-            MenuItem:
-                text: 'Create arch~i~ve...'
-                command: ArchiveFiles
-                key: 'Shift-F1'
-            MenuItem:
-                text: 'Ex~t~ract archive...'
-                command: ExtractArchive
-                key: 'Shift-F2'
+            MenuItem: text='Create arch~i~ve...', command=ArchiveFiles, key='Shift-F1'
+            MenuItem: text='Ex~t~ract archive...', command=ExtractArchive, key='Shift-F2'
             MenuLine:
             #: Shift+F2 is *Extract archive*'s, which does this in an archive
             #: (``Manager.on_extract_archive``): the key is that one's binding.
-            MenuItem:
-                text: 'E~x~tract to...'
-                command: ExtractTo
-                key: 'Shift-F2'
-            MenuItem:
-                text: 'Test archive'
+            MenuItem: text='E~x~tract to...', command=ExtractTo, key='Shift-F2'
+            MenuItem: text='Test archive', command=ArcTest
                 tooltip: "Read the archive through and check it for errors"
-                command: ArcTest
         #: Not DN's -- DOS had no links: Shift+F5's link made (symbolic or
         #: hard), the rest changing symbolic links already there
         #: (EditLinkTarget's docstring), and a file's hard links shown.
-        SubMenu:
+        SubMenu: text='Link~s~'
             id: file_symlinks
-            text: 'Link~s~'
-            MenuItem:
-                text: 'Create ~l~ink...'
+            MenuItem: text='Create ~l~ink...', command=MakeLink, key='Shift-F5'
                 tooltip: "Make a symbolic or hard link to each selected file"
-                command: MakeLink
-                key: 'Shift-F5'
             MenuLine:
-            MenuItem:
-                text: '~E~dit link target...'
+            MenuItem: text='~E~dit link target...', command=EditLinkTarget
                 tooltip: "Change what the selected links point at"
-                command: EditLinkTarget
-            MenuItem:
-                text: 'Make ~r~elative'
+            MenuItem: text='Make ~r~elative', command=LinkRelative
                 tooltip: "Rewrite each selected link's target relative to the link"
-                command: LinkRelative
-            MenuItem:
-                text: 'Make ~a~bsolute'
+            MenuItem: text='Make ~a~bsolute', command=LinkAbsolute
                 tooltip: "Rewrite each selected link's target as a full path"
-                command: LinkAbsolute
             MenuLine:
-            MenuItem:
-                text: 'Select ~b~roken links'
+            MenuItem: text='Select ~b~roken links', command=SelectBrokenLinks
                 tooltip: "Tag every link here that points nowhere"
-                command: SelectBrokenLinks
             MenuLine:
-            MenuItem:
-                text: 'Show ~h~ard links'
+            MenuItem: text='Show ~h~ard links', command=ShowHardLinks
                 tooltip: "List every name the file at the cursor has on its file system"
-                command: ShowHardLinks
         #: DN's ``~S~plit/combine...`` (``cmPanelLongCopy``), back where it
         #: stood, after the links that took its Shift-F5 and its ``s``: so
         #: ``~b~`` and no key (SplitCombine's docstring has the departures).
-        MenuItem:
-            text: 'Split/com~b~ine...'
+        MenuItem: text='Split/com~b~ine...', command=SplitCombine
             tooltip: "Cut the file into parts of a given size, or put a split file back together"
-            command: SplitCombine
         #: A departure: DOS Navigator compared no files line by line
         #: (``DiffWindow``).  Its ``l``: *Create archive* needed the ``i``.
-        MenuItem:
-            text: 'Compare fi~l~es...'
-            command: DiffFiles
-        MenuItem:
-            text: '~P~rint'
-            command: PrintFile
-            key: 'Ctrl-F9'
-        MenuItem:
-            text: '~M~ake directory'
-            command: MakeDirectory
-            key: 'F7'
-        MenuItem:
-            text: '~D~elete'
-            command: Delete
-            key: 'F8'
+        MenuItem: text='Compare fi~l~es...', command=DiffFiles
+        MenuItem: text='~P~rint', command=PrintFile, key='Ctrl-F9'
+        MenuItem: text='~M~ake directory', command=MakeDirectory, key='F7'
+        MenuItem: text='~D~elete', command=Delete, key='F8'
         #: Not DN's: the freedesktop Trash (RestoreTrash's docstring), beside
         #: what puts files there.  Shown only while the active panel is the
         #: Trash's own listing (``Manager.shows_trash``) -- a viewer or an
         #: editor in front has no such panel.
-        MenuItem:
+        MenuItem: text='Restore from Tras~h~', command=RestoreTrash
             id: file_restore_trash
-            text: 'Restore from Tras~h~'
             tooltip: "Put the selected files back where they were deleted from"
-            command: RestoreTrash
             hidden: not getattr(root.context, "shows_trash", False)
-        MenuItem:
-            text: 'File ~A~ttributes...'
+        MenuItem: text='File ~A~ttributes...', command=ChangeAttributes, key='Alt-E'
             tooltip: "Permissions, owner, group, dates, ACLs and extended attributes"
-            command: ChangeAttributes
-            key: 'Alt-E'
         #: DN's UU entries with the checksums and encryption that came later,
         #: nested so File fits an 80x25 screen -- a departure.
-        SubMenu:
+        SubMenu: text='E~n~coding'
             id: file_encoding
-            text: 'E~n~coding'
             tooltip: "UU encoding, checksums, encryption and text conversion"
-            MenuItem:
-                text: 'UU E~n~code...'
+            MenuItem: text='UU E~n~code...', command=UuEncode, key='Ctrl-F7'
                 tooltip: "Encode the file as plain text, the old way of mailing files"
-                command: UuEncode
-                key: 'Ctrl-F7'
-            MenuItem:
-                text: '~U~U Decode...'
+            MenuItem: text='~U~U Decode...', command=UuDecode, key='Ctrl-F8'
                 tooltip: "Decode the files UU-encoded in this file"
-                command: UuDecode
-                key: 'Ctrl-F8'
             MenuLine:
             #: Not DN's: a departure, asked for -- coreutils' ``*sum`` lists of
             #: the tagged files, made and checked (CalculateChecksums' docstring).
-            SubMenu:
+            SubMenu: text='Chec~k~sums'
                 id: file_checksums
-                text: 'Chec~k~sums'
-                MenuItem:
-                    text: '~C~alculate...'
+                MenuItem: text='~C~alculate...', command=CalculateChecksums
                     tooltip: "Hash the tagged files and write their checksums to a list"
-                    command: CalculateChecksums
-                MenuItem:
-                    text: '~V~erify'
+                MenuItem: text='~V~erify', command=VerifyChecksums
                     tooltip: "Hash the files a checksum list names again and check them"
-                    command: VerifyChecksums
             #: Not DN's: a departure, asked for -- gpg or age over the tagged
             #: files, each written beside itself (EncryptFiles' docstring).
-            SubMenu:
+            SubMenu: text='Encr~y~ption'
                 id: file_encryption
-                text: 'Encr~y~ption'
-                MenuItem:
-                    text: '~E~ncrypt...'
+                MenuItem: text='~E~ncrypt...', command=EncryptFiles
                     tooltip: "Encrypt the tagged files with gpg or age, each beside itself"
-                    command: EncryptFiles
-                MenuItem:
-                    text: '~D~ecrypt'
+                MenuItem: text='~D~ecrypt', command=DecryptFiles
                     tooltip: "Decrypt the tagged gpg or age files, each beside itself"
-                    command: DecryptFiles
             MenuLine:
             #: Not DN's: a departure, asked for -- the tagged text files
             #: rewritten in another encoding and line endings (ConvertText's docstring).
-            MenuItem:
-                text: 'Convert ~t~ext...'
+            MenuItem: text='Convert ~t~ext...', command=ConvertText
                 tooltip: "Rewrite the tagged text files in another encoding or with other line endings"
-                command: ConvertText
-        MenuItem:
-            text: 'Delete single file'
+        MenuItem: text='Delete single file', command=DeleteSingle, key='Shift-Del'
             tooltip: "Delete the file at the cursor, not the selection"
-            command: DeleteSingle
-            key: 'Shift-Del'
         MenuLine:
-        MenuItem:
-            text: 'Execute ~O~S command'
+        MenuItem: text='Execute ~O~S command', command=ExecuteOsCommand
             tooltip: "Type a command in a box and run it"
-            command: ExecuteOsCommand
-        MenuItem:
-            text: 'E~x~it'
-            command: Quit
-            key: 'Alt-X'
-    SubMenu:
+        MenuItem: text='E~x~it', command=Quit, key='Alt-X'
+    SubMenu: text='~D~isk'
         id: disk
-        text: '~D~isk'
         tooltip: "The directory tree, volumes and the Trash"
-        MenuItem:
-            text: '~D~irectory tree'
-            command: OpenTreeWindow
-        MenuItem:
-            text: '~V~olumes'
+        MenuItem: text='~D~irectory tree', command=OpenTreeWindow
+        MenuItem: text='~V~olumes', command=OpenVolumesWindow
             tooltip: "Disks and partitions: mount, unmount and eject them"
-            command: OpenVolumesWindow
         #: Not DN's, which had no loop devices: Enter's mounting of the image
         #: at the cursor (MountImage's docstring), and the panel's right-click
         #: *Unmount image* (UnmountImage's), each greyed where it does not apply.
-        MenuItem:
-            text: '~M~ount image'
+        MenuItem: text='~M~ount image', command=MountImage
             tooltip: "The .iso or .img at the cursor: attached read-only, mounted and opened"
-            command: MountImage
-        MenuItem:
-            text: '~U~nmount image'
+        MenuItem: text='~U~nmount image', command=UnmountImage
             tooltip: "The disk image the panel is in, or at its cursor: unmounted and detached"
-            command: UnmountImage
         #: Not DN's: ``ncdu``'s view (OpenUsageWindow's docstring).
-        MenuItem:
-            text: 'Directory ~s~izes'
+        MenuItem: text='Directory ~s~izes', command=OpenUsageWindow
             tooltip: "What takes the room under the panel's directory, biggest first"
-            command: OpenUsageWindow
         #: Not DN's: the freedesktop Trash, which F8 moves files to when File
         #: Manager Setup says so (OpenTrash's docstring).
         MenuLine:
-        MenuItem:
-            text: '~T~rash'
-            command: OpenTrash
-        MenuItem:
-            text: '~E~mpty Trash'
-            command: EmptyTrash
-    SubMenu:
+        MenuItem: text='~T~rash', command=OpenTrash
+        MenuItem: text='~E~mpty Trash', command=EmptyTrash
+    SubMenu: text='~U~tilities'
         id: utilities
-        text: '~U~tilities'
         tooltip: "Calculator, calendar, remote links, the user menu and histories"
-        MenuItem:
-            text: 'S~y~stem Information'
-            command: SystemInfo
+        MenuItem: text='S~y~stem Information', command=SystemInfo
         #: Not in ``dlgMainMenu``: DOS ran one program at a time and DN had
         #: no processes to list.  A departure, asked for -- FAR Manager's
         #: process panel (``navigator/lib/system/processes.py``).
-        MenuItem:
-            text: '~P~rocess list'
+        MenuItem: text='~P~rocess list', command=OpenProcessWindow
             tooltip: "The running processes: sort them, see one, send it a signal"
-            command: OpenProcessWindow
         #: Not in ``dlgMainMenu``: DOS had no service manager.  A departure,
         #: asked for -- Process list's sibling for the system's services, systemd's,
         #: OpenRC's, runit's or SysVinit's (``navigator/lib/system/services/``).
-        MenuItem:
-            text: '~S~ervices'
+        MenuItem: text='~S~ervices', command=OpenServiceWindow
             tooltip: "The system's services: start, stop, enable them, follow their log"
-            command: OpenServiceWindow
         #: Not in ``dlgMainMenu``: DOS had one processor and nothing to
         #: measure it by.  A departure, asked for -- beside Process list
         #: (``navigator/lib/system/monitor.py``).
-        MenuItem:
-            text: 'System mo~n~itor'
+        MenuItem: text='System mo~n~itor', command=OpenMonitorWindow
             tooltip: "Each processor's load, the memory and the temperature sensors, read live"
-            command: OpenMonitorWindow
         MenuLine:
-        MenuItem:
-            text: '~C~alculator'
-            command: Calculator
-            key: 'Ctrl-F6'
+        MenuItem: text='~C~alculator', command=Calculator, key='Ctrl-F6'
         #: Not in ``dlgMainMenu``: DN 1.51 had no calendar.  A departure, asked
         #: for -- TVDEMO's, beside the calculator as TVDEMO put it.
-        MenuItem:
-            text: 'Ca~l~endar'
-            command: OpenCalendar
-        MenuItem:
-            text: 'Character ta~b~le'
+        MenuItem: text='Ca~l~endar', command=OpenCalendar
+        MenuItem: text='Character ta~b~le', command=AsciiTable, key='Ctrl-B'
             tooltip: "Pick a character to type where the cursor is"
-            command: AsciiTable
-            key: 'Ctrl-B'
         MenuLine:
         #: DN's modem group, less what a cable and a modem were for: the
         #: *Manual dial*.  The link is to a server now, and the *Terminal* a
@@ -486,331 +298,162 @@ MainMenu(MenuBar):
         #: submenus, one entry a protocol (asked for: no box first asking
         #: which), and a shell's place chosen in its manager, never taken
         #: from the panel.
-        SubMenu:
+        SubMenu: text='Lin~k~'
             id: utilities_link
-            text: 'Lin~k~'
             tooltip: "A server, a share, a container or a phone: its files in the active panel"
-            MenuItem:
-                text: '~S~SH (SFTP)...'
-                command: NavyLink
-                key: 'Alt-F11'
-            MenuItem:
-                text: '~F~TP...'
-                command: FtpLink
-            MenuItem:
-                text: 'S~M~B (Windows share)...'
-                command: SmbLink
-            MenuItem:
-                text: 'S~3~ (Amazon S3)...'
-                command: S3Link
+            MenuItem: text='~S~SH (SFTP)...', command=NavyLink, key='Alt-F11'
+            MenuItem: text='~F~TP...', command=FtpLink
+            MenuItem: text='S~M~B (Windows share)...', command=SmbLink
+            MenuItem: text='S~3~ (Amazon S3)...', command=S3Link
             #: Not DN's: whatever the desktop's GVfs or KDE's KIO reaches.
-            MenuItem:
-                text: '~G~Vfs/KIO (MTP, WebDAV...)...'
+            MenuItem: text='~G~Vfs/KIO (MTP, WebDAV...)...', command=GvfsLink
                 tooltip: "A phone, a WebDAV share, Google Drive: anything the desktop can mount"
-                command: GvfsLink
             MenuLine:
             #: Not DN's: commands run there (``navigator/lib/drives/execdrive.py``).
-            MenuItem:
-                text: '~D~ocker container...'
+            MenuItem: text='~D~ocker container...', command=DockerLink
                 tooltip: "A running container's files, through docker exec"
-                command: DockerLink
-            MenuItem:
-                text: '~P~odman container...'
+            MenuItem: text='~P~odman container...', command=PodmanLink
                 tooltip: "A running container's files, through podman exec"
-                command: PodmanLink
-            MenuItem:
-                text: '~A~ndroid device (adb)...'
+            MenuItem: text='~A~ndroid device (adb)...', command=AdbLink
                 tooltip: "A phone's or a tablet's files, over USB debugging"
-                command: AdbLink
             MenuLine:
             #: Not DN's: any remote rclone's configuration has (``navigator/lib/drives/rclone.py``).
-            MenuItem:
-                text: '~r~clone remote...'
+            MenuItem: text='~r~clone remote...', command=RcloneLink
                 tooltip: "Google Drive, OneDrive, Dropbox and some seventy more, set up with rclone config"
-                command: RcloneLink
         #: DN's *Terminal*, where it stood, before *Hang up*.
-        SubMenu:
+        SubMenu: text='Rem~o~te shell'
             id: utilities_shell
-            text: 'Rem~o~te shell'
             tooltip: "A shell on a server, in a container or on a phone, in a window"
-            MenuItem:
-                text: '~S~SH...'
+            MenuItem: text='~S~SH...', command=Terminal
                 tooltip: "A login shell on a server, ssh -t"
-                command: Terminal
-            MenuItem:
-                text: '~D~ocker container...'
+            MenuItem: text='~D~ocker container...', command=DockerShell
                 tooltip: "A shell in a running container, docker exec -it"
-                command: DockerShell
-            MenuItem:
-                text: '~P~odman container...'
+            MenuItem: text='~P~odman container...', command=PodmanShell
                 tooltip: "A shell in a running container, podman exec -it"
-                command: PodmanShell
-            MenuItem:
-                text: '~A~ndroid device (adb)...'
+            MenuItem: text='~A~ndroid device (adb)...', command=AdbShell
                 tooltip: "A shell on a phone or a tablet, adb shell"
-                command: AdbShell
-        MenuItem:
-            text: '~D~isconnect'
+        MenuItem: text='~D~isconnect', command=HangUp, key='Alt-H'
             tooltip: "Close a connection; its panels go back to the disk"
-            command: HangUp
-            key: 'Alt-H'
         #: Captioned by whether root access is open (``Shell._name_root_access``):
         #: *Elevate* while it is not, *Close* while it is.
-        MenuItem:
+        MenuItem: text='Elevate ~r~oot access', command=ToggleRootAccess
             id: root_access
-            text: 'Elevate ~r~oot access'
             tooltip: "Open root access now: the console's shell and a step refused permission run as root"
-            command: ToggleRootAccess
-        MenuItem:
-            text: 'Saved l~i~nks...'
+        MenuItem: text='Saved l~i~nks...', command=EditLinks
             tooltip: "The saved connections: edit them, or connect to one"
-            command: EditLinks
         MenuLine:
-        MenuItem:
-            text: 'Edi~t~ environment'
+        MenuItem: text='Edi~t~ environment', command=EnvEdit
             tooltip: "Edit the environment variables commands run with"
-            command: EnvEdit
-        MenuItem:
-            text: '~U~ser menu'
-            command: UserMenu
-            key: 'F2'
-        MenuItem:
-            text: 'Commands ~H~istory'
-            command: HistoryList
-            key: 'Alt-F8'
+        MenuItem: text='~U~ser menu', command=UserMenu, key='F2'
+        MenuItem: text='Commands ~H~istory', command=HistoryList, key='Alt-F8'
         #: Not DN's: the commands typed, here and in the shell, searched by fzf.
-        MenuItem:
-            text: 'Fu~z~zy history search...'
+        MenuItem: text='Fu~z~zy history search...', command=FuzzyHistory, key='Alt-Shift-F8'
             tooltip: "The commands typed, here and in the shell, searched by fzf"
-            command: FuzzyHistory
-            key: 'Alt-Shift-F8'
-        MenuItem:
-            text: 'File ~E~dit History'
-            command: EditHistory
-            key: 'Alt-PgUp'
-        MenuItem:
-            text: 'File ~V~iew History'
-            command: ViewHistory
-            key: 'Alt-PgDn'
-    SubMenu:
+        MenuItem: text='File ~E~dit History', command=EditHistory, key='Alt-PgUp'
+        MenuItem: text='File ~V~iew History', command=ViewHistory, key='Alt-PgDn'
+    SubMenu: text='~M~anager'
         id: manager
-        text: '~M~anager'
         tooltip: "New file managers, swapping and hiding panels, bookmarks"
-        MenuItem:
-            text: '~N~ew'
-            command: NewManager
-            key: 'Ctrl-F3'
-        MenuItem:
-            text: '~S~wap panels'
-            command: SwapPanels
-            key: 'Ctrl-U'
-        MenuItem:
-            text: 'Show/hide ~l~eft panel'
-            command: HideLeft
-            key: 'Ctrl-F1'
-        MenuItem:
-            text: 'Show/hide ~r~ight panel'
-            command: HideRight
-            key: 'Ctrl-F2'
-        MenuItem:
-            text: 'Show/hide inactive ~p~anel'
+        MenuItem: text='~N~ew', command=NewManager, key='Ctrl-F3'
+        MenuItem: text='~S~wap panels', command=SwapPanels, key='Ctrl-U'
+        MenuItem: text='Show/hide ~l~eft panel', command=HideLeft, key='Ctrl-F1'
+        MenuItem: text='Show/hide ~r~ight panel', command=HideRight, key='Ctrl-F2'
+        MenuItem: text='Show/hide inactive ~p~anel', command=HideInactive, key='Ctrl-P'
             tooltip: "Hide the panel without the keyboard, or show it again"
-            command: HideInactive
-            key: 'Ctrl-P'
         #: Not DN's -- a departure, asked for: Finder's columns in the two
         #: panels' place (``navigator/widgets/manager/miller``).
-        MenuItem:
-            text: '~M~iller columns'
+        MenuItem: text='~M~iller columns', command=ToggleMiller, key='Alt-F12'
             tooltip: "Browse in columns, each directory beside its parent"
-            command: ToggleMiller
-            key: 'Alt-F12'
         MenuLine:
-        MenuItem:
-            text: 'Bookmarks le~f~t'
+        MenuItem: text='Bookmarks le~f~t', command=ChangeLeft, key='Alt-F1'
             tooltip: "Send the left panel to a bookmarked directory"
-            command: ChangeLeft
-            key: 'Alt-F1'
-        MenuItem:
-            text: 'Bookmarks rig~h~t'
+        MenuItem: text='Bookmarks rig~h~t', command=ChangeRight, key='Alt-F2'
             tooltip: "Send the right panel to a bookmarked directory"
-            command: ChangeRight
-            key: 'Alt-F2'
-    SubMenu:
+    SubMenu: text='~O~ptions'
         id: options
-        text: '~O~ptions'
         tooltip: "Settings, configuration files, the desktop and colours"
         #: Every page of the two submenus below behind one row of tabs; not
         #: DN's, and the submenus' items still open it on their own pages.
-        MenuItem:
-            text: 'Sett~i~ngs...'
+        MenuItem: text='Sett~i~ngs...', command=Settings
             tooltip: "Every setup page in one box, behind tabs"
-            command: Settings
         MenuLine:
-        SubMenu:
+        SubMenu: text='~C~onfiguration'
             id: options_configuration
-            text: '~C~onfiguration'
-            MenuItem:
-                text: 'S~y~stem Setup...'
-                command: SystemSetup
-            MenuItem:
-                text: '~S~tartup...'
-                command: StartupSetup
-            MenuItem:
-                text: '~I~nterface...'
-                command: InterfaceSetup
-            MenuItem:
-                text: '~C~onfirmations...'
-                command: SetupConfirmation
+            MenuItem: text='S~y~stem Setup...', command=SystemSetup
+            MenuItem: text='~S~tartup...', command=StartupSetup
+            MenuItem: text='~I~nterface...', command=InterfaceSetup
+            MenuItem: text='~C~onfirmations...', command=SetupConfirmation
             MenuLine:
-            MenuItem:
-                text: 'Screen sa~v~ers...'
-                command: SaversSetup
-            MenuItem:
-                text: 'C~o~untry support...'
-                command: CountrySetup
-            MenuItem:
-                text: 'Comm~u~nications...'
+            MenuItem: text='Screen sa~v~ers...', command=SaversSetup
+            MenuItem: text='C~o~untry support...', command=CountrySetup
+            MenuItem: text='Comm~u~nications...', command=SetupLink
                 tooltip: "Settings for remote connections"
-                command: SetupLink
             MenuLine:
-            MenuItem:
-                text: '~E~ditor/Viewer...'
-                command: EditorDefaults
+            MenuItem: text='~E~ditor/Viewer...', command=EditorDefaults
             MenuLine:
-            MenuItem:
-                text: '~K~ey bindings...'
-                command: KeyBindingsSetup
-        SubMenu:
+            MenuItem: text='~K~ey bindings...', command=KeyBindingsSetup
+        SubMenu: text='~F~ile Manager'
             id: options_file_manager
-            text: '~F~ile Manager'
-            MenuItem:
-                text: '~S~etup...'
-                command: FileManagerSetup
-            MenuItem:
-                text: '~I~nformation panel...'
+            MenuItem: text='~S~etup...', command=FileManagerSetup
+            MenuItem: text='~I~nformation panel...', command=DriveInfoSetup
                 tooltip: "What the information panel (Ctrl+L) shows"
-                command: DriveInfoSetup
-            MenuItem:
-                text: 'New Manager ~d~efaults...'
+            MenuItem: text='New Manager ~d~efaults...', command=FileManagerDefaults
                 tooltip: "How a new file manager's panels start"
-                command: FileManagerDefaults
-            MenuItem:
-                text: '~C~olumn defaults...'
+            MenuItem: text='~C~olumn defaults...', command=ColumnDefaults
                 tooltip: "The columns a new panel shows"
-                command: ColumnDefaults
-            MenuItem:
-                text: '~H~ighlight groups...'
+            MenuItem: text='~H~ighlight groups...', command=HighlightGroups
                 tooltip: "Which files the panels show in which colour"
-                command: HighlightGroups
-        SubMenu:
+        SubMenu: text='A~r~chives'
             id: options_archives
-            text: 'A~r~chives'
-            MenuItem:
-                text: 'Current archiver...'
-                key: 'Alt-N'
+            MenuItem: text='Current archiver...', key='Alt-N'
         MenuLine:
-        MenuItem:
-            text: '~Q~uick run file edit...'
+        MenuItem: text='~Q~uick run file edit...', command=EditQuickRun
             tooltip: "Edit quickrun.ini: the commands Ctrl+Shift+F1 to F10 run"
-            command: EditQuickRun
-        MenuItem:
-            text: 'E~x~tension file edit...'
+        MenuItem: text='E~x~tension file edit...', command=ExtFileEdit
             tooltip: "Edit extensions.ini: what Enter runs for each kind of file"
-            command: ExtFileEdit
-        MenuItem:
-            text: '~H~ighlight file edit...'
+        MenuItem: text='~H~ighlight file edit...', command=EditHGL
             tooltip: "Edit highlight.ini: which syntax colours which file"
-            command: EditHGL
-        MenuItem:
-            text: 'Macro file e~d~it...'
+        MenuItem: text='Macro file e~d~it...', command=EditMacros
             tooltip: "Edit macros.ini: the editor's macros, offered by Ctrl+J 0"
-            command: EditMacros
-        MenuItem:
-            text: '~G~lobal menu definition...'
+        MenuItem: text='~G~lobal menu definition...', command=MenuFileEdit
             tooltip: "Edit the F2 user menu used everywhere"
-            command: MenuFileEdit
-        MenuItem:
-            text: 'Local ~m~enu definition...'
+        MenuItem: text='Local ~m~enu definition...', command=LocalMenuFileEdit
             tooltip: "Edit this directory's own F2 user menu"
-            command: LocalMenuFileEdit
-        MenuItem:
-            text: '~V~iewers...'
+        MenuItem: text='~V~iewers...', command=ExternalViewers
             tooltip: "Edit viewers.ini: the external viewer for each kind of file"
-            command: ExternalViewers
-        MenuItem:
-            text: '~E~ditors...'
+        MenuItem: text='~E~ditors...', command=ExternalEditors
             tooltip: "Edit editors.ini: the external editor for each kind of file"
-            command: ExternalEditors
         MenuLine:
-        MenuItem:
-            text: '~S~ave desktop'
+        MenuItem: text='~S~ave desktop', command=SaveDesktop
             tooltip: "Keep the open windows, to have them back later"
-            command: SaveDesktop
-        MenuItem:
-            text: '~L~oad desktop'
+        MenuItem: text='~L~oad desktop', command=LoadDesktop
             tooltip: "Replace these windows with the ones last saved"
-            command: LoadDesktop
         MenuLine:
-        MenuItem:
-            text: 'C~o~lors...'
-            command: ChangeColors
-        MenuItem:
-            text: 'S~t~ore palette'
+        MenuItem: text='C~o~lors...', command=ChangeColors
+        MenuItem: text='S~t~ore palette', command=StoreColors
             tooltip: "Save the colours as a theme of your own"
-            command: StoreColors
-        MenuItem:
-            text: 'Lo~a~d palette'
+        MenuItem: text='Lo~a~d palette', command=LoadColors
             tooltip: "Use colours saved in a file"
-            command: LoadColors
-    SubMenu:
+    SubMenu: text='~W~indow'
         id: window
-        text: '~W~indow'
         tooltip: "Arrange, switch between and close windows"
-        MenuItem:
-            text: '~T~ile'
-            command: TileWindows
-        MenuItem:
-            text: 'C~a~scade'
-            command: CascadeWindows
+        MenuItem: text='~T~ile', command=TileWindows
+        MenuItem: text='C~a~scade', command=CascadeWindows
         #: Not DN's: another window on the active editor's text, one undo
         #: history and one save (the editor's ``on_new_view``); greyed elsewhere.
-        MenuItem:
-            text: 'New ~v~iew'
+        MenuItem: text='New ~v~iew', command=NewView
             tooltip: "Open another window on this editor's text"
-            command: NewView
-        MenuItem:
-            text: 'Cl~o~se all'
-            command: CloseAllWindows
+        MenuItem: text='Cl~o~se all', command=CloseAllWindows
         MenuLine:
-        MenuItem:
-            text: '~S~ize/Move'
+        MenuItem: text='~S~ize/Move', command=SizeMoveWindow, key='Ctrl-F5'
             tooltip: "Move and size the window with the keyboard"
-            command: SizeMoveWindow
-            key: 'Ctrl-F5'
-        MenuItem:
-            text: '~Z~oom'
-            command: ZoomWindow
-            key: 'Alt-Z'
-        MenuItem:
-            text: '~N~ext'
-            command: NextWindow
-            key: 'F9'
-        MenuItem:
-            text: '~P~revious'
-            command: PreviousWindow
-            key: 'Shift-F9'
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
-            key: 'Ctrl-F4'
+        MenuItem: text='~Z~oom', command=ZoomWindow, key='Alt-Z'
+        MenuItem: text='~N~ext', command=NextWindow, key='F9'
+        MenuItem: text='~P~revious', command=PreviousWindow, key='Shift-F9'
+        MenuItem: text='~C~lose', command=CloseWindow, key='Ctrl-F4'
         MenuLine:
-        MenuItem:
-            text: '~L~ist...'
+        MenuItem: text='~L~ist...', command=WindowManager, key='Alt-0'
             tooltip: "All the windows, to switch to one or close it"
-            command: WindowManager
-            key: 'Alt-0'
         #: Not DN's: the box of a copy or an erase sent to the background.
-        MenuItem:
-            text: '~B~ackground operation...'
+        MenuItem: text='~B~ackground operation...', command=ShowBackground
             tooltip: "Bring back the progress box of a copy or an erase running in the background"
-            command: ShowBackground

@@ -92,8 +92,8 @@ class CalendarWindow(Window, _Component):
     other: CalendarView    # calendar_window.nml:81
     today_button: Button    # calendar_window.nml:94
     calendar_menu: SubMenu    # calendar_window.nml:107
-    system_menu: SubMenu    # calendar_window.nml:149
-    view_menu: SubMenu    # calendar_window.nml:153
+    system_menu: SubMenu    # calendar_window.nml:123
+    view_menu: SubMenu    # calendar_window.nml:126
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -113,21 +113,21 @@ class CalendarWindow(Window, _Component):
         self.other = CalendarView(parent=self)    # calendar_window.nml:80
         self.today_button = Button(parent=self)    # calendar_window.nml:93
         self.calendar_menu = SubMenu(parent=self)    # calendar_window.nml:106
-        _w1 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:111
-        _w2 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:115
-        _w3 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:119
-        _w4 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:123
-        _w5 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:127
-        _w6 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:128
-        _w7 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:132
-        _w8 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:136
-        _w9 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:137
-        _w10 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:141
-        _w11 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:145
-        self.system_menu = SubMenu(parent=self.calendar_menu)    # calendar_window.nml:148
-        self.view_menu = SubMenu(parent=self.calendar_menu)    # calendar_window.nml:152
-        _w12 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:155
-        _w13 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:156
+        _w1 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:109
+        _w2 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:110
+        _w3 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:111
+        _w4 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:112
+        _w5 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:113
+        _w6 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:114
+        _w7 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:115
+        _w8 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:116
+        _w9 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:117
+        _w10 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:118
+        _w11 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:119
+        self.system_menu = SubMenu(parent=self.calendar_menu)    # calendar_window.nml:122
+        self.view_menu = SubMenu(parent=self.calendar_menu)    # calendar_window.nml:125
+        _w12 = MenuLine(parent=self.calendar_menu)    # calendar_window.nml:127
+        _w13 = MenuItem(parent=self.calendar_menu)    # calendar_window.nml:128
 
         self.title = _bind(lambda _o: _tr('Calendar'), yielding=True)    # calendar_window.nml:38
         self.zoomable = False    # calendar_window.nml:47
@@ -176,57 +176,57 @@ class CalendarWindow(Window, _Component):
         self.today_button.height = 2    # calendar_window.nml:99
         self.today_button.on_click = self.on_today_button_click    # calendar_window.nml:94
 
-        self.calendar_menu.text = _bind(    # calendar_window.nml:108
+        self.calendar_menu.text = _bind(    # calendar_window.nml:106
             lambda _o: _tr('~C~alendar'),
             yielding=True,
         )
-        self.calendar_menu.tooltip = _bind(    # calendar_window.nml:109
+        self.calendar_menu.after = 'File'    # calendar_window.nml:106
+        self.calendar_menu.tooltip = _bind(    # calendar_window.nml:108
             lambda _o: _tr('Move between months and years'),
             yielding=True,
         )
-        self.calendar_menu.after = 'File'    # calendar_window.nml:110
 
-        _w1.text = _bind(lambda _o: _tr('~P~revious month'), yielding=True)    # calendar_window.nml:112
-        _w1.command = PreviousMonth    # calendar_window.nml:113
-        _w1.key = 'PgUp'    # calendar_window.nml:114
+        _w1.text = _bind(lambda _o: _tr('~P~revious month'), yielding=True)    # calendar_window.nml:109
+        _w1.command = PreviousMonth    # calendar_window.nml:109
+        _w1.key = 'PgUp'    # calendar_window.nml:109
 
-        _w2.text = _bind(lambda _o: _tr('~N~ext month'), yielding=True)    # calendar_window.nml:116
-        _w2.command = NextMonth    # calendar_window.nml:117
-        _w2.key = 'PgDn'    # calendar_window.nml:118
+        _w2.text = _bind(lambda _o: _tr('~N~ext month'), yielding=True)    # calendar_window.nml:110
+        _w2.command = NextMonth    # calendar_window.nml:110
+        _w2.key = 'PgDn'    # calendar_window.nml:110
 
-        _w3.text = _bind(lambda _o: _tr('P~r~evious year'), yielding=True)    # calendar_window.nml:120
-        _w3.command = PreviousYear    # calendar_window.nml:121
-        _w3.key = 'Ctrl-PgUp'    # calendar_window.nml:122
+        _w3.text = _bind(lambda _o: _tr('P~r~evious year'), yielding=True)    # calendar_window.nml:111
+        _w3.command = PreviousYear    # calendar_window.nml:111
+        _w3.key = 'Ctrl-PgUp'    # calendar_window.nml:111
 
-        _w4.text = _bind(lambda _o: _tr('Ne~x~t year'), yielding=True)    # calendar_window.nml:124
-        _w4.command = NextYear    # calendar_window.nml:125
-        _w4.key = 'Ctrl-PgDn'    # calendar_window.nml:126
+        _w4.text = _bind(lambda _o: _tr('Ne~x~t year'), yielding=True)    # calendar_window.nml:112
+        _w4.command = NextYear    # calendar_window.nml:112
+        _w4.key = 'Ctrl-PgDn'    # calendar_window.nml:112
 
-        _w6.text = _bind(lambda _o: _tr('Choose ~m~onth...'), yielding=True)    # calendar_window.nml:129
-        _w6.command = ChooseMonth    # calendar_window.nml:130
-        _w6.key = 'M'    # calendar_window.nml:131
+        _w6.text = _bind(lambda _o: _tr('Choose ~m~onth...'), yielding=True)    # calendar_window.nml:114
+        _w6.command = ChooseMonth    # calendar_window.nml:114
+        _w6.key = 'M'    # calendar_window.nml:114
 
-        _w7.text = _bind(lambda _o: _tr('Choose ~y~ear...'), yielding=True)    # calendar_window.nml:133
-        _w7.command = ChooseYear    # calendar_window.nml:134
-        _w7.key = 'Y'    # calendar_window.nml:135
+        _w7.text = _bind(lambda _o: _tr('Choose ~y~ear...'), yielding=True)    # calendar_window.nml:115
+        _w7.command = ChooseYear    # calendar_window.nml:115
+        _w7.key = 'Y'    # calendar_window.nml:115
 
-        _w9.text = _bind(lambda _o: _tr('Go to current ~d~ate'), yielding=True)    # calendar_window.nml:138
-        _w9.command = GoToToday    # calendar_window.nml:139
-        _w9.key = 'T'    # calendar_window.nml:140
+        _w9.text = _bind(lambda _o: _tr('Go to current ~d~ate'), yielding=True)    # calendar_window.nml:117
+        _w9.command = GoToToday    # calendar_window.nml:117
+        _w9.key = 'T'    # calendar_window.nml:117
 
-        _w10.text = _bind(lambda _o: _tr('S~w~ap calendars'), yielding=True)    # calendar_window.nml:142
-        _w10.command = SwapCalendars    # calendar_window.nml:143
-        _w10.key = 'C'    # calendar_window.nml:144
+        _w10.text = _bind(lambda _o: _tr('S~w~ap calendars'), yielding=True)    # calendar_window.nml:118
+        _w10.command = SwapCalendars    # calendar_window.nml:118
+        _w10.key = 'C'    # calendar_window.nml:118
 
-        self.system_menu.text = _bind(    # calendar_window.nml:150
+        self.system_menu.text = _bind(    # calendar_window.nml:122
             lambda _o: _tr('Calendar ~s~ystem'),
             yielding=True,
         )
 
-        self.view_menu.text = _bind(    # calendar_window.nml:154
+        self.view_menu.text = _bind(    # calendar_window.nml:125
             lambda _o: _tr('Calendar ~v~iew'),
             yielding=True,
         )
 
-        _w13.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # calendar_window.nml:157
-        _w13.command = CloseWindow    # calendar_window.nml:158
+        _w13.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # calendar_window.nml:128
+        _w13.command = CloseWindow    # calendar_window.nml:128

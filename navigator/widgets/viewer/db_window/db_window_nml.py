@@ -88,21 +88,21 @@ class DBWindow(Window, _Component):
         self.viewer = DBViewer(parent=self)    # db_window.nml:53
         self.indicator = StaticText(parent=self)    # db_window.nml:61
         self.view_menu = SubMenu(parent=self)    # db_window.nml:74
-        _w1 = MenuItem(parent=self.view_menu)    # db_window.nml:79
-        _w2 = MenuItem(parent=self.view_menu)    # db_window.nml:83
-        _w3 = MenuItem(parent=self.view_menu)    # db_window.nml:87
-        _w4 = MenuItem(parent=self.view_menu)    # db_window.nml:91
-        _w5 = MenuItem(parent=self.view_menu)    # db_window.nml:95
-        _w6 = MenuLine(parent=self.view_menu)    # db_window.nml:99
-        _w7 = MenuItem(parent=self.view_menu)    # db_window.nml:100
-        _w8 = MenuItem(parent=self.view_menu)    # db_window.nml:104
-        _w9 = MenuItem(parent=self.view_menu)    # db_window.nml:109
-        _w10 = MenuItem(parent=self.view_menu)    # db_window.nml:113
-        _w11 = MenuLine(parent=self.view_menu)    # db_window.nml:117
-        _w12 = MenuItem(parent=self.view_menu)    # db_window.nml:118
-        _w13 = MenuItem(parent=self.view_menu)    # db_window.nml:121
-        _w14 = MenuLine(parent=self.view_menu)    # db_window.nml:124
-        _w15 = MenuItem(parent=self.view_menu)    # db_window.nml:125
+        _w1 = MenuItem(parent=self.view_menu)    # db_window.nml:77
+        _w2 = MenuItem(parent=self.view_menu)    # db_window.nml:79
+        _w3 = MenuItem(parent=self.view_menu)    # db_window.nml:81
+        _w4 = MenuItem(parent=self.view_menu)    # db_window.nml:83
+        _w5 = MenuItem(parent=self.view_menu)    # db_window.nml:85
+        _w6 = MenuLine(parent=self.view_menu)    # db_window.nml:87
+        _w7 = MenuItem(parent=self.view_menu)    # db_window.nml:88
+        _w8 = MenuItem(parent=self.view_menu)    # db_window.nml:90
+        _w9 = MenuItem(parent=self.view_menu)    # db_window.nml:93
+        _w10 = MenuItem(parent=self.view_menu)    # db_window.nml:95
+        _w11 = MenuLine(parent=self.view_menu)    # db_window.nml:97
+        _w12 = MenuItem(parent=self.view_menu)    # db_window.nml:98
+        _w13 = MenuItem(parent=self.view_menu)    # db_window.nml:99
+        _w14 = MenuLine(parent=self.view_menu)    # db_window.nml:100
+        _w15 = MenuItem(parent=self.view_menu)    # db_window.nml:101
 
         self.zoomed = True    # db_window.nml:31
 
@@ -120,80 +120,80 @@ class DBWindow(Window, _Component):
             lambda _o: max(0, _o.parent.height - _o.height)
         )
 
-        self.view_menu.text = _bind(lambda _o: _tr('~V~iew'), yielding=True)    # db_window.nml:76
-        self.view_menu.tooltip = _bind(    # db_window.nml:77
+        self.view_menu.text = _bind(lambda _o: _tr('~V~iew'), yielding=True)    # db_window.nml:74
+        self.view_menu.after = 'File'    # db_window.nml:74
+        self.view_menu.tooltip = _bind(    # db_window.nml:76
             lambda _o: _tr('Fields, memos, editing, tables and search'),
             yielding=True,
         )
-        self.view_menu.after = 'File'    # db_window.nml:78
 
-        _w1.text = _bind(lambda _o: _tr('~F~ields...'), yielding=True)    # db_window.nml:80
-        _w1.tooltip = _bind(    # db_window.nml:81
+        _w1.text = _bind(lambda _o: _tr('~F~ields...'), yielding=True)    # db_window.nml:77
+        _w1.command = ShowFields    # db_window.nml:77
+        _w1.tooltip = _bind(    # db_window.nml:78
             lambda _o: _tr("The file's structure: its fields and their types"),
             yielding=True,
         )
-        _w1.command = ShowFields    # db_window.nml:82
 
-        _w2.text = _bind(lambda _o: _tr('~M~emo view'), yielding=True)    # db_window.nml:84
-        _w2.tooltip = _bind(    # db_window.nml:85
+        _w2.text = _bind(lambda _o: _tr('~M~emo view'), yielding=True)    # db_window.nml:79
+        _w2.command = ShowMemo    # db_window.nml:79
+        _w2.tooltip = _bind(    # db_window.nml:80
             lambda _o: _tr('The memo text of the cell at the cursor'),
             yielding=True,
         )
-        _w2.command = ShowMemo    # db_window.nml:86
 
-        _w3.text = _bind(lambda _o: _tr('~E~dit field...'), yielding=True)    # db_window.nml:88
-        _w3.command = EditDbField    # db_window.nml:89
+        _w3.text = _bind(lambda _o: _tr('~E~dit field...'), yielding=True)    # db_window.nml:81
+        _w3.command = EditDbField    # db_window.nml:81
 
-        _w4.text = _bind(lambda _o: _tr('~T~ables...'), yielding=True)    # db_window.nml:92
-        _w4.tooltip = _bind(    # db_window.nml:93
+        _w4.text = _bind(lambda _o: _tr('~T~ables...'), yielding=True)    # db_window.nml:83
+        _w4.command = ChooseTable    # db_window.nml:83
+        _w4.tooltip = _bind(    # db_window.nml:84
             lambda _o: _tr('Another table or view of the SQLite file'),
             yielding=True,
         )
-        _w4.command = ChooseTable    # db_window.nml:94
 
-        _w5.text = _bind(lambda _o: _tr('~Q~uery...'), yielding=True)    # db_window.nml:96
-        _w5.tooltip = _bind(    # db_window.nml:97
+        _w5.text = _bind(lambda _o: _tr('~Q~uery...'), yielding=True)    # db_window.nml:85
+        _w5.command = RunQuery    # db_window.nml:85
+        _w5.tooltip = _bind(    # db_window.nml:86
             lambda _o: _tr('Run a query that reads, and show its rows'),
             yielding=True,
         )
-        _w5.command = RunQuery    # db_window.nml:98
 
-        _w7.text = _bind(lambda _o: _tr('S~o~rt by column'), yielding=True)    # db_window.nml:101
-        _w7.tooltip = _bind(    # db_window.nml:102
+        _w7.text = _bind(lambda _o: _tr('S~o~rt by column'), yielding=True)    # db_window.nml:88
+        _w7.command = SortColumn    # db_window.nml:88
+        _w7.tooltip = _bind(    # db_window.nml:89
             lambda _o: _tr('Ascending, descending, then as in the file'),
             yielding=True,
         )
-        _w7.command = SortColumn    # db_window.nml:103
 
-        _w8.text = _bind(lambda _o: _tr('Column ~w~idth...'), yielding=True)    # db_window.nml:105
-        _w8.tooltip = _bind(    # db_window.nml:106
+        _w8.text = _bind(lambda _o: _tr('Column ~w~idth...'), yielding=True)    # db_window.nml:90
+        _w8.command = ChangeWidth    # db_window.nml:90
+        _w8.tooltip = _bind(    # db_window.nml:91
             lambda _o: _tr('Left and Right narrow and widen the column; Enter ends'),
             yielding=True,
         )
-        _w8.command = ChangeWidth    # db_window.nml:107
 
-        _w9.text = _bind(    # db_window.nml:110
+        _w9.text = _bind(    # db_window.nml:93
             lambda _o: _tr('E~n~coding...') if self.code_page else _tr('Fo~r~mat...'),
             yielding=True,
         )
-        _w9.tooltip = _bind(    # db_window.nml:111
+        _w9.command = TableFormat    # db_window.nml:93
+        _w9.tooltip = _bind(    # db_window.nml:94
             lambda _o: _tr('The code page the table is read in') if self.code_page else _tr('The delimiter, the header and the encoding'),
             yielding=True,
         )
-        _w9.command = TableFormat    # db_window.nml:112
 
-        _w10.text = _bind(lambda _o: _tr('As te~x~t'), yielding=True)    # db_window.nml:114
-        _w10.tooltip = _bind(    # db_window.nml:115
+        _w10.text = _bind(lambda _o: _tr('As te~x~t'), yielding=True)    # db_window.nml:95
+        _w10.command = ViewSheetAsText    # db_window.nml:95
+        _w10.tooltip = _bind(    # db_window.nml:96
             lambda _o: _tr('The same file in the text viewer'),
             yielding=True,
         )
-        _w10.command = ViewSheetAsText    # db_window.nml:116
 
-        _w12.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # db_window.nml:119
-        _w12.command = SearchFor    # db_window.nml:120
+        _w12.text = _bind(lambda _o: _tr('~S~earch...'), yielding=True)    # db_window.nml:98
+        _w12.command = SearchFor    # db_window.nml:98
 
-        _w13.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # db_window.nml:122
-        _w13.command = ContinueSearch    # db_window.nml:123
+        _w13.text = _bind(lambda _o: _tr('Search a~g~ain'), yielding=True)    # db_window.nml:99
+        _w13.command = ContinueSearch    # db_window.nml:99
 
-        _w15.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:126
-        _w15.command = CloseWindow    # db_window.nml:127
+        _w15.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # db_window.nml:101
+        _w15.command = CloseWindow    # db_window.nml:101

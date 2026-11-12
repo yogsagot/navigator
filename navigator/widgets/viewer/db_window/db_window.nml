@@ -71,57 +71,31 @@ DBWindow(Window):
     #: the file viewer's *View* is -- a departure, asked for: DN's dBase
     #: viewer had its keys on the key bar alone.  *Memo view* is greyed off a
     #: memo field, where F3 does nothing.
-    SubMenu:
+    SubMenu: text='~V~iew', after='File'
         id: view_menu
-        text: '~V~iew'
         tooltip: "Fields, memos, editing, tables and search"
-        after: 'File'
-        MenuItem:
-            text: '~F~ields...'
+        MenuItem: text='~F~ields...', command=ShowFields
             tooltip: "The file's structure: its fields and their types"
-            command: ShowFields
-        MenuItem:
-            text: '~M~emo view'
+        MenuItem: text='~M~emo view', command=ShowMemo
             tooltip: "The memo text of the cell at the cursor"
-            command: ShowMemo
-        MenuItem:
-            text: '~E~dit field...'
-            command: EditDbField
+        MenuItem: text='~E~dit field...', command=EditDbField
         #: SQLite's alone, greyed for a ``.dbf``.
-        MenuItem:
-            text: '~T~ables...'
+        MenuItem: text='~T~ables...', command=ChooseTable
             tooltip: "Another table or view of the SQLite file"
-            command: ChooseTable
-        MenuItem:
-            text: '~Q~uery...'
+        MenuItem: text='~Q~uery...', command=RunQuery
             tooltip: "Run a query that reads, and show its rows"
-            command: RunQuery
         MenuLine:
-        MenuItem:
-            text: 'S~o~rt by column'
+        MenuItem: text='S~o~rt by column', command=SortColumn
             tooltip: "Ascending, descending, then as in the file"
-            command: SortColumn
-        MenuItem:
-            text: 'Column ~w~idth...'
+        MenuItem: text='Column ~w~idth...', command=ChangeWidth
             tooltip: "Left and Right narrow and widen the column; Enter ends"
-            command: ChangeWidth
         #: A CSV's format, a dBase table's code page; greyed for SQLite.
-        MenuItem:
-            text: 'E~n~coding...' if root.code_page else 'Fo~r~mat...'
+        MenuItem: text='E~n~coding...' if root.code_page else 'Fo~r~mat...', command=TableFormat
             tooltip: "The code page the table is read in" if root.code_page else "The delimiter, the header and the encoding"
-            command: TableFormat
-        MenuItem:
-            text: 'As te~x~t'
+        MenuItem: text='As te~x~t', command=ViewSheetAsText
             tooltip: "The same file in the text viewer"
-            command: ViewSheetAsText
         MenuLine:
-        MenuItem:
-            text: '~S~earch...'
-            command: SearchFor
-        MenuItem:
-            text: 'Search a~g~ain'
-            command: ContinueSearch
+        MenuItem: text='~S~earch...', command=SearchFor
+        MenuItem: text='Search a~g~ain', command=ContinueSearch
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

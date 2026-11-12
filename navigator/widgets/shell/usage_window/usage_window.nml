@@ -114,42 +114,18 @@ UsageWindow(Window):
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort it is in and *Apparent size* ticked.  Also
     #: its right-click menu.
-    SubMenu:
+    SubMenu: text='~S~izes', after='File'
         id: usage_menu
-        text: '~S~izes'
         tooltip: "Sort, re-read and erase what the directory sizes list"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Ctrl-R'
+        MenuItem: text='~R~e-read', command=Rescan, key='Ctrl-R'
         MenuLine:
-        MenuItem:
-            text: 'Sort by ~n~ame'
-            command: UsageSortName
-            key: 'Ctrl-N'
-        MenuItem:
-            text: 'Sort by ~s~ize'
-            command: UsageSortSize
-            key: 'Ctrl-S'
-        MenuItem:
-            text: 'Sort by ~e~ntries'
-            command: UsageSortItems
-            key: 'Ctrl-E'
-        MenuItem:
-            text: '~A~pparent size'
+        MenuItem: text='Sort by ~n~ame', command=UsageSortName, key='Ctrl-N'
+        MenuItem: text='Sort by ~s~ize', command=UsageSortSize, key='Ctrl-S'
+        MenuItem: text='Sort by ~e~ntries', command=UsageSortItems, key='Ctrl-E'
+        MenuItem: text='~A~pparent size', command=ToggleApparentSize, key='Ctrl-A'
             tooltip: "The bytes files hold rather than the room they take on the disk"
-            command: ToggleApparentSize
-            key: 'Ctrl-A'
         MenuLine:
-        MenuItem:
-            text: '~G~o to directory'
-            command: GoToUsage
-        MenuItem:
-            text: '~D~elete...'
-            command: Delete
-            key: 'F8'
+        MenuItem: text='~G~o to directory', command=GoToUsage
+        MenuItem: text='~D~elete...', command=Delete, key='F8'
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

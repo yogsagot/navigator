@@ -179,41 +179,20 @@ VolumesWindow(Window):
     #: the Directory Tree window's -- a departure, asked for, so Ctrl+R and
     #: Ctrl+H show somewhere.  *Show all mounts* is ticked while on.  Also its
     #: right-click menu.
-    SubMenu:
+    SubMenu: text='~V~olumes', after='File'
         id: volumes_menu
-        text: '~V~olumes'
         tooltip: "Mount, unmount and eject volumes"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-        MenuItem:
-            text: '~S~how all mounts'
+        MenuItem: text='~R~e-read', command=Rescan
+        MenuItem: text='~S~how all mounts', command=ToggleHidden
             tooltip: "Show the kernel's own file systems too"
-            command: ToggleHidden
         MenuLine:
-        MenuItem:
-            text: '~M~ount'
-            command: MountVolume
-            key: 'F5'
-        MenuItem:
-            text: '~U~nmount'
-            command: UnmountVolume
-            key: 'F6'
-        MenuItem:
-            text: '~E~ject'
-            command: EjectVolume
-            key: 'F7'
+        MenuItem: text='~M~ount', command=MountVolume, key='F5'
+        MenuItem: text='~U~nmount', command=UnmountVolume, key='F6'
+        MenuItem: text='~E~ject', command=EjectVolume, key='F7'
         MenuLine:
-        MenuItem:
-            text: 'Mount ~i~mage...'
+        MenuItem: text='Mount ~i~mage...', command=MountImage
             tooltip: "A disk image file (.iso, .img): attached read-only and mounted"
-            command: MountImage
-        MenuItem:
-            text: 'Unmount ima~g~e'
+        MenuItem: text='Unmount ima~g~e', command=UnmountImage
             tooltip: "The disk image this volume is on: every file system of it unmounted, and detached"
-            command: UnmountImage
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

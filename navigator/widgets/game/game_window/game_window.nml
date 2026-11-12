@@ -84,33 +84,17 @@ GameWindow(Window):
     #: departure, asked for: DN had its status line, whose ``~+~ Level`` and
     #: ``~*~ Preview`` our key bar of function keys does not show.  *Pause*
     #: and *Preview* are ticked while on.  Also its right-click menu.
-    SubMenu:
+    SubMenu: text='~G~ame', after='File'
         id: game_menu
-        text: '~G~ame'
         tooltip: "A new game, pause, the Top Ten and setup"
-        after: 'File'
-        MenuItem:
-            text: '~N~ew'
-            command: NewGame
-        MenuItem:
-            text: '~P~ause'
-            command: PauseGame
-        MenuItem:
-            text: '~T~op 10'
-            command: ShowTopTen
-        MenuItem:
-            text: '~S~etup'
-            command: GameSetup
+        MenuItem: text='~N~ew', command=NewGame
+        MenuItem: text='~P~ause', command=PauseGame
+        MenuItem: text='~T~op 10', command=ShowTopTen
+        MenuItem: text='~S~etup', command=GameSetup
         MenuLine:
-        MenuItem:
-            text: '~L~evel up'
+        MenuItem: text='~L~evel up', command=LevelUp
             tooltip: "Play at the next level, faster"
-            command: LevelUp
-        MenuItem:
-            text: 'Pre~v~iew'
+        MenuItem: text='Pre~v~iew', command=TogglePreview
             tooltip: "Show the next figure"
-            command: TogglePreview
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

@@ -122,17 +122,17 @@ class UsageWindow(Window, _Component):
         self.go_button = Button(parent=self)    # usage_window.nml:95
         self.close_button = Button(parent=self)    # usage_window.nml:105
         self.usage_menu = SubMenu(parent=self)    # usage_window.nml:117
-        _w1 = MenuItem(parent=self.usage_menu)    # usage_window.nml:122
-        _w2 = MenuLine(parent=self.usage_menu)    # usage_window.nml:126
-        _w3 = MenuItem(parent=self.usage_menu)    # usage_window.nml:127
-        _w4 = MenuItem(parent=self.usage_menu)    # usage_window.nml:131
-        _w5 = MenuItem(parent=self.usage_menu)    # usage_window.nml:135
-        _w6 = MenuItem(parent=self.usage_menu)    # usage_window.nml:139
-        _w7 = MenuLine(parent=self.usage_menu)    # usage_window.nml:144
-        _w8 = MenuItem(parent=self.usage_menu)    # usage_window.nml:145
-        _w9 = MenuItem(parent=self.usage_menu)    # usage_window.nml:148
-        _w10 = MenuLine(parent=self.usage_menu)    # usage_window.nml:152
-        _w11 = MenuItem(parent=self.usage_menu)    # usage_window.nml:153
+        _w1 = MenuItem(parent=self.usage_menu)    # usage_window.nml:120
+        _w2 = MenuLine(parent=self.usage_menu)    # usage_window.nml:121
+        _w3 = MenuItem(parent=self.usage_menu)    # usage_window.nml:122
+        _w4 = MenuItem(parent=self.usage_menu)    # usage_window.nml:123
+        _w5 = MenuItem(parent=self.usage_menu)    # usage_window.nml:124
+        _w6 = MenuItem(parent=self.usage_menu)    # usage_window.nml:125
+        _w7 = MenuLine(parent=self.usage_menu)    # usage_window.nml:127
+        _w8 = MenuItem(parent=self.usage_menu)    # usage_window.nml:128
+        _w9 = MenuItem(parent=self.usage_menu)    # usage_window.nml:129
+        _w10 = MenuLine(parent=self.usage_menu)    # usage_window.nml:130
+        _w11 = MenuItem(parent=self.usage_menu)    # usage_window.nml:131
 
         self.title = _bind(lambda _o: _tr('Directory sizes'), yielding=True)    # usage_window.nml:38
 
@@ -202,43 +202,43 @@ class UsageWindow(Window, _Component):
         )
         self.close_button.on_click = self.on_close_button_click    # usage_window.nml:106
 
-        self.usage_menu.text = _bind(lambda _o: _tr('~S~izes'), yielding=True)    # usage_window.nml:119
-        self.usage_menu.tooltip = _bind(    # usage_window.nml:120
+        self.usage_menu.text = _bind(lambda _o: _tr('~S~izes'), yielding=True)    # usage_window.nml:117
+        self.usage_menu.after = 'File'    # usage_window.nml:117
+        self.usage_menu.tooltip = _bind(    # usage_window.nml:119
             lambda _o: _tr('Sort, re-read and erase what the directory sizes list'),
             yielding=True,
         )
-        self.usage_menu.after = 'File'    # usage_window.nml:121
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # usage_window.nml:123
-        _w1.command = Rescan    # usage_window.nml:124
-        _w1.key = 'Ctrl-R'    # usage_window.nml:125
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # usage_window.nml:120
+        _w1.command = Rescan    # usage_window.nml:120
+        _w1.key = 'Ctrl-R'    # usage_window.nml:120
 
-        _w3.text = _bind(lambda _o: _tr('Sort by ~n~ame'), yielding=True)    # usage_window.nml:128
-        _w3.command = UsageSortName    # usage_window.nml:129
-        _w3.key = 'Ctrl-N'    # usage_window.nml:130
+        _w3.text = _bind(lambda _o: _tr('Sort by ~n~ame'), yielding=True)    # usage_window.nml:122
+        _w3.command = UsageSortName    # usage_window.nml:122
+        _w3.key = 'Ctrl-N'    # usage_window.nml:122
 
-        _w4.text = _bind(lambda _o: _tr('Sort by ~s~ize'), yielding=True)    # usage_window.nml:132
-        _w4.command = UsageSortSize    # usage_window.nml:133
-        _w4.key = 'Ctrl-S'    # usage_window.nml:134
+        _w4.text = _bind(lambda _o: _tr('Sort by ~s~ize'), yielding=True)    # usage_window.nml:123
+        _w4.command = UsageSortSize    # usage_window.nml:123
+        _w4.key = 'Ctrl-S'    # usage_window.nml:123
 
-        _w5.text = _bind(lambda _o: _tr('Sort by ~e~ntries'), yielding=True)    # usage_window.nml:136
-        _w5.command = UsageSortItems    # usage_window.nml:137
-        _w5.key = 'Ctrl-E'    # usage_window.nml:138
+        _w5.text = _bind(lambda _o: _tr('Sort by ~e~ntries'), yielding=True)    # usage_window.nml:124
+        _w5.command = UsageSortItems    # usage_window.nml:124
+        _w5.key = 'Ctrl-E'    # usage_window.nml:124
 
-        _w6.text = _bind(lambda _o: _tr('~A~pparent size'), yielding=True)    # usage_window.nml:140
-        _w6.tooltip = _bind(    # usage_window.nml:141
+        _w6.text = _bind(lambda _o: _tr('~A~pparent size'), yielding=True)    # usage_window.nml:125
+        _w6.command = ToggleApparentSize    # usage_window.nml:125
+        _w6.key = 'Ctrl-A'    # usage_window.nml:125
+        _w6.tooltip = _bind(    # usage_window.nml:126
             lambda _o: _tr('The bytes files hold rather than the room they take on the disk'),
             yielding=True,
         )
-        _w6.command = ToggleApparentSize    # usage_window.nml:142
-        _w6.key = 'Ctrl-A'    # usage_window.nml:143
 
-        _w8.text = _bind(lambda _o: _tr('~G~o to directory'), yielding=True)    # usage_window.nml:146
-        _w8.command = GoToUsage    # usage_window.nml:147
+        _w8.text = _bind(lambda _o: _tr('~G~o to directory'), yielding=True)    # usage_window.nml:128
+        _w8.command = GoToUsage    # usage_window.nml:128
 
-        _w9.text = _bind(lambda _o: _tr('~D~elete...'), yielding=True)    # usage_window.nml:149
-        _w9.command = Delete    # usage_window.nml:150
-        _w9.key = 'F8'    # usage_window.nml:151
+        _w9.text = _bind(lambda _o: _tr('~D~elete...'), yielding=True)    # usage_window.nml:129
+        _w9.command = Delete    # usage_window.nml:129
+        _w9.key = 'F8'    # usage_window.nml:129
 
-        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # usage_window.nml:154
-        _w11.command = CloseWindow    # usage_window.nml:155
+        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # usage_window.nml:131
+        _w11.command = CloseWindow    # usage_window.nml:131

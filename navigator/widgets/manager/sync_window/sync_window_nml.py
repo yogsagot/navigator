@@ -91,7 +91,7 @@ class SyncWindow(Window, _Component):
     sync_button: Button    # sync_window.nml:115
     close_button: Button    # sync_window.nml:124
     sync_menu: SubMenu    # sync_window.nml:135
-    sync_menu_show: SubMenu    # sync_window.nml:180
+    sync_menu_show: SubMenu    # sync_window.nml:156
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -124,29 +124,29 @@ class SyncWindow(Window, _Component):
         self.sync_button = Button(parent=self)    # sync_window.nml:114
         self.close_button = Button(parent=self)    # sync_window.nml:123
         self.sync_menu = SubMenu(parent=self)    # sync_window.nml:134
-        _w1 = MenuItem(parent=self.sync_menu)    # sync_window.nml:139
-        _w2 = MenuItem(parent=self.sync_menu)    # sync_window.nml:142
-        _w3 = MenuLine(parent=self.sync_menu)    # sync_window.nml:145
-        _w4 = MenuItem(parent=self.sync_menu)    # sync_window.nml:146
-        _w5 = MenuItem(parent=self.sync_menu)    # sync_window.nml:149
-        _w6 = MenuItem(parent=self.sync_menu)    # sync_window.nml:152
-        _w7 = MenuItem(parent=self.sync_menu)    # sync_window.nml:155
-        _w8 = MenuItem(parent=self.sync_menu)    # sync_window.nml:158
-        _w9 = MenuLine(parent=self.sync_menu)    # sync_window.nml:162
-        _w10 = MenuItem(parent=self.sync_menu)    # sync_window.nml:163
-        _w11 = MenuItem(parent=self.sync_menu)    # sync_window.nml:166
-        _w12 = MenuItem(parent=self.sync_menu)    # sync_window.nml:169
-        _w13 = MenuLine(parent=self.sync_menu)    # sync_window.nml:173
-        _w14 = MenuItem(parent=self.sync_menu)    # sync_window.nml:174
-        self.sync_menu_show = SubMenu(parent=self.sync_menu)    # sync_window.nml:179
-        _w15 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:183
-        _w16 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:187
-        _w17 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:191
-        _w18 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:195
-        _w19 = MenuItem(parent=self.sync_menu)    # sync_window.nml:199
-        _w20 = MenuItem(parent=self.sync_menu)    # sync_window.nml:203
-        _w21 = MenuLine(parent=self.sync_menu)    # sync_window.nml:207
-        _w22 = MenuItem(parent=self.sync_menu)    # sync_window.nml:208
+        _w1 = MenuItem(parent=self.sync_menu)    # sync_window.nml:137
+        _w2 = MenuItem(parent=self.sync_menu)    # sync_window.nml:138
+        _w3 = MenuLine(parent=self.sync_menu)    # sync_window.nml:139
+        _w4 = MenuItem(parent=self.sync_menu)    # sync_window.nml:140
+        _w5 = MenuItem(parent=self.sync_menu)    # sync_window.nml:141
+        _w6 = MenuItem(parent=self.sync_menu)    # sync_window.nml:142
+        _w7 = MenuItem(parent=self.sync_menu)    # sync_window.nml:143
+        _w8 = MenuItem(parent=self.sync_menu)    # sync_window.nml:144
+        _w9 = MenuLine(parent=self.sync_menu)    # sync_window.nml:146
+        _w10 = MenuItem(parent=self.sync_menu)    # sync_window.nml:147
+        _w11 = MenuItem(parent=self.sync_menu)    # sync_window.nml:148
+        _w12 = MenuItem(parent=self.sync_menu)    # sync_window.nml:149
+        _w13 = MenuLine(parent=self.sync_menu)    # sync_window.nml:151
+        _w14 = MenuItem(parent=self.sync_menu)    # sync_window.nml:152
+        self.sync_menu_show = SubMenu(parent=self.sync_menu)    # sync_window.nml:155
+        _w15 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:158
+        _w16 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:160
+        _w17 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:162
+        _w18 = MenuItem(parent=self.sync_menu_show)    # sync_window.nml:164
+        _w19 = MenuItem(parent=self.sync_menu)    # sync_window.nml:166
+        _w20 = MenuItem(parent=self.sync_menu)    # sync_window.nml:168
+        _w21 = MenuLine(parent=self.sync_menu)    # sync_window.nml:170
+        _w22 = MenuItem(parent=self.sync_menu)    # sync_window.nml:171
 
         self.title = _bind(lambda _o: _tr('Synchronize'), yielding=True)    # sync_window.nml:40
         self.zoomed = True    # sync_window.nml:42
@@ -243,107 +243,107 @@ class SyncWindow(Window, _Component):
         )
         self.close_button.on_click = self.on_close_button_click    # sync_window.nml:124
 
-        self.sync_menu.text = _bind(    # sync_window.nml:136
+        self.sync_menu.text = _bind(    # sync_window.nml:134
             lambda _o: _tr('~S~ynchronize'),
             yielding=True,
         )
-        self.sync_menu.tooltip = _bind(    # sync_window.nml:137
+        self.sync_menu.after = 'File'    # sync_window.nml:134
+        self.sync_menu.tooltip = _bind(    # sync_window.nml:136
             lambda _o: _tr('Choose what happens to each file, then synchronize'),
             yielding=True,
         )
-        self.sync_menu.after = 'File'    # sync_window.nml:138
 
-        _w1.text = _bind(lambda _o: _tr('~S~ynchronize'), yielding=True)    # sync_window.nml:140
-        _w1.command = Synchronize    # sync_window.nml:141
+        _w1.text = _bind(lambda _o: _tr('~S~ynchronize'), yielding=True)    # sync_window.nml:137
+        _w1.command = Synchronize    # sync_window.nml:137
 
-        _w2.text = _bind(lambda _o: _tr('~C~ompare files'), yielding=True)    # sync_window.nml:143
-        _w2.command = DiffFiles    # sync_window.nml:144
+        _w2.text = _bind(lambda _o: _tr('~C~ompare files'), yielding=True)    # sync_window.nml:138
+        _w2.command = DiffFiles    # sync_window.nml:138
 
-        _w4.text = _bind(lambda _o: _tr('Copy ~r~ight'), yielding=True)    # sync_window.nml:147
-        _w4.command = SetSyncAction('right')    # sync_window.nml:148
+        _w4.text = _bind(lambda _o: _tr('Copy ~r~ight'), yielding=True)    # sync_window.nml:140
+        _w4.command = SetSyncAction('right')    # sync_window.nml:140
 
-        _w5.text = _bind(lambda _o: _tr('Copy ~l~eft'), yielding=True)    # sync_window.nml:150
-        _w5.command = SetSyncAction('left')    # sync_window.nml:151
+        _w5.text = _bind(lambda _o: _tr('Copy ~l~eft'), yielding=True)    # sync_window.nml:141
+        _w5.command = SetSyncAction('left')    # sync_window.nml:141
 
-        _w6.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # sync_window.nml:153
-        _w6.command = SetSyncAction('delete')    # sync_window.nml:154
+        _w6.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # sync_window.nml:142
+        _w6.command = SetSyncAction('delete')    # sync_window.nml:142
 
-        _w7.text = _bind(lambda _o: _tr('S~k~ip'), yielding=True)    # sync_window.nml:156
-        _w7.command = SetSyncAction('skip')    # sync_window.nml:157
+        _w7.text = _bind(lambda _o: _tr('S~k~ip'), yielding=True)    # sync_window.nml:143
+        _w7.command = SetSyncAction('skip')    # sync_window.nml:143
 
-        _w8.text = _bind(lambda _o: _tr('D~e~fault action'), yielding=True)    # sync_window.nml:159
-        _w8.tooltip = _bind(    # sync_window.nml:160
+        _w8.text = _bind(lambda _o: _tr('D~e~fault action'), yielding=True)    # sync_window.nml:144
+        _w8.command = SetSyncAction('default')    # sync_window.nml:144
+        _w8.tooltip = _bind(    # sync_window.nml:145
             lambda _o: _tr('Give the row back the action the comparison chose'),
             yielding=True,
         )
-        _w8.command = SetSyncAction('default')    # sync_window.nml:161
 
-        _w10.text = _bind(lambda _o: _tr('~A~ll right'), yielding=True)    # sync_window.nml:164
-        _w10.command = SetAllSyncActions('right')    # sync_window.nml:165
+        _w10.text = _bind(lambda _o: _tr('~A~ll right'), yielding=True)    # sync_window.nml:147
+        _w10.command = SetAllSyncActions('right')    # sync_window.nml:147
 
-        _w11.text = _bind(lambda _o: _tr('All le~f~t'), yielding=True)    # sync_window.nml:167
-        _w11.command = SetAllSyncActions('left')    # sync_window.nml:168
+        _w11.text = _bind(lambda _o: _tr('All le~f~t'), yielding=True)    # sync_window.nml:148
+        _w11.command = SetAllSyncActions('left')    # sync_window.nml:148
 
-        _w12.text = _bind(lambda _o: _tr('All defa~u~lt'), yielding=True)    # sync_window.nml:170
-        _w12.tooltip = _bind(    # sync_window.nml:171
+        _w12.text = _bind(lambda _o: _tr('All defa~u~lt'), yielding=True)    # sync_window.nml:149
+        _w12.command = SetAllSyncActions('default')    # sync_window.nml:149
+        _w12.tooltip = _bind(    # sync_window.nml:150
             lambda _o: _tr('Give every row back the action the comparison chose'),
             yielding=True,
         )
-        _w12.command = SetAllSyncActions('default')    # sync_window.nml:172
 
-        _w14.text = _bind(lambda _o: _tr('Compare a~g~ain'), yielding=True)    # sync_window.nml:175
-        _w14.command = Rescan    # sync_window.nml:176
+        _w14.text = _bind(lambda _o: _tr('Compare a~g~ain'), yielding=True)    # sync_window.nml:152
+        _w14.command = Rescan    # sync_window.nml:152
 
-        self.sync_menu_show.text = _bind(    # sync_window.nml:181
+        self.sync_menu_show.text = _bind(    # sync_window.nml:155
             lambda _o: _tr('Sho~w~'),
             yielding=True,
         )
-        self.sync_menu_show.tooltip = _bind(    # sync_window.nml:182
+        self.sync_menu_show.tooltip = _bind(    # sync_window.nml:157
             lambda _o: _tr('Which rows the list shows'),
             yielding=True,
         )
 
-        _w15.text = _bind(lambda _o: _tr('Show left o~n~ly'), yielding=True)    # sync_window.nml:184
-        _w15.tooltip = _bind(    # sync_window.nml:185
+        _w15.text = _bind(lambda _o: _tr('Show left o~n~ly'), yielding=True)    # sync_window.nml:158
+        _w15.command = ToggleSyncShow(0)    # sync_window.nml:158
+        _w15.tooltip = _bind(    # sync_window.nml:159
             lambda _o: _tr('List what only the left side has'),
             yielding=True,
         )
-        _w15.command = ToggleSyncShow(0)    # sync_window.nml:186
 
-        _w16.text = _bind(lambda _o: _tr('Show right onl~y~'), yielding=True)    # sync_window.nml:188
-        _w16.tooltip = _bind(    # sync_window.nml:189
+        _w16.text = _bind(lambda _o: _tr('Show right onl~y~'), yielding=True)    # sync_window.nml:160
+        _w16.command = ToggleSyncShow(1)    # sync_window.nml:160
+        _w16.tooltip = _bind(    # sync_window.nml:161
             lambda _o: _tr('List what only the right side has'),
             yielding=True,
         )
-        _w16.command = ToggleSyncShow(1)    # sync_window.nml:190
 
-        _w17.text = _bind(lambda _o: _tr('Sho~w~ different'), yielding=True)    # sync_window.nml:192
-        _w17.tooltip = _bind(    # sync_window.nml:193
+        _w17.text = _bind(lambda _o: _tr('Sho~w~ different'), yielding=True)    # sync_window.nml:162
+        _w17.command = ToggleSyncShow(2)    # sync_window.nml:162
+        _w17.tooltip = _bind(    # sync_window.nml:163
             lambda _o: _tr('List the files that differ, and the conflicts'),
             yielding=True,
         )
-        _w17.command = ToggleSyncShow(2)    # sync_window.nml:194
 
-        _w18.text = _bind(lambda _o: _tr('Show ~i~dentical'), yielding=True)    # sync_window.nml:196
-        _w18.tooltip = _bind(    # sync_window.nml:197
+        _w18.text = _bind(lambda _o: _tr('Show ~i~dentical'), yielding=True)    # sync_window.nml:164
+        _w18.command = ToggleHidden    # sync_window.nml:164
+        _w18.tooltip = _bind(    # sync_window.nml:165
             lambda _o: _tr('List the files that are the same on both sides too'),
             yielding=True,
         )
-        _w18.command = ToggleHidden    # sync_window.nml:198
 
-        _w19.text = _bind(lambda _o: _tr('~T~ree view'), yielding=True)    # sync_window.nml:200
-        _w19.tooltip = _bind(    # sync_window.nml:201
+        _w19.text = _bind(lambda _o: _tr('~T~ree view'), yielding=True)    # sync_window.nml:166
+        _w19.command = ToggleTree    # sync_window.nml:166
+        _w19.tooltip = _bind(    # sync_window.nml:167
             lambda _o: _tr('Show the rows under their directories, as a tree'),
             yielding=True,
         )
-        _w19.command = ToggleTree    # sync_window.nml:202
 
-        _w20.text = _bind(lambda _o: _tr('O~p~tions...'), yielding=True)    # sync_window.nml:204
-        _w20.tooltip = _bind(    # sync_window.nml:205
+        _w20.text = _bind(lambda _o: _tr('O~p~tions...'), yielding=True)    # sync_window.nml:168
+        _w20.command = SyncSetup    # sync_window.nml:168
+        _w20.tooltip = _bind(    # sync_window.nml:169
             lambda _o: _tr('The file mask, how near two times are the same, and Asymmetric'),
             yielding=True,
         )
-        _w20.command = SyncSetup    # sync_window.nml:206
 
-        _w22.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # sync_window.nml:209
-        _w22.command = CloseWindow    # sync_window.nml:210
+        _w22.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # sync_window.nml:171
+        _w22.command = CloseWindow    # sync_window.nml:171

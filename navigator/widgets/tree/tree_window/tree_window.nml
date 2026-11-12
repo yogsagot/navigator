@@ -41,18 +41,10 @@ TreeWindow(Window):
     #: the file viewer's *View* is -- a departure, asked for: DN's window had
     #: none, and the Panel menu that has *Re-read* and *Quick search* is not on
     #: the bar while this window is.  Also its right-click menu.
-    SubMenu:
+    SubMenu: text='~T~ree', after='File'
         id: tree_menu
-        text: '~T~ree'
         tooltip: "Re-read and search the tree"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-        MenuItem:
-            text: 'Quick s~e~arch'
-            command: QuickSearch
+        MenuItem: text='~R~e-read', command=Rescan
+        MenuItem: text='Quick s~e~arch', command=QuickSearch
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

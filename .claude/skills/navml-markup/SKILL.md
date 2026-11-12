@@ -1,6 +1,6 @@
 ---
 name: navml-markup
-description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property and style-property declarations, aliases, `event` lines, property expressions, `style:`, `keys:`, `anchors:` and `when` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
+description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property, style-property and `class` declarations, aliases, the inline child form (`MenuItem: text=..., command=...`), `event` lines, property expressions, `style:`, `keys:`, `anchors:` and `when` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
 ---
 
 # Writing navml markup
@@ -33,6 +33,35 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
   `Type(parent=self)` and nothing else (which is why `Panel.path` has a default).
 - **Everything the generator emits for itself is underscored** (`_bind`, `_reactive`, `_Widget` ...), so it reserves no
   word. The language reserves `self`, `root`, `parent` and `event`; an import named `event` is rejected.
+
+## The inline child form
+
+A child's head line may carry its property values as keywords:
+
+```
+MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
+    tooltip: "Copy a rectangle of the screen to the clipboard"
+```
+
+- **Each keyword becomes the property line it stands for, at the head's line** (`parser._inline_properties`).
+  Generated code is therefore the block form's: captions get `_tr`, expressions are bound, and checks report the
+  head's line.
+- **An indented body may still follow.** A name written both on the head and in the body is refused as a duplicate.
+- **What makes a line an inline head:**
+  - the type is capitalised;
+  - the rest parses as keyword arguments only (`_(rest)`, no positional, no `**`);
+  - the rest is not an expression on its own.
+
+  That keeps `text: str(object='x')` a property line.
+- **Head only, refused with the line:**
+  - `id=` (an id stays its own line, where a reader looks for it);
+  - `on_*=` (a handler is a statement);
+  - `style`/`keys`/`anchors`/`when` (blocks).
+- **Not on the root block**, whose head names its base.
+- **House style:**
+  - menus (`MenuItem`, `SubMenu`) put every one-line property on the head while it fits in 120 columns;
+  - `tooltip` always stays in the body, so a menu reads as a column of captions;
+  - a widget with geometry keeps the block form, where `anchors:` reads better.
 
 ## Properties
 

@@ -131,80 +131,41 @@ SyncWindow(Window):
 
     #: The window's own menu on the bar after *File* while it is active, and
     #: its right-click menu.
-    SubMenu:
+    SubMenu: text='~S~ynchronize', after='File'
         id: sync_menu
-        text: '~S~ynchronize'
         tooltip: "Choose what happens to each file, then synchronize"
-        after: 'File'
-        MenuItem:
-            text: '~S~ynchronize'
-            command: Synchronize
-        MenuItem:
-            text: '~C~ompare files'
-            command: DiffFiles
+        MenuItem: text='~S~ynchronize', command=Synchronize
+        MenuItem: text='~C~ompare files', command=DiffFiles
         MenuLine:
-        MenuItem:
-            text: 'Copy ~r~ight'
-            command: SetSyncAction('right')
-        MenuItem:
-            text: 'Copy ~l~eft'
-            command: SetSyncAction('left')
-        MenuItem:
-            text: '~D~elete'
-            command: SetSyncAction('delete')
-        MenuItem:
-            text: 'S~k~ip'
-            command: SetSyncAction('skip')
-        MenuItem:
-            text: 'D~e~fault action'
+        MenuItem: text='Copy ~r~ight', command=SetSyncAction('right')
+        MenuItem: text='Copy ~l~eft', command=SetSyncAction('left')
+        MenuItem: text='~D~elete', command=SetSyncAction('delete')
+        MenuItem: text='S~k~ip', command=SetSyncAction('skip')
+        MenuItem: text='D~e~fault action', command=SetSyncAction('default')
             tooltip: "Give the row back the action the comparison chose"
-            command: SetSyncAction('default')
         MenuLine:
-        MenuItem:
-            text: '~A~ll right'
-            command: SetAllSyncActions('right')
-        MenuItem:
-            text: 'All le~f~t'
-            command: SetAllSyncActions('left')
-        MenuItem:
-            text: 'All defa~u~lt'
+        MenuItem: text='~A~ll right', command=SetAllSyncActions('right')
+        MenuItem: text='All le~f~t', command=SetAllSyncActions('left')
+        MenuItem: text='All defa~u~lt', command=SetAllSyncActions('default')
             tooltip: "Give every row back the action the comparison chose"
-            command: SetAllSyncActions('default')
         MenuLine:
-        MenuItem:
-            text: 'Compare a~g~ain'
-            command: Rescan
+        MenuItem: text='Compare a~g~ain', command=Rescan
         #: The four list filters nested, so the box keeps clear of an 80x25
         #: screen's last row; the window's Show check boxes do the same.
-        SubMenu:
+        SubMenu: text='Sho~w~'
             id: sync_menu_show
-            text: 'Sho~w~'
             tooltip: "Which rows the list shows"
-            MenuItem:
-                text: 'Show left o~n~ly'
+            MenuItem: text='Show left o~n~ly', command=ToggleSyncShow(0)
                 tooltip: "List what only the left side has"
-                command: ToggleSyncShow(0)
-            MenuItem:
-                text: 'Show right onl~y~'
+            MenuItem: text='Show right onl~y~', command=ToggleSyncShow(1)
                 tooltip: "List what only the right side has"
-                command: ToggleSyncShow(1)
-            MenuItem:
-                text: 'Sho~w~ different'
+            MenuItem: text='Sho~w~ different', command=ToggleSyncShow(2)
                 tooltip: "List the files that differ, and the conflicts"
-                command: ToggleSyncShow(2)
-            MenuItem:
-                text: 'Show ~i~dentical'
+            MenuItem: text='Show ~i~dentical', command=ToggleHidden
                 tooltip: "List the files that are the same on both sides too"
-                command: ToggleHidden
-        MenuItem:
-            text: '~T~ree view'
+        MenuItem: text='~T~ree view', command=ToggleTree
             tooltip: "Show the rows under their directories, as a tree"
-            command: ToggleTree
-        MenuItem:
-            text: 'O~p~tions...'
+        MenuItem: text='O~p~tions...', command=SyncSetup
             tooltip: "The file mask, how near two times are the same, and Asymmetric"
-            command: SyncSetup
         MenuLine:
-        MenuItem:
-            text: 'Cl~o~se'
-            command: CloseWindow
+        MenuItem: text='Cl~o~se', command=CloseWindow

@@ -183,97 +183,40 @@ ServiceWindow(Window):
     #: The window's own menu on the bar after *File* while it is active, as
     #: Process list's is; the sort in force and the two boxes ticked.  Also
     #: its right-click menu.
-    SubMenu:
+    SubMenu: text='~S~ervices', after='File'
         id: service_menu
-        text: '~S~ervices'
         tooltip: "Start, stop, enable and follow the system's services"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Ctrl-R'
+        MenuItem: text='~R~e-read', command=Rescan, key='Ctrl-R'
         MenuLine:
-        MenuItem:
-            text: 'Sort by ~n~ame'
-            command: ServiceSortName
-            key: 'Ctrl-N'
-        MenuItem:
-            text: 'Sort by ~s~tate'
-            command: ServiceSortActive
-            key: 'Ctrl-L'
-        MenuItem:
-            text: 'Sort by start-~u~p'
-            command: ServiceSortFileState
-        MenuItem:
-            text: 'Sort by ~d~escription'
-            command: ServiceSortDescription
+        MenuItem: text='Sort by ~n~ame', command=ServiceSortName, key='Ctrl-N'
+        MenuItem: text='Sort by ~s~tate', command=ServiceSortActive, key='Ctrl-L'
+        MenuItem: text='Sort by start-~u~p', command=ServiceSortFileState
+        MenuItem: text='Sort by ~d~escription', command=ServiceSortDescription
         MenuLine:
-        MenuItem:
-            text: 'Us~e~r units'
+        MenuItem: text='Us~e~r units', command=ServiceUserUnits, key='Ctrl-U'
             tooltip: "Your own service manager's units (systemctl --user), not the system's"
-            command: ServiceUserUnits
-            key: 'Ctrl-U'
-        MenuItem:
-            text: '~A~ll types'
+        MenuItem: text='~A~ll types', command=ServiceAllTypes, key='Ctrl-A'
             tooltip: "Timers, sockets, mounts and the rest too, not only services"
-            command: ServiceAllTypes
-            key: 'Ctrl-A'
-        MenuItem:
-            text: '~F~ilter'
+        MenuItem: text='~F~ilter', command=FilterServices, key='Ctrl-S'
             tooltip: "Show only the units whose name or description holds what is typed"
-            command: FilterServices
-            key: 'Ctrl-S'
         MenuLine:
-        MenuItem:
-            text: '~J~ournal'
+        MenuItem: text='~J~ournal', command=ServiceJournal, key='F3'
             tooltip: "The unit's journal in the viewer, following its end"
-            command: ServiceJournal
-            key: 'F3'
-        MenuItem:
-            text: 'Edit unit file'
+        MenuItem: text='Edit unit file', command=EditUnitFile, key='F4'
             tooltip: "The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again"
-            command: EditUnitFile
-            key: 'F4'
-        MenuItem:
-            text: 'Detai~l~s...'
-            command: ServiceDetails
-            key: 'Enter'
+        MenuItem: text='Detai~l~s...', command=ServiceDetails, key='Enter'
         MenuLine:
-        MenuItem:
-            text: 'S~t~art'
-            command: StartService
-            key: 'F5'
-        MenuItem:
-            text: 'Restart'
-            command: RestartService
-            key: 'F6'
-        MenuItem:
-            text: 'Rel~o~ad'
-            command: ReloadService
-            key: 'F7'
-        MenuItem:
-            text: 'Sto~p~...'
-            command: StopService
-            key: 'F8'
+        MenuItem: text='S~t~art', command=StartService, key='F5'
+        MenuItem: text='Restart', command=RestartService, key='F6'
+        MenuItem: text='Rel~o~ad', command=ReloadService, key='F7'
+        MenuItem: text='Sto~p~...', command=StopService, key='F8'
         MenuLine:
-        MenuItem:
-            text: 'Ena~b~le'
+        MenuItem: text='Ena~b~le', command=EnableService, key='Ctrl-E'
             tooltip: "Started at boot, or at log-in for a user unit"
-            command: EnableService
-            key: 'Ctrl-E'
-        MenuItem:
-            text: 'D~i~sable'
+        MenuItem: text='D~i~sable', command=DisableService, key='Ctrl-D'
             tooltip: "Not started at boot any more"
-            command: DisableService
-            key: 'Ctrl-D'
-        MenuItem:
-            text: '~M~ask...'
+        MenuItem: text='~M~ask...', command=MaskService
             tooltip: "Never started, not even by another unit"
-            command: MaskService
-        MenuItem:
-            text: 'Unmas~k~'
-            command: UnmaskService
+        MenuItem: text='Unmas~k~', command=UnmaskService
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

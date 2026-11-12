@@ -194,516 +194,240 @@ EditWindow(Window):
     #: while it is on (``FileEditor.checks``).
     #: *ASCII Table* is *Character table*, a departure: DN's was CP437's 256
     #: bytes, and the text here is Unicode.
-    SubMenu:
+    SubMenu: text='~E~ditor', after='File'
         id: edit_menu
-        text: '~E~ditor'
         tooltip: "Editing, the file, search, paragraphs and blocks"
-        after: 'File'
         #: *Edit*'s entries on the *Editor* menu itself rather than a submenu
         #: of it -- a departure, asked for: they are what the menu is opened
         #: for most.  Its letters are theirs, so *Paragraph*, *Options* and
         #: *File type* give up ``P``, ``O`` and ``T``.
-        MenuItem:
-            text: '~U~ndo'
-            command: Undo
-            key: 'Alt-BkSp'
-        MenuItem:
-            text: 'R~e~do'
-            command: Redo
-            key: 'Alt-Shift-BkSp'
+        MenuItem: text='~U~ndo', command=Undo, key='Alt-BkSp'
+        MenuItem: text='R~e~do', command=Redo, key='Alt-Shift-BkSp'
         MenuLine:
-        MenuItem:
-            text: 'Cu~t~'
-            command: ClipboardCut
-            key: 'Shift-Del'
-        MenuItem:
-            text: '~C~opy'
-            command: ClipboardCopy
-            key: 'Ctrl-Ins'
-        MenuItem:
-            text: '~P~aste'
-            command: ClipboardPaste
-            key: 'Shift-Ins'
-        MenuItem:
-            text: 'C~o~py to...'
+        MenuItem: text='Cu~t~', command=ClipboardCut, key='Shift-Del'
+        MenuItem: text='~C~opy', command=ClipboardCopy, key='Ctrl-Ins'
+        MenuItem: text='~P~aste', command=ClipboardPaste, key='Shift-Ins'
+        MenuItem: text='C~o~py to...', command=BlockWrite
             tooltip: "Write the block to a file"
-            command: BlockWrite
-        MenuItem:
-            text: 'P~a~ste from...'
+        MenuItem: text='P~a~ste from...', command=BlockRead
             tooltip: "Insert a file's text at the cursor"
-            command: BlockRead
         MenuLine:
-        MenuItem:
-            text: 'C~l~ear'
+        MenuItem: text='C~l~ear', command=Clear, key='Ctrl-Del'
             tooltip: "Delete the selection without copying it to the clipboard"
-            command: Clear
-            key: 'Ctrl-Del'
         #: The deletes on a submenu of their own: on the menu itself the box
         #: would outgrow 25 rows.  Delete line was not on DN's menu, where ^Y
         #: was the only way; Ctrl+Backspace had no entry either; ^T and ^Q Y
         #: were keys alone, and with the default keys modern the menu is how
         #: they are reached (WordStar's sets bind them) -- departures, asked for.
-        SubMenu:
+        SubMenu: text='~D~elete'
             id: edit_menu_delete
-            text: '~D~elete'
             tooltip: "Delete a line, a word or the rest of the line"
-            MenuItem:
-                text: '~D~elete line'
-                command: DeleteLine
-                key: 'Ctrl-Y'
-            MenuItem:
-                text: 'Delete ~w~ord left'
-                command: DeleteWordLeft
-                key: 'Ctrl-BkSp'
-            MenuItem:
-                text: 'Delete word ri~g~ht'
+            MenuItem: text='~D~elete line', command=DeleteLine, key='Ctrl-Y'
+            MenuItem: text='Delete ~w~ord left', command=DeleteWordLeft, key='Ctrl-BkSp'
+            MenuItem: text='Delete word ri~g~ht', command=DeleteWordRight
                 tooltip: "Delete from the cursor to the start of the next word"
-                command: DeleteWordRight
-            MenuItem:
-                text: 'Delete to e~n~d of line'
+            MenuItem: text='Delete to e~n~d of line', command=DeleteToEnd
                 tooltip: "Delete from the cursor to the end of the line"
-                command: DeleteToEnd
-        MenuItem:
-            text: 'Insert l~i~ne'
-            command: InsertLine
-            key: 'Ctrl-N'
+        MenuItem: text='Insert l~i~ne', command=InsertLine, key='Ctrl-N'
         MenuLine:
-        SubMenu:
+        SubMenu: text='~F~ile'
             id: edit_menu_file
-            text: '~F~ile'
-            MenuItem:
-                text: '~O~pen...'
-                command: LoadText
-                key: 'F3'
-            MenuItem:
-                text: '~S~ave'
-                command: SaveText
-                key: 'F2'
-            MenuItem:
-                text: 'Save ~a~s...'
-                command: SaveTextAs
-                key: 'Shift-F2'
-            MenuItem:
-                text: 'Save a~l~l...'
-                command: SaveAll
-                key: 'Ctrl-F2'
+            MenuItem: text='~O~pen...', command=LoadText, key='F3'
+            MenuItem: text='~S~ave', command=SaveText, key='F2'
+            MenuItem: text='Save ~a~s...', command=SaveTextAs, key='Shift-F2'
+            MenuItem: text='Save a~l~l...', command=SaveAll, key='Ctrl-F2'
             #: Not DN's: another window on this text (Window > *New view* too).
-            MenuItem:
-                text: 'New ~v~iew'
+            MenuItem: text='New ~v~iew', command=NewView
                 tooltip: "Open another window on this text"
-                command: NewView
             MenuLine:
             #: A departure, asked for, as the bottom frame's markers are:
             #: filled by ``format_menu``.
-            SubMenu:
+            SubMenu: text='Line en~d~ings', key_command=ChooseLineEnding
                 id: edit_menu_line_endings
-                text: 'Line en~d~ings'
-                key_command: ChooseLineEnding
-            SubMenu:
+            SubMenu: text='En~c~oding', key_command=ChooseEncoding
                 id: edit_menu_encoding
-                text: 'En~c~oding'
-                key_command: ChooseEncoding
             MenuLine:
-            MenuItem:
-                text: '~P~rint'
-                command: PrintFile
-                key: 'F8'
-            MenuItem:
-                text: 'Print ~b~lock'
-                command: PrintBlock
-                key: 'Shift-F8'
+            MenuItem: text='~P~rint', command=PrintFile, key='F8'
+            MenuItem: text='Print ~b~lock', command=PrintBlock, key='Shift-F8'
             MenuLine:
             #: ``cmMainMenu``: the main bar's first entry, F10 in DN's key column.
-            MenuItem:
-                text: '~M~ain menu'
-                command: MainMenu
-                key: 'F10'
-            MenuItem:
-                text: 'E~x~it'
-                command: CloseWindow
-                key: 'Ctrl-F4'
-        SubMenu:
+            MenuItem: text='~M~ain menu', command=MainMenu, key='F10'
+            MenuItem: text='E~x~it', command=CloseWindow, key='Ctrl-F4'
+        SubMenu: text='~S~earch'
             id: edit_menu_search
-            text: '~S~earch'
             #: The Find and Replace bars, a departure; DN's dialogs follow.
-            MenuItem:
-                text: 'Find ~b~ar'
+            MenuItem: text='Find ~b~ar', command=ShowFindBar, key='Ctrl-F'
                 tooltip: "Search as you type, in a bar over the text"
-                command: ShowFindBar
-                key: 'Ctrl-F'
-            MenuItem:
-                text: 'Replace b~a~r'
-                command: ShowReplaceBar
-                key: 'Ctrl-R'
+            MenuItem: text='Replace b~a~r', command=ShowReplaceBar, key='Ctrl-R'
             MenuLine:
-            MenuItem:
-                text: '~F~ind...'
-                command: StartSearch
-                key: 'F7'
-            MenuItem:
-                text: '~R~eplace...'
-                command: Replace
-                key: 'Ctrl-F7'
-            MenuItem:
-                text: '~S~earch again'
-                command: ContSearch
-                key: 'Shift-F7'
-            MenuItem:
-                text: 'Re~v~ersed search'
-                command: ReverseSearch
-                key: 'Alt-F7'
-            MenuItem:
-                text: '~G~o to line number...'
-                command: GotoLineNumber
-                key: 'Alt-G'
+            MenuItem: text='~F~ind...', command=StartSearch, key='F7'
+            MenuItem: text='~R~eplace...', command=Replace, key='Ctrl-F7'
+            MenuItem: text='~S~earch again', command=ContSearch, key='Shift-F7'
+            MenuItem: text='Re~v~ersed search', command=ReverseSearch, key='Alt-F7'
+            MenuItem: text='~G~o to line number...', command=GotoLineNumber, key='Alt-G'
             #: ^Q[ / ^Q] had no menu entry in DN -- a departure, asked for.
-            MenuItem:
-                text: '~M~atching bracket'
+            MenuItem: text='~M~atching bracket', command=BracketPair, key='Alt-Left'
                 tooltip: "Jump to the bracket that pairs with the one at the cursor"
-                command: BracketPair
-                key: 'Alt-Left'
             #: The markers, ^K 1-9 and ^Q 1-9, were keys alone in DN -- a
             #: departure: with the default keys modern, these are how they are
             #: reached; the key column shows WordStar's when its set is in use.
             MenuLine:
-            SubMenu:
+            SubMenu: text='Pla~c~e marker'
                 id: edit_menu_place_marker
-                text: 'Pla~c~e marker'
                 tooltip: "Keep the cursor's place as one of nine markers"
-                MenuItem:
-                    text: 'Marker ~1~'
+                MenuItem: text='Marker ~1~', command=PlaceMarker(1)
                     tooltip: "Keep the cursor's place as marker 1"
-                    command: PlaceMarker(1)
-                MenuItem:
-                    text: 'Marker ~2~'
+                MenuItem: text='Marker ~2~', command=PlaceMarker(2)
                     tooltip: "Keep the cursor's place as marker 2"
-                    command: PlaceMarker(2)
-                MenuItem:
-                    text: 'Marker ~3~'
+                MenuItem: text='Marker ~3~', command=PlaceMarker(3)
                     tooltip: "Keep the cursor's place as marker 3"
-                    command: PlaceMarker(3)
-                MenuItem:
-                    text: 'Marker ~4~'
+                MenuItem: text='Marker ~4~', command=PlaceMarker(4)
                     tooltip: "Keep the cursor's place as marker 4"
-                    command: PlaceMarker(4)
-                MenuItem:
-                    text: 'Marker ~5~'
+                MenuItem: text='Marker ~5~', command=PlaceMarker(5)
                     tooltip: "Keep the cursor's place as marker 5"
-                    command: PlaceMarker(5)
-                MenuItem:
-                    text: 'Marker ~6~'
+                MenuItem: text='Marker ~6~', command=PlaceMarker(6)
                     tooltip: "Keep the cursor's place as marker 6"
-                    command: PlaceMarker(6)
-                MenuItem:
-                    text: 'Marker ~7~'
+                MenuItem: text='Marker ~7~', command=PlaceMarker(7)
                     tooltip: "Keep the cursor's place as marker 7"
-                    command: PlaceMarker(7)
-                MenuItem:
-                    text: 'Marker ~8~'
+                MenuItem: text='Marker ~8~', command=PlaceMarker(8)
                     tooltip: "Keep the cursor's place as marker 8"
-                    command: PlaceMarker(8)
-                MenuItem:
-                    text: 'Marker ~9~'
+                MenuItem: text='Marker ~9~', command=PlaceMarker(9)
                     tooltip: "Keep the cursor's place as marker 9"
-                    command: PlaceMarker(9)
-            SubMenu:
+            SubMenu: text='G~o~ to marker'
                 id: edit_menu_goto_marker
-                text: 'G~o~ to marker'
                 tooltip: "Take the cursor back to a place kept as a marker"
-                MenuItem:
-                    text: 'Marker ~1~'
+                MenuItem: text='Marker ~1~', command=GotoMarker(1)
                     tooltip: "Take the cursor back to marker 1"
-                    command: GotoMarker(1)
-                MenuItem:
-                    text: 'Marker ~2~'
+                MenuItem: text='Marker ~2~', command=GotoMarker(2)
                     tooltip: "Take the cursor back to marker 2"
-                    command: GotoMarker(2)
-                MenuItem:
-                    text: 'Marker ~3~'
+                MenuItem: text='Marker ~3~', command=GotoMarker(3)
                     tooltip: "Take the cursor back to marker 3"
-                    command: GotoMarker(3)
-                MenuItem:
-                    text: 'Marker ~4~'
+                MenuItem: text='Marker ~4~', command=GotoMarker(4)
                     tooltip: "Take the cursor back to marker 4"
-                    command: GotoMarker(4)
-                MenuItem:
-                    text: 'Marker ~5~'
+                MenuItem: text='Marker ~5~', command=GotoMarker(5)
                     tooltip: "Take the cursor back to marker 5"
-                    command: GotoMarker(5)
-                MenuItem:
-                    text: 'Marker ~6~'
+                MenuItem: text='Marker ~6~', command=GotoMarker(6)
                     tooltip: "Take the cursor back to marker 6"
-                    command: GotoMarker(6)
-                MenuItem:
-                    text: 'Marker ~7~'
+                MenuItem: text='Marker ~7~', command=GotoMarker(7)
                     tooltip: "Take the cursor back to marker 7"
-                    command: GotoMarker(7)
-                MenuItem:
-                    text: 'Marker ~8~'
+                MenuItem: text='Marker ~8~', command=GotoMarker(8)
                     tooltip: "Take the cursor back to marker 8"
-                    command: GotoMarker(8)
-                MenuItem:
-                    text: 'Marker ~9~'
+                MenuItem: text='Marker ~9~', command=GotoMarker(9)
                     tooltip: "Take the cursor back to marker 9"
-                    command: GotoMarker(9)
-        SubMenu:
+        SubMenu: text='Pa~r~agraph'
             id: edit_menu_paragraph
-            text: 'Pa~r~agraph'
-            MenuItem:
-                text: '~J~ustify'
+            MenuItem: text='~J~ustify', command=FJustify, key='Alt-J'
                 tooltip: "Justify the block's paragraph to both margins"
-                command: FJustify
-                key: 'Alt-J'
-            MenuItem:
-                text: '~R~ight'
-                command: FRight
-                key: 'Alt-R'
-            MenuItem:
-                text: '~L~eft'
-                command: FLeft
-                key: 'Alt-L'
-            MenuItem:
-                text: '~C~enter'
-                command: FCenter
-                key: 'Alt-C'
+            MenuItem: text='~R~ight', command=FRight, key='Alt-R'
+            MenuItem: text='~L~eft', command=FLeft, key='Alt-L'
+            MenuItem: text='~C~enter', command=FCenter, key='Alt-C'
             #: ``cmLJustify``, ``cmLRight``, ``cmLLeft`` and ``cmLCenter``: the
             #: cursor's line alone.  DN gave them no key and no entry, only its
             #: macros' names -- a departure: with the default keys modern, the
             #: menu is how they are reached.
-            SubMenu:
+            SubMenu: text='Current li~n~e'
                 id: edit_menu_line_format
-                text: 'Current li~n~e'
                 tooltip: "Format the cursor's line alone"
-                MenuItem:
-                    text: '~J~ustify'
+                MenuItem: text='~J~ustify', command=LJustify
                     tooltip: "Justify the cursor's line to both margins"
-                    command: LJustify
-                MenuItem:
-                    text: '~R~ight'
+                MenuItem: text='~R~ight', command=LRight
                     tooltip: "Put the cursor's line against the right margin"
-                    command: LRight
-                MenuItem:
-                    text: '~L~eft'
+                MenuItem: text='~L~eft', command=LLeft
                     tooltip: "Put the cursor's line at the left margin"
-                    command: LLeft
-                MenuItem:
-                    text: '~C~enter'
+                MenuItem: text='~C~enter', command=LCenter
                     tooltip: "Center the cursor's line between the margins"
-                    command: LCenter
             MenuLine:
-            MenuItem:
-                text: '~M~argins...'
-                command: SetMargins
-        SubMenu:
+            MenuItem: text='~M~argins...', command=SetMargins
+        SubMenu: text='~B~lock'
             id: edit_menu_block
-            text: '~B~lock'
             #: Marking and going to the block's ends, ^K B/K/T/L and ^Q B/K, were
             #: keys alone in DN -- a departure: with the default keys modern, the
             #: menu is how they are reached (WordStar's sets bind DN's chords).
-            MenuItem:
-                text: 'Mar~k~ start'
+            MenuItem: text='Mar~k~ start', command=BlockStart
                 tooltip: "Begin the block at the cursor"
-                command: BlockStart
-            MenuItem:
-                text: 'Mark ~e~nd'
+            MenuItem: text='Mark ~e~nd', command=BlockEnd
                 tooltip: "End the block at the cursor"
-                command: BlockEnd
-            MenuItem:
-                text: 'Mark ~w~ord'
+            MenuItem: text='Mark ~w~ord', command=MarkWord
                 tooltip: "Mark the word at the cursor as the block"
-                command: MarkWord
-            MenuItem:
-                text: 'Mark li~n~e'
+            MenuItem: text='Mark li~n~e', command=MarkLine
                 tooltip: "Mark the cursor's line as the block"
-                command: MarkLine
             MenuLine:
-            MenuItem:
-                text: '~G~o to block start'
+            MenuItem: text='~G~o to block start', command=MoveBlockStart
                 tooltip: "Take the cursor to where the block begins"
-                command: MoveBlockStart
-            MenuItem:
-                text: 'Go to block en~d~'
+            MenuItem: text='Go to block en~d~', command=MoveBlockEnd
                 tooltip: "Take the cursor to where the block ends"
-                command: MoveBlockEnd
             MenuLine:
-            MenuItem:
-                text: '~M~ove'
-                command: MoveBlock
-                key: 'Alt-Shift-V'
-            MenuItem:
-                text: '~C~opy'
-                command: CopyBlock
-                key: 'Alt-Shift-K'
-            MenuItem:
-                text: '~I~ndent'
-                command: IndentBlock
-                key: 'Alt-Shift-I'
-            MenuItem:
-                text: '~U~nindent'
-                command: UnindentBlock
-                key: 'Alt-Shift-O'
+            MenuItem: text='~M~ove', command=MoveBlock, key='Alt-Shift-V'
+            MenuItem: text='~C~opy', command=CopyBlock, key='Alt-Shift-K'
+            MenuItem: text='~I~ndent', command=IndentBlock, key='Alt-Shift-I'
+            MenuItem: text='~U~nindent', command=UnindentBlock, key='Alt-Shift-O'
             #: ^K H had no menu entry in DN -- a departure, asked for.
-            MenuItem:
-                text: '~H~ide/show block'
+            MenuItem: text='~H~ide/show block', command=HideBlock, key='Alt-H'
                 tooltip: "Hide the marked block, or show it again"
-                command: HideBlock
-                key: 'Alt-H'
             MenuLine:
-            MenuItem:
-                text: 'U~p~percase'
-                command: UpcaseBlock
-                key: 'Alt-Shift-U'
-            MenuItem:
-                text: '~L~owercase'
-                command: LowcaseBlock
-                key: 'Alt-Shift-L'
-            MenuItem:
-                text: 'Capi~t~alize'
-                command: CapitalizeBlock
-                key: 'Alt-Shift-C'
+            MenuItem: text='U~p~percase', command=UpcaseBlock, key='Alt-Shift-U'
+            MenuItem: text='~L~owercase', command=LowcaseBlock, key='Alt-Shift-L'
+            MenuItem: text='Capi~t~alize', command=CapitalizeBlock, key='Alt-Shift-C'
             MenuLine:
-            MenuItem:
-                text: '~S~ort'
+            MenuItem: text='~S~ort', command=SortBlock, key='Alt-T'
                 tooltip: "Sort the lines by the column block"
-                command: SortBlock
-                key: 'Alt-T'
             #: ``a``, not DN's ``u``, which its *Unindent* had too.
-            MenuItem:
-                text: 'C~a~lculate sum'
+            MenuItem: text='C~a~lculate sum', command=CalcBlock, key='Alt-Ins'
                 tooltip: "Add up the column block's numbers; the sum goes to the clipboard"
-                command: CalcBlock
-                key: 'Alt-Ins'
-        SubMenu:
+        SubMenu: text='~M~isc'
             id: edit_menu_misc
-            text: '~M~isc'
-            MenuItem:
-                text: 'Insert ~d~ate'
-                command: InsertDate
-                key: 'Alt-Shift-D'
-            MenuItem:
-                text: 'Insert ~t~ime'
-                command: InsertTime
-                key: 'Alt-Shift-T'
-            MenuItem:
-                text: 'Du~p~licate line'
-                command: DuplicateLine
-                key: 'F6'
-            MenuItem:
-                text: 'Character ta~b~le'
-                command: AsciiTable
-                key: 'Ctrl P'
-            MenuItem:
-                text: 'Line Dra~w~ing'
+            MenuItem: text='Insert ~d~ate', command=InsertDate, key='Alt-Shift-D'
+            MenuItem: text='Insert ~t~ime', command=InsertTime, key='Alt-Shift-T'
+            MenuItem: text='Du~p~licate line', command=DuplicateLine, key='F6'
+            MenuItem: text='Character ta~b~le', command=AsciiTable, key='Ctrl P'
+            MenuItem: text='Line Dra~w~ing', command=SwitchDrawMode, key='F4'
                 tooltip: "Draw lines with the arrow keys: off, single, double"
-                command: SwitchDrawMode
-                key: 'F4'
             MenuLine:
-            SubMenu:
+            SubMenu: text='~U~ppercase'
                 id: edit_menu_misc_uppercase
-                text: '~U~ppercase'
-                MenuItem:
-                    text: '~W~ord'
-                    command: UpWord
-                    key: 'Ctrl ['
-                MenuItem:
-                    text: '~L~ine'
-                    command: UpString
-                    key: 'Ctrl+Shift ['
-                MenuItem:
-                    text: '~B~lock'
-                    command: UpcaseBlock
-                    key: 'Alt-Shift-U'
-            SubMenu:
+                MenuItem: text='~W~ord', command=UpWord, key='Ctrl ['
+                MenuItem: text='~L~ine', command=UpString, key='Ctrl+Shift ['
+                MenuItem: text='~B~lock', command=UpcaseBlock, key='Alt-Shift-U'
+            SubMenu: text='~L~owercase'
                 id: edit_menu_misc_lowercase
-                text: '~L~owercase'
-                MenuItem:
-                    text: '~W~ord'
-                    command: LowWord
-                    key: 'Ctrl ]'
-                MenuItem:
-                    text: '~L~ine'
-                    command: LowString
-                    key: 'Ctrl+Shift ]'
-                MenuItem:
-                    text: '~B~lock'
-                    command: LowcaseBlock
-                    key: 'Alt-Shift-L'
-            SubMenu:
+                MenuItem: text='~W~ord', command=LowWord, key='Ctrl ]'
+                MenuItem: text='~L~ine', command=LowString, key='Ctrl+Shift ]'
+                MenuItem: text='~B~lock', command=LowcaseBlock, key='Alt-Shift-L'
+            SubMenu: text='~C~apitalize'
                 id: edit_menu_misc_capitalize
-                text: '~C~apitalize'
-                MenuItem:
-                    text: '~W~ord'
-                    command: CapWord
-                    key: 'Ctrl \\'
-                MenuItem:
-                    text: '~L~ine'
-                    command: CapString
-                    key: 'Ctrl+Shift \\'
-                MenuItem:
-                    text: '~B~lock'
-                    command: CapitalizeBlock
-                    key: 'Alt-Shift-C'
-        SubMenu:
+                MenuItem: text='~W~ord', command=CapWord, key='Ctrl \\'
+                MenuItem: text='~L~ine', command=CapString, key='Ctrl+Shift \\'
+                MenuItem: text='~B~lock', command=CapitalizeBlock, key='Alt-Shift-C'
+        SubMenu: text='Optio~n~s'
             id: edit_menu_options
-            text: 'Optio~n~s'
-            MenuItem:
-                text: '~B~ackspace indents'
+            MenuItem: text='~B~ackspace indents', command=SwitchBack
                 tooltip: "Backspace at a line's start goes back to an indent above"
-                command: SwitchBack
-            MenuItem:
-                text: 'AutoB~r~ackets'
-                command: SwitchBrackets
-            MenuItem:
-                text: 'Auto~i~ndent'
-                command: SwitchIndent
-            MenuItem:
-                text: '~A~uto wrap'
-                command: SwitchSave
-            MenuItem:
-                text: '~J~ustify on wrap'
+            MenuItem: text='AutoB~r~ackets', command=SwitchBrackets
+            MenuItem: text='Auto~i~ndent', command=SwitchIndent
+            MenuItem: text='~A~uto wrap', command=SwitchSave
+            MenuItem: text='~J~ustify on wrap', command=SwitchWrap
                 tooltip: "Widen a wrapped line to the margin"
-                command: SwitchWrap
-            MenuItem:
-                text: '~V~ertical blocks'
+            MenuItem: text='~V~ertical blocks', command=SwitchBlock
                 tooltip: "Mark column blocks instead of line ones"
-                command: SwitchBlock
-            MenuItem:
-                text: 'Opti~m~al fill'
+            MenuItem: text='Opti~m~al fill', command=SwitchFill
                 tooltip: "Write blanks as tabs where they reach a tab stop"
-                command: SwitchFill
             #: A departure: DN's Tab always wrote blanks.
-            MenuItem:
-                text: '~T~ab characters'
+            MenuItem: text='~T~ab characters', command=SwitchTabs
                 tooltip: "Tab types tab characters, not spaces"
-                command: SwitchTabs
             #: A departure: DN's *Auto wrap* broke lines; this only shows them so.
-            MenuItem:
-                text: 'Soft ~w~rap'
+            MenuItem: text='Soft ~w~rap', command=SwitchSoftWrap
                 tooltip: "Show long lines wrapped at the edge, the text unchanged"
-                command: SwitchSoftWrap
             #: A departure: DN numbered no lines.
-            MenuItem:
-                text: 'Line ~n~umbers'
+            MenuItem: text='Line ~n~umbers', command=SwitchLineNumbers
                 tooltip: "Number the lines in a gutter beside the text"
-                command: SwitchLineNumbers
-            MenuItem:
-                text: 'Current ~l~ine highlight'
-                command: SwitchHiLine
-            MenuItem:
-                text: 'Current ~c~olumn highlight'
-                command: SwitchHiColumn
-            MenuItem:
-                text: 'Syntax ~h~ighlight'
-                command: SwitchHighLight
+            MenuItem: text='Current ~l~ine highlight', command=SwitchHiLine
+            MenuItem: text='Current ~c~olumn highlight', command=SwitchHiColumn
+            MenuItem: text='Syntax ~h~ighlight', command=SwitchHighLight
             #: A departure: DN had no such option.
-            MenuItem:
-                text: 'Show hi~d~den characters'
-                command: SwitchHiddenChars
+            MenuItem: text='Show hi~d~den characters', command=SwitchHiddenChars
         #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.  On the
         #: *Editor* menu itself rather than under *Options*, so it is one step
         #: away, as the viewer's is on *View*; ``Y`` because *File* has ``F`` and
         #: *Cut* ``T``.
-        SubMenu:
+        SubMenu: text='File t~y~pe', key_command=ChooseFileType
             id: edit_menu_file_type
-            text: 'File t~y~pe'
-            key_command: ChooseFileType

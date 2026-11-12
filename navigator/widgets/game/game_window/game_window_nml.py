@@ -105,15 +105,15 @@ class GameWindow(Window, _Component):
         self.top_button = Button(parent=_w2)    # game_window.nml:75
         self.pause_button = Button(parent=_w2)    # game_window.nml:79
         self.game_menu = SubMenu(parent=self)    # game_window.nml:87
-        _w3 = MenuItem(parent=self.game_menu)    # game_window.nml:92
-        _w4 = MenuItem(parent=self.game_menu)    # game_window.nml:95
-        _w5 = MenuItem(parent=self.game_menu)    # game_window.nml:98
-        _w6 = MenuItem(parent=self.game_menu)    # game_window.nml:101
-        _w7 = MenuLine(parent=self.game_menu)    # game_window.nml:104
-        _w8 = MenuItem(parent=self.game_menu)    # game_window.nml:105
-        _w9 = MenuItem(parent=self.game_menu)    # game_window.nml:109
-        _w10 = MenuLine(parent=self.game_menu)    # game_window.nml:113
-        _w11 = MenuItem(parent=self.game_menu)    # game_window.nml:114
+        _w3 = MenuItem(parent=self.game_menu)    # game_window.nml:90
+        _w4 = MenuItem(parent=self.game_menu)    # game_window.nml:91
+        _w5 = MenuItem(parent=self.game_menu)    # game_window.nml:92
+        _w6 = MenuItem(parent=self.game_menu)    # game_window.nml:93
+        _w7 = MenuLine(parent=self.game_menu)    # game_window.nml:94
+        _w8 = MenuItem(parent=self.game_menu)    # game_window.nml:95
+        _w9 = MenuItem(parent=self.game_menu)    # game_window.nml:97
+        _w10 = MenuLine(parent=self.game_menu)    # game_window.nml:99
+        _w11 = MenuItem(parent=self.game_menu)    # game_window.nml:100
 
         self.title = _bind(lambda _o: _tr("Navigator's game"), yielding=True)    # game_window.nml:20
         self.zoomable = False    # game_window.nml:21
@@ -159,38 +159,38 @@ class GameWindow(Window, _Component):
         )
         self.pause_button.on_click = self.on_pause_button_click    # game_window.nml:80
 
-        self.game_menu.text = _bind(lambda _o: _tr('~G~ame'), yielding=True)    # game_window.nml:89
-        self.game_menu.tooltip = _bind(    # game_window.nml:90
+        self.game_menu.text = _bind(lambda _o: _tr('~G~ame'), yielding=True)    # game_window.nml:87
+        self.game_menu.after = 'File'    # game_window.nml:87
+        self.game_menu.tooltip = _bind(    # game_window.nml:89
             lambda _o: _tr('A new game, pause, the Top Ten and setup'),
             yielding=True,
         )
-        self.game_menu.after = 'File'    # game_window.nml:91
 
-        _w3.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:93
-        _w3.command = NewGame    # game_window.nml:94
+        _w3.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:90
+        _w3.command = NewGame    # game_window.nml:90
 
-        _w4.text = _bind(lambda _o: _tr('~P~ause'), yielding=True)    # game_window.nml:96
-        _w4.command = PauseGame    # game_window.nml:97
+        _w4.text = _bind(lambda _o: _tr('~P~ause'), yielding=True)    # game_window.nml:91
+        _w4.command = PauseGame    # game_window.nml:91
 
-        _w5.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:99
-        _w5.command = ShowTopTen    # game_window.nml:100
+        _w5.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:92
+        _w5.command = ShowTopTen    # game_window.nml:92
 
-        _w6.text = _bind(lambda _o: _tr('~S~etup'), yielding=True)    # game_window.nml:102
-        _w6.command = GameSetup    # game_window.nml:103
+        _w6.text = _bind(lambda _o: _tr('~S~etup'), yielding=True)    # game_window.nml:93
+        _w6.command = GameSetup    # game_window.nml:93
 
-        _w8.text = _bind(lambda _o: _tr('~L~evel up'), yielding=True)    # game_window.nml:106
-        _w8.tooltip = _bind(    # game_window.nml:107
+        _w8.text = _bind(lambda _o: _tr('~L~evel up'), yielding=True)    # game_window.nml:95
+        _w8.command = LevelUp    # game_window.nml:95
+        _w8.tooltip = _bind(    # game_window.nml:96
             lambda _o: _tr('Play at the next level, faster'),
             yielding=True,
         )
-        _w8.command = LevelUp    # game_window.nml:108
 
-        _w9.text = _bind(lambda _o: _tr('Pre~v~iew'), yielding=True)    # game_window.nml:110
-        _w9.tooltip = _bind(    # game_window.nml:111
+        _w9.text = _bind(lambda _o: _tr('Pre~v~iew'), yielding=True)    # game_window.nml:97
+        _w9.command = TogglePreview    # game_window.nml:97
+        _w9.tooltip = _bind(    # game_window.nml:98
             lambda _o: _tr('Show the next figure'),
             yielding=True,
         )
-        _w9.command = TogglePreview    # game_window.nml:112
 
-        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # game_window.nml:115
-        _w11.command = CloseWindow    # game_window.nml:116
+        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # game_window.nml:100
+        _w11.command = CloseWindow    # game_window.nml:100

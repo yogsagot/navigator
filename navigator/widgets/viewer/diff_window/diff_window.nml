@@ -88,22 +88,12 @@ DiffWindow(Window):
 
     #: The window's own menu on the bar after *File* while it is active, and
     #: its right-click menu.
-    SubMenu:
+    SubMenu: text='~C~ompare', after='File'
         id: compare_menu
-        text: '~C~ompare'
         tooltip: "Step through the differences"
-        after: 'File'
-        MenuItem:
-            text: '~N~ext difference'
-            command: NextDifference
-        MenuItem:
-            text: '~P~revious difference'
-            command: PreviousDifference
+        MenuItem: text='~N~ext difference', command=NextDifference
+        MenuItem: text='~P~revious difference', command=PreviousDifference
         MenuLine:
-        MenuItem:
-            text: '~C~ompare again'
-            command: Rescan
+        MenuItem: text='~C~ompare again', command=Rescan
         MenuLine:
-        MenuItem:
-            text: 'C~l~ose'
-            command: CloseWindow
+        MenuItem: text='C~l~ose', command=CloseWindow

@@ -194,70 +194,27 @@ ProcessWindow(Window):
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort in force, *Tree* and *Mine only* ticked.
     #: Also its right-click menu.
-    SubMenu:
+    SubMenu: text='~P~rocesses', after='File'
         id: process_menu
-        text: '~P~rocesses'
         tooltip: "Sort, search and signal the running processes"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Ctrl-R'
+        MenuItem: text='~R~e-read', command=Rescan, key='Ctrl-R'
         MenuLine:
-        MenuItem:
-            text: 'Sort by ~P~ID'
-            command: ProcessSortPid
-            key: 'Ctrl-P'
-        MenuItem:
-            text: 'Sort by ~u~ser'
-            command: ProcessSortUser
-            key: 'Ctrl-U'
-        MenuItem:
-            text: 'Sort by s~t~ate'
-            command: ProcessSortState
-            key: 'Ctrl-E'
-        MenuItem:
-            text: 'Sort by CPU ~l~oad'
-            command: ProcessSortCpu
-            key: 'Ctrl-L'
-        MenuItem:
-            text: 'Sort by ~m~emory'
-            command: ProcessSortMemory
-            key: 'Ctrl-Z'
-        MenuItem:
-            text: 'Sort by comma~n~d'
-            command: ProcessSortCommand
-            key: 'Ctrl-N'
+        MenuItem: text='Sort by ~P~ID', command=ProcessSortPid, key='Ctrl-P'
+        MenuItem: text='Sort by ~u~ser', command=ProcessSortUser, key='Ctrl-U'
+        MenuItem: text='Sort by s~t~ate', command=ProcessSortState, key='Ctrl-E'
+        MenuItem: text='Sort by CPU ~l~oad', command=ProcessSortCpu, key='Ctrl-L'
+        MenuItem: text='Sort by ~m~emory', command=ProcessSortMemory, key='Ctrl-Z'
+        MenuItem: text='Sort by comma~n~d', command=ProcessSortCommand, key='Ctrl-N'
         MenuLine:
-        MenuItem:
-            text: 'Tr~e~e'
+        MenuItem: text='Tr~e~e', command=ProcessTree, key='Ctrl-T'
             tooltip: "Each process under its parent"
-            command: ProcessTree
-            key: 'Ctrl-T'
-        MenuItem:
-            text: 'M~i~ne only'
+        MenuItem: text='M~i~ne only', command=ProcessMineOnly, key='Ctrl-H'
             tooltip: "Only your own processes"
-            command: ProcessMineOnly
-            key: 'Ctrl-H'
-        MenuItem:
-            text: '~F~ilter'
+        MenuItem: text='~F~ilter', command=FilterProcesses, key='F4'
             tooltip: "Show only the processes whose command, name, user or PID holds what is typed"
-            command: FilterProcesses
-            key: 'F4'
         MenuLine:
-        MenuItem:
-            text: '~D~etails...'
-            command: ProcessDetails
-            key: 'F3'
-        MenuItem:
-            text: '~S~ignal...'
-            command: SignalProcess
-            key: 'F7'
-        MenuItem:
-            text: '~K~ill...'
-            command: KillProcess
-            key: 'F8'
+        MenuItem: text='~D~etails...', command=ProcessDetails, key='F3'
+        MenuItem: text='~S~ignal...', command=SignalProcess, key='F7'
+        MenuItem: text='~K~ill...', command=KillProcess, key='F8'
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

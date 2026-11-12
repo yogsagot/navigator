@@ -81,9 +81,9 @@ class MonitorWindow(Window, _Component):
         self.sensor_box = GroupBox(parent=self)    # monitor_window.nml:73
         self.sensors = SensorList(parent=self.sensor_box)    # monitor_window.nml:83
         self.monitor_menu = SubMenu(parent=self)    # monitor_window.nml:93
-        _w1 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:98
-        _w2 = MenuLine(parent=self.monitor_menu)    # monitor_window.nml:102
-        _w3 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:103
+        _w1 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:96
+        _w2 = MenuLine(parent=self.monitor_menu)    # monitor_window.nml:97
+        _w3 = MenuItem(parent=self.monitor_menu)    # monitor_window.nml:98
 
         self.title = _bind(lambda _o: _tr('System monitor'), yielding=True)    # monitor_window.nml:28
         self.min_width = 40    # monitor_window.nml:29
@@ -127,19 +127,19 @@ class MonitorWindow(Window, _Component):
         self.sensors.y = 1    # monitor_window.nml:88
         self.sensors.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # monitor_window.nml:89
 
-        self.monitor_menu.text = _bind(    # monitor_window.nml:95
+        self.monitor_menu.text = _bind(    # monitor_window.nml:93
             lambda _o: _tr('Mo~n~itor'),
             yielding=True,
         )
-        self.monitor_menu.tooltip = _bind(    # monitor_window.nml:96
+        self.monitor_menu.after = 'File'    # monitor_window.nml:93
+        self.monitor_menu.tooltip = _bind(    # monitor_window.nml:95
             lambda _o: _tr('The processors, the memory and the sensors'),
             yielding=True,
         )
-        self.monitor_menu.after = 'File'    # monitor_window.nml:97
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # monitor_window.nml:99
-        _w1.command = Rescan    # monitor_window.nml:100
-        _w1.key = 'Ctrl-R'    # monitor_window.nml:101
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # monitor_window.nml:96
+        _w1.command = Rescan    # monitor_window.nml:96
+        _w1.key = 'Ctrl-R'    # monitor_window.nml:96
 
-        _w3.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # monitor_window.nml:104
-        _w3.command = CloseWindow    # monitor_window.nml:105
+        _w3.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # monitor_window.nml:98
+        _w3.command = CloseWindow    # monitor_window.nml:98

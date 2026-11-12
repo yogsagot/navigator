@@ -357,31 +357,15 @@ CalculatorWindow(Window):
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: the game's is.  Also its right-click menu.
-    SubMenu:
+    SubMenu: text='~C~alculator', after='File'
         id: calculator_menu
-        text: '~C~alculator'
         tooltip: "The calculator's faces, copying its value and closing it"
-        after: 'File'
-        MenuItem:
-            text: '~S~imple'
-            command: CalculatorSimple
-        MenuItem:
-            text: 'C~l~assic'
-            command: CalculatorClassic
-        MenuItem:
-            text: 'Sc~i~entific'
-            command: CalculatorScientific
-        MenuItem:
-            text: 'Pro~g~ramming'
-            command: CalculatorProgramming
+        MenuItem: text='~S~imple', command=CalculatorSimple
+        MenuItem: text='C~l~assic', command=CalculatorClassic
+        MenuItem: text='Sc~i~entific', command=CalculatorScientific
+        MenuItem: text='Pro~g~ramming', command=CalculatorProgramming
         MenuLine:
-        MenuItem:
-            text: '~C~opy'
-            command: CalculatorCopy
-        MenuItem:
-            text: '~B~it toggling keypad'
-            command: ToggleBitKeypad
+        MenuItem: text='~C~opy', command=CalculatorCopy
+        MenuItem: text='~B~it toggling keypad', command=ToggleBitKeypad
         MenuLine:
-        MenuItem:
-            text: 'Cl~o~se'
-            command: CloseWindow
+        MenuItem: text='Cl~o~se', command=CloseWindow

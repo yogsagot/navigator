@@ -90,16 +90,9 @@ MonitorWindow(Window):
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Process list's is.  Also its right-click menu.
-    SubMenu:
+    SubMenu: text='Mo~n~itor', after='File'
         id: monitor_menu
-        text: 'Mo~n~itor'
         tooltip: "The processors, the memory and the sensors"
-        after: 'File'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Ctrl-R'
+        MenuItem: text='~R~e-read', command=Rescan, key='Ctrl-R'
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

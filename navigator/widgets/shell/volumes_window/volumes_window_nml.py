@@ -151,17 +151,17 @@ class VolumesWindow(Window, _Component):
         self.go_button = Button(parent=self)    # volumes_window.nml:159
         self.close_button = Button(parent=self)    # volumes_window.nml:169
         self.volumes_menu = SubMenu(parent=self)    # volumes_window.nml:182
-        _w1 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:187
-        _w2 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:190
-        _w3 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:194
-        _w4 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:195
-        _w5 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:199
-        _w6 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:203
-        _w7 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:207
-        _w8 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:208
-        _w9 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:212
-        _w10 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:216
-        _w11 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:217
+        _w1 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:185
+        _w2 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:186
+        _w3 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:188
+        _w4 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:189
+        _w5 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:190
+        _w6 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:191
+        _w7 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:192
+        _w8 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:193
+        _w9 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:195
+        _w10 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:197
+        _w11 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:198
 
         self.title = _bind(lambda _o: _tr('Volumes'), yielding=True)    # volumes_window.nml:48
 
@@ -291,51 +291,51 @@ class VolumesWindow(Window, _Component):
         )
         self.close_button.on_click = self.on_close_button_click    # volumes_window.nml:170
 
-        self.volumes_menu.text = _bind(    # volumes_window.nml:184
+        self.volumes_menu.text = _bind(    # volumes_window.nml:182
             lambda _o: _tr('~V~olumes'),
             yielding=True,
         )
-        self.volumes_menu.tooltip = _bind(    # volumes_window.nml:185
+        self.volumes_menu.after = 'File'    # volumes_window.nml:182
+        self.volumes_menu.tooltip = _bind(    # volumes_window.nml:184
             lambda _o: _tr('Mount, unmount and eject volumes'),
             yielding=True,
         )
-        self.volumes_menu.after = 'File'    # volumes_window.nml:186
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # volumes_window.nml:188
-        _w1.command = Rescan    # volumes_window.nml:189
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # volumes_window.nml:185
+        _w1.command = Rescan    # volumes_window.nml:185
 
-        _w2.text = _bind(lambda _o: _tr('~S~how all mounts'), yielding=True)    # volumes_window.nml:191
-        _w2.tooltip = _bind(    # volumes_window.nml:192
+        _w2.text = _bind(lambda _o: _tr('~S~how all mounts'), yielding=True)    # volumes_window.nml:186
+        _w2.command = ToggleHidden    # volumes_window.nml:186
+        _w2.tooltip = _bind(    # volumes_window.nml:187
             lambda _o: _tr("Show the kernel's own file systems too"),
             yielding=True,
         )
-        _w2.command = ToggleHidden    # volumes_window.nml:193
 
-        _w4.text = _bind(lambda _o: _tr('~M~ount'), yielding=True)    # volumes_window.nml:196
-        _w4.command = MountVolume    # volumes_window.nml:197
-        _w4.key = 'F5'    # volumes_window.nml:198
+        _w4.text = _bind(lambda _o: _tr('~M~ount'), yielding=True)    # volumes_window.nml:189
+        _w4.command = MountVolume    # volumes_window.nml:189
+        _w4.key = 'F5'    # volumes_window.nml:189
 
-        _w5.text = _bind(lambda _o: _tr('~U~nmount'), yielding=True)    # volumes_window.nml:200
-        _w5.command = UnmountVolume    # volumes_window.nml:201
-        _w5.key = 'F6'    # volumes_window.nml:202
+        _w5.text = _bind(lambda _o: _tr('~U~nmount'), yielding=True)    # volumes_window.nml:190
+        _w5.command = UnmountVolume    # volumes_window.nml:190
+        _w5.key = 'F6'    # volumes_window.nml:190
 
-        _w6.text = _bind(lambda _o: _tr('~E~ject'), yielding=True)    # volumes_window.nml:204
-        _w6.command = EjectVolume    # volumes_window.nml:205
-        _w6.key = 'F7'    # volumes_window.nml:206
+        _w6.text = _bind(lambda _o: _tr('~E~ject'), yielding=True)    # volumes_window.nml:191
+        _w6.command = EjectVolume    # volumes_window.nml:191
+        _w6.key = 'F7'    # volumes_window.nml:191
 
-        _w8.text = _bind(lambda _o: _tr('Mount ~i~mage...'), yielding=True)    # volumes_window.nml:209
-        _w8.tooltip = _bind(    # volumes_window.nml:210
+        _w8.text = _bind(lambda _o: _tr('Mount ~i~mage...'), yielding=True)    # volumes_window.nml:193
+        _w8.command = MountImage    # volumes_window.nml:193
+        _w8.tooltip = _bind(    # volumes_window.nml:194
             lambda _o: _tr('A disk image file (.iso, .img): attached read-only and mounted'),
             yielding=True,
         )
-        _w8.command = MountImage    # volumes_window.nml:211
 
-        _w9.text = _bind(lambda _o: _tr('Unmount ima~g~e'), yielding=True)    # volumes_window.nml:213
-        _w9.tooltip = _bind(    # volumes_window.nml:214
+        _w9.text = _bind(lambda _o: _tr('Unmount ima~g~e'), yielding=True)    # volumes_window.nml:195
+        _w9.command = UnmountImage    # volumes_window.nml:195
+        _w9.tooltip = _bind(    # volumes_window.nml:196
             lambda _o: _tr('The disk image this volume is on: every file system of it unmounted, and detached'),
             yielding=True,
         )
-        _w9.command = UnmountImage    # volumes_window.nml:215
 
-        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # volumes_window.nml:218
-        _w11.command = CloseWindow    # volumes_window.nml:219
+        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # volumes_window.nml:198
+        _w11.command = CloseWindow    # volumes_window.nml:198

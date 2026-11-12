@@ -155,124 +155,68 @@ FileWindow(Window):
     #: Two captions depart from DN's: *32-255 filter* is *Printable filter*,
     #: since a UTF-8 text has no one-byte code page to count to 255 in, and
     #: *XLat*'s code-page tables are *Encoding...*, a choice of encoding.
-    SubMenu:
+    SubMenu: text='~V~iew', after='File'
         id: view_menu
-        text: '~V~iew'
         tooltip: "Text, hex or dump, wrapping, filters, search and encoding"
-        after: 'File'
         #: The modes and the filters are nested so the box fits an 80x25
         #: screen -- a departure, as the menu is.
-        SubMenu:
+        SubMenu: text='Mo~d~e'
             id: view_menu_mode
-            text: 'Mo~d~e'
             tooltip: "Text, hex or dump"
             #: F4 had no entry while the three below stood for it -- a
             #: departure, asked for, so every bound key shows on the menu.
-            MenuItem:
-                text: 'He~x~/Text/Dump'
-                command: HexMode
+            MenuItem: text='He~x~/Text/Dump', command=HexMode
             MenuLine:
-            MenuItem:
-                text: '~T~ext'
-                command: SetViewMode('text')
-            MenuItem:
-                text: '~H~ex'
-                command: SetViewMode('hex')
-            MenuItem:
-                text: '~D~ump'
-                command: SetViewMode('dump')
+            MenuItem: text='~T~ext', command=SetViewMode('text')
+            MenuItem: text='~H~ex', command=SetViewMode('hex')
+            MenuItem: text='~D~ump', command=SetViewMode('dump')
         MenuLine:
-        MenuItem:
-            text: '~W~rap lines'
-            command: Unwrap
+        MenuItem: text='~W~rap lines', command=Unwrap
         #: Departures, asked for: ``tail -f`` and ``grep`` in the viewer.
-        MenuItem:
-            text: 'Follow e~n~d'
+        MenuItem: text='Follow e~n~d', command=FollowEnd
             tooltip: "Keep the end of a growing file in view, as tail -f does"
-            command: FollowEnd
-        MenuItem:
-            text: 'Fil~t~er lines...'
+        MenuItem: text='Fil~t~er lines...', command=FilterLines
             tooltip: "Show only the lines matching a pattern, with their numbers"
-            command: FilterLines
         #: A departure: a Markdown, reStructuredText, HTML or PDF file rendered,
         #: or its source.
-        MenuItem:
-            text: '~M~arkup view'
+        MenuItem: text='~M~arkup view', command=SwitchRendered, key='Shift-F4'
             tooltip: "Show a Markdown, reST, HTML or PDF file rendered, or its source"
-            command: SwitchRendered
-            key: 'Shift-F4'
         #: A departure, asked for: any file's data as a tree -- HTML too,
         #: whose Shift+F3 is the Markup view's.  No key.
-        MenuItem:
-            text: 'D~a~ta tree'
+        MenuItem: text='D~a~ta tree', command=ViewAsTree
             tooltip: "Show the file's data -- JSON, YAML, TOML, XML or HTML -- as a tree"
-            command: ViewAsTree
-        MenuItem:
-            text: 'S~y~ntax highlight'
-            command: SwitchHighLight
+        MenuItem: text='S~y~ntax highlight', command=SwitchHighLight
         #: A departure: DN had no such option.  The editor's caption, whose ``o``
         #: is the only letter no other entry has.
-        MenuItem:
-            text: 'Sh~o~w hidden characters'
-            command: SwitchHiddenChars
+        MenuItem: text='Sh~o~w hidden characters', command=SwitchHiddenChars
         #: Filled from ``highlight.FILE_TYPES`` by ``file_type_menu``.
-        SubMenu:
+        SubMenu: text='~F~ile type', key_command=ChooseFileType
             id: view_menu_file_type
-            text: '~F~ile type'
-            key_command: ChooseFileType
-        SubMenu:
+        SubMenu: text='Fi~l~ters'
             id: view_menu_filter
-            text: 'Fi~l~ters'
             tooltip: "Hide characters: none, all but ASCII, or the control characters"
             #: F6, as F4 above.
-            MenuItem:
-                text: 'Fi~l~ter'
+            MenuItem: text='Fi~l~ter', command=AddFilter
                 tooltip: "Hide characters: none, all but ASCII, or the control characters"
-                command: AddFilter
             MenuLine:
-            MenuItem:
-                text: '~N~o filter'
-                command: SetViewFilter(0)
-            MenuItem:
-                text: '~A~SCII filter'
+            MenuItem: text='~N~o filter', command=SetViewFilter(0)
+            MenuItem: text='~A~SCII filter', command=SetViewFilter(1)
                 tooltip: "Hide control characters and everything beyond ASCII"
-                command: SetViewFilter(1)
-            MenuItem:
-                text: '~P~rintable filter'
+            MenuItem: text='~P~rintable filter', command=SetViewFilter(2)
                 tooltip: "Hide control characters"
-                command: SetViewFilter(2)
         MenuLine:
-        MenuItem:
-            text: '~S~earch...'
-            command: SearchFor
-        MenuItem:
-            text: 'Search a~g~ain'
-            command: ContinueSearch
-        MenuItem:
-            text: 'Re~v~erse search'
-            command: ReverseSearch
-        MenuItem:
-            text: 'Go to add~r~ess...'
+        MenuItem: text='~S~earch...', command=SearchFor
+        MenuItem: text='Search a~g~ain', command=ContinueSearch
+        MenuItem: text='Re~v~erse search', command=ReverseSearch
+        MenuItem: text='Go to add~r~ess...', command=GotoAddress
             tooltip: "Jump to an offset in the file"
-            command: GotoAddress
         MenuLine:
         #: No letter: *Show hidden characters* has the only one its caption
         #: could take.  Greyed until a byte has been typed over in hex.
-        MenuItem:
-            text: 'Store'
+        MenuItem: text='Store', command=WriteModify, key='Shift-F2'
             tooltip: "Write the bytes typed over in hex into the file"
-            command: WriteModify
-            key: 'Shift-F2'
-        MenuItem:
-            text: 'Sav~e~ as...'
-            command: SaveViewAs
-            key: 'Shift-F5'
-        MenuItem:
-            text: 'Encod~i~ng...'
+        MenuItem: text='Sav~e~ as...', command=SaveViewAs, key='Shift-F5'
+        MenuItem: text='Encod~i~ng...', command=ChooseEncoding, key='Shift-F6'
             tooltip: "The code page the file is read in"
-            command: ChooseEncoding
-            key: 'Shift-F6'
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

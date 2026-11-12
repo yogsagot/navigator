@@ -182,15 +182,15 @@ class CalculatorWindow(Window, _Component):
         self.pad = Keypad(parent=self)    # calculator_window.nml:334
         self.bit_grid = BitGrid(parent=self)    # calculator_window.nml:348
         self.calculator_menu = SubMenu(parent=self)    # calculator_window.nml:360
-        _w2 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:365
-        _w3 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:368
-        _w4 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:371
-        _w5 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:374
-        _w6 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:377
-        _w7 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:378
-        _w8 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:381
-        _w9 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:384
-        _w10 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:385
+        _w2 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:363
+        _w3 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:364
+        _w4 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:365
+        _w5 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:366
+        _w6 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:367
+        _w7 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:368
+        _w8 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:369
+        _w9 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:370
+        _w10 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:371
 
         self.title = _bind(lambda _o: _tr('Calculator'), yielding=True)    # calculator_window.nml:38
         self.zoomable = False    # calculator_window.nml:39
@@ -486,36 +486,36 @@ class CalculatorWindow(Window, _Component):
         self.bit_grid.x = 2    # calculator_window.nml:354
         self.bit_grid.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculator_window.nml:355
 
-        self.calculator_menu.text = _bind(    # calculator_window.nml:362
+        self.calculator_menu.text = _bind(    # calculator_window.nml:360
             lambda _o: _tr('~C~alculator'),
             yielding=True,
         )
-        self.calculator_menu.tooltip = _bind(    # calculator_window.nml:363
+        self.calculator_menu.after = 'File'    # calculator_window.nml:360
+        self.calculator_menu.tooltip = _bind(    # calculator_window.nml:362
             lambda _o: _tr("The calculator's faces, copying its value and closing it"),
             yielding=True,
         )
-        self.calculator_menu.after = 'File'    # calculator_window.nml:364
 
-        _w2.text = _bind(lambda _o: _tr('~S~imple'), yielding=True)    # calculator_window.nml:366
-        _w2.command = CalculatorSimple    # calculator_window.nml:367
+        _w2.text = _bind(lambda _o: _tr('~S~imple'), yielding=True)    # calculator_window.nml:363
+        _w2.command = CalculatorSimple    # calculator_window.nml:363
 
-        _w3.text = _bind(lambda _o: _tr('C~l~assic'), yielding=True)    # calculator_window.nml:369
-        _w3.command = CalculatorClassic    # calculator_window.nml:370
+        _w3.text = _bind(lambda _o: _tr('C~l~assic'), yielding=True)    # calculator_window.nml:364
+        _w3.command = CalculatorClassic    # calculator_window.nml:364
 
-        _w4.text = _bind(lambda _o: _tr('Sc~i~entific'), yielding=True)    # calculator_window.nml:372
-        _w4.command = CalculatorScientific    # calculator_window.nml:373
+        _w4.text = _bind(lambda _o: _tr('Sc~i~entific'), yielding=True)    # calculator_window.nml:365
+        _w4.command = CalculatorScientific    # calculator_window.nml:365
 
-        _w5.text = _bind(lambda _o: _tr('Pro~g~ramming'), yielding=True)    # calculator_window.nml:375
-        _w5.command = CalculatorProgramming    # calculator_window.nml:376
+        _w5.text = _bind(lambda _o: _tr('Pro~g~ramming'), yielding=True)    # calculator_window.nml:366
+        _w5.command = CalculatorProgramming    # calculator_window.nml:366
 
-        _w7.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:379
-        _w7.command = CalculatorCopy    # calculator_window.nml:380
+        _w7.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:368
+        _w7.command = CalculatorCopy    # calculator_window.nml:368
 
-        _w8.text = _bind(    # calculator_window.nml:382
+        _w8.text = _bind(    # calculator_window.nml:369
             lambda _o: _tr('~B~it toggling keypad'),
             yielding=True,
         )
-        _w8.command = ToggleBitKeypad    # calculator_window.nml:383
+        _w8.command = ToggleBitKeypad    # calculator_window.nml:369
 
-        _w10.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # calculator_window.nml:386
-        _w10.command = CloseWindow    # calculator_window.nml:387
+        _w10.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # calculator_window.nml:371
+        _w10.command = CloseWindow    # calculator_window.nml:371

@@ -103,56 +103,26 @@ CalendarWindow(Window):
     #: none, and its paging and picking keys showed nowhere.  Each key is the
     #: view's table's; written here too for when the button has the keyboard,
     #: where the view's table is not on the way out.  Also its right-click menu.
-    SubMenu:
+    SubMenu: text='~C~alendar', after='File'
         id: calendar_menu
-        text: '~C~alendar'
         tooltip: "Move between months and years"
-        after: 'File'
-        MenuItem:
-            text: '~P~revious month'
-            command: PreviousMonth
-            key: 'PgUp'
-        MenuItem:
-            text: '~N~ext month'
-            command: NextMonth
-            key: 'PgDn'
-        MenuItem:
-            text: 'P~r~evious year'
-            command: PreviousYear
-            key: 'Ctrl-PgUp'
-        MenuItem:
-            text: 'Ne~x~t year'
-            command: NextYear
-            key: 'Ctrl-PgDn'
+        MenuItem: text='~P~revious month', command=PreviousMonth, key='PgUp'
+        MenuItem: text='~N~ext month', command=NextMonth, key='PgDn'
+        MenuItem: text='P~r~evious year', command=PreviousYear, key='Ctrl-PgUp'
+        MenuItem: text='Ne~x~t year', command=NextYear, key='Ctrl-PgDn'
         MenuLine:
-        MenuItem:
-            text: 'Choose ~m~onth...'
-            command: ChooseMonth
-            key: 'M'
-        MenuItem:
-            text: 'Choose ~y~ear...'
-            command: ChooseYear
-            key: 'Y'
+        MenuItem: text='Choose ~m~onth...', command=ChooseMonth, key='M'
+        MenuItem: text='Choose ~y~ear...', command=ChooseYear, key='Y'
         MenuLine:
-        MenuItem:
-            text: 'Go to current ~d~ate'
-            command: GoToToday
-            key: 'T'
-        MenuItem:
-            text: 'S~w~ap calendars'
-            command: SwapCalendars
-            key: 'C'
+        MenuItem: text='Go to current ~d~ate', command=GoToToday, key='T'
+        MenuItem: text='S~w~ap calendars', command=SwapCalendars, key='C'
         MenuLine:
         #: Filled from ``navml.calendars.SYSTEMS`` in ``__init__``, so a
         #: calendar added there is offered here.
-        SubMenu:
+        SubMenu: text='Calendar ~s~ystem'
             id: system_menu
-            text: 'Calendar ~s~ystem'
         #: Filled in ``__init__`` too, from ``VIEWS``.
-        SubMenu:
+        SubMenu: text='Calendar ~v~iew'
             id: view_menu
-            text: 'Calendar ~v~iew'
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow

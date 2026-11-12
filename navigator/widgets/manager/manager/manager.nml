@@ -179,188 +179,85 @@ Manager(Window):
     #: *Directory tree*, *Info* and *Quick view* are here rather than in
     #: *Manager*, a departure: each puts something in the passive panel's
     #: place, so they are *Other panel*'s.
-    SubMenu:
+    SubMenu: text='~P~anel', after='Utilities'
         id: panel_menu
-        text: '~P~anel'
         tooltip: "List files, compare, sort, filter, select and change directory"
-        after: 'Utilities'
-        MenuItem:
-            text: '~M~ake list file...'
+        MenuItem: text='~M~ake list file...', command=MakeList, key='Alt-L'
             tooltip: "Write the tagged files' names to a list file"
-            command: MakeList
-            key: 'Alt-L'
-        MenuItem:
-            text: 'Read file ~l~ist'
+        MenuItem: text='Read file ~l~ist', command=ReadFileList, key='Alt-V'
             tooltip: "Show the files a list file names as a listing"
-            command: ReadFileList
-            key: 'Alt-V'
         #: A departure: MC's *External panelize* (Panelize's docstring).
-        MenuItem:
-            text: 'Paneli~z~e command...'
+        MenuItem: text='Paneli~z~e command...', command=Panelize, key='Alt-Y'
             tooltip: "Run a command and list the files it prints in the panel"
-            command: Panelize
-            key: 'Alt-Y'
-        MenuItem:
-            text: '~C~ompare directories'
+        MenuItem: text='~C~ompare directories', command=CompareDir
             tooltip: "Tag what each panel has that the other lacks or has older"
-            command: CompareDir
-        MenuItem:
-            text: 'Count directory len~g~th'
+        MenuItem: text='Count directory len~g~th', command=CountLength, key='Alt-G'
             tooltip: "Add up the bytes under the selected directories"
-            command: CountLength
-            key: 'Alt-G'
-        MenuItem:
-            text: 'Directory Branc~h~'
+        MenuItem: text='Directory Branc~h~', command=DirBranch
             tooltip: "Every file below this directory in one listing"
-            command: DirBranch
         #: A departure, asked for (FindDuplicates' docstring).
-        MenuItem:
-            text: 'Find duplicates...'
+        MenuItem: text='Find duplicates...', command=FindDuplicates
             tooltip: "List the files below this directory whose contents are the same"
-            command: FindDuplicates
         MenuLine:
-        MenuItem:
-            text: 'Setup c~o~lumns'
-            command: SetupColumns
-            key: 'Alt-K'
-        MenuItem:
-            text: '~S~etup Panel'
-            command: PanelSetup
-            key: 'Alt-S'
-        MenuItem:
-            text: 'Sort ~b~y...'
-            command: SortBy
-            key: 'Alt-B'
-        SubMenu:
+        MenuItem: text='Setup c~o~lumns', command=SetupColumns, key='Alt-K'
+        MenuItem: text='~S~etup Panel', command=PanelSetup, key='Alt-S'
+        MenuItem: text='Sort ~b~y...', command=SortBy, key='Alt-B'
+        SubMenu: text='D~i~splay'
             id: panel_display
-            text: 'D~i~splay'
             tooltip: "View mode, hidden files, the footer, directory settings and the divider"
-            MenuItem:
-                text: 'Vie~w~ mode'
-                command: ToggleShowMode
-                key: 'Ctrl-Y'
-            MenuItem:
-                text: 'Show/hide h~i~dden files'
-                command: ToggleHidden
-                key: 'Ctrl-H'
-            MenuItem:
-                text: 'Show/hide ~f~ooter'
-                command: ToggleInfoLines
-                key: 'Alt-I'
+            MenuItem: text='Vie~w~ mode', command=ToggleShowMode, key='Ctrl-Y'
+            MenuItem: text='Show/hide h~i~dden files', command=ToggleHidden, key='Ctrl-H'
+            MenuItem: text='Show/hide ~f~ooter', command=ToggleInfoLines, key='Alt-I'
             #: Not DN's, which remembered nothing per directory
             #: (``navigator/lib/config/directory_settings.py``).
-            SubMenu:
+            SubMenu: text='Director~y~ settings'
                 id: panel_remember
-                text: 'Director~y~ settings'
                 tooltip: "Remember the sort order, view and file mask for a directory, and the list of those remembered"
-                MenuItem:
-                    text: 'Remember ~f~or this directory'
+                MenuItem: text='Remember ~f~or this directory', command=RememberDirectory
                     tooltip: "Keep the sort order, view, columns and file mask shown for this directory"
-                    command: RememberDirectory
-                MenuItem:
-                    text: 'Remembered director~y~ list...'
+                MenuItem: text='Remembered director~y~ list...', command=RememberedDirectories
                     tooltip: "The directories with settings of their own: go to one, or forget it"
-                    command: RememberedDirectories
             MenuLine:
             #: Not on DN's menu, where Alt+Left/Right moved the ``TSeparator``
             #: with no ``cm*`` -- a departure, asked for.
-            MenuItem:
-                text: 'Move divider left'
-                command: MoveSeparator(step=-1)
-                key: 'Alt-Left'
-            MenuItem:
-                text: 'Move divider right'
-                command: MoveSeparator(step=1)
-                key: 'Alt-Right'
-        SubMenu:
+            MenuItem: text='Move divider left', command=MoveSeparator(step=-1), key='Alt-Left'
+            MenuItem: text='Move divider right', command=MoveSeparator(step=1), key='Alt-Right'
+        SubMenu: text='Selectio~n~'
             id: panel_select
-            text: 'Selectio~n~'
             tooltip: "Select or unselect files by a mask, or filter them"
-            MenuItem:
-                text: 'Select grou~p~...'
-                command: SelectGroup
-                key: 'Gray "+"'
-            MenuItem:
-                text: '~U~nselect group...'
-                command: UnselectGroup
-                key: 'Gray "-"'
-            MenuItem:
-                text: 'In~v~ert selection'
-                command: InvertSelection
-                key: 'Gray "*"'
-            MenuItem:
-                text: 'Select all files'
+            MenuItem: text='Select grou~p~...', command=SelectGroup, key='Gray "+"'
+            MenuItem: text='~U~nselect group...', command=UnselectGroup, key='Gray "-"'
+            MenuItem: text='In~v~ert selection', command=InvertSelection, key='Gray "*"'
+            MenuItem: text='Select all files', command=SelectAll, key='Ctrl-A'
                 tooltip: "Select every file and directory in this panel"
-                command: SelectAll
-                key: 'Ctrl-A'
             MenuLine:
-            MenuItem:
-                text: 'Advanced filter...'
+            MenuItem: text='Advanced filter...', command=AdvancedFilter, key='Alt-Del'
                 tooltip: "Show or hide files by extension"
-                command: AdvancedFilter
-                key: 'Alt-Del'
-        SubMenu:
+        SubMenu: text='Other ~p~anel'
             id: panel_other
-            text: 'Other ~p~anel'
             tooltip: "Put a tree, information or a preview in the other panel"
-            MenuItem:
-                text: 'Director~y~ tree'
-                command: ToggleTree
-                key: 'Ctrl-T'
-            MenuItem:
-                text: 'I~n~fo'
+            MenuItem: text='Director~y~ tree', command=ToggleTree, key='Ctrl-T'
+            MenuItem: text='I~n~fo', command=DiskInfo, key='Ctrl-L'
                 tooltip: "Disk and directory information in the other panel"
-                command: DiskInfo
-                key: 'Ctrl-L'
-            MenuItem:
-                text: 'Quic~k~ view'
+            MenuItem: text='Quic~k~ view', command=QuickView, key='Ctrl-Q'
                 tooltip: "Preview the file at the cursor in the other panel"
-                command: QuickView
-                key: 'Ctrl-Q'
             MenuLine:
-            MenuItem:
-                text: 'S~a~me directory in other panel'
+            MenuItem: text='S~a~me directory in other panel', command=EqualizePanels, key='Alt-='
                 tooltip: "Send the other panel to this directory"
-                command: EqualizePanels
-                key: 'Alt-='
             #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
             #: departure, asked for.
-            MenuItem:
-                text: 'Show in other panel'
+            MenuItem: text='Show in other panel', command=ChangeInactive, key='Shift-Enter'
                 tooltip: "Show the found file in the other panel"
-                command: ChangeInactive
-                key: 'Shift-Enter'
         MenuLine:
-        MenuItem:
-            text: 'Change ~d~rive'
+        MenuItem: text='Change ~d~rive', command=ChangeDrive, key='Alt-C'
             tooltip: "Send this panel to a bookmarked directory"
-            command: ChangeDrive
-            key: 'Alt-C'
-        MenuItem:
-            text: 'Change direc~t~ory'
+        MenuItem: text='Change direc~t~ory', command=ChangeDirectory, key='Alt-T'
             tooltip: "Choose a directory from a tree"
-            command: ChangeDirectory
-            key: 'Alt-T'
         #: Not DN's: fzf over zoxide's directories and the panels' history.
-        MenuItem:
-            text: '~J~ump to directory...'
+        MenuItem: text='~J~ump to directory...', command=JumpToDirectory, key='Alt-J'
             tooltip: "zoxide's directories and the panels' history, searched by fzf"
-            command: JumpToDirectory
-            key: 'Alt-J'
-        MenuItem:
-            text: 'Quick s~e~arch'
-            command: QuickSearch
-            key: 'Ctrl-S'
-        MenuItem:
-            text: '~R~e-read'
-            command: Rescan
-            key: 'Alt-R'
-        MenuItem:
-            text: '~Q~uick dirs...'
+        MenuItem: text='Quick s~e~arch', command=QuickSearch, key='Ctrl-S'
+        MenuItem: text='~R~e-read', command=Rescan, key='Alt-R'
+        MenuItem: text='~Q~uick dirs...', command=ListOfDirs, key='Alt-Shift-0'
             tooltip: "The bookmarks, for this panel"
-            command: ListOfDirs
-            key: 'Alt-Shift-0'
-        MenuItem:
-            text: 'History of directories...'
-            command: DirHistory
-            key: 'Alt-BkSp'
+        MenuItem: text='History of directories...', command=DirHistory, key='Alt-BkSp'

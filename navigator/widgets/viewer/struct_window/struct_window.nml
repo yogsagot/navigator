@@ -40,37 +40,20 @@ StructWindow(Window):
 
     #: The window's own menu on the bar after *File*, as the viewer's *View*
     #: is, and its right-click menu.
-    SubMenu:
+    SubMenu: text='~D~ata', after='File'
         id: data_menu
-        text: '~D~ata'
         tooltip: "Copy, search and fold the tree"
-        after: 'File'
-        MenuItem:
-            text: '~T~ext view'
+        MenuItem: text='~T~ext view', command=ViewTreeAsText, key='Shift-F4'
             tooltip: "The file's text, where the cursor's node is when that is known"
-            command: ViewTreeAsText
-            key: 'Shift-F4'
         MenuLine:
-        MenuItem:
-            text: 'Copy ~p~ath'
+        MenuItem: text='Copy ~p~ath', command=CopyPath
             tooltip: "The path of the node under the cursor, to the clipboard"
-            command: CopyPath
-        MenuItem:
-            text: 'Copy ~v~alue'
+        MenuItem: text='Copy ~v~alue', command=CopyValue
             tooltip: "The node's value -- a branch as text -- to the clipboard"
-            command: CopyValue
         MenuLine:
-        MenuItem:
-            text: '~S~earch...'
+        MenuItem: text='~S~earch...', command=SearchFor
             tooltip: "Find text in the keys and values; Ctrl+S finds a key as it is typed"
-            command: SearchFor
-        MenuItem:
-            text: 'Search ~a~gain'
-            command: ContinueSearch
-        MenuItem:
-            text: 'E~x~pand all'
-            command: ExpandAll
+        MenuItem: text='Search ~a~gain', command=ContinueSearch
+        MenuItem: text='E~x~pand all', command=ExpandAll
         MenuLine:
-        MenuItem:
-            text: '~C~lose'
-            command: CloseWindow
+        MenuItem: text='~C~lose', command=CloseWindow
