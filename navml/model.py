@@ -120,6 +120,8 @@ def resolve_model(
         refuse(root.style.line, "a model paints nothing, so it has no style")
     if root.keys is not None:
         refuse(root.keys.line, "a model binds no keys")
+    if root.commands is not None:
+        refuse(root.commands.line, "a model handles no commands")
     if root.anchors is not None:
         refuse(root.anchors.line, "a model is not placed anywhere, so it has no anchors")
     for when in root.whens:

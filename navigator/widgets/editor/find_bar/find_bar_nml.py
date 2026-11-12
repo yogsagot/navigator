@@ -63,23 +63,54 @@ class FindBar(_Component):
     replace: bool = _reactive(False)    # find_bar.nml:17
 
     #: Ids, annotated so the hand-written half completes them.
-    query: Field    # find_bar.nml:37
-    new: Field    # find_bar.nml:46
+    query: Field    # find_bar.nml:47
+    new: Field    # find_bar.nml:56
+
+    #: The switches flip, and are ticked in the menu while on.
+    async def on_find_previous(self, event: _Any) -> bool:    # find_bar.nml:37
+        """``FindPrevious``."""
+        self.step(backward=True)
+        return True
+
+    async def on_switch_match_case(self, event: _Any) -> bool:    # find_bar.nml:38
+        """``SwitchMatchCase``."""
+        self.case = not self.case
+        return True
+
+    async def on_switch_whole_words(self, event: _Any) -> bool:    # find_bar.nml:40
+        """``SwitchWholeWords``."""
+        self.whole = not self.whole
+        return True
+
+    async def on_switch_regex(self, event: _Any) -> bool:    # find_bar.nml:42
+        """``SwitchRegex``."""
+        self.regex = not self.regex
+        return True
+
+    def checks(self, command: _Any) -> bool | None:
+        """What the commands block says, then the base's ``checks``."""
+        if isinstance(command, SwitchMatchCase):    # find_bar.nml:39
+            return bool(self.case)
+        if isinstance(command, SwitchWholeWords):    # find_bar.nml:41
+            return bool(self.whole)
+        if isinstance(command, SwitchRegex):    # find_bar.nml:43
+            return bool(self.regex)
+        return super().checks(command)
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.query = Field(parent=self)    # find_bar.nml:36
-        self.new = Field(parent=self)    # find_bar.nml:45
+        self.query = Field(parent=self)    # find_bar.nml:46
+        self.new = Field(parent=self)    # find_bar.nml:55
 
-        self.query.x = 1    # find_bar.nml:38
-        self.query.y = 1    # find_bar.nml:39
-        self.query.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # find_bar.nml:40
-        self.query.label_width = 0    # find_bar.nml:41
-        self.query.history_id = 'find_text'    # find_bar.nml:42
+        self.query.x = 1    # find_bar.nml:48
+        self.query.y = 1    # find_bar.nml:49
+        self.query.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # find_bar.nml:50
+        self.query.label_width = 0    # find_bar.nml:51
+        self.query.history_id = 'find_text'    # find_bar.nml:52
 
-        self.new.visible = _bind(lambda _o: self.replace)    # find_bar.nml:47
-        self.new.x = 1    # find_bar.nml:48
-        self.new.y = 2    # find_bar.nml:49
-        self.new.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # find_bar.nml:50
-        self.new.label_width = 0    # find_bar.nml:51
-        self.new.history_id = 'find_text'    # find_bar.nml:52
+        self.new.visible = _bind(lambda _o: self.replace)    # find_bar.nml:57
+        self.new.x = 1    # find_bar.nml:58
+        self.new.y = 2    # find_bar.nml:59
+        self.new.width = _bind(lambda _o: max(4, _o.parent.width - 29))    # find_bar.nml:60
+        self.new.label_width = 0    # find_bar.nml:61
+        self.new.history_id = 'find_text'    # find_bar.nml:62

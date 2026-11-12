@@ -251,6 +251,70 @@ def _collect_once(
     lines.append(_Line(f"{owner}.{prop.name} = {compiled.expression}", prop.line))
 
 
+def command_handler(resolved: Resolved, source: str) -> tuple[str, str]:
+    """The command class a ``commands:`` line names, evaluated as the class
+    body will, and the handler navkit delivers it to: ``(name, on_name)``."""
+    value = eval(  # noqa: S307 - the document's own, checked expression
+        compile(ast.parse(source, mode="eval"), resolved.filename, "eval"),
+        dict(resolved.namespace),
+    )
+    return ast.unparse(ast.parse(source, mode="eval")), value.handler
+
+
+def _write_commands(coder: Coder, build: _Build, table) -> None:
+    """Each line a handler method; ``enabled``/``checked`` lines become the
+    branches of an ``enables``/``checks`` override that asks ``super()`` for
+    every other command."""
+    resolved = build.resolved
+    root = resolved.document.root
+    filename = resolved.document.filename
+    coder.new_line()
+    for line in table.doc or ("The commands this component handles.",):
+        coder.add(1, f"#: {line}")
+    for index, handler in enumerate(table.handlers):
+        command, name = command_handler(resolved, handler.command)
+        body = compile_handler(
+            handler.body,
+            own=resolved.own(root),
+            ids=resolved.ids,
+            owner="self",
+            line=handler.line,
+            filename=resolved.filename,
+        )
+        if index:
+            coder.new_line()
+        coder.add(1, f"async def {name}(self, event: _Any) -> bool:")
+        coder.comment(-1, f"{filename}:{handler.line}", True)
+        doc = " ".join(handler.doc) if handler.doc else f"``{command}``."
+        coder.add(2, f'"""{doc}"""' if '"""' not in doc else f"# {doc}")
+        coder.add(2, body)
+        coder.add(2, "return True")
+    for kind, method, default in (
+        ("enabled", "enables", "bool"),
+        ("checked", "checks", "bool | None"),
+    ):
+        lines = [h for h in table.handlers if getattr(h, kind) is not None]
+        if not lines:
+            continue
+        coder.new_line()
+        coder.add(1, f"def {method}(self, command: _Any) -> {default}:")
+        coder.add(2, f'"""What the commands block says, then the base\'s ``{method}``."""')
+        for handler in lines:
+            command, _ = command_handler(resolved, handler.command)
+            compiled = compile_handler(
+                getattr(handler, kind),
+                own=resolved.own(root),
+                ids=resolved.ids,
+                owner="self",
+                line=getattr(handler, f"{kind}_line"),
+                filename=resolved.filename,
+            )
+            coder.add(2, f"if isinstance(command, {command}):")
+            coder.comment(-1, f"{filename}:{getattr(handler, f'{kind}_line')}", True)
+            coder.add(3, f"return bool({compiled})")
+        coder.add(2, f"return super().{method}(command)")
+
+
 def _followable(resolved: Resolved, block: Block, name: str) -> bool:
     """Whether *name* on *block* is reactive, so a binding to it is followed."""
     if block is resolved.document.root and name in resolved.declared:
@@ -515,6 +579,8 @@ def _write(build: _Build) -> str:
         coder.new_line()
         coder.add(1, "#: Ids, annotated so the hand-written half completes them.")
         _write_lines(coder, build, 1, build.ids)
+    if root.commands is not None:
+        _write_commands(coder, build, root.commands)
     if build.stubs:
         coder.new_line()
         coder.add_formatted(1, _STUBS_PROSE)

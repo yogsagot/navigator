@@ -376,22 +376,6 @@ class FindBar(Widget):
             self.step(backward=False)
         return True
 
-    async def on_find_previous(self, command: FindPrevious) -> bool:
-        self.step(backward=True)
-        return True
-
-    async def on_switch_match_case(self, command: SwitchMatchCase) -> bool:
-        self.case = not self.case
-        return True
-
-    async def on_switch_whole_words(self, command: SwitchWholeWords) -> bool:
-        self.whole = not self.whole
-        return True
-
-    async def on_switch_regex(self, command: SwitchRegex) -> bool:
-        self.regex = not self.regex
-        return True
-
     async def on_replace_match(self, command: ReplaceMatch) -> bool:
         if not self.replace:
             return False
@@ -403,12 +387,3 @@ class FindBar(Widget):
             return False
         self.replace_every()
         return True
-
-    def checks(self, command: Any) -> bool | None:
-        if isinstance(command, SwitchMatchCase):
-            return self.case
-        if isinstance(command, SwitchWholeWords):
-            return self.whole
-        if isinstance(command, SwitchRegex):
-            return self.regex
-        return super().checks(command)

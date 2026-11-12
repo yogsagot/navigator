@@ -100,6 +100,22 @@ def stub(resolved: Resolved) -> str:
             1,
             f"async def {composed}(self, event: _Event) -> bool: {_ELLIPSIS}",
         )
+    if root.commands is not None:
+        from navml.generator import command_handler
+
+        for handler in root.commands.handlers:
+            _, name = command_handler(resolved, handler.command)
+            written.add(name)
+            coder.add(1, f"async def {name}(self, event: _Any) -> bool: {_ELLIPSIS}")
+        for kind, method, returns in (
+            ("enabled", "enables", "bool"),
+            ("checked", "checks", "bool | None"),
+        ):
+            if method not in methods and any(
+                getattr(h, kind) is not None for h in root.commands.handlers
+            ):
+                written.add(method)
+                coder.add(1, f"def {method}(self, command: _Any) -> {returns}: {_ELLIPSIS}")
     for name, method in methods.items():
         if name in written:
             continue

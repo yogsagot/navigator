@@ -56,6 +56,7 @@ def check(resolved: Resolved) -> None:
     _check_properties(resolved)
     _check_styles(resolved)
     _check_keys(resolved)
+    _check_commands(resolved)
     _check_handlers(resolved)
     _check_sibling(resolved)
 
@@ -445,6 +446,89 @@ def _check_keys(resolved: Resolved) -> None:
                 f"{binding.command} is not a Command class or instance, so "
                 f"{binding.key!r} would ask for nothing",
             )
+
+
+# -- what a commands block handles -------------------------------------------
+
+
+def _check_commands(resolved: Resolved) -> None:
+    """Each line names a command class, its handler is not the ``.py``'s too,
+    and an ``enables``/``checks`` the ``.py`` overrides asks ``super()``.
+
+    The ``.py`` half is the derived class, so a handler it also defines would
+    win without a word, and its ``enables`` returning without ``super()``
+    would leave every ``enabled:`` line unasked.
+    """
+    root = resolved.document.root
+    table = root.commands
+    if table is None:
+        return
+    sibling = resolved.sibling
+    component = sibling.component(root.type) if sibling else None
+    own_handlers = {h.name: h.line for h in root.handlers}
+    for handler in table.handlers:
+        value = _class_level(
+            resolved,
+            handler.command,
+            handler.line,
+            f"the command {handler.command} failed to evaluate",
+            "a command",
+        )
+        if not (isinstance(value, type) and issubclass(value, Command)):
+            _refuse(
+                resolved,
+                handler.line,
+                f"{handler.command} is not a Command class: a commands block "
+                f"handles a class, as its handler is named for one",
+            )
+        name = value.handler
+        if name in own_handlers:
+            _refuse(
+                resolved,
+                handler.line,
+                f"{name} is already a handler line on line {own_handlers[name]}",
+            )
+        if component is not None and name in component.methods:
+            _refuse(
+                resolved,
+                handler.line,
+                f"{sibling.filename} defines {name} too, and the hand-written "
+                f"half is the derived class: its method would win",
+            )
+        _check_handler_body(resolved, handler, True)
+    for kind, method in (("enabled", "enables"), ("checked", "checks")):
+        if component is None or method not in component.methods:
+            continue
+        if not any(getattr(h, kind) is not None for h in table.handlers):
+            continue
+        if not _calls_super(sibling.path, root.type, method):
+            line = next(getattr(h, f"{kind}_line") for h in table.handlers
+                        if getattr(h, kind) is not None)
+            _refuse(
+                resolved,
+                line,
+                f"{sibling.filename}'s {method} never calls super().{method}, "
+                f"so this line would never be asked",
+            )
+
+
+def _calls_super(path, class_name: str, method: str) -> bool:
+    """Whether *class_name*.*method* in *path* calls ``super().method``."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    for node in tree.body:
+        if isinstance(node, ast.ClassDef) and node.name == class_name:
+            for item in node.body:
+                if isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)) and item.name == method:
+                    return any(
+                        isinstance(call, ast.Call)
+                        and isinstance(call.func, ast.Attribute)
+                        and call.func.attr == method
+                        and isinstance(call.func.value, ast.Call)
+                        and isinstance(call.func.value.func, ast.Name)
+                        and call.func.value.func.id == "super"
+                        for call in ast.walk(item)
+                    )
+    return True
 
 
 # -- what a handler line lands on --------------------------------------------

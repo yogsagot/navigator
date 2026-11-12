@@ -1,6 +1,6 @@
 ---
 name: navml-markup
-description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property, style-property and `class` declarations, aliases, the inline child form (`MenuItem: text=..., command=...`), `event` lines, property expressions, `style:`, `keys:`, `anchors:` and `when` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
+description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property, style-property and `class` declarations, aliases, the inline child form (`MenuItem: text=..., command=...`), `event` lines, property expressions, `style:`, `keys:`, `commands:`, `anchors:` and `when` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
 ---
 
 # Writing navml markup
@@ -143,6 +143,7 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
 - `style:` -- a `.nss` declaration set, checked at build time (`stylesheet.check_declarations`), `$variables` left for
   run time.
 - `keys:` -- the component's key table (root block only), as a class attribute `keys = {...}` would be.
+- `commands:` -- the component's command handlers (root block only). See *Commands* below.
 - `anchors:` -- where the widget sits, as edges. See *Anchors* below.
 - `when COND:` -- lines that differ while a condition holds. See *When* below.
 
@@ -186,6 +187,37 @@ code is the familiar `max(0, parent.width - 12)`. Prefer it to hand arithmetic f
   as before.
 - **Convert only where the generated value is unchanged.** Every anchor clamps at 0; a line with another floor
   (`max(1, ...)`) stays an expression.
+
+## Commands
+
+```
+commands:
+    FindPrevious: root.step(backward=True)
+    SwitchMatchCase: root.case = not root.case
+        checked: root.case
+```
+
+- **Each line becomes the handler navkit delivers that command to** (`Command.handler`: `on_switch_match_case`).
+  - It is a method of the generated class, holding one statement, compiled as a root handler line is.
+  - It always returns True.
+  - `await` and `root.spawn(...)` are written out, and the coroutine check applies (`checks._calls`).
+- **`enabled:` and `checked:` lines under a command** become branches of a generated `enables()`/`checks()`, each
+  `return bool(expr)`, falling back to `super()` for every other command.
+  - A `.py` `refusal()` is still reached, through `Widget.enables`.
+  - A `.py` that overrides `enables`/`checks` itself must call `super()`, or the build refuses the line (its method
+    is the derived one).
+- **Refused, with the line:**
+  - a command that is not a `Command` class (an instance, a name not imported);
+  - one handled twice;
+  - a handler the `.py` half also defines (it would win silently);
+  - a root `on_x:` line of the same name;
+  - any sub-line but `enabled:`/`checked:`;
+  - the block on a child.
+- **What stays in Python:**
+  - a handler that branches or returns False to pass the command outward (`enabled:` is not that: a disabled command
+    is not passed on, it is not run at all);
+  - handlers with several statements.
+- `find_bar.nml` is the example.
 
 ## When
 

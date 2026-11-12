@@ -32,6 +32,16 @@ FindBar:
         ctrl+f: ShowFindBar
         ctrl+r: ShowReplaceBar
 
+    #: The switches flip, and are ticked in the menu while on.
+    commands:
+        FindPrevious: root.step(backward=True)
+        SwitchMatchCase: root.case = not root.case
+            checked: root.case
+        SwitchWholeWords: root.whole = not root.whole
+            checked: root.whole
+        SwitchRegex: root.regex = not root.regex
+            checked: root.regex
+
     #: The text to find, from the frame to where the switches begin.
     Field:
         id: query

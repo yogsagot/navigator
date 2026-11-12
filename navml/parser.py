@@ -79,6 +79,11 @@ STYLE = "style"
 #: declares, and a child is an instance of a class that already exists.
 KEYS = "keys"
 
+#: A component's command handlers: ``Command: statement`` a line, each with
+#: ``enabled:``/``checked:`` lines under it if it needs them.  Root block only:
+#: the handlers are methods of the class this document declares.
+COMMANDS = "commands"
+
 #: The third: where the widget sits, said as edges rather than arithmetic.
 #: Its lines become ``x``/``y``/``width``/``height`` property lines before the
 #: generator sees the document (:mod:`navml.anchors`).
@@ -330,6 +335,35 @@ class KeyTable:
 
 
 @dataclass(frozen=True, slots=True)
+class CommandHandler:
+    """One line of a ``commands:`` block.
+
+    ``command`` is Python source naming a command class; ``body`` is the one
+    statement its handler runs.  ``enabled``/``checked`` are expressions, or
+    None where the line says nothing about them.
+    """
+
+    command: str
+    body: str
+    line: int
+    enabled: str | None = None
+    enabled_line: int | None = None
+    checked: str | None = None
+    checked_line: int | None = None
+    doc: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
+class CommandTable:
+    """A ``commands:`` block, which becomes handler methods and the
+    ``enables``/``checks`` branches its lines ask for."""
+
+    handlers: tuple[CommandHandler, ...]
+    line: int
+    doc: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True, slots=True)
 class Block:
     """A widget: the root block declares one, every other constructs one.
 
@@ -348,6 +382,7 @@ class Block:
     handlers: tuple[Handler, ...] = ()
     style: StyleBlock | None = None
     keys: KeyTable | None = None
+    commands: CommandTable | None = None
     children: tuple[Block, ...] = ()
     doc: tuple[str, ...] = ()
     anchors: AnchorBlock | None = None
@@ -1152,6 +1187,74 @@ def _read_when(lines: Sequence[_Line], index: int, filename: str
     return WhenBlock(condition, tuple(properties), anchors, head.line), index
 
 
+def _read_commands(lines: Sequence[_Line], index: int, filename: str
+                   ) -> tuple[CommandTable, int]:
+    """A ``commands:`` block: ``Command: statement``, with ``enabled:`` and
+    ``checked:`` lines indented under it."""
+    head = lines[index]
+    index += 1
+    handlers: list[CommandHandler] = []
+    seen: dict[str, int] = {}
+    if index < len(lines) and lines[index].indent > head.indent:
+        indent = lines[index].indent
+        while index < len(lines) and lines[index].indent >= indent:
+            line = lines[index]
+            if line.indent > indent:
+                raise MarkupError(
+                    "unexpected indent inside a commands block", line.line, filename
+                )
+            command, colon, body = line.text.partition(":")
+            command, body = command.strip(), body.strip()
+            if not colon or not body:
+                raise MarkupError(
+                    f"{line.text!r} is not a handler; expected 'Command: statement'",
+                    line.line,
+                    filename,
+                )
+            _expression(command, "a command", line.line, filename)
+            if command in seen:
+                raise MarkupError(
+                    f"{command} is already handled on line {seen[command]}",
+                    line.line,
+                    filename,
+                )
+            seen[command] = line.line
+            _statement(body, line.line, filename)
+            index += 1
+            found: dict[str, tuple[str, int]] = {}
+            while index < len(lines) and lines[index].indent > indent:
+                sub = lines[index]
+                name, colon, value = sub.text.partition(":")
+                name, value = name.strip(), value.strip()
+                if name not in ("enabled", "checked") or not colon or not value:
+                    raise MarkupError(
+                        f"under a command, a line is 'enabled: <expression>' or "
+                        f"'checked: <expression>', not {sub.text!r}",
+                        sub.line,
+                        filename,
+                    )
+                if name in found:
+                    raise MarkupError(
+                        f"a second {name!r} for {command}", sub.line, filename
+                    )
+                _expression(value, f"{name} of {command}", sub.line, filename)
+                found[name] = (value, sub.line)
+                index += 1
+            enabled = found.get("enabled")
+            checked = found.get("checked")
+            handlers.append(CommandHandler(
+                command, body, line.line,
+                enabled=enabled[0] if enabled else None,
+                enabled_line=enabled[1] if enabled else None,
+                checked=checked[0] if checked else None,
+                checked_line=checked[1] if checked else None,
+                doc=line.doc,
+            ))
+    if not handlers:
+        raise MarkupError("a commands block handles nothing", head.line, filename)
+    return CommandTable(tuple(handlers), head.line, head.doc), index
+
+
 def _read_keys(lines: Sequence[_Line], index: int, filename: str
                ) -> tuple[KeyTable, int]:
     """A ``keys:`` block: a key spec, a colon, and a Python expression."""
@@ -1216,6 +1319,7 @@ def _read_block(
     children: list[Block] = []
     style: StyleBlock | None = None
     keys: KeyTable | None = None
+    commands: CommandTable | None = None
     anchors: AnchorBlock | None = None
     whens: list[WhenBlock] = []
     if index < len(lines) and lines[index].indent > head.indent:
@@ -1253,6 +1357,16 @@ def _read_block(
                             filename,
                         )
                     keys, index = _read_keys(lines, index, filename)
+                elif line.text.rstrip(":").strip() == COMMANDS:
+                    if not root:
+                        raise _root_only("commands", line, filename)
+                    if commands is not None:
+                        raise MarkupError(
+                            "a second commands block; a component has one",
+                            line.line,
+                            filename,
+                        )
+                    commands, index = _read_commands(lines, index, filename)
                 elif line.text.rstrip(":").strip() == ANCHORS:
                     if anchors is not None:
                         raise MarkupError(
@@ -1310,6 +1424,7 @@ def _read_block(
             handlers=tuple(handlers),
             style=style,
             keys=keys,
+            commands=commands,
             children=tuple(children),
             doc=head.doc,
             anchors=anchors,
@@ -1346,7 +1461,7 @@ def _inline_properties(
                 head.line,
                 filename,
             )
-        if name in (STYLE, KEYS, ANCHORS, WHEN):
+        if name in (STYLE, KEYS, COMMANDS, ANCHORS, WHEN):
             raise MarkupError(
                 f"{name!r} is a block, written under '{type_name}:', not a "
                 f"property on its head",
