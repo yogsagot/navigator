@@ -15,7 +15,11 @@ whole, so it may span lines; without, it is the text itself, looked for a
 chunk at a time.  *Replace in files* (:mod:`navigator.lib.file_ops.filereplace`)
 walks the same way, through :func:`search`'s *match*.  A directory is walked into with *Recursive search*, whatever its
 name; never through a symbolic link, and never onto another file system
-when the scope is a disk.
+when the scope is a disk.  *Current directory* crosses into what is mounted
+below it, as ``find`` does, but never into a kernel file system
+(:data:`VIRTUAL_KINDS`: ``/proc``, ``/sys``, ``/dev`` ...), whose files are
+not the user's and may block when read -- a departure, as DN's drives had
+none; a search started inside one walks it, as asked.
 
 **The scope**, read for POSIX: *Current directory* is the active panel's;
 *Entire disk* is the file system it is on, from where that is mounted -- as
@@ -207,6 +211,40 @@ DISK_KINDS = frozenset({
 })
 
 
+#: The kernel's file systems: a walk never crosses into one (it may start
+#: in one).  ``autofs`` is here because entering one mounts it, perhaps over
+#: a network; ``tmpfs`` is not, as ``/tmp`` and ``/dev/shm`` hold real files.
+VIRTUAL_KINDS = frozenset({
+    "proc", "sysfs", "devtmpfs", "devpts", "cgroup", "cgroup2", "securityfs", "debugfs", "tracefs", "pstore",
+    "bpf", "mqueue", "hugetlbfs", "configfs", "fusectl", "binfmt_misc", "efivarfs", "nsfs", "rpc_pipefs",
+    "selinuxfs", "autofs",
+})
+
+#: Where the mounts are read from (a test points it elsewhere).
+MOUNTS_TABLE = Path("/proc/self/mounts")
+
+
+def _read_mounts() -> str:
+    """:data:`MOUNTS_TABLE`'s text, empty without one."""
+    try:
+        return MOUNTS_TABLE.read_text(encoding="utf-8", errors="surrogateescape")
+    except OSError:
+        return ""
+
+
+def virtual_points(text: str) -> set[Path]:
+    """The mount points in ``/proc/self/mounts`` *text* of a kernel file
+    system (:data:`VIRTUAL_KINDS`)."""
+    from navigator.lib.config.bookmarks import unescape_mount
+
+    found: set[Path] = set()
+    for line in text.splitlines():
+        fields = line.split()
+        if len(fields) >= 3 and fields[2] in VIRTUAL_KINDS:
+            found.add(Path(unescape_mount(fields[1])))
+    return found
+
+
 def disk_mounts(text: str) -> list[Path]:
     """The mount points in ``/proc/self/mounts`` *text* that are on a disk
     (:data:`DISK_KINDS`), in mounting order, each once."""
@@ -340,16 +378,24 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
         start = start.local
     one_device = request.scope != "directory"
     seen: set[tuple[int, int]] = set()
+    virtual: set[Path] | None = None  # read at the first crossing, if any
+
+    def may_cross(path: str) -> bool:
+        nonlocal virtual
+        if virtual is None:
+            virtual = virtual_points(_read_mounts())
+        return Path(os.path.realpath(path)) not in virtual
+
     for root in roots(start, request.scope, mounts):
         try:
             device = root.stat().st_dev
         except OSError:
             continue
-        pending = [root]
+        pending = [(root, device)]
         while pending:
             if job.stopped:
                 return job.found
-            directory = pending.pop()
+            directory, here = pending.pop()
             job.directory = str(directory)
             try:
                 scan = os.scandir(directory)
@@ -371,9 +417,11 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     if is_dir and request.recursive:
                         own = item.stat(follow_symlinks=False)
                         key = (own.st_dev, own.st_ino)
-                        if key not in seen and (not one_device or own.st_dev == device):
+                        if key not in seen and (
+                                own.st_dev == here
+                                or (not one_device and may_cross(item.path))):
                             seen.add(key)
-                            subdirectories.append(Path(item.path))
+                            subdirectories.append((Path(item.path), own.st_dev))
                     if is_dir and not request.directories:
                         continue
                     if not filetypes.in_filter(item.name, request.mask):

@@ -12,7 +12,7 @@ from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
 from navigator.lib.file_ops.filefind import (
-    Advanced, FindJob, FindRequest, disk_mounts, holds, mount_point, searchable_mounts, parse_size, parse_time, roots, search,
+    Advanced, FindJob, FindRequest, disk_mounts, holds, mount_point, searchable_mounts, virtual_points, parse_size, parse_time, roots, search,
     text_pattern,
 )
 from navigator.widgets.manager.panel.panel import make_entry
@@ -479,3 +479,41 @@ def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place)
     assert seen["items"] == ["Go to file", "Show in other panel"]
     assert seen["right"] == place / "b"
     assert seen["left"] == place / "b" and seen["found"] is None
+
+
+def test_virtual_points_are_the_kernel_file_systems():
+    table = ("proc /proc proc rw 0 0\nsysfs /sys sysfs rw 0 0\nudev /dev devtmpfs rw 0 0\n"
+             "devpts /dev/pts devpts rw 0 0\ncgroup2 /sys/fs/cgroup cgroup2 rw 0 0\n/dev/sda2 / ext4 rw 0 0\n"
+             "tmpfs /tmp tmpfs rw 0 0\n/dev/sda3 /home ext4 rw 0 0\n")
+    assert virtual_points(table) == {Path(p) for p in ("/proc", "/sys", "/dev", "/dev/pts", "/sys/fs/cgroup")}
+
+
+def _devpts_mounted() -> bool:
+    try:
+        return Path("/dev/pts") in virtual_points(Path("/proc/self/mounts").read_text())
+    except OSError:
+        return False
+
+
+def _under_pts(names):
+    return [name for name in names if name.startswith("pts/")]
+
+
+@pytest.mark.skipif(not _devpts_mounted(), reason="/dev/pts is not a devpts mount here")
+def test_current_directory_never_crosses_into_a_kernel_file_system():
+    names = _finishes(lambda: found(FindRequest(mask="*", recursive=True, directories=True), Path("/dev")))
+    assert names and _under_pts(names) == []
+
+
+@pytest.mark.skipif(not _devpts_mounted(), reason="/dev/pts is not a devpts mount here")
+def test_without_a_mount_table_the_walk_crosses_as_before(tmp_path, monkeypatch):
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.MOUNTS_TABLE", tmp_path / "none")
+    names = _finishes(lambda: found(FindRequest(mask="*", recursive=True), Path("/dev")))
+    assert "pts/ptmx" in names
+
+
+def test_only_a_crossing_is_tested_so_a_start_is_walked(tree, monkeypatch):
+    table = tree / "mounts"  # not a *.txt, so never found
+    table.write_text(f"proc {tree / 'a'} proc rw 0 0\nproc {tree} proc rw 0 0\n")
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.MOUNTS_TABLE", table)
+    assert "a/deep/note.txt" in found(FindRequest(mask="*.txt", recursive=True), tree)
