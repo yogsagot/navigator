@@ -66,6 +66,48 @@ def test_the_helper_starts_and_answers(started):
     assert started.begin() == READY_STATE  # already running
 
 
+
+def test_closing_does_not_wait_for_ever_on_a_step_that_never_answers(started, tmp_path, monkeypatch):
+    """A step stuck in the helper -- a directory on a network mount that stopped
+    answering -- held quitting with it: now the channel is shut under it."""
+    import errno
+    import socket
+    import threading
+    import time
+
+    # The request is never sent, so the step waits on the channel as a step
+    # whose answer never comes does.
+    monkeypatch.setattr(elevate, "send", lambda channel, message, payload=b"": None)
+    outcome: list = []
+
+    def step():
+        try:
+            started.call("stat", path=str(tmp_path))
+            outcome.append("answered")
+        except OSError as error:
+            outcome.append(error.errno)
+
+    stuck = threading.Thread(target=step, daemon=True)
+    stuck.start()
+    time.sleep(0.2)  # the step holds the lock, reading
+    ours = started._socket
+    # On a thread, so that a close waiting for ever fails here rather than
+    # hanging the suite -- and the step is set free either way, or the
+    # fixture's own close would wait on it next.
+    closing = threading.Thread(target=started.close, daemon=True)
+    began = time.monotonic()
+    closing.start()
+    closing.join(2 * elevate.STEP_WAIT + 3)
+    took = time.monotonic() - began
+    if closing.is_alive():
+        ours.shutdown(socket.SHUT_RDWR)
+        closing.join(5)
+        raise AssertionError("closing waited for ever on the step under way")
+    stuck.join(5)
+    assert took < 2 * elevate.STEP_WAIT + 1, took
+    assert not stuck.is_alive() and outcome == [errno.EIO]
+    assert not started.running
+
 def test_closing_turns_away_the_steps_queued_behind_the_one_under_way(started, tmp_path, monkeypatch):
     # A tree on root:/// queues a step per row; quitting used to wait behind
     # every one of them, as the lock is not first come first served.

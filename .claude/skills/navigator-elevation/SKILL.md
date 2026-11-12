@@ -21,6 +21,10 @@ of that operation goes through it without asking again** (DN's *All*).
     root, off, or no tool installed -- then As root is not offered at all.
   - `release()` at the end of every operation closes the helper when `[system] root_timeout` is 0; otherwise the
     reaper closes it that many idle minutes after its last step. `Navigator.on_stop` closes it.
+  - **`close()` never waits for ever.** Steps queued for the lock are turned away. The step under way gets
+    `STEP_WAIT` (1 s), then the socket is shut under it, so its read ends with `EIO` and it lets go; if the lock is
+    still held after another `STEP_WAIT`, closing gives up and quitting goes on. Found as a full-suite timeout: a
+    tree on `root:///` probing a slow network mount (s3fs/sshfs under `/mnt`) held Alt+X with it.
   - **`hold()`/`unhold()`**: a window that keeps a file open through the helper (F3's `_RootRandom`) holds it;
     neither `release()` nor the reaper closes a held helper. The handle's `close()` unholds and releases.
   - **`ELEVATION.command`** replaces the tool's argv: tests run the helper unprivileged with it (`tests/test_elevate.py`).

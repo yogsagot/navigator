@@ -81,6 +81,11 @@ def _helper_text(text: Any) -> Any:
     return tr(text) if isinstance(text, str) and text in HELPER_TEXTS else text
 
 
+#: How long closing waits for the helper step under way before shutting the
+#: channel under it, and then again for that step to let go (:meth:`close`).
+STEP_WAIT = 1.0
+
+
 @dataclass
 class Asked:
     """Starting the helper wants a password; *wrong* when one was refused."""
@@ -355,11 +360,29 @@ class Elevation:
         tree on ``root:///`` asks a directory's children for each row, each
         on its own thread, and the lock is not first come first served --
         quitting waited behind all of them (or more, as they kept coming).
+
+        **Nor does it wait for ever on the step under way**: one stuck in the
+        helper -- a directory on a network mount that has stopped answering,
+        which a tree on ``root:///`` probes row by row -- held Alt+X with it.
+        After :data:`STEP_WAIT` the channel is shut under it, so its read ends
+        and it lets go; if even that does not free the lock, closing gives up
+        waiting and quitting goes on.
         """
         self._closing = True
         try:
-            with self._lock:
+            if not self._lock.acquire(timeout=STEP_WAIT):
+                ours = self._socket
+                if ours is not None:
+                    try:
+                        ours.shutdown(socket.SHUT_RDWR)  # wakes the step's read
+                    except OSError:
+                        pass
+                if not self._lock.acquire(timeout=STEP_WAIT):
+                    return
+            try:
                 self._shut()
+            finally:
+                self._lock.release()
         finally:
             self._closing = False
 
