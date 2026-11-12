@@ -469,7 +469,8 @@ class Shell(DockLayout):
         if how == "run":
             self.run_command(command)
         elif not SETTINGS.interface.hide_command_line:
-            self.command_line.set_text(command)
+            # DN's ``CurString := DT.I``: Ctrl+E/Ctrl+X go on from the one chosen.
+            self.command_line.walk_to(command)
 
     #: Whether the grabber has said how it works this session (DN's ``NotMessage``).
     _grabber_told = False

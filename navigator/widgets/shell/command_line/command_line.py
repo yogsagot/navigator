@@ -273,6 +273,20 @@ class CommandLine(InputLine):
         self._backspaced_at = now
         return True
 
+    def walk_to(self, command: str) -> None:
+        """*command* on the line with the history walk set to it, so Ctrl+E and
+        Ctrl+X go on from there: Commands history's *Drop*, DN's ``CurString
+        := DT.I`` (``HISTRIES.PAS:658``).  What was on the line is kept aside
+        as the draft, as :meth:`recall` keeps it."""
+        entries = HISTORY.entries(HISTORY_ID)
+        self._draft = self.value
+        self.set_text(command)
+        if command in entries:
+            self._recalled = entries.index(command)
+            self._walked = command
+        else:
+            self._recalled, self._walked = -1, None
+
     def recall(self, step: int) -> bool:
         """Ctrl+E goes back a command, Ctrl+X forward, and past the newest
         gives back what was being typed -- and Shift+Up/Down from the panels

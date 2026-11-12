@@ -346,7 +346,7 @@ synced to the store as the box closes or acts -- Left/Right go to the marked one
 one (a marked one is refused, where DN beeped), *Edit* reworks it in `EditLineDialog` (`InputBox`, *Edit History*,
 history `edit_history`; it comes back as the newest, keeping its mark); the key bar says *Space Keep*, *←→ Next kept*
 (`CommandHistoryDialog.key_hints`, a departure, asked for). *Run* (Enter, double click) is
-`Shell.run_command`; *Drop* puts it on the line (`set_text`). DN's Shift+Up/Down reordering is not here: the store
+`Shell.run_command`; *Drop* puts it on the line with the history walk set to it (`CommandLine.walk_to`, DN's `CurString := DT.I`), so Ctrl+E/Ctrl+X go on from the one chosen, the line's text kept aside as the draft. DN's Shift+Up/Down reordering is not here: the store
 keeps its lists by when.
 
 ## Screen grabber (Shift+Alt+Ins)

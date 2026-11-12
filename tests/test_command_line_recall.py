@@ -69,3 +69,27 @@ def test_escape_forgets_the_draft(app):
 def test_shift_up_and_down_from_the_panels_keep_it_too(app):
     seen = walk(app, [typed("ech"), KeyEvent("up", shift=True), KeyEvent("down", shift=True)])
     assert [v for v, _ in seen] == ["ech", "make", "ech"]
+
+
+def dropped(name_up_steps):
+    """Alt+F8, Up *name_up_steps* times from the newest, Alt+D (*Drop*)."""
+    from conftest import Until
+
+    return [KeyEvent("f8", alt=True), Until(lambda a: a.modal is not None and a.modal.title == "Commands history"),
+            *[KeyEvent("up")] * name_up_steps, KeyEvent("d", alt=True), Until(lambda a: a.modal is None)]
+
+
+def test_after_drop_ctrl_e_goes_on_from_the_command_chosen(app):
+    # DN's ``CurString := DT.I``: ``pwd`` dropped, Ctrl+E is the one older.
+    seen = walk(app, [dropped(1), E])
+    assert [v for v, _ in seen] == ["pwd", "ls"]
+
+
+def test_after_drop_ctrl_x_goes_on_to_the_newer_and_then_the_draft(app):
+    seen = walk(app, [dropped(1), X, X])
+    assert [v for v, _ in seen] == ["pwd", "make", ""]
+
+
+def test_a_draft_typed_before_drop_comes_back(app):
+    seen = walk(app, [typed("ech"), dropped(1), X, X])
+    assert [v for v, _ in seen] == ["ech", "pwd", "make", "ech"]
