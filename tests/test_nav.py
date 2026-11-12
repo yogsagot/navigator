@@ -2016,6 +2016,15 @@ def test_shift_pageup_still_scrolls_a_busy_main_screen(tree, quiet_console):
     assert seen["back"] is True
 
 
+def test_a_typed_line_goes_to_the_shell_as_typed(tree, quiet_console):
+    # DN expanded ``%1``.. and split ``||``; here both are the shell's.
+    app = navigator(tree)
+    ran = []
+    app.shell.console.run = lambda command, cwd: ran.append(command)
+    run_app(app, [*[KeyEvent(c, c) for c in "echo %1 %% || true"], KeyEvent("enter"), lambda a: None])
+    assert ran == ["echo %1 %% || true"]
+
+
 def test_the_console_runs_a_real_child(tree, monkeypatch):
     """End to end: a command line's output really does end up behind the panels.
 

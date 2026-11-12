@@ -2393,6 +2393,14 @@ class Shell(DockLayout):
         it runs, the active panel's directory unless given; *uses* are the
         files fetched from another drive for it (``UseFile``), offered back up
         once it is done.
+
+        The line goes to the shell as typed -- a departure: DN's ``ExecString``
+        split it at ``||`` into a batch file and expanded ``MakeCMDParams``'
+        ``%1``..``%6`` / ``%11``..``%16`` (the two cursors' files' parts) and
+        ``%%`` (``RUNCMD.INC:58-77``, ``ADVANCE.PAS:1936-1960``).  Here ``%``
+        and ``||`` are the shell's (``date +%Y``, ``a || b``); Ctrl+Enter,
+        Ctrl+[ and Ctrl+] put the cursor files' names on the line instead, and
+        the user menu keeps macros of its own.
         """
         if not command.strip():
             if uses:

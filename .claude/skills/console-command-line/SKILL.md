@@ -189,6 +189,9 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   shell starts), since a shell `cd` moves the panel and would be counted twice. `z`/`zi` typed on the line work as
   any `cd` does. The bash rc strips trailing `;`/blanks from `PROMPT_COMMAND` before appending to it: zoxide's init
   leaves `__zoxide_hook;` in an empty one, and `;;` broke every prompt.
+- **A typed line goes to the shell as typed** (a departure): DN's `ExecString` split it at `||` into a batch file and
+  expanded `MakeCMDParams`' `%1`..`%6` / `%11`..`%16` (the two cursors' files) and `%%`; here `%` and `||` are the
+  shell's. Ctrl+Enter / Ctrl+[ / Ctrl+] put names on the line, and the user menu keeps its own macros.
 - **A line starting `|` is panelized, not run** (a departure): `Shell.run_command` (typed) records it in the history,
   clears the line and hands the rest to `Shell._panelize` -> `Manager.panelize`, whose capture runs off the pty
   (`navigator-panels`, *Panelize command*). A leading pipe is a shell syntax error, so no command is lost to it.
