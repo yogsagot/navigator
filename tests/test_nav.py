@@ -24,7 +24,7 @@ from navkit.stylesheet import StylesheetError
 from navkit.screen import ScreenBuffer, char_width
 from navkit.terminal import SHOW_CURSOR, encode_key
 
-from conftest import IDLE, FakeTerminal, Until, awaited, handled, mounted, run_app, settle, key_bar_hints, started, wait_until
+from conftest import IDLE, LISTED, FakeTerminal, Until, awaited, handled, mounted, run_app, settle, key_bar_hints, started, wait_until
 from navigator.lib.appearance import filetypes
 from navigator.lib.appearance import icons
 from navigator import __version__
@@ -618,7 +618,7 @@ def test_double_clicking_dotdot_goes_up_and_puts_the_cursor_back(tree):
     app = navigator(tree / "alpha")
     # Screen row 2 is the first listing line, which is always "..".
     up = MouseClickEvent(x=5, y=2, button="left", action="press")
-    run_app(app, [up, up])
+    run_app(app, [up, up, LISTED])
 
     assert app.manager.left.path == tree
     assert app.manager.left.selected.name == "alpha"
@@ -2314,8 +2314,8 @@ def test_backspace_goes_up_while_the_command_line_is_empty(tree):
     """DN's ``fmoBackGoesBack``."""
     app = navigator_with(tree, GLYPHS_UNICODE)
     run_app(app, [
-        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
-        lambda a: a.post_event(KeyEvent("backspace")),
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"), LISTED,
+        lambda a: a.post_event(KeyEvent("backspace")), LISTED,
     ])
     assert app.manager.left.path == tree
     assert app.manager.left.selected.name == "alpha"
@@ -2377,9 +2377,9 @@ def test_shift_backspace_goes_up_whatever_the_command_line_holds(tree):
 def test_ctrl_pageup_goes_up_whatever_the_command_line_holds(tree, line):
     app = navigator_with(tree, GLYPHS_UNICODE)
     run_app(app, [
-        lambda a: setattr(a.manager.left, "path", tree / "alpha"),
+        lambda a: setattr(a.manager.left, "path", tree / "alpha"), LISTED,
         lambda a: [a.post_event(KeyEvent(c, c)) for c in line],
-        lambda a: a.post_event(KeyEvent("pageup", ctrl=True)),
+        lambda a: a.post_event(KeyEvent("pageup", ctrl=True)), LISTED,
     ])
     assert app.shell.command_line.value == line
     assert app.manager.left.path == tree
@@ -4928,7 +4928,7 @@ def test_a_directory_the_panel_comes_to_is_told_to_zoxide(tree, quiet_console, m
     monkeypatch.setattr(fuzzy, "add", added.append)
     app = navigator(tree)
     run_app(app, [KeyEvent("down"), KeyEvent("enter"),
-                  Until(lambda a: a.manager.left.path == tree / "alpha")])
+                  Until(lambda a: a.manager.left.path == tree / "alpha"), LISTED])
     assert str(tree / "alpha") in added
     SETTINGS.interface.feed_zoxide = False
     try:

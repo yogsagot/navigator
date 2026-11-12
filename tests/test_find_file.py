@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, Until, run_app
+from conftest import LISTED, IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -112,7 +112,11 @@ def ask(mask: str, text: str = ""):
 
 
 def finding(app) -> bool:
-    return app.manager.left.found is not None and not app.manager.left.found.live
+    """The search is over and the panel shows what it found: the result is
+    listed by a read of its own, after the search ends."""
+    from conftest import _listed
+
+    return app.manager.left.found is not None and not app.manager.left.found.live and _listed(app)
 
 
 def keys(panel) -> list[str]:
@@ -134,8 +138,8 @@ def test_alt_f7_fills_the_panel_with_a_find_listing(place):
         d = a.modal
         seen.update(title=d.title, options=d.options.value, scope=d.scope.value)
 
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, look, ask("README"), KeyEvent("enter"),
-                  Until(finding), lambda a: None,
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, look, ask("README"), KeyEvent("enter"),
+                  Until(finding), LISTED,
                   lambda a: seen.update(items=keys(a.manager.left), title_text=a.manager.left.title_text(),
                                         right=a.manager.right.found)])
     assert seen["title"] == "Find File" and seen["options"] == 4 and seen["scope"] == 1
@@ -161,12 +165,12 @@ def test_the_dialog_s_own_keys_reach_their_commands(place):
 def test_enter_goes_to_the_file_and_up_comes_back(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
-                  Until(finding), lambda a: None,
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("note.txt"), KeyEvent("enter"),
+                  Until(finding), LISTED,
                   lambda a: seen.update(where=a.manager.left.info_lines[1][0]) if a.manager.left.cursor == 0 else None,
                   to(str(place / "a" / "deep" / "note.txt")),
                   lambda a: seen.update(where=a.manager.left.info_lines[1][0]),
-                  KeyEvent("enter"), lambda a: None, lambda a: None,
+                  KeyEvent("enter"), LISTED, LISTED,
                   lambda a: seen.update(path=a.manager.left.path, at=a.manager.left.selected.name,
                                         found=a.manager.left.found)])
     # Too narrow a panel for the path column: the line under *Current file*.
@@ -181,8 +185,8 @@ def test_dot_dot_leads_back_where_the_panel_was(place):
     def start(a):
         a.manager.left.cursor = keys(a.manager.left).index("top.txt")
 
-    run_app(app, [start, KeyEvent("f7", alt=True), lambda a: None, ask("README"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(".."), KeyEvent("enter"), lambda a: None, lambda a: None,
+    run_app(app, [start, KeyEvent("f7", alt=True), LISTED, ask("README"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(".."), KeyEvent("enter"), LISTED, LISTED,
                   lambda a: seen.update(path=a.manager.left.path, found=a.manager.left.found,
                                         at=a.manager.left.selected.name)])
     assert seen == {"path": place, "found": None, "at": "top.txt"}
@@ -191,9 +195,9 @@ def test_dot_dot_leads_back_where_the_panel_was(place):
 def test_shift_enter_sends_the_other_panel_to_the_file(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
-                  KeyEvent("enter", shift=True), lambda a: None, lambda a: None,
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "b" / "big.bin")),
+                  KeyEvent("enter", shift=True), LISTED, LISTED,
                   lambda a: seen.update(path=a.manager.right.path, at=a.manager.right.selected.name,
                                         left=a.manager.left.found is not None,
                                         keys=a.focused is a.manager.right),
@@ -207,9 +211,9 @@ def test_ctrl_shift_pgdn_sends_the_other_panel_to_the_file_too(place):
     # ``_CtrlPgDn`` with Shift in a listing: ``cmChangeInactive``.
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
-                  KeyEvent("pagedown", ctrl=True, shift=True), lambda a: None, lambda a: None,
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "b" / "big.bin")),
+                  KeyEvent("pagedown", ctrl=True, shift=True), LISTED, LISTED,
                   lambda a: seen.update(path=a.manager.right.path, at=a.manager.right.selected.name)])
     assert seen == {"path": place / "b", "at": "big.bin"}
 
@@ -217,10 +221,10 @@ def test_ctrl_shift_pgdn_sends_the_other_panel_to_the_file_too(place):
 def test_shift_enter_puts_the_other_panels_mask_back_to_all_files(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [lambda a: a.manager.right.set_file_mask("*.txt"), lambda a: None,
-                  KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")),
-                  KeyEvent("enter", shift=True), lambda a: None, lambda a: None,
+    run_app(app, [lambda a: a.manager.right.set_file_mask("*.txt"), LISTED,
+                  KeyEvent("f7", alt=True), LISTED, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "b" / "big.bin")),
+                  KeyEvent("enter", shift=True), LISTED, LISTED,
                   lambda a: seen.update(mask=a.manager.right.file_mask, at=a.manager.right.selected.name)])
     assert seen == {"mask": "*", "at": "big.bin"}
 
@@ -229,11 +233,11 @@ def test_tags_tell_two_files_of_one_name_apart_and_an_erase_takes_the_right_one(
     app = navigator(place)
     seen = {}
     b_readme = str(place / "b" / "README")
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("README"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(b_readme), KeyEvent("insert"),
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("README"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(b_readme), KeyEvent("insert"),
                   lambda a: seen.update(marked=set(a.manager.left.marked)),
                   KeyEvent("f8"), Until(lambda a: a.modal is not None), KeyEvent("enter"),
-                  Until(lambda a: not (place / "b" / "README").exists()), IDLE, lambda a: None,
+                  Until(lambda a: not (place / "b" / "README").exists()), IDLE, LISTED,
                   lambda a: seen.update(items=keys(a.manager.left))])
     assert seen["marked"] == {b_readme}
     assert (place / "a" / "README").exists()
@@ -243,7 +247,7 @@ def test_tags_tell_two_files_of_one_name_apart_and_an_erase_takes_the_right_one(
 def test_nothing_found_leaves_the_panel_and_says_so(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("*.nothing"), KeyEvent("enter"),
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("*.nothing"), KeyEvent("enter"),
                   Until(lambda a: a.modal is not None and a.modal.title == "Error"),
                   lambda a: seen.update(prompt=a.modal.prompt, found=a.manager.left.found),
                   KeyEvent("enter")])
@@ -255,7 +259,7 @@ def test_f7_and_compare_are_off_in_a_find_listing(place):
 
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("README"), KeyEvent("enter"),
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("README"), KeyEvent("enter"),
                   Until(finding), lambda a: seen.update(mkdir=a.command_enabled(MakeDirectory()),
                                                         compare=a.command_enabled(CompareDir()))])
     assert seen == {"mkdir": False, "compare": False}
@@ -264,11 +268,11 @@ def test_f7_and_compare_are_off_in_a_find_listing(place):
 def test_alt_f6_renames_a_found_file_in_its_own_directory(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "a" / "deep" / "note.txt")),
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("note.txt"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "a" / "deep" / "note.txt")),
                   KeyEvent("f6", alt=True), Until(lambda a: a.modal is not None),
                   *[KeyEvent(c, c) for c in "memo.txt"], KeyEvent("enter"),
-                  Until(lambda a: (place / "a" / "deep" / "memo.txt").exists()), lambda a: None, lambda a: None,
+                  Until(lambda a: (place / "a" / "deep" / "memo.txt").exists()), IDLE, LISTED,
                   lambda a: seen.update(items=keys(a.manager.left), at=a.manager.left.selected.key)])
     memo = str(place / "a" / "deep" / "memo.txt")
     assert seen == {"items": ["..", memo], "at": memo}
@@ -298,9 +302,9 @@ def test_alt_v_opens_the_list_at_the_cursor_as_a_listing(place):
         a.manager.left.cursor = keys(a.manager.left).index("files.lst")
 
     run_app(app, [on_list, KeyEvent("v", alt=True), Until(lambda a: a.manager.left.found is not None),
-                  lambda a: None,
+                  LISTED,
                   lambda a: seen.update(items=keys(a.manager.left), title=a.manager.left.found.title),
-                  to(".."), KeyEvent("enter"), lambda a: None, lambda a: None,
+                  to(".."), KeyEvent("enter"), LISTED, LISTED,
                   lambda a: seen.update(back=a.manager.left.selected.name)])
     assert seen["items"] == ["..", str(place / "a" / "README"), str(place / "b" / "README")]
     assert seen["title"] == str(place / "files.lst") and seen["back"] == "files.lst"
@@ -327,7 +331,7 @@ def test_directory_branch_lists_every_file_below_and_no_directory(place):
 
     app = navigator(place)
     seen = {}
-    run_app(app, [lambda a: a.spawn(a.run_command(DirBranch)), Until(finding), lambda a: None,
+    run_app(app, [lambda a: a.spawn(a.run_command(DirBranch)), Until(finding), LISTED,
                   lambda a: seen.update(items=keys(a.manager.left), title=a.manager.left.found.title,
                                         again=a.command_enabled(DirBranch()))])
     assert seen["title"] == f"Branch: {place}"
@@ -361,9 +365,9 @@ def test_the_directory_s_line_stays_however_wide_the_panel(place):
             seen[key] = ([k for k, _, _ in panel.detail_columns], [text for text, _ in panel.info_lines])
         return take
 
-    run_app(app, [KeyEvent("f7", alt=True), lambda a: None, ask("note.txt"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "a" / "deep" / "note.txt")), look("narrow"),
-                  lambda a: setattr(a.manager.left, "width", 150), lambda a: None, look("wide")])
+    run_app(app, [KeyEvent("f7", alt=True), LISTED, ask("note.txt"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "a" / "deep" / "note.txt")), look("narrow"),
+                  lambda a: setattr(a.manager.left, "width", 150), LISTED, look("wide")])
     for key in ("narrow", "wide"):
         columns, lines = seen[key]
         assert "path" not in columns and lines[1].endswith("/a/deep")
@@ -389,15 +393,15 @@ def test_a_listing_offers_go_to_file_and_show_in_other_panel_on_its_menus(place)
         return action
 
     run_app(app, [panel_menu("plain"),
-                  KeyEvent("f7", alt=True), lambda a: None, ask("big.bin"), KeyEvent("enter"),
-                  Until(finding), lambda a: None, to(str(place / "b" / "big.bin")), panel_menu("listing"),
+                  KeyEvent("f7", alt=True), LISTED, ask("big.bin"), KeyEvent("enter"),
+                  Until(finding), LISTED, to(str(place / "b" / "big.bin")), panel_menu("listing"),
                   lambda a: a.spawn(a.manager.left.emit(ShowContextMenu())), Until(lambda a: popup(a) is not None),
                   lambda a: seen.update(items=[parse_shortcut(e.text)[0] for e in popup(a).box.entries()
                                                if hasattr(e, "command")][:2]),
-                  KeyEvent("o", "o"), Until(lambda a: popup(a) is None), lambda a: None,
+                  KeyEvent("o", "o"), Until(lambda a: popup(a) is None), LISTED,
                   lambda a: seen.update(right=a.manager.right.path),
                   lambda a: a.spawn(a.manager.left.emit(ShowContextMenu())), Until(lambda a: popup(a) is not None),
-                  KeyEvent("f", "f"), Until(lambda a: popup(a) is None), lambda a: None, lambda a: None,
+                  KeyEvent("f", "f"), Until(lambda a: popup(a) is None), LISTED, LISTED,
                   lambda a: seen.update(left=a.manager.left.path, found=a.manager.left.found)])
     assert seen["plain"] == ("Ctrl-Shift-PgDn", False)
     assert seen["listing"] == ("Ctrl-Shift-PgDn", True)

@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -246,13 +246,13 @@ def test_enter_and_backspace_resolve_nothing_and_a_link_goes_where_it_points(tre
     seen = {}
     run_app(app, [
         Until(lambda a: "to_fast" in [e.name for e in left(a).items]),
-        go_to("to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"),
-        go_to("inner"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast" / "inner"),
-        KeyEvent("backspace"), Until(lambda a: left(a).path == tree / "fast"),
+        go_to("to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"), LISTED,
+        go_to("inner"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast" / "inner"), LISTED,
+        KeyEvent("backspace"), Until(lambda a: left(a).path == tree / "fast"), LISTED,
         lambda a: seen.update(cursor=left(a).selected.name),
-        KeyEvent("backspace"), Until(lambda a: left(a).path == tree),
+        KeyEvent("backspace"), Until(lambda a: left(a).path == tree), LISTED,
         go_to("slow"), KeyEvent("enter"), Until(lambda a: "up_to_fast" in [e.name for e in left(a).items]),
-        go_to("up_to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"),
+        go_to("up_to_fast"), KeyEvent("enter"), Until(lambda a: left(a).path == tree / "fast"), LISTED,
     ])
     assert seen["cursor"] == "inner"
     assert resolves_on_loop == []

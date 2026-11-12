@@ -102,36 +102,48 @@ SystemSetupPage:
     #: row (tabs on top), under it where it is not (tabs down the left).
     StaticText:
         id: stall_unit
-        x: 35 if parent.width >= 67 else 30
-        y: 12 if parent.width >= 67 else 13
-        width: max(0, parent.width - (38 if parent.width >= 67 else 32))
+        x: 35
+        y: 12
+        width: max(0, parent.width - 38)
         height: 1
+        when parent.width < 67:
+            x: 30
+            y: 13
+            width: max(0, parent.width - 32)
         text: "seconds (0: never)"
 
     Label:
         id: elevate_caption
         x: 3
-        y: 14 if parent.width >= 67 else 15
+        y: 14
         width: 14
         height: 1
+        when parent.width < 67:
+            y: 15
         text: "Root a~c~cess"
         link: elevate
 
     #: Beside its caption on a wide page, on its own row under it on a narrow one.
     RadioButtons:
         id: elevate
-        x: 17 if parent.width >= 67 else 3
-        y: 14 if parent.width >= 67 else 16
-        width: max(0, parent.width - (20 if parent.width >= 67 else 6))
+        x: 17
+        y: 14
+        width: max(0, parent.width - 20)
         height: 1
+        when parent.width < 67:
+            x: 3
+            y: 16
+            width: max(0, parent.width - 6)
         items: ["~A~uto", "su~d~o", "pke~x~ec", "~N~ever offer"]
 
     MaskedField:
         id: root_timeout
         x: 3
-        y: 16 if parent.width >= 67 else 17
+        y: 16
         width: 31
         height: 1
+        when parent.width < 67:
+            y: 17
         label_text: "Keep root open ~w~hile idle"
         label_width: 26
         mask: "999"
@@ -139,8 +151,12 @@ SystemSetupPage:
 
     StaticText:
         id: root_timeout_unit
-        x: 35 if parent.width >= 67 else 30
-        y: 16 if parent.width >= 67 else 18
-        width: max(0, parent.width - (38 if parent.width >= 67 else 32))
+        x: 35
+        y: 16
+        width: max(0, parent.width - 38)
         height: 1
+        when parent.width < 67:
+            x: 30
+            y: 18
+            width: max(0, parent.width - 32)
         text: "minutes (0: each time)"

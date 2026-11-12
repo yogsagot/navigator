@@ -14,7 +14,7 @@ from pathlib import PurePosixPath
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app, settle
+from conftest import LISTED, FakeTerminal, Until, run_app, settle
 from navkit.events import KeyEvent
 from navigator.lib.drives import Location, mount, unmount
 from navigator.lib.drives.memory import MemoryDrive
@@ -106,7 +106,7 @@ def test_alt_f7_lists_what_it_found_on_another_drive_and_goes_to_one(desk):
         lambda a: setattr(a.manager.left, "location", memory.location("/top")),
         Until(lambda a: "sub" in names(a.manager.left)),
         lambda a: a.spawn(find(a)),
-        Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live, timeout=5),
+        Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live, timeout=5), LISTED,
         lambda a: seen.update(found=sorted(names(a.manager.left))),
         lambda a: setattr(a.manager.left, "cursor", names(a.manager.left).index("b.txt")),
         lambda a: a.manager.left.go_to_entry(),

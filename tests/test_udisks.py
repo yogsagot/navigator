@@ -670,7 +670,7 @@ def test_the_context_menu_offers_unmount_in_a_mounted_image_and_on_it(mounted_im
     def to_image(a):
         a.manager.left.go_to_file(here / "disk.iso")
 
-    run_app(app, [look("inside"), to_image, Until(lambda a: a.manager.left.selected.name == "disk.iso"),
+    run_app(app, [look("inside"), to_image, Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "disk.iso"),
                   look("on it"), lambda a: setattr(a.manager.left, "cursor", 0), look("elsewhere")])
     assert seen == {"inside": True, "on it": True, "elsewhere": False}
 

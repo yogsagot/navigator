@@ -1,6 +1,6 @@
 """Disk > Directory sizes: ``navigator/widgets/shell/usage_window/``."""
 
-from conftest import Until, run_app
+from conftest import LISTED, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.file_ops import dirusage
@@ -142,7 +142,7 @@ def test_enter_on_a_file_puts_the_panel_on_it_and_the_window_stays(tmp_path):
         seen.append((panel.path, panel.selected.name if panel.selected else None, type(window(a)).__name__))
 
     usage_run(tmp_path, KeyEvent("enter"), KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"),
-              Until(lambda a: a.shell.active_manager.active_panel.path == tmp_path / "big"), lambda a: None, look)
+              Until(lambda a: a.shell.active_manager.active_panel.path == tmp_path / "big"), LISTED, look)
     assert seen == [(tmp_path / "big", "file", "UsageWindow")]
 
 

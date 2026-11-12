@@ -1,6 +1,6 @@
 ---
 name: navml-markup
-description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property and style-property declarations, aliases, `event` lines, property expressions, `style:`, `keys:` and `anchors:` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
+description: Writing or editing a `.nml` markup document in navml/ or navigator/ -- its imports, ids, property and style-property declarations, aliases, `event` lines, property expressions, `style:`, `keys:`, `anchors:` and `when` blocks, one-line handlers and `on_<id>_<event>` methods -- and rebuilding with `python -m navml build --check`.
 ---
 
 # Writing navml markup
@@ -82,6 +82,7 @@ half. A generated file is only ever overwritten if its first line is `# navml: g
   run time.
 - `keys:` -- the component's key table (root block only), as a class attribute `keys = {...}` would be.
 - `anchors:` -- where the widget sits, as edges. See *Anchors* below.
+- `when COND:` -- lines that differ while a condition holds. See *When* below.
 
 ## Anchors
 
@@ -123,6 +124,29 @@ code is the familiar `max(0, parent.width - 12)`. Prefer it to hand arithmetic f
   as before.
 - **Convert only where the generated value is unchanged.** Every anchor clamps at 0; a line with another floor
   (`max(1, ...)`) stays an expression.
+
+## When
+
+`when COND:` inside a widget holds property lines and at most one `anchors:` block. While COND holds, the widget is
+as if those lines replaced its own (`navml/states.py`, in the same pass as anchors). It is QML's *States*, kept small.
+It is how a page reflows when narrow (System setup, Volumes: `when parent.width < 67:`).
+
+- **A property line replaces the widget's line of that name.**
+- **An anchor line replaces the widget's anchors on the sides it names.**
+  - Sides: `left`/`after` the horizontal start, `right`/`before` its end, `top`/`below` and `bottom`/`above`
+    likewise.
+  - A `center` loses any axis the block puts an edge on.
+  - `fill` stays the default for any side the block leaves alone.
+  - So `bottom: 6` under a widget anchored `top: 1, bottom: 4` still stretches it.
+- **The widget and each variant are expanded alike**, so every anchor rule holds per variant. A differing line
+  becomes `(variant) if (COND) else (own)`. Several blocks: the first whose condition holds wins, in document order.
+- **Refused, with the line:**
+  - a variant giving a property the widget has no line for (nothing to fall back on while COND is false);
+  - a block with no condition, or one that says nothing;
+  - an id, handler, declaration, child, `style:`/`keys:` or nested `when` inside it;
+  - a property written twice in one block.
+
+`when` is a keyword: no property or id may be called that. Model documents refuse it.
 
 ## Model documents
 

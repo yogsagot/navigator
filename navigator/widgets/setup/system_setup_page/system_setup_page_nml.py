@@ -69,10 +69,10 @@ class SystemSetupPage(_Component):
     on_error: RadioButtons    # system_setup_page.nml:81
     stall_report: MaskedField    # system_setup_page.nml:90
     stall_unit: StaticText    # system_setup_page.nml:104
-    elevate_caption: Label    # system_setup_page.nml:112
-    elevate: RadioButtons    # system_setup_page.nml:122
-    root_timeout: MaskedField    # system_setup_page.nml:130
-    root_timeout_unit: StaticText    # system_setup_page.nml:141
+    elevate_caption: Label    # system_setup_page.nml:116
+    elevate: RadioButtons    # system_setup_page.nml:128
+    root_timeout: MaskedField    # system_setup_page.nml:140
+    root_timeout_unit: StaticText    # system_setup_page.nml:153
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -84,10 +84,10 @@ class SystemSetupPage(_Component):
         self.on_error = RadioButtons(parent=self)    # system_setup_page.nml:80
         self.stall_report = MaskedField(parent=self)    # system_setup_page.nml:89
         self.stall_unit = StaticText(parent=self)    # system_setup_page.nml:103
-        self.elevate_caption = Label(parent=self)    # system_setup_page.nml:111
-        self.elevate = RadioButtons(parent=self)    # system_setup_page.nml:121
-        self.root_timeout = MaskedField(parent=self)    # system_setup_page.nml:129
-        self.root_timeout_unit = StaticText(parent=self)    # system_setup_page.nml:140
+        self.elevate_caption = Label(parent=self)    # system_setup_page.nml:115
+        self.elevate = RadioButtons(parent=self)    # system_setup_page.nml:127
+        self.root_timeout = MaskedField(parent=self)    # system_setup_page.nml:139
+        self.root_timeout_unit = StaticText(parent=self)    # system_setup_page.nml:152
 
         self.options_caption.x = 3    # system_setup_page.nml:36
         self.options_caption.y = 1    # system_setup_page.nml:37
@@ -157,68 +157,68 @@ class SystemSetupPage(_Component):
         self.stall_report.page_keys = False    # system_setup_page.nml:99
 
         self.stall_unit.x = _bind(    # system_setup_page.nml:105
-            lambda _o: 35 if _o.parent.width >= 67 else 30
+            lambda _o: 30 if _o.parent.width < 67 else 35
         )
         self.stall_unit.y = _bind(    # system_setup_page.nml:106
-            lambda _o: 12 if _o.parent.width >= 67 else 13
+            lambda _o: 13 if _o.parent.width < 67 else 12
         )
         self.stall_unit.width = _bind(    # system_setup_page.nml:107
-            lambda _o: max(0, _o.parent.width - (38 if _o.parent.width >= 67 else 32))
+            lambda _o: max(0, _o.parent.width - 32) if _o.parent.width < 67 else max(0, _o.parent.width - 38)
         )
         self.stall_unit.height = 1    # system_setup_page.nml:108
-        self.stall_unit.text = _bind(    # system_setup_page.nml:109
+        self.stall_unit.text = _bind(    # system_setup_page.nml:113
             lambda _o: _tr('seconds (0: never)'),
             yielding=True,
         )
 
-        self.elevate_caption.x = 3    # system_setup_page.nml:113
-        self.elevate_caption.y = _bind(    # system_setup_page.nml:114
-            lambda _o: 14 if _o.parent.width >= 67 else 15
+        self.elevate_caption.x = 3    # system_setup_page.nml:117
+        self.elevate_caption.y = _bind(    # system_setup_page.nml:118
+            lambda _o: 15 if _o.parent.width < 67 else 14
         )
-        self.elevate_caption.width = 14    # system_setup_page.nml:115
-        self.elevate_caption.height = 1    # system_setup_page.nml:116
-        self.elevate_caption.text = _bind(    # system_setup_page.nml:117
+        self.elevate_caption.width = 14    # system_setup_page.nml:119
+        self.elevate_caption.height = 1    # system_setup_page.nml:120
+        self.elevate_caption.text = _bind(    # system_setup_page.nml:123
             lambda _o: _tr('Root a~c~cess'),
             yielding=True,
         )
-        self.elevate_caption.link = _bind(lambda _o: self.elevate)    # system_setup_page.nml:118
+        self.elevate_caption.link = _bind(lambda _o: self.elevate)    # system_setup_page.nml:124
 
-        self.elevate.x = _bind(lambda _o: 17 if _o.parent.width >= 67 else 3)    # system_setup_page.nml:123
-        self.elevate.y = _bind(lambda _o: 14 if _o.parent.width >= 67 else 16)    # system_setup_page.nml:124
-        self.elevate.width = _bind(    # system_setup_page.nml:125
-            lambda _o: max(0, _o.parent.width - (20 if _o.parent.width >= 67 else 6))
+        self.elevate.x = _bind(lambda _o: 3 if _o.parent.width < 67 else 17)    # system_setup_page.nml:129
+        self.elevate.y = _bind(lambda _o: 16 if _o.parent.width < 67 else 14)    # system_setup_page.nml:130
+        self.elevate.width = _bind(    # system_setup_page.nml:131
+            lambda _o: max(0, _o.parent.width - 6) if _o.parent.width < 67 else max(0, _o.parent.width - 20)
         )
-        self.elevate.height = 1    # system_setup_page.nml:126
-        self.elevate.items = _bind(    # system_setup_page.nml:127
+        self.elevate.height = 1    # system_setup_page.nml:132
+        self.elevate.items = _bind(    # system_setup_page.nml:137
             lambda _o: [_tr('~A~uto'), _tr('su~d~o'), _tr('pke~x~ec'), _tr('~N~ever offer')],
             yielding=True,
         )
 
-        self.root_timeout.x = 3    # system_setup_page.nml:131
-        self.root_timeout.y = _bind(    # system_setup_page.nml:132
-            lambda _o: 16 if _o.parent.width >= 67 else 17
+        self.root_timeout.x = 3    # system_setup_page.nml:141
+        self.root_timeout.y = _bind(    # system_setup_page.nml:142
+            lambda _o: 17 if _o.parent.width < 67 else 16
         )
-        self.root_timeout.width = 31    # system_setup_page.nml:133
-        self.root_timeout.height = 1    # system_setup_page.nml:134
-        self.root_timeout.label_text = _bind(    # system_setup_page.nml:135
+        self.root_timeout.width = 31    # system_setup_page.nml:143
+        self.root_timeout.height = 1    # system_setup_page.nml:144
+        self.root_timeout.label_text = _bind(    # system_setup_page.nml:147
             lambda _o: _tr('Keep root open ~w~hile idle'),
             yielding=True,
         )
-        self.root_timeout.label_width = 26    # system_setup_page.nml:136
-        self.root_timeout.mask = '999'    # system_setup_page.nml:137
-        self.root_timeout.page_keys = False    # system_setup_page.nml:138
+        self.root_timeout.label_width = 26    # system_setup_page.nml:148
+        self.root_timeout.mask = '999'    # system_setup_page.nml:149
+        self.root_timeout.page_keys = False    # system_setup_page.nml:150
 
-        self.root_timeout_unit.x = _bind(    # system_setup_page.nml:142
-            lambda _o: 35 if _o.parent.width >= 67 else 30
+        self.root_timeout_unit.x = _bind(    # system_setup_page.nml:154
+            lambda _o: 30 if _o.parent.width < 67 else 35
         )
-        self.root_timeout_unit.y = _bind(    # system_setup_page.nml:143
-            lambda _o: 16 if _o.parent.width >= 67 else 18
+        self.root_timeout_unit.y = _bind(    # system_setup_page.nml:155
+            lambda _o: 18 if _o.parent.width < 67 else 16
         )
-        self.root_timeout_unit.width = _bind(    # system_setup_page.nml:144
-            lambda _o: max(0, _o.parent.width - (38 if _o.parent.width >= 67 else 32))
+        self.root_timeout_unit.width = _bind(    # system_setup_page.nml:156
+            lambda _o: max(0, _o.parent.width - 32) if _o.parent.width < 67 else max(0, _o.parent.width - 38)
         )
-        self.root_timeout_unit.height = 1    # system_setup_page.nml:145
-        self.root_timeout_unit.text = _bind(    # system_setup_page.nml:146
+        self.root_timeout_unit.height = 1    # system_setup_page.nml:157
+        self.root_timeout_unit.text = _bind(    # system_setup_page.nml:162
             lambda _o: _tr('minutes (0: each time)'),
             yielding=True,
         )

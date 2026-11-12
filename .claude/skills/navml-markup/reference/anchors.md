@@ -81,8 +81,11 @@ could prove equal: a literal start with `max(0, parent.width - K)`, an end edge 
   The mode test now lives once, in the field's `visible`, instead of in every row below it. Both modes, built and
   toggled live, lay out cell for cell as before. The one exception is Change all, hidden in Find, which now waits
   under Scope instead of row 15.
-- **Left as expressions, about 45 lines**:
-  - width breakpoints (System setup's `35 if parent.width >= 67 else 30`, Volumes' `>= 82`): reflow, not siblings;
+- **Width breakpoints are `when` blocks.** System setup's five reflowing rows and Volumes' list and Mount/Unmount/
+  Eject say their wide lines once, then `when parent.width < 67:` (or `< 82:`) with the narrow ones (`navml/states.py`).
+  The 18 `… if parent.width >= 67 else …` copies are gone. At widths on both sides of each breakpoint, and with the
+  width changed live across it, every rectangle is as it was.
+- **Left as expressions, about 27 lines**:
   - the calculator's faces: its line is 0 below the Expression caption in Classic and 1 below the mode strip
     otherwise, and a sibling list has one gap (per-id gaps would make `before: a, b, clock + 1` ambiguous);
   - floors other than 0 (`max(1, parent.width - 30)`);

@@ -22,7 +22,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 from navigator.lib.drives import Location, archive, cpio, debpkg, squashfs, stream, zstd
 from navigator.lib.file_ops.filecopy import OVERWRITE, PRESERVE, CopyJob, CopyRequest, run as copy_run
@@ -465,7 +465,7 @@ def test_enter_goes_into_a_deb_and_a_gz(desk):
     seen = {}
     run_app(app, [
         at("tool.deb"), KeyEvent("enter"), Until(lambda a: "DEBIAN" in names(a), timeout=5),
-        KeyEvent("ctrl+pageup"), Until(lambda a: a.manager.left.location.is_local),
+        KeyEvent("ctrl+pageup"), Until(lambda a: a.manager.left.location.is_local), LISTED,
         at("app.log.gz"), KeyEvent("enter"), Until(lambda a: names(a) == ["..", "app.log"], timeout=5),
         lambda a: seen.update(title=a.manager.left.title_location),
     ])

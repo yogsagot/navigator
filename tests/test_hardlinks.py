@@ -116,7 +116,11 @@ def test_the_panel_shows_the_column_when_asked(place):
 
 
 def listed(app) -> bool:
-    return app.manager.left.found is not None and app.modal is None
+    """The listing is up and the panel shows it: what was found is listed by
+    a read of its own once the search is done."""
+    from conftest import _listed
+
+    return app.manager.left.found is not None and app.modal is None and _listed(app)
 
 
 def at(app, name: str) -> None:

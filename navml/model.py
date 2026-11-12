@@ -122,6 +122,8 @@ def resolve_model(
         refuse(root.keys.line, "a model binds no keys")
     if root.anchors is not None:
         refuse(root.anchors.line, "a model is not placed anywhere, so it has no anchors")
+    for when in root.whens:
+        refuse(when.line, "a model has no states: a when block belongs to a widget")
     for declaration in root.declarations:
         if not isinstance(declaration, (FieldDecl, IndexDecl)):
             refuse(

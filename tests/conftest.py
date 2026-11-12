@@ -163,6 +163,30 @@ class Until:
 IDLE = Until(lambda app: not app._tasks)
 
 
+def _listed(app) -> bool:
+    """No panel has a read in flight: every directory moved to, re-read or
+    re-sorted is listed.  A local listing normally lands within ``SCAN_GRACE``
+    in the step that asked for it; on a loaded machine it lands later."""
+    from navigator.widgets.manager.panel.panel import Panel
+
+    # An effect may yet ask for a read -- a search's result shown, a sort
+    # changed -- so nothing queued counts as nothing in flight.
+    if app.busy or SCHEDULER.pending:
+        return False
+    stack = [app.root]
+    while stack:
+        widget = stack.pop()
+        if isinstance(widget, Panel) and widget._pending is not None:
+            return False
+        stack.extend(widget.children)
+    return True
+
+
+# Until every panel's directory read has landed (``NAVIGATOR_SLOW_SCANS`` finds
+# the tests that need it).
+LISTED = Until(_listed)
+
+
 def run_app(
     app: Application,
     actions=(),
@@ -376,13 +400,23 @@ def _slow_threads(monkeypatch):
     real_submit = concurrent.futures.ThreadPoolExecutor.submit
     real_run = threading.Thread.run
 
+    from navigator.widgets.manager.panel import panel as panel_module
+
+    # A scan delayed by about the grace would beat it one run and miss it the
+    # next: well past it, every listing misses it, and one run finds every
+    # test that counts on it.
+    scan_delay = max(SLOW_THREADS, 3 * panel_module.SCAN_GRACE)
+
     def submit(self, fn, /, *args, **kwargs):
         prefix = getattr(self, "_thread_name_prefix", "") or ""
-        if prefix.startswith("nav-scan") and not SLOW_SCANS:
-            return real_submit(self, fn, *args, **kwargs)
+        delay = SLOW_THREADS
+        if prefix.startswith("nav-scan"):
+            if not SLOW_SCANS:
+                return real_submit(self, fn, *args, **kwargs)
+            delay = scan_delay
 
         def late(*a, **k):
-            time.sleep(SLOW_THREADS)
+            time.sleep(delay)
             return fn(*a, **k)
         return real_submit(self, late, *args, **kwargs)
 

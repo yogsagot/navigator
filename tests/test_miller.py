@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -44,7 +44,9 @@ def cursor_on(name: str):
 
 def test_alt_f12_opens_the_chain_from_the_root_down_to_the_active_panel(tree):
     app = navigator(tree)
-    run_app(app, [cursor_on("src"), ALT_F12, lambda a: None])
+    # The preview fills once the chain is listed: wait for it, then for its own listing.
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED,
+                  Until(lambda a: a.manager.miller.preview == "directory"), LISTED])
     m = app.manager
     chain = m.miller.chain
     assert m.miller_mode and not m.left.visible and not m.right.visible
@@ -70,7 +72,7 @@ def test_right_steps_in_and_left_steps_back(tree):
         assert current.location == Location.of(tree / "west" / "src") and a.focused is current
         assert m.miller.chain[-2].trail and m.miller.chain[-2].selected.name == "src"
 
-    run_app(app, [cursor_on("src"), ALT_F12, KeyEvent("right"), stepped_in, KeyEvent("left"), lambda a: None])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED, KeyEvent("right"), LISTED, stepped_in, KeyEvent("left"), LISTED])
     m = app.manager
     assert m.active_panel.location == Location.of(tree / "west")
     assert m.miller.preview_dir is seen["current"]  # the column left becomes the preview, cursor kept
@@ -80,7 +82,7 @@ def test_enter_on_a_directory_steps_in_and_backspace_steps_back(tree):
     app = navigator(tree)
     seen = []
     record = lambda a: seen.append(a.manager.active_panel.location)  # noqa: E731
-    run_app(app, [cursor_on("src"), ALT_F12, KeyEvent("enter"), record, KeyEvent("backspace"), record])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED, KeyEvent("enter"), record, KeyEvent("backspace"), record])
     assert seen == [Location.of(tree / "west" / "src"), Location.of(tree / "west")]
 
 
@@ -96,7 +98,7 @@ def test_a_file_at_the_cursor_is_previewed_in_the_quick_view(tree):
 
 def test_the_leftmost_columns_give_way_and_the_preview_takes_the_rest(tree):
     app = navigator(tree, width=70)
-    run_app(app, [cursor_on("src"), ALT_F12, lambda a: None])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED])
     miller = app.manager.miller
     shown = [c for c in miller.chain if c.visible]
     assert len(shown) == (70 - 20) // 20 and shown[-1] is miller.chain[-1]
@@ -110,7 +112,7 @@ def test_a_column_moved_by_itself_brings_the_chain_with_it(tree):
     def go(a):
         a.manager.active_panel.path = tree / "west" / "src" / "pkg"
 
-    run_app(app, [ALT_F12, go, lambda a: None])
+    run_app(app, [ALT_F12, LISTED, go, LISTED])
     chain = app.manager.miller.chain
     assert chain[-1].location == Location.of(tree / "west" / "src" / "pkg")
     assert chain[-2].location == Location.of(tree / "west" / "src") and chain[-2].selected.name == "pkg"
@@ -119,8 +121,8 @@ def test_a_column_moved_by_itself_brings_the_chain_with_it(tree):
 
 def test_alt_f12_again_gives_the_panels_back_at_the_directory_browsed(tree):
     app = navigator(tree)
-    run_app(app, [cursor_on("src"), ALT_F12, KeyEvent("right"), cursor_on("pkg"), lambda a: None,
-                  ALT_F12, lambda a: None])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED, KeyEvent("right"), LISTED, cursor_on("pkg"), LISTED,
+                  ALT_F12, LISTED])
     m = app.manager
     assert not m.miller_mode and m.left.visible and m.right.visible
     assert not m.miller.chain and not [c for c in m.miller.children if isinstance(c, MillerColumn)]
@@ -130,7 +132,7 @@ def test_alt_f12_again_gives_the_panels_back_at_the_directory_browsed(tree):
 
 def test_copy_offers_the_directory_browsed(tree):
     app = navigator(tree)
-    run_app(app, [ALT_F12, lambda a: None])
+    run_app(app, [ALT_F12, LISTED])
     m = app.manager
     assert m.passive_panel is m.active_panel
 
@@ -139,7 +141,7 @@ def test_tab_goes_into_the_file_previewed_and_back(tree):
     app = navigator(tree)
     seen = []
     record = lambda a: seen.append((a.focused, a.manager.active_panel))  # noqa: E731
-    run_app(app, [cursor_on("notes.txt"), ALT_F12, lambda a: None, KeyEvent("tab"), record, KeyEvent("tab"),
+    run_app(app, [cursor_on("notes.txt"), ALT_F12, LISTED, KeyEvent("tab"), record, KeyEvent("tab"),
                   record])
     miller = app.manager.miller
     assert seen == [(miller.preview_file.viewer, miller.chain[-1]), (miller.chain[-1], miller.chain[-1])]
@@ -147,7 +149,7 @@ def test_tab_goes_into_the_file_previewed_and_back(tree):
 
 def test_what_needs_two_panels_is_greyed(tree):
     app = navigator(tree)
-    run_app(app, [ALT_F12, lambda a: None])
+    run_app(app, [ALT_F12, LISTED])
     m = app.manager
     for command in (SwapPanels(), ToggleTree(), QuickView()):
         assert not m.enables(command)
@@ -158,8 +160,8 @@ def test_only_the_steps_go_into_the_directory_history(tree):
     from navml.history import HISTORY
 
     app = navigator(tree)
-    run_app(app, [cursor_on("src"), ALT_F12, lambda a: None, KeyEvent("down"), KeyEvent("up"),
-                  KeyEvent("right"), lambda a: None])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED, KeyEvent("down"), KeyEvent("up"),
+                  KeyEvent("right"), LISTED])
     remembered = HISTORY.entries("directories")
     assert str(tree / "west" / "src") in remembered
     assert str(tree) not in remembered
@@ -169,7 +171,7 @@ def test_the_desktop_keeps_miller_columns(tree):
     from navigator.lib.config import desktop_state
 
     app = navigator(tree)
-    run_app(app, [cursor_on("src"), ALT_F12, lambda a: None])
+    run_app(app, [cursor_on("src"), ALT_F12, LISTED])
     kept = desktop_state._window(app.manager)
     assert kept["miller"] == {"path": str(tree / "west"), "cursor": "src", "side": "left"}
 
@@ -193,7 +195,7 @@ def test_a_miller_columns_cut_names_and_its_title_say_themselves_whole(tree):
         text = column.title_text()
         seen["title"] = column.tooltip_at(column.label_x(text) + 1, 0)
 
-    run_app(app, [ALT_F12, lambda a: None, look])
+    run_app(app, [ALT_F12, LISTED, look])
     assert seen["long"] == long
     assert seen["short"] == ""
     # The title names the directory alone; its tooltip gives the whole path.

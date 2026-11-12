@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -349,8 +349,8 @@ def test_in_a_listing_each_file_is_renamed_in_its_own_directory(place, monkeypat
 
     renamed = [str(place / "a" / "a_README"), str(place / "b" / "b_README")]
     run_app(app, [lambda a: a.spawn(a.manager.panelize(a.manager.left, "printf 'a/README\\nb/README\\n'")),
-                  Until(lambda a: a.manager.left.found is not None and a.modal is None), tag_all,
-                  KeyEvent("a", alt=True), Until(lambda a: a.modal is not None), fill, lambda a: None,
+                  Until(lambda a: a.manager.left.found is not None and a.modal is None), LISTED, tag_all,
+                  KeyEvent("a", alt=True), Until(lambda a: a.modal is not None), fill, LISTED,
                   KeyEvent("enter"), Until(lambda a: (place / "b" / "b_README").exists()),
                   # The listing is re-read on a thread: the new names are in it once that is back.
                   Until(lambda a: [e.key for e in a.manager.left.items][1:] == renamed, timeout=5),

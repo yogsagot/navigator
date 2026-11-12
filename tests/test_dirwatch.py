@@ -6,7 +6,7 @@ import threading
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 
 from navigator.__main__ import Navigator
 from navigator.lib.system import dirwatch
@@ -124,7 +124,8 @@ def test_the_panel_follows_the_directory_it_moved_to(tree):
     def look(a):
         watched["now"] = dirwatch.watched()
 
-    run_app(app, [into_sub, look,
+    # A directory is watched once its listing is in.
+    run_app(app, [into_sub, LISTED, look,
                   lambda a: (tree / "sub" / "inner.txt").write_text("x"), lists("inner.txt")])
     assert watched["now"] == [tree / "sub"]
 

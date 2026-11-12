@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, Until, run_app
+from conftest import LISTED, IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -48,11 +48,12 @@ def titled(title: str):
 def test_the_panels_directories_are_tracked_and_alt_backspace_goes_back_to_one(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [into("one"), lambda a: None, KeyEvent("backspace"), lambda a: None, into("two"),
-                  lambda a: None,
+    run_app(app, [into("one"), LISTED, KeyEvent("backspace"), LISTED, into("two"),
+                  LISTED,
                   KeyEvent("backspace", alt=True), Until(titled("Directories History")),
                   lambda a: seen.update(listed=list(a.modal.places.items)),
-                  KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"), lambda a: None, lambda a: None,
+                  # The box answers the task that opened it, which then moves the panel.
+                  KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"), IDLE, LISTED,
                   lambda a: seen.update(path=a.manager.left.path)])
     assert seen["listed"][:3] == [str(place / "two"), str(place), str(place / "one")]
     assert seen["path"] == place / "one"
@@ -61,8 +62,8 @@ def test_the_panels_directories_are_tracked_and_alt_backspace_goes_back_to_one(p
 def test_delete_record_takes_one_out_and_the_box_stays(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [into("one"), lambda a: None, KeyEvent("backspace", alt=True), Until(titled("Directories History")),
-                  KeyEvent("d", alt=True), lambda a: None,
+    run_app(app, [into("one"), LISTED, KeyEvent("backspace", alt=True), Until(titled("Directories History")),
+                  KeyEvent("d", alt=True), LISTED,
                   lambda a: seen.update(listed=list(a.modal.places.items), still=a.modal is not None),
                   KeyEvent("escape")])
     assert str(place / "one") not in seen["listed"] and seen["still"]
@@ -126,7 +127,7 @@ def test_alt_shift_n_bookmarks_at_n_alt_n_goes_and_alt_shift_0_opens_the_box(pla
 def test_an_alt_n_past_the_bookmarks_does_nothing(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("9", alt=True), lambda a: None, lambda a: seen.update(path=a.manager.left.path)])
+    run_app(app, [KeyEvent("9", alt=True), LISTED, lambda a: seen.update(path=a.manager.left.path)])
     assert seen["path"] == place
 
 

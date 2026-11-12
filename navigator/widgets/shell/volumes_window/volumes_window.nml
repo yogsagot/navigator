@@ -64,11 +64,15 @@ VolumesWindow(Window):
     VolumeList:
         id: volumes
         framed: False
-        y: 1
-        height: max(0, parent.height - (5 if parent.width >= 82 else 7))
         anchors:
             left: 1
             right: 0
+            top: 1
+            bottom: 4
+        #: Narrow, the buttons go up a row to stand right of the check boxes.
+        when parent.width < 82:
+            anchors:
+                bottom: 6
 
     #: A departure, asked for, as the process list's: on the bottom frame
     #: under the *Mount point* column, how far Left and Right have scrolled
@@ -113,28 +117,43 @@ VolumesWindow(Window):
     Button:
         id: mount_button
         text: "~M~ount"
-        x: max(0, parent.width - (57 if parent.width >= 82 else 35))
-        y: max(0, parent.height - (3 if parent.width >= 82 else 5))
         width: 10
         height: 2
+        anchors:
+            right: 47
+            bottom: 1
+        when parent.width < 82:
+            anchors:
+                right: 25
+                bottom: 3
         disabled: not root.allows("mount")
 
     Button:
         id: unmount_button
         text: "~U~nmount"
-        x: max(0, parent.width - (46 if parent.width >= 82 else 24))
-        y: max(0, parent.height - (3 if parent.width >= 82 else 5))
         width: 11
         height: 2
+        anchors:
+            right: 35
+            bottom: 1
+        when parent.width < 82:
+            anchors:
+                right: 13
+                bottom: 3
         disabled: not root.allows("unmount")
 
     Button:
         id: eject_button
         text: "~E~ject"
-        x: max(0, parent.width - (34 if parent.width >= 82 else 12))
-        y: max(0, parent.height - (3 if parent.width >= 82 else 5))
         width: 10
         height: 2
+        anchors:
+            right: 24
+            bottom: 1
+        when parent.width < 82:
+            anchors:
+                right: 2
+                bottom: 3
         disabled: not root.allows("eject")
 
     Button:

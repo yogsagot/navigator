@@ -83,6 +83,10 @@ KEYS = "keys"
 #: generator sees the document (:mod:`navml.anchors`).
 ANCHORS = "anchors"
 
+#: A widget's lines that differ while a condition holds: ``when COND:`` and
+#: property and ``anchors:`` lines under it (:mod:`navml.states`).
+WHEN = "when"
+
 _HEAD = re.compile(r"(\w+)\s*(?:\(\s*([\w.]+)\s*\))?\s*:\Z")
 _NAMES = re.compile(r"[A-Za-z_]\w*\Z")
 
@@ -260,6 +264,16 @@ class AnchorBlock:
 
 
 @dataclass(frozen=True, slots=True)
+class WhenBlock:
+    """``when COND:`` -- lines that replace the widget's own while *condition* holds."""
+
+    condition: str
+    properties: tuple[Property, ...]
+    anchors: AnchorBlock | None
+    line: int
+
+
+@dataclass(frozen=True, slots=True)
 class KeyBinding:
     """One line of a ``keys:`` block: a key, and the command it asks for.
 
@@ -304,6 +318,7 @@ class Block:
     children: tuple[Block, ...] = ()
     doc: tuple[str, ...] = ()
     anchors: AnchorBlock | None = None
+    whens: tuple[WhenBlock, ...] = ()
 
     def walk(self) -> Iterator[Block]:
         """This block and every block under it, in document order."""
@@ -983,6 +998,78 @@ def _sibling_anchor(name: str, value: str, line: _Line, filename: str
     return ids, gap
 
 
+def _is_when(text: str) -> bool:
+    """``when COND:`` -- or ``when:``, which says no condition and is refused."""
+    return text.endswith(":") and (text == "when:" or text.startswith("when ")
+                                   or text.startswith("when("))
+
+
+def _read_when(lines: Sequence[_Line], index: int, filename: str
+               ) -> tuple[WhenBlock, int]:
+    """A ``when`` block: property lines and at most one ``anchors:`` block."""
+    head = lines[index]
+    condition = head.text[len(WHEN):-1].strip()
+    if not condition:
+        raise MarkupError(
+            "a when block needs a condition: 'when parent.width < 67:'",
+            head.line,
+            filename,
+        )
+    _expression(condition, "the when condition", head.line, filename)
+    index += 1
+    properties: list[Property] = []
+    anchors: AnchorBlock | None = None
+    if index < len(lines) and lines[index].indent > head.indent:
+        indent = lines[index].indent
+        while index < len(lines) and lines[index].indent >= indent:
+            line = lines[index]
+            if line.indent > indent:
+                raise MarkupError(
+                    "unexpected indent inside a when block", line.line, filename
+                )
+            if _is_when(line.text):
+                raise MarkupError(
+                    "a when block inside a when block: say both conditions in one",
+                    line.line,
+                    filename,
+                )
+            if _is_head(line.text):
+                if line.text.rstrip(":").strip() != ANCHORS:
+                    raise MarkupError(
+                        "a when block holds property lines and an anchors block; "
+                        "a widget, style or keys block belongs to the widget itself",
+                        line.line,
+                        filename,
+                    )
+                if anchors is not None:
+                    raise MarkupError(
+                        "a second anchors block in one when block", line.line, filename
+                    )
+                anchors, index = _read_anchors(lines, index, filename)
+                continue
+            kind, node = _leaf(line, filename, root=False)
+            if kind != "property":
+                raise MarkupError(
+                    "a when block holds property lines alone: an id, a handler or "
+                    "a declaration does not change with a condition",
+                    line.line,
+                    filename,
+                )
+            if index + 1 < len(lines) and lines[index + 1].indent > indent:
+                raise _too_long(kind, lines[index + 1], filename)
+            if any(p.name == node.name for p in properties):  # type: ignore[attr-defined]
+                raise MarkupError(
+                    f"a second {node.name!r} in one when block",  # type: ignore[attr-defined]
+                    line.line,
+                    filename,
+                )
+            properties.append(node)  # type: ignore[arg-type]
+            index += 1
+    if not properties and anchors is None:
+        raise MarkupError("a when block says nothing", head.line, filename)
+    return WhenBlock(condition, tuple(properties), anchors, head.line), index
+
+
 def _read_keys(lines: Sequence[_Line], index: int, filename: str
                ) -> tuple[KeyTable, int]:
     """A ``keys:`` block: a key spec, a colon, and a Python expression."""
@@ -1042,6 +1129,7 @@ def _read_block(
     style: StyleBlock | None = None
     keys: KeyTable | None = None
     anchors: AnchorBlock | None = None
+    whens: list[WhenBlock] = []
     if index < len(lines) and lines[index].indent > head.indent:
         indent = lines[index].indent
         while index < len(lines) and lines[index].indent >= indent:
@@ -1050,6 +1138,10 @@ def _read_block(
                 raise MarkupError(
                     f"unexpected indent under {head.text!r}", line.line, filename
                 )
+            if _is_when(line.text):
+                when, index = _read_when(lines, index, filename)
+                whens.append(when)
+                continue
             if _is_head(line.text):
                 if line.text.rstrip(":").strip() == STYLE:
                     if style is not None:
@@ -1129,6 +1221,7 @@ def _read_block(
             children=tuple(children),
             doc=head.doc,
             anchors=anchors,
+            whens=tuple(whens),
         ),
         index,
     )
@@ -1261,7 +1354,7 @@ def parse(text: str, *, filename: str = "<markup>") -> Document:
             line.line,
             filename,
         )
-    from navml.anchors import expand
+    from navml.states import expand
 
     document = Document(filename, tuple(imports), expand(root, filename))
     _check_document(document)

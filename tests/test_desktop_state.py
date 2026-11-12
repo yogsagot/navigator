@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.config import desktop_state
@@ -74,11 +74,11 @@ def test_save_then_load_brings_the_windows_and_their_state_back(place):
                     replaced=manager.replacement is manager.info and manager.replaced is manager.left,
                     calc=a.shell.desktop.windows()[-1].line.value)
 
-    run_app(app, [arrange, lambda a: None, lambda a: None, cursor_on_b, lambda a: None,
+    run_app(app, [arrange, LISTED, LISTED, cursor_on_b, LISTED,
                   lambda a: a.spawn(a.run_command(SaveDesktop)),
-                  lambda a: None, close_all, lambda a: None,
+                  LISTED, close_all, LISTED,
                   lambda a: a.spawn(a.run_command(LoadDesktop)),
-                  Until(lambda a: len(a.shell.desktop.windows()) == 3), lambda a: None, lambda a: None, look])
+                  Until(lambda a: len(a.shell.desktop.windows()) == 3), LISTED, LISTED, look])
     assert seen["kinds"] == ["Manager", "TreeWindow", "CalculatorWindow"]
     assert seen["left"] == (place / "one", "detailed", "size", "*.txt", "b.txt")
     assert seen["replaced"] and seen["calc"] == "6*7"

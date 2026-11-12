@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -67,6 +67,7 @@ def test_enter_renames_and_the_cursor_and_the_tag_go_with_the_file(place):
                   KeyEvent("enter"), Until(lambda a: (place / "z.txt").exists()),
                   # The panel's re-read runs on a thread: its cursor is right once that is back.
                   Until(lambda a: a.manager.left.selected is not None and a.manager.left.selected.name == "z.txt"),
+                  LISTED,  # the other panel shows the directory too, and re-reads it as well
                   lambda a: seen.update(at=a.manager.left.selected.name, marked=set(a.manager.left.marked),
                                         right=[e.name for e in a.manager.right.items])])
     assert not (place / "b.txt").exists() and (place / "z.txt").read_text() == "b.txt"

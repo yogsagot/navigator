@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -81,7 +81,7 @@ def test_a_find_listing_gives_the_directory_a_footer_line_not_a_column(place):
 
     run_app(app, [detailed, lambda a: a.spawn(a.run_command(DirBranch)),
                   Until(lambda a: a.manager.left.found is not None and not a.manager.left.found.live),
-                  lambda a: None, look])
+                  LISTED, look])
     assert "path" not in seen["keys"]
     deep = str(place / "deep" / "er")
     shown = deep if len(deep) <= seen["width"] else "\u2026" + deep[-(seen["width"] - 1):]

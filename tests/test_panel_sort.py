@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import LISTED, FakeTerminal, run_app
 from navkit.events import KeyEvent, MouseClickEvent
 
 from navigator.__main__ import Navigator
@@ -116,7 +116,7 @@ def test_sort_by_re_sorts_keeping_the_cursor_on_its_entry(place):
         panel.cursor = [e.name for e in panel.items].index("a.txt")
         panel.sort_by("time")
 
-    run_app(app, [go, lambda a: None,
+    run_app(app, [go, LISTED,
                   lambda a: seen.update(names=listed(a.manager.left),
                                         selected=a.manager.left.selected.name)])
     assert seen == {"names": ["sub", "c.txt", "b.txt", "a.txt"], "selected": "a.txt"}
@@ -132,13 +132,13 @@ def test_alt_b_opens_centred_on_the_panels_mode_and_a_choice_re_sorts_that_panel
     app = navigator(place)
     seen = {}
     run_app(app, [
-        KeyEvent("b", alt=True), lambda a: None,
+        KeyEvent("b", alt=True), LISTED,
         lambda a: seen.update(current=popup(a).box.current, at=popup(a).at,
                               panel=(a.manager.left.offset(), a.manager.left.x, a.manager.left.y,
                                      a.manager.left.width, a.manager.left.height),
                               size=PopupMenu.measure(popup(a).menu, a, a.manager, "Sort by"),
                               title=popup(a).box.title),
-        KeyEvent("s", "s"), lambda a: None,
+        KeyEvent("s", "s"), LISTED,
         lambda a: seen.update(left=listed(a.manager.left), right=listed(a.manager.right),
                               mode=a.manager.left.sort_mode, box=popup(a)),
     ])
@@ -155,7 +155,7 @@ def test_alt_b_opens_centred_on_the_panels_mode_and_a_choice_re_sorts_that_panel
 def test_escape_leaves_the_order_alone(place):
     app = navigator(place)
     seen = {}
-    run_app(app, [KeyEvent("b", alt=True), lambda a: None, KeyEvent("escape"), lambda a: None,
+    run_app(app, [KeyEvent("b", alt=True), LISTED, KeyEvent("escape"), LISTED,
                   lambda a: seen.update(mode=a.manager.left.sort_mode)])
     assert seen["mode"] == "name"
 
@@ -224,10 +224,10 @@ def test_clicking_a_title_sorts_by_its_column_and_again_reverses_it(place):
                      heading_row(a)))
 
     run_app(app, [
-        lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
-        lambda a: a.post_event(heading_click(a, "size")), lambda a: None, note,
-        lambda a: a.post_event(heading_click(a, "attributes")), lambda a: None, note,
-        lambda a: a.post_event(heading_click(a, "attributes")), lambda a: None, note,
+        lambda a: a.post_event(heading_click(a, "size")), LISTED, note,
+        lambda a: a.post_event(heading_click(a, "size")), LISTED, note,
+        lambda a: a.post_event(heading_click(a, "attributes")), LISTED, note,
+        lambda a: a.post_event(heading_click(a, "attributes")), LISTED, note,
     ])
     assert [row[:3] for row in seen] == [
         ("size", False, ["sub", "b.txt", "c.txt", "a.txt"]),
@@ -247,8 +247,8 @@ def test_clicking_name_steps_through_name_and_extension_each_way(place):
     click = lambda a: a.post_event(heading_click(a, "name"))
     note = lambda a: seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse,
                                   listed(a.manager.left), heading_row(a)))
-    run_app(app, [lambda a: a.manager.left.sort_by("size"), lambda a: None,
-                  *[step for _ in range(5) for step in (click, lambda a: None, note)]])
+    run_app(app, [lambda a: a.manager.left.sort_by("size"), LISTED,
+                  *[step for _ in range(5) for step in (click, LISTED, note)]])
     assert [(mode, reverse, names) for mode, reverse, names, _ in seen] == [
         ("name", False, ["sub", "a.log", "a.txt", "b.md", "b.txt", "c.txt"]),
         ("name", True, ["sub", "c.txt", "b.txt", "b.md", "a.txt", "a.log"]),
@@ -266,11 +266,11 @@ def test_the_sorted_column_title_carries_an_arrow_for_its_direction(place):
     seen = {}
     run_app(app, [
         lambda a: seen.update(name=heading_row(a)),
-        lambda a: a.manager.left.sort_by("time"), lambda a: None,
+        lambda a: a.manager.left.sort_by("time"), LISTED,
         lambda a: seen.update(time=heading_row(a)),
-        lambda a: a.manager.left.sort_by("time", reverse=True), lambda a: None,
+        lambda a: a.manager.left.sort_by("time", reverse=True), LISTED,
         lambda a: seen.update(reversed=heading_row(a)),
-        lambda a: a.manager.left.sort_by("extension"), lambda a: None,
+        lambda a: a.manager.left.sort_by("extension"), LISTED,
         lambda a: seen.update(extension=heading_row(a)),
     ])
     assert "Name↑" in seen["name"] and "↓" not in seen["name"]
@@ -305,7 +305,7 @@ def test_clicking_owner_sorts_by_it_ascending_and_marks_it(place):
     seen = []
     note = lambda a: seen.append((a.manager.left.sort_mode, a.manager.left.sort_reverse, heading_row(a)))
     click = lambda a: a.post_event(heading_click(a, "owner"))
-    run_app(app, [click, lambda a: None, note, click, lambda a: None, note])
+    run_app(app, [click, LISTED, note, click, LISTED, note])
     assert [(mode, reverse) for mode, reverse, _ in seen] == [("owner", False), ("owner", True)]
     assert "Owner↑" in seen[0][2] and "Owner↓" in seen[1][2]
 
@@ -330,12 +330,12 @@ def test_alt_b_offers_each_order_both_ways_ticking_the_panels_own(place):
     app = Navigator(place, place, terminal=FakeTerminal(80, 30))  # the whole box, unscrolled
     seen = {}
     run_app(app, [
-        lambda a: a.manager.left.sort_by("size", reverse=True), lambda a: None,
-        KeyEvent("b", alt=True), lambda a: None,
+        lambda a: a.manager.left.sort_by("size", reverse=True), LISTED,
+        KeyEvent("b", alt=True), LISTED,
         lambda a: seen.update(rows=painted_box(popup(a)), current=popup(a).box.current),
-        KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"), lambda a: None,   # Time ↓
+        KeyEvent("down"), KeyEvent("down"), KeyEvent("enter"), LISTED,   # Time ↓
         lambda a: seen.update(after=(a.manager.left.sort_mode, a.manager.left.sort_reverse)),
-        KeyEvent("b", alt=True), lambda a: None, KeyEvent("n", "n"), lambda a: None,
+        KeyEvent("b", alt=True), LISTED, KeyEvent("n", "n"), LISTED,
         lambda a: seen.update(letter=(a.manager.left.sort_mode, a.manager.left.sort_reverse)),
     ])
     rows = [row[2:].rstrip(" │") for row in seen["rows"][1:-1]]

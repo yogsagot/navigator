@@ -180,8 +180,9 @@ per batch" behaviour is asserted. **`NAVIGATOR_SLOW_THREADS=0.05 ./venv/bin/pyth
 everything submitted to a `ThreadPoolExecutor` (`Background`, `asyncio.to_thread`, `run_in_executor`) and every thread
 whose target is navkit's, navml's or Navigator's (`tests/conftest.py`), so a test counting on a fixed number of steps
 fails every time rather than once in a hundred runs under load: run it after writing tests that open, read, save or
-list anything. The panel's directory scans are delayed only with `NAVIGATOR_SLOW_SCANS=1` as well: a listing waits
-`SCAN_GRACE` on the loop, and pushing past it flags every test that reads a panel it just moved.
+list anything. The panel's directory scans are delayed only with `NAVIGATOR_SLOW_SCANS=1` as well (a listing waits
+`SCAN_GRACE` on the loop, which the delay pushes past): a test reading a panel it just moved, re-sorted or filled
+with a search waits with `LISTED` (no panel has a read in flight), after `IDLE` when a task asks for the read.
 
 For the parts a fake terminal cannot cover — raw mode, real escape output, `SIGWINCH` — run `python -m navigator` on a
 pty (`pty.fork`, set the window size with `TIOCSWINSZ`, write key bytes to the master fd, read back what it paints).

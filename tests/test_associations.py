@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import IDLE, FakeTerminal, Until, run_app
+from conftest import LISTED, IDLE, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.lib.config import associations
@@ -271,7 +271,7 @@ def test_f3_opens_an_archive_in_the_panel_whatever_enter_does(place, monkeypatch
     seen = {}
     app = navigator(place)
     run_app(app, [KeyEvent("r", ctrl=True), IDLE, to("z.zip"), KeyEvent("f3"),
-                  Until(lambda a: a.manager.left.location.outer is not None),
+                  Until(lambda a: a.manager.left.location.outer is not None), LISTED,
                   lambda a: seen.update(names=[e.name for e in a.manager.left.items],
                                         windows=len(a.shell.desktop.windows()))])
     assert "inner.txt" in seen["names"] and seen["windows"] == 1

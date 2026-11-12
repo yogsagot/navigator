@@ -8,7 +8,7 @@ import time
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app, settle
+from conftest import LISTED, FakeTerminal, Until, run_app, settle
 from navkit.events import KeyEvent
 from navkit.screen import ScreenBuffer
 
@@ -183,7 +183,8 @@ def file_window(app):
 
 
 def opened():
-    return [KeyEvent("end"), KeyEvent("f3"), Until(lambda a: db_window(a) is not None)]
+    # A panel on another drive lists on a thread from the start: End once it is in.
+    return [LISTED, KeyEvent("end"), KeyEvent("f3"), Until(lambda a: db_window(a) is not None)]
 
 
 def screen(app) -> list[str]:

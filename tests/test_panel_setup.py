@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import LISTED, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -73,7 +73,7 @@ def test_ok_gives_the_panel_its_own_order_boxes_and_mask_and_the_other_keeps_the
         d.display.value &= ~(1 << 5)  # Files highlight off
         d.mask.value = "*.txt"
 
-    run_app(app, [KeyEvent("s", alt=True), lambda a: None, answer, KeyEvent("enter"), lambda a: None,
+    run_app(app, [KeyEvent("s", alt=True), lambda a: None, answer, KeyEvent("enter"), LISTED,
                   lambda a: seen.update(
                       left=names(a.manager.left.items), right=names(a.manager.right.items),
                       sort=a.manager.left.sort_mode, mask=a.manager.left.file_mask,

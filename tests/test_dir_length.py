@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, run_app
+from conftest import IDLE, LISTED, FakeTerminal, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -191,8 +191,8 @@ def test_a_change_of_directory_forgets_the_counts(place):
     def leave_and_return(a):
         a.manager.left.enter()
 
-    run_app(app, [to("big"), KeyEvent("g", alt=True), lambda a: None, lambda a: None,
-                  leave_and_return, lambda a: None, to(".."), leave_and_return, lambda a: None,
+    run_app(app, [to("big"), KeyEvent("g", alt=True), IDLE, LISTED,  # counted, then re-listed
+                  leave_and_return, LISTED, to(".."), leave_and_return, LISTED,
                   lambda a: seen.update(back=sizes(a.manager.left)["big"])])
     assert seen["back"] == "DIR"
 
@@ -223,8 +223,8 @@ def test_counting_while_sorted_by_size_orders_by_the_counts(place):
     def tag(a):
         a.manager.left.marked = frozenset({"big", "small"})
 
-    run_app(app, [lambda a: a.manager.left.sort_by("size"), lambda a: None,
-                  to("small"), tag, KeyEvent("g", alt=True), lambda a: None, lambda a: None,
+    run_app(app, [lambda a: a.manager.left.sort_by("size"), LISTED,
+                  to("small"), tag, KeyEvent("g", alt=True), IDLE, LISTED,  # counted, then re-sorted
                   lambda a: seen.update(sorted=[e.name for e in a.manager.left.items if e.is_dir],
                                         cursor=a.manager.left.selected.name)])
     assert seen["sorted"] == ["..", "big", "small", "aaa"] and seen["cursor"] == "small"

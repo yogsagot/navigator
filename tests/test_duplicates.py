@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import FakeTerminal, Until, run_app
+from conftest import LISTED, FakeTerminal, Until, run_app
 from navkit.events import KeyEvent
 
 from navigator.__main__ import Navigator
@@ -100,7 +100,11 @@ def navigator(path: Path) -> Navigator:
 
 
 def listed(app) -> bool:
-    return app.manager.left.found is not None and app.modal is None
+    """The listing is up and the panel shows it: what was found is listed by
+    a read of its own once the search is done."""
+    from conftest import _listed
+
+    return app.manager.left.found is not None and app.modal is None and _listed(app)
 
 
 def keys(panel) -> list[str]:
@@ -113,7 +117,7 @@ def test_the_box_asks_and_the_listing_keeps_its_groups_together(place):
     run_app(app, [lambda a: a.manager.left.focus(), lambda a: a.spawn(a.run_command(FindDuplicates)),
                   Until(lambda a: a.modal is not None),
                   lambda a: seen.update(box=a.modal.title), KeyEvent("enter"),
-                  Until(listed), lambda a: None,
+                  Until(listed), LISTED,
                   lambda a: seen.update(items=keys(a.manager.left), sort=a.manager.left.sort_mode,
                                         title=a.manager.left.found.title)])
     assert seen["box"] == "Find duplicates" and seen["sort"] == "name"
@@ -210,7 +214,7 @@ def test_find_duplicates_lists_another_drive_s_copies(tmp_path, memory, monkeypa
     run_app(app, [
         go, Until(lambda a: len(a.manager.left.items) == 3), look,
         lambda a: a.manager.spawn(a.manager.find_duplicates(a.manager.left, DuplicatesRequest())),
-        Until(lambda a: a.manager.left.found is not None, timeout=5),
+        Until(lambda a: a.manager.left.found is not None, timeout=5), LISTED,
         lambda a: seen.update(rows=[(e.name, str(e.directory)) for e in a.manager.left.items if e.name != ".."]),
     ])
     assert seen["enabled"] is True
