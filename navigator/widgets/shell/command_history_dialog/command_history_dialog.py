@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
 from navml.history import HISTORY
@@ -63,26 +62,6 @@ class CommandHistoryDialog(Dialog):
         command = self.commands.selected
         self.close((how, command) if command is not None else None)
 
-    async def on_run_click(self, event: Event) -> bool:
-        self._answer("run")
-        return True
-
-    async def on_commands_chosen(self, event: Event) -> bool:
-        self._answer("run")
-        return True
-
-    async def on_drop_click(self, event: Event) -> bool:
-        self._answer("drop")
-        return True
-
-    async def on_kill_click(self, event: Event) -> bool:
-        self.kill_selected()
-        return True
-
-    async def on_commands_killed(self, event: Event) -> bool:
-        self.kill_selected()
-        return True
-
     def kill_selected(self) -> None:
         """*Kill*, Del: the command forgotten -- unless it is marked."""
         self._sync_pins()
@@ -94,10 +73,6 @@ class CommandHistoryDialog(Dialog):
         items = self.commands.items
         self._load(items[index + 1] if index + 1 < len(items) else (items[index - 1] if index else None))
         self.commands.focus()
-
-    async def on_edit_click(self, event: Event) -> bool:
-        self.spawn(self.edit_selected())
-        return True
 
     async def edit_selected(self) -> None:
         """*Edit*: ``InputBox(dlEditHistory, ...)`` over the command."""

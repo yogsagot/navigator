@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import ContextMenuEvent, Event
+from navkit.events import ContextMenuEvent
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.commands import CloseWindow
@@ -209,14 +209,3 @@ class GameWindow(Window):
     async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
         return open_on_key(self)
 
-    async def on_new_button_click(self, event: Event) -> bool:
-        return await self.on_new_game(NewGame())
-
-    async def on_setup_button_click(self, event: Event) -> bool:
-        return await self.on_game_setup(GameSetup())
-
-    async def on_top_button_click(self, event: Event) -> bool:
-        return await self.on_show_top_ten(ShowTopTen())
-
-    async def on_pause_button_click(self, event: Event) -> bool:
-        return await self.on_pause_game(PauseGame())

@@ -21,6 +21,8 @@ FileHistoryDialog(Dialog):
         y: 2
         width: 55
         height: 11
+        #: Enter in the list is Open.
+        on_chosen: root.close(root.accept())
 
     Button:
         id: pick
@@ -30,6 +32,7 @@ FileHistoryDialog(Dialog):
         y: 14
         width: 10
         height: 2
+        on_click: root.close(root.accept())
 
     #: ``cmYes``, broadcast to the list: the record goes, the dialog stays.
     Button:

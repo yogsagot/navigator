@@ -68,9 +68,9 @@ class ArchiveDialog(Dialog, _Component):
     options: CheckBoxes    # archive_dialog.nml:104
     note: StaticText    # archive_dialog.nml:115
     pick: Button    # archive_dialog.nml:129
-    abandon: Button    # archive_dialog.nml:134
-    tree: Button    # archive_dialog.nml:138
-    help: Button    # archive_dialog.nml:143
+    abandon: Button    # archive_dialog.nml:135
+    tree: Button    # archive_dialog.nml:139
+    help: Button    # archive_dialog.nml:145
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -80,19 +80,11 @@ class ArchiveDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # archive_dialog.nml:129
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # archive_dialog.nml:134
+    async def on_abandon_click(self, event: _Event) -> bool:    # archive_dialog.nml:135
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # archive_dialog.nml:138
-        """``tree`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_help_click(self, event: _Event) -> bool:    # archive_dialog.nml:143
+    async def on_help_click(self, event: _Event) -> bool:    # archive_dialog.nml:145
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -110,9 +102,9 @@ class ArchiveDialog(Dialog, _Component):
         self.note = StaticText(parent=self)    # archive_dialog.nml:114
         _w1 = ButtonRow(parent=self)    # archive_dialog.nml:121
         self.pick = Button(parent=_w1)    # archive_dialog.nml:128
-        self.abandon = Button(parent=_w1)    # archive_dialog.nml:133
-        self.tree = Button(parent=_w1)    # archive_dialog.nml:137
-        self.help = Button(parent=_w1)    # archive_dialog.nml:142
+        self.abandon = Button(parent=_w1)    # archive_dialog.nml:134
+        self.tree = Button(parent=_w1)    # archive_dialog.nml:138
+        self.help = Button(parent=_w1)    # archive_dialog.nml:144
 
         self.modal_width = 64    # archive_dialog.nml:24
         self.modal_height = 18    # archive_dialog.nml:25
@@ -210,14 +202,22 @@ class ArchiveDialog(Dialog, _Component):
 
         self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # archive_dialog.nml:130
         self.pick.default = True    # archive_dialog.nml:131
-        self.pick.on_click = self.on_pick_click    # archive_dialog.nml:129
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # archive_dialog.nml:135
-        self.abandon.on_click = self.on_abandon_click    # archive_dialog.nml:134
+        async def _on_click(event):    # archive_dialog.nml:132
+            self.spawn(self.confirm())
+            return True
+        self.pick.on_click = _on_click
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # archive_dialog.nml:139
-        self.tree.on_click = self.on_tree_click    # archive_dialog.nml:138
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # archive_dialog.nml:136
+        self.abandon.on_click = self.on_abandon_click    # archive_dialog.nml:135
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # archive_dialog.nml:144
-        self.help.disabled = True    # archive_dialog.nml:145
-        self.help.on_click = self.on_help_click    # archive_dialog.nml:143
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # archive_dialog.nml:140
+
+        async def _on_click(event):    # archive_dialog.nml:141
+            self.spawn(self.choose_target())
+            return True
+        self.tree.on_click = _on_click
+
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # archive_dialog.nml:146
+        self.help.disabled = True    # archive_dialog.nml:147
+        self.help.on_click = self.on_help_click    # archive_dialog.nml:145

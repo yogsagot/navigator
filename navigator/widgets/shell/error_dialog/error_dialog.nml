@@ -63,6 +63,7 @@ ErrorDialog(Dialog):
             id: resume
             text: "~C~ontinue"
             default: True
+            on_click: root.close('continue')
 
         Button:
             id: copy

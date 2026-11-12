@@ -639,22 +639,6 @@ class ServiceWindow(Window):
 
     # -- the buttons --------------------------------------------------------------------
 
-    async def on_start_button_click(self, event: Event) -> bool:
-        return await self.on_service_verb(StartService())
-
-    async def on_stop_button_click(self, event: Event) -> bool:
-        return await self.on_service_verb(StopService())
-
-    async def on_journal_button_click(self, event: Event) -> bool:
-        return await self.on_service_journal(ServiceJournal())
-
-    async def on_edit_button_click(self, event: Event) -> bool:
-        return await self.on_edit_unit_file(EditUnitFile())
-
-    async def on_close_button_click(self, event: Event) -> bool:
-        self.request_close()
-        return True
-
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
     # ``ProcessWindow``'s are.
 

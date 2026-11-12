@@ -14,6 +14,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line
 
 from pathlib import Path
 from typing import Any, Sequence
@@ -44,5 +45,4 @@ class LinkDialog(Dialog, _Component):
     buttons_row: tuple[Any, ...]
     def accept(self) -> LinkRequest | None: ...
     async def on_pick_click(self, event: Event) -> bool: ...
-    async def on_tree_click(self, event: Event) -> bool: ...
     async def on_choose_target(self, event: ChooseTarget) -> bool: ...

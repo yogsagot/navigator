@@ -1,6 +1,7 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
+from navigator.lib.file_ops.fileerase import ALL, NO, YES
 
 #: What a delete asks on the way, as ``ERASER.PAS``'s message boxes asked it.
 #:
@@ -36,6 +37,7 @@ EraseQuery(Dialog):
         height: 2
         anchors:
             bottom: 2
+        on_click: root.close(NO)
 
     Button:
         id: agree
@@ -46,6 +48,7 @@ EraseQuery(Dialog):
         height: 2
         anchors:
             bottom: 2
+        on_click: root.close(YES)
 
     Button:
         id: every
@@ -55,6 +58,7 @@ EraseQuery(Dialog):
         height: 2
         anchors:
             bottom: 2
+        on_click: root.close(ALL)
 
     Button:
         id: abandon

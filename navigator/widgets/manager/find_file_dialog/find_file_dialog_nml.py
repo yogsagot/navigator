@@ -59,7 +59,7 @@ class FindFileDialog(Dialog, _Component):
     scope: RadioButtons    # find_file_dialog.nml:90
     pick: Button    # find_file_dialog.nml:99
     advanced: Button    # find_file_dialog.nml:110
-    abandon: Button    # find_file_dialog.nml:119
+    abandon: Button    # find_file_dialog.nml:120
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -73,11 +73,7 @@ class FindFileDialog(Dialog, _Component):
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_advanced_click(self, event: _Event) -> bool:    # find_file_dialog.nml:110
-        """``advanced`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # find_file_dialog.nml:119
+    async def on_abandon_click(self, event: _Event) -> bool:    # find_file_dialog.nml:120
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -92,7 +88,7 @@ class FindFileDialog(Dialog, _Component):
         self.scope = RadioButtons(parent=self)    # find_file_dialog.nml:89
         self.pick = Button(parent=self)    # find_file_dialog.nml:98
         self.advanced = Button(parent=self)    # find_file_dialog.nml:109
-        self.abandon = Button(parent=self)    # find_file_dialog.nml:118
+        self.abandon = Button(parent=self)    # find_file_dialog.nml:119
 
         self.modal_width = 52    # find_file_dialog.nml:22
         self.modal_height = _bind(lambda _o: 21 if self.replacing else 19)    # find_file_dialog.nml:23
@@ -198,13 +194,17 @@ class FindFileDialog(Dialog, _Component):
         self.advanced.y = _bind(    # find_file_dialog.nml:116
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
-        self.advanced.on_click = self.on_advanced_click    # find_file_dialog.nml:110
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_file_dialog.nml:120
-        self.abandon.x = 33    # find_file_dialog.nml:121
-        self.abandon.width = 11    # find_file_dialog.nml:122
-        self.abandon.height = 2    # find_file_dialog.nml:123
-        self.abandon.y = _bind(    # find_file_dialog.nml:125
+        async def _on_click(event):    # find_file_dialog.nml:117
+            self.spawn(self.ask_advanced())
+            return True
+        self.advanced.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # find_file_dialog.nml:121
+        self.abandon.x = 33    # find_file_dialog.nml:122
+        self.abandon.width = 11    # find_file_dialog.nml:123
+        self.abandon.height = 2    # find_file_dialog.nml:124
+        self.abandon.y = _bind(    # find_file_dialog.nml:126
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
-        self.abandon.on_click = self.on_abandon_click    # find_file_dialog.nml:119
+        self.abandon.on_click = self.on_abandon_click    # find_file_dialog.nml:120

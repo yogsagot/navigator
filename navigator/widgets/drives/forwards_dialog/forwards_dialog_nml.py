@@ -12,7 +12,6 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
-from navkit.events import Event as _Event
 from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
@@ -42,36 +41,16 @@ class ForwardsDialog(Dialog, _Component):
     forwards_caption: Label    # forwards_dialog.nml:16
     forwards: ListViewer    # forwards_dialog.nml:24
     append: Button    # forwards_dialog.nml:31
-    edit: Button    # forwards_dialog.nml:39
-    delete: Button    # forwards_dialog.nml:47
-
-    # One stub per (id, emitted event), each wired in ``__init__``
-    # below.  They return False, so a component that overrides none
-    # of them is exactly a component that never mentioned them: the
-    # event carries on up to whatever the document's own handler
-    # does with it.  The hand-written half is the *derived* class,
-    # so its override wins over the stub without either half naming
-    # the other.
-
-    async def on_append_click(self, event: _Event) -> bool:    # forwards_dialog.nml:31
-        """``append`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_edit_click(self, event: _Event) -> bool:    # forwards_dialog.nml:39
-        """``edit`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_delete_click(self, event: _Event) -> bool:    # forwards_dialog.nml:47
-        """``delete`` raised an event whose handler is ``on_click``."""
-        return False
+    edit: Button    # forwards_dialog.nml:40
+    delete: Button    # forwards_dialog.nml:49
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.forwards_caption = Label(parent=self)    # forwards_dialog.nml:15
         self.forwards = ListViewer(parent=self)    # forwards_dialog.nml:23
         self.append = Button(parent=self)    # forwards_dialog.nml:30
-        self.edit = Button(parent=self)    # forwards_dialog.nml:38
-        self.delete = Button(parent=self)    # forwards_dialog.nml:46
+        self.edit = Button(parent=self)    # forwards_dialog.nml:39
+        self.delete = Button(parent=self)    # forwards_dialog.nml:48
 
         self.modal_width = 66    # forwards_dialog.nml:11
         self.modal_height = 17    # forwards_dialog.nml:12
@@ -96,18 +75,30 @@ class ForwardsDialog(Dialog, _Component):
         self.append.y = 2    # forwards_dialog.nml:34
         self.append.width = 12    # forwards_dialog.nml:35
         self.append.height = 2    # forwards_dialog.nml:36
-        self.append.on_click = self.on_append_click    # forwards_dialog.nml:31
 
-        self.edit.text = _bind(lambda _o: _tr('~E~dit...'), yielding=True)    # forwards_dialog.nml:40
-        self.edit.x = 52    # forwards_dialog.nml:41
-        self.edit.y = 4    # forwards_dialog.nml:42
-        self.edit.width = 12    # forwards_dialog.nml:43
-        self.edit.height = 2    # forwards_dialog.nml:44
-        self.edit.on_click = self.on_edit_click    # forwards_dialog.nml:39
+        async def _on_click(event):    # forwards_dialog.nml:37
+            self.spawn(self.add_forward())
+            return True
+        self.append.on_click = _on_click
 
-        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # forwards_dialog.nml:48
-        self.delete.x = 52    # forwards_dialog.nml:49
-        self.delete.y = 6    # forwards_dialog.nml:50
-        self.delete.width = 12    # forwards_dialog.nml:51
-        self.delete.height = 2    # forwards_dialog.nml:52
-        self.delete.on_click = self.on_delete_click    # forwards_dialog.nml:47
+        self.edit.text = _bind(lambda _o: _tr('~E~dit...'), yielding=True)    # forwards_dialog.nml:41
+        self.edit.x = 52    # forwards_dialog.nml:42
+        self.edit.y = 4    # forwards_dialog.nml:43
+        self.edit.width = 12    # forwards_dialog.nml:44
+        self.edit.height = 2    # forwards_dialog.nml:45
+
+        async def _on_click(event):    # forwards_dialog.nml:46
+            self.spawn(self.edit_forward())
+            return True
+        self.edit.on_click = _on_click
+
+        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # forwards_dialog.nml:50
+        self.delete.x = 52    # forwards_dialog.nml:51
+        self.delete.y = 6    # forwards_dialog.nml:52
+        self.delete.width = 12    # forwards_dialog.nml:53
+        self.delete.height = 2    # forwards_dialog.nml:54
+
+        async def _on_click(event):    # forwards_dialog.nml:55
+            self.spawn(self.delete_forward())
+            return True
+        self.delete.on_click = _on_click

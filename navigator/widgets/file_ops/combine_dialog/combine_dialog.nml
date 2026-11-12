@@ -59,3 +59,4 @@ CombineDialog(Dialog):
         Button:
             id: tree
             text: "~T~ree"
+            on_click: root.spawn(root.choose_target())

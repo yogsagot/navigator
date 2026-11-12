@@ -16,7 +16,6 @@ import asyncio
 from pathlib import Path, PurePosixPath
 from typing import Any, Sequence
 
-from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import effect, unbind, untracked
 
@@ -164,10 +163,6 @@ class ArchiveDialog(Dialog):
             archive=archive.ArchiveOptions(level=level, password=password),
         )
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.spawn(self.confirm())
-        return True
-
     async def confirm(self) -> None:
         """The name made whole, the password asked again, an archive there
         already added to or replaced -- and the request answered."""
@@ -218,10 +213,6 @@ class ArchiveDialog(Dialog):
         return True
 
     # -- Tree ----------------------------------------------------------------------
-
-    async def on_tree_click(self, event: Event) -> bool:
-        self.spawn(self.choose_target())
-        return True
 
     async def on_choose_target(self, event: ChooseTarget) -> bool:
         self.spawn(self.choose_target())

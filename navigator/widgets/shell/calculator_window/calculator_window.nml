@@ -232,6 +232,7 @@ CalculatorWindow(Window):
             y: 7
             width: 12
             height: 2
+            on_click: root.evaluate()
 
         #: DN's ``cmCopyClip``: the value, in *Copy As*'s form, on the clipboard.
         ButtonRow:
@@ -246,10 +247,12 @@ CalculatorWindow(Window):
             Button:
                 id: copy_button
                 text: "~C~opy"
+                on_click: root.copy_value()
 
             Button:
                 id: close_button
                 text: "Close"
+                on_click: root.leave()
 
     #: Programming's forms, the base the line is typed in chosen beside them,
     #: and the word.

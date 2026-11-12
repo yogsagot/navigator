@@ -33,7 +33,6 @@ from dataclasses import dataclass, replace
 from pathlib import PurePosixPath
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 
@@ -602,10 +601,6 @@ class LinkManagerDialog(Dialog):
         return ConnectRequest(entry.scheme, entry.host, entry.user, entry.port, entry.path, options=entry.options,
                               forwards=entry.forwards)
 
-    async def on_connect_click(self, event: Event) -> bool:
-        self.spawn(self.connect_to())
-        return True
-
     async def connect_to(self) -> None:
         """*Connect*: the lines answered, a changed connection settled first."""
         if self._missing:
@@ -627,17 +622,9 @@ class LinkManagerDialog(Dialog):
     async def ask_to_close(self) -> bool:
         return await self._settle()
 
-    async def on_abandon_click(self, event: Event) -> bool:
-        self.spawn(self._cancel())
-        return True
-
     async def _cancel(self) -> None:
         if await self._settle():
             self.close(None)
-
-    async def on_create_click(self, event: Event) -> bool:
-        self.spawn(self.new_link())
-        return True
 
     async def on_new_link_entry(self, event: NewLinkEntry) -> bool:
         self.spawn(self.new_link())
@@ -674,10 +661,6 @@ class LinkManagerDialog(Dialog):
             self._fill(self.chosen)
         self.label.entry.focus()
         self.label.entry.select_all()
-
-    async def on_save_click(self, event: Event) -> bool:
-        self.spawn(self.save_link())
-        return True
 
     async def on_save_link_entry(self, event: SaveLinkEntry) -> bool:
         self.spawn(self.save_link())
@@ -720,10 +703,6 @@ class LinkManagerDialog(Dialog):
         count = len(forwards.parse(text, strict=False))
         self.forwards_button.text = tr("~F~orwards ({n})...").format(n=count) if count else tr("~F~orwards...")
 
-    async def on_forwards_button_click(self, event: Event) -> bool:
-        self.spawn(self.edit_forwards())
-        return True
-
     async def edit_forwards(self) -> None:
         """*Forwards...*: the lines' forwards edited in their own box; a
         chosen connection is then *changed* until saved."""
@@ -736,10 +715,6 @@ class LinkManagerDialog(Dialog):
             self._show_state()
         self.forwards_button.focus()
 
-    async def on_configure_click(self, event: Event) -> bool:
-        self.spawn(self.configure_remotes())
-        return True
-
     async def configure_remotes(self) -> None:
         """rclone's *Configure...*: the box answers a request for ``rclone
         config``, which the caller runs in a command window (windows are the
@@ -747,10 +722,6 @@ class LinkManagerDialog(Dialog):
         if not await self._settle():
             return
         self.close(ConnectRequest("rclone", "", configure=True))
-
-    async def on_copy_key_click(self, event: Event) -> bool:
-        self.spawn(self.copy_key_to_server())
-        return True
 
     async def copy_key_to_server(self) -> None:
         """*Copy key...*: which public key -- the only one, one chosen, or
@@ -806,10 +777,6 @@ class LinkManagerDialog(Dialog):
                                  current=0, behind=self, title=tr("Key to copy")).execute(self.application)
         self.copy_key.focus()
         return paths.get(id(chosen))
-
-    async def on_delete_click(self, event: Event) -> bool:
-        self.spawn(self.delete_link())
-        return True
 
     async def on_delete_link_entry(self, event: DeleteLinkEntry) -> bool:
         self.spawn(self.delete_link())

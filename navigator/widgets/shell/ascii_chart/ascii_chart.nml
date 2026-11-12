@@ -20,6 +20,8 @@ AsciiChart(Dialog):
         y: 1
         width: 32
         height: 8
+        #: A double click on a character: Enter.
+        on_chosen: root.close(root.accept())
 
     StaticText:
         id: report

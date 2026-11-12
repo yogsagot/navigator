@@ -180,14 +180,6 @@ class KeyBindingsDialog(Dialog):
         if spec:
             await self.bind_key(entry, spec, replace)
 
-    async def on_rebind_click(self, event: Event) -> bool:
-        self.spawn(self.capture(replace=True))
-        return True
-
-    async def on_append_click(self, event: Event) -> bool:
-        self.spawn(self.capture(replace=False))
-        return True
-
     async def on_unbind_click(self, event: Event) -> bool:
         entry = self.entry
         if entry is not None:
@@ -204,10 +196,6 @@ class KeyBindingsDialog(Dialog):
             self._put(current)
         return True
 
-    async def on_reset_click(self, event: Event) -> bool:
-        self.spawn(self.reset_all())
-        return True
-
     async def reset_all(self) -> None:
         """Every command of every category back to its default keys."""
         if not await self._ask(tr("Every key back to its default?")):
@@ -220,10 +208,6 @@ class KeyBindingsDialog(Dialog):
 
     #: How many of a loaded file's warnings are shown before *and N more*.
     WARNINGS_SHOWN = 6
-
-    async def on_store_click(self, event: Event) -> bool:
-        self.spawn(self.save_file())
-        return True
 
     async def save_file(self) -> None:
         """*Save*: every category's keys as edited so far, written to a file
@@ -254,10 +238,6 @@ class KeyBindingsDialog(Dialog):
         except OSError as error:
             await self._refuse(tr("Cannot write {path}: {error}").format(
                 path=path, error=error.strerror or error))
-
-    async def on_fetch_click(self, event: Event) -> bool:
-        self.spawn(self.load_file())
-        return True
 
     async def load_file(self) -> None:
         """*Load*: a file picked in a file box -- one's own ``keymaps/`` when it
@@ -301,6 +281,3 @@ class KeyBindingsDialog(Dialog):
         self.bindings.cursor = min(cursor, max(0, len(self.bindings.items) - 1))
         self.bindings.focus()
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True

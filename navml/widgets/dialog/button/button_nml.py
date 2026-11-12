@@ -57,19 +57,24 @@ class Button(Control, _Component):
     #: always had its shadow.  Pressed, a flat button does not move.
     flat: bool = _reactive(False)    # button.nml:30
 
+    #: A command class or instance this button asks for when pressed, as a
+    #: key or a menu item would -- Turbo Vision's ``TButton`` carried one
+    #: (``cmOK``, ``cmYes``).  None, the default, emits a click instead.
+    command = _reactive(None)    # button.nml:35
+
     #: Ids, annotated so the hand-written half completes them.
-    caption: StaticText    # button.nml:33
+    caption: StaticText    # button.nml:38
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption = StaticText(parent=self)    # button.nml:32
+        self.caption = StaticText(parent=self)    # button.nml:37
 
-        self.caption.x = _bind(    # button.nml:38
+        self.caption.x = _bind(    # button.nml:43
             lambda _o: (2 if _o.parent.down and (not _o.parent.flat) else 1) - (1 if display_width(parse_shortcut(_o.parent.text)[0]) > _o.parent.width - (2 if _o.parent.flat else 3) else 0)
         )
-        self.caption.y = 0    # button.nml:39
-        self.caption.width = _bind(    # button.nml:41
+        self.caption.y = 0    # button.nml:44
+        self.caption.width = _bind(    # button.nml:46
             lambda _o: max(0, _o.parent.width - (2 if _o.parent.flat else 3) + (2 if display_width(parse_shortcut(_o.parent.text)[0]) > _o.parent.width - (2 if _o.parent.flat else 3) else 0))
         )
-        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:42
-        self.caption.align = 'center'    # button.nml:43
+        self.caption.text = _bind(lambda _o: _o.parent.text)    # button.nml:47
+        self.caption.align = 'center'    # button.nml:48

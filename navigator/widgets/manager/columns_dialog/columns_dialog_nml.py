@@ -47,9 +47,9 @@ class ColumnsDialog(Dialog, _Component):
     show_caption: Label    # columns_dialog.nml:22
     show: CheckBoxes    # columns_dialog.nml:30
     brief: Button    # columns_dialog.nml:39
-    full: Button    # columns_dialog.nml:48
-    pick: Button    # columns_dialog.nml:63
-    abandon: Button    # columns_dialog.nml:68
+    full: Button    # columns_dialog.nml:49
+    pick: Button    # columns_dialog.nml:65
+    abandon: Button    # columns_dialog.nml:71
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -59,19 +59,7 @@ class ColumnsDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_brief_click(self, event: _Event) -> bool:    # columns_dialog.nml:39
-        """``brief`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_full_click(self, event: _Event) -> bool:    # columns_dialog.nml:48
-        """``full`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_pick_click(self, event: _Event) -> bool:    # columns_dialog.nml:63
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # columns_dialog.nml:68
+    async def on_abandon_click(self, event: _Event) -> bool:    # columns_dialog.nml:71
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -80,10 +68,10 @@ class ColumnsDialog(Dialog, _Component):
         self.show_caption = Label(parent=self)    # columns_dialog.nml:21
         self.show = CheckBoxes(parent=self)    # columns_dialog.nml:29
         self.brief = Button(parent=self)    # columns_dialog.nml:38
-        self.full = Button(parent=self)    # columns_dialog.nml:47
-        _w1 = ButtonRow(parent=self)    # columns_dialog.nml:55
-        self.pick = Button(parent=_w1)    # columns_dialog.nml:62
-        self.abandon = Button(parent=_w1)    # columns_dialog.nml:67
+        self.full = Button(parent=self)    # columns_dialog.nml:48
+        _w1 = ButtonRow(parent=self)    # columns_dialog.nml:57
+        self.pick = Button(parent=_w1)    # columns_dialog.nml:64
+        self.abandon = Button(parent=_w1)    # columns_dialog.nml:70
 
         self.modal_width = 40    # columns_dialog.nml:16
         self.modal_height = 13    # columns_dialog.nml:17
@@ -110,23 +98,35 @@ class ColumnsDialog(Dialog, _Component):
         self.brief.y = 2    # columns_dialog.nml:42
         self.brief.width = 11    # columns_dialog.nml:43
         self.brief.height = 2    # columns_dialog.nml:44
-        self.brief.on_click = self.on_brief_click    # columns_dialog.nml:39
 
-        self.full.text = _bind(lambda _o: _tr('~F~ull'), yielding=True)    # columns_dialog.nml:49
-        self.full.x = 26    # columns_dialog.nml:50
-        self.full.y = 5    # columns_dialog.nml:51
-        self.full.width = 11    # columns_dialog.nml:52
-        self.full.height = 2    # columns_dialog.nml:53
-        self.full.on_click = self.on_full_click    # columns_dialog.nml:48
+        async def _on_click(event):    # columns_dialog.nml:45
+            self.close(('brief',))
+            return True
+        self.brief.on_click = _on_click
 
-        _w1.justify = 'start'    # columns_dialog.nml:56
-        _w1.x = 7# columns_dialog.nml:58
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 7))    # columns_dialog.nml:59
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # columns_dialog.nml:60
+        self.full.text = _bind(lambda _o: _tr('~F~ull'), yielding=True)    # columns_dialog.nml:50
+        self.full.x = 26    # columns_dialog.nml:51
+        self.full.y = 5    # columns_dialog.nml:52
+        self.full.width = 11    # columns_dialog.nml:53
+        self.full.height = 2    # columns_dialog.nml:54
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # columns_dialog.nml:64
-        self.pick.default = True    # columns_dialog.nml:65
-        self.pick.on_click = self.on_pick_click    # columns_dialog.nml:63
+        async def _on_click(event):    # columns_dialog.nml:55
+            self.close(('full',))
+            return True
+        self.full.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # columns_dialog.nml:69
-        self.abandon.on_click = self.on_abandon_click    # columns_dialog.nml:68
+        _w1.justify = 'start'    # columns_dialog.nml:58
+        _w1.x = 7# columns_dialog.nml:60
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 7))    # columns_dialog.nml:61
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # columns_dialog.nml:62
+
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # columns_dialog.nml:66
+        self.pick.default = True    # columns_dialog.nml:67
+
+        async def _on_click(event):    # columns_dialog.nml:68
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # columns_dialog.nml:72
+        self.abandon.on_click = self.on_abandon_click    # columns_dialog.nml:71

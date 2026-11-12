@@ -63,6 +63,7 @@ KeyBindingsDialog(Dialog):
         y: 3
         width: 11
         height: 2
+        on_click: root.spawn(root.capture(replace=True))
 
     #: The key caught added to the command's keys.
     Button:
@@ -72,6 +73,7 @@ KeyBindingsDialog(Dialog):
         y: 5
         width: 11
         height: 2
+        on_click: root.spawn(root.capture(replace=False))
 
     #: The command left with no key.
     Button:
@@ -99,6 +101,7 @@ KeyBindingsDialog(Dialog):
         y: 11
         width: 11
         height: 2
+        on_click: root.spawn(root.reset_all())
 
     #: Every category's keys, as edited so far, written to a file of one's
     #: own -- ``keymaps/`` beside ``navigator.ini`` -- binding nothing.
@@ -109,6 +112,7 @@ KeyBindingsDialog(Dialog):
         y: 13
         width: 11
         height: 2
+        on_click: root.spawn(root.save_file())
 
     #: A file's keys in place of every edit so far, what it does not name at
     #: its default -- one's own or a set Navigator ships (WordStar, DN 1.51,
@@ -120,6 +124,7 @@ KeyBindingsDialog(Dialog):
         y: 15
         width: 11
         height: 2
+        on_click: root.spawn(root.load_file())
 
     Button:
         id: pick
@@ -128,6 +133,7 @@ KeyBindingsDialog(Dialog):
         y: 17
         width: 11
         height: 2
+        on_click: root.close(root.accept())
 
     Button:
         id: abandon

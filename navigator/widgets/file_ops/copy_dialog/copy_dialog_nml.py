@@ -63,7 +63,7 @@ class CopyDialog(Dialog, _Component):
     pick: Button    # copy_dialog.nml:85
     abandon: Button    # copy_dialog.nml:90
     tree: Button    # copy_dialog.nml:94
-    help: Button    # copy_dialog.nml:100
+    help: Button    # copy_dialog.nml:101
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -81,11 +81,7 @@ class CopyDialog(Dialog, _Component):
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # copy_dialog.nml:94
-        """``tree`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_help_click(self, event: _Event) -> bool:    # copy_dialog.nml:100
+    async def on_help_click(self, event: _Event) -> bool:    # copy_dialog.nml:101
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -99,7 +95,7 @@ class CopyDialog(Dialog, _Component):
         self.pick = Button(parent=_w1)    # copy_dialog.nml:84
         self.abandon = Button(parent=_w1)    # copy_dialog.nml:89
         self.tree = Button(parent=_w1)    # copy_dialog.nml:93
-        self.help = Button(parent=_w1)    # copy_dialog.nml:99
+        self.help = Button(parent=_w1)    # copy_dialog.nml:100
 
         self.modal_width = 61    # copy_dialog.nml:23
         self.modal_height = 17    # copy_dialog.nml:24
@@ -157,8 +153,12 @@ class CopyDialog(Dialog, _Component):
         self.abandon.on_click = self.on_abandon_click    # copy_dialog.nml:90
 
         self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # copy_dialog.nml:95
-        self.tree.on_click = self.on_tree_click    # copy_dialog.nml:94
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:101
-        self.help.disabled = True    # copy_dialog.nml:102
-        self.help.on_click = self.on_help_click    # copy_dialog.nml:100
+        async def _on_click(event):    # copy_dialog.nml:96
+            self.spawn(self.choose_target())
+            return True
+        self.tree.on_click = _on_click
+
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:102
+        self.help.disabled = True    # copy_dialog.nml:103
+        self.help.on_click = self.on_help_click    # copy_dialog.nml:101

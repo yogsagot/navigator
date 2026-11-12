@@ -13,7 +13,6 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
-from navkit.events import Event
 from navigator.settings import SETTINGS, TetrisData
 
 
@@ -30,4 +29,3 @@ class GameSetupDialog(Dialog, _Component):
     async def on_abandon_click(self, event: _Event) -> bool: ...
     buttons_row: tuple[Any, ...]
     def accept(self) -> dict[str, Any]: ...
-    async def on_pick_click(self, event: Event) -> bool: ...

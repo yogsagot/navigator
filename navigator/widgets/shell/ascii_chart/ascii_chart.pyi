@@ -3,8 +3,6 @@
 
 from typing import Any as _Any
 
-from navkit.events import Event as _Event
-
 from navml.component import Component as _Component
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
@@ -25,4 +23,3 @@ class AsciiChart(Dialog, _Component):
     def _report(self) -> None: ...
     def accept(self) -> int: ...
     async def on_key(self, event: KeyEvent) -> bool: ...
-    async def on_table_chosen(self, event: Any) -> bool: ...

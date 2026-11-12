@@ -177,9 +177,17 @@ class Button(Control):
         return found
 
     async def press(self) -> bool:
-        """Emit the click.  False if disabled, or if nothing claimed it."""
+        """Ask for :attr:`command`, or emit the click when there is none.
+
+        False if disabled, or if nothing claimed it.  A command is asked for
+        from this button, through ``enables()``, exactly as its key would be
+        (``Application.run_command``); no click is emitted then.
+        """
         if self.inert:
             return False
+        if self.command is not None:
+            app = self.application
+            return app is not None and await app.run_command(self.command, start=self)
         return await self.emit(ClickEvent())
 
     async def activate(self, letter: str = "") -> bool:

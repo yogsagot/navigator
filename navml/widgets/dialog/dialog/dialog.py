@@ -262,11 +262,6 @@ class Dialog(Modal):
         self.close(self.accept())
         return True
 
-    async def on_no_click(self, event: Event) -> bool:
-        """*No* of ``yes-no-cancel`` and ``yes-no``: an answer, and a different one from Cancel's."""
-        self.close(False)
-        return True
-
     def record_history(self) -> None:
         """Remember every line in this dialog that has a history button.
 

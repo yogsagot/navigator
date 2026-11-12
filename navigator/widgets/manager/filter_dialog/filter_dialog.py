@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
 
@@ -30,10 +29,3 @@ class FilterDialog(Dialog):
     def _answer(self, show: bool) -> None:
         self.close((show, self.chosen(), self.masks.cursor))
 
-    async def on_show_click(self, event: Event) -> bool:
-        self._answer(True)
-        return True
-
-    async def on_hide_click(self, event: Event) -> bool:
-        self._answer(False)
-        return True

@@ -99,10 +99,6 @@ class ErrorDialog(Dialog):
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.resume, self.copy, self.quit)
 
-    async def on_resume_click(self, event: Event) -> bool:
-        self.close("continue")
-        return True
-
     async def on_copy_click(self, event: Event) -> bool:
         app = self.application
         if app is not None:

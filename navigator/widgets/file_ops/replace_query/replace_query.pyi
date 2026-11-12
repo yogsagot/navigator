@@ -11,9 +11,9 @@ from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.file_ops.replace_query.change_list import ChangeList
+from navigator.lib.file_ops.filereplace import ALL, SKIP, YES
 
 from typing import Any
-from navkit.events import Event
 from navkit.i18n import tr, tr_n
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.file_ops.filereplace import ALL, SKIP, YES, ReplaceQuestion
@@ -31,6 +31,3 @@ class ReplaceQuery(Dialog, _Component):
     def __init__(self, question: ReplaceQuestion | None = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
     buttons_row: tuple[Any, ...]
-    async def on_agree_click(self, event: Event) -> bool: ...
-    async def on_every_click(self, event: Event) -> bool: ...
-    async def on_skip_click(self, event: Event) -> bool: ...

@@ -502,11 +502,23 @@ def _check_handler_body(resolved: Resolved, handler, root: bool) -> None:
 
 
 def _calls(body: str, root: bool) -> Iterator[tuple[str, bool]]:
-    """Every ``root.name(...)`` in *body*, and whether it was awaited."""
+    """Every ``root.name(...)`` in *body*, and whether it was awaited.
+
+    A call handed straight to ``spawn()`` counts as awaited: the coroutine is
+    the task's, which is how a handler starts a dialog without waiting on it.
+    """
     reaching = {"root"} | ({"self"} if root else set())
     tree = ast.parse("async def _h(event):\n    " + body)
     awaited = {
         id(node.value) for node in ast.walk(tree) if isinstance(node, ast.Await)
+    }
+    awaited |= {
+        id(argument)
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "spawn"
+        for argument in node.args
     }
     for node in ast.walk(tree):
         if not isinstance(node, ast.Call):

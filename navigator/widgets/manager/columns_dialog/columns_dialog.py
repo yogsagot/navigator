@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 
@@ -48,14 +47,3 @@ class ColumnsDialog(Dialog):
         ticked = {key for index, key in enumerate(self.keys_shown) if self.show.value & (1 << index)}
         return "columns", frozenset(ticked) | self._kept
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
-    async def on_brief_click(self, event: Event) -> bool:
-        self.close(("brief",))
-        return True
-
-    async def on_full_click(self, event: Event) -> bool:
-        self.close(("full",))
-        return True

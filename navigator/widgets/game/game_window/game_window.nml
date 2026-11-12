@@ -59,10 +59,12 @@ GameWindow(Window):
         Button:
             id: new_button
             text: "~N~ew"
+            command: NewGame
 
         Button:
             id: setup_button
             text: "~S~etup"
+            command: GameSetup
 
     ButtonRow:
         justify: "start"
@@ -75,10 +77,12 @@ GameWindow(Window):
         Button:
             id: top_button
             text: "~T~op 10"
+            command: ShowTopTen
 
         Button:
             id: pause_button
             text: "~P~ause"
+            command: PauseGame
 
     #: The window's own menu on the bar after *File* while it is active -- a
     #: departure, asked for: DN had its status line, whose ``~+~ Level`` and

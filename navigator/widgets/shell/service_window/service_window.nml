@@ -139,6 +139,7 @@ ServiceWindow(Window):
             before: stop_button + 1
             bottom: 1
         disabled: not root.allows()
+        command: StartService
 
     Button:
         id: stop_button
@@ -149,6 +150,7 @@ ServiceWindow(Window):
             before: journal_button + 1
             bottom: 1
         disabled: not root.allows()
+        command: StopService
 
     Button:
         id: journal_button
@@ -160,6 +162,7 @@ ServiceWindow(Window):
             before: edit_button + 1
             bottom: 1
         disabled: not root.allows()
+        command: ServiceJournal
 
     Button:
         id: edit_button
@@ -170,6 +173,7 @@ ServiceWindow(Window):
             before: close_button + 1
             bottom: 1
         disabled: not root.allows()
+        command: EditUnitFile
 
     Button:
         id: close_button
@@ -179,6 +183,7 @@ ServiceWindow(Window):
         anchors:
             right: 2
             bottom: 1
+        on_click: root.request_close()
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Process list's is; the sort in force and the two boxes ticked.  Also

@@ -3,6 +3,7 @@ from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.static_text import StaticText
 from navigator.widgets.file_ops.replace_query.change_list import ChangeList
+from navigator.lib.file_ops.filereplace import ALL, SKIP, YES
 
 #: File > Replace in files, a file holding the text: replace in it?
 #:
@@ -46,14 +47,17 @@ ReplaceQuery(Dialog):
             id: agree
             text: "~Y~es"
             default: True
+            on_click: root.close(YES)
 
         Button:
             id: every
             text: "~A~ll"
+            on_click: root.close(ALL)
 
         Button:
             id: skip
             text: "~S~kip"
+            on_click: root.close(SKIP)
 
         Button:
             id: abandon

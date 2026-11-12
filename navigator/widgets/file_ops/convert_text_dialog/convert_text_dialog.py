@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr
 
 from navml.widgets.dialog.dialog import Dialog
@@ -60,10 +59,6 @@ class ConvertTextDialog(Dialog):
             "fallback": self.fallbacks.get(self.fallback.value, section.fallback),
             "keep_times": bool(self.options.value & 1),
         }
-
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
 
 
 def _caption_of(choices: dict[str, str], key: str) -> str:

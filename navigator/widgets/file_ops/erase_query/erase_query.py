@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr
 
 from navml.widgets.dialog.control import escape_caption
@@ -63,14 +62,3 @@ class EraseQuery(Dialog):
             return (self.refuse, self.agree, self.every, self.abandon)
         return (self.agree, self.refuse, self.every)
 
-    async def on_refuse_click(self, event: Event) -> bool:
-        self.close(NO)
-        return True
-
-    async def on_agree_click(self, event: Event) -> bool:
-        self.close(YES)
-        return True
-
-    async def on_every_click(self, event: Event) -> bool:
-        self.close(ALL)
-        return True

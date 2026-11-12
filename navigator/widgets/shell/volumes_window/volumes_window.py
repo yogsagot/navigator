@@ -27,7 +27,7 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from navkit.events import ContextMenuEvent, Event, KeyEvent
+from navkit.events import ContextMenuEvent, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.widgets.dialog.control import escape_caption
@@ -308,18 +308,6 @@ class VolumesWindow(Window):
             return tr("The cursor is on no disk image")
         return super().refusal(command)
 
-    async def on_mount_button_click(self, event: Event) -> bool:
-        await self.on_mount_volume(MountVolume())
-        return True
-
-    async def on_unmount_button_click(self, event: Event) -> bool:
-        await self.on_unmount_volume(UnmountVolume())
-        return True
-
-    async def on_eject_button_click(self, event: Event) -> bool:
-        await self.on_eject_volume(EjectVolume())
-        return True
-
     # -- what the buttons and keys do ---------------------------------------------------
 
     async def on_rescan(self, event: Rescan) -> bool:
@@ -371,14 +359,6 @@ class VolumesWindow(Window):
 
     async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
         return open_on_key(self)
-
-    async def on_go_button_click(self, event: Event) -> bool:
-        await self.go()
-        return True
-
-    async def on_close_button_click(self, event: Event) -> bool:
-        self.request_close()
-        return True
 
     async def on_select_next(self, event: SelectNext) -> bool:
         self._step(1)

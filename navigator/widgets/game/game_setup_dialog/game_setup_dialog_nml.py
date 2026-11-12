@@ -46,7 +46,7 @@ class GameSetupDialog(Dialog, _Component):
     options_caption: Label    # game_setup_dialog.nml:49
     options: CheckBoxes    # game_setup_dialog.nml:57
     pick: Button    # game_setup_dialog.nml:66
-    abandon: Button    # game_setup_dialog.nml:75
+    abandon: Button    # game_setup_dialog.nml:76
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -56,11 +56,7 @@ class GameSetupDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:66
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:75
+    async def on_abandon_click(self, event: _Event) -> bool:    # game_setup_dialog.nml:76
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -73,7 +69,7 @@ class GameSetupDialog(Dialog, _Component):
         self.options_caption = Label(parent=self)    # game_setup_dialog.nml:48
         self.options = CheckBoxes(parent=self)    # game_setup_dialog.nml:56
         self.pick = Button(parent=self)    # game_setup_dialog.nml:65
-        self.abandon = Button(parent=self)    # game_setup_dialog.nml:74
+        self.abandon = Button(parent=self)    # game_setup_dialog.nml:75
 
         self.modal_width = 53    # game_setup_dialog.nml:11
         self.modal_height = 15    # game_setup_dialog.nml:12
@@ -141,11 +137,15 @@ class GameSetupDialog(Dialog, _Component):
         self.pick.y = 9    # game_setup_dialog.nml:70
         self.pick.width = 11    # game_setup_dialog.nml:71
         self.pick.height = 2    # game_setup_dialog.nml:72
-        self.pick.on_click = self.on_pick_click    # game_setup_dialog.nml:66
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:76
-        self.abandon.x = 40    # game_setup_dialog.nml:77
-        self.abandon.y = 11    # game_setup_dialog.nml:78
-        self.abandon.width = 11    # game_setup_dialog.nml:79
-        self.abandon.height = 2    # game_setup_dialog.nml:80
-        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:75
+        async def _on_click(event):    # game_setup_dialog.nml:73
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # game_setup_dialog.nml:77
+        self.abandon.x = 40    # game_setup_dialog.nml:78
+        self.abandon.y = 11    # game_setup_dialog.nml:79
+        self.abandon.width = 11    # game_setup_dialog.nml:80
+        self.abandon.height = 2    # game_setup_dialog.nml:81
+        self.abandon.on_click = self.on_abandon_click    # game_setup_dialog.nml:76

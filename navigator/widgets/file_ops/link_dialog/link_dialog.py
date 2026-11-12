@@ -128,10 +128,6 @@ class LinkDialog(Dialog):
         self.close(self.accept())
         return True
 
-    async def on_tree_click(self, event: Event) -> bool:
-        self.spawn(choose_target_line(self, self._here, self._hidden))
-        return True
-
     async def on_choose_target(self, event: ChooseTarget) -> bool:
         self.spawn(choose_target_line(self, self._here, self._hidden))
         return True

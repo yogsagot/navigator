@@ -81,6 +81,8 @@ Dialog(Modal):
             id: no
             text: "~N~o"
             visible: root.buttons in ("yes-no-cancel", "yes-no")
+            #: *No* of ``yes-no-cancel`` and ``yes-no``: an answer, and a different one from Cancel's.
+            on_click: root.close(False)
 
         Button:
             id: cancel

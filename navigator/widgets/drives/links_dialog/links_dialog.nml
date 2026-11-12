@@ -52,6 +52,7 @@ LinksDialog(Dialog):
         y: 4
         width: 12
         height: 2
+        on_click: root.spawn(root.edit_link())
 
     Button:
         id: append
@@ -60,6 +61,7 @@ LinksDialog(Dialog):
         y: 6
         width: 12
         height: 2
+        on_click: root.spawn(root.add_link())
 
     Button:
         id: delete
@@ -68,6 +70,7 @@ LinksDialog(Dialog):
         y: 8
         width: 12
         height: 2
+        on_click: root.spawn(root.delete_link())
 
     Button:
         id: pick
@@ -76,6 +79,7 @@ LinksDialog(Dialog):
         y: 11
         width: 12
         height: 2
+        on_click: root.close(root.accept())
 
     Button:
         id: abandon

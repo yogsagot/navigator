@@ -277,6 +277,15 @@ def test_calling_something_async_without_await(checked):
     assert "builds a coroutine and drops it" in error.message
 
 
+def test_handing_something_async_to_spawn_is_using_it(checked):
+    """The coroutine is the task's: how a handler starts a dialog."""
+    checked(
+        PRELUDE
+        + "Panel:\n    Button:\n        id: b\n        on_click: root.spawn(root.done(event))\n",
+        sibling="class Panel:\n    async def done(self, event): ...\n",
+    )
+
+
 def test_an_event_declared_in_both_halves(checked):
     error = refused(
         checked,

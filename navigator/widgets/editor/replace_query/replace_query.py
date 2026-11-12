@@ -9,7 +9,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -25,14 +24,3 @@ class ReplaceQuery(Dialog):
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.pick, self.skip, self.every, self.abandon)
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close("yes")
-        return True
-
-    async def on_every_click(self, event: Event) -> bool:
-        self.close("all")
-        return True
-
-    async def on_skip_click(self, event: Event) -> bool:
-        self.close("no")
-        return True

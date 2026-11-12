@@ -80,10 +80,6 @@ class SplitDialog(Dialog, _Component):
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # split_dialog.nml:86
-        """``tree`` raised an event whose handler is ``on_click``."""
-        return False
-
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # split_dialog.nml:31
@@ -150,4 +146,8 @@ class SplitDialog(Dialog, _Component):
         self.abandon.on_click = self.on_abandon_click    # split_dialog.nml:82
 
         self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # split_dialog.nml:87
-        self.tree.on_click = self.on_tree_click    # split_dialog.nml:86
+
+        async def _on_click(event):    # split_dialog.nml:88
+            self.spawn(self.choose_target())
+            return True
+        self.tree.on_click = _on_click

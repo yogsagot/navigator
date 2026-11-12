@@ -71,6 +71,7 @@ ConvertTextDialog(Dialog):
             id: pick
             text: "O~K~"
             default: True
+            on_click: root.close(root.accept())
 
         Button:
             id: abandon

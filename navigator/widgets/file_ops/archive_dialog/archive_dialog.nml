@@ -129,6 +129,7 @@ ArchiveDialog(Dialog):
             id: pick
             text: "O~K~"
             default: True
+            on_click: root.spawn(root.confirm())
 
         Button:
             id: abandon
@@ -137,6 +138,7 @@ ArchiveDialog(Dialog):
         Button:
             id: tree
             text: "~T~ree"
+            on_click: root.spawn(root.choose_target())
 
         #: There is no help to show yet: shown, and disabled, as Copy's is.
         Button:

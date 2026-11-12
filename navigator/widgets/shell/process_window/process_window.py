@@ -445,19 +445,6 @@ class ProcessWindow(Window):
 
     # -- the buttons --------------------------------------------------------------------
 
-    async def on_signal_button_click(self, event: Event) -> bool:
-        return await self.on_signal_process(SignalProcess())
-
-    async def on_kill_button_click(self, event: Event) -> bool:
-        return await self.on_kill_process(KillProcess())
-
-    async def on_details_button_click(self, event: Event) -> bool:
-        return await self.on_process_details(ProcessDetails())
-
-    async def on_close_button_click(self, event: Event) -> bool:
-        self.request_close()
-        return True
-
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
     # ``VolumesWindow``'s are.
 

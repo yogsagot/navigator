@@ -70,10 +70,6 @@ class UUDecodeDialog(Dialog, _Component):
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # uu_decode_dialog.nml:68
-        """``tree`` raised an event whose handler is ``on_click``."""
-        return False
-
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # uu_decode_dialog.nml:23
@@ -127,4 +123,8 @@ class UUDecodeDialog(Dialog, _Component):
         self.abandon.on_click = self.on_abandon_click    # uu_decode_dialog.nml:64
 
         self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # uu_decode_dialog.nml:69
-        self.tree.on_click = self.on_tree_click    # uu_decode_dialog.nml:68
+
+        async def _on_click(event):    # uu_decode_dialog.nml:70
+            self.spawn(self.choose_target())
+            return True
+        self.tree.on_click = _on_click

@@ -33,6 +33,8 @@ WindowManagerDialog(Dialog):
         y: 3
         width: 56
         height: 9
+        #: Enter in the list is OK.
+        on_chosen: root.close(root.accept())
 
     Button:
         id: pick
@@ -42,6 +44,7 @@ WindowManagerDialog(Dialog):
         y: 3
         width: 10
         height: 2
+        on_click: root.close(root.accept())
 
     #: ``cmNo``: the selected window closes and the dialog stays up.
     Button:
@@ -51,6 +54,7 @@ WindowManagerDialog(Dialog):
         y: 5
         width: 10
         height: 2
+        on_click: root.close_selected()
 
     Button:
         id: abandon

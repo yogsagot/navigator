@@ -35,11 +35,13 @@ FilterDialog(Dialog):
             id: show
             text: "~S~how"
             default: True
+            on_click: root._answer(True)
 
         #: DN's ``cmNo``: what is marked, hidden.
         Button:
             id: hide
             text: "~H~ide"
+            on_click: root._answer(False)
 
     Button:
         id: abandon

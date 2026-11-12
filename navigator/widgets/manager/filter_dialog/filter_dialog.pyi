@@ -12,7 +12,6 @@ from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 
 from typing import Any
-from navkit.events import Event
 
 
 class FilterDialog(Dialog, _Component):
@@ -25,5 +24,3 @@ class FilterDialog(Dialog, _Component):
     buttons_row: tuple[Any, ...]
     def chosen(self) -> list[str]: ...
     def _answer(self, show: bool) -> None: ...
-    async def on_show_click(self, event: Event) -> bool: ...
-    async def on_hide_click(self, event: Event) -> bool: ...

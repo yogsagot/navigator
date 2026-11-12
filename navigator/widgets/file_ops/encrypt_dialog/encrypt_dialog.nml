@@ -94,6 +94,7 @@ EncryptDialog(Dialog):
         anchors:
             right: 2
         disabled: method.value != 1 or tool.value != 0
+        on_click: root.spawn(root._choose_key())
 
     CheckBoxes:
         id: options

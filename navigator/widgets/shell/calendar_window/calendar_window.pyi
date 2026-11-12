@@ -3,8 +3,6 @@
 
 from typing import Any as _Any
 
-from navkit.events import Event as _Event
-
 from navml.component import Component as _Component
 from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
@@ -18,7 +16,7 @@ from navigator.lib.config import country
 
 import datetime
 from typing import Any
-from navkit.events import ContextMenuEvent, Event, KeyEvent
+from navkit.events import ContextMenuEvent, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import bind, effect
 from navml.calendars import SYSTEMS
@@ -53,7 +51,6 @@ class CalendarWindow(Window, _Component):
     def view(self) -> Any: ...
     def calendar_system(self) -> str: ...
     def go_to_today(self) -> None: ...
-    async def on_today_button_click(self, event: Event) -> bool: ...
     async def on_key(self, event: KeyEvent) -> bool: ...
     async def _month(self, command: object) -> bool: ...
     async def on_previous_month(self, command: PreviousMonth) -> bool: ...

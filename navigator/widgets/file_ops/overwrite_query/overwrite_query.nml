@@ -47,6 +47,7 @@ OverwriteQuery(Dialog):
         height: 2
         anchors:
             bottom: 2
+        on_click: root._answer('overwrite')
 
     ButtonRow:
         justify: "start"
@@ -59,14 +60,17 @@ OverwriteQuery(Dialog):
         Button:
             id: append
             text: "A~p~pend"
+            on_click: root._answer('append')
 
         Button:
             id: rename
             text: "~R~ename"
+            on_click: root.spawn(root.ask_name())
 
         Button:
             id: skip
             text: "~S~kip"
+            on_click: root._answer('skip')
 
         Button:
             id: abandon

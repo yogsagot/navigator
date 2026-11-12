@@ -10,7 +10,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 
 from navml.widgets.dialog.dialog import Dialog
 
@@ -40,6 +39,3 @@ class MarginsDialog(Dialog):
                 values.append(old)
         return fix_margins(*values)
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True

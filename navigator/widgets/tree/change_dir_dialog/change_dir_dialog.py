@@ -82,10 +82,6 @@ class ChangeDirDialog(Dialog):
 
     # -- the buttons -----------------------------------------------------------
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
     async def on_tree_chosen(self, event: Any) -> bool:
         """Enter in the tree is OK."""
         self.close(self.accept())
@@ -98,10 +94,6 @@ class ChangeDirDialog(Dialog):
         if here is not None:
             self._show(here)
         self.tree.focus()
-        return True
-
-    async def on_mkdir_click(self, event: Event) -> bool:
-        self.spawn(self.make_directory())
         return True
 
     async def make_directory(self) -> None:

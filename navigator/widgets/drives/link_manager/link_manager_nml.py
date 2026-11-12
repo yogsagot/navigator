@@ -12,7 +12,6 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
-from navkit.events import Event as _Event
 from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
@@ -78,55 +77,15 @@ class LinkManagerDialog(Dialog, _Component):
     directory: Field    # link_manager.nml:113
     options: Field    # link_manager.nml:126
     forwards_button: Button    # link_manager.nml:140
-    copy_key: Button    # link_manager.nml:151
-    configure: Button    # link_manager.nml:161
-    secure: CheckBoxes    # link_manager.nml:171
-    missing: StaticText    # link_manager.nml:183
-    create: Button    # link_manager.nml:193
-    save: Button    # link_manager.nml:210
-    delete: Button    # link_manager.nml:214
-    connect: Button    # link_manager.nml:218
-    abandon: Button    # link_manager.nml:227
-
-    # One stub per (id, emitted event), each wired in ``__init__``
-    # below.  They return False, so a component that overrides none
-    # of them is exactly a component that never mentioned them: the
-    # event carries on up to whatever the document's own handler
-    # does with it.  The hand-written half is the *derived* class,
-    # so its override wins over the stub without either half naming
-    # the other.
-
-    async def on_forwards_button_click(self, event: _Event) -> bool:    # link_manager.nml:140
-        """``forwards_button`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_copy_key_click(self, event: _Event) -> bool:    # link_manager.nml:151
-        """``copy_key`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_configure_click(self, event: _Event) -> bool:    # link_manager.nml:161
-        """``configure`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_create_click(self, event: _Event) -> bool:    # link_manager.nml:193
-        """``create`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_save_click(self, event: _Event) -> bool:    # link_manager.nml:210
-        """``save`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_delete_click(self, event: _Event) -> bool:    # link_manager.nml:214
-        """``delete`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_connect_click(self, event: _Event) -> bool:    # link_manager.nml:218
-        """``connect`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # link_manager.nml:227
-        """``abandon`` raised an event whose handler is ``on_click``."""
-        return False
+    copy_key: Button    # link_manager.nml:152
+    configure: Button    # link_manager.nml:163
+    secure: CheckBoxes    # link_manager.nml:174
+    missing: StaticText    # link_manager.nml:186
+    create: Button    # link_manager.nml:196
+    save: Button    # link_manager.nml:214
+    delete: Button    # link_manager.nml:219
+    connect: Button    # link_manager.nml:224
+    abandon: Button    # link_manager.nml:234
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -140,16 +99,16 @@ class LinkManagerDialog(Dialog, _Component):
         self.directory = Field(parent=self)    # link_manager.nml:112
         self.options = Field(parent=self)    # link_manager.nml:125
         self.forwards_button = Button(parent=self)    # link_manager.nml:139
-        self.copy_key = Button(parent=self)    # link_manager.nml:150
-        self.configure = Button(parent=self)    # link_manager.nml:160
-        self.secure = CheckBoxes(parent=self)    # link_manager.nml:170
-        self.missing = StaticText(parent=self)    # link_manager.nml:182
-        self.create = Button(parent=self)    # link_manager.nml:192
-        _w1 = ButtonRow(parent=self)    # link_manager.nml:200
-        self.save = Button(parent=_w1)    # link_manager.nml:209
-        self.delete = Button(parent=_w1)    # link_manager.nml:213
-        self.connect = Button(parent=self)    # link_manager.nml:217
-        self.abandon = Button(parent=self)    # link_manager.nml:226
+        self.copy_key = Button(parent=self)    # link_manager.nml:151
+        self.configure = Button(parent=self)    # link_manager.nml:162
+        self.secure = CheckBoxes(parent=self)    # link_manager.nml:173
+        self.missing = StaticText(parent=self)    # link_manager.nml:185
+        self.create = Button(parent=self)    # link_manager.nml:195
+        _w1 = ButtonRow(parent=self)    # link_manager.nml:204
+        self.save = Button(parent=_w1)    # link_manager.nml:213
+        self.delete = Button(parent=_w1)    # link_manager.nml:218
+        self.connect = Button(parent=self)    # link_manager.nml:223
+        self.abandon = Button(parent=self)    # link_manager.nml:233
 
         self.modal_width = 76    # link_manager.nml:32
         self.modal_height = 20    # link_manager.nml:33
@@ -236,78 +195,110 @@ class LinkManagerDialog(Dialog, _Component):
         self.forwards_button.width = 19    # link_manager.nml:144
         self.forwards_button.height = 2    # link_manager.nml:145
         self.forwards_button.visible = False    # link_manager.nml:146
-        self.forwards_button.on_click = self.on_forwards_button_click    # link_manager.nml:140
 
-        self.copy_key.text = _bind(    # link_manager.nml:152
+        async def _on_click(event):    # link_manager.nml:147
+            self.spawn(self.edit_forwards())
+            return True
+        self.forwards_button.on_click = _on_click
+
+        self.copy_key.text = _bind(    # link_manager.nml:153
             lambda _o: _tr('Copy ~k~ey...'),
             yielding=True,
         )
-        self.copy_key.x = 48    # link_manager.nml:153
-        self.copy_key.y = 13    # link_manager.nml:154
-        self.copy_key.width = 16    # link_manager.nml:155
-        self.copy_key.height = 2    # link_manager.nml:156
-        self.copy_key.visible = False    # link_manager.nml:157
-        self.copy_key.on_click = self.on_copy_key_click    # link_manager.nml:151
+        self.copy_key.x = 48    # link_manager.nml:154
+        self.copy_key.y = 13    # link_manager.nml:155
+        self.copy_key.width = 16    # link_manager.nml:156
+        self.copy_key.height = 2    # link_manager.nml:157
+        self.copy_key.visible = False    # link_manager.nml:158
 
-        self.configure.text = _bind(    # link_manager.nml:162
+        async def _on_click(event):    # link_manager.nml:159
+            self.spawn(self.copy_key_to_server())
+            return True
+        self.copy_key.on_click = _on_click
+
+        self.configure.text = _bind(    # link_manager.nml:164
             lambda _o: _tr('Confi~g~ure...'),
             yielding=True,
         )
-        self.configure.x = 28    # link_manager.nml:163
-        self.configure.y = 13    # link_manager.nml:164
-        self.configure.width = 19    # link_manager.nml:165
-        self.configure.height = 2    # link_manager.nml:166
-        self.configure.visible = False    # link_manager.nml:167
-        self.configure.on_click = self.on_configure_click    # link_manager.nml:161
+        self.configure.x = 28    # link_manager.nml:165
+        self.configure.y = 13    # link_manager.nml:166
+        self.configure.width = 19    # link_manager.nml:167
+        self.configure.height = 2    # link_manager.nml:168
+        self.configure.visible = False    # link_manager.nml:169
 
-        self.secure.y = 12    # link_manager.nml:172
-        self.secure.height = 1    # link_manager.nml:173
-        self.secure.items = _bind(    # link_manager.nml:177
+        async def _on_click(event):    # link_manager.nml:170
+            self.spawn(self.configure_remotes())
+            return True
+        self.configure.on_click = _on_click
+
+        self.secure.y = 12    # link_manager.nml:175
+        self.secure.height = 1    # link_manager.nml:176
+        self.secure.items = _bind(    # link_manager.nml:180
             lambda _o: [_tr('Encr~y~pt with TLS')],
             yielding=True,
         )
-        self.secure.visible = False    # link_manager.nml:178
-        self.secure.x = 29    # link_manager.nml:175
-        self.secure.width = _bind(lambda _o: max(0, _o.parent.width - 32))    # link_manager.nml:176
+        self.secure.visible = False    # link_manager.nml:181
+        self.secure.x = 29    # link_manager.nml:178
+        self.secure.width = _bind(lambda _o: max(0, _o.parent.width - 32))    # link_manager.nml:179
 
-        self.missing.y = 13    # link_manager.nml:184
-        self.missing.height = 2    # link_manager.nml:185
-        self.missing.text = ''    # link_manager.nml:189
-        self.missing.wrap = True    # link_manager.nml:190
-        self.missing.x = 28    # link_manager.nml:187
-        self.missing.width = _bind(lambda _o: max(0, _o.parent.width - 30))    # link_manager.nml:188
+        self.missing.y = 13    # link_manager.nml:187
+        self.missing.height = 2    # link_manager.nml:188
+        self.missing.text = ''    # link_manager.nml:192
+        self.missing.wrap = True    # link_manager.nml:193
+        self.missing.x = 28    # link_manager.nml:190
+        self.missing.width = _bind(lambda _o: max(0, _o.parent.width - 30))    # link_manager.nml:191
 
-        self.create.text = _bind(lambda _o: _tr('Ne~w~'), yielding=True)    # link_manager.nml:194
-        self.create.x = 2    # link_manager.nml:195
-        self.create.y = 16    # link_manager.nml:196
-        self.create.width = 13    # link_manager.nml:197
-        self.create.height = 2    # link_manager.nml:198
-        self.create.on_click = self.on_create_click    # link_manager.nml:193
+        self.create.text = _bind(lambda _o: _tr('Ne~w~'), yielding=True)    # link_manager.nml:197
+        self.create.x = 2    # link_manager.nml:198
+        self.create.y = 16    # link_manager.nml:199
+        self.create.width = 13    # link_manager.nml:200
+        self.create.height = 2    # link_manager.nml:201
 
-        _w1.justify = 'start'    # link_manager.nml:201
-        _w1.button_width = 12    # link_manager.nml:202
-        _w1.spacing = 1    # link_manager.nml:203
-        _w1.y = 16# link_manager.nml:204
-        _w1.x = 16# link_manager.nml:206
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # link_manager.nml:207
+        async def _on_click(event):    # link_manager.nml:202
+            self.spawn(self.new_link())
+            return True
+        self.create.on_click = _on_click
 
-        self.save.text = _bind(lambda _o: _tr('Sav~e~'), yielding=True)    # link_manager.nml:211
-        self.save.on_click = self.on_save_click    # link_manager.nml:210
+        _w1.justify = 'start'    # link_manager.nml:205
+        _w1.button_width = 12    # link_manager.nml:206
+        _w1.spacing = 1    # link_manager.nml:207
+        _w1.y = 16# link_manager.nml:208
+        _w1.x = 16# link_manager.nml:210
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 16))    # link_manager.nml:211
 
-        self.delete.text = _bind(lambda _o: _tr('Dele~t~e'), yielding=True)    # link_manager.nml:215
-        self.delete.on_click = self.on_delete_click    # link_manager.nml:214
+        self.save.text = _bind(lambda _o: _tr('Sav~e~'), yielding=True)    # link_manager.nml:215
 
-        self.connect.text = _bind(lambda _o: _tr('~C~onnect'), yielding=True)    # link_manager.nml:219
-        self.connect.default = True    # link_manager.nml:220
-        self.connect.x = 47    # link_manager.nml:221
-        self.connect.y = 16    # link_manager.nml:222
-        self.connect.width = 13    # link_manager.nml:223
-        self.connect.height = 2    # link_manager.nml:224
-        self.connect.on_click = self.on_connect_click    # link_manager.nml:218
+        async def _on_click(event):    # link_manager.nml:216
+            self.spawn(self.save_link())
+            return True
+        self.save.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # link_manager.nml:228
-        self.abandon.x = 61    # link_manager.nml:229
-        self.abandon.y = 16    # link_manager.nml:230
-        self.abandon.width = 12    # link_manager.nml:231
-        self.abandon.height = 2    # link_manager.nml:232
-        self.abandon.on_click = self.on_abandon_click    # link_manager.nml:227
+        self.delete.text = _bind(lambda _o: _tr('Dele~t~e'), yielding=True)    # link_manager.nml:220
+
+        async def _on_click(event):    # link_manager.nml:221
+            self.spawn(self.delete_link())
+            return True
+        self.delete.on_click = _on_click
+
+        self.connect.text = _bind(lambda _o: _tr('~C~onnect'), yielding=True)    # link_manager.nml:225
+        self.connect.default = True    # link_manager.nml:226
+        self.connect.x = 47    # link_manager.nml:227
+        self.connect.y = 16    # link_manager.nml:228
+        self.connect.width = 13    # link_manager.nml:229
+        self.connect.height = 2    # link_manager.nml:230
+
+        async def _on_click(event):    # link_manager.nml:231
+            self.spawn(self.connect_to())
+            return True
+        self.connect.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # link_manager.nml:235
+        self.abandon.x = 61    # link_manager.nml:236
+        self.abandon.y = 16    # link_manager.nml:237
+        self.abandon.width = 12    # link_manager.nml:238
+        self.abandon.height = 2    # link_manager.nml:239
+
+        async def _on_click(event):    # link_manager.nml:240
+            self.spawn(self._cancel())
+            return True
+        self.abandon.on_click = _on_click

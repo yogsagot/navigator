@@ -45,10 +45,10 @@ class WindowManagerDialog(Dialog, _Component):
     #: Ids, annotated so the hand-written half completes them.
     caption: Label    # window_manager.nml:22
     windows: WindowList    # window_manager.nml:30
-    pick: Button    # window_manager.nml:38
-    shut: Button    # window_manager.nml:48
-    abandon: Button    # window_manager.nml:56
-    helper: Button    # window_manager.nml:65
+    pick: Button    # window_manager.nml:40
+    shut: Button    # window_manager.nml:51
+    abandon: Button    # window_manager.nml:60
+    helper: Button    # window_manager.nml:69
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -58,23 +58,11 @@ class WindowManagerDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_windows_chosen(self, event: _Event) -> bool:    # window_manager.nml:30
-        """``windows`` raised an event whose handler is ``on_chosen``."""
-        return False
-
-    async def on_pick_click(self, event: _Event) -> bool:    # window_manager.nml:38
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_shut_click(self, event: _Event) -> bool:    # window_manager.nml:48
-        """``shut`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # window_manager.nml:56
+    async def on_abandon_click(self, event: _Event) -> bool:    # window_manager.nml:60
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_helper_click(self, event: _Event) -> bool:    # window_manager.nml:65
+    async def on_helper_click(self, event: _Event) -> bool:    # window_manager.nml:69
         """``helper`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -82,10 +70,10 @@ class WindowManagerDialog(Dialog, _Component):
         super().__init__(**kwargs)
         self.caption = Label(parent=self)    # window_manager.nml:21
         self.windows = WindowList(parent=self)    # window_manager.nml:29
-        self.pick = Button(parent=self)    # window_manager.nml:37
-        self.shut = Button(parent=self)    # window_manager.nml:47
-        self.abandon = Button(parent=self)    # window_manager.nml:55
-        self.helper = Button(parent=self)    # window_manager.nml:64
+        self.pick = Button(parent=self)    # window_manager.nml:39
+        self.shut = Button(parent=self)    # window_manager.nml:50
+        self.abandon = Button(parent=self)    # window_manager.nml:59
+        self.helper = Button(parent=self)    # window_manager.nml:68
 
         self.modal_width = 70    # window_manager.nml:16
         self.modal_height = 14    # window_manager.nml:17
@@ -103,34 +91,46 @@ class WindowManagerDialog(Dialog, _Component):
         self.windows.y = 3    # window_manager.nml:33
         self.windows.width = 56    # window_manager.nml:34
         self.windows.height = 9    # window_manager.nml:35
-        self.windows.on_chosen = self.on_windows_chosen    # window_manager.nml:30
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # window_manager.nml:39
-        self.pick.default = True    # window_manager.nml:40
-        self.pick.x = 58    # window_manager.nml:41
-        self.pick.y = 3    # window_manager.nml:42
-        self.pick.width = 10    # window_manager.nml:43
-        self.pick.height = 2    # window_manager.nml:44
-        self.pick.on_click = self.on_pick_click    # window_manager.nml:38
+        async def _on_chosen(event):    # window_manager.nml:37
+            self.close(self.accept())
+            return True
+        self.windows.on_chosen = _on_chosen
 
-        self.shut.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # window_manager.nml:49
-        self.shut.x = 58    # window_manager.nml:50
-        self.shut.y = 5    # window_manager.nml:51
-        self.shut.width = 10    # window_manager.nml:52
-        self.shut.height = 2    # window_manager.nml:53
-        self.shut.on_click = self.on_shut_click    # window_manager.nml:48
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # window_manager.nml:41
+        self.pick.default = True    # window_manager.nml:42
+        self.pick.x = 58    # window_manager.nml:43
+        self.pick.y = 3    # window_manager.nml:44
+        self.pick.width = 10    # window_manager.nml:45
+        self.pick.height = 2    # window_manager.nml:46
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # window_manager.nml:57
-        self.abandon.x = 58    # window_manager.nml:58
-        self.abandon.y = 7    # window_manager.nml:59
-        self.abandon.width = 10    # window_manager.nml:60
-        self.abandon.height = 2    # window_manager.nml:61
-        self.abandon.on_click = self.on_abandon_click    # window_manager.nml:56
+        async def _on_click(event):    # window_manager.nml:47
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
 
-        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # window_manager.nml:66
-        self.helper.disabled = True    # window_manager.nml:67
-        self.helper.x = 58    # window_manager.nml:68
-        self.helper.y = 11    # window_manager.nml:69
-        self.helper.width = 10    # window_manager.nml:70
-        self.helper.height = 2    # window_manager.nml:71
-        self.helper.on_click = self.on_helper_click    # window_manager.nml:65
+        self.shut.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # window_manager.nml:52
+        self.shut.x = 58    # window_manager.nml:53
+        self.shut.y = 5    # window_manager.nml:54
+        self.shut.width = 10    # window_manager.nml:55
+        self.shut.height = 2    # window_manager.nml:56
+
+        async def _on_click(event):    # window_manager.nml:57
+            self.close_selected()
+            return True
+        self.shut.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # window_manager.nml:61
+        self.abandon.x = 58    # window_manager.nml:62
+        self.abandon.y = 7    # window_manager.nml:63
+        self.abandon.width = 10    # window_manager.nml:64
+        self.abandon.height = 2    # window_manager.nml:65
+        self.abandon.on_click = self.on_abandon_click    # window_manager.nml:60
+
+        self.helper.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # window_manager.nml:70
+        self.helper.disabled = True    # window_manager.nml:71
+        self.helper.x = 58    # window_manager.nml:72
+        self.helper.y = 11    # window_manager.nml:73
+        self.helper.width = 10    # window_manager.nml:74
+        self.helper.height = 2    # window_manager.nml:75
+        self.helper.on_click = self.on_helper_click    # window_manager.nml:69

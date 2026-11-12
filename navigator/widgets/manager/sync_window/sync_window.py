@@ -328,10 +328,6 @@ class SyncWindow(Window):
         self.spawn(self.setup())
         return True
 
-    async def on_options_button_click(self, event: Event) -> bool:
-        self.spawn(self.setup())
-        return True
-
     async def setup(self) -> None:
         """*Options*: asked, kept in ``[synchronize]``, and both trees compared again with them."""
         from navigator.widgets.manager.sync_options_dialog import SyncOptionsDialog
@@ -363,10 +359,6 @@ class SyncWindow(Window):
         and a handler waiting on a dialog holds the loop that would show it."""
         if self.enables(Synchronize()):
             self.spawn(self.synchronize())
-        return True
-
-    async def on_close_button_click(self, event: Event) -> bool:
-        self.request_close()
         return True
 
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as

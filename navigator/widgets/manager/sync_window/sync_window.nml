@@ -110,6 +110,7 @@ SyncWindow(Window):
         anchors:
             right: 33
             bottom: 2
+        on_click: root.spawn(root.setup())
 
     Button:
         id: sync_button
@@ -128,6 +129,7 @@ SyncWindow(Window):
         anchors:
             right: 3
             bottom: 2
+        on_click: root.request_close()
 
     #: The window's own menu on the bar after *File* while it is active, and
     #: its right-click menu.

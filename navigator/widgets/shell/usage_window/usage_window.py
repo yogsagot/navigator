@@ -18,7 +18,7 @@ from typing import Any
 
 from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width
-from navkit.events import ContextMenuEvent, Event, KeyEvent
+from navkit.events import ContextMenuEvent, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.background import Background, Outcome
@@ -279,13 +279,6 @@ class UsageWindow(Window):
     async def on_go_to_usage(self, command: GoToUsage) -> bool:
         selected = self.entries.selected
         self.go(self.here if selected is UP else selected, close=True)
-        return True
-
-    async def on_go_button_click(self, event: Event) -> bool:
-        return await self.on_go_to_usage(GoToUsage())
-
-    async def on_close_button_click(self, event: Event) -> bool:
-        self.request_close()
         return True
 
     async def on_rescan(self, event: Rescan) -> bool:

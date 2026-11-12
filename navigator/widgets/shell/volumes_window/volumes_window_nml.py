@@ -97,11 +97,11 @@ class VolumesWindow(Window, _Component):
     everything: CheckBoxes    # volumes_window.nml:95
     free_box: CheckBoxes    # volumes_window.nml:105
     mount_button: Button    # volumes_window.nml:118
-    unmount_button: Button    # volumes_window.nml:132
-    eject_button: Button    # volumes_window.nml:146
-    go_button: Button    # volumes_window.nml:160
-    close_button: Button    # volumes_window.nml:170
-    volumes_menu: SubMenu    # volumes_window.nml:183
+    unmount_button: Button    # volumes_window.nml:133
+    eject_button: Button    # volumes_window.nml:148
+    go_button: Button    # volumes_window.nml:163
+    close_button: Button    # volumes_window.nml:174
+    volumes_menu: SubMenu    # volumes_window.nml:188
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -123,20 +123,12 @@ class VolumesWindow(Window, _Component):
         """``mount_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_unmount_button_click(self, event: _Event) -> bool:    # volumes_window.nml:132
+    async def on_unmount_button_click(self, event: _Event) -> bool:    # volumes_window.nml:133
         """``unmount_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_eject_button_click(self, event: _Event) -> bool:    # volumes_window.nml:146
+    async def on_eject_button_click(self, event: _Event) -> bool:    # volumes_window.nml:148
         """``eject_button`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_go_button_click(self, event: _Event) -> bool:    # volumes_window.nml:160
-        """``go_button`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_close_button_click(self, event: _Event) -> bool:    # volumes_window.nml:170
-        """``close_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
@@ -146,22 +138,22 @@ class VolumesWindow(Window, _Component):
         self.everything = CheckBoxes(parent=self)    # volumes_window.nml:94
         self.free_box = CheckBoxes(parent=self)    # volumes_window.nml:104
         self.mount_button = Button(parent=self)    # volumes_window.nml:117
-        self.unmount_button = Button(parent=self)    # volumes_window.nml:131
-        self.eject_button = Button(parent=self)    # volumes_window.nml:145
-        self.go_button = Button(parent=self)    # volumes_window.nml:159
-        self.close_button = Button(parent=self)    # volumes_window.nml:169
-        self.volumes_menu = SubMenu(parent=self)    # volumes_window.nml:182
-        _w1 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:185
-        _w2 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:186
-        _w3 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:188
-        _w4 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:189
-        _w5 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:190
-        _w6 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:191
-        _w7 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:192
-        _w8 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:193
-        _w9 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:195
-        _w10 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:197
-        _w11 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:198
+        self.unmount_button = Button(parent=self)    # volumes_window.nml:132
+        self.eject_button = Button(parent=self)    # volumes_window.nml:147
+        self.go_button = Button(parent=self)    # volumes_window.nml:162
+        self.close_button = Button(parent=self)    # volumes_window.nml:173
+        self.volumes_menu = SubMenu(parent=self)    # volumes_window.nml:187
+        _w1 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:190
+        _w2 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:191
+        _w3 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:193
+        _w4 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:194
+        _w5 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:195
+        _w6 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:196
+        _w7 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:197
+        _w8 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:198
+        _w9 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:200
+        _w10 = MenuLine(parent=self.volumes_menu)    # volumes_window.nml:202
+        _w11 = MenuItem(parent=self.volumes_menu)    # volumes_window.nml:203
 
         self.title = _bind(lambda _o: _tr('Volumes'), yielding=True)    # volumes_window.nml:48
 
@@ -228,6 +220,7 @@ class VolumesWindow(Window, _Component):
         self.mount_button.width = 10    # volumes_window.nml:120
         self.mount_button.height = 2    # volumes_window.nml:121
         self.mount_button.disabled = _bind(lambda _o: not self.allows('mount'))    # volumes_window.nml:129
+        self.mount_button.command = MountVolume    # volumes_window.nml:130
         self.mount_button.x = _bind(    # volumes_window.nml:123
             lambda _o: max(0, _o.parent.width - 25 - _o.width) if _o.parent.width < 82 else max(0, _o.parent.width - 47 - _o.width)
         )
@@ -236,106 +229,116 @@ class VolumesWindow(Window, _Component):
         )
         self.mount_button.on_click = self.on_mount_button_click    # volumes_window.nml:118
 
-        self.unmount_button.text = _bind(    # volumes_window.nml:133
+        self.unmount_button.text = _bind(    # volumes_window.nml:134
             lambda _o: _tr('~U~nmount'),
             yielding=True,
         )
-        self.unmount_button.width = 11    # volumes_window.nml:134
-        self.unmount_button.height = 2    # volumes_window.nml:135
-        self.unmount_button.disabled = _bind(    # volumes_window.nml:143
+        self.unmount_button.width = 11    # volumes_window.nml:135
+        self.unmount_button.height = 2    # volumes_window.nml:136
+        self.unmount_button.disabled = _bind(    # volumes_window.nml:144
             lambda _o: not self.allows('unmount')
         )
-        self.unmount_button.x = _bind(    # volumes_window.nml:137
+        self.unmount_button.command = UnmountVolume    # volumes_window.nml:145
+        self.unmount_button.x = _bind(    # volumes_window.nml:138
             lambda _o: max(0, _o.parent.width - 13 - _o.width) if _o.parent.width < 82 else max(0, _o.parent.width - 35 - _o.width)
         )
-        self.unmount_button.y = _bind(    # volumes_window.nml:138
+        self.unmount_button.y = _bind(    # volumes_window.nml:139
             lambda _o: max(0, _o.parent.height - 3 - _o.height) if _o.parent.width < 82 else max(0, _o.parent.height - 1 - _o.height)
         )
-        self.unmount_button.on_click = self.on_unmount_button_click    # volumes_window.nml:132
+        self.unmount_button.on_click = self.on_unmount_button_click    # volumes_window.nml:133
 
-        self.eject_button.text = _bind(    # volumes_window.nml:147
+        self.eject_button.text = _bind(    # volumes_window.nml:149
             lambda _o: _tr('~E~ject'),
             yielding=True,
         )
-        self.eject_button.width = 10    # volumes_window.nml:148
-        self.eject_button.height = 2    # volumes_window.nml:149
-        self.eject_button.disabled = _bind(lambda _o: not self.allows('eject'))    # volumes_window.nml:157
-        self.eject_button.x = _bind(    # volumes_window.nml:151
+        self.eject_button.width = 10    # volumes_window.nml:150
+        self.eject_button.height = 2    # volumes_window.nml:151
+        self.eject_button.disabled = _bind(lambda _o: not self.allows('eject'))    # volumes_window.nml:159
+        self.eject_button.command = EjectVolume    # volumes_window.nml:160
+        self.eject_button.x = _bind(    # volumes_window.nml:153
             lambda _o: max(0, _o.parent.width - 2 - _o.width) if _o.parent.width < 82 else max(0, _o.parent.width - 24 - _o.width)
         )
-        self.eject_button.y = _bind(    # volumes_window.nml:152
+        self.eject_button.y = _bind(    # volumes_window.nml:154
             lambda _o: max(0, _o.parent.height - 3 - _o.height) if _o.parent.width < 82 else max(0, _o.parent.height - 1 - _o.height)
         )
-        self.eject_button.on_click = self.on_eject_button_click    # volumes_window.nml:146
+        self.eject_button.on_click = self.on_eject_button_click    # volumes_window.nml:148
 
-        self.go_button.text = _bind(lambda _o: _tr('~G~o'), yielding=True)    # volumes_window.nml:161
-        self.go_button.default = True    # volumes_window.nml:162
-        self.go_button.width = 10    # volumes_window.nml:163
-        self.go_button.height = 2    # volumes_window.nml:164
-        self.go_button.x = _bind(    # volumes_window.nml:166
+        self.go_button.text = _bind(lambda _o: _tr('~G~o'), yielding=True)    # volumes_window.nml:164
+        self.go_button.default = True    # volumes_window.nml:165
+        self.go_button.width = 10    # volumes_window.nml:166
+        self.go_button.height = 2    # volumes_window.nml:167
+        self.go_button.x = _bind(    # volumes_window.nml:169
             lambda _o: max(0, _o.parent.width - 13 - _o.width)
         )
-        self.go_button.y = _bind(    # volumes_window.nml:167
+        self.go_button.y = _bind(    # volumes_window.nml:170
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.go_button.on_click = self.on_go_button_click    # volumes_window.nml:160
 
-        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # volumes_window.nml:171
-        self.close_button.width = 10    # volumes_window.nml:172
-        self.close_button.height = 2    # volumes_window.nml:173
-        self.close_button.x = _bind(    # volumes_window.nml:175
+        async def _on_click(event):    # volumes_window.nml:171
+            await self.go()
+            return True
+        self.go_button.on_click = _on_click
+
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # volumes_window.nml:175
+        self.close_button.width = 10    # volumes_window.nml:176
+        self.close_button.height = 2    # volumes_window.nml:177
+        self.close_button.x = _bind(    # volumes_window.nml:179
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.close_button.y = _bind(    # volumes_window.nml:176
+        self.close_button.y = _bind(    # volumes_window.nml:180
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.close_button.on_click = self.on_close_button_click    # volumes_window.nml:170
 
-        self.volumes_menu.text = _bind(    # volumes_window.nml:182
+        async def _on_click(event):    # volumes_window.nml:181
+            self.request_close()
+            return True
+        self.close_button.on_click = _on_click
+
+        self.volumes_menu.text = _bind(    # volumes_window.nml:187
             lambda _o: _tr('~V~olumes'),
             yielding=True,
         )
-        self.volumes_menu.after = 'File'    # volumes_window.nml:182
-        self.volumes_menu.tooltip = _bind(    # volumes_window.nml:184
+        self.volumes_menu.after = 'File'    # volumes_window.nml:187
+        self.volumes_menu.tooltip = _bind(    # volumes_window.nml:189
             lambda _o: _tr('Mount, unmount and eject volumes'),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # volumes_window.nml:185
-        _w1.command = Rescan    # volumes_window.nml:185
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # volumes_window.nml:190
+        _w1.command = Rescan    # volumes_window.nml:190
 
-        _w2.text = _bind(lambda _o: _tr('~S~how all mounts'), yielding=True)    # volumes_window.nml:186
-        _w2.command = ToggleHidden    # volumes_window.nml:186
-        _w2.tooltip = _bind(    # volumes_window.nml:187
+        _w2.text = _bind(lambda _o: _tr('~S~how all mounts'), yielding=True)    # volumes_window.nml:191
+        _w2.command = ToggleHidden    # volumes_window.nml:191
+        _w2.tooltip = _bind(    # volumes_window.nml:192
             lambda _o: _tr("Show the kernel's own file systems too"),
             yielding=True,
         )
 
-        _w4.text = _bind(lambda _o: _tr('~M~ount'), yielding=True)    # volumes_window.nml:189
-        _w4.command = MountVolume    # volumes_window.nml:189
-        _w4.key = 'F5'    # volumes_window.nml:189
+        _w4.text = _bind(lambda _o: _tr('~M~ount'), yielding=True)    # volumes_window.nml:194
+        _w4.command = MountVolume    # volumes_window.nml:194
+        _w4.key = 'F5'    # volumes_window.nml:194
 
-        _w5.text = _bind(lambda _o: _tr('~U~nmount'), yielding=True)    # volumes_window.nml:190
-        _w5.command = UnmountVolume    # volumes_window.nml:190
-        _w5.key = 'F6'    # volumes_window.nml:190
+        _w5.text = _bind(lambda _o: _tr('~U~nmount'), yielding=True)    # volumes_window.nml:195
+        _w5.command = UnmountVolume    # volumes_window.nml:195
+        _w5.key = 'F6'    # volumes_window.nml:195
 
-        _w6.text = _bind(lambda _o: _tr('~E~ject'), yielding=True)    # volumes_window.nml:191
-        _w6.command = EjectVolume    # volumes_window.nml:191
-        _w6.key = 'F7'    # volumes_window.nml:191
+        _w6.text = _bind(lambda _o: _tr('~E~ject'), yielding=True)    # volumes_window.nml:196
+        _w6.command = EjectVolume    # volumes_window.nml:196
+        _w6.key = 'F7'    # volumes_window.nml:196
 
-        _w8.text = _bind(lambda _o: _tr('Mount ~i~mage...'), yielding=True)    # volumes_window.nml:193
-        _w8.command = MountImage    # volumes_window.nml:193
-        _w8.tooltip = _bind(    # volumes_window.nml:194
+        _w8.text = _bind(lambda _o: _tr('Mount ~i~mage...'), yielding=True)    # volumes_window.nml:198
+        _w8.command = MountImage    # volumes_window.nml:198
+        _w8.tooltip = _bind(    # volumes_window.nml:199
             lambda _o: _tr('A disk image file (.iso, .img): attached read-only and mounted'),
             yielding=True,
         )
 
-        _w9.text = _bind(lambda _o: _tr('Unmount ima~g~e'), yielding=True)    # volumes_window.nml:195
-        _w9.command = UnmountImage    # volumes_window.nml:195
-        _w9.tooltip = _bind(    # volumes_window.nml:196
+        _w9.text = _bind(lambda _o: _tr('Unmount ima~g~e'), yielding=True)    # volumes_window.nml:200
+        _w9.command = UnmountImage    # volumes_window.nml:200
+        _w9.tooltip = _bind(    # volumes_window.nml:201
             lambda _o: _tr('The disk image this volume is on: every file system of it unmounted, and detached'),
             yielding=True,
         )
 
-        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # volumes_window.nml:198
-        _w11.command = CloseWindow    # volumes_window.nml:198
+        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # volumes_window.nml:203
+        _w11.command = CloseWindow    # volumes_window.nml:203

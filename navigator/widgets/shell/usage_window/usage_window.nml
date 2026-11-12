@@ -101,6 +101,7 @@ UsageWindow(Window):
         anchors:
             right: 13
             bottom: 1
+        command: GoToUsage
 
     Button:
         id: close_button
@@ -110,6 +111,7 @@ UsageWindow(Window):
         anchors:
             right: 2
             bottom: 1
+        on_click: root.request_close()
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort it is in and *Apparent size* ticked.  Also

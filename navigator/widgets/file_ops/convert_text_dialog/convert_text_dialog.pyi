@@ -15,7 +15,6 @@ from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
 
 from typing import Any
-from navkit.events import Event
 from navkit.i18n import tr
 from navigator.lib.editor import encodings
 from navigator.settings import SETTINGS, TextConversionData
@@ -34,4 +33,3 @@ class ConvertTextDialog(Dialog, _Component):
     def mounted(self) -> None: ...
     buttons_row: tuple[Any, ...]
     def accept(self) -> dict[str, Any]: ...
-    async def on_pick_click(self, event: Event) -> bool: ...

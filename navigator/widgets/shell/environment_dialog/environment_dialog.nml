@@ -51,6 +51,7 @@ EnvironmentDialog(Dialog):
         y: 2
         width: 11
         height: 2
+        on_click: root.close(root.accept())
 
     #: ``cmYes`` broadcast: the focused variable renamed.
     Button:
@@ -60,6 +61,7 @@ EnvironmentDialog(Dialog):
         y: 4
         width: 11
         height: 2
+        on_click: root.spawn(root.rename_variable())
 
     #: ``cmOK`` broadcast: a variable added where the cursor is.
     Button:
@@ -69,6 +71,7 @@ EnvironmentDialog(Dialog):
         y: 6
         width: 11
         height: 2
+        on_click: root.spawn(root.append_variable())
 
     #: ``cmNo`` broadcast: the focused variable deleted, asked first.
     Button:
@@ -78,6 +81,7 @@ EnvironmentDialog(Dialog):
         y: 8
         width: 11
         height: 2
+        on_click: root.spawn(root.delete_variable())
 
     Button:
         id: abandon

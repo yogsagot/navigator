@@ -29,6 +29,11 @@ Button(Control):
     #: always had its shadow.  Pressed, a flat button does not move.
     property flat: False
 
+    #: A command class or instance this button asks for when pressed, as a
+    #: key or a menu item would -- Turbo Vision's ``TButton`` carried one
+    #: (``cmOK``, ``cmYes``).  None, the default, emits a click instead.
+    property command: None
+
     StaticText:
         id: caption
         #: One in from the face, which is where the ``►`` marker goes; the

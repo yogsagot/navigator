@@ -75,10 +75,6 @@ class UUEncodeDialog(Dialog):
         self.close(self.accept())
         return True
 
-    async def on_tree_click(self, event: Event) -> bool:
-        self.spawn(self.choose_target())
-        return True
-
     async def on_choose_target(self, event: ChooseTarget) -> bool:
         self.spawn(self.choose_target())
         return True

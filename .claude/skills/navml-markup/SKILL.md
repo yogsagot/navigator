@@ -104,6 +104,14 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
 - **A handler is one line taking one argument called `event`.** Anything longer is a method in the hand-written half
   that the line calls (`on_click: self.confirm_quit()`). It compiles to a one-statement `def` closing over its widget
   (not a lambda -- `on_key: self.title = event.key` is an assignment), and **always ends `return True`** (consumes).
+- **Prefer the markup line for a one-statement reaction.** `on_click: root.close("yes")` or
+  `on_click: root.spawn(root.edit_link())` on the child, rather than an `on_<id>_click` override. The `.py` keeps
+  overrides that need more than one statement, ones a test or a `FileDialog` call reaches by name, and command
+  handlers whose name only *looks* like `on_<id>_<event>` (`on_command_line_home` handles `CommandLineHome`). A line
+  only lands on an event the child's class `emits`; the build refuses any other. A button whose override only
+  re-asked a command gets `command:` instead (`navml-library`).
+- **A call handed straight to `spawn()` counts as awaited** by the build's coroutine check (`checks._calls`). The
+  coroutine belongs to the task, which is how a handler starts a dialog without waiting on it.
 - **Every `on_*` handler is `async def`**; navkit refuses a synchronous one, and `check_handlers` enforces it on both
   halves at build time.
 - **A child's event reaches the hand-written half as `on_<id>_<event>`.** For every id'd child and every event its class

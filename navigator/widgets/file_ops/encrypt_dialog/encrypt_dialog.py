@@ -88,10 +88,6 @@ class EncryptDialog(Dialog):
     async def _say(self, problem: str) -> None:
         await Dialog(title=tr("Error"), prompt=problem, buttons="ok").execute(self.application)
 
-    async def on_choose_keys_click(self, event: Event) -> bool:
-        self.spawn(self._choose_key())
-        return True
-
     async def _choose_key(self) -> None:
         """gpg's keys that can encrypt, in a box over the dialog; the one
         chosen added to the recipients by its fingerprint."""

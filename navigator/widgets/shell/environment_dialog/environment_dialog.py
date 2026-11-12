@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 
-from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import effect
 from navml.widgets.dialog.dialog import Dialog
@@ -58,15 +57,7 @@ class EnvironmentDialog(Dialog):
         self._keep_value()
         return {name: value for name, value in self.pairs}
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
     # -- the three that change the list -----------------------------------------------
-
-    async def on_append_click(self, event: Event) -> bool:
-        self.spawn(self.append_variable())
-        return True
 
     async def append_variable(self) -> None:
         """``AppendVar``: *Add Environment Variable*, ``NAME=value``, put in
@@ -88,10 +79,6 @@ class EnvironmentDialog(Dialog):
         self._refresh(at)
         self.names.focus()
 
-    async def on_rename_click(self, event: Event) -> bool:
-        self.spawn(self.rename_variable())
-        return True
-
     async def rename_variable(self) -> None:
         """``RenameVar``: *Rename variable "X"*, the value going with it."""
         from navigator.widgets.shell.edit_line_dialog import EditLineDialog
@@ -112,10 +99,6 @@ class EnvironmentDialog(Dialog):
         self.pairs[index] = [new, value]
         self._refresh(index)
         self.names.focus()
-
-    async def on_delete_click(self, event: Event) -> bool:
-        self.spawn(self.delete_variable())
-        return True
 
     async def delete_variable(self) -> None:
         """``DeleteVar``: ``dlEnvDelConfirm``, then the variable gone."""

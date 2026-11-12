@@ -70,6 +70,7 @@ GameSetupDialog(Dialog):
         y: 9
         width: 11
         height: 2
+        on_click: root.close(root.accept())
 
     Button:
         id: abandon

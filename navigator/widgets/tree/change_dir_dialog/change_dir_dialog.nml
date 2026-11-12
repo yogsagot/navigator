@@ -58,6 +58,7 @@ ChangeDirDialog(Dialog):
         height: 2
         anchors:
             right: 2
+        on_click: root.close(root.accept())
 
     #: DOS Navigator chose a drive letter here.  A POSIX filesystem has one
     #: root, so the button is shown, as the original's was, and disabled.
@@ -88,6 +89,7 @@ ChangeDirDialog(Dialog):
         height: 2
         anchors:
             right: 2
+        on_click: root.spawn(root.make_directory())
 
     Button:
         id: abandon

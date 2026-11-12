@@ -107,10 +107,6 @@ class FindFileDialog(Dialog):
 
         await Dialog(title=tr("Error"), prompt=escape_caption(reason), buttons="ok").execute(self.application)
 
-    async def on_advanced_click(self, event: Event) -> bool:
-        self.spawn(self.ask_advanced())
-        return True
-
     async def ask_advanced(self) -> None:
         """*Advanced...*: the limits, and *Advanced search* ticked once they are set."""
         from navigator.widgets.manager.advanced_search_dialog import AdvancedSearchDialog

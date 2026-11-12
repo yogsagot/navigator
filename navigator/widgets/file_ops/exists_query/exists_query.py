@@ -6,7 +6,6 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr
 
 from navml.widgets.dialog.control import escape_caption
@@ -28,14 +27,3 @@ class ExistsQuery(Dialog):
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.agree, self.refuse, self.every, self.abandon)
 
-    async def on_agree_click(self, event: Event) -> bool:
-        self.close("yes")
-        return True
-
-    async def on_refuse_click(self, event: Event) -> bool:
-        self.close("no")
-        return True
-
-    async def on_every_click(self, event: Event) -> bool:
-        self.close("all")
-        return True

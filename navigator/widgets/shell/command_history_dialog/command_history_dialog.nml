@@ -20,6 +20,8 @@ CommandHistoryDialog(Dialog):
         y: 2
         width: 55
         height: 11
+        on_killed: root.kill_selected()
+        on_chosen: root._answer('run')
 
     #: ``cmOK``: the command on the line, and run.
     ButtonRow:
@@ -35,21 +37,25 @@ CommandHistoryDialog(Dialog):
             id: run
             text: "~R~un"
             default: True
+            on_click: root._answer('run')
 
         #: ``cmYes``: the command on the line, not run.
         Button:
             id: drop
             text: "~D~rop"
+            on_click: root._answer('drop')
 
         #: ``cmOK`` broadcast to the list: the command edited in place.
         Button:
             id: edit
             text: "~E~dit"
+            on_click: root.spawn(root.edit_selected())
 
         #: ``cmYes`` broadcast to the list: the command forgotten.
         Button:
             id: kill
             text: "~K~ill"
+            on_click: root.kill_selected()
 
         Button:
             id: abandon

@@ -97,6 +97,7 @@ CalendarWindow(Window):
         y: 1 + 2 + root.rows() + root.spelled_rows() + 1
         width: 23
         height: 2
+        on_click: root.go_to_today()
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: the Directory Tree window's -- a departure, asked for: TVDEMO's had

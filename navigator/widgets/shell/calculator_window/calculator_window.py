@@ -13,7 +13,7 @@ from __future__ import annotations
 import contextlib
 from typing import Any
 
-from navkit.events import ContextMenuEvent, Event, KeyEvent
+from navkit.events import ContextMenuEvent, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek, untracked
 from navml.commands import CloseWindow
@@ -427,18 +427,6 @@ class CalculatorWindow(Window):
         return True
 
     async def on_cancel(self, event: Cancel) -> bool:
-        self.leave()
-        return True
-
-    async def on_evaluate_button_click(self, event: Event) -> bool:
-        self.evaluate()
-        return True
-
-    async def on_copy_button_click(self, event: Event) -> bool:
-        self.copy_value()
-        return True
-
-    async def on_close_button_click(self, event: Event) -> bool:
         self.leave()
         return True
 

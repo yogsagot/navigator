@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event, KeyEvent
+from navkit.events import KeyEvent
 from navkit.glyphs import GLYPHS_NERD, GLYPHS_UNICODE
 from navkit.i18n import tr
 from navkit.reactive import effect
@@ -263,22 +263,10 @@ class UnicodeChart(Dialog):
         self.record_history()
         self.close(None)
 
-    async def on_insert_button_click(self, event: Event) -> bool:
-        self.take()
-        return True
-
-    async def on_copy_button_click(self, event: Event) -> bool:
-        self.copy_out()
-        return True
-
     def clear_filter_line(self) -> None:
         self.filter.value = ""
         self.filter.cursor = 0
         self.filter.focus()
-
-    async def on_clear_filter_click(self, event: Event) -> bool:
-        self.clear_filter_line()
-        return True
 
     async def on_cancel(self, event: Cancel) -> bool:
         """Esc in a filter line holding something empties it, and the next one closes."""
@@ -286,10 +274,6 @@ class UnicodeChart(Dialog):
             self.clear_filter_line()
             return True
         return await super().on_cancel(event)
-
-    async def on_grid_chosen(self, event: Any) -> bool:
-        self.take()
-        return True
 
     async def on_key(self, event: KeyEvent) -> bool:
         if event.matches("ctrl+b") or event.matches("ctrl+p"):

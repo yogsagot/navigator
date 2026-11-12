@@ -42,8 +42,8 @@ class MarginsDialog(Dialog, _Component):
     right: Field    # margins_dialog.nml:24
     indent: Field    # margins_dialog.nml:32
     pick: Button    # margins_dialog.nml:49
-    abandon: Button    # margins_dialog.nml:54
-    helper: Button    # margins_dialog.nml:59
+    abandon: Button    # margins_dialog.nml:55
+    helper: Button    # margins_dialog.nml:60
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -53,15 +53,11 @@ class MarginsDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # margins_dialog.nml:49
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # margins_dialog.nml:54
+    async def on_abandon_click(self, event: _Event) -> bool:    # margins_dialog.nml:55
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_helper_click(self, event: _Event) -> bool:    # margins_dialog.nml:59
+    async def on_helper_click(self, event: _Event) -> bool:    # margins_dialog.nml:60
         """``helper`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -72,8 +68,8 @@ class MarginsDialog(Dialog, _Component):
         self.indent = Field(parent=self)    # margins_dialog.nml:31
         _w1 = ButtonRow(parent=self)    # margins_dialog.nml:39
         self.pick = Button(parent=_w1)    # margins_dialog.nml:48
-        self.abandon = Button(parent=_w1)    # margins_dialog.nml:53
-        self.helper = Button(parent=_w1)    # margins_dialog.nml:58
+        self.abandon = Button(parent=_w1)    # margins_dialog.nml:54
+        self.helper = Button(parent=_w1)    # margins_dialog.nml:59
 
         self.modal_width = 39    # margins_dialog.nml:10
         self.modal_height = 11    # margins_dialog.nml:11
@@ -116,11 +112,15 @@ class MarginsDialog(Dialog, _Component):
 
         self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # margins_dialog.nml:50
         self.pick.default = True    # margins_dialog.nml:51
-        self.pick.on_click = self.on_pick_click    # margins_dialog.nml:49
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # margins_dialog.nml:55
-        self.abandon.on_click = self.on_abandon_click    # margins_dialog.nml:54
+        async def _on_click(event):    # margins_dialog.nml:52
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
 
-        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # margins_dialog.nml:60
-        self.helper.disabled = True    # margins_dialog.nml:61
-        self.helper.on_click = self.on_helper_click    # margins_dialog.nml:59
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # margins_dialog.nml:56
+        self.abandon.on_click = self.on_abandon_click    # margins_dialog.nml:55
+
+        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # margins_dialog.nml:61
+        self.helper.disabled = True    # margins_dialog.nml:62
+        self.helper.on_click = self.on_helper_click    # margins_dialog.nml:60

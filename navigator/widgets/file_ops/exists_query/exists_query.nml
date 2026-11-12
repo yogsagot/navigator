@@ -32,14 +32,17 @@ ExistsQuery(Dialog):
             id: agree
             text: "~Y~es"
             default: True
+            on_click: root.close('yes')
 
         Button:
             id: refuse
             text: "~N~o"
+            on_click: root.close('no')
 
         Button:
             id: every
             text: "~A~ll"
+            on_click: root.close('all')
 
         Button:
             id: abandon

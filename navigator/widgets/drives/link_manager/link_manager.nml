@@ -144,6 +144,7 @@ LinkManagerDialog(Dialog):
         width: 19
         height: 2
         visible: False
+        on_click: root.spawn(root.edit_forwards())
 
     #: SSH's: ``ssh-copy-id`` -- a public key put on the server, so the next
     #: connection asks no password.
@@ -155,6 +156,7 @@ LinkManagerDialog(Dialog):
         width: 16
         height: 2
         visible: False
+        on_click: root.spawn(root.copy_key_to_server())
 
     #: rclone's: ``rclone config`` in a window, which sets remotes up.
     Button:
@@ -165,6 +167,7 @@ LinkManagerDialog(Dialog):
         width: 19
         height: 2
         visible: False
+        on_click: root.spawn(root.configure_remotes())
 
     #: FTP's and S3's: the connection under TLS -- ``ftps://``, ``s3://``.
     CheckBoxes:
@@ -196,6 +199,7 @@ LinkManagerDialog(Dialog):
         y: 16
         width: 13
         height: 2
+        on_click: root.spawn(root.new_link())
 
     ButtonRow:
         justify: "start"
@@ -209,10 +213,12 @@ LinkManagerDialog(Dialog):
         Button:
             id: save
             text: "Sav~e~"
+            on_click: root.spawn(root.save_link())
 
         Button:
             id: delete
             text: "Dele~t~e"
+            on_click: root.spawn(root.delete_link())
 
     Button:
         id: connect
@@ -222,6 +228,7 @@ LinkManagerDialog(Dialog):
         y: 16
         width: 13
         height: 2
+        on_click: root.spawn(root.connect_to())
 
     Button:
         id: abandon
@@ -230,3 +237,4 @@ LinkManagerDialog(Dialog):
         y: 16
         width: 12
         height: 2
+        on_click: root.spawn(root._cancel())

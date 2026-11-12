@@ -22,15 +22,18 @@ ReplaceQuery(Dialog):
             id: pick
             text: "~Y~es"
             default: True
+            on_click: root.close('yes')
 
         Button:
             id: skip
             text: "~N~o"
+            on_click: root.close('no')
 
         #: ``mfAllButton``: this one and every one after it, unasked.
         Button:
             id: every
             text: "~A~ll"
+            on_click: root.close('all')
 
         Button:
             id: abandon

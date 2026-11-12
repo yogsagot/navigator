@@ -12,7 +12,6 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
 from typing import Any
-from navkit.events import Event
 from navigator.lib.editor.paragraph import fix_margins
 
 
@@ -28,4 +27,3 @@ class MarginsDialog(Dialog, _Component):
     async def on_helper_click(self, event: _Event) -> bool: ...
     buttons_row: tuple[Any, ...]
     def accept(self) -> tuple[int, int, int]: ...
-    async def on_pick_click(self, event: Event) -> bool: ...

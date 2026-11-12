@@ -19,6 +19,7 @@ DirHistoryDialog(Dialog):
         y: 2
         width: 55
         height: 11
+        on_chosen: root.close(root.accept())
 
     Button:
         id: pick
@@ -28,6 +29,7 @@ DirHistoryDialog(Dialog):
         y: 14
         width: 11
         height: 2
+        on_click: root.close(root.accept())
 
     #: DN's ``cmYes``, broadcast: the record goes, the dialog stays.
     Button:

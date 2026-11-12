@@ -522,18 +522,6 @@ class AttrDialog(Dialog):
         self.spawn(self.edit_acl_entry())
         return True
 
-    async def on_acl_add_click(self, event: Any) -> bool:
-        self.spawn(self.add_acl_entry())
-        return True
-
-    async def on_acl_edit_click(self, event: Any) -> bool:
-        self.spawn(self.edit_acl_entry())
-        return True
-
-    async def on_acl_delete_click(self, event: Any) -> bool:
-        self.delete_acl_entry()
-        return True
-
     async def on_acl_clear_click(self, event: Any) -> bool:
         """``setfacl -b``: every row gone, on every file."""
         self._acl = {}
@@ -620,18 +608,6 @@ class AttrDialog(Dialog):
         self.spawn(self.edit_xattr())
         return True
 
-    async def on_xattr_add_click(self, event: Any) -> bool:
-        self.spawn(self.add_xattr())
-        return True
-
-    async def on_xattr_edit_click(self, event: Any) -> bool:
-        self.spawn(self.edit_xattr())
-        return True
-
-    async def on_xattr_delete_click(self, event: Any) -> bool:
-        self.delete_xattr()
-        return True
-
     async def add_xattr(self) -> None:
         from navigator.widgets.file_ops.xattr_entry_dialog import XattrEntryDialog
 
@@ -699,13 +675,6 @@ class AttrDialog(Dialog):
     @property
     def buttons_row(self) -> tuple[Widget, ...]:
         return (self.ok, self.root_button, self.no, self.cancel, self.info)
-
-    async def on_root_button_click(self, event: Any) -> bool:
-        """*As root*: root access opened (asking for the password if it is
-        not), the owner and every group offered, and OK's change done by the
-        root helper."""
-        self.spawn(self._go_root())
-        return True
 
     async def _go_root(self) -> None:
         from navigator.widgets.file_ops.as_root import open_root

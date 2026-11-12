@@ -42,6 +42,7 @@ ColumnsDialog(Dialog):
         y: 2
         width: 11
         height: 2
+        on_click: root.close(('brief',))
 
     #: DN's ``cmNo``: every column (``GetFullFlags``).
     Button:
@@ -51,6 +52,7 @@ ColumnsDialog(Dialog):
         y: 5
         width: 11
         height: 2
+        on_click: root.close(('full',))
 
     ButtonRow:
         justify: "start"
@@ -63,6 +65,7 @@ ColumnsDialog(Dialog):
             id: pick
             text: "O~K~"
             default: True
+            on_click: root.close(root.accept())
 
         Button:
             id: abandon

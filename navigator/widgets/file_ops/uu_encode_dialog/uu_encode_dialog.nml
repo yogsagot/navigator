@@ -118,3 +118,4 @@ UUEncodeDialog(Dialog):
         Button:
             id: tree
             text: "T~r~ee"
+            on_click: root.spawn(root.choose_target())

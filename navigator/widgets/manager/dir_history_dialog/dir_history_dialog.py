@@ -30,14 +30,6 @@ class DirHistoryDialog(Dialog):
     def accept(self) -> str | None:
         return self.places.selected
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
-    async def on_places_chosen(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
     async def on_drop_click(self, event: Event) -> bool:
         place = self.places.selected
         if place is not None:

@@ -106,10 +106,10 @@ class ProcessWindow(Window, _Component):
     mine_box: CheckBoxes    # process_window.nml:135
     tree_box: CheckBoxes    # process_window.nml:145
     signal_button: Button    # process_window.nml:155
-    kill_button: Button    # process_window.nml:165
-    details_button: Button    # process_window.nml:175
-    close_button: Button    # process_window.nml:186
-    process_menu: SubMenu    # process_window.nml:198
+    kill_button: Button    # process_window.nml:166
+    details_button: Button    # process_window.nml:177
+    close_button: Button    # process_window.nml:189
+    process_menu: SubMenu    # process_window.nml:202
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -139,16 +139,12 @@ class ProcessWindow(Window, _Component):
         """``signal_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_kill_button_click(self, event: _Event) -> bool:    # process_window.nml:165
+    async def on_kill_button_click(self, event: _Event) -> bool:    # process_window.nml:166
         """``kill_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_details_button_click(self, event: _Event) -> bool:    # process_window.nml:175
+    async def on_details_button_click(self, event: _Event) -> bool:    # process_window.nml:177
         """``details_button`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_close_button_click(self, event: _Event) -> bool:    # process_window.nml:186
-        """``close_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
@@ -162,28 +158,28 @@ class ProcessWindow(Window, _Component):
         self.mine_box = CheckBoxes(parent=self)    # process_window.nml:134
         self.tree_box = CheckBoxes(parent=self)    # process_window.nml:144
         self.signal_button = Button(parent=self)    # process_window.nml:154
-        self.kill_button = Button(parent=self)    # process_window.nml:164
-        self.details_button = Button(parent=self)    # process_window.nml:174
-        self.close_button = Button(parent=self)    # process_window.nml:185
-        self.process_menu = SubMenu(parent=self)    # process_window.nml:197
-        _w1 = MenuItem(parent=self.process_menu)    # process_window.nml:200
-        _w2 = MenuLine(parent=self.process_menu)    # process_window.nml:201
-        _w3 = MenuItem(parent=self.process_menu)    # process_window.nml:202
-        _w4 = MenuItem(parent=self.process_menu)    # process_window.nml:203
-        _w5 = MenuItem(parent=self.process_menu)    # process_window.nml:204
-        _w6 = MenuItem(parent=self.process_menu)    # process_window.nml:205
-        _w7 = MenuItem(parent=self.process_menu)    # process_window.nml:206
-        _w8 = MenuItem(parent=self.process_menu)    # process_window.nml:207
-        _w9 = MenuLine(parent=self.process_menu)    # process_window.nml:208
-        _w10 = MenuItem(parent=self.process_menu)    # process_window.nml:209
-        _w11 = MenuItem(parent=self.process_menu)    # process_window.nml:211
-        _w12 = MenuItem(parent=self.process_menu)    # process_window.nml:213
-        _w13 = MenuLine(parent=self.process_menu)    # process_window.nml:215
-        _w14 = MenuItem(parent=self.process_menu)    # process_window.nml:216
-        _w15 = MenuItem(parent=self.process_menu)    # process_window.nml:217
-        _w16 = MenuItem(parent=self.process_menu)    # process_window.nml:218
-        _w17 = MenuLine(parent=self.process_menu)    # process_window.nml:219
-        _w18 = MenuItem(parent=self.process_menu)    # process_window.nml:220
+        self.kill_button = Button(parent=self)    # process_window.nml:165
+        self.details_button = Button(parent=self)    # process_window.nml:176
+        self.close_button = Button(parent=self)    # process_window.nml:188
+        self.process_menu = SubMenu(parent=self)    # process_window.nml:201
+        _w1 = MenuItem(parent=self.process_menu)    # process_window.nml:204
+        _w2 = MenuLine(parent=self.process_menu)    # process_window.nml:205
+        _w3 = MenuItem(parent=self.process_menu)    # process_window.nml:206
+        _w4 = MenuItem(parent=self.process_menu)    # process_window.nml:207
+        _w5 = MenuItem(parent=self.process_menu)    # process_window.nml:208
+        _w6 = MenuItem(parent=self.process_menu)    # process_window.nml:209
+        _w7 = MenuItem(parent=self.process_menu)    # process_window.nml:210
+        _w8 = MenuItem(parent=self.process_menu)    # process_window.nml:211
+        _w9 = MenuLine(parent=self.process_menu)    # process_window.nml:212
+        _w10 = MenuItem(parent=self.process_menu)    # process_window.nml:213
+        _w11 = MenuItem(parent=self.process_menu)    # process_window.nml:215
+        _w12 = MenuItem(parent=self.process_menu)    # process_window.nml:217
+        _w13 = MenuLine(parent=self.process_menu)    # process_window.nml:219
+        _w14 = MenuItem(parent=self.process_menu)    # process_window.nml:220
+        _w15 = MenuItem(parent=self.process_menu)    # process_window.nml:221
+        _w16 = MenuItem(parent=self.process_menu)    # process_window.nml:222
+        _w17 = MenuLine(parent=self.process_menu)    # process_window.nml:223
+        _w18 = MenuItem(parent=self.process_menu)    # process_window.nml:224
 
         self.title = _bind(lambda _o: _tr('Process list'), yielding=True)    # process_window.nml:46
         self.min_width = _bind(    # process_window.nml:47
@@ -295,6 +291,7 @@ class ProcessWindow(Window, _Component):
         self.signal_button.disabled = _bind(    # process_window.nml:162
             lambda _o: not self.allows('signal')
         )
+        self.signal_button.command = SignalProcess    # process_window.nml:163
         self.signal_button.x = _bind(    # process_window.nml:160
             lambda _o: max(0, self.kill_button.x - 1 - _o.width)
         )
@@ -303,126 +300,132 @@ class ProcessWindow(Window, _Component):
         )
         self.signal_button.on_click = self.on_signal_button_click    # process_window.nml:155
 
-        self.kill_button.text = _bind(lambda _o: _tr('~K~ill'), yielding=True)    # process_window.nml:166
-        self.kill_button.width = _bind(    # process_window.nml:167
+        self.kill_button.text = _bind(lambda _o: _tr('~K~ill'), yielding=True)    # process_window.nml:167
+        self.kill_button.width = _bind(    # process_window.nml:168
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.kill_button.height = 2    # process_window.nml:168
-        self.kill_button.disabled = _bind(lambda _o: not self.allows('signal'))    # process_window.nml:172
-        self.kill_button.x = _bind(    # process_window.nml:170
+        self.kill_button.height = 2    # process_window.nml:169
+        self.kill_button.disabled = _bind(lambda _o: not self.allows('signal'))    # process_window.nml:173
+        self.kill_button.command = KillProcess    # process_window.nml:174
+        self.kill_button.x = _bind(    # process_window.nml:171
             lambda _o: max(0, self.details_button.x - 1 - _o.width)
         )
-        self.kill_button.y = _bind(    # process_window.nml:171
+        self.kill_button.y = _bind(    # process_window.nml:172
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.kill_button.on_click = self.on_kill_button_click    # process_window.nml:165
+        self.kill_button.on_click = self.on_kill_button_click    # process_window.nml:166
 
-        self.details_button.text = _bind(    # process_window.nml:176
+        self.details_button.text = _bind(    # process_window.nml:178
             lambda _o: _tr('~D~etails'),
             yielding=True,
         )
-        self.details_button.default = True    # process_window.nml:177
-        self.details_button.width = _bind(    # process_window.nml:178
+        self.details_button.default = True    # process_window.nml:179
+        self.details_button.width = _bind(    # process_window.nml:180
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.details_button.height = 2    # process_window.nml:179
-        self.details_button.disabled = _bind(    # process_window.nml:183
+        self.details_button.height = 2    # process_window.nml:181
+        self.details_button.disabled = _bind(    # process_window.nml:185
             lambda _o: not self.allows('details')
         )
-        self.details_button.x = _bind(    # process_window.nml:181
+        self.details_button.command = ProcessDetails    # process_window.nml:186
+        self.details_button.x = _bind(    # process_window.nml:183
             lambda _o: max(0, self.close_button.x - 1 - _o.width)
         )
-        self.details_button.y = _bind(    # process_window.nml:182
+        self.details_button.y = _bind(    # process_window.nml:184
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.details_button.on_click = self.on_details_button_click    # process_window.nml:175
+        self.details_button.on_click = self.on_details_button_click    # process_window.nml:177
 
-        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # process_window.nml:187
-        self.close_button.width = _bind(    # process_window.nml:188
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # process_window.nml:190
+        self.close_button.width = _bind(    # process_window.nml:191
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.close_button.height = 2    # process_window.nml:189
-        self.close_button.x = _bind(    # process_window.nml:191
+        self.close_button.height = 2    # process_window.nml:192
+        self.close_button.x = _bind(    # process_window.nml:194
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.close_button.y = _bind(    # process_window.nml:192
+        self.close_button.y = _bind(    # process_window.nml:195
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.close_button.on_click = self.on_close_button_click    # process_window.nml:186
 
-        self.process_menu.text = _bind(    # process_window.nml:197
+        async def _on_click(event):    # process_window.nml:196
+            self.request_close()
+            return True
+        self.close_button.on_click = _on_click
+
+        self.process_menu.text = _bind(    # process_window.nml:201
             lambda _o: _tr('~P~rocesses'),
             yielding=True,
         )
-        self.process_menu.after = 'File'    # process_window.nml:197
-        self.process_menu.tooltip = _bind(    # process_window.nml:199
+        self.process_menu.after = 'File'    # process_window.nml:201
+        self.process_menu.tooltip = _bind(    # process_window.nml:203
             lambda _o: _tr('Sort, search and signal the running processes'),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # process_window.nml:200
-        _w1.command = Rescan    # process_window.nml:200
-        _w1.key = 'Ctrl-R'    # process_window.nml:200
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # process_window.nml:204
+        _w1.command = Rescan    # process_window.nml:204
+        _w1.key = 'Ctrl-R'    # process_window.nml:204
 
-        _w3.text = _bind(lambda _o: _tr('Sort by ~P~ID'), yielding=True)    # process_window.nml:202
-        _w3.command = ProcessSortPid    # process_window.nml:202
-        _w3.key = 'Ctrl-P'    # process_window.nml:202
+        _w3.text = _bind(lambda _o: _tr('Sort by ~P~ID'), yielding=True)    # process_window.nml:206
+        _w3.command = ProcessSortPid    # process_window.nml:206
+        _w3.key = 'Ctrl-P'    # process_window.nml:206
 
-        _w4.text = _bind(lambda _o: _tr('Sort by ~u~ser'), yielding=True)    # process_window.nml:203
-        _w4.command = ProcessSortUser    # process_window.nml:203
-        _w4.key = 'Ctrl-U'    # process_window.nml:203
+        _w4.text = _bind(lambda _o: _tr('Sort by ~u~ser'), yielding=True)    # process_window.nml:207
+        _w4.command = ProcessSortUser    # process_window.nml:207
+        _w4.key = 'Ctrl-U'    # process_window.nml:207
 
-        _w5.text = _bind(lambda _o: _tr('Sort by s~t~ate'), yielding=True)    # process_window.nml:204
-        _w5.command = ProcessSortState    # process_window.nml:204
-        _w5.key = 'Ctrl-E'    # process_window.nml:204
+        _w5.text = _bind(lambda _o: _tr('Sort by s~t~ate'), yielding=True)    # process_window.nml:208
+        _w5.command = ProcessSortState    # process_window.nml:208
+        _w5.key = 'Ctrl-E'    # process_window.nml:208
 
-        _w6.text = _bind(lambda _o: _tr('Sort by CPU ~l~oad'), yielding=True)    # process_window.nml:205
-        _w6.command = ProcessSortCpu    # process_window.nml:205
-        _w6.key = 'Ctrl-L'    # process_window.nml:205
+        _w6.text = _bind(lambda _o: _tr('Sort by CPU ~l~oad'), yielding=True)    # process_window.nml:209
+        _w6.command = ProcessSortCpu    # process_window.nml:209
+        _w6.key = 'Ctrl-L'    # process_window.nml:209
 
-        _w7.text = _bind(lambda _o: _tr('Sort by ~m~emory'), yielding=True)    # process_window.nml:206
-        _w7.command = ProcessSortMemory    # process_window.nml:206
-        _w7.key = 'Ctrl-Z'    # process_window.nml:206
+        _w7.text = _bind(lambda _o: _tr('Sort by ~m~emory'), yielding=True)    # process_window.nml:210
+        _w7.command = ProcessSortMemory    # process_window.nml:210
+        _w7.key = 'Ctrl-Z'    # process_window.nml:210
 
-        _w8.text = _bind(lambda _o: _tr('Sort by comma~n~d'), yielding=True)    # process_window.nml:207
-        _w8.command = ProcessSortCommand    # process_window.nml:207
-        _w8.key = 'Ctrl-N'    # process_window.nml:207
+        _w8.text = _bind(lambda _o: _tr('Sort by comma~n~d'), yielding=True)    # process_window.nml:211
+        _w8.command = ProcessSortCommand    # process_window.nml:211
+        _w8.key = 'Ctrl-N'    # process_window.nml:211
 
-        _w10.text = _bind(lambda _o: _tr('Tr~e~e'), yielding=True)    # process_window.nml:209
-        _w10.command = ProcessTree    # process_window.nml:209
-        _w10.key = 'Ctrl-T'    # process_window.nml:209
-        _w10.tooltip = _bind(    # process_window.nml:210
+        _w10.text = _bind(lambda _o: _tr('Tr~e~e'), yielding=True)    # process_window.nml:213
+        _w10.command = ProcessTree    # process_window.nml:213
+        _w10.key = 'Ctrl-T'    # process_window.nml:213
+        _w10.tooltip = _bind(    # process_window.nml:214
             lambda _o: _tr('Each process under its parent'),
             yielding=True,
         )
 
-        _w11.text = _bind(lambda _o: _tr('M~i~ne only'), yielding=True)    # process_window.nml:211
-        _w11.command = ProcessMineOnly    # process_window.nml:211
-        _w11.key = 'Ctrl-H'    # process_window.nml:211
-        _w11.tooltip = _bind(    # process_window.nml:212
+        _w11.text = _bind(lambda _o: _tr('M~i~ne only'), yielding=True)    # process_window.nml:215
+        _w11.command = ProcessMineOnly    # process_window.nml:215
+        _w11.key = 'Ctrl-H'    # process_window.nml:215
+        _w11.tooltip = _bind(    # process_window.nml:216
             lambda _o: _tr('Only your own processes'),
             yielding=True,
         )
 
-        _w12.text = _bind(lambda _o: _tr('~F~ilter'), yielding=True)    # process_window.nml:213
-        _w12.command = FilterProcesses    # process_window.nml:213
-        _w12.key = 'F4'    # process_window.nml:213
-        _w12.tooltip = _bind(    # process_window.nml:214
+        _w12.text = _bind(lambda _o: _tr('~F~ilter'), yielding=True)    # process_window.nml:217
+        _w12.command = FilterProcesses    # process_window.nml:217
+        _w12.key = 'F4'    # process_window.nml:217
+        _w12.tooltip = _bind(    # process_window.nml:218
             lambda _o: _tr('Show only the processes whose command, name, user or PID holds what is typed'),
             yielding=True,
         )
 
-        _w14.text = _bind(lambda _o: _tr('~D~etails...'), yielding=True)    # process_window.nml:216
-        _w14.command = ProcessDetails    # process_window.nml:216
-        _w14.key = 'F3'    # process_window.nml:216
+        _w14.text = _bind(lambda _o: _tr('~D~etails...'), yielding=True)    # process_window.nml:220
+        _w14.command = ProcessDetails    # process_window.nml:220
+        _w14.key = 'F3'    # process_window.nml:220
 
-        _w15.text = _bind(lambda _o: _tr('~S~ignal...'), yielding=True)    # process_window.nml:217
-        _w15.command = SignalProcess    # process_window.nml:217
-        _w15.key = 'F7'    # process_window.nml:217
+        _w15.text = _bind(lambda _o: _tr('~S~ignal...'), yielding=True)    # process_window.nml:221
+        _w15.command = SignalProcess    # process_window.nml:221
+        _w15.key = 'F7'    # process_window.nml:221
 
-        _w16.text = _bind(lambda _o: _tr('~K~ill...'), yielding=True)    # process_window.nml:218
-        _w16.command = KillProcess    # process_window.nml:218
-        _w16.key = 'F8'    # process_window.nml:218
+        _w16.text = _bind(lambda _o: _tr('~K~ill...'), yielding=True)    # process_window.nml:222
+        _w16.command = KillProcess    # process_window.nml:222
+        _w16.key = 'F8'    # process_window.nml:222
 
-        _w18.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # process_window.nml:220
-        _w18.command = CloseWindow    # process_window.nml:220
+        _w18.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # process_window.nml:224
+        _w18.command = CloseWindow    # process_window.nml:224

@@ -45,6 +45,8 @@ Shell(DockLayout):
     Desktop:
         id: desktop
         visible: not parent.console_visible
+        #: The last window on ``desktop`` closed: the console is all there is.
+        on_emptied: root.show_console()
 
     #: ``context`` is whose menus join the bar: the active window's, while
     #: the windows are showing -- so F9, a click, closing it and Ctrl+O all

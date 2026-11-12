@@ -114,6 +114,7 @@ FindFileDialog(Dialog):
         height: 2
         anchors:
             bottom: 2
+        on_click: root.spawn(root.ask_advanced())
 
     Button:
         id: abandon

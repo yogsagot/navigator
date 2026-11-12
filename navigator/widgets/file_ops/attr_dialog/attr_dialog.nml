@@ -206,6 +206,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.spawn(root.add_acl_entry())
 
             Button:
                 id: acl_edit
@@ -215,6 +216,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.spawn(root.edit_acl_entry())
 
             Button:
                 id: acl_delete
@@ -224,6 +226,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.delete_acl_entry()
 
             #: ``setfacl -b``: every named entry and the mask, access and default.
             Button:
@@ -271,6 +274,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.spawn(root.add_xattr())
 
             Button:
                 id: xattr_edit
@@ -280,6 +284,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.spawn(root.edit_xattr())
 
             Button:
                 id: xattr_delete
@@ -289,6 +294,7 @@ AttrDialog(Dialog):
                 height: 2
                 anchors:
                     right: 2
+                on_click: root.delete_xattr()
 
             StaticText:
                 id: xattr_note
@@ -367,3 +373,7 @@ AttrDialog(Dialog):
         style:
             basis: 11
             grow: 0
+        #: *As root*: root access opened (asking for the password if it is
+        #: not), the owner and every group offered, and OK's change done by the
+        #: root helper.
+        on_click: root.spawn(root._go_root())

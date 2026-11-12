@@ -160,6 +160,7 @@ ProcessWindow(Window):
             before: kill_button + 1
             bottom: 1
         disabled: not root.allows("signal")
+        command: SignalProcess
 
     Button:
         id: kill_button
@@ -170,6 +171,7 @@ ProcessWindow(Window):
             before: details_button + 1
             bottom: 1
         disabled: not root.allows("signal")
+        command: KillProcess
 
     Button:
         id: details_button
@@ -181,6 +183,7 @@ ProcessWindow(Window):
             before: close_button + 1
             bottom: 1
         disabled: not root.allows("details")
+        command: ProcessDetails
 
     Button:
         id: close_button
@@ -190,6 +193,7 @@ ProcessWindow(Window):
         anchors:
             right: 2
             bottom: 1
+        on_click: root.request_close()
 
     #: The window's own menu on the bar after *File* while it is active, as
     #: Disk > Volumes' is; the sort in force, *Tree* and *Mine only* ticked.

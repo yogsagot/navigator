@@ -12,7 +12,6 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
-from navkit.events import Event as _Event
 from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
@@ -40,24 +39,12 @@ class AsciiChart(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     table: CharTable    # ascii_chart.nml:18
-    report: StaticText    # ascii_chart.nml:25
-
-    # One stub per (id, emitted event), each wired in ``__init__``
-    # below.  They return False, so a component that overrides none
-    # of them is exactly a component that never mentioned them: the
-    # event carries on up to whatever the document's own handler
-    # does with it.  The hand-written half is the *derived* class,
-    # so its override wins over the stub without either half naming
-    # the other.
-
-    async def on_table_chosen(self, event: _Event) -> bool:    # ascii_chart.nml:18
-        """``table`` raised an event whose handler is ``on_chosen``."""
-        return False
+    report: StaticText    # ascii_chart.nml:27
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.table = CharTable(parent=self)    # ascii_chart.nml:17
-        self.report = StaticText(parent=self)    # ascii_chart.nml:24
+        self.report = StaticText(parent=self)    # ascii_chart.nml:26
 
         self.modal_width = 34    # ascii_chart.nml:12
         self.modal_height = 12    # ascii_chart.nml:13
@@ -68,8 +55,12 @@ class AsciiChart(Dialog, _Component):
         self.table.y = 1    # ascii_chart.nml:20
         self.table.width = 32    # ascii_chart.nml:21
         self.table.height = 8    # ascii_chart.nml:22
-        self.table.on_chosen = self.on_table_chosen    # ascii_chart.nml:18
 
-        self.report.x = 1    # ascii_chart.nml:26
-        self.report.y = 10    # ascii_chart.nml:27
-        self.report.width = 32    # ascii_chart.nml:28
+        async def _on_chosen(event):    # ascii_chart.nml:24
+            self.close(self.accept())
+            return True
+        self.table.on_chosen = _on_chosen
+
+        self.report.x = 1    # ascii_chart.nml:28
+        self.report.y = 10    # ascii_chart.nml:29
+        self.report.width = 32    # ascii_chart.nml:30

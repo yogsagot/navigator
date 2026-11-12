@@ -6,6 +6,7 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.file_ops.copy_dialog.copy_dialog import choose_target_line
 
 #: Shift+F5: where links to the selected entries are made.
 #:
@@ -83,6 +84,7 @@ LinkDialog(Dialog):
         Button:
             id: tree
             text: "~T~ree"
+            on_click: root.spawn(choose_target_line(root, root._here, root._hidden))
 
         Button:
             id: help

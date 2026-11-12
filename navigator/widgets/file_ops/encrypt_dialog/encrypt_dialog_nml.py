@@ -52,9 +52,9 @@ class EncryptDialog(Dialog, _Component):
     confirm: Field    # encrypt_dialog.nml:66
     recipients: Field    # encrypt_dialog.nml:77
     choose_keys: Button    # encrypt_dialog.nml:89
-    options: CheckBoxes    # encrypt_dialog.nml:99
-    pick: Button    # encrypt_dialog.nml:116
-    abandon: Button    # encrypt_dialog.nml:121
+    options: CheckBoxes    # encrypt_dialog.nml:100
+    pick: Button    # encrypt_dialog.nml:117
+    abandon: Button    # encrypt_dialog.nml:122
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -64,15 +64,11 @@ class EncryptDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_choose_keys_click(self, event: _Event) -> bool:    # encrypt_dialog.nml:89
-        """``choose_keys`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_pick_click(self, event: _Event) -> bool:    # encrypt_dialog.nml:116
+    async def on_pick_click(self, event: _Event) -> bool:    # encrypt_dialog.nml:117
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # encrypt_dialog.nml:121
+    async def on_abandon_click(self, event: _Event) -> bool:    # encrypt_dialog.nml:122
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -86,10 +82,10 @@ class EncryptDialog(Dialog, _Component):
         self.confirm = Field(parent=self)    # encrypt_dialog.nml:65
         self.recipients = Field(parent=self)    # encrypt_dialog.nml:76
         self.choose_keys = Button(parent=self)    # encrypt_dialog.nml:88
-        self.options = CheckBoxes(parent=self)    # encrypt_dialog.nml:98
-        _w1 = ButtonRow(parent=self)    # encrypt_dialog.nml:108
-        self.pick = Button(parent=_w1)    # encrypt_dialog.nml:115
-        self.abandon = Button(parent=_w1)    # encrypt_dialog.nml:120
+        self.options = CheckBoxes(parent=self)    # encrypt_dialog.nml:99
+        _w1 = ButtonRow(parent=self)    # encrypt_dialog.nml:109
+        self.pick = Button(parent=_w1)    # encrypt_dialog.nml:116
+        self.abandon = Button(parent=_w1)    # encrypt_dialog.nml:121
 
         self.modal_width = 64    # encrypt_dialog.nml:16
         self.modal_height = 17    # encrypt_dialog.nml:17
@@ -176,29 +172,33 @@ class EncryptDialog(Dialog, _Component):
         self.choose_keys.x = _bind(    # encrypt_dialog.nml:95
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.choose_keys.on_click = self.on_choose_keys_click    # encrypt_dialog.nml:89
 
-        self.options.y = 10    # encrypt_dialog.nml:100
-        self.options.height = 2    # encrypt_dialog.nml:101
-        self.options.items = _bind(    # encrypt_dialog.nml:105
+        async def _on_click(event):    # encrypt_dialog.nml:97
+            self.spawn(self._choose_key())
+            return True
+        self.choose_keys.on_click = _on_click
+
+        self.options.y = 10    # encrypt_dialog.nml:101
+        self.options.height = 2    # encrypt_dialog.nml:102
+        self.options.items = _bind(    # encrypt_dialog.nml:106
             lambda _o: [_tr('~A~SCII armor'), _tr('~D~elete originals')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # encrypt_dialog.nml:106
+        self.options.tooltips = _bind(    # encrypt_dialog.nml:107
             lambda _o: [_tr('Write the encrypted files as text (gpg names them .asc)'), _tr('Remove each file once its encrypted copy is written')],
             yielding=True,
         )
-        self.options.x = 3    # encrypt_dialog.nml:103
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # encrypt_dialog.nml:104
+        self.options.x = 3    # encrypt_dialog.nml:104
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # encrypt_dialog.nml:105
 
-        _w1.justify = 'start'    # encrypt_dialog.nml:109
-        _w1.x = 19# encrypt_dialog.nml:111
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 19))    # encrypt_dialog.nml:112
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # encrypt_dialog.nml:113
+        _w1.justify = 'start'    # encrypt_dialog.nml:110
+        _w1.x = 19# encrypt_dialog.nml:112
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 19))    # encrypt_dialog.nml:113
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # encrypt_dialog.nml:114
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # encrypt_dialog.nml:117
-        self.pick.default = True    # encrypt_dialog.nml:118
-        self.pick.on_click = self.on_pick_click    # encrypt_dialog.nml:116
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # encrypt_dialog.nml:118
+        self.pick.default = True    # encrypt_dialog.nml:119
+        self.pick.on_click = self.on_pick_click    # encrypt_dialog.nml:117
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # encrypt_dialog.nml:122
-        self.abandon.on_click = self.on_abandon_click    # encrypt_dialog.nml:121
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # encrypt_dialog.nml:123
+        self.abandon.on_click = self.on_abandon_click    # encrypt_dialog.nml:122

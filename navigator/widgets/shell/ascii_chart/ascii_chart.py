@@ -72,7 +72,3 @@ class AsciiChart(Dialog):
             return True
         return await super().on_key(event)
 
-    async def on_table_chosen(self, event: Any) -> bool:
-        """A double click on a character: Enter."""
-        self.close(self.accept())
-        return True

@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr, tr_n
 
 from navml.widgets.dialog.control import escape_caption
@@ -43,14 +42,3 @@ class ReplaceQuery(Dialog):
     def buttons_row(self) -> tuple[Any, ...]:
         return (self.agree, self.every, self.skip, self.abandon)
 
-    async def on_agree_click(self, event: Event) -> bool:
-        self.close(YES)
-        return True
-
-    async def on_every_click(self, event: Event) -> bool:
-        self.close(ALL)
-        return True
-
-    async def on_skip_click(self, event: Event) -> bool:
-        self.close(SKIP)
-        return True

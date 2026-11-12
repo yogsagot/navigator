@@ -42,15 +42,6 @@ class FileHistoryDialog(Dialog):
         record = self.records.selected
         return None if record is None else record.path
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
-    async def on_records_chosen(self, event: Any) -> bool:
-        """Enter in the list is Open."""
-        self.close(self.accept())
-        return True
-
     async def on_drop_click(self, event: Event) -> bool:
         self.records.delete_selected()
         if not self.records.items:

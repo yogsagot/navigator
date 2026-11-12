@@ -19,6 +19,10 @@ binds the components to the `$dialog-*` variables. Windows, the desktop and menu
   `Dialog.buttons` has `ok`, `yes-no-cancel`, ...; `Dialog.valid()` (`Valid(cmOK)`) keeps a dialog up over a value it
   cannot read. F7 Mkdir was the first dialog wired into the application.
 - `Button` emits `ClickEvent`; mouse and Space both go through one `press()`. Clicks act on release.
+- **`Button.command`** (Turbo Vision's `TButton` carried one): when set, `press()` asks for that command from the
+  button through `app.run_command(command, start=self)`, exactly as its key would, through `enables()`. No click is
+  emitted then. Write `command: NewGame` in markup instead of an `on_<id>_click` that calls `self.on_new_game(...)`.
+  The button is not greyed while its command is disabled; `press()` returns False.
 - A `Button`'s tooltip is the keys that press it (`press_keys()`: the dialog's Default key on the default button,
   its Cancel key on its `cancel`, Alt+letter), read off the key tables; its own `tooltip` goes in front.
 - `CheckBoxes`/`RadioButtons` (`Cluster`) take `tooltips:`, one an item in step with `items` (translated like it);

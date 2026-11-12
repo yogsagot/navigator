@@ -73,10 +73,6 @@ class ExtractDialog(Dialog, _Component):
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_tree_click(self, event: _Event) -> bool:    # extract_dialog.nml:71
-        """``tree`` raised an event whose handler is ``on_click``."""
-        return False
-
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.target_caption = Label(parent=self)    # extract_dialog.nml:25
@@ -134,4 +130,8 @@ class ExtractDialog(Dialog, _Component):
         self.abandon.on_click = self.on_abandon_click    # extract_dialog.nml:67
 
         self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # extract_dialog.nml:72
-        self.tree.on_click = self.on_tree_click    # extract_dialog.nml:71
+
+        async def _on_click(event):    # extract_dialog.nml:73
+            self.spawn(self.choose_target())
+            return True
+        self.tree.on_click = _on_click

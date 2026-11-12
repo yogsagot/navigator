@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 
 from navml.widgets.dialog.control import escape_caption
@@ -55,18 +55,6 @@ class ForwardsDialog(Dialog):
                 self.spawn(work())
                 return True
         return await super().on_key(event)
-
-    async def on_append_click(self, event: Event) -> bool:
-        self.spawn(self.add_forward())
-        return True
-
-    async def on_edit_click(self, event: Event) -> bool:
-        self.spawn(self.edit_forward())
-        return True
-
-    async def on_delete_click(self, event: Event) -> bool:
-        self.spawn(self.delete_forward())
-        return True
 
     async def add_forward(self) -> None:
         """A new forward, after the one under the cursor."""

@@ -83,6 +83,7 @@ UnicodeChart(Dialog):
         y: filter.y
         width: 3
         height: 1
+        on_click: root.clear_filter_line()
 
     UnicodeGrid:
         id: grid
@@ -90,6 +91,7 @@ UnicodeChart(Dialog):
         y: 4
         width: max(4, parent.width - 29)
         height: max(3, parent.height - 9)
+        on_chosen: root.take()
 
     #: The character under the grid's cursor: its code, glyph and name, then
     #: its category, block, decimal code and UTF-8 bytes.
@@ -111,6 +113,7 @@ UnicodeChart(Dialog):
         anchors:
             right: 29
             bottom: 1
+        on_click: root.take()
 
     #: The character to the clipboard instead of where the keyboard was.
     Button:
@@ -121,6 +124,7 @@ UnicodeChart(Dialog):
         anchors:
             right: 16
             bottom: 1
+        on_click: root.copy_out()
 
     Button:
         id: abandon

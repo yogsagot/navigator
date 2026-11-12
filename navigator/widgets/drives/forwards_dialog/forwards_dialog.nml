@@ -34,6 +34,7 @@ ForwardsDialog(Dialog):
         y: 2
         width: 12
         height: 2
+        on_click: root.spawn(root.add_forward())
 
     Button:
         id: edit
@@ -42,6 +43,7 @@ ForwardsDialog(Dialog):
         y: 4
         width: 12
         height: 2
+        on_click: root.spawn(root.edit_forward())
 
     Button:
         id: delete
@@ -50,3 +52,4 @@ ForwardsDialog(Dialog):
         y: 6
         width: 12
         height: 2
+        on_click: root.spawn(root.delete_forward())

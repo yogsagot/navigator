@@ -45,10 +45,10 @@ class EnvironmentDialog(Dialog, _Component):
     names: ListViewer    # environment_dialog.nml:29
     value: Field    # environment_dialog.nml:38
     pick: Button    # environment_dialog.nml:47
-    rename: Button    # environment_dialog.nml:57
-    append: Button    # environment_dialog.nml:66
-    delete: Button    # environment_dialog.nml:75
-    abandon: Button    # environment_dialog.nml:83
+    rename: Button    # environment_dialog.nml:58
+    append: Button    # environment_dialog.nml:68
+    delete: Button    # environment_dialog.nml:78
+    abandon: Button    # environment_dialog.nml:87
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -58,23 +58,7 @@ class EnvironmentDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # environment_dialog.nml:47
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_rename_click(self, event: _Event) -> bool:    # environment_dialog.nml:57
-        """``rename`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_append_click(self, event: _Event) -> bool:    # environment_dialog.nml:66
-        """``append`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_delete_click(self, event: _Event) -> bool:    # environment_dialog.nml:75
-        """``delete`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # environment_dialog.nml:83
+    async def on_abandon_click(self, event: _Event) -> bool:    # environment_dialog.nml:87
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -84,10 +68,10 @@ class EnvironmentDialog(Dialog, _Component):
         self.names = ListViewer(parent=self)    # environment_dialog.nml:28
         self.value = Field(parent=self)    # environment_dialog.nml:37
         self.pick = Button(parent=self)    # environment_dialog.nml:46
-        self.rename = Button(parent=self)    # environment_dialog.nml:56
-        self.append = Button(parent=self)    # environment_dialog.nml:65
-        self.delete = Button(parent=self)    # environment_dialog.nml:74
-        self.abandon = Button(parent=self)    # environment_dialog.nml:82
+        self.rename = Button(parent=self)    # environment_dialog.nml:57
+        self.append = Button(parent=self)    # environment_dialog.nml:67
+        self.delete = Button(parent=self)    # environment_dialog.nml:77
+        self.abandon = Button(parent=self)    # environment_dialog.nml:86
 
         self.modal_width = 62    # environment_dialog.nml:14
         self.modal_height = 20    # environment_dialog.nml:15
@@ -123,32 +107,48 @@ class EnvironmentDialog(Dialog, _Component):
         self.pick.y = 2    # environment_dialog.nml:51
         self.pick.width = 11    # environment_dialog.nml:52
         self.pick.height = 2    # environment_dialog.nml:53
-        self.pick.on_click = self.on_pick_click    # environment_dialog.nml:47
 
-        self.rename.text = _bind(lambda _o: _tr('~R~ename'), yielding=True)    # environment_dialog.nml:58
-        self.rename.x = 49    # environment_dialog.nml:59
-        self.rename.y = 4    # environment_dialog.nml:60
-        self.rename.width = 11    # environment_dialog.nml:61
-        self.rename.height = 2    # environment_dialog.nml:62
-        self.rename.on_click = self.on_rename_click    # environment_dialog.nml:57
+        async def _on_click(event):    # environment_dialog.nml:54
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
 
-        self.append.text = _bind(lambda _o: _tr('~A~ppend'), yielding=True)    # environment_dialog.nml:67
-        self.append.x = 49    # environment_dialog.nml:68
-        self.append.y = 6    # environment_dialog.nml:69
-        self.append.width = 11    # environment_dialog.nml:70
-        self.append.height = 2    # environment_dialog.nml:71
-        self.append.on_click = self.on_append_click    # environment_dialog.nml:66
+        self.rename.text = _bind(lambda _o: _tr('~R~ename'), yielding=True)    # environment_dialog.nml:59
+        self.rename.x = 49    # environment_dialog.nml:60
+        self.rename.y = 4    # environment_dialog.nml:61
+        self.rename.width = 11    # environment_dialog.nml:62
+        self.rename.height = 2    # environment_dialog.nml:63
 
-        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # environment_dialog.nml:76
-        self.delete.x = 49    # environment_dialog.nml:77
-        self.delete.y = 8    # environment_dialog.nml:78
-        self.delete.width = 11    # environment_dialog.nml:79
-        self.delete.height = 2    # environment_dialog.nml:80
-        self.delete.on_click = self.on_delete_click    # environment_dialog.nml:75
+        async def _on_click(event):    # environment_dialog.nml:64
+            self.spawn(self.rename_variable())
+            return True
+        self.rename.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # environment_dialog.nml:84
-        self.abandon.x = 49    # environment_dialog.nml:85
-        self.abandon.y = 10    # environment_dialog.nml:86
-        self.abandon.width = 11    # environment_dialog.nml:87
-        self.abandon.height = 2    # environment_dialog.nml:88
-        self.abandon.on_click = self.on_abandon_click    # environment_dialog.nml:83
+        self.append.text = _bind(lambda _o: _tr('~A~ppend'), yielding=True)    # environment_dialog.nml:69
+        self.append.x = 49    # environment_dialog.nml:70
+        self.append.y = 6    # environment_dialog.nml:71
+        self.append.width = 11    # environment_dialog.nml:72
+        self.append.height = 2    # environment_dialog.nml:73
+
+        async def _on_click(event):    # environment_dialog.nml:74
+            self.spawn(self.append_variable())
+            return True
+        self.append.on_click = _on_click
+
+        self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # environment_dialog.nml:79
+        self.delete.x = 49    # environment_dialog.nml:80
+        self.delete.y = 8    # environment_dialog.nml:81
+        self.delete.width = 11    # environment_dialog.nml:82
+        self.delete.height = 2    # environment_dialog.nml:83
+
+        async def _on_click(event):    # environment_dialog.nml:84
+            self.spawn(self.delete_variable())
+            return True
+        self.delete.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # environment_dialog.nml:88
+        self.abandon.x = 49    # environment_dialog.nml:89
+        self.abandon.y = 10    # environment_dialog.nml:90
+        self.abandon.width = 11    # environment_dialog.nml:91
+        self.abandon.height = 2    # environment_dialog.nml:92
+        self.abandon.on_click = self.on_abandon_click    # environment_dialog.nml:87

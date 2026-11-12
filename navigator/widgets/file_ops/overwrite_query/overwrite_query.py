@@ -12,7 +12,6 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import Event
 from navkit.i18n import tr, tr_n
 
 from navml.widgets.dialog.control import escape_caption
@@ -63,22 +62,6 @@ class OverwriteQuery(Dialog):
 
     def _answer(self, action: str, name: str = "") -> None:
         self.close(OverwriteAnswer(action, all=bool(self.for_all.value & 1), name=name))
-
-    async def on_overwrite_click(self, event: Event) -> bool:
-        self._answer("overwrite")
-        return True
-
-    async def on_append_click(self, event: Event) -> bool:
-        self._answer("append")
-        return True
-
-    async def on_skip_click(self, event: Event) -> bool:
-        self._answer("skip")
-        return True
-
-    async def on_rename_click(self, event: Event) -> bool:
-        self.spawn(self.ask_name())
-        return True
 
     async def ask_name(self) -> None:
         """DN's ``InputBox('Rename file', '~N~ew name')``, opened on the whole

@@ -49,7 +49,7 @@ class ConvertTextDialog(Dialog, _Component):
     ending: RadioButtons    # convert_text_dialog.nml:47
     options: CheckBoxes    # convert_text_dialog.nml:55
     pick: Button    # convert_text_dialog.nml:71
-    abandon: Button    # convert_text_dialog.nml:76
+    abandon: Button    # convert_text_dialog.nml:77
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -59,11 +59,7 @@ class ConvertTextDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # convert_text_dialog.nml:71
-        """``pick`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # convert_text_dialog.nml:76
+    async def on_abandon_click(self, event: _Event) -> bool:    # convert_text_dialog.nml:77
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -76,7 +72,7 @@ class ConvertTextDialog(Dialog, _Component):
         self.options = CheckBoxes(parent=self)    # convert_text_dialog.nml:54
         _w1 = ButtonRow(parent=self)    # convert_text_dialog.nml:63
         self.pick = Button(parent=_w1)    # convert_text_dialog.nml:70
-        self.abandon = Button(parent=_w1)    # convert_text_dialog.nml:75
+        self.abandon = Button(parent=_w1)    # convert_text_dialog.nml:76
 
         self.modal_width = 60    # convert_text_dialog.nml:15
         self.modal_height = 14    # convert_text_dialog.nml:16
@@ -135,7 +131,11 @@ class ConvertTextDialog(Dialog, _Component):
 
         self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # convert_text_dialog.nml:72
         self.pick.default = True    # convert_text_dialog.nml:73
-        self.pick.on_click = self.on_pick_click    # convert_text_dialog.nml:71
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # convert_text_dialog.nml:77
-        self.abandon.on_click = self.on_abandon_click    # convert_text_dialog.nml:76
+        async def _on_click(event):    # convert_text_dialog.nml:74
+            self.close(self.accept())
+            return True
+        self.pick.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # convert_text_dialog.nml:78
+        self.abandon.on_click = self.on_abandon_click    # convert_text_dialog.nml:77

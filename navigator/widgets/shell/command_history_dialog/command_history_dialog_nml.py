@@ -39,11 +39,11 @@ class CommandHistoryDialog(Dialog, _Component):
 
     #: Ids, annotated so the hand-written half completes them.
     commands: HistoryList    # command_history_dialog.nml:17
-    run: Button    # command_history_dialog.nml:35
-    drop: Button    # command_history_dialog.nml:41
-    edit: Button    # command_history_dialog.nml:46
-    kill: Button    # command_history_dialog.nml:51
-    abandon: Button    # command_history_dialog.nml:55
+    run: Button    # command_history_dialog.nml:37
+    drop: Button    # command_history_dialog.nml:44
+    edit: Button    # command_history_dialog.nml:50
+    kill: Button    # command_history_dialog.nml:56
+    abandon: Button    # command_history_dialog.nml:61
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -53,43 +53,19 @@ class CommandHistoryDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_commands_chosen(self, event: _Event) -> bool:    # command_history_dialog.nml:17
-        """``commands`` raised an event whose handler is ``on_chosen``."""
-        return False
-
-    async def on_commands_killed(self, event: _Event) -> bool:    # command_history_dialog.nml:17
-        """``commands`` raised an event whose handler is ``on_killed``."""
-        return False
-
-    async def on_run_click(self, event: _Event) -> bool:    # command_history_dialog.nml:35
-        """``run`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_drop_click(self, event: _Event) -> bool:    # command_history_dialog.nml:41
-        """``drop`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_edit_click(self, event: _Event) -> bool:    # command_history_dialog.nml:46
-        """``edit`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_kill_click(self, event: _Event) -> bool:    # command_history_dialog.nml:51
-        """``kill`` raised an event whose handler is ``on_click``."""
-        return False
-
-    async def on_abandon_click(self, event: _Event) -> bool:    # command_history_dialog.nml:55
+    async def on_abandon_click(self, event: _Event) -> bool:    # command_history_dialog.nml:61
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.commands = HistoryList(parent=self)    # command_history_dialog.nml:16
-        _w1 = ButtonRow(parent=self)    # command_history_dialog.nml:25
-        self.run = Button(parent=_w1)    # command_history_dialog.nml:34
-        self.drop = Button(parent=_w1)    # command_history_dialog.nml:40
-        self.edit = Button(parent=_w1)    # command_history_dialog.nml:45
-        self.kill = Button(parent=_w1)    # command_history_dialog.nml:50
-        self.abandon = Button(parent=_w1)    # command_history_dialog.nml:54
+        _w1 = ButtonRow(parent=self)    # command_history_dialog.nml:27
+        self.run = Button(parent=_w1)    # command_history_dialog.nml:36
+        self.drop = Button(parent=_w1)    # command_history_dialog.nml:43
+        self.edit = Button(parent=_w1)    # command_history_dialog.nml:49
+        self.kill = Button(parent=_w1)    # command_history_dialog.nml:55
+        self.abandon = Button(parent=_w1)    # command_history_dialog.nml:60
 
         self.modal_width = 59    # command_history_dialog.nml:11
         self.modal_height = 17    # command_history_dialog.nml:12
@@ -101,28 +77,52 @@ class CommandHistoryDialog(Dialog, _Component):
         self.commands.y = 2    # command_history_dialog.nml:20
         self.commands.width = 55    # command_history_dialog.nml:21
         self.commands.height = 11    # command_history_dialog.nml:22
-        self.commands.on_chosen = self.on_commands_chosen    # command_history_dialog.nml:17
-        self.commands.on_killed = self.on_commands_killed    # command_history_dialog.nml:17
 
-        _w1.justify = 'start'    # command_history_dialog.nml:26
-        _w1.button_width = 10    # command_history_dialog.nml:27
-        _w1.spacing = 1    # command_history_dialog.nml:28
-        _w1.y = 14# command_history_dialog.nml:29
-        _w1.x = 3# command_history_dialog.nml:31
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # command_history_dialog.nml:32
+        async def _on_killed(event):    # command_history_dialog.nml:23
+            self.kill_selected()
+            return True
+        self.commands.on_killed = _on_killed
 
-        self.run.text = _bind(lambda _o: _tr('~R~un'), yielding=True)    # command_history_dialog.nml:36
-        self.run.default = True    # command_history_dialog.nml:37
-        self.run.on_click = self.on_run_click    # command_history_dialog.nml:35
+        async def _on_chosen(event):    # command_history_dialog.nml:24
+            self._answer('run')
+            return True
+        self.commands.on_chosen = _on_chosen
 
-        self.drop.text = _bind(lambda _o: _tr('~D~rop'), yielding=True)    # command_history_dialog.nml:42
-        self.drop.on_click = self.on_drop_click    # command_history_dialog.nml:41
+        _w1.justify = 'start'    # command_history_dialog.nml:28
+        _w1.button_width = 10    # command_history_dialog.nml:29
+        _w1.spacing = 1    # command_history_dialog.nml:30
+        _w1.y = 14# command_history_dialog.nml:31
+        _w1.x = 3# command_history_dialog.nml:33
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 3))    # command_history_dialog.nml:34
 
-        self.edit.text = _bind(lambda _o: _tr('~E~dit'), yielding=True)    # command_history_dialog.nml:47
-        self.edit.on_click = self.on_edit_click    # command_history_dialog.nml:46
+        self.run.text = _bind(lambda _o: _tr('~R~un'), yielding=True)    # command_history_dialog.nml:38
+        self.run.default = True    # command_history_dialog.nml:39
 
-        self.kill.text = _bind(lambda _o: _tr('~K~ill'), yielding=True)    # command_history_dialog.nml:52
-        self.kill.on_click = self.on_kill_click    # command_history_dialog.nml:51
+        async def _on_click(event):    # command_history_dialog.nml:40
+            self._answer('run')
+            return True
+        self.run.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # command_history_dialog.nml:56
-        self.abandon.on_click = self.on_abandon_click    # command_history_dialog.nml:55
+        self.drop.text = _bind(lambda _o: _tr('~D~rop'), yielding=True)    # command_history_dialog.nml:45
+
+        async def _on_click(event):    # command_history_dialog.nml:46
+            self._answer('drop')
+            return True
+        self.drop.on_click = _on_click
+
+        self.edit.text = _bind(lambda _o: _tr('~E~dit'), yielding=True)    # command_history_dialog.nml:51
+
+        async def _on_click(event):    # command_history_dialog.nml:52
+            self.spawn(self.edit_selected())
+            return True
+        self.edit.on_click = _on_click
+
+        self.kill.text = _bind(lambda _o: _tr('~K~ill'), yielding=True)    # command_history_dialog.nml:57
+
+        async def _on_click(event):    # command_history_dialog.nml:58
+            self.kill_selected()
+            return True
+        self.kill.on_click = _on_click
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # command_history_dialog.nml:62
+        self.abandon.on_click = self.on_abandon_click    # command_history_dialog.nml:61

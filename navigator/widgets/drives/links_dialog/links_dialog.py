@@ -84,19 +84,11 @@ class LinksDialog(Dialog):
     def accept(self) -> tuple[str, list[Entry]]:
         return "ok", list(self.entries)
 
-    async def on_pick_click(self, event: Event) -> bool:
-        self.close(self.accept())
-        return True
-
     async def on_connect_click(self, event: Event) -> bool:
         index = self.current
         if index is None:
             return True
         self.close(("connect", list(self.entries), index))
-        return True
-
-    async def on_edit_click(self, event: Event) -> bool:
-        self.spawn(self.edit_link())
         return True
 
     async def on_edit_link(self, event: EditLink) -> bool:
@@ -113,10 +105,6 @@ class LinksDialog(Dialog):
         if answer is not None:
             self._refresh(self._put(answer, index, replacing=index))
         self.links.focus()
-
-    async def on_append_click(self, event: Event) -> bool:
-        self.spawn(self.add_link())
-        return True
 
     async def on_add_link(self, event: AddLink) -> bool:
         self.spawn(self.add_link())
@@ -179,10 +167,6 @@ class LinksDialog(Dialog):
         # ``ConnectDialog`` has no *ssh options* or forwards: an edited link keeps its own.
         return Entry(answer.name or answer.host, answer.scheme, answer.host, answer.user, answer.port, answer.path,
                      entry.options if entry is not None else "", entry.forwards if entry is not None else "")
-
-    async def on_delete_click(self, event: Event) -> bool:
-        self.spawn(self.delete_link())
-        return True
 
     async def on_delete_link(self, event: DeleteLink) -> bool:
         self.spawn(self.delete_link())

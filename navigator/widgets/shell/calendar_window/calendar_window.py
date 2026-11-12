@@ -6,7 +6,7 @@ from __future__ import annotations
 import datetime
 from typing import Any
 
-from navkit.events import ContextMenuEvent, Event, KeyEvent
+from navkit.events import ContextMenuEvent, KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import bind, effect
 from navml.calendars import SYSTEMS
@@ -136,10 +136,6 @@ class CalendarWindow(Window):
         view.day = datetime.date.today()
         view.section = "days"
         view.focus()
-
-    async def on_today_button_click(self, event: Event) -> bool:
-        self.go_to_today()
-        return True
 
     async def on_key(self, event: KeyEvent) -> bool:
         """Alt and the button's letter presses it, as a dialog's shortcut walk would."""

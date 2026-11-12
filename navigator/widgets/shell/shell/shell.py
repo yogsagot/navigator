@@ -3850,15 +3850,6 @@ class Shell(DockLayout):
             self.toggle_console()
         return True
 
-    async def on_desktop_emptied(self, event: Event) -> bool:
-        """The last window on ``desktop`` closed: the console is all there is.
-
-        Named by the generator's ``on_<id>_<event>`` convention, so the stub it
-        writes is what this overrides.
-        """
-        self.show_console()
-        return True
-
     def render(self, surface: Surface) -> None:
         surface.fill(0, 0, self.width, self.height, " ", self.style)
 
