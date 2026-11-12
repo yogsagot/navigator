@@ -32,14 +32,10 @@ from navml.widgets.window import Window
 from navigator.widgets.shell.commands import CopyCommandLine, InsertSideDirectory, NextCommand, PreviousCommand
 from navigator.widgets.manager.commands import (
     AlternateEdit,
-    AlternateView,
     ArchiveFiles,
     ArcTest,
     ChangeAttributes,
     ChangeDirectory,
-    ChangeDrive,
-    ChangeLeft,
-    ChangeRight,
     ClearClipboard,
     Copy,
     CutToClipboard,
@@ -49,7 +45,6 @@ from navigator.widgets.manager.commands import (
     DiskInfo,
     FindDuplicates,
     Edit,
-    EditNamed,
     ExtractArchive,
     ExtractTo,
     OpenArchive,
@@ -89,27 +84,20 @@ from navigator.widgets.manager.commands import (
     GoToFile,
     CompareDir,
     DiffFiles,
-    CountLength,
     FastRename,
     FindFile,
     ReplaceInFiles,
-    MakeList,
     ReadFileList,
     Panelize,
     MultiRename,
     Undo,
     RestoreTrash,
     SetupColumns,
-    AdvancedFilter,
-    DirHistory,
     JumpToDirectory,
     ListOfDirs,
     QuickChange,
     StoreQuickDir,
-    PanelSetup,
     RememberDirectory,
-    RememberedDirectories,
-    SortBy,
     SwapPanels,
     EqualizePanels,
     ToggleHidden,
@@ -130,10 +118,6 @@ from navigator.widgets.manager.commands import (
     ConvertText,
     View,
     OpenWith,
-    ViewAsDataBase,
-    ViewAsSpreadsheet,
-    ViewAsHex,
-    ViewAsText,
 )
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.commands import ToggleConsole
@@ -411,26 +395,14 @@ class Manager(Window):
             self.switch_panel()
         return True
 
-    async def on_toggle_miller(self, event: ToggleMiller) -> bool:
-        self.toggle_miller()
-        return True
-
     async def on_hide_left(self, event: HideLeft) -> bool:
         await self.toggle_side("left")
-        return True
-
-    async def on_hide_right(self, event: HideRight) -> bool:
-        await self.toggle_side("right")
         return True
 
     async def on_move_separator(self, event: MoveSeparator) -> bool:
         sides = self._sides()
         if len(sides) == 2:
             self.move_divider_to(sides[1].x + event.step)
-        return True
-
-    async def on_count_length(self, event: CountLength) -> bool:
-        self.spawn(self.count_length(self.active_panel))
         return True
 
     async def count_length(self, panel: Panel) -> None:
@@ -492,14 +464,6 @@ class Manager(Window):
         panel.set_lengths(counted)
 
     # -- UU Encode and UU Decode (navigator.lib.file_ops.uucode) ---------------------------------
-
-    async def on_uu_encode(self, event: UuEncode) -> bool:
-        self.spawn(self.uu_encode(self.active_panel))
-        return True
-
-    async def on_uu_decode(self, event: UuDecode) -> bool:
-        self.spawn(self.uu_decode(self.active_panel))
-        return True
 
     async def uu_encode(self, panel: Panel) -> None:
         """Ctrl+F7: ``UuEncode`` -- *UU Encode* asks where and how, and the
@@ -779,10 +743,6 @@ class Manager(Window):
 
     # -- Split/combine (navigator.lib.file_ops.splitfile): DN's cmPanelLongCopy --------------------
 
-    async def on_split_combine(self, event: SplitCombine) -> bool:
-        self.spawn(self.split_combine(self.active_panel))
-        return True
-
     async def split_combine(self, panel: Panel) -> None:
         """File > Split/combine: ``LongCopy`` -- the file at the cursor split
         into parts of the size asked, or, when it is a part or the set's
@@ -828,14 +788,6 @@ class Manager(Window):
         reread_trees(app)
 
     # -- Checksums (navigator.lib.file_ops.checksum): not DN's, a departure -------------------------
-
-    async def on_calculate_checksums(self, event: CalculateChecksums) -> bool:
-        self.spawn(self.calculate_checksums(self.active_panel))
-        return True
-
-    async def on_verify_checksums(self, event: VerifyChecksums) -> bool:
-        self.spawn(self.verify_checksums(self.active_panel))
-        return True
 
     async def calculate_checksums(self, panel: Panel) -> None:
         """File > Encoding > Checksums > Calculate: the tagged files' -- or the cursor's
@@ -1021,14 +973,6 @@ class Manager(Window):
 
     # -- Encryption (navigator.lib.file_ops.encrypt): not DN's, a departure ------------------------
 
-    async def on_encrypt_files(self, event: EncryptFiles) -> bool:
-        self.spawn(self.encrypt_files(self.active_panel))
-        return True
-
-    async def on_decrypt_files(self, event: DecryptFiles) -> bool:
-        self.spawn(self.decrypt_files(self.active_panel))
-        return True
-
     async def encrypt_files(self, panel: Panel) -> None:
         """File > Encoding > Encryption > Encrypt: the tagged files -- or the cursor's --
         a tagged directory's to the bottom, each encrypted beside itself by gpg
@@ -1182,10 +1126,6 @@ class Manager(Window):
                 tr_n("{n} file could not be decrypted:", "{n} files could not be decrypted:", len(job.errors)))
 
     # -- Convert text (navigator.lib.file_ops.textconv): not DN's, a departure ------------------------
-
-    async def on_convert_text(self, event: ConvertText) -> bool:
-        self.spawn(self.convert_text(self.active_panel))
-        return True
 
     async def convert_text(self, panel: Panel) -> None:
         """File > Encoding > Convert text: the tagged files -- or the cursor's --
@@ -1346,22 +1286,6 @@ class Manager(Window):
 
     # -- archives: Extract to, Test, Extract archive (ARCVIEW.PAS) ---------------------------------
 
-    async def on_extract_to(self, event: ExtractTo) -> bool:
-        self.spawn(self.extract_files(self.active_panel))
-        return True
-
-    async def on_arc_test(self, event: ArcTest) -> bool:
-        self.spawn(self.test_archive(self.active_panel))
-        return True
-
-    async def on_go_into(self, event: GoInto) -> bool:
-        self.active_panel.go_into()
-        return True
-
-    async def on_open_archive(self, event: OpenArchive) -> bool:
-        self.active_panel.open_as_archive()
-        return True
-
     # -- disk images: Unmount image (a departure: DOS had no loop devices) ---------------------------
 
     async def on_mount_image(self, event: MountImage) -> bool:
@@ -1374,10 +1298,6 @@ class Manager(Window):
         path = panel.image_file()
         if path is not None:
             self.spawn(enter_image(panel, path))
-        return True
-
-    async def on_unmount_image(self, event: UnmountImage) -> bool:
-        self.spawn(self.unmount_image(self.active_panel))
         return True
 
     async def unmount_image(self, panel: Any) -> None:
@@ -1397,15 +1317,6 @@ class Manager(Window):
             self.spawn(self.extract_files(panel))
         else:
             self.spawn(self.extract_archives(panel))
-        return True
-
-    async def on_archive_files(self, event: ArchiveFiles) -> bool:
-        """Shift+F1, File > Archive > *Create archive...*: ``cmPanelArcFiles``, DN's
-        *Archive files* box (``ArchiveDialog``) naming the new archive and
-        how it is packed, then a copy into it -- which makes it and packs it
-        (``filecopy._open_target_archive``).  DN's caption was *Copy to
-        archive*: renamed, a departure asked for, since it makes one."""
-        self.spawn(self.archive_files(self.active_panel))
         return True
 
     async def archive_files(self, panel: Panel) -> None:
@@ -1626,15 +1537,6 @@ class Manager(Window):
         panel.focus()
         return True
 
-    async def on_go_to_file(self, event: GoToFile) -> bool:
-        """The right-click menu's *Go to file*: Enter in a *Find:* listing."""
-        self.active_panel.go_to_entry()
-        return True
-
-    async def on_read_file_list(self, event: ReadFileList) -> bool:
-        self.spawn(self.read_file_list(self.active_panel))
-        return True
-
     async def read_file_list(self, panel: Panel) -> None:
         """Alt+V: ``cmPanelMakeList`` -- the list file at the cursor read on a
         thread (:func:`navigator.lib.file_ops.filefind.read_list`) into a listing titled
@@ -1678,10 +1580,6 @@ class Manager(Window):
             await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
             return
         panel.show_found(FindListing(str(source), here, entries, return_to=entry.name))
-
-    async def on_panelize(self, event: Panelize) -> bool:
-        self.spawn(self.panelize(self.active_panel))
-        return True
 
     #: The last command panelized, offered again in the box (the session's).
     last_panelized = ""
@@ -1766,10 +1664,6 @@ class Manager(Window):
                 panel.reload(key=current.key)
         panel.focus()
 
-    async def on_find_file(self, event: FindFile) -> bool:
-        self.spawn(self.find_file(self.active_panel))
-        return True
-
     async def find_file(self, panel: Panel) -> None:
         """Alt+F7: ``FindFile``, what *Find File* asks for found into *panel*.
 
@@ -1788,10 +1682,6 @@ class Manager(Window):
         if request is None:
             return
         await self._search_into(panel, request, tr("Find: {mask}").format(mask=request.mask))
-
-    async def on_replace_in_files(self, event: ReplaceInFiles) -> bool:
-        self.spawn(self.replace_in_files(self.active_panel))
-        return True
 
     async def replace_in_files(self, panel: Panel) -> None:
         """File > Replace in files (a departure, asked for): Find File's
@@ -1885,10 +1775,6 @@ class Manager(Window):
             self.spawn(shell.jump_directory(lambda place: self.spawn(self._go_to(panel, place))))
         return True
 
-    async def on_dir_history(self, event: DirHistory) -> bool:
-        self.spawn(self.dir_history(self.active_panel))
-        return True
-
     async def dir_history(self, panel: Panel) -> None:
         """Alt+Backspace: ``DirHistoryMenu`` -- the directories the panels have
         been to (Interface's *Track directories*, else DN's ``dlSetDirHistory``),
@@ -1921,10 +1807,6 @@ class Manager(Window):
             self.spawn(self._go_to(self.active_panel, rows[event.slot - 1].path))
         return True
 
-    async def on_store_quick_dir(self, event: StoreQuickDir) -> bool:
-        self.spawn(self.store_quick_dir(self.active_panel, event.slot))
-        return True
-
     async def store_quick_dir(self, panel: Panel, slot: int) -> None:
         """Alt+Shift+*N*: DN's ``dlPromptForQDir``, then the panel's directory
         bookmarked at place *N* (``place_bookmark``), so Alt+*N* comes back to it."""
@@ -1935,15 +1817,6 @@ class Manager(Window):
             return
         place_bookmark(panel.location, slot)
         panel.invalidate()
-
-    async def on_list_of_dirs(self, event: ListOfDirs) -> bool:
-        """Alt+Shift+0: ``DoQuickChange``'s list, which is the bookmarks box."""
-        self.spawn(self.choose_bookmark(self.active_panel))
-        return True
-
-    async def on_advanced_filter(self, event: AdvancedFilter) -> bool:
-        self.spawn(self.advanced_filter(self.active_panel))
-        return True
 
     async def advanced_filter(self, panel: Panel) -> None:
         """Alt+Del: ``CM_AdvancedFilter`` -- the *Filter* box over *panel*'s
@@ -1978,10 +1851,6 @@ class Manager(Window):
             show, chosen, cursor = answer
             panel.set_file_mask(combine(panel.file_mask, chosen, show))
 
-    async def on_setup_columns(self, event: SetupColumns) -> bool:
-        self.spawn(self.setup_columns(self.active_panel))
-        return True
-
     async def setup_columns(self, panel: Panel) -> None:
         """Alt+K: ``CM_SetShowParms``, *panel*'s columns.
 
@@ -2008,10 +1877,6 @@ class Manager(Window):
         panel.shown_columns = columns
         panel.view_mode = "detailed" if columns else "list"
 
-    async def on_dir_branch(self, event: DirBranch) -> bool:
-        self.spawn(self.directory_branch(self.active_panel))
-        return True
-
     async def directory_branch(self, panel: Panel) -> None:
         """Panel > Directory Branch: ``CM_Branch`` -- every file in the panel's
         directory and every one below it, directories left out, as a listing
@@ -2023,10 +1888,6 @@ class Manager(Window):
             return  # ``CM_Branch`` acted on a disk alone
         request = FindRequest(recursive=True, scope="directory", directories=False)
         await self._search_into(panel, request, tr("Branch: {path}").format(path=panel.title_location))
-
-    async def on_find_duplicates(self, event: FindDuplicates) -> bool:
-        self.spawn(self.find_duplicates(self.active_panel))
-        return True
 
     async def find_duplicates(self, panel: Panel, request: Any = None) -> None:
         """Panel > Find duplicates: the identical files below *panel*'s
@@ -2163,10 +2024,6 @@ class Manager(Window):
             panel.reload()
             panel.focus()
 
-    async def on_fast_rename(self, event: FastRename) -> bool:
-        self.spawn(self.fast_rename(self.active_panel))
-        return True
-
     async def fast_rename(self, panel: Panel) -> None:
         """Alt+F6: ``cmFastRename`` -> ``CM_RenameSingle``, the name edited in place.
 
@@ -2196,10 +2053,6 @@ class Manager(Window):
         if key is not None:
             # Posted after the rename was tried, gone or not, as DN's ``PutEvent``.
             app.post_event(key)
-
-    async def on_quick_rename(self, event: QuickRename) -> bool:
-        self.spawn(self.quick_rename(self.active_panel))
-        return True
 
     def _rename_candidate(self, panel: Panel) -> Any:
         """The one entry Quick rename would rename: the one tagged, else the
@@ -2329,10 +2182,6 @@ class Manager(Window):
         if other is not panel and other.found is None and other.location in {place for place, _, _ in renamed}:
             other.reload(key=at[1] if at is not None and at[0] == other.location else None)
 
-    async def on_multi_rename(self, event: MultiRename) -> bool:
-        self.spawn(self.multi_rename(self.active_panel))
-        return True
-
     async def multi_rename(self, panel: Panel) -> None:
         """Alt+A: the tagged files -- or the one at the cursor -- renamed by
         a pattern, every new name previewed first
@@ -2381,10 +2230,6 @@ class Manager(Window):
             await self._after_renames(panel, done, at=at)
 
     # -- File > Undo (not DN's: navigator.lib.file_ops.undo) ---------------------
-
-    async def on_undo(self, event: Undo) -> bool:
-        self.spawn(self.undo(self.active_panel))
-        return True
 
     async def undo(self, panel: Panel) -> None:
         """File > Undo (Ctrl+Z): the newest operation in the session's history
@@ -2584,10 +2429,6 @@ class Manager(Window):
 
     # -- the Trash (not DN's: navigator.lib.drives.trash) ------------------------
 
-    async def on_restore_trash(self, event: RestoreTrash) -> bool:
-        self.spawn(self.restore_trash(self.active_panel))
-        return True
-
     async def open_trash(self, panel: Panel | None = None, *, focus: bool = True) -> None:
         """*panel* (the active one) on the Trash, and the keyboard with it unless not *focus*."""
         await self._go_to(panel or self.active_panel, str(trash_drive.location()), focus=focus)
@@ -2700,9 +2541,6 @@ class Manager(Window):
 
     #: *Make List File*'s boxes as last left, for the session (DN kept
     #: ``MakeListFileOptions`` in its configuration).
-    async def on_make_list(self, event: MakeList) -> bool:
-        self.spawn(self.make_list(self.active_panel))
-        return True
 
     async def make_list(self, panel: Panel) -> None:
         """Alt+L: ``CM_MakeList`` -> ``MakeListFile``, the tagged files in a list file.
@@ -2853,10 +2691,6 @@ class Manager(Window):
             await Dialog(title=tr("Error"), prompt=message, buttons="ok").execute(self.application)
             return False
 
-    async def on_remember_directory(self, event: RememberDirectory) -> bool:
-        self.spawn(self.remember_directory(self.active_panel))
-        return True
-
     async def remember_directory(self, panel: Panel) -> None:
         """Panel > *Remember for this directory*: *panel*'s directory keeps
         what it is shown with, a box asking whether those below do too; or,
@@ -2869,10 +2703,6 @@ class Manager(Window):
         answer = await RememberDirectoryDialog(str(panel.location)).execute(self.application)
         if answer is not None:
             panel.remember_here(answer["subdirs"])
-
-    async def on_remembered_directories(self, event: RememberedDirectories) -> bool:
-        self.spawn(self.remembered_directories(self.active_panel))
-        return True
 
     async def remembered_directories(self, panel: Panel) -> None:
         """Panel > *Remembered directories*: every directory with a record in
@@ -2931,10 +2761,6 @@ class Manager(Window):
             panel.focus()
             return
 
-    async def on_panel_setup(self, event: PanelSetup) -> bool:
-        self.spawn(self.panel_setup(self.active_panel))
-        return True
-
     async def panel_setup(self, panel: Panel) -> None:
         """Alt+S: ``cmPanelSetup``, DN's ``Setup`` -- *Panel Options* for *panel*,
         and its answer becomes that panel's own (:meth:`Panel.set_options`)."""
@@ -2943,10 +2769,6 @@ class Manager(Window):
         answer = await PanelSetupDialog(panel).execute(self.application)
         if answer is not None:
             panel.set_options(*answer)
-
-    async def on_compare_dir(self, event: CompareDir) -> bool:
-        self.spawn(self.compare_directories())
-        return True
 
     async def compare_directories(self) -> None:
         """Panel > Compare directories: ``CM_CompareDirs``, each panel against the other.
@@ -3058,10 +2880,6 @@ class Manager(Window):
             self.right.reload()
         return ok
 
-    async def on_diff_files(self, event: DiffFiles) -> bool:
-        self.spawn(self.diff_files())
-        return True
-
     def _diff_pair(self) -> tuple[Any, Any] | None:
         """The two files File > Compare files compares: two tagged in the
         active panel; else the one at its cursor and its namesake in the
@@ -3098,18 +2916,6 @@ class Manager(Window):
             return
         await open_diff(desktop, *pair)
 
-    async def on_equalize_panels(self, event: EqualizePanels) -> bool:
-        self.equalize_panels()
-        return True
-
-    async def on_swap_panels(self, event: SwapPanels) -> bool:
-        self.swap_panels()
-        return True
-
-    async def on_hide_inactive(self, event: HideInactive) -> bool:
-        self.toggle_inactive_side()
-        return True
-
     def _tree_menu(self) -> Any:
         """Ctrl+T's tree, right-clicked -- a departure, asked for, as every
         context menu is: where Enter goes, the tree read again, its quick
@@ -3124,10 +2930,6 @@ class Manager(Window):
         menu.add_line()
         menu.add_item(tr("~C~lose tree"), ToggleTree)
         return menu
-
-    async def on_go_to_tree_directory(self, event: GoToTreeDirectory) -> bool:
-        await self.tree.choose()
-        return True
 
     async def on_rescan(self, event: Rescan) -> bool:
         found = self.active_panel.found
@@ -3145,14 +2947,6 @@ class Manager(Window):
         self.spawn(self.change_directory(search=event.search))
         return True
 
-    async def on_change_left(self, event: ChangeLeft) -> bool:
-        self.spawn(self._change_side("left", event.focus))
-        return True
-
-    async def on_change_right(self, event: ChangeRight) -> bool:
-        self.spawn(self._change_side("right", event.focus))
-        return True
-
     async def _change_side(self, side: str, focus: bool) -> None:
         """``ChangeDrvLeft``/``ChangeDrvRight``: the box for *side*'s panel --
         hidden or behind a view, it is asked first and the side changes only
@@ -3163,10 +2957,6 @@ class Manager(Window):
             return
         panel = self.left if side == "left" else self.right
         await self.choose_bookmark(panel, side=side, focus=focus)
-
-    async def on_change_drive(self, event: ChangeDrive) -> bool:
-        self.spawn(self.choose_bookmark(self.active_panel))
-        return True
 
     def bring_side(self, side: str) -> Panel:
         """*side*'s panel, showing: Alt+F1 and Alt+F2 change a panel, so one
@@ -3820,10 +3610,6 @@ class Manager(Window):
         line = self._command_line()
         return line is not None and not SETTINGS.interface.hide_command_line and bool(line.value)
 
-    async def on_scroll_names(self, event: ScrollNames) -> bool:
-        self.active_panel.scroll_names(event.step)
-        return True
-
     async def on_go_parent(self, event: GoParent) -> bool:
         line = self._command_line()
         if event.by_key and line is not None and line.holds_backspace():
@@ -3833,38 +3619,9 @@ class Manager(Window):
         self.active_panel.go_up()
         return True
 
-    async def on_select_similar(self, event: SelectSimilar) -> bool:
-        self.active_panel.select_similar(event.by, invert=event.invert)
-        return True
-
-    async def on_unselect_similar(self, event: UnselectSimilar) -> bool:
-        self.active_panel.select_similar(event.by, select=False, invert=event.invert)
-        return True
-
-    async def on_go_root(self, event: GoRoot) -> bool:
-        self.active_panel.go_root()
-        return True
-
-    async def on_toggle_mark(self, event: ToggleMark) -> bool:
-        """Insert: tag the active panel's entry and step down."""
-        self.active_panel.toggle_mark()
-        return True
-
-    async def on_invert_selection(self, event: InvertSelection) -> bool:
-        self.active_panel.invert_marks(directories=event.directories)
-        return True
-
-    async def on_select_all(self, event: SelectAll) -> bool:
-        self.active_panel.select_all()
-        return True
-
     async def on_select_group(self, event: SelectGroup) -> bool:
         # Started, not awaited, for the reason ``on_make_directory`` gives.
         self.spawn(self.select_group(select=True, invert=event.invert))
-        return True
-
-    async def on_unselect_group(self, event: UnselectGroup) -> bool:
-        self.spawn(self.select_group(select=False, invert=event.invert))
         return True
 
     async def select_group(self, *, select: bool, invert: bool) -> None:
@@ -3880,16 +3637,6 @@ class Manager(Window):
         if answer is not None:
             mask, except_mask = answer
             panel.select_group(mask, select=select, invert=except_mask)
-
-    async def on_toggle_show_mode(self, event: ToggleShowMode) -> bool:
-        """Ctrl+Y: the active panel's next show mode -- simple, detailed, list."""
-        self.active_panel.cycle_view_mode()
-        return True
-
-    async def on_sort_by(self, event: SortBy) -> bool:
-        """Alt+B: the active panel's order, chosen from a box (``CM_SortBy``)."""
-        self.spawn(self.choose_sort(self.active_panel))
-        return True
 
     async def choose_sort(self, panel: Panel) -> None:
         """``CM_SortBy``'s box, on the mode the panel has (``Menu^.Default``);
@@ -3930,25 +3677,6 @@ class Manager(Window):
             return
         panel.sort_by(*orders[items.index(chosen)])
 
-    async def on_toggle_hidden(self, event: ToggleHidden) -> bool:
-        """Ctrl+H: the active panel's dot-files, hidden or shown."""
-        self.active_panel.toggle_hidden()
-        return True
-
-    async def on_toggle_info_lines(self, event: ToggleInfoLines) -> bool:
-        """Alt+I: the active panel's footer, hidden or shown."""
-        self.active_panel.toggle_info()
-        return True
-
-    async def on_quick_search(self, event: QuickSearch) -> bool:
-        """Ctrl+S: the active panel starts its quick search."""
-        self.active_panel.start_quick_search()
-        return True
-
-    async def on_toggle_tree(self, event: ToggleTree) -> bool:
-        self.toggle_tree()
-        return True
-
     async def on_zoom_window(self, event: ZoomWindow) -> bool:
         """Alt+Z with the quick view selected: ``TDoubleWindow``'s ``cmZoom``.
 
@@ -3987,15 +3715,6 @@ class Manager(Window):
         rect, self._view_zoom = self._view_zoom, None
         if rect is not None and self.zoomed and rect == (self.x, self.y, self.width, self.height):
             self.toggle_zoom()
-
-    async def on_quick_view(self, event: QuickView) -> bool:
-        self.toggle_quick_view()
-        return True
-
-    async def on_disk_info(self, event: DiskInfo) -> bool:
-        """Ctrl+L: ``cmDiskInfo``, ``SwitchView(dtInfo)``."""
-        self.switch_view(self.info)
-        return True
 
     async def on_tree_chosen(self, event: Any) -> bool:
         """Enter in the tree: the panel goes there now, not after the pause --
@@ -4095,11 +3814,6 @@ class Manager(Window):
             return []
         return [entry]
 
-    async def on_print_file(self, event: PrintFile) -> bool:
-        """Ctrl+F9: ``cmPrintFile``, DN's ``CM_Print`` -> ``PrintFiles`` (``GAUGES.PAS``)."""
-        self.spawn(self.print_files())
-        return True
-
     async def print_files(self) -> None:
         """The selection's files to the printer, untagged as each is queued.
 
@@ -4153,16 +3867,6 @@ class Manager(Window):
             # ``cmCopyUnselect``: what has gone to the printer is untagged.
             panel.untag([entry])
 
-    async def on_copy(self, event: Copy) -> bool:
-        """F5: ``cmCopyFiles``."""
-        self.spawn(self.tree_copy(move=False) if self.tree.focused else self.copy_files(move=False))
-        return True
-
-    async def on_rename_move(self, event: RenameMove) -> bool:
-        """F6: ``cmMoveFiles``, the same dialog with *Remove source* ticked."""
-        self.spawn(self.tree_copy(move=True) if self.tree.focused else self.copy_files(move=True))
-        return True
-
     async def tree_copy(self, *, move: bool) -> None:
         """F5/F6 in the Ctrl+T tree: ``TTreePanel.CopyDir``, the directory under
         its cursor copied (or moved), the Copy box offering the active panel's
@@ -4201,25 +3905,6 @@ class Manager(Window):
             except DriveGone:
                 target = None
             await self.copy_entries(panel, entries, target, move=move, others=(other,))
-
-    async def on_put_in_clipboard(self, event: PutInClipboard) -> bool:
-        """Ctrl+C, Ctrl+Ins: DN's ``_CtrlIns``, and the entries kept to copy."""
-        self.clip_files(move=False)
-        return True
-
-    async def on_cut_to_clipboard(self, event: CutToClipboard) -> bool:
-        """Ctrl+X, Ctrl+Del: the same, kept to move."""
-        self.clip_files(move=True)
-        return True
-
-    async def on_paste_from_clipboard(self, event: PasteFromClipboard) -> bool:
-        """Ctrl+V, Shift+Ins: what was clipped, into the active panel's directory."""
-        self.spawn(self.paste_files())
-        return True
-
-    async def on_clear_clipboard(self, event: ClearClipboard) -> bool:
-        CLIP.clear()
-        return True
 
     def clip_files(self, *, move: bool) -> None:
         """The selection's paths on the clipboard, one a line, and the entries
@@ -4722,11 +4407,6 @@ class Manager(Window):
 
     # -- deleting ----------------------------------------------------------------
 
-    async def on_delete(self, event: Delete) -> bool:
-        """F8 and Del: ``cmPanelErase`` -- in the Ctrl+T tree, ``EraseDir``."""
-        self.spawn(self.tree_erase() if self.tree.focused else self.delete_files(single=False))
-        return True
-
     async def tree_erase(self) -> None:
         """F8/Del in the Ctrl+T tree: ``EraseDir``, the directory under its
         cursor erased as F8 erases (the Delete box, the Trash, the questions);
@@ -4739,11 +4419,6 @@ class Manager(Window):
         for panel in self.all_panels:
             panel.reload()
         self.reread_info()
-
-    async def on_delete_single(self, event: DeleteSingle) -> bool:
-        """Shift+F8 and Shift+Del: ``cmSingleDel``, the cursor's entry whatever is tagged."""
-        self.spawn(self.delete_files(single=True))
-        return True
 
     async def delete_files(self, *, single: bool) -> None:
         """Ask, delete on a thread, and let both panels look again.
@@ -4892,11 +4567,6 @@ class Manager(Window):
 
     # -- symbolic links ----------------------------------------------------------
 
-    async def on_make_link(self, event: MakeLink) -> bool:
-        """Shift+F5: a link -- symbolic or hard -- to each selected entry."""
-        self.spawn(self.make_links())
-        return True
-
     async def make_links(self) -> None:
         """Ask where, link each entry there, and let both panels look again.
 
@@ -5020,30 +4690,6 @@ class Manager(Window):
         """The symbolic links in :meth:`selection`: what File > Symlink's
         *Edit link target*, *Make relative* and *Make absolute* change."""
         return [entry for entry in self.selection(panel) if entry.is_link]
-
-    async def on_edit_link_target(self, event: EditLinkTarget) -> bool:
-        self.spawn(self.edit_link_targets())
-        return True
-
-    async def on_link_relative(self, event: LinkRelative) -> bool:
-        self.spawn(self.switch_links(relative=True))
-        return True
-
-    async def on_link_absolute(self, event: LinkAbsolute) -> bool:
-        self.spawn(self.switch_links(relative=False))
-        return True
-
-    async def on_select_broken_links(self, event: SelectBrokenLinks) -> bool:
-        self.select_broken_links(self.active_panel)
-        return True
-
-    async def on_select_bad_names(self, event: SelectBadNames) -> bool:
-        self.select_bad_names(self.active_panel)
-        return True
-
-    async def on_show_hard_links(self, event: ShowHardLinks) -> bool:
-        self.spawn(self.show_hard_links(self.active_panel))
-        return True
 
     async def show_hard_links(self, panel: Panel) -> None:
         """Every name of the file at *panel*'s cursor, found on its file
@@ -5255,11 +4901,6 @@ class Manager(Window):
 
     # -- attributes --------------------------------------------------------------
 
-    async def on_change_attributes(self, event: ChangeAttributes) -> bool:
-        """Alt+E: ``cmSetFAttr``, the File Attributes dialog over the selection."""
-        self.spawn(self.change_attributes())
-        return True
-
     async def change_attributes(self, entries: list[Any] | None = None) -> None:
         """Ask what to change, change it on a thread, and let both panels look again.
 
@@ -5329,16 +4970,6 @@ class Manager(Window):
             panel.reload()
             other.reload()
 
-    async def on_view(self, event: View) -> bool:
-        """F3: ``cmFileView``, the selected file in a viewer window.
-
-        Or, with *Internal viewer* off in System Setup, what ``viewers.ini``
-        says for it, else ``$PAGER`` on the console (:meth:`view_file`); and
-        in hex from the start with the viewer's *Hex mode* on.
-        """
-        self.spawn(self.view_file(True))
-        return True
-
     async def on_open_with(self, event: OpenWith) -> bool:
         """File > *Open with*: the file at the cursor in one of the desktop's applications."""
         panel = self.active_panel
@@ -5346,11 +4977,6 @@ class Manager(Window):
         shell = getattr(self.application, "shell", None)
         if entry is not None and not entry.is_dir and entry.name != ".." and shell is not None:
             self.spawn(shell.open_with(panel.entry_location(entry)))
-        return True
-
-    async def on_alternate_view(self, event: AlternateView) -> bool:
-        """Alt+F3, File > Alternate view: ``cmIntFileView``, F3 the other way round."""
-        self.spawn(self.view_file(False))
         return True
 
     async def view_file(self, intern: bool) -> None:
@@ -5442,22 +5068,6 @@ class Manager(Window):
                 await asyncio.to_thread(usefile.discard, use)
             return True
         return await shell.run_associated(file_name, entry.name, before=before)
-
-    async def on_view_as_text(self, event: ViewAsText) -> bool:
-        self.spawn(self.view("text"))
-        return True
-
-    async def on_view_as_hex(self, event: ViewAsHex) -> bool:
-        self.spawn(self.view("hex"))
-        return True
-
-    async def on_view_as_data_base(self, event: ViewAsDataBase) -> bool:
-        self.spawn(self.view("database"))
-        return True
-
-    async def on_view_as_spreadsheet(self, event: ViewAsSpreadsheet) -> bool:
-        self.spawn(self.view("sheet"))
-        return True
 
     async def _view_sheet(self, desktop: Any, place: Any) -> bool:
         """F3 on a CSV or TSV, or *As Spreadsheet*: DN's ``XT = '.WKZ'`` --
@@ -5634,13 +5244,6 @@ class Manager(Window):
             await Dialog(title=tr("Cannot edit file"), prompt=f"{path.name}: {error.strerror or error}",
                          buttons="ok").execute(self.application)
 
-    async def on_alternate_edit(self, event: AlternateEdit) -> bool:
-        """Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round
-        -- with *Internal editor* on and nothing in ``editors.ini``, a console
-        editor in a window (:meth:`console_editor`)."""
-        self.spawn(self.edit_file(False))
-        return True
-
     async def edit_file(self, intern: bool) -> None:
         """DN's ``EditFile(Intern, ...)``, as :meth:`view_file` for the viewer:
         ``editors.ini`` (DN's ``DN.EDT``) for the key that disagrees with
@@ -5756,11 +5359,6 @@ class Manager(Window):
         if use is not None:
             local = use.local_for(origin)
             shell.run_command(f"{program} {shlex.quote(str(local))}", cwd=use.directory, uses=[use])
-
-    async def on_edit_named(self, event: EditNamed) -> bool:
-        """Shift+F4: ``cmXEditFile``, a file named in a dialog, new or not."""
-        self.spawn(self.edit_named())
-        return True
 
     async def edit_named(self) -> None:
         """Shift+F4, *Edit...*: DN's ``OpenEditor`` (``MICROED.PAS:1284``) -- the name

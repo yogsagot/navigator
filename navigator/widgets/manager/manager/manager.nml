@@ -1,12 +1,23 @@
-from navigator.widgets.manager.commands import AlternateEdit, AlternateView, AdvancedFilter, ArchiveFiles, DirHistory, JumpToDirectory, ListOfDirs, Calculator, ChangeAttributes, ChangeDirectory, ChangeInactive, GoToFile
-from navigator.widgets.manager.commands import EnterWithoutArchive, ChangeDrive, ChangeLeft, ChangeRight, CompareDir, Copy, CountLength, Delete, DeleteSingle, DirBranch, DiskInfo, Edit, FindDuplicates
-from navigator.widgets.manager.commands import ArcTest, EditNamed, ExtractArchive, ExtractTo, FastRename, FindFile, ReplaceInFiles, HideInactive, MoveSeparator
-from navigator.widgets.manager.commands import InvertSelection, MakeDirectory, MakeLink, MakeList, PanelSetup
-from navigator.widgets.manager.commands import RememberDirectory, RememberedDirectories
-from navigator.widgets.manager.commands import PrintFile, QuickRename, QuickView, ReadFileList, RenameMove, Rescan, Panelize, MultiRename
-from navigator.widgets.manager.commands import SelectAll, SelectGroup, SetupColumns, SortBy, SwapPanels, SwitchPanel, EqualizePanels, ToggleMiller
-from navigator.widgets.manager.commands import ToggleHidden, ToggleInfoLines, ToggleMark, ToggleShowMode, ToggleTree
-from navigator.widgets.manager.commands import UnselectGroup, UserMenu, UuDecode, UuEncode, View
+from navigator.widgets.manager.commands import AdvancedFilter, AlternateEdit, AlternateView, ArcTest, ArchiveFiles
+from navigator.widgets.manager.commands import CalculateChecksums, Calculator, ChangeAttributes, ChangeDirectory
+from navigator.widgets.manager.commands import ChangeDrive, ChangeInactive, ChangeLeft, ChangeRight, ClearClipboard
+from navigator.widgets.manager.commands import CompareDir, ConvertText, Copy, CountLength, CutToClipboard, DecryptFiles
+from navigator.widgets.manager.commands import Delete, DeleteSingle, DiffFiles, DirBranch, DirHistory, DiskInfo, Edit
+from navigator.widgets.manager.commands import EditLinkTarget, EditNamed, EncryptFiles, EnterWithoutArchive
+from navigator.widgets.manager.commands import EqualizePanels, ExtractArchive, ExtractTo, FastRename, FindDuplicates
+from navigator.widgets.manager.commands import FindFile, GoInto, GoRoot, GoToFile, GoToTreeDirectory, HideInactive
+from navigator.widgets.manager.commands import HideRight, InvertSelection, JumpToDirectory, LinkAbsolute, LinkRelative
+from navigator.widgets.manager.commands import ListOfDirs, MakeDirectory, MakeLink, MakeList, MoveSeparator, MultiRename
+from navigator.widgets.manager.commands import OpenArchive, PanelSetup, Panelize, PasteFromClipboard, PrintFile
+from navigator.widgets.manager.commands import PutInClipboard, QuickRename, QuickView, ReadFileList, RememberDirectory
+from navigator.widgets.manager.commands import RememberedDirectories, RenameMove, ReplaceInFiles, Rescan, RestoreTrash
+from navigator.widgets.manager.commands import ScrollNames, SelectAll, SelectBadNames, SelectBrokenLinks, SelectGroup
+from navigator.widgets.manager.commands import SelectSimilar, SetupColumns, ShowHardLinks, SortBy, SplitCombine
+from navigator.widgets.manager.commands import StoreQuickDir, SwapPanels, SwitchPanel, ToggleHidden, ToggleInfoLines
+from navigator.widgets.manager.commands import ToggleMark, ToggleMiller, ToggleShowMode, ToggleTree, Undo, UnmountImage
+from navigator.widgets.manager.commands import UnselectGroup, UnselectSimilar, UserMenu, UuDecode, UuEncode
+from navigator.widgets.manager.commands import VerifyChecksums, View, ViewAsDataBase, ViewAsHex, ViewAsSpreadsheet
+from navigator.widgets.manager.commands import ViewAsText
 from navigator.widgets.shell.commands import InsertName, InsertPath, ToggleMarkBySpace
 from navml.widgets.dialog.commands import QuickSearch
 from navigator.widgets.tree.directory_tree import DirectoryTree
@@ -18,6 +29,7 @@ from navml.widgets.menu.menu_item import MenuItem
 from navml.widgets.menu.menu_line import MenuLine
 from navml.widgets.menu.sub_menu import SubMenu
 from navml.widgets.window import Window
+from navigator.lib.file_ops.clip import CLIP
 
 #: The file manager: two panels, in a window on the desktop.
 #:
@@ -127,6 +139,131 @@ Manager(Window):
         shift+f4: EditNamed
         shift+f5: MakeLink
         shift+f8: DeleteSingle
+
+    #: The commands this component handles itself.
+    commands:
+        ToggleMiller: root.toggle_miller()
+        HideRight: await root.toggle_side('right')
+        CountLength: root.spawn(root.count_length(root.active_panel))
+        UuEncode: root.spawn(root.uu_encode(root.active_panel))
+        UuDecode: root.spawn(root.uu_decode(root.active_panel))
+        SplitCombine: root.spawn(root.split_combine(root.active_panel))
+        CalculateChecksums: root.spawn(root.calculate_checksums(root.active_panel))
+        VerifyChecksums: root.spawn(root.verify_checksums(root.active_panel))
+        EncryptFiles: root.spawn(root.encrypt_files(root.active_panel))
+        DecryptFiles: root.spawn(root.decrypt_files(root.active_panel))
+        ConvertText: root.spawn(root.convert_text(root.active_panel))
+        ExtractTo: root.spawn(root.extract_files(root.active_panel))
+        ArcTest: root.spawn(root.test_archive(root.active_panel))
+        GoInto: root.active_panel.go_into()
+        OpenArchive: root.active_panel.open_as_archive()
+        UnmountImage: root.spawn(root.unmount_image(root.active_panel))
+        #: Shift+F1, File > Archive > *Create archive...*: ``cmPanelArcFiles``, DN's
+        #: *Archive files* box (``ArchiveDialog``) naming the new archive and
+        #: how it is packed, then a copy into it -- which makes it and packs it
+        #: (``filecopy._open_target_archive``).  DN's caption was *Copy to
+        #: archive*: renamed, a departure asked for, since it makes one.
+        ArchiveFiles: root.spawn(root.archive_files(root.active_panel))
+        #: The right-click menu's *Go to file*: Enter in a *Find:* listing.
+        GoToFile: root.active_panel.go_to_entry()
+        ReadFileList: root.spawn(root.read_file_list(root.active_panel))
+        Panelize: root.spawn(root.panelize(root.active_panel))
+        FindFile: root.spawn(root.find_file(root.active_panel))
+        ReplaceInFiles: root.spawn(root.replace_in_files(root.active_panel))
+        DirHistory: root.spawn(root.dir_history(root.active_panel))
+        StoreQuickDir: root.spawn(root.store_quick_dir(root.active_panel, event.slot))
+        #: Alt+Shift+0: ``DoQuickChange``'s list, which is the bookmarks box.
+        ListOfDirs: root.spawn(root.choose_bookmark(root.active_panel))
+        AdvancedFilter: root.spawn(root.advanced_filter(root.active_panel))
+        SetupColumns: root.spawn(root.setup_columns(root.active_panel))
+        DirBranch: root.spawn(root.directory_branch(root.active_panel))
+        FindDuplicates: root.spawn(root.find_duplicates(root.active_panel))
+        FastRename: root.spawn(root.fast_rename(root.active_panel))
+        QuickRename: root.spawn(root.quick_rename(root.active_panel))
+        MultiRename: root.spawn(root.multi_rename(root.active_panel))
+        Undo: root.spawn(root.undo(root.active_panel))
+        RestoreTrash: root.spawn(root.restore_trash(root.active_panel))
+        MakeList: root.spawn(root.make_list(root.active_panel))
+        RememberDirectory: root.spawn(root.remember_directory(root.active_panel))
+        RememberedDirectories: root.spawn(root.remembered_directories(root.active_panel))
+        PanelSetup: root.spawn(root.panel_setup(root.active_panel))
+        CompareDir: root.spawn(root.compare_directories())
+        DiffFiles: root.spawn(root.diff_files())
+        EqualizePanels: root.equalize_panels()
+        SwapPanels: root.swap_panels()
+        HideInactive: root.toggle_inactive_side()
+        GoToTreeDirectory: await root.tree.choose()
+        ChangeLeft: root.spawn(root._change_side('left', event.focus))
+        ChangeRight: root.spawn(root._change_side('right', event.focus))
+        ChangeDrive: root.spawn(root.choose_bookmark(root.active_panel))
+        ScrollNames: root.active_panel.scroll_names(event.step)
+        SelectSimilar: root.active_panel.select_similar(event.by, invert=event.invert)
+        UnselectSimilar: root.active_panel.select_similar(event.by, select=False, invert=event.invert)
+        GoRoot: root.active_panel.go_root()
+        #: Insert: tag the active panel's entry and step down.
+        ToggleMark: root.active_panel.toggle_mark()
+        InvertSelection: root.active_panel.invert_marks(directories=event.directories)
+        SelectAll: root.active_panel.select_all()
+        UnselectGroup: root.spawn(root.select_group(select=False, invert=event.invert))
+        #: Ctrl+Y: the active panel's next show mode -- simple, detailed, list.
+        ToggleShowMode: root.active_panel.cycle_view_mode()
+        #: Alt+B: the active panel's order, chosen from a box (``CM_SortBy``).
+        SortBy: root.spawn(root.choose_sort(root.active_panel))
+        #: Ctrl+H: the active panel's dot-files, hidden or shown.
+        ToggleHidden: root.active_panel.toggle_hidden()
+        #: Alt+I: the active panel's footer, hidden or shown.
+        ToggleInfoLines: root.active_panel.toggle_info()
+        #: Ctrl+S: the active panel starts its quick search.
+        QuickSearch: root.active_panel.start_quick_search()
+        ToggleTree: root.toggle_tree()
+        QuickView: root.toggle_quick_view()
+        #: Ctrl+L: ``cmDiskInfo``, ``SwitchView(dtInfo)``.
+        DiskInfo: root.switch_view(root.info)
+        #: Ctrl+F9: ``cmPrintFile``, DN's ``CM_Print`` -> ``PrintFiles`` (``GAUGES.PAS``).
+        PrintFile: root.spawn(root.print_files())
+        #: F5: ``cmCopyFiles``.
+        Copy: root.spawn(root.tree_copy(move=False) if root.tree.focused else root.copy_files(move=False))
+        #: F6: ``cmMoveFiles``, the same dialog with *Remove source* ticked.
+        RenameMove: root.spawn(root.tree_copy(move=True) if root.tree.focused else root.copy_files(move=True))
+        #: Ctrl+C, Ctrl+Ins: DN's ``_CtrlIns``, and the entries kept to copy.
+        PutInClipboard: root.clip_files(move=False)
+        #: Ctrl+X, Ctrl+Del: the same, kept to move.
+        CutToClipboard: root.clip_files(move=True)
+        #: Ctrl+V, Shift+Ins: what was clipped, into the active panel's directory.
+        PasteFromClipboard: root.spawn(root.paste_files())
+        ClearClipboard: CLIP.clear()
+        #: F8 and Del: ``cmPanelErase`` -- in the Ctrl+T tree, ``EraseDir``.
+        Delete: root.spawn(root.tree_erase() if root.tree.focused else root.delete_files(single=False))
+        #: Shift+F8 and Shift+Del: ``cmSingleDel``, the cursor's entry whatever is tagged.
+        DeleteSingle: root.spawn(root.delete_files(single=True))
+        #: Shift+F5: a link -- symbolic or hard -- to each selected entry.
+        MakeLink: root.spawn(root.make_links())
+        EditLinkTarget: root.spawn(root.edit_link_targets())
+        LinkRelative: root.spawn(root.switch_links(relative=True))
+        LinkAbsolute: root.spawn(root.switch_links(relative=False))
+        SelectBrokenLinks: root.select_broken_links(root.active_panel)
+        SelectBadNames: root.select_bad_names(root.active_panel)
+        ShowHardLinks: root.spawn(root.show_hard_links(root.active_panel))
+        #: Alt+E: ``cmSetFAttr``, the File Attributes dialog over the selection.
+        ChangeAttributes: root.spawn(root.change_attributes())
+        #: F3: ``cmFileView``, the selected file in a viewer window.
+        #:
+        #: Or, with *Internal viewer* off in System Setup, what ``viewers.ini``
+        #: says for it, else ``$PAGER`` on the console (:meth:`view_file`); and
+        #: in hex from the start with the viewer's *Hex mode* on.
+        View: root.spawn(root.view_file(True))
+        #: Alt+F3, File > Alternate view: ``cmIntFileView``, F3 the other way round.
+        AlternateView: root.spawn(root.view_file(False))
+        ViewAsText: root.spawn(root.view('text'))
+        ViewAsHex: root.spawn(root.view('hex'))
+        ViewAsDataBase: root.spawn(root.view('database'))
+        ViewAsSpreadsheet: root.spawn(root.view('sheet'))
+        #: Alt+F4, File > Alternate edit: ``cmIntFileEdit``, F4 the other way round
+        #: -- with *Internal editor* on and nothing in ``editors.ini``, a console
+        #: editor in a window (:meth:`console_editor`).
+        AlternateEdit: root.spawn(root.edit_file(False))
+        #: Shift+F4: ``cmXEditFile``, a file named in a dialog, new or not.
+        EditNamed: root.spawn(root.edit_named())
 
     HorizontalLayout:
         id: panels
