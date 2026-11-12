@@ -6,10 +6,9 @@ from typing import Any
 
 
 from navkit.i18n import tr
-from navkit.widget import Widget
 
 from navigator.lib.appearance.filetypes import CUSTOM
-from navigator.settings import SETTINGS, HighlightGroupsData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
 def tidy(mask: str) -> str:
@@ -18,17 +17,16 @@ def tidy(mask: str) -> str:
     return ";".join(pattern for pattern in mask.replace(" ", "").split(";") if pattern)
 
 
-class HighlightPage(Widget):
+class HighlightPage(SettingsPage):
     """Which files each colour group takes: DN's ``CustomMask1``..``5``, one line a mask."""
 
-    def __init__(self, section: HighlightGroupsData | None = None, **kwargs: Any) -> None:
+    def __init__(self, **kwargs: Any) -> None:
+        # Each line says which mask it edits (``key:``); the tooltip is the
+        # page's own, one for all five, rather than each setting's name.
         super().__init__(**kwargs)
-        self.section = section or SETTINGS.highlight_groups
         for key in CUSTOM:
-            line = getattr(self, key)
-            line.value = getattr(self.section, key)
-            line.tooltip = tr("The files a row takes this group's colour for: patterns separated by ;, "
+            getattr(self, key).tooltip = tr("The files a row takes this group's colour for: patterns separated by ;, "
                               "such as *.png;*.jpg, whatever their case")
 
     def accept(self) -> dict[str, Any]:
-        return {key: tidy(getattr(self, key).value) for key in CUSTOM}
+        return {key: tidy(value) for key, value in super().accept().items()}

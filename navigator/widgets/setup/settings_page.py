@@ -108,8 +108,11 @@ def _seed(control: Any, section: Section, name: str) -> None:
     control.tooltip = type(section).tooltip(name)
     if isinstance(control, CheckBoxes) and isinstance(field.default, bool):
         control.value = 1 if value else 0
+        # On the box itself too, where the pointer hovers it.
+        control.tooltips = [control.tooltip]
     elif isinstance(control, RadioButtons) and field.choices is not None:
-        control.value = field.choices.index(value)
+        # The keyboard starts on the choice made, as ``TRadioButtons``' did.
+        control.value = control.sel = field.choices.index(value)
     elif isinstance(control, MaskedField) and isinstance(field.default, int):
         width = _width(control)
         control.value = f"{min(10 ** width - 1, max(0, value)):0{width}d}"

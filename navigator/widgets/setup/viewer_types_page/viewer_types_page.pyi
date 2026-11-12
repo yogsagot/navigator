@@ -8,13 +8,12 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.input_line import InputLine
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 from typing import Any
-from navkit.widget import Widget
-from navigator.settings import SETTINGS, ViewerDefaultsData
 
 
-class ViewerTypesPage(_Component):
+class ViewerTypesPage(SettingsPage, _Component):
     title: str
     heading: StaticText
     masks_heading: StaticText
@@ -34,5 +33,5 @@ class ViewerTypesPage(_Component):
     structured_masks: InputLine
     database_caption: Label
     database_masks: InputLine
-    def __init__(self, section: ViewerDefaultsData | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, **kwargs: _Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...

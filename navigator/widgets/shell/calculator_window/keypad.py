@@ -70,13 +70,15 @@ class PadButton(Button):
 
     def __init__(self, key: Key, **kwargs: object) -> None:
         super().__init__(**kwargs)
-        self.key = key
+        #: The pad key this button stands for -- not ``Control.key``, which
+        #: names a setting a control edits.
+        self.pad_key = key
         self.add_class(key.role)
 
     async def press(self) -> bool:
         if self.inert:
             return False
-        return await self.emit(PadPressed(self.key))
+        return await self.emit(PadPressed(self.pad_key))
 
 
 class Keypad(GridLayout):
@@ -106,7 +108,7 @@ class Keypad(GridLayout):
         keys = [key for row in self.table for key in row]
         for button, key in zip(self.buttons(), keys, strict=True):
             shown = key.variant(self.second, self.hyp)
-            button.key = shown
+            button.pad_key = shown
             button.text = shown.ascii if ascii_only and shown.ascii else shown.caption
             digit = shown.digit
             button.disabled = digit is not None and digit >= self.radix

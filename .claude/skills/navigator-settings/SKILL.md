@@ -141,9 +141,19 @@ note:
     - `Field` ↔ `str`, stripped.
   - A control needing more (a list made at run time, a floor, a value kept when blank) is seeded in the page's
     `__init__` after `super().__init__()` and added in an `accept()` override that starts from `super().accept()`.
-  - Converted: System, Startup, Confirmations, Drive info, Panel defaults, Column defaults, wholly; Communications,
-    File Manager Setup, Country, Tools, Interface, in part.
-  - Still by hand: Editor/Viewer, Savers, Highlight, Viewer types.
+  - Every page is a `SettingsPage`. System, Startup, Confirmations, Drive info, Panel defaults and Column defaults
+    are wholly keyed. The others key what fits and keep the rest:
+    - Interface: the run-time lists, and History size's floor of 1;
+    - Editor/Viewer: the fallback encoding, and Tab's floor of 1;
+    - Country: *Time* in DN's order, and the custom date kept when blank;
+    - Communications: the connect timeout's floor of 1;
+    - File Manager Setup: the tag character and the Miller width;
+    - Tools: the identities and the service manager;
+    - Savers: the two lists;
+    - Highlight: one shared tooltip, and the masks tidied;
+    - Viewer types: the masks tidied.
+  - A one-box `CheckBoxes` for a `bool` gets the tooltip as the box's own (`tooltips = [doc]`) and as the cluster's.
+  - `RadioButtons` get `sel` with `value`, so the keyboard starts on the choice made.
 - **What a page does.** Each is a two-half component on a plain `Widget` (`*_page/`, `XPage`), laid out as the dialog
   it was, from `y: 1` (row 0 is the tab rule). `__init__` seeds the controls from its section (an optional section
   argument, else `SETTINGS.<name>`). `accept()` returns `{key: value}`. `EditorDefaultsPage` covers two sections and

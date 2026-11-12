@@ -11,16 +11,15 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.radio_buttons import RadioButtons
+from navigator.widgets.setup.settings_page import SettingsPage
 
 from typing import Any
 from navkit.events import Event
 from navkit.i18n import tr
-from navkit.widget import Widget
 from navigator.lib.appearance import savers
-from navigator.settings import SETTINGS, SaversData
 
 
-class SaversPage(_Component):
+class SaversPage(SettingsPage, _Component):
     title: str
     chosen_caption: Label
     chosen: ListViewer
@@ -31,7 +30,7 @@ class SaversPage(_Component):
     time_caption: Label
     time: RadioButtons
     mouse: CheckBoxes
-    def __init__(self, section: SaversData | None = ..., available: list[str] | None = ..., **kwargs: Any) -> None: ...
+    def __init__(self, available: list[str] | None = ..., **kwargs: Any) -> None: ...
     async def on_join_click(self, event: Event) -> bool: ...
     async def on_drop_click(self, event: Event) -> bool: ...
     def accept(self) -> dict[str, Any]: ...

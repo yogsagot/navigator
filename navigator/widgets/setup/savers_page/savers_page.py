@@ -14,29 +14,24 @@ from typing import Any
 
 from navkit.events import Event
 from navkit.i18n import tr
-from navkit.widget import Widget
 
 
 from navigator.lib.appearance import savers
-from navigator.settings import SETTINGS, SaversData
+from navigator.widgets.setup.settings_page import SettingsPage
 
 
-class SaversPage(Widget):
+class SaversPage(SettingsPage):
     """Which savers take turns, after how long, and the mouse's corners."""
 
-    def __init__(self, section: SaversData | None = None, available: list[str] | None = None,
-                 **kwargs: Any) -> None:
+    def __init__(self, available: list[str] | None = None, **kwargs: Any) -> None:
+        # *Time* and *Mouse* say what they edit (``key:``); the two lists are
+        # made here.
         super().__init__(**kwargs)
-        self.section = section or SETTINGS.savers
         names = list(savers.BUILT_IN) + (savers.external() if available is None else available)
         self.offered.items = [savers.caption(name) for name in names]
         self.chosen.items = [savers.caption(name) for name in self.section.names()]
         self.chosen.tooltip = tr("The savers that take turns when the screen rests; Remove takes the one at the cursor out")
         self.offered.tooltip = tr("Every saver there is; Add puts the one at the cursor among the selected")
-        self.time.value = self.time.sel = SaversData.TIMES.index(self.section.time)
-        self.time.tooltip = self.section.tooltip("time")
-        self.mouse.value = 1 if self.section.mouse else 0
-        self.mouse.tooltip = self.section.tooltip("mouse")
 
     async def on_join_click(self, event: Event) -> bool:
         picked = self.offered.selected
@@ -55,7 +50,6 @@ class SaversPage(Widget):
 
     def accept(self) -> dict[str, Any]:
         return {
+            **super().accept(),
             "selected": ",".join(savers.name_of(text) for text in self.chosen.items),
-            "time": SaversData.TIMES[self.time.value],
-            "mouse": bool(self.mouse.value & 1),
         }

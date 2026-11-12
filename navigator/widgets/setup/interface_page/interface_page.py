@@ -9,7 +9,7 @@ from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import flag_emoji, flags, languages, tr
 
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
+from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, AppearanceData, InterfaceData
 from navigator.widgets.setup.settings_page import SettingsPage
 
 
@@ -17,10 +17,12 @@ class InterfacePage(SettingsPage):
     """The screen's furniture: DN's ``TInterfaceData.Options``, one box a bit."""
 
     def __init__(self, appearance: AppearanceData | None = None, **kwargs: Any) -> None:
-        # *Options*, *History size* and *Tooltip delay* say what they edit
-        # (``key:``); the choices made of lists at run time are read here.
+        # *Options*, *History size*, *Tooltip delay* and *Dim* say what they
+        # edit (``key:``); the choices made of lists at run time are read here.
+        if appearance is not None:
+            kwargs["sections"] = {**kwargs.get("sections", {}), "appearance": appearance}
         super().__init__(**kwargs)
-        self.appearance = appearance or SETTINGS.appearance
+        self.appearance = self.section_of("appearance")
         #: ``{shown name: code}``, automatic first; each language by its own
         #: name, as a person who cannot read the current one looks for it.
         self.languages = {tr("Automatic"): AUTOMATIC}
@@ -77,8 +79,6 @@ class InterfacePage(SettingsPage):
         self.direction.tooltip = self.section.tooltip("direction")
         self.language.tooltip = self.section.tooltip("language")
         self.colors.tooltip = self.appearance.tooltip("colors")
-        self.dim_modal.value = 1 if self.appearance.dim_modal else 0
-        self.dim_modal.tooltips = [self.appearance.tooltip("dim_modal")]
         self.glyphs_tier.tooltip = self.appearance.tooltip("glyphs")
         self.marks.tooltip = self.appearance.tooltip("marks")
 
@@ -109,7 +109,8 @@ class InterfacePage(SettingsPage):
             self.language.value = next(name for name, code in shown.items() if code == chosen)
 
     def accept(self) -> dict[str, dict[str, Any]]:
-        values = super().accept()
+        answer = super().accept()
+        values = answer["interface"]
         # A list kept to nothing keeps one.
         values["history_size"] = max(1, values["history_size"])
         values["language"] = self.languages.get(self.language.value, self.section.language)
@@ -119,5 +120,5 @@ class InterfacePage(SettingsPage):
         colors = self.depths.get(self.colors.value, self.appearance.colors)
         glyphs = self.tiers.get(self.glyphs_tier.value, self.appearance.glyphs)
         marks = self.looks.get(self.marks.value, self.appearance.marks)
-        return {"interface": values, "appearance": {"colors": colors, "glyphs": glyphs, "marks": marks,
-                                                    "dim_modal": bool(self.dim_modal.value & 1)}}
+        answer["appearance"].update(colors=colors, glyphs=glyphs, marks=marks)
+        return answer

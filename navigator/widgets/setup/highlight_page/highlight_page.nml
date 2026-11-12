@@ -1,4 +1,5 @@
 from navml.widgets.dialog.field import Field
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > Highlight groups: DOS Navigator's ``dlgHighlightGroups``.
 #:
@@ -7,12 +8,15 @@ from navml.widgets.dialog.field import Field
 #: to *Custom 5*; Navigator named the five groups (``filetypes.CUSTOM``),
 #: and the Colors dialog shows them by these names, so the lines say which
 #: is which.  Help is left out, having nothing to show yet.
-HighlightPage:
+HighlightPage(SettingsPage):
+    class section_name: "highlight_groups"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
     Field:
         id: image
+        key: "image"
         y: 2
         anchors:
             left: 2
@@ -23,6 +27,7 @@ HighlightPage:
 
     Field:
         id: media
+        key: "media"
         y: 4
         anchors:
             left: 2
@@ -33,6 +38,7 @@ HighlightPage:
 
     Field:
         id: document
+        key: "document"
         y: 6
         anchors:
             left: 2
@@ -43,6 +49,7 @@ HighlightPage:
 
     Field:
         id: source
+        key: "source"
         y: 8
         anchors:
             left: 2
@@ -53,6 +60,7 @@ HighlightPage:
 
     Field:
         id: temp
+        key: "temp"
         y: 10
         anchors:
             left: 2

@@ -2,6 +2,7 @@ from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.input_line import InputLine
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.static_text import StaticText
+from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Settings > *Viewer file types*: which files F3 shows rendered --
 #: a Markdown page, a picture, a spreadsheet, a tree, a database -- and by
@@ -9,7 +10,9 @@ from navml.widgets.dialog.static_text import StaticText
 #: rendered nothing, so these are departures' settings, given a page so that
 #: none is the ini file's alone.  View > *Markup view* still switches one
 #: file; this sets what F3 starts with.
-ViewerTypesPage:
+ViewerTypesPage(SettingsPage):
+    class section_name: "viewer"
+
     #: The caption on its tab, which *Settings* gives it.
     property title: ""
 
@@ -31,6 +34,7 @@ ViewerTypesPage:
 
     CheckBoxes:
         id: markdown
+        key: "render_markdown"
         x: 2
         y: 2
         width: 26
@@ -39,12 +43,14 @@ ViewerTypesPage:
 
     InputLine:
         id: markdown_masks
+        key: "markdown_masks"
         x: 28
         y: 2
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: rst
+        key: "render_rst"
         x: 2
         y: 3
         width: 26
@@ -53,12 +59,14 @@ ViewerTypesPage:
 
     InputLine:
         id: rst_masks
+        key: "rst_masks"
         x: 28
         y: 3
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: html
+        key: "render_html"
         x: 2
         y: 4
         width: 26
@@ -67,12 +75,14 @@ ViewerTypesPage:
 
     InputLine:
         id: html_masks
+        key: "html_masks"
         x: 28
         y: 4
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: pdf
+        key: "render_pdf"
         x: 2
         y: 5
         width: 26
@@ -81,12 +91,14 @@ ViewerTypesPage:
 
     InputLine:
         id: pdf_masks
+        key: "pdf_masks"
         x: 28
         y: 5
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: images
+        key: "render_images"
         x: 2
         y: 6
         width: 26
@@ -95,12 +107,14 @@ ViewerTypesPage:
 
     InputLine:
         id: images_masks
+        key: "image_masks"
         x: 28
         y: 6
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: tables
+        key: "render_tables"
         x: 2
         y: 7
         width: 26
@@ -109,12 +123,14 @@ ViewerTypesPage:
 
     InputLine:
         id: tables_masks
+        key: "table_masks"
         x: 28
         y: 7
         width: max(1, parent.width - 30)
 
     CheckBoxes:
         id: structured
+        key: "render_structured"
         x: 2
         y: 8
         width: 26
@@ -123,6 +139,7 @@ ViewerTypesPage:
 
     InputLine:
         id: structured_masks
+        key: "structured_masks"
         x: 28
         y: 8
         width: max(1, parent.width - 30)
@@ -139,6 +156,7 @@ ViewerTypesPage:
 
     InputLine:
         id: database_masks
+        key: "database_masks"
         x: 28
         y: 9
         width: max(1, parent.width - 30)

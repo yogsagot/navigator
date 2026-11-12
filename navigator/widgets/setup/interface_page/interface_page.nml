@@ -92,6 +92,7 @@ InterfacePage(SettingsPage):
     #: key: every letter of its caption is taken on this page.
     CheckBoxes:
         id: dim_modal
+        key: "appearance.dim_modal"
         y: 11
         height: 1
         anchors:

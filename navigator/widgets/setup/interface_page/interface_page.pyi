@@ -15,7 +15,7 @@ from typing import Any
 from navkit.glyphs import GLYPHS_NERD
 from navkit.i18n import flag_emoji, flags, languages, tr
 from navigator.lib.config.language import AUTOMATIC
-from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, SETTINGS, AppearanceData, InterfaceData
+from navigator.settings import COLOR_DEPTHS, GLYPH_TIERS, MARK_LOOKS, AppearanceData, InterfaceData
 
 
 class InterfacePage(SettingsPage, _Component):
