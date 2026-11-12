@@ -198,17 +198,28 @@ def _holds(file: Any, pattern: re.Pattern[bytes], job: Any, whole: bool) -> bool
             if len(data) > WHOLE_LARGEST:
                 return False
         return pattern.search(data) is not None
+    # The overlap has to hold the longest match and the byte before it, for
+    # a whole word's look-behind: the pattern's source holds every byte of a
+    # match, escaped, and the look-arounds besides.
     overlap = max(0, len(pattern.pattern) * 4)
     tail = b""
+    deferred = False
     while True:
         if job is not None and job.stopped:
             return False
         chunk = file.read(CHUNK)
         if not chunk:
-            return False
-        if pattern.search(tail + chunk):
+            # Nothing follows a match that ended the last buffer: it stands.
+            return deferred
+        buffer = tail + chunk
+        found = pattern.search(buffer)
+        # A match ending the buffer is not trusted yet: a whole word's
+        # look-ahead passes there for want of the next byte, which the next
+        # round (the overlap holding the match) has in view.
+        if found is not None and found.end() < len(buffer):
             return True
-        tail = (tail + chunk)[-overlap:] if overlap else b""
+        deferred = found is not None
+        tail = buffer[-overlap:] if overlap else b""
 
 
 class FindJob(Job):

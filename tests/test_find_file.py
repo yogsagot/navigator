@@ -683,3 +683,33 @@ def test_a_regular_expression_folds_ascii_only(tmp_path):
     (tmp_path / "de.txt").write_text("ärger", encoding="utf-8")
     assert found(FindRequest(mask="*", text="ÄRGER", regex=True), tmp_path) == []
     assert found(FindRequest(mask="*", text="äRGER", regex=True), tmp_path) == ["de.txt"]
+
+
+@pytest.mark.parametrize("content, words, expected", [
+    ("1234 foobar", True, False),   # ``foo`` ends the first chunk, inside ``foobar``
+    ("1234 foo bar", True, True),
+    ("1234 foo", True, True),       # the end of the file follows it
+    ("1234 foobar", False, True),
+])
+def test_a_whole_word_is_judged_by_the_byte_after_a_chunk(tmp_path, monkeypatch, content, words, expected):
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.CHUNK", 8)
+    (tmp_path / "f").write_text(content)
+    pattern = text_pattern("foo", case=True, words=words)
+    assert holds(str(tmp_path / "f"), pattern) is expected
+
+
+def test_a_whole_word_at_a_chunk_end_on_another_drive(monkeypatch):
+    from navigator.lib.drives import mount, unmount
+    from navigator.lib.drives.memory import MemoryDrive
+    from navigator.lib.file_ops.filefind import holds_on_drive
+
+    monkeypatch.setattr("navigator.lib.file_ops.filefind.CHUNK", 8)
+    drive = mount(MemoryDrive("chunks"))
+    try:
+        drive.make("/inside", "1234 foobar")
+        drive.make("/alone", "1234 foo bar")
+        pattern = text_pattern("foo", case=True, words=True)
+        assert not holds_on_drive(drive.location("/inside"), pattern)
+        assert holds_on_drive(drive.location("/alone"), pattern)
+    finally:
+        unmount(drive.site)
