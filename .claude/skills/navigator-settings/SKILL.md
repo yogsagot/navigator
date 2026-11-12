@@ -240,7 +240,7 @@ note:
 | `confirmations.drag_and_drop` | DN's `cfMouseConfirm`: a drop puts up the Copy dialog aimed at it; off, it copies at once in the dialog's session mode |
 | `confirmations.delete_bookmark` | A departure, asked for: Del in the bookmarks box asks *Delete bookmark* first, with *Don't ask again* (`navigator-bookmarks`); `conftest` turns it off |
 | `confirmations.save` | A departure, asked for: the editor's F2/Ctrl+S asks *Confirm file save* first (`navigator-editor`) |
-| `file_manager.use_arrows` | On: Left/Right/Home/End edit a command line with text, Shift+ them the panel; off, reversed (`navigator-panels`) |
+| `file_manager.use_arrows` | On: Left/Right/Home/End edit a command line with text, Shift+ them the panel; off, reversed (`navigator-panels`). DN's expression read for its intent: as compiled (`and` before `xor`) it did the reverse |
 | `file_manager.auto_change_dir` | On: a cursor resting in the manager's tree takes the active panel there (`Manager._panel_follows_tree`); off, only Enter does |
 | `file_manager.beep_after_copy` | A copy or move that was not aborted rings the terminal's bell (`Application.bell`, BEL; DN's `BeepAfterCopy`) |
 | `file_manager.space_toggles_selection` / `bs_upper_dir` / `del_erases` | Space tags, Backspace goes up, Del erases while the command line is empty; off, the command is disabled in `Shell.enables`/`Manager.enables` so the key falls through to the line. Shift+Backspace/Ctrl+PgUp and F8 are unaffected |

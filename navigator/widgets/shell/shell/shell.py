@@ -762,7 +762,8 @@ class Shell(DockLayout):
 
     def _panel_keeps(self, event: KeyEvent) -> bool:
         """A plain arrow, Home or End a panel declined, with *Use arrows* off:
-        not the line's either -- DN's ``TSpecScroll`` let it go nowhere."""
+        not the line's either -- DN's ``TSpecScroll`` let it go nowhere.  DN's
+        test is read for its intent (:meth:`Panel.arrows_to_line`)."""
         from navigator.widgets.manager.panel import Panel
 
         app = self.application

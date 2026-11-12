@@ -2617,7 +2617,12 @@ class Panel(ListViewer):
         Left, Right, Home and End go to a command line holding text --
         unshifted with *Use arrows* on (DN's default), with Shift held with
         it off; the other way round they are the panel's (``fmoUseArrows``,
-        ``(ShiftState and 3 <> 0) xor (Options and fmoUseArrows = 0)``).
+        ``(ShiftState and 3 <> 0) xor (Options and fmoUseArrows = 0)``) -- as
+        DN meant it.  As compiled, Pascal's ``and`` binding tighter than
+        ``xor`` made it ``Shift xor (off and arrow)``: with *Use arrows* on
+        only Shift-held keys reached the line, the reverse of the option's
+        name.  The intent is followed, a reading recorded (``FLPANEL.PAS:1149-1151``,
+        and ``TSpecScroll``'s ``:176-179``).
         Ctrl+Home and Ctrl+End go to a line holding text whatever *Use arrows*
         says: DN's line took them as Home and End (``CMDLINE.PAS:391-392``).
         """

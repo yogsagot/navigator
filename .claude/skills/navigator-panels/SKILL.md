@@ -203,7 +203,8 @@ Per panel: `Panel.view_mode`, `cycle_view_mode`, and *Panel > Display > View mod
 - **Left, Right, Home and End go to a command line with text** under File Manager Setup's *Use arrows* (on, DN's
   default), and Shift+ them to the panel; off, the other way round (`Panel.arrows_to_line`, `Panel.LINE_KEYS`;
   `Manager.enables(ScrollNames)`, `Shell.enables(CommandLineHome/End)`, and `Shell._panel_keeps` stopping a plain one
-  a panel declined from reaching the line, as DN's `TSpecScroll` did). Ctrl+Home and Ctrl+End go to a line with text
+  a panel declined from reaching the line, as DN's `TSpecScroll` did). DN's expression is read for its intent:
+  compiled, `and` binding before `xor` made it `Shift xor (off and arrow)`, the reverse (`FLPANEL.PAS:1149-1151`). Ctrl+Home and Ctrl+End go to a line with text
   whatever *Use arrows* says (DN's line took them as Home/End); with the line empty they're the panel's top and bottom.
 - Non-simple modes have a heading row in *Column title* `[165]` (`Panel::heading`) and single `│` rules in the frame's
   colours (`Panel::divider` on `$panel-fg`/`$panel-bg`, a departure from DN's `[86]`), meeting the frame in the tee
