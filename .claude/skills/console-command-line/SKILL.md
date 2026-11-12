@@ -41,7 +41,10 @@ dependency and it is load-bearing.
 ## The Console widget and Ctrl+O
 
 The `Console` covers the band between the bars behind the desktop. Ctrl+O hides the desktop (one reactive flag, one
-`visible` binding); menu and key bars stay painted -- DN's Ctrl+O, not mc's. `toggle_console` hands the console the
+`visible` binding); menu and key bars stay painted -- not mc's hand-over. **A departure from DN's Ctrl+O**, which put
+up an *Output* window (`TUserWindow`, `DNUTIL.PAS:1659-1665`, `USERMENU.PAS:107-196`): a desktop window with its frame
+off screen, listed in the window list, the other windows kept beneath it, and Ctrl+O closing it only when it was the
+selected one. Here the console is a layer under the desktop, shown by putting the windows away -- the design, kept. `toggle_console` hands the console the
 keyboard **in the same call that flips the flag, never from an effect** (an effect runs after the batch, so Ctrl+O and
 the next key would be routed by a stale focus); hiding it re-activates the top window. `Console.can_focus` is set in
 `__init__`. The console reports the child's cursor through `cursor_position()`. Scrollback (`ConsoleScreen.scroll`/`scroll_to_top`/`scroll_to_bottom`, pyte's paging with

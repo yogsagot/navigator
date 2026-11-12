@@ -1,7 +1,8 @@
 ## The console: the screen is owned, never read back
 
-Ctrl+O in DOS Navigator hid the panels and showed the last program's output *as the desktop background*, with the menu
-bar and key bar still painted over it. Reproducing that is the question that produced `console.py`, `process.py` and
+Ctrl+O in DOS Navigator put up an *Output* window (`TUserWindow`) showing the last program's output, its frame off
+screen, over the desktop's `TBackground`, which held the same screen; the menu bar and key bar stayed painted. Navigator
+shows the console as that background instead, by putting the windows away (a departure, recorded in the skill). Reproducing that is the question that produced `console.py`, `process.py` and
 `Surface.blit`, and the answer turned out to be about where the cells live rather than about how to fetch them.
 
 **DN had no special capability; it had a special position.** DOS had one screen — the video RAM at `B800:0000` — and
