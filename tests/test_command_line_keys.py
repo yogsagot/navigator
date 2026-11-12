@@ -207,3 +207,19 @@ def test_ctrl_ins_copies_the_line_s_selection(app):
 def test_a_paste_goes_on_as_pasted(app, before, pasted, after):
     # A departure: DN's Shift+Ins added ``cmInsertName``'s blanks.
     assert line(app, [*typed(before), PasteEvent(pasted)])["value"] == after
+
+
+def test_a_double_click_on_the_line_selects_a_word(app):
+    # navml's mouse kept: DN's double click opened Commands history (a departure).
+    from navkit.events import DoubleClickEvent, MouseClickEvent
+
+    seen = {}
+
+    def double(a):
+        line = a.shell.command_line
+        x = line.prompt_width + 6  # inside ``world``
+        a.spawn(line.on_double_click(DoubleClickEvent.of(MouseClickEvent(x, 0, "left", "press"))))
+
+    run_app(app, [*typed("hello world"), double, lambda a: None,
+                  lambda a: seen.update(selected=a.shell.command_line.selected_text, modal=a.modal)])
+    assert seen == {"selected": "world", "modal": None}

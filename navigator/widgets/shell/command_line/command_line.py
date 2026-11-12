@@ -283,7 +283,12 @@ class CommandLine(InputLine):
         return self.prompt_width
 
     async def on_mouse_click(self, event: MouseClickEvent) -> bool:
-        """The input line's caret and selection, without its taking the focus."""
+        """The input line's caret and selection, without its taking the focus:
+        navml's mouse -- the caret, a drag's selection, a double click's word,
+        a right click's Cut/Copy/Paste.  A departure: DN's line opened Commands
+        history on a double click, stepped the caret by the half of the line
+        right-clicked and ignored the prompt (``CMDLINE.PAS:262-279``); the
+        menu and the word are worth more, and Alt+F8 opens the history."""
         return self.pointer(event)
 
     # -- painting ------------------------------------------------------------
