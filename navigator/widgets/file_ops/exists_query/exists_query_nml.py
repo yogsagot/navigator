@@ -38,11 +38,11 @@ class ExistsQuery(Dialog, _Component):
     __navml_source__ = "exists_query.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    details: StaticText    # exists_query.nml:16
-    agree: Button    # exists_query.nml:32
-    refuse: Button    # exists_query.nml:38
-    every: Button    # exists_query.nml:43
-    abandon: Button    # exists_query.nml:48
+    details: StaticText    # exists_query.nml:18
+    agree: Button    # exists_query.nml:34
+    refuse: Button    # exists_query.nml:40
+    every: Button    # exists_query.nml:45
+    abandon: Button    # exists_query.nml:50
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -52,55 +52,58 @@ class ExistsQuery(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # exists_query.nml:48
+    async def on_abandon_click(self, event: _Event) -> bool:    # exists_query.nml:50
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.details = StaticText(parent=self)    # exists_query.nml:15
-        _w1 = ButtonRow(parent=self)    # exists_query.nml:25
-        self.agree = Button(parent=_w1)    # exists_query.nml:31
-        self.refuse = Button(parent=_w1)    # exists_query.nml:37
-        self.every = Button(parent=_w1)    # exists_query.nml:42
-        self.abandon = Button(parent=_w1)    # exists_query.nml:47
+        self.details = StaticText(parent=self)    # exists_query.nml:17
+        _w1 = ButtonRow(parent=self)    # exists_query.nml:27
+        self.agree = Button(parent=_w1)    # exists_query.nml:33
+        self.refuse = Button(parent=_w1)    # exists_query.nml:39
+        self.every = Button(parent=_w1)    # exists_query.nml:44
+        self.abandon = Button(parent=_w1)    # exists_query.nml:49
 
         self.modal_width = 58    # exists_query.nml:10
         self.modal_height = 9    # exists_query.nml:11
         self.title = _bind(lambda _o: _tr('Confirm'), yielding=True)    # exists_query.nml:12
         self.buttons = 'none'    # exists_query.nml:13
+        self.buttons_row = _bind(    # exists_query.nml:15
+            lambda _o: (self.agree, self.refuse, self.every, self.abandon)
+        )
 
-        self.details.y = 1    # exists_query.nml:17
-        self.details.height = 2    # exists_query.nml:18
-        self.details.align = 'center'    # exists_query.nml:22
-        self.details.x = 1    # exists_query.nml:20
-        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # exists_query.nml:21
+        self.details.y = 1    # exists_query.nml:19
+        self.details.height = 2    # exists_query.nml:20
+        self.details.align = 'center'    # exists_query.nml:24
+        self.details.x = 1    # exists_query.nml:22
+        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # exists_query.nml:23
 
-        _w1.x = 0# exists_query.nml:27
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # exists_query.nml:28
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # exists_query.nml:29
+        _w1.x = 0# exists_query.nml:29
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # exists_query.nml:30
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # exists_query.nml:31
 
-        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # exists_query.nml:33
-        self.agree.default = True    # exists_query.nml:34
+        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # exists_query.nml:35
+        self.agree.default = True    # exists_query.nml:36
 
-        async def _on_click(event):    # exists_query.nml:35
+        async def _on_click(event):    # exists_query.nml:37
             self.close('yes')
             return True
         self.agree.on_click = _on_click
 
-        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # exists_query.nml:39
+        self.refuse.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # exists_query.nml:41
 
-        async def _on_click(event):    # exists_query.nml:40
+        async def _on_click(event):    # exists_query.nml:42
             self.close('no')
             return True
         self.refuse.on_click = _on_click
 
-        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # exists_query.nml:44
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # exists_query.nml:46
 
-        async def _on_click(event):    # exists_query.nml:45
+        async def _on_click(event):    # exists_query.nml:47
             self.close('all')
             return True
         self.every.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # exists_query.nml:49
-        self.abandon.on_click = self.on_abandon_click    # exists_query.nml:48
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # exists_query.nml:51
+        self.abandon.on_click = self.on_abandon_click    # exists_query.nml:50

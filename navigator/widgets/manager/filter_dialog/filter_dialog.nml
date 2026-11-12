@@ -13,6 +13,8 @@ FilterDialog(Dialog):
     title: "Filter"
     buttons: "none"
 
+    buttons_row: (show, hide, abandon)
+
     FilterList:
         id: masks
         anchors:

@@ -11,20 +11,14 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import ContextMenuEvent
 from navkit.i18n import tr
-from navml.commands import CloseWindow
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollEvent
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
 from navigator.lib.file_ops import filediff
 from navigator.lib.system.job import Stopped
-from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.viewer.commands import NextDifference, PreviousDifference
 
 
@@ -92,28 +86,11 @@ class DiffWindow(Window):
     # -- the right-click menu: ``ContextMenuHost``'s hooks, written out, as
     # ``VolumesWindow``'s are.
 
-    def context_menu(self) -> ContextMenu:
-        """The *Compare* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~N~ext difference"), NextDifference)
-        menu.add_item(tr("~P~revious difference"), PreviousDifference)
-        menu.add_line()
-        menu.add_item(tr("~C~ompare again"), Rescan)
-        menu.add_line()
-        menu.add_item(tr("C~l~ose"), CloseWindow)
-        return menu
-
     def prepare_context(self, x: int, y: int) -> None:
         """Nothing to point at: the menu acts on the whole view."""
 
     def context_point(self) -> tuple[int, int]:
         return self.view.x + 2, self.view.y + 2
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)
 
 
 def _name(place: Any) -> str:

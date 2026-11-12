@@ -70,11 +70,6 @@ class ChangeDirDialog(Dialog):
         self.tree.load_in_background = self.tree.probe_in_background = True
         show_path(self.tree, place)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        """This dialog's own buttons, which the tab order puts after the tree."""
-        return (self.pick, self.drive, self.reread, self.mkdir, self.abandon)
-
     def accept(self) -> Path | None:
         """The directory under the cursor."""
         node = self.tree.selected_node

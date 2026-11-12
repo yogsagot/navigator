@@ -12,6 +12,8 @@ DirHistoryDialog(Dialog):
     title: "Directories History"
     buttons: "none"
 
+    buttons_row: (pick, drop, abandon)
+
     DirList:
         id: places
         framed: False

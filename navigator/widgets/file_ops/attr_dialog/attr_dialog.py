@@ -67,7 +67,6 @@ from typing import Any, Sequence
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.i18n import tr, tr_n
 from navkit.reactive import effect, untracked
-from navkit.widget import Widget
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -671,10 +670,6 @@ class AttrDialog(Dialog):
         return answer is True
 
     # -- as root -----------------------------------------------------------------
-
-    @property
-    def buttons_row(self) -> tuple[Widget, ...]:
-        return (self.ok, self.root_button, self.no, self.cancel, self.info)
 
     async def _go_root(self) -> None:
         from navigator.widgets.file_ops.as_root import open_root

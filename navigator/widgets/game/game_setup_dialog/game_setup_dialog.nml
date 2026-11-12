@@ -13,6 +13,8 @@ GameSetupDialog(Dialog):
     title: "Setup game"
     buttons: "none"
 
+    buttons_row: (pick, abandon)
+
     Label:
         id: level_caption
         x: 3

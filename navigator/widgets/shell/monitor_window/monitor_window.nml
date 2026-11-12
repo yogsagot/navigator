@@ -44,6 +44,8 @@ MonitorWindow(Window):
 
     first_focus: cpu
 
+    local_menu: monitor_menu
+
     GroupBox:
         id: cpu_box
         y: 1

@@ -15,6 +15,8 @@ KeyBindingsDialog(Dialog):
     title: "Key Bindings"
     buttons: "none"
 
+    buttons_row: (rebind, append, unbind, restore, reset, store, fetch, pick, abandon)
+
     Label:
         id: groups_caption
         x: 2

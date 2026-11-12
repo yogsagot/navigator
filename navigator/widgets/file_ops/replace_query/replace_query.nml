@@ -19,6 +19,8 @@ ReplaceQuery(Dialog):
     title: "Replace"
     buttons: "none"
 
+    buttons_row: (agree, every, skip, abandon)
+
     StaticText:
         id: details
         y: 1

@@ -26,10 +26,6 @@ class MarginsDialog(Dialog):
             field.value = str(value)
         self.left.entry.select_all()
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.helper)
-
     def accept(self) -> tuple[int, int, int]:
         values = []
         for field, old in zip((self.left, self.right, self.indent), self.margins):
@@ -38,4 +34,3 @@ class MarginsDialog(Dialog):
             except ValueError:
                 values.append(old)
         return fix_margins(*values)
-

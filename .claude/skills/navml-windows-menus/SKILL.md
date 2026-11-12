@@ -20,6 +20,13 @@ Four rules from building it:
   root of its markup. `Window.take_keyboard` reads it on every activation, never from `mounted()`: that runs inside
   `Desktop.open`'s `add()`, before `activate` has saved which panel the window below had, so closing the window
   would hand the keyboard to the left panel. Do not override `take_keyboard` just to focus one child.
+- **A window's right-click menu is `local_menu`**, naming one of its own menus in the root of its markup:
+  `local_menu: volumes_menu`. The bar's menu and the context menu are then one list.
+  - `Window` implements the host hooks itself: `context_menu()`, `prepare_context`, `context_point` and the two
+    handlers.
+  - `Window.enables` greys Shift+F10 where there is no menu, without building one.
+  - A window whose context menu differs from its bar menu (a shorter list: Services, Sync, Processes) or is built at
+    run time (Calendar) overrides `context_menu()` and both handlers, as before.
 - **A shadow is `Widget.shadow`**, painted by `render_tree` into the parent's surface before the widget, after a
   modal's dim (on for `Window`, `Modal`, `MenuBox`, `HistoryList`).
 - **The application's own `on_key`/`on_mouse_click` must step aside while `app.modal` is set**, because they run before

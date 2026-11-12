@@ -27,22 +27,18 @@ import asyncio
 from pathlib import Path
 from typing import Any
 
-from navkit.events import ContextMenuEvent, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.tree_view import ChosenEvent
 from navml.background import Background, Outcome
-from navml.commands import CloseWindow
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.window import Window
 
 from navigator.lib.system import desktop, volumes
-from navigator.widgets.manager.commands import MountImage, Rescan, ToggleHidden, UnmountImage
+from navigator.widgets.manager.commands import MountImage, ToggleHidden, UnmountImage
 from navigator.widgets.shell.commands import EjectVolume, MountVolume, UnmountVolume
 
 #: Where the window reads the mounts.
@@ -316,32 +312,10 @@ class VolumesWindow(Window):
         if index is not None and self.volumes.x <= x < self.volumes.x + self.volumes.width:
             self.volumes.cursor = index
 
-    def context_menu(self) -> ContextMenu:
-        """The *Volumes* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~R~e-read"), Rescan)
-        menu.add_item(tr("~S~how all mounts"), ToggleHidden)
-        menu.add_line()
-        menu.add_item(tr("~M~ount"), MountVolume)
-        menu.add_item(tr("~U~nmount"), UnmountVolume)
-        menu.add_item(tr("~E~ject"), EjectVolume)
-        menu.add_line()
-        menu.add_item(tr("Mount ~i~mage..."), MountImage)
-        menu.add_item(tr("Unmount ima~g~e"), UnmountImage)
-        menu.add_line()
-        menu.add_item(tr("~C~lose"), CloseWindow)
-        return menu
-
     def context_point(self) -> tuple[int, int]:
         """Under the list's cursor row."""
         view = self.volumes
         return view.x + 2, view.y + view.inset + view.header + max(0, view.cursor - view.scroll) + 1
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

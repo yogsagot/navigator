@@ -109,6 +109,13 @@ MenuItem: text='Screen gra~b~ber', command=ScreenGrab, key='Shift-Alt-Ins'
   first: `first_focus: tree`, `first_focus: links if root.chosen is not None else label.entry`. A `take_keyboard()`
   override or a `.focus()` at the end of `mounted()` is what it replaces. One that is hidden or cannot take the
   keyboard falls back to the tab order (`Application._claim_focus`, `Window.take_keyboard`).
+- **`buttons_row: (pick, abandon)`** on a `Dialog` root names its own buttons, left to right. They come last in the
+  tab order and last to answer an Alt+letter. It is a property `dialog.nml` declares, `(ok, no, cancel, info)` by
+  default, not a Python `@property`: a derived document's line is a binding over the base's, which is allowed. A
+  literal (`()`) would be a plain assignment over a live binding and is refused at run time; a dialog that hides
+  `Dialog`'s buttons needs no line at all, since hidden buttons are not in the tab order.
+- **`local_menu: <SubMenu id>`** on a `Window` root makes that menu its right-click and Shift+F10 menu
+  (`navml-windows-menus`).
 - `equal=` is not expressible in markup (a comparator is a function); declare such a property in the hand-written half.
 - markup assigns a component's own `stylesheet` like any other property (`stylesheet` is what an object brings,
   `effective_stylesheet` what it resolves against).

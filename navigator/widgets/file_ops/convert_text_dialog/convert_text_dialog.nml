@@ -21,6 +21,8 @@ ConvertTextDialog(Dialog):
     #: line drops its list rather than answering the box.
     first_focus: ending
 
+    buttons_row: (pick, abandon)
+
     ChoiceField:
         id: encoding
         y: 1

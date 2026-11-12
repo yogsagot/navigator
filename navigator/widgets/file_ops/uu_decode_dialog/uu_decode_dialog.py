@@ -34,10 +34,6 @@ class UUDecodeDialog(Dialog):
         self.options.value = SETTINGS.uucode.to_bits(UUCodeData.DECODE)
         self.options.tooltips = UUCodeData.tooltips(UUCodeData.DECODE)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree)
-
     def accept(self) -> dict[str, Any]:
         """``{"target": text, "uucode": {...}}``: an empty line is the file's
         own directory, as DN took ``.\\``."""

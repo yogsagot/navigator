@@ -102,10 +102,6 @@ class ArchiveDialog(Dialog):
         effect(self, ArchiveDialog._name_changed)
 
     @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree, self.help)
-
-    @property
     def format(self) -> tuple[str, str]:
         """The ``(kind, compression)`` the type says."""
         return archive.FORMATS[self.kind.value][2]

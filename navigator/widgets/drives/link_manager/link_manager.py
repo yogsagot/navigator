@@ -298,10 +298,6 @@ class LinkManagerDialog(Dialog):
     def key_hints(self) -> list[tuple[str, str]]:
         return [("Ins", tr("New")), ("F2", tr("Save")), ("Del", tr("Delete"))]
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.create, self.save, self.delete, self.connect, self.abandon)
-
     # -- the state ----------------------------------------------------------------------
 
     def _values(self) -> tuple[str, ...]:

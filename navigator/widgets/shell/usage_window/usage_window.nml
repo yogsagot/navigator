@@ -62,6 +62,8 @@ UsageWindow(Window):
 
     first_focus: entries
 
+    local_menu: usage_menu
+
     UsageList:
         id: entries
         framed: False

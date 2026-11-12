@@ -34,6 +34,8 @@ ArchiveDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
+    buttons_row: (pick, abandon, tree, help)
+
     Label:
         id: target_caption
         x: 2

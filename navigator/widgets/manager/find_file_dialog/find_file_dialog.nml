@@ -24,6 +24,8 @@ FindFileDialog(Dialog):
     title: "Replace in Files" if root.replacing else "Find File"
     buttons: "none"
 
+    buttons_row: (pick, advanced, abandon)
+
     #: DN's ``hsFindMask``.
     Field:
         id: mask

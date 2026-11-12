@@ -27,6 +27,8 @@ UnicodeChart(Dialog):
     title: "Character Table"
     buttons: "none"
 
+    buttons_row: (insert_button, copy_button, abandon)
+
     Label:
         id: search_caption
         x: 2

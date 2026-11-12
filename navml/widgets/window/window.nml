@@ -35,6 +35,11 @@ Window:
     #: this one would hand the keyboard to the left panel.
     property first_focus: None
 
+    #: The menu a right click or Shift+F10 opens over the window, or None for
+    #: none: usually its own menu on the bar -- ``local_menu: volumes_menu``
+    #: -- so the two are one list.  A departure, as every context menu is.
+    property local_menu: None
+
     #: Whether the ``[↑]`` icon is painted, and the title answers a double
     #: click.
     property zoomable: True

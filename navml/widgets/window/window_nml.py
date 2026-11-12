@@ -63,28 +63,33 @@ class Window(_Component):
     #: this one would hand the keyboard to the left panel.
     first_focus = _reactive(None)    # window.nml:36
 
+    #: The menu a right click or Shift+F10 opens over the window, or None for
+    #: none: usually its own menu on the bar -- ``local_menu: volumes_menu``
+    #: -- so the two are one list.  A departure, as every context menu is.
+    local_menu = _reactive(None)    # window.nml:41
+
     #: Whether the ``[↑]`` icon is painted, and the title answers a double
     #: click.
-    zoomable: bool = _reactive(True)    # window.nml:40
+    zoomable: bool = _reactive(True)    # window.nml:45
 
     #: Whether the bottom-right corner is a grip.
-    resizable: bool = _reactive(True)    # window.nml:43
+    resizable: bool = _reactive(True)    # window.nml:48
 
     #: Whether Window > Tile and Cascade arrange it.  Turbo Vision's
     #: ``ofTileable``, but **on by default**, where Turbo Vision had it off and
     #: DOS Navigator set it on only some of its windows (not the tree window):
     #: every window on a desktop is free-floating and takes part.  Kept as the
     #: way out for a window that must stay where it is.
-    tileable: bool = _reactive(True)    # window.nml:50
+    tileable: bool = _reactive(True)    # window.nml:55
 
     #: The smallest a resize may make it.  Turbo Vision's ``minWinSize``.
-    min_width: int = _reactive(16)    # window.nml:53
-    min_height: int = _reactive(6)    # window.nml:54
+    min_width: int = _reactive(16)    # window.nml:58
+    min_height: int = _reactive(6)    # window.nml:59
 
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.
-    zoomed: bool = _reactive(False)    # window.nml:59
+    zoomed: bool = _reactive(False)    # window.nml:64
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

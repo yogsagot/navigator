@@ -189,15 +189,6 @@ class Dialog(Modal):
         return False
 
     @property
-    def buttons_row(self) -> tuple[Widget, ...]:
-        """This dialog's own buttons, left to right.
-
-        Named rather than listed inline so that a derived dialog adding a
-        fourth button can say so in one place.
-        """
-        return (self.ok, self.no, self.cancel, self.info)
-
-    @property
     def default_button(self) -> Widget | None:
         """The button Enter presses, wherever the focus is."""
         for control in self.controls():

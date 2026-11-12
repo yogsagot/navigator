@@ -25,10 +25,6 @@ class EnvironmentDialog(Dialog):
         super().mounted()
         effect(self, EnvironmentDialog._follow_cursor)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.rename, self.append, self.delete, self.abandon)
-
     # -- the list and the value line ------------------------------------------------
 
     def _refresh(self, cursor: int) -> None:

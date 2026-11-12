@@ -22,8 +22,3 @@ class ExistsQuery(Dialog):
         if path is not None:
             self.details.text = tr("File {name} already exists.\nOverwrite?").format(
                 name=escape_caption(cut(str(path))))
-
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.agree, self.refuse, self.every, self.abandon)
-

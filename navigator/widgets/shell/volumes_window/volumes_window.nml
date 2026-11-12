@@ -71,6 +71,8 @@ VolumesWindow(Window):
 
     first_focus: volumes
 
+    local_menu: volumes_menu
+
     VolumeList:
         id: volumes
         framed: False

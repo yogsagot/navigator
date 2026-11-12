@@ -23,7 +23,7 @@ from navml.widgets.window import Window
 from typing import Any
 from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width
-from navkit.events import ContextMenuEvent, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.background import Background, Outcome
@@ -31,9 +31,6 @@ from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navigator.lib.drives import Location
 from navigator.lib.drives.listing import DirEntry
 from navigator.lib.file_ops import dirusage
@@ -87,8 +84,5 @@ class UsageWindow(Window, _Component):
     async def on_delete(self, command: Delete) -> bool: ...
     async def _erase(self, node: dirusage.UsageNode) -> None: ...
     def prepare_context(self, x: int, y: int) -> None: ...
-    def context_menu(self) -> ContextMenu: ...
     def context_point(self) -> tuple[int, int]: ...
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool: ...
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool: ...
     def _step(self, by: int) -> None: ...

@@ -156,10 +156,6 @@ class FileDialog(Dialog):
         """The tab order, less an empty *Files* list, which ``Select`` refused."""
         return [w for w in super().focusable() if w is not self.files or self.files.items]
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.helper)
-
     async def on_key(self, event: KeyEvent) -> bool:
         """Left and Right move between the controls, but not out of the name line."""
         app = self.application

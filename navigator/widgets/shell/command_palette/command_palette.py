@@ -165,10 +165,6 @@ class CommandPalette(Dialog):
         self.behind = behind
         self.entries: list[Entry] = []
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return ()
-
     def mounted(self) -> None:
         super().mounted()
         app = self.application

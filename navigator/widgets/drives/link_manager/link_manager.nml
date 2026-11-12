@@ -53,6 +53,8 @@ LinkManagerDialog(Dialog):
     #: the list, on it.
     first_focus: links if root.chosen is not None else label.entry
 
+    buttons_row: (create, save, delete, connect, abandon)
+
     Label:
         id: links_caption
         x: 2

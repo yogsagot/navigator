@@ -37,10 +37,6 @@ class ExtractDialog(Dialog):
         self.target.entry.select_all()
         self.options.value = WITH_PATHS | (TEST_ONLY if test_only else 0)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree)
-
     def accept(self) -> dict[str, Any]:
         """``{"target": text, "paths": bool, "test": bool}``."""
         return {

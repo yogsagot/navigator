@@ -11,6 +11,8 @@ ReplaceQuery(Dialog):
     buttons: "none"
     prompt: "Replace this occurence?"
 
+    buttons_row: (pick, skip, every, abandon)
+
     ButtonRow:
         button_width: 10
         anchors:

@@ -18,6 +18,8 @@ ColumnsDialog(Dialog):
     title: "Columns Setup"
     buttons: "none"
 
+    buttons_row: (pick, abandon, brief, full)
+
     Label:
         id: show_caption
         x: 3

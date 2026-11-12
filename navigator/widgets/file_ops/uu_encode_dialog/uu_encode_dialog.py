@@ -44,10 +44,6 @@ class UUEncodeDialog(Dialog):
         self.lines.value = f"{section.lines_per_section:4d}"
         self.format.value = self.format.sel = UUCodeData.LINE_ENDS.index(section.line_ends)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree)
-
     def accept(self) -> dict[str, Any] | None:
         """``{"target": text, "uucode": {...}}``, or None for an empty line.
 

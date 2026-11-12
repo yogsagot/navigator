@@ -19,6 +19,8 @@ EraseQuery(Dialog):
     #: ``not-empty`` or ``read-only``.
     property kind: "not-empty"
 
+    buttons_row: (refuse, agree, every, abandon) if kind == "not-empty" else (agree, refuse, every)
+
     StaticText:
         id: details
         y: 1

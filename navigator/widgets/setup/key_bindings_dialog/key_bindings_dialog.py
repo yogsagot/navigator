@@ -56,11 +56,6 @@ class KeyBindingsDialog(Dialog):
         effect(self, KeyBindingsDialog._follow_group)
         effect(self, KeyBindingsDialog._follow_entry)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.rebind, self.append, self.unbind, self.restore, self.reset,
-                self.store, self.fetch, self.pick, self.abandon)
-
     def accept(self) -> dict[str, Assignment]:
         return {name: dict(assignment) for name, assignment in self.assignments.items()}
 
@@ -280,4 +275,3 @@ class KeyBindingsDialog(Dialog):
         self._refresh()
         self.bindings.cursor = min(cursor, max(0, len(self.bindings.items) - 1))
         self.bindings.focus()
-

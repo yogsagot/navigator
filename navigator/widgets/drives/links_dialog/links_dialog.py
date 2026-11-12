@@ -40,10 +40,6 @@ class LinksDialog(Dialog):
         table's function keys alone."""
         return [("Ins", tr("Add")), ("F2", tr("Edit")), ("Del", tr("Delete")), ("Ctrl+\u2191\u2193", tr("Move"))]
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.connect, self.edit, self.append, self.delete, self.pick, self.abandon)
-
     # -- the list -------------------------------------------------------------------
 
     @staticmethod

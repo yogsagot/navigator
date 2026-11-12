@@ -13,15 +13,11 @@ from __future__ import annotations
 import contextlib
 from typing import Any
 
-from navkit.events import ContextMenuEvent, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek, untracked
-from navml.commands import CloseWindow
 from navml.history import HISTORY
 from navml.widgets.dialog.control.control import Control
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
 from navigator.lib.utilities import calculator
@@ -30,7 +26,6 @@ from navigator.settings import SETTINGS, CalculatorData, save_or_say
 from navigator.widgets.shell.calculator_window.bit_grid import BitFlipped
 from navigator.widgets.shell.calculator_window.commands import (
     CalculatorClassic,
-    CalculatorCopy,
     CalculatorProgramming,
     CalculatorScientific,
     CalculatorSimple,
@@ -480,25 +475,5 @@ class CalculatorWindow(Window):
     def prepare_context(self, x: int, y: int) -> None:
         """Nothing to move to: the menu is the window's."""
 
-    def context_menu(self) -> ContextMenu:
-        """The *Calculator* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~S~imple"), CalculatorSimple)
-        menu.add_item(tr("C~l~assic"), CalculatorClassic)
-        menu.add_item(tr("Sc~i~entific"), CalculatorScientific)
-        menu.add_item(tr("Pro~g~ramming"), CalculatorProgramming)
-        menu.add_line()
-        menu.add_item(tr("~C~opy"), CalculatorCopy)
-        menu.add_item(tr("~B~it toggling keypad"), ToggleBitKeypad)
-        menu.add_line()
-        menu.add_item(tr("Cl~o~se"), CloseWindow)
-        return menu
-
     def context_point(self) -> tuple[int, int]:
         return self.line.x, self.line.y + 1
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)

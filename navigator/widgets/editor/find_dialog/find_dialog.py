@@ -35,10 +35,6 @@ class FindDialog(Dialog):
         self.scope.value = self.scope.sel = int(data.selected)
         self.origin.value = self.origin.sel = int(data.from_cursor)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.all, self.abandon, self.helper)
-
     def _store(self) -> None:
         data = self.data
         data.text = self.text.value

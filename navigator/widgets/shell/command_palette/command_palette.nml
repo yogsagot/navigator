@@ -25,7 +25,6 @@ CommandPalette(Dialog):
     commands:
         Default: root.take()
 
-
     InputLine:
         id: filter
         x: 2

@@ -17,6 +17,8 @@ OverwriteQuery(Dialog):
     title: "Confirm"
     buttons: "none"
 
+    buttons_row: (overwrite, append, rename, skip, abandon)
+
     StaticText:
         id: details
         y: 2

@@ -21,11 +21,6 @@ class GameSetupDialog(Dialog):
         self.game_style.value = self.game_style.sel = TetrisData.STYLES.index(setup.style)
         self.options.value = 1 if setup.preview else 0
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon)
-
     def accept(self) -> dict[str, Any]:
         return {"level": self.level.value + 1, "style": TetrisData.STYLES[self.game_style.value],
                 "preview": bool(self.options.value & 1)}
-

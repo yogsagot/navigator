@@ -18,6 +18,8 @@ EncryptDialog(Dialog):
     title: "Encrypt Files"
     buttons: "none"
 
+    buttons_row: (pick, abandon)
+
     Label:
         id: tool_caption
         x: 2

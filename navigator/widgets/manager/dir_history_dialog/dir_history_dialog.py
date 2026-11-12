@@ -23,10 +23,6 @@ class DirHistoryDialog(Dialog):
         super().__init__(**kwargs)
         self.places.items = HISTORY.entries(HISTORY_ID)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.drop, self.abandon)
-
     def accept(self) -> str | None:
         return self.places.selected
 

@@ -54,10 +54,6 @@ class SplitDialog(Dialog):
         self.size.value = SETTINGS.split.size
         self.options.value = 1 if SETTINGS.split.checksum else 0
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree)
-
     def valid(self) -> bool:
         try:
             parse_size(self.size.value)

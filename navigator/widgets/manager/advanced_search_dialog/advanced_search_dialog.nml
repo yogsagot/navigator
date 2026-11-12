@@ -17,6 +17,8 @@ AdvancedSearchDialog(Dialog):
     title: "Advanced search"
     buttons: "none"
 
+    buttons_row: (pick, clear, abandon)
+
     #: DN's ``hsFindAfter``.
     Field:
         id: after

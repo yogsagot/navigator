@@ -43,10 +43,6 @@ class EncryptDialog(Dialog):
         self.recipients.value = section.recipients
         self.options.value = (1 if section.armor else 0) | (2 if section.delete_originals else 0)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon)
-
     def problem(self) -> str:
         """Why OK cannot close the box now, ``""`` when it can."""
         tool = EncryptionData.TOOLS[self.tool.value]

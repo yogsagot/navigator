@@ -28,6 +28,8 @@ LinkDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(choose_target_line(root, root._here, root._hidden))
 
+    buttons_row: (pick, abandon, tree, help)
+
     #: ``Create symlink to file NAME in`` (or ``hard link``): the hand-written
     #: half's, as Copy's is.
     Label:

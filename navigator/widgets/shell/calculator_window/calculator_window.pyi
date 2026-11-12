@@ -26,14 +26,11 @@ from navml.widgets.window import Window
 
 import contextlib
 from typing import Any
-from navkit.events import ContextMenuEvent, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek, untracked
 from navml.history import HISTORY
 from navml.widgets.dialog.control.control import Control
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navigator.lib.utilities import calculator
 from navigator.lib.utilities.calculator import CLASSIC, CalcError, Context, Number
 from navigator.settings import SETTINGS, CalculatorData, save_or_say
@@ -120,7 +117,4 @@ class CalculatorWindow(Window, _Component):
     async def on_key(self, event: KeyEvent) -> bool: ...
     def _controls(cls, widget: Any) -> list[Control]: ...
     def prepare_context(self, x: int, y: int) -> None: ...
-    def context_menu(self) -> ContextMenu: ...
     def context_point(self) -> tuple[int, int]: ...
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool: ...
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool: ...

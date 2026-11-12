@@ -34,6 +34,8 @@ TreeWindow(Window):
 
     first_focus: tree
 
+    local_menu: tree_menu
+
     DirectoryTree:
         id: tree
         framed: False

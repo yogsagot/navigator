@@ -43,13 +43,13 @@ class ConvertTextDialog(Dialog, _Component):
     __navml_source__ = "convert_text_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    encoding: ChoiceField    # convert_text_dialog.nml:25
-    fallback: ChoiceField    # convert_text_dialog.nml:34
-    ending_caption: Label    # convert_text_dialog.nml:43
-    ending: RadioButtons    # convert_text_dialog.nml:51
-    options: CheckBoxes    # convert_text_dialog.nml:59
-    pick: Button    # convert_text_dialog.nml:75
-    abandon: Button    # convert_text_dialog.nml:81
+    encoding: ChoiceField    # convert_text_dialog.nml:27
+    fallback: ChoiceField    # convert_text_dialog.nml:36
+    ending_caption: Label    # convert_text_dialog.nml:45
+    ending: RadioButtons    # convert_text_dialog.nml:53
+    options: CheckBoxes    # convert_text_dialog.nml:61
+    pick: Button    # convert_text_dialog.nml:77
+    abandon: Button    # convert_text_dialog.nml:83
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -59,84 +59,85 @@ class ConvertTextDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # convert_text_dialog.nml:81
+    async def on_abandon_click(self, event: _Event) -> bool:    # convert_text_dialog.nml:83
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.encoding = ChoiceField(parent=self)    # convert_text_dialog.nml:24
-        self.fallback = ChoiceField(parent=self)    # convert_text_dialog.nml:33
-        self.ending_caption = Label(parent=self)    # convert_text_dialog.nml:42
-        self.ending = RadioButtons(parent=self)    # convert_text_dialog.nml:50
-        self.options = CheckBoxes(parent=self)    # convert_text_dialog.nml:58
-        _w1 = ButtonRow(parent=self)    # convert_text_dialog.nml:67
-        self.pick = Button(parent=_w1)    # convert_text_dialog.nml:74
-        self.abandon = Button(parent=_w1)    # convert_text_dialog.nml:80
+        self.encoding = ChoiceField(parent=self)    # convert_text_dialog.nml:26
+        self.fallback = ChoiceField(parent=self)    # convert_text_dialog.nml:35
+        self.ending_caption = Label(parent=self)    # convert_text_dialog.nml:44
+        self.ending = RadioButtons(parent=self)    # convert_text_dialog.nml:52
+        self.options = CheckBoxes(parent=self)    # convert_text_dialog.nml:60
+        _w1 = ButtonRow(parent=self)    # convert_text_dialog.nml:69
+        self.pick = Button(parent=_w1)    # convert_text_dialog.nml:76
+        self.abandon = Button(parent=_w1)    # convert_text_dialog.nml:82
 
         self.modal_width = 60    # convert_text_dialog.nml:15
         self.modal_height = 14    # convert_text_dialog.nml:16
         self.title = _bind(lambda _o: _tr('Convert Text Files'), yielding=True)    # convert_text_dialog.nml:17
         self.buttons = 'none'    # convert_text_dialog.nml:18
         self.first_focus = _bind(lambda _o: self.ending)    # convert_text_dialog.nml:22
+        self.buttons_row = _bind(lambda _o: (self.pick, self.abandon))    # convert_text_dialog.nml:24
 
-        self.encoding.y = 1    # convert_text_dialog.nml:26
-        self.encoding.label_text = _bind(    # convert_text_dialog.nml:30
+        self.encoding.y = 1    # convert_text_dialog.nml:28
+        self.encoding.label_text = _bind(    # convert_text_dialog.nml:32
             lambda _o: _tr('~E~ncoding'),
             yielding=True,
         )
-        self.encoding.label_width = 22    # convert_text_dialog.nml:31
-        self.encoding.x = 2    # convert_text_dialog.nml:28
-        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:29
+        self.encoding.label_width = 22    # convert_text_dialog.nml:33
+        self.encoding.x = 2    # convert_text_dialog.nml:30
+        self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:31
 
-        self.fallback.y = 2    # convert_text_dialog.nml:35
-        self.fallback.label_text = _bind(    # convert_text_dialog.nml:39
+        self.fallback.y = 2    # convert_text_dialog.nml:37
+        self.fallback.label_text = _bind(    # convert_text_dialog.nml:41
             lambda _o: _tr('Read ~n~on-UTF-8 as'),
             yielding=True,
         )
-        self.fallback.label_width = 22    # convert_text_dialog.nml:40
-        self.fallback.x = 2    # convert_text_dialog.nml:37
-        self.fallback.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:38
+        self.fallback.label_width = 22    # convert_text_dialog.nml:42
+        self.fallback.x = 2    # convert_text_dialog.nml:39
+        self.fallback.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:40
 
-        self.ending_caption.x = 2    # convert_text_dialog.nml:44
-        self.ending_caption.y = 4    # convert_text_dialog.nml:45
-        self.ending_caption.width = 14    # convert_text_dialog.nml:46
-        self.ending_caption.text = _bind(    # convert_text_dialog.nml:47
+        self.ending_caption.x = 2    # convert_text_dialog.nml:46
+        self.ending_caption.y = 4    # convert_text_dialog.nml:47
+        self.ending_caption.width = 14    # convert_text_dialog.nml:48
+        self.ending_caption.text = _bind(    # convert_text_dialog.nml:49
             lambda _o: _tr('~L~ine endings'),
             yielding=True,
         )
-        self.ending_caption.link = _bind(lambda _o: self.ending)    # convert_text_dialog.nml:48
+        self.ending_caption.link = _bind(lambda _o: self.ending)    # convert_text_dialog.nml:50
 
-        self.ending.x = 2    # convert_text_dialog.nml:52
-        self.ending.y = 5    # convert_text_dialog.nml:53
-        self.ending.width = 28    # convert_text_dialog.nml:54
-        self.ending.height = 4    # convert_text_dialog.nml:55
-        self.ending.items = _bind(    # convert_text_dialog.nml:56
+        self.ending.x = 2    # convert_text_dialog.nml:54
+        self.ending.y = 5    # convert_text_dialog.nml:55
+        self.ending.width = 28    # convert_text_dialog.nml:56
+        self.ending.height = 4    # convert_text_dialog.nml:57
+        self.ending.items = _bind(    # convert_text_dialog.nml:58
             lambda _o: [_tr("Kee~p~ each line's"), _tr('L~F~ (Unix)'), _tr('~C~RLF (DOS, Windows)'), _tr('C~R~ (classic Mac)')],
             yielding=True,
         )
 
-        self.options.y = 5    # convert_text_dialog.nml:60
-        self.options.height = 1    # convert_text_dialog.nml:61
-        self.options.items = _bind(    # convert_text_dialog.nml:65
+        self.options.y = 5    # convert_text_dialog.nml:62
+        self.options.height = 1    # convert_text_dialog.nml:63
+        self.options.items = _bind(    # convert_text_dialog.nml:67
             lambda _o: [_tr('Keep file ~t~imes')],
             yielding=True,
         )
-        self.options.x = 32    # convert_text_dialog.nml:63
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 34))    # convert_text_dialog.nml:64
+        self.options.x = 32    # convert_text_dialog.nml:65
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 34))    # convert_text_dialog.nml:66
 
-        _w1.justify = 'start'    # convert_text_dialog.nml:68
-        _w1.x = 17# convert_text_dialog.nml:70
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 17))    # convert_text_dialog.nml:71
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # convert_text_dialog.nml:72
+        _w1.justify = 'start'    # convert_text_dialog.nml:70
+        _w1.x = 17# convert_text_dialog.nml:72
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 17))    # convert_text_dialog.nml:73
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # convert_text_dialog.nml:74
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # convert_text_dialog.nml:76
-        self.pick.default = True    # convert_text_dialog.nml:77
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # convert_text_dialog.nml:78
+        self.pick.default = True    # convert_text_dialog.nml:79
 
-        async def _on_click(event):    # convert_text_dialog.nml:78
+        async def _on_click(event):    # convert_text_dialog.nml:80
             self.close(self.accept())
             return True
         self.pick.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # convert_text_dialog.nml:82
-        self.abandon.on_click = self.on_abandon_click    # convert_text_dialog.nml:81
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # convert_text_dialog.nml:84
+        self.abandon.on_click = self.on_abandon_click    # convert_text_dialog.nml:83

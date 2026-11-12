@@ -19,6 +19,8 @@ FindDialog(Dialog):
     title: "Replace" if root.replace else "Find"
     buttons: "none"
 
+    buttons_row: (pick, all, abandon, helper)
+
     Field:
         id: text
         x: 3

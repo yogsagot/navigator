@@ -89,7 +89,9 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         ("Button",), ("ButtonRow",), ("StaticText",), ("Modal",),
         ("ShowContextMenu",),
     ]
-    assert [d.name for d in document.root.declarations] == ["buttons", "prompt", "close_on_outside_click"]
+    assert [d.name for d in document.root.declarations] == [
+        "buttons", "prompt", "buttons_row", "close_on_outside_click",
+    ]
     assert [(b.key, b.command) for b in document.root.keys.bindings] == [
         ("escape", "Cancel"),
         ("enter", "Default"),
@@ -155,6 +157,10 @@ def test_the_generated_half_cites_lines_the_parser_found(component):
         if block.keys is not None:
             found.add(block.keys.line)
             found.update(b.line for b in block.keys.bindings)
+        if block.commands is not None:
+            found.add(block.commands.line)
+            for handler in block.commands.handlers:
+                found.update(n for n in (handler.line, handler.enabled_line, handler.checked_line) if n)
 
     generated = shipped(component, "_nml.py").read_text()
     cited = {

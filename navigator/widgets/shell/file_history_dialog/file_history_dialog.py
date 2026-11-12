@@ -32,11 +32,6 @@ class FileHistoryDialog(Dialog):
         rows, sides = ("\u2191\u2193", "\u2190\u2192") if unicode else ("Up/Down", "Left/Right")
         return [("Space", tr("Pin")), (f"Shift+{rows}", tr("Move")), (sides, tr("Pinned"))]
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        """This dialog's own buttons, which the tab order puts after the list."""
-        return (self.pick, self.drop, self.abandon)
-
     def accept(self) -> Any:
         """The path of the record under the cursor."""
         record = self.records.selected

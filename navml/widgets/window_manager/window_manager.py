@@ -44,11 +44,6 @@ class WindowManagerDialog(Dialog):
         windows = [] if self.desktop is None else self.desktop.windows()
         self.windows.show([w for w in reversed(windows) if w.visible])
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        """This dialog's own buttons, which the tab order puts after the list."""
-        return (self.pick, self.shut, self.abandon, self.helper)
-
     def accept(self) -> Any:
         """The window under the cursor."""
         return self.windows.selected
@@ -76,4 +71,3 @@ class WindowManagerDialog(Dialog):
         self.windows.focus()
 
     # -- the buttons -----------------------------------------------------------
-

@@ -15,10 +15,6 @@ class FilterDialog(Dialog):
         self.masks.items = list(masks or [])
         self.masks.cursor = min(cursor, max(0, len(self.masks.items) - 1))
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.show, self.hide, self.abandon)
-
     def chosen(self) -> list[str]:
         """The marked masks, or the one at the cursor with none marked (DN's ``FItem``)."""
         items = self.masks.items
@@ -28,4 +24,3 @@ class FilterDialog(Dialog):
 
     def _answer(self, show: bool) -> None:
         self.close((show, self.chosen(), self.masks.cursor))
-

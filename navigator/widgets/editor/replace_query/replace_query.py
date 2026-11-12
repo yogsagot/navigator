@@ -7,7 +7,6 @@ the match it asks about was grey on grey.
 
 from __future__ import annotations
 
-from typing import Any
 
 
 from navml.widgets.dialog.dialog import Dialog
@@ -19,8 +18,3 @@ class ReplaceQuery(Dialog):
 
     #: The match it asks about stays at full strength.
     dims_behind = False
-
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.skip, self.every, self.abandon)
-

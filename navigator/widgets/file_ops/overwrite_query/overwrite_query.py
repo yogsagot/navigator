@@ -56,10 +56,6 @@ class OverwriteQuery(Dialog):
         if question is not None:
             self.details.text = describe(question)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.overwrite, self.append, self.rename, self.skip, self.abandon)
-
     def _answer(self, action: str, name: str = "") -> None:
         self.close(OverwriteAnswer(action, all=bool(self.for_all.value & 1), name=name))
 

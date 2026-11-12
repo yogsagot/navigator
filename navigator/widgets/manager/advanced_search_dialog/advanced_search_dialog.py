@@ -20,10 +20,6 @@ class AdvancedSearchDialog(Dialog):
             getattr(self, name).value = limits.get(name, "")
         self.kinds.value = limits.get("kinds", 0)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.clear, self.abandon)
-
     def accept(self) -> dict[str, Any]:
         return {**{name: getattr(self, name).value.strip() for name in LINES},
                 "kinds": self.kinds.value}

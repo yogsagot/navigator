@@ -35,7 +35,7 @@ from typing import Any
 
 from navkit.bidi import display_width
 from navkit import commands
-from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
+from navkit.events import ContextMenuEvent, DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS, close_icon, ellipsis
 from navkit.i18n import tr
 from navkit.reactive import computed
@@ -45,6 +45,7 @@ from navkit.tooltip import with_keys
 from navkit.widget import Widget
 
 from navml.commands import CloseWindow, SizeMoveWindow, ZoomWindow
+from navml.widgets.menu.commands import ShowContextMenu
 
 #: The chrome, Turbo Vision's layout: close on the left, zoom on the right, one
 #: cell of content between brackets so it survives an ASCII terminal.
@@ -139,6 +140,47 @@ class Window(Widget):
         self._holds_keyboard = True
         self.can_focus = True
         self.focus()
+
+    # -- the context menu: the window's own menu, when it names one ---------------
+
+    def context_menu(self) -> Any:
+        """The menu a right click or Shift+F10 opens: :attr:`local_menu`.
+
+        A window whose context menu is built at run time overrides this, and
+        its own ``on_context_menu``/``on_show_context_menu`` with it.
+        """
+        return self.local_menu
+
+    def prepare_context(self, x: int, y: int) -> None:
+        """Nothing to move before the box opens; a list in a window overrides."""
+
+    def context_point(self) -> tuple[int, int]:
+        """Where Shift+F10 opens the box: under the caret, else just inside."""
+        from navml.widgets.menu.context_menu.context_menu import default_point
+
+        return default_point(self)
+
+    def enables(self, command: Any) -> bool:
+        """Shift+F10 only where there is a menu to open, as before a window
+        answered it at all; everything else as the base says."""
+        if isinstance(command, ShowContextMenu):
+            # Asked without building a menu: a window that builds its own
+            # (overriding ``context_menu``) would build one on every ask.
+            return self.local_menu is not None or type(self).context_menu is not Window.context_menu
+        return super().enables(command)
+
+    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
+        """A right click: the window's menu at the pointer, if it names one;
+        otherwise the click goes on outward, as it did."""
+        from navml.widgets.menu.context_menu.context_menu import open_on_click
+
+        return open_on_click(self, event)
+
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
+        """The Menu key or Shift+F10: the window's menu at :meth:`context_point`."""
+        from navml.widgets.menu.context_menu.context_menu import open_on_key
+
+        return open_on_key(self)
 
     def list_name(self) -> str:
         """What the window list calls this window: DOS Navigator's ``cmGetName``.

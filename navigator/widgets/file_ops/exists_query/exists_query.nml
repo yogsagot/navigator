@@ -12,6 +12,8 @@ ExistsQuery(Dialog):
     title: "Confirm"
     buttons: "none"
 
+    buttons_row: (agree, refuse, every, abandon)
+
     StaticText:
         id: details
         y: 1

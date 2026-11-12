@@ -39,11 +39,6 @@ class ColumnsDialog(Dialog):
         self.show.value = sum(1 << index for index, key in enumerate(self.keys_shown) if key in columns)
         self._kept = frozenset(columns) - set(self.keys_shown)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.brief, self.full)
-
     def accept(self) -> tuple[str, frozenset[str]]:
         ticked = {key for index, key in enumerate(self.keys_shown) if self.show.value & (1 << index)}
         return "columns", frozenset(ticked) | self._kept
-

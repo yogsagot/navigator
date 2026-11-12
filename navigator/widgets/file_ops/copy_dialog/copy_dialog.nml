@@ -33,6 +33,8 @@ CopyDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
+    buttons_row: (pick, abandon, tree, help)
+
     #: ``Copy file NAME to``: the text is the hand-written half's, because it
     #: depends on what was selected and a document cannot see that.
     Label:

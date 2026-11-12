@@ -104,10 +104,6 @@ class CopyDialog(Dialog):
         options = _session["options"] & ~MOVE
         self.options.value = options | MOVE if self.move else options
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree, self.help)
-
     def accept(self) -> CopyRequest | None:
         """The request, or ``None`` for an empty line -- what Cancel says."""
         target = self.target.value.strip()

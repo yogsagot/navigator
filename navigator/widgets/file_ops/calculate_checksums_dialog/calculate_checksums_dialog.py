@@ -45,10 +45,6 @@ class CalculateChecksumsDialog(Dialog):
             if name:
                 self.list_name.value = with_extension(name, algorithm)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon)
-
     def accept(self) -> dict[str, str] | None:
         """``{"algorithm", "mode", "name"}``; None for one list with no name."""
         mode = ChecksumData.MODES[self.mode.value]

@@ -24,6 +24,8 @@ CombineDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
+    buttons_row: (pick, abandon, tree)
+
     Label:
         id: target_caption
         y: 1

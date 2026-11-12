@@ -94,10 +94,6 @@ class ErrorDialog(Dialog):
         if at_end:
             self.trace.cursor = max(0, len(rows) - 1)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.resume, self.copy, self.quit)
-
     async def on_copy_click(self, event: Event) -> bool:
         app = self.application
         if app is not None:

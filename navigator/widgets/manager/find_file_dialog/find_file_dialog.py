@@ -43,10 +43,6 @@ class FindFileDialog(Dialog):
         """Where this dialog's answers are kept: Find's, or Replace in files'."""
         return _replace_session if self.replacing else _session
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.advanced, self.abandon)
-
     def accept(self) -> Any:
         options = self.options.value
         session = self.session

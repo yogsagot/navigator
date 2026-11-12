@@ -27,6 +27,8 @@ FileDialog(Dialog):
     title: "Open file"
     buttons: "none"
 
+    buttons_row: (pick, abandon, helper)
+
     #: ``InputName``: what the caller calls the name -- *File Name*, *Paste from*.
     Label:
         id: caption

@@ -16,6 +16,8 @@ CalculateChecksumsDialog(Dialog):
     title: "Calculate Checksums"
     buttons: "none"
 
+    buttons_row: (pick, abandon)
+
     Label:
         id: algorithm_caption
         x: 2

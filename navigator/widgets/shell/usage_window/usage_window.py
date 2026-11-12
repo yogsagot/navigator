@@ -18,25 +18,21 @@ from typing import Any
 
 from navkit import glyphs as glyphs_module
 from navkit.bidi import display_width
-from navkit.events import ContextMenuEvent, KeyEvent
+from navkit.events import KeyEvent
 from navkit.i18n import tr
 from navkit.reactive import effect, peek
 from navml.background import Background, Outcome
-from navml.commands import CloseWindow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.list_viewer import ListViewer
 from navml.widgets.dialog.tree_view import ChosenEvent
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
 from navigator.lib.drives import Location
 from navigator.lib.drives.listing import DirEntry
 from navigator.lib.file_ops import dirusage
 from navigator.lib.system.progress import PROGRESS_TICK
-from navigator.widgets.manager.commands import Delete, Rescan
+from navigator.widgets.manager.commands import Delete
 from navigator.widgets.manager.panel.panel import human_size
 from navigator.widgets.shell.commands import (
     GoToUsage, ToggleApparentSize, UsageSortItems, UsageSortName, UsageSortSize,
@@ -345,32 +341,10 @@ class UsageWindow(Window):
         if index is not None and self.entries.x <= x < self.entries.x + self.entries.width:
             self.entries.cursor = index
 
-    def context_menu(self) -> ContextMenu:
-        """The *Sizes* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~R~e-read"), Rescan)
-        menu.add_line()
-        menu.add_item(tr("Sort by ~n~ame"), UsageSortName)
-        menu.add_item(tr("Sort by ~s~ize"), UsageSortSize)
-        menu.add_item(tr("Sort by ~e~ntries"), UsageSortItems)
-        menu.add_item(tr("~A~pparent size"), ToggleApparentSize)
-        menu.add_line()
-        menu.add_item(tr("~G~o to directory"), GoToUsage)
-        menu.add_item(tr("~D~elete..."), Delete)
-        menu.add_line()
-        menu.add_item(tr("~C~lose"), CloseWindow)
-        return menu
-
     def context_point(self) -> tuple[int, int]:
         """Under the list's cursor row."""
         view = self.entries
         return view.x + 2, view.y + view.inset + view.header + max(0, view.cursor - view.scroll) + 1
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)
 
     def _step(self, by: int) -> None:
         """Tab within this window, wrapping, as a dialog's Tab stays in it."""

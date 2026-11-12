@@ -14,7 +14,7 @@ from navigator.widgets.file_ops.replace_query.change_list import ChangeList
 from navigator.lib.file_ops.filereplace import ALL, SKIP, YES
 
 from typing import Any
-from navkit.i18n import tr, tr_n
+from navkit.i18n import tr_n
 from navml.widgets.dialog.control import escape_caption
 from navigator.lib.file_ops.filereplace import ALL, SKIP, YES, ReplaceQuestion
 from navigator.widgets.file_ops.delete_dialog.delete_dialog import cut
@@ -30,4 +30,3 @@ class ReplaceQuery(Dialog, _Component):
     abandon: Button
     def __init__(self, question: ReplaceQuestion | None = ..., **kwargs: Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
-    buttons_row: tuple[Any, ...]

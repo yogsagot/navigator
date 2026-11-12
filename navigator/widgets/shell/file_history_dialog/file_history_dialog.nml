@@ -14,6 +14,8 @@ FileHistoryDialog(Dialog):
     modal_height: 17
     buttons: "none"
 
+    buttons_row: (pick, drop, abandon)
+
     FileRecordList:
         id: records
         framed: False

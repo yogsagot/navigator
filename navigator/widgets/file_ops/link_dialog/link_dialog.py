@@ -100,10 +100,6 @@ class LinkDialog(Dialog):
         self.prompt_caption.text = prompt_for(self._entries, hard)
         self.options.enable_mask = 0 if hard else -1
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree, self.help)
-
     def accept(self) -> LinkRequest | None:
         """The request, or ``None`` for an empty line -- what Cancel says."""
         target = self.target.value.strip()

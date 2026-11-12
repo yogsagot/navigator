@@ -35,10 +35,6 @@ class CombineDialog(Dialog):
         self.target.value = opening_target(other, self._here)
         self.target.entry.select_all()
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon, self.tree)
-
     def accept(self) -> dict[str, Any]:
         """``{"target": text}``: an empty line is the parts' own directory."""
         return {"target": self.target.value.strip()}

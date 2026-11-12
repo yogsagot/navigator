@@ -14,18 +14,11 @@ from pathlib import Path
 from typing import Any
 
 from navkit.bidi import display_width
-from navkit.events import ContextMenuEvent
-from navkit.i18n import tr
 from navkit.screen import Surface
-from navml.commands import CloseWindow
 from navml.widgets.dialog.commands import QuickSearch
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 
 from navml.widgets.window import Window
 
-from navigator.widgets.manager.commands import Rescan
 
 
 class TreeWindow(Window):
@@ -52,25 +45,10 @@ class TreeWindow(Window):
         if index is not None and self.tree.x <= x < self.tree.x + self.tree.width:
             self.tree.cursor = index
 
-    def context_menu(self) -> ContextMenu:
-        """The *Tree* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~R~e-read"), Rescan)
-        menu.add_item(tr("Quick s~e~arch"), QuickSearch)
-        menu.add_line()
-        menu.add_item(tr("~C~lose"), CloseWindow)
-        return menu
-
     def context_point(self) -> tuple[int, int]:
         """Under the tree's cursor row."""
         view = self.tree
         return view.x + 2, view.y + view.inset + view.header + max(0, view.cursor - view.scroll) + 1
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)
 
     def _search_label(self) -> tuple[int, str] | None:
         """Where the tree's search label sits on the bottom frame, and its text.

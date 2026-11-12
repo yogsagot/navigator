@@ -56,14 +56,14 @@ class CopyDialog(Dialog, _Component):
     move: bool = _reactive(False)    # copy_dialog.nml:21
 
     #: Ids, annotated so the hand-written half completes them.
-    prompt_caption: Label    # copy_dialog.nml:39
-    target: Field    # copy_dialog.nml:48
-    mode: RadioButtons    # copy_dialog.nml:59
-    options: CheckBoxes    # copy_dialog.nml:71
-    pick: Button    # copy_dialog.nml:89
-    abandon: Button    # copy_dialog.nml:94
-    tree: Button    # copy_dialog.nml:98
-    help: Button    # copy_dialog.nml:105
+    prompt_caption: Label    # copy_dialog.nml:41
+    target: Field    # copy_dialog.nml:50
+    mode: RadioButtons    # copy_dialog.nml:61
+    options: CheckBoxes    # copy_dialog.nml:73
+    pick: Button    # copy_dialog.nml:91
+    abandon: Button    # copy_dialog.nml:96
+    tree: Button    # copy_dialog.nml:100
+    help: Button    # copy_dialog.nml:107
 
     #: The commands this component handles itself.
     async def on_choose_target(self, event: _Any) -> bool:    # copy_dialog.nml:34
@@ -79,29 +79,29 @@ class CopyDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # copy_dialog.nml:89
+    async def on_pick_click(self, event: _Event) -> bool:    # copy_dialog.nml:91
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # copy_dialog.nml:94
+    async def on_abandon_click(self, event: _Event) -> bool:    # copy_dialog.nml:96
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_help_click(self, event: _Event) -> bool:    # copy_dialog.nml:105
+    async def on_help_click(self, event: _Event) -> bool:    # copy_dialog.nml:107
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.prompt_caption = Label(parent=self)    # copy_dialog.nml:38
-        self.target = Field(parent=self)    # copy_dialog.nml:47
-        self.mode = RadioButtons(parent=self)    # copy_dialog.nml:58
-        self.options = CheckBoxes(parent=self)    # copy_dialog.nml:70
-        _w1 = ButtonRow(parent=self)    # copy_dialog.nml:82
-        self.pick = Button(parent=_w1)    # copy_dialog.nml:88
-        self.abandon = Button(parent=_w1)    # copy_dialog.nml:93
-        self.tree = Button(parent=_w1)    # copy_dialog.nml:97
-        self.help = Button(parent=_w1)    # copy_dialog.nml:104
+        self.prompt_caption = Label(parent=self)    # copy_dialog.nml:40
+        self.target = Field(parent=self)    # copy_dialog.nml:49
+        self.mode = RadioButtons(parent=self)    # copy_dialog.nml:60
+        self.options = CheckBoxes(parent=self)    # copy_dialog.nml:72
+        _w1 = ButtonRow(parent=self)    # copy_dialog.nml:84
+        self.pick = Button(parent=_w1)    # copy_dialog.nml:90
+        self.abandon = Button(parent=_w1)    # copy_dialog.nml:95
+        self.tree = Button(parent=_w1)    # copy_dialog.nml:99
+        self.help = Button(parent=_w1)    # copy_dialog.nml:106
 
         self.modal_width = 61    # copy_dialog.nml:23
         self.modal_height = 17    # copy_dialog.nml:24
@@ -110,61 +110,64 @@ class CopyDialog(Dialog, _Component):
             yielding=True,
         )
         self.buttons = 'none'    # copy_dialog.nml:26
+        self.buttons_row = _bind(    # copy_dialog.nml:36
+            lambda _o: (self.pick, self.abandon, self.tree, self.help)
+        )
 
-        self.prompt_caption.y = 1    # copy_dialog.nml:40
-        self.prompt_caption.link = _bind(lambda _o: self.target.entry)    # copy_dialog.nml:44
-        self.prompt_caption.x = 2    # copy_dialog.nml:42
-        self.prompt_caption.width = _bind(    # copy_dialog.nml:43
+        self.prompt_caption.y = 1    # copy_dialog.nml:42
+        self.prompt_caption.link = _bind(lambda _o: self.target.entry)    # copy_dialog.nml:46
+        self.prompt_caption.x = 2    # copy_dialog.nml:44
+        self.prompt_caption.width = _bind(    # copy_dialog.nml:45
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.target.y = 2    # copy_dialog.nml:49
-        self.target.label_text = ''    # copy_dialog.nml:53
-        self.target.label_width = 0    # copy_dialog.nml:54
-        self.target.history_id = 'copy'    # copy_dialog.nml:55
-        self.target.x = 2    # copy_dialog.nml:51
-        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_dialog.nml:52
+        self.target.y = 2    # copy_dialog.nml:51
+        self.target.label_text = ''    # copy_dialog.nml:55
+        self.target.label_width = 0    # copy_dialog.nml:56
+        self.target.history_id = 'copy'    # copy_dialog.nml:57
+        self.target.x = 2    # copy_dialog.nml:53
+        self.target.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # copy_dialog.nml:54
 
-        self.mode.y = 4    # copy_dialog.nml:60
-        self.mode.height = 5    # copy_dialog.nml:61
-        self.mode.items = _bind(    # copy_dialog.nml:65
+        self.mode.y = 4    # copy_dialog.nml:62
+        self.mode.height = 5    # copy_dialog.nml:63
+        self.mode.items = _bind(    # copy_dialog.nml:67
             lambda _o: [_tr('~O~verwrite all existing files'), _tr('A~p~pend to all existing files'), _tr('~A~sk for overwrite'), _tr('~S~kip all existing files'), _tr('Refresh o~l~d files')],
             yielding=True,
         )
-        self.mode.x = 3    # copy_dialog.nml:63
-        self.mode.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:64
+        self.mode.x = 3    # copy_dialog.nml:65
+        self.mode.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:66
 
-        self.options.y = 10    # copy_dialog.nml:72
-        self.options.height = 2    # copy_dialog.nml:73
-        self.options.items = _bind(    # copy_dialog.nml:77
+        self.options.y = 10    # copy_dialog.nml:74
+        self.options.height = 2    # copy_dialog.nml:75
+        self.options.items = _bind(    # copy_dialog.nml:79
             lambda _o: [_tr('Check ~f~ree disk space'), _tr('Pr~e~serve attributes'), _tr('Follow symli~n~ks'), _tr('Remove so~u~rce files')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # copy_dialog.nml:78
+        self.options.tooltips = _bind(    # copy_dialog.nml:80
             lambda _o: [_tr('Stop before copying when the target has too little room'), _tr('Keep permissions, owner and times on the copies'), _tr('Copy what a link points to, not the link itself'), _tr('Delete the originals once copied: a move')],
             yielding=True,
         )
-        self.options.x = 3    # copy_dialog.nml:75
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:76
+        self.options.x = 3    # copy_dialog.nml:77
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # copy_dialog.nml:78
 
-        _w1.x = 0# copy_dialog.nml:84
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # copy_dialog.nml:85
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # copy_dialog.nml:86
+        _w1.x = 0# copy_dialog.nml:86
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # copy_dialog.nml:87
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # copy_dialog.nml:88
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # copy_dialog.nml:90
-        self.pick.default = True    # copy_dialog.nml:91
-        self.pick.on_click = self.on_pick_click    # copy_dialog.nml:89
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # copy_dialog.nml:92
+        self.pick.default = True    # copy_dialog.nml:93
+        self.pick.on_click = self.on_pick_click    # copy_dialog.nml:91
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # copy_dialog.nml:95
-        self.abandon.on_click = self.on_abandon_click    # copy_dialog.nml:94
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # copy_dialog.nml:97
+        self.abandon.on_click = self.on_abandon_click    # copy_dialog.nml:96
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # copy_dialog.nml:99
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # copy_dialog.nml:101
 
-        async def _on_click(event):    # copy_dialog.nml:100
+        async def _on_click(event):    # copy_dialog.nml:102
             self.spawn(self.choose_target())
             return True
         self.tree.on_click = _on_click
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:106
-        self.help.disabled = True    # copy_dialog.nml:107
-        self.help.on_click = self.on_help_click    # copy_dialog.nml:105
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # copy_dialog.nml:108
+        self.help.disabled = True    # copy_dialog.nml:109
+        self.help.on_click = self.on_help_click    # copy_dialog.nml:107

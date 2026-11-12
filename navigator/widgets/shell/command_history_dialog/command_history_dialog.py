@@ -43,10 +43,6 @@ class CommandHistoryDialog(Dialog):
             self.commands.cursor = max(0, len(commands) - 1)
         self._pinned = self.commands.kept
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.run, self.drop, self.edit, self.kill, self.abandon)
-
     def _sync_pins(self) -> None:
         """What Space marked and unmarked, pinned and released in the store."""
         kept = self.commands.kept

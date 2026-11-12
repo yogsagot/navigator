@@ -28,6 +28,11 @@ Dialog(Modal):
     #: The line of text above the buttons.
     property prompt: ""
 
+    #: This dialog's own buttons, left to right: last in the tab order and
+    #: last to answer an Alt+letter.  A derived document lists its own --
+    #: ``buttons_row: (pick, abandon)`` -- in one place.
+    property buttons_row: (ok, no, cancel, info)
+
     #: Whether a click outside the dialog cancels it, as Esc does.  Off,
     #: because a dialog usually holds the user's work and a stray click must
     #: not cost it; a small one that is opened from another dialog -- and is

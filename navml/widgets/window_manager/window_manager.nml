@@ -18,6 +18,8 @@ WindowManagerDialog(Dialog):
     title: "Windows Manager"
     buttons: "none"
 
+    buttons_row: (pick, shut, abandon, helper)
+
     Label:
         id: caption
         text: "~W~indows"

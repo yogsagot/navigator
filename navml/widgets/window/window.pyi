@@ -8,7 +8,7 @@ from navml.component import Component as _Component
 from typing import Any
 from navkit.bidi import display_width
 from navkit import commands
-from navkit.events import DoubleClickEvent, KeyEvent, MouseClickEvent
+from navkit.events import ContextMenuEvent, DoubleClickEvent, KeyEvent, MouseClickEvent
 from navkit.glyphs import BOX_CHARSETS, close_icon, ellipsis
 from navkit.i18n import tr
 from navkit.reactive import computed
@@ -17,6 +17,7 @@ from navkit.stylesheet import StyleProperty
 from navkit.tooltip import with_keys
 from navkit.widget import Widget
 from navml.commands import CloseWindow, SizeMoveWindow, ZoomWindow
+from navml.widgets.menu.commands import ShowContextMenu
 
 
 class Window(_Component):
@@ -24,6 +25,7 @@ class Window(_Component):
     number: int
     closable: bool
     first_focus: _Any
+    local_menu: _Any
     zoomable: bool
     resizable: bool
     tileable: bool
@@ -38,6 +40,12 @@ class Window(_Component):
     desktop: Any
     active: bool
     def take_keyboard(self) -> None: ...
+    def context_menu(self) -> Any: ...
+    def prepare_context(self, x: int, y: int) -> None: ...
+    def context_point(self) -> tuple[int, int]: ...
+    def enables(self, command: Any) -> bool: ...
+    async def on_context_menu(self, event: ContextMenuEvent) -> bool: ...
+    async def on_show_context_menu(self, command: ShowContextMenu) -> bool: ...
     def list_name(self) -> str: ...
     def short_name(self) -> str: ...
     def _bounds(self) -> tuple[int, int]: ...

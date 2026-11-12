@@ -29,6 +29,8 @@ LinksDialog(Dialog):
         MoveLinkUp: root.move(-1)
         MoveLinkDown: root.move(1)
 
+    buttons_row: (connect, edit, append, delete, pick, abandon)
+
     Label:
         id: links_caption
         x: 2

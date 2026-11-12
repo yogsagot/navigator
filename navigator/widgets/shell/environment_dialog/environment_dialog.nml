@@ -16,6 +16,8 @@ EnvironmentDialog(Dialog):
     title: "Environment Variables Editor"
     buttons: "none"
 
+    buttons_row: (pick, rename, append, delete, abandon)
+
     Label:
         id: names_caption
         x: 2

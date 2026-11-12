@@ -44,9 +44,9 @@ class CommandPalette(Dialog, _Component):
     __navml_source__ = "command_palette.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    filter: InputLine    # command_palette.nml:30
-    results: CommandList    # command_palette.nml:36
-    hint: StaticText    # command_palette.nml:45
+    filter: InputLine    # command_palette.nml:29
+    results: CommandList    # command_palette.nml:35
+    hint: StaticText    # command_palette.nml:44
 
     #: The commands this component handles itself.
     async def on_default(self, event: _Any) -> bool:    # command_palette.nml:26
@@ -56,9 +56,9 @@ class CommandPalette(Dialog, _Component):
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.filter = InputLine(parent=self)    # command_palette.nml:29
-        self.results = CommandList(parent=self)    # command_palette.nml:35
-        self.hint = StaticText(parent=self)    # command_palette.nml:44
+        self.filter = InputLine(parent=self)    # command_palette.nml:28
+        self.results = CommandList(parent=self)    # command_palette.nml:34
+        self.hint = StaticText(parent=self)    # command_palette.nml:43
 
         self.modal_width = _bind(    # command_palette.nml:17
             lambda _o: max(40, min(_o.parent.width - 4, 72)) if _o.parent is not None else 72
@@ -71,17 +71,17 @@ class CommandPalette(Dialog, _Component):
         self.buttons = 'none'    # command_palette.nml:21
         self.first_focus = _bind(lambda _o: self.filter)    # command_palette.nml:23
 
-        self.filter.x = 2    # command_palette.nml:31
-        self.filter.y = 2    # command_palette.nml:32
-        self.filter.width = _bind(lambda _o: max(1, _o.parent.width - 4))    # command_palette.nml:33
+        self.filter.x = 2    # command_palette.nml:30
+        self.filter.y = 2    # command_palette.nml:31
+        self.filter.width = _bind(lambda _o: max(1, _o.parent.width - 4))    # command_palette.nml:32
 
-        self.results.x = 2    # command_palette.nml:37
-        self.results.y = 3    # command_palette.nml:38
-        self.results.width = _bind(lambda _o: max(1, _o.parent.width - 4))    # command_palette.nml:39
-        self.results.height = _bind(lambda _o: max(3, _o.parent.height - 6))    # command_palette.nml:40
+        self.results.x = 2    # command_palette.nml:36
+        self.results.y = 3    # command_palette.nml:37
+        self.results.width = _bind(lambda _o: max(1, _o.parent.width - 4))    # command_palette.nml:38
+        self.results.height = _bind(lambda _o: max(3, _o.parent.height - 6))    # command_palette.nml:39
 
-        self.hint.x = 2    # command_palette.nml:47
-        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # command_palette.nml:48
-        self.hint.y = _bind(    # command_palette.nml:49
+        self.hint.x = 2    # command_palette.nml:46
+        self.hint.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # command_palette.nml:47
+        self.hint.y = _bind(    # command_palette.nml:48
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.i18n import tr, tr_n
+from navkit.i18n import tr_n
 
 from navml.widgets.dialog.control import escape_caption
 from navml.widgets.dialog.dialog import Dialog
@@ -37,8 +37,3 @@ class ReplaceQuery(Dialog):
         if question is not None:
             self.details.text = describe(question)
             self.changes.items = rows_of(question.changes)
-
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.agree, self.every, self.skip, self.abandon)
-

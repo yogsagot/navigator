@@ -43,6 +43,8 @@ DiffWindow(Window):
 
     first_focus: view
 
+    local_menu: compare_menu
+
     DiffView:
         id: view
         anchors:

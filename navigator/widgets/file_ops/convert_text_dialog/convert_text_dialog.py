@@ -40,10 +40,6 @@ class ConvertTextDialog(Dialog):
         self.ending.tooltip = section.tooltip("ending")
         self.options.tooltip = section.tooltip("keep_times")
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.pick, self.abandon)
-
     def accept(self) -> dict[str, Any]:
         """``{"encoding", "ending", "fallback", "keep_times"}`` as the section keeps them."""
         section = SETTINGS.text_conversion

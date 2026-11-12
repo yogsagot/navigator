@@ -39,6 +39,8 @@ GameWindow(Window):
         ShowTopTen: root.spawn(root.show_scores())
         GameSetup: root.spawn(root.setup())
 
+    local_menu: game_menu
+
     Glass:
         id: glass
         x: 1

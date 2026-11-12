@@ -79,6 +79,8 @@ CalculatorWindow(Window):
         SelectNext: root._step(1)
         SelectPrevious: root._step(-1)
 
+    local_menu: calculator_menu
+
     #: The four faces, a strip along the top: two by two where the window is
     #: narrow, in a row where it is wide.
     RadioButtons:

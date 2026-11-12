@@ -29,6 +29,8 @@ UUEncodeDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
+    buttons_row: (pick, abandon, tree)
+
     #: DN's ``hsUUEncode``.
     Field:
         id: target

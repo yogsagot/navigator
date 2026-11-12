@@ -23,6 +23,8 @@ ErrorDialog(Dialog):
 
     first_focus: resume
 
+    buttons_row: (resume, copy, quit)
+
     StaticText:
         id: summary
         name: "summary"

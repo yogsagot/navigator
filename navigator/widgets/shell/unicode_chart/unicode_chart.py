@@ -93,10 +93,6 @@ class UnicodeChart(Dialog):
     def index(self) -> Index | None:
         return _indexes.get(self.nerd)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        return (self.insert_button, self.copy_button, self.abandon)
-
     def mounted(self) -> None:
         super().mounted()
         effect(self, UnicodeChart._follow_grouping)

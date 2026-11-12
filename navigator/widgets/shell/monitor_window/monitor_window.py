@@ -21,19 +21,12 @@ from __future__ import annotations
 
 from typing import Any
 
-from navkit.events import ContextMenuEvent
-from navkit.i18n import tr
 from navkit.reactive import computed
 from navml.background import Background, Outcome
-from navml.commands import CloseWindow
-from navml.widgets.menu.commands import ShowContextMenu
-from navml.widgets.menu.context_menu import ContextMenu
-from navml.widgets.menu.context_menu.context_menu import open_on_click, open_on_key
 from navml.widgets.window import Window
 
 from navigator.lib.system import monitor
 from navigator.lib.system.processes import processors
-from navigator.widgets.manager.commands import Rescan
 from navigator.widgets.shell.monitor_meters import cpu_layout, memory_width, sensor_rows
 from navigator.widgets.shell.monitor_meters.monitor_meters import cpu_width, sensors_width
 
@@ -172,22 +165,8 @@ class MonitorWindow(Window):
     def prepare_context(self, x: int, y: int) -> None:
         """Nothing to point at: the menu is the same anywhere."""
 
-    def context_menu(self) -> ContextMenu:
-        """The *Monitor* menu's entries, built each time so its captions follow the language."""
-        menu = ContextMenu()
-        menu.add_item(tr("~R~e-read"), Rescan)
-        menu.add_line()
-        menu.add_item(tr("~C~lose"), CloseWindow)
-        return menu
-
     def context_point(self) -> tuple[int, int]:
         return 3, 2
-
-    async def on_context_menu(self, event: ContextMenuEvent) -> bool:
-        return open_on_click(self, event)
-
-    async def on_show_context_menu(self, command: ShowContextMenu) -> bool:
-        return open_on_key(self)
 
     # -- Tab ----------------------------------------------------------------------------
 

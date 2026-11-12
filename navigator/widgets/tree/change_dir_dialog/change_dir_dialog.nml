@@ -29,6 +29,8 @@ ChangeDirDialog(Dialog):
     close_on_outside_click: True
     buttons: "none"
 
+    buttons_row: (pick, drive, reread, mkdir, abandon)
+
     TreeView:
         id: tree
         framed: False

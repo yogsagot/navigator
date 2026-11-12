@@ -12,6 +12,8 @@ MarginsDialog(Dialog):
     title: "Format Margins"
     buttons: "none"
 
+    buttons_row: (pick, abandon, helper)
+
     Field:
         id: left
         x: 2

@@ -56,9 +56,3 @@ class EraseQuery(Dialog):
         wide = count * BUTTON + (count - 1) * GAP
         return max(0, (self.width - wide) // 2) + index * (BUTTON + GAP)
 
-    @property
-    def buttons_row(self) -> tuple[Any, ...]:
-        if self.kind == "not-empty":
-            return (self.refuse, self.agree, self.every, self.abandon)
-        return (self.agree, self.refuse, self.every)
-

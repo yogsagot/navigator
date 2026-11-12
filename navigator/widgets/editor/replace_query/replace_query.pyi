@@ -10,8 +10,6 @@ from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.dialog import Dialog
 
-from typing import Any
-
 
 class ReplaceQuery(Dialog, _Component):
     pick: Button
@@ -21,4 +19,3 @@ class ReplaceQuery(Dialog, _Component):
     dims_behind: _Any
     def __init__(self, **kwargs: _Any) -> None: ...
     async def on_abandon_click(self, event: _Event) -> bool: ...
-    buttons_row: tuple[Any, ...]

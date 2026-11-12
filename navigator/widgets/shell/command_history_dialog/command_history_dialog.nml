@@ -13,6 +13,8 @@ CommandHistoryDialog(Dialog):
     title: "Commands history"
     buttons: "none"
 
+    buttons_row: (run, drop, edit, kill, abandon)
+
     HistoryList:
         id: commands
         framed: False

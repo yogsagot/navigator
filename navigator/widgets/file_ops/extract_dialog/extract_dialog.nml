@@ -26,6 +26,8 @@ ExtractDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
+    buttons_row: (pick, abandon, tree)
+
     Label:
         id: target_caption
         x: 2
