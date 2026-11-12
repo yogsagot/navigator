@@ -18,6 +18,17 @@ from navigator.lib.file_ops.filefind import (
 from navigator.widgets.manager.panel.panel import make_entry
 
 
+@pytest.fixture(autouse=True)
+def fresh_dialogs(monkeypatch):
+    """Find File's and Replace in files' remembered answers, as at start."""
+    import copy
+
+    from navigator.widgets.manager.find_file_dialog import find_file_dialog
+
+    for name in ("_session", "_replace_session"):
+        monkeypatch.setattr(find_file_dialog, name, copy.deepcopy(getattr(find_file_dialog, name)))
+
+
 @pytest.fixture
 def tree(tmp_path):
     (tmp_path / "a" / "deep").mkdir(parents=True)
@@ -713,3 +724,28 @@ def test_a_whole_word_at_a_chunk_end_on_another_drive(monkeypatch):
         assert holds_on_drive(drive.location("/alone"), pattern)
     finally:
         unmount(drive.site)
+
+
+def _lines(seen):
+    return lambda a: seen.append((a.modal.mask.value, a.modal.text.value))
+
+
+def test_the_dialog_opens_on_the_last_mask_and_text(place):
+    # DN's ``FindRec``: first ``*.*`` (here ``*``) and no text, then what OK took.
+    app = navigator(place)
+    seen = []
+    opened = Until(lambda a: a.modal is not None and a.modal.title == "Find File")
+    run_app(app, [KeyEvent("f7", alt=True), opened, _lines(seen), ask("*.txt", "hello"), KeyEvent("enter"),
+                  Until(finding), LISTED, KeyEvent("f7", alt=True), opened, _lines(seen),
+                  ask("*.c", "x"), KeyEvent("escape"), IDLE, KeyEvent("f7", alt=True), opened, _lines(seen),
+                  KeyEvent("escape"), IDLE])
+    assert seen == [("*", ""), ("*.txt", "hello"), ("*.txt", "hello")]  # Cancel kept nothing
+
+
+def test_an_empty_mask_comes_back_as_all_files(place):
+    from navigator.widgets.manager.find_file_dialog import find_file_dialog
+
+    app = navigator(place)
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask(" ", "hello"),
+                  KeyEvent("enter"), Until(finding), LISTED])
+    assert find_file_dialog._session["mask"] == "*" and find_file_dialog._session["text"] == "hello"

@@ -2,8 +2,10 @@
 -- or, in *Replace in Files* (*replacing*), a
 :class:`~navigator.lib.file_ops.filereplace.ReplaceRequest`.
 
-The dialog opens as it was last left -- DN kept ``FindRec`` and
-``AdvanceSearchData`` in its configuration; here they last the session.
+The dialog opens as it was last left: DN's ``FindRec``, written back on OK
+only and first ``*.*`` (here ``*``, which needs no dot) with no text.  DN's
+configuration kept only its options and scope (``DNUTIL.PAS``), never the
+mask or text; here all of it lasts the session.
 """
 
 from __future__ import annotations
@@ -15,9 +17,11 @@ from navkit.i18n import tr
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.file_ops import filefind
-#: The last answers: the five boxes as bits, the scope, and *Advanced
-#: search*'s lines and kinds, as typed.
+#: The last answers: the mask and text, the five boxes as bits, the scope,
+#: and *Advanced search*'s lines and kinds, as typed.
 _session: dict[str, Any] = {
+    "mask": filefind.filetypes.ALL_FILES,
+    "text": "",
     "options": 4,  # *Recursive search*
     "scope": filefind.SCOPES.index("directory"),
     "advanced": {"after": "", "before": "", "greater": "", "less": "", "kinds": 0},
@@ -25,7 +29,7 @@ _session: dict[str, Any] = {
 
 #: Replace in files' own, so that what it was last left at is not Find's.
 _replace_session: dict[str, Any] = {key: (dict(value) if isinstance(value, dict) else value)
-                                    for key, value in _session.items()}
+                                    for key, value in _session.items()} | {"replacement": ""}
 
 
 class FindFileDialog(Dialog):
@@ -34,6 +38,10 @@ class FindFileDialog(Dialog):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
         session = self.session
+        self.mask.value = session["mask"]
+        self.text.value = session["text"]
+        if self.replacing:
+            self.replacement.value = session["replacement"]
         self.options.value = session["options"]
         self.scope.value = session["scope"]
         self.limits = dict(session["advanced"])
@@ -49,11 +57,16 @@ class FindFileDialog(Dialog):
         session["options"] = options
         session["scope"] = self.scope.value
         session["advanced"] = dict(self.limits)
+        # DN's ``DelSpaces``, and an empty mask made ``x_x``.
+        mask = self.mask.value.replace(" ", "") or filefind.filetypes.ALL_FILES
+        session["mask"], session["text"] = mask, self.text.value
+        if self.replacing:
+            session["replacement"] = self.replacement.value
         kinds = frozenset(
             name for index, name in enumerate(filefind.KINDS) if self.limits["kinds"] & (1 << index)
         )
         request = filefind.FindRequest(
-            mask=self.mask.value.replace(" ", "") or filefind.filetypes.ALL_FILES,
+            mask=mask,
             text=self.text.value,
             advanced=bool(options & 1),
             case=bool(options & 2),

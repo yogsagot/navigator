@@ -309,3 +309,16 @@ def test_a_replace_inside_an_archive_is_packed_into_it(tmp_path):
             assert zipped.read("dir/one.txt") == b"alpha BETA\n" and zipped.read("two.txt") == b"gamma\n"
     finally:
         unmount(drive.site)
+
+
+def test_replace_with_is_kept_and_find_s_lines_are_not_replace_s():
+    from navigator.widgets.manager.find_file_dialog import FindFileDialog, find_file_dialog
+
+    dialog = FindFileDialog(replacing=True)
+    dialog.mask.value, dialog.text.value, dialog.replacement.value = "*.py", "old", "new"
+    dialog.accept()
+    again = FindFileDialog(replacing=True)
+    assert (again.mask.value, again.text.value, again.replacement.value) == ("*.py", "old", "new")
+    find = FindFileDialog()
+    assert (find.mask.value, find.text.value) == ("*", "")
+    assert "replacement" not in find_file_dialog._session
