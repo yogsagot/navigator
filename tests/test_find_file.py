@@ -1000,3 +1000,33 @@ def test_a_listing_read_anew_replaces_itself_keeping_what_it_covered(place):
 
     run_app(app, [show, LISTED])
     assert seen == {"covered": True, "second": True}
+
+
+@pytest.mark.parametrize("key", [KeyEvent("enter", shift=True), KeyEvent("pagedown", ctrl=True, shift=True)])
+def test_shift_on_dot_dot_leaves_the_listing(place, key):
+    # DN's ``_CtrlPgDn`` and Enter tested ``..`` before Shift: ``_CtrlPgUp``.
+    app = navigator(place)
+    seen = {}
+    run_app(app, [to("top.txt"), *_search("README"), to(".."), key, LISTED, LISTED,
+                  lambda a: seen.update(found=a.manager.left.found, path=a.manager.left.path,
+                                        at=a.manager.left.selected.name, right=a.manager.right.path)])
+    assert seen == {"found": None, "path": place, "at": "top.txt", "right": place}
+
+
+def test_shift_enter_on_dot_dot_goes_back_down_the_stack(place):
+    app = navigator(place)
+    seen = {}
+    run_app(app, [*_search("README"), *_search("*.bin"), to(".."), KeyEvent("enter", shift=True), LISTED, LISTED,
+                  lambda a: seen.update(title=a.manager.left.found.title)], timeout=15)
+    assert seen == {"title": "Find: README"}
+
+
+def test_change_inactive_is_refused_off_a_listing_and_go_to_file_on_dot_dot(place):
+    from navigator.widgets.manager.commands import ChangeInactive, GoToFile
+
+    app = navigator(place)
+    seen = {}
+    run_app(app, [lambda a: seen.update(off=a.manager.refusal(ChangeInactive())), *_search("README"), to(".."),
+                  lambda a: seen.update(change=a.manager.refusal(ChangeInactive()),
+                                        go=a.manager.refusal(GoToFile()))])
+    assert seen == {"off": "Only in a Find listing", "change": "", "go": "The cursor is on no file"}

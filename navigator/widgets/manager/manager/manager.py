@@ -1524,10 +1524,16 @@ class Manager(Window):
         That panel's ``cmFindGotoFile``: its file mask back to all files
         (``FileMask := x_x``), so the file is listed whatever it showed, and
         the keyboard there (``Owner^.Select; Select``); the listing stays in
-        its own panel, Tab away."""
+        its own panel, Tab away.
+
+        On ``..`` it leaves the listing, as Enter does there: DN's
+        ``_CtrlPgDn`` tested ``..`` before Shift (``_CtrlPgUp``)."""
         from navigator.lib.appearance import filetypes
 
         entry = self.active_panel.selected
+        if entry is not None and entry.name == ".." and self.active_panel.found is not None:
+            self.active_panel.leave_found()
+            return True
         if entry is None or entry.directory is None:
             return True
         side = "right" if self.active_panel is self.left else "left"
@@ -3501,7 +3507,9 @@ class Manager(Window):
             entry = panel.selected
             if panel.found is None:
                 return tr("Only in a Find listing")
-            return unless(entry is not None and entry.name != "..", tr("The cursor is on no file"))
+            # ``ChangeInactive`` on ``..`` leaves the listing, as Shift+Enter there did in DN.
+            on_file = entry is not None and (entry.name != ".." or isinstance(command, ChangeInactive))
+            return unless(on_file, tr("The cursor is on no file"))
         if isinstance(command, QuickRename):
             # One entry: the one tagged, else the cursor's.
             return unless(self._rename_candidate(panel) is not None,

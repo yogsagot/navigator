@@ -689,15 +689,15 @@ class Manager(Window, _Component):
         _w28 = MenuItem(parent=self.panel_other)    # manager.nml:379
         _w29 = MenuLine(parent=self.panel_other)    # manager.nml:381
         _w30 = MenuItem(parent=self.panel_other)    # manager.nml:382
-        _w31 = MenuItem(parent=self.panel_other)    # manager.nml:386
-        _w32 = MenuLine(parent=self.panel_menu)    # manager.nml:388
-        _w33 = MenuItem(parent=self.panel_menu)    # manager.nml:389
-        _w34 = MenuItem(parent=self.panel_menu)    # manager.nml:391
-        _w35 = MenuItem(parent=self.panel_menu)    # manager.nml:394
-        _w36 = MenuItem(parent=self.panel_menu)    # manager.nml:396
-        _w37 = MenuItem(parent=self.panel_menu)    # manager.nml:397
-        _w38 = MenuItem(parent=self.panel_menu)    # manager.nml:398
-        _w39 = MenuItem(parent=self.panel_menu)    # manager.nml:400
+        _w31 = MenuItem(parent=self.panel_other)    # manager.nml:388
+        _w32 = MenuLine(parent=self.panel_menu)    # manager.nml:390
+        _w33 = MenuItem(parent=self.panel_menu)    # manager.nml:391
+        _w34 = MenuItem(parent=self.panel_menu)    # manager.nml:393
+        _w35 = MenuItem(parent=self.panel_menu)    # manager.nml:396
+        _w36 = MenuItem(parent=self.panel_menu)    # manager.nml:398
+        _w37 = MenuItem(parent=self.panel_menu)    # manager.nml:399
+        _w38 = MenuItem(parent=self.panel_menu)    # manager.nml:400
+        _w39 = MenuItem(parent=self.panel_menu)    # manager.nml:402
 
         self.zoomed = True    # manager.nml:52
         self.min_width = 24    # manager.nml:53
@@ -940,62 +940,62 @@ class Manager(Window, _Component):
             yielding=True,
         )
 
-        _w31.text = _bind(lambda _o: _tr('Show in other panel'), yielding=True)    # manager.nml:386
-        _w31.command = ChangeInactive    # manager.nml:386
-        _w31.key = 'Shift-Enter'    # manager.nml:386
-        _w31.tooltip = _bind(    # manager.nml:387
+        _w31.text = _bind(lambda _o: _tr('Show in other panel'), yielding=True)    # manager.nml:388
+        _w31.command = ChangeInactive    # manager.nml:388
+        _w31.key = 'Shift-Enter'    # manager.nml:388
+        _w31.tooltip = _bind(    # manager.nml:389
             lambda _o: _tr('Show the found file in the other panel'),
             yielding=True,
         )
 
-        _w33.text = _bind(lambda _o: _tr('Change ~d~rive'), yielding=True)    # manager.nml:389
-        _w33.command = ChangeDrive    # manager.nml:389
-        _w33.key = 'Alt-C'    # manager.nml:389
-        _w33.tooltip = _bind(    # manager.nml:390
+        _w33.text = _bind(lambda _o: _tr('Change ~d~rive'), yielding=True)    # manager.nml:391
+        _w33.command = ChangeDrive    # manager.nml:391
+        _w33.key = 'Alt-C'    # manager.nml:391
+        _w33.tooltip = _bind(    # manager.nml:392
             lambda _o: _tr('Send this panel to a bookmarked directory'),
             yielding=True,
         )
 
-        _w34.text = _bind(lambda _o: _tr('Change direc~t~ory'), yielding=True)    # manager.nml:391
-        _w34.command = ChangeDirectory    # manager.nml:391
-        _w34.key = 'Alt-T'    # manager.nml:391
-        _w34.tooltip = _bind(    # manager.nml:392
+        _w34.text = _bind(lambda _o: _tr('Change direc~t~ory'), yielding=True)    # manager.nml:393
+        _w34.command = ChangeDirectory    # manager.nml:393
+        _w34.key = 'Alt-T'    # manager.nml:393
+        _w34.tooltip = _bind(    # manager.nml:394
             lambda _o: _tr('Choose a directory from a tree'),
             yielding=True,
         )
 
-        _w35.text = _bind(    # manager.nml:394
+        _w35.text = _bind(    # manager.nml:396
             lambda _o: _tr('~J~ump to directory...'),
             yielding=True,
         )
-        _w35.command = JumpToDirectory    # manager.nml:394
-        _w35.key = 'Alt-J'    # manager.nml:394
-        _w35.tooltip = _bind(    # manager.nml:395
+        _w35.command = JumpToDirectory    # manager.nml:396
+        _w35.key = 'Alt-J'    # manager.nml:396
+        _w35.tooltip = _bind(    # manager.nml:397
             lambda _o: _tr("zoxide's directories and the panels' history, searched by fzf"),
             yielding=True,
         )
 
-        _w36.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # manager.nml:396
-        _w36.command = QuickSearch    # manager.nml:396
-        _w36.key = 'Ctrl-S'    # manager.nml:396
+        _w36.text = _bind(lambda _o: _tr('Quick s~e~arch'), yielding=True)    # manager.nml:398
+        _w36.command = QuickSearch    # manager.nml:398
+        _w36.key = 'Ctrl-S'    # manager.nml:398
 
-        _w37.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # manager.nml:397
-        _w37.command = Rescan    # manager.nml:397
-        _w37.key = 'Alt-R'    # manager.nml:397
+        _w37.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # manager.nml:399
+        _w37.command = Rescan    # manager.nml:399
+        _w37.key = 'Alt-R'    # manager.nml:399
 
-        _w38.text = _bind(lambda _o: _tr('~Q~uick dirs...'), yielding=True)    # manager.nml:398
-        _w38.command = ListOfDirs    # manager.nml:398
-        _w38.key = 'Alt-Shift-0'    # manager.nml:398
-        _w38.tooltip = _bind(    # manager.nml:399
+        _w38.text = _bind(lambda _o: _tr('~Q~uick dirs...'), yielding=True)    # manager.nml:400
+        _w38.command = ListOfDirs    # manager.nml:400
+        _w38.key = 'Alt-Shift-0'    # manager.nml:400
+        _w38.tooltip = _bind(    # manager.nml:401
             lambda _o: _tr('The bookmarks, for this panel'),
             yielding=True,
         )
 
-        _w39.text = _bind(    # manager.nml:400
+        _w39.text = _bind(    # manager.nml:402
             lambda _o: _tr('History of directories...'),
             yielding=True,
         )
-        _w39.command = DirHistory    # manager.nml:400
-        _w39.key = 'Alt-BkSp'    # manager.nml:400
+        _w39.command = DirHistory    # manager.nml:402
+        _w39.key = 'Alt-BkSp'    # manager.nml:402
 
         self._navml_built(__class__)

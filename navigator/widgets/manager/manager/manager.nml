@@ -382,7 +382,9 @@ Manager(Window):
             MenuItem: text='S~a~me directory in other panel', command=EqualizePanels, key='Alt-='
                 tooltip: "Send the other panel to this directory"
             #: A *Find:* listing's Shift+Enter, which DN had on no menu -- a
-            #: departure, asked for.
+            #: departure, asked for.  On ``..`` it leaves the listing, as the
+            #: key does there: greying it would take a key-only command and a
+            #: renamed ``change_inactive`` binding.
             MenuItem: text='Show in other panel', command=ChangeInactive, key='Shift-Enter'
                 tooltip: "Show the found file in the other panel"
         MenuLine:
