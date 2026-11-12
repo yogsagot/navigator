@@ -197,7 +197,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   as Ctrl+E/Ctrl+X): DN's panel handed `kbUp`/`kbDown` held with Shift to the line. `Panel.on_key` declines them so
   they reach `Manager.keys`; the cursor stays. **Ctrl+Shift+Ins copies the whole line** (`CopyCommandLine`, DN's
   `kbCtrlIns` handed on with Shift) -- where the terminal sends it (VTE and Ghostty keep Insert keys). Refused while
-  the tree, quick view or info has the keyboard; nothing with the line hidden.
+  the tree, quick view or info has the keyboard; nothing with the line hidden. **Ctrl+Ins with text on the line**
+  copies its selection, or the whole line (`PutInClipboard` steps aside, the Gray keys' rule) -- a departure: DN's
+  panel always took Ctrl+Ins for the file names (`_CtrlIns`, `FLPANELX.PAS:1257`); with the line empty it's the
+  panel's, as DN's.
 - **Ctrl+[ / Ctrl+] put the left / right side's directory on the line**, ending in `/` (`InsertSideDirectory(side=)`,
   DN's `$1A1B`/`$1B1D`: `cmGetName` of `LeftView`/`RightView`, then `cmInsertName`), bound in `Manager.keys` (markup
   cannot name a bracket key), handled by `Shell.on_insert_side_directory`. The side, not the active panel; the Ctrl+T

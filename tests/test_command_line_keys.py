@@ -181,3 +181,23 @@ def test_ctrl_s_with_text_on_the_line_still_starts_quick_search(app):
     run_app(app, [*typed("ab"), KeyEvent("s", ctrl=True),
                   lambda a: seen.update(search=a.manager.left.quick_search, value=a.shell.command_line.value)])
     assert seen == {"search": "", "value": "ab"}
+
+
+def copied(app, keys):
+    from navigator.lib.file_ops.clip import CLIP
+
+    seen = {}
+    run_app(app, [*keys, KeyEvent("insert", ctrl=True),
+                  lambda a: seen.update(clipboard=list(a.terminal.clipboard), clip=bool(CLIP))])
+    return seen
+
+
+def test_ctrl_ins_with_text_copies_the_line_not_the_files(app):
+    # A departure: DN's panel always took Ctrl+Ins for the names (``_CtrlIns``).
+    seen = copied(app, typed("echo hi"))
+    assert [text for text, _ in seen["clipboard"]] == ["echo hi"] and seen["clip"] is False
+
+
+def test_ctrl_ins_copies_the_line_s_selection(app):
+    seen = copied(app, [*typed("echo hi"), KeyEvent("left", ctrl=True, shift=True)])
+    assert [text for text, _ in seen["clipboard"]] == ["hi"]

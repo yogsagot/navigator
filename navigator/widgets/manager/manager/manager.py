@@ -3626,6 +3626,9 @@ class Manager(Window):
         if isinstance(command, (PutInClipboard, CutToClipboard, PasteFromClipboard, ClearClipboard)):
             if command.by_key and self._command_line_has_text():
                 # Disabled, so the key is the line's: copy, paste, history.
+                # Ctrl+Ins then copies the line's selection, or the whole line --
+                # a departure: DN's panel always took it (``_CtrlIns``), and only
+                # Ctrl+Shift+Ins, the line's either way, copied its text.
                 return typed
             if self._aside_focused():
                 return aside

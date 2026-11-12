@@ -481,7 +481,9 @@ kept). DN's panel Ctrl+Del (take entries off the listing) was never ported, so i
   **Ctrl+V/Shift+Ins** (`PasteFromClipboard`) runs F5's or F6's dialog on them into the active panel
   (`Manager.paste_files`, see `navigator-file-ops`). **Esc** (`ClearClipboard`) forgets them.
 - **All four are `by_key=True` and step aside while the command line has text** (the `fmoDelErase` rule), so the line
-  keeps copy/paste, and Ctrl+X still walks the history (a recall always puts text on the line). Paste and Esc are
+  keeps copy/paste, and Ctrl+X still walks the history (a recall always puts text on the line). For Ctrl+Ins that's a
+  departure: DN's panel always took it (`_CtrlIns`); here it copies the line's selection or the whole line
+  (`console-command-line`). Paste and Esc are
   disabled with no clip, so Shift+Ins pastes text and Esc does what it did.
 - **Any other copy forgets the clip** (`Navigator.copy_to_clipboard` compares with `CLIP.text`), so the next paste is
   that text; a paste that moved forgets it too, a copy can be pasted again.
