@@ -322,3 +322,21 @@ def test_replace_with_is_kept_and_find_s_lines_are_not_replace_s():
     find = FindFileDialog()
     assert (find.mask.value, find.text.value) == ("*", "")
     assert "replacement" not in find_file_dialog._session
+
+
+def test_advanced_ok_in_replace_keeps_its_own(monkeypatch):
+    import asyncio
+
+    from navigator.widgets.manager.advanced_search_dialog import AdvancedSearchDialog
+    from navigator.widgets.manager.find_file_dialog import FindFileDialog, find_file_dialog
+
+    async def answered(self, application):
+        return {"after": "", "before": "", "greater": "10", "less": "", "kinds": 0}
+
+    monkeypatch.setattr(AdvancedSearchDialog, "execute", answered)
+    dialog = FindFileDialog(replacing=True)
+    dialog.mask.value = "*.py"
+    asyncio.run(dialog.ask_advanced())
+    assert find_file_dialog._replace_session["advanced"]["greater"] == "10"
+    assert find_file_dialog._replace_session["mask"] == "*.py"
+    assert find_file_dialog._session["advanced"]["greater"] == "" and find_file_dialog._session["mask"] == "*"

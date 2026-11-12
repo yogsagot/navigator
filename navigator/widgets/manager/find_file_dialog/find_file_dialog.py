@@ -51,17 +51,23 @@ class FindFileDialog(Dialog):
         """Where this dialog's answers are kept: Find's, or Replace in files'."""
         return _replace_session if self.replacing else _session
 
-    def accept(self) -> Any:
-        options = self.options.value
+    def _remember(self) -> str:
+        """Keep the answers as they are now for the next opening: DN's
+        ``FindRec`` and ``AdvanceSearchData``.  Answers the mask -- DN's
+        ``DelSpaces``, an empty one made ``x_x``."""
         session = self.session
-        session["options"] = options
-        session["scope"] = self.scope.value
-        session["advanced"] = dict(self.limits)
-        # DN's ``DelSpaces``, and an empty mask made ``x_x``.
         mask = self.mask.value.replace(" ", "") or filefind.filetypes.ALL_FILES
         session["mask"], session["text"] = mask, self.text.value
         if self.replacing:
             session["replacement"] = self.replacement.value
+        session["options"] = self.options.value
+        session["scope"] = self.scope.value
+        session["advanced"] = dict(self.limits)
+        return mask
+
+    def accept(self) -> Any:
+        mask = self._remember()
+        options = self.options.value
         kinds = frozenset(
             name for index, name in enumerate(filefind.KINDS) if self.limits["kinds"] & (1 << index)
         )
@@ -117,10 +123,15 @@ class FindFileDialog(Dialog):
         await Dialog(title=tr("Error"), prompt=escape_caption(reason), buttons="ok").execute(self.application)
 
     async def ask_advanced(self) -> None:
-        """*Advanced...*: the limits, and *Advanced search* ticked once they are set."""
+        """*Advanced...*: the limits, and *Advanced search* ticked once they are set.
+
+        OK here is kept even if *Find File* is cancelled after, as DN's
+        ``RSearchAdvance`` wrote ``AdvanceSearchData`` and the dialog's
+        ``FindRec`` at once."""
         from navigator.widgets.manager.advanced_search_dialog import AdvancedSearchDialog
 
         answer = await AdvancedSearchDialog(self.limits).execute(self.application)
         if answer is not None:
             self.limits = answer
             self.options.value |= 1
+            self._remember()

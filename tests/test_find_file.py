@@ -749,3 +749,42 @@ def test_an_empty_mask_comes_back_as_all_files(place):
     run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask(" ", "hello"),
                   KeyEvent("enter"), Until(finding), LISTED])
     assert find_file_dialog._session["mask"] == "*" and find_file_dialog._session["text"] == "hello"
+
+
+def _advanced(set_greater):
+    """*Advanced...*, ``greater`` set, then OK -- or Esc when *set_greater* is None."""
+    def press(a):
+        a.modal.spawn(a.modal.ask_advanced())
+
+    def fill(a):
+        a.modal.greater.value = set_greater
+
+    shown = Until(lambda a: a.modal is not None and a.modal.title != "Find File")
+    back = Until(lambda a: a.modal is not None and a.modal.title == "Find File")
+    if set_greater is None:
+        return [press, shown, KeyEvent("escape"), back]
+    return [press, shown, fill, KeyEvent("enter"), back]
+
+
+def _reopened(seen):
+    return [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None and a.modal.title == "Find File"),
+            lambda a: seen.update(mask=a.modal.mask.value, options=a.modal.options.value,
+                                  greater=a.modal.limits["greater"]),
+            KeyEvent("escape"), IDLE]
+
+
+def test_ok_in_advanced_is_kept_though_find_is_cancelled(place):
+    # DN's ``RSearchAdvance``: ``AdvanceSearchData`` and ``FindRec`` written at once.
+    app = navigator(place)
+    seen = {}
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*.bin"),
+                  *_advanced("4000"), KeyEvent("escape"), IDLE, *_reopened(seen)])
+    assert seen == {"mask": "*.bin", "options": 4 | 1, "greater": "4000"}
+
+
+def test_advanced_cancelled_keeps_nothing(place):
+    app = navigator(place)
+    seen = {}
+    run_app(app, [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask("*.bin"),
+                  *_advanced(None), KeyEvent("escape"), IDLE, *_reopened(seen)])
+    assert seen == {"mask": "*", "options": 4, "greater": ""}
