@@ -698,7 +698,12 @@ class Navigator(Application):
         """A paste goes where typing would: the running program, or the command line.
 
         Under a dialog it is the dialog's, and goes to its focused line; with
-        an editor holding the keyboard it is the editor's.
+        an editor holding the keyboard it is the editor's.  Onto the command
+        line it goes as pasted, line breaks joined by blanks -- a departure:
+        DN's Shift+Ins went through ``cmInsertName`` (a blank after, and one
+        before after a word, ``CMDLINE.PAS:378-383``); a paste is often part
+        of a word, a quoted string or a path, and here every paste comes this
+        way, the terminal's own included.
         """
         if self.modal is not None:
             return False

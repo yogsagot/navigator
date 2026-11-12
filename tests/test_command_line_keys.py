@@ -201,3 +201,9 @@ def test_ctrl_ins_with_text_copies_the_line_not_the_files(app):
 def test_ctrl_ins_copies_the_line_s_selection(app):
     seen = copied(app, [*typed("echo hi"), KeyEvent("left", ctrl=True, shift=True)])
     assert [text for text, _ in seen["clipboard"]] == ["hi"]
+
+
+@pytest.mark.parametrize("before, pasted, after", [("ls", "-la", "ls-la"), ("echo '", "hi there", "echo 'hi there")])
+def test_a_paste_goes_on_as_pasted(app, before, pasted, after):
+    # A departure: DN's Shift+Ins added ``cmInsertName``'s blanks.
+    assert line(app, [*typed(before), PasteEvent(pasted)])["value"] == after
