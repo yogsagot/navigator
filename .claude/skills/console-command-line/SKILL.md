@@ -142,6 +142,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   mirrored as the reactive `Console.running`, and `Shell.command_prompt`/`command_prompt_cells` are empty while it is
   set -- the prompt coming back is the sign the command finished, as in a terminal. The row stays (giving it to the
   console would resize the pty under the program). atuin's search, being `busy` too, also blanks it.
+- **A program runs under the bars** (a departure): the console, and so the pty, is the band between the menu bar and
+  the command line's row, the screen's height less three, with the menu bar, the blank command-line row and the key
+  bar still painted (`shell.nml`). DN gave a program the whole screen, DN itself having exited (`RUNCMD.INC`);
+  Navigator keeps running, so its bars stay, and a full-screen program fits the band it is told it has.
 - **It never holds the keyboard**: a key the focused widget declines walks up to `Shell.on_key`, which types it there
   (DN's `ofPostProcess`); `Shell.cursor_position` puts the caret on the line.
 - Enter, Home, End are `ExecuteCommandLine`/`CommandLineHome`/`CommandLineEnd` on the application's table, **disabled
