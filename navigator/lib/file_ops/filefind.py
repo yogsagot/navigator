@@ -303,6 +303,12 @@ class FindListing:
     #: The listing's own order is kept whatever the panel sorts by: *Find
     #: duplicates*' groups (:mod:`navigator.lib.file_ops.duplicates`).
     keep_order: bool = False
+    #: The listing this one was made from, which ``..`` goes back to -- DN's
+    #: ``Drive^.Prev``, a find drive inserted over a find drive -- with the
+    #: key of the entry the cursor was on there, and its columns.
+    previous: FindListing | None = field(default=None, repr=False, compare=False)
+    previous_key: str | None = field(default=None, compare=False)
+    previous_columns: Any = field(default=None, repr=False, compare=False)
 
 
 #: The file systems *All drives* walks: those on a disk.  An unknown kind is

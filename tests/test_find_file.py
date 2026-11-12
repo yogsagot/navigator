@@ -927,3 +927,76 @@ def test_the_hidden_rule_on_another_drive():
         assert [e.name for e in job.found] == [".hidden.txt"]
     finally:
         unmount(drive.site)
+
+
+def _search(mask, text=""):
+    """Alt+F7 for *mask*, waited out: the panel lists what was found."""
+    def ended(a):
+        return finding(a) and a.manager.left.found.title == f"Find: {mask}"
+
+    return [KeyEvent("f7", alt=True), Until(lambda a: a.modal is not None), ask(mask, text), KeyEvent("enter"),
+            Until(ended), LISTED]
+
+
+def _leave():
+    return [to(".."), KeyEvent("enter"), LISTED, LISTED]
+
+
+def test_a_listing_made_from_a_listing_stacks_on_it(place):
+    # DN's ``InsertDrive``: ``Prev`` the find drive it covers; ``..`` goes back to it.
+    app = navigator(place)
+    seen = {}
+    left = lambda a: a.manager.left  # noqa: E731
+    run_app(app, [to("top.txt"), *_search("README"), to(str(place / "b" / "README")), *_search("*.bin"),
+                  *_leave(),
+                  lambda a: seen.update(title=left(a).found.title, at=left(a).selected.key),
+                  *_leave(),
+                  lambda a: seen.update(found=left(a).found, path=left(a).path, home=left(a).selected.name)],
+            timeout=15)
+    assert seen == {"title": "Find: README", "at": str(place / "b" / "README"),
+                    "found": None, "path": place, "home": "top.txt"}
+
+
+def test_going_to_a_file_drops_the_whole_stack(place):
+    app = navigator(place)
+    seen = {}
+    run_app(app, [*_search("README"), *_search("*.bin"), to(str(place / "b" / "big.bin")),
+                  KeyEvent("pagedown", ctrl=True), LISTED, LISTED,
+                  lambda a: seen.update(found=a.manager.left.found, path=a.manager.left.path), *_leave(),
+                  lambda a: seen.update(after=a.manager.left.path, again=a.manager.left.found)], timeout=15)
+    assert seen == {"found": None, "path": place / "b", "after": place, "again": None}
+
+
+def test_the_cursor_is_placed_by_key_where_names_are_alike(place):
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    app = navigator(place)
+    seen = {}
+    second = str(place / "b" / "README")
+
+    def show(a):
+        entries = [entry_at(place / d / "README", place / d) for d in ("a", "b")]
+        a.manager.left.show_found(FindListing("Find: README", place, entries), at=second)
+
+    run_app(app, [show, LISTED, LISTED, lambda a: seen.update(at=a.manager.left.selected.key)])
+    assert seen["at"] == second
+
+
+def test_a_listing_read_anew_replaces_itself_keeping_what_it_covered(place):
+    # Ctrl+R on a panelized listing: ``stack=False``.
+    from navigator.lib.file_ops.filefind import FindListing
+
+    app = navigator(place)
+    seen = {}
+
+    def show(a):
+        panel = a.manager.left
+        first, second, again = (FindListing(t, place, []) for t in ("first", "second", "again"))
+        panel.show_found(first)
+        panel.show_found(second)
+        panel.show_found(again, stack=False)
+        seen.update(covered=again.previous is first, second=second.previous is first)
+
+    run_app(app, [show, LISTED])
+    assert seen == {"covered": True, "second": True}

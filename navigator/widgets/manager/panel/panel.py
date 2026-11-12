@@ -1051,9 +1051,12 @@ class Panel(ListViewer):
             self.cursor = found if found is not None else min(cursor, max(0, len(entries) - 1))
             self.scroll = scroll
             return
-        self.cursor = next(
-            (index for index, item in enumerate(entries) if item.name == target), 0
-        )
+        # By key first: a listing's entries may share a name (``a/README``,
+        # ``b/README``), never a key; a directory's key is its name.
+        at = next((index for index, item in enumerate(entries) if item.key == target), None)
+        if at is None:
+            at = next((index for index, item in enumerate(entries) if item.name == target), 0)
+        self.cursor = at
         self.scroll = 0
 
     def _keep_counts(self, entries: list[DirEntry]) -> list[DirEntry]:
@@ -1159,9 +1162,23 @@ class Panel(ListViewer):
             x, width = 1, max(1, self.name_width)
         return x + gutter, top + row, max(1, width - gutter)
 
-    def show_found(self, listing: Any, at: str | None = None) -> None:
+    def show_found(self, listing: Any, at: str | None = None, *, stack: bool = True) -> None:
         """Show *listing* in place of the directory, the cursor at its top --
-        or on the first entry named *at*."""
+        or on the entry keyed or named *at*.
+
+        Over a listing it is stacked (DN's ``InsertDrive``, ``Prev`` the
+        drive it covered): ``..`` goes back to that one, the cursor where it
+        was.  *stack* false replaces the listing shown instead, keeping what
+        it covered -- Ctrl+R's panelized listing read anew."""
+        shown = self.found
+        if shown is not None and listing is not shown:
+            if stack:
+                selected = self.selected
+                listing.previous, listing.previous_columns = shown, self.find_columns
+                listing.previous_key = selected.key if selected is not None else None
+            else:
+                listing.previous, listing.previous_key = shown.previous, shown.previous_key
+                listing.previous_columns = shown.previous_columns
         self._keep = None
         self._return_to = at
         # DN's ``TFindDrive.Init``: a new drive, *File find*'s defaults.
@@ -1187,11 +1204,20 @@ class Panel(ListViewer):
             self.columns = columns
 
     def leave_found(self) -> None:
-        """``..`` in a *Find:* listing: ``ChangeUp``, back to the directory it
-        was shown at, the cursor where the panel had left it."""
-        if self.found is not None:
-            self._return_to = self.found.return_to
-            self.found = None
+        """``..`` in a *Find:* listing: ``ChangeUp``, back to the listing it
+        was made from (``TFindDrive``'s ``Prev``), or to the directory it was
+        shown at -- the cursor where the panel had left it."""
+        found = self.found
+        if found is None:
+            return
+        if found.previous is not None:
+            self._return_to = found.previous_key
+            if found.previous_columns is not None:
+                self.find_columns = found.previous_columns
+            self.found = found.previous
+            return
+        self._return_to = found.return_to
+        self.found = None
 
     def go_to_entry(self, entry: DirEntry | None = None) -> None:
         """A found entry's own directory, the cursor on it: DN's ``_CtrlPgDn``

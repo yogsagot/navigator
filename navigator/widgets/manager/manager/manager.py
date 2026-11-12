@@ -1537,6 +1537,15 @@ class Manager(Window):
         panel.focus()
         return True
 
+    @staticmethod
+    def _way_back(panel: Panel, current: Any) -> str | None:
+        """Where the cursor goes in the directory when a new listing is left
+        for good: the entry it is on -- or, made from a listing, that
+        listing's own way back, its entries being from other directories."""
+        if panel.found is not None:
+            return panel.found.return_to
+        return current.name if current is not None else None
+
     async def read_file_list(self, panel: Panel) -> None:
         """Alt+V: ``cmPanelMakeList`` -- the list file at the cursor read on a
         thread (:func:`navigator.lib.file_ops.filefind.read_list`) into a listing titled
@@ -1564,7 +1573,7 @@ class Manager(Window):
             if not entries:
                 await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
                 return
-            panel.show_found(FindListing(str(source), here_place, entries, return_to=entry.name))
+            panel.show_found(FindListing(str(source), here_place, entries, return_to=self._way_back(panel, entry)))
             return
         here = Path(panel.path)
         source = entry.path_in(here)
@@ -1579,7 +1588,7 @@ class Manager(Window):
         if not entries:
             await Dialog(title=tr("Error"), prompt=tr("No files found"), buttons="ok").execute(app)
             return
-        panel.show_found(FindListing(str(source), here, entries, return_to=entry.name))
+        panel.show_found(FindListing(str(source), here, entries, return_to=self._way_back(panel, entry)))
 
     #: The last command panelized, offered again in the box (the session's).
     last_panelized = ""
@@ -1655,9 +1664,9 @@ class Manager(Window):
             # Ctrl+R: the same listing read anew, its columns and cursor kept.
             columns, back = panel.find_columns, panel.found.return_to
         else:
-            back = current.name if current is not None and panel.found is None else None
+            back = self._way_back(panel, current)
         panel.show_found(FindListing(tr("Panel: {command}").format(command=command), here, entries,
-                                     return_to=back, command=command))
+                                     return_to=back, command=command), stack=not again)
         if again:
             panel.find_columns = columns
             if current is not None:
@@ -1982,8 +1991,7 @@ class Manager(Window):
             return
         start, hidden = shown(panel.location), panel.show_hidden
         current = panel.selected
-        listing = FindListing(title, start, live=True,
-                              return_to=current.name if current is not None else None)
+        listing = FindListing(title, start, live=True, return_to=self._way_back(panel, current))
         if job is None:
             job = FindJob()
         walk = work
