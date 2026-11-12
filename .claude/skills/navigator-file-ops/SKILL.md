@@ -29,7 +29,7 @@ never before a rename, which takes no room (DN's `DoRename` never reached `MaxWr
 user's own is overwritten or appended to with its mode lifted and put back (DN's `TrySetArch`, `_lift_read_only`),
 and a failed open never removes the target (`reference/copying.md`). F6 to a bare mask in a *Find:* listing
 renames each file in its own directory (DN's SoftMode, `CopyRequest.from_listing`, `in_place_name`). `CopyDialog` is
-`dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory, F10/*Tree* picking it from
+`dlgCopyDialog`/`dlgRenameDialog` in one document, seeded with the passive panel's directory (`Manager._push_first_name`, DN's `cmPushFirstName`: none when it can't be written or is a *Find:* listing, whose `GetRealName` was empty), F10/*Tree* picking it from
 a tree, mode and options remembered for the session. After it, a panel showing where the first source done in full
 went (`CopyJob.first_target`) re-reads with its cursor on it -- the other panel, or a rename's own -- as F7's is on its
 directory; `Manager._run_copy` does it, so drag-and-drop, Undo and Synchronize do too. `Manager.copy_files` -> `copy_entries` -> `_run_copy`;

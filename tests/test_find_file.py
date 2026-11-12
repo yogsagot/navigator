@@ -1112,3 +1112,52 @@ def test_restat_found_counts_nothing_stopped_or_elsewhere(place):
         assert [(e.name, e.counted) for e in entries if e.name == "d"] == [("d", False)]
     finally:
         unmount(drive.site)
+
+
+def _passive_listing(a):
+    """The right panel a *Find:* listing made in *place*; the left one active."""
+    from navigator.lib.file_ops.filefind import FindListing
+    from navigator.widgets.manager.panel.panel import entry_at
+
+    right = a.manager.right
+    origin = Path(right.path)
+    right.show_found(FindListing("Find: *", origin, [entry_at(origin / "top.txt", origin)]))
+    a.manager.left.focus()
+
+
+@pytest.mark.parametrize("key, title", [(KeyEvent("f5"), "Copy"), (KeyEvent("f6"), "Rename/Move"),
+                                        (KeyEvent("f5", shift=True), "Link")])
+def test_a_target_line_opens_empty_over_a_find_listing(place, key, title):
+    # DN's ``TFindDrive.GetRealName`` was empty, so ``cmPushFirstName`` gave nothing.
+    app = navigator(place)
+    seen = {}
+    from navigator.lib.drives import Location
+
+    def elsewhere(a):
+        # Away from the listing's origin, so its origin would have filled the line.
+        a.manager.left.location = Location.of(place / "b")
+
+    run_app(app, [elsewhere, LISTED, _passive_listing, LISTED, LISTED, to("big.bin"), key,
+                  Until(lambda a: a.modal is not None and hasattr(a.modal, "target")),
+                  lambda a: seen.update(target=a.modal.target.value),
+                  KeyEvent("escape"), IDLE])
+    # F6 on one file with nowhere to go opens on its bare name, renaming in place.
+    assert seen["target"] == ("big.bin" if title == "Rename/Move" else "")
+
+
+def test_paste_into_a_find_listing_is_refused(place):
+    from navigator.widgets.manager.commands import PasteFromClipboard
+
+    app = navigator(place)
+    seen = {}
+
+    def listing_active(a):
+        _passive_listing(a)
+        a.manager.right.focus()
+
+    run_app(app, [to("top.txt"), KeyEvent("c", ctrl=True), lambda a: seen.update(
+                      here=a.manager.refusal(PasteFromClipboard())),
+                  listing_active, LISTED, LISTED,
+                  lambda a: seen.update(there=a.manager.refusal(PasteFromClipboard())),
+                  KeyEvent("v", ctrl=True), lambda a: seen.update(modal=a.modal)])
+    assert seen == {"here": "", "there": "Not in a Find listing", "modal": None}

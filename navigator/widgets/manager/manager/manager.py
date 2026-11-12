@@ -1350,20 +1350,26 @@ class Manager(Window):
         else:
             stem = panel.location.path.name or "archive"
         for side in (self.passive_panel, panel):
-            location = side.location
-            try:
-                writable = location.outer is None and side.drive.can("write")
-            except DriveGone:
-                continue
-            if writable:
-                return str(shown(location)), stem or "archive"
+            place = self._push_first_name(side)
+            if place is not None and side.location.outer is None:
+                return str(place), stem or "archive"
         return None
 
     def _extract_target(self, panel: Panel) -> str | None:
         """``cmPushFirstName``: the other panel's place, where it can be written."""
-        other = self.right if panel is self.left else self.left
+        place = self._push_first_name(self.right if panel is self.left else self.left)
+        return str(place) if place is not None else None
+
+    @staticmethod
+    def _push_first_name(other: Panel) -> Any:
+        """DN's ``cmPushFirstName``, what a target line opens on: *other*'s
+        place -- none where it cannot be written, or where it is a *Find:*
+        listing, which has no one place (``TFindDrive.GetRealName`` was
+        empty, so DN's line opened empty)."""
+        if other.found is not None:
+            return None
         try:
-            return str(shown(other.location)) if other.drive.can("write") else None
+            return shown(other.location) if other.drive.can("write") else None
         except DriveGone:
             return None
 
@@ -3444,6 +3450,9 @@ class Manager(Window):
             if not CLIP:
                 return tr("The file clipboard is empty")
             if isinstance(command, PasteFromClipboard):
+                if panel.found is not None:
+                    # DN's ``TFindDrive.CopyFilesInto`` did nothing: no one place to paste into.
+                    return tr("Not in a Find listing")
                 try:
                     return unless(panel.drive.can("write"), read_only)
                 except DriveGone:
@@ -3917,11 +3926,8 @@ class Manager(Window):
         entries = self.selection(panel)
         if entries:
             # ``cmPushFirstName``: the other panel's place -- unless nothing can
-            # be written there, when the line is empty.
-            try:
-                target = shown(other.location) if other.drive.can("write") else None
-            except DriveGone:
-                target = None
+            # be written there, or it is a *Find:* listing, when the line is empty.
+            target = self._push_first_name(other)
             await self.copy_entries(panel, entries, target, move=move, others=(other,))
 
     def clip_files(self, *, move: bool) -> None:
@@ -3943,7 +3949,8 @@ class Manager(Window):
         The dialog's sources are where the entries were clipped, wherever the
         panel that listed them has gone since.  A directory is never pasted
         into itself; a move pasted is done, and forgotten, while a copy can be
-        pasted again.
+        pasted again.  Never into a *Find:* listing (refused: DN's
+        ``CopyFilesInto`` did nothing).
         """
         if not CLIP:
             return
@@ -4596,9 +4603,9 @@ class Manager(Window):
         panel, other = self.active_panel, self.passive_panel
         entries = self.selection(panel)
         if entries:
-            await self.link_entries(panel, entries, shown(other.location), others=(other,))
+            await self.link_entries(panel, entries, self._push_first_name(other), others=(other,))
 
-    async def link_entries(self, panel: Panel, entries: list[Any], target: Path, *,
+    async def link_entries(self, panel: Panel, entries: list[Any], target: Path | None, *,
                            relative: bool | None = None, others: tuple[Any, ...] = (),
                            ask: bool = True) -> None:
         """Links to *entries* of *panel* made in *target*: the Create symlink
