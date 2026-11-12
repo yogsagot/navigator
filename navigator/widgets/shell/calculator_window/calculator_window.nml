@@ -72,10 +72,12 @@ CalculatorWindow(Window):
     RadioButtons:
         id: mode_strip
         y: 1
-        height: 2 if root.mode in ("simple", "classic") else 1
+        height: 1
         anchors:
             left: 2
             right: 2
+        when root.mode in ("simple", "classic"):
+            height: 2
         items: ["~S~imple", "C~l~assic", "Sc~i~entific", "Pro~g~ramming"]
         tooltips: ["A pocket calculator", "DOS Navigator's calculator: the expression in five forms", "Functions, angles, memory and the last answer", "A word of 8 to 64 bits in four bases"]
 
@@ -94,9 +96,14 @@ CalculatorWindow(Window):
         id: line
         tooltip: "Numbers as 12, 1.5, 1E+3, $FF, 0x1F, 101b, 17o; + - * / ^ %, & | \\ ~ << >>, comparisons, IF, SIN, SQRT, LN, PI"
         x: 2
-        y: 5 if root.mode == "classic" else 4 if root.mode == "simple" else 3
+        y: 3
         width: max(1, parent.width - 7)
         height: 1
+        #: Below the strip, and Classic's under its *Expression* caption.
+        when root.mode == "classic":
+            y: 5
+        when root.mode == "simple":
+            y: 4
 
     History:
         id: history
@@ -341,11 +348,15 @@ CalculatorWindow(Window):
     Keypad:
         id: pad
         visible: root.mode != "classic" and not (root.mode == "programming" and root.bit_keypad)
-        y: 10 if root.mode == "programming" else 7
-        height: 10 if root.mode == "programming" else 12
+        y: 7
+        height: 12
         anchors:
             left: 2
             right: 2
+        #: Below Programming's forms and word (rows 4 to 8).
+        when root.mode == "programming":
+            y: 10
+            height: 10
 
     #: Programming's bits, in its keys' place.
     BitGrid:

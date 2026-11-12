@@ -85,8 +85,10 @@ could prove equal: a literal start with `max(0, parent.width - K)`, an end edge 
   Eject say their wide lines once, then `when parent.width < 67:` (or `< 82:`) with the narrow ones (`navml/states.py`).
   The 18 `… if parent.width >= 67 else …` copies are gone. At widths on both sides of each breakpoint, and with the
   width changed live across it, every rectangle is as it was.
-- **Left as expressions, about 27 lines**:
-  - the calculator's faces: its line is 0 below the Expression caption in Classic and 1 below the mode strip
-    otherwise, and a sibling list has one gap (per-id gaps would make `before: a, b, clock + 1` ambiguous);
+- **The calculator's faces are `when` blocks too** (`when root.mode == "classic":`). Its line sits 0 below the
+  Expression caption in Classic and 1 below the mode strip otherwise, which one sibling list cannot say (it has one
+  gap, and per-id gaps would make `before: a, b, clock + 1` ambiguous), so each face states its row. Every face,
+  built in it or switched to live, lays out as before.
+- **Left as expressions, about 23 lines**:
   - floors other than 0 (`max(1, parent.width - 30)`);
   - Erase query's order, which changes with `kind`.
