@@ -436,7 +436,7 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                 continue
             subdirectories = []
             with scan:
-                for item in scan:
+                for item in _listed(scan):
                     if job.stopped:
                         return job.found
                     if not show_hidden and item.name.startswith("."):
@@ -448,7 +448,8 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     except OSError:
                         continue
                     if is_dir and request.recursive:
-                        own = item.stat(follow_symlinks=False)
+                        # Not a link (``is_dir`` did not follow), so ``info`` is its own stat.
+                        own = info
                         key = (own.st_dev, own.st_ino)
                         if key not in seen and (
                                 own.st_dev == here
@@ -470,6 +471,22 @@ def search(request: FindRequest, start: Path, make_entry: Any, job: FindJob,
                     job.found.append(make_entry(directory, item, info))
             pending.extend(reversed(sorted(subdirectories)))
     return job.found
+
+
+def _listed(scan: Iterable[os.DirEntry[str]]) -> Iterable[os.DirEntry[str]]:
+    """*scan*'s entries, ending quietly when reading the directory fails
+    halfway (``EIO``, a stale NFS handle, a FUSE daemon gone): DN's
+    ``while DosError = 0`` ended that directory's ``FindNext`` loop, and the
+    search went on with the next directory."""
+    entries = iter(scan)
+    while True:
+        try:
+            item = next(entries)
+        except StopIteration:
+            return
+        except OSError:
+            return
+        yield item
 
 
 def _search_drive(request: FindRequest, start: Any, job: FindJob, pattern: Any, limits: Advanced,

@@ -630,3 +630,34 @@ def test_replace_in_files_keeps_to_the_same_cap():
     from navigator.lib.file_ops import filefind, filereplace
 
     assert filereplace.LARGEST == filefind.WHOLE_LARGEST == 64 << 20
+
+
+def test_a_directory_failing_halfway_ends_only_itself(tree, monkeypatch):
+    import errno
+
+    real = os.scandir
+    broken = str(tree / "a")
+    (tree / "a" / "more.txt").write_text("x")
+    given = []
+
+    class Failing:
+        def __init__(self, path):
+            self.inner = real(path)
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            self.inner.close()
+
+        def __iter__(self):
+            for item in self.inner:
+                given.append(item.name)
+                yield item
+                raise OSError(errno.EIO, "Input/output error", broken)
+
+    monkeypatch.setattr(os, "scandir", lambda path: Failing(path) if str(path) == broken else real(path))
+    names = found(FindRequest(mask="*", recursive=True, directories=False), tree, show_hidden=True)
+    assert {"top.txt", "b/README", "b/big.bin"} <= set(names)
+    assert len(given) == 1  # ``a`` gave one entry, then failed
+    assert len([n for n in names if n.startswith("a/")]) <= 1
