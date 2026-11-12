@@ -144,7 +144,11 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   DN's `xor`). Ins is `ToggleMark(by_key=True)` in `Manager.keys`, stepping aside while the line holds text as the Gray
   keys do -- a departure: DN's panel always took Ins, and ^V toggled; Ctrl+V is paste here. **Ctrl+Left/Right stop at DN's
   `Separators`** (`kbCtrlLeft`/`kbCtrlRight`, `CMDLINE.PAS:393-414`): `CommandLine._breaks_word` is `_SEPARATORS`
-  (`: . , / [ ] + > < | ;` and blank, less `\`, the shell's escape), over navml `InputLine`'s blank-only default.
+  (`: . , / [ ] + > < | ;` and blank, less `\`, the shell's escape), over navml `InputLine`'s blank-only default. **Ctrl+Backspace**
+  is DN's `#127` (`CommandLine._delete_word_left`, `CMDLINE.PAS:313-319`): the word before the caret, then the
+  separators before it (Ctrl+Left's order reversed, as DN's), or a selection instead. On a terminal whose Backspace is
+  `0x7F`, Ctrl+Backspace sends `0x08`, which is Ctrl+H (the panels' hidden files); the kitty protocol or
+  `modifyOtherKeys` sends it as itself.
 - **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,

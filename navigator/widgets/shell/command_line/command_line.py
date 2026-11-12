@@ -166,6 +166,23 @@ class CommandLine(InputLine):
         self.anchor = None
         self._replace_selection(text)
 
+    def _delete_word_left(self) -> None:
+        """Ctrl+Backspace, DN's ``#127`` (``CMDLINE.PAS:313-319``): the word
+        before the caret, then the separators before it -- the other way
+        round from Ctrl+Left, as DN had it.  A selection goes instead."""
+        start, stop = self.selection
+        if start != stop:
+            self._replace_selection("")
+            return
+        at = self.cursor
+        while at and self.value[at - 1] not in _SEPARATORS:
+            at -= 1
+        while at and self.value[at - 1] in _SEPARATORS:
+            at -= 1
+        if at != self.cursor:
+            self.value = self.value[:at] + self.value[self.cursor:]
+            self.cursor = at
+
     def _breaks_word(self, char: str) -> bool:
         """DN's ``Separators``: Ctrl+Left/Right stop at each ``/``, ``.``, ``;``..."""
         return char in _SEPARATORS
@@ -194,6 +211,9 @@ class CommandLine(InputLine):
             return self.recall(-1)
         if event.key in ("up", "down", "enter", "tab"):
             return False
+        if event.matches("ctrl+backspace"):
+            self._delete_word_left()
+            return True
         if event.matches("insert"):
             # Only here with text on the line: the panel steps aside then.
             self.overwrite = not self.overwrite

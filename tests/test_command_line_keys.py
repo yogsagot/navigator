@@ -107,3 +107,35 @@ def test_another_input_line_still_stops_only_at_blanks():
     run_app(app, [lambda a: setattr(field, "value", "cd /usr/local"), lambda a: setattr(field, "cursor", 13),
                   KeyEvent("left", ctrl=True), lambda a: seen.append(field.cursor)])
     assert seen == [3]
+
+
+CTRL_BACKSPACE = KeyEvent("backspace", ctrl=True)
+
+
+def presses(app, text, count, before=()):
+    seen = []
+    actions = [*typed(text), *before]
+    for _ in range(count):
+        actions += [CTRL_BACKSPACE, lambda a: seen.append((a.shell.command_line.value, a.shell.command_line.cursor))]
+    run_app(app, actions)
+    return seen
+
+
+def test_ctrl_backspace_deletes_the_word_and_then_its_separators(app):
+    # DN's ``#127``: the word before the caret, then the separators before it.
+    assert presses(app, "cd /usr/local", 3) == [("cd /usr", 7), ("cd", 2), ("", 0)]
+
+
+def test_ctrl_backspace_after_a_separator_takes_the_separators(app):
+    assert presses(app, "cd /usr/", 1) == [("cd /usr", 7)]
+
+
+def test_ctrl_backspace_takes_a_selection_instead(app):
+    assert presses(app, "cd /usr/local", 1, before=[KeyEvent("left", ctrl=True, shift=True)]) == [("cd /usr/", 8)]
+
+
+def test_ctrl_backspace_on_an_empty_line_does_nothing(app):
+    seen = {}
+    run_app(app, [CTRL_BACKSPACE, lambda a: seen.update(value=a.shell.command_line.value,
+                                                        cursor=a.manager.left.cursor)])
+    assert seen == {"value": "", "cursor": 0}
