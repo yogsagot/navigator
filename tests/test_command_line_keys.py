@@ -139,3 +139,45 @@ def test_ctrl_backspace_on_an_empty_line_does_nothing(app):
     run_app(app, [CTRL_BACKSPACE, lambda a: seen.update(value=a.shell.command_line.value,
                                                         cursor=a.manager.left.cursor)])
     assert seen == {"value": "", "cursor": 0}
+
+
+def caret(app, keys):
+    seen = {}
+    run_app(app, [*keys, lambda a: seen.update(cursor=a.shell.command_line.cursor, value=a.shell.command_line.value,
+                                                panel=a.manager.left.cursor)])
+    return seen
+
+
+def test_ctrl_d_steps_a_character_on(app):
+    assert caret(app, [*typed("abc"), KeyEvent("home"), KeyEvent("d", ctrl=True)])["cursor"] == 1
+
+
+def test_ctrl_d_stops_at_the_end(app):
+    assert caret(app, [*typed("ab"), KeyEvent("d", ctrl=True)])["cursor"] == 2
+
+
+def test_ctrl_f_steps_a_word_on(app):
+    assert caret(app, [*typed("cd /usr/local"), KeyEvent("home"), KeyEvent("f", ctrl=True)])["cursor"] == 4
+
+
+def test_ctrl_home_and_end_are_the_line_s_with_text_on_it(app):
+    seen = caret(app, [*typed("abc"), KeyEvent("home", ctrl=True)])
+    assert (seen["cursor"], seen["panel"]) == (0, 0)
+
+
+def test_ctrl_end_on_a_line_with_text(app):
+    seen = caret(app, [*typed("abc"), KeyEvent("home"), KeyEvent("end", ctrl=True)])
+    assert (seen["cursor"], seen["panel"]) == (3, 0)
+
+
+def test_with_the_line_empty_ctrl_end_is_the_panel_s(app):
+    seen = caret(app, [KeyEvent("end", ctrl=True), KeyEvent("d", ctrl=True), KeyEvent("f", ctrl=True)])
+    assert seen["panel"] == len(app.manager.left.items) - 1 and seen["value"] == ""
+
+
+def test_ctrl_s_with_text_on_the_line_still_starts_quick_search(app):
+    # DN's ^S stepped the caret back; here it is Quick search (asked for), a departure.
+    seen = {}
+    run_app(app, [*typed("ab"), KeyEvent("s", ctrl=True),
+                  lambda a: seen.update(search=a.manager.left.quick_search, value=a.shell.command_line.value)])
+    assert seen == {"search": "", "value": "ab"}

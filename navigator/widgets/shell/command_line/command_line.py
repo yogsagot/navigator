@@ -214,6 +214,15 @@ class CommandLine(InputLine):
         if event.matches("ctrl+backspace"):
             self._delete_word_left()
             return True
+        # DN's WordStar keys (``CMDLINE.PAS:304-305, 372-373, 391-392``): ^D a
+        # character on, ^F a word on, Ctrl+Home/End as Home/End.  ^S and ^A,
+        # a character and a word back, are Quick search and Select all here.
+        moves = {"ctrl+d": lambda: self.cursor + 1, "ctrl+f": self._word_right,
+                 "ctrl+home": lambda: 0, "ctrl+end": lambda: len(self.value)}
+        for key, where in moves.items():
+            if event.matches(key):
+                self._move(where(), False)
+                return True
         if event.matches("insert"):
             # Only here with text on the line: the panel steps aside then.
             self.overwrite = not self.overwrite

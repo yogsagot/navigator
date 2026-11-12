@@ -2618,7 +2618,12 @@ class Panel(ListViewer):
         unshifted with *Use arrows* on (DN's default), with Shift held with
         it off; the other way round they are the panel's (``fmoUseArrows``,
         ``(ShiftState and 3 <> 0) xor (Options and fmoUseArrows = 0)``).
+        Ctrl+Home and Ctrl+End go to a line holding text whatever *Use arrows*
+        says: DN's line took them as Home and End (``CMDLINE.PAS:391-392``).
         """
+        if (event.key in ("home", "end") and event.ctrl and not (event.shift or event.alt)
+                and command_line_text(self)):
+            return True
         if event.key not in self.LINE_KEYS or event.ctrl or event.alt:
             return False
         if SETTINGS.file_manager.use_arrows == event.shift:

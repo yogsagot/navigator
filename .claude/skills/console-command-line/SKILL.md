@@ -148,7 +148,10 @@ docked after `KeyBar` in `shell.nml`, in the hard-coded `$0F`/`$07`.
   is DN's `#127` (`CommandLine._delete_word_left`, `CMDLINE.PAS:313-319`): the word before the caret, then the
   separators before it (Ctrl+Left's order reversed, as DN's), or a selection instead. On a terminal whose Backspace is
   `0x7F`, Ctrl+Backspace sends `0x08`, which is Ctrl+H (the panels' hidden files); the kitty protocol or
-  `modifyOtherKeys` sends it as itself.
+  `modifyOtherKeys` sends it as itself. **DN's WordStar keys** (`CMDLINE.PAS:304-305, 372-373, 391-392`): Ctrl+D a character
+  on and Ctrl+F a word on, always; Ctrl+Home/End as Home/End while the line holds text (`Panel.arrows_to_line` hands
+  them over). A departure: DN's ^S and ^A (a character and a word back) are Quick search and Select all here, Left
+  and Ctrl+Left doing those moves.
 - **Tab completes** (`CompleteCommandLine`) with text on the line: ` __nav_complete <base64> <point>`, answered by a `C`
   mark -- bash through `compgen` and the command's `complete` spec, zsh through its tables and globbing only (compsys
   cannot be asked outside ZLE); `sh` cannot, and Tab stays the panel's. One candidate ends the word (`/` or a space,
