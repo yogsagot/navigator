@@ -141,6 +141,31 @@ def test_resize_relayouts_and_fully_repaints(terminal):
     assert "\x1b[2J" in terminal.frames[-1]  # a full clear, not a partial diff
 
 
+def test_sigwinch_naming_the_same_size_repaints_nothing(terminal):
+    """A terminal that signals again with the size it already had -- some do
+    just after the start -- costs no clear and no second whole frame."""
+    import signal
+
+    sizes = []
+
+    class App(Application):
+        async def on_resize(self, event):
+            sizes.append((event.width, event.height))
+
+    def same(app):
+        app._on_signal(signal.SIGWINCH)
+
+    def grow(app):
+        terminal.size = (60, 20)
+        app._on_signal(signal.SIGWINCH)
+
+    app = App(RecordingWidget(), terminal=terminal)
+    frames = []
+    run_app(app, [same, lambda a: frames.append(len(terminal.frames)), grow, grow])
+    assert frames == [1]  # only the first frame, nothing after the repeat
+    assert sizes == [(60, 20)]  # the real change still lays out, once
+
+
 def test_resize_hook_is_called(terminal):
     sizes = []
 

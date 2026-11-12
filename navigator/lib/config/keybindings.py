@@ -64,6 +64,7 @@ from navkit.commands import (
     command_of,
     default_keys,
     override_keys,
+    override_keys_later,
     own_keys,
     parse_key,
     restore_keys,
@@ -480,7 +481,15 @@ def apply(found: Iterable[Section], assignments: Mapping[str, Assignment]) -> No
 def load(app_class: type, file: Path | None = None) -> list[str]:
     """Read the file and bind its keys; the warnings, one per line that
     will not do.  A missing file binds the defaults, and one that cannot be
-    read at all is a warning and the defaults too."""
+    read at all is a warning and the defaults too.
+
+    A section whose class is not imported yet is not imported for it
+    (:func:`_unread`): left alone when it binds the shipped defaults, and
+    read once its class is imported (navkit's ``override_keys_later``) when
+    every line names a command and a key -- the one thing that can still go
+    wrong then, keys that clash, keeps the defaults and is written to
+    ``errors.log``, the screen being Navigator's by then.
+    """
     file = file or path()
     try:
         parser = _parse(file)
@@ -488,44 +497,103 @@ def load(app_class: type, file: Path | None = None) -> list[str]:
         parser, warnings = None, []
     except (OSError, configparser.Error) as error:
         parser, warnings = None, [f"{file}: {error}"]
-    skip = _as_shipped(parser)
+    same, later = _unread(parser)
+    skip = same | set(later)
     found = sections(app_class, skip)
     if parser is None:
         assignments = {}
     else:
         assignments, warnings = read(file, found, parser=parser, skip=skip)
+        for name, (title, where) in later.items():
+            override_keys_later(where, _read_later(file, parser, name, title))
     apply(found, assignments)
     return warnings
 
 
-def _as_shipped(parser: configparser.ConfigParser | None) -> set[str]:
-    """The sections that can be left alone at the start: what the file says
-    of them (nothing, for one it leaves out) is the shipped default set line
-    for line, and their class is not imported yet -- so it has no override
-    to undo, and its own table is already what the file asks for.
+def _read_later(file: Path, parser: configparser.ConfigParser, name: str, title: str):
+    """What binds section *name* once its class is imported."""
+
+    def make(cls: type) -> None:
+        section = Section(name, title, cls)
+        assignments, warnings = read(file, [section], parser=parser)
+        apply([section], assignments)
+        if warnings:
+            from navigator.lib.system import errorlog
+
+            errorlog.append(RuntimeError("\n".join(warnings)), f"reading {file}")
+
+    return make
+
+
+def _unread(parser: configparser.ConfigParser | None) -> tuple[set[str], dict[str, tuple[str, str]]]:
+    """The sections that need not be read at the start, whose class is not
+    imported yet: those that bind what the shipped default set does, left
+    alone -- their class has no override to undo, and its own table is
+    already what the file asks for -- and, by name with their title and
+    ``module:Class``, those to read once their class is imported, whose
+    every line names a command the shipped set has and keys that parse.
 
     Not reading them is not importing them: most of the tables belong to
     windows nobody has opened yet (the editor, the game), and importing
-    every one of them was a sixth of the time before the first frame.  A
-    section that differs in any way, a respelt key included, is read as
-    always.
+    every one of them was a sixth of the time before the first frame.
     """
     try:
         shipped = _parse(presets_dir() / f"{FILE_NAME.removesuffix('.ini')}_default.ini")
     except (OSError, configparser.Error):
-        return set()
-    same = set()
-    for name, _title, where in TABLES:
+        return set(), {}
+    same: set[str] = set()
+    later: dict[str, tuple[str, str]] = {}
+    for name, title, where in TABLES:
         if where is None or where.partition(":")[0] in sys.modules:
             continue
         if not shipped.has_section(name):
             continue
-        if parser is not None and parser.has_section(name) and (
-            dict(parser.items(name)) != dict(shipped.items(name))
-        ):
+        if parser is None or not parser.has_section(name):
+            same.add(name)
             continue
-        same.add(name)
-    return same
+        lines, defaults = parser.items(name), dict(shipped.items(name))
+        if _lines_as_shipped(name, lines, defaults):
+            same.add(name)
+        elif _lines_readable(lines, defaults):
+            later[name] = (title, where)
+    return same, later
+
+
+def _lines_readable(lines: Iterable[tuple[str, str]], shipped: Mapping[str, str]) -> bool:
+    """Whether every line names a command the shipped set has, with keys
+    that parse: nothing :func:`read` would warn of but a clash."""
+    for option, text in lines:
+        if option not in shipped:
+            return False
+        try:
+            parse_keys(text)
+        except ValueError:
+            return False
+    return True
+
+
+def _lines_as_shipped(name: str, lines: Iterable[tuple[str, str]], shipped: Mapping[str, str]) -> bool:
+    """Whether a section's *lines* bind nothing but the shipped defaults.
+
+    A command the file leaves out takes its default (:meth:`Section.complete`),
+    and so does a line still naming a retired default (:func:`read`): a file
+    written before commands were added binds what the shipped set does, and
+    is no reason to import the section's class.  A line the shipped set does
+    not have -- a command since removed, a misspelling -- is read as always,
+    for its warning.
+    """
+    for option, text in lines:
+        if option not in shipped:
+            return False
+        if text == shipped[option]:
+            continue
+        try:
+            keys = parse_keys(text)
+        except ValueError:
+            return False
+        if keys != parse_keys(shipped[option]) and keys not in RETIRED_DEFAULTS.get((name, option), ()):
+            return False
+    return True
 
 
 def seed(app_class: type, file: Path | None = None) -> bool:

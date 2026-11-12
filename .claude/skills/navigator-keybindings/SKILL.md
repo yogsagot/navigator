@@ -24,8 +24,20 @@ movement, typing) are not covered: move one into a table to make it rebindable.
   - `own_keys(cls, base)` is what is bound now.
   - `check_table(owner, table)` is `check_keys`' validation with the table passed in, so it works for a table that is
     not a class attribute.
+- **`override_keys_later("module:Class", make)`** is for a class not imported yet: `make(cls)` runs the first time
+  `key_table()`/`own_keys()`/`restore_keys(cls)` is called once that module is in `sys.modules` (`_settle`).
+  `restore_keys()` drops pending ones too.
 - **No cache.** `key_table()` is read at every key press, menu caption and key-bar paint, so an override is live at
   once.
+- **At the start `load()` imports no window's class for its keys** (`_unread`; importing every one of them was 41 ms
+  of a 0.3 s start). For a section whose class is not imported yet:
+  - **Left alone** when every line it has is the shipped default line or a retired default (`_lines_as_shipped`).
+    A line left out is the default (`Section.complete`), so a file seeded before commands were added still counts.
+  - **Read when the class is imported** (`override_keys_later`) when every line names a shipped command and its keys
+    parse. A clash found then keeps the defaults and goes to `errors.log`, because the screen is Navigator's by then.
+  - **Read at the start, importing the class,** otherwise, so its warning is printed before the screen is taken.
+  - `tests/test_keybindings.py::test_a_window_not_opened_yet_is_not_imported_for_its_keys` checks this in a fresh
+    interpreter: the test module itself imports every class.
 - `tests/conftest.py`'s autouse `_default_keys` calls `restore_keys()` around every test.
 
 ## The model (`navigator/lib/config/keybindings.py`)

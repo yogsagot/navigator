@@ -115,6 +115,46 @@ def test_a_missing_line_keeps_its_default(tmp_path):
     assert key_table(Manager)["f5"] is Copy and key_table(Manager)["f12"] is MakeDirectory
 
 
+_UNIMPORTED = """
+import json, sys
+from pathlib import Path
+from navigator.__main__ import Navigator
+from navigator.lib.config import keybindings
+from navkit.commands import key_table
+
+warnings = keybindings.load(Navigator, Path(sys.argv[1]))
+before = {name: name in sys.modules for name in (
+    "navigator.widgets.viewer.file_window", "navigator.widgets.editor.edit_window")}
+from navigator.widgets.viewer.file_window import FileWindow
+from navigator.widgets.editor.edit_window import EditWindow
+viewer, window = key_table(FileWindow), key_table(EditWindow)
+print(json.dumps({"warnings": warnings, "before": before,
+                  "viewer": {key: viewer[key].__name__ for key in ("ctrl+l", "ctrl+enter") if key in viewer},
+                  "window_f6": "ctrl+f6" in window}))
+"""
+
+
+def test_a_window_not_opened_yet_is_not_imported_for_its_keys(tmp_path):
+    """A section of a class not imported yet costs no import at the start:
+    one leaving lines out binds the defaults, and one that differs is bound
+    as soon as the class is imported -- an old file's viewer line without
+    Ctrl+Enter keeps it off, the edit window's missing Ctrl+F6 is there."""
+    import json
+    import subprocess
+    import sys
+
+    file = tmp_path / "keybindings.ini"
+    file.write_text("[viewer]\nsearch_again = ctrl+l\n\n[edit_window]\ncont_search = shift+f7, ctrl+l\n")
+    run = subprocess.run([sys.executable, "-c", _UNIMPORTED, str(file)],
+                         capture_output=True, text=True, check=True)
+    result = json.loads(run.stdout)
+    assert result["warnings"] == []
+    assert result["before"] == {"navigator.widgets.viewer.file_window": False,
+                                "navigator.widgets.editor.edit_window": False}
+    assert set(result["viewer"]) == {"ctrl+l"}  # the file's line, read late
+    assert result["window_f6"]  # a line left out: the default
+
+
 def test_what_will_not_do_is_a_warning_and_the_default(tmp_path):
     file = tmp_path / "keybindings.ini"
     file.write_text(

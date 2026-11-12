@@ -41,7 +41,8 @@ way it did.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
+import sys
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, ClassVar
 
@@ -193,6 +194,30 @@ def table_keys(table: Mapping[str, Any]) -> set[str]:
 #: -- each with the base it is laid over: ``{cls: (base, table)}``.
 _OVERRIDES: dict[type, tuple[type, dict[str, Binding]]] = {}
 
+#: Overrides waiting for their class's module to be imported, by
+#: ``"module:Class"``: ``make`` is called with the class the first time a
+#: key table is looked up once the module is there.  A rebinding of a window
+#: nobody has opened yet so costs nothing at the start.
+_PENDING: dict[str, Callable[[type], None]] = {}
+
+
+def override_keys_later(where: str, make: Callable[[type], None]) -> None:
+    """Have *make* lay *where*'s override (``"package.module:Class"``) once
+    that module has been imported -- :func:`override_keys` for a class not
+    imported yet, which is left so.  Already imported, *make* runs now."""
+    _PENDING[where] = make
+    _settle()
+
+
+def _settle() -> None:
+    """Run the pending overrides whose module is imported now."""
+    for where in [where for where in _PENDING if where.partition(":")[0] in sys.modules]:
+        module, _, name = where.partition(":")
+        cls = getattr(sys.modules[module], name, None)
+        if cls is None:
+            continue  # the module is still being executed
+        _PENDING.pop(where)(cls)
+
 
 def override_keys(cls: type, table: Mapping[str, Binding], base: type) -> None:
     """Make *cls*'s keys *base*'s keys and *table*, whatever its classes say.
@@ -210,10 +235,14 @@ def override_keys(cls: type, table: Mapping[str, Binding], base: type) -> None:
 
 
 def restore_keys(cls: type | None = None) -> None:
-    """Drop *cls*'s override, or every override with no argument."""
+    """Drop *cls*'s override, or every override, pending ones included,
+    with no argument."""
     if cls is None:
         _OVERRIDES.clear()
+        _PENDING.clear()
     else:
+        if _PENDING:
+            _settle()
         _OVERRIDES.pop(cls, None)
 
 
@@ -230,6 +259,8 @@ def default_keys(cls: type, base: type) -> dict[str, Binding]:
 
 def own_keys(cls: type, base: type) -> dict[str, Binding]:
     """What *cls* binds over *base* now: its override, else :func:`default_keys`."""
+    if _PENDING:
+        _settle()
     override = _OVERRIDES.get(cls)
     if override is not None and override[0] is base:
         return dict(override[1])
@@ -244,6 +275,8 @@ def key_table(cls: type) -> dict[str, Binding]:
     (:func:`override_keys`) is its base's keys and the override, in place of
     what the classes between them say.
     """
+    if _PENDING:
+        _settle()
     merged: dict[str, Binding] = {}
     for klass in reversed(cls.__mro__):
         override = _OVERRIDES.get(klass)

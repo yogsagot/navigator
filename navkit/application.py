@@ -611,6 +611,9 @@ class Application:
 
         self._back = ScreenBuffer(*self.terminal.size, self.background)
         self._front: ScreenBuffer | None = None
+        #: The size the last resize asked for, laid out or still queued: a
+        #: ``SIGWINCH`` that names it again changes nothing.
+        self._asked_size: tuple[int, int] | None = None
         self._min_frame_interval = 1.0 / max_fps if max_fps > 0 else 0.0
         self._last_frame = 0.0
         #: What the last frame left the terminal's cursor doing, so a frame
@@ -1614,6 +1617,7 @@ class Application:
         return dataclasses.replace(event, x=x)
 
     def _resize(self, width: int, height: int) -> None:
+        self._asked_size = (width, height)
         self._clicks.reset()  # the layout moved out from under the pointer
         self._below_dirty = True
         self._back.resize(width, height, self.background)
@@ -2384,10 +2388,19 @@ class Application:
     def _on_signal(self, signum: int) -> None:
         if signum == signal.SIGWINCH:
             cell_px = getattr(self.terminal, "cell_px", None)
-            if cell_px is not None and cell_px != self.terminal.info.cell_px:
+            font_changed = cell_px is not None and cell_px != self.terminal.info.cell_px
+            if font_changed:
                 # A font size changed with the window: pictures are scaled by it.
                 self.terminal.info = dataclasses.replace(self.terminal.info, cell_px=cell_px)
                 self.info_revision += 1
-            self.post_event(ResizeEvent(*self.terminal.size))
+            size = self.terminal.size
+            if size == self._asked_size and not font_changed:
+                # Some terminals signal once more just after the start with
+                # the size they already had; a resize clears the screen and
+                # sends every cell again, which a slow terminal shows as a
+                # second, flashing first frame.  Nothing moved, so nothing to do.
+                return
+            self._asked_size = size
+            self.post_event(ResizeEvent(*size))
         else:
             self.exit()
