@@ -345,6 +345,33 @@ def _nothing_remembered():
     udisks.forget_mounts()
 
 
+@pytest.fixture(scope="session")
+def _first_find_answers():
+    """Find File's and Replace in files' remembered answers as the session
+    started, taken before any test has typed into either."""
+    import copy
+
+    from navigator.widgets.manager.find_file_dialog import find_file_dialog
+
+    return {name: copy.deepcopy(getattr(find_file_dialog, name)) for name in ("_session", "_replace_session")}
+
+
+@pytest.fixture(autouse=True)
+def _nothing_on_the_clip(monkeypatch, _first_find_answers):
+    """No test inherits another's Ctrl+C/Ctrl+X clip (a panel shows a line for
+    it, which takes a row from every listing) nor its last Find File answers."""
+    import copy
+
+    from navigator.lib.file_ops.clip import CLIP
+    from navigator.widgets.manager.find_file_dialog import find_file_dialog
+
+    for name, value in _first_find_answers.items():
+        monkeypatch.setattr(find_file_dialog, name, copy.deepcopy(value))
+    CLIP.clear()
+    yield
+    CLIP.clear()
+
+
 @pytest.fixture(autouse=True)
 def _quiet_scheduler():
     """Keep one test's queued effects out of the next one."""

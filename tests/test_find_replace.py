@@ -23,17 +23,6 @@ from navigator.lib.file_ops.filereplace import (
 from navigator.widgets.manager.panel.panel import make_entry
 
 
-@pytest.fixture(autouse=True)
-def fresh_dialogs(monkeypatch):
-    """Find File's and Replace in files' remembered answers, as at start."""
-    import copy
-
-    from navigator.widgets.manager.find_file_dialog import find_file_dialog
-
-    for name in ("_session", "_replace_session"):
-        monkeypatch.setattr(find_file_dialog, name, copy.deepcopy(getattr(find_file_dialog, name)))
-
-
 def make(directory, item, info):
     return make_entry(item, directory)
 
