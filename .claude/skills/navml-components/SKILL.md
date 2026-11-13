@@ -50,12 +50,17 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   mixins' methods, with no cycle, because the stub flattens the mixins.
 - **`navml/sibling.py` reads the mixins too**, without importing them. A leading base imported from a module beside
   the `.py` (relative, or absolute in the same package) is parsed, and its methods are folded into the class's own,
-  each carrying `origin` so messages name the right file. Its imports are merged in as well; a name two files bind
-  differently is refused. So the handler-collision and `await` checks see a method wherever it moved, and **the
+  each carrying `origin` so messages name the right file, with its class-level names (a constant moved out with the
+  methods using it). Its imports are merged in as well; a name two files bind differently is refused, and so is a
+  mixin imported under a name the module already imports something else as (Shell's command `Terminal`: the mixin
+  is `ConsoleMixin`, as `CommandLineMixin` is because `CommandLine` is a widget). So the handler-collision and `await` checks see a method wherever it moved, and **the
   `.pyi` lists every mixin's methods as the class's own, keeping only the markup base**. Editing a mixin's method or
   imports therefore makes `navml build --check` report the stub stale, as editing the `.py` does.
 - **Module-level helpers the mixins share go to a sibling module** (`manager/manager/helpers.py`), never into the
-  component's `.py`: a mixin importing that module at import time would be a cycle.
+  component's `.py`: a mixin importing that module at import time would be a cycle. The component's module may
+  re-export them where others import them from it (`panel.panel` stays the public face of `human_size`,
+  `fit_text`...), and a global a test patches on the module stays there with the code reading it (`Panel`'s listing,
+  `SCAN_GRACE`, `_read_location`).
 - **A mixin is not a type to a stylesheet.** `navkit.stylesheet.type_names` leaves out every class that is a mixin
   (`__navkit_mixin__` in its own namespace), so `Links { }` never matches the manager. Code that looks for "the first
   class in the MRO that is not this one" must skip mixins too (`keybindings.Section.base`).

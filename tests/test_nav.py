@@ -1745,11 +1745,20 @@ def test_one_widget_does_not_import_the_others():
 
 def test_the_desktop_still_pulls_in_the_screens_it_places():
     """And its own generated half, which is what places them."""
+    # A component's own parts -- the mixins its class is split into, their
+    # helpers, the drag it carries -- come with it, and are not screens: a
+    # module in a component's directory beside the component's own module.
     loaded = _in_a_fresh_process(
         "import importlib, sys\n"
         "importlib.import_module('navigator.widgets.shell.shell')\n"
+        "def part(m):\n"
+        "    package, _, leaf = m.rpartition('.')\n"
+        "    name = package + '.' + package.rpartition('.')[2]\n"
+        "    own = sys.modules.get(name)\n"
+        "    return (own is not None and not hasattr(own, '__path__') and m != name\n"
+        "            and not leaf.endswith('_nml'))\n"
         "print(' '.join(sorted(m for m in sys.modules "
-        "if m.startswith('navigator.widgets.'))))\n"
+        "if m.startswith('navigator.widgets.') and not part(m))))\n"
     )
     assert loaded == [
         "navigator.widgets.file_ops",
@@ -1767,8 +1776,6 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.manager.miller.miller_view",
         "navigator.widgets.manager.miller.miller_view_nml",
         "navigator.widgets.manager.panel",
-        "navigator.widgets.manager.panel.drag",             # what a mouse drag carries, the panel's
-        "navigator.widgets.manager.panel.option_items",     # the panel's option strip
         "navigator.widgets.manager.panel.panel",
         "navigator.widgets.manager.panel.panel_nml",
         "navigator.widgets.shell",
@@ -1780,7 +1787,6 @@ def test_the_desktop_still_pulls_in_the_screens_it_places():
         "navigator.widgets.shell.commands",
         "navigator.widgets.shell.console",
         "navigator.widgets.shell.console.console",
-        "navigator.widgets.shell.console.screen_view",
         "navigator.widgets.shell.job_mark",                  # the marks over the bar's row
         "navigator.widgets.shell.keybar",
         "navigator.widgets.shell.keybar.keybar",

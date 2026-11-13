@@ -97,6 +97,10 @@ class Sibling:
     #: lines naming the mixins themselves are not, the stub having no use
     #: for them.
     mixins: dict[str, Path] = field(default_factory=dict)
+    #: Names two imports bind to different things: the later one wins at run
+    #: time, so a mixin imported under a name the module already used shadows
+    #: that name everywhere else in it.
+    rebound: set[str] = field(default_factory=set)
 
     @property
     def filename(self) -> str:
@@ -130,6 +134,8 @@ class Sibling:
                 for alias in node.names:
                     bound = alias.asname or alias.name.split(".")[0]
                     sibling.imports.setdefault(bound, node.lineno)
+                    if bound in sibling.sources and sibling.sources[bound] != _source(node, alias):
+                        sibling.rebound.add(bound)
                     sibling.sources.setdefault(bound, _source(node, alias))
                 if not (
                     isinstance(node, ast.ImportFrom)
@@ -161,9 +167,19 @@ class Sibling:
         return (candidate, name) if candidate.is_file() else None
 
     def _with_mixins(self, declared: SiblingClass) -> SiblingClass:
-        """*declared* with the methods of the mixins it lists folded in."""
+        """*declared* with the methods and class-level names of the mixins it
+        lists folded in -- a constant moved out with the methods using it is
+        still the class's."""
         methods: dict[str, Method] = {}
+        annotations: dict[str, str] = {}
+        assigned: list[str] = []
         for base in declared.bases[:-1]:
+            if base in self.rebound:
+                raise ValueError(
+                    f"{self.path.name} imports the mixin {base} under a name it "
+                    f"already imports something else as: the mixin would shadow "
+                    f"it in the whole module -- name the mixin differently"
+                )
             found = self._mixin_file(base)
             if found is None:
                 continue
@@ -177,11 +193,21 @@ class Sibling:
                 methods.setdefault(
                     method_name, replace(method, origin=path.name)
                 )
+            for name, annotation in mixin.annotations.items():
+                annotations.setdefault(name, annotation)
+            assigned.extend(name for name in mixin.assigned if name not in assigned)
             self._take_imports(other)
-        if not methods:
+        if not (methods or annotations or assigned):
             return declared
         methods.update(declared.methods)
-        return replace(declared, methods=methods)
+        annotations.update(declared.annotations)
+        own = set(declared.assigned) | set(annotations)
+        return replace(
+            declared,
+            methods=methods,
+            annotations=annotations,
+            assigned=(*declared.assigned, *(n for n in assigned if n not in own)),
+        )
 
     def _take_imports(self, other: Sibling) -> None:
         """Fold a mixin module's imports into this one's, refusing a name the

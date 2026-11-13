@@ -204,3 +204,26 @@ def test_a_mixin_may_not_import_a_name_as_something_else(tmp_path):
             "from os import path as Path\nclass Copying:\n    pass\n",
             own="from pathlib import Path\n",
         )
+
+
+def test_a_mixin_may_not_shadow_a_name_the_module_imports(tmp_path):
+    """``from .terminal import Terminal`` after a command ``Terminal`` rebinds it for the whole module."""
+    (tmp_path / "terminal.py").write_text("class Terminal:\n    pass\n", encoding="utf-8")
+    (tmp_path / "widget.py").write_text(
+        "from commands import Terminal\n"
+        "from .terminal import Terminal\n"
+        "from navkit.widget import Widget\n"
+        "class Panel(Terminal, Widget):\n    pass\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="shadow"):
+        Sibling.read(tmp_path / "widget.py")
+
+
+def test_a_stub_keeps_a_constant_moved_out_with_its_mixin(tmp_path):
+    text = _with_mixin(
+        tmp_path,
+        "class Copying:\n    LIMIT = 3\n    MODE: str = 'fast'\n    def copy(self) -> None: ...\n",
+    )
+    assert "    LIMIT: _Any" in text
+    assert "    MODE: str" in text

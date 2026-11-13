@@ -265,7 +265,7 @@ def test_the_caret_at_the_end_of_a_long_line_is_in_the_last_column(app):
 @pytest.mark.parametrize("seconds, text", [(0.0, "00:00:00.00"), (83.456, "00:01:23.45"), (3725.5, "01:02:05.50"),
                                            (360000.0, "100:00:00.00")])
 def test_elapsed_time_is_dn_s_hh_mm_ss_cc(seconds, text):
-    from navigator.widgets.shell.shell.shell import elapsed_text
+    from navigator.widgets.shell.shell.helpers import elapsed_text
 
     assert elapsed_text(seconds) == text
 
