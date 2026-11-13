@@ -9,7 +9,7 @@ description: Writing or editing a `.nml` markup document in navml/ or navigator/
 for the syntax (blocks made by indentation, no braces, no semicolons, one property per line). How a component's two
 halves fit together, and how the parser and generator work, is the `navml-components` skill.
 
-**After editing any `.nml`, regenerate**: `./venv/bin/python -m navml build navml navigator` (both packages must be
+**After editing any `.nml`, regenerate**: `./venv/bin/python -m navml build navkit navml navigator` (both packages must be
 named; the bare form builds only the installed `navml`). `--check` exits 1 when markup no longer matches its generated
 half. A generated file is only ever overwritten if its first line is `# navml: generated`.
 

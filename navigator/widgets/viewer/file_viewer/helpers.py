@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import functools
 import threading
-from typing import Any
+from typing import Any, Callable, cast, TypeVar
 
 from navkit.bidi import order_cells
 
@@ -67,7 +67,10 @@ def _renderer(format: str) -> Any:
     return found
 
 
-def _when_here(method: Any) -> Any:
+_Method = TypeVar("_Method", bound=Callable[..., Any])
+
+
+def _when_here(method: _Method) -> _Method:
     """For a file read across a network (``ChunkedSource``): a move that
     needs a chunk not here yet does nothing now and is done again, as it was
     asked, once the chunk lands.  Every method this wraps reads before it
@@ -79,7 +82,8 @@ def _when_here(method: Any) -> Any:
         except NotYet:
             self._again = lambda: call(self, *args, **kwargs)
             return None
-    return call
+    # The method's own type, so a type checker sees the method it wrapped.
+    return cast(_Method, call)
 
 
 def _lex_window(name: str, file_type: str, data: bytes | None, low: int, high: int,

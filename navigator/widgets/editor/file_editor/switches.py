@@ -41,8 +41,10 @@ from navigator.lib.config import country
 from navigator.settings import SETTINGS
 from navigator.widgets.editor.file_editor.helpers import _now
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.editor.file_editor.file_editor import FileEditor as _Base
+    from navigator.widgets.editor.file_editor.file_editor_surface import FileEditor as _Base
 else:
     from navkit.widget import Mixin as _Base
 

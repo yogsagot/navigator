@@ -26,8 +26,10 @@ from navigator.lib.viewer.layout import RENDER_LIMIT
 from navigator.lib.viewer import WHOLE_LINE
 from navigator.widgets.viewer.file_viewer.helpers import _RENDERER, _lay_out, _picture, _when_here
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.viewer.file_viewer.file_viewer import FileViewer as _Base
+    from navigator.widgets.viewer.file_viewer.file_viewer_surface import FileViewer as _Base
 else:
     from navkit.widget import Mixin as _Base
 

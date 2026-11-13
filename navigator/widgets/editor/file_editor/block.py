@@ -42,8 +42,10 @@ from navigator.lib.editor.document import BREAK, Pos, shifted
 from navigator.lib.editor.search import BREAK_CHARS
 from navigator.widgets.editor.file_editor.helpers import _COLUMN_CLIP, _laid_line, _painted_spans, block_sum, capitalize
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.editor.file_editor.file_editor import FileEditor as _Base
+    from navigator.widgets.editor.file_editor.file_editor_surface import FileEditor as _Base
 else:
     from navkit.widget import Mixin as _Base
 

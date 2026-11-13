@@ -57,7 +57,23 @@ from navigator.lib.drives.listing import (
 from navigator.lib.system import dirwatch
 from navigator.settings import SETTINGS, PanelDefaultsData
 from navigator.widgets.manager.panel.drag import Dropped
-from navigator.widgets.manager.panel.helpers import ExecuteFile, ListingFacts, OpenFile, SORT_MODES, _SCANNER, _answers_here, _is_read_only, _scanner_for, command_line_text, direction_arrow, fit_text, human_size, skip_cells, text_width, window_text
+from navigator.widgets.manager.panel.helpers import (
+    ExecuteFile,
+    ListingFacts,
+    OpenFile,
+    SORT_MODES,
+    _SCANNER,
+    _answers_here,
+    _is_read_only,
+    _scanner_for,
+    command_line_text,
+    direction_arrow,
+    fit_text,
+    human_size,
+    skip_cells,
+    text_width,
+    window_text,
+)
 
 from navigator.widgets.manager.panel.places import Places
 from navigator.widgets.manager.panel.tagging import Tagging

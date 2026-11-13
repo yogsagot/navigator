@@ -16,3 +16,5 @@ from navigator.lib.utilities import tetris
 class TopTenDialog(Dialog, _Component):
     game_style: str
     def __init__(self, highlight: int | None = ..., **kwargs: Any) -> None: ...
+    headings: list[Label]
+    lines: list[list[Label]]

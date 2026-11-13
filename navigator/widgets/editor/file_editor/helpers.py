@@ -9,7 +9,7 @@ import re
 import threading
 import time
 from decimal import Decimal, InvalidOperation
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, cast, TypeVar
 
 from navkit.bidi import has_rtl, order_cells, text_rtl
 
@@ -267,9 +267,10 @@ def _painted_spans(text: str, tab: int, start: int | None, end: int | None) -> l
     return spans
 
 
-def _marking(
-    handler: Callable[[Any, Any], Awaitable[bool]],
-) -> Callable[[Any, Any], Awaitable[bool]]:
+_Handler = TypeVar("_Handler", bound=Callable[[Any, Any], Awaitable[bool]])
+
+
+def _marking(handler: _Handler) -> _Handler:
     """A movement that, with its command's *extend* (Shift), drags the block along.
 
     The block grows from wherever the cursor stood unless that was one of the
@@ -293,7 +294,8 @@ def _marking(
             self._unmark()
         return done
 
-    return moving
+    # The handler's own type, so a type checker sees the method it wrapped.
+    return cast(_Handler, moving)
 
 
 #: The WordStar keys of DN's ``EDITOR COMMANDS``, no longer bound by default

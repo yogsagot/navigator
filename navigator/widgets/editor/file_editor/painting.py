@@ -22,8 +22,10 @@ from navigator.lib import highlight
 from navigator.lib.viewer import HIDDEN_MARKS
 from navigator.widgets.editor.file_editor.helpers import LEX_AHEAD, LEX_LIMIT, _LEXER, _laid_line, _lex_text
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.editor.file_editor.file_editor import FileEditor as _Base
+    from navigator.widgets.editor.file_editor.file_editor_surface import FileEditor as _Base
 else:
     from navkit.widget import Mixin as _Base
 

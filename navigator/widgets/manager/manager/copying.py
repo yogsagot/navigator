@@ -25,7 +25,15 @@ from navigator.lib.file_ops import undo as undo_history
 from navigator.lib.file_ops.undo import UNDO
 from navigator.lib.drives.location import shown
 from navigator.settings import SETTINGS
-from navigator.widgets.manager.manager.helpers import _entry_location, _into_itself, _real_place, _rename_found, job_subject, relative_to, source_base
+from navigator.widgets.manager.manager.helpers import (
+    _entry_location,
+    _into_itself,
+    _real_place,
+    _rename_found,
+    job_subject,
+    relative_to,
+    source_base,
+)
 
 if TYPE_CHECKING:
     from navigator.widgets.manager.manager import Manager as _Base

@@ -16,8 +16,10 @@ from navigator.lib.editor import encodings
 from navigator.lib.editor.buffer import State
 from navigator.lib.editor.document import NEWLINES, Pos
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.editor.file_editor.file_editor import FileEditor as _Base
+    from navigator.widgets.editor.file_editor.file_editor_surface import FileEditor as _Base
 else:
     from navkit.widget import Mixin as _Base
 

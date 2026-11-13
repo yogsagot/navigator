@@ -165,6 +165,8 @@ def test_an_event_declared_in_markup_is_not_an_attribute(written):
 
 
 def _with_mixin(tmp_path, mixin: str, own: str = "") -> str:
+    """*mixin*'s ``class Copying:`` is written as a mixin is, ``(Mixin)``."""
+    mixin = "from navkit.widget import Mixin\n" + mixin.replace("class Copying:", "class Copying(Mixin):")
     (tmp_path / "copying.py").write_text(mixin, encoding="utf-8")
     (tmp_path / "widget.py").write_text(
         "from .copying import Copying\n"
@@ -227,3 +229,58 @@ def test_a_stub_keeps_a_constant_moved_out_with_its_mixin(tmp_path):
     )
     assert "    LIMIT: _Any" in text
     assert "    MODE: str" in text
+
+
+def test_a_static_method_and_a_property_with_a_setter_keep_their_kind(tmp_path):
+    """A stub that dropped ``@staticmethod`` would take its first parameter for ``self``,
+    and a setter written over its getter would make the attribute a method: it
+    is the getter, and a setter taking what the getter gives."""
+    (tmp_path / "widget.py").write_text(
+        "from navkit.widget import Widget\n"
+        "class Panel(Widget):\n"
+        "    @staticmethod\n"
+        "    def plain(entry: int) -> bool: ...\n"
+        "    @classmethod\n"
+        "    def made(cls) -> None: ...\n"
+        "    @property\n"
+        "    def path(self) -> str: ...\n"
+        "    @path.setter\n"
+        "    def path(self, value: str) -> None: ...\n",
+        encoding="utf-8",
+    )
+    text = stub(resolve(parse("Panel:\n", filename="widget.nml"),
+                        sibling=Sibling.read(tmp_path / "widget.py")))
+    assert "    @staticmethod\n    def plain(entry: int) -> bool: ..." in text
+    assert "    @classmethod\n    def made(cls) -> None: ..." in text
+    assert "    @property\n    def path(self) -> str: ...\n    @path.setter\n    def path(self, value: str) -> None: ..." in text
+
+
+def test_a_read_only_property_stays_a_property(tmp_path):
+    """So a mixin defining it is an override a type checker takes, not a clash."""
+    (tmp_path / "widget.py").write_text(
+        "from navkit.widget import Widget\n"
+        "class Panel(Widget):\n"
+        "    @property\n"
+        "    def marked(self) -> bool: ...\n",
+        encoding="utf-8",
+    )
+    text = stub(resolve(parse("Panel:\n", filename="widget.nml"),
+                        sibling=Sibling.read(tmp_path / "widget.py")))
+    assert "    @property\n    def marked(self) -> bool: ..." in text
+
+
+def test_an_attribute_a_method_assigns_is_in_the_stub(tmp_path):
+    """``self.buffer = ...`` is what a mixin reads; one a base declares stays the base's."""
+    (tmp_path / "widget.py").write_text(
+        "from navkit.widget import Widget\n"
+        "class Panel(Widget):\n"
+        "    def __init__(self) -> None:\n"
+        "        self.buffer = []\n"
+        "        self.size: int = 0\n"
+        "        self.width = 3\n",
+        encoding="utf-8",
+    )
+    text = stub(resolve(parse("Panel:\n", filename="widget.nml"),
+                        sibling=Sibling.read(tmp_path / "widget.py")))
+    assert "    buffer: _Any" in text and "    size: int" in text
+    assert "    width:" not in text

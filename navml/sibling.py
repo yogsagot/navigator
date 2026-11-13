@@ -57,6 +57,8 @@ class Method:
     #: The file the ``def`` is in, where that is a mixin's rather than the
     #: component's own -- for a message to point at the right one.
     origin: str | None = None
+    #: A property's setter's parameter list, as :attr:`signature` spells one.
+    setter: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,6 +78,10 @@ class SiblingClass:
     assigned: tuple[str, ...] = ()
     #: The names in ``emits = (ClickEvent,)``, as written.
     emits: tuple[str, ...] = ()
+    #: What a method assigns as ``self.name = ...``, mapped to its annotation
+    #: where one says (``self.name: T = ...``), else ``""`` -- the instance
+    #: attributes a type checker reads off the class, which a stub has to say.
+    instance: dict[str, str] = field(default_factory=dict)
 
 
 @dataclass(frozen=True, slots=True)
@@ -129,7 +135,7 @@ class Sibling:
     def _read(cls, path: Path, *, mixins: bool) -> Sibling:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         sibling = cls(path=path)
-        for node in tree.body:
+        for node in _with_type_checking(tree.body):
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 for alias in node.names:
                     bound = alias.asname or alias.name.split(".")[0]
@@ -150,7 +156,9 @@ class Sibling:
         return sibling
 
     def _mixin_file(self, base: str) -> tuple[Path, str] | None:
-        """The file and class name of a base imported from beside this one."""
+        """The file and class name of a base imported from a module of this
+        source tree -- beside this one, or anywhere under the same top-level
+        package (``navkit.app.focus`` for ``navkit/application.py``)."""
         source = self.sources.get(base)
         if source is None:
             return None
@@ -158,12 +166,18 @@ class Sibling:
         if not module or name == "*":
             return None
         parts = module.split(".")
-        if level == 1:
-            candidate = self.path.parent.joinpath(*parts).with_suffix(".py")
-        elif level == 0 and len(parts) >= 2 and parts[-2] == self.path.parent.name:
-            candidate = self.path.parent / f"{parts[-1]}.py"
+        if level >= 1:
+            directory = self.path.parent
+            for _ in range(level - 1):
+                directory = directory.parent
+            candidate = directory.joinpath(*parts).with_suffix(".py")
         else:
-            return None
+            root = self.path.parent
+            while (root.parent / "__init__.py").is_file():
+                root = root.parent
+            if parts[0] != root.name:
+                return None
+            candidate = root.parent.joinpath(*parts).with_suffix(".py")
         return (candidate, name) if candidate.is_file() else None
 
     def _with_mixins(self, declared: SiblingClass) -> SiblingClass:
@@ -173,8 +187,9 @@ class Sibling:
         methods: dict[str, Method] = {}
         annotations: dict[str, str] = {}
         assigned: list[str] = []
-        for base in declared.bases[:-1]:
-            if base in self.rebound:
+        instance: dict[str, str] = {}
+        for base in declared.bases:
+            if base in self.rebound and base != declared.bases[-1]:
                 raise ValueError(
                     f"{self.path.name} imports the mixin {base} under a name it "
                     f"already imports something else as: the mixin would shadow "
@@ -186,7 +201,7 @@ class Sibling:
             path, name = found
             other = Sibling._read(path, mixins=False)
             mixin = other.classes.get(name)
-            if mixin is None:
+            if mixin is None or not _is_mixin(mixin):
                 continue
             self.mixins[base] = path
             for method_name, method in mixin.methods.items():
@@ -195,18 +210,25 @@ class Sibling:
                 )
             for name, annotation in mixin.annotations.items():
                 annotations.setdefault(name, annotation)
+            for name, annotation in mixin.instance.items():
+                if annotation or name not in instance:
+                    instance[name] = annotation or instance.get(name, "")
             assigned.extend(name for name in mixin.assigned if name not in assigned)
             self._take_imports(other)
-        if not (methods or annotations or assigned):
+        if not (methods or annotations or assigned or instance):
             return declared
         methods.update(declared.methods)
         annotations.update(declared.annotations)
+        for name, annotation in declared.instance.items():
+            if annotation or name not in instance:
+                instance[name] = annotation or instance.get(name, "")
         own = set(declared.assigned) | set(annotations)
         return replace(
             declared,
             methods=methods,
             annotations=annotations,
             assigned=(*declared.assigned, *(n for n in assigned if n not in own)),
+            instance=instance,
         )
 
     def _take_imports(self, other: Sibling) -> None:
@@ -238,6 +260,31 @@ class Sibling:
             self.import_lines.append(ast.unparse(node))
 
 
+def _with_type_checking(body: list[ast.stmt]) -> list[ast.stmt]:
+    """*body*, with the imports of an ``if TYPE_CHECKING:`` block in place of
+    it -- they are what annotations name, so a stub needs them -- less a
+    mixin's ``_Base``, which is the stub's own class."""
+    found: list[ast.stmt] = []
+    for node in body:
+        if isinstance(node, ast.If) and ast.unparse(node.test) in ("TYPE_CHECKING", "typing.TYPE_CHECKING"):
+            for inner in node.body:
+                if isinstance(inner, (ast.Import, ast.ImportFrom)):
+                    inner.names = [a for a in inner.names if a.asname != "_Base"]
+                    if inner.names:
+                        found.append(inner)
+        else:
+            found.append(node)
+    return found
+
+
+def _is_mixin(declared: SiblingClass) -> bool:
+    """A class shaped as a mixin is: based on ``Mixin``, or on the ``_Base``
+    that is ``Mixin`` at run time and the class's surface to a type checker.
+    Read by spelling, as everything here is; a real base imported from the
+    same tree (``ContextMenuHost``) is not folded in."""
+    return declared.bases in (("_Base",), ("Mixin",), ("navkit.widget.Mixin",))
+
+
 def _source(node: ast.Import | ast.ImportFrom, alias: ast.alias) -> tuple[int, str, str]:
     if isinstance(node, ast.ImportFrom):
         return (node.level, node.module or "", alias.name)
@@ -258,6 +305,20 @@ def _read_class(node: ast.ClassDef) -> SiblingClass:
     emits: tuple[str, ...] = ()
     for statement in node.body:
         if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            decorators = [ast.unparse(d) for d in statement.decorator_list]
+            if statement.name in methods and any(
+                d in (f"{statement.name}.setter", f"{statement.name}.deleter")
+                for d in decorators
+            ):
+                # The getter says what the attribute is; that it can be set
+                # is kept on it, for a stub to write a writable attribute.
+                getter = methods[statement.name]
+                setter = (_signature(statement.args)
+                          if f"{statement.name}.setter" in decorators else getter.setter)
+                methods[statement.name] = replace(
+                    getter, decorators=(*getter.decorators, *decorators), setter=setter
+                )
+                continue
             methods[statement.name] = Method(
                 name=statement.name,
                 line=statement.lineno,
@@ -295,7 +356,35 @@ def _read_class(node: ast.ClassDef) -> SiblingClass:
         annotations=annotations,
         assigned=tuple(assigned),
         emits=emits,
+        instance=_read_instance(node),
     )
+
+
+def _read_instance(node: ast.ClassDef) -> dict[str, str]:
+    """Every ``self.name`` a method of *node* assigns, first annotation winning."""
+    found: dict[str, str] = {}
+
+    def take(target: ast.expr, annotation: str = "") -> None:
+        if isinstance(target, (ast.Tuple, ast.List)):
+            for element in target.elts:
+                take(element)
+        elif (isinstance(target, ast.Attribute) and isinstance(target.value, ast.Name)
+                and target.value.id == "self"):
+            if annotation or target.attr not in found:
+                found[target.attr] = annotation or found.get(target.attr, "")
+
+    for statement in node.body:
+        if not isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        for inner in ast.walk(statement):
+            if isinstance(inner, ast.Assign):
+                for target in inner.targets:
+                    take(target)
+            elif isinstance(inner, ast.AnnAssign):
+                take(inner.target, ast.unparse(inner.annotation))
+            elif isinstance(inner, (ast.AugAssign, ast.NamedExpr)):
+                take(inner.target)
+    return found
 
 
 def _signature(arguments: ast.arguments) -> str:

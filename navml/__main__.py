@@ -72,7 +72,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         if report.stale:
             return STALE
-        print(f"{len(report.documents)} documents, all up to date")
+        surfaces = f", {len(report.surfaces)} surfaces" if report.surfaces else ""
+        print(f"{len(report.documents)} documents{surfaces}, all up to date")
         return OK
 
     for path in report.written:

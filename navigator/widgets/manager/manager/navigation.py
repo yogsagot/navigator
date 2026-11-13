@@ -32,7 +32,16 @@ from navigator.widgets.manager.panel import Panel
 from navigator.lib.drives import Location, drive_of
 from navigator.lib.drives.location import shown
 from navigator.settings import SETTINGS
-from navigator.widgets.manager.manager.helpers import DELETE_BOOKMARK_KEY, EDIT_LINKS, LABEL_BOOKMARK_KEY, MOVE_BOOKMARK_KEYS, _move_keys, _remembered_tooltip, bookmark_menu, link_section
+from navigator.widgets.manager.manager.helpers import (
+    DELETE_BOOKMARK_KEY,
+    EDIT_LINKS,
+    LABEL_BOOKMARK_KEY,
+    MOVE_BOOKMARK_KEYS,
+    _move_keys,
+    _remembered_tooltip,
+    bookmark_menu,
+    link_section,
+)
 
 if TYPE_CHECKING:
     from navigator.widgets.manager.manager import Manager as _Base

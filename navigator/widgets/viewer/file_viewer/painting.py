@@ -43,10 +43,21 @@ from navigator.lib.viewer import (
     hex_row,
     NotYet,
 )
-from navigator.widgets.viewer.file_viewer.helpers import LEX_AHEAD, LEX_BACK, REMOTE_LEX_AHEAD, REMOTE_LEX_BACK, WHEEL_ROWS, _LEXER, _laid_row, _lex_window
+from navigator.widgets.viewer.file_viewer.helpers import (
+    LEX_AHEAD,
+    LEX_BACK,
+    REMOTE_LEX_AHEAD,
+    REMOTE_LEX_BACK,
+    WHEEL_ROWS,
+    _LEXER,
+    _laid_row,
+    _lex_window,
+)
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.viewer.file_viewer.file_viewer import FileViewer as _Base
+    from navigator.widgets.viewer.file_viewer.file_viewer_surface import FileViewer as _Base
 else:
     from navkit.widget import Mixin as _Base
 

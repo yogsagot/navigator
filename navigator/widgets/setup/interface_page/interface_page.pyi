@@ -37,3 +37,10 @@ class InterfacePage(SettingsPage, _Component):
     def mounted(self) -> None: ...
     def _flag_languages(self) -> None: ...
     def accept(self) -> dict[str, dict[str, Any]]: ...
+    appearance: _Any
+    languages: _Any
+    depths: _Any
+    tiers: _Any
+    looks: _Any
+    directions: _Any
+    _flagged: _Any

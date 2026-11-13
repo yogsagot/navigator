@@ -36,7 +36,7 @@ HistoryEntry(Model):
   `property`/`alias`/`event` lines are refused. So are a field named `id` and an index over an unknown field.
 - Types: `str int float bool bytes datetime Path` (`CODECS`). A new type is a new codec.
 - **Every field has a default**, and checks enforce it. That is what makes downgrades safe; see below.
-- **After editing a model's `.nml`, rebuild** (`./venv/bin/python -m navml build navml navigator`). The generated
+- **After editing a model's `.nml`, rebuild** (`./venv/bin/python -m navml build navkit navml navigator`). The generated
   `__schema__` changes, so `--check` flags a schema change like any other stale markup.
 
 ## Using it from a handler

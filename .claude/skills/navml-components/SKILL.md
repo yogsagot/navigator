@@ -45,11 +45,12 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   refused at import, as a widget's is. A constant only one mixin uses (`FileEditor`'s `DRAW_KEYS`) may live with it;
   a class-level default of instance state stays in the class. Zero-argument
   `super()` works: the next class after a mixin is the next mixin, then the generated half.
-- **A mixin is typed against the component's stub** with `if TYPE_CHECKING: from <package> import Manager as _Base`
+- **A mixin is typed against the component's stub** (its surface, for a Python-only class) with
+  `if TYPE_CHECKING: from <package> import Manager as _Base`
   and `else: from navkit.widget import Mixin as _Base`. `class Copying(_Base)` then sees `self.left` and the other
   mixins' methods, with no cycle, because the stub flattens the mixins.
-- **`navml/sibling.py` reads the mixins too**, without importing them. A leading base imported from a module beside
-  the `.py` (relative, or absolute in the same package) is parsed, and its methods are folded into the class's own,
+- **`navml/sibling.py` reads the mixins too**, without importing them. A base shaped as a mixin, imported from a
+  module of the same source tree (relative, or absolute under the same top-level package), is parsed, and its methods are folded into the class's own,
   each carrying `origin` so messages name the right file, with its class-level names (a constant moved out with the
   methods using it). Its imports are merged in as well; a name two files bind differently is refused, and so is a
   mixin imported under a name the module already imports something else as (Shell's command `Terminal`: the mixin
@@ -61,7 +62,21 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   re-export them where others import them from it (`panel.panel` stays the public face of `human_size`,
   `fit_text`...), and a global a test patches on the module stays there with the code reading it (`Panel`'s listing,
   `SCAN_GRACE`, `_read_location`).
-- **A Python-only class splits the same way** (`FileEditor`, `FileViewer`: nothing to merge, no stub), and so
+- **What a stub says of the hand-written class** (`.pyi` and surface alike): every `self.name = ...` a method of it
+  or its mixins assigns, as `name: T` (`_Any` unannotated), less what a live base already declares (`Widget.width`);
+  a property as `@property` (with its setter, under the setter's own parameter names), so a class or mixin defining
+  it is an override pyright takes; `@staticmethod`/`@classmethod` kept; and the imports of an `if TYPE_CHECKING:`
+  block (not a mixin's `_Base`). Checked with pyright (`./venv/bin/pyright --pythonpath ./venv/bin/python FILES`):
+  no errors in the stubs or from overrides; what remains is the code's own typing.
+- **A Python-only class has a surface stub instead** (`navml/surface.py`): `navml build` finds a class in a module
+  with no `.nml` whose bases include mixins, and writes `<stem>_surface.pyi` beside it -- the class with its own bases
+  only, every method and class-level name of it and its mixins (as `sibling.py` folds them), and what its module
+  defines imported from it. A stub with no module of its own; its mixins say
+  `if TYPE_CHECKING: from <module>_surface import <Class> as _Base`, since typed against the class itself they would
+  be a cycle (the class derives from them). `--check` reports a stale one; `tests/test_nml_build.py` checks `navkit`
+  too. A mixin is recognised by shape -- `class X(_Base)` or `(Mixin)` -- wherever in the same top-level package it
+  is imported from (`navkit.app.focus`), so a real base from the tree (`ContextMenuHost`) is never folded in.
+- **A Python-only class splits the same way** (`FileEditor`, `FileViewer`: nothing to merge), and so
   does navkit's `Application`, whose mixins live in `navkit/app/` and import what they share from
   `navkit.application` itself -- which therefore imports them just before its class, after everything they take
   (`navkit/app/__init__.py` imports `navkit.application` first, so either may be imported first). Keep a method
@@ -111,7 +126,8 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
 - **The generator is seven modules in a one-way chain**: `expression.py` compiles an expression or handler body by
   rewriting free names on the syntax tree; `sibling.py` reads the hand-written `.py` **without importing it**;
   `resolve.py` is the only module importing what a document names; `checks.py` refuses what a live class reveals;
-  `generator.py` and `stubs.py` emit the two artefacts; `build.py` orders a directory by import graph and writes.
+  `generator.py` and `stubs.py` emit the two artefacts (`surface.py` a split Python-only class's stub); `build.py` orders
+  a directory by import graph and writes.
   `navml/_alias.py` is run-time support beside `component.py`.
 - **Anything emitting code goes through `navml/coder.py`'s `Coder`** (line buffer, logical indents, trailing comments),
   never string assembly or whole-module `ast.unparse` -- `ast` carries no comments and the source map *is* comments

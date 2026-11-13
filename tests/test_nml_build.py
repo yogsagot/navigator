@@ -8,6 +8,8 @@ markup.
 
 from __future__ import annotations
 
+import ast
+
 import sys
 
 import pytest
@@ -283,15 +285,81 @@ def test_every_component_directory_is_a_package(tree):
 # -- the components this repository ships ------------------------------------
 
 
-@pytest.mark.parametrize("tree", ["navml/widgets", "navigator/widgets"])
+@pytest.mark.parametrize("tree", ["navml/widgets", "navigator/widgets", "navkit"])
 def test_the_shipped_components_are_in_step_with_their_markup(tree):
     """The regression that keeps both component packages honest.
 
     Two directories rather than one: the application's screens are a component
     package too, and a `--check' that named only navml's would pass while
-    `manager.nml' drifted.
+    `manager.nml' drifted.  And navkit, for ``Application``'s surface.
     """
     report = build([tree], check_only=True)
     assert report.ok, [
         f"{a.path.name}:{a.differs}" for a in report.stale
     ]
+
+
+# -- the surface of a Python-only class split into mixins ---------------------
+
+
+def _split_class(package):
+    (package / "parts.py").write_text(
+        "from __future__ import annotations\n"
+        "from typing import TYPE_CHECKING\n"
+        "from pathlib import Path\n"
+        "if TYPE_CHECKING:\n"
+        f"    from {package.name}.editor_surface import Editor as _Base\n"
+        "else:\n"
+        "    from navkit.widget import Mixin as _Base\n"
+        "class Moving(_Base):\n"
+        "    STEP = 3\n"
+        "    def go(self, where: Path) -> Gutter: ...\n",
+        encoding="utf-8",
+    )
+    (package / "editor.py").write_text(
+        "from navkit.reactive import reactive\n"
+        "from navkit.widget import Widget\n"
+        f"from {package.name}.parts import Moving\n"
+        "class Editor(Moving, Widget):\n"
+        "    line: int = reactive(0)\n"
+        "    @staticmethod\n"
+        "    def plain(n: int) -> int: ...\n"
+        "class Gutter(Widget):\n"
+        "    pass\n",
+        encoding="utf-8",
+    )
+
+
+def test_a_python_only_class_split_into_mixins_gets_its_surface(package):
+    """Its own bases, its mixins' methods and names as its own, and what its
+    module defines imported from it -- so a mixin typed against it is no cycle."""
+    _split_class(package)
+    report = build([package])
+    surface = package / "editor_surface.pyi"
+    assert report.surfaces == [package / "editor.py"] and surface in report.written
+    text = surface.read_text(encoding="utf-8")
+    ast.parse(text)
+    assert text.startswith("# navml: generated")
+    assert "class Editor(Widget):" in text and "Moving" not in text
+    assert "    def go(self, where: Path) -> Gutter: ..." in text
+    assert "    line: int" in text and "    STEP: _Any" in text
+    assert "    @staticmethod\n    def plain(n: int) -> int: ..." in text
+    assert f"from {package.name}.editor import Gutter" in text
+    assert "from pathlib import Path" in text
+
+
+def test_a_surface_is_checked_like_a_stub(package):
+    _split_class(package)
+    build([package])
+    assert build([package], check_only=True).ok
+    parts = package / "parts.py"
+    parts.write_text(parts.read_text().replace("def go(self, where: Path)", "def go(self, where: str)"))
+    report = build([package], check_only=True)
+    assert [a.path.name for a in report.stale] == ["editor_surface.pyi"]
+
+
+def test_a_class_with_no_mixins_gets_no_surface(package):
+    (package / "plain.py").write_text(
+        "from navkit.widget import Widget\nclass Plain(Widget):\n    pass\n", encoding="utf-8"
+    )
+    assert build([package]).surfaces == []

@@ -10,3 +10,8 @@ moto[server]>=5
 # The viewer's pictures (navigator.lib.viewer.image, tests/test_viewer_image.py):
 # the `images' extra.
 Pillow>=10
+# Type checking (no configuration yet, and the code is not clean under it):
+# the .pyi stubs and the split classes' _surface.pyi are checked with it --
+# ./venv/bin/pyright --pythonpath ./venv/bin/python FILES.  The pip package
+# fetches its Node.js runtime on first use.
+pyright>=1.1.414

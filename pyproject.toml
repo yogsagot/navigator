@@ -83,7 +83,7 @@ nml = "navigator.lib.highlight.lexers:NmlLexer"
 nss = "navigator.lib.highlight.lexers:NssLexer"
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "moto[server]>=5", "Pillow>=10"]
+dev = ["pytest>=8.0", "build>=1.0", "paramiko>=3.4", "pyftpdlib>=2.0", "moto[server]>=5", "Pillow>=10", "pyright>=1.1.414"]
 # Utilities > Navigator Link to SSH servers (`navigator.lib.drives.sftp`).
 # Optional because it is the one dependency with compiled parts (through
 # `cryptography`); without it the Link entries say what to install.

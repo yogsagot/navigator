@@ -120,7 +120,31 @@ def stub(resolved: Resolved) -> str:
         if name in written:
             continue
         _write_method(coder, method)
+    if component is not None:
+        taken = (
+            written | set(methods) | set(component.annotations) | set(component.assigned)
+            | {d.name for d in root.declarations}
+            | {b.id for b in root.walk() if b.id is not None}
+        )
+        write_instance(coder, component.instance, taken, inherited(resolved.base))
     return coder.render()
+
+
+def inherited(*bases: type) -> set[str]:
+    """Every name the classes of *bases*' MROs define -- an instance attribute
+    a base already declares (``Widget.width``) is the base's to type."""
+    return {name for base in bases for klass in base.__mro__ for name in vars(klass)}
+
+
+def write_instance(coder: Coder, instance: dict[str, str], taken: set[str],
+                   bases: set[str]) -> None:
+    """The ``self.name = ...`` attributes a type checker would read off the
+    class, as ``name: T`` (``_Any`` where no annotation said), but none the
+    stub already declares or a base defines."""
+    for name, annotation in instance.items():
+        if name in taken or name in bases:
+            continue
+        coder.add(1, f"{name}: {annotation or '_Any'}")
 
 
 # -- the pieces --------------------------------------------------------------
@@ -165,10 +189,27 @@ _ATTRIBUTE_DECORATORS = {"computed", "property", "cached_property"}
 
 
 def _write_method(coder: Coder, method) -> None:
+    settable = any(d in (f"{method.name}.setter", f"{method.name}.deleter")
+                   for d in method.decorators)
+    if any(d in ("property", "cached_property") for d in method.decorators):
+        # A property stays one -- a class or mixin defining it is then an
+        # override a type checker takes, where an attribute would clash -- and
+        # one that can be set takes what it gives.
+        returns = method.returns or "_Any"
+        coder.add(1, "@property")
+        coder.add(1, f"def {method.name}(self) -> {returns}: {_ELLIPSIS}")
+        if settable:
+            parameters = getattr(method, "setter", None) or f"self, value: {returns}"
+            coder.add(1, f"@{method.name}.setter")
+            coder.add(1, f"def {method.name}({parameters}) -> None: {_ELLIPSIS}")
+        return
     for decorator in method.decorators:
         if decorator.rsplit(".", 1)[-1] in _ATTRIBUTE_DECORATORS:
             coder.add(1, f"{method.name}: {method.returns or '_Any'}")
             return
+    for decorator in method.decorators:
+        if decorator in ("staticmethod", "classmethod"):
+            coder.add(1, f"@{decorator}")
     prefix = "async def" if method.is_async else "def"
     returns = f" -> {method.returns}" if method.returns else ""
     coder.add(

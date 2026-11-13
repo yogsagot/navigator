@@ -144,8 +144,8 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
   directory, clock and console) and writes `docs/screenshot.svg` plus the text copy between the README's
   `<!-- screenshot:begin/end -->` markers; `--check` exits 1 when either is stale, `--theme`/`--size` pick the scene.
   The README links the SVG by absolute `raw.githubusercontent.com` URL because PyPI renders the same README
-- Regenerate a component's Python from its markup: **`./venv/bin/python -m navml build navml navigator`** — both
-  component packages, and naming them is necessary because the no-argument form builds the installed `navml` package
+- Regenerate a component's Python from its markup: **`./venv/bin/python -m navml build navkit navml navigator`** — both
+  component packages, and navkit for `Application`'s `_surface.pyi` (below), and naming them is necessary because the no-argument form builds the installed `navml` package
   alone, which is the edit-in-site-packages workflow rather than this repository's. `--check` reports markup that no
   longer matches its generated half and exits 1, which is what to run after editing any `.nml`; a generated file is
   only ever overwritten if its first line is `# navml: generated`
@@ -211,9 +211,11 @@ Each was found by running something, not by reasoning; the owning skill has the 
   (`navigator-file-ops` lists them).
 - **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
   tests get a fresh `:memory:` one each.
-- **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.
+- **After editing any `.nml`**, run `./venv/bin/python -m navml build navkit navml navigator` and check with `--check`.
   The same after changing a method or an import in a component's hand-written `.py` half or one of its mixins: the
-  generated `.pyi` copies both, and `tests/test_nml_build.py` fails when it is stale.
+  generated `.pyi` copies both, and `tests/test_nml_build.py` fails when it is stale. A Python-only class split into
+  mixins (`FileEditor`, `FileViewer`, `Application`) gets a generated `<stem>_surface.pyi` the same way, which its
+  mixins are typed against.
 - **A class too big for one file is split into `navkit.widget.Mixin`s**, one module per feature beside it
   (`Manager`, `Panel`, `Shell`, `FileEditor`, `FileViewer`; navkit's `Application` in `navkit/app/`): methods only;
   state, `keys` and `checks` stay in the class
@@ -239,7 +241,9 @@ Each was found by running something, not by reasoning; the owning skill has the 
   new skill. Keep this file to what every task needs.
 - There is no lint tooling configured yet. When adding one, record the command here. One lint check is a test:
   `tests/test_undefined_names.py` fails on a global a module's code reads but never binds (pyflakes' *undefined
-  name*, by `symtable`), the `NameError` a key would otherwise find.
+  name*, by `symtable`), the `NameError` a key would otherwise find. pyright (in `requirements-dev.txt`) type-checks
+  on demand, `./venv/bin/pyright --pythonpath ./venv/bin/python FILES`; there is no config and the code is not clean
+  under it, so compare a change's error count with the one before it rather than expecting zero.
 
 ## Skills
 

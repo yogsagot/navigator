@@ -14,8 +14,10 @@ from navkit.events import Event, WakeEvent
 from navkit.widget import Widget
 from navkit.application import MouseHold, _Tick
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navkit.application import Application as _Base
+    from navkit.application_surface import Application as _Base
 else:
     from navkit.widget import Mixin as _Base
 

@@ -60,6 +60,9 @@ class BuildReport:
     """What one run did, or would have done."""
 
     documents: list[Path] = field(default_factory=list)
+    #: The Python-only modules whose split class got a ``<stem>_surface.pyi``
+    #: (:mod:`navml.surface`).
+    surfaces: list[Path] = field(default_factory=list)
     written: list[Path] = field(default_factory=list)
     unchanged: list[Path] = field(default_factory=list)
     stale: list[Artefact] = field(default_factory=list)
@@ -73,11 +76,18 @@ def build(
     paths: list[str | Path] | None = None, *, check_only: bool = False
 ) -> BuildReport:
     """Generate (or check) every document under *paths*."""
+    from navml import surface
+
     documents = order(discover(paths))
     report = BuildReport(documents=list(documents))
     for path in documents:
         for artefact in compile_document(path):
             _apply(artefact, report, check_only)
+    for path, name in surface.discover([Path(p) for p in paths] if paths else [Path(__file__).parent]):
+        report.surfaces.append(path)
+        module = ".".join(filter(None, (package_of(path), path.stem)))
+        _apply(_artefact(surface.surface_path(path), surface.surface(path, name, module)),
+               report, check_only)
     return report
 
 

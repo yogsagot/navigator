@@ -16,8 +16,10 @@ from navkit.screen import Surface
 from navigator.lib.viewer import cp437
 from navigator.widgets.viewer.file_viewer.helpers import BIG_STEP
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.viewer.file_viewer.file_viewer import FileViewer as _Base
+    from navigator.widgets.viewer.file_viewer.file_viewer_surface import FileViewer as _Base
 else:
     from navkit.widget import Mixin as _Base
 

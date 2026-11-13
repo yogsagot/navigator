@@ -368,7 +368,7 @@ def test_a_key_table_of_commands_passes(checked):
 def test_a_root_handler_landing_on_a_mixin_s_method(checked, tmp_path):
     """A method moved out to a mixin is still seen, and named where it is."""
     (tmp_path / "clicking.py").write_text(
-        "class Clicking:\n    async def on_click(self, event): ...\n", encoding="utf-8"
+        "from navkit.widget import Mixin\nclass Clicking(Mixin):\n    async def on_click(self, event): ...\n", encoding="utf-8"
     )
     error = refused(
         checked,
@@ -380,7 +380,7 @@ def test_a_root_handler_landing_on_a_mixin_s_method(checked, tmp_path):
 
 def test_awaiting_a_mixin_s_method_that_is_not_async(checked, tmp_path):
     (tmp_path / "work.py").write_text(
-        "class Work:\n    def done(self, event): ...\n", encoding="utf-8"
+        "from navkit.widget import Mixin\nclass Work(Mixin):\n    def done(self, event): ...\n", encoding="utf-8"
     )
     error = refused(
         checked,

@@ -72,8 +72,10 @@ class AttrDialog(Dialog, _Component):
     def __init__(self, entries: Sequence[Any] = ..., here: Path | None = ..., facts: dict[str, Any] | None = ..., **kwargs: Any) -> None: ...
     def mounted(self) -> None: ...
     def key_hints(self) -> list[tuple[str, str]]: ...
+    @staticmethod
     def _inert(why: str, note: Any, *controls: Any) -> None: ...
-    lines: tuple[Any, ...]
+    @property
+    def lines(self) -> tuple[Any, ...]: ...
     async def on_key(self, event: KeyEvent) -> bool: ...
     async def _on_symbolic_click(self, event: MouseClickEvent) -> bool: ...
     async def _on_bits_key(self, event: KeyEvent) -> bool: ...
@@ -106,3 +108,30 @@ class AttrDialog(Dialog, _Component):
     def build(self) -> fileattr.AttrRequest: ...
     def valid(self) -> bool: ...
     def accept(self) -> fileattr.AttrRequest | None: ...
+    _entries: _Any
+    _here: _Any
+    _paths: _Any
+    survey: _Any
+    touched: _Any
+    _request: fileattr.AttrRequest | None
+    as_root: _Any
+    _initial: _Any
+    _initial_mixed: _Any
+    _seen: _Any
+    _all_users: _Any
+    _all_groups: _Any
+    _names: dict[tuple[str, int], str]
+    _acl: dict[AclRow, int | None]
+    _acl_initial: _Any
+    _acl_rows: list[AclRow]
+    _xattrs: dict[str, bytes | None]
+    _xattrs_initial: _Any
+    _xattr_rows: list[str]
+    flags_touched: _Any
+    _initial_flags: _Any
+    _initial_flags_mixed: _Any
+    _flags_seen: _Any
+    _opened_on: _Any
+    _grid_keys: _Any
+    _acl_keys: _Any
+    _xattr_keys: _Any

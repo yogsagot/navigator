@@ -11,8 +11,10 @@ from typing import TYPE_CHECKING
 from navigator.lib.viewer import FILTER_TAGS, byte_table, ENCODINGS, dump_row_bytes, hex_row_bytes
 from navigator.widgets.viewer.file_viewer.helpers import MODES, _when_here
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navigator.widgets.viewer.file_viewer.file_viewer import FileViewer as _Base
+    from navigator.widgets.viewer.file_viewer.file_viewer_surface import FileViewer as _Base
 else:
     from navkit.widget import Mixin as _Base
 

@@ -29,10 +29,20 @@ from navkit.reactive import flush_effects
 from navkit.tooltip import ShowTooltip, Tooltip
 from navkit import commands
 from navkit.widget import Widget, _call
-from navkit.application import MIDDLE_PASTE_WINDOW, Repeat, TOOLTIP_FOLLOW_ON, TOOLTIP_FOLLOW_ON_DELAY, _Tick, _is_plain_motion, describe_event
+from navkit.application import (
+    MIDDLE_PASTE_WINDOW,
+    Repeat,
+    TOOLTIP_FOLLOW_ON,
+    TOOLTIP_FOLLOW_ON_DELAY,
+    _Tick,
+    _is_plain_motion,
+    describe_event,
+)
 
+# The surface is a stub with no module of its own, by design (navml.surface).
+# pyright: reportMissingModuleSource=false
 if TYPE_CHECKING:
-    from navkit.application import Application as _Base
+    from navkit.application_surface import Application as _Base
 else:
     from navkit.widget import Mixin as _Base
 
