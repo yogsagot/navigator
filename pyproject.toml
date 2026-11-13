@@ -112,8 +112,8 @@ nav = "navigator.__main__:main"
 # package to find this, so the build needs none of the run-time dependencies.
 version = { attr = "navigator.__version__" }
 
-[tool.setuptools.packages.find]
-include = ["navkit*", "navml*", "navigator*"]
+# The packages are listed in setup.py, which says why: `navigator.docs` is
+# `docs/`, a directory `packages.find` would not find.
 
 [tool.setuptools.package-data]
 # Stylesheets are found through `importlib.resources`, so they have to live
@@ -128,6 +128,10 @@ include = ["navkit*", "navml*", "navigator*"]
 # key binding sets Options > Configuration > Key bindings loads, and the
 # character table's Unicode blocks and Nerd Font names (tools/unicode_tables.py).
 "navigator.assets" = ["*.ini", "keymaps/*.ini", "unicode/*.txt"]
+# Help's pages and the screenshots its window shows (navigator/lib/help/):
+# `docs/`, installed as `navigator/docs/` (setup.py).  Not the SVGs, which
+# are GitHub's, nor the README's picture.
+"navigator.docs" = ["**/*.md", "**/*.ans"]
 "navml.locales" = ["*.toml"]
 "navml" = ["py.typed"]
 # A component's markup is shipped even though nothing at run time reads it:

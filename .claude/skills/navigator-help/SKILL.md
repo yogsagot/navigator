@@ -85,13 +85,43 @@ marks cells `terminal_palette` and takes colours by name.
 - A wide character is written once and the reader gives its second cell (`""`) back; a mark or the second half of a
   flag joins the cell before it.
 
-## Still to design (the window)
+## The window (designed, not built)
 
-- Following links (Tab/Enter/click), a back history, and heading anchors: `Layout` records none, and the viewer's
-  links are only OSC 8.
-- A `Builder` block carrying ready `Style` cells for a picture: `layout.Cell` is `(char, classes, link)`, not a
-  `Style`.
-- The `FileViewer::md` rules are scoped to `FileViewer`; a help widget needs selectors of its own or to be one.
-- Shipping the pages and `.ans` files (not the SVGs) in the wheel: `docs/` is outside the package, so either a
-  `package-dir` mapping or a build-time copy -- neither tried yet. Assets go through `importlib.resources`.
-- Which dialog names which topic id, and the test that every one resolves.
+DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run modally (`DNUTIL.PAS` `cmHelp`,
+`ExecView`), a `THelpViewer` with both scroll bars inside; `StatusDef hcHelp` names its keys. Decided:
+
+- **Modal, as DN's.** `HelpWindow` is an overlay, so F1 works inside a dialog and Esc goes back to it. Alt+Z zooms,
+  Ctrl+F5 resizes, as DN's status line had them.
+- **`HelpViewer` is its own widget, not a `FileViewer`** (byte sources, hex, search and editing are none of its
+  business). It calls `markdown.render` and paints the `Layout`'s rows.
+- **Keys are `hcHelp`'s**: Tab / Shift+Tab the next / previous link, Enter follows, Alt+F1 goes back (`PrevTopic`,
+  `MaxUndo` 200), F1 *Help on help* (`docs/en/help.md`), Shift+F1 *Index* (`README.md`), Esc closes.
+- **No text cursor, a departure**: DN's `TScroller` had one, and a reference was selected when the cursor stood on
+  it. Here the arrows, PgUp/PgDn, Home/End scroll and Tab picks links: pages are reflowed Markdown, laid out for
+  bidi, and the mouse does the pointing.
+- **A single click follows a link, a departure, asked for**: DN's click placed the cursor and a double click
+  followed.
+- **Colours are DN's help palette** (`CHelpWindow` = application slots 139-146 and 163; `CHelpColor`'s defaults:
+  frame `$37`/`$3F`, text `$30` black on cyan, keyword `$3E`, selected keyword `$1E`, highlight `$3F`), named in
+  `tools/palconv.py` -- they are not among the 144 the Colors dialog exposes -- default theme first. Headings and
+  strong text take the highlight, links the keyword. A code block is one plain colour: the syntax colours were not
+  chosen for cyan. A picture keeps its own colours.
+- **The topic**: a `help_topic` string on a dialog or window (`"file-operations.md#copy"`, DN's `HELPCTX`). F1 walks
+  up from the focused widget to the first one set (`GetHelpCtx`), else the contents page. A dialog's *Help* button
+  sends the same `Help` command. A test checks every `help_topic` resolves.
+- **F1 while a child program runs in the console goes to the child**, as it does today with `Help` disabled.
+- **`layout.py` gains**, for any caller that asks (F3's Markup view stays as it is): heading anchors by GitHub's
+  slug (one function, shared with `tests/test_help_docs.py`), the link spans of a page, and a picture block whose
+  rows carry `Style` cells from `ansi.read` -- `layout.Cell` is `(char, classes, link)`, not a `Style`. No `.ans`,
+  or one wider than the view: the alt text.
+- **Following**: a relative link loads the page (the language's, else `docs/en/`'s; shots the same) and scrolls to
+  the anchor. The back stack keeps the page, the block on top and the selected link, so it survives a resize. A
+  link to another site stays OSC 8 only and Tab passes over it (an in-app opener was declined).
+- **Loading** is on a thread (`navml.background.Background`): read, render, and again on a resize.
+- **Shipping**: `docs/` stays at the top of the repository and is installed as `navigator/docs/`. `setup.py` says
+  so (`package_dir={"navigator.docs": "docs"}`, and therefore lists the packages, which `pyproject.toml`'s
+  `packages.find` cannot do for a directory it does not find); package-data takes `**/*.md` and `**/*.ans`, so no
+  SVG is shipped. **No symbolic link**: a clone without them (Windows) gets a text file. `pages.root()` reads
+  `navigator/docs` through `importlib.resources` when installed and `docs/` beside the package in a checkout.
+- **Order**: the layout additions and the page loader; the window, keys and colours; `help.md` and F1; then each
+  dialog's Help button back as its page is written (`dn-porting` has the grep that finds them).

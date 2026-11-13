@@ -9,6 +9,11 @@ Packaging is setuptools via
 `pyproject.toml`: `./venv/bin/python -m build` (needs `pip install build`, and setuptools 77+ for the PEP 639
 `license = "MIT"` expression the metadata uses).
 
+**The packages are listed in `setup.py`, not `pyproject.toml`**: Help's pages are `docs/` at the top of the
+repository and are installed as `navigator/docs/` (`package_dir`), a package `packages.find` cannot find. Its
+package-data takes `**/*.md` and `**/*.ans` only (`navigator-help` skill, *Shipping*). Everything else is still
+`pyproject.toml`'s.
+
 The **distribution** name is `navigator-fm`; the **import** names stay `navigator`, `navkit`, `navml` and the command
 stays `nav`. Plain `navigator` and `nav` were taken on PyPI before this project existed. Installation folds only runs of
 `-`, `_` and `.` into one separator, but *registration* is stricter -- PyPI refuses a new name that collides with an
