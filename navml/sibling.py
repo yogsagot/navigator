@@ -15,6 +15,12 @@ that file while the *emitter* never does.  Importing it would also be a cycle --
 ``dialog.py`` is the module whose class the generated one is about to become the
 base of.
 
+A class split into mixins (``class Manager(Copying, Erasing, Window)``,
+:class:`navkit.widget.Mixin`) is read with them: a leading base imported from
+a module in the same directory is read the same way, and its methods and
+imports are folded into the class's own, the class's winning.  So the checks
+see a method wherever it was moved to, and the stub lists it.
+
 What is read is deliberately shallow: module-level classes, their methods and
 whether each is ``async def``, the class-body ``name: T = reactive(...)`` lines,
 and the ``emits`` tuple.  A name is a name here, never a resolved object, so
@@ -26,7 +32,7 @@ from __future__ import annotations
 
 import ast
 import copy
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 
@@ -48,6 +54,9 @@ class Method:
     #: ``def`` -- ``@computed`` and ``@property`` both turn one into an
     #: attribute, and a stub that still called it a method would be wrong.
     decorators: tuple[str, ...] = ()
+    #: The file the ``def`` is in, where that is a mixin's rather than the
+    #: component's own -- for a message to point at the right one.
+    origin: str | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -80,6 +89,14 @@ class Sibling:
     #: hand-written signatures were annotated with.
     import_lines: list[str] = field(default_factory=list)
     classes: dict[str, SiblingClass] = field(default_factory=dict)
+    #: Where each name the import block binds comes from, as ``(level,
+    #: module, name)`` -- to tell a mixin's import of a name from a clash.
+    sources: dict[str, tuple[int, str, str]] = field(default_factory=dict)
+    #: The mixins read into a class, by class name, each with the file it is
+    #: in.  Their imports are this module's too, for the stub; the import
+    #: lines naming the mixins themselves are not, the stub having no use
+    #: for them.
+    mixins: dict[str, Path] = field(default_factory=dict)
 
     @property
     def filename(self) -> str:
@@ -102,6 +119,10 @@ class Sibling:
         path = Path(path)
         if not path.exists():
             return None
+        return cls._read(path, mixins=True)
+
+    @classmethod
+    def _read(cls, path: Path, *, mixins: bool) -> Sibling:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         sibling = cls(path=path)
         for node in tree.body:
@@ -109,6 +130,7 @@ class Sibling:
                 for alias in node.names:
                     bound = alias.asname or alias.name.split(".")[0]
                     sibling.imports.setdefault(bound, node.lineno)
+                    sibling.sources.setdefault(bound, _source(node, alias))
                 if not (
                     isinstance(node, ast.ImportFrom)
                     and node.module == "__future__"
@@ -116,7 +138,90 @@ class Sibling:
                     sibling.import_lines.append(ast.unparse(node))
             elif isinstance(node, ast.ClassDef):
                 sibling.classes[node.name] = _read_class(node)
+        if mixins:
+            for name, declared in list(sibling.classes.items()):
+                sibling.classes[name] = sibling._with_mixins(declared)
         return sibling
+
+    def _mixin_file(self, base: str) -> tuple[Path, str] | None:
+        """The file and class name of a base imported from beside this one."""
+        source = self.sources.get(base)
+        if source is None:
+            return None
+        level, module, name = source
+        if not module or name == "*":
+            return None
+        parts = module.split(".")
+        if level == 1:
+            candidate = self.path.parent.joinpath(*parts).with_suffix(".py")
+        elif level == 0 and len(parts) >= 2 and parts[-2] == self.path.parent.name:
+            candidate = self.path.parent / f"{parts[-1]}.py"
+        else:
+            return None
+        return (candidate, name) if candidate.is_file() else None
+
+    def _with_mixins(self, declared: SiblingClass) -> SiblingClass:
+        """*declared* with the methods of the mixins it lists folded in."""
+        methods: dict[str, Method] = {}
+        for base in declared.bases[:-1]:
+            found = self._mixin_file(base)
+            if found is None:
+                continue
+            path, name = found
+            other = Sibling._read(path, mixins=False)
+            mixin = other.classes.get(name)
+            if mixin is None:
+                continue
+            self.mixins[base] = path
+            for method_name, method in mixin.methods.items():
+                methods.setdefault(
+                    method_name, replace(method, origin=path.name)
+                )
+            self._take_imports(other)
+        if not methods:
+            return declared
+        methods.update(declared.methods)
+        return replace(declared, methods=methods)
+
+    def _take_imports(self, other: Sibling) -> None:
+        """Fold a mixin module's imports into this one's, refusing a name the
+        two bind to different things -- the stub could only say one."""
+        for bound, source in other.sources.items():
+            mine = self.sources.get(bound)
+            if mine is not None and mine != source and bound not in self.mixins:
+                raise ValueError(
+                    f"{other.path.name} imports {bound} from "
+                    f"{_spelled(source)} but {self.path.name} from "
+                    f"{_spelled(mine)}: a class and its mixins have to "
+                    f"agree on what a name is"
+                )
+        # Only what is new, so the stub imports each name once.
+        for line in other.import_lines:
+            node = ast.parse(line).body[0]
+            assert isinstance(node, (ast.Import, ast.ImportFrom))
+            node.names = [
+                alias for alias in node.names
+                if (alias.asname or alias.name.split(".")[0]) not in self.sources
+            ]
+            if not node.names:
+                continue
+            for alias in node.names:
+                bound = alias.asname or alias.name.split(".")[0]
+                self.sources[bound] = _source(node, alias)
+                self.imports[bound] = other.imports[bound]
+            self.import_lines.append(ast.unparse(node))
+
+
+def _source(node: ast.Import | ast.ImportFrom, alias: ast.alias) -> tuple[int, str, str]:
+    if isinstance(node, ast.ImportFrom):
+        return (node.level, node.module or "", alias.name)
+    return (0, alias.name, "")
+
+
+def _spelled(source: tuple[int, str, str]) -> str:
+    level, module, name = source
+    where = "." * level + module
+    return f"{where}.{name}" if name else where
 
 
 def _read_class(node: ast.ClassDef) -> SiblingClass:

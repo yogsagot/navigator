@@ -20,7 +20,7 @@ from navml.component import Component as _Component
 from navml.widgets.dialog.check_boxes import CheckBoxes    # fm_defaults_page.nml:1
 from navml.widgets.dialog.label import Label    # fm_defaults_page.nml:2
 from navml.widgets.dialog.radio_buttons import RadioButtons    # fm_defaults_page.nml:3
-from navigator.widgets.manager.manager.manager import sort_radio_captions    # fm_defaults_page.nml:4
+from navigator.widgets.manager.manager.helpers import sort_radio_captions    # fm_defaults_page.nml:4
 from navigator.widgets.setup.settings_page import SettingsPage    # fm_defaults_page.nml:5
 
 __navml_component__ = "FMDefaultsPage"

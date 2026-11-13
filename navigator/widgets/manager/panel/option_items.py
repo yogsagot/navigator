@@ -32,7 +32,7 @@ def _mode_label(panel: Any) -> str:
 def _sort_label(panel: Any) -> str:
     """The order's caption as Alt+B's box has it, without its hot key, and the
     arrow of the way it runs."""
-    from navigator.widgets.manager.manager.manager import sort_captions
+    from navigator.widgets.manager.manager.helpers import sort_captions
     from navigator.widgets.manager.panel.panel import SORT_MODES
 
     mode = panel.sort_mode

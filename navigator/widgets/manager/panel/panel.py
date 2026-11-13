@@ -1801,7 +1801,7 @@ class Panel(ListViewer):
         step = self.next_column_sort(key)
         if step is None:
             return text
-        from navigator.widgets.manager.manager.manager import sort_captions
+        from navigator.widgets.manager.manager.helpers import sort_captions
 
         mode, reverse = step
         caption = dict(zip(SORT_MODES, sort_captions()))[mode].replace("~", "")

@@ -106,7 +106,7 @@ def test_a_box_has_background_only_when_its_watcher_can_let_it_go(box_class, sto
 
 
 def test_the_subject_names_what_was_started():
-    from navigator.widgets.manager.manager.manager import job_subject
+    from navigator.widgets.manager.manager.helpers import job_subject
 
     one, two = [Path("/home/u/photos")], [Path("/home/u/a"), Path("/home/u/b")]
     assert job_subject("copy", one, "/mnt/backup/") == "Copy photos to /mnt/backup"
@@ -119,7 +119,7 @@ def test_the_subject_names_what_was_started():
 
 
 def test_the_file_in_hand_is_named_from_where_the_sources_are():
-    from navigator.widgets.manager.manager.manager import relative_to, source_base
+    from navigator.widgets.manager.manager.helpers import relative_to, source_base
 
     base = source_base([Path("/home/u/photos")])
     assert base == "/home/u"

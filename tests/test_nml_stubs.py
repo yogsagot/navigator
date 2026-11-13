@@ -159,3 +159,48 @@ def test_a_property_with_no_literal_default_is_unchecked(written):
 def test_an_event_declared_in_markup_is_not_an_attribute(written):
     source = written("Panel:\n    event Accepted\n")
     assert "Accepted:" not in source
+
+
+# -- a hand-written half split into mixins -----------------------------------
+
+
+def _with_mixin(tmp_path, mixin: str, own: str = "") -> str:
+    (tmp_path / "copying.py").write_text(mixin, encoding="utf-8")
+    (tmp_path / "widget.py").write_text(
+        "from .copying import Copying\n"
+        "from navkit.widget import Widget\n"
+        f"{own}"
+        "class Panel(Copying, Widget):\n"
+        "    def own(self) -> int: ...\n",
+        encoding="utf-8",
+    )
+    return stub(
+        resolve(
+            parse("Panel:\n", filename="widget.nml"),
+            sibling=Sibling.read(tmp_path / "widget.py"),
+        )
+    )
+
+
+def test_a_stub_lists_a_mixin_s_methods_as_the_class_s_own(tmp_path):
+    """Flattened: the stub keeps one base, so a mixin typed against it has no cycle."""
+    text = _with_mixin(
+        tmp_path,
+        "from pathlib import Path\n"
+        "class Copying:\n"
+        "    async def copy_files(self, target: Path) -> None: ...\n",
+    )
+    ast.parse(text)
+    assert "async def copy_files(self, target: Path) -> None: ..." in text
+    assert "def own(self) -> int: ..." in text
+    assert "from pathlib import Path" in text
+    assert "Copying" not in text
+
+
+def test_a_mixin_may_not_import_a_name_as_something_else(tmp_path):
+    with pytest.raises(ValueError, match="have to agree"):
+        _with_mixin(
+            tmp_path,
+            "from os import path as Path\nclass Copying:\n    pass\n",
+            own="from pathlib import Path\n",
+        )

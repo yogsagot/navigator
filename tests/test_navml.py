@@ -413,6 +413,74 @@ def test_reloading_a_merged_component_splices_again(package):
     assert [c.__name__ for c in reloaded.Thing.__mro__[:3]] == ["Thing", "Thing", "Mid"]
 
 
+# -- a hand-written half split into mixins ------------------------------------
+
+
+def test_mixins_keep_their_place_ahead_of_the_markup_half(package):
+    """``class Thing(A, B, Mid)`` splices to Thing, A, B, (Mixin), generated, Mid."""
+    _markup_half(package)
+    package.write(
+        "parts.py",
+        """
+        from navkit.widget import Mixin
+        class A(Mixin):
+            def where(self):
+                return "A"
+        class B(Mixin):
+            def where(self):
+                return "B"
+            def b_only(self):
+                return self.built
+        """,
+    )
+    package.write(
+        "thing.py",
+        f"""
+        from {package.name}.bases import Mid
+        from {package.name}.parts import A, B
+        class Thing(A, B, Mid): pass
+        """,
+    )
+    Thing = package.load("thing").Thing
+    names = [c.__name__ for c in Thing.__mro__[:6]]
+    assert names == ["Thing", "A", "B", "Mixin", "Thing", "Mid"]
+    assert Thing.__mro__[4].__module__.endswith("thing_nml")
+    thing = Thing()
+    assert thing.where() == "A" and thing.b_only() is True
+    reloaded = importlib.reload(package.load("thing"))
+    assert [c.__name__ for c in reloaded.Thing.__mro__[:6]] == names
+
+
+def test_a_leading_base_that_is_not_a_mixin_is_refused(package):
+    _markup_half(package)
+    package.write(
+        "thing.py",
+        f"""
+        from {package.name}.bases import Mid
+        class Plain: pass
+        class Thing(Plain, Mid): pass
+        """,
+    )
+    with pytest.raises(ComponentError) as caught:
+        package.load("thing")
+    assert "navkit.widget.Mixin" in str(caught.value)
+
+
+@pytest.mark.parametrize(
+    "body, refused",
+    [
+        ("def on_key(self, event): ...", "must be `async def`"),
+        ("keys = {}", "defines keys"),
+        ("def checks(self, command): ...", "defines checks"),
+        ("from navkit.reactive import reactive\n    count: int = reactive(0)", "declares count"),
+    ],
+)
+def test_a_mixin_holds_methods_and_nothing_else(body, refused):
+    source = f"from navkit.widget import Mixin\nclass Part(Mixin):\n    {body}\n"
+    with pytest.raises(TypeError, match=refused):
+        exec(compile(source, "<mixin>", "exec"), {})
+
+
 # -- what a document imports, and what the generator supplies ---------------
 
 
@@ -1035,3 +1103,19 @@ def test_a_scroll_bar_with_nothing_to_scroll_does_not_hold_the_mouse():
     app = Application(root=root, terminal=FakeTerminal(80, 24))
     assert awaited(bar.on_mouse_click(MouseClickEvent(0, 1, "left", "press"))) is True
     assert app.mouse_capture is None
+
+
+def test_a_mixin_s_name_is_not_a_type_selector():
+    """``Links { }`` means a widget called Links, not one whose source has a Links part."""
+    from navkit.stylesheet import type_names
+    from navkit.widget import Mixin, Widget
+
+    class Links(Mixin):
+        pass
+
+    class Holder(Links, Widget):
+        pass
+
+    names = type_names(Holder)
+    assert "Holder" in names and "Widget" in names
+    assert "Links" not in names and "Mixin" not in names

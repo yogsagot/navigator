@@ -160,7 +160,7 @@ def test_connect_sends_the_active_panel_to_the_link(desk, monkeypatch):
 
 
 def test_utilities_and_the_link_list_open_it(desk):
-    from navigator.widgets.manager.manager.manager import EDIT_LINKS, link_section
+    from navigator.widgets.manager.manager.helpers import EDIT_LINKS, link_section
     from navml.widgets.menu.sub_menu import SubMenu
 
     found = link_section(SubMenu())

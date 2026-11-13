@@ -232,7 +232,10 @@ def _sibling_imports(resolved: Resolved) -> list[str]:
     sibling = resolved.sibling
     if sibling is None:
         return []
-    already = set(resolved.document.bound)
+    # The stub's class lists the mixins' methods itself and keeps only the
+    # markup base, so importing the mixins would say nothing -- and would make
+    # a cycle of a mixin typed against this very stub.
+    already = set(resolved.document.bound) | set(sibling.mixins)
     lines = []
     for line in sibling.import_lines:
         bound = {

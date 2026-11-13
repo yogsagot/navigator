@@ -360,3 +360,31 @@ def test_a_key_table_of_commands_passes(checked):
         "from navml.widgets.dialog.commands import Cancel, Default\n\nWidget:\n    keys:\n"
         "        escape: Cancel\n        enter: Default()\n"
     )
+
+
+# -- a hand-written half split into mixins -----------------------------------
+
+
+def test_a_root_handler_landing_on_a_mixin_s_method(checked, tmp_path):
+    """A method moved out to a mixin is still seen, and named where it is."""
+    (tmp_path / "clicking.py").write_text(
+        "class Clicking:\n    async def on_click(self, event): ...\n", encoding="utf-8"
+    )
+    error = refused(
+        checked,
+        "Panel:\n    on_click: self.done()\n",
+        sibling="from .clicking import Clicking\nclass Panel(Clicking, Widget):\n    pass\n",
+    )
+    assert "clicking.py's Panel already implements on_click" in error.message
+
+
+def test_awaiting_a_mixin_s_method_that_is_not_async(checked, tmp_path):
+    (tmp_path / "work.py").write_text(
+        "class Work:\n    def done(self, event): ...\n", encoding="utf-8"
+    )
+    error = refused(
+        checked,
+        "Panel:\n    on_click: await self.done(event)\n",
+        sibling="from .work import Work\nclass Panel(Work, Widget):\n    pass\n",
+    )
+    assert "work.py's done is not async" in error.message

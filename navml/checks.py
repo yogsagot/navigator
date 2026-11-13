@@ -492,7 +492,7 @@ def _check_commands(resolved: Resolved) -> None:
             _refuse(
                 resolved,
                 handler.line,
-                f"{sibling.filename} defines {name} too, and the hand-written "
+                f"{_where(sibling, component.methods[name])} defines {name} too, and the hand-written "
                 f"half is the derived class: its method would win",
             )
         _check_handler_body(resolved, handler, True)
@@ -582,7 +582,7 @@ def _implements(
         sibling = resolved.sibling
         component = sibling.component(resolved.document.root.type) if sibling else None
         if component is not None and name in component.methods:
-            return f"{sibling.filename}'s {component.name}"
+            return f"{_where(sibling, component.methods[name])}'s {component.name}"
         return None
     for klass in cls.__mro__:
         if name in vars(klass):
@@ -609,14 +609,14 @@ def _check_handler_body(resolved: Resolved, handler, root: bool) -> None:
             _refuse(
                 resolved,
                 handler.line,
-                f"{sibling.filename}'s {name} is not async, so it cannot be "
+                f"{_where(sibling, method)}'s {name} is not async, so it cannot be "
                 f"awaited",
             )
         if not awaited and method.is_async:
             _refuse(
                 resolved,
                 handler.line,
-                f"{sibling.filename}'s {name} is async, so without await this "
+                f"{_where(sibling, method)}'s {name} is async, so without await this "
                 f"line builds a coroutine and drops it",
             )
 
@@ -717,7 +717,7 @@ def _check_orphans(resolved: Resolved, sibling, component) -> None:
                 _refuse(
                     resolved,
                     resolved.document.root.line,
-                    f"{sibling.filename}:{method.line} defines {name}, but "
+                    f"{_where(sibling, method)}:{method.line} defines {name}, but "
                     f"{target} is not an id in this document",
                 )
 
@@ -801,3 +801,8 @@ def _refuse(resolved: Resolved, line: int, message: str) -> None:
 
 
 __all__ = ["check"]
+
+
+def _where(sibling, method) -> str:
+    """The file a hand-written method is in: the ``.py``, or one of its mixins."""
+    return method.origin or sibling.filename

@@ -1,7 +1,7 @@
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
-from navigator.widgets.manager.manager.manager import sort_radio_captions
+from navigator.widgets.manager.manager.helpers import sort_radio_captions
 from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > File Manager > New Manager defaults: DOS Navigator's ``dlgFMDefaults``.

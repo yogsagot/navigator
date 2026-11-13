@@ -410,7 +410,19 @@ def _is_a(widget: Widget, type_name: str) -> bool:
     Two unrelated classes sharing a name therefore both match, which is the
     accepted cost of a stylesheet being able to name a type it cannot import.
     """
-    return any(base.__name__ == type_name for base in type(widget).__mro__)
+    return type_name in type_names(type(widget))
+
+
+def type_names(cls: type) -> frozenset[str]:
+    """The names a type selector matches *cls* by: its MRO's, mixins left out.
+
+    A class split into mixins (:class:`navkit.widget.Mixin`) is still the one
+    class; ``Links`` or ``Views`` is how its source is divided, not a type a
+    sheet means.
+    """
+    return frozenset(
+        base.__name__ for base in cls.__mro__ if "__navkit_mixin__" not in vars(base)
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -490,7 +502,7 @@ class Stylesheet:
         key = (cls, part)
         found = self._candidates.get(key)
         if found is None:
-            names = {base.__name__ for base in cls.__mro__}
+            names = type_names(cls)
             found = tuple(sorted(
                 (
                     rule for rule in self.rules

@@ -28,7 +28,7 @@ from navkit import stylesheet
 from navkit import terminal as terminal_module
 from navkit.events import Event, KeyEvent, MouseClickEvent, PasteEvent
 from navkit.glyphs import GLYPHS_UNICODE
-from navkit.reactive import bind, computed, dispose_effects, is_bound, reactive
+from navkit.reactive import Declaration, bind, computed, dispose_effects, is_bound, reactive
 from navkit.screen import Surface
 from navkit.style import DEFAULT_STYLE, SHADOW, Color, Style
 from navkit.stylesheet import Stylesheet
@@ -57,6 +57,60 @@ def check_handlers(cls: type) -> None:
                 f"is awaited.  A hook that cannot be awaited where it is "
                 f"called does not get an `on_*` name -- see Widget.mounted()."
             )
+
+
+class Mixin:
+    """One feature area of a class too big for one file.
+
+    A widget (or an application) whose methods run to thousands of lines is
+    split by feature into mixins, each in its own module beside the class,
+    which lists them before its real base: ``class Manager(Copying, Erasing,
+    Window)``.  A mixin holds methods and nothing else: the class's reactive
+    and computed declarations, its ``keys`` table and its ``checks`` /
+    ``enables`` stay in the class itself, so its state is read in one place
+    and every override of the command hooks is one method that calls
+    ``super()``.  Its ``on_*`` methods are held to the ``async def`` rule as a
+    widget's are, at import.
+
+    It derives from nothing but :class:`object`, so the mixins come before
+    the widget base in the MRO and a method in one is where a method of the
+    class itself would be.  navml's merge accepts these, and only these, ahead
+    of a component's markup base (``navml-components``, *A big hand-written
+    half: mixins*).
+    """
+
+    _REFUSED = ("keys", "checks", "enables")
+
+    #: Read in each class's own namespace by the stylesheet, which leaves a
+    #: mixin out of the names a type selector matches: ``Links { }`` is about
+    #: a widget called that, not about the manager that has links.
+    __navkit_mixin__ = True
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        if Widget in cls.__mro__ or _application_class(cls):
+            return  # the class the mixins are joined to, checked as itself
+        cls.__navkit_mixin__ = True
+        check_handlers(cls)
+        for name, value in vars(cls).items():
+            if name in Mixin._REFUSED:
+                raise TypeError(
+                    f"mixin {cls.__name__} defines {name}: a class's {name} "
+                    f"stays in the class itself, not in one of its mixins"
+                )
+            if isinstance(value, Declaration):
+                raise TypeError(
+                    f"mixin {cls.__name__} declares {name}: reactive and "
+                    f"computed attributes are declared in the class itself, "
+                    f"not in one of its mixins"
+                )
+
+
+def _application_class(cls: type) -> bool:
+    """Whether *cls* is an :class:`~navkit.application.Application`, by name,
+    since importing it here would be a cycle."""
+    return any(klass.__name__ == "Application" and klass.__module__ == "navkit.application"
+               for klass in cls.__mro__)
 
 
 async def _call(target: object, event: Event, handler: Any) -> bool:

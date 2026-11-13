@@ -27,7 +27,7 @@ from navigator.lib.config.bookmarks import (
     remove_bookmark,
     seed_bookmarks,
 )
-from navigator.widgets.manager.manager.manager import bookmark_menu
+from navigator.widgets.manager.manager.helpers import bookmark_menu
 from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.popup_menu import PopupMenu
 
@@ -760,7 +760,7 @@ def test_a_links_tooltip_is_its_whole_address_and_a_greyed_new_link_says_why(mon
     from navml.widgets.menu.sub_menu import SubMenu
 
     from navigator.lib.drives import profiles, sessions
-    from navigator.widgets.manager.manager.manager import link_section
+    from navigator.widgets.manager.manager.helpers import link_section
 
     profiles.save("alpha", "sftp", "a.example", "me", 2222, "/srv")
     real = sessions.available

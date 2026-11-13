@@ -13,7 +13,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 from typing import Any
 from navkit.reactive import bind
 from navigator.settings import PanelDefaultsData
-from navigator.widgets.manager.manager.manager import sort_radio_captions
+from navigator.widgets.manager.manager.helpers import sort_radio_captions
 
 
 class PanelSetupDialog(Dialog, _Component):

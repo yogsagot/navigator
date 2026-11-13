@@ -23,8 +23,10 @@ package and the component itself is ``navml.widgets.dialog.button.button``.  Tha
 this repository's convention rather than a rule of the language: a flat package
 whose modules sit directly in it still works, and the tests build them.
 
-The merge itself is one line -- ``cls.__bases__ = (generated,)`` -- and
-everything in this module exists to reach it safely.  See *The two halves of a
+The merge itself is one line -- ``cls.__bases__ = (generated,)``, or
+``(*mixins, generated)`` when the hand-written class lists
+:class:`navkit.widget.Mixin` classes ahead of its base -- and everything in
+this module exists to reach it safely.  See *The two halves of a
 component* in ``navml/DESIGN.md`` for why it is a rebase rather than a
 namespace merge, and for the measurements behind each check below.
 """
@@ -220,11 +222,12 @@ class RebaseLoader(importlib.abc.Loader):
                 f"{module.__name__}.{name} is not a class, but its markup half "
                 f"declares {name!r} as the component: {where}"
             )
-        if handwritten.__bases__ == (markup,):
+        mixins = _mixins(handwritten)
+        if handwritten.__bases__ == (*mixins, markup):
             return  # already spliced; a reload got here first
         _check_bases(handwritten, markup, where)
         try:
-            handwritten.__bases__ = (markup,)
+            handwritten.__bases__ = (*mixins, markup)
         except TypeError as exc:  # pragma: no cover - the object-base case
             raise ComponentError(
                 f"{module.__name__}.{name} cannot be joined to its markup half "
@@ -246,9 +249,10 @@ def _check_bases(handwritten: type, markup: type, where: str) -> None:
     where the markup says ``Window`` -- because the resulting MRO is identical;
     what is refused is a base that would silently disappear.
     """
-    declared = handwritten.__bases__
     name = handwritten.__name__
-    if declared == (object,):
+    mixins = _mixins(handwritten)
+    declared = handwritten.__bases__[len(mixins):]
+    if declared == (object,) or not declared:
         raise ComponentError(
             f"{name} has no widget base, so its markup half cannot be joined "
             f"to it: write `class {name}({markup.__bases__[0].__name__})', the "
@@ -259,7 +263,8 @@ def _check_bases(handwritten: type, markup: type, where: str) -> None:
             f"{name} declares {len(declared)} bases "
             f"({', '.join(base.__name__ for base in declared)}); a component's "
             f"hand-written half declares exactly one, the same one its markup "
-            f"half declares.  {where}"
+            f"half declares, after any number of navkit.widget.Mixin "
+            f"classes.  {where}"
         )
     if not issubclass(markup, declared[0]):
         raise ComponentError(
@@ -268,6 +273,24 @@ def _check_bases(handwritten: type, markup: type, where: str) -> None:
             f"from it -- joining the two would drop {declared[0].__name__!r} "
             f"from the class silently.  {where}"
         )
+
+
+def _mixins(handwritten: type) -> tuple[type, ...]:
+    """The leading bases of *handwritten* that are mixins (:class:`navkit.widget.Mixin`).
+
+    They keep their place ahead of the generated class, so a method in one
+    sits where a method of the hand-written class itself would.  The splice
+    replaces only what follows them.  A mixin after the widget base is not
+    one of these, and is refused with the other extra bases.
+    """
+    from navkit.widget import Mixin, Widget
+
+    found: list[type] = []
+    for base in handwritten.__bases__:
+        if not issubclass(base, Mixin) or issubclass(base, Widget):
+            break
+        found.append(base)
+    return tuple(found)
 
 
 # -- markup only ------------------------------------------------------------

@@ -33,6 +33,32 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   - Declared properties a caller passed are already set.
   - Use it for work that needs every child but must not wait for mounting (`SettingsPage` seeds its controls there).
 
+## A big hand-written half: mixins
+
+- **A hand-written half too big for one file is split by feature into mixins**, each a `navkit.widget.Mixin` in its
+  own module in the component directory: `class Manager(Encoding, Copying, ..., Views, Window)`
+  (`navigator/widgets/manager/manager/`). The merge keeps the leading `Mixin` bases and splices the generated class
+  in after them, `__bases__ = (*mixins, generated)`, so a mixin's method sits where a method of the class would.
+  A leading base that is not a `Mixin` is refused, as is a second widget base.
+- **A mixin holds methods only.** `Mixin.__init_subclass__` refuses a `keys` table, `checks`/`enables`, and any
+  `reactive`/`computed`, which stay in the class itself, so state is read in one place. A sync `on_*` in a mixin is
+  refused at import, as a widget's is. A plain class attribute is allowed but belongs in the class too. Zero-argument
+  `super()` works: the next class after a mixin is the next mixin, then the generated half.
+- **A mixin is typed against the component's stub** with `if TYPE_CHECKING: from <package> import Manager as _Base`
+  and `else: from navkit.widget import Mixin as _Base`. `class Copying(_Base)` then sees `self.left` and the other
+  mixins' methods, with no cycle, because the stub flattens the mixins.
+- **`navml/sibling.py` reads the mixins too**, without importing them. A leading base imported from a module beside
+  the `.py` (relative, or absolute in the same package) is parsed, and its methods are folded into the class's own,
+  each carrying `origin` so messages name the right file. Its imports are merged in as well; a name two files bind
+  differently is refused. So the handler-collision and `await` checks see a method wherever it moved, and **the
+  `.pyi` lists every mixin's methods as the class's own, keeping only the markup base**. Editing a mixin's method or
+  imports therefore makes `navml build --check` report the stub stale, as editing the `.py` does.
+- **Module-level helpers the mixins share go to a sibling module** (`manager/manager/helpers.py`), never into the
+  component's `.py`: a mixin importing that module at import time would be a cycle.
+- **A mixin is not a type to a stylesheet.** `navkit.stylesheet.type_names` leaves out every class that is a mixin
+  (`__navkit_mixin__` in its own namespace), so `Links { }` never matches the manager. Code that looks for "the first
+  class in the MRO that is not this one" must skip mixins too (`keybindings.Section.base`).
+
 ## A component is a directory; components come in groups
 
 - The files live in `navml/widgets/dialog/button/` beside an `__init__.py` re-exporting the class (and any event it

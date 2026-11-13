@@ -212,8 +212,11 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **Models are touched through their class** (`HistoryEntry.where(...)`), and the database is opened only in `main()`;
   tests get a fresh `:memory:` one each.
 - **After editing any `.nml`**, run `./venv/bin/python -m navml build navml navigator` and check with `--check`.
-  The same after changing a method or an import in a component's hand-written `.py` half: the generated `.pyi`
-  copies both, and `tests/test_nml_build.py` fails when it is stale.
+  The same after changing a method or an import in a component's hand-written `.py` half or one of its mixins: the
+  generated `.pyi` copies both, and `tests/test_nml_build.py` fails when it is stale.
+- **A class too big for one file is split into `navkit.widget.Mixin`s**, one module per feature beside it
+  (`Manager`'s in `navigator/widgets/manager/manager/`): methods only; state, `keys` and `checks` stay in the class
+  (`navml-components`, *A big hand-written half: mixins*).
 - **A sheet cannot be parsed before the widgets it styles are imported** (`load_scheme()` imports `Panel` first).
 - **User-visible text goes through `tr()`/`tr_n()`** with a literal English key and whole-sentence placeholders;
   markup captions are wrapped by the generator (`i18n` skill).

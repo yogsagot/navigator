@@ -152,7 +152,8 @@ class Section:
     """One key table: its name in the file, its title, its class, and the
     class whose keys it is laid over -- the first one in the MRO that is not
     a half of this one (a component's markup and hand-written halves share a
-    name), so the section is everything the component itself binds."""
+    name) or one of its mixins (``navkit.widget.Mixin``), so the section is
+    everything the component itself binds."""
 
     name: str
     title: str
@@ -160,7 +161,10 @@ class Section:
 
     @cached_property
     def base(self) -> type:
-        return next(k for k in self.cls.__mro__[1:] if k.__name__ != self.cls.__name__)
+        from navkit.widget import Mixin
+
+        return next(k for k in self.cls.__mro__[1:]
+                    if k.__name__ != self.cls.__name__ and not issubclass(k, Mixin))
 
     @cached_property
     def entries(self) -> tuple[Entry, ...]:
