@@ -11,15 +11,23 @@ the byte offset of the source line its block starts on (a code or table row,
 of its own line), and ``block``, which block it belongs to.  That is what the
 viewer keeps ``top`` at, so the scroll bar, the view history and switching back
 to the source still have an offset to go by.
+
+Three things are here for a reader of whole documents with links between them
+(F1 Help, ``navigator/lib/help/``), and cost the viewer nothing: a heading's
+**anchor** (:func:`slug`, GitHub's), the **links** of a layout
+(:meth:`Layout.links`), and a **picture** block (:meth:`Builder.picture`),
+whose rows carry cells already styled.
 """
 
 from __future__ import annotations
 
 import bisect
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
 from navkit.bidi import text_rtl
+from navkit.screen import Cell as ScreenCell
 from navkit.screen import char_width
 
 from navigator.lib import highlight
@@ -72,18 +80,88 @@ class Row:
     #: set against the right edge, as a browser sets ``dir="auto"`` text.
     rtl: bool = False
     lead: int = 0
+    #: A row of a picture (:meth:`Builder.picture`): the cells as they are
+    #: painted, their own colours and all, standing after the first *lead*
+    #: cells.  ``cells`` then holds the same characters classed ``picture``,
+    #: so whatever does not know of pictures still has a row of that width.
+    picture: list[ScreenCell] | None = None
 
     @property
     def text(self) -> str:
         return "".join(char for char, _, _ in self.cells)
 
 
+@dataclass(frozen=True, slots=True)
+class Link:
+    """One link of a layout: where it leads and the cells that are it.
+
+    *spans* are ``(row, start, end)`` in the row's ``cells``, more than one
+    when the link's text was wrapped.  They are positions in ``cells`` as
+    laid out left to right; a right-to-left row is reordered when painted.
+    *image*: the ``[alt]`` an image is shown as, its link the picture's file.
+    """
+
+    href: str
+    spans: tuple[tuple[int, int, int], ...]
+    image: bool = False
+
+    @property
+    def row(self) -> int:
+        """The row the link begins on."""
+        return self.spans[0][0]
+
+
 @dataclass(slots=True, eq=False)
 class Layout:
     rows: list[Row] = field(default_factory=list)
     width: int = 0
+    #: Each heading's anchor (:func:`slug`) and the row it begins on.
+    anchors: dict[str, int] = field(default_factory=dict)
     #: Each row's ``src``, for ``bisect``; made on the first look.
     _srcs: list[int] = field(default_factory=list, repr=False)
+    _links: list[Link] | None = field(default=None, repr=False)
+
+    def links(self) -> list[Link]:
+        """Every link, in reading order; made on the first look.
+
+        A run of cells with one URL is a span; a span that ends its row and
+        one with the same URL that begins the next row's text are one link,
+        wrapped -- within one block, so two list items linking the same page
+        stay two links.
+        """
+        if self._links is not None:
+            return self._links
+        found: list[Link] = []
+        #: The last link, if it ran to the end of the row before this one.
+        open_href: str | None = None
+        for number, row in enumerate(self.rows):
+            cells = row.cells
+            at = 0
+            first = True
+            carried, open_href = open_href, None
+            if number and self.rows[number - 1].block != row.block:
+                carried = None
+            while at < len(cells):
+                href = cells[at][2]
+                if href is None:
+                    if at >= row.lead and cells[at][0] != " ":
+                        first = False
+                    at += 1
+                    continue
+                start = at
+                image = "image" in cells[at][1]
+                while at < len(cells) and cells[at][2] == href and ("image" in cells[at][1]) == image:
+                    at += 1
+                span = (number, start, at)
+                if first and carried == href and found and found[-1].image == image:
+                    found[-1] = Link(href, found[-1].spans + (span,), image)
+                else:
+                    found.append(Link(href, (span,), image))
+                first = False
+                if at == len(cells):
+                    open_href = href
+        self._links = found
+        return found
 
     def row_for(self, offset: int) -> int:
         """The first row of the block holding byte *offset*: the last row whose
@@ -125,6 +203,28 @@ def _cells(text: str, classes: tuple[str, ...] = (), link: str | None = None) ->
         if width == 2:
             cells.append(("", classes, link))
     return cells
+
+
+_NOT_IN_A_SLUG = re.compile(r"[^\w\- ]")
+
+
+def slug(text: str, taken: dict[str, int] | None = None) -> str:
+    """The anchor GitHub gives a heading reading *text*: lower case, what is
+    neither a letter, a digit, ``_``, ``-`` nor a blank dropped, blanks to
+    hyphens.  With *taken* (anchors already given on the page, and how many
+    times), a repeated heading is ``name-1``, ``name-2``, as GitHub numbers
+    them; *taken* is updated.
+    """
+    name = _NOT_IN_A_SLUG.sub("", text.strip().lower()).replace(" ", "-")
+    if taken is None:
+        return name
+    count = taken.get(name)
+    taken[name] = 0 if count is None else count + 1
+    if count is None:
+        return name
+    numbered = f"{name}-{count + 1}"
+    taken.setdefault(numbered, 0)
+    return numbered
 
 
 def _wrap(cells: list[Cell], width: int) -> list[list[Cell]]:
@@ -203,6 +303,8 @@ class Builder:
         #: Whether the next block is set off by a blank row.
         self.gap = False
         self.last_src = 0
+        #: The anchors given so far, for :func:`slug` to number a repeat.
+        self.slugs: dict[str, int] = {}
 
     # -- offsets --------------------------------------------------------------
 
@@ -271,6 +373,8 @@ class Builder:
         """*cells* (classed ``heading h<level>`` by the caller), wrapped; the
         first two levels underlined."""
         self.open_block()
+        text = "".join(" " if char == "\n" else char for char, _, _ in cells)
+        self.layout.anchors[slug(text, self.slugs)] = len(self.layout.rows)
         rtl = _reads_rtl(cells)
         lines = _wrap(cells, self.room())
         for line in lines:
@@ -295,6 +399,22 @@ class Builder:
     def rule(self, src: int) -> None:
         self.open_block()
         self.emit(_cells(self.glyphs.rule * self.room(), self.classes("rule")), src)
+
+    def picture(self, rows: list[list[ScreenCell]], src: int) -> bool:
+        """A picture: *rows* of cells painted as they are (a screenshot's,
+        ``navigator/lib/help/ansi.py``), one layout row each.
+
+        False, and nothing emitted, when it is wider than the room there is:
+        a picture is never wrapped or cut, and the caller shows its alt text.
+        """
+        if not rows or max(len(row) for row in rows) > self.room():
+            return False
+        self.open_block()
+        classes = self.classes("picture")
+        for cells in rows:
+            self.emit([(char, classes, None) for char, _ in cells], src)
+            self.layout.rows[-1].picture = list(cells)
+        return True
 
     def code(self, lines: list[str], language: str, srcs: list[int]) -> None:
         """A code block: indented, never wrapped, coloured as *language* (a

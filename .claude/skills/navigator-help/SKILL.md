@@ -110,10 +110,19 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
   up from the focused widget to the first one set (`GetHelpCtx`), else the contents page. A dialog's *Help* button
   sends the same `Help` command. A test checks every `help_topic` resolves.
 - **F1 while a child program runs in the console goes to the child**, as it does today with `Help` disabled.
-- **`layout.py` gains**, for any caller that asks (F3's Markup view stays as it is): heading anchors by GitHub's
-  slug (one function, shared with `tests/test_help_docs.py`), the link spans of a page, and a picture block whose
-  rows carry `Style` cells from `ansi.read` -- `layout.Cell` is `(char, classes, link)`, not a `Style`. No `.ans`,
-  or one wider than the view: the alt text.
+- **`layout.py` has, built** (F3's Markup view is unchanged; `tests/test_help_layout.py`):
+  - `Layout.anchors`, each heading's anchor and first row, by `slug()` -- GitHub's, a repeat numbered `-1`, `-2`.
+    Recorded by `Builder.heading`, so reST and HTML have them too; the docs test resolves links through it.
+  - `Layout.links()`, every `Link(href, spans, image)` in reading order. A link wrapped over rows is one link with
+    a span a row (same block only, so two list items linking one page stay two). Spans are positions in
+    `Row.cells`, left to right: a right-to-left row is reordered when painted, and the painter maps them.
+    `image` marks the `[alt]` of an image not drawn, whose `href` is the picture's file, not a page.
+  - `Builder.picture(rows, src)`: rows carrying `Style` cells in `Row.picture` (`layout.Cell` is `(char,
+    classes, link)`, not a `Style`), after the row's `lead`; `Row.cells` keeps the characters classed `picture`.
+    False when wider than the room: never wrapped or cut.
+  - `markdown.render(..., pictures=)`: a callable from an image's `src` to cells (Help passes
+    `pages.shot` bound to the page and language). Only an image that is a paragraph alone is drawn; among text,
+    unknown, or too wide it is `[alt]` as before.
 - **Following**: a relative link loads the page (the language's, else `docs/en/`'s; shots the same) and scrolls to
   the anchor. The back stack keeps the page, the block on top and the selected link, so it survives a resize. A
   link to another site stays OSC 8 only and Tab passes over it (an in-app opener was declined).

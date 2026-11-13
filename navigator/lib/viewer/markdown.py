@@ -13,7 +13,10 @@ Nothing here knows of widgets or threads: the viewer reads the file and calls
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from typing import Any
+
+from navkit.screen import Cell as ScreenCell
 
 from navigator.lib.viewer.layout import (
     ASCII,
@@ -35,13 +38,19 @@ MARKDOWN_LIMIT = RENDER_LIMIT
 
 _TASK = re.compile(r"\[([ xX])\] ")
 
+#: What gives a picture's cells for an image's ``src``, or None for one it
+#: cannot show (:func:`render`'s *pictures*).
+Pictures = Callable[[str], "list[list[ScreenCell]] | None"]
+
 
 class _Renderer(Builder):
     """markdown-it's tokens walked into a :class:`Builder`."""
 
-    def __init__(self, tokens: list[Any], line_starts: list[int], width: int, glyphs: Any) -> None:
+    def __init__(self, tokens: list[Any], line_starts: list[int], width: int, glyphs: Any,
+                 pictures: Pictures | None = None) -> None:
         super().__init__(line_starts, width, glyphs)
         self.tokens = tokens
+        self.pictures = pictures
         #: Each list open: whether it is tight, an ordered one's next number,
         #: its delimiter, and whether no item has been seen yet.
         self.lists: list[list[Any]] = []
@@ -110,6 +119,8 @@ class _Renderer(Builder):
             self.heading(level, cells, self.src(token))
             return index + 3
         if kind == "paragraph_open":
+            if self.pictures is not None and self.shown_picture(self.tokens[index + 1], self.src(token)):
+                return index + 3
             self.paragraph(self.inline(self.tokens[index + 1]), self.src(token), tight=token.hidden)
             return index + 3
         if kind in ("bullet_list_open", "ordered_list_open"):
@@ -162,6 +173,19 @@ class _Renderer(Builder):
         if kind == "table_open":
             return self.gfm_table(index)
         return index + 1
+
+    def shown_picture(self, inline: Any, src: int) -> bool:
+        """Whether the paragraph holding *inline* was one image, alone, and
+        ``pictures`` had cells for it that fit: then it has been drawn as a
+        picture block.  Otherwise nothing is done and the paragraph shows
+        its ``[alt]``, as every image among text does."""
+        children = [child for child in inline.children or ()
+                    if not (child.type in ("text", "softbreak") and not child.content.strip())]
+        if len(children) != 1 or children[0].type != "image" or self.pictures is None:
+            return False
+        source = children[0].attrs.get("src") or ""
+        rows = self.pictures(source) if source else None
+        return bool(rows) and self.picture(rows, src)
 
     def _tight(self, index: int) -> bool:
         """Whether the list opening at *index* is tight: its paragraphs hidden."""
@@ -220,12 +244,20 @@ class _Renderer(Builder):
         return index + 1
 
 
-def render(data: bytes, width: int, *, codec: str = "utf-8", unicode: bool = True) -> Layout:
+def render(data: bytes, width: int, *, codec: str = "utf-8", unicode: bool = True,
+           pictures: Pictures | None = None) -> Layout:
     """*data*, a Markdown document in *codec*, laid out *width* columns wide;
-    *unicode* draws with box characters and bullets, else with ASCII."""
+    *unicode* draws with box characters and bullets, else with ASCII.
+
+    *pictures* (F1 Help's: the viewer passes none) is asked for the cells of
+    an image that is a paragraph of its own, by its ``src``; one it answers
+    and that fits the width is drawn as a picture block
+    (:meth:`~navigator.lib.viewer.layout.Builder.picture`).  Any other image
+    is ``[alt]``.
+    """
     from markdown_it import MarkdownIt
 
     parser = MarkdownIt("commonmark").enable("table").enable("strikethrough")
     text = decode(data, codec).replace("\r\n", "\n").replace("\r", "\n")
     tokens = parser.parse(text)
-    return _Renderer(tokens, line_starts(data), width, UNICODE if unicode else ASCII).run()
+    return _Renderer(tokens, line_starts(data), width, UNICODE if unicode else ASCII, pictures).run()

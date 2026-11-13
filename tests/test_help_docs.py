@@ -11,6 +11,7 @@ import pytest
 from markdown_it import MarkdownIt
 
 from navigator.lib.help import ansi
+from navigator.lib.viewer import markdown
 
 DOCS = Path(__file__).resolve().parent.parent / "docs"
 ENGLISH = DOCS / "en"
@@ -28,20 +29,8 @@ def tokens_of(page: Path) -> list:
 
 
 def slugs_of(page: Path) -> set[str]:
-    """GitHub's anchors for *page*'s headings."""
-    tokens = tokens_of(page)
-    slugs: set[str] = set()
-    for at, token in enumerate(tokens):
-        if token.type != "heading_open":
-            continue
-        text = "".join(child.content for child in tokens[at + 1].children or () if child.type in ("text", "code_inline"))
-        slug = re.sub(r"[^\w\- ]", "", text.lower()).replace(" ", "-")
-        candidate, n = slug, 0
-        while candidate in slugs:
-            n += 1
-            candidate = f"{slug}-{n}"
-        slugs.add(candidate)
-    return slugs
+    """The anchors of *page*'s headings, as Help finds them."""
+    return set(markdown.render(page.read_bytes(), 80).anchors)
 
 
 def test_docs_holds_language_directories_and_the_readme_picture_only():
