@@ -237,7 +237,9 @@ Each was found by running something, not by reasoning; the owning skill has the 
 - **Where notes go**: a feature's rules go in its skill's `SKILL.md`; longer rationale goes in that skill's
   `reference/`, with its heading added to the index in `navml/DESIGN.md` or `navkit/DESIGN.md`. A new subsystem gets a
   new skill. Keep this file to what every task needs.
-- There is no lint tooling configured yet. When adding one, record the command here.
+- There is no lint tooling configured yet. When adding one, record the command here. One lint check is a test:
+  `tests/test_undefined_names.py` fails on a global a module's code reads but never binds (pyflakes' *undefined
+  name*, by `symtable`), the `NameError` a key would otherwise find.
 
 ## Skills
 

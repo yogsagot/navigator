@@ -67,8 +67,8 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   (`navkit/app/__init__.py` imports `navkit.application` first, so either may be imported first). Keep a method
   that reads a module global a test patches (`REPEAT_DELAY`, `CLIPBOARD_ANSWER_TIMEOUT`) in the class's own module.
 - **A moved method may name nothing defined after the class it left** -- a `NameError` only when it runs (Shell's
-  `UserScreenPeek` moved into `console_keys.py` with its one caller). Check every split module for names a function
-  reads as globals that the module never binds (`symtable`), not only that it imports.
+  `UserScreenPeek` moved into `console_keys.py` with its one caller). `tests/test_undefined_names.py` fails on it,
+  for every module.
 - **A mixin is not a type to a stylesheet.** `navkit.stylesheet.type_names` leaves out every class that is a mixin
   (`__navkit_mixin__` in its own namespace), so `Links { }` never matches the manager. Code that looks for "the first
   class in the MRO that is not this one" must skip mixins too (`keybindings.Section.base`).
