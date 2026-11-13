@@ -69,9 +69,10 @@ from navkit.glyphs import GLYPHS_UNICODE
 from navkit.screen import Surface
 from navkit.widget import Widget
 
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.menu_box.menu_box import MenuBox
-from navml.widgets.menu.menu_item.menu_item import MenuItem, MenuNode
+from navml.widgets.menu.menu_item.menu_item import MenuItem, MenuNode, help_topic_from
 from navml.widgets.menu.menu_line.menu_line import MenuLine
 from navml.widgets.menu.sub_menu.sub_menu import SubMenu
 
@@ -173,12 +174,35 @@ class PopupBox(MenuBox):
 class PopupMenu(Widget):
     """*menu*'s entries in a box at *x*, *y*, the entry *current* selected."""
 
+    #: F1 is ``cmHelp``, as in a dialog and an open bar menu: the box is a
+    #: modal layer, under which the application's own table stands aside.  A
+    #: caller that lists ``f1`` among its *keys* does not get it.
+    keys = {"f1": Help}
+
+    @property
+    def help_topic(self) -> str:
+        """What F1 shows: the highlighted entry's ``help_topic``, else its
+        menu's and outwards, else the one this box was opened with, else
+        that of the widget it was opened for (*behind*) -- a context menu
+        is its widget's, so it shares that widget's window's help."""
+        boxes = self.boxes
+        found = ""
+        if boxes:
+            top = boxes[-1]
+            entries = top.entries()
+            entry = entries[top.current] if 0 <= top.current < len(entries) else top.menu
+            found = help_topic_from(entry, self)
+        return found or self.topic or help_topic_from(self.behind)
+
     def __init__(self, menu: SubMenu | None = None, x: int = 0, y: int = 0, *,
                  current: int = -1, behind: Widget | None = None,
                  keys: tuple[str, ...] = (), title: str = "", footer: str = "",
                  buttons: tuple[str, ...] = ("left",), submenu: tuple[int, int] | None = None,
-                 hints: Sequence[tuple[str, str]] = (), **kwargs: Any) -> None:
+                 hints: Sequence[tuple[str, str]] = (), help_topic: str = "", **kwargs: Any) -> None:
         super().__init__(**kwargs)
+        #: What F1 shows when no entry names a topic of its own; see
+        #: :attr:`help_topic`.
+        self.topic = help_topic
         #: A submenu of the first box to open as the box opens, and the entry
         #: to select in it: ``(index, current)``; see the module.
         self.submenu = submenu

@@ -325,3 +325,93 @@ def test_a_window_names_its_topic_and_the_nearest_one_wins(app):
         lambda a: seen.append(top_text(a)),
     ])
     assert seen == ["README.md", "other.md", "help.md", "Other"]
+
+
+# -- F1 on a menu and on a popup ----------------------------------------------
+
+
+def test_f1_on_an_open_menu_shows_the_highlighted_entrys_help_and_esc_goes_back(app):
+    from navml.widgets.menu.menu_bar.menu_session import MenuSession
+
+    seen = []
+
+    def name_them(a):
+        session = a.modal
+        seen.append(type(session))
+        seen.append(session.help_topic)  # nothing named yet
+        a.shell.menu.file.help_topic = "other.md"
+        seen.append(session.help_topic)  # the menu's, for any entry in it
+        box = session.boxes[-1]
+        box.entries()[box.current].help_topic = "other.md#second"
+        seen.append(session.help_topic)  # the entry's own wins
+
+    run_app(app, [
+        KeyEvent("f10"), KeyEvent("right"), KeyEvent("enter"),  # File, dropped
+        name_them,
+        KeyEvent("f1"), on_page("other.md"),
+        lambda a: seen.append(top_text(a)),
+        KeyEvent("escape"),
+        lambda a: seen.append((type(a.modal), len(a.modal.boxes))),  # the menu, still open
+        KeyEvent("down"),
+        lambda a: seen.append(a.modal.help_topic),
+        KeyEvent("escape"),
+        lambda a: seen.append(a.modal),
+    ])
+    assert seen == [MenuSession, "", "other.md", "other.md#second", "Second",
+                    (MenuSession, 1), "other.md", None]
+
+
+def test_f1_on_a_menu_naming_no_topic_shows_the_contents(app):
+    seen = []
+    run_app(app, [
+        KeyEvent("f10"),
+        KeyEvent("f1"), on_page("README.md"),
+        lambda a: seen.append(top_text(a)),
+    ])
+    assert seen == ["Contents"]
+
+
+def test_f1_on_a_popup_menu_asks_the_entry_then_the_popup_then_what_it_was_opened_for(app):
+    from navml.widgets.menu.menu_item.menu_item import MenuItem
+    from navml.widgets.menu.popup_menu import PopupMenu
+    from navml.widgets.menu.sub_menu.sub_menu import SubMenu
+    from navml.widgets.window import Window
+
+    seen = []
+    popups = []
+
+    def open_one(topic=""):
+        def start(a):
+            menu = SubMenu()
+            menu.add_item("~O~ne")
+            menu.add_item("~T~wo")
+            popups.append(PopupMenu(menu, 5, 5, behind=a.focused, help_topic=topic))
+            a.spawn(popups[-1].execute(a))
+        return start
+
+    def window_of(a, widget):
+        while not isinstance(widget, Window):
+            widget = widget.parent
+        return widget
+
+    def ask(a):
+        popup = popups[-1]
+        seen.append(popup.help_topic)  # nobody names one
+        window_of(a, popup.behind).help_topic = "other.md"
+        seen.append(popup.help_topic)  # the window it was opened over
+        popup.topic = "help.md"
+        seen.append(popup.help_topic)  # its own
+        box = popup.boxes[-1]
+        box.entries()[box.current].help_topic = "other.md#second"
+        seen.append(popup.help_topic)  # the highlighted entry's
+
+    run_app(app, [
+        open_one(), Until(lambda a: a.modal is popups[-1]),
+        ask,
+        KeyEvent("f1"), on_page("other.md"),
+        lambda a: seen.append(top_text(a)),
+        KeyEvent("escape"),
+        lambda a: seen.append(a.modal is popups[-1]),
+        KeyEvent("escape"),
+    ])
+    assert seen == ["", "other.md", "help.md", "other.md#second", "Second", True]

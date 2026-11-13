@@ -131,8 +131,17 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
 - **`Help` is navml's command** (`navml/widgets/dialog/commands.py`, `cmHelp`; `navigator.commands.Help` is the
   same class) because **`Dialog`'s key table binds F1** too: the application's table stands aside under a modal.
   The command bubbles to `Navigator.on_help`; in an application with no handler it is disabled and the key goes on.
-  `HelpWindow` binds F1 over it (*Help on help*). A menu or a popup is no `Dialog`: F1 does nothing there yet (DN
-  gave a menu item's help).
+  `HelpWindow` binds F1 over it (*Help on help*).
+- **An open menu and a popup bind F1 too** (`MenuSession.keys`, `PopupMenu.keys`: both are modal layers and no
+  `Dialog`), and each answers `help_topic` itself, as a property. Help opens over the menu, and Esc goes back to it
+  still open. A caller's `PopupMenu(keys=("f1", ...))` loses to it.
+  - **Every menu entry has `help_topic`** (`MenuNode`, so `MenuItem`, `SubMenu`; TV's per-item `HelpCtx`):
+    `help_topic: "panels.md#sorting"` in markup. The highlighted entry's wins, else its submenu's, and so outwards
+    (`help_topic_from(entry, stop)`): for a window's menu that joined the bar, as far as the window's own.
+  - **The bar's menus do not fall back to what is behind them**: with nothing named, F1 shows the contents.
+  - **A popup** asks the entry chain, then the topic it was opened with (`PopupMenu(help_topic=)`, kept in
+    `topic`), then the widget it was opened for (`behind`) outwards -- a context menu is its widget's, so it shares
+    that window's help.
 - **The topic is `help_topic`**, a property of navml's `Modal` and `Window` (Turbo Vision's `HelpCtx`), a page and
   an optional heading: `help_topic: "file-operations.md#copy"` in markup. `Navigator.help_topic()` is DN's
   `GetHelpCtx`: from the widget with the keyboard outwards, the first non-empty one, else `pages.CONTENTS`. Any

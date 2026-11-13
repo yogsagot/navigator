@@ -33,14 +33,35 @@ from navkit.screen import Surface
 from navkit.style import SHADOW  # noqa: F401 -- re-exported; tests read it here
 from navkit.widget import Widget
 
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.control.control import parse_shortcut
 from navml.widgets.menu.menu_box.menu_box import MenuBox
-from navml.widgets.menu.menu_item.menu_item import MenuItem
+from navml.widgets.menu.menu_item.menu_item import MenuItem, help_topic_from
 from navml.widgets.menu.menu_line.menu_line import MenuLine
 from navml.widgets.menu.sub_menu.sub_menu import SubMenu
 
 class MenuSession(Widget):
     """The open menu of one :class:`MenuBar`."""
+
+    #: F1 is ``cmHelp`` here as in a dialog, and for the same reason: an open
+    #: menu is a modal layer, under which the application's own table stands
+    #: aside.  The application handles it; with no handler the key does nothing.
+    keys = {"f1": Help}
+
+    @property
+    def help_topic(self) -> str:
+        """What F1 shows: the highlighted entry's ``help_topic``, else its
+        menu's, and so outwards -- to the window, for a window's menu that
+        joined the bar.  Not what lies behind the menu: the bar's own menus
+        are nobody's but the application's, which then shows its contents."""
+        boxes = self.boxes
+        if boxes:
+            top = boxes[-1]
+            entries, current, around = top.entries(), top.current, top.menu
+        else:
+            entries, current, around = self.bar.entries(), self.bar.current, self.bar
+        entry = entries[current] if 0 <= current < len(entries) else around
+        return help_topic_from(entry, self)
 
     def __init__(self, bar: Any, behind: Widget | None) -> None:
         super().__init__()

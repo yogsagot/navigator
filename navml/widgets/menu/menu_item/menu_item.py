@@ -31,6 +31,11 @@ class MenuNode(Widget):
 
     #: Left out of its menu: not shown, not counted, not reachable by letter.
     hidden: bool = reactive(False)
+    #: What F1 shows while this entry is the highlighted one: a topic the
+    #: application understands, as a dialog's ``help_topic`` is (Turbo
+    #: Vision gave every menu item a ``HelpCtx``).  Empty, the menu it is in
+    #: answers, and so outwards (:func:`help_topic_from`).
+    help_topic: str = reactive("")
 
     def __init__(self, **kwargs: Any) -> None:
         take_declared(self, kwargs)
@@ -39,6 +44,22 @@ class MenuNode(Widget):
 
     def layout(self, width: int, height: int) -> None:
         """Nothing to fit: a node has no rectangle of its own."""
+
+
+def help_topic_from(widget: Widget | None, stop: Widget | None = None) -> str:
+    """The first ``help_topic`` named from *widget* outwards, or "".
+
+    For a menu entry that is its own, then its submenu's, and so on up to
+    whatever the menu tree hangs on -- the bar, or the window a menu that
+    joined the bar belongs to.  The walk ends before *stop*: the menu layer
+    asking, whose own ``help_topic`` is this very question.
+    """
+    while widget is not None and widget is not stop:
+        topic = getattr(widget, "help_topic", "")
+        if topic:
+            return topic
+        widget = widget.parent
+    return ""
 
 
 class MenuItem(MenuNode):
