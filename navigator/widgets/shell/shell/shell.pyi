@@ -41,11 +41,10 @@ import os
 from pathlib import Path
 from typing import Any, Callable
 from navkit.commands import Command
-from navkit.events import Event, KeyEvent
+from navkit.events import Event
 from navkit.i18n import tr
 from navkit.reactive import bind, computed, effect, reactive
 from navkit.screen import Surface
-from navkit.widget import Widget
 from navkit.stylesheet import Stylesheet
 from navml.widgets.dialog.dialog import Dialog
 from navigator.lib.system.subshell import CompletionsReady
@@ -58,6 +57,8 @@ from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.shell.command_line import CommandLineMixin
 from typing import TYPE_CHECKING
 from navkit.stylesheet import StylesheetError
+from navkit.events import KeyEvent
+from navkit.widget import Widget
 from navml.widgets.menu.commands import OpenMenu
 from navigator.lib.system.subshell import HistoryChosen
 from navml.history import HISTORY
@@ -87,9 +88,6 @@ from navigator.widgets.shell.commands import Game, OpenCalendar, About, NewManag
 
 
 class _Toasts(object): ...
-
-
-class UserScreenPeek(Widget): ...
 
 
 class Shell(DockLayout, _Component):

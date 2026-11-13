@@ -11,13 +11,13 @@ from conftest import LISTED, FakeTerminal, Until, run_app
 from navigator.__main__ import Navigator
 from navigator.lib.system import dirwatch
 from navigator.settings import SETTINGS
-from navigator.widgets.manager.panel import panel as panel_module
+from navigator.widgets.manager.panel import places as places_module  # where REFRESH_DELAY is read
 
 
 @pytest.fixture
 def tree(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.lib.system.subshell.Subshell.start", lambda self, *a, **k: None)
-    monkeypatch.setattr(panel_module, "REFRESH_DELAY", 0.05)
+    monkeypatch.setattr(places_module, "REFRESH_DELAY", 0.05)
     (tmp_path / "one.txt").write_text("1")
     (tmp_path / "two.txt").write_text("2")
     (tmp_path / "sub").mkdir()
@@ -175,7 +175,7 @@ def test_a_panel_taken_off_the_screen_stops_watching(tree):
 
 
 def test_a_burst_of_changes_is_one_re_read(tree, monkeypatch):
-    monkeypatch.setattr(panel_module, "REFRESH_DELAY", 0.2)
+    monkeypatch.setattr(places_module, "REFRESH_DELAY", 0.2)
     app = navigator(tree)
     reads = []
 
@@ -196,7 +196,7 @@ def test_a_file_being_written_wakes_the_loop_once_per_re_read(tree, monkeypatch)
     """A copy into the directory shown is a change per block written: the
     watcher's thread hands the first to the loop and drops the rest until the
     re-read, instead of costing the loop a wake-up per block."""
-    monkeypatch.setattr(panel_module, "REFRESH_DELAY", 0.5)
+    monkeypatch.setattr(places_module, "REFRESH_DELAY", 0.5)
     app = navigator(tree)
     handed = []
 
