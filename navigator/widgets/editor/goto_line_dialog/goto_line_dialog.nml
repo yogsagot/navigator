@@ -1,3 +1,6 @@
+from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
@@ -6,11 +9,16 @@ from navml.widgets.dialog.field import Field
 #: The label at column 3, the line from 16 to 28 and its history after it, as
 #: the resource has them.  A row taller than DN's 34 by 7, for the blank row
 #: the viewer's *Goto Address* keeps between line and buttons.
-#: ``dlgGotoLine``'s Help button is left out until F1 Help exists (a departure).
+#: OK, Cancel and Help ten wide and touching from column 2, the resource's own
+#: row: this library's three would pass the frame.
 GotoLineDialog(Dialog):
     modal_width: 34
     modal_height: 8
     title: "Goto Line"
+    help_topic: "editor.md#go-to-a-line"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
 
     Field:
         id: number
@@ -21,3 +29,27 @@ GotoLineDialog(Dialog):
         label_text: "~L~ine number"
         label_width: 13
         history_id: "goto_line"
+
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 0
+        anchors:
+            left: 2
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help

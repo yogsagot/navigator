@@ -96,6 +96,10 @@ def declared_topics() -> list[tuple[str, str]]:
                 continue
             for topic in pattern.findall(path.read_text(encoding="utf-8")):
                 found.append((str(path.relative_to(root)), topic))
+    # And the ones the application gives navml's boxes, which name none.
+    from navigator.lib.help.topics import LIBRARY
+
+    found.extend((f"topics.LIBRARY[{name!r}]", topic) for name, topic in LIBRARY.items())
     return found
 
 

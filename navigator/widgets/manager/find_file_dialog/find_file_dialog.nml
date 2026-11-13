@@ -1,5 +1,6 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -8,9 +9,10 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: Alt+F7, File > Find...: DOS Navigator's ``dlgFileFind``.
 #:
 #: Its rows as ``DN.DNR`` lays them, two columns wider and a row taller for
-#: this library's buttons; DN's own row of OK, *Advanced...* and Cancel,
-#: Help left out with nothing to show yet.  Cancel carries no letter, as the
-#: resource's did: ``~C~`` is *Case sensitive*'s.
+#: this library's buttons; DN's own row of OK, *Advanced...*, Cancel and
+#: Help, ten wide and touching from column 3 as the resource has them.
+#: Cancel carries no letter, as the resource's did: ``~C~`` is *Case
+#: sensitive*'s.
 #:
 #: Not DN's: *Regular expression* among the options, a row lower for it, and,
 #: with *replacing*, File > Replace in files' *Replace with* line under the
@@ -22,9 +24,10 @@ FindFileDialog(Dialog):
     modal_width: 52
     modal_height: 21 if root.replacing else 19
     title: "Replace in Files" if root.replacing else "Find File"
+    help_topic: "panels.md#replace-in-files" if root.replacing else "panels.md#find-file"
     buttons: "none"
 
-    buttons_row: (pick, advanced, abandon)
+    buttons_row: (pick, advanced, abandon, helper)
 
     #: DN's ``hsFindMask``.
     Field:
@@ -102,7 +105,7 @@ FindFileDialog(Dialog):
         text: "O~K~"
         default: True
         x: 3
-        width: 11
+        width: 10
         height: 2
         anchors:
             bottom: 2
@@ -111,7 +114,7 @@ FindFileDialog(Dialog):
     Button:
         id: advanced
         text: "Ad~v~anced..."
-        x: 16
+        x: 13
         width: 15
         height: 2
         anchors:
@@ -121,8 +124,19 @@ FindFileDialog(Dialog):
     Button:
         id: abandon
         text: "Cancel"
-        x: 33
-        width: 11
+        x: 28
+        width: 10
+        height: 2
+        anchors:
+            bottom: 2
+
+    #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+    Button:
+        id: helper
+        text: "Help"
+        command: Help
+        x: 38
+        width: 10
         height: 2
         anchors:
             bottom: 2

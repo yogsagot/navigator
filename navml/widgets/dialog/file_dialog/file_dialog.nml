@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.file_list import FileInfoPane, FileList
@@ -103,11 +104,12 @@ FileDialog(Dialog):
         anchors:
             right: 2
 
-    #: No help is written yet, so the button is shown and disabled.
+    #: ``cmHelp``: the application's to handle, and to say which page (the
+    #: library names none).  With no handler the button does nothing.
     Button:
         id: helper
         text: "~H~elp"
-        disabled: True
+        command: Help
         y: 9
         width: 10
         height: 2

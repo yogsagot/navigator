@@ -14,6 +14,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: than tagged.  Select stays first and is chosen every time, so the dialog
 #: opens as DN's did.
 CompareDialog(Dialog):
+    help_topic: "compare.md#compare-directories"
     modal_width: 34
     modal_height: 16
     title: "Compare directories"

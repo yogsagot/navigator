@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -9,12 +10,13 @@ from navml.widgets.dialog.label import Label
 #: File > Encoding > UU Decode, Ctrl+F8: DOS Navigator's ``dlgUUDecode``.
 #:
 #: The target directory under its caption, the three options, and OK /
-#: Cancel / Tree; Help is left out, having nothing to show yet.  A row taller
-#: than DN's 49 by 11, for this library's buttons.
+#: Cancel / Tree / Help.  A row taller than DN's 49 by 11, for this library's
+#: buttons.
 UUDecodeDialog(Dialog):
     modal_width: 49
     modal_height: 12
     title: "UU Decode"
+    help_topic: "file-operations.md#decoding"
     buttons: "none"
 
     keys:
@@ -24,7 +26,7 @@ UUDecodeDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
-    buttons_row: (pick, abandon, tree)
+    buttons_row: (pick, abandon, tree, help)
 
     Label:
         id: target_caption
@@ -54,10 +56,15 @@ UUDecodeDialog(Dialog):
             right: 2
         items: ["~C~heck existing files", "Display ~e~rror messages", "~S~ave broken files"]
 
+    #: DN's own row now that Help is back: four buttons ten wide and touching,
+    #: from column 7, as ``dlgUUDecode`` has them -- this library's eleven and a gap
+    #: of two would pass the frame.
     ButtonRow:
         justify: "start"
+        button_width: 10
+        spacing: 0
         anchors:
-            left: 5
+            left: 7
             right: 0
             bottom: 2
 
@@ -74,3 +81,9 @@ UUDecodeDialog(Dialog):
             id: tree
             text: "~T~ree"
             on_click: root.spawn(root.choose_target())
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: help
+            text: "Help"
+            command: Help

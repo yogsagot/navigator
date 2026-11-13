@@ -41,6 +41,7 @@ from navml.widgets.timer import Timer
 #: click on a column's title does.  Typing, Ctrl+S or Alt+F goes to the
 #: filter; Esc empties it, then closes the window; Ctrl+R reads again.
 ServiceWindow(Window):
+    help_topic: "utilities.md#services"
     title: "Services"
     min_width: max(user_box.width, types_box.width) + start_button.width + stop_button.width + journal_button.width + edit_button.width + close_button.width + 9
 

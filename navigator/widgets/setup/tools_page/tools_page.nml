@@ -10,6 +10,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: ``[services]``, ``[monitor]``), given a page so that none is the ini
 #: file's alone.  A window open reads its new interval at its next tick.
 ToolsPage(SettingsPage):
+    class help_topic: "settings.md#tools"
     class section_name: ""
 
     #: The caption on its tab, which *Settings* gives it.

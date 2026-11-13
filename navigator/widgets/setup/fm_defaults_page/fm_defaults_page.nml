@@ -10,11 +10,12 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: two rows, with *Attributes* and *Owner* added), *Display* in two
 #: of four, and what the left panel of a new file manager is.  Four columns
 #: wider than DN's 48, and four more for the arrows each order's caption ends
-#: in; Help is left out, having nothing to show yet.
+#: in.
 #: Two captions depart from DN's: *Group* is *Type*, since on POSIX a group
 #: is the file's owner group, and the left panel's *Drive* is *Files*.
 #: *Panel mode* is not DN's: Ctrl+Y's three modes, for a new panel.
 FMDefaultsPage(SettingsPage):
+    class help_topic: "settings.md#panel-defaults"
     class section_name: "panel_defaults"
 
     #: The caption on its tab, which *Settings* gives it.

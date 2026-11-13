@@ -85,7 +85,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
     """
     document = parse_file(shipped("dialog", ".nml"))
     assert [line.names for line in document.imports] == [
-        ("Cancel", "Default", "SelectNext", "SelectPrevious"),
+        ("Cancel", "Default", "Help", "SelectNext", "SelectPrevious"),
         ("Button",), ("ButtonRow",), ("StaticText",), ("Modal",),
         ("ShowContextMenu",),
     ]
@@ -97,6 +97,7 @@ def test_the_dialog_is_read_the_way_its_generated_half_was_written():
         ("enter", "Default"),
         ("tab", "SelectNext"),
         ("shift+tab", "SelectPrevious"),
+        ("f1", "Help"),
         ("menu", "ShowContextMenu"),
         ("shift+f10", "ShowContextMenu"),
     ]
@@ -188,7 +189,7 @@ def test_imports_of_reads_the_block_without_reading_the_document():
         ("navml.widgets.menu.commands",),
     ]
     assert [line.source for line in lines] == [
-        "from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious",
+        "from navml.widgets.dialog.commands import Cancel, Default, Help, SelectNext, SelectPrevious",
         "from navml.widgets.dialog.button import Button",
         "from navml.widgets.dialog.button_row import ButtonRow",
         "from navml.widgets.dialog.static_text import StaticText",

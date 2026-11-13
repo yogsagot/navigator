@@ -598,10 +598,13 @@ class Navigator(Application):
         the widget with the keyboard, else of the nearest one around it that
         names one, else the contents page."""
         from navigator.lib.help import pages
+        from navigator.lib.help.topics import library_topic
 
         widget = self.focused
         while widget is not None:
-            topic = getattr(widget, "help_topic", "")
+            # Its own, else the one given to its class: navml's boxes cannot
+            # name a Navigator page.
+            topic = getattr(widget, "help_topic", "") or library_topic(widget)
             if topic:
                 return topic
             widget = widget.parent

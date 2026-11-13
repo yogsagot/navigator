@@ -6,9 +6,9 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #:
 #: Its boxes in its order, less *EMS* and *XMS Information*, which only
 #: meant something on DOS; *Conventional Memory* is the machine's.  *File
-#: under the cursor* and *Media information* are Navigator's own.  Help is
-#: left out, having nothing to show yet.
+#: under the cursor* and *Media information* are Navigator's own.
 DriveInfoPage(SettingsPage):
+    class help_topic: "settings.md#info-panel"
     class section_name: "drive_info"
 
     #: The caption on its tab, which *Settings* gives it.

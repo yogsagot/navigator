@@ -3285,7 +3285,9 @@ def test_the_desktop_paints_what_it_has_always_painted(tmp_path, monkeypatch):
     before the right corner became ``[.]═[.]═[Simple]═[Name↑]``, in the
     frame's own colours, and nothing else moved.  And once more when
     *Current file*'s line took DN's ``<SUB-DIR>`` whole: the two cells
-    before its word became its brackets, and nothing else moved.
+    before its word became its brackets, and nothing else moved.  And once
+    more when F1 Help got its handler: the key bar's ``F1 Help`` left the
+    disabled colour for the others', and nothing else moved.
     """
     monkeypatch.setattr(clock_module, "now", lambda: datetime(2026, 1, 1, 12, 34))
     monkeypatch.setattr(DirEntry, "display_date", property(lambda self: "01-01-2026 12:00"))
@@ -3575,8 +3577,8 @@ def test_the_key_bar_greys_what_nobody_can_run_yet(tree):
     run_app(app, [lambda a: enabled.extend(
         (c.title, a.command_enabled(c)) for _, c, _, _ in a.shell.keybar.items()
     )])
-    # The user menu, View, Edit, MkDir and the menu work; the rest wait on something.
-    assert [title for title, on in enabled if on] == ["User", "View", "Edit", "MkDir", "Menu"]
+    # Help, the user menu, View, Edit, MkDir and the menu work; the rest wait on something.
+    assert [title for title, on in enabled if on] == ["Help", "User", "View", "Edit", "MkDir", "Menu"]
 
 
 def test_the_key_bar_follows_the_keyboard_into_the_console(tree, quiet_console):

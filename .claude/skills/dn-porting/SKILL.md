@@ -19,12 +19,9 @@ over inventing modern alternatives when the two conflict** -- fidelity is the po
 
 ## How a port is written
 
-- **DN's Help buttons, until each dialog's help page is written** (F1 Help exists: `navigator-help` skill): a dialog either shows its
-  `Help` disabled, where the button row would otherwise look unlike DN's (Copy, Link, Archive, the editor's Find and
-  Margins), or leaves it out where that keeps the box to DN's size (Split, Combine, UU Encode, Make list, the setup
-  pages, ...). Either way its `#:` header or the button's comment says which. As its page is written, every dialog whose
-  DN resource has `cmHelp` gets it back, enabled, with its `HELPCTX`: `grep -rn '"Help"\|Help is left out' navigator
-  navml --include=*.nml` finds both kinds.
+- **DN's Help buttons are back** (`navigator-help` skill, *Giving a dialog its help*): every dialog whose DN
+  resource has `cmHelp` shows *Help*, `command: Help`, and names its page with `help_topic`. A newly ported dialog
+  gets both with its page; one whose resource has none (Filter) gets the topic alone.
 - **Name things after the original.** A command class is named for DN's `cm*` (and its docstring says so); a widget is
   the `T*` it recreates (`FileViewer` is `TFileViewer`, `EditWindow` is `TEditWindow`); a dialog document transcribes
   the `dlg*` resource's layout and captions; key handlers say which DN key constant they took (`kbIns`, `kbBack`).

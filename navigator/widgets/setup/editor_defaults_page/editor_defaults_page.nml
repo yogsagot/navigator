@@ -10,7 +10,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: The resource's two clusters, four numbers and the line divisor, less *Use
 #: EMS memory* and *Use XMS memory*.  The numbers are three-digit masked lines
 #: rather than DN's free input lines, so nothing but a number goes in.  Four
-#: columns wider than DN's 52; Help is left out, having nothing to show yet.
+#: columns wider than DN's 52.
 #: The line divisor lists LF first, a departure from DN's CR+LF, CR, LF:
 #: POSIX's own ending leads.  *Option strip* in each cluster is a departure
 #: too, the strip being one (``OptionStrip``), and so is *Fallback encoding*,
@@ -20,6 +20,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: *Line numbers* (``[editor] line_numbers``; DN numbered no lines) fills
 #: the cluster's last place, with no hot key: the page has no letter of it left.
 EditorDefaultsPage(SettingsPage):
+    class help_topic: "settings.md#editorviewer"
     class section_name: "editor"
 
     #: The caption on its tab, which *Settings* gives it.

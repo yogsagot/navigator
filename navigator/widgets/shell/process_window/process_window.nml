@@ -45,6 +45,7 @@ from navml.widgets.timer import Timer
 #: parents, dimmed.  Esc empties the filter, then closes the window; Ctrl+R
 #: and Alt+R read again at once.
 ProcessWindow(Window):
+    help_topic: "utilities.md#process-list"
     title: "Process list"
     min_width: max(mine_box.width, tree_box.width) + signal_button.width + kill_button.width + details_button.width + close_button.width + 8
 

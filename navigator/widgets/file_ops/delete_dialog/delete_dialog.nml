@@ -11,6 +11,7 @@ from navml.widgets.dialog.label import Label
 #: ``Directory ... is not empty`` before it is asked.  *Yes* and *No* are the
 #: base's OK and Cancel, relabelled.
 DeleteDialog(Dialog):
+    help_topic: "file-operations.md#erase"
     modal_width: 50
     modal_height: 10
     title: "Delete"

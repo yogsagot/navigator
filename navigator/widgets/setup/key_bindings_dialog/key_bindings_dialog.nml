@@ -10,6 +10,7 @@ from navigator.widgets.setup.key_bindings_dialog.binding_list import BindingList
 #: and items, with the buttons down the right as Edit environment has them.
 #: Not DOS Navigator's, which had no key editor: a departure, by request.
 KeyBindingsDialog(Dialog):
+    help_topic: "customizing.md#key-bindings"
     modal_width: 78
     modal_height: 23
     title: "Key Bindings"

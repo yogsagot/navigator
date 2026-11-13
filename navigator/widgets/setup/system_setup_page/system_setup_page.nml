@@ -14,7 +14,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: trick), *Advanced copy* (XMS/EMS buffers), the two video modes and the
 #: per-drive list -- so it is nine rows shorter.  *Flush disk buffers* is
 #: kept as what it means on POSIX: syncing what a copy wrote, file by file
-#: as it is written, where DN flushed once at the end -- a departure.  Help is left out, having nothing to show yet.
+#: as it is written, where DN flushed once at the end -- a departure.
 #: *Use internal terminal* is not DN's but a departure: whether Ctrl+O shows
 #: the console in Navigator, or hands the real terminal over as mc does.
 #: *Unexpected errors* is another: DN had Turbo Pascal's ``Runtime error``
@@ -29,6 +29,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: window of its own opens (``TerminalWindow``), filling the row that was
 #: spare under *Options*.
 SystemSetupPage(SettingsPage):
+    class help_topic: "settings.md#system"
     class section_name: "system"
 
     #: The caption on its tab, which *Settings* gives it.

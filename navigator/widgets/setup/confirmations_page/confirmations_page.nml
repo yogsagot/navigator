@@ -7,8 +7,9 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: drive to close here, and with *Editor file save*, *Delete bookmark* and
 #: *Close command window* added (departures, asked for: DN's F2 never asked,
 #: its drive box had no Del, and it had no command windows).  Four columns wider than DN's 36, for this library's
-#: eleven-column buttons; Help is left out, having nothing to show yet.
+#: eleven-column buttons.
 ConfirmationsPage(SettingsPage):
+    class help_topic: "settings.md#confirmations"
     class section_name: "confirmations"
 
     #: The caption on its tab, which *Settings* gives it.

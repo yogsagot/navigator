@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -8,13 +9,14 @@ from navml.widgets.dialog.label import Label
 #: File > Split/combine on a part (``NAME.001`` ...) or the set's ``NAME.crc``:
 #: DOS Navigator's ``dlgCombineFile``.
 #:
-#: *Combine NAME to* over the target line, and OK / Cancel / Tree; Help is
-#: left out, having nothing to show yet.  A row taller than DN's 50 by 8, for
-#: this library's buttons.
+#: *Combine NAME to* over the target line, and OK / Cancel / Tree / Help
+#: (*Help* without DN's ``~H~``, as Copy's is).  A row taller than DN's 50 by
+#: 8, for this library's buttons.
 CombineDialog(Dialog):
     modal_width: 50
     modal_height: 9
     title: "Combine file"
+    help_topic: "file-operations.md#combining"
     buttons: "none"
 
     keys:
@@ -24,7 +26,7 @@ CombineDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
-    buttons_row: (pick, abandon, tree)
+    buttons_row: (pick, abandon, tree, help)
 
     Label:
         id: target_caption
@@ -46,10 +48,15 @@ CombineDialog(Dialog):
         label_width: 0
         history_id: "splitfile"
 
+    #: DN's own row now that Help is back: four buttons ten wide and touching,
+    #: from column 8, as ``dlgCombineFile`` has them -- this library's eleven and a gap
+    #: of two would pass the frame.
     ButtonRow:
         justify: "start"
+        button_width: 10
+        spacing: 0
         anchors:
-            left: 5
+            left: 8
             right: 0
             bottom: 2
 
@@ -66,3 +73,9 @@ CombineDialog(Dialog):
             id: tree
             text: "~T~ree"
             on_click: root.spawn(root.choose_target())
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: help
+            text: "Help"
+            command: Help

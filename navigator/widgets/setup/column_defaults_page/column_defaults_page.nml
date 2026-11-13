@@ -9,9 +9,9 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: link count (not in an archive), owner and date where DN's were size,
 #: date, time and descriptions, and an archive's packed size and ratio as
 #: DN's.  *TEMP:* and *TDR View* are left
-#: out, having only meant something on DOS.  Help is left out, having
-#: nothing to show yet.
+#: out, having only meant something on DOS.
 ColumnDefaultsPage(SettingsPage):
+    class help_topic: "settings.md#columns"
     class section_name: "column_defaults"
 
     #: The caption on its tab, which *Settings* gives it.

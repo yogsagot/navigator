@@ -41,25 +41,26 @@ class MkdirDialog(Dialog, _Component):
     __navml_source__ = "mkdir_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    entry: Field    # mkdir_dialog.nml:25
+    entry: Field    # mkdir_dialog.nml:26
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.entry = Field(parent=self)    # mkdir_dialog.nml:22
+        self.entry = Field(parent=self)    # mkdir_dialog.nml:23
 
-        self.modal_width = 48    # mkdir_dialog.nml:15
-        self.modal_height = 8    # mkdir_dialog.nml:16
-        self.title = _bind(lambda _o: _tr('Make directory'), yielding=True)    # mkdir_dialog.nml:17
-        self.close_on_outside_click = True    # mkdir_dialog.nml:20
+        self.help_topic = 'file-operations.md#make-a-directory'    # mkdir_dialog.nml:15
+        self.modal_width = 48    # mkdir_dialog.nml:16
+        self.modal_height = 8    # mkdir_dialog.nml:17
+        self.title = _bind(lambda _o: _tr('Make directory'), yielding=True)    # mkdir_dialog.nml:18
+        self.close_on_outside_click = True    # mkdir_dialog.nml:21
 
-        self.entry.y = 2    # mkdir_dialog.nml:26
-        self.entry.label_text = _bind(    # mkdir_dialog.nml:31
+        self.entry.y = 2    # mkdir_dialog.nml:27
+        self.entry.label_text = _bind(    # mkdir_dialog.nml:32
             lambda _o: _tr('~D~irectory name'),
             yielding=True,
         )
-        self.entry.label_width = 17    # mkdir_dialog.nml:32
-        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:34
-        self.entry.x = 2    # mkdir_dialog.nml:28
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:29
+        self.entry.label_width = 17    # mkdir_dialog.nml:33
+        self.entry.history_id = 'mkdir'    # mkdir_dialog.nml:35
+        self.entry.x = 2    # mkdir_dialog.nml:29
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # mkdir_dialog.nml:30
 
         self._navml_built(__class__)

@@ -1,4 +1,7 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -8,12 +11,16 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #:
 #: *Panel Defaults* for one panel, with the file mask where that dialog has
 #: the left panel's kind: laid out as ``FMDefaultsPage`` is, so the two
-#: read alike, with its captions -- *Group* is *Type* here too.  Help is left
-#: out, having nothing to show yet.  *Reverse order* is not DN's.
+#: read alike, with its captions -- *Group* is *Type* here too.  OK, Cancel
+#: and Help, as the resource has.  *Reverse order* is not DN's.
 PanelSetupDialog(Dialog):
     modal_width: 56
     modal_height: 18
     title: "Panel Options"
+    help_topic: "panels.md#panel-options"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
 
     Label:
         id: sort_caption
@@ -79,3 +86,24 @@ PanelSetupDialog(Dialog):
         label_text: ""
         label_width: 0
         history_id: "file_mask"
+
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help

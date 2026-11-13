@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -9,14 +10,15 @@ from navml.widgets.dialog.label import Label
 #: File > Archive > Extract to, and Shift+F2 on an archive: DOS Navigator's
 #: ``dlgExtract``.
 #:
-#: Where to, the two options, and OK / Cancel / Tree.  DN's *Password* line
-#: is left out: Python's zip reader knows only the old ZipCrypto, and 7-Zip
-#: is asked for none.  Help is left out, having nothing to show yet.  A row
-#: taller than DN's 49 by 12, for this library's buttons.
+#: Where to, the two options, and OK / Cancel / Tree / Help.  DN's *Password*
+#: line is left out: Python's zip reader knows only the old ZipCrypto, and
+#: 7-Zip is asked for none.  A row taller than DN's 49 by 12, for this
+#: library's buttons.
 ExtractDialog(Dialog):
     modal_width: 49
     modal_height: 11
     title: "Extract files"
+    help_topic: "archives.md#extract-files"
     buttons: "none"
 
     keys:
@@ -26,7 +28,7 @@ ExtractDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
-    buttons_row: (pick, abandon, tree)
+    buttons_row: (pick, abandon, tree, help)
 
     Label:
         id: target_caption
@@ -57,10 +59,15 @@ ExtractDialog(Dialog):
         items: ["Extract with ~p~ath names", "T~e~st only"]
         tooltips: ["Make the archive's directories; off, every file goes straight into the target", "Check the archive for errors, writing nothing"]
 
+    #: DN's own row now that Help is back: four buttons ten wide and touching,
+    #: from column 8, as ``dlgExtract`` has them -- this library's eleven and
+    #: a gap of two would pass the frame.
     ButtonRow:
         justify: "start"
+        button_width: 10
+        spacing: 0
         anchors:
-            left: 5
+            left: 8
             right: 0
             bottom: 2
 
@@ -77,3 +84,9 @@ ExtractDialog(Dialog):
             id: tree
             text: "~T~ree"
             on_click: root.spawn(root.choose_target())
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: help
+            text: "Help"
+            command: Help

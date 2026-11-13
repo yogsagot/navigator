@@ -34,6 +34,11 @@ SettingsDialog(Dialog):
     modal_width: 76
     modal_height: 24
     title: "Settings"
+    #: The page in front's: F1 on the tabs or a button shows what F1 on the
+    #: page would.
+    help_topic: tabs.pages[tabs.current].help_topic
+    #: OK, Cancel and Help, as every one of DN's setup dialogs had.
+    buttons: "ok-cancel-help"
 
     #: On top, the whole width over the buttons: the baseline runs from the
     #: frame's left edge to its right one and meets both.  Down the left, the

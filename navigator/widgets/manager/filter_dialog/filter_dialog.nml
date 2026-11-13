@@ -6,11 +6,12 @@ from navml.widgets.dialog.dialog import Dialog
 #: Alt+Del, Panel > Selection > Advanced filter: DOS Navigator's ``dlgAdvancedFilter``.
 #:
 #: The list of masks over *Show*, *Hide* and *Close*, as ``DN.DNR`` and
-#: ``MakeDialog`` laid them out, a column wider.  Help is left out.
+#: ``MakeDialog`` laid them out, a column wider.  No Help button: the resource has none.
 FilterDialog(Dialog):
     modal_width: 38
     modal_height: 16
     title: "Filter"
+    help_topic: "panels.md#filter"
     buttons: "none"
 
     buttons_row: (show, hide, abandon)

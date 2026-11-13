@@ -26,6 +26,7 @@ from navml.widgets.timer import Timer
 #: lists scrolls (the arrows, PgUp/PgDn, the wheel); Tab goes from one to the
 #: other.  Esc closes it; Ctrl+R and Alt+R read again at once.
 MonitorWindow(Window):
+    help_topic: "utilities.md#system-monitor"
     title: "System monitor"
     min_width: 40
     min_height: 11

@@ -543,10 +543,11 @@ def test_interface_chooses_where_settings_puts_its_tabs_the_next_time(tmp_path, 
     def look(a):
         dialog, tabs = a.modal, a.modal.tabs
         seen.append((tabs.side, dialog.width, dialog.x))
-        # OK and Cancel centred under the pages, past the column of tabs.
+        # OK, Cancel and Help centred under the pages, past the column of tabs.
         seen.append((dialog.row.x, dialog.row.x + dialog.row.width) == (tabs.x + tabs.column + 1, tabs.x + tabs.width))
-        ok, cancel = dialog.ok, dialog.cancel
-        seen.append(ok.x == dialog.row.width - (cancel.x + cancel.width))
+        ok, last = dialog.ok, dialog.info
+        # To a cell: three buttons and their gaps are an odd width.
+        seen.append(abs(ok.x - (dialog.row.width - (last.x + last.width))) <= 1)
 
     run_app(app, [lambda a: a.spawn(a.run_command(InterfaceSetup)), lambda a: None, choose_left,
                   KeyEvent("enter"), lambda a: None,

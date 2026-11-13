@@ -24,6 +24,7 @@ from navml.widgets.window import Window
 #: next and previous difference; F3 and Esc close it, as the viewer's; Ctrl+R
 #: and Alt+R compare the two files again, as they re-read a panel.
 DiffWindow(Window):
+    help_topic: "compare.md#compare-files"
     zoomed: True
 
     keys:

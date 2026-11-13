@@ -46,5 +46,8 @@ description: Ctrl+F6, Utilities > Calculator -- DOS Navigator's CCALC.PAS/PAR.PA
   back over a change.
 - **The pad captions are notation** (`keys.py`) and not translated; everything else is.
 - The saved desktop keeps the face beside the expression; an older entry without one comes back *Classic*.
+- **Help** is `docs/en/calculator.md` (the window's `help_topic`, so F1 on any face); Classic has DN's *Help*
+  button, its four buttons touching from column 3 as `dlgCalculator` has them. A new function or key goes on that
+  page too.
 - Tests: `tests/test_calculator.py`. Run a window command with `a.spawn(a.run_command(CalculatorProgramming))`;
   press a pad key with its button's `press()`.

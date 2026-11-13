@@ -34,13 +34,13 @@ class ColumnDefaultsPage(SettingsPage, _Component):
     link count (not in an archive), owner and date where DN's were size,
     date, time and descriptions, and an archive's packed size and ratio as
     DN's.  *TEMP:* and *TDR View* are left
-    out, having only meant something on DOS.  Help is left out, having
-    nothing to show yet.
+    out, having only meant something on DOS.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "column_defaults_page.nml"
 
+    help_topic = 'settings.md#columns'    # column_defaults_page.nml:14
     section_name = 'column_defaults'    # column_defaults_page.nml:15
 
     #: The caption on its tab, which *Settings* gives it.

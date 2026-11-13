@@ -36,7 +36,10 @@ def test_the_dialog_is_laid_out_as_dlgwindowmanager_lays_it_out(tree):
     buttons = dialog.buttons_row
     assert [parse_shortcut(b.text)[0] for b in buttons] == ["OK", "Close", "Cancel", "Help"]
     assert [(b.x, b.y, b.width) for b in buttons] == [(58, y, 10) for y in (3, 5, 7, 11)]
-    assert dialog.pick.default and dialog.helper.disabled
+    from navml.widgets.dialog.commands import Help
+
+    # Help asks for the application's ``cmHelp``; with nobody handling it, it does nothing.
+    assert dialog.pick.default and dialog.helper.command is Help and not dialog.helper.disabled
     assert dialog.row.visible is False
 
 

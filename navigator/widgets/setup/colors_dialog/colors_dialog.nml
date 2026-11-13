@@ -17,6 +17,7 @@ from navml.widgets.dialog.static_text import StaticText
 #: nothing, so it is whatever the row sits on).  DN's monochrome and
 #: black-and-white selectors are left out, as there is no such screen.
 ColorsDialog(Dialog):
+    help_topic: "customizing.md#colours"
     modal_width: 70
     modal_height: 24
     title: "Colors"

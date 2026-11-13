@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -12,13 +13,14 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #:
 #: Laid out where the resource puts things: where to on the second row, the
 #: *Prefixes* and the *Checksum level* side by side under it, *Lines per
-#: section* and the *Target file format* below, and OK / Cancel / Tree along
-#: the bottom.  A row taller than DN's 60 by 17, for this library's buttons;
-#: Help is left out, having nothing to show yet.
+#: section* and the *Target file format* below, and OK / Cancel / Tree / Help
+#: along the bottom.  A row taller than DN's 60 by 17, for this library's
+#: buttons.
 UUEncodeDialog(Dialog):
     modal_width: 60
     modal_height: 18
     title: "UU Encode"
+    help_topic: "file-operations.md#encoding"
     buttons: "none"
 
     #: ``StatusDef``'s ``F10 Tree``, as the Copy dialog's.
@@ -29,7 +31,7 @@ UUEncodeDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
-    buttons_row: (pick, abandon, tree)
+    buttons_row: (pick, abandon, tree, help)
 
     #: DN's ``hsUUEncode``.
     Field:
@@ -102,10 +104,15 @@ UUEncodeDialog(Dialog):
         height: 1
         items: ["~D~OS <CR>+<LF>", "~U~NIX"]
 
+    #: DN's own row now that Help is back: four buttons ten wide and touching,
+    #: from column 14, as ``dlgUUEncode`` has them -- this library's eleven and a gap
+    #: of two would pass the frame.
     ButtonRow:
         justify: "start"
+        button_width: 10
+        spacing: 0
         anchors:
-            left: 12
+            left: 14
             right: 0
             bottom: 2
 
@@ -125,3 +132,9 @@ UUEncodeDialog(Dialog):
             id: tree
             text: "T~r~ee"
             on_click: root.spawn(root.choose_target())
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: help
+            text: "Help"
+            command: Help

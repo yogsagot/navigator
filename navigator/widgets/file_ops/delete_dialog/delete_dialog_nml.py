@@ -40,49 +40,50 @@ class DeleteDialog(Dialog, _Component):
     __navml_source__ = "delete_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    prompt_head: Label    # delete_dialog.nml:21
-    prompt_caption: Label    # delete_dialog.nml:31
-    options: CheckBoxes    # delete_dialog.nml:40
+    prompt_head: Label    # delete_dialog.nml:22
+    prompt_caption: Label    # delete_dialog.nml:32
+    options: CheckBoxes    # delete_dialog.nml:41
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.prompt_head = Label(parent=self)    # delete_dialog.nml:20
-        self.prompt_caption = Label(parent=self)    # delete_dialog.nml:30
-        self.options = CheckBoxes(parent=self)    # delete_dialog.nml:39
+        self.prompt_head = Label(parent=self)    # delete_dialog.nml:21
+        self.prompt_caption = Label(parent=self)    # delete_dialog.nml:31
+        self.options = CheckBoxes(parent=self)    # delete_dialog.nml:40
 
-        self.modal_width = 50    # delete_dialog.nml:14
-        self.modal_height = 10    # delete_dialog.nml:15
-        self.title = _bind(lambda _o: _tr('Delete'), yielding=True)    # delete_dialog.nml:16
-        self.buttons = 'ok-cancel'    # delete_dialog.nml:17
+        self.help_topic = 'file-operations.md#erase'    # delete_dialog.nml:14
+        self.modal_width = 50    # delete_dialog.nml:15
+        self.modal_height = 10    # delete_dialog.nml:16
+        self.title = _bind(lambda _o: _tr('Delete'), yielding=True)    # delete_dialog.nml:17
+        self.buttons = 'ok-cancel'    # delete_dialog.nml:18
 
-        self.prompt_head.y = 1    # delete_dialog.nml:22
-        self.prompt_head.align = 'center'    # delete_dialog.nml:26
-        self.prompt_head.text = _bind(    # delete_dialog.nml:27
+        self.prompt_head.y = 1    # delete_dialog.nml:23
+        self.prompt_head.align = 'center'    # delete_dialog.nml:27
+        self.prompt_head.text = _bind(    # delete_dialog.nml:28
             lambda _o: _tr('Do you wish to move to the Trash') if self.trashing() else _tr('Do you wish to delete'),
             yielding=True,
         )
-        self.prompt_head.x = 2    # delete_dialog.nml:24
-        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_dialog.nml:25
+        self.prompt_head.x = 2    # delete_dialog.nml:25
+        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_dialog.nml:26
 
-        self.prompt_caption.y = 2    # delete_dialog.nml:32
-        self.prompt_caption.align = 'center'    # delete_dialog.nml:36
-        self.prompt_caption.x = 2    # delete_dialog.nml:34
-        self.prompt_caption.width = _bind(    # delete_dialog.nml:35
+        self.prompt_caption.y = 2    # delete_dialog.nml:33
+        self.prompt_caption.align = 'center'    # delete_dialog.nml:37
+        self.prompt_caption.x = 2    # delete_dialog.nml:35
+        self.prompt_caption.width = _bind(    # delete_dialog.nml:36
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.options.y = 4    # delete_dialog.nml:41
-        self.options.width = 24    # delete_dialog.nml:42
-        self.options.height = 1    # delete_dialog.nml:43
-        self.options.items = _bind(    # delete_dialog.nml:46
+        self.options.y = 4    # delete_dialog.nml:42
+        self.options.width = 24    # delete_dialog.nml:43
+        self.options.height = 1    # delete_dialog.nml:44
+        self.options.items = _bind(    # delete_dialog.nml:47
             lambda _o: [_tr('~R~ecursive delete')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # delete_dialog.nml:47
+        self.options.tooltips = _bind(    # delete_dialog.nml:48
             lambda _o: [_tr('Delete directories with everything in them')],
             yielding=True,
         )
-        self.options.x = _bind(    # delete_dialog.nml:45
+        self.options.x = _bind(    # delete_dialog.nml:46
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
 

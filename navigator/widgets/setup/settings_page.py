@@ -46,6 +46,10 @@ class SettingsPage(Component):
 
     #: The section a bare ``key`` names: ``class section_name: "system"``.
     section_name: str = ""
+    #: What F1 shows while the keyboard is on this page: ``class help_topic:
+    #: "settings.md#system"`` (``navigator-help``).  The dialog names the page
+    #: in front's when the keyboard is on its tabs or buttons.
+    help_topic: str = ""
 
     def __init__(
         self,

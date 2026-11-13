@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
 #: What was last typed, which the next *Goto Line* opens with: ``GotoLine``'s
@@ -18,6 +19,11 @@ class GotoLineDialog(Dialog):
         super().__init__(**kwargs)
         self.number.value = _last["text"]
         self.number.entry.select_all()
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the history recorded, then the answer."""
+        return await self.on_ok_click(event)
 
     def accept(self) -> Any:
         """The line as an int above 0, or ``None``: ``Val`` failing, or 0 and less,

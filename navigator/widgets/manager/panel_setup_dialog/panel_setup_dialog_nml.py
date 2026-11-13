@@ -12,15 +12,19 @@ from __future__ import annotations
 #: never names it.  See *Importing another component* in navml/DESIGN.md.
 from typing import Any as _Any
 
+from navkit.events import Event as _Event
 from navkit.i18n import tr as _tr
 from navkit.reactive import bind as _bind
 
 from navml.component import Component as _Component
-from navml.widgets.dialog.check_boxes import CheckBoxes    # panel_setup_dialog.nml:1
-from navml.widgets.dialog.dialog import Dialog    # panel_setup_dialog.nml:2
-from navml.widgets.dialog.field import Field    # panel_setup_dialog.nml:3
-from navml.widgets.dialog.label import Label    # panel_setup_dialog.nml:4
-from navml.widgets.dialog.radio_buttons import RadioButtons    # panel_setup_dialog.nml:5
+from navml.widgets.dialog.button import Button    # panel_setup_dialog.nml:1
+from navml.widgets.dialog.button_row import ButtonRow    # panel_setup_dialog.nml:2
+from navml.widgets.dialog.check_boxes import CheckBoxes    # panel_setup_dialog.nml:3
+from navml.widgets.dialog.commands import Help    # panel_setup_dialog.nml:4
+from navml.widgets.dialog.dialog import Dialog    # panel_setup_dialog.nml:5
+from navml.widgets.dialog.field import Field    # panel_setup_dialog.nml:6
+from navml.widgets.dialog.label import Label    # panel_setup_dialog.nml:7
+from navml.widgets.dialog.radio_buttons import RadioButtons    # panel_setup_dialog.nml:8
 
 __navml_component__ = "PanelSetupDialog"
 
@@ -32,101 +36,148 @@ class PanelSetupDialog(Dialog, _Component):
 
     *Panel Defaults* for one panel, with the file mask where that dialog has
     the left panel's kind: laid out as ``FMDefaultsPage`` is, so the two
-    read alike, with its captions -- *Group* is *Type* here too.  Help is left
-    out, having nothing to show yet.  *Reverse order* is not DN's.
+    read alike, with its captions -- *Group* is *Type* here too.  OK, Cancel
+    and Help, as the resource has.  *Reverse order* is not DN's.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "panel_setup_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    sort_caption: Label    # panel_setup_dialog.nml:19
-    reverse: CheckBoxes    # panel_setup_dialog.nml:29
-    sort_by: RadioButtons    # panel_setup_dialog.nml:39
-    display_caption: Label    # panel_setup_dialog.nml:48
-    display: CheckBoxes    # panel_setup_dialog.nml:56
-    mask_caption: Label    # panel_setup_dialog.nml:65
-    mask: Field    # panel_setup_dialog.nml:74
+    sort_caption: Label    # panel_setup_dialog.nml:26
+    reverse: CheckBoxes    # panel_setup_dialog.nml:36
+    sort_by: RadioButtons    # panel_setup_dialog.nml:46
+    display_caption: Label    # panel_setup_dialog.nml:55
+    display: CheckBoxes    # panel_setup_dialog.nml:63
+    mask_caption: Label    # panel_setup_dialog.nml:72
+    mask: Field    # panel_setup_dialog.nml:81
+    pick: Button    # panel_setup_dialog.nml:97
+    abandon: Button    # panel_setup_dialog.nml:102
+    helper: Button    # panel_setup_dialog.nml:107
+
+    # One stub per (id, emitted event), each wired in ``__init__``
+    # below.  They return False, so a component that overrides none
+    # of them is exactly a component that never mentioned them: the
+    # event carries on up to whatever the document's own handler
+    # does with it.  The hand-written half is the *derived* class,
+    # so its override wins over the stub without either half naming
+    # the other.
+
+    async def on_pick_click(self, event: _Event) -> bool:    # panel_setup_dialog.nml:97
+        """``pick`` raised an event whose handler is ``on_click``."""
+        return False
+
+    async def on_abandon_click(self, event: _Event) -> bool:    # panel_setup_dialog.nml:102
+        """``abandon`` raised an event whose handler is ``on_click``."""
+        return False
+
+    async def on_helper_click(self, event: _Event) -> bool:    # panel_setup_dialog.nml:107
+        """``helper`` raised an event whose handler is ``on_click``."""
+        return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.sort_caption = Label(parent=self)    # panel_setup_dialog.nml:18
-        self.reverse = CheckBoxes(parent=self)    # panel_setup_dialog.nml:28
-        self.sort_by = RadioButtons(parent=self)    # panel_setup_dialog.nml:38
-        self.display_caption = Label(parent=self)    # panel_setup_dialog.nml:47
-        self.display = CheckBoxes(parent=self)    # panel_setup_dialog.nml:55
-        self.mask_caption = Label(parent=self)    # panel_setup_dialog.nml:64
-        self.mask = Field(parent=self)    # panel_setup_dialog.nml:73
+        self.sort_caption = Label(parent=self)    # panel_setup_dialog.nml:25
+        self.reverse = CheckBoxes(parent=self)    # panel_setup_dialog.nml:35
+        self.sort_by = RadioButtons(parent=self)    # panel_setup_dialog.nml:45
+        self.display_caption = Label(parent=self)    # panel_setup_dialog.nml:54
+        self.display = CheckBoxes(parent=self)    # panel_setup_dialog.nml:62
+        self.mask_caption = Label(parent=self)    # panel_setup_dialog.nml:71
+        self.mask = Field(parent=self)    # panel_setup_dialog.nml:80
+        _w1 = ButtonRow(parent=self)    # panel_setup_dialog.nml:90
+        self.pick = Button(parent=_w1)    # panel_setup_dialog.nml:96
+        self.abandon = Button(parent=_w1)    # panel_setup_dialog.nml:101
+        self.helper = Button(parent=_w1)    # panel_setup_dialog.nml:106
 
-        self.modal_width = 56    # panel_setup_dialog.nml:14
-        self.modal_height = 18    # panel_setup_dialog.nml:15
-        self.title = _bind(lambda _o: _tr('Panel Options'), yielding=True)    # panel_setup_dialog.nml:16
+        self.modal_width = 56    # panel_setup_dialog.nml:17
+        self.modal_height = 18    # panel_setup_dialog.nml:18
+        self.title = _bind(lambda _o: _tr('Panel Options'), yielding=True)    # panel_setup_dialog.nml:19
+        self.help_topic = 'panels.md#panel-options'    # panel_setup_dialog.nml:20
+        self.buttons = 'none'    # panel_setup_dialog.nml:21
+        self.buttons_row = _bind(    # panel_setup_dialog.nml:23
+            lambda _o: (self.pick, self.abandon, self.helper)
+        )
 
-        self.sort_caption.x = 2    # panel_setup_dialog.nml:20
-        self.sort_caption.y = 1    # panel_setup_dialog.nml:21
-        self.sort_caption.width = 12    # panel_setup_dialog.nml:22
-        self.sort_caption.text = _bind(    # panel_setup_dialog.nml:23
+        self.sort_caption.x = 2    # panel_setup_dialog.nml:27
+        self.sort_caption.y = 1    # panel_setup_dialog.nml:28
+        self.sort_caption.width = 12    # panel_setup_dialog.nml:29
+        self.sort_caption.text = _bind(    # panel_setup_dialog.nml:30
             lambda _o: _tr('Sort by'),
             yielding=True,
         )
-        self.sort_caption.link = _bind(lambda _o: self.sort_by)    # panel_setup_dialog.nml:24
+        self.sort_caption.link = _bind(lambda _o: self.sort_by)    # panel_setup_dialog.nml:31
 
-        self.reverse.y = 1    # panel_setup_dialog.nml:30
-        self.reverse.width = 22    # panel_setup_dialog.nml:31
-        self.reverse.height = 1    # panel_setup_dialog.nml:32
-        self.reverse.items = _bind(    # panel_setup_dialog.nml:35
+        self.reverse.y = 1    # panel_setup_dialog.nml:37
+        self.reverse.width = 22    # panel_setup_dialog.nml:38
+        self.reverse.height = 1    # panel_setup_dialog.nml:39
+        self.reverse.items = _bind(    # panel_setup_dialog.nml:42
             lambda _o: [_tr('Re~v~erse order')],
             yielding=True,
         )
-        self.reverse.tooltips = _bind(    # panel_setup_dialog.nml:36
+        self.reverse.tooltips = _bind(    # panel_setup_dialog.nml:43
             lambda _o: [_tr('The order runs the other way: largest, newest, Z first...')],
             yielding=True,
         )
-        self.reverse.x = _bind(    # panel_setup_dialog.nml:34
+        self.reverse.x = _bind(    # panel_setup_dialog.nml:41
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
 
-        self.sort_by.y = 2    # panel_setup_dialog.nml:40
-        self.sort_by.height = 3    # panel_setup_dialog.nml:41
-        self.sort_by.items = _bind(    # panel_setup_dialog.nml:45
+        self.sort_by.y = 2    # panel_setup_dialog.nml:47
+        self.sort_by.height = 3    # panel_setup_dialog.nml:48
+        self.sort_by.items = _bind(    # panel_setup_dialog.nml:52
             lambda _o: [_tr('~N~ame'), _tr('~E~xtension'), _tr('~S~ize'), _tr('~T~ime'), _tr('Attributes'), _tr('O~w~ner'), _tr('Ty~p~e'), _tr('~U~nsorted')],
             yielding=True,
         )
-        self.sort_by.x = 2    # panel_setup_dialog.nml:43
-        self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:44
+        self.sort_by.x = 2    # panel_setup_dialog.nml:50
+        self.sort_by.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:51
 
-        self.display_caption.x = 2    # panel_setup_dialog.nml:49
-        self.display_caption.y = 6    # panel_setup_dialog.nml:50
-        self.display_caption.width = 12    # panel_setup_dialog.nml:51
-        self.display_caption.text = _bind(    # panel_setup_dialog.nml:52
+        self.display_caption.x = 2    # panel_setup_dialog.nml:56
+        self.display_caption.y = 6    # panel_setup_dialog.nml:57
+        self.display_caption.width = 12    # panel_setup_dialog.nml:58
+        self.display_caption.text = _bind(    # panel_setup_dialog.nml:59
             lambda _o: _tr('Display'),
             yielding=True,
         )
-        self.display_caption.link = _bind(lambda _o: self.display)    # panel_setup_dialog.nml:53
+        self.display_caption.link = _bind(lambda _o: self.display)    # panel_setup_dialog.nml:60
 
-        self.display.y = 7    # panel_setup_dialog.nml:57
-        self.display.height = 4    # panel_setup_dialog.nml:58
-        self.display.items = _bind(    # panel_setup_dialog.nml:62
+        self.display.y = 7    # panel_setup_dialog.nml:64
+        self.display.height = 4    # panel_setup_dialog.nml:65
+        self.display.items = _bind(    # panel_setup_dialog.nml:69
             lambda _o: [_tr('Director~y~ length'), _tr('~C~urrent file'), _tr('Se~l~ected files'), _tr('T~o~tals'), _tr('~F~ree space'), _tr('Files ~h~ighlight'), _tr('E~x~ecutable first'), _tr('~A~rchives first')],
             yielding=True,
         )
-        self.display.x = 2    # panel_setup_dialog.nml:60
-        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:61
+        self.display.x = 2    # panel_setup_dialog.nml:67
+        self.display.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:68
 
-        self.mask_caption.x = 2    # panel_setup_dialog.nml:66
-        self.mask_caption.y = 12    # panel_setup_dialog.nml:67
-        self.mask_caption.width = 12    # panel_setup_dialog.nml:68
-        self.mask_caption.text = _bind(    # panel_setup_dialog.nml:69
+        self.mask_caption.x = 2    # panel_setup_dialog.nml:73
+        self.mask_caption.y = 12    # panel_setup_dialog.nml:74
+        self.mask_caption.width = 12    # panel_setup_dialog.nml:75
+        self.mask_caption.text = _bind(    # panel_setup_dialog.nml:76
             lambda _o: _tr('File ~m~ask'),
             yielding=True,
         )
-        self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # panel_setup_dialog.nml:70
+        self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # panel_setup_dialog.nml:77
 
-        self.mask.y = 13    # panel_setup_dialog.nml:75
-        self.mask.label_text = ''    # panel_setup_dialog.nml:79
-        self.mask.label_width = 0    # panel_setup_dialog.nml:80
-        self.mask.history_id = 'file_mask'    # panel_setup_dialog.nml:81
-        self.mask.x = 2    # panel_setup_dialog.nml:77
-        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:78
+        self.mask.y = 13    # panel_setup_dialog.nml:82
+        self.mask.label_text = ''    # panel_setup_dialog.nml:86
+        self.mask.label_width = 0    # panel_setup_dialog.nml:87
+        self.mask.history_id = 'file_mask'    # panel_setup_dialog.nml:88
+        self.mask.x = 2    # panel_setup_dialog.nml:84
+        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # panel_setup_dialog.nml:85
+
+        _w1.x = 0# panel_setup_dialog.nml:92
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # panel_setup_dialog.nml:93
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # panel_setup_dialog.nml:94
+
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # panel_setup_dialog.nml:98
+        self.pick.default = True    # panel_setup_dialog.nml:99
+        self.pick.on_click = self.on_pick_click    # panel_setup_dialog.nml:97
+
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # panel_setup_dialog.nml:103
+        self.abandon.on_click = self.on_abandon_click    # panel_setup_dialog.nml:102
+
+        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # panel_setup_dialog.nml:108
+        self.helper.command = Help    # panel_setup_dialog.nml:109
+        self.helper.on_click = self.on_helper_click    # panel_setup_dialog.nml:107
 
         self._navml_built(__class__)

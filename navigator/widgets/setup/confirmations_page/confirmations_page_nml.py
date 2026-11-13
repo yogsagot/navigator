@@ -32,32 +32,33 @@ class ConfirmationsPage(SettingsPage, _Component):
     drive to close here, and with *Editor file save*, *Delete bookmark* and
     *Close command window* added (departures, asked for: DN's F2 never asked,
     its drive box had no Del, and it had no command windows).  Four columns wider than DN's 36, for this library's
-    eleven-column buttons; Help is left out, having nothing to show yet.
+    eleven-column buttons.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "confirmations_page.nml"
 
-    section_name = 'confirmations'    # confirmations_page.nml:12
+    help_topic = 'settings.md#confirmations'    # confirmations_page.nml:12
+    section_name = 'confirmations'    # confirmations_page.nml:13
 
     #: The caption on its tab, which *Settings* gives it.
-    title: str = _reactive('')    # confirmations_page.nml:15
+    title: str = _reactive('')    # confirmations_page.nml:16
 
     #: Ids, annotated so the hand-written half completes them.
-    options: CheckBoxes    # confirmations_page.nml:18
+    options: CheckBoxes    # confirmations_page.nml:19
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:17
+        self.options = CheckBoxes(parent=self)    # confirmations_page.nml:18
 
-        self.options.key = 'OPTIONS'    # confirmations_page.nml:19
-        self.options.y = 1    # confirmations_page.nml:20
-        self.options.height = 10    # confirmations_page.nml:21
-        self.options.items = _bind(    # confirmations_page.nml:25
+        self.options.key = 'OPTIONS'    # confirmations_page.nml:20
+        self.options.y = 1    # confirmations_page.nml:21
+        self.options.height = 10    # confirmations_page.nml:22
+        self.options.items = _bind(    # confirmations_page.nml:26
             lambda _o: [_tr('Erase ~s~ingle file'), _tr('Erase ~m~ultiple files'), _tr('Erase ~n~on-empty sub-dir'), _tr('Erase ~r~ead-only files'), _tr('~C~reate non-existing dir'), _tr('Drag~-~and~-~drop operations'), _tr('E~x~it confirmation'), _tr('Editor file sa~v~e'), _tr('Delete ~b~ookmark'), _tr('Close command ~w~indow')],
             yielding=True,
         )
-        self.options.x = 3    # confirmations_page.nml:23
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:24
+        self.options.x = 3    # confirmations_page.nml:24
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # confirmations_page.nml:25
 
         self._navml_built(__class__)

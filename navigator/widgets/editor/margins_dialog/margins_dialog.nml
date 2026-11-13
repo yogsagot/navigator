@@ -1,5 +1,6 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
@@ -10,6 +11,7 @@ MarginsDialog(Dialog):
     modal_width: 39
     modal_height: 11
     title: "Format Margins"
+    help_topic: "editor.md#margins"
     buttons: "none"
 
     buttons_row: (pick, abandon, helper)
@@ -57,8 +59,8 @@ MarginsDialog(Dialog):
             id: abandon
             text: "Cancel"
 
-        #: No help is written yet: shown, and disabled.
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
         Button:
             id: helper
             text: "Help"
-            disabled: True
+            command: Help

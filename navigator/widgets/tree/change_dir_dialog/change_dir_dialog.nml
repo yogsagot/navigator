@@ -21,6 +21,7 @@ from navml.widgets.dialog.tree_view import TreeView
 #: apart from the top of the column, as the original's were, however tall it
 #: grows.
 ChangeDirDialog(Dialog):
+    help_topic: "trees.md#change-directory"
     modal_width: max(49, min(parent.width - 4, parent.width * 3 // 4)) if parent is not None else 49
     modal_height: max(17, min(parent.height - 2, parent.height * 4 // 5)) if parent is not None else 17
     title: "Choose Directory"

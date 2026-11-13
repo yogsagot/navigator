@@ -7,14 +7,15 @@ from navigator.widgets.setup.settings_page import SettingsPage
 
 #: Options > Configuration > Interface: DOS Navigator's ``dlgInterfaceSetup``.
 #:
-#: The resource's twelve boxes in its two columns of six, at its width; Help
-#: is left out, having nothing to show yet.  *History size* below them is a
+#: The resource's twelve boxes in its two columns of six, at its width.
+#: *History size* below them is a
 #: departure: DN's lists were a fixed 20 long, and *Tooltip delay* beside it
 #: (DN had no tooltips); so is *Language*, DN's being
 #: the resource set it was installed with, *Colours*, ``[appearance]``'s
 #: depth, where DN's was the video mode a DOS adapter was put in, *Glyphs*
 #: and *Marks*.
 InterfacePage(SettingsPage):
+    class help_topic: "settings.md#interface"
     class section_name: "interface"
 
     #: The caption on its tab, which *Settings* gives it.

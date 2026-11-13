@@ -11,6 +11,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: none is the ini file's alone.  View > *Markup view* still switches one
 #: file; this sets what F3 starts with.
 ViewerTypesPage(SettingsPage):
+    class help_topic: "settings.md#viewer-types"
     class section_name: "viewer"
 
     #: The caption on its tab, which *Settings* gives it.

@@ -27,6 +27,7 @@ from navigator.widgets.viewer import viewer_host
 #: to match the file manager, which opens zoomed too; the zoom icon gives the
 #: window its own rectangle back.
 FileWindow(Window):
+    help_topic: "viewer.md"
     zoomed: True
 
     #: ``StatusDef hcView``, in its order: the plain row, then Ctrl's and

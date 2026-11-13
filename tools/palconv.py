@@ -453,16 +453,20 @@ DERIVED_DEPARTURES: dict[str, dict[str, tuple[int | str | None, int | str | None
         "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "help-frame-icons": (15, None, "white, as this light green is a grey lost on the cyan's grey"),
     },
     "mono": {
         "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "help-frame-icons": (15, None, "white, as this light green is a grey lost on the cyan's grey"),
+        "help-selected": (None, 0, "a black ground, as this blue is the light grey its yellow vanishes on"),
     },
     "vga-bw": {
         "error-dialog": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-icons": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
         "error-dialog-shadow": (None, 6, "a dark grey ground, as this red is a grey black shadows vanish into"),
+        "help-frame-icons": (15, None, "white, as this light green is a grey lost on the cyan's grey"),
     },
 }
 

@@ -28,6 +28,7 @@ from navigator.widgets.editor.commands import CloseFindBar
 #: Both scroll bars and the info line show only while the window is active, as
 #: ``TFileEditor.SetState`` hid the bars and ``TInfoLine.Draw`` drew nothing.
 EditWindow(Window):
+    help_topic: "editor.md"
     zoomed: True
 
     #: ``StatusDef hcEditor``: what it captions.  The editing keys are the

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navkit.reactive import bind
 from navml.widgets.dialog.dialog import Dialog
 
@@ -29,6 +30,11 @@ class PanelSetupDialog(Dialog):
                 1 << index for index, name in enumerate(PanelDefaultsData.DISPLAY) if panel.shows(name)
             )
             self.mask.value = panel.file_mask
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the history recorded, then the answer."""
+        return await self.on_ok_click(event)
 
     def accept(self) -> tuple[str, frozenset[str], str, bool]:
         """``(sort, display, mask, reverse)``, as :meth:`Panel.set_options` takes them."""

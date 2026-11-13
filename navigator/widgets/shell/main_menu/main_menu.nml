@@ -79,6 +79,7 @@ MainMenu(MenuBar):
         MenuLine:
         MenuItem: text='~G~ame', command=Game, key='Alt-F9'
     SubMenu: text='~F~ile'
+        help_topic: "file-operations.md"
         id: file
         tooltip: "View, edit, copy, move, archive and delete files"
         SubMenu: text='~V~iew'
@@ -119,7 +120,9 @@ MainMenu(MenuBar):
         MenuItem: text='Replace in files...', command=ReplaceInFiles, key='Alt-Shift-F7'
             tooltip: "Find files holding a text and replace it in them, file by file"
         MenuItem: text='~C~opy...', command=Copy, key='F5'
+            help_topic: "file-operations.md#copy-and-move"
         MenuItem: text='~R~ename/Move...', command=RenameMove, key='F6'
+            help_topic: "file-operations.md#copy-and-move"
         #: The two renames that are not DN's, nested so File fits an 80x25
         #: screen with Undo -- a departure.
         SubMenu: text='Rename ~t~ools'
@@ -166,6 +169,7 @@ MainMenu(MenuBar):
         #: hard), the rest changing symbolic links already there
         #: (EditLinkTarget's docstring), and a file's hard links shown.
         SubMenu: text='Link~s~'
+            help_topic: "file-operations.md#links"
             id: file_symlinks
             MenuItem: text='Create ~l~ink...', command=MakeLink, key='Shift-F5'
                 tooltip: "Make a symbolic or hard link to each selected file"
@@ -241,10 +245,12 @@ MainMenu(MenuBar):
             tooltip: "Type a command in a box and run it"
         MenuItem: text='E~x~it', command=Quit, key='Alt-X'
     SubMenu: text='~D~isk'
+        help_topic: "drives.md"
         id: disk
         tooltip: "The directory tree, volumes and the Trash"
         MenuItem: text='~D~irectory tree', command=OpenTreeWindow
         MenuItem: text='~V~olumes', command=OpenVolumesWindow
+            help_topic: "drives.md#volumes"
             tooltip: "Disks and partitions: mount, unmount and eject them"
         #: Not DN's, which had no loop devices: Enter's mounting of the image
         #: at the cursor (MountImage's docstring), and the panel's right-click
@@ -260,8 +266,10 @@ MainMenu(MenuBar):
         #: Manager Setup says so (OpenTrash's docstring).
         MenuLine:
         MenuItem: text='~T~rash', command=OpenTrash
+            help_topic: "drives.md#the-trash"
         MenuItem: text='~E~mpty Trash', command=EmptyTrash
     SubMenu: text='~U~tilities'
+        help_topic: "utilities.md"
         id: utilities
         tooltip: "Calculator, calendar, remote links, the user menu and histories"
         MenuItem: text='S~y~stem Information', command=SystemInfo
@@ -282,6 +290,7 @@ MainMenu(MenuBar):
             tooltip: "Each processor's load, the memory and the temperature sensors, read live"
         MenuLine:
         MenuItem: text='~C~alculator', command=Calculator, key='Ctrl-F6'
+            help_topic: "calculator.md"
         #: Not in ``dlgMainMenu``: DN 1.51 had no calendar.  A departure, asked
         #: for -- TVDEMO's, beside the calculator as TVDEMO put it.
         MenuItem: text='Ca~l~endar', command=OpenCalendar
@@ -299,6 +308,7 @@ MainMenu(MenuBar):
         #: which), and a shell's place chosen in its manager, never taken
         #: from the panel.
         SubMenu: text='Lin~k~'
+            help_topic: "drives.md#servers-containers-and-devices"
             id: utilities_link
             tooltip: "A server, a share, a container or a phone: its files in the active panel"
             MenuItem: text='~S~SH (SFTP)...', command=NavyLink, key='Alt-F11'
@@ -322,6 +332,7 @@ MainMenu(MenuBar):
                 tooltip: "Google Drive, OneDrive, Dropbox and some seventy more, set up with rclone config"
         #: DN's *Terminal*, where it stood, before *Hang up*.
         SubMenu: text='Rem~o~te shell'
+            help_topic: "drives.md#servers-containers-and-devices"
             id: utilities_shell
             tooltip: "A shell on a server, in a container or on a phone, in a window"
             MenuItem: text='~S~SH...', command=Terminal
@@ -345,6 +356,7 @@ MainMenu(MenuBar):
         MenuItem: text='Edi~t~ environment', command=EnvEdit
             tooltip: "Edit the environment variables commands run with"
         MenuItem: text='~U~ser menu', command=UserMenu, key='F2'
+            help_topic: "user-menu.md"
         MenuItem: text='Commands ~H~istory', command=HistoryList, key='Alt-F8'
         #: Not DN's: the commands typed, here and in the shell, searched by fzf.
         MenuItem: text='Fu~z~zy history search...', command=FuzzyHistory, key='Alt-Shift-F8'
@@ -352,6 +364,7 @@ MainMenu(MenuBar):
         MenuItem: text='File ~E~dit History', command=EditHistory, key='Alt-PgUp'
         MenuItem: text='File ~V~iew History', command=ViewHistory, key='Alt-PgDn'
     SubMenu: text='~M~anager'
+        help_topic: "panels.md"
         id: manager
         tooltip: "New file managers, swapping and hiding panels, bookmarks"
         MenuItem: text='~N~ew', command=NewManager, key='Ctrl-F3'
@@ -370,6 +383,7 @@ MainMenu(MenuBar):
         MenuItem: text='Bookmarks rig~h~t', command=ChangeRight, key='Alt-F2'
             tooltip: "Send the right panel to a bookmarked directory"
     SubMenu: text='~O~ptions'
+        help_topic: "settings.md"
         id: options
         tooltip: "Settings, configuration files, the desktop and colours"
         #: Every page of the two submenus below behind one row of tabs; not
@@ -435,6 +449,7 @@ MainMenu(MenuBar):
         MenuItem: text='Lo~a~d palette', command=LoadColors
             tooltip: "Use colours saved in a file"
     SubMenu: text='~W~indow'
+        help_topic: "windows.md"
         id: window
         tooltip: "Arrange, switch between and close windows"
         MenuItem: text='~T~ile', command=TileWindows
@@ -453,6 +468,7 @@ MainMenu(MenuBar):
         MenuItem: text='~C~lose', command=CloseWindow, key='Ctrl-F4'
         MenuLine:
         MenuItem: text='~L~ist...', command=WindowManager, key='Alt-0'
+            help_topic: "windows.md#window-list"
             tooltip: "All the windows, to switch to one or close it"
         #: Not DN's: the box of a copy or an erase sent to the background.
         MenuItem: text='~B~ackground operation...', command=ShowBackground

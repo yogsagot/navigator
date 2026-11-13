@@ -13,7 +13,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: the *Drive line*, and ``descript.ion`` descriptions (*Do not kill
 #: descriptions*, *Files with descriptions*).  DN's caption *Use ~/~→ keys*
 #: had lost its left arrow; it is *Use ←/→ keys* here.  Three columns wider
-#: than DN's 57; Help is left out, having nothing to show yet.  *Auto refresh
+#: than DN's 57.  *Auto refresh
 #: panels* is not DN's (``[file_manager] auto_refresh``), nor is *Right
 #: button* (``[file_manager] right_button``): DN's always selected, nor *Link
 #: target line* (``[file_manager] link_line``): DN had no symlinks, nor *Option
@@ -30,6 +30,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: restore_cursor``, ``remember_directories``): DN remembered nothing per
 #: directory (``navigator/lib/config/directory_settings.py``).
 FMSetupPage(SettingsPage):
+    class help_topic: "settings.md#file-panels"
     class section_name: "file_manager"
 
     #: The caption on its tab, which *Settings* gives it.

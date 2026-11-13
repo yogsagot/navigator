@@ -149,10 +149,72 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
   the three packages' `.nml` and `.py` and fails on a page or a heading that is not there -- so **write the page
   before naming it**.
 
+## Giving a dialog its help
+
+Written so far, each with its dialogs' topics and Help buttons: `file-operations.md` (Copy and move, Links, Split
+and combine, UU), `archives.md`, `editor.md` (Find and replace, Go to a line, Margins), `panels.md` (File masks,
+Panel options, Filter, Find file with Advanced search and Replace in files, Make a list file), `viewer.md` (Searching a table),
+`utilities.md` (Edit the environment), `game.md` (keys, the Top Ten), `settings.md` (a section a page of
+*Settings*, fifteen), `calculator.md` (the window's `help_topic`; Help on its Classic face, DN's row),
+`windows.md` (Working with windows, Window list), `dialogs.md` (Keys in a dialog box, Choosing a file).
+
+**General pages**, which no dialog names: `README.md` (Getting started, the contents by area), the first half of
+`panels.md` (moving around, views, sorting, tagging, quick search, the clipboard, the other side), `viewer.md`'s
+and `editor.md`'s keys, `console.md` (the command line and the console) and `drives.md` (archives, servers,
+containers, volumes, the Trash, bookmarks). **Windows and menus that name a page**: `Manager` (`panels.md`),
+`FileWindow` (`viewer.md`), `DBWindow`, `EditWindow` (`editor.md`), `CalculatorWindow`; the bar's *File*, *Disk*,
+*Manager*, *Options* and *Window* menus and a few items (*Copy*, *Rename/Move*, *Calculator*, *Volumes*, *Trash*,
+*List*), as `help_topic:` child lines in `main_menu.nml`. A window's own menus (*Panel*, *View*, *Editor*) reach
+their window's. `tests/test_help_window.py`'s fixture clears the file manager's and the File menu's, its pages
+being its own.
+
+**The rest**: `file-operations.md` also has Make a directory, Erase and File attributes; `compare.md` (Compare
+directories, Synchronize, Compare files); `trees.md` (the tree beside a panel, Change directory, Directory sizes);
+`user-menu.md` (the user menu's file and macros, the four association files); `customizing.md` (Key bindings,
+Colours); `utilities.md` (Process list, Services, System monitor, the environment). Named by `DeleteDialog`,
+`AttrDialog`, `MkdirDialog`, `CompareDialog`, `ChangeDirDialog`, `KeyBindingsDialog`, `ColorsDialog` and the
+windows `ProcessWindow`, `ServiceWindow`, `MonitorWindow`, `TreeWindow`, `UsageWindow`, `VolumesWindow`,
+`SyncWindow`, `DiffWindow`; the bar's *Utilities* menu, *User menu*, *Links*, *Link* and *Remote shell*.
+**A page's example must survive its own macros**: in a user menu `$` is the other panel's file, so `$EDITOR` in
+an example would be wrong.
+
+**navml's own boxes** cannot name a Navigator page, so the application gives theirs:
+`navigator/lib/help/topics.py`'s `LIBRARY`, class name to topic (`WindowManagerDialog`, `FileDialog`), asked by
+`Navigator.help_topic` through `library_topic(widget)` for a widget that names none -- its class or any it derives
+from, so `PaletteFileDialog` shares the file dialog's unless it sets `help_topic` itself. Their *~H~elp* buttons
+are `command: Help` in navml; in an application with no handler they do nothing (and are not greyed: a button is
+not greyed for a disabled command). The topic test reads `LIBRARY` too.
+
+**Settings**: each page names its section with `class help_topic: "settings.md#system"` (a class-level line, as
+`section_name` is; `SettingsPage.help_topic`), which F1 on any of its controls finds. The dialog's own
+`help_topic` is bound to the page in front's (`tabs.pages[tabs.current].help_topic`), for F1 on the tabs or a
+button. Its third button is `Dialog`'s own (`buttons: "ok-cancel-help"`), `SettingsDialog.show_info` overridden to
+run `Help` -- the one place that built-in button is used. A new page needs its section in `settings.md` and the
+`class help_topic` line; a new setting, a line in its page's section.
+
+1. **Write the section first**, under a heading whose slug the dialog will name; the topic test fails on a
+   `help_topic` with no page or heading. Describe what the user sees, by the captions exactly (*Refresh old files*),
+   and the keys as the menus caption them. Add the page to `docs/en/README.md`.
+2. **`help_topic: "page.md#slug"`** in the root of the dialog's markup. F1 then works with no button.
+3. **The button**, where DN's resource had `cmHelp`: `text: "Help"`, `command: Help` (from
+   `navml.widgets.dialog.commands`), last in the row and in `buttons_row`. No `~H~`: the caption is already in the
+   catalogues without one, and a hotkey would need checking against every dialog's letters in every language.
+   **A dialog that used `Dialog`'s own `ok-cancel` row** needs a row of its own for the third button (`buttons:
+   "none"`, a `ButtonRow` with `pick`, `abandon`, `helper`), and then `async def on_pick_click(self, event):
+   return await self.on_ok_click(event)` in its Python half -- not `on_click: root.close(root.accept())`, which
+   skips `valid()` and records no history. `Dialog`'s built-in `ok-cancel-help` is the library's markup example
+   (its Help sets a prompt) and is not used. A dialog whose DN resource had no Help (Filter) gets the topic only.
+4. **Where four of this library's buttons (eleven wide, two apart) pass the frame**, use DN's own row: `ButtonRow`
+   with `justify: "start"`, `button_width: 10`, `spacing: 0` and `left:` at the resource's first column (`Button 8,
+   9, 18, 11` is column 8). Extract, Split, Combine and UU Decode/Encode are so.
+5. Take *Help is left out* out of the `#:` header.
+
 ## What is left
 
-- **The pages, and with each its dialog's `help_topic` and Help button**: a button is `command: Help` (it then
-  asks as F1 does); `dn-porting` has the grep that finds the dialogs whose DN resource had `cmHelp`.
+- **Not covered yet**: bookmarks beyond a paragraph, the link managers' own boxes (connections, passwords, host
+  keys), the smaller dialogs (select group, columns, quick and multi-rename, checksums, encryption, convert
+  text, the viewer's and editor's own small boxes), the calendar, the character table, SmartPad, macros. They
+  open their window's or menu's page, or the contents. *≡* names no page. The console names none.
 - **The help window's keys are not in `keybindings.ini`** (no section in `keybindings.TABLES`).
 - A code block wider than the window is cut: there is no sideways scroll.
 ## The layout, and shipping

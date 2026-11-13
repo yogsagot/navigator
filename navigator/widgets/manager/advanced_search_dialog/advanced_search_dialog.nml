@@ -15,6 +15,7 @@ AdvancedSearchDialog(Dialog):
     modal_width: 52
     modal_height: 17
     title: "Advanced search"
+    help_topic: "panels.md#advanced-search"
     buttons: "none"
 
     buttons_row: (pick, clear, abandon)

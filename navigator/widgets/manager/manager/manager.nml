@@ -49,6 +49,7 @@ from navigator.lib.file_ops.clip import CLIP
 #: than a move.  The hand-written half seeds both instead -- see
 #: ``manager.py``.
 Manager(Window):
+    help_topic: "panels.md"
     zoomed: True
     min_width: 24
     min_height: 5

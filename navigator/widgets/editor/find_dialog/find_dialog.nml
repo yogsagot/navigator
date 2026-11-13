@@ -1,5 +1,6 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -17,6 +18,7 @@ FindDialog(Dialog):
     modal_width: 55
     modal_height: 18 if root.replace else 15
     title: "Replace" if root.replace else "Find"
+    help_topic: "editor.md#find-and-replace"
     buttons: "none"
 
     buttons_row: (pick, all, abandon, helper)
@@ -148,8 +150,8 @@ FindDialog(Dialog):
             id: abandon
             text: "Cancel"
 
-        #: No help is written yet: shown, and disabled.
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
         Button:
             id: helper
             text: "Help"
-            disabled: True
+            command: Help

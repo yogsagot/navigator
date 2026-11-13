@@ -29,6 +29,7 @@ from navml.widgets.dialog.time_field import TimeField
 #: outside them.  The tabs are simple ones, bare captions over a rule, a row
 #: less than boxed tabs.
 AttrDialog(Dialog):
+    help_topic: "file-operations.md#file-attributes"
     modal_width: 64
     modal_height: 21
     title: "File Attributes"

@@ -6,6 +6,8 @@ from typing import Any
 
 from navkit.reactive import bind, unbind
 from navkit.widget import Widget
+from navkit.events import Event
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.settings import SETTINGS
@@ -73,6 +75,13 @@ class SettingsDialog(Dialog):
         unbind(row, Widget.width)
         row.x = bind(lambda r: tabs.x + tabs.column + 1)
         row.width = bind(lambda r: max(0, tabs.x + tabs.width - r.x))
+
+    async def show_info(self, event: Event) -> None:
+        """``Dialog``'s own Help button: ``cmHelp``, asked as F1 asks it, so
+        the page in front's help (``help_topic`` in the markup)."""
+        app = self.application
+        if app is not None:
+            await app.run_command(Help(), start=self)
 
     def page(self, tab: str) -> Widget:
         if tab not in PAGES:

@@ -14,9 +14,9 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: Its rectangles: the selected savers down the left, *Add* and *Remove*
 #: between, the available ones down the right, *Time* and *Use mouse* under
 #: them, as DN had them -- the lists three rows shorter than DN's, so the
-#: page is no taller than *Panel defaults* in *Settings*.  Help is left out,
-#: having nothing to show yet.
+#: page is no taller than *Panel defaults* in *Settings*.
 SaversPage(SettingsPage):
+    class help_topic: "settings.md#savers"
     class section_name: "savers"
 
     #: The caption on its tab, which *Settings* gives it.

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
 #: ``SearchRec``: what was last asked for.
@@ -21,6 +22,11 @@ class DBSearchDialog(Dialog):
         self.options.value = 1 if LAST["case"] else 0
         self.scope.value = self.scope.sel = 1 if LAST["all_fields"] else 0
         self.direction.value = self.direction.sel = LAST["direction"]
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the history recorded, then the answer."""
+        return await self.on_ok_click(event)
 
     def accept(self) -> dict[str, Any] | None:
         if not self.text.value:

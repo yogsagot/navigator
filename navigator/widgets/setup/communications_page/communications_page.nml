@@ -17,6 +17,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: notification once the terminal is in the background (``[system]
 #: notifications``, ``Shell.notify_away``).
 CommunicationsPage(SettingsPage):
+    class help_topic: "settings.md#communications"
     class section_name: "remote"
 
     #: The caption on its tab, which *Settings* gives it.

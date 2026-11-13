@@ -43,7 +43,12 @@ def app(tmp_path, monkeypatch):
     monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     home = tmp_path / "home"
     home.mkdir()
-    return Navigator(home, home, terminal=FakeTerminal(80, 24))
+    made = Navigator(home, home, terminal=FakeTerminal(80, 24))
+    # These tests are about the mechanism, over pages of their own: the file
+    # manager and the File menu name none of the shipped ones here.
+    made.manager.help_topic = ""
+    made.shell.menu.file.help_topic = ""
+    return made
 
 
 def viewer(app):
@@ -59,6 +64,14 @@ def on_page(name: str) -> Until:
 def top_text(app) -> str:
     shown = viewer(app)
     return shown.layout.rows[shown.top].text
+
+
+def heading_shown(app, anchor: str) -> bool:
+    """Whether the heading *anchor* names is on the screen: near a page's end
+    it cannot be scrolled to the top."""
+    shown = viewer(app)
+    row = shown.layout.anchors[anchor]
+    return shown.top <= row < shown.top + shown.height
 
 
 def selected_text(app) -> str:
@@ -276,6 +289,7 @@ def test_f1_inside_a_dialog_opens_help_over_it_and_esc_goes_back_to_it(app):
     run_app(app, [
         KeyEvent("f7"),
         Until(lambda a: isinstance(a.modal, MkdirDialog)),
+        lambda a: setattr(a.modal, "help_topic", ""),  # its shipped page is not among this test's
         KeyEvent("f1"), on_page("README.md"),
         lambda a: seen.append(top_text(a)),  # a dialog naming no topic: the contents
         KeyEvent("escape"),
@@ -415,3 +429,114 @@ def test_f1_on_a_popup_menu_asks_the_entry_then_the_popup_then_what_it_was_opene
         KeyEvent("escape"),
     ])
     assert seen == ["", "other.md", "help.md", "other.md#second", "Second", True]
+
+
+# -- Settings: a topic a page, and the dialog's own Help button ---------------
+
+
+def test_f1_in_settings_shows_the_page_in_fronts_help_from_a_control_the_tabs_or_the_button():
+    """Against the shipped pages: every tab of Settings names a section that is there."""
+    from navigator.widgets.setup.settings_dialog import SettingsDialog
+    from navigator.widgets.setup.settings_dialog.settings_dialog import PAGES
+
+    import tempfile
+    from pathlib import Path
+
+    seen = []
+    with tempfile.TemporaryDirectory() as home:
+        app = Navigator(Path(home), Path(home), terminal=FakeTerminal(80, 24))
+        dialog = SettingsDialog("confirmations")
+
+        def topics(a):
+            for name in PAGES:
+                dialog.tabs.select(dialog.tabs.index_of(dialog.page(name)))
+                seen.append(a.help_topic())  # from a control on the page
+            dialog.tabs.select(dialog.tabs.index_of(dialog.page("country")))
+            dialog.info.focus()
+            seen.append(a.help_topic())  # from the Help button: the dialog's, the page in front's
+
+        run_app(app, [
+            lambda a: a.spawn(dialog.execute(a)), Until(lambda a: a.modal is dialog),
+            topics,
+            lambda a: a.spawn(dialog.info.press()),
+            on_page("settings.md"),
+            lambda a: seen.append(top_text(a)),
+        ])
+    assert seen[: len(PAGES)] == [
+        "settings.md#system", "settings.md#startup", "settings.md#interface", "settings.md#confirmations",
+        "settings.md#savers", "settings.md#country", "settings.md#editorviewer", "settings.md#viewer-types",
+        "settings.md#file-panels", "settings.md#info-panel", "settings.md#panel-defaults", "settings.md#columns",
+        "settings.md#highlight", "settings.md#communications", "settings.md#tools",
+    ]
+    assert seen[len(PAGES):] == ["settings.md#country", "Country"]
+
+
+def test_f1_in_the_calculator_window_shows_its_page(tmp_path, monkeypatch):
+    """A window's topic, against the shipped pages."""
+    from navigator.widgets.manager.commands import Calculator
+
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    run_app(app, [
+        lambda a: a.spawn(a.run_command(Calculator)),
+        Until(lambda a: a.help_topic() == "calculator.md"),
+        KeyEvent("f1"), on_page("calculator.md"),
+        lambda a: seen.append(top_text(a)),
+    ])
+    assert seen == ["The calculator"]
+
+
+def test_the_librarys_boxes_get_their_topic_from_the_application(tmp_path, monkeypatch):
+    """navml's Window list and file dialog name no page; ``topics.LIBRARY`` does,
+    for them and for what derives from them.  Against the shipped pages."""
+    from navigator.widgets.setup.palette_file_dialog import PaletteFileDialog
+    from navml.widgets.dialog.file_dialog import FileDialog
+    from navml.widgets.window_manager import WindowManagerDialog
+
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    files = FileDialog(directory=str(tmp_path))
+    run_app(app, [
+        KeyEvent("0", alt=True),
+        Until(lambda a: isinstance(a.modal, WindowManagerDialog)),
+        lambda a: seen.append(a.help_topic()),
+        lambda a: a.spawn(a.modal.helper.press()),  # its Help button asks as F1 does
+        on_page("windows.md"),
+        lambda a: seen.append(heading_shown(a, "window-list")),
+        KeyEvent("escape"), KeyEvent("escape"),
+        lambda a: a.spawn(files.execute(a)), Until(lambda a: a.modal is files),
+        lambda a: seen.append(a.help_topic()),
+        KeyEvent("f1"), on_page("dialogs.md"),
+        lambda a: seen.append(heading_shown(a, "choosing-a-file")),
+    ])
+    assert seen == ["windows.md#window-list", True, "dialogs.md#choosing-a-file", True]
+    from navigator.lib.help.topics import library_topic
+
+    assert library_topic(PaletteFileDialog.__new__(PaletteFileDialog)) == "dialogs.md#choosing-a-file"
+    assert library_topic(app) == ""
+
+
+def test_the_main_windows_and_menus_name_their_pages(tmp_path, monkeypatch):
+    """Against the shipped pages: the file manager, and the bar's File menu and one of its items."""
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+
+    def on_copy(a):
+        box = a.modal.boxes[-1]
+        entries = box.entries()
+        box.current = next(i for i, entry in enumerate(entries) if getattr(entry, "text", "") == "~C~opy...")
+        seen.append(a.help_topic())
+
+    run_app(app, [
+        lambda a: seen.append(a.help_topic()),
+        KeyEvent("f1"), on_page("panels.md"),
+        lambda a: seen.append(top_text(a)),
+        KeyEvent("escape"),
+        KeyEvent("f10"), KeyEvent("right"), KeyEvent("enter"),
+        lambda a: seen.append(a.help_topic()),  # the File menu's
+        on_copy,  # an item's own
+    ])
+    assert seen == ["panels.md", "Panels", "file-operations.md", "file-operations.md#copy-and-move"]

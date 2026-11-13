@@ -31,13 +31,13 @@ class DriveInfoPage(SettingsPage, _Component):
 
     Its boxes in its order, less *EMS* and *XMS Information*, which only
     meant something on DOS; *Conventional Memory* is the machine's.  *File
-    under the cursor* and *Media information* are Navigator's own.  Help is
-    left out, having nothing to show yet.
+    under the cursor* and *Media information* are Navigator's own.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "drive_info_page.nml"
 
+    help_topic = 'settings.md#info-panel'    # drive_info_page.nml:11
     section_name = 'drive_info'    # drive_info_page.nml:12
 
     #: The caption on its tab, which *Settings* gives it.

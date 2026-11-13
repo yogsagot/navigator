@@ -10,6 +10,7 @@ from navigator.widgets.setup.settings_page import SettingsPage
 #: *Timeslicing* group (*Sleep when inactive*, *DOS Idle (Int28)*): an event
 #: loop already sleeps while nothing happens.
 StartupPage(SettingsPage):
+    class help_topic: "settings.md#startup"
     class section_name: "startup"
 
     #: The caption on its tab, which *Settings* gives it.

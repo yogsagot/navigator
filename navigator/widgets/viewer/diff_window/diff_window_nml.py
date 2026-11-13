@@ -54,31 +54,31 @@ class DiffWindow(Window, _Component):
     __navml_source__ = "diff_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # diff_window.nml:29
-        'escape': CloseWindow,    # diff_window.nml:30
-        'f3': CloseViewer,    # diff_window.nml:31
-        'n': NextDifference,    # diff_window.nml:32
-        'alt+down': NextDifference,    # diff_window.nml:33
-        'p': PreviousDifference,    # diff_window.nml:34
-        'alt+up': PreviousDifference,    # diff_window.nml:35
-        'ctrl+r': Rescan,    # diff_window.nml:36
-        'alt+r': Rescan,    # diff_window.nml:37
+    keys = {    # diff_window.nml:30
+        'escape': CloseWindow,    # diff_window.nml:31
+        'f3': CloseViewer,    # diff_window.nml:32
+        'n': NextDifference,    # diff_window.nml:33
+        'alt+down': NextDifference,    # diff_window.nml:34
+        'p': PreviousDifference,    # diff_window.nml:35
+        'alt+up': PreviousDifference,    # diff_window.nml:36
+        'ctrl+r': Rescan,    # diff_window.nml:37
+        'alt+r': Rescan,    # diff_window.nml:38
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    view: DiffView    # diff_window.nml:49
-    bar: ScrollBar    # diff_window.nml:60
-    info: StaticText    # diff_window.nml:73
-    hbar: ScrollBar    # diff_window.nml:86
-    compare_menu: SubMenu    # diff_window.nml:101
+    view: DiffView    # diff_window.nml:50
+    bar: ScrollBar    # diff_window.nml:61
+    info: StaticText    # diff_window.nml:74
+    hbar: ScrollBar    # diff_window.nml:87
+    compare_menu: SubMenu    # diff_window.nml:102
 
     #: The commands this component handles itself.
-    async def on_close_viewer(self, event: _Any) -> bool:    # diff_window.nml:41
+    async def on_close_viewer(self, event: _Any) -> bool:    # diff_window.nml:42
         """``CloseViewer``."""
         self.request_close()
         return True
 
-    async def on_rescan(self, event: _Any) -> bool:    # diff_window.nml:42
+    async def on_rescan(self, event: _Any) -> bool:    # diff_window.nml:43
         """``Rescan``."""
         self.spawn(self.compare_again())
         return True
@@ -91,93 +91,94 @@ class DiffWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # diff_window.nml:60
+    async def on_bar_scroll(self, event: _Event) -> bool:    # diff_window.nml:61
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
-    async def on_hbar_scroll(self, event: _Event) -> bool:    # diff_window.nml:86
+    async def on_hbar_scroll(self, event: _Event) -> bool:    # diff_window.nml:87
         """``hbar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.view = DiffView(parent=self)    # diff_window.nml:48
-        self.bar = ScrollBar(parent=self)    # diff_window.nml:59
-        self.info = StaticText(parent=self)    # diff_window.nml:72
-        self.hbar = ScrollBar(parent=self)    # diff_window.nml:85
-        self.compare_menu = SubMenu(parent=self)    # diff_window.nml:100
-        _w1 = MenuItem(parent=self.compare_menu)    # diff_window.nml:103
-        _w2 = MenuItem(parent=self.compare_menu)    # diff_window.nml:104
-        _w3 = MenuLine(parent=self.compare_menu)    # diff_window.nml:105
-        _w4 = MenuItem(parent=self.compare_menu)    # diff_window.nml:106
-        _w5 = MenuLine(parent=self.compare_menu)    # diff_window.nml:107
-        _w6 = MenuItem(parent=self.compare_menu)    # diff_window.nml:108
+        self.view = DiffView(parent=self)    # diff_window.nml:49
+        self.bar = ScrollBar(parent=self)    # diff_window.nml:60
+        self.info = StaticText(parent=self)    # diff_window.nml:73
+        self.hbar = ScrollBar(parent=self)    # diff_window.nml:86
+        self.compare_menu = SubMenu(parent=self)    # diff_window.nml:101
+        _w1 = MenuItem(parent=self.compare_menu)    # diff_window.nml:104
+        _w2 = MenuItem(parent=self.compare_menu)    # diff_window.nml:105
+        _w3 = MenuLine(parent=self.compare_menu)    # diff_window.nml:106
+        _w4 = MenuItem(parent=self.compare_menu)    # diff_window.nml:107
+        _w5 = MenuLine(parent=self.compare_menu)    # diff_window.nml:108
+        _w6 = MenuItem(parent=self.compare_menu)    # diff_window.nml:109
 
-        self.zoomed = True    # diff_window.nml:27
-        self.first_focus = _bind(lambda _o: self.view)    # diff_window.nml:44
-        self.local_menu = _bind(lambda _o: self.compare_menu)    # diff_window.nml:46
+        self.help_topic = 'compare.md#compare-files'    # diff_window.nml:27
+        self.zoomed = True    # diff_window.nml:28
+        self.first_focus = _bind(lambda _o: self.view)    # diff_window.nml:45
+        self.local_menu = _bind(lambda _o: self.compare_menu)    # diff_window.nml:47
 
-        self.view.x = 1    # diff_window.nml:51
-        self.view.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # diff_window.nml:52
-        self.view.y = 1    # diff_window.nml:53
-        self.view.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # diff_window.nml:54
+        self.view.x = 1    # diff_window.nml:52
+        self.view.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # diff_window.nml:53
+        self.view.y = 1    # diff_window.nml:54
+        self.view.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # diff_window.nml:55
 
-        self.bar.visible = _bind(lambda _o: self.view.overflows)    # diff_window.nml:61
-        self.bar.width = 1    # diff_window.nml:62
-        self.bar.value = _bind(lambda _o: self.view.top)    # diff_window.nml:67
-        self.bar.maximum = _bind(lambda _o: self.view.last_top)    # diff_window.nml:68
-        self.bar.page = _bind(lambda _o: self.view.page)    # diff_window.nml:69
-        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # diff_window.nml:64
-        self.bar.y = 2    # diff_window.nml:65
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 3))    # diff_window.nml:66
-        self.bar.on_scroll = self.on_bar_scroll    # diff_window.nml:60
+        self.bar.visible = _bind(lambda _o: self.view.overflows)    # diff_window.nml:62
+        self.bar.width = 1    # diff_window.nml:63
+        self.bar.value = _bind(lambda _o: self.view.top)    # diff_window.nml:68
+        self.bar.maximum = _bind(lambda _o: self.view.last_top)    # diff_window.nml:69
+        self.bar.page = _bind(lambda _o: self.view.page)    # diff_window.nml:70
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # diff_window.nml:65
+        self.bar.y = 2    # diff_window.nml:66
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 3))    # diff_window.nml:67
+        self.bar.on_scroll = self.on_bar_scroll    # diff_window.nml:61
 
-        self.info.name = 'info'    # diff_window.nml:74
-        self.info.x = 1    # diff_window.nml:75
-        self.info.width = _bind(    # diff_window.nml:76
+        self.info.name = 'info'    # diff_window.nml:75
+        self.info.x = 1    # diff_window.nml:76
+        self.info.width = _bind(    # diff_window.nml:77
             lambda _o: min(display_width(self.view.info_text), max(0, _o.parent.width - 3))
         )
-        self.info.text = _bind(lambda _o: self.view.info_text)    # diff_window.nml:79
-        self.info.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # diff_window.nml:78
+        self.info.text = _bind(lambda _o: self.view.info_text)    # diff_window.nml:80
+        self.info.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # diff_window.nml:79
 
-        self.hbar.orientation = 'horizontal'    # diff_window.nml:87
-        self.hbar.visible = _bind(    # diff_window.nml:88
+        self.hbar.orientation = 'horizontal'    # diff_window.nml:88
+        self.hbar.visible = _bind(    # diff_window.nml:89
             lambda _o: self.view.overflows_across and _o.width >= 4
         )
-        self.hbar.height = 1    # diff_window.nml:89
-        self.hbar.value = _bind(lambda _o: self.view.x_delta)    # diff_window.nml:94
-        self.hbar.maximum = _bind(    # diff_window.nml:95
+        self.hbar.height = 1    # diff_window.nml:90
+        self.hbar.value = _bind(lambda _o: self.view.x_delta)    # diff_window.nml:95
+        self.hbar.maximum = _bind(    # diff_window.nml:96
             lambda _o: max(0, self.view.row_span - self.view.room, self.view.x_delta)
         )
-        self.hbar.page = _bind(lambda _o: self.view.room)    # diff_window.nml:96
-        self.hbar.x = _bind(lambda _o: self.info.x + self.info.width + 1)    # diff_window.nml:91
-        self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.x))    # diff_window.nml:92
-        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # diff_window.nml:93
-        self.hbar.on_scroll = self.on_hbar_scroll    # diff_window.nml:86
+        self.hbar.page = _bind(lambda _o: self.view.room)    # diff_window.nml:97
+        self.hbar.x = _bind(lambda _o: self.info.x + self.info.width + 1)    # diff_window.nml:92
+        self.hbar.width = _bind(lambda _o: max(0, _o.parent.width - 2 - _o.x))    # diff_window.nml:93
+        self.hbar.y = _bind(lambda _o: max(0, _o.parent.height - _o.height))    # diff_window.nml:94
+        self.hbar.on_scroll = self.on_hbar_scroll    # diff_window.nml:87
 
-        self.compare_menu.text = _bind(    # diff_window.nml:100
+        self.compare_menu.text = _bind(    # diff_window.nml:101
             lambda _o: _tr('~C~ompare'),
             yielding=True,
         )
-        self.compare_menu.after = 'File'    # diff_window.nml:100
-        self.compare_menu.tooltip = _bind(    # diff_window.nml:102
+        self.compare_menu.after = 'File'    # diff_window.nml:101
+        self.compare_menu.tooltip = _bind(    # diff_window.nml:103
             lambda _o: _tr('Step through the differences'),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~N~ext difference'), yielding=True)    # diff_window.nml:103
-        _w1.command = NextDifference    # diff_window.nml:103
+        _w1.text = _bind(lambda _o: _tr('~N~ext difference'), yielding=True)    # diff_window.nml:104
+        _w1.command = NextDifference    # diff_window.nml:104
 
-        _w2.text = _bind(    # diff_window.nml:104
+        _w2.text = _bind(    # diff_window.nml:105
             lambda _o: _tr('~P~revious difference'),
             yielding=True,
         )
-        _w2.command = PreviousDifference    # diff_window.nml:104
+        _w2.command = PreviousDifference    # diff_window.nml:105
 
-        _w4.text = _bind(lambda _o: _tr('~C~ompare again'), yielding=True)    # diff_window.nml:106
-        _w4.command = Rescan    # diff_window.nml:106
+        _w4.text = _bind(lambda _o: _tr('~C~ompare again'), yielding=True)    # diff_window.nml:107
+        _w4.command = Rescan    # diff_window.nml:107
 
-        _w6.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # diff_window.nml:108
-        _w6.command = CloseWindow    # diff_window.nml:108
+        _w6.text = _bind(lambda _o: _tr('C~l~ose'), yielding=True)    # diff_window.nml:109
+        _w6.command = CloseWindow    # diff_window.nml:109
 
         self._navml_built(__class__)

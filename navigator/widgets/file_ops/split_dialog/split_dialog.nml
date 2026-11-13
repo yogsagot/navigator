@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -10,9 +11,9 @@ from navml.widgets.dialog.label import Label
 #: ``dlgSplitFile``.
 #:
 #: *Split NAME to* over the target line, as ``LongCopy``'s ``CopyDialog``
-#: inserted the name into the label, and OK / Cancel / Tree along the bottom;
-#: Help is left out, having nothing to show yet (the rule: ``dn-porting``).  A row taller than DN's 50
-#: by 11, for this library's buttons.
+#: inserted the name into the label, and OK / Cancel / Tree / Help along the
+#: bottom (*Help* without DN's ``~H~``, as Copy's is).  A row taller than
+#: DN's 50 by 11, for this library's buttons.
 #:
 #: **A departure**: *Part size* is new -- DN split where each floppy filled,
 #: and a POSIX disk does not fill a part at a time -- and its two boxes,
@@ -23,6 +24,7 @@ SplitDialog(Dialog):
     modal_width: 50
     modal_height: 12
     title: "Split file"
+    help_topic: "file-operations.md#splitting"
     buttons: "none"
 
     keys:
@@ -32,7 +34,7 @@ SplitDialog(Dialog):
     commands:
         ChooseTarget: root.spawn(root.choose_target())
 
-    buttons_row: (pick, abandon, tree)
+    buttons_row: (pick, abandon, tree, help)
 
     Label:
         id: target_caption
@@ -72,10 +74,15 @@ SplitDialog(Dialog):
             right: 2
         items: ["~W~rite checksum file (.crc)"]
 
+    #: DN's own row now that Help is back: four buttons ten wide and touching,
+    #: from column 8, as ``dlgSplitFile`` has them -- this library's eleven and a gap
+    #: of two would pass the frame.
     ButtonRow:
         justify: "start"
+        button_width: 10
+        spacing: 0
         anchors:
-            left: 5
+            left: 8
             right: 0
             bottom: 2
 
@@ -92,3 +99,9 @@ SplitDialog(Dialog):
             id: tree
             text: "~T~ree"
             on_click: root.spawn(root.choose_target())
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: help
+            text: "Help"
+            command: Help

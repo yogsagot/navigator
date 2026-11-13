@@ -123,6 +123,9 @@ note:
 
 ## The dialogs
 
+- **Help**: each page names its section of `docs/en/settings.md` (`class help_topic: "settings.md#system"`), and
+  the dialog has OK, Cancel and Help (`navigator-help`, *Settings*). A new setting gets a line in its page's
+  section there; a new page, a section and the `class help_topic` line.
 - **One dialog, a page per section.** Options > Settings (`SettingsDialog`, `navigator/widgets/setup/settings_dialog/`,
   command `Settings`) holds the thirteen setup pages behind navml's `TabView`. Each menu item under Options >
   Configuration and Options > File Manager, and its command, still exists and opens it on its own page

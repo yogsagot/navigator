@@ -1,6 +1,7 @@
 from navigator.widgets.file_ops.commands import ChooseTarget
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.check_boxes import CheckBoxes
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
@@ -24,6 +25,7 @@ ArchiveDialog(Dialog):
     modal_width: 64
     modal_height: 18
     title: "Create archive"
+    help_topic: "archives.md#create-an-archive"
     buttons: "none"
 
     #: ``StatusDef hcArchiveFiles``' ``F10 Tree``, as Copy's.
@@ -146,8 +148,8 @@ ArchiveDialog(Dialog):
             text: "~T~ree"
             on_click: root.spawn(root.choose_target())
 
-        #: There is no help to show yet: shown, and disabled, as Copy's is.
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
         Button:
             id: help
             text: "Help"
-            disabled: True
+            command: Help

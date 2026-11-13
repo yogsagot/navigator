@@ -1,4 +1,5 @@
 from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
@@ -9,14 +10,15 @@ from navml.widgets.dialog.list_viewer import ListViewer
 #: The names on the left, the focused one's value on the line under them,
 #: and OK, *Rename*, *Append*, *Delete* and Cancel down the right, as
 #: ``DN.DNR`` and ``MakeDialog`` laid them out, a little larger.  The title
-#: drops DN's *DOS*.  Help is left out.
+#: drops DN's *DOS*.  *Help* without the resource's ``~H~``, as Copy's is.
 EnvironmentDialog(Dialog):
     modal_width: 62
     modal_height: 20
     title: "Environment Variables Editor"
+    help_topic: "utilities.md#edit-the-environment"
     buttons: "none"
 
-    buttons_row: (pick, rename, append, delete, abandon)
+    buttons_row: (pick, rename, append, delete, abandon, helper)
 
     Label:
         id: names_caption
@@ -90,5 +92,15 @@ EnvironmentDialog(Dialog):
         text: "Cancel"
         x: 49
         y: 10
+        width: 11
+        height: 2
+
+    #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+    Button:
+        id: helper
+        text: "Help"
+        command: Help
+        x: 49
+        y: 12
         width: 11
         height: 2

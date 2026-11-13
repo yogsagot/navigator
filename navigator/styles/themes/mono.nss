@@ -452,12 +452,12 @@ $help-fg: $dn-black;                  /*  Help's text and ground -- no slot the 
 $help-bg: $dn-cyan;
 $help-frame-fg: $dn-white;            /*  Help's frame and title, and its highlights (headings, strong text, keys) -- CHelpColor's $3F, twice */
 $help-frame-bg: $dn-cyan;
-$help-frame-icons-fg: $dn-light_green;/*  Help's frame icons -- CHelpColor's $3A */
+$help-frame-icons-fg: $dn-white;      /*  Help's frame icons -- CHelpColor's $3A -- Navigator: white, as this light green is a grey lost on the cyan's grey */
 $help-frame-icons-bg: $dn-cyan;
 $help-keyword-fg: $dn-yellow;         /*  a link in Help -- CHelpColor's $3E, a keyword */
 $help-keyword-bg: $dn-cyan;
-$help-selected-fg: $dn-yellow;        /*  the link Enter follows -- CHelpColor's $1E, the selected keyword */
-$help-selected-bg: $dn-blue;
+$help-selected-fg: $dn-yellow;        /*  the link Enter follows -- CHelpColor's $1E, the selected keyword -- Navigator: a black ground, as this blue is the light grey its yellow vanishes on */
+$help-selected-bg: $dn-black;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

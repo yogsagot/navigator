@@ -41,13 +41,13 @@ class SaversPage(SettingsPage, _Component):
     Its rectangles: the selected savers down the left, *Add* and *Remove*
     between, the available ones down the right, *Time* and *Use mouse* under
     them, as DN had them -- the lists three rows shorter than DN's, so the
-    page is no taller than *Panel defaults* in *Settings*.  Help is left out,
-    having nothing to show yet.
+    page is no taller than *Panel defaults* in *Settings*.
     """
 
     #: The document this class was generated from.
     __navml_source__ = "savers_page.nml"
 
+    help_topic = 'settings.md#savers'    # savers_page.nml:19
     section_name = 'savers'    # savers_page.nml:20
 
     #: The caption on its tab, which *Settings* gives it.

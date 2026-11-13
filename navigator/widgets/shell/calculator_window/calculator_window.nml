@@ -8,7 +8,7 @@ from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import Cancel, Default, Help, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -26,8 +26,8 @@ from navml.widgets.window import Window
 #: the resource and ``InsertCalc`` put things: the expression with its
 #: history, *Copy As*'s five forms, the indicator's five rows beside them --
 #: decimal, hexadecimal, binary, octal and the exponent form, worked out as
-#: the line is typed -- and *Evaluate*, *Copy* and *Close* along the bottom.
-#: Help is left out.
+#: the line is typed -- and *Evaluate*, *Copy*, *Close* and *Help* along the
+#: bottom, touching from column 3 as the resource has them.
 #:
 #: **A departure, asked for**: *Simple* (the default), *Scientific* and
 #: *Programming* put a pad of keys under the same line, with its value worked
@@ -36,6 +36,7 @@ from navml.widgets.window import Window
 #: Ctrl+digit) choose between them.  The window takes each face's size.
 CalculatorWindow(Window):
     title: "Calculator"
+    help_topic: "calculator.md"
     zoomable: False
     resizable: False
 
@@ -252,10 +253,10 @@ CalculatorWindow(Window):
         ButtonRow:
             justify: "start"
             button_width: 10
-            spacing: 1
+            spacing: 0
             y: 7
             anchors:
-                left: 16
+                left: 15
                 right: 0
 
             Button:
@@ -267,6 +268,12 @@ CalculatorWindow(Window):
                 id: close_button
                 text: "Close"
                 on_click: root.leave()
+
+            #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+            Button:
+                id: help_button
+                text: "Help"
+                command: Help
 
     #: Programming's forms, the base the line is typed in chosen beside them,
     #: and the word.

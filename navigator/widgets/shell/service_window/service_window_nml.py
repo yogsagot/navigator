@@ -72,76 +72,76 @@ class ServiceWindow(Window, _Component):
     __navml_source__ = "service_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # service_window.nml:47
-        'escape': CloseWindow,    # service_window.nml:48
-        'ctrl+r': Rescan,    # service_window.nml:49
-        'alt+r': Rescan,    # service_window.nml:50
-        'f3': ServiceJournal,    # service_window.nml:51
-        'f5': StartService,    # service_window.nml:52
-        'f6': RestartService,    # service_window.nml:53
-        'f7': ReloadService,    # service_window.nml:54
-        'f8': StopService,    # service_window.nml:55
-        'delete': StopService,    # service_window.nml:56
-        'ctrl+e': EnableService,    # service_window.nml:57
-        'ctrl+d': DisableService,    # service_window.nml:58
-        'ctrl+u': ServiceUserUnits,    # service_window.nml:59
-        'ctrl+a': ServiceAllTypes,    # service_window.nml:60
-        'ctrl+n': ServiceSortName,    # service_window.nml:61
-        'ctrl+l': ServiceSortActive,    # service_window.nml:62
-        'f4': EditUnitFile,    # service_window.nml:63
-        'ctrl+s': FilterServices,    # service_window.nml:64
-        'tab': SelectNext,    # service_window.nml:65
-        'shift+tab': SelectPrevious,    # service_window.nml:66
+    keys = {    # service_window.nml:48
+        'escape': CloseWindow,    # service_window.nml:49
+        'ctrl+r': Rescan,    # service_window.nml:50
+        'alt+r': Rescan,    # service_window.nml:51
+        'f3': ServiceJournal,    # service_window.nml:52
+        'f5': StartService,    # service_window.nml:53
+        'f6': RestartService,    # service_window.nml:54
+        'f7': ReloadService,    # service_window.nml:55
+        'f8': StopService,    # service_window.nml:56
+        'delete': StopService,    # service_window.nml:57
+        'ctrl+e': EnableService,    # service_window.nml:58
+        'ctrl+d': DisableService,    # service_window.nml:59
+        'ctrl+u': ServiceUserUnits,    # service_window.nml:60
+        'ctrl+a': ServiceAllTypes,    # service_window.nml:61
+        'ctrl+n': ServiceSortName,    # service_window.nml:62
+        'ctrl+l': ServiceSortActive,    # service_window.nml:63
+        'f4': EditUnitFile,    # service_window.nml:64
+        'ctrl+s': FilterServices,    # service_window.nml:65
+        'tab': SelectNext,    # service_window.nml:66
+        'shift+tab': SelectPrevious,    # service_window.nml:67
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    filter_caption: Label    # service_window.nml:82
-    filter: ProcessFilter    # service_window.nml:92
-    clear_filter: Button    # service_window.nml:101
-    units: ServiceList    # service_window.nml:113
-    status: StaticText    # service_window.nml:122
-    user_box: CheckBoxes    # service_window.nml:130
-    types_box: CheckBoxes    # service_window.nml:140
-    start_button: Button    # service_window.nml:150
-    stop_button: Button    # service_window.nml:161
-    journal_button: Button    # service_window.nml:172
-    edit_button: Button    # service_window.nml:184
-    close_button: Button    # service_window.nml:195
-    service_menu: SubMenu    # service_window.nml:208
-    ticker: Timer    # service_window.nml:247
+    filter_caption: Label    # service_window.nml:83
+    filter: ProcessFilter    # service_window.nml:93
+    clear_filter: Button    # service_window.nml:102
+    units: ServiceList    # service_window.nml:114
+    status: StaticText    # service_window.nml:123
+    user_box: CheckBoxes    # service_window.nml:131
+    types_box: CheckBoxes    # service_window.nml:141
+    start_button: Button    # service_window.nml:151
+    stop_button: Button    # service_window.nml:162
+    journal_button: Button    # service_window.nml:173
+    edit_button: Button    # service_window.nml:185
+    close_button: Button    # service_window.nml:196
+    service_menu: SubMenu    # service_window.nml:209
+    ticker: Timer    # service_window.nml:248
 
     #: The commands this component handles itself.
-    async def on_service_sort_name(self, event: _Any) -> bool:    # service_window.nml:70
+    async def on_service_sort_name(self, event: _Any) -> bool:    # service_window.nml:71
         """``ServiceSortName``."""
         self._sort_by('name')
         return True
 
-    async def on_service_sort_active(self, event: _Any) -> bool:    # service_window.nml:71
+    async def on_service_sort_active(self, event: _Any) -> bool:    # service_window.nml:72
         """``ServiceSortActive``."""
         self._sort_by('active')
         return True
 
-    async def on_service_sort_file_state(self, event: _Any) -> bool:    # service_window.nml:72
+    async def on_service_sort_file_state(self, event: _Any) -> bool:    # service_window.nml:73
         """``ServiceSortFileState``."""
         self._sort_by('startup')
         return True
 
-    async def on_service_sort_description(self, event: _Any) -> bool:    # service_window.nml:73
+    async def on_service_sort_description(self, event: _Any) -> bool:    # service_window.nml:74
         """``ServiceSortDescription``."""
         self._sort_by('description')
         return True
 
-    async def on_rescan(self, event: _Any) -> bool:    # service_window.nml:74
+    async def on_rescan(self, event: _Any) -> bool:    # service_window.nml:75
         """``Rescan``."""
         self.spawn(self._rescan())
         return True
 
-    async def on_select_next(self, event: _Any) -> bool:    # service_window.nml:75
+    async def on_select_next(self, event: _Any) -> bool:    # service_window.nml:76
         """``SelectNext``."""
         self._step(1)
         return True
 
-    async def on_select_previous(self, event: _Any) -> bool:    # service_window.nml:76
+    async def on_select_previous(self, event: _Any) -> bool:    # service_window.nml:77
         """``SelectPrevious``."""
         self._step(-1)
         return True
@@ -154,371 +154,372 @@ class ServiceWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_clear_filter_click(self, event: _Event) -> bool:    # service_window.nml:101
+    async def on_clear_filter_click(self, event: _Event) -> bool:    # service_window.nml:102
         """``clear_filter`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_units_chosen(self, event: _Event) -> bool:    # service_window.nml:113
+    async def on_units_chosen(self, event: _Event) -> bool:    # service_window.nml:114
         """``units`` raised an event whose handler is ``on_chosen``."""
         return False
 
-    async def on_units_sort_chosen(self, event: _Event) -> bool:    # service_window.nml:113
+    async def on_units_sort_chosen(self, event: _Event) -> bool:    # service_window.nml:114
         """``units`` raised an event whose handler is ``on_sort_chosen``."""
         return False
 
-    async def on_start_button_click(self, event: _Event) -> bool:    # service_window.nml:150
+    async def on_start_button_click(self, event: _Event) -> bool:    # service_window.nml:151
         """``start_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_stop_button_click(self, event: _Event) -> bool:    # service_window.nml:161
+    async def on_stop_button_click(self, event: _Event) -> bool:    # service_window.nml:162
         """``stop_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_journal_button_click(self, event: _Event) -> bool:    # service_window.nml:172
+    async def on_journal_button_click(self, event: _Event) -> bool:    # service_window.nml:173
         """``journal_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_edit_button_click(self, event: _Event) -> bool:    # service_window.nml:184
+    async def on_edit_button_click(self, event: _Event) -> bool:    # service_window.nml:185
         """``edit_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.filter_caption = Label(parent=self)    # service_window.nml:81
-        self.filter = ProcessFilter(parent=self)    # service_window.nml:91
-        self.clear_filter = Button(parent=self)    # service_window.nml:100
-        self.units = ServiceList(parent=self)    # service_window.nml:112
-        self.status = StaticText(parent=self)    # service_window.nml:121
-        self.user_box = CheckBoxes(parent=self)    # service_window.nml:129
-        self.types_box = CheckBoxes(parent=self)    # service_window.nml:139
-        self.start_button = Button(parent=self)    # service_window.nml:149
-        self.stop_button = Button(parent=self)    # service_window.nml:160
-        self.journal_button = Button(parent=self)    # service_window.nml:171
-        self.edit_button = Button(parent=self)    # service_window.nml:183
-        self.close_button = Button(parent=self)    # service_window.nml:194
-        self.service_menu = SubMenu(parent=self)    # service_window.nml:207
-        _w1 = MenuItem(parent=self.service_menu)    # service_window.nml:210
-        _w2 = MenuLine(parent=self.service_menu)    # service_window.nml:211
-        _w3 = MenuItem(parent=self.service_menu)    # service_window.nml:212
-        _w4 = MenuItem(parent=self.service_menu)    # service_window.nml:213
-        _w5 = MenuItem(parent=self.service_menu)    # service_window.nml:214
-        _w6 = MenuItem(parent=self.service_menu)    # service_window.nml:215
-        _w7 = MenuLine(parent=self.service_menu)    # service_window.nml:216
-        _w8 = MenuItem(parent=self.service_menu)    # service_window.nml:217
-        _w9 = MenuItem(parent=self.service_menu)    # service_window.nml:219
-        _w10 = MenuItem(parent=self.service_menu)    # service_window.nml:221
-        _w11 = MenuLine(parent=self.service_menu)    # service_window.nml:223
-        _w12 = MenuItem(parent=self.service_menu)    # service_window.nml:224
-        _w13 = MenuItem(parent=self.service_menu)    # service_window.nml:226
-        _w14 = MenuItem(parent=self.service_menu)    # service_window.nml:228
-        _w15 = MenuLine(parent=self.service_menu)    # service_window.nml:229
-        _w16 = MenuItem(parent=self.service_menu)    # service_window.nml:230
-        _w17 = MenuItem(parent=self.service_menu)    # service_window.nml:231
-        _w18 = MenuItem(parent=self.service_menu)    # service_window.nml:232
-        _w19 = MenuItem(parent=self.service_menu)    # service_window.nml:233
-        _w20 = MenuLine(parent=self.service_menu)    # service_window.nml:234
-        _w21 = MenuItem(parent=self.service_menu)    # service_window.nml:235
-        _w22 = MenuItem(parent=self.service_menu)    # service_window.nml:237
-        _w23 = MenuItem(parent=self.service_menu)    # service_window.nml:239
-        _w24 = MenuItem(parent=self.service_menu)    # service_window.nml:241
-        _w25 = MenuLine(parent=self.service_menu)    # service_window.nml:242
-        _w26 = MenuItem(parent=self.service_menu)    # service_window.nml:243
-        self.ticker = Timer(parent=self)    # service_window.nml:246
+        self.filter_caption = Label(parent=self)    # service_window.nml:82
+        self.filter = ProcessFilter(parent=self)    # service_window.nml:92
+        self.clear_filter = Button(parent=self)    # service_window.nml:101
+        self.units = ServiceList(parent=self)    # service_window.nml:113
+        self.status = StaticText(parent=self)    # service_window.nml:122
+        self.user_box = CheckBoxes(parent=self)    # service_window.nml:130
+        self.types_box = CheckBoxes(parent=self)    # service_window.nml:140
+        self.start_button = Button(parent=self)    # service_window.nml:150
+        self.stop_button = Button(parent=self)    # service_window.nml:161
+        self.journal_button = Button(parent=self)    # service_window.nml:172
+        self.edit_button = Button(parent=self)    # service_window.nml:184
+        self.close_button = Button(parent=self)    # service_window.nml:195
+        self.service_menu = SubMenu(parent=self)    # service_window.nml:208
+        _w1 = MenuItem(parent=self.service_menu)    # service_window.nml:211
+        _w2 = MenuLine(parent=self.service_menu)    # service_window.nml:212
+        _w3 = MenuItem(parent=self.service_menu)    # service_window.nml:213
+        _w4 = MenuItem(parent=self.service_menu)    # service_window.nml:214
+        _w5 = MenuItem(parent=self.service_menu)    # service_window.nml:215
+        _w6 = MenuItem(parent=self.service_menu)    # service_window.nml:216
+        _w7 = MenuLine(parent=self.service_menu)    # service_window.nml:217
+        _w8 = MenuItem(parent=self.service_menu)    # service_window.nml:218
+        _w9 = MenuItem(parent=self.service_menu)    # service_window.nml:220
+        _w10 = MenuItem(parent=self.service_menu)    # service_window.nml:222
+        _w11 = MenuLine(parent=self.service_menu)    # service_window.nml:224
+        _w12 = MenuItem(parent=self.service_menu)    # service_window.nml:225
+        _w13 = MenuItem(parent=self.service_menu)    # service_window.nml:227
+        _w14 = MenuItem(parent=self.service_menu)    # service_window.nml:229
+        _w15 = MenuLine(parent=self.service_menu)    # service_window.nml:230
+        _w16 = MenuItem(parent=self.service_menu)    # service_window.nml:231
+        _w17 = MenuItem(parent=self.service_menu)    # service_window.nml:232
+        _w18 = MenuItem(parent=self.service_menu)    # service_window.nml:233
+        _w19 = MenuItem(parent=self.service_menu)    # service_window.nml:234
+        _w20 = MenuLine(parent=self.service_menu)    # service_window.nml:235
+        _w21 = MenuItem(parent=self.service_menu)    # service_window.nml:236
+        _w22 = MenuItem(parent=self.service_menu)    # service_window.nml:238
+        _w23 = MenuItem(parent=self.service_menu)    # service_window.nml:240
+        _w24 = MenuItem(parent=self.service_menu)    # service_window.nml:242
+        _w25 = MenuLine(parent=self.service_menu)    # service_window.nml:243
+        _w26 = MenuItem(parent=self.service_menu)    # service_window.nml:244
+        self.ticker = Timer(parent=self)    # service_window.nml:247
 
-        self.title = _bind(lambda _o: _tr('Services'), yielding=True)    # service_window.nml:44
-        self.min_width = _bind(    # service_window.nml:45
+        self.help_topic = 'utilities.md#services'    # service_window.nml:44
+        self.title = _bind(lambda _o: _tr('Services'), yielding=True)    # service_window.nml:45
+        self.min_width = _bind(    # service_window.nml:46
             lambda _o: max(self.user_box.width, self.types_box.width) + self.start_button.width + self.stop_button.width + self.journal_button.width + self.edit_button.width + self.close_button.width + 9
         )
-        self.first_focus = _bind(lambda _o: self.units)    # service_window.nml:78
+        self.first_focus = _bind(lambda _o: self.units)    # service_window.nml:79
 
-        self.filter_caption.x = 2    # service_window.nml:83
-        self.filter_caption.y = 1    # service_window.nml:84
-        self.filter_caption.width = _bind(    # service_window.nml:85
+        self.filter_caption.x = 2    # service_window.nml:84
+        self.filter_caption.y = 1    # service_window.nml:85
+        self.filter_caption.width = _bind(    # service_window.nml:86
             lambda _o: self.caption_width(_o.text) + 1
         )
-        self.filter_caption.text = _bind(    # service_window.nml:86
+        self.filter_caption.text = _bind(    # service_window.nml:87
             lambda _o: _tr('~F~ilter'),
             yielding=True,
         )
-        self.filter_caption.link = _bind(lambda _o: self.filter)    # service_window.nml:87
+        self.filter_caption.link = _bind(lambda _o: self.filter)    # service_window.nml:88
 
-        self.filter.y = 1    # service_window.nml:93
-        self.filter.width = _bind(    # service_window.nml:94
+        self.filter.y = 1    # service_window.nml:94
+        self.filter.width = _bind(    # service_window.nml:95
             lambda _o: max(1, _o.parent.width - 6 - _o.x)
         )
-        self.filter.tooltip = _bind(    # service_window.nml:97
+        self.filter.tooltip = _bind(    # service_window.nml:98
             lambda _o: _tr('Show only the units whose name or description holds this'),
             yielding=True,
         )
-        self.filter.x = _bind(    # service_window.nml:96
+        self.filter.x = _bind(    # service_window.nml:97
             lambda _o: self.filter_caption.x + self.filter_caption.width
         )
 
-        self.clear_filter.text = verbatim('X')    # service_window.nml:103
-        self.clear_filter.flat = True    # service_window.nml:104
-        self.clear_filter.y = 1    # service_window.nml:105
-        self.clear_filter.width = 3    # service_window.nml:106
-        self.clear_filter.height = 1    # service_window.nml:107
-        self.clear_filter.tooltip = _bind(    # service_window.nml:110
+        self.clear_filter.text = verbatim('X')    # service_window.nml:104
+        self.clear_filter.flat = True    # service_window.nml:105
+        self.clear_filter.y = 1    # service_window.nml:106
+        self.clear_filter.width = 3    # service_window.nml:107
+        self.clear_filter.height = 1    # service_window.nml:108
+        self.clear_filter.tooltip = _bind(    # service_window.nml:111
             lambda _o: _tr('Clear the filter'),
             yielding=True,
         )
-        self.clear_filter.x = _bind(    # service_window.nml:109
+        self.clear_filter.x = _bind(    # service_window.nml:110
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.clear_filter.on_click = self.on_clear_filter_click    # service_window.nml:101
+        self.clear_filter.on_click = self.on_clear_filter_click    # service_window.nml:102
 
-        self.units.framed = False    # service_window.nml:114
-        self.units.x = 1    # service_window.nml:116
-        self.units.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # service_window.nml:117
-        self.units.y = 2    # service_window.nml:118
-        self.units.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # service_window.nml:119
-        self.units.on_chosen = self.on_units_chosen    # service_window.nml:113
-        self.units.on_sort_chosen = self.on_units_sort_chosen    # service_window.nml:113
+        self.units.framed = False    # service_window.nml:115
+        self.units.x = 1    # service_window.nml:117
+        self.units.width = _bind(lambda _o: max(0, _o.parent.width - 1))    # service_window.nml:118
+        self.units.y = 2    # service_window.nml:119
+        self.units.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # service_window.nml:120
+        self.units.on_chosen = self.on_units_chosen    # service_window.nml:114
+        self.units.on_sort_chosen = self.on_units_sort_chosen    # service_window.nml:114
 
-        self.status.x = 2    # service_window.nml:124
-        self.status.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # service_window.nml:125
-        self.status.y = _bind(    # service_window.nml:126
+        self.status.x = 2    # service_window.nml:125
+        self.status.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # service_window.nml:126
+        self.status.y = _bind(    # service_window.nml:127
             lambda _o: max(0, _o.parent.height - 3 - _o.height)
         )
 
-        self.user_box.x = 2    # service_window.nml:131
-        self.user_box.width = _bind(lambda _o: _o.column_x(1))    # service_window.nml:132
-        self.user_box.height = 1    # service_window.nml:133
-        self.user_box.items = _bind(    # service_window.nml:136
+        self.user_box.x = 2    # service_window.nml:132
+        self.user_box.width = _bind(lambda _o: _o.column_x(1))    # service_window.nml:133
+        self.user_box.height = 1    # service_window.nml:134
+        self.user_box.items = _bind(    # service_window.nml:137
             lambda _o: [_tr('~U~ser units')],
             yielding=True,
         )
-        self.user_box.tooltips = _bind(    # service_window.nml:137
+        self.user_box.tooltips = _bind(    # service_window.nml:138
             lambda _o: [_tr("Your own service manager's units (systemctl --user), not the system's")],
             yielding=True,
         )
-        self.user_box.y = _bind(    # service_window.nml:135
+        self.user_box.y = _bind(    # service_window.nml:136
             lambda _o: max(0, _o.parent.height - 2 - _o.height)
         )
 
-        self.types_box.x = 2    # service_window.nml:141
-        self.types_box.width = _bind(lambda _o: _o.column_x(1))    # service_window.nml:142
-        self.types_box.height = 1    # service_window.nml:143
-        self.types_box.items = _bind(    # service_window.nml:146
+        self.types_box.x = 2    # service_window.nml:142
+        self.types_box.width = _bind(lambda _o: _o.column_x(1))    # service_window.nml:143
+        self.types_box.height = 1    # service_window.nml:144
+        self.types_box.items = _bind(    # service_window.nml:147
             lambda _o: [_tr('~A~ll types')],
             yielding=True,
         )
-        self.types_box.tooltips = _bind(    # service_window.nml:147
+        self.types_box.tooltips = _bind(    # service_window.nml:148
             lambda _o: [_tr('Timers, sockets, mounts and the rest too, not only services')],
             yielding=True,
         )
-        self.types_box.y = _bind(    # service_window.nml:145
+        self.types_box.y = _bind(    # service_window.nml:146
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
 
-        self.start_button.text = _bind(    # service_window.nml:151
+        self.start_button.text = _bind(    # service_window.nml:152
             lambda _o: _tr('S~t~art'),
             yielding=True,
         )
-        self.start_button.width = _bind(    # service_window.nml:152
+        self.start_button.width = _bind(    # service_window.nml:153
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.start_button.height = 2    # service_window.nml:153
-        self.start_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:157
-        self.start_button.command = StartService    # service_window.nml:158
-        self.start_button.x = _bind(    # service_window.nml:155
+        self.start_button.height = 2    # service_window.nml:154
+        self.start_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:158
+        self.start_button.command = StartService    # service_window.nml:159
+        self.start_button.x = _bind(    # service_window.nml:156
             lambda _o: max(0, self.stop_button.x - 1 - _o.width)
         )
-        self.start_button.y = _bind(    # service_window.nml:156
+        self.start_button.y = _bind(    # service_window.nml:157
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.start_button.on_click = self.on_start_button_click    # service_window.nml:150
+        self.start_button.on_click = self.on_start_button_click    # service_window.nml:151
 
-        self.stop_button.text = _bind(lambda _o: _tr('St~o~p'), yielding=True)    # service_window.nml:162
-        self.stop_button.width = _bind(    # service_window.nml:163
+        self.stop_button.text = _bind(lambda _o: _tr('St~o~p'), yielding=True)    # service_window.nml:163
+        self.stop_button.width = _bind(    # service_window.nml:164
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.stop_button.height = 2    # service_window.nml:164
-        self.stop_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:168
-        self.stop_button.command = StopService    # service_window.nml:169
-        self.stop_button.x = _bind(    # service_window.nml:166
+        self.stop_button.height = 2    # service_window.nml:165
+        self.stop_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:169
+        self.stop_button.command = StopService    # service_window.nml:170
+        self.stop_button.x = _bind(    # service_window.nml:167
             lambda _o: max(0, self.journal_button.x - 1 - _o.width)
         )
-        self.stop_button.y = _bind(    # service_window.nml:167
+        self.stop_button.y = _bind(    # service_window.nml:168
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.stop_button.on_click = self.on_stop_button_click    # service_window.nml:161
+        self.stop_button.on_click = self.on_stop_button_click    # service_window.nml:162
 
-        self.journal_button.text = _bind(    # service_window.nml:173
+        self.journal_button.text = _bind(    # service_window.nml:174
             lambda _o: _tr('~J~ournal'),
             yielding=True,
         )
-        self.journal_button.default = True    # service_window.nml:174
-        self.journal_button.width = _bind(    # service_window.nml:175
+        self.journal_button.default = True    # service_window.nml:175
+        self.journal_button.width = _bind(    # service_window.nml:176
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.journal_button.height = 2    # service_window.nml:176
-        self.journal_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:180
-        self.journal_button.command = ServiceJournal    # service_window.nml:181
-        self.journal_button.x = _bind(    # service_window.nml:178
+        self.journal_button.height = 2    # service_window.nml:177
+        self.journal_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:181
+        self.journal_button.command = ServiceJournal    # service_window.nml:182
+        self.journal_button.x = _bind(    # service_window.nml:179
             lambda _o: max(0, self.edit_button.x - 1 - _o.width)
         )
-        self.journal_button.y = _bind(    # service_window.nml:179
+        self.journal_button.y = _bind(    # service_window.nml:180
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.journal_button.on_click = self.on_journal_button_click    # service_window.nml:172
+        self.journal_button.on_click = self.on_journal_button_click    # service_window.nml:173
 
-        self.edit_button.text = _bind(lambda _o: _tr('~E~dit'), yielding=True)    # service_window.nml:185
-        self.edit_button.width = _bind(    # service_window.nml:186
+        self.edit_button.text = _bind(lambda _o: _tr('~E~dit'), yielding=True)    # service_window.nml:186
+        self.edit_button.width = _bind(    # service_window.nml:187
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.edit_button.height = 2    # service_window.nml:187
-        self.edit_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:191
-        self.edit_button.command = EditUnitFile    # service_window.nml:192
-        self.edit_button.x = _bind(    # service_window.nml:189
+        self.edit_button.height = 2    # service_window.nml:188
+        self.edit_button.disabled = _bind(lambda _o: not self.allows())    # service_window.nml:192
+        self.edit_button.command = EditUnitFile    # service_window.nml:193
+        self.edit_button.x = _bind(    # service_window.nml:190
             lambda _o: max(0, self.close_button.x - 1 - _o.width)
         )
-        self.edit_button.y = _bind(    # service_window.nml:190
+        self.edit_button.y = _bind(    # service_window.nml:191
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
-        self.edit_button.on_click = self.on_edit_button_click    # service_window.nml:184
+        self.edit_button.on_click = self.on_edit_button_click    # service_window.nml:185
 
-        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # service_window.nml:196
-        self.close_button.width = _bind(    # service_window.nml:197
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # service_window.nml:197
+        self.close_button.width = _bind(    # service_window.nml:198
             lambda _o: self.caption_width(_o.text) + 5
         )
-        self.close_button.height = 2    # service_window.nml:198
-        self.close_button.x = _bind(    # service_window.nml:200
+        self.close_button.height = 2    # service_window.nml:199
+        self.close_button.x = _bind(    # service_window.nml:201
             lambda _o: max(0, _o.parent.width - 2 - _o.width)
         )
-        self.close_button.y = _bind(    # service_window.nml:201
+        self.close_button.y = _bind(    # service_window.nml:202
             lambda _o: max(0, _o.parent.height - 1 - _o.height)
         )
 
-        async def _on_click(event):    # service_window.nml:202
+        async def _on_click(event):    # service_window.nml:203
             self.request_close()
             return True
         self.close_button.on_click = _on_click
 
-        self.service_menu.text = _bind(    # service_window.nml:207
+        self.service_menu.text = _bind(    # service_window.nml:208
             lambda _o: _tr('~S~ervices'),
             yielding=True,
         )
-        self.service_menu.after = 'File'    # service_window.nml:207
-        self.service_menu.tooltip = _bind(    # service_window.nml:209
+        self.service_menu.after = 'File'    # service_window.nml:208
+        self.service_menu.tooltip = _bind(    # service_window.nml:210
             lambda _o: _tr("Start, stop, enable and follow the system's services"),
             yielding=True,
         )
 
-        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # service_window.nml:210
-        _w1.command = Rescan    # service_window.nml:210
-        _w1.key = 'Ctrl-R'    # service_window.nml:210
+        _w1.text = _bind(lambda _o: _tr('~R~e-read'), yielding=True)    # service_window.nml:211
+        _w1.command = Rescan    # service_window.nml:211
+        _w1.key = 'Ctrl-R'    # service_window.nml:211
 
-        _w3.text = _bind(lambda _o: _tr('Sort by ~n~ame'), yielding=True)    # service_window.nml:212
-        _w3.command = ServiceSortName    # service_window.nml:212
-        _w3.key = 'Ctrl-N'    # service_window.nml:212
+        _w3.text = _bind(lambda _o: _tr('Sort by ~n~ame'), yielding=True)    # service_window.nml:213
+        _w3.command = ServiceSortName    # service_window.nml:213
+        _w3.key = 'Ctrl-N'    # service_window.nml:213
 
-        _w4.text = _bind(lambda _o: _tr('Sort by ~s~tate'), yielding=True)    # service_window.nml:213
-        _w4.command = ServiceSortActive    # service_window.nml:213
-        _w4.key = 'Ctrl-L'    # service_window.nml:213
+        _w4.text = _bind(lambda _o: _tr('Sort by ~s~tate'), yielding=True)    # service_window.nml:214
+        _w4.command = ServiceSortActive    # service_window.nml:214
+        _w4.key = 'Ctrl-L'    # service_window.nml:214
 
-        _w5.text = _bind(lambda _o: _tr('Sort by start-~u~p'), yielding=True)    # service_window.nml:214
-        _w5.command = ServiceSortFileState    # service_window.nml:214
+        _w5.text = _bind(lambda _o: _tr('Sort by start-~u~p'), yielding=True)    # service_window.nml:215
+        _w5.command = ServiceSortFileState    # service_window.nml:215
 
-        _w6.text = _bind(    # service_window.nml:215
+        _w6.text = _bind(    # service_window.nml:216
             lambda _o: _tr('Sort by ~d~escription'),
             yielding=True,
         )
-        _w6.command = ServiceSortDescription    # service_window.nml:215
+        _w6.command = ServiceSortDescription    # service_window.nml:216
 
-        _w8.text = _bind(lambda _o: _tr('Us~e~r units'), yielding=True)    # service_window.nml:217
-        _w8.command = ServiceUserUnits    # service_window.nml:217
-        _w8.key = 'Ctrl-U'    # service_window.nml:217
-        _w8.tooltip = _bind(    # service_window.nml:218
+        _w8.text = _bind(lambda _o: _tr('Us~e~r units'), yielding=True)    # service_window.nml:218
+        _w8.command = ServiceUserUnits    # service_window.nml:218
+        _w8.key = 'Ctrl-U'    # service_window.nml:218
+        _w8.tooltip = _bind(    # service_window.nml:219
             lambda _o: _tr("Your own service manager's units (systemctl --user), not the system's"),
             yielding=True,
         )
 
-        _w9.text = _bind(lambda _o: _tr('~A~ll types'), yielding=True)    # service_window.nml:219
-        _w9.command = ServiceAllTypes    # service_window.nml:219
-        _w9.key = 'Ctrl-A'    # service_window.nml:219
-        _w9.tooltip = _bind(    # service_window.nml:220
+        _w9.text = _bind(lambda _o: _tr('~A~ll types'), yielding=True)    # service_window.nml:220
+        _w9.command = ServiceAllTypes    # service_window.nml:220
+        _w9.key = 'Ctrl-A'    # service_window.nml:220
+        _w9.tooltip = _bind(    # service_window.nml:221
             lambda _o: _tr('Timers, sockets, mounts and the rest too, not only services'),
             yielding=True,
         )
 
-        _w10.text = _bind(lambda _o: _tr('~F~ilter'), yielding=True)    # service_window.nml:221
-        _w10.command = FilterServices    # service_window.nml:221
-        _w10.key = 'Ctrl-S'    # service_window.nml:221
-        _w10.tooltip = _bind(    # service_window.nml:222
+        _w10.text = _bind(lambda _o: _tr('~F~ilter'), yielding=True)    # service_window.nml:222
+        _w10.command = FilterServices    # service_window.nml:222
+        _w10.key = 'Ctrl-S'    # service_window.nml:222
+        _w10.tooltip = _bind(    # service_window.nml:223
             lambda _o: _tr('Show only the units whose name or description holds what is typed'),
             yielding=True,
         )
 
-        _w12.text = _bind(lambda _o: _tr('~J~ournal'), yielding=True)    # service_window.nml:224
-        _w12.command = ServiceJournal    # service_window.nml:224
-        _w12.key = 'F3'    # service_window.nml:224
-        _w12.tooltip = _bind(    # service_window.nml:225
+        _w12.text = _bind(lambda _o: _tr('~J~ournal'), yielding=True)    # service_window.nml:225
+        _w12.command = ServiceJournal    # service_window.nml:225
+        _w12.key = 'F3'    # service_window.nml:225
+        _w12.tooltip = _bind(    # service_window.nml:226
             lambda _o: _tr("The unit's journal in the viewer, following its end"),
             yielding=True,
         )
 
-        _w13.text = _bind(lambda _o: _tr('Edit unit file'), yielding=True)    # service_window.nml:226
-        _w13.command = EditUnitFile    # service_window.nml:226
-        _w13.key = 'F4'    # service_window.nml:226
-        _w13.tooltip = _bind(    # service_window.nml:227
+        _w13.text = _bind(lambda _o: _tr('Edit unit file'), yielding=True)    # service_window.nml:227
+        _w13.command = EditUnitFile    # service_window.nml:227
+        _w13.key = 'F4'    # service_window.nml:227
+        _w13.tooltip = _bind(    # service_window.nml:228
             lambda _o: _tr("The unit's file in the editor, a package's through a drop-in override; saved, systemd reads its unit files again"),
             yielding=True,
         )
 
-        _w14.text = _bind(lambda _o: _tr('Detai~l~s...'), yielding=True)    # service_window.nml:228
-        _w14.command = ServiceDetails    # service_window.nml:228
-        _w14.key = 'Enter'    # service_window.nml:228
+        _w14.text = _bind(lambda _o: _tr('Detai~l~s...'), yielding=True)    # service_window.nml:229
+        _w14.command = ServiceDetails    # service_window.nml:229
+        _w14.key = 'Enter'    # service_window.nml:229
 
-        _w16.text = _bind(lambda _o: _tr('S~t~art'), yielding=True)    # service_window.nml:230
-        _w16.command = StartService    # service_window.nml:230
-        _w16.key = 'F5'    # service_window.nml:230
+        _w16.text = _bind(lambda _o: _tr('S~t~art'), yielding=True)    # service_window.nml:231
+        _w16.command = StartService    # service_window.nml:231
+        _w16.key = 'F5'    # service_window.nml:231
 
-        _w17.text = _bind(lambda _o: _tr('Restart'), yielding=True)    # service_window.nml:231
-        _w17.command = RestartService    # service_window.nml:231
-        _w17.key = 'F6'    # service_window.nml:231
+        _w17.text = _bind(lambda _o: _tr('Restart'), yielding=True)    # service_window.nml:232
+        _w17.command = RestartService    # service_window.nml:232
+        _w17.key = 'F6'    # service_window.nml:232
 
-        _w18.text = _bind(lambda _o: _tr('Rel~o~ad'), yielding=True)    # service_window.nml:232
-        _w18.command = ReloadService    # service_window.nml:232
-        _w18.key = 'F7'    # service_window.nml:232
+        _w18.text = _bind(lambda _o: _tr('Rel~o~ad'), yielding=True)    # service_window.nml:233
+        _w18.command = ReloadService    # service_window.nml:233
+        _w18.key = 'F7'    # service_window.nml:233
 
-        _w19.text = _bind(lambda _o: _tr('Sto~p~...'), yielding=True)    # service_window.nml:233
-        _w19.command = StopService    # service_window.nml:233
-        _w19.key = 'F8'    # service_window.nml:233
+        _w19.text = _bind(lambda _o: _tr('Sto~p~...'), yielding=True)    # service_window.nml:234
+        _w19.command = StopService    # service_window.nml:234
+        _w19.key = 'F8'    # service_window.nml:234
 
-        _w21.text = _bind(lambda _o: _tr('Ena~b~le'), yielding=True)    # service_window.nml:235
-        _w21.command = EnableService    # service_window.nml:235
-        _w21.key = 'Ctrl-E'    # service_window.nml:235
-        _w21.tooltip = _bind(    # service_window.nml:236
+        _w21.text = _bind(lambda _o: _tr('Ena~b~le'), yielding=True)    # service_window.nml:236
+        _w21.command = EnableService    # service_window.nml:236
+        _w21.key = 'Ctrl-E'    # service_window.nml:236
+        _w21.tooltip = _bind(    # service_window.nml:237
             lambda _o: _tr('Started at boot, or at log-in for a user unit'),
             yielding=True,
         )
 
-        _w22.text = _bind(lambda _o: _tr('D~i~sable'), yielding=True)    # service_window.nml:237
-        _w22.command = DisableService    # service_window.nml:237
-        _w22.key = 'Ctrl-D'    # service_window.nml:237
-        _w22.tooltip = _bind(    # service_window.nml:238
+        _w22.text = _bind(lambda _o: _tr('D~i~sable'), yielding=True)    # service_window.nml:238
+        _w22.command = DisableService    # service_window.nml:238
+        _w22.key = 'Ctrl-D'    # service_window.nml:238
+        _w22.tooltip = _bind(    # service_window.nml:239
             lambda _o: _tr('Not started at boot any more'),
             yielding=True,
         )
 
-        _w23.text = _bind(lambda _o: _tr('~M~ask...'), yielding=True)    # service_window.nml:239
-        _w23.command = MaskService    # service_window.nml:239
-        _w23.tooltip = _bind(    # service_window.nml:240
+        _w23.text = _bind(lambda _o: _tr('~M~ask...'), yielding=True)    # service_window.nml:240
+        _w23.command = MaskService    # service_window.nml:240
+        _w23.tooltip = _bind(    # service_window.nml:241
             lambda _o: _tr('Never started, not even by another unit'),
             yielding=True,
         )
 
-        _w24.text = _bind(lambda _o: _tr('Unmas~k~'), yielding=True)    # service_window.nml:241
-        _w24.command = UnmaskService    # service_window.nml:241
+        _w24.text = _bind(lambda _o: _tr('Unmas~k~'), yielding=True)    # service_window.nml:242
+        _w24.command = UnmaskService    # service_window.nml:242
 
-        _w26.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # service_window.nml:243
-        _w26.command = CloseWindow    # service_window.nml:243
+        _w26.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # service_window.nml:244
+        _w26.command = CloseWindow    # service_window.nml:244
 
-        self.ticker.interval = _bind(lambda _o: self.refresh_ms())    # service_window.nml:248
+        self.ticker.interval = _bind(lambda _o: self.refresh_ms())    # service_window.nml:249
 
-        async def _on_timer(event):    # service_window.nml:249
+        async def _on_timer(event):    # service_window.nml:250
             await self._tick()
             return True
         self.ticker.on_timer = _on_timer

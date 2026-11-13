@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navml.history import HISTORY
 from navml.widgets.dialog.dialog import Dialog
 
@@ -25,6 +26,11 @@ class MakeListDialog(Dialog):
         self.file_name.value = names[0] if names else DEFAULT_NAME
         self.action.value = commands[0] if commands else ""
         self.options.value = options
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the histories recorded, then the answer."""
+        return await self.on_ok_click(event)
 
     def accept(self) -> tuple[str, str, int] | None:
         """``(file name, action, options)``, or None with no file name."""

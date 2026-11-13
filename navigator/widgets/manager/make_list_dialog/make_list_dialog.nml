@@ -1,16 +1,23 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
 #: Alt+L, Panel > Make list file: DOS Navigator's ``dlgMakeList``.
 #:
-#: Its rows as ``DN.DNR`` has them, three columns wider; Help is left out,
-#: having nothing to show yet.  *Action*'s history is the command line's,
+#: Its rows as ``DN.DNR`` has them, three columns wider, and its OK, Cancel
+#: and Help.  *Action*'s history is the command line's,
 #: ``hsExecDOSCmd``, as DN's was.
 MakeListDialog(Dialog):
     modal_width: 52
     modal_height: 12
     title: "Make List File"
+    help_topic: "panels.md#make-a-list-file"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
 
     #: DN's ``hsMakeList``.
     Field:
@@ -43,3 +50,24 @@ MakeListDialog(Dialog):
             right: 2
         items: ["~S~tore path names to list file", "A~u~todetermine necessity of path names"]
         tooltips: ["Write each file's whole path, not its name alone", "Write a file's path only where it is not in the list file's own directory"]
+
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help

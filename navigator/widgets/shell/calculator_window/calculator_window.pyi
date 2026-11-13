@@ -3,6 +3,8 @@
 
 from typing import Any as _Any
 
+from navkit.events import Event as _Event
+
 from navml.component import Component as _Component
 from navigator.widgets.shell.calculator_window.bit_grid import BitGrid
 from navigator.widgets.shell.calculator_window.calc_line import CalcLine
@@ -14,7 +16,7 @@ from navml.commands import CloseWindow
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import Cancel, Default, Help, SelectNext, SelectPrevious
 from navml.widgets.dialog.history import History
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -64,6 +66,7 @@ class CalculatorWindow(Window, _Component):
     evaluate_button: Button
     copy_button: Button
     close_button: Button
+    help_button: Button
     programming: Widget
     base: RadioButtons
     hex_row: StaticText
@@ -76,6 +79,7 @@ class CalculatorWindow(Window, _Component):
     bit_grid: BitGrid
     calculator_menu: SubMenu
     def __init__(self, **kwargs: Any) -> None: ...
+    async def on_help_button_click(self, event: _Event) -> bool: ...
     async def on_default(self, event: _Any) -> bool: ...
     async def on_cancel(self, event: _Any) -> bool: ...
     async def on_calculator_simple(self, event: _Any) -> bool: ...

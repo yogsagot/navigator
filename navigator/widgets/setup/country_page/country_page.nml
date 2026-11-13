@@ -16,8 +16,9 @@ from navkit.i18n import tr
 #: and currency boxes and the uppercase table are left out: nothing here
 #: writes money, and case is Unicode's.  *Example* is not DN's: the stamp a
 #: panel's *Date* column would show now, following the choices as they are
-#: made.  Help is left out, having nothing to show yet.
+#: made.
 CountryPage(SettingsPage):
+    class help_topic: "settings.md#country"
     class section_name: "country"
 
     #: The caption on its tab, which *Settings* gives it.
