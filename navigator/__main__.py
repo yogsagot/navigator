@@ -439,9 +439,9 @@ class Navigator(Application):
     #: and ``nano``'s Write Out.  DOS Navigator was not running at all while a
     #: program was, so nothing was kept back then either; the way out of a
     #: program is the program's own, or Ctrl+C.  F1
-    #: is here because Help is not a panel's; it has no handler yet, so it is
-    #: disabled, and a disabled command's key is left for whoever is next --
-    #: the console's child gets F1 while Ctrl+O is showing it.  Ctrl+Q is not
+    #: is here because Help is not a panel's (``on_help``); refused with the
+    #: rest while a program has the keys, so the console's child gets F1
+    #: while Ctrl+O is showing it.  Ctrl+Q is not
     #: here: it is DOS Navigator's Quick view, and quitting is Alt+X.  Ctrl+F3
     #: (Manager > New) is, because it has to work with no file manager open --
     #: from the console, after the last one was closed.  Ctrl+F1 and Ctrl+F2
@@ -584,6 +584,28 @@ class Navigator(Application):
     async def on_toggle_console(self, event: ToggleConsole) -> bool:
         self.shell.toggle_console()
         return True
+
+    async def on_help(self, event: Help) -> bool:
+        """F1: DN's ``cmHelp`` -- the help window (``THelpWindow``, run
+        modally) on the topic the focus names.  Started, not awaited."""
+        from navigator.widgets.help.help_window import HelpWindow
+
+        self.spawn(HelpWindow(self.help_topic()).execute(self))
+        return True
+
+    def help_topic(self) -> str:
+        """The topic F1 opens: DN's ``GetHelpCtx`` -- the ``help_topic`` of
+        the widget with the keyboard, else of the nearest one around it that
+        names one, else the contents page."""
+        from navigator.lib.help import pages
+
+        widget = self.focused
+        while widget is not None:
+            topic = getattr(widget, "help_topic", "")
+            if topic:
+                return topic
+            widget = widget.parent
+        return pages.CONTENTS
 
     async def on_toggle_timer_line(self, event: ToggleTimerLine) -> bool:
         """Alt+/: the command line's Timer type on or off (DN's ``LineType``)."""

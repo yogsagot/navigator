@@ -42,7 +42,7 @@ connection, `navigator/lib/drives/rclone.py`), anywhere the desktop's GVfs or KD
 `mtp://`, `dav://`, `webdav://`, `google-drive://`..., through the `gio` command or KDE's `kioclient`/kio-fuse, one of them
 by `[system] desktop_vfs` through `navigator/lib/system/desktop.py` -- `navigator-gio` and `navigator-kio` skills, which also
 have Volumes' Mount/Eject, udisks2's `udisksctl` doing it where neither can, and attaching an `.iso`/`.img` Enter mounts (`loop-setup`), and opening files in desktop applications), inside a zip or tar (Enter on it), in the freedesktop Trash (`trash:///`; F8 moves files there when File
-Manager Setup says so, off by default), or in memory (the tests'). Still to come: the plugin system README.md sketches, and F1 Help.
+Manager Setup says so, off by default), or in memory (the tests'). F1 Help is a window of Markdown pages from `docs/` (`navigator-help` skill): it opens from the main screen; F1 inside a dialog, the dialogs' Help buttons and most pages are still to come, as is the plugin system README.md sketches.
 
 ## Environment and commands
 
@@ -278,7 +278,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-kio` | KDE's KIO/Solid commands (`kioclient`, `solid-hardware6`, `ktraderclient6`, `kstart`, kio-fuse over `dbus-send`): the same four features as `navigator-gio` |
 | `navigator-drives` | `Location`/`Drive`, SFTP, archives and the in-memory drive, sessions, credentials, `UseFile`, SSH link, Disconnect, the *Link* box, what still needs the disk |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
-| `navigator-help` | F1 Help's content: Markdown pages under `docs/en/` (one directory a language), the Markdown subset, links and topic ids, screenshots as `.svg` + `.ans` |
+| `navigator-help` | F1 Help: `HelpWindow`/`HelpViewer`, Markdown pages under `docs/en/` (one directory a language), the Markdown subset, links and topic ids, screenshots as `.svg` + `.ans`, the `$help-*` colours |
 | `navigator-editor` | F4 editor |
 | `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |

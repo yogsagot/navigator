@@ -3,31 +3,31 @@ name = "Русский"
 flag = "RU"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:71
+# navml/widgets/dialog/dialog/dialog.nml:86
 "~Y~es" = "~Д~а"
-# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:86, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:80
+# navml/widgets/dialog/dialog/dialog.nml:92
 "~N~o" = "~Н~ет"
-# navml/widgets/dialog/dialog/dialog.nml:88
+# navml/widgets/dialog/dialog/dialog.nml:99
 "~C~ancel" = "~О~тмена"
-# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:104, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "~П~омощь"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "Открыть файл"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
+# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "~И~мя"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:50
+# navml/widgets/dialog/file_dialog/file_dialog.nml:53
 "~D~irectories" = "~К~аталоги"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:67
+# navml/widgets/dialog/file_dialog/file_dialog.nml:70
 "~F~iles" = "~Ф~айлы"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:95, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
 "Cancel" = "Отмена"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "Менеджер окон"
-# navml/widgets/window_manager/window_manager.nml:22
+# navml/widgets/window_manager/window_manager.nml:25
 "~W~indows" = "~О~кна"
-# navml/widgets/window_manager/window_manager.nml:49
+# navml/widgets/window_manager/window_manager.nml:54
 "C~l~ose" = "~З~акрыть"
 # navml/calendars.py:75
 "January" = "Январь"
@@ -593,9 +593,9 @@ flag = "RU"
 "Vesak (Cambodia)" = "Весак (Камбоджа)"
 # navml/calendars.py:1689
 "Vesak (Thailand, Laos)" = "Весак (Таиланд, Лаос)"
-# navml/commands.py:30, navml/widgets/window/window.py:275
+# navml/commands.py:30, navml/widgets/window/window.py:318
 "Close" = "Закрыть"
-# navml/commands.py:36, navml/widgets/window/window.py:277
+# navml/commands.py:36, navml/widgets/window/window.py:320
 "Zoom" = "Размер"
 # navml/commands.py:76
 "List" = "Список"
@@ -717,61 +717,61 @@ flag = "RU"
 "Saturday" = "Суббота"
 # navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "Воскресенье"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Month" = "Месяц"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Year" = "Год"
-# navml/widgets/dialog/date_button/date_button.py:429
+# navml/widgets/dialog/date_button/date_button.py:426
 "Choose" = "Выбор"
-# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
 "Today" = "Сегодня"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:460
 "The month before" = "Предыдущий месяц"
-# navml/widgets/dialog/date_button/date_button.py:465
+# navml/widgets/dialog/date_button/date_button.py:462
 "The month after" = "Следующий месяц"
-# navml/widgets/dialog/date_button/date_button.py:467
+# navml/widgets/dialog/date_button/date_button.py:464
 "A click chooses the month" = "Щелчок выбирает месяц"
-# navml/widgets/dialog/date_button/date_button.py:469
+# navml/widgets/dialog/date_button/date_button.py:466
 "A click chooses the year" = "Щелчок выбирает год"
-# navml/widgets/dialog/date_button/date_button.py:476
+# navml/widgets/dialog/date_button/date_button.py:473
 "{weekday}, {date}, week {week}" = "{weekday}, {date}, неделя {week}"
-# navml/widgets/dialog/date_button/date_button.py:487
+# navml/widgets/dialog/date_button/date_button.py:484
 "{n} day from today" = ["через {n} день", "через {n} дня", "через {n} дней"]
-# navml/widgets/dialog/date_button/date_button.py:489
+# navml/widgets/dialog/date_button/date_button.py:486
 "{n} day ago" = ["{n} день назад", "{n} дня назад", "{n} дней назад"]
-# navml/widgets/dialog/dialog/dialog.py:312
+# navml/widgets/dialog/dialog/dialog.py:290
 "Enter accepts, Escape dismisses." = "Enter — принять, Escape — отменить."
-# navml/widgets/dialog/file_dialog/file_dialog.py:213
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
 "Invalid file name." = "Неверное имя файла."
-# navml/widgets/dialog/file_dialog/file_dialog.py:204
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
 "Invalid drive or directory." = "Неверный диск или каталог."
-# navml/widgets/dialog/file_dialog/file_dialog.py:239
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
 "Error" = "Ошибка"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "Каталог"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
 " Search: " = " Поиск: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "Выбрать из списка ({key})"
 # navml/widgets/dialog/history/history.py:116
 "Earlier entries ({key})" = "Прежние записи ({key})"
-# navml/widgets/dialog/input_line/input_line.py:410
+# navml/widgets/dialog/input_line/input_line.py:418
 "The line cannot be changed now" = "Строку сейчас нельзя изменить"
-# navml/widgets/dialog/input_line/input_line.py:461
+# navml/widgets/dialog/input_line/input_line.py:449
 "Cu~t~" = "В~ы~резать"
-# navml/widgets/dialog/input_line/input_line.py:462
+# navml/widgets/dialog/input_line/input_line.py:450
 "~C~opy" = "~К~опировать"
-# navml/widgets/dialog/input_line/input_line.py:463
+# navml/widgets/dialog/input_line/input_line.py:451
 "~P~aste" = "~В~ставить"
-# navml/widgets/dialog/input_line/input_line.py:464
+# navml/widgets/dialog/input_line/input_line.py:452
 "C~l~ear" = "О~ч~истить"
-# navml/widgets/dialog/input_line/input_line.py:466
+# navml/widgets/dialog/input_line/input_line.py:454
 "Select ~a~ll" = "Вы~д~елить всё"
-# navml/widgets/dialog/input_line/input_line.py:412
+# navml/widgets/dialog/input_line/input_line.py:420
 "Nothing is selected" = "Ничего не выделено"
-# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
 "The line is empty" = "Строка пуста"
-# navml/widgets/dialog/input_line/input_line.py:419
+# navml/widgets/dialog/input_line/input_line.py:427
 "All of it is selected" = "Всё уже выделено"
 # navml/widgets/dialog/tab_view/tab_view.py:153
 "Tabs" = "Вкладки"
@@ -783,23 +783,23 @@ flag = "RU"
 "Next" = "Далее"
 # navml/widgets/menu/commands.py:14
 "Menu" = "Меню"
-# navml/widgets/progress_bar/progress_bar.py:61
+# navml/widgets/progress_bar/progress_bar.py:64
 "{done} of {total} done ({percent}%), {rest} to go" = "Готово {done} из {total} ({percent}%), осталось {rest}"
-# navml/widgets/window/window.py:297
+# navml/widgets/window/window.py:340
 "A double click zooms, a drag moves" = "Двойной щелчок разворачивает, перетаскивание перемещает"
-# navml/widgets/window/window.py:299
+# navml/widgets/window/window.py:342
 "A drag moves" = "Перетаскивание перемещает"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Move" = "Сдвиг"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Size" = "Размер"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Keep" = "Оставить"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Undo" = "Отмена"
-# navml/widgets/window/window.py:277
+# navml/widgets/window/window.py:320
 "Restore" = "Восстановить"
-# navml/widgets/window/window.py:279
+# navml/widgets/window/window.py:322
 "Drag to resize" = "Перетащите, чтобы изменить размер"
 
 # No longer shown anywhere; kept so nothing written is lost.

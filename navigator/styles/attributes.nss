@@ -245,3 +245,8 @@ $sync-conflict-bold: inherit; $sync-conflict-dim: inherit; $sync-conflict-italic
 $gutter-bold: inherit; $gutter-dim: inherit; $gutter-italic: inherit; $gutter-underline: inherit; $gutter-reverse: inherit;
 $gutter-current-bold: inherit; $gutter-current-dim: inherit; $gutter-current-italic: inherit; $gutter-current-underline: inherit; $gutter-current-reverse: inherit;
 $caret-bold: inherit; $caret-dim: inherit; $caret-italic: inherit; $caret-underline: inherit; $caret-reverse: inherit;
+$help-bold: inherit; $help-dim: inherit; $help-italic: inherit; $help-underline: inherit; $help-reverse: inherit;
+$help-frame-bold: inherit; $help-frame-dim: inherit; $help-frame-italic: inherit; $help-frame-underline: inherit; $help-frame-reverse: inherit;
+$help-frame-icons-bold: inherit; $help-frame-icons-dim: inherit; $help-frame-icons-italic: inherit; $help-frame-icons-underline: inherit; $help-frame-icons-reverse: inherit;
+$help-keyword-bold: inherit; $help-keyword-dim: inherit; $help-keyword-italic: inherit; $help-keyword-underline: inherit; $help-keyword-reverse: inherit;
+$help-selected-bold: inherit; $help-selected-dim: inherit; $help-selected-italic: inherit; $help-selected-underline: inherit; $help-selected-reverse: inherit;

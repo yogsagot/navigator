@@ -479,3 +479,13 @@ $gutter-current-fg: $color-text_strong;/*  the cursor's line number in the gutte
 $gutter-current-bg: $color-ground;
 $caret-fg: $color-accent;             /*  the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it */
 $caret-bg: $color-ground;
+$help-fg: $color-text;                /*  Help's text and ground -- no slot the Colors dialog names: CHelpColor's $30 */
+$help-bg: $color-surface;
+$help-frame-fg: $color-text_strong;   /*  Help's frame and title, and its highlights (headings, strong text, keys) -- CHelpColor's $3F, twice */
+$help-frame-bg: $color-surface;
+$help-frame-icons-fg: $color-accent;  /*  Help's frame icons -- CHelpColor's $3A */
+$help-frame-icons-bg: $color-surface;
+$help-keyword-fg: $color-accent;      /*  a link in Help -- CHelpColor's $3E, a keyword */
+$help-keyword-bg: $color-surface;
+$help-selected-fg: $color-on_accent;  /*  the link Enter follows -- CHelpColor's $1E, the selected keyword */
+$help-selected-bg: $color-accent;

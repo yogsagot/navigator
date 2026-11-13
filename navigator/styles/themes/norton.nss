@@ -436,6 +436,16 @@ $gutter-current-fg: $editor-frame-active-fg;/*  the cursor's line number in the 
 $gutter-current-bg: $editor-frame-active-bg;
 $caret-fg: yellow;                    /*  the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it */
 $caret-bg: black;
+$help-fg: black;                      /*  Help's text and ground -- no slot the Colors dialog names: CHelpColor's $30 */
+$help-bg: cyan;
+$help-frame-fg: white;                /*  Help's frame and title, and its highlights (headings, strong text, keys) -- CHelpColor's $3F, twice */
+$help-frame-bg: cyan;
+$help-frame-icons-fg: light_green;    /*  Help's frame icons -- CHelpColor's $3A */
+$help-frame-icons-bg: cyan;
+$help-keyword-fg: yellow;             /*  a link in Help -- CHelpColor's $3E, a keyword */
+$help-keyword-bg: cyan;
+$help-selected-fg: yellow;            /*  the link Enter follows -- CHelpColor's $1E, the selected keyword */
+$help-selected-bg: blue;
 
 /* The rest of the .PAL, for the record. Every palette also stores where
    the cursor was in DOS Navigator's own Colors dialog when it was saved:

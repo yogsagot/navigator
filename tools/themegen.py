@@ -490,6 +490,11 @@ DERIVED_ROLES: dict[str, tuple[str, str]] = {
     "sync-same": ("temp", "ground"), "sync-conflict": ("broken", "ground"),
     "gutter": ("text_faint", "ground"), "gutter-current": ("text_strong", "ground"),
     "caret": ("accent", "ground"),
+    "help": ("text", "surface"),
+    "help-frame": ("text_strong", "surface"),
+    "help-frame-icons": ("accent", "surface"),
+    "help-keyword": ("accent", "surface"),
+    "help-selected": ("on_accent", "accent"),
 }
 
 assert set(SLOT_ROLES) == {slot.name for slot in SLOTS}, set(SLOT_ROLES) ^ {slot.name for slot in SLOTS}

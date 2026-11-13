@@ -3,31 +3,31 @@ name = "日本語"
 flag = "JP"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:71
+# navml/widgets/dialog/dialog/dialog.nml:86
 "~Y~es" = "はい(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:86, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:80
+# navml/widgets/dialog/dialog/dialog.nml:92
 "~N~o" = "いいえ(~N~)"
-# navml/widgets/dialog/dialog/dialog.nml:88
+# navml/widgets/dialog/dialog/dialog.nml:99
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:104, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "ヘルプ(~H~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "ファイルを開く"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
+# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "名前(~N~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:50
+# navml/widgets/dialog/file_dialog/file_dialog.nml:53
 "~D~irectories" = "ディレクトリ(~D~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:67
+# navml/widgets/dialog/file_dialog/file_dialog.nml:70
 "~F~iles" = "ファイル(~F~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:95, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
 "Cancel" = "取消"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "ウィンドウ管理"
-# navml/widgets/window_manager/window_manager.nml:22
+# navml/widgets/window_manager/window_manager.nml:25
 "~W~indows" = "ウィンドウ(~W~)"
-# navml/widgets/window_manager/window_manager.nml:49
+# navml/widgets/window_manager/window_manager.nml:54
 "C~l~ose" = "閉じる(~L~)"
 # navml/calendars.py:75
 "January" = "1月"
@@ -593,9 +593,9 @@ flag = "JP"
 "Vesak (Cambodia)" = "ウェーサーカ祭(カンボジア)"
 # navml/calendars.py:1689
 "Vesak (Thailand, Laos)" = "ウェーサーカ祭(タイ、ラオス)"
-# navml/commands.py:30, navml/widgets/window/window.py:275
+# navml/commands.py:30, navml/widgets/window/window.py:318
 "Close" = "閉じる"
-# navml/commands.py:36, navml/widgets/window/window.py:277
+# navml/commands.py:36, navml/widgets/window/window.py:320
 "Zoom" = "最大化"
 # navml/commands.py:76
 "List" = "一覧"
@@ -717,61 +717,61 @@ flag = "JP"
 "Saturday" = "土曜日"
 # navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "日曜日"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Month" = "月"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Year" = "年"
-# navml/widgets/dialog/date_button/date_button.py:429
+# navml/widgets/dialog/date_button/date_button.py:426
 "Choose" = "選択"
-# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
 "Today" = "今日"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:460
 "The month before" = "前の月"
-# navml/widgets/dialog/date_button/date_button.py:465
+# navml/widgets/dialog/date_button/date_button.py:462
 "The month after" = "次の月"
-# navml/widgets/dialog/date_button/date_button.py:467
+# navml/widgets/dialog/date_button/date_button.py:464
 "A click chooses the month" = "クリックで月を選択"
-# navml/widgets/dialog/date_button/date_button.py:469
+# navml/widgets/dialog/date_button/date_button.py:466
 "A click chooses the year" = "クリックで年を選択"
-# navml/widgets/dialog/date_button/date_button.py:476
+# navml/widgets/dialog/date_button/date_button.py:473
 "{weekday}, {date}, week {week}" = "{weekday}、{date}、第 {week} 週"
-# navml/widgets/dialog/date_button/date_button.py:487
+# navml/widgets/dialog/date_button/date_button.py:484
 "{n} day from today" = ["今日から {n} 日後"]
-# navml/widgets/dialog/date_button/date_button.py:489
+# navml/widgets/dialog/date_button/date_button.py:486
 "{n} day ago" = ["{n} 日前"]
-# navml/widgets/dialog/dialog/dialog.py:312
+# navml/widgets/dialog/dialog/dialog.py:290
 "Enter accepts, Escape dismisses." = "Enter で確定、Escape で取り消し。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:213
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
 "Invalid file name." = "無効なファイル名です。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:204
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
 "Invalid drive or directory." = "無効なドライブまたはディレクトリです。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:239
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
 "Error" = "エラー"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "ディレクトリ"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
 " Search: " = " 検索: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "一覧から選択 ({key})"
 # navml/widgets/dialog/history/history.py:116
 "Earlier entries ({key})" = "以前の項目 ({key})"
-# navml/widgets/dialog/input_line/input_line.py:410
+# navml/widgets/dialog/input_line/input_line.py:418
 "The line cannot be changed now" = "今は行を変更できません"
-# navml/widgets/dialog/input_line/input_line.py:461
+# navml/widgets/dialog/input_line/input_line.py:449
 "Cu~t~" = "切り取り(~T~)"
-# navml/widgets/dialog/input_line/input_line.py:462
+# navml/widgets/dialog/input_line/input_line.py:450
 "~C~opy" = "コピー(~C~)"
-# navml/widgets/dialog/input_line/input_line.py:463
+# navml/widgets/dialog/input_line/input_line.py:451
 "~P~aste" = "貼り付け(~P~)"
-# navml/widgets/dialog/input_line/input_line.py:464
+# navml/widgets/dialog/input_line/input_line.py:452
 "C~l~ear" = "消去(~L~)"
-# navml/widgets/dialog/input_line/input_line.py:466
+# navml/widgets/dialog/input_line/input_line.py:454
 "Select ~a~ll" = "すべて選択(~A~)"
-# navml/widgets/dialog/input_line/input_line.py:412
+# navml/widgets/dialog/input_line/input_line.py:420
 "Nothing is selected" = "何も選択されていません"
-# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
 "The line is empty" = "行が空です"
-# navml/widgets/dialog/input_line/input_line.py:419
+# navml/widgets/dialog/input_line/input_line.py:427
 "All of it is selected" = "すべて選択済みです"
 # navml/widgets/dialog/tab_view/tab_view.py:153
 "Tabs" = "タブ"
@@ -783,21 +783,21 @@ flag = "JP"
 "Next" = "次"
 # navml/widgets/menu/commands.py:14
 "Menu" = "メニュー"
-# navml/widgets/progress_bar/progress_bar.py:61
+# navml/widgets/progress_bar/progress_bar.py:64
 "{done} of {total} done ({percent}%), {rest} to go" = "{total} 中 {done} 完了 ({percent}%)、残り {rest}"
-# navml/widgets/window/window.py:297
+# navml/widgets/window/window.py:340
 "A double click zooms, a drag moves" = "ダブルクリックで最大化、ドラッグで移動"
-# navml/widgets/window/window.py:299
+# navml/widgets/window/window.py:342
 "A drag moves" = "ドラッグで移動"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Move" = "移動"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Size" = "サイズ"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Keep" = "確定"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Undo" = "元に戻す"
-# navml/widgets/window/window.py:277
+# navml/widgets/window/window.py:320
 "Restore" = "元のサイズ"
-# navml/widgets/window/window.py:279
+# navml/widgets/window/window.py:322
 "Drag to resize" = "ドラッグでサイズ変更"

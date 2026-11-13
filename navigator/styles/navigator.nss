@@ -329,6 +329,30 @@ ErrorDialog StaticText#logged  { fg: $error-dialog-fg; bg: $error-dialog-bg; bol
 ErrorDialog::icon              { fg: $error-dialog-icons-fg; bg: $error-dialog-icons-bg; bold: $error-dialog-icons-bold; dim: $error-dialog-icons-dim; italic: $error-dialog-icons-italic; underline: $error-dialog-icons-underline; reverse: $error-dialog-icons-reverse }
 ErrorDialog Button::shadow     { fg: $error-dialog-shadow-fg; bg: $error-dialog-shadow-bg; bold: $error-dialog-shadow-bold; dim: $error-dialog-shadow-dim; italic: $error-dialog-shadow-italic; underline: $error-dialog-shadow-underline; reverse: $error-dialog-shadow-reverse }
 
+/* F1 Help (HelpWindow, HelpViewer): THelpWindow's palette, CHelpWindow --
+   application slots the Colors dialog never listed, so the five `$help-*'
+   entries are CHelpColor's defaults: black on cyan text, the frame and the
+   highlights bright white, a link yellow, the one Enter follows yellow on
+   blue.  DN's HiLite marked what the .hlp source set apart; here it is what
+   Markdown sets apart -- a heading, strong text, a key or a name in
+   backticks, a table's head.  A code block is the text's colour whole: the
+   syntax colours were chosen for the editor's ground, not for this one.  A
+   picture's cells carry their own colours and take none of these. */
+HelpWindow,
+HelpWindow::title              { fg: $help-frame-fg; bg: $help-frame-bg; bold: $help-frame-bold; dim: $help-frame-dim; italic: $help-frame-italic; underline: $help-frame-underline; reverse: $help-frame-reverse }
+HelpWindow::icon               { fg: $help-frame-icons-fg; bg: $help-frame-icons-bg; bold: $help-frame-icons-bold; dim: $help-frame-icons-dim; italic: $help-frame-icons-italic; underline: $help-frame-icons-underline; reverse: $help-frame-icons-reverse }
+HelpViewer                     { fg: $help-fg; bg: $help-bg; bold: $help-bold; dim: $help-dim; italic: $help-italic; underline: $help-underline; reverse: $help-reverse }
+HelpViewer::selected           { fg: $help-selected-fg; bg: $help-selected-bg; bold: $help-selected-bold; dim: $help-selected-dim; italic: $help-selected-italic; underline: $help-selected-underline; reverse: $help-selected-reverse }
+HelpViewer::md.heading,
+HelpViewer::md.strong,
+HelpViewer::md.code,
+HelpViewer::md.th              { fg: $help-frame-fg; bold: $help-frame-bold; dim: $help-frame-dim; italic: $help-frame-italic; underline: $help-frame-underline; reverse: $help-frame-reverse }
+HelpViewer::md.code.block      { fg: $help-fg; bold: $help-bold; dim: $help-dim; italic: $help-italic; underline: $help-underline; reverse: $help-reverse }
+HelpViewer::md.link,
+HelpViewer::md.image           { fg: $help-keyword-fg; bold: $help-keyword-bold; dim: $help-keyword-dim; italic: $help-keyword-italic; underline: $help-keyword-underline; reverse: $help-keyword-reverse }
+HelpViewer::md.emph            { italic: true }
+HelpViewer::md.strike          { dim: true }
+
 /* DOS Navigator's CInputLine (#19#19#20#21) gives a passive and a focused line
  * the same slot, [50], and paints the selection in [51] whole.  Departure: a
  * focused line is drawn in [51], so the field being typed in stands out, and

@@ -1,0 +1,63 @@
+from navigator.widgets.help.commands import GoBack, GoToReference, HelpIndex, HelpOnHelp, NextTopic, PreviousTopic
+from navigator.widgets.help.help_viewer import HelpViewer
+from navml.commands import ZoomWindow
+from navml.widgets.dialog.dialog import Dialog
+from navml.widgets.dialog.scroll_bar import ScrollBar
+
+#: F1: DOS Navigator's ``THelpWindow`` (``HELPFILE.PAS``).
+#:
+#: ``R.Assign(0, 0, 72, 20)``, centred, titled *Help*, and run modally
+#: (``DNUTIL.PAS``'s ``cmHelp``: ``ExecView``) -- so it opens over a dialog
+#: and Esc goes back to it.  The viewer is ``R.Grow(-2, -1)``, the scroll bar
+#: on the right frame.  The keys are ``StatusDef hcHelp``'s.
+#:
+#: Alt+Z zooms it to the whole screen and back.  Departures: no bar along
+#: the bottom frame -- a page is wrapped to the width, so there is nothing to
+#: scroll to -- the right one only while the page is longer than the window
+#: (as the viewer's), and neither dragging nor Ctrl+F5's resize, a modal
+#: here being a fixed box.
+HelpWindow(Dialog):
+    #: Whether it fills the screen: Alt+Z, ``cmZoom``.
+    property zoomed: False
+
+    modal_width: (parent.width if self.zoomed else min(72, parent.width)) if parent is not None else 72
+    modal_height: (max(3, parent.height - 2) if self.zoomed else min(20, parent.height)) if parent is not None else 20
+    title: "Help"
+    buttons: "none"
+
+    keys:
+        f1: HelpOnHelp
+        shift+f1: HelpIndex
+        tab: NextTopic
+        shift+tab: PreviousTopic
+        enter: GoToReference
+        alt+f1: GoBack
+        alt+z: ZoomWindow
+
+    #: The commands this component handles itself.
+    commands:
+        NextTopic: root.viewer.step(1)
+        PreviousTopic: root.viewer.step(-1)
+        GoToReference: root.viewer.follow()
+        GoBack: root.viewer.back()
+        ZoomWindow: root.toggle_zoom()
+
+    HelpViewer:
+        id: viewer
+        anchors:
+            left: 2
+            right: 2
+            top: 1
+            bottom: 1
+
+    ScrollBar:
+        id: bar
+        width: 1
+        anchors:
+            right: 0
+            top: 1
+            bottom: 1
+        visible: viewer.total > viewer.height
+        value: viewer.top
+        maximum: max(0, viewer.total - viewer.height)
+        page: max(1, viewer.height)

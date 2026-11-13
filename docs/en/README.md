@@ -6,3 +6,4 @@ manual: the same files are what `F1` shows inside Navigator.
 ## Contents
 
 - [Copy and paste](clipboard.md): the keys, the clipboard tools, and what each terminal does with them
+- [Help on help](help.md): the keys of this window

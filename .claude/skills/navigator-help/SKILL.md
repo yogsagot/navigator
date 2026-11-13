@@ -1,12 +1,13 @@
 ---
 name: navigator-help
-description: F1 Help's content -- the Markdown pages under docs/ (docs/en/ canonical, one directory a language with the same tree, docs/en/README.md the contents page), the Markdown subset GitHub and Navigator both render, links and topic ids, and screenshots written twice by tools/screenshot.py (SCENES, Scene, cropped, as_ansi) as shots/NAME.svg for GitHub and shots/NAME.ans for the help window, read by navigator/lib/help/ansi.py. A departure from DN's .hlp files, asked for. Use when writing or moving a help page, adding a screenshot scene, or designing the help window.
+description: F1 Help -- HelpWindow and HelpViewer (navigator/widgets/help/, DN's THelpWindow: Tab/Enter/Alt+F1 over links, the back stack, the $help-* colours), Navigator.on_help and help_topic, and its content: the Markdown pages under docs/ (docs/en/ canonical, one directory a language with the same tree, docs/en/README.md the contents page), the Markdown subset GitHub and Navigator both render, links and topic ids, and screenshots written twice by tools/screenshot.py (SCENES, Scene, cropped, as_ansi) as shots/NAME.svg for GitHub and shots/NAME.ans for the help window, read by navigator/lib/help/ansi.py. A departure from DN's .hlp files, asked for. Use when writing or moving a help page, adding a screenshot scene, giving a dialog its help, or changing the help window.
 ---
 
 # Help (F1): the pages and their pictures
 
-**The window does not exist yet.** `Help` (`navigator/commands.py`) has no handler, so F1 is disabled and some thirty
-dialogs leave their Help button out or greyed. What is fixed is the content, below; *Still to design* lists the rest.
+**F1 opens `HelpWindow`** (`navigator/widgets/help/`, DN's `THelpWindow`) from the main screen, on the contents
+page. **Not yet**: F1 inside a dialog (the application's key table stands aside under a modal, so `Dialog` needs
+the key), a `help_topic` on any dialog or window, and the thirty-odd dialogs' Help buttons -- *What is left* below.
 
 **A departure from DN, asked for**: DN compiled `.hlp` files (`DN.HLP`, `hcXxx` contexts). Here help is Markdown under
 `docs/`, because the same files are readable on GitHub, can become a website, and are rendered in-app by the
@@ -85,32 +86,63 @@ marks cells `terminal_palette` and takes colours by name.
 - A wide character is written once and the reader gives its second cell (`""`) back; a mark or the second half of a
   flag joins the cell before it.
 
-## The window (designed, not built)
+## The window
 
 DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run modally (`DNUTIL.PAS` `cmHelp`,
-`ExecView`), a `THelpViewer` with both scroll bars inside; `StatusDef hcHelp` names its keys. Decided:
+`ExecView`), a `THelpViewer` inside; `StatusDef hcHelp` names its keys.
 
-- **Modal, as DN's.** `HelpWindow` is an overlay, so F1 works inside a dialog and Esc goes back to it. Alt+Z zooms,
-  Ctrl+F5 resizes, as DN's status line had them.
-- **`HelpViewer` is its own widget, not a `FileViewer`** (byte sources, hex, search and editing are none of its
-  business). It calls `markdown.render` and paints the `Layout`'s rows.
-- **Keys are `hcHelp`'s**: Tab / Shift+Tab the next / previous link, Enter follows, Alt+F1 goes back (`PrevTopic`,
-  `MaxUndo` 200), F1 *Help on help* (`docs/en/help.md`), Shift+F1 *Index* (`README.md`), Esc closes.
+- **`HelpWindow`** (`help_window/`, a `Dialog` with `buttons: "none"`) is modal, as DN's: `Navigator.on_help` spawns
+  `HelpWindow(topic).execute(app)`. 72 by 20 or the screen if smaller; **Alt+Z** (`ZoomWindow`, the `zoomed`
+  property) makes it the screen less the menu bar and key bar. The scroll bar is on the right frame, shown only
+  while the page is longer than the window (as the viewer's). Departures: no bottom bar (a page wraps to the width),
+  no dragging and no Ctrl+F5 resize -- navml's `Modal` is a fixed, centred box.
+- **`HelpViewer`** (`help_viewer.py`, Python alone) is its own widget, not a `FileViewer`. `show(topic)`, `follow()`,
+  `back()`, `step(by)`, `scroll_to(row)`; reactive `page`, `layout`, `top`, `total`, `selected`, `problem`; plain
+  `links` (the page's links that lead to a page of Help) and `history` (`Place(page, src, selected)`, 200 deep,
+  DN's `MaxUndo`; `src` is the top row's source offset, so a place is the same at any width).
+- **Keys are `hcHelp`'s**, in `help_window.nml`'s table over `Dialog`'s: Tab / Shift+Tab `NextTopic` /
+  `PreviousTopic` (round the ends, the link scrolled into view), Enter `GoToReference`, Alt+F1 `GoBack` (refused on
+  the first page), F1 `HelpOnHelp` (`help.md`), Shift+F1 `HelpIndex` (`README.md`), Esc closes (`Dialog`'s). Tab
+  and Enter are on the key bar through `key_hints()`.
 - **No text cursor, a departure**: DN's `TScroller` had one, and a reference was selected when the cursor stood on
   it. Here the arrows, PgUp/PgDn, Home/End scroll and Tab picks links: pages are reflowed Markdown, laid out for
   bidi, and the mouse does the pointing.
 - **A single click follows a link, a departure, asked for**: DN's click placed the cursor and a double click
-  followed.
-- **Colours are DN's help palette** (`CHelpWindow` = application slots 139-146 and 163; `CHelpColor`'s defaults:
-  frame `$37`/`$3F`, text `$30` black on cyan, keyword `$3E`, selected keyword `$1E`, highlight `$3F`), named in
-  `tools/palconv.py` -- they are not among the 144 the Colors dialog exposes -- default theme first. Headings and
-  strong text take the highlight, links the keyword. A code block is one plain colour: the syntax colours were not
-  chosen for cyan. A picture keeps its own colours.
-- **The topic**: a `help_topic` string on a dialog or window (`"file-operations.md#copy"`, DN's `HELPCTX`). F1 walks
-  up from the focused widget to the first one set (`GetHelpCtx`), else the contents page. A dialog's *Help* button
-  sends the same `Help` command. A test checks every `help_topic` resolves.
-- **F1 while a child program runs in the console goes to the child**, as it does today with `Help` disabled.
-- **`layout.py` has, built** (F3's Markup view is unchanged; `tests/test_help_layout.py`):
+  followed. The wheel scrolls three rows.
+- **Reading is on a thread** (`_READER`, a `Background`): `_load` reads the page (`pages.read`) and lays it out
+  (`markdown.render` with `pictures=` bound to `pages.shot`). `render()` calls `_request()`, which asks again only
+  when page, width, glyph tier or language differ from what was asked last -- how a zoom or a resize re-lays the page,
+  from the bytes kept. An answer to anything but the last request is dropped. Until one lands the last page stays.
+  **A test waits with `Until`** on `viewer.page` and `_wanted is None`, never a fixed number of steps.
+- **A link on the page shown** (`#anchor`, or the page's own name with one) moves without reading again.
+- **A page that is not there** leaves `layout` None and paints `problem` (*There is no help page NAME*); Alt+F1
+  still goes back.
+- **Colours are DN's help palette**, `CHelpWindow` (application slots 139-146 and 163), which the Colors dialog
+  never listed, so no `.PAL` value is transcribed: five `DERIVED` pairs with `CHelpColor`'s defaults -- `help`
+  (`$30`, text), `help-frame` (`$3F`, the frame and the highlights: headings, strong text, inline code, a table's
+  head), `help-frame-icons` (`$3A`), `help-keyword` (`$3E`, a link), `help-selected` (`$1E`). Written into the
+  eleven DOS themes by hand as palconv would, and into the modern ones by themegen (`text`/`text_strong`/`accent`
+  on `surface`, `on_accent` on `accent`). A code block is the text's colour whole (`_look` drops a token's
+  classes): the syntax colours were not chosen for this ground. A picture keeps its own colours.
+- **A link out of Help** stays OSC 8 only and Tab passes over it (an in-app opener was declined); a link into
+  Help is not given to the terminal.
+- **`mirrors = False`**, as the viewer: rows are laid out already, and a picture must not be turned round.
+- **F1 while a program has the keys is the program's**: `Navigator.refusal` refuses every application command then.
+
+## What is left
+
+- **F1 inside a dialog.** The application's table is not consulted under a modal, so `Dialog` (navml) needs
+  `f1` bound to a `Help` command navml owns (Navigator's `Help` then being that class), bubbling to
+  `Navigator.on_help`; the default key set is regenerated then (`tools/keymap_default.py`).
+- **The topic**: `Navigator.help_topic()` already walks up from the focused widget for a `help_topic` string
+  (`"file-operations.md#copy"`, DN's `HELPCTX`, `GetHelpCtx`), but no widget declares one: `Modal` and `Window`
+  need the property, and a test that every `help_topic` resolves.
+- **The Help buttons**: each dialog's back as its page is written (`dn-porting` has the grep that finds them).
+- **The help window's keys are not in `keybindings.ini`** (no section in `keybindings.TABLES`).
+- A code block wider than the window is cut: there is no sideways scroll.
+## The layout, and shipping
+
+- **`layout.py` has** (F3's Markup view is unchanged; `tests/test_help_layout.py`):
   - `Layout.anchors`, each heading's anchor and first row, by `slug()` -- GitHub's, a repeat numbered `-1`, `-2`.
     Recorded by `Builder.heading`, so reST and HTML have them too; the docs test resolves links through it.
   - `Layout.links()`, every `Link(href, spans, image)` in reading order. A link wrapped over rows is one link with
@@ -123,14 +155,8 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
   - `markdown.render(..., pictures=)`: a callable from an image's `src` to cells (Help passes
     `pages.shot` bound to the page and language). Only an image that is a paragraph alone is drawn; among text,
     unknown, or too wide it is `[alt]` as before.
-- **Following**: a relative link loads the page (the language's, else `docs/en/`'s; shots the same) and scrolls to
-  the anchor. The back stack keeps the page, the block on top and the selected link, so it survives a resize. A
-  link to another site stays OSC 8 only and Tab passes over it (an in-app opener was declined).
-- **Loading** is on a thread (`navml.background.Background`): read, render, and again on a resize.
 - **Shipping**: `docs/` stays at the top of the repository and is installed as `navigator/docs/`. `setup.py` says
   so (`package_dir={"navigator.docs": "docs"}`, and therefore lists the packages, which `pyproject.toml`'s
   `packages.find` cannot do for a directory it does not find); package-data takes `**/*.md` and `**/*.ans`, so no
   SVG is shipped. **No symbolic link**: a clone without them (Windows) gets a text file. `pages.root()` reads
   `navigator/docs` through `importlib.resources` when installed and `docs/` beside the package in a checkout.
-- **Order**: the layout additions and the page loader; the window, keys and colours; `help.md` and F1; then each
-  dialog's Help button back as its page is written (`dn-porting` has the grep that finds them).

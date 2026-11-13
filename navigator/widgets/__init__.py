@@ -50,6 +50,7 @@ _WIDGETS = {
     "CommandPalette": "shell.command_palette",
     "UnicodeGrid": "shell.unicode_grid",
     "AboutDialog": "about_dialog",
+    "HelpWindow": "help.help_window",
     "AttrDialog": "file_ops.attr_dialog",
     "BookmarkLabelDialog": "manager.bookmark_label_dialog",
     "ChangeDirDialog": "tree.change_dir_dialog",

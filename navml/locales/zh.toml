@@ -3,31 +3,31 @@ name = "简体中文"
 flag = "CN"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:71
+# navml/widgets/dialog/dialog/dialog.nml:86
 "~Y~es" = "是(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:71, navml/widgets/dialog/file_dialog/file_dialog.nml:86, navml/widgets/window_manager/window_manager.nml:39
+# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:80
+# navml/widgets/dialog/dialog/dialog.nml:92
 "~N~o" = "否(~N~)"
-# navml/widgets/dialog/dialog/dialog.nml:88
+# navml/widgets/dialog/dialog/dialog.nml:99
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:101, navml/widgets/dialog/file_dialog/file_dialog.nml:104, navml/widgets/window_manager/window_manager.nml:66
+# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "帮助(~H~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "打开文件"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:32, navml/widgets/dialog/file_dialog/file_dialog.py:90
+# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "名称(~N~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:50
+# navml/widgets/dialog/file_dialog/file_dialog.nml:53
 "~D~irectories" = "目录(~D~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:67
+# navml/widgets/dialog/file_dialog/file_dialog.nml:70
 "~F~iles" = "文件(~F~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:95, navml/widgets/window_manager/window_manager.nml:57, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
 "Cancel" = "取消"
 # navml/widgets/window_manager/window_manager.nml:18
 "Windows Manager" = "窗口管理器"
-# navml/widgets/window_manager/window_manager.nml:22
+# navml/widgets/window_manager/window_manager.nml:25
 "~W~indows" = "窗口(~W~)"
-# navml/widgets/window_manager/window_manager.nml:49
+# navml/widgets/window_manager/window_manager.nml:54
 "C~l~ose" = "关闭(~L~)"
 # navml/calendars.py:75
 "January" = "一月"
@@ -593,9 +593,9 @@ flag = "CN"
 "Vesak (Cambodia)" = "卫塞节（柬埔寨）"
 # navml/calendars.py:1689
 "Vesak (Thailand, Laos)" = "卫塞节（泰国、老挝）"
-# navml/commands.py:30, navml/widgets/window/window.py:275
+# navml/commands.py:30, navml/widgets/window/window.py:318
 "Close" = "关闭"
-# navml/commands.py:36, navml/widgets/window/window.py:277
+# navml/commands.py:36, navml/widgets/window/window.py:320
 "Zoom" = "缩放"
 # navml/commands.py:76
 "List" = "列表"
@@ -717,61 +717,61 @@ flag = "CN"
 "Saturday" = "星期六"
 # navml/widgets/dialog/date_button/date_button.py:112
 "Sunday" = "星期日"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Month" = "月"
-# navml/widgets/dialog/date_button/date_button.py:428
+# navml/widgets/dialog/date_button/date_button.py:425
 "Year" = "年"
-# navml/widgets/dialog/date_button/date_button.py:429
+# navml/widgets/dialog/date_button/date_button.py:426
 "Choose" = "选择"
-# navml/widgets/dialog/date_button/date_button.py:429, navml/widgets/dialog/date_button/date_button.py:485
+# navml/widgets/dialog/date_button/date_button.py:426, navml/widgets/dialog/date_button/date_button.py:482
 "Today" = "今天"
-# navml/widgets/dialog/date_button/date_button.py:463
+# navml/widgets/dialog/date_button/date_button.py:460
 "The month before" = "上个月"
-# navml/widgets/dialog/date_button/date_button.py:465
+# navml/widgets/dialog/date_button/date_button.py:462
 "The month after" = "下个月"
-# navml/widgets/dialog/date_button/date_button.py:467
+# navml/widgets/dialog/date_button/date_button.py:464
 "A click chooses the month" = "单击选择月份"
-# navml/widgets/dialog/date_button/date_button.py:469
+# navml/widgets/dialog/date_button/date_button.py:466
 "A click chooses the year" = "单击选择年份"
-# navml/widgets/dialog/date_button/date_button.py:476
+# navml/widgets/dialog/date_button/date_button.py:473
 "{weekday}, {date}, week {week}" = "{weekday}，{date}，第 {week} 周"
-# navml/widgets/dialog/date_button/date_button.py:487
+# navml/widgets/dialog/date_button/date_button.py:484
 "{n} day from today" = ["{n} 天后"]
-# navml/widgets/dialog/date_button/date_button.py:489
+# navml/widgets/dialog/date_button/date_button.py:486
 "{n} day ago" = ["{n} 天前"]
-# navml/widgets/dialog/dialog/dialog.py:312
+# navml/widgets/dialog/dialog/dialog.py:290
 "Enter accepts, Escape dismisses." = "Enter 确认，Esc 取消。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:213
+# navml/widgets/dialog/file_dialog/file_dialog.py:206
 "Invalid file name." = "无效的文件名。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:204
+# navml/widgets/dialog/file_dialog/file_dialog.py:197
 "Invalid drive or directory." = "无效的驱动器或目录。"
-# navml/widgets/dialog/file_dialog/file_dialog.py:239
+# navml/widgets/dialog/file_dialog/file_dialog.py:232
 "Error" = "错误"
 # navml/widgets/dialog/file_list/file_list.py:213
 "Directory" = "目录"
-# navml/widgets/dialog/history/history.py:270, navml/widgets/dialog/history/history.py:276, navml/widgets/dialog/tree_view/tree_view.py:578 ...
+# navml/widgets/dialog/history/history.py:267, navml/widgets/dialog/history/history.py:273, navml/widgets/dialog/tree_view/tree_view.py:578 ...
 " Search: " = " 搜索: "
 # navml/widgets/dialog/history/history.py:114
 "Choose from the list ({key})" = "从列表中选择 ({key})"
 # navml/widgets/dialog/history/history.py:116
 "Earlier entries ({key})" = "先前的条目 ({key})"
-# navml/widgets/dialog/input_line/input_line.py:410
+# navml/widgets/dialog/input_line/input_line.py:418
 "The line cannot be changed now" = "此行现在无法更改"
-# navml/widgets/dialog/input_line/input_line.py:461
+# navml/widgets/dialog/input_line/input_line.py:449
 "Cu~t~" = "剪切(~T~)"
-# navml/widgets/dialog/input_line/input_line.py:462
+# navml/widgets/dialog/input_line/input_line.py:450
 "~C~opy" = "复制(~C~)"
-# navml/widgets/dialog/input_line/input_line.py:463
+# navml/widgets/dialog/input_line/input_line.py:451
 "~P~aste" = "粘贴(~P~)"
-# navml/widgets/dialog/input_line/input_line.py:464
+# navml/widgets/dialog/input_line/input_line.py:452
 "C~l~ear" = "清除(~L~)"
-# navml/widgets/dialog/input_line/input_line.py:466
+# navml/widgets/dialog/input_line/input_line.py:454
 "Select ~a~ll" = "全选(~A~)"
-# navml/widgets/dialog/input_line/input_line.py:412
+# navml/widgets/dialog/input_line/input_line.py:420
 "Nothing is selected" = "未选择任何内容"
-# navml/widgets/dialog/input_line/input_line.py:415, navml/widgets/dialog/input_line/input_line.py:418
+# navml/widgets/dialog/input_line/input_line.py:423, navml/widgets/dialog/input_line/input_line.py:426
 "The line is empty" = "此行为空"
-# navml/widgets/dialog/input_line/input_line.py:419
+# navml/widgets/dialog/input_line/input_line.py:427
 "All of it is selected" = "已全部选中"
 # navml/widgets/dialog/tab_view/tab_view.py:153
 "Tabs" = "标签页"
@@ -783,21 +783,21 @@ flag = "CN"
 "Next" = "下一个"
 # navml/widgets/menu/commands.py:14
 "Menu" = "菜单"
-# navml/widgets/progress_bar/progress_bar.py:61
+# navml/widgets/progress_bar/progress_bar.py:64
 "{done} of {total} done ({percent}%), {rest} to go" = "已完成 {done}/{total} ({percent}%)，剩余 {rest}"
-# navml/widgets/window/window.py:297
+# navml/widgets/window/window.py:340
 "A double click zooms, a drag moves" = "双击缩放，拖动移动"
-# navml/widgets/window/window.py:299
+# navml/widgets/window/window.py:342
 "A drag moves" = "拖动移动"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Move" = "移动"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Size" = "大小"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Keep" = "保留"
-# navml/widgets/window/window.py:338
+# navml/widgets/window/window.py:381
 "Undo" = "撤销"
-# navml/widgets/window/window.py:277
+# navml/widgets/window/window.py:320
 "Restore" = "还原"
-# navml/widgets/window/window.py:279
+# navml/widgets/window/window.py:322
 "Drag to resize" = "拖动调整大小"

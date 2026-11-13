@@ -257,6 +257,14 @@ DERIVED: dict[str, tuple[int | tuple[int, int], str]] = {
     "gutter": (70, "a line number in the editor's gutter -- DN numbered no lines; on Frame passive"),
     "gutter-current": (71, "the cursor's line number in the gutter -- on Frame active"),
     "caret": ((14, 0), "the text cursor, its fg sent to the terminal (OSC 12) -- no slot: DOS's cursor took the colour of the cell under it"),
+    # F1 Help's window: THelpWindow's palette (CHelpWindow, application slots
+    # 139-146 and 163), which DN.DNR's Colors dialog never listed -- so no
+    # .PAL entry is transcribed for them, and these are CHelpColor's defaults.
+    "help": ((0, 3), "Help's text and ground -- no slot the Colors dialog names: CHelpColor's $30"),
+    "help-frame": ((15, 3), "Help's frame and title, and its highlights (headings, strong text, keys) -- CHelpColor's $3F, twice"),
+    "help-frame-icons": ((10, 3), "Help's frame icons -- CHelpColor's $3A"),
+    "help-keyword": ((14, 3), "a link in Help -- CHelpColor's $3E, a keyword"),
+    "help-selected": ((14, 1), "the link Enter follows -- CHelpColor's $1E, the selected keyword"),
 }
 
 
@@ -325,6 +333,11 @@ DERIVED_ITEMS = {
     "gutter": "Line numbers",
     "gutter-current": "Current line number",
     "caret": "Text cursor",
+    "help": "Help text",
+    "help-frame": "Help frame and highlights",
+    "help-frame-icons": "Help frame icons",
+    "help-keyword": "Help link",
+    "help-selected": "Help selected link",
 }
 
 #: Where the Colors dialog keeps the user's palettes, in the configuration
