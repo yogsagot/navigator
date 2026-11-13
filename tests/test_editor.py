@@ -1748,7 +1748,7 @@ def test_ctrl_q_d_and_t_insert_the_date_and_the_time(files, monkeypatch):
     import time as time_module
 
     fixed = time_module.strptime("2026-10-04 09:05:07", "%Y-%m-%d %H:%M:%S")
-    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.switches._now", lambda: fixed)
     _, editor = text_editor(files, b"ab\n", KeyEvent("right"), ctrl("q"), KeyEvent("d", "d"),
                             KeyEvent(" ", " "), ctrl("q"), ctrl("t"))
     assert editor.document.encode() == b"a04-10-2026 09:05:07b\n"
@@ -1760,7 +1760,7 @@ def test_the_inserted_date_follows_country_support(files, monkeypatch):
     import time as time_module
 
     fixed = time_module.strptime("2026-10-04 09:05:07", "%Y-%m-%d %H:%M:%S")
-    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.switches._now", lambda: fixed)
     SETTINGS.country.date_format = "custom"
     SETTINGS.country.custom_date = "%d %b %Y"
     _, editor = text_editor(files, b"\n", ctrl("q"), KeyEvent("d", "d"))
@@ -1772,7 +1772,7 @@ def test_the_inserted_time_follows_country_support_s_hours(files, monkeypatch):
     import time as time_module
 
     fixed = time_module.strptime("2026-10-04 21:05:07", "%Y-%m-%d %H:%M:%S")
-    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.switches._now", lambda: fixed)
     SETTINGS.country.time_format = "12h"
     _, editor = text_editor(files, b"\n", ctrl("q"), ctrl("t"))
     assert editor.document.encode() == b"09:05:07pm\n"
@@ -1783,7 +1783,7 @@ def test_the_date_is_inserted_even_in_overwrite(files, monkeypatch):
     import time as time_module
 
     fixed = time_module.strptime("2026-10-04", "%Y-%m-%d")
-    monkeypatch.setattr("navigator.widgets.editor.file_editor.file_editor._now", lambda: fixed)
+    monkeypatch.setattr("navigator.widgets.editor.file_editor.switches._now", lambda: fixed)
     _, editor = text_editor(files, b"ab\n", KeyEvent("insert"), ctrl("q"), KeyEvent("d", "d"))
     assert editor.document.encode() == b"04-10-2026ab\n"
 
@@ -2070,7 +2070,7 @@ def test_alt_ins_puts_the_column_blocks_sum_on_the_clipboard(files):
 
 
 def test_the_sum_is_exact_and_written_without_trailing_zeros():
-    from navigator.widgets.editor.file_editor.file_editor import block_sum
+    from navigator.widgets.editor.file_editor.helpers import block_sum
 
     assert block_sum(["0.1", "0.2"]) == "0.3"
     assert block_sum([" 1 000", "x", "-3"]) == "997"  # blanks removed, a word is nothing

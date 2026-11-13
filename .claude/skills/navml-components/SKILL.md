@@ -42,7 +42,8 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   A leading base that is not a `Mixin` is refused, as is a second widget base.
 - **A mixin holds methods only.** `Mixin.__init_subclass__` refuses a `keys` table, `checks`/`enables`, and any
   `reactive`/`computed`, which stay in the class itself, so state is read in one place. A sync `on_*` in a mixin is
-  refused at import, as a widget's is. A plain class attribute is allowed but belongs in the class too. Zero-argument
+  refused at import, as a widget's is. A constant only one mixin uses (`FileEditor`'s `DRAW_KEYS`) may live with it;
+  a class-level default of instance state stays in the class. Zero-argument
   `super()` works: the next class after a mixin is the next mixin, then the generated half.
 - **A mixin is typed against the component's stub** with `if TYPE_CHECKING: from <package> import Manager as _Base`
   and `else: from navkit.widget import Mixin as _Base`. `class Copying(_Base)` then sees `self.left` and the other

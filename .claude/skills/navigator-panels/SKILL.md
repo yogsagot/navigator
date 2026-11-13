@@ -426,7 +426,7 @@ unreversed. Alt+S's *Panel Options* has *Reverse order* (`PanelSetupDialog.rever
 each order's caption ends in the arrow of the way it then runs, unticked they are plain (`sort_radio_captions()`,
 bound to that box); *New Manager defaults*
 has the same box and arrows, as `[panel_defaults] sort_reverse`, which seeds `Panel.sort_reverse` with `sort_by`; both
-dialogs share `sort_radio_captions()` (manager.py) and are 56 columns, for those arrows in Russian and Latvian.
+dialogs share `sort_radio_captions()` (`manager/manager/helpers.py`) and are 56 columns, for those arrows in Russian and Latvian.
 `set_options` takes the direction with the mode; `direction_arrow()` and `SORT_ASCENDS` are module-level in panel.py. `sort_reverse` is kept with the desktop.
 
 ## Tagging

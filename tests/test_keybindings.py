@@ -20,7 +20,7 @@ from navigator.widgets.editor.commands import (
 )
 from navigator.widgets.editor.edit_window import EditWindow
 from navigator.widgets.editor.file_editor import FileEditor
-from navigator.widgets.editor.file_editor.file_editor import WORDSTAR
+from navigator.widgets.editor.file_editor.helpers import WORDSTAR
 from navigator.widgets.manager.commands import Copy, MakeDirectory
 from navigator.widgets.manager.manager import Manager
 from navigator.widgets.shell.commands import KeyBindingsSetup
