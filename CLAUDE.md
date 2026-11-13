@@ -140,9 +140,11 @@ Manager Setup says so, off by default), or in memory (the tests'). Still to come
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
   `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key
-- Regenerate the README screenshot: `./venv/bin/python tools/screenshot.py` paints the desktop headless (pinned
-  directory, clock and console) and writes `docs/screenshot.svg` plus the text copy between the README's
-  `<!-- screenshot:begin/end -->` markers; `--check` exits 1 when either is stale, `--theme`/`--size` pick the scene.
+- Regenerate the screenshots: `./venv/bin/python tools/screenshot.py` paints each scene headless (pinned
+  directory, clock and console). The README's writes `docs/screenshot.svg` plus the text copy between the README's
+  `<!-- screenshot:begin/end -->` markers; Help's are cropped and written twice, `docs/en/shots/NAME.svg` and `.ans`
+  (`navigator-help` skill). `--check` exits 1 when any is stale (a test runs it with `--no-readme`, the README's
+  going stale with the version), `--only NAME` paints one, `--theme`/`--size`/`--language` pick how.
   The README links the SVG by absolute `raw.githubusercontent.com` URL because PyPI renders the same README
 - Regenerate a component's Python from its markup: **`./venv/bin/python -m navml build navkit navml navigator`** — both
   component packages, and navkit for `Application`'s `_surface.pyi` (below), and naming them is necessary because the no-argument form builds the installed `navml` package
@@ -276,6 +278,7 @@ Each was found by running something, not by reasoning; the owning skill has the 
 | `navigator-kio` | KDE's KIO/Solid commands (`kioclient`, `solid-hardware6`, `ktraderclient6`, `kstart`, kio-fuse over `dbus-send`): the same four features as `navigator-gio` |
 | `navigator-drives` | `Location`/`Drive`, SFTP, archives and the in-memory drive, sessions, credentials, `UseFile`, SSH link, Disconnect, the *Link* box, what still needs the disk |
 | `navigator-viewer` | F3 viewer and Ctrl+Q quick view |
+| `navigator-help` | F1 Help's content: Markdown pages under `docs/en/` (one directory a language), the Markdown subset, links and topic ids, screenshots as `.svg` + `.ans` |
 | `navigator-editor` | F4 editor |
 | `navigator-keybindings` | `keybindings.ini`, navkit's run-time key-table overrides, the Key bindings and *Press a key* dialogs |
 | `navigator-settings` | `navigator.ini`, `SETTINGS`, precedence, the Options setup dialogs |

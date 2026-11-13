@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
-"""Paint Navigator's desktop headless and write it out as a screenshot.
+"""Paint Navigator headless and write its screens out as screenshots.
 
 Run it from the repository root::
 
     ./venv/bin/python tools/screenshot.py
 
-It writes two things, both of them text:
+It paints every scene in :data:`SCENES`.  The first, ``desktop``, is the
+README's, and writes two things, both of them text:
 
 - ``docs/screenshot.svg``, every cell in the colours the theme gives it, so
   the README can show the desktop the way a terminal does.  Neither GitHub nor
@@ -16,13 +17,26 @@ It writes two things, both of them text:
   ``<!-- screenshot:begin -->`` and ``<!-- screenshot:end -->`` markers.
   Nothing outside the markers is touched.
 
-``--check`` writes nothing and exits 1 if either would change, which is what
-to run after a change to anything the desktop paints.
+Every other scene is one of Help's pictures (the ``navigator-help`` skill has
+the rules), cropped to the thing it shows and written twice into
+``docs/en/shots/``:
 
-``--language CODE`` paints the scene in another catalogue's language -- a
+- ``NAME.svg``, which the page's Markdown names and GitHub shows;
+- ``NAME.ans``, the same cells as text with SGR colours, which Navigator's
+  own help window reads in the SVG's place (:func:`as_ansi` has the grammar,
+  ``navigator/lib/help/ansi.py`` the reader) and ``cat`` shows in a terminal.
+
+``--check`` writes nothing and exits 1 if anything would change, which is what
+to run after a change to anything a scene paints.  ``--only NAME`` paints one
+scene; ``--no-readme`` leaves the desktop out, which is what the test runs
+(``tests/test_screenshot.py``): the desktop shows the version, so a release
+makes it stale, and the suite a release runs must not fail on that.
+
+``--language CODE`` paints the scenes in another catalogue's language -- a
 right-to-left one (``he``, ``ar``) mirrored, as ``nav --language he`` shows
-it -- and writes only ``docs/screenshot-CODE.svg``: the README's picture and
-text block stay the English scene.
+it.  The desktop then writes only ``docs/screenshot-CODE.svg`` (the README's
+picture and text block stay the English scene), and Help's pictures go to
+``docs/CODE/shots/``.
 
 The screen is the real one: the application is constructed as ``nav``
 constructs it and rendered into a :class:`~navkit.screen.ScreenBuffer`, with
@@ -51,10 +65,12 @@ import re
 import sys
 import tempfile
 import unicodedata
-from dataclasses import replace
+from collections.abc import Awaitable, Callable
+from dataclasses import dataclass, replace
 from datetime import datetime
 from html import escape
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -63,12 +79,13 @@ from navkit.bidi import has_rtl  # noqa: E402
 from navkit.capabilities import FULL, VGA_PALETTE, TerminalInfo, rgb_of  # noqa: E402
 from navkit.glyphs import GLYPHS_UNICODE  # noqa: E402
 from navkit.screen import ScreenBuffer  # noqa: E402
-from navkit.style import Style  # noqa: E402
+from navkit.style import RESET_SGR, Style  # noqa: E402
 
 SVG = ROOT / "docs" / "screenshot.svg"
 README = ROOT / "README.md"
 BEGIN, END = "<!-- screenshot:begin -->", "<!-- screenshot:end -->"
 IMAGE_URL = "https://raw.githubusercontent.com/yogsagot/navigator/master/docs/screenshot.svg"
+DOCS = ROOT / "docs"
 
 # What the panels list.  Sizes are fixed so the size column is; nothing reads
 # a date, but they are pinned anyway so the scene is the same scene on disk.
@@ -142,13 +159,79 @@ def populate(directory: Path) -> None:
         os.utime(path, (PINNED_TIME, PINNED_TIME))
 
 
-def paint(theme: str, width: int, height: int, language_code: str | None = None) -> tuple[ScreenBuffer, TerminalInfo]:
-    """The desktop as ``nav --theme THEME`` shows it in a WIDTHxHEIGHT tty --
-    in *language_code*'s catalogue, mirrored if it reads right to left."""
+# -- the scenes ---------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Scene:
+    """One picture: what is opened over the pinned desktop, and how much of
+    the screen is kept."""
+
+    name: str
+    #: Opens what the picture shows, over the running application.  It answers
+    #: the widget to crop to (with its shadow), or None for the whole screen.
+    #: A dialog is started with ``asyncio.create_task(dialog.execute(app))``
+    #: rather than through its command, which would need a key or a menu
+    #: walk; outside a dispatch, ``execute`` is content to be awaited, and
+    #: the task is cancelled with the app.
+    stage: Callable[[Any], Awaitable[Any]]
+    size: tuple[int, int] = (80, 24)
+
+
+async def _about(app: Any) -> None:
+    from navigator.widgets.about_dialog import AboutDialog
+
+    asyncio.create_task(AboutDialog().execute(app))
+    return None
+
+
+async def _make_directory(app: Any) -> Any:
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+
+    dialog = MkdirDialog()
+    asyncio.create_task(dialog.execute(app))
+    return dialog
+
+
+#: The first is the README's and is written where the README wants it; the
+#: rest are Help's.  A Help scene shows nothing that changes between runs or
+#: releases (no version, no date that is not pinned), and is cropped to at
+#: most 72 columns unless it is meant for the website alone: wider, a help
+#: window on an 80-column terminal shows its alt text instead.
+SCENES: tuple[Scene, ...] = (
+    Scene("desktop", _about),
+    Scene("make-directory", _make_directory),
+)
+README_SCENE = SCENES[0]
+
+
+def cropped(buffer: ScreenBuffer, widget: Any) -> ScreenBuffer:
+    """The cells of *buffer* under *widget* and its shadow.
+
+    *widget* is a child of the root (an overlay), so its ``x``/``y`` are the
+    screen's; on a mirrored screen the rectangle is mirrored with it.
+    """
+    shadow = 2 if widget.shadow else 0
+    left = max(0, widget.x)
+    top = max(0, widget.y)
+    right = min(buffer.width, widget.x + widget.width + shadow)
+    bottom = min(buffer.height, widget.y + widget.height + shadow // 2)
+    if buffer.rtl:
+        left, right = buffer.width - right, buffer.width - left
+    piece = ScreenBuffer(right - left, bottom - top)
+    piece.blit(buffer, 0, 0, left, top, right - left, bottom - top)
+    return piece
+
+
+def paint(
+    scene: Scene, theme: str, size: tuple[int, int] | None = None, language_code: str | None = None
+) -> tuple[ScreenBuffer, TerminalInfo]:
+    """*scene* as ``nav --theme THEME`` shows it in a tty of the scene's size
+    (or *size*) -- in *language_code*'s catalogue, mirrored if it reads right
+    to left -- cropped to what the scene keeps."""
     from navigator.__main__ import Navigator
     from navigator.lib.appearance.scheme import load_scheme
     from navigator.settings import SETTINGS
-    from navigator.widgets.about_dialog import AboutDialog
     from navigator.widgets.shell.clock import clock as clock_module
     from navigator.lib.drives import listing as listing_module
     from navigator.widgets.shell.console import Console
@@ -166,6 +249,7 @@ def paint(theme: str, width: int, height: int, language_code: str | None = None)
     # The unicode tier, not the Nerd one: whoever views the SVG has no Nerd
     # Font, and the icon gutter would be a column of replacement boxes.
     info = replace(FULL, palette=VGA_PALETTE, glyphs=GLYPHS_UNICODE)
+    width, height = size or scene.size
 
     async def main() -> ScreenBuffer:
         app = Navigator(
@@ -188,19 +272,22 @@ def paint(theme: str, width: int, height: int, language_code: str | None = None)
         # palette cannot repaint it.
         app.shell.console._prompted(PROMPT, app.shell._front_directory())
         app.command_enabled = lambda command: True
-        # Started from here rather than through the command, which would need
-        # a key or a menu walk; outside a dispatch, `execute' is content to
-        # be awaited, and the task is cancelled with the app.
-        asyncio.create_task(AboutDialog().execute(app))
+        keep = await scene.stage(app)
         await asyncio.sleep(0.15)
         buffer = ScreenBuffer(width, height)
         # Composed left to right and flipped on the way out, as the
         # application does a frame (Application._back, ScreenBuffer.mirrored).
         buffer.rtl = app.rtl
         app.shell.render_tree(buffer)
+        if buffer.rtl:
+            mirrored = buffer.mirrored()
+            mirrored.rtl = True
+            buffer = mirrored
+        if keep is not None:
+            buffer = cropped(buffer, keep)
         app.exit()
         await task
-        return buffer.mirrored() if buffer.rtl else buffer
+        return buffer
 
     home = Path.cwd()
     if language_code is not None:
@@ -244,6 +331,65 @@ def with_block(readme: str, block: str) -> str:
     if not pattern.search(readme):
         sys.exit(f"{README.name}: no {BEGIN} ... {END} markers to write between")
     return pattern.sub(lambda _: block, readme, count=1)
+
+
+# -- colours ------------------------------------------------------------------
+
+type RGB = tuple[int, int, int]
+
+
+def resolved(style: Style, info: TerminalInfo) -> tuple[RGB, RGB]:
+    """Foreground and background as a VGA text screen shows *style*: the
+    palette, reverse and dim applied.  One answer for the SVG and the ``.ans``
+    file, so the two are the same picture."""
+    fg = VGA_PALETTE[7] if style.fg is None else rgb_of(info.adapt(style.fg))
+    bg = VGA_PALETTE[0] if style.bg is None else rgb_of(info.adapt(style.bg))
+    if style.reverse:
+        fg, bg = bg, fg
+    if style.dim:
+        fg = ((fg[0] + bg[0]) // 2, (fg[1] + bg[1]) // 2, (fg[2] + bg[2]) // 2)
+    return fg, bg
+
+
+# -- ANSI ---------------------------------------------------------------------
+
+
+def as_ansi(buffer: ScreenBuffer, info: TerminalInfo) -> str:
+    """*buffer* as text a terminal paints and ``navigator/lib/help/ansi.py`` reads.
+
+    The whole grammar, kept this small so the reader can be strict:
+
+    - one line a screen row, each ended ``ESC[0m`` and a newline; no cursor
+      movement and no other escape;
+    - every run of cells that look alike is preceded by one ``ESC[0;...m``
+      that says all of its look (:meth:`~navkit.style.Style.sgr` starts with
+      a reset), never a change from the run before;
+    - both colours are always there and always ``38;2;r;g;b``/``48;2;r;g;b``,
+      resolved here exactly as the SVG's are -- the palette, reverse and dim
+      already applied -- so the file means the same colours in any terminal
+      and under any theme; of the attributes only bold (1), italic (3),
+      underline (4) and strike (9) are left to say;
+    - a wide character is written once, its second cell not at all.
+    """
+    lines = []
+    for row in range(buffer.height):
+        parts: list[str] = []
+        last: Style | None = None
+        for x in range(buffer.width):
+            char, style = buffer.get(x, row)
+            if char == "":
+                continue  # the second half of a wide character
+            fg, bg = resolved(style, info)
+            look = Style(
+                fg=fg, bg=bg, bold=style.bold, italic=style.italic,
+                underline=style.underline, strike=style.strike,
+            )
+            if look != last:
+                parts.append(look.sgr())
+                last = look
+            parts.append(char)
+        lines.append("".join(parts) + RESET_SGR + "\n")
+    return "".join(lines)
 
 
 # -- SVG ----------------------------------------------------------------------
@@ -347,12 +493,7 @@ def hex_of(rgb: tuple[int, int, int]) -> str:
 
 def colours(style: Style, info: TerminalInfo) -> tuple[str, str]:
     """Foreground and background as ``#rrggbb``, as a VGA text screen shows them."""
-    fg = rgb_of(info.adapt(style.fg)) if style.fg is not None else VGA_PALETTE[7]
-    bg = rgb_of(info.adapt(style.bg)) if style.bg is not None else VGA_PALETTE[0]
-    if style.reverse:
-        fg, bg = bg, fg
-    if style.dim:
-        fg = tuple((f + b) // 2 for f, b in zip(fg, bg))
+    fg, bg = resolved(style, info)
     return hex_of(fg), hex_of(bg)
 
 
@@ -461,30 +602,63 @@ def as_svg(buffer: ScreenBuffer, info: TerminalInfo) -> str:
 # -- the command line ---------------------------------------------------------
 
 
+def shots_dir(language_code: str | None) -> Path:
+    """Where a language's Help pictures go: ``docs/CODE/shots``."""
+    return DOCS / (language_code or "en") / "shots"
+
+
+def outputs_of(
+    scene: Scene, theme: str, size: tuple[int, int] | None, language_code: str | None
+) -> dict[Path, str]:
+    """Every file *scene* writes, by path."""
+    buffer, info = paint(scene, theme, size, language_code)
+    if scene is not README_SCENE:
+        where = shots_dir(language_code)
+        return {
+            where / f"{scene.name}.svg": as_svg(buffer, info),
+            where / f"{scene.name}.ans": as_ansi(buffer, info),
+        }
+    if language_code is not None:
+        return {SVG.with_name(f"screenshot-{language_code}.svg"): as_svg(buffer, info)}
+    return {
+        SVG: as_svg(buffer, info),
+        README: with_block(
+            README.read_text(encoding="utf-8"), readme_block(as_text(buffer), buffer.width, buffer.height)
+        ),
+    }
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--theme", default="default", help="colour scheme (default: %(default)s)")
-    parser.add_argument("--size", default="80x24", help="WIDTHxHEIGHT (default: %(default)s)")
+    parser.add_argument("--size", default=None, help="WIDTHxHEIGHT of the terminal (default: the scene's, 80x24)")
     parser.add_argument("--check", action="store_true", help="write nothing; exit 1 if anything would change")
     parser.add_argument(
+        "--only", default=None, metavar="NAME", choices=[scene.name for scene in SCENES],
+        help="paint this scene alone (%(choices)s)",
+    )
+    parser.add_argument(
+        "--no-readme", action="store_true",
+        help="leave the README's scene out: Help's pictures alone, which no release makes stale",
+    )
+    parser.add_argument(
         "--language", default=None, metavar="CODE",
-        help="paint in this catalogue's language (he, ar mirrored) into docs/screenshot-CODE.svg "
-             "instead of the README's English scene",
+        help="paint in this catalogue's language (he, ar mirrored): the desktop into docs/screenshot-CODE.svg "
+             "instead of the README's English scene, Help's pictures into docs/CODE/shots/",
     )
     args = parser.parse_args(argv)
-    try:
-        width, height = (int(part) for part in args.size.lower().split("x"))
-    except ValueError:
-        parser.error(f"--size wants WIDTHxHEIGHT, not {args.size!r}")
+    size = None
+    if args.size is not None:
+        try:
+            width, height = (int(part) for part in args.size.lower().split("x"))
+        except ValueError:
+            parser.error(f"--size wants WIDTHxHEIGHT, not {args.size!r}")
+        size = (width, height)
 
-    buffer, info = paint(args.theme, width, height, args.language)
-    if args.language is not None:
-        outputs = {SVG.with_name(f"screenshot-{args.language}.svg"): as_svg(buffer, info)}
-    else:
-        outputs = {
-            SVG: as_svg(buffer, info),
-            README: with_block(README.read_text(encoding="utf-8"), readme_block(as_text(buffer), width, height)),
-        }
+    outputs: dict[Path, str] = {}
+    for scene in SCENES:
+        if args.only in (None, scene.name) and not (args.no_readme and scene is README_SCENE):
+            outputs.update(outputs_of(scene, args.theme, size, args.language))
     stale = [path for path, text in outputs.items() if not path.exists() or path.read_text(encoding="utf-8") != text]
     if args.check:
         for path in stale:

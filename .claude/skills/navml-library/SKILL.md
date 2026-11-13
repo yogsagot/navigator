@@ -366,7 +366,7 @@ Python-only `Layout` that paints nothing, replaced every container's placement a
 ≡ > About is DN's `MessageBoxAbout` (`navigator/widgets/about_dialog/`): `Dialog` with `buttons: "ok"` and `message`
 centred. Its facts are never written twice: `navigator/lib/utilities/about.py`'s `project_info()` reads `pyproject.toml`'s
 `[project]` in a checkout and the installed `METADATA` otherwise. The README screenshot shows it open, so a version bump
-makes `tools/screenshot.py --check` stale. The home page is an OSC 8 hyperlink.
+makes `tools/screenshot.py --check` stale (regenerate it with the bump; no test checks that scene). The home page is an OSC 8 hyperlink.
 
 ## Read when
 

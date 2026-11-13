@@ -80,5 +80,5 @@ names them: eleven from DOS Navigator's own palettes, and fourteen modern ones -
 `nav --edit FILE` (`-e`, repeatable) opens files in the editor at the start, as DOS Navigator did with the
 files named on its command line.
 
-Copy and paste depend on your terminal and on a small clipboard tool being installed; [docs/clipboard.md](docs/clipboard.md)
+Copy and paste depend on your terminal and on a small clipboard tool being installed; [docs/en/clipboard.md](docs/en/clipboard.md)
 explains the keys and how to set them up.
