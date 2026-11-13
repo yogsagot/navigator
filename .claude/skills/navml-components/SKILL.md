@@ -66,7 +66,7 @@ and `from navml.widgets.dialog.button import Button` is the same line for all th
   or its mixins assigns, as `name: T` (`_Any` unannotated), less what a live base already declares (`Widget.width`);
   a property as `@property` (with its setter, under the setter's own parameter names), so a class or mixin defining
   it is an override pyright takes; `@staticmethod`/`@classmethod` kept; and the imports of an `if TYPE_CHECKING:`
-  block (not a mixin's `_Base`). Checked with pyright (`./venv/bin/pyright --pythonpath ./venv/bin/python FILES`):
+  block (not a mixin's `_Base`). Checked with pyright (`./venv/bin/pyright FILES`, `[tool.pyright]` in `pyproject.toml`):
   no errors in the stubs or from overrides; what remains is the code's own typing.
 - **A Python-only class has a surface stub instead** (`navml/surface.py`): `navml build` finds a class in a module
   with no `.nml` whose bases include mixins, and writes `<stem>_surface.pyi` beside it -- the class with its own bases

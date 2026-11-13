@@ -153,3 +153,18 @@ testpaths = ["tests"]
 # Tests import navkit and navigator from the repository root.
 pythonpath = ["."]
 addopts = "-q"
+
+[tool.pyright]
+# Type checking on demand: `./venv/bin/pyright` checks all of it, or name
+# files.  The code is not clean under it -- the generated `*_nml.py` halves call
+# their hand-written half's methods, which they cannot see -- so compare a
+# change's error count with the one before it rather than expecting none.
+# What is checked: the three packages and the tools; not the tests, whose
+# fixtures and monkeypatching say little a checker can use.  The `.pyi` stubs
+# (and the split classes' `_surface.pyi`) are part of it.
+include = ["navkit", "navml", "navigator", "tools"]
+exclude = ["**/__pycache__", "build", "packaging"]
+venvPath = "."
+venv = "venv"
+pythonVersion = "3.12"
+typeCheckingMode = "standard"

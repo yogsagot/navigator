@@ -241,9 +241,10 @@ Each was found by running something, not by reasoning; the owning skill has the 
   new skill. Keep this file to what every task needs.
 - There is no lint tooling configured yet. When adding one, record the command here. One lint check is a test:
   `tests/test_undefined_names.py` fails on a global a module's code reads but never binds (pyflakes' *undefined
-  name*, by `symtable`), the `NameError` a key would otherwise find. pyright (in `requirements-dev.txt`) type-checks
-  on demand, `./venv/bin/pyright --pythonpath ./venv/bin/python FILES`; there is no config and the code is not clean
-  under it, so compare a change's error count with the one before it rather than expecting zero.
+  name*, by `symtable`), the `NameError` a key would otherwise find. pyright (in `requirements-dev.txt`, configured in
+  `pyproject.toml`'s `[tool.pyright]`) type-checks on demand: `./venv/bin/pyright`, or `./venv/bin/pyright FILES`. The
+  code is not clean under it (some 3500 errors, a fifth in the generated halves), so compare a change's error count
+  with the one before it rather than expecting zero.
 
 ## Skills
 
