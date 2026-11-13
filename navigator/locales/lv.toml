@@ -413,8 +413,6 @@ flag = "LV"
 "~F~rom cursor" = "N~o~ kursora"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "Aizstāt v~i~sus"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "Palīdz."
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "Pāriet uz rindu"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6978,3 +6976,4 @@ flag = "LV"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "nav age identitātes faila: iestatiet age_identities navigator.ini sadaļā [encryption]"
 "Edit new file" = "Rediģēt jaunu failu"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "Atkārtoti atvērt izsekotu failu redaktorā ar tā logu, ritinājumu un kursoru"
+"Help" = "Palīdz."

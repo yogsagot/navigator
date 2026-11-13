@@ -14,9 +14,9 @@ from dataclasses import dataclass
 
 from navkit.commands import Command
 
-
-class Help(Command):
-    title = "Help"
+#: F1.  navml's, because a dialog binds the key too (the application's table
+#: stands aside under a modal); handled here, by ``Navigator.on_help``.
+from navml.widgets.dialog.commands import Help
 
 
 @dataclass(frozen=True, slots=True)

@@ -86,10 +86,15 @@ class Window(_Component):
     min_width: int = _reactive(16)    # window.nml:58
     min_height: int = _reactive(6)    # window.nml:59
 
+    #: What F1 shows while this window is active: a topic the application
+    #: understands, as a modal's ``help_topic`` is.  Empty, the application
+    #: looks further out.
+    help_topic: str = _reactive('')    # window.nml:64
+
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.
-    zoomed: bool = _reactive(False)    # window.nml:64
+    zoomed: bool = _reactive(False)    # window.nml:69
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)

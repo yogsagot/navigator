@@ -414,8 +414,6 @@ direction = "rtl"
 "~F~rom cursor" = "מה~ס~מן"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "החלף ~ה~כל"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "עזרה"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "מעבר לשורה"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6947,3 +6945,4 @@ direction = "rtl"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "אין קובץ זהות של age: הגדר age_identities בסעיף [encryption] של navigator.ini"
 "Edit new file" = "עריכת קובץ חדש"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "פתח מחדש קובץ במעקב בעורך עם החלון, הגלילה והסמן שלו"
+"Help" = "עזרה"

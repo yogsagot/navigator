@@ -18,7 +18,7 @@ from navkit.reactive import bind as _bind
 from navkit.reactive import reactive as _reactive
 
 from navml.component import Component as _Component
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious    # dialog.nml:1
+from navml.widgets.dialog.commands import Cancel, Default, Help, SelectNext, SelectPrevious    # dialog.nml:1
 from navml.widgets.dialog.button import Button    # dialog.nml:2
 from navml.widgets.dialog.button_row import ButtonRow    # dialog.nml:3
 from navml.widgets.dialog.static_text import StaticText    # dialog.nml:4
@@ -53,8 +53,9 @@ class Dialog(Modal, _Component):
         'enter': Default,    # dialog.nml:47
         'tab': SelectNext,    # dialog.nml:48
         'shift+tab': SelectPrevious,    # dialog.nml:49
-        'menu': ShowContextMenu,    # dialog.nml:52
-        'shift+f10': ShowContextMenu,    # dialog.nml:53
+        'f1': Help,# dialog.nml:53
+        'menu': ShowContextMenu,    # dialog.nml:56
+        'shift+f10': ShowContextMenu,    # dialog.nml:57
     }
 
     #: ``ok``, ``ok-cancel``, ``ok-cancel-help``, ``yes-no-cancel``
@@ -82,20 +83,20 @@ class Dialog(Modal, _Component):
     close_on_outside_click: bool = _reactive(False)    # dialog.nml:40
 
     #: Ids, annotated so the hand-written half completes them.
-    message: StaticText    # dialog.nml:61
-    row: ButtonRow    # dialog.nml:77
-    ok: Button    # dialog.nml:85
-    no: Button    # dialog.nml:91
-    cancel: Button    # dialog.nml:98
-    info: Button    # dialog.nml:108
+    message: StaticText    # dialog.nml:65
+    row: ButtonRow    # dialog.nml:81
+    ok: Button    # dialog.nml:89
+    no: Button    # dialog.nml:95
+    cancel: Button    # dialog.nml:102
+    info: Button    # dialog.nml:112
 
     #: The commands this component handles itself.
-    async def on_select_next(self, event: _Any) -> bool:    # dialog.nml:57
+    async def on_select_next(self, event: _Any) -> bool:    # dialog.nml:61
         """``SelectNext``."""
         self._application_or_raise().focus_next()
         return True
 
-    async def on_select_previous(self, event: _Any) -> bool:    # dialog.nml:58
+    async def on_select_previous(self, event: _Any) -> bool:    # dialog.nml:62
         """``SelectPrevious``."""
         self._application_or_raise().focus_next(reverse=True)
         return True
@@ -108,65 +109,65 @@ class Dialog(Modal, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_ok_click(self, event: _Event) -> bool:    # dialog.nml:85
+    async def on_ok_click(self, event: _Event) -> bool:    # dialog.nml:89
         """``ok`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_cancel_click(self, event: _Event) -> bool:    # dialog.nml:98
+    async def on_cancel_click(self, event: _Event) -> bool:    # dialog.nml:102
         """``cancel`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.message = StaticText(parent=self)    # dialog.nml:60
-        self.row = ButtonRow(parent=self)    # dialog.nml:76
-        self.ok = Button(parent=self.row)    # dialog.nml:84
-        self.no = Button(parent=self.row)    # dialog.nml:90
-        self.cancel = Button(parent=self.row)    # dialog.nml:97
-        self.info = Button(parent=self.row)    # dialog.nml:107
+        self.message = StaticText(parent=self)    # dialog.nml:64
+        self.row = ButtonRow(parent=self)    # dialog.nml:80
+        self.ok = Button(parent=self.row)    # dialog.nml:88
+        self.no = Button(parent=self.row)    # dialog.nml:94
+        self.cancel = Button(parent=self.row)    # dialog.nml:101
+        self.info = Button(parent=self.row)    # dialog.nml:111
 
         self.buttons_row = _bind(lambda _o: (self.ok, self.no, self.cancel, self.info))    # dialog.nml:34
 
-        self.message.y = 2    # dialog.nml:62
-        self.message.height = _bind(lambda _o: max(1, _o.parent.height - 6))    # dialog.nml:63
-        self.message.text = _bind(lambda _o: _o.parent.prompt)    # dialog.nml:67
-        self.message.wrap = True    # dialog.nml:68
-        self.message.visible = _bind(lambda _o: self.prompt != '')    # dialog.nml:71
-        self.message.x = 2    # dialog.nml:65
-        self.message.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # dialog.nml:66
+        self.message.y = 2    # dialog.nml:66
+        self.message.height = _bind(lambda _o: max(1, _o.parent.height - 6))    # dialog.nml:67
+        self.message.text = _bind(lambda _o: _o.parent.prompt)    # dialog.nml:71
+        self.message.wrap = True    # dialog.nml:72
+        self.message.visible = _bind(lambda _o: self.prompt != '')    # dialog.nml:75
+        self.message.x = 2    # dialog.nml:69
+        self.message.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # dialog.nml:70
 
-        self.row.visible = _bind(lambda _o: self.buttons != 'none')    # dialog.nml:78
-        self.row.x = 0    # dialog.nml:80
-        self.row.width = _bind(lambda _o: max(0, _o.parent.width))    # dialog.nml:81
-        self.row.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # dialog.nml:82
+        self.row.visible = _bind(lambda _o: self.buttons != 'none')    # dialog.nml:82
+        self.row.x = 0    # dialog.nml:84
+        self.row.width = _bind(lambda _o: max(0, _o.parent.width))    # dialog.nml:85
+        self.row.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # dialog.nml:86
 
-        self.ok.text = _bind(    # dialog.nml:86
+        self.ok.text = _bind(    # dialog.nml:90
             lambda _o: _tr('~Y~es') if self.buttons in ('yes-no-cancel', 'yes-no') else _tr('O~K~'),
             yielding=True,
         )
-        self.ok.default = True    # dialog.nml:87
-        self.ok.on_click = self.on_ok_click    # dialog.nml:85
+        self.ok.default = True    # dialog.nml:91
+        self.ok.on_click = self.on_ok_click    # dialog.nml:89
 
-        self.no.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # dialog.nml:92
-        self.no.visible = _bind(    # dialog.nml:93
+        self.no.text = _bind(lambda _o: _tr('~N~o'), yielding=True)    # dialog.nml:96
+        self.no.visible = _bind(    # dialog.nml:97
             lambda _o: self.buttons in ('yes-no-cancel', 'yes-no')
         )
 
-        async def _on_click(event):    # dialog.nml:95
+        async def _on_click(event):    # dialog.nml:99
             self.close(False)
             return True
         self.no.on_click = _on_click
 
-        self.cancel.text = _bind(lambda _o: _tr('~C~ancel'), yielding=True)    # dialog.nml:99
-        self.cancel.visible = _bind(    # dialog.nml:100
+        self.cancel.text = _bind(lambda _o: _tr('~C~ancel'), yielding=True)    # dialog.nml:103
+        self.cancel.visible = _bind(    # dialog.nml:104
             lambda _o: self.buttons not in ('ok', 'yes-no')
         )
-        self.cancel.on_click = self.on_cancel_click    # dialog.nml:98
+        self.cancel.on_click = self.on_cancel_click    # dialog.nml:102
 
-        self.info.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # dialog.nml:109
-        self.info.visible = _bind(lambda _o: self.buttons == 'ok-cancel-help')    # dialog.nml:110
+        self.info.text = _bind(lambda _o: _tr('~H~elp'), yielding=True)    # dialog.nml:113
+        self.info.visible = _bind(lambda _o: self.buttons == 'ok-cancel-help')    # dialog.nml:114
 
-        async def _on_click(event):    # dialog.nml:111
+        async def _on_click(event):    # dialog.nml:115
             await self.show_info(event)
             return True
         self.info.on_click = _on_click

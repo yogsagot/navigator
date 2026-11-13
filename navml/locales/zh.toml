@@ -3,15 +3,15 @@ name = "简体中文"
 flag = "CN"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:86
+# navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "是(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:92
+# navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "否(~N~)"
-# navml/widgets/dialog/dialog/dialog.nml:99
+# navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "帮助(~H~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "打开文件"
@@ -654,40 +654,42 @@ flag = "CN"
 # navml/widgets/dialog/commands.py:27
 "OK" = "确定"
 # navml/widgets/dialog/commands.py:41
+"Help" = "帮助"
+# navml/widgets/dialog/commands.py:55
 "Next tab" = "下一标签页"
-# navml/widgets/dialog/commands.py:47
+# navml/widgets/dialog/commands.py:61
 "Previous tab" = "上一标签页"
-# navml/widgets/dialog/commands.py:60
+# navml/widgets/dialog/commands.py:74
 "Search" = "搜索"
-# navml/widgets/dialog/commands.py:78
+# navml/widgets/dialog/commands.py:92
 "Cut" = "剪切"
-# navml/widgets/dialog/commands.py:84
+# navml/widgets/dialog/commands.py:98
 "Copy" = "复制"
-# navml/widgets/dialog/commands.py:90
+# navml/widgets/dialog/commands.py:104
 "Paste" = "粘贴"
-# navml/widgets/dialog/commands.py:96
+# navml/widgets/dialog/commands.py:110
 "Clear" = "清除"
-# navml/widgets/dialog/commands.py:106
+# navml/widgets/dialog/commands.py:120
 "Select all" = "全选"
-# navml/widgets/dialog/commands.py:119
+# navml/widgets/dialog/commands.py:133
 "Previous month" = "上个月"
-# navml/widgets/dialog/commands.py:125
+# navml/widgets/dialog/commands.py:139
 "Next month" = "下个月"
-# navml/widgets/dialog/commands.py:131
+# navml/widgets/dialog/commands.py:145
 "Previous year" = "上一年"
-# navml/widgets/dialog/commands.py:137
+# navml/widgets/dialog/commands.py:151
 "Next year" = "下一年"
-# navml/widgets/dialog/commands.py:143
+# navml/widgets/dialog/commands.py:157
 "Choose month" = "选择月份"
-# navml/widgets/dialog/commands.py:149
+# navml/widgets/dialog/commands.py:163
 "Choose year" = "选择年份"
-# navml/widgets/dialog/commands.py:155
+# navml/widgets/dialog/commands.py:169
 "Go to current date" = "转到今天"
-# navml/widgets/dialog/commands.py:164
+# navml/widgets/dialog/commands.py:178
 "Calendar system" = "历法"
-# navml/widgets/dialog/commands.py:176
+# navml/widgets/dialog/commands.py:190
 "Calendar view" = "历法显示"
-# navml/widgets/dialog/commands.py:186
+# navml/widgets/dialog/commands.py:200
 "Swap calendars" = "切换历法"
 # navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "一"

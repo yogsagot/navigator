@@ -83,3 +83,25 @@ def test_a_picture_has_alt_text_and_both_files(page):
         svg = (page.parent / source).resolve()
         assert svg.suffix == ".svg" and svg.parent.name == "shots" and svg.is_file(), f"{page.name}: {source}"
         ansi.read(svg.with_suffix(".ans").read_text(encoding="utf-8"))
+
+
+def declared_topics() -> list[tuple[str, str]]:
+    """Every ``help_topic`` a document or a module declares, with where."""
+    root = DOCS.parent
+    found = []
+    pattern = re.compile(r"""help_topic\s*[:=]\s*["']([^"']+)["']""")
+    for package in ("navkit", "navml", "navigator"):
+        for path in sorted((root / package).rglob("*")):
+            if path.suffix not in (".nml", ".py") or path.name.endswith("_nml.py"):
+                continue
+            for topic in pattern.findall(path.read_text(encoding="utf-8")):
+                found.append((str(path.relative_to(root)), topic))
+    return found
+
+
+def test_every_help_topic_a_dialog_or_window_names_is_a_page_and_a_heading():
+    for where, topic in declared_topics():
+        name, _, anchor = topic.partition("#")
+        page = ENGLISH / name
+        assert page.is_file(), f"{where}: no help page {name}"
+        assert not anchor or anchor in slugs_of(page), f"{where}: no heading #{anchor} in {name}"

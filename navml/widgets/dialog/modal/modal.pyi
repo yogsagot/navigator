@@ -19,6 +19,7 @@ class Modal(_Component):
     title: str
     closable: bool
     first_focus: _Any
+    help_topic: str
     modal_width: int
     modal_height: int
     modal: bool

@@ -413,8 +413,6 @@ flag = "CN"
 "~F~rom cursor" = "从光标处(~F~)"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "全部替换(~A~)"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "帮助"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "转到行"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6942,3 +6940,4 @@ flag = "CN"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "没有 age 身份文件: 请在 navigator.ini 的 [encryption] 中设置 age_identities"
 "Edit new file" = "编辑新文件"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "在编辑器中重新打开已记录的文件时恢复其窗口、滚动位置和光标"
+"Help" = "帮助"

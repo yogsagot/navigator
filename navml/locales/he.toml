@@ -4,15 +4,15 @@ flag = "IL"
 direction = "rtl"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:86
+# navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "~כ~ן"
-# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "~א~ישור"
-# navml/widgets/dialog/dialog/dialog.nml:92
+# navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "~ל~א"
-# navml/widgets/dialog/dialog/dialog.nml:99
+# navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "~ב~יטול"
-# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "~ע~זרה"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "פתח קובץ"
@@ -655,40 +655,42 @@ direction = "rtl"
 # navml/widgets/dialog/commands.py:27
 "OK" = "אישור"
 # navml/widgets/dialog/commands.py:41
+"Help" = "עזרה"
+# navml/widgets/dialog/commands.py:55
 "Next tab" = "הכרטיסייה הבאה"
-# navml/widgets/dialog/commands.py:47
+# navml/widgets/dialog/commands.py:61
 "Previous tab" = "הכרטיסייה הקודמת"
-# navml/widgets/dialog/commands.py:60
+# navml/widgets/dialog/commands.py:74
 "Search" = "חיפוש"
-# navml/widgets/dialog/commands.py:78
+# navml/widgets/dialog/commands.py:92
 "Cut" = "גזור"
-# navml/widgets/dialog/commands.py:84
+# navml/widgets/dialog/commands.py:98
 "Copy" = "העתק"
-# navml/widgets/dialog/commands.py:90
+# navml/widgets/dialog/commands.py:104
 "Paste" = "הדבק"
-# navml/widgets/dialog/commands.py:96
+# navml/widgets/dialog/commands.py:110
 "Clear" = "נקה"
-# navml/widgets/dialog/commands.py:106
+# navml/widgets/dialog/commands.py:120
 "Select all" = "בחר הכל"
-# navml/widgets/dialog/commands.py:119
+# navml/widgets/dialog/commands.py:133
 "Previous month" = "החודש הקודם"
-# navml/widgets/dialog/commands.py:125
+# navml/widgets/dialog/commands.py:139
 "Next month" = "החודש הבא"
-# navml/widgets/dialog/commands.py:131
+# navml/widgets/dialog/commands.py:145
 "Previous year" = "השנה הקודמת"
-# navml/widgets/dialog/commands.py:137
+# navml/widgets/dialog/commands.py:151
 "Next year" = "השנה הבאה"
-# navml/widgets/dialog/commands.py:143
+# navml/widgets/dialog/commands.py:157
 "Choose month" = "בחר חודש"
-# navml/widgets/dialog/commands.py:149
+# navml/widgets/dialog/commands.py:163
 "Choose year" = "בחר שנה"
-# navml/widgets/dialog/commands.py:155
+# navml/widgets/dialog/commands.py:169
 "Go to current date" = "עבור לתאריך הנוכחי"
-# navml/widgets/dialog/commands.py:164
+# navml/widgets/dialog/commands.py:178
 "Calendar system" = "סוג לוח שנה"
-# navml/widgets/dialog/commands.py:176
+# navml/widgets/dialog/commands.py:190
 "Calendar view" = "תצוגת לוח שנה"
-# navml/widgets/dialog/commands.py:186
+# navml/widgets/dialog/commands.py:200
 "Swap calendars" = "החלפת לוחות"
 # navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "ב׳"

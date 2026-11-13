@@ -413,8 +413,6 @@ flag = "RU"
 "~F~rom cursor" = "От ~к~урсора"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "З~а~менить все"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "Помощь"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "Перейти к строке"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6978,3 +6976,4 @@ flag = "RU"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "нет файла идентичности age: укажите age_identities в разделе [encryption] файла navigator.ini"
 "Edit new file" = "Новый файл"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "Открывать отслеживаемый файл в редакторе с его окном, прокруткой и курсором"
+"Help" = "Помощь"

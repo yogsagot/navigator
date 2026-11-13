@@ -413,8 +413,6 @@ flag = "JP"
 "~F~rom cursor" = "カーソル位置から(~F~)"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "すべて置換(~A~)"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "ヘルプ"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "行へ移動"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6942,3 +6940,4 @@ flag = "JP"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "age の ID ファイルがありません: navigator.ini の [encryption] で age_identities を設定してください"
 "Edit new file" = "新規ファイルの編集"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "記録済みファイルをエディタで元のウィンドウ、スクロール、カーソル位置で開き直す"
+"Help" = "ヘルプ"

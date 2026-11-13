@@ -264,3 +264,64 @@ def test_f1_is_the_programs_while_one_has_the_keys(app, monkeypatch):
         lambda a: seen.append(a.command_enabled(Help())),
     ])
     assert seen == [True, False]
+
+
+# -- F1 inside a dialog, and the topic ----------------------------------------
+
+
+def test_f1_inside_a_dialog_opens_help_over_it_and_esc_goes_back_to_it(app):
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+
+    seen = []
+    run_app(app, [
+        KeyEvent("f7"),
+        Until(lambda a: isinstance(a.modal, MkdirDialog)),
+        KeyEvent("f1"), on_page("README.md"),
+        lambda a: seen.append(top_text(a)),  # a dialog naming no topic: the contents
+        KeyEvent("escape"),
+        lambda a: seen.append(type(a.modal)),
+        lambda a: seen.append(a.focused is a.modal.entry.entry),  # the keyboard back where it was
+        KeyEvent("escape"),
+        lambda a: seen.append(a.modal),
+    ])
+    assert seen == ["Contents", MkdirDialog, True, None]
+
+
+def test_a_dialog_names_its_topic(app):
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+
+    seen = []
+    dialog = MkdirDialog()
+    dialog.help_topic = "other.md#second"
+    run_app(app, [
+        lambda a: a.spawn(dialog.execute(a)),
+        Until(lambda a: a.modal is dialog),
+        lambda a: seen.append(a.help_topic()),
+        KeyEvent("f1"), on_page("other.md"),
+        lambda a: seen.append(top_text(a)),
+    ])
+    assert seen == ["other.md#second", "Second"]
+
+
+def test_a_window_names_its_topic_and_the_nearest_one_wins(app):
+    seen = []
+
+    def name_it(a):
+        from navml.widgets.window import Window
+
+        window = a.focused
+        while not isinstance(window, Window):
+            window = window.parent
+        window.help_topic = "other.md"
+        seen.append(a.help_topic())
+        a.focused.help_topic = "help.md"  # nearer the keyboard than the window
+        seen.append(a.help_topic())
+        del a.focused.help_topic
+
+    run_app(app, [
+        lambda a: seen.append(a.help_topic()),
+        name_it,
+        KeyEvent("f1"), on_page("other.md"),
+        lambda a: seen.append(top_text(a)),
+    ])
+    assert seen == ["README.md", "other.md", "help.md", "Other"]

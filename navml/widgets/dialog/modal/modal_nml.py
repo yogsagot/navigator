@@ -62,16 +62,22 @@ class Modal(_Component):
     #: handed in; one that is hidden or cannot take it is passed over.
     first_focus = _reactive(None)    # modal.nml:34
 
+    #: What F1 shows while the keyboard is in here: a topic the application
+    #: understands -- Navigator's is a help page and an optional heading,
+    #: ``"file-operations.md#copy"`` (Turbo Vision's ``HelpCtx``).  Empty, the
+    #: application looks further out.
+    help_topic: str = _reactive('')    # modal.nml:40
+
     #: The size the modal asks for.  Overridden by a derived document.
-    modal_width: int = _reactive(50)    # modal.nml:37
-    modal_height: int = _reactive(10)    # modal.nml:38
+    modal_width: int = _reactive(50)    # modal.nml:43
+    modal_height: int = _reactive(10)    # modal.nml:44
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
 
-        self.width = _bind(lambda _o: _o.modal_width)    # modal.nml:40
-        self.height = _bind(lambda _o: _o.modal_height)    # modal.nml:41
-        self.x = _bind(lambda _o: max(0, (_o.parent.width - _o.width) // 2))    # modal.nml:43
-        self.y = _bind(lambda _o: max(0, (_o.parent.height - _o.height) // 2))    # modal.nml:43
+        self.width = _bind(lambda _o: _o.modal_width)    # modal.nml:46
+        self.height = _bind(lambda _o: _o.modal_height)    # modal.nml:47
+        self.x = _bind(lambda _o: max(0, (_o.parent.width - _o.width) // 2))    # modal.nml:49
+        self.y = _bind(lambda _o: max(0, (_o.parent.height - _o.height) // 2))    # modal.nml:49
 
         self._navml_built(__class__)

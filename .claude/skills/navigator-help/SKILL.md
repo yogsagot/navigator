@@ -5,9 +5,9 @@ description: F1 Help -- HelpWindow and HelpViewer (navigator/widgets/help/, DN's
 
 # Help (F1): the pages and their pictures
 
-**F1 opens `HelpWindow`** (`navigator/widgets/help/`, DN's `THelpWindow`) from the main screen, on the contents
-page. **Not yet**: F1 inside a dialog (the application's key table stands aside under a modal, so `Dialog` needs
-the key), a `help_topic` on any dialog or window, and the thirty-odd dialogs' Help buttons -- *What is left* below.
+**F1 opens `HelpWindow`** (`navigator/widgets/help/`, DN's `THelpWindow`) anywhere, a dialog included, on the
+topic the keyboard's dialog or window names, else on the contents page. **Not yet**: any dialog or window naming a
+topic (no page is written for one), and the thirty-odd dialogs' Help buttons -- *What is left* below.
 
 **A departure from DN, asked for**: DN compiled `.hlp` files (`DN.HLP`, `hcXxx` contexts). Here help is Markdown under
 `docs/`, because the same files are readable on GitHub, can become a website, and are rendered in-app by the
@@ -128,16 +128,22 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
   Help is not given to the terminal.
 - **`mirrors = False`**, as the viewer: rows are laid out already, and a picture must not be turned round.
 - **F1 while a program has the keys is the program's**: `Navigator.refusal` refuses every application command then.
+- **`Help` is navml's command** (`navml/widgets/dialog/commands.py`, `cmHelp`; `navigator.commands.Help` is the
+  same class) because **`Dialog`'s key table binds F1** too: the application's table stands aside under a modal.
+  The command bubbles to `Navigator.on_help`; in an application with no handler it is disabled and the key goes on.
+  `HelpWindow` binds F1 over it (*Help on help*). A menu or a popup is no `Dialog`: F1 does nothing there yet (DN
+  gave a menu item's help).
+- **The topic is `help_topic`**, a property of navml's `Modal` and `Window` (Turbo Vision's `HelpCtx`), a page and
+  an optional heading: `help_topic: "file-operations.md#copy"` in markup. `Navigator.help_topic()` is DN's
+  `GetHelpCtx`: from the widget with the keyboard outwards, the first non-empty one, else `pages.CONTENTS`. Any
+  widget may carry the attribute; the nearest wins. `tests/test_help_docs.py` finds every `help_topic` literal in
+  the three packages' `.nml` and `.py` and fails on a page or a heading that is not there -- so **write the page
+  before naming it**.
 
 ## What is left
 
-- **F1 inside a dialog.** The application's table is not consulted under a modal, so `Dialog` (navml) needs
-  `f1` bound to a `Help` command navml owns (Navigator's `Help` then being that class), bubbling to
-  `Navigator.on_help`; the default key set is regenerated then (`tools/keymap_default.py`).
-- **The topic**: `Navigator.help_topic()` already walks up from the focused widget for a `help_topic` string
-  (`"file-operations.md#copy"`, DN's `HELPCTX`, `GetHelpCtx`), but no widget declares one: `Modal` and `Window`
-  need the property, and a test that every `help_topic` resolves.
-- **The Help buttons**: each dialog's back as its page is written (`dn-porting` has the grep that finds them).
+- **The pages, and with each its dialog's `help_topic` and Help button**: a button is `command: Help` (it then
+  asks as F1 does); `dn-porting` has the grep that finds the dialogs whose DN resource had `cmHelp`.
 - **The help window's keys are not in `keybindings.ini`** (no section in `keybindings.TABLES`).
 - A code block wider than the window is cut: there is no sideways scroll.
 ## The layout, and shipping

@@ -31,6 +31,7 @@ class Window(_Component):
     tileable: bool
     min_width: int
     min_height: int
+    help_topic: str
     zoomed: bool
     shadow: bool
     framed: bool

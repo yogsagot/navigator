@@ -3,15 +3,15 @@ name = "Русский"
 flag = "RU"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:86
+# navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "~Д~а"
-# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:92
+# navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "~Н~ет"
-# navml/widgets/dialog/dialog/dialog.nml:99
+# navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "~О~тмена"
-# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "~П~омощь"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "Открыть файл"
@@ -654,40 +654,42 @@ flag = "RU"
 # navml/widgets/dialog/commands.py:27
 "OK" = "OK"
 # navml/widgets/dialog/commands.py:41
+"Help" = "Помощь"
+# navml/widgets/dialog/commands.py:55
 "Next tab" = "Следующая вкладка"
-# navml/widgets/dialog/commands.py:47
+# navml/widgets/dialog/commands.py:61
 "Previous tab" = "Предыдущая вкладка"
-# navml/widgets/dialog/commands.py:60
+# navml/widgets/dialog/commands.py:74
 "Search" = "Поиск"
-# navml/widgets/dialog/commands.py:78
+# navml/widgets/dialog/commands.py:92
 "Cut" = "Вырез."
-# navml/widgets/dialog/commands.py:84
+# navml/widgets/dialog/commands.py:98
 "Copy" = "Копия"
-# navml/widgets/dialog/commands.py:90
+# navml/widgets/dialog/commands.py:104
 "Paste" = "Встав."
-# navml/widgets/dialog/commands.py:96
+# navml/widgets/dialog/commands.py:110
 "Clear" = "Стереть"
-# navml/widgets/dialog/commands.py:106
+# navml/widgets/dialog/commands.py:120
 "Select all" = "Выделить всё"
-# navml/widgets/dialog/commands.py:119
+# navml/widgets/dialog/commands.py:133
 "Previous month" = "Предыдущий месяц"
-# navml/widgets/dialog/commands.py:125
+# navml/widgets/dialog/commands.py:139
 "Next month" = "Следующий месяц"
-# navml/widgets/dialog/commands.py:131
+# navml/widgets/dialog/commands.py:145
 "Previous year" = "Предыдущий год"
-# navml/widgets/dialog/commands.py:137
+# navml/widgets/dialog/commands.py:151
 "Next year" = "Следующий год"
-# navml/widgets/dialog/commands.py:143
+# navml/widgets/dialog/commands.py:157
 "Choose month" = "Выбрать месяц"
-# navml/widgets/dialog/commands.py:149
+# navml/widgets/dialog/commands.py:163
 "Choose year" = "Выбрать год"
-# navml/widgets/dialog/commands.py:155
+# navml/widgets/dialog/commands.py:169
 "Go to current date" = "Текущая дата"
-# navml/widgets/dialog/commands.py:164
+# navml/widgets/dialog/commands.py:178
 "Calendar system" = "Тип календаря"
-# navml/widgets/dialog/commands.py:176
+# navml/widgets/dialog/commands.py:190
 "Calendar view" = "Вид календаря"
-# navml/widgets/dialog/commands.py:186
+# navml/widgets/dialog/commands.py:200
 "Swap calendars" = "Поменять календари"
 # navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "Пн"

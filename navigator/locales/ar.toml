@@ -414,8 +414,6 @@ direction = "rtl"
 "~F~rom cursor" = "~ع~ند المؤشر"
 # navigator/widgets/editor/find_dialog/find_dialog.nml:129
 "Change ~a~ll" = "~ا~ستبدال الكل"
-# navigator/widgets/editor/find_dialog/find_dialog.nml:154, navigator/widgets/editor/margins_dialog/margins_dialog.nml:63, navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:152 ...
-"Help" = "مساعدة"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:13
 "Goto Line" = "الانتقال إلى سطر"
 # navigator/widgets/editor/goto_line_dialog/goto_line_dialog.nml:21
@@ -6947,3 +6945,4 @@ direction = "rtl"
 "no age identity file: set age_identities in navigator.ini's [encryption]" = "لا يوجد ملف هوية age: اضبط age_identities في القسم [encryption] من navigator.ini"
 "Edit new file" = "تحرير ملف جديد"
 "Reopen a tracked file in the editor at its window, scroll and cursor" = "إعادة فتح الملف المتتبع في المحرر بنافذته وتمريره ومؤشره"
+"Help" = "مساعدة"

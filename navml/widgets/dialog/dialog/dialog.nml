@@ -1,4 +1,4 @@
-from navml.widgets.dialog.commands import Cancel, Default, SelectNext, SelectPrevious
+from navml.widgets.dialog.commands import Cancel, Default, Help, SelectNext, SelectPrevious
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.static_text import StaticText
@@ -47,6 +47,10 @@ Dialog(Modal):
         enter: Default
         tab: SelectNext
         shift+tab: SelectPrevious
+        #: ``cmHelp``, here because the application's table stands aside
+        #: under a modal.  The application handles it; with no handler the
+        #: command is disabled and the key goes on.
+        f1: Help
         #: The focused control's context menu, as the global table has it:
         #: that table stands aside while a dialog is up.
         menu: ShowContextMenu

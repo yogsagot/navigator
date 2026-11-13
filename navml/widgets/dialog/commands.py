@@ -27,6 +27,20 @@ class Default(Command):
     title = "OK"
 
 
+class Help(Command):
+    """F1, and a dialog's Help button: Turbo Vision's ``cmHelp``.
+
+    The library only names it and binds the key in ``Dialog``'s table --
+    under a modal the application's own table stands aside, so a dialog has
+    to carry F1 itself.  What help is belongs to the application, which
+    handles the command (Navigator's ``on_help``); with no handler it is
+    disabled and the key goes on as if unbound.  Which page is the
+    ``help_topic`` of the dialog or window the keyboard is in.
+    """
+
+    title = "Help"
+
+
 class SelectNext(Command):
     """Move the keyboard to the next control."""
 

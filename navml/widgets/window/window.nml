@@ -58,6 +58,11 @@ Window:
     property min_width: 16
     property min_height: 6
 
+    #: What F1 shows while this window is active: a topic the application
+    #: understands, as a modal's ``help_topic`` is.  Empty, the application
+    #: looks further out.
+    property help_topic: ""
+
     #: Filling the whole desktop, with the rectangle it came from kept aside.
     #: Declared here so that a derived document can open zoomed with one
     #: literal line; toggled by :meth:`toggle_zoom`, never bound.

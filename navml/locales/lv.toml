@@ -3,15 +3,15 @@ name = "Latviešu"
 flag = "LV"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:86
+# navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "~J~ā"
-# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:92
+# navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "~N~ē"
-# navml/widgets/dialog/dialog/dialog.nml:99
+# navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "~A~tcelt"
-# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "~P~alīdzība"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "Atvērt failu"
@@ -654,40 +654,42 @@ flag = "LV"
 # navml/widgets/dialog/commands.py:27
 "OK" = "OK"
 # navml/widgets/dialog/commands.py:41
+"Help" = "Palīdz."
+# navml/widgets/dialog/commands.py:55
 "Next tab" = "Nākamā cilne"
-# navml/widgets/dialog/commands.py:47
+# navml/widgets/dialog/commands.py:61
 "Previous tab" = "Iepriekšējā cilne"
-# navml/widgets/dialog/commands.py:60
+# navml/widgets/dialog/commands.py:74
 "Search" = "Meklēt"
-# navml/widgets/dialog/commands.py:78
+# navml/widgets/dialog/commands.py:92
 "Cut" = "Griezt"
-# navml/widgets/dialog/commands.py:84
+# navml/widgets/dialog/commands.py:98
 "Copy" = "Kopēt"
-# navml/widgets/dialog/commands.py:90
+# navml/widgets/dialog/commands.py:104
 "Paste" = "Ielīmēt"
-# navml/widgets/dialog/commands.py:96
+# navml/widgets/dialog/commands.py:110
 "Clear" = "Notīrīt"
-# navml/widgets/dialog/commands.py:106
+# navml/widgets/dialog/commands.py:120
 "Select all" = "Atlasīt visu"
-# navml/widgets/dialog/commands.py:119
+# navml/widgets/dialog/commands.py:133
 "Previous month" = "Iepriekšējais mēnesis"
-# navml/widgets/dialog/commands.py:125
+# navml/widgets/dialog/commands.py:139
 "Next month" = "Nākamais mēnesis"
-# navml/widgets/dialog/commands.py:131
+# navml/widgets/dialog/commands.py:145
 "Previous year" = "Iepriekšējais gads"
-# navml/widgets/dialog/commands.py:137
+# navml/widgets/dialog/commands.py:151
 "Next year" = "Nākamais gads"
-# navml/widgets/dialog/commands.py:143
+# navml/widgets/dialog/commands.py:157
 "Choose month" = "Izvēlēties mēnesi"
-# navml/widgets/dialog/commands.py:149
+# navml/widgets/dialog/commands.py:163
 "Choose year" = "Izvēlēties gadu"
-# navml/widgets/dialog/commands.py:155
+# navml/widgets/dialog/commands.py:169
 "Go to current date" = "Uz šodienas datumu"
-# navml/widgets/dialog/commands.py:164
+# navml/widgets/dialog/commands.py:178
 "Calendar system" = "Kalendāra sistēma"
-# navml/widgets/dialog/commands.py:176
+# navml/widgets/dialog/commands.py:190
 "Calendar view" = "Kalendāra rādījums"
-# navml/widgets/dialog/commands.py:186
+# navml/widgets/dialog/commands.py:200
 "Swap calendars" = "Samainīt kalendārus"
 # navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "Pr"

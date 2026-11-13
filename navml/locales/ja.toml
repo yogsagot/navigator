@@ -3,15 +3,15 @@ name = "日本語"
 flag = "JP"
 
 [strings]
-# navml/widgets/dialog/dialog/dialog.nml:86
+# navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "はい(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:86, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
 "O~K~" = "O~K~"
-# navml/widgets/dialog/dialog/dialog.nml:92
+# navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "いいえ(~N~)"
-# navml/widgets/dialog/dialog/dialog.nml:99
+# navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:109, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
 "~H~elp" = "ヘルプ(~H~)"
 # navml/widgets/dialog/file_dialog/file_dialog.nml:27
 "Open file" = "ファイルを開く"
@@ -654,40 +654,42 @@ flag = "JP"
 # navml/widgets/dialog/commands.py:27
 "OK" = "OK"
 # navml/widgets/dialog/commands.py:41
+"Help" = "ヘルプ"
+# navml/widgets/dialog/commands.py:55
 "Next tab" = "次のタブ"
-# navml/widgets/dialog/commands.py:47
+# navml/widgets/dialog/commands.py:61
 "Previous tab" = "前のタブ"
-# navml/widgets/dialog/commands.py:60
+# navml/widgets/dialog/commands.py:74
 "Search" = "検索"
-# navml/widgets/dialog/commands.py:78
+# navml/widgets/dialog/commands.py:92
 "Cut" = "切り取り"
-# navml/widgets/dialog/commands.py:84
+# navml/widgets/dialog/commands.py:98
 "Copy" = "複写"
-# navml/widgets/dialog/commands.py:90
+# navml/widgets/dialog/commands.py:104
 "Paste" = "貼り付け"
-# navml/widgets/dialog/commands.py:96
+# navml/widgets/dialog/commands.py:110
 "Clear" = "消去"
-# navml/widgets/dialog/commands.py:106
+# navml/widgets/dialog/commands.py:120
 "Select all" = "すべて選択"
-# navml/widgets/dialog/commands.py:119
+# navml/widgets/dialog/commands.py:133
 "Previous month" = "前月"
-# navml/widgets/dialog/commands.py:125
+# navml/widgets/dialog/commands.py:139
 "Next month" = "翌月"
-# navml/widgets/dialog/commands.py:131
+# navml/widgets/dialog/commands.py:145
 "Previous year" = "前年"
-# navml/widgets/dialog/commands.py:137
+# navml/widgets/dialog/commands.py:151
 "Next year" = "翌年"
-# navml/widgets/dialog/commands.py:143
+# navml/widgets/dialog/commands.py:157
 "Choose month" = "月を選択"
-# navml/widgets/dialog/commands.py:149
+# navml/widgets/dialog/commands.py:163
 "Choose year" = "年を選択"
-# navml/widgets/dialog/commands.py:155
+# navml/widgets/dialog/commands.py:169
 "Go to current date" = "今日へ移動"
-# navml/widgets/dialog/commands.py:164
+# navml/widgets/dialog/commands.py:178
 "Calendar system" = "暦法"
-# navml/widgets/dialog/commands.py:176
+# navml/widgets/dialog/commands.py:190
 "Calendar view" = "暦の表示"
-# navml/widgets/dialog/commands.py:186
+# navml/widgets/dialog/commands.py:200
 "Swap calendars" = "暦を切り替え"
 # navml/widgets/dialog/date_button/date_button.py:106
 "Mo" = "月"
