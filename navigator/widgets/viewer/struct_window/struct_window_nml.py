@@ -129,7 +129,7 @@ class StructWindow(Window, _Component):
 
         _w1.text = _bind(lambda _o: _tr('~T~ext view'), yielding=True)    # struct_window.nml:56
         _w1.command = ViewTreeAsText    # struct_window.nml:56
-        _w1.key = 'Shift-F4'    # struct_window.nml:56
+        _w1.key = 'Shift-F3'    # struct_window.nml:56
         _w1.tooltip = _bind(    # struct_window.nml:57
             lambda _o: _tr("The file's text, where the cursor's node is when that is known"),
             yielding=True,

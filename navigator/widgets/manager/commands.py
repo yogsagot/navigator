@@ -701,7 +701,7 @@ class FindDuplicates(Command):
 
 
 class MultiRename(Command):
-    """Alt+M, File > Multi-rename: the tagged files renamed by a pattern.
+    """Alt+A, File > Multi-rename: the tagged files renamed by a pattern.
 
     A departure: Total Commander's *Multi-Rename Tool* (its Ctrl+M is Enter
     in a terminal); DOS Navigator's group rename was F6's ``*``/``?`` mask

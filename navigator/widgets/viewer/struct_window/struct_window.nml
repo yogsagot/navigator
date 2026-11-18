@@ -53,7 +53,7 @@ StructWindow(Window):
     SubMenu: text='~D~ata', after='File'
         id: data_menu
         tooltip: "Copy, search and fold the tree"
-        MenuItem: text='~T~ext view', command=ViewTreeAsText, key='Shift-F4'
+        MenuItem: text='~T~ext view', command=ViewTreeAsText, key='Shift-F3'
             tooltip: "The file's text, where the cursor's node is when that is known"
         MenuLine:
         MenuItem: text='Copy ~p~ath', command=CopyPath
