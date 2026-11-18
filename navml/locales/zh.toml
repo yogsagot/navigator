@@ -5,29 +5,29 @@ flag = "CN"
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "是(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
 "O~K~" = "O~K~"
 # navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "否(~N~)"
 # navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
 "~H~elp" = "帮助(~H~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:27
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
 "Open file" = "打开文件"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "名称(~N~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:53
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
 "~D~irectories" = "目录(~D~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:70
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
 "~F~iles" = "文件(~F~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
 "Cancel" = "取消"
-# navml/widgets/window_manager/window_manager.nml:18
+# navml/widgets/window_manager/window_manager.nml:19
 "Windows Manager" = "窗口管理器"
-# navml/widgets/window_manager/window_manager.nml:25
+# navml/widgets/window_manager/window_manager.nml:26
 "~W~indows" = "窗口(~W~)"
-# navml/widgets/window_manager/window_manager.nml:54
+# navml/widgets/window_manager/window_manager.nml:55
 "C~l~ose" = "关闭(~L~)"
 # navml/calendars.py:75
 "January" = "一月"

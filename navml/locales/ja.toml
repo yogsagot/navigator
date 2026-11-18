@@ -5,29 +5,29 @@ flag = "JP"
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "はい(~Y~)"
-# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
 "O~K~" = "O~K~"
 # navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "いいえ(~N~)"
 # navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "取消(~C~)"
-# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
 "~H~elp" = "ヘルプ(~H~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:27
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
 "Open file" = "ファイルを開く"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "名前(~N~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:53
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
 "~D~irectories" = "ディレクトリ(~D~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:70
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
 "~F~iles" = "ファイル(~F~)"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
 "Cancel" = "取消"
-# navml/widgets/window_manager/window_manager.nml:18
+# navml/widgets/window_manager/window_manager.nml:19
 "Windows Manager" = "ウィンドウ管理"
-# navml/widgets/window_manager/window_manager.nml:25
+# navml/widgets/window_manager/window_manager.nml:26
 "~W~indows" = "ウィンドウ(~W~)"
-# navml/widgets/window_manager/window_manager.nml:54
+# navml/widgets/window_manager/window_manager.nml:55
 "C~l~ose" = "閉じる(~L~)"
 # navml/calendars.py:75
 "January" = "1月"

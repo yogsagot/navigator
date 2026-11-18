@@ -1,6 +1,8 @@
 from navigator.widgets.help.commands import GoBack, GoToReference, HelpIndex, HelpOnHelp, NextTopic, PreviousTopic
+from navigator.widgets.help.commands import ScrollLeft, ScrollLineDown, ScrollLineUp, ScrollPageDown, ScrollPageUp
+from navigator.widgets.help.commands import ScrollRight, ScrollToBottom, ScrollToTop
 from navigator.widgets.help.help_viewer import HelpViewer
-from navml.commands import ZoomWindow
+from navml.commands import SizeMoveWindow, ZoomWindow
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.scroll_bar import ScrollBar
 
@@ -16,17 +18,29 @@ from navml.widgets.dialog.scroll_bar import ScrollBar
 #: and of its height, and never smaller than DN's where the screen has the
 #: room -- so an 80 by 24 terminal still gets DN's 72 by 20.
 #:
-#: Alt+Z zooms it to the whole screen and back.  Departures: no bar along
-#: the bottom frame -- a page is wrapped to the width, so there is nothing to
-#: scroll to -- the right one only while the page is longer than the window
-#: (as the viewer's), and neither dragging nor Ctrl+F5's resize, a modal
-#: here being a fixed box.
+#: Alt+Z zooms it to the whole screen and back; Ctrl+F5 moves and sizes it
+#: with the keyboard (``cmResize``), as it does a window on the desktop.  A
+#: modal's geometry is bound, so the mode does not assign it: it writes
+#: ``placed``, which the bindings read (``help_window.py``).  There is no
+#: dragging with the mouse.
+#:
+#: Departures: the bars are there only while there is something to scroll to
+#: (as the viewer's) -- the right one while the page is longer than the
+#: window, the bottom one while a code block is wider than it, a page being
+#: wrapped to the width otherwise.
+#:
+#: Every key is in the table, the scrolling ones too, so that all of them are
+#: in ``keybindings.ini`` (its ``[help]`` section).
 HelpWindow(Dialog):
     #: Whether it fills the screen: Alt+Z, ``cmZoom``.
     property zoomed: False
 
-    modal_width: (parent.width if self.zoomed else max(min(72, parent.width), parent.width * 4 // 5)) if parent is not None else 72
-    modal_height: (max(3, parent.height - 2) if self.zoomed else max(min(20, parent.height), parent.height * 4 // 5)) if parent is not None else 20
+    #: Where Ctrl+F5 put it, ``(x, y, width, height)``; None while it is
+    #: where and as large as it opened.  Kept on the screen by what reads it.
+    property placed: None
+
+    modal_width: (parent.width if self.zoomed else self.placed_size(parent.width, parent.height)[0] if self.placed else max(min(72, parent.width), parent.width * 4 // 5)) if parent is not None else 72
+    modal_height: (max(3, parent.height - 2) if self.zoomed else self.placed_size(parent.width, parent.height)[1] if self.placed else max(min(20, parent.height), parent.height * 4 // 5)) if parent is not None else 20
     title: "Help"
     buttons: "none"
 
@@ -38,6 +52,15 @@ HelpWindow(Dialog):
         enter: GoToReference
         alt+f1: GoBack
         alt+z: ZoomWindow
+        ctrl+f5: SizeMoveWindow
+        up: ScrollLineUp
+        down: ScrollLineDown
+        pageup: ScrollPageUp
+        pagedown: ScrollPageDown
+        home: ScrollToTop
+        end: ScrollToBottom
+        left: ScrollLeft
+        right: ScrollRight
 
     #: The commands this component handles itself.
     commands:
@@ -46,6 +69,15 @@ HelpWindow(Dialog):
         GoToReference: root.viewer.follow()
         GoBack: root.viewer.back()
         ZoomWindow: root.toggle_zoom()
+        SizeMoveWindow: root.begin_move()
+        ScrollLineUp: root.viewer.scroll_by(-1)
+        ScrollLineDown: root.viewer.scroll_by(1)
+        ScrollPageUp: root.viewer.scroll_by(-root.viewer.page_rows())
+        ScrollPageDown: root.viewer.scroll_by(root.viewer.page_rows())
+        ScrollToTop: root.viewer.scroll_to(0)
+        ScrollToBottom: root.viewer.scroll_to(root.viewer.total)
+        ScrollLeft: root.viewer.scroll_sideways(-1)
+        ScrollRight: root.viewer.scroll_sideways(1)
 
     HelpViewer:
         id: viewer
@@ -66,3 +98,18 @@ HelpWindow(Dialog):
         value: viewer.top
         maximum: max(0, viewer.total - viewer.height)
         page: max(1, viewer.height)
+
+    #: Along the bottom frame, under the page: there only while a row -- a
+    #: code block's -- is wider than the window.
+    ScrollBar:
+        id: hbar
+        orientation: "horizontal"
+        height: 1
+        anchors:
+            left: 2
+            right: 2
+            bottom: 0
+        visible: viewer.span > viewer.width
+        value: viewer.left
+        maximum: max(0, viewer.span - viewer.width)
+        page: max(1, viewer.width)

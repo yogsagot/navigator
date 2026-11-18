@@ -8,15 +8,19 @@ from conftest import FakeTerminal, Until, key_bar_hints, run_app
 from navigator.__main__ import Navigator
 from navigator.commands import Help
 from navigator.lib.help import pages
-from navigator.widgets.help.commands import GoBack
+from navigator.widgets.help.commands import GoBack, ScrollLineDown
 from navigator.widgets.help.help_window import HelpWindow
-from navkit.events import KeyEvent, MouseClickEvent
+from navkit.commands import override_keys
+from navkit.events import KeyEvent, MouseClickEvent, ResizeEvent
 from navkit.i18n import LOCALE
 from navkit.screen import ScreenBuffer
 from navkit.style import BLACK, BLUE, CYAN, WHITE, YELLOW
 
 RUN = "\x1b[0;38;2;1;2;3;48;2;4;5;6m"
 FILLER = "".join(f"Paragraph {n} of the page.\n\n" for n in range(30))
+
+#: A line of code a 68-wide page cannot hold: 100 columns after the indent of 2.
+WIDE = "".join(f"{n:02d}........" for n in range(10))
 
 PAGES = {
     "en/README.md": (
@@ -27,6 +31,7 @@ PAGES = {
     "en/other.md": f"# Other\n\n[Back to the contents](README.md)\n\n{FILLER}## Second\n\nThe second part.\n\n{FILLER}",
     "en/help.md": "# Help on help\n\nThe keys.\n",
     "en/picture.md": "# Picture\n\n![A box](shots/box.svg)\n\nAfter it.\n",
+    "en/code.md": f"# Code\n\n[To the contents](README.md)\n\n```\n{WIDE}\nshort\n```\n",
     "en/shots/box.ans": f"{RUN}╔══╗\x1b[0m\n{RUN}╚══╝\x1b[0m\n",
     "lv/README.md": "# Saturs\n\nLatviski.\n",
 }
@@ -218,6 +223,110 @@ def test_alt_z_zooms_and_the_place_is_kept_at_the_new_width(app):
         KeyEvent("z", alt=True), relaid(68), note,
     ])
     assert seen == [(72, 20, 68, "Second"), (80, 22, 76, "Second"), (72, 20, 68, "Second")]
+
+
+def painted(app, row: int) -> str:
+    """What the page's layout row *row* looks like on the screen."""
+    shown, window = viewer(app), app.modal
+    buffer = screen(app)
+    y = window.y + 1 + row - shown.top
+    return "".join(buffer.get(x, y)[0] for x in range(window.x + 2, window.x + 2 + shown.width))
+
+
+def test_a_code_block_wider_than_the_window_is_scrolled_sideways(app):
+    seen = []
+    note = lambda a: seen.append((viewer(a).left, a.modal.hbar.visible))
+
+    def code_row(a) -> int:
+        return next(n for n, row in enumerate(viewer(a).layout.rows) if row.text.strip().startswith("00"))
+
+    def click(a):  # the link's sixth letter, three columns left of where it was laid out
+        row, start, _ = viewer(a).links[0].spans[0]
+        a.post_event(MouseClickEvent(a.modal.x + 2 + start + 5 - 3, a.modal.y + 1 + row - viewer(a).top, "left"))
+
+    run_app(app, [
+        KeyEvent("f1"), on_page("README.md"), note,
+        KeyEvent("right"), note,  # nothing wider than the window: nowhere to go
+        lambda a: viewer(a).show("code.md"), on_page("code.md"), note,
+        lambda a: seen.append((viewer(a).span, painted(a, code_row(a))[:12])),
+        KeyEvent("right"), KeyEvent("right"), KeyEvent("right"), note,
+        lambda a: seen.append((painted(a, code_row(a))[:12], painted(a, 0).strip())),
+        KeyEvent("left"), note,
+        lambda a: viewer(a).scroll_sideways(1000), note,
+        lambda a: seen.append(painted(a, code_row(a))[-10:]),
+        lambda a: a.post_event(MouseClickEvent(a.modal.x + 5, a.modal.y + 5, "wheel_left")), note,
+        lambda a: viewer(a).scroll_sideways_to(3),
+        KeyEvent("tab"), note,  # the link selected is partly off the left edge: back to it
+        lambda a: viewer(a).scroll_sideways_to(3),
+        click, on_page("README.md"), note,
+    ])
+    assert seen == [
+        (0, False), (0, False), (0, True),
+        (102, "  00........"),
+        (3, True), ("0........01.", "e"),  # the heading goes with it
+        (2, True), (34, True), "09........",
+        (28, True), (0, True), (0, False),
+    ]
+
+
+def test_ctrl_f5_moves_and_sizes_the_window_and_esc_puts_it_back(app):
+    seen = []
+    rect = lambda a: (a.modal.x, a.modal.y, a.modal.width, a.modal.height)
+    note = lambda a: seen.append(rect(a))
+    relaid = lambda width: Until(lambda a: viewer(a).layout.width == width)
+    press = lambda *keys, **mods: [KeyEvent(key, **mods) for key in keys]
+    run_app(app, [
+        KeyEvent("f1"), on_page("README.md"), note,
+        KeyEvent("f5", ctrl=True),
+        lambda a: seen.append((a.modal.moving, key_bar_hints(a)[-2:])),
+        *press("right", "right", "down"), note,
+        *press("left", "up", shift=True), relaid(67), note,
+        # Its own keys are the mode's meanwhile: no link, no other page.
+        lambda a: seen.append(viewer(a).selected),
+        *press("tab", "f1"),
+        lambda a: seen.append((viewer(a).selected, viewer(a)._name(), a.modal.moving)),
+        KeyEvent("escape"), relaid(68), note,
+        lambda a: seen.append((a.modal.moving, a.modal.placed, isinstance(a.modal, HelpWindow))),
+        KeyEvent("f5", ctrl=True), *press("left", "left", "left", "left", "left"), note,  # stopped at the edge
+        *press("right", "down", shift=True), KeyEvent("enter"), relaid(69), note,
+        lambda a: seen.append(a.modal.moving),
+        KeyEvent("tab"), lambda a: seen.append(viewer(a).selected),  # the keys are Help's again
+        KeyEvent("z", alt=True), relaid(76), note,
+        KeyEvent("z", alt=True), relaid(69), note,
+        # A smaller terminal: still a box, and all of it on the screen.
+        lambda a: setattr(a.terminal, "size", (60, 20)),
+        ResizeEvent(60, 20), relaid(56), note,
+    ])
+    assert seen == [
+        (4, 2, 72, 20),
+        (True, [("Enter", "Keep"), ("Esc", "Undo")]),
+        (6, 3, 72, 20), (6, 3, 71, 19),
+        0, (0, "README.md", True),
+        (4, 2, 72, 20), (False, None, True),
+        (0, 2, 72, 20), (0, 2, 73, 21),
+        False, 1,
+        (0, 1, 80, 22), (0, 2, 73, 21),
+        (0, 0, 60, 20),
+    ]
+
+
+def test_the_keys_of_help_are_bound_to_others(app):
+    from navigator.lib.config import keybindings
+
+    section = next(section for section in keybindings.sections(Navigator) if section.name == "help")
+    names = [entry.name for entry in section.entries]
+    assert {"scroll_line_down", "scroll_left", "size_move_window", "go_back"} <= set(names)
+    assert "cancel" not in names  # Dialog's Esc is the dialogs' section's
+
+    table = {key: binding for key, binding in HelpWindow.keys.items() if key != "down"}
+    override_keys(HelpWindow, {**table, "j": ScrollLineDown}, section.base)
+    seen = []
+    run_app(app, [
+        lambda a: a.spawn(HelpWindow("other.md").execute(a)), on_page("other.md"),
+        KeyEvent("down"), lambda a: seen.append(viewer(a).top),
+        KeyEvent("j"), lambda a: seen.append(viewer(a).top),
+    ])
+    assert seen == [0, 1]
 
 
 def test_a_picture_is_painted_in_its_own_colours(app):

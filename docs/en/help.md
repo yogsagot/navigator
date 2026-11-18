@@ -14,13 +14,18 @@ in its own colour, and one of them is always the selected one.
 | `Shift+F1` | Open the [contents](README.md) |
 | `F1` | Open this page |
 | `Up`, `Down`, `PgUp`, `PgDn`, `Home`, `End` | Scroll the page |
+| `Left`, `Right` | Scroll sideways, when a line of code is wider than the window |
 | `Alt+Z` | Zoom the window to the whole screen, and back |
+| `Ctrl+F5` | Move and size the window: the arrows move it, `Shift` and the arrows size it, `Enter` keeps it there, `Esc` puts it back |
 | `Esc` | Close Help |
+
+These keys can be changed: Options > Configuration > Key bindings, under *Help window*.
 
 ## The mouse
 
 Click a link to go to it. The wheel scrolls the page, and so does the bar on the right edge of the window when the
-page is longer than the window.
+page is longer than the window. A page with a line of code wider than the window has a bar along the bottom edge
+too; `Shift` and the wheel scroll it sideways.
 
 ## Links to other sites
 

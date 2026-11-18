@@ -14,17 +14,24 @@ deep (``MaxUndo``), each with its place.  Departures, both asked for:
   arrows moved, and a reference was selected while the cursor stood on it.
   Here the arrows, PgUp/PgDn and Home/End scroll: the rows are reflowed
   Markdown laid out for Hebrew and Arabic, and the mouse does the pointing.
+  Those keys are the window's (``help_window.nml``'s table), so they can be
+  bound to others; this widget has no key of its own.
 - **A single click follows a link**; DN's placed the cursor, and a double
   click followed.
 
 A link out of Help -- another site -- is not followed (an in-app opener was
 declined): it is an OSC 8 link for the terminal, and Tab passes over it.
+A page is wrapped to the width, all but its code blocks, which are never
+wrapped: one wider than the window is what Left and Right scroll to
+(``left``, ``span``), the whole page moving as a ``TScroller``'s did.
+
 Kept left to right on a mirrored screen, as the viewer is: its rows are laid
 out already, and a picture must not be turned round.
 """
 
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 
@@ -44,6 +51,8 @@ from navigator.widgets.viewer.file_viewer.helpers import _laid_row
 HISTORY_LIMIT = 200
 #: Rows a notch of the wheel scrolls, as the viewer's.
 WHEEL_ROWS = 3
+#: Columns a notch of a sideways wheel (or Shift and the wheel) scrolls.
+WHEEL_COLUMNS = 6
 
 _READER = Background("nav-help", workers=1)
 
@@ -81,6 +90,11 @@ class HelpViewer(Widget):
     top: int = reactive(0)
     #: How many rows the page has, for the scroll bar.
     total: int = reactive(0)
+    #: The column on the left edge: more than 0 only while a row is wider
+    #: than the window, which only a code block's can be.
+    left: int = reactive(0)
+    #: How wide the widest row is, for the bar along the bottom.
+    span: int = reactive(0)
     #: Which of ``links`` Enter follows, -1 for none.
     selected: int = reactive(-1)
     #: What to say in the page's place: a page that is not there.
@@ -100,6 +114,11 @@ class HelpViewer(Widget):
         self._data: bytes | None = None
         #: What the thread was last asked for; an answer to anything else is dropped.
         self._asked: tuple[Any, ...] | None = None
+        #: Who takes every key instead, while it is set: the window, for as
+        #: long as Ctrl+F5 moves and sizes it.  The keyboard is here, nearer
+        #: than the window's key table, so this is what keeps Enter and Tab
+        #: from following links meanwhile.
+        self.key_taker: Callable[[KeyEvent], Awaitable[bool]] | None = None
 
     # -- going places ----------------------------------------------------------
 
@@ -147,14 +166,31 @@ class HelpViewer(Widget):
             self.selected = 0 if by > 0 else len(self.links) - 1
         else:
             self.selected = (self.selected + by) % len(self.links)
-        row = self.links[self.selected].row
+        link = self.links[self.selected]
+        row = link.row
         if row < self.top:
             self.scroll_to(row)
         elif row >= self.top + self.height:
             self.scroll_to(row - self.height + 1)
+        if not all(self.left <= start and end <= self.left + self.width for _, start, end in link.spans):
+            # A link is in wrapped text, so it is all there from the left edge.
+            self.left = 0
 
     def scroll_to(self, row: int) -> None:
         self.top = max(0, min(row, self.total - max(1, self.height)))
+
+    def scroll_by(self, rows: int) -> None:
+        self.scroll_to(self.top + rows)
+
+    def page_rows(self) -> int:
+        """How far PgUp and PgDn go: a window less a row."""
+        return max(1, self.height - 1)
+
+    def scroll_sideways_to(self, column: int) -> None:
+        self.left = max(0, min(column, self.span - self.width))
+
+    def scroll_sideways(self, by: int) -> None:
+        self.scroll_sideways_to(self.left + by)
 
     def _name(self) -> str:
         return self._wanted[0] if self._wanted is not None else self.page
@@ -205,6 +241,7 @@ class HelpViewer(Widget):
         if isinstance(outcome.error, pages.PageNotFound):
             self.page, self._data, self.layout, self.links = name, None, None, []
             self.total, self.top, self.selected = 0, 0, -1
+            self.left, self.span = 0, 0
             self.problem = tr("There is no help page {name}").format(name=name)
             return
         self._data, layout = outcome.result()
@@ -212,11 +249,13 @@ class HelpViewer(Widget):
         self.page = name
         self.layout = layout
         self.total = len(layout.rows)
+        self.span = max([layout.width, *(len(row.cells) for row in layout.rows)])
         self.links = [
             link for link in layout.links()
             if not link.image and pages.follow(name, link.href) is not None
         ]
         if wanted is not None:
+            self.left = 0  # another page, or this one read again
             self._arrive(wanted[1], wanted[2])
         else:
             self._arrive("", held)
@@ -227,9 +266,12 @@ class HelpViewer(Widget):
         layout = self.layout
         if place is not None:
             self.scroll_to(layout.row_for(place.src))
+            # As far right as it was, where there is still that much.
+            self.scroll_sideways_to(self.left)
             self.selected = place.selected if place.selected < len(self.links) else -1
             return
         self.scroll_to(layout.anchors.get(anchor, 0))
+        self.left = 0
         # DN's ``Selected := 1``: the first link, here the first from the top row on.
         self.selected = next(
             (index for index, link in enumerate(self.links) if link.row >= self.top),
@@ -239,19 +281,9 @@ class HelpViewer(Widget):
     # -- keys and the mouse ------------------------------------------------------
 
     async def on_key(self, event: KeyEvent) -> bool:
-        if event.ctrl or event.alt or event.shift:
-            return False
-        page = max(1, self.height - 1)
-        moves = {"up": -1, "down": 1, "pageup": -page, "pagedown": page}
-        if event.key in moves:
-            self.scroll_to(self.top + moves[event.key])
-        elif event.key == "home":
-            self.scroll_to(0)
-        elif event.key == "end":
-            self.scroll_to(self.total)
-        else:
-            return False
-        return True
+        if self.key_taker is not None:
+            return await self.key_taker(event)
+        return False
 
     def link_at(self, x: int, y: int) -> int:
         """Which of ``links`` is painted at *x*, *y*, or -1."""
@@ -260,6 +292,7 @@ class HelpViewer(Widget):
         if layout is None or not 0 <= index < len(layout.rows) or x < 0:
             return -1
         _, columns = _laid_row(layout.rows[index], self.width)
+        x += self.left
         if x >= len(columns) or columns[x] is None:
             return -1
         column = columns[x]
@@ -272,7 +305,14 @@ class HelpViewer(Widget):
         await super().on_mouse_click(event)
         if event.is_wheel:
             if event.button in ("wheel_up", "wheel_down"):
-                self.scroll_to(self.top + (-WHEEL_ROWS if event.button == "wheel_up" else WHEEL_ROWS))
+                by = -WHEEL_ROWS if event.button == "wheel_up" else WHEEL_ROWS
+                if event.shift:
+                    self.scroll_sideways(by * WHEEL_COLUMNS // WHEEL_ROWS)
+                else:
+                    self.scroll_by(by)
+                return True
+            if event.button in ("wheel_left", "wheel_right"):
+                self.scroll_sideways(-WHEEL_COLUMNS if event.button == "wheel_left" else WHEEL_COLUMNS)
                 return True
             return False
         if event.action != "press" or event.button != "left":
@@ -301,7 +341,7 @@ class HelpViewer(Widget):
                 chosen.update((row, column) for column in range(start, end))
         selected = self.part_style("selected")
         looks: dict[Any, Any] = {}
-        width = self.width
+        width, left = self.width, self.left
         for y in range(self.height):
             index = self.top + y
             if index >= len(layout.rows):
@@ -314,24 +354,28 @@ class HelpViewer(Widget):
                 cells, extra = cells[: row.lead], row.picture
             else:
                 extra = ()
-            for x, (char, classes, link) in enumerate(cells[:width]):
-                if (index, columns[x]) in chosen:
+            for column in range(left, min(len(cells), left + width)):
+                char, classes, link = cells[column]
+                x = column - left
+                if (index, columns[column]) in chosen:
                     look = selected
                 else:
                     look = looks.get((classes, link))
                     if look is None:
                         look = looks[classes, link] = self._look(classes, link)
                 if char == "":
+                    # The second half of a wide character: blank where the
+                    # first half is off the left edge.
                     if x == 0:
                         surface.set_cell(x, y, " ", look)
                     continue
-                if x == width - 1 and x + 1 < len(cells) and cells[x + 1][0] == "":
+                if x == width - 1 and column + 1 < len(cells) and cells[column + 1][0] == "":
                     surface.set_cell(x, y, " ", look)
                     continue
                 surface.set_cell(x, y, char, look)
             for offset, (char, style) in enumerate(extra):
-                x = row.lead + offset
-                if x < width and char != "":
+                x = row.lead + offset - left
+                if 0 <= x < width and char != "":
                     surface.set_cell(x, y, char, style)
 
     def _look(self, classes: tuple[str, ...], link: str | None) -> Any:

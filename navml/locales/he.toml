@@ -6,29 +6,29 @@ direction = "rtl"
 [strings]
 # navml/widgets/dialog/dialog/dialog.nml:90
 "~Y~es" = "~כ~ן"
-# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:89, navml/widgets/window_manager/window_manager.nml:43
+# navml/widgets/dialog/dialog/dialog.nml:90, navml/widgets/dialog/file_dialog/file_dialog.nml:90, navml/widgets/window_manager/window_manager.nml:44
 "O~K~" = "~א~ישור"
 # navml/widgets/dialog/dialog/dialog.nml:96
 "~N~o" = "~ל~א"
 # navml/widgets/dialog/dialog/dialog.nml:103
 "~C~ancel" = "~ב~יטול"
-# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:109, navml/widgets/window_manager/window_manager.nml:72
+# navml/widgets/dialog/dialog/dialog.nml:113, navml/widgets/dialog/file_dialog/file_dialog.nml:111, navml/widgets/window_manager/window_manager.nml:74
 "~H~elp" = "~ע~זרה"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:27
+# navml/widgets/dialog/file_dialog/file_dialog.nml:28
 "Open file" = "פתח קובץ"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:35, navml/widgets/dialog/file_dialog/file_dialog.py:87
+# navml/widgets/dialog/file_dialog/file_dialog.nml:36, navml/widgets/dialog/file_dialog/file_dialog.py:87
 "~N~ame" = "ש~ם~"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:53
+# navml/widgets/dialog/file_dialog/file_dialog.nml:54
 "~D~irectories" = "~ת~יקיות"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:70
+# navml/widgets/dialog/file_dialog/file_dialog.nml:71
 "~F~iles" = "~ק~בצים"
-# navml/widgets/dialog/file_dialog/file_dialog.nml:99, navml/widgets/window_manager/window_manager.nml:63, navml/widgets/dialog/commands.py:21
+# navml/widgets/dialog/file_dialog/file_dialog.nml:100, navml/widgets/window_manager/window_manager.nml:64, navml/widgets/dialog/commands.py:21
 "Cancel" = "ביטול"
-# navml/widgets/window_manager/window_manager.nml:18
+# navml/widgets/window_manager/window_manager.nml:19
 "Windows Manager" = "מנהל חלונות"
-# navml/widgets/window_manager/window_manager.nml:25
+# navml/widgets/window_manager/window_manager.nml:26
 "~W~indows" = "~ח~לונות"
-# navml/widgets/window_manager/window_manager.nml:54
+# navml/widgets/window_manager/window_manager.nml:55
 "C~l~ose" = "~ס~גור"
 # navml/calendars.py:75
 "January" = "ינואר"

@@ -112,6 +112,7 @@ TABLES: tuple[tuple[str, str, str | None], ...] = (
     ("struct_window", "Data tree", "navigator.widgets.viewer.struct_window:StructWindow"),
     ("dialog", "Dialogs", "navml.widgets.dialog.dialog:Dialog"),
     ("tab_view", "Tabs", "navml.widgets.dialog.tab_view:TabView"),
+    ("help", "Help window", "navigator.widgets.help.help_window:HelpWindow"),
     ("copy_dialog", "Copy dialog", "navigator.widgets.file_ops.copy_dialog:CopyDialog"),
     ("link_dialog", "Link dialog", "navigator.widgets.file_ops.link_dialog:LinkDialog"),
     (

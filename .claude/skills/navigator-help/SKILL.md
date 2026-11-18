@@ -119,10 +119,19 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
   terminal's width and of its height (96 by 32 on 120 by 40), never smaller than DN's 72 by 20 where the screen
   has the room -- so 80 by 24 still gets 72 by 20, a page 68 wide; **Alt+Z** (`ZoomWindow`, the `zoomed`
   property) makes it the screen less the menu bar and key bar. The scroll bar is on the right frame, shown only
-  while the page is longer than the window (as the viewer's). Departures: no bottom bar (a page wraps to the width),
-  no dragging and no Ctrl+F5 resize -- navml's `Modal` is a fixed, centred box.
+  while the page is longer than the window (as the viewer's); the bottom one (`hbar`) only while a row is wider
+  than it, which only a code block's can be. No dragging with the mouse.
+- **Ctrl+F5** (`SizeMoveWindow`, DN's `cmResize`) moves and sizes it with the keyboard, as `Window` does on the
+  desktop: arrows move, Shift+arrows size (no smaller than 30 by 6), Enter keeps, Esc puts it back. A modal's
+  geometry must stay bound, so the mode never assigns it: it writes the `placed` property (`x, y, width, height`,
+  None until moved), which `modal_width`/`modal_height` and the `x`/`y` bindings `HelpWindow.__init__` lays over
+  `Modal`'s centring read through `fit()` -- so a smaller terminal still shows all of it. Alt+Z zooms over
+  `placed` and back to it; nothing is saved, the next F1 opens centred. **The mode's keys go through
+  `HelpViewer.key_taker`**: the keyboard stays on the page, whose `on_key` is asked before the window's key table,
+  and that is what keeps Enter, Tab and Esc from doing what the table says meanwhile.
 - **`HelpViewer`** (`help_viewer.py`, Python alone) is its own widget, not a `FileViewer`. `show(topic)`, `follow()`,
-  `back()`, `step(by)`, `scroll_to(row)`; reactive `page`, `layout`, `top`, `total`, `selected`, `problem`; plain
+  `back()`, `step(by)`, `scroll_to(row)`/`scroll_by(rows)`, `scroll_sideways_to(column)`/`scroll_sideways(by)`;
+  reactive `page`, `layout`, `top`, `total`, `left`, `span`, `selected`, `problem`; plain
   `links` (the page's links that lead to a page of Help) and `history` (`Place(page, src, selected)`, 200 deep,
   DN's `MaxUndo`; `src` is the top row's source offset, so a place is the same at any width).
 - **Keys are `hcHelp`'s**, in `help_window.nml`'s table over `Dialog`'s: Tab / Shift+Tab `NextTopic` /
@@ -259,8 +268,14 @@ run `Help` -- the one place that built-in button is used. A new page needs its s
 - **`tests/test_help_window.py`'s fixture clears the `≡` menu's topic too**: F10 opens on it, and the
   no-topic test needs a menu naming none.
 - **Not read against real behaviour**: the pages were written from markup captions, docstrings and the skills.
-- **The help window's keys are not in `keybindings.ini`** (no section in `keybindings.TABLES`).
-- A code block wider than the window is cut: there is no sideways scroll.
+- **Every key of the help window is in its table** (`help_window.nml`), the scrolling ones too (`ScrollLineUp`
+  ... `ScrollRight` in `help/commands.py`, untitled): `HelpViewer` has no key of its own, so all of them are
+  `keybindings.ini`'s `[help]` section (*Help window* in `keybindings.TABLES`). A new key goes in the table, not
+  in an `on_key`.
+- **A code block wider than the window is scrolled to, not wrapped**: Left/Right, Shift+wheel or a sideways wheel,
+  and the bottom bar move `HelpViewer.left` up to `span - width` (`span` is the widest row); the whole page moves,
+  as a `TScroller`'s. `left` goes back to 0 on another page and when Tab selects a link not wholly in view. A
+  picture wider than the room is still its alt text.
 ## The layout, and shipping
 
 - **`layout.py` has** (F3's Markup view is unchanged; `tests/test_help_layout.py`):
