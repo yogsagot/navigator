@@ -226,7 +226,15 @@ async def _erase(app: Any) -> Any:
 
 
 async def _create_archive(app: Any) -> Any:
-    from navigator.widgets.file_ops.archive_dialog import ArchiveDialog
+    from navigator.widgets.file_ops.archive_dialog import ArchiveDialog, archive_dialog
+
+    # Every type to be had, whatever is installed here: a type whose program
+    # is missing (7z, rar, zstd) is greyed and named under the box, which
+    # made the picture another one on a machine without them.
+    archive_dialog.archive.format_missing = lambda kind: None
+    # And the password to be had for a zip, which 7-Zip encrypts: without it
+    # the line and its caption are greyed.
+    archive_dialog.archive.can_encrypt = lambda kind: kind in (("7z", ""), ("zip", ""), ("rar", ""))
 
     panel, entries = _selection(app, "docs")
     return _dialog(app, ArchiveDialog(entries=entries, here=panel.location, directory="/srv/backup", stem="docs"))

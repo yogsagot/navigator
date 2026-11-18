@@ -83,8 +83,10 @@ link extras are installed; the game draws a random figure.
   for the reactive type check.
 - **Every command is enabled in a scene** (`app.command_enabled` answers True), or a menu's greyed entries would
   differ with what is installed.
-- **Check a new scene away from home**: `--check --no-readme` again with `HOME`, `USER`, `LANG`, `TZ` and `PATH`
-  changed; CI is another machine.
+- **Check a new scene on a bare machine**: `env -i PATH=/nonexistent $PWD/venv/bin/python tools/screenshot.py
+  --check --no-readme`. CI has no 7z, rar or zstd: *Create archive* greyed its password line there and failed
+  the run (44286426522) after passing here with `PATH=/usr/bin:/bin`, which still had them. A scene pins what
+  its dialog asks of the machine (`_create_archive`: `format_missing`, `can_encrypt`).
 
 **Adding one**: a `Scene(name, stage)` in `SCENES`. `stage(app)` is async, opens what is shown over the pinned
 desktop (`asyncio.create_task(dialog.execute(app))`, not the command) and answers the widget to crop to, or None for
