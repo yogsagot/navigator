@@ -1,24 +1,26 @@
 from navml.widgets.dialog.button import Button
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 from navml.widgets.dialog.label import Label
 
 #: *Find File*'s *Advanced...*: DOS Navigator's ``dlgAdvanceSearch``.
 #:
-#: Its four lines and its kinds, and OK, *Clear all* and Cancel -- along the
+#: Its four lines and its kinds, and OK, *Clear all*, Cancel and Help, in the
+#: resource's 55 columns -- along the
 #: bottom, where this library puts a dialog's buttons, rather than down the
 #: right.  Dates are ``YYYY-MM-DD`` with an optional ``HH:MM``; the kinds are
 #: POSIX's, where DN's were the four DOS attributes, and a fifth, *Broken
 #: link*, is Navigator's own (:mod:`navigator.lib.file_ops.filefind`).
 AdvancedSearchDialog(Dialog):
-    modal_width: 52
+    modal_width: 55
     modal_height: 17
     title: "Advanced search"
     help_topic: "panels.md#advanced-search"
     buttons: "none"
 
-    buttons_row: (pick, clear, abandon)
+    buttons_row: (pick, clear, abandon, helper)
 
     #: DN's ``hsFindAfter``.
     Field:
@@ -87,7 +89,7 @@ AdvancedSearchDialog(Dialog):
     Button:
         id: clear
         text: "~C~lear all"
-        x: 16
+        x: 15
         width: 14
         height: 2
         anchors:
@@ -96,7 +98,18 @@ AdvancedSearchDialog(Dialog):
     Button:
         id: abandon
         text: "Cancel"
-        x: 32
+        x: 30
+        width: 11
+        height: 2
+        anchors:
+            bottom: 2
+
+    #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+    Button:
+        id: helper
+        text: "Help"
+        command: Help
+        x: 42
         width: 11
         height: 2
         anchors:

@@ -1,3 +1,6 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
@@ -9,6 +12,9 @@ GotoDialog(Dialog):
     modal_width: 34
     modal_height: 8
     title: "Goto Address"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
     help_topic: "viewer.md#go-to-an-address"
 
     Field:
@@ -20,3 +26,28 @@ GotoDialog(Dialog):
         label_text: "~A~ddress"
         label_width: 9
         history_id: "goto_address"
+
+    #: ``dlgGotoAddress``'s OK, Cancel and Help, where the resource has them: ten wide from column 2, nothing between them.
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 0
+        anchors:
+            left: 2
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help

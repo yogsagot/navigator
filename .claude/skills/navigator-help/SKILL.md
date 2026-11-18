@@ -248,9 +248,14 @@ run `Help` -- the one place that built-in button is used. A new page needs its s
   markup (`QuickViewer`, `FindBar`), a class attribute in a Python-only widget (`Console`).
 - **Left without a topic on purpose**: `WriteWin` and `CountProgress` (shared by callers with pages of their own;
   a modal does not fall back to what is behind it, so F1 there shows the contents), models and controls.
-- **Help buttons**: only the dialogs listed above under *Giving a dialog its help* have one; the last batch got
-  topics alone, most of those boxes being departures with no `cmHelp` in a DN resource. `ViewerFindDialog`,
-  `GotoDialog`, `SelectDialog`, `ColumnsDialog` and the history boxes are DN's and may have had one: not checked.
+- **Help buttons are complete against DN's source** (checked 2026-11-18: `DN.DNR` has 74 dialogs, 52 with
+  `cmHelp`; no dialog built in Pascal has one). The last five got theirs then: `MkdirDialog` (`dlgMkDir`),
+  `AdvancedSearchDialog` (`dlgAdvanceSearch`, widened to the resource's 55 columns for its four buttons),
+  `CompareDialog` (`dlgCompareDirs`) and `GotoDialog` (`dlgGotoAddress`), both 34 wide and so on DN's ten-wide
+  row, and `ViewerFindDialog` (`dlgViewerFind`). **Rightly without one**, DN's having none: Select/Unselect,
+  Columns Setup, the directory, command and file histories, Filter, File attributes, the overwrite and replace
+  questions, the game's setup and Top Ten -- and every box that is a departure. One parametrised test presses
+  each of the five's Help and then its OK (`test_a_dn_dialog_s_help_button_opens_its_section_and_ok_still_answers`).
 - **`tests/test_help_window.py`'s fixture clears the `≡` menu's topic too**: F10 opens on it, and the
   no-topic test needs a menu naming none.
 - **Not read against real behaviour**: the pages were written from markup captions, docstrings and the skills.

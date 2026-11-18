@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
 from navigator.lib.file_ops.dircompare import CompareRequest
@@ -22,3 +23,8 @@ class CompareDialog(Dialog):
             select=self.mode.value == 0,
             window=self.mode.value == 2,
         )
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the histories recorded, then the answer."""
+        return await self.on_ok_click(event)

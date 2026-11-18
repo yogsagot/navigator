@@ -10,6 +10,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from navkit.events import Event
 from navml.widgets.dialog.dialog import Dialog
 
 
@@ -24,3 +25,8 @@ class MkdirDialog(Dialog):
         do nothing about either.
         """
         return self.entry.value.strip() or None
+
+    async def on_pick_click(self, event: Event) -> bool:
+        """OK, in this dialog's own row: what ``Dialog``'s ``ok`` does --
+        the histories recorded, then the answer."""
+        return await self.on_ok_click(event)

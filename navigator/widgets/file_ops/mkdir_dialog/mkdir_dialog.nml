@@ -1,12 +1,14 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.field import Field
 
 #: F7: make a directory in the active panel.
 #:
 #: The smallest dialog Navigator actually wants, and the first one wired into
-#: the application -- an ``InputLine``, a ``Label`` that focuses it, the two
-#: buttons ``Dialog`` already has, and an answer that ends in a directory on
-#: disk.
+#: the application -- an ``InputLine``, a ``Label`` that focuses it, ``dlgMkDir``'s
+#: OK, Cancel and Help, and an answer that ends in a directory on disk.
 #:
 #: The size is set by *assigning the properties the base binds from*, never by
 #: assigning ``width`` -- a value over a live binding raises, and the binding
@@ -16,6 +18,9 @@ MkdirDialog(Dialog):
     modal_width: 48
     modal_height: 8
     title: "Make directory"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
     #: Also opened from another dialog (Alt+T's MkDir, Copy's Tree), and holds
     #: nothing a click could lose.
     close_on_outside_click: True
@@ -33,3 +38,25 @@ MkdirDialog(Dialog):
         label_width: 17
         #: DOS Navigator's ``hsMakeDir``: the names made before, a Down away.
         history_id: "mkdir"
+
+    #: ``dlgMkDir``'s OK, Cancel and Help.
+    ButtonRow:
+        anchors:
+            left: 0
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help

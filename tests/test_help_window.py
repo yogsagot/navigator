@@ -541,3 +541,81 @@ def test_the_main_windows_and_menus_name_their_pages(tmp_path, monkeypatch):
         on_copy,  # an item's own
     ])
     assert seen == ["panels.md", "Panels", "file-operations.md", "file-operations.md#copy-and-move"]
+
+
+# -- the dialogs whose DN resource has ``cmHelp``: Help beside OK and Cancel ---
+
+
+def _mkdir():
+    from navigator.widgets.file_ops.mkdir_dialog import MkdirDialog
+
+    dialog = MkdirDialog()
+    dialog.entry.value = "new"
+    return dialog, "file-operations.md#make-a-directory", "new"
+
+
+def _advanced():
+    from navigator.widgets.manager.advanced_search_dialog import AdvancedSearchDialog
+
+    dialog = AdvancedSearchDialog({"greater": "10K", "kinds": 1})
+    return dialog, "panels.md#advanced-search", {"after": "", "before": "", "greater": "10K", "less": "", "kinds": 1}
+
+
+def _compare():
+    from navigator.lib.file_ops.dircompare import CompareRequest
+    from navigator.widgets.manager.compare_dialog import CompareDialog
+
+    return (CompareDialog(), "compare.md#compare-directories",
+            CompareRequest(size=True, time=True, attributes=False, contents=False, select=True, window=False))
+
+
+def _goto():
+    from navigator.widgets.viewer.goto_dialog import GotoDialog
+
+    dialog = GotoDialog()
+    dialog.address.value = "1F"
+    return dialog, "viewer.md#go-to-an-address", 0x1F
+
+
+def _viewer_find():
+    from navigator.lib.viewer import ViewSearch
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+
+    dialog = ViewerFindDialog()
+    dialog.what.value = "needle"
+    return dialog, "viewer.md#searching", ViewSearch("needle")
+
+
+@pytest.mark.parametrize("make", [_mkdir, _advanced, _compare, _goto, _viewer_find])
+def test_a_dn_dialog_s_help_button_opens_its_section_and_ok_still_answers(make, tmp_path, monkeypatch):
+    """``dlgMkDir``, ``dlgAdvanceSearch``, ``dlgCompareDirs``, ``dlgGotoAddress`` and
+    ``dlgViewerFind`` have ``cmHelp``: the button asks as F1 does, Esc goes back to
+    the dialog, and OK -- a button of the dialog's own row now -- answers as before.
+    Against the shipped pages."""
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
+    seen = []
+    answers = []
+
+    async def ask(a, dialog):
+        answers.append(await dialog.execute(a))
+
+    made = []
+
+    def open_it(a):
+        made.append(make())
+        a.spawn(ask(a, made[0][0]))
+
+    page = lambda: made[0][1].partition("#")[0]
+    run_app(app, [
+        open_it, Until(lambda a: a.modal is made[0][0]),
+        lambda a: seen.append((a.help_topic() == made[0][1], a.modal.buttons_row[-1] is a.modal.helper)),
+        lambda a: a.spawn(a.modal.helper.press()),
+        Until(lambda a: isinstance(a.modal, HelpWindow) and viewer(a).page == page() and viewer(a).layout is not None
+              and viewer(a)._wanted is None),
+        lambda a: seen.append(heading_shown(a, made[0][1].partition("#")[2])),
+        KeyEvent("escape"), Until(lambda a: a.modal is made[0][0]),
+        lambda a: a.spawn(a.modal.pick.press()), Until(lambda a: bool(answers)),
+    ])
+    assert seen == [(True, True), True]
+    assert answers == [made[0][2]]

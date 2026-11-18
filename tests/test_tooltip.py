@@ -1071,7 +1071,7 @@ def test_shift_f11_shows_the_tooltip_of_where_the_keyboard_is_until_the_next_key
     seen = {}
 
     def ok_focused(a):
-        a.modal.ok.focus()
+        a.modal.pick.focus()  # Make directory's own row: OK, Cancel, Help
 
     run_app(app, [
         KeyEvent("down"), KeyEvent("shift+f11"), lambda a: seen.update(row=a._tooltip and a._tooltip.text),

@@ -1,4 +1,7 @@
+from navml.widgets.dialog.button import Button
+from navml.widgets.dialog.button_row import ButtonRow
 from navml.widgets.dialog.check_boxes import CheckBoxes
+from navml.widgets.dialog.commands import Help
 from navml.widgets.dialog.dialog import Dialog
 from navml.widgets.dialog.label import Label
 from navml.widgets.dialog.radio_buttons import RadioButtons
@@ -7,7 +10,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #:
 #: *Options* over *Selection mode*, as ``DN.DNR`` stacks them; the buttons go
 #: under them rather than down the right, where this library puts every
-#: dialog's, and DN's Help goes until there is help to show.
+#: dialog's: OK, Cancel and Help.
 #:
 #: **A departure**: a third mode, *Window, recursive* -- what differs down
 #: both trees, listed in the *Synchronize* window (``SyncWindow``) rather
@@ -18,6 +21,9 @@ CompareDialog(Dialog):
     modal_width: 34
     modal_height: 16
     title: "Compare directories"
+    buttons: "none"
+
+    buttons_row: (pick, abandon, helper)
 
     Label:
         id: options_caption
@@ -53,3 +59,28 @@ CompareDialog(Dialog):
         width: 26
         height: 3
         items: ["S~e~lect", "~U~nselect", "~W~indow, recursive"]
+
+    #: ``dlgCompareDirs``'s OK, Cancel and Help: DN's ten-wide buttons with nothing between them, which is what three need in this width -- along the bottom, not down the right.
+    ButtonRow:
+        justify: "start"
+        button_width: 10
+        spacing: 0
+        anchors:
+            left: 2
+            right: 0
+            bottom: 2
+
+        Button:
+            id: pick
+            text: "O~K~"
+            default: True
+
+        Button:
+            id: abandon
+            text: "Cancel"
+
+        #: ``cmHelp``: asks as F1 does, for ``help_topic`` above.
+        Button:
+            id: helper
+            text: "Help"
+            command: Help
