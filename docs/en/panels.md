@@ -4,6 +4,8 @@ The file manager shows two panels side by side, each listing the files of one di
 it has the cursor bar, and commands work on its files and usually offer the other panel's directory as the place
 to put a result.
 
+![A panel: directories first, then files with their sizes, and three lines about the file under the cursor](shots/panel.svg)
+
 ## Moving around
 
 | Key | What it does |
@@ -124,6 +126,8 @@ Choosing `*` shows everything again.
 
 `Alt+F7`, or *File > Find*, searches for files by name and by what they contain.
 
+![The Find File box: a file mask, the text to find, options and the scope](shots/find-file.svg)
+
 - *File mask* is which names to look for. A plain word with no `*` and no dot finds every name that starts with it.
 - *Text to find* limits the search to files that contain the text. Leave it empty to search by name alone.
 
@@ -190,6 +194,8 @@ An action with none of these gets the file's name added at its end: `cp` becomes
 
 `Gray +` tags the files of the panel that match a [file mask](#file-masks), and `Gray -` untags them. They are
 also *Select group* and *Unselect group* in the *Panel* menu.
+
+![The Select box, with a file mask and the Except mask option](shots/select-group.svg)
 
 *Except mask* turns the mask round: the files it does not match are tagged or untagged.
 

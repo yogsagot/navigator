@@ -4,6 +4,8 @@
 
 *Panel > Compare directories* compares the files of the two panels by name.
 
+![The Compare directories box: what to compare, and what to do with the files that differ](shots/compare-directories.svg)
+
 - *Compare size*, *Compare time*, *Compare attributes* and *Compare contents* choose what makes two files of the
   same name count as the same. Only *Compare contents* reads the files, and takes longer.
 - *Select* tags, in each panel, the files with no match in the other. Copying the tagged files across brings the

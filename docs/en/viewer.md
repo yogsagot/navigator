@@ -43,6 +43,8 @@ moves the keyboard into the view, where the viewer's keys work.
 
 `F7` searches the file. `Shift+F7` searches again and `Ctrl+F7` searches backwards.
 
+![The viewer's Find box: the text, the same text as hex bytes, options and the direction](shots/viewer-find.svg)
+
 - *Search for* is the text to look for. *Hex* is the same search written as bytes in hex digits; type in
   whichever line suits what you are looking for.
 - *Case sensitive* tells capital letters from small ones.

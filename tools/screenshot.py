@@ -78,6 +78,7 @@ sys.path.insert(0, str(ROOT))
 from navkit.bidi import has_rtl  # noqa: E402
 from navkit.capabilities import FULL, VGA_PALETTE, TerminalInfo, rgb_of  # noqa: E402
 from navkit.glyphs import GLYPHS_UNICODE  # noqa: E402
+from navkit.events import KeyEvent  # noqa: E402
 from navkit.screen import ScreenBuffer  # noqa: E402
 from navkit.style import RESET_SGR, Style  # noqa: E402
 
@@ -169,7 +170,8 @@ class Scene:
 
     name: str
     #: Opens what the picture shows, over the running application.  It answers
-    #: the widget to crop to (with its shadow), or None for the whole screen.
+    #: the widget to crop to (with its shadow), a rectangle ``(x, y, width,
+    #: height)`` of the screen, or None for the whole screen.
     #: A dialog is started with ``asyncio.create_task(dialog.execute(app))``
     #: rather than through its command, which would need a key or a menu
     #: walk; outside a dispatch, ``execute`` is content to be awaited, and
@@ -193,6 +195,122 @@ async def _make_directory(app: Any) -> Any:
     return dialog
 
 
+def _selection(app: Any, name: str) -> tuple[Any, list[Any]]:
+    """The left panel with its cursor on *name*, and that entry as a selection."""
+    panel = app.manager.left
+    names = [entry.name for entry in panel.items]
+    panel.cursor = names.index(name)
+    return panel, [panel.items[panel.cursor]]
+
+
+def _dialog(app: Any, dialog: Any) -> Any:
+    asyncio.create_task(dialog.execute(app))
+    return dialog
+
+
+async def _copy(app: Any) -> Any:
+    from navigator.widgets.file_ops.copy_dialog import CopyDialog
+
+    panel, entries = _selection(app, "README.md")
+    dialog = _dialog(app, CopyDialog(entries=entries, here=panel.location, other=None))
+    # A place that is nobody's: the other panel's is the scratch directory.
+    dialog.target.value = "/srv/backup/"
+    return dialog
+
+
+async def _erase(app: Any) -> Any:
+    from navigator.widgets.file_ops.delete_dialog import DeleteDialog
+
+    panel, entries = _selection(app, "navigator.log")
+    return _dialog(app, DeleteDialog(entries=entries, here=panel.location, trash=False))
+
+
+async def _create_archive(app: Any) -> Any:
+    from navigator.widgets.file_ops.archive_dialog import ArchiveDialog
+
+    panel, entries = _selection(app, "docs")
+    return _dialog(app, ArchiveDialog(entries=entries, here=panel.location, directory="/srv/backup", stem="docs"))
+
+
+async def _find_file(app: Any) -> Any:
+    from navigator.widgets.manager.find_file_dialog import FindFileDialog
+
+    dialog = _dialog(app, FindFileDialog())
+    dialog.mask.value = "*.py"
+    dialog.text.value = "TODO"
+    return dialog
+
+
+async def _select_group(app: Any) -> Any:
+    from navigator.widgets.manager.select_dialog import SelectDialog
+
+    dialog = _dialog(app, SelectDialog(select=True, invert=False))
+    dialog.mask.value = "*.py;*.md"
+    return dialog
+
+
+async def _compare_directories(app: Any) -> Any:
+    from navigator.widgets.manager.compare_dialog import CompareDialog
+
+    return _dialog(app, CompareDialog())
+
+
+async def _viewer_find(app: Any) -> Any:
+    from navigator.widgets.viewer.viewer_find_dialog import ViewerFindDialog
+
+    dialog = _dialog(app, ViewerFindDialog())
+    dialog.what.value = "error"
+    return dialog
+
+
+async def _editor_replace(app: Any) -> Any:
+    from navigator.lib.editor.search import SearchData
+    from navigator.widgets.editor.find_dialog import FindDialog
+
+    # A record of its own: the editor's is kept for the session.
+    dialog = _dialog(app, FindDialog(word="colour", replace=True, data=SearchData()))
+    dialog.new.value = "color"
+    return dialog
+
+
+async def _calculator(app: Any) -> Any:
+    from navigator.widgets.shell.calculator_window import CalculatorWindow
+
+    window = app.shell.desktop.open(CalculatorWindow())
+    window.place()
+    window.take_keyboard()
+    window.line.focus()
+    for char in "2*(3+4)":
+        app.post_event(KeyEvent(char, char))
+    return window
+
+
+async def _calendar(app: Any) -> Any:
+    from navigator.widgets.shell.calendar_window import CalendarWindow
+
+    desktop = app.shell.desktop
+    window = desktop.open(CalendarWindow())
+    width, height = window.size()
+    window.width, window.height = min(width, desktop.width), min(height, desktop.height)
+    window.x, window.y = (desktop.width - window.width) // 2, (desktop.height - window.height) // 2
+    window.take_keyboard()
+    return window
+
+
+async def _panel(app: Any) -> Any:
+    panel, _ = _selection(app, "README.md")
+    return panel
+
+
+async def _file_menu(app: Any) -> Any:
+    app.post_event(KeyEvent("f", "f", alt=True))
+    await asyncio.sleep(0.1)
+    box = app.modal.boxes[-1]
+    ox, oy = box.offset()
+    # The bar's row over the box, as far as the box and its shadow reach.
+    return (0, 0, ox + box.x + box.width + 2, oy + box.y + box.height + 1)
+
+
 #: The first is the README's and is written where the README wants it; the
 #: rest are Help's.  A Help scene shows nothing that changes between runs or
 #: releases (no version, no date that is not pinned), and is cropped to at
@@ -201,26 +319,74 @@ async def _make_directory(app: Any) -> Any:
 SCENES: tuple[Scene, ...] = (
     Scene("desktop", _about),
     Scene("make-directory", _make_directory),
+    Scene("copy", _copy),
+    Scene("erase", _erase),
+    Scene("create-archive", _create_archive),
+    Scene("find-file", _find_file),
+    Scene("select-group", _select_group),
+    Scene("compare-directories", _compare_directories),
+    Scene("viewer-find", _viewer_find),
+    Scene("editor-replace", _editor_replace),
+    Scene("calculator", _calculator),
+    Scene("calendar", _calendar),
+    Scene("panel", _panel),
+    # Taller than the rest: at 24 rows the File menu is cut and scrolls.
+    Scene("file-menu", _file_menu, size=(80, 34)),
 )
 README_SCENE = SCENES[0]
 
 
 def cropped(buffer: ScreenBuffer, widget: Any) -> ScreenBuffer:
-    """The cells of *buffer* under *widget* and its shadow.
+    """The cells of *buffer* under *widget* and its shadow, or in the
+    rectangle ``(x, y, width, height)`` given in its place.
 
-    *widget* is a child of the root (an overlay), so its ``x``/``y`` are the
-    screen's; on a mirrored screen the rectangle is mirrored with it.
+    A widget is found wherever it is in the tree -- an overlay, a window on
+    the desktop, a panel -- by its parents' places; on a mirrored screen the
+    rectangle is mirrored with it.
     """
-    shadow = 2 if widget.shadow else 0
-    left = max(0, widget.x)
-    top = max(0, widget.y)
-    right = min(buffer.width, widget.x + widget.width + shadow)
-    bottom = min(buffer.height, widget.y + widget.height + shadow // 2)
+    if isinstance(widget, tuple):
+        x, y, width, height = widget
+        shadow = 0
+    else:
+        ox, oy = widget.offset()
+        x, y, width, height = ox + widget.x, oy + widget.y, widget.width, widget.height
+        shadow = 2 if widget.shadow else 0
+    left = max(0, x)
+    top = max(0, y)
+    right = min(buffer.width, x + width + shadow)
+    bottom = min(buffer.height, y + height + shadow // 2)
     if buffer.rtl:
         left, right = buffer.width - right, buffer.width - left
     piece = ScreenBuffer(right - left, bottom - top)
     piece.blit(buffer, 0, 0, left, top, right - left, bottom - top)
     return piece
+
+
+def _pin_today() -> None:
+    """The calendar's today, the clock's: the two modules that ask
+    ``datetime.date.today()`` are given a ``datetime`` whose ``date`` answers
+    the pinned day (the class itself cannot be patched)."""
+    import datetime as real
+    import types
+
+    from navigator.widgets.shell.calendar_window import calendar_window
+    from navml.widgets.dialog.date_button import date_button
+
+    class AnyDate(type):
+        # A reactive declared ``datetime.date`` is checked against this class
+        # once the module's ``datetime`` is the pinned one: every date passes.
+        def __instancecheck__(cls, value: object) -> bool:
+            return isinstance(value, real.date)
+
+    class Date(real.date, metaclass=AnyDate):
+        @classmethod
+        def today(cls) -> real.date:
+            return real.date(2026, 1, 1)
+
+    pinned = types.SimpleNamespace(**{name: getattr(real, name) for name in dir(real) if not name.startswith("__")})
+    pinned.date = Date
+    for module in (calendar_window, date_button):
+        module.datetime = pinned
 
 
 def paint(
@@ -237,6 +403,7 @@ def paint(
     from navigator.widgets.shell.console import Console
 
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
+    _pin_today()
     Console.start = lambda self, argv=None: None
     listing_module.free_space_of = lambda path: (412_316_860_416, "/")
     # The simple mode, whatever the shipped default: see the module docstring.
@@ -271,7 +438,9 @@ def paint(
         # (its VGA palette, bold shown bright, a white foreground), spelled as RGB so the theme's
         # palette cannot repaint it.
         app.shell.console._prompted(PROMPT, app.shell._front_directory())
-        app.command_enabled = lambda command: True
+        # Every item enabled, whatever is installed here: a menu's greyed
+        # entries would differ between machines (gpg, docker, a keyring).
+        app.command_enabled = lambda command, *where: True
         keep = await scene.stage(app)
         await asyncio.sleep(0.15)
         buffer = ScreenBuffer(width, height)

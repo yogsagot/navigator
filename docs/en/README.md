@@ -24,6 +24,8 @@ a key bar on the bottom line that names what the function keys do. In a terminal
 
 Every command is in the menus, with its key beside it. `Alt+Shift+P` finds a command by typing part of its name.
 
+![The File menu open under the menu bar, each command with its key](shots/file-menu.svg)
+
 ## Contents
 
 Files and directories:

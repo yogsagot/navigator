@@ -68,6 +68,8 @@ the *Memory*, and under *Other* the system, its kernel, the host's name and how 
 *Utilities > Calendar* shows a month, with today marked. Under the weeks, the day under the cursor is written out
 in the date format of the [Country](settings.md#country) settings.
 
+![The Calendar window showing January 2026](shots/calendar.svg)
+
 | Key | What it does |
 |---|---|
 | Arrows | Move from day to day |

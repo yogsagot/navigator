@@ -47,6 +47,8 @@ settings.
 The box opens with a guess at what you are looking for: the marked text if it is on one line, else the word under
 the cursor.
 
+![The editor's Replace box: the text to find, the new text, options, direction, scope and origin](shots/editor-replace.svg)
+
 - *Text to find* is the text to look for. `Down` on the line opens the history of earlier searches.
 - *New text*, when replacing, is what to put in its place.
 

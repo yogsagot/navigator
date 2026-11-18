@@ -7,6 +7,8 @@ viewed and copied out like any others. This page is about making an archive and 
 
 `Shift+F1`, or *File > Archive > Create archive*, packs the selection into a new archive.
 
+![The Create archive box: the archive's name, its type, the compression and three options](shots/create-archive.svg)
+
 - *Archive to* is the archive's name. The line opens on the other panel's directory; a name with no directory makes
   the archive in the current one. *Tree* picks the directory from a tree. If the archive is already there, you are
   asked whether to add to it or replace it.

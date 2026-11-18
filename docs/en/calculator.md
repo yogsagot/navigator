@@ -4,6 +4,8 @@
 worked out as you type. `Enter` evaluates it: the expression goes into the line's history and the value is left
 selected, so a digit starts a new calculation and an operator goes on from the value.
 
+![The calculator's Simple face, with an expression on its line and the value under it](shots/calculator.svg)
+
 ## The four faces
 
 The calculator has four faces, chosen from the strip along its top, from the *Calculator* menu, or by pressing

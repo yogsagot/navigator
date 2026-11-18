@@ -65,6 +65,27 @@ Rules:
   any is stale, `--language CODE` writes `docs/CODE/shots/`. `tests/test_screenshot.py` runs `--check --no-readme`:
   Help's pictures only, since the README's goes stale with the version and the release workflow runs the suite.
 
+**The scenes** (thirteen, each shown by one page): `make-directory`, `copy`, `erase` (`file-operations.md`),
+`create-archive` (`archives.md`), `panel`, `find-file`, `select-group` (`panels.md`), `compare-directories`
+(`compare.md`), `viewer-find` (`viewer.md`), `editor-replace` (`editor.md`), `calculator` (`calculator.md`),
+`calendar` (`utilities.md`), `file-menu` (`README.md`, painted on an 80x34 screen: at 24 rows the File menu
+scrolls). **Left out, and why**: Multi-rename, the link manager, Settings and Key bindings are 76-78 columns;
+File attributes shows the machine's user and group; the bookmarks box lists home directories, mounts and which
+link extras are installed; the game draws a random figure.
+
+- **A scene's values are typed in by `stage`**, never the panel's: a target such as `/srv/backup/` where the
+  dialog would offer the other panel's directory, which is the scratch directory's random path.
+- **`stage` answers a widget anywhere in the tree** (`cropped()` adds its parents' places: an overlay, a window
+  on the desktop, a panel), a rectangle `(x, y, width, height)` (the menu: the bar's row over the open box), or
+  None.
+- **Today is pinned too** (`_pin_today`): `datetime.date.today` cannot be patched, so the two modules that ask
+  it (`date_button`, `calendar_window`) get a `datetime` whose `date` answers 2026-01-01 and passes every date
+  for the reactive type check.
+- **Every command is enabled in a scene** (`app.command_enabled` answers True), or a menu's greyed entries would
+  differ with what is installed.
+- **Check a new scene away from home**: `--check --no-readme` again with `HOME`, `USER`, `LANG`, `TZ` and `PATH`
+  changed; CI is another machine.
+
 **Adding one**: a `Scene(name, stage)` in `SCENES`. `stage(app)` is async, opens what is shown over the pinned
 desktop (`asyncio.create_task(dialog.execute(app))`, not the command) and answers the widget to crop to, or None for
 the whole screen. `cropped()` takes the widget's rectangle and shadow, mirrored on a right-to-left screen; the widget

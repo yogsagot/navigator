@@ -9,6 +9,8 @@ the result.
 `F5` copies the selection and `F6` renames or moves it. Both open the same box: a line saying where to, the copy
 modes, and four options.
 
+![The Copy box: where to copy, what to do with files already there, and four options](shots/copy.svg)
+
 ### Where to
 
 What you type on the line decides what happens:
@@ -63,6 +65,8 @@ Files that were copied lose their tags; files that were skipped keep them.
 `F7` makes a directory in the active panel. Type a path such as `a/b/c` to make every directory on the way, or
 several names separated by `;` to make several.
 
+![The Make directory box, with a line for the name](shots/make-directory.svg)
+
 ## Quick rename
 
 `Shift+F6`, or *File > Rename tools > Quick rename*, asks for the new name of the file under the cursor in a small
@@ -114,6 +118,8 @@ are renamed correctly.
 
 `F8`, or `Del` with an empty command line, erases the selection after asking. `Shift+F8` erases the file under
 the cursor whatever is tagged.
+
+![The Delete box asking whether to delete a file, with the Recursive delete option](shots/erase.svg)
 
 - *Recursive delete* erases directories with everything in them without asking about each one.
 - *Move to Trash* is shown when the [Trash](drives.md#the-trash) is in use. Unticked, the files are erased for
