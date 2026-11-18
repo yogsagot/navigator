@@ -37,6 +37,11 @@ class HelpWindow(Dialog, _Component):
     and Esc goes back to it.  The viewer is ``R.Grow(-2, -1)``, the scroll bar
     on the right frame.  The keys are ``StatusDef hcHelp``'s.
 
+    **Four fifths of a large screen, a departure, asked for**: DN's 72 by 20
+    was most of its 80 by 25; here the window is 80% of the terminal's width
+    and of its height, and never smaller than DN's where the screen has the
+    room -- so an 80 by 24 terminal still gets DN's 72 by 20.
+
     Alt+Z zooms it to the whole screen and back.  Departures: no bar along
     the bottom frame -- a page is wrapped to the width, so there is nothing to
     scroll to -- the right one only while the page is longer than the window
@@ -48,45 +53,45 @@ class HelpWindow(Dialog, _Component):
     __navml_source__ = "help_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # help_window.nml:28
-        'f1': HelpOnHelp,    # help_window.nml:29
-        'shift+f1': HelpIndex,    # help_window.nml:30
-        'tab': NextTopic,    # help_window.nml:31
-        'shift+tab': PreviousTopic,    # help_window.nml:32
-        'enter': GoToReference,    # help_window.nml:33
-        'alt+f1': GoBack,    # help_window.nml:34
-        'alt+z': ZoomWindow,    # help_window.nml:35
+    keys = {    # help_window.nml:33
+        'f1': HelpOnHelp,    # help_window.nml:34
+        'shift+f1': HelpIndex,    # help_window.nml:35
+        'tab': NextTopic,    # help_window.nml:36
+        'shift+tab': PreviousTopic,    # help_window.nml:37
+        'enter': GoToReference,    # help_window.nml:38
+        'alt+f1': GoBack,    # help_window.nml:39
+        'alt+z': ZoomWindow,    # help_window.nml:40
     }
 
     #: Whether it fills the screen: Alt+Z, ``cmZoom``.
-    zoomed: bool = _reactive(False)    # help_window.nml:21
+    zoomed: bool = _reactive(False)    # help_window.nml:26
 
     #: Ids, annotated so the hand-written half completes them.
-    viewer: HelpViewer    # help_window.nml:46
-    bar: ScrollBar    # help_window.nml:54
+    viewer: HelpViewer    # help_window.nml:51
+    bar: ScrollBar    # help_window.nml:59
 
     #: The commands this component handles itself.
-    async def on_next_topic(self, event: _Any) -> bool:    # help_window.nml:39
+    async def on_next_topic(self, event: _Any) -> bool:    # help_window.nml:44
         """``NextTopic``."""
         self.viewer.step(1)
         return True
 
-    async def on_previous_topic(self, event: _Any) -> bool:    # help_window.nml:40
+    async def on_previous_topic(self, event: _Any) -> bool:    # help_window.nml:45
         """``PreviousTopic``."""
         self.viewer.step(-1)
         return True
 
-    async def on_go_to_reference(self, event: _Any) -> bool:    # help_window.nml:41
+    async def on_go_to_reference(self, event: _Any) -> bool:    # help_window.nml:46
         """``GoToReference``."""
         self.viewer.follow()
         return True
 
-    async def on_go_back(self, event: _Any) -> bool:    # help_window.nml:42
+    async def on_go_back(self, event: _Any) -> bool:    # help_window.nml:47
         """``GoBack``."""
         self.viewer.back()
         return True
 
-    async def on_zoom_window(self, event: _Any) -> bool:    # help_window.nml:43
+    async def on_zoom_window(self, event: _Any) -> bool:    # help_window.nml:48
         """``ZoomWindow``."""
         self.toggle_zoom()
         return True
@@ -99,41 +104,41 @@ class HelpWindow(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # help_window.nml:54
+    async def on_bar_scroll(self, event: _Event) -> bool:    # help_window.nml:59
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.viewer = HelpViewer(parent=self)    # help_window.nml:45
-        self.bar = ScrollBar(parent=self)    # help_window.nml:53
+        self.viewer = HelpViewer(parent=self)    # help_window.nml:50
+        self.bar = ScrollBar(parent=self)    # help_window.nml:58
 
-        self.modal_width = _bind(    # help_window.nml:23
-            lambda _o: (_o.parent.width if _o.zoomed else min(72, _o.parent.width)) if _o.parent is not None else 72
+        self.modal_width = _bind(    # help_window.nml:28
+            lambda _o: (_o.parent.width if _o.zoomed else max(min(72, _o.parent.width), _o.parent.width * 4 // 5)) if _o.parent is not None else 72
         )
-        self.modal_height = _bind(    # help_window.nml:24
-            lambda _o: (max(3, _o.parent.height - 2) if _o.zoomed else min(20, _o.parent.height)) if _o.parent is not None else 20
+        self.modal_height = _bind(    # help_window.nml:29
+            lambda _o: (max(3, _o.parent.height - 2) if _o.zoomed else max(min(20, _o.parent.height), _o.parent.height * 4 // 5)) if _o.parent is not None else 20
         )
-        self.title = _bind(lambda _o: _tr('Help'), yielding=True)    # help_window.nml:25
-        self.buttons = 'none'    # help_window.nml:26
+        self.title = _bind(lambda _o: _tr('Help'), yielding=True)    # help_window.nml:30
+        self.buttons = 'none'    # help_window.nml:31
 
-        self.viewer.x = 2    # help_window.nml:48
-        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # help_window.nml:49
-        self.viewer.y = 1    # help_window.nml:50
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # help_window.nml:51
+        self.viewer.x = 2    # help_window.nml:53
+        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # help_window.nml:54
+        self.viewer.y = 1    # help_window.nml:55
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # help_window.nml:56
 
-        self.bar.width = 1    # help_window.nml:55
-        self.bar.visible = _bind(    # help_window.nml:60
+        self.bar.width = 1    # help_window.nml:60
+        self.bar.visible = _bind(    # help_window.nml:65
             lambda _o: self.viewer.total > self.viewer.height
         )
-        self.bar.value = _bind(lambda _o: self.viewer.top)    # help_window.nml:61
-        self.bar.maximum = _bind(    # help_window.nml:62
+        self.bar.value = _bind(lambda _o: self.viewer.top)    # help_window.nml:66
+        self.bar.maximum = _bind(    # help_window.nml:67
             lambda _o: max(0, self.viewer.total - self.viewer.height)
         )
-        self.bar.page = _bind(lambda _o: max(1, self.viewer.height))    # help_window.nml:63
-        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # help_window.nml:57
-        self.bar.y = 1    # help_window.nml:58
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # help_window.nml:59
-        self.bar.on_scroll = self.on_bar_scroll    # help_window.nml:54
+        self.bar.page = _bind(lambda _o: max(1, self.viewer.height))    # help_window.nml:68
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # help_window.nml:62
+        self.bar.y = 1    # help_window.nml:63
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # help_window.nml:64
+        self.bar.on_scroll = self.on_bar_scroll    # help_window.nml:59
 
         self._navml_built(__class__)

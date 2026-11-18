@@ -11,6 +11,11 @@ from navml.widgets.dialog.scroll_bar import ScrollBar
 #: and Esc goes back to it.  The viewer is ``R.Grow(-2, -1)``, the scroll bar
 #: on the right frame.  The keys are ``StatusDef hcHelp``'s.
 #:
+#: **Four fifths of a large screen, a departure, asked for**: DN's 72 by 20
+#: was most of its 80 by 25; here the window is 80% of the terminal's width
+#: and of its height, and never smaller than DN's where the screen has the
+#: room -- so an 80 by 24 terminal still gets DN's 72 by 20.
+#:
 #: Alt+Z zooms it to the whole screen and back.  Departures: no bar along
 #: the bottom frame -- a page is wrapped to the width, so there is nothing to
 #: scroll to -- the right one only while the page is longer than the window
@@ -20,8 +25,8 @@ HelpWindow(Dialog):
     #: Whether it fills the screen: Alt+Z, ``cmZoom``.
     property zoomed: False
 
-    modal_width: (parent.width if self.zoomed else min(72, parent.width)) if parent is not None else 72
-    modal_height: (max(3, parent.height - 2) if self.zoomed else min(20, parent.height)) if parent is not None else 20
+    modal_width: (parent.width if self.zoomed else max(min(72, parent.width), parent.width * 4 // 5)) if parent is not None else 72
+    modal_height: (max(3, parent.height - 2) if self.zoomed else max(min(20, parent.height), parent.height * 4 // 5)) if parent is not None else 20
     title: "Help"
     buttons: "none"
 

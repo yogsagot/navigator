@@ -113,7 +113,9 @@ DN's is `HELPFILE.PAS`: `THelpWindow`, 72 by 20, centred, titled *Help*, run mod
 `ExecView`), a `THelpViewer` inside; `StatusDef hcHelp` names its keys.
 
 - **`HelpWindow`** (`help_window/`, a `Dialog` with `buttons: "none"`) is modal, as DN's: `Navigator.on_help` spawns
-  `HelpWindow(topic).execute(app)`. 72 by 20 or the screen if smaller; **Alt+Z** (`ZoomWindow`, the `zoomed`
+  `HelpWindow(topic).execute(app)`. **Four fifths of a large screen, a departure, asked for**: 80% of the
+  terminal's width and of its height (96 by 32 on 120 by 40), never smaller than DN's 72 by 20 where the screen
+  has the room -- so 80 by 24 still gets 72 by 20, a page 68 wide; **Alt+Z** (`ZoomWindow`, the `zoomed`
   property) makes it the screen less the menu bar and key bar. The scroll bar is on the right frame, shown only
   while the page is longer than the window (as the viewer's). Departures: no bottom bar (a page wraps to the width),
   no dragging and no Ctrl+F5 resize -- navml's `Modal` is a fixed, centred box.
