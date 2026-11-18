@@ -185,3 +185,59 @@ In an action, these stand for parts of each file's name:
 | `!!` | A `!` |
 
 An action with none of these gets the file's name added at its end: `cp` becomes `cp name`.
+
+## Select group
+
+`Gray +` tags the files of the panel that match a [file mask](#file-masks), and `Gray -` untags them. They are
+also *Select group* and *Unselect group* in the *Panel* menu.
+
+*Except mask* turns the mask round: the files it does not match are tagged or untagged.
+
+## Columns setup
+
+`Alt+K`, or *Panel > Setup columns*, chooses what the detailed view shows beside each name: *Size*, *Attributes*,
+*Links*, *Owner* and *Date*.
+
+- *OK* shows the columns that are ticked.
+- *Brief* shows names alone.
+- *Full* shows every column except *Links*.
+
+The columns a new panel starts with are on the [Columns](settings.md#columns) page of the settings.
+
+## Find duplicates
+
+*Panel > Find duplicates* looks under the panel's directory for files with the same contents and lists them in the
+panel, as a search does.
+
+- *File mask* chooses which files are compared.
+- *Minimum size* leaves smaller files out.
+- *Search subdirectories* looks in the directories below as well.
+
+The groups that waste the most space come first, and the files of a group stay together whatever the panel is
+sorted by. Nothing is tagged: tag the copies you do not want and erase them with `F8`. Symbolic links are passed
+over, and two hard-linked names of one file do not count as duplicates.
+
+## Panelize command
+
+`Alt+Y`, or *Panel > Panelize command*, runs a shell command in the panel's directory and lists the files it
+prints, one file name a line, as the panel's listing. It is for commands that answer "which files?":
+
+```sh
+git ls-files -m
+grep -l TODO *.py
+```
+
+A command line that starts with `|` does the same without the box.
+
+## History of directories
+
+`Alt+BkSp`, or *Panel > History of directories*, lists the directories the panels have been to, the last first.
+*Go to* opens the one under the cursor in the active panel, and *Delete record* removes it from the list.
+
+## Remembering a directory
+
+*Panel > Remember for this directory* keeps the sort order, the view and the file mask the panel shows now, and
+uses them whenever a panel is in that directory. *Also for its subdirectories* shows every directory below the
+same way, unless one is remembered for itself.
+
+*Remembered directory list* shows the remembered directories. `Enter` goes to one, and `Del` forgets it.

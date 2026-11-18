@@ -11,6 +11,7 @@ RememberDirectoryDialog(Dialog):
     modal_width: 56
     modal_height: 10
     title: "Remember directory settings"
+    help_topic: "panels.md#remembering-a-directory"
     buttons: "ok-cancel"
 
     Label:

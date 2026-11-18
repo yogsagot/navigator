@@ -35,7 +35,7 @@ class TopTenDialog(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "top_ten_dialog.nml"
 
-    game_style: str = _reactive('tetris')    # top_ten_dialog.nml:13
+    game_style: str = _reactive('tetris')    # top_ten_dialog.nml:14
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -46,6 +46,7 @@ class TopTenDialog(Dialog, _Component):
             lambda _o: _tr('Pentix Top Ten') if self.game_style == 'pentix' else _tr('Tetris Top Ten'),
             yielding=True,
         )
-        self.buttons = 'ok'    # top_ten_dialog.nml:11
+        self.help_topic = 'game.md#the-top-ten'    # top_ten_dialog.nml:11
+        self.buttons = 'ok'    # top_ten_dialog.nml:12
 
         self._navml_built(__class__)

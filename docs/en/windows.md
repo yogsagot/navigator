@@ -27,3 +27,12 @@ Each window has a number, shown in the window list.
 - A digit goes straight to the window with that number.
 - *Close* closes the window under the cursor. The list stays open, so you can close several.
 - *Cancel* leaves everything as it is.
+
+## Command palette
+
+`Alt+Shift+P`, or *Command palette* in the `≡` menu, lists every command that applies where you are: the items
+of the menus, the active window's own among them, and the commands that only a key runs. Each is shown with its
+key, and one that cannot run now is greyed.
+
+Type a few letters of a command, in order, to narrow the list. `Enter` runs the command under the cursor, and
+`Esc` closes the list.

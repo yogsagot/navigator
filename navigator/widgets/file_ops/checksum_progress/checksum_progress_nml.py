@@ -37,57 +37,58 @@ class ChecksumProgress(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "checksum_progress.nml"
 
-    current: str = _reactive('')    # checksum_progress.nml:16
-    position: int = _reactive(0)    # checksum_progress.nml:17
-    total: int = _reactive(0)    # checksum_progress.nml:18
-    files_done: int = _reactive(0)    # checksum_progress.nml:19
-    files_total: int = _reactive(0)    # checksum_progress.nml:20
+    current: str = _reactive('')    # checksum_progress.nml:17
+    position: int = _reactive(0)    # checksum_progress.nml:18
+    total: int = _reactive(0)    # checksum_progress.nml:19
+    files_done: int = _reactive(0)    # checksum_progress.nml:20
+    files_total: int = _reactive(0)    # checksum_progress.nml:21
 
     #: Ids, annotated so the hand-written half completes them.
-    spinner: Spinner    # checksum_progress.nml:23
-    current_row: StaticText    # checksum_progress.nml:30
-    bar: ProgressBar    # checksum_progress.nml:40
-    count_row: StaticText    # checksum_progress.nml:49
+    spinner: Spinner    # checksum_progress.nml:24
+    current_row: StaticText    # checksum_progress.nml:31
+    bar: ProgressBar    # checksum_progress.nml:41
+    count_row: StaticText    # checksum_progress.nml:50
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.spinner = Spinner(parent=self)    # checksum_progress.nml:22
-        self.current_row = StaticText(parent=self)    # checksum_progress.nml:29
-        self.bar = ProgressBar(parent=self)    # checksum_progress.nml:39
-        self.count_row = StaticText(parent=self)    # checksum_progress.nml:48
+        self.spinner = Spinner(parent=self)    # checksum_progress.nml:23
+        self.current_row = StaticText(parent=self)    # checksum_progress.nml:30
+        self.bar = ProgressBar(parent=self)    # checksum_progress.nml:40
+        self.count_row = StaticText(parent=self)    # checksum_progress.nml:49
 
         self.modal_width = _bind(    # checksum_progress.nml:10
             lambda _o: min(64, _o.parent.width) if _o.parent is not None else 64
         )
         self.modal_height = 10    # checksum_progress.nml:11
         self.title = _bind(lambda _o: _tr('Checksums'), yielding=True)    # checksum_progress.nml:12
-        self.buttons = 'ok'    # checksum_progress.nml:13
-        self.closable = False    # checksum_progress.nml:14
+        self.help_topic = 'file-operations.md#checksums'    # checksum_progress.nml:13
+        self.buttons = 'ok'    # checksum_progress.nml:14
+        self.closable = False    # checksum_progress.nml:15
 
-        self.spinner.x = 2    # checksum_progress.nml:24
-        self.spinner.y = 1    # checksum_progress.nml:25
-        self.spinner.width = 1    # checksum_progress.nml:26
-        self.spinner.height = 1    # checksum_progress.nml:27
+        self.spinner.x = 2    # checksum_progress.nml:25
+        self.spinner.y = 1    # checksum_progress.nml:26
+        self.spinner.width = 1    # checksum_progress.nml:27
+        self.spinner.height = 1    # checksum_progress.nml:28
 
-        self.current_row.y = 1    # checksum_progress.nml:31
-        self.current_row.wrap = False    # checksum_progress.nml:35
-        self.current_row.text = _bind(lambda _o: self.fit(self.current))    # checksum_progress.nml:36
-        self.current_row.tooltip = _bind(lambda _o: self.whole(self.current))    # checksum_progress.nml:37
-        self.current_row.x = 4    # checksum_progress.nml:33
-        self.current_row.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # checksum_progress.nml:34
+        self.current_row.y = 1    # checksum_progress.nml:32
+        self.current_row.wrap = False    # checksum_progress.nml:36
+        self.current_row.text = _bind(lambda _o: self.fit(self.current))    # checksum_progress.nml:37
+        self.current_row.tooltip = _bind(lambda _o: self.whole(self.current))    # checksum_progress.nml:38
+        self.current_row.x = 4    # checksum_progress.nml:34
+        self.current_row.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # checksum_progress.nml:35
 
-        self.bar.y = 3    # checksum_progress.nml:41
-        self.bar.value = _bind(lambda _o: self.position)    # checksum_progress.nml:45
-        self.bar.total = _bind(lambda _o: self.total)    # checksum_progress.nml:46
-        self.bar.x = 2    # checksum_progress.nml:43
-        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_progress.nml:44
+        self.bar.y = 3    # checksum_progress.nml:42
+        self.bar.value = _bind(lambda _o: self.position)    # checksum_progress.nml:46
+        self.bar.total = _bind(lambda _o: self.total)    # checksum_progress.nml:47
+        self.bar.x = 2    # checksum_progress.nml:44
+        self.bar.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_progress.nml:45
 
-        self.count_row.y = 4    # checksum_progress.nml:50
-        self.count_row.align = 'center'    # checksum_progress.nml:54
-        self.count_row.text = _bind(    # checksum_progress.nml:55
+        self.count_row.y = 4    # checksum_progress.nml:51
+        self.count_row.align = 'center'    # checksum_progress.nml:55
+        self.count_row.text = _bind(    # checksum_progress.nml:56
             lambda _o: self.counted(self.files_done, self.files_total, self.bar.percent)
         )
-        self.count_row.x = 2    # checksum_progress.nml:52
-        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_progress.nml:53
+        self.count_row.x = 2    # checksum_progress.nml:53
+        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # checksum_progress.nml:54
 
         self._navml_built(__class__)

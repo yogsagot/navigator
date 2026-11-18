@@ -13,6 +13,7 @@ TableFormatDialog(Dialog):
     modal_width: 50
     modal_height: 14
     title: "Format"
+    help_topic: "viewer.md#tables"
     buttons: "ok-cancel"
 
     Label:

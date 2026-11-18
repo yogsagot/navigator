@@ -11,7 +11,7 @@ it, or into it, with `F5`. [Archives](archives.md) covers creating and extractin
 ## Servers, containers and devices
 
 *Utilities > Link* opens a panel on another machine or service. Each entry keeps a list of the connections you
-have made, to connect again.
+have made, to connect again; [Connections](connections.md) describes its box.
 
 | Entry | What it reaches |
 |---|---|
@@ -46,5 +46,4 @@ there instead of erasing them when *F8 moves to Trash* is ticked on the
 ## Bookmarks
 
 `Alt+F1` and `Alt+F2` open a list of bookmarked directories for the left and the right panel, and `Alt+C` for
-the active one. `Alt+1` to `Alt+9` go straight to the first nine, and `Alt+Shift+1` to `Alt+Shift+9` bookmark the
-panel's directory in that place.
+the active one. [Bookmarks](bookmarks.md) has the list's keys.

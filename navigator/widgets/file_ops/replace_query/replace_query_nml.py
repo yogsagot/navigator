@@ -44,12 +44,12 @@ class ReplaceQuery(Dialog, _Component):
     __navml_source__ = "replace_query.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    details: StaticText    # replace_query.nml:25
-    changes: ChangeList    # replace_query.nml:34
-    agree: Button    # replace_query.nml:49
-    every: Button    # replace_query.nml:55
-    skip: Button    # replace_query.nml:60
-    abandon: Button    # replace_query.nml:65
+    details: StaticText    # replace_query.nml:26
+    changes: ChangeList    # replace_query.nml:35
+    agree: Button    # replace_query.nml:50
+    every: Button    # replace_query.nml:56
+    skip: Button    # replace_query.nml:61
+    abandon: Button    # replace_query.nml:66
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -59,19 +59,19 @@ class ReplaceQuery(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # replace_query.nml:65
+    async def on_abandon_click(self, event: _Event) -> bool:    # replace_query.nml:66
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.details = StaticText(parent=self)    # replace_query.nml:24
-        self.changes = ChangeList(parent=self)    # replace_query.nml:33
-        _w1 = ButtonRow(parent=self)    # replace_query.nml:42
-        self.agree = Button(parent=_w1)    # replace_query.nml:48
-        self.every = Button(parent=_w1)    # replace_query.nml:54
-        self.skip = Button(parent=_w1)    # replace_query.nml:59
-        self.abandon = Button(parent=_w1)    # replace_query.nml:64
+        self.details = StaticText(parent=self)    # replace_query.nml:25
+        self.changes = ChangeList(parent=self)    # replace_query.nml:34
+        _w1 = ButtonRow(parent=self)    # replace_query.nml:43
+        self.agree = Button(parent=_w1)    # replace_query.nml:49
+        self.every = Button(parent=_w1)    # replace_query.nml:55
+        self.skip = Button(parent=_w1)    # replace_query.nml:60
+        self.abandon = Button(parent=_w1)    # replace_query.nml:65
 
         self.modal_width = _bind(    # replace_query.nml:17
             lambda _o: max(40, min(76, _o.parent.width - 4)) if _o.parent is not None else 76
@@ -80,49 +80,50 @@ class ReplaceQuery(Dialog, _Component):
             lambda _o: max(12, min(22, _o.parent.height - 2)) if _o.parent is not None else 22
         )
         self.title = _bind(lambda _o: _tr('Replace'), yielding=True)    # replace_query.nml:19
-        self.buttons = 'none'    # replace_query.nml:20
-        self.buttons_row = _bind(    # replace_query.nml:22
+        self.help_topic = 'panels.md#replace-in-files'    # replace_query.nml:20
+        self.buttons = 'none'    # replace_query.nml:21
+        self.buttons_row = _bind(    # replace_query.nml:23
             lambda _o: (self.agree, self.every, self.skip, self.abandon)
         )
 
-        self.details.y = 1    # replace_query.nml:26
-        self.details.height = 2    # replace_query.nml:27
-        self.details.align = 'center'    # replace_query.nml:31
-        self.details.x = 1    # replace_query.nml:29
-        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # replace_query.nml:30
+        self.details.y = 1    # replace_query.nml:27
+        self.details.height = 2    # replace_query.nml:28
+        self.details.align = 'center'    # replace_query.nml:32
+        self.details.x = 1    # replace_query.nml:30
+        self.details.width = _bind(lambda _o: max(0, _o.parent.width - 2))    # replace_query.nml:31
 
-        self.changes.y = 3    # replace_query.nml:35
-        self.changes.height = _bind(lambda _o: max(1, _o.parent.height - 8))    # replace_query.nml:36
-        self.changes.x = 2    # replace_query.nml:38
-        self.changes.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # replace_query.nml:39
+        self.changes.y = 3    # replace_query.nml:36
+        self.changes.height = _bind(lambda _o: max(1, _o.parent.height - 8))    # replace_query.nml:37
+        self.changes.x = 2    # replace_query.nml:39
+        self.changes.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # replace_query.nml:40
 
-        _w1.x = 0# replace_query.nml:44
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # replace_query.nml:45
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # replace_query.nml:46
+        _w1.x = 0# replace_query.nml:45
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # replace_query.nml:46
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # replace_query.nml:47
 
-        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # replace_query.nml:50
-        self.agree.default = True    # replace_query.nml:51
+        self.agree.text = _bind(lambda _o: _tr('~Y~es'), yielding=True)    # replace_query.nml:51
+        self.agree.default = True    # replace_query.nml:52
 
-        async def _on_click(event):    # replace_query.nml:52
+        async def _on_click(event):    # replace_query.nml:53
             self.close(YES)
             return True
         self.agree.on_click = _on_click
 
-        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # replace_query.nml:56
+        self.every.text = _bind(lambda _o: _tr('~A~ll'), yielding=True)    # replace_query.nml:57
 
-        async def _on_click(event):    # replace_query.nml:57
+        async def _on_click(event):    # replace_query.nml:58
             self.close(ALL)
             return True
         self.every.on_click = _on_click
 
-        self.skip.text = _bind(lambda _o: _tr('~S~kip'), yielding=True)    # replace_query.nml:61
+        self.skip.text = _bind(lambda _o: _tr('~S~kip'), yielding=True)    # replace_query.nml:62
 
-        async def _on_click(event):    # replace_query.nml:62
+        async def _on_click(event):    # replace_query.nml:63
             self.close(SKIP)
             return True
         self.skip.on_click = _on_click
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # replace_query.nml:66
-        self.abandon.on_click = self.on_abandon_click    # replace_query.nml:65
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # replace_query.nml:67
+        self.abandon.on_click = self.on_abandon_click    # replace_query.nml:66
 
         self._navml_built(__class__)

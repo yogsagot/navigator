@@ -56,6 +56,10 @@ class Console(ScreenView):
     stay painted over it, and why it can be scrolled back through.
     """
 
+    #: What F1 opens while the console has the keyboard and no program has
+    #: the keys (``Navigator.help_topic``).
+    help_topic = "console.md#the-console"
+
     #: The shell's last prompt, as :func:`prompt_cells` decodes it, and the
     #: directory it was printed in.  Empty and None until the shell prints one.
     prompt: tuple = reactive(())

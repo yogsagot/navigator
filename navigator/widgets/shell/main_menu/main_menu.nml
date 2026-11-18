@@ -55,11 +55,13 @@ from navml.widgets.menu.sub_menu import SubMenu
 #: letter, and lists every mounted volume (``navigator/lib/system/volumes.py``).
 MainMenu(MenuBar):
     SubMenu: text='~≡~'
+        help_topic: "utilities.md#the-system-menu"
         id: system
         tooltip: "About, the screen saver, SmartPad, the Trashcan and the game"
         MenuItem: text='~A~bout...', command=About
         #: Not DN's (a departure, asked for): every command, found by name.
         MenuItem: text='~C~ommand palette...', command=OpenCommandPalette
+            help_topic: "windows.md#command-palette"
             tooltip: "Find any command by a few of its letters, and run it"
         MenuItem: text='~R~efresh display', command=Refresh
             tooltip: "Paint the whole screen again, over what another program left on it"
@@ -73,11 +75,13 @@ MainMenu(MenuBar):
         MenuItem: text='~O~utput window', command=ToggleConsole, key='Ctrl-O'
             tooltip: "Put the windows away to type in the console, or bring them back"
         MenuItem: text='S~m~artPad (TM)', command=OpenSmartpad, key='Alt-Q'
+            help_topic: "utilities.md#smartpad"
             tooltip: "A notepad kept from one session to the next"
         MenuItem: text='~T~rashcan on/off', command=ToggleTrashCan
             tooltip: "Show or hide the trash can that files are dropped on to delete them"
         MenuLine:
         MenuItem: text='~G~ame', command=Game, key='Alt-F9'
+            help_topic: "game.md"
     SubMenu: text='~F~ile'
         help_topic: "file-operations.md"
         id: file
@@ -242,6 +246,7 @@ MainMenu(MenuBar):
             tooltip: "Delete the file at the cursor, not the selection"
         MenuLine:
         MenuItem: text='Execute ~O~S command', command=ExecuteOsCommand
+            help_topic: "console.md#execute-a-command"
             tooltip: "Type a command in a box and run it"
         MenuItem: text='E~x~it', command=Quit, key='Alt-X'
     SubMenu: text='~D~isk'
@@ -273,6 +278,7 @@ MainMenu(MenuBar):
         id: utilities
         tooltip: "Calculator, calendar, remote links, the user menu and histories"
         MenuItem: text='S~y~stem Information', command=SystemInfo
+            help_topic: "utilities.md#system-information"
         #: Not in ``dlgMainMenu``: DOS ran one program at a time and DN had
         #: no processes to list.  A departure, asked for -- FAR Manager's
         #: process panel (``navigator/lib/system/processes.py``).
@@ -294,7 +300,9 @@ MainMenu(MenuBar):
         #: Not in ``dlgMainMenu``: DN 1.51 had no calendar.  A departure, asked
         #: for -- TVDEMO's, beside the calculator as TVDEMO put it.
         MenuItem: text='Ca~l~endar', command=OpenCalendar
+            help_topic: "utilities.md#calendar"
         MenuItem: text='Character ta~b~le', command=AsciiTable, key='Ctrl-B'
+            help_topic: "utilities.md#character-table"
             tooltip: "Pick a character to type where the cursor is"
         MenuLine:
         #: DN's modem group, less what a cable and a modem were for: the
@@ -308,7 +316,7 @@ MainMenu(MenuBar):
         #: which), and a shell's place chosen in its manager, never taken
         #: from the panel.
         SubMenu: text='Lin~k~'
-            help_topic: "drives.md#servers-containers-and-devices"
+            help_topic: "connections.md#the-link-manager"
             id: utilities_link
             tooltip: "A server, a share, a container or a phone: its files in the active panel"
             MenuItem: text='~S~SH (SFTP)...', command=NavyLink, key='Alt-F11'
@@ -332,7 +340,7 @@ MainMenu(MenuBar):
                 tooltip: "Google Drive, OneDrive, Dropbox and some seventy more, set up with rclone config"
         #: DN's *Terminal*, where it stood, before *Hang up*.
         SubMenu: text='Rem~o~te shell'
-            help_topic: "drives.md#servers-containers-and-devices"
+            help_topic: "console.md#a-command-in-a-window"
             id: utilities_shell
             tooltip: "A shell on a server, in a container or on a phone, in a window"
             MenuItem: text='~S~SH...', command=Terminal
@@ -351,6 +359,7 @@ MainMenu(MenuBar):
             id: root_access
             tooltip: "Open root access now: the console's shell and a step refused permission run as root"
         MenuItem: text='Saved l~i~nks...', command=EditLinks
+            help_topic: "connections.md#saved-links"
             tooltip: "The saved connections: edit them, or connect to one"
         MenuLine:
         MenuItem: text='Edi~t~ environment', command=EnvEdit
@@ -358,11 +367,15 @@ MainMenu(MenuBar):
         MenuItem: text='~U~ser menu', command=UserMenu, key='F2'
             help_topic: "user-menu.md"
         MenuItem: text='Commands ~H~istory', command=HistoryList, key='Alt-F8'
+            help_topic: "console.md#commands-history"
         #: Not DN's: the commands typed, here and in the shell, searched by fzf.
         MenuItem: text='Fu~z~zy history search...', command=FuzzyHistory, key='Alt-Shift-F8'
+            help_topic: "console.md#commands-history"
             tooltip: "The commands typed, here and in the shell, searched by fzf"
         MenuItem: text='File ~E~dit History', command=EditHistory, key='Alt-PgUp'
+            help_topic: "console.md#file-histories"
         MenuItem: text='File ~V~iew History', command=ViewHistory, key='Alt-PgDn'
+            help_topic: "console.md#file-histories"
     SubMenu: text='~M~anager'
         help_topic: "panels.md"
         id: manager
@@ -379,8 +392,10 @@ MainMenu(MenuBar):
             tooltip: "Browse in columns, each directory beside its parent"
         MenuLine:
         MenuItem: text='Bookmarks le~f~t', command=ChangeLeft, key='Alt-F1'
+            help_topic: "bookmarks.md"
             tooltip: "Send the left panel to a bookmarked directory"
         MenuItem: text='Bookmarks rig~h~t', command=ChangeRight, key='Alt-F2'
+            help_topic: "bookmarks.md"
             tooltip: "Send the right panel to a bookmarked directory"
     SubMenu: text='~O~ptions'
         help_topic: "settings.md"
@@ -428,6 +443,7 @@ MainMenu(MenuBar):
         MenuItem: text='~H~ighlight file edit...', command=EditHGL
             tooltip: "Edit highlight.ini: which syntax colours which file"
         MenuItem: text='Macro file e~d~it...', command=EditMacros
+            help_topic: "macros.md#editor-macros"
             tooltip: "Edit macros.ini: the editor's macros, offered by Ctrl+J 0"
         MenuItem: text='~G~lobal menu definition...', command=MenuFileEdit
             tooltip: "Edit the F2 user menu used everywhere"

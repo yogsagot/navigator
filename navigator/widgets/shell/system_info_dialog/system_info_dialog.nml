@@ -12,6 +12,7 @@ SystemInfoDialog(Dialog):
     modal_width: 70
     modal_height: 22
     title: "System Information"
+    help_topic: "utilities.md#system-information"
     buttons: "ok"
 
     GroupBox:

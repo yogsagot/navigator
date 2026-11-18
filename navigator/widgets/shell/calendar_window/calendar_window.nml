@@ -36,6 +36,7 @@ from navigator.lib.config import country
 #: spell nothing under them: the grids already say the day.
 CalendarWindow(Window):
     title: "Calendar"
+    help_topic: "utilities.md#calendar"
     #: The calendar the menu chose, a key of ``navml.calendars.SYSTEMS``;
     #: empty, *Country support*'s.
     property chosen: ""

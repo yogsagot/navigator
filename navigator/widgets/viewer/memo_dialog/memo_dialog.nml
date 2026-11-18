@@ -22,6 +22,7 @@ MemoDialog(Dialog):
     modal_width: 69
     modal_height: 19
     title: "Memo view"
+    help_topic: "viewer.md#tables"
     buttons: "ok"
 
     keys:

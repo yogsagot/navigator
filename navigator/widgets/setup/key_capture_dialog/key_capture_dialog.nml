@@ -9,6 +9,7 @@ KeyCaptureDialog(Dialog):
     modal_width: 44
     modal_height: 9
     title: "Press a key"
+    help_topic: "customizing.md#key-bindings"
     buttons: "none"
 
     StaticText:

@@ -38,31 +38,32 @@ class AsciiChart(Dialog, _Component):
     __navml_source__ = "ascii_chart.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    table: CharTable    # ascii_chart.nml:18
-    report: StaticText    # ascii_chart.nml:27
+    table: CharTable    # ascii_chart.nml:19
+    report: StaticText    # ascii_chart.nml:28
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.table = CharTable(parent=self)    # ascii_chart.nml:17
-        self.report = StaticText(parent=self)    # ascii_chart.nml:26
+        self.table = CharTable(parent=self)    # ascii_chart.nml:18
+        self.report = StaticText(parent=self)    # ascii_chart.nml:27
 
         self.modal_width = 34    # ascii_chart.nml:12
         self.modal_height = 12    # ascii_chart.nml:13
         self.title = _bind(lambda _o: _tr('ASCII Chart'), yielding=True)    # ascii_chart.nml:14
-        self.buttons = 'none'    # ascii_chart.nml:15
+        self.help_topic = 'utilities.md#character-table'    # ascii_chart.nml:15
+        self.buttons = 'none'    # ascii_chart.nml:16
 
-        self.table.x = 1    # ascii_chart.nml:19
-        self.table.y = 1    # ascii_chart.nml:20
-        self.table.width = 32    # ascii_chart.nml:21
-        self.table.height = 8    # ascii_chart.nml:22
+        self.table.x = 1    # ascii_chart.nml:20
+        self.table.y = 1    # ascii_chart.nml:21
+        self.table.width = 32    # ascii_chart.nml:22
+        self.table.height = 8    # ascii_chart.nml:23
 
-        async def _on_chosen(event):    # ascii_chart.nml:24
+        async def _on_chosen(event):    # ascii_chart.nml:25
             self.close(self.accept())
             return True
         self.table.on_chosen = _on_chosen
 
-        self.report.x = 1    # ascii_chart.nml:28
-        self.report.y = 10    # ascii_chart.nml:29
-        self.report.width = 32    # ascii_chart.nml:30
+        self.report.x = 1    # ascii_chart.nml:29
+        self.report.y = 10    # ascii_chart.nml:30
+        self.report.width = 32    # ascii_chart.nml:31
 
         self._navml_built(__class__)

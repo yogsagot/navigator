@@ -16,6 +16,7 @@ ConnectDialog(Dialog):
     modal_height: 16
     #: The protocol, always: ``ConnectDialog`` puts the scheme's name in.
     title: "SSH link (SFTP)"
+    help_topic: "connections.md#a-connection"
 
     Field:
         id: host

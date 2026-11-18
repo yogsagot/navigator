@@ -45,8 +45,9 @@ def app(tmp_path, monkeypatch):
     home.mkdir()
     made = Navigator(home, home, terminal=FakeTerminal(80, 24))
     # These tests are about the mechanism, over pages of their own: the file
-    # manager and the File menu name none of the shipped ones here.
+    # manager and the ≡ and File menus name none of the shipped ones here.
     made.manager.help_topic = ""
+    made.shell.menu.system.help_topic = ""
     made.shell.menu.file.help_topic = ""
     return made
 

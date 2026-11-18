@@ -41,47 +41,48 @@ class LinkTargetDialog(Dialog, _Component):
     caption: str = _reactive('')    # link_target_dialog.nml:11
 
     #: Ids, annotated so the hand-written half completes them.
-    caption_label: Label    # link_target_dialog.nml:19
-    line: Field    # link_target_dialog.nml:28
-    options: CheckBoxes    # link_target_dialog.nml:39
+    caption_label: Label    # link_target_dialog.nml:20
+    line: Field    # link_target_dialog.nml:29
+    options: CheckBoxes    # link_target_dialog.nml:40
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.caption_label = Label(parent=self)    # link_target_dialog.nml:18
-        self.line = Field(parent=self)    # link_target_dialog.nml:27
-        self.options = CheckBoxes(parent=self)    # link_target_dialog.nml:38
+        self.caption_label = Label(parent=self)    # link_target_dialog.nml:19
+        self.line = Field(parent=self)    # link_target_dialog.nml:28
+        self.options = CheckBoxes(parent=self)    # link_target_dialog.nml:39
 
         self.modal_width = 61    # link_target_dialog.nml:13
         self.modal_height = 10    # link_target_dialog.nml:14
         self.title = _bind(lambda _o: _tr('Edit link target'), yielding=True)    # link_target_dialog.nml:15
-        self.close_on_outside_click = True    # link_target_dialog.nml:16
+        self.help_topic = 'file-operations.md#changing-where-links-point'    # link_target_dialog.nml:16
+        self.close_on_outside_click = True    # link_target_dialog.nml:17
 
-        self.caption_label.y = 1    # link_target_dialog.nml:20
-        self.caption_label.text = _bind(lambda _o: self.caption)    # link_target_dialog.nml:24
-        self.caption_label.link = _bind(lambda _o: self.line.entry)    # link_target_dialog.nml:25
-        self.caption_label.x = 2    # link_target_dialog.nml:22
-        self.caption_label.width = _bind(    # link_target_dialog.nml:23
+        self.caption_label.y = 1    # link_target_dialog.nml:21
+        self.caption_label.text = _bind(lambda _o: self.caption)    # link_target_dialog.nml:25
+        self.caption_label.link = _bind(lambda _o: self.line.entry)    # link_target_dialog.nml:26
+        self.caption_label.x = 2    # link_target_dialog.nml:23
+        self.caption_label.width = _bind(    # link_target_dialog.nml:24
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.line.y = 2    # link_target_dialog.nml:29
-        self.line.label_text = ''    # link_target_dialog.nml:33
-        self.line.label_width = 0    # link_target_dialog.nml:34
-        self.line.history_id = 'link'    # link_target_dialog.nml:35
-        self.line.x = 2    # link_target_dialog.nml:31
-        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # link_target_dialog.nml:32
+        self.line.y = 2    # link_target_dialog.nml:30
+        self.line.label_text = ''    # link_target_dialog.nml:34
+        self.line.label_width = 0    # link_target_dialog.nml:35
+        self.line.history_id = 'link'    # link_target_dialog.nml:36
+        self.line.x = 2    # link_target_dialog.nml:32
+        self.line.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # link_target_dialog.nml:33
 
-        self.options.y = 4    # link_target_dialog.nml:40
-        self.options.height = 1    # link_target_dialog.nml:41
-        self.options.items = _bind(    # link_target_dialog.nml:45
+        self.options.y = 4    # link_target_dialog.nml:41
+        self.options.height = 1    # link_target_dialog.nml:42
+        self.options.items = _bind(    # link_target_dialog.nml:46
             lambda _o: [_tr('~R~elative link')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # link_target_dialog.nml:46
+        self.options.tooltips = _bind(    # link_target_dialog.nml:47
             lambda _o: [_tr('Point the link at a path relative to it, so the two can be moved together')],
             yielding=True,
         )
-        self.options.x = 3    # link_target_dialog.nml:43
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # link_target_dialog.nml:44
+        self.options.x = 3    # link_target_dialog.nml:44
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # link_target_dialog.nml:45
 
         self._navml_built(__class__)

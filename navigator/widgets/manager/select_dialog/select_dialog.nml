@@ -17,6 +17,7 @@ SelectDialog(Dialog):
     modal_width: 30
     modal_height: 10
     title: "Select" if root.select else "Unselect"
+    help_topic: "panels.md#select-group"
 
     Label:
         id: mask_caption

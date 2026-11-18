@@ -24,6 +24,7 @@ from navigator.lib.editor.search import SearchData
 
 
 class FindBar(_Component):
+    help_topic: str
     replace: bool
     query: Field
     new: Field

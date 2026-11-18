@@ -8,6 +8,7 @@ QueryDialog(Dialog):
     modal_width: 70
     modal_height: 8
     title: "Query"
+    help_topic: "viewer.md#tables"
 
     Field:
         id: sql

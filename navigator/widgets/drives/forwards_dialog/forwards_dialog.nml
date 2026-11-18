@@ -11,6 +11,7 @@ ForwardsDialog(Dialog):
     modal_width: 66
     modal_height: 17
     title: "Port forwards"
+    help_topic: "connections.md#port-forwards"
 
     first_focus: forwards if root.items else append
 

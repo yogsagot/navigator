@@ -12,6 +12,7 @@ ChecksumReport(Dialog):
     modal_width: min(70, parent.width) if parent is not None else 70
     modal_height: min(20, parent.height) if parent is not None else 20
     title: "Verify Checksums"
+    help_topic: "file-operations.md#checksums"
     buttons: "ok"
 
     StaticText:

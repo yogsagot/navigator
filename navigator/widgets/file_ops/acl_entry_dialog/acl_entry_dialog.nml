@@ -15,6 +15,7 @@ AclEntryDialog(Dialog):
     modal_width: 56
     modal_height: 13
     title: "ACL Entry"
+    help_topic: "file-operations.md#acl-entries"
     buttons: "ok-cancel"
 
     Label:

@@ -10,6 +10,7 @@ ExistsQuery(Dialog):
     modal_width: 58
     modal_height: 9
     title: "Confirm"
+    help_topic: "file-operations.md#uu-encode-and-decode"
     buttons: "none"
 
     buttons_row: (agree, refuse, every, abandon)

@@ -28,6 +28,7 @@ from navigator.lib.viewer import ViewSource
 
 
 class QuickViewer(_Component):
+    help_topic: str
     title_margin: int
     viewer: FileViewer
     bar: ScrollBar

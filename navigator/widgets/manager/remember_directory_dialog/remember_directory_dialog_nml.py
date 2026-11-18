@@ -38,15 +38,15 @@ class RememberDirectoryDialog(Dialog, _Component):
     __navml_source__ = "remember_directory_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    prompt_head: Label    # remember_directory_dialog.nml:17
-    prompt_tail: Label    # remember_directory_dialog.nml:27
-    options: CheckBoxes    # remember_directory_dialog.nml:36
+    prompt_head: Label    # remember_directory_dialog.nml:18
+    prompt_tail: Label    # remember_directory_dialog.nml:28
+    options: CheckBoxes    # remember_directory_dialog.nml:37
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.prompt_head = Label(parent=self)    # remember_directory_dialog.nml:16
-        self.prompt_tail = Label(parent=self)    # remember_directory_dialog.nml:26
-        self.options = CheckBoxes(parent=self)    # remember_directory_dialog.nml:35
+        self.prompt_head = Label(parent=self)    # remember_directory_dialog.nml:17
+        self.prompt_tail = Label(parent=self)    # remember_directory_dialog.nml:27
+        self.options = CheckBoxes(parent=self)    # remember_directory_dialog.nml:36
 
         self.modal_width = 56    # remember_directory_dialog.nml:11
         self.modal_height = 10    # remember_directory_dialog.nml:12
@@ -54,34 +54,35 @@ class RememberDirectoryDialog(Dialog, _Component):
             lambda _o: _tr('Remember directory settings'),
             yielding=True,
         )
-        self.buttons = 'ok-cancel'    # remember_directory_dialog.nml:14
+        self.help_topic = 'panels.md#remembering-a-directory'    # remember_directory_dialog.nml:14
+        self.buttons = 'ok-cancel'    # remember_directory_dialog.nml:15
 
-        self.prompt_head.y = 1    # remember_directory_dialog.nml:18
-        self.prompt_head.align = 'center'    # remember_directory_dialog.nml:22
-        self.prompt_head.text = _bind(    # remember_directory_dialog.nml:23
+        self.prompt_head.y = 1    # remember_directory_dialog.nml:19
+        self.prompt_head.align = 'center'    # remember_directory_dialog.nml:23
+        self.prompt_head.text = _bind(    # remember_directory_dialog.nml:24
             lambda _o: _tr('Keep the sort order, view and file mask shown for'),
             yielding=True,
         )
-        self.prompt_head.x = 2    # remember_directory_dialog.nml:20
-        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # remember_directory_dialog.nml:21
+        self.prompt_head.x = 2    # remember_directory_dialog.nml:21
+        self.prompt_head.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # remember_directory_dialog.nml:22
 
-        self.prompt_tail.y = 2    # remember_directory_dialog.nml:28
-        self.prompt_tail.align = 'center'    # remember_directory_dialog.nml:32
-        self.prompt_tail.x = 2    # remember_directory_dialog.nml:30
-        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # remember_directory_dialog.nml:31
+        self.prompt_tail.y = 2    # remember_directory_dialog.nml:29
+        self.prompt_tail.align = 'center'    # remember_directory_dialog.nml:33
+        self.prompt_tail.x = 2    # remember_directory_dialog.nml:31
+        self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # remember_directory_dialog.nml:32
 
-        self.options.y = 4    # remember_directory_dialog.nml:37
-        self.options.width = 32    # remember_directory_dialog.nml:38
-        self.options.height = 1    # remember_directory_dialog.nml:39
-        self.options.items = _bind(    # remember_directory_dialog.nml:42
+        self.options.y = 4    # remember_directory_dialog.nml:38
+        self.options.width = 32    # remember_directory_dialog.nml:39
+        self.options.height = 1    # remember_directory_dialog.nml:40
+        self.options.items = _bind(    # remember_directory_dialog.nml:43
             lambda _o: [_tr('Also for its ~s~ubdirectories')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # remember_directory_dialog.nml:43
+        self.options.tooltips = _bind(    # remember_directory_dialog.nml:44
             lambda _o: [_tr('Every directory below shown the same way, unless it is remembered for itself')],
             yielding=True,
         )
-        self.options.x = _bind(    # remember_directory_dialog.nml:41
+        self.options.x = _bind(    # remember_directory_dialog.nml:42
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
 

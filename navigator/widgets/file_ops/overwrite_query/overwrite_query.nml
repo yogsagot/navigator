@@ -15,6 +15,7 @@ OverwriteQuery(Dialog):
     modal_width: 66
     modal_height: 13
     title: "Confirm"
+    help_topic: "file-operations.md#what-to-do-with-files-that-are-already-there"
     buttons: "none"
 
     buttons_row: (overwrite, append, rename, skip, abandon)

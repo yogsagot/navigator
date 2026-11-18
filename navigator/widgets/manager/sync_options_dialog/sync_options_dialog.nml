@@ -14,6 +14,7 @@ SyncOptionsDialog(Dialog):
     modal_width: 52
     modal_height: 16
     title: "Synchronize options"
+    help_topic: "compare.md#options"
 
     Label:
         id: mask_caption

@@ -9,6 +9,7 @@ FindProgress(Dialog):
     modal_width: 56
     modal_height: 8
     title: "Search"
+    help_topic: "panels.md#find-file"
     buttons: "ok"
     closable: False
 

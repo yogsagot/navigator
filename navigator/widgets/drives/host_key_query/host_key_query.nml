@@ -9,4 +9,5 @@ HostKeyQuery(Dialog):
     modal_width: 64
     modal_height: 11
     title: "Unknown SSH host"
+    help_topic: "connections.md#an-unknown-host-key"
     buttons: "yes-no-cancel"

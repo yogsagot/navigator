@@ -14,6 +14,7 @@ EraseQuery(Dialog):
     modal_width: 54
     modal_height: 10
     title: "Confirm"
+    help_topic: "file-operations.md#erase"
     buttons: "none"
 
     #: ``not-empty`` or ``read-only``.

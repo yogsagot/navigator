@@ -35,21 +35,22 @@ class BookmarkLabelDialog(Dialog, _Component):
     __navml_source__ = "bookmark_label_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    entry: Field    # bookmark_label_dialog.nml:16
+    entry: Field    # bookmark_label_dialog.nml:17
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.entry = Field(parent=self)    # bookmark_label_dialog.nml:15
+        self.entry = Field(parent=self)    # bookmark_label_dialog.nml:16
 
         self.modal_width = 48    # bookmark_label_dialog.nml:9
         self.modal_height = 8    # bookmark_label_dialog.nml:10
         self.title = _bind(lambda _o: _tr('Bookmark label'), yielding=True)    # bookmark_label_dialog.nml:11
-        self.close_on_outside_click = True    # bookmark_label_dialog.nml:13
+        self.help_topic = 'bookmarks.md#the-list'    # bookmark_label_dialog.nml:12
+        self.close_on_outside_click = True    # bookmark_label_dialog.nml:14
 
-        self.entry.y = 2    # bookmark_label_dialog.nml:17
-        self.entry.label_text = _bind(lambda _o: _tr('~L~abel'), yielding=True)    # bookmark_label_dialog.nml:21
-        self.entry.label_width = 8    # bookmark_label_dialog.nml:22
-        self.entry.x = 2    # bookmark_label_dialog.nml:19
-        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:20
+        self.entry.y = 2    # bookmark_label_dialog.nml:18
+        self.entry.label_text = _bind(lambda _o: _tr('~L~abel'), yielding=True)    # bookmark_label_dialog.nml:22
+        self.entry.label_width = 8    # bookmark_label_dialog.nml:23
+        self.entry.x = 2    # bookmark_label_dialog.nml:20
+        self.entry.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # bookmark_label_dialog.nml:21
 
         self._navml_built(__class__)

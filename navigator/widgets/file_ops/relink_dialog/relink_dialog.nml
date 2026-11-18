@@ -10,6 +10,7 @@ RelinkDialog(Dialog):
     modal_width: 76
     modal_height: 20
     title: "Change link targets"
+    help_topic: "file-operations.md#changing-where-links-point"
 
     Field:
         id: search

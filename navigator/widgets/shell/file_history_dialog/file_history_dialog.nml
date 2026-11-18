@@ -13,6 +13,7 @@ FileHistoryDialog(Dialog):
     modal_width: 59
     modal_height: 17
     buttons: "none"
+    help_topic: "console.md#file-histories"
 
     buttons_row: (pick, drop, abandon)
 

@@ -9,6 +9,7 @@ DBListDialog(Dialog):
     modal_width: 50
     modal_height: 18
     buttons: "ok"
+    help_topic: "viewer.md#tables"
 
     StaticText:
         id: heading

@@ -11,6 +11,7 @@ EditLineDialog(Dialog):
     modal_width: 60
     modal_height: 9
     title: "Edit History"
+    help_topic: "console.md#commands-history"
 
     Label:
         id: caption_label

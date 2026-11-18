@@ -9,6 +9,7 @@ GotoDialog(Dialog):
     modal_width: 34
     modal_height: 8
     title: "Goto Address"
+    help_topic: "viewer.md#go-to-an-address"
 
     Field:
         id: address

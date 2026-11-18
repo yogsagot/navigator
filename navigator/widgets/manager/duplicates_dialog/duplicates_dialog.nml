@@ -9,6 +9,7 @@ DuplicatesDialog(Dialog):
     modal_width: 52
     modal_height: 10
     title: "Find duplicates"
+    help_topic: "panels.md#find-duplicates"
     buttons: "ok-cancel"
 
     Field:

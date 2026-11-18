@@ -24,6 +24,19 @@ the *Synchronize* menu changes it for the row under the cursor or for all rows a
 - *Tree view*, `Ctrl+T`, lists the rows as a tree of directories.
 - *Options* sets how files are compared, and a [file mask](panels.md#file-masks) for which files are looked at.
 
+### Options
+
+*Options* in the Synchronize window sets what is compared and how. *OK* compares both directories again.
+
+- *File mask* chooses the files that are looked at; empty compares everything. Patterns are separated by `;`. A
+  `-` before a pattern leaves its files out, and a `/` after one names directories: `*.py;-.git/`.
+- *Times are the same* says how close two times must be: *Exactly, to the second*, *Within 2 seconds (FAT)*, or
+  *Within a minute (FTP)*.
+- *Or an exact hour apart* also takes times one hour apart as the same, which a daylight-saving change does to a
+  FAT disk.
+- *Asymmetric: right becomes a copy of left* proposes deleting what only the right side has, and copying every
+  file that differs to the right, whichever is newer.
+
 ## Compare files
 
 *File > Compare files* shows two files side by side with their differences marked. It takes the two tagged files

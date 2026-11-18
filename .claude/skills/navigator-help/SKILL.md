@@ -6,8 +6,8 @@ description: F1 Help -- HelpWindow and HelpViewer (navigator/widgets/help/, DN's
 # Help (F1): the pages and their pictures
 
 **F1 opens `HelpWindow`** (`navigator/widgets/help/`, DN's `THelpWindow`) anywhere, a dialog included, on the
-topic the keyboard's dialog or window names, else on the contents page. **Not yet**: any dialog or window naming a
-topic (no page is written for one), and the thirty-odd dialogs' Help buttons -- *What is left* below.
+topic the keyboard's dialog or window names, else on the contents page. Every dialog and window names one now;
+*What is left* below has the rest.
 
 **A departure from DN, asked for**: DN compiled `.hlp` files (`DN.HLP`, `hcXxx` contexts). Here help is Markdown under
 `docs/`, because the same files are readable on GitHub, can become a website, and are rendered in-app by the
@@ -211,10 +211,24 @@ run `Help` -- the one place that built-in button is used. A new page needs its s
 
 ## What is left
 
-- **Not covered yet**: bookmarks beyond a paragraph, the link managers' own boxes (connections, passwords, host
-  keys), the smaller dialogs (select group, columns, quick and multi-rename, checksums, encryption, convert
-  text, the viewer's and editor's own small boxes), the calendar, the character table, SmartPad, macros. They
-  open their window's or menu's page, or the contents. *≡* names no page. The console names none.
+- **Every dialog and window names a topic** (the last batch, 2026-11-18): the rename, checksum, encryption and
+  convert-text boxes, the copy and erase questions and progress boxes, ACL/xattr entries and link targets
+  (`file-operations.md`); select group, columns, duplicates, panelize, directory history, remembered directories
+  (`panels.md`); synchronize options (`compare.md#options`); the viewer's find, go to, filter lines, data tree and
+  table boxes (`viewer.md`); the link managers' boxes (`connections.md`); bookmarks (`bookmarks.md`, the box
+  through `PopupMenu(help_topic=)`); calendar, character table, SmartPad, system information and the `≡` menu
+  (`utilities.md`); command windows, *Execute OS command* and the histories (`console.md`); the command palette
+  (`windows.md`); key and editor macros (`macros.md`); the game's setup (`game.md`).
+- **A widget that is no `Modal` or `Window` declares the property itself**: `property help_topic: "..."` in
+  markup (`QuickViewer`, `FindBar`), a class attribute in a Python-only widget (`Console`).
+- **Left without a topic on purpose**: `WriteWin` and `CountProgress` (shared by callers with pages of their own;
+  a modal does not fall back to what is behind it, so F1 there shows the contents), models and controls.
+- **Help buttons**: only the dialogs listed above under *Giving a dialog its help* have one; the last batch got
+  topics alone, most of those boxes being departures with no `cmHelp` in a DN resource. `ViewerFindDialog`,
+  `GotoDialog`, `SelectDialog`, `ColumnsDialog` and the history boxes are DN's and may have had one: not checked.
+- **`tests/test_help_window.py`'s fixture clears the `≡` menu's topic too**: F10 opens on it, and the
+  no-topic test needs a menu naming none.
+- **Not read against real behaviour**: the pages were written from markup captions, docstrings and the skills.
 - **The help window's keys are not in `keybindings.ini`** (no section in `keybindings.TABLES`).
 - A code block wider than the window is cut: there is no sideways scroll.
 ## The layout, and shipping

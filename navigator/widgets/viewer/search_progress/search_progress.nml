@@ -14,6 +14,7 @@ SearchProgress(Dialog):
     modal_width: 34
     modal_height: 8
     title: "Search Progress"
+    help_topic: "viewer.md#searching"
     buttons: "ok"
     #: ``TWhileView`` drew its own frame, with no close icon in it.
     closable: False

@@ -13,6 +13,9 @@ from navigator.widgets.editor.commands import CloseFindBar, FindNext, FindPrevio
 #: text with *Replace* and *All* after it.  Everything after the lines is
 #: painted by the Python half, which also answers a click on it.
 FindBar:
+    #: F1 while the bar holds the keyboard (``Navigator.help_topic``).
+    property help_topic: "editor.md#the-find-bar"
+
     #: With the line for the new text, *Replace* and *All*: Ctrl+R's.
     property replace: False
 

@@ -13,6 +13,7 @@ RenameDialog(Dialog):
     modal_width: 60
     modal_height: 9
     title: "Quick rename"
+    help_topic: "file-operations.md#quick-rename"
     close_on_outside_click: True
 
     Label:

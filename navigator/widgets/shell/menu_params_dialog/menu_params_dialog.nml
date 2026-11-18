@@ -13,6 +13,7 @@ MenuParamsDialog(Dialog):
     modal_width: 60
     modal_height: 9
     title: "Menu Parameters"
+    help_topic: "user-menu.md#the-user-menu"
 
     Label:
         id: caption_label

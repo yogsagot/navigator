@@ -18,6 +18,7 @@ ExecuteCommandDialog(Dialog):
     modal_width: 60
     modal_height: 10
     title: "Execute OS Command"
+    help_topic: "console.md#execute-a-command"
 
     Label:
         id: caption_label

@@ -43,7 +43,8 @@ class AboutDialog(Dialog, _Component):
         self.modal_width = 52    # about_dialog.nml:13
         self.modal_height = 17    # about_dialog.nml:14
         self.title = _bind(lambda _o: _tr('About'), yielding=True)    # about_dialog.nml:15
-        self.buttons = 'ok'    # about_dialog.nml:16
-        self.prompt = about_text(project_info())    # about_dialog.nml:17
+        self.help_topic = 'utilities.md#the-system-menu'    # about_dialog.nml:16
+        self.buttons = 'ok'    # about_dialog.nml:17
+        self.prompt = about_text(project_info())    # about_dialog.nml:18
 
         self._navml_built(__class__)

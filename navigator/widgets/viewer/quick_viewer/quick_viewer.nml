@@ -14,6 +14,9 @@ from navigator.widgets.viewer.commands import SetViewFilter, SetViewMode
 #: (``TFileViewer.SetState``); the bar here does the same, and so does the
 #: bottom frame's (a departure, as the F3 window's).
 QuickViewer:
+    #: F1 while the keyboard is in the view (``Navigator.help_topic``).
+    property help_topic: "viewer.md#quick-view"
+
     #: Columns left clear at each end of the top frame for the window's icons,
     #: as a panel leaves them.
     property title_margin: 0

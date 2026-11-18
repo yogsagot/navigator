@@ -9,6 +9,7 @@ PanelizeDialog(Dialog):
     modal_width: 64
     modal_height: 9
     title: "Panelize command"
+    help_topic: "panels.md#panelize-command"
     close_on_outside_click: True
 
     Label:

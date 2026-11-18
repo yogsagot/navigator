@@ -57,3 +57,66 @@ lets you change them.
 
 The changes reach the programs Navigator starts from then on: the external viewer and editor, the user menu's
 commands, and the shell in the console. They last until you leave Navigator.
+
+## System information
+
+*Utilities > System Information* shows what the machine is: the *Main board* and processor, the *Disk drives*,
+the *Memory*, and under *Other* the system, its kernel, the host's name and how long it has been up.
+
+## Calendar
+
+*Utilities > Calendar* shows a month, with today marked. Under the weeks, the day under the cursor is written out
+in the date format of the [Country](settings.md#country) settings.
+
+| Key | What it does |
+|---|---|
+| Arrows | Move from day to day |
+| `PgUp`, `PgDn` | The previous and the next month |
+| `Ctrl+PgUp`, `Ctrl+PgDn` | The previous and the next year |
+| `M`, `Y` | Choose a month, or a year, from a list |
+| `T` | Go to today; also the *Go to current date* button |
+| `C` | Swap between the other calendar and the Gregorian one |
+| `Esc` | Close the calendar |
+
+The *Calendar* menu has the same commands and two more. *Calendar system* shows the month in another calendar,
+such as the Hebrew, the Islamic or the Persian one. *Calendar view* says what of it is shown beside the Gregorian
+month: its month alone, the day written out in it under the Gregorian month, its month with the Gregorian day
+written out under it, or the two months side by side.
+
+## Character table
+
+`Ctrl+B`, or *Utilities > Character table*, finds a character and types it where the cursor is.
+
+- *Search* finds characters by name, such as `arrow` or `euro`.
+- The list on the left chooses a group of characters, and the line under it narrows the groups by name.
+- The grid on the right shows the group. The character under the cursor is described at the bottom.
+- *Insert* types the character, and *Copy* puts it on the clipboard.
+
+On a terminal set to plain ASCII characters, the table is the *ASCII Chart* of DOS Navigator: 256 characters,
+with the code of the one under the cursor in decimal and hex.
+
+## SmartPad
+
+`Alt+Q`, or *SmartPad* in the `≡` menu, opens a notepad that is kept from one session to the next. Each time it
+opens, it adds a line with the date and time at the end and puts the cursor under it, so the pad reads as a log.
+It is an [editor](editor.md) window, and it saves itself when you close it.
+
+## The system menu
+
+The `≡` menu, at the left end of the menu bar, has what belongs to Navigator as a whole.
+
+| Entry | What it does |
+|---|---|
+| *About* | Shows the version, the licence and the author |
+| *Command palette* | Finds any [command](windows.md#command-palette) by a few of its letters |
+| *Refresh display* | Paints the whole screen again, over what another program left on it |
+| *Screen rest* | Starts the screen saver now |
+| *Screen grabber*, `Shift+Alt+Ins` | Copies a rectangle of the screen to the clipboard |
+| *User screen*, `Alt+F5` | Shows the [console](console.md#the-console) until a key is pressed |
+| *Output window*, `Ctrl+O` | Puts the windows away to type in the console, and brings them back |
+| *SmartPad*, `Alt+Q` | Opens the [notepad](#smartpad) |
+| *Trashcan on/off* | Shows or hides the trash can that files are dropped on to delete them |
+| *Game*, `Alt+F9` | Opens [the game](game.md) |
+
+`Alt+X` leaves Navigator. It asks first; *Don't ask again* in the question, or *Exit confirmation* on the
+[Confirmations](settings.md#confirmations) page, turns the question off.

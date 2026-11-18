@@ -10,6 +10,7 @@ ChecksumProgress(Dialog):
     modal_width: min(64, parent.width) if parent is not None else 64
     modal_height: 10
     title: "Checksums"
+    help_topic: "file-operations.md#checksums"
     buttons: "ok"
     closable: False
 

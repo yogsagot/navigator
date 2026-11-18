@@ -45,8 +45,8 @@ class TerminalWindow(Window, _Component):
     __navml_source__ = "terminal_window.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    view: TerminalView    # terminal_window.nml:24
-    bar: ScrollBar    # terminal_window.nml:35
+    view: TerminalView    # terminal_window.nml:25
+    bar: ScrollBar    # terminal_window.nml:36
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -56,32 +56,33 @@ class TerminalWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # terminal_window.nml:35
+    async def on_bar_scroll(self, event: _Event) -> bool:    # terminal_window.nml:36
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.view = TerminalView(parent=self)    # terminal_window.nml:23
-        self.bar = ScrollBar(parent=self)    # terminal_window.nml:34
+        self.view = TerminalView(parent=self)    # terminal_window.nml:24
+        self.bar = ScrollBar(parent=self)    # terminal_window.nml:35
 
-        self.min_width = 20    # terminal_window.nml:18
-        self.min_height = 5    # terminal_window.nml:19
-        self.first_focus = _bind(lambda _o: self.view)    # terminal_window.nml:21
+        self.help_topic = 'console.md#a-command-in-a-window'    # terminal_window.nml:18
+        self.min_width = 20    # terminal_window.nml:19
+        self.min_height = 5    # terminal_window.nml:20
+        self.first_focus = _bind(lambda _o: self.view)    # terminal_window.nml:22
 
-        self.view.x = 1    # terminal_window.nml:25
-        self.view.y = 1    # terminal_window.nml:26
-        self.view.width = _bind(lambda _o: max(1, _o.parent.width - 2))    # terminal_window.nml:27
-        self.view.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # terminal_window.nml:28
+        self.view.x = 1    # terminal_window.nml:26
+        self.view.y = 1    # terminal_window.nml:27
+        self.view.width = _bind(lambda _o: max(1, _o.parent.width - 2))    # terminal_window.nml:28
+        self.view.height = _bind(lambda _o: max(1, _o.parent.height - 2))    # terminal_window.nml:29
 
-        self.bar.visible = _bind(lambda _o: self.view.overflows)    # terminal_window.nml:36
-        self.bar.width = 1    # terminal_window.nml:37
-        self.bar.value = _bind(lambda _o: self.view.scroll_above)    # terminal_window.nml:42
-        self.bar.maximum = _bind(lambda _o: self.view.scroll_total)    # terminal_window.nml:43
-        self.bar.page = _bind(lambda _o: max(1, self.view.height))    # terminal_window.nml:44
-        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # terminal_window.nml:39
-        self.bar.y = 1    # terminal_window.nml:40
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # terminal_window.nml:41
-        self.bar.on_scroll = self.on_bar_scroll    # terminal_window.nml:35
+        self.bar.visible = _bind(lambda _o: self.view.overflows)    # terminal_window.nml:37
+        self.bar.width = 1    # terminal_window.nml:38
+        self.bar.value = _bind(lambda _o: self.view.scroll_above)    # terminal_window.nml:43
+        self.bar.maximum = _bind(lambda _o: self.view.scroll_total)    # terminal_window.nml:44
+        self.bar.page = _bind(lambda _o: max(1, self.view.height))    # terminal_window.nml:45
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - _o.width))    # terminal_window.nml:40
+        self.bar.y = 1    # terminal_window.nml:41
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 2))    # terminal_window.nml:42
+        self.bar.on_scroll = self.on_bar_scroll    # terminal_window.nml:36
 
         self._navml_built(__class__)

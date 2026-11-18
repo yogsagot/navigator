@@ -10,6 +10,7 @@ CompareProgress(Dialog):
     modal_width: 56
     modal_height: 8
     title: "Compare directories"
+    help_topic: "compare.md#compare-directories"
     buttons: "ok"
     closable: False
 

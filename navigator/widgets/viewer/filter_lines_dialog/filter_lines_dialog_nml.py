@@ -38,54 +38,55 @@ class FilterLinesDialog(Dialog, _Component):
     __navml_source__ = "filter_lines_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    what_caption: Label    # filter_lines_dialog.nml:16
-    what: Field    # filter_lines_dialog.nml:24
-    options_caption: Label    # filter_lines_dialog.nml:34
-    options: CheckBoxes    # filter_lines_dialog.nml:42
+    what_caption: Label    # filter_lines_dialog.nml:17
+    what: Field    # filter_lines_dialog.nml:25
+    options_caption: Label    # filter_lines_dialog.nml:35
+    options: CheckBoxes    # filter_lines_dialog.nml:43
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.what_caption = Label(parent=self)    # filter_lines_dialog.nml:15
-        self.what = Field(parent=self)    # filter_lines_dialog.nml:23
-        self.options_caption = Label(parent=self)    # filter_lines_dialog.nml:33
-        self.options = CheckBoxes(parent=self)    # filter_lines_dialog.nml:41
+        self.what_caption = Label(parent=self)    # filter_lines_dialog.nml:16
+        self.what = Field(parent=self)    # filter_lines_dialog.nml:24
+        self.options_caption = Label(parent=self)    # filter_lines_dialog.nml:34
+        self.options = CheckBoxes(parent=self)    # filter_lines_dialog.nml:42
 
         self.modal_width = 50    # filter_lines_dialog.nml:11
         self.modal_height = 13    # filter_lines_dialog.nml:12
         self.title = _bind(lambda _o: _tr('Filter lines'), yielding=True)    # filter_lines_dialog.nml:13
+        self.help_topic = 'viewer.md#filter-lines'    # filter_lines_dialog.nml:14
 
-        self.what_caption.x = 2    # filter_lines_dialog.nml:17
-        self.what_caption.y = 2    # filter_lines_dialog.nml:18
-        self.what_caption.width = 24    # filter_lines_dialog.nml:19
-        self.what_caption.text = _bind(    # filter_lines_dialog.nml:20
+        self.what_caption.x = 2    # filter_lines_dialog.nml:18
+        self.what_caption.y = 2    # filter_lines_dialog.nml:19
+        self.what_caption.width = 24    # filter_lines_dialog.nml:20
+        self.what_caption.text = _bind(    # filter_lines_dialog.nml:21
             lambda _o: _tr('~S~how lines containing'),
             yielding=True,
         )
-        self.what_caption.link = _bind(lambda _o: self.what.entry)    # filter_lines_dialog.nml:21
+        self.what_caption.link = _bind(lambda _o: self.what.entry)    # filter_lines_dialog.nml:22
 
-        self.what.y = 3    # filter_lines_dialog.nml:25
-        self.what.label_text = ''    # filter_lines_dialog.nml:29
-        self.what.label_width = 0    # filter_lines_dialog.nml:30
-        self.what.history_id = 'view_lines'    # filter_lines_dialog.nml:31
-        self.what.x = 2    # filter_lines_dialog.nml:27
-        self.what.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # filter_lines_dialog.nml:28
+        self.what.y = 3    # filter_lines_dialog.nml:26
+        self.what.label_text = ''    # filter_lines_dialog.nml:30
+        self.what.label_width = 0    # filter_lines_dialog.nml:31
+        self.what.history_id = 'view_lines'    # filter_lines_dialog.nml:32
+        self.what.x = 2    # filter_lines_dialog.nml:28
+        self.what.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # filter_lines_dialog.nml:29
 
-        self.options_caption.x = 2    # filter_lines_dialog.nml:35
-        self.options_caption.y = 5    # filter_lines_dialog.nml:36
-        self.options_caption.width = 12    # filter_lines_dialog.nml:37
-        self.options_caption.text = _bind(    # filter_lines_dialog.nml:38
+        self.options_caption.x = 2    # filter_lines_dialog.nml:36
+        self.options_caption.y = 5    # filter_lines_dialog.nml:37
+        self.options_caption.width = 12    # filter_lines_dialog.nml:38
+        self.options_caption.text = _bind(    # filter_lines_dialog.nml:39
             lambda _o: _tr('Options'),
             yielding=True,
         )
-        self.options_caption.link = _bind(lambda _o: self.options)    # filter_lines_dialog.nml:39
+        self.options_caption.link = _bind(lambda _o: self.options)    # filter_lines_dialog.nml:40
 
-        self.options.y = 6    # filter_lines_dialog.nml:43
-        self.options.height = 3    # filter_lines_dialog.nml:44
-        self.options.items = _bind(    # filter_lines_dialog.nml:48
+        self.options.y = 6    # filter_lines_dialog.nml:44
+        self.options.height = 3    # filter_lines_dialog.nml:45
+        self.options.items = _bind(    # filter_lines_dialog.nml:49
             lambda _o: [_tr('~R~egular expression'), _tr('~C~ase sensitive'), _tr('~I~nvert (lines not matching)')],
             yielding=True,
         )
-        self.options.x = 2    # filter_lines_dialog.nml:46
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # filter_lines_dialog.nml:47
+        self.options.x = 2    # filter_lines_dialog.nml:47
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # filter_lines_dialog.nml:48
 
         self._navml_built(__class__)

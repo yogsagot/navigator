@@ -35,24 +35,25 @@ class GotoDialog(Dialog, _Component):
     __navml_source__ = "goto_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    address: Field    # goto_dialog.nml:14
+    address: Field    # goto_dialog.nml:15
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.address = Field(parent=self)    # goto_dialog.nml:13
+        self.address = Field(parent=self)    # goto_dialog.nml:14
 
         self.modal_width = 34    # goto_dialog.nml:9
         self.modal_height = 8    # goto_dialog.nml:10
         self.title = _bind(lambda _o: _tr('Goto Address'), yielding=True)    # goto_dialog.nml:11
+        self.help_topic = 'viewer.md#go-to-an-address'    # goto_dialog.nml:12
 
-        self.address.y = 2    # goto_dialog.nml:15
-        self.address.label_text = _bind(    # goto_dialog.nml:19
+        self.address.y = 2    # goto_dialog.nml:16
+        self.address.label_text = _bind(    # goto_dialog.nml:20
             lambda _o: _tr('~A~ddress'),
             yielding=True,
         )
-        self.address.label_width = 9    # goto_dialog.nml:20
-        self.address.history_id = 'goto_address'    # goto_dialog.nml:21
-        self.address.x = 3    # goto_dialog.nml:17
-        self.address.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_dialog.nml:18
+        self.address.label_width = 9    # goto_dialog.nml:21
+        self.address.history_id = 'goto_address'    # goto_dialog.nml:22
+        self.address.x = 3    # goto_dialog.nml:18
+        self.address.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # goto_dialog.nml:19
 
         self._navml_built(__class__)

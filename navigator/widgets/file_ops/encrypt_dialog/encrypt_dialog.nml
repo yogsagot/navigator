@@ -16,6 +16,7 @@ EncryptDialog(Dialog):
     modal_width: 64
     modal_height: 17
     title: "Encrypt Files"
+    help_topic: "file-operations.md#encryption"
     buttons: "none"
 
     buttons_row: (pick, abandon)

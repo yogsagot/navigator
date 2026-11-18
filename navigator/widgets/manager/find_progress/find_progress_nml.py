@@ -36,38 +36,39 @@ class FindProgress(Dialog, _Component):
     #: The document this class was generated from.
     __navml_source__ = "find_progress.nml"
 
-    directory: str = _reactive('')    # find_progress.nml:15
-    count: int = _reactive(0)    # find_progress.nml:16
+    directory: str = _reactive('')    # find_progress.nml:16
+    count: int = _reactive(0)    # find_progress.nml:17
 
     #: Ids, annotated so the hand-written half completes them.
-    directory_row: StaticText    # find_progress.nml:19
-    count_row: StaticText    # find_progress.nml:28
+    directory_row: StaticText    # find_progress.nml:20
+    count_row: StaticText    # find_progress.nml:29
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.directory_row = StaticText(parent=self)    # find_progress.nml:18
-        self.count_row = StaticText(parent=self)    # find_progress.nml:27
+        self.directory_row = StaticText(parent=self)    # find_progress.nml:19
+        self.count_row = StaticText(parent=self)    # find_progress.nml:28
 
         self.modal_width = 56    # find_progress.nml:9
         self.modal_height = 8    # find_progress.nml:10
         self.title = _bind(lambda _o: _tr('Search'), yielding=True)    # find_progress.nml:11
-        self.buttons = 'ok'    # find_progress.nml:12
-        self.closable = False    # find_progress.nml:13
+        self.help_topic = 'panels.md#find-file'    # find_progress.nml:12
+        self.buttons = 'ok'    # find_progress.nml:13
+        self.closable = False    # find_progress.nml:14
 
-        self.directory_row.y = 1    # find_progress.nml:20
-        self.directory_row.align = 'center'    # find_progress.nml:24
-        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # find_progress.nml:25
-        self.directory_row.x = 2    # find_progress.nml:22
-        self.directory_row.width = _bind(    # find_progress.nml:23
+        self.directory_row.y = 1    # find_progress.nml:21
+        self.directory_row.align = 'center'    # find_progress.nml:25
+        self.directory_row.text = _bind(lambda _o: self.fit(self.directory))    # find_progress.nml:26
+        self.directory_row.x = 2    # find_progress.nml:23
+        self.directory_row.width = _bind(    # find_progress.nml:24
             lambda _o: max(0, _o.parent.width - 4)
         )
 
-        self.count_row.y = 2    # find_progress.nml:29
-        self.count_row.align = 'center'    # find_progress.nml:33
-        self.count_row.text = _bind(    # find_progress.nml:34
+        self.count_row.y = 2    # find_progress.nml:30
+        self.count_row.align = 'center'    # find_progress.nml:34
+        self.count_row.text = _bind(    # find_progress.nml:35
             lambda _o: str(self.count) + ' files found' if self.count else _tr('No files found')
         )
-        self.count_row.x = 2    # find_progress.nml:31
-        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_progress.nml:32
+        self.count_row.x = 2    # find_progress.nml:32
+        self.count_row.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # find_progress.nml:33
 
         self._navml_built(__class__)

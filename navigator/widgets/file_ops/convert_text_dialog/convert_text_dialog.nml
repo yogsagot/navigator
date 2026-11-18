@@ -15,6 +15,7 @@ ConvertTextDialog(Dialog):
     modal_width: 60
     modal_height: 14
     title: "Convert Text Files"
+    help_topic: "file-operations.md#convert-text"
     buttons: "none"
 
     #: The line endings first: what is changed most, and Enter on a choice

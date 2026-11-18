@@ -20,6 +20,7 @@ from navml.widgets.timer import Timer
 #: there in DN.  Its keys are ``StatusDef hcTetris``'s.
 GameWindow(Window):
     title: "Navigator's game"
+    help_topic: "game.md"
     zoomable: False
     resizable: False
 

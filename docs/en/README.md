@@ -28,22 +28,27 @@ Every command is in the menus, with its key beside it. `Alt+Shift+P` finds a com
 
 Files and directories:
 
-- [Panels](panels.md): moving around, views, sorting, tagging, the filter, finding files, list files
-- [File operations](file-operations.md): copy and move, erase, attributes, links, split and combine, UU
+- [Panels](panels.md): moving around, views, sorting, tagging, columns, the filter, finding files and duplicates,
+  list files
+- [File operations](file-operations.md): copy and move, renaming, erase, attributes, links, split and combine,
+  UU, checksums, encryption, converting text
 - [Archives](archives.md): creating an archive and extracting from one
 - [Comparing](compare.md): directories, the Synchronize window, two files
 - [Directory trees](trees.md): the tree beside a panel, changing directory, directory sizes
-- [Places other than the disk](drives.md): archives, servers, containers, volumes, the Trash, bookmarks
+- [Places other than the disk](drives.md): archives, servers, containers, volumes, the Trash
+- [Connections](connections.md): the link manager, passwords, host keys, port forwards, saved links
+- [Bookmarks](bookmarks.md): the list and its keys
 
 Looking at files and changing them:
 
-- [The viewer](viewer.md): its keys, what it shows specially, searching a table
+- [The viewer](viewer.md): its keys, searching, filtering lines, the data tree, tables
 - [The editor](editor.md): its keys, blocks, find and replace, go to a line, margins
+- [Macros](macros.md): recorded keys, and the editor's macros
 
 Working with Navigator:
 
-- [The command line and the console](console.md)
-- [Windows](windows.md): moving between windows, and the window list
+- [The command line and the console](console.md): running commands, command windows, the histories
+- [Windows](windows.md): moving between windows, the window list, the command palette
 - [Dialog boxes](dialogs.md): their keys, and choosing a file
 - [Copy and paste](clipboard.md): the keys, the clipboard tools, and what each terminal does with them
 - [Settings](settings.md): every page of Options > Settings
@@ -53,7 +58,8 @@ Working with Navigator:
 Tools:
 
 - [The calculator](calculator.md): its four faces, expressions and keys
-- [Utilities](utilities.md): the process list, services, the system monitor, the environment
-- [The game](game.md): its keys and the Top Ten
+- [Utilities](utilities.md): the process list, services, the system monitor, the environment, system
+  information, the calendar, the character table, SmartPad, the system menu
+- [The game](game.md): its keys, the Top Ten, its setup
 
 - [Help on help](help.md): the keys of this window

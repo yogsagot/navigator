@@ -25,3 +25,11 @@ The game pauses by itself when you switch to another window.
 
 When a game ends with a score good enough for the Top Ten, you are asked for a name to list it under. With no
 name, or with *Cancel*, it is listed as *Anonymous*. There is one list for each style.
+
+## Setup
+
+`F5`, or the *Setup* button, sets the game up.
+
+- *Level* is the level a game starts at, from *1 - Baby* to *10 - Sanitarium*. The figures fall faster at each.
+- *Game style* is *Classic tetris* or *Pentix*.
+- *Piece preview* shows the next figure beside the glass.

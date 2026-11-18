@@ -15,6 +15,7 @@ MultiRenameDialog(Dialog):
     modal_width: 76
     modal_height: 25
     title: "Multi-rename"
+    help_topic: "file-operations.md#multi-rename"
 
     Field:
         id: name_mask

@@ -29,6 +29,7 @@ CopyProgress(Dialog):
     modal_width: 60
     modal_height: 14
     title: "Rename/move" if root.move else "Copy"
+    help_topic: "file-operations.md#while-it-runs"
     #: *Background* beside the one button, while the watcher can let the box
     #: go (``navigator.widgets.file_ops.background_button``).
     buttons: "yes-no" if root.background else "ok"

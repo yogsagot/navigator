@@ -49,37 +49,37 @@ class GameWindow(Window, _Component):
     __navml_source__ = "game_window.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # game_window.nml:26
-        'escape': CloseWindow,    # game_window.nml:27
-        'f2': NewGame,    # game_window.nml:28
-        'f3': PauseGame,    # game_window.nml:29
-        'f4': ShowTopTen,    # game_window.nml:30
-        'f5': GameSetup,    # game_window.nml:31
-        'kp_plus': LevelUp,    # game_window.nml:32
-        'kp_multiply': TogglePreview,    # game_window.nml:33
-        'alt+n': NewGame,    # game_window.nml:34
-        'alt+p': PauseGame,    # game_window.nml:35
-        'alt+t': ShowTopTen,    # game_window.nml:36
-        'alt+s': GameSetup,    # game_window.nml:37
+    keys = {    # game_window.nml:27
+        'escape': CloseWindow,    # game_window.nml:28
+        'f2': NewGame,    # game_window.nml:29
+        'f3': PauseGame,    # game_window.nml:30
+        'f4': ShowTopTen,    # game_window.nml:31
+        'f5': GameSetup,    # game_window.nml:32
+        'kp_plus': LevelUp,    # game_window.nml:33
+        'kp_multiply': TogglePreview,    # game_window.nml:34
+        'alt+n': NewGame,    # game_window.nml:35
+        'alt+p': PauseGame,    # game_window.nml:36
+        'alt+t': ShowTopTen,    # game_window.nml:37
+        'alt+s': GameSetup,    # game_window.nml:38
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    glass: Glass    # game_window.nml:47
-    info: GameInfo    # game_window.nml:54
-    new_button: Button    # game_window.nml:69
-    setup_button: Button    # game_window.nml:74
-    top_button: Button    # game_window.nml:87
-    pause_button: Button    # game_window.nml:92
-    game_menu: SubMenu    # game_window.nml:101
-    clock: Timer    # game_window.nml:117
+    glass: Glass    # game_window.nml:48
+    info: GameInfo    # game_window.nml:55
+    new_button: Button    # game_window.nml:70
+    setup_button: Button    # game_window.nml:75
+    top_button: Button    # game_window.nml:88
+    pause_button: Button    # game_window.nml:93
+    game_menu: SubMenu    # game_window.nml:102
+    clock: Timer    # game_window.nml:118
 
     #: The commands this component handles itself.
-    async def on_show_top_ten(self, event: _Any) -> bool:    # game_window.nml:41
+    async def on_show_top_ten(self, event: _Any) -> bool:    # game_window.nml:42
         """``ShowTopTen``."""
         self.spawn(self.show_scores())
         return True
 
-    async def on_game_setup(self, event: _Any) -> bool:    # game_window.nml:42
+    async def on_game_setup(self, event: _Any) -> bool:    # game_window.nml:43
         """``GameSetup``."""
         self.spawn(self.setup())
         return True
@@ -92,132 +92,133 @@ class GameWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_new_button_click(self, event: _Event) -> bool:    # game_window.nml:69
+    async def on_new_button_click(self, event: _Event) -> bool:    # game_window.nml:70
         """``new_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_setup_button_click(self, event: _Event) -> bool:    # game_window.nml:74
+    async def on_setup_button_click(self, event: _Event) -> bool:    # game_window.nml:75
         """``setup_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_top_button_click(self, event: _Event) -> bool:    # game_window.nml:87
+    async def on_top_button_click(self, event: _Event) -> bool:    # game_window.nml:88
         """``top_button`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_pause_button_click(self, event: _Event) -> bool:    # game_window.nml:92
+    async def on_pause_button_click(self, event: _Event) -> bool:    # game_window.nml:93
         """``pause_button`` raised an event whose handler is ``on_click``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.glass = Glass(parent=self)    # game_window.nml:46
-        self.info = GameInfo(parent=self)    # game_window.nml:53
-        _w1 = ButtonRow(parent=self)    # game_window.nml:60
-        self.new_button = Button(parent=_w1)    # game_window.nml:68
-        self.setup_button = Button(parent=_w1)    # game_window.nml:73
-        _w2 = ButtonRow(parent=self)    # game_window.nml:78
-        self.top_button = Button(parent=_w2)    # game_window.nml:86
-        self.pause_button = Button(parent=_w2)    # game_window.nml:91
-        self.game_menu = SubMenu(parent=self)    # game_window.nml:100
-        _w3 = MenuItem(parent=self.game_menu)    # game_window.nml:103
-        _w4 = MenuItem(parent=self.game_menu)    # game_window.nml:104
-        _w5 = MenuItem(parent=self.game_menu)    # game_window.nml:105
-        _w6 = MenuItem(parent=self.game_menu)    # game_window.nml:106
-        _w7 = MenuLine(parent=self.game_menu)    # game_window.nml:107
-        _w8 = MenuItem(parent=self.game_menu)    # game_window.nml:108
-        _w9 = MenuItem(parent=self.game_menu)    # game_window.nml:110
-        _w10 = MenuLine(parent=self.game_menu)    # game_window.nml:112
-        _w11 = MenuItem(parent=self.game_menu)    # game_window.nml:113
-        self.clock = Timer(parent=self)    # game_window.nml:116
+        self.glass = Glass(parent=self)    # game_window.nml:47
+        self.info = GameInfo(parent=self)    # game_window.nml:54
+        _w1 = ButtonRow(parent=self)    # game_window.nml:61
+        self.new_button = Button(parent=_w1)    # game_window.nml:69
+        self.setup_button = Button(parent=_w1)    # game_window.nml:74
+        _w2 = ButtonRow(parent=self)    # game_window.nml:79
+        self.top_button = Button(parent=_w2)    # game_window.nml:87
+        self.pause_button = Button(parent=_w2)    # game_window.nml:92
+        self.game_menu = SubMenu(parent=self)    # game_window.nml:101
+        _w3 = MenuItem(parent=self.game_menu)    # game_window.nml:104
+        _w4 = MenuItem(parent=self.game_menu)    # game_window.nml:105
+        _w5 = MenuItem(parent=self.game_menu)    # game_window.nml:106
+        _w6 = MenuItem(parent=self.game_menu)    # game_window.nml:107
+        _w7 = MenuLine(parent=self.game_menu)    # game_window.nml:108
+        _w8 = MenuItem(parent=self.game_menu)    # game_window.nml:109
+        _w9 = MenuItem(parent=self.game_menu)    # game_window.nml:111
+        _w10 = MenuLine(parent=self.game_menu)    # game_window.nml:113
+        _w11 = MenuItem(parent=self.game_menu)    # game_window.nml:114
+        self.clock = Timer(parent=self)    # game_window.nml:117
 
         self.title = _bind(lambda _o: _tr("Navigator's game"), yielding=True)    # game_window.nml:22
-        self.zoomable = False    # game_window.nml:23
-        self.resizable = False    # game_window.nml:24
-        self.local_menu = _bind(lambda _o: self.game_menu)    # game_window.nml:44
+        self.help_topic = 'game.md'    # game_window.nml:23
+        self.zoomable = False    # game_window.nml:24
+        self.resizable = False    # game_window.nml:25
+        self.local_menu = _bind(lambda _o: self.game_menu)    # game_window.nml:45
 
-        self.glass.x = 1    # game_window.nml:48
-        self.glass.y = 1    # game_window.nml:49
-        self.glass.width = 26    # game_window.nml:50
-        self.glass.height = 21    # game_window.nml:51
+        self.glass.x = 1    # game_window.nml:49
+        self.glass.y = 1    # game_window.nml:50
+        self.glass.width = 26    # game_window.nml:51
+        self.glass.height = 21    # game_window.nml:52
 
-        self.info.x = 28    # game_window.nml:55
-        self.info.y = 1    # game_window.nml:56
-        self.info.width = 23    # game_window.nml:57
-        self.info.height = 15    # game_window.nml:58
+        self.info.x = 28    # game_window.nml:56
+        self.info.y = 1    # game_window.nml:57
+        self.info.width = 23    # game_window.nml:58
+        self.info.height = 15    # game_window.nml:59
 
-        _w1.justify = 'start'    # game_window.nml:61
-        _w1.spacing = 0    # game_window.nml:62
-        _w1.y = 17# game_window.nml:63
-        _w1.x = 28# game_window.nml:65
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 28))    # game_window.nml:66
+        _w1.justify = 'start'    # game_window.nml:62
+        _w1.spacing = 0    # game_window.nml:63
+        _w1.y = 17# game_window.nml:64
+        _w1.x = 28# game_window.nml:66
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 28))    # game_window.nml:67
 
-        self.new_button.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:70
-        self.new_button.command = NewGame    # game_window.nml:71
-        self.new_button.on_click = self.on_new_button_click    # game_window.nml:69
+        self.new_button.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:71
+        self.new_button.command = NewGame    # game_window.nml:72
+        self.new_button.on_click = self.on_new_button_click    # game_window.nml:70
 
-        self.setup_button.text = _bind(    # game_window.nml:75
+        self.setup_button.text = _bind(    # game_window.nml:76
             lambda _o: _tr('~S~etup'),
             yielding=True,
         )
-        self.setup_button.command = GameSetup    # game_window.nml:76
-        self.setup_button.on_click = self.on_setup_button_click    # game_window.nml:74
+        self.setup_button.command = GameSetup    # game_window.nml:77
+        self.setup_button.on_click = self.on_setup_button_click    # game_window.nml:75
 
-        _w2.justify = 'start'    # game_window.nml:79
-        _w2.spacing = 0    # game_window.nml:80
-        _w2.y = 19# game_window.nml:81
-        _w2.x = 28# game_window.nml:83
-        _w2.width = _bind(lambda _o: max(0, _o.parent.width - 28))    # game_window.nml:84
+        _w2.justify = 'start'    # game_window.nml:80
+        _w2.spacing = 0    # game_window.nml:81
+        _w2.y = 19# game_window.nml:82
+        _w2.x = 28# game_window.nml:84
+        _w2.width = _bind(lambda _o: max(0, _o.parent.width - 28))    # game_window.nml:85
 
-        self.top_button.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:88
-        self.top_button.command = ShowTopTen    # game_window.nml:89
-        self.top_button.on_click = self.on_top_button_click    # game_window.nml:87
+        self.top_button.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:89
+        self.top_button.command = ShowTopTen    # game_window.nml:90
+        self.top_button.on_click = self.on_top_button_click    # game_window.nml:88
 
-        self.pause_button.text = _bind(    # game_window.nml:93
+        self.pause_button.text = _bind(    # game_window.nml:94
             lambda _o: _tr('~P~ause'),
             yielding=True,
         )
-        self.pause_button.command = PauseGame    # game_window.nml:94
-        self.pause_button.on_click = self.on_pause_button_click    # game_window.nml:92
+        self.pause_button.command = PauseGame    # game_window.nml:95
+        self.pause_button.on_click = self.on_pause_button_click    # game_window.nml:93
 
-        self.game_menu.text = _bind(lambda _o: _tr('~G~ame'), yielding=True)    # game_window.nml:100
-        self.game_menu.after = 'File'    # game_window.nml:100
-        self.game_menu.tooltip = _bind(    # game_window.nml:102
+        self.game_menu.text = _bind(lambda _o: _tr('~G~ame'), yielding=True)    # game_window.nml:101
+        self.game_menu.after = 'File'    # game_window.nml:101
+        self.game_menu.tooltip = _bind(    # game_window.nml:103
             lambda _o: _tr('A new game, pause, the Top Ten and setup'),
             yielding=True,
         )
 
-        _w3.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:103
-        _w3.command = NewGame    # game_window.nml:103
+        _w3.text = _bind(lambda _o: _tr('~N~ew'), yielding=True)    # game_window.nml:104
+        _w3.command = NewGame    # game_window.nml:104
 
-        _w4.text = _bind(lambda _o: _tr('~P~ause'), yielding=True)    # game_window.nml:104
-        _w4.command = PauseGame    # game_window.nml:104
+        _w4.text = _bind(lambda _o: _tr('~P~ause'), yielding=True)    # game_window.nml:105
+        _w4.command = PauseGame    # game_window.nml:105
 
-        _w5.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:105
-        _w5.command = ShowTopTen    # game_window.nml:105
+        _w5.text = _bind(lambda _o: _tr('~T~op 10'), yielding=True)    # game_window.nml:106
+        _w5.command = ShowTopTen    # game_window.nml:106
 
-        _w6.text = _bind(lambda _o: _tr('~S~etup'), yielding=True)    # game_window.nml:106
-        _w6.command = GameSetup    # game_window.nml:106
+        _w6.text = _bind(lambda _o: _tr('~S~etup'), yielding=True)    # game_window.nml:107
+        _w6.command = GameSetup    # game_window.nml:107
 
-        _w8.text = _bind(lambda _o: _tr('~L~evel up'), yielding=True)    # game_window.nml:108
-        _w8.command = LevelUp    # game_window.nml:108
-        _w8.tooltip = _bind(    # game_window.nml:109
+        _w8.text = _bind(lambda _o: _tr('~L~evel up'), yielding=True)    # game_window.nml:109
+        _w8.command = LevelUp    # game_window.nml:109
+        _w8.tooltip = _bind(    # game_window.nml:110
             lambda _o: _tr('Play at the next level, faster'),
             yielding=True,
         )
 
-        _w9.text = _bind(lambda _o: _tr('Pre~v~iew'), yielding=True)    # game_window.nml:110
-        _w9.command = TogglePreview    # game_window.nml:110
-        _w9.tooltip = _bind(    # game_window.nml:111
+        _w9.text = _bind(lambda _o: _tr('Pre~v~iew'), yielding=True)    # game_window.nml:111
+        _w9.command = TogglePreview    # game_window.nml:111
+        _w9.tooltip = _bind(    # game_window.nml:112
             lambda _o: _tr('Show the next figure'),
             yielding=True,
         )
 
-        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # game_window.nml:113
-        _w11.command = CloseWindow    # game_window.nml:113
+        _w11.text = _bind(lambda _o: _tr('~C~lose'), yielding=True)    # game_window.nml:114
+        _w11.command = CloseWindow    # game_window.nml:114
 
-        self.clock.interval = round(TICK * 1000)    # game_window.nml:118
+        self.clock.interval = round(TICK * 1000)    # game_window.nml:119
 
-        async def _on_timer(event):    # game_window.nml:119
+        async def _on_timer(event):    # game_window.nml:120
             await self._tick()
             return True
         self.clock.on_timer = _on_timer

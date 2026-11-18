@@ -15,6 +15,7 @@ ViewerFindDialog(Dialog):
     modal_width: 50
     modal_height: 14
     title: "Find"
+    help_topic: "viewer.md#searching"
 
     Label:
         id: what_caption

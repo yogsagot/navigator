@@ -41,6 +41,7 @@ class HostKeyQuery(Dialog, _Component):
         self.modal_width = 64    # host_key_query.nml:9
         self.modal_height = 11    # host_key_query.nml:10
         self.title = _bind(lambda _o: _tr('Unknown SSH host'), yielding=True)    # host_key_query.nml:11
-        self.buttons = 'yes-no-cancel'    # host_key_query.nml:12
+        self.help_topic = 'connections.md#an-unknown-host-key'    # host_key_query.nml:12
+        self.buttons = 'yes-no-cancel'    # host_key_query.nml:13
 
         self._navml_built(__class__)

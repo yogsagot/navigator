@@ -43,21 +43,23 @@ class PaletteFileDialog(FileDialog, _Component):
     __navml_source__ = "palette_file_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    preview: CheckBoxes    # palette_file_dialog.nml:18
+    preview: CheckBoxes    # palette_file_dialog.nml:19
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.preview = CheckBoxes(parent=self)    # palette_file_dialog.nml:17
+        self.preview = CheckBoxes(parent=self)    # palette_file_dialog.nml:18
 
-        self.preview.x = 3    # palette_file_dialog.nml:19
-        self.preview.y = 16    # palette_file_dialog.nml:20
-        self.preview.width = 30    # palette_file_dialog.nml:21
-        self.preview.height = 1    # palette_file_dialog.nml:22
-        self.preview.items = _bind(    # palette_file_dialog.nml:23
+        self.help_topic = 'customizing.md#colours'    # palette_file_dialog.nml:16
+
+        self.preview.x = 3    # palette_file_dialog.nml:20
+        self.preview.y = 16    # palette_file_dialog.nml:21
+        self.preview.width = 30    # palette_file_dialog.nml:22
+        self.preview.height = 1    # palette_file_dialog.nml:23
+        self.preview.items = _bind(    # palette_file_dialog.nml:24
             lambda _o: [_tr('~P~review palette')],
             yielding=True,
         )
-        self.preview.tooltips = _bind(    # palette_file_dialog.nml:24
+        self.preview.tooltips = _bind(    # palette_file_dialog.nml:25
             lambda _o: [_tr('Paint the palette under the cursor in the box beside the list')],
             yielding=True,
         )

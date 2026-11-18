@@ -17,6 +17,7 @@ CommandPalette(Dialog):
     modal_width: max(40, min(parent.width - 4, 72)) if parent is not None else 72
     modal_height: max(10, min(parent.height - 2, 22)) if parent is not None else 22
     title: "Commands"
+    help_topic: "windows.md#command-palette"
     close_on_outside_click: True
     buttons: "none"
 

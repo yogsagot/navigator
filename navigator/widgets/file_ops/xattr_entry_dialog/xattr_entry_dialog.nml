@@ -8,6 +8,7 @@ XattrEntryDialog(Dialog):
     modal_width: 60
     modal_height: 11
     title: "Extended Attribute"
+    help_topic: "file-operations.md#extended-attributes"
     buttons: "ok-cancel"
 
     Field:

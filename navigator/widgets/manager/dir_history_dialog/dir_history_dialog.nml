@@ -10,6 +10,7 @@ DirHistoryDialog(Dialog):
     modal_width: 59
     modal_height: 17
     title: "Directories History"
+    help_topic: "panels.md#history-of-directories"
     buttons: "none"
 
     buttons_row: (pick, drop, abandon)

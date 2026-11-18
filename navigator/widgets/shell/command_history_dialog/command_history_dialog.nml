@@ -11,6 +11,7 @@ CommandHistoryDialog(Dialog):
     modal_width: 59
     modal_height: 17
     title: "Commands history"
+    help_topic: "console.md#commands-history"
     buttons: "none"
 
     buttons_row: (run, drop, edit, kill, abandon)

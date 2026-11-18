@@ -16,6 +16,7 @@ DeleteProgress(Dialog):
     modal_width: 50
     modal_height: 11
     title: "Erase"
+    help_topic: "file-operations.md#erase"
     #: *Background* beside the one button, while the watcher can let the box
     #: go (``navigator.widgets.file_ops.background_button``).
     buttons: "yes-no" if root.background else "ok"

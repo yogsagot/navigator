@@ -11,6 +11,7 @@ DeleteBookmarkDialog(Dialog):
     modal_width: 50
     modal_height: 10
     title: "Delete bookmark"
+    help_topic: "bookmarks.md#the-list"
     buttons: "yes-no"
     #: Opened from the bookmarks box, and holds nothing a click could lose.
     close_on_outside_click: True

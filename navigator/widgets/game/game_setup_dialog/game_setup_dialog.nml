@@ -11,6 +11,7 @@ GameSetupDialog(Dialog):
     modal_width: 53
     modal_height: 15
     title: "Setup game"
+    help_topic: "game.md#setup"
     buttons: "none"
 
     buttons_row: (pick, abandon)

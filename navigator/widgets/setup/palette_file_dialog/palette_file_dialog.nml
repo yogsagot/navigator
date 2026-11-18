@@ -13,6 +13,7 @@ from navml.widgets.dialog.file_dialog import FileDialog
 #: those bindings, so the hand-written half unbinds and places them all;
 #: this adds the box.
 PaletteFileDialog(FileDialog):
+    help_topic: "customizing.md#colours"
 
     CheckBoxes:
         id: preview

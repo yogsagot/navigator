@@ -44,15 +44,15 @@ class SelectDialog(Dialog, _Component):
     select: bool = _reactive(True)    # select_dialog.nml:15
 
     #: Ids, annotated so the hand-written half completes them.
-    mask_caption: Label    # select_dialog.nml:22
-    mask: Field    # select_dialog.nml:31
-    options: CheckBoxes    # select_dialog.nml:41
+    mask_caption: Label    # select_dialog.nml:23
+    mask: Field    # select_dialog.nml:32
+    options: CheckBoxes    # select_dialog.nml:42
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.mask_caption = Label(parent=self)    # select_dialog.nml:21
-        self.mask = Field(parent=self)    # select_dialog.nml:30
-        self.options = CheckBoxes(parent=self)    # select_dialog.nml:40
+        self.mask_caption = Label(parent=self)    # select_dialog.nml:22
+        self.mask = Field(parent=self)    # select_dialog.nml:31
+        self.options = CheckBoxes(parent=self)    # select_dialog.nml:41
 
         self.modal_width = 30    # select_dialog.nml:17
         self.modal_height = 10    # select_dialog.nml:18
@@ -60,34 +60,35 @@ class SelectDialog(Dialog, _Component):
             lambda _o: _tr('Select') if self.select else _tr('Unselect'),
             yielding=True,
         )
+        self.help_topic = 'panels.md#select-group'    # select_dialog.nml:20
 
-        self.mask_caption.x = 2    # select_dialog.nml:23
-        self.mask_caption.y = 1    # select_dialog.nml:24
-        self.mask_caption.width = 12    # select_dialog.nml:25
-        self.mask_caption.text = _bind(    # select_dialog.nml:26
+        self.mask_caption.x = 2    # select_dialog.nml:24
+        self.mask_caption.y = 1    # select_dialog.nml:25
+        self.mask_caption.width = 12    # select_dialog.nml:26
+        self.mask_caption.text = _bind(    # select_dialog.nml:27
             lambda _o: _tr('~F~ile mask'),
             yielding=True,
         )
-        self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # select_dialog.nml:27
+        self.mask_caption.link = _bind(lambda _o: self.mask.entry)    # select_dialog.nml:28
 
-        self.mask.y = 2    # select_dialog.nml:32
-        self.mask.label_text = ''    # select_dialog.nml:36
-        self.mask.label_width = 0    # select_dialog.nml:37
-        self.mask.history_id = 'select'    # select_dialog.nml:38
-        self.mask.x = 2    # select_dialog.nml:34
-        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:35
+        self.mask.y = 2    # select_dialog.nml:33
+        self.mask.label_text = ''    # select_dialog.nml:37
+        self.mask.label_width = 0    # select_dialog.nml:38
+        self.mask.history_id = 'select'    # select_dialog.nml:39
+        self.mask.x = 2    # select_dialog.nml:35
+        self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:36
 
-        self.options.y = 4    # select_dialog.nml:42
-        self.options.height = 1    # select_dialog.nml:43
-        self.options.items = _bind(    # select_dialog.nml:47
+        self.options.y = 4    # select_dialog.nml:43
+        self.options.height = 1    # select_dialog.nml:44
+        self.options.items = _bind(    # select_dialog.nml:48
             lambda _o: [_tr('~E~xcept mask')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # select_dialog.nml:48
+        self.options.tooltips = _bind(    # select_dialog.nml:49
             lambda _o: [_tr('Select what the mask does not match')],
             yielding=True,
         )
-        self.options.x = 2    # select_dialog.nml:45
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:46
+        self.options.x = 2    # select_dialog.nml:46
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # select_dialog.nml:47
 
         self._navml_built(__class__)

@@ -13,5 +13,6 @@ AboutDialog(Dialog):
     modal_width: 52
     modal_height: 17
     title: "About"
+    help_topic: "utilities.md#the-system-menu"
     buttons: "ok"
     prompt: about_text(project_info())

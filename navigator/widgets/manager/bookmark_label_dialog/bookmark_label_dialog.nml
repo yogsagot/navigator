@@ -9,6 +9,7 @@ BookmarkLabelDialog(Dialog):
     modal_width: 48
     modal_height: 8
     title: "Bookmark label"
+    help_topic: "bookmarks.md#the-list"
     #: Opened from the bookmarks box, and holds nothing a click could lose.
     close_on_outside_click: True
 

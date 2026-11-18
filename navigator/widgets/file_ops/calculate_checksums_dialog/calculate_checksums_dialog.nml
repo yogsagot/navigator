@@ -14,6 +14,7 @@ CalculateChecksumsDialog(Dialog):
     modal_width: 60
     modal_height: 14
     title: "Calculate Checksums"
+    help_topic: "file-operations.md#checksums"
     buttons: "none"
 
     buttons_row: (pick, abandon)

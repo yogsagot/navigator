@@ -35,21 +35,22 @@ class QueryDialog(Dialog, _Component):
     __navml_source__ = "query_dialog.nml"
 
     #: Ids, annotated so the hand-written half completes them.
-    sql: Field    # query_dialog.nml:13
+    sql: Field    # query_dialog.nml:14
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.sql = Field(parent=self)    # query_dialog.nml:12
+        self.sql = Field(parent=self)    # query_dialog.nml:13
 
         self.modal_width = 70    # query_dialog.nml:8
         self.modal_height = 8    # query_dialog.nml:9
         self.title = _bind(lambda _o: _tr('Query'), yielding=True)    # query_dialog.nml:10
+        self.help_topic = 'viewer.md#tables'    # query_dialog.nml:11
 
-        self.sql.y = 2    # query_dialog.nml:14
-        self.sql.label_text = _bind(lambda _o: _tr('~S~ELECT'), yielding=True)    # query_dialog.nml:18
-        self.sql.label_width = 8    # query_dialog.nml:19
-        self.sql.history_id = 'sql_query'    # query_dialog.nml:20
-        self.sql.x = 2    # query_dialog.nml:16
-        self.sql.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # query_dialog.nml:17
+        self.sql.y = 2    # query_dialog.nml:15
+        self.sql.label_text = _bind(lambda _o: _tr('~S~ELECT'), yielding=True)    # query_dialog.nml:19
+        self.sql.label_width = 8    # query_dialog.nml:20
+        self.sql.history_id = 'sql_query'    # query_dialog.nml:21
+        self.sql.x = 2    # query_dialog.nml:17
+        self.sql.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # query_dialog.nml:18
 
         self._navml_built(__class__)

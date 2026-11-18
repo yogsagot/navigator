@@ -11,6 +11,7 @@ FilterLinesDialog(Dialog):
     modal_width: 50
     modal_height: 13
     title: "Filter lines"
+    help_topic: "viewer.md#filter-lines"
 
     Label:
         id: what_caption

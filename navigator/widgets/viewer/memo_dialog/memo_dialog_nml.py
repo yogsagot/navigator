@@ -50,75 +50,75 @@ class MemoDialog(Dialog, _Component):
     __navml_source__ = "memo_dialog.nml"
 
     #: The keys this component binds, read through key_table().
-    keys = {    # memo_dialog.nml:27
-        'f2': Unwrap,    # memo_dialog.nml:28
-        'f4': HexMode,    # memo_dialog.nml:29
-        'f5': GotoAddress,    # memo_dialog.nml:30
-        'f6': AddFilter,    # memo_dialog.nml:31
-        'f7': SearchFor,    # memo_dialog.nml:32
-        'ctrl+f7': ReverseSearch,    # memo_dialog.nml:33
-        'shift+f7': ContinueSearch,    # memo_dialog.nml:34
-        'ctrl+l': SearchAgain,    # memo_dialog.nml:35
-        'ctrl+enter': SearchAgain,    # memo_dialog.nml:36
-        'shift+f6': ChooseEncoding,    # memo_dialog.nml:37
+    keys = {    # memo_dialog.nml:28
+        'f2': Unwrap,    # memo_dialog.nml:29
+        'f4': HexMode,    # memo_dialog.nml:30
+        'f5': GotoAddress,    # memo_dialog.nml:31
+        'f6': AddFilter,    # memo_dialog.nml:32
+        'f7': SearchFor,    # memo_dialog.nml:33
+        'ctrl+f7': ReverseSearch,    # memo_dialog.nml:34
+        'shift+f7': ContinueSearch,    # memo_dialog.nml:35
+        'ctrl+l': SearchAgain,    # memo_dialog.nml:36
+        'ctrl+enter': SearchAgain,    # memo_dialog.nml:37
+        'shift+f6': ChooseEncoding,    # memo_dialog.nml:38
     }
 
     #: Ids, annotated so the hand-written half completes them.
-    viewer: FileViewer    # memo_dialog.nml:54
-    bar: ScrollBar    # memo_dialog.nml:63
+    viewer: FileViewer    # memo_dialog.nml:55
+    bar: ScrollBar    # memo_dialog.nml:64
 
     #: The commands this component handles itself.
-    async def on_unwrap(self, event: _Any) -> bool:    # memo_dialog.nml:41
+    async def on_unwrap(self, event: _Any) -> bool:    # memo_dialog.nml:42
         """``Unwrap``."""
         self.viewer.toggle_wrap()
         return True
 
-    async def on_hex_mode(self, event: _Any) -> bool:    # memo_dialog.nml:42
+    async def on_hex_mode(self, event: _Any) -> bool:    # memo_dialog.nml:43
         """``HexMode``."""
         self.viewer.cycle_mode()
         return True
 
-    async def on_add_filter(self, event: _Any) -> bool:    # memo_dialog.nml:43
+    async def on_add_filter(self, event: _Any) -> bool:    # memo_dialog.nml:44
         """``AddFilter``."""
         self.viewer.cycle_filter()
         return True
 
-    async def on_set_view_mode(self, event: _Any) -> bool:    # memo_dialog.nml:44
+    async def on_set_view_mode(self, event: _Any) -> bool:    # memo_dialog.nml:45
         """``SetViewMode``."""
         self.viewer.set_mode(event.mode)
         return True
 
-    async def on_set_view_filter(self, event: _Any) -> bool:    # memo_dialog.nml:45
+    async def on_set_view_filter(self, event: _Any) -> bool:    # memo_dialog.nml:46
         """``SetViewFilter``."""
         self.viewer.set_filter(event.filter)
         return True
 
-    async def on_goto_address(self, event: _Any) -> bool:    # memo_dialog.nml:46
+    async def on_goto_address(self, event: _Any) -> bool:    # memo_dialog.nml:47
         """``GotoAddress``."""
         self.spawn(viewer_host.goto_address(self))
         return True
 
-    async def on_choose_encoding(self, event: _Any) -> bool:    # memo_dialog.nml:47
+    async def on_choose_encoding(self, event: _Any) -> bool:    # memo_dialog.nml:48
         """``ChooseEncoding``."""
         self.spawn(viewer_host.choose_encoding(self))
         return True
 
-    async def on_search_for(self, event: _Any) -> bool:    # memo_dialog.nml:48
+    async def on_search_for(self, event: _Any) -> bool:    # memo_dialog.nml:49
         """``SearchFor``."""
         self.spawn(viewer_host.search_for(self))
         return True
 
-    async def on_continue_search(self, event: _Any) -> bool:    # memo_dialog.nml:49
+    async def on_continue_search(self, event: _Any) -> bool:    # memo_dialog.nml:50
         """``ContinueSearch``."""
         self.spawn(viewer_host.search_again(self, reverse=False))
         return True
 
-    async def on_search_again(self, event: _Any) -> bool:    # memo_dialog.nml:50
+    async def on_search_again(self, event: _Any) -> bool:    # memo_dialog.nml:51
         """``SearchAgain``."""
         self.spawn(viewer_host.search_again(self, reverse=False))
         return True
 
-    async def on_reverse_search(self, event: _Any) -> bool:    # memo_dialog.nml:51
+    async def on_reverse_search(self, event: _Any) -> bool:    # memo_dialog.nml:52
         """``ReverseSearch``."""
         self.spawn(viewer_host.search_again(self, reverse=True))
         return True
@@ -131,34 +131,35 @@ class MemoDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_bar_scroll(self, event: _Event) -> bool:    # memo_dialog.nml:63
+    async def on_bar_scroll(self, event: _Event) -> bool:    # memo_dialog.nml:64
         """``bar`` raised an event whose handler is ``on_scroll``."""
         return False
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
-        self.viewer = FileViewer(parent=self)    # memo_dialog.nml:53
-        self.bar = ScrollBar(parent=self)    # memo_dialog.nml:62
+        self.viewer = FileViewer(parent=self)    # memo_dialog.nml:54
+        self.bar = ScrollBar(parent=self)    # memo_dialog.nml:63
 
         self.modal_width = 69    # memo_dialog.nml:22
         self.modal_height = 19    # memo_dialog.nml:23
         self.title = _bind(lambda _o: _tr('Memo view'), yielding=True)    # memo_dialog.nml:24
-        self.buttons = 'ok'    # memo_dialog.nml:25
+        self.help_topic = 'viewer.md#tables'    # memo_dialog.nml:25
+        self.buttons = 'ok'    # memo_dialog.nml:26
 
-        self.viewer.x = 2    # memo_dialog.nml:56
-        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # memo_dialog.nml:57
-        self.viewer.y = 2    # memo_dialog.nml:58
-        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:59
+        self.viewer.x = 2    # memo_dialog.nml:57
+        self.viewer.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # memo_dialog.nml:58
+        self.viewer.y = 2    # memo_dialog.nml:59
+        self.viewer.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:60
 
-        self.bar.width = 1    # memo_dialog.nml:64
-        self.bar.value = _bind(lambda _o: self.viewer.top)    # memo_dialog.nml:69
-        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # memo_dialog.nml:70
-        self.bar.page = _bind(    # memo_dialog.nml:71
+        self.bar.width = 1    # memo_dialog.nml:65
+        self.bar.value = _bind(lambda _o: self.viewer.top)    # memo_dialog.nml:70
+        self.bar.maximum = _bind(lambda _o: self.viewer.size)    # memo_dialog.nml:71
+        self.bar.page = _bind(    # memo_dialog.nml:72
             lambda _o: max(1, self.viewer.width * self.viewer.height)
         )
-        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - 1 - _o.width))    # memo_dialog.nml:66
-        self.bar.y = 2    # memo_dialog.nml:67
-        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:68
-        self.bar.on_scroll = self.on_bar_scroll    # memo_dialog.nml:63
+        self.bar.x = _bind(lambda _o: max(0, _o.parent.width - 1 - _o.width))    # memo_dialog.nml:67
+        self.bar.y = 2    # memo_dialog.nml:68
+        self.bar.height = _bind(lambda _o: max(0, _o.parent.height - 6))    # memo_dialog.nml:69
+        self.bar.on_scroll = self.on_bar_scroll    # memo_dialog.nml:64
 
         self._navml_built(__class__)

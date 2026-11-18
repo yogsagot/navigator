@@ -183,7 +183,8 @@ class Navigation(_Base):
             x = ox + panel.x + (panel.width - width) // 2
             y = oy + panel.y + 1
             box = PopupMenu(menu, x, y, current=min(keep, len(rows) - 1), behind=self, title=title,
-                            hints=(("Del", tr("Forget")),), keys=(DELETE_BOOKMARK_KEY,))
+                            hints=(("Del", tr("Forget")),), keys=(DELETE_BOOKMARK_KEY,),
+                            help_topic="panels.md#remembering-a-directory")
             chosen = await box.execute(app)
             if box.pressed == DELETE_BOOKMARK_KEY:
                 keep = box.selected
@@ -365,7 +366,8 @@ class Navigation(_Base):
             if reopen is not None:
                 submenu = (menu.entries().index(link_menu), min(reopen, max(0, len(link_menu.entries()) - 1)))
             box = PopupMenu(menu, x, y, current=current, behind=self, title=title, hints=hints, submenu=submenu,
-                            keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY))
+                            keys=(*MOVE_BOOKMARK_KEYS, LABEL_BOOKMARK_KEY, DELETE_BOOKMARK_KEY),
+                            help_topic="bookmarks.md#the-list")
             chosen = await box.execute(app)
             reopen = None
             if box.pressed is not None and id(chosen) in links:

@@ -13,6 +13,7 @@ LinkTargetDialog(Dialog):
     modal_width: 61
     modal_height: 10
     title: "Edit link target"
+    help_topic: "file-operations.md#changing-where-links-point"
     close_on_outside_click: True
 
     Label:

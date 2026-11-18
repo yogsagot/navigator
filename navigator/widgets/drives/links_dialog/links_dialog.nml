@@ -12,6 +12,7 @@ LinksDialog(Dialog):
     modal_width: 70
     modal_height: 18
     title: "Saved links"
+    help_topic: "connections.md#saved-links"
     buttons: "none"
 
     keys:
