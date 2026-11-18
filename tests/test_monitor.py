@@ -208,7 +208,17 @@ def monitor_run(where, monkeypatch, snapshots, *actions, size=(100, 40)):
         # runs the effects filling the meters (the sensors' rows among them):
         # not busy is once that batch is handled and painted.
         window = a.shell.desktop.active_window
-        return getattr(window, "cpu", None) is not None and window._shape is not None and not a.busy
+        if getattr(window, "cpu", None) is None or window._shape is None or a.busy:
+            return False
+        # ... and not before: between the callback and its wake-up the loop is
+        # not busy either, and the rows are still the window's first guess
+        # (``processors()`` of them) -- seen once on CI, 4 rows for 64 (run
+        # 44295366567).  So the rows must be the read's own.
+        from navigator.widgets.shell.monitor_meters.monitor_meters import sensor_rows
+
+        laid_out = tuple(cpu for row in window.cpu.items for cpu in row)
+        return (sorted(laid_out, key=lambda cpu: cpu.number) == list(window.cpu.cpus)
+                and window.sensors.items == sensor_rows(window.sensors.chips))
 
     run_app(app, [open_it, Until(read), *actions, lambda a: None])
     return app
