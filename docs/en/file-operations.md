@@ -78,6 +78,8 @@ box. It renames one file where it is; to move a file, or to rename several by a 
 half shows every new name before anything is done, and the line under it says what is wrong when a name cannot be
 used: an empty name, a name with `/` in it, two files given one name, or a name that is already taken.
 
+![The Multi-rename box: the masks, search and replace, options, the counter, and the list of old and new names](shots/multi-rename.svg)
+
 A new name is made in three steps.
 
 **The masks.** *Name mask* builds the name and *Extension mask* the extension. Text is taken as it is, and a

@@ -21,9 +21,9 @@ deep (``MaxUndo``), each with its place.  Departures, both asked for:
 
 A link out of Help -- another site -- is not followed (an in-app opener was
 declined): it is an OSC 8 link for the terminal, and Tab passes over it.
-A page is wrapped to the width, all but its code blocks, which are never
-wrapped: one wider than the window is what Left and Right scroll to
-(``left``, ``span``), the whole page moving as a ``TScroller``'s did.
+A page is wrapped to the width, all but its code blocks and pictures, which
+are never wrapped or cut: one wider than the window is what Left and Right
+scroll to (``left``, ``span``), the whole page moving as a ``TScroller``'s did.
 
 Kept left to right on a mirrored screen, as the viewer is: its rows are laid
 out already, and a picture must not be turned round.
@@ -91,7 +91,7 @@ class HelpViewer(Widget):
     #: How many rows the page has, for the scroll bar.
     total: int = reactive(0)
     #: The column on the left edge: more than 0 only while a row is wider
-    #: than the window, which only a code block's can be.
+    #: than the window, which only a code block's or a picture's can be.
     left: int = reactive(0)
     #: How wide the widest row is, for the bar along the bottom.
     span: int = reactive(0)

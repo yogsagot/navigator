@@ -53,10 +53,12 @@ every picture has alt text and both of its files.
 
 Rules:
 
-- **Alt text is mandatory and says what is shown**: it is what a window too narrow for the picture, or a missing
-  `.ans`, displays.
-- **Cropped to what it explains, at most 72 columns**: a dialog with its shadow, a menu, one panel. Wider does not
-  fit a help window on an 80-column terminal; a whole-desktop picture is allowed, for GitHub and the website alone.
+- **Alt text is mandatory and says what is shown**: it is what a missing `.ans` displays, and GitHub's for whoever
+  cannot see the picture.
+- **Cropped to what it explains**: a dialog with its shadow, a menu, one panel. One wider than the help window's
+  page (68 columns on an 80-column terminal) is drawn all the same and scrolled to sideways (Left/Right, the
+  bottom bar), so wide is for what cannot be narrower -- the four boxes of 76 to 78 columns, painted on an 84 by
+  30 screen (`WIDE`) so the shadow is not cut at column 80.
 - **Nothing volatile in a scene**: no version, no date or free space that is not pinned, or `--check` goes stale
   with every release (the README's scene does, by decision: it shows About).
 - **A picture is a picture**: the default theme and the language it was painted in, whatever the user runs; and its
@@ -65,14 +67,19 @@ Rules:
   any is stale, `--language CODE` writes `docs/CODE/shots/`. `tests/test_screenshot.py` runs `--check --no-readme`:
   Help's pictures only, since the README's goes stale with the version and the release workflow runs the suite.
 
-**The scenes** (thirteen, each shown by one page): `make-directory`, `copy`, `erase` (`file-operations.md`),
-`create-archive` (`archives.md`), `panel`, `find-file`, `select-group` (`panels.md`), `compare-directories`
+**The scenes** (seventeen, each shown by one page): `make-directory`, `copy`, `erase`, `multi-rename`
+(`file-operations.md`), `link-manager` (`connections.md`), `settings` (`settings.md`), `key-bindings`
+(`customizing.md`), `create-archive` (`archives.md`), `panel`, `find-file`, `select-group` (`panels.md`), `compare-directories`
 (`compare.md`), `viewer-find` (`viewer.md`), `editor-replace` (`editor.md`), `calculator` (`calculator.md`),
 `calendar` (`utilities.md`), `file-menu` (`README.md`, painted on an 80x34 screen: at 24 rows the File menu
-scrolls). **Left out, and why**: Multi-rename, the link manager, Settings and Key bindings are 76-78 columns;
-File attributes shows the machine's user and group; the bookmarks box lists home directories, mounts and which
+scrolls). **Left out, and why**: File attributes shows the machine's user and group; the bookmarks box lists home directories, mounts and which
 link extras are installed; the game draws a random figure.
 
+- **The wide four pin what is the machine's or the session's**: `multi-rename` its own `Rule` in the dialog
+  module's `_session`; `link-manager` three made-up `Entry`s, never the database's, the first chosen
+  (`_choose(0)`); `settings` the Confirmations page with `side="top"`, whatever `[interface] settings_tabs` says;
+  `key-bindings` every section's `defaults()` as the assignments, not a `keybindings.ini`'s. **`key-bindings`
+  goes stale when a section is added to `TABLES` or a global default changes**: regenerate it.
 - **A scene's values are typed in by `stage`**, never the panel's: a target such as `/srv/backup/` where the
   dialog would offer the other panel's directory, which is the scratch directory's random path.
 - **`stage` answers a widget anywhere in the tree** (`cropped()` adds its parents' places: an overlay, a window
@@ -274,8 +281,8 @@ run `Help` -- the one place that built-in button is used. A new page needs its s
   in an `on_key`.
 - **A code block wider than the window is scrolled to, not wrapped**: Left/Right, Shift+wheel or a sideways wheel,
   and the bottom bar move `HelpViewer.left` up to `span - width` (`span` is the widest row); the whole page moves,
-  as a `TScroller`'s. `left` goes back to 0 on another page and when Tab selects a link not wholly in view. A
-  picture wider than the room is still its alt text.
+  as a `TScroller`'s. `left` goes back to 0 on another page and when Tab selects a link not wholly in view. **A
+  picture wider than the page likewise**: drawn whole, never its alt text for width.
 ## The layout, and shipping
 
 - **`layout.py` has** (F3's Markup view is unchanged; `tests/test_help_layout.py`):
@@ -287,10 +294,10 @@ run `Help` -- the one place that built-in button is used. A new page needs its s
     `image` marks the `[alt]` of an image not drawn, whose `href` is the picture's file, not a page.
   - `Builder.picture(rows, src)`: rows carrying `Style` cells in `Row.picture` (`layout.Cell` is `(char,
     classes, link)`, not a `Style`), after the row's `lead`; `Row.cells` keeps the characters classed `picture`.
-    False when wider than the room: never wrapped or cut.
+    Never wrapped or cut: wider than the room, its rows are wider than `Layout.width`. False only with no rows.
   - `markdown.render(..., pictures=)`: a callable from an image's `src` to cells (Help passes
-    `pages.shot` bound to the page and language). Only an image that is a paragraph alone is drawn; among text,
-    unknown, or too wide it is `[alt]` as before.
+    `pages.shot` bound to the page and language). Only an image that is a paragraph alone is drawn; among text
+    or unknown it is `[alt]` as before.
 - **Shipping**: `docs/` stays at the top of the repository and is installed as `navigator/docs/`. `setup.py` says
   so (`package_dir={"navigator.docs": "docs"}`, and therefore lists the packages, which `pyproject.toml`'s
   `packages.find` cannot do for a directory it does not find); package-data takes `**/*.md` and `**/*.ans`, so no

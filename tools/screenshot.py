@@ -305,6 +305,62 @@ async def _calendar(app: Any) -> Any:
     return window
 
 
+# -- the wide ones: 76 to 78 columns, and their shadow -------------------------
+
+#: A screen these fit with their shadow.  The help window draws a picture
+#: wider than its page and scrolls sideways to the rest.
+WIDE = (84, 30)
+
+
+async def _multi_rename(app: Any) -> Any:
+    from navigator.lib.file_ops import multirename
+    from navigator.widgets.file_ops.multi_rename_dialog import MultiRenameDialog, multi_rename_dialog
+
+    # The rule is kept for the session: this picture's own.
+    multi_rename_dialog._session["rule"] = multirename.Rule()
+    panel = app.manager.left
+    items = [multirename.Item(entry.name, panel.location, mtime=PINNED_TIME)
+             for entry in panel.items if not entry.is_dir and entry.name != ".."]
+    dialog = _dialog(app, MultiRenameDialog(items, {panel.location: {item.name for item in items}}))
+    dialog.name_mask.value = "[N]-[C]"
+    dialog.digits.value = "2"
+    return dialog
+
+
+async def _link_manager(app: Any) -> Any:
+    from navigator.lib.drives.profiles import Entry
+    from navigator.widgets.drives.link_manager import LinkManagerDialog
+
+    # Nobody's servers: the database's are the machine's.
+    entries = [
+        Entry("backup", "sftp", "files.example.org", "backup", 22, "/srv/backup"),
+        Entry("web", "sftp", "www.example.org", "deploy", 2222, "/var/www"),
+        Entry("build", "sftp", "build.example.org", "ci", 22, "/home/ci"),
+    ]
+    dialog = _dialog(app, LinkManagerDialog(entries, family="sftp"))
+    await asyncio.sleep(0.05)
+    # The first one chosen, so the lines say what a connection is made of.
+    dialog._choose(0)
+    return dialog
+
+
+async def _settings(app: Any) -> Any:
+    from navigator.widgets.setup.settings_dialog import SettingsDialog
+
+    # Confirmations: a page with nothing of the machine on it.  The tabs
+    # along the top, whatever ``[interface] settings_tabs`` says.
+    return _dialog(app, SettingsDialog(tab="confirmations", side="top"))
+
+
+async def _key_bindings(app: Any) -> Any:
+    from navigator.lib.config import keybindings
+    from navigator.widgets.setup.key_bindings_dialog import KeyBindingsDialog
+
+    # The keys the code binds, not what a keybindings.ini made of them.
+    found = keybindings.sections(type(app))
+    return _dialog(app, KeyBindingsDialog(found, {section.name: section.defaults() for section in found}))
+
+
 async def _panel(app: Any) -> Any:
     panel, _ = _selection(app, "README.md")
     return panel
@@ -321,9 +377,10 @@ async def _file_menu(app: Any) -> Any:
 
 #: The first is the README's and is written where the README wants it; the
 #: rest are Help's.  A Help scene shows nothing that changes between runs or
-#: releases (no version, no date that is not pinned), and is cropped to at
-#: most 72 columns unless it is meant for the website alone: wider, a help
-#: window on an 80-column terminal shows its alt text instead.
+#: releases (no version, no date that is not pinned), and is cropped to what
+#: it explains.  One wider than the help window's page (68 columns on an
+#: 80-column terminal) is drawn all the same and scrolled to sideways, so
+#: wide is for what cannot be narrower: the four boxes of 76 to 78 columns.
 SCENES: tuple[Scene, ...] = (
     Scene("desktop", _about),
     Scene("make-directory", _make_directory),
@@ -337,6 +394,10 @@ SCENES: tuple[Scene, ...] = (
     Scene("editor-replace", _editor_replace),
     Scene("calculator", _calculator),
     Scene("calendar", _calendar),
+    Scene("multi-rename", _multi_rename, size=WIDE),
+    Scene("link-manager", _link_manager, size=WIDE),
+    Scene("settings", _settings, size=WIDE),
+    Scene("key-bindings", _key_bindings, size=WIDE),
     Scene("panel", _panel),
     # Taller than the rest: at 24 rows the File menu is cut and scrolls.
     Scene("file-menu", _file_menu, size=(80, 34)),

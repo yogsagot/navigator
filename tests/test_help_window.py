@@ -32,6 +32,8 @@ PAGES = {
     "en/help.md": "# Help on help\n\nThe keys.\n",
     "en/picture.md": "# Picture\n\n![A box](shots/box.svg)\n\nAfter it.\n",
     "en/code.md": f"# Code\n\n[To the contents](README.md)\n\n```\n{WIDE}\nshort\n```\n",
+    "en/wide.md": "# Wide\n\n![A wide box](shots/wide.svg)\n",
+    "en/shots/wide.ans": f"{RUN}{'═' * 89}╗\x1b[0m\n",
     "en/shots/box.ans": f"{RUN}╔══╗\x1b[0m\n{RUN}╚══╝\x1b[0m\n",
     "lv/README.md": "# Saturs\n\nLatviski.\n",
 }
@@ -267,6 +269,24 @@ def test_a_code_block_wider_than_the_window_is_scrolled_sideways(app):
         (2, True), (34, True), "09........",
         (28, True), (0, True), (0, False),
     ]
+
+
+def test_a_picture_wider_than_the_window_is_drawn_and_scrolled_to(app):
+    seen = []
+
+    def note(a):
+        shown = viewer(a)
+        row = next(n for n, row in enumerate(shown.layout.rows) if row.picture is not None)
+        y = a.modal.y + 1 + row - shown.top
+        last = screen(a).get(a.modal.x + 2 + shown.width - 1, y)
+        seen.append((shown.left, shown.span, a.modal.hbar.visible, last[0], last[1].fg, last[1].bg))
+
+    run_app(app, [
+        lambda a: a.spawn(HelpWindow("wide.md").execute(a)), on_page("wide.md"), note,
+        lambda a: viewer(a).scroll_sideways(1000), note,
+    ])
+    # Its own colours, and the corner at the right edge once scrolled to.
+    assert seen == [(0, 90, True, "═", (1, 2, 3), (4, 5, 6)), (22, 90, True, "╗", (1, 2, 3), (4, 5, 6))]
 
 
 def test_ctrl_f5_moves_and_sizes_the_window_and_esc_puts_it_back(app):

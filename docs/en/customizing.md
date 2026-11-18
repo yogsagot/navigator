@@ -5,6 +5,8 @@
 *Options > Configuration > Key bindings* changes which key does what. The keys are listed in sections, one for
 each place they work in: everywhere, the file manager, the editor, the viewer, dialogs and so on.
 
+![The Key Bindings box: the sections on the left, the commands of one with their keys, and the buttons on the right](shots/key-bindings.svg)
+
 Choose a command and press the key you want for it.
 
 *Save* writes the whole set to a file, and *Load* reads one. Navigator comes with four sets: its default, and

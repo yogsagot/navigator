@@ -113,9 +113,19 @@ def test_a_picture_in_a_list_item_stands_after_the_bullet():
     assert drawn[0].text == "• ╔══╗" and drawn[1].text == "  ║ok║"
 
 
-def test_a_picture_too_wide_or_unknown_or_among_text_is_its_alt_text():
+def test_a_picture_wider_than_the_room_is_drawn_whole():
+    # Never wrapped or cut: the rows are wider than the layout, for whoever
+    # paints them to scroll sideways to.
+    layout = markdown.render(b"- ![A box](shots/box.svg)\n", 3, pictures=lambda source: SHOT)
+    drawn = [row for row in layout.rows if row.picture is not None]
+    assert [row.picture for row in drawn] == SHOT
+    assert layout.width == 3 and [len(row.cells) for row in drawn] == [6, 6, 6]
+    assert layout.links() == []
+
+
+def test_a_picture_unknown_or_among_text_is_its_alt_text():
     for width, pictures, source in (
-        (3, lambda source: SHOT, b"![A box](shots/box.svg)\n"),  # wider than the room
+        (40, lambda source: [], b"![A box](shots/box.svg)\n"),  # no rows
         (40, lambda source: None, b"![A box](shots/box.svg)\n"),  # nothing to show
         (40, lambda source: SHOT, b"See ![A box](shots/box.svg) here.\n"),  # among text
         (40, None, b"![A box](shots/box.svg)\n"),  # the viewer, which passes none

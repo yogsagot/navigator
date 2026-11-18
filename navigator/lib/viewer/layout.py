@@ -404,10 +404,12 @@ class Builder:
         """A picture: *rows* of cells painted as they are (a screenshot's,
         ``navigator/lib/help/ansi.py``), one layout row each.
 
-        False, and nothing emitted, when it is wider than the room there is:
-        a picture is never wrapped or cut, and the caller shows its alt text.
+        Never wrapped or cut: one wider than the room there is makes rows
+        wider than the layout, as a code block's are, and whoever paints
+        them scrolls sideways (Help does).  False, and nothing emitted, only
+        when there are no rows, and the caller shows its alt text.
         """
-        if not rows or max(len(row) for row in rows) > self.room():
+        if not rows:
             return False
         self.open_block()
         classes = self.classes("picture")

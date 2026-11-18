@@ -6,6 +6,8 @@ an option shows what it does.
 
 *OK* applies the changes at once and writes them to `navigator.ini`. *Cancel* drops them.
 
+![The Settings box on its Confirmations page, the pages' tabs along the top](shots/settings.svg)
+
 ## System
 
 - *Internal editor* and *Internal viewer*: `F4` and `F3` use Navigator's own editor and viewer. Off, they run the

@@ -8,6 +8,8 @@ other ways to reach one, are in [Places other than the disk](drives.md).
 Each entry of *Utilities > Link*, such as *SSH (SFTP)* (`Alt+F11`), opens the connections kept for that protocol
 on the left and the lines of one connection on the right.
 
+![The SSH link box: three saved connections on the left, the name, host, login, port and directory of the first on the right](shots/link-manager.svg)
+
 - The box opens with the lines empty. Fill them in and press *Connect* for a connection that is not kept.
 - Choose a connection under *Saved* to put it in the lines. A double click connects to it.
 - *New* makes a kept connection, under a name you can type over. *Save* keeps what you changed; a changed

@@ -176,8 +176,8 @@ class _Renderer(Builder):
 
     def shown_picture(self, inline: Any, src: int) -> bool:
         """Whether the paragraph holding *inline* was one image, alone, and
-        ``pictures`` had cells for it that fit: then it has been drawn as a
-        picture block.  Otherwise nothing is done and the paragraph shows
+        ``pictures`` had cells for it: then it has been drawn as a picture
+        block, however wide.  Otherwise nothing is done and the paragraph shows
         its ``[alt]``, as every image among text does."""
         children = [child for child in inline.children or ()
                     if not (child.type in ("text", "softbreak") and not child.content.strip())]
