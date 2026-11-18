@@ -86,6 +86,23 @@ for layer in navigator navml; do
     [ "$got" -eq "$want" ] || { echo "build.sh: $layer: expected $want catalogues, packaged $got" >&2; exit 1; }
 done
 
+# Help's pages and the pictures its window shows: `docs/', installed as
+# `navigator/docs/' by setup.py's package_dir, which nothing else here would
+# miss -- without them F1 opens on *There is no help page*.  Every page and
+# every .ans the checkout has, and none of the SVGs, which are GitHub's.
+for kind in md ans; do
+    want=$(find docs -mindepth 2 -name "*.$kind" | wc -l)
+    got=$(find "$LIB/navigator/docs" -name "*.$kind" 2>/dev/null | wc -l)
+    [ "$got" -eq "$want" ] && [ "$got" -gt 0 ] || {
+        echo "build.sh: expected $want help .$kind files, packaged $got -- check setup.py and package-data" >&2
+        exit 1
+    }
+done
+if find "$LIB/navigator/docs" -name '*.svg' | grep -q .; then
+    echo "build.sh: an SVG is in the packaged help -- package-data takes .md and .ans alone" >&2
+    exit 1
+fi
+
 # `find', not a glob: a component is a directory, so the generated halves sit
 # one level below the widget package.  It also keeps working if one ever sits
 # flat again.

@@ -62,7 +62,11 @@ leave a working `nav`.
 - **The tree is staged by `pip install --target`, not by copying directories**, so the files that reach the package
   are exactly the ones the wheel declares -- `navigator/styles/*.nss` included. `build.sh` then asserts the stylesheet
   and every theme the checkout has (counted there, not a fixed number) are present, because losing them yields an
-  application that starts and *then* fails to theme.
+  application that starts and *then* fails to theme. The same for **Help**: every `docs/**/*.md` and `*.ans`
+  the checkout has must be under `navigator/docs/` (setup.py's `package_dir`), and no SVG -- without the pages F1
+  opens on *There is no help page*. Checked 2026-11-18: the wheel (built from the sdist), a `pip install
+  --target` of it, and `pip install -e` (where `pages.root()` falls back to `docs/` beside the package) all serve
+  every page and picture; the `.deb`/`.rpm` themselves were not built, nfpm not being installed there.
 - **One `arch: all` / `noarch` package serves every interpreter from 3.12 up**, because every dependency is pure
   Python. A venv could not: it bakes its minor version into `lib/python3.N/site-packages` and into `pyvenv.cfg`, so it
   would need one build per distro. `build.sh` fails the build if a `.so` ever appears in the staged tree, since that
