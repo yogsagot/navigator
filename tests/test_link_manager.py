@@ -80,12 +80,36 @@ def test_the_cursor_a_click_or_space_chooses_a_connection(desk):
         ox, oy = links.offset()
         a.post_event(MouseClickEvent(x=ox + links.x + 3, y=oy + links.y + 1, button="left", action="press"))
 
+    # This failed once on CI (Python 3.13, run 44274898005): after Down the
+    # lines were still the first connection's, and it would not fail again.
+    # ``probe`` records what the box knew at each step, so the next failure
+    # says which it was: the cursor not moved, the lines taken for changed
+    # (*Save changes?* asked in a task), or the choice only landing later.
+    box = []
+    trail = {}
+
+    def probe(name):
+        def look(a):
+            if not box:
+                box.append(a.modal)
+            d = box[0]
+            trail[name] = dict(
+                modal=type(a.modal).__name__, focused=type(a.focused).__name__,
+                on_list=d.links._holds(a.focused), cursor=d.links.cursor, followed=d._followed,
+                chosen=d.chosen, changed=d.changed, values=d._values(), baseline=d._baseline,
+                lines=lines(d), busy=a.busy)
+        return look
+
     run_app(desk, [open_manager, Until(is_manager), click_first, Until(lambda a: a.modal.chosen == 0),
-                   lambda a: seen.update(first=state(a)), lambda a: a.modal.links.focus(), KeyEvent("down"),
-                   lambda a: seen.update(second=state(a)), KeyEvent("escape")])
+                   lambda a: seen.update(first=state(a)), probe("clicked"),
+                   lambda a: a.modal.links.focus(), probe("focused"), KeyEvent("down"),
+                   lambda a: seen.update(second=state(a)), probe("down"),
+                   # Nothing is posted here: what the box is a few turns of the loop later.
+                   lambda a: None, lambda a: None, probe("later"), KeyEvent("escape")])
     assert seen["first"]["lines"] == ("web.example", "deploy", "2222", "/srv", "web")
     assert seen["first"]["save"] and not seen["first"]["delete"] and seen["first"]["said"] == ""
-    assert seen["second"]["lines"] == ("box.lan", "", "", "", "box")
+    assert seen["second"]["lines"] == ("box.lan", "", "", "", "box"), "\n".join(
+        f"{step}: {what}" for step, what in trail.items())
 
 
 def test_new_makes_an_empty_connection_under_a_placeholder_ready_to_rename(desk):
