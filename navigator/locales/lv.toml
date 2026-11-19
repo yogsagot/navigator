@@ -5550,9 +5550,9 @@ flag = "LV"
 # navigator/widgets/shell/service_window/journal_window.py:186
 "Only root reads {path}, where {unit}'s log is." = "Tikai root lasa {path}, kur ir {unit} žurnāls."
 # navigator/widgets/shell/service_window/service_window.py:285
-"{shown} of {count} unit match the filter" = ["{shown} no {count} vienībām atbilst filtram", "{shown} no {count} vienības atbilst filtram", "{shown} no {count} vienībām atbilst filtram"]
+"{shown} of {count} unit match the filter" = ["{shown} no {count} vienības atbilst filtram", "{shown} no {count} vienībām atbilst filtram", "{shown} no {count} vienībām atbilst filtram"]
 # navigator/widgets/shell/service_window/service_window.py:290
-"{count} unit, {running} running, {failed} failed" = ["{count} vienību, darbojas {running}, kļūmes {failed}", "{count} vienība, darbojas {running}, kļūmes {failed}", "{count} vienības, darbojas {running}, kļūmes {failed}"]
+"{count} unit, {running} running, {failed} failed" = ["{count} vienība, darbojas {running}, kļūmes {failed}", "{count} vienības, darbojas {running}, kļūmes {failed}", "{count} vienību, darbojas {running}, kļūmes {failed}"]
 # navigator/widgets/shell/service_window/service_window.py:375
 "Not something {manager} does" = "{manager} to nedara"
 # navigator/widgets/shell/service_window/service_window.py:383

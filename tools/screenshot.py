@@ -668,8 +668,11 @@ async def _completion(app: Any) -> Any:
     await asyncio.sleep(0.05)
     box = shell._completion_list
     ox, oy = line.offset()
-    # The list and the line it hangs over, the prompt's width and a little more.
-    return (0, box.y, 60, oy + line.y + 1 - box.y)
+    # The list and the line it hangs over, the prompt's width and a little
+    # more -- the whole width on a mirrored screen, where the list is on the
+    # other side of a line that is typed left to right all the same.
+    width = app.shell.width if app.rtl else 60
+    return (0, box.y, width, oy + line.y + 1 - box.y)
 
 
 # -- more dialogs -----------------------------------------------------------------
