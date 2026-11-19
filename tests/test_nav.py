@@ -1056,7 +1056,9 @@ def test_an_ascii_terminal_cuts_a_scrolled_name_with_three_dots(tmp_path, quiet_
 def test_left_and_right_scroll_the_names_and_stop_at_the_ends(tmp_path, quiet_console):
     (tmp_path / LONG_NAME).write_text("")
     app = navigator(tmp_path, size=(80, 24))
-    run_app(app, [KeyEvent("right")] * 200)
+    # Posted together: one at a time, 200 of ``run_app``'s settles are four
+    # of its five seconds, and a loaded machine took the fifth.
+    run_app(app, [lambda a: [a.post_event(KeyEvent("right")) for _ in range(200)]])
     panel = app.manager.left
     assert panel.max_name_scroll > 0
     assert panel.name_offset == panel.max_name_scroll
