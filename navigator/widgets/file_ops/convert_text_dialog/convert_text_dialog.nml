@@ -12,7 +12,7 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: The encoding the files are written in and what one that is not UTF-8 is
 #: read as, then the line endings beside keeping the times.
 ConvertTextDialog(Dialog):
-    modal_width: 60
+    modal_width: 70
     modal_height: 14
     title: "Convert Text Files"
     help_topic: "file-operations.md#convert-text"
@@ -31,7 +31,7 @@ ConvertTextDialog(Dialog):
             left: 2
             right: 2
         label_text: "~E~ncoding"
-        label_width: 22
+        label_width: 24
 
     ChoiceField:
         id: fallback
@@ -40,7 +40,7 @@ ConvertTextDialog(Dialog):
             left: 2
             right: 2
         label_text: "Read ~n~on-UTF-8 as"
-        label_width: 22
+        label_width: 24
 
     Label:
         id: ending_caption

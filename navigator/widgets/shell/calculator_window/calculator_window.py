@@ -38,7 +38,10 @@ from navigator.widgets.shell.calculator_window.keys import PADS
 MODES = CalculatorData.MODES
 #: Each face's window: *Classic* is ``dlgCalculator``'s two rows taller, for the strip.
 #: All four fit an 80 by 24 screen's desktop of 21 rows.
-SIZES = {"simple": (32, 20), "classic": (49, 17), "scientific": (62, 20), "programming": (62, 21)}
+#: Each face's size.  Simple and the two wide faces have room for the strip
+#: of faces in every language shipped (Japanese the widest, its faces two by
+#: two in 38 columns, in a row in 68); Classic is DN's 49 by 15, two rows taller.
+SIZES = {"simple": (42, 20), "classic": (49, 17), "scientific": (72, 20), "programming": (72, 21)}
 #: Where a new calculator opens: ``R.Move(10, 5)``, as DN put it.
 X, Y = 10, 5
 #: The programmer's bases and words, in their radio buttons' order.

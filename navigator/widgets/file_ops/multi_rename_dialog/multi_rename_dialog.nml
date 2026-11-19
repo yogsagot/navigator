@@ -24,7 +24,7 @@ MultiRenameDialog(Dialog):
             left: 2
             right: 2
         label_text: "~N~ame mask"
-        label_width: 16
+        label_width: 20
         history_id: "rename_name_mask"
 
     Field:
@@ -34,7 +34,7 @@ MultiRenameDialog(Dialog):
             left: 2
             right: 2
         label_text: "E~x~tension mask"
-        label_width: 16
+        label_width: 20
         history_id: "rename_ext_mask"
 
     Field:
@@ -44,7 +44,7 @@ MultiRenameDialog(Dialog):
             left: 2
             right: 2
         label_text: "~S~earch for"
-        label_width: 16
+        label_width: 20
         history_id: "rename_search"
 
     Field:
@@ -54,7 +54,7 @@ MultiRenameDialog(Dialog):
             left: 2
             right: 2
         label_text: "Re~p~lace with"
-        label_width: 16
+        label_width: 20
         history_id: "rename_replace"
 
     CheckBoxes:
@@ -70,11 +70,12 @@ MultiRenameDialog(Dialog):
     #: viewer's Shift+F6 list.
     ChoiceField:
         id: codepage
-        x: 2
         y: 11
-        width: 47
+        anchors:
+            left: 2
+            right: 2
         label_text: "C~o~de page"
-        label_width: 11
+        label_width: 18
         disabled: not (options.value & 8)
 
     Label:
@@ -97,25 +98,25 @@ MultiRenameDialog(Dialog):
         id: start
         x: 51
         y: 6
-        width: 22
+        width: 23
         label_text: "Coun~t~er"
-        label_width: 9
+        label_width: 10
 
     Field:
         id: step
         x: 51
         y: 7
-        width: 22
+        width: 23
         label_text: "Step"
-        label_width: 9
+        label_width: 10
 
     Field:
         id: digits
         x: 51
         y: 8
-        width: 22
+        width: 23
         label_text: "~D~igits"
-        label_width: 9
+        label_width: 10
 
     RenamePreview:
         id: preview

@@ -54,7 +54,7 @@ class TableFormatDialog(Dialog, _Component):
         self.options = CheckBoxes(parent=self)    # table_format_dialog.nml:43
         self.encoding = ChoiceField(parent=self)    # table_format_dialog.nml:51
 
-        self.modal_width = 50    # table_format_dialog.nml:13
+        self.modal_width = 62    # table_format_dialog.nml:13
         self.modal_height = 14    # table_format_dialog.nml:14
         self.title = _bind(lambda _o: _tr('Format'), yielding=True)    # table_format_dialog.nml:15
         self.help_topic = 'viewer.md#tables'    # table_format_dialog.nml:16
@@ -71,22 +71,22 @@ class TableFormatDialog(Dialog, _Component):
 
         self.delimiter.x = 3    # table_format_dialog.nml:29
         self.delimiter.y = 3    # table_format_dialog.nml:30
-        self.delimiter.width = 18    # table_format_dialog.nml:31
+        self.delimiter.width = 24    # table_format_dialog.nml:31
         self.delimiter.height = 5    # table_format_dialog.nml:32
         self.delimiter.items = _bind(    # table_format_dialog.nml:33
             lambda _o: [_tr('~C~omma'), _tr('~S~emicolon'), _tr('~T~ab'), _tr('~P~ipe'), _tr('~O~ther')],
             yielding=True,
         )
 
-        self.other.x = 23    # table_format_dialog.nml:37
+        self.other.x = 29    # table_format_dialog.nml:37
         self.other.y = 7    # table_format_dialog.nml:38
-        self.other.width = 12    # table_format_dialog.nml:39
+        self.other.width = 16    # table_format_dialog.nml:39
         self.other.label_text = _bind(lambda _o: _tr('C~h~ar'), yielding=True)    # table_format_dialog.nml:40
-        self.other.label_width = 6    # table_format_dialog.nml:41
+        self.other.label_width = 10    # table_format_dialog.nml:41
 
-        self.options.x = 23    # table_format_dialog.nml:45
+        self.options.x = 29    # table_format_dialog.nml:45
         self.options.y = 3    # table_format_dialog.nml:46
-        self.options.width = 25    # table_format_dialog.nml:47
+        self.options.width = 31    # table_format_dialog.nml:47
         self.options.height = 1    # table_format_dialog.nml:48
         self.options.items = _bind(    # table_format_dialog.nml:49
             lambda _o: [_tr('~F~irst row is a header')],
@@ -98,7 +98,7 @@ class TableFormatDialog(Dialog, _Component):
             lambda _o: _tr('~E~ncoding'),
             yielding=True,
         )
-        self.encoding.label_width = 10    # table_format_dialog.nml:58
+        self.encoding.label_width = 14    # table_format_dialog.nml:58
         self.encoding.x = 3    # table_format_dialog.nml:55
         self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # table_format_dialog.nml:56
 

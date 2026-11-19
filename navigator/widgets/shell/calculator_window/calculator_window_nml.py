@@ -300,7 +300,7 @@ class CalculatorWindow(Window, _Component):
         self.angle.visible = _bind(lambda _o: self.mode == 'scientific')    # calculator_window.nml:145
         self.angle.x = 2    # calculator_window.nml:146
         self.angle.y = 5    # calculator_window.nml:147
-        self.angle.width = 30    # calculator_window.nml:148
+        self.angle.width = 44    # calculator_window.nml:148
         self.angle.height = 1    # calculator_window.nml:149
         self.angle.items = _bind(    # calculator_window.nml:150
             lambda _o: [_tr('~D~eg'), _tr('~R~ad'), _tr('Gr~a~d')],
@@ -319,8 +319,8 @@ class CalculatorWindow(Window, _Component):
             lambda _o: _tr("M: a value in memory; 2nd and hyp: the keys' other functions"),
             yielding=True,
         )
-        self.marks_row.x = 34    # calculator_window.nml:158
-        self.marks_row.width = _bind(lambda _o: max(0, _o.parent.width - 36))    # calculator_window.nml:159
+        self.marks_row.x = 47    # calculator_window.nml:158
+        self.marks_row.width = _bind(lambda _o: max(0, _o.parent.width - 49))    # calculator_window.nml:159
 
         self.classic.visible = _bind(lambda _o: self.mode == 'classic')    # calculator_window.nml:167
         self.classic.y = 7    # calculator_window.nml:168

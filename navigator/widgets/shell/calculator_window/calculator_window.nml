@@ -145,7 +145,7 @@ CalculatorWindow(Window):
         visible: root.mode == "scientific"
         x: 2
         y: 5
-        width: 30
+        width: 44
         height: 1
         items: ["~D~eg", "~R~ad", "Gr~a~d"]
         tooltips: ["Angles in degrees, a turn 360", "Angles in radians, a turn 2π", "Angles in grads, a turn 400"]
@@ -155,7 +155,7 @@ CalculatorWindow(Window):
         visible: root.mode == "scientific"
         y: 5
         anchors:
-            left: 34
+            left: 47
             right: 2
         align: "right"
         text: root.marks

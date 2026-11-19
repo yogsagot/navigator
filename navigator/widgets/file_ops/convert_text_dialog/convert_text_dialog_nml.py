@@ -74,7 +74,7 @@ class ConvertTextDialog(Dialog, _Component):
         self.pick = Button(parent=_w1)    # convert_text_dialog.nml:77
         self.abandon = Button(parent=_w1)    # convert_text_dialog.nml:83
 
-        self.modal_width = 60    # convert_text_dialog.nml:15
+        self.modal_width = 70    # convert_text_dialog.nml:15
         self.modal_height = 14    # convert_text_dialog.nml:16
         self.title = _bind(lambda _o: _tr('Convert Text Files'), yielding=True)    # convert_text_dialog.nml:17
         self.help_topic = 'file-operations.md#convert-text'    # convert_text_dialog.nml:18
@@ -87,7 +87,7 @@ class ConvertTextDialog(Dialog, _Component):
             lambda _o: _tr('~E~ncoding'),
             yielding=True,
         )
-        self.encoding.label_width = 22    # convert_text_dialog.nml:34
+        self.encoding.label_width = 24    # convert_text_dialog.nml:34
         self.encoding.x = 2    # convert_text_dialog.nml:31
         self.encoding.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:32
 
@@ -96,7 +96,7 @@ class ConvertTextDialog(Dialog, _Component):
             lambda _o: _tr('Read ~n~on-UTF-8 as'),
             yielding=True,
         )
-        self.fallback.label_width = 22    # convert_text_dialog.nml:43
+        self.fallback.label_width = 24    # convert_text_dialog.nml:43
         self.fallback.x = 2    # convert_text_dialog.nml:40
         self.fallback.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # convert_text_dialog.nml:41
 

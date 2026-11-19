@@ -243,7 +243,7 @@ def test_ctrl_f6_opens_simple_and_its_keys_type_into_the_line(place):
     run_app(app, [KeyEvent("f6", ctrl=True), lambda a: None, press("7"), press("×"), press("6"), lambda a: None,
                   look, press("="), lambda a: None,
                   lambda a: seen.update(after=calc(a).line.value, answer=calc(a).answer)])
-    assert seen["rect"] == (10, 1, 32, 20) and seen["focused"]
+    assert seen["rect"] == (10, 1, 42, 20) and seen["focused"]
     assert seen["line"] == "7*6" and seen["result"] == "42"
     assert seen["after"] == "42" and seen["answer"] == 42
     assert HISTORY.entries("calc")[0] == "7*6"
@@ -274,7 +274,7 @@ def test_the_strip_the_menu_and_ctrl_f6_choose_the_face_and_it_is_kept(place):
                   lambda a: a.spawn(a.run_command(CalculatorProgramming)), lambda a: None, look,
                   KeyEvent("f6", ctrl=True), lambda a: None, look,
                   lambda a: seen.append(a.focused is calc(a).line)])
-    assert seen[:3] == [("scientific", 2, (62, 20)), ("programming", 3, (62, 21)), ("simple", 0, (32, 20))]
+    assert seen[:3] == [("scientific", 2, (72, 20)), ("programming", 3, (72, 21)), ("simple", 0, (42, 20))]
     assert seen[3]
     assert SETTINGS.calculator.mode == "simple"
 
