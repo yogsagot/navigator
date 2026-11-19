@@ -4533,6 +4533,33 @@ def test_typing_what_nothing_starts_with_closes_the_list(tree, quiet_console, co
     assert app.shell.command_line.value == "ls z"
 
 
+def test_on_a_mirrored_screen_the_list_is_still_over_the_word(tree, quiet_console, completing):
+    # The command line stays left to right there, so its word is where it
+    # always is on the screen; the list is mirrored, and is put where the
+    # mirror lands it over that word.
+    completing.start, completing.candidates = 3, ["alpha", "beta"]
+
+    def where(app):
+        """The screen columns of the list's frame and of the word's first letter."""
+        buffer = ScreenBuffer(80, 24)
+        buffer.rtl = app.rtl
+        app.root.render_tree(buffer)
+        painted = buffer.mirrored() if app.rtl else buffer
+        line = app.shell.command_line
+        row = "".join(painted.get(x, line.y)[0] or " " for x in range(80))
+        top = "".join(painted.get(x, app.modal.y)[0] or " " for x in range(80))
+        return row.index("ls ") + 3, min(top.index(c) for c in "┌┐╔╗" if c in top)
+
+    seen = []
+    for direction in ("ltr", "rtl"):
+        app = navigator(tree)
+        app.direction = direction
+        run_app(app, [*typed("ls "), KeyEvent("tab"), lambda a: seen.append(where(a)), KeyEvent("escape")])
+    (word, frame), (mirrored_word, mirrored_frame) = seen
+    assert frame == word - 1
+    assert (mirrored_word, mirrored_frame) == (word, frame)
+
+
 def test_the_completion_list_does_not_dim_the_line_being_typed(tree, quiet_console, completing):
     from navigator.widgets.shell.completion_list import CompletionList
 

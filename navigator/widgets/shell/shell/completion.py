@@ -131,6 +131,15 @@ class Completion(_Base):
         width = min(self.width, max(len(c) for c in shown) + 4)
         height = min(len(shown) + 2, max(3, line.y - 1))
         column = line.x + line.text_origin + start - line.first - 1
+        app = self.application
+        if app is not None and app.rtl:
+            # The line is kept left to right on a mirrored screen
+            # (``mirrors``): its box changes sides, its text does not, and
+            # the list is mirrored with everything else.  So the word's
+            # column as painted, and then where the list has to be put for
+            # the mirror to land it there.
+            painted = self.width - line.x - line.width + line.text_origin + start - line.first - 1
+            column = self.width - painted - width
         x = max(0, min(column, self.width - width))
         y = max(0, line.y - height)
         window.items = candidates
