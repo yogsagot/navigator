@@ -192,7 +192,7 @@ def run_app(
     actions=(),
     *,
     settle: float = 0.02,
-    timeout: float = 5.0,
+    timeout: float | None = None,
 ):
     """Run *app* until it exits, applying *actions* once the loop is live.
 
@@ -200,7 +200,17 @@ def run_app(
     :class:`Until` to wait on, or a callable taking the application.  The
     application is asked to exit after the last action unless it already
     stopped on its own.
+
+    *timeout* is how long a stuck loop is given before the test fails: five
+    seconds over what the driver spends by design -- a *settle* after every
+    step, and each :class:`Until`'s own wait -- unless given.  It was a flat
+    five once, and two hundred keys' settles were four of them: a loaded
+    machine took the fifth and the test failed with nothing wrong.
     """
+    actions = list(actions)
+    if timeout is None:
+        waits = sum(action.timeout if isinstance(action, Until) else settle for action in actions)
+        timeout = 5.0 + settle + waits
 
     waited_out: list[Until] = []
     failed: list[BaseException] = []
