@@ -31,6 +31,14 @@ language reads its screen right to left). It is the second standing exception be
   mirrored surface). The caret sits on the character it is before; at the end, past the end the paragraph grows from.
   `painted_cells(text, rtl)` is `(index, column, width)` per painted cell -- how `link_urls` (StaticText) marks an
   address where it was painted.
+- **A right-to-left language's placeholders are isolated** (`navkit.i18n.isolated`, applied by `tr` and `tr_n`):
+  `{path}` comes back as FSI `{path}` PDI, so what is put in takes its own direction -- a path keeps its leading
+  slash in front (`/home/user/a.txt`, not `home/user/a.txt/`), a date its order -- and cannot pull the sentence's
+  punctuation round. Cached per language and template; a caller splitting a template at `{name}` still finds it.
+  Text built without `tr` that puts a name into a Hebrew sentence has to isolate it itself.
+- **What reads as one text is one `draw_runs` call**: two calls are two paragraphs, each set against its own
+  span. The data tree (`DataTree.render_row`) draws a key and its `: value` together on a mirrored surface;
+  apart, `: "navigator"` was laid out on its own with its colon at the far end from the key.
 - `display_width(text)`: the cells `draw_runs` paints (marks on their letter, format characters none, lam-alef one).
   **Centring and right alignment measure with it, never `len()`** (titles, captions, labels, headers, panel names).
 - `order_cells(chars, rtl, detect=True)`: *detect* false fixes the paragraph direction to *rtl* -- a console row

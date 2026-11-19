@@ -454,3 +454,38 @@ def test_a_crowded_menu_bar_keeps_one_blank_between_captions(terminal):
     assert not bar.tight() and [bar.item_span(i) for i in (0, 1)] == [(1, 6), (7, 6)]
     bar.reserve = 20                            # ten cells left: " File  Disk " needs 13
     assert bar.tight() and [bar.item_span(i) for i in (0, 1)] == [(1, 5), (6, 5)]
+
+
+HE = """
+[meta]
+name = "עברית"
+direction = "rtl"
+
+[strings]
+"From {path}, deleted {when}" = "מתוך {path}, נמחק {when}"
+"{n} file" = ["{n} קובץ", "{n} קבצים"]
+"""
+
+
+def test_a_right_to_left_language_isolates_its_placeholders(tmp_path):
+    from navkit.bidi import display_width, layout
+    from navkit.i18n import FSI, PDI
+
+    (tmp_path / "he.toml").write_text(HE, encoding="utf-8")
+    register_directory(tmp_path)
+    LOCALE.code = "he"
+    template = tr("From {path}, deleted {when}")
+    assert template == f"מתוך {FSI}{{path}}{PDI}, נמחק {FSI}{{when}}{PDI}"
+    # A caller that takes the template apart at a placeholder still finds it.
+    assert template.partition("{path}")[1] == "{path}"
+    text = template.format(path="/home/user/a.txt", when="31-12-1999")
+    # The path keeps its leading slash in front, read left to right inside
+    # the Hebrew sentence; the marks take no cell.
+    shown = "".join(cell for _, cell in layout(text, True))
+    assert "/home/user/a.txt" in shown and display_width(text) == len(text) - 4
+    assert tr_n("{n} file", "{n} files", 3) == f"{FSI}3{PDI} קבצים"
+    # An untranslated string in that language is isolated the same way;
+    # a left-to-right language's is left alone.
+    assert tr("Copy {name}") == f"Copy {FSI}{{name}}{PDI}"
+    LOCALE.code = "en"
+    assert tr("Copy {name}") == "Copy {name}"

@@ -112,10 +112,10 @@
 <text x="0" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">9</text>
 <text x="40" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">◄</text>
 <text x="400" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">■►</text>
-<text x="440" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2~</text>
-<text x="470" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">0-</text>
-<text x="500" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">1+</text>
-<text x="540" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2</text>
+<text x="440" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2</text>
+<text x="470" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">+1</text>
+<text x="500" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-0</text>
+<text x="530" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">~2</text>
 <text x="560" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻦﻣ</text>
 <text x="590" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">1</text>
 <text x="610" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻕﺮﻔﻟﺍ</text>

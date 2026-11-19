@@ -130,12 +130,12 @@
 <text x="170" y="195" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">enabled</text>
 <text x="300" y="195" textLength="130" lengthAdjust="spacingAndGlyphs" fill="#000000">active/exited</text>
 <text x="650" y="195" textLength="110" lengthAdjust="spacingAndGlyphs" fill="#000000">ufw.service</text>
-<text x="490" y="255" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ולשכנ</text>
-<text x="550" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">1</text>
-<text x="570" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">,תולעופ</text>
-<text x="650" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">5</text>
-<text x="670" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">,תודיחי</text>
-<text x="750" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">7</text>
+<text x="430" y="255" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ולשכנ</text>
+<text x="490" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇1⁇</text>
+<text x="530" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">,תולעופ</text>
+<text x="610" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇5⁇</text>
+<text x="650" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">,תודיחי</text>
+<text x="730" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇7⁇</text>
 <text x="70" y="275" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">רוגס</text>
 <text x="170" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ך</text>
 <text x="180" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ו</text>

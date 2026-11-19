@@ -12,7 +12,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from navkit.bidi import display_width
+from navkit.bidi import display_width, reveal
+from navkit.glyphs import hidden_mark
 from navkit.reactive import computed, effect, peek
 from navkit.screen import Surface, char_width
 from navml.widgets.dialog.list_viewer import ListViewer
@@ -285,12 +286,24 @@ class DataTree(TreeView):
             return
         shift, inset, inner = self.shift, self.inset, self.inner_width
         column = 2 + 3 * len(item.rails) + len(self.branch(item))
+        runs = [(text, self.part_style(part)) for text, part in self.value_runs(item)]
+        start = column - shift
+        if surface.rtl and start >= 0:
+            # On a mirrored screen the name and its value are one text, laid
+            # out by its first strong letter: drawn apart, ``: "navigator"``
+            # was a paragraph of its own set against the name, its colon at
+            # the far end from the key.  Over the name the tree drew, from
+            # where it starts: the blank the cursor's highlight takes before
+            # it is the branch's, and is the gap between the two here.
+            name = reveal(item.node.name, hidden_mark(self.glyphs))
+            surface.draw_runs(inset + start, y, [(name, self.part_style("node", selected=index == self.cursor)), *runs],
+                              max_width=inner - start)
+            return
         # Right after the name: on the cursor's row, over the blank its
         # highlight pads the name with.
         at = column + display_width(item.node.name) - shift
         if at >= inner or at < 0:
             return
-        runs = [(text, self.part_style(part)) for text, part in self.value_runs(item)]
         surface.draw_runs(inset + at, y, runs, max_width=inner - at)
 
     def _render_more(self, surface: Surface, y: int, item: ValueRow) -> None:

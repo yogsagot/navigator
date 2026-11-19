@@ -310,3 +310,29 @@ def test_the_tree_s_scroll_bar_shows_only_while_its_rows_go_past_the_view(data_d
 
     run_app(app, [*tree_of("a.json"), *tree_of("b.json"), *tree_of("c.json")], timeout=15)
     assert seen == {"a.json": False, "b.json": True, "c.json": True}
+
+
+def test_on_a_mirrored_screen_a_key_and_its_value_read_as_one_text():
+    from conftest import mounted
+    from navigator.widgets.viewer.struct_window import StructWindow
+
+    root = parse(b'{"name": "navigator", "port": 22}', "json")
+    window = mounted(StructWindow(root, "a.json", "json", x=0, y=0, width=40, height=8))
+    settle()
+    window.tree.cursor = 1
+    settle()
+    rows = []
+    for rtl in (False, True):
+        buffer = ScreenBuffer(40, 8)
+        buffer.rtl = rtl
+        window.render_tree(buffer)
+        if rtl:
+            buffer = buffer.mirrored()
+        rows.append(["".join(buffer.get(x, y)[0] or " " for x in range(40)) for y in range(8)])
+    left, right = rows
+    # The cursor's row (``name``) keeps its highlight's blank by the branch.
+    assert any('├── name: "navigator"' in row for row in left)
+    assert any("└───port: 22" in row for row in left)
+    # Drawn apart, the value was a paragraph of its own: ``: "navigator"name``.
+    assert any('name: "navigator" ──├' in row for row in right)
+    assert any("port: 22───└" in row for row in right)

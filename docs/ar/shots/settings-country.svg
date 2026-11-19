@@ -173,8 +173,8 @@
 <text x="620" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">%A</text>
 <text x="650" y="315" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻡﻮﻴﻟﺍ</text>
 <text x="710" y="315" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻢﺳﺍ</text>
-<text x="520" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">12:34</text>
-<text x="580" y="355" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#000000">2026-01-01</text>
+<text x="520" y="355" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#000000">01-01-2026</text>
+<text x="630" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">12:34</text>
 <text x="690" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">:ﻝﺎﺜﻣ</text>
 <text x="0" y="435" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">3:</text>
 <text x="250" y="435" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺓﺪﻋﺎ</text>

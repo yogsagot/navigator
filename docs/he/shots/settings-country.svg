@@ -178,8 +178,8 @@
 <text x="610" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">%A</text>
 <text x="640" y="315" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">עובשב</text>
 <text x="700" y="315" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">םויה</text>
-<text x="510" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">12:34</text>
-<text x="570" y="355" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#000000">01-01-2026</text>
+<text x="510" y="355" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#000000">01-01-2026</text>
+<text x="620" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">12:34</text>
 <text x="680" y="355" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">:המגוד</text>
 <text x="0" y="435" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">3:</text>
 <text x="260" y="435" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">הרז</text>

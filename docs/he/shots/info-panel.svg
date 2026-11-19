@@ -51,14 +51,14 @@
 <text x="140" y="175" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">םיתב</text>
 <text x="190" y="175" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">7,482</text>
 <text x="250" y="175" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">:לדוג</text>
-<text x="80" y="195" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
-<text x="140" y="195" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="80" y="195" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="190" y="195" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
 <text x="250" y="195" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">:הנוש</text>
-<text x="80" y="215" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
-<text x="140" y="215" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="80" y="215" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="190" y="215" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
 <text x="250" y="215" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">:השיג</text>
-<text x="80" y="235" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
-<text x="140" y="235" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="80" y="235" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">31-12-1999</text>
+<text x="190" y="235" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">23:59</text>
 <text x="250" y="235" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">:בצמ</text>
 <text x="300" y="235" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#d8d8d8">יוניש</text>
 <text x="80" y="255" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">rw-r--r--</text>

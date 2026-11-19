@@ -157,10 +157,10 @@
 <text x="520" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">S</text>
 <text x="580" y="215" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#000000">www-data</text>
 <text x="690" y="215" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">1620</text>
-<text x="620" y="255" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻚﻟ</text>
-<text x="650" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">4</text>
-<text x="670" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">،ﺕﺎﻴﻠﻤﻋ</text>
-<text x="750" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">8</text>
+<text x="580" y="255" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻚﻟ</text>
+<text x="610" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇4⁇</text>
+<text x="650" y="255" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">،ﺕﺎﻴﻠﻤﻋ</text>
+<text x="730" y="255" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇8⁇</text>
 <text x="70" y="275" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻕﻼﻏﺇ</text>
 <text x="150" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">◀</text>
 <text x="170" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#55ffff">ﻞﻴ</text>

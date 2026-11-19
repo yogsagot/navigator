@@ -87,10 +87,10 @@
 <text x="530" y="315" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">48°C</text>
 <text x="190" y="335" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Tccd1</text>
 <text x="260" y="335" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">52°C</text>
-<text x="320" y="335" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">(70°</text>
-<text x="370" y="335" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ההובגC,</text>
-<text x="450" y="335" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">90°</text>
-<text x="490" y="335" textLength="80" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">תיטירקC)</text>
+<text x="320" y="335" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">(ההובג</text>
+<text x="390" y="335" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">70°C,</text>
+<text x="450" y="335" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">תיטירק</text>
+<text x="520" y="335" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">90°C)</text>
 </g>
 <g stroke-width="1.25" stroke-linecap="square">
 <line x1="23" y1="8" x2="23" y2="20" stroke="#ffffff"/>

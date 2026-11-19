@@ -76,6 +76,14 @@ _CACHE: dict[str, dict[str, Any]] = {}
 _PLAIN: dict[str, dict[str, str]] = {}
 #: Whether each language reads right to left, as its ``[meta]`` says.
 _RTL: dict[str, bool] = {}
+#: A right-to-left language's templates with each placeholder isolated -- see
+#: :func:`isolated` -- by language and template.
+_ISOLATED: dict[str, dict[str, str]] = {}
+#: A ``str.format`` placeholder, ``{path}`` or ``{n:,}`` or ``{}``; not an
+#: escaped ``{{`` or ``}}``.
+_PLACEHOLDER = re.compile(r"(?<!\{)\{[^{}]*\}(?!\})")
+#: FIRST STRONG ISOLATE and POP DIRECTIONAL ISOLATE.
+FSI, PDI = "\u2068", "\u2069"
 #: Each catalogue file's ``[meta]`` table, by path: what listing the
 #: languages needs, read without parsing the strings after it.
 _META: dict[str, dict[str, Any]] = {}
@@ -97,6 +105,7 @@ def _register(source: Any) -> None:
     _CACHE.clear()
     _PLAIN.clear()
     _RTL.clear()
+    _ISOLATED.clear()
     _META.clear()
 
 
@@ -246,15 +255,40 @@ def _code() -> str:
     return LOCALE.current
 
 
+def isolated(template: str, code: str | None = None) -> str:
+    """*template* with each placeholder between FSI and PDI when *code* (the
+    current language) reads right to left; else *template* itself.
+
+    What is put into a sentence -- a path, a file name, a number -- then
+    takes its own direction from its first strong letter, as Unicode advises
+    for text inserted into text (UAX #9, *Isolates*), and cannot pull the
+    words and punctuation round it into its own: ``/home/user/a.txt`` in a
+    Hebrew sentence was shown ``home/user/a.txt/``, its leading slash taken
+    for the sentence's.  Both marks are format characters, no cell wide
+    (:func:`navkit.bidi.display_width`), and a caller that takes a template
+    apart at ``{path}`` still finds it.
+    """
+    code = _code() if code is None else code
+    if "{" not in template or not is_rtl(code):
+        return template
+    done = _ISOLATED.setdefault(code, {})
+    found = done.get(template)
+    if found is None:
+        found = done[template] = _PLACEHOLDER.sub(lambda match: FSI + match.group(0) + PDI, template)
+    return found
+
+
 def tr(text: str) -> str:
     """*text* in the current language, or *text* itself when none is known.
 
+    A right-to-left language's placeholders come back isolated (:func:`isolated`).
     Safe on a worker thread too, where it is simply not followed.
     """
-    found = catalogue(_code()).get(text)
+    code = _code()
+    found = catalogue(code).get(text)
     if isinstance(found, list):
         found = found[0] if found else None
-    return found if isinstance(found, str) and found else text
+    return isolated(found if isinstance(found, str) and found else text, code)
 
 
 def tr_n(singular: str, plural: str, n: int, **values: Any) -> str:
@@ -274,7 +308,7 @@ def tr_n(singular: str, plural: str, n: int, **values: Any) -> str:
     if not text:
         # A form left blank among filled ones is English for that count.
         text = singular if n == 1 else plural
-    return text.format(n=n, **values)
+    return isolated(text, code).format(n=n, **values)
 
 
 def tr_plain(text: str) -> str:

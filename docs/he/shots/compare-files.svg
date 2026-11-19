@@ -115,10 +115,10 @@
 <text x="0" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">9</text>
 <text x="40" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">◄</text>
 <text x="390" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">■►</text>
-<text x="430" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2~</text>
-<text x="460" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">0-</text>
-<text x="490" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">1+</text>
-<text x="530" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2</text>
+<text x="430" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2</text>
+<text x="460" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">+1</text>
+<text x="490" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-0</text>
+<text x="520" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">~2</text>
 <text x="550" y="355" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ךותמ</text>
 <text x="600" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">1</text>
 <text x="620" y="355" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">לדבה</text>

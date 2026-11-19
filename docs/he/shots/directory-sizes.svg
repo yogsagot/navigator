@@ -123,10 +123,10 @@
 <text x="200" y="315" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#55ffff">ך</text>
 <text x="210" y="315" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ל</text>
 <text x="240" y="315" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">▶</text>
-<text x="470" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">.:</text>
-<text x="500" y="315" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">4.0M</text>
-<text x="550" y="315" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">םיטירפ</text>
-<text x="620" y="315" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">18-ב</text>
+<text x="410" y="315" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇.⁇:</text>
+<text x="460" y="315" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#000000">⁇4.0M⁇</text>
+<text x="530" y="315" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">םיטירפ</text>
+<text x="600" y="315" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">⁇18⁇-ב</text>
 <text x="0" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">9</text>
 <text x="530" y="335" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">האר</text>
 <text x="560" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">נ</text>
