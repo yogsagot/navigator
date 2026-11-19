@@ -7,21 +7,22 @@ viewed and copied out like any others. This page is about opening, making and un
 
 ![A zip file opened in a panel in the detailed view: its directories and files with their size, packed size, ratio and date, and the packed size and ratio of the file under the cursor](shots/open-archive.svg)
 
-`Enter` or `Ctrl+PgDn` on an archive goes inside it; `..` at its top comes back out. *File > Archive > Open
-archive*, or `Ctrl+PgDn`, opens the file under the cursor as an archive whatever its name, which is how to look
-inside an AppImage, which `Enter` would run. With *ENTER opens archive* unticked on the [File
+`Enter` or `Ctrl+PgDn` on an archive goes inside it; `..` at its top comes back out. `Enter` knows an archive by
+its name: `.zip`, `.tar.gz`, `.7z`, `.deb` and the like. *File > Archive > Open archive*, or `Ctrl+PgDn`, opens
+the file under the cursor as an archive whatever its name, which is how to look inside a static library (`.a`), or
+an AppImage, which `Enter` would run. With *ENTER opens archive* unticked on the [File
 panels](settings.md#file-panels) page of the settings, only `Ctrl+PgDn` does.
 
-Inside, `F5` copies files out and `F8` erases them; where the format can be written, files can be copied in, too.
+Inside, `F5` copies files out. Where the format can be changed, `F8` erases files and files can be copied in, too.
 The detailed view shows each file's packed size and how much it was packed.
 
 | Format | What it needs | Can be changed |
 |---|---|---|
 | ZIP, TAR, and TAR packed with gzip, bzip2 or xz | Nothing | Yes |
-| A single file packed with gzip, bzip2 or xz | Nothing | Yes |
-| TAR or a single file packed with zstd | The `zstd` program, before Python 3.14 | Yes |
+| A single file packed with gzip, bzip2, xz or lzma | Nothing | Only that one file |
+| TAR or a single file packed with zstd | The `zstd` program, before Python 3.14 | Yes; a single file, only that file |
 | 7Z | 7-Zip (`7z`, `7zz` or `7za`) | Yes |
-| RAR | `unrar`, or 7-Zip | Only with RARLAB's `rar` |
+| RAR | `unrar`, or 7-Zip's `7z` or `7zz` | Only with RARLAB's `rar` |
 | Debian and RPM packages, CPIO, static libraries (`.a`) | Nothing | No |
 | SquashFS images and AppImages | `unsquashfs`, from squashfs-tools | No |
 
@@ -30,7 +31,7 @@ password asks for it.
 
 ## Test an archive
 
-*File > Archive > Test archive*, inside an archive, reads the tagged files through and checks each one, or the
+*File > Archive > Test archive*, inside an archive, reads the selected files through and checks each one, or the
 whole archive when the cursor is on `..` and nothing is tagged. A file that fails its check is named. *Test only*
 in the [Extract](#extract-files) box does the same from outside.
 

@@ -120,7 +120,7 @@ are renamed correctly.
 
 *File > Rename tools > Select bad names* tags every file in the panel whose name *Clean up names* would change:
 a name that is not valid UTF-8, one written in a decomposed Unicode form, one with a control character in it, and
-names that differ from another only by capitals. `Alt+A` then renames them.
+names that differ from another only by capitals. `Alt+A` with *Clean up names* ticked then renames them.
 
 ## Erase
 
@@ -148,13 +148,14 @@ before, up to fifty. It says what it is about to do and asks first.
 |---|---|
 | A copy, `F5` or a paste | Removes what the copy made, but only the files nothing has changed since: to the Trash on the disk, for good elsewhere |
 | A move, `F6` or a cut and paste | Moves the files back |
-| A rename, `F6`, `Shift+F6` or `Alt+A` | Gives the old names back |
+| A rename, `F6`, `Alt+F6`, `Shift+F6` or `Alt+A` | Gives the old names back |
 | Erasing to the [Trash](drives.md#the-trash) | Restores the files from the Trash |
 | `F7`'s new directory | Removes it, if it is still empty |
 
 A file a copy or a move replaced is gone for good, and the question says how many there were. Erasing for good,
-attributes and links cannot be taken back. The list of operations lasts until Navigator quits and is shared by
-every file manager window. While the command line has text in it, `Ctrl+Z` is left to the command line.
+attributes and links cannot be taken back, nor can a copy or a move into or out of an archive. The list of
+operations lasts until Navigator quits and is shared by every file manager window. While the command line has text
+in it, `Ctrl+Z` is left to the command line.
 
 ## File attributes
 
@@ -207,7 +208,8 @@ showing every name a hard-linked file has.
   moved needs.
 
 *Make relative* and *Make absolute* rewrite each selected link's target the other way, reaching the same file.
-*Select broken links* tags every link in the panel that points nowhere: those marked `!` in the listing.
+*Select broken links* tags every link in the panel that points nowhere: those marked `!` in the listing when it
+shows no icons.
 
 ### Every name of a file
 
@@ -330,8 +332,8 @@ those that handle its type, the usual one first.
   goes at the end. The command runs in the console, and each extension keeps a history of the commands used.
 
 It needs the desktop's `gio` or KDE's tools; see *Desktop integration* on the
-[Communications](settings.md#communications) page of the settings. A file on a server is fetched first, and what
-the application changes is not sent back.
+[Communications](settings.md#communications) page of the settings. A file on a server is fetched first. What an
+application changes is not sent back; what a *Command...* changes is, once the command ends.
 
 `Enter` on a file that no entry in `extensions.ini` takes also opens it in the desktop's application, while *Pass
 other files to desktop* is ticked on the [File panels](settings.md#file-panels) page.

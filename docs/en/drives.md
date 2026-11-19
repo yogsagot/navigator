@@ -49,10 +49,10 @@ mounts disc images* on the [File panels](settings.md#file-panels) page of the se
 
 ![The Trash in a panel: a directory and four files that were erased, and where the one under the cursor came from and when it was deleted](shots/trash.svg)
 
-`F8` moves files to the Trash instead of erasing them when *F8 moves to Trash* is ticked on the
-[File panels](settings.md#file-panels) page of the settings, and the [Erase](file-operations.md#erase) box has
-*Move to Trash* to choose each time. [Undo](file-operations.md#undo), `Ctrl+Z`, takes the last move to the Trash
-back.
+`F8` moves files on the disk to the Trash instead of erasing them when *F8 moves to Trash* is ticked on the
+[File panels](settings.md#file-panels) page of the settings. The [Erase](file-operations.md#erase) box then has
+*Move to Trash* ticked; untick it to erase the files for good. [Undo](file-operations.md#undo), `Ctrl+Z`, takes the
+last move to the Trash back.
 
 *Disk > Trash*, or a double click on the trash can, shows the files in the Trash in the active panel. The line
 under the panel says where the file under the cursor came from and when it was erased.

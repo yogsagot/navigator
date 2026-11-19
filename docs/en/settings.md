@@ -130,7 +130,7 @@ editor's.
 
 ## Viewer types
 
-![The Settings box on its Viewer types page: each kind of file F3 shows specially, ticked, with its file masks](shots/settings-viewer-types.svg)
+![The Settings box on its Viewer types page: each kind of file F3 shows specially, with a box to switch it and its file masks](shots/settings-viewer-types.svg)
 
 Which files `F3` shows as something other than their text: Markdown, reStructuredText and HTML as a page, PDF as
 its text, pictures as pictures, CSV and TSV as a table, and structured files (JSON, YAML, TOML, XML) as a tree.
