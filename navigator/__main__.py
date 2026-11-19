@@ -1032,7 +1032,9 @@ def main(argv: list[str] | None = None) -> int:
     load_settings(args.config)
     # First, so a failure from here on -- and a hard crash, through
     # faulthandler -- leaves a record even when the screen it was on is gone.
-    errorlog.open_log()
+    # Beside the database, as ``--on-error``'s help says: ``--database``'s
+    # file moves it with it.
+    errorlog.open_log(errorlog.default_path(args.database))
     # extensions.ini, viewers.ini, editors.ini, quickrun.ini, highlight.ini and
     # menu.ini beside it, written from their templates when missing, as
     # navigator.ini is.

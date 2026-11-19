@@ -357,7 +357,7 @@ class FileWindow(Window, _Component):
 
         _w10.text = _bind(lambda _o: _tr('~M~arkup view'), yielding=True)    # file_window.nml:209
         _w10.command = SwitchRendered    # file_window.nml:209
-        _w10.key = 'Shift-F4'    # file_window.nml:209
+        _w10.key = 'Shift-F3'    # file_window.nml:209
         _w10.tooltip = _bind(    # file_window.nml:210
             lambda _o: _tr('Show a Markdown, reST, HTML or PDF file rendered, or its source'),
             yielding=True,

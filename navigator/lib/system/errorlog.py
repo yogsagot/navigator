@@ -43,7 +43,7 @@ from typing import IO, Any
 from navigator import __version__
 from navigator.settings import state_dir
 
-#: The file's name, in :func:`navigator.settings.state_dir`.
+#: The file's name, beside the database (:func:`default_path`).
 FILE_NAME = "errors.log"
 
 #: Where failures go, or None before :func:`open_log` (and in tests).
@@ -54,7 +54,12 @@ PATH: Path | None = None
 _fault_file: IO[str] | None = None
 
 
-def default_path() -> Path:
+def default_path(database: Path | None = None) -> Path:
+    """``errors.log`` beside *database* (``--database``'s file), else in the
+    state directory, beside the default database.  A database in memory has
+    no directory to be beside."""
+    if database is not None and str(database) != ":memory:":
+        return Path(database).parent / FILE_NAME
     return state_dir() / FILE_NAME
 
 

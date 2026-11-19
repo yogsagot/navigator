@@ -35,7 +35,7 @@ the changes to the file.
 | Key or entry | What it does |
 |---|---|
 | `F3`, *File > View > As is* | Views the file under the cursor the way its kind is shown best, below |
-| `Alt+F3`, *File > View > Alternate view* | Views it as plain text, whatever it is |
+| `Alt+F3`, *File > View > Alternate view* | Views it in Navigator's viewer, never as a table, an archive or with `viewers.ini`'s program |
 | *File > View > As Text*, *As Hex* | Opens the viewer in text or in hex mode |
 | *File > View > As DataBase* | Opens a dBase or SQLite file as a [table](#tables), whatever its name |
 | *File > View > As Spreadsheet* | Opens a CSV or TSV file as a table |
@@ -52,8 +52,8 @@ settings, `F3` runs `viewers.ini`'s program, else `$PAGER`.
 ## What it shows specially
 
 Some files are shown as something other than their text. `Shift+F3`, or *View > Markup view*, switches between
-that and the file's own text; a mark on the bottom frame, such as `{Markdown}`, says which one you see, and a click
-on it switches too.
+that and the file's own text; a mark on the bottom frame, such as `{Markdown}`, is struck through while you see
+the text, and a click on it switches too.
 
 ![A Markdown file shown as a page: a heading underlined, a paragraph, a list with bullets and a table, and {Markdown} on the bottom frame](shots/markup-view.svg)
 
@@ -70,8 +70,8 @@ on it switches too.
   tree](#the-data-tree).
 - **dBase, SQLite and CSV files** open as a [table](#tables) of records in a window of their own.
 
-A file larger than 4 MB, or a PDF larger than 64 MB, is shown as its text. The [Viewer types](settings.md#viewer-types) settings say
-which kinds are shown specially, and by which file masks.
+A file larger than 4 MB, or a PDF or a picture larger than 64 MB, is shown as its text. The
+[Viewer types](settings.md#viewer-types) settings say which kinds are shown specially, and by which file masks.
 
 ## Quick view
 

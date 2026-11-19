@@ -206,7 +206,7 @@ FileWindow(Window):
             tooltip: "Show only the lines matching a pattern, with their numbers"
         #: A departure: a Markdown, reStructuredText, HTML or PDF file rendered,
         #: or its source.
-        MenuItem: text='~M~arkup view', command=SwitchRendered, key='Shift-F4'
+        MenuItem: text='~M~arkup view', command=SwitchRendered, key='Shift-F3'
             tooltip: "Show a Markdown, reST, HTML or PDF file rendered, or its source"
         #: A departure, asked for: any file's data as a tree -- HTML too,
         #: whose Shift+F3 is the Markup view's.  No key.

@@ -101,9 +101,9 @@ back. It follows the active panel as you move:
 - the directory's name, and how many files it holds and their size;
 - the file under the cursor: its type, size, times, attributes, owner, number of links and inode. A picture, a
   sound, a video, a PDF and a program get more: their size in pixels, length, streams, pages or the libraries a
-  program needs. The length of a sound or a video needs FFmpeg's `ffprobe`;
-- the file system the directory is on: its size, the free space and its label. On a server, the server and how
-  the connection is made; in an archive, the archive;
+  program needs. What a sound or a video gets needs FFmpeg's `ffprobe`;
+- the file system the directory is on: its size, the free space, and its device or label. On a server, the server
+  and how the connection is made; in an archive, the archive;
 - the computer's memory, what programs may still use, and what Navigator itself takes;
 - the directory's information file, `DirInfo` or `File_ID.DIZ`, when there is one.
 

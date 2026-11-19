@@ -585,3 +585,59 @@ def test_alt_z_on_the_quick_view_is_undone_after_a_load(place):
     seen = _manager_round_trip(place, arrange_it, after)
     assert seen["zoomed"] == (True, True)
     assert seen["after"] == (*seen["before"], False, None)
+
+
+def test_a_viewer_comes_back_at_its_place_with_its_modes_untracked(place):
+    """``TFileViewer.Store``/``Load``: the place, wrap, filter and encoding kept
+    whatever *Track viewing* says -- a viewer used to come back where the
+    file's own history last had it."""
+    from navigator.lib.config.file_history import open_viewer
+    from navigator.models.view_record import ViewRecord
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    path = place / "one" / "long.txt"
+    path.write_text("".join(f"line {n} of the text\n" for n in range(400)))
+    SETTINGS.interface.track_viewing = False
+    app = navigator(place)
+    seen = {}
+
+    def viewer_window(a):
+        return next(w for w in a.shell.desktop.windows() if isinstance(w, FileWindow))
+
+    async def round_trip(a):
+        window = viewer_window(a)
+        viewer = window.viewer
+        viewer.wrap = True
+        viewer.set_filter(1)
+        viewer.set_encoding("cp437")
+        viewer.seek(path.read_text().index("line 200 "))
+        seen["top"] = viewer.top
+        data = desktop_state.snapshot(a.shell.desktop)
+        for each in list(a.shell.desktop.windows()):
+            each.close()
+        ViewRecord.delete_where()
+        await desktop_state.restore(a.shell.desktop, data)
+        seen["window"] = viewer_window(a)
+
+    run_app(app, [lambda a: a.spawn(open_viewer(a.shell.desktop, path)),
+                  Until(lambda a: any(isinstance(w, FileWindow) for w in a.shell.desktop.windows())),
+                  lambda a: a.spawn(round_trip(a)), Until(lambda a: "window" in seen)])
+    viewer = seen["window"].viewer
+    assert viewer.top == seen["top"] > 0
+    assert (viewer.wrap, viewer.filter, viewer.encoding) == (True, 1, "cp437")
+
+
+def test_a_viewer_kept_before_its_state_was_still_opens(place):
+    from navigator.widgets.viewer.file_window import FileWindow
+
+    seen = {}
+    data = {"version": desktop_state.VERSION, "front": 0,
+            "windows": [{"kind": "viewer", "path": str(place / "one" / "a.txt"), "mode": "text"}]}
+    app = navigator(place)
+
+    async def restore(a):
+        await desktop_state.restore(a.shell.desktop, data)
+        seen["path"] = next(w for w in a.shell.desktop.windows() if isinstance(w, FileWindow)).viewer.path
+
+    run_app(app, [lambda a: a.spawn(restore(a)), Until(lambda a: "path" in seen)])
+    assert seen["path"] == place / "one" / "a.txt"

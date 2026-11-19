@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import threading
+from pathlib import Path
 
 import pytest
 
@@ -220,3 +221,14 @@ def test_every_step_of_navigator_s_shutdown_runs_whatever_one_does(tmp_path, mon
     assert app.shutdown_failures == 1
     text = (tmp_path / "errors.log").read_text()
     assert "while: saving the desktop" in text and "the database is gone" in text
+
+
+def test_errors_log_is_beside_the_database(tmp_path, monkeypatch):
+    from navigator.lib.system import errorlog
+    from navigator.settings import state_dir
+
+    # ``--database`` moves it with it, as ``--on-error``'s help says; the
+    # default and a database in memory leave it in the state directory.
+    assert errorlog.default_path(tmp_path / "elsewhere" / "nav.db") == tmp_path / "elsewhere" / "errors.log"
+    assert errorlog.default_path() == state_dir() / "errors.log"
+    assert errorlog.default_path(Path(":memory:")) == state_dir() / "errors.log"

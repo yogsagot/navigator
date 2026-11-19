@@ -35,10 +35,12 @@ it first lists them, oldest first, with the cursor on one that waits for an answ
 ## Saving the desktop
 
 *Options > Save desktop* keeps the windows that are open: each file manager with its panels' directories, views
-and sorting, each viewer and editor on its file and place, the tree window, the calculator, and where every
-window stands. *Options > Load desktop* closes the windows open now and puts the kept ones back. With *Autosave
-Desktop* ticked on the [Startup](settings.md#startup) page of the settings, the desktop is saved when you quit and
-put back at the next start; directories given on the [command line](command-line.md) win over the saved ones.
+and sorting, each editor on its file and place, each viewer on its file and place, each table on its record, the tree window,
+the Volumes window, the calculator, the calendar, and where every window stands. *Options > Load desktop* closes
+the windows open now and puts the kept ones back; the active panel stays in the directory it is in now, unless
+*Preserve directory* is ticked on the [Startup](settings.md#startup) page of the settings. With *Autosave Desktop*
+ticked there, the desktop is saved when you quit and put back at the next start; directories given on the
+[command line](command-line.md) win over the saved ones.
 
 ## Window list
 

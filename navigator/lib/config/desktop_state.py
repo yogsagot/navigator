@@ -23,8 +23,10 @@ What a window keeps:
   ``TFileEditor.Store`` wrote it -- its cursor, scroll, markers, margins and
   modes (``EditWindow.desktop_state``), put back over the file's own record.
   SmartPad comes back as SmartPad, without a new stamp (``Awaken`` only
-  loaded the file).  A **viewer** its file and mode; the rest is the file's own
-  history's, which opening restores.
+  loaded the file).  A **viewer** its file and mode, and -- whatever *Track
+  viewing* says, as ``TFileViewer.Store`` wrote it -- its place, wrap, filter,
+  encoding, highlighting and markup view (``FileWindow.desktop_state``), put
+  back over the file's own record.
 - a **tree window** the directory it was on; a **Volumes** window whether
   it lists every volume and the free column.
 - a **database window** (dBase, SQLite, CSV) its file, the table or query,
@@ -203,7 +205,8 @@ def _window(window: Any) -> dict[str, Any] | None:
     elif isinstance(window, FileWindow):
         if window.viewer.path is None:
             return None
-        kept.update(kind="viewer", path=str(window.viewer.path), mode=window.viewer.mode)
+        kept.update(kind="viewer", path=str(window.viewer.path), mode=window.viewer.mode,
+                    state=window.desktop_state())
     elif isinstance(window, TreeWindow):
         where = window.tree.selected_path
         kept.update(kind="tree", path=str(where) if where is not None else None,
@@ -390,7 +393,13 @@ async def _make(desktop: Any, kept: dict[str, Any], dirs: tuple[Path, Path] | No
     if kind == "viewer":
         from navigator.lib.config.file_history import open_viewer
 
-        return await open_viewer(desktop, kept["path"], kept.get("mode"))
+        window = await open_viewer(desktop, kept["path"], kept.get("mode"))
+        # ``TFileViewer.Load``: the place and modes as they were kept, over the
+        # file's own record; an older entry without ``state`` opens as the
+        # record says.
+        if window is not None and isinstance(kept.get("state"), dict):
+            window.restore_desktop_state(kept["state"])
+        return window
     if kind == "tree":
         from navigator.widgets.tree.tree_window import TreeWindow
 

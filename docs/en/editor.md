@@ -28,7 +28,7 @@ menu bar while an editor is open.
 | `F4` | The file under the cursor |
 | `Alt+F4`, `Ctrl+K`, *File > Edit > Alternate edit* | The file under the cursor in the other editor: see below |
 | `Shift+F4`, *File > Edit > Edit new file* | A file you name in a [file box](dialogs.md#choosing-a-file). A name that is not there yet is made when you save |
-| *File > Edit > Open...* | A file you choose in a file box; only a file that is there |
+| *File > Edit > Open...* | A file you choose in a file box, with no file manager needed. A name that is not there yet is made when you save |
 | `Alt+PgUp` | A file from the list of files edited before |
 
 `F4` uses Navigator's editor, and *Alternate edit* another program: the one `editors.ini` names for the file
@@ -117,12 +117,12 @@ margin, `Alt+R` against the right, or `Alt+C` to centre it. The whole block is t
 ## Syntax highlighting
 
 The editor and the viewer colour the text of a program, a web page, a configuration file and many others by what
-each part is. Which colouring a file gets is decided by its name, in `highlight.ini`: *Options > Highlight file
-edit* opens that file in the editor.
+each part is. Which colouring a file gets is decided by its name, in `highlight.ini`, and for a script with no
+known ending by its first line, such as `#!/bin/sh`: *Options > Highlight file edit* opens that file in the editor.
 
 ```ini
-[*.nml]
-lexer = python
+[*.conf]
+lexer = ini
 
 [*.txt]
 lexer = none
@@ -130,12 +130,14 @@ autowrap = on
 right_margin = 72
 ```
 
-- Each section is a [file mask](panels.md#file-masks); the first section that matches the file is used.
+- Each section is a [file mask](panels.md#file-masks). The first section that matches the file and names a
+  `lexer` chooses the language; a file no section takes is left to Pygments to guess.
 - `lexer` names the language, as Pygments names it (`python3 -m pygments -L lexers` lists them). `none` colours
   nothing; `auto` lets Pygments guess from the name and the contents.
 - A section may also set the editor's options for those files, under the names they have in `navigator.ini`'s
   `[editor]` section: `auto_indent`, `insert_tabs`, `line_numbers`, `soft_wrap`, `autowrap`, `right_margin`,
-  `line_ending` and others. The file's own comments list them all.
+  `line_ending` and others. Each comes from the first matching section that sets it. The file's own comments list
+  them all. A file edited before keeps the options it was left with.
 
 For one window, *Editor > File type* (`Ctrl+Shift+H`) chooses another language, and *Editor > Options > Syntax
 highlight* turns colouring off and on. The colours are the theme's.

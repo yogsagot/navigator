@@ -27,7 +27,10 @@ description: Saving and restoring the desktop -- Options > Save desktop / Load d
     departure: DN reopened it empty under its name, which F2 would save over a deleted file's name). And `view_of` -- the
     index of the earlier window on the same text, for a Window > *New view* -- which `restore` makes again with that
     window's `open_view()` rather than a second document (`made_at`); `FileWindow`: `path`,
-    `mode`; `TreeWindow`: the directory and hidden; `VolumesWindow` (`kind="volumes"`): `all` and `free`; `CalculatorWindow`: the expression; `CalendarWindow`: only that
+    `mode` and `state` -- `FileWindow.desktop_state()`, DN's `TFileViewer.Store`: `top`, `x_delta`, `cursor`,
+    `wrap`, `filter`, `encoding` (DN's `XLAT`), `highlight`, `file_type`, `rendered`, whatever *Track viewing* says,
+    put back over the file's record by `restore_desktop_state` (a place past a shrunk file's end starts at the top);
+    an older entry without `state` opens as the record says; `TreeWindow`: the directory and hidden; `VolumesWindow` (`kind="volumes"`): `all` and `free`; `CalculatorWindow`: the expression; `CalendarWindow`: only that
     it was open (it comes back on today);
   - `DBWindow` (`kind="database"`, DN's `TDBViewer.Store`): its own `kept_state()` -- `path`, `source`
     (`dbf`/`sqlite`/`csv`), `record` in the file's order and `field`, `top`/`first_field` (unsorted only), `widths`,

@@ -147,6 +147,48 @@ class FileWindow(Window):
         viewer.cursor = min(record.cursor, max(0, viewer.size - 1)) if fits else 0
         viewer.seek(record.top if fits else 0)
 
+    # -- the saved desktop ------------------------------------------------------------
+
+    def desktop_state(self) -> dict[str, Any]:
+        """``TFileViewer.Store`` (``FVIEWER.PAS:662``): what a saved desktop keeps
+        of this viewer -- its place, ``Wrap``, ``Filter``, ``ViewMode`` and
+        ``XLAT`` -- whatever *Track viewing* and *Store viewer position* say,
+        as :meth:`EditWindow.desktop_state` does an editor's."""
+        viewer = self.viewer
+        return {
+            "top": viewer.top, "x_delta": viewer.x_delta, "cursor": viewer.cursor,
+            "wrap": bool(viewer.wrap), "filter": viewer.filter, "encoding": viewer.encoding,
+            "highlight": bool(viewer.syntax_highlight), "file_type": viewer.file_type,
+            "rendered": bool(viewer.rendered),
+        }
+
+    def restore_desktop_state(self, state: dict[str, Any]) -> None:
+        """``TFileViewer.Load``: *state* back, over the file's own record -- each
+        key that is there and of the right type, the rest left as they are.  A
+        place past the end of a file that has since shrunk starts it from the
+        top, as :meth:`recall_history` does."""
+        viewer = self.viewer
+        if isinstance(state.get("wrap"), bool):
+            viewer.wrap = state["wrap"]
+        if isinstance(state.get("filter"), int) and 0 <= state["filter"] < len(FILTER_TAGS):
+            viewer.filter = state["filter"]
+        if isinstance(state.get("encoding"), str) and state["encoding"] in dict(viewer_model.ENCODINGS):
+            viewer.set_encoding(state["encoding"])
+        if isinstance(state.get("highlight"), bool):
+            viewer.syntax_highlight = state["highlight"]
+        if isinstance(state.get("file_type"), str):
+            viewer.file_type = state["file_type"]
+        if isinstance(state.get("rendered"), bool):
+            viewer.rendered = state["rendered"]
+        place = [state.get(key) for key in ("top", "x_delta", "cursor")]
+        if not all(isinstance(value, int) and value >= 0 for value in place):
+            return
+        top, x_delta, cursor = place
+        fits = top <= viewer.size
+        viewer.x_delta = x_delta if fits and viewer.mode == "text" else 0
+        viewer.cursor = min(cursor, max(0, viewer.size - 1)) if fits else 0
+        viewer.seek(top if fits else 0)
+
     def unmounting(self) -> None:
         super().unmounting()
         self._stop_following()

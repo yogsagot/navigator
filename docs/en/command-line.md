@@ -64,8 +64,8 @@ The same choices are on the [Interface](settings.md#interface) page of the setti
 | `--on-error dialog` | An unexpected error shows a box with its details, and you can go on |
 | `--on-error crash` | An unexpected error quits Navigator and prints its details |
 
-Either way the error is added to `errors.log`, in `~/.local/state/navigator` even when `--database` puts the
-database elsewhere. The [System](settings.md#system) page of the settings has the same choice.
+Either way the error is added to `errors.log`, beside the database: in `~/.local/state/navigator`, or in the
+directory `--database` names. The [System](settings.md#system) page of the settings has the same choice.
 
 ## Inside Navigator
 
