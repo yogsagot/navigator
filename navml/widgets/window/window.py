@@ -392,9 +392,12 @@ class Window(Widget):
                 icon = ZOOM_ICON if unicode else ASCII_ZOOM_ICON
             surface.draw_text(start, 0, icon, style)
         if self._has_grip():
-            surface.draw_text(
-                self.width - 2, self.height - 1, GRIP if unicode else ASCII_GRIP, style
-            )
+            # Cell by cell, as the frame it sits on is drawn: a right-to-left
+            # screen mirrors it with the frame, ``└─`` at the bottom left.
+            # ``draw_text`` keeps text's characters through the mirror, which
+            # left ``┘`` on a left-hand corner.
+            for offset, char in enumerate(GRIP if unicode else ASCII_GRIP):
+                surface.set_cell(self.width - 2 + offset, self.height - 1, char, style)
 
     # -- closing -------------------------------------------------------------
 

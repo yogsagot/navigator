@@ -3,6 +3,18 @@
 `F1` opens this manual on the page about what you are doing. The pages are linked to each other: a link is shown
 in its own colour, and one of them is always the selected one.
 
+## Help where you are
+
+`F1` works everywhere, and opens the page about what has the keyboard:
+
+- in a dialog box, the section about that box. Many boxes also have a *Help* button that does the same;
+- in an open menu, the page about the highlighted entry, or about its menu;
+- in a window, such as the viewer, the editor or the calculator, that window's page;
+- in the panels, the page about panels.
+
+Where no page is about what you are doing, the [contents](README.md) open. `Esc` closes Help and leaves you where
+you were, with a menu still open if one was. While a program runs in the console, `F1` is that program's.
+
 ## Keys
 
 | Key | What it does |

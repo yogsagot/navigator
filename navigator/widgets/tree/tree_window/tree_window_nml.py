@@ -87,7 +87,7 @@ class TreeWindow(Window, _Component):
         _w3 = MenuLine(parent=self.tree_menu)    # tree_window.nml:58
         _w4 = MenuItem(parent=self.tree_menu)    # tree_window.nml:59
 
-        self.help_topic = 'trees.md#change-directory'    # tree_window.nml:22
+        self.help_topic = 'trees.md#the-tree-window'    # tree_window.nml:22
         self.title = _bind(lambda _o: _tr('Directory Tree'), yielding=True)    # tree_window.nml:23
         self.first_focus = _bind(lambda _o: self.tree)    # tree_window.nml:36
         self.local_menu = _bind(lambda _o: self.tree_menu)    # tree_window.nml:38

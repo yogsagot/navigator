@@ -81,7 +81,10 @@ class InfoPanel(Widget):
         self._wanted_file: Any = None
         #: Where the lines are, on the right frame while they overflow.
         self.bar = self.add(ScrollBar())
-        self.bar.width = 1
+        # Bound, not assigned: a size assigned is the next layout's to
+        # overwrite, which made the bar the panel's width and put it on the
+        # left frame.
+        self.bar.width = bind(lambda bar: 1)
         self.bar.pin_edges(right=0, top=1, bottom=1)
         self.bar.maximum = bind(lambda bar: bar.parent.last_top())
         self.bar.value = bind(lambda bar: min(bar.parent.top, bar.parent.last_top()))

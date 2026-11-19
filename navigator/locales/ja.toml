@@ -1536,7 +1536,7 @@ flag = "JP"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "File under the ~c~ursor" = "カーソル位置のファイル(~C~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
-"Med~a~ information" = "メディア情報(~A~)"
+"Medi~a~ information" = "メディア情報(~A~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "Volume ~S~ize" = "ボリュームのサイズ(~S~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33

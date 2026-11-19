@@ -30,27 +30,32 @@ Every command is in the menus, with its key beside it. `Alt+Shift+P` finds a com
 
 Files and directories:
 
-- [Panels](panels.md): moving around, views, sorting, tagging, columns, the filter, finding files and duplicates,
-  list files
-- [File operations](file-operations.md): copy and move, renaming, erase, attributes, links, split and combine,
-  UU, checksums, encryption, converting text
-- [Archives](archives.md): creating an archive and extracting from one
+- [Panels](panels.md): moving around, views, sorting, tagging, the information panel, columns, the filter,
+  finding files and duplicates, list files
+- [File operations](file-operations.md): copy and move, renaming, erase, undo, attributes, links, split and
+  combine, UU, checksums, encryption, converting text, opening with another application, printing
+- [Archives](archives.md): the formats, opening, testing, creating an archive and extracting from one
 - [Comparing](compare.md): directories, the Synchronize window, two files
-- [Directory trees](trees.md): the tree beside a panel, changing directory, directory sizes
-- [Places other than the disk](drives.md): archives, servers, containers, volumes, the Trash
+- [Directory trees](trees.md): the tree beside a panel, changing directory, the tree window, directory sizes
+- [Places other than the disk](drives.md): archives, servers, containers, volumes, disk images, the Trash
+- [Working as root](as-root.md): doing what you lack the permission for, and root access
 - [Connections](connections.md): the link manager, passwords, host keys, port forwards, saved links
 - [Bookmarks](bookmarks.md): the list and its keys
 
 Looking at files and changing them:
 
-- [The viewer](viewer.md): its keys, searching, filtering lines, the data tree, tables
-- [The editor](editor.md): its keys, blocks, find and replace, go to a line, margins
+- [The viewer](viewer.md): its keys, opening a file, pages, PDFs and pictures, searching, filtering lines, the
+  data tree, tables
+- [The editor](editor.md): its keys, opening a file, blocks, find and replace, go to a line, margins, syntax
+  highlighting
 - [Macros](macros.md): recorded keys, and the editor's macros
 
 Working with Navigator:
 
 - [The command line and the console](console.md): running commands, command windows, the histories
-- [Windows](windows.md): moving between windows, the window list, the command palette
+- [Starting Navigator](command-line.md): the options of the `nav` command
+- [Windows](windows.md): moving between windows, two views of one text, operations in the background, saving the
+  desktop, the window list, the command palette
 - [Dialog boxes](dialogs.md): their keys, and choosing a file
 - [Copy and paste](clipboard.md): the keys, the clipboard tools, and what each terminal does with them
 - [Settings](settings.md): every page of Options > Settings
@@ -64,4 +69,4 @@ Tools:
   information, the calendar, the character table, SmartPad, the system menu
 - [The game](game.md): its keys, the Top Ten, its setup
 
-- [Help on help](help.md): the keys of this window
+- [Help on help](help.md): help where you are, and the keys of this window

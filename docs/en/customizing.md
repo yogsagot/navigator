@@ -19,6 +19,8 @@ in text are fixed.
 
 *Options > Colors* changes the colours of the theme in use.
 
+![The Colors box: the File Panel group chosen, its items, the foreground and background colours, the attributes and a sample of the text](shots/colors.svg)
+
 - *Group* and *Item* choose what to colour.
 - *Foreground* and *Background* choose from the sixteen colours; the lines beside them take any colour, as a name
   or as `#rrggbb`.

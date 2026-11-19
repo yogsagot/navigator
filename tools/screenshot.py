@@ -355,6 +355,87 @@ async def _create_archive(app: Any) -> Any:
     return _dialog(app, ArchiveDialog(entries=entries, here=panel.location, directory="/srv/backup", stem="docs"))
 
 
+async def _extract(app: Any) -> Any:
+    from navigator.widgets.file_ops.extract_dialog import ExtractDialog
+
+    return _dialog(app, ExtractDialog(here=Path("."), other="/srv/backup"))
+
+
+#: What the archive scene's zip holds, each dated as the rest is.
+ZIP_FILES: dict[str, str] = {
+    "release/README.md": LICENSE_TEXT * 8,
+    "release/LICENSE": LICENSE_TEXT,
+    "release/bin/nav": "#!/bin/sh\nexec python3 -m navigator \"$@\"\n",
+    "release/src/app.py": APP_PY,
+    "release/src/screen.py": APP_PY * 3,
+    "release/docs/manual.txt": LICENSE_TEXT * 12,
+}
+
+
+async def _open_archive(app: Any) -> Any:
+    import zipfile
+
+    from navigator.lib.drives import Location, archive
+
+    path = Path("src/release.zip")
+    with zipfile.ZipFile(path, "w") as zipped:
+        for name, text in ZIP_FILES.items():
+            info = zipfile.ZipInfo(name, date_time=datetime.fromtimestamp(PINNED_TIME).timetuple()[:6])
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o100644 << 16
+            zipped.writestr(info, text)
+    pinned(path)
+    drive = archive.open_archive(Location.of(path.resolve()))
+    panel = app.manager.right
+    panel.cycle_view_mode()  # detailed: what an archive's columns are for
+    panel.location = drive.at("/release")
+    await _until(lambda: not app.busy and any(entry.name == "README.md" for entry in panel.items))
+    panel.cursor = [entry.name for entry in panel.items].index("README.md")
+    await asyncio.sleep(0.1)
+    return panel
+
+
+async def _trash(app: Any) -> Any:
+    from navigator.lib.file_ops import trash
+
+    # A Trash of nobody's: the home one in the scene's own scratch directory,
+    # which goes with it (the left panel listing it is not in the picture),
+    # and no mount's (those are the machine's).
+    data = Path(".data").resolve()
+    os.environ["XDG_DATA_HOME"] = str(data)
+    trash._mounts = lambda: []
+    home = trash.home_trash()
+    (home / "files").mkdir(parents=True)
+    (home / "info").mkdir()
+    for name, size, original in (
+        ("draft.txt", 2_048, "/home/user/project/docs/draft.txt"),
+        ("old-build", None, "/home/user/project/old-build"),
+        ("photo.jpg", 284_211, "/home/user/Pictures/photo.jpg"),
+        ("notes.md", 7_482, "/home/user/notes.md"),
+        ("report.pdf", 1_310_720, "/home/user/Documents/report.pdf"),
+    ):
+        path = home / "files" / name
+        if size is None:
+            path.mkdir()
+            (path / "main.o").write_bytes(b"\0" * 40_960)
+        else:
+            path.write_bytes(b"\0" * size)
+        (home / "info" / f"{name}.trashinfo").write_text(trash.info_text(original, PINNED_TIME))
+    # The modes too: the umask's otherwise, and the Attr column shows them.
+    for path in (home / "files").rglob("*"):
+        os.chmod(path, 0o755 if path.is_dir() else 0o644)
+    pinned(home)
+    manager = app.manager
+    panel = manager.right
+    panel.cycle_view_mode()
+    await manager.open_trash(panel, focus=False)
+    await _until(lambda: not app.busy and any(entry.name == "notes.md" for entry in panel.items))
+    # On a file, so the line under the listing says where it came from.
+    panel.cursor = [entry.name for entry in panel.items].index("notes.md")
+    await asyncio.sleep(0.1)
+    return panel
+
+
 async def _find_file(app: Any) -> Any:
     from navigator.widgets.manager.find_file_dialog import FindFileDialog
 
@@ -459,12 +540,108 @@ async def _link_manager(app: Any) -> Any:
     return dialog
 
 
+async def _connect(app: Any) -> Any:
+    from navigator.widgets.drives.connect_dialog import ConnectDialog
+    from navigator.widgets.drives.connect_dialog.connect_dialog import ConnectRequest
+
+    # Nobody's server, and no recent connections: the database's are the machine's.
+    request = ConnectRequest("sftp", "files.example.org", "backup", 22, "/srv/backup", "backup")
+    return _dialog(app, ConnectDialog(request))
+
+
+async def _host_key(app: Any) -> Any:
+    from navigator.widgets.drives.host_key_query import HostKeyQuery
+
+    return _dialog(app, HostKeyQuery(
+        host="files.example.org", key_type="ssh-ed25519",
+        fingerprint="SHA256:4rQ7uZ0mJ2kLwYbX9cVnT1aEoP3sDgF5hK8iU6yR2Ow",
+    ))
+
+
+async def _port_forwards(app: Any) -> Any:
+    from navigator.lib.drives.forwards import Forward
+    from navigator.widgets.drives.forwards_dialog import ForwardsDialog
+
+    return _dialog(app, ForwardsDialog([
+        Forward("L", 5432, "", "db.internal", 5432),
+        Forward("L", 8080, "", "localhost", 80),
+        Forward("R", 9000, "", "localhost", 3000),
+        Forward("D", 1080),
+    ]))
+
+
+async def _saved_links(app: Any) -> Any:
+    from navigator.lib.drives.profiles import Entry
+    from navigator.widgets.drives.links_dialog import LinksDialog
+
+    # Nobody's links: the database's are the machine's.
+    return _dialog(app, LinksDialog([
+        Entry("backup", "sftp", "files.example.org", "backup", 22, "/srv/backup"),
+        Entry("web", "sftp", "www.example.org", "deploy", 2222, "/var/www"),
+        Entry("mirror", "ftp", "ftp.example.org", "anonymous", 21, "/pub"),
+        Entry("office", "smb", "nas.example.org", "user", 445, "/shared"),
+        Entry("assets", "s3", "s3.amazonaws.com", "", 443, "/example-assets"),
+    ]))
+
+
 async def _settings(app: Any) -> Any:
     from navigator.widgets.setup.settings_dialog import SettingsDialog
 
     # Confirmations: a page with nothing of the machine on it.  The tabs
     # along the top, whatever ``[interface] settings_tabs`` says.
     return _dialog(app, SettingsDialog(tab="confirmations", side="top"))
+
+
+async def _colors(app: Any) -> Any:
+    from navigator.lib.appearance.palette import entry_values
+    from navigator.widgets.setup.colors_dialog import ColorsDialog
+
+    # The theme the picture is painted in, nothing applied as it changes.
+    dialog = _dialog(app, ColorsDialog(entry_values(app.shell.stylesheet.variables)))
+    await asyncio.sleep(0.05)
+    # The file panel's group, by its place among the groups (the names are
+    # the language's), the third of its items under the cursor.
+    group = next(index for index, (name, _) in enumerate(dialog.groups_of) if name == "File Panel")
+    dialog.groups.cursor = group
+    await asyncio.sleep(0.05)
+    dialog.items.cursor = 2
+    await asyncio.sleep(0.05)
+    return dialog
+
+
+def _settings_page(tab: str) -> Callable[[Any], Awaitable[Any]]:
+    """The Settings box open on *tab*'s page, as ``_settings`` is on Confirmations."""
+
+    async def stage(app: Any) -> Any:
+        from navigator.settings import SETTINGS
+        from navigator.widgets.setup.settings_dialog import SettingsDialog
+        from navigator.widgets.setup.settings_dialog.settings_dialog import PAGES
+
+        # The page's sections at their defaults: ``paint()`` pins some away
+        # from them (no option strips, no git letters, simple panels) for the
+        # pictures of the panels, and the page would show the pins.
+        pins = {section: {field.name: getattr(getattr(SETTINGS, section), field.name)
+                          for field in getattr(SETTINGS, section).fields()} for section in PAGES[tab]}
+        for section in PAGES[tab]:
+            getattr(SETTINGS, section).reset()
+        # Country's *Example* is now, written as the choices say: the clock's
+        # pinned moment instead.
+        import types
+
+        from navigator.widgets.setup.country_page import country_page
+
+        moment = datetime(2026, 1, 1, 12, 34).timestamp()
+        country_page.time = types.SimpleNamespace(time=lambda: moment)
+        dialog = _dialog(app, SettingsDialog(tab=tab, side="top"))
+        await asyncio.sleep(0.05)
+        # The pins back once the page has read the defaults: the panels
+        # behind the box are the other pictures' panels.
+        for section, values in pins.items():
+            for name, value in values.items():
+                setattr(getattr(SETTINGS, section), name, value)
+        return dialog
+
+    return stage
 
 
 async def _key_bindings(app: Any) -> Any:
@@ -495,6 +672,112 @@ async def _viewer(app: Any, mode: str = "text") -> Any:
 
 async def _viewer_hex(app: Any) -> Any:
     return await _viewer(app, "hex")
+
+
+NOTES_MD = """# Release notes
+
+Navigator now reads **Markdown** as a page, with headings, lists, tables
+and `code` laid out for the screen.
+
+- The viewer shows pictures on a terminal that can draw them.
+- `F1` opens Help on the page about what you are doing.
+
+| Key | What it does |
+|---|---|
+| `Shift+F3` | The data tree of a JSON or YAML file |
+| `Ctrl+Q` | Quick view in the other panel's place |
+"""
+
+CONFIG_JSON = """{
+  "name": "navigator",
+  "version": "1.0.0",
+  "panels": {"left": "/home/user/project", "right": "/srv/backup", "view": "detailed"},
+  "viewer": {"wrap": true, "tab_size": 8, "encodings": ["utf-8", "cp437", "koi8-r"]},
+  "editor": {"auto_indent": true, "backups": false},
+  "servers": [
+    {"name": "backup", "host": "files.example.org", "port": 22},
+    {"name": "web", "host": "www.example.org", "port": 2222}
+  ]
+}
+"""
+
+SALES_CSV = """Region,Quarter,Units,Revenue,Manager
+North,Q1,1204,48160.00,Alice Moreau
+North,Q2,1388,55520.00,Alice Moreau
+South,Q1,982,39280.00,Bruno Silva
+South,Q2,1101,44040.00,Bruno Silva
+East,Q1,1530,61200.00,Chen Wei
+East,Q2,1612,64480.00,Chen Wei
+West,Q1,876,35040.00,Dana Novak
+West,Q2,944,37760.00,Dana Novak
+"""
+
+
+async def _markup_view(app: Any) -> Any:
+    from navigator.lib.config.file_history import open_viewer
+
+    path = Path("notes.md")
+    path.write_text(NOTES_MD)
+    pinned(path)
+    window = await open_viewer(app.shell.desktop, path, "text")
+    _placed(app, window, *PAGE)
+    viewer = window.viewer
+    if not viewer.rendered:
+        viewer.toggle_rendered()
+    await asyncio.sleep(0.05)
+    await _until(lambda: viewer.rendering)
+    return window
+
+
+async def _data_tree(app: Any) -> Any:
+    from navigator.widgets.viewer.struct_window.struct_window import open_tree
+
+    path = Path("config.json")
+    path.write_text(CONFIG_JSON)
+    pinned(path)
+    window = await open_tree(app.shell.desktop, path)
+    tree = window.tree
+    # Two branches open, the cursor on one of them.
+    for name in ("panels", "servers"):
+        tree.expand(next(node for node in tree.root.children() if node.name.startswith(name)))
+    await asyncio.sleep(0.05)
+    tree.select(next(node for node in tree.root.children() if node.name.startswith("panels")))
+    await asyncio.sleep(0.05)
+    return _placed(app, window, *PAGE)
+
+
+async def _table_view(app: Any) -> Any:
+    from navigator.widgets.viewer.db_window.db_window import open_csv
+
+    path = Path("sales.csv")
+    path.write_text(SALES_CSV)
+    pinned(path)
+    window = await open_csv(app.shell.desktop, path)
+    await asyncio.sleep(0.05)
+    await _until(lambda: not app.busy)
+    return _placed(app, window, *PAGE)
+
+
+async def _quick_view(app: Any) -> Any:
+    # The text alone, not padded to the listing's size: the panel that lists
+    # it is not in the picture.
+    Path("LICENSE").write_text(LICENSE_TEXT)
+    pinned(Path("LICENSE"))
+    _selection(app, "LICENSE")
+    manager = app.manager
+    manager.toggle_quick_view()
+    quick = manager.quick
+    await asyncio.sleep(0.1)
+    await _until(lambda: not app.busy)
+    await asyncio.sleep(0.1)
+    return quick
+
+
+async def _filter_lines(app: Any) -> Any:
+    from navigator.lib.viewer.lines import LinePattern
+    from navigator.widgets.viewer.filter_lines_dialog import FilterLinesDialog
+
+    return _dialog(app, FilterLinesDialog(last=LinePattern("error")))
 
 
 async def _editor(app: Any) -> Any:
@@ -529,6 +812,26 @@ def _pin_tree() -> None:
 
     directory_tree.directory_root = change_dir_dialog.directory_root = root
     directory_tree._walk_down = walk
+
+
+async def _tree_window(app: Any) -> Any:
+    from navigator.widgets.tree.tree_window import TreeWindow
+
+    _pin_tree()
+    window = app.shell.desktop.open(TreeWindow(start=Path("src")))
+    _placed(app, window, *PAGE)
+    window.take_keyboard()
+    await asyncio.sleep(0.05)
+    # Asked again now that the window is up, as the Change directory box is:
+    # the cursor the first walk placed is not kept.
+    window.tree.show(Path("src"))
+    await _until(lambda: window.tree.root is not None and window.tree.root.loaded
+                 and window.tree.selected_node is not None and window.tree.selected_node.name == "src")
+    # Opened a level, so the picture shows a branch.
+    window.tree.expand(window.tree.selected_node)
+    await _until(lambda: window.tree.selected_node.loaded)
+    await asyncio.sleep(0.05)
+    return window
 
 
 async def _tree_panel(app: Any) -> Any:
@@ -673,6 +976,69 @@ async def _completion(app: Any) -> Any:
     # other side of a line that is typed left to right all the same.
     width = app.shell.width if app.rtl else 60
     return (0, box.y, width, oy + line.y + 1 - box.y)
+
+
+#: What the console shows: two commands typed at ``PROMPT`` and their output,
+#: as a shell would have written them.
+CONSOLE_OUTPUT = (
+    PROMPT + b"ls -l\r\n"
+    b"total 236\r\n"
+    b"drwxr-xr-x 2 user users   4096 Dec 31  1999 \x1b[01;34mbin\x1b[0m\r\n"
+    b"drwxr-xr-x 4 user users   4096 Dec 31  1999 \x1b[01;34mdocs\x1b[0m\r\n"
+    b"-rw-r--r-- 1 user users   1071 Dec 31  1999 LICENSE\r\n"
+    b"-rw-r--r-- 1 user users   2318 Dec 31  1999 Makefile\r\n"
+    b"-rw-r--r-- 1 user users 183552 Dec 31  1999 navigator.log\r\n"
+    b"-rw-r--r-- 1 user users   7482 Dec 31  1999 README.md\r\n"
+    b"drwxr-xr-x 6 user users   4096 Dec 31  1999 \x1b[01;34msrc\x1b[0m\r\n"
+    + PROMPT + b"git status --short\r\n"
+    b" \x1b[31mM\x1b[0m README.md\r\n"
+    b" \x1b[31mM\x1b[0m src/app.py\r\n"
+    b"\x1b[31m??\x1b[0m navigator.log\r\n"
+)
+
+
+async def _console(app: Any) -> Any:
+    shell = app.shell
+    shell.console.screen.feed(CONSOLE_OUTPUT)
+    shell.console._changed()
+    shell.toggle_console()
+    await asyncio.sleep(0.1)
+    return None
+
+
+async def _command_window(app: Any) -> Any:
+    from navigator.widgets.shell.terminal_view import TerminalView
+    from navigator.widgets.shell.terminal_window import TerminalWindow
+
+    # No ssh run: what it would have written, fed to the window's screen.
+    TerminalView.start = lambda self: None
+    window = app.shell.desktop.open(TerminalWindow("ssh backup@files.example.org"))
+    _placed(app, window, *PAGE)
+    window.take_keyboard()
+    await asyncio.sleep(0.05)
+    window.view.screen.feed(
+        b"Linux files 6.12.0-amd64 #1 SMP Debian x86_64\r\n\r\n"
+        b"Last login: Fri Dec 31 23:59:00 1999 from 192.0.2.10\r\n"
+        b"\x1b[01;32mbackup@files\x1b[0m:\x1b[01;34m~\x1b[0m$ df -h /srv\r\n"
+        b"Filesystem      Size  Used Avail Use% Mounted on\r\n"
+        b"/dev/sdb1       1.8T  1.1T  644G  64% /srv\r\n"
+        b"\x1b[01;32mbackup@files\x1b[0m:\x1b[01;34m~\x1b[0m$ "
+    )
+    window.view._changed()
+    await asyncio.sleep(0.05)
+    return window
+
+
+async def _command_history(app: Any) -> Any:
+    from navigator.widgets.shell.command_history_dialog import CommandHistoryDialog
+    from navigator.widgets.shell.command_line.command_line import HISTORY_ID
+    from navml.history import HISTORY
+
+    for command in ("make test", "git status --short", "ls -l", "grep -rn TODO src",
+                    "python -m navigator", "git log --oneline -5"):
+        HISTORY.add(HISTORY_ID, command)
+    HISTORY.pin(HISTORY_ID, "make test")
+    return _dialog(app, CommandHistoryDialog())
 
 
 # -- more dialogs -----------------------------------------------------------------
@@ -981,6 +1347,74 @@ async def _panel(app: Any) -> Any:
     return panel
 
 
+async def _info_panel(app: Any) -> Any:
+    from navigator.lib.system import diskinfo
+
+    # The disk, the machine and the file under the cursor, made up: each is
+    # this machine's otherwise.
+    gib = 1 << 30
+    diskinfo.gather = lambda directory, **kwargs: diskinfo.DiskFacts(
+        total=500 * gib, free=384 * gib, mount="/home", device="/dev/sda3", fs_type="ext4", label="home",
+        memory_total=16 * gib, memory_available=9 * gib, memory_navigator=64 << 20,
+    )
+    diskinfo.stat_file = lambda path, name: diskinfo.FileFacts(
+        atime=PINNED_TIME, ctime=PINNED_TIME, nlink=1, inode=1048577, mime="text/markdown",
+    )
+    _selection(app, "README.md")
+    manager = app.manager
+    manager.switch_view(manager.info)
+    info = manager.info
+    await _until(lambda: info.facts is not None and not app.busy)
+    await asyncio.sleep(0.1)
+    return info
+
+
+async def _miller(app: Any) -> Any:
+    from navigator.lib.drives import Location
+
+    # Two levels down, so no column is of the scratch directory's parent
+    # (the machine's /tmp) or titled with its random name; a file of text
+    # under the cursor for the preview.
+    navkit = Path("src/navkit")
+    for name, text in (("screen.py", APP_PY), ("widget.py", APP_PY), ("events.py", LICENSE_TEXT)):
+        (navkit / name).write_text(text)
+    pinned(navkit)
+    manager = app.manager
+    manager.toggle_miller(Location.of(navkit.resolve()), "widget.py")
+    await asyncio.sleep(0.2)
+    await _until(lambda: not app.busy)
+    await asyncio.sleep(0.1)
+    # The columns, not the command line under them: its prompt is the
+    # scratch directory's.
+    miller = manager.miller
+    ox, oy = miller.offset()
+    return (ox + miller.x, oy + miller.y, miller.width, miller.height)
+
+
+async def _find_duplicates(app: Any) -> Any:
+    from navigator.widgets.manager.duplicates_dialog import DuplicatesDialog
+
+    dialog = _dialog(app, DuplicatesDialog())
+    dialog.mask.value = "*.jpg;*.png"
+    return dialog
+
+
+async def _panelize(app: Any) -> Any:
+    from navigator.widgets.manager.panelize_dialog import PanelizeDialog
+
+    return _dialog(app, PanelizeDialog(command="git ls-files --modified"))
+
+
+async def _directory_history(app: Any) -> Any:
+    from navigator.widgets.manager.dir_history_dialog import DirHistoryDialog
+    from navigator.widgets.manager.dir_history_dialog.dir_history_dialog import HISTORY_ID
+    from navml.history import HISTORY
+
+    for place in ("/etc", "/var/log", "/home/user/project/src", "/home/user/project", "/usr/share/doc"):
+        HISTORY.add(HISTORY_ID, place)
+    return _dialog(app, DirHistoryDialog())
+
+
 async def _file_menu(app: Any) -> Any:
     # By its place on the bar, not by Alt+F: the letter is the language's.
     menu = app.shell.menu
@@ -1014,6 +1448,21 @@ SCENES: tuple[Scene, ...] = (
     Scene("multi-rename", _multi_rename, size=WIDE),
     Scene("link-manager", _link_manager, size=WIDE),
     Scene("settings", _settings, size=WIDE),
+    Scene("colors", _colors, size=(80, 30)),
+    Scene("settings-system", _settings_page("system"), size=WIDE),
+    Scene("settings-startup", _settings_page("startup"), size=WIDE),
+    Scene("settings-interface", _settings_page("interface"), size=WIDE),
+    Scene("settings-savers", _settings_page("savers"), size=WIDE),
+    Scene("settings-country", _settings_page("country"), size=WIDE),
+    Scene("settings-editor-viewer", _settings_page("editor_viewer"), size=WIDE),
+    Scene("settings-viewer-types", _settings_page("viewer_types"), size=WIDE),
+    Scene("settings-file-manager", _settings_page("file_manager"), size=WIDE),
+    Scene("settings-drive-info", _settings_page("drive_info"), size=WIDE),
+    Scene("settings-panel-defaults", _settings_page("panel_defaults"), size=WIDE),
+    Scene("settings-column-defaults", _settings_page("column_defaults"), size=WIDE),
+    Scene("settings-highlight-groups", _settings_page("highlight_groups"), size=WIDE),
+    Scene("settings-remote", _settings_page("remote"), size=WIDE),
+    Scene("settings-tools", _settings_page("tools"), size=WIDE),
     Scene("key-bindings", _key_bindings, size=WIDE),
     Scene("panel", _panel),
     Scene("panel-detailed", _panel_detailed, size=(120, 24)),
@@ -1051,6 +1500,27 @@ SCENES: tuple[Scene, ...] = (
     Scene("game", _game, size=(80, 30)),
     # Taller than the rest: at 24 rows the File menu is cut and scrolls.
     Scene("file-menu", _file_menu, size=(80, 34)),
+    Scene("info-panel", _info_panel, size=(80, 30)),
+    Scene("miller", _miller),
+    Scene("find-duplicates", _find_duplicates),
+    Scene("panelize", _panelize),
+    Scene("directory-history", _directory_history),
+    Scene("markup-view", _markup_view),
+    Scene("data-tree", _data_tree),
+    Scene("table-view", _table_view),
+    Scene("quick-view", _quick_view),
+    Scene("filter-lines", _filter_lines),
+    Scene("connect", _connect),
+    Scene("host-key", _host_key),
+    Scene("port-forwards", _port_forwards),
+    Scene("saved-links", _saved_links),
+    Scene("console", _console),
+    Scene("command-window", _command_window),
+    Scene("command-history", _command_history),
+    Scene("extract", _extract),
+    Scene("open-archive", _open_archive, size=(120, 24)),
+    Scene("trash", _trash, size=(120, 24)),
+    Scene("tree-window", _tree_window),
 )
 README_SCENE = SCENES[0]
 

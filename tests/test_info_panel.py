@@ -320,7 +320,11 @@ def test_the_information_scrolls_when_it_overflows(place):
                   lambda a: a.spawn(info(a).on_mouse_click(MouseClickEvent(1, 1, "wheel_up"))),
                   lambda a: seen.update(wheel=info(a).top),
                   lambda a: a.spawn(info(a).bar.scroll_to(5)), lambda a: seen.update(bar=info(a).top),
-                  lambda a: seen.update(last=info(a).last_top(), rows=info(a).rows)])
+                  lambda a: seen.update(last=info(a).last_top(), rows=info(a).rows),
+                  lambda a: seen.update(bar_at=(info(a).bar.x, info(a).bar.width, info(a).width))])
+    # On the right frame, one column wide: an assigned width was the layout's
+    # to overwrite, and the bar spread over the panel from its left frame.
+    assert seen["bar_at"][:2] == (seen["bar_at"][2] - 1, 1)
     assert seen["focused"] and seen["start"][2] is True and seen["start"][1] != "line 59"
     assert seen["end"][1:] == ("line 59", True) and seen["past"] == seen["end"]
     assert seen["two"][0] == app.manager.info.lines()[2][0].strip()

@@ -518,7 +518,7 @@
 <line x1="613" y1="268" x2="613" y2="280" stroke="#ffffff"/>
 <line x1="617" y1="268" x2="617" y2="280" stroke="#ffffff"/>
 <line x1="25" y1="290" x2="25" y2="280" stroke="#0000aa"/>
-<line x1="25" y1="290" x2="20" y2="290" stroke="#0000aa"/>
+<line x1="25" y1="290" x2="30" y2="290" stroke="#0000aa"/>
 <line x1="35" y1="290" x2="30" y2="290" stroke="#0000aa"/>
 <line x1="35" y1="290" x2="40" y2="290" stroke="#0000aa"/>
 <line x1="47" y1="288" x2="40" y2="288" stroke="#ffffff"/>

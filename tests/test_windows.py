@@ -580,6 +580,22 @@ def test_on_a_mirrored_screen_the_grip_is_bottom_left_and_pulls_wider(desk):
     assert (win.x, win.width, win.height) == (10, 35, 12)
 
 
+def test_on_a_mirrored_screen_the_grip_is_drawn_as_a_bottom_left_corner(desk):
+    app, desktop = desk
+    win = desktop.open(window(10, 5, 30, 10))
+    settle()
+    for rtl, expected in ((False, "─┘"), (True, "└─")):
+        buffer = ScreenBuffer(30, 10)
+        buffer.rtl = rtl
+        win.render(buffer)
+        if rtl:
+            buffer = buffer.mirrored()
+        bottom = "".join(buffer.get(x, 9)[0] for x in range(30))
+        # Flipped with the frame it sits on: drawn as text, the mirror kept
+        # ``┘``, a right-hand corner on the left-hand end.
+        assert (bottom[-2:] if not rtl else bottom[:2]) == expected
+
+
 def test_a_long_title_stays_between_the_frame_icons(desk):
     app, desktop = desk
     win = desktop.open(window(10, 5, 30, 10, title="A rather long title for so narrow a window"))

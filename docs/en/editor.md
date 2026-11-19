@@ -21,6 +21,27 @@ menu bar while an editor is open.
 | `Alt+G` | [Go to a line](#go-to-a-line) |
 | `Alt+PgUp` | List the files edited before |
 
+## Opening a file
+
+| Key or entry | What it opens |
+|---|---|
+| `F4` | The file under the cursor |
+| `Alt+F4`, `Ctrl+K`, *File > Edit > Alternate edit* | The file under the cursor in the other editor: see below |
+| `Shift+F4`, *File > Edit > Edit new file* | A file you name in a [file box](dialogs.md#choosing-a-file). A name that is not there yet is made when you save |
+| *File > Edit > Open...* | A file you choose in a file box; only a file that is there |
+| `Alt+PgUp` | A file from the list of files edited before |
+
+`F4` uses Navigator's editor, and *Alternate edit* another program: the one `editors.ini` names for the file
+([file associations](user-menu.md#file-associations)), else a list of the editors installed in the terminal, such
+as `vim` or `nano`, the one you choose running in a window of its own. With *Internal editor* unticked on the
+[System](settings.md#system) page of the settings the two keys change places: `F4` runs `editors.ini`'s program,
+else `$EDITOR`, and *Alternate edit* uses Navigator's editor. `Ctrl+K` is there because many window managers close
+the terminal on `Alt+F4`.
+
+`F4` on a directory opens its [file attributes](file-operations.md#file-attributes).
+
+A file that was edited before opens where you left it.
+
 ## Blocks and the clipboard
 
 Hold `Shift` while moving the cursor, or drag with the mouse, to mark a block.
@@ -92,3 +113,29 @@ editor window only; the starting values come from the editor setup.
 
 To format a paragraph, mark it as a block and press `Alt+J` to justify it, `Alt+L` to set it against the left
 margin, `Alt+R` against the right, or `Alt+C` to centre it. The whole block is treated as one paragraph.
+
+## Syntax highlighting
+
+The editor and the viewer colour the text of a program, a web page, a configuration file and many others by what
+each part is. Which colouring a file gets is decided by its name, in `highlight.ini`: *Options > Highlight file
+edit* opens that file in the editor.
+
+```ini
+[*.nml]
+lexer = python
+
+[*.txt]
+lexer = none
+autowrap = on
+right_margin = 72
+```
+
+- Each section is a [file mask](panels.md#file-masks); the first section that matches the file is used.
+- `lexer` names the language, as Pygments names it (`python3 -m pygments -L lexers` lists them). `none` colours
+  nothing; `auto` lets Pygments guess from the name and the contents.
+- A section may also set the editor's options for those files, under the names they have in `navigator.ini`'s
+  `[editor]` section: `auto_indent`, `insert_tabs`, `line_numbers`, `soft_wrap`, `autowrap`, `right_margin`,
+  `line_ending` and others. The file's own comments list them all.
+
+For one window, *Editor > File type* (`Ctrl+Shift+H`) chooses another language, and *Editor > Options > Syntax
+highlight* turns colouring off and on. The colours are the theme's.

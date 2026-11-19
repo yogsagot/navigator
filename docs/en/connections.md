@@ -29,6 +29,8 @@ The rclone manager's *Configure* runs `rclone config` to set remotes up.
 
 ## A connection
 
+![The SSH link box filled in: host, login, port, directory and name, and Keep in the Link list](shots/connect.svg)
+
 | Line | What it is |
 |---|---|
 | *Host* | The server's name or address. For SSH, a `Host` name from `~/.ssh/config` works, and what the file says fills in a login and a port left empty |
@@ -53,6 +55,8 @@ keyring to keep it in.
 The first time you connect to an SSH server, its host key is not in `~/.ssh/known_hosts`, and you are asked
 whether to go on, as `ssh` asks.
 
+![The Unknown SSH host question: the host, its key type and fingerprint, and the Accept, Save and Cancel buttons](shots/host-key.svg)
+
 - *Accept* trusts the key for this connection only.
 - *Save* also writes it to `~/.ssh/known_hosts`, so you are not asked again.
 - *Cancel* does not connect.
@@ -63,6 +67,8 @@ Compare the fingerprint shown with one you got from the server's administrator b
 
 *Forwards* in the SSH manager lists the port forwards of a connection. *Add*, *Edit* and *Delete* change the
 list, which is kept with the connection when you save it.
+
+![The Port forwards box: two local forwards, a remote one and a dynamic SOCKS one, with Add, Edit and Delete](shots/port-forwards.svg)
 
 | Kind | What it does |
 |---|---|
@@ -78,5 +84,7 @@ list, which is kept with the connection when you save it.
 *Utilities > Saved links* lists the kept connections of every protocol in one box. *Connect* opens the one under
 the cursor, *Edit* changes it, *Add* makes a new one and *Delete* removes it. The changes are kept when you leave
 with *OK*.
+
+![The Saved links box: five connections over SFTP, FTP, SMB and S3, each with its name, protocol and server](shots/saved-links.svg)
 
 *Utilities > Disconnect*, `Alt+H`, closes a connection; a panel that was showing it goes back to the disk.

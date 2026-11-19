@@ -226,7 +226,7 @@
 <line x1="395" y1="390" x2="395" y2="380" stroke="#aaaaaa"/>
 <line x1="395" y1="390" x2="395" y2="400" stroke="#aaaaaa"/>
 <line x1="5" y1="410" x2="5" y2="400" stroke="#55ffff"/>
-<line x1="5" y1="410" x2="0" y2="410" stroke="#55ffff"/>
+<line x1="5" y1="410" x2="10" y2="410" stroke="#55ffff"/>
 <line x1="15" y1="410" x2="10" y2="410" stroke="#55ffff"/>
 <line x1="15" y1="410" x2="20" y2="410" stroke="#55ffff"/>
 <line x1="25" y1="410" x2="20" y2="410" stroke="#aaaaaa"/>

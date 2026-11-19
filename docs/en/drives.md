@@ -34,16 +34,34 @@ Disconnect*, `Alt+H`, closes a connection; a panel that was showing it goes back
 
 ## Volumes
 
-*Disk > Volumes* lists the disks and removable media, and mounts, unmounts and ejects them. `Enter` on a disk
-image, an `.iso` or `.img` file, mounts it and opens it.
+*Disk > Volumes* lists the disks and removable media, and mounts, unmounts and ejects them.
 
 ![The Volumes window: three volumes with their type, how full they are, and their free space and size](shots/volumes.svg)
 
+### Disk images
+
+`Enter` on a disk image, an `.iso` or `.img` file, or *Disk > Mount image* with the cursor on one, mounts it
+read-only and opens it in the panel. *Disk > Unmount image*, in the image or on it, unmounts it again and takes
+the panels that were inside it back to the image file. This needs udisks2, which most desktops run; *ENTER
+mounts disc images* on the [File panels](settings.md#file-panels) page of the settings turns `Enter`'s part off.
+
 ## The Trash
 
-*Disk > Trash* shows the files in the Trash, where they can be restored or erased for good. `F8` moves files
-there instead of erasing them when *F8 moves to Trash* is ticked on the
-[File panels](settings.md#file-panels) page of the settings.
+![The Trash in a panel: a directory and four files that were erased, and where the one under the cursor came from and when it was deleted](shots/trash.svg)
+
+`F8` moves files to the Trash instead of erasing them when *F8 moves to Trash* is ticked on the
+[File panels](settings.md#file-panels) page of the settings, and the [Erase](file-operations.md#erase) box has
+*Move to Trash* to choose each time. [Undo](file-operations.md#undo), `Ctrl+Z`, takes the last move to the Trash
+back.
+
+*Disk > Trash*, or a double click on the trash can, shows the files in the Trash in the active panel. The line
+under the panel says where the file under the cursor came from and when it was erased.
+
+- *File > Restore from Trash* puts the selected files back where they came from.
+- `F8` there erases them for good.
+- `F5` copies them out, as from any directory.
+
+*Disk > Empty Trash* erases everything in the Trash for good, after asking.
 
 ## Bookmarks
 

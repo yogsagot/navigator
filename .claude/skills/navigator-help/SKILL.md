@@ -67,21 +67,21 @@ Rules:
   any is stale, `--language CODE` writes `docs/CODE/shots/`. `tests/test_screenshot.py` runs `--check --no-readme`:
   Help's pictures only, since the README's goes stale with the version and the release workflow runs the suite.
 
-**The scenes** (fifty, each shown by one page):
+**The scenes** (eighty-six, each shown by one page):
 
 | Page | Scenes |
 |---|---|
 | `README.md` | `file-menu` (an 80x34 screen: at 24 rows the File menu scrolls) |
-| `panels.md` | `panel`, `panel-detailed`, `find-file`, `select-group`, `filter`, `make-list`, `columns-setup` |
+| `panels.md` | `panel`, `panel-detailed`, `find-file`, `select-group`, `filter`, `make-list`, `columns-setup`, `info-panel` (80x30, so nothing scrolls), `miller`, `find-duplicates`, `panelize`, `directory-history` |
 | `file-operations.md` | `copy`, `make-directory`, `multi-rename`, `erase`, `file-attributes`, `links`, `split`, `uu-encode`, `checksums`, `encryption`, `convert-text` |
-| `archives.md`, `compare.md` | `create-archive`; `compare-directories`, `synchronize`, `compare-files` |
-| `viewer.md`, `editor.md` | `viewer`, `viewer-hex`, `viewer-find`; `editor`, `editor-replace` |
-| `trees.md`, `drives.md`, `bookmarks.md` | `tree-panel`, `change-directory`, `directory-sizes`; `volumes`; `bookmarks` |
-| `windows.md`, `dialogs.md`, `console.md`, `user-menu.md` | `window-list`, `command-palette`; `file-dialog`; `completion`; `user-menu` |
+| `archives.md`, `compare.md` | `create-archive`, `open-archive` (120x24, a zip the stage writes, detailed), `extract`; `compare-directories`, `synchronize`, `compare-files` |
+| `viewer.md`, `editor.md` | `viewer`, `viewer-hex`, `viewer-find`, `markup-view`, `quick-view`, `filter-lines`, `data-tree`, `table-view`; `editor`, `editor-replace` |
+| `trees.md`, `drives.md`, `bookmarks.md` | `tree-panel`, `change-directory`, `directory-sizes`, `tree-window`; `volumes`, `trash` (120x24); `bookmarks` |
+| `windows.md`, `dialogs.md`, `console.md`, `user-menu.md` | `window-list`, `command-palette`; `file-dialog`; `completion`, `console`, `command-window`, `command-history`; `user-menu` |
 | `utilities.md`, `calculator.md`, `game.md` | `process-list`, `services`, `system-monitor`, `environment`, `system-information`, `calendar`, `character-table`; `calculator`; `game` |
-| `connections.md`, `settings.md`, `customizing.md` | `link-manager`; `settings`; `key-bindings` |
+| `connections.md`, `settings.md`, `customizing.md` | `link-manager`, `connect`, `host-key`, `port-forwards`, `saved-links`; `settings` (Confirmations) and `settings-PAGE` for each other page; `key-bindings`, `colors` (80x30) |
 
-`clipboard.md`, `macros.md` and `help.md` have none: nothing there is a screen worth showing.
+`clipboard.md`, `macros.md`, `help.md`, `command-line.md` and `as-root.md` have none: nothing there is a screen worth showing.
 
 - **A scene painted alone and one painted after the others are the same picture.** `paint()` starts each from
   `SETTINGS.reset()` and a fresh `:memory:` database, then lays its pins, and points `XDG_CONFIG_HOME` at an empty
@@ -105,8 +105,21 @@ Rules:
 - **Which go stale with what**: `key-bindings` with `TABLES` or a global default key, `command-palette` with a
   menu command matching *copy*, `user-menu` with `navigator/assets/menu.ini`, `character-table` with a Python
   whose Unicode adds a block before *Spacing Modifier Letters* (none can), `file-menu` with the File menu.
+- **What runs a program runs none**: `console` feeds `CONSOLE_OUTPUT` (two commands at `PROMPT` and their output)
+  to the console's screen before Ctrl+O; `command-window` replaces `TerminalView.start` and feeds what `ssh` would
+  have written. `info-panel` replaces `diskinfo.gather` and `diskinfo.stat_file`. `miller` opens two levels down
+  (`src/navkit`, given files of text) and crops to the columns: from the scratch directory a column would list
+  the machine's `/tmp` and be titled with its random name, and the command line's prompt is that path.
+  The files a viewer scene opens (`notes.md`, `config.json`, `sales.csv`) are written by the stage.
 - **The prompt in `completion` (and behind some boxes) is `PROMPT`'s**, the README picture's: a constant, not
   the machine's.
+- **`trash` makes a Trash of nobody's**: `XDG_DATA_HOME` pointed at `.data` in the scene's scratch directory
+  (gone with it; no later scene reads the variable), `trash._mounts` answering none, the info files dated by
+  `PINNED_TIME`. `tree-window`, like `change-directory`, asks for `src` again once the window is up: the first
+  walk's cursor is not kept.
+- **A `settings-PAGE` scene shows the page's sections at their defaults** (`_settings_page`): it resets them,
+  opens the box, then puts `paint()`'s pins back, so the panels behind are the other pictures'. Country's
+  *Example* is now: the stage gives `country_page` a `time` answering the clock's pinned moment.
 - **The wide four pin what is the machine's or the session's**: `multi-rename` its own `Rule` in the dialog
   module's `_session`; `link-manager` three made-up `Entry`s, never the database's, the first chosen
   (`_choose(0)`); `settings` the Confirmations page with `side="top"`, whatever `[interface] settings_tabs` says;

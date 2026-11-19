@@ -30,4 +30,4 @@ DriveInfoPage(SettingsPage):
         anchors:
             left: 2
             right: 2
-        items: ["~D~irectory Title", "~T~otals", "File under the ~c~ursor", "Med~a~ information", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]
+        items: ["~D~irectory Title", "~T~otals", "File under the ~c~ursor", "Medi~a~ information", "Volume ~S~ize", "Volume ~F~ree space", "Volume ~L~abel", "Total ~m~emory", "M~e~mory for user", "Memory for ~N~avigator", "~I~nformation file"]

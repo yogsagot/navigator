@@ -1536,7 +1536,7 @@ flag = "RU"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "File under the ~c~ursor" = "Файл под ~к~урсором"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
-"Med~a~ information" = "Ме~д~иа-информация"
+"Medi~a~ information" = "Ме~д~иа-информация"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "Volume ~S~ize" = "~Р~азмер диска"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
@@ -1642,7 +1642,7 @@ flag = "RU"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:54
 "~P~ass other files to desktop" = "Про~ч~ие файлы — в рабочий стол"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:54
-"Return to last cursor position" = "Возвращать курсор на прежнее место"
+"Return to last cursor position" = "Курсор на прежнее место"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:61
 "Miller column ~w~idth:" = "~Ш~ирина колонки Миллера:"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:80

@@ -65,7 +65,7 @@ class DriveInfoPage(SettingsPage, _Component):
         self.options.y = 2    # drive_info_page.nml:28
         self.options.height = 11    # drive_info_page.nml:29
         self.options.items = _bind(    # drive_info_page.nml:33
-            lambda _o: [_tr('~D~irectory Title'), _tr('~T~otals'), _tr('File under the ~c~ursor'), _tr('Med~a~ information'), _tr('Volume ~S~ize'), _tr('Volume ~F~ree space'), _tr('Volume ~L~abel'), _tr('Total ~m~emory'), _tr('M~e~mory for user'), _tr('Memory for ~N~avigator'), _tr('~I~nformation file')],
+            lambda _o: [_tr('~D~irectory Title'), _tr('~T~otals'), _tr('File under the ~c~ursor'), _tr('Medi~a~ information'), _tr('Volume ~S~ize'), _tr('Volume ~F~ree space'), _tr('Volume ~L~abel'), _tr('Total ~m~emory'), _tr('M~e~mory for user'), _tr('Memory for ~N~avigator'), _tr('~I~nformation file')],
             yielding=True,
         )
         self.options.x = 2    # drive_info_page.nml:31

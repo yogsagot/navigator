@@ -241,3 +241,13 @@ def test_the_page_offers_the_calendar_system_by_name():
     assert page.calendar.choices[:3] == ["Language's own", "Gregorian", "Julian"]
     page.calendar.value = "Indian national (Saka)"
     assert page.accept()["calendar"] == "indian"
+
+
+def test_a_dotdot_with_no_time_shows_no_date():
+    from navigator.lib.drives.listing import DirEntry
+
+    # An archive's or the Trash's ``..`` is made with no time: shown, its 0
+    # was 1970 in the machine's time zone.  A real file of that time keeps it.
+    assert DirEntry("..", True, 0).display_date == ""
+    assert DirEntry("..", True, 0, mtime=86_400.0).display_date != ""
+    assert DirEntry("epoch", False, 0).display_date != ""

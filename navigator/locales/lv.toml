@@ -1536,7 +1536,7 @@ flag = "LV"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "File under the ~c~ursor" = "~F~ails zem kursora"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
-"Med~a~ information" = "~M~ediju informācija"
+"Medi~a~ information" = "~M~ediju informācija"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "Volume ~S~ize" = "~S~ējuma izmērs"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
@@ -1642,7 +1642,7 @@ flag = "LV"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:54
 "~P~ass other files to desktop" = "~C~itus failus vērt darbvirsmā"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:54
-"Return to last cursor position" = "Atgriezt kursoru iepriekšējā vietā"
+"Return to last cursor position" = "Kursoru iepriekšējā vietā"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:61
 "Miller column ~w~idth:" = "Millera kolo~n~nu platums:"
 # navigator/widgets/setup/fm_setup_page/fm_setup_page.nml:80

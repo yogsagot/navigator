@@ -29,8 +29,13 @@ cursor, and *Re-read* reads the tree again.
 
 ![The Choose Directory box: the tree on the left with the cursor on src, and its buttons on the right](shots/change-directory.svg)
 
-*Disk > Directory tree* opens the same tree in a window that stays open; `Enter` there sends the active panel to
-the directory.
+## The tree window
+
+![The Directory Tree window: the project's directories, src opened and under the cursor, and the number of files in it and their size at the bottom](shots/tree-window.svg)
+
+*Disk > Directory tree* opens the tree in a window of its own on the desktop, which stays open while you work
+elsewhere. `Enter` on a directory sends the active file manager's active panel there. The window has its own *Tree*
+menu, with *Re-read* (`Ctrl+R`), *Quick search* (`Ctrl+S`) and *Close*; `Esc` closes it too.
 
 ## Directory sizes
 

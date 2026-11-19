@@ -102,7 +102,7 @@ class FMSetupPage(SettingsPage, _Component):
         self.behavior.key = 'BEHAVIOR'    # fm_setup_page.nml:49
         self.behavior.x = 2    # fm_setup_page.nml:50
         self.behavior.y = 2    # fm_setup_page.nml:51
-        self.behavior.width = 33    # fm_setup_page.nml:52
+        self.behavior.width = 35    # fm_setup_page.nml:52
         self.behavior.height = 13    # fm_setup_page.nml:53
         self.behavior.items = _bind(    # fm_setup_page.nml:54
             lambda _o: [_tr('Auto c~h~ange directory'), _tr('Drag~-~and~-~drop from columns'), _tr('~B~eep after copy'), _tr('~E~NTER opens archive'), _tr('ENTER mounts dis~c~ images'), _tr('~S~PACE toggles selection'), _tr('~D~EL erases file(s)'), _tr('Use ←/→ ~k~eys'), _tr('BS - go to ~u~pper directory'), _tr('Auto ~r~efresh panels'), _tr('F8 m~o~ves to Trash'), _tr('~P~ass other files to desktop'), _tr('Return to last cursor position')],

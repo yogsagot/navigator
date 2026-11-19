@@ -81,13 +81,35 @@ The side that is not active can show something else in the panel's place:
 |---|---|
 | `Ctrl+T` | A tree of directories |
 | `Ctrl+Q` | A quick view of the file under the cursor |
-| `Ctrl+L` | Information about the directory, the disk and the file under the cursor |
+| `Ctrl+L` | [Information](#the-information-panel) about the directory, the disk and the file under the cursor |
 
 The same key puts the panel back. `Ctrl+F1` and `Ctrl+F2` hide the left and the right side, `Ctrl+P` hides the
 side that is not active, and `Alt+Left` and `Alt+Right` move the divider between the sides.
 
 `Alt+F12` switches to Miller columns: a row of narrow columns, one for each directory on the way, with a preview
 of what is under the cursor.
+
+![Miller columns: the src directory, the navkit directory inside it with widget.py under the cursor, and the start of widget.py's text](shots/miller.svg)
+
+## The information panel
+
+`Ctrl+L` puts information about the active panel in the other panel's place, and `Ctrl+L` again puts the panel
+back. It follows the active panel as you move:
+
+![The information panel: the directory and its totals, the file under the cursor with its type, size, times, attributes, owner and links, the disk's size, free space and label, and the memory](shots/info-panel.svg)
+
+- the directory's name, and how many files it holds and their size;
+- the file under the cursor: its type, size, times, attributes, owner, number of links and inode. A picture, a
+  sound, a video, a PDF and a program get more: their size in pixels, length, streams, pages or the libraries a
+  program needs. The length of a sound or a video needs FFmpeg's `ffprobe`;
+- the file system the directory is on: its size, the free space and its label. On a server, the server and how
+  the connection is made; in an archive, the archive;
+- the computer's memory, what programs may still use, and what Navigator itself takes;
+- the directory's information file, `DirInfo` or `File_ID.DIZ`, when there is one.
+
+When there is more than fits, `Tab` moves the keyboard into it to scroll it with the arrows, `PgUp` and `PgDn`;
+the mouse wheel scrolls it too. The [Info panel](settings.md#info-panel) page of the settings chooses which lines
+are shown.
 
 ## More than one file manager
 
@@ -223,6 +245,8 @@ The columns a new panel starts with are on the [Columns](settings.md#columns) pa
 *Panel > Find duplicates* looks under the panel's directory for files with the same contents and lists them in the
 panel, as a search does.
 
+![The Find duplicates box: a file mask for pictures, a minimum size, and Search subdirectories ticked](shots/find-duplicates.svg)
+
 - *File mask* chooses which files are compared.
 - *Minimum size* leaves smaller files out.
 - *Search subdirectories* looks in the directories below as well.
@@ -236,6 +260,8 @@ over, and two hard-linked names of one file do not count as duplicates.
 `Alt+Y`, or *Panel > Panelize command*, runs a shell command in the panel's directory and lists the files it
 prints, one file name a line, as the panel's listing. It is for commands that answer "which files?":
 
+![The Panelize command box with git ls-files --modified typed in](shots/panelize.svg)
+
 ```sh
 git ls-files -m
 grep -l TODO *.py
@@ -247,6 +273,8 @@ A command line that starts with `|` does the same without the box.
 
 `Alt+BkSp`, or *Panel > History of directories*, lists the directories the panels have been to, the last first.
 *Go to* opens the one under the cursor in the active panel, and *Delete record* removes it from the list.
+
+![The Directories History box: seven directories, the last visited first, and the Go to, Delete record and Cancel buttons](shots/directory-history.svg)
 
 ## Remembering a directory
 

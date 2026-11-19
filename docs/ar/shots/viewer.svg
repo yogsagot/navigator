@@ -399,7 +399,7 @@
 <line x1="673" y1="328" x2="673" y2="340" stroke="#ffffff"/>
 <line x1="677" y1="328" x2="677" y2="340" stroke="#ffffff"/>
 <line x1="25" y1="350" x2="25" y2="340" stroke="#55ffff"/>
-<line x1="25" y1="350" x2="20" y2="350" stroke="#55ffff"/>
+<line x1="25" y1="350" x2="30" y2="350" stroke="#55ffff"/>
 <line x1="35" y1="350" x2="30" y2="350" stroke="#55ffff"/>
 <line x1="35" y1="350" x2="40" y2="350" stroke="#55ffff"/>
 <line x1="47" y1="348" x2="40" y2="348" stroke="#ffffff"/>

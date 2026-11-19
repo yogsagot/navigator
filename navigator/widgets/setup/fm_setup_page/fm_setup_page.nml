@@ -49,7 +49,7 @@ FMSetupPage(SettingsPage):
         key: "BEHAVIOR"
         x: 2
         y: 2
-        width: 33
+        width: 35
         height: 13
         items: ["Auto c~h~ange directory", "Drag~-~and~-~drop from columns", "~B~eep after copy", "~E~NTER opens archive", "ENTER mounts dis~c~ images", "~S~PACE toggles selection", "~D~EL erases file(s)", "Use ←/→ ~k~eys", "BS - go to ~u~pper directory", "Auto ~r~efresh panels", "F8 m~o~ves to Trash", "~P~ass other files to desktop", "Return to last cursor position"]
 

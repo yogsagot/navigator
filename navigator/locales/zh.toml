@@ -1536,7 +1536,7 @@ flag = "CN"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "File under the ~c~ursor" = "光标处的文件(~C~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
-"Med~a~ information" = "媒体信息(~A~)"
+"Medi~a~ information" = "媒体信息(~A~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33
 "Volume ~S~ize" = "卷大小(~S~)"
 # navigator/widgets/setup/drive_info_page/drive_info_page.nml:33

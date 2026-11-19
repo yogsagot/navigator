@@ -54,9 +54,17 @@ def app(tmp_path, monkeypatch):
     # These tests are about the mechanism, over pages of their own: the file
     # manager and the ≡ and File menus name none of the shipped ones here.
     made.manager.help_topic = ""
-    made.shell.menu.system.help_topic = ""
-    made.shell.menu.file.help_topic = ""
+    for menu in (made.shell.menu.system, made.shell.menu.file):
+        _clear_topics(menu)
     return made
+
+
+def _clear_topics(node):
+    """*node* and every entry under it naming no topic."""
+    node.help_topic = ""
+    if hasattr(node, "all_entries"):
+        for entry in node.all_entries():
+            _clear_topics(entry)
 
 
 def viewer(app):
@@ -649,7 +657,7 @@ def test_the_librarys_boxes_get_their_topic_from_the_application(tmp_path, monke
 
 
 def test_the_main_windows_and_menus_name_their_pages(tmp_path, monkeypatch):
-    """Against the shipped pages: the file manager, and the bar's File menu and one of its items."""
+    """Against the shipped pages: the file manager, and two entries of the bar's File menu."""
     monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
     app = Navigator(tmp_path, tmp_path, terminal=FakeTerminal(80, 24))
     seen = []
@@ -666,10 +674,10 @@ def test_the_main_windows_and_menus_name_their_pages(tmp_path, monkeypatch):
         lambda a: seen.append(top_text(a)),
         KeyEvent("escape"),
         KeyEvent("f10"), KeyEvent("right"), KeyEvent("enter"),
-        lambda a: seen.append(a.help_topic()),  # the File menu's
+        lambda a: seen.append(a.help_topic()),  # the first entry's, View's
         on_copy,  # an item's own
     ])
-    assert seen == ["panels.md", "Panels", "file-operations.md", "file-operations.md#copy-and-move"]
+    assert seen == ["panels.md", "Panels", "viewer.md#opening-a-file", "file-operations.md#copy-and-move"]
 
 
 # -- the dialogs whose DN resource has ``cmHelp``: Help beside OK and Cancel ---

@@ -58,7 +58,7 @@ away, the percentage shows a `?` and waits for you. *Stop* asks before abandonin
 
 Files that were copied lose their tags; files that were skipped keep them.
 
-`Ctrl+Z` takes back the last copy, move or rename. A copy is removed only if nothing has changed it since.
+`Ctrl+Z` takes the copy back; see [Undo](#undo).
 
 ## Make a directory
 
@@ -116,10 +116,16 @@ choose, control characters become `_`, and names in one directory that differ on
 A file whose name comes out the same is left alone. Names that swap among the files, `a` to `b` and `b` to `a`,
 are renamed correctly.
 
+### Names that need cleaning up
+
+*File > Rename tools > Select bad names* tags every file in the panel whose name *Clean up names* would change:
+a name that is not valid UTF-8, one written in a decomposed Unicode form, one with a control character in it, and
+names that differ from another only by capitals. `Alt+A` then renames them.
+
 ## Erase
 
-`F8`, or `Del` with an empty command line, erases the selection after asking. `Shift+F8` erases the file under
-the cursor whatever is tagged.
+`F8`, or `Del` with an empty command line, erases the selection after asking. `Shift+F8`, `Shift+Del` or *File >
+Delete single file* erases the file under the cursor whatever is tagged.
 
 ![The Delete box asking whether to delete a file, with the Recursive delete option](shots/erase.svg)
 
@@ -132,6 +138,23 @@ to; each question can be answered for all the rest. Which questions are asked at
 [Confirmations](settings.md#confirmations) page of the settings.
 
 A long erase can be sent to the background, as a copy can.
+
+## Undo
+
+`Ctrl+Z`, or *File > Undo file operation*, takes back the last file operation, and pressing it again the one
+before, up to fifty. It says what it is about to do and asks first.
+
+| Operation | What Undo does |
+|---|---|
+| A copy, `F5` or a paste | Removes what the copy made, but only the files nothing has changed since: to the Trash on the disk, for good elsewhere |
+| A move, `F6` or a cut and paste | Moves the files back |
+| A rename, `F6`, `Shift+F6` or `Alt+A` | Gives the old names back |
+| Erasing to the [Trash](drives.md#the-trash) | Restores the files from the Trash |
+| `F7`'s new directory | Removes it, if it is still empty |
+
+A file a copy or a move replaced is gone for good, and the question says how many there were. Erasing for good,
+attributes and links cannot be taken back. The list of operations lasts until Navigator quits and is shared by
+every file manager window. While the command line has text in it, `Ctrl+Z` is left to the command line.
 
 ## File attributes
 
@@ -184,7 +207,15 @@ showing every name a hard-linked file has.
   moved needs.
 
 *Make relative* and *Make absolute* rewrite each selected link's target the other way, reaching the same file.
-*Select broken links* tags every link in the panel that points nowhere.
+*Select broken links* tags every link in the panel that points nowhere: those marked `!` in the listing.
+
+### Every name of a file
+
+A file with hard links has several names, maybe in different directories. *File > Links > Show hard links* finds
+every name the file under the cursor has on its file system and lists them in the panel, as
+[Find file](panels.md#find-file) lists what it found; `Enter` on `..` goes back. Directories you may not read are
+passed over, so fewer names may be found than the file has. The *Links* column of the detailed view shows how many
+names a file has.
 
 ## Split and combine
 
@@ -287,3 +318,26 @@ or with other line endings. Each file is changed in place.
 
 A file that looks binary, one whose text the chosen encoding cannot write, and a very large file are left alone,
 and you are told why. A file that would come out unchanged is not written.
+
+## Open with
+
+*File > Open with* opens the file under the cursor in one of the desktop's applications, chosen from a list of
+those that handle its type, the usual one first.
+
+- *Other applications* lists every other application installed.
+- *Set default* chooses the application the type opens in from now on, and opens nothing.
+- *Command...* asks for a command line of your own. `!.!` in it stands for the file; without it the file's name
+  goes at the end. The command runs in the console, and each extension keeps a history of the commands used.
+
+It needs the desktop's `gio` or KDE's tools; see *Desktop integration* on the
+[Communications](settings.md#communications) page of the settings. A file on a server is fetched first, and what
+the application changes is not sent back.
+
+`Enter` on a file that no entry in `extensions.ini` takes also opens it in the desktop's application, while *Pass
+other files to desktop* is ticked on the [File panels](settings.md#file-panels) page.
+
+## Print
+
+`Ctrl+F9`, or *File > Print*, prints the selected files after asking. They go to the system's printer through
+`lp`, or `lpr` where there is no `lp`, which print on `$PRINTER` or the default printer. Directories are passed
+over, and each file is untagged once it has gone to the printer. The editor prints its text with `F8`.

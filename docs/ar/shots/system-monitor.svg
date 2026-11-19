@@ -1072,7 +1072,7 @@
 <line x1="523" y1="348" x2="523" y2="360" stroke="#ffffff"/>
 <line x1="527" y1="348" x2="527" y2="360" stroke="#ffffff"/>
 <line x1="25" y1="370" x2="25" y2="360" stroke="#0000aa"/>
-<line x1="25" y1="370" x2="20" y2="370" stroke="#0000aa"/>
+<line x1="25" y1="370" x2="30" y2="370" stroke="#0000aa"/>
 <line x1="35" y1="370" x2="30" y2="370" stroke="#0000aa"/>
 <line x1="35" y1="370" x2="40" y2="370" stroke="#0000aa"/>
 <line x1="47" y1="368" x2="40" y2="368" stroke="#ffffff"/>

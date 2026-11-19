@@ -51,7 +51,7 @@ console's shell, as if you had typed them.
 
 ## File associations
 
-Four more files in the configuration directory say which program handles which file. Each has a section per file
+Five more files in the configuration directory say how each kind of file is handled. Each has a section per file
 mask.
 
 | File | What it decides | Edited from |
@@ -60,6 +60,9 @@ mask.
 | `viewers.ini` | What `F3` runs in place of the viewer | *Options > Viewers* |
 | `editors.ini` | What `F4` runs in place of the editor | *Options > Editors* |
 | `quickrun.ini` | What `Ctrl+Shift+F1` to `Ctrl+Shift+F10` run | *Options > Quick run file edit* |
+| `highlight.ini` | How the editor and the viewer colour a file, and the editor's options for it | *Options > Highlight file edit* |
 
-`Alt+F3` and `Alt+F4` always use Navigator's own viewer and editor. Each file is written with examples the first
-time Navigator starts.
+`Alt+F3` always uses Navigator's own viewer. `Alt+F4` uses `editors.ini`'s program while `F4` uses Navigator's
+editor, and the other way round; see [the editor](editor.md#opening-a-file). Each file is written with examples
+the first time Navigator starts. `highlight.ini` is described under [Syntax
+highlighting](editor.md#syntax-highlighting).

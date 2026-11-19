@@ -229,7 +229,13 @@ class DirEntry:
         not reach past 2107 anyway and here would make 1999 and 2099 one.
         Modification, not creation: a DOS directory entry held one date, and
         Linux cannot report a creation time portably.
+
+        Nothing for a ``..`` made with no time (an archive's, the Trash's, a
+        *Find:* listing's): its 0 is no date, and was shown as 1970 in the
+        machine's time zone.
         """
+        if self.name == ".." and not self.mtime:
+            return ""
         return country.stamp(self.mtime)
 
     @property

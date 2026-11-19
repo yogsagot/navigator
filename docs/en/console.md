@@ -27,6 +27,8 @@ changed directory.
 `Ctrl+O` hides the windows and shows the console; `Ctrl+O` again brings them back. While the windows are hidden
 the keys go to the shell, or to the program running in it.
 
+![The console: two commands typed at the shell's prompt, ls -l and git status --short, with their output, and the command line at the bottom](shots/console.svg)
+
 `Shift+PgUp` and `Shift+PgDn` scroll back through what the console has shown, and `Shift+Up` and `Shift+Down`
 scroll by a line.
 
@@ -37,6 +39,8 @@ way first.
 
 A command can run in a window of its own, beside the panels, instead of on the console. Start the command line
 with `&`, or press `Shift+Enter` in place of `Enter`.
+
+![A remote shell in a window titled ssh backup@files.example.org: the server's greeting and a df command with its output](shots/command-window.svg)
 
 The program in the window gets every key except those that bring another window forward. When it ends the window
 keeps its output and its title says how it ended; `Esc` or `Enter` closes it. Closing the window while the
@@ -55,6 +59,8 @@ program runs ends the program.
 ## Commands history
 
 `Alt+F8`, or *Utilities > Commands History*, lists the commands you have typed, the newest last.
+
+![The Commands history box: six commands, the first marked as kept, and the Run, Drop, Edit, Kill and Cancel buttons](shots/command-history.svg)
 
 - *Run*, or `Enter`, runs the command under the cursor.
 - *Drop* puts it on the command line without running it.

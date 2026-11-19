@@ -10,6 +10,8 @@ an option shows what it does.
 
 ## System
 
+![The Settings box on its System page: the options, the temporary directory, what to do on an unexpected failure, the stall report and root access](shots/settings-system.svg)
+
 - *Internal editor* and *Internal viewer*: `F4` and `F3` use Navigator's own editor and viewer. Off, they run the
   program named in `$EDITOR` and `$PAGER`.
 - *Use system clipboard*: copy to and paste from the desktop's clipboard. Off, Navigator keeps a clipboard of its
@@ -26,9 +28,12 @@ an option shows what it does.
   `errors.log`.
 - *Root access*: how a step that was refused permission can be done again as root: through `sudo`, through
   `pkexec`, or never.
-- *Keep root open while idle*: how many minutes root access stays open after its last use.
+- *Keep root open while idle*: how many minutes root access stays open after its last use. See
+  [Working as root](as-root.md).
 
 ## Startup
+
+![The Settings box on its Startup page: the startup and shutdown options](shots/settings-startup.svg)
 
 - *Auto run User Menu*: the user menu (`F2`) opens when Navigator starts.
 - *Clear History*: history entries that are not pinned are removed at each start.
@@ -37,6 +42,8 @@ an option shows what it does.
 - *Preserve directory*: the active panel keeps its directory after a command, and in a restored desktop.
 
 ## Interface
+
+![The Settings box on its Interface page: the screen's options, history size and tooltip delay, and the language, colours, glyphs, marks, direction, tabs and window strip](shots/settings-interface.svg)
 
 - *Clock*, *Hide menu bar*, *Hide status line*: the clock on the menu bar, the menu bar itself until `F10`, and
   the key bar on the bottom line.
@@ -66,6 +73,8 @@ editor, deleting a bookmark, and closing a command window whose command is still
 
 ## Savers
 
+![The Settings box on its Savers page: the selected and available screen savers, and the time before one starts](shots/settings-savers.svg)
+
 A screen saver takes over the screen after a time with no key or click.
 
 - *Selected savers* take turns. *Add* moves one in from *Available savers*, and *Remove* takes it out.
@@ -74,6 +83,8 @@ A screen saver takes over the screen after a time with no key or click.
   the bottom right corner none starts.
 
 ## Country
+
+![The Settings box on its Country page: the date format, the time, the first day of the week, the calendar and an example](shots/settings-country.svg)
 
 - *Date format*: the order dates are written in, or *Custom* with the format written out on the *Custom format*
   line.
@@ -85,6 +96,8 @@ A screen saver takes over the screen after a time with no key or click.
 *Example* shows a date and time written as chosen.
 
 ## Editor/Viewer
+
+![The Settings box on its Editor/Viewer page: the editor's options, the viewer's, the margins, tab size, line divisor and fallback encoding](shots/settings-editor-viewer.svg)
 
 What a new editor or viewer window starts with. Most of the editor's can be switched for one window from its
 *Options* menu.
@@ -117,12 +130,16 @@ editor's.
 
 ## Viewer types
 
+![The Settings box on its Viewer types page: each kind of file F3 shows specially, ticked, with its file masks](shots/settings-viewer-types.svg)
+
 Which files `F3` shows as something other than their text: Markdown, reStructuredText and HTML as a page, PDF as
 its text, pictures as pictures, CSV and TSV as a table, and structured files (JSON, YAML, TOML, XML) as a tree.
 Each has a box to switch it on and a line of [file masks](panels.md#file-masks) saying which files it applies
 to. *SQLite databases* is the mask for files to open as a database.
 
 ## File panels
+
+![The Settings box on its File panels page: the panels' behaviour and display options, the right button, and remembering directory settings](shots/settings-file-manager.svg)
 
 Behavior:
 
@@ -155,11 +172,15 @@ Display:
 
 ## Info panel
 
+![The Settings box on its Info panel page: the lines the information panel shows, all ticked](shots/settings-drive-info.svg)
+
 Which lines the information panel (`Ctrl+L`) shows: the directory's name, its totals, the file under the cursor,
 media details, the volume's size, free space and label, the machine's memory, and the directory's information
 file.
 
 ## Panel defaults
+
+![The Settings box on its Panel defaults page: the sort order, the lines under the listing, the left panel and the panel mode](shots/settings-panel-defaults.svg)
 
 How the panels of a new file manager start.
 
@@ -173,14 +194,32 @@ How the panels of a new file manager start.
 
 ## Columns
 
-Which columns a panel shows, set apart for the disk, for a *Find:* listing, and for an archive.
+![The Settings box on its Columns page: the columns for the disk, for a file search and for an archive](shots/settings-column-defaults.svg)
+
+Which columns a panel shows in its detailed view, set apart for three kinds of listing. `Alt+K` changes them for
+one panel; see [Columns setup](panels.md#columns-setup).
+
+- *Disk Drive*: a directory on the disk or a server. The columns are *Size*, *Attributes*, *Links* (how many names
+  the file has), *Owner* and *Date*.
+- *File find*: the listing [Find file](panels.md#find-file) fills a panel with. The same columns.
+- *Archives*: inside an archive. *Original size*, *Packed size*, *Ratio* (how much it was packed), *Attributes*,
+  *Owner* and *Date*.
 
 ## Highlight
 
-The [file masks](panels.md#file-masks) of the five groups that the panels colour: images, audio and video,
-documents, source code, and temporary files.
+![The Settings box on its Highlight page: the file masks of the five groups the panels colour](shots/settings-highlight-groups.svg)
+
+The [file masks](panels.md#file-masks) of the five groups that the panels colour: *Images*, *Audio and video*,
+*Documents*, *Source code* and *Temporary files*. A file that matches a group's mask is listed in that group's
+colour while *Files highlight* is ticked for the panel. The colours themselves are the theme's, changed under
+*Options > Colors* ([Colours](customizing.md#colours)).
+
+These groups colour names in the panels; which colours the text inside a file gets in the viewer and the editor
+is set in `highlight.ini` ([Syntax highlighting](editor.md#syntax-highlighting)).
 
 ## Communications
+
+![The Settings box on its Communications page: the connections' timings, fetched files, desktop integration, ssh options and notifications](shots/settings-remote.svg)
 
 - *Keep-alive every*: how often a message is sent to keep a connection to a server open.
 - *Connecting waits*: how long to wait for a server to answer.
@@ -194,6 +233,8 @@ documents, source code, and temporary files.
   the terminal was in the background.
 
 ## Tools
+
+![The Settings box on its Tools page: age's identity files, and how often the process list, services and system monitor read](shots/settings-tools.svg)
 
 - *Age identity files*: the key files `age` decrypts with.
 - *Process list reads every*, *Services read every*, *System monitor reads every*: how often those windows
