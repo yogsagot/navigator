@@ -43,7 +43,7 @@ from navml.widgets.timer import Timer
 ServiceWindow(Window):
     help_topic: "utilities.md#services"
     title: "Services"
-    min_width: max(user_box.width, types_box.width) + start_button.width + stop_button.width + journal_button.width + edit_button.width + close_button.width + 9
+    min_width: max(user_box.column_x(1), types_box.column_x(1)) + start_button.width + stop_button.width + journal_button.width + edit_button.width + close_button.width + 9
 
     keys:
         escape: CloseWindow
@@ -130,7 +130,10 @@ ServiceWindow(Window):
     CheckBoxes:
         id: user_box
         x: 2
-        width: self.column_x(1)
+        #: Its caption's width, or what the buttons leave of the row: on a
+        #: screen narrower than ``min_width`` -- 80 columns, in a language
+        #: of long captions -- the box is cut, not painted under *Start*.
+        width: max(0, min(self.column_x(1), start_button.x - 3))
         height: 1
         anchors:
             bottom: 2
@@ -140,7 +143,10 @@ ServiceWindow(Window):
     CheckBoxes:
         id: types_box
         x: 2
-        width: self.column_x(1)
+        #: Its caption's width, or what the buttons leave of the row: on a
+        #: screen narrower than ``min_width`` -- 80 columns, in a language
+        #: of long captions -- the box is cut, not painted under *Start*.
+        width: max(0, min(self.column_x(1), start_button.x - 3))
         height: 1
         anchors:
             bottom: 1

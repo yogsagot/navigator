@@ -2672,11 +2672,11 @@ flag = "CN"
 # navigator/widgets/shell/service_window/service_window.nml:98
 "Show only the units whose name or description holds this" = "只显示名称或描述中包含此内容的单元"
 # navigator/widgets/shell/service_window/service_window.nml:137
-"~U~ser units" = "用户单元(~U~)"
+"~U~ser units" = "用户(~U~)"
 # navigator/widgets/shell/service_window/service_window.nml:138, navigator/widgets/shell/service_window/service_window.nml:219
 "Your own service manager's units (systemctl --user), not the system's" = "你自己的服务管理器的单元 (systemctl --user), 而非系统的"
 # navigator/widgets/shell/service_window/service_window.nml:147, navigator/widgets/shell/service_window/service_window.nml:220
-"~A~ll types" = "所有类型(~A~)"
+"~A~ll types" = "全部(~A~)"
 # navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:221
 "Timers, sockets, mounts and the rest too, not only services" = "也包括定时器、套接字、挂载等, 不只是服务"
 # navigator/widgets/shell/service_window/service_window.nml:152, navigator/widgets/shell/service_window/service_window.nml:231, navigator/widgets/shell/service_window/service_window.py:627

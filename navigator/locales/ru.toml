@@ -2672,11 +2672,11 @@ flag = "RU"
 # navigator/widgets/shell/service_window/service_window.nml:98
 "Show only the units whose name or description holds this" = "Показывать только юниты, в имени или описании которых есть это"
 # navigator/widgets/shell/service_window/service_window.nml:137
-"~U~ser units" = "Пользовательс~к~ие"
+"~U~ser units" = "Сво~и~"
 # navigator/widgets/shell/service_window/service_window.nml:138, navigator/widgets/shell/service_window/service_window.nml:219
 "Your own service manager's units (systemctl --user), not the system's" = "Юниты вашего собственного менеджера служб (systemctl --user), а не системного"
 # navigator/widgets/shell/service_window/service_window.nml:147, navigator/widgets/shell/service_window/service_window.nml:220
-"~A~ll types" = "~В~се типы"
+"~A~ll types" = "~В~се"
 # navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:221
 "Timers, sockets, mounts and the rest too, not only services" = "Таймеры, сокеты, точки монтирования и прочее, не только службы"
 # navigator/widgets/shell/service_window/service_window.nml:152, navigator/widgets/shell/service_window/service_window.nml:231, navigator/widgets/shell/service_window/service_window.py:627

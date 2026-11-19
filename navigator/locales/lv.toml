@@ -2672,11 +2672,11 @@ flag = "LV"
 # navigator/widgets/shell/service_window/service_window.nml:98
 "Show only the units whose name or description holds this" = "Rādīt tikai vienības, kuru nosaukumā vai aprakstā ir šis"
 # navigator/widgets/shell/service_window/service_window.nml:137
-"~U~ser units" = "~L~ietotāja vienības"
+"~U~ser units" = "~S~avas"
 # navigator/widgets/shell/service_window/service_window.nml:138, navigator/widgets/shell/service_window/service_window.nml:219
 "Your own service manager's units (systemctl --user), not the system's" = "Jūsu pašu pakalpojumu pārvaldnieka vienības (systemctl --user), nevis sistēmas"
 # navigator/widgets/shell/service_window/service_window.nml:147, navigator/widgets/shell/service_window/service_window.nml:220
-"~A~ll types" = "~V~isi tipi"
+"~A~ll types" = "~V~isi"
 # navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:221
 "Timers, sockets, mounts and the rest too, not only services" = "Arī taimeri, ligzdas, montējumi un pārējie, ne tikai pakalpojumi"
 # navigator/widgets/shell/service_window/service_window.nml:152, navigator/widgets/shell/service_window/service_window.nml:231, navigator/widgets/shell/service_window/service_window.py:627

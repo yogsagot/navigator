@@ -2672,11 +2672,11 @@ flag = "JP"
 # navigator/widgets/shell/service_window/service_window.nml:98
 "Show only the units whose name or description holds this" = "名前か説明にこれを含むユニットだけを表示"
 # navigator/widgets/shell/service_window/service_window.nml:137
-"~U~ser units" = "ユーザーユニット(~U~)"
+"~U~ser units" = "ユーザー(~U~)"
 # navigator/widgets/shell/service_window/service_window.nml:138, navigator/widgets/shell/service_window/service_window.nml:219
 "Your own service manager's units (systemctl --user), not the system's" = "システムではなく、あなた自身のサービスマネージャーのユニット (systemctl --user)"
 # navigator/widgets/shell/service_window/service_window.nml:147, navigator/widgets/shell/service_window/service_window.nml:220
-"~A~ll types" = "すべての種類(~A~)"
+"~A~ll types" = "全種類(~A~)"
 # navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:221
 "Timers, sockets, mounts and the rest too, not only services" = "サービスだけでなく、タイマー、ソケット、マウントなども"
 # navigator/widgets/shell/service_window/service_window.nml:152, navigator/widgets/shell/service_window/service_window.nml:231, navigator/widgets/shell/service_window/service_window.py:627

@@ -302,6 +302,9 @@ def _placed(app: Any, window: Any, width: int, height: int) -> Any:
     desktop = app.shell.desktop
     if getattr(window, "zoomed", False):
         window.toggle_zoom()
+    # No narrower than the window says it can be: its captions' width, in
+    # a language of longer ones.
+    width = max(width, getattr(window, "min_width", 0))
     window.width, window.height = min(width, desktop.width), min(height, desktop.height)
     window.x, window.y = (desktop.width - window.width) // 2, (desktop.height - window.height) // 2
     return window
@@ -631,9 +634,14 @@ async def _window_list(app: Any) -> Any:
 async def _command_palette(app: Any) -> Any:
     from navigator.widgets.shell.command_palette import CommandPalette
 
-    dialog = _dialog(app, CommandPalette(behind=app.focused))
+    from navigator.widgets.shell.command_palette import command_palette
+
+    behind = app.focused
+    # The first letters of F5's command as this language calls it: "copy".
+    title = next(entry.title for entry in command_palette.gather(app, behind) if entry.key == "F5")
+    dialog = _dialog(app, CommandPalette(behind=behind))
     await asyncio.sleep(0.05)
-    for char in "copy":
+    for char in "".join(char for char in title if char.isalnum())[:4].lower():
         app.post_event(KeyEvent(char, char))
     return dialog
 
@@ -971,7 +979,9 @@ async def _panel(app: Any) -> Any:
 
 
 async def _file_menu(app: Any) -> Any:
-    app.post_event(KeyEvent("f", "f", alt=True))
+    # By its place on the bar, not by Alt+F: the letter is the language's.
+    menu = app.shell.menu
+    menu.open(menu.entries().index(menu.file), drop=True)
     await asyncio.sleep(0.1)
     box = app.modal.boxes[-1]
     ox, oy = box.offset()
