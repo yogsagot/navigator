@@ -232,6 +232,7 @@ def run_app(
                 deadline = loop.time() + action.timeout
                 while not action.predicate(app):
                     if loop.time() > deadline:
+                        action.step = actions.index(action)
                         waited_out.append(action)
                         app.exit()
                         return
@@ -269,7 +270,11 @@ def run_app(
     if failed:
         raise failed[0]
     if waited_out:
-        raise AssertionError(f"Until: still waiting after {waited_out[0].timeout}s")
+        # Which wait: a test has several, and the line alone does not say.
+        late = waited_out[0]
+        code = getattr(late.predicate, "__code__", None)
+        where = f"{getattr(late.predicate, '__name__', late.predicate)} at line {code.co_firstlineno}" if code else ""
+        raise AssertionError(f"Until: still waiting after {late.timeout}s (step {getattr(late, 'step', '?')}: {where})")
     return result
 
 
@@ -526,6 +531,24 @@ def _no_android_sdk(monkeypatch):
     from navigator.lib.drives import adb
 
     monkeypatch.setattr(adb, "sdk_dirs", lambda: [])
+
+
+@pytest.fixture(autouse=True)
+def _double_clicks_whatever_the_load(monkeypatch):
+    """Two presses a test posts one after the other are a double click however
+    long the machine takes between them.  The window is real time (0.4 s), and
+    ``run_app`` settles and paints between two actions: a loaded runner
+    outlasted it, and the test saw two single clicks.  An application given
+    its own ``double_click`` keeps it -- the tests of a slow pair."""
+    from navkit.application import Application
+
+    real = Application.__init__
+
+    def init(self, *args, **kwargs):
+        kwargs.setdefault("double_click", 60.0)
+        real(self, *args, **kwargs)
+
+    monkeypatch.setattr(Application, "__init__", init)
 
 
 @pytest.fixture(autouse=True)
