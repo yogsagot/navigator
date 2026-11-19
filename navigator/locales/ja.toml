@@ -2672,11 +2672,11 @@ flag = "JP"
 # navigator/widgets/shell/service_window/service_window.nml:98
 "Show only the units whose name or description holds this" = "名前か説明にこれを含むユニットだけを表示"
 # navigator/widgets/shell/service_window/service_window.nml:137
-"~U~ser units" = "ユーザー(~U~)"
+"~U~ser units" = "自分(~U~)"
 # navigator/widgets/shell/service_window/service_window.nml:138, navigator/widgets/shell/service_window/service_window.nml:219
 "Your own service manager's units (systemctl --user), not the system's" = "システムではなく、あなた自身のサービスマネージャーのユニット (systemctl --user)"
 # navigator/widgets/shell/service_window/service_window.nml:147, navigator/widgets/shell/service_window/service_window.nml:220
-"~A~ll types" = "全種類(~A~)"
+"~A~ll types" = "全て(~A~)"
 # navigator/widgets/shell/service_window/service_window.nml:148, navigator/widgets/shell/service_window/service_window.nml:221
 "Timers, sockets, mounts and the rest too, not only services" = "サービスだけでなく、タイマー、ソケット、マウントなども"
 # navigator/widgets/shell/service_window/service_window.nml:152, navigator/widgets/shell/service_window/service_window.nml:231, navigator/widgets/shell/service_window/service_window.py:627
@@ -2684,7 +2684,7 @@ flag = "JP"
 # navigator/widgets/shell/service_window/service_window.nml:163
 "St~o~p" = "停止(~O~)"
 # navigator/widgets/shell/service_window/service_window.nml:174, navigator/widgets/shell/service_window/service_window.nml:225, navigator/widgets/shell/service_window/service_window.py:623
-"~J~ournal" = "ジャーナル(~J~)"
+"~J~ournal" = "ログ(~J~)"
 # navigator/widgets/shell/service_window/service_window.nml:210
 "Start, stop, enable and follow the system's services" = "システムのサービスを起動、停止、有効化、追跡"
 # navigator/widgets/shell/service_window/service_window.nml:213, navigator/widgets/shell/usage_window/usage_window.nml:139
