@@ -167,7 +167,7 @@
 <text x="590" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="610" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="50" y="75" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="460" y="75" textLength="150" lengthAdjust="spacingAndGlyphs" fill="#ffffff">sqrt(2)*sin(45)</text>
+<text x="80" y="75" textLength="150" lengthAdjust="spacingAndGlyphs" fill="#ffffff">sqrt(2)*sin(45)</text>
 <text x="40" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">1</text>
 <text x="320" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺍﺮ</text>
 <text x="340" y="115" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻏ</text>

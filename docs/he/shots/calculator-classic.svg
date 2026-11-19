@@ -75,7 +75,7 @@
 <text x="480" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ב</text>
 <text x="0" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">in</text>
 <text x="50" y="115" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="410" y="115" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">(3+4)*2</text>
+<text x="80" y="115" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2*(3+4)</text>
 <text x="0" y="155" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">on</text>
 <text x="400" y="155" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">רותב</text>
 <text x="450" y="155" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">קת</text>

@@ -18,6 +18,12 @@ class CalcLine(InputLine):
     letter, though, and once whole get the spaces round them that the
     refused space cannot give: ``FF``, ``AND``, ``1`` is ``FF AND 1``."""
 
+    #: Kept left to right on a right-to-left screen (``Widget.mirrors``), as
+    #: the command line is: an expression reads left to right in any language,
+    #: and one with no letters was laid out right to left there, ``2*(3+4)``
+    #: shown ``(3+4)*2``.  Its arrows are not swapped either.
+    mirrors = False
+
     result_selected = False
     #: The characters that may be typed; empty, anything (Classic, DN's).
     accepts: frozenset[str] = frozenset()

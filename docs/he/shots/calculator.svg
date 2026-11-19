@@ -121,7 +121,7 @@
 <text x="0" y="75" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ת</text>
 <text x="0" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ת</text>
 <text x="50" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="240" y="95" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">(3+4)*2</text>
+<text x="80" y="95" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2*(3+4)</text>
 <text x="40" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">14</text>
 <text x="10" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">4</text>
 <text x="10" y="155" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">1</text>

@@ -138,7 +138,7 @@
 <text x="590" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="610" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="50" y="75" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="540" y="75" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">3+1*255</text>
+<text x="80" y="75" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">255*3+1</text>
 <text x="40" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">2FE</text>
 <text x="550" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">H</text>
 <text x="560" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">EX</text>

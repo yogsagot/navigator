@@ -406,3 +406,28 @@ def test_the_desktop_keeps_the_face(place):
     run_app(app, [KeyEvent("f6", ctrl=True), lambda a: None, *typed("1+1"), lambda a: None,
                   lambda a: kept.update(desktop_state._window(calc(a)))])
     assert kept["kind"] == "calculator" and kept["mode"] == "scientific" and kept["expression"] == "1+1"
+
+
+def test_on_a_mirrored_screen_the_expression_reads_left_to_right(classic):
+    """Kept left to right, as the command line is: with no letters to say so,
+    ``2*(3+4)`` was laid out right to left there, shown ``(3+4)*2``."""
+    from navkit.screen import ScreenBuffer
+
+    app = navigator(classic)
+    app.direction = "rtl"
+    seen = {}
+
+    def look(a):
+        buffer = ScreenBuffer(80, 24)
+        buffer.rtl = True
+        a.shell.render_tree(buffer)
+        shown = buffer.mirrored()
+        seen["rows"] = ["".join(shown.get(x, y)[0] or " " for x in range(80)) for y in range(24)]
+        seen["value"] = calc(a).line.value
+
+    # Left moves left in the expression, not swapped as it is in a row of
+    # buttons: the 1 goes in before the ``)``.
+    run_app(app, [KeyEvent("f6", ctrl=True), lambda a: None, *typed("2*(3+4)"),
+                  KeyEvent("left"), *typed("1"), lambda a: None, look])
+    assert seen["value"] == "2*(3+41)"
+    assert any("2*(3+41)" in row for row in seen["rows"])

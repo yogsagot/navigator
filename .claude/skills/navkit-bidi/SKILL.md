@@ -66,7 +66,8 @@ language reads its screen right to left). It is the second standing exception be
   widget left to right.
 - `Widget.mirrors = False` keeps a widget's content left to right inside the mirrored frame: `render_tree` gives it a
   view with `rtl=False` and `mirror()`s its rectangle afterwards, which the screen's mirror cancels. Set on
-  `ScreenView` (console), `CommandLine`, `FileViewer`, `FileEditor`, `DiffView`, `Clock` (a blinked colon makes the
+  `ScreenView` (console), `CommandLine`, `CalcLine` (an expression reads left to right; one with no letters was
+  laid out right to left, `2*(3+4)` as `(3+4)*2`), `FileViewer`, `FileEditor`, `DiffView`, `Clock` (a blinked colon makes the
   time two numbers, which an RTL line swaps).
 - **The console** (`navkit/console.py` `ConsoleScreen`) lays each row out as VTE does a line: `sync()` runs
   `order_cells(row, detect=False)` (paragraph left to right whatever the row starts with, so its blanks stay at the
