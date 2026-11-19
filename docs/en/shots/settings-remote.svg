@@ -43,8 +43,8 @@
 <rect x="760" y="280" width="20" height="20" fill="#000000"/>
 <rect x="0" y="300" width="760" height="20" fill="#aaaaaa"/>
 <rect x="760" y="300" width="20" height="20" fill="#000000"/>
-<rect x="0" y="320" width="320" height="20" fill="#aaaaaa"/>
-<rect x="320" y="320" width="400" height="20" fill="#555555"/>
+<rect x="0" y="320" width="380" height="20" fill="#aaaaaa"/>
+<rect x="380" y="320" width="340" height="20" fill="#555555"/>
 <rect x="720" y="320" width="40" height="20" fill="#aaaaaa"/>
 <rect x="760" y="320" width="20" height="20" fill="#000000"/>
 <rect x="0" y="340" width="760" height="20" fill="#aaaaaa"/>
@@ -172,7 +172,7 @@
 <text x="190" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">ss</text>
 <text x="210" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">h</text>
 <text x="230" y="335" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">options</text>
-<text x="330" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-Y</text>
+<text x="390" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-Y</text>
 <text x="40" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">N</text>
 <text x="50" y="355" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">otify</text>
 <text x="110" y="355" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">when</text>

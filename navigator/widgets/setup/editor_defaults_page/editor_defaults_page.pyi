@@ -28,6 +28,7 @@ class EditorDefaultsPage(SettingsPage, _Component):
     tab_size: MaskedField
     divisor_caption: Label
     line_divisor: RadioButtons
+    encoding_caption: Label
     fallback_encoding: ChoiceField
     def __init__(self, **kwargs: Any) -> None: ...
     def accept(self) -> dict[str, Any]: ...

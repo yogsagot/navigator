@@ -26,10 +26,10 @@
 <rect x="0" y="140" width="20" height="20" fill="#000000"/>
 <rect x="20" y="140" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="160" width="20" height="20" fill="#000000"/>
-<rect x="20" y="160" width="240" height="20" fill="#aaaaaa"/>
-<rect x="260" y="160" width="10" height="20" fill="#5555ff"/>
-<rect x="270" y="160" width="10" height="20" fill="#aaaaaa"/>
-<rect x="280" y="160" width="170" height="20" fill="#555555"/>
+<rect x="20" y="160" width="40" height="20" fill="#aaaaaa"/>
+<rect x="60" y="160" width="10" height="20" fill="#5555ff"/>
+<rect x="70" y="160" width="10" height="20" fill="#aaaaaa"/>
+<rect x="80" y="160" width="370" height="20" fill="#555555"/>
 <rect x="450" y="160" width="330" height="20" fill="#aaaaaa"/>
 <rect x="0" y="180" width="20" height="20" fill="#000000"/>
 <rect x="20" y="180" width="390" height="20" fill="#aaaaaa"/>
@@ -108,9 +108,8 @@
 <text x="620" y="135" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">םיכילה</text>
 <text x="680" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ת</text>
 <text x="700" y="135" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">תמישר</text>
-<text x="260" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="280" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">►</text>
-<text x="290" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ופש</text>
+<text x="60" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
+<text x="260" y="175" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">(לעופש</text>
 <text x="330" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">הז)</text>
 <text x="370" y="175" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">יטמוטוא</text>
 <text x="630" y="175" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">םיתוריש</text>
@@ -810,8 +809,8 @@
 <line x1="27" y1="172" x2="27" y2="160" stroke="#ffffff"/>
 <line x1="23" y1="168" x2="23" y2="180" stroke="#ffffff"/>
 <line x1="27" y1="168" x2="27" y2="180" stroke="#ffffff"/>
-<rect x="250" y="160" width="5" height="20" fill="#5555ff"/>
-<rect x="275" y="160" width="5" height="20" fill="#5555ff"/>
+<rect x="50" y="160" width="5" height="20" fill="#5555ff"/>
+<rect x="75" y="160" width="5" height="20" fill="#5555ff"/>
 <line x1="773" y1="172" x2="773" y2="160" stroke="#ffffff"/>
 <line x1="777" y1="172" x2="777" y2="160" stroke="#ffffff"/>
 <line x1="773" y1="168" x2="773" y2="180" stroke="#ffffff"/>

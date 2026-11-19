@@ -111,3 +111,9 @@ catalogue is packaged.
 
 `tests/conftest.py`'s autouse `_english` empties the registered places and sets `LOCALE.code = "en"` around every
 test; `tests/test_i18n.py` registers a temporary `lv.toml` with `register_directory`.
+
+**A translation must fit where it is shown.** `tests/test_settings_fit.py` opens Options > Settings in every shipped
+language and fails on a check box or radio caption, a label, or a drop-down choice wider than its control (the
+cut was silent: *Return to last cursor position* lost its end in English itself). A failure is fixed by giving the
+control the room where the page has it, else by a shorter translation -- never by cutting the English. It covers
+Settings only; another box with tight columns can borrow its `clipped()`.

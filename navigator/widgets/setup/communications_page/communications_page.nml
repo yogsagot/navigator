@@ -146,7 +146,7 @@ CommunicationsPage(SettingsPage):
             left: 3
             right: 3
         label_text: "Remote shell's ss~h~ options"
-        label_width: 28
+        label_width: 34
 
     #: Not DN's: ``[system] notifications``.  Right under *ssh options*:
     #: the page's last two rows are all a box with the tabs on top shows.

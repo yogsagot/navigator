@@ -489,6 +489,78 @@ async def _calculator(app: Any) -> Any:
     return window
 
 
+def _calculator_face(mode: str, expression: str) -> Callable[[Any], Awaitable[Any]]:
+    """The calculator on its *mode* face, *expression* typed on its line."""
+
+    async def stage(app: Any) -> Any:
+        from navigator.widgets.shell.calculator_window import CalculatorWindow
+
+        window = app.shell.desktop.open(CalculatorWindow())
+        window.set_mode(mode, focus=False, save=False)
+        window.place()
+        window.take_keyboard()
+        window.line.focus()
+        await asyncio.sleep(0.05)
+        for char in expression:
+            app.post_event(KeyEvent(char, char))
+        return window
+
+    return stage
+
+
+#: The page the help window shows in its picture: written here, not read from
+#: ``docs/``, so editing a help page does not make the picture stale.
+HELP_PAGE = """# Help on help
+
+Help is a window of pages about what Navigator does. `F1` opens it on the page
+about what you are doing.
+
+## Keys
+
+| Key | What it does |
+|---|---|
+| `Tab`, `Shift+Tab` | Choose the next or the previous link |
+| `Enter` | Follow the link |
+| `Alt+F1` | Go back to the page before |
+| `Shift+F1` | The contents |
+| `Esc` | Close Help |
+
+See [Panels](panels.md) and [The viewer](viewer.md) for more.
+"""
+
+
+async def _help_window(app: Any) -> Any:
+    from navigator.lib.help import pages
+    from navigator.widgets.help.help_window import HelpWindow
+
+    docs = Path(".help").resolve()
+    (docs / "en").mkdir(parents=True)
+    (docs / "en" / "help.md").write_text(HELP_PAGE)
+    pages.root = lambda: docs
+    window = HelpWindow("help.md")
+    asyncio.create_task(window.execute(app))
+    viewer = window.viewer
+    await asyncio.sleep(0.05)
+    await _until(lambda: viewer.layout is not None and viewer._wanted is None)
+    await asyncio.sleep(0.05)
+    return window
+
+
+async def _margins(app: Any) -> Any:
+    from navigator.widgets.editor.margins_dialog import MarginsDialog
+
+    return _dialog(app, MarginsDialog((0, 72, 4)))
+
+
+async def _go_to_line(app: Any) -> Any:
+    from navigator.widgets.editor.goto_line_dialog import GotoLineDialog
+    from navigator.widgets.editor.goto_line_dialog import goto_line_dialog
+
+    # The last line asked for is kept for the session: this picture's own.
+    goto_line_dialog._last["text"] = "120"
+    return _dialog(app, GotoLineDialog())
+
+
 async def _calendar(app: Any) -> Any:
     from navigator.widgets.shell.calendar_window import CalendarWindow
 
@@ -1521,6 +1593,12 @@ SCENES: tuple[Scene, ...] = (
     Scene("open-archive", _open_archive, size=(120, 24)),
     Scene("trash", _trash, size=(120, 24)),
     Scene("tree-window", _tree_window),
+    Scene("help-window", _help_window),
+    Scene("margins", _margins),
+    Scene("go-to-line", _go_to_line),
+    Scene("calculator-classic", _calculator_face("classic", "2*(3+4)")),
+    Scene("calculator-scientific", _calculator_face("scientific", "sqrt(2)*sin(45)")),
+    Scene("calculator-programming", _calculator_face("programming", "255*3+1")),
 )
 README_SCENE = SCENES[0]
 

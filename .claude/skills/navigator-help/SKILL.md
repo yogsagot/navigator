@@ -67,7 +67,7 @@ Rules:
   any is stale, `--language CODE` writes `docs/CODE/shots/`. `tests/test_screenshot.py` runs `--check --no-readme`:
   Help's pictures only, since the README's goes stale with the version and the release workflow runs the suite.
 
-**The scenes** (eighty-six, each shown by one page):
+**The scenes** (ninety-two, each shown by one page):
 
 | Page | Scenes |
 |---|---|
@@ -75,13 +75,14 @@ Rules:
 | `panels.md` | `panel`, `panel-detailed`, `find-file`, `select-group`, `filter`, `make-list`, `columns-setup`, `info-panel` (80x30, so nothing scrolls), `miller`, `find-duplicates`, `panelize`, `directory-history` |
 | `file-operations.md` | `copy`, `make-directory`, `multi-rename`, `erase`, `file-attributes`, `links`, `split`, `uu-encode`, `checksums`, `encryption`, `convert-text` |
 | `archives.md`, `compare.md` | `create-archive`, `open-archive` (120x24, a zip the stage writes, detailed), `extract`; `compare-directories`, `synchronize`, `compare-files` |
-| `viewer.md`, `editor.md` | `viewer`, `viewer-hex`, `viewer-find`, `markup-view`, `quick-view`, `filter-lines`, `data-tree`, `table-view`; `editor`, `editor-replace` |
+| `viewer.md`, `editor.md` | `viewer`, `viewer-hex`, `viewer-find`, `markup-view`, `quick-view`, `filter-lines`, `data-tree`, `table-view`; `editor`, `editor-replace`, `margins`, `go-to-line` |
 | `trees.md`, `drives.md`, `bookmarks.md` | `tree-panel`, `change-directory`, `directory-sizes`, `tree-window`; `volumes`, `trash` (120x24); `bookmarks` |
 | `windows.md`, `dialogs.md`, `console.md`, `user-menu.md` | `window-list`, `command-palette`; `file-dialog`; `completion`, `console`, `command-window`, `command-history`; `user-menu` |
-| `utilities.md`, `calculator.md`, `game.md` | `process-list`, `services`, `system-monitor`, `environment`, `system-information`, `calendar`, `character-table`; `calculator`; `game` |
+| `utilities.md`, `calculator.md`, `game.md` | `process-list`, `services`, `system-monitor`, `environment`, `system-information`, `calendar`, `character-table`; `calculator` (Simple) and `calculator-classic`, `-scientific`, `-programming`; `game` |
 | `connections.md`, `settings.md`, `customizing.md` | `link-manager`, `connect`, `host-key`, `port-forwards`, `saved-links`; `settings` (Confirmations) and `settings-PAGE` for each other page; `key-bindings`, `colors` (80x30) |
 
-`clipboard.md`, `macros.md`, `help.md`, `command-line.md` and `as-root.md` have none: nothing there is a screen worth showing.
+`help.md` has `help-window`, on a page the scene writes (`HELP_PAGE`, `pages.root` pointed at it), so editing a
+help page never makes it stale. `clipboard.md`, `macros.md`, `command-line.md` and `as-root.md` have none: nothing there is a screen worth showing.
 
 - **A scene painted alone and one painted after the others are the same picture.** `paint()` starts each from
   `SETTINGS.reset()` and a fresh `:memory:` database, then lays its pins, and points `XDG_CONFIG_HOME` at an empty

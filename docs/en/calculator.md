@@ -46,6 +46,8 @@ and `b` otherwise.
 
 ## Classic
 
+![The Classic face: the expression 2*(3+4) and its value 14 in decimal, hexadecimal, binary, octal and exponent form, with Copy As choosing which one is copied](shots/calculator-classic.svg)
+
 The five lines show the value in each form; a number that is not whole shows its whole part in hexadecimal,
 binary and octal.
 
@@ -54,6 +56,8 @@ binary and octal.
 - *Close* closes the calculator.
 
 ## Scientific
+
+![The Scientific face: sqrt(2)*sin(45) worked out in degrees as 1, with Deg, Rad and Grad and the keypad of functions](shots/calculator-scientific.svg)
 
 - *Deg*, *Rad* and *Grad* choose the unit the trigonometric functions take and give.
 - More functions: `ASIN`, `ACOS`, `ATAN`, `SINH`, `COSH`, `TANH`, `ABS`, `CBRT`, `ROOT(x, n)`, `LOG`, `LOG2`,
@@ -64,6 +68,8 @@ binary and octal.
 - *2nd* and *hyp* change what the function keys type: the inverse functions, and the hyperbolic ones.
 
 ## Programming
+
+![The Programming face: 255*3+1 shown as 2FE, 766, 1 376 and 10 1111 1110 in the four bases, the word size, Signed, and the keypad of hex digits and bit operations](shots/calculator-programming.svg)
 
 - *HEX*, *DEC*, *OCT* and *BIN* choose the base you type numbers in. The value is shown in all four.
 - *QWORD*, *DWORD*, *WORD* and *BYTE* choose the size of the number: 64, 32, 16 or 8 bits. A result that does not

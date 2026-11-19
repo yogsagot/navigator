@@ -51,11 +51,11 @@ class ToolsPage(SettingsPage, _Component):
     processes_refresh: MaskedField    # tools_page.nml:31
     processes_unit: StaticText    # tools_page.nml:42
     services_manager: ChoiceField    # tools_page.nml:50
-    services_refresh: MaskedField    # tools_page.nml:58
-    services_unit: StaticText    # tools_page.nml:69
-    journal_lines: MaskedField    # tools_page.nml:77
-    monitor_refresh: MaskedField    # tools_page.nml:88
-    monitor_unit: StaticText    # tools_page.nml:99
+    services_refresh: MaskedField    # tools_page.nml:59
+    services_unit: StaticText    # tools_page.nml:70
+    journal_lines: MaskedField    # tools_page.nml:78
+    monitor_refresh: MaskedField    # tools_page.nml:89
+    monitor_unit: StaticText    # tools_page.nml:100
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -63,11 +63,11 @@ class ToolsPage(SettingsPage, _Component):
         self.processes_refresh = MaskedField(parent=self)    # tools_page.nml:30
         self.processes_unit = StaticText(parent=self)    # tools_page.nml:41
         self.services_manager = ChoiceField(parent=self)    # tools_page.nml:49
-        self.services_refresh = MaskedField(parent=self)    # tools_page.nml:57
-        self.services_unit = StaticText(parent=self)    # tools_page.nml:68
-        self.journal_lines = MaskedField(parent=self)    # tools_page.nml:76
-        self.monitor_refresh = MaskedField(parent=self)    # tools_page.nml:87
-        self.monitor_unit = StaticText(parent=self)    # tools_page.nml:98
+        self.services_refresh = MaskedField(parent=self)    # tools_page.nml:58
+        self.services_unit = StaticText(parent=self)    # tools_page.nml:69
+        self.journal_lines = MaskedField(parent=self)    # tools_page.nml:77
+        self.monitor_refresh = MaskedField(parent=self)    # tools_page.nml:88
+        self.monitor_unit = StaticText(parent=self)    # tools_page.nml:99
 
         self.age_identities.y = 1    # tools_page.nml:22
         self.age_identities.label_text = _bind(    # tools_page.nml:26
@@ -103,68 +103,70 @@ class ToolsPage(SettingsPage, _Component):
             lambda _o: max(0, _o.parent.width - 39)
         )
 
-        self.services_manager.x = 2    # tools_page.nml:51
-        self.services_manager.y = 5    # tools_page.nml:52
-        self.services_manager.width = 50    # tools_page.nml:53
-        self.services_manager.label_text = _bind(    # tools_page.nml:54
+        self.services_manager.y = 5    # tools_page.nml:51
+        self.services_manager.label_text = _bind(    # tools_page.nml:55
             lambda _o: _tr('Service ~m~anager'),
             yielding=True,
         )
-        self.services_manager.label_width = 30    # tools_page.nml:55
+        self.services_manager.label_width = 30    # tools_page.nml:56
+        self.services_manager.x = 2    # tools_page.nml:53
+        self.services_manager.width = _bind(    # tools_page.nml:54
+            lambda _o: max(0, _o.parent.width - 4)
+        )
 
-        self.services_refresh.key = 'services.refresh'    # tools_page.nml:59
-        self.services_refresh.x = 2    # tools_page.nml:60
-        self.services_refresh.y = 6    # tools_page.nml:61
-        self.services_refresh.width = 34    # tools_page.nml:62
-        self.services_refresh.label_text = _bind(    # tools_page.nml:63
+        self.services_refresh.key = 'services.refresh'    # tools_page.nml:60
+        self.services_refresh.x = 2    # tools_page.nml:61
+        self.services_refresh.y = 6    # tools_page.nml:62
+        self.services_refresh.width = 34    # tools_page.nml:63
+        self.services_refresh.label_text = _bind(    # tools_page.nml:64
             lambda _o: _tr('S~e~rvices read every'),
             yielding=True,
         )
-        self.services_refresh.label_width = 30    # tools_page.nml:64
-        self.services_refresh.mask = '99'    # tools_page.nml:65
-        self.services_refresh.page_keys = False    # tools_page.nml:66
+        self.services_refresh.label_width = 30    # tools_page.nml:65
+        self.services_refresh.mask = '99'    # tools_page.nml:66
+        self.services_refresh.page_keys = False    # tools_page.nml:67
 
-        self.services_unit.y = 6    # tools_page.nml:70
-        self.services_unit.text = _bind(    # tools_page.nml:74
+        self.services_unit.y = 6    # tools_page.nml:71
+        self.services_unit.text = _bind(    # tools_page.nml:75
             lambda _o: _tr('seconds (0: on Ctrl+R alone)'),
             yielding=True,
         )
-        self.services_unit.x = 37    # tools_page.nml:72
-        self.services_unit.width = _bind(    # tools_page.nml:73
+        self.services_unit.x = 37    # tools_page.nml:73
+        self.services_unit.width = _bind(    # tools_page.nml:74
             lambda _o: max(0, _o.parent.width - 39)
         )
 
-        self.journal_lines.key = 'services.journal_lines'    # tools_page.nml:78
-        self.journal_lines.x = 2    # tools_page.nml:79
-        self.journal_lines.y = 7    # tools_page.nml:80
-        self.journal_lines.width = 36    # tools_page.nml:81
-        self.journal_lines.label_text = _bind(    # tools_page.nml:82
+        self.journal_lines.key = 'services.journal_lines'    # tools_page.nml:79
+        self.journal_lines.x = 2    # tools_page.nml:80
+        self.journal_lines.y = 7    # tools_page.nml:81
+        self.journal_lines.width = 36    # tools_page.nml:82
+        self.journal_lines.label_text = _bind(    # tools_page.nml:83
             lambda _o: _tr('~J~ournal lines F3 shows first'),
             yielding=True,
         )
-        self.journal_lines.label_width = 30    # tools_page.nml:83
-        self.journal_lines.mask = '9999'    # tools_page.nml:84
-        self.journal_lines.page_keys = False    # tools_page.nml:85
+        self.journal_lines.label_width = 30    # tools_page.nml:84
+        self.journal_lines.mask = '9999'    # tools_page.nml:85
+        self.journal_lines.page_keys = False    # tools_page.nml:86
 
-        self.monitor_refresh.key = 'monitor.refresh'    # tools_page.nml:89
-        self.monitor_refresh.x = 2    # tools_page.nml:90
-        self.monitor_refresh.y = 9    # tools_page.nml:91
-        self.monitor_refresh.width = 34    # tools_page.nml:92
-        self.monitor_refresh.label_text = _bind(    # tools_page.nml:93
+        self.monitor_refresh.key = 'monitor.refresh'    # tools_page.nml:90
+        self.monitor_refresh.x = 2    # tools_page.nml:91
+        self.monitor_refresh.y = 9    # tools_page.nml:92
+        self.monitor_refresh.width = 34    # tools_page.nml:93
+        self.monitor_refresh.label_text = _bind(    # tools_page.nml:94
             lambda _o: _tr('S~y~stem monitor reads every'),
             yielding=True,
         )
-        self.monitor_refresh.label_width = 30    # tools_page.nml:94
-        self.monitor_refresh.mask = '99'    # tools_page.nml:95
-        self.monitor_refresh.page_keys = False    # tools_page.nml:96
+        self.monitor_refresh.label_width = 30    # tools_page.nml:95
+        self.monitor_refresh.mask = '99'    # tools_page.nml:96
+        self.monitor_refresh.page_keys = False    # tools_page.nml:97
 
-        self.monitor_unit.y = 9    # tools_page.nml:100
-        self.monitor_unit.text = _bind(    # tools_page.nml:104
+        self.monitor_unit.y = 9    # tools_page.nml:101
+        self.monitor_unit.text = _bind(    # tools_page.nml:105
             lambda _o: _tr('seconds (0: on Ctrl+R alone)'),
             yielding=True,
         )
-        self.monitor_unit.x = 37    # tools_page.nml:102
-        self.monitor_unit.width = _bind(    # tools_page.nml:103
+        self.monitor_unit.x = 37    # tools_page.nml:103
+        self.monitor_unit.width = _bind(    # tools_page.nml:104
             lambda _o: max(0, _o.parent.width - 39)
         )
 

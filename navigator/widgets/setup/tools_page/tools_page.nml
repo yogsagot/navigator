@@ -48,9 +48,10 @@ ToolsPage(SettingsPage):
 
     ChoiceField:
         id: services_manager
-        x: 2
         y: 5
-        width: 50
+        anchors:
+            left: 2
+            right: 2
         label_text: "Service ~m~anager"
         label_width: 30
 

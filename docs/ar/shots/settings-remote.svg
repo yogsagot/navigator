@@ -45,8 +45,8 @@
 <rect x="20" y="300" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="320" width="20" height="20" fill="#000000"/>
 <rect x="20" y="320" width="40" height="20" fill="#aaaaaa"/>
-<rect x="60" y="320" width="400" height="20" fill="#555555"/>
-<rect x="460" y="320" width="320" height="20" fill="#aaaaaa"/>
+<rect x="60" y="320" width="340" height="20" fill="#555555"/>
+<rect x="400" y="320" width="380" height="20" fill="#aaaaaa"/>
 <rect x="0" y="340" width="20" height="20" fill="#000000"/>
 <rect x="20" y="340" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="360" width="20" height="20" fill="#000000"/>
@@ -164,7 +164,7 @@
 <text x="620" y="295" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#555555">Xfce...)</text>
 <text x="710" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="730" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
-<text x="430" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-Y</text>
+<text x="370" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">-Y</text>
 <text x="490" y="335" textLength="70" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺓﺪﻴﻌﺒﻟﺍ</text>
 <text x="570" y="335" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺔﻓﺪﺼﻠﻟ</text>
 <text x="640" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">ss</text>

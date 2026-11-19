@@ -1723,7 +1723,7 @@ direction = "rtl"
 # navigator/widgets/setup/interface_page/interface_page.nml:87
 "Gl~y~phs" = "ال~ر~موز"
 # navigator/widgets/setup/interface_page/interface_page.nml:102
-"Dim behind dialogs" = "تعتيم ما خلف مربعات الحوار"
+"Dim behind dialogs" = "تعتيم ما خلف الحوار"
 # navigator/widgets/setup/interface_page/interface_page.nml:112
 "Mar~k~s" = "ال~إ~شارات"
 # navigator/widgets/setup/interface_page/interface_page.nml:122

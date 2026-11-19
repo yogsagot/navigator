@@ -99,10 +99,14 @@ on the screen, and can search by regular expression.
 
 ## Go to a line
 
+![The Goto Line box with 120, the number typed last, in its line](shots/go-to-line.svg)
+
 `Alt+G` asks for a line number and puts the cursor on that line. Lines are counted from 1. The box opens with the
 number you typed last.
 
 ## Margins
+
+![The Format Margins box: the left margin 0, the right margin 72 and the paragraph indent 4](shots/margins.svg)
 
 *Editor > Paragraph > Margins* sets the three numbers that paragraph formatting works between. They apply to this
 editor window only; the starting values come from the editor setup.

@@ -44,17 +44,17 @@
 <rect x="270" y="320" width="50" height="20" fill="#555555"/>
 <rect x="320" y="320" width="460" height="20" fill="#aaaaaa"/>
 <rect x="0" y="340" width="20" height="20" fill="#000000"/>
-<rect x="20" y="340" width="760" height="20" fill="#aaaaaa"/>
+<rect x="20" y="340" width="250" height="20" fill="#aaaaaa"/>
+<rect x="270" y="340" width="50" height="20" fill="#555555"/>
+<rect x="320" y="340" width="460" height="20" fill="#aaaaaa"/>
 <rect x="0" y="360" width="20" height="20" fill="#000000"/>
-<rect x="20" y="360" width="250" height="20" fill="#aaaaaa"/>
-<rect x="270" y="360" width="50" height="20" fill="#555555"/>
-<rect x="320" y="360" width="460" height="20" fill="#aaaaaa"/>
+<rect x="20" y="360" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="380" width="20" height="20" fill="#000000"/>
 <rect x="20" y="380" width="40" height="20" fill="#aaaaaa"/>
 <rect x="60" y="380" width="10" height="20" fill="#5555ff"/>
 <rect x="70" y="380" width="10" height="20" fill="#aaaaaa"/>
-<rect x="80" y="380" width="220" height="20" fill="#555555"/>
-<rect x="300" y="380" width="480" height="20" fill="#aaaaaa"/>
+<rect x="80" y="380" width="390" height="20" fill="#555555"/>
+<rect x="470" y="380" width="310" height="20" fill="#aaaaaa"/>
 <rect x="0" y="400" width="20" height="20" fill="#000000"/>
 <rect x="20" y="400" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="420" width="20" height="20" fill="#000000"/>
@@ -195,25 +195,25 @@
 <text x="700" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ג</text>
 <text x="720" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">[</text>
 <text x="740" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">]</text>
+<text x="280" y="355" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">008</text>
+<text x="390" y="355" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">בא</text>
+<text x="410" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ט</text>
+<text x="430" y="355" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">לדוג</text>
 <text x="580" y="355" textLength="80" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">תויורשפא</text>
 <text x="670" y="355" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ל</text>
 <text x="680" y="355" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">גרס</text>
 <text x="720" y="355" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">[X]</text>
-<text x="280" y="375" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">008</text>
-<text x="390" y="375" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">בא</text>
-<text x="410" y="375" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ט</text>
-<text x="430" y="375" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">לדוג</text>
+<text x="360" y="375" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">יפול</text>
+<text x="400" y="375" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ח</text>
+<text x="420" y="375" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">דודיק</text>
 <text x="570" y="375" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">(ךרוע)</text>
 <text x="640" y="375" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">תורוש</text>
 <text x="700" y="375" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">דירפ</text>
 <text x="740" y="375" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">מ</text>
 <text x="60" y="395" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="100" y="395" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">UTF-8,</text>
-<text x="170" y="395" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">םירמשנ</text>
-<text x="240" y="395" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">םיתבה</text>
-<text x="360" y="395" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">יפול</text>
-<text x="400" y="395" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ח</text>
-<text x="420" y="395" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">דודיק</text>
+<text x="270" y="395" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">UTF-8,</text>
+<text x="340" y="395" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">םירמשנ</text>
+<text x="410" y="395" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">םיתבה</text>
 <text x="500" y="395" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">CR</text>
 <text x="530" y="395" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="550" y="395" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>

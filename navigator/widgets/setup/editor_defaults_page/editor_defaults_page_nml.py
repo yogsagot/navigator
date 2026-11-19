@@ -66,7 +66,8 @@ class EditorDefaultsPage(SettingsPage, _Component):
     tab_size: MaskedField    # editor_defaults_page.nml:101
     divisor_caption: Label    # editor_defaults_page.nml:113
     line_divisor: RadioButtons    # editor_defaults_page.nml:121
-    fallback_encoding: ChoiceField    # editor_defaults_page.nml:130
+    encoding_caption: Label    # editor_defaults_page.nml:133
+    fallback_encoding: ChoiceField    # editor_defaults_page.nml:142
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
@@ -80,7 +81,8 @@ class EditorDefaultsPage(SettingsPage, _Component):
         self.tab_size = MaskedField(parent=self)    # editor_defaults_page.nml:100
         self.divisor_caption = Label(parent=self)    # editor_defaults_page.nml:112
         self.line_divisor = RadioButtons(parent=self)    # editor_defaults_page.nml:120
-        self.fallback_encoding = ChoiceField(parent=self)    # editor_defaults_page.nml:129
+        self.encoding_caption = Label(parent=self)    # editor_defaults_page.nml:132
+        self.fallback_encoding = ChoiceField(parent=self)    # editor_defaults_page.nml:141
 
         self.editor_caption.x = 2    # editor_defaults_page.nml:31
         self.editor_caption.y = 1    # editor_defaults_page.nml:32
@@ -113,7 +115,7 @@ class EditorDefaultsPage(SettingsPage, _Component):
         self.viewer.key = 'viewer.OPTIONS'    # editor_defaults_page.nml:57
         self.viewer.x = 2    # editor_defaults_page.nml:58
         self.viewer.y = 12    # editor_defaults_page.nml:59
-        self.viewer.width = 20    # editor_defaults_page.nml:60
+        self.viewer.width = 26    # editor_defaults_page.nml:60
         self.viewer.height = 3    # editor_defaults_page.nml:61
         self.viewer.items = _bind(    # editor_defaults_page.nml:62
             lambda _o: [_tr('He~x~ mode'), _tr('~W~rap lines'), _tr('Optio~n~ strip')],
@@ -158,7 +160,7 @@ class EditorDefaultsPage(SettingsPage, _Component):
 
         self.tab_size.key = 'tab_size'    # editor_defaults_page.nml:102
         self.tab_size.x = 30    # editor_defaults_page.nml:103
-        self.tab_size.y = 15    # editor_defaults_page.nml:104
+        self.tab_size.y = 14    # editor_defaults_page.nml:104
         self.tab_size.width = 20    # editor_defaults_page.nml:105
         self.tab_size.label_text = _bind(    # editor_defaults_page.nml:106
             lambda _o: _tr('Tab si~z~e'),
@@ -187,14 +189,24 @@ class EditorDefaultsPage(SettingsPage, _Component):
             yielding=True,
         )
 
-        self.fallback_encoding.y = 16    # editor_defaults_page.nml:131
-        self.fallback_encoding.label_text = _bind(    # editor_defaults_page.nml:135
+        self.encoding_caption.y = 15    # editor_defaults_page.nml:134
+        self.encoding_caption.text = _bind(    # editor_defaults_page.nml:138
             lambda _o: _tr('Fallback ~e~ncoding'),
             yielding=True,
         )
-        self.fallback_encoding.label_width = 17    # editor_defaults_page.nml:136
-        self.fallback_encoding.x = 30    # editor_defaults_page.nml:133
-        self.fallback_encoding.width = _bind(    # editor_defaults_page.nml:134
+        self.encoding_caption.link = _bind(    # editor_defaults_page.nml:139
+            lambda _o: self.fallback_encoding.entry
+        )
+        self.encoding_caption.x = 30    # editor_defaults_page.nml:136
+        self.encoding_caption.width = _bind(    # editor_defaults_page.nml:137
+            lambda _o: max(0, _o.parent.width - 32)
+        )
+
+        self.fallback_encoding.y = 16    # editor_defaults_page.nml:143
+        self.fallback_encoding.label_text = ''    # editor_defaults_page.nml:147
+        self.fallback_encoding.label_width = 0    # editor_defaults_page.nml:148
+        self.fallback_encoding.x = 30    # editor_defaults_page.nml:145
+        self.fallback_encoding.width = _bind(    # editor_defaults_page.nml:146
             lambda _o: max(0, _o.parent.width - 32)
         )
 

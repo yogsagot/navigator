@@ -3,6 +3,8 @@
 `F1` opens this manual on the page about what you are doing. The pages are linked to each other: a link is shown
 in its own colour, and one of them is always the selected one.
 
+![The Help window: a page with its heading, a paragraph and a table of keys, and the scroll bar on the right frame](shots/help-window.svg)
+
 ## Help where you are
 
 `F1` works everywhere, and opens the page about what has the keyboard:

@@ -57,7 +57,7 @@ EditorDefaultsPage(SettingsPage):
         key: "viewer.OPTIONS"
         x: 2
         y: 12
-        width: 20
+        width: 26
         height: 3
         items: ["He~x~ mode", "~W~rap lines", "Optio~n~ strip"]
 
@@ -101,7 +101,7 @@ EditorDefaultsPage(SettingsPage):
         id: tab_size
         key: "tab_size"
         x: 30
-        y: 15
+        y: 14
         width: 20
         label_text: "Tab si~z~e"
         label_width: 15
@@ -126,11 +126,23 @@ EditorDefaultsPage(SettingsPage):
         height: 1
         items: ["LF", "CR+LF", "CR"]
 
+    #: The caption on a row of its own, and the line across the rest of the
+    #: page: an encoding's name runs to 37 columns (*MacCentralEurope Mac
+    #: Central European*), which a line beside the caption cut.
+    Label:
+        id: encoding_caption
+        y: 15
+        anchors:
+            left: 30
+            right: 2
+        text: "Fallback ~e~ncoding"
+        link: fallback_encoding.entry
+
     ChoiceField:
         id: fallback_encoding
         y: 16
         anchors:
             left: 30
             right: 2
-        label_text: "Fallback ~e~ncoding"
-        label_width: 17
+        label_text: ""
+        label_width: 0

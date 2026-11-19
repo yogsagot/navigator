@@ -222,7 +222,7 @@ class CommunicationsPage(SettingsPage, _Component):
             lambda _o: _tr("Remote shell's ss~h~ options"),
             yielding=True,
         )
-        self.ssh_options.label_width = 28    # communications_page.nml:149
+        self.ssh_options.label_width = 34    # communications_page.nml:149
         self.ssh_options.x = 3    # communications_page.nml:146
         self.ssh_options.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # communications_page.nml:147
 
