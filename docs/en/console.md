@@ -7,6 +7,8 @@ Under the panels is a command line, and behind the windows is a console: a termi
 Whatever you type while a panel has the keyboard goes to the command line. `Enter` runs it in the shell, in the
 active panel's directory, and the output appears in the console.
 
+![The command line with 'cat s' typed and the list of the two names that complete it](shots/completion.svg)
+
 | Key | What it does |
 |---|---|
 | `Enter` | Run the command |

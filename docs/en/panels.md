@@ -28,6 +28,8 @@ A panel reads its directory again by itself when something changes in it.
 
 `Ctrl+Y` goes through three views of a panel:
 
+![A panel in the detailed view: the name, size, attributes and date of each file in columns](shots/panel-detailed.svg)
+
 - *Simple*: names and sizes.
 - *Detailed*: names with size, attributes, owner and date in columns. `Alt+K` chooses the columns.
 - *List*: names alone, in several columns.
@@ -115,6 +117,8 @@ are on the *Panel defaults* page of the [settings](settings.md#panel-defaults).
 `Alt+Del`, or *Panel > Selection > Advanced filter*, chooses which files the panel shows by their extensions. The
 box lists `*` and one mask for every extension found in the directory.
 
+![The Filter box: one mask for each extension in the directory, two of them marked](shots/filter.svg)
+
 - `Space` or `Ins` marks a mask and moves to the next. `+` marks all of them, `-` none, and `*` inverts the marks.
 - *Show* makes the panel show the marked masks, or the one under the cursor when none is marked.
 - *Hide* makes the panel leave them out.
@@ -171,6 +175,8 @@ replaces the text in each of them.
 
 `Alt+L`, or *Panel > Make list file*, writes the names of the tagged files into a text file.
 
+![The Make List File box: the list's name, an action for each file and two options](shots/make-list.svg)
+
 - *File name* is the file to write. If it is already there, you are asked whether to replace it or add to its end.
 - *Action*, when filled in, turns the list into a script: one line per file, with the file's name put into the
   text you give. Several lines per file are separated by `;`.
@@ -203,6 +209,8 @@ also *Select group* and *Unselect group* in the *Panel* menu.
 
 `Alt+K`, or *Panel > Setup columns*, chooses what the detailed view shows beside each name: *Size*, *Attributes*,
 *Links*, *Owner* and *Date*.
+
+![The Columns Setup box, with Size and Date ticked](shots/columns-setup.svg)
 
 - *OK* shows the columns that are ticked.
 - *Brief* shows names alone.

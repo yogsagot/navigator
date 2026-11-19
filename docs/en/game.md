@@ -3,6 +3,8 @@
 `Alt+F9`, or *Game* in the `≡` menu, opens the game: figures fall into a glass, and a row that fills up
 disappears. It has two styles, Tetris with seven figures and Pentix with twenty-seven.
 
+![Navigator's game: the glass with figures at the bottom and one falling, the score, and the buttons](shots/game.svg)
+
 ## Keys
 
 | Key | What it does |

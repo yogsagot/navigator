@@ -4,6 +4,8 @@
 
 *Utilities > Process list* shows the running processes.
 
+![The Process list window: eight processes with their user, state, CPU share, memory and command](shots/process-list.svg)
+
 | Key | What it does |
 |---|---|
 | Typing, `F4` | Filter the list to the processes whose command, name, user or number contains the text; `Esc` clears it |
@@ -22,6 +24,8 @@ it as root.
 ## Services
 
 *Utilities > Services* lists the system's services and controls them, through systemd, OpenRC, runit or SysVinit.
+
+![The Services window: seven units with their state and whether they start at boot](shots/services.svg)
 
 | Key | What it does |
 |---|---|
@@ -43,10 +47,14 @@ Changing a system service usually needs root, which you are offered.
 *Utilities > System monitor* shows the load on each processor, the memory and swap in use, and the temperatures
 and fan speeds the machine reports.
 
+![The System monitor window: a bar for each processor, memory and swap, and two temperatures](shots/system-monitor.svg)
+
 ## Edit the environment
 
 *Utilities > Edit environment* shows the environment variables that programs started from Navigator are given, and
 lets you change them.
+
+![The Environment Variables Editor: the variables in a list and the value of the one under the cursor](shots/environment.svg)
 
 - *Variables* lists the names. The value of the one under the cursor is on the *Value* line, where you can edit
   it.
@@ -62,6 +70,8 @@ commands, and the shell in the console. They last until you leave Navigator.
 
 *Utilities > System Information* shows what the machine is: the *Main board* and processor, the *Disk drives*,
 the *Memory*, and under *Other* the system, its kernel, the host's name and how long it has been up.
+
+![The System Information box: the main board, the disks, memory and the system](shots/system-information.svg)
 
 ## Calendar
 
@@ -88,6 +98,8 @@ written out under it, or the two months side by side.
 ## Character table
 
 `Ctrl+B`, or *Utilities > Character table*, finds a character and types it where the cursor is.
+
+![The Character Table box: the blocks on the left, the characters of Basic Latin, and the name and codes of the one chosen](shots/character-table.svg)
 
 - *Search* finds characters by name, such as `arrow` or `euro`.
 - The list on the left chooses a group of characters, and the line under it narrows the groups by name.

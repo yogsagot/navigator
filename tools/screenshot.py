@@ -40,9 +40,10 @@ picture and text block stay the English scene), and Help's pictures go to
 
 The screen is the real one: the application is constructed as ``nav``
 constructs it and rendered into a :class:`~navkit.screen.ScreenBuffer`, with
-the four things that would make it differ between runs pinned -- the
-directory it lists (built here, with fixed sizes), the clock, the free
-space under each panel, and the shell the console would otherwise fork.  This is the golden test's recipe
+what would make it differ between runs pinned -- the directory it lists
+(built here, with fixed sizes), the clock, the free space under each panel,
+the shell the console would otherwise fork, and every setting and the
+database, new for each scene (:func:`paint`).  This is the golden test's recipe
 (``tests/test_nav.py``), applied to a directory worth looking at, with the
 About box (≡ > About) open over it -- so the picture carries the version, and
 a release makes ``--check`` stale until the screenshot is regenerated.
@@ -115,6 +116,69 @@ SUBTREE: dict[str, int | None] = {
     "widgets.py": 22_596,
 }
 PINNED_TIME = datetime(1999, 12, 31, 23, 59).timestamp()
+
+# What the files a scene opens say: a viewer, an editor and a comparison have
+# nothing to show of a file of NULs.  Each is padded or cut to the size
+# ``TREE`` gives its file, so no picture of a panel changes with the text.
+APP_PY = '''"""The application: one loop, one screen, a tree of widgets."""
+
+from __future__ import annotations
+
+import asyncio
+from dataclasses import dataclass, field
+
+FRAME = 1 / 60  # seconds between two paints, at most
+
+
+@dataclass
+class Event:
+    """Something that happened: a key, a click, a resize."""
+
+    name: str
+    handled: bool = False
+
+
+@dataclass
+class Application:
+    title: str = "Navigator"
+    queue: list[Event] = field(default_factory=list)
+    running: bool = False
+
+    def post(self, event: Event) -> None:
+        self.queue.append(event)
+
+    async def run(self) -> int:
+        self.running = True
+        while self.running:
+            for event in self.take():
+                await self.dispatch(event)
+            self.paint()
+            await asyncio.sleep(FRAME)
+        return 0
+
+    def take(self) -> list[Event]:
+        batch, self.queue = self.queue, []
+        return batch
+
+    async def dispatch(self, event: Event) -> None:
+        if event.name == "quit":
+            self.running = False
+        event.handled = True
+
+    def paint(self) -> None:
+        print(f"{self.title}: {len(self.queue)} waiting")
+'''
+LICENSE_TEXT = '''Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+'''
+TEXTS: dict[str, str] = {"src/app.py": APP_PY, "LICENSE": LICENSE_TEXT}
 PROMPT = (
     b"\x1b[01;38;2;85;255;85mjuris@juris-dev\x1b[00;38;2;255;255;255m:"
     b"\x1b[01;38;2;85;85;255m~/development/navigator\x1b[00;38;2;255;255;255m$ "
@@ -142,6 +206,25 @@ class HeadlessTerminal:
     def flush(self) -> None: ...
 
 
+def sized(text: str, size: int) -> bytes:
+    """*text* as exactly *size* bytes: cut, or its lines said again as comments."""
+    data = text.encode()
+    filler = b"".join(b"# " + line + b"\n" for line in data.splitlines() if line.strip())
+    while len(data) < size:
+        data += b"\n" + filler
+    data = data[:size]
+    # Whole lines: what is left of a cut one is blanks.
+    cut = data.rfind(b"\n") + 1
+    return data[:cut] + b" " * (size - cut - 1) + b"\n" if cut < size else data
+
+
+def pinned(*paths: Path) -> None:
+    """*paths* (and what a stage wrote under them) dated as the rest is."""
+    for path in paths:
+        for each in (*path.rglob("*"), path) if path.is_dir() else (path,):
+            os.utime(each, (PINNED_TIME, PINNED_TIME))
+
+
 def populate(directory: Path) -> None:
     def fill(where: Path, entries: dict[str, int | None]) -> None:
         for name, size in entries.items():
@@ -154,6 +237,13 @@ def populate(directory: Path) -> None:
 
     fill(directory, TREE)
     fill(directory / "src", SUBTREE)
+    for name, text in TEXTS.items():
+        path = directory / name
+        path.write_bytes(sized(text, path.stat().st_size))
+        os.utime(path, (PINNED_TIME, PINNED_TIME))
+    # The modes too: the umask's otherwise, and the Attributes column shows them.
+    for path in directory.rglob("*"):
+        os.chmod(path, 0o755 if path.is_dir() else 0o644)
     # Filling a directory moved its time again: the *Current file* line on
     # ``src``'s ``..`` shows it.
     for path in (directory / "src", directory):
@@ -193,6 +283,28 @@ async def _make_directory(app: Any) -> Any:
     dialog = MkdirDialog()
     asyncio.create_task(dialog.execute(app))
     return dialog
+
+
+async def _until(condition: Callable[[], Any], timeout: float = 3.0) -> None:
+    """Wait for *condition*: what a window reads on a thread has landed.
+    A fixed sleep would be a picture of whatever had landed by then."""
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + timeout
+    while not condition():
+        if loop.time() > deadline:
+            raise TimeoutError("a scene waited for what never came")
+        await asyncio.sleep(0.01)
+
+
+def _placed(app: Any, window: Any, width: int, height: int) -> Any:
+    """*window*, open on the desktop already, un-zoomed and centred at *width*
+    by *height*: narrow enough for a help page where what it shows allows."""
+    desktop = app.shell.desktop
+    if getattr(window, "zoomed", False):
+        window.toggle_zoom()
+    window.width, window.height = min(width, desktop.width), min(height, desktop.height)
+    window.x, window.y = (desktop.width - window.width) // 2, (desktop.height - window.height) // 2
+    return window
 
 
 def _selection(app: Any, name: str) -> tuple[Any, list[Any]]:
@@ -361,6 +473,498 @@ async def _key_bindings(app: Any) -> Any:
     return _dialog(app, KeyBindingsDialog(found, {section.name: section.defaults() for section in found}))
 
 
+# -- the windows ----------------------------------------------------------------
+
+#: A window as wide as a help page on an 80-column terminal, shadow and all.
+PAGE = (66, 18)
+
+
+async def _viewer(app: Any, mode: str = "text") -> Any:
+    from navigator.lib.config.file_history import open_viewer
+
+    window = await open_viewer(app.shell.desktop, Path("src/app.py"), mode)
+    _placed(app, window, *PAGE)
+    if mode == "text":
+        await asyncio.sleep(0.05)  # a paint, which is what starts the colouring
+        await _until(lambda: window.viewer._lex_stop is None and window.viewer.lexer_name)
+    return window
+
+
+async def _viewer_hex(app: Any) -> Any:
+    return await _viewer(app, "hex")
+
+
+async def _editor(app: Any) -> Any:
+    from navigator.lib.config.file_history import open_editor
+
+    window = await open_editor(app.shell.desktop, Path("src/app.py"))
+    _placed(app, window, *PAGE)
+    await asyncio.sleep(0.05)
+    await _until(lambda: window.editor._lex_stop is None and window.editor._lexed > 0)
+    return window
+
+
+def _pin_tree() -> None:
+    """The directory tree from the scratch directory, called ``/project``:
+    from ``/`` it is the machine's directories down to a random name."""
+    from navigator.widgets.tree.change_dir_dialog import change_dir_dialog
+    from navigator.widgets.tree.directory_tree import directory_tree
+
+    def root(hidden: bool = True, at: Any = None) -> Any:
+        node = directory_tree.directory_node(Path("."), "/project", hidden=hidden)
+        node.expanded = True
+        return node
+
+    def walk(top: Any, place: Any) -> tuple[list[str], list[list[Any]], dict[int, Any]]:
+        # Below the scratch directory, however the place was spelled.
+        names = [part for part in Path(os.path.relpath(getattr(place, "local", place))).parts if part != "."]
+        levels, here = [], top.data
+        for name in names:
+            levels.append(directory_tree._subdirectories(directory_tree.directory_node(here, hidden=top.show_hidden)))
+            here = here / name
+        return names, levels, {}
+
+    directory_tree.directory_root = change_dir_dialog.directory_root = root
+    directory_tree._walk_down = walk
+
+
+async def _tree_panel(app: Any) -> Any:
+    _pin_tree()
+    manager = app.manager
+    tree = manager.tree
+    tree.reload()  # the root it was made with is the machine's
+    manager.toggle_tree()
+    await _until(lambda: tree.root.loaded and len(tree._counts) > 0)
+    return tree
+
+
+async def _change_directory(app: Any) -> Any:
+    from navigator.widgets.tree.change_dir_dialog import ChangeDirDialog
+
+    _pin_tree()
+    dialog = _dialog(app, ChangeDirDialog(start=Path("src")))
+    await asyncio.sleep(0.05)
+    # Asked again now that the box is up: the walk of four directories is
+    # back before it is, and the cursor it placed is not kept.
+    dialog._show(Path("src"))
+    await _until(lambda: dialog.tree.selected_node is not None and dialog.tree.selected_node.name == "src")
+    return dialog
+
+
+#: Two versions of one directory, for the comparisons: what differs is one
+#: file changed, one only on the left and one only on the right.
+NOTES_OLD = "Release notes\n\n- The viewer shows pictures.\n- Copy asks before it overwrites.\n- F1 opens Help.\n"
+NOTES_NEW = ("Release notes\n\n- The viewer shows pictures and tables.\n- Copy asks before it overwrites.\n"
+             "- F1 opens Help on the page about what you are doing.\n- Ctrl+F5 sizes the Help window.\n")
+
+
+def _two_versions() -> tuple[Path, Path]:
+    old, new = Path("docs/old"), Path("docs/new")
+    for where, notes, extra in ((old, NOTES_OLD, "todo.txt"), (new, NOTES_NEW, "keys.txt")):
+        where.mkdir(parents=True)
+        (where / "notes.txt").write_text(notes)
+        (where / "readme.txt").write_text("The same on both sides.\n")
+        (where / extra).write_text("Only here.\n")
+    pinned(Path("docs"))
+    # The changed file is the newer one on the right.
+    os.utime(new / "notes.txt", (PINNED_TIME + 3600, PINNED_TIME + 3600))
+    return old, new
+
+
+async def _synchronize(app: Any) -> Any:
+    from navigator.lib.file_ops import dirsync
+    from navigator.lib.file_ops.dircompare import CompareRequest
+    from navigator.widgets.manager.sync_window import SyncWindow
+
+    old, new = _two_versions()
+    request = CompareRequest(window=True)
+    SyncWindow.tree_view = False
+    window = SyncWindow(manager=app.manager, left=old, right=new, request=request,
+                        rows=dirsync.walk(old, new, request), options=dirsync.SyncOptions())
+    app.shell.desktop.open(window)
+    window.take_keyboard()
+    # All but the screen's width, so its shadow is in the picture.
+    return _placed(app, window, 76, 14)
+
+
+async def _compare_files(app: Any) -> Any:
+    from navigator.widgets.viewer.diff_window import open_diff
+
+    old, new = _two_versions()
+    await open_diff(app.shell.desktop, old / "notes.txt", new / "notes.txt")
+    window = app.shell.desktop.active_window
+    return _placed(app, window, *PAGE)
+
+
+# -- menus and lists --------------------------------------------------------------
+
+
+def _popup(app: Any) -> Any:
+    from navml.widgets.menu.popup_menu import PopupMenu
+
+    return next((child for child in app.root.children if isinstance(child, PopupMenu)), None)
+
+
+async def _user_menu(app: Any) -> Any:
+    from navigator.lib.config import usermenu
+
+    # The menu Navigator ships, not this user's, nor one in a directory above.
+    shipped = ROOT / "navigator" / "assets" / "menu.ini"
+    usermenu.find_menu = lambda start, want_global=False: (shipped, True)
+    asyncio.create_task(app.shell.user_menu())
+    await _until(lambda: _popup(app) is not None and _popup(app).boxes)
+    return _popup(app).boxes[-1]
+
+
+async def _window_list(app: Any) -> Any:
+    from navigator.lib.config.file_history import open_editor, open_viewer
+    from navigator.widgets.shell.calculator_window import CalculatorWindow
+    from navml.widgets.window_manager import WindowManagerDialog
+
+    desktop = app.shell.desktop
+    desktop.open(CalculatorWindow()).place()
+    await open_viewer(desktop, Path("LICENSE"), "text")
+    await open_editor(desktop, Path("src/app.py"))
+    return _dialog(app, WindowManagerDialog(desktop=desktop))
+
+
+async def _command_palette(app: Any) -> Any:
+    from navigator.widgets.shell.command_palette import CommandPalette
+
+    dialog = _dialog(app, CommandPalette(behind=app.focused))
+    await asyncio.sleep(0.05)
+    for char in "copy":
+        app.post_event(KeyEvent(char, char))
+    return dialog
+
+
+async def _file_dialog(app: Any) -> Any:
+    from navml.widgets.dialog.file_dialog import FileDialog
+
+    dialog = _dialog(app, FileDialog(directory="."))
+    await asyncio.sleep(0.05)
+    # Where it is: the scratch directory's random path otherwise.
+    dialog.info.path = "/home/user/project/*"
+    return dialog
+
+
+async def _completion(app: Any) -> Any:
+    from navigator.lib.system.subshell import CompletionsReady
+
+    # The shell's answer to Tab, without a shell: the scene has none.
+    shell = app.shell
+    line = shell.command_line
+    line.value, line.cursor = "cat s", 5
+    shell.completions_ready(CompletionsReady("cat s", 5, 4, ("setup.cfg", "src/")))
+    await _until(lambda: shell._completion_list is not None)
+    await asyncio.sleep(0.05)
+    box = shell._completion_list
+    ox, oy = line.offset()
+    # The list and the line it hangs over, the prompt's width and a little more.
+    return (0, box.y, 60, oy + line.y + 1 - box.y)
+
+
+# -- more dialogs -----------------------------------------------------------------
+
+BACKUP = Path("/srv/backup")
+
+
+async def _checksums(app: Any) -> Any:
+    from navigator.widgets.file_ops.calculate_checksums_dialog import CalculateChecksumsDialog
+
+    return _dialog(app, CalculateChecksumsDialog(directory_name="docs"))
+
+
+async def _links(app: Any) -> Any:
+    from navigator.widgets.file_ops.link_dialog import LinkDialog
+
+    panel, entries = _selection(app, "README.md")
+    return _dialog(app, LinkDialog(entries=entries, here=panel.location, other=BACKUP,
+                                   relative=True, hard=False, can_hard=True))
+
+
+async def _split(app: Any) -> Any:
+    from navigator.widgets.file_ops.split_dialog import SplitDialog
+
+    panel, _ = _selection(app, "navigator.log")
+    dialog = _dialog(app, SplitDialog(name="navigator.log", here=panel.location, other=BACKUP))
+    dialog.size.value = "64K"
+    return dialog
+
+
+async def _encryption(app: Any) -> Any:
+    from navigator.lib.file_ops import encrypt
+    from navigator.widgets.file_ops.encrypt_dialog import EncryptDialog
+
+    # Both programs to be had, whatever is installed here.
+    encrypt.available = lambda: encrypt.TOOLS
+    return _dialog(app, EncryptDialog())
+
+
+async def _file_attributes(app: Any) -> Any:
+    from navigator.lib.file_ops import fileattr
+    from navigator.widgets.file_ops.attr_dialog import AttrDialog
+
+    panel, entries = _selection(app, "README.md")
+    # What the dialog would ask the disk and the user database: nobody's.
+    moment = int(PINNED_TIME)
+    status = os.stat_result((0o100644, 0, 0, 1, 1000, 1000, 7482, moment, moment, moment))
+    survey = fileattr.Survey(mode=0o644, uid=1000, gid=1000, mtime=PINNED_TIME, files=1, single=status,
+                             xattrs_supported=True, flags_supported=True)
+    facts = {
+        "survey": survey, "user": "user", "users": ["user"], "can_chown_user": False,
+        "group": "users", "groups": ["users", "staff"], "can_chown_group": True,
+        "all_users": [], "all_groups": [], "names": {},
+        "can_xattr": True, "can_flags": True, "can_chmod": True, "can_elevate": False,
+    }
+    return _dialog(app, AttrDialog(entries=entries, here=panel.location, facts=facts))
+
+
+async def _uu_encode(app: Any) -> Any:
+    from navigator.widgets.file_ops.uu_encode_dialog import UUEncodeDialog
+
+    return _dialog(app, UUEncodeDialog(source=Path("README.md"), other=BACKUP))
+
+
+async def _convert_text(app: Any) -> Any:
+    from navigator.widgets.file_ops.convert_text_dialog import ConvertTextDialog
+
+    return _dialog(app, ConvertTextDialog())
+
+
+async def _filter(app: Any) -> Any:
+    from navigator.lib.file_ops.advfilter import extensions
+    from navigator.widgets.manager.filter_dialog import FilterDialog
+
+    masks = extensions(app.manager.left.items)
+    dialog = _dialog(app, FilterDialog(masks, 0))
+    dialog.masks.marks = frozenset({masks.index("*.md"), masks.index("*.toml")})
+    return dialog
+
+
+async def _columns_setup(app: Any) -> Any:
+    from navigator.widgets.manager.columns_dialog import ColumnsDialog
+
+    return _dialog(app, ColumnsDialog(frozenset({"size", "date"})))
+
+
+async def _make_list(app: Any) -> Any:
+    from navigator.widgets.manager.make_list_dialog import MakeListDialog
+
+    dialog = _dialog(app, MakeListDialog())
+    dialog.action.value = "gzip -9 !.!"
+    return dialog
+
+
+async def _character_table(app: Any) -> Any:
+    from navigator.widgets.shell.unicode_chart import UnicodeChart, unicode_chart
+
+    dialog = _dialog(app, UnicodeChart(glyphs=GLYPHS_UNICODE))
+    await asyncio.sleep(0.05)
+    await _until(lambda: dialog.nerd in unicode_chart._indexes, timeout=10)
+    return dialog
+
+
+# -- what is the machine's, made up ---------------------------------------------
+#
+# Each of these replaces the function its window asks the machine through
+# with one that answers the same thing everywhere -- the function its test
+# replaces (``tests/test_processes.py`` and so on).
+
+
+async def _process_list(app: Any) -> Any:
+    from navigator.lib.system import processes
+    from navigator.lib.system.processes import Process
+    from navigator.widgets.shell.process_window import ProcessWindow
+
+    mib = 1 << 20
+    rows = [
+        Process(1, 0, 0, "root", "S", 1, 12 * mib, 0, 0, 1, "systemd", "/sbin/init", cpu=0.0),
+        Process(412, 1, 0, "root", "S", 1, 6 * mib, 0, 0, 2, "cron", "/usr/sbin/cron -f", cpu=0.0),
+        Process(655, 1, 0, "root", "S", 3, 9 * mib, 0, 0, 3, "sshd", "sshd: /usr/sbin/sshd -D", cpu=0.0),
+        Process(1204, 1, 1000, "user", "S", 1, 8 * mib, 0, 0, 4, "bash", "-bash", cpu=0.0),
+        Process(1377, 1204, 1000, "user", "R", 4, 64 * mib, 0, 0, 5, "nav", "python -m navigator", cpu=3.1),
+        Process(1502, 1204, 1000, "user", "S", 12, 310 * mib, 0, 0, 6, "make", "make -j4 test", cpu=41.5),
+        Process(1519, 1502, 1000, "user", "R", 1, 122 * mib, 0, 0, 7, "pytest", "python -m pytest -q", cpu=97.8),
+        Process(1620, 1, 33, "www-data", "S", 8, 48 * mib, 0, 0, 8, "nginx", "nginx: worker process", cpu=0.4),
+    ]
+    processes.Sampler.__call__ = lambda self: list(rows)
+    window = app.shell.desktop.open(ProcessWindow())
+    # Whose they are: the rows of user 1000 are *yours*.
+    window.uid = window.processes.uid = 1000
+    window.take_keyboard()
+    await _until(lambda: window.processes.items)
+    window.reload()
+    await asyncio.sleep(0.1)
+    return _placed(app, window, 76, 16)
+
+
+async def _services(app: Any) -> Any:
+    from navigator.lib.system import services
+    from navigator.lib.system.services.common import Unit
+    from navigator.settings import SETTINGS
+    from navigator.widgets.shell.service_window import ServiceWindow
+
+    units = [
+        Unit("cron.service", "loaded", "active", "running", "enabled", "Regular background program processing"),
+        Unit("cups.service", "loaded", "inactive", "dead", "disabled", "CUPS Scheduler"),
+        Unit("nginx.service", "loaded", "active", "running", "enabled", "A high performance web server"),
+        Unit("postgresql.service", "loaded", "failed", "failed", "enabled", "PostgreSQL RDBMS"),
+        Unit("ssh.service", "loaded", "active", "running", "enabled", "OpenBSD Secure Shell server"),
+        Unit("systemd-timesyncd.service", "loaded", "active", "running", "enabled", "Network Time Synchronization"),
+        Unit("ufw.service", "loaded", "active", "exited", "enabled", "Uncomplicated firewall"),
+    ]
+    # The manager too, before the window asks which it is: the machine's otherwise.
+    SETTINGS.services.manager = "systemd"
+    services.gather = lambda user=False, all_types=False: list(units)
+    window = app.shell.desktop.open(ServiceWindow())
+    window.take_keyboard()
+    await _until(lambda: window.units.items)
+    return _placed(app, window, 76, 16)
+
+
+async def _system_monitor(app: Any) -> Any:
+    from navigator.lib.system import monitor
+    from navigator.lib.system.monitor import Chip, Cpu, Memory, Snapshot, Temperature
+    from navigator.widgets.shell.monitor_window import MonitorWindow, monitor_window
+
+    gib = 1 << 30
+    shown = Snapshot(
+        Cpu(-1, 37.0),
+        (Cpu(0, 62.0, 3400.0), Cpu(1, 18.0, 2200.0), Cpu(2, 55.0, 3400.0), Cpu(3, 13.0, 1800.0)),
+        Memory(16 * gib, 9 * gib, 4 * gib, 4 * gib, 3 * gib, 11 * gib, 12 * gib),
+        (Chip("k10temp", "", (Temperature("Tctl", 48.0), Temperature("Tccd1", 52.0, 70.0, 90.0))),),
+    )
+    monitor.Monitor.__call__ = lambda self: shown
+    monitor_window.processors = lambda: 4
+    window = app.shell.desktop.open(MonitorWindow())
+    window.take_keyboard()
+    await _until(lambda: window._shape is not None and not app.busy)
+    await asyncio.sleep(0.1)
+    return window
+
+
+async def _system_information(app: Any) -> Any:
+    from navigator.lib.system.sysinfo import SystemFacts
+    from navigator.widgets.shell.system_info_dialog import SystemInfoDialog
+
+    facts = SystemFacts(
+        board=[("Machine type", "Example Works Model 7"), ("CPU", "Example 4-Core Processor"), ("CPUs", "4")],
+        disks=[("sda", "500 GB"), ("nvme0n1", "1 TB")],
+        memory=[("Total", "16 GB"), ("Available", "9 GB"), ("Swap", "4 GB")],
+        other=[("OS", "Debian GNU/Linux 13"), ("Kernel", "6.12.0"), ("Host", "example"), ("Up", "3 days")],
+    )
+    return _dialog(app, SystemInfoDialog(facts))
+
+
+async def _environment(app: Any) -> Any:
+    from navigator.widgets.shell.environment_dialog import EnvironmentDialog
+
+    return _dialog(app, EnvironmentDialog({
+        "EDITOR": "vi", "HOME": "/home/user", "LANG": "en_US.UTF-8", "PAGER": "less",
+        "PATH": "/usr/local/bin:/usr/bin:/bin", "SHELL": "/bin/bash", "TERM": "xterm-256color", "USER": "user",
+    }))
+
+
+async def _volumes(app: Any) -> Any:
+    from navigator.lib.system import desktop, volumes
+    from navigator.lib.system.volumes import Volume
+    from navigator.widgets.shell.volumes_window import VolumesWindow
+
+    gib = 1 << 30
+    rows = [
+        Volume("system", "ext4", "/", "/dev/sda2", 100 * gib, 40 * gib),
+        Volume("home", "ext4", "/home", "/dev/sda3", 400 * gib, 212 * gib),
+        Volume("STICK", "vfat", "/media/user/STICK", "/dev/sdb1", 16 * gib, 9 * gib),
+    ]
+    volumes.gather_all = lambda *args, **kwargs: list(rows)
+    # No Mount, Unmount or Eject: whether there is a program for them is the machine's.
+    desktop.volume_program = lambda: None
+    window = app.shell.desktop.open(VolumesWindow())
+    window.take_keyboard()
+    await _until(lambda: window.volumes.items)
+    return window
+
+
+async def _directory_sizes(app: Any) -> Any:
+    from navigator.lib.file_ops import dirusage
+    from navigator.lib.file_ops.dirusage import UsageNode
+    from navigator.widgets.shell.usage_window import UsageWindow
+
+    # A tree written out, not read: what a file takes on the disk is the
+    # file system's, and a directory's own size too.
+    def tree(name: str, entries: dict[str, Any], parent: Any = None) -> Any:
+        node = UsageNode(name, is_dir=True, size=4096, usage=4096, parent=parent)
+        for child_name, value in entries.items():
+            if isinstance(value, dict):
+                child = tree(child_name, value, node)
+            else:
+                child = UsageNode(child_name, size=value, usage=-(-value // 4096) * 4096, parent=node)
+            node.children.append(child)
+            size, usage, items = child.counted()
+            node.size, node.usage, node.items = node.size + size, node.usage + usage, node.items + items
+        return node
+
+    made = tree(".", {
+        "src": {"navigator": {"panel.py": 412_000, "viewer.py": 268_000, "editor.py": 301_000},
+                "navkit": {"screen.py": 96_000, "widget.py": 142_000}, "app.py": 12_847},
+        "docs": {"manual.pdf": 2_400_000, "screenshot.svg": 181_000},
+        "tests": {"test_panel.py": 88_000, "test_viewer.py": 64_000},
+        "navigator.log": 183_552, "README.md": 7_482, "LICENSE": 1_071,
+    })
+    dirusage.scan = lambda location, job=None, **kwargs: made
+    window = app.shell.desktop.open(UsageWindow(start=Path("."), manager=app.manager))
+    window.take_keyboard()
+    await _until(lambda: window.tree is not None and not window.scanning)
+    window.title = "/home/user/project"
+    return _placed(app, window, *PAGE)
+
+
+async def _bookmarks(app: Any) -> Any:
+    from navigator.lib.config import bookmarks
+
+    # Directories every machine has, and no mounts: those are this one's.
+    bookmarks.mounted_places = lambda *args, **kwargs: []
+    for place in ("/etc", "/usr/share", "/var/log", "/tmp"):
+        bookmarks.add_bookmark(Path(place))
+    manager = app.manager
+    asyncio.create_task(manager.choose_bookmark(manager.left, side="left", focus=False))
+    await _until(lambda: _popup(app) is not None and _popup(app).boxes)
+    return _popup(app).boxes[-1]
+
+
+async def _game(app: Any) -> Any:
+    from navigator.lib.utilities import tetris
+    from navigator.widgets.game.game_window import GameWindow
+    from navigator.widgets.game.game_window.game_window import HEIGHT, WIDTH
+
+    desktop = app.shell.desktop
+    window = desktop.open(GameWindow())
+    width, height = min(WIDTH, desktop.width), min(HEIGHT, desktop.height)
+    window.locate((desktop.width - width) // 2, (desktop.height - height) // 2, width, height)
+    window.glass.focus()
+    game = window.game
+    # The same figures every time, a few of them down already, and none falling
+    # while the picture is taken.
+    game.rng.seed(7)
+    game.new_game()
+    for move in (-4, 3, -1, 5, -3):
+        for _ in range(abs(move)):
+            game.move(1 if move > 0 else -1)
+        game.drop()
+        game.fall()  # set down, and the next one in
+    for _ in range(6):
+        game.fall()
+    game.tick = lambda hundredths: False
+    return window
+
+
+async def _panel_detailed(app: Any) -> Any:
+    panel, _ = _selection(app, "README.md")
+    panel.cycle_view_mode()
+    return panel
+
+
 async def _panel(app: Any) -> Any:
     panel, _ = _selection(app, "README.md")
     return panel
@@ -399,6 +1003,39 @@ SCENES: tuple[Scene, ...] = (
     Scene("settings", _settings, size=WIDE),
     Scene("key-bindings", _key_bindings, size=WIDE),
     Scene("panel", _panel),
+    Scene("panel-detailed", _panel_detailed, size=(120, 24)),
+    Scene("viewer", _viewer),
+    Scene("viewer-hex", _viewer_hex),
+    Scene("editor", _editor),
+    Scene("tree-panel", _tree_panel),
+    Scene("change-directory", _change_directory),
+    Scene("synchronize", _synchronize),
+    Scene("compare-files", _compare_files),
+    Scene("user-menu", _user_menu),
+    Scene("window-list", _window_list),
+    Scene("command-palette", _command_palette),
+    Scene("file-dialog", _file_dialog),
+    Scene("completion", _completion),
+    Scene("checksums", _checksums),
+    Scene("links", _links),
+    Scene("split", _split),
+    Scene("encryption", _encryption),
+    Scene("file-attributes", _file_attributes),
+    Scene("uu-encode", _uu_encode),
+    Scene("convert-text", _convert_text),
+    Scene("filter", _filter),
+    Scene("columns-setup", _columns_setup),
+    Scene("make-list", _make_list),
+    Scene("character-table", _character_table),
+    Scene("process-list", _process_list),
+    Scene("services", _services),
+    Scene("system-monitor", _system_monitor, size=(80, 34)),
+    Scene("system-information", _system_information),
+    Scene("environment", _environment),
+    Scene("volumes", _volumes),
+    Scene("directory-sizes", _directory_sizes),
+    Scene("bookmarks", _bookmarks),
+    Scene("game", _game, size=(80, 30)),
     # Taller than the rest: at 24 rows the File menu is cut and scrolls.
     Scene("file-menu", _file_menu, size=(80, 34)),
 )
@@ -471,7 +1108,33 @@ def paint(
     from navigator.lib.drives import listing as listing_module
     from navigator.widgets.shell.console import Console
 
+    from navigator.lib.config import file_history
+
+    from navkit.database import DATABASE
+
+    # A scene painted alone and one painted after the others are the same
+    # picture: every setting at its default and an empty database each time,
+    # whatever the scene before changed or kept (a panel's view, a history).
+    SETTINGS.reset()
+    DATABASE.open()
     clock_module.now = lambda: datetime(2026, 1, 1, 12, 34)
+    # Whose files they are: the machine's user otherwise.
+    listing_module._user_name = lambda uid: "user"
+    listing_module._group_name = lambda gid: "users"
+    # No strips of switches under a viewer or an editor either, and nothing
+    # kept of one scene's file for the next: a scene painted alone and one
+    # painted after the others are the same picture.
+    SETTINGS.viewer.show_options = False
+    SETTINGS.editor.show_options = False
+    SETTINGS.interface.track_viewing = False
+    SETTINGS.interface.track_editing = False
+    SETTINGS.interface.store_viewer_position = False
+    SETTINGS.interface.store_editor_position = False
+    file_history.LAST_EDIT = None
+    # The lists that read the machine are read once, by what a scene fakes.
+    SETTINGS.processes.refresh = 0
+    SETTINGS.services.refresh = 0
+    SETTINGS.monitor.refresh = 0
     _pin_today()
     Console.start = lambda self, argv=None: None
     listing_module.free_space_of = lambda path: (412_316_860_416, "/")
@@ -533,13 +1196,21 @@ def paint(
 
         language.install(Path(tempfile.gettempdir()) / "navigator-screenshot-none")
         language.apply(language_code)
-    with tempfile.TemporaryDirectory() as scratch:
+    kept = os.environ.get("XDG_CONFIG_HOME")
+    with tempfile.TemporaryDirectory() as scratch, tempfile.TemporaryDirectory() as config:
         populate(Path(scratch))
         os.chdir(scratch)
+        # Nobody's configuration: highlight.ini, menu.ini and the viewers'
+        # and editors' lists are read from here, and there are none.
+        os.environ["XDG_CONFIG_HOME"] = config
         try:
-            return asyncio.run(asyncio.wait_for(main(), 10)), info
+            return asyncio.run(asyncio.wait_for(main(), 20)), info
         finally:
             os.chdir(home)
+            if kept is None:
+                del os.environ["XDG_CONFIG_HOME"]
+            else:
+                os.environ["XDG_CONFIG_HOME"] = kept
 
 
 # -- plain text ---------------------------------------------------------------

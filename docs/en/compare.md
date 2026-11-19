@@ -19,6 +19,8 @@ The Synchronize window lists every file that is on one side only or differs, the
 left. Each row has an action: copy to the right, copy to the left, delete, or skip. The window proposes one, and
 the *Synchronize* menu changes it for the row under the cursor or for all rows at once.
 
+![The Synchronize window: three files that differ, each with the direction it would be copied in, and the sizes and dates on both sides](shots/synchronize.svg)
+
 - *Synchronize*, `F5`, carries out the actions, asking first.
 - *Compare files*, `Enter` or `F3`, shows the two files of the row side by side.
 - *Compare again*, `Ctrl+R`, reads both directories again.
@@ -44,3 +46,5 @@ the *Synchronize* menu changes it for the row under the cursor or for all rows a
 *File > Compare files* shows two files side by side with their differences marked. It takes the two tagged files
 of the active panel. With none tagged it takes the file under the cursor and the file of the same name in the
 other panel, or, when there is none of that name, the file under the other panel's cursor.
+
+![Two versions of a file side by side, the changed and added lines marked](shots/compare-files.svg)

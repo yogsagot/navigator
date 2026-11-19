@@ -138,6 +138,8 @@ A long erase can be sent to the background, as a copy can.
 `Alt+E` changes the attributes of the selection. Only what you change is applied, so files that differ in other
 ways keep their differences. *Recurse* applies the change to everything inside the directories as well.
 
+![The File Attributes box on its Mode page: the permission bits, the octal mode, the user, the group and the date](shots/file-attributes.svg)
+
 - *Mode* has the permissions: a grid of read, write and execute for the owner, the group and others, the same as
   an octal number, the owner and group, and the date and time. In the grid `R`, `W` and `X` tick a whole row.
 - *ACL* lists the access control entries beyond the mode, and adds, edits and removes them.
@@ -160,6 +162,8 @@ followed by hex digits, or `0s` followed by base64. Quotes round a value keep it
 ## Links
 
 `Shift+F5` makes links to the selection in the directory you name.
+
+![The Create link box: where the link goes, symbolic or hard, and the Relative link option](shots/links.svg)
 
 - *Symbolic link* makes a small file holding the path of the original. It can point to a directory, and to another
   disk.
@@ -190,6 +194,8 @@ showing every name a hard-linked file has.
 
 Any ordinary file is split into parts named `NAME.001`, `NAME.002` and so on, in the directory you name.
 
+![The Split file box: where the parts go, the size of a part, and the checksum file option](shots/split.svg)
+
 - *Part size* is the size of each part: a number of bytes, or a number followed by `K`, `M` or `G`, such as `100M`
   or `1.44M`.
 - *Write checksum file (.crc)* also writes `NAME.crc`, which holds the file's name, size and checksum. With it, the
@@ -211,6 +217,8 @@ UU encoding turns any file into plain text that can be sent where only text is a
 
 `Ctrl+F7` encodes the file under the cursor into `NAME.uue`. A large file is written in sections, one file each.
 
+![The UU Encode box: the file to write, the prefixes, the checksum level, lines per section and the line endings](shots/uu-encode.svg)
+
 - *Prefixes* add lines before the data: the file's date and time, the character table used, and statistics.
 - *Checksum level* adds checksums so that damage can be found when decoding: none, of the whole file, of each
   section, of each line, or the 64-bit one.
@@ -230,6 +238,8 @@ and their sections in any order.
 
 A checksum list holds a digest of each file, so that the files can be checked later for damage or change.
 
+![The Calculate Checksums box: five algorithms, one list or a list per file, and the list's name](shots/checksums.svg)
+
 *File > Encoding > Checksums > Calculate* hashes the tagged files, and everything inside a tagged directory.
 
 - *Algorithm* is *MD5*, *SHA-1*, *SHA-256*, *SHA-512* or *BLAKE2b*.
@@ -248,6 +258,8 @@ otherwise by the length of its digests.
 *File > Encoding > Encryption* encrypts and decrypts files with GnuPG (`gpg`) or `age`. A program that is not
 installed is greyed.
 
+![The Encrypt Files box: the program, a passphrase or recipients' keys, and two options](shots/encryption.svg)
+
 *Encrypt* works on the tagged files, and everything inside a tagged directory. Each file is written beside itself
 as `NAME.gpg` or `NAME.age`.
 
@@ -264,6 +276,8 @@ under its name without the ending. A passphrase is asked for only when a file ne
 
 *File > Encoding > Convert text* rewrites the tagged text files, or the one under the cursor, in another encoding
 or with other line endings. Each file is changed in place.
+
+![The Convert Text Files box: the encoding to write, how to read other files, and the line endings](shots/convert-text.svg)
 
 - *Encoding* is the encoding the files are written in.
 - *Read non-UTF-8 as* is the encoding assumed for a file that is not UTF-8 and has no byte order mark. With none

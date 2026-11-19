@@ -2,6 +2,8 @@
 
 `F3` shows the file under the cursor without changing it. It opens at once however large the file is.
 
+![The viewer on a Python file, its text coloured, with the place in the file on the bottom frame](shots/viewer.svg)
+
 ## Keys
 
 | Key | What it does |
@@ -20,6 +22,8 @@
 | `Ctrl+G` | Show only the lines that match a text |
 | `Alt+PgDn` | List the files viewed before |
 | `Esc`, `F3` | Close the viewer |
+
+![The same file in hex mode: the offset, the bytes and the characters they are](shots/viewer-hex.svg)
 
 The same commands are in the *View* menu, which is on the menu bar while a viewer is open.
 

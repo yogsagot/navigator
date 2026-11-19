@@ -6,6 +6,8 @@
 directory and in each directory above it; that is the *local* menu. When there is none it uses the *global* one,
 `menu.ini` in Navigator's configuration directory.
 
+![The user menu Navigator comes with: four commands and five submenus](shots/user-menu.svg)
+
 In the menu, `F2` switches between the local and the global menu, and `F4` opens the one shown in the editor.
 *Options > Global menu definition* and *Local menu definition* edit them too.
 

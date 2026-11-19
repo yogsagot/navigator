@@ -3,6 +3,8 @@
 `F4` opens the file under the cursor in the editor. Every command is also in the *Editor* menu, which is on the
 menu bar while an editor is open.
 
+![The editor on a Python file: the text coloured, and the line, column, line ending and encoding on the bottom frame](shots/editor.svg)
+
 ## Keys
 
 | Key | What it does |

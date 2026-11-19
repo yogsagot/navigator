@@ -21,6 +21,8 @@ In a history list, `Enter` takes an entry and `Del` forgets it.
 Several commands ask for a file with the same box: the name on a line, and under it the files and the directories
 of the place being looked at.
 
+![The Open file box: a line for the name, the directories on the left and the files on the right](shots/file-dialog.svg)
+
 - *Name* is the file's name. You can type a whole path. A name with `*` or `?`, or the name of a directory, lists
   those files instead of choosing one.
 - *Files* lists the files that match. Typing letters there finds a name that starts with them.

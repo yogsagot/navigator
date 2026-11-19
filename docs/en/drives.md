@@ -37,6 +37,8 @@ Disconnect*, `Alt+H`, closes a connection; a panel that was showing it goes back
 *Disk > Volumes* lists the disks and removable media, and mounts, unmounts and ejects them. `Enter` on a disk
 image, an `.iso` or `.img` file, mounts it and opens it.
 
+![The Volumes window: three volumes with their type, how full they are, and their free space and size](shots/volumes.svg)
+
 ## The Trash
 
 *Disk > Trash* shows the files in the Trash, where they can be restored or erased for good. `F8` moves files

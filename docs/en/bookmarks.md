@@ -8,6 +8,8 @@ and `Alt+C` for the active one; they are also *Bookmarks left* and *Bookmarks ri
 Each bookmark has a key, `1` to `9`, `0`, then letters: press it, or move to the bookmark and press `Enter`, and
 the panel goes there. A bookmark whose directory is not there now is greyed.
 
+![The Bookmarks box: four numbered directories, Link, Trash, and Add this folder](shots/bookmarks.svg)
+
 | Key | What it does |
 |---|---|
 | `Enter`, or the bookmark's key | Go to the directory |

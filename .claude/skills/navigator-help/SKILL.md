@@ -67,14 +67,46 @@ Rules:
   any is stale, `--language CODE` writes `docs/CODE/shots/`. `tests/test_screenshot.py` runs `--check --no-readme`:
   Help's pictures only, since the README's goes stale with the version and the release workflow runs the suite.
 
-**The scenes** (seventeen, each shown by one page): `make-directory`, `copy`, `erase`, `multi-rename`
-(`file-operations.md`), `link-manager` (`connections.md`), `settings` (`settings.md`), `key-bindings`
-(`customizing.md`), `create-archive` (`archives.md`), `panel`, `find-file`, `select-group` (`panels.md`), `compare-directories`
-(`compare.md`), `viewer-find` (`viewer.md`), `editor-replace` (`editor.md`), `calculator` (`calculator.md`),
-`calendar` (`utilities.md`), `file-menu` (`README.md`, painted on an 80x34 screen: at 24 rows the File menu
-scrolls). **Left out, and why**: File attributes shows the machine's user and group; the bookmarks box lists home directories, mounts and which
-link extras are installed; the game draws a random figure.
+**The scenes** (fifty, each shown by one page):
 
+| Page | Scenes |
+|---|---|
+| `README.md` | `file-menu` (an 80x34 screen: at 24 rows the File menu scrolls) |
+| `panels.md` | `panel`, `panel-detailed`, `find-file`, `select-group`, `filter`, `make-list`, `columns-setup` |
+| `file-operations.md` | `copy`, `make-directory`, `multi-rename`, `erase`, `file-attributes`, `links`, `split`, `uu-encode`, `checksums`, `encryption`, `convert-text` |
+| `archives.md`, `compare.md` | `create-archive`; `compare-directories`, `synchronize`, `compare-files` |
+| `viewer.md`, `editor.md` | `viewer`, `viewer-hex`, `viewer-find`; `editor`, `editor-replace` |
+| `trees.md`, `drives.md`, `bookmarks.md` | `tree-panel`, `change-directory`, `directory-sizes`; `volumes`; `bookmarks` |
+| `windows.md`, `dialogs.md`, `console.md`, `user-menu.md` | `window-list`, `command-palette`; `file-dialog`; `completion`; `user-menu` |
+| `utilities.md`, `calculator.md`, `game.md` | `process-list`, `services`, `system-monitor`, `environment`, `system-information`, `calendar`, `character-table`; `calculator`; `game` |
+| `connections.md`, `settings.md`, `customizing.md` | `link-manager`; `settings`; `key-bindings` |
+
+`clipboard.md`, `macros.md` and `help.md` have none: nothing there is a screen worth showing.
+
+- **A scene painted alone and one painted after the others are the same picture.** `paint()` starts each from
+  `SETTINGS.reset()` and a fresh `:memory:` database, then lays its pins, and points `XDG_CONFIG_HOME` at an empty
+  directory (`highlight.ini`, `menu.ini`, the viewers' and editors' lists are read from there). Without that the
+  detailed-panel scene left every later one a detailed panel. A stage's own patch of a module function stays for
+  the run, so it must be one no other scene minds. Check both ways: `--only NAME` writes it, a plain `--check`
+  paints all fifty in order and must agree.
+- **The scratch files that are opened hold real text** (`TEXTS`: `src/app.py`, `LICENSE`), padded or cut by
+  `sized()` to the size `TREE` gives them, so no picture of a panel changed; modes are set (0644, 0755), not the
+  umask's. A stage that writes more files (`_two_versions`, under `docs/`) dates them with `pinned()`.
+- **What is read on a thread is waited for with `_until(condition)`**, never a longer sleep: the viewer's and
+  editor's colouring (`_lex_stop is None`), a list's first rows, the tree's count. A window is opened with
+  `desktop.open()` and put at a size with `_placed()` -- `PAGE` (66 by 18) fits an 80-column help page with its
+  shadow; a zoomed one would be the whole screen.
+- **A scene of what is the machine's replaces the function its test replaces**, with rows written out:
+  `processes.Sampler.__call__`, `services.gather` (and `[services] manager`, before the window is made),
+  `monitor.Monitor.__call__`, `volumes.gather_all` with `desktop.volume_program`, `dirusage.scan` (sizes on the
+  disk are the file system's), `bookmarks.mounted_places`, `encrypt.available`, `AttrDialog`'s `facts`,
+  `SystemFacts`, a dict for the environment. The game seeds `game.rng` and stops `tick`. The trees are rooted on
+  the scratch directory as `/project` (`_pin_tree`: `directory_root` and `_walk_down`), not on `/`.
+- **Which go stale with what**: `key-bindings` with `TABLES` or a global default key, `command-palette` with a
+  menu command matching *copy*, `user-menu` with `navigator/assets/menu.ini`, `character-table` with a Python
+  whose Unicode adds a block before *Spacing Modifier Letters* (none can), `file-menu` with the File menu.
+- **The prompt in `completion` (and behind some boxes) is `PROMPT`'s**, the README picture's: a constant, not
+  the machine's.
 - **The wide four pin what is the machine's or the session's**: `multi-rename` its own `Rule` in the dialog
   module's `_session`; `link-manager` three made-up `Entry`s, never the database's, the first chosen
   (`_choose(0)`); `settings` the Confirmations page with `side="top"`, whatever `[interface] settings_tabs` says;

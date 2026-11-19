@@ -23,6 +23,8 @@ Each window has a number, shown in the window list.
 
 `Alt+0`, or *Window > List*, lists the open windows, the one in front first.
 
+![The Windows Manager box listing four windows: an editor, a viewer, the calculator and the file manager](shots/window-list.svg)
+
 - *OK*, or `Enter`, goes to the window under the cursor.
 - A digit goes straight to the window with that number.
 - *Close* closes the window under the cursor. The list stays open, so you can close several.
@@ -33,6 +35,8 @@ Each window has a number, shown in the window list.
 `Alt+Shift+P`, or *Command palette* in the `≡` menu, lists every command that applies where you are: the items
 of the menus, the active window's own among them, and the commands that only a key runs. Each is shown with its
 key, and one that cannot run now is greyed.
+
+![The command palette with 'copy' typed and the three commands that match](shots/command-palette.svg)
 
 Type a few letters of a command, in order, to narrow the list. `Enter` runs the command under the cursor, and
 `Esc` closes the list.

@@ -20,10 +20,14 @@ A tree shows hidden directories when the panel does (`Ctrl+H`).
 follows it: resting the cursor on a directory in the tree shows that directory in the panel. With *Auto change
 directory* unticked on the [File panels](settings.md#file-panels) page of the settings, only `Enter` does.
 
+![The directory tree in a panel's place, with the directory's path and its files counted under it](shots/tree-panel.svg)
+
 ## Change directory
 
 `Alt+T` opens a tree in a box to choose the active panel's directory from. *MkDir* makes a directory under the
 cursor, and *Re-read* reads the tree again.
+
+![The Choose Directory box: the tree on the left with the cursor on src, and its buttons on the right](shots/change-directory.svg)
 
 *Disk > Directory tree* opens the same tree in a window that stays open; `Enter` there sends the active panel to
 the directory.
@@ -32,6 +36,8 @@ the directory.
 
 *Disk > Directory sizes* measures the active panel's directory and lists what is in it by size, so you can see
 what takes the room.
+
+![The Directory sizes window: each entry's size, its share as a bar, and how many entries it holds, largest first](shots/directory-sizes.svg)
 
 | Key | What it does |
 |---|---|
