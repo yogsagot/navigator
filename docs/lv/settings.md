@@ -36,7 +36,7 @@ peles rādītājs kavējas uz opcijas, tiek parādīts, ko tā dara.
 - *Lietotāja izvēlne*: lietotāja izvēlne (`F2`) atveras, kad Navigator startē.
 - *Notīrīt vēsturi*: vēstures ieraksti, kas nav piesprausti, tiek izdzēsti katrā startēšanas reizē.
 - *Iziet pēc dīkstundas*: Navigator aizveras pēc stundas bez neviena taustiņa vai klikšķa.
-- *Saglabāt darbvirsmu*: logi tiek saglabāti, kad izejat, un atjaunoti nākamajā startēšanā.
+- *Automātiski saglabāt darbvirsmu*: logi tiek saglabāti, kad izejat, un atjaunoti nākamajā startēšanā.
 - *Saglabāt direktoriju*: aktīvais panelis patur savu direktoriju pēc komandas un atjaunotā darbvirsmā.
 
 ## Saskarne

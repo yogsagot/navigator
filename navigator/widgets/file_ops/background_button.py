@@ -33,7 +33,7 @@ def wire(box: Any, stop: str) -> None:
     """*box*'s ``ok`` says *stop* (DN's ``dlStop`` or *Cancel*), or
     *Background* once the box has ``background``; ``no`` is then *stop*."""
     unbind(box.ok, Button.text)
-    box.ok.text = bind(lambda w: tr("~B~ackground") if box.background else stop)
+    box.ok.text = bind(lambda w: tr("~B~ackground", context="job") if box.background else stop)
     unbind(box.no, Button.text)
     box.no.text = stop
 

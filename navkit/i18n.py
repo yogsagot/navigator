@@ -278,14 +278,24 @@ def isolated(template: str, code: str | None = None) -> str:
     return found
 
 
-def tr(text: str) -> str:
+#: Between a context and its text in a catalogue key: ``"job|~B~ackground"``.
+CONTEXT_SEPARATOR = "|"
+
+
+def tr(text: str, context: str = "") -> str:
     """*text* in the current language, or *text* itself when none is known.
+
+    *context* tells apart one English caption meaning two things -- the
+    colour's *Background* and the button sending a job to the background --
+    as gettext's ``msgctxt`` does: the catalogue's key is then
+    ``"context|text"``, and English shows *text*.  A literal, like *text*,
+    for ``tools/i18n.py`` to see.
 
     A right-to-left language's placeholders come back isolated (:func:`isolated`).
     Safe on a worker thread too, where it is simply not followed.
     """
     code = _code()
-    found = catalogue(code).get(text)
+    found = catalogue(code).get(f"{context}{CONTEXT_SEPARATOR}{text}" if context else text)
     if isinstance(found, list):
         found = found[0] if found else None
     return isolated(found if isinstance(found, str) and found else text, code)

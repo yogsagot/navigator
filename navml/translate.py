@@ -8,7 +8,8 @@
   all (a property, a set-once value, a declaration, a handler, a
   ``commands:`` line), the literal first argument of a ``tr()`` call, as in
   Python (``text: tr("Example: {stamp}").format(stamp=root.sample())``);
-- in Python, the literal first argument of ``tr()``, ``tr_n()`` (keyed by the
+- in Python, the literal first argument of ``tr()`` (after its ``context=``
+  and ``|`` when it has one: ``"job|~B~ackground"``), ``tr_n()`` (keyed by the
   singular), ``tr_plain()`` and ``tr_noop()`` (a table's entry, translated
   where it is shown);
 - a class's ``title = "..."`` and ``key_title = "..."``: a command's, which the key bar translates;
@@ -36,7 +37,7 @@ import tomllib
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from navkit.i18n import plural_form
+from navkit.i18n import CONTEXT_SEPARATOR, plural_form
 from navml.expression import TRANSLATE, TRANSLATED, compile_expression
 from navml.parser import Block, parse_file
 
@@ -96,6 +97,15 @@ def _captions(expression: str, line: int, filename: str) -> list[str]:
     ]
 
 
+def _key(call: ast.Call, text: str) -> str:
+    """The catalogue key of a ``tr(text, context="...")`` call: the text,
+    after its context when it has one (``navkit.i18n.CONTEXT_SEPARATOR``)."""
+    for keyword in call.keywords:
+        if keyword.arg == "context" and isinstance(keyword.value, ast.Constant) and keyword.value.value:
+            return f"{keyword.value.value}{CONTEXT_SEPARATOR}{text}"
+    return text
+
+
 def _calls(source: str, where: str, found: Found) -> None:
     """The ``tr()`` family's literal keys in one markup line's Python."""
     try:
@@ -109,7 +119,7 @@ def _calls(source: str, where: str, found: Found) -> None:
             continue
         first = node.args[0]
         if isinstance(first, ast.Constant) and isinstance(first.value, str):
-            found.add(first.value, where)
+            found.add(_key(node, first.value), where)
             if node.func.id == "tr_n":
                 found.plurals.add(first.value)
 
@@ -170,7 +180,7 @@ def _python(path: Path, root: Path, found: Found) -> None:
             args = [a.value for a in node.args if isinstance(a, ast.Constant) and isinstance(a.value, str)]
             if name not in FUNCTIONS or not args:
                 continue
-            found.add(args[0], f"{where}:{node.lineno}")
+            found.add(_key(node, args[0]), f"{where}:{node.lineno}")
             if name == "tr_n":
                 found.plurals.add(args[0])
         elif isinstance(node, ast.ClassDef):

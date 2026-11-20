@@ -75,3 +75,14 @@ def test_a_line_calling_tr_follows_the_language():
     at = next(i for i, l in enumerate(lines) if "Example: {stamp}" in l)
     # A long binding is wrapped at its bracket: ``_bind(`` may open the line before.
     assert "_bind(" in lines[at] or "_bind(" in lines[at - 1]
+
+
+def test_a_tr_call_with_a_context_is_keyed_after_it(tmp_path):
+    from navml.translate import _python
+
+    path = tmp_path / "module.py"
+    path.write_text('from navkit.i18n import tr\nA = tr("~B~ackground", context="job")\nB = tr("~B~ackground")\n',
+                    encoding="utf-8")
+    result = Found()
+    _python(path, tmp_path, result)
+    assert result.keys == {"job|~B~ackground": ["module.py:2"], "~B~ackground": ["module.py:3"]}

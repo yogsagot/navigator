@@ -27,7 +27,7 @@ saglabāšana. Katram ir savs kursors, ritināšana un bloks, tāpēc varat str�
 
 ## Darbības fonā
 
-Kopēšanu, pārvietošanu vai dzēšanu var nosūtīt fonā ar pogu *Fons* tās progresa lodziņā. Procenti izvēlņu joslā
+Kopēšanu, pārvietošanu vai dzēšanu var nosūtīt fonā ar pogu *Fonā* tās progresa lodziņā. Procenti izvēlņu joslā
 tad rāda, cik tālu tā ir, un `?` — ka tā gaida atbildi. *Logs > Fona darbība* vai klikšķis uz procentiem atkal
 parāda progresa lodziņu; ja darbojas vairākas darbības, tas vispirms tās uzskaita, vecāko vispirms, ar kursoru uz
 tās, kas gaida atbildi.
@@ -39,7 +39,7 @@ skatiem un kārtošanu, katru redaktoru ar tā failu un vietu, katru skatītāju
 tās ierakstu, koka logu, sējumu logu, kalkulatoru, kalendāru un katra loga atrašanās vietu. *Iestatījumi >
 Ielādēt darbvirsmu* aizver tagad atvērtos logus un atjauno saglabātos; aktīvais panelis paliek direktorijā, kurā tas
 ir tagad, ja vien iestatījumu lappusē [Startēšana](settings.md#startēšana) nav atzīmēts *Saglabāt direktoriju*. Ja tur
-atzīmēts *Saglabāt darbvirsmu*, darbvirsma tiek saglabāta, kad izejat, un atjaunota nākamajā startā;
+atzīmēts *Automātiski saglabāt darbvirsmu*, darbvirsma tiek saglabāta, kad izejat, un atjaunota nākamajā startā;
 [komandrindā](command-line.md) norādītās direktorijas ir svarīgākas par saglabātajām.
 
 ## Logu saraksts

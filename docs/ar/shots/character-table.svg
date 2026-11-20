@@ -120,8 +120,8 @@
 <rect x="760" y="440" width="20" height="20" fill="#aaaaaa"/>
 </g>
 <g font-family="&#x27;DejaVu Sans Mono&#x27;, &#x27;Cascadia Mono&#x27;, Menlo, Consolas, &#x27;Liberation Mono&#x27;, monospace" font-size="16.5">
-<text x="350" y="15" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻑﺮﺣﻷﺍ</text>
-<text x="410" y="15" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻝﻭﺪﺟ</text>
+<text x="350" y="15" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺯﻮﻣﺮﻟﺍ</text>
+<text x="420" y="15" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻝﻭﺪﺟ</text>
 <text x="730" y="15" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#0000aa">[■]</text>
 <text x="10" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻰ</text>
 <text x="10" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺪ</text>
@@ -468,10 +468,6 @@
 <line x1="337" y1="12" x2="330" y2="12" stroke="#ffffff"/>
 <line x1="333" y1="8" x2="340" y2="8" stroke="#ffffff"/>
 <line x1="333" y1="12" x2="340" y2="12" stroke="#ffffff"/>
-<line x1="467" y1="8" x2="460" y2="8" stroke="#ffffff"/>
-<line x1="467" y1="12" x2="460" y2="12" stroke="#ffffff"/>
-<line x1="463" y1="8" x2="470" y2="8" stroke="#ffffff"/>
-<line x1="463" y1="12" x2="470" y2="12" stroke="#ffffff"/>
 <line x1="477" y1="8" x2="470" y2="8" stroke="#ffffff"/>
 <line x1="477" y1="12" x2="470" y2="12" stroke="#ffffff"/>
 <line x1="473" y1="8" x2="480" y2="8" stroke="#ffffff"/>

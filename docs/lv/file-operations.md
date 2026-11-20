@@ -51,7 +51,7 @@ Režīms un opcijas tiek atcerēti, līdz izejat no Navigator.
 
 ### Kamēr tā notiek
 
-Gaitas logs rāda ātrumu un atlikušo laiku. *Fons* aizsūta kopēšanu fonā, lai varētu turpināt darbu: izvēlņu joslā
+Gaitas logs rāda ātrumu un atlikušo laiku. *Fonā* aizsūta kopēšanu fonā, lai varētu turpināt darbu: izvēlņu joslā
 parādās procenti, un klikšķis uz tiem logu atgriež. Ja kopēšanai, esot fonā, rodas jautājums, procentos parādās `?`,
 un tā gaida jūs. *Apturēt* pajautā, pirms kopēšanu pamest.
 

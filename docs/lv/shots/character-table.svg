@@ -121,8 +121,8 @@
 </g>
 <g font-family="&#x27;DejaVu Sans Mono&#x27;, &#x27;Cascadia Mono&#x27;, Menlo, Consolas, &#x27;Liberation Mono&#x27;, monospace" font-size="16.5">
 <text x="20" y="15" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#0000aa">[■]</text>
-<text x="310" y="15" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">Simbolu</text>
-<text x="390" y="15" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">tabula</text>
+<text x="290" y="15" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff">Rakstzīmju</text>
+<text x="400" y="15" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">tabula</text>
 <text x="760" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">P</text>
 <text x="20" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">M</text>
 <text x="30" y="55" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff">eklēt</text>
@@ -439,18 +439,6 @@
 <line x1="277" y1="12" x2="270" y2="12" stroke="#ffffff"/>
 <line x1="273" y1="8" x2="280" y2="8" stroke="#ffffff"/>
 <line x1="273" y1="12" x2="280" y2="12" stroke="#ffffff"/>
-<line x1="287" y1="8" x2="280" y2="8" stroke="#ffffff"/>
-<line x1="287" y1="12" x2="280" y2="12" stroke="#ffffff"/>
-<line x1="283" y1="8" x2="290" y2="8" stroke="#ffffff"/>
-<line x1="283" y1="12" x2="290" y2="12" stroke="#ffffff"/>
-<line x1="297" y1="8" x2="290" y2="8" stroke="#ffffff"/>
-<line x1="297" y1="12" x2="290" y2="12" stroke="#ffffff"/>
-<line x1="293" y1="8" x2="300" y2="8" stroke="#ffffff"/>
-<line x1="293" y1="12" x2="300" y2="12" stroke="#ffffff"/>
-<line x1="467" y1="8" x2="460" y2="8" stroke="#ffffff"/>
-<line x1="467" y1="12" x2="460" y2="12" stroke="#ffffff"/>
-<line x1="463" y1="8" x2="470" y2="8" stroke="#ffffff"/>
-<line x1="463" y1="12" x2="470" y2="12" stroke="#ffffff"/>
 <line x1="477" y1="8" x2="470" y2="8" stroke="#ffffff"/>
 <line x1="477" y1="12" x2="470" y2="12" stroke="#ffffff"/>
 <line x1="473" y1="8" x2="480" y2="8" stroke="#ffffff"/>

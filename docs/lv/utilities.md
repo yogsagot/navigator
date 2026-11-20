@@ -98,7 +98,7 @@ mēneši blakus.
 
 `Ctrl+B` jeb *Rīki > Rakstzīmju tabula* atrod rakstzīmi un ieraksta to kursora vietā.
 
-![Simbolu tabulas lodziņš: bloki pa kreisi, Basic Latin rakstzīmes un izvēlētās rakstzīmes nosaukums un kodi](shots/character-table.svg)
+![Rakstzīmju tabulas lodziņš: bloki pa kreisi, Basic Latin rakstzīmes un izvēlētās rakstzīmes nosaukums un kodi](shots/character-table.svg)
 
 - *Meklēt* atrod rakstzīmes pēc nosaukuma, piemēram, `arrow` vai `euro`.
 - Saraksts pa kreisi izvēlas rakstzīmju grupu, un rinda zem tā sašaurina grupas pēc nosaukuma.

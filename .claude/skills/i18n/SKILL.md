@@ -58,6 +58,10 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
 - **Whole sentences with named placeholders**: `tr("File {name}\nalready exists.").format(name=path.name)`. Never
   glue translated fragments.
 - **Counts**: `tr_n("{n} file", "{n} files", n)`, never `"s" if n != 1`.
+- **One English caption meaning two things** gets a context: `tr("~B~ackground", context="job")` (the progress
+  boxes' button) beside the Colors box's plain `"~B~ackground"`. The catalogue key is `"job|~B~ackground"`
+  (`CONTEXT_SEPARATOR`, gettext's `msgctxt`), extracted from a literal `context=`; untranslated, it is English,
+  never the other meaning's words. Markup captions have no context: a caption that needs one is set from Python.
 - **An error a user is shown is translated where it is raised**: `raise OSError(errno.ENOENT, tr("Where it came
   from is not known"))`, `DriveGone(host, tr("Cannot connect to {host}: {reason}").format(...))` -- the raising thread
   reads the shared `LOCALE`. A module constant raised by name is `tr_noop("...")` and raised as `tr(CONST)`; a
@@ -91,6 +95,9 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   catalogue has both `"~F~ile"` and a plain `"File"`, `tr_plain("File")` is the hotkeyed one's (the menu's):
   Japanese and Chinese translate them `ファイル(~F~)` and `ファイル`, and a window menu's `after: 'File'`
   raised `LookupError` while the plain one won.
+- **Japanese's *Window* menu is `窓(~W~)` on purpose**, not `ウィンドウ(~W~)`: the 80-column bar is already
+  crowded (`MenuBar.tight`), and a window's own menu joining it (`エディタ(E)`, `カレンダー(C)`) would push the
+  longer caption under the clock. A menu-bar caption in a wide script is chosen for width first.
 
 ## Adding a language
 

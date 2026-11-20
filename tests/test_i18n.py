@@ -33,6 +33,9 @@ name = "Latviešu"
 "Make directory" = "Izveidot direktoriju"
 "~N~ame" = "~V~ārds"
 "Cancel" = "Atcelt"
+"~B~ackground" = "~F~ons"
+"job|~B~ackground" = "~F~onā"
+"job|Untranslated" = ""
 "{n} file" = ["{n} fails", "{n} faili", "{n} failu"]
 "Unfinished" = ""
 "{n} byte" = ["", "", ""]
@@ -64,6 +67,16 @@ def test_an_unknown_or_empty_one_stays_english(latvian):
     LOCALE.code = "lv"
     assert tr("Quit") == "Quit"
     assert tr("Unfinished") == "Unfinished"
+
+
+def test_a_context_tells_one_english_caption_meaning_two_things_apart(latvian):
+    assert tr("~B~ackground", context="job") == "~B~ackground"
+    LOCALE.code = "lv"
+    assert tr("~B~ackground") == "~F~ons"
+    assert tr("~B~ackground", context="job") == "~F~onā"
+    # Untranslated in its context is English, never the other meaning's words.
+    assert tr("Cancel", context="job") == "Cancel"
+    assert tr("Untranslated", context="job") == "Untranslated"
 
 
 def test_a_plural_left_blank_stays_english(latvian):
