@@ -4037,6 +4037,7 @@ flag = "CN"
 "Center line" = "行居中"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "画线"
+"Draw" = "画线"
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "自动缩进"
 # navigator/widgets/editor/commands.py:450
@@ -4103,6 +4104,7 @@ flag = "CN"
 "Insert time" = "插入时间"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "列块"
+"Block" = "块"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "重做"
 # navigator/widgets/editor/commands.py:734

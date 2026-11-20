@@ -138,15 +138,17 @@
 <text x="190" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F3</text>
 <text x="220" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Смотр</text>
 <text x="280" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F4</text>
-<text x="310" y="475" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#000000">Правка</text>
-<text x="380" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F5</text>
-<text x="410" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Копия</text>
-<text x="470" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F6</text>
-<text x="500" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Перем</text>
-<text x="560" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F7</text>
-<text x="590" y="475" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">Каталог</text>
-<text x="670" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F8</text>
-<text x="700" y="475" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">Удалить</text>
+<text x="310" y="475" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">Ред.</text>
+<text x="360" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F5</text>
+<text x="390" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Копия</text>
+<text x="450" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F6</text>
+<text x="480" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Перем</text>
+<text x="540" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F7</text>
+<text x="570" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Папка</text>
+<text x="630" y="475" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F8</text>
+<text x="660" y="475" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">Удал.</text>
+<text x="720" y="475" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#aa0000">F10</text>
+<text x="760" y="475" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">Меню</text>
 </g>
 <g stroke-width="1.25" stroke-linecap="square">
 </g>

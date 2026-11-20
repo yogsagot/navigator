@@ -4038,6 +4038,7 @@ direction = "rtl"
 "Center line" = "توسيط السطر"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "رسم الخطوط"
+"Draw" = "رسم"
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "إزاحة تلقائية"
 # navigator/widgets/editor/commands.py:450
@@ -4104,6 +4105,7 @@ direction = "rtl"
 "Insert time" = "إدراج الوقت"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "كتل عمودية"
+"Block" = "كتلة"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "إعادة"
 # navigator/widgets/editor/commands.py:734

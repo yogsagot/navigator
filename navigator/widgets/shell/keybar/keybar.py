@@ -100,26 +100,28 @@ class KeyBar(Widget):
         after each item and none before, so one between items rather than two
         and the row starting at the left edge.  A departure, for the captions
         of Chinese and Japanese (two cells to a character): DN's English row is
-        exactly 80 cells, and theirs would lose F10 there.  Letters falling
-        off the end of a held modifier's row (Alt+B, Ctrl+Y) are DN's way and
-        leave it loose.
+        exactly 80 cells, and theirs would lose F10 there.  A row that loses
+        one even so drops the blank between each key and its caption as well
+        (``F2Save``, the key in its own colour): the editor's nine in Russian
+        or Latvian.  Letters falling off the end of a held modifier's row
+        (Alt+B, Ctrl+Y) are DN's way and leave it loose.
         """
-        row = [(key, command, display_width(_label(key, command)) + 1 + display_width(_title(command)))
+        row = [(key, command, display_width(_label(key, command)), display_width(_title(command)))
                for key, command in self._row()]
         room = max(0, self.width - self.reserve)
-        column, lead = 0, 1
-        for key, command, text in row:
-            if column + text >= room and FKEY.fullmatch(_label(key, command)):
-                lead = 0
+        fkeys = [key for key, command, *_ in row if FKEY.fullmatch(_label(key, command))]
+        found: list[tuple[str, Command, int, int]] = []
+        for lead, gap in ((1, 1), (0, 1), (0, 0)):
+            found, column = [], 0
+            for key, command, label, title in row:
+                width = lead + label + gap + title + 1
+                if column + width - 2 >= room:
+                    break
+                found.append((key, command, column, width))
+                column += width
+            shown = {key for key, *_ in found}
+            if all(key in shown for key in fkeys):
                 break
-            column += text + 2
-        found, column = [], 0
-        for key, command, text in row:
-            width = lead + text + 1
-            if column + width - 2 >= room:
-                break
-            found.append((key, command, column, width))
-            column += width
         return found
 
     def _row(self) -> list[tuple[str, Command | Hint]]:
@@ -182,14 +184,17 @@ class KeyBar(Widget):
             disabled = not hint and app is not None and not app.command_enabled(command)
             label = self.part_style("label", disabled=disabled)
             name = _label(key, command)
-            # A tight row's items (:meth:`items`) have no blank before them.
-            lead = width - display_width(name) - display_width(_title(command)) - 2
+            # A tight row's items (:meth:`items`) have no blank before them,
+            # and the tightest none between the key and its caption either:
+            # what the width leaves past the two and the trailing blank.
+            spare = width - display_width(name) - display_width(_title(command)) - 1
+            lead, gap = (1, 1) if spare >= 2 else (0, spare)
             if lead:
                 surface.draw_text(start, 0, " ", label)
             surface.draw_text(
                 start + lead, 0, name, self.part_style("key", disabled=disabled)
             )
-            surface.draw_text(start + lead + display_width(name), 0, f" {_title(command)} ", label)
+            surface.draw_text(start + lead + display_width(name), 0, " " * gap + f"{_title(command)} ", label)
 
     def tooltip_at(self, x: int, y: int) -> str:
         """The item's command's place in the menus, ``File > Make directory``,
@@ -237,8 +242,9 @@ def _label(key: str, item: Command | Hint) -> str:
 
 
 def _title(item: Command | Hint) -> str:
-    """An item's caption: a hint's is translated already."""
-    return item.title if isinstance(item, Hint) else tr(item.title)
+    """An item's caption: a hint's is translated already; a command's is its
+    ``key_title`` where it has a shorter one for the bar, else its ``title``."""
+    return item.title if isinstance(item, Hint) else tr(getattr(item, "key_title", "") or item.title)
 
 
 def _shown(key: str) -> str:

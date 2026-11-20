@@ -3830,7 +3830,7 @@ flag = "RU"
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:30, navigator/widgets/drives/links_dialog/links_dialog.py:41, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:350
 "Add" = "Добавить"
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:30, navigator/widgets/drives/links_dialog/links_dialog.py:41, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:350 ...
-"Edit" = "Правка"
+"Edit" = "Ред."
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:34
 "(none — Add makes one)" = "(нет — «Добавить» создаёт)"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
@@ -4037,6 +4037,7 @@ flag = "RU"
 "Center line" = "Стр. по центру"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "Рисов. линий"
+"Draw" = "Рисов."
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "Автоотступ"
 # navigator/widgets/editor/commands.py:450
@@ -4103,6 +4104,7 @@ flag = "RU"
 "Insert time" = "Вставить время"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "Верт. блоки"
+"Block" = "Блок"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "Вернуть"
 # navigator/widgets/editor/commands.py:734
@@ -4612,9 +4614,9 @@ flag = "RU"
 # navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/painting.py:499
 "Attr" = "Атриб"
 # navigator/widgets/manager/commands.py:145
-"MkDir" = "Каталог"
+"MkDir" = "Папка"
 # navigator/widgets/manager/commands.py:158, navigator/widgets/manager/commands.py:903
-"Del" = "Удалить"
+"Del" = "Удал."
 # navigator/widgets/manager/commands.py:169
 "Re-read" = "Обновл."
 # navigator/widgets/manager/commands.py:236

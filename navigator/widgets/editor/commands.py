@@ -428,6 +428,7 @@ class SwitchDrawMode(Command):
     lines, double lines, and off again."""
 
     title = "Line Drawing"
+    key_title = "Draw"
 
 
 class SwitchIndent(Command):
@@ -713,6 +714,8 @@ class SwitchBlock(Command):
     or stream ones (``VertBlock``), the block marked kept and read the other way."""
 
     title = "Vertical blocks"
+    #: DN's editor status line: ``'~F5~ Block', kbF5, cmSwitchBlock``.
+    key_title = "Block"
 
 
 class Undo(Command):

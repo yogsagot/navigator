@@ -65,6 +65,10 @@ class Command(Event):
     #: What a key bar or a menu shows for this command.  Empty for a command
     #: nothing displays.
     title: ClassVar[str] = ""
+    #: What a key bar shows in place of :attr:`title`, where that is too long
+    #: for a row of ten F-keys (DN's status lines had their own short words:
+    #: the editor's F5 was *Block*); empty for the title itself.
+    key_title: ClassVar[str] = ""
 
 
 #: What a key table maps a key to: a command class, or an instance of one.

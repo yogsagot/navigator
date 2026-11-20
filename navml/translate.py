@@ -11,7 +11,7 @@
 - in Python, the literal first argument of ``tr()``, ``tr_n()`` (keyed by the
   singular), ``tr_plain()`` and ``tr_noop()`` (a table's entry, translated
   where it is shown);
-- a class's ``title = "..."``: a command's, which the key bar translates;
+- a class's ``title = "..."`` and ``key_title = "..."``: a command's, which the key bar translates;
 - whatever the package's ``locales`` module names in a ``strings()`` function
   (``(key, where)`` pairs): tables of captions kept English in the source and
   translated where they are shown, which no scan can see.
@@ -177,7 +177,7 @@ def _python(path: Path, root: Path, found: Found) -> None:
             for statement in node.body:
                 if (
                     isinstance(statement, ast.Assign)
-                    and [getattr(t, "id", None) for t in statement.targets] == ["title"]
+                    and [getattr(t, "id", None) for t in statement.targets] in (["title"], ["key_title"])
                     and isinstance(statement.value, ast.Constant)
                     and isinstance(statement.value.value, str)
                     and statement.value.value

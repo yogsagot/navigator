@@ -201,6 +201,81 @@ async def open_and_measure(app: Any, names: list[str], where: str = "") -> tuple
     return found, failed
 
 
+# -- what is not a box: the menu bar, menus, the key bar, column headings ---------
+
+
+def _submenus(menu: Any) -> list[Any]:
+    """*menu*'s submenus, every level down."""
+    from navml.widgets.menu.sub_menu import SubMenu
+
+    found = []
+    for entry in menu.entries():
+        if isinstance(entry, SubMenu):
+            found.append(entry)
+            found.extend(_submenus(entry))
+    return found
+
+
+def chrome(app: Any, where: str) -> list[str]:
+    """What the screen's own lines cut, with the window in front as it is:
+    an entry of the menu bar run under the clock or off the edge, a menu box
+    wider than the screen, an F-key the key bar leaves out for want of room."""
+    from navml.widgets.menu.menu_box.menu_box import MenuBox
+    from navigator.widgets.shell.keybar.keybar import FKEY, _label
+
+    found: list[str] = []
+    bar = app.shell.menu
+    entries = bar.entries()
+    if entries:
+        start, width = bar.item_span(len(entries) - 1)
+        if start + width > bar.width - bar.reserve:
+            found.append(f"{where}: menu bar ends at {start + width}, has {bar.width - bar.reserve}")
+    behind = app.focused
+    for menu in [entry for entry in entries if hasattr(entry, "entries")]:
+        for each in [menu, *_submenus(menu)]:
+            width, _height = MenuBox.measure(each, app, behind)
+            if width > app.shell.width:
+                found.append(f"{where}: menu {_plain(each.text)!r} needs {width}, has {app.shell.width}")
+    keybar = app.shell.keybar
+    shown = {key for key, *_ in keybar.items()}
+    for key, command in keybar._row():
+        if FKEY.fullmatch(_label(key, command)) and key not in shown:
+            found.append(f"{where}: key bar leaves out {_label(key, command)}")
+    return found
+
+
+def headings() -> list[str]:
+    """Each detailed-mode column heading against its fixed width."""
+    from navigator.widgets.manager.panel import Panel
+
+    found = []
+    for key, (_english, width, _attribute) in Panel.DETAIL_COLUMNS.items():
+        text = Panel.heading(key)
+        if width is not None and key != "links" and display_width(text) > width:
+            found.append(f"panel heading {key}: {text!r} needs {display_width(text)}, has {width}")
+    return found
+
+
+async def chrome_everywhere(app: Any, scratch: Path = Path(".")) -> list[str]:
+    """:func:`chrome` on the file manager, then with a viewer and an editor in
+    front, on a file of text written in *scratch*."""
+    from navigator.lib.config.file_history import open_editor, open_viewer
+
+    # The real key bar: the screenshots pin the file panel's line on the
+    # instance, which would measure that line in a viewer and an editor too.
+    app.__dict__.pop("bindings", None)
+    found = chrome(app, "panels") + headings()
+    text = scratch / "chrome-check.txt"
+    text.write_text("A line of text.\n")
+    for name, opening in (("viewer", open_viewer), ("editor", open_editor)):
+        window = await opening(app.shell.desktop, text)
+        await asyncio.sleep(0.1)
+        found.extend(chrome(app, name))
+        window.close()
+        await asyncio.sleep(0.05)
+    return found
+
+
 def check_language(code: str) -> list[str]:
     """Every finding in *code*: the scenes', then the bare pass's."""
     from tools import screenshot
@@ -234,6 +309,13 @@ def check_language(code: str) -> list[str]:
         return None
 
     screenshot.paint(screenshot.Scene("bare", stage, screenshot.WIDE), "default", None, code)
+
+    async def lines(app: Any) -> None:
+        found.extend(await chrome_everywhere(app))
+        return None
+
+    # The screen's own lines at 80 columns, the narrowest Navigator is used in.
+    screenshot.paint(screenshot.Scene("chrome", lines, (80, 24)), "default", None, code)
     found.extend(f"{name}: could not be opened, {why}" for name, why in sorted(failures.items()))
     # One finding once: a box several scenes open is measured each time.
     return list(dict.fromkeys(found))

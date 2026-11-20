@@ -436,7 +436,7 @@ flag = "LV"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:26
 "~T~ype" = "~T~ips"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:36, navigator/lib/system/processes.py:406, navigator/widgets/manager/commands.py:25 ...
-"User" = "Lietot."
+"User" = "Liet"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:36, navigator/widgets/file_ops/attr_dialog/attr_dialog.nml:94
 "Group" = "Grupa"
 # navigator/widgets/file_ops/acl_entry_dialog/acl_entry_dialog.nml:52
@@ -3830,7 +3830,7 @@ flag = "LV"
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:30, navigator/widgets/drives/links_dialog/links_dialog.py:41, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:350
 "Add" = "Pievienot"
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:30, navigator/widgets/drives/links_dialog/links_dialog.py:41, navigator/widgets/file_ops/attr_dialog/attr_dialog.py:350 ...
-"Edit" = "Rediģēt"
+"Edit" = "Lab."
 # navigator/widgets/drives/forwards_dialog/forwards_dialog.py:34
 "(none — Add makes one)" = "(nav — Pievienot izveido)"
 # navigator/widgets/drives/host_key_query/host_key_query.py:24
@@ -3966,7 +3966,7 @@ flag = "LV"
 # navigator/widgets/drives/use_file.py:139, navigator/widgets/drives/use_file.py:151
 "Upload" = "Augšupielāde"
 # navigator/widgets/editor/commands.py:139
-"Dupe" = "Dublēt"
+"Dupe" = "Dubl."
 # navigator/widgets/editor/commands.py:190, navigator/widgets/editor/commands.py:652
 "Block start" = "Bl.sāk."
 # navigator/widgets/editor/commands.py:196, navigator/widgets/editor/commands.py:658
@@ -4037,6 +4037,7 @@ flag = "LV"
 "Center line" = "Rindu centrā"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "Līnijas"
+"Draw" = "Zīm."
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "Autoatk"
 # navigator/widgets/editor/commands.py:450
@@ -4103,6 +4104,7 @@ flag = "LV"
 "Insert time" = "Laiks"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "Vert.bl"
+"Block" = "Bloks"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "Atkārtot"
 # navigator/widgets/editor/commands.py:734
@@ -4602,17 +4604,17 @@ flag = "LV"
 # navigator/widgets/manager/columns_dialog/columns_dialog.py:34
 "~R~atio" = "Attie~c~ība"
 # navigator/widgets/manager/commands.py:29
-"View" = "Skatīt"
+"View" = "Skat"
 # navigator/widgets/manager/commands.py:36, navigator/widgets/shell/shell/associations.py:208, navigator/widgets/shell/shell/associations.py:121 ...
 "Open with" = "Atvērt ar"
 # navigator/widgets/manager/commands.py:80, navigator/widgets/manager/commands.py:322, navigator/widgets/manager/commands.py:333
-"Ren" = "Pārdēv"
+"Ren" = "Pārd"
 # navigator/widgets/manager/commands.py:91
 "SymLnk" = "Saite"
 # navigator/widgets/manager/commands.py:141, navigator/widgets/manager/panel/painting.py:499
 "Attr" = "Atrib."
 # navigator/widgets/manager/commands.py:145
-"MkDir" = "JaunDir"
+"MkDir" = "Mape"
 # navigator/widgets/manager/commands.py:158, navigator/widgets/manager/commands.py:903
 "Del" = "Dzēst"
 # navigator/widgets/manager/commands.py:169
@@ -5138,7 +5140,7 @@ flag = "LV"
 # navigator/widgets/manager/panel/painting.py:466
 "Reading directory..." = "Lasa direktoriju..."
 # navigator/widgets/manager/panel/painting.py:497, navigator/lib/drives/base.py
-"Packed" = "Saspiests"
+"Packed" = "Sasp."
 # navigator/widgets/manager/panel/painting.py:498
 "%" = "%"
 # navigator/widgets/manager/panel/panel.py:1154

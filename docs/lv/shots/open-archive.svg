@@ -30,7 +30,7 @@
 <text x="550" y="15" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#55ffff">[↕]</text>
 <text x="70" y="35" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Vārds↑</text>
 <text x="210" y="35" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Izmērs</text>
-<text x="290" y="35" textLength="80" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Saspiest</text>
+<text x="300" y="35" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Sasp.</text>
 <text x="390" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">%</text>
 <text x="480" y="35" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Datums</text>
 <text x="10" y="55" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff" font-weight="bold">/..</text>

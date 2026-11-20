@@ -14,9 +14,9 @@
 <rect x="0" y="40" width="10" height="20" fill="#aaaaaa"/>
 <rect x="10" y="40" width="20" height="20" fill="#00aaaa"/>
 <rect x="30" y="40" width="40" height="20" fill="#aaaaaa"/>
-<rect x="70" y="40" width="60" height="20" fill="#00aaaa"/>
-<rect x="130" y="40" width="70" height="20" fill="#aaaaaa"/>
-<rect x="200" y="40" width="50" height="20" fill="#00aaaa"/>
+<rect x="70" y="40" width="80" height="20" fill="#00aaaa"/>
+<rect x="150" y="40" width="40" height="20" fill="#aaaaaa"/>
+<rect x="190" y="40" width="60" height="20" fill="#00aaaa"/>
 <rect x="250" y="40" width="10" height="20" fill="#aaaaaa"/>
 <rect x="260" y="40" width="30" height="20" fill="#00aaaa"/>
 <rect x="290" y="40" width="50" height="20" fill="#aaaaaa"/>
@@ -89,7 +89,7 @@
 <text x="720" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">X</text>
 <text x="760" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">E</text>
 <text x="30" y="55" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">PID▲</text>
-<text x="130" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#000000">Lietot.</text>
+<text x="150" y="55" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">Liet</text>
 <text x="250" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">S</text>
 <text x="290" y="55" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">CPU</text>
 <text x="330" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#000000">%</text>

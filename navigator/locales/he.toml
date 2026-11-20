@@ -4038,6 +4038,7 @@ direction = "rtl"
 "Center line" = "מירכוז שורה"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "ציור קווים"
+"Draw" = "ציור"
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "הזחה אוטומטית"
 # navigator/widgets/editor/commands.py:450
@@ -4104,6 +4105,7 @@ direction = "rtl"
 "Insert time" = "הוסף שעה"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "בלוקים אנכיים"
+"Block" = "בלוק"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "בצע שוב"
 # navigator/widgets/editor/commands.py:734

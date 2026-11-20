@@ -78,6 +78,9 @@ An explicit `tr(...)` in a markup expression makes the line a binding too (it re
   between characters (with kinsoku: no closing mark at a line's start). Whatever sizes, aligns or cuts a
   translated caption goes through them. A Button whose caption is wider than its room takes the `▶◀` cells
   (`Button.crowded`); the key bar goes tight (one blank between items) when it would otherwise lose an F-key,
+  and tighter still (no blank between a key and its caption, `F2Saglab.`) when tight is not enough --
+  the editor's nine in Latvian; a command whose title is long for the bar gives a `key_title` (`Command.key_title`,
+  extracted like `title`: the editor's F5 is DN's *Block*, F4 *Draw*),
   and the menu bar (`MenuBar.tight`) when its captions would reach `reserve`, the clock's cells the shell
   binds.
   At 80 columns DN's English key row is exactly full, so a CJK key-bar title must be two characters; three

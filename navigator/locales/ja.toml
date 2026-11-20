@@ -4037,6 +4037,7 @@ flag = "JP"
 "Center line" = "行中央揃え"
 # navigator/widgets/editor/commands.py:430
 "Line Drawing" = "罫線描画"
+"Draw" = "罫線"
 # navigator/widgets/editor/commands.py:436
 "Autoindent" = "自動インデント"
 # navigator/widgets/editor/commands.py:450
@@ -4103,6 +4104,7 @@ flag = "JP"
 "Insert time" = "時刻を挿入"
 # navigator/widgets/editor/commands.py:715
 "Vertical blocks" = "矩形ブロック"
+"Block" = "矩形"
 # navigator/widgets/editor/commands.py:728
 "Redo" = "やり直し"
 # navigator/widgets/editor/commands.py:734
