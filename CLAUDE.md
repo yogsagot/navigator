@@ -136,7 +136,11 @@ Manager Setup says so, off by default), or in memory (the tests'). F1 Help is a 
   (plus `locales/` beside `navigator.ini`). `--language CODE` or Options > Interface picks one, else `$LANG`.
   `./venv/bin/python -m navml extract CODE navml navigator` adds what is missing to each package's
   `locales/CODE.toml` (any package directory or dotted name; navml alone by default), `tools/i18n.py extract CODE` does
-  both layers, `tools/i18n.py check` exits 1 on gaps and hotkey clashes, English included (a test runs it; `i18n` skill)
+  both layers, `tools/i18n.py check` exits 1 on gaps and hotkey clashes, English included (a test runs it; `i18n` skill).
+  `./venv/bin/python tools/fitcheck.py [--language CODE]... [--check]` opens every dialog and window in each language
+  (the screenshot scenes' boxes, then every other class made bare) and names each caption wider than its control;
+  `--check` exits 1 on any. Run it after adding or changing a translation or a box's layout (tests run the bare half
+  and Settings; the scenes take minutes)
 - See what a terminal sends while it is in Navigator's modes (raw, mouse, bracketed paste, kitty flags):
   `./venv/bin/python tools/keyprobe.py [--legacy] [--no-mouse]`, `q` twice or Ctrl+C quits -- the way to find out whether a key
   the terminal binds for itself (Ctrl+Shift+V) arrives as a paste or as a key

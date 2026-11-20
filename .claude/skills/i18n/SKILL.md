@@ -114,6 +114,9 @@ test; `tests/test_i18n.py` registers a temporary `lv.toml` with `register_direct
 
 **A translation must fit where it is shown.** `tests/test_settings_fit.py` opens Options > Settings in every shipped
 language and fails on a check box or radio caption, a label, or a drop-down choice wider than its control (the
-cut was silent: *Return to last cursor position* lost its end in English itself). A failure is fixed by giving the
-control the room where the page has it, else by a shorter translation -- never by cutting the English. It covers
-Settings only; another box with tight columns can borrow its `clipped()`.
+cut was silent: *Return to last cursor position* lost its end in English itself). `tests/test_dialog_fit.py` does the
+same for every dialog and window that can be made with no arguments, and `tools/fitcheck.py --check` for all of them,
+the screenshot scenes opening the ones that need arguments (`clipped()` lives there: a cluster's caption from its
+column's start, a choice against its line, a button's caption against its whole face -- `Button.crowded` drops the
+markers first -- and a one-row label). A finding is fixed by giving the control the room where the box has it, else
+by a shorter translation -- never by cutting the English.
