@@ -53,9 +53,9 @@ class ViewerFindDialog(Dialog, _Component):
     options: CheckBoxes    # viewer_find_dialog.nml:73
     direction_caption: Label    # viewer_find_dialog.nml:81
     direction: RadioButtons    # viewer_find_dialog.nml:89
-    pick: Button    # viewer_find_dialog.nml:104
-    abandon: Button    # viewer_find_dialog.nml:109
-    helper: Button    # viewer_find_dialog.nml:114
+    pick: Button    # viewer_find_dialog.nml:105
+    abandon: Button    # viewer_find_dialog.nml:110
+    helper: Button    # viewer_find_dialog.nml:115
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -65,15 +65,15 @@ class ViewerFindDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:104
+    async def on_pick_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:105
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:109
+    async def on_abandon_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:110
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_helper_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:114
+    async def on_helper_click(self, event: _Event) -> bool:    # viewer_find_dialog.nml:115
         """``helper`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -87,10 +87,10 @@ class ViewerFindDialog(Dialog, _Component):
         self.options = CheckBoxes(parent=self)    # viewer_find_dialog.nml:72
         self.direction_caption = Label(parent=self)    # viewer_find_dialog.nml:80
         self.direction = RadioButtons(parent=self)    # viewer_find_dialog.nml:88
-        _w1 = ButtonRow(parent=self)    # viewer_find_dialog.nml:97
-        self.pick = Button(parent=_w1)    # viewer_find_dialog.nml:103
-        self.abandon = Button(parent=_w1)    # viewer_find_dialog.nml:108
-        self.helper = Button(parent=_w1)    # viewer_find_dialog.nml:113
+        _w1 = ButtonRow(parent=self)    # viewer_find_dialog.nml:98
+        self.pick = Button(parent=_w1)    # viewer_find_dialog.nml:104
+        self.abandon = Button(parent=_w1)    # viewer_find_dialog.nml:109
+        self.helper = Button(parent=_w1)    # viewer_find_dialog.nml:114
 
         self.modal_width = 50    # viewer_find_dialog.nml:18
         self.modal_height = 14    # viewer_find_dialog.nml:19
@@ -140,14 +140,14 @@ class ViewerFindDialog(Dialog, _Component):
 
         self.options.x = 2    # viewer_find_dialog.nml:74
         self.options.y = 8    # viewer_find_dialog.nml:75
-        self.options.width = 22    # viewer_find_dialog.nml:76
+        self.options.width = 27    # viewer_find_dialog.nml:76
         self.options.height = 2    # viewer_find_dialog.nml:77
         self.options.items = _bind(    # viewer_find_dialog.nml:78
             lambda _o: [_tr('~C~ase sensitive'), _tr('~W~hole words')],
             yielding=True,
         )
 
-        self.direction_caption.x = 26    # viewer_find_dialog.nml:82
+        self.direction_caption.x = 30    # viewer_find_dialog.nml:82
         self.direction_caption.y = 7    # viewer_find_dialog.nml:83
         self.direction_caption.width = 12    # viewer_find_dialog.nml:84
         self.direction_caption.text = _bind(    # viewer_find_dialog.nml:85
@@ -156,28 +156,28 @@ class ViewerFindDialog(Dialog, _Component):
         )
         self.direction_caption.link = _bind(lambda _o: self.direction)    # viewer_find_dialog.nml:86
 
-        self.direction.x = 26    # viewer_find_dialog.nml:90
+        self.direction.x = 30    # viewer_find_dialog.nml:90
         self.direction.y = 8    # viewer_find_dialog.nml:91
-        self.direction.width = 18    # viewer_find_dialog.nml:92
-        self.direction.height = 2    # viewer_find_dialog.nml:93
-        self.direction.items = _bind(    # viewer_find_dialog.nml:94
+        self.direction.width = 18    # viewer_find_dialog.nml:93
+        self.direction.height = 2    # viewer_find_dialog.nml:94
+        self.direction.items = _bind(    # viewer_find_dialog.nml:95
             lambda _o: [_tr('~F~orward'), _tr('~B~ackward')],
             yielding=True,
         )
 
-        _w1.x = 0# viewer_find_dialog.nml:99
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # viewer_find_dialog.nml:100
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # viewer_find_dialog.nml:101
+        _w1.x = 0# viewer_find_dialog.nml:100
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # viewer_find_dialog.nml:101
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # viewer_find_dialog.nml:102
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # viewer_find_dialog.nml:105
-        self.pick.default = True    # viewer_find_dialog.nml:106
-        self.pick.on_click = self.on_pick_click    # viewer_find_dialog.nml:104
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # viewer_find_dialog.nml:106
+        self.pick.default = True    # viewer_find_dialog.nml:107
+        self.pick.on_click = self.on_pick_click    # viewer_find_dialog.nml:105
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # viewer_find_dialog.nml:110
-        self.abandon.on_click = self.on_abandon_click    # viewer_find_dialog.nml:109
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # viewer_find_dialog.nml:111
+        self.abandon.on_click = self.on_abandon_click    # viewer_find_dialog.nml:110
 
-        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # viewer_find_dialog.nml:115
-        self.helper.command = Help    # viewer_find_dialog.nml:116
-        self.helper.on_click = self.on_helper_click    # viewer_find_dialog.nml:114
+        self.helper.text = _bind(lambda _o: _tr('Help'), yielding=True)    # viewer_find_dialog.nml:116
+        self.helper.command = Help    # viewer_find_dialog.nml:117
+        self.helper.on_click = self.on_helper_click    # viewer_find_dialog.nml:115
 
         self._navml_built(__class__)

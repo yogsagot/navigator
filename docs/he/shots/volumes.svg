@@ -102,8 +102,8 @@
 <text x="110" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ש</text>
 <text x="200" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">קת</text>
 <text x="220" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">נ</text>
-<text x="310" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ןג</text>
-<text x="330" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ע</text>
+<text x="320" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ןג</text>
+<text x="340" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ע</text>
 <text x="80" y="255" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">רוגס</text>
 <text x="160" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">◀</text>
 <text x="200" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#55ffff">ך</text>
@@ -504,6 +504,7 @@
 <rect x="330" y="220" width="10" height="10" fill="#000000"/>
 <rect x="340" y="220" width="10" height="10" fill="#000000"/>
 <rect x="350" y="220" width="10" height="10" fill="#000000"/>
+<rect x="360" y="220" width="10" height="10" fill="#000000"/>
 <line x1="613" y1="232" x2="613" y2="220" stroke="#ffffff"/>
 <line x1="617" y1="232" x2="617" y2="220" stroke="#ffffff"/>
 <line x1="613" y1="228" x2="613" y2="240" stroke="#ffffff"/>

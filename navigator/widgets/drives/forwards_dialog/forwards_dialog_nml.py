@@ -71,13 +71,13 @@ class ForwardsDialog(Dialog, _Component):
 
         self.forwards.x = 2    # forwards_dialog.nml:28
         self.forwards.y = 2    # forwards_dialog.nml:29
-        self.forwards.width = 48    # forwards_dialog.nml:30
+        self.forwards.width = 47    # forwards_dialog.nml:30
         self.forwards.height = 10    # forwards_dialog.nml:31
 
         self.append.text = _bind(lambda _o: _tr('~A~dd...'), yielding=True)    # forwards_dialog.nml:35
-        self.append.x = 52    # forwards_dialog.nml:36
+        self.append.x = 51    # forwards_dialog.nml:36
         self.append.y = 2    # forwards_dialog.nml:37
-        self.append.width = 12    # forwards_dialog.nml:38
+        self.append.width = 13    # forwards_dialog.nml:38
         self.append.height = 2    # forwards_dialog.nml:39
 
         async def _on_click(event):    # forwards_dialog.nml:40
@@ -86,9 +86,9 @@ class ForwardsDialog(Dialog, _Component):
         self.append.on_click = _on_click
 
         self.edit.text = _bind(lambda _o: _tr('~E~dit...'), yielding=True)    # forwards_dialog.nml:44
-        self.edit.x = 52    # forwards_dialog.nml:45
+        self.edit.x = 51    # forwards_dialog.nml:45
         self.edit.y = 4    # forwards_dialog.nml:46
-        self.edit.width = 12    # forwards_dialog.nml:47
+        self.edit.width = 13    # forwards_dialog.nml:47
         self.edit.height = 2    # forwards_dialog.nml:48
 
         async def _on_click(event):    # forwards_dialog.nml:49
@@ -97,9 +97,9 @@ class ForwardsDialog(Dialog, _Component):
         self.edit.on_click = _on_click
 
         self.delete.text = _bind(lambda _o: _tr('~D~elete'), yielding=True)    # forwards_dialog.nml:53
-        self.delete.x = 52    # forwards_dialog.nml:54
+        self.delete.x = 51    # forwards_dialog.nml:54
         self.delete.y = 6    # forwards_dialog.nml:55
-        self.delete.width = 12    # forwards_dialog.nml:56
+        self.delete.width = 13    # forwards_dialog.nml:56
         self.delete.height = 2    # forwards_dialog.nml:57
 
         async def _on_click(event):    # forwards_dialog.nml:58

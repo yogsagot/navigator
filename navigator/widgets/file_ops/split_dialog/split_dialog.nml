@@ -62,7 +62,8 @@ SplitDialog(Dialog):
         y: 4
         width: 28
         label_text: "Part si~z~e"
-        label_width: 12
+        label_width: 13
+
         history_id: "split_size"
 
     CheckBoxes:

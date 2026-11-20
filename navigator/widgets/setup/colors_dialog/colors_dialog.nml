@@ -18,7 +18,7 @@ from navml.widgets.dialog.static_text import StaticText
 #: black-and-white selectors are left out, as there is no such screen.
 ColorsDialog(Dialog):
     help_topic: "customizing.md#colours"
-    modal_width: 70
+    modal_width: 72
     modal_height: 24
     title: "Colors"
 
@@ -121,5 +121,6 @@ ColorsDialog(Dialog):
         height: 1
         anchors:
             left: 3
-            right: 3
+            right: 2
+
         items: ["Bo~l~d", "~D~im", "I~t~alic", "~U~nderline", "R~e~verse"]

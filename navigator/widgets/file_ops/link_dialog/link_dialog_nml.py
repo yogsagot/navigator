@@ -54,11 +54,11 @@ class LinkDialog(Dialog, _Component):
     prompt_caption: Label    # link_dialog.nml:38
     target: Field    # link_dialog.nml:46
     kind: RadioButtons    # link_dialog.nml:57
-    options: CheckBoxes    # link_dialog.nml:68
-    pick: Button    # link_dialog.nml:84
-    abandon: Button    # link_dialog.nml:89
-    tree: Button    # link_dialog.nml:93
-    help: Button    # link_dialog.nml:98
+    options: CheckBoxes    # link_dialog.nml:69
+    pick: Button    # link_dialog.nml:85
+    abandon: Button    # link_dialog.nml:90
+    tree: Button    # link_dialog.nml:94
+    help: Button    # link_dialog.nml:99
 
     #: The commands this component handles itself.
     async def on_choose_target(self, event: _Any) -> bool:    # link_dialog.nml:31
@@ -74,15 +74,15 @@ class LinkDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # link_dialog.nml:84
+    async def on_pick_click(self, event: _Event) -> bool:    # link_dialog.nml:85
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # link_dialog.nml:89
+    async def on_abandon_click(self, event: _Event) -> bool:    # link_dialog.nml:90
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_help_click(self, event: _Event) -> bool:    # link_dialog.nml:98
+    async def on_help_click(self, event: _Event) -> bool:    # link_dialog.nml:99
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -91,12 +91,12 @@ class LinkDialog(Dialog, _Component):
         self.prompt_caption = Label(parent=self)    # link_dialog.nml:37
         self.target = Field(parent=self)    # link_dialog.nml:45
         self.kind = RadioButtons(parent=self)    # link_dialog.nml:56
-        self.options = CheckBoxes(parent=self)    # link_dialog.nml:67
-        _w1 = ButtonRow(parent=self)    # link_dialog.nml:77
-        self.pick = Button(parent=_w1)    # link_dialog.nml:83
-        self.abandon = Button(parent=_w1)    # link_dialog.nml:88
-        self.tree = Button(parent=_w1)    # link_dialog.nml:92
-        self.help = Button(parent=_w1)    # link_dialog.nml:97
+        self.options = CheckBoxes(parent=self)    # link_dialog.nml:68
+        _w1 = ButtonRow(parent=self)    # link_dialog.nml:78
+        self.pick = Button(parent=_w1)    # link_dialog.nml:84
+        self.abandon = Button(parent=_w1)    # link_dialog.nml:89
+        self.tree = Button(parent=_w1)    # link_dialog.nml:93
+        self.help = Button(parent=_w1)    # link_dialog.nml:98
 
         self.modal_width = 61    # link_dialog.nml:19
         self.modal_height = 11    # link_dialog.nml:20
@@ -123,50 +123,50 @@ class LinkDialog(Dialog, _Component):
 
         self.kind.x = 3    # link_dialog.nml:58
         self.kind.y = 4    # link_dialog.nml:59
-        self.kind.width = 24    # link_dialog.nml:60
-        self.kind.height = 2    # link_dialog.nml:61
-        self.kind.items = _bind(    # link_dialog.nml:62
+        self.kind.width = 25    # link_dialog.nml:60
+        self.kind.height = 2    # link_dialog.nml:62
+        self.kind.items = _bind(    # link_dialog.nml:63
             lambda _o: [_tr('S~y~mbolic link'), _tr('~H~ard link')],
             yielding=True,
         )
-        self.kind.tooltips = _bind(    # link_dialog.nml:63
+        self.kind.tooltips = _bind(    # link_dialog.nml:64
             lambda _o: [_tr('A small file holding the path of the original'), _tr('A second name for the same file, on the same file system; never for a directory')],
             yielding=True,
         )
 
-        self.options.y = 4    # link_dialog.nml:69
-        self.options.height = 1    # link_dialog.nml:70
-        self.options.items = _bind(    # link_dialog.nml:74
+        self.options.y = 4    # link_dialog.nml:70
+        self.options.height = 1    # link_dialog.nml:71
+        self.options.items = _bind(    # link_dialog.nml:75
             lambda _o: [_tr('~R~elative link')],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # link_dialog.nml:75
+        self.options.tooltips = _bind(    # link_dialog.nml:76
             lambda _o: [_tr('Point the link at a path relative to it, so the two can be moved together')],
             yielding=True,
         )
-        self.options.x = 29    # link_dialog.nml:72
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 32))    # link_dialog.nml:73
+        self.options.x = 29    # link_dialog.nml:73
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 32))    # link_dialog.nml:74
 
-        _w1.x = 0# link_dialog.nml:79
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # link_dialog.nml:80
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # link_dialog.nml:81
+        _w1.x = 0# link_dialog.nml:80
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width))    # link_dialog.nml:81
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # link_dialog.nml:82
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # link_dialog.nml:85
-        self.pick.default = True    # link_dialog.nml:86
-        self.pick.on_click = self.on_pick_click    # link_dialog.nml:84
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # link_dialog.nml:86
+        self.pick.default = True    # link_dialog.nml:87
+        self.pick.on_click = self.on_pick_click    # link_dialog.nml:85
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # link_dialog.nml:90
-        self.abandon.on_click = self.on_abandon_click    # link_dialog.nml:89
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # link_dialog.nml:91
+        self.abandon.on_click = self.on_abandon_click    # link_dialog.nml:90
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # link_dialog.nml:94
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # link_dialog.nml:95
 
-        async def _on_click(event):    # link_dialog.nml:95
+        async def _on_click(event):    # link_dialog.nml:96
             self.spawn(choose_target_line(self, self._here, self._hidden))
             return True
         self.tree.on_click = _on_click
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # link_dialog.nml:99
-        self.help.command = Help    # link_dialog.nml:100
-        self.help.on_click = self.on_help_click    # link_dialog.nml:98
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # link_dialog.nml:100
+        self.help.command = Help    # link_dialog.nml:101
+        self.help.on_click = self.on_help_click    # link_dialog.nml:99
 
         self._navml_built(__class__)

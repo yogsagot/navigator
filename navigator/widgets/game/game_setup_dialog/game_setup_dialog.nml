@@ -6,9 +6,10 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: DOS Navigator's ``dlgGameSetup``: the ten levels down the left, the game
 #: style and the preview on the right, OK and Cancel under them -- the
-#: resource's places, its 53 by 15.
+#: resource's places, four columns wider than its 53 by 15, so the right-hand
+#: column has room for a translated *Game style* or *Piece preview*.
 GameSetupDialog(Dialog):
-    modal_width: 53
+    modal_width: 57
     modal_height: 15
     title: "Setup game"
     help_topic: "game.md#setup"
@@ -44,7 +45,7 @@ GameSetupDialog(Dialog):
         id: game_style
         x: 30
         y: 3
-        width: 20
+        width: 25
         height: 2
         items: ["Classic ~t~etris", "Penti~x~"]
 
@@ -52,7 +53,7 @@ GameSetupDialog(Dialog):
         id: options_caption
         x: 30
         y: 6
-        width: 10
+        width: 12
         text: "~O~ptions"
         link: options
 
@@ -60,7 +61,7 @@ GameSetupDialog(Dialog):
         id: options
         x: 30
         y: 7
-        width: 19
+        width: 25
         height: 1
         items: ["~P~iece preview"]
         tooltips: ["Show the next piece (it scores less)"]
@@ -69,7 +70,7 @@ GameSetupDialog(Dialog):
         id: pick
         text: "O~K~"
         default: True
-        x: 40
+        x: 44
         y: 9
         width: 11
         height: 2
@@ -78,7 +79,8 @@ GameSetupDialog(Dialog):
     Button:
         id: abandon
         text: "Cancel"
-        x: 40
+        x: 44
         y: 11
+
         width: 11
         height: 2

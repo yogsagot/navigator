@@ -47,7 +47,7 @@
 <text x="20" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">П</text>
 <text x="30" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">оказать</text>
 <text x="110" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">строки,</text>
-<text x="190" y="55" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">содержа</text>
+<text x="190" y="55" textLength="100" lengthAdjust="spacingAndGlyphs" fill="#ffffff">содержащие</text>
 <text x="30" y="75" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#ffffff">error</text>
 <text x="460" y="75" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
 <text x="20" y="115" textLength="90" lengthAdjust="spacingAndGlyphs" fill="#000000">Параметры</text>

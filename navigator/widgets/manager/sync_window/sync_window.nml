@@ -101,7 +101,7 @@ SyncWindow(Window):
     CheckBoxes:
         id: tree_box
         x: 2
-        width: 18
+        width: 22
         height: 1
         anchors:
             bottom: 3
@@ -119,17 +119,18 @@ SyncWindow(Window):
         id: options_button
         text: "O~p~tions"
         tooltip: "The file mask, how near two times are the same, and Asymmetric"
-        width: 12
+        width: 14
         height: 2
         anchors:
-            right: 33
+            right: 34
             bottom: 2
         on_click: root.spawn(root.setup())
 
     Button:
         id: sync_button
         text: "~S~ynchronize"
-        width: 16
+        width: 17
+
         height: 2
         anchors:
             right: 15

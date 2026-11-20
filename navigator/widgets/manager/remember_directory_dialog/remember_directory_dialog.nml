@@ -8,7 +8,8 @@ from navml.widgets.dialog.label import Label
 #: Not DN's, which remembered nothing per directory
 #: (``navigator/lib/config/directory_settings.py``).
 RememberDirectoryDialog(Dialog):
-    modal_width: 56
+    modal_width: 60
+
     modal_height: 10
     title: "Remember directory settings"
     help_topic: "panels.md#remembering-a-directory"

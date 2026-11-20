@@ -27,32 +27,32 @@ ForwardsDialog(Dialog):
         id: forwards
         x: 2
         y: 2
-        width: 48
+        width: 47
         height: 10
 
     Button:
         id: append
         text: "~A~dd..."
-        x: 52
+        x: 51
         y: 2
-        width: 12
+        width: 13
         height: 2
         on_click: root.spawn(root.add_forward())
 
     Button:
         id: edit
         text: "~E~dit..."
-        x: 52
+        x: 51
         y: 4
-        width: 12
+        width: 13
         height: 2
         on_click: root.spawn(root.edit_forward())
 
     Button:
         id: delete
         text: "~D~elete"
-        x: 52
+        x: 51
         y: 6
-        width: 12
+        width: 13
         height: 2
         on_click: root.spawn(root.delete_forward())

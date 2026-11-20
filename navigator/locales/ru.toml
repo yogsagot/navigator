@@ -5294,7 +5294,7 @@ flag = "RU"
 # navigator/widgets/setup/tools_page/tools_page.py:37
 "{doc} -- used from the next time Services opens" = "{doc} -- действует со следующего открытия Служб"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:56, navigator/widgets/shell/char_table/char_table.py:65
-"Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Десятичный: {decimal:3d} Hex: {hex:02x}"
+"Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "Символ: {char} Дес.: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:234
 "Overflow" = "Переполнение"
 # navigator/widgets/shell/calculator_window/commands.py:20

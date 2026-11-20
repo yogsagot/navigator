@@ -32,7 +32,7 @@ flag = "JP"
 # navigator/widgets/drives/forwards_dialog/forward_dialog.nml:34
 "~R~emote (-R)" = "リモート(~R~) (-R)"
 # navigator/widgets/drives/forwards_dialog/forward_dialog.nml:34
-"~D~ynamic, SOCKS (-D)" = "ダイナミック、SOCKS(~D~) (-D)"
+"~D~ynamic, SOCKS (-D)" = "動的、SOCKS(~D~) (-D)"
 # navigator/widgets/drives/forwards_dialog/forward_dialog.nml:53
 "Listen ~a~ddress" = "待受アドレス(~A~)"
 # navigator/widgets/drives/forwards_dialog/forward_dialog.nml:62
@@ -58,7 +58,7 @@ flag = "JP"
 # navigator/widgets/drives/link_manager/link_manager.nml:91
 "~U~RI" = "URI(~U~)"
 # navigator/widgets/drives/link_manager/link_manager.nml:146
-"ssh opt~i~ons" = "ssh オプション(~I~)"
+"ssh opt~i~ons" = "ssh 設定(~I~)"
 # navigator/widgets/drives/link_manager/link_manager.nml:156, navigator/widgets/drives/link_manager/link_manager.py:687
 "~F~orwards..." = "転送(~F~)..."
 # navigator/widgets/drives/link_manager/link_manager.nml:168
@@ -492,7 +492,7 @@ flag = "JP"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:118
 "Mo~v~e files" = "ファイルを移動(~V~)"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:118
-"Follow s~y~mlinks" = "シンボリックリンクをたどる(~Y~)"
+"Follow s~y~mlinks" = "リンクをたどる(~Y~)"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:119
 "Keep each file's directories inside the archive, not its name alone" = "名前だけでなく各ファイルのディレクトリもアーカイブ内に保持します"
 # navigator/widgets/file_ops/archive_dialog/archive_dialog.nml:119
@@ -696,9 +696,9 @@ flag = "JP"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:81
 "Pr~e~serve attributes" = "属性を保持(~E~)"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:81
-"Follow symli~n~ks" = "シンボリックリンクをたどる(~N~)"
+"Follow symli~n~ks" = "リンクをたどる(~N~)"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:81
-"Remove so~u~rce files" = "元のファイルを削除(~U~)"
+"Remove so~u~rce files" = "元ファイル削除(~U~)"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:82
 "Stop before copying when the target has too little room" = "コピー先の空き容量が足りなければコピー前に中止します"
 # navigator/widgets/file_ops/copy_dialog/copy_dialog.nml:82

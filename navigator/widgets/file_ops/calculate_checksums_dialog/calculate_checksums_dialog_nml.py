@@ -47,8 +47,8 @@ class CalculateChecksumsDialog(Dialog, _Component):
     mode_caption: Label    # calculate_checksums_dialog.nml:39
     mode: RadioButtons    # calculate_checksums_dialog.nml:47
     list_name: Field    # calculate_checksums_dialog.nml:57
-    pick: Button    # calculate_checksums_dialog.nml:75
-    abandon: Button    # calculate_checksums_dialog.nml:80
+    pick: Button    # calculate_checksums_dialog.nml:76
+    abandon: Button    # calculate_checksums_dialog.nml:81
 
     # One stub per (id, emitted event), each wired in ``__init__``
     # below.  They return False, so a component that overrides none
@@ -58,11 +58,11 @@ class CalculateChecksumsDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # calculate_checksums_dialog.nml:75
+    async def on_pick_click(self, event: _Event) -> bool:    # calculate_checksums_dialog.nml:76
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # calculate_checksums_dialog.nml:80
+    async def on_abandon_click(self, event: _Event) -> bool:    # calculate_checksums_dialog.nml:81
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -73,9 +73,9 @@ class CalculateChecksumsDialog(Dialog, _Component):
         self.mode_caption = Label(parent=self)    # calculate_checksums_dialog.nml:38
         self.mode = RadioButtons(parent=self)    # calculate_checksums_dialog.nml:46
         self.list_name = Field(parent=self)    # calculate_checksums_dialog.nml:56
-        _w1 = ButtonRow(parent=self)    # calculate_checksums_dialog.nml:67
-        self.pick = Button(parent=_w1)    # calculate_checksums_dialog.nml:74
-        self.abandon = Button(parent=_w1)    # calculate_checksums_dialog.nml:79
+        _w1 = ButtonRow(parent=self)    # calculate_checksums_dialog.nml:68
+        self.pick = Button(parent=_w1)    # calculate_checksums_dialog.nml:75
+        self.abandon = Button(parent=_w1)    # calculate_checksums_dialog.nml:80
 
         self.modal_width = 60    # calculate_checksums_dialog.nml:14
         self.modal_height = 14    # calculate_checksums_dialog.nml:15
@@ -128,22 +128,22 @@ class CalculateChecksumsDialog(Dialog, _Component):
             lambda _o: _tr('~L~ist file'),
             yielding=True,
         )
-        self.list_name.label_width = 11    # calculate_checksums_dialog.nml:63
-        self.list_name.history_id = 'checksum'    # calculate_checksums_dialog.nml:64
-        self.list_name.disabled = _bind(lambda _o: self.mode.value != 0)    # calculate_checksums_dialog.nml:65
+        self.list_name.label_width = 14    # calculate_checksums_dialog.nml:63
+        self.list_name.history_id = 'checksum'    # calculate_checksums_dialog.nml:65
+        self.list_name.disabled = _bind(lambda _o: self.mode.value != 0)    # calculate_checksums_dialog.nml:66
         self.list_name.x = 2    # calculate_checksums_dialog.nml:60
         self.list_name.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculate_checksums_dialog.nml:61
 
-        _w1.justify = 'start'    # calculate_checksums_dialog.nml:68
-        _w1.x = 17# calculate_checksums_dialog.nml:70
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 17))    # calculate_checksums_dialog.nml:71
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # calculate_checksums_dialog.nml:72
+        _w1.justify = 'start'    # calculate_checksums_dialog.nml:69
+        _w1.x = 17# calculate_checksums_dialog.nml:71
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 17))    # calculate_checksums_dialog.nml:72
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # calculate_checksums_dialog.nml:73
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # calculate_checksums_dialog.nml:76
-        self.pick.default = True    # calculate_checksums_dialog.nml:77
-        self.pick.on_click = self.on_pick_click    # calculate_checksums_dialog.nml:75
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # calculate_checksums_dialog.nml:77
+        self.pick.default = True    # calculate_checksums_dialog.nml:78
+        self.pick.on_click = self.on_pick_click    # calculate_checksums_dialog.nml:76
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # calculate_checksums_dialog.nml:81
-        self.abandon.on_click = self.on_abandon_click    # calculate_checksums_dialog.nml:80
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # calculate_checksums_dialog.nml:82
+        self.abandon.on_click = self.on_abandon_click    # calculate_checksums_dialog.nml:81
 
         self._navml_built(__class__)

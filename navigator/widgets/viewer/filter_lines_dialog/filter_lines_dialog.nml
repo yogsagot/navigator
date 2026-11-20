@@ -17,8 +17,9 @@ FilterLinesDialog(Dialog):
         id: what_caption
         x: 2
         y: 2
-        width: 24
+        width: 28
         text: "~S~how lines containing"
+
         link: what.entry
 
     Field:

@@ -374,7 +374,7 @@ AttrDialog(Dialog):
         tooltip: "Open root access: any owner and group, and the change made as root"
         visible: False
         style:
-            basis: 11
+            basis: 16
             grow: 0
         #: *As root*: root access opened (asking for the password if it is
         #: not), the owner and every group offered, and OK's change done by the

@@ -23,10 +23,10 @@
 <rect x="20" y="160" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="160" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="160" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="160" width="270" height="20" fill="#555555"/>
-<rect x="340" y="160" width="140" height="20" fill="#5555ff"/>
-<rect x="480" y="160" width="10" height="20" fill="#555555"/>
-<rect x="490" y="160" width="130" height="20" fill="#aaaaaa"/>
+<rect x="70" y="160" width="240" height="20" fill="#555555"/>
+<rect x="310" y="160" width="140" height="20" fill="#5555ff"/>
+<rect x="450" y="160" width="10" height="20" fill="#555555"/>
+<rect x="460" y="160" width="160" height="20" fill="#aaaaaa"/>
 <rect x="0" y="180" width="20" height="20" fill="#000000"/>
 <rect x="20" y="180" width="600" height="20" fill="#aaaaaa"/>
 <rect x="0" y="200" width="20" height="20" fill="#000000"/>
@@ -93,7 +93,7 @@
 <text x="570" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="590" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="50" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="340" y="175" textLength="140" lengthAdjust="spacingAndGlyphs" fill="#ffffff">docs.sha256sum</text>
+<text x="310" y="175" textLength="140" lengthAdjust="spacingAndGlyphs" fill="#ffffff">docs.sha256sum</text>
 <text x="500" y="175" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">המישר</text>
 <text x="560" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ץבו</text>
 <text x="590" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ק</text>

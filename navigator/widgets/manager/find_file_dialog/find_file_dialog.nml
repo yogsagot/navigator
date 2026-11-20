@@ -8,8 +8,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 
 #: Alt+F7, File > Find...: DOS Navigator's ``dlgFileFind``.
 #:
-#: Its rows as ``DN.DNR`` lays them, two columns wider and a row taller for
-#: this library's buttons; DN's own row of OK, *Advanced...*, Cancel and
+#: Its rows as ``DN.DNR`` lays them, six columns wider (two for this
+#: library's buttons, four for translated options) and a row taller; DN's own row of OK, *Advanced...*, Cancel and
 #: Help, ten wide and touching from column 3 as the resource has them.
 #: Cancel carries no letter, as the resource's did: ``~C~`` is *Case
 #: sensitive*'s.
@@ -21,7 +21,8 @@ FindFileDialog(Dialog):
     #: File > Replace in files rather than Find file.
     property replacing: False
 
-    modal_width: 52
+    modal_width: 56
+
     modal_height: 21 if root.replacing else 19
     title: "Replace in Files" if root.replacing else "Find File"
     help_topic: "panels.md#replace-in-files" if root.replacing else "panels.md#find-file"

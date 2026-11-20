@@ -14,7 +14,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: read alike, with its captions -- *Group* is *Type* here too.  OK, Cancel
 #: and Help, as the resource has.  *Reverse order* is not DN's.
 PanelSetupDialog(Dialog):
-    modal_width: 56
+    modal_width: 58
+
     modal_height: 18
     title: "Panel Options"
     help_topic: "panels.md#panel-options"

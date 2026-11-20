@@ -83,7 +83,7 @@ VolumesWindow(Window):
             top: 1
             bottom: 4
         #: Narrow, the buttons go up a row to stand right of the check boxes.
-        when parent.width < 82:
+        when parent.width < 90:
             anchors:
                 bottom: 6
 
@@ -107,7 +107,7 @@ VolumesWindow(Window):
     CheckBoxes:
         id: everything
         x: 2
-        width: 22
+        width: 29
         height: 1
         anchors:
             bottom: 2
@@ -117,7 +117,7 @@ VolumesWindow(Window):
     CheckBoxes:
         id: free_box
         x: 2
-        width: 22
+        width: 29
         height: 1
         anchors:
             bottom: 1
@@ -125,17 +125,18 @@ VolumesWindow(Window):
         tooltips: ["Show the share that is free rather than the share used"]
 
     #: ``gio``'s, Solid's or udisks' three, each greyed as its command is (``VolumesWindow.allows``):
-    #: on *Go* and *Close*'s row, a button's width apart, where 82 columns
+    #: on *Go* and *Close*'s row, a button's width apart, where 90 columns
     #: leave room beside the boxes; right-aligned over them where they do not.
     Button:
         id: mount_button
         text: "~M~ount"
-        width: 10
+        width: 11
+
         height: 2
         anchors:
             right: 47
             bottom: 1
-        when parent.width < 82:
+        when parent.width < 90:
             anchors:
                 right: 25
                 bottom: 3
@@ -150,7 +151,7 @@ VolumesWindow(Window):
         anchors:
             right: 35
             bottom: 1
-        when parent.width < 82:
+        when parent.width < 90:
             anchors:
                 right: 13
                 bottom: 3
@@ -165,7 +166,7 @@ VolumesWindow(Window):
         anchors:
             right: 24
             bottom: 1
-        when parent.width < 82:
+        when parent.width < 90:
             anchors:
                 right: 2
                 bottom: 3

@@ -262,6 +262,11 @@ CalculatorWindow(Window):
             Button:
                 id: copy_button
                 text: "~C~opy"
+                #: A column wider than its neighbours, for a translated *Copy*.
+                style:
+                    basis: 11
+
+
                 on_click: root.copy_value()
 
             Button:

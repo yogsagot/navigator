@@ -23,7 +23,8 @@ WinnerDialog(Dialog):
             left: 2
             right: 2
         label_text: "Enter your name:"
-        label_width: 18
+        label_width: 20
+
         history_id: "tetris"
 
     #: ``dlgTetrisWinner``'s own row: OK, Cancel and Help ten wide from column 17.

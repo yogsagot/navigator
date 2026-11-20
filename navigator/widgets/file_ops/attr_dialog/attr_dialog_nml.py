@@ -451,7 +451,7 @@ class AttrDialog(Dialog, _Component):
             yielding=True,
         )
         self.root_button.visible = False    # attr_dialog.nml:375
-        self.root_button.inline_style = 'basis: 11; grow: 0'    # attr_dialog.nml:376
+        self.root_button.inline_style = 'basis: 16; grow: 0'    # attr_dialog.nml:376
 
         async def _on_click(event):    # attr_dialog.nml:382
             self.spawn(self._go_root())

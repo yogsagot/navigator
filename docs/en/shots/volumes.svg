@@ -94,8 +94,8 @@
 <text x="350" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">44%</text>
 <text x="420" y="95" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#000000">9,216M</text>
 <text x="550" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">16G</text>
-<text x="270" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">M</text>
-<text x="280" y="215" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">ount</text>
+<text x="260" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">M</text>
+<text x="270" y="215" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#555555">ount</text>
 <text x="370" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">U</text>
 <text x="380" y="215" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#555555">nmount</text>
 <text x="500" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">E</text>
@@ -464,6 +464,7 @@
 <line x1="7" y1="232" x2="7" y2="220" stroke="#ffffff"/>
 <line x1="3" y1="228" x2="3" y2="240" stroke="#ffffff"/>
 <line x1="7" y1="228" x2="7" y2="240" stroke="#ffffff"/>
+<rect x="250" y="220" width="10" height="10" fill="#000000"/>
 <rect x="260" y="220" width="10" height="10" fill="#000000"/>
 <rect x="270" y="220" width="10" height="10" fill="#000000"/>
 <rect x="280" y="220" width="10" height="10" fill="#000000"/>

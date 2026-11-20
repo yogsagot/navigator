@@ -12,7 +12,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: *Name* drops it, typing searching it.  *Default* puts the entry in a
 #: directory's default ACL, which what is made in it inherits.
 AclEntryDialog(Dialog):
-    modal_width: 56
+    modal_width: 60
+
     modal_height: 13
     title: "ACL Entry"
     help_topic: "file-operations.md#acl-entries"

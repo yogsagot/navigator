@@ -9,7 +9,8 @@ from navml.widgets.dialog.tree_view import TreeView
 #: The layout is ``TTreeDialog.Init``'s: the tree fills the left of it with no
 #: frame of its own -- the dialog's is its frame, and its scroll bar is its last
 #: column -- the path under the cursor is the one row beneath it, and the
-#: buttons stand in a column on the right, eleven wide.  ``Dialog``'s own row of
+#: buttons stand in a column on the right -- fourteen wide, not eleven, so a
+#: translated *Re-read* fits.  ``Dialog``'s own row of
 #: buttons along the bottom is not this dialog's, and the hand-written half
 #: hides it.
 #:
@@ -37,7 +38,7 @@ ChangeDirDialog(Dialog):
         framed: False
         anchors:
             left: 1
-            right: 14
+            right: 17
             top: 1
             bottom: 2
 
@@ -48,8 +49,9 @@ ChangeDirDialog(Dialog):
         name: "info"
         anchors:
             left: 1
-            right: 15
+            right: 18
             bottom: 1
+
         text: " " + str(tree.selected_node.data) if tree.selected_node is not None else ""
 
     Button:
@@ -57,7 +59,7 @@ ChangeDirDialog(Dialog):
         text: "O~K~"
         default: True
         y: 2
-        width: 11
+        width: 14
         height: 2
         anchors:
             right: 2
@@ -70,7 +72,7 @@ ChangeDirDialog(Dialog):
         text: "~D~rive..."
         disabled: True
         y: 5
-        width: 11
+        width: 14
         height: 2
         anchors:
             right: 2
@@ -79,7 +81,7 @@ ChangeDirDialog(Dialog):
         id: reread
         text: "~R~e-read"
         y: 8
-        width: 11
+        width: 14
         height: 2
         anchors:
             right: 2
@@ -88,7 +90,7 @@ ChangeDirDialog(Dialog):
         id: mkdir
         text: "~M~kDir"
         y: 11
-        width: 11
+        width: 14
         height: 2
         anchors:
             right: 2
@@ -98,7 +100,7 @@ ChangeDirDialog(Dialog):
         id: abandon
         text: "Cancel"
         y: 14
-        width: 11
+        width: 14
         height: 2
         anchors:
             right: 2

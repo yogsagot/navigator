@@ -99,11 +99,11 @@
 <text x="350" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">44%</text>
 <text x="420" y="95" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#000000">9,216M</text>
 <text x="550" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">16G</text>
-<text x="260" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">挂</text>
-<text x="280" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">载</text>
-<text x="300" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
-<text x="310" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">M</text>
-<text x="320" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
+<text x="250" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">挂</text>
+<text x="270" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">载</text>
+<text x="290" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
+<text x="300" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">M</text>
+<text x="310" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="370" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">卸</text>
 <text x="390" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">载</text>
 <text x="410" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
@@ -510,6 +510,7 @@
 <line x1="7" y1="232" x2="7" y2="220" stroke="#ffffff"/>
 <line x1="3" y1="228" x2="3" y2="240" stroke="#ffffff"/>
 <line x1="7" y1="228" x2="7" y2="240" stroke="#ffffff"/>
+<rect x="250" y="220" width="10" height="10" fill="#000000"/>
 <rect x="260" y="220" width="10" height="10" fill="#000000"/>
 <rect x="270" y="220" width="10" height="10" fill="#000000"/>
 <rect x="280" y="220" width="10" height="10" fill="#000000"/>

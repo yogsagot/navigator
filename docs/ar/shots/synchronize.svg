@@ -43,10 +43,10 @@
 <rect x="20" y="200" width="40" height="20" fill="#aaaaaa"/>
 <rect x="60" y="200" width="90" height="20" fill="#555555"/>
 <rect x="150" y="200" width="30" height="20" fill="#aaaaaa"/>
-<rect x="180" y="200" width="150" height="20" fill="#555555"/>
-<rect x="330" y="200" width="30" height="20" fill="#aaaaaa"/>
-<rect x="360" y="200" width="110" height="20" fill="#555555"/>
-<rect x="470" y="200" width="310" height="20" fill="#aaaaaa"/>
+<rect x="180" y="200" width="160" height="20" fill="#555555"/>
+<rect x="340" y="200" width="30" height="20" fill="#aaaaaa"/>
+<rect x="370" y="200" width="130" height="20" fill="#555555"/>
+<rect x="500" y="200" width="280" height="20" fill="#aaaaaa"/>
 <rect x="0" y="220" width="20" height="20" fill="#000000"/>
 <rect x="20" y="220" width="760" height="20" fill="#aaaaaa"/>
 <rect x="0" y="240" width="20" height="20" fill="#000000"/>
@@ -105,8 +105,8 @@
 <text x="230" y="215" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺔﻨﻣﺍ</text>
 <text x="270" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺰ</text>
 <text x="280" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻣ</text>
-<text x="390" y="215" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺕﺍﺭﺎﻴ</text>
-<text x="440" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺧ</text>
+<text x="410" y="215" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺕﺍﺭﺎﻴ</text>
+<text x="460" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺧ</text>
 <text x="640" y="215" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻱﺮﺠ</text>
 <text x="670" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺷ</text>
 <text x="690" y="215" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺽﺮﻋ</text>
@@ -532,7 +532,7 @@
 <line x1="27" y1="208" x2="27" y2="220" stroke="#ffffff"/>
 <rect x="50" y="210" width="10" height="10" fill="#000000"/>
 <rect x="170" y="210" width="10" height="10" fill="#000000"/>
-<rect x="350" y="210" width="10" height="10" fill="#000000"/>
+<rect x="360" y="210" width="10" height="10" fill="#000000"/>
 <line x1="773" y1="212" x2="773" y2="200" stroke="#ffffff"/>
 <line x1="777" y1="212" x2="777" y2="200" stroke="#ffffff"/>
 <line x1="773" y1="208" x2="773" y2="220" stroke="#ffffff"/>
@@ -567,7 +567,7 @@
 <rect x="290" y="220" width="10" height="10" fill="#000000"/>
 <rect x="300" y="220" width="10" height="10" fill="#000000"/>
 <rect x="310" y="220" width="10" height="10" fill="#000000"/>
-<rect x="350" y="220" width="10" height="10" fill="#000000"/>
+<rect x="320" y="220" width="10" height="10" fill="#000000"/>
 <rect x="360" y="220" width="10" height="10" fill="#000000"/>
 <rect x="370" y="220" width="10" height="10" fill="#000000"/>
 <rect x="380" y="220" width="10" height="10" fill="#000000"/>
@@ -578,6 +578,9 @@
 <rect x="430" y="220" width="10" height="10" fill="#000000"/>
 <rect x="440" y="220" width="10" height="10" fill="#000000"/>
 <rect x="450" y="220" width="10" height="10" fill="#000000"/>
+<rect x="460" y="220" width="10" height="10" fill="#000000"/>
+<rect x="470" y="220" width="10" height="10" fill="#000000"/>
+<rect x="480" y="220" width="10" height="10" fill="#000000"/>
 <line x1="773" y1="232" x2="773" y2="220" stroke="#ffffff"/>
 <line x1="777" y1="232" x2="777" y2="220" stroke="#ffffff"/>
 <line x1="773" y1="228" x2="773" y2="240" stroke="#ffffff"/>

@@ -38,7 +38,8 @@ DeleteBookmarkDialog(Dialog):
     CheckBoxes:
         id: options
         y: 4
-        width: 22
+        width: 23
+
         height: 1
         anchors:
             center: horizontal

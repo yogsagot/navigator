@@ -60,11 +60,11 @@ class SplitDialog(Dialog, _Component):
     target_caption: Label    # split_dialog.nml:40
     target: Field    # split_dialog.nml:50
     size: Field    # split_dialog.nml:60
-    options: CheckBoxes    # split_dialog.nml:69
-    pick: Button    # split_dialog.nml:90
-    abandon: Button    # split_dialog.nml:95
-    tree: Button    # split_dialog.nml:99
-    help: Button    # split_dialog.nml:105
+    options: CheckBoxes    # split_dialog.nml:70
+    pick: Button    # split_dialog.nml:91
+    abandon: Button    # split_dialog.nml:96
+    tree: Button    # split_dialog.nml:100
+    help: Button    # split_dialog.nml:106
 
     #: The commands this component handles itself.
     async def on_choose_target(self, event: _Any) -> bool:    # split_dialog.nml:35
@@ -80,15 +80,15 @@ class SplitDialog(Dialog, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_pick_click(self, event: _Event) -> bool:    # split_dialog.nml:90
+    async def on_pick_click(self, event: _Event) -> bool:    # split_dialog.nml:91
         """``pick`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_abandon_click(self, event: _Event) -> bool:    # split_dialog.nml:95
+    async def on_abandon_click(self, event: _Event) -> bool:    # split_dialog.nml:96
         """``abandon`` raised an event whose handler is ``on_click``."""
         return False
 
-    async def on_help_click(self, event: _Event) -> bool:    # split_dialog.nml:105
+    async def on_help_click(self, event: _Event) -> bool:    # split_dialog.nml:106
         """``help`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -97,12 +97,12 @@ class SplitDialog(Dialog, _Component):
         self.target_caption = Label(parent=self)    # split_dialog.nml:39
         self.target = Field(parent=self)    # split_dialog.nml:49
         self.size = Field(parent=self)    # split_dialog.nml:59
-        self.options = CheckBoxes(parent=self)    # split_dialog.nml:68
-        _w1 = ButtonRow(parent=self)    # split_dialog.nml:80
-        self.pick = Button(parent=_w1)    # split_dialog.nml:89
-        self.abandon = Button(parent=_w1)    # split_dialog.nml:94
-        self.tree = Button(parent=_w1)    # split_dialog.nml:98
-        self.help = Button(parent=_w1)    # split_dialog.nml:104
+        self.options = CheckBoxes(parent=self)    # split_dialog.nml:69
+        _w1 = ButtonRow(parent=self)    # split_dialog.nml:81
+        self.pick = Button(parent=_w1)    # split_dialog.nml:90
+        self.abandon = Button(parent=_w1)    # split_dialog.nml:95
+        self.tree = Button(parent=_w1)    # split_dialog.nml:99
+        self.help = Button(parent=_w1)    # split_dialog.nml:105
 
         self.modal_width = 50    # split_dialog.nml:24
         self.modal_height = 12    # split_dialog.nml:25
@@ -138,41 +138,41 @@ class SplitDialog(Dialog, _Component):
             lambda _o: _tr('Part si~z~e'),
             yielding=True,
         )
-        self.size.label_width = 12    # split_dialog.nml:65
-        self.size.history_id = 'split_size'    # split_dialog.nml:66
+        self.size.label_width = 13    # split_dialog.nml:65
+        self.size.history_id = 'split_size'    # split_dialog.nml:67
 
-        self.options.y = 6    # split_dialog.nml:70
-        self.options.height = 1    # split_dialog.nml:71
-        self.options.items = _bind(    # split_dialog.nml:75
+        self.options.y = 6    # split_dialog.nml:71
+        self.options.height = 1    # split_dialog.nml:72
+        self.options.items = _bind(    # split_dialog.nml:76
             lambda _o: [_tr('~W~rite checksum file (.crc)')],
             yielding=True,
         )
-        self.options.x = 2    # split_dialog.nml:73
-        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # split_dialog.nml:74
+        self.options.x = 2    # split_dialog.nml:74
+        self.options.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # split_dialog.nml:75
 
-        _w1.justify = 'start'    # split_dialog.nml:81
-        _w1.button_width = 10    # split_dialog.nml:82
-        _w1.spacing = 0    # split_dialog.nml:83
-        _w1.x = 8# split_dialog.nml:85
-        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # split_dialog.nml:86
-        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # split_dialog.nml:87
+        _w1.justify = 'start'    # split_dialog.nml:82
+        _w1.button_width = 10    # split_dialog.nml:83
+        _w1.spacing = 0    # split_dialog.nml:84
+        _w1.x = 8# split_dialog.nml:86
+        _w1.width = _bind(lambda _o: max(0, _o.parent.width - 8))    # split_dialog.nml:87
+        _w1.y = _bind(lambda _o: max(0, _o.parent.height - 2 - _o.height))    # split_dialog.nml:88
 
-        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # split_dialog.nml:91
-        self.pick.default = True    # split_dialog.nml:92
-        self.pick.on_click = self.on_pick_click    # split_dialog.nml:90
+        self.pick.text = _bind(lambda _o: _tr('O~K~'), yielding=True)    # split_dialog.nml:92
+        self.pick.default = True    # split_dialog.nml:93
+        self.pick.on_click = self.on_pick_click    # split_dialog.nml:91
 
-        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # split_dialog.nml:96
-        self.abandon.on_click = self.on_abandon_click    # split_dialog.nml:95
+        self.abandon.text = _bind(lambda _o: _tr('Cancel'), yielding=True)    # split_dialog.nml:97
+        self.abandon.on_click = self.on_abandon_click    # split_dialog.nml:96
 
-        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # split_dialog.nml:100
+        self.tree.text = _bind(lambda _o: _tr('~T~ree'), yielding=True)    # split_dialog.nml:101
 
-        async def _on_click(event):    # split_dialog.nml:101
+        async def _on_click(event):    # split_dialog.nml:102
             self.spawn(self.choose_target())
             return True
         self.tree.on_click = _on_click
 
-        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # split_dialog.nml:106
-        self.help.command = Help    # split_dialog.nml:107
-        self.help.on_click = self.on_help_click    # split_dialog.nml:105
+        self.help.text = _bind(lambda _o: _tr('Help'), yielding=True)    # split_dialog.nml:107
+        self.help.command = Help    # split_dialog.nml:108
+        self.help.on_click = self.on_help_click    # split_dialog.nml:106
 
         self._navml_built(__class__)

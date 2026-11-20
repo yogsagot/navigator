@@ -60,7 +60,8 @@ CalculateChecksumsDialog(Dialog):
             left: 2
             right: 2
         label_text: "~L~ist file"
-        label_width: 11
+        label_width: 14
+
         history_id: "checksum"
         disabled: mode.value != 0
 

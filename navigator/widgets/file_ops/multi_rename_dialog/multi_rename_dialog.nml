@@ -61,7 +61,7 @@ MultiRenameDialog(Dialog):
         id: options
         x: 3
         y: 6
-        width: 26
+        width: 28
         height: 4
         items: ["Regular ~e~xpression", "Case sens~i~tive", "~F~irst match only", "Clean up na~m~es"]
         tooltips: ["The search is a regular expression, not plain text", "", "Replace only the first match in each name", "Bytes that are not UTF-8 read in the code page below, NFC, control characters to _, names differing only by case numbered"]
@@ -80,7 +80,7 @@ MultiRenameDialog(Dialog):
 
     Label:
         id: case_caption
-        x: 31
+        x: 32
         y: 5
         width: 10
         text: "Case"
@@ -88,33 +88,34 @@ MultiRenameDialog(Dialog):
 
     RadioButtons:
         id: case
-        x: 31
+        x: 32
         y: 6
-        width: 18
+        width: 25
+
         height: 5
         items: ["Unchan~g~ed", "~l~ower", "~U~PPER", "~W~ord Caps", "Fi~r~st only"]
 
     Field:
         id: start
-        x: 51
+        x: 58
         y: 6
-        width: 23
+        width: 16
         label_text: "Coun~t~er"
         label_width: 10
 
     Field:
         id: step
-        x: 51
+        x: 58
         y: 7
-        width: 23
+        width: 16
         label_text: "Step"
         label_width: 10
 
     Field:
         id: digits
-        x: 51
+        x: 58
         y: 8
-        width: 23
+        width: 16
         label_text: "~D~igits"
         label_width: 10
 

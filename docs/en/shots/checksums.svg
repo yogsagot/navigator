@@ -19,10 +19,10 @@
 <rect x="600" y="120" width="20" height="20" fill="#000000"/>
 <rect x="0" y="140" width="600" height="20" fill="#aaaaaa"/>
 <rect x="600" y="140" width="20" height="20" fill="#000000"/>
-<rect x="0" y="160" width="130" height="20" fill="#aaaaaa"/>
-<rect x="130" y="160" width="10" height="20" fill="#555555"/>
-<rect x="140" y="160" width="140" height="20" fill="#5555ff"/>
-<rect x="280" y="160" width="270" height="20" fill="#555555"/>
+<rect x="0" y="160" width="160" height="20" fill="#aaaaaa"/>
+<rect x="160" y="160" width="10" height="20" fill="#555555"/>
+<rect x="170" y="160" width="140" height="20" fill="#5555ff"/>
+<rect x="310" y="160" width="240" height="20" fill="#555555"/>
 <rect x="550" y="160" width="10" height="20" fill="#aaaaaa"/>
 <rect x="560" y="160" width="10" height="20" fill="#5555ff"/>
 <rect x="570" y="160" width="30" height="20" fill="#aaaaaa"/>
@@ -90,7 +90,7 @@
 <text x="20" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">L</text>
 <text x="30" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">ist</text>
 <text x="70" y="175" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">file</text>
-<text x="140" y="175" textLength="140" lengthAdjust="spacingAndGlyphs" fill="#ffffff">docs.sha256sum</text>
+<text x="170" y="175" textLength="140" lengthAdjust="spacingAndGlyphs" fill="#ffffff">docs.sha256sum</text>
 <text x="560" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
 <text x="170" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">▶</text>
 <text x="210" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">O</text>

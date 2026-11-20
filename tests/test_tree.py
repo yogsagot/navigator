@@ -567,11 +567,12 @@ def test_the_dialog_is_laid_out_as_ttreedialog_lays_it_out(places):
     dialog = ChangeDirDialog(start=places)
     assert (dialog.modal_width, dialog.modal_height, dialog.title) == (49, 17, "Choose Directory")
     tree = dialog.tree
-    assert (tree.framed, tree.x, tree.y, tree.width, tree.height) == (False, 1, 1, 34, 14)
+    assert (tree.framed, tree.x, tree.y, tree.width, tree.height) == (False, 1, 1, 31, 14)
     buttons = dialog.buttons_row
     assert [parse_shortcut(b.text)[0] for b in buttons] == [
         "OK", "Drive...", "Re-read", "MkDir", "Cancel"]
-    assert [(b.x, b.y, b.width) for b in buttons] == [(36, y, 11) for y in (2, 5, 8, 11, 14)]
+    # Fourteen wide, not the original's eleven: room for a translated *Re-read*.
+    assert [(b.x, b.y, b.width) for b in buttons] == [(33, y, 14) for y in (2, 5, 8, 11, 14)]
     assert dialog.pick.default and dialog.drive.disabled
     assert dialog.row.visible is False     # Dialog's own bottom row is not this one's
     assert dialog.accept() == places.resolve()
@@ -603,9 +604,10 @@ def test_the_dialog_takes_its_size_from_the_screen(places, size, expected):
     run_app(app, [KeyEvent("t", "t", alt=True), lambda a: None, look])
     assert seen == [(
         (width, height),
-        (1, 1, width - 15, height - 3),
-        (height - 2, width - 16),
-        [(width - 13, 2 + i * 3, 11) for i in range(5)],
+        (1, 1, width - 18, height - 3),
+        (height - 2, width - 19),
+        [(width - 16, 2 + i * 3, 14) for i in range(5)],
+
     )]
 
 

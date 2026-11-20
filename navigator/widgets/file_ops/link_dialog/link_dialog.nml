@@ -57,7 +57,8 @@ LinkDialog(Dialog):
         id: kind
         x: 3
         y: 4
-        width: 24
+        width: 25
+
         height: 2
         items: ["S~y~mbolic link", "~H~ard link"]
         tooltips: ["A small file holding the path of the original", "A second name for the same file, on the same file system; never for a directory"]

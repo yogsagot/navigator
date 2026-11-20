@@ -24,6 +24,9 @@ class HostKeyQuery(Dialog):
         self.ok.text = tr("~A~ccept")
         unbind(self.no, Button.text)
         self.no.text = tr("~S~ave")
+        # Three columns wider than Dialog's eleven, for a translated *Accept*.
+        self.row.button_width = 14
+
 
     def accept(self) -> str:
         return "once"

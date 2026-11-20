@@ -21,8 +21,8 @@
 <rect x="20" y="80" width="210" height="20" fill="#aaaaaa"/>
 <rect x="230" y="80" width="10" height="20" fill="#5555ff"/>
 <rect x="240" y="80" width="10" height="20" fill="#aaaaaa"/>
-<rect x="250" y="80" width="130" height="20" fill="#555555"/>
-<rect x="380" y="80" width="140" height="20" fill="#aaaaaa"/>
+<rect x="250" y="80" width="120" height="20" fill="#555555"/>
+<rect x="370" y="80" width="150" height="20" fill="#aaaaaa"/>
 <rect x="0" y="100" width="20" height="20" fill="#000000"/>
 <rect x="20" y="100" width="500" height="20" fill="#aaaaaa"/>
 <rect x="0" y="120" width="20" height="20" fill="#000000"/>
@@ -59,7 +59,7 @@
 <text x="50" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
 <text x="370" y="55" textLength="120" lengthAdjust="spacingAndGlyphs" fill="#ffffff">/srv/backup/</text>
 <text x="230" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="340" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">64K</text>
+<text x="330" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">64K</text>
 <text x="410" y="95" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺀﺰﺠﻟﺍ</text>
 <text x="470" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻢﺠ</text>
 <text x="490" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺣ</text>

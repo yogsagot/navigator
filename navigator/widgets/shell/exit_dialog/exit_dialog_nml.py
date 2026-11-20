@@ -74,17 +74,17 @@ class ExitDialog(Dialog, _Component):
         self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # exit_dialog.nml:32
 
         self.options.y = 4    # exit_dialog.nml:39
-        self.options.width = 22    # exit_dialog.nml:40
-        self.options.height = 1    # exit_dialog.nml:41
-        self.options.items = _bind(    # exit_dialog.nml:44
+        self.options.width = 23    # exit_dialog.nml:40
+        self.options.height = 1    # exit_dialog.nml:42
+        self.options.items = _bind(    # exit_dialog.nml:45
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # exit_dialog.nml:45
+        self.options.tooltips = _bind(    # exit_dialog.nml:46
             lambda _o: [_tr('Quit without asking from now on (Options > Confirmations)')],
             yielding=True,
         )
-        self.options.x = _bind(    # exit_dialog.nml:43
+        self.options.x = _bind(    # exit_dialog.nml:44
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
 

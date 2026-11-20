@@ -36,12 +36,12 @@
 <rect x="0" y="260" width="20" height="20" fill="#000000"/>
 <rect x="20" y="260" width="490" height="20" fill="#aaaaaa"/>
 <rect x="0" y="280" width="20" height="20" fill="#000000"/>
-<rect x="20" y="280" width="50" height="20" fill="#aaaaaa"/>
-<rect x="70" y="280" width="90" height="20" fill="#555555"/>
-<rect x="160" y="280" width="10" height="20" fill="#aaaaaa"/>
-<rect x="170" y="280" width="90" height="20" fill="#555555"/>
-<rect x="260" y="280" width="10" height="20" fill="#aaaaaa"/>
-<rect x="270" y="280" width="90" height="20" fill="#555555"/>
+<rect x="20" y="280" width="40" height="20" fill="#aaaaaa"/>
+<rect x="60" y="280" width="90" height="20" fill="#555555"/>
+<rect x="150" y="280" width="10" height="20" fill="#aaaaaa"/>
+<rect x="160" y="280" width="90" height="20" fill="#555555"/>
+<rect x="250" y="280" width="10" height="20" fill="#aaaaaa"/>
+<rect x="260" y="280" width="100" height="20" fill="#555555"/>
 <rect x="360" y="280" width="10" height="20" fill="#aaaaaa"/>
 <rect x="370" y="280" width="110" height="20" fill="#555555"/>
 <rect x="480" y="280" width="30" height="20" fill="#aaaaaa"/>
@@ -107,10 +107,10 @@
 <text x="430" y="255" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">XP</text>
 <text x="460" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="480" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
-<text x="100" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">הרזע</text>
-<text x="200" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">רוגס</text>
-<text x="300" y="295" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">קתע</text>
-<text x="330" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ה</text>
+<text x="90" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">הרזע</text>
+<text x="190" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">רוגס</text>
+<text x="290" y="295" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">קתע</text>
+<text x="320" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ה</text>
 <text x="370" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">◀</text>
 <text x="410" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#55ffff">בש</text>
 <text x="430" y="295" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ח</text>
@@ -389,9 +389,9 @@
 <line x1="27" y1="292" x2="27" y2="280" stroke="#ffffff"/>
 <line x1="23" y1="288" x2="23" y2="300" stroke="#ffffff"/>
 <line x1="27" y1="288" x2="27" y2="300" stroke="#ffffff"/>
-<rect x="60" y="290" width="10" height="10" fill="#000000"/>
-<rect x="160" y="290" width="10" height="10" fill="#000000"/>
-<rect x="260" y="290" width="10" height="10" fill="#000000"/>
+<rect x="50" y="290" width="10" height="10" fill="#000000"/>
+<rect x="150" y="290" width="10" height="10" fill="#000000"/>
+<rect x="250" y="290" width="10" height="10" fill="#000000"/>
 <rect x="360" y="290" width="10" height="10" fill="#000000"/>
 <line x1="503" y1="292" x2="503" y2="280" stroke="#ffffff"/>
 <line x1="507" y1="292" x2="507" y2="280" stroke="#ffffff"/>
@@ -401,6 +401,7 @@
 <line x1="27" y1="312" x2="27" y2="300" stroke="#ffffff"/>
 <line x1="23" y1="308" x2="23" y2="320" stroke="#ffffff"/>
 <line x1="27" y1="308" x2="27" y2="320" stroke="#ffffff"/>
+<rect x="50" y="300" width="10" height="10" fill="#000000"/>
 <rect x="60" y="300" width="10" height="10" fill="#000000"/>
 <rect x="70" y="300" width="10" height="10" fill="#000000"/>
 <rect x="80" y="300" width="10" height="10" fill="#000000"/>
@@ -409,7 +410,7 @@
 <rect x="110" y="300" width="10" height="10" fill="#000000"/>
 <rect x="120" y="300" width="10" height="10" fill="#000000"/>
 <rect x="130" y="300" width="10" height="10" fill="#000000"/>
-<rect x="140" y="300" width="10" height="10" fill="#000000"/>
+<rect x="150" y="300" width="10" height="10" fill="#000000"/>
 <rect x="160" y="300" width="10" height="10" fill="#000000"/>
 <rect x="170" y="300" width="10" height="10" fill="#000000"/>
 <rect x="180" y="300" width="10" height="10" fill="#000000"/>
@@ -418,7 +419,7 @@
 <rect x="210" y="300" width="10" height="10" fill="#000000"/>
 <rect x="220" y="300" width="10" height="10" fill="#000000"/>
 <rect x="230" y="300" width="10" height="10" fill="#000000"/>
-<rect x="240" y="300" width="10" height="10" fill="#000000"/>
+<rect x="250" y="300" width="10" height="10" fill="#000000"/>
 <rect x="260" y="300" width="10" height="10" fill="#000000"/>
 <rect x="270" y="300" width="10" height="10" fill="#000000"/>
 <rect x="280" y="300" width="10" height="10" fill="#000000"/>

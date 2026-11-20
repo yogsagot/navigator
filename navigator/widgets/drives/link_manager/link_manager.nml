@@ -78,7 +78,7 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "~N~ame"
-        label_width: 12
+        label_width: 14
         history_id: "ssh_name"
 
     #: GVfs/KIO's one line, in place of Host, Login, Port and Directory.
@@ -89,7 +89,7 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "~U~RI"
-        label_width: 12
+        label_width: 14
         history_id: "gvfs_uri"
         visible: False
 
@@ -100,7 +100,7 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "~H~ost"
-        label_width: 12
+        label_width: 14
         #: The hosts typed, as every line here remembers its own: not
         #: ``ConnectDialog``'s whole connections, which the list on the left is.
         history_id: "ssh_host"
@@ -112,16 +112,16 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "~L~ogin"
-        label_width: 12
+        label_width: 14
         history_id: "ssh_login"
 
     Field:
         id: port
         x: 28
         y: 8
-        width: 24
+        width: 26
         label_text: "P~o~rt"
-        label_width: 12
+        label_width: 14
         history_id: "ssh_port"
 
     Field:
@@ -131,7 +131,7 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "~D~irectory"
-        label_width: 12
+        label_width: 14
         history_id: "ssh_directory"
 
     #: SSH's: words added to Remote shell's ``ssh`` -- ``-A -J jump`` -- after
@@ -144,7 +144,7 @@ LinkManagerDialog(Dialog):
             left: 28
             right: 2
         label_text: "ssh opt~i~ons"
-        label_width: 12
+        label_width: 14
         history_id: "ssh_options"
         visible: False
 
@@ -156,7 +156,7 @@ LinkManagerDialog(Dialog):
         text: "~F~orwards..."
         x: 28
         y: 13
-        width: 19
+        width: 21
         height: 2
         visible: False
         on_click: root.spawn(root.edit_forwards())
@@ -166,9 +166,10 @@ LinkManagerDialog(Dialog):
     Button:
         id: copy_key
         text: "Copy ~k~ey..."
-        x: 48
+        x: 50
         y: 13
-        width: 16
+        width: 18
+
         height: 2
         visible: False
         on_click: root.spawn(root.copy_key_to_server())

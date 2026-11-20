@@ -38,7 +38,7 @@ def test_the_shipped_pages_are_found_from_a_checkout():
     assert (pages.root() / "en" / "README.md").is_file()
     assert pages.read(pages.CONTENTS, "en").data.startswith(b"# Navigator help")
     cells = pages.shot("README.md", "shots/make-directory.svg", "en")
-    assert cells is not None and len(cells) == 9 and len(cells[0]) == 50
+    assert cells is not None and len(cells) == 9 and len(cells[0]) == 54
 
 
 def test_a_page_is_read_in_its_language_or_else_in_english(docs):

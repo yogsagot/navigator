@@ -45,7 +45,7 @@ KeyBindingsDialog(Dialog):
         id: bindings
         x: 22
         y: 3
-        width: 42
+        width: 40
         height: 17
 
     #: The command under the cursor in full: its keys, and its defaults
@@ -54,7 +54,7 @@ KeyBindingsDialog(Dialog):
         id: detail
         x: 2
         y: 20
-        width: 62
+        width: 60
         height: 2
 
     #: The key caught in *Press a key* in place of the command's keys.
@@ -62,9 +62,9 @@ KeyBindingsDialog(Dialog):
         id: rebind
         text: "~R~ebind"
         default: True
-        x: 65
+        x: 63
         y: 3
-        width: 11
+        width: 13
         height: 2
         on_click: root.spawn(root.capture(replace=True))
 
@@ -72,9 +72,9 @@ KeyBindingsDialog(Dialog):
     Button:
         id: append
         text: "A~d~d"
-        x: 65
+        x: 63
         y: 5
-        width: 11
+        width: 13
         height: 2
         on_click: root.spawn(root.capture(replace=False))
 
@@ -82,27 +82,27 @@ KeyBindingsDialog(Dialog):
     Button:
         id: unbind
         text: "C~l~ear"
-        x: 65
+        x: 63
         y: 7
-        width: 11
+        width: 13
         height: 2
 
     #: The command's keys as the code binds them.
     Button:
         id: restore
         text: "D~e~fault"
-        x: 65
+        x: 63
         y: 9
-        width: 11
+        width: 13
         height: 2
 
     #: Every command's, in every category, asked first.
     Button:
         id: reset
         text: "Rese~t~"
-        x: 65
+        x: 63
         y: 11
-        width: 11
+        width: 13
         height: 2
         on_click: root.spawn(root.reset_all())
 
@@ -111,9 +111,9 @@ KeyBindingsDialog(Dialog):
     Button:
         id: store
         text: "~S~ave..."
-        x: 65
+        x: 63
         y: 13
-        width: 11
+        width: 13
         height: 2
         on_click: root.spawn(root.save_file())
 
@@ -123,25 +123,25 @@ KeyBindingsDialog(Dialog):
     Button:
         id: fetch
         text: "L~o~ad..."
-        x: 65
+        x: 63
         y: 15
-        width: 11
+        width: 13
         height: 2
         on_click: root.spawn(root.load_file())
 
     Button:
         id: pick
         text: "O~K~"
-        x: 65
+        x: 63
         y: 17
-        width: 11
+        width: 13
         height: 2
         on_click: root.close(root.accept())
 
     Button:
         id: abandon
         text: "Cancel"
-        x: 65
+        x: 63
         y: 19
-        width: 11
+        width: 13
         height: 2

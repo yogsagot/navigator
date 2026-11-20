@@ -62,21 +62,21 @@
 <text x="140" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">72</text>
 <text x="170" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">6F</text>
 <text x="200" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">72</text>
-<text x="200" y="155" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻩﺎﺠﺗﻻﺍ</text>
+<text x="160" y="155" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻩﺎﺠﺗﻻﺍ</text>
 <text x="440" y="155" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺕﺍﺭﺎﻴﺧ</text>
-<text x="170" y="175" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺎﻣﺎﻣ</text>
-<text x="210" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺃ</text>
-<text x="230" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">(•)</text>
+<text x="130" y="175" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺎﻣﺎﻣ</text>
+<text x="170" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺃ</text>
+<text x="190" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">(•)</text>
 <text x="360" y="175" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻑﺮﺣﻷﺍ</text>
 <text x="420" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺔﻟﺎ</text>
 <text x="450" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺣ</text>
 <text x="470" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">[</text>
 <text x="490" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">]</text>
-<text x="170" y="195" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻒﻠ</text>
-<text x="190" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺨ</text>
-<text x="200" y="195" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻠﻟ</text>
-<text x="230" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
-<text x="250" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
+<text x="130" y="195" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻒﻠ</text>
+<text x="150" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺨ</text>
+<text x="160" y="195" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﻠﻟ</text>
+<text x="190" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
+<text x="210" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="350" y="195" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺔﻠﻣﺎﻛ</text>
 <text x="410" y="195" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#555555">ﺕﺎﻤﻠ</text>
 <text x="450" y="195" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻛ</text>

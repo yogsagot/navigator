@@ -15,7 +15,7 @@ from navml.widgets.dialog.field import Field
 #: is installed by ``super().__init__()`` before this document's own lines run.
 MkdirDialog(Dialog):
     help_topic: "file-operations.md#make-a-directory"
-    modal_width: 48
+    modal_width: 52
     modal_height: 8
     title: "Make directory"
     buttons: "none"
@@ -35,7 +35,8 @@ MkdirDialog(Dialog):
             right: 2
         #: ``dlgMkDir``'s label (``DN.DNR:1679``).
         label_text: "~D~irectory name"
-        label_width: 17
+        label_width: 21
+
         #: DOS Navigator's ``hsMakeDir``: the names made before, a Down away.
         history_id: "mkdir"
 

@@ -117,19 +117,19 @@ class CalculatorWindow(Window, _Component):
     row4: StaticText    # calculator_window.nml:232
     evaluate_button: Button    # calculator_window.nml:243
     copy_button: Button    # calculator_window.nml:263
-    close_button: Button    # calculator_window.nml:268
-    help_button: Button    # calculator_window.nml:274
-    programming: Widget    # calculator_window.nml:281
-    base: RadioButtons    # calculator_window.nml:290
-    hex_row: StaticText    # calculator_window.nml:299
-    dec_row: StaticText    # calculator_window.nml:309
-    oct_row: StaticText    # calculator_window.nml:319
-    bin_row: StaticText    # calculator_window.nml:329
-    word: RadioButtons    # calculator_window.nml:339
-    signed: CheckBoxes    # calculator_window.nml:348
-    pad: Keypad    # calculator_window.nml:359
-    bit_grid: BitGrid    # calculator_window.nml:373
-    calculator_menu: SubMenu    # calculator_window.nml:385
+    close_button: Button    # calculator_window.nml:273
+    help_button: Button    # calculator_window.nml:279
+    programming: Widget    # calculator_window.nml:286
+    base: RadioButtons    # calculator_window.nml:295
+    hex_row: StaticText    # calculator_window.nml:304
+    dec_row: StaticText    # calculator_window.nml:314
+    oct_row: StaticText    # calculator_window.nml:324
+    bin_row: StaticText    # calculator_window.nml:334
+    word: RadioButtons    # calculator_window.nml:344
+    signed: CheckBoxes    # calculator_window.nml:353
+    pad: Keypad    # calculator_window.nml:364
+    bit_grid: BitGrid    # calculator_window.nml:378
+    calculator_menu: SubMenu    # calculator_window.nml:390
 
     #: The commands this component handles itself.
     async def on_default(self, event: _Any) -> bool:    # calculator_window.nml:73
@@ -185,7 +185,7 @@ class CalculatorWindow(Window, _Component):
     # so its override wins over the stub without either half naming
     # the other.
 
-    async def on_help_button_click(self, event: _Event) -> bool:    # calculator_window.nml:274
+    async def on_help_button_click(self, event: _Event) -> bool:    # calculator_window.nml:279
         """``help_button`` raised an event whose handler is ``on_click``."""
         return False
 
@@ -209,28 +209,28 @@ class CalculatorWindow(Window, _Component):
         self.evaluate_button = Button(parent=self.classic)    # calculator_window.nml:242
         _w1 = ButtonRow(parent=self.classic)    # calculator_window.nml:253
         self.copy_button = Button(parent=_w1)    # calculator_window.nml:262
-        self.close_button = Button(parent=_w1)    # calculator_window.nml:267
-        self.help_button = Button(parent=_w1)    # calculator_window.nml:273
-        self.programming = Widget(parent=self)    # calculator_window.nml:280
-        self.base = RadioButtons(parent=self.programming)    # calculator_window.nml:289
-        self.hex_row = StaticText(parent=self.programming)    # calculator_window.nml:298
-        self.dec_row = StaticText(parent=self.programming)    # calculator_window.nml:308
-        self.oct_row = StaticText(parent=self.programming)    # calculator_window.nml:318
-        self.bin_row = StaticText(parent=self.programming)    # calculator_window.nml:328
-        self.word = RadioButtons(parent=self.programming)    # calculator_window.nml:338
-        self.signed = CheckBoxes(parent=self.programming)    # calculator_window.nml:347
-        self.pad = Keypad(parent=self)    # calculator_window.nml:358
-        self.bit_grid = BitGrid(parent=self)    # calculator_window.nml:372
-        self.calculator_menu = SubMenu(parent=self)    # calculator_window.nml:384
-        _w2 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:387
-        _w3 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:388
-        _w4 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:389
-        _w5 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:390
-        _w6 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:391
-        _w7 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:392
-        _w8 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:393
-        _w9 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:394
-        _w10 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:395
+        self.close_button = Button(parent=_w1)    # calculator_window.nml:272
+        self.help_button = Button(parent=_w1)    # calculator_window.nml:278
+        self.programming = Widget(parent=self)    # calculator_window.nml:285
+        self.base = RadioButtons(parent=self.programming)    # calculator_window.nml:294
+        self.hex_row = StaticText(parent=self.programming)    # calculator_window.nml:303
+        self.dec_row = StaticText(parent=self.programming)    # calculator_window.nml:313
+        self.oct_row = StaticText(parent=self.programming)    # calculator_window.nml:323
+        self.bin_row = StaticText(parent=self.programming)    # calculator_window.nml:333
+        self.word = RadioButtons(parent=self.programming)    # calculator_window.nml:343
+        self.signed = CheckBoxes(parent=self.programming)    # calculator_window.nml:352
+        self.pad = Keypad(parent=self)    # calculator_window.nml:363
+        self.bit_grid = BitGrid(parent=self)    # calculator_window.nml:377
+        self.calculator_menu = SubMenu(parent=self)    # calculator_window.nml:389
+        _w2 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:392
+        _w3 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:393
+        _w4 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:394
+        _w5 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:395
+        _w6 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:396
+        _w7 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:397
+        _w8 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:398
+        _w9 = MenuLine(parent=self.calculator_menu)    # calculator_window.nml:399
+        _w10 = MenuItem(parent=self.calculator_menu)    # calculator_window.nml:400
 
         self.title = _bind(lambda _o: _tr('Calculator'), yielding=True)    # calculator_window.nml:38
         self.help_topic = 'calculator.md'    # calculator_window.nml:39
@@ -423,159 +423,160 @@ class CalculatorWindow(Window, _Component):
         _w1.width = _bind(lambda _o: max(0, _o.parent.width - 15))    # calculator_window.nml:260
 
         self.copy_button.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:264
+        self.copy_button.inline_style = 'basis: 11'    # calculator_window.nml:266
 
-        async def _on_click(event):    # calculator_window.nml:265
+        async def _on_click(event):    # calculator_window.nml:270
             self.copy_value()
             return True
         self.copy_button.on_click = _on_click
 
-        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # calculator_window.nml:269
+        self.close_button.text = _bind(lambda _o: _tr('Close'), yielding=True)    # calculator_window.nml:274
 
-        async def _on_click(event):    # calculator_window.nml:270
+        async def _on_click(event):    # calculator_window.nml:275
             self.leave()
             return True
         self.close_button.on_click = _on_click
 
-        self.help_button.text = _bind(lambda _o: _tr('Help'), yielding=True)    # calculator_window.nml:275
-        self.help_button.command = Help    # calculator_window.nml:276
-        self.help_button.on_click = self.on_help_button_click    # calculator_window.nml:274
+        self.help_button.text = _bind(lambda _o: _tr('Help'), yielding=True)    # calculator_window.nml:280
+        self.help_button.command = Help    # calculator_window.nml:281
+        self.help_button.on_click = self.on_help_button_click    # calculator_window.nml:279
 
-        self.programming.visible = _bind(lambda _o: self.mode == 'programming')    # calculator_window.nml:282
-        self.programming.y = 4    # calculator_window.nml:283
-        self.programming.height = 5    # calculator_window.nml:284
-        self.programming.x = 0    # calculator_window.nml:286
-        self.programming.width = _bind(lambda _o: max(0, _o.parent.width))    # calculator_window.nml:287
+        self.programming.visible = _bind(lambda _o: self.mode == 'programming')    # calculator_window.nml:287
+        self.programming.y = 4    # calculator_window.nml:288
+        self.programming.height = 5    # calculator_window.nml:289
+        self.programming.x = 0    # calculator_window.nml:291
+        self.programming.width = _bind(lambda _o: max(0, _o.parent.width))    # calculator_window.nml:292
 
-        self.base.x = 2    # calculator_window.nml:291
-        self.base.y = 0    # calculator_window.nml:292
-        self.base.width = 9    # calculator_window.nml:293
-        self.base.height = 4    # calculator_window.nml:294
-        self.base.items = _bind(    # calculator_window.nml:295
+        self.base.x = 2    # calculator_window.nml:296
+        self.base.y = 0    # calculator_window.nml:297
+        self.base.width = 9    # calculator_window.nml:298
+        self.base.height = 4    # calculator_window.nml:299
+        self.base.items = _bind(    # calculator_window.nml:300
             lambda _o: [_tr('~H~EX'), _tr('~D~EC'), _tr('~O~CT'), _tr('~B~IN')],
             yielding=True,
         )
-        self.base.tooltips = _bind(    # calculator_window.nml:296
+        self.base.tooltips = _bind(    # calculator_window.nml:301
             lambda _o: [_tr('Type the numbers in hexadecimal'), _tr('Type the numbers in decimal'), _tr('Type the numbers in octal'), _tr('Type the numbers in binary')],
             yielding=True,
         )
 
-        self.hex_row.y = 0    # calculator_window.nml:300
-        self.hex_row.align = 'right'    # calculator_window.nml:304
-        self.hex_row.text = _bind(lambda _o: self.forms[0])    # calculator_window.nml:305
-        self.hex_row.tooltip = _bind(    # calculator_window.nml:306
+        self.hex_row.y = 0    # calculator_window.nml:305
+        self.hex_row.align = 'right'    # calculator_window.nml:309
+        self.hex_row.text = _bind(lambda _o: self.forms[0])    # calculator_window.nml:310
+        self.hex_row.tooltip = _bind(    # calculator_window.nml:311
             lambda _o: _tr("The value in hexadecimal, two's complement in the word"),
             yielding=True,
         )
-        self.hex_row.x = 12    # calculator_window.nml:302
-        self.hex_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:303
+        self.hex_row.x = 12    # calculator_window.nml:307
+        self.hex_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:308
 
-        self.dec_row.y = 1    # calculator_window.nml:310
-        self.dec_row.align = 'right'    # calculator_window.nml:314
-        self.dec_row.text = _bind(lambda _o: self.forms[1])    # calculator_window.nml:315
-        self.dec_row.tooltip = _bind(    # calculator_window.nml:316
+        self.dec_row.y = 1    # calculator_window.nml:315
+        self.dec_row.align = 'right'    # calculator_window.nml:319
+        self.dec_row.text = _bind(lambda _o: self.forms[1])    # calculator_window.nml:320
+        self.dec_row.tooltip = _bind(    # calculator_window.nml:321
             lambda _o: _tr('The value in decimal'),
             yielding=True,
         )
-        self.dec_row.x = 12    # calculator_window.nml:312
-        self.dec_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:313
+        self.dec_row.x = 12    # calculator_window.nml:317
+        self.dec_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:318
 
-        self.oct_row.y = 2    # calculator_window.nml:320
-        self.oct_row.align = 'right'    # calculator_window.nml:324
-        self.oct_row.text = _bind(lambda _o: self.forms[2])    # calculator_window.nml:325
-        self.oct_row.tooltip = _bind(    # calculator_window.nml:326
+        self.oct_row.y = 2    # calculator_window.nml:325
+        self.oct_row.align = 'right'    # calculator_window.nml:329
+        self.oct_row.text = _bind(lambda _o: self.forms[2])    # calculator_window.nml:330
+        self.oct_row.tooltip = _bind(    # calculator_window.nml:331
             lambda _o: _tr("The value in octal, two's complement in the word"),
             yielding=True,
         )
-        self.oct_row.x = 12    # calculator_window.nml:322
-        self.oct_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:323
+        self.oct_row.x = 12    # calculator_window.nml:327
+        self.oct_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:328
 
-        self.bin_row.y = 3    # calculator_window.nml:330
-        self.bin_row.align = 'right'    # calculator_window.nml:334
-        self.bin_row.text = _bind(lambda _o: self.forms[3])    # calculator_window.nml:335
-        self.bin_row.tooltip = _bind(    # calculator_window.nml:336
+        self.bin_row.y = 3    # calculator_window.nml:335
+        self.bin_row.align = 'right'    # calculator_window.nml:339
+        self.bin_row.text = _bind(lambda _o: self.forms[3])    # calculator_window.nml:340
+        self.bin_row.tooltip = _bind(    # calculator_window.nml:341
             lambda _o: _tr("The value in binary, two's complement in the word"),
             yielding=True,
         )
-        self.bin_row.x = 12    # calculator_window.nml:332
-        self.bin_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:333
+        self.bin_row.x = 12    # calculator_window.nml:337
+        self.bin_row.width = _bind(lambda _o: max(0, _o.parent.width - 14))    # calculator_window.nml:338
 
-        self.word.x = 2    # calculator_window.nml:340
-        self.word.y = 4    # calculator_window.nml:341
-        self.word.width = 42    # calculator_window.nml:342
-        self.word.height = 1    # calculator_window.nml:343
-        self.word.items = _bind(    # calculator_window.nml:344
+        self.word.x = 2    # calculator_window.nml:345
+        self.word.y = 4    # calculator_window.nml:346
+        self.word.width = 42    # calculator_window.nml:347
+        self.word.height = 1    # calculator_window.nml:348
+        self.word.items = _bind(    # calculator_window.nml:349
             lambda _o: [_tr('~Q~WORD'), _tr('D~W~ORD'), _tr('WO~R~D'), _tr('B~Y~TE')],
             yielding=True,
         )
-        self.word.tooltips = _bind(    # calculator_window.nml:345
+        self.word.tooltips = _bind(    # calculator_window.nml:350
             lambda _o: [_tr('A word of 64 bits'), _tr('A word of 32 bits'), _tr('A word of 16 bits'), _tr('A word of 8 bits')],
             yielding=True,
         )
 
-        self.signed.y = 4    # calculator_window.nml:349
-        self.signed.height = 1    # calculator_window.nml:350
-        self.signed.items = _bind(lambda _o: [_tr('Sig~n~ed')], yielding=True)    # calculator_window.nml:354
-        self.signed.tooltips = _bind(    # calculator_window.nml:355
+        self.signed.y = 4    # calculator_window.nml:354
+        self.signed.height = 1    # calculator_window.nml:355
+        self.signed.items = _bind(lambda _o: [_tr('Sig~n~ed')], yielding=True)    # calculator_window.nml:359
+        self.signed.tooltips = _bind(    # calculator_window.nml:360
             lambda _o: [_tr("The word read as two's complement; unticked, unsigned")],
             yielding=True,
         )
-        self.signed.x = 46    # calculator_window.nml:352
-        self.signed.width = _bind(lambda _o: max(0, _o.parent.width - 48))    # calculator_window.nml:353
+        self.signed.x = 46    # calculator_window.nml:357
+        self.signed.width = _bind(lambda _o: max(0, _o.parent.width - 48))    # calculator_window.nml:358
 
-        self.pad.visible = _bind(    # calculator_window.nml:360
+        self.pad.visible = _bind(    # calculator_window.nml:365
             lambda _o: self.mode != 'classic' and (not (self.mode == 'programming' and self.bit_keypad))
         )
-        self.pad.y = _bind(lambda _o: 10 if self.mode == 'programming' else 7)    # calculator_window.nml:361
-        self.pad.height = _bind(    # calculator_window.nml:362
+        self.pad.y = _bind(lambda _o: 10 if self.mode == 'programming' else 7)    # calculator_window.nml:366
+        self.pad.height = _bind(    # calculator_window.nml:367
             lambda _o: 10 if self.mode == 'programming' else 12
         )
-        self.pad.x = 2    # calculator_window.nml:364
-        self.pad.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculator_window.nml:365
+        self.pad.x = 2    # calculator_window.nml:369
+        self.pad.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculator_window.nml:370
 
-        self.bit_grid.visible = _bind(    # calculator_window.nml:374
+        self.bit_grid.visible = _bind(    # calculator_window.nml:379
             lambda _o: self.mode == 'programming' and self.bit_keypad
         )
-        self.bit_grid.y = 10    # calculator_window.nml:375
-        self.bit_grid.height = 10    # calculator_window.nml:376
-        self.bit_grid.tooltip = _bind(    # calculator_window.nml:380
+        self.bit_grid.y = 10    # calculator_window.nml:380
+        self.bit_grid.height = 10    # calculator_window.nml:381
+        self.bit_grid.tooltip = _bind(    # calculator_window.nml:385
             lambda _o: _tr('Click a bit, or Space on it, to flip it'),
             yielding=True,
         )
-        self.bit_grid.x = 2    # calculator_window.nml:378
-        self.bit_grid.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculator_window.nml:379
+        self.bit_grid.x = 2    # calculator_window.nml:383
+        self.bit_grid.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # calculator_window.nml:384
 
-        self.calculator_menu.text = _bind(    # calculator_window.nml:384
+        self.calculator_menu.text = _bind(    # calculator_window.nml:389
             lambda _o: _tr('~C~alculator'),
             yielding=True,
         )
-        self.calculator_menu.after = 'File'    # calculator_window.nml:384
-        self.calculator_menu.tooltip = _bind(    # calculator_window.nml:386
+        self.calculator_menu.after = 'File'    # calculator_window.nml:389
+        self.calculator_menu.tooltip = _bind(    # calculator_window.nml:391
             lambda _o: _tr("The calculator's faces, copying its value and closing it"),
             yielding=True,
         )
 
-        _w2.text = _bind(lambda _o: _tr('~S~imple'), yielding=True)    # calculator_window.nml:387
-        _w2.command = CalculatorSimple    # calculator_window.nml:387
+        _w2.text = _bind(lambda _o: _tr('~S~imple'), yielding=True)    # calculator_window.nml:392
+        _w2.command = CalculatorSimple    # calculator_window.nml:392
 
-        _w3.text = _bind(lambda _o: _tr('C~l~assic'), yielding=True)    # calculator_window.nml:388
-        _w3.command = CalculatorClassic    # calculator_window.nml:388
+        _w3.text = _bind(lambda _o: _tr('C~l~assic'), yielding=True)    # calculator_window.nml:393
+        _w3.command = CalculatorClassic    # calculator_window.nml:393
 
-        _w4.text = _bind(lambda _o: _tr('Sc~i~entific'), yielding=True)    # calculator_window.nml:389
-        _w4.command = CalculatorScientific    # calculator_window.nml:389
+        _w4.text = _bind(lambda _o: _tr('Sc~i~entific'), yielding=True)    # calculator_window.nml:394
+        _w4.command = CalculatorScientific    # calculator_window.nml:394
 
-        _w5.text = _bind(lambda _o: _tr('Pro~g~ramming'), yielding=True)    # calculator_window.nml:390
-        _w5.command = CalculatorProgramming    # calculator_window.nml:390
+        _w5.text = _bind(lambda _o: _tr('Pro~g~ramming'), yielding=True)    # calculator_window.nml:395
+        _w5.command = CalculatorProgramming    # calculator_window.nml:395
 
-        _w7.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:392
-        _w7.command = CalculatorCopy    # calculator_window.nml:392
+        _w7.text = _bind(lambda _o: _tr('~C~opy'), yielding=True)    # calculator_window.nml:397
+        _w7.command = CalculatorCopy    # calculator_window.nml:397
 
-        _w8.text = _bind(    # calculator_window.nml:393
+        _w8.text = _bind(    # calculator_window.nml:398
             lambda _o: _tr('~B~it toggling keypad'),
             yielding=True,
         )
-        _w8.command = ToggleBitKeypad    # calculator_window.nml:393
+        _w8.command = ToggleBitKeypad    # calculator_window.nml:398
 
-        _w10.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # calculator_window.nml:395
-        _w10.command = CloseWindow    # calculator_window.nml:395
+        _w10.text = _bind(lambda _o: _tr('Cl~o~se'), yielding=True)    # calculator_window.nml:400
+        _w10.command = CloseWindow    # calculator_window.nml:400
 
         self._navml_built(__class__)

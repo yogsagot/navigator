@@ -69,17 +69,17 @@ class DeleteBookmarkDialog(Dialog, _Component):
         self.prompt_tail.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # delete_bookmark_dialog.nml:34
 
         self.options.y = 4    # delete_bookmark_dialog.nml:40
-        self.options.width = 22    # delete_bookmark_dialog.nml:41
-        self.options.height = 1    # delete_bookmark_dialog.nml:42
-        self.options.items = _bind(    # delete_bookmark_dialog.nml:45
+        self.options.width = 23    # delete_bookmark_dialog.nml:41
+        self.options.height = 1    # delete_bookmark_dialog.nml:43
+        self.options.items = _bind(    # delete_bookmark_dialog.nml:46
             lambda _o: [_tr("~D~on't ask again")],
             yielding=True,
         )
-        self.options.tooltips = _bind(    # delete_bookmark_dialog.nml:46
+        self.options.tooltips = _bind(    # delete_bookmark_dialog.nml:47
             lambda _o: [_tr('Delete bookmarks without asking from now on (Options > Confirmations)')],
             yielding=True,
         )
-        self.options.x = _bind(    # delete_bookmark_dialog.nml:44
+        self.options.x = _bind(    # delete_bookmark_dialog.nml:45
             lambda _o: max(0, (_o.parent.width - _o.width) // 2)
         )
 

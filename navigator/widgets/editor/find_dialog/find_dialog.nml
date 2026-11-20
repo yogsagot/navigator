@@ -11,11 +11,13 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: 18), one document because they differ only by the *New text* line, a third
 #: option and *Change all*: every rectangle is the resource's, the replace
 #: dialog's two rows lower where it says so.  Both lines keep ``hsFindText``.
+#: Three columns wider than the resource, the right-hand column one over, so
+#: a translated *Case sensitive* or *From cursor* is not cut off.
 FindDialog(Dialog):
     #: Which of the two: *Find* (F7) or *Replace* (Ctrl+F7).
     property replace: False
 
-    modal_width: 55
+    modal_width: 58
     modal_height: 18 if root.replace else 15
     title: "Replace" if root.replace else "Find"
     help_topic: "editor.md#find-and-replace"
@@ -27,7 +29,7 @@ FindDialog(Dialog):
         id: text
         x: 3
         y: 2
-        width: 49
+        width: 52
         label_text: "~T~ext to find"
         label_width: 14
         history_id: "find_text"
@@ -37,9 +39,9 @@ FindDialog(Dialog):
         visible: root.replace
         x: 7
         y: 4
-        width: 45
+        width: 48
         label_text: "~N~ew text"
-        label_width: 10
+        label_width: 11
         history_id: "find_text"
 
     Label:
@@ -47,14 +49,14 @@ FindDialog(Dialog):
         text: "Options"
         link: options
         x: 3
-        width: 24
+        width: 27
         anchors:
             below: new, text + 1
 
     CheckBoxes:
         id: options
         x: 3
-        width: 24
+        width: 27
         height: 3 if root.replace else 2
         items: ["~C~ase sensitive", "~W~hole words only", "~P~rompt on replace"] if root.replace else ["~C~ase sensitive", "~W~hole words only"]
         tooltips: ["", "", "Ask before each replacement"]
@@ -65,15 +67,15 @@ FindDialog(Dialog):
         id: direction_caption
         text: "Direction"
         link: direction
-        x: 30
-        width: 22
+        x: 31
+        width: 24
         anchors:
             below: new, text + 1
 
     RadioButtons:
         id: direction
-        x: 30
-        width: 22
+        x: 31
+        width: 24
         height: 2
         items: ["Forwar~d~", "~B~ackward"]
         anchors:
@@ -84,14 +86,14 @@ FindDialog(Dialog):
         text: "Scope"
         link: scope
         x: 3
-        width: 24
+        width: 27
         anchors:
             below: options + 1
 
     RadioButtons:
         id: scope
         x: 3
-        width: 24
+        width: 27
         height: 2
         items: ["~G~lobal", "~S~elected text"]
         anchors:
@@ -101,15 +103,16 @@ FindDialog(Dialog):
         id: origin_caption
         text: "Origin"
         link: origin
-        x: 30
-        width: 22
+        x: 31
+        width: 24
         anchors:
             below: options + 1
 
     RadioButtons:
         id: origin
-        x: 30
-        width: 22
+        x: 31
+        width: 24
+
         height: 2
         items: ["~E~ntire scope", "~F~rom cursor"]
         anchors:

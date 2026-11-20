@@ -11,8 +11,8 @@
 <rect x="20" y="40" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="40" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="40" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="40" width="310" height="20" fill="#5555ff"/>
-<rect x="380" y="40" width="140" height="20" fill="#aaaaaa"/>
+<rect x="70" y="40" width="290" height="20" fill="#5555ff"/>
+<rect x="360" y="40" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="40" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="40" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="60" width="20" height="20" fill="#000000"/>
@@ -23,8 +23,8 @@
 <rect x="20" y="80" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="80" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="80" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="80" width="310" height="20" fill="#555555"/>
-<rect x="380" y="80" width="140" height="20" fill="#aaaaaa"/>
+<rect x="70" y="80" width="290" height="20" fill="#555555"/>
+<rect x="360" y="80" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="80" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="80" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="100" width="20" height="20" fill="#000000"/>
@@ -35,8 +35,8 @@
 <rect x="20" y="120" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="120" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="120" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="120" width="310" height="20" fill="#555555"/>
-<rect x="380" y="120" width="140" height="20" fill="#aaaaaa"/>
+<rect x="70" y="120" width="290" height="20" fill="#555555"/>
+<rect x="360" y="120" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="120" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="120" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="140" width="20" height="20" fill="#000000"/>
@@ -44,11 +44,11 @@
 <rect x="520" y="140" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="140" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="160" width="20" height="20" fill="#000000"/>
-<rect x="20" y="160" width="250" height="20" fill="#aaaaaa"/>
-<rect x="270" y="160" width="10" height="20" fill="#5555ff"/>
-<rect x="280" y="160" width="10" height="20" fill="#aaaaaa"/>
-<rect x="290" y="160" width="90" height="20" fill="#555555"/>
-<rect x="380" y="160" width="140" height="20" fill="#aaaaaa"/>
+<rect x="20" y="160" width="230" height="20" fill="#aaaaaa"/>
+<rect x="250" y="160" width="10" height="20" fill="#5555ff"/>
+<rect x="260" y="160" width="10" height="20" fill="#aaaaaa"/>
+<rect x="270" y="160" width="90" height="20" fill="#555555"/>
+<rect x="360" y="160" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="160" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="160" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="180" width="20" height="20" fill="#000000"/>
@@ -59,8 +59,8 @@
 <rect x="20" y="200" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="200" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="200" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="200" width="310" height="20" fill="#555555"/>
-<rect x="380" y="200" width="140" height="20" fill="#aaaaaa"/>
+<rect x="70" y="200" width="290" height="20" fill="#555555"/>
+<rect x="360" y="200" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="200" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="200" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="220" width="20" height="20" fill="#000000"/>
@@ -71,15 +71,15 @@
 <rect x="20" y="240" width="30" height="20" fill="#aaaaaa"/>
 <rect x="50" y="240" width="10" height="20" fill="#5555ff"/>
 <rect x="60" y="240" width="10" height="20" fill="#aaaaaa"/>
-<rect x="70" y="240" width="310" height="20" fill="#555555"/>
-<rect x="380" y="240" width="140" height="20" fill="#aaaaaa"/>
+<rect x="70" y="240" width="290" height="20" fill="#555555"/>
+<rect x="360" y="240" width="160" height="20" fill="#aaaaaa"/>
 <rect x="520" y="240" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="240" width="20" height="20" fill="#aaaaaa"/>
 <rect x="0" y="260" width="20" height="20" fill="#000000"/>
-<rect x="20" y="260" width="130" height="20" fill="#aaaaaa"/>
-<rect x="150" y="260" width="150" height="20" fill="#555555"/>
-<rect x="300" y="260" width="20" height="20" fill="#aaaaaa"/>
-<rect x="320" y="260" width="180" height="20" fill="#555555"/>
+<rect x="20" y="260" width="90" height="20" fill="#aaaaaa"/>
+<rect x="110" y="260" width="170" height="20" fill="#555555"/>
+<rect x="280" y="260" width="20" height="20" fill="#aaaaaa"/>
+<rect x="300" y="260" width="200" height="20" fill="#555555"/>
 <rect x="500" y="260" width="20" height="20" fill="#aaaaaa"/>
 <rect x="520" y="260" width="240" height="20" fill="#00aaaa"/>
 <rect x="760" y="260" width="20" height="20" fill="#aaaaaa"/>
@@ -118,30 +118,30 @@
 <text x="690" y="35" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻇ</text>
 <text x="700" y="35" textLength="60" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻮﻔﺤﻤﻟﺍ</text>
 <text x="50" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="310" y="55" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">backup</text>
+<text x="290" y="55" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">backup</text>
 <text x="470" y="55" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻢﺳ</text>
 <text x="490" y="55" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺍ</text>
 <text x="690" y="75" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#000000">backup</text>
 <text x="50" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="200" y="95" textLength="170" lengthAdjust="spacingAndGlyphs" fill="#ffffff">files.example.org</text>
+<text x="180" y="95" textLength="170" lengthAdjust="spacingAndGlyphs" fill="#ffffff">files.example.org</text>
 <text x="440" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻡﺩﺎ</text>
 <text x="470" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺨ</text>
 <text x="480" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻟﺍ</text>
 <text x="720" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">web</text>
 <text x="700" y="115" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">build</text>
 <text x="50" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="310" y="135" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">backup</text>
+<text x="290" y="135" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">backup</text>
 <text x="380" y="135" textLength="80" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻡﺪﺨﺘﺴﻤﻟﺍ</text>
 <text x="470" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻢ</text>
 <text x="480" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺳ</text>
 <text x="490" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺍ</text>
-<text x="270" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="350" y="175" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">22</text>
+<text x="250" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
+<text x="330" y="175" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">22</text>
 <text x="440" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺬﻔﻨ</text>
 <text x="470" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻤ</text>
 <text x="480" y="175" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻟﺍ</text>
 <text x="50" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
-<text x="260" y="215" textLength="110" lengthAdjust="spacingAndGlyphs" fill="#ffffff">/srv/backup</text>
+<text x="240" y="215" textLength="110" lengthAdjust="spacingAndGlyphs" fill="#ffffff">/srv/backup</text>
 <text x="440" y="215" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺪﻠ</text>
 <text x="460" y="215" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﺠ</text>
 <text x="470" y="215" textLength="30" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﻤﻟﺍ</text>
@@ -150,12 +150,12 @@
 <text x="440" y="255" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺕﺍﺭﺎ</text>
 <text x="480" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻴ</text>
 <text x="490" y="255" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#000000">ﺧ</text>
-<text x="160" y="275" textLength="100" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">...ﺡﺎﺘﻔﻤﻟﺍ</text>
-<text x="270" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺦﺴ</text>
-<text x="290" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻧ</text>
-<text x="330" y="275" textLength="100" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">...ﺬﻓﺎﻨﻤﻟﺍ</text>
-<text x="440" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻪ</text>
-<text x="450" y="275" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻴﺟﻮﺗ</text>
+<text x="130" y="275" textLength="100" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">...ﺡﺎﺘﻔﻤﻟﺍ</text>
+<text x="240" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺦﺴ</text>
+<text x="260" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻧ</text>
+<text x="320" y="275" textLength="100" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">...ﺬﻓﺎﻨﻤﻟﺍ</text>
+<text x="430" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffff55">ﻪ</text>
+<text x="440" y="275" textLength="40" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﻴﺟﻮﺗ</text>
 <text x="90" y="335" textLength="50" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#ffffff">ﺀﺎﻐﻟﺇ</text>
 <text x="190" y="335" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#55ffff">◀</text>
 <text x="230" y="335" textLength="20" lengthAdjust="spacingAndGlyphs" unicode-bidi="bidi-override" direction="ltr" fill="#55ffff">ﻝﺎ</text>
@@ -532,8 +532,8 @@
 <line x1="27" y1="172" x2="27" y2="160" stroke="#ffffff"/>
 <line x1="23" y1="168" x2="23" y2="180" stroke="#ffffff"/>
 <line x1="27" y1="168" x2="27" y2="180" stroke="#ffffff"/>
-<rect x="260" y="160" width="5" height="20" fill="#5555ff"/>
-<rect x="285" y="160" width="5" height="20" fill="#5555ff"/>
+<rect x="240" y="160" width="5" height="20" fill="#5555ff"/>
+<rect x="265" y="160" width="5" height="20" fill="#5555ff"/>
 <line x1="525" y1="170" x2="525" y2="160" stroke="#000000"/>
 <line x1="525" y1="170" x2="525" y2="180" stroke="#000000"/>
 <line x1="755" y1="170" x2="755" y2="160" stroke="#000000"/>
@@ -598,8 +598,8 @@
 <line x1="27" y1="272" x2="27" y2="260" stroke="#ffffff"/>
 <line x1="23" y1="268" x2="23" y2="280" stroke="#ffffff"/>
 <line x1="27" y1="268" x2="27" y2="280" stroke="#ffffff"/>
-<rect x="140" y="270" width="10" height="10" fill="#000000"/>
-<rect x="310" y="270" width="10" height="10" fill="#000000"/>
+<rect x="100" y="270" width="10" height="10" fill="#000000"/>
+<rect x="290" y="270" width="10" height="10" fill="#000000"/>
 <line x1="525" y1="270" x2="525" y2="260" stroke="#000000"/>
 <line x1="525" y1="270" x2="525" y2="280" stroke="#000000"/>
 <line x1="755" y1="270" x2="755" y2="260" stroke="#000000"/>
@@ -612,6 +612,10 @@
 <line x1="27" y1="292" x2="27" y2="280" stroke="#ffffff"/>
 <line x1="23" y1="288" x2="23" y2="300" stroke="#ffffff"/>
 <line x1="27" y1="288" x2="27" y2="300" stroke="#ffffff"/>
+<rect x="100" y="280" width="10" height="10" fill="#000000"/>
+<rect x="110" y="280" width="10" height="10" fill="#000000"/>
+<rect x="120" y="280" width="10" height="10" fill="#000000"/>
+<rect x="130" y="280" width="10" height="10" fill="#000000"/>
 <rect x="140" y="280" width="10" height="10" fill="#000000"/>
 <rect x="150" y="280" width="10" height="10" fill="#000000"/>
 <rect x="160" y="280" width="10" height="10" fill="#000000"/>
@@ -625,8 +629,8 @@
 <rect x="240" y="280" width="10" height="10" fill="#000000"/>
 <rect x="250" y="280" width="10" height="10" fill="#000000"/>
 <rect x="260" y="280" width="10" height="10" fill="#000000"/>
-<rect x="270" y="280" width="10" height="10" fill="#000000"/>
-<rect x="280" y="280" width="10" height="10" fill="#000000"/>
+<rect x="290" y="280" width="10" height="10" fill="#000000"/>
+<rect x="300" y="280" width="10" height="10" fill="#000000"/>
 <rect x="310" y="280" width="10" height="10" fill="#000000"/>
 <rect x="320" y="280" width="10" height="10" fill="#000000"/>
 <rect x="330" y="280" width="10" height="10" fill="#000000"/>

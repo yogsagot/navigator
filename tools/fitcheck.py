@@ -52,9 +52,15 @@ NOT_BOXES = frozenset({
     "tree-panel", "quick-view", "open-archive", "trash", "user-menu", "bookmarks",
 })
 
-#: Classes left out of the bare pass: bases, the file manager, and a window made
-#: only on a running service's journal (a viewer, no captions of its own).
-NOT_BARE = frozenset({"Dialog", "Window", "Manager", "JournalWindow"})
+#: Classes left out of the bare pass: bases, the file manager, a window made
+#: only on a running service's journal (a viewer, no captions of its own), and
+#: the windows that read the machine as they open -- *Directory sizes* would
+#: walk the directory it is started in, the user's home under a test -- which
+#: the screenshot scenes open on made-up rows.
+NOT_BARE = frozenset({
+    "Dialog", "Window", "Manager", "JournalWindow",
+    "UsageWindow", "ProcessWindow", "ServiceWindow", "MonitorWindow", "VolumesWindow",
+})
 
 
 def _plain(text: str | None) -> str:

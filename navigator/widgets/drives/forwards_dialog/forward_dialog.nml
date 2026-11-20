@@ -29,7 +29,7 @@ ForwardDialog(Dialog):
         id: kind
         x: 3
         y: 2
-        width: 24
+        width: 28
         height: 3
         items: ["~L~ocal (-L)", "~R~emote (-R)", "~D~ynamic, SOCKS (-D)"]
 
@@ -39,7 +39,8 @@ ForwardDialog(Dialog):
         y: 2
         height: 3
         anchors:
-            left: 29
+            left: 32
+
             right: 2
         text: ""
         wrap: True

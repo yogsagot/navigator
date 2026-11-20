@@ -78,7 +78,7 @@ class ColorsDialog(Dialog, _Component):
         self.attributes = CheckBoxes(parent=self)    # colors_dialog.nml:118
 
         self.help_topic = 'customizing.md#colours'    # colors_dialog.nml:20
-        self.modal_width = 70    # colors_dialog.nml:21
+        self.modal_width = 72    # colors_dialog.nml:21
         self.modal_height = 24    # colors_dialog.nml:22
         self.title = _bind(lambda _o: _tr('Colors'), yielding=True)    # colors_dialog.nml:23
 
@@ -168,11 +168,11 @@ class ColorsDialog(Dialog, _Component):
 
         self.attributes.y = 18    # colors_dialog.nml:120
         self.attributes.height = 1    # colors_dialog.nml:121
-        self.attributes.items = _bind(    # colors_dialog.nml:125
+        self.attributes.items = _bind(    # colors_dialog.nml:126
             lambda _o: [_tr('Bo~l~d'), _tr('~D~im'), _tr('I~t~alic'), _tr('~U~nderline'), _tr('R~e~verse')],
             yielding=True,
         )
         self.attributes.x = 3    # colors_dialog.nml:123
-        self.attributes.width = _bind(lambda _o: max(0, _o.parent.width - 6))    # colors_dialog.nml:124
+        self.attributes.width = _bind(lambda _o: max(0, _o.parent.width - 5))    # colors_dialog.nml:124
 
         self._navml_built(__class__)

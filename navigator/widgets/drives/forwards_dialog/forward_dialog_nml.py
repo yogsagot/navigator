@@ -43,22 +43,22 @@ class ForwardDialog(Dialog, _Component):
     kind_caption: Label    # forward_dialog.nml:21
     kind: RadioButtons    # forward_dialog.nml:29
     about: StaticText    # forward_dialog.nml:38
-    bind: Field    # forward_dialog.nml:48
-    port: Field    # forward_dialog.nml:58
-    host: Field    # forward_dialog.nml:67
-    host_port: Field    # forward_dialog.nml:77
-    problem: StaticText    # forward_dialog.nml:87
+    bind: Field    # forward_dialog.nml:49
+    port: Field    # forward_dialog.nml:59
+    host: Field    # forward_dialog.nml:68
+    host_port: Field    # forward_dialog.nml:78
+    problem: StaticText    # forward_dialog.nml:88
 
     def __init__(self, **kwargs: _Any) -> None:
         super().__init__(**kwargs)
         self.kind_caption = Label(parent=self)    # forward_dialog.nml:20
         self.kind = RadioButtons(parent=self)    # forward_dialog.nml:28
         self.about = StaticText(parent=self)    # forward_dialog.nml:37
-        self.bind = Field(parent=self)    # forward_dialog.nml:47
-        self.port = Field(parent=self)    # forward_dialog.nml:57
-        self.host = Field(parent=self)    # forward_dialog.nml:66
-        self.host_port = Field(parent=self)    # forward_dialog.nml:76
-        self.problem = StaticText(parent=self)    # forward_dialog.nml:86
+        self.bind = Field(parent=self)    # forward_dialog.nml:48
+        self.port = Field(parent=self)    # forward_dialog.nml:58
+        self.host = Field(parent=self)    # forward_dialog.nml:67
+        self.host_port = Field(parent=self)    # forward_dialog.nml:77
+        self.problem = StaticText(parent=self)    # forward_dialog.nml:87
 
         self.modal_width = 62    # forward_dialog.nml:13
         self.modal_height = 16    # forward_dialog.nml:14
@@ -74,7 +74,7 @@ class ForwardDialog(Dialog, _Component):
 
         self.kind.x = 3    # forward_dialog.nml:30
         self.kind.y = 2    # forward_dialog.nml:31
-        self.kind.width = 24    # forward_dialog.nml:32
+        self.kind.width = 28    # forward_dialog.nml:32
         self.kind.height = 3    # forward_dialog.nml:33
         self.kind.items = _bind(    # forward_dialog.nml:34
             lambda _o: [_tr('~L~ocal (-L)'), _tr('~R~emote (-R)'), _tr('~D~ynamic, SOCKS (-D)')],
@@ -83,56 +83,56 @@ class ForwardDialog(Dialog, _Component):
 
         self.about.y = 2    # forward_dialog.nml:39
         self.about.height = 3    # forward_dialog.nml:40
-        self.about.text = ''    # forward_dialog.nml:44
-        self.about.wrap = True    # forward_dialog.nml:45
-        self.about.x = 29    # forward_dialog.nml:42
-        self.about.width = _bind(lambda _o: max(0, _o.parent.width - 31))    # forward_dialog.nml:43
+        self.about.text = ''    # forward_dialog.nml:45
+        self.about.wrap = True    # forward_dialog.nml:46
+        self.about.x = 32    # forward_dialog.nml:42
+        self.about.width = _bind(lambda _o: max(0, _o.parent.width - 34))    # forward_dialog.nml:44
 
-        self.bind.y = 6    # forward_dialog.nml:49
-        self.bind.label_text = _bind(    # forward_dialog.nml:53
+        self.bind.y = 6    # forward_dialog.nml:50
+        self.bind.label_text = _bind(    # forward_dialog.nml:54
             lambda _o: _tr('Listen ~a~ddress'),
             yielding=True,
         )
-        self.bind.label_width = 19    # forward_dialog.nml:54
-        self.bind.history_id = 'forward_bind'    # forward_dialog.nml:55
-        self.bind.x = 2    # forward_dialog.nml:51
-        self.bind.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:52
+        self.bind.label_width = 19    # forward_dialog.nml:55
+        self.bind.history_id = 'forward_bind'    # forward_dialog.nml:56
+        self.bind.x = 2    # forward_dialog.nml:52
+        self.bind.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:53
 
-        self.port.x = 2    # forward_dialog.nml:59
-        self.port.y = 7    # forward_dialog.nml:60
-        self.port.width = 30    # forward_dialog.nml:61
-        self.port.label_text = _bind(    # forward_dialog.nml:62
+        self.port.x = 2    # forward_dialog.nml:60
+        self.port.y = 7    # forward_dialog.nml:61
+        self.port.width = 30    # forward_dialog.nml:62
+        self.port.label_text = _bind(    # forward_dialog.nml:63
             lambda _o: _tr('Listen ~p~ort'),
             yielding=True,
         )
-        self.port.label_width = 19    # forward_dialog.nml:63
-        self.port.history_id = 'forward_port'    # forward_dialog.nml:64
+        self.port.label_width = 19    # forward_dialog.nml:64
+        self.port.history_id = 'forward_port'    # forward_dialog.nml:65
 
-        self.host.y = 8    # forward_dialog.nml:68
-        self.host.label_text = _bind(    # forward_dialog.nml:72
+        self.host.y = 8    # forward_dialog.nml:69
+        self.host.label_text = _bind(    # forward_dialog.nml:73
             lambda _o: _tr('Destination ~h~ost'),
             yielding=True,
         )
-        self.host.label_width = 19    # forward_dialog.nml:73
-        self.host.history_id = 'forward_host'    # forward_dialog.nml:74
-        self.host.x = 2    # forward_dialog.nml:70
-        self.host.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:71
+        self.host.label_width = 19    # forward_dialog.nml:74
+        self.host.history_id = 'forward_host'    # forward_dialog.nml:75
+        self.host.x = 2    # forward_dialog.nml:71
+        self.host.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:72
 
-        self.host_port.x = 2    # forward_dialog.nml:78
-        self.host_port.y = 9    # forward_dialog.nml:79
-        self.host_port.width = 30    # forward_dialog.nml:80
-        self.host_port.label_text = _bind(    # forward_dialog.nml:81
+        self.host_port.x = 2    # forward_dialog.nml:79
+        self.host_port.y = 9    # forward_dialog.nml:80
+        self.host_port.width = 30    # forward_dialog.nml:81
+        self.host_port.label_text = _bind(    # forward_dialog.nml:82
             lambda _o: _tr('Destination p~o~rt'),
             yielding=True,
         )
-        self.host_port.label_width = 19    # forward_dialog.nml:82
-        self.host_port.history_id = 'forward_host_port'    # forward_dialog.nml:83
+        self.host_port.label_width = 19    # forward_dialog.nml:83
+        self.host_port.history_id = 'forward_host_port'    # forward_dialog.nml:84
 
-        self.problem.y = 10    # forward_dialog.nml:88
-        self.problem.height = 2    # forward_dialog.nml:89
-        self.problem.text = ''    # forward_dialog.nml:93
-        self.problem.wrap = True    # forward_dialog.nml:94
-        self.problem.x = 2    # forward_dialog.nml:91
-        self.problem.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:92
+        self.problem.y = 10    # forward_dialog.nml:89
+        self.problem.height = 2    # forward_dialog.nml:90
+        self.problem.text = ''    # forward_dialog.nml:94
+        self.problem.wrap = True    # forward_dialog.nml:95
+        self.problem.x = 2    # forward_dialog.nml:92
+        self.problem.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # forward_dialog.nml:93
 
         self._navml_built(__class__)

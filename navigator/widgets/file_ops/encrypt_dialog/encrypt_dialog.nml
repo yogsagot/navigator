@@ -25,7 +25,7 @@ EncryptDialog(Dialog):
         id: tool_caption
         x: 2
         y: 1
-        width: 12
+        width: 13
         text: "Pr~o~gram"
         link: tool
 
@@ -42,7 +42,7 @@ EncryptDialog(Dialog):
         id: method_caption
         x: 26
         y: 1
-        width: 14
+        width: 15
         text: "Encrypt ~t~o"
         link: method
 
@@ -62,7 +62,7 @@ EncryptDialog(Dialog):
             left: 2
             right: 2
         label_text: "Pa~s~sphrase"
-        label_width: 13
+        label_width: 15
         disabled: method.value != 0
 
     Field:
@@ -72,7 +72,7 @@ EncryptDialog(Dialog):
             left: 2
             right: 2
         label_text: "~C~onfirm"
-        label_width: 13
+        label_width: 15
         disabled: method.value != 0
 
     #: gpg key IDs or fingerprints; age keys or files of them; by spaces.
@@ -81,9 +81,9 @@ EncryptDialog(Dialog):
         y: 8
         anchors:
             left: 2
-            right: 14
+            right: 15
         label_text: "Rec~i~pients"
-        label_width: 13
+        label_width: 15
         history_id: "encrypt-recipients"
         disabled: method.value != 1
 
@@ -92,7 +92,8 @@ EncryptDialog(Dialog):
         id: choose_keys
         text: "Ke~y~s..."
         y: 8
-        width: 11
+        width: 12
+
         height: 2
         anchors:
             right: 2

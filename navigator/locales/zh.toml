@@ -5294,7 +5294,7 @@ flag = "CN"
 # navigator/widgets/setup/tools_page/tools_page.py:37
 "{doc} -- used from the next time Services opens" = "{doc} -- 从下次打开服务时起使用"
 # navigator/widgets/shell/ascii_chart/ascii_chart.py:56, navigator/widgets/shell/char_table/char_table.py:65
-"Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "字符: {char} 十进制: {decimal:3d} 十六进制: {hex:02x}"
+"Char: {char} Decimal: {decimal:3d} Hex: {hex:02x}" = "字符: {char} 十进制: {decimal:3d} Hex: {hex:02x}"
 # navigator/widgets/shell/calculator_window/calculator_window.py:234
 "Overflow" = "溢出"
 # navigator/widgets/shell/calculator_window/commands.py:20

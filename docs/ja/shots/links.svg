@@ -86,6 +86,7 @@
 <text x="230" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">ク</text>
 <text x="250" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">(</text>
 <text x="260" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Y</text>
+<text x="270" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">)</text>
 <text x="290" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">[X]</text>
 <text x="330" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">相</text>
 <text x="350" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">対</text>

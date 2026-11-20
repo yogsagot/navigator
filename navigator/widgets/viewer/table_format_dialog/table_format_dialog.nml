@@ -10,7 +10,8 @@ from navml.widgets.dialog.radio_buttons import RadioButtons
 #: character typed beside it), whether the first row names the columns, and
 #: the encoding, one of the viewer's (``viewer.ENCODINGS``).
 TableFormatDialog(Dialog):
-    modal_width: 62
+    modal_width: 67
+
     modal_height: 14
     title: "Format"
     help_topic: "viewer.md#tables"
@@ -55,4 +56,5 @@ TableFormatDialog(Dialog):
             left: 3
             right: 3
         label_text: "~E~ncoding"
-        label_width: 14
+        label_width: 19
+

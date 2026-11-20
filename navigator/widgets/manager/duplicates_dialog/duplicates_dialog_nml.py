@@ -57,7 +57,7 @@ class DuplicatesDialog(Dialog, _Component):
             lambda _o: _tr('~F~ile mask'),
             yielding=True,
         )
-        self.mask.label_width = 16    # duplicates_dialog.nml:22
+        self.mask.label_width = 17    # duplicates_dialog.nml:22
         self.mask.history_id = 'find_mask'    # duplicates_dialog.nml:23
         self.mask.x = 2    # duplicates_dialog.nml:19
         self.mask.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # duplicates_dialog.nml:20
@@ -67,7 +67,7 @@ class DuplicatesDialog(Dialog, _Component):
             lambda _o: _tr('~M~inimum size'),
             yielding=True,
         )
-        self.min_size.label_width = 16    # duplicates_dialog.nml:32
+        self.min_size.label_width = 17    # duplicates_dialog.nml:32
         self.min_size.history_id = 'duplicates_size'    # duplicates_dialog.nml:33
         self.min_size.x = 2    # duplicates_dialog.nml:29
         self.min_size.width = _bind(lambda _o: max(0, _o.parent.width - 4))    # duplicates_dialog.nml:30

@@ -73,13 +73,13 @@ ViewerFindDialog(Dialog):
         id: options
         x: 2
         y: 8
-        width: 22
+        width: 27
         height: 2
         items: ["~C~ase sensitive", "~W~hole words"]
 
     Label:
         id: direction_caption
-        x: 26
+        x: 30
         y: 7
         width: 12
         text: "Direction"
@@ -87,8 +87,9 @@ ViewerFindDialog(Dialog):
 
     RadioButtons:
         id: direction
-        x: 26
+        x: 30
         y: 8
+
         width: 18
         height: 2
         items: ["~F~orward", "~B~ackward"]
