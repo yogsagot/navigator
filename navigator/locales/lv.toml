@@ -6879,6 +6879,8 @@ flag = "LV"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Sekundes starp servera direktorijas pārbaudēm automātiskai atsvaidzināšanai; 0 — nekad"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Inside tmux Navigator cannot turn off the terminal's own right-to-left handling. If Hebrew or Arabic reads backwards, turn it off in the terminal's settings." = "tmux iekšienē Navigator nevar izslēgt paša termināļa no labās uz kreiso apstrādi. Ja ivrits vai arābu teksts ir apgriezts, izslēdziet to termināļa iestatījumos."
+"Right-to-left text" = "Teksts no labās uz kreiso"
 [unused]
 "Esc on an empty command line toggles the console" = "Esc tukšā komandrindā pārslēdz konsoli"
 "Cannot make directory {name}: {error}" = "Nevar izveidot direktoriju {name}: {error}"

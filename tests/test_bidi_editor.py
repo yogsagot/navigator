@@ -196,7 +196,9 @@ def test_a_painted_block_over_two_lines_runs_to_the_end_each_line_reads_to(tmp_p
 
     editor = _editor(tmp_path, "אבג\nxy\n", col=1)
     asyncio.run(editor.on_move_down(MoveDown(extend=True)))
-    assert editor.block_text == "בג\nx"
+    # Down keeps the painted column: from ב, near the right edge, the caret
+    # comes down past the end of "xy", so the block takes all of it.
+    assert editor.block_text == "בג\nxy"
 
 
 def test_a_recase_that_changes_lengths_keeps_the_block_painted(tmp_path):
@@ -344,3 +346,25 @@ def test_moving_over_a_lam_alef_passes_its_blank(tmp_path):
         _move(editor, "left")
         seen.append(editor.col)
     assert seen == [1, 3, 4]  # the ligature, mim, the end -- never the blank
+
+
+def test_up_and_down_keep_the_painted_column(tmp_path):
+    """Between a left-aligned line and a right-aligned Hebrew one the caret
+    stays over the same cell, as a word processor keeps it; the text's column
+    held to the short Hebrew line's end sent it across the screen."""
+    editor = _editor(tmp_path, "abcdefghijklmnopqrs\nאבגדה\nabcdefghijklmnopqrs\n", col=17, width=20)
+    start = editor._visual_column(0, 17)
+    _move(editor, "down")
+    assert editor.line == 1 and editor._visual_column(1, editor.col) == start
+    assert editor.col != 5  # not the line's end, where the text's column 17 was held
+    # The run keeps its goal: down again, back on the column it began on.
+    _move(editor, "down")
+    assert (editor.line, editor.col) == (2, 17)
+
+
+def test_up_and_down_on_lines_with_no_hebrew_keep_the_text_column(tmp_path):
+    editor = _editor(tmp_path, "abcdefgh\nab\nabcdefgh\n", col=6, width=20)
+    _move(editor, "down")
+    assert (editor.line, editor.col) == (1, 2)
+    _move(editor, "down")
+    assert (editor.line, editor.col) == (2, 6)

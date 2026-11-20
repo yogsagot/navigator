@@ -6879,6 +6879,8 @@ flag = "CN"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自动刷新时检查服务器目录的间隔秒数；0 表示从不"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Inside tmux Navigator cannot turn off the terminal's own right-to-left handling. If Hebrew or Arabic reads backwards, turn it off in the terminal's settings." = "在 tmux 中，Navigator 无法关闭终端自身的从右到左处理。如果希伯来文或阿拉伯文显示颠倒，请在终端设置中将其关闭。"
+"Right-to-left text" = "从右到左的文字"
 [unused]
 "Esc on an empty command line toggles the console" = "在空命令行上按 Esc 切换控制台"
 "Cannot make directory {name}: {error}" = "无法创建目录 {name}: {error}"

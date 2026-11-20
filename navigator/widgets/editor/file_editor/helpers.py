@@ -11,7 +11,7 @@ import time
 from decimal import Decimal, InvalidOperation
 from typing import Any, Awaitable, Callable, cast, TypeVar
 
-from navkit.bidi import has_rtl, order_cells, text_rtl
+from navkit.bidi import has_rtl, order_columns, text_rtl
 
 from navml.background import Background
 from navml.widgets.menu.commands import OpenMenu
@@ -158,32 +158,9 @@ def capitalize(text: str) -> str:
 
 
 def _ordered(chars: list[str]) -> list[tuple[int, str]] | None:
-    """``order_cells``, with every column of the line kept: a lam-alef pair,
-    one ligature in one cell, leaves the alef's column over, and it is given
-    a blank cell so what follows on the line -- a tab stop most of all --
-    stays in the column the text has it in.  Not beside the ligature, which
-    would open a gap inside the word, but beside the next blank after it in
-    the text (one blank wider, where a tab or a space is anyway), or at the
-    line's end when none follows.  ``""``, as the second half of a wide
-    character is: painted as nothing, passed over by a move.
-    """
-    order = order_cells(chars)
-    if order is None or len(order) == len(chars):
-        return order
-    kept = {at for at, _ in order}
-    spare: dict[int, list[int]] = {}  # a cell's column -> the alef columns put beside it
-    for at in range(len(chars)):
-        if at in kept or chars[at] == "":
-            continue
-        beside = next((t for t in range(at + 1, len(chars)) if t in kept and chars[t] == " "), None)
-        if beside is None:
-            beside = max(kept)
-        spare.setdefault(beside, []).append(at)
-    out: list[tuple[int, str]] = []
-    for at, shown in order:
-        out.append((at, shown))
-        out.extend((alef, "") for alef in spare.get(at, ()))
-    return out
+    """``order_cells`` with every column of the line kept
+    (:func:`navkit.bidi.order_columns`, which began here)."""
+    return order_columns(chars)
 
 
 def _laid_line(

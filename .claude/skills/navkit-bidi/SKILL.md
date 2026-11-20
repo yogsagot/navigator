@@ -41,6 +41,9 @@ language reads its screen right to left). It is the second standing exception be
   apart, `: "navigator"` was laid out on its own with its colon at the far end from the key.
 - `display_width(text)`: the cells `draw_runs` paints (marks on their letter, format characters none, lam-alef one).
   **Centring and right alignment measure with it, never `len()`** (titles, captions, labels, headers, panel names).
+- `order_columns(chars, rtl, detect=True)`: `order_cells` with every column kept -- a lam-alef's spare alef column
+  becomes a `""` cell beside the next blank after it -- for anything laid out in fixed columns (editor, viewer,
+  diff view), so tab stops after a ligature hold.
 - `order_cells(chars, rtl, detect=True)`: *detect* false fixes the paragraph direction to *rtl* -- a console row
   (VTE's left to right), a wrapped viewer row (its whole line's direction, UBA's L1: break first, order each row).
 - `char_width`: marks and every `Cf` (marks of direction, joiners, soft hyphen) are 0 wide.

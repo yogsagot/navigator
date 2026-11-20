@@ -253,6 +253,40 @@ def order_cells(
     return list(_ordered_cells(tuple(chars), strong == "R" or (strong is None and rtl)))
 
 
+def order_columns(
+    chars: Sequence[str], rtl: bool = False, *, detect: bool = True
+) -> list[LaidCell] | None:
+    """:func:`order_cells`, with every column of the row kept.
+
+    A lam-alef pair, one ligature in one cell, leaves the alef's column over;
+    it is given a blank cell (``""``, as the second half of a wide character
+    is: painted as nothing, passed over by a move) so what follows on the row
+    -- a tab stop most of all -- stays in the column the text has it in.  Not
+    beside the ligature, which would open a gap inside the word, but beside
+    the next blank after it in the text (one blank wider, where a tab or a
+    space is anyway), or at the row's end when none follows.  The editor's
+    rule first; the viewer and the diff view lost a column to each ligature
+    until they shared it.
+    """
+    order = order_cells(chars, rtl, detect=detect)
+    if order is None or len(order) == len(chars):
+        return order
+    kept = {at for at, _ in order}
+    spare: dict[int, list[int]] = {}  # a cell's column -> the alef columns put beside it
+    for at in range(len(chars)):
+        if at in kept or chars[at] == "":
+            continue
+        beside = next((t for t in range(at + 1, len(chars)) if t in kept and chars[t] == " "), None)
+        if beside is None:
+            beside = max(kept)
+        spare.setdefault(beside, []).append(at)
+    out: list[LaidCell] = []
+    for at, shown in order:
+        out.append((at, shown))
+        out.extend((alef, "") for alef in spare.get(at, ()))
+    return out
+
+
 @lru_cache(maxsize=1024)
 def _ordered_cells(chars: tuple[str, ...], rtl: bool) -> tuple[LaidCell, ...]:
     clusters = [(column, char) for column, char in enumerate(chars) if char != ""]

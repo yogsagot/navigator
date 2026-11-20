@@ -198,10 +198,29 @@ class Navigator(Application):
         # The menu bar's *ROOT* while root access is open.
         self.call_every(1.0, self.shell.follow_root)
         self.call_every(self.saver_check_every, self._check_saver)
+        self._say_tmux_bidi()
         # Startup's *Auto run User Menu*: DN put ``cmUserMenu`` on the queue
         # once its desktop was in place (``RunMenu``).
         if SETTINGS.startup.auto_user_menu:
             self.shell.spawn(self.shell.user_menu())
+
+    def _say_tmux_bidi(self) -> None:
+        """Inside tmux, a right-to-left screen: say once that the terminal's own
+        bidi is the user's to switch off.  Navigator switches it off itself
+        everywhere else (``CSI 8 l``, Konsole's and mlterm's own sequences;
+        ``terminal.bidi_switch``), but tmux passes none of them on, even with
+        ``allow-passthrough`` -- so a terminal that reorders lines (VTE,
+        Konsole, mlterm) turns Navigator's laid-out Hebrew and Arabic round
+        again, with nothing on screen to say why."""
+        from navkit.capabilities import BIDI_APP
+
+        info = self.terminal.info
+        if self.terminal.is_tty and info.multiplexer == "tmux" and info.bidi == BIDI_APP and self.rtl:
+            self.shell.toast(
+                tr("Inside tmux Navigator cannot turn off the terminal's own right-to-left handling. "
+                   "If Hebrew or Arabic reads backwards, turn it off in the terminal's settings."),
+                title=tr("Right-to-left text"), seconds=12.0,
+            )
 
     async def _edit_files(self, paths: list[Path]) -> None:
         """``--edit``: DN's files named on its command line, each ``EditFile(On,

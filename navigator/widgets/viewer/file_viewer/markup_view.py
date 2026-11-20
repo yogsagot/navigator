@@ -13,7 +13,7 @@ import unicodedata
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from navkit.bidi import display_width, has_rtl, order_cells, text_rtl
+from navkit.bidi import display_width, has_rtl, order_columns, text_rtl
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
 from navkit.screen import Surface
@@ -262,17 +262,17 @@ class MarkupView(_Base):
         return whole.cells if whole is not None else cells
 
     def _ordered(self, cells, row, paragraphs: dict[int, bool]) -> list | None:
-        """*row*'s cells in reading order (:func:`navkit.bidi.order_cells`),
+        """*row*'s cells in reading order, every column kept (:func:`navkit.bidi.order_columns`),
         or None; *paragraphs* caches each wrapped line's direction by its start."""
         chars = [char for char, _ in cells]
         width = self.wrap_width
         if width is None or self.source is None:
-            return order_cells(chars)
+            return order_columns(chars)
         start = self.source.line_start(row.start, None)
         rtl = paragraphs.get(start)
         if rtl is None:
             rtl = paragraphs[start] = self._line_rtl(start, row, chars)
-        return order_cells(chars, rtl, detect=False)
+        return order_columns(chars, rtl, detect=False)
 
     def _line_rtl(self, start: int, row, chars: list[str]) -> bool:
         """Whether the line starting at *start* reads right to left: its first
@@ -343,7 +343,7 @@ class MarkupView(_Base):
             if row:
                 cells = row.cells
                 start = next((i for i, (_, at) in enumerate(cells) if at >= offset), 0)
-                order = order_cells([char for char, _ in cells])
+                order = order_columns([char for char, _ in cells])
                 if order is not None and start < len(cells):
                     # The hit's first column where reordering painted it.
                     column = next((x for x, (at, _) in enumerate(order) if at == start), start)

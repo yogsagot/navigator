@@ -21,7 +21,7 @@ from __future__ import annotations
 from typing import Any
 
 from navkit import glyphs as glyphs_module
-from navkit.bidi import has_rtl, order_cells
+from navkit.bidi import has_rtl, order_columns
 from navkit.events import KeyEvent, MouseClickEvent
 from navkit.glyphs import GLYPHS_UNICODE
 from navkit.i18n import tr
@@ -347,7 +347,7 @@ class DiffView(Widget):
             decode_cells(line, 0, cells, max_cols=WHOLE_LINE)
         # Laid out as the viewer lays out a row, so Hebrew and Arabic read the
         # right way round; the line has one look, so nothing else follows it.
-        order = order_cells([char for char, _ in cells])
+        order = order_columns([char for char, _ in cells])
         if order is not None:
             cells = [(shown, cells[column][1]) for column, shown in order]
         for offset in range(width):

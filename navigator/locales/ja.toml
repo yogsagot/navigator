@@ -6879,6 +6879,8 @@ flag = "JP"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "自動更新でサーバーのディレクトリを確認する間隔 (秒)。0 で確認しない"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Inside tmux Navigator cannot turn off the terminal's own right-to-left handling. If Hebrew or Arabic reads backwards, turn it off in the terminal's settings." = "tmux の中では、Navigator は端末自身の右から左への処理をオフにできません。ヘブライ語やアラビア語が逆向きに表示される場合は、端末の設定でオフにしてください。"
+"Right-to-left text" = "右から左のテキスト"
 [unused]
 "Esc on an empty command line toggles the console" = "空のコマンドラインで Esc を押すとコンソールを切り替え"
 "Cannot make directory {name}: {error}" = "ディレクトリ {name} を作成できません: {error}"

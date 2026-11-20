@@ -101,9 +101,16 @@ class Cursor(_Base):
 
     def _move_vertically(self, line: int) -> None:
         """Up/Down and the like: to *line*, aiming for the column the run of
-        them started from, so a short line on the way does not lose it."""
-        goal = self.col if self._goal is None else self._goal
-        self._move_to(line, goal)
+        them started from, so a short line on the way does not lose it.
+
+        The column is the painted one, as a word processor keeps it (and as
+        :meth:`_move_rows` does soft wrapped): between a left-aligned line and a
+        right-aligned Hebrew one, or two ordered differently, the text's column
+        sent the caret across the screen.  On a line that reads as written the
+        two are the same."""
+        goal = self._visual_column(self.line, self.col) if self._goal is None else self._goal
+        target = max(0, min(line, len(self.document) - 1))
+        self._move_to(target, self._logical_column(target, goal))
         self._goal = goal
 
     def _follow(self) -> None:

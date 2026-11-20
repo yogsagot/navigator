@@ -587,3 +587,52 @@ def test_the_dbase_structure_box_holds_its_columns_left_to_right():
     heading, row_ = _table_row("שם", "סוג", "אורך", "עשרוניים"), _table_row("AGE", "מספרי", "3", "0")
     # Each column starts in the same cell on both lines, painted.
     assert shown(heading).index("סוג"[::-1]) == shown(row_).index("מספרי"[::-1])
+
+
+def test_order_columns_keeps_every_column_of_a_row_with_a_lam_alef():
+    from navkit.bidi import order_columns, order_cells
+
+    chars = list("x لا") + [" "] * 5 + ["b"]
+    laid = order_cells(chars)
+    kept = order_columns(chars)
+    # The ligature takes one cell; the alef's column comes back as a blank
+    # beside the next blank after it, never inside the word.
+    assert len(laid) == len(chars) - 1 and len(kept) == len(chars)
+    assert sorted(at for at, _ in kept) == list(range(len(chars)))
+    assert [shown for _, shown in kept].index("") > [shown for _, shown in kept].index("ﻻ")
+    assert order_columns(list("plain")) is None
+
+
+def test_the_viewer_keeps_the_tab_stops_after_a_lam_alef(tmp_path):
+    """The editor's rule, shared: the viewer lost a column to the ligature, so
+    ``b`` after a tab stood a column left of the line under it."""
+    viewer = _viewer(tmp_path, "x لا\tb\nx ab\tb\n", 20, wrap=False)
+    buffer = ScreenBuffer(20, 4)
+    viewer.render(buffer)
+    first, second = row(buffer, 0), row(buffer, 1)
+    assert "ﻻ" in first
+    assert first.rindex("b") == second.rindex("b") == 8
+
+
+@pytest.mark.parametrize("multiplexer, tty, direction, said", [
+    ("tmux", True, "rtl", True),
+    ("", True, "rtl", False),       # the terminal's bidi is switched off: nothing to say
+    ("screen", True, "rtl", False),  # screen passes the switches on
+    ("tmux", True, "ltr", False),   # no right-to-left screen
+    ("tmux", False, "rtl", False),  # no terminal looking
+])
+def test_inside_tmux_a_right_to_left_screen_says_once_that_the_terminal_s_bidi_is_the_user_s(
+        tmp_path, monkeypatch, multiplexer, tty, direction, said):
+    from dataclasses import replace
+
+    from navigator.__main__ import Navigator
+    from navml.widgets.toast import Toast
+
+    monkeypatch.setattr("navigator.widgets.shell.console.Console.start", lambda self, argv=None: None)
+    terminal = FakeTerminal(80, 24, info=replace(TerminalInfo(), multiplexer=multiplexer, bidi=BIDI_APP))
+    app = Navigator(tmp_path, tmp_path, terminal=terminal)
+    app.direction = direction
+    terminal.is_tty = tty
+    app._say_tmux_bidi()
+    toasts = [child for child in app.shell.children if isinstance(child, Toast)]
+    assert bool(toasts) == said

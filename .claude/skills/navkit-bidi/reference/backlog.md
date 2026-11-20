@@ -7,15 +7,18 @@ rows, the diff view, and direction overrides in file names; the third pass input
 right-aligned right-to-left lines in the editor and the Markdown view, painted widths, links in dialog text, and a
 kitty re-probe; the fourth pass the Low items -- non-Latin menu hotkeys, translated tables laid out a column at a
 time, a *Text direction* setting and `--bidi`, live checks, cost measured, packaging, the pty test and
-`screenshot.py --language`, window titles clear of their icons, and a translation pass. Ordered by how likely a user
-is to meet each item. Strike an item through, or remove it, when it is done.
+`screenshot.py --language`, window titles clear of their icons, and a translation pass; the fifth (November 2026)
+isolated placeholders in a right-to-left catalogue's sentences (a path kept its slash in front), the data tree's key
+and value laid out as one text, the calculator's line kept left to right, the window's resize grip flipped with its
+frame, the viewer's and diff view's lam-alef columns, the editor's Up/Down by painted column, and the tmux notice.
+Ordered by how likely a user is to meet each item. Strike an item through, or remove it, when it is done.
 
 ## High: wrong behaviour users will hit
 
 1. **Inside tmux the terminal's own bidi cannot be switched off.** Nothing reaches the terminal through tmux, even
    with `allow-passthrough on`. That covers VTE's `CSI 8 l`, Konsole's `OSC 50` and mlterm's `OSC 5379`, so a
-   reordering terminal reorders Navigator's screen there. The only fix today is the terminal's own setting. Navigator
-   could at least say so once.
+   reordering terminal reorders Navigator's screen there. The only fix is the terminal's own setting, which
+   Navigator now says once at the start of a mirrored session inside tmux (`Navigator._say_tmux_bidi`, a toast).
 2. **Terminals still untested:** WezTerm (not installable here), foot (Wayland only), Windows Terminal. ghostty 1.4
    dropped two probe rows (a framed line and an Arabic one), which is unexplained.
 3. **Keyboard layouts have not been checked with a real layout switch.** The kitty base-layout key and the legacy
@@ -24,11 +27,10 @@ is to meet each item. Strike an item through, or remove it, when it is done.
 
 ## Medium: incomplete or approximate
 
-4. **Editor, Up and Down** keep the text's column. Moving between a left-aligned line and a right-aligned one, or
-   between two lines ordered differently, the caret jumps across the screen; a word processor keeps the painted column.
-5. **Viewer, lam-alef:** the F3 viewer still loses a column to each lam-alef ligature, so tab stops after one on its
-   line move a column left. The editor's fix (`file_editor._ordered`: a blank beside the next blank) could move to
-   `navkit.bidi` and serve both.
+4. ~~**Editor, Up and Down** keep the text's column.~~ Done: `_move_vertically` aims for the painted column
+   (`_visual_column`/`_logical_column`), as soft-wrapped Up/Down already did; `_goal` is a painted column for both.
+5. ~~**Viewer, lam-alef:** the F3 viewer lost a column to each lam-alef ligature.~~ Done: the editor's rule is
+   `navkit.bidi.order_columns`, used by the editor, the viewer's rows and search hits, and the diff view.
 6. **kitty draws niqqud imperfectly** (re-probed on 0.32.2: every other case matches VTE). That is kitty's drawing;
    re-probe when kitty changes (`for_words`, the skill says how).
 

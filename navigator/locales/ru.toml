@@ -6879,6 +6879,8 @@ flag = "RU"
 "Seconds between looks at a server's directory for Auto refresh; 0 never" = "Секунды между проверками каталога сервера для автообновления; 0 — никогда"
 
 # No longer shown anywhere; kept so nothing written is lost.
+"Inside tmux Navigator cannot turn off the terminal's own right-to-left handling. If Hebrew or Arabic reads backwards, turn it off in the terminal's settings." = "Внутри tmux Navigator не может отключить собственную обработку текста справа налево в терминале. Если иврит или арабский читаются задом наперёд, отключите её в настройках терминала."
+"Right-to-left text" = "Текст справа налево"
 [unused]
 "Esc on an empty command line toggles the console" = "Esc в пустой командной строке переключает консоль"
 "Cannot make directory {name}: {error}" = "Невозможно создать каталог {name}: {error}"
