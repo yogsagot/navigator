@@ -838,7 +838,7 @@ flag = "RU"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:65, navigator/widgets/editor/edit_window/edit_window.py:642, navigator/widgets/manager/manager/encoding.py:524 ...
 "A~p~pend" = "Допи~с~ать"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:70, navigator/widgets/shell/environment_dialog/environment_dialog.nml:63
-"~R~ename" = "~И~мя"
+"~R~ename" = "~Н~овое имя"
 # navigator/widgets/file_ops/overwrite_query/overwrite_query.nml:75, navigator/widgets/file_ops/replace_query/replace_query.nml:62, navigator/widgets/file_ops/as_root.py:215
 "~S~kip" = "П~р~опуск"
 # navigator/widgets/file_ops/relink_dialog/relink_dialog.nml:12
@@ -1824,7 +1824,7 @@ flag = "RU"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:79, navigator/widgets/shell/commands.py:767
 "Startup" = "Загрузка/выгрузка"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:82, navigator/widgets/shell/commands.py:773
-"Interface" = "Интерф."
+"Interface" = "Интерфейс"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:85, navigator/widgets/shell/commands.py:787
 "Confirmations" = "Подтверждения"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:88
@@ -1832,7 +1832,7 @@ flag = "RU"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:91, navigator/widgets/shell/commands.py:641
 "Country" = "Страна"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:94, navigator/widgets/shell/commands.py:793
-"Editor/Viewer" = "Ред/Пр"
+"Editor/Viewer" = "Редактор/просмотр"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:97
 "Viewer types" = "Типы просмотра"
 # navigator/widgets/setup/settings_dialog/settings_dialog.nml:100, navigator/lib/config/keybindings.py
@@ -1978,7 +1978,7 @@ flag = "RU"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:162
 "M: a value in memory; 2nd and hyp: the keys' other functions" = "M: значение в памяти; 2nd и hyp: вторые функции клавиш"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:179
-"Copy ~A~s" = "~Ф~ормат"
+"Copy ~A~s" = "~К~опия как"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:188, navigator/widgets/shell/calculator_window/calculator_window.nml:300
 "~D~EC" = "~D~EC"
 # navigator/widgets/shell/calculator_window/calculator_window.nml:188, navigator/widgets/shell/calculator_window/calculator_window.nml:300

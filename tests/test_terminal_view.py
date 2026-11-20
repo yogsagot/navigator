@@ -26,6 +26,13 @@ def windows(a):
     return [w for w in a.shell.desktop.windows() if isinstance(w, TerminalWindow)]
 
 
+def started(a):
+    """The window is up and its command started -- running, or already done:
+    a loaded machine can run ``sleep 0.3`` out between two looks."""
+    found = windows(a)
+    return bool(found) and found[0].view.process is not None
+
+
 def running(a):
     found = windows(a)
     return bool(found) and found[0].view.busy
@@ -55,7 +62,7 @@ def test_the_window_s_size_is_its_pty_s(app, tmp_path):
         view = windows(a)[0].view
         seen["view"] = (view.height, view.width)
 
-    run_app(app, [start, Until(running, timeout=5), look, Until(lambda a: out.exists() and out.read_text(), timeout=5)],
+    run_app(app, [start, Until(started, timeout=5), look, Until(lambda a: out.exists() and out.read_text(), timeout=5)],
             timeout=15)
     lines, columns = (int(n) for n in out.read_text().split())
     assert (lines, columns) == seen["view"]

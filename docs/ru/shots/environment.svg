@@ -104,8 +104,9 @@
 <text x="30" y="75" textLength="60" lengthAdjust="spacingAndGlyphs" fill="#ffffff">EDITOR</text>
 <text x="630" y="75" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#555555">К</text>
 <text x="30" y="95" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">HOME</text>
-<text x="520" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">И</text>
-<text x="530" y="95" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#ffffff">мя</text>
+<text x="490" y="95" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Н</text>
+<text x="500" y="95" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#ffffff">овое</text>
+<text x="550" y="95" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#ffffff">имя</text>
 <text x="30" y="115" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">LANG</text>
 <text x="30" y="135" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">PAGER</text>
 <text x="500" y="135" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Д</text>

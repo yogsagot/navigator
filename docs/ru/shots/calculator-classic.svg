@@ -78,8 +78,9 @@
 <text x="30" y="115" textLength="70" lengthAdjust="spacingAndGlyphs" fill="#ffffff">2*(3+4)</text>
 <text x="450" y="115" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffffff">↓</text>
 <text x="490" y="115" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">_.</text>
-<text x="20" y="155" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">Ф</text>
-<text x="30" y="155" textLength="50" lengthAdjust="spacingAndGlyphs" fill="#000000">ормат</text>
+<text x="20" y="155" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">К</text>
+<text x="30" y="155" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">опия</text>
+<text x="80" y="155" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#000000">как</text>
 <text x="490" y="155" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#555555">.p</text>
 <text x="20" y="175" textLength="30" lengthAdjust="spacingAndGlyphs" fill="#555555">(•)</text>
 <text x="60" y="175" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#ffff55">D</text>
