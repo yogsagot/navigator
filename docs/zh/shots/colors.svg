@@ -255,9 +255,10 @@
 <text x="60" y="255" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">息</text>
 <text x="40" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">树</text>
 <text x="230" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#00aaaa">▼</text>
-<text x="550" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">文本</text>
-<text x="590" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">文本</text>
-<text x="630" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">文本</text>
+<text x="550" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">文</text>
+<text x="570" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">本</text>
+<text x="610" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">文</text>
+<text x="630" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">本</text>
 <text x="30" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">任</text>
 <text x="50" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">意</text>
 <text x="70" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">颜</text>

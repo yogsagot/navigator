@@ -36,6 +36,7 @@ PAGES = {
     "en/shots/wide.ans": f"{RUN}{'═' * 89}╗\x1b[0m\n",
     "en/shots/box.ans": f"{RUN}╔══╗\x1b[0m\n{RUN}╚══╝\x1b[0m\n",
     "lv/README.md": "# Saturs\n\nLatviski.\n",
+    "lv/other.md": f"# Cita\n\n[Uz saturu](README.md)\n\n{FILLER}## Otrā\n\nOtrā daļa.\n\n{FILLER}",
 }
 
 
@@ -385,6 +386,21 @@ def test_help_is_in_the_language_spoken_and_else_in_english(app):
         lambda a: seen.append(top_text(a)),
     ])
     assert seen == ["Saturs", "Help on help"]
+
+
+def test_a_translated_page_opens_at_the_heading_standing_where_the_english_anchor_does(app):
+    seen = []
+    LOCALE.code = "lv"
+    run_app(app, [
+        KeyEvent("f1"), on_page("README.md"),
+        lambda a: viewer(a).show("other.md#second"), on_page("other.md"),
+        lambda a: seen.append((top_text(a), viewer(a)._aliases)),
+        lambda a: viewer(a).show("other.md#other"),  # on the page already: no read
+        lambda a: seen.append(top_text(a)),
+        lambda a: viewer(a).show("other.md#otrā"),  # its own slug, as its links spell it
+        lambda a: seen.append(top_text(a)),
+    ])
+    assert seen == [("Otrā", {"other": "cita", "second": "otrā"}), "Cita", "Otrā"]
 
 
 def test_the_colours_are_helps_own(app):

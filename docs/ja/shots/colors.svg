@@ -299,8 +299,10 @@
 <text x="60" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">リ</text>
 <text x="80" y="275" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">ー</text>
 <text x="230" y="275" textLength="10" lengthAdjust="spacingAndGlyphs" fill="#00aaaa">▼</text>
-<text x="550" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">テキスト</text>
-<text x="610" y="295" textLength="40" lengthAdjust="spacingAndGlyphs" fill="#000000">テキスト</text>
+<text x="550" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">テ</text>
+<text x="570" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">キ</text>
+<text x="590" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">ス</text>
+<text x="610" y="295" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">ト</text>
 <text x="30" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">任</text>
 <text x="50" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">意</text>
 <text x="70" y="315" textLength="20" lengthAdjust="spacingAndGlyphs" fill="#000000">の</text>

@@ -80,7 +80,7 @@ from navkit.bidi import has_rtl  # noqa: E402
 from navkit.capabilities import FULL, VGA_PALETTE, TerminalInfo, rgb_of  # noqa: E402
 from navkit.glyphs import GLYPHS_UNICODE  # noqa: E402
 from navkit.events import KeyEvent  # noqa: E402
-from navkit.screen import ScreenBuffer  # noqa: E402
+from navkit.screen import ScreenBuffer, char_width  # noqa: E402
 from navkit.style import RESET_SGR, Style  # noqa: E402
 
 SVG = ROOT / "docs" / "screenshot.svg"
@@ -1845,10 +1845,16 @@ def as_ansi(buffer: ScreenBuffer, info: TerminalInfo) -> str:
     for row in range(buffer.height):
         parts: list[str] = []
         last: Style | None = None
+        owed = 0  # cells the last wide character still covers
         for x in range(buffer.width):
             char, style = buffer.get(x, row)
-            if char == "":
+            if char == "" and owed:
+                owed -= 1
                 continue  # the second half of a wide character
+            # A second half whose first was painted over (a clipped CJK
+            # caption) is a blank, or the row would read a cell short.
+            char = char or " "
+            owed = char_width(char) - 1
             fg, bg = resolved(style, info)
             look = Style(
                 fg=fg, bg=bg, bold=style.bold, italic=style.italic,

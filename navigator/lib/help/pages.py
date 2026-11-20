@@ -7,6 +7,13 @@ spells it -- ``clipboard.md``, ``editor/macros.md`` -- and a **topic id** is
 that with an optional heading anchor, ``file-operations.md#copy``: what a
 dialog names as its help, DN's help context.
 
+A topic's anchor is always the **English** heading's slug.  A translated page
+keeps English's headings one for one -- the same number, levels and order
+(``tests/test_help_docs.py`` holds every language to it) -- so its own slugs
+differ but stand in the same places, and :func:`aliases` maps the one onto the
+other by position.  Links inside a translated page use its own slugs, as
+GitHub makes them.
+
 Everything that reads here can wait on a disk, so it is called on a thread
 (``navml.background.Background``), and takes the language as a plain string:
 a thread never reads ``LOCALE``, which is reactive.
@@ -24,6 +31,7 @@ from dataclasses import dataclass
 from importlib.resources import files
 from importlib.resources.abc import Traversable
 from pathlib import Path
+from urllib.parse import unquote
 
 from navkit.screen import Cell
 
@@ -79,7 +87,9 @@ def follow(page: str, href: str) -> str | None:
     """
     if _SCHEME.match(href) or href.startswith("/"):
         return None
-    target, _, anchor = href.partition("#")
+    # The Markdown reader percent-encodes what is not ASCII, a translated
+    # heading's slug included; topic ids and layout anchors are plain text.
+    target, _, anchor = unquote(href).partition("#")
     name = posixpath.normpath(posixpath.join(posixpath.dirname(page), target)) if target else page
     if name == ".." or name.startswith("../") or name == ".":
         return None
@@ -116,6 +126,15 @@ def read(name: str, language: str) -> Page:
         raise PageNotFound(name)
     file, code = found
     return Page(posixpath.normpath(name), file.read_bytes(), code)
+
+
+def aliases(english: list[str], translated: list[str]) -> dict[str, str]:
+    """English heading anchors to a translated page's, by position.  Empty
+    when the two pages have a different number of headings: a page out of step
+    with English opens at its top rather than at a wrong heading."""
+    if len(english) != len(translated):
+        return {}
+    return dict(zip(english, translated))
 
 
 def exists(topic: str, language: str = ENGLISH) -> bool:

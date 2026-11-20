@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
+from urllib.parse import unquote
 
 import pytest
 from markdown_it import MarkdownIt
@@ -16,6 +17,7 @@ from navigator.lib.viewer import markdown
 DOCS = Path(__file__).resolve().parent.parent / "docs"
 ENGLISH = DOCS / "en"
 PAGES = sorted(DOCS.glob("*/**/*.md"))
+TRANSLATED = [page for page in PAGES if page.relative_to(DOCS).parts[0] != "en"]
 
 
 def tokens_of(page: Path) -> list:
@@ -26,6 +28,11 @@ def tokens_of(page: Path) -> list:
         found.append(token)
         found.extend(token.children or ())
     return found
+
+
+def headings_of(page: Path) -> list[str]:
+    """The levels of *page*'s headings in order: ``["h1", "h2", "h3", ...]``."""
+    return [token.tag for token in tokens_of(page) if token.type == "heading_open"]
 
 
 def slugs_of(page: Path) -> set[str]:
@@ -65,7 +72,7 @@ def test_a_page_links_only_to_what_is_there(page):
         href = token.attrGet("href") or ""
         if re.match(r"[a-z][a-z0-9+.-]*:", href):
             continue  # another site's
-        target, _, anchor = href.partition("#")
+        target, _, anchor = unquote(href).partition("#")
         other = (page.parent / target).resolve() if target else page
         assert other.is_file(), f"{page.name}: {href} leads nowhere"
         assert other.relative_to(DOCS).parts[0] == root, f"{page.name}: {href} leaves docs/{root}"
@@ -109,3 +116,38 @@ def test_every_help_topic_a_dialog_or_window_names_is_a_page_and_a_heading():
         page = ENGLISH / name
         assert page.is_file(), f"{where}: no help page {name}"
         assert not anchor or anchor in slugs_of(page), f"{where}: no heading #{anchor} in {name}"
+
+
+@pytest.mark.parametrize("page", TRANSLATED, ids=lambda page: str(page.relative_to(DOCS)))
+def test_a_translated_page_has_the_english_pages_headings_one_for_one(page):
+    """What lets a topic's English anchor find its heading in every language
+    (``pages.aliases``): the same number of headings, at the same levels."""
+    english = ENGLISH / page.relative_to(DOCS).relative_to(page.relative_to(DOCS).parts[0])
+    assert headings_of(page) == headings_of(english), f"{page.relative_to(DOCS)}: headings out of step with English"
+
+
+def test_every_help_topic_finds_its_heading_in_every_language():
+    from navigator.lib.help import pages
+
+    for where, topic in declared_topics():
+        name, _, anchor = topic.partition("#")
+        if not anchor:
+            continue
+        english = list(markdown.render((ENGLISH / name).read_bytes(), 80).anchors)
+        for language in sorted(path for path in DOCS.iterdir() if path.is_dir() and path != ENGLISH):
+            page = language / name
+            if not page.is_file():
+                continue
+            translated = list(markdown.render(page.read_bytes(), 80).anchors)
+            assert anchor in pages.aliases(english, translated), f"{where}: #{anchor} not in docs/{language.name}/{name}"
+
+
+def test_translated_links_point_at_their_own_headings():
+    """``tools/help_anchors.py --check``: no link in a translation still names
+    an English heading where its own stands (run it without ``--check``)."""
+    import subprocess
+    import sys
+
+    done = subprocess.run([sys.executable, "tools/help_anchors.py", "--check"], cwd=DOCS.parent,
+                          capture_output=True, text=True)
+    assert done.returncode == 0, done.stdout + done.stderr

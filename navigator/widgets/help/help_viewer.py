@@ -67,13 +67,24 @@ class Place:
     selected: int = -1
 
 
-def _load(name: str, data: bytes | None, width: int, unicode: bool, language: str) -> tuple[bytes, Any]:
-    """On the thread: *name* read (unless *data* is it already) and laid out."""
+def _load(
+    name: str, data: bytes | None, aliases: dict[str, str] | None, width: int, unicode: bool, language: str,
+) -> tuple[bytes, Any, dict[str, str]]:
+    """On the thread: *name* read (unless *data* is it already) and laid out,
+    with the English anchors that stand for its headings (``pages.aliases``):
+    *aliases* when *data* is given, read again otherwise."""
+    page_language = pages.ENGLISH
     if data is None:
-        data = pages.read(name, language).data
+        page = pages.read(name, language)
+        data, page_language = page.data, page.language
     layout = markdown.render(
         data, width, unicode=unicode, pictures=lambda source: pages.shot(name, source, language))
-    return data, layout
+    if aliases is None:
+        aliases = {}
+        if page_language != pages.ENGLISH:
+            english = markdown.render(pages.read(name, pages.ENGLISH).data, 80).anchors
+            aliases = pages.aliases(list(english), list(layout.anchors))
+    return data, layout, aliases
 
 
 class HelpViewer(Widget):
@@ -112,6 +123,8 @@ class HelpViewer(Widget):
         self._wanted: tuple[str, str, Place | None] | None = None
         #: The Markdown of ``page``, kept for laying out again at a new width.
         self._data: bytes | None = None
+        #: English anchors to ``page``'s, when it is a translation (``pages.aliases``).
+        self._aliases: dict[str, str] = {}
         #: What the thread was last asked for; an answer to anything else is dropped.
         self._asked: tuple[Any, ...] | None = None
         #: Who takes every key instead, while it is set: the window, for as
@@ -129,7 +142,7 @@ class HelpViewer(Widget):
             if name == self._name() and self.layout is not None and self._wanted is None:
                 if not anchor:
                     return
-                if anchor in self.layout.anchors:
+                if self._resolve(anchor) in self.layout.anchors:
                     # On this page already: no read, only the place.
                     self._remember()
                     self._arrive(anchor, None)
@@ -227,6 +240,7 @@ class HelpViewer(Widget):
             return
         self._asked = key
         data = self._data if self._wanted is None else None
+        aliases = self._aliases if data is not None else None
         held = self._place() if self._wanted is None else None
 
         def landed(outcome: Outcome) -> None:
@@ -234,17 +248,18 @@ class HelpViewer(Widget):
                 return  # another page or width was asked for meanwhile
             self._landed(name, outcome, held)
 
-        _READER.run(self, _load, name, data, self.width, unicode, language, done=landed)
+        _READER.run(self, _load, name, data, aliases, self.width, unicode, language, done=landed)
 
     def _landed(self, name: str, outcome: Outcome, held: Place | None) -> None:
         wanted, self._wanted = self._wanted, None
         if isinstance(outcome.error, pages.PageNotFound):
             self.page, self._data, self.layout, self.links = name, None, None, []
+            self._aliases = {}
             self.total, self.top, self.selected = 0, 0, -1
             self.left, self.span = 0, 0
             self.problem = tr("There is no help page {name}").format(name=name)
             return
-        self._data, layout = outcome.result()
+        self._data, layout, self._aliases = outcome.result()
         self.problem = ""
         self.page = name
         self.layout = layout
@@ -270,13 +285,21 @@ class HelpViewer(Widget):
             self.scroll_sideways_to(self.left)
             self.selected = place.selected if place.selected < len(self.links) else -1
             return
-        self.scroll_to(layout.anchors.get(anchor, 0))
+        self.scroll_to(layout.anchors.get(self._resolve(anchor), 0))
         self.left = 0
         # DN's ``Selected := 1``: the first link, here the first from the top row on.
         self.selected = next(
             (index for index, link in enumerate(self.links) if link.row >= self.top),
             0 if self.links else -1,
         )
+
+    def _resolve(self, anchor: str) -> str:
+        """*anchor* as the page shown spells it: itself when the page has it,
+        else the translated heading standing where English's of that name does."""
+        layout = self.layout
+        if layout is None or anchor in layout.anchors:
+            return anchor
+        return self._aliases.get(anchor, anchor)
 
     # -- keys and the mouse ------------------------------------------------------
 

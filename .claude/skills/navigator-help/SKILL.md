@@ -24,6 +24,17 @@ viewer's Markdown reading (`navigator/lib/viewer/markdown.py`, a pure `render(by
 - **Every language has exactly `docs/en/`'s tree**: same subdirectories, same file names. Names are not translated, so
   a link works unchanged in every language. A page not translated yet is absent and Help falls back to English; a
   path under `docs/CODE/` that `docs/en/` lacks fails `tests/test_help_docs.py`.
+- **A translation keeps English's headings one for one**: same number, levels and order
+  (`test_a_translated_page_has_the_english_pages_headings_one_for_one`). Its slugs differ (GitHub's of the
+  translated text), but a topic id always names the **English** slug, and `pages.aliases` maps it to the heading
+  in the same place (`HelpViewer._resolve`, the aliases read with the page on the thread). A page out of step
+  opens at its top, never at a wrong heading. **So adding, removing or moving an English heading means doing the
+  same in all six translations.** No vowel marks (harakat, niqqud) in a heading: Python's `\w` drops them where
+  GitHub keeps them.
+- **Links in a translation are written as English's** (`file-operations.md#copy`) and then
+  `./venv/bin/python tools/help_anchors.py [CODE...]` rewrites each anchor (the Markdown reader percent-encodes it; `pages.follow` decodes) to the target's own heading in that
+  language; `--check` exits 1 when one is left (a test runs it). Captions in a translated page are the
+  catalogues' (`navigator/locales/CODE.toml`, `navml/locales/CODE.toml`), keys stay as the key bar writes them.
 
 ## The Markdown
 
@@ -160,7 +171,9 @@ marks cells `terminal_palette` and takes colours by name.
   quantises RGB to the terminal's depth as it does any other cell.
 - Attributes left to say: bold 1, italic 3, underline 4, strike 9.
 - A wide character is written once and the reader gives its second cell (`""`) back; a mark or the second half of a
-  flag joins the cell before it.
+  flag joins the cell before it. A second half whose first was painted over (a clipped CJK caption) is written as
+  a blank, or the row reads a cell short; a widget setting a wide character cell by cell instead of `draw_text`
+  makes rows the reader refuses (the Colors sample did, in ja and zh).
 
 ## The window
 

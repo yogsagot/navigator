@@ -74,6 +74,8 @@ def test_a_topic_is_a_page_and_an_anchor(docs):
         ("editor/macros.md", "find.md", "editor/find.md"),
         ("editor/macros.md", "#record", "editor/macros.md#record"),
         ("README.md", "./clipboard.md", "clipboard.md"),
+        # A translated heading's slug, as the Markdown reader percent-encodes it.
+        ("README.md", "panels.md#%E6%96%87%E4%BB%B6", "panels.md#文件"),
         # Out of Help: other sites, and anything above the language's directory.
         ("README.md", "https://example.org/x.md", None),
         ("README.md", "mailto:someone@example.org", None),

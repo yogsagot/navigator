@@ -168,7 +168,10 @@ class ColorDisplay(Control):
     def render(self, surface: Surface) -> None:
         if not self.text:
             return
-        line = (self.text * (self.width // len(self.text) + 1))[: self.width]
+        # Repeated past the width and cut by draw_text, which knows a wide
+        # character's two cells: a CJK sample set cell by cell came out
+        # twice as wide as the view.
+        line = self.text * (self.width // len(self.text) + 1)
         for y in range(self.height):
-            for x, char in enumerate(line):
-                surface.set_cell(x, y, char, self.sample)
+            surface.fill(0, y, self.width, 1, " ", self.sample)
+            surface.draw_text(0, y, line, self.sample, max_width=self.width)
